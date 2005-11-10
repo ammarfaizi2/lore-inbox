@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbVKJKo3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbVKJKvt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750768AbVKJKo3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 05:44:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbVKJKo3
+	id S1750774AbVKJKvt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 05:51:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750775AbVKJKvt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 05:44:29 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:24332 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750768AbVKJKo2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 05:44:28 -0500
-Date: Thu, 10 Nov 2005 10:44:19 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Alex Williamson <alex.williamson@hp.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] backup timer for UARTs that lose interrupts
-Message-ID: <20051110104419.GA20693@flint.arm.linux.org.uk>
-Mail-Followup-To: Alex Williamson <alex.williamson@hp.com>,
-	linux-kernel@vger.kernel.org
-References: <1131481677.8541.24.camel@tdi> <20051108232316.GH13357@flint.arm.linux.org.uk> <1131495392.9657.9.camel@tdi>
+	Thu, 10 Nov 2005 05:51:49 -0500
+Received: from baythorne.infradead.org ([81.187.2.161]:34454 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S1750774AbVKJKvt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 05:51:49 -0500
+Subject: Re: latest mtd changes broke collie
+From: David Woodhouse <dwmw2@infradead.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Todd Poynor <tpoynor@mvista.com>, rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20051110103823.GB2401@elf.ucw.cz>
+References: <20051109221712.GA28385@elf.ucw.cz>
+	 <4372B7A8.5060904@mvista.com> <20051110095050.GC2021@elf.ucw.cz>
+	 <1131616948.27347.174.camel@baythorne.infradead.org>
+	 <20051110103823.GB2401@elf.ucw.cz>
+Content-Type: text/plain
+Date: Thu, 10 Nov 2005 10:51:43 +0000
+Message-Id: <1131619903.27347.177.camel@baythorne.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1131495392.9657.9.camel@tdi>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 08, 2005 at 05:16:32PM -0700, Alex Williamson wrote:
->   I was hoping that would be the solution too.  I just tried enabling
-> UART_BUG_TXEN to double check my previous results.  Somehow it makes the
-> problem much, much worse.  Instead of being the nuisance it usually is,
-> it seems like the UART gets way behind on transmitting bits.  So it
-> would probably prevent the unattended reboot stall since we kick it
-> every time we want to transmit, but it renders the UART completely
-> unusable as a console.  I can't even get it caught up enough to login
-> via the serial console w/ UART_BUG_TXEN enabled on the port.  Thanks,
+On Thu, 2005-11-10 at 11:38 +0100, Pavel Machek wrote:
+> That said... I can certainly do few experiments. Switching map_name
+> from "sharp" to "cfi" should be theoretically enough to get new code
+> up?
 
-Ok, would you mind fixing the patch so it isn't screwing up the
-default use of up->timer please?  You may notice that this timer
-is already used, and overwriting up->timer.function is a one-way
-process in your patch (which kills off the point of serial8250_timeout).
+That's if the chips are actually compliant with the Common Flash
+Interface. Otherwise, use the 'jedec_probe' method to identify them,
+which will still end up using the same actual back-end driver.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+dwmw2
+
+

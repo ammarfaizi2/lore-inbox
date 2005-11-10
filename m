@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbVKJMue@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbVKJMwB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750827AbVKJMue (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 07:50:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbVKJMue
+	id S1750828AbVKJMwB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 07:52:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbVKJMwA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 07:50:34 -0500
-Received: from taurus.voltaire.com ([193.47.165.240]:49544 "EHLO
-	taurus.voltaire.com") by vger.kernel.org with ESMTP
-	id S1750827AbVKJMud (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 07:50:33 -0500
-Date: Thu, 10 Nov 2005 14:49:49 +0200
-From: Gleb Natapov <gleb@minantech.com>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: Hugh Dickins <hugh@veritas.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Nick's core remove PageReserved broke vmware...
-Message-ID: <20051110124949.GM8942@minantech.com>
-References: <20051110123538.GL8942@minantech.com> <20051110124853.GD16589@mellanox.co.il>
+	Thu, 10 Nov 2005 07:52:00 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:12496 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750828AbVKJMv7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 07:51:59 -0500
+Date: Thu, 10 Nov 2005 04:51:44 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH 01/15] mm: poison struct page for ptlock
+Message-Id: <20051110045144.40751a42.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0511101233530.6896@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com>
+	<Pine.LNX.4.61.0511100142160.5814@goblin.wat.veritas.com>
+	<20051109181022.71c347d4.akpm@osdl.org>
+	<Pine.LNX.4.61.0511100215150.6138@goblin.wat.veritas.com>
+	<20051109185645.39329151.akpm@osdl.org>
+	<20051110120624.GB32672@elte.hu>
+	<Pine.LNX.4.61.0511101233530.6896@goblin.wat.veritas.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051110124853.GD16589@mellanox.co.il>
-X-OriginalArrivalTime: 10 Nov 2005 12:50:31.0309 (UTC) FILETIME=[55702BD0:01C5E5F5]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 10, 2005 at 02:48:53PM +0200, Michael S. Tsirkin wrote:
-> > Also perhapse we should skip VM_SHARED VMAs?
+Hugh Dickins <hugh@veritas.com> wrote:
+>
+> On Thu, 10 Nov 2005, Ingo Molnar wrote:
+> > 
+> > yuck. What is the real problem btw? AFAICS there's enough space for a 
+> > 2-word spinlock in struct page for pagetables.
 > 
-> Why?
+> Yes.  There is no real problem.  But my patch offends good taste.
 > 
-They will work correctly across fork(). 
 
---
-			Gleb.
+Isn't it going to overrun page.lru with CONFIG_DEBUG_SPINLOCK?

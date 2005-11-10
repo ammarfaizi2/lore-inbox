@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbVKJNKX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbVKJNJ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750835AbVKJNKX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 08:10:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbVKJNKX
+	id S1750831AbVKJNJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 08:09:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbVKJNJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 08:10:23 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:22759 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750835AbVKJNKV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 08:10:21 -0500
-Date: Thu, 10 Nov 2005 14:09:30 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: David Vrabel <dvrabel@cantab.net>
-Cc: David Woodhouse <dwmw2@infradead.org>, linux-mtd@lists.infradead.org,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: latest mtd changes broke collie
-Message-ID: <20051110130930.GJ2401@elf.ucw.cz>
-References: <20051109221712.GA28385@elf.ucw.cz> <4372B7A8.5060904@mvista.com> <20051110095050.GC2021@elf.ucw.cz> <1131616948.27347.174.camel@baythorne.infradead.org> <20051110103823.GB2401@elf.ucw.cz> <1131619903.27347.177.camel@baythorne.infradead.org> <20051110105954.GE2401@elf.ucw.cz> <1131621090.27347.184.camel@baythorne.infradead.org> <20051110120708.GG2401@elf.ucw.cz> <437344E0.9040502@cantab.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <437344E0.9040502@cantab.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Thu, 10 Nov 2005 08:09:57 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:33726 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1750831AbVKJNJ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 08:09:56 -0500
+Date: Thu, 10 Nov 2005 22:09:15 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Subject: Re: [patch] Cleanup bootmem allocator and fix alloc_bootmem_low
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051108184505.GB3733@localhost.localdomain>
+References: <20051108224621.7062.Y-GOTO@jp.fujitsu.com> <20051108184505.GB3733@localhost.localdomain>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.051
+Message-Id: <20051110220306.023C.Y-GOTO@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.21.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi.
 
-> > Ok, I got a little bit more forward.
-> > 
-> > I created entry like this:
-> >         {
-> >                 .mfr_id         = 0x00b0,
-> >                 .dev_id         = 0x00b0,
-> >                 .name           = "Collie hack",
-> >                 .uaddr          = {
-> >                         [0] = MTD_UADDR_UNNECESSARY,    /* x8 */
-> >                 },
-> >                 .DevSize        = SIZE_4MiB,
-> >                 .CmdSet         = P_ID_INTEL_EXT,
-> >                 .NumEraseRegions= 1,
-> >                 .regions        = {
-> >                         ERASEINFO(0x10000,8),
-> >                 }
-> > }
-> > 
-> > (Which is probably wrong, I just made up the data)
+
+> Yes, it was on top of the latest git as of the patch creation.
 > 
-> Shouldn't you get hold of the datasheet for the flash chips and fill in
-> this information correctly?
+> > I tried it on my ia64 Tiger4 with NUMA emulation.
+> > This emulation had worked well so far.
+> > 
+> > But, 2.6.14-git11 doen't boot even if your patch is not used.
+> > (Probably, it is caused by changing efi_map walker.)
+> > 
+> > And I can't use our big true NUMA machine now.
+> > It is used by other person. So, I have to reserve it to use again.
+> > 
+> > If I can test it, I'll notify about it ASAP.
+> 
+> 'Appreciate the feedback.  Do let me know how it goes.
 
-I already have working sharp.c driver... And I do not even know
-manufacturer of the chip, just its ids.
-							Pavel
+My NUMA emulation works well again. And your patch works on it too. :-)
+
+Bye.
 
 -- 
-Thanks, Sharp!
+Yasunori Goto 
+
+

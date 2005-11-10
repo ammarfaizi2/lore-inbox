@@ -1,102 +1,243 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbVKJWnA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbVKJW6k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932214AbVKJWnA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 17:43:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbVKJWnA
+	id S932216AbVKJW6k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 17:58:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbVKJW6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 17:43:00 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:14512 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932214AbVKJWm7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 17:42:59 -0500
-Date: Thu, 10 Nov 2005 23:41:58 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: linux-mtd@lists.infradead.org, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: latest mtd changes broke collie
-Message-ID: <20051110224158.GC9905@elf.ucw.cz>
-References: <20051109221712.GA28385@elf.ucw.cz> <4372B7A8.5060904@mvista.com> <20051110095050.GC2021@elf.ucw.cz> <1131616948.27347.174.camel@baythorne.infradead.org> <20051110103823.GB2401@elf.ucw.cz> <1131619903.27347.177.camel@baythorne.infradead.org> <20051110105954.GE2401@elf.ucw.cz> <1131621090.27347.184.camel@baythorne.infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1131621090.27347.184.camel@baythorne.infradead.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Thu, 10 Nov 2005 17:58:40 -0500
+Received: from kirby.webscope.com ([204.141.84.57]:9959 "EHLO
+	kirby.webscope.com") by vger.kernel.org with ESMTP id S932216AbVKJW6j
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 17:58:39 -0500
+Message-ID: <4373D087.5050908@linuxtv.org>
+Date: Thu, 10 Nov 2005 17:58:15 -0500
+From: Mike Krufky <mkrufky@linuxtv.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Junichi Uekawa <dancer@netfort.gr.jp>
+CC: linux-kernel@vger.kernel.org, video4linux-list@redhat.com,
+       debian-amd64@lists.debian.org
+Subject: Re: [x86_64] 2.6.14-git13 mplayer fails with "v4l2: ioctl queue buffer
+ failed: Bad address" (2 Nov 2005, 11 Nov 2005)
+References: <87fyqeicge.dancerj%dancer@netfort.gr.jp> <87wtjg5gh2.dancerj%dancer@netfort.gr.jp>
+In-Reply-To: <87wtjg5gh2.dancerj%dancer@netfort.gr.jp>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Junichi Uekawa wrote:
 
-> > Well, how do I found out? I tried switching to CFI, and it will not
-> > boot (unable to mount root...). No mtd-related messages as far as I
-> > can see. There's quite a lot of mtd-related config options, I set them
-> > like this:
-> 
-> If the old sharp driver had even a _chance_ of working, then you
-> presumably have four 8-bit flash chips laid out on a 32-bit bus, and
-> those chips are compatible with the Intel command set.
-> 
-> You can CONFIG_MTD_JEDECPROBE, and you want CONFIG_MTD_MAP_BANK_WIDTH=4,
-> CONFIG_MTD_CFI_I4, CONFIG_MTD_CFI_INTELEXT.
-> 
-> Check that your chips are listed in the table in jedec_probe.c and turn
-> on all the debugging in jedec_probe.c 
+>Hi,
+>
+>I've tried running mplayer v4l2 input on a bt878 card, and it fails.
+>xawtv works fine, and 2.6.14-rc5 used to work fine.
+>
+>On git 3b44f137b9a846c5452d9e6e1271b79b1dbcc942 :
+>
+>$ mplayer  tv://1 -tv driver=v4l2
+>MPlayer dev-CVS--4.0.2 (C) 2000-2005 MPlayer Team
+>CPU: Advanced Micro Devices Athlon 64 Newcastle,Winchester,San Diego,Venice; Sempron Palermo (Family: 15, Stepping: 0)
+>Detected cache-line size is 64 bytes
+>CPUflags:  MMX: 1 MMX2: 1 3DNow: 1 3DNow2: 1 SSE: 1 SSE2: 1
+>Compiled for x86 CPU with extensions: MMX MMX2 3DNow 3DNowEx SSE SSE2
+>  
+>
+BTTV currently only supports v4l1.  We are still in the process of 
+porting the bttv driver from v4l1 to v4l2. Nickolay is working on it.
 
-With these hacks, I'm able to mount flash at least read-only. On
-attempt to remount read-write, I get 
+-Michael Krufky
 
-"Write error in obliterating obsoleted node at 0x00bc0000: -30
-...
-Erase at 0x00c00000 failed immediately: -EROFS. Is the sector locked?"
-
-Is it good news?
-								Pavel
-
-diff --git a/arch/arm/mach-sa1100/collie.c b/arch/arm/mach-sa1100/collie.c
---- a/arch/arm/mach-sa1100/collie.c
-+++ b/arch/arm/mach-sa1100/collie.c
-@@ -208,7 +208,7 @@ static void collie_set_vpp(int vpp)
- }
- 
- static struct flash_platform_data collie_flash_data = {
--	.map_name	= "sharp",
-+	.map_name	= "jedec_probe",
- 	.set_vpp	= collie_set_vpp,
- 	.parts		= collie_partitions,
- 	.nr_parts	= ARRAY_SIZE(collie_partitions),
-diff --git a/drivers/mtd/chips/jedec_probe.c b/drivers/mtd/chips/jedec_probe.c
---- a/drivers/mtd/chips/jedec_probe.c
-+++ b/drivers/mtd/chips/jedec_probe.c
-@@ -25,6 +25,8 @@
- #include <linux/mtd/cfi.h>
- #include <linux/mtd/gen_probe.h>
- 
-+#define DEBUG(a, b...) printk(b)
-+
- /* Manufacturers */
- #define MANUFACTURER_AMD	0x0001
- #define MANUFACTURER_ATMEL	0x001f
-@@ -271,6 +273,19 @@ struct amd_flash_info {
-  */
- static const struct amd_flash_info jedec_table[] = {
- 	{
-+		.mfr_id		= 0x00b0,
-+		.dev_id		= 0x00b0,
-+		.name		= "Collie hack",
-+		.uaddr		= {
-+                        [0] = MTD_UADDR_UNNECESSARY,    /* x8 */
-+		},
-+		.DevSize	= SIZE_4MiB,
-+                .CmdSet         = P_ID_INTEL_EXT,
-+                .NumEraseRegions= 1,
-+                .regions        = {
-+                        ERASEINFO(0x10000,64),
-+                }
-+	}, {
- 		.mfr_id		= MANUFACTURER_AMD,
- 		.dev_id		= AM29F032B,
- 		.name		= "AMD AM29F032B",
-
+>Failed to open /dev/rtc: Permission denied (it should be readable by the user.)
+>Opening joystick device /dev/input/js0
+>Can't open joystick device /dev/input/js0 : Permission denied
+>Can't init input joystick
+>Setting up LIRC support...
+>mplayer: could not connect to socket
+>mplayer: No such file or directory
+>Failed to open LIRC support.
+>You will not be able to use your remote control.
+>Playing tv://1.
+>Cache fill:  0.00% (0 bytes)
+>Selected driver: v4l2
+> name: Video 4 Linux 2 input
+> author: Martin Olschewski <olschewski@zpr.uni-koeln.de>
+> comment: first try, more to come ;-)
+>Selected device: BT878 video (IODATA GV-BCTV5/PC
+> Tuner cap:
+> Tuner rxs: MONO
+> Capabilites:  video capture  video overlay  VBI capture device  tuner  read/write  streaming
+> supported norms: 0 = PAL; 1 = NTSC; 2 = SECAM; 3 = PAL-Nc; 4 = PAL-M; 5 = PAL-N; 6 = NTSC-JP; 7 = PAL-60;
+> inputs: 0 = Television; 1 = Composite1; 2 = S-Video;
+> Current input: 0
+> Current format: YUV420
+>v4l2: current audio mode is : MONO
+>v4l2: ioctl queue buffer failed: Bad address
+>v4l2: 0 frames successfully processed, 0 frames dropped.
+>
+>
+>
+>At Thu, 03 Nov 2005 13:26:25 +0900,
+>Junichi Uekawa wrote:
+>  
+>
+>>Hi,
+>>
+>>I've noticed that mencoder no longer works with bttv 
+>>capture on my system; with today's git tree 
+>>(ec1890c5df451799dec969a3581ff72e1934b5ee),
+>>while it used to work on 2.6.14-rc5.
+>>xawtv functions.
+>>I'm looking for people who experienced the same problem,
+>>or possibly for a fix.
+>>
+>>
+>>The devices are:
+>>0000:03:0b.0 Multimedia video controller: Brooktree Corporation Bt878 Video Capture (rev 11)
+>>0000:03:0b.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture (rev 11)
+>>0000:03:0b.0 0400: 109e:036e (rev 11)
+>>0000:03:0b.1 0480: 109e:0878 (rev 11)
+>>
+>>
+>>I'm using mencoder Debian package '1:1.0-pre7cvs20051102-0.0' from marillat's
+>>for x86_64 architecture.
+>>
+>>$ mencoder --version
+>>MEncoder dev-CVS--4.0.2 (C) 2000-2005 MPlayer Team
+>>CPU: Advanced Micro Devices Athlon 64 Newcastle,Winchester,San Diego,Venice; Sempron Palermo (Family: 15, Stepping: 0)
+>>Detected cache-line size is 64 bytes
+>>CPUflags: Type: 15 MMX: 1 MMX2: 1 3DNow: 1 3DNow2: 1 SSE: 1 SSE2: 1
+>>Compiled for x86 CPU with extensions: MMX MMX2 3DNow 3DNowEx SSE SSE2
+>>
+>>--version is not an MEncoder option
+>>
+>>Exiting... (error parsing cmdline)
+>>
+>>
+>>
+>>
+>>
+>>Linux dancer64 2.6.14-rc5dancer-gb563c9b1 #1 Thu Oct 27 12:55:05 JST 2005 x86_64 GNU/Linux
+>>mencoder output on 2.6.14 (today's git)
+>>
+>>channel: 12
+>>minutes: 30
+>>output filename: /home/dancer/XXX/XXX/
+>>MEncoder dev-CVS--4.0.2 (C) 2000-2005 MPlayer Team
+>>CPU: Advanced Micro Devices  (Family: 8, Stepping: 0)
+>>Detected cache-line size is 64 bytes
+>>CPUflags: Type: 8 MMX: 1 MMX2: 1 3DNow: 1 3DNow2: 1 SSE: 1 SSE2: 1
+>>Compiled for x86 CPU with extensions: MMX MMX2 3DNow 3DNowEx SSE SSE2
+>>
+>>File not found: 'frameno.avi'
+>>Failed to open frameno.avi
+>>success: format: 9  data: 0x0 - 0x0
+>>TV detected! ;-)
+>>Selected driver: v4l2
+>> name: Video 4 Linux 2 input
+>> author: Martin Olschewski
+>> comment: first try, more to come ;-)
+>>Selected device: BT878 video (IODATA GV-BCTV5/PC
+>> Tuner cap:
+>> Tuner rxs: MONO
+>> Capabilites:  video capture  video overlay  VBI capture device  tuner  read/write  streaming
+>> supported norms: 0 = PAL; 1 = NTSC; 2 = SECAM; 3 = PAL-Nc; 4 = PAL-M; 5 = PAL-N; 6 = NTSC-JP; 7 = PAL-60;
+>> inputs: 0 = Television; 1 = Composite1; 2 = S-Video;
+>> Current input: 0
+>> Current format: YUYV
+>>v4l2: current audio mode is : STEREO
+>>Selected channel: 12 (freq: 217.250)
+>>v4l2: ioctl queue buffer failed: Bad address
+>>
+>>
+>>
+>>Linux dancer64 2.6.14-rc5dancer-gb563c9b1 #1 Thu Oct 27 12:55:05 JST 2005 x86_64 GNU/Linux
+>>
+>>mencoder output on 2.6.14-rc5:
+>>channel: 12
+>>minutes: 1
+>>output filename: /tmp/aaaa.avi
+>>MEncoder dev-CVS--4.0.2 (C) 2000-2005 MPlayer Team
+>>CPU: Advanced Micro Devices Athlon 64 Newcastle,Winchester,San Diego,Venice; Sempron Palermo (Family: 15, Stepping: 0)
+>>Detected cache-line size is 64 bytes
+>>CPUflags: Type: 15 MMX: 1 MMX2: 1 3DNow: 1 3DNow2: 1 SSE: 1 SSE2: 1
+>>Compiled for x86 CPU with extensions: MMX MMX2 3DNow 3DNowEx SSE SSE2
+>>
+>>success: format: 9  data: 0x0 - 0x0
+>>Selected driver: v4l2
+>> name: Video 4 Linux 2 input
+>> author: Martin Olschewski <olschewski@zpr.uni-koeln.de>
+>> comment: first try, more to come ;-)
+>>Selected device: BT878 video (IODATA GV-BCTV5/PC
+>> Tuner cap:
+>> Tuner rxs: MONO
+>> Capabilites:  video capture  video overlay  VBI capture device  tuner  read/write  streaming
+>> supported norms: 0 = PAL; 1 = NTSC; 2 = SECAM; 3 = PAL-Nc; 4 = PAL-M; 5 = PAL-N; 6 = NTSC-JP; 7 = PAL-60;
+>> inputs: 0 = Television; 1 = Composite1; 2 = S-Video;
+>> Current input: 0
+>> Current format: YUYV
+>>v4l2: current audio mode is : STEREO
+>>Selected channel: 12 (freq: 217.250)
+>>[V] filefmt:9  fourcc:0x30323449  size:320x240  fps:29.97  ftime:=0.0334
+>>==========================================================================
+>>Opening audio decoder: [pcm] Uncompressed PCM audio decoder
+>>AUDIO: 48000 Hz, 2 ch, s16le, 1536.0 kbit/100.00% (ratio: 192000->192000)
+>>Selected audio codec: [pcm] afm: pcm (Uncompressed PCM)
+>>==========================================================================
+>>Opening video filter: [expand osd=1]
+>>Expand: -1 x -1, -1 ; -1, osd: 1, aspect: 0.000000, round: 1
+>>==========================================================================
+>>Opening video decoder: [raw] RAW Uncompressed Video
+>>VDec: vo config request - 320 x 240 (preferred colorspace: Planar I420)
+>>VDec: using Planar I420 as output csp (no 0)
+>>Movie-Aspect is undefined - no prescaling applied.
+>>videocodec: libavcodec (320x240 fourcc=34504d46 [FMP4])
+>>High quality encoding selected (non real time)!
+>>Selected video codec: [rawi420] vfm: raw (RAW I420)
+>>==========================================================================
+>>Building audio filter chain for 48000Hz/2ch/s16le -> 0Hz/0ch/??...
+>>MP3 audio selected
+>>Building audio filter chain for 48000Hz/2ch/s16le -> 48000Hz/2ch/s16le...
+>>Writing AVI header...
+>>ODML: Aspect information not (yet?) available or unspecified, not writing vprp header.
+>>Forcing audio preload to 0, max pts correction to 0
+>>New_Face failed. Maybe the font path is wrong.
+>>Please supply the text font file (~/.mplayer/subfont.ttf).
+>>subtitle font: load_sub_face failed.
+>>ODML: Aspect information not (yet?) available or unspecified, not writing vprp header.
+>>Pos:   4.1s    124f ( 0%)  26fps Trem:   0min   0mb  A-V:0.000 [1082:128]
+>>Flushing video frames
+>>
+>>
+>>CBR audio: 16000 bytes/sec, 384 bytes/block
+>>
+>>Writing AVI index...
+>>Fixing AVI header...
+>>ODML: Aspect information not (yet?) available or unspecified, not writing vprp header.
+>>
+>>Video stream: 1082.222 kbit/s  (135277 B/s)  size: 559707 bytes  4.137 secs  124 frames
+>>
+>>Audio stream:  128.000 kbit/s  (16000 B/s)  size: 66048 bytes  4.128 secs
+>>v4l2: 139 frames successfully processed, 0 frames dropped.
+>>
+>>
+>>
+>>regards,
+>>	junichi
+>>-- 
+>>dancer@{debian.org,netfort.gr.jp}   Debian Project
+>>    
+>>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>
 
 -- 
-Thanks, Sharp!
+Michael Krufky
+
+

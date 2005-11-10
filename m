@@ -1,81 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbVKJBvW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751420AbVKJBww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751396AbVKJBvW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 20:51:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbVKJBvW
+	id S1751420AbVKJBww (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 20:52:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbVKJBww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 20:51:22 -0500
-Received: from gold.veritas.com ([143.127.12.110]:62003 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1751396AbVKJBvV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 20:51:21 -0500
-Date: Thu, 10 Nov 2005 01:50:10 +0000 (GMT)
+	Wed, 9 Nov 2005 20:52:52 -0500
+Received: from silver.veritas.com ([143.127.12.111]:43816 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1751420AbVKJBwv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 20:52:51 -0500
+Date: Thu, 10 Nov 2005 01:51:40 +0000 (GMT)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@goblin.wat.veritas.com
 To: Andrew Morton <akpm@osdl.org>
 cc: Paul Mackerras <paulus@samba.org>,
        Ben Herrenschmidt <benh@kernel.crashing.org>,
        linux-kernel@vger.kernel.org
-Subject: [PATCH 06/15] mm: remove ppc highpte
+Subject: [PATCH 07/15] mm: powerpc ptlock comments
 In-Reply-To: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0511100148410.5814@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0511100150150.5814@goblin.wat.veritas.com>
 References: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 10 Nov 2005 01:51:21.0307 (UTC) FILETIME=[3FCCCAB0:01C5E599]
+X-OriginalArrivalTime: 10 Nov 2005 01:52:51.0385 (UTC) FILETIME=[757D9A90:01C5E599]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ppc's HIGHPTE config option was removed in 2.5.28, and nobody seems to
-have wanted it enough to restore it: so remove its traces from pgtable.h
-and pte_alloc_one.  Or supply an alternative patch to config it back?
+Update comments (only) on page_table_lock and mmap_sem in arch/powerpc.
+Removed the comment on page_table_lock from hash_huge_page: since it's
+no longer taking page_table_lock itself, it's irrelevant whether others
+are; but how it is safe (even against huge file truncation?) I can't say.
 
 Signed-off-by: Hugh Dickins <hugh@veritas.com>
 ---
 
- arch/ppc/mm/pgtable.c     |   13 +------------
- include/asm-ppc/pgtable.h |   10 ++++------
- 2 files changed, 5 insertions(+), 18 deletions(-)
+ arch/powerpc/mm/hugetlbpage.c |    4 +---
+ arch/powerpc/mm/mem.c         |    2 +-
+ arch/powerpc/mm/tlb_32.c      |    6 ++++++
+ arch/powerpc/mm/tlb_64.c      |    4 ++--
+ 4 files changed, 10 insertions(+), 6 deletions(-)
 
---- mm05/arch/ppc/mm/pgtable.c	2005-11-07 07:39:08.000000000 +0000
-+++ mm06/arch/ppc/mm/pgtable.c	2005-11-09 14:39:02.000000000 +0000
-@@ -111,18 +111,7 @@ pte_t *pte_alloc_one_kernel(struct mm_st
+--- mm06/arch/powerpc/mm/hugetlbpage.c	2005-11-07 07:39:05.000000000 +0000
++++ mm07/arch/powerpc/mm/hugetlbpage.c	2005-11-09 14:39:16.000000000 +0000
+@@ -754,9 +754,7 @@ repeat:
+ 	}
  
- struct page *pte_alloc_one(struct mm_struct *mm, unsigned long address)
+ 	/*
+-	 * No need to use ldarx/stdcx here because all who
+-	 * might be updating the pte will hold the
+-	 * page_table_lock
++	 * No need to use ldarx/stdcx here
+ 	 */
+ 	*ptep = __pte(new_pte & ~_PAGE_BUSY);
+ 
+--- mm06/arch/powerpc/mm/mem.c	2005-11-07 07:39:05.000000000 +0000
++++ mm07/arch/powerpc/mm/mem.c	2005-11-09 14:39:16.000000000 +0000
+@@ -491,7 +491,7 @@ EXPORT_SYMBOL(flush_icache_user_range);
+  * We use it to preload an HPTE into the hash table corresponding to
+  * the updated linux PTE.
+  * 
+- * This must always be called with the mm->page_table_lock held
++ * This must always be called with the pte lock held.
+  */
+ void update_mmu_cache(struct vm_area_struct *vma, unsigned long address,
+ 		      pte_t pte)
+--- mm06/arch/powerpc/mm/tlb_32.c	2005-11-07 07:39:05.000000000 +0000
++++ mm07/arch/powerpc/mm/tlb_32.c	2005-11-09 14:39:16.000000000 +0000
+@@ -149,6 +149,12 @@ void flush_tlb_mm(struct mm_struct *mm)
+ 		return;
+ 	}
+ 
++	/*
++	 * It is safe to go down the mm's list of vmas when called
++	 * from dup_mmap, holding mmap_sem.  It would also be safe from
++	 * unmap_region or exit_mmap, but not from vmtruncate on SMP -
++	 * but it seems dup_mmap is the only SMP case which gets here.
++	 */
+ 	for (mp = mm->mmap; mp != NULL; mp = mp->vm_next)
+ 		flush_range(mp->vm_mm, mp->vm_start, mp->vm_end);
+ 	FINISH_FLUSH;
+--- mm06/arch/powerpc/mm/tlb_64.c	2005-11-07 07:39:05.000000000 +0000
++++ mm07/arch/powerpc/mm/tlb_64.c	2005-11-09 14:39:16.000000000 +0000
+@@ -95,7 +95,7 @@ static void pte_free_submit(struct pte_f
+ 
+ void pgtable_free_tlb(struct mmu_gather *tlb, pgtable_free_t pgf)
  {
--	struct page *ptepage;
--
--#ifdef CONFIG_HIGHPTE
--	gfp_t flags = GFP_KERNEL | __GFP_HIGHMEM | __GFP_REPEAT;
--#else
--	gfp_t flags = GFP_KERNEL | __GFP_REPEAT;
--#endif
--
--	ptepage = alloc_pages(flags, 0);
--	if (ptepage)
--		clear_highpage(ptepage);
--	return ptepage;
-+	return alloc_pages(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO, 0);
- }
+-	/* This is safe as we are holding page_table_lock */
++	/* This is safe since tlb_gather_mmu has disabled preemption */
+         cpumask_t local_cpumask = cpumask_of_cpu(smp_processor_id());
+ 	struct pte_freelist_batch **batchp = &__get_cpu_var(pte_freelist_cur);
  
- void pte_free_kernel(pte_t *pte)
---- mm05/include/asm-ppc/pgtable.h	2005-11-07 07:39:55.000000000 +0000
-+++ mm06/include/asm-ppc/pgtable.h	2005-11-09 14:39:02.000000000 +0000
-@@ -750,13 +750,11 @@ static inline pmd_t * pmd_offset(pgd_t *
- 	(((address) >> PAGE_SHIFT) & (PTRS_PER_PTE - 1))
- #define pte_offset_kernel(dir, addr)	\
- 	((pte_t *) pmd_page_kernel(*(dir)) + pte_index(addr))
--#define pte_offset_map(dir, addr)		\
--	((pte_t *) kmap_atomic(pmd_page(*(dir)), KM_PTE0) + pte_index(addr))
--#define pte_offset_map_nested(dir, addr)	\
--	((pte_t *) kmap_atomic(pmd_page(*(dir)), KM_PTE1) + pte_index(addr))
+@@ -206,7 +206,7 @@ void __flush_tlb_pending(struct ppc64_tl
  
--#define pte_unmap(pte)		kunmap_atomic(pte, KM_PTE0)
--#define pte_unmap_nested(pte)	kunmap_atomic(pte, KM_PTE1)
-+#define pte_offset_map(dir,addr)	pte_offset_kernel(dir,addr)
-+#define pte_offset_map_nested(dir,addr)	pte_offset_kernel(dir,addr)
-+#define pte_unmap(pte)			do { } while(0)
-+#define pte_unmap_nested(pte)		do { } while(0)
+ void pte_free_finish(void)
+ {
+-	/* This is safe as we are holding page_table_lock */
++	/* This is safe since tlb_gather_mmu has disabled preemption */
+ 	struct pte_freelist_batch **batchp = &__get_cpu_var(pte_freelist_cur);
  
- extern pgd_t swapper_pg_dir[PTRS_PER_PGD];
- 
+ 	if (*batchp == NULL)

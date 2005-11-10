@@ -1,40 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932200AbVKJWOP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbVKJWPp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932200AbVKJWOP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 17:14:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932202AbVKJWOP
+	id S932202AbVKJWPp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 17:15:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbVKJWPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 17:14:15 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:52164 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932200AbVKJWOO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 17:14:14 -0500
-Date: Thu, 10 Nov 2005 17:14:11 -0500
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: saa711x driver doesn't need segment.h
-Message-ID: <20051110221411.GA26539@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
+	Thu, 10 Nov 2005 17:15:45 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:27536 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S932202AbVKJWPo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 17:15:44 -0500
+Date: Thu, 10 Nov 2005 23:16:40 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Zachary Amsden <zach@vmware.com>,
+       Uwe Zeisberger <zeisberg@informatik.uni-freiburg.de>,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: Re: [PATCH] Kbuild fixes
+Message-ID: <20051110221640.GA20070@mars.ravnborg.org>
+References: <20051110213640.GA19831@mars.ravnborg.org> <Pine.LNX.4.64.0511101345170.4627@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.64.0511101345170.4627@g5.osdl.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This breaks compilation on non-x86 architectures,
-and isn't even used.
+On Thu, Nov 10, 2005 at 01:46:35PM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Thu, 10 Nov 2005, Sam Ravnborg wrote:
+> > 
+> > please pull from:
+> >     
+> >     master.kernel.org/pub/scm/linux/kernel/git/sam/kbuild.git
+> 
+> Grr. That's not a valid git URL.
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+Ups..
 
---- linux-2.6.14/drivers/media/video/saa711x.c~	2005-11-10 15:27:05.000000000 -0500
-+++ linux-2.6.14/drivers/media/video/saa711x.c	2005-11-10 15:27:33.000000000 -0500
-@@ -36,7 +36,6 @@
- #include <asm/pgtable.h>
- #include <asm/page.h>
- #include <linux/sched.h>
--#include <asm/segment.h>
- #include <linux/types.h>
- #include <asm/uaccess.h>
- #include <linux/videodev.h>
+git://git.kernel.org/pub/scm/linux/kernel/git/sam/kbuild.git
+
+or
+
+master.kernel.org:/pub/scm/linux/kernel/git/sam/kbuild.git
+
+It must be a disease coming from sitting in front of Windoze boxes all
+day starring in Outlook :-(
+
+	Sam

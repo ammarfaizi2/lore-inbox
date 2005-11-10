@@ -1,82 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbVKJWGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbVKJWHi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932195AbVKJWGk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 17:06:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbVKJWGj
+	id S932074AbVKJWHi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 17:07:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbVKJWHi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 17:06:39 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:32401 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932195AbVKJWGj (ORCPT
+	Thu, 10 Nov 2005 17:07:38 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:3818 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932074AbVKJWHh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 17:06:39 -0500
-Date: Thu, 10 Nov 2005 14:06:21 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Arun Sharma <arun.sharma@google.com>
-Cc: rohit.seth@intel.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Expose SHM_HUGETLB in shmctl(id, IPC_STAT, ...)
-Message-Id: <20051110140621.47729c5b.akpm@osdl.org>
-In-Reply-To: <4373BE8D.2070104@google.com>
-References: <20051109184623.GA21636@sharma-home.net>
-	<20051109222223.538309e4.akpm@osdl.org>
-	<43739302.1080404@google.com>
-	<20051110115941.1cbe1ae7.akpm@osdl.org>
-	<4373BE8D.2070104@google.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 10 Nov 2005 17:07:37 -0500
+Date: Thu, 10 Nov 2005 23:06:39 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: David Vrabel <dvrabel@cantab.net>, linux-mtd@lists.infradead.org,
+       David Woodhouse <dwmw2@infradead.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: latest mtd changes broke collie
+Message-ID: <20051110220639.GB9905@elf.ucw.cz>
+References: <1131616948.27347.174.camel@baythorne.infradead.org> <20051110103823.GB2401@elf.ucw.cz> <1131619903.27347.177.camel@baythorne.infradead.org> <20051110105954.GE2401@elf.ucw.cz> <1131621090.27347.184.camel@baythorne.infradead.org> <20051110120708.GG2401@elf.ucw.cz> <437344E0.9040502@cantab.net> <20051110130930.GJ2401@elf.ucw.cz> <1131644476.24595.18.camel@localhost.localdomain> <1131646197.23410.27.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1131646197.23410.27.camel@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arun Sharma <arun.sharma@google.com> wrote:
->
-> Andrew Morton wrote:
-> 
-> >>The man page on my system says:
-> >>
-> >>               unsigned short mode;  /* Permissions + SHM_DEST and
-> >>                                         SHM_LOCKED flags */
-> >>
-> >>I looked for a precendent before sending the patch and thought that 
-> >>SHM_LOCKED was a good one.
-> >>
+Hi!
+
+> > > > Shouldn't you get hold of the datasheet for the flash chips and fill in
+> > > > this information correctly?
+> > > 
+> > > I already have working sharp.c driver... And I do not even know
+> > > manufacturer of the chip, just its ids.
 > > 
-> > 
-> > hm, OK.   But an app could still do
-> > 
-> > 	if (mode == 0666|SHM_LOCKED)
-> > 
+> > The chip number is LF28F640BX which is a 64MBit device so perhaps Intel
+> > StrataFlash 28F640? That seems to be a fairly common chip...
 > 
-> I'd argue that the app should really be doing (perm.mode & 0777 = 0666)
-
-I find your faith in your fellow programmers to be trluy inspirational ;)
-
-> > 
-> > How important is this feature?
+> Some further research suggests it should perhaps be LH28F640BX which is
+> a 48 pin Sharp flash chip (much more likely). The nearest datasheet I
+> can find is:
 > 
-> Without this feature, an application has no way to figure out if a given 
-> segment is hugetlb or not. Applications need to know this to be able to 
-> handle alignment issues properly.
-> 
-> Also, if the flag is exported via ipcs, the system administrator would 
-> have a better idea about how the hugetlb pages she configured on the 
-> system are getting used.
-> 
+> http://www.datasheetarchive.com/semiconductors/download.php?Datasheet=1120647
 
-I'd suggest that any API which allows us to query the hugeness of a piece
-of memory should also work for mmap(hugetld_fd...).  IOW: this capability
-shouldn't be restricted to sysv shm areas.
+That's strange; first the datasheet is pretty much useless; it does
+not even give you product ID ("refer to documentation"). Then it
+claims this device supports CFI. I guess it is easier to get the
+values from sharp.c than from this datasheet :-(.
 
-I can't think of any syscall which can be sanely overloaded for this.
-
-The most general way of exposing this info would be to export it in
-/proc/pid/maps in some back-compatible manner.
-
-And once I've lost the "oh oh we'd need to write 100 lines of userspace
-code for that" bunfight I'd say add a new syscall sys_query_pagesize(void
-*addr) which returns the size of the page which backs `addr'.
-
-But then again, if it was possible to write 100 lines of userspace code, we
-wouldn't need this capability at all.  I bet if the userspace guys tried a
-bit harder they'd work out a way of teaching their applications to remember
-what they did.
+[It seems like the chip has many "options", and it is up to user how
+it uses the chip.]
+							Pavel
+-- 
+Thanks, Sharp!

@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbVKJN4q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750888AbVKJOAv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750890AbVKJN4q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 08:56:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750888AbVKJN4q
+	id S1750888AbVKJOAv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 09:00:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbVKJOAv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 08:56:46 -0500
-Received: from silver.veritas.com ([143.127.12.111]:34967 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1750725AbVKJN4q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 08:56:46 -0500
-Date: Thu, 10 Nov 2005 13:55:30 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-cc: Gleb Natapov <gleb@minantech.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Nick's core remove PageReserved broke vmware...
-In-Reply-To: <20051110133704.GG16589@mellanox.co.il>
-Message-ID: <Pine.LNX.4.61.0511101349200.7699@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0511101251060.7127@goblin.wat.veritas.com>
- <20051110133704.GG16589@mellanox.co.il>
+	Thu, 10 Nov 2005 09:00:51 -0500
+Received: from zproxy.gmail.com ([64.233.162.197]:49597 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750888AbVKJOAu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 09:00:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=rVM6lS4ugmm132/QLvhvqfZhZwNSz1Rsoh9DzEN6xUlVxYIJ1keBhLouqOp2uqHVCv8FR7AImYxFea/rxoChG7shELoe8EBubAeq0ohAkqasuUiGQZdWnXC1smU0Ow14/IgQAtKKcikYiVF1nePKm77yFqn9w9Giut5LESJ36S8=
+Date: Thu, 10 Nov 2005 23:00:42 +0900
+From: Tejun Heo <htejun@gmail.com>
+To: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: [PATCH] cfq-iosched: fix slice_left calculation
+Message-ID: <20051110140042.GA25774@htj.dyndns.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 10 Nov 2005 13:56:45.0760 (UTC) FILETIME=[96654400:01C5E5FE]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Nov 2005, Michael S. Tsirkin wrote:
-> Quoting Hugh Dickins <hugh@veritas.com>:
-> > 
-> > You're right, and it would be a good choice, except that MAP_INHERIT on
-> > some OSes has a particular meaning (about inheriting across an exec),
-> > so I think avoid confusion with that.  MADV_DONTFORK and MADV_DOFORK?
-> > Accompanied by VM_DONTFORK?
-> 
-> Its actually similiar.
+When cfq slice expires, remainder of slice is calculated and stored in
+cfqq->slice_left.  Current code calculates the opposite of remainder -
+how many jiffies the cfqq has used past slice end.  This patch fixes
+the bug.
 
-Indeed, similar, but different.
+Signed-off-by: Tejun Heo <htejun@gmail.com>
 
-> Maybe MADV_FORK_INHERIT/MADV_FORK_DONT_INHERIT then?
-
-Those names are a lot longer than the others in that file.
-I still prefer MADV_DONTFORK etc. myself.  Or the original MADV_DONTCOPY,
-though I think you were quite right to point out it's all about forking.
-
-> I find using "COPY" there confusing, since the copy is only done on write ...
-
-There are lots of levels on which there's copying or not.  The name
-VM_DONTCOPY means "don't copy this vma when forking", it's not thinking
-of copying pages or even of copying ptes: just don't copy this vma into
-the child.
-
-Hugh
+diff --git a/block/cfq-iosched.c b/block/cfq-iosched.c
+--- a/block/cfq-iosched.c
++++ b/block/cfq-iosched.c
+@@ -861,8 +861,8 @@ __cfq_slice_expired(struct cfq_data *cfq
+ 	 * store what was left of this slice, if the queue idled out
+ 	 * or was preempted
+ 	 */
+-	if (time_after(now, cfqq->slice_end))
+-		cfqq->slice_left = now - cfqq->slice_end;
++	if (time_after(cfqq->slice_end, now))
++		cfqq->slice_left = cfqq->slice_end - now;
+ 	else
+ 		cfqq->slice_left = 0;
+ 

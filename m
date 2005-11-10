@@ -1,103 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbVKJO63@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751035AbVKJO76@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750993AbVKJO63 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 09:58:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751002AbVKJO63
+	id S1751035AbVKJO76 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 09:59:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751040AbVKJO76
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 09:58:29 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:18949 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1750985AbVKJO62 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 09:58:28 -0500
-Message-ID: <43736011.7060902@vmware.com>
-Date: Thu, 10 Nov 2005 06:58:25 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: prasanna@in.ibm.com
-Cc: Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>,
-       virtualization@lists.osdl.org, Andrew Morton <akpm@osdl.org>,
-       Chris Wright <chrisw@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Martin Bligh <mbligh@mbligh.org>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, ananth@in.ibm.com,
-       anil.s.keshavamurthy@intel.com, davem@davemloft.net
-Subject: Re: [PATCH 19/21] i386 Kprobes semaphore fix
-References: <200511080439.jA84diI6009951@zach-dev.vmware.com> <200511081412.05285.ak@suse.de> <4370A9F5.4060103@vmware.com> <200511091438.11848.ak@suse.de> <437227FD.6040905@vmware.com> <20051109165804.GA15481@elte.hu> <43723768.2060103@vmware.com> <20051110180954.GD8514@in.ibm.com>
-In-Reply-To: <20051110180954.GD8514@in.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Nov 2005 14:58:27.0323 (UTC) FILETIME=[34B2F4B0:01C5E607]
+	Thu, 10 Nov 2005 09:59:58 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:2215 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751029AbVKJO75 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 09:59:57 -0500
+Date: Thu, 10 Nov 2005 16:00:10 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: [PATCH 01/15] mm: poison struct page for ptlock
+Message-ID: <20051110150010.GA30859@elte.hu>
+References: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com> <Pine.LNX.4.61.0511100142160.5814@goblin.wat.veritas.com> <20051109181022.71c347d4.akpm@osdl.org> <Pine.LNX.4.61.0511100215150.6138@goblin.wat.veritas.com> <20051109185645.39329151.akpm@osdl.org> <20051110120624.GB32672@elte.hu> <Pine.LNX.4.61.0511101233530.6896@goblin.wat.veritas.com> <20051110045144.40751a42.akpm@osdl.org> <Pine.LNX.4.61.0511101323540.7464@goblin.wat.veritas.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0511101323540.7464@goblin.wat.veritas.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Prasanna S Panchamukhi wrote:
 
->On Wed, Nov 09, 2005 at 09:52:40AM -0800, Zachary Amsden wrote:
->  
->
->>Ingo Molnar wrote:
->>
->>    
->>
->>>* Zachary Amsden <zach@vmware.com> wrote:
->>>
->>>
->>>
->>>      
->>>
->>>>>I believe user space kprobes are being worked on by some IBM India folks 
->>>>>yes.
->>>>>    
->>>>>
->>>>>          
->>>>>
->>>>I'm convinced this is pointless.  What does it buy you over a ptrace 
->>>>based debugger?  Why would you want extra code running in the kernel 
->>>>that can be done perfectly well in userspace?
->>>>  
->>>>
->>>>        
->>>>
->>>kprobes are not just for 'debuggers', they are also used for tracing and 
->>>other dynamic instrumentation in projects like systemtap. Ptrace is way 
->>>too slow and limited for things like that.
->>>
->>>
->>>      
->>>
->>Well, if there is a justification for it, that means we really should 
->>handle all the nasty EIP conversion cases due to segmentation and v8086 
->>mode in the kprobes code.  I was hoping that might not be the case.
->>
->>    
->>
->
->As Ingo mentioned above, Systemtap uses kprobes infrastructure to provide
->dynamic kernel instrumentation. Using which user can add lots of probes 
->easily, so we need to take care of this fast path.  
->
->Instead of calling convert_eip_to_linear() for all cases, you can
->just check if it is in kernel mode and calculate the address directly
->
->	if (kernel mode)
->                addr = regs->eip - sizeof(kprobe_opcode_t);
->        else
->                addr = convert_eip_to_linear(..);
->
->there by avoiding call to convert_eip_to_linear () for every kernel probes.
->
->As Andi mentioned user space probes support is in progress and 
->this address conversion will help in case of user space probes as well.
->
+* Hugh Dickins <hugh@veritas.com> wrote:
 
-I like this better.  I have to rework that patch anyways, since it no 
-longer applies cleanly.
+> On Thu, 10 Nov 2005, Andrew Morton wrote:
+> > Hugh Dickins <hugh@veritas.com> wrote:
+> > > On Thu, 10 Nov 2005, Ingo Molnar wrote:
+> > > > 
+> > > > yuck. What is the real problem btw? AFAICS there's enough space for a 
+> > > > 2-word spinlock in struct page for pagetables.
+> > > 
+> > > Yes.  There is no real problem.  But my patch offends good taste.
+> > 
+> > Isn't it going to overrun page.lru with CONFIG_DEBUG_SPINLOCK?
+> 
+> No.  There is just one case where it would,
+> so in that case split ptlock is disabled by mm/Kconfig's
+> # PA-RISC 7xxx's debug spinlock_t is too large for 32-bit struct page.
+> 
+> 	default "4096" if PARISC && DEBUG_SPINLOCK && !PA20
+> 
+> Of course, someone may extend spinlock debugging info tomorrow; but 
+> when they do, presumably they'll try it out, and hit the BUILD_BUG_ON. 
+> They'll then probably want to extend the suppression in mm/Kconfig.
 
-Zach
+why not do the union thing so that struct page grows automatically as 
+new fields are added? It is quite bad design to introduce a hard limit 
+like that. The only sizing concern is to make sure that the common 
+.configs dont increase the size of struct page, but otherwise why not 
+allow a larger struct page - it's for debugging only.
 
+	Ingo

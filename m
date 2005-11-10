@@ -1,49 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751697AbVKJDbo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751735AbVKJDj6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751697AbVKJDbo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 22:31:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751692AbVKJDbo
+	id S1751735AbVKJDj6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 22:39:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751522AbVKJDj6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 22:31:44 -0500
-Received: from xproxy.gmail.com ([66.249.82.204]:47309 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751164AbVKJDbo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 22:31:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VEdFt0kJEAO+D4y2eZQQoEAaFcLy5S5Mf0Uwfd8recoy2GKrYdjLISSSC4fBYcupxZTg35KEsgdTAtdQWs2Nypop8BWZMYzTMheBwKaWibX93kLnJcbLnZS8sRFKDJhOKrwsJQqhdPWI3PhuE7qlSM2KF4LegjJB8EMauW4YKfg=
-Message-ID: <1e62d1370511091931h7128a4bblf58773c456ee1517@mail.gmail.com>
-Date: Thu, 10 Nov 2005 08:31:41 +0500
-From: Fawad Lateef <fawadlateef@gmail.com>
-To: John Smith <multisyncfe991@hotmail.com>
-Subject: Re: Does Printk() block another CPU in dual cpu platforms?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <BAY108-DAV96479E4CE0434E15A5ABE93670@phx.gbl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <BAY108-DAV14071EF16A4482FB4B691593D10@phx.gbl>
-	 <20050714051653.GP8907@alpha.home.local>
-	 <BAY108-DAV7F3CC1BA8D84C5323469193D10@phx.gbl>
-	 <1121358399.4685.9.camel@localhost>
-	 <BAY108-DAV96479E4CE0434E15A5ABE93670@phx.gbl>
+	Wed, 9 Nov 2005 22:39:58 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:48520 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751519AbVKJDj5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 22:39:57 -0500
+Subject: Re: typedefs and structs
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Vadim Lobanov <vlobanov@speakeasy.net>
+Cc: Andreas Schwab <schwab@suse.de>,
+       "linux-os \\\\(Dick Johnson\\\\)" <linux-os@analogic.com>,
+       linas <linas@austin.ibm.com>, "J.A. Magallon" <jamagallon@able.es>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       Douglas McNaught <doug@mcnaught.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0511091537370.23877@shell4.speakeasy.net>
+References: <20051107204136.GG19593@austin.ibm.com>
+	 <1131412273.14381.142.camel@localhost.localdomain>
+	 <20051108232327.GA19593@austin.ibm.com>
+	 <B68D1F72-F433-4E94-B755-98808482809D@mac.com>
+	 <20051109003048.GK19593@austin.ibm.com>
+	 <m27jbihd1b.fsf@Douglas-McNaughts-Powerbook.local>
+	 <20051109004808.GM19593@austin.ibm.com>
+	 <19255C96-8B64-4615-A3A7-9E5A850DE398@mac.com>
+	 <20051109111640.757f399a@werewolf.auna.net>
+	 <Pine.LNX.4.58.0511090816300.4260@shell2.speakeasy.net>
+	 <20051109192028.GP19593@austin.ibm.com>
+	 <Pine.LNX.4.61.0511091459440.12760@chaos.analogic.com>
+	 <Pine.LNX.4.58.0511091347570.31338@shell3.speakeasy.net>
+	 <je3bm5qu2b.fsf@sykes.suse.de>
+	 <Pine.LNX.4.58.0511091537370.23877@shell4.speakeasy.net>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Wed, 09 Nov 2005 22:39:41 -0500
+Message-Id: <1131593981.14381.204.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/9/05, John Smith <multisyncfe991@hotmail.com> wrote:
->
-> I just have a question about the usage of printk in multi-processor
-> platforms. If the program on two CPUs both try to call printk to output
-> something, will the program running on one CPUs get blocked (or just
-> spinning there) till the other is done with printk()?
->
+On Wed, 2005-11-09 at 15:40 -0800, Vadim Lobanov wrote:
+> On Thu, 10 Nov 2005, Andreas Schwab wrote:
+> 
+> > Vadim Lobanov <vlobanov@speakeasy.net> writes:
+> >
+> > > However, if the code is as follows:
+> > > 	void foo (void) {
+> > > 		int myvar = 0;
+> > > 		printf("%d\n", myvar);
+> > > 		bar(&myvar);
+> > > 		printf("%d\n", myvar);
+> > > 	}
+> > > If bar is declared in _another_ file as
+> > > 	void bar (const int * var);
+> > > then I think the compiler can validly cache the value of 'myvar' for the
+> > > second printf without re-reading it. Correct/incorrect?
+> >
+> > Incorrect. bar() may cast away const.  In C const does not mean readonly.
+> 
+> In that case, I stand corrected.
+> 
+> Is there any real reason to apply const to pointer targets, aside from
+> giving yourself a warning in the case you try to write the pointer
+> target directly? Seems to be a missed opportunity for optimizations
+> where the coder designates that it's okay to do so.
 
-I think yes, but for a very less time as printk holds the spin_lock to
-logbuf_lock which will make to wait the printk on other CPU, and then
-printk just copies the content to log_buffer and then call
-release_console_sem which actually send the data to console later !
+Actually, where are you going to cache it? In a register? but calling
+bar() may use that register, so it would be stored on the stack anyway.
+I doubt that this is a problem with the compiler, since if bar _is_
+small, then myvar is most likely already in the processor's cache to
+begin with, so it wouldn't need to go back out to memory, unless it was
+modified.
 
---
-Fawad Lateef
+-- Steve
+
+

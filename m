@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbVKJUqN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbVKJUqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932099AbVKJUqN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 15:46:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbVKJUqN
+	id S932098AbVKJUqE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 15:46:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbVKJUqD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 15:46:13 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:35734 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932099AbVKJUqL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 15:46:11 -0500
-Date: Fri, 11 Nov 2005 02:25:26 +0530
-From: Dinakar Guniguntala <dino@in.ibm.com>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: IO-APIC problem with 2.6.14-rt9
-Message-ID: <20051110205526.GC16301@in.ibm.com>
-Reply-To: dino@in.ibm.com
-References: <20051110200226.GA18780@in.ibm.com> <20051110200205.GA4696@elte.hu> <20051110203000.GB16301@in.ibm.com> <1131654575.27168.685.camel@cog.beaverton.ibm.com>
+	Thu, 10 Nov 2005 15:46:03 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:65417 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932098AbVKJUqC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 15:46:02 -0500
+Date: Thu, 10 Nov 2005 15:45:56 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, akpm@osdl.org
+Subject: Don't print per-cpu vm stats for offline cpus.
+Message-ID: <20051110204556.GA22475@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>, akpm@osdl.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1131654575.27168.685.camel@cog.beaverton.ibm.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 10, 2005 at 12:29:34PM -0800, john stultz wrote:
-> 
-> Hrm. Could you post the value for BogoMIPS that you're getting now?
+I just hit a page allocation error on a kernel configured to support
+64 CPUs.  It spewed 60 completely useless unnecessary lines of info.
 
-Here it is
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Xeon(TM) MP CPU 2.50GHz
-stepping        : 5
-cpu MHz         : 2488.063
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid xtpr
-bogomips        : 4975.15
-
-
-I checked that this is the same even on a vanilla 2.6.14 as well
-
-	-Dinakar
-
+--- linux-2.6.14/mm/page_alloc.c~	2005-11-10 15:42:52.000000000 -0500
++++ linux-2.6.14/mm/page_alloc.c	2005-11-10 15:43:16.000000000 -0500
+@@ -1330,7 +1330,7 @@ void show_free_areas(void)
+ 		} else
+ 			printk("\n");
+ 
+-		for_each_cpu(cpu) {
++		for_each_online_cpu(cpu) {
+ 			struct per_cpu_pageset *pageset;
+ 
+ 			pageset = zone_pcp(zone, cpu);

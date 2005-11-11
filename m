@@ -1,77 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751086AbVKKTVs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751087AbVKKTWQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751086AbVKKTVs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 14:21:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751082AbVKKTVr
+	id S1751087AbVKKTWQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 14:22:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbVKKTWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 14:21:47 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:393 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751086AbVKKTVr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 14:21:47 -0500
-Date: Fri, 11 Nov 2005 11:21:31 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Badari Pulavarty <pbadari@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-mm2
-Message-Id: <20051111112131.158218cb.akpm@osdl.org>
-In-Reply-To: <1131736446.25354.56.camel@localhost.localdomain>
-References: <20051110203544.027e992c.akpm@osdl.org>
-	<1131736446.25354.56.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 11 Nov 2005 14:22:16 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:43673 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1751088AbVKKTWO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 14:22:14 -0500
+Message-ID: <4374EF68.8040004@namesys.com>
+Date: Fri, 11 Nov 2005 11:22:16 -0800
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [Fwd: [PATCH 3/3] reiser4-fix-readlink.patch]
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------080308030101070103090802"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty <pbadari@gmail.com> wrote:
->
-> On Thu, 2005-11-10 at 20:35 -0800, Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14/2.6.14-mm2/
-> > 
-> 
-> Doesn't compile on my PPC box. Looking at the problem to fix it.
-> 
-> Thanks,
-> Badari
-> 
-> elm3b157:/usr/src/linux-2.6.14 # make -j8 zImage
->   CHK     include/linux/version.h
->   CHK     include/linux/compile.h
->   CHK     usr/initramfs_list
->   CC      drivers/pci/syscall.o
->   CC      drivers/pci/hotplug/rpaphp_pci.o
->   CC      drivers/pci/hotplug/rpaphp_slot.o
-> drivers/pci/hotplug/rpaphp_pci.c: In function `rpaphp_pci_config_slot':
-> drivers/pci/hotplug/rpaphp_pci.c:256: error: `systemcfg' undeclared
-> (first use in this function)
-> drivers/pci/hotplug/rpaphp_pci.c:256: error: (Each undeclared identifier
-> is reported only once
-> drivers/pci/hotplug/rpaphp_pci.c:256: error: for each function it
-> appears in.)
-> make[3]: *** [drivers/pci/hotplug/rpaphp_pci.o] Error 1
-> make[3]: *** Waiting for unfinished jobs....
-> make[2]: *** [drivers/pci/hotplug] Error 2
-> make[2]: *** Waiting for unfinished jobs....
-> make[1]: *** [drivers/pci] Error 2
-> make: *** [drivers] Error 2
+This is a multi-part message in MIME format.
+--------------080308030101070103090802
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-This?
 
-Signed-off-by: Serge Hallyn <serue@us.ibm.com>
----
 
-Index: linux-2.6.14-mm2/drivers/pci/hotplug/rpaphp_pci.c
-===================================================================
---- linux-2.6.14-mm2.orig/drivers/pci/hotplug/rpaphp_pci.c	2005-11-11 11:42:21.000000000 -0600
-+++ linux-2.6.14-mm2/drivers/pci/hotplug/rpaphp_pci.c	2005-11-11 11:48:40.000000000 -0600
-@@ -253,7 +253,7 @@ rpaphp_pci_config_slot(struct pci_bus *b
- 	if (!dn || !dn->child)
- 		return NULL;
+--------------080308030101070103090802
+Content-Type: message/rfc822;
+ name="[PATCH 3/3] reiser4-fix-readlink.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="[PATCH 3/3] reiser4-fix-readlink.patch"
+
+Return-Path: <vs@namesys.com>
+Delivered-To: reiser@namesys.com
+Received: (qmail 20248 invoked from network); 11 Nov 2005 16:17:54 -0000
+Received: from ppp85-140-14-29.pppoe.mtu-net.ru (HELO ?192.168.1.10?) (85.140.14.29)
+  by thebsh.namesys.com with SMTP; 11 Nov 2005 16:17:54 -0000
+Message-ID: <4374C429.7050202@namesys.com>
+Date: Fri, 11 Nov 2005 19:17:45 +0300
+From: "Vladimir V. Saveliev" <vs@namesys.com>
+Organization: Namesys
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hans Reiser <reiser@namesys.com>
+Subject: [PATCH 3/3] reiser4-fix-readlink.patch
+X-Enigmail-Version: 0.91.0.0
+Content-Type: multipart/mixed;
+ boundary="------------070203000306090103080500"
+
+This is a multi-part message in MIME format.
+--------------070203000306090103080500
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+
+--------------070203000306090103080500
+Content-Type: text/plain;
+ name="reiser4-fix-readlink.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="reiser4-fix-readlink.patch"
+
+
+From: Hans Reiser <reiser@namesys.com>
+
+There is no need to implement reiser4 specific readlink. Use generic function.
+
+Signed-off-by: Vladimir V. Saveliev <vs@namesys.com>
+
+
+ fs/reiser4/plugin/inode_ops.c |   19 -------------------
+ fs/reiser4/plugin/object.c    |    2 +-
+ fs/reiser4/plugin/object.h    |    1 -
+ 3 files changed, 1 insertion(+), 21 deletions(-)
+
+diff -puN fs/reiser4/plugin/inode_ops.c~reiser4-fix-readlink fs/reiser4/plugin/inode_ops.c
+--- linux-2.6.14-rc5-mm1/fs/reiser4/plugin/inode_ops.c~reiser4-fix-readlink	2005-11-11 17:57:23.562310906 +0300
++++ linux-2.6.14-rc5-mm1-vs/fs/reiser4/plugin/inode_ops.c	2005-11-11 17:57:23.638327165 +0300
+@@ -383,25 +383,6 @@ int mknod_common(struct inode *parent, s
+  */
  
--	if (systemcfg->platform == PLATFORM_PSERIES_LPAR) {
-+	if (_machine == PLATFORM_PSERIES_LPAR) {
- 		of_scan_bus(dn, bus);
- 		if (list_empty(&bus->devices)) {
- 			err("%s: No new device found\n", __FUNCTION__);
+ /**
+- * readlink_common - readlink of inode operations
+- * @dentry: dentry of symlink
+- * @buf: user buffer to read symlink content to
+- * @buflen: size of user buffer
+- *
+- * This is common implementation of vfs's readlink method of struct
+- * inode_operations.
+- * Assumes that inode's generic_ip points to the content of symbolic link.
+- */
+-int readlink_common(struct dentry *dentry, char __user *buf, int buflen)
+-{
+-	assert("vs-852", S_ISLNK(dentry->d_inode->i_mode));
+-	if (!dentry->d_inode->u.generic_ip
+-	    || !inode_get_flag(dentry->d_inode, REISER4_GENERIC_PTR_USED))
+-		return RETERR(-EINVAL);
+-	return vfs_readlink(dentry, buf, buflen, dentry->d_inode->u.generic_ip);
+-}
+-
+-/**
+  * follow_link_common - follow_link of inode operations
+  * @dentry: dentry of symlink
+  * @data:
+diff -puN fs/reiser4/plugin/object.c~reiser4-fix-readlink fs/reiser4/plugin/object.c
+--- linux-2.6.14-rc5-mm1/fs/reiser4/plugin/object.c~reiser4-fix-readlink	2005-11-11 17:57:23.578314329 +0300
++++ linux-2.6.14-rc5-mm1-vs/fs/reiser4/plugin/object.c	2005-11-11 17:57:23.638327165 +0300
+@@ -202,7 +202,7 @@ file_plugin file_plugins[LAST_FILE_PLUGI
+ 			.linkage = {NULL,NULL}
+ 		},
+ 		.inode_ops = {
+-			.readlink = readlink_common,
++			.readlink = generic_readlink,
+ 			.follow_link = follow_link_common,
+ 			.permission = permission_common,
+ 			.setattr = setattr_common,
+diff -puN fs/reiser4/plugin/object.h~reiser4-fix-readlink fs/reiser4/plugin/object.h
+--- linux-2.6.14-rc5-mm1/fs/reiser4/plugin/object.h~reiser4-fix-readlink	2005-11-11 17:57:23.582315185 +0300
++++ linux-2.6.14-rc5-mm1-vs/fs/reiser4/plugin/object.h	2005-11-11 17:57:23.650329732 +0300
+@@ -23,7 +23,6 @@ int mknod_common(struct inode *parent, s
+ 		 int mode, dev_t rdev);
+ int rename_common(struct inode *old_dir, struct dentry *old_name,
+ 		  struct inode *new_dir, struct dentry *new_name);
+-int readlink_common(struct dentry *, char __user *buf, int buflen);
+ void *follow_link_common(struct dentry *, struct nameidata *data);
+ int permission_common(struct inode *, int mask,	/* mode bits to check permissions for */
+ 		      struct nameidata *nameidata);
+
+_
+
+--------------070203000306090103080500--
+
+
+
+--------------080308030101070103090802--

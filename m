@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbVKKKqL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbVKKLDb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932233AbVKKKqL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 05:46:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbVKKKqK
+	id S1750823AbVKKLDb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 06:03:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbVKKLDb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 05:46:10 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:24762 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932233AbVKKKqJ (ORCPT
+	Fri, 11 Nov 2005 06:03:31 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:54453 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S1750823AbVKKLDb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 05:46:09 -0500
-Date: Fri, 11 Nov 2005 11:46:16 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Christoph Hellwig <hch@infradead.org>,
-       Christoph Lameter <clameter@engr.sgi.com>,
-       Andrew Morton <akpm@osdl.org>, hugh@veritas.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH 01/15] mm: poison struct page for ptlock
-Message-ID: <20051111104616.GA24238@elte.hu>
-References: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com> <Pine.LNX.4.61.0511100142160.5814@goblin.wat.veritas.com> <20051109181022.71c347d4.akpm@osdl.org> <Pine.LNX.4.61.0511100215150.6138@goblin.wat.veritas.com> <20051109185645.39329151.akpm@osdl.org> <20051110120624.GB32672@elte.hu> <20051110042613.7a585dec.akpm@osdl.org> <Pine.LNX.4.62.0511101335140.16283@schroedinger.engr.sgi.com> <20051110215255.GA25712@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051110215255.GA25712@infradead.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 11 Nov 2005 06:03:31 -0500
+Date: Fri, 11 Nov 2005 12:03:25 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Matt Mackall <mpm@selenic.com>
+cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 11/15] misc: Allow dropping panic text strings from kernel
+ image
+In-Reply-To: <12.282480653@selenic.com>
+Message-ID: <Pine.LNX.4.62.0511111202220.3956@numbat.sonytel.be>
+References: <12.282480653@selenic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 11 Nov 2005, Matt Mackall wrote:
+> Index: 2.6.14-misc/kernel/panic.c
+> ===================================================================
+> --- 2.6.14-misc.orig/kernel/panic.c	2005-11-09 11:27:15.000000000 -0800
+> +++ 2.6.14-misc/kernel/panic.c	2005-11-10 23:26:41.000000000 -0800
+> @@ -94,7 +106,11 @@ NORET_TYPE void panic(const char * fmt, 
+>  	smp_send_stop();
+>  #endif
+>  
+> +#ifdef CONFIG_FULL_PANIC
+>  	notifier_call_chain(&panic_notifier_list, 0, buf);
+> +#else
+> +	notifier_call_chain(&panic_notifier_list, 0, "");
+> +#endif
 
-* Christoph Hellwig <hch@infradead.org> wrote:
+If you `#define buf ""' above, you can kill this #ifdef.
 
-> On Thu, Nov 10, 2005 at 01:37:19PM -0800, Christoph Lameter wrote:
-> > On Thu, 10 Nov 2005, Andrew Morton wrote:
-> > 
-> > > spinlock in struct page, and the size of the spinlock varies a lot according
-> > > to config.  The only >wordsize version we really care about is
-> > > CONFIG_PREEMPT, NR_CPUS >= 4.  (which distros don't ship...)
-> > 
-> > Suse, Debian and Redhat ship such kernels.
-> 
-> No.  SuSE and Redhat have always been smart enough to avoid 
-> CONFIG_PREEMPT like the plague, and even Debian finally noticed this a 
-> few month ago.
+Gr{oetje,eeting}s,
 
-while you are right about CONFIG_PREEMPT, there is some movement in this 
-area: CONFIG_PREEMPT_VOLUNTARY is now turned on in Fedora kernels, and 
-PREEMPT_BKL is turned on for SMP kernels.
+						Geert
 
-	Ingo
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbVKKAcc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbVKKAox@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932123AbVKKAcc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 19:32:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbVKKAcb
+	id S932285AbVKKAox (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 19:44:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932291AbVKKAox
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 19:32:31 -0500
-Received: from spectre.fbab.net ([212.214.165.139]:14748 "HELO mail2.fbab.net")
-	by vger.kernel.org with SMTP id S932123AbVKKAcb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 19:32:31 -0500
-Message-ID: <4373E69B.6040206@fbab.net>
-Date: Fri, 11 Nov 2005 01:32:27 +0100
-From: "Magnus Naeslund(f)" <mag@fbab.net>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: en-us, en
+	Thu, 10 Nov 2005 19:44:53 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:31659 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932285AbVKKAow (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 19:44:52 -0500
+Date: Thu, 10 Nov 2005 16:44:40 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+cc: Adam Litke <agl@us.ibm.com>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: RE: [PATCH] dequeue a huge page near to this node
+In-Reply-To: <200511102334.jAANY1g21612@unix-os.sc.intel.com>
+Message-ID: <Pine.LNX.4.62.0511101643120.17138@schroedinger.engr.sgi.com>
+References: <200511102334.jAANY1g21612@unix-os.sc.intel.com>
 MIME-Version: 1.0
-To: Claudio Scordino <cloud.of.andor@gmail.com>
-CC: "Hua Zhong (hzhong)" <hzhong@cisco.com>, linux-kernel@vger.kernel.org,
-       kernelnewbies@nl.linux.org
-Subject: Re: [PATCH] getrusage sucks
-References: <75D9B5F4E50C8B4BB27622BD06C2B82BCF2FD4@xmb-sjc-235.amer.cisco.com> <200511110123.29664.cloud.of.andor@gmail.com>
-In-Reply-To: <200511110123.29664.cloud.of.andor@gmail.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Claudio Scordino wrote:
-> On Friday 11 November 2005 00:47, Hua Zhong (hzhong) wrote:
->
->>The reason is what if tsk is no longer available when you call
->>getrusage?
->
->
-> Sorry, but honestly I don't see any problem: as you can see from my
-patch, if
-> tsk is no longer available, getrusage returns -1 and sets errno
-appropriately
-> (equal to EINVAL, which means that who is invalid).
->
->             Claudio
->
+On Thu, 10 Nov 2005, Chen, Kenneth W wrote:
 
-You need to wrap this with a read_lock(&tasklist_lock) to be safe, I think.
+> Looks great!
 
-Regards,
-Magnus
+Well in that case, we may do even more:
+
+Make huge pages obey cpusets.
+
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
+
+Index: linux-2.6.14-mm1/mm/hugetlb.c
+===================================================================
+--- linux-2.6.14-mm1.orig/mm/hugetlb.c	2005-11-10 15:02:05.000000000 -0800
++++ linux-2.6.14-mm1/mm/hugetlb.c	2005-11-10 16:29:16.000000000 -0800
+@@ -11,6 +11,7 @@
+ #include <linux/highmem.h>
+ #include <linux/nodemask.h>
+ #include <linux/pagemap.h>
++#include <linux/cpuset.h>
+ #include <asm/page.h>
+ #include <asm/pgtable.h>
+ 
+@@ -41,7 +42,8 @@ static struct page *dequeue_huge_page(vo
+ 
+ 	for (z = zonelist->zones; *z; z++) {
+ 		nid = (*z)->zone_pgdat->node_id;
+-		if (!list_empty(&hugepage_freelists[nid]))
++		if (cpuset_zone_allowed(*z, GFP_HIGHUSER) &&
++		    !list_empty(&hugepage_freelists[nid]))
+ 			break;
+ 	}
+ 

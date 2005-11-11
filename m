@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932320AbVKKKFn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbVKKKHE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932320AbVKKKFn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 05:05:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbVKKKFm
+	id S1751255AbVKKKHE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 05:07:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbVKKKHE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 05:05:42 -0500
-Received: from gateway.argo.co.il ([194.90.79.130]:47117 "EHLO
-	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S932320AbVKKKFm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 05:05:42 -0500
-Message-ID: <43746CF2.5000501@argo.co.il>
-Date: Fri, 11 Nov 2005 12:05:38 +0200
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Wright <chrisw@osdl.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: local denial-of-service with file leases
-References: <43737CBE.2030005@argo.co.il> <20051111084554.GZ7991@shell0.pdx.osdl.net>
-In-Reply-To: <20051111084554.GZ7991@shell0.pdx.osdl.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Nov 2005 10:05:40.0419 (UTC) FILETIME=[786BE130:01C5E6A7]
+	Fri, 11 Nov 2005 05:07:04 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:34792 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751257AbVKKKHD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 05:07:03 -0500
+Date: Fri, 11 Nov 2005 11:06:12 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Jan Beulich <JBeulich@novell.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/39] NLKD - an alternative early ioremap approach
+Message-ID: <20051111100612.GA27805@elf.ucw.cz>
+References: <43720DAE.76F0.0078.0@novell.com> <43720E2E.76F0.0078.0@novell.com> <43720E72.76F0.0078.0@novell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43720E72.76F0.0078.0@novell.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright wrote:
+Hi!
 
->* Avi Kivity (avi@argo.co.il) wrote:
->  
->
->>the following program will oom a the 2.6.14.1 kernel, running as an 
->>ordinary user:
->>    
->>
->
->I don't have a good mechanism for testing leases, but this should fix
->the leak.  Mind testing?
->
->  
->
-the test program of course passes, but now samba hangs when reading a 
-file (mount -t cifs from the same machine). 2.6.14.1 reads the file but 
-leaks memory.
+> An alternative to (on i386) boot-time ioremap approaches, which is more
+> architecture independent (though arch dependent code needs adjustments
+> if this is to be made use of, which with this patch only happens for
+> i386 and x86_64) and doesn't require alternative boot-time interfaces.
+> 
+> Signed-Off-By: Jan Beulich <jbeulich@novell.com>
 
+> (actual patch attached)
+
+Can you inline those patches? I do not care what email system you are
+using, get gmail account if you have to. Or just ask for
+suse.de/suse.cz account.
+
+Ouch and btw the patch is wrong in first hunk, it adds #else/#endif
+without #ifdef. Ouch.
+
+								Pavel
 -- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
-
+Thanks, Sharp!

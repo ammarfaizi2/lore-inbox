@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbVKKBMV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbVKKBNG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932332AbVKKBMV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 20:12:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbVKKBMV
+	id S932337AbVKKBNG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 20:13:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbVKKBNG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 20:12:21 -0500
-Received: from tantale.fifi.org ([64.81.251.130]:20383 "EHLO tantale.fifi.org")
-	by vger.kernel.org with ESMTP id S932332AbVKKBMU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 20:12:20 -0500
-To: Dick <dm@chello.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SIGALRM ignored
-References: <loom.20051107T183059-826@post.gmane.org>
-	<20051107160332.0efdf310.pj@sgi.com>
-	<loom.20051108T124813-159@post.gmane.org>
-	<87hdamk56f.fsf@ceramic.fifi.org>
-	<loom.20051109T101742-953@post.gmane.org>
-	<87r79pboxx.fsf@ceramic.fifi.org>
-	<loom.20051110T210222-252@post.gmane.org>
-Mail-Copies-To: nobody
-From: Philippe Troin <phil@fifi.org>
-Date: 10 Nov 2005 17:12:17 -0800
-In-Reply-To: <loom.20051110T210222-252@post.gmane.org>
-Message-ID: <87k6fgq972.fsf@ceramic.fifi.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Thu, 10 Nov 2005 20:13:06 -0500
+Received: from fed1rmmtao06.cox.net ([68.230.241.33]:57082 "EHLO
+	fed1rmmtao06.cox.net") by vger.kernel.org with ESMTP
+	id S932337AbVKKBNE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 20:13:04 -0500
+Date: Thu, 10 Nov 2005 18:13:03 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH,RFC 2.6.14 11/15] KGDB: ppc64-specific changes
+Message-ID: <20051111011303.GO3839@smtp.west.cox.net>
+References: <20051110163906.20950.45704.sendpatchset@localhost.localdomain> <20051110164409.20950.43161.sendpatchset@localhost.localdomain> <17267.60410.120520.63951@cargo.ozlabs.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17267.60410.120520.63951@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dick <dm@chello.nl> writes:
-
-> Philippe Troin <phil <at> fifi.org> writes:
-> > Look at the display manager.  I know that wdm used to not clean up its
-> > signals before starting a user session.
+On Fri, Nov 11, 2005 at 11:55:22AM +1100, Paul Mackerras wrote:
+> Tom Rini writes:
 > 
-> I've found the error, the signal was blocked in sshd and I was restarting sshd
-> from a ssh session, I also disabled some pam modules (which I suspect the block
-> came from). Restarting sshd from a console did the trick.
+> > This adds basic KGDB support to ppc64, and support for kgdb8250 on the 'Maple'
+> > board.  All of this was done by Frank Rowand (who is on vacation right now,
+> > but I'll try and answer for him).  This should work on any ppc64 board via
+> > kgdboe, so long as there is an eth driver that supports netpoll.  At the
+> > moment this is mutually exclusive with XMON.  It is probably possible to allow
+> > them to be chained, but that sounds dangerous to me.  This is similar to
+> > ppc32, but ppc32 does not explicitly test.
+> 
+> We already have infrastructure to allow either xmon or kdb to be used,
+> and in fact both can be built in and you can select at runtime which
+> you prefer.  See the __debugger stuff in system.h.  You should just be
+> able to hook kgdb into that same infrastructure.  We're also planning
+> to move to using the die_notify stuff for getting all the significant
+> events to the debugger.
 
-Daemons like ssh should clean-up their signal masks on start-up.
-Maybe you should file a bug against ssh?
+The notify_die stuff is wonderful.  If I had a ppc64 board, I'd give
+that a whirl myself.  This does, unless there was something I missed,
+tie into the existing debugger pointer stuff (thats similar but
+different from ppc32).  Assuming it hasn't started already, if I can
+find time I might give it a wack on arch/powerpc, since I assume my
+AlBook works (if not, I see my LongTrail might ;))
 
-> I don't know how to thank you ;-)
-
-Then don't :-)
-
-Phil.
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

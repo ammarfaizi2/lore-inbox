@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbVKKUWT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbVKKUXX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751155AbVKKUWT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 15:22:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbVKKUWT
+	id S1751161AbVKKUXX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 15:23:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbVKKUXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 15:22:19 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:63899 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751155AbVKKUWS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 15:22:18 -0500
-Date: Fri, 11 Nov 2005 12:22:07 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Zachary Amsden <zach@vmware.com>
-cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 1/10] Cr4 is valid on some 486s
-In-Reply-To: <4374FB89.6000304@vmware.com>
-Message-ID: <Pine.LNX.4.64.0511111218110.4627@g5.osdl.org>
-References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com>
- <20051111103605.GC27805@elf.ucw.cz> <4374F2D5.7010106@vmware.com>
- <Pine.LNX.4.64.0511111147390.4627@g5.osdl.org> <4374FB89.6000304@vmware.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 11 Nov 2005 15:23:23 -0500
+Received: from rwcrmhc14.comcast.net ([216.148.227.89]:29614 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1751161AbVKKUXW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 15:23:22 -0500
+Date: Fri, 11 Nov 2005 14:23:17 -0600
+From: Lee <linuxtwidler@gmail.com>
+To: Robert Hancock <hancockr@shaw.ca>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kernel crash debugging
+Message-ID: <20051111142317.4e0421b7@localhost>
+In-Reply-To: <4374FB9A.4020400@shaw.ca>
+References: <56Z7S-85a-29@gated-at.bofh.it>
+	<4374FB9A.4020400@shaw.ca>
+Reply-To: linuxtwidler@gmail.com
+X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 11 Nov 2005, Zachary Amsden wrote:
+> > I am running kernel version '2.6.13-gentoo-r3'
+> > 
+> > My hardware is as follows:
+> >  - motherboard:  Tyan Tiger 230T
+> >  - processors: 2 Pentium II 1.13Ghz
+> >  - memory: 1.5GB 
+> > 
+> > I have been having intermittent lockups for a while now.
+> > 
+> > At first, I thought it had something to do with vmware, but this is no occuring with a non-tainted kernel.
 > 
-> Yes, this is fine, but is it worth writing the feature discovery code?  I
-> suppose it doesn't matter, as it gets jettisoned after init.  I guess it is
-> just preference.
+> First thing I would try with those kind of faults is Memtest86, you 
+> could have some bad RAM or bad memory timing settings..
 
-Well, you could do the feature discovery by trying to take a fault early 
-at boot-time. That's how we verify that write-protect works, and how we 
-check that math exceptions come in the right way..
+I could understand that concept except for one thing:
+  - with 4k stacks turned on, i have the lockups
+  - with 4k stacks turned off, i have not had a single lock up at all.
 
-> Could we consider doing the same with LOCK prefix for SMP kernels booted on
-> UP?  Evil grin.
+Per an earlier email from 'pageexec@freemail.hu', it appears that there is still an execution path in the kernel with is causing a stack overflow.
 
-Not so evil - I think it's been discussed. Not with alternates (not worth 
-it), but it wouldn't be hard to do: just add a new section for "lock 
-address", and have each inline asm that does a lock prefix do basically
 
-	1:
-		lock ; xyzzy
 
-	.section .lock.address
-	.long 1b
-	.previous
 
-and then just walk the ".lock.address" thing and turn all locks into 0x90 
-(nop).
+-- 
+Lee
+linuxtwidler@gmail.com
 
-		Linus
+ 14:18:50 up 4 days, 19:29,  1 user,  load average: 2.80, 2.72, 2.30

@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750952AbVKKRiD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750949AbVKKRp2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750952AbVKKRiD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 12:38:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750955AbVKKRiD
+	id S1750949AbVKKRp2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 12:45:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbVKKRp2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 12:38:03 -0500
-Received: from i121.durables.org ([64.81.244.121]:2023 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1750951AbVKKRiB (ORCPT
+	Fri, 11 Nov 2005 12:45:28 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:16077 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750922AbVKKRp2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 12:38:01 -0500
-Date: Fri, 11 Nov 2005 09:37:37 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 14/15] misc: Configurable number of supported IDE interfaces
-Message-ID: <20051111173737.GY11462@waste.org>
-References: <14.282480653@selenic.com> <15.282480653@selenic.com> <58cb370e0511110214i33792f33y1b44410d3006fd5f@mail.gmail.com> <20051111171842.GW11462@waste.org> <Pine.LNX.4.61.0511111830140.1610@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0511111830140.1610@scrub.home>
-User-Agent: Mutt/1.5.9i
+	Fri, 11 Nov 2005 12:45:28 -0500
+Date: Fri, 11 Nov 2005 09:43:22 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Con Kolivas <kernel@kolivas.org>
+cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, alokk@calsoftinc.com
+Subject: Re: [RFC, PATCH] Slab counter troubles with swap prefetch?
+In-Reply-To: <200511111450.07396.kernel@kolivas.org>
+Message-ID: <Pine.LNX.4.62.0511110941050.20360@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.62.0511101351120.16380@schroedinger.engr.sgi.com>
+ <200511111007.12872.kernel@kolivas.org> <Pine.LNX.4.62.0511101510240.16588@schroedinger.engr.sgi.com>
+ <200511111450.07396.kernel@kolivas.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 11, 2005 at 06:34:27PM +0100, Roman Zippel wrote:
-> Hi,
-> 
-> On Fri, 11 Nov 2005, Matt Mackall wrote:
-> 
-> > It's intentional. The current CONFIG_IDE_MAX_HWIFS is a hidden
-> > variable that sets a per architecture maximum. To the best of my
-> > knowledge, there's no way to do, say:
-> > 
-> >    default 4 if ARCH_FOO
-> >    default 1 if ARCH_BAR
-> > 
-> > ..so I'm stuck with using two config symbols anyway.
-> 
-> Where is the problem? This should work fine.
+On Fri, 11 Nov 2005, Con Kolivas wrote:
 
-Does it? Didn't work when last I checked (which was a while ago).
+> One last thing. Swap prefetch works off the accounting of total memory and is 
+> only a single kernel thread rather than a thread per cpu or per pgdat unlike 
+> kswapd. Currently it just cares about total slab data and total ram. 
+> Depending on where this thread is scheduled (which node) your accounting 
+> change will alter the behaviour of it. Does this affect the relevance of this 
+> patch to you?
 
-> With the latest kernel you can even use a dynamic range:
-> 
-> config IDE_HWIFS
-> 	int "..."
-> 	range 1 IDE_MAX_HWIFS
+Yes, if its a truly global value then we would not need the patch. 
+But then the prefetch code would have to add up all the nr_slab field for 
+all processors and use that result for comparison. If you do this in a 
+node specific fashion then the problem comes up again.
 
-But this suggests a good reason to hold on to both variables.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+

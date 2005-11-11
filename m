@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbVKKR7i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbVKKSAW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750986AbVKKR7i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 12:59:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750987AbVKKR7i
+	id S1750987AbVKKSAW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 13:00:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750990AbVKKSAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 12:59:38 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:42406 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750985AbVKKR7i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 12:59:38 -0500
-Date: Fri, 11 Nov 2005 11:59:04 -0600
-From: Serge Hallyn <serue@us.ibm.com>
-To: Linda Xie <lxie@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, gregkh@suse.de,
-       John Rose <johnrose@austin.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-mm1
-Message-ID: <20051111175904.GA21272@sergelap.austin.ibm.com>
-References: <20051110130626.GA7966@sergelap.austin.ibm.com> <OFE00FE25C.725B5669-ON872570B5.0066EFF0-862570B5.00679646@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OFE00FE25C.725B5669-ON872570B5.0066EFF0-862570B5.00679646@us.ibm.com>
-User-Agent: Mutt/1.5.8i
+	Fri, 11 Nov 2005 13:00:21 -0500
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:4612 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP
+	id S1750987AbVKKSAU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 13:00:20 -0500
+Date: Fri, 11 Nov 2005 18:00:24 +0000 (GMT)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Zachary Amsden <zach@vmware.com>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH 1/10] Cr4 is valid on some 486s
+In-Reply-To: <4374D99C.1080006@zytor.com>
+Message-ID: <Pine.LNX.4.64N.0511111754060.3793@blysk.ds.pg.gda.pl>
+References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com>
+ <20051111103605.GC27805@elf.ucw.cz> <4374D99C.1080006@zytor.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Linda Xie (lxie@us.ibm.com):
-> Hi Andrew,
-> 
-> It seems that the latest mm1 doesn't have  the following patch that John 
-> Rose sent on last Friday.
+On Fri, 11 Nov 2005, H. Peter Anvin wrote:
 
-One more thing seems to be missing.  -mm2 compiles and boots if
-i add:
+> I think the 486's that have CR4 are the same that have CPUID, and thus can be
+> tested for by the presence of the ID flag.
 
-Signed-off-by: Serge Hallyn <serue@us.ibm.com>
----
+ That's correct; for our purposes a 486 that would implement CR4 but not 
+CPUID would not be interesting anyway, as we don't use CR4 elsewhere but 
+for features discovered through CPUID.  And I don't think there's ever 
+been an implementation that had CPUID but no CR4.
 
-Index: linux-2.6.14-mm2/drivers/pci/hotplug/rpaphp_pci.c
-===================================================================
---- linux-2.6.14-mm2.orig/drivers/pci/hotplug/rpaphp_pci.c	2005-11-11 11:42:21.000000000 -0600
-+++ linux-2.6.14-mm2/drivers/pci/hotplug/rpaphp_pci.c	2005-11-11 11:48:40.000000000 -0600
-@@ -253,7 +253,7 @@ rpaphp_pci_config_slot(struct pci_bus *b
- 	if (!dn || !dn->child)
- 		return NULL;
- 
--	if (systemcfg->platform == PLATFORM_PSERIES_LPAR) {
-+	if (_machine == PLATFORM_PSERIES_LPAR) {
- 		of_scan_bus(dn, bus);
- 		if (list_empty(&bus->devices)) {
- 			err("%s: No new device found\n", __FUNCTION__);
+  Maciej

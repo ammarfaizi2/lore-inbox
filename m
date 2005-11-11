@@ -1,196 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750904AbVKKQwx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750916AbVKKQyh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750904AbVKKQwx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 11:52:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750905AbVKKQwx
+	id S1750916AbVKKQyh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 11:54:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750919AbVKKQyh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 11:52:53 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:4316 "EHLO e36.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750909AbVKKQww (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 11:52:52 -0500
+	Fri, 11 Nov 2005 11:54:37 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:15071 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750915AbVKKQyf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 11:54:35 -0500
 From: Tom Zanussi <zanussi@us.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17268.52288.86985.30978@tut.ibm.com>
-Date: Fri, 11 Nov 2005 10:52:16 -0600
+Message-ID: <17268.52392.235786.407720@tut.ibm.com>
+Date: Fri, 11 Nov 2005 10:54:00 -0600
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, karim@opersys.com
-Subject: [PATCH 9/12] relayfs: add support for global relay buffers
+Subject: [PATCH 12/12] relayfs: Documentation cleanup, remove obsolete info
 In-Reply-To: <17268.51814.215178.281986@tut.ibm.com>
 References: <17268.51814.215178.281986@tut.ibm.com>
 X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds the optional is_global outparam to the
-create_buf_file() callback.  This can be used by clients to create a
-single global relayfs buffer instead of the default per-cpu buffers.
-This was suggested as being useful for certain debugging applications
-where it's more convenient to be able to get all the data from a
-single channel without having to go to the bother of dealing with
-per-cpu files.
+librelay and relay-app.h have been retired - update Documentation to
+reflect that.
 
 Signed-off-by: Tom Zanussi <zanussi@us.ibm.com>
 
 ---
 
- fs/relayfs/relay.c         |   35 +++++++++++++++++++++++++----------
- include/linux/relayfs_fs.h |    8 +++++++-
- 2 files changed, 32 insertions(+), 11 deletions(-)
+ relayfs.txt |   55 +++++++++++++++++++++++++++++++++----------------------
+ 1 files changed, 33 insertions(+), 22 deletions(-)
 
-diff --git a/fs/relayfs/relay.c b/fs/relayfs/relay.c
---- a/fs/relayfs/relay.c
-+++ b/fs/relayfs/relay.c
-@@ -86,7 +86,8 @@ static void buf_unmapped_default_callbac
- static struct dentry *create_buf_file_default_callback(const char *filename,
- 						       struct dentry *parent,
- 						       int mode,
--						       struct rchan_buf *buf)
-+						       struct rchan_buf *buf,
-+						       int *is_global)
- {
- 	return relayfs_create_file(filename, parent, mode,
- 				   &relayfs_file_operations, buf);
-@@ -170,14 +171,16 @@ static inline void __relay_reset(struct 
- void relay_reset(struct rchan *chan)
- {
- 	unsigned int i;
-+	struct rchan_buf *prev = NULL;
+diff --git a/Documentation/filesystems/relayfs.txt b/Documentation/filesystems/relayfs.txt
+--- a/Documentation/filesystems/relayfs.txt
++++ b/Documentation/filesystems/relayfs.txt
+@@ -44,30 +44,41 @@ relayfs can operate in a mode where it w
+ collected by userspace, and not wait for it to consume it.
  
- 	if (!chan)
- 		return;
+ relayfs itself does not provide for communication of such data between
+-userspace and kernel, allowing the kernel side to remain simple and not
+-impose a single interface on userspace. It does provide a separate
+-helper though, described below.
++userspace and kernel, allowing the kernel side to remain simple and
++not impose a single interface on userspace. It does provide a set of
++examples and a separate helper though, described below.
++
++klog and relay-apps example code
++================================
++
++relayfs itself is ready to use, but to make things easier, a couple
++simple utility functions and a set of examples are provided.
++
++The relay-apps example tarball, available on the relayfs sourceforge
++site, contains a set of self-contained examples, each consisting of a
++pair of .c files containing boilerplate code for each of the user and
++kernel sides of a relayfs application; combined these two sets of
++boilerplate code provide glue to easily stream data to disk, without
++having to bother with mundane housekeeping chores.
++
++The 'klog debugging functions' patch (klog.patch in the relay-apps
++tarball) provides a couple of high-level logging functions to the
++kernel which allow writing formatted text or raw data to a channel,
++regardless of whether a channel to write into exists or not, or
++whether relayfs is compiled into the kernel or is configured as a
++module.  These functions allow you to put unconditional 'trace'
++statements anywhere in the kernel or kernel modules; only when there
++is a 'klog handler' registered will data actually be logged (see the
++klog and kleak examples for details).
++
++It is of course possible to use relayfs from scratch i.e. without
++using any of the relay-apps example code or klog, but you'll have to
++implement communication between userspace and kernel, allowing both to
++convey the state of buffers (full, empty, amount of padding).
  
- 	for (i = 0; i < NR_CPUS; i++) {
--		if (!chan->buf[i])
--			continue;
-+		if (!chan->buf[i] || chan->buf[i] == prev)
-+			break;
- 		__relay_reset(chan->buf[i], 0);
-+		prev = chan->buf[i];
- 	}
- }
+-klog, relay-app & librelay
+-==========================
+-
+-relayfs itself is ready to use, but to make things easier, two
+-additional systems are provided.  klog is a simple wrapper to make
+-writing formatted text or raw data to a channel simpler, regardless of
+-whether a channel to write into exists or not, or whether relayfs is
+-compiled into the kernel or is configured as a module.  relay-app is
+-the kernel counterpart of userspace librelay.c, combined these two
+-files provide glue to easily stream data to disk, without having to
+-bother with housekeeping.  klog and relay-app can be used together,
+-with klog providing high-level logging functions to the kernel and
+-relay-app taking care of kernel-user control and disk-logging chores.
+-
+-It is possible to use relayfs without relay-app & librelay, but you'll
+-have to implement communication between userspace and kernel, allowing
+-both to convey the state of buffers (full, empty, amount of padding).
++klog and the relay-apps examples can be found in the relay-apps
++tarball on http://relayfs.sourceforge.net
  
-@@ -188,18 +191,22 @@ void relay_reset(struct rchan *chan)
-  */
- static struct rchan_buf *relay_open_buf(struct rchan *chan,
- 					const char *filename,
--					struct dentry *parent)
-+					struct dentry *parent,
-+					int *is_global)
- {
- 	struct rchan_buf *buf;
- 	struct dentry *dentry;
+-klog, relay-app and librelay can be found in the relay-apps tarball on
+-http://relayfs.sourceforge.net
  
-+	if (*is_global)
-+		return chan->buf[0];
-+ 	
-  	buf = relay_create_buf(chan);
-  	if (!buf)
-  		return NULL;
- 
- 	/* Create file in fs */
-  	dentry = chan->cb->create_buf_file(filename, parent, S_IRUSR,
-- 					   buf);
-+ 					   buf, is_global);
-  	if (!dentry) {
-  		relay_destroy_buf(buf);
- 		return NULL;
-@@ -273,6 +280,7 @@ struct rchan *relay_open(const char *bas
- 	unsigned int i;
- 	struct rchan *chan;
- 	char *tmpname;
-+	int is_global = 0;
- 
- 	if (!base_filename)
- 		return NULL;
-@@ -297,7 +305,8 @@ struct rchan *relay_open(const char *bas
- 
- 	for_each_online_cpu(i) {
- 		sprintf(tmpname, "%s%d", base_filename, i);
--		chan->buf[i] = relay_open_buf(chan, tmpname, parent);
-+		chan->buf[i] = relay_open_buf(chan, tmpname, parent,
-+					      &is_global);
- 		chan->buf[i]->cpu = i;
- 		if (!chan->buf[i])
- 			goto free_bufs;
-@@ -311,6 +320,8 @@ free_bufs:
- 		if (!chan->buf[i])
- 			break;
- 		relay_close_buf(chan->buf[i]);
-+		if (is_global)
-+			break;
- 	}
- 	kfree(tmpname);
- 
-@@ -421,14 +432,16 @@ void relay_destroy_channel(struct kref *
- void relay_close(struct rchan *chan)
- {
- 	unsigned int i;
-+	struct rchan_buf *prev = NULL;
- 
- 	if (!chan)
- 		return;
- 
- 	for (i = 0; i < NR_CPUS; i++) {
--		if (!chan->buf[i])
--			continue;
-+		if (!chan->buf[i] || chan->buf[i] == prev)
-+			break;
- 		relay_close_buf(chan->buf[i]);
-+		prev = chan->buf[i];
- 	}
- 
- 	kref_put(&chan->kref, relay_destroy_channel);
-@@ -443,14 +456,16 @@ void relay_close(struct rchan *chan)
- void relay_flush(struct rchan *chan)
- {
- 	unsigned int i;
-+	struct rchan_buf *prev = NULL;
- 
- 	if (!chan)
- 		return;
- 
- 	for (i = 0; i < NR_CPUS; i++) {
--		if (!chan->buf[i])
--			continue;
-+		if (!chan->buf[i] || chan->buf[i] == prev)
-+			break;
- 		relay_switch_subbuf(chan->buf[i], 0);
-+		prev = chan->buf[i];
- 	}
- }
- 
-diff --git a/include/linux/relayfs_fs.h b/include/linux/relayfs_fs.h
---- a/include/linux/relayfs_fs.h
-+++ b/include/linux/relayfs_fs.h
-@@ -115,6 +115,7 @@ struct rchan_callbacks
- 	 * @parent: the parent of the file to create
- 	 * @mode: the mode of the file to create
- 	 * @buf: the channel buffer
-+	 * @is_global: outparam - set non-zero if the buffer should be global
- 	 *
- 	 * Called during relay_open(), once for each per-cpu buffer,
- 	 * to allow the client to create a file to be used to
-@@ -125,12 +126,17 @@ struct rchan_callbacks
- 	 * The callback should return the dentry of the file created
- 	 * to represent the relay buffer.
- 	 *
-+	 * Setting the is_global outparam to a non-zero value will
-+	 * cause relay_open() to create a single global buffer rather
-+	 * than the default set of per-cpu buffers.
-+	 *
- 	 * See Documentation/filesystems/relayfs.txt for more info.
- 	 */
- 	struct dentry *(*create_buf_file)(const char *filename,
- 					  struct dentry *parent,
- 					  int mode,
--					  struct rchan_buf *buf);
-+					  struct rchan_buf *buf,
-+					  int *is_global);
- 
- 	/*
- 	 * remove_buf_file - remove file representing a relayfs channel buffer
+ The relayfs user space API
+ ==========================
 
 

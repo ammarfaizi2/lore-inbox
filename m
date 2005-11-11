@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbVKKV1x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbVKKVbi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751206AbVKKV1x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 16:27:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751209AbVKKV1x
+	id S1751215AbVKKVbi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 16:31:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbVKKVbi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 16:27:53 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:20394 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751206AbVKKV1w (ORCPT
+	Fri, 11 Nov 2005 16:31:38 -0500
+Received: from holomorphy.com ([66.93.40.71]:39375 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S1751215AbVKKVbi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 16:27:52 -0500
-Date: Fri, 11 Nov 2005 13:24:43 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org, paulus@samba.org, anton@samba.org,
-       linuxppc64-dev@ozlabs.org
-Subject: Re: [2.6 patch] add -Werror-implicit-function-declaration to CFLAGS
-Message-Id: <20051111132443.04061d10.akpm@osdl.org>
-In-Reply-To: <20051111201849.GP5376@stusta.de>
-References: <20051107200336.GH3847@stusta.de>
-	<20051110042857.38b4635b.akpm@osdl.org>
-	<20051111021258.GK5376@stusta.de>
-	<20051110182443.514622ed.akpm@osdl.org>
-	<20051111201849.GP5376@stusta.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 11 Nov 2005 16:31:38 -0500
+Date: Fri, 11 Nov 2005 13:23:51 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: Adam Litke <agl@us.ibm.com>, linux-mm@kvack.org, ak@suse.de,
+       linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com
+Subject: Re: [RFC] NUMA memory policy support for HUGE pages
+Message-ID: <20051111212351.GT29402@holomorphy.com>
+References: <Pine.LNX.4.62.0511111051080.20589@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0511111051080.20589@schroedinger.engr.sgi.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> wrote:
->
-> > > > 
-> > > > Sorry, I need to build allmodconfig kernels on wacky architectures (eg
-> > > > ppc64) and this patch is killing me.
-> > > 
-> > > Can you send me the list of compile errors so that I can work on fixing 
-> > > them?
-> > > 
-> > 
-> > No handily, sorry.   Missing virt_to_bus() is the typical problem.
-> >
-> 
-> But in this case -Werror-implicit-function-declaration doesn't create 
-> new compile errors, it only moves compile errors from compile time to 
-> link or depmod time - which is IMHO not a bad change.
+On Fri, Nov 11, 2005 at 10:56:50AM -0800, Christoph Lameter wrote:
+> Well since we got through respecting cpusets and allocating a page nearer 
+> to the processors so easy lets go for the full thing. Here is a draft of 
+> a patch that implements full NUMA policy support for it on top of the 
+> cpusets and the NUMA near allocation patch.
+> I am not sure that this is the right way to do it. Maybe we better put the 
+> whole allocator into the policy layer like alloc_pages_vma?
+> I needed to add two parameters to alloc_huge_page in order to get the 
+> allocation right for all policy cases. This means that find_lock_page 
+> has a plethora of parameters now. Maybe idx and the mapping could be 
+> deduced from addr and vma?
 
-It is a quite inconvenient change if you want to get full coverage with
-`make allmodconfig'.
+I've been awash in good hugetlb patches lately, and here's another one.
+I don't have any strong feelings about this (apart from the code quality
+observation), so could someone who has an interest in mempolicy affairs
+(Andi, Adam, et al) chime in and say this is the way people want to go?
 
-Maybe one can do `make -i' and then weed through the noise - I haven't
-tried.
 
-> If you really want to keep the status quo, you can still steal the 
-> following from sparc64:
->   extern unsigned long virt_to_bus_not_defined_use_pci_map(volatile void *addr);
->   #define virt_to_bus virt_to_bus_not_defined_use_pci_map
->   extern unsigned long bus_to_virt_not_defined_use_pci_map(volatile void *addr);
->   #define bus_to_virt bus_to_virt_not_defined_use_pci_map
-
-Maybe.  There were some other failures.
-
+-- wli

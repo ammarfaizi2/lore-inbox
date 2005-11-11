@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbVKKKhA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbVKKKiP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932282AbVKKKhA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 05:37:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbVKKKhA
+	id S932350AbVKKKiP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 05:38:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbVKKKiP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 05:37:00 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:60314 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932282AbVKKKg7 (ORCPT
+	Fri, 11 Nov 2005 05:38:15 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:29591 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S932350AbVKKKiO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 05:36:59 -0500
-Date: Fri, 11 Nov 2005 11:36:05 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 1/10] Cr4 is valid on some 486s
-Message-ID: <20051111103605.GC27805@elf.ucw.cz>
-References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com>
+	Fri, 11 Nov 2005 05:38:14 -0500
+Date: Fri, 11 Nov 2005 11:38:08 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: npiggin@suse.de, linux-kernel@vger.kernel.org
+Subject: PageReserved removal woes: vbetool, suspend-to-ram breakage
+Message-ID: <20051111103808.GA22057@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	npiggin@suse.de, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200511100032.jAA0WgUq027712@zach-dev.vmware.com>
-X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> So some 486 processors do have CR4 register.  Allow them to present it in
-> register dumps by using the old fault technique rather than testing processor
-> family.
+Just wanted to let you know that the warning introduced in
+[PATCH] core remove PageReserved
+triggers when using vbetool, which is needed on several systems for proper
+suspend-to-mem support:
 
-I thought Andi commented this as "way too risky", for little
-good. Nested exceptions are evil.
-									Pavel
--- 
-Thanks, Sharp!
+[4301282.746000] program vbetool is using MAP_PRIVATE, PROT_WRITE mmap of
+		 VM_RESERVED memory, which is deprecated. Please report
+		 this to linux-kernel@vger.kernel.org
+
+Reports of this haven't generated many results yet, that's why I'm
+addressing this with a subject line which startles more people ;)
+http://lkml.org/lkml/2005/11/6/72
+http://lkml.org/lkml/2005/11/6/76
+http://lkml.org/lkml/2005/11/10/280
+
+	Dominik

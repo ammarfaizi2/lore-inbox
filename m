@@ -1,80 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbVKKNRm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbVKKNRp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750733AbVKKNRm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 08:17:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbVKKNRm
+	id S1750734AbVKKNRp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 08:17:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbVKKNRp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 08:17:42 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:56513 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750733AbVKKNRl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 08:17:41 -0500
-Message-ID: <437499F2.1040708@redhat.com>
-Date: Fri, 11 Nov 2005 08:17:38 -0500
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.4.1 (X11/20050929)
-X-Accept-Language: en-us, en
+	Fri, 11 Nov 2005 08:17:45 -0500
+Received: from mail.collax.com ([213.164.67.137]:51940 "EHLO
+	kaber.coreworks.de") by vger.kernel.org with ESMTP id S1750734AbVKKNRo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 08:17:44 -0500
+Message-ID: <437499C7.7040302@trash.net>
+Date: Fri, 11 Nov 2005 14:16:55 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20051011 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Ulrich Drepper <drepper@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] poll(2) timeout values
-References: <437375DE.1070603@redhat.com>	 <1131642956.20099.39.camel@localhost.localdomain>	 <a36005b50511101049vf20cde5m9385c433e18dcd2d@mail.gmail.com>	 <1131662022.20099.44.camel@localhost.localdomain>	 <a36005b50511101649l744f78c1i76133434be7304e8@mail.gmail.com> <1131714967.3174.9.camel@localhost.localdomain>
-In-Reply-To: <1131714967.3174.9.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Thomas Graf <tgraf@suug.ch>
+CC: Brian Pomerantz <bapper@piratehaven.org>, netdev@vger.kernel.org,
+       davem@davemloft.net, kuznet@ms2.inr.ac.ru, pekkas@netcore.fi,
+       jmorris@namei.org, yoshfuji@linux-ipv6.org, kaber@coreworks.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [IPV4] Fix secondary IP addresses after promotion
+References: <20051104184633.GA16256@skull.piratehaven.org> <436BFE08.6030906@trash.net> <20051105010740.GR23537@postel.suug.ch> <436C090D.5020201@trash.net> <436C34F8.3090903@trash.net> <20051105134636.GS23537@postel.suug.ch> <20051107215022.GH23537@postel.suug.ch> <4370B203.8070501@trash.net> <20051109005658.GL23537@postel.suug.ch>
+In-Reply-To: <20051109005658.GL23537@postel.suug.ch>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-
->On Iau, 2005-11-10 at 16:49 -0800, Ulrich Drepper wrote:
+Thomas Graf wrote:
+> * Patrick McHardy <kaber@trash.net> 2005-11-08 15:11
+>
+>>I have a patch to do this, but it needs some debugging, for some
+>>unknown reason it crashes sometimes if I remove addresses without
+>>specifying the mask.
 >  
->
->>On 11/10/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->>    
->>
->>>No. The poll POSIX libc call takes an int. What the kernel ones does
->>>with the top bits is irrelevant to applications.
->>>      
->>>
->>The issue is that if the high bits are not handled special then
->>somebody might cause problems.  E.g., overflowing the division or so. 
->>Therefore the kernel has to sanitize the argument and then why not use
->>the easiest way to do this?
->>    
->>
->
->Why does the kernel have to sanitize the input. Last time I checked
->undefined inputs gave undefined outputs in the standards. fopen(NULL,
->NULL) seems to crash glibc for example.
->
->The kernel has to behave correctly given valid sensible inputs. Masking
->the top bits is not behaving correctly
->
->	"sleep ages"
->	"no I'll sleep a short time"
->
->Surely it would be far better to do
->
->	if((timeout >> 31) >> 1) 
->		return -EINVAL;
->
->for 64bit systems
->
+> Interesting, do you use an iproute2 version with the wildcard
+> address deletion fix attached below?
 
-Given that the current, sole purpose of sys_poll() is to implement the 
-poll(2)
-system call, and that currently, that system call takes a 32 bit signed 
-integer
-third argument, then it seems safe to me to just ignore the top 32 
-bits.  They
-can be either masked off explicitly or implicitly via the use of a 32 bit
-signed integer.
-
-Is there a problem with making this change other than it is a change?  Is
-there a risk of something breaking?
-
-    Thanx...
-
-       ps
+No, its some old debian version. I'm going to try if it makes a
+difference, but it needs to be fixed to work (or at least not crash)
+with old versions anyway.

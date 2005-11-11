@@ -1,64 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbVKKLwV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbVKKLyN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750724AbVKKLwV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 06:52:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbVKKLwV
+	id S1750736AbVKKLyN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 06:54:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbVKKLyN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 06:52:21 -0500
-Received: from relay4.usu.ru ([194.226.235.39]:1754 "EHLO relay4.usu.ru")
-	by vger.kernel.org with ESMTP id S1750724AbVKKLwU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 06:52:20 -0500
-Message-ID: <43748583.9050105@ums.usu.ru>
-Date: Fri, 11 Nov 2005 16:50:27 +0500
-From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
+	Fri, 11 Nov 2005 06:54:13 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:41381 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1750736AbVKKLyL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 06:54:11 -0500
+Message-ID: <031001c5e6b6$9de0d100$c8a0220a@CARREN>
+From: "Hironobu Ishii" <hishii@soft.fujitsu.com>
+To: "Corey Minyard" <minyard@acm.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6.14-git13] ipmi: inconsistent spin_lock in ipmi_smi_msg_received
+Date: Fri, 11 Nov 2005 20:52:45 +0900
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, Valdis.Kletnieks@vt.edu, sfrench@us.ibm.com,
-       castet.matthieu@free.fr, greg@kroah.com, vojtech@suse.cz,
-       dtor_core@ameritech.net
-Subject: Re: 2.6.14-mm1
-References: <20051106182447.5f571a46.akpm@osdl.org>	<436F7DAA.8070803@ums.usu.ru>	<20051107115210.33e4f0bf.akpm@osdl.org>	<200511072021.jA7KL4kA030734@turing-police.cc.vt.edu> <20051107124647.212a670d.akpm@osdl.org> <4374651A.7000605@ums.usu.ru> <437472DA.4090001@linuxfromscratch.org>
-In-Reply-To: <437472DA.4090001@linuxfromscratch.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.15; AVE: 6.32.0.58; VDF: 6.32.0.170; host: usu2.usu.ru)
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0306_01C5E701.DE2E0A70"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2670
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
+This is a multi-part message in MIME format.
 
-> I wrote:
->
->> Note that unlike with the previous kernels, the huge traffic is not 
->> reported on the ppp0 interface.
->
->
->
-> I was wrong. There are two failure modes, one with huge traffic and 
-> one without. Attached is a sample tcpdump of the failure mode with the 
-> huge traffic. If you know how to capture data going through the serial 
-> port, I will do this also.
+------=_NextPart_000_0306_01C5E701.DE2E0A70
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-2022-jp";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
 
-I was wrong again. There is only one failure mode, with apparent huge 
-traffic, but that traffic doesn't appear immediately after the keyboard 
-bug. One more note: if a key is pressed when the bug manifests itself, 
-it autorepeats in X indefinitely.
+Hi Corey,
 
-An archive that contains both the tcpdump and pppdump of the bug is 
-available at:
+You revert a patch by mistake in the following patch 
+      > Date Fri, 21 Oct 2005 09:49:09 -0500 
+      > From Corey Minyard <> 
+      > Subject [PATCH 1/9] ipmi: use refcount in message handler 
 
-http://ums.usu.ru/~patrakov/bad-dump.tar.bz2
+ (http://lkml.org/lkml/2005/10/21/85)
 
-Taken with commands:
 
-pppd call motiv record ppp0.pppdump nodetach
-tcpdump -i ppp0 -s 0 -w ppp0.tcpdump
+Signed-off-by: Hironobu Ishii <hishii@soft.fujitsu.com>
 
-Then irrelevant tails that consist of repeating packets were cut off by 
-hand.
 
--- 
-Alexander E. Patrakov
+------=_NextPart_000_0306_01C5E701.DE2E0A70
+Content-Type: text/plain;
+	format=flowed;
+	name="ipmi_trivial.txt";
+	reply-type=original
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="ipmi_trivial.txt"
+
+diff -urNp linux-2.6.14-git13/drivers/char/ipmi/ipmi_msghandler.c =
+linux-2.6.14-git13.modified/drivers/char/ipmi/ipmi_msghandler.c=0A=
+--- linux-2.6.14-git13/drivers/char/ipmi/ipmi_msghandler.c	2005-11-11 =
+10:50:37.000000000 +0900=0A=
++++ linux-2.6.14-git13.modified/drivers/char/ipmi/ipmi_msghandler.c	=
+2005-11-11 19:53:21.000000000 +0900=0A=
+@@ -2648,7 +2648,7 @@ void ipmi_smi_msg_received(ipmi_smi_t   =0A=
+ 	spin_lock_irqsave(&intf->waiting_msgs_lock, flags);=0A=
+ 	if (!list_empty(&intf->waiting_msgs)) {=0A=
+ 		list_add_tail(&msg->link, &intf->waiting_msgs);=0A=
+-		spin_unlock(&intf->waiting_msgs_lock);=0A=
++		spin_unlock_irqrestore(&intf->waiting_msgs_lock, flags);=0A=
+ 		goto out;=0A=
+ 	}=0A=
+ 	spin_unlock_irqrestore(&intf->waiting_msgs_lock, flags);=0A=
+@@ -2657,9 +2657,9 @@ void ipmi_smi_msg_received(ipmi_smi_t   =0A=
+ 	if (rv > 0) {=0A=
+ 		/* Could not handle the message now, just add it to a=0A=
+                    list to handle later. */=0A=
+-		spin_lock(&intf->waiting_msgs_lock);=0A=
++		spin_lock_irqsave(&intf->waiting_msgs_lock, flags);=0A=
+ 		list_add_tail(&msg->link, &intf->waiting_msgs);=0A=
+-		spin_unlock(&intf->waiting_msgs_lock);=0A=
++		spin_unlock_irqrestore(&intf->waiting_msgs_lock, flags);=0A=
+ 	} else if (rv =3D=3D 0) {=0A=
+ 		ipmi_free_smi_msg(msg);=0A=
+ 	}=0A=
+
+------=_NextPart_000_0306_01C5E701.DE2E0A70--
+

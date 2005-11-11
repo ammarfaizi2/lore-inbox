@@ -1,88 +1,453 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932276AbVKKIgk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbVKKIhd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932276AbVKKIgk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 03:36:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbVKKIgN
+	id S932238AbVKKIhd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 03:37:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbVKKIhP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 03:36:13 -0500
-Received: from i121.durables.org ([64.81.244.121]:8142 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S932237AbVKKIgF (ORCPT
+	Fri, 11 Nov 2005 03:37:15 -0500
+Received: from verein.lst.de ([213.95.11.210]:36327 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S932274AbVKKIgm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 03:36:05 -0500
-Date: Fri, 11 Nov 2005 02:35:52 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-X-PatchBomber: http://selenic.com/scripts/mailpatches
-In-Reply-To: <7.282480653@selenic.com>
-Message-Id: <8.282480653@selenic.com>
-Subject: [PATCH 7/15] misc: Make x86 doublefault handling optional
+	Fri, 11 Nov 2005 03:36:42 -0500
+Date: Fri, 11 Nov 2005 09:36:29 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: adaplas@pol.net
+Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH 2/2] sanitize ->fb_mmap prototype
+Message-ID: <20051111083629.GB26175@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This adds configurable support for doublefault reporting on x86
+Again, no need for a file argument.  If we'd really need it it's in
+vma->vm_file already.  gbefb and sgivwfb used to set vma->vm_file to
+the file argument, but the kernel alrady did that.
 
-add/remove: 0/3 grow/shrink: 0/1 up/down: 0/-13048 (-13048)
-function                                     old     new   delta
-cpu_init                                     846     786     -60
-doublefault_fn                               188       -    -188
-doublefault_stack                           4096       -   -4096
-doublefault_tss                             8704       -   -8704
 
-Signed-off-by: Matt Mackall <mpm@selenic.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-Index: 2.6.14-misc/arch/i386/kernel/Makefile
+Index: linux-2.6/drivers/video/68328fb.c
 ===================================================================
---- 2.6.14-misc.orig/arch/i386/kernel/Makefile	2005-10-27 17:02:08.000000000 -0700
-+++ 2.6.14-misc/arch/i386/kernel/Makefile	2005-11-09 11:19:46.000000000 -0800
-@@ -7,7 +7,7 @@ extra-y := head.o init_task.o vmlinux.ld
- obj-y	:= process.o semaphore.o signal.o entry.o traps.o irq.o vm86.o \
- 		ptrace.o time.o ioport.o ldt.o setup.o i8259.o sys_i386.o \
- 		pci-dma.o i386_ksyms.o i387.o dmi_scan.o bootflag.o \
--		doublefault.o quirks.o i8237.o
-+		quirks.o i8237.o
+--- linux-2.6.orig/drivers/video/68328fb.c	2005-11-10 01:20:48.000000000 +0100
++++ linux-2.6/drivers/video/68328fb.c	2005-11-10 01:30:27.000000000 +0100
+@@ -102,8 +102,7 @@
+ 			 u_int transp, struct fb_info *info);
+ static int mc68x328fb_pan_display(struct fb_var_screeninfo *var,
+ 			   struct fb_info *info);
+-static int mc68x328fb_mmap(struct fb_info *info, struct file *file,
+-		    struct vm_area_struct *vma);
++static int mc68x328fb_mmap(struct fb_info *info, struct vm_area_struct *vma);
  
- obj-y				+= cpu/
- obj-y				+= timers/
-@@ -33,6 +33,7 @@ obj-y				+= sysenter.o vsyscall.o
- obj-$(CONFIG_ACPI_SRAT) 	+= srat.o
- obj-$(CONFIG_HPET_TIMER) 	+= time_hpet.o
- obj-$(CONFIG_EFI) 		+= efi.o efi_stub.o
-+obj-$(CONFIG_DOUBLEFAULT) 	+= doublefault.o
- obj-$(CONFIG_EARLY_PRINTK)	+= early_printk.o
+ static struct fb_ops mc68x328fb_ops = {
+ 	.fb_check_var	= mc68x328fb_check_var,
+@@ -398,8 +397,7 @@
+      *  Most drivers don't need their own mmap function 
+      */
  
- EXTRA_AFLAGS   := -traditional
-Index: 2.6.14-misc/arch/i386/kernel/cpu/common.c
+-static int mc68x328fb_mmap(struct fb_info *info, struct file *file,
+-		    struct vm_area_struct *vma)
++static int mc68x328fb_mmap(struct fb_info *info, struct vm_area_struct *vma)
+ {
+ #ifndef MMU
+ 	/* this is uClinux (no MMU) specific code */
+Index: linux-2.6/drivers/video/acornfb.c
 ===================================================================
---- 2.6.14-misc.orig/arch/i386/kernel/cpu/common.c	2005-11-01 10:54:31.000000000 -0800
-+++ 2.6.14-misc/arch/i386/kernel/cpu/common.c	2005-11-09 11:19:46.000000000 -0800
-@@ -628,8 +628,10 @@ void __devinit cpu_init(void)
- 	load_TR_desc();
- 	load_LDT(&init_mm.context);
- 
-+#ifdef CONFIG_DOUBLEFAULT
- 	/* Set up doublefault TSS pointer in the GDT */
- 	__set_tss_desc(cpu, GDT_ENTRY_DOUBLEFAULT_TSS, &doublefault_tss);
-+#endif
- 
- 	/* Clear %fs and %gs. */
- 	asm volatile ("xorl %eax, %eax; movl %eax, %fs; movl %eax, %gs");
-Index: 2.6.14-misc/init/Kconfig
+--- linux-2.6.orig/drivers/video/acornfb.c	2005-11-10 01:20:48.000000000 +0100
++++ linux-2.6/drivers/video/acornfb.c	2005-11-10 01:30:27.000000000 +0100
+@@ -883,7 +883,7 @@
+  * Note that we are entered with the kernel locked.
+  */
+ static int
+-acornfb_mmap(struct fb_info *info, struct file *file, struct vm_area_struct *vma)
++acornfb_mmap(struct fb_info *info, struct vm_area_struct *vma)
+ {
+ 	unsigned long off, start;
+ 	u32 len;
+Index: linux-2.6/drivers/video/amba-clcd.c
 ===================================================================
---- 2.6.14-misc.orig/init/Kconfig	2005-11-01 10:54:33.000000000 -0800
-+++ 2.6.14-misc/init/Kconfig	2005-11-09 11:19:46.000000000 -0800
-@@ -315,6 +315,15 @@ config BUG
-           option for embedded systems with no facilities for reporting errors.
-           Just say Y.
+--- linux-2.6.orig/drivers/video/amba-clcd.c	2005-11-10 01:26:31.000000000 +0100
++++ linux-2.6/drivers/video/amba-clcd.c	2005-11-10 01:30:27.000000000 +0100
+@@ -308,7 +308,7 @@
+ 	return 0;
+ }
  
-+config DOUBLEFAULT
-+	depends X86
-+	default y if X86
-+	bool "Enable doublefault exception handler" if EMBEDDED
-+	help
-+          This option allows trapping of rare doublefault exceptions that
-+          would otherwise cause a system to silently reboot. Disabling this
-+          option saves about 4k.
-+
- config BASE_FULL
- 	default y
- 	bool "Enable full-sized data structures for core" if EMBEDDED
+-static int clcdfb_mmap(struct fb_info *info, struct file *file,
++static int clcdfb_mmap(struct fb_info *info,
+ 		       struct vm_area_struct *vma)
+ {
+ 	struct clcd_fb *fb = to_clcd(info);
+Index: linux-2.6/drivers/video/aty/atyfb_base.c
+===================================================================
+--- linux-2.6.orig/drivers/video/aty/atyfb_base.c	2005-11-10 01:28:56.000000000 +0100
++++ linux-2.6/drivers/video/aty/atyfb_base.c	2005-11-10 01:30:27.000000000 +0100
+@@ -234,7 +234,7 @@
+ extern void atyfb_copyarea(struct fb_info *info, const struct fb_copyarea *area);
+ extern void atyfb_imageblit(struct fb_info *info, const struct fb_image *image);
+ #ifdef __sparc__
+-static int atyfb_mmap(struct fb_info *info, struct file *file, struct vm_area_struct *vma);
++static int atyfb_mmap(struct fb_info *info, struct vm_area_struct *vma);
+ #endif
+ static int atyfb_sync(struct fb_info *info);
+ 
+@@ -1810,7 +1810,7 @@
+ }
+ 
+ #ifdef __sparc__
+-static int atyfb_mmap(struct fb_info *info, struct file *file, struct vm_area_struct *vma)
++static int atyfb_mmap(struct fb_info *info, struct vm_area_struct *vma)
+ {
+ 	struct atyfb_par *par = (struct atyfb_par *) info->par;
+ 	unsigned int size, page, map_size = 0;
+Index: linux-2.6/drivers/video/au1100fb.c
+===================================================================
+--- linux-2.6.orig/drivers/video/au1100fb.c	2005-11-10 01:20:48.000000000 +0100
++++ linux-2.6/drivers/video/au1100fb.c	2005-11-10 01:30:27.000000000 +0100
+@@ -379,7 +379,7 @@
+  * Map video memory in user space. We don't use the generic fb_mmap method mainly
+  * to allow the use of the TLB streaming flag (CCA=6)
+  */
+-int au1100fb_fb_mmap(struct fb_info *fbi, struct file *file, struct vm_area_struct *vma)
++int au1100fb_fb_mmap(struct fb_info *fbi, struct vm_area_struct *vma)
+ {
+ 	struct au1100fb_device *fbdev = to_au1100fb_device(fbi);
+ 	unsigned int len;
+Index: linux-2.6/drivers/video/bw2.c
+===================================================================
+--- linux-2.6.orig/drivers/video/bw2.c	2005-11-10 01:28:56.000000000 +0100
++++ linux-2.6/drivers/video/bw2.c	2005-11-10 01:30:27.000000000 +0100
+@@ -35,7 +35,7 @@
+ 
+ static int bw2_blank(int, struct fb_info *);
+ 
+-static int bw2_mmap(struct fb_info *, struct file *, struct vm_area_struct *);
++static int bw2_mmap(struct fb_info *, struct vm_area_struct *);
+ static int bw2_ioctl(struct fb_info *, unsigned int, unsigned long);
+ 
+ /*
+@@ -166,7 +166,7 @@
+ 	{ .size = 0 }
+ };
+ 
+-static int bw2_mmap(struct fb_info *info, struct file *file, struct vm_area_struct *vma)
++static int bw2_mmap(struct fb_info *info, struct vm_area_struct *vma)
+ {
+ 	struct bw2_par *par = (struct bw2_par *)info->par;
+ 
+Index: linux-2.6/drivers/video/cg14.c
+===================================================================
+--- linux-2.6.orig/drivers/video/cg14.c	2005-11-10 01:28:56.000000000 +0100
++++ linux-2.6/drivers/video/cg14.c	2005-11-10 01:30:27.000000000 +0100
+@@ -31,7 +31,7 @@
+ static int cg14_setcolreg(unsigned, unsigned, unsigned, unsigned,
+ 			 unsigned, struct fb_info *);
+ 
+-static int cg14_mmap(struct fb_info *, struct file *, struct vm_area_struct *);
++static int cg14_mmap(struct fb_info *, struct vm_area_struct *);
+ static int cg14_ioctl(struct fb_info *, unsigned int, unsigned long);
+ static int cg14_pan_display(struct fb_var_screeninfo *, struct fb_info *);
+ 
+@@ -265,7 +265,7 @@
+ 	return 0;
+ }
+ 
+-static int cg14_mmap(struct fb_info *info, struct file *file, struct vm_area_struct *vma)
++static int cg14_mmap(struct fb_info *info, struct vm_area_struct *vma)
+ {
+ 	struct cg14_par *par = (struct cg14_par *) info->par;
+ 
+Index: linux-2.6/drivers/video/cg3.c
+===================================================================
+--- linux-2.6.orig/drivers/video/cg3.c	2005-11-10 01:28:56.000000000 +0100
++++ linux-2.6/drivers/video/cg3.c	2005-11-10 01:30:27.000000000 +0100
+@@ -33,7 +33,7 @@
+ 			 unsigned, struct fb_info *);
+ static int cg3_blank(int, struct fb_info *);
+ 
+-static int cg3_mmap(struct fb_info *, struct file *, struct vm_area_struct *);
++static int cg3_mmap(struct fb_info *, struct vm_area_struct *);
+ static int cg3_ioctl(struct fb_info *, unsigned int, unsigned long);
+ 
+ /*
+@@ -227,7 +227,7 @@
+ 	{ .size = 0 }
+ };
+ 
+-static int cg3_mmap(struct fb_info *info, struct file *file, struct vm_area_struct *vma)
++static int cg3_mmap(struct fb_info *info, struct vm_area_struct *vma)
+ {
+ 	struct cg3_par *par = (struct cg3_par *)info->par;
+ 
+Index: linux-2.6/drivers/video/cg6.c
+===================================================================
+--- linux-2.6.orig/drivers/video/cg6.c	2005-11-10 01:28:56.000000000 +0100
++++ linux-2.6/drivers/video/cg6.c	2005-11-10 01:30:27.000000000 +0100
+@@ -36,7 +36,7 @@
+ static void cg6_imageblit(struct fb_info *, const struct fb_image *);
+ static void cg6_fillrect(struct fb_info *, const struct fb_fillrect *);
+ static int cg6_sync(struct fb_info *);
+-static int cg6_mmap(struct fb_info *, struct file *, struct vm_area_struct *);
++static int cg6_mmap(struct fb_info *, struct vm_area_struct *);
+ static int cg6_ioctl(struct fb_info *, unsigned int, unsigned long);
+ 
+ /*
+@@ -521,7 +521,7 @@
+ 	{ .size	= 0 }
+ };
+ 
+-static int cg6_mmap(struct fb_info *info, struct file *file, struct vm_area_struct *vma)
++static int cg6_mmap(struct fb_info *info, struct vm_area_struct *vma)
+ {
+ 	struct cg6_par *par = (struct cg6_par *)info->par;
+ 
+Index: linux-2.6/drivers/video/controlfb.c
+===================================================================
+--- linux-2.6.orig/drivers/video/controlfb.c	2005-11-10 01:20:48.000000000 +0100
++++ linux-2.6/drivers/video/controlfb.c	2005-11-10 01:30:27.000000000 +0100
+@@ -128,7 +128,7 @@
+ static int controlfb_setcolreg(u_int regno, u_int red, u_int green, u_int blue,
+ 	u_int transp, struct fb_info *info);
+ static int controlfb_blank(int blank_mode, struct fb_info *info);
+-static int controlfb_mmap(struct fb_info *info, struct file *file,
++static int controlfb_mmap(struct fb_info *info,
+ 	struct vm_area_struct *vma);
+ static int controlfb_set_par (struct fb_info *info);
+ static int controlfb_check_var (struct fb_var_screeninfo *var, struct fb_info *info);
+@@ -286,7 +286,7 @@
+  * for controlfb.
+  * Note there's no locking in here; it's done in fb_mmap() in fbmem.c.
+  */
+-static int controlfb_mmap(struct fb_info *info, struct file *file,
++static int controlfb_mmap(struct fb_info *info,
+                        struct vm_area_struct *vma)
+ {
+        unsigned long off, start;
+Index: linux-2.6/drivers/video/ffb.c
+===================================================================
+--- linux-2.6.orig/drivers/video/ffb.c	2005-11-10 01:28:56.000000000 +0100
++++ linux-2.6/drivers/video/ffb.c	2005-11-10 01:30:27.000000000 +0100
+@@ -37,7 +37,7 @@
+ static void ffb_fillrect(struct fb_info *, const struct fb_fillrect *);
+ static void ffb_copyarea(struct fb_info *, const struct fb_copyarea *);
+ static int ffb_sync(struct fb_info *);
+-static int ffb_mmap(struct fb_info *, struct file *, struct vm_area_struct *);
++static int ffb_mmap(struct fb_info *, struct vm_area_struct *);
+ static int ffb_ioctl(struct fb_info *, unsigned int, unsigned long);
+ static int ffb_pan_display(struct fb_var_screeninfo *, struct fb_info *);
+ 
+@@ -836,7 +836,7 @@
+ 	{ .size = 0 }
+ };
+ 
+-static int ffb_mmap(struct fb_info *info, struct file *file, struct vm_area_struct *vma)
++static int ffb_mmap(struct fb_info *info, struct vm_area_struct *vma)
+ {
+ 	struct ffb_par *par = (struct ffb_par *)info->par;
+ 
+Index: linux-2.6/drivers/video/gbefb.c
+===================================================================
+--- linux-2.6.orig/drivers/video/gbefb.c	2005-11-10 01:20:48.000000000 +0100
++++ linux-2.6/drivers/video/gbefb.c	2005-11-10 01:30:27.000000000 +0100
+@@ -979,7 +979,7 @@
+ 	return 0;
+ }
+ 
+-static int gbefb_mmap(struct fb_info *info, struct file *file,
++static int gbefb_mmap(struct fb_info *info,
+ 			struct vm_area_struct *vma)
+ {
+ 	unsigned long size = vma->vm_end - vma->vm_start;
+@@ -1000,7 +1000,6 @@
+ 		pgprot_fb(pgprot_val(vma->vm_page_prot));
+ 
+ 	vma->vm_flags |= VM_IO | VM_RESERVED;
+-	vma->vm_file = file;
+ 
+ 	/* look for the starting tile */
+ 	tile = &gbe_tiles.cpu[offset >> TILE_SHIFT];
+Index: linux-2.6/drivers/video/igafb.c
+===================================================================
+--- linux-2.6.orig/drivers/video/igafb.c	2005-11-10 01:20:48.000000000 +0100
++++ linux-2.6/drivers/video/igafb.c	2005-11-10 01:30:27.000000000 +0100
+@@ -219,7 +219,7 @@
+ }
+ 
+ #ifdef __sparc__
+-static int igafb_mmap(struct fb_info *info, struct file *file,
++static int igafb_mmap(struct fb_info *info,
+ 		      struct vm_area_struct *vma)
+ {
+ 	struct iga_par *par = (struct iga_par *)info->par;
+Index: linux-2.6/drivers/video/leo.c
+===================================================================
+--- linux-2.6.orig/drivers/video/leo.c	2005-11-10 01:28:56.000000000 +0100
++++ linux-2.6/drivers/video/leo.c	2005-11-10 01:30:27.000000000 +0100
+@@ -32,7 +32,7 @@
+ 			 unsigned, struct fb_info *);
+ static int leo_blank(int, struct fb_info *);
+ 
+-static int leo_mmap(struct fb_info *, struct file *, struct vm_area_struct *);
++static int leo_mmap(struct fb_info *, struct vm_area_struct *);
+ static int leo_ioctl(struct fb_info *, unsigned int, unsigned long);
+ static int leo_pan_display(struct fb_var_screeninfo *, struct fb_info *);
+ 
+@@ -360,7 +360,7 @@
+ 	{ .size = 0 }
+ };
+ 
+-static int leo_mmap(struct fb_info *info, struct file *file, struct vm_area_struct *vma)
++static int leo_mmap(struct fb_info *info, struct vm_area_struct *vma)
+ {
+ 	struct leo_par *par = (struct leo_par *)info->par;
+ 
+Index: linux-2.6/drivers/video/p9100.c
+===================================================================
+--- linux-2.6.orig/drivers/video/p9100.c	2005-11-10 01:28:56.000000000 +0100
++++ linux-2.6/drivers/video/p9100.c	2005-11-10 01:30:27.000000000 +0100
+@@ -31,7 +31,7 @@
+ 			   unsigned, struct fb_info *);
+ static int p9100_blank(int, struct fb_info *);
+ 
+-static int p9100_mmap(struct fb_info *, struct file *, struct vm_area_struct *);
++static int p9100_mmap(struct fb_info *, struct vm_area_struct *);
+ static int p9100_ioctl(struct fb_info *, unsigned int, unsigned long);
+ 
+ /*
+@@ -219,7 +219,7 @@
+ 	{ 0,			0,		0		    }
+ };
+ 
+-static int p9100_mmap(struct fb_info *info, struct file *file, struct vm_area_struct *vma)
++static int p9100_mmap(struct fb_info *info, struct vm_area_struct *vma)
+ {
+ 	struct p9100_par *par = (struct p9100_par *)info->par;
+ 
+Index: linux-2.6/drivers/video/pxafb.c
+===================================================================
+--- linux-2.6.orig/drivers/video/pxafb.c	2005-11-10 01:20:48.000000000 +0100
++++ linux-2.6/drivers/video/pxafb.c	2005-11-10 01:30:27.000000000 +0100
+@@ -395,7 +395,7 @@
+ 	return 0;
+ }
+ 
+-static int pxafb_mmap(struct fb_info *info, struct file *file,
++static int pxafb_mmap(struct fb_info *info,
+ 		      struct vm_area_struct *vma)
+ {
+ 	struct pxafb_info *fbi = (struct pxafb_info *)info;
+Index: linux-2.6/drivers/video/sa1100fb.c
+===================================================================
+--- linux-2.6.orig/drivers/video/sa1100fb.c	2005-11-10 01:20:48.000000000 +0100
++++ linux-2.6/drivers/video/sa1100fb.c	2005-11-10 01:30:27.000000000 +0100
+@@ -816,7 +816,7 @@
+ 	return 0;
+ }
+ 
+-static int sa1100fb_mmap(struct fb_info *info, struct file *file,
++static int sa1100fb_mmap(struct fb_info *info,
+ 			 struct vm_area_struct *vma)
+ {
+ 	struct sa1100fb_info *fbi = (struct sa1100fb_info *)info;
+Index: linux-2.6/drivers/video/sgivwfb.c
+===================================================================
+--- linux-2.6.orig/drivers/video/sgivwfb.c	2005-11-10 01:20:48.000000000 +0100
++++ linux-2.6/drivers/video/sgivwfb.c	2005-11-10 01:30:27.000000000 +0100
+@@ -115,7 +115,7 @@
+ static int sgivwfb_setcolreg(u_int regno, u_int red, u_int green,
+ 			     u_int blue, u_int transp,
+ 			     struct fb_info *info);
+-static int sgivwfb_mmap(struct fb_info *info, struct file *file,
++static int sgivwfb_mmap(struct fb_info *info,
+ 			struct vm_area_struct *vma);
+ 
+ static struct fb_ops sgivwfb_ops = {
+@@ -706,7 +706,7 @@
+ 	return 0;
+ }
+ 
+-static int sgivwfb_mmap(struct fb_info *info, struct file *file,
++static int sgivwfb_mmap(struct fb_info *info,
+ 			struct vm_area_struct *vma)
+ {
+ 	unsigned long size = vma->vm_end - vma->vm_start;
+@@ -723,7 +723,6 @@
+ 	if (remap_pfn_range(vma, vma->vm_start, offset >> PAGE_SHIFT,
+ 						size, vma->vm_page_prot))
+ 		return -EAGAIN;
+-	vma->vm_file = file;
+ 	printk(KERN_DEBUG "sgivwfb: mmap framebuffer P(%lx)->V(%lx)\n",
+ 	       offset, vma->vm_start);
+ 	return 0;
+Index: linux-2.6/drivers/video/tcx.c
+===================================================================
+--- linux-2.6.orig/drivers/video/tcx.c	2005-11-10 01:28:56.000000000 +0100
++++ linux-2.6/drivers/video/tcx.c	2005-11-10 01:30:27.000000000 +0100
+@@ -33,7 +33,7 @@
+ 			 unsigned, struct fb_info *);
+ static int tcx_blank(int, struct fb_info *);
+ 
+-static int tcx_mmap(struct fb_info *, struct file *, struct vm_area_struct *);
++static int tcx_mmap(struct fb_info *, struct vm_area_struct *);
+ static int tcx_ioctl(struct fb_info *, unsigned int, unsigned long);
+ static int tcx_pan_display(struct fb_var_screeninfo *, struct fb_info *);
+ 
+@@ -299,7 +299,7 @@
+ 	{ .size = 0 }
+ };
+ 
+-static int tcx_mmap(struct fb_info *info, struct file *file, struct vm_area_struct *vma)
++static int tcx_mmap(struct fb_info *info, struct vm_area_struct *vma)
+ {
+ 	struct tcx_par *par = (struct tcx_par *)info->par;
+ 
+Index: linux-2.6/drivers/video/vfb.c
+===================================================================
+--- linux-2.6.orig/drivers/video/vfb.c	2005-11-10 01:20:48.000000000 +0100
++++ linux-2.6/drivers/video/vfb.c	2005-11-10 01:30:27.000000000 +0100
+@@ -81,7 +81,7 @@
+ 			 u_int transp, struct fb_info *info);
+ static int vfb_pan_display(struct fb_var_screeninfo *var,
+ 			   struct fb_info *info);
+-static int vfb_mmap(struct fb_info *info, struct file *file,
++static int vfb_mmap(struct fb_info *info,
+ 		    struct vm_area_struct *vma);
+ 
+ static struct fb_ops vfb_ops = {
+@@ -368,7 +368,7 @@
+      *  Most drivers don't need their own mmap function 
+      */
+ 
+-static int vfb_mmap(struct fb_info *info, struct file *file,
++static int vfb_mmap(struct fb_info *info,
+ 		    struct vm_area_struct *vma)
+ {
+ 	return -EINVAL;
+Index: linux-2.6/drivers/video/fbmem.c
+===================================================================
+--- linux-2.6.orig/drivers/video/fbmem.c	2005-11-10 01:30:13.000000000 +0100
++++ linux-2.6/drivers/video/fbmem.c	2005-11-10 01:30:27.000000000 +0100
+@@ -1107,7 +1107,7 @@
+ 	if (fb->fb_mmap) {
+ 		int res;
+ 		lock_kernel();
+-		res = fb->fb_mmap(info, file, vma);
++		res = fb->fb_mmap(info, vma);
+ 		unlock_kernel();
+ 		return res;
+ 	}
+Index: linux-2.6/include/linux/fb.h
+===================================================================
+--- linux-2.6.orig/include/linux/fb.h	2005-11-10 01:28:56.000000000 +0100
++++ linux-2.6/include/linux/fb.h	2005-11-10 01:30:27.000000000 +0100
+@@ -616,7 +616,7 @@
+ 			unsigned long arg);
+ 
+ 	/* perform fb specific mmap */
+-	int (*fb_mmap)(struct fb_info *info, struct file *file, struct vm_area_struct *vma);
++	int (*fb_mmap)(struct fb_info *info, struct vm_area_struct *vma);
+ };
+ 
+ #ifdef CONFIG_FB_TILEBLITTING

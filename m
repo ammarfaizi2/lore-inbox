@@ -1,74 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751070AbVKKTK6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbVKKTMG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751070AbVKKTK6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 14:10:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751071AbVKKTK6
+	id S1751066AbVKKTMG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 14:12:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751072AbVKKTMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 14:10:58 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:9691 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751068AbVKKTK5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 14:10:57 -0500
-Subject: Re: truncate_inode_pages_range patch to mainline ?
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: reiser@namesys.com, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051111110535.1a491b87.akpm@osdl.org>
-References: <1131735059.25354.49.camel@localhost.localdomain>
-	 <20051111110535.1a491b87.akpm@osdl.org>
+	Fri, 11 Nov 2005 14:12:05 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:34709 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751066AbVKKTME (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 14:12:04 -0500
+Subject: Re: [PATCH] getrusage sucks
+From: Lee Revell <rlrevell@joe-job.com>
+To: David Wagner <daw-usenet@taverner.CS.Berkeley.EDU>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <dl18ro$l0f$1@taverner.CS.Berkeley.EDU>
+References: <200511102334.10926.cloud.of.andor@gmail.com>
+	 <dl18ro$l0f$1@taverner.CS.Berkeley.EDU>
 Content-Type: text/plain
-Date: Fri, 11 Nov 2005 11:10:43 -0800
-Message-Id: <1131736243.25354.53.camel@localhost.localdomain>
+Date: Fri, 11 Nov 2005 14:09:58 -0500
+Message-Id: <1131736199.5758.27.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-11-11 at 11:05 -0800, Andrew Morton wrote:
-> Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> >
-> > Hi Andrew,
-> > 
-> > I would like to find out, what your plans and/or concerns
-> > to push
-> > 
-> > 	reiser4-truncate_inode_pages_range.patch
-> > 
-> > from your -mm tree to mainline ?
+On Fri, 2005-11-11 at 05:06 +0000, David Wagner wrote:
+> Claudio Scordino  wrote:
+> >Does exist any _real_ reason why getrusage can't be invoked by a task to know 
+> >statistics of another task ?
 > 
-> Well that's part of the reiser4 patch series.  It can be fed forward if we
-> need it, of course.
+> Probably only super-user should be permitted to read the usage information
+> about other processes.  Allowing anyone to read anyone else's rusage would
+> open up a bunch of side channels that sound pretty dangerous.  For instance,
+> user #1 might be able to mount a timing attack against crypto code being
+> executed by user #2, and that doesn't sound good.
 
-Please do - if you don't have concerns with it.
+Why restrict it to root?  Why not just prevent users from reading other
+users rusage.  How could it be a security hole for joeuser's process be
+able to read the rusage of joeuser's other processes?
 
-> 
-> > I need this for my madvise(REMOVE) work.
-> 
-> That's OK.
-> 
-> > And also, I see that 
-> > madvise(REMOVE) is not in -mm2 also. Do you still
-> > have concerns with it ?
-> 
-> I haven't looked much at the latest version yet, sorry.  The
-> two-weeks-after-release window isn't a good time to be looking at new
-> features, so there's quite a lot of material saved up for the
-> six-week-interregnum.
-
-There is no changes in the last version, except 1 page changelog
-to include the discussions & future plans.
-
-I am okay, as long as I am in the queue for next release. I was
-hoping to get more testing in your -mm tree, in the meanwhile.
-
-> 
-> But yes, your patch still sucks ;)
-
-I know :) 
-
-Any suggestion on making it less sucky ? I really need this :(
-
-Thanks,
-Badari
+Lee
 

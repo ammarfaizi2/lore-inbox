@@ -1,39 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750980AbVKKSDj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750994AbVKKS25@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750980AbVKKSDj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 13:03:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750989AbVKKSDj
+	id S1750994AbVKKS25 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 13:28:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750995AbVKKS25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 13:03:39 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:1238 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750980AbVKKSDj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 13:03:39 -0500
-Date: Fri, 11 Nov 2005 10:03:33 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Hugh Dickins <hugh@veritas.com>
-cc: Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 10/15] mm: atomic64 page counts
-In-Reply-To: <Pine.LNX.4.61.0511111502560.16832@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.62.0511111002520.20360@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com>
- <Pine.LNX.4.61.0511100156320.5814@goblin.wat.veritas.com>
- <20051109181641.4b627eee.akpm@osdl.org> <Pine.LNX.4.61.0511100224030.6215@goblin.wat.veritas.com>
- <20051109190135.45e59298.akpm@osdl.org> <Pine.LNX.4.62.0511101342340.16283@schroedinger.engr.sgi.com>
- <20051110135336.24d04b86.akpm@osdl.org> <Pine.LNX.4.61.0511111502560.16832@goblin.wat.veritas.com>
+	Fri, 11 Nov 2005 13:28:57 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:37031 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750993AbVKKS24
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 13:28:56 -0500
+Message-ID: <4374E2D9.3020304@us.ibm.com>
+Date: Fri, 11 Nov 2005 10:28:41 -0800
+From: Matthew Dobson <colpatch@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ingo Oeser <ioe-lkml@rameria.de>
+CC: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org,
+       manfred@colorfullife.com, Pekka J Enberg <penberg@cs.helsinki.fi>
+Subject: Re: [PATCH 6/9] Cleanup kmem_cache_create()
+References: <4373DD82.8010606@us.ibm.com> <4373E011.9070508@us.ibm.com> <200511110910.38350.ioe-lkml@rameria.de>
+In-Reply-To: <200511110910.38350.ioe-lkml@rameria.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Nov 2005, Hugh Dickins wrote:
+Ingo Oeser wrote:
+> On Friday 11 November 2005 01:04, Matthew Dobson wrote:
+> 
+>>- if (size < 4096 || fls(size - 1) == fls(size - 1 + 3 * BYTES_PER_WORD))
+>>+ if (size < RED_ZONE_LIMIT ||
+>>+	fls(size - 1) == fls(size - 1 + 3 * BYTES_PER_WORD))
+>>             flags |= SLAB_RED_ZONE|SLAB_STORE_USER;
+> 
+> 
+> I would suggest sth. like
+> 
+> if (size < RED_TONE_LIMIT
+>     || fls(size - 1) = fls(size - 1 + 3 * BYTES_PER_WORD))
+> 	flags |= SLAB_RED_ZONE | SLAB_STORE_USER
+> 
+> 
+> Reason: A binary operator in front is a huge hint 
+> 	that this is a continued line.
+> 
+> Just compare when you go to a store next time.
+> 
+> 	1
+> +	2
+> -	3
+> *	4
+> 
+> is much more readable then
+> 
+> 1	+
+> 2	-
+> 3	*
+> 4
+> 
+> right?
+> 
+> 
+> Regards
+> 
+> Ingo Oeser
 
-> I've nothing against zero page refcounting avoidance, just wanted
-> numbers to show it's more worth doing than not doing.  And I'm not
-> the only one to have wondered, if it is an issue, wouldn't big NUMA
-> benefit more from per-node zero pages anyway?  (Though of course
-> the pages themselves should stay clean, so won't be bouncing.)
+You make a very good point.  It's not the way that I'm used to writing
+multi-line ifs, but it is a bit more readable.  However, since the rest of
+the multi-line ifs in the file have the binary operator at the end of the
+first line, I'm inclined to leave it the way it is for consistency.  If
+anyone really feels strongly, I could come up with a patch for the whole
+file...?
 
-Per-node zero pages sound good. The page structs are placed on the 
-respective nodes and therefore would not bounce.
+Thanks for the feedback!
+
+-Matt

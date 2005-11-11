@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbVKKTto@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbVKKTuD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751120AbVKKTto (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 14:49:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbVKKTto
+	id S1751122AbVKKTuD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 14:50:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbVKKTuD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 14:49:44 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:21224 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751120AbVKKTtm
+	Fri, 11 Nov 2005 14:50:03 -0500
+Received: from zproxy.gmail.com ([64.233.162.196]:2918 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751122AbVKKTuB convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 14:49:42 -0500
-From: Tom Zanussi <zanussi@us.ibm.com>
+	Fri, 11 Nov 2005 14:50:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=A5oxSnKYl5PXKfOVWAjhnp5WGukLtCUOwg2f8raLPOTS25F94M1Zer0KzzwH3SK+K6tSshA42KBGyLjJf81yT0JptF4Xi3cTT/l7aA39nXAhjkReBUIYGGQUUAR1Qa0P8VCmUIi63tUprxInTsLag+jogXv0DGwS9Va5VLiGMiE=
+Message-ID: <195c7a900511111149q23db90e7n67ef3cab6694cb78@mail.gmail.com>
+Date: Fri, 11 Nov 2005 19:49:59 +0000
+From: roucaries bastien <roucaries.bastien@gmail.com>
+To: Takashi Iwai <tiwai@suse.de>
+Subject: Re: [BUG] Ali snd soft lookup on 2.6.14 (regression)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <s5h4q6jypi8.wl%tiwai@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17268.62897.434122.165183@tut.ibm.com>
-Date: Fri, 11 Nov 2005 13:49:05 -0600
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Tom Zanussi <zanussi@us.ibm.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, karim@opersys.com
-Subject: Re: [PATCH 2/12] relayfs: export relayfs_create_file() with fileops param
-In-Reply-To: <20051111193749.GA17018@infradead.org>
-References: <17268.51814.215178.281986@tut.ibm.com>
-	<17268.51975.485344.880078@tut.ibm.com>
-	<20051111193749.GA17018@infradead.org>
-X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <195c7a900511101418r25aa43e6gc5cdeeac17aa0c7c@mail.gmail.com>
+	 <s5hr79nz3b4.wl%tiwai@suse.de>
+	 <195c7a900511111040p7947267brd99ce0be3c1130f4@mail.gmail.com>
+	 <s5h64qzyq8o.wl%tiwai@suse.de>
+	 <195c7a900511111102t240b8195y58a2c167f0185d70@mail.gmail.com>
+	 <s5h4q6jypi8.wl%tiwai@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig writes:
- > On Fri, Nov 11, 2005 at 10:47:03AM -0600, Tom Zanussi wrote:
- > > This patch adds a mandatory fileops param to relayfs_create_file() and
- > > exports that function so that clients can use it to create files
- > > defined by their own set of file operations, in relayfs.  The purpose
- > > is to allow relayfs applications to create their own set of 'control'
- > > files alongside their relay files in relayfs rather than having to
- > > create them in /proc or debugfs for instance.  relayfs_create_file()
- > > is also used by relay_open_buf() to create the relay files for a
- > > channel.  In this case, a pointer to relayfs_file_operations is passed
- > > in, along with a pointer to the buffer associated with the file.
- > 
- > Again, NACK,  control files don't belong into relayfs.
- > 
+On 11/11/05, Takashi Iwai <tiwai@suse.de> wrote:
+> At Fri, 11 Nov 2005 19:02:00 +0000,
+> roucaries bastien wrote:
+> > > > > Does the patch below fix?
+> > > > It fix the BUG but I have always no sound :-(
+> > > >
+> > > > dmesg shows now:
+> > > >
+> > > > AC'97 1 does not respond - RESET
+> > > > AC'97 1 access is not valid [0xffffffff], removing mixer.
+> > >
+> > > This is the secondary codec, so it's no fatal error.
+> > >
+> > > Make sure that you set up your mixer correctly again.
+> Toggle 'Headphone Jack Sense' and 'Line Jack Sense' mixer switches.
+> Don't touch these switches unless you're sure.
 
-Sure, applications could just as easily create these same files in
-/proc, /sys, or /debug, but since relayfs is a filesystem, too, it
-seems to me to make sense to take advantage of that and allow them to
-be created alongside the relay files they're associated with, in
-relayfs.
+If I toggle off the two switch below it work (with obviously your
+patch applied).
 
-Tom
+Thank you very much for your quick fix.
 
-
+Bastien

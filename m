@@ -1,39 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932322AbVKKBDd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932328AbVKKBLU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932322AbVKKBDd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 20:03:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbVKKBDd
+	id S932328AbVKKBLU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 20:11:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbVKKBLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 20:03:33 -0500
-Received: from holomorphy.com ([66.93.40.71]:52919 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S932322AbVKKBDc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 20:03:32 -0500
-Date: Thu, 10 Nov 2005 16:51:37 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, Adam Litke <agl@us.ibm.com>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] dequeue a huge page near to this node
-Message-ID: <20051111005137.GR29402@holomorphy.com>
-References: <200511102334.jAANY1g21612@unix-os.sc.intel.com> <Pine.LNX.4.62.0511101643120.17138@schroedinger.engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 10 Nov 2005 20:11:20 -0500
+Received: from maggie.cs.pitt.edu ([130.49.220.148]:8630 "EHLO
+	maggie.cs.pitt.edu") by vger.kernel.org with ESMTP id S932328AbVKKBLT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 20:11:19 -0500
+From: Claudio Scordino <cloud.of.andor@gmail.com>
+To: "Magnus Naeslund(f)" <mag@fbab.net>
+Subject: Re: [PATCH] getrusage sucks
+Date: Fri, 11 Nov 2005 02:11:04 +0100
+User-Agent: KMail/1.8
+Cc: "Hua Zhong (hzhong)" <hzhong@cisco.com>, linux-kernel@vger.kernel.org,
+       kernelnewbies@nl.linux.org
+References: <75D9B5F4E50C8B4BB27622BD06C2B82BCF2FD4@xmb-sjc-235.amer.cisco.com> <200511110123.29664.cloud.of.andor@gmail.com> <4373E69B.6040206@fbab.net>
+In-Reply-To: <4373E69B.6040206@fbab.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0511101643120.17138@schroedinger.engr.sgi.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.9i
+Message-Id: <200511110211.05642.cloud.of.andor@gmail.com>
+X-Spam-Score: -1.665/8 BAYES_00 SA-version=3.000002
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 10, 2005 at 04:44:40PM -0800, Christoph Lameter wrote:
-> Well in that case, we may do even more:
-> Make huge pages obey cpusets.
-> Signed-off-by: Christoph Lameter <clameter@sgi.com>
+> You need to wrap this with a read_lock(&tasklist_lock) to be safe, I think.
 
-Simple enough.
+Right. Probably this was the meaning also of Hua's mail. Sorry, but I didn't 
+get it immediately.
 
-Acked-by: William Irwin <wli@holomorphy.com>
+So, what if I do as follows ? Do you see any problem with this solution ?
+
+Many thanks,
+
+              Claudio
 
 
--- wli
+
+diff --git a/kernel/sys.c b/kernel/sys.c
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -1746,9 +1746,22 @@ int getrusage(struct task_struct *p, int
+
+ asmlinkage long sys_getrusage(int who, struct rusage __user *ru)
+ {
+-       if (who != RUSAGE_SELF && who != RUSAGE_CHILDREN)
+-               return -EINVAL;
+-       return getrusage(current, who, ru);
++        int res;
++        if (who != RUSAGE_SELF && who != RUSAGE_CHILDREN) {
++                struct task_struct* tsk;
++                read_lock(&tasklist_lock);
++                tsk = find_task_by_pid(who);
++                if (tsk == NULL) {
++                        read_unlock(&tasklist_lock);
++                        return -EINVAL;
++                }
++                res = getrusage(tsk, RUSAGE_SELF, ru);
++                read_unlock(&tasklist_lock);
++                return res;
++        } else {
++                res = getrusage(current, who, ru);
++                return res;
++        }
+ }
+
+ asmlinkage long sys_umask(int mask)

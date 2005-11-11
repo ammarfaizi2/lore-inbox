@@ -1,81 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbVKKXsS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbVKKXtu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750712AbVKKXsS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 18:48:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbVKKXsS
+	id S1750711AbVKKXtu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 18:49:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbVKKXtu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 18:48:18 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:60865 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1750712AbVKKXsR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 18:48:17 -0500
-Message-ID: <43752DC0.1050404@comcast.net>
-Date: Fri, 11 Nov 2005 18:48:16 -0500
-From: Gautam Thaker <gthaker@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
-X-Accept-Language: en-us, en
+	Fri, 11 Nov 2005 18:49:50 -0500
+Received: from twinlark.arctic.org ([207.7.145.18]:58054 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP
+	id S1750711AbVKKXtu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 18:49:50 -0500
+Date: Fri, 11 Nov 2005 15:49:48 -0800 (PST)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Claudio Scordino <cloud.of.andor@gmail.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Wright <chrisw@osdl.org>,
+       "Magnus Naeslund(f)" <mag@fbab.net>,
+       "Hua Zhong (hzhong)" <hzhong@cisco.com>, linux-kernel@vger.kernel.org,
+       kernelnewbies@nl.linux.org, David Wagner <daw@cs.berkeley.edu>
+Subject: Re: [PATCH] getrusage sucks
+In-Reply-To: <200511120043.52796.cloud.of.andor@gmail.com>
+Message-ID: <Pine.LNX.4.63.0511111547310.18982@twinlark.arctic.org>
+References: <75D9B5F4E50C8B4BB27622BD06C2B82BCF2FD4@xmb-sjc-235.amer.cisco.com>
+ <20051111230223.GB7991@shell0.pdx.osdl.net> <1131753496.3174.55.camel@localhost.localdomain>
+ <200511120043.52796.cloud.of.andor@gmail.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: gthaker@comcast.net
-Subject: 2.6.14-rt9 nanosleep() behavior..
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have noticed that nanosleep() on 2.6.14-rt9 built with real-time
-options listed at bottom of this page has unexpected behavior.  In
-2.6.13-RC4-RT53 if  one called
+On Sat, 12 Nov 2005, Claudio Scordino wrote:
 
-nanosleep(20msec)
+> >
+> > In which case the only comment I have is the one about accuracy - and
+> > that is true for procfs too so will only come up if someone gets the
+> > urge to use perfctr timers for precision resource management
+> 
+> According to your comments, this the final patch. 
 
-than actual sleep durations were very close to 20msec. (average  number
-over 1 million samples yielded  20.008msec with minimum of  20.007msec
-and maximum of 20.060 msec).
-(2.6.13-RC4-RT53 nanosleep(20msec) histogram can be viewed at:
+this only lets you get RUSAGE_SELF data for the target... for many 
+processes it's more important to get the RUSAGE_CHILDREN data... and 
+really i'm having a hard time imagining a use for this code which on 
+further inspection doesn't eventually blow up to the requirements of a 
+proper accounting subsystem... (of which i understand there are two or 
+three competining implementations in progress?)
 
-http://www.atl.external.lmco.com/projects/QoS/compare/j_data/linux/2.6.13-RC4-RT-53-07/basement_prio_95_noload_with_chrt_on_pid_8_to_p97_20msec.out.png
+do you have a use case for this new code?
 
-with 2.6.14-rt9, nanosleep(20msec) returns average sleep interval of 21 
-msec.
-
-Is the previously seen behavior in 2.6.13-RC4-RT-53-07 possible now 
-under latest kernels?
-
-New  kernel (2.6.14-rt9) was built with:
-
-Subarchitecture Type (PC-compatible)  --->
-    Processor family (Pentium-Pro)  --->
-[*] Generic x86 support
-[*] HPET Timer Support
-[ ] Ktimers 64bit scalar representation
-[*] High Resolution Timer Support
-(1000) High Resolution Timer resolution (nanoseconds)
-[ ] Symmetric multi-processing support
-    Preemption Mode (Complete Preemption (Real-Time))  --->
---- Thread Softirqs
---- Thread Hardirqs
---- Preemptible RCU
-[*]   /proc stats for preemptible RCU read-side critical sections
-[ ] /proc torture tests for RCU
-[ ] Local APIC support on uniprocessors
-[*] Machine Check Exception
-< >   Check for non-fatal errors on AMD Athlon/Duron / Intel Pentium
-<M> Toshiba Laptop support
-<M> Dell laptop support
-[ ] Enable X86 board specific fixups for reboot
-<M> /dev/cpu/microcode - Intel IA32 CPU microcode support
-<M> /dev/cpu/*/msr - Model-specific register support
-<M> /dev/cpu/*/cpuid - CPU information support
-    Firmware Drivers  --->
-    High Memory Support (4GB)  --->
-    Memory model (Flat Memory)  --->
-[*] Allocate 3rd-level pagetables from highmem
-[ ] Math emulation
-[*] MTRR (Memory Type Range Register) support
-[ ] Boot from EFI support (EXPERIMENTAL)
-[*] Use register arguments (EXPERIMENTAL)
-[*] Enable seccomp to safely compute untrusted bytecode
-    Timer frequency (1000 HZ)  --->
-[ ] kexec system call (EXPERIMENTAL)
-
+-dean

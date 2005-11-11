@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbVKKVSe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbVKKV1x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751203AbVKKVSe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 16:18:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbVKKVSd
+	id S1751206AbVKKV1x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 16:27:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751209AbVKKV1x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 16:18:33 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:4805 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751203AbVKKVSc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 16:18:32 -0500
-Message-ID: <43750A9D.7070400@zytor.com>
-Date: Fri, 11 Nov 2005 13:18:21 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Junio C Hamano <junkio@cox.net>
-CC: git@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] GIT 0.99.9g
-References: <7vmzkc2a3e.fsf@assigned-by-dhcp.cox.net>	<43737EC7.6090109@zytor.com> <7v4q6k1jp0.fsf@assigned-by-dhcp.cox.net>
-In-Reply-To: <7v4q6k1jp0.fsf@assigned-by-dhcp.cox.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 11 Nov 2005 16:27:53 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:20394 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751206AbVKKV1w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 16:27:52 -0500
+Date: Fri, 11 Nov 2005 13:24:43 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org, paulus@samba.org, anton@samba.org,
+       linuxppc64-dev@ozlabs.org
+Subject: Re: [2.6 patch] add -Werror-implicit-function-declaration to CFLAGS
+Message-Id: <20051111132443.04061d10.akpm@osdl.org>
+In-Reply-To: <20051111201849.GP5376@stusta.de>
+References: <20051107200336.GH3847@stusta.de>
+	<20051110042857.38b4635b.akpm@osdl.org>
+	<20051111021258.GK5376@stusta.de>
+	<20051110182443.514622ed.akpm@osdl.org>
+	<20051111201849.GP5376@stusta.de>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Junio C Hamano wrote:
-> "H. Peter Anvin" <hpa@zytor.com> writes:
+Adrian Bunk <bunk@stusta.de> wrote:
+>
+> > > > 
+> > > > Sorry, I need to build allmodconfig kernels on wacky architectures (eg
+> > > > ppc64) and this patch is killing me.
+> > > 
+> > > Can you send me the list of compile errors so that I can work on fixing 
+> > > them?
+> > > 
+> > 
+> > No handily, sorry.   Missing virt_to_bus() is the typical problem.
+> >
 > 
-> 
->>May I *STRONGLY* urge you to name that something different. 
->>"lost+found" is a name with special properties in Unix; for example, 
->>many backup solutions will ignore a directory with that name.
-> 
-> 
-> Yeah, the original proposal (in TODO list) explicitly stated why
-> I chose lost-found instead of lost+found back then, and somebody
-> on the list (could have been Pasky but I may be mistaken) said
-> not to worry.  In any case, if we go the route Daniel suggests,
-> we would not be storing anything on the filesystem ourselves so
-> this would be a non-issue.
-> 
+> But in this case -Werror-implicit-function-declaration doesn't create 
+> new compile errors, it only moves compile errors from compile time to 
+> link or depmod time - which is IMHO not a bad change.
 
-Just realized one more issue with this... a lot of non-Unix filesystems 
-can't deal with files with a + sign.
+It is a quite inconvenient change if you want to get full coverage with
+`make allmodconfig'.
 
-	-hpa
+Maybe one can do `make -i' and then weed through the noise - I haven't
+tried.
+
+> If you really want to keep the status quo, you can still steal the 
+> following from sparc64:
+>   extern unsigned long virt_to_bus_not_defined_use_pci_map(volatile void *addr);
+>   #define virt_to_bus virt_to_bus_not_defined_use_pci_map
+>   extern unsigned long bus_to_virt_not_defined_use_pci_map(volatile void *addr);
+>   #define bus_to_virt bus_to_virt_not_defined_use_pci_map
+
+Maybe.  There were some other failures.
+

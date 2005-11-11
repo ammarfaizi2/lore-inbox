@@ -1,126 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbVKKToZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbVKKTtb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751119AbVKKToZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 14:44:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbVKKToZ
+	id S1751118AbVKKTtb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 14:49:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbVKKTta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 14:44:25 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:41732 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751116AbVKKToY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 14:44:24 -0500
-Date: Fri, 11 Nov 2005 20:44:21 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: jgarzik@pobox.com
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/net/sk98lin/skge.c: make SkPciWriteCfgDWord() a static inline
-Message-ID: <20051111194421.GN5376@stusta.de>
+	Fri, 11 Nov 2005 14:49:30 -0500
+Received: from rtsoft2.corbina.net ([85.21.88.2]:13735 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S1751117AbVKKTta
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 14:49:30 -0500
+Message-ID: <4374F633.6020006@ru.mvista.com>
+Date: Fri, 11 Nov 2005 22:51:15 +0300
+From: Sergei Shtylylov <sshtylyov@ru.mvista.com>
+Organization: MostaVista Software Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
+X-Accept-Language: ru, en-us, en-gb
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+To: linux-ide@vger.kernel.org
+CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Highpoint IDE types
+References: <1131471483.25192.76.camel@localhost.localdomain> <pan.2005.11.08.19.02.09.190896@sci.fi>
+In-Reply-To: <pan.2005.11.08.19.02.09.190896@sci.fi>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No external user and that small - such a function should be static 
-inline and not a global function.
+Hello.
 
+Ville Syrjälä wrote:
+> On Tue, 08 Nov 2005 17:38:02 +0000, Alan Cox wrote:
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>>Ok thanks to Sergei I can now post what I think is the complete table of
+>>HPT chip versions:
 
----
+    Another correction coming in... :-)
 
- drivers/net/sk98lin/h/skvpd.h |    8 ------
- drivers/net/sk98lin/skge.c    |   43 ++++++++++++++++------------------
- 2 files changed, 21 insertions(+), 30 deletions(-)
+>>        Chip                    PCI ID          Rev
+>> *      HPT366                  4 (HPT366)      0
+>> *      HPT366                  4 (HPT366)      1    
+>> *      HPT368                  4 (HPT366)      2      
+>> *      HPT370                  4 (HPT366)      3      
+>> *      HPT370A                 4 (HPT366)      4      
+>> *      HPT372                  4 (HPT366)      5     
+>> *      HPT372N                 4 (HPT366)      6     
+>> *      HPT372                  5 (HPT372)      0
+> 
+>           ^^^^^^
+> 
+> This one is called HPT372A by Highpoint's BIOS/Win drivers.
 
---- linux-2.6.14-mm2-full/drivers/net/sk98lin/h/skvpd.h.old	2005-11-11 20:30:25.000000000 +0100
-+++ linux-2.6.14-mm2-full/drivers/net/sk98lin/h/skvpd.h	2005-11-11 20:30:44.000000000 +0100
-@@ -130,14 +130,12 @@
- #ifndef VPD_DO_IO
- #define VPD_OUT8(pAC,IoC,Addr,Val)	(void)SkPciWriteCfgByte(pAC,Addr,Val)
- #define VPD_OUT16(pAC,IoC,Addr,Val)	(void)SkPciWriteCfgWord(pAC,Addr,Val)
--#define VPD_OUT32(pAC,IoC,Addr,Val)	(void)SkPciWriteCfgDWord(pAC,Addr,Val)
- #define VPD_IN8(pAC,IoC,Addr,pVal)	(void)SkPciReadCfgByte(pAC,Addr,pVal)
- #define VPD_IN16(pAC,IoC,Addr,pVal)	(void)SkPciReadCfgWord(pAC,Addr,pVal)
- #define VPD_IN32(pAC,IoC,Addr,pVal)	(void)SkPciReadCfgDWord(pAC,Addr,pVal)
- #else	/* VPD_DO_IO */
- #define VPD_OUT8(pAC,IoC,Addr,Val)	SK_OUT8(IoC,PCI_C(Addr),Val)
- #define VPD_OUT16(pAC,IoC,Addr,Val)	SK_OUT16(IoC,PCI_C(Addr),Val)
--#define VPD_OUT32(pAC,IoC,Addr,Val)	SK_OUT32(IoC,PCI_C(Addr),Val)
- #define VPD_IN8(pAC,IoC,Addr,pVal)	SK_IN8(IoC,PCI_C(Addr),pVal)
- #define VPD_IN16(pAC,IoC,Addr,pVal)	SK_IN16(IoC,PCI_C(Addr),pVal)
- #define VPD_IN32(pAC,IoC,Addr,pVal)	SK_IN32(IoC,PCI_C(Addr),pVal)
-@@ -155,12 +153,6 @@
- 		else						\
- 			SK_OUT16(pAC,PCI_C(Addr),Val);		\
- 		}
--#define VPD_OUT32(pAC,Ioc,Addr,Val) {			\
--		if ((pAC)->DgT.DgUseCfgCycle)			\
--			SkPciWriteCfgDWord(pAC,Addr,Val);	\
--		else						\
--			SK_OUT32(pAC,PCI_C(Addr),Val); 		\
--		}
- #define VPD_IN8(pAC,Ioc,Addr,pVal) {			\
- 		if ((pAC)->DgT.DgUseCfgCycle) 			\
- 			SkPciReadCfgByte(pAC,Addr,pVal);	\
---- linux-2.6.14-mm2-full/drivers/net/sk98lin/skge.c.old	2005-11-11 20:31:05.000000000 +0100
-+++ linux-2.6.14-mm2-full/drivers/net/sk98lin/skge.c	2005-11-11 20:32:39.000000000 +0100
-@@ -279,6 +279,27 @@
- 
- /*****************************************************************************
-  *
-+ *	SkPciWriteCfgDWord - write a 32 bit value to pci config space
-+ *
-+ * Description:
-+ *	This routine writes a 32 bit value to the pci configuration
-+ *	space.
-+ *
-+ * Returns:
-+ *	0 - indicate everything worked ok.
-+ *	!= 0 - error indication
-+ */
-+static inline int SkPciWriteCfgDWord(
-+SK_AC *pAC,	/* Adapter Control structure pointer */
-+int PciAddr,		/* PCI register address */
-+SK_U32 Val)		/* pointer to store the read value */
-+{
-+	pci_write_config_dword(pAC->PciDev, PciAddr, Val);
-+	return(0);
-+} /* SkPciWriteCfgDWord */
-+
-+/*****************************************************************************
-+ *
-  * 	SkGeInitPCI - Init the PCI resources
-  *
-  * Description:
-@@ -4085,28 +4106,6 @@
- 
- /*****************************************************************************
-  *
-- *	SkPciWriteCfgDWord - write a 32 bit value to pci config space
-- *
-- * Description:
-- *	This routine writes a 32 bit value to the pci configuration
-- *	space.
-- *
-- * Returns:
-- *	0 - indicate everything worked ok.
-- *	!= 0 - error indication
-- */
--int SkPciWriteCfgDWord(
--SK_AC *pAC,	/* Adapter Control structure pointer */
--int PciAddr,		/* PCI register address */
--SK_U32 Val)		/* pointer to store the read value */
--{
--	pci_write_config_dword(pAC->PciDev, PciAddr, Val);
--	return(0);
--} /* SkPciWriteCfgDWord */
--
--
--/*****************************************************************************
-- *
-  *	SkPciWriteCfgWord - write a 16 bit value to pci config space
-  *
-  * Description:
+    According to Highpoint's driver code 372A has rev. ID 1...
 
+> Also I'm not sure if it's relevant but PCI ID 5 chips use a different
+> BIOS image than PCI ID 4 chips.
+>        
+> 
+>> *      HPT372N                 5 (HPT372)      > 0     
+
+    And 372N has rev. ID 2...
+
+WBR, Sergei

@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750927AbVKKRKK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbVKKRML@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750927AbVKKRKK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 12:10:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750930AbVKKRKK
+	id S1750930AbVKKRML (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 12:12:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750933AbVKKRML
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 12:10:10 -0500
-Received: from mo01.iij4u.or.jp ([210.130.0.20]:3785 "EHLO mo01.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S1750927AbVKKRKI (ORCPT
+	Fri, 11 Nov 2005 12:12:11 -0500
+Received: from i121.durables.org ([64.81.244.121]:52119 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1750930AbVKKRMK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 12:10:08 -0500
-Date: Sat, 12 Nov 2005 02:09:48 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: Andrew Morton <akpm@osdl.org>
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel@vger.kernel.org
-Subject: [-mm PATCH] slob: add kmem_set_shrinker
-Message-Id: <20051112020948.798c0199.yuasa@hh.iij4u.or.jp>
-In-Reply-To: <20051110203544.027e992c.akpm@osdl.org>
-References: <20051110203544.027e992c.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
+	Fri, 11 Nov 2005 12:12:10 -0500
+Date: Fri, 11 Nov 2005 09:11:40 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Nick Warne <nick@linicks.net>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 14/15] misc: Configurable number of supported IDE interfaces
+Message-ID: <20051111171140.GV11462@waste.org>
+References: <200511111533.13474.nick@linicks.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200511111533.13474.nick@linicks.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Nov 11, 2005 at 03:33:13PM +0000, Nick Warne wrote:
+> Bartlomiej Zolnierkiewicz wrote:
+> 
+> > You are duplicating functionality of CONFIG_IDE_MAX_HWIFS,
+> > please find a way to use it for EMBEDDED.
+> > 
+> > Also please cc: linux-ide on IDE related patches.
+> > 
+> > On 11/11/05, Matt Mackall <mpm@selenic.com> wrote:
+> >> Configurable number of supported IDE interfaces
+> >>
+> >> This overrides the default limit (which may be set per arch with
+> >> CONFIG_IDE_MAX_HWIFS). This is the result of setting interfaces to 1:
+> 
+> This is very similar to my unaccepted patch a few months ago:
+> 
+> http://lkml.org/lkml/2005/6/25/69
 
-This patch adds kmem_set_shrinker() to SLOB.
-It is necessary for fixing the build error.
+And it's practically identical to the one that's been in my -tiny tree
+for two years.
 
-Yoichi
+I agree with Alan's complaint that this should in fact be done with
+dynamic allocation. However, when I last set out to do that, it
+appeared to be an _extremely_ invasive change so I quickly abandoned
+it.
 
-Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+Meanwhile, this is currently the largest static allocation in a
+typical kernel. Something has to be done.
 
-diff -Npru -X dontdiff mm2-orig/mm/slob.c mm2/mm/slob.c
---- mm2-orig/mm/slob.c	2005-11-11 22:21:20.000000000 +0900
-+++ mm2/mm/slob.c	2005-11-11 23:15:02.000000000 +0900
-@@ -240,6 +240,11 @@ unsigned int ksize(const void *block)
- 	return ((slob_t *)block - 1)->units * SLOB_UNIT;
- }
- 
-+void kmem_set_shrinker(kmem_cache_t *cachep, struct shrinker *shrinker)
-+{
-+}
-+EXPORT_SYMBOL(kmem_set_shrinker);
-+
- struct kmem_cache {
- 	unsigned int size, align;
- 	const char *name;
+-- 
+Mathematics is the supreme nostalgia of our time.

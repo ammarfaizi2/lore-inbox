@@ -1,68 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932367AbVKKGWK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbVKKGWY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932367AbVKKGWK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 01:22:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbVKKGWK
+	id S932365AbVKKGWY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 01:22:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbVKKGWY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 01:22:10 -0500
-Received: from mail.kroah.org ([69.55.234.183]:20202 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932367AbVKKGWI (ORCPT
+	Fri, 11 Nov 2005 01:22:24 -0500
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:1436
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S932365AbVKKGWX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 01:22:08 -0500
-Date: Thu, 10 Nov 2005 22:13:36 -0800
-From: Greg KH <greg@kroah.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, stern@rowland.harvard.edu,
-       akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, mdharm-usb@one-eyed-alien.net,
-       Reuben Farrelly <reuben-lkml@reub.net>
-Subject: Re: [-mm patch] USB_LIBUSUAL shouldn't be user-visible
-Message-ID: <20051111061336.GA12008@kroah.com>
-References: <20051107215226.GA25104@kroah.com> <Pine.LNX.4.44L0.0511071725220.5165-100000@iolanthe.rowland.org> <20051107222840.GB26417@kroah.com> <20051108004716.GJ3847@stusta.de> <20051109222808.GG9182@kroah.com> <20051109224117.337690bf.zaitcev@redhat.com> <20051110105648.GC5376@stusta.de> <20051110234644.GA6430@kroah.com> <20051111020938.GJ5376@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051111020938.GJ5376@stusta.de>
-User-Agent: Mutt/1.5.11
+	Fri, 11 Nov 2005 01:22:23 -0500
+Message-ID: <43743893.9080100@linuxwireless.org>
+Date: Fri, 11 Nov 2005 00:22:11 -0600
+From: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Robert Love <rml@novell.com>
+CC: Andrew Morton <akpm@osdl.org>, dtor_core@ameritech.net,
+       jesper.juhl@gmail.com, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: Kernel Panic 2.6.14-git (pictures)
+References: <20051110151214.M35138@linuxwireless.org>	 <20051110175522.1d50c084.akpm@osdl.org> <1131680001.24968.4.camel@phantasy>
+In-Reply-To: <1131680001.24968.4.camel@phantasy>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 11, 2005 at 03:09:38AM +0100, Adrian Bunk wrote:
-> On Thu, Nov 10, 2005 at 03:46:44PM -0800, Greg KH wrote:
-> > On Thu, Nov 10, 2005 at 11:56:48AM +0100, Adrian Bunk wrote:
-> > > On Wed, Nov 09, 2005 at 10:41:17PM -0800, Pete Zaitcev wrote:
-> > > > On Wed, 9 Nov 2005 14:28:08 -0800, Greg KH <greg@kroah.com> wrote:
-> > > > 
-> > > > > > What about letting the two drivers always use libusual?
-> > > > > 
-> > > > > Pete?  What do you think about this patch?
-> > > > 
-> > > > It does nothing to explain how exactly the current configuration managed
-> > > > not to work, which leaves me unsatisfied. I did test the kernel to build
-> > > > correctly with libusub on and off. All we have is this:
-> > > 
-> > > The problem is not that it wouldn't work.
-> > > The question is whether users compiling their kernel should know 
-> > > anything about USB_LIBUSUAL.
-> > > IMHO, USB_LIBUSUAL is an internal implementation detail and there's no 
-> > > reason why a user should ever see this option.
-> > > This is what my patch does.
-> > 
-> > No, it's not an implementation detail, it explicitly changes the way
-> > things work, and lets users change they way they work, by giving them
-> > run-time options.
-> > 
-> > So it should not be hidden, at least not yet until everyone gets used to
-> > using it.
-> 
-> Adding a feature doesn't require a new config option for informing the 
-> user.
-> 
-> What about my second suggestion to always use libusual in the two 
-> drivers instead of having two code paths in each of them?
+Robert Love wrote:
 
-That's up to Matt and Pete to decide.
+>On Thu, 2005-11-10 at 17:55 -0800, Andrew Morton wrote:
+>
+>  
+>
+>>Yes, photos of the screen work very nicely, thanks.
+>>    
+>>
+>
+>Excellent!
+>
+>  
+>
+>>Hi, Robert ;)
+>>    
+>>
+>
+>Andrew.  ;-)
+>
+>Alejandro - there is Dmitry Torokhov that fixed this and I thought it
+>went in Linus's tree (it was in Greg's tree and he pushed it over a week
+>ago).
+>
+>Dmitry?
+>  
+>
+LOL, everyone is pointing to someone else... ;-)
 
-thanks,
+Linus, can you please merge Dmitry's patch? ;o
 
-greg k-h
+.Alejandro
+
+>	Robert Love
+>
+>
+>
+>  
+>
+

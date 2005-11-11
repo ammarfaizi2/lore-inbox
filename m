@@ -1,69 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbVKKNUa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbVKKNYm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750730AbVKKNUa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 08:20:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbVKKNUa
+	id S1750737AbVKKNYm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 08:24:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbVKKNYm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 08:20:30 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:23087 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750730AbVKKNUa (ORCPT
+	Fri, 11 Nov 2005 08:24:42 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:29577 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750703AbVKKNYl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 08:20:30 -0500
-Date: Fri, 11 Nov 2005 14:21:34 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Tejun Heo <htejun@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] as-iosched: update alias handling
-Message-ID: <20051111132134.GU3699@suse.de>
-References: <20051110140859.GA26030@htj.dyndns.org> <20051110171743.GE3699@suse.de> <4373CB4C.6070602@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4373CB4C.6070602@yahoo.com.au>
+	Fri, 11 Nov 2005 08:24:41 -0500
+Message-ID: <43749B94.5010200@pobox.com>
+Date: Fri, 11 Nov 2005 08:24:36 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Frank Pavlic <fpavlic@de.ibm.com>
+CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/7] s390: synthax checking for VIPA addresses fixed
+References: <20051110124902.GA7936@pavlic>
+In-Reply-To: <20051110124902.GA7936@pavlic>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 11 2005, Nick Piggin wrote:
-> Jens Axboe wrote:
-> >On Thu, Nov 10 2005, Tejun Heo wrote:
-> >
-> >>Unlike other ioscheds, as-iosched handles alias by chaing them using
-> >>rq->queuelist.  As aliased requests are very rare in the first place,
-> >>this complicates merge/dispatch handling without meaningful
-> >>performance improvement.  This patch updates as-iosched to dump
-> >>aliased requests into dispatch queue as other ioscheds do.
-> >>
-> >>Signed-off-by: Tejun Heo <htejun@gmail.com>
-> >
-> >
-> >In theory the way 'as' handles the aliases is faster since we postpone
-> >pushing them to the dispatch list at the same point (and they have
-> >strong (if not identical) locality). But it is much simpler to just
-> >shove the offending requests onto the dispatch list.
-> >
-> >It's really up to Nick - what do you think? Leaving patch below.
-> >
+Frank Pavlic wrote:
+> [patch 1/7] s390: synthax checking for VIPA addresses fixed
 > 
-> I thought this was pretty cool, but in reality it could be that the
-> cost / benefit actually goes the wrong way due to added complexity
-> and rarity of alised requests.
+> From: Peter Tiedemann <ptiedem@de.ibm.com>
+> 	- synthax checking for VIPA addresses fixed
 > 
-> Hmm... I can't bear to ack it ;) I'll close my eyes and let Jens
-> make the call!
-
-Heh well, I am a sucker for simplicity especially when it's for corner
-cases where the more advanced solution will at most save you a full
-seek.
-
-> >>Jens, I've tested this change for several hours, but it might be
-> >>better to postpone this change to next release.  It's your call.
-> >>
+> Signed-off-by: Frank Pavlic <fpavlic@de.ibm.com>
 > 
-> It could go into mm now, but probably leave it for 2.6.16 unless
-> you have some other reason to really need it.
+> diffstat:
+>  qeth.h     |   65 ++++++++++++++++++++++++++++++++++++++++++++++++-------------
+>  qeth_sys.c |    6 ++---
+>  2 files changed, 55 insertions(+), 16 deletions(-)
+> 
+> 
+> diff -Naupr orig/drivers/s390/net/qeth.h patched-linux/drivers/s390/net/qeth.h
+> --- orig/drivers/s390/net/qeth.h	2005-11-09 20:06:57.000000000 +0100
+> +++ patched-linux/drivers/s390/net/qeth.h	2005-11-09 20:11:20.000000000 +0100
+> @@ -8,6 +8,7 @@
+>  #include <linux/trdevice.h>
+>  #include <linux/etherdevice.h>
+>  #include <linux/if_vlan.h>
+> +#include <linux/ctype.h>
+>  
+>  #include <net/ipv6.h>
+>  #include <linux/in6.h>
+> @@ -24,7 +25,7 @@
+>  
+>  #include "qeth_mpc.h"
+>  
+> -#define VERSION_QETH_H 		"$Revision: 1.142 $"
+> +#define VERSION_QETH_H 		"$Revision: 1.151 $"
+>  
+>  #ifdef CONFIG_QETH_IPV6
+>  #define QETH_VERSION_IPV6 	":IPv6"
+> @@ -1074,6 +1075,26 @@ qeth_get_qdio_q_format(struct qeth_card 
+>  	}
+>  }
+>  
+> +static inline int
+> +qeth_isdigit(char * buf)
+> +{
+> +	while (*buf) {
+> +		if (!isdigit(*buf++))
+> +			return 0;
+> +	}
+> +	return 1;
+> +}
+> +
+> +static inline int
+> +qeth_isxdigit(char * buf)
+> +{
+> +	while (*buf) {
+> +		if (!isxdigit(*buf++))
+> +			return 0;
+> +	}
+> +	return 1;
+> +}
+> +
+>  static inline void
+>  qeth_ipaddr4_to_string(const __u8 *addr, char *buf)
+>  {
+> @@ -1090,18 +1111,27 @@ qeth_string_to_ipaddr4(const char *buf, 
+>  	int i;
+>  
+>  	start = buf;
+> -	for (i = 0; i < 3; i++) {
+> -		if (!(end = strchr(start, '.')))
+> +	for (i = 0; i < 4; i++) {
+> +		if (i == 3) {
+> +			end = strchr(start,0xa);
+> +			if (end)
+> +				len = end - start;
+> +			else		
+> +				len = strlen(start);
+> +		}
+> +		else {
+> +			end = strchr(start, '.');
+> +			len = end - start;
+> +		}
+> +		if ((len <= 0) || (len > 3))
+>  			return -EINVAL;
+> -		len = end - start;
+>  		memset(abuf, 0, 4);
+>  		strncpy(abuf, start, len);
+> +		if (!qeth_isdigit(abuf))
+> +			return -EINVAL;
+>  		addr[i] = simple_strtoul(abuf, &tmp, 10);
+>  		start = end + 1;
+>  	}
+> -	memset(abuf, 0, 4);
+> -	strcpy(abuf, start);
+> -	addr[3] = simple_strtoul(abuf, &tmp, 10);
+>  	return 0;
+>  }
+>  
+> @@ -1128,18 +1158,27 @@ qeth_string_to_ipaddr6(const char *buf, 
+>  
+>  	tmp_addr = (u16 *)addr;
+>  	start = buf;
+> -	for (i = 0; i < 7; i++) {
+> -		if (!(end = strchr(start, ':')))
+> +	for (i = 0; i < 8; i++) {
+> +		if (i == 7) {
+> +			end = strchr(start,0xa);
+> +			if (end)
+> +				len = end - start;
+> +			else
+> +				len = strlen(start);
+> +		}
+> +		else {
+> +			end = strchr(start, ':');
+> +			len = end - start;
+> +		}
+> +		if ((len <= 0) || (len > 4))
+>  			return -EINVAL;
+> -		len = end - start;
+>  		memset(abuf, 0, 5);
+>  		strncpy(abuf, start, len);
+> +		if (!qeth_isxdigit(abuf))
+> +			return -EINVAL;
+>  		tmp_addr[i] = simple_strtoul(abuf, &tmp, 16);
+>  		start = end + 1;
 
-Agree, I've shoved it into the 'post-2.6.15' branch.
+OK for now, but please submit a patch that updates this code to use 
+sscanf().
 
--- 
-Jens Axboe
+	Jeff
+
+
 

@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750947AbVKKRrQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750969AbVKKRsN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750947AbVKKRrQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 12:47:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750964AbVKKRrQ
+	id S1750969AbVKKRsN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 12:48:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750970AbVKKRsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 12:47:16 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:53451 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750947AbVKKRrP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 12:47:15 -0500
-Message-ID: <4374D913.503@zytor.com>
-Date: Fri, 11 Nov 2005 09:46:59 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Johannes Schindelin <Johannes.Schindelin@gmx.de>
-CC: Junio C Hamano <junkio@cox.net>, git@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] GIT 0.99.9g
-References: <7vmzkc2a3e.fsf@assigned-by-dhcp.cox.net> <43737EC7.6090109@zytor.com> <Pine.LNX.4.63.0511111516170.7575@wbgn013.biozentrum.uni-wuerzburg.de>
-In-Reply-To: <Pine.LNX.4.63.0511111516170.7575@wbgn013.biozentrum.uni-wuerzburg.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 11 Nov 2005 12:48:13 -0500
+Received: from i121.durables.org ([64.81.244.121]:9441 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1750969AbVKKRsL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 12:48:11 -0500
+Date: Fri, 11 Nov 2005 09:47:41 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 14/15] misc: Configurable number of supported IDE interfaces
+Message-ID: <20051111174741.GZ11462@waste.org>
+References: <14.282480653@selenic.com> <15.282480653@selenic.com> <58cb370e0511110214i33792f33y1b44410d3006fd5f@mail.gmail.com> <20051111171842.GW11462@waste.org> <Pine.LNX.4.61.0511111830140.1610@scrub.home> <20051111173737.GY11462@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051111173737.GY11462@waste.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Johannes Schindelin wrote:
+On Fri, Nov 11, 2005 at 09:37:37AM -0800, Matt Mackall wrote:
+> > With the latest kernel you can even use a dynamic range:
+> > 
+> > config IDE_HWIFS
+> > 	int "..."
+> > 	range 1 IDE_MAX_HWIFS
 > 
-> Two reasons against renaming:
-> 
-> - we call it fsck-objects for a reason. We are working on a file system, 
->   which just so happens to be implemented in user space, not kernel space.
->   If lost+found has to find a new name, so does fsck-objects.
-> 
+> But this suggests a good reason to hold on to both variables.
 
-I'm sorry, but that is bull.  The problem here isn't the conventional 
-naming, it's that you're implementing your filesystem on top of another 
-filesystem, and you're running into a layering conflict.
+..except that not all arches define it. In fact, only sh and Alpha do.
 
-> - lost+found has a special meaning, granted. So, a backup would not be 
->   made of it. So what? I *don't* want it backup'ed. I want to repair what
->   was wrong with it. When I repaired it, the result is stored somewhere
->   else. To backup lost+found would make as much sense as to backup /tmp.
-> 
-
-The default should ALWAYS be no data loss.
-
-	-hpa
+-- 
+Mathematics is the supreme nostalgia of our time.

@@ -1,43 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbVKKLvL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbVKKLwV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750720AbVKKLvL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 06:51:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbVKKLvL
+	id S1750724AbVKKLwV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 06:52:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbVKKLwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 06:51:11 -0500
-Received: from nproxy.gmail.com ([64.233.182.205]:45510 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750720AbVKKLvK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 06:51:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=nHpf4lXSRi1qqmwyJQM9KC04MZZDLcgd3UVKR+QD1a+DnOFNRHk7wot6JQAYH5WPC41XnwbPcN5Dv0HQxklsj9qdd9SQ+ot8HPoDEveaEg7DBvDzXWo37nkW1uljJqL9uRER6NPZbCMaY/rHHjJEAhU6qKk5Y/Lrc4hwdf6Bino=
-Message-ID: <84144f020511110351h68ced090l6a7ed2f3c4f84819@mail.gmail.com>
-Date: Fri, 11 Nov 2005 13:51:08 +0200
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Subject: Re: [PATCH] Remove alloc_pages() use from slab allocator
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, alokk@calsoftinc.com
-In-Reply-To: <Pine.LNX.4.62.0511101347430.16380@schroedinger.engr.sgi.com>
+	Fri, 11 Nov 2005 06:52:21 -0500
+Received: from relay4.usu.ru ([194.226.235.39]:1754 "EHLO relay4.usu.ru")
+	by vger.kernel.org with ESMTP id S1750724AbVKKLwU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 06:52:20 -0500
+Message-ID: <43748583.9050105@ums.usu.ru>
+Date: Fri, 11 Nov 2005 16:50:27 +0500
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.62.0511101347430.16380@schroedinger.engr.sgi.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, Valdis.Kletnieks@vt.edu, sfrench@us.ibm.com,
+       castet.matthieu@free.fr, greg@kroah.com, vojtech@suse.cz,
+       dtor_core@ameritech.net
+Subject: Re: 2.6.14-mm1
+References: <20051106182447.5f571a46.akpm@osdl.org>	<436F7DAA.8070803@ums.usu.ru>	<20051107115210.33e4f0bf.akpm@osdl.org>	<200511072021.jA7KL4kA030734@turing-police.cc.vt.edu> <20051107124647.212a670d.akpm@osdl.org> <4374651A.7000605@ums.usu.ru> <437472DA.4090001@linuxfromscratch.org>
+In-Reply-To: <437472DA.4090001@linuxfromscratch.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.15; AVE: 6.32.0.58; VDF: 6.32.0.170; host: usu2.usu.ru)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Christoph,
+I wrote:
 
-On 11/10/05, Christoph Lameter <clameter@engr.sgi.com> wrote:
-> The slab allocator never uses alloc_pages since kmem_getpages() is always
-> called with a valid nodeid. Remove the branch and the code from kmem_getpages()
+> I wrote:
 >
-> Signed-off-by: Christoph Lameter <clameter@sgi.com>
+>> Note that unlike with the previous kernels, the huge traffic is not 
+>> reported on the ppp0 interface.
+>
+>
+>
+> I was wrong. There are two failure modes, one with huge traffic and 
+> one without. Attached is a sample tcpdump of the failure mode with the 
+> huge traffic. If you know how to capture data going through the serial 
+> port, I will do this also.
 
-The patch looks good to me.
+I was wrong again. There is only one failure mode, with apparent huge 
+traffic, but that traffic doesn't appear immediately after the keyboard 
+bug. One more note: if a key is pressed when the bug manifests itself, 
+it autorepeats in X indefinitely.
 
-P.S. Please use the address penberg@cs.helsinki.fi instead when sending me mail.
+An archive that contains both the tcpdump and pppdump of the bug is 
+available at:
 
-                                       Pekka
+http://ums.usu.ru/~patrakov/bad-dump.tar.bz2
+
+Taken with commands:
+
+pppd call motiv record ppp0.pppdump nodetach
+tcpdump -i ppp0 -s 0 -w ppp0.tcpdump
+
+Then irrelevant tails that consist of repeating packets were cut off by 
+hand.
+
+-- 
+Alexander E. Patrakov

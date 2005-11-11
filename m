@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbVKKTtb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbVKKTto@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751118AbVKKTtb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 14:49:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbVKKTta
+	id S1751120AbVKKTto (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 14:49:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbVKKTto
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 14:49:30 -0500
-Received: from rtsoft2.corbina.net ([85.21.88.2]:13735 "HELO
-	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S1751117AbVKKTta
+	Fri, 11 Nov 2005 14:49:44 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:21224 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751120AbVKKTtm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 14:49:30 -0500
-Message-ID: <4374F633.6020006@ru.mvista.com>
-Date: Fri, 11 Nov 2005 22:51:15 +0300
-From: Sergei Shtylylov <sshtylyov@ru.mvista.com>
-Organization: MostaVista Software Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
-X-Accept-Language: ru, en-us, en-gb
+	Fri, 11 Nov 2005 14:49:42 -0500
+From: Tom Zanussi <zanussi@us.ibm.com>
 MIME-Version: 1.0
-To: linux-ide@vger.kernel.org
-CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Highpoint IDE types
-References: <1131471483.25192.76.camel@localhost.localdomain> <pan.2005.11.08.19.02.09.190896@sci.fi>
-In-Reply-To: <pan.2005.11.08.19.02.09.190896@sci.fi>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17268.62897.434122.165183@tut.ibm.com>
+Date: Fri, 11 Nov 2005 13:49:05 -0600
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Tom Zanussi <zanussi@us.ibm.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, karim@opersys.com
+Subject: Re: [PATCH 2/12] relayfs: export relayfs_create_file() with fileops param
+In-Reply-To: <20051111193749.GA17018@infradead.org>
+References: <17268.51814.215178.281986@tut.ibm.com>
+	<17268.51975.485344.880078@tut.ibm.com>
+	<20051111193749.GA17018@infradead.org>
+X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Christoph Hellwig writes:
+ > On Fri, Nov 11, 2005 at 10:47:03AM -0600, Tom Zanussi wrote:
+ > > This patch adds a mandatory fileops param to relayfs_create_file() and
+ > > exports that function so that clients can use it to create files
+ > > defined by their own set of file operations, in relayfs.  The purpose
+ > > is to allow relayfs applications to create their own set of 'control'
+ > > files alongside their relay files in relayfs rather than having to
+ > > create them in /proc or debugfs for instance.  relayfs_create_file()
+ > > is also used by relay_open_buf() to create the relay files for a
+ > > channel.  In this case, a pointer to relayfs_file_operations is passed
+ > > in, along with a pointer to the buffer associated with the file.
+ > 
+ > Again, NACK,  control files don't belong into relayfs.
+ > 
 
-Ville Syrjälä wrote:
-> On Tue, 08 Nov 2005 17:38:02 +0000, Alan Cox wrote:
+Sure, applications could just as easily create these same files in
+/proc, /sys, or /debug, but since relayfs is a filesystem, too, it
+seems to me to make sense to take advantage of that and allow them to
+be created alongside the relay files they're associated with, in
+relayfs.
 
->>Ok thanks to Sergei I can now post what I think is the complete table of
->>HPT chip versions:
+Tom
 
-    Another correction coming in... :-)
 
->>        Chip                    PCI ID          Rev
->> *      HPT366                  4 (HPT366)      0
->> *      HPT366                  4 (HPT366)      1    
->> *      HPT368                  4 (HPT366)      2      
->> *      HPT370                  4 (HPT366)      3      
->> *      HPT370A                 4 (HPT366)      4      
->> *      HPT372                  4 (HPT366)      5     
->> *      HPT372N                 4 (HPT366)      6     
->> *      HPT372                  5 (HPT372)      0
-> 
->           ^^^^^^
-> 
-> This one is called HPT372A by Highpoint's BIOS/Win drivers.
-
-    According to Highpoint's driver code 372A has rev. ID 1...
-
-> Also I'm not sure if it's relevant but PCI ID 5 chips use a different
-> BIOS image than PCI ID 4 chips.
->        
-> 
->> *      HPT372N                 5 (HPT372)      > 0     
-
-    And 372N has rev. ID 2...
-
-WBR, Sergei

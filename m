@@ -1,70 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbVKKDJQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbVKKDLD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932298AbVKKDJQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 22:09:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbVKKDJQ
+	id S932311AbVKKDLD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 22:11:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbVKKDLD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 22:09:16 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:9607 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932298AbVKKDJQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 22:09:16 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=Nwmly+wGdiPNqiq15ynJ5s/gxpMjaBjG/52g3ugoTxZ3rrYK4GeeUBclbX/zbhVh9smxC7O9IEPxgQ9/E4idbFr5tvmHcIwIPyVNdExVMP5yFfhoOZ1uZLY0RSknz+upyMJ8mj2RtMk8JSdv4unQmx59IMO1xASguYIq7sdiK6s=
-Date: Thu, 10 Nov 2005 22:09:37 -0500
-From: Florin Malita <fmalita@gmail.com>
-To: akpm@osdl.org, rmk+lkml@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk
-Subject: [PATCH] sa1100 serial: sa1100_start_tx spinlock recursion
-Message-Id: <20051110220937.4e26592e.fmalita@gmail.com>
-X-Mailer: Sylpheed version 2.1.2 (GTK+ 2.6.7; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 10 Nov 2005 22:11:03 -0500
+Received: from smtp111.sbc.mail.re2.yahoo.com ([68.142.229.94]:1872 "HELO
+	smtp111.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S932311AbVKKDLB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 22:11:01 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: Kernel Panic 2.6.14-git (pictures)
+Date: Thu, 10 Nov 2005 22:10:55 -0500
+User-Agent: KMail/1.8.3
+Cc: "Alejandro Bonilla" <abonilla@linuxwireless.org>, jesper.juhl@gmail.com,
+       linux-kernel@vger.kernel.org, Robert Love <rml@novell.com>
+References: <20051110151214.M35138@linuxwireless.org> <20051110175522.1d50c084.akpm@osdl.org>
+In-Reply-To: <20051110175522.1d50c084.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511102210.55918.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The serial core aquires the port spinlock before calling
-port->ops->start_tx(), so sa1100_start_tx() shouldn't try to lock it
-again.
+On Thursday 10 November 2005 20:55, Andrew Morton wrote:
+> "Alejandro Bonilla" <abonilla@linuxwireless.org> wrote:
+> >
+> > I have taken some crappy pictures of the panic, I hope they help.
+> > 
+> > http://linuxwireless.org/kernel
+> 
+> Yes, photos of the screen work very nicely, thanks.
+> 
+> Hi, Robert ;)
+>
 
-BUG: spinlock recursion on CPU#0, init/1
- lock: c0205f20, .magic: dead4ead, .owner: init/1, .owner_cpu: 0
-[<c0022cdc>] (dump_stack+0x0/0x14) [<c00dc338>] (spin_bug+0x0/0xbc)   
-[<c00dc6b0>] (_raw_spin_lock+0x0/0x170)  r8 = 00000007  r7 = C02FE0070                                                   
-[<c018a2a8>] (_spin_lock_irqsave+0x0/0x24)  r4 = C0205F20 
-[<c0112110>] (sa1100_start_tx+0x0/0x40)  r4 = C038C000    
-[<c010ee38>] (__uart_start+0x0/0x5c) [<c010ee94>] (uart_start+0x0/0x3 
-[<c010f1d0>] (uart_write+0x0/0xdc) [<c00fee34>] (write_chan+0x0/0x370 
+Hmm, I though the following made it into Linus's tree...
 
+-- 
+Dmitry
 
+Subject: Convert hdaps driver to dynamic input_dev allocation
 
-Signed-off-by: Florin Malita <fmalita@gmail.com>
-----
-diff --git a/drivers/serial/sa1100.c b/drivers/serial/sa1100.c
---- a/drivers/serial/sa1100.c
-+++ b/drivers/serial/sa1100.c
-@@ -156,7 +156,7 @@ static void sa1100_stop_tx(struct uart_p
- }
+Input: convert hdaps to dynamic input_dev allocation.
+
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+ drivers/hwmon/hdaps.c |   41 +++++++++++++++++++++++------------------
+ 1 files changed, 23 insertions(+), 18 deletions(-)
+
+Index: work/drivers/hwmon/hdaps.c
+===================================================================
+--- work.orig/drivers/hwmon/hdaps.c
++++ work/drivers/hwmon/hdaps.c
+@@ -60,9 +60,11 @@
  
+ #define HDAPS_POLL_PERIOD	(HZ/20)	/* poll for input every 1/20s */
+ #define HDAPS_INPUT_FUZZ	4	/* input event threshold */
++#define HDAPS_INPUT_FLAT	4
+ 
+ static struct timer_list hdaps_timer;
+ static struct platform_device *pdev;
++static struct input_dev *hdaps_idev;
+ static unsigned int hdaps_invert;
+ static u8 km_activity;
+ static int rest_x;
+@@ -311,18 +313,6 @@ static struct device_driver hdaps_driver
+ 	.resume = hdaps_resume
+ };
+ 
+-/* Input class stuff */
+-
+-static struct input_dev hdaps_idev = {
+-	.name = "hdaps",
+-	.evbit = { BIT(EV_ABS) },
+-	.absbit = { BIT(ABS_X) | BIT(ABS_Y) },
+-	.absmin  = { [ABS_X] = -256, [ABS_Y] = -256 },
+-	.absmax  = { [ABS_X] = 256, [ABS_Y] = 256 },
+-	.absfuzz = { [ABS_X] = HDAPS_INPUT_FUZZ, [ABS_Y] = HDAPS_INPUT_FUZZ },
+-	.absflat = { [ABS_X] = HDAPS_INPUT_FUZZ, [ABS_Y] = HDAPS_INPUT_FUZZ },
+-};
+-
  /*
-- * interrupts may not be disabled on entry
-+ * port locked and interrupts disabled
+  * hdaps_calibrate - Set our "resting" values.  Callers must hold hdaps_sem.
   */
- static void sa1100_start_tx(struct uart_port *port)
+@@ -344,9 +334,9 @@ static void hdaps_mousedev_poll(unsigned
+ 	if (__hdaps_read_pair(HDAPS_PORT_XPOS, HDAPS_PORT_YPOS, &x, &y))
+ 		goto out;
+ 
+-	input_report_abs(&hdaps_idev, ABS_X, x - rest_x);
+-	input_report_abs(&hdaps_idev, ABS_Y, y - rest_y);
+-	input_sync(&hdaps_idev);
++	input_report_abs(hdaps_idev, ABS_X, x - rest_x);
++	input_report_abs(hdaps_idev, ABS_Y, y - rest_y);
++	input_sync(hdaps_idev);
+ 
+ 	mod_timer(&hdaps_timer, jiffies + HDAPS_POLL_PERIOD);
+ 
+@@ -566,12 +556,25 @@ static int __init hdaps_init(void)
+ 	if (ret)
+ 		goto out_device;
+ 
++	hdaps_idev = input_allocate_device();
++	if (!hdaps_idev) {
++		ret = -ENOMEM;
++		goto out_group;
++	}
++
+ 	/* initial calibrate for the input device */
+ 	hdaps_calibrate();
+ 
+ 	/* initialize the input class */
+-	hdaps_idev.dev = &pdev->dev;
+-	input_register_device(&hdaps_idev);
++	hdaps_idev->name = "hdaps";
++	hdaps_idev->cdev.dev = &pdev->dev;
++	hdaps_idev->evbit[0] = BIT(EV_ABS);
++	input_set_abs_params(hdaps_idev, ABS_X,
++			-256, 256, HDAPS_INPUT_FUZZ, HDAPS_INPUT_FLAT);
++	input_set_abs_params(hdaps_idev, ABS_X,
++			-256, 256, HDAPS_INPUT_FUZZ, HDAPS_INPUT_FLAT);
++
++	input_register_device(hdaps_idev);
+ 
+ 	/* start up our timer for the input device */
+ 	init_timer(&hdaps_timer);
+@@ -582,6 +585,8 @@ static int __init hdaps_init(void)
+ 	printk(KERN_INFO "hdaps: driver successfully loaded.\n");
+ 	return 0;
+ 
++out_group:
++	sysfs_remove_group(&pdev->dev.kobj, &hdaps_attribute_group);
+ out_device:
+ 	platform_device_unregister(pdev);
+ out_driver:
+@@ -596,7 +601,7 @@ out:
+ static void __exit hdaps_exit(void)
  {
-@@ -164,11 +164,9 @@ static void sa1100_start_tx(struct uart_
- 	unsigned long flags;
- 	u32 utcr3;
- 
--	spin_lock_irqsave(&sport->port.lock, flags);
- 	utcr3 = UART_GET_UTCR3(sport);
- 	sport->port.read_status_mask |= UTSR0_TO_SM(UTSR0_TFS);
- 	UART_PUT_UTCR3(sport, utcr3 | UTCR3_TIE);
--	spin_unlock_irqrestore(&sport->port.lock, flags);
- }
- 
- /*
-
+ 	del_timer_sync(&hdaps_timer);
+-	input_unregister_device(&hdaps_idev);
++	input_unregister_device(hdaps_idev);
+ 	sysfs_remove_group(&pdev->dev.kobj, &hdaps_attribute_group);
+ 	platform_device_unregister(pdev);
+ 	driver_unregister(&hdaps_driver);

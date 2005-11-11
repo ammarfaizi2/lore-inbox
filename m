@@ -1,107 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbVKKWhM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751288AbVKKWh7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751281AbVKKWhM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 17:37:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbVKKWhL
+	id S1751288AbVKKWh7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 17:37:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbVKKWhR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 17:37:11 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:47542 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1751281AbVKKWgz (ORCPT
+	Fri, 11 Nov 2005 17:37:17 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:6084 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751279AbVKKWgy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 17:36:55 -0500
-Date: Fri, 11 Nov 2005 14:36:42 -0800 (PST)
+	Fri, 11 Nov 2005 17:36:54 -0500
+Date: Fri, 11 Nov 2005 14:36:52 -0800 (PST)
 From: Christoph Lameter <clameter@sgi.com>
 To: linux-kernel@vger.kernel.org
 Cc: Christoph Lameter <clameter@sgi.com>, lhms-devel@lists.sourceforge.net
-Message-Id: <20051111223642.21716.54448.sendpatchset@schroedinger.engr.sgi.com>
+Message-Id: <20051111223652.21716.17585.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20051111223632.21716.49021.sendpatchset@schroedinger.engr.sgi.com>
 References: <20051111223632.21716.49021.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 2/8] Direct Migration V3: PageSwapCache checks
+Subject: [PATCH 4/8] Direct Migration V3: remove_from_swap() to remove swap ptes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Check for PageSwapCache after looking up and locking a swap page.
+Add remove_from_swap
 
-The page migration code may change a swap pte to point to a different page
-under lock_page().
+remove_from_swap() allows the restoration of the pte entries that existed
+before page migration occurred for anonymous pages by walking the reverse
+maps. This reduces swap use and establishes regular pte's without the need
+for page faults.
 
-If that happens then the vm must retry the lookup operation in the swap
-space to find the correct page number. There are a couple of locations
-in the VM where a lock_page() is done on a swap page. In these locations
-we need to check afterwards if the page was migrated. If the page was migrated
-then the old page that was looked up before was freed and no longer has the
-PageSwapCache bit set.
+It may also fix a leak of swap entries that could occur if a page
+is freed without locking it first (zap_pte_range?) while migration occurs.
 
-Signed-off-by: Hirokazu Takahashi <taka@valinux.co.jp>
-Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
-Signed-off-by: Christoph Lameter <clameter@@sgi.com>
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.14-mm1/mm/memory.c
+Index: linux-2.6.14-mm2/include/linux/swap.h
 ===================================================================
---- linux-2.6.14-mm1.orig/mm/memory.c	2005-11-07 11:48:19.000000000 -0800
-+++ linux-2.6.14-mm1/mm/memory.c	2005-11-07 11:55:08.000000000 -0800
-@@ -1720,6 +1720,7 @@ static int do_swap_page(struct mm_struct
- 		goto out;
+--- linux-2.6.14-mm2.orig/include/linux/swap.h	2005-11-11 12:42:26.000000000 -0800
++++ linux-2.6.14-mm2/include/linux/swap.h	2005-11-11 12:44:20.000000000 -0800
+@@ -266,6 +266,7 @@ extern int remove_exclusive_swap_page(st
+ struct backing_dev_info;
  
- 	entry = pte_to_swp_entry(orig_pte);
-+again:
- 	page = lookup_swap_cache(entry);
- 	if (!page) {
-  		swapin_readahead(entry, address, vma);
-@@ -1743,6 +1744,12 @@ static int do_swap_page(struct mm_struct
+ extern spinlock_t swap_lock;
++extern int unuse_vma(struct vm_area_struct *vma, swp_entry_t entry, struct page *page);
  
- 	mark_page_accessed(page);
- 	lock_page(page);
-+	if (!PageSwapCache(page)) {
-+		/* Page migration has occured */
-+		unlock_page(page);
-+		page_cache_release(page);
-+		goto again;
+ /* linux/mm/thrash.c */
+ extern struct mm_struct * swap_token_mm;
+Index: linux-2.6.14-mm2/mm/swapfile.c
+===================================================================
+--- linux-2.6.14-mm2.orig/mm/swapfile.c	2005-11-11 12:42:24.000000000 -0800
++++ linux-2.6.14-mm2/mm/swapfile.c	2005-11-11 12:44:20.000000000 -0800
+@@ -477,7 +477,7 @@ static inline int unuse_pud_range(struct
+ 	return 0;
+ }
+ 
+-static int unuse_vma(struct vm_area_struct *vma,
++int unuse_vma(struct vm_area_struct *vma,
+ 				swp_entry_t entry, struct page *page)
+ {
+ 	pgd_t *pgd;
+Index: linux-2.6.14-mm2/mm/rmap.c
+===================================================================
+--- linux-2.6.14-mm2.orig/mm/rmap.c	2005-11-11 12:26:58.000000000 -0800
++++ linux-2.6.14-mm2/mm/rmap.c	2005-11-11 12:44:20.000000000 -0800
+@@ -206,6 +206,25 @@ out:
+ }
+ 
+ /*
++ * Remove an anonymous page from swap replacing the swap pte's
++ * through real pte's pointing to valid pages.
++ */
++void remove_from_swap(struct page *page)
++{
++	struct anon_vma *anon_vma;
++	struct vm_area_struct *vma;
++
++	anon_vma = page_lock_anon_vma(page);
++	if (!anon_vma)
++		return;
++	list_for_each_entry(vma, &anon_vma->head, anon_vma_node) {
++		swp_entry_t entry = { .val = page_private(page) };
++
++		unuse_vma(vma, entry, page);
 +	}
- 
- 	/*
- 	 * Back out if somebody else already faulted in this pte.
-Index: linux-2.6.14-mm1/mm/shmem.c
++}
++
++/*
+  * At what user virtual address is page expected in vma?
+  */
+ static inline unsigned long
+Index: linux-2.6.14-mm2/include/linux/rmap.h
 ===================================================================
---- linux-2.6.14-mm1.orig/mm/shmem.c	2005-11-07 11:48:08.000000000 -0800
-+++ linux-2.6.14-mm1/mm/shmem.c	2005-11-07 11:55:08.000000000 -0800
-@@ -1013,6 +1013,14 @@ repeat:
- 			page_cache_release(swappage);
- 			goto repeat;
+--- linux-2.6.14-mm2.orig/include/linux/rmap.h	2005-11-11 12:26:58.000000000 -0800
++++ linux-2.6.14-mm2/include/linux/rmap.h	2005-11-11 12:44:20.000000000 -0800
+@@ -91,6 +91,7 @@ static inline void page_dup_rmap(struct 
+  */
+ int page_referenced(struct page *, int is_locked, int ignore_token);
+ int try_to_unmap(struct page *);
++void remove_from_swap(struct page *page);
+ 
+ /*
+  * Called from mm/filemap_xip.c to unmap empty zero page
+Index: linux-2.6.14-mm2/mm/vmscan.c
+===================================================================
+--- linux-2.6.14-mm2.orig/mm/vmscan.c	2005-11-11 12:43:19.000000000 -0800
++++ linux-2.6.14-mm2/mm/vmscan.c	2005-11-11 12:44:20.000000000 -0800
+@@ -977,12 +977,15 @@ next:
+ 
+ 		else if (rc) {
+ 			/* Permanent failure to migrate the page */
++			remove_from_swap(page);
+ 			list_move(&page->lru, failed);
+ 			nr_failed++;
  		}
-+		if (!PageSwapCache(swappage)) {
-+			/* Page migration has occured */
-+			shmem_swp_unmap(entry);
-+			spin_unlock(&info->lock);
-+			unlock_page(swappage);
-+			page_cache_release(swappage);
-+			goto repeat;
-+		}
- 		if (PageWriteback(swappage)) {
- 			shmem_swp_unmap(entry);
- 			spin_unlock(&info->lock);
-Index: linux-2.6.14-mm1/mm/swapfile.c
-===================================================================
---- linux-2.6.14-mm1.orig/mm/swapfile.c	2005-11-07 11:48:49.000000000 -0800
-+++ linux-2.6.14-mm1/mm/swapfile.c	2005-11-07 11:55:08.000000000 -0800
-@@ -624,6 +624,7 @@ static int try_to_unuse(unsigned int typ
- 		 */
- 		swap_map = &si->swap_map[i];
- 		entry = swp_entry(type, i);
-+again:
- 		page = read_swap_cache_async(entry, NULL, 0);
- 		if (!page) {
- 			/*
-@@ -658,6 +659,12 @@ static int try_to_unuse(unsigned int typ
- 		wait_on_page_locked(page);
- 		wait_on_page_writeback(page);
- 		lock_page(page);
-+		if (!PageSwapCache(page)) {
-+			/* Page migration has occured */
-+			unlock_page(page);
-+			page_cache_release(page);
-+			goto again;
-+		}
- 		wait_on_page_writeback(page);
- 
- 		/*
+-		else if (newpage) {
+-			/* Successful migration. Return new page to LRU */
+-			move_to_lru(newpage);
++		else {
++			if (newpage) {
++				remove_from_swap(newpage);
++				move_to_lru(newpage);
++			}
+ 			list_move(&page->lru, moved);
+ 		}
+ 	}
+

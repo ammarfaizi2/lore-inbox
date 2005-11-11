@@ -1,37 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751087AbVKKTWQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbVKKTWf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751087AbVKKTWQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 14:22:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbVKKTWQ
+	id S1751088AbVKKTWf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 14:22:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751082AbVKKTWf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 14:22:16 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:43673 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1751088AbVKKTWO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 14:22:14 -0500
-Message-ID: <4374EF68.8040004@namesys.com>
-Date: Fri, 11 Nov 2005 11:22:16 -0800
+	Fri, 11 Nov 2005 14:22:35 -0500
+Received: from rwcrmhc11.comcast.net ([216.148.227.117]:1209 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1751088AbVKKTWe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 14:22:34 -0500
+Message-ID: <4374EF75.5010105@namesys.com>
+Date: Fri, 11 Nov 2005 11:22:29 -0800
 From: Hans Reiser <reiser@namesys.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
+To: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
 Subject: [Fwd: [PATCH 3/3] reiser4-fix-readlink.patch]
 X-Enigmail-Version: 0.90.1.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: multipart/mixed;
- boundary="------------080308030101070103090802"
+ boundary="------------020800080403040701020607"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------080308030101070103090802
+--------------020800080403040701020607
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
 
 
---------------080308030101070103090802
+--------------020800080403040701020607
 Content-Type: message/rfc822;
  name="[PATCH 3/3] reiser4-fix-readlink.patch"
 Content-Transfer-Encoding: 7bit
@@ -141,4 +141,4 @@ _
 
 
 
---------------080308030101070103090802--
+--------------020800080403040701020607--

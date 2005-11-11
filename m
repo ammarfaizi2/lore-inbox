@@ -1,43 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbVKKNRp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbVKKNUa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbVKKNRp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 08:17:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbVKKNRp
+	id S1750730AbVKKNUa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 08:20:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbVKKNUa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 08:17:45 -0500
-Received: from mail.collax.com ([213.164.67.137]:51940 "EHLO
-	kaber.coreworks.de") by vger.kernel.org with ESMTP id S1750734AbVKKNRo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 08:17:44 -0500
-Message-ID: <437499C7.7040302@trash.net>
-Date: Fri, 11 Nov 2005 14:16:55 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20051011 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Thomas Graf <tgraf@suug.ch>
-CC: Brian Pomerantz <bapper@piratehaven.org>, netdev@vger.kernel.org,
-       davem@davemloft.net, kuznet@ms2.inr.ac.ru, pekkas@netcore.fi,
-       jmorris@namei.org, yoshfuji@linux-ipv6.org, kaber@coreworks.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [IPV4] Fix secondary IP addresses after promotion
-References: <20051104184633.GA16256@skull.piratehaven.org> <436BFE08.6030906@trash.net> <20051105010740.GR23537@postel.suug.ch> <436C090D.5020201@trash.net> <436C34F8.3090903@trash.net> <20051105134636.GS23537@postel.suug.ch> <20051107215022.GH23537@postel.suug.ch> <4370B203.8070501@trash.net> <20051109005658.GL23537@postel.suug.ch>
-In-Reply-To: <20051109005658.GL23537@postel.suug.ch>
+	Fri, 11 Nov 2005 08:20:30 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:23087 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1750730AbVKKNUa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 08:20:30 -0500
+Date: Fri, 11 Nov 2005 14:21:34 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Tejun Heo <htejun@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] as-iosched: update alias handling
+Message-ID: <20051111132134.GU3699@suse.de>
+References: <20051110140859.GA26030@htj.dyndns.org> <20051110171743.GE3699@suse.de> <4373CB4C.6070602@yahoo.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <4373CB4C.6070602@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Graf wrote:
-> * Patrick McHardy <kaber@trash.net> 2005-11-08 15:11
->
->>I have a patch to do this, but it needs some debugging, for some
->>unknown reason it crashes sometimes if I remove addresses without
->>specifying the mask.
->  
-> Interesting, do you use an iproute2 version with the wildcard
-> address deletion fix attached below?
+On Fri, Nov 11 2005, Nick Piggin wrote:
+> Jens Axboe wrote:
+> >On Thu, Nov 10 2005, Tejun Heo wrote:
+> >
+> >>Unlike other ioscheds, as-iosched handles alias by chaing them using
+> >>rq->queuelist.  As aliased requests are very rare in the first place,
+> >>this complicates merge/dispatch handling without meaningful
+> >>performance improvement.  This patch updates as-iosched to dump
+> >>aliased requests into dispatch queue as other ioscheds do.
+> >>
+> >>Signed-off-by: Tejun Heo <htejun@gmail.com>
+> >
+> >
+> >In theory the way 'as' handles the aliases is faster since we postpone
+> >pushing them to the dispatch list at the same point (and they have
+> >strong (if not identical) locality). But it is much simpler to just
+> >shove the offending requests onto the dispatch list.
+> >
+> >It's really up to Nick - what do you think? Leaving patch below.
+> >
+> 
+> I thought this was pretty cool, but in reality it could be that the
+> cost / benefit actually goes the wrong way due to added complexity
+> and rarity of alised requests.
+> 
+> Hmm... I can't bear to ack it ;) I'll close my eyes and let Jens
+> make the call!
 
-No, its some old debian version. I'm going to try if it makes a
-difference, but it needs to be fixed to work (or at least not crash)
-with old versions anyway.
+Heh well, I am a sucker for simplicity especially when it's for corner
+cases where the more advanced solution will at most save you a full
+seek.
+
+> >>Jens, I've tested this change for several hours, but it might be
+> >>better to postpone this change to next release.  It's your call.
+> >>
+> 
+> It could go into mm now, but probably leave it for 2.6.16 unless
+> you have some other reason to really need it.
+
+Agree, I've shoved it into the 'post-2.6.15' branch.
+
+-- 
+Jens Axboe
+

@@ -1,42 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751373AbVKKXIl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbVKKXT5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751373AbVKKXIl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 18:08:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751374AbVKKXIl
+	id S1751301AbVKKXT5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 18:19:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751376AbVKKXT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 18:08:41 -0500
-Received: from maggie.cs.pitt.edu ([130.49.220.148]:30853 "EHLO
-	maggie.cs.pitt.edu") by vger.kernel.org with ESMTP id S1751373AbVKKXIj
+	Fri, 11 Nov 2005 18:19:57 -0500
+Received: from zproxy.gmail.com ([64.233.162.197]:59432 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751301AbVKKXT5 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 18:08:39 -0500
-From: Claudio Scordino <cloud.of.andor@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] getrusage sucks
-Date: Sat, 12 Nov 2005 00:08:28 +0100
-User-Agent: KMail/1.8
-Cc: "Magnus Naeslund(f)" <mag@fbab.net>,
-       "Hua Zhong (hzhong)" <hzhong@cisco.com>, linux-kernel@vger.kernel.org,
-       kernelnewbies@nl.linux.org, David Wagner <daw@cs.berkeley.edu>
-References: <75D9B5F4E50C8B4BB27622BD06C2B82BCF2FD4@xmb-sjc-235.amer.cisco.com> <200511112338.20684.cloud.of.andor@gmail.com> <1131751433.3174.50.camel@localhost.localdomain>
-In-Reply-To: <1131751433.3174.50.camel@localhost.localdomain>
+	Fri, 11 Nov 2005 18:19:57 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=tcVWxKOG8p/dOF20Y/5GuSD0UrgtF2gavUv/QpErsqoKWFrDxx0Vr79ccHcgXi9nxQJ/yIqR11coHNbmcKcuH6yHHRHmfFiC9/VX929maezyyoankSvMdky0QLZLgeVjHYuku3FBFDRlxFEL8yLcACJe1YwqZSCLjWLEdQCWQN8=
+Message-ID: <9a8748490511111519h28c61279q2a1616a869e72be6@mail.gmail.com>
+Date: Sat, 12 Nov 2005 00:19:56 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: "Miro Dietiker, MD Systems" <info@md-systems.ch>
+Subject: Re: Patches for Kernel 2.6.14 on kernel.org
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <012b01c5e710$b74e4460$4001a8c0@MDSYSPORT>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200511120008.30157.cloud.of.andor@gmail.com>
-X-Spam-Score: -1.665/8 BAYES_00 SA-version=3.000002
+References: <012b01c5e710$b74e4460$4001a8c0@MDSYSPORT>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 12 November 2005 00:23, Alan Cox wrote:
-> On Gwe, 2005-11-11 at 23:38 +0100, Claudio Scordino wrote:
-> > +                if ((current->euid != tsk->euid) &&
-> > +                (current->euid != tsk->uid)) {
-> > +                        read_unlock(&tasklist_lock);
-> > +                        return -EINVAL;
+On 11/11/05, Miro Dietiker, MD Systems <info@md-systems.ch> wrote:
+> Hi!
 >
-> Would be -EPERM also wants a 'privilege' check. Not sure which would be
-> best here - CAP_SYS_ADMIN seems to be the 'default' used
+> As of the kernel.org/pub/linux/kernel/README all patches need to be
+> applied (bigger than the
+> current local version)
+>
+> For the current 2.6.14.2 this seems not to be true (The patch 2.6.14.1
+> seems to be included in
+> 2.6.14.2)
+>
+The 2.6.14.2 patch is to be applied against 2.6.14 - the -stable
+patches are not incremental.
 
-I would say -EPERM. Any other comment about the patch ?
+> Is this a "new" undocumented general behaviour such as e.g. patches
+> always based on the
+> latest 3-Number version or is this a small mistake?
+>
+Not new, no mistake.
+
+http://sosdg.org/~coywolf/lxr/source/Documentation/applying-patches.txt
+
+Read the "The 2.6.x kernels" and the "The 2.6.x.y kernels" sections.
+
+
+> In any case: One of the described sources need to be corrected, I think.
+>
+I think the README should refer people to
+Documentation/applying-patches.txt for more details. I'll submit a
+patch in a little while to do that.
+
+
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

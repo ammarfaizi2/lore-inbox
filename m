@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbVKKTuD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbVKKTus@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751122AbVKKTuD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 14:50:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbVKKTuD
+	id S1751121AbVKKTus (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 14:50:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVKKTus
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 14:50:03 -0500
-Received: from zproxy.gmail.com ([64.233.162.196]:2918 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751122AbVKKTuB convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 14:50:01 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=A5oxSnKYl5PXKfOVWAjhnp5WGukLtCUOwg2f8raLPOTS25F94M1Zer0KzzwH3SK+K6tSshA42KBGyLjJf81yT0JptF4Xi3cTT/l7aA39nXAhjkReBUIYGGQUUAR1Qa0P8VCmUIi63tUprxInTsLag+jogXv0DGwS9Va5VLiGMiE=
-Message-ID: <195c7a900511111149q23db90e7n67ef3cab6694cb78@mail.gmail.com>
-Date: Fri, 11 Nov 2005 19:49:59 +0000
-From: roucaries bastien <roucaries.bastien@gmail.com>
-To: Takashi Iwai <tiwai@suse.de>
-Subject: Re: [BUG] Ali snd soft lookup on 2.6.14 (regression)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <s5h4q6jypi8.wl%tiwai@suse.de>
+	Fri, 11 Nov 2005 14:50:48 -0500
+Received: from gold.veritas.com ([143.127.12.110]:33917 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751121AbVKKTur (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 14:50:47 -0500
+Date: Fri, 11 Nov 2005 19:49:33 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: =?ISO-8859-1?Q?Michael_=C5lenius?= <michael.alenius@gmail.com>
+cc: Fawad Lateef <fawadlateef@gmail.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: Please report this to linux-kernel@vger.kernel.org
+In-Reply-To: <6a42705d0511111042p1e92b0adsf9aa91784b443529@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0511111943270.2814@goblin.wat.veritas.com>
+References: <6a42705d0511111042p1e92b0adsf9aa91784b443529@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <195c7a900511101418r25aa43e6gc5cdeeac17aa0c7c@mail.gmail.com>
-	 <s5hr79nz3b4.wl%tiwai@suse.de>
-	 <195c7a900511111040p7947267brd99ce0be3c1130f4@mail.gmail.com>
-	 <s5h64qzyq8o.wl%tiwai@suse.de>
-	 <195c7a900511111102t240b8195y58a2c167f0185d70@mail.gmail.com>
-	 <s5h4q6jypi8.wl%tiwai@suse.de>
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323584-1452599127-1131738573=:2814"
+X-OriginalArrivalTime: 11 Nov 2005 19:50:47.0116 (UTC) FILETIME=[35A4B8C0:01C5E6F9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/11/05, Takashi Iwai <tiwai@suse.de> wrote:
-> At Fri, 11 Nov 2005 19:02:00 +0000,
-> roucaries bastien wrote:
-> > > > > Does the patch below fix?
-> > > > It fix the BUG but I have always no sound :-(
-> > > >
-> > > > dmesg shows now:
-> > > >
-> > > > AC'97 1 does not respond - RESET
-> > > > AC'97 1 access is not valid [0xffffffff], removing mixer.
-> > >
-> > > This is the secondary codec, so it's no fatal error.
-> > >
-> > > Make sure that you set up your mixer correctly again.
-> Toggle 'Headphone Jack Sense' and 'Line Jack Sense' mixer switches.
-> Don't touch these switches unless you're sure.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-If I toggle off the two switch below it work (with obviously your
-patch applied).
+--8323584-1452599127-1131738573=:2814
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-Thank you very much for your quick fix.
+On Fri, 11 Nov 2005, Michael =C3=85lenius wrote:
 
-Bastien
+> Upgraded  to fedora FC4 Development.repo.(kernel-2.6.14-1.1660_FC5)
+> Newbie.So don't know which part to send,or if all of dmesg.
+> Please inform me of what you need?If anything.
+
+Thank you, Michael.  Yes, we've had a few other reports of this,
+and we're currently considering what patch to make for it.
+I'll come back to you if we need more info.
+
+You did just the right thing reporting this as you have done,
+please ignore Fawad's well-intentioned response ;)
+
+Hugh
+
+> SELinux: initialized (dev hdc, type iso9660), uses genfs_contexts
+> application mixer_applet2 uses obsolete OSS audio interface
+> eth0: link up, 100Mbps, full-duplex, lpa 0x41E1
+> eth0: no IPv6 routers present
+> ISO 9660 Extensions: Microsoft Joliet Level 3
+> ISOFS: changing to secondary root
+> SELinux: initialized (dev hdc, type iso9660), uses genfs_contexts
+> program ddcprobe is using MAP_PRIVATE, PROT_WRITE mmap of VM_RESERVED
+> memory, wh ich is deprecated. Please report this to
+> linux-kernel@vger.kernel.org
+--8323584-1452599127-1131738573=:2814--

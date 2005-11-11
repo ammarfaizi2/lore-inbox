@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbVKKAz2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbVKKBAt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932293AbVKKAz2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 19:55:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbVKKAz2
+	id S932297AbVKKBAt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 20:00:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbVKKBAt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 19:55:28 -0500
-Received: from ozlabs.org ([203.10.76.45]:15293 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932293AbVKKAz2 (ORCPT
+	Thu, 10 Nov 2005 20:00:49 -0500
+Received: from holomorphy.com ([66.93.40.71]:51383 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S932297AbVKKBAs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 19:55:28 -0500
-MIME-Version: 1.0
+	Thu, 10 Nov 2005 20:00:48 -0500
+Date: Thu, 10 Nov 2005 16:51:19 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: Adam Litke <agl@us.ibm.com>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com, akpm@osdl.org
+Subject: Re: [PATCH] dequeue a huge page near to this node
+Message-ID: <20051111005119.GQ29402@holomorphy.com>
+References: <Pine.LNX.4.62.0511101521180.16770@schroedinger.engr.sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17267.60410.120520.63951@cargo.ozlabs.ibm.com>
-Date: Fri, 11 Nov 2005 11:55:22 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH,RFC 2.6.14 11/15] KGDB: ppc64-specific changes
-In-Reply-To: <20051110164409.20950.43161.sendpatchset@localhost.localdomain>
-References: <20051110163906.20950.45704.sendpatchset@localhost.localdomain>
-	<20051110164409.20950.43161.sendpatchset@localhost.localdomain>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0511101521180.16770@schroedinger.engr.sgi.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini writes:
+On Thu, Nov 10, 2005 at 03:27:12PM -0800, Christoph Lameter wrote:
+> The following patch changes the dequeueing to select a huge page near
+> the node executing instead of always beginning to check for free 
+> nodes from node 0. This will result in a placement of the huge pages near
+> the executing processor improving performance.
+> The existing implementation can place the huge pages far away from 
+> the executing processor causing significant degradation of performance.
+> The search starting from zero also means that the lower zones quickly 
+> run out of memory. Selecting a huge page near the process distributed the 
+> huge pages better.
+> Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-> This adds basic KGDB support to ppc64, and support for kgdb8250 on the 'Maple'
-> board.  All of this was done by Frank Rowand (who is on vacation right now,
-> but I'll try and answer for him).  This should work on any ppc64 board via
-> kgdboe, so long as there is an eth driver that supports netpoll.  At the
-> moment this is mutually exclusive with XMON.  It is probably possible to allow
-> them to be chained, but that sounds dangerous to me.  This is similar to
-> ppc32, but ppc32 does not explicitly test.
+Long intended to have been corrected. Thanks.
 
-We already have infrastructure to allow either xmon or kdb to be used,
-and in fact both can be built in and you can select at runtime which
-you prefer.  See the __debugger stuff in system.h.  You should just be
-able to hook kgdb into that same infrastructure.  We're also planning
-to move to using the die_notify stuff for getting all the significant
-events to the debugger.
+Acked-by: William Irwin <wli@holomorphy.com>
 
-Paul.
+
+-- wli

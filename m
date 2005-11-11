@@ -1,41 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbVKKPfE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbVKKPey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750818AbVKKPfE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 10:35:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbVKKPfE
+	id S1750815AbVKKPey (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 10:34:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbVKKPey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 10:35:04 -0500
-Received: from ns.suse.de ([195.135.220.2]:29877 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750818AbVKKPfB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 10:35:01 -0500
-From: Andi Kleen <ak@suse.de>
-To: "Jan Beulich" <JBeulich@novell.com>
-Subject: Re: [PATCH] x86-64: adjust ia32entry.S
-Date: Fri, 11 Nov 2005 16:34:44 +0100
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
-References: <4370AFF0.76F0.0078.0@novell.com> <4370C36D.76F0.0078.0@novell.com> <43722D73.76F0.0078.0@novell.com>
-In-Reply-To: <43722D73.76F0.0078.0@novell.com>
+	Fri, 11 Nov 2005 10:34:54 -0500
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:23956 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP
+	id S1750815AbVKKPex (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 10:34:53 -0500
+X-ORBL: [67.120.235.193]
+DomainKey-Signature: a=rsa-sha1; s=sbc01; d=pacbell.net; c=nofws; q=dns;
+	h=message-id:date:from:user-agent:mime-version:to:cc:subject:
+	references:in-reply-to:content-type:content-transfer-encoding;
+	b=hUNODxgokoejQqXnbndSEf2MVEXKA1WGgywtZxbVdOXofkfIMvBsPCyMHoI95cSo+
+	+DSFzzUByXvoGwumq838A==
+Message-ID: <4374BA0F.9010101@pacbell.net>
+Date: Fri, 11 Nov 2005 07:34:39 -0800
+From: Mickey Stein <yekkim@pacbell.net>
+User-Agent: Mail/News 1.5 (X11/20051105)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kconfig: Makefile xconfig problem: qconf libs/cflags
+ error
+References: <43749921.2010603@pacbell.net> <Pine.LNX.4.61.0511111519470.1609@scrub.home>
+In-Reply-To: <Pine.LNX.4.61.0511111519470.1609@scrub.home>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511111634.44871.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 November 2005 17:10, Jan Beulich wrote:
-> IA32 compatibility entry points needlessly played with extended
-> registers. Additionally, frame unwind information was still incorrect
-> for ia32_ptregs_common (sorry, my fault).
+Roman Zippel wrote:
+> Hi,
+>
+> On Fri, 11 Nov 2005, Mickey Stein wrote:
+>
+>   
+>> The actual problem may be at another level, since I don't see a difference
+>> between the scripts/kconfig/Makefile & prior ones that work, but this patch
+>> seems in line with other targets that work and used the standard pkg-config
+>> --libs --cflags setup.
+>>     
+>
+> Interesting, I didn't know pkg-config supports qt, it's a good idea to use 
+> it if it's available, but I'd like to avoid to depend on it.
+> I'll look into it during the weekend.
+>
+> bye, Roman
+>
+>   
+Hi Roman,
 
-What do you mean with needlessly played? That it didn't initialize 
-all on the stack frame? That was more a feature than a bug.
-Did it cause you problems?
+Thanks. I used it because the other symbols aren't getting set for me 
+over the course of the last few kernels.
 
-In general I'm weary of making the asm macros more complex
-(adding more arguments etc.) Please keep it simple.
-
--Andi
+Mickey

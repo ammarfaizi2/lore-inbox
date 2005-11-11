@@ -1,89 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbVKKXcV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbVKKXdP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751315AbVKKXcV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 18:32:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbVKKXcV
+	id S1751316AbVKKXdP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 18:33:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbVKKXdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 18:32:21 -0500
-Received: from zproxy.gmail.com ([64.233.162.196]:42774 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751315AbVKKXcV (ORCPT
+	Fri, 11 Nov 2005 18:33:15 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:85 "EHLO pfepc.post.tele.dk")
+	by vger.kernel.org with ESMTP id S1751316AbVKKXdP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 18:32:21 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=umNdnBJwTlx+Q5lsGAUyhdK11FOPQ9EWVS3jj9MHuGuL2RKcl1GjDzuEkbGGGQeT5SW4CH0H5+gfm+WnZ9DD9PG+3FD1JJLb1uaE3uXegyRqBxjE4B+ob3nR2F6U+KI0R3vL+yw3x9gufeiC7KCxN4vNYty6aFpwcQD46sgmvBU=
-Message-ID: <4375291F.3040508@gmail.com>
-Date: Sat, 12 Nov 2005 07:28:31 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Fri, 11 Nov 2005 18:33:15 -0500
+Date: Sat, 12 Nov 2005 00:34:23 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
 To: Andrew Morton <akpm@osdl.org>
-CC: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       linux-kernel@vger.kernel.org, "Antonino A. Daplas" <adaplas@pol.net>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: [PATCH] nvidiafb: Fix bug in nvidiafb_pan_display
-References: <20051110203544.027e992c.akpm@osdl.org>	<6bffcb0e0511111432m771dcda2y@mail.gmail.com> <20051111150108.265b2d3f.akpm@osdl.org>
-In-Reply-To: <20051111150108.265b2d3f.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       paulus@samba.org, anton@samba.org, linuxppc64-dev@ozlabs.org
+Subject: Re: [2.6 patch] add -Werror-implicit-function-declaration to CFLAGS
+Message-ID: <20051111233423.GB28276@mars.ravnborg.org>
+References: <20051107200336.GH3847@stusta.de> <20051110042857.38b4635b.akpm@osdl.org> <20051111021258.GK5376@stusta.de> <20051110182443.514622ed.akpm@osdl.org> <20051111201849.GP5376@stusta.de> <20051111132443.04061d10.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051111132443.04061d10.akpm@osdl.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-nvidiafb_pan_display() is incorrectly using the fields in
-info->var instead of var passed to the function.
-
-Signed-off-by: Antonino Daplas <adaplas@pol.net>
----
-
-Andrew Morton wrote:
-> Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
->> Hi,
->>
->> On 11/11/05, Andrew Morton <akpm@osdl.org> wrote:
->>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14/2.6.14-mm2/
->>>
->> Something is broken with nvidia framebuffer. When I try to login on
->> tty1 "Password: " doesn't appear. It appear when I switch Alt+F2 to
->> tty2 and then back to tty1.
->>
+On Fri, Nov 11, 2005 at 01:24:43PM -0800, Andrew Morton wrote:
+> Adrian Bunk <bunk@stusta.de> wrote:
+> >
+> > > > > 
+> > > > > Sorry, I need to build allmodconfig kernels on wacky architectures (eg
+> > > > > ppc64) and this patch is killing me.
+> > > > 
+> > > > Can you send me the list of compile errors so that I can work on fixing 
+> > > > them?
+> > > > 
+> > > 
+> > > No handily, sorry.   Missing virt_to_bus() is the typical problem.
+> > >
+> > 
+> > But in this case -Werror-implicit-function-declaration doesn't create 
+> > new compile errors, it only moves compile errors from compile time to 
+> > link or depmod time - which is IMHO not a bad change.
 > 
-> Yup, thanks.  Yesterday Ben reported:
-> 
->> not 100% sure what's up, but current -git has funny breakage with
->> nvidiafb on an iMac G5 I have here. The mode seems correct but the
->> console uses one line too much of text.
->>
->> That is, the total height of the screen isn't a multiple of the height
->> of a line of text. It seems that fbcon is rounding up instead of down,
->> thus the "last" line is basically going offscreen (about 2 or 3 pixels
->> visible, the rest is offscreen).
->>
-> 
+> It is a quite inconvenient change if you want to get full coverage with
+> `make allmodconfig'.
 
-Looks like a bug in nvidiafb_pan_display() which was revealed when I
-changed the semantics of update_var/update_start.
+It could be a Kconfig item if enabled or not.
+Then you could use the new mechanishm in kconfig to disable it for your
+allmodconfig builds.
 
-Try this patch.
-
-Tony
-
- nvidia.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+cat allmod.config
+CONFIG_CC_ERROR_IMPLICIT_FUNCTION_DECLARATION = 0
 
 
-diff --git a/drivers/video/nvidia/nvidia.c b/drivers/video/nvidia/nvidia.c
-index 0b40a2a..bee09c6 100644
---- a/drivers/video/nvidia/nvidia.c
-+++ b/drivers/video/nvidia/nvidia.c
-@@ -1301,7 +1301,7 @@ static int nvidiafb_pan_display(struct f
- 	struct nvidia_par *par = info->par;
- 	u32 total;
- 
--	total = info->var.yoffset * info->fix.line_length + info->var.xoffset;
-+	total = var->yoffset * info->fix.line_length + var->xoffset;
- 
- 	NVSetStartAddress(par, total);
- 
+That should do the trick, but maybe too inconvinient??
 
+	Sam

@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbVKKXBd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbVKKXCk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751308AbVKKXBd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 18:01:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbVKKXBd
+	id S1751310AbVKKXCk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 18:02:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbVKKXCk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 18:01:33 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:9923 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751308AbVKKXBc (ORCPT
+	Fri, 11 Nov 2005 18:02:40 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:50883 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751310AbVKKXCj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 18:01:32 -0500
-Date: Fri, 11 Nov 2005 15:01:08 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: linux-kernel@vger.kernel.org, "Antonino A. Daplas" <adaplas@pol.net>
-Subject: Re: 2.6.14-mm2
-Message-Id: <20051111150108.265b2d3f.akpm@osdl.org>
-In-Reply-To: <6bffcb0e0511111432m771dcda2y@mail.gmail.com>
-References: <20051110203544.027e992c.akpm@osdl.org>
-	<6bffcb0e0511111432m771dcda2y@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 11 Nov 2005 18:02:39 -0500
+Date: Fri, 11 Nov 2005 15:02:23 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Claudio Scordino <cloud.of.andor@gmail.com>,
+       "Magnus Naeslund(f)" <mag@fbab.net>,
+       "Hua Zhong (hzhong)" <hzhong@cisco.com>, linux-kernel@vger.kernel.org,
+       kernelnewbies@nl.linux.org, David Wagner <daw@cs.berkeley.edu>
+Subject: Re: [PATCH] getrusage sucks
+Message-ID: <20051111230223.GB7991@shell0.pdx.osdl.net>
+References: <75D9B5F4E50C8B4BB27622BD06C2B82BCF2FD4@xmb-sjc-235.amer.cisco.com> <200511110211.05642.cloud.of.andor@gmail.com> <1131715816.3174.15.camel@localhost.localdomain> <200511112338.20684.cloud.of.andor@gmail.com> <1131751433.3174.50.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1131751433.3174.50.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
->
-> Hi,
+* Alan Cox (alan@lxorguk.ukuu.org.uk) wrote:
+> On Gwe, 2005-11-11 at 23:38 +0100, Claudio Scordino wrote:
+> > +                if ((current->euid != tsk->euid) &&
+> > +                (current->euid != tsk->uid)) {
+> > +                        read_unlock(&tasklist_lock);
+> > +                        return -EINVAL;
 > 
-> On 11/11/05, Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14/2.6.14-mm2/
-> >
 > 
-> Something is broken with nvidia framebuffer. When I try to login on
-> tty1 "Password: " doesn't appear. It appear when I switch Alt+F2 to
-> tty2 and then back to tty1.
-> 
+> Would be -EPERM also wants a 'privilege' check. Not sure which would be
+> best here - CAP_SYS_ADMIN seems to be the 'default' used
 
-Yup, thanks.  Yesterday Ben reported:
-
-> not 100% sure what's up, but current -git has funny breakage with
-> nvidiafb on an iMac G5 I have here. The mode seems correct but the
-> console uses one line too much of text.
-> 
-> That is, the total height of the screen isn't a multiple of the height
-> of a line of text. It seems that fbcon is rounding up instead of down,
-> thus the "last" line is basically going offscreen (about 2 or 3 pixels
-> visible, the rest is offscreen).
-> 
-
-Which looks sort-of similar.
-
-And Tony replied:
-
-> What does stty -a say, and fbset -i?
+It's already available via /proc w/out protection.  And ditto via posix
+cpu timers.

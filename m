@@ -1,84 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750921AbVKKREy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750927AbVKKRKK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750921AbVKKREy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 12:04:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbVKKREy
+	id S1750927AbVKKRKK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 12:10:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750930AbVKKRKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 12:04:54 -0500
-Received: from vms040pub.verizon.net ([206.46.252.40]:28891 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1750907AbVKKREx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 12:04:53 -0500
-Date: Fri, 11 Nov 2005 12:04:51 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: 2.6.14.1/2 patch Makefile hunk FAILED
-In-reply-to: <200511111648.35632.nick@linicks.net>
-To: linux-kernel@vger.kernel.org
-Message-id: <200511111204.52149.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <200511111648.35632.nick@linicks.net>
-User-Agent: KMail/1.7
+	Fri, 11 Nov 2005 12:10:10 -0500
+Received: from mo01.iij4u.or.jp ([210.130.0.20]:3785 "EHLO mo01.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S1750927AbVKKRKI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 12:10:08 -0500
+Date: Sat, 12 Nov 2005 02:09:48 +0900
+From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+To: Andrew Morton <akpm@osdl.org>
+Cc: yuasa@hh.iij4u.or.jp, linux-kernel@vger.kernel.org
+Subject: [-mm PATCH] slob: add kmem_set_shrinker
+Message-Id: <20051112020948.798c0199.yuasa@hh.iij4u.or.jp>
+In-Reply-To: <20051110203544.027e992c.akpm@osdl.org>
+References: <20051110203544.027e992c.akpm@osdl.org>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 11 November 2005 11:48, Nick Warne wrote:
->Hi all,
->
->Just an eyes-up here - applying the combined 2.6.14.1/2 patch from
-> kernel.org
+Hi,
 
-I had no such problems here.  My script patches 2.6.14 to 2.6.14.1, then
-to 2.6.14.2.  It built and I'm running it right now.
+This patch adds kmem_set_shrinker() to SLOB.
+It is necessary for fixing the build error.
 
-I don't believe the .2 patch I saved from the email includes the .1
-patch.  I didn't get the bz2 version however, so it could be combined. 
-Somone else will have to clarify that.
+Yoichi
 
->
->http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2F
->v2.6%2Fincr%2Fpatch-2.6.14.1-2.bz2
->
->produces REJ on Makefile when applied to virgin 2.6.14 as EXTRAVERSION
->isn't .1:
->
->
->***************
->*** 1,7 ****
->  VERSION = 2
->  PATCHLEVEL = 6
->  SUBLEVEL = 14
->- EXTRAVERSION = .1
->  NAME=Affluent Albatross
->
->  # *DOCUMENTATION*
->--- 1,7 ----
->  VERSION = 2
->  PATCHLEVEL = 6
->  SUBLEVEL = 14
->+ EXTRAVERSION = .2
->  NAME=Affluent Albatross
->
->  # *DOCUMENTATION*
->
->
->
->Simple to fix manually though.
->
->Nick
+Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.36% setiathome rank, not too shabby for a WV hillbilly
-Free OpenDocument reader/writer/converter download:
-http://www.openoffice.org
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
-
+diff -Npru -X dontdiff mm2-orig/mm/slob.c mm2/mm/slob.c
+--- mm2-orig/mm/slob.c	2005-11-11 22:21:20.000000000 +0900
++++ mm2/mm/slob.c	2005-11-11 23:15:02.000000000 +0900
+@@ -240,6 +240,11 @@ unsigned int ksize(const void *block)
+ 	return ((slob_t *)block - 1)->units * SLOB_UNIT;
+ }
+ 
++void kmem_set_shrinker(kmem_cache_t *cachep, struct shrinker *shrinker)
++{
++}
++EXPORT_SYMBOL(kmem_set_shrinker);
++
+ struct kmem_cache {
+ 	unsigned int size, align;
+ 	const char *name;

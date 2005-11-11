@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbVKKTZk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbVKKT0F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751093AbVKKTZk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 14:25:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbVKKTZk
+	id S1751098AbVKKT0F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 14:26:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbVKKT0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 14:25:40 -0500
-Received: from pat.uio.no ([129.240.130.16]:64450 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1751093AbVKKTZj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 14:25:39 -0500
-Subject: Re: local denial-of-service with file leases
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Avi Kivity <avi@argo.co.il>, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051111183512.GV5856@shell0.pdx.osdl.net>
-References: <43737CBE.2030005@argo.co.il>
-	 <20051111084554.GZ7991@shell0.pdx.osdl.net>
-	 <1131718887.8805.33.camel@lade.trondhjem.org>
-	 <20051111183512.GV5856@shell0.pdx.osdl.net>
-Content-Type: text/plain
-Date: Fri, 11 Nov 2005 14:25:27 -0500
-Message-Id: <1131737127.8793.46.camel@lade.trondhjem.org>
+	Fri, 11 Nov 2005 14:26:05 -0500
+Received: from perninha.conectiva.com.br ([200.140.247.100]:1774 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S1751098AbVKKTZ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 14:25:58 -0500
+Date: Fri, 11 Nov 2005 17:25:57 -0200
+From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
+To: gregkh@suse.de
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: [PATCH 2/2] pl2303: updates pl2303_update_line_status()
+Message-Id: <20051111172557.64ed6d7a.lcapitulino@mandriva.com.br>
+Organization: Mandriva
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-conectiva-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.87, required 12,
-	autolearn=disabled, AWL 1.13, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-11-11 at 10:35 -0800, Chris Wright wrote:
-> * Trond Myklebust (trond.myklebust@fys.uio.no) wrote:
-> > Bruce has a simpler patch (see attachment). The call to fasync_helper()
-> > in order to free active structures will have already been done in
-> > locks_delete_lock(), so in principle, all we want to do is to skip the
-> > fasync_helper() call in fcntl_setlease().
-> 
-> Yes, that's better, thanks.  Will you make sure it gets to Linus?
 
-Sure, but I'd like a mail from Avi confirming that this patch too fixes
-his problem, please.
+Hi again,
 
-Cheers,
-  Trond
+Updates pl2303_update_line_status() to handle X75 and SX1 Siemens mobiles
 
+Signed-off-by: Luiz Capitulino <lcapitulino@mandriva.com.br>
+
+ drivers/usb/serial/pl2303.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff -Nparu -X /home/lcapitulino/tmp/dontdiff a/drivers/usb/serial/pl2303.c a~/drivers/usb/serial/pl2303.c
+--- a/drivers/usb/serial/pl2303.c	2005-11-11 16:57:13.000000000 -0200
++++ a~/drivers/usb/serial/pl2303.c	2005-11-11 16:44:48.000000000 -0200
+@@ -813,7 +813,9 @@ static void pl2303_update_line_status(st
+ 	u8 length = UART_STATE;
+ 
+ 	if ((le16_to_cpu(port->serial->dev->descriptor.idVendor) == SIEMENS_VENDOR_ID) &&
+-	    (le16_to_cpu(port->serial->dev->descriptor.idProduct) == SIEMENS_PRODUCT_ID_X65)) {
++	    (le16_to_cpu(port->serial->dev->descriptor.idProduct) == SIEMENS_PRODUCT_ID_X65 ||
++	     le16_to_cpu(port->serial->dev->descriptor.idProduct) == SIEMENS_PRODUCT_ID_SX1 ||
++	     le16_to_cpu(port->serial->dev->descriptor.idProduct) == SIEMENS_PRODUCT_ID_X75)) {
+ 		length = 1;
+ 		status_idx = 0;
+ 	}
+
+
+-- 
+Luiz Fernando N. Capitulino

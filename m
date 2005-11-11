@@ -1,115 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbVKKIgF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbVKKIgG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932234AbVKKIgF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 03:36:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbVKKIgE
+	id S932235AbVKKIgG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 03:36:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbVKKIgF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 03:36:04 -0500
-Received: from i121.durables.org ([64.81.244.121]:5838 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S932234AbVKKIgD (ORCPT
+	Fri, 11 Nov 2005 03:36:05 -0500
+Received: from i121.durables.org ([64.81.244.121]:5326 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S932235AbVKKIgD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 11 Nov 2005 03:36:03 -0500
 Date: Fri, 11 Nov 2005 02:35:49 -0600
 From: Matt Mackall <mpm@selenic.com>
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 X-PatchBomber: http://selenic.com/scripts/mailpatches
-In-Reply-To: <2.282480653@selenic.com>
-Message-Id: <3.282480653@selenic.com>
-Subject: [PATCH 2/15] misc: Uninline some namei.c functions
+In-Reply-To: <1.282480653@selenic.com>
+Message-Id: <2.282480653@selenic.com>
+Subject: [PATCH 1/15] misc: Add bloat-o-meter to scripts
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-uninline various namei.c functions
+This is a rewrite of Andi Kleen's bloat-o-meter with sorting and
+reporting of gainers/decliners. Sample output:
 
-add/remove: 4/0 grow/shrink: 0/13 up/down: 1077/-3632 (-2555)
+add/remove: 0/8 grow/shrink: 2/0 up/down: 88/-4424 (-4336)
 function                                     old     new   delta
-do_follow_link                                 -     398    +398
-follow_dotdot                                  -     380    +380
-may_delete                                     -     249    +249
-may_create                                     -      50     +50
-vfs_follow_link                              411     410      -1
-sys_mknod                                    372     371      -1
-page_getlink                                 176     175      -1
-vfs_create                                   166     149     -17
-vfs_symlink                                  140     118     -22
-vfs_mknod                                    200     178     -22
-vfs_mkdir                                    148     126     -22
-vfs_link                                     250     227     -23
-vfs_rmdir                                    331     163    -168
-vfs_unlink                                   309     131    -178
-open_namei                                  1683    1258    -425
-vfs_rename                                   988     495    -493
-__link_path_walk                            3744    1485   -2259
+__copy_to_user_ll                             59     103     +44
+__copy_from_user_ll                           59     103     +44
+fill_note                                     32       -     -32
+maydump                                       58       -     -58
+dump_seek                                     67       -     -67
+writenote                                    180       -    -180
+elf_dump_thread_status                       274       -    -274
+fill_psinfo                                  308       -    -308
+fill_prstatus                                466       -    -466
+elf_core_dump                               3039       -   -3039
+
+The summary line says:
+ no functions added, 8 removed
+ two functions grew, none shrunk
+ we gained 88 bytes and lost 4424 (or -4336 net)
+
+This work was sponsored in part by CE Linux Forum
 
 Signed-off-by: Matt Mackall <mpm@selenic.com>
 
-Index: 2.6.14-misc/fs/namei.c
+Index: tiny/scripts/bloat-o-meter
 ===================================================================
---- 2.6.14-misc.orig/fs/namei.c	2005-11-01 10:54:33.000000000 -0800
-+++ 2.6.14-misc/fs/namei.c	2005-11-09 11:19:35.000000000 -0800
-@@ -471,7 +471,7 @@ walk_init_root(const char *name, struct 
- 	return 1;
- }
- 
--static inline int __vfs_follow_link(struct nameidata *nd, const char *link)
-+int vfs_follow_link(struct nameidata *nd, const char *link)
- {
- 	int res = 0;
- 	char *name;
-@@ -528,7 +528,7 @@ static inline int __do_follow_link(struc
- 		char *s = nd_get_link(nd);
- 		error = 0;
- 		if (s)
--			error = __vfs_follow_link(nd, s);
-+			error = vfs_follow_link(nd, s);
- 		if (dentry->d_inode->i_op->put_link)
- 			dentry->d_inode->i_op->put_link(dentry, nd, cookie);
- 	}
-@@ -561,7 +561,7 @@ static inline void path_to_nameidata(str
-  * Without that kind of total limit, nasty chains of consecutive
-  * symlinks can cause almost arbitrarily long lookups. 
-  */
--static inline int do_follow_link(struct path *path, struct nameidata *nd)
-+static int do_follow_link(struct path *path, struct nameidata *nd)
- {
- 	int err = -ELOOP;
- 	if (current->link_count >= MAX_NESTED_LINKS)
-@@ -657,7 +657,7 @@ int follow_down(struct vfsmount **mnt, s
- 	return 0;
- }
- 
--static inline void follow_dotdot(struct nameidata *nd)
-+static void follow_dotdot(struct nameidata *nd)
- {
- 	while(1) {
- 		struct vfsmount *parent;
-@@ -1261,7 +1261,7 @@ static inline int check_sticky(struct in
-  * 10. We don't allow removal of NFS sillyrenamed files; it's handled by
-  *     nfs_async_unlink().
-  */
--static inline int may_delete(struct inode *dir,struct dentry *victim,int isdir)
-+static int may_delete(struct inode *dir,struct dentry *victim,int isdir)
- {
- 	int error;
- 
-@@ -1300,7 +1300,7 @@ static inline int may_delete(struct inod
-  *  3. We should have write and exec permissions on dir
-  *  4. We can't do it if dir is immutable (done in permission())
-  */
--static inline int may_create(struct inode *dir, struct dentry *child,
-+static int may_create(struct inode *dir, struct dentry *child,
- 			     struct nameidata *nd)
- {
- 	if (child->d_inode)
-@@ -2415,11 +2415,6 @@ int generic_readlink(struct dentry *dent
- 	return PTR_ERR(cookie);
- }
- 
--int vfs_follow_link(struct nameidata *nd, const char *link)
--{
--	return __vfs_follow_link(nd, link);
--}
--
- /* get the link contents into pagecache */
- static char *page_getlink(struct dentry * dentry, struct page **ppage)
- {
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ tiny/scripts/bloat-o-meter	2005-10-07 20:15:39.000000000 -0700
+@@ -0,0 +1,58 @@
++#!/usr/bin/python
++#
++# Copyright 2004 Matt Mackall <mpm@selenic.com>
++#
++# inspired by perl Bloat-O-Meter (c) 1997 by Andi Kleen
++#
++# This software may be used and distributed according to the terms
++# of the GNU General Public License, incorporated herein by reference.
++
++import sys, os, re
++
++if len(sys.argv) != 3:
++    sys.stderr.write("usage: %s file1 file2\n" % sys.argv[0])
++    sys.exit(-1)
++
++def getsizes(file):
++    sym = {}
++    for l in os.popen("nm --size-sort " + file).readlines():
++        size, type, name = l[:-1].split()
++        if type in "tTdDbB":
++            sym[name] = int(size, 16)
++    return sym
++
++old = getsizes(sys.argv[1])
++new = getsizes(sys.argv[2])
++grow, shrink, add, remove, up, down = 0, 0, 0, 0, 0, 0
++delta, common = [], {}
++
++for a in old:
++    if a in new:
++        common[a] = 1
++
++for name in old:
++    if name not in common:
++        remove += 1
++        down += old[name]
++        delta.append((-old[name], name))
++
++for name in new:
++    if name not in common:
++        add += 1
++        up += new[name]
++        delta.append((new[name], name))
++
++for name in common:
++        d = new.get(name, 0) - old.get(name, 0)
++        if d>0: grow, up = grow+1, up+d
++        if d<0: shrink, down = shrink+1, down-d
++        delta.append((d, name))
++
++delta.sort()
++delta.reverse()
++
++print "add/remove: %s/%s grow/shrink: %s/%s up/down: %s/%s (%s)" % \
++      (add, remove, grow, shrink, up, -down, up-down)
++print "%-40s %7s %7s %+7s" % ("function", "old", "new", "delta")
++for d, n in delta:
++    if d: print "%-40s %7s %7s %+7d" % (n, old.get(n,"-"), new.get(n,"-"), d)

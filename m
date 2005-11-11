@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751235AbVKKVhE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751240AbVKKVmR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751235AbVKKVhE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 16:37:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751237AbVKKVhE
+	id S1751240AbVKKVmR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 16:42:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbVKKVmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 16:37:04 -0500
-Received: from gw02.applegatebroadband.net ([207.55.227.2]:44020 "EHLO
-	data.mvista.com") by vger.kernel.org with ESMTP id S1751235AbVKKVhD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 16:37:03 -0500
-Message-ID: <43750EFD.3040106@mvista.com>
-Date: Fri, 11 Nov 2005 13:37:01 -0800
-From: George Anzinger <george@mvista.com>
-Reply-To: ganzinger@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Calibration issues with USB disc present.
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 11 Nov 2005 16:42:17 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:35997 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751237AbVKKVmQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 16:42:16 -0500
+Subject: RE: [PATCH 1/1] cciss: scsi error handling
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: "Cameron, Steve" <Steve.Cameron@hp.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>, axboe@suse.de,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <45B36A38D959B44CB032DA427A6E10640A7A540D@cceexc18.americas.cpqcorp.net>
+References: <45B36A38D959B44CB032DA427A6E10640A7A540D@cceexc18.americas.cpqcorp.net>
+Content-Type: text/plain
+Date: Fri, 11 Nov 2005 15:41:47 -0600
+Message-Id: <1131745307.3505.42.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John,
+On Fri, 2005-11-11 at 13:38 -0600, Cameron, Steve wrote:
+> About the locking first,
+> 
+> So, there's one part that I was a little worried about, where
+> it does this in a couple places:
+> 
+>         c = (ctlr_info_t **) &scsicmd->device->host->hostdata[0];
+> 
+> (gets our adapter structure by following pointers in the scsi
+> command)
+> 
+> So, if that pointer chain can change suddenly, then my code is bad.
+> 
+> Can doing "echo scsi remove-single-device . . . > /proc/scsi/scsi"
+> cause that pointer chain to break?  I noticed I can yank a disk
+> out from under a mounted filesystem with 
+> "echo scsi remove-single-device"  It wasn't obvious to me whether
+> doing that would affect that pointer chain though, though I could
+> imagine it might.
+> 
+> Or am I barking up the wrong tree worrying about 
+> the scsicmd->device->host->hostdata pointer chain
+> getting yanked out from under me?
 
-Have you run into this.  One of the USB disc controllers has the ability to boot the system, 
-however, it needs SMM code to do this.  This SMM code, somehow, causes SMI interrupts (which are 
-higher priority than NMI interrutps and not maskable) which it needs to do its thing.
+No, the pointers are all held in place.  Even if everyone else releases
+their references, the commmand still contains a reference to the device
+(which holds it from being released) and the device likewise contains a
+reference to the host.
 
-Problem is that if one of these occurs while calibrating the TSC or the delay code, it can cause a 
-wrong result.  We have seen both a too long and a too short result (depending on where the interrut 
-happens).
-
-They have found the root cause of TSC calibration problem.
-Now they ask for the fix or workaround.
-
-That is the BIOS is periodically interrupted by USB controller and the CPU
-waits during the processing of these interrupts.
-Their experiments say the interrupt interval is 260mSec and the BIOS needs
-150uSec - 200uSec for processing.
-It is proved that the problem doesn't reproduce by masking such SMI in BIOS.
-They say SMI is for BIOS emulation for connecting legacy devices to USB.
-Without such an emulation it's impossible to boot from USB-FD for instance,
-they say too.
+James
 
 
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

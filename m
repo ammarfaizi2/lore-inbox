@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750974AbVKKRtq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750979AbVKKRwP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750974AbVKKRtq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 12:49:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750975AbVKKRtq
+	id S1750979AbVKKRwP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 12:52:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750980AbVKKRwP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 12:49:46 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:18584 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750974AbVKKRtp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 12:49:45 -0500
-Message-ID: <4374D99C.1080006@zytor.com>
-Date: Fri, 11 Nov 2005 09:49:16 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+	Fri, 11 Nov 2005 12:52:15 -0500
+Received: from hellhawk.shadowen.org ([80.68.90.175]:64523 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S1750977AbVKKRwO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 12:52:14 -0500
+Message-ID: <4374DA3D.6050704@shadowen.org>
+Date: Fri, 11 Nov 2005 17:51:57 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Zachary Amsden <zach@vmware.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 1/10] Cr4 is valid on some 486s
-References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com> <20051111103605.GC27805@elf.ucw.cz>
-In-Reply-To: <20051111103605.GC27805@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Anton Blanchard <anton@samba.org>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Allow flatmem to be disabled when only sparsemem is implemented
+References: <20051111160341.GK14770@krispykreme>
+In-Reply-To: <20051111160341.GK14770@krispykreme>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
-> 
-> 
->>So some 486 processors do have CR4 register.  Allow them to present it in
->>register dumps by using the old fault technique rather than testing processor
->>family.
-> 
-> 
-> I thought Andi commented this as "way too risky", for little
-> good. Nested exceptions are evil.
-> 									Pavel
+Anton Blanchard wrote:
 
-I think the 486's that have CR4 are the same that have CPUID, and thus 
-can be tested for by the presence of the ID flag.
+> On architectures that implement sparsemem but not discontigmem we want
+> to be able to hide the flatmem option in some cases. On ppc64 for
+> example, when we select NUMA we must not select flatmem.
+> 
+> Signed-off-by: Anton Blanchard <anton@samba.org>
 
-	-hpa
+First reaction is that this is very reasonable.  I can see why you need
+to do this as you don't have DISCONTIGMEM.  I will just go check the
+major architectures and make sure they arn't relying on being able to
+enable SPARSEMEM and getting FLATMEM too behaviour.  I don't think they
+can be as they all have DISCONTIGMEM and so should be insulated.
+
+-apw

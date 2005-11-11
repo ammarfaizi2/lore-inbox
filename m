@@ -1,65 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750889AbVKKQsq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbVKKQse@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750889AbVKKQsq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 11:48:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750883AbVKKQsq
+	id S1750885AbVKKQse (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 11:48:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750887AbVKKQse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 11:48:46 -0500
-Received: from mail.linicks.net ([217.204.244.146]:38811 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S1750887AbVKKQsp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 11:48:45 -0500
-From: Nick Warne <nick@linicks.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.14.1/2 patch Makefile hunk FAILED
-Date: Fri, 11 Nov 2005 16:48:35 +0000
-User-Agent: KMail/1.8.1
-Cc: Greg KH <gregkh@suse.de>, Chris Wright <chrisw@osdl.org>
+	Fri, 11 Nov 2005 11:48:34 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:58080 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750883AbVKKQse
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 11:48:34 -0500
+From: Tom Zanussi <zanussi@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511111648.35632.nick@linicks.net>
+Message-ID: <17268.52030.133928.805582@tut.ibm.com>
+Date: Fri, 11 Nov 2005 10:47:58 -0600
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, karim@opersys.com
+Subject: [PATCH 3/12] relayfs: add relayfs_remove_file()
+In-Reply-To: <17268.51814.215178.281986@tut.ibm.com>
+References: <17268.51814.215178.281986@tut.ibm.com>
+X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+This patch adds and exports relayfs_remove_file(), for API symmetry
+(with relayfs_create_file()).
 
-Just an eyes-up here - applying the combined 2.6.14.1/2 patch from kernel.org
+Signed-off-by: Tom Zanussi <zanussi@us.ibm.com>
 
-http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fv2.6%2Fincr%2Fpatch-2.6.14.1-2.bz2
+---
 
-produces REJ on Makefile when applied to virgin 2.6.14 as EXTRAVERSION 
-isn't .1:
+ fs/relayfs/inode.c         |   12 ++++++++++++
+ include/linux/relayfs_fs.h |    1 +
+ 2 files changed, 13 insertions(+)
 
+diff --git a/fs/relayfs/inode.c b/fs/relayfs/inode.c
+--- a/fs/relayfs/inode.c
++++ b/fs/relayfs/inode.c
+@@ -225,6 +225,17 @@ int relayfs_remove(struct dentry *dentry
+ }
+ 
+ /**
++ *	relayfs_remove_file - remove a file from relay filesystem
++ *	@dentry: directory dentry
++ *
++ *	Returns 0 if successful, negative otherwise.
++ */
++int relayfs_remove_file(struct dentry *dentry)
++{
++	return relayfs_remove(dentry);
++}
++
++/**
+  *	relayfs_remove_dir - remove a directory in the relay filesystem
+  *	@dentry: directory dentry
+  *
+@@ -600,6 +611,7 @@ EXPORT_SYMBOL_GPL(relayfs_file_operation
+ EXPORT_SYMBOL_GPL(relayfs_create_dir);
+ EXPORT_SYMBOL_GPL(relayfs_remove_dir);
+ EXPORT_SYMBOL_GPL(relayfs_create_file);
++EXPORT_SYMBOL_GPL(relayfs_remove_file);
+ 
+ MODULE_AUTHOR("Tom Zanussi <zanussi@us.ibm.com> and Karim Yaghmour <karim@opersys.com>");
+ MODULE_DESCRIPTION("Relay Filesystem");
+diff --git a/include/linux/relayfs_fs.h b/include/linux/relayfs_fs.h
+--- a/include/linux/relayfs_fs.h
++++ b/include/linux/relayfs_fs.h
+@@ -152,6 +152,7 @@ extern struct dentry *relayfs_create_fil
+ 					  int mode,
+ 					  struct file_operations *fops,
+ 					  void *data);
++extern int relayfs_remove_file(struct dentry *dentry);
+ 
+ /**
+  *	relay_write - write data into the channel
 
-***************
-*** 1,7 ****
-  VERSION = 2
-  PATCHLEVEL = 6
-  SUBLEVEL = 14
-- EXTRAVERSION = .1
-  NAME=Affluent Albatross
-
-  # *DOCUMENTATION*
---- 1,7 ----
-  VERSION = 2
-  PATCHLEVEL = 6
-  SUBLEVEL = 14
-+ EXTRAVERSION = .2
-  NAME=Affluent Albatross
-
-  # *DOCUMENTATION*
-
-
-
-Simple to fix manually though.
-
-Nick
--- 
-http://sourceforge.net/projects/quake2plus
-
-"Person who say it cannot be done should not interrupt person doing it."
--Chinese Proverb
 

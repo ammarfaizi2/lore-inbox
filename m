@@ -1,143 +1,179 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbVKKWgm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbVKKWgn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751277AbVKKWgm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 17:36:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbVKKWgm
+	id S1751278AbVKKWgn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 17:36:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbVKKWgn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 17:36:42 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:26048 "EHLO
+	Fri, 11 Nov 2005 17:36:43 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:26304 "EHLO
 	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751277AbVKKWgl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 17:36:41 -0500
-Date: Fri, 11 Nov 2005 14:36:32 -0800 (PST)
+	id S1751278AbVKKWgm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 17:36:42 -0500
+Date: Fri, 11 Nov 2005 14:36:37 -0800 (PST)
 From: Christoph Lameter <clameter@sgi.com>
 To: linux-kernel@vger.kernel.org
 Cc: Christoph Lameter <clameter@sgi.com>, lhms-devel@lists.sourceforge.net
-Message-Id: <20051111223632.21716.49021.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 0/8] Direct Migration V3: Overview
+Message-Id: <20051111223637.21716.94084.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20051111223632.21716.49021.sendpatchset@schroedinger.engr.sgi.com>
+References: <20051111223632.21716.49021.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [PATCH 1/8] Direct Migration V3: Swap migration patchset fixes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Changes V2->V3:
+Fixes to swap migration patch V5
 
-- Patchset against 2.6.14-mm2
-- Fix single processor build and builds without CONFIG_MIGRATION
-- export symbols for filesystems that are modules and for
-  modules using migrate_pages().
-- Paul Jackson's cpuset migration support is in 2.6.14-mm2 so
-  this patchset can be easily applied to -mm2 to get from swap
-  based to direct page migration.
+- Fix comment for isolate_lru_page().
 
-Changes V1->V2:
-- Call node_remap with the right parameters in do_migrate_pages().
-- Take radix tree lock while examining page count to avoid races with
-  find_get_page() and various *_get_pages based on it.
-- Convert direct ptes to swap ptes before radix tree update to avoid
-  more races.
-- Fix problem if CONFIG_MIGRATION is off for buffer_migrate_page
-- Add documentation about page migration
-- Change migrate_pages() api so that the caller can decide what
-  to do about the migrated pages (badmem handling and hotplug
-  have to remove those pages for good).
-- Drop config patch (already in mm)
-- Add try_to_unmap patch
-- Patchset now against 2.6.14-mm1 without requiring additional patches.
+- migrate_page_add: check for mapping == NULL
 
-Note that the page migration here is different from the one of the memory
-hotplug project. Pages are migrated in order to improve performance.
-A best effort is made to migrate all pages that are in use by user space
-and that are swappable. If a couple of pages are not moved then the
-performance of a process will not increase as much as wanted but the
-application will continue to function properly.
+- check_range: Its okay if the first vma has the flag VM_RESERVED set if the
+  MPOL_MF_DISCONTIG_OK flag was specified by the caller.
 
-Much of the ideas for this code were originally developed in the memory
-hotplug project and we hope that this code also will allow the hotplug
-project to build on this patch in order to get to their goals. We also
-would like to be able to move bad memory at SGI which is likely something
-that will also be based on this patchset.
+- Change the permission check to use comparisons instead of XORs.
+  Revise the comments.
 
-I am very thankful for the support of the hotplug developers for bringing
-this patchset about. The migration of kernel pages, slab pages and
-other unswappable pages that is also needed by the hotplug project
-and for the remapping of bad memory is likely to require a significant
-amount of additional changes to the Linux kernel beyond the scope of
-this page migration endeavor.
+- Only include move_to_lru and putback_lru_pages() if CONFIG_MIGRATION is set.
+  (this may be the 0.5k codesize that Andrew was worrying about)
 
-Page migration can be triggered via:
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-A. Specifying MPOL_MF_MOVE(_ALL) when setting a new policy
-   for a range of addresses of a process.
-
-B. Calling sys_migrate_pages() to control the location of the pages of
-   another process. Pages may migrate back through swapping if memory
-   policies, cpuset nodes and the node on which the process is executing
-   are not changed by other means.
-   sys_migrate_pages() may be particularly useful to move the pages of
-   a process if the scheduler has shifted the execution of a process
-   to a different node.
-
-C. Changing the cpuset of a task (moving tasks to another cpuset or modifying
-   its set of allowed nodes) if a special option is set in the cpuset. The
-   cpuset code will call into the page migration layer in order to move the
-   process to its new environment. This is the preferred and easiest method
-   to use page migration. Thanks to Paul Jackson for realizing this
-   functionality.
-
-The patchset consists of eight patches (only the first three are necessary to
-have basic direct migration support):
-
-1. Swap migration V5 fixes.
-
-   Some small fixes that may already be in Andrew's tree.
-
-2. SwapCache patch
-
-   SwapCache pages may have changed their type after lock_page().
-   Check for this and retry lookup if the page is no longer a SwapCache
-   page.
-
-3. migrate_pages()
-
-   Basic direct migration with fallback to swap if all other attempts
-   fail.
-
-4. remove_from_swap()
-
-   Page migration installs swap ptes for anonymous pages in order to
-   preserve the information contained in the page tables. This patch
-   removes the swap ptes and replaces them with real ones after migration.
-
-5. upgrade of MPOL_MF_MOVE and sys_migrate_pages()
-
-   Add logic to mm/mempolicy.c to allow the policy layer to control
-   direct page migration. Thanks to Paul Jackson for the interative
-   logic to move between sets of nodes.
-
-
-6. buffer_migrate_pages() patch
-
-   Allow migration without writing back dirty pages. Add filesystem dependent
-   migration support for ext2/ext3 and xfs. Use swapper space to setup a
-   method to migrate anonymous pages without writeback.
-
-7. add_to_swap with gfp mask
-
-   The default of add_to_swap is to use GFP_ATOMIC for necessary allocations.
-   This may cause out of memory situations during page migration. This patch
-   adds an additional parameter to add_to_swap to allow GFP_KERNEL allocations.
-
-8. try_unmap patch
-
-   Allows to distinguish between permanent failure conditions and transient
-   conditions that may go away after a retry.
-
-Credits (also in mm/vsmscan.c):
-
-The idea for this scheme of page migration was first developed in the context
-of the memory hotplug project. The main authors of the migration code from
-the memory hotplug project are:
-
-IWAMOTO Toshihiro <iwamoto@valinux.co.jp>
-Hirokazu Takahashi <taka@valinux.co.jp>
-Dave Hansen <haveblue@us.ibm.com>
-
+Index: linux-2.6.14-mm2/mm/vmscan.c
+===================================================================
+--- linux-2.6.14-mm2.orig/mm/vmscan.c	2005-11-11 12:26:58.000000000 -0800
++++ linux-2.6.14-mm2/mm/vmscan.c	2005-11-11 12:42:13.000000000 -0800
+@@ -572,6 +572,39 @@ keep:
+ }
+ 
+ #ifdef CONFIG_MIGRATION
++static inline void move_to_lru(struct page *page)
++{
++	list_del(&page->lru);
++	if (PageActive(page)) {
++		/*
++		 * lru_cache_add_active checks that
++		 * the PG_active bit is off.
++		 */
++		ClearPageActive(page);
++		lru_cache_add_active(page);
++	} else
++		lru_cache_add(page);
++	put_page(page);
++}
++
++/*
++ * Add isolated pages on the list back to the LRU
++ *
++ * returns the number of pages put back.
++ */
++int putback_lru_pages(struct list_head *l)
++{
++	struct page *page;
++	struct page *page2;
++	int count = 0;
++
++	list_for_each_entry_safe(page, page2, l, lru) {
++		move_to_lru(page);
++		count++;
++	}
++	return count;
++}
++
+ /*
+  * swapout a single page
+  * page is locked upon entry, unlocked on exit
+@@ -782,7 +815,7 @@ static void lru_add_drain_per_cpu(void *
+  * Result:
+  *  0 = page not on LRU list
+  *  1 = page removed from LRU list and added to the specified list.
+- * -1 = page is being freed elsewhere.
++ * -ENOENT = page is being freed elsewhere.
+  */
+ int isolate_lru_page(struct page *page)
+ {
+@@ -868,39 +901,6 @@ done:
+ 	pagevec_release(&pvec);
+ }
+ 
+-static inline void move_to_lru(struct page *page)
+-{
+-	list_del(&page->lru);
+-	if (PageActive(page)) {
+-		/*
+-		 * lru_cache_add_active checks that
+-		 * the PG_active bit is off.
+-		 */
+-		ClearPageActive(page);
+-		lru_cache_add_active(page);
+-	} else
+-		lru_cache_add(page);
+-	put_page(page);
+-}
+-
+-/*
+- * Add isolated pages on the list back to the LRU
+- *
+- * returns the number of pages put back.
+- */
+-int putback_lru_pages(struct list_head *l)
+-{
+-	struct page *page;
+-	struct page *page2;
+-	int count = 0;
+-
+-	list_for_each_entry_safe(page, page2, l, lru) {
+-		move_to_lru(page);
+-		count++;
+-	}
+-	return count;
+-}
+-
+ /*
+  * This moves pages from the active list to the inactive list.
+  *
+Index: linux-2.6.14-mm2/mm/mempolicy.c
+===================================================================
+--- linux-2.6.14-mm2.orig/mm/mempolicy.c	2005-11-11 12:29:04.000000000 -0800
++++ linux-2.6.14-mm2/mm/mempolicy.c	2005-11-11 12:29:06.000000000 -0800
+@@ -217,6 +217,7 @@ static void migrate_page_add(struct vm_a
+ 	 * Avoid migrating a page that is shared by others and not writable.
+ 	 */
+ 	if ((flags & MPOL_MF_MOVE_ALL) ||
++	    !page->mapping ||
+ 	    PageAnon(page) ||
+ 	    mapping_writably_mapped(page->mapping) ||
+ 	    single_mm_mapping(vma->vm_mm, page->mapping)
+@@ -359,7 +360,8 @@ check_range(struct mm_struct *mm, unsign
+ 	first = find_vma(mm, start);
+ 	if (!first)
+ 		return ERR_PTR(-EFAULT);
+-	if (first->vm_flags & VM_RESERVED)
++	if (first->vm_flags & VM_RESERVED &&
++	    !(flags & MPOL_MF_DISCONTIG_OK))
+ 		return ERR_PTR(-EACCES);
+ 	prev = NULL;
+ 	for (vma = first; vma && vma->vm_start < end; vma = vma->vm_next) {
+@@ -790,18 +792,13 @@ asmlinkage long sys_migrate_pages(pid_t 
+ 		return -EINVAL;
+ 
+ 	/*
+-	 * We only allow a process to move the pages of another
+-	 * if the process issuing sys_migrate has the right to send a kill
+-	 * signal to the process to be moved. Moving another processes
+-	 * memory may impact the performance of that process. If the
+-	 * process issuing sys_migrate_pages has the right to kill the
+-	 * target process then obviously that process has the right to
+-	 * impact the performance of the target process.
+-	 *
+-	 * The permission check was taken from  check_kill_permission()
++	 * Check if this process has the right to modify the specified
++	 * process. The right exists if the process has administrative
++	 * capabilities, superuser priviledges or the same
++	 * userid as the target process.
+ 	 */
+-	if ((current->euid ^ task->suid) && (current->euid ^ task->uid) &&
+-	    (current->uid ^ task->suid) && (current->uid ^ task->uid) &&
++	if ((current->euid != task->suid) && (current->euid != task->uid) &&
++	    (current->uid != task->suid) && (current->uid != task->uid) &&
+ 	    !capable(CAP_SYS_ADMIN)) {
+ 		err = -EPERM;
+ 		goto out;

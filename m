@@ -1,60 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751240AbVKKVmR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbVKKVoP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751240AbVKKVmR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 16:42:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbVKKVmR
+	id S1751239AbVKKVoP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 16:44:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbVKKVoP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 16:42:17 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:35997 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1751237AbVKKVmQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 16:42:16 -0500
-Subject: RE: [PATCH 1/1] cciss: scsi error handling
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: "Cameron, Steve" <Steve.Cameron@hp.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>, axboe@suse.de,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-In-Reply-To: <45B36A38D959B44CB032DA427A6E10640A7A540D@cceexc18.americas.cpqcorp.net>
-References: <45B36A38D959B44CB032DA427A6E10640A7A540D@cceexc18.americas.cpqcorp.net>
-Content-Type: text/plain
-Date: Fri, 11 Nov 2005 15:41:47 -0600
-Message-Id: <1131745307.3505.42.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 11 Nov 2005 16:44:15 -0500
+Received: from mx2.suse.de ([195.135.220.15]:58829 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751239AbVKKVoP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 16:44:15 -0500
+From: Andi Kleen <ak@suse.de>
+To: coywolf@sosdg.org
+Subject: Re: [patch] mark text section read-only
+Date: Fri, 11 Nov 2005 22:43:41 +0100
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
+       Josh Boyer <jdub@us.ibm.com>, akpm@osdl.org
+References: <20051107105624.GA6531@infradead.org> <2cd57c900511111057n3a7741ddw@mail.gmail.com> <20051111190447.GA14481@everest.sosdg.org>
+In-Reply-To: <20051111190447.GA14481@everest.sosdg.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511112243.42255.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-11-11 at 13:38 -0600, Cameron, Steve wrote:
-> About the locking first,
-> 
-> So, there's one part that I was a little worried about, where
-> it does this in a couple places:
-> 
->         c = (ctlr_info_t **) &scsicmd->device->host->hostdata[0];
-> 
-> (gets our adapter structure by following pointers in the scsi
-> command)
-> 
-> So, if that pointer chain can change suddenly, then my code is bad.
-> 
-> Can doing "echo scsi remove-single-device . . . > /proc/scsi/scsi"
-> cause that pointer chain to break?  I noticed I can yank a disk
-> out from under a mounted filesystem with 
-> "echo scsi remove-single-device"  It wasn't obvious to me whether
-> doing that would affect that pointer chain though, though I could
-> imagine it might.
-> 
-> Or am I barking up the wrong tree worrying about 
-> the scsicmd->device->host->hostdata pointer chain
-> getting yanked out from under me?
+On Friday 11 November 2005 20:04, Coywolf Qi Hunt wrote:
+> On Sat, Nov 12, 2005 at 02:57:02AM +0800, Coywolf Qi Hunt wrote:
+> > And we could also mark text section read-only and data/stack section
+> > noexec if NX is supported. But I doubt the whole thing would really
+> > help much. Kill the kernel thread? We can't. We only run into a panic.
+> > Anyway I'd attach a quick patch to mark text section read only in the
+> > next mail.
 
-No, the pointers are all held in place.  Even if everyone else releases
-their references, the commmand still contains a reference to the device
-(which holds it from being released) and the device likewise contains a
-reference to the host.
 
-James
+I think this whole thing is only usable as a debugging option. It shouldn't
+be used by default on production systems because it will increase TLB
+pressure by splitting up the large pages used by kernel. And TLB pressure
+is critical in many workloads.
 
+It definitely shouldn't be on by default.
+
+Then the text section will likely not be page aligned, so it would be 
+surprising if it even worked.
+
+At least on x86-64 it is pretty useless too because the .text section can
+be accessed over its alias in the direct mapping.
+
+Overall I doubt it is worth it even as a debugging option. I so far cannot
+remember a single bug that was caused by overwriting kernel text.
+
+-Andi
 

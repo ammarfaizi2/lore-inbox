@@ -1,100 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbVKKVQL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbVKKVSe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751199AbVKKVQL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 16:16:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbVKKVQL
+	id S1751203AbVKKVSe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 16:18:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbVKKVSd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 16:16:11 -0500
-Received: from gw02.applegatebroadband.net ([207.55.227.2]:2804 "EHLO
-	data.mvista.com") by vger.kernel.org with ESMTP id S1751199AbVKKVQJ
+	Fri, 11 Nov 2005 16:18:33 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:4805 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751203AbVKKVSc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 16:16:09 -0500
-Message-ID: <43750A1A.4010102@mvista.com>
-Date: Fri, 11 Nov 2005 13:16:10 -0800
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
+	Fri, 11 Nov 2005 16:18:32 -0500
+Message-ID: <43750A9D.7070400@zytor.com>
+Date: Fri, 11 Nov 2005 13:18:21 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Timespec normalize off by one errors
-Content-Type: multipart/mixed;
- boundary="------------030205050706030001080807"
+To: Junio C Hamano <junkio@cox.net>
+CC: git@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] GIT 0.99.9g
+References: <7vmzkc2a3e.fsf@assigned-by-dhcp.cox.net>	<43737EC7.6090109@zytor.com> <7v4q6k1jp0.fsf@assigned-by-dhcp.cox.net>
+In-Reply-To: <7v4q6k1jp0.fsf@assigned-by-dhcp.cox.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030205050706030001080807
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Junio C Hamano wrote:
+> "H. Peter Anvin" <hpa@zytor.com> writes:
+> 
+> 
+>>May I *STRONGLY* urge you to name that something different. 
+>>"lost+found" is a name with special properties in Unix; for example, 
+>>many backup solutions will ignore a directory with that name.
+> 
+> 
+> Yeah, the original proposal (in TODO list) explicitly stated why
+> I chose lost-found instead of lost+found back then, and somebody
+> on the list (could have been Pasky but I may be mistaken) said
+> not to worry.  In any case, if we go the route Daniel suggests,
+> we would not be storing anything on the filesystem ourselves so
+> this would be a non-issue.
+> 
 
-Found three places were we use ">" instead of ">=".
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+Just realized one more issue with this... a lot of non-Unix filesystems 
+can't deal with files with a + sign.
 
---------------030205050706030001080807
-Content-Type: text/plain;
- name="time-spec2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="time-spec2.patch"
-
-Source: MontaVista Software, Inc. 
-Type: Defect Fix 
-
-It would appear that the timespec normalize code has an off by one error.
-Found in three places.
-
-Signed-off-by: George Anzinger<george@mvista.com>
-
- include/linux/time.h  |    2 +-
- kernel/posix-timers.c |   10 +++-------
- 2 files changed, 4 insertions(+), 8 deletions(-)
-
-Index: linux-2.6.15-rc/include/linux/time.h
-===================================================================
---- linux-2.6.15-rc.orig/include/linux/time.h
-+++ linux-2.6.15-rc/include/linux/time.h
-@@ -101,7 +101,7 @@ extern struct timespec timespec_trunc(st
- static inline void
- set_normalized_timespec (struct timespec *ts, time_t sec, long nsec)
- {
--	while (nsec > NSEC_PER_SEC) {
-+	while (nsec >= NSEC_PER_SEC) {
- 		nsec -= NSEC_PER_SEC;
- 		++sec;
- 	}
-Index: linux-2.6.15-rc/kernel/posix-timers.c
-===================================================================
---- linux-2.6.15-rc.orig/kernel/posix-timers.c
-+++ linux-2.6.15-rc/kernel/posix-timers.c
-@@ -270,7 +270,7 @@ static void tstojiffie(struct timespec *
- 	long sec = tp->tv_sec;
- 	long nsec = tp->tv_nsec + res - 1;
- 
--	if (nsec > NSEC_PER_SEC) {
-+	if (nsec >= NSEC_PER_SEC) {
- 		sec++;
- 		nsec -= NSEC_PER_SEC;
- 	}
-@@ -1209,13 +1209,9 @@ static int do_posix_clock_monotonic_get(
- 
- 	do_posix_clock_monotonic_gettime_parts(tp, &wall_to_mono);
- 
--	tp->tv_sec += wall_to_mono.tv_sec;
--	tp->tv_nsec += wall_to_mono.tv_nsec;
-+	set_normalized_timespec(tp, tp->tv_sec += wall_to_mono.tv_sec,
-+				tv_nsec += wall_to_mono.tv_nsec);
- 
--	if ((tp->tv_nsec - NSEC_PER_SEC) > 0) {
--		tp->tv_nsec -= NSEC_PER_SEC;
--		tp->tv_sec++;
--	}
- 	return 0;
- }
- 
-
---------------030205050706030001080807--
+	-hpa

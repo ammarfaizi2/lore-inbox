@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750814AbVKLAqe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbVKLAuU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750814AbVKLAqe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 19:46:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbVKLAqe
+	id S1750822AbVKLAuU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 19:50:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbVKLAuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 19:46:34 -0500
-Received: from zproxy.gmail.com ([64.233.162.205]:29413 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750814AbVKLAqe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 19:46:34 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=H4Vvdy0vHo77S12lvSEvKO2zCwuGIWT5561BY3GYm/Uzk7WGzj6XxyPeajOjW6gzWSZKBVRc/eemmMmLxaZ1J1q/3yRY20GT8nnA9jZgIYenC4hV6xOiDBgMb9xSUnIluBPax7Sn1s683/oSQeKqCjC711F1FrGV07VZRGKT0u4=
-Message-ID: <43753B45.4040409@pol.net>
-Date: Sat, 12 Nov 2005 08:45:57 +0800
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
+	Fri, 11 Nov 2005 19:50:20 -0500
+Received: from mail-in-07.arcor-online.net ([151.189.21.47]:50135 "EHLO
+	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1750822AbVKLAuT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 19:50:19 -0500
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: [patch] mark text section read-only
+To: coywolf@sosdg.org, linux-kernel@vger.kernel.org,
+       Arjan van de Ven <arjan@infradead.org>, Josh Boyer <jdub@us.ibm.com>,
+       ak@suse.de, akpm@osdl.org
+Reply-To: 7eggert@gmx.de
+Date: Sat, 12 Nov 2005 00:03:51 +0100
+References: <56cTZ-2PF-5@gated-at.bofh.it> <56cTZ-2PF-3@gated-at.bofh.it> <56fRE-7wr-21@gated-at.bofh.it> <56gaT-7Un-17@gated-at.bofh.it> <57DHW-jb-21@gated-at.bofh.it> <57DHW-jb-19@gated-at.bofh.it> <57Mia-4BG-5@gated-at.bofh.it> <57MrY-50s-39@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-mm2
-References: <20051110203544.027e992c.akpm@osdl.org>	 <6bffcb0e0511111432m771dcda2y@mail.gmail.com>	 <20051111150108.265b2d3f.akpm@osdl.org> <6bffcb0e0511111530t55bb1decq@mail.gmail.com>
-In-Reply-To: <6bffcb0e0511111530t55bb1decq@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-From: "Antonino A. Daplas" <adaplas@gmail.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1Eahvz-0001gP-Uc@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michal Piotrowski wrote:
+Coywolf Qi Hunt <coywolf@sosdg.org> wrote:
 
-> 
-> fbset recognise my gpu as NV32. lspci show it as NV34 (0000:01:00.0
-> VGA compatible controller: nVidia Corporation NV34 [GeForce FX 5200]
-> (rev a1)
-> ). According to
-> http://download.nvidia.com/Windows/45.23/NVIDIA_Driver_Release_Notes_v45.23.pdf
-> it should be NV34.
+> +++ 2.6.14-mm2-cy/init/main.c        2005-11-12 02:50:45.000000000 +0800
+...
+> +void mark_text_ro(void)
+...
+> +     printk ("Write protecting the kernel text data: %luk\n",
+> +                     (unsigned long)(_etext - _text) >> 10);
 
-This is okay, I think.  The id assigned by nvidia and the id derived by
-nvidiafb may not match.  nvidiafb derives it from the pci device id (the 2nd
-and 3rd nibble).  Since your chipset's id is 0x0322, it prints out as NV32.
-
-Tony
+This message should have a priority level, shouldn't it?
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

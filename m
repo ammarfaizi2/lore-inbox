@@ -1,86 +1,309 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbVKKWip@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751291AbVKKWji@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751280AbVKKWip (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 17:38:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbVKKWim
+	id S1751291AbVKKWji (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 17:39:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbVKKWiA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 17:38:42 -0500
-Received: from maggie.cs.pitt.edu ([130.49.220.148]:60397 "EHLO
-	maggie.cs.pitt.edu") by vger.kernel.org with ESMTP id S1751280AbVKKWi2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 17:38:28 -0500
-From: Claudio Scordino <cloud.of.andor@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] getrusage sucks
-Date: Fri, 11 Nov 2005 23:38:19 +0100
-User-Agent: KMail/1.8
-Cc: "Magnus Naeslund(f)" <mag@fbab.net>,
-       "Hua Zhong (hzhong)" <hzhong@cisco.com>, linux-kernel@vger.kernel.org,
-       kernelnewbies@nl.linux.org, David Wagner <daw@cs.berkeley.edu>
-References: <75D9B5F4E50C8B4BB27622BD06C2B82BCF2FD4@xmb-sjc-235.amer.cisco.com> <200511110211.05642.cloud.of.andor@gmail.com> <1131715816.3174.15.camel@localhost.localdomain>
-In-Reply-To: <1131715816.3174.15.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511112338.20684.cloud.of.andor@gmail.com>
-X-Spam-Score: -1.665/8 BAYES_00 SA-version=3.000002
+	Fri, 11 Nov 2005 17:38:00 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:10679 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1751287AbVKKWhr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 17:37:47 -0500
+Date: Fri, 11 Nov 2005 14:37:03 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: linux-kernel@vger.kernel.org
+Cc: Christoph Lameter <clameter@sgi.com>, lhms-devel@lists.sourceforge.net
+Message-Id: <20051111223703.21716.88999.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20051111223632.21716.49021.sendpatchset@schroedinger.engr.sgi.com>
+References: <20051111223632.21716.49021.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [PATCH 6/8] Direct Migration V3: Avoid writeback / page_migrate() method
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > You need to wrap this with a read_lock(&tasklist_lock) to be safe, I
-> > > think.
-> >
->
-> It will depend on the data accuracy. If the information on cpu usage is
-> very accurate then it becomes a way to analyse what is happening to
-> tasks you don't own - such as say cryptographic functions in the web
-> server...
->
-> Otherwise, or with an owner check I see no real problem with the concept
+Migrate a page with buffers without requiring writeback
 
+This introduces a new address space operation migratepage() that
+may be used by a filesystem to implement its own version of page migration.
 
-So, is the following patch right ? I've added both the lock and the owner 
-check...
+A version is provided that migrates buffers attached to pages. Some
+filesystems (ext2, ext3, xfs) are modified to utilize this feature.
 
-Do you think it may be an interesting feature to be inserted in the kernel ?
+The swapper address space operation are modified so that a regular
+migrate_page() will occur for anonymous pages without writeback
+(migrate_pages forces every anonymous page to have a swap entry).
 
-Many thanks,
+V2->V3:
+- export functions for filesystems that are modules and for modules that
+  perform migration by calling migrate_pages().
+- Fix macro name clash. Fix build on UP and systems without CONFIG_MIGRATION
 
-                 Claudio
+V1->V2:
+- Fix CONFIG_MIGRATION handling
 
+Signed-off-by: Mike Kravetz <kravetz@us.ibm.com>
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-
-diff --git a/kernel/sys.c b/kernel/sys.c
---- a/kernel/sys.c
-+++ b/kernel/sys.c
-@@ -1746,9 +1746,25 @@ int getrusage(struct task_struct *p, int
-
- asmlinkage long sys_getrusage(int who, struct rusage __user *ru)
- {
--       if (who != RUSAGE_SELF && who != RUSAGE_CHILDREN)
--               return -EINVAL;
--       return getrusage(current, who, ru);
-+        if (who != RUSAGE_SELF && who != RUSAGE_CHILDREN) {
-+                struct task_struct* tsk;
-+                struct rusage r;
-+                read_lock(&tasklist_lock);
-+                tsk = find_task_by_pid(who);
-+                if (tsk == NULL) {
-+                        read_unlock(&tasklist_lock);
-+                        return -EINVAL;
-+                }
-+                if ((current->euid != tsk->euid) &&
-+                (current->euid != tsk->uid)) {
-+                        read_unlock(&tasklist_lock);
-+                        return -EINVAL;
-+                }
-+                k_getrusage(tsk, RUSAGE_SELF, &r);
-+                read_unlock(&tasklist_lock);
-+                return copy_to_user(ru, &r, sizeof(r)) ? -EFAULT : 0;
-+        } else
-+                return getrusage(current, who, ru);
+Index: linux-2.6.14-mm2/include/linux/fs.h
+===================================================================
+--- linux-2.6.14-mm2.orig/include/linux/fs.h	2005-11-11 12:26:58.000000000 -0800
++++ linux-2.6.14-mm2/include/linux/fs.h	2005-11-11 13:41:33.000000000 -0800
+@@ -366,6 +366,8 @@ struct address_space_operations {
+ 			loff_t offset, unsigned long nr_segs);
+ 	struct page* (*get_xip_page)(struct address_space *, sector_t,
+ 			int);
++	/* migrate the contents of a page to the specified target */
++	int (*migratepage) (struct page *, struct page *);
+ };
+ 
+ struct backing_dev_info;
+@@ -1718,6 +1720,12 @@ extern void simple_release_fs(struct vfs
+ 
+ extern ssize_t simple_read_from_buffer(void __user *, size_t, loff_t *, const void *, size_t);
+ 
++#ifdef CONFIG_MIGRATION
++extern int buffer_migrate_page(struct page *, struct page *);
++#else
++#define buffer_migrate_page NULL
++#endif
++
+ extern int inode_change_ok(struct inode *, struct iattr *);
+ extern int __must_check inode_setattr(struct inode *, struct iattr *);
+ 
+Index: linux-2.6.14-mm2/mm/swap_state.c
+===================================================================
+--- linux-2.6.14-mm2.orig/mm/swap_state.c	2005-11-11 12:26:58.000000000 -0800
++++ linux-2.6.14-mm2/mm/swap_state.c	2005-11-11 13:41:33.000000000 -0800
+@@ -26,6 +26,7 @@ static struct address_space_operations s
+ 	.writepage	= swap_writepage,
+ 	.sync_page	= block_sync_page,
+ 	.set_page_dirty	= __set_page_dirty_nobuffers,
++	.migratepage	= migrate_page,
+ };
+ 
+ static struct backing_dev_info swap_backing_dev_info = {
+Index: linux-2.6.14-mm2/fs/xfs/linux-2.6/xfs_aops.c
+===================================================================
+--- linux-2.6.14-mm2.orig/fs/xfs/linux-2.6/xfs_aops.c	2005-11-11 12:26:57.000000000 -0800
++++ linux-2.6.14-mm2/fs/xfs/linux-2.6/xfs_aops.c	2005-11-11 13:41:33.000000000 -0800
+@@ -1348,4 +1348,5 @@ struct address_space_operations linvfs_a
+ 	.commit_write		= generic_commit_write,
+ 	.bmap			= linvfs_bmap,
+ 	.direct_IO		= linvfs_direct_IO,
++	.migratepage		= buffer_migrate_page,
+ };
+Index: linux-2.6.14-mm2/fs/buffer.c
+===================================================================
+--- linux-2.6.14-mm2.orig/fs/buffer.c	2005-11-11 12:26:56.000000000 -0800
++++ linux-2.6.14-mm2/fs/buffer.c	2005-11-11 13:41:33.000000000 -0800
+@@ -3051,6 +3051,71 @@ asmlinkage long sys_bdflush(int func, lo
  }
-
- asmlinkage long sys_umask(int mask)
+ 
+ /*
++ * Migration function for pages with buffers. This function can only be used
++ * if the underlying filesystem guarantees that no other references to "page"
++ * exist.
++ */
++#ifdef CONFIG_MIGRATION
++int buffer_migrate_page(struct page *newpage, struct page *page)
++{
++	struct address_space *mapping = page->mapping;
++	struct buffer_head *bh, *head;
++
++	if (!mapping)
++		return -EAGAIN;
++
++	if (!page_has_buffers(page))
++		return migrate_page(newpage, page);
++
++	head = page_buffers(page);
++
++	if (migrate_page_remove_references(newpage, page, 3))
++		return -EAGAIN;
++
++	spin_lock(&mapping->private_lock);
++
++	bh = head;
++	do {
++		get_bh(bh);
++		lock_buffer(bh);
++		bh = bh->b_this_page;
++
++	} while (bh != head);
++
++	ClearPagePrivate(page);
++	set_page_private(newpage, page_private(page));
++	set_page_private(page, 0);
++	put_page(page);
++	get_page(newpage);
++
++	bh = head;
++	do {
++		set_bh_page(bh, newpage, bh_offset(bh));
++		bh = bh->b_this_page;
++
++	} while (bh != head);
++
++	SetPagePrivate(newpage);
++	spin_unlock(&mapping->private_lock);
++
++	migrate_page_copy(newpage, page);
++
++	spin_lock(&mapping->private_lock);
++	bh = head;
++	do {
++		unlock_buffer(bh);
++ 		put_bh(bh);
++		bh = bh->b_this_page;
++
++	} while (bh != head);
++	spin_unlock(&mapping->private_lock);
++
++	return 0;
++}
++EXPORT_SYMBOL(buffer_migrate_page);
++#endif
++
++/*
+  * Buffer-head allocation
+  */
+ static kmem_cache_t *bh_cachep;
+Index: linux-2.6.14-mm2/fs/ext3/inode.c
+===================================================================
+--- linux-2.6.14-mm2.orig/fs/ext3/inode.c	2005-11-11 12:26:56.000000000 -0800
++++ linux-2.6.14-mm2/fs/ext3/inode.c	2005-11-11 13:41:33.000000000 -0800
+@@ -1564,6 +1564,7 @@ static struct address_space_operations e
+ 	.invalidatepage	= ext3_invalidatepage,
+ 	.releasepage	= ext3_releasepage,
+ 	.direct_IO	= ext3_direct_IO,
++	.migratepage	= buffer_migrate_page,
+ };
+ 
+ static struct address_space_operations ext3_writeback_aops = {
+@@ -1577,6 +1578,7 @@ static struct address_space_operations e
+ 	.invalidatepage	= ext3_invalidatepage,
+ 	.releasepage	= ext3_releasepage,
+ 	.direct_IO	= ext3_direct_IO,
++	.migratepage	= buffer_migrate_page,
+ };
+ 
+ static struct address_space_operations ext3_journalled_aops = {
+Index: linux-2.6.14-mm2/fs/ext2/inode.c
+===================================================================
+--- linux-2.6.14-mm2.orig/fs/ext2/inode.c	2005-11-11 12:26:56.000000000 -0800
++++ linux-2.6.14-mm2/fs/ext2/inode.c	2005-11-11 13:41:33.000000000 -0800
+@@ -706,6 +706,7 @@ struct address_space_operations ext2_aop
+ 	.bmap			= ext2_bmap,
+ 	.direct_IO		= ext2_direct_IO,
+ 	.writepages		= ext2_writepages,
++	.migratepage		= buffer_migrate_page,
+ };
+ 
+ struct address_space_operations ext2_aops_xip = {
+@@ -723,6 +724,7 @@ struct address_space_operations ext2_nob
+ 	.bmap			= ext2_bmap,
+ 	.direct_IO		= ext2_direct_IO,
+ 	.writepages		= ext2_writepages,
++	.migratepage		= buffer_migrate_page,
+ };
+ 
+ /*
+Index: linux-2.6.14-mm2/fs/xfs/linux-2.6/xfs_buf.c
+===================================================================
+--- linux-2.6.14-mm2.orig/fs/xfs/linux-2.6/xfs_buf.c	2005-11-11 12:26:57.000000000 -0800
++++ linux-2.6.14-mm2/fs/xfs/linux-2.6/xfs_buf.c	2005-11-11 13:41:33.000000000 -0800
+@@ -1568,6 +1568,7 @@ xfs_mapping_buftarg(
+ 	struct address_space	*mapping;
+ 	static struct address_space_operations mapping_aops = {
+ 		.sync_page = block_sync_page,
++		.migratepage = fail_migrate_page,
+ 	};
+ 
+ 	inode = new_inode(bdev->bd_inode->i_sb);
+Index: linux-2.6.14-mm2/mm/vmscan.c
+===================================================================
+--- linux-2.6.14-mm2.orig/mm/vmscan.c	2005-11-11 13:41:33.000000000 -0800
++++ linux-2.6.14-mm2/mm/vmscan.c	2005-11-11 13:46:37.000000000 -0800
+@@ -606,6 +606,15 @@ int putback_lru_pages(struct list_head *
+ }
+ 
+ /*
++ * Non migratable page
++ */
++int fail_migrate_page(struct page *newpage, struct page *page)
++{
++	return -EIO;
++}
++EXPORT_SYMBOL(fail_migrate_page);
++
++/*
+  * swapout a single page
+  * page is locked upon entry, unlocked on exit
+  */
+@@ -648,6 +657,7 @@ unlock_retry:
+ 
+ 	return -EAGAIN;
+ }
++EXPORT_SYMBOL(swap_page);
+ 
+ /*
+  * Page migration was developed in the context of the memory hotplug project.
+@@ -759,6 +769,7 @@ int migrate_page_remove_references(struc
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL(migrate_page_remove_references);
+ 
+ /*
+  * Copy the page to its new location
+@@ -808,6 +819,7 @@ void migrate_page_copy(struct page *newp
+ 	if (PageWriteback(newpage))
+ 		end_page_writeback(newpage);
+ }
++EXPORT_SYMBOL(migrate_page_copy);
+ 
+ /*
+  * Common logic to directly migrate a single page suitable for
+@@ -826,6 +838,7 @@ int migrate_page(struct page *newpage, s
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL(migrate_page);
+ 
+ /*
+  * migrate_pages
+@@ -923,6 +936,11 @@ redo:
+ 		if (!mapping)
+ 			goto unlock_both;
+ 
++		if (mapping->a_ops->migratepage) {
++			rc = mapping->a_ops->migratepage(newpage, page);
++			goto unlock_both;
++                }
++
+ 		/*
+ 		 * Trigger writeout if page is dirty
+ 		 */
+@@ -997,6 +1015,7 @@ next:
+ 
+ 	return nr_failed + retry;
+ }
++EXPORT_SYMBOL(migrate_pages);
+ #endif
+ 
+ /*
+Index: linux-2.6.14-mm2/include/linux/swap.h
+===================================================================
+--- linux-2.6.14-mm2.orig/include/linux/swap.h	2005-11-11 13:41:33.000000000 -0800
++++ linux-2.6.14-mm2/include/linux/swap.h	2005-11-11 13:41:33.000000000 -0800
+@@ -186,6 +186,11 @@ extern int migrate_pages(struct list_hea
+ extern int migrate_page(struct page *, struct page *);
+ extern int migrate_page_remove_references(struct page *, struct page *, int);
+ extern void migrate_page_copy(struct page *, struct page *);
++extern int fail_migrate_page(struct page *, struct page *);
++#else
++/* Possible settings for the migrate_page() method in address_operations */
++#define migrate_page NULL
++#define fail_migrate_page NULL
+ #endif
+ 
+ #ifdef CONFIG_MMU

@@ -1,74 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbVKKP0G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbVKKP0f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750759AbVKKP0G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 10:26:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbVKKP0G
+	id S1750811AbVKKP0f (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 10:26:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbVKKP0f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 10:26:06 -0500
-Received: from kirby.webscope.com ([204.141.84.57]:57010 "EHLO
-	kirby.webscope.com") by vger.kernel.org with ESMTP id S1750759AbVKKP0E
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 10:26:04 -0500
-Message-ID: <4374B7EB.4000107@linuxtv.org>
-Date: Fri, 11 Nov 2005 10:25:31 -0500
-From: Michael Krufky <mkrufky@linuxtv.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Fri, 11 Nov 2005 10:26:35 -0500
+Received: from mx2.suse.de ([195.135.220.15]:41372 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750811AbVKKP0e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 10:26:34 -0500
+From: Andi Kleen <ak@suse.de>
+To: Zachary Amsden <zach@vmware.com>
+Subject: Re: [PATCH 19/21] i386 Kprobes semaphore fix
+Date: Fri, 11 Nov 2005 16:25:55 +0100
+User-Agent: KMail/1.8
+Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@osdl.org>,
+       Chris Wright <chrisw@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Martin Bligh <mbligh@mbligh.org>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>, prasanna@in.ibm.com, ananth@in.ibm.com,
+       anil.s.keshavamurthy@intel.com, davem@davemloft.net
+References: <200511080439.jA84diI6009951@zach-dev.vmware.com> <200511091438.11848.ak@suse.de> <437227FD.6040905@vmware.com>
+In-Reply-To: <437227FD.6040905@vmware.com>
 MIME-Version: 1.0
-To: Takashi Iwai <tiwai@suse.de>
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux and Kernel Video <video4linux-list@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Mauro Carvalho Chehab <mauro_chehab@yahoo.com.br>
-Subject: Re: [PATCH 21/20] v4l: prevent saa7134 alsa undefined warnings
-References: <4373CBC6.4080305@linuxtv.org> <s5hslu3z44q.wl%tiwai@suse.de>
-In-Reply-To: <s5hslu3z44q.wl%tiwai@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511111625.57165.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Takashi Iwai wrote:
-> At Thu, 10 Nov 2005 17:37:58 -0500,
-> Mike Krufky wrote:
-> 
->>Prevent the following build warnings:
->>
->>*** Warning: "snd_card_free" 
->>*** Warning: "snd_card_register" 
->>*** Warning: "snd_device_new" 
->>*** Warning: "snd_card_new" 
->>*** Warning: "snd_ctl_add"
->>*** Warning: "snd_ctl_new1" 
->>*** Warning: "snd_pcm_set_ops" 
->>*** Warning: "snd_pcm_new"
->>*** Warning: "snd_pcm_lib_ioctl" 
->>*** Warning: "snd_pcm_hw_constraint_integer" 
->>*** Warning: "snd_pcm_stop" 
->>*** Warning: "snd_pcm_period_elapsed" 
->>[drivers/media/video/saa7134/saa7134-alsa.ko] undefined!
->>
->>Signed-off-by: Michael Krufky <mkrufky@m1k.net>
->>Acked-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
->>
->> drivers/media/video/saa7134/Kconfig |    2 +-
->> 1 files changed, 1 insertion(+), 1 deletion(-)
->>
->>--- linux.orig/drivers/media/video/saa7134/Kconfig
->>+++ linux/drivers/media/video/saa7134/Kconfig
->>@@ -1,6 +1,6 @@
->> config VIDEO_SAA7134
->> 	tristate "Philips SAA7134 support"
->>-	depends on VIDEO_DEV && PCI && I2C && SOUND
->>+	depends on VIDEO_DEV && PCI && I2C && SOUND && SND && SND_PCM_OSS
-> 
-> 
-> No, this driver should select SND_PCM_OSS, instead.
-> 
-> 
-> Takashi
+On Wednesday 09 November 2005 17:46, Zachary Amsden wrote:
+> Andi Kleen wrote:
+> >On Tuesday 08 November 2005 14:36, Zachary Amsden wrote:
+> >>One can imagine clever uses for ptrace to do, say user space
+> >>virtualization (since I'm on the topic), or other neat things.  So there
+> >>is nothing really wrong about having the fully correct EIP conversion
+> >>(and here we shouldn't need to worry about races causing some issues
+> >>with strict correctness, since there can be one external control thread).
+> >
+> >Well, the code still scaries me a bit, but ok. x86-64 left at least one
+> > case intentionally out.
+> >
+> >>But were kprobes even inteneded for userspace?  There are races here
+> >>that are difficult to close without some heavy machinery, and I would
+> >>rather not put the machinery in place if simplifying the code is the
+> >>right answer.
+> >
+> >I believe user space kprobes are being worked on by some IBM India folks
+> > yes.
+>
+> I'm convinced this is pointless.  What does it buy you over a ptrace
+> based debugger?  Why would you want extra code running in the kernel
+> that can be done perfectly well in userspace?
 
-Yes, I realized that after Andrew applied the patch.  We will send a 
-correction in our next patchset.
+People might want to do something like "attach trace point to glibc function 
+X" for all processes on the system. Attaching ptrace to everything would 
+cause large overhead. systemtap really handles a different need - of just low 
+overhead tracing, not heavy weight debugging.
 
--Michael Krufky
+> Let me stress that if you are running on modified segment state, you
+> have no way to safely determine the virtual address on which you took an
+> instruction trap (int3, general protection, etc..).  If you can't
+> determine the virtual address safely, you can't back out your code patch
+> to remove the breakpoint.  At this point, you can't execute the next
+
+Kernel kprobes solves this by executing the code out of line. I don't know
+how they want to do that in user space though (need a safe address for that),
+but somehow that can be likely done.
+
+> instruction; you must wait for a _policy_ decision to be made.  Adding
+> policy decisions like this to the kernel surely seems like a bad idea.
+> If the fallback is to have a debugger running in userspace that has a
+> user or script attached that can make the interactive decision, then why
+> not solve the entire problem in userspace from the start?  It's a lot
+
+Doing it in user space would make it hard to do global tracing, and it 
+also likely would have much higher overhead.
+
+-Andi

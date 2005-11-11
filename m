@@ -1,56 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbVKKUXX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbVKKUcU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751161AbVKKUXX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 15:23:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbVKKUXX
+	id S1751167AbVKKUcU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 15:32:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbVKKUcU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 15:23:23 -0500
-Received: from rwcrmhc14.comcast.net ([216.148.227.89]:29614 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1751161AbVKKUXW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 15:23:22 -0500
-Date: Fri, 11 Nov 2005 14:23:17 -0600
-From: Lee <linuxtwidler@gmail.com>
-To: Robert Hancock <hancockr@shaw.ca>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: kernel crash debugging
-Message-ID: <20051111142317.4e0421b7@localhost>
-In-Reply-To: <4374FB9A.4020400@shaw.ca>
-References: <56Z7S-85a-29@gated-at.bofh.it>
-	<4374FB9A.4020400@shaw.ca>
-Reply-To: linuxtwidler@gmail.com
-X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 11 Nov 2005 15:32:20 -0500
+Received: from frodo.ingrian.com ([207.47.3.25]:53136 "EHLO frodo.ingrian.com")
+	by vger.kernel.org with ESMTP id S1751167AbVKKUcT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 15:32:19 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: tcp_sendmsg in scheduler queue 
+Date: Fri, 11 Nov 2005 12:32:12 -0800
+Message-ID: <7B18208E62D0B74A9A7D854F3C897467033498@mail.ingrian.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: tcp_sendmsg in scheduler queue 
+Thread-Index: AcXm/v8ORFyVO/hBRKW+jauc5apzxQ==
+From: "Seva Tonkonoh" <seva@ingrian.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I am running kernel version '2.6.13-gentoo-r3'
-> > 
-> > My hardware is as follows:
-> >  - motherboard:  Tyan Tiger 230T
-> >  - processors: 2 Pentium II 1.13Ghz
-> >  - memory: 1.5GB 
-> > 
-> > I have been having intermittent lockups for a while now.
-> > 
-> > At first, I thought it had something to do with vmware, but this is no occuring with a non-tainted kernel.
-> 
-> First thing I would try with those kind of faults is Memtest86, you 
-> could have some bad RAM or bad memory timing settings..
+Hello,
 
-I could understand that concept except for one thing:
-  - with 4k stacks turned on, i have the lockups
-  - with 4k stacks turned off, i have not had a single lock up at all.
+I am developing a kernel module that schedules a task to run
+in the scheduler queue (kernel is 2.4), and inside the task there is a
+call
+to tcp_sendmsg().
 
-Per an earlier email from 'pageexec@freemail.hu', it appears that there is still an execution path in the kernel with is causing a stack overflow.
+I have intermittent kernel crashes which seem to happen in alloc_skb()
+(below is the output from ksymoops).
 
+Is there anything wrong with calling tcp_sendmsg() from a task in the
+scheduler queue?
 
+Thanks,
+Seva Tonkonoh
 
+>>EIP; c012f10f <kmem_cache_alloc_batch+67/e0>   <=====
 
--- 
-Lee
-linuxtwidler@gmail.com
+>>ecx; c1c0da28 <_end+18a5138/11ce9710>
+>>esi; c1c0da28 <_end+18a5138/11ce9710>
 
- 14:18:50 up 4 days, 19:29,  1 user,  load average: 2.80, 2.72, 2.30
+Trace; c012f2ea <kmem_cache_alloc+72/13c>
+Trace; c01f996c <alloc_skb+cc/1bc>
+Trace; c0213348 <tcp_sendmsg+23c/1140>
+Trace; f899e5f8 <END_OF_CODE+268d1001/????>
+Trace; c0115233 <schedule_timeout+83/a0>
+Trace; c011d2ec <__run_task_queue+64/70>
+Trace; c01250d7 <context_thread+137/1d0>
+Trace; c0105684 <kernel_thread+28/38>
+
+Code;  c012f10f <kmem_cache_alloc_batch+67/e0>
+00000000 <_EIP>:
+Code;  c012f10f <kmem_cache_alloc_batch+67/e0>   <=====
+   0:   8b 44 81 18               mov    0x18(%ecx,%eax,4),%eax   <=====
+Code;  c012f113 <kmem_cache_alloc_batch+6b/e0>
+   4:   03 59 0c                  add    0xc(%ecx),%ebx
+Code;  c012f116 <kmem_cache_alloc_batch+6e/e0>
+   7:   89 41 14                  mov    %eax,0x14(%ecx)
+Code;  c012f119 <kmem_cache_alloc_batch+71/e0>
+   a:   83 f8 ff                  cmp    $0xffffffff,%eax
+Code;  c012f11c <kmem_cache_alloc_batch+74/e0>
+   d:   75 23                     jne    32 <_EIP+0x32> c012f141
+<kmem_cache_alloc_batch+99/e0>
+Code;  c012f11e <kmem_cache_alloc_batch+76/e0>
+   f:   8b 41 04                  mov    0x4(%ecx),%eax
+Code;  c012f121 <kmem_cache_alloc_batch+79/e0>
+  12:   8b 11                     mov    (%ecx),%edx

@@ -1,53 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbVKKIUK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbVKKIZw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751251AbVKKIUK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 03:20:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbVKKIUK
+	id S932190AbVKKIZw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 03:25:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbVKKIZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 03:20:10 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:7358 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751244AbVKKIUI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 03:20:08 -0500
-Date: Fri, 11 Nov 2005 09:20:04 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: john stultz <johnstul@us.ibm.com>
-Cc: dino@in.ibm.com, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: IO-APIC problem with 2.6.14-rt9
-Message-ID: <20051111082004.GA20977@elte.hu>
-References: <20051110200226.GA18780@in.ibm.com> <20051110200205.GA4696@elte.hu> <20051110203000.GB16301@in.ibm.com> <1131654575.27168.685.camel@cog.beaverton.ibm.com> <20051110210458.GA6097@elte.hu> <1131658975.27168.703.camel@cog.beaverton.ibm.com> <20051111073841.GA16009@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051111073841.GA16009@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 11 Nov 2005 03:25:52 -0500
+Received: from smtprelay03.ispgateway.de ([80.67.18.15]:41096 "EHLO
+	smtprelay03.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1751248AbVKKIZv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 03:25:51 -0500
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] sys_punchhole()
+Date: Fri, 11 Nov 2005 09:25:41 +0100
+User-Agent: KMail/1.7.2
+Cc: Andrew Morton <akpm@osdl.org>, Badari Pulavarty <pbadari@us.ibm.com>,
+       andrea@suse.de, hugh@veritas.com, linux-mm@kvack.org
+References: <1131664994.25354.36.camel@localhost.localdomain> <20051110153254.5dde61c5.akpm@osdl.org>
+In-Reply-To: <20051110153254.5dde61c5.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2834990.SANAYd45pA";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200511110925.48259.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--nextPart2834990.SANAYd45pA
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+Hi,
 
-> > Grumble. :( I was hoping to submit my tod code to Andrew tomorrow, but 
-> > this might block that.
-> 
-> hm, ARCH_HAS_READ_CURRENT_TIMER is upstream already. I have not 
-> measured the udelay thing upstream, but i thought it would have the 
-> same issue.  Does the GTOD code impact this code?
+On Friday 11 November 2005 00:32, Andrew Morton wrote:
+> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> >
+> > We discussed this in madvise(REMOVE) thread - to add support=20
+> > for sys_punchhole(fd, offset, len) to complete the functionality
+> > (in the future).
+> >=20
+> > http://marc.theaimsgroup.com/?l=3Dlinux-mm&m=3D113036713810002&w=3D2
+> >=20
+> > What I am wondering is, should I invest time now to do it ?
+>=20
+> I haven't even heard anyone mention a need for this in the past 1-2 years.
 
-ah, i see - you changed __delay to always be loop-based. That is quite 
-incorrect.
+Because the people need it are usally at the application level.
+It would be useful with hard disk editing.
 
-but i think there is a generic way to solve this: just busy-poll 
-->read_cycles(). I.e. move __delay into the generic code too. This means 
-even more architecture-specific code would be consolidated, which is 
-always good.
+But this would need a move_blocks within the filesystem, which
+could attach a given list of blocks to another file.
 
-	Ingo
+E.g. mremap() for files :-)
+
+Both together would make harddisk video editing with linux quite
+performant and less error prone.
+
+
+Regards
+
+Ingo Oeser
+
+
+--nextPart2834990.SANAYd45pA
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDdFWMU56oYWuOrkARAs5bAKCUWeuUxd7AWdVsC4jDANe0KvlQRwCdHnBz
+shv9TBiCqFQ2+WQTas5FK6w=
+=2JyA
+-----END PGP SIGNATURE-----
+
+--nextPart2834990.SANAYd45pA--

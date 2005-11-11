@@ -1,35 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751040AbVKKH36@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbVKKHdD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751040AbVKKH36 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 02:29:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbVKKH35
+	id S932185AbVKKHdD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 02:33:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbVKKHdD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 02:29:57 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:34984 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1751040AbVKKH35 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 02:29:57 -0500
-Date: Fri, 11 Nov 2005 09:29:41 +0200 (EET)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Matthew Dobson <colpatch@us.ibm.com>
-cc: kernel-janitors@lists.osdl.org, manfred@colorfullife.com,
+	Fri, 11 Nov 2005 02:33:03 -0500
+Received: from holomorphy.com ([66.93.40.71]:29911 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S932185AbVKKHdC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 02:33:02 -0500
+Date: Thu, 10 Nov 2005 23:30:18 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Arun Sharma <arun.sharma@google.com>
+Cc: Andrew Morton <akpm@osdl.org>, rohit.seth@intel.com,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/9] Cleanup mm/slab.c v2
-In-Reply-To: <4373DD82.8010606@us.ibm.com>
-Message-ID: <Pine.LNX.4.58.0511110928490.2001@sbz-30.cs.Helsinki.FI>
-References: <4373DD82.8010606@us.ibm.com>
+Subject: Re: [PATCH] Expose SHM_HUGETLB in shmctl(id, IPC_STAT, ...)
+Message-ID: <20051111073018.GS29402@holomorphy.com>
+References: <20051109184623.GA21636@sharma-home.net> <20051109222223.538309e4.akpm@osdl.org> <43739302.1080404@google.com> <20051110115941.1cbe1ae7.akpm@osdl.org> <4373BE8D.2070104@google.com> <20051110140621.47729c5b.akpm@osdl.org> <437406D4.4060304@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <437406D4.4060304@google.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Nov 2005, Matthew Dobson wrote:
-> Second take at cleaning up mm/slab.c.  Patch series has picked up 2 new
-> patches and dropped one old one.  The 2 new patches create new helper
-> functions, and I've dropped the patch to inline 3 functions after it was
-> deemed unecessary.
+Andrew Morton wrote:
+>> But then again, if it was possible to write 100 lines of userspace code, we
+>> wouldn't need this capability at all.  I bet if the userspace guys tried a
+>> bit harder they'd work out a way of teaching their applications to remember
+>> what they did.
 
-Looks good to me. Thanks Matthew!
+On Thu, Nov 10, 2005 at 06:49:56PM -0800, Arun Sharma wrote:
+> Why do we need shmctl(IPC_STAT) then? Applications should remember what 
+> they did :)
 
-				Pekka
+atime, dtime, ctime, lpid, and nattch are not "rememberable" this way.
+
+
+-- wli

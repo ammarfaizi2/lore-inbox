@@ -1,74 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbVKKUTt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbVKKUUK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751141AbVKKUTt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 15:19:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751140AbVKKUTt
+	id S1751140AbVKKUUK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 15:20:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbVKKUUK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 15:19:49 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:53381 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751155AbVKKUTs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 15:19:48 -0500
-Message-ID: <4374FCDD.4060805@redhat.com>
-Date: Fri, 11 Nov 2005 15:19:41 -0500
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.4.1 (X11/20050929)
-X-Accept-Language: en-us, en
+	Fri, 11 Nov 2005 15:20:10 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:16389 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751140AbVKKUUI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 15:20:08 -0500
+Date: Fri, 11 Nov 2005 21:20:05 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, paulus@samba.org, anton@samba.org,
+       linuxppc64-dev@ozlabs.org
+Subject: Re: [2.6 patch] add -Werror-implicit-function-declaration to CFLAGS
+Message-ID: <20051111202005.GQ5376@stusta.de>
+References: <20051107200336.GH3847@stusta.de> <20051110042857.38b4635b.akpm@osdl.org> <20051111021258.GK5376@stusta.de> <20051110182443.514622ed.akpm@osdl.org> <20051111201849.GP5376@stusta.de>
 MIME-Version: 1.0
-To: Willy Tarreau <willy@w.ods.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] poll(2) timeout values
-References: <437375DE.1070603@redhat.com> <1131642956.20099.39.camel@localhost.localdomain> <20051110210255.GF11266@alpha.home.local>
-In-Reply-To: <20051110210255.GF11266@alpha.home.local>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051111201849.GP5376@stusta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote:
+On Fri, Nov 11, 2005 at 09:18:49PM +0100, Adrian Bunk wrote:
+>...
+> But in this case -Werror-implicit-function-declaration doesn't create 
+> new compile errors, it only moves compile errors from compile time to 
+> link or depmod time - which is IMHO not a bad change.
+> 
+> If you really want to keep the status quo, you can still steal the 
+> following from sparc64:
+>   extern unsigned long virt_to_bus_not_defined_use_pci_map(volatile void *addr);
+>   #define virt_to_bus virt_to_bus_not_defined_use_pci_map
+>   extern unsigned long bus_to_virt_not_defined_use_pci_map(volatile void *addr);
+>   #define bus_to_virt bus_to_virt_not_defined_use_pci_map
+> 
+> Would a patch to mark the ISA legacy functions as __deprecated be OK?
+>...
 
->On Thu, Nov 10, 2005 at 05:15:56PM +0000, Alan Cox wrote:
->  
->
->>On Iau, 2005-11-10 at 11:31 -0500, Peter Staubach wrote:
->>    
->>
->>>Clearly, the timeout calculations problem can be fixed without changing
->>>the arguments to the sys_poll() routine.  However, it is cleaner to fix
->>>it this way by ensuring the sizes and types of arguments match.
->>>      
->>>
->>There really is no need for the kernel API to match the userspace one,
->>many of our others differ between the syscall interface which is most
->>definitely 'exported' in one sense and the POSIX interface which is
->>defined by libc, posix and the LSB etc
->>
->>No argument about the timeout fix.
->>    
->>
->
->I posted a different fix here about a month ago (but I sent it 3 times,
->as it was twice wrong). Andrew was about to merge it in his tree but I
->have not checked yet. It was different in the sense that it used
->msecs_to_jiffies() to do the arithmetic in the best possible way depending
->on the HZ value and the ints size. Most of the time (when 1000 % HZ == 0),
->it will simplify the operations to a single divide by a constant and
->correctly check for integer overflows. Eg, with HZ=250, a simple 2 bits
->right shift will replace a multiply followed by an divide.
->
->I'll check whether 2.6.14-mm1 has it, otherwise I can repost it.
->
+Sorry, this were two separate thoughts:
 
-Yes, I remember the conversation.  I hadn't seen the final patch included
-anywhere, so I posted this one.
+Would a patch to mark both virt_to_bus/bus_to_virt and the ISA legacy 
+functions (that cause similar problems) as __deprecated be OK?
 
-That said, I think that msecs_to_jiffies() can still suffer from overflows
-if (HZ % MSECS_PER_SEC) != 0 && (MSECS_PER_SEC % HZ) != 0.  I'd like to
-see the rest of your patch to see how this was worked around.
+cu
+Adrian
 
-The patch that I posted does not suffer from overflow issues.
+-- 
 
-    Thanx...
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-       ps

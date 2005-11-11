@@ -1,187 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbVKKTCE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751044AbVKKTEt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751052AbVKKTCE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 14:02:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751054AbVKKTCD
+	id S1751044AbVKKTEt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 14:04:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751045AbVKKTEt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 14:02:03 -0500
-Received: from zproxy.gmail.com ([64.233.162.198]:12530 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751052AbVKKTCB convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 14:02:01 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RXae6aMAZ44fZ9ixK43hXFS/oLjdXOyX1OENXlVHlbEd5Oi8aulTyktTv2VSQKLCy59aRaZI/bJutUxuOV87Rb3jHa/8Re/dV8bISEt7YW56Mnq2mJCA3v3RrrBMk0Rc+w67pEKezfFihApPu5fbjLwwCsF/AagBXzJarTpN1AI=
-Message-ID: <195c7a900511111102t240b8195y58a2c167f0185d70@mail.gmail.com>
-Date: Fri, 11 Nov 2005 19:02:00 +0000
-From: roucaries bastien <roucaries.bastien@gmail.com>
-To: Takashi Iwai <tiwai@suse.de>
-Subject: Re: [BUG] Ali snd soft lookup on 2.6.14 (regression)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <s5h64qzyq8o.wl%tiwai@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 11 Nov 2005 14:04:49 -0500
+Received: from everest.sosdg.org ([66.93.203.161]:21431 "EHLO mail.sosdg.org")
+	by vger.kernel.org with ESMTP id S1751043AbVKKTEt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 14:04:49 -0500
+Date: Fri, 11 Nov 2005 14:04:47 -0500
+From: Coywolf Qi Hunt <coywolf@sosdg.org>
+To: linux-kernel@vger.kernel.org
+Cc: Arjan van de Ven <arjan@infradead.org>, Josh Boyer <jdub@us.ibm.com>,
+       ak@suse.de, akpm@osdl.org
+Subject: [patch] mark text section read-only
+Message-ID: <20051111190447.GA14481@everest.sosdg.org>
+Reply-To: coywolf@sosdg.org
+References: <20051107105624.GA6531@infradead.org> <20051107105807.GB6531@infradead.org> <1131372374.23658.1.camel@windu.rchland.ibm.com> <1131373248.2858.17.camel@laptopd505.fenrus.org> <2cd57c900511110139v221ed3f3m@mail.gmail.com> <1131702428.2833.8.camel@laptopd505.fenrus.org> <2cd57c900511111057n3a7741ddw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <195c7a900511101418r25aa43e6gc5cdeeac17aa0c7c@mail.gmail.com>
-	 <s5hr79nz3b4.wl%tiwai@suse.de>
-	 <195c7a900511111040p7947267brd99ce0be3c1130f4@mail.gmail.com>
-	 <s5h64qzyq8o.wl%tiwai@suse.de>
+In-Reply-To: <2cd57c900511111057n3a7741ddw@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: coywolf@mail.sosdg.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/11/05, Takashi Iwai <tiwai@suse.de> wrote:
-> At Fri, 11 Nov 2005 18:40:25 +0000,
-> roucaries bastien wrote:
-> >
-> > On 11/11/05, Takashi Iwai <tiwai@suse.de> wrote:
-> > > At Thu, 10 Nov 2005 22:18:36 +0000,
-> > > roucaries bastien wrote:
-> > > >
-> > > > Recently I upgrade from 2.6.10 to 2.6.14 and I my sound card doesn't
-> > > > work anymore.
-> > > Does the patch below fix?
-> > It fix the BUG but I have always no sound :-(
-> >
-> > dmesg shows now:
-> >
-> > AC'97 1 does not respond - RESET
-> > AC'97 1 access is not valid [0xffffffff], removing mixer.
->
-> This is the secondary codec, so it's no fatal error.
->
-> Make sure that you set up your mixer correctly again.
-
-For sure:
-$amixer
-Simple mixer control 'Master',0
-  Capabilities: pvolume pswitch
-  Playback channels: Front Left - Front Right
-  Limits: Playback 0 - 31
-  Front Left: Playback 31 [100%] [on]
-  Front Right: Playback 31 [100%] [on]
-Simple mixer control 'Master Mono',0
-  Capabilities: pvolume pvolume-joined pswitch pswitch-joined
-  Playback channels: Mono
-  Limits: Playback 0 - 31
-  Mono: Playback 31 [100%] [on]
-Simple mixer control 'Headphone',0
-  Capabilities: pvolume pswitch
-  Playback channels: Front Left - Front Right
-  Limits: Playback 0 - 31
-  Front Left: Playback 23 [74%] [on]
-  Front Right: Playback 23 [74%] [on]
-Simple mixer control 'Headphone Jack Sense',0
-  Capabilities: pswitch pswitch-joined
-  Playback channels: Mono
-  Mono: Playback [on]
-Simple mixer control 'PCM',0
-  Capabilities: pvolume pswitch
-  Playback channels: Front Left - Front Right
-  Limits: Playback 0 - 31
-  Front Left: Playback 28 [90%] [on]
-  Front Right: Playback 28 [90%] [on]
-Simple mixer control 'Line',0
-  Capabilities: pvolume pswitch cswitch cswitch-joined cswitch-exclusive
-  Capture exclusive group: 0
-  Playback channels: Front Left - Front Right
-  Capture channels: Front Left - Front Right
-  Limits: Playback 0 - 31
-  Front Left: Playback 0 [0%] [off] Capture [off]
-  Front Right: Playback 0 [0%] [off] Capture [off]
-Simple mixer control 'Line Jack Sense',0
-  Capabilities: pswitch pswitch-joined
-  Playback channels: Mono
-  Mono: Playback [on]
-Simple mixer control 'CD',0
-  Capabilities: pvolume pswitch cswitch cswitch-joined cswitch-exclusive
-  Capture exclusive group: 0
-  Playback channels: Front Left - Front Right
-  Capture channels: Front Left - Front Right
-  Limits: Playback 0 - 31
-  Front Left: Playback 28 [90%] [on] Capture [off]
-  Front Right: Playback 28 [90%] [on] Capture [off]
-Simple mixer control 'Mic',0
-  Capabilities: pvolume pvolume-joined pswitch pswitch-joined cswitch
-cswitch-joined cswitch-exclusive
-  Capture exclusive group: 0
-  Playback channels: Mono
-  Capture channels: Front Left - Front Right
-  Limits: Playback 0 - 31
-  Mono: Playback 0 [0%] [off]
-  Front Left: Capture [on]
-  Front Right: Capture [on]
-Simple mixer control 'Mic Boost (+20dB)',0
-  Capabilities: pswitch pswitch-joined
-  Playback channels: Mono
-  Mono: Playback [on]
-Simple mixer control 'Mic Select',0
-  Capabilities:
-  Mono:
-Simple mixer control 'Video',0
-  Capabilities: cswitch cswitch-joined cswitch-exclusive
-  Capture exclusive group: 0
-  Capture channels: Front Left - Front Right
-  Front Left: Capture [off]
-  Front Right: Capture [off]
-Simple mixer control 'Phone',0
-  Capabilities: pvolume pvolume-joined pswitch pswitch-joined cswitch
-cswitch-joined cswitch-exclusive
-  Capture exclusive group: 0
-  Playback channels: Mono
-  Capture channels: Front Left - Front Right
-  Limits: Playback 0 - 31
-  Mono: Playback 0 [0%] [on]
-  Front Left: Capture [off]
-  Front Right: Capture [off]
-Simple mixer control 'Aux',0
-  Capabilities: pvolume pswitch cswitch cswitch-joined cswitch-exclusive
-  Capture exclusive group: 0
-  Playback channels: Front Left - Front Right
-  Capture channels: Front Left - Front Right
-  Limits: Playback 0 - 31
-  Front Left: Playback 2 [6%] [on] Capture [off]
-  Front Right: Playback 2 [6%] [on] Capture [off]
-Simple mixer control 'Mono Output Select',0
-  Capabilities:
-  Mono:
-Simple mixer control 'Capture',0
-  Capabilities: cvolume cswitch
-  Capture channels: Front Left - Front Right
-  Limits: Capture 0 - 15
-  Front Left: Capture 0 [0%] [on]
-  Front Right: Capture 0 [0%] [on]
-Simple mixer control 'Mix',0
-  Capabilities: cswitch cswitch-joined cswitch-exclusive
-  Capture exclusive group: 0
-  Capture channels: Front Left - Front Right
-  Front Left: Capture [off]
-  Front Right: Capture [off]
-Simple mixer control 'Mix Mono',0
-  Capabilities: cswitch cswitch-joined cswitch-exclusive
-  Capture exclusive group: 0
-  Capture channels: Front Left - Front Right
-  Front Left: Capture [off]
-  Front Right: Capture [off]
-Simple mixer control 'External Amplifier',0
-  Capabilities: pswitch pswitch-joined
-  Playback channels: Mono
-  Mono: Playback [on]
-Simple mixer control 'Stereo Mic',0
-  Capabilities: pswitch pswitch-joined
-  Playback channels: Mono
-  Mono: Playback [on]
-
->
->
+On Sat, Nov 12, 2005 at 02:57:02AM +0800, Coywolf Qi Hunt wrote:
+> And we could also mark text section read-only and data/stack section
+> noexec if NX is supported. But I doubt the whole thing would really
+> help much. Kill the kernel thread? We can't. We only run into a panic.
+> Anyway I'd attach a quick patch to mark text section read only in the
+> next mail.
+> 
+> If it's ok, I'd add Kconfig support. Comments?
 
 
-Before your patch I can hear something like the headphone setup (a
-little noise like water falling on water) but now didn't hear
-anything.
+Signed-off-by: Coywolf Qi Hunt <qiyong@fc-cn.com>
+---
 
-Any idea
-
-> Takashi
->
+diff -pruN 2.6.14-mm2/init/main.c 2.6.14-mm2-cy/init/main.c
+--- 2.6.14-mm2/init/main.c	2005-11-11 22:34:21.000000000 +0800
++++ 2.6.14-mm2-cy/init/main.c	2005-11-12 02:50:45.000000000 +0800
+@@ -660,6 +660,18 @@ static inline void fixup_cpu_present_map
+ #endif
+ }
+ 
++void mark_text_ro(void)
++{
++	unsigned long addr = (unsigned long)&_text;
++
++	for (; addr < (unsigned long)&_etext; addr += PAGE_SIZE)
++		change_page_attr(virt_to_page(addr), 1, PAGE_KERNEL_RO);
++	
++	printk ("Write protecting the kernel text data: %luk\n",
++			(unsigned long)(_etext - _text) >> 10);
++	global_flush_tlb();
++}
++
+ static int init(void * unused)
+ {
+ 	lock_kernel();
+@@ -716,6 +728,7 @@ static int init(void * unused)
+ 	 */
+ 	free_initmem();
+ 	unlock_kernel();
++	mark_text_ro();
+ 	mark_rodata_ro();
+ 	system_state = SYSTEM_RUNNING;
+ 	numa_default_policy();

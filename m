@@ -1,111 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbVKKQls@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750878AbVKKQo7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750869AbVKKQls (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 11:41:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750870AbVKKQls
+	id S1750878AbVKKQo7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 11:44:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750879AbVKKQo7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 11:41:48 -0500
-Received: from smtpauth09.mail.atl.earthlink.net ([209.86.89.69]:48782 "EHLO
-	smtpauth09.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
-	id S1750867AbVKKQlr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 11:41:47 -0500
-Date: Fri, 11 Nov 2005 11:41:42 -0500 (EST)
-From: Dan Streetman <ddstreet@ieee.org>
-Reply-To: ddstreet@ieee.org
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Javier Achirica <achirica@gmail.com>, Jean Tourrilhes <jt@hpl.hp.com>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.14] airo.c: add support for IW_ENCODE_TEMP (i.e. xsupplicant)
-Message-ID: <Pine.LNX.4.51.0511111128450.21146@dylan.root.cx>
+	Fri, 11 Nov 2005 11:44:59 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:49541 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750870AbVKKQo7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 11:44:59 -0500
+From: Tom Zanussi <zanussi@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-ELNK-Trace: a4c357c9134943511aa676d7e74259b7b3291a7d08dfec793413d04b0c793b1bf0d528acc849b951350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
-X-Originating-IP: 24.148.162.106
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17268.51814.215178.281986@tut.ibm.com>
+Date: Fri, 11 Nov 2005 10:44:22 -0600
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, karim@opersys.com
+Subject: [PATCH 0/12] relayfs: API additions and fixes
+X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Hello Jeff,
+This patch set is essentially the same as the set I previously posted,
+but broken out into stepwise chunks.
 
-this patch changes causes the airo driver to not reset the card when a
-temporary WEP key is set, when the IW_ENCODE_TEMP flag is used.  This is
-needed for xsupplicant as 802.1x, LEAP, etc. change WEP keys frequently
-after authentication and resetting the card causes infinite
-reauthentication.
+The patches implement or fix 3 things that were specifically requested
+or suggested by relayfs users:
 
-Javier and Jean agree with the patch, Javier suggested I send this to 
-you, can you apply this?
+- support for non-relay files (patches 1-6)
 
-Thanks.
+Currently, the relayfs API only supports the creation of directories
+(relayfs_create_dir()) and relay files (relay_open()).  These patches
+adds support for non-relay files (relayfs_create_file()).  This is so
+relayfs applications can create 'control files' in relayfs itself
+rather than in /proc or via a netlink channel, as is currently done in
+the relay-app examples.  Basically what this amounts to is exporting
+relayfs_create_file() with an additional file_ops param that clients
+can use to supply file operations for their own special-purpose files
+in relayfs.
 
-Signed-off-by: Dan Streetman <ddstreet@ieee.org>
+- make exported relay file ops useful (patches 7-8)
+
+The relayfs relay_file_operations have always been exported, the
+intent being to make it possible to create relay files in other
+filesystems such as debugfs.  The problem, though, is that currently
+the file operations are too tightly coupled to relayfs to actually be
+used for this purpose.  This patch fixes that by adding a couple of
+callback functions that allow a client to hook into
+relay_open()/close() and supply the files that will be used to
+represent the channel buffers; the default implementation if no
+callbacks are defined is to create the files in relayfs.
+
+- add an option to create global relay buffer (patches 9-10)
+    
+The file creation callback also supplies an optional param, is_global,
+that can be used by clients to create a single global relayfs buffer
+instead of the default per-cpu buffers.  This was suggested as being
+useful for certain debugging applications where it's more convenient
+to be able to get all the data from a single channel without having to
+go to the bother of dealing with per-cpu files.
+
+- cleanup, some renaming and Documentation updates (patches 11-12)    
+
+There were several comments that the use of netlink in the example
+code was non-intuitive and in fact the whole relay-app business was
+needlessly confusing.  Based on that feedback, the example code has
+been completely converted over to relayfs control files as supported
+by this patch, and have also been made completely self-contained.
+
+The converted examples along with a couple of new examples that
+demonstrate using exported relay files can be found in relay-apps
+tarball:
+    
+http://prdownloads.sourceforge.net/relayfs/relay-apps-0.9.tar.gz?download
+
+Tom
 
 
-
-
-diff -urpN a/drivers/net/wireless/airo.c b/drivers/net/wireless/airo.c
---- a/drivers/net/wireless/airo.c	2005-10-27 20:02:08.000000000 -0400
-+++ b/drivers/net/wireless/airo.c	2005-11-02 10:32:25.000000000 -0500
-@@ -4059,7 +4059,7 @@ static int PC4500_writerid(struct airo_i
- 		Cmd cmd;
- 		Resp rsp;
- 
--		if (test_bit(FLAG_ENABLED, &ai->flags))
-+		if (test_bit(FLAG_ENABLED, &ai->flags) && (RID_WEP_TEMP != rid))
- 			printk(KERN_ERR
- 				"%s: MAC should be disabled (rid=%04x)\n",
- 				__FUNCTION__, rid);
-@@ -5119,9 +5119,9 @@ static int set_wep_key(struct airo_info 
- 		printk(KERN_INFO "Setting key %d\n", index);
- 	}
- 
--	disable_MAC(ai, lock);
-+	if (perm) disable_MAC(ai, lock);
- 	writeWepKeyRid(ai, &wkr, perm, lock);
--	enable_MAC(ai, &rsp, lock);
-+	if (perm) enable_MAC(ai, &rsp, lock);
- 	return 0;
- }
- 
-@@ -6202,6 +6202,8 @@ static int airo_set_encode(struct net_de
- {
- 	struct airo_info *local = dev->priv;
- 	CapabilityRid cap_rid;		/* Card capability info */
-+	int perm = ( dwrq->flags & IW_ENCODE_TEMP ? 0 : 1 );
-+	u16 currentAuthType = local->config.authType;
- 
- 	/* Is WEP supported ? */
- 	readCapabilityRid(local, &cap_rid, 1);
-@@ -6244,7 +6246,7 @@ static int airo_set_encode(struct net_de
- 			/* Copy the key in the driver */
- 			memcpy(key.key, extra, dwrq->length);
- 			/* Send the key to the card */
--			set_wep_key(local, index, key.key, key.len, 1, 1);
-+			set_wep_key(local, index, key.key, key.len, perm, 1);
- 		}
- 		/* WE specify that if a valid key is set, encryption
- 		 * should be enabled (user may turn it off later)
-@@ -6252,13 +6254,12 @@ static int airo_set_encode(struct net_de
- 		if((index == current_index) && (key.len > 0) &&
- 		   (local->config.authType == AUTH_OPEN)) {
- 			local->config.authType = AUTH_ENCRYPT;
--			set_bit (FLAG_COMMIT, &local->flags);
- 		}
- 	} else {
- 		/* Do we want to just set the transmit key index ? */
- 		int index = (dwrq->flags & IW_ENCODE_INDEX) - 1;
- 		if ((index >= 0) && (index < ((cap_rid.softCap & 0x80)?4:1))) {
--			set_wep_key(local, index, NULL, 0, 1, 1);
-+			set_wep_key(local, index, NULL, 0, perm, 1);
- 		} else
- 			/* Don't complain if only change the mode */
- 			if(!dwrq->flags & IW_ENCODE_MODE) {
-@@ -6273,7 +6274,7 @@ static int airo_set_encode(struct net_de
- 	if(dwrq->flags & IW_ENCODE_OPEN)
- 		local->config.authType = AUTH_ENCRYPT;	// Only Wep
- 	/* Commit the changes to flags if needed */
--	if(dwrq->flags & IW_ENCODE_MODE)
-+	if (local->config.authType != currentAuthType)
- 		set_bit (FLAG_COMMIT, &local->flags);
- 	return -EINPROGRESS;		/* Call commit handler */
- }

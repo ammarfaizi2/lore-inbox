@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbVKKOG6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750769AbVKKOHv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750768AbVKKOG6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 09:06:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbVKKOG6
+	id S1750769AbVKKOHv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 09:07:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750773AbVKKOHv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 09:06:58 -0500
-Received: from mx2.suse.de ([195.135.220.15]:7566 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750768AbVKKOG5 (ORCPT
+	Fri, 11 Nov 2005 09:07:51 -0500
+Received: from cantor.suse.de ([195.135.220.2]:15269 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750769AbVKKOHu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 09:06:57 -0500
-Date: Fri, 11 Nov 2005 15:06:55 +0100
-Message-ID: <s5hr79nz3b4.wl%tiwai@suse.de>
+	Fri, 11 Nov 2005 09:07:50 -0500
+Date: Fri, 11 Nov 2005 15:07:48 +0100
+Message-ID: <s5hpsp7z39n.wl%tiwai@suse.de>
 From: Takashi Iwai <tiwai@suse.de>
-To: roucaries bastien <roucaries.bastien@gmail.com>
+To: Marek Szuba <cyberman@if.pw.edu.pl>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Ali snd soft lookup on 2.6.14 (regression)
-In-Reply-To: <195c7a900511101418r25aa43e6gc5cdeeac17aa0c7c@mail.gmail.com>
-References: <195c7a900511101418r25aa43e6gc5cdeeac17aa0c7c@mail.gmail.com>
+Subject: Re: ALSA in 2.6.14: RTC timer breaks MIDI
+In-Reply-To: <Pine.LNX.4.62.0511101735350.30579@gyrvynk.vs.cj.rqh.cy>
+References: <Pine.LNX.4.62.0511101735350.30579@gyrvynk.vs.cj.rqh.cy>
 User-Agent: Wanderlust/2.12.0 (Your Wildest Dreams) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.7 (=?ISO-8859-4?Q?Sanj=F2?=) APEL/10.6 MULE XEmacs/21.5 (beta18)
  (chestnut) (+CVS-20041021) (i386-suse-linux)
@@ -25,379 +25,188 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At Thu, 10 Nov 2005 22:18:36 +0000,
-roucaries bastien wrote:
+At Thu, 10 Nov 2005 17:48:04 +0100 (CET),
+Marek Szuba wrote:
 > 
-> Recently I upgrade from 2.6.10 to 2.6.14 and I my sound card doesn't
-> work anymore.
-> dmesg shows:
-> BUG: soft lockup detected on CPU#0!
+> (I'm having problems with access to the ALSA bug tracker, that's why I'm 
+> reporting this issue here)
 > 
-> Pid: 3798, comm:             modprobe
-> EIP: 0060:[<dcb09031>] CPU: 0
-> EIP is at snd_ali_codec_ready+0x31/0x90 [snd_ali5451]
->  EFLAGS: 00000212    Not tainted  (2.6.14-1-686)
-> EAX: 5374807e EBX: 5374807e ECX: 00008800 EDX: 00008840
-> ESI: fffbeeb4 EDI: dada6000 EBP: 00000040 DS: 007b ES: 007b
-> CR0: 8005003b CR2: b7f18000 CR3: 1acf4000 CR4: 000006d0
->  [<dcb092a8>] snd_ali_codec_peek+0xb8/0xf0 [snd_ali5451]
->  [<dcb09353>] snd_ali_codec_read+0x23/0x30 [snd_ali5451]
->  [<dcad9235>] snd_ac97_read+0x35/0x50 [snd_ac97_codec]
->  [<dcae0c91>] patch_ad1881_chained1+0x71/0x100 [snd_ac97_codec]
->  [<dcae0e85>] patch_ad1881_chained+0x165/0x1a0 [snd_ac97_codec]
->  [<dcae1057>] patch_ad1881+0x197/0x1e0 [snd_ac97_codec]
->  [<dcae13b0>] patch_ad1981b+0x10/0x50 [snd_ac97_codec]
->  [<dcadc74e>] snd_ac97_mixer+0x2ee/0xc90 [snd_ac97_codec]
->  [<dca069d4>] snd_info_register+0x34/0xa0 [snd]
->  [<c01492cf>] kzalloc+0x1f/0x50
->  [<dca0968d>] snd_device_new+0x1d/0x70 [snd]
->  [<dcadc338>] snd_ac97_bus+0x78/0xb0 [snd_ac97_codec]
->  [<dcb0b0cd>] snd_ali_mixer+0xed/0x120 [snd_ali5451]
->  [<dcb0afc0>] snd_ali_mixer_free_ac97+0x0/0x20 [snd_ali5451]
->  [<dcb0bbdf>] snd_ali_probe+0xcf/0x170 [snd_ali5451]
->  [<c01da326>] pci_match_device+0x26/0xc0
->  [<c01da436>] __pci_device_probe+0x56/0x70
->  [<c01da47f>] pci_device_probe+0x2f/0x50
->  [<c0231fa3>] driver_probe_device+0x43/0xd0
->  [<c02320b0>] __driver_attach+0x0/0x50
->  [<c02320f1>] __driver_attach+0x41/0x50
->  [<c02314dd>] bus_for_each_dev+0x5d/0x80
->  [<c0232125>] driver_attach+0x25/0x30
->  [<c02320b0>] __driver_attach+0x0/0x50
->  [<c0231a39>] bus_add_driver+0x89/0xf0
->  [<c01da6f2>] pci_register_driver+0x62/0x90
->  [<dca8f00f>] alsa_card_ali_init+0xf/0x11 [snd_ali5451]
->  [<c01371d1>] sys_init_module+0xc1/0x1a0
->  [<c01030b5>] syscall_call+0x7/0xb
+> Hello everyone,
+> 
+> A couple of days ago I tried to play a MIDI file on a 2.6.14 box with 
+> emu10k1 for sound (Audigy 2 ZS) and was surprised to hear that the 
+> sequencer no longer works - or to be exact, when having it play any MIDI 
+> song it only starts playing the first note in each channel and leaves them 
+> like that, playing the same tones until the player's closed. Going back to 
+> 2.6.13 made the problem go away; on the other hand, even an upgrade of 
+> ALSA userspace components to the latest version doesn't help with 2.6.14.
 
-Does the patch below fix?
+A known problem.  Try the patch below.
 
 
 Takashi
 
 ---
---- linux/sound/pci/ali5451/ali5451.c	24 Oct 2005 13:59:31 -0000	1.75
-+++ linux/sound/pci/ali5451/ali5451.c	11 Nov 2005 14:00:52 -0000
-@@ -387,26 +387,24 @@
- }
+diff --git a/drivers/char/rtc.c b/drivers/char/rtc.c
+--- a/drivers/char/rtc.c
++++ b/drivers/char/rtc.c
+@@ -149,8 +149,22 @@ static void get_rtc_alm_time (struct rtc
+ #ifdef RTC_IRQ
+ static void rtc_dropped_irq(unsigned long data);
  
- static int snd_ali_codec_ready(	ali_t *codec,
--				unsigned int port,
--				int sched )
-+				unsigned int port )
- {
- 	unsigned long end_time;
- 	unsigned int res;
- 	
--	end_time = jiffies + 10 * msecs_to_jiffies(250);
-+	end_time = jiffies + msecs_to_jiffies(250);
- 	do {
- 		res = snd_ali_5451_peek(codec,port);
- 		if (! (res & 0x8000))
- 			return 0;
--		if (sched)
--			schedule_timeout_uninterruptible(1);
-+		schedule_timeout_uninterruptible(1);
- 	} while (time_after_eq(end_time, jiffies));
- 	snd_ali_5451_poke(codec, port, res & ~0x8000);
- 	snd_printdd("ali_codec_ready: codec is not ready.\n ");
- 	return -EIO;
- }
- 
--static int snd_ali_stimer_ready(ali_t *codec, int sched)
-+static int snd_ali_stimer_ready(ali_t *codec)
- {
- 	unsigned long end_time;
- 	unsigned long dwChk1,dwChk2;
-@@ -414,13 +412,12 @@
- 	dwChk1 = snd_ali_5451_peek(codec, ALI_STIMER);
- 	dwChk2 = snd_ali_5451_peek(codec, ALI_STIMER);
- 
--	end_time = jiffies + 10 * msecs_to_jiffies(250);
-+	end_time = jiffies + msecs_to_jiffies(250);
- 	do {
- 		dwChk2 = snd_ali_5451_peek(codec, ALI_STIMER);
- 		if (dwChk2 != dwChk1)
- 			return 0;
--		if (sched)
--			schedule_timeout_uninterruptible(1);
-+		schedule_timeout_uninterruptible(1);
- 	} while (time_after_eq(end_time, jiffies));
- 	snd_printk(KERN_ERR "ali_stimer_read: stimer is not ready.\n");
- 	return -EIO;
-@@ -440,9 +437,9 @@
- 
- 	port = codec->chregs.regs.ac97write;
- 
--	if (snd_ali_codec_ready(codec, port, 0) < 0)
-+	if (snd_ali_codec_ready(codec, port) < 0)
- 		return;
--	if (snd_ali_stimer_ready(codec, 0) < 0)
-+	if (snd_ali_stimer_ready(codec) < 0)
- 		return;
- 
- 	dwVal  = (unsigned int) (reg & 0xff);
-@@ -469,9 +466,9 @@
- 
- 	port = codec->chregs.regs.ac97read;
- 
--	if (snd_ali_codec_ready(codec, port, 0) < 0)
-+	if (snd_ali_codec_ready(codec, port) < 0)
- 		return ~0;
--	if (snd_ali_stimer_ready(codec, 0) < 0)
-+	if (snd_ali_stimer_ready(codec) < 0)
- 		return ~0;
- 
- 	dwVal  = (unsigned int) (reg & 0xff);
-@@ -480,9 +477,9 @@
- 
- 	snd_ali_5451_poke(codec, port, dwVal);
- 
--	if (snd_ali_stimer_ready(codec, 0) < 0)
-+	if (snd_ali_stimer_ready(codec) < 0)
- 		return ~0;
--	if (snd_ali_codec_ready(codec, port, 0) < 0)
-+	if (snd_ali_codec_ready(codec, port) < 0)
- 		return ~0;
- 	
- 	return (snd_ali_5451_peek(codec, port) & 0xffff0000)>>16;
-@@ -770,7 +767,7 @@
- 	currenttimer = inl(ALI_REG(codec, ALI_STIMER));
- 
- 	while (currenttimer < begintimer + interval) {
--		if(snd_ali_stimer_ready(codec, 1) < 0)
-+		if(snd_ali_stimer_ready(codec) < 0)
- 			break;
- 		currenttimer = inl(ALI_REG(codec,  ALI_STIMER));
- 	}
-@@ -1065,35 +1062,34 @@
- static snd_ali_voice_t *snd_ali_alloc_voice(ali_t * codec, int type, int rec, int channel)
- {
- 	snd_ali_voice_t *pvoice = NULL;
--	unsigned long flags;
- 	int idx;
- 
- 	snd_ali_printk("alloc_voice: type=%d rec=%d\n",type,rec);
- 
--	spin_lock_irqsave(&codec->voice_alloc, flags);
-+	spin_lock_irq(&codec->voice_alloc);
- 	if (type == SNDRV_ALI_VOICE_TYPE_PCM) {
- 		idx = channel > 0 ? snd_ali_alloc_pcm_channel(codec, channel) :
- 			snd_ali_find_free_channel(codec,rec);
- 		if(idx < 0) {
- 			snd_printk(KERN_ERR "ali_alloc_voice: err.\n");
--			spin_unlock_irqrestore(&codec->voice_alloc, flags);
-+			spin_unlock_irq(&codec->voice_alloc);
- 			return NULL;
- 		}
- 		pvoice = &(codec->synth.voices[idx]);
-+		pvoice->codec = codec;
- 		pvoice->use = 1;
- 		pvoice->pcm = 1;
- 		pvoice->mode = rec;
--		spin_unlock_irqrestore(&codec->voice_alloc, flags);
-+		spin_unlock_irq(&codec->voice_alloc);
- 		return pvoice;
- 	}
--	spin_unlock_irqrestore(&codec->voice_alloc, flags);
-+	spin_unlock_irq(&codec->voice_alloc);
- 	return NULL;
- }
- 
- 
- static void snd_ali_free_voice(ali_t * codec, snd_ali_voice_t *pvoice)
- {
--	unsigned long flags;
- 	void (*private_free)(void *);
- 	void *private_data;
- 
-@@ -1101,7 +1097,7 @@
- 	if (pvoice == NULL || !pvoice->use)
- 		return;
- 	snd_ali_clear_voices(codec, pvoice->number, pvoice->number);
--	spin_lock_irqsave(&codec->voice_alloc, flags);
-+	spin_lock_irq(&codec->voice_alloc);
- 	private_free = pvoice->private_free;
- 	private_data = pvoice->private_data;
- 	pvoice->private_free = NULL;
-@@ -1111,7 +1107,7 @@
- 	}
- 	pvoice->use = pvoice->pcm = pvoice->synth = 0;
- 	pvoice->substream = NULL;
--	spin_unlock_irqrestore(&codec->voice_alloc, flags);
-+	spin_unlock_irq(&codec->voice_alloc);
- 	if (private_free)
- 		private_free(private_data);
- }
-@@ -1357,7 +1353,6 @@
- 	snd_pcm_runtime_t *runtime = substream->runtime;
- 	snd_ali_voice_t *pvoice = (snd_ali_voice_t *) runtime->private_data;
- 	snd_ali_voice_t *evoice = pvoice->extra;
--	unsigned long flags;
- 
- 	unsigned int LBA;
- 	unsigned int Delta;
-@@ -1370,7 +1365,7 @@
- 	
- 	snd_ali_printk("playback_prepare ...\n");
- 
--	spin_lock_irqsave(&codec->reg_lock, flags);	
-+	spin_lock_irq(&codec->reg_lock);	
- 	
- 	/* set Delta (rate) value */
- 	Delta = snd_ali_convert_rate(runtime->rate, 0);
-@@ -1435,7 +1430,7 @@
- 				     CTRL,
- 				     EC);
- 	}
--	spin_unlock_irqrestore(&codec->reg_lock, flags);
-+	spin_unlock_irq(&codec->reg_lock);
- 	return 0;
- }
- 
-@@ -1445,7 +1440,6 @@
- 	ali_t *codec = snd_pcm_substream_chip(substream);
- 	snd_pcm_runtime_t *runtime = substream->runtime;
- 	snd_ali_voice_t *pvoice = (snd_ali_voice_t *) runtime->private_data;
--	unsigned long flags;
- 	unsigned int LBA;
- 	unsigned int Delta;
- 	unsigned int ESO;
-@@ -1456,7 +1450,7 @@
- 	unsigned int EC;
- 	u8	 bValue;
- 
--	spin_lock_irqsave(&codec->reg_lock, flags);
-+	spin_lock_irq(&codec->reg_lock);
- 
- 	snd_ali_printk("ali_prepare...\n");
- 
-@@ -1471,15 +1465,16 @@
- 
- 		unsigned int rate;
- 		
--		if (codec->revision != ALI_5451_V02) {
--			spin_unlock_irqrestore(&codec->reg_lock, flags);			
-+		spin_unlock_irq(&codec->reg_lock);
-+		if (codec->revision != ALI_5451_V02)
- 			return -1;
--		}
+-static void set_rtc_irq_bit(unsigned char bit);
+-static void mask_rtc_irq_bit(unsigned char bit);
++static void set_rtc_irq_bit_locked(unsigned char bit);
++static void mask_rtc_irq_bit_locked(unsigned char bit);
 +
- 		rate = snd_ali_get_spdif_in_rate(codec);
- 		if (rate == 0) {
- 			snd_printk(KERN_WARNING "ali_capture_preapre: spdif rate detect err!\n");
- 			rate = 48000;
++static inline void set_rtc_irq_bit(unsigned char bit)
++{
++	spin_lock_irq(&rtc_lock);
++	set_rtc_irq_bit_locked(bit);
++	spin_unlock_irq(&rtc_lock);
++}
++
++static void mask_rtc_irq_bit(unsigned char bit)
++{
++	spin_lock_irq(&rtc_lock);
++	mask_rtc_irq_bit_locked(bit);
++	spin_unlock_irq(&rtc_lock);
++}
+ #endif
+ 
+ static int rtc_proc_open(struct inode *inode, struct file *file);
+@@ -401,18 +415,19 @@ static int rtc_do_ioctl(unsigned int cmd
+ 	}
+ 	case RTC_PIE_OFF:	/* Mask periodic int. enab. bit	*/
+ 	{
+-		mask_rtc_irq_bit(RTC_PIE);
++		unsigned long flags; /* can be called from isr via rtc_control() */
++		spin_lock_irqsave (&rtc_lock, flags);
++		mask_rtc_irq_bit_locked(RTC_PIE);
+ 		if (rtc_status & RTC_TIMER_ON) {
+-			spin_lock_irq (&rtc_lock);
+ 			rtc_status &= ~RTC_TIMER_ON;
+ 			del_timer(&rtc_irq_timer);
+-			spin_unlock_irq (&rtc_lock);
  		}
-+		spin_lock_irq(&codec->reg_lock);
- 		bValue = inb(ALI_REG(codec,ALI_SPDIF_CTRL));
- 		if (bValue & 0x10) {
- 			outb(bValue,ALI_REG(codec,ALI_SPDIF_CTRL));
-@@ -1521,7 +1516,7 @@
- 				     EC);
- 
- 
--	spin_unlock_irqrestore(&codec->reg_lock, flags);
-+	spin_unlock_irq(&codec->reg_lock);
- 
- 	return 0;
- }
-@@ -1554,16 +1549,15 @@
- 	snd_pcm_runtime_t *runtime = substream->runtime;
- 	snd_ali_voice_t *pvoice = (snd_ali_voice_t *) runtime->private_data;
- 	unsigned int cso;
--	unsigned long flags;
- 
--	spin_lock_irqsave(&codec->reg_lock, flags);
-+	spin_lock(&codec->reg_lock);
- 	if (!pvoice->running) {
--		spin_unlock_irqrestore(&codec->reg_lock, flags);
-+		spin_unlock_irq(&codec->reg_lock);
++		spin_unlock_irqrestore (&rtc_lock, flags);
  		return 0;
  	}
- 	outb(pvoice->number, ALI_REG(codec, ALI_GC_CIR));
- 	cso = inw(ALI_REG(codec, ALI_CSO_ALPHA_FMS + 2));
--	spin_unlock_irqrestore(&codec->reg_lock, flags);
-+	spin_unlock(&codec->reg_lock);
+ 	case RTC_PIE_ON:	/* Allow periodic ints		*/
+ 	{
+-
++		unsigned long flags; /* can be called from isr via rtc_control() */
+ 		/*
+ 		 * We don't really want Joe User enabling more
+ 		 * than 64Hz of interrupts on a multi-user machine.
+@@ -421,14 +436,14 @@ static int rtc_do_ioctl(unsigned int cmd
+ 			(!capable(CAP_SYS_RESOURCE)))
+ 			return -EACCES;
  
- 	return cso;
- }
-@@ -1618,15 +1612,12 @@
- 
- static void snd_ali_pcm_free_substream(snd_pcm_runtime_t *runtime)
- {
--	unsigned long flags;
- 	snd_ali_voice_t *pvoice = (snd_ali_voice_t *) runtime->private_data;
- 	ali_t *codec;
- 
- 	if (pvoice) {
- 		codec = pvoice->codec;
--		spin_lock_irqsave(&codec->reg_lock, flags);
- 		snd_ali_free_voice(pvoice->codec, pvoice);
--		spin_unlock_irqrestore(&codec->reg_lock, flags);
++		spin_lock_irqsave (&rtc_lock, flags);
+ 		if (!(rtc_status & RTC_TIMER_ON)) {
+-			spin_lock_irq (&rtc_lock);
+ 			rtc_irq_timer.expires = jiffies + HZ/rtc_freq + 2*HZ/100;
+ 			add_timer(&rtc_irq_timer);
+ 			rtc_status |= RTC_TIMER_ON;
+-			spin_unlock_irq (&rtc_lock);
+ 		}
+-		set_rtc_irq_bit(RTC_PIE);
++		set_rtc_irq_bit_locked(RTC_PIE);
++		spin_unlock_irqrestore (&rtc_lock, flags);
+ 		return 0;
  	}
+ 	case RTC_UIE_OFF:	/* Mask ints from RTC updates.	*/
+@@ -609,6 +624,7 @@ static int rtc_do_ioctl(unsigned int cmd
+ 	{
+ 		int tmp = 0;
+ 		unsigned char val;
++		unsigned long flags; /* can be called from isr via rtc_control() */
+ 
+ 		/* 
+ 		 * The max we can do is 8192Hz.
+@@ -631,9 +647,9 @@ static int rtc_do_ioctl(unsigned int cmd
+ 		if (arg != (1<<tmp))
+ 			return -EINVAL;
+ 
+-		spin_lock_irq(&rtc_lock);
++		spin_lock_irqsave(&rtc_lock, flags);
+ 		if (hpet_set_periodic_freq(arg)) {
+-			spin_unlock_irq(&rtc_lock);
++			spin_unlock_irqrestore(&rtc_lock, flags);
+ 			return 0;
+ 		}
+ 		rtc_freq = arg;
+@@ -641,7 +657,7 @@ static int rtc_do_ioctl(unsigned int cmd
+ 		val = CMOS_READ(RTC_FREQ_SELECT) & 0xf0;
+ 		val |= (16 - tmp);
+ 		CMOS_WRITE(val, RTC_FREQ_SELECT);
+-		spin_unlock_irq(&rtc_lock);
++		spin_unlock_irqrestore(&rtc_lock, flags);
+ 		return 0;
+ 	}
+ #endif
+@@ -844,12 +860,15 @@ int rtc_control(rtc_task_t *task, unsign
+ #ifndef RTC_IRQ
+ 	return -EIO;
+ #else
+-	spin_lock_irq(&rtc_task_lock);
++	unsigned long flags;
++	if (cmd != RTC_PIE_ON && cmd != RTC_PIE_OFF && cmd != RTC_IRQP_SET)
++		return -EINVAL;
++	spin_lock_irqsave(&rtc_task_lock, flags);
+ 	if (rtc_callback != task) {
+-		spin_unlock_irq(&rtc_task_lock);
++		spin_unlock_irqrestore(&rtc_task_lock, flags);
+ 		return -ENXIO;
+ 	}
+-	spin_unlock_irq(&rtc_task_lock);
++	spin_unlock_irqrestore(&rtc_task_lock, flags);
+ 	return rtc_do_ioctl(cmd, arg, 1);
+ #endif
  }
+@@ -1306,40 +1325,32 @@ static void get_rtc_alm_time(struct rtc_
+  * meddles with the interrupt enable/disable bits.
+  */
  
-@@ -1636,16 +1627,10 @@
- 	ali_t *codec = snd_pcm_substream_chip(substream);
- 	snd_pcm_runtime_t *runtime = substream->runtime;
- 	snd_ali_voice_t *pvoice;
--	unsigned long flags = 0;
+-static void mask_rtc_irq_bit(unsigned char bit)
++static void mask_rtc_irq_bit_locked(unsigned char bit)
+ {
+ 	unsigned char val;
  
--	spin_lock_irqsave(&codec->reg_lock, flags);
- 	pvoice = snd_ali_alloc_voice(codec, SNDRV_ALI_VOICE_TYPE_PCM, rec, channel);
--	if (pvoice == NULL) {
--		spin_unlock_irqrestore(&codec->reg_lock, flags);
-+	if (pvoice == NULL)
- 		return -EAGAIN;
+-	spin_lock_irq(&rtc_lock);
+-	if (hpet_mask_rtc_irq_bit(bit)) {
+-		spin_unlock_irq(&rtc_lock);
++	if (hpet_mask_rtc_irq_bit(bit))
+ 		return;
 -	}
--	pvoice->codec = codec;
--	spin_unlock_irqrestore(&codec->reg_lock, flags);
+ 	val = CMOS_READ(RTC_CONTROL);
+ 	val &=  ~bit;
+ 	CMOS_WRITE(val, RTC_CONTROL);
+ 	CMOS_READ(RTC_INTR_FLAGS);
  
- 	pvoice->substream = substream;
- 	runtime->private_data = pvoice;
-@@ -1864,13 +1849,12 @@
- 
- static int snd_ali5451_spdif_get(snd_kcontrol_t * kcontrol, snd_ctl_elem_value_t * ucontrol)
- {
--	unsigned long flags;
- 	ali_t *codec = kcontrol->private_data;
- 	unsigned int enable;
- 
- 	enable = ucontrol->value.integer.value[0] ? 1 : 0;
- 
--	spin_lock_irqsave(&codec->reg_lock, flags);
-+	spin_lock_irq(&codec->reg_lock);
- 	switch(kcontrol->private_value) {
- 	case 0:
- 		enable = (codec->spdif_mask & 0x02) ? 1 : 0;
-@@ -1885,19 +1869,18 @@
- 		break;
- 	}
- 	ucontrol->value.integer.value[0] = enable;
--	spin_unlock_irqrestore(&codec->reg_lock, flags);
-+	spin_unlock_irq(&codec->reg_lock);
- 	return 0;
+ 	rtc_irq_data = 0;
+-	spin_unlock_irq(&rtc_lock);
  }
  
- static int snd_ali5451_spdif_put(snd_kcontrol_t * kcontrol, snd_ctl_elem_value_t * ucontrol)
+-static void set_rtc_irq_bit(unsigned char bit)
++static void set_rtc_irq_bit_locked(unsigned char bit)
  {
--	unsigned long flags;
- 	ali_t *codec = kcontrol->private_data;
- 	unsigned int change = 0, enable = 0;
+ 	unsigned char val;
  
- 	enable = ucontrol->value.integer.value[0] ? 1 : 0;
+-	spin_lock_irq(&rtc_lock);
+-	if (hpet_set_rtc_irq_bit(bit)) {
+-		spin_unlock_irq(&rtc_lock);
++	if (hpet_set_rtc_irq_bit(bit))
+ 		return;
+-	}
+ 	val = CMOS_READ(RTC_CONTROL);
+ 	val |= bit;
+ 	CMOS_WRITE(val, RTC_CONTROL);
+ 	CMOS_READ(RTC_INTR_FLAGS);
  
--	spin_lock_irqsave(&codec->reg_lock, flags);
-+	spin_lock_irq(&codec->reg_lock);
- 	switch (kcontrol->private_value) {
- 	case 0:
- 		change = (codec->spdif_mask & 0x02) ? 1 : 0;
-@@ -1942,7 +1925,7 @@
- 	default:
- 		break;
- 	}
--	spin_unlock_irqrestore(&codec->reg_lock, flags);
-+	spin_unlock_irq(&codec->reg_lock);
- 	
- 	return change;
+ 	rtc_irq_data = 0;
+-	spin_unlock_irq(&rtc_lock);
  }
+ #endif
+ 

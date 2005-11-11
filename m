@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbVKKWxE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751307AbVKKWyw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751302AbVKKWxE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 17:53:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751303AbVKKWxD
+	id S1751307AbVKKWyw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 17:54:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbVKKWyw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 17:53:03 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:25045 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751302AbVKKWxC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 17:53:02 -0500
-Subject: Re: [PATCH] getrusage sucks
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Claudio Scordino <cloud.of.andor@gmail.com>
-Cc: "Magnus Naeslund(f)" <mag@fbab.net>,
-       "Hua Zhong (hzhong)" <hzhong@cisco.com>, linux-kernel@vger.kernel.org,
-       kernelnewbies@nl.linux.org, David Wagner <daw@cs.berkeley.edu>
-In-Reply-To: <200511112338.20684.cloud.of.andor@gmail.com>
-References: <75D9B5F4E50C8B4BB27622BD06C2B82BCF2FD4@xmb-sjc-235.amer.cisco.com>
-	 <200511110211.05642.cloud.of.andor@gmail.com>
-	 <1131715816.3174.15.camel@localhost.localdomain>
-	 <200511112338.20684.cloud.of.andor@gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 11 Nov 2005 23:23:53 +0000
-Message-Id: <1131751433.3174.50.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 11 Nov 2005 17:54:52 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:30913 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751304AbVKKWyv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 17:54:51 -0500
+Date: Fri, 11 Nov 2005 14:54:43 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Andrew Morton <akpm@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [GIT PATCH] final pre -rc pieces of SCSI for 2.6.14
+In-Reply-To: <20051111222341.GA20077@infradead.org>
+Message-ID: <Pine.LNX.4.64.0511111454140.3228@g5.osdl.org>
+References: <1131745742.3505.47.camel@mulgrave> <20051111222341.GA20077@infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-11-11 at 23:38 +0100, Claudio Scordino wrote:
-> +                if ((current->euid != tsk->euid) &&
-> +                (current->euid != tsk->uid)) {
-> +                        read_unlock(&tasklist_lock);
-> +                        return -EINVAL;
 
 
-Would be -EPERM also wants a 'privilege' check. Not sure which would be
-best here - CAP_SYS_ADMIN seems to be the 'default' used
+On Fri, 11 Nov 2005, Christoph Hellwig wrote:
+>
+> On Fri, Nov 11, 2005 at 03:49:01PM -0600, James Bottomley wrote:
+> >   o remove scsi_wait_req
+> 
+> This requires '[PATCH] kill libata scsi_wait_req usage (make libata compile in
+> scsi-misc)' from Mike, because libata started to use this function in mainline
+> about the same time it was removed in scsi-misc.
 
+Yeah, I get
+
+	drivers/built-in.o(.text+0x12e68c): In function `.ata_cmd_ioctl':
+	: undefined reference to `.scsi_wait_req'
+	drivers/built-in.o(.text+0x12e85c): In function `.ata_task_ioctl':
+	: undefined reference to `.scsi_wait_req'
+
+right now. Can somebody forward that patch to me..
+
+		Linus

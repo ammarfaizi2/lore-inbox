@@ -1,44 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbVKKTh4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751107AbVKKTi5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750953AbVKKTh4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 14:37:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbVKKThz
+	id S1751107AbVKKTi5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 14:38:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbVKKTi5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 14:37:55 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:26053 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750953AbVKKThz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 14:37:55 -0500
-Date: Fri, 11 Nov 2005 19:37:49 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Tom Zanussi <zanussi@us.ibm.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, karim@opersys.com
-Subject: Re: [PATCH 2/12] relayfs: export relayfs_create_file() with fileops param
-Message-ID: <20051111193749.GA17018@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Tom Zanussi <zanussi@us.ibm.com>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, karim@opersys.com
-References: <17268.51814.215178.281986@tut.ibm.com> <17268.51975.485344.880078@tut.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17268.51975.485344.880078@tut.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 11 Nov 2005 14:38:57 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:37136 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1751107AbVKKTi4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 14:38:56 -0500
+Message-ID: <4374F2D5.7010106@vmware.com>
+Date: Fri, 11 Nov 2005 11:36:53 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH 1/10] Cr4 is valid on some 486s
+References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com> <20051111103605.GC27805@elf.ucw.cz>
+In-Reply-To: <20051111103605.GC27805@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 11 Nov 2005 19:36:55.0042 (UTC) FILETIME=[45B04E20:01C5E6F7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 11, 2005 at 10:47:03AM -0600, Tom Zanussi wrote:
-> This patch adds a mandatory fileops param to relayfs_create_file() and
-> exports that function so that clients can use it to create files
-> defined by their own set of file operations, in relayfs.  The purpose
-> is to allow relayfs applications to create their own set of 'control'
-> files alongside their relay files in relayfs rather than having to
-> create them in /proc or debugfs for instance.  relayfs_create_file()
-> is also used by relay_open_buf() to create the relay files for a
-> channel.  In this case, a pointer to relayfs_file_operations is passed
-> in, along with a pointer to the buffer associated with the file.
+Pavel Machek wrote:
 
-Again, NACK,  control files don't belong into relayfs.
+>Hi!
+>
+>  
+>
+>>So some 486 processors do have CR4 register.  Allow them to present it in
+>>register dumps by using the old fault technique rather than testing processor
+>>family.
+>>    
+>>
+>
+>I thought Andi commented this as "way too risky", for little
+>good. Nested exceptions are evil.
+>  
+>
 
+I didn't see Andi's comment to that effect.  I may have originally 
+argued that when I made CR4 reads depend on CPU family.  But I think it 
+is useful to know if PSE is enabled, especially on 486s that do support it.
+
+Agree nested exceptions are evil.  But where is this called from 
+execption context? 
+
+1) softlockup_tick appears to be perfectly safe call site to handle 
+exceptions
+2) sysrq-p is also a fine site.
+
+I tested this by assembling a hacked safe_read_cr1() macro, and dumped 
+the contents of my non-existant CR1 regsiter in show_regs to prove the 
+fault handling correct (although the code already _looks_ correct, I 
+thought someone might ask the question you just did. :)
+
+Zach

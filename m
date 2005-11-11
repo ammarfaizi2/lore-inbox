@@ -1,63 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751035AbVKKTUD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751086AbVKKTVs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751035AbVKKTUD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 14:20:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751081AbVKKTUD
+	id S1751086AbVKKTVs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 14:21:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751082AbVKKTVr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 14:20:03 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:50067 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751035AbVKKTUB (ORCPT
+	Fri, 11 Nov 2005 14:21:47 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:393 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751086AbVKKTVr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 14:20:01 -0500
-Date: Fri, 11 Nov 2005 20:18:40 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: sharpsl_pm: using milivolts instead of custom units?
-Message-ID: <20051111191839.GA29471@elf.ucw.cz>
-References: <20051111120300.GA29251@elf.ucw.cz> <1131712513.7794.7.camel@localhost.localdomain>
+	Fri, 11 Nov 2005 14:21:47 -0500
+Date: Fri, 11 Nov 2005 11:21:31 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Badari Pulavarty <pbadari@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-mm2
+Message-Id: <20051111112131.158218cb.akpm@osdl.org>
+In-Reply-To: <1131736446.25354.56.camel@localhost.localdomain>
+References: <20051110203544.027e992c.akpm@osdl.org>
+	<1131736446.25354.56.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1131712513.7794.7.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > #ifdef CONFIG_SA1100_COLLIE
-> > struct battery_thresh spitz_battery_levels_noac[] = {
-> >         { 368, 100},
-> >         { 358,  25},
-> >         { 356,   5},
-> >         {   0,   0},
-> > ...
+Badari Pulavarty <pbadari@gmail.com> wrote:
+>
+> On Thu, 2005-11-10 at 20:35 -0800, Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14/2.6.14-mm2/
 > > 
-> > ...so it could get very confusing. Would it be feasible to convert to
-> > mV as soon as possible and have all constants in milivolts? I realize
-> > they may be slightly different for different models, but they should
-> > at least be comparable.
 > 
-> The battery levels are totally different between the models and each is
-> going to need a levels translation table as its an extremely none linear
-> decay curve. Using ADC values here makes a lot of sense as that's as
-> granular as the information ever gets and you don't start to lose
-> accuracy anywhere with rounding.
+> Doesn't compile on my PPC box. Looking at the problem to fix it.
+> 
+> Thanks,
+> Badari
+> 
+> elm3b157:/usr/src/linux-2.6.14 # make -j8 zImage
+>   CHK     include/linux/version.h
+>   CHK     include/linux/compile.h
+>   CHK     usr/initramfs_list
+>   CC      drivers/pci/syscall.o
+>   CC      drivers/pci/hotplug/rpaphp_pci.o
+>   CC      drivers/pci/hotplug/rpaphp_slot.o
+> drivers/pci/hotplug/rpaphp_pci.c: In function `rpaphp_pci_config_slot':
+> drivers/pci/hotplug/rpaphp_pci.c:256: error: `systemcfg' undeclared
+> (first use in this function)
+> drivers/pci/hotplug/rpaphp_pci.c:256: error: (Each undeclared identifier
+> is reported only once
+> drivers/pci/hotplug/rpaphp_pci.c:256: error: for each function it
+> appears in.)
+> make[3]: *** [drivers/pci/hotplug/rpaphp_pci.o] Error 1
+> make[3]: *** Waiting for unfinished jobs....
+> make[2]: *** [drivers/pci/hotplug] Error 2
+> make[2]: *** Waiting for unfinished jobs....
+> make[1]: *** [drivers/pci] Error 2
+> make: *** [drivers] Error 2
 
-Well, all the models have li-ion batteries, so levels (in milivolts)
-for stuff like "battery empty" should be very similar. If conversion
-from ADC to voltage is non-trivial, that's a show stopper I guess.
+This?
 
-> I still think you've much bigger problems to worry about as this code is
-> heavily PXA biased and is going to need a lot of changes to work on the
-> SA1100. Its why I've put it in mach-pxa rather than common and a
-> separate driver for collie based on this code might be easier.
+Signed-off-by: Serge Hallyn <serue@us.ibm.com>
+---
 
-Actually I think I can refactor in a way that a common core can be
-share. I'd hate to copy 1000 lines...
-								Pavel
-
--- 
-Thanks, Sharp!
+Index: linux-2.6.14-mm2/drivers/pci/hotplug/rpaphp_pci.c
+===================================================================
+--- linux-2.6.14-mm2.orig/drivers/pci/hotplug/rpaphp_pci.c	2005-11-11 11:42:21.000000000 -0600
++++ linux-2.6.14-mm2/drivers/pci/hotplug/rpaphp_pci.c	2005-11-11 11:48:40.000000000 -0600
+@@ -253,7 +253,7 @@ rpaphp_pci_config_slot(struct pci_bus *b
+ 	if (!dn || !dn->child)
+ 		return NULL;
+ 
+-	if (systemcfg->platform == PLATFORM_PSERIES_LPAR) {
++	if (_machine == PLATFORM_PSERIES_LPAR) {
+ 		of_scan_bus(dn, bus);
+ 		if (list_empty(&bus->devices)) {
+ 			err("%s: No new device found\n", __FUNCTION__);

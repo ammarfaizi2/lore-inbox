@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbVKKLgl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbVKKLvL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750756AbVKKLgl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 06:36:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbVKKLgl
+	id S1750720AbVKKLvL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 06:51:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbVKKLvL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 06:36:41 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:23176 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750756AbVKKLgk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 06:36:40 -0500
-Message-ID: <4374823C.1090704@pobox.com>
-Date: Fri, 11 Nov 2005 06:36:28 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Fri, 11 Nov 2005 06:51:11 -0500
+Received: from nproxy.gmail.com ([64.233.182.205]:45510 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750720AbVKKLvK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 06:51:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nHpf4lXSRi1qqmwyJQM9KC04MZZDLcgd3UVKR+QD1a+DnOFNRHk7wot6JQAYH5WPC41XnwbPcN5Dv0HQxklsj9qdd9SQ+ot8HPoDEveaEg7DBvDzXWo37nkW1uljJqL9uRER6NPZbCMaY/rHHjJEAhU6qKk5Y/Lrc4hwdf6Bino=
+Message-ID: <84144f020511110351h68ced090l6a7ed2f3c4f84819@mail.gmail.com>
+Date: Fri, 11 Nov 2005 13:51:08 +0200
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Subject: Re: [PATCH] Remove alloc_pages() use from slab allocator
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, alokk@calsoftinc.com
+In-Reply-To: <Pine.LNX.4.62.0511101347430.16380@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-To: mike.miller@hp.com
-CC: axboe@suse.de, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       steve.cameron@hp.com
-Subject: Re: [PATCH 1/1] cciss: scsi error handling
-References: <20051104183037.GA8527@beardog.cca.cpqcorp.net>
-In-Reply-To: <20051104183037.GA8527@beardog.cca.cpqcorp.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.62.0511101347430.16380@schroedinger.engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mike.miller@hp.com wrote:
-> PATCH 1 of 1
-> 
-> This patch adds SCSI error handling code to the SCSI portion 
-> of the cciss driver.
-> 
-> Signed-off-by: Stephen M. Cameron <steve.cameron@hp.com>
-> Acked-by: Mike Miller <mike.miller@hp.com>
+Hi Christoph,
 
-> +#ifdef CONFIG_CISS_SCSI_TAPE
+On 11/10/05, Christoph Lameter <clameter@engr.sgi.com> wrote:
+> The slab allocator never uses alloc_pages since kmem_getpages() is always
+> called with a valid nodeid. Remove the branch and the code from kmem_getpages()
+>
+> Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Two comments:
+The patch looks good to me.
 
-1) CONFIG_CISS_SCSI_TAPE should be CONFIG_CCISS_SCSI_TAPE, IMO
+P.S. Please use the address penberg@cs.helsinki.fi instead when sending me mail.
 
-2) is any locking needed in your scsi eh reset handlers?  recent kernels 
-eliminate the lock that's been traditionally held around the handlers.
-
-	Jeff
-
-
+                                       Pekka

@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750983AbVKKR5M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbVKKR7i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750983AbVKKR5M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 12:57:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750985AbVKKR5M
+	id S1750986AbVKKR7i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 12:59:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750987AbVKKR7i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 12:57:12 -0500
-Received: from main.gmane.org ([80.91.229.2]:43427 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750983AbVKKR5M (ORCPT
+	Fri, 11 Nov 2005 12:59:38 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:42406 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750985AbVKKR7i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 12:57:12 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Matthieu CASTET <castet.matthieu@free.fr>
-Subject: Re: [PATCH 2.6.14] airo.c: add support for IW_ENCODE_TEMP (i.e. xsupplicant)
-Date: Fri, 11 Nov 2005 18:54:21 +0100
-Message-ID: <pan.2005.11.11.17.54.19.811974@free.fr>
-References: <Pine.LNX.4.51.0511111128450.21146@dylan.root.cx>
+	Fri, 11 Nov 2005 12:59:38 -0500
+Date: Fri, 11 Nov 2005 11:59:04 -0600
+From: Serge Hallyn <serue@us.ibm.com>
+To: Linda Xie <lxie@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, gregkh@suse.de,
+       John Rose <johnrose@austin.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-mm1
+Message-ID: <20051111175904.GA21272@sergelap.austin.ibm.com>
+References: <20051110130626.GA7966@sergelap.austin.ibm.com> <OFE00FE25C.725B5669-ON872570B5.0066EFF0-862570B5.00679646@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cac94-1-81-57-151-96.fbx.proxad.net
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OFE00FE25C.725B5669-ON872570B5.0066EFF0-862570B5.00679646@us.ibm.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a bit offtopic, but are there people interested in merging WPA
-in airo driver ?
-I have a basic WPA-PSK working implementation at
-http://castet.matthieu.free.fr/airo/ .
+Quoting Linda Xie (lxie@us.ibm.com):
+> Hi Andrew,
+> 
+> It seems that the latest mm1 doesn't have  the following patch that John 
+> Rose sent on last Friday.
 
-But I am quite busy ATM, and don't have time to finish the work.
+One more thing seems to be missing.  -mm2 compiles and boots if
+i add:
 
-Matthieu
+Signed-off-by: Serge Hallyn <serue@us.ibm.com>
+---
 
-PS : Jeff could you review these patches ?
-http://marc.theaimsgroup.com/?l=linux-netdev&m=112793403827954&w=2
-http://marc.theaimsgroup.com/?l=linux-netdev&m=112798430523291&w=2
-http://marc.theaimsgroup.com/?l=linux-netdev&m=112793500427325&w=2
-
+Index: linux-2.6.14-mm2/drivers/pci/hotplug/rpaphp_pci.c
+===================================================================
+--- linux-2.6.14-mm2.orig/drivers/pci/hotplug/rpaphp_pci.c	2005-11-11 11:42:21.000000000 -0600
++++ linux-2.6.14-mm2/drivers/pci/hotplug/rpaphp_pci.c	2005-11-11 11:48:40.000000000 -0600
+@@ -253,7 +253,7 @@ rpaphp_pci_config_slot(struct pci_bus *b
+ 	if (!dn || !dn->child)
+ 		return NULL;
+ 
+-	if (systemcfg->platform == PLATFORM_PSERIES_LPAR) {
++	if (_machine == PLATFORM_PSERIES_LPAR) {
+ 		of_scan_bus(dn, bus);
+ 		if (list_empty(&bus->devices)) {
+ 			err("%s: No new device found\n", __FUNCTION__);

@@ -1,44 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbVKKBAt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932322AbVKKBDd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932297AbVKKBAt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 20:00:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbVKKBAt
+	id S932322AbVKKBDd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 20:03:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbVKKBDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 20:00:49 -0500
-Received: from holomorphy.com ([66.93.40.71]:51383 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S932297AbVKKBAs (ORCPT
+	Thu, 10 Nov 2005 20:03:33 -0500
+Received: from holomorphy.com ([66.93.40.71]:52919 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S932322AbVKKBDc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 20:00:48 -0500
-Date: Thu, 10 Nov 2005 16:51:19 -0800
+	Thu, 10 Nov 2005 20:03:32 -0500
+Date: Thu, 10 Nov 2005 16:51:37 -0800
 From: William Lee Irwin III <wli@holomorphy.com>
 To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: Adam Litke <agl@us.ibm.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com, akpm@osdl.org
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, Adam Litke <agl@us.ibm.com>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org, akpm@osdl.org
 Subject: Re: [PATCH] dequeue a huge page near to this node
-Message-ID: <20051111005119.GQ29402@holomorphy.com>
-References: <Pine.LNX.4.62.0511101521180.16770@schroedinger.engr.sgi.com>
+Message-ID: <20051111005137.GR29402@holomorphy.com>
+References: <200511102334.jAANY1g21612@unix-os.sc.intel.com> <Pine.LNX.4.62.0511101643120.17138@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0511101521180.16770@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0511101643120.17138@schroedinger.engr.sgi.com>
 Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 10, 2005 at 03:27:12PM -0800, Christoph Lameter wrote:
-> The following patch changes the dequeueing to select a huge page near
-> the node executing instead of always beginning to check for free 
-> nodes from node 0. This will result in a placement of the huge pages near
-> the executing processor improving performance.
-> The existing implementation can place the huge pages far away from 
-> the executing processor causing significant degradation of performance.
-> The search starting from zero also means that the lower zones quickly 
-> run out of memory. Selecting a huge page near the process distributed the 
-> huge pages better.
+On Thu, Nov 10, 2005 at 04:44:40PM -0800, Christoph Lameter wrote:
+> Well in that case, we may do even more:
+> Make huge pages obey cpusets.
 > Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Long intended to have been corrected. Thanks.
+Simple enough.
 
 Acked-by: William Irwin <wli@holomorphy.com>
 

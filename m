@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbVKKPdd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbVKKPfE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750817AbVKKPdd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 10:33:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbVKKPdd
+	id S1750818AbVKKPfE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 10:35:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbVKKPfE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 10:33:33 -0500
-Received: from mail.linicks.net ([217.204.244.146]:732 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S1750817AbVKKPdc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 10:33:32 -0500
-From: Nick Warne <nick@linicks.net>
-To: Matt Mackall <mpm@selenic.com>
-Subject: Re: [PATCH 14/15] misc: Configurable number of supported IDE interfaces
-Date: Fri, 11 Nov 2005 15:33:13 +0000
-User-Agent: KMail/1.8.1
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-kernel@vger.kernel.org
+	Fri, 11 Nov 2005 10:35:04 -0500
+Received: from ns.suse.de ([195.135.220.2]:29877 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750818AbVKKPfB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 10:35:01 -0500
+From: Andi Kleen <ak@suse.de>
+To: "Jan Beulich" <JBeulich@novell.com>
+Subject: Re: [PATCH] x86-64: adjust ia32entry.S
+Date: Fri, 11 Nov 2005 16:34:44 +0100
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+References: <4370AFF0.76F0.0078.0@novell.com> <4370C36D.76F0.0078.0@novell.com> <43722D73.76F0.0078.0@novell.com>
+In-Reply-To: <43722D73.76F0.0078.0@novell.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200511111533.13474.nick@linicks.net>
+Message-Id: <200511111634.44871.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
+On Wednesday 09 November 2005 17:10, Jan Beulich wrote:
+> IA32 compatibility entry points needlessly played with extended
+> registers. Additionally, frame unwind information was still incorrect
+> for ia32_ptregs_common (sorry, my fault).
 
-> You are duplicating functionality of CONFIG_IDE_MAX_HWIFS,
-> please find a way to use it for EMBEDDED.
-> 
-> Also please cc: linux-ide on IDE related patches.
-> 
-> On 11/11/05, Matt Mackall <mpm@selenic.com> wrote:
->> Configurable number of supported IDE interfaces
->>
->> This overrides the default limit (which may be set per arch with
->> CONFIG_IDE_MAX_HWIFS). This is the result of setting interfaces to 1:
+What do you mean with needlessly played? That it didn't initialize 
+all on the stack frame? That was more a feature than a bug.
+Did it cause you problems?
 
-This is very similar to my unaccepted patch a few months ago:
+In general I'm weary of making the asm macros more complex
+(adding more arguments etc.) Please keep it simple.
 
-http://lkml.org/lkml/2005/6/25/69
-
-Nick
--- 
-http://sourceforge.net/projects/quake2plus
-
-"Person who say it cannot be done should not interrupt person doing it."
--Chinese Proverb
-
+-Andi

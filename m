@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbVKKSAW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750980AbVKKSDj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750987AbVKKSAW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 13:00:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750990AbVKKSAV
+	id S1750980AbVKKSDj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 13:03:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750989AbVKKSDj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 13:00:21 -0500
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:4612 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP
-	id S1750987AbVKKSAU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 13:00:20 -0500
-Date: Fri, 11 Nov 2005 18:00:24 +0000 (GMT)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Zachary Amsden <zach@vmware.com>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 1/10] Cr4 is valid on some 486s
-In-Reply-To: <4374D99C.1080006@zytor.com>
-Message-ID: <Pine.LNX.4.64N.0511111754060.3793@blysk.ds.pg.gda.pl>
-References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com>
- <20051111103605.GC27805@elf.ucw.cz> <4374D99C.1080006@zytor.com>
+	Fri, 11 Nov 2005 13:03:39 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:1238 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750980AbVKKSDj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 13:03:39 -0500
+Date: Fri, 11 Nov 2005 10:03:33 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Hugh Dickins <hugh@veritas.com>
+cc: Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 10/15] mm: atomic64 page counts
+In-Reply-To: <Pine.LNX.4.61.0511111502560.16832@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.62.0511111002520.20360@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com>
+ <Pine.LNX.4.61.0511100156320.5814@goblin.wat.veritas.com>
+ <20051109181641.4b627eee.akpm@osdl.org> <Pine.LNX.4.61.0511100224030.6215@goblin.wat.veritas.com>
+ <20051109190135.45e59298.akpm@osdl.org> <Pine.LNX.4.62.0511101342340.16283@schroedinger.engr.sgi.com>
+ <20051110135336.24d04b86.akpm@osdl.org> <Pine.LNX.4.61.0511111502560.16832@goblin.wat.veritas.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Nov 2005, H. Peter Anvin wrote:
+On Fri, 11 Nov 2005, Hugh Dickins wrote:
 
-> I think the 486's that have CR4 are the same that have CPUID, and thus can be
-> tested for by the presence of the ID flag.
+> I've nothing against zero page refcounting avoidance, just wanted
+> numbers to show it's more worth doing than not doing.  And I'm not
+> the only one to have wondered, if it is an issue, wouldn't big NUMA
+> benefit more from per-node zero pages anyway?  (Though of course
+> the pages themselves should stay clean, so won't be bouncing.)
 
- That's correct; for our purposes a 486 that would implement CR4 but not 
-CPUID would not be interesting anyway, as we don't use CR4 elsewhere but 
-for features discovered through CPUID.  And I don't think there's ever 
-been an implementation that had CPUID but no CR4.
-
-  Maciej
+Per-node zero pages sound good. The page structs are placed on the 
+respective nodes and therefore would not bounce.

@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbVKKQGb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbVKKQLm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbVKKQGb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 11:06:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbVKKQGb
+	id S1750831AbVKKQLm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 11:11:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbVKKQLm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 11:06:31 -0500
-Received: from ozlabs.org ([203.10.76.45]:16877 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750834AbVKKQGa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 11:06:30 -0500
-Date: Sat, 12 Nov 2005 03:03:41 +1100
-From: Anton Blanchard <anton@samba.org>
-To: apw@shadowen.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Allow flatmem to be disabled when only sparsemem is implemented
-Message-ID: <20051111160341.GK14770@krispykreme>
-MIME-Version: 1.0
+	Fri, 11 Nov 2005 11:11:42 -0500
+Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:32491 "EHLO
+	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id S1750831AbVKKQLm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 11:11:42 -0500
+Date: Fri, 11 Nov 2005 11:11:29 -0500
+To: Chip Salzenberg <chip@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: hostap interrupt problems, maintainers unresponsive - "wifi0: interrupt delivery does not seem to work"
+Message-ID: <20051111161129.GB31850@delft.aura.cs.cmu.edu>
+Mail-Followup-To: Chip Salzenberg <chip@pobox.com>,
+	linux-kernel@vger.kernel.org
+References: <20051102174639.GB6816@tytlal.topaz.cx> <20051110175922.GB9632@delft.aura.cs.cmu.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20051110175922.GB9632@delft.aura.cs.cmu.edu>
+User-Agent: Mutt/1.5.9i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Nov 10, 2005 at 12:59:22PM -0500, Jan Harkes wrote:
+> I am seeing similar interrupt problems, but I don't have hostap (or even
+> a wireless network card) on my machine. For me a clear indication is the
+> serial port overrun errors even though that port only gets a handful of
+> interrupts per second from an attached GPS receiver. Under X, keyboard
+> and mouse are occasionally very jerky and unreponsive.
+> 
+> I just rebooted with 'acpi=noirq', and I'm not seeing the serial port
+> overrun errors anymore, it seems to have fixed, or at least mitigated
+> the problem a bit. But I'm logged into the machine remotely at the
+> moment, so I can't be sure if it really fixed the unresponsive
+> keyboard/mouse issues.
 
-Hi Andy,
+Interestingly, noirq didn't actually help. The main difference seems to
+be that DMA is not automatically enabled for my drives with the 2.6.14
+kernel, and I'm getting permission denied errors when trying to enable
+it with hdparm.
 
-What do you think about this?
+Seems like piix is coming up too late and the ide device is already
+claimed by a generic driver that doesn't do dma. I'm building ide/piix
+into the kernel now to see if that helps.
 
-Anton
-
---
-
-On architectures that implement sparsemem but not discontigmem we want
-to be able to hide the flatmem option in some cases. On ppc64 for
-example, when we select NUMA we must not select flatmem.
-
-Signed-off-by: Anton Blanchard <anton@samba.org>
----
- 
-Index: build/mm/Kconfig
-===================================================================
---- build.orig/mm/Kconfig	2005-11-11 11:31:38.000000000 +1100
-+++ build/mm/Kconfig	2005-11-11 11:41:55.000000000 +1100
-@@ -11,7 +11,7 @@
- 
- config FLATMEM_MANUAL
- 	bool "Flat Memory"
--	depends on !ARCH_DISCONTIGMEM_ENABLE || ARCH_FLATMEM_ENABLE
-+	depends on !(ARCH_DISCONTIGMEM_ENABLE || ARCH_SPARSEMEM_ENABLE) || ARCH_FLATMEM_ENABLE
- 	help
- 	  This option allows you to change some of the ways that
- 	  Linux manages its memory internally.  Most users will
+Jan

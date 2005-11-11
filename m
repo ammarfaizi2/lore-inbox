@@ -1,36 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbVKKNZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbVKKN0h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750732AbVKKNZK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 08:25:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbVKKNZJ
+	id S1750735AbVKKN0h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 08:26:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbVKKN0h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 08:25:09 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:49107 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1750732AbVKKNZI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 08:25:08 -0500
-Date: Thu, 10 Nov 2005 15:09:59 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] move pm_register/etc. to CONFIG_PM_LEGACY, pm_legacy.h
-Message-ID: <20051110150958.GA1910@spitz.ucw.cz>
-References: <20051107091313.GA15128@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051107091313.GA15128@havoc.gtf.org>
-User-Agent: Mutt/1.3.27i
+	Fri, 11 Nov 2005 08:26:37 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:31113 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750735AbVKKN0g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 08:26:36 -0500
+Message-ID: <43749C07.9080209@pobox.com>
+Date: Fri, 11 Nov 2005 08:26:31 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Frank Pavlic <fpavlic@de.ibm.com>
+CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/7] s390: synthax checking for VIPA addresses fixed
+References: <20051110124902.GA7936@pavlic>
+In-Reply-To: <20051110124902.GA7936@pavlic>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Since few people need the support anymore, this moves the legacy
-> pm_xxx functions to CONFIG_PM_LEGACY, and include/linux/pm_legacy.h.
-
-Yes, very nice!
-
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+applied 1-7
 

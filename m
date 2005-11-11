@@ -1,74 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750948AbVKKRd7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750950AbVKKRfp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750948AbVKKRd7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 12:33:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750949AbVKKRd7
+	id S1750950AbVKKRfp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 12:35:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750956AbVKKRfp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 12:33:59 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:24775 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750941AbVKKRd6 (ORCPT
+	Fri, 11 Nov 2005 12:35:45 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:1929 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1750945AbVKKRfo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 12:33:58 -0500
-Date: Fri, 11 Nov 2005 09:33:42 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Adam Litke <agl@us.ibm.com>
-cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com,
-       akpm@osdl.org, "Paul T. Darga" <pdarga@umich.edu>
-Subject: Re: [PATCH] dequeue a huge page near to this node
-In-Reply-To: <1131718765.13502.8.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.62.0511110931420.20360@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.62.0511101521180.16770@schroedinger.engr.sgi.com>
- <1131718765.13502.8.camel@localhost.localdomain>
+	Fri, 11 Nov 2005 12:35:44 -0500
+Date: Fri, 11 Nov 2005 18:34:27 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Matt Mackall <mpm@selenic.com>
+cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 14/15] misc: Configurable number of supported IDE interfaces
+In-Reply-To: <20051111171842.GW11462@waste.org>
+Message-ID: <Pine.LNX.4.61.0511111830140.1610@scrub.home>
+References: <14.282480653@selenic.com> <15.282480653@selenic.com>
+ <58cb370e0511110214i33792f33y1b44410d3006fd5f@mail.gmail.com>
+ <20051111171842.GW11462@waste.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Nov 2005, Adam Litke wrote:
+Hi,
 
-> On Thu, 2005-11-10 at 15:27 -0800, Christoph Lameter wrote:
-> > The following patch changes the dequeueing to select a huge page near
-> > the node executing instead of always beginning to check for free 
-> > nodes from node 0. This will result in a placement of the huge pages near
-> > the executing processor improving performance.
-> > 
-> > The existing implementation can place the huge pages far away from 
-> > the executing processor causing significant degradation of performance.
-> > The search starting from zero also means that the lower zones quickly 
-> > run out of memory. Selecting a huge page near the process distributed the 
-> > huge pages better.
-> > 
-> > Signed-off-by: Christoph Lameter <clameter@sgi.com>
+On Fri, 11 Nov 2005, Matt Mackall wrote:
+
+> It's intentional. The current CONFIG_IDE_MAX_HWIFS is a hidden
+> variable that sets a per architecture maximum. To the best of my
+> knowledge, there's no way to do, say:
 > 
-> I'll add my voice to the chorus of aye's.
+>    default 4 if ARCH_FOO
+>    default 1 if ARCH_BAR
+> 
+> ..so I'm stuck with using two config symbols anyway.
 
-There is a slight problem with the patch. We need to check *z instead of 
-z. Here is a fixed patch. Thanks to Paul T. Darga to point that out.
+Where is the problem? This should work fine.
+With the latest kernel you can even use a dynamic range:
 
-Index: linux-2.6.14-mm1/mm/hugetlb.c
-===================================================================
---- linux-2.6.14-mm1.orig/mm/hugetlb.c	2005-11-09 10:47:37.000000000 -0800
-+++ linux-2.6.14-mm1/mm/hugetlb.c	2005-11-11 09:31:02.000000000 -0800
-@@ -36,14 +36,16 @@ static struct page *dequeue_huge_page(vo
- {
- 	int nid = numa_node_id();
- 	struct page *page = NULL;
-+	struct zonelist *zonelist = NODE_DATA(nid)->node_zonelists;
-+	struct zone **z;
- 
--	if (list_empty(&hugepage_freelists[nid])) {
--		for (nid = 0; nid < MAX_NUMNODES; ++nid)
--			if (!list_empty(&hugepage_freelists[nid]))
--				break;
-+	for (z = zonelist->zones; *z; z++) {
-+		nid = (*z)->zone_pgdat->node_id;
-+		if (!list_empty(&hugepage_freelists[nid]))
-+			break;
- 	}
--	if (nid >= 0 && nid < MAX_NUMNODES &&
--	    !list_empty(&hugepage_freelists[nid])) {
-+
-+	if (*z) {
- 		page = list_entry(hugepage_freelists[nid].next,
- 				  struct page, lru);
- 		list_del(&page->lru);
+config IDE_HWIFS
+	int "..."
+	range 1 IDE_MAX_HWIFS
+
+bye, Roman

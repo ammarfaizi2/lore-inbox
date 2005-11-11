@@ -1,177 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbVKKIjo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbVKKIj7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932246AbVKKIjo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 03:39:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbVKKIj2
+	id S932232AbVKKIj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 03:39:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbVKKIjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 03:39:28 -0500
-Received: from i121.durables.org ([64.81.244.121]:9166 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S932233AbVKKIgH (ORCPT
+	Fri, 11 Nov 2005 03:39:23 -0500
+Received: from i121.durables.org ([64.81.244.121]:10446 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S932246AbVKKIgI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 03:36:07 -0500
-Date: Fri, 11 Nov 2005 02:35:53 -0600
+	Fri, 11 Nov 2005 03:36:08 -0500
+Date: Fri, 11 Nov 2005 02:35:54 -0600
 From: Matt Mackall <mpm@selenic.com>
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 X-PatchBomber: http://selenic.com/scripts/mailpatches
-In-Reply-To: <9.282480653@selenic.com>
-Message-Id: <10.282480653@selenic.com>
-Subject: [PATCH 9/15] misc: Make sysenter support optional
+In-Reply-To: <11.282480653@selenic.com>
+Message-Id: <12.282480653@selenic.com>
+Subject: [PATCH 11/15] misc: Allow dropping panic text strings from kernel image
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This adds configurable sysenter support on x86. This saves about 5k on
-small systems.
+Configurable support for panic strings
 
-   text    data     bss     dec     hex
-3330172  529036  190556 4049764  3dcb64 baseline
-3329604  524164  190556 4044324  3db624 sysenter
+This drops panic message strings from the kernel image while
+maintaining normal panic functionality.
 
-$ bloat-o-meter vmlinux{-baseline,}
-add/remove: 0/2 grow/shrink: 0/3 up/down: 0/-316 (-316)
-function                                     old     new   delta
-__restore_processor_state                     76      62     -14
-identify_cpu                                 520     500     -20
-create_elf_tables                            923     883     -40
-sysenter_setup                               113       -    -113
-enable_sep_cpu                               129       -    -129
-
-Most of the savings is not including the vsyscall DSO which doesn't
-show up with bloat-o-meter:
-
-$ size arch/i386/kernel/vsyscall.o
+$ size vmlinux vmlinux-baseline
    text    data     bss     dec     hex filename
-      0    4826       0    4826    12da arch/i386/kernel/vsyscall.o
-
-$ nm arch/i386/kernel/vsyscall.o
-00000961 T vsyscall_int80_end
-00000000 T vsyscall_int80_start
-000012da T vsyscall_sysenter_end
-00000961 T vsyscall_sysenter_start
+3330172  529036  190556 4049764  3dcb64 vmlinux-baseline
+3326488  529036  189532 4045056  3db900 vmlinux
 
 Signed-off-by: Matt Mackall <mpm@selenic.com>
 
-Index: 2.6.14-misc/arch/i386/kernel/Makefile
+Index: 2.6.14-misc/include/linux/kernel.h
 ===================================================================
---- 2.6.14-misc.orig/arch/i386/kernel/Makefile	2005-11-11 00:32:13.000000000 -0800
-+++ 2.6.14-misc/arch/i386/kernel/Makefile	2005-11-11 00:32:17.000000000 -0800
-@@ -29,7 +29,7 @@ obj-$(CONFIG_X86_NUMAQ)		+= numaq.o
- obj-$(CONFIG_X86_SUMMIT_NUMA)	+= summit.o
- obj-$(CONFIG_KPROBES)		+= kprobes.o
- obj-$(CONFIG_MODULES)		+= module.o
--obj-y				+= sysenter.o vsyscall.o
-+obj-$(CONFIG_SYSENTER)		+= sysenter.o vsyscall.o
- obj-$(CONFIG_ACPI_SRAT) 	+= srat.o
- obj-$(CONFIG_HPET_TIMER) 	+= time_hpet.o
- obj-$(CONFIG_EFI) 		+= efi.o efi_stub.o
-Index: 2.6.14-misc/arch/i386/kernel/entry.S
-===================================================================
---- 2.6.14-misc.orig/arch/i386/kernel/entry.S	2005-11-11 00:32:13.000000000 -0800
-+++ 2.6.14-misc/arch/i386/kernel/entry.S	2005-11-11 00:32:17.000000000 -0800
-@@ -177,6 +177,7 @@ need_resched:
+--- 2.6.14-misc.orig/include/linux/kernel.h	2005-11-09 11:27:15.000000000 -0800
++++ 2.6.14-misc/include/linux/kernel.h	2005-11-10 23:26:41.000000000 -0800
+@@ -87,8 +87,13 @@ extern int cond_resched(void);
  
- 	# sysenter call handler stub
- ENTRY(sysenter_entry)
-+#ifdef CONFIG_SYSENTER
- 	movl TSS_sysenter_esp0(%esp),%esp
- sysenter_past_esp:
- 	sti
-@@ -219,7 +220,7 @@ sysenter_past_esp:
- 	xorl %ebp,%ebp
- 	sti
- 	sysexit
--
-+#endif
- 
- 	# system call handler stub
- ENTRY(system_call)
-@@ -506,6 +507,8 @@ device_not_available_emulate:
-  * by hand onto the new stack - while updating the return eip past
-  * the instruction that would have done it for sysenter.
-  */
-+
-+#ifdef CONFIG_SYSENTER
- #define FIX_STACK(offset, ok, label)		\
- 	cmpw $__KERNEL_CS,4(%esp);		\
- 	jne ok;					\
-@@ -514,6 +517,10 @@ label:						\
- 	pushfl;					\
- 	pushl $__KERNEL_CS;			\
- 	pushl $sysenter_past_esp
+ extern struct notifier_block *panic_notifier_list;
+ extern long (*panic_blink)(long time);
++#ifdef CONFIG_FULL_PANIC
+ NORET_TYPE void panic(const char * fmt, ...)
+ 	__attribute__ ((NORET_AND format (printf, 1, 2)));
 +#else
-+#define FIX_STACK(offset, ok, label) \
-+label:
++#define panic(fmt, ...) tiny_panic(0, ## __VA_ARGS__)
++NORET_TYPE void tiny_panic(int a, ...) ATTRIB_NORET;
 +#endif
- 
- KPROBE_ENTRY(debug)
- 	cmpl $sysenter_entry,(%esp)
-Index: 2.6.14-misc/arch/i386/power/cpu.c
-===================================================================
---- 2.6.14-misc.orig/arch/i386/power/cpu.c	2005-11-11 00:31:55.000000000 -0800
-+++ 2.6.14-misc/arch/i386/power/cpu.c	2005-11-11 00:32:17.000000000 -0800
-@@ -109,11 +109,13 @@ void __restore_processor_state(struct sa
-  	loadsegment(gs, ctxt->gs);
-  	loadsegment(ss, ctxt->ss);
- 
-+#ifdef CONFIG_SYSENTER
- 	/*
- 	 * sysenter MSRs
- 	 */
- 	if (boot_cpu_has(X86_FEATURE_SEP))
- 		enable_sep_cpu();
-+#endif
- 
- 	fix_processor_context();
- 	do_fpu_end();
-Index: 2.6.14-misc/include/asm-i386/elf.h
-===================================================================
---- 2.6.14-misc.orig/include/asm-i386/elf.h	2005-11-11 00:32:01.000000000 -0800
-+++ 2.6.14-misc/include/asm-i386/elf.h	2005-11-11 00:32:17.000000000 -0800
-@@ -134,11 +134,13 @@ extern int dump_task_extended_fpu (struc
- #define VSYSCALL_ENTRY	((unsigned long) &__kernel_vsyscall)
- extern void __kernel_vsyscall;
- 
-+#ifdef CONFIG_SYSENTER
- #define ARCH_DLINFO						\
- do {								\
- 		NEW_AUX_ENT(AT_SYSINFO,	VSYSCALL_ENTRY);	\
- 		NEW_AUX_ENT(AT_SYSINFO_EHDR, VSYSCALL_BASE);	\
- } while (0)
-+#endif
- 
- /*
-  * These macros parameterize elf_core_dump in fs/binfmt_elf.c to write out
+ fastcall NORET_TYPE void do_exit(long error_code)
+ 	ATTRIB_NORET;
+ NORET_TYPE void complete_and_exit(struct completion *, long)
 Index: 2.6.14-misc/init/Kconfig
 ===================================================================
---- 2.6.14-misc.orig/init/Kconfig	2005-11-11 00:32:13.000000000 -0800
-+++ 2.6.14-misc/init/Kconfig	2005-11-11 00:32:17.000000000 -0800
-@@ -357,6 +357,14 @@ config VM86
-           XFree86 to initialize some video cards via BIOS. Disabling this
-           option saves about 6k.
+--- 2.6.14-misc.orig/init/Kconfig	2005-11-09 11:27:15.000000000 -0800
++++ 2.6.14-misc/init/Kconfig	2005-11-10 23:26:41.000000000 -0800
+@@ -324,6 +324,14 @@ config DOUBLEFAULT
+           would otherwise cause a system to silently reboot. Disabling this
+           option saves about 4k.
  
-+config SYSENTER
-+	depends X86
++config FULL_PANIC
 +	default y
-+	bool "Enable syscalls via sysenter" if EMBEDDED
++	bool "Full panic reporting data" if EMBEDDED
 +	help
-+	  Disabling this feature removes sysenter handling as well as
-+	  vsyscall fixmaps.
-+ 
- config CC_OPTIMIZE_FOR_SIZE
- 	bool "Optimize for size" if EMBEDDED
- 	default y if ARM || H8300
-Index: 2.6.14-misc/arch/i386/kernel/cpu/common.c
++	  This includes text descriptions of panics in addition to stack dumps.
++          Disabling compiles out the explanations for panics, saving
++	  string space. Use with caution.
++
+ config BASE_FULL
+ 	default y
+ 	bool "Enable full-sized data structures for core" if EMBEDDED
+Index: 2.6.14-misc/kernel/panic.c
 ===================================================================
---- 2.6.14-misc.orig/arch/i386/kernel/cpu/common.c	2005-11-11 00:32:13.000000000 -0800
-+++ 2.6.14-misc/arch/i386/kernel/cpu/common.c	2005-11-11 00:32:40.000000000 -0800
-@@ -429,9 +429,11 @@ void __devinit identify_cpu(struct cpuin
- 	/* Init Machine Check Exception if available. */
- 	mcheck_init(c);
+--- 2.6.14-misc.orig/kernel/panic.c	2005-11-09 11:27:15.000000000 -0800
++++ 2.6.14-misc/kernel/panic.c	2005-11-10 23:26:41.000000000 -0800
+@@ -54,12 +54,18 @@ EXPORT_SYMBOL(panic_blink);
+  *
+  *	This function never returns.
+  */
+- 
++
++#ifdef CONFIG_FULL_PANIC
+ NORET_TYPE void panic(const char * fmt, ...)
+ {
+-	long i;
+ 	static char buf[1024];
+ 	va_list args;
++#else
++NORET_TYPE void tiny_panic(int a, ...)
++{
++#endif
++	long i;
++
+ #if defined(CONFIG_ARCH_S390)
+         unsigned long caller = (unsigned long) __builtin_return_address(0);
+ #endif
+@@ -72,10 +78,16 @@ NORET_TYPE void panic(const char * fmt, 
+ 	preempt_disable();
  
-+#ifdef CONFIG_SYSENTER
- 	if (c == &boot_cpu_data)
- 		sysenter_setup();
- 	enable_sep_cpu();
+ 	bust_spinlocks(1);
++
++#ifdef CONFIG_FULL_PANIC
+ 	va_start(args, fmt);
+ 	vsnprintf(buf, sizeof(buf), fmt, args);
+ 	va_end(args);
+ 	printk(KERN_EMERG "Kernel panic - not syncing: %s\n",buf);
++#else
++	printk(KERN_EMERG "Kernel panic - not syncing\n");
++#endif
++
+ 	bust_spinlocks(0);
+ 
+ 	/*
+@@ -94,7 +106,11 @@ NORET_TYPE void panic(const char * fmt, 
+ 	smp_send_stop();
+ #endif
+ 
++#ifdef CONFIG_FULL_PANIC
+ 	notifier_call_chain(&panic_notifier_list, 0, buf);
++#else
++	notifier_call_chain(&panic_notifier_list, 0, "");
 +#endif
  
- 	if (c == &boot_cpu_data)
- 		mtrr_bp_init();
+ 	if (!panic_blink)
+ 		panic_blink = no_blink;
+@@ -136,7 +152,11 @@ NORET_TYPE void panic(const char * fmt, 
+ 	}
+ }
+ 
++#ifdef CONFIG_FULL_PANIC
+ EXPORT_SYMBOL(panic);
++#else
++EXPORT_SYMBOL(tiny_panic);
++#endif
+ 
+ /**
+  *	print_tainted - return a string to represent the kernel taint state.

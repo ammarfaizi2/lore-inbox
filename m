@@ -1,196 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932305AbVKKJU3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbVKKJ3x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932305AbVKKJU3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 04:20:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbVKKJU3
+	id S932313AbVKKJ3x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 04:29:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbVKKJ3x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 04:20:29 -0500
-Received: from verein.lst.de ([213.95.11.210]:24040 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S932305AbVKKJU2 (ORCPT
+	Fri, 11 Nov 2005 04:29:53 -0500
+Received: from bay12-f9.bay12.hotmail.com ([64.4.35.9]:50672 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id S932313AbVKKJ3x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 04:20:28 -0500
-Date: Fri, 11 Nov 2005 10:20:21 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: akpm@osdl.org
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
-Subject: [PATCH] implement generic rtc compat ioctl handling
-Message-ID: <20051111092021.GA26750@lst.de>
+	Fri, 11 Nov 2005 04:29:53 -0500
+Message-ID: <BAY12-F929ACA2FD6286A9309E5D80590@phx.gbl>
+X-Originating-IP: [81.91.228.7]
+X-Originating-Email: [ka_jaap@hotmail.com]
+From: "kara jaap" <ka_jaap@hotmail.com>
+Subject: Please reply
+Date: Fri, 11 Nov 2005 09:29:52 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00,UPPERCASE_25_50
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 11 Nov 2005 09:29:52.0910 (UTC) FILETIME=[786802E0:01C5E6A2]
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch implements generic handling of RTC_IRQP_READ32,
-RTC_IRQP_SET32, RTC_EPOCH_READ32 and RTC_EPOCH_SET32 in
-fs/compat_ioctl.c.  It's based on the x86_64 code which needed
-a little massaging to be endian-clean and use compat_alloc_user_space
-aswell as the compat_ types.
 
-parisc used COMPAT_IOCTL or generic w_long handlers for these which
-is wrong and can't work because the ioctls encode sizeof(unsigned long)
-in their ioctl number.  parisc also duplicated COMPAT_IOCTL entries for
-other rtc ioctls which I remove in this patch, too.
+>From Mrs.Kara Jaap
+Cotonou
+Rep.of Benin
+West Africa.
+
+Dear friend,
+
+I am a widow  to the late principal accountant of Sierra Leon central bank 
+who was assassinated due to political hostility in my country.
+For the sake of our lives,my children and i fled to the neighbouring 
+republic of Benin where we are seeking refuge.
+I must confess to you,our journey to benin was not a jolly ride as we 
+encountered a lot of problems,most painful was a particular situation that 
+left us in a state of penury and where we also lost our travelling 
+documents,thereby making it impossible for us to travel now.
+Mounths ago i was diagnosed with cancer,this futher made our lives more 
+difficult as i lack funds to take care of my self nor my children.
+I decided to contact you,seeking your assistance because i am having 
+problems recovering a large deposit made by my late husband overseas since 
+the company maintained that instructions left by my late husband the 
+original depositor,states that the funds be "RELEASED TO ME OR A FOREIGN
+REPRESENTATIVE ONLY", believing he would appoint someone by himself to 
+represent him for the claim but eventually he died earlier.
+This is the only hope my family has of surviving,paticularly my only son,who 
+has so much dreams and i want to do the best i can to help them fufill thier 
+dreams.
+I am pleading with you to help us by helping us claim the funds from the 
+security firm and most importantly, your ability to put the said funds into 
+circulation wisely for our joint interest and relocating my son is a major 
+considerable factor regarding our request as our knowledge on financial
+matters is not enough to handle such amount of fund (us$16,000,000.00) 
+sixteen million dollars.
+In view of this, if you are touched to work with us in sincerity, by 
+standing as my late husband,s foreign representative to receive the said 
+deposit on our behalf, we shall embrace you as our family and will 
+compensate you accordingly.
+I am willing to share the money into half with you,that is 50/50%,all i 
+really care about is the welfare of my children.
+As you indicate interest, please contact my son Jacob Mouton on this email 
+address (t_jap0702@walla.com )or call him on his private phone number Tel: 
++229-9-5713752  to enable him give you further information relating to the 
+position of funds and the steps we shall take to finalize on the project,as 
+my health conditions makes it hard for me to talk or go around.
+Thanking you in advance for your kind and urgent response, more so for 
+keeping our proposal to your self.
+
+Sincerely
+Kara Jaap.
 
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-
-Index: linux-2.6/arch/parisc/kernel/ioctl32.c
-===================================================================
---- linux-2.6.orig/arch/parisc/kernel/ioctl32.c	2005-11-08 23:07:47.000000000 +0100
-+++ linux-2.6/arch/parisc/kernel/ioctl32.c	2005-11-11 09:57:27.000000000 +0100
-@@ -571,25 +571,6 @@
- HANDLE_IOCTL(SIOCGPPPCSTATS, dev_ifsioc)
- HANDLE_IOCTL(SIOCGPPPVER, dev_ifsioc)
- 
--#if defined(CONFIG_GEN_RTC)
--COMPATIBLE_IOCTL(RTC_AIE_ON)
--COMPATIBLE_IOCTL(RTC_AIE_OFF)
--COMPATIBLE_IOCTL(RTC_UIE_ON)
--COMPATIBLE_IOCTL(RTC_UIE_OFF)
--COMPATIBLE_IOCTL(RTC_PIE_ON)
--COMPATIBLE_IOCTL(RTC_PIE_OFF)
--COMPATIBLE_IOCTL(RTC_WIE_ON)
--COMPATIBLE_IOCTL(RTC_WIE_OFF)
--COMPATIBLE_IOCTL(RTC_ALM_SET)   /* struct rtc_time only has ints */
--COMPATIBLE_IOCTL(RTC_ALM_READ)  /* struct rtc_time only has ints */
--COMPATIBLE_IOCTL(RTC_RD_TIME)   /* struct rtc_time only has ints */
--COMPATIBLE_IOCTL(RTC_SET_TIME)  /* struct rtc_time only has ints */
--HANDLE_IOCTL(RTC_IRQP_READ, w_long)
--COMPATIBLE_IOCTL(RTC_IRQP_SET)
--HANDLE_IOCTL(RTC_EPOCH_READ, w_long)
--COMPATIBLE_IOCTL(RTC_EPOCH_SET)
--#endif
--
- #if defined(CONFIG_DRM) || defined(CONFIG_DRM_MODULE)
- HANDLE_IOCTL(DRM32_IOCTL_VERSION, drm32_version);
- HANDLE_IOCTL(DRM32_IOCTL_GET_UNIQUE, drm32_getsetunique);
-Index: linux-2.6/arch/x86_64/ia32/ia32_ioctl.c
-===================================================================
---- linux-2.6.orig/arch/x86_64/ia32/ia32_ioctl.c	2005-11-10 12:20:19.000000000 +0100
-+++ linux-2.6/arch/x86_64/ia32/ia32_ioctl.c	2005-11-11 09:49:33.000000000 +0100
-@@ -16,45 +16,6 @@
- 
- #define CODE
- #include "compat_ioctl.c"
--  
--#define RTC_IRQP_READ32	_IOR('p', 0x0b, unsigned int)	 /* Read IRQ rate   */
--#define RTC_IRQP_SET32	_IOW('p', 0x0c, unsigned int)	 /* Set IRQ rate    */
--#define RTC_EPOCH_READ32	_IOR('p', 0x0d, unsigned)	 /* Read epoch      */
--#define RTC_EPOCH_SET32		_IOW('p', 0x0e, unsigned)	 /* Set epoch       */
--
--static int rtc32_ioctl(unsigned fd, unsigned cmd, unsigned long arg) 
--{ 
--	unsigned long val;
--	mm_segment_t oldfs = get_fs(); 
--	int ret; 
--	
--	switch (cmd) { 
--	case RTC_IRQP_READ32: 
--		set_fs(KERNEL_DS); 
--		ret = sys_ioctl(fd, RTC_IRQP_READ, (unsigned long)&val); 
--		set_fs(oldfs); 
--		if (!ret)
--			ret = put_user(val, (unsigned int __user *) arg); 
--		return ret; 
--
--	case RTC_IRQP_SET32: 
--		cmd = RTC_IRQP_SET; 
--		break; 
--
--	case RTC_EPOCH_READ32:
--		set_fs(KERNEL_DS); 
--		ret = sys_ioctl(fd, RTC_EPOCH_READ, (unsigned long) &val); 
--		set_fs(oldfs); 
--		if (!ret)
--			ret = put_user(val, (unsigned int __user *) arg); 
--		return ret; 
--
--	case RTC_EPOCH_SET32:
--		cmd = RTC_EPOCH_SET; 
--		break; 
--	} 
--	return sys_ioctl(fd,cmd,arg); 
--} 
- 
- 
- #define HANDLE_IOCTL(cmd,handler) { (cmd), (ioctl_trans_handler_t)(handler) }, 
-@@ -64,14 +25,6 @@
- #include <linux/compat_ioctl.h>
- #define DECLARES
- #include "compat_ioctl.c"
--
--/* And these ioctls need translation */
--/* realtime device */
--HANDLE_IOCTL(RTC_IRQP_READ,  rtc32_ioctl)
--HANDLE_IOCTL(RTC_IRQP_READ32,rtc32_ioctl)
--HANDLE_IOCTL(RTC_IRQP_SET32, rtc32_ioctl)
--HANDLE_IOCTL(RTC_EPOCH_READ32, rtc32_ioctl)
--HANDLE_IOCTL(RTC_EPOCH_SET32, rtc32_ioctl)
- /* take care of sizeof(sizeof()) breakage */
- }; 
- 
-Index: linux-2.6/fs/compat_ioctl.c
-===================================================================
---- linux-2.6.orig/fs/compat_ioctl.c	2005-11-10 12:20:20.000000000 +0100
-+++ linux-2.6/fs/compat_ioctl.c	2005-11-11 10:14:13.000000000 +0100
-@@ -2561,6 +2561,46 @@
- 	return -EINVAL;
- }
- 
-+#define RTC_IRQP_READ32		_IOR('p', 0x0b, compat_ulong_t)
-+#define RTC_IRQP_SET32		_IOW('p', 0x0c, compat_ulong_t)
-+#define RTC_EPOCH_READ32	_IOR('p', 0x0d, compat_ulong_t)
-+#define RTC_EPOCH_SET32		_IOW('p', 0x0e, compat_ulong_t)
-+
-+static int rtc_ioctl(unsigned fd, unsigned cmd, unsigned long arg)
-+{
-+	compat_ulong_t __user *val = compat_alloc_user_space(sizeof(*val));
-+	compat_ulong_t __user *uval = (compat_ulong_t __user *)arg;
-+	int ret;
-+
-+	switch (cmd) {
-+	case RTC_IRQP_READ32:
-+	case RTC_EPOCH_READ32:
-+		ret = sys_ioctl(fd, (cmd == RTC_IRQP_READ32) ?
-+					RTC_IRQP_READ : RTC_EPOCH_READ,
-+					(unsigned long)val);
-+		if (!ret && copy_in_user(uval, val, sizeof(compat_ulong_t)))
-+			ret = -EFAULT;
-+		break;
-+	case RTC_IRQP_SET32:
-+	case RTC_EPOCH_SET32:
-+		if (copy_in_user(val, uval, sizeof(compat_ulong_t))) {
-+			ret = -EFAULT;
-+			break;
-+		}
-+
-+		ret = sys_ioctl(fd, (cmd == RTC_IRQP_SET32) ?
-+				RTC_IRQP_SET : RTC_EPOCH_SET,
-+				(unsigned long)val);
-+		break;
-+	default:
-+		/* unreached */
-+		ret = -ENOIOCTLCMD;
-+		break;
-+	}
-+
-+	return ret;
-+}
-+
- #if defined(CONFIG_NCP_FS) || defined(CONFIG_NCP_FS_MODULE)
- struct ncp_ioctl_request_32 {
- 	u32 function;
-@@ -2943,6 +2983,10 @@
- HANDLE_IOCTL(SIOCGIWENCODE, do_wireless_ioctl)
- HANDLE_IOCTL(SIOCSIFBR, old_bridge_ioctl)
- HANDLE_IOCTL(SIOCGIFBR, old_bridge_ioctl)
-+HANDLE_IOCTL(RTC_IRQP_READ32, rtc_ioctl)
-+HANDLE_IOCTL(RTC_IRQP_SET32, rtc_ioctl)
-+HANDLE_IOCTL(RTC_EPOCH_READ32, rtc_ioctl)
-+HANDLE_IOCTL(RTC_EPOCH_SET32, rtc_ioctl)
- 
- #if defined(CONFIG_NCP_FS) || defined(CONFIG_NCP_FS_MODULE)
- HANDLE_IOCTL(NCP_IOC_NCPREQUEST_32, do_ncp_ncprequest)

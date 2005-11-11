@@ -1,73 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbVKKAH3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbVKKAKv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932178AbVKKAH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 19:07:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbVKKAH3
+	id S932262AbVKKAKv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 19:10:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbVKKAKv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 19:07:29 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:19904 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932178AbVKKAH2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 19:07:28 -0500
-Message-ID: <4373E0BD.7020709@us.ibm.com>
-Date: Thu, 10 Nov 2005 16:07:25 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: kernel-janitors@lists.osdl.org
-CC: manfred@colorfullife.com, Pekka J Enberg <penberg@cs.Helsinki.FI>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH 9/9] Cleanup a loop in set_slab_attr()
-References: <4373DD82.8010606@us.ibm.com>
-In-Reply-To: <4373DD82.8010606@us.ibm.com>
-Content-Type: multipart/mixed;
- boundary="------------050707040201070202090208"
+	Thu, 10 Nov 2005 19:10:51 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:24844 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932262AbVKKAKu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 19:10:50 -0500
+Date: Fri, 11 Nov 2005 00:10:44 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Hugh Dickins <hugh@veritas.com>,
+       mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 01/15] mm: poison struct page for ptlock
+Message-ID: <20051111001044.GD28700@flint.arm.linux.org.uk>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Andrew Morton <akpm@osdl.org>, Hugh Dickins <hugh@veritas.com>,
+	mingo@elte.hu, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.61.0511100142160.5814@goblin.wat.veritas.com> <20051109181022.71c347d4.akpm@osdl.org> <Pine.LNX.4.61.0511100215150.6138@goblin.wat.veritas.com> <20051109185645.39329151.akpm@osdl.org> <20051110120624.GB32672@elte.hu> <Pine.LNX.4.61.0511101233530.6896@goblin.wat.veritas.com> <20051110045144.40751a42.akpm@osdl.org> <Pine.LNX.4.61.0511101323540.7464@goblin.wat.veritas.com> <20051110114950.03a5946b.akpm@osdl.org> <Pine.LNX.4.64.0511101155160.4627@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0511101155160.4627@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050707040201070202090208
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Thu, Nov 10, 2005 at 11:56:52AM -0800, Linus Torvalds wrote:
+> On Thu, 10 Nov 2005, Andrew Morton wrote:
+> > 
+> > IOW we're assuming that no 32-bit architectures will obtain pagetables from
+> > slab?
+> 
+> I thought ARM does?
 
-Last, but not least, fix a loop in set_slab_attr() to match the rest of the
-functionally similar loops in mm/slab.c.
+ARM26 does.  On ARM, we play some games to weld to page tables together.
+(We also duplicate them to give us a level of independence from the MMU
+architecture and to give us space for things like young and dirty bits.)
 
--Matt
+As far as Linux is concerned, a 2nd level page table is one struct page
+and L1 entries are two words in size.
 
---------------050707040201070202090208
-Content-Type: text/x-patch;
- name="set_slab_attr.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="set_slab_attr.patch"
+I wrote up some docs on this and threw them into a comment in
+include/asm-arm/pgtable.h...
 
-Change the
-	do { ... } while (--i);
-loop in set_slab_attr to a
-	while (i--) { ... }
-loop like the rest of the functions that do similar loops in mm/slab.c.
-
-Signed-off-by: Matthew Dobson <colpatch@us.ibm.com>
-
-Index: linux-2.6.14+slab_cleanup/mm/slab.c
-===================================================================
---- linux-2.6.14+slab_cleanup.orig/mm/slab.c	2005-11-10 11:49:19.028840752 -0800
-+++ linux-2.6.14+slab_cleanup/mm/slab.c	2005-11-10 11:49:21.636444336 -0800
-@@ -2157,11 +2157,11 @@ static void set_slab_attr(kmem_cache_t *
- 
- 	i = 1 << cachep->gfporder;
- 	page = virt_to_page(objp);
--	do {
-+	while (i--) {
- 		SET_PAGE_CACHE(page, cachep);
- 		SET_PAGE_SLAB(page, slabp);
- 		page++;
--	} while (--i);
-+	}
- }
- 
- /*
-
---------------050707040201070202090208--
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

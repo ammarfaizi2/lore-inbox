@@ -1,48 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbVKKXtu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbVKKXuJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750711AbVKKXtu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 18:49:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbVKKXtu
+	id S1750721AbVKKXuJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 18:50:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbVKKXuI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 18:49:50 -0500
-Received: from twinlark.arctic.org ([207.7.145.18]:58054 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id S1750711AbVKKXtu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 18:49:50 -0500
-Date: Fri, 11 Nov 2005 15:49:48 -0800 (PST)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Claudio Scordino <cloud.of.andor@gmail.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Wright <chrisw@osdl.org>,
-       "Magnus Naeslund(f)" <mag@fbab.net>,
-       "Hua Zhong (hzhong)" <hzhong@cisco.com>, linux-kernel@vger.kernel.org,
-       kernelnewbies@nl.linux.org, David Wagner <daw@cs.berkeley.edu>
-Subject: Re: [PATCH] getrusage sucks
-In-Reply-To: <200511120043.52796.cloud.of.andor@gmail.com>
-Message-ID: <Pine.LNX.4.63.0511111547310.18982@twinlark.arctic.org>
-References: <75D9B5F4E50C8B4BB27622BD06C2B82BCF2FD4@xmb-sjc-235.amer.cisco.com>
- <20051111230223.GB7991@shell0.pdx.osdl.net> <1131753496.3174.55.camel@localhost.localdomain>
- <200511120043.52796.cloud.of.andor@gmail.com>
+	Fri, 11 Nov 2005 18:50:08 -0500
+Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:35485 "EHLO
+	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
+	id S1750721AbVKKXuF convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 18:50:05 -0500
+X-IronPort-AV: i="3.99,120,1131350400"; 
+   d="scan'208"; a="364088557:sNHT27371192"
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] getrusage sucks
+Date: Fri, 11 Nov 2005 15:49:50 -0800
+Message-ID: <75D9B5F4E50C8B4BB27622BD06C2B82BCF33B9@xmb-sjc-235.amer.cisco.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] getrusage sucks
+Thread-Index: AcXnGdDXK8yrYIAtRBqYeUrjqaOpLQAALLOQ
+From: "Hua Zhong \(hzhong\)" <hzhong@cisco.com>
+To: "Claudio Scordino" <cloud.of.andor@gmail.com>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Chris Wright" <chrisw@osdl.org>, "Magnus Naeslund\(f\)" <mag@fbab.net>,
+       <linux-kernel@vger.kernel.org>, <kernelnewbies@nl.linux.org>,
+       "David Wagner" <daw@cs.berkeley.edu>
+X-OriginalArrivalTime: 11 Nov 2005 23:49:51.0921 (UTC) FILETIME=[9BD04210:01C5E71A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 12 Nov 2005, Claudio Scordino wrote:
+I think it's better to use "goto" for error exit. Too many read_unlock
+here.. 
 
+> -----Original Message-----
+> From: Claudio Scordino [mailto:cloud.of.andor@gmail.com] 
+> Sent: Friday, November 11, 2005 3:44 PM
+> To: Alan Cox
+> Cc: Chris Wright; Magnus Naeslund(f); Hua Zhong (hzhong); 
+> linux-kernel@vger.kernel.org; kernelnewbies@nl.linux.org; David Wagner
+> Subject: Re: [PATCH] getrusage sucks
+> 
 > >
-> > In which case the only comment I have is the one about accuracy - and
+> > In which case the only comment I have is the one about 
+> accuracy - and
 > > that is true for procfs too so will only come up if someone gets the
 > > urge to use perfctr timers for precision resource management
 > 
 > According to your comments, this the final patch. 
-
-this only lets you get RUSAGE_SELF data for the target... for many 
-processes it's more important to get the RUSAGE_CHILDREN data... and 
-really i'm having a hard time imagining a use for this code which on 
-further inspection doesn't eventually blow up to the requirements of a 
-proper accounting subsystem... (of which i understand there are two or 
-three competining implementations in progress?)
-
-do you have a use case for this new code?
-
--dean
+> 
+> Should it be committed ?
+> 
+>          Claudio
+> 
+> 
+> 
+> diff --git a/kernel/sys.c b/kernel/sys.c
+> --- a/kernel/sys.c
+> +++ b/kernel/sys.c
+> @@ -1746,9 +1746,26 @@ int getrusage(struct task_struct *p, int
+> 
+>  asmlinkage long sys_getrusage(int who, struct rusage __user *ru)
+>  {
+> -       if (who != RUSAGE_SELF && who != RUSAGE_CHILDREN)
+> -               return -EINVAL;
+> -       return getrusage(current, who, ru);
+> +        if (who != RUSAGE_SELF && who != RUSAGE_CHILDREN) {
+> +                struct task_struct* tsk;
+> +                struct rusage r;
+> +                read_lock(&tasklist_lock);
+> +                tsk = find_task_by_pid(who);
+> +                if (tsk == NULL) {
+> +                        read_unlock(&tasklist_lock);
+> +                        return -EINVAL;
+> +                }
+> +                if ((current->euid != tsk->euid) &&
+> +                (current->euid != tsk->uid) &&
+> +                (!capable(CAP_SYS_ADMIN))){
+> +                        read_unlock(&tasklist_lock);
+> +                        return -EPERM;
+> +                }
+> +                k_getrusage(tsk, RUSAGE_SELF, &r);
+> +                read_unlock(&tasklist_lock);
+> +                return copy_to_user(ru, &r, sizeof(r)) ? -EFAULT : 0;
+> +        } else
+> +                return getrusage(current, who, ru);
+>  }
+> 
+>  asmlinkage long sys_umask(int mask)
+> 

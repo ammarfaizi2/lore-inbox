@@ -1,72 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932328AbVKKBLU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbVKKBMV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932328AbVKKBLU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 20:11:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbVKKBLU
+	id S932332AbVKKBMV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 20:12:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbVKKBMV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 20:11:20 -0500
-Received: from maggie.cs.pitt.edu ([130.49.220.148]:8630 "EHLO
-	maggie.cs.pitt.edu") by vger.kernel.org with ESMTP id S932328AbVKKBLT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 20:11:19 -0500
-From: Claudio Scordino <cloud.of.andor@gmail.com>
-To: "Magnus Naeslund(f)" <mag@fbab.net>
-Subject: Re: [PATCH] getrusage sucks
-Date: Fri, 11 Nov 2005 02:11:04 +0100
-User-Agent: KMail/1.8
-Cc: "Hua Zhong (hzhong)" <hzhong@cisco.com>, linux-kernel@vger.kernel.org,
-       kernelnewbies@nl.linux.org
-References: <75D9B5F4E50C8B4BB27622BD06C2B82BCF2FD4@xmb-sjc-235.amer.cisco.com> <200511110123.29664.cloud.of.andor@gmail.com> <4373E69B.6040206@fbab.net>
-In-Reply-To: <4373E69B.6040206@fbab.net>
+	Thu, 10 Nov 2005 20:12:21 -0500
+Received: from tantale.fifi.org ([64.81.251.130]:20383 "EHLO tantale.fifi.org")
+	by vger.kernel.org with ESMTP id S932332AbVKKBMU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 20:12:20 -0500
+To: Dick <dm@chello.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SIGALRM ignored
+References: <loom.20051107T183059-826@post.gmane.org>
+	<20051107160332.0efdf310.pj@sgi.com>
+	<loom.20051108T124813-159@post.gmane.org>
+	<87hdamk56f.fsf@ceramic.fifi.org>
+	<loom.20051109T101742-953@post.gmane.org>
+	<87r79pboxx.fsf@ceramic.fifi.org>
+	<loom.20051110T210222-252@post.gmane.org>
+Mail-Copies-To: nobody
+From: Philippe Troin <phil@fifi.org>
+Date: 10 Nov 2005 17:12:17 -0800
+In-Reply-To: <loom.20051110T210222-252@post.gmane.org>
+Message-ID: <87k6fgq972.fsf@ceramic.fifi.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511110211.05642.cloud.of.andor@gmail.com>
-X-Spam-Score: -1.665/8 BAYES_00 SA-version=3.000002
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You need to wrap this with a read_lock(&tasklist_lock) to be safe, I think.
+Dick <dm@chello.nl> writes:
 
-Right. Probably this was the meaning also of Hua's mail. Sorry, but I didn't 
-get it immediately.
+> Philippe Troin <phil <at> fifi.org> writes:
+> > Look at the display manager.  I know that wdm used to not clean up its
+> > signals before starting a user session.
+> 
+> I've found the error, the signal was blocked in sshd and I was restarting sshd
+> from a ssh session, I also disabled some pam modules (which I suspect the block
+> came from). Restarting sshd from a console did the trick.
 
-So, what if I do as follows ? Do you see any problem with this solution ?
+Daemons like ssh should clean-up their signal masks on start-up.
+Maybe you should file a bug against ssh?
 
-Many thanks,
+> I don't know how to thank you ;-)
 
-              Claudio
+Then don't :-)
 
-
-
-diff --git a/kernel/sys.c b/kernel/sys.c
---- a/kernel/sys.c
-+++ b/kernel/sys.c
-@@ -1746,9 +1746,22 @@ int getrusage(struct task_struct *p, int
-
- asmlinkage long sys_getrusage(int who, struct rusage __user *ru)
- {
--       if (who != RUSAGE_SELF && who != RUSAGE_CHILDREN)
--               return -EINVAL;
--       return getrusage(current, who, ru);
-+        int res;
-+        if (who != RUSAGE_SELF && who != RUSAGE_CHILDREN) {
-+                struct task_struct* tsk;
-+                read_lock(&tasklist_lock);
-+                tsk = find_task_by_pid(who);
-+                if (tsk == NULL) {
-+                        read_unlock(&tasklist_lock);
-+                        return -EINVAL;
-+                }
-+                res = getrusage(tsk, RUSAGE_SELF, ru);
-+                read_unlock(&tasklist_lock);
-+                return res;
-+        } else {
-+                res = getrusage(current, who, ru);
-+                return res;
-+        }
- }
-
- asmlinkage long sys_umask(int mask)
+Phil.

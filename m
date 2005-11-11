@@ -1,41 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbVKKKRz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbVKKKXU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751267AbVKKKRz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 05:17:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbVKKKRz
+	id S1751257AbVKKKXU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 05:23:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbVKKKXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 05:17:55 -0500
-Received: from mxout5.cac.washington.edu ([140.142.32.135]:38803 "EHLO
-	mxout5.cac.washington.edu") by vger.kernel.org with ESMTP
-	id S1751267AbVKKKRy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 05:17:54 -0500
-X-Auth-Received: from [192.168.1.101] (c-24-22-164-139.hsd1.wa.comcast.net [24.22.164.139])
-	(authenticated authid=lentracy)
-	by smtp.washington.edu (8.13.5+UW05.10/8.13.5+UW05.09) with ESMTP id jABAHr7X009035
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
-	for <linux-kernel@vger.kernel.org>; Fri, 11 Nov 2005 02:17:53 -0800
-Message-ID: <43746FC0.3040702@ee.washington.edu>
-Date: Fri, 11 Nov 2005 02:17:36 -0800
-From: Leonard Tracy <ltracy@ee.washington.edu>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
+	Fri, 11 Nov 2005 05:23:20 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:18096 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S1751257AbVKKKXU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 05:23:20 -0500
+Date: Fri, 11 Nov 2005 11:22:42 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Matt Mackall <mpm@selenic.com>
+cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 10/15] misc: Make *[ug]id16 support optional
+In-Reply-To: <11.282480653@selenic.com>
+Message-ID: <Pine.LNX.4.62.0511111121400.3956@numbat.sonytel.be>
+References: <11.282480653@selenic.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel feature question
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Uwash-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0, __USER_AGENT 0'
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Since some point in the 2.6.12 kernel there has been a 
-no_timer_check option available to amd64 users to solve a bug which 
-causes the kernel clock on some athlon 64 system to run at 2x speed.  I 
-was wondering if it was possible to get this implemented in the i386 
-architecture too.  The code is rather simple and only requires something 
-like 10 lines of code to be added to the io_apic.c file, however it is a 
-pain to add it to every upgrade that becomes available.  Who should I 
-ask to get this included as a standard?
+On Fri, 11 Nov 2005, Matt Mackall wrote:
+> Configurable 16-bit UID and friends support
+> 
+> This allows turning off the legacy 16 bit UID interfaces on embedded platforms.
+> 
+>    text    data     bss     dec     hex filename
+> 3330172  529036  190556 4049764  3dcb64 vmlinux-baseline
+> 3328268  529040  190556 4047864  3dc3f8 vmlinux
+> 
+> Signed-off-by: Matt Mackall <mpm@selenic.com>
+> 
+> Index: 2.6.14-misc/init/Kconfig
+> ===================================================================
+> --- 2.6.14-misc.orig/init/Kconfig	2005-11-09 11:21:02.000000000 -0800
+> +++ 2.6.14-misc/init/Kconfig	2005-11-09 11:22:06.000000000 -0800
+> @@ -364,7 +364,16 @@ config SYSENTER
+>  	help
+>  	  Disabling this feature removes sysenter handling as well as
+>  	  vsyscall fixmaps.
+> - 
+> +
+> +config UID16
+> +	bool "Enable 16-bit UID system calls" if EMBEDDED
+> +	depends !ALPHA && !PPC && !PPC64 && !PARISC && !V850 && !ARCH_S390X
 
-Leonard Tracy
+Wouldn't it be better to explicitly list the architectures that support it?
+I assume new architectures won't implement it anyway?
 
+> +	depends !X86_64 || IA32_EMULATION
+> +	depends !SPARC64 || SPARC32_COMPAT
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

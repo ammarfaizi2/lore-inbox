@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbVKKPyM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbVKKQGb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750832AbVKKPyM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 10:54:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbVKKPyM
+	id S1750834AbVKKQGb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 11:06:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbVKKQGb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 10:54:12 -0500
-Received: from mx1.suse.de ([195.135.220.2]:4792 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750832AbVKKPyL (ORCPT
+	Fri, 11 Nov 2005 11:06:31 -0500
+Received: from ozlabs.org ([203.10.76.45]:16877 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1750834AbVKKQGa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 10:54:11 -0500
-From: Andi Kleen <ak@suse.de>
-To: discuss@x86-64.org
-Subject: Re: [discuss] Re: [PATCH] x86-64: adjust ia32entry.S
-Date: Fri, 11 Nov 2005 16:53:52 +0100
-User-Agent: KMail/1.8
-Cc: "Jan Beulich" <JBeulich@novell.com>, linux-kernel@vger.kernel.org
-References: <4370AFF0.76F0.0078.0@novell.com> <200511111634.44871.ak@suse.de> <4374CBE9.76F0.0078.0@novell.com>
-In-Reply-To: <4374CBE9.76F0.0078.0@novell.com>
+	Fri, 11 Nov 2005 11:06:30 -0500
+Date: Sat, 12 Nov 2005 03:03:41 +1100
+From: Anton Blanchard <anton@samba.org>
+To: apw@shadowen.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Allow flatmem to be disabled when only sparsemem is implemented
+Message-ID: <20051111160341.GK14770@krispykreme>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511111653.52341.ak@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 11 November 2005 16:50, Jan Beulich wrote:
-> >>> Andi Kleen <ak@suse.de> 11.11.05 16:34:44 >>>
-> >
-> >On Wednesday 09 November 2005 17:10, Jan Beulich wrote:
-> >> IA32 compatibility entry points needlessly played with extended
-> >> registers. Additionally, frame unwind information was still
->
-> incorrect
->
-> >> for ia32_ptregs_common (sorry, my fault).
-> >
-> >What do you mean with needlessly played? That it didn't initialize
-> >all on the stack frame? That was more a feature than a bug.
-> >Did it cause you problems?
->
-> It saved and restored R12-R15, even though these registers have no
-> meaning (and are architecturally undefined) when coming from/going to
-> 32-bit mode. Problems? No, except that without the extra loads (stores
-> don't matter that much I believe) performance is better...
 
-int 0x80 can be called from long mode too. We especially kept 
-this option to allow JITs like valgrind to run a 32bit process in a 64bit
-image. In this case we shouldn't leak kernel registers.
+Hi Andy,
 
-You're right they normally shouldn't be leaked anyways because the
-C ABI will save/restore it. I will think about it.
+What do you think about this?
+
+Anton
+
+--
+
+On architectures that implement sparsemem but not discontigmem we want
+to be able to hide the flatmem option in some cases. On ppc64 for
+example, when we select NUMA we must not select flatmem.
+
+Signed-off-by: Anton Blanchard <anton@samba.org>
+---
  
->
-> >In general I'm weary of making the asm macros more complex
-> >(adding more arguments etc.) Please keep it simple.
->
-> Then ignore this, perhaps with the exception of the unwind info
-> adjustment.
-
-Can you please resubmit that as a separate patch?
-
--Andi
+Index: build/mm/Kconfig
+===================================================================
+--- build.orig/mm/Kconfig	2005-11-11 11:31:38.000000000 +1100
++++ build/mm/Kconfig	2005-11-11 11:41:55.000000000 +1100
+@@ -11,7 +11,7 @@
+ 
+ config FLATMEM_MANUAL
+ 	bool "Flat Memory"
+-	depends on !ARCH_DISCONTIGMEM_ENABLE || ARCH_FLATMEM_ENABLE
++	depends on !(ARCH_DISCONTIGMEM_ENABLE || ARCH_SPARSEMEM_ENABLE) || ARCH_FLATMEM_ENABLE
+ 	help
+ 	  This option allows you to change some of the ways that
+ 	  Linux manages its memory internally.  Most users will

@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbVKKUUK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbVKKUWT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751140AbVKKUUK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 15:20:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbVKKUUK
+	id S1751155AbVKKUWT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 15:22:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbVKKUWT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 15:20:10 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:16389 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751140AbVKKUUI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 15:20:08 -0500
-Date: Fri, 11 Nov 2005 21:20:05 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, paulus@samba.org, anton@samba.org,
-       linuxppc64-dev@ozlabs.org
-Subject: Re: [2.6 patch] add -Werror-implicit-function-declaration to CFLAGS
-Message-ID: <20051111202005.GQ5376@stusta.de>
-References: <20051107200336.GH3847@stusta.de> <20051110042857.38b4635b.akpm@osdl.org> <20051111021258.GK5376@stusta.de> <20051110182443.514622ed.akpm@osdl.org> <20051111201849.GP5376@stusta.de>
+	Fri, 11 Nov 2005 15:22:19 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:63899 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751155AbVKKUWS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 15:22:18 -0500
+Date: Fri, 11 Nov 2005 12:22:07 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Zachary Amsden <zach@vmware.com>
+cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH 1/10] Cr4 is valid on some 486s
+In-Reply-To: <4374FB89.6000304@vmware.com>
+Message-ID: <Pine.LNX.4.64.0511111218110.4627@g5.osdl.org>
+References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com>
+ <20051111103605.GC27805@elf.ucw.cz> <4374F2D5.7010106@vmware.com>
+ <Pine.LNX.4.64.0511111147390.4627@g5.osdl.org> <4374FB89.6000304@vmware.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051111201849.GP5376@stusta.de>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 11, 2005 at 09:18:49PM +0100, Adrian Bunk wrote:
->...
-> But in this case -Werror-implicit-function-declaration doesn't create 
-> new compile errors, it only moves compile errors from compile time to 
-> link or depmod time - which is IMHO not a bad change.
+
+
+On Fri, 11 Nov 2005, Zachary Amsden wrote:
 > 
-> If you really want to keep the status quo, you can still steal the 
-> following from sparc64:
->   extern unsigned long virt_to_bus_not_defined_use_pci_map(volatile void *addr);
->   #define virt_to_bus virt_to_bus_not_defined_use_pci_map
->   extern unsigned long bus_to_virt_not_defined_use_pci_map(volatile void *addr);
->   #define bus_to_virt bus_to_virt_not_defined_use_pci_map
-> 
-> Would a patch to mark the ISA legacy functions as __deprecated be OK?
->...
+> Yes, this is fine, but is it worth writing the feature discovery code?  I
+> suppose it doesn't matter, as it gets jettisoned after init.  I guess it is
+> just preference.
 
-Sorry, this were two separate thoughts:
+Well, you could do the feature discovery by trying to take a fault early 
+at boot-time. That's how we verify that write-protect works, and how we 
+check that math exceptions come in the right way..
 
-Would a patch to mark both virt_to_bus/bus_to_virt and the ISA legacy 
-functions (that cause similar problems) as __deprecated be OK?
+> Could we consider doing the same with LOCK prefix for SMP kernels booted on
+> UP?  Evil grin.
 
-cu
-Adrian
+Not so evil - I think it's been discussed. Not with alternates (not worth 
+it), but it wouldn't be hard to do: just add a new section for "lock 
+address", and have each inline asm that does a lock prefix do basically
 
--- 
+	1:
+		lock ; xyzzy
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+	.section .lock.address
+	.long 1b
+	.previous
 
+and then just walk the ".lock.address" thing and turn all locks into 0x90 
+(nop).
+
+		Linus

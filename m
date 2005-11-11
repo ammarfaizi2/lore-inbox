@@ -1,174 +1,187 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750957AbVKKS5I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbVKKTCE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750957AbVKKS5I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 13:57:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751022AbVKKS5I
+	id S1751052AbVKKTCE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 14:02:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751054AbVKKTCD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 13:57:08 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:46482 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750957AbVKKS5H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 13:57:07 -0500
-Date: Fri, 11 Nov 2005 10:56:50 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Adam Litke <agl@us.ibm.com>
-cc: linux-mm@kvack.org, ak@suse.de, linux-kernel@vger.kernel.org,
-       kenneth.w.chen@intel.com
-Subject: [RFC] NUMA memory policy support for HUGE pages
-Message-ID: <Pine.LNX.4.62.0511111051080.20589@schroedinger.engr.sgi.com>
+	Fri, 11 Nov 2005 14:02:03 -0500
+Received: from zproxy.gmail.com ([64.233.162.198]:12530 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751052AbVKKTCB convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 14:02:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=RXae6aMAZ44fZ9ixK43hXFS/oLjdXOyX1OENXlVHlbEd5Oi8aulTyktTv2VSQKLCy59aRaZI/bJutUxuOV87Rb3jHa/8Re/dV8bISEt7YW56Mnq2mJCA3v3RrrBMk0Rc+w67pEKezfFihApPu5fbjLwwCsF/AagBXzJarTpN1AI=
+Message-ID: <195c7a900511111102t240b8195y58a2c167f0185d70@mail.gmail.com>
+Date: Fri, 11 Nov 2005 19:02:00 +0000
+From: roucaries bastien <roucaries.bastien@gmail.com>
+To: Takashi Iwai <tiwai@suse.de>
+Subject: Re: [BUG] Ali snd soft lookup on 2.6.14 (regression)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <s5h64qzyq8o.wl%tiwai@suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <195c7a900511101418r25aa43e6gc5cdeeac17aa0c7c@mail.gmail.com>
+	 <s5hr79nz3b4.wl%tiwai@suse.de>
+	 <195c7a900511111040p7947267brd99ce0be3c1130f4@mail.gmail.com>
+	 <s5h64qzyq8o.wl%tiwai@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well since we got through respecting cpusets and allocating a page nearer 
-to the processors so easy lets go for the full thing. Here is a draft of 
-a patch that implements full NUMA policy support for it on top of the 
-cpusets and the NUMA near allocation patch.
+On 11/11/05, Takashi Iwai <tiwai@suse.de> wrote:
+> At Fri, 11 Nov 2005 18:40:25 +0000,
+> roucaries bastien wrote:
+> >
+> > On 11/11/05, Takashi Iwai <tiwai@suse.de> wrote:
+> > > At Thu, 10 Nov 2005 22:18:36 +0000,
+> > > roucaries bastien wrote:
+> > > >
+> > > > Recently I upgrade from 2.6.10 to 2.6.14 and I my sound card doesn't
+> > > > work anymore.
+> > > Does the patch below fix?
+> > It fix the BUG but I have always no sound :-(
+> >
+> > dmesg shows now:
+> >
+> > AC'97 1 does not respond - RESET
+> > AC'97 1 access is not valid [0xffffffff], removing mixer.
+>
+> This is the secondary codec, so it's no fatal error.
+>
+> Make sure that you set up your mixer correctly again.
 
-I am not sure that this is the right way to do it. Maybe we better put the 
-whole allocator into the policy layer like alloc_pages_vma?
+For sure:
+$amixer
+Simple mixer control 'Master',0
+  Capabilities: pvolume pswitch
+  Playback channels: Front Left - Front Right
+  Limits: Playback 0 - 31
+  Front Left: Playback 31 [100%] [on]
+  Front Right: Playback 31 [100%] [on]
+Simple mixer control 'Master Mono',0
+  Capabilities: pvolume pvolume-joined pswitch pswitch-joined
+  Playback channels: Mono
+  Limits: Playback 0 - 31
+  Mono: Playback 31 [100%] [on]
+Simple mixer control 'Headphone',0
+  Capabilities: pvolume pswitch
+  Playback channels: Front Left - Front Right
+  Limits: Playback 0 - 31
+  Front Left: Playback 23 [74%] [on]
+  Front Right: Playback 23 [74%] [on]
+Simple mixer control 'Headphone Jack Sense',0
+  Capabilities: pswitch pswitch-joined
+  Playback channels: Mono
+  Mono: Playback [on]
+Simple mixer control 'PCM',0
+  Capabilities: pvolume pswitch
+  Playback channels: Front Left - Front Right
+  Limits: Playback 0 - 31
+  Front Left: Playback 28 [90%] [on]
+  Front Right: Playback 28 [90%] [on]
+Simple mixer control 'Line',0
+  Capabilities: pvolume pswitch cswitch cswitch-joined cswitch-exclusive
+  Capture exclusive group: 0
+  Playback channels: Front Left - Front Right
+  Capture channels: Front Left - Front Right
+  Limits: Playback 0 - 31
+  Front Left: Playback 0 [0%] [off] Capture [off]
+  Front Right: Playback 0 [0%] [off] Capture [off]
+Simple mixer control 'Line Jack Sense',0
+  Capabilities: pswitch pswitch-joined
+  Playback channels: Mono
+  Mono: Playback [on]
+Simple mixer control 'CD',0
+  Capabilities: pvolume pswitch cswitch cswitch-joined cswitch-exclusive
+  Capture exclusive group: 0
+  Playback channels: Front Left - Front Right
+  Capture channels: Front Left - Front Right
+  Limits: Playback 0 - 31
+  Front Left: Playback 28 [90%] [on] Capture [off]
+  Front Right: Playback 28 [90%] [on] Capture [off]
+Simple mixer control 'Mic',0
+  Capabilities: pvolume pvolume-joined pswitch pswitch-joined cswitch
+cswitch-joined cswitch-exclusive
+  Capture exclusive group: 0
+  Playback channels: Mono
+  Capture channels: Front Left - Front Right
+  Limits: Playback 0 - 31
+  Mono: Playback 0 [0%] [off]
+  Front Left: Capture [on]
+  Front Right: Capture [on]
+Simple mixer control 'Mic Boost (+20dB)',0
+  Capabilities: pswitch pswitch-joined
+  Playback channels: Mono
+  Mono: Playback [on]
+Simple mixer control 'Mic Select',0
+  Capabilities:
+  Mono:
+Simple mixer control 'Video',0
+  Capabilities: cswitch cswitch-joined cswitch-exclusive
+  Capture exclusive group: 0
+  Capture channels: Front Left - Front Right
+  Front Left: Capture [off]
+  Front Right: Capture [off]
+Simple mixer control 'Phone',0
+  Capabilities: pvolume pvolume-joined pswitch pswitch-joined cswitch
+cswitch-joined cswitch-exclusive
+  Capture exclusive group: 0
+  Playback channels: Mono
+  Capture channels: Front Left - Front Right
+  Limits: Playback 0 - 31
+  Mono: Playback 0 [0%] [on]
+  Front Left: Capture [off]
+  Front Right: Capture [off]
+Simple mixer control 'Aux',0
+  Capabilities: pvolume pswitch cswitch cswitch-joined cswitch-exclusive
+  Capture exclusive group: 0
+  Playback channels: Front Left - Front Right
+  Capture channels: Front Left - Front Right
+  Limits: Playback 0 - 31
+  Front Left: Playback 2 [6%] [on] Capture [off]
+  Front Right: Playback 2 [6%] [on] Capture [off]
+Simple mixer control 'Mono Output Select',0
+  Capabilities:
+  Mono:
+Simple mixer control 'Capture',0
+  Capabilities: cvolume cswitch
+  Capture channels: Front Left - Front Right
+  Limits: Capture 0 - 15
+  Front Left: Capture 0 [0%] [on]
+  Front Right: Capture 0 [0%] [on]
+Simple mixer control 'Mix',0
+  Capabilities: cswitch cswitch-joined cswitch-exclusive
+  Capture exclusive group: 0
+  Capture channels: Front Left - Front Right
+  Front Left: Capture [off]
+  Front Right: Capture [off]
+Simple mixer control 'Mix Mono',0
+  Capabilities: cswitch cswitch-joined cswitch-exclusive
+  Capture exclusive group: 0
+  Capture channels: Front Left - Front Right
+  Front Left: Capture [off]
+  Front Right: Capture [off]
+Simple mixer control 'External Amplifier',0
+  Capabilities: pswitch pswitch-joined
+  Playback channels: Mono
+  Mono: Playback [on]
+Simple mixer control 'Stereo Mic',0
+  Capabilities: pswitch pswitch-joined
+  Playback channels: Mono
+  Mono: Playback [on]
 
-I needed to add two parameters to alloc_huge_page in order to get the 
-allocation right for all policy cases. This means that find_lock_page 
-has a plethora of parameters now. Maybe idx and the mapping could be 
-deduced from addr and vma?
+>
+>
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.14-mm1/mm/mempolicy.c
-===================================================================
---- linux-2.6.14-mm1.orig/mm/mempolicy.c	2005-11-10 14:33:16.000000000 -0800
-+++ linux-2.6.14-mm1/mm/mempolicy.c	2005-11-11 10:47:24.000000000 -0800
-@@ -1179,6 +1179,24 @@ static unsigned offset_il_node(struct me
- 	return nid;
- }
- 
-+/* Return a zonelist suitable for a huge page allocation. */
-+struct zonelist *huge_zonelist(struct vm_area_struct *vma, unsigned long addr)
-+{
-+	struct mempolicy *pol = get_vma_policy(current, vma, addr);
-+
-+	if (pol->policy == MPOL_INTERLEAVE) {
-+		unsigned nid;
-+		unsigned long off;
-+
-+		off = vma->vm_pgoff;
-+		off += (addr - vma->vm_start) >> HPAGE_SHIFT;
-+		nid = offset_il_node(pol, vma, off);
-+
-+		return NODE_DATA(nid)->node_zonelists + gfp_zone(GFP_HIGHUSER);
-+	}
-+	return zonelist_policy(GFP_HIGHUSER, pol);
-+}
-+
- /* Allocate a page in interleaved policy.
-    Own path because it needs to do special accounting. */
- static struct page *alloc_page_interleave(gfp_t gfp, unsigned order,
-Index: linux-2.6.14-mm1/mm/hugetlb.c
-===================================================================
---- linux-2.6.14-mm1.orig/mm/hugetlb.c	2005-11-11 10:04:00.000000000 -0800
-+++ linux-2.6.14-mm1/mm/hugetlb.c	2005-11-11 10:32:45.000000000 -0800
-@@ -33,11 +33,12 @@ static void enqueue_huge_page(struct pag
- 	free_huge_pages_node[nid]++;
- }
- 
--static struct page *dequeue_huge_page(void)
-+static struct page *dequeue_huge_page(struct vm_area_struct *vma,
-+				unsigned long address)
- {
- 	int nid = numa_node_id();
- 	struct page *page = NULL;
--	struct zonelist *zonelist = NODE_DATA(nid)->node_zonelists;
-+	struct zonelist *zonelist = huge_zonelist(vma, address);
- 	struct zone **z;
- 
- 	for (z = zonelist->zones; *z; z++) {
-@@ -83,13 +84,13 @@ void free_huge_page(struct page *page)
- 	spin_unlock(&hugetlb_lock);
- }
- 
--struct page *alloc_huge_page(void)
-+struct page *alloc_huge_page(struct vm_area_struct *vma, unsigned long addr)
- {
- 	struct page *page;
- 	int i;
- 
- 	spin_lock(&hugetlb_lock);
--	page = dequeue_huge_page();
-+	page = dequeue_huge_page(vma, addr);
- 	if (!page) {
- 		spin_unlock(&hugetlb_lock);
- 		return NULL;
-@@ -192,7 +193,7 @@ static unsigned long set_max_huge_pages(
- 	spin_lock(&hugetlb_lock);
- 	try_to_free_low(count);
- 	while (count < nr_huge_pages) {
--		struct page *page = dequeue_huge_page();
-+		struct page *page = dequeue_huge_page(NULL, 0);
- 		if (!page)
- 			break;
- 		update_and_free_page(page);
-@@ -343,7 +344,8 @@ void unmap_hugepage_range(struct vm_area
- 	flush_tlb_range(vma, start, end);
- }
- 
--static struct page *find_lock_huge_page(struct address_space *mapping,
-+static struct page *find_lock_huge_page(struct vm_area_struct *vma,
-+			unsigned long addr, struct address_space *mapping,
- 			unsigned long idx)
- {
- 	struct page *page;
-@@ -363,7 +365,7 @@ retry:
- 
- 	if (hugetlb_get_quota(mapping))
- 		goto out;
--	page = alloc_huge_page();
-+	page = alloc_huge_page(vma, addr);
- 	if (!page) {
- 		hugetlb_put_quota(mapping);
- 		goto out;
-@@ -403,7 +405,7 @@ int hugetlb_fault(struct mm_struct *mm, 
- 	 * Use page lock to guard against racing truncation
- 	 * before we get page_table_lock.
- 	 */
--	page = find_lock_huge_page(mapping, idx);
-+	page = find_lock_huge_page(vma, address, mapping, idx);
- 	if (!page)
- 		goto out;
- 
-Index: linux-2.6.14-mm1/include/linux/mempolicy.h
-===================================================================
---- linux-2.6.14-mm1.orig/include/linux/mempolicy.h	2005-11-10 13:32:00.000000000 -0800
-+++ linux-2.6.14-mm1/include/linux/mempolicy.h	2005-11-11 10:29:00.000000000 -0800
-@@ -159,6 +159,8 @@ extern void numa_policy_init(void);
- extern void numa_policy_rebind(const nodemask_t *old, const nodemask_t *new);
- extern struct mempolicy default_policy;
- extern unsigned next_slab_node(struct mempolicy *policy);
-+extern struct zonelist *huge_zonelist(struct vm_area_struct *vma,
-+				unsigned long addr);
- 
- int do_migrate_pages(struct mm_struct *mm,
- 	const nodemask_t *from_nodes, const nodemask_t *to_nodes, int flags);
-Index: linux-2.6.14-mm1/include/linux/hugetlb.h
-===================================================================
---- linux-2.6.14-mm1.orig/include/linux/hugetlb.h	2005-11-09 10:47:09.000000000 -0800
-+++ linux-2.6.14-mm1/include/linux/hugetlb.h	2005-11-11 10:45:57.000000000 -0800
-@@ -22,7 +22,7 @@ int hugetlb_report_meminfo(char *);
- int hugetlb_report_node_meminfo(int, char *);
- int is_hugepage_mem_enough(size_t);
- unsigned long hugetlb_total_pages(void);
--struct page *alloc_huge_page(void);
-+struct page *alloc_huge_page(struct vm_area_struct *, unsigned long);
- void free_huge_page(struct page *);
- int hugetlb_fault(struct mm_struct *mm, struct vm_area_struct *vma,
- 			unsigned long address, int write_access);
-@@ -97,7 +97,7 @@ static inline unsigned long hugetlb_tota
- #define is_hugepage_only_range(mm, addr, len)	0
- #define hugetlb_free_pgd_range(tlb, addr, end, floor, ceiling) \
- 						do { } while (0)
--#define alloc_huge_page()			({ NULL; })
-+#define alloc_huge_page(vma, addr)		({ NULL; })
- #define free_huge_page(p)			({ (void)(p); BUG(); })
- #define hugetlb_fault(mm, vma, addr, write)	({ BUG(); 0; })
- 
+Before your patch I can hear something like the headphone setup (a
+little noise like water falling on water) but now didn't hear
+anything.
+
+Any idea
+
+> Takashi
+>

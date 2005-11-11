@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751015AbVKKSmV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751002AbVKKSmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751015AbVKKSmV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 13:42:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751018AbVKKSmV
+	id S1751002AbVKKSmT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 13:42:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751015AbVKKSmS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 13:42:21 -0500
-Received: from nproxy.gmail.com ([64.233.182.201]:32012 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751015AbVKKSmU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 13:42:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=CJXJyEajs1fqtIsdGffjQ6414a1zrVvCllfaKFbejZnbOfdcbKmpj3MvwAO51j/GG5IRPCAABPeix15XpcbozJ4Ci1FcxLcGxTtoOr8JfgcwK5biZvx0snVRlZTbKXpq7BSHhf9MSPaxs8vWRV0VkLuCw4AMn0CXvElLIdXpONo=
-Message-ID: <6a42705d0511111042p1e92b0adsf9aa91784b443529@mail.gmail.com>
-Date: Fri, 11 Nov 2005 20:42:17 +0200
-From: =?ISO-8859-1?Q?Michael_=C5lenius?= <michael.alenius@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Please report this to linux-kernel@vger.kernel.org
+	Fri, 11 Nov 2005 13:42:18 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:50411 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751002AbVKKSmR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 13:42:17 -0500
+Message-ID: <4374E5E2.70801@osdl.org>
+Date: Fri, 11 Nov 2005 10:41:38 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       davem@davemloft.net, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [PATCH] TCP build fix
+References: <20051111094347.GA10876@havoc.gtf.org>
+In-Reply-To: <20051111094347.GA10876@havoc.gtf.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Upgraded  to fedora FC4 Development.repo.(kernel-2.6.14-1.1660_FC5)
-Newbie.So don't know which part to send,or if all of dmesg.
-Please inform me of what you need?If anything.
+Jeff Garzik wrote:
 
-SELinux: initialized (dev hdc, type iso9660), uses genfs_contexts
-application mixer_applet2 uses obsolete OSS audio interface
-eth0: link up, 100Mbps, full-duplex, lpa 0x41E1
-eth0: no IPv6 routers present
-ISO 9660 Extensions: Microsoft Joliet Level 3
-ISOFS: changing to secondary root
-SELinux: initialized (dev hdc, type iso9660), uses genfs_contexts
-program ddcprobe is using MAP_PRIVATE, PROT_WRITE mmap of VM_RESERVED
-memory, wh ich is deprecated. Please report this to
-linux-kernel@vger.kernel.org
+>Recent TCP changes broke the build.
+>
+>Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
+>
+>diff --git a/net/ipv4/tcp_vegas.c b/net/ipv4/tcp_vegas.c
+>index 4376814..b7d296a 100644
+>--- a/net/ipv4/tcp_vegas.c
+>+++ b/net/ipv4/tcp_vegas.c
+>@@ -236,7 +236,7 @@ static void tcp_vegas_cong_avoid(struct 
+> 			/* We don't have enough RTT samples to do the Vegas
+> 			 * calculation, so we'll behave like Reno.
+> 			 */
+>-			tcp_reno_cong_avoid(sk, ack, seq_rtt, in_flight, cnt);
+>+			tcp_reno_cong_avoid(sk, ack, seq_rtt, in_flight, flag);
+> 		} else {
+> 			u32 rtt, target_cwnd, diff;
+> 
+>  
+>
+Sorry, must have happened when juggling the test and release tree.
+

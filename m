@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964795AbVKLUtQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964796AbVKLUt6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964795AbVKLUtQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 15:49:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964796AbVKLUtP
+	id S964796AbVKLUt6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 15:49:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbVKLUt5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 15:49:15 -0500
-Received: from fsmlabs.com ([168.103.115.128]:16318 "EHLO spamalot.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S964795AbVKLUtP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 15:49:15 -0500
-X-ASG-Debug-ID: 1131828552-18236-63-0
-X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
-Date: Sat, 12 Nov 2005 12:54:57 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-cc: Nathan Lynch <nathanl@austin.ibm.com>, ashok.raj@intel.com,
-       linux-kernel@vger.kernel.org, ak@muc.de, rusty@rustycorp.com.au,
-       vatsa@in.ibm.com, jschopp@austin.ibm.com,
-       anil.s.keshavamurthy@intel.com
-X-ASG-Orig-Subj: Re: Documentation for CPU hotplug support
-Subject: Re: Documentation for CPU hotplug support
-In-Reply-To: <20051111175953.7a5ce8dd.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0511121252460.1542@montezuma.fsmlabs.com>
-References: <20051110075932.A16271@unix-os.sc.intel.com>
- <20051111072300.GY8977@localhost.localdomain> <20051111175953.7a5ce8dd.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.5240
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
+	Sat, 12 Nov 2005 15:49:57 -0500
+Received: from ctb-mesg8.saix.net ([196.25.240.78]:64486 "EHLO
+	ctb-mesg8.saix.net") by vger.kernel.org with ESMTP id S964796AbVKLUt5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 15:49:57 -0500
+Subject: Re: PROBLEM: No initialization of sound card
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: azarah@nosferatu.za.org
+To: Pelle =?ISO-8859-1?Q?Lundstr=F6m?= <lunper@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <b1952ae90511121243q6c7e4c87x4f7bd99f7d3a86ee@mail.gmail.com>
+References: <b1952ae90511121243q6c7e4c87x4f7bd99f7d3a86ee@mail.gmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Lx/SyAKkZT2WBi288L9E"
+Date: Sat, 12 Nov 2005 22:53:28 +0200
+Message-Id: <1131828808.19428.9.camel@lycan.lan>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Nov 2005, Andrew Morton wrote:
 
-> Nathan Lynch <nathanl@austin.ibm.com> wrote:
-> >
-> >  Argh, no.  That current_in_cpuhotplug hack has to go.
-> 
-> Yes, Ashok is busily working on removing that ;)
+--=-Lx/SyAKkZT2WBi288L9E
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Ashok was my patch for the cpufreq driver *that* horrible? Or perhaps we 
-just need to move things like the set_cpus_allowed further up in the calls 
-and handle everything in one location. Interested?
+On Sat, 2005-11-12 at 21:43 +0100, Pelle Lundstr=C3=B6m wrote:
+> 1. Kernel 2.6.14.2 fails to locate and initiate sound card.
+>=20
 
-Thanks,
-	Zwane
+<snip>
+
+> 8.7. Relevant dmesg output:
+> Nov 12 08:38:02 scofield modprobe: WARNING: Error inserting snd
+> (/lib/modules/2.6.14.2/kernel/sound/core/snd.ko): Unknown symbol in
+> module, or unknown param
+> eter (see dmesg)
+
+<snip>
+
+Above looks like syslog snippet, and not dmesg.  I would suggest
+including the actual output of the 'dmesg' command, as it very possibly
+will reveal missing symbols or some other issue.
+
+
+Regards,
+
+--=20
+Martin Schlemmer
+
+
+--=-Lx/SyAKkZT2WBi288L9E
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBDdlZIqburzKaJYLYRAjGwAJ9tR8sVPnm2f4G488gwDlZIX2Kj+wCfQ9j0
+9Vlg0OyWmeXlg+eF4n9BjYE=
+=Yni1
+-----END PGP SIGNATURE-----
+
+--=-Lx/SyAKkZT2WBi288L9E--
 

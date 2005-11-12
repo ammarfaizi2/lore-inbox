@@ -1,71 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964837AbVKLWUm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964847AbVKLWWe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964837AbVKLWUm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 17:20:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbVKLWUm
+	id S964847AbVKLWWe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 17:22:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbVKLWWe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 17:20:42 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:41738 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S932353AbVKLWUm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 17:20:42 -0500
-Date: Sat, 12 Nov 2005 23:22:13 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Alexander Kozyrev <kozyrev@junik.lv>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: kernel compilation
-Message-ID: <20051112222213.GB10228@mars.ravnborg.org>
-References: <200511121813.jACIDpXa055161@mail.junik.lv>
+	Sat, 12 Nov 2005 17:22:34 -0500
+Received: from petaflop.b.gz.ru ([217.67.124.5]:15531 "EHLO hq.sectorb.msk.ru")
+	by vger.kernel.org with ESMTP id S964847AbVKLWWd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 17:22:33 -0500
+Subject: Re: [x86_64] 2.6.14-git13 mplayer fails with "v4l2: ioctl queue
+	buffer failed: Bad address" (2 Nov 2005, 11 Nov 2005)
+From: "Nickolay V. Shmyrev" <nshmyrev@yandex.ru>
+To: Linux and Kernel Video <video4linux-list@redhat.com>
+Cc: Junichi Uekawa <dancer@netfort.gr.jp>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Michael Krufky <mkrufky@m1k.net>,
+       linux-kernel@vger.kernel.org, debian-amd64@lists.debian.org
+In-Reply-To: <Pine.LNX.4.61.0511111355080.16161@goblin.wat.veritas.com>
+References: <87fyqeicge.dancerj%dancer@netfort.gr.jp>
+	 <87wtjg5gh2.dancerj%dancer@netfort.gr.jp> <4373D087.5050908@linuxtv.org>
+	 <87psp859sd.dancerj%dancer@netfort.gr.jp> <43740F06.6030504@m1k.net>
+	 <87y83vl780.dancerj%dancer@netfort.gr.jp>
+	 <87ek5nb9ec.dancerj%dancer@netfort.gr.jp>
+	 <Pine.LNX.4.61.0511111355080.16161@goblin.wat.veritas.com>
+Content-Type: text/plain
+Date: Sun, 13 Nov 2005 01:22:51 +0300
+Message-Id: <1131834172.8368.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200511121813.jACIDpXa055161@mail.junik.lv>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 12, 2005 at 08:13:40PM +0200, Alexander Kozyrev wrote:
-> Linux asterisk1.local 2.6.9-11.EL #1 Wed Jun 8 16:59:52 CDT 2005 i686 i686
-> i386 GNU/Linux
-> After 2 hours of compilation -
-> <......>
->   CC      lib/string.o
->   CC      lib/vsprintf.o
->   AR      lib/lib.a
->   CC [M]  lib/crc-ccitt.o
->   CC [M]  lib/libcrc32c.o
->   LD      arch/i386/lib/built-in.o
->   CC      arch/i386/lib/bitops.o
->   AS      arch/i386/lib/checksum.o
->   CC      arch/i386/lib/delay.o
->   AS      arch/i386/lib/getuser.o
->   CC      arch/i386/lib/memcpy.o
->   CC      arch/i386/lib/strstr.o
->   CC      arch/i386/lib/usercopy.o
->   AR      arch/i386/lib/lib.a
->   GEN     .version
->   CHK     include/linux/compile.h
->   UPD     include/linux/compile.h
->   CC      init/version.o
->   LD      init/built-in.o
->   LD      .tmp_vmlinux1
-> ld: kernel/built-in.o: No such file: No such file or directory
-> make[1]: *** [.tmp_vmlinux1] Error 1
-> make: *** [_all] Error 2
-> 
-> 4 times with the same error.
-You experienced a compile error in kernel/
-Try 
-make kernel/
+Hello all.
 
-to see what is causing your trouble.
+We have even found the hack that fix that problem:
 
-When something fails to build in kernel/ then built-in.o is not
-made. And then the later build stages will fail.
+Index: linux/drivers/media/video/video-buf.c
+===================================================================
+RCS file: /cvs/video4linux/v4l-kernel/linux/drivers/media/video/video-buf.c,v
+retrieving revision 1.21
+diff -u -p -r1.21 video-buf.c
+--- linux/drivers/media/video/video-buf.c       16 Oct 2005 12:13:58 -0000
++++ linux/drivers/media/video/video-buf.c       12 Nov 2005 22:19:13 -0000
+@@ -1248,7 +1248,7 @@ int videobuf_mmap_mapper(struct videobuf
+        map->end      = vma->vm_end;
+        map->q        = q;
+        vma->vm_ops   = &videobuf_vm_ops;
+-       vma->vm_flags |= VM_DONTEXPAND | VM_RESERVED;
++       vma->vm_flags |= VM_DONTEXPAND;
+        vma->vm_flags &= ~VM_IO; /* using shared anonymous pages */
+        vma->vm_private_data = map;
+        dprintk(1,"mmap %p: q=%p %08lx-%08lx pgoff %08lx bufs %d-%d\n",
 
-I assume you are using make -J 2 (or higher)
+Somehow since 2.6.15-rc1 VM_RESERVED makes get_user_pages return EFAULT. I don't know the exact reason of
+that behavior and the correct way to fix that problem. Just kernel interfaces changed once again, the old
+point everyone knows. So if someone can explain it, that would be helpful.
 
-PS. You do not need to do a make clean/ make mrproper - the result is
-the same.
 
-	Sam
+
+
+
+
+

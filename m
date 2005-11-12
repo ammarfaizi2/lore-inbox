@@ -1,45 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751311AbVKLEsN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbVKLEsy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751311AbVKLEsN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 23:48:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbVKLEsN
+	id S1751326AbVKLEsy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 23:48:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbVKLEsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 23:48:13 -0500
-Received: from mail.kroah.org ([69.55.234.183]:63925 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751311AbVKLEsM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 23:48:12 -0500
-Date: Fri, 11 Nov 2005 20:33:20 -0800
-From: Greg KH <gregkh@suse.de>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: SysFS 'module' params with CONFIG_MODULES=n
-Message-ID: <20051112043320.GA27472@suse.de>
-References: <20051111153220.GQ3839@smtp.west.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051111153220.GQ3839@smtp.west.cox.net>
-User-Agent: Mutt/1.5.11
+	Fri, 11 Nov 2005 23:48:54 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:51893 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751326AbVKLEsx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 23:48:53 -0500
+Date: Fri, 11 Nov 2005 21:48:50 -0700
+From: john stultz <johnstul@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Darren Hart <dvhltc@us.ibm.com>,
+       Nishanth Aravamudan <nacc@us.ibm.com>,
+       Frank Sorenson <frank@tuxrocks.com>,
+       George Anzinger <george@mvista.com>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>
+Message-Id: <20051112044850.8240.91581.sendpatchset@cog.beaverton.ibm.com>
+Subject: [PATCH 0/13] Time: Generic Timeofday Subsystem (v B10)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 11, 2005 at 08:32:20AM -0700, Tom Rini wrote:
-> On 2.6.14, and probably newer, a system where CONFIG_MODULES=n
-> /sys/module/foo/parameters/param fails:
-> 
-> # cat /sys/module/tcp_bic/parameters/low_window
-> cat: /sys/module/tcp_bic/parameters/low_window: Permission denied
-> 
-> But just changing MODULES to y:
-> 
-> # cat /sys/module/tcp_bic/parameters/low_window
-> 14
-> 
-> Is this intentional or fixable?  Just an observation right now, thanks.
+All,
+	I had hoped to submit this to -mm today, but since Ingo pointed
+out an issue in the __delay code, I'm going to wait a week so the new fix
+can be better tested.
 
-Not intentional at all.  Did this work before 2.6.14?
+	The following patchset applies against 2.6.14-mm2 (with some offsets 
+and fuzz) and provides a generic timekeeping subsystem that is independent
+of the timer interrupt. This allows for robust and correct behavior in
+cases of late or lost ticks, avoids interpolation errors, reduces
+duplication in arch specific code, and allows or assists future changes
+such as high-res timers, dynamic ticks, or realtime preemption.
+Additionally, it provides finer nanosecond resolution values to the
+clock_gettime functions.
 
-thanks,
+The patch set provides the minimal NTP changes, the clocksource
+abstraction, the core timekeeping code as well as the code to convert
+the i386 and x86-64 archs. I have started on converting more arches, but
+for now I'm focusing on i386 and x86-64.
 
-greg k-h
+Thomas Gleixner has been quite helpful in deeply reviewing and
+suggesting changes to the code, so many thanks to him for his help!
+
+New in this release: 
+o Use ktimer for periodic_hook 
+o minor performance tweaks
+o i386 __delay fix 
+o docs and howtos in Documentation/timekeeping.txt
+
+Still on the TODO list: 
+o Get a weeks worth of testing 
+o Submit to -mm (planned for the next release)
+
+I'd like to thank the following people who have contributed ideas,
+criticism, testing and code that has helped shape this work: 
+
+George Anzinger, Nish Aravamudan, Max Asbock, Dominik Brodowski, Thomas
+Gleixner, Darren Hart, Christoph Lameter, Matt Mackal, Keith Mannthey,
+Ingo Molnar, Martin Schwidefsky, Frank Sorenson, Ulrich Windl, Darrick
+Wong, Roman Zippel and any others whom I've accidentally forgotten.
+
+Please let me know if you have any comments or feedback.
+
+thanks 
+-john

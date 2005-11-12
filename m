@@ -1,35 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbVKLFLF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbVKLFNw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932092AbVKLFLF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 00:11:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932082AbVKLFLF
+	id S932082AbVKLFNw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 00:13:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbVKLFNw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 00:11:05 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:21653 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S932081AbVKLFLD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 00:11:03 -0500
-Date: Fri, 11 Nov 2005 22:11:02 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       netdev@vger.kernel.org, jonathan@buzzard.org.uk,
-       tlinux-users@linux.toshiba-dme.co.jp, Jaroslav Kysela <perex@suse.cz>
-Subject: Re: [RFC: 2.6 patch] remove ISA legacy functions
-Message-ID: <20051112051102.GF1658@parisc-linux.org>
-References: <20051107200336.GH3847@stusta.de> <20051110042857.38b4635b.akpm@osdl.org> <20051111021258.GK5376@stusta.de> <20051110182443.514622ed.akpm@osdl.org> <20051111201849.GP5376@stusta.de> <20051111202005.GQ5376@stusta.de> <20051111203601.GR5376@stusta.de> <20051112045216.GY5376@stusta.de> <437578CD.1080501@pobox.com>
+	Sat, 12 Nov 2005 00:13:52 -0500
+Received: from mail.kroah.org ([69.55.234.183]:60861 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932082AbVKLFNv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 00:13:51 -0500
+Date: Fri, 11 Nov 2005 21:05:03 -0800
+From: Greg KH <greg@kroah.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: ganzinger@mvista.com, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Calibration issues with USB disc present.
+Message-ID: <20051112050502.GC27700@kroah.com>
+References: <43750EFD.3040106@mvista.com> <1131746228.2542.11.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <437578CD.1080501@pobox.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1131746228.2542.11.camel@cog.beaverton.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 12, 2005 at 12:08:29AM -0500, Jeff Garzik wrote:
-> it's not valid to mark working drivers broken, IMO.
+On Fri, Nov 11, 2005 at 01:57:07PM -0800, john stultz wrote:
+> On Fri, 2005-11-11 at 13:37 -0800, George Anzinger wrote:
+> > John,
+> > 
+> > Have you run into this.  One of the USB disc controllers has the ability to boot the system, 
+> > however, it needs SMM code to do this.  This SMM code, somehow, causes SMI interrupts (which are 
+> > higher priority than NMI interrutps and not maskable) which it needs to do its thing.
+> > 
+> > Problem is that if one of these occurs while calibrating the TSC or the delay code, it can cause a 
+> > wrong result.  We have seen both a too long and a too short result (depending on where the interrut 
+> > happens).
+> > 
+> > They have found the root cause of TSC calibration problem.
+> > Now they ask for the fix or workaround.
+> > 
+> > That is the BIOS is periodically interrupted by USB controller and the CPU
+> > waits during the processing of these interrupts.
+> > Their experiments say the interrupt interval is 260mSec and the BIOS needs
+> > 150uSec - 200uSec for processing.
+> > It is proved that the problem doesn't reproduce by masking such SMI in BIOS.
+> > They say SMI is for BIOS emulation for connecting legacy devices to USB.
+> > Without such an emulation it's impossible to boot from USB-FD for instance,
+> > they say too.
 > 
-> Mark them x86-only, perhaps.
+> Hmmm. I haven't heard of this issue specifically, but yes, I'm quite
+> familiar with the pain BIOS SMIs can cause and I'm not surprised that it
+> would affect the TSC/delay calibration code.
+> 
+> Is this still an issue w/ 2.6.14? I know the new TSC based delay
+> calibration code is supposed to be SMI resilient, but I haven't really
+> played with it closely.
+> 
+> Not sure what the best method to move forward would be. I suspect
+> disabling the SMI code early in boot (I thought the usb legacy handoff
+> stuff already did this?) would help. Then the actual Linux USB drivers
+> can take over before we switch from the initrd to the root filesystem.
+> 
+> Greg, do you have a suggestion?
 
-hp100 works fine on parisc.
+I only ever saw this when people forgot to load the USB drivers.  Once
+the kernel took over USB support, there was no problem (if there was,
+that's a BIOS bug.)  The handoff code in 2.6.14 should help a lot with
+this too.
+
+thanks,
+
+greg k-h

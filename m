@@ -1,78 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbVKLAnn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750814AbVKLAqe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750813AbVKLAnn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 19:43:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbVKLAnn
+	id S1750814AbVKLAqe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 19:46:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbVKLAqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 19:43:43 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:6299 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1750813AbVKLAnm (ORCPT
+	Fri, 11 Nov 2005 19:46:34 -0500
+Received: from zproxy.gmail.com ([64.233.162.205]:29413 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750814AbVKLAqe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 19:43:42 -0500
-Date: Fri, 11 Nov 2005 16:43:22 -0800 (PST)
-From: Paul Jackson <pj@sgi.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Cc: Martin Hicks <mort@sgi.com>, Ray Bryant <raybry@mpdtxmail.amd.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
-       Christoph Lameter <clameter@sgi.com>,
-       "Rohit, Seth" <rohit.seth@intel.com>, Paul Jackson <pj@sgi.com>,
-       Andi Kleen <ak@suse.de>
-Message-Id: <20051112004322.30442.14753.sendpatchset@jackhammer.engr.sgi.com>
-Subject: [PATCH] mm gfp_noreclaim cleanup
+	Fri, 11 Nov 2005 19:46:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=H4Vvdy0vHo77S12lvSEvKO2zCwuGIWT5561BY3GYm/Uzk7WGzj6XxyPeajOjW6gzWSZKBVRc/eemmMmLxaZ1J1q/3yRY20GT8nnA9jZgIYenC4hV6xOiDBgMb9xSUnIluBPax7Sn1s683/oSQeKqCjC711F1FrGV07VZRGKT0u4=
+Message-ID: <43753B45.4040409@pol.net>
+Date: Sat, 12 Nov 2005 08:45:57 +0800
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-mm2
+References: <20051110203544.027e992c.akpm@osdl.org>	 <6bffcb0e0511111432m771dcda2y@mail.gmail.com>	 <20051111150108.265b2d3f.akpm@osdl.org> <6bffcb0e0511111530t55bb1decq@mail.gmail.com>
+In-Reply-To: <6bffcb0e0511111530t55bb1decq@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+From: "Antonino A. Daplas" <adaplas@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove last remnant of the defunct early reclaim page logic,
-the no longer used __GFP_NORECLAIM flag bit.
+Michal Piotrowski wrote:
 
-Signed-off-by: Paul Jackson <pj@sgi.com>
+> 
+> fbset recognise my gpu as NV32. lspci show it as NV34 (0000:01:00.0
+> VGA compatible controller: nVidia Corporation NV34 [GeForce FX 5200]
+> (rev a1)
+> ). According to
+> http://download.nvidia.com/Windows/45.23/NVIDIA_Driver_Release_Notes_v45.23.pdf
+> it should be NV34.
 
----
+This is okay, I think.  The id assigned by nvidia and the id derived by
+nvidiafb may not match.  nvidiafb derives it from the pci device id (the 2nd
+and 3rd nibble).  Since your chipset's id is 0x0322, it prints out as NV32.
 
- include/linux/gfp.h     |    5 ++---
- include/linux/pagemap.h |    4 ++--
- 2 files changed, 4 insertions(+), 5 deletions(-)
-
---- 2.6.14-mm2.orig/include/linux/gfp.h	2005-11-10 21:27:25.788622408 -0800
-+++ 2.6.14-mm2/include/linux/gfp.h	2005-11-11 15:21:43.780529152 -0800
-@@ -46,8 +46,7 @@ struct vm_area_struct;
- #define __GFP_COMP	((__force gfp_t)0x4000u)/* Add compound page metadata */
- #define __GFP_ZERO	((__force gfp_t)0x8000u)/* Return zeroed page on success */
- #define __GFP_NOMEMALLOC ((__force gfp_t)0x10000u) /* Don't use emergency reserves */
--#define __GFP_NORECLAIM  ((__force gfp_t)0x20000u) /* No realy zone reclaim during allocation */
--#define __GFP_HARDWALL   ((__force gfp_t)0x40000u) /* Enforce hardwall cpuset memory allocs */
-+#define __GFP_HARDWALL   ((__force gfp_t)0x20000u) /* Enforce hardwall cpuset memory allocs */
- #define __GFP_VALID	((__force gfp_t)0x80000000u) /* valid GFP flags */
- 
- #define __GFP_BITS_SHIFT 20	/* Room for 20 __GFP_FOO bits */
-@@ -57,7 +56,7 @@ struct vm_area_struct;
- #define GFP_LEVEL_MASK (__GFP_WAIT|__GFP_HIGH|__GFP_IO|__GFP_FS| \
- 			__GFP_COLD|__GFP_NOWARN|__GFP_REPEAT| \
- 			__GFP_NOFAIL|__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP| \
--			__GFP_NOMEMALLOC|__GFP_NORECLAIM|__GFP_HARDWALL)
-+			__GFP_NOMEMALLOC|__GFP_HARDWALL)
- 
- #define GFP_ATOMIC	(__GFP_VALID | __GFP_HIGH)
- #define GFP_NOIO	(__GFP_VALID | __GFP_WAIT)
---- 2.6.14-mm2.orig/include/linux/pagemap.h	2005-11-10 21:27:07.994469549 -0800
-+++ 2.6.14-mm2/include/linux/pagemap.h	2005-11-11 15:24:00.719478936 -0800
-@@ -53,12 +53,12 @@ void release_pages(struct page **pages, 
- 
- static inline struct page *page_cache_alloc(struct address_space *x)
- {
--	return alloc_pages(mapping_gfp_mask(x)|__GFP_NORECLAIM, 0);
-+	return alloc_pages(mapping_gfp_mask(x), 0);
- }
- 
- static inline struct page *page_cache_alloc_cold(struct address_space *x)
- {
--	return alloc_pages(mapping_gfp_mask(x)|__GFP_COLD|__GFP_NORECLAIM, 0);
-+	return alloc_pages(mapping_gfp_mask(x)|__GFP_COLD, 0);
- }
- 
- typedef int filler_t(void *, struct page *);
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Tony

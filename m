@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932502AbVKLUZm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbVKLU0t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932502AbVKLUZm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 15:25:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbVKLUZm
+	id S964776AbVKLU0t (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 15:26:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964775AbVKLU0t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 15:25:42 -0500
-Received: from mail.isurf.ca ([66.154.97.68]:53410 "EHLO columbo.isurf.ca")
-	by vger.kernel.org with ESMTP id S932502AbVKLUZl (ORCPT
+	Sat, 12 Nov 2005 15:26:49 -0500
+Received: from mailfe05.swip.net ([212.247.154.129]:64971 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S964776AbVKLU0s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 15:25:41 -0500
-From: "Gabriel A. Devenyi" <ace@staticwave.ca>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] drivers/char/keyboard.c unsigned comparison
-Date: Sat, 12 Nov 2005 15:25:33 -0500
-User-Agent: KMail/1.8.3
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sat, 12 Nov 2005 15:26:48 -0500
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Subject: Re: Some debugging patches on top of -mm
+From: Alexander Nyberg <alexn@telia.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20051112031320.40543ae4.pj@sgi.com>
+References: <20050905195001.GA10223@localhost.localdomain>
+	 <20051112031320.40543ae4.pj@sgi.com>
+Content-Type: text/plain
+Date: Sat, 12 Nov 2005 21:26:07 +0100
+Message-Id: <1131827167.12287.5.camel@c213-100-52-74.swipnet.se>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511121525.33864.ace@staticwave.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-keycode is a checked for a value less than zero, but is defined as an unsigned int, and is only called in one place in the kernel, and passed a unsigned int, so this comparison is bogus.
+> This patch, known as page-owner-tracking-leak-detector.patch has
+> apparently been sitting in Andrew's *-mm for the last two months.
+> 
+> I just noticed it now, when reading mm/page_alloc.c.
+> 
+> I'd like to know if the #ifdef's and CONFIG_PAGE_OWNER specific code
+> can be removed from page_alloc.c, and put in a header file.  Ideally,
+> you patch would add just one line to the __alloc_pages() code - a call
+> to set_page_owner() that either became no code (a static inline empty
+> function) or a call to your code, if this feature was CONFIG enabled.
+> 
+> The *.c files are where all the logic comes together, and it is vital
+> to the long term readability of these files that we avoid #ifdef's in
+> these files.  Any one feature can be ifdef'd in, with seeming little
+> harm to the readability of the code (especially in the eyes of the
+> author of that particular bit of ifdef'd code ;).  But imagine what
+> a deity-awful mess these files would be if we had all been doing that
+> over the years with our various favorite features.
+> 
 
-Thanks to LinuxICC (http://linuxicc.sf.net)
+Yes, it was a quick hack when akpm said that he'd like a page tracking
+mechanism. I said myself that I thought it was too ugly to go into
+mainline. Later I tried to make it some kind of generic framework that
+all arches could use but there was no interest.
 
-This patch applies to Linus' git tree as of 12.11.2005
+If you wish to make it nicer/mergeable it's all yours.
 
-Signed-off-by: Gabriel A. Devenyi
-
-diff --git a/drivers/char/keyboard.c b/drivers/char/keyboard.c
-index 449d029..6e991ea 100644
---- a/drivers/char/keyboard.c
-+++ b/drivers/char/keyboard.c
-@@ -198,7 +198,7 @@ int setkeycode(unsigned int scancode, un
- 
- 	if (scancode >= dev->keycodemax)
- 		return -EINVAL;
--	if (keycode < 0 || keycode > KEY_MAX)
-+	if (keycode > KEY_MAX)
- 		return -EINVAL;
- 	if (dev->keycodesize < sizeof(keycode) && (keycode >> (dev->keycodesize * 8)))
- 		return -EINVAL;
-
--- 
-Gabriel A. Devenyi
-ace@staticwave.ca

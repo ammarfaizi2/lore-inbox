@@ -1,112 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750865AbVKLBQw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750910AbVKLBU1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750865AbVKLBQw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 20:16:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750881AbVKLBQw
+	id S1750910AbVKLBU1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 20:20:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750890AbVKLBU1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 20:16:52 -0500
-Received: from mail07.syd.optusnet.com.au ([211.29.132.188]:17342 "EHLO
-	mail07.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1750863AbVKLBQw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 20:16:52 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.6.14-ck5
-Date: Sat, 12 Nov 2005 12:16:45 +1100
-User-Agent: KMail/1.8.3
-Cc: ck list <ck@vds.kolivas.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart5397682.gCExB1xXx7";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200511121216.48145.kernel@kolivas.org>
+	Fri, 11 Nov 2005 20:20:27 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:24291 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750837AbVKLBU1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 20:20:27 -0500
+Date: Fri, 11 Nov 2005 17:20:14 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Chris Wright <chrisw@osdl.org>, Avi Kivity <avi@argo.co.il>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: local denial-of-service with file leases
+Message-ID: <20051112012014.GC5856@shell0.pdx.osdl.net>
+References: <43737CBE.2030005@argo.co.il> <20051111084554.GZ7991@shell0.pdx.osdl.net> <1131718887.8805.33.camel@lade.trondhjem.org> <20051111183512.GV5856@shell0.pdx.osdl.net> <1131737127.8793.46.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1131737127.8793.46.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart5397682.gCExB1xXx7
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+* Trond Myklebust (trond.myklebust@fys.uio.no) wrote:
+> On Fri, 2005-11-11 at 10:35 -0800, Chris Wright wrote:
+> > * Trond Myklebust (trond.myklebust@fys.uio.no) wrote:
+> > > Bruce has a simpler patch (see attachment). The call to fasync_helper()
+> > > in order to free active structures will have already been done in
+> > > locks_delete_lock(), so in principle, all we want to do is to skip the
+> > > fasync_helper() call in fcntl_setlease().
+> > 
+> > Yes, that's better, thanks.  Will you make sure it gets to Linus?
+> 
+> Sure, but I'd like a mail from Avi confirming that this patch too fixes
+> his problem, please.
 
-These are patches designed to improve system responsiveness and interactivi=
-ty.=20
-It is configurable to any workload but the default ck patch is aimed at the=
-=20
-desktop and cks is available with more emphasis on serverspace.
+OK, I tested with Avi's test program, and a couple other's I cobbled
+together, and they seem to work fine.  But didn't test the samba case
+(shouldn't be different...but...).  BTW, the bit below looks like
+debugging code.  It's a way for users to spam the kernel log (granted
+there is some bit of throttling):
 
+thanks,
+-chris
+--
 
-THIS INCLUDES ALL PATCHES FROM 2.6.14.2 SO START WITH 2.6.14
+Remove time_out_leases() printk that's easily triggered by users.
 
-Apply to 2.6.14
-http://ck.kolivas.org/patches/2.6/2.6.14/2.6.14-ck5/patch-2.6.14-ck5.bz2
+Signed-off-by: Chris Wright <chrisw@osdl.org>
+---
 
-or server version
-http://ck.kolivas.org/patches/cks/patch-2.6.14-cks5.bz2
-
-web:
-http://kernel.kolivas.org
-all patches:
-http://ck.kolivas.org/patches/
-Split patches available.
-
-
-Changes:
-Resync with stable tree only
-
-
-Modified:
- -patch-2.6.14.1
- -net-fix_zero-size_datagram_reception.patch
- +patch-2.6.14.2.bz2
-Resync with 2.6.14.2
-
- -2614ck4-version.diff
- +2614ck5-version.diff
-Version update
+diff --git a/fs/locks.c b/fs/locks.c
+--- a/fs/locks.c
++++ b/fs/locks.c
+@@ -1105,7 +1105,6 @@ static void time_out_leases(struct inode
+ 			before = &fl->fl_next;
+ 			continue;
+ 		}
+-		printk(KERN_INFO "lease broken - owner pid = %d\n", fl->fl_pid);
+ 		lease_modify(before, fl->fl_type & ~F_INPROGRESS);
+ 		if (fl == *before)	/* lease_modify may have freed fl */
+ 			before = &fl->fl_next;
 
 
-=46ull patchlist:
 
-2.6.14_to_staircase12.1.diff=20
-schedrange.diff=20
-schedbatch2.9.diff=20
-sched-iso3.2.patch=20
-smp-nice-support7.diff=20
-1g_lowmem1_i386.diff=20
-defaultcfq.diff=20
-isobatch_ionice2.diff=20
-rt_ionice.diff=20
-pdflush-tweaks.patch=20
-hz-default_values.patch=20
-hz-no_default_250.patch=20
-mm-swap_prefetch-18.patch=20
-vm-mapped.diff=20
-vm-lots_watermark.diff=20
-vm-background_scan-1.diff=20
-sched-staircase12.1_12.2.patch=20
-mm-kswapd_inherit_prio.patch=20
-mm-prio_dependant_scan.patch=20
-mm-batch_prio.patch=20
-sched-staircase12.2_13.patch=20
-patch-2.6.14.2.bz2=20
-2614ck5-version.diff=20
-
-
-Cheers,
-Con
-
---nextPart5397682.gCExB1xXx7
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDdUKAZUg7+tp6mRURAovXAJ9lUdpAMQ1ESLDE/hn8k8qESunEHQCfRuCb
-oh9Vi5rx4eEmPIy4YaTMJOg=
-=00xx
------END PGP SIGNATURE-----
-
---nextPart5397682.gCExB1xXx7--

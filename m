@@ -1,92 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932504AbVKLVhf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964820AbVKLVtI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932504AbVKLVhf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 16:37:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932507AbVKLVhf
+	id S964820AbVKLVtI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 16:49:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964822AbVKLVtH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 16:37:35 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:18330 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S932504AbVKLVhd (ORCPT
+	Sat, 12 Nov 2005 16:49:07 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:20923 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964820AbVKLVtG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 16:37:33 -0500
-From: Michael Buesch <mbuesch@freenet.de>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Paul Mackerras <paulus@samba.org>
-Subject: Re: Linuv 2.6.15-rc1
-Date: Sat, 12 Nov 2005 22:37:16 +0100
-User-Agent: KMail/1.8.3
-References: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org> <200511122145.38409.mbuesch@freenet.de> <Pine.LNX.4.64.0511121257000.3263@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0511121257000.3263@g5.osdl.org>
-Cc: linuxppc-dev@ozlabs.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Message-Id: <200511122237.17157.mbuesch@freenet.de>
-Content-Type: multipart/signed;
-  boundary="nextPart1388875.tcmuNVc8HF";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Sat, 12 Nov 2005 16:49:06 -0500
+Date: Sat, 12 Nov 2005 13:48:44 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Kylene Jo Hall <kjhall@us.ibm.com>
+Cc: selhorst@crypto.rub.de, linux-kernel@vger.kernel.org,
+       castet.matthieu@free.fr
+Subject: Re: [PATCH] TPM: cleanups
+Message-Id: <20051112134844.7f177e07.akpm@osdl.org>
+In-Reply-To: <1131750533.5048.36.camel@localhost.localdomain>
+References: <435FB8A5.803@crypto.rub.de>
+	<435FBFC4.5060508@free.fr>
+	<4360B889.1010502@crypto.rub.de>
+	<1130422052.4839.134.camel@localhost.localdomain>
+	<20051027145535.0741b647.akpm@osdl.org>
+	<1131739863.5048.18.camel@localhost.localdomain>
+	<1131750533.5048.36.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1388875.tcmuNVc8HF
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Kylene Jo Hall <kjhall@us.ibm.com> wrote:
+>
+>  +	schedule_work(&chip->work);
+>  +}
+>  +
+>  +static void timeout_work(void * ptr)
+>  +{
+>  +	struct tpm_chip *chip = (struct tpm_chip*) ptr;
+>  +
 
-On Saturday 12 November 2005 22:00, you wrote:
->=20
-> On Sat, 12 Nov 2005, Michael Buesch wrote:
-> >=20
-> > Latest GIT tree does not boot on my G4 PowerBook.
->=20
-> What happens if you do
->=20
-> 	make ARCH=3Dpowerpc
->=20
-> and build everything that way (including the "config" phase)?
+I cannot see where the tpm driver stops that timer which it has running on
+device close or on module unload.
 
-I did
-make mrproper
-copy the .config over again
-make ARCH=3Dpowerpc menuconfig
-exit and save from menuconfig
-make ARCH=3Dpowerpc
-
-The result of the build is:
-
-  CHK     include/linux/version.h
-  CHK     include/linux/compile.h
-  CHK     usr/initramfs_list
-  GEN     .version
-  CHK     include/linux/compile.h
-  UPD     include/linux/compile.h
-  CC      init/version.o
-  LD      init/built-in.o
-  LD      .tmp_vmlinux1
-arch/powerpc/kernel/built-in.o: In function `platform_init':
-: undefined reference to `prep_init'
-arch/powerpc/kernel/built-in.o:(__ksymtab+0x4d8): undefined reference to `u=
-cSystemType'
-arch/powerpc/kernel/built-in.o:(__ksymtab+0x4e0): undefined reference to `_=
-prep_type'
-make: *** [.tmp_vmlinux1] Error 1
-
-
-=2D-=20
-Greetings Michael.
-
---nextPart1388875.tcmuNVc8HF
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDdmCNlb09HEdWDKgRAkN2AJ9vzqHidntpXbUrhDSMfK3QiyJYbwCgg2AE
-Oll/uEGQ2i+usB7+Yr9NFgU=
-=5kHs
------END PGP SIGNATURE-----
-
---nextPart1388875.tcmuNVc8HF--
+Wherever it is, we'll now also need a flush_scheduled_work() to avoid a race
+wherein the work handler is still executing while the module gets
+unloaded.

@@ -1,78 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964878AbVKLXjx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964881AbVKLXli@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964878AbVKLXjx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 18:39:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964880AbVKLXjx
+	id S964881AbVKLXli (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 18:41:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964882AbVKLXli
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 18:39:53 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:5269 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S964878AbVKLXjw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 18:39:52 -0500
-Date: Sun, 13 Nov 2005 00:41:20 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Rob Landley <rob@landley.net>
-Cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Why did oldconfig's behavior change in 2.6.15-rc1?
-Message-ID: <20051112234120.GA29969@mars.ravnborg.org>
-References: <200511121656.29445.rob@landley.net> <200511121731.25982.rob@landley.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200511121731.25982.rob@landley.net>
-User-Agent: Mutt/1.5.8i
+	Sat, 12 Nov 2005 18:41:38 -0500
+Received: from mail.gmx.de ([213.165.64.20]:37260 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964881AbVKLXlh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 18:41:37 -0500
+X-Authenticated: #20450766
+Date: Sun, 13 Nov 2005 00:42:02 +0100 (CET)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+Subject: Re: userspace block driver?
+In-Reply-To: <Pine.LNX.4.60.0511092130230.9330@poirot.grange>
+Message-ID: <Pine.LNX.4.60.0511130029120.4090@poirot.grange>
+References: <4371A4ED.9020800@pobox.com> <Pine.LNX.4.60.0511092130230.9330@poirot.grange>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 12, 2005 at 05:31:25PM -0600, Rob Landley wrote:
-> On Saturday 12 November 2005 16:56, Rob Landley wrote:
-> > Linus says if we're going to test something, test -rc1, so I did.
-> >
-> > It went boing.
-> >
-> > I'm still trying to get -skas0 working on x86-64, but this was a standard
-> > x86 build...
-> >
-> > Rob
+> On Wed, 9 Nov 2005, Jeff Garzik wrote:
 > 
-> Very, very strange:
-> 
-> > make ARCH=um allnoconfig
-> > cat >> .config << EOF
-> CONFIG_MODE_SKAS=y
-> CONFIG_BINFMT_ELF=y
-> CONFIG_HOSTFS=y
-> CONFIG_SYSCTL=y
-> CONFIG_STDERR_CONSOLE=y
-> CONFIG_UNIX98_PTYS=y
-> CONFIG_BLK_DEV_LOOP=y
-> CONFIG_BLK_DEV_UBD=y
-> CONFIG_TMPFS=y
-> CONFIG_SWAP=y
-> CONFIG_LBD=y
-> CONFIG_EXT2_FS=y
-> CONFIG_PROC_FS=y
-> EOF
-> > make ARCH=um oldconfig
-> > grep SKAS .config
-> # CONFIG_MODE_SKAS is not set
-> 
-> Why did oldconfig switch off CONFIG_MODE_SKAS?  It didn't do that before.  
-> Hmmm...  Rummage, rummage...  Darn it, it's position dependent.  _And_ 
-> version dependent.
-> 
-> Ok, now I have to put the new entries at the _beginning_.  Appending them 
-> doesn't work anymore, it now ignores any symbol it's already seen, so you 
-> can't easily start with allnoconfig, switch on just what you want, and expect 
-> oldconfig to do anything intelligent.
-> 
-> That kinda sucks.  Oh well, I can have sed rip out the old symbols before I 
-> append the new ones.  Here's hoping it's not _that_ position dependent...
+> > 
+> > Has anybody put any thought towards how a userspace block driver would work?
+> > 
+> > Consider a block device implemented via an SSL network connection.  I don't
+> > want to put SSL in the kernel, which means the only other alternative is to
+> > pass data to/from a userspace daemon.
+> > 
+> > Anybody have any favorite methods?  [similar to] mmap'd packet socket? ramfs?
 
-A much better way would be to put the values in a file named:
-allno.config
+Hm, how about a simple trick:
 
-With latest kconfig changes this will do the trick, and you will have a
-valid config no matter what you put in.
+you write a "remote resource access" filesystem and do
 
-	Sam
+mount -t remote_resourse -o access_control.conf 192.168.1.1 /mnt/server1
+
+then you "just" write a library to overload open, close, read, write, 
+ioctl,... do
+
+export LD_PRELOAD=remote_libc.so
+
+and then
+
+mount /mnt/server1/hda1 /usr/local
+
+In /mnt/server1/ you could have interesting things like
+
+mouse0
+dsp0
+
+or even
+
+network0
+node0/cpu0
+node0/ram0
+
+Simple, sin't it?:-)
+
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski

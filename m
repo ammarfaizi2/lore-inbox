@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbVKLEQz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751274AbVKLE3F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751252AbVKLEQz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 23:16:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751264AbVKLEQy
+	id S1751274AbVKLE3F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 23:29:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbVKLE3F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 23:16:54 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:59912 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751252AbVKLEQy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 23:16:54 -0500
-Date: Sat, 12 Nov 2005 05:16:49 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: adaplas@pol.net
-Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: drivers/video/nvidia/ compile error with PPC_OF=y, FB_OF=n
-Message-ID: <20051112041649.GU5376@stusta.de>
+	Fri, 11 Nov 2005 23:29:05 -0500
+Received: from avenger.apcoh.org ([62.121.68.209]:5380 "EHLO chmurka.net")
+	by vger.kernel.org with ESMTP id S1751274AbVKLE3E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 23:29:04 -0500
+Date: Sat, 12 Nov 2005 05:28:48 +0100 (CET)
+From: Adam Wysocki <gophi@chmurka.net>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Minor warning when building ext3 without quota
+Message-ID: <Pine.LNX.4.64.0511120528440.21516@news.chmurka.net>
+X-Tree: ;>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got the following compile error in 2.6.14-mm2 that seems to come from 
-Linus' tree:
+From: Adam Wysocki <gophi@nospam.chmurka.net>
 
-<--  snip  -->
+This tiny patch eliminates a warning message about unused variable 
+sbi, when compiling ext3 support without quota support enabled.
 
-...
-  CC [M]  drivers/video/nvidia/nv_of.o
-drivers/video/nvidia/nv_of.c:33: error: redefinition of 'nvidia_probe_of_connector'
-drivers/video/nvidia/nv_proto.h:51: error: previous definition of 'nvidia_probe_of_connector' was here
-make[3]: *** [drivers/video/nvidia/nv_of.o] Error 1
+Signed-off-by: Adam Wysocki <gophi@nospam.chmurka.net>
 
-<--  snip  -->
+---
 
-The problem is that nv_proto.h thinks nv_of.o is only built with 
-CONFIG_FB_OF=y, but it's actually built when CONFIG_PPC_OF=y.
+--- linux-2.6.14.2/fs/ext3/super.c.orig Sat Nov 12 05:17:24 2005
++++ linux-2.6.14.2/fs/ext3/super.c      Sat Nov 12 05:17:44 2005
+@@ -513,7 +513,9 @@ static void ext3_clear_inode(struct inod
+ static int ext3_show_options(struct seq_file *seq, struct vfsmount *vfs)
+ {
+ 	struct super_block *sb = vfs->mnt_sb;
++#if defined(CONFIG_QUOTA)
+ 	struct ext3_sb_info *sbi = EXT3_SB(sb);
++#endif
 
-cu
-Adrian
+ 	if (test_opt(sb, DATA_FLAGS) == EXT3_MOUNT_JOURNAL_DATA)
+ 		seq_puts(seq, ",data=journal");
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Adam Wysocki :: www.gophi.rotfl.pl :: GG: 1234 :: Fidonet: 2:480/138

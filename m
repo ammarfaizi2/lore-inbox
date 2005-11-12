@@ -1,40 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964869AbVKLWkE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964875AbVKLWt6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964869AbVKLWkE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 17:40:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964871AbVKLWkD
+	id S964875AbVKLWt6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 17:49:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964876AbVKLWt6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 17:40:03 -0500
-Received: from ra.tuxdriver.com ([24.172.12.4]:46863 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S964869AbVKLWkB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 17:40:01 -0500
-Date: Sat, 12 Nov 2005 17:39:50 -0500
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linuv 2.6.15-rc1
-Message-ID: <20051112223947.GA708@tuxdriver.com>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 12 Nov 2005 17:49:58 -0500
+Received: from zproxy.gmail.com ([64.233.162.201]:60115 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964875AbVKLWt5 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 17:49:57 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=R+Ll2hSmjHxlp6L8VDJnp35ab1KXMswtg6tvt3wnOG7Lve1ogav2pCjp9OYr0kr72Jhe/spAz3FmHuRWC6+KcTIvxSSSPW/xx4n2FLm7sSyqFudWy/tPerkV/0wFrPaIgv4pXi+Ly5sPkW6LXza60lG3EZf6f515p8Cog97g5sc=
+Message-ID: <6bffcb0e0511121449q16d24cb2g@mail.gmail.com>
+Date: Sat, 12 Nov 2005 23:49:56 +0100
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: www.kernel.org/git/ - strange behavior
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 11, 2005 at 06:24:18PM -0800, Linus Torvalds wrote:
+Hi,
+today I have noticed some strange gitweb behaviour. Sometimes it
+doesn't show any commits
+(http://stud.wsi.edu.pl/~piotrowskim/files/git-web.png), but after 4-5
+minutes everything is ok
+(http://stud.wsi.edu.pl/~piotrowskim/files/git-web2.png). Is it a bug?
+Or is it a problem with synchronisation?
 
-> 	Adrian Bunk:
-> 	      I am the new monkey.
-
-Adrian had better watch-out for Dave Jones...I hear he "has a thing"
-for monkeys...
-
-:-)
--- 
-John W. Linville
-linville@tuxdriver.com
+Regards,
+Michal Piotrowski

@@ -1,65 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964847AbVKLWWe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964849AbVKLWWy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964847AbVKLWWe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 17:22:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbVKLWWe
+	id S964849AbVKLWWy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 17:22:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964851AbVKLWWy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 17:22:34 -0500
-Received: from petaflop.b.gz.ru ([217.67.124.5]:15531 "EHLO hq.sectorb.msk.ru")
-	by vger.kernel.org with ESMTP id S964847AbVKLWWd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 17:22:33 -0500
-Subject: Re: [x86_64] 2.6.14-git13 mplayer fails with "v4l2: ioctl queue
-	buffer failed: Bad address" (2 Nov 2005, 11 Nov 2005)
-From: "Nickolay V. Shmyrev" <nshmyrev@yandex.ru>
-To: Linux and Kernel Video <video4linux-list@redhat.com>
-Cc: Junichi Uekawa <dancer@netfort.gr.jp>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Michael Krufky <mkrufky@m1k.net>,
-       linux-kernel@vger.kernel.org, debian-amd64@lists.debian.org
-In-Reply-To: <Pine.LNX.4.61.0511111355080.16161@goblin.wat.veritas.com>
-References: <87fyqeicge.dancerj%dancer@netfort.gr.jp>
-	 <87wtjg5gh2.dancerj%dancer@netfort.gr.jp> <4373D087.5050908@linuxtv.org>
-	 <87psp859sd.dancerj%dancer@netfort.gr.jp> <43740F06.6030504@m1k.net>
-	 <87y83vl780.dancerj%dancer@netfort.gr.jp>
-	 <87ek5nb9ec.dancerj%dancer@netfort.gr.jp>
-	 <Pine.LNX.4.61.0511111355080.16161@goblin.wat.veritas.com>
-Content-Type: text/plain
-Date: Sun, 13 Nov 2005 01:22:51 +0300
-Message-Id: <1131834172.8368.6.camel@localhost.localdomain>
+	Sat, 12 Nov 2005 17:22:54 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:42258 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S964849AbVKLWWx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 17:22:53 -0500
+Date: Sat, 12 Nov 2005 23:24:25 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Henrik Christian Grove <grove@fsr.ku.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: gen_initramfs_list.sh: Cannot open 'y'
+Message-ID: <20051112222425.GC10228@mars.ravnborg.org>
+References: <7gk6fdy5t9.fsf@serena.fsr.ku.dk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7gk6fdy5t9.fsf@serena.fsr.ku.dk>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all.
+On Sat, Nov 12, 2005 at 09:22:42PM +0100, Henrik Christian Grove wrote:
+> 
+> When I try to compile a 2.6.14 kernel on my new laptop, I get the
+> following error:
+> x40:~/kerne/linux-2.6.14# make
+>   CHK     include/linux/version.h
+>   CHK     include/linux/compile.h
+> dnsdomainname: Host name lookup failure
+>   CHK     usr/initramfs_list
+>   /root/kerne/linux-2.6.14/scripts/gen_initramfs_list.sh: Cannot open 'y'
+> make[1]: *** [usr/initramfs_list] Error 1
+> make: *** [usr] Error 2
+> 
+> I simply don't understand what it's trying to do, and google doesn't
+> seem to know that error. Can anyone here help?
 
-We have even found the hack that fix that problem:
+Root cause is dnsdomainname that fails.
+Try to do:
+echo domain.com > /etc/dnsdomainname
 
-Index: linux/drivers/media/video/video-buf.c
-===================================================================
-RCS file: /cvs/video4linux/v4l-kernel/linux/drivers/media/video/video-buf.c,v
-retrieving revision 1.21
-diff -u -p -r1.21 video-buf.c
---- linux/drivers/media/video/video-buf.c       16 Oct 2005 12:13:58 -0000
-+++ linux/drivers/media/video/video-buf.c       12 Nov 2005 22:19:13 -0000
-@@ -1248,7 +1248,7 @@ int videobuf_mmap_mapper(struct videobuf
-        map->end      = vma->vm_end;
-        map->q        = q;
-        vma->vm_ops   = &videobuf_vm_ops;
--       vma->vm_flags |= VM_DONTEXPAND | VM_RESERVED;
-+       vma->vm_flags |= VM_DONTEXPAND;
-        vma->vm_flags &= ~VM_IO; /* using shared anonymous pages */
-        vma->vm_private_data = map;
-        dprintk(1,"mmap %p: q=%p %08lx-%08lx pgoff %08lx bufs %d-%d\n",
+or similar - depending on distribution.
+That should fix the dnsdomainname issue.
 
-Somehow since 2.6.15-rc1 VM_RESERVED makes get_user_pages return EFAULT. I don't know the exact reason of
-that behavior and the correct way to fix that problem. Just kernel interfaces changed once again, the old
-point everyone knows. So if someone can explain it, that would be helpful.
-
-
-
-
-
-
-
+	Sam

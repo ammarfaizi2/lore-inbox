@@ -1,37 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbVKLTn2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932483AbVKLTuR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932479AbVKLTn2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 14:43:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932480AbVKLTn2
+	id S932483AbVKLTuR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 14:50:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbVKLTuR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 14:43:28 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:38834
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932479AbVKLTn1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 14:43:27 -0500
-Date: Sat, 12 Nov 2005 11:43:28 -0800 (PST)
-Message-Id: <20051112.114328.80536354.davem@davemloft.net>
-To: imcdnzl@gmail.com
-Cc: vonbrand@inf.utfsm.cl, linux-kernel@vger.kernel.org
-Subject: Re: Breakage in net/ipv4/tcp_vegas.c
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <cbec11ac0511121035w3f697824l3d1e3351e229fba4@mail.gmail.com>
-References: <200511111336.jABDajMd019962@pincoya.inf.utfsm.cl>
-	<cbec11ac0511121035w3f697824l3d1e3351e229fba4@mail.gmail.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Sat, 12 Nov 2005 14:50:17 -0500
+Received: from unknown-1-11.windriver.com ([147.11.1.11]:54401 "EHLO
+	mail.wrs.com") by vger.kernel.org with ESMTP id S932483AbVKLTuP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 14:50:15 -0500
+Message-ID: <43764766.6010009@windriver.com>
+Date: Sat, 12 Nov 2005 13:49:58 -0600
+From: Jason Wessel <jason.wessel@windriver.com>
+User-Agent: Thunderbird 1.5 (Windows/20051025)
+MIME-Version: 1.0
+To: Greg KH <gregkh@suse.de>
+CC: Tom Rini <trini@kernel.crashing.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: SysFS 'module' params with CONFIG_MODULES=n
+References: <20051111153220.GQ3839@smtp.west.cox.net> <20051112043320.GA27472@suse.de>
+In-Reply-To: <20051112043320.GA27472@suse.de>
+Content-Type: multipart/mixed;
+ boundary="------------030907090205070409030906"
+X-OriginalArrivalTime: 12 Nov 2005 19:49:58.0555 (UTC) FILETIME=[431CA6B0:01C5E7C2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ian McDonald <imcdnzl@gmail.com>
-Date: Sun, 13 Nov 2005 07:35:23 +1300
+This is a multi-part message in MIME format.
+--------------030907090205070409030906
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> This has been fixed in the networking tree which I imagine Linus will
-> merge again soon but here is the fix before then:
-> Recent TCP changes broke the build.
+Greg KH wrote:
+> On Fri, Nov 11, 2005 at 08:32:20AM -0700, Tom Rini wrote:
+>   
+>> On 2.6.14, and probably newer, a system where CONFIG_MODULES=n
+>> /sys/module/foo/parameters/param fails:
+>>
+>> # cat /sys/module/tcp_bic/parameters/low_window
+>> cat: /sys/module/tcp_bic/parameters/low_window: Permission denied
+>>
+>> But just changing MODULES to y:
+>>
+>> # cat /sys/module/tcp_bic/parameters/low_window
+>> 14
+>>
+>> Is this intentional or fixable?  Just an observation right now, thanks.
+>>     
+>
+> Not intentional at all.  Did this work before 2.6.14?
+>
+> thanks,
+>
+> greg k-h
+>   
+I am not sure when it stopped working.
 
-The fix is in Linus's GIT tree and made it into 2.6.15-rc1
-as well.
+I recommend the attached patch to kernel/params.c All the work was done 
+to setup the file and maintain the file handles but the access functions 
+were zeroed out due to the #ifdef.  Removing the #ifdef allows full 
+access to all the parameters when CONFIG_MODULES=n.
 
+signed off: Jason Wessel <jason.wessel@windriver.com>
+
+Thanks,
+Jason.
+
+
+
+
+
+--------------030907090205070409030906
+Content-Type: text/plain;
+ name="params_sysfs.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="params_sysfs.patch"
+
+Index: linux-2.6.14/kernel/params.c
+===================================================================
+--- linux-2.6.14.orig/kernel/params.c	2005-11-11 08:40:03.456317256 -0800
++++ linux-2.6.14/kernel/params.c	2005-11-12 11:43:00.439765632 -0800
+@@ -618,8 +618,6 @@ static void __init param_sysfs_builtin(v
+ 
+ 
+ /* module-related sysfs stuff */
+-#ifdef CONFIG_MODULES
+-
+ #define to_module_attr(n) container_of(n, struct module_attribute, attr);
+ #define to_module_kobject(n) container_of(n, struct module_kobject, kobj);
+ 
+@@ -676,13 +674,6 @@ static struct sysfs_ops module_sysfs_ops
+ 	.store = module_attr_store,
+ };
+ 
+-#else
+-static struct sysfs_ops module_sysfs_ops = {
+-	.show = NULL,
+-	.store = NULL,
+-};
+-#endif
+-
+ static struct kobj_type module_ktype = {
+ 	.sysfs_ops =	&module_sysfs_ops,
+ };
+
+--------------030907090205070409030906--

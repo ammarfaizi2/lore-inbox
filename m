@@ -1,51 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbVKLWRf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964846AbVKLWUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964826AbVKLWRf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 17:17:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbVKLWRf
+	id S964846AbVKLWUs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 17:20:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbVKLWUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 17:17:35 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:32624 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S932353AbVKLWRe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 17:17:34 -0500
-Date: Sat, 12 Nov 2005 23:19:04 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: anil dahiya <ak_ait@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-Subject: Re: making makefile for 2.6 kernel
-Message-ID: <20051112221904.GA10228@mars.ravnborg.org>
-References: <20051112011006.GD7991@shell0.pdx.osdl.net> <20051112151652.83848.qmail@web60221.mail.yahoo.com>
-Mime-Version: 1.0
+	Sat, 12 Nov 2005 17:20:48 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:53009 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932353AbVKLWUr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 17:20:47 -0500
+Date: Sat, 12 Nov 2005 23:20:45 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Michael Buesch <mbuesch@freenet.de>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Paul Mackerras <paulus@samba.org>, linuxppc-dev@ozlabs.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linuv 2.6.15-rc1
+Message-ID: <20051112222045.GC21448@stusta.de>
+References: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org> <200511122237.17157.mbuesch@freenet.de> <20051112215304.GB21448@stusta.de> <200511122257.05552.mbuesch@freenet.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051112151652.83848.qmail@web60221.mail.yahoo.com>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <200511122257.05552.mbuesch@freenet.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 12, 2005 at 07:16:52AM -0800, anil dahiya wrote:
-> Hi 
-> I want to makefile for my kernel module..
-> 1.c 2.c 3.c files are places in /home/anil folder but
-> these files contain .h (hearder)files from 3 different
-> directory 1) /home/include 2) /root/incluent 3)
-> /opt/include
+On Sat, Nov 12, 2005 at 10:57:05PM +0100, Michael Buesch wrote:
+> On Saturday 12 November 2005 22:53, you wrote:
+> > >   CHK     include/linux/version.h
+> > >   CHK     include/linux/compile.h
+> > >   CHK     usr/initramfs_list
+> > >   GEN     .version
+> > >   CHK     include/linux/compile.h
+> > >   UPD     include/linux/compile.h
+> > >   CC      init/version.o
+> > >   LD      init/built-in.o
+> > >   LD      .tmp_vmlinux1
+> > > arch/powerpc/kernel/built-in.o: In function `platform_init':
+> > > : undefined reference to `prep_init'
+> > > arch/powerpc/kernel/built-in.o:(__ksymtab+0x4d8): undefined reference to `ucSystemType'
+> > > arch/powerpc/kernel/built-in.o:(__ksymtab+0x4e0): undefined reference to `_prep_type'
+> > > make: *** [.tmp_vmlinux1] Error 1
+
+ucSystemType is a variable that is EXPORT_SYMBOL'ed but never used in 
+any way.
+
+_prep_type is a variable that is needlessly EXPORT_SYMBOL'ed.
+
+
+But prep_init points to the real problem:
+
+CONFIG_PPC_PREP requires code from arch/ppc/platforms/, but this 
+directory is never visited.
+
+What is the correct fix?
+Migrate the code from arch/ppc/platforms/ to arch/powerpc/platforms/ ?
+
+> > Please send your .config .
 > 
-> can u suggest me a makefile to generate a common
-> module target.ko using these .C and .h files.
+> 
+> I did this in my first mail:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=113182883102937&q=p5
 
-Makefile
-obj-m := foo.o
-foo-y := 1.o 2.o 3.o
+OK, thanks, I missed this email.
 
-EXTRA_CFLGAS := -I/home/include -I/root/incluent -I/opt/include
+> Greetings Michael.
 
+cu
+Adrian
 
-And then build the module with:
-make -C $KERNEL_SRC M=`pwd`
+-- 
 
-See Documentation/kbuild/makefiles.txt for reference.
-Note: Kernel being pointed out must be a fully build kernel
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-	Sam

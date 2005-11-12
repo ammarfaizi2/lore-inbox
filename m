@@ -1,61 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964851AbVKLW3r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbVKLWdQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964851AbVKLW3r (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 17:29:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbVKLW3r
+	id S964860AbVKLWdQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 17:33:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbVKLWdQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 17:29:47 -0500
-Received: from serena.fsr.ku.dk ([130.225.215.194]:12515 "EHLO
-	serena.fsr.ku.dk") by vger.kernel.org with ESMTP id S964851AbVKLW3q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 17:29:46 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: gen_initramfs_list.sh: Cannot open 'y'
-References: <58aaG-5AP-1@gated-at.bofh.it> <58ako-5Lz-11@gated-at.bofh.it>
-From: Henrik Christian Grove <grove@fsr.ku.dk>
-Organization: Forenede =?iso-8859-1?q?Studenterr=E5d_ved_K=F8benhavns?= Universitet
-Date: Sat, 12 Nov 2005 23:29:43 +0100
-In-Reply-To: <58ako-5Lz-11@gated-at.bofh.it> (Martin Schlemmer's message of
- "Sat, 12 Nov 2005 21:40:08 +0100")
-Message-ID: <7gfyq1xzxk.fsf@serena.fsr.ku.dk>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Sat, 12 Nov 2005 17:33:16 -0500
+Received: from mout1.freenet.de ([194.97.50.132]:19635 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S964860AbVKLWdP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 17:33:15 -0500
+From: Michael Buesch <mbuesch@freenet.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: Linuv 2.6.15-rc1
+Date: Sat, 12 Nov 2005 23:33:02 +0100
+User-Agent: KMail/1.8.3
+References: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org> <200511122237.17157.mbuesch@freenet.de> <1131834336.7406.46.camel@gaston>
+In-Reply-To: <1131834336.7406.46.camel@gaston>
+Cc: Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
+       linuxppc-dev@ozlabs.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed;
+  boundary="nextPart6796073.SN3GBMp4uK";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200511122333.03010.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Schlemmer <azarah@nosferatu.za.org> writes:
+--nextPart6796073.SN3GBMp4uK
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> On Sat, 2005-11-12 at 21:22 +0100, Henrik Christian Grove wrote:
->> When I try to compile a 2.6.14 kernel on my new laptop, I get the
->> following error:
->> x40:~/kerne/linux-2.6.14# make
->>   CHK     include/linux/version.h
->>   CHK     include/linux/compile.h
->> dnsdomainname: Host name lookup failure
->>   CHK     usr/initramfs_list
->>   /root/kerne/linux-2.6.14/scripts/gen_initramfs_list.sh: Cannot open 'y'
->> make[1]: *** [usr/initramfs_list] Error 1
->> make: *** [usr] Error 2
->> 
->> I simply don't understand what it's trying to do, and google doesn't
->> seem to know that error. Can anyone here help?
->> 
->
-> I am going to guess the help text is unclear or something, and you have
-> in your .config:
->
-> CONFIG_INITRAMFS_SOURCE="y"
+On Saturday 12 November 2005 23:25, you wrote:
+> On Sat, 2005-11-12 at 22:37 +0100, Michael Buesch wrote:
+> > On Saturday 12 November 2005 22:00, you wrote:
+> > >=20
+> > > On Sat, 12 Nov 2005, Michael Buesch wrote:
+> > > >=20
+> > > > Latest GIT tree does not boot on my G4 PowerBook.
+> > >=20
+> > > What happens if you do
+> > >=20
+> > > 	make ARCH=3Dpowerpc
+> > >=20
+> > > and build everything that way (including the "config" phase)?
+> >=20
+> > I did
+> > make mrproper
+> > copy the .config over again
+> > make ARCH=3Dpowerpc menuconfig
+> > exit and save from menuconfig
+> > make ARCH=3Dpowerpc
+>=20
+> You need to disable PREP support when building with ARCH=3Dpowerpc for 32
+> bits, it doesn't build (yet). We should remove it from Kconfig...
+>=20
+> Also, there is an issue with the make clean stuff, make sure when
+> switching archs to also remove arch/powerpc/include/asm symlink before
+> trying to build.
 
-Correct, the help text doesn't seem all that unclear, don't know what I
-was thinking when I enter y.
+Ok, thanks Ben.
+ARCH=3Dpowerpc without PREP builds and boots.
 
-Thanks.
+=2D-=20
+Greetings Michael.
 
-.Henrik
+--nextPart6796073.SN3GBMp4uK
+Content-Type: application/pgp-signature
 
--- 
-"Det er fundamentalt noget humanistisk vås, at der er noget, 
- der hedder blød matematik."
-   --- citat Henrik Jeppesen, dekan for det naturvidenskabelige fakultet
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDdm2elb09HEdWDKgRAusWAKCf3QeP3D/nxyRg0bik+jq/AoAz1ACgmffJ
+nv3AyqH10iyJzSjonW8XirM=
+=UGvS
+-----END PGP SIGNATURE-----
+
+--nextPart6796073.SN3GBMp4uK--

@@ -1,28 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932372AbVKLMYg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbVKLMoI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932372AbVKLMYg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 07:24:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932373AbVKLMYg
+	id S932198AbVKLMoI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 07:44:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbVKLMoI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 07:24:36 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:15784 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id S932372AbVKLMYg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 07:24:36 -0500
-Message-Id: <200511111336.jABDajMd019962@pincoya.inf.utfsm.cl>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Breakage in net/ipv4/tcp_vegas.c
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Fri, 11 Nov 2005 10:36:45 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Sat, 12 Nov 2005 07:44:08 -0500
+Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:47760 "HELO
+	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932198AbVKLMoH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 07:44:07 -0500
+Date: Sat, 12 Nov 2005 10:14:03 -0200
+From: mchehab@brturbo.com.br
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, video4linux-list@redhat.com
+Subject: [PATCH 0/1] Some fixes to V4L subsystem
+Message-Id: <1131799398.6504.1.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1-2mdk 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  CC [M]  net/ipv4/tcp_vegas.o
-net/ipv4/tcp_vegas.c: In function â€˜tcp_vegas_cong_avoidâ€™:
-net/ipv4/tcp_vegas.c:239: error: â€˜cntâ€™ undeclared (first use in this function)
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+This patch series fixes some makefiles, removes unnecessary typecasts,
+renames cx25840 default filenames using the same syntax as DVB and
+includes proposed fixes recomended by alsa team.
+
+ drivers/media/video/Makefile                   |    2 
+ drivers/media/video/cx25840/cx25840-firmware.c |    2 
+ drivers/media/video/saa7127.c                  |   16 
+ drivers/media/video/saa7134/Kconfig            |    3 
+ drivers/media/video/saa7134/saa7134-alsa.c     |  277 +++++++----------
+ 5 files changed, 132 insertions(+), 168 deletions(-)
+
+
+	
+
+	
+		
+_______________________________________________________ 
+Yahoo! Acesso Grátis: Internet rápida e grátis. 
+Instale o discador agora!
+http://br.acesso.yahoo.com/
+

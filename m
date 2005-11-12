@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751208AbVKLDxv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbVKLEQz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751208AbVKLDxv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 22:53:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbVKLDxv
+	id S1751252AbVKLEQz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 23:16:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751264AbVKLEQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 22:53:51 -0500
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:14020 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1751208AbVKLDxu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 22:53:50 -0500
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Silence cpufreq warning for UP
-Date: Sat, 12 Nov 2005 14:53:29 +1100
-Organization: http://bugsplatter.mine.nu/
-Reply-To: gcoady@gmail.com
-Message-ID: <47pan1982sc5ait2m75ejrui6ur151saqr@4ax.com>
-X-Mailer: Forte Agent 2.0/32.652
+	Fri, 11 Nov 2005 23:16:54 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:59912 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751252AbVKLEQy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 23:16:54 -0500
+Date: Sat, 12 Nov 2005 05:16:49 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: adaplas@pol.net
+Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: drivers/video/nvidia/ compile error with PPC_OF=y, FB_OF=n
+Message-ID: <20051112041649.GU5376@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+I got the following compile error in 2.6.14-mm2 that seems to come from 
+Linus' tree:
 
-From: Grant Coady <gcoady@gmail.com>
+<--  snip  -->
 
-Fix this warning for UP system:
-drivers/cpufreq/cpufreq.c: In function `cpufreq_remove_dev':
-drivers/cpufreq/cpufreq.c:696: warning: unused variable `cpu_sys_dev'
+...
+  CC [M]  drivers/video/nvidia/nv_of.o
+drivers/video/nvidia/nv_of.c:33: error: redefinition of 'nvidia_probe_of_connector'
+drivers/video/nvidia/nv_proto.h:51: error: previous definition of 'nvidia_probe_of_connector' was here
+make[3]: *** [drivers/video/nvidia/nv_of.o] Error 1
 
-Signed-off-by: Grant Coady <gcoady@gmail.com>
+<--  snip  -->
 
----
- cpufreq.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+The problem is that nv_proto.h thinks nv_of.o is only built with 
+CONFIG_FB_OF=y, but it's actually built when CONFIG_PPC_OF=y.
 
---- linux-2.6.15-rc1a/drivers/cpufreq/cpufreq.c~	2005-11-12 15:16:34.000000000 +1100
-+++ linux-2.6.15-rc1a/drivers/cpufreq/cpufreq.c	2005-11-12 16:02:06.000000000 +1100
-@@ -693,8 +693,8 @@
- 	unsigned int cpu = sys_dev->id;
- 	unsigned long flags;
- 	struct cpufreq_policy *data;
--	struct sys_device *cpu_sys_dev;
- #ifdef CONFIG_SMP
-+	struct sys_device *cpu_sys_dev;
- 	unsigned int j;
- #endif
- 
+cu
+Adrian
+
 -- 
-Thanks,
-Grant.
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

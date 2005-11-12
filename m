@@ -1,67 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932496AbVKLUUj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932498AbVKLUWw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932496AbVKLUUj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 15:20:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932497AbVKLUUj
+	id S932498AbVKLUWw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 15:22:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932500AbVKLUWw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 15:20:39 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:54441 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932496AbVKLUUi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 15:20:38 -0500
-Date: Sat, 12 Nov 2005 21:20:28 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>, rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: [patch] fix collie for -rc1
-Message-ID: <20051112202028.GA13617@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Sat, 12 Nov 2005 15:22:52 -0500
+Received: from serena.fsr.ku.dk ([130.225.215.194]:55517 "EHLO
+	serena.fsr.ku.dk") by vger.kernel.org with ESMTP id S932498AbVKLUWv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 15:22:51 -0500
+To: linux-kernel@vger.kernel.org
+Subject: gen_initramfs_list.sh: Cannot open 'y'
+From: Henrik Christian Grove <grove@fsr.ku.dk>
+Organization: Forenede =?iso-8859-1?q?Studenterr=E5d_ved_K=F8benhavns?= Universitet
+Date: Sat, 12 Nov 2005 21:22:42 +0100
+Message-ID: <7gk6fdy5t9.fsf@serena.fsr.ku.dk>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fixes compilation for collie after -rc1 platform_device
-changes. And yes, it even boots.
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+When I try to compile a 2.6.14 kernel on my new laptop, I get the
+following error:
+x40:~/kerne/linux-2.6.14# make
+  CHK     include/linux/version.h
+  CHK     include/linux/compile.h
+dnsdomainname: Host name lookup failure
+  CHK     usr/initramfs_list
+  /root/kerne/linux-2.6.14/scripts/gen_initramfs_list.sh: Cannot open 'y'
+make[1]: *** [usr/initramfs_list] Error 1
+make: *** [usr] Error 2
 
-diff --git a/arch/arm/common/locomo.c b/arch/arm/common/locomo.c
---- a/arch/arm/common/locomo.c
-+++ b/arch/arm/common/locomo.c
-@@ -623,8 +623,6 @@ static int locomo_resume(struct platform
- 	locomo_writel(0x1, lchip->base + LOCOMO_KEYBOARD + LOCOMO_KCMD);
- 
- 	spin_unlock_irqrestore(&lchip->lock, flags);
--
--	dev->power.saved_state = NULL;
- 	kfree(save);
- 
- 	return 0;
-@@ -775,7 +820,7 @@ static int locomo_probe(struct platform_
- 
- static int locomo_remove(struct platform_device *dev)
- {
--	struct locomo *lchip = platform__get_drvdata(dev);
-+	struct locomo *lchip = platform_get_drvdata(dev);
- 
- 	if (lchip) {
- 		__locomo_remove(lchip);
-diff --git a/arch/arm/common/scoop.c b/arch/arm/common/scoop.c
---- a/arch/arm/common/scoop.c
-+++ b/arch/arm/common/scoop.c
-@@ -153,7 +153,7 @@ int __init scoop_probe(struct platform_d
- 	printk("Sharp Scoop Device found at 0x%08x -> 0x%08x\n",(unsigned int)mem->start,(unsigned int)devptr->base);
- 
- 	SCOOP_REG(devptr->base, SCOOP_MCR) = 0x0140;
--	reset_scoop(dev);
-+	reset_scoop(&pdev->dev);
- 	SCOOP_REG(devptr->base, SCOOP_GPCR) = inf->io_dir & 0xffff;
- 	SCOOP_REG(devptr->base, SCOOP_GPWR) = inf->io_out & 0xffff;
- 
+I simply don't understand what it's trying to do, and google doesn't
+seem to know that error. Can anyone here help?
+
+.Henrik
 
 -- 
-Thanks, Sharp!
+"Det er fundamentalt noget humanistisk vås, at der er noget, 
+ der hedder blød matematik."
+   --- citat Henrik Jeppesen, dekan for det naturvidenskabelige fakultet

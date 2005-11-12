@@ -1,71 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbVKLUbi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbVKLUcf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964782AbVKLUbi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 15:31:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbVKLUbi
+	id S964784AbVKLUcf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 15:32:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbVKLUcf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 15:31:38 -0500
-Received: from ctb-mesg5.saix.net ([196.25.240.85]:65522 "EHLO
-	ctb-mesg5.saix.net") by vger.kernel.org with ESMTP id S964782AbVKLUbh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 15:31:37 -0500
-Subject: Re: gen_initramfs_list.sh: Cannot open 'y'
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: azarah@nosferatu.za.org
-To: Henrik Christian Grove <grove@fsr.ku.dk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <7gk6fdy5t9.fsf@serena.fsr.ku.dk>
-References: <7gk6fdy5t9.fsf@serena.fsr.ku.dk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-KTOxwP6hGiTWa8ZwZRAZ"
-Date: Sat, 12 Nov 2005 22:35:04 +0200
-Message-Id: <1131827704.19428.6.camel@lycan.lan>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Sat, 12 Nov 2005 15:32:35 -0500
+Received: from mail.gmx.de ([213.165.64.20]:17075 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964784AbVKLUce (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 15:32:34 -0500
+Date: Sat, 12 Nov 2005 21:32:32 +0100 (MET)
+From: "Hans Klotz" <hans.klotz@gmx.net>
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Subject: Bootfailure with shuttle AN50R mainboard
+X-Priority: 3 (Normal)
+X-Authenticated: #30206620
+Message-ID: <29865.1131827552@www61.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
---=-KTOxwP6hGiTWa8ZwZRAZ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+SuSe 10.0 (Kernel 2.6.13) crashes when booting my system with
+ a Shuttle AN50R main board (AMD 64 processor). I am using 
+standard runlevel 3 to avoid problems from the graphical system.
 
-On Sat, 2005-11-12 at 21:22 +0100, Henrik Christian Grove wrote:
-> When I try to compile a 2.6.14 kernel on my new laptop, I get the
-> following error:
-> x40:~/kerne/linux-2.6.14# make
->   CHK     include/linux/version.h
->   CHK     include/linux/compile.h
-> dnsdomainname: Host name lookup failure
->   CHK     usr/initramfs_list
->   /root/kerne/linux-2.6.14/scripts/gen_initramfs_list.sh: Cannot open 'y'
-> make[1]: *** [usr/initramfs_list] Error 1
-> make: *** [usr] Error 2
->=20
-> I simply don't understand what it's trying to do, and google doesn't
-> seem to know that error. Can anyone here help?
->=20
+With the standard grub paramaters, the systems seems to boot 
+fine and a login prompt appears. However, at this point the
+system does not reply to actions form the keyboard and it 
+does not reply to ping from the local net.
 
-I am going to guess the help text is unclear or something, and you have
-in your .config:
+I have tried acpi=oldboot (no difference) and acpi=off 
+(hangs at initialization of pci bus) on the command line.
+Finally, I set all actions, that where not on 'ignore', 
+to 'notify' in /etc/sysconfig/powersave/events; further, 
+I increased the debug level to 31.
 
-CONFIG_INITRAMFS_SOURCE=3D"y"
+The only suspicious line in /var/log/boot.mst ist last one:
+<notice>killproc: kill(25405,3)
+/var/log/messages does not contain entries that look suspicios 
+to me.
 
+The rescue system works fine (includeing power down).
 
---=20
-Martin Schlemmer
+There are 2 SATA disks in the system. /dev/sda1 is for swap, 
+/dev/sda2 for root; the remaining partitions are not mounted 
+at the present stage.
 
+Has anyone experience with this phenomenon or even a remedy for it?
 
---=-KTOxwP6hGiTWa8ZwZRAZ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Hans Klotz
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBDdlH4qburzKaJYLYRAvIjAJ0evdyqWqabJWYrb67eH2/qspc1SwCfeiUU
-s/aTx0RQ9xJr+Pg1BUSAjNc=
-=tk9y
------END PGP SIGNATURE-----
-
---=-KTOxwP6hGiTWa8ZwZRAZ--
-
+-- 
+Telefonieren Sie schon oder sparen Sie noch?
+NEU: GMX Phone_Flat http://www.gmx.net/de/go/telefonie

@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932352AbVKLPQy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbVKLPX0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932352AbVKLPQy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 10:16:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbVKLPQx
+	id S932374AbVKLPX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 10:23:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbVKLPX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 10:16:53 -0500
-Received: from web60221.mail.yahoo.com ([209.73.178.109]:15965 "HELO
-	web60221.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S932352AbVKLPQx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 10:16:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=WfTyG4keAZxd2HVyuriqIFvRrLQ9Jw6q6Ce2t0WPdZRjwUKpnFseiFN+9iIR2Kieqvg0Zgofu7CPGb3tkbRVnC/cJJE9LS3mkICvmzwQtMb+uSraZjl6xeHTNqMexva2yTiCwxjmM5Pwb+OAtfvTDUx4jfjB0QV8bgmAasUscnA=  ;
-Message-ID: <20051112151652.83848.qmail@web60221.mail.yahoo.com>
-Date: Sat, 12 Nov 2005 07:16:52 -0800 (PST)
-From: anil dahiya <ak_ait@yahoo.com>
-Subject: making makefile for 2.6 kernel 
-To: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-In-Reply-To: <20051112011006.GD7991@shell0.pdx.osdl.net>
+	Sat, 12 Nov 2005 10:23:26 -0500
+Received: from smtp104.sbc.mail.re2.yahoo.com ([68.142.229.101]:55420 "HELO
+	smtp104.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S932374AbVKLPXZ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 10:23:25 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: =?iso-8859-1?q?Bj=F8rn_Mork?= <bmork@dod.no>
+Subject: Re: Resume from swsusp stopped working with 2.6.14 and 2.6.15-rc1
+Date: Sat, 12 Nov 2005 10:23:22 -0500
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@suse.cz>
+References: <87zmoa0yv5.fsf@obelix.mork.no>
+In-Reply-To: <87zmoa0yv5.fsf@obelix.mork.no>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200511121023.23245.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi 
-I want to makefile for my kernel module..
-1.c 2.c 3.c files are places in /home/anil folder but
-these files contain .h (hearder)files from 3 different
-directory 1) /home/include 2) /root/incluent 3)
-/opt/include
+On Saturday 12 November 2005 08:39, Bjørn Mork wrote:
+> I have had swsusp working for ages on a IBM Thinkpad T42, but since
+> 2.6.14 it hasn't been willing to resume anymore.  Both suspending to
+> disk and ACPI S3 still works. 
+> 
+> Output of dmesg below (running 2.6.15-rc1). Notice the line:
+> 
+>   Restarting tasks...<6> Strange, kseriod not stopped
+> 
+> I guess that's the explanation.  Could it be the new TrackPoint
+> driver, maybe?  (This PC has both a TrackPoint and a Touchpad).
+>
 
-can u suggest me a makefile to generate a common
-module target.ko using these .C and .h files.
+This is unlikely... serio has the proper support for freezing as
+far as I understand:
 
-Thanks in advance
-Regards,
-anil
+static int serio_thread(void *nothing)
+{
+        do {
+                serio_handle_events();
+                wait_event_interruptible(serio_wait,
+                        kthread_should_stop() || !list_empty(&serio_event_list));
+                try_to_freeze();
+        } while (!kthread_should_stop());
 
+        printk(KERN_DEBUG "serio: kseriod exiting\n");
+        return 0;
+}
 
-		
-__________________________________ 
-Yahoo! FareChase: Search multiple travel sites in one click.
-http://farechase.yahoo.com
+Pavel, any ideas?
+
+-- 
+Dmitry

@@ -1,69 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964881AbVKLXli@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964882AbVKLXms@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964881AbVKLXli (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 18:41:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964882AbVKLXli
+	id S964882AbVKLXms (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 18:42:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964883AbVKLXms
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 18:41:38 -0500
-Received: from mail.gmx.de ([213.165.64.20]:37260 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964881AbVKLXlh (ORCPT
+	Sat, 12 Nov 2005 18:42:48 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26828 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964882AbVKLXmr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 18:41:37 -0500
-X-Authenticated: #20450766
-Date: Sun, 13 Nov 2005 00:42:02 +0100 (CET)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
-Subject: Re: userspace block driver?
-In-Reply-To: <Pine.LNX.4.60.0511092130230.9330@poirot.grange>
-Message-ID: <Pine.LNX.4.60.0511130029120.4090@poirot.grange>
-References: <4371A4ED.9020800@pobox.com> <Pine.LNX.4.60.0511092130230.9330@poirot.grange>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
+	Sat, 12 Nov 2005 18:42:47 -0500
+Date: Sun, 13 Nov 2005 00:42:38 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFT][PATCH 1/3] swsusp: remove encryption
+Message-ID: <20051112234238.GA1708@elf.ucw.cz>
+References: <200511122113.22177.rjw@sisk.pl> <200511122119.46798.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200511122119.46798.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 9 Nov 2005, Jeff Garzik wrote:
+On So 12-11-05 21:19:46, Rafael J. Wysocki wrote:
+> This patch removes the image encryption that is only used by swsusp instead
+> of zeroing the image after resume in order to prevent someone from
+> reading some confidential data from it in the future and it does not protect
+> the image from being read by an unauthorized person before resume.
+> The functionality it provides should really belong to the user space
+> and will possibly be reimplemented after the swap-handling functionality
+> of swsusp is moved to the user space.
 > 
-> > 
-> > Has anybody put any thought towards how a userspace block driver would work?
-> > 
-> > Consider a block device implemented via an SSL network connection.  I don't
-> > want to put SSL in the kernel, which means the only other alternative is to
-> > pass data to/from a userspace daemon.
-> > 
-> > Anybody have any favorite methods?  [similar to] mmap'd packet socket? ramfs?
+> Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
 
-Hm, how about a simple trick:
-
-you write a "remote resource access" filesystem and do
-
-mount -t remote_resourse -o access_control.conf 192.168.1.1 /mnt/server1
-
-then you "just" write a library to overload open, close, read, write, 
-ioctl,... do
-
-export LD_PRELOAD=remote_libc.so
-
-and then
-
-mount /mnt/server1/hda1 /usr/local
-
-In /mnt/server1/ you could have interesting things like
-
-mouse0
-dsp0
-
-or even
-
-network0
-node0/cpu0
-node0/ram0
-
-Simple, sin't it?:-)
-
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+ACK.
+								Pavel

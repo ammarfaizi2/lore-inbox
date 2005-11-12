@@ -1,341 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751194AbVKLDkk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbVKLDv0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751194AbVKLDkk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 22:40:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbVKLDkk
+	id S1751202AbVKLDv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 22:51:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbVKLDv0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 22:40:40 -0500
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:23708 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S1751194AbVKLDkj (ORCPT
+	Fri, 11 Nov 2005 22:51:26 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:31411
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1751202AbVKLDv0 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 22:40:39 -0500
-Message-ID: <4375647F.8020208@ens-lyon.org>
-Date: Fri, 11 Nov 2005 22:41:51 -0500
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Fri, 11 Nov 2005 22:51:26 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: Which version of 2.6.11 is most stable
+Date: Fri, 11 Nov 2005 21:49:08 -0600
+User-Agent: KMail/1.8
+Cc: "Mukund JB." <mukundjb@esntechnologies.co.in>,
+       linux-kernel@vger.kernel.org
+References: <3AEC1E10243A314391FE9C01CD65429B13B280@mail.esn.co.in> <20051107115131.GD3847@stusta.de>
+In-Reply-To: <20051107115131.GD3847@stusta.de>
 MIME-Version: 1.0
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.14-mm2: loop detected in depmod
-References: <20051110203544.027e992c.akpm@osdl.org> <43742AD6.7060407@ens-lyon.org> <43744DA8.5060007@gmail.com>
-In-Reply-To: <43744DA8.5060007@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Message-Id: <200511112149.08324.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Antonino A. Daplas wrote:
+On Monday 07 November 2005 05:51, Adrian Bunk wrote:
+> On Mon, Nov 07, 2005 at 03:38:13PM +0530, Mukund JB. wrote:
+> > Dear All,
+> >
+> > I am in the phase of development of a Linux BSP for 2.6.11 kernel.
+> > Which version of 2.6.11 kernel can be called best stable? In general
+> > where do i get this king of info? I serched in the www.lwn.net but i
+> > failed to get the required info.
+>
+> The latest, IOW 2.6.11.12 .
+>
+> But note that the 2.6.11 branch is no longer maintained since kernel
+> 2.6.12 was released 5 months ago, and therefore lacks e.g. current
+> security fixes.
 
->Brice Goglin wrote:
->  
->
->>Andrew Morton wrote:
->>
->>WARNING: Module
->>/lib/modules/2.6.14-mm2/kernel/drivers/video/console/fbcon_ud.ko
->>ignored, due to loop
->>    
->>
->
->Sorry about that, did only a make modules without a make modules_install.
->Try this patch.
->
->Tony
->
->  
->
+One question I've wondered about for a bit...
 
-This patch should now go into Linus' tree since the same problem
-occurs with rc1 (and this patch fixes it) :)
+The diff between each dot release (ala 2.6.12.0->2.6.12.1) can theoretically 
+be backported to an older kernel.  So in theory, at least some of the new 
+security fixes can be applied to older kernels.  (Yeah, this necessarily 
+complete.  Whether or not the patch makes any sense at all in the older 
+context, and whether or not that's everything they need to do...  That's a 
+seperate issue.  It allows some minimal, relatively straightforward 
+maintenance to be done on systems that are stuck with older kernels by 
+management fiat.
 
-thanks,
-Brice
+The gap is the jump to the next major release.  Suppose that 2.6.15 makes it 
+up to 2.6.15.10, and then 2.6.16 comes out.  Are there any security fixes in 
+2.6.16 that weren't in 2.6.15.10?  Fixes which would have been in a 2.6.15.11 
+if the next big release had been delayed another two weeks?
 
+>From a practical standpoint, somebody stuck on 2.6.15 for another six months 
+is likely to at least try to apply the next security update (the diff between 
+2.6.16->2.6.16.1) to their old kernel, but are they missing a week or two's 
+worth of security fixes?
 
+I'm trying to clarify what my question is:  When a new stable kernel comes 
+out, do the dot-release guys do one more release of security-only fixes to 
+patch all the known vulnerabilities that the new one addressed before moving 
+on?  Or do they just leave a gap and say "upgrade"?
 
->Exporting struct fb_display produces this warning error on depmod:
->
->WARNING: Module
->/lib/modules/2.6.14-mm2/kernel/drivers/video/console/fbcon_ud.ko
->ignored, due to loop
->WARNING: Module
->/lib/modules/2.6.14-mm2/kernel/drivers/video/console/fbcon_rotate.ko
->ignored, due to loop
->WARNING: Module
->/lib/modules/2.6.14-mm2/kernel/drivers/video/console/fbcon_cw.ko
->ignored, due to loop
->WARNING: Module
->/lib/modules/2.6.14-mm2/kernel/drivers/video/console/fbcon_ccw.ko
->ignored, due to loop
->WARNING: Module
->/lib/modules/2.6.14-mm2/kernel/drivers/video/console/fbcon.ko ignored,
->due to loop
->WARNING: Loop detected:
->/lib/modules/2.6.14-mm2/kernel/drivers/video/console/bitblit.ko needs
->
->Signed-off-by: Antonino Daplas <adaplas@pol.net>
->---
->
-> fbcon.c     |   15 ++++++---------
-> fbcon.h     |    3 +--
-> fbcon_ccw.c |   14 ++++++--------
-> fbcon_cw.c  |   14 ++++++--------
-> fbcon_ud.c  |   22 ++++++++++------------
-> 5 files changed, 29 insertions(+), 39 deletions(-)
->
->diff --git a/drivers/video/console/fbcon.c b/drivers/video/console/fbcon.c
->index e7802ff..bcea87c 100644
->--- a/drivers/video/console/fbcon.c
->+++ b/drivers/video/console/fbcon.c
->@@ -106,8 +106,7 @@ enum {
-> 	FBCON_LOGO_DONTSHOW	= -3	/* do not show the logo */
-> };
-> 
->-struct display fb_display[MAX_NR_CONSOLES];
->-EXPORT_SYMBOL(fb_display);
->+static struct display fb_display[MAX_NR_CONSOLES];
-> 
-> static signed char con2fb_map[MAX_NR_CONSOLES];
-> static signed char con2fb_map_boot[MAX_NR_CONSOLES];
->@@ -653,13 +652,12 @@ static void set_blitting_type(struct vc_
-> {
-> 	struct fbcon_ops *ops = info->fbcon_par;
-> 
->+	ops->p = (p) ? p : &fb_display[vc->vc_num];
->+
-> 	if ((info->flags & FBINFO_MISC_TILEBLITTING))
-> 		fbcon_set_tileops(vc, info, p, ops);
-> 	else {
->-		struct display *disp;
->-
->-		disp = (p) ? p : &fb_display[vc->vc_num];
->-		fbcon_set_rotation(info, disp);
->+		fbcon_set_rotation(info, ops->p);
-> 		fbcon_set_bitops(ops);
-> 	}
-> }
->@@ -668,11 +666,10 @@ static void set_blitting_type(struct vc_
-> 			      struct display *p)
-> {
-> 	struct fbcon_ops *ops = info->fbcon_par;
->-	struct display *disp;
-> 
-> 	info->flags &= ~FBINFO_MISC_TILEBLITTING;
->-	disp = (p) ? p : &fb_display[vc->vc_num];
->-	fbcon_set_rotation(info, disp);
->+	ops->p = (p) ? p : &fb_display[vc->vc_num];
->+	fbcon_set_rotation(info, ops->p);
-> 	fbcon_set_bitops(ops);
-> }
-> #endif /* CONFIG_MISC_TILEBLITTING */
->diff --git a/drivers/video/console/fbcon.h b/drivers/video/console/fbcon.h
->index accfd7b..6892e7f 100644
->--- a/drivers/video/console/fbcon.h
->+++ b/drivers/video/console/fbcon.h
->@@ -52,8 +52,6 @@ struct display {
->     struct fb_videomode *mode;
-> };
-> 
->-extern struct display fb_display[];
->-
-> struct fbcon_ops {
-> 	void (*bmove)(struct vc_data *vc, struct fb_info *info, int sy,
-> 		      int sx, int dy, int dx, int height, int width);
->@@ -73,6 +71,7 @@ struct fbcon_ops {
-> 	struct fb_var_screeninfo var;  /* copy of the current fb_var_screeninfo */
-> 	struct timer_list cursor_timer; /* Cursor timer */
-> 	struct fb_cursor cursor_state;
->+	struct display *p;
->         int    currcon;	                /* Current VC. */
-> 	int    cursor_flash;
-> 	int    cursor_reset;
->diff --git a/drivers/video/console/fbcon_ccw.c b/drivers/video/console/fbcon_ccw.c
->index 680aaba..3afd1ee 100644
->--- a/drivers/video/console/fbcon_ccw.c
->+++ b/drivers/video/console/fbcon_ccw.c
->@@ -63,9 +63,9 @@ static inline void ccw_update_attr(u8 *d
-> static void ccw_bmove(struct vc_data *vc, struct fb_info *info, int sy,
-> 		     int sx, int dy, int dx, int height, int width)
-> {
->-	struct display *p = &fb_display[vc->vc_num];
->+	struct fbcon_ops *ops = info->fbcon_par;
-> 	struct fb_copyarea area;
->-	u32 vyres = GETVYRES(p->scrollmode, info);
->+	u32 vyres = GETVYRES(ops->p->scrollmode, info);
-> 
-> 	area.sx = sy * vc->vc_font.height;
-> 	area.sy = vyres - ((sx + width) * vc->vc_font.width);
->@@ -80,10 +80,10 @@ static void ccw_bmove(struct vc_data *vc
-> static void ccw_clear(struct vc_data *vc, struct fb_info *info, int sy,
-> 		     int sx, int height, int width)
-> {
->-	struct display *p = &fb_display[vc->vc_num];
->+	struct fbcon_ops *ops = info->fbcon_par;
-> 	struct fb_fillrect region;
-> 	int bgshift = (vc->vc_hi_font_mask) ? 13 : 12;
->-	u32 vyres = GETVYRES(p->scrollmode, info);
->+	u32 vyres = GETVYRES(ops->p->scrollmode, info);
-> 
-> 	region.color = attr_bgcol_ec(bgshift,vc);
-> 	region.dx = sy * vc->vc_font.height;
->@@ -131,7 +131,6 @@ static void ccw_putcs(struct vc_data *vc
-> 		      int fg, int bg)
-> {
-> 	struct fb_image image;
->-	struct display *p = &fb_display[vc->vc_num];
-> 	struct fbcon_ops *ops = info->fbcon_par;
-> 	u32 width = (vc->vc_font.height + 7)/8;
-> 	u32 cellsize = width * vc->vc_font.width;
->@@ -141,7 +140,7 @@ static void ccw_putcs(struct vc_data *vc
-> 	u32 cnt, pitch, size;
-> 	u32 attribute = get_attribute(info, scr_readw(s));
-> 	u8 *dst, *buf = NULL;
->-	u32 vyres = GETVYRES(p->scrollmode, info);
->+	u32 vyres = GETVYRES(ops->p->scrollmode, info);
-> 
-> 	if (!ops->fontbuffer)
-> 		return;
->@@ -397,9 +396,8 @@ static void ccw_cursor(struct vc_data *v
-> int ccw_update_start(struct fb_info *info)
-> {
-> 	struct fbcon_ops *ops = info->fbcon_par;
->-	struct display *p = &fb_display[ops->currcon];
-> 	u32 yoffset;
->-	u32 vyres = GETVYRES(p->scrollmode, info);
->+	u32 vyres = GETVYRES(ops->p->scrollmode, info);
-> 	int err;
-> 
-> 	yoffset = (vyres - info->var.yres) - ops->var.xoffset;
->diff --git a/drivers/video/console/fbcon_cw.c b/drivers/video/console/fbcon_cw.c
->index 6c6f3b6..6d92b84 100644
->--- a/drivers/video/console/fbcon_cw.c
->+++ b/drivers/video/console/fbcon_cw.c
->@@ -49,9 +49,9 @@ static inline void cw_update_attr(u8 *ds
-> static void cw_bmove(struct vc_data *vc, struct fb_info *info, int sy,
-> 		     int sx, int dy, int dx, int height, int width)
-> {
->-	struct display *p = &fb_display[vc->vc_num];
->+	struct fbcon_ops *ops = info->fbcon_par;
-> 	struct fb_copyarea area;
->-	u32 vxres = GETVXRES(p->scrollmode, info);
->+	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-> 
-> 	area.sx = vxres - ((sy + height) * vc->vc_font.height);
-> 	area.sy = sx * vc->vc_font.width;
->@@ -66,10 +66,10 @@ static void cw_bmove(struct vc_data *vc,
-> static void cw_clear(struct vc_data *vc, struct fb_info *info, int sy,
-> 		     int sx, int height, int width)
-> {
->-	struct display *p = &fb_display[vc->vc_num];
->+	struct fbcon_ops *ops = info->fbcon_par;
-> 	struct fb_fillrect region;
-> 	int bgshift = (vc->vc_hi_font_mask) ? 13 : 12;
->-	u32 vxres = GETVXRES(p->scrollmode, info);
->+	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-> 
-> 	region.color = attr_bgcol_ec(bgshift,vc);
-> 	region.dx = vxres - ((sy + height) * vc->vc_font.height);
->@@ -117,7 +117,6 @@ static void cw_putcs(struct vc_data *vc,
-> 		      int fg, int bg)
-> {
-> 	struct fb_image image;
->-	struct display *p = &fb_display[vc->vc_num];
-> 	struct fbcon_ops *ops = info->fbcon_par;
-> 	u32 width = (vc->vc_font.height + 7)/8;
-> 	u32 cellsize = width * vc->vc_font.width;
->@@ -127,7 +126,7 @@ static void cw_putcs(struct vc_data *vc,
-> 	u32 cnt, pitch, size;
-> 	u32 attribute = get_attribute(info, scr_readw(s));
-> 	u8 *dst, *buf = NULL;
->-	u32 vxres = GETVXRES(p->scrollmode, info);
->+	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-> 
-> 	if (!ops->fontbuffer)
-> 		return;
->@@ -381,8 +380,7 @@ static void cw_cursor(struct vc_data *vc
-> int cw_update_start(struct fb_info *info)
-> {
-> 	struct fbcon_ops *ops = info->fbcon_par;
->-	struct display *p = &fb_display[ops->currcon];
->-	u32 vxres = GETVXRES(p->scrollmode, info);
->+	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-> 	u32 xoffset;
-> 	int err;
-> 
->diff --git a/drivers/video/console/fbcon_ud.c b/drivers/video/console/fbcon_ud.c
->index 2e1d9d4..c4d7c89 100644
->--- a/drivers/video/console/fbcon_ud.c
->+++ b/drivers/video/console/fbcon_ud.c
->@@ -48,10 +48,10 @@ static inline void ud_update_attr(u8 *ds
-> static void ud_bmove(struct vc_data *vc, struct fb_info *info, int sy,
-> 		     int sx, int dy, int dx, int height, int width)
-> {
->-	struct display *p = &fb_display[vc->vc_num];
->+	struct fbcon_ops *ops = info->fbcon_par;
-> 	struct fb_copyarea area;
->-	u32 vyres = GETVYRES(p->scrollmode, info);
->-	u32 vxres = GETVXRES(p->scrollmode, info);
->+	u32 vyres = GETVYRES(ops->p->scrollmode, info);
->+	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-> 
-> 	area.sy = vyres - ((sy + height) * vc->vc_font.height);
-> 	area.sx = vxres - ((sx + width) * vc->vc_font.width);
->@@ -66,11 +66,11 @@ static void ud_bmove(struct vc_data *vc,
-> static void ud_clear(struct vc_data *vc, struct fb_info *info, int sy,
-> 		     int sx, int height, int width)
-> {
->-	struct display *p = &fb_display[vc->vc_num];
->+	struct fbcon_ops *ops = info->fbcon_par;
-> 	struct fb_fillrect region;
-> 	int bgshift = (vc->vc_hi_font_mask) ? 13 : 12;
->-	u32 vyres = GETVYRES(p->scrollmode, info);
->-	u32 vxres = GETVXRES(p->scrollmode, info);
->+	u32 vyres = GETVYRES(ops->p->scrollmode, info);
->+	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-> 
-> 	region.color = attr_bgcol_ec(bgshift,vc);
-> 	region.dy = vyres - ((sy + height) * vc->vc_font.height);
->@@ -153,7 +153,6 @@ static void ud_putcs(struct vc_data *vc,
-> 		      int fg, int bg)
-> {
-> 	struct fb_image image;
->-	struct display *p = &fb_display[vc->vc_num];
-> 	struct fbcon_ops *ops = info->fbcon_par;
-> 	u32 width = (vc->vc_font.width + 7)/8;
-> 	u32 cellsize = width * vc->vc_font.height;
->@@ -163,8 +162,8 @@ static void ud_putcs(struct vc_data *vc,
-> 	u32 mod = vc->vc_font.width % 8, cnt, pitch, size;
-> 	u32 attribute = get_attribute(info, scr_readw(s));
-> 	u8 *dst, *buf = NULL;
->-	u32 vyres = GETVYRES(p->scrollmode, info);
->-	u32 vxres = GETVXRES(p->scrollmode, info);
->+	u32 vyres = GETVYRES(ops->p->scrollmode, info);
->+	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-> 
-> 	if (!ops->fontbuffer)
-> 		return;
->@@ -421,10 +420,9 @@ static void ud_cursor(struct vc_data *vc
-> int ud_update_start(struct fb_info *info)
-> {
-> 	struct fbcon_ops *ops = info->fbcon_par;
->-	struct display *p = &fb_display[ops->currcon];
-> 	u32 xoffset, yoffset;
->-	u32 vyres = GETVYRES(p->scrollmode, info);
->-	u32 vxres = GETVXRES(p->scrollmode, info);
->+	u32 vyres = GETVYRES(ops->p->scrollmode, info);
->+	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-> 	int err;
-> 
-> 	xoffset = (vxres - info->var.xres) - ops->var.xoffset;
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-
+Rob

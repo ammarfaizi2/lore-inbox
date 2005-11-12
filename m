@@ -1,64 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932493AbVKLUBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932496AbVKLUUj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932493AbVKLUBP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 15:01:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932494AbVKLUBP
+	id S932496AbVKLUUj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 15:20:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932497AbVKLUUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 15:01:15 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:25806 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932493AbVKLUBO (ORCPT
+	Sat, 12 Nov 2005 15:20:39 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:54441 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932496AbVKLUUi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 15:01:14 -0500
-Date: Sat, 12 Nov 2005 21:01:03 +0100
+	Sat, 12 Nov 2005 15:20:38 -0500
+Date: Sat, 12 Nov 2005 21:20:28 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Bj?rn Mork <bmork@dod.no>, linux-kernel@vger.kernel.org
-Subject: Re: Resume from swsusp stopped working with 2.6.14 and 2.6.15-rc1
-Message-ID: <20051112200103.GB1667@elf.ucw.cz>
-References: <87zmoa0yv5.fsf@obelix.mork.no> <200511121023.23245.dtor_core@ameritech.net>
+To: Andrew Morton <akpm@osdl.org>, rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: [patch] fix collie for -rc1
+Message-ID: <20051112202028.GA13617@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200511121023.23245.dtor_core@ameritech.net>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This fixes compilation for collie after -rc1 platform_device
+changes. And yes, it even boots.
 
-> > I have had swsusp working for ages on a IBM Thinkpad T42, but since
-> > 2.6.14 it hasn't been willing to resume anymore.  Both suspending to
-> > disk and ACPI S3 still works. 
-> > 
-> > Output of dmesg below (running 2.6.15-rc1). Notice the line:
-> > 
-> >   Restarting tasks...<6> Strange, kseriod not stopped
-> > 
-> > I guess that's the explanation.  Could it be the new TrackPoint
-> > driver, maybe?  (This PC has both a TrackPoint and a Touchpad).
-> >
-> 
-> This is unlikely... serio has the proper support for freezing as
-> far as I understand:
-> 
-> static int serio_thread(void *nothing)
-> {
->         do {
->                 serio_handle_events();
->                 wait_event_interruptible(serio_wait,
->                         kthread_should_stop() || !list_empty(&serio_event_list));
->                 try_to_freeze();
->         } while (!kthread_should_stop());
-> 
->         printk(KERN_DEBUG "serio: kseriod exiting\n");
->         return 0;
-> }
-> 
-> Pavel, any ideas?
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-No, sorry. I'll try to reproduce it here (x32 notebook), but...
+diff --git a/arch/arm/common/locomo.c b/arch/arm/common/locomo.c
+--- a/arch/arm/common/locomo.c
++++ b/arch/arm/common/locomo.c
+@@ -623,8 +623,6 @@ static int locomo_resume(struct platform
+ 	locomo_writel(0x1, lchip->base + LOCOMO_KEYBOARD + LOCOMO_KCMD);
+ 
+ 	spin_unlock_irqrestore(&lchip->lock, flags);
+-
+-	dev->power.saved_state = NULL;
+ 	kfree(save);
+ 
+ 	return 0;
+@@ -775,7 +820,7 @@ static int locomo_probe(struct platform_
+ 
+ static int locomo_remove(struct platform_device *dev)
+ {
+-	struct locomo *lchip = platform__get_drvdata(dev);
++	struct locomo *lchip = platform_get_drvdata(dev);
+ 
+ 	if (lchip) {
+ 		__locomo_remove(lchip);
+diff --git a/arch/arm/common/scoop.c b/arch/arm/common/scoop.c
+--- a/arch/arm/common/scoop.c
++++ b/arch/arm/common/scoop.c
+@@ -153,7 +153,7 @@ int __init scoop_probe(struct platform_d
+ 	printk("Sharp Scoop Device found at 0x%08x -> 0x%08x\n",(unsigned int)mem->start,(unsigned int)devptr->base);
+ 
+ 	SCOOP_REG(devptr->base, SCOOP_MCR) = 0x0140;
+-	reset_scoop(dev);
++	reset_scoop(&pdev->dev);
+ 	SCOOP_REG(devptr->base, SCOOP_GPCR) = inf->io_dir & 0xffff;
+ 	SCOOP_REG(devptr->base, SCOOP_GPWR) = inf->io_out & 0xffff;
+ 
 
-							Pavel
 -- 
 Thanks, Sharp!

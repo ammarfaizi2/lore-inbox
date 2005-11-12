@@ -1,379 +1,617 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbVKLEtm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbVKLExx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751325AbVKLEtm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 23:49:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbVKLEtX
+	id S932068AbVKLExx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 23:53:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbVKLExM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 23:49:23 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:24018 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751325AbVKLEtF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 23:49:05 -0500
-Date: Fri, 11 Nov 2005 21:49:03 -0700
-From: john stultz <johnstul@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Darren Hart <dvhltc@us.ibm.com>,
-       Nishanth Aravamudan <nacc@us.ibm.com>,
-       Frank Sorenson <frank@tuxrocks.com>,
-       George Anzinger <george@mvista.com>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>
-Message-Id: <20051112044903.8240.74917.sendpatchset@cog.beaverton.ibm.com>
-In-Reply-To: <20051112044850.8240.91581.sendpatchset@cog.beaverton.ibm.com>
-References: <20051112044850.8240.91581.sendpatchset@cog.beaverton.ibm.com>
-Subject: [PATCH 2/13] Time: Reduced NTP Rework (part 2)
+	Fri, 11 Nov 2005 23:53:12 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:9225 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751354AbVKLEwW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 23:52:22 -0500
+Date: Sat, 12 Nov 2005 05:52:16 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       netdev@vger.kernel.org, jonathan@buzzard.org.uk,
+       tlinux-users@linux.toshiba-dme.co.jp, Jaroslav Kysela <perex@suse.cz>
+Subject: [RFC: 2.6 patch] remove ISA legacy functions
+Message-ID: <20051112045216.GY5376@stusta.de>
+References: <20051107200336.GH3847@stusta.de> <20051110042857.38b4635b.akpm@osdl.org> <20051111021258.GK5376@stusta.de> <20051110182443.514622ed.akpm@osdl.org> <20051111201849.GP5376@stusta.de> <20051111202005.GQ5376@stusta.de> <20051111203601.GR5376@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051111203601.GR5376@stusta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
-	Here is the second of two patches which try to minimize my ntp rework
-patches.
-	
-This patch further changes the interrupt time NTP code, breaking out the
-leapsecond processing and introduces an accessor to a shifted ppm
-adjustment value. For correctness, I've also introduced a new lock, the
-ntp_lock, which protects the NTP state machine when accessing it from my
-timekeeping code (which does not use the xtime_lock).
+This patch removes the ISA legacy functions that are deprecated since 
+kernel 2.4 and that aren't available on all architectures.
 
-Again, this patch should not affect the existing behavior, but just
-separate the logical functionality so it can be re-used by my timeofday
-patches.
+The 7 drivers that were still using this obsolete API are now marked
+as BROKEN.
 
-thanks
--john
 
-Signed-off-by: John Stultz <johnstul@us.ibm.com>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
- include/linux/timex.h |   24 +++++++++
- kernel/time.c         |   25 +++++----
- kernel/timer.c        |  133 ++++++++++++++++++++++++++++++++++++++++++++++++--
- 3 files changed, 168 insertions(+), 14 deletions(-)
+---
 
-linux-2.6.14_timeofday-ntp-part2_B10.patch
-============================================
-diff --git a/include/linux/timex.h b/include/linux/timex.h
-index 04a4a8c..10d8c71 100644
---- a/include/linux/timex.h
-+++ b/include/linux/timex.h
-@@ -260,6 +260,7 @@ extern long pps_calcnt;		/* calibration 
- extern long pps_errcnt;		/* calibration errors */
- extern long pps_stbcnt;		/* stability limit exceeded */
+ Documentation/DocBook/deviceiobook.tmpl |   19 -----
+ arch/i386/Kconfig                       |    1 
+ drivers/net/Kconfig                     |    6 -
+ drivers/net/arcnet/Kconfig              |    4 -
+ drivers/scsi/Kconfig                    |    2 
+ include/asm-alpha/io.h                  |   83 ------------------------
+ include/asm-arm/arch-aaec2000/io.h      |    1 
+ include/asm-arm/arch-clps711x/io.h      |    1 
+ include/asm-arm/arch-ebsa285/io.h       |    8 --
+ include/asm-arm/arch-integrator/io.h    |    1 
+ include/asm-arm/arch-iop3xx/io.h        |    1 
+ include/asm-arm/arch-l7200/io.h         |    1 
+ include/asm-arm/arch-lh7a40x/io.h       |    1 
+ include/asm-arm/arch-omap/io.h          |    1 
+ include/asm-arm/arch-pxa/io.h           |    1 
+ include/asm-arm/arch-realview/io.h      |    1 
+ include/asm-arm/arch-sa1100/io.h        |    1 
+ include/asm-arm/arch-versatile/io.h     |    1 
+ include/asm-arm/io.h                    |   36 ----------
+ include/asm-i386/io.h                   |   11 ---
+ include/asm-m68k/io.h                   |   21 ++----
+ include/asm-mips/io.h                   |   23 ------
+ include/asm-parisc/io.h                 |   18 -----
+ include/asm-sh/io.h                     |   13 ---
+ include/asm-x86_64/io.h                 |   11 ---
+ 25 files changed, 15 insertions(+), 252 deletions(-)
+
+--- linux-2.6.14-mm2-full/Documentation/DocBook/deviceiobook.tmpl.old	2005-11-11 21:44:08.000000000 +0100
++++ linux-2.6.14-mm2-full/Documentation/DocBook/deviceiobook.tmpl	2005-11-11 21:44:18.000000000 +0100
+@@ -270,25 +270,6 @@
+       </para>
+     </sect1>
  
-+extern seqlock_t ntp_lock;
- /**
-  * ntp_clear - Clears the NTP state variables
-  *
-@@ -267,10 +268,14 @@ extern long pps_stbcnt;		/* stability li
-  */
- static inline void ntp_clear(void)
- {
-+	unsigned long flags;
-+	write_seqlock_irqsave(&ntp_lock, flags);
- 	time_adjust = 0;		/* stop active adjtime() */
- 	time_status |= STA_UNSYNC;
- 	time_maxerror = NTP_PHASE_LIMIT;
- 	time_esterror = NTP_PHASE_LIMIT;
-+	write_sequnlock_irqrestore(&ntp_lock, flags);
-+
- }
- 
- /**
-@@ -282,6 +287,25 @@ static inline int ntp_synced(void)
- 	return !(time_status & STA_UNSYNC);
- }
- 
-+/**
-+ * ntp_get_ppm_adjustment - Returns Shifted PPM adjustment
-+ *
-+ */
-+long ntp_get_ppm_adjustment(void);
-+
-+/**
-+ * ntp_advance - Advances the NTP state machine by interval_ns
-+ *
-+ */
-+void ntp_advance(unsigned long interval_ns);
-+
-+/**
-+ * ntp_leapsecond - NTP leapsecond processing code.
-+ *
-+ */
-+int ntp_leapsecond(struct timespec now);
-+
-+
- /* Required to safely shift negative values */
- #define shift_right(x, s) ({	\
- 	__typeof__(x) __x = (x);	\
-diff --git a/kernel/time.c b/kernel/time.c
-index 099dee8..c589b71 100644
---- a/kernel/time.c
-+++ b/kernel/time.c
-@@ -234,7 +234,9 @@ int do_adjtimex(struct timex *txc)
- {
-         long ltemp, mtemp, save_adjust;
- 	int result;
+-    <sect1>
+-      <title>ISA legacy functions</title>
+-      <para>
+-	On older kernels (2.2 and earlier) the ISA bus could be read or
+-	written with these functions and without ioremap being used. This is
+-	no longer true in Linux 2.4. A set of equivalent functions exist for
+-	easy legacy driver porting. The functions available are prefixed
+-	with 'isa_' and are <function>isa_readb</function>,
+-	<function>isa_writeb</function>, <function>isa_readw</function>, 
+-	<function>isa_writew</function>, <function>isa_readl</function>,
+-	<function>isa_writel</function>, <function>isa_memcpy_fromio</function>
+-	and <function>isa_memcpy_toio</function>
+-      </para>
+-      <para>
+-	These functions should not be used in new drivers, and will
+-	eventually be going away.
+-      </para>
+-    </sect1>
 -
-+	unsigned long flags;
-+	struct timespec now_ts;
-+	unsigned long seq;
- 	/* In order to modify anything, you gotta be super-user! */
- 	if (txc->modes && !capable(CAP_SYS_TIME))
- 		return -EPERM;
-@@ -257,7 +259,13 @@ int do_adjtimex(struct timex *txc)
- 		    txc->tick > 1100000/USER_HZ)
- 			return -EINVAL;
+   </chapter>
  
--	write_seqlock_irq(&xtime_lock);
-+	do { /* save off current xtime */
-+		seq = read_seqbegin(&xtime_lock);
-+		now_ts = xtime;
-+	} while (read_seqretry(&xtime_lock, seq));
-+
-+	write_seqlock_irqsave(&ntp_lock, flags);
-+
- 	result = time_state;	/* mostly `TIME_OK' */
+   <chapter>
+--- linux-2.6.14-mm2-full/include/asm-alpha/io.h.old	2005-11-11 21:39:55.000000000 +0100
++++ linux-2.6.14-mm2-full/include/asm-alpha/io.h	2005-11-11 21:59:27.000000000 +0100
+@@ -534,9 +534,6 @@
+ #define eth_io_copy_and_sum(skb,src,len,unused) \
+   memcpy_fromio((skb)->data,src,len)
  
- 	/* Save for later - semantics of adjtime is to return old value */
-@@ -334,9 +342,9 @@ int do_adjtimex(struct timex *txc)
- 		     */
+-#define isa_eth_io_copy_and_sum(skb,src,len,unused) \
+-  isa_memcpy_fromio((skb)->data,src,len)
+-
+ static inline int
+ check_signature(const volatile void __iomem *io_addr,
+ 		const unsigned char *signature, int length)
+@@ -552,86 +549,6 @@
  
- 		    if (time_status & STA_FREQHOLD || time_reftime == 0)
--		        time_reftime = xtime.tv_sec;
--		    mtemp = xtime.tv_sec - time_reftime;
--		    time_reftime = xtime.tv_sec;
-+		        time_reftime = now_ts.tv_sec;
-+		    mtemp = now_ts.tv_sec - time_reftime;
-+		    time_reftime = now_ts.tv_sec;
- 		    if (time_status & STA_FLL) {
- 		        if (mtemp >= MINSEC) {
- 			    ltemp = (time_offset / mtemp) << (SHIFT_USEC -
-@@ -395,7 +403,7 @@ leave:	if ((time_status & (STA_UNSYNC|ST
- 	txc->calcnt	   = pps_calcnt;
- 	txc->errcnt	   = pps_errcnt;
- 	txc->stbcnt	   = pps_stbcnt;
--	write_sequnlock_irq(&xtime_lock);
-+	write_sequnlock_irqrestore(&ntp_lock, flags);
- 	do_gettimeofday(&txc->time);
- 	notify_arch_cmos_timer();
- 	return(result);
-@@ -512,10 +520,7 @@ int do_settimeofday (struct timespec *tv
- 		set_normalized_timespec(&xtime, sec, nsec);
- 		set_normalized_timespec(&wall_to_monotonic, wtm_sec, wtm_nsec);
  
--		time_adjust = 0;		/* stop active adjtime() */
--		time_status |= STA_UNSYNC;
--		time_maxerror = NTP_PHASE_LIMIT;
--		time_esterror = NTP_PHASE_LIMIT;
-+		ntp_clear();
- 		time_interpolator_reset();
- 	}
- 	write_sequnlock_irq(&xtime_lock);
-diff --git a/kernel/timer.c b/kernel/timer.c
-index 30a1979..f0c986b 100644
---- a/kernel/timer.c
-+++ b/kernel/timer.c
-@@ -582,7 +582,6 @@ long time_tolerance = MAXFREQ;		/* frequ
- long time_precision = 1;		/* clock precision (us)		*/
- long time_maxerror = NTP_PHASE_LIMIT;	/* maximum error (us)		*/
- long time_esterror = NTP_PHASE_LIMIT;	/* estimated error (us)		*/
--static long time_phase;			/* phase offset (scaled us)	*/
- long time_freq = (((NSEC_PER_SEC + HZ/2) % HZ - HZ/2) << SHIFT_USEC) / NSEC_PER_USEC;
- 					/* frequency offset (scaled ppm)*/
- static long time_adj;			/* tick adjust (scaled 1 / HZ)	*/
-@@ -591,6 +590,87 @@ long time_adjust;
- long time_next_adjust;
- long time_adjust_step;	/* per tick time_adjust step */
- 
-+long total_sppm;	/* shifted ppm sum of all NTP adjustments */
-+long offset_adj_ppm;
-+long tick_adj_ppm;
-+long singleshot_adj_ppm;
-+
-+#define MAX_SINGLESHOT_ADJ 500 /* (ppm) */
-+#define SEC_PER_DAY 86400
-+#define END_OF_DAY(x) (x + SEC_PER_DAY - (x % SEC_PER_DAY) - 1)
-+
-+/* NTP lock, protects NTP state machine */
-+seqlock_t ntp_lock = SEQLOCK_UNLOCKED;
-+
-+/**
-+ * ntp_leapsecond - NTP leapsecond processing code.
-+ * now: the current time
-+ *
-+ * Returns the number of seconds (-1, 0, or 1) that
-+ * should be added to the current time to properly
-+ * adjust for leapseconds.
-+ */
-+
-+int ntp_leapsecond(struct timespec now)
-+{
-+	unsigned long flags;
-+	/*
-+	 * Leap second processing. If in leap-insert state at
-+	 * the end of the day, the system clock is set back one
-+	 * second; if in leap-delete state, the system clock is
-+	 * set ahead one second.
-+	 */
-+	static time_t leaptime = 0;
-+	int ret = 0;
-+
-+	write_seqlock_irqsave(&ntp_lock, flags);
-+	switch (time_state) {
-+
-+	case TIME_OK:
-+		if (time_status & STA_INS) {
-+			time_state = TIME_INS;
-+			leaptime = END_OF_DAY(now.tv_sec);
-+		} else if (time_status & STA_DEL) {
-+			time_state = TIME_DEL;
-+			leaptime = END_OF_DAY(now.tv_sec);
-+		}
-+		break;
-+
-+	case TIME_INS:
-+		/* Once we are at (or past) leaptime, insert the second */
-+		if (now.tv_sec >= leaptime) {
-+			time_state = TIME_OOP;
-+			printk(KERN_NOTICE "Clock: inserting leap second 23:59:60 UTC\n");
-+			ret = -1;
-+		}
-+		break;
-+
-+	case TIME_DEL:
-+		/* Once we are at (or past) leaptime, delete the second */
-+		if (now.tv_sec >= leaptime) {
-+			time_state = TIME_WAIT;
-+			printk(KERN_NOTICE "Clock: deleting leap second 23:59:59 UTC\n");
-+			ret = 1;
-+		}
-+		break;
-+
-+	case TIME_OOP:
-+		/*  Wait for the end of the leap second*/
-+		if (now.tv_sec > (leaptime + 1))
-+			time_state = TIME_WAIT;
-+		time_state = TIME_WAIT;
-+		break;
-+
-+	case TIME_WAIT:
-+		if (!(time_status & (STA_INS | STA_DEL)))
-+			time_state = TIME_OK;
-+		break;
-+	}
-+
-+	write_sequnlock_irqrestore(&ntp_lock, flags);
-+	return 0;
-+}
-+
  /*
-  * this routine handles the overflow of the microsecond field
-  *
-@@ -663,6 +743,13 @@ static void second_overflow(void)
- 		time_state = TIME_OK;
- 	}
+- * ISA space is mapped to some machine-specific location on Alpha.
+- * Call into the existing hooks to get the address translated.
+- */
+-
+-static inline u8
+-isa_readb(unsigned long offset)
+-{
+-	void __iomem *addr = ioremap(offset, 1);
+-	u8 ret = readb(addr);
+-	iounmap(addr);
+-	return ret;
+-}
+-
+-static inline u16
+-isa_readw(unsigned long offset)
+-{
+-	void __iomem *addr = ioremap(offset, 2);
+-	u16 ret = readw(addr);
+-	iounmap(addr);
+-	return ret;
+-}
+-
+-static inline u32
+-isa_readl(unsigned long offset)
+-{
+-	void __iomem *addr = ioremap(offset, 2);
+-	u32 ret = readl(addr);
+-	iounmap(addr);
+-	return ret;
+-}
+-
+-static inline void
+-isa_writeb(u8 b, unsigned long offset)
+-{
+-	void __iomem *addr = ioremap(offset, 2);
+-	writeb(b, addr);
+-	iounmap(addr);
+-}
+-
+-static inline void
+-isa_writew(u16 w, unsigned long offset)
+-{
+-	void __iomem *addr = ioremap(offset, 2);
+-	writew(w, addr);
+-	iounmap(addr);
+-}
+-
+-static inline void
+-isa_writel(u32 l, unsigned long offset)
+-{
+-	void __iomem *addr = ioremap(offset, 2);
+-	writel(l, addr);
+-	iounmap(addr);
+-}
+-
+-static inline void
+-isa_memset_io(unsigned long offset, u8 val, long n)
+-{
+-	void __iomem *addr = ioremap(offset, n);
+-	memset_io(addr, val, n);
+-	iounmap(addr);
+-}
+-
+-static inline void
+-isa_memcpy_fromio(void *dest, unsigned long offset, long n)
+-{
+-	void __iomem *addr = ioremap(offset, n);
+-	memcpy_fromio(dest, addr, n);
+-	iounmap(addr);
+-}
+-
+-static inline void
+-isa_memcpy_toio(unsigned long offset, const void *src, long n)
+-{
+-	void __iomem *addr = ioremap(offset, n);
+-	memcpy_toio(addr, src, n);
+-	iounmap(addr);
+-}
+-
+-/*
+  * The Alpha Jensen hardware for some rather strange reason puts
+  * the RTC clock at 0x170 instead of 0x70. Probably due to some
+  * misguided idea about using 0x70 for NMI stuff.
+--- linux-2.6.14-mm2-full/include/asm-arm/io.h.old	2005-11-11 21:40:42.000000000 +0100
++++ linux-2.6.14-mm2-full/include/asm-arm/io.h	2005-11-11 21:59:36.000000000 +0100
+@@ -215,42 +215,6 @@
+ #endif	/* __mem_pci */
  
-+	/* Bump the maxerror field */
-+	time_maxerror += time_tolerance >> SHIFT_USEC;
-+	if ( time_maxerror > NTP_PHASE_LIMIT ) {
-+		time_maxerror = NTP_PHASE_LIMIT;
-+		time_status |= STA_UNSYNC;
-+	}
-+
- 	/*
- 	 * Compute the phase adjustment for the next second. In PLL mode, the
- 	 * offset is reduced by a fixed factor times the time constant. In FLL
-@@ -678,6 +765,13 @@ static void second_overflow(void)
- 	time_offset -= ltemp;
- 	time_adj = ltemp << (SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
- 
-+	offset_adj_ppm = shift_right(ltemp, SHIFT_UPDATE); /* ppm */
-+
-+	/* first calculate usec/user_tick offset */
-+	tick_adj_ppm = ((USEC_PER_SEC + USER_HZ/2)/USER_HZ) - tick_usec;
-+	/* multiply by user_hz to get usec/sec => ppm */
-+	tick_adj_ppm *= USER_HZ;
-+
- 	/*
- 	 * Compute the frequency estimate and additional phase adjustment due
- 	 * to frequency error for the next second. When the PPS signal is
-@@ -726,15 +820,25 @@ static void second_overflow(void)
- #endif
- }
- 
-+
- /**
-- * ntp_advance() - increments the NTP state machine
-+ * ntp_get_ppm_adjustment - Returns Shifted PPM adjustment
+ /*
+- * If this architecture has ISA IO, then define the isa_read/isa_write
+- * macros.
+- */
+-#ifdef __mem_isa
+-
+-#define isa_readb(addr)			__raw_readb(__mem_isa(addr))
+-#define isa_readw(addr)			__raw_readw(__mem_isa(addr))
+-#define isa_readl(addr)			__raw_readl(__mem_isa(addr))
+-#define isa_writeb(val,addr)		__raw_writeb(val,__mem_isa(addr))
+-#define isa_writew(val,addr)		__raw_writew(val,__mem_isa(addr))
+-#define isa_writel(val,addr)		__raw_writel(val,__mem_isa(addr))
+-#define isa_memset_io(a,b,c)		_memset_io(__mem_isa(a),(b),(c))
+-#define isa_memcpy_fromio(a,b,c)	_memcpy_fromio((a),__mem_isa(b),(c))
+-#define isa_memcpy_toio(a,b,c)		_memcpy_toio(__mem_isa((a)),(b),(c))
+-
+-#define isa_eth_io_copy_and_sum(a,b,c,d) \
+-				eth_copy_and_sum((a),__mem_isa(b),(c),(d))
+-
+-#else	/* __mem_isa */
+-
+-#define isa_readb(addr)			(__readwrite_bug("isa_readb"),0)
+-#define isa_readw(addr)			(__readwrite_bug("isa_readw"),0)
+-#define isa_readl(addr)			(__readwrite_bug("isa_readl"),0)
+-#define isa_writeb(val,addr)		__readwrite_bug("isa_writeb")
+-#define isa_writew(val,addr)		__readwrite_bug("isa_writew")
+-#define isa_writel(val,addr)		__readwrite_bug("isa_writel")
+-#define isa_memset_io(a,b,c)		__readwrite_bug("isa_memset_io")
+-#define isa_memcpy_fromio(a,b,c)	__readwrite_bug("isa_memcpy_fromio")
+-#define isa_memcpy_toio(a,b,c)		__readwrite_bug("isa_memcpy_toio")
+-
+-#define isa_eth_io_copy_and_sum(a,b,c,d) \
+-				__readwrite_bug("isa_eth_io_copy_and_sum")
+-
+-#endif	/* __mem_isa */
+-
+-/*
+  * ioremap and friends.
   *
-- * Must be holding the xtime writelock when calling.
-+ */
-+long ntp_get_ppm_adjustment(void)
-+{
-+	return total_sppm;
-+}
-+
-+/**
-+ * ntp_advance() - increments the NTP state machine
-  *
+  * ioremap takes a PCI memory address, as specified in
+--- linux-2.6.14-mm2-full/include/asm-i386/io.h.old	2005-11-11 21:41:07.000000000 +0100
++++ linux-2.6.14-mm2-full/include/asm-i386/io.h	2005-11-12 00:37:26.000000000 +0100
+@@ -214,23 +214,12 @@
   */
--static void ntp_advance(unsigned long interval_ns)
-+void ntp_advance(unsigned long interval_ns)
- {
- 	static unsigned long interval_sum;
-+	unsigned long flags;
-+	write_seqlock_irqsave(&ntp_lock, flags);
+ #define __ISA_IO_base ((char __iomem *)(PAGE_OFFSET))
  
- 	/* increment the interval sum */
- 	interval_sum += interval_ns;
-@@ -761,6 +865,7 @@ static void ntp_advance(unsigned long in
- 		}
- 		interval_ns -= tick_nsec;
- 	}
-+	singleshot_adj_ppm = time_adjust_step*(1000000/HZ); /* usec/tick => ppm */
- 
- 	/* Changes by adjtime() do not take effect till next tick. */
- 	if (time_next_adjust != 0) {
-@@ -772,6 +877,15 @@ static void ntp_advance(unsigned long in
- 		interval_sum -= NSEC_PER_SEC;
- 		second_overflow();
- 	}
-+
-+	/* calculate the total continuous ppm adjustment */
-+	total_sppm = time_freq; /* already shifted by SHIFT_USEC */
-+	total_sppm += offset_adj_ppm << SHIFT_USEC;
-+	total_sppm += tick_adj_ppm << SHIFT_USEC;
-+	total_sppm += singleshot_adj_ppm << SHIFT_USEC;
-+
-+	write_sequnlock_irqrestore(&ntp_lock, flags);
-+
- }
+-#define isa_readb(a) readb(__ISA_IO_base + (a))
+-#define isa_readw(a) readw(__ISA_IO_base + (a))
+-#define isa_readl(a) readl(__ISA_IO_base + (a))
+-#define isa_writeb(b,a) writeb(b,__ISA_IO_base + (a))
+-#define isa_writew(w,a) writew(w,__ISA_IO_base + (a))
+-#define isa_writel(l,a) writel(l,__ISA_IO_base + (a))
+-#define isa_memset_io(a,b,c)		memset_io(__ISA_IO_base + (a),(b),(c))
+-#define isa_memcpy_fromio(a,b,c)	memcpy_fromio((a),__ISA_IO_base + (b),(c))
+-#define isa_memcpy_toio(a,b,c)		memcpy_toio(__ISA_IO_base + (a),(b),(c))
+-
  
  /*
-@@ -784,6 +898,7 @@ static void ntp_advance(unsigned long in
- static void update_wall_time(unsigned long ticks)
+  * Again, i386 does not require mem IO specific function.
+  */
+ 
+ #define eth_io_copy_and_sum(a,b,c,d)		eth_copy_and_sum((a),(void __force *)(b),(c),(d))
+-#define isa_eth_io_copy_and_sum(a,b,c,d)	eth_copy_and_sum((a),(void __force *)(__ISA_IO_base + (b)),(c),(d))
+ 
+ /**
+  *	check_signature		-	find BIOS signatures
+--- linux-2.6.14-mm2-full/include/asm-mips/io.h.old	2005-11-11 21:41:23.000000000 +0100
++++ linux-2.6.14-mm2-full/include/asm-mips/io.h	2005-11-11 22:00:31.000000000 +0100
+@@ -563,33 +563,10 @@
+ extern void pci_iounmap(struct pci_dev *dev, void __iomem *);
+ 
+ /*
+- * ISA space is 'always mapped' on currently supported MIPS systems, no need
+- * to explicitly ioremap() it. The fact that the ISA IO space is mapped
+- * to PAGE_OFFSET is pure coincidence - it does not mean ISA values
+- * are physical addresses. The following constant pointer can be
+- * used as the IO-area pointer (it can be iounmapped as well, so the
+- * analogy with PCI is quite large):
+- */
+-#define __ISA_IO_base ((char *)(isa_slot_offset))
+-
+-#define isa_readb(a)		readb(__ISA_IO_base + (a))
+-#define isa_readw(a)		readw(__ISA_IO_base + (a))
+-#define isa_readl(a)		readl(__ISA_IO_base + (a))
+-#define isa_readq(a)		readq(__ISA_IO_base + (a))
+-#define isa_writeb(b,a)		writeb(b,__ISA_IO_base + (a))
+-#define isa_writew(w,a)		writew(w,__ISA_IO_base + (a))
+-#define isa_writel(l,a)		writel(l,__ISA_IO_base + (a))
+-#define isa_writeq(q,a)		writeq(q,__ISA_IO_base + (a))
+-#define isa_memset_io(a,b,c)	memset_io(__ISA_IO_base + (a),(b),(c))
+-#define isa_memcpy_fromio(a,b,c) memcpy_fromio((a),__ISA_IO_base + (b),(c))
+-#define isa_memcpy_toio(a,b,c)	memcpy_toio(__ISA_IO_base + (a),(b),(c))
+-
+-/*
+  * We don't have csum_partial_copy_fromio() yet, so we cheat here and
+  * just copy it. The net code will then do the checksum later.
+  */
+ #define eth_io_copy_and_sum(skb,src,len,unused) memcpy_fromio((skb)->data,(src),(len))
+-#define isa_eth_io_copy_and_sum(a,b,c,d) eth_copy_and_sum((a),(b),(c),(d))
+ 
+ /*
+  *     check_signature         -       find BIOS signatures
+--- linux-2.6.14-mm2-full/include/asm-parisc/io.h.old	2005-11-11 21:41:44.000000000 +0100
++++ linux-2.6.14-mm2-full/include/asm-parisc/io.h	2005-11-11 22:01:12.000000000 +0100
+@@ -294,22 +294,6 @@
+ void memcpy_fromio(void *dst, const volatile void __iomem *src, int count);
+ void memcpy_toio(volatile void __iomem *dst, const void *src, int count);
+ 
+-/* Support old drivers which don't ioremap.
+- * NB this interface is scheduled to disappear in 2.5
+- */
+-
+-#define __isa_addr(x) (void __iomem *)(F_EXTEND(0xfc000000) | (x))
+-#define isa_readb(a) readb(__isa_addr(a))
+-#define isa_readw(a) readw(__isa_addr(a))
+-#define isa_readl(a) readl(__isa_addr(a))
+-#define isa_writeb(b,a) writeb((b), __isa_addr(a))
+-#define isa_writew(b,a) writew((b), __isa_addr(a))
+-#define isa_writel(b,a) writel((b), __isa_addr(a))
+-#define isa_memset_io(a,b,c) memset_io(__isa_addr(a), (b), (c))
+-#define isa_memcpy_fromio(a,b,c) memcpy_fromio((a), __isa_addr(b), (c))
+-#define isa_memcpy_toio(a,b,c) memcpy_toio(__isa_addr(a), (b), (c))
+-
+-
+ /*
+  * XXX - We don't have csum_partial_copy_fromio() yet, so we cheat here and 
+  * just copy it. The net code will then do the checksum later. Presently 
+@@ -318,8 +302,6 @@
+ 
+ #define eth_io_copy_and_sum(skb,src,len,unused) \
+   memcpy_fromio((skb)->data,(src),(len))
+-#define isa_eth_io_copy_and_sum(skb,src,len,unused) \
+-  isa_memcpy_fromio((skb)->data,(src),(len))
+ 
+ /* Port-space IO */
+ 
+--- linux-2.6.14-mm2-full/include/asm-x86_64/io.h.old	2005-11-11 21:41:58.000000000 +0100
++++ linux-2.6.14-mm2-full/include/asm-x86_64/io.h	2005-11-12 00:38:07.000000000 +0100
+@@ -264,23 +264,12 @@
+  */
+ #define __ISA_IO_base ((char __iomem *)(PAGE_OFFSET))
+ 
+-#define isa_readb(a) readb(__ISA_IO_base + (a))
+-#define isa_readw(a) readw(__ISA_IO_base + (a))
+-#define isa_readl(a) readl(__ISA_IO_base + (a))
+-#define isa_writeb(b,a) writeb(b,__ISA_IO_base + (a))
+-#define isa_writew(w,a) writew(w,__ISA_IO_base + (a))
+-#define isa_writel(l,a) writel(l,__ISA_IO_base + (a))
+-#define isa_memset_io(a,b,c)		memset_io(__ISA_IO_base + (a),(b),(c))
+-#define isa_memcpy_fromio(a,b,c)	memcpy_fromio((a),__ISA_IO_base + (b),(c))
+-#define isa_memcpy_toio(a,b,c)		memcpy_toio(__ISA_IO_base + (a),(b),(c))
+-
+ 
+ /*
+  * Again, x86-64 does not require mem IO specific function.
+  */
+ 
+ #define eth_io_copy_and_sum(a,b,c,d)		eth_copy_and_sum((a),(void *)(b),(c),(d))
+-#define isa_eth_io_copy_and_sum(a,b,c,d)	eth_copy_and_sum((a),(void *)(__ISA_IO_base + (b)),(c),(d))
+ 
+ /**
+  *	check_signature		-	find BIOS signatures
+--- linux-2.6.14-mm2-full/include/asm-m68k/io.h.old	2005-11-11 21:49:11.000000000 +0100
++++ linux-2.6.14-mm2-full/include/asm-m68k/io.h	2005-11-11 21:56:15.000000000 +0100
+@@ -191,15 +191,6 @@
+ #define isa_outb(val,port) out_8(isa_itb(port),(val))
+ #define isa_outw(val,port) (ISA_SEX ? out_be16(isa_itw(port),(val)) : out_le16(isa_itw(port),(val)))
+ 
+-#define isa_readb(p)       in_8(isa_mtb((unsigned long)(p)))
+-#define isa_readw(p)       \
+-	(ISA_SEX ? in_be16(isa_mtw((unsigned long)(p)))	\
+-		 : in_le16(isa_mtw((unsigned long)(p))))
+-#define isa_writeb(val,p)  out_8(isa_mtb((unsigned long)(p)),(val))
+-#define isa_writew(val,p)  \
+-	(ISA_SEX ? out_be16(isa_mtw((unsigned long)(p)),(val))	\
+-		 : out_le16(isa_mtw((unsigned long)(p)),(val)))
+-
+ static inline void isa_delay(void)
  {
- 	long delta_nsec;
-+	static long time_phase; /* phase offset (scaled us)	*/
+   switch(ISA_TYPE)
+@@ -254,10 +245,14 @@
+ #define insw    isa_insw
+ #define outsb   isa_outsb
+ #define outsw   isa_outsw
+-#define readb   isa_readb
+-#define readw   isa_readw
+-#define writeb  isa_writeb
+-#define writew  isa_writew
++#define readb(p) in_8(isa_mtb((unsigned long)(p)))
++#define readw(p)       \
++	(ISA_SEX ? in_be16(isa_mtw((unsigned long)(p)))	\
++		 : in_le16(isa_mtw((unsigned long)(p))))
++#define writeb(val,p)  out_8(isa_mtb((unsigned long)(p)),(val))
++#define writew(val,p)  \
++	(ISA_SEX ? out_be16(isa_mtw((unsigned long)(p)),(val))	\
++		 : out_le16(isa_mtw((unsigned long)(p)),(val)))
+ #endif /* CONFIG_ISA */
  
- 	do {
- 		ticks--;
-@@ -807,8 +922,18 @@ static void update_wall_time(unsigned lo
+ #if defined(CONFIG_PCI)
+--- linux-2.6.14-mm2-full/include/asm-sh/io.h.old	2005-11-11 21:50:43.000000000 +0100
++++ linux-2.6.14-mm2-full/include/asm-sh/io.h	2005-11-11 22:01:37.000000000 +0100
+@@ -159,19 +159,6 @@
+ 	generic_io_base = pbase;
+ }
  
- 		xtime.tv_nsec += delta_nsec;
- 		if (xtime.tv_nsec >= NSEC_PER_SEC) {
-+			int leapsecond;
- 			xtime.tv_nsec -= NSEC_PER_SEC;
- 			xtime.tv_sec++;
-+			/* process leapsecond */
-+			leapsecond = ntp_leapsecond(xtime);
-+			if (leapsecond) {
-+				xtime.tv_sec += leapsecond;
-+				wall_to_monotonic.tv_sec -= leapsecond;
-+				/* Use of time interpolator for a gradual change of time */
-+				time_interpolator_update(leapsecond*NSEC_PER_SEC);
-+				clock_was_set();
-+			}
- 		}
- 		ntp_advance(tick_nsec);
- 		time_interpolator_update(delta_nsec);
+-#define isa_readb(a) readb(isa_port2addr(a))
+-#define isa_readw(a) readw(isa_port2addr(a))
+-#define isa_readl(a) readl(isa_port2addr(a))
+-#define isa_writeb(b,a) writeb(b,isa_port2addr(a))
+-#define isa_writew(w,a) writew(w,isa_port2addr(a))
+-#define isa_writel(l,a) writel(l,isa_port2addr(a))
+-#define isa_memset_io(a,b,c) \
+-  memset((void *)(isa_port2addr((unsigned long)a)),(b),(c))
+-#define isa_memcpy_fromio(a,b,c) \
+-  memcpy((a),(void *)(isa_port2addr((unsigned long)(b))),(c))
+-#define isa_memcpy_toio(a,b,c) \
+-  memcpy((void *)(isa_port2addr((unsigned long)(a))),(b),(c))
+-
+ /* We really want to try and get these to memcpy etc */
+ extern void memcpy_fromio(void *, unsigned long, unsigned long);
+ extern void memcpy_toio(unsigned long, const void *, unsigned long);
+--- linux-2.6.14-mm2-full/arch/i386/Kconfig.old	2005-11-11 21:44:56.000000000 +0100
++++ linux-2.6.14-mm2-full/arch/i386/Kconfig	2005-11-11 21:45:09.000000000 +0100
+@@ -307,6 +307,7 @@
+ 
+ config TOSHIBA
+ 	tristate "Toshiba Laptop support"
++	depends on BROKEN
+ 	---help---
+ 	  This adds a driver to safely access the System Management Mode of
+ 	  the CPU on Toshiba portables with a genuine Toshiba BIOS. It does
+--- linux-2.6.14-mm2-full/drivers/net/Kconfig.old	2005-11-11 21:52:55.000000000 +0100
++++ linux-2.6.14-mm2-full/drivers/net/Kconfig	2005-11-11 22:02:32.000000000 +0100
+@@ -726,7 +726,7 @@
+ 
+ config LANCE
+ 	tristate "AMD LANCE and PCnet (AT1500 and NE2100) support"
+-	depends on NET_ETHERNET && ISA && ISA_DMA_API
++	depends on NET_ETHERNET && ISA && ISA_DMA_API && BROKEN
+ 	help
+ 	  If you have a network (Ethernet) card of this type, say Y and read
+ 	  the Ethernet-HOWTO, available from
+@@ -935,7 +935,7 @@
+ 
+ config HP100
+ 	tristate "HP 10/100VG PCLAN (ISA, EISA, PCI) support"
+-	depends on NET_ETHERNET && (ISA || EISA || PCI)
++	depends on NET_ETHERNET && (ISA || EISA || PCI) && BROKEN
+ 	help
+ 	  If you have a network (Ethernet) card of this type, say Y and read
+ 	  the Ethernet-HOWTO, available from
+@@ -1021,7 +1021,7 @@
+ 
+ config HPLAN_PLUS
+ 	tristate "HP PCLAN+ (27247B and 27252A) support"
+-	depends on NET_ISA
++	depends on NET_ISA && BROKEN
+ 	select CRC32
+ 	help
+ 	  If you have a network (Ethernet) card of this type, say Y and read
+--- linux-2.6.14-mm2-full/drivers/net/arcnet/Kconfig.old	2005-11-11 21:45:50.000000000 +0100
++++ linux-2.6.14-mm2-full/drivers/net/arcnet/Kconfig	2005-11-11 21:46:22.000000000 +0100
+@@ -80,7 +80,7 @@
+ 
+ config ARCNET_COM90xx
+ 	tristate "ARCnet COM90xx (normal) chipset driver"
+-	depends on ARCNET
++	depends on ARCNET && BROKEN
+ 	help
+ 	  This is the chipset driver for the standard COM90xx cards. If you
+ 	  have always used the old ARCnet driver without knowing what type of
+@@ -105,7 +105,7 @@
+ 
+ config ARCNET_RIM_I
+ 	tristate "ARCnet COM90xx (RIM I) chipset driver"
+-	depends on ARCNET
++	depends on ARCNET && BROKEN
+ 	---help---
+ 	  This is yet another chipset driver for the COM90xx cards, but this
+ 	  time only using memory-mapped mode, and no IO ports at all. This
+--- linux-2.6.14-mm2-full/drivers/scsi/Kconfig.old	2005-11-11 21:47:56.000000000 +0100
++++ linux-2.6.14-mm2-full/drivers/scsi/Kconfig	2005-11-11 21:48:17.000000000 +0100
+@@ -474,7 +474,7 @@
+ 
+ config SCSI_IN2000
+ 	tristate "Always IN2000 SCSI support"
+-	depends on ISA && SCSI
++	depends on ISA && SCSI && BROKEN
+ 	help
+ 	  This is support for an ISA bus SCSI host adapter.  You'll find more
+ 	  information in <file:Documentation/scsi/in2000.txt>. If it doesn't work
+--- linux-2.6.14-mm2-full/include/asm-arm/arch-aaec2000/io.h.old	2005-11-12 05:46:17.000000000 +0100
++++ linux-2.6.14-mm2-full/include/asm-arm/arch-aaec2000/io.h	2005-11-12 05:46:35.000000000 +0100
+@@ -16,6 +16,5 @@
+  */
+ #define __io(a)			((void __iomem *)(a))
+ #define __mem_pci(a)		(a)
+-#define __mem_isa(a)		(a)
+ 
+ #endif
+--- linux-2.6.14-mm2-full/include/asm-arm/arch-clps711x/io.h.old	2005-11-12 05:46:40.000000000 +0100
++++ linux-2.6.14-mm2-full/include/asm-arm/arch-clps711x/io.h	2005-11-12 05:46:47.000000000 +0100
+@@ -26,7 +26,6 @@
+ 
+ #define __io(a)			((void __iomem *)(a))
+ #define __mem_pci(a)		(a)
+-#define __mem_isa(a)		(a)
+ 
+ /*
+  * We don't support ins[lb]/outs[lb].  Make them fault.
+--- linux-2.6.14-mm2-full/include/asm-arm/arch-ebsa285/io.h.old	2005-11-12 05:47:02.000000000 +0100
++++ linux-2.6.14-mm2-full/include/asm-arm/arch-ebsa285/io.h	2005-11-12 05:47:43.000000000 +0100
+@@ -24,7 +24,6 @@
+ #define __io(a)			((void __iomem *)(PCIO_BASE + (a)))
+ #if 1
+ #define __mem_pci(a)		(a)
+-#define __mem_isa(a)		((a) + PCIMEM_BASE)
+ #else
+ 
+ static inline void __iomem *___mem_pci(void __iomem *p)
+@@ -34,14 +33,7 @@
+ 	return p;
+ }
+ 
+-static inline void __iomem *___mem_isa(void __iomem *p)
+-{
+-	unsigned long a = (unsigned long)p;
+-	BUG_ON(a >= 16*1048576);
+-	return p + PCIMEM_BASE;
+-}
+ #define __mem_pci(a)		___mem_pci(a)
+-#define __mem_isa(a)		___mem_isa(a)
+ #endif
+ 
+ #endif
+--- linux-2.6.14-mm2-full/include/asm-arm/arch-integrator/io.h.old	2005-11-12 05:48:52.000000000 +0100
++++ linux-2.6.14-mm2-full/include/asm-arm/arch-integrator/io.h	2005-11-12 05:48:56.000000000 +0100
+@@ -32,6 +32,5 @@
+ 
+ #define __io(a)			((void __iomem *)(PCI_IO_VADDR + (a)))
+ #define __mem_pci(a)		(a)
+-#define __mem_isa(a)		((a) + PCI_MEMORY_VADDR)
+ 
+ #endif
+--- linux-2.6.14-mm2-full/include/asm-arm/arch-iop3xx/io.h.old	2005-11-12 05:49:04.000000000 +0100
++++ linux-2.6.14-mm2-full/include/asm-arm/arch-iop3xx/io.h	2005-11-12 05:49:07.000000000 +0100
+@@ -17,6 +17,5 @@
+ 
+ #define __io(p)			((void __iomem *)(p))
+ #define __mem_pci(a)		(a)
+-#define __mem_isa(a)		(a)
+ 
+ #endif
+--- linux-2.6.14-mm2-full/include/asm-arm/arch-l7200/io.h.old	2005-11-12 05:49:23.000000000 +0100
++++ linux-2.6.14-mm2-full/include/asm-arm/arch-l7200/io.h	2005-11-12 05:49:28.000000000 +0100
+@@ -19,7 +19,6 @@
+  */
+ #define __io_pci(a)		((void __iomem *)(PCIO_BASE + (a)))
+ #define __mem_pci(a)		(a)
+-#define __mem_isa(a)		(a)
+ 
+ #define __ioaddr(p)             __io_pci(p)
+ 
+--- linux-2.6.14-mm2-full/include/asm-arm/arch-lh7a40x/io.h.old	2005-11-12 05:49:42.000000000 +0100
++++ linux-2.6.14-mm2-full/include/asm-arm/arch-lh7a40x/io.h	2005-11-12 05:49:47.000000000 +0100
+@@ -18,6 +18,5 @@
+ /* No ISA or PCI bus on this machine. */
+ #define __io(a)			((void __iomem *)(a))
+ #define __mem_pci(a)		(a)
+-#define __mem_isa(a)		(a)
+ 
+ #endif /* __ASM_ARCH_IO_H */
+--- linux-2.6.14-mm2-full/include/asm-arm/arch-omap/io.h.old	2005-11-12 05:49:57.000000000 +0100
++++ linux-2.6.14-mm2-full/include/asm-arm/arch-omap/io.h	2005-11-12 05:50:01.000000000 +0100
+@@ -44,7 +44,6 @@
+  */
+ #define __io(a)			((void __iomem *)(PCIO_BASE + (a)))
+ #define __mem_pci(a)		(a)
+-#define __mem_isa(a)		(a)
+ 
+ /*
+  * ----------------------------------------------------------------------------
+--- linux-2.6.14-mm2-full/include/asm-arm/arch-pxa/io.h.old	2005-11-12 05:50:11.000000000 +0100
++++ linux-2.6.14-mm2-full/include/asm-arm/arch-pxa/io.h	2005-11-12 05:50:14.000000000 +0100
+@@ -16,6 +16,5 @@
+  */
+ #define __io(a)			((void __iomem *)(a))
+ #define __mem_pci(a)		(a)
+-#define __mem_isa(a)		(a)
+ 
+ #endif
+--- linux-2.6.14-mm2-full/include/asm-arm/arch-sa1100/io.h.old	2005-11-12 05:50:22.000000000 +0100
++++ linux-2.6.14-mm2-full/include/asm-arm/arch-sa1100/io.h	2005-11-12 05:50:25.000000000 +0100
+@@ -24,6 +24,5 @@
+ }
+ #define __io(a)			__io(a)
+ #define __mem_pci(a)		(a)
+-#define __mem_isa(a)		(a)
+ 
+ #endif
+--- linux-2.6.14-mm2-full/include/asm-arm/arch-versatile/io.h.old	2005-11-12 05:50:34.000000000 +0100
++++ linux-2.6.14-mm2-full/include/asm-arm/arch-versatile/io.h	2005-11-12 05:50:37.000000000 +0100
+@@ -28,6 +28,5 @@
+ }
+ #define __io(a)	__io(a)
+ #define __mem_pci(a)		(a)
+-#define __mem_isa(a)		(a)
+ 
+ #endif
+--- linux-2.6.14-mm2-full/include/asm-arm/arch-realview/io.h.old	2005-11-12 05:50:45.000000000 +0100
++++ linux-2.6.14-mm2-full/include/asm-arm/arch-realview/io.h	2005-11-12 05:50:48.000000000 +0100
+@@ -29,6 +29,5 @@
+ 
+ #define __io(a)			__io(a)
+ #define __mem_pci(a)		(a)
+-#define __mem_isa(a)		(a)
+ 
+ #endif
+

@@ -1,45 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbVKLR2i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbVKLRch@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932425AbVKLR2i (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 12:28:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbVKLR2i
+	id S932429AbVKLRch (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 12:32:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbVKLRch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 12:28:38 -0500
-Received: from cantor.suse.de ([195.135.220.2]:56297 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932425AbVKLR2h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 12:28:37 -0500
-From: Andi Kleen <ak@suse.de>
-To: Nikita Danilov <nikita@clusterfs.com>
-Subject: Re: [patch] mark text section read-only
-Date: Sat, 12 Nov 2005 18:26:26 +0100
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
-       Josh Boyer <jdub@us.ibm.com>, akpm@osdl.org
-References: <20051107105624.GA6531@infradead.org> <200511112243.42255.ak@suse.de> <17269.10620.891788.767146@gargle.gargle.HOWL>
-In-Reply-To: <17269.10620.891788.767146@gargle.gargle.HOWL>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 12 Nov 2005 12:32:37 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:9925 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932422AbVKLRcg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 12:32:36 -0500
+Subject: Re: 2.6.15-rc1: IDE: fix potential data corruption with SL82C105
+	interfaces
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20051112165548.GB28987@flint.arm.linux.org.uk>
+References: <20051112165548.GB28987@flint.arm.linux.org.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511121826.26979.ak@suse.de>
+Date: Sat, 12 Nov 2005 18:03:34 +0000
+Message-Id: <1131818615.18258.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 12 November 2005 00:30, Nikita Danilov wrote:
-> Andi Kleen writes:
-> 
-> [...]
-> 
->  > 
->  > Overall I doubt it is worth it even as a debugging option. I so far cannot
->  > remember a single bug that was caused by overwriting kernel text.
-> 
-> I wouldn't forget that one for a long time:
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=106503116306729&w=2
+On Sad, 2005-11-12 at 16:55 +0000, Russell King wrote:
+> We must _never_ _ever_ on pain of death enable IDE DMA on SL82C105
+> chipsets where the southbridge revision is <= 5, otherwise data
+> corruption will occur.
 
-Ok then maybe as a debug CONFIG, but definitely not default.
 
--Andi
+If you are fixing this driver also set ->serialize = 1; before someone
+with dual channel device gets burned.
+

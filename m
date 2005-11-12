@@ -1,114 +1,232 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbVKLFVc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbVKLF0w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932070AbVKLFVc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 00:21:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbVKLFVc
+	id S932100AbVKLF0w (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 00:26:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbVKLF0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 00:21:32 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:10730 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932070AbVKLFVc (ORCPT
+	Sat, 12 Nov 2005 00:26:52 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:36238 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932100AbVKLF0v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 00:21:32 -0500
-Date: Fri, 11 Nov 2005 21:22:13 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Chandra Seetharaman <sekharan@us.ibm.com>, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] Subject: [RFC][PATCH] Fix for unsafe notifier chain mechanism
-Message-ID: <20051112052213.GB3335@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20051112014421.GH1289@us.ibm.com> <Pine.LNX.4.44L0.0511112129090.13667-100000@netrider.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0511112129090.13667-100000@netrider.rowland.org>
-User-Agent: Mutt/1.4.1i
+	Sat, 12 Nov 2005 00:26:51 -0500
+Message-ID: <43757D18.9090109@pobox.com>
+Date: Sat, 12 Nov 2005 00:26:48 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Netdev List <netdev@vger.kernel.org>
+Subject: [2.6.15-rc1] VFS: file-max limit 400490 reached
+Content-Type: multipart/mixed;
+ boundary="------------070603030202020800040708"
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 11, 2005 at 09:36:40PM -0500, Alan Stern wrote:
-> On Fri, 11 Nov 2005, Paul E. McKenney wrote:
-> 
-> > On Fri, Nov 11, 2005 at 03:43:39PM -0800, Chandra Seetharaman wrote:
-> > > Hello,
-> > > 
-> > > In 2.6.14, the notifier chains are unsafe. notifier_call_chain() walks through
-> > > the list of a call chain without any protection.
-> 
-> > Looks pretty good!  Some RCU-related review comments interspersed below.
-> > 
-> > > Alan and I did think about changing the data structure to use list_head, but 
-> > > deferred it (as a cleanup) as it is not directly tied with what Alan was
-> > > trying to fix.
-> > 
-> > It would simplify the code...
-> 
-> It would.  It would also mean auditing every place in the kernel where a
-> notifier_block structure is defined.  There are a _lot_ of them, and many
-> don't use C99 initializers or do initialize the link pointer.  Chandra and
-> I decided it was best to leave this as a subsequent cleanup job, maybe
-> something suitable for kernel-janitors.
+This is a multi-part message in MIME format.
+--------------070603030202020800040708
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Fair enough by me!
 
-> > > +	down_write(&nh->rwsem);
-> > > +	nl = &nh->head;
-> > > +	while ((*nl) != NULL) {
-> > > +		if (n->priority > (*nl)->priority)
-> > > +			break;
-> > > +		nl = &((*nl)->next);
-> > > +	}
-> > > +	rcu_assign_pointer(n->next, *nl);
-> > 
-> > The above can simply be "n->next = *nl;".  The reason is that this change
-> > of state is not visible to RCU readers until after the following statement,
-> > and it therefore need not be an RCU-reader-safe assignment.  You only need
-> > to use rcu_assign_pointer() when the results of the assignment are
-> > immediately visible to RCU readers.
-> 
-> Correct, the rcu call isn't really needed.  It doesn't hurt perceptibly,
-> though, and part of the RCU documentation states:
-> 
->  * ...  More importantly, this
->  * call documents which pointers will be dereferenced by RCU read-side
->  * code.
-> 
-> For that reason, I felt it was worth putting it in.
+I rebooted my RHEL4-based ipv4/ipv6 gateway/server into 2.6.15-rc1, and 
+very soon the box was brought to its knees, spewing
 
-But the following statement does a much better job of documenting the
-pointer that is to be RCU-dereferenced.  Duplicate documentation can
-be just as confusing as no documentation.
+	VFS: file-max limit 400490 reached
 
-> > > +	rcu_assign_pointer(*nl, n);
-> > > +	up_write(&nh->rwsem);
-> > > +	if (nh->type == ATOMIC_NOTIFIER)
-> > > +		synchronize_rcu();
-> > 
-> > This "if" statement and the "synchronize_rcu()" are not needed.  Nothing
-> > has been removed from the list, so nothing will be freed, so no need to
-> > wait for readers to get done.
-> 
-> You're right.  In an earlier form of the patch this call was left out, but
-> then it crept back in later.  We can remove it.
+with the resultant userspace breakage associated with that.  Data points:
 
-Sounds good!
+* recent 2.6.14-git-recent works
+* 2.6.15-rc1 fails
+* besides the above error, the only other notable syslog item is 
+complaints from radvd (ipv6 router advertisement daemon)
+* past logs don't show this radvd error
+* machine: Intel x86 HT SMP SATA e1000 8139too (kernel config attached)
 
-> > In contrast, the synchronize_rcu() in notifier_chain_unregister() -is-
-> > needed, since we need to free the removed element.
-> 
-> > > +	if (!nh->head)
-> > > +		return ret;
-> > > +	if (nh->type == ATOMIC_NOTIFIER)
-> > > +		rcu_read_lock();
-> > > +	else
-> > > +		down_read(&nh->rwsem);
-> > 
-> > Is it possible for the value of nh->type to change?  If so, there needs
-> > to be some additional mechanism to guard against such a change.  However,
-> > if this field is constant, this code is just fine as is.
-> 
-> nh->type is never supposed to change.
+So, my guess is that something broke in rtnetlink ipv6.
 
-OK, then the code is fine as it is.
+But I could be wildly wrong.  This might not have anything to do with 
+the net stack at all.
 
-							Thanx, Paul
+
+
+--------------070603030202020800040708
+Content-Type: application/x-bzip2;
+ name="log.txt.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="log.txt.bz2"
+
+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
+--------------070603030202020800040708
+Content-Type: application/x-bzip2;
+ name="config.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="config.bz2"
+
+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
+ibJ/xdyRThQkJnqS/oA=
+--------------070603030202020800040708--

@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964804AbVKLVAS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbVKLVBF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964804AbVKLVAS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 16:00:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbVKLVAS
+	id S964807AbVKLVBF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 16:01:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964808AbVKLVBF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 16:00:18 -0500
-Received: from mail.isurf.ca ([66.154.97.68]:8392 "EHLO columbo.isurf.ca")
-	by vger.kernel.org with ESMTP id S964804AbVKLVAQ (ORCPT
+	Sat, 12 Nov 2005 16:01:05 -0500
+Received: from mx1.rowland.org ([192.131.102.7]:5895 "HELO mx1.rowland.org")
+	by vger.kernel.org with SMTP id S964807AbVKLVBE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 16:00:16 -0500
-From: "Gabriel A. Devenyi" <ace@staticwave.ca>
-To: linux-kernel@vger.kernel.org
-Subject: [RESEND] [PATCH] drivers/char/keyboard.c unsigned comparison
-Date: Sat, 12 Nov 2005 16:00:10 -0500
-User-Agent: KMail/1.8.3
+	Sat, 12 Nov 2005 16:01:04 -0500
+Date: Sat, 12 Nov 2005 16:01:02 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+cc: Chandra Seetharaman <sekharan@us.ibm.com>, <linux-kernel@vger.kernel.org>,
+       <lse-tech@lists.sourceforge.net>
+Subject: Re: [Lse-tech] Subject: [RFC][PATCH] Fix for unsafe notifier chain
+ mechanism
+In-Reply-To: <20051112192809.GA5296@us.ibm.com>
+Message-ID: <Pine.LNX.4.44L0.0511121559260.6130-100000@netrider.rowland.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200511121600.10888.ace@staticwave.ca>
-X-Length: 1371
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-keycode is a checked for a value less than zero, but is defined as an unsigned int, and is only called in one place in the kernel, and passed a unsigned int, so this comparison is bogus.
+On Sat, 12 Nov 2005, Paul E. McKenney wrote:
 
-Thanks to LinuxICC (http://linuxicc.sf.net)
+> > > > > The above can simply be "n->next = *nl;".  The reason is that this change
+> > > > > of state is not visible to RCU readers until after the following statement,
+> > > > > and it therefore need not be an RCU-reader-safe assignment.  You only need
+> > > > > to use rcu_assign_pointer() when the results of the assignment are
+> > > > > immediately visible to RCU readers.
+> > > > 
+> > > > Correct, the rcu call isn't really needed.  It doesn't hurt perceptibly,
+> > > > though, and part of the RCU documentation states:
+> > > > 
+> > > >  * ...  More importantly, this
+> > > >  * call documents which pointers will be dereferenced by RCU read-side
+> > > >  * code.
+> > > > 
+> > > > For that reason, I felt it was worth putting it in.
+> > > 
+> > > But the following statement does a much better job of documenting the
+> > > pointer that is to be RCU-dereferenced.  Duplicate documentation can
+> > > be just as confusing as no documentation.
+> > 
+> > It's not really duplicate documentation since _both_ pointers are to be 
+> > RCU-dereferenced.  But maybe you mean that only the second pointer can be 
+> > RCU-dereferenced at the time the write occurs?  I don't think that's what 
+> > the documentation comment intended.
+> 
+> I am the guy who wrote that documentation ocmment.  ;-)
 
-This patch applies to Linus' git tree as of 12.11.2005
+In that case I bow to your advice.  :-)
 
-Signed-off-by: Gabriel A. Devenyi <ace@staticwave.ca>
+Alan Stern
 
-diff --git a/drivers/char/keyboard.c b/drivers/char/keyboard.c
-index 449d029..6e991ea 100644
---- a/drivers/char/keyboard.c
-+++ b/drivers/char/keyboard.c
-@@ -198,7 +198,7 @@ int setkeycode(unsigned int scancode, un
- 
- 	if (scancode >= dev->keycodemax)
- 		return -EINVAL;
--	if (keycode < 0 || keycode > KEY_MAX)
-+	if (keycode > KEY_MAX)
- 		return -EINVAL;
- 	if (dev->keycodesize < sizeof(keycode) && (keycode >> (dev->keycodesize * 8)))
- 		return -EINVAL;
-
--- 
-Gabriel A. Devenyi
-ace@staticwave.ca

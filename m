@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbVKLEwi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751356AbVKLExK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751364AbVKLEwi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 23:52:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbVKLEwY
+	id S1751356AbVKLExK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 23:53:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbVKLEtn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 23:52:24 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:32674 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932073AbVKLEuU
+	Fri, 11 Nov 2005 23:49:43 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:24735 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751339AbVKLEtk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 23:50:20 -0500
-Date: Fri, 11 Nov 2005 21:50:18 -0700
+	Fri, 11 Nov 2005 23:49:40 -0500
+Date: Fri, 11 Nov 2005 21:49:38 -0700
 From: john stultz <johnstul@us.ibm.com>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Ingo Molnar <mingo@elte.hu>, Darren Hart <dvhltc@us.ibm.com>,
@@ -19,353 +19,445 @@ Cc: Ingo Molnar <mingo@elte.hu>, Darren Hart <dvhltc@us.ibm.com>,
        Roman Zippel <zippel@linux-m68k.org>,
        Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
        Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>
-Message-Id: <20051112045017.8240.35860.sendpatchset@cog.beaverton.ibm.com>
+Message-Id: <20051112044937.8240.28613.sendpatchset@cog.beaverton.ibm.com>
 In-Reply-To: <20051112044850.8240.91581.sendpatchset@cog.beaverton.ibm.com>
 References: <20051112044850.8240.91581.sendpatchset@cog.beaverton.ibm.com>
-Subject: [PATCH 13/13] Time: Generic Timekeeping Paraniod Debug Patch
+Subject: [PATCH 7/13] Time: i386 Conversion - part 3: Rework TSC Support
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 All,
+		The conversion of i386 to use the generic timeofday subsystem has been
+split into 6 parts. This patch, the third of six, reworks some of the
+code in the new tsc.c file, adding some new interfaces and hooks to use
+these new interfaces appropriately. 
 
-	This patch provides paranoid checking of the timekeeping code. It is
-not intended to be submitted to mainline, but to allow developers and
-testers using the timeofday patches to better find or rule-out potential
-timekeeping problems.
-
+It applies on top of my timeofday-arch-i386-part2 patch. This patch is
+part the timeofday-arch-i386 patchset, so without the following parts it
+is not expected to compile.
+	
 thanks
 -john
 
 Signed-off-by: John Stultz <johnstul@us.ibm.com>
 
- arch/i386/Kconfig         |    3 +
- arch/i386/kernel/tsc.c    |   41 ++++++++++++++++
- arch/x86_64/Kconfig       |    3 +
- arch/x86_64/kernel/time.c |   49 +++++++++++++++++++
- kernel/time/timeofday.c   |  114 +++++++++++++++++++++++++++++++++++++++++++++-
- 5 files changed, 209 insertions(+), 1 deletion(-)
+ arch/i386/kernel/setup.c                    |    1 
+ arch/i386/kernel/tsc.c                      |  197 ++++++++++++++--------------
+ drivers/acpi/processor_idle.c               |    6 
+ include/asm-i386/mach-default/mach_timer.h  |    4 
+ include/asm-i386/mach-summit/mach_mpparse.h |    3 
+ include/asm-i386/tsc.h                      |    4 
+ 6 files changed, 122 insertions(+), 93 deletions(-)
 
-linux-2.6.14_timeofday-paranoid-debug_B10.patch
+linux-2.6.14_timeofday-arch-i386-part3_B10.patch
 ============================================
-diff --git a/arch/i386/Kconfig b/arch/i386/Kconfig
-index 8408da2..716414e 100644
---- a/arch/i386/Kconfig
-+++ b/arch/i386/Kconfig
-@@ -18,6 +18,9 @@ config GENERIC_TIME
- 	bool
- 	default y
+diff --git a/arch/i386/kernel/setup.c b/arch/i386/kernel/setup.c
+index fdfcb0c..28ab317 100644
+--- a/arch/i386/kernel/setup.c
++++ b/arch/i386/kernel/setup.c
+@@ -1620,6 +1620,7 @@ void __init setup_arch(char **cmdline_p)
+ 	conswitchp = &dummy_con;
+ #endif
+ #endif
++	tsc_init();
+ }
  
-+config PARANOID_GENERIC_TIME
-+	bool "Paraniod Timekeeping Checks"
-+
- config SEMAPHORE_SLEEPERS
- 	bool
- 	default y
+ #include "setup_arch_post.h"
 diff --git a/arch/i386/kernel/tsc.c b/arch/i386/kernel/tsc.c
-index 3f9d1e8..73b2a03 100644
+index c562292..de26f6e 100644
 --- a/arch/i386/kernel/tsc.c
 +++ b/arch/i386/kernel/tsc.c
-@@ -313,6 +313,46 @@ core_initcall(cpufreq_tsc);
- static unsigned long current_tsc_khz = 0;
- static int tsc_update_callback(void);
- 
-+#ifdef CONFIG_PARANOID_GENERIC_TIME
-+/* This will hurt performance! */
-+DEFINE_SPINLOCK(checktsc_lock);
-+cycle_t last_tsc;
-+
-+static cycle_t read_tsc(void)
-+{
-+	cycle_t ret;
-+	unsigned long flags;
-+	spin_lock_irqsave(&checktsc_lock, flags);
-+
-+	rdtscll(ret);
-+
-+	if(ret < last_tsc)
-+		printk("read_tsc: ACK! TSC went backward! Unsynced TSCs?\n");
-+	last_tsc = ret;
-+
-+	spin_unlock_irqrestore(&checktsc_lock, flags);
-+	return ret;
-+}
-+
-+static cycle_t read_tsc_c3(void)
-+{
-+	cycle_t ret;
-+	unsigned long flags;
-+	spin_lock_irqsave(&checktsc_lock, flags);
-+
-+	rdtscll(ret);
-+	ret += tsc_read_c3_time();
-+
-+	if(ret < last_tsc)
-+		printk("read_tsc_c3: ACK! TSC went backward! Unsynced TSCs?\n");
-+	last_tsc = ret;
-+
-+	spin_unlock_irqrestore(&checktsc_lock, flags);
-+	return ret;
-+}
-+
-+#else /* CONFIG_PARANOID_GENERIC_TIME */
-+
- static cycle_t read_tsc(void)
- {
- 	cycle_t ret;
-@@ -327,6 +367,7 @@ static cycle_t read_tsc_c3(void)
- 	return ret + tsc_read_c3_time();
- }
- 
-+#endif /* CONFIG_PARANOID_GENERIC_TIME */
- 
- static struct clocksource clocksource_tsc = {
- 	.name = "tsc",
-diff --git a/arch/x86_64/Kconfig b/arch/x86_64/Kconfig
-index 19b113e..4d2be52 100644
---- a/arch/x86_64/Kconfig
-+++ b/arch/x86_64/Kconfig
-@@ -32,6 +32,9 @@ config GENERIC_TIME_VSYSCALL
-        bool
-        default y
- 
-+config PARANOID_GENERIC_TIME
-+	bool "Paraniod Timekeeping Checks"
-+
- config SEMAPHORE_SLEEPERS
- 	bool
- 	default y
-diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
-index 3a44861..376aa80 100644
---- a/arch/x86_64/kernel/time.c
-+++ b/arch/x86_64/kernel/time.c
-@@ -1051,6 +1051,53 @@ __setup("notsc", notsc_setup);
- static unsigned long current_tsc_khz = 0;
- static int tsc_update_callback(void);
- 
-+#ifdef CONFIG_PARANOID_GENERIC_TIME
-+/* This will hurt performance! */
-+DEFINE_SPINLOCK(checktsc_lock);
-+cycle_t last_tsc;
-+
-+static cycle_t read_tsc(void)
-+{
-+	cycle_t ret;
-+	unsigned long flags;
-+	spin_lock_irqsave(&checktsc_lock, flags);
-+
-+	rdtscll(ret);
-+
-+	if(ret < last_tsc)
-+		printk("read_tsc: ACK! TSC went backward! Unsynced TSCs?\n");
-+	last_tsc = ret;
-+
-+	spin_unlock_irqrestore(&checktsc_lock, flags);
-+	return ret;
-+}
-+
-+static cycle_t __vsyscall_fn vread_tsc(void* unused)
-+{
-+	cycle_t ret;
-+	rdtscll(ret);
-+	return ret;
-+}
-+
-+static cycle_t read_tsc_c3(void)
-+{
-+	cycle_t ret;
-+	unsigned long flags;
-+	spin_lock_irqsave(&checktsc_lock, flags);
-+
-+	rdtscll(ret);
-+	ret += tsc_read_c3_time();
-+
-+	if(ret < last_tsc)
-+		printk("read_tsc_c3: ACK! TSC went backward! Unsynced TSCs?\n");
-+	last_tsc = ret;
-+
-+	spin_unlock_irqrestore(&checktsc_lock, flags);
-+	return ret;
-+}
-+
-+#else /* CONFIG_PARANOID_GENERIC_TIME */
-+
- static cycle_t read_tsc(void)
- {
- 	cycle_t ret;
-@@ -1072,6 +1119,8 @@ static cycle_t read_tsc_c3(void)
- 	return ret + tsc_read_c3_time();
- }
- 
-+#endif /* CONFIG_PARANOID_GENERIC_TIME */
-+
- static struct clocksource clocksource_tsc = {
- 	.name = "tsc",
- 	.rating = 300,
-diff --git a/kernel/time/timeofday.c b/kernel/time/timeofday.c
-index 42ec5fc..ce3fd87 100644
---- a/kernel/time/timeofday.c
-+++ b/kernel/time/timeofday.c
-@@ -120,6 +120,108 @@ static nsec_t suspend_start;
+@@ -5,11 +5,18 @@
   */
- struct ktimer timeofday_timer;
  
+ #include <linux/init.h>
+-#include <linux/timex.h>
+ #include <linux/cpufreq.h>
++#include <linux/jiffies.h>
++#include <asm/tsc.h>
+ #include <asm/io.h>
+ #include "mach_timer.h"
+ 
++/* On some systems the TSC frequency does not
++ * change with the cpu frequency. So we need
++ * an extra value to store the TSC freq
++ */
++unsigned int tsc_khz;
 +
-+#ifdef CONFIG_PARANOID_GENERIC_TIME
-+/* This will hurt performance! */
-+DEFINE_SPINLOCK(check_monotonic_lock);
-+ktime_t last_monotonic_ktime;
-+
-+ktime_t get_check_value(void)
+ int tsc_disable __initdata = 0;
+ #ifndef CONFIG_X86_TSC
+ /* disable flag for tsc.  Takes effect by clearing the TSC cpu flag
+@@ -32,15 +39,46 @@ __setup("notsc", tsc_setup);
+ 
+ int read_current_timer(unsigned long *timer_val)
+ {
+-	if (cur_timer->read_timer) {
+-		*timer_val = cur_timer->read_timer();
++	if (!tsc_disable && cpu_khz) {
++		rdtscl(*timer_val);
+ 		return 0;
+ 	}
+ 	return -1;
+ }
+ 
++/* Code to mark and check if the TSC is unstable
++ * due to cpufreq or due to unsynced TSCs
++ */
++static int tsc_unstable;
++static inline int check_tsc_unstable(void)
 +{
-+	ktime_t ret;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&check_monotonic_lock, flags);
-+	ret = last_monotonic_ktime;
-+	spin_unlock_irqrestore(&check_monotonic_lock, flags);
-+	return ret;
++	return tsc_unstable;
 +}
 +
-+void check_monotonic_clock(ktime_t prev, ktime_t now)
++void mark_tsc_unstable(void)
 +{
-+	unsigned long flags;
-+
-+	/* check for monotonic inconsistencies */
-+	if(ktime_cmp(now, <, prev)) {
-+		static int warn_count = 10;
-+		if (warn_count > 0) {
-+			warn_count--;
-+			printk("check_monotonic_clock: monotonic inconsistency"
-+					" detected!\n");
-+			printk("	from %16Lx (%llu) to %16Lx (%llu).\n",
-+					ktime_to_ns(prev),
-+					ktime_to_ns(prev),
-+					ktime_to_ns(now),
-+					ktime_to_ns(now));
-+			WARN_ON(1);
-+		}
-+	}
-+	spin_lock_irqsave(&check_monotonic_lock, flags);
-+	last_monotonic_ktime = now;
-+	spin_unlock_irqrestore(&check_monotonic_lock, flags);
++	tsc_unstable = 1;
 +}
-+/* timespec version */
-+#define check_monotonic_clock_ts(prev, now) \
-+	check_monotonic_clock(prev, timespec_to_ktime(now))
 +
-+/* Call holding atleast a readlock on system_time_lock */
-+void verify_timekeeping_state(void)
++/* Code to compensate for C3 stalls */
++static u64 tsc_c3_offset;
++void tsc_c3_compensate(unsigned long nsecs)
 +{
-+	static int warn_count = 10;
-+	if (warn_count <= 0)
++	/* this could def be optimized */
++	u64 cycles = ((u64)nsecs * tsc_khz);
++	do_div(cycles, 1000000);
++	tsc_c3_offset += cycles;
++}
++
++EXPORT_SYMBOL_GPL(tsc_c3_compensate);
+ 
+-/* convert from cycles(64bits) => nanoseconds (64bits)
++static inline u64 tsc_read_c3_time(void)
++{
++	return tsc_c3_offset;
++}
++
++/* Accellerators for sched_clock()
++ * convert from cycles(64bits) => nanoseconds (64bits)
+  *  basic equation:
+  *		ns = cycles / (freq / ns_per_sec)
+  *		ns = cycles * (ns_per_sec / freq)
+@@ -85,76 +123,54 @@ unsigned long long sched_clock(void)
+ 	 * synchronized across all CPUs.
+ 	 */
+ #ifndef CONFIG_NUMA
+-	if (!use_tsc)
++	if (!cpu_khz || check_tsc_unstable())
+ #endif
+ 		/* no locking but a rare wrong value is not a big deal */
+-		return jiffies_64 * (1000000000 / HZ);
++		return (jiffies_64 - INITIAL_JIFFIES) * (1000000000 / HZ);
+ 
+ 	/* Read the Time Stamp Counter */
+ 	rdtscll(this_offset);
++	this_offset += tsc_read_c3_time();
+ 
+ 	/* return the value in ns */
+ 	return cycles_2_ns(this_offset);
+ }
+ 
+-/* ------ Calibrate the TSC -------
+- * Return 2^32 * (1 / (TSC clocks per usec)) for do_fast_gettimeoffset().
+- * Too much 64-bit arithmetic here to do this cleanly in C, and for
+- * accuracy's sake we want to keep the overhead on the CTC speaker (channel 2)
+- * output busy loop as low as possible. We avoid reading the CTC registers
+- * directly because of the awkward 8-bit access mechanism of the 82C54
+- * device.
+- */
+-
+-#define CALIBRATE_TIME	(5 * 1000020/HZ)
+ 
+-unsigned long calibrate_tsc(void)
++static unsigned long calculate_cpu_khz(void)
+ {
+-	mach_prepare_counter();
+-
+-	{
+-		unsigned long startlow, starthigh;
+-		unsigned long endlow, endhigh;
+-		unsigned long count;
+-
+-		rdtsc(startlow,starthigh);
++	unsigned long long start, end;
++	unsigned long count;
++	u64 delta64;
++	int i;
++	/* run 3 times to ensure the cache is warm */
++	for(i=0; i<3; i++) {
++		mach_prepare_counter();
++		rdtscll(start);
+ 		mach_countup(&count);
+-		rdtsc(endlow,endhigh);
+-
+-
+-		/* Error: ECTCNEVERSET */
+-		if (count <= 1)
+-			goto bad_ctc;
+-
+-		/* 64-bit subtract - gcc just messes up with long longs */
+-		__asm__("subl %2,%0\n\t"
+-			"sbbl %3,%1"
+-			:"=a" (endlow), "=d" (endhigh)
+-			:"g" (startlow), "g" (starthigh),
+-			 "0" (endlow), "1" (endhigh));
+-
+-		/* Error: ECPUTOOFAST */
+-		if (endhigh)
+-			goto bad_ctc;
+-
+-		/* Error: ECPUTOOSLOW */
+-		if (endlow <= CALIBRATE_TIME)
+-			goto bad_ctc;
+-
+-		__asm__("divl %2"
+-			:"=a" (endlow), "=d" (endhigh)
+-			:"r" (endlow), "0" (0), "1" (CALIBRATE_TIME));
+-
+-		return endlow;
++		rdtscll(end);
+ 	}
+-
+-	/*
++	/* Error: ECTCNEVERSET
+ 	 * The CTC wasn't reliable: we got a hit on the very first read,
+ 	 * or the CPU was so fast/slow that the quotient wouldn't fit in
+ 	 * 32 bits..
+ 	 */
+-bad_ctc:
+-	return 0;
++	if (count <= 1)
++		return 0;
++
++	delta64 = end - start;
++
++	/* cpu freq too fast */
++	if(delta64 > (1ULL<<32))
++		return 0;
++	/* cpu freq too slow */
++	if (delta64 <= CALIBRATE_TIME_MSEC)
++		return 0;
++
++	delta64 += CALIBRATE_TIME_MSEC/2; /* round for do_div */
++	do_div(delta64,CALIBRATE_TIME_MSEC);
++
++	return (unsigned long)delta64;
+ }
+ 
+ int recalibrate_cpu_khz(void)
+@@ -163,11 +179,11 @@ int recalibrate_cpu_khz(void)
+ 	unsigned long cpu_khz_old = cpu_khz;
+ 
+ 	if (cpu_has_tsc) {
+-		init_cpu_khz();
++		cpu_khz = calculate_cpu_khz();
++		tsc_khz = cpu_khz;
+ 		cpu_data[0].loops_per_jiffy =
+-		    cpufreq_scale(cpu_data[0].loops_per_jiffy,
+-			          cpu_khz_old,
+-				  cpu_khz);
++			cpufreq_scale(cpu_data[0].loops_per_jiffy,
++					cpu_khz_old, cpu_khz);
+ 		return 0;
+ 	} else
+ 		return -ENODEV;
+@@ -178,25 +194,22 @@ int recalibrate_cpu_khz(void)
+ EXPORT_SYMBOL(recalibrate_cpu_khz);
+ 
+ 
+-/* calculate cpu_khz */
+-void init_cpu_khz(void)
++void tsc_init(void)
+ {
+-	if (cpu_has_tsc) {
+-		unsigned long tsc_quotient = calibrate_tsc();
+-		if (tsc_quotient) {
+-			/* report CPU clock rate in Hz.
+-			 * The formula is (10^6 * 2^32) / (2^32 * 1 / (clocks/us)) =
+-			 * clock/second. Our precision is about 100 ppm.
+-			 */
+-			{	unsigned long eax=0, edx=1000;
+-				__asm__("divl %2"
+-		       		:"=a" (cpu_khz), "=d" (edx)
+-        	       		:"r" (tsc_quotient),
+-	                	"0" (eax), "1" (edx));
+-				printk("Detected %lu.%03lu MHz processor.\n", cpu_khz / 1000, cpu_khz % 1000);
+-			}
+-		}
+-	}
++	if(!cpu_has_tsc || tsc_disable)
 +		return;
-+	/* insure all the timespec and ktime values are consistent */
-+	if (ktime_cmp(system_time, !=, timespec_to_ktime(mono_time_ts))) {
-+		printk("verify_timekeeping_state: system_time != mono_time_ts\n");
-+		warn_count--;
-+	}
 +
-+	if (ktime_cmp(ktime_add(system_time, wall_time_offset), !=,
-+					 timespec_to_ktime(wall_time_ts))) {
-+		printk("verify_timekeeping_state: system_time + wall_time_offset "
-+				"!= wall_time_ts\n");
-+		warn_count--;
-+	}
++	cpu_khz = calculate_cpu_khz();
++	tsc_khz = cpu_khz;
 +
-+	if (ktime_cmp(wall_time_offset, !=,
-+					 timespec_to_ktime(monotonic_time_offset_ts))) {
-+		printk("verify_timekeeping_state: wall_time_offset "
-+				"!= monotonic_time_offset_ts\n");
-+		warn_count--;
-+	}
-+}
++	if (!cpu_khz)
++		return;
 +
-+void check_periodic_interval(cycle_t now)
-+{
-+	static cycle_t last;
-+	cycle_t delta;
-+	nsec_t ns_offset;
-+	if (last != 0 && now != 0) {
-+		delta = (now - last)& clock->mask;
++	printk("Detected %lu.%03lu MHz processor.\n",
++				(unsigned long)cpu_khz / 1000,
++				(unsigned long)cpu_khz % 1000);
 +
-+		ns_offset = cyc2ns(clock, ntp_adj, delta);
-+
-+		if(ns_offset > (nsec_t)2*PERIODIC_INTERVAL_MS *1000000) {
-+			static int warn_count = 10;
-+			if (warn_count > 0) {
-+				warn_count--;
-+				printk("check_periodic_interval: Long interval! %llu.\n",
-+								ns_offset);
-+				printk("		Something may be blocking interrupts.\n");
-+			}
-+		}
-+	}
-+	last = now;
-+}
-+
-+#else /* CONFIG_PARANOID_GENERIC_TIME */
-+#define get_check_value(void) ktime_set(0,0) /* XXX can we optimize this out? */
-+#define check_monotonic_clock(x,y) {}
-+#define check_monotonic_clock_ts(x,ts)
-+#define verify_timekeeping_state()
-+#define check_periodic_interval(x)
-+#endif /* CONFIG_PARANOID_GENERIC_TIME */
-+
- /**
-  * update_legacy_time_values - sync legacy time values
-  *
-@@ -184,8 +286,12 @@ static inline nsec_t __get_nsec_offset(v
++	set_cyc2ns_scale(cpu_khz);
+ }
+ 
+ 
+@@ -216,15 +229,15 @@ static void handle_cpufreq_delayed_get(v
+ 	cpufreq_delayed_issched = 0;
+ }
+ 
+-/* if we notice lost ticks, schedule a call to cpufreq_get() as it tries
++/* if we notice cpufreq oddness, schedule a call to cpufreq_get() as it tries
+  * to verify the CPU frequency the timing core thinks the CPU is running
+  * at is still correct.
   */
- static inline ktime_t __get_monotonic_clock(void)
+-void cpufreq_delayed_get(void)
++static inline void cpufreq_delayed_get(void)
  {
-+	ktime_t ret;
-+	ktime_t check = get_check_value();
- 	nsec_t offset = __get_nsec_offset();
--	return ktime_add_ns(system_time, offset);
-+	ret = ktime_add_ns(system_time, offset);
-+	check_monotonic_clock(check,ret);
-+	return ret;
+ 	if (cpufreq_init && !cpufreq_delayed_issched) {
+ 		cpufreq_delayed_issched = 1;
+-		printk(KERN_DEBUG "Losing some ticks... checking if CPU frequency changed.\n");
++		printk(KERN_DEBUG "Checking if CPU frequency changed.\n");
+ 		schedule_work(&cpufreq_delayed_get_work);
+ 	}
  }
+@@ -237,13 +250,11 @@ static unsigned int  ref_freq = 0;
+ static unsigned long loops_per_jiffy_ref = 0;
  
- /**
-@@ -269,6 +375,7 @@ void get_monotonic_clock_ts(struct times
+ #ifndef CONFIG_SMP
+-static unsigned long fast_gettimeoffset_ref = 0;
+ static unsigned long cpu_khz_ref = 0;
+ #endif
+ 
+-static int
+-time_cpufreq_notifier(struct notifier_block *nb, unsigned long val,
+-		       void *data)
++static int time_cpufreq_notifier(struct notifier_block *nb,
++		unsigned long val, void *data)
  {
- 	unsigned long seq;
- 	nsec_t offset;
-+	ktime_t check = get_check_value();
+ 	struct cpufreq_freqs *freq = data;
  
- 	do {
- 		seq = read_seqbegin(&system_time_lock);
-@@ -278,6 +385,7 @@ void get_monotonic_clock_ts(struct times
- 	} while (read_seqretry(&system_time_lock, seq));
- 
- 	timespec_add_ns(ts, offset);
-+	check_monotonic_clock_ts(check, *ts);
- }
- 
- /**
-@@ -518,6 +626,7 @@ static void timeofday_periodic_hook(void
- 
- 	/* read time source & calc time since last call*/
- 	cycle_now = read_clocksource(clock);
-+	check_periodic_interval(cycle_now);
- 	cycle_delta = (cycle_now - cycle_last) & clock->mask;
- 
- 	delta_nsec = cyc2ns_fixed_rem(ts_interval, &cycle_delta, &remainder);
-@@ -562,6 +671,7 @@ static void timeofday_periodic_hook(void
- 		ntp_adj = 0;
- 		remainder = 0;
- 		something_changed = 1;
-+		check_periodic_interval(0);
+@@ -253,7 +264,6 @@ time_cpufreq_notifier(struct notifier_bl
+ 		ref_freq = freq->old;
+ 		loops_per_jiffy_ref = cpu_data[freq->cpu].loops_per_jiffy;
+ #ifndef CONFIG_SMP
+-		fast_gettimeoffset_ref = fast_gettimeoffset_quotient;
+ 		cpu_khz_ref = cpu_khz;
+ #endif
+ 	}
+@@ -263,16 +273,20 @@ time_cpufreq_notifier(struct notifier_bl
+ 	    (val == CPUFREQ_RESUMECHANGE)) {
+ 		if (!(freq->flags & CPUFREQ_CONST_LOOPS))
+ 			cpu_data[freq->cpu].loops_per_jiffy = cpufreq_scale(loops_per_jiffy_ref, ref_freq, freq->new);
++
++		if (cpu_khz) {
+ #ifndef CONFIG_SMP
+-		if (cpu_khz)
+ 			cpu_khz = cpufreq_scale(cpu_khz_ref, ref_freq, freq->new);
+-		if (use_tsc) {
++#endif
+ 			if (!(freq->flags & CPUFREQ_CONST_LOOPS)) {
+-				fast_gettimeoffset_quotient = cpufreq_scale(fast_gettimeoffset_ref, freq->new, ref_freq);
++				tsc_khz = cpu_khz;
+ 				set_cyc2ns_scale(cpu_khz);
++				/* TSC based sched_clock turns
++				 * to junk w/ cpufreq
++				 */
++				mark_tsc_unstable();
+ 			}
+ 		}
+-#endif
  	}
  
- 	/* now is a safe time, so allow clocksource to adjust
-@@ -609,6 +719,8 @@ static void timeofday_periodic_hook(void
- 
- 	update_legacy_time_values();
- 
-+	verify_timekeeping_state();
+ 	if (val != CPUFREQ_RESUMECHANGE)
+@@ -294,10 +308,9 @@ static int __init cpufreq_tsc(void)
+ 					CPUFREQ_TRANSITION_NOTIFIER);
+ 	if (!ret)
+ 		cpufreq_init = 1;
 +
- 	write_sequnlock_irqrestore(&system_time_lock, flags);
+ 	return ret;
+ }
+ core_initcall(cpufreq_tsc);
  
- 	/* Set us up to go off on the next interval */
+-#else /* CONFIG_CPU_FREQ */
+-void cpufreq_delayed_get(void) { return; }
+ #endif
+diff --git a/drivers/acpi/processor_idle.c b/drivers/acpi/processor_idle.c
+index 573b6a9..47e9c8d 100644
+--- a/drivers/acpi/processor_idle.c
++++ b/drivers/acpi/processor_idle.c
+@@ -181,6 +181,7 @@ static void acpi_safe_halt(void)
+ }
+ 
+ static atomic_t c3_cpu_count;
++extern void tsc_c3_compensate(unsigned long nsecs);
+ 
+ static void acpi_processor_idle(void)
+ {
+@@ -354,6 +355,11 @@ static void acpi_processor_idle(void)
+ 					  ACPI_MTX_DO_NOT_LOCK);
+ 		}
+ 
++#ifdef CONFIG_GENERIC_TIME
++		/* compensate for TSC pause */
++		tsc_c3_compensate((u32)(((u64)((t2-t1)&0xFFFFFF)*286070)>>10));
++#endif
++
+ 		/* Re-enable interrupts */
+ 		local_irq_enable();
+ 		/* Compute time (ticks) that we were actually asleep */
+diff --git a/include/asm-i386/mach-default/mach_timer.h b/include/asm-i386/mach-default/mach_timer.h
+index 4b9703b..807992f 100644
+--- a/include/asm-i386/mach-default/mach_timer.h
++++ b/include/asm-i386/mach-default/mach_timer.h
+@@ -15,7 +15,9 @@
+ #ifndef _MACH_TIMER_H
+ #define _MACH_TIMER_H
+ 
+-#define CALIBRATE_LATCH	(5 * LATCH)
++#define CALIBRATE_TIME_MSEC 30 /* 30 msecs */
++#define CALIBRATE_LATCH	\
++	((CLOCK_TICK_RATE * CALIBRATE_TIME_MSEC + 1000/2)/1000)
+ 
+ static inline void mach_prepare_counter(void)
+ {
+diff --git a/include/asm-i386/mach-summit/mach_mpparse.h b/include/asm-i386/mach-summit/mach_mpparse.h
+index 1cce2b9..9426839 100644
+--- a/include/asm-i386/mach-summit/mach_mpparse.h
++++ b/include/asm-i386/mach-summit/mach_mpparse.h
+@@ -2,6 +2,7 @@
+ #define __ASM_MACH_MPPARSE_H
+ 
+ #include <mach_apic.h>
++#include <asm/tsc.h>
+ 
+ extern int use_cyclone;
+ 
+@@ -29,6 +30,7 @@ static inline int mps_oem_check(struct m
+ 			(!strncmp(productid, "VIGIL SMP", 9) 
+ 			 || !strncmp(productid, "EXA", 3)
+ 			 || !strncmp(productid, "RUTHLESS SMP", 12))){
++		mark_tsc_unstable();
+ 		use_cyclone = 1; /*enable cyclone-timer*/
+ 		setup_summit();
+ 		return 1;
+@@ -42,6 +44,7 @@ static inline int acpi_madt_oem_check(ch
+ 	if (!strncmp(oem_id, "IBM", 3) &&
+ 	    (!strncmp(oem_table_id, "SERVIGIL", 8)
+ 	     || !strncmp(oem_table_id, "EXA", 3))){
++		mark_tsc_unstable();
+ 		use_cyclone = 1; /*enable cyclone-timer*/
+ 		setup_summit();
+ 		return 1;
+diff --git a/include/asm-i386/tsc.h b/include/asm-i386/tsc.h
+index 86288f2..49f0112 100644
+--- a/include/asm-i386/tsc.h
++++ b/include/asm-i386/tsc.h
+@@ -41,4 +41,8 @@ static inline cycles_t get_cycles (void)
+ }
+ 
+ extern unsigned int cpu_khz;
++extern unsigned int tsc_khz;
++extern void tsc_init(void);
++void tsc_c3_compensate(unsigned long usecs);
++extern void mark_tsc_unstable(void);
+ #endif

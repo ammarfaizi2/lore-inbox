@@ -1,107 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932483AbVKLTuR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932493AbVKLUBP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932483AbVKLTuR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 14:50:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbVKLTuR
+	id S932493AbVKLUBP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 15:01:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932494AbVKLUBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 14:50:17 -0500
-Received: from unknown-1-11.windriver.com ([147.11.1.11]:54401 "EHLO
-	mail.wrs.com") by vger.kernel.org with ESMTP id S932483AbVKLTuP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 14:50:15 -0500
-Message-ID: <43764766.6010009@windriver.com>
-Date: Sat, 12 Nov 2005 13:49:58 -0600
-From: Jason Wessel <jason.wessel@windriver.com>
-User-Agent: Thunderbird 1.5 (Windows/20051025)
-MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: Tom Rini <trini@kernel.crashing.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: SysFS 'module' params with CONFIG_MODULES=n
-References: <20051111153220.GQ3839@smtp.west.cox.net> <20051112043320.GA27472@suse.de>
-In-Reply-To: <20051112043320.GA27472@suse.de>
-Content-Type: multipart/mixed;
- boundary="------------030907090205070409030906"
-X-OriginalArrivalTime: 12 Nov 2005 19:49:58.0555 (UTC) FILETIME=[431CA6B0:01C5E7C2]
+	Sat, 12 Nov 2005 15:01:15 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:25806 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932493AbVKLUBO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 15:01:14 -0500
+Date: Sat, 12 Nov 2005 21:01:03 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Bj?rn Mork <bmork@dod.no>, linux-kernel@vger.kernel.org
+Subject: Re: Resume from swsusp stopped working with 2.6.14 and 2.6.15-rc1
+Message-ID: <20051112200103.GB1667@elf.ucw.cz>
+References: <87zmoa0yv5.fsf@obelix.mork.no> <200511121023.23245.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200511121023.23245.dtor_core@ameritech.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030907090205070409030906
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi!
 
-Greg KH wrote:
-> On Fri, Nov 11, 2005 at 08:32:20AM -0700, Tom Rini wrote:
->   
->> On 2.6.14, and probably newer, a system where CONFIG_MODULES=n
->> /sys/module/foo/parameters/param fails:
->>
->> # cat /sys/module/tcp_bic/parameters/low_window
->> cat: /sys/module/tcp_bic/parameters/low_window: Permission denied
->>
->> But just changing MODULES to y:
->>
->> # cat /sys/module/tcp_bic/parameters/low_window
->> 14
->>
->> Is this intentional or fixable?  Just an observation right now, thanks.
->>     
->
-> Not intentional at all.  Did this work before 2.6.14?
->
-> thanks,
->
-> greg k-h
->   
-I am not sure when it stopped working.
+> > I have had swsusp working for ages on a IBM Thinkpad T42, but since
+> > 2.6.14 it hasn't been willing to resume anymore.  Both suspending to
+> > disk and ACPI S3 still works. 
+> > 
+> > Output of dmesg below (running 2.6.15-rc1). Notice the line:
+> > 
+> >   Restarting tasks...<6> Strange, kseriod not stopped
+> > 
+> > I guess that's the explanation.  Could it be the new TrackPoint
+> > driver, maybe?  (This PC has both a TrackPoint and a Touchpad).
+> >
+> 
+> This is unlikely... serio has the proper support for freezing as
+> far as I understand:
+> 
+> static int serio_thread(void *nothing)
+> {
+>         do {
+>                 serio_handle_events();
+>                 wait_event_interruptible(serio_wait,
+>                         kthread_should_stop() || !list_empty(&serio_event_list));
+>                 try_to_freeze();
+>         } while (!kthread_should_stop());
+> 
+>         printk(KERN_DEBUG "serio: kseriod exiting\n");
+>         return 0;
+> }
+> 
+> Pavel, any ideas?
 
-I recommend the attached patch to kernel/params.c All the work was done 
-to setup the file and maintain the file handles but the access functions 
-were zeroed out due to the #ifdef.  Removing the #ifdef allows full 
-access to all the parameters when CONFIG_MODULES=n.
+No, sorry. I'll try to reproduce it here (x32 notebook), but...
 
-signed off: Jason Wessel <jason.wessel@windriver.com>
-
-Thanks,
-Jason.
-
-
-
-
-
---------------030907090205070409030906
-Content-Type: text/plain;
- name="params_sysfs.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="params_sysfs.patch"
-
-Index: linux-2.6.14/kernel/params.c
-===================================================================
---- linux-2.6.14.orig/kernel/params.c	2005-11-11 08:40:03.456317256 -0800
-+++ linux-2.6.14/kernel/params.c	2005-11-12 11:43:00.439765632 -0800
-@@ -618,8 +618,6 @@ static void __init param_sysfs_builtin(v
- 
- 
- /* module-related sysfs stuff */
--#ifdef CONFIG_MODULES
--
- #define to_module_attr(n) container_of(n, struct module_attribute, attr);
- #define to_module_kobject(n) container_of(n, struct module_kobject, kobj);
- 
-@@ -676,13 +674,6 @@ static struct sysfs_ops module_sysfs_ops
- 	.store = module_attr_store,
- };
- 
--#else
--static struct sysfs_ops module_sysfs_ops = {
--	.show = NULL,
--	.store = NULL,
--};
--#endif
--
- static struct kobj_type module_ktype = {
- 	.sysfs_ops =	&module_sysfs_ops,
- };
-
---------------030907090205070409030906--
+							Pavel
+-- 
+Thanks, Sharp!

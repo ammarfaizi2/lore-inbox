@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbVKLCNi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750919AbVKLCUz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750890AbVKLCNi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 21:13:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751305AbVKLCNi
+	id S1750919AbVKLCUz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 21:20:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbVKLCUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 21:13:38 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:39916 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750890AbVKLCNh (ORCPT
+	Fri, 11 Nov 2005 21:20:55 -0500
+Received: from atlrel8.hp.com ([156.153.255.206]:63457 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S1750919AbVKLCUy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 21:13:37 -0500
-Date: Fri, 11 Nov 2005 18:13:22 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: matthieu castet <castet.matthieu@free.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix leakes in request_firmware_nowait
-Message-Id: <20051111181322.7fbb887a.akpm@osdl.org>
-In-Reply-To: <4373C03F.1070301@free.fr>
-References: <4373BF82.40003@free.fr>
-	<4373C03F.1070301@free.fr>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 11 Nov 2005 21:20:54 -0500
+From: bob.picco@hp.com
+To: akpm@osdl.org
+Cc: pj@sgi.com, simon.derr@bull.net, linux-kernel@vger.kernel.org,
+       bob.picco@hp.com
+Message-Id: <20051112022122.22085.45247.sendpatchset@localhost.localdomain>
+Subject: [PATCH] cpuset - fix return without releasing semaphore
+Date: Fri, 11 Nov 2005 19:20:45 -0700 (MST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-matthieu castet <castet.matthieu@free.fr> wrote:
->
-> @@ -511,18 +511,23 @@
->   {
->   	struct firmware_work *fw_work = arg;
->   	const struct firmware *fw;
->  +	int ret;
->   	if (!arg) {
->   		WARN_ON(1);
->   		return 0;
->   	}
->   	daemonize("%s/%s", "firmware", fw_work->name);
->  -	_request_firmware(&fw, fw_work->name, fw_work->device,
->  +	ret = _request_firmware(&fw, fw_work->name, fw_work->device,
->   		fw_work->hotplug);
->  -	fw_work->cont(fw, fw_work->context);
->  -	release_firmware(fw);
->  +	if (ret < 0)
->  +		fw_work->cont(NULL, fw_work->context);
->  +	else {
->  +		fw_work->cont(fw, fw_work->context);
->  +		release_firmware(fw);
->  +	}
->   	module_put(fw_work->module);
->   	kfree(fw_work);
->  -	return 0;
->  +	return ret;
->   }
 
-What does the call to fw_work->cont(NULL, ...) do?
+It seems wrong to acquire the semaphore and then return from 
+cpuset_zone_allowed without releasing it.  This was only compile tested.
+
+bob
+
+Signed-off-by: Bob Picco <bob.picco@hp.com>
+
+ kernel/cpuset.c |    5 +++--
+
+ 1 files changed, 3 insertions(+), 2 deletions(-)
+
+Index: linux-2.6.14-mm1/kernel/cpuset.c
+===================================================================
+--- linux-2.6.14-mm1.orig/kernel/cpuset.c	2005-11-07 07:00:13.000000000 -0500
++++ linux-2.6.14-mm1/kernel/cpuset.c	2005-11-09 17:56:28.000000000 -0500
+@@ -2036,11 +2036,12 @@ int cpuset_zone_allowed(struct zone *z, 
+ 	if (gfp_mask & __GFP_HARDWALL)	/* If hardwall request, stop here */
+ 		return 0;
+ 
++	if (current->flags & PF_EXITING) /* Let dying task have memory */
++		return 1;
++
+ 	/* Not hardwall and node outside mems_allowed: scan up cpusets */
+ 	down(&callback_sem);
+ 
+-	if (current->flags & PF_EXITING) /* Let dying task have memory */
+-		return 1;
+ 	task_lock(current);
+ 	cs = nearest_exclusive_ancestor(current->cpuset);
+ 	task_unlock(current);

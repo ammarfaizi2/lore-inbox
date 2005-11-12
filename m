@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932173AbVKLGhy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbVKLGjQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932173AbVKLGhy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 01:37:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbVKLGhy
+	id S932174AbVKLGjQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 01:39:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbVKLGjQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 01:37:54 -0500
-Received: from taverner.CS.Berkeley.EDU ([128.32.168.222]:24221 "EHLO
-	taverner.CS.Berkeley.EDU") by vger.kernel.org with ESMTP
-	id S932173AbVKLGhx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 01:37:53 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: [PATCH] getrusage sucks
-Date: Sat, 12 Nov 2005 06:37:36 +0000 (UTC)
-Organization: University of California, Berkeley
-Message-ID: <dl42jg$s2$1@taverner.CS.Berkeley.EDU>
-References: <75D9B5F4E50C8B4BB27622BD06C2B82BCF2FD4@xmb-sjc-235.amer.cisco.com> <20051111230223.GB7991@shell0.pdx.osdl.net> <dl3ad7$ikf$2@taverner.CS.Berkeley.EDU> <20051112005333.GC7991@shell0.pdx.osdl.net>
-Reply-To: daw-usenet@taverner.CS.Berkeley.EDU (David Wagner)
-NNTP-Posting-Host: taverner.cs.berkeley.edu
-X-Trace: taverner.CS.Berkeley.EDU 1131777456 898 128.32.168.222 (12 Nov 2005 06:37:36 GMT)
-X-Complaints-To: news@taverner.CS.Berkeley.EDU
-NNTP-Posting-Date: Sat, 12 Nov 2005 06:37:36 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: daw@taverner.cs.berkeley.edu (David Wagner)
+	Sat, 12 Nov 2005 01:39:16 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:31177 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S932174AbVKLGjP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 01:39:15 -0500
+Date: Fri, 11 Nov 2005 23:39:14 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org,
+       parisc-linux@parisc-linux.org
+Subject: 2.6.15-rc1 freeing a reserved page from uart_shutdown
+Message-ID: <20051112063914.GH1658@parisc-linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright  wrote:
->/proc/[pid]/stat. (fs/proc/array.c::do_task_stat).
->
->> Is there any argument
->> that disclosing it to everyone is safe?  Or is it just that no one has
->> ever given the security considerations much thought up till now?
->
->I guess it keeps falling in the "too theoretical" category.  It can be
->protected by policy, but default is open.
 
-Ahh, I see.  I had never looked at /proc/[pid]/stat carefully before.
+I'm having some trouble with 2.6.15-rc1:
 
-Well, making /proc/[pid]/stat world-readable by default looks pretty
-dubious to me.  There's all sorts of stuff there that I suspect should
-not be revealed: EIP, stack pointer, stats on paging and swapping, and
-so on.  I suspect that this is not at all safe.  Most crypto algorithms
-tend to fall apart when you have side channels like this.
+VFS: Mounted root (ext2 filesystem) readonly.
+Freeing unused kernel memory: 640k freed
+Bad page state at free_hot_cold_page (in process 'init', page 108a24a0)
+flags:0x00000400 mapping:00000000 mapcount:0 count:0
+Backtrace:
+Backtrace:
+ [<101481cc>] bad_page+0x70/0xc4
+ [<10148920>] free_hot_cold_page+0x74/0x124
+ [<10275e68>] uart_shutdown+0xf0/0xf8
+ [<102775f8>] uart_close+0xc8/0x214
+ [<1025c710>] release_dev+0x72c/0x734
+ [<1025cddc>] tty_release+0x10/0x20
+ [<101680f0>] __fput+0x15c/0x170
+ [<10166520>] filp_close+0x58/0x94
+ [<1010d114>] syscall_exit+0x0/0x14
 
-Maybe no one cares, because no one uses Linux in a multi-user setting
-where users are motivated to attack each other or attack the system.
-But baking this kind of "privilege escalation" vulnerability into the
-kernel by default doesn't seem like a good idea to me.
+This is on a parisc system, though a very similar tree boots fine on a
+different machine.  The machine which produces this message is a K460
+which uses the Mux serial driver.  As far as I can tell, the only call
+to free_hot_cold_page() in uart_shutdown() is to free info->xmit.buf
+which seems to be always filled by a call to get_zeroed_page().
+
+This problem doesn't show with 2.6.14.  I can give access to this
+machine to anyone who wants to do some debugging.  It has remote power
+capabilities ;-)

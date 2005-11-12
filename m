@@ -1,43 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbVKLWNj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbVKLWRf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964845AbVKLWNj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 17:13:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964846AbVKLWNj
+	id S964826AbVKLWRf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 17:17:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbVKLWRf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 17:13:39 -0500
-Received: from mail.isurf.ca ([66.154.97.68]:14812 "EHLO columbo.isurf.ca")
-	by vger.kernel.org with ESMTP id S964845AbVKLWNj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 17:13:39 -0500
-From: "Gabriel A. Devenyi" <ace@staticwave.ca>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Subject: Re: [PATCH] drivers/message/i2o/i2o_block.c unsigned comparison
-Date: Sat, 12 Nov 2005 17:13:26 -0500
-User-Agent: KMail/1.8.3
-Cc: markus.lidel@shadowconnect.com, linux-kernel@vger.kernel.org
-References: <200511121629.54699.ace@staticwave.ca> <20051112221955.GF20860@mipter.zuzino.mipt.ru>
-In-Reply-To: <20051112221955.GF20860@mipter.zuzino.mipt.ru>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 12 Nov 2005 17:17:35 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:32624 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S932353AbVKLWRe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 17:17:34 -0500
+Date: Sat, 12 Nov 2005 23:19:04 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: anil dahiya <ak_ait@yahoo.com>
+Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
+Subject: Re: making makefile for 2.6 kernel
+Message-ID: <20051112221904.GA10228@mars.ravnborg.org>
+References: <20051112011006.GD7991@shell0.pdx.osdl.net> <20051112151652.83848.qmail@web60221.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511121713.26671.ace@staticwave.ca>
+In-Reply-To: <20051112151652.83848.qmail@web60221.mail.yahoo.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On November 12, 2005 17:19, Alexey Dobriyan wrote:
-> Don't you see this?
-
-*turns red* I just checked for a compile error, sorry.
-
->   CC      drivers/message/i2o/i2o_block.o
-> drivers/message/i2o/i2o_block.c:961: warning: initialization from incompatible pointer type
+On Sat, Nov 12, 2005 at 07:16:52AM -0800, anil dahiya wrote:
+> Hi 
+> I want to makefile for my kernel module..
+> 1.c 2.c 3.c files are places in /home/anil folder but
+> these files contain .h (hearder)files from 3 different
+> directory 1) /home/include 2) /root/incluent 3)
+> /opt/include
 > 
-> ->ioctl method takes "unsigned long arg".
+> can u suggest me a makefile to generate a common
+> module target.ko using these .C and .h files.
 
-So should this comparasion arg < 0 simply be removed? Its meaningless if arg is unsigned.
+Makefile
+obj-m := foo.o
+foo-y := 1.o 2.o 3.o
 
--- 
-Gabriel A. Devenyi
-ace@staticwave.ca
+EXTRA_CFLGAS := -I/home/include -I/root/incluent -I/opt/include
+
+
+And then build the module with:
+make -C $KERNEL_SRC M=`pwd`
+
+See Documentation/kbuild/makefiles.txt for reference.
+Note: Kernel being pointed out must be a fully build kernel
+
+	Sam

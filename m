@@ -1,56 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbVKLAi7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbVKLAnn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750800AbVKLAi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 19:38:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbVKLAi7
+	id S1750813AbVKLAnn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 19:43:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbVKLAnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 19:38:59 -0500
-Received: from xproxy.gmail.com ([66.249.82.200]:1147 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750800AbVKLAi6 (ORCPT
+	Fri, 11 Nov 2005 19:43:43 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:6299 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1750813AbVKLAnm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 19:38:58 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=sw5JCs8szXrL3qikxjCqH+ckaFfEnDETRIlvAnBpyeQBmWuQfAbsIlKoR3koZ3cNhG8bU4afs1FQVDj50KKYmeEwWC2FYtcOye2ddly0+HA8e/CNvQJTbkkmlPk05AF/o/ZU1BQFrF5b+cmKG8NCkZdbVnWhM+wliRViyDccaQo=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Info about -stable to README and point at applying-patches.txt
-Date: Sat, 12 Nov 2005 01:43:16 +0100
-User-Agent: KMail/1.8.92
-Cc: Andrew Morton <akpm@osdl.org>,
-       "Miro Dietiker, MD Systems" <info@md-systems.ch>,
-       Jesper Juhl <jesper.juhl@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511120143.16602.jesper.juhl@gmail.com>
+	Fri, 11 Nov 2005 19:43:42 -0500
+Date: Fri, 11 Nov 2005 16:43:22 -0800 (PST)
+From: Paul Jackson <pj@sgi.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Cc: Martin Hicks <mort@sgi.com>, Ray Bryant <raybry@mpdtxmail.amd.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
+       Christoph Lameter <clameter@sgi.com>,
+       "Rohit, Seth" <rohit.seth@intel.com>, Paul Jackson <pj@sgi.com>,
+       Andi Kleen <ak@suse.de>
+Message-Id: <20051112004322.30442.14753.sendpatchset@jackhammer.engr.sgi.com>
+Subject: [PATCH] mm gfp_noreclaim cleanup
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Small patch that adds some info about the 2.6.x.y (-stable) kernel
-to the README and also tells people to look at 
-Documentation/applying-patches.txt for more information.
+Remove last remnant of the defunct early reclaim page logic,
+the no longer used __GFP_NORECLAIM flag bit.
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+Signed-off-by: Paul Jackson <pj@sgi.com>
+
 ---
 
- README |    5 +++++
- 1 files changed, 5 insertions(+)
+ include/linux/gfp.h     |    5 ++---
+ include/linux/pagemap.h |    4 ++--
+ 2 files changed, 4 insertions(+), 5 deletions(-)
 
---- linux-2.6.14-git14-orig/README	2005-11-12 01:19:39.000000000 +0100
-+++ linux-2.6.14-git14/README	2005-11-12 01:27:17.000000000 +0100
-@@ -81,6 +81,11 @@
-    failed patches (xxx# or xxx.rej). If there are, either you or me has
-    made a mistake.
+--- 2.6.14-mm2.orig/include/linux/gfp.h	2005-11-10 21:27:25.788622408 -0800
++++ 2.6.14-mm2/include/linux/gfp.h	2005-11-11 15:21:43.780529152 -0800
+@@ -46,8 +46,7 @@ struct vm_area_struct;
+ #define __GFP_COMP	((__force gfp_t)0x4000u)/* Add compound page metadata */
+ #define __GFP_ZERO	((__force gfp_t)0x8000u)/* Return zeroed page on success */
+ #define __GFP_NOMEMALLOC ((__force gfp_t)0x10000u) /* Don't use emergency reserves */
+-#define __GFP_NORECLAIM  ((__force gfp_t)0x20000u) /* No realy zone reclaim during allocation */
+-#define __GFP_HARDWALL   ((__force gfp_t)0x40000u) /* Enforce hardwall cpuset memory allocs */
++#define __GFP_HARDWALL   ((__force gfp_t)0x20000u) /* Enforce hardwall cpuset memory allocs */
+ #define __GFP_VALID	((__force gfp_t)0x80000000u) /* valid GFP flags */
  
-+   Contrary to the patches for the 2.6.x kernels, patches for the 2.6.x.y
-+   kernels (also known as the -stable kernels) are not incremental but
-+   instead apply directly to the base 2.6.x kernel.
-+   Please read Documentation/applying-patches.txt for more information.
-+
-    Alternatively, the script patch-kernel can be used to automate this
-    process.  It determines the current kernel version and applies any
-    patches found.
+ #define __GFP_BITS_SHIFT 20	/* Room for 20 __GFP_FOO bits */
+@@ -57,7 +56,7 @@ struct vm_area_struct;
+ #define GFP_LEVEL_MASK (__GFP_WAIT|__GFP_HIGH|__GFP_IO|__GFP_FS| \
+ 			__GFP_COLD|__GFP_NOWARN|__GFP_REPEAT| \
+ 			__GFP_NOFAIL|__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP| \
+-			__GFP_NOMEMALLOC|__GFP_NORECLAIM|__GFP_HARDWALL)
++			__GFP_NOMEMALLOC|__GFP_HARDWALL)
+ 
+ #define GFP_ATOMIC	(__GFP_VALID | __GFP_HIGH)
+ #define GFP_NOIO	(__GFP_VALID | __GFP_WAIT)
+--- 2.6.14-mm2.orig/include/linux/pagemap.h	2005-11-10 21:27:07.994469549 -0800
++++ 2.6.14-mm2/include/linux/pagemap.h	2005-11-11 15:24:00.719478936 -0800
+@@ -53,12 +53,12 @@ void release_pages(struct page **pages, 
+ 
+ static inline struct page *page_cache_alloc(struct address_space *x)
+ {
+-	return alloc_pages(mapping_gfp_mask(x)|__GFP_NORECLAIM, 0);
++	return alloc_pages(mapping_gfp_mask(x), 0);
+ }
+ 
+ static inline struct page *page_cache_alloc_cold(struct address_space *x)
+ {
+-	return alloc_pages(mapping_gfp_mask(x)|__GFP_COLD|__GFP_NORECLAIM, 0);
++	return alloc_pages(mapping_gfp_mask(x)|__GFP_COLD, 0);
+ }
+ 
+ typedef int filler_t(void *, struct page *);
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

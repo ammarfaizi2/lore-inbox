@@ -1,37 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbVKLNvn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbVKLNxH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932370AbVKLNvn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 08:51:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbVKLNvn
+	id S932375AbVKLNxH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 08:53:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbVKLNxH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 08:51:43 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:30136 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932370AbVKLNvm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 08:51:42 -0500
-Date: Sat, 12 Nov 2005 13:48:20 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, netdev@vger.kernel.org,
-       jonathan@buzzard.org.uk, tlinux-users@linux.toshiba-dme.co.jp,
-       Jaroslav Kysela <perex@suse.cz>
-Subject: Re: [RFC: 2.6 patch] remove ISA legacy functions
-Message-ID: <20051112134820.GG7992@ftp.linux.org.uk>
-References: <20051111021258.GK5376@stusta.de> <20051110182443.514622ed.akpm@osdl.org> <20051111201849.GP5376@stusta.de> <20051111202005.GQ5376@stusta.de> <20051111203601.GR5376@stusta.de> <20051112045216.GY5376@stusta.de> <437578CD.1080501@pobox.com> <20051112051102.GF1658@parisc-linux.org> <43757D5C.8030308@pobox.com> <20051112052918.GG1658@parisc-linux.org>
-Mime-Version: 1.0
+	Sat, 12 Nov 2005 08:53:07 -0500
+Received: from pne-smtpout2-sn2.hy.skanova.net ([81.228.8.164]:3256 "EHLO
+	pne-smtpout2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S932375AbVKLNxF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 08:53:05 -0500
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-mm2 OOPS - packet writing
+References: <6bffcb0e0511111601j6c53f646m@mail.gmail.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 12 Nov 2005 14:52:58 +0100
+In-Reply-To: <6bffcb0e0511111601j6c53f646m@mail.gmail.com>
+Message-ID: <m3fyq2ug5h.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051112052918.GG1658@parisc-linux.org>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 11, 2005 at 10:29:18PM -0700, Matthew Wilcox wrote:
-> I think they work fine everywhere.  Adrian wants to remove the API they
-> use.
-> 
-> I think this is a bad idea.  The drivers should be converted.
+Michal Piotrowski <michal.k.k.piotrowski@gmail.com> writes:
 
-They are - I'll send patches later today...
+> On 11/11/05, Andrew Morton <akpm@osdl.org> wrote:
+> >
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14/2.6.14-mm2/
+> 
+> Oops while cat /proc/driver/pktcdvd/pktcdvd0
+> 
+> Linux version 2.6.14-mm2 (michal@debian) (gcc version 4.0.3 20051023
+
+There is an old bug in the pkt_count_states() function that causes
+stack corruption. When compiling with gcc 3.x or 2.x it is harmless,
+but gcc 4 allocates local variables differently, which makes the bug
+visible. Fixed by this patch.
+
+Signed-off-by: Peter Osterlund <petero2@telia.com>
+---
+
+ drivers/block/pktcdvd.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/block/pktcdvd.c b/drivers/block/pktcdvd.c
+index 391ced8..b5f67b1 100644
+--- a/drivers/block/pktcdvd.c
++++ b/drivers/block/pktcdvd.c
+@@ -1188,7 +1188,7 @@ static void pkt_count_states(struct pktc
+ 	struct packet_data *pkt;
+ 	int i;
+ 
+-	for (i = 0; i <= PACKET_NUM_STATES; i++)
++	for (i = 0; i < PACKET_NUM_STATES; i++)
+ 		states[i] = 0;
+ 
+ 	spin_lock(&pd->cdrw.active_list_lock);
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

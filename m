@@ -1,49 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbVKLSkN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932468AbVKLT0x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932454AbVKLSkN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 13:40:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbVKLSkM
+	id S932468AbVKLT0x (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 14:26:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbVKLT0x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 13:40:12 -0500
-Received: from fed1rmmtao02.cox.net ([68.230.241.37]:8867 "EHLO
-	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
-	id S932454AbVKLSkK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 13:40:10 -0500
-Date: Sat, 12 Nov 2005 11:40:10 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Sven-Thorsten Dietrich <sven@mvista.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.14-rt11 3/3] Fix ppc32 bootwrapper code for new zlib
-Message-ID: <20051112183322.GB3839@smtp.west.cox.net>
-References: <20051111204312.11609.23222.sendpatchset@localhost.localdomain> <20051111204331.11609.46440.sendpatchset@localhost.localdomain> <20051112142428.GC24163@elte.hu>
+	Sat, 12 Nov 2005 14:26:53 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:4287 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932468AbVKLT0x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 14:26:53 -0500
+Date: Sat, 12 Nov 2005 11:26:28 -0800
+From: Paul Jackson <pj@sgi.com>
+To: bob.picco@hp.com
+Cc: akpm@osdl.org, simon.derr@bull.net, linux-kernel@vger.kernel.org,
+       bob.picco@hp.com
+Subject: Re: [PATCH] cpuset - fix return without releasing semaphore
+Message-Id: <20051112112628.22aaa314.pj@sgi.com>
+In-Reply-To: <20051112022122.22085.45247.sendpatchset@localhost.localdomain>
+References: <20051112022122.22085.45247.sendpatchset@localhost.localdomain>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051112142428.GC24163@elte.hu>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 12, 2005 at 03:24:28PM +0100, Ingo Molnar wrote:
-> 
-> * Tom Rini <trini@kernel.crashing.org> wrote:
-> 
-> > Make the ppc32 bootwrapper code mirror what the ppc64 version does to 
-> > clean out locking, etc, from lib/zlib_inflate/
-> > 
-> > Signed-off-by: Tom Rini <trini@kernel.crashing.org>
-> 
-> why is this needed in -rt? Shouldnt this go upstream?
+> This was only compile tested.
 
-This is only needed by the 'add spinlocks/etc to zlib_inflate' changes
-that aren't in 2.6.14 stock at least, and I don't think will be in
-2.6.15-rc1.
-
-The slightly better solution is I need to talk with Matt Mackall about
-his zlib changes and how he thinks p*pc* can be done better, but without
-duplicating code again.
+I boot, function and stress tested it on an ia64 SN2 system.
+As expected, works fine, just as it did before.
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

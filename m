@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932432AbVKLRqJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932434AbVKLRqW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932432AbVKLRqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 12:46:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbVKLRqJ
+	id S932434AbVKLRqW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 12:46:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbVKLRqW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 12:46:09 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:38674 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932430AbVKLRqH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 12:46:07 -0500
-Date: Sat, 12 Nov 2005 17:46:01 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-rc1: IDE: fix potential data corruption with SL82C105 interfaces
-Message-ID: <20051112174601.GC28987@flint.arm.linux.org.uk>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20051112165548.GB28987@flint.arm.linux.org.uk> <1131818615.18258.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1131818615.18258.6.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+	Sat, 12 Nov 2005 12:46:22 -0500
+Received: from cse-mail.unl.edu ([129.93.165.11]:35019 "EHLO cse-mail.unl.edu")
+	by vger.kernel.org with ESMTP id S932434AbVKLRqV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 12:46:21 -0500
+Date: Sat, 12 Nov 2005 11:45:54 -0600 (CST)
+From: Hui Cheng <hcheng@cse.unl.edu>
+To: kernelnewbies@nl.linux.org
+cc: linux-kernel@vger.kernel.org
+Subject: How to quickly detect the mode change of a hard disk?
+In-Reply-To: <200511102334.10926.cloud.of.andor@gmail.com>
+Message-ID: <Pine.GSO.4.44.0511121122430.15078-100000@cse.unl.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (cse-mail.unl.edu [129.93.165.11]); Sat, 12 Nov 2005 11:46:00 -0600 (CST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 12, 2005 at 06:03:34PM +0000, Alan Cox wrote:
-> On Sad, 2005-11-12 at 16:55 +0000, Russell King wrote:
-> > We must _never_ _ever_ on pain of death enable IDE DMA on SL82C105
-> > chipsets where the southbridge revision is <= 5, otherwise data
-> > corruption will occur.
-> 
-> If you are fixing this driver also set ->serialize = 1; before someone
-> with dual channel device gets burned.
+Hi,
 
-Thanks for reminding me - I've included that as well.
+I am currently doing a kernel module involves detecting/changing
+disk mode among STANDBY and ACTIVE/IDLE. I used ide_cmd_wait() to issue
+commands like WIN_IDLEIMMEDIATELY and WIN_STANDBYNOW1. The problem is, a
+drive in standby mode will automatically awake whenever a disk operation
+is requested and I need to know the mode change as soon as possible. (So I
+donot want to periodically use the WIN_CHECKPOWERMODE to detect it). I was
+wondering if the standby disk is waken by the kernel or by the disk
+firmware? If it is not in the kernel, is there any good way to detect it?
+Thanks,
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Hui
+
+

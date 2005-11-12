@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbVKLF4N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbVKLF6I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932154AbVKLF4N (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 00:56:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932158AbVKLF4M
+	id S932097AbVKLF6I (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 00:58:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbVKLF6I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 00:56:12 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:40096 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932154AbVKLF4L (ORCPT
+	Sat, 12 Nov 2005 00:58:08 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:52896 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932097AbVKLF6H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 00:56:11 -0500
-Date: Fri, 11 Nov 2005 21:55:56 -0800
+	Sat, 12 Nov 2005 00:58:07 -0500
+Date: Fri, 11 Nov 2005 21:57:52 -0800
 From: Andrew Morton <akpm@osdl.org>
 To: Matt Mackall <mpm@selenic.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 8/15] misc: Make vm86 support optional
-Message-Id: <20051111215556.2333c523.akpm@osdl.org>
-In-Reply-To: <9.282480653@selenic.com>
-References: <8.282480653@selenic.com>
-	<9.282480653@selenic.com>
+Subject: Re: [PATCH 9/15] misc: Make sysenter support optional
+Message-Id: <20051111215752.623726f4.akpm@osdl.org>
+In-Reply-To: <10.282480653@selenic.com>
+References: <9.282480653@selenic.com>
+	<10.282480653@selenic.com>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,44 +27,35 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Matt Mackall <mpm@selenic.com> wrote:
 >
-> Make vm86 support optional
+> his adds configurable sysenter support on x86. This saves about 5k on
+>  small systems.
 > 
-> add/remove: 0/14 grow/shrink: 0/5 up/down: 0/-5221 (-5221)
-> function                                     old     new   delta
-> do_simd_coprocessor_error                    133     132      -1
-> irqbits                                        4       -      -4
-> irqbits_lock                                   8       -      -8
-> release_thread                                72      52     -20
-> do_debug                                     212     186     -26
-> do_general_protection                        475     428     -47
-> do_trap                                      196     140     -56
-> release_vm86_irqs                            112       -    -112
-> vm86_irqs                                    128       -    -128
-> sys_vm86old                                  146       -    -146
-> irq_handler                                  151       -    -151
-> mark_screen_rdonly                           159       -    -159
-> sys_vm86                                     199       -    -199
-> handle_vm86_trap                             231       -    -231
-> save_v86_state                               339       -    -339
-> do_sys_vm86                                  379       -    -379
-> do_vm86_irq_handling                         482       -    -482
-> do_int                                       508       -    -508
-> handle_vm86_fault                           2225       -   -2225
+>     text    data     bss     dec     hex
+>  3330172  529036  190556 4049764  3dcb64 baseline
+>  3329604  524164  190556 4044324  3db624 sysenter
+> 
+>  $ bloat-o-meter vmlinux{-baseline,}
+>  add/remove: 0/2 grow/shrink: 0/3 up/down: 0/-316 (-316)
+>  function                                     old     new   delta
+>  __restore_processor_state                     76      62     -14
+>  identify_cpu                                 520     500     -20
+>  create_elf_tables                            923     883     -40
+>  sysenter_setup                               113       -    -113
+>  enable_sep_cpu                               129       -    -129
+> 
+>  Most of the savings is not including the vsyscall DSO which doesn't
+>  show up with bloat-o-meter:
+> 
+>  $ size arch/i386/kernel/vsyscall.o
+>     text    data     bss     dec     hex filename
+>        0    4826       0    4826    12da arch/i386/kernel/vsyscall.o
+> 
+>  $ nm arch/i386/kernel/vsyscall.o
+>  00000961 T vsyscall_int80_end
+>  00000000 T vsyscall_int80_start
+>  000012da T vsyscall_sysenter_end
+>  00000961 T vsyscall_sysenter_start
 
+Similarly, stub out sysenter_setup() and enable_sep_cpu() and we lose a
+bunch of ifdefs.
 
-bix:/usr/src/25> grep '#ifdef' patches/tiny-make-vm86-support-optional.patch
-+#ifdef CONFIG_VM86
-+#ifdef CONFIG_VM86
-+#ifdef CONFIG_VM86
-+#ifdef CONFIG_VM86
-+#ifdef CONFIG_VM86
-+#ifdef CONFIG_VM86
-+#ifdef CONFIG_VM86
-+#ifdef CONFIG_VM86
-+#ifdef CONFIG_VM86
-+#ifdef CONFIG_VM86
-
-This one has a rather low bytes-to-ifdefs ratio.
-
-I bet you can get most of these benefits by stubbing out handle_vm86_*()
-and friends and perhaps setting VM_MASK to zero.

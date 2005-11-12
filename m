@@ -1,118 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbVKLRlX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932432AbVKLRqJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932435AbVKLRlX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 12:41:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbVKLRlX
+	id S932432AbVKLRqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 12:46:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbVKLRqJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 12:41:23 -0500
-Received: from fmr19.intel.com ([134.134.136.18]:63665 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932428AbVKLRlW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 12:41:22 -0500
-Message-ID: <43763964.5020503@linux.intel.com>
-Date: Sat, 12 Nov 2005 12:50:12 -0600
-From: James Ketrenos <jketreno@linux.intel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051018
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: NetDev <netdev@vger.kernel.org>, linux-kernel@vger.kernel.org
-CC: Benoit Boissinot <bboissin+ipw2100@gmail.com>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: [PATCH] ipw2100: Fix 'Driver using old /proc/net/wireless...' message
+	Sat, 12 Nov 2005 12:46:09 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:38674 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932430AbVKLRqH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 12:46:07 -0500
+Date: Sat, 12 Nov 2005 17:46:01 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rc1: IDE: fix potential data corruption with SL82C105 interfaces
+Message-ID: <20051112174601.GC28987@flint.arm.linux.org.uk>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20051112165548.GB28987@flint.arm.linux.org.uk> <1131818615.18258.6.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1131818615.18258.6.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ipw2100: Fix 'Driver using old /proc/net/wireless...' message
+On Sat, Nov 12, 2005 at 06:03:34PM +0000, Alan Cox wrote:
+> On Sad, 2005-11-12 at 16:55 +0000, Russell King wrote:
+> > We must _never_ _ever_ on pain of death enable IDE DMA on SL82C105
+> > chipsets where the southbridge revision is <= 5, otherwise data
+> > corruption will occur.
+> 
+> If you are fixing this driver also set ->serialize = 1; before someone
+> with dual channel device gets burned.
 
-Wireless extensions moved the get_wireless_stats handler from being
-in net_device into wireless_handler.
+Thanks for reminding me - I've included that as well.
 
-A prior instance of this patch resolved the issue for the ipw2200.  This
-one fixes it for the ipw2100.
-
-Signed-off-by: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-Signed-off-by: James Ketrenos <jketreno@linux.intel.com>
----
-Also available as overlay at rsync://bughost.org/repos/ipw-delta/.git/
----
- drivers/net/wireless/ipw2100.c |   29 ++++++++++++++++++-----------
- drivers/net/wireless/ipw2100.h |    2 ++
- 2 files changed, 20 insertions(+), 11 deletions(-)
----
-diff --git a/drivers/net/wireless/ipw2100.c b/drivers/net/wireless/ipw2100.c
-index a2e6214..77d2a21 100644
---- a/drivers/net/wireless/ipw2100.c
-+++ b/drivers/net/wireless/ipw2100.c
-@@ -6344,7 +6344,8 @@ static struct net_device *ipw2100_alloc_
- 	dev->ethtool_ops = &ipw2100_ethtool_ops;
- 	dev->tx_timeout = ipw2100_tx_timeout;
- 	dev->wireless_handlers = &ipw2100_wx_handler_def;
--	dev->get_wireless_stats = ipw2100_wx_wireless_stats;
-+	priv->wireless_data.ieee80211 = priv->ieee;
-+	dev->wireless_data = &priv->wireless_data;
- 	dev->set_mac_address = ipw2100_set_address;
- 	dev->watchdog_timeo = 3 * HZ;
- 	dev->irq = 0;
-@@ -7178,6 +7179,11 @@ static int ipw2100_wx_get_range(struct n
- 	}
- 	range->num_frequency = val;
- 
-+	/* Event capability (kernel + driver) */
-+	range->event_capa[0] = (IW_EVENT_CAPA_K_0 |
-+				IW_EVENT_CAPA_MASK(SIOCGIWAP));
-+	range->event_capa[1] = IW_EVENT_CAPA_K_1;
-+
- 	IPW_DEBUG_WX("GET Range\n");
- 
- 	return 0;
-@@ -8446,16 +8452,6 @@ static iw_handler ipw2100_private_handle
- #endif				/* CONFIG_IPW2100_MONITOR */
- };
- 
--static struct iw_handler_def ipw2100_wx_handler_def = {
--	.standard = ipw2100_wx_handlers,
--	.num_standard = sizeof(ipw2100_wx_handlers) / sizeof(iw_handler),
--	.num_private = sizeof(ipw2100_private_handler) / sizeof(iw_handler),
--	.num_private_args = sizeof(ipw2100_private_args) /
--	    sizeof(struct iw_priv_args),
--	.private = (iw_handler *) ipw2100_private_handler,
--	.private_args = (struct iw_priv_args *)ipw2100_private_args,
--};
--
- /*
-  * Get wireless statistics.
-  * Called by /proc/net/wireless
-@@ -8597,6 +8593,17 @@ static struct iw_statistics *ipw2100_wx_
- 	return (struct iw_statistics *)NULL;
- }
- 
-+static struct iw_handler_def ipw2100_wx_handler_def = {
-+	.standard = ipw2100_wx_handlers,
-+	.num_standard = sizeof(ipw2100_wx_handlers) / sizeof(iw_handler),
-+	.num_private = sizeof(ipw2100_private_handler) / sizeof(iw_handler),
-+	.num_private_args = sizeof(ipw2100_private_args) /
-+	    sizeof(struct iw_priv_args),
-+	.private = (iw_handler *) ipw2100_private_handler,
-+	.private_args = (struct iw_priv_args *)ipw2100_private_args,
-+	.get_wireless_stats = ipw2100_wx_wireless_stats,
-+};
-+
- static void ipw2100_wx_event_work(struct ipw2100_priv *priv)
- {
- 	union iwreq_data wrqu;
-diff --git a/drivers/net/wireless/ipw2100.h b/drivers/net/wireless/ipw2100.h
-index a1a9cbc..7f20cf3 100644
---- a/drivers/net/wireless/ipw2100.h
-+++ b/drivers/net/wireless/ipw2100.h
-@@ -572,6 +572,8 @@ struct ipw2100_priv {
- 	struct net_device *net_dev;
- 	struct iw_statistics wstats;
- 
-+	struct iw_public_data wireless_data;
-+
- 	struct tasklet_struct irq_tasklet;
- 
- 	struct workqueue_struct *workqueue;
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

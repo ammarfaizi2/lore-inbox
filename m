@@ -1,74 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbVKLCVd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751324AbVKLCYV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751319AbVKLCVd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 21:21:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751329AbVKLCVd
+	id S1751324AbVKLCYV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 21:24:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbVKLCYV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 21:21:33 -0500
-Received: from main.gmane.org ([80.91.229.2]:26330 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751319AbVKLCVc (ORCPT
+	Fri, 11 Nov 2005 21:24:21 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:22400 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751324AbVKLCYV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 21:21:32 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?Ville_Syrj=E4l=E4?= <syrjala@sci.fi>
-Subject: Re: Highpoint IDE types
-Date: Sat, 12 Nov 2005 04:15:02 +0200
-Message-ID: <pan.2005.11.12.02.15.00.646462@sci.fi>
-References: <1131471483.25192.76.camel@localhost.localdomain> <pan.2005.11.08.19.02.09.190896@sci.fi> <4374F633.6020006@ru.mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cs181093116.pp.htv.fi
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
-Cc: linux-ide@vger.kernel.org
+	Fri, 11 Nov 2005 21:24:21 -0500
+Date: Fri, 11 Nov 2005 18:24:18 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Linuv 2.6.15-rc1
+Message-ID: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Nov 2005 22:51:15 +0300, Sergei Shtylylov wrote:
 
-> Hello.
-> 
-> Ville Syrjälä wrote:
->> On Tue, 08 Nov 2005 17:38:02 +0000, Alan Cox wrote:
-> 
->>>Ok thanks to Sergei I can now post what I think is the complete table of
->>>HPT chip versions:
-> 
->     Another correction coming in... :-)
-> 
->>>        Chip                    PCI ID          Rev
->>> *      HPT366                  4 (HPT366)      0
->>> *      HPT366                  4 (HPT366)      1    
->>> *      HPT368                  4 (HPT366)      2      
->>> *      HPT370                  4 (HPT366)      3      
->>> *      HPT370A                 4 (HPT366)      4      
->>> *      HPT372                  4 (HPT366)      5     
->>> *      HPT372N                 4 (HPT366)      6     
->>> *      HPT372                  5 (HPT372)      0
->> 
->>           ^^^^^^
->> 
->> This one is called HPT372A by Highpoint's BIOS/Win drivers.
-> 
->     According to Highpoint's driver code 372A has rev. ID 1...
-> 
->> Also I'm not sure if it's relevant but PCI ID 5 chips use a different
->> BIOS image than PCI ID 4 chips.
->>        
->> 
->>> *      HPT372N                 5 (HPT372)      > 0     
-> 
->     And 372N has rev. ID 2...
+Ok,
+ there it is, go wild. Get the git trees, the tar-balls and the patches 
+(some or all of tghe above may still be mirroring out but should show up 
+shortly).
 
-Right you are. Their opensource driver doesn't list any PCI ID 5,6 or 7
-chips with revision 0. All rev 1 chips are apparently non-N models and all
-rev 2 chips are N models.
+It's hard to go through in any great detail, because even the shortlog is 
+actually almost five thousand lines and about 200kB in size, and would 
+thus run afoul of the mailing list limits so I can't include it here.
 
--- 
-Ville Syrjälä
-syrjala@sci.fi
-http://www.sci.fi/~syrjala/
+The same is true of the diffstat, only even more so. The unidiff is about 
+a million lines in size, just the diffstat is 300+kB.
 
+The changes are really pretty much all over the place, with over four 
+thousand commits merged in the two weeks since 2.6.14...
 
+v4l, dm, networking, NFS, SCSI, sound, drm, agp, cpufreq, input, i2c, jfs, 
+xfs, jffs2, ntfs, cifs, network drivers, infiniband.. You name it.
+
+Big architecture changes: the normal flow of arm updates, but also parisc 
+updates and a couple of big MIPS updates. And the powerpc architecture got 
+re-jigged a lot..
+
+The ppc32 and ppc64 trees have largely been merged (to a new generic 
+"powerpc" architecture that can be compiled either 32-bit or 64-bit), and 
+that moved a number of files around. Similarly, the core block-layer got 
+moved to its own subdirectory.
+
+Oh, and the inevitable qla firmware updates probably account for over 
+fifty thousand of the diff lines.  So those things partly explain how you 
+get a million-line diff without actually necessarily having conceptual 
+changes that big.
+
+In fact, a lot of the changes are quite small. There's just a lot of 
+those too..
+
+Those with git access can easily get the shortlog (which is still pretty 
+readable) with
+
+	git log --no-merges v2.6.14..v2.6.15-rc1 | git-shortlog
+
+and it only takes half a second to generate on a fast machine. It's 
+worth it if only because of this entry:
+
+	Adrian Bunk:
+	      I am the new monkey.
+
+(among the four-thousand other non-simian ones).
+
+			Linus

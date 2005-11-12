@@ -1,43 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964863AbVKLWiN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964869AbVKLWkE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964863AbVKLWiN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 17:38:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbVKLWiN
+	id S964869AbVKLWkE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 17:40:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964871AbVKLWkD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 17:38:13 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:13736 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964863AbVKLWiM (ORCPT
+	Sat, 12 Nov 2005 17:40:03 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:46863 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S964869AbVKLWkB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 17:38:12 -0500
-Date: Sat, 12 Nov 2005 14:38:56 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Chandra Seetharaman <sekharan@us.ibm.com>, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] Subject: [RFC][PATCH] Fix for unsafe notifier chain mechanism
-Message-ID: <20051112223856.GA5709@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20051112192809.GA5296@us.ibm.com> <Pine.LNX.4.44L0.0511121559260.6130-100000@netrider.rowland.org>
+	Sat, 12 Nov 2005 17:40:01 -0500
+Date: Sat, 12 Nov 2005 17:39:50 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linuv 2.6.15-rc1
+Message-ID: <20051112223947.GA708@tuxdriver.com>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0511121559260.6130-100000@netrider.rowland.org>
+In-Reply-To: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 12, 2005 at 04:01:02PM -0500, Alan Stern wrote:
-> On Sat, 12 Nov 2005, Paul E. McKenney wrote:
-> > > It's not really duplicate documentation since _both_ pointers are to be 
-> > > RCU-dereferenced.  But maybe you mean that only the second pointer can be 
-> > > RCU-dereferenced at the time the write occurs?  I don't think that's what 
-> > > the documentation comment intended.
-> > 
-> > I am the guy who wrote that documentation ocmment.  ;-)
-> 
-> In that case I bow to your advice.  :-)
+On Fri, Nov 11, 2005 at 06:24:18PM -0800, Linus Torvalds wrote:
 
-Any advice on how to change the documentation so as to make the intent
-more clear would of course be most welcome!
+> 	Adrian Bunk:
+> 	      I am the new monkey.
 
-						Thanx, Paul
+Adrian had better watch-out for Dave Jones...I hear he "has a thing"
+for monkeys...
+
+:-)
+-- 
+John W. Linville
+linville@tuxdriver.com

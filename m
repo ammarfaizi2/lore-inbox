@@ -1,52 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbVKLPDR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbVKLPLQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932259AbVKLPDR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 10:03:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbVKLPDR
+	id S932361AbVKLPLQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 10:11:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbVKLPLQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 10:03:17 -0500
-Received: from zproxy.gmail.com ([64.233.162.201]:19383 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932259AbVKLPDQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 10:03:16 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ErUJskvXaDVHGDIHOhOlpS3jOvMUect2sQPk4qljfsdVCUnVqKAL44zHi1DuWAbfhlRJ5YKuQwPx7cuCNr26LxcU5hnP6FX/SPM7druEqz0yp2t+VpcglaM9+1VPofOHIu4DbyAFVanV9qIePpmk0q/ffqLmFszeT0XezyZA/A8=
-Message-ID: <625fc13d0511120703s3d84f5e1h57862b50847bf7e1@mail.gmail.com>
-Date: Sat, 12 Nov 2005 09:03:15 -0600
-From: Josh Boyer <jwboyer@gmail.com>
-To: Sean Young <sean@mess.org>
-Subject: Re: 2.6.15-rc1 [PATCH] MTD_TS5500 Kconfig
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051112141929.GA25124@atlantis.8hz.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sat, 12 Nov 2005 10:11:16 -0500
+Received: from www.swissdisk.com ([216.144.233.50]:15341 "EHLO
+	swissweb.swissdisk.com") by vger.kernel.org with ESMTP
+	id S932361AbVKLPLP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 10:11:15 -0500
+Date: Sat, 12 Nov 2005 06:03:11 -0800
+From: Ben Collins <bcollins@debian.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Update location of ll_rw_blk.c in docs
+Message-ID: <20051112140311.GA29538@swissdisk.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20051112141929.GA25124@atlantis.8hz.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/12/05, Sean Young <sean@mess.org> wrote:
-> CONFIG_ELAN does not exist any more.
->
-> Signed-off-by: Sean Young <sean@mess.org>
-> ---
-> diff -uprN a/drivers/mtd/maps/Kconfig b/drivers/mtd/maps/Kconfig
-> --- a/drivers/mtd/maps/Kconfig  2005-11-12 13:52:48.000000000 +0100
-> +++ b/drivers/mtd/maps/Kconfig  2005-11-12 13:52:02.000000000 +0100
-> @@ -94,7 +94,7 @@ config MTD_NETSC520
->
->  config MTD_TS5500
->         tristate "JEDEC Flash device mapped on Technologic Systems TS-5500"
-> -       depends on ELAN
-> +       depends on X86
->         select MTD_PARTITIONS
->         select MTD_JEDECPROBE
->         select MTD_CFI_AMDSTD
-> -
+Picked from the ubuntu-2.6 tree
 
-Could you send this to the MTD mailing list?
+diff-tree d96fe6eeebd11fb8f70d091eb368e901cec64e1b (from cfd55027d8596fdd19e0023573cc0a6b92994d35)
+Author: Ben Collins <bcollins@ubuntu.com>
+Date:   Sat Nov 12 09:29:51 2005 -0500
 
-josh
+    [UBUNTU:Documentation] Update location of ll_rw_blk.c in docs
+    
+    The change in location for ll_rw_blk.c from drivers/block/ to block/
+    caused failure to generate documentation.
+    
+    UpstreamStatus: Submitted for 2.6.15
+    
+    Signed-off-by: Ben Collins <bcollins@ubuntu.com>
+
+diff --git a/Documentation/DocBook/kernel-api.tmpl b/Documentation/DocBook/kernel-api.tmpl
+--- a/Documentation/DocBook/kernel-api.tmpl
++++ b/Documentation/DocBook/kernel-api.tmpl
+@@ -388,7 +388,7 @@ X!Edrivers/pnp/system.c
+ 
+   <chapter id="blkdev">
+      <title>Block Devices</title>
+-!Edrivers/block/ll_rw_blk.c
++!Eblock/ll_rw_blk.c
+   </chapter>
+ 
+   <chapter id="miscdev">
+diff --git a/Documentation/block/biodoc.txt b/Documentation/block/biodoc.txt
+--- a/Documentation/block/biodoc.txt
++++ b/Documentation/block/biodoc.txt
+@@ -1063,8 +1063,8 @@ Aside:
+ 4.4 I/O contexts
+ I/O contexts provide a dynamically allocated per process data area. They may
+ be used in I/O schedulers, and in the block layer (could be used for IO statis,
+-priorities for example). See *io_context in drivers/block/ll_rw_blk.c, and
+-as-iosched.c for an example of usage in an i/o scheduler.
++priorities for example). See *io_context in block/ll_rw_blk.c, and as-iosched.c
++for an example of usage in an i/o scheduler.
+ 
+ 
+ 5. Scalability related changes
+
+-- 
+Ubuntu     - http://www.ubuntu.com/
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+SwissDisk  - http://www.swissdisk.com/

@@ -1,65 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbVKLR5a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932444AbVKLSAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932443AbVKLR5a (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 12:57:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbVKLR53
+	id S932444AbVKLSAi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 13:00:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbVKLSAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 12:57:29 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:56591 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932442AbVKLR52 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 12:57:28 -0500
-Date: Sat, 12 Nov 2005 18:57:26 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: [2.6 patch] removed useless SCSI_GENERIC_NCR5380_MMIO
-Message-ID: <20051112175726.GA21448@stusta.de>
-References: <20051112043707.GX5376@stusta.de> <1131819625.18258.16.camel@localhost.localdomain>
+	Sat, 12 Nov 2005 13:00:38 -0500
+Received: from xproxy.gmail.com ([66.249.82.199]:22948 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932444AbVKLSAh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 13:00:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=YADvDpALVk4/XOblco5pa/YPOIgllIrMvTXguqWMtOjv/XkWjDoY1HhSv9osHWtUPcff/kiBo4RNUmNec7jACaDrM1kaXvSxIhoIQxP8f7lljXZM/Vz+T/0lfCjhL4FZ0cRNGmEDCfkhQfVTCaO5A4EfwHS32e9gDe1A2jYlRPc=
+Message-ID: <6bffcb0e0511121000s320bc9f4r@mail.gmail.com>
+Date: Sat, 12 Nov 2005 19:00:37 +0100
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.14-mm1
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051111174732.02455c83.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1131819625.18258.16.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+References: <20051106182447.5f571a46.akpm@osdl.org>
+	 <6bffcb0e0511111631h52ff73e1q@mail.gmail.com>
+	 <20051111165156.05391fef.akpm@osdl.org>
+	 <6bffcb0e0511111730nc8ae355s@mail.gmail.com>
+	 <20051111174732.02455c83.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 12, 2005 at 06:20:25PM +0000, Alan Cox wrote:
-> On Sad, 2005-11-12 at 05:37 +0100, Adrian Bunk wrote:
-> > This patch removes the useless SCSI_GENERIC_NCR5380_MMIO.
-> > 
-> > It's useless, since SCSI_G_NCR5380_MEM != CONFIG_SCSI_G_NCR5380_MEM.
-> > 
-> > This issue exists at least since kernel 2.6.0 and since it seems noone 
-> > noticed it I'd say we can safely remove it.
-> 
-> 
-> Its a one line bugfix so make the bugfix. There are often drivers that
-> needed tiny fixes and it turned out that
-> 
-> - Vendors had it in their patch tree for years
-> - The one person using it fixed it and didnt bother telling l/k cos they
-> though l/k was full of arrogant assholes who would just laugh at them
-> - The few users are still on 2.4 but will move to 2.6
-> 
-> Now when its a major rewrite to fix up some prehistoric piece of crap it
-> makes sense to dump it if nobody uses it, when you have a one line fix
-> required its a bit daft not to fix it.
+Hi,
 
-The part that is not a one-line fix is to move the SCSI_G_NCR5380_MEM 
-code away from the ISA legacy API, but if this is among the patches Al 
-wants to send later today the rest is really only a one-line fix.
+On 12/11/05, Andrew Morton <akpm@osdl.org> wrote:
+> Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> > I will try to reproduce it, but according to
+> > http://klive.cpushare.com/2.6.14-mm1/?order_by=kernel_group&where_machine=all&branch=mm&scheduler=all&smp=all&live=all&ip=all
+> > I have been using 2.6.14-mm1 about 48 hours with 12 reboots and this
+> > problem appeared only once.
+>
+> ah-hah.  This sounds rather like Reuben Farrelly's e100 failure - something
+> seems to be making PCI initialisation go stupid if CONFIG_PREEMPT is
+> enabled.
+>
+> It would be interesting if you could reboot sufficiently often to work out
+> whether disabling CONFIG_PREEMPT fixes things up.
+>
+>
 
-> Alan
+Sorry, but unfortunately I can't even reproduce it.
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Regards,
+Michal Piotrowski

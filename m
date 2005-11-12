@@ -1,49 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbVKLFuY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbVKLFzU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932150AbVKLFuY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 00:50:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbVKLFuY
+	id S932084AbVKLFzU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 00:55:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbVKLFzU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 00:50:24 -0500
-Received: from twin.uoregon.edu ([128.223.214.27]:40151 "EHLO twin.uoregon.edu")
-	by vger.kernel.org with ESMTP id S932150AbVKLFuY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 00:50:24 -0500
-Date: Fri, 11 Nov 2005 21:50:01 -0800 (PST)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: joelja@twin.uoregon.edu
-To: Marc Perkel <marc@perkel.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 939 pin Opteron vs. Athlon 64? What's the difference?
-In-Reply-To: <43753726.8060205@perkel.com>
-Message-ID: <Pine.LNX.4.64.0511112146330.13416@twin.uoregon.edu>
-References: <43753726.8060205@perkel.com>
+	Sat, 12 Nov 2005 00:55:20 -0500
+Received: from smtp106.sbc.mail.re2.yahoo.com ([68.142.229.99]:53383 "HELO
+	smtp106.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S932084AbVKLFzU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 00:55:20 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] I8K: fix /proc reporting of blank service tags
+Date: Sat, 12 Nov 2005 00:55:15 -0500
+User-Agent: KMail/1.8.3
+Cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511120055.17019.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Nov 2005, Marc Perkel wrote:
+Make /proc/i8k display '?' when service tag is blank in BIOS.
+This fixes segfault in i8k gkrellm plugin.
 
-> OK - I'm confused. What is the difference between an Athlon 64 and a 939 pin 
-> Opteron? Or the difference between a 939 pin dual core Athlon and a 939 pin 
-> dual core opteron?
->
-> I understand that the 940 pin Opterons can be used on multiple processor 
-> boards. But I just don't get it about using a single opteron.
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-939 uses unregistered memory and 940 uses registered. There are 
-differences in various cores, 90nm vs 130nm. 512k vs 1mb cache, dual vs 
-single core, number of cache coherrent hyper-transport links etc, but 
-memory is the key difference for the socket.
+ drivers/char/i8k.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
 
-> Also - while I'm asking - AMD Semprtons now are 64 bit - so what's the 
-> difference between a 64 bit Sempton and a 64 Bit athlon?
->
->
-
--- 
---------------------------------------------------------------------------
-Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu
-GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
-
+Index: work/drivers/char/i8k.c
+===================================================================
+--- work.orig/drivers/char/i8k.c
++++ work/drivers/char/i8k.c
+@@ -99,7 +99,9 @@ struct smm_regs {
+ 
+ static inline char *i8k_get_dmi_data(int field)
+ {
+-	return dmi_get_system_info(field) ? : "N/A";
++	char *dmi_data = dmi_get_system_info(field);
++
++	return dmi_data && *dmi_data ? dmi_data : "?";
+ }
+ 
+ /*
+@@ -396,7 +398,7 @@ static int i8k_proc_show(struct seq_file
+ 	return seq_printf(seq, "%s %s %s %d %d %d %d %d %d %d\n",
+ 			  I8K_PROC_FMT,
+ 			  bios_version,
+-			  dmi_get_system_info(DMI_PRODUCT_SERIAL) ? : "N/A",
++			  i8k_get_dmi_data(DMI_PRODUCT_SERIAL),
+ 			  cpu_temp,
+ 			  left_fan, right_fan, left_speed, right_speed,
+ 			  ac_power, fn_key);

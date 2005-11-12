@@ -1,56 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbVKLV5p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbVKLV7L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964800AbVKLV5p (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 16:57:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964802AbVKLV5p
+	id S964803AbVKLV7L (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 16:59:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964817AbVKLV7L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 16:57:45 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:9943 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S964800AbVKLV5o convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 16:57:44 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Documentation for CPU hotplug support
-Date: Sat, 12 Nov 2005 13:56:43 -0800
-Message-ID: <A28EFEDC5416054BA1026D892753E9AF0BBDD08C@orsmsx404.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Documentation for CPU hotplug support
-thread-index: AcXnyo2jLP5So1V6Rh2TC3Qo3NaLYwACNVuQ
-From: "Raj, Ashok" <ashok.raj@intel.com>
-To: "Zwane Mwaikambo" <zwane@arm.linux.org.uk>,
-       "Andrew Morton" <akpm@osdl.org>
-Cc: "Nathan Lynch" <nathanl@austin.ibm.com>, <linux-kernel@vger.kernel.org>,
-       <ak@muc.de>, <rusty@rustycorp.com.au>, <vatsa@in.ibm.com>,
-       <jschopp@austin.ibm.com>,
-       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>
-X-OriginalArrivalTime: 12 Nov 2005 21:56:44.0427 (UTC) FILETIME=[F8909DB0:01C5E7D3]
+	Sat, 12 Nov 2005 16:59:11 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:16136 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S964803AbVKLV7K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 16:59:10 -0500
+Date: Sat, 12 Nov 2005 21:59:01 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Lennert Buytenhek <buytenh@wantstofly.org>
+Cc: linux-kernel@vger.kernel.org, dsaxena@plexity.net
+Subject: Re: [PATCH,resend] don't disable xscale serial ports after autoconfig
+Message-ID: <20051112215900.GH28987@flint.arm.linux.org.uk>
+Mail-Followup-To: Lennert Buytenhek <buytenh@wantstofly.org>,
+	linux-kernel@vger.kernel.org, dsaxena@plexity.net
+References: <20051030134209.GD24313@xi.wantstofly.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051030134209.GD24313@xi.wantstofly.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->Ashok was my patch for the cpufreq driver *that* horrible? Or perhaps
-we
->just need to move things like the set_cpus_allowed further up in the
-calls
->and handle everything in one location. Interested?
->
+On Sun, Oct 30, 2005 at 02:42:09PM +0100, Lennert Buytenhek wrote:
+> xscale-type UARTs have an extra bit (UUE) in the IER register that has
+> to be written as 1 to enable the UART.  At the end of autoconfig() in
+> drivers/serial/8250.c, the IER register is unconditionally written as
+> zero, which turns off the UART, and makes any subsequent printch() hang
+> the box.
 
-I have been on to multiple things recently, I think I saw your post, but
-didn't look at it closer.
+Applied, thanks.
 
-Yes, moving things higher up would definitely help, especially the
-set_cpus_allowed(). 
-
-We should also do the same for the case where we have the list of
-dependent cpus in the mask before calling the lower level functions. 
-
-Zwane, if you want to take a shot at it, that would be awesome.. I might
-not be able to get to this immediately.
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

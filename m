@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964849AbVKLWWy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964802AbVKLW17@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964849AbVKLWWy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 17:22:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964851AbVKLWWy
+	id S964802AbVKLW17 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 17:27:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964816AbVKLW17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 17:22:54 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:42258 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S964849AbVKLWWx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 17:22:53 -0500
-Date: Sat, 12 Nov 2005 23:24:25 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Henrik Christian Grove <grove@fsr.ku.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: gen_initramfs_list.sh: Cannot open 'y'
-Message-ID: <20051112222425.GC10228@mars.ravnborg.org>
-References: <7gk6fdy5t9.fsf@serena.fsr.ku.dk>
+	Sat, 12 Nov 2005 17:27:59 -0500
+Received: from gate.crashing.org ([63.228.1.57]:2777 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S964802AbVKLW16 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 17:27:58 -0500
+Subject: Re: Linuv 2.6.15-rc1
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Michael Buesch <mbuesch@freenet.de>, Paul Mackerras <paulus@samba.org>,
+       linuxppc-dev@ozlabs.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0511121257000.3263@g5.osdl.org>
+References: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org>
+	 <200511122145.38409.mbuesch@freenet.de>
+	 <Pine.LNX.4.64.0511121257000.3263@g5.osdl.org>
+Content-Type: text/plain; charset=utf-8
+Date: Sun, 13 Nov 2005 09:24:14 +1100
+Message-Id: <1131834254.7406.43.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7gk6fdy5t9.fsf@serena.fsr.ku.dk>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 12, 2005 at 09:22:42PM +0100, Henrik Christian Grove wrote:
+On Sat, 2005-11-12 at 13:00 -0800, Linus Torvalds wrote:
 > 
-> When I try to compile a 2.6.14 kernel on my new laptop, I get the
-> following error:
-> x40:~/kerne/linux-2.6.14# make
->   CHK     include/linux/version.h
->   CHK     include/linux/compile.h
-> dnsdomainname: Host name lookup failure
->   CHK     usr/initramfs_list
->   /root/kerne/linux-2.6.14/scripts/gen_initramfs_list.sh: Cannot open 'y'
-> make[1]: *** [usr/initramfs_list] Error 1
-> make: *** [usr] Error 2
+> On Sat, 12 Nov 2005, Michael Buesch wrote:
+> > 
+> > Latest GIT tree does not boot on my G4 PowerBook.
 > 
-> I simply don't understand what it's trying to do, and google doesn't
-> seem to know that error. Can anyone here help?
+> What happens if you do
+> 
+> 	make ARCH=powerpc
+> 
+> and build everything that way (including the "config" phase)?
+> 
+> So far ppc32 is still a valid architecture, and your config file makes it 
+> clear that you've used that. But I suspect most of the active testing has 
+> been done with the "powerpc" architecture compiled for 32-bit.
+> 
+> That said, the ppc32 tree should still work. BenH? Paul?
 
-Root cause is dnsdomainname that fails.
-Try to do:
-echo domain.com > /etc/dnsdomainname
+Ìt should still work. I'm running -rc1 with "powerpc" on mine so that at
+least works, it's possible that we broke "ppc", I'll have a look and
+send a fix.
 
-or similar - depending on distribution.
-That should fix the dnsdomainname issue.
+Ben.
 
-	Sam
+

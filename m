@@ -1,90 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbVKLAWk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbVKLA0Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750723AbVKLAWk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Nov 2005 19:22:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbVKLAWk
+	id S1750725AbVKLA0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Nov 2005 19:26:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbVKLA0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Nov 2005 19:22:40 -0500
-Received: from c-67-177-11-17.hsd1.ut.comcast.net ([67.177.11.17]:8576 "EHLO
-	vger.utah-nac.org") by vger.kernel.org with ESMTP id S1750723AbVKLAWj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Nov 2005 19:22:39 -0500
-Message-ID: <437521FB.6040000@soleranetworks.com>
-Date: Fri, 11 Nov 2005 15:58:03 -0700
-From: "Jeff V. Merkey" <jmerkey@soleranetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 2.6.9 reporting 1 Gigabyte/second throughput on bio's, timer skew
- possible?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 11 Nov 2005 19:26:16 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:41688 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750725AbVKLA0P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Nov 2005 19:26:15 -0500
+Date: Fri, 11 Nov 2005 16:25:11 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: andrea@suse.de, linux-kernel@vger.kernel.org, hugh@veritas.com,
+       dvhltc@us.ibm.com, linux-mm@kvack.org, blaisorblade@yahoo.it,
+       jdike@addtoit.com
+Subject: Re: [PATCH] 2.6.14 patch for supporting madvise(MADV_REMOVE)
+Message-Id: <20051111162511.57ee1af3.akpm@osdl.org>
+In-Reply-To: <1130947957.24503.70.camel@localhost.localdomain>
+References: <1130366995.23729.38.camel@localhost.localdomain>
+	<20051028034616.GA14511@ccure.user-mode-linux.org>
+	<43624F82.6080003@us.ibm.com>
+	<20051028184235.GC8514@ccure.user-mode-linux.org>
+	<1130544201.23729.167.camel@localhost.localdomain>
+	<20051029025119.GA14998@ccure.user-mode-linux.org>
+	<1130788176.24503.19.camel@localhost.localdomain>
+	<20051101000509.GA11847@ccure.user-mode-linux.org>
+	<1130894101.24503.64.camel@localhost.localdomain>
+	<20051102014321.GG24051@opteron.random>
+	<1130947957.24503.70.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Badari Pulavarty <pbadari@us.ibm.com> wrote:
+>
+> +/*
+>  + * Application wants to free up the pages and associated backing store. 
+>  + * This is effectively punching a hole into the middle of a file.
+>  + *
+>  + * NOTE: Currently, only shmfs/tmpfs is supported for this operation.
+>  + * Other filesystems return -ENOSYS.
+>  + */
+>  +static long madvise_remove(struct vm_area_struct * vma,
+>  +			     unsigned long start, unsigned long end)
+>  +{
+>  +	struct address_space *mapping;
+>  +        loff_t offset, endoff;
+>  +
+>  +	if (vma->vm_flags & (VM_LOCKED|VM_NONLINEAR|VM_HUGETLB)) 
+>  +		return -EINVAL;
+>  +
+>  +	if (!vma->vm_file || !vma->vm_file->f_mapping 
+>  +		|| !vma->vm_file->f_mapping->host) {
+>  +			return -EINVAL;
+>  +	}
+>  +
+>  +	mapping = vma->vm_file->f_mapping;
+>  +	if (mapping == &swapper_space) {
+>  +		return -EINVAL;
+>  +	}
+>  +
+>  +	offset = (loff_t)(start - vma->vm_start) 
+>  +			+ (vma->vm_pgoff << PAGE_SHIFT);
+>  +	endoff = (loff_t)(end - vma->vm_start - 1) 
+>  +			+ (vma->vm_pgoff << PAGE_SHIFT);
+>  +	return  vmtruncate_range(mapping->host, offset, endoff);
+>  +}
+>  +
 
-I am running one of our 3U appliances with dual 9500 Series 3Ware 
-Controllers.  The unit is an online demo system accessible from
-the internet via SSH to the public for solera networks Linux appliance 
-demos running the DSFS file system:
+I'm suspecting you tested this on a 64-bit machine, yes?  On 32-bit that
+vm_pgoff shift is going to overflow.  
 
-(ncurses)
-demo.soleranetworks.com
-Account:  demo
-password:  demo
+Fixes-thus-far below.   Please rerun all tests on x86?
 
-(text ncurses)
-demo.soleranetworks.com
-Account: demo-text
-password: demo
+Why does madvise_remove() have an explicit check for swapper_space?
 
-I have allocated 393,216 bio buffers I statically maintain in a chain 
-and am running the dsfs file system with 3 x gigabit links fully 
-saturated.  meta-data
-increases the write sizes to 720 MB/Second on dual 9500 controllers with 
-8 drives each (total of 16) 7200 RPM Drives.  I am seeing some 
-congestion and bursting on the bio chains as they are submitted.  I am 
-not aware of anyone pushing 2.6 to these limits at present with this 
-type of architecture.  I have split
-the kernel address space 3GB/1GB 3-kernel 1-user space in order to 
-create enough memory to run this file system with 2GB of cache.
+In your testing, how are you determining that the code is successfully
+removing the correct number of pages, from the correct file offset?
 
-DSFS dynamically generates html status files form within the file 
-system.  When the system gets somewhat behind, I am seeing bursts > 1 
-GB/Second which exceeds the theoretical limit of the bus.   I have a 
-timer function that runs every second and profiles the I/O throughput 
-created by DSFS with bio submissions and captured packets.  I am asking 
-if there is clock skew at these data rates with use of the timer 
-functions.  The system appears to be sustaining 1GB/Second throughput on 
-dual controllers.  I have verified through data rates the system is 
-sustaining 800 megabytes/second with these 1GB/S bursts.  I am curious 
-if there is potentially timer skew at these higher rates since I am 
-having a hard time accepting that I can push 1GB/S through a bus rated 
-at only 850 MB/S for DMA based transfers.   The unit is accessible by 
-the general public, since its a demo unit andwe are unconcerned about 
-folks getting on the system.  Folks are welcome to look and if anyone 
-has any thoughts on this, please let me know.  I am concerned that the 
-timer functions are not always ending on second boundries, which would 
-explain the higher reported numbers.  Windows 2003 does not approach 
-these performance numbers, BTW, so Linux appears to win on raw 
-performance for vertical File System Apps.
 
-dsfs file system mounted at /var/ftp can be viewed:
-ftp://demo.soleranetworks.com/
-
-Stats pages generated from dsfs:
-
-capture stats:
-ftp://demo.soleranetworks.com/stats/capture.html
-storage stats:
-ftp://demo.soleranetworks.com/stats/storage.html
-dsfs cache stats:
-ftp://demo.soleranetworks.com/stats/cache.html
-network interface stats:
-ftp://demo.soleranetworks.com/stats/network.html
-virtual network interface maps:
-ftp://demo.soleranetworks.com/stats/virtual.html
-
-Jeff
+diff -puN mm/madvise.c~madvise-remove-remove-pages-from-tmpfs-shm-backing-store-tidy mm/madvise.c
+--- devel/mm/madvise.c~madvise-remove-remove-pages-from-tmpfs-shm-backing-store-tidy	2005-11-11 16:12:43.000000000 -0800
++++ devel-akpm/mm/madvise.c	2005-11-11 16:16:50.000000000 -0800
+@@ -147,8 +147,8 @@ static long madvise_dontneed(struct vm_a
+  * NOTE: Currently, only shmfs/tmpfs is supported for this operation.
+  * Other filesystems return -ENOSYS.
+  */
+-static long madvise_remove(struct vm_area_struct * vma,
+-			     unsigned long start, unsigned long end)
++static long madvise_remove(struct vm_area_struct *vma,
++				unsigned long start, unsigned long end)
+ {
+ 	struct address_space *mapping;
+         loff_t offset, endoff;
+@@ -162,14 +162,13 @@ static long madvise_remove(struct vm_are
+ 	}
+ 
+ 	mapping = vma->vm_file->f_mapping;
+-	if (mapping == &swapper_space) {
++	if (mapping == &swapper_space)
+ 		return -EINVAL;
+-	}
+ 
+ 	offset = (loff_t)(start - vma->vm_start)
+-			+ (vma->vm_pgoff << PAGE_SHIFT);
++			+ ((loff_t)vma->vm_pgoff << PAGE_SHIFT);
+ 	endoff = (loff_t)(end - vma->vm_start - 1)
+-			+ (vma->vm_pgoff << PAGE_SHIFT);
++			+ ((loff_t)vma->vm_pgoff << PAGE_SHIFT);
+ 	return  vmtruncate_range(mapping->host, offset, endoff);
+ }
+ 
+diff -puN mm/memory.c~madvise-remove-remove-pages-from-tmpfs-shm-backing-store-tidy mm/memory.c
+--- devel/mm/memory.c~madvise-remove-remove-pages-from-tmpfs-shm-backing-store-tidy	2005-11-11 16:16:54.000000000 -0800
++++ devel-akpm/mm/memory.c	2005-11-11 16:17:59.000000000 -0800
+@@ -1608,10 +1608,9 @@ out_big:
+ out_busy:
+ 	return -ETXTBSY;
+ }
+-
+ EXPORT_SYMBOL(vmtruncate);
+ 
+-int vmtruncate_range(struct inode * inode, loff_t offset, loff_t end)
++int vmtruncate_range(struct inode *inode, loff_t offset, loff_t end)
+ {
+ 	struct address_space *mapping = inode->i_mapping;
+ 
+@@ -1634,7 +1633,6 @@ int vmtruncate_range(struct inode * inod
+ 
+ 	return 0;
+ }
+-
+ EXPORT_SYMBOL(vmtruncate_range);
+ 
+ /* 
+_
 

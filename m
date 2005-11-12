@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbVKLPX0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbVKLPba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932374AbVKLPX0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 10:23:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbVKLPX0
+	id S932265AbVKLPba (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 10:31:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932394AbVKLPba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 10:23:26 -0500
-Received: from smtp104.sbc.mail.re2.yahoo.com ([68.142.229.101]:55420 "HELO
-	smtp104.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932374AbVKLPXZ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 10:23:25 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: =?iso-8859-1?q?Bj=F8rn_Mork?= <bmork@dod.no>
-Subject: Re: Resume from swsusp stopped working with 2.6.14 and 2.6.15-rc1
-Date: Sat, 12 Nov 2005 10:23:22 -0500
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@suse.cz>
-References: <87zmoa0yv5.fsf@obelix.mork.no>
-In-Reply-To: <87zmoa0yv5.fsf@obelix.mork.no>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200511121023.23245.dtor_core@ameritech.net>
+	Sat, 12 Nov 2005 10:31:30 -0500
+Received: from smtp-106-saturday.noc.nerim.net ([62.4.17.106]:40721 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932265AbVKLPb3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 10:31:29 -0500
+Date: Sat, 12 Nov 2005 16:31:53 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Nick Warne <nick@linicks.net>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ext3: Fix warning without quota support (was: Linux
+ 2.6.14)
+Message-Id: <20051112163153.6b54ee83.khali@linux-fr.org>
+In-Reply-To: <200511121412.35029.nick@linicks.net>
+References: <200511121412.35029.nick@linicks.net>
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 12 November 2005 08:39, Bjørn Mork wrote:
-> I have had swsusp working for ages on a IBM Thinkpad T42, but since
-> 2.6.14 it hasn't been willing to resume anymore.  Both suspending to
-> disk and ACPI S3 still works. 
+Hi Nick,
+
+> > Fix the following warning when ext3 fs is compiled without quota
+> > support:
+> >
+> > fs/ext3/super.c: In function `ext3_show_options':
+> > fs/ext3/super.c:516: warning: unused variable `sbi'
 > 
-> Output of dmesg below (running 2.6.15-rc1). Notice the line:
-> 
->   Restarting tasks...<6> Strange, kseriod not stopped
-> 
-> I guess that's the explanation.  Could it be the new TrackPoint
-> driver, maybe?  (This PC has both a TrackPoint and a Touchpad).
->
+> I have added this small fix to my 2.6.14.2 build.  A quick question.
 
-This is unlikely... serio has the proper support for freezing as
-far as I understand:
+Let is be noted that this warning was fixed in a completely different
+way in Linus' tree already. My patch is not meant for -stable either,
+as it doesn't fix any real problem.
 
-static int serio_thread(void *nothing)
-{
-        do {
-                serio_handle_events();
-                wait_event_interruptible(serio_wait,
-                        kthread_should_stop() || !list_empty(&serio_event_list));
-                try_to_freeze();
-        } while (!kthread_should_stop());
+> What does GCC do here - does it just drop and ignore the unused variable?
 
-        printk(KERN_DEBUG "serio: kseriod exiting\n");
-        return 0;
-}
-
-Pavel, any ideas?
+Without optimizations, gcc 3.3.6 keeps the variable although it won't
+ever be used. With -O1 and above (including -Os) it drops the unused
+variable.
 
 -- 
-Dmitry
+Jean Delvare

@@ -1,38 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbVKLGHE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbVKLGRV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932153AbVKLGHE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 01:07:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbVKLGHE
+	id S932188AbVKLGRV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 01:17:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbVKLGRV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 01:07:04 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:52897 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932153AbVKLGHC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 01:07:02 -0500
-Date: Fri, 11 Nov 2005 22:06:46 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Matt Mackall <mpm@selenic.com>
+	Sat, 12 Nov 2005 01:17:21 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:16032 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932188AbVKLGRU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 01:17:20 -0500
+Subject: Re: CM8738 audio hampering while playing video on G450 PCI graphic
+	card
+From: Lee Revell <rlrevell@joe-job.com>
+To: Mark Hurenkamp <mark.hurenkamp@xs4all.nl>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 11/15] misc: Allow dropping panic text strings from
- kernel image
-Message-Id: <20051111220646.7f5167d4.akpm@osdl.org>
-In-Reply-To: <12.282480653@selenic.com>
-References: <11.282480653@selenic.com>
-	<12.282480653@selenic.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+In-Reply-To: <1131764444.11279.15.camel@mindpipe>
+References: <200511120241.54383.mark.hurenkamp@xs4all.nl>
+	 <1131764444.11279.15.camel@mindpipe>
+Content-Type: text/plain
+Date: Sat, 12 Nov 2005 01:14:37 -0500
+Message-Id: <1131776077.13373.11.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall <mpm@selenic.com> wrote:
->
-> Configurable support for panic strings
+On Fri, 2005-11-11 at 22:00 -0500, Lee Revell wrote:
+> On Sat, 2005-11-12 at 02:41 +0100, Mark Hurenkamp wrote:
+> > Now whenever there's a lot of activety (like scrolling down when I'm
+> > browsing on a news site like slashdot, or playing video) on the G450 (both in 
+> > accelerated mode, as well as in unaccelerated framebuffer mode), the audio 
+> > (onboard CMedia) starts to hamper. This happens regardless wether I'm using
+> > alsa, or oss. (using mplayer to play an mp3, but also with DivX movies
+> > the same problem occurs).
+> 
+> Sounds like a "singing capacitor".  Check the LKML archives.
 
-This does make a bit of a mess.  You could lose one ifdef by leaving `buf'
-present in panic(), as
+Never mind, Alan is probably right.  If disabling PCIRetry does not work
+you can also try Option "NoAccel" (not a viable way to run, just to
+confirm the problem).
 
-	static char buf[1];
+WRT singing capacitors, it does seem to be an increasing problem:
 
-But still, a bit more inventiveness is needed, IMO.
+http://news.com.com/PCs+plagued+by+bad
++capacitors/2100-1041_3-5942647.html?tag=nefd.lede
+
+The difference is that singing capacitors will cause noise in the audio,
+while PCI stalls of the type Alan described will cause
+dropouts/stuttering.
+
+Lee
+

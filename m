@@ -1,43 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbVKLXDO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964854AbVKLXOr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964843AbVKLXDO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 18:03:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932508AbVKLXDO
+	id S964854AbVKLXOr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 18:14:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932508AbVKLXOr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 18:03:14 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:43756 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S932507AbVKLXDN (ORCPT
+	Sat, 12 Nov 2005 18:14:47 -0500
+Received: from mout2.freenet.de ([194.97.50.155]:9148 "EHLO mout2.freenet.de")
+	by vger.kernel.org with ESMTP id S932507AbVKLXOq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 18:03:13 -0500
-Subject: [patch] w100fb platform device conversion fixup
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Antonino A. Daplas" <adaplas@gmail.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Sat, 12 Nov 2005 23:03:04 +0000
-Message-Id: <1131836584.7597.34.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Sat, 12 Nov 2005 18:14:46 -0500
+From: Michael Buesch <mbuesch@freenet.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: asm/delay.h missing on powerpc (was: Re: Linuv 2.6.15-rc1)
+Date: Sun, 13 Nov 2005 00:13:45 +0100
+User-Agent: KMail/1.8.3
+References: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org> <Pine.LNX.4.64.0511121257000.3263@g5.osdl.org> <1131834254.7406.43.camel@gaston>
+In-Reply-To: <1131834254.7406.43.camel@gaston>
+Cc: linuxppc-dev@ozlabs.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart35388533.skd0ZB2N8m";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200511130013.45610.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix an error in w100fb after the platform device conversion.
+--nextPart35388533.skd0ZB2N8m
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
+On Saturday 12 November 2005 23:24, you wrote:
+> =C3=8Ct should still work. I'm running -rc1 with "powerpc" on mine so tha=
+t at
+> least works, it's possible that we broke "ppc", I'll have a look and
+> send a fix.
 
-Index: linux-2.6.14/drivers/video/w100fb.c
-===================================================================
---- linux-2.6.14.orig/drivers/video/w100fb.c	2005-11-12 12:54:42.000000000 +0000
-+++ linux-2.6.14/drivers/video/w100fb.c	2005-11-12 22:48:27.000000000 +0000
-@@ -514,7 +514,7 @@
- 	if (remapped_fbuf == NULL)
- 		goto out;
- 
--	info=framebuffer_alloc(sizeof(struct w100fb_par), dev);
-+	info=framebuffer_alloc(sizeof(struct w100fb_par), &pdev->dev);
- 	if (!info) {
- 		err = -ENOMEM;
- 		goto out;
+powerpc arch builds and runs now, but
+I have problems compiling the bcm430x driver. It includes linux/delay.h.
+linux/delay.h includes asm/delay.h, which does not exist.
+What to do now?
 
+=2D-=20
+Greetings Michael.
+
+--nextPart35388533.skd0ZB2N8m
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDdncplb09HEdWDKgRAkYPAJsHxod/e8y4MY1892gcWqqMkzfJRgCdGbc8
+oUpxsllA+Duypvur1BVQujY=
+=/+wy
+-----END PGP SIGNATURE-----
+
+--nextPart35388533.skd0ZB2N8m--

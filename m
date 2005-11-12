@@ -1,77 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964799AbVKLV5k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbVKLV5p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964799AbVKLV5k (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 16:57:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964800AbVKLV5k
+	id S964800AbVKLV5p (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 16:57:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964802AbVKLV5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 16:57:40 -0500
-Received: from mout0.freenet.de ([194.97.50.131]:34280 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S964799AbVKLV5k (ORCPT
+	Sat, 12 Nov 2005 16:57:45 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:9943 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S964800AbVKLV5o convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 16:57:40 -0500
-From: Michael Buesch <mbuesch@freenet.de>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: Linuv 2.6.15-rc1
-Date: Sat, 12 Nov 2005 22:57:05 +0100
-User-Agent: KMail/1.8.3
-References: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org> <200511122237.17157.mbuesch@freenet.de> <20051112215304.GB21448@stusta.de>
-In-Reply-To: <20051112215304.GB21448@stusta.de>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Paul Mackerras <paulus@samba.org>, linuxppc-dev@ozlabs.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Sat, 12 Nov 2005 16:57:44 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1267883.nDEaAvpfZ1";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200511122257.05552.mbuesch@freenet.de>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Documentation for CPU hotplug support
+Date: Sat, 12 Nov 2005 13:56:43 -0800
+Message-ID: <A28EFEDC5416054BA1026D892753E9AF0BBDD08C@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Documentation for CPU hotplug support
+thread-index: AcXnyo2jLP5So1V6Rh2TC3Qo3NaLYwACNVuQ
+From: "Raj, Ashok" <ashok.raj@intel.com>
+To: "Zwane Mwaikambo" <zwane@arm.linux.org.uk>,
+       "Andrew Morton" <akpm@osdl.org>
+Cc: "Nathan Lynch" <nathanl@austin.ibm.com>, <linux-kernel@vger.kernel.org>,
+       <ak@muc.de>, <rusty@rustycorp.com.au>, <vatsa@in.ibm.com>,
+       <jschopp@austin.ibm.com>,
+       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>
+X-OriginalArrivalTime: 12 Nov 2005 21:56:44.0427 (UTC) FILETIME=[F8909DB0:01C5E7D3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1267883.nDEaAvpfZ1
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+>
+>Ashok was my patch for the cpufreq driver *that* horrible? Or perhaps
+we
+>just need to move things like the set_cpus_allowed further up in the
+calls
+>and handle everything in one location. Interested?
+>
 
-On Saturday 12 November 2005 22:53, you wrote:
-> >   CHK     include/linux/version.h
-> >   CHK     include/linux/compile.h
-> >   CHK     usr/initramfs_list
-> >   GEN     .version
-> >   CHK     include/linux/compile.h
-> >   UPD     include/linux/compile.h
-> >   CC      init/version.o
-> >   LD      init/built-in.o
-> >   LD      .tmp_vmlinux1
-> > arch/powerpc/kernel/built-in.o: In function `platform_init':
-> > : undefined reference to `prep_init'
-> > arch/powerpc/kernel/built-in.o:(__ksymtab+0x4d8): undefined reference t=
-o `ucSystemType'
-> > arch/powerpc/kernel/built-in.o:(__ksymtab+0x4e0): undefined reference t=
-o `_prep_type'
-> > make: *** [.tmp_vmlinux1] Error 1
->=20
-> Please send your .config .
+I have been on to multiple things recently, I think I saw your post, but
+didn't look at it closer.
 
+Yes, moving things higher up would definitely help, especially the
+set_cpus_allowed(). 
 
-I did this in my first mail:
-http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D113182883102937&q=3Dp5
+We should also do the same for the case where we have the list of
+dependent cpus in the mask before calling the lower level functions. 
 
-=2D-=20
-Greetings Michael.
+Zwane, if you want to take a shot at it, that would be awesome.. I might
+not be able to get to this immediately.
 
---nextPart1267883.nDEaAvpfZ1
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDdmUxlb09HEdWDKgRAk1yAJ9Zw1PylO0oCkhLNjODh840edv1QgCfaPkj
-elXJPo3dLwfaAJtoCmXyWSk=
-=WJF4
------END PGP SIGNATURE-----
-
---nextPart1267883.nDEaAvpfZ1--

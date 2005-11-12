@@ -1,34 +1,43 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030471AbVKIKgn (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 9 Nov 2005 05:36:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030479AbVKIKgn
+	id S964866AbVKLWiV (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 12 Nov 2005 17:38:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964867AbVKLWiU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 05:36:43 -0500
-Received: from zeus2.kernel.org ([204.152.191.36]:6296 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S1030471AbVKIKgm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 05:36:42 -0500
-From: GlobalDesign <sarantos@cox.net>
-To: Linux <linux-kernel@vger.kernel.org>
-Subject: DO NOT WASTE YOUR TIME, READ!
-Date: Wed, 09 Nov 2005 05:44:38 -0500
-Message-ID: <001101c5e51a$1c0ed1bd$08d505b2@cox.net>
+	Sat, 12 Nov 2005 17:38:20 -0500
+Received: from 62-15-156-23.inversas.jazztel.es ([62.15.156.23]:10305 "EHLO
+	correo2.dominiocorreo.com") by vger.kernel.org with ESMTP
+	id S964866AbVKLWiU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 17:38:20 -0500
+thread-index: AcXn2b8ebfpPZsGvSPewl/ZcA49OfQ==
+Thread-Topic: toda clase de iluminacion
+From: <iluminacion@gmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: toda clase de iluminacion
+Date: Sat, 12 Nov 2005 23:38:05 +0100
+Message-ID: <14e9c01c5e7d9$bf1e9860$0600a8c0@hairoffice>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-Importance: Normal
+X-Mailer: Microsoft CDO for Windows 2000
+Content-Class: urn:content-classes:message
+Importance: normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1030471AbVKIKgn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S964866AbVKLWiV@vger.kernel.org>
 
-Dear Sirs! New offer from the developing company! We offer you cooperation in new sphere of services. 
-Our company develops  fast, and we need new employees in sphere of services . 
-If you want to work without wasting  time and forces, we are ready to  offer work 
-of managers in sphere of processing the orders.
-Basic requirements: age of 21-55 years, computer knowledge, access to Internet.
-Please, send  your questions or offers to the following address: GlobalDesignArt@aol.com
+Las ultimas novedades en iluminacin para personas exclusivas.
+
+Las encontrara en este enlace.
+
+http://www.eltacnet.net/
+
+Si no desea recibir ms publicidad use el siguiente enlace y anote su direccin de e.mail, es la nica manera para dar de baja su direccin.
+
+Desea representar nuestros productos?
+
+http://www.eltacnet.net/bajas.asp
+
+Gracias
 
 

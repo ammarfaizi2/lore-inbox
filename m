@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932460AbVKLSCr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932421AbVKLSNx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932460AbVKLSCr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 13:02:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbVKLSCq
+	id S932421AbVKLSNx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 13:13:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbVKLSNw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 13:02:46 -0500
-Received: from host20-103.pool873.interbusiness.it ([87.3.103.20]:7880 "EHLO
-	zion.home.lan") by vger.kernel.org with ESMTP id S932460AbVKLSC2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 13:02:28 -0500
-From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 3/9] uml: micro fixups to arch Kconfig
-Date: Sat, 12 Nov 2005 19:07:24 +0100
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Message-Id: <20051112180721.20133.32312.stgit@zion.home.lan>
-In-Reply-To: <20051112180711.20133.68166.stgit@zion.home.lan>
-References: <20051112180711.20133.68166.stgit@zion.home.lan>
+	Sat, 12 Nov 2005 13:13:52 -0500
+Received: from mail.junik.lv ([195.216.160.134]:53520 "EHLO mail.junik.lv")
+	by vger.kernel.org with ESMTP id S932421AbVKLSNw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 13:13:52 -0500
+Message-Id: <200511121813.jACIDpXa055161@mail.junik.lv>
+From: "Alexander Kozyrev" <kozyrev@junik.lv>
+To: <linux-kernel@vger.kernel.org>
+Subject: PROBLEM: kernel compilation
+Date: Sat, 12 Nov 2005 20:13:40 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Outlook, Build 11.0.5207
+Thread-Index: AcXntM7/aivE8LRZSB+48DYRIOjhPQ==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+Linux asterisk1.local 2.6.9-11.EL #1 Wed Jun 8 16:59:52 CDT 2005 i686 i686
+i386 GNU/Linux
+After 2 hours of compilation -
+<......>
+  CC      lib/string.o
+  CC      lib/vsprintf.o
+  AR      lib/lib.a
+  CC [M]  lib/crc-ccitt.o
+  CC [M]  lib/libcrc32c.o
+  LD      arch/i386/lib/built-in.o
+  CC      arch/i386/lib/bitops.o
+  AS      arch/i386/lib/checksum.o
+  CC      arch/i386/lib/delay.o
+  AS      arch/i386/lib/getuser.o
+  CC      arch/i386/lib/memcpy.o
+  CC      arch/i386/lib/strstr.o
+  CC      arch/i386/lib/usercopy.o
+  AR      arch/i386/lib/lib.a
+  GEN     .version
+  CHK     include/linux/compile.h
+  UPD     include/linux/compile.h
+  CC      init/version.o
+  LD      init/built-in.o
+  LD      .tmp_vmlinux1
+ld: kernel/built-in.o: No such file: No such file or directory
+make[1]: *** [.tmp_vmlinux1] Error 1
+make: *** [_all] Error 2
 
-Remove a stone-age comment (UM *does* have a MMU, i.e. the host), and fix a
-dependency (introduced in commit 02edeb586ae4cdd17778923674700edb732a4741) to
-do what was intended.
-
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
-
- arch/um/Kconfig |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/arch/um/Kconfig b/arch/um/Kconfig
-index 3b5f47c..018f076 100644
---- a/arch/um/Kconfig
-+++ b/arch/um/Kconfig
-@@ -7,7 +7,6 @@ config UML
- 	bool
- 	default y
- 
--# XXX: does UM have a mmu/swap?
- config MMU
- 	bool
- 	default y
-@@ -209,7 +208,8 @@ config MAGIC_SYSRQ
- config SMP
- 	bool "Symmetric multi-processing support (EXPERIMENTAL)"
- 	default n
--	depends on (MODE_TT && EXPERIMENTAL && !SMP_BROKEN) || (BROKEN && SMP_BROKEN)
-+	#SMP_BROKEN is for x86_64.
-+	depends on MODE_TT && EXPERIMENTAL && (!SMP_BROKEN || (BROKEN && SMP_BROKEN))
- 	help
- 	This option enables UML SMP support.
- 	It is NOT related to having a real SMP box. Not directly, at least.
+4 times with the same error.
 

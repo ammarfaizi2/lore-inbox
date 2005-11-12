@@ -1,60 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932450AbVKLSf0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbVKLSis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932450AbVKLSf0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 13:35:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbVKLSf0
+	id S932453AbVKLSis (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 13:38:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbVKLSis
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 13:35:26 -0500
-Received: from zproxy.gmail.com ([64.233.162.200]:60086 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932450AbVKLSf0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 13:35:26 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=qXl/9KZN+v3BC8F5HOGBLAY02qQ4F41J+AXDlpXZZSyGLjZf3oYvCPu6hDlrUTW0N4ePvkZBYtF6A/BgWG852/1SVMDzMLBssGjhltqG+z4Qt9Z4gnDRKvtVASCzWIPEKlqWNINvmVyWof3n+NVngUU89DBtEcSLnmKFap7V2Uk=
-Message-ID: <cbec11ac0511121035w3f697824l3d1e3351e229fba4@mail.gmail.com>
-Date: Sun, 13 Nov 2005 07:35:23 +1300
-From: Ian McDonald <imcdnzl@gmail.com>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Subject: Re: Breakage in net/ipv4/tcp_vegas.c
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200511111336.jABDajMd019962@pincoya.inf.utfsm.cl>
+	Sat, 12 Nov 2005 13:38:48 -0500
+Received: from heat.securenet-server.net ([72.9.235.10]:35221 "EHLO
+	heat.securenet-server.net") by vger.kernel.org with ESMTP
+	id S932453AbVKLSir (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 13:38:47 -0500
+Message-ID: <20051112132459.axhogwawrh4w8css@www.je-familylegacy.com>
+Date: Sat, 12 Nov 2005 13:24:59 -0500
+From: Enriquez Laarni <ENRIQUEZ63@terra.es>
+Reply-to: enriquez.laarni63@latinmail.com
+To: undisclosed-recipients:;
+Subject: Re: Waiting for your responce and remain blessed.
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset=ISO-8859-1
 Content-Disposition: inline
-References: <200511111336.jABDajMd019962@pincoya.inf.utfsm.cl>
+Content-Transfer-Encoding: 7bit
+User-Agent: Internet Messaging Program (IMP) H3 (4.0.3)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - heat.securenet-server.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [32001 502] / [47 12]
+X-AntiAbuse: Sender Address Domain - terra.es
+X-Source: /usr/local/cpanel/3rdparty/bin/php
+X-Source-Args: /usr/local/cpanel/3rdparty/bin/php /usr/local/cpanel/base/horde/imp/compose.php 
+X-Source-Dir: :/base/horde/imp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/12/05, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
->   CC [M]  net/ipv4/tcp_vegas.o
-> net/ipv4/tcp_vegas.c: In function 'tcp_vegas_cong_avoid':
-> net/ipv4/tcp_vegas.c:239: error: 'cnt' undeclared (first use in this function)
+Dearest Friend,
+I am madam Laarni Ejercito Enriquez, a native of Philippine
+nationality, and a divorcee.
+I would like to have a long lasting and confidant Business
+relationship with you and entrusting my life time fortune
+into your possession, as now I am broken-hearted and needs
+someone to trust, without remembering my past and forsaken
+experiences from close confidants and family.I need
+someone, who would take me for whom I am and as a lifetime
+friend and confidant, after making claims of my
+deposited life fortuned in Abroad. Well I will presume and
+believe in me that you ought to be a very Honest and
+reliable person.
+I would like to give you a brief description of my life. I
+was once the most respected mistress of our President,
+Joseph Estrada, and during his tenure in office, I was been
+used as a courier to depositing his funds, in the Europe,
+but due to the fracas I had with
+his wife, Madam Loi and her son, Jude, it causes a public
+Embarrassment and people came to know that I had been
+having an affair with the President. But, not quite long,
+I was arrested, together with his wife and son, in
+connection with the 27th July 2003,failed coup, which I did
+not have anything to do with, but was alleged of
+Rebellion charges and that I have been harbouring some of
+the dissidents and arms in one of the villa, bought for me
+by the President.
+But, now, I have been released and I am under immigration
+security watch list and seriously monitored. All, I wanted
+from you is to assist me make claims of the sum of US$10.3 M,
+I did deposited in Abroad, during our Pilgrimage visit to
+the Basilique, Abroad as the other deposits documents have been
+confiscated and seized by the the government of Madam
+Gloria, the President.
+All, I want from you, now is honesty and sincerity, as, as
+soon as everything is okay by you, I will Look for a way
+out and sneaked out of Philippines and travel down to meet
+you, so we can go into a life time Partnership together, in
+investing this money in your country and anywhere else you
+prefer.
+I will furnish you with other necessary informations, as
+soon as I hear from you.
 
-This has been fixed in the networking tree which I imagine Linus will
-merge again soon but here is the fix before then:
-Recent TCP changes broke the build.
+Remain blessed.
+Sincerely yours,
+Ms. Enriquez, L.E
 
-Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
 
-diff --git a/net/ipv4/tcp_vegas.c b/net/ipv4/tcp_vegas.c
-index 4376814..b7d296a 100644
---- a/net/ipv4/tcp_vegas.c
-+++ b/net/ipv4/tcp_vegas.c
-@@ -236,7 +236,7 @@ static void tcp_vegas_cong_avoid(struct
-                       /* We don't have enough RTT samples to do the Vegas
-                        * calculation, so we'll behave like Reno.
-                        */
--                       tcp_reno_cong_avoid(sk, ack, seq_rtt, in_flight, cnt);
-+                       tcp_reno_cong_avoid(sk, ack, seq_rtt, in_flight, flag);
-               } else {
-                       u32 rtt, target_cwnd, diff;
 
---
-Ian McDonald
-http://wand.net.nz/~iam4
-WAND Network Research Group
-University of Waikato
-New Zealand
+
+

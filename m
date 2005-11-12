@@ -1,65 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932368AbVKLNsk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbVKLNvn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932368AbVKLNsk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 08:48:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbVKLNsk
+	id S932370AbVKLNvn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 08:51:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbVKLNvn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 08:48:40 -0500
-Received: from smtp5-g19.free.fr ([212.27.42.35]:20373 "EHLO smtp5-g19.free.fr")
-	by vger.kernel.org with ESMTP id S932368AbVKLNsk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 08:48:40 -0500
-Message-ID: <4375F2C1.8050609@free.fr>
-Date: Sat, 12 Nov 2005 14:48:49 +0100
-From: matthieu castet <castet.matthieu@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: fr-fr, en, en-us
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix leakes in request_firmware_nowait
-References: <4373BF82.40003@free.fr>	<4373C03F.1070301@free.fr> <20051111181322.7fbb887a.akpm@osdl.org>
-In-Reply-To: <20051111181322.7fbb887a.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 12 Nov 2005 08:51:43 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:30136 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932370AbVKLNvm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 08:51:42 -0500
+Date: Sat, 12 Nov 2005 13:48:20 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, netdev@vger.kernel.org,
+       jonathan@buzzard.org.uk, tlinux-users@linux.toshiba-dme.co.jp,
+       Jaroslav Kysela <perex@suse.cz>
+Subject: Re: [RFC: 2.6 patch] remove ISA legacy functions
+Message-ID: <20051112134820.GG7992@ftp.linux.org.uk>
+References: <20051111021258.GK5376@stusta.de> <20051110182443.514622ed.akpm@osdl.org> <20051111201849.GP5376@stusta.de> <20051111202005.GQ5376@stusta.de> <20051111203601.GR5376@stusta.de> <20051112045216.GY5376@stusta.de> <437578CD.1080501@pobox.com> <20051112051102.GF1658@parisc-linux.org> <43757D5C.8030308@pobox.com> <20051112052918.GG1658@parisc-linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051112052918.GG1658@parisc-linux.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> matthieu castet <castet.matthieu@free.fr> wrote:
+On Fri, Nov 11, 2005 at 10:29:18PM -0700, Matthew Wilcox wrote:
+> I think they work fine everywhere.  Adrian wants to remove the API they
+> use.
 > 
-> 
-> What does the call to fw_work->cont(NULL, ...) do?
-> 
-> 
-It tells to the callback that the firmware request fails [1].
+> I think this is a bad idea.  The drivers should be converted.
 
-Matthieu
-
-
-
-[1]
-/**
-  * request_firmware_nowait:
-  *
-  * Description:
-  *      Asynchronous variant of request_firmware() for contexts where
-  *      it is not possible to sleep.
-  *
-  *      @hotplug invokes hotplug event to copy the firmware image if 
-this flag
-  *      is non-zero else the firmware copy must be done manually.
-  *
-  *      @cont will be called asynchronously when the firmware request 
-is over.
-  *
-  *      @context will be passed over to @cont.
-  *
-  *      @fw may be %NULL if firmware request fails.
-  *
-  **/
-int
-request_firmware_nowait(
-         struct module *module, int hotplug,
-         const char *name, struct device *device, void *context,
-         void (*cont)(const struct firmware *fw, void *context))
+They are - I'll send patches later today...

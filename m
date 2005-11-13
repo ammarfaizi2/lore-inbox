@@ -1,64 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbVKMRrb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbVKMRvI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751347AbVKMRrb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 12:47:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbVKMRrb
+	id S1751360AbVKMRvI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 12:51:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbVKMRvI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 12:47:31 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:62668 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S1751347AbVKMRra (ORCPT
+	Sun, 13 Nov 2005 12:51:08 -0500
+Received: from pat.uio.no ([129.240.130.16]:37005 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1751360AbVKMRvH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 12:47:30 -0500
-Date: Sun, 13 Nov 2005 18:47:20 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Paul Mackerras <paulus@samba.org>
-cc: Linux/PPC Development <linuxppc-dev@ozlabs.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ppc64: Thermal control for SMU based machines
-In-Reply-To: <200511080502.jA852dWI011502@hera.kernel.org>
-Message-ID: <Pine.LNX.4.62.0511131845230.17491@numbat.sonytel.be>
-References: <200511080502.jA852dWI011502@hera.kernel.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 13 Nov 2005 12:51:07 -0500
+Subject: [GIT] Fix memory leak in lease code
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Sun, 13 Nov 2005 12:50:54 -0500
+Message-Id: <1131904255.8871.14.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-2.88, required 12,
+	autolearn=disabled, AWL 1.93, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Nov 2005, Linux Kernel Mailing List wrote:
-> tree d3f63b3ea80790c2f29ea435781c1331f17d269e
-> parent 7d49697ef92bd2cf84ab53bd4cea82fefb197fb9
-> author Benjamin Herrenschmidt <benh@kernel.crashing.org> Mon, 07 Nov 2005 16:08:17 +1100
-> committer Paul Mackerras <paulus@samba.org> Tue, 08 Nov 2005 11:17:56 +1100
-> 
-> [PATCH] ppc64: Thermal control for SMU based machines
-> 
-> This adds a new thermal control framework for PowerMac, along with the
-> implementation for PowerMac8,1, PowerMac8,2 (iMac G5 rev 1 and 2), and
-> PowerMac9,1 (latest single CPU desktop). In the future, I expect to move
-> the older G5 thermal control to the new framework as well.
-> 
-> Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> Signed-off-by: Paul Mackerras <paulus@samba.org>
+Hi Linus
 
-> --- a/drivers/macintosh/Kconfig
-> +++ b/drivers/macintosh/Kconfig
-> @@ -169,6 +169,25 @@ config THERM_PM72
->  	  This driver provides thermostat and fan control for the desktop
->  	  G5 machines. 
->  
-> +config WINDFARM
-> +	tristate "New PowerMac thermal control infrastructure"
+Please pull from the repository at
 
-Shouldn't this depend on some PowerMac-related variables, to prevent it from
-showing up on m68k?
+    git://git.linux-nfs.org/pub/linux/nfs-2.6.git
 
-Gr{oetje,eeting}s,
+This will change the following files, through the appended changesets.
 
-						Geert
+Cheers,
+  Trond
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+---
+ fs/locks.c |    1 -
+ fs/locks.c |    2 +-
+ 2 files changed, 1 insertions(+), 2 deletions(-)
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+commit f3a9388e4ebea57583272007311fffa26ebbb305
+Author: Chris Wright <chrisw@osdl.org>
+Date:   Fri Nov 11 17:20:14 2005 -0800
+
+    [PATCH] VFS: local denial-of-service with file leases
+
+     Remove time_out_leases() printk that's easily triggered by users.
+
+     Signed-off-by: Chris Wright <chrisw@osdl.org>
+     Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+
+commit dc15ae14e97ee9d5ed740cbb0b94996076d8b37e
+Author: J. Bruce Fields <bfields@fieldses.org>
+Date:   Thu Nov 10 19:08:00 2005 -0500
+
+    [PATCH] VFS: Fix memory leak with file leases
+
+     The patch
+     http://linux.bkbits.net:8080/linux-2.6/diffs/fs/locks.c@1.70??nav=index.htm     introduced a pretty nasty memory leak in the lease code. When freeing
+     the lease, the code in locks_delete_lock() will correctly clean up
+     the fasync queue, but when we return to fcntl_setlease(), the freed
+     fasync entry will be reinstated.
+
+     This patch ensures that we skip the call to fasync_helper() when we're
+     freeing up the lease.
+
+     Signed-off-by: J. Bruce Fields <bfields@fieldses.org>
+     Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+
+

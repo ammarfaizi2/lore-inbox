@@ -1,74 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964901AbVKMAuV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbVKMBJm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964901AbVKMAuV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 19:50:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbVKMAuV
+	id S1750746AbVKMBJm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 20:09:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbVKMBJm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 19:50:21 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:12013
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S964901AbVKMAuT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 19:50:19 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] Re: Why did oldconfig's behavior change in 2.6.15-rc1?
-Date: Sat, 12 Nov 2005 18:50:01 -0600
-User-Agent: KMail/1.8
-Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-References: <200511121656.29445.rob@landley.net> <200511121731.25982.rob@landley.net> <Pine.LNX.4.61.0511130042530.1610@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0511130042530.1610@scrub.home>
+	Sat, 12 Nov 2005 20:09:42 -0500
+Received: from ns2.suse.de ([195.135.220.15]:17029 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750746AbVKMBJl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 20:09:41 -0500
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Jan Beulich <JBeulich@novell.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH 0/39] NLKD - Novell Linux Kernel Debugger
+References: <43720DAE.76F0.0078.0@novell.com> <43722AFC.4040709@pobox.com>
+	<Pine.LNX.4.58.0511090904320.4001@shark.he.net>
+From: Andi Kleen <ak@suse.de>
+Date: 13 Nov 2005 02:09:35 +0100
+In-Reply-To: <Pine.LNX.4.58.0511090904320.4001@shark.he.net>
+Message-ID: <p73u0eh4als.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511121850.01690.rob@landley.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 12 November 2005 17:49, Roman Zippel wrote:
-> Hi,
->
-> On Sat, 12 Nov 2005, Rob Landley wrote:
-> > Why did oldconfig switch off CONFIG_MODE_SKAS?  It didn't do that before.
-> > Hmmm...  Rummage, rummage...  Darn it, it's position dependent.  _And_
-> > version dependent.
->
-> It's _not_ position dependent, but the behaviour with multiple equal
-> symbols is undefined.
+"Randy.Dunlap" <rdunlap@xenotime.net> writes:
 
-I just want a minimally expressed config.  I've jumped through a number of 
-hoops trying to get "allnoconfig plus these symbols" to work.
+> On Wed, 9 Nov 2005, Jeff Garzik wrote:
+> 
+> > Jan Beulich wrote:
+> > > The following patch set represents the Novell Linux Kernel Debugger,
+> > > stripped off of its original low-level exception handling framework.
+> >
+> >
+> > Honestly, just seeing all these code changes makes me think we really
+> > don't need it in the kernel.  How many "early" and "alternative" gadgets
+> > do we really need just for this thing?
+> 
+> On the surface I have to agree.  However, if Jan wants feedback
+> on the patches, that's a reasonable request IMO.
+> (but they need to be readable via email so that someone
+> can comment on them)
+> 
+> At a quick blush, I would guess it has as much chance as
+> kdb does (or did) for merging.
 
-Setting .config to my symbol list and doing old config prompts a lot, doing 
-yes "" | oldconfig sets lots of crap by default (since not all default values 
-are n), and doing yes "n" | oldconfig goes into an endless loop every time 
-it's prompting for a number or some such.  You have to start with 
-allnoconfig.  Appending the new symbols and re-running oldconfig worked for a 
-number of versions, until now.  Now you have to insert the new symbols at the 
-beginning.
+I hope we can follow the same strategy as I did for debuggers on x86-64 - 
+which imho worked very well. Get all the (sane) hooks in so that everybody
+who wants to use their particular flavour of debugger can use it 
+by (ideally) either just loading it or alternatively applying a small
+core patch and the debugger files elsewhere. The die chains started
+from that. 
 
-I could presumably also work around the new breakage via following allnoconfig 
-with a sed -i invocation to remove the appropriate "# blah is not set" lines 
-before appending the symbols.  (Of course it means that the config symbol 
-list has to be fed into a for loop instead of being expressed in the same 
-format as config, which sucks deeply.  Insert at the beginning works until it 
-changes again...)
+Making the debugger work modular is a bit more work, but possible (was
+done for kdb at least before with some changes). IMHO that's the ideal
+state for users - they can just compile it externally and load it when
+they need it, but the core kernel doesn't need to carry it. It
+conflicts a bit with the usual policy of not exporting stuff that's
+not used in the core kernel; but I think making an exception here is
+reasonable because
 
-> > Ok, now I have to put the new entries at the _beginning_.  Appending them
-> > doesn't work anymore, it now ignores any symbol it's already seen, so you
-> > can't easily start with allnoconfig, switch on just what you want, and
-> > expect oldconfig to do anything intelligent.
->
-> Now you can put them in allno.config instead and allnoconfig will do the
-> right thing.
+So I guess it's best to concentrate on merging the hooks needed in a sane
+way. 
 
-Testing...
+I think the many additions for "early" code in the NLKD patchkit
+comes from Jan's desire to make the debugger work in as many weird
+corner cases as possible. I must say he found a lot of problems in 
+corner cases during that work in x86-64 and i386, fixing generic
+bugs and making even the standard oops code and other error handling
+code (e.g. double faults on i386) more reliable, which I appreciate. 
 
-Ok, that worked.  Weird and totally unituitive name for a miniconfig, but oh 
-well.
+The particular early changes have to be weighted of course in
+intrusiveness. If it's simple and not too ugly stuff I guess it is
+reasonable to consider it. If not the debugger will have
+to live without it.
 
-Is this documented anywhere?
+I already merged all the changes that looked good (and where I was cc'ed) 
+for x86-64 now. Some patches need changes, and I guess with that
+feedback the i386 part can be similarly adjusted.
 
-Rob
+-Andi

@@ -1,67 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932465AbVKMLJd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbVKMLTu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932465AbVKMLJd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 06:09:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbVKMLJc
+	id S932400AbVKMLTu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 06:19:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbVKMLTu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 06:09:32 -0500
-Received: from mx1.suse.de ([195.135.220.2]:13280 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932465AbVKMLJc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 06:09:32 -0500
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 0/13] Time: Generic Timeofday Subsystem (v B10)
-Date: Sun, 13 Nov 2005 11:53:24 +0100
-User-Agent: KMail/1.8.2
-Cc: john stultz <johnstul@us.ibm.com>, Darren Hart <dvhltc@us.ibm.com>,
-       Nishanth Aravamudan <nacc@us.ibm.com>,
-       Frank Sorenson <frank@tuxrocks.com>,
-       George Anzinger <george@mvista.com>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
-References: <20051112044850.8240.91581.sendpatchset@cog.beaverton.ibm.com> <p73lkzt49wr.fsf@verdi.suse.de> <20051113073228.GA31468@elte.hu>
-In-Reply-To: <20051113073228.GA31468@elte.hu>
+	Sun, 13 Nov 2005 06:19:50 -0500
+Received: from netzweb.gamper-media.ch ([157.161.128.137]:15634 "EHLO
+	ns1.netzweb.ch") by vger.kernel.org with ESMTP id S932400AbVKMLTt convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Nov 2005 06:19:49 -0500
+From: "Miro Dietiker, MD Systems" <info@md-systems.ch>
+To: "'Neil Brown'" <neilb@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: AW: Locking md device and system for several seconds
+Date: Sun, 13 Nov 2005 12:19:20 +0100
+Organization: MD Systems
+Message-ID: <018a01c5e844$18127490$4001a8c0@MDSYSPORT>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511131153.25978.ak@suse.de>
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2616
+In-Reply-To: <17271.6216.944507.182685@cse.unsw.edu.au>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Importance: Normal
+X-yoursite-MailScanner-Information: Please contact the ISP for more information
+X-yoursite-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 13 November 2005 08:32, Ingo Molnar wrote:
+:-)
 
-> there are 3 "generic" components needed right now to clean up all time 
-> related stuff: GTOD, ktimers and clockevents. [you know the first two, 
-> and clockevents is new code from Thomas Gleixner that generalizes timer 
-> interrupts and introduces one compact notion for 'clock chips'.]
+>Can you check which IO scheduler the drives are using, try different
+>schedulers, and see if it makes a different.
 
-Both noidletick and the per cpu gettimeofday change significantly
-how timer interrupts work. I hope your generalizations will be still
-compatible to that. It's a bit dangerous to generalize
-before things have their final shape. 
+there was [anticipatory] selected.
 
-Also vsyscalls make it all more difficult, because they don't map
-very well to any kind of "timer drivers". 
- 
-> what is the point? Ontop of these, a previously difficult feature, High 
-> Resolution Timers became _massively_ simpler. All of these patches exist 
-> together in the -rt tree, so it's not handwaving. The same will be the 
-> case for idle ticks / dynamic ticks [we started with HRT because it is 
-> so much harder than idle ticks]. So i do agree with you that GTOD needs 
-> more work, but it also makes time related features all that much easier.
+ORIGINAL:
+tiger:~#  grep . /sys/block/*/queue/scheduler
+/sys/block/fd0/queue/scheduler:noop [anticipatory] deadline cfq
+/sys/block/hdd/queue/scheduler:noop [anticipatory] deadline cfq
+/sys/block/sda/queue/scheduler:noop [anticipatory] deadline cfq
+/sys/block/sdb/queue/scheduler:noop [anticipatory] deadline cfq
+
+NEW:
+tiger:~#  grep . /sys/block/*/queue/scheduler
+/sys/block/fd0/queue/scheduler:noop anticipatory deadline [cfq]
+/sys/block/hdd/queue/scheduler:noop anticipatory deadline [cfq]
+/sys/block/sda/queue/scheduler:noop anticipatory deadline [cfq]
+/sys/block/sdb/queue/scheduler:noop anticipatory deadline [cfq]
+
+System seems to work, but I need some testing time to check that
+behaviour. (Any suggestion of a testing tool to generate disk
+traffic and reporting response-times and throughput?)
+
+Which is the right way / position on bootup to set this field
+permanent to this value and what exactly did I change with this
+modification? (Performance issues?)
+I'm using debian..
+
+I also need to check this on the other (identical) machines.
+
+Thanks! Miro Dietiker
+
+-----Ursprüngliche Nachricht-----
+Von: Neil Brown [mailto:neilb@suse.de] 
+Gesendet: Sonntag, 13. November 2005 11:41
+An: Miro Dietiker, MD Systems
+Cc: linux-kernel@vger.kernel.org
+Betreff: Re: Locking md device and system for several seconds
+
+On Sunday November 13, info@md-systems.ch wrote:
+> Hi!
 > 
-> right now it's GTOD that needs the most work before it can be merged 
-> upstream, so you picked the right one to criticise :-)
+> I'm using kernel 2.6.14.2 with md (RAID1 static) as bootable.
+> 
+> While md synching (initial creation or after marked one as failed,
+> removed and re-added) there are some locking problems with the
+> complete system/kernel.
 
-My point was basically that there is a lot of feature work going on
-on x86-64 in this area, and that has priority over  any "cleanups" like this 
-from my side. If it has settled again later maybe it can be generalized,
-or maybe not. I will only do it if it truly makes the code cleaner in the end,
-just lots of indirect pointers by itself isn't necessarily something
-that does this.
+Can you check which IO scheduler the drives are using, try different
+schedulers, and see if it makes a different.
 
--Andi
+     grep . /sys/block/*/queue/scheduler
+
+will show you (the one in [brackets] is active). 
+Then just echo a new value out to each file.
+
+I've had one report that [anticipatory] causes this problem and [cfq]
+removes it.  Could you confirm that?
+
+Thanks,
+
+NeilBrown
+

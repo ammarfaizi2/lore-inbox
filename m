@@ -1,81 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964917AbVKMQ1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964918AbVKMQ3P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964917AbVKMQ1r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 11:27:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964918AbVKMQ1r
+	id S964918AbVKMQ3P (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 11:29:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964922AbVKMQ3P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 11:27:47 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:44809 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964915AbVKMQ1r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 11:27:47 -0500
-Date: Sun, 13 Nov 2005 17:27:45 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: hostap@shmoo.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       netdev@vger.kernel.org
-Cc: sam@ravnborg.org
-Subject: [2.6 patch] rename hostap.c to hostap_main.c
-Message-ID: <20051113162745.GM21448@stusta.de>
-References: <20051106005343.GF3668@stusta.de> <20051106041543.GC8972@jm.kir.nu>
+	Sun, 13 Nov 2005 11:29:15 -0500
+Received: from rtr.ca ([64.26.128.89]:38838 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S964918AbVKMQ3P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Nov 2005 11:29:15 -0500
+Message-ID: <437769D9.2080402@rtr.ca>
+Date: Sun, 13 Nov 2005 11:29:13 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051106041543.GC8972@jm.kir.nu>
-User-Agent: Mutt/1.5.11
+To: "Larry.Finger@lwfinger.net" <larry.finger@att.net>
+Cc: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.6.15-rc1: ipw2200 still not working
+References: <111320050145.2779.43769AC30008CFA600000ADB21603763169D0A09020700D2979D9D0E04@att.net>
+In-Reply-To: <111320050145.2779.43769AC30008CFA600000ADB21603763169D0A09020700D2979D9D0E04@att.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 05, 2005 at 08:15:43PM -0800, Jouni Malinen wrote:
-> On Sun, Nov 06, 2005 at 01:53:43AM +0100, Adrian Bunk wrote:
-> > I wanted to remove the #include "hostap_ioctl.c" from hostap.c and build 
-> > hostap_ioctl.c separately, but this doesn't work since hostap.c has the 
-> > same name as the module.
-> 
-> Is this patch changing anything in hostap.c or is it just a rename of
-> the file? Patch file is not exactly ideal for this kind of changes and I
-> hope git has a better way of storing this kind of rename.
+Larry.Finger@lwfinger.net wrote:
+>>Well, okay, the ipw2200 works fine if I turn off all security on the AP,
+>>but the 2.6.15-rc1 version can no longer connect to my WPA/WPA2 network.
+..
+> I don't know if it affects you, but I was not able to get WPA working
+>on my Linksys WPC54G using ndiswrapper with the 2.6.14-xxx kernels
+ >until I downloaded, built and installed a new version of wpa_supplicant.
 
-There's no other change.
+Ahh.. BINGO.  I was already using wpa_supplicant-0.4.3,
+but the 2.6.15-rc1 kernel was having issues (as posted).
 
-If you agree, Jeff might be able to do the
+I've now found wpa_supplicant-0.4.6, and that has cleared things up.
 
-  mv drivers/net/wireless/hostap/hostap.c \
-    drivers/net/wireless/hostap/hostap_main.c
-
-plus applying the patch below.
-
-> I would rather not rename the file, but if this is the only way of
-> getting the module built in pieces, I'm okay with the change (assuming
-> nothing else changed in hostap.c in this changeset).
->...
-
-AFAIK you can't build a module hostap.o consisting of multiple objects 
-with the source files of one of them named hostap.c (Sam Cc'ed for this).
-
-> Jouni Malinen                                            PGP id EFC895FA
-
-cu
-Adrian
-
-
-
-<--  snip  -->
-
-
-I wanted to remove the #include "hostap_ioctl.c" from hostap.c and build 
-hostap_ioctl.c separately, but this doesn't work since hostap.c has the 
-same name as the module.
-
-After renaming hostap.c this will be possible.
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.14-mm2-full/drivers/net/wireless/hostap/Makefile.old	2005-11-13 17:10:33.000000000 +0100
-+++ linux-2.6.14-mm2-full/drivers/net/wireless/hostap/Makefile	2005-11-13 17:11:11.000000000 +0100
-@@ -1,3 +1,4 @@
-+hostap-y := hostap_main.o
- obj-$(CONFIG_HOSTAP) += hostap.o
- 
- obj-$(CONFIG_HOSTAP_CS) += hostap_cs.o
-
+Thanks!

@@ -1,43 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964922AbVKMQay@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964931AbVKMQhf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964922AbVKMQay (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 11:30:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964930AbVKMQay
+	id S964931AbVKMQhf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 11:37:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964932AbVKMQhf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 11:30:54 -0500
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:38528
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S964922AbVKMQax (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 11:30:53 -0500
-Subject: [PATCH] fix synclink_gt compile for latest struct pci_driver
-	changes
-From: Paul Fulghum <paulkf@microgate.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Sun, 13 Nov 2005 10:30:47 -0600
-Message-Id: <1131899447.2910.4.camel@x2.pipehead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sun, 13 Nov 2005 11:37:35 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:7687 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S964931AbVKMQhf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Nov 2005 11:37:35 -0500
+In-Reply-To: <1131834336.7406.46.camel@gaston>
+References: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org> <200511122145.38409.mbuesch@freenet.de> <Pine.LNX.4.64.0511121257000.3263@g5.osdl.org> <200511122237.17157.mbuesch@freenet.de> <1131834336.7406.46.camel@gaston>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <71C11A0C-4FC8-4081-A890-A4FF7DA48752@kernel.crashing.org>
+Cc: Michael Buesch <mbuesch@freenet.de>,
+       ppc-dev list <linuxppc-dev@ozlabs.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Content-Transfer-Encoding: 7bit
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: Linuv 2.6.15-rc1
+Date: Sun, 13 Nov 2005 10:37:44 -0600
+To: Paul Mackerras <paulus@samba.org>
+X-Mailer: Apple Mail (2.746.2)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fixes the synclink_gt driver so it compiles with
-the latest struct pci_driver changes that remove the
-owner field.
 
-Signed-off-by: Paul Fulghum <paulkf@microgate.com>
+On Nov 12, 2005, at 4:25 PM, Benjamin Herrenschmidt wrote:
 
---- linux-2.6.15-rc1/drivers/char/synclink_gt.c	2005-11-12 18:38:16.000000000 -0600
-+++ linux-2.6.15-rc1-mg/drivers/char/synclink_gt.c	2005-11-12 18:38:35.000000000 -0600
-@@ -111,7 +111,6 @@ MODULE_DEVICE_TABLE(pci, pci_table);
- static int  init_one(struct pci_dev *dev,const struct pci_device_id *ent);
- static void remove_one(struct pci_dev *dev);
- static struct pci_driver pci_driver = {
--	.owner          = THIS_MODULE,
- 	.name		= "synclink_gt",
- 	.id_table	= pci_table,
- 	.probe		= init_one,
+> On Sat, 2005-11-12 at 22:37 +0100, Michael Buesch wrote:
+>> On Saturday 12 November 2005 22:00, you wrote:
+>>>
+>>> On Sat, 12 Nov 2005, Michael Buesch wrote:
+>>>>
+>>>> Latest GIT tree does not boot on my G4 PowerBook.
+>>>
+>>> What happens if you do
+>>>
+>>> 	make ARCH=powerpc
+>>>
+>>> and build everything that way (including the "config" phase)?
+>>
+>> I did
+>> make mrproper
+>> copy the .config over again
+>> make ARCH=powerpc menuconfig
+>> exit and save from menuconfig
+>> make ARCH=powerpc
+>
+> You need to disable PREP support when building with ARCH=powerpc  
+> for 32
+> bits, it doesn't build (yet). We should remove it from Kconfig...
+>
+> Also, there is an issue with the make clean stuff, make sure when
+> switching archs to also remove arch/powerpc/include/asm symlink before
+> trying to build.
 
+Can we please add some defconfigs for arch/powerpc to possibly help  
+with this issue.  I'm think a pmac32, pmac64, and whatever other 64  
+bit configs would be a good start.
 
+- kumar

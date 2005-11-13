@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750946AbVKMCjB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbVKMCwi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750946AbVKMCjB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 21:39:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750990AbVKMCjB
+	id S1751032AbVKMCwi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 21:52:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751034AbVKMCwi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 21:39:01 -0500
-Received: from mx1.suse.de ([195.135.220.2]:43193 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750946AbVKMCjB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 21:39:01 -0500
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch 9/14] mm: page_state opt
-References: <436DBAC3.7090902@yahoo.com.au> <436DBCBC.5000906@yahoo.com.au>
-	<436DBCE2.4050502@yahoo.com.au> <436DBD11.8010600@yahoo.com.au>
-	<436DBD31.8060801@yahoo.com.au> <436DBD82.2070500@yahoo.com.au>
-	<436DBDA9.2040908@yahoo.com.au> <436DBDC8.5090308@yahoo.com.au>
-	<436DBDE5.2010405@yahoo.com.au> <436DBE03.90009@yahoo.com.au>
-From: Andi Kleen <ak@suse.de>
-Date: 13 Nov 2005 03:38:59 +0100
-In-Reply-To: <436DBE03.90009@yahoo.com.au>
-Message-ID: <p73hdah46gs.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 12 Nov 2005 21:52:38 -0500
+Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:5134 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751021AbVKMCwi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 21:52:38 -0500
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: drzeus@drzeus.cx (Pierre Ossman)
+Subject: Re: [PATCH] Register interrupt handler when net device is registered. Avoids missing
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Organization: Core
+In-Reply-To: <20051108064547.18106.53763.stgit@poseidon.drzeus.cx>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1Eb7yZ-00064D-00@gondolin.me.apana.org.au>
+Date: Sun, 13 Nov 2005 13:52:15 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> writes:
+Pierre Ossman <drzeus@drzeus.cx> wrote:
+> interrupts if the interrupt mask gets out of sync.
 
-> 9/14
-> 
-> -- 
-> SUSE Labs, Novell Inc.
-> 
-> Optimise page_state manipulations by introducing a direct accessor
-> to page_state fields without disabling interrupts, in which case
-> the callers must provide their own locking (either disable interrupts
-> or not update from interrupt context).
+What about fixing the interrupt mask instead rather than keeping
+the IRQ handler registered all time?
 
-I have a patchkit (which i need to update for the current kernel)
-which replaces this with local_t. Gives much better code and is much
-simpler and doesn't require turning off interrupts anywhere.
+BTW, you should submit this via Jeff Garzik <jgarzik@pobox.com> and
+netdev@vger.kernel.org.
 
--Andi
+Thanks,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

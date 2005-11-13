@@ -1,65 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbVKMCQB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750852AbVKMCaq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750851AbVKMCQB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 21:16:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbVKMCQB
+	id S1750852AbVKMCaq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 21:30:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750854AbVKMCaq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 21:16:01 -0500
-Received: from smtp3.hushmail.com ([65.39.178.135]:60944 "EHLO
-	smtp3.hushmail.com") by vger.kernel.org with ESMTP id S1750812AbVKMCQA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 21:16:00 -0500
-Message-Id: <200511130215.jAD2Fn2H020249@mailserver2.hushmail.com>
-Date: Sat, 12 Nov 2005 18:15:46 -0800
-To: <linux-kernel@vger.kernel.org>
-Subject: linux/fs/binfmt_elf.c removal of check
-From: <sigint@hush.com>
+	Sat, 12 Nov 2005 21:30:46 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:25733
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1750852AbVKMCap (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 21:30:45 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Joel Schopp <jschopp@austin.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+Date: Sat, 12 Nov 2005 20:30:35 -0600
+User-Agent: KMail/1.8
+References: <20051104010021.4180A184531@thermo.lanl.gov> <1131392070.14381.133.camel@localhost.localdomain> <436FE561.7080703@austin.ibm.com>
+In-Reply-To: <436FE561.7080703@austin.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511122030.35542.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Monday 07 November 2005 17:38, you wrote:
+> >>RAM removal, not RAM replacement. I explained all the variants in an
+> >>earlier email in this thread. "extending RAM" is relatively easy.
+> >>"replacing RAM" while doable, is probably undesirable. "removing RAM"
+> >>impossible.
+>
+> <snip>
+>
+> > BTW, I'm not suggesting any of this is a good idea, I just like to
+> > understand why something _cant_ be done.
+>
+> I'm also of the opinion that if we make the kernel remap that we can
+> "remove RAM".  Now, we've had enough people weigh in on this being a bad
+> idea I'm not going to try it.  After all it is fairly complex, quite a bit
+> more so than Mel's reasonable patches.  But I think it is possible.  The
+> steps would look like this:
+>
+> Method A:
+> 1. Find some unused RAM (or free some up)
+> 2. Reserve that RAM
+> 3. Copy the active data from the soon to be removed RAM to the reserved RAM
+> 4. Remap the addresses
+> 5. Remove the RAM
+>
+> This of course requires step 3 & 4 take place under something like
+> stop_machine_run() to keep the data from changing.
 
-Attached is a small patch that deletes an unneccesary check in
-binfmt_elf.c load_elf_binary().
+Actually, what I was thinking is that if you use the swsusp infrastructure to 
+suspend all processes, all dma, quiesce the heck out of the devices, and 
+_then_ try to move the kernel...  Well, you at least have a much more 
+controlled problem.  Yeah, it's pretty darn intrusive, but if you're doing 
+"suspend to ram" perhaps the downtime could be only 5 or 10 seconds...
 
-'end_code' is initialized to 0 on line 602 but 'k' is initialized
-to 'k = elf_ppnt->p_vaddr + elf_ppnt->p_filesz' on line 880. This
-check (may) not be neccessary because on line 614 elf_ppnt-
->p_filesz is checked against PATH_MAX and the integer 2. elf_ppnt-
->p_filesz does not appear to be altered before the check. Please
-double check the change, but I do not think the comparison is
-needed on line 881. I am not on the list please CC me on any
-replies. Thanks
+I don't know how much of the problem that leaves unsolved, though.
 
-patch produced with 'diff -Npur'
-
-- --- a/fs/binfmt_elf.c   2005-11-12 22:19:08.000000000 -0500
-+++ b/fs/binfmt_elf.c   2005-11-12 22:17:54.000000000 -0500
-@@ -878,7 +878,7 @@ static int load_elf_binary(struct linux_
-
-                if (k > elf_bss)
-                        elf_bss = k;
-- -               if ((elf_ppnt->p_flags & PF_X) && end_code < k)
-+               if ((elf_ppnt->p_flags & PF_X))
-                        end_code = k;
-                if (end_data < k)
-                        end_data = k;
------BEGIN PGP SIGNATURE-----
-Note: This signature can be verified at https://www.hushtools.com/verify
-Version: Hush 2.4
-
-wkYEARECAAYFAkN2slwACgkQ8+KJMsQVzCE42gCgiYrs5iWz95OlcZRgYGxJh7XeZd8A
-n3pGiikzdQh2RJe/GLJbyy/Q427/
-=TTTY
------END PGP SIGNATURE-----
-
-
-
-
-Concerned about your privacy? Instantly send FREE secure email, no account required
-http://www.hushmail.com/send?l=480
-
-Get the best prices on SSL certificates from Hushmail
-https://www.hushssl.com?l=485
-
+Rob

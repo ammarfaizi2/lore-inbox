@@ -1,42 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964944AbVKMRMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbVKMRdA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964944AbVKMRMF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 12:12:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964946AbVKMRMF
+	id S1750803AbVKMRdA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 12:33:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbVKMRdA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 12:12:05 -0500
-Received: from extgw-uk.mips.com ([62.254.210.129]:54545 "EHLO
-	bacchus.net.dhis.org") by vger.kernel.org with ESMTP
-	id S964944AbVKMRMC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 12:12:02 -0500
-Date: Sun, 13 Nov 2005 10:29:30 +0000
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Tony <tony.uestc@gmail.com>
-Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: MOD_INC_USE_COUNT
-Message-ID: <20051113102930.GA16973@linux-mips.org>
-References: <437347B5.6080201@gmail.com> <Pine.LNX.4.61.0511100859400.18912@chaos.analogic.com> <43735766.3070205@gmail.com>
+	Sun, 13 Nov 2005 12:33:00 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:29071 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S1750803AbVKMRc7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Nov 2005 12:32:59 -0500
+Date: Sun, 13 Nov 2005 18:34:35 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: hostap@shmoo.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+       netdev@vger.kernel.org
+Subject: Re: [2.6 patch] rename hostap.c to hostap_main.c
+Message-ID: <20051113173435.GA12477@mars.ravnborg.org>
+References: <20051106005343.GF3668@stusta.de> <20051106041543.GC8972@jm.kir.nu> <20051113162745.GM21448@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43735766.3070205@gmail.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20051113162745.GM21448@stusta.de>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 10, 2005 at 10:21:26PM +0800, Tony wrote:
+> 
+> AFAIK you can't build a module hostap.o consisting of multiple objects 
+> with the source files of one of them named hostap.c (Sam Cc'ed for this).
 
-> But when the module is used by a net_device(interface is up), rmmod also 
-> works. Strange, isn't it?
+Correct.
 
-Not strange at all.  The typical network driver is implemented using
-pci_register_driver which will set the owner filed of the driver's struct
-driver which then is being used for internal reference counting.  Other
-busses or line disciplines (SLIP, PPP, AX.25 ...) need to do the equivalent
-or the kernel will believe reference counting isn't necessary and it's
-ok to unload the module at any time.
-
-In which driver did you hit this problem?
-
-  Ralf
+	Sam

@@ -1,44 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932503AbVKMOYo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932509AbVKMOdg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932503AbVKMOYo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 09:24:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbVKMOYo
+	id S932509AbVKMOdg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 09:33:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbVKMOdg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 09:24:44 -0500
-Received: from mailout09.sul.t-online.com ([194.25.134.84]:47763 "EHLO
-	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S932503AbVKMOYo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 09:24:44 -0500
-Message-ID: <43774C38.6050500@t-online.de>
-Date: Sun, 13 Nov 2005 15:22:48 +0100
-From: Bernd Schmidt <bernds_cb1@t-online.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+	Sun, 13 Nov 2005 09:33:36 -0500
+Received: from zproxy.gmail.com ([64.233.162.197]:59708 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932509AbVKMOdg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Nov 2005 09:33:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=AVCCpR89AptFyDrSE+jfSxRHpc8XpmA9orWo32OD2CkYw52mXAfUvEyUmHhnjZ7MD0SAnKMdAx1nJ9CJ5DRD9qGCKChtTH2VlzDPd/7gPszY3LKkDSXTQWA6NrG1CyiEu1qKR7RpgCpKJ0aCQG8WlHLxahXp/AgRyCDTBTetNs4=
+Message-ID: <43774EAE.90004@gmail.com>
+Date: Sun, 13 Nov 2005 22:33:18 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Luke Yang <luke.adi@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       bunk@stusta.de, linux-kernel@vger.kernel.org
-Subject: Re: ADI Blackfin patch for kernel 2.6.14
-References: <489ecd0c0511010128x41d39643x37893ad48a8ef42a@mail.gmail.com> <20051101165136.GU8009@stusta.de> <489ecd0c0511012306w434d75fbs90e1969d82a07922@mail.gmail.com> <489ecd0c0511032059n394abbb2s9865c22de9b2c448@mail.gmail.com> <20051104230644.GA20625@kroah.com> <489ecd0c0511062258k4183d206odefd3baa46bb9a04@mail.gmail.com> <20051107165928.GA15586@kroah.com> <20051107235035.2bdb00e1.akpm@osdl.org> <489ecd0c0511110326j3a01cabbheeeac6168193a0b0@mail.gmail.com> <20051112214741.GB16334@kroah.com>
-In-Reply-To: <20051112214741.GB16334@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ID: bLQg1iZEreeBRIvdbGFt2s4FHh-leJIY1hUJONr7yJWOFxWQOxoEse
-X-TOI-MSGID: a75e07e1-82fe-495d-9bd4-db5292c3c462
+To: Samuel Thibault <samuel.thibault@ens-lyon.org>
+CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Dave Jones <davej@redhat.com>, Jason <dravet@hotmail.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] vgacon: Workaround for resize bug in some chipsets
+References: <43766AC5.9080406@gmail.com> <20051113110618.GD4117@implementation>
+In-Reply-To: <20051113110618.GD4117@implementation>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+Samuel Thibault wrote:
+> Antonino A. Daplas, le Sun 13 Nov 2005 06:20:53 +0800, a écrit :
+>> "I updated to the development kernel and now during boot only the top of the
+>> text is visable. For example the monitor screen the is the lines and I can
+>> only  see text in the asterik area.
+>> ---------------------
+>> | ****************  |
+>> | *              *  |
+>> | *              *  |
+>> | ****************  |
+>> |                   |
+>> |                   |
+>> |                   |
+>> ---------------------
+> 
+> Are you missing some left and right part too? What are the dimensions of
+> the text screen at bootup? What bootloader are you using? (It could be a
+> bug in the boot up text screen dimension discovery).
 
-> Does this arch have corporate support behind it to maintain it over
-> time, or is something you are going to do in your spare time (which is
-> fine, just curious.)
+It was just the height.  All numbers (done with printk's) look okay from
+bootup. He gets 80 and 25 for ORIG_VIDEO_NUM_COLS and ORIG_VIDEO_NUM_LINES
+respectively.
 
-The port is developed by a dedicated team at Analog Devices.  For a 
-summary of what we're doing, see this message from an earlier thread:
-   http://marc.theaimsgroup.com/?l=linux-kernel&m=113086025519904&w=2
-(The reasone we're all not posting from analog.com email addresses is 
-that doing so would involve the use of outlook :-)
+> 
+>> I have a Silicon Graphics 1600sw LCD panel with a Number Nine Revolution 4
+>> video card."
+> 
+> Does vgacon.c properly discovers that it is a VGA board?
 
+Yes.
 
-Bernd
+> 
+>> This bug seems to be a glitch in the VGA core of this chipset.  Resizing
+>> the screen triggers the mentioned bug.
+> 
+> Do vga-only games (like old DOS-mode games) work with it?
+> 
+>> The workaround is to make vgacon avoid calling vgacon_doresize() if the
+>> display parameters did not change.
+> 
+> I.e. never call it, actually.
+> 
+>> A definitive fix will need to be provided by someone who knows and has the
+>> hardware.
+> 
+> I'm not sure it is hardware-specific. Maybe you have a combination of
+> vga bios/bootloader/vga=ask/... that prevents vgacon.c from properly
+> discovering the dimensions of the text screen.
+
+His console worked before linux-2.6.14-rc2.
+
+Tony

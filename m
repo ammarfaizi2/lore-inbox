@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964891AbVKMAMq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbVKMAaL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964891AbVKMAMq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 19:12:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964892AbVKMAMq
+	id S964899AbVKMAaL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 19:30:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964898AbVKMAaL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 19:12:46 -0500
-Received: from 80-218-116-26.dclient.hispeed.ch ([80.218.116.26]:61062 "EHLO
-	magnific.ch") by vger.kernel.org with ESMTP id S964891AbVKMAMp
+	Sat, 12 Nov 2005 19:30:11 -0500
+Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:43021 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S964896AbVKMAaJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 19:12:45 -0500
-Subject: Via VT6240 Sata problem
-From: Yves Kurz <yves@magnific.ch>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Sun, 13 Nov 2005 01:12:29 +0100
-Message-Id: <1131840749.14747.23.camel@localhost.localdomain>
+	Sat, 12 Nov 2005 19:30:09 -0500
+Date: Sun, 13 Nov 2005 11:29:45 +1100
+To: Nicolas Pitre <nico@cam.org>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Linux Crypto Mailing List <linux-crypto@vger.kernel.org>
+Subject: Re: [PATCH 2/5] crypto/sha1.c: avoid shifting count left and right
+Message-ID: <20051113002945.GB22130@gondor.apana.org.au>
+References: <Pine.LNX.4.64.0510241347081.5288@localhost.localdomain> <Pine.LNX.4.64.0510241356270.5288@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0510241356270.5288@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Linux users and developers
+On Mon, Oct 24, 2005 at 05:57:06PM +0000, Nicolas Pitre wrote:
+> 
+> This patch avoids shifting the count left and right needlessly for each
+> call to sha1_update().  It instead can be done only once at the end in
+> sha1_final().
+> 
+> Keeping the previous test example (sha1_update() successively called with
+> len=64), a 1.3% performance increase can be observed on i386, or 0.2% on
+> ARM.  The generated code is also smaller on ARM.
 
-I've got a new PC (Asus Pundit p2-ae2) with an Via VT6420 SATA
-controller that is connected to a Maxtor 6L200MO hard disk. The problem
-is, that no distribution is able to see the disk. I was trying Ubuntu
-(hoary/breezy i386 and amd64), Suse 10 eval i386, the Debian Etch Beta 1
-installer and I've got always time the same result. 
+Patch applied.
 
-Part of the log from the boot process (Ubuntu Breezy Amd64)
-...
-SCSI subsystem initialized
-libata version 1.11 loaded.
-sata_via version 1.1
-ACPI: PCI Interrupt 0000:00:0f.0[B] -> GSI 20 (level, low) -> IRQ 20
-PCI: Via IRQ fixup for 0000:00:0f.0 from 10 to 4
-sata_via(0000:00:0f.0): SATA master/slave not supported (0xa2)
-ACPI: PCI interrupt for device 0000:00:0f.0 disabled
-sata_via: probe of 0000:00:0f.0 failed with error -5
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-...
+So in summary, patch 1 has been applied with some additional changes.
+Patch 2 is applied as is except for a change to accomodate the cpu->be
+change from Denis.
 
-I tried several kernel parameters like pci=noacpi acpi=off noacpi...
-etc. but that did not change anything. The bios also doesn't provide a
-compatibility mode switch for the sata controller.
+Patches 3-5 have been made redundant by the cpu->be change.
 
-So I had a look at the sources of sata_via.c to see what this SATA
-master/slave means. Well it's not clear to me from the source why I get
-the not supported message. There is just one device attached which I
-can't configure in any way. 
-What can I do to make Linux find my harddisk? Am I doing something
-wrong?
+Thanks again for your efforts in making sha1 smaller and faster.
 
-Thanks 
-
-Yves
-
-
-BTW: Could you please CC me? I'm not subscribed to the list.
-
-
-
-
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

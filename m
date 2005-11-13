@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbVKMD2e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbVKMDnm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751247AbVKMD2e (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 22:28:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbVKMD2e
+	id S1751265AbVKMDnm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 22:43:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbVKMDnm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 22:28:34 -0500
-Received: from gate.crashing.org ([63.228.1.57]:7387 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751247AbVKMD2e (ORCPT
+	Sat, 12 Nov 2005 22:43:42 -0500
+Received: from ns1.suse.de ([195.135.220.2]:24254 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751265AbVKMDnl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 22:28:34 -0500
-Subject: Re: [2.6 patch] PPC_PREP: remove unneeded exports
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Michael Buesch <mbuesch@freenet.de>, Linus Torvalds <torvalds@osdl.org>,
-       Paul Mackerras <paulus@samba.org>, linuxppc-dev@ozlabs.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051113012608.GH21448@stusta.de>
-References: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org>
-	 <200511122237.17157.mbuesch@freenet.de> <20051112215304.GB21448@stusta.de>
-	 <200511122257.05552.mbuesch@freenet.de> <20051112222045.GC21448@stusta.de>
-	 <1131834667.7406.49.camel@gaston>  <20051113012608.GH21448@stusta.de>
-Content-Type: text/plain
-Date: Sun, 13 Nov 2005 14:23:29 +1100
-Message-Id: <1131852210.5504.36.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Sat, 12 Nov 2005 22:43:41 -0500
+From: Andi Kleen <ak@suse.de>
+To: jmerkey <jmerkey@utah-nac.org>
+Subject: Re: [PATCH 0/39] NLKD - Novell Linux Kernel Debugger
+Date: Sun, 13 Nov 2005 04:44:44 +0100
+User-Agent: KMail/1.8.2
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Jan Beulich <JBeulich@novell.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <43720DAE.76F0.0078.0@novell.com> <p73u0eh4als.fsf@verdi.suse.de> <4376AAC1.5060503@utah-nac.org>
+In-Reply-To: <4376AAC1.5060503@utah-nac.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511130444.45468.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-11-13 at 02:26 +0100, Adrian Bunk wrote:
-> On Sun, Nov 13, 2005 at 09:31:06AM +1100, Benjamin Herrenschmidt wrote:
-> > 
-> > > ucSystemType is a variable that is EXPORT_SYMBOL'ed but never used in 
-> > > any way.
-> > > 
-> > > _prep_type is a variable that is needlessly EXPORT_SYMBOL'ed.
-> > 
-> > Therse are old PREP stuffs
-> >...
-> 
-> Is the patch below OK?
+On Sunday 13 November 2005 03:53, jmerkey wrote:
 
-The ucXXX variables should probably go (or at least be unexported) but I
-would keep the _prep_type export for now, unless we are certain no
-driver and no out of tree stuff neither uses it (hrm... might well be
-the case).
+> Yes. This is the way to go. Use kdb as a base and instrument an 
+> alternate debugger interface. You need to also find a good way to
+> allow GDB to work properly with alternate debuggers. At present, the 
+> code in traps.c is mutually exclusive since embedded int3
+> breakpoints trigger in the kernel for gbd. This is busted.
 
-In any case, the proper fix is probably to move the EXPORT_SYMBOL() out
-of ppc_ksyms, and have it next to the declaration of the variable.
 
-Ben.
+I don't think we'll support stacking multiple kernel debuggers (except
+for special cases like kprobes+another debugger). It's complicated
+and probably not worth it.
 
+-Andi
 

@@ -1,79 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbVKMVto@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbVKMVvE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750719AbVKMVto (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 16:49:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbVKMVto
+	id S1750721AbVKMVvE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 16:51:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbVKMVvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 16:49:44 -0500
-Received: from smtp05.auna.com ([62.81.186.15]:26252 "EHLO smtp05.retemail.es")
-	by vger.kernel.org with ESMTP id S1750719AbVKMVtn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 16:49:43 -0500
-Date: Sun, 13 Nov 2005 22:49:18 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: "Linux-Kernel, " <linux-kernel@vger.kernel.org>
-Subject: Re: x86 building altivec for raid ?
-Message-ID: <20051113224918.48f76cb5@werewolf.auna.net>
-In-Reply-To: <17271.44949.625740.612801@cse.unsw.edu.au>
-References: <20051113220213.55fc6fae@werewolf.auna.net>
-	<17271.44949.625740.612801@cse.unsw.edu.au>
-X-Mailer: Sylpheed-Claws 1.9.100cvs7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="Sig_.Qsq=KuNFOqX+3AOo_rR_Gx";
- protocol="application/pgp-signature"; micalg=PGP-SHA1
-X-Auth-Info: Auth:LOGIN IP:[83.138.218.105] Login:jamagallon@able.es Fecha:Sun, 13 Nov 2005 22:49:41 +0100
+	Sun, 13 Nov 2005 16:51:03 -0500
+Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:7040 "EHLO
+	vger.utah-nac.org") by vger.kernel.org with ESMTP id S1750721AbVKMVvC
+	(ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Sun, 13 Nov 2005 16:51:02 -0500
+Message-ID: <4377AF1E.9040708@soleranetworks.com>
+Date: Sun, 13 Nov 2005 14:24:46 -0700
+From: jmerkey <jmerkey@soleranetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nikita Danilov <nikita@clusterfs.com>
+Cc: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+Subject: Re: Severe VFS Performance Issues 2.6 with > 95000 directory entries
+References: <4376B787.9000108@soleranetworks.com>	<17271.13688.298525.23645@gargle.gargle.HOWL>	<4377A999.7090305@soleranetworks.com> <17271.45438.735874.747393@gargle.gargle.HOWL>
+In-Reply-To: <17271.45438.735874.747393@gargle.gargle.HOWL>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Sig_.Qsq=KuNFOqX+3AOo_rR_Gx
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Nikita Danilov wrote:
 
-On Mon, 14 Nov 2005 08:26:45 +1100, Neil Brown <neilb@suse.de> wrote:
+>jmerkey writes:
+> > Nikita Danilov wrote:
+> > 
+> > >Jeff V. Merkey writes:
+> > > > 
+> > > > The subject line speaks for itself.   This is using standard VFS readdir 
+> > > > and lookup calls through the VFSwith ftp.  Very poor. 
+> > >
+> > >Reiser4 works fine with 100M entries in a directory, so VFS is not a
+> > >bottleneck here.
+> > >  
+> > >
+> > 
+> > how about with ftp running on top? Try running FTP in directory with
+> > 100M entries. See how long it takes to return the data to
+> > the remote client for a dir listing.
+>
+>Why are you thinking that it is VFS that is causing performance
+>degradation here?
+>  
+>
 
-> On Sunday November 13, jamagallon@able.es wrote:
-> >=20
-> > Kernel is 2.6.14-mm2.
-> > This is an x86 box, why does it compile raid6altivec*.c ? I suppose it
-> > does not generate any code, because of some #ifdef magic, but why does
-> > it build them anyways ? Looks a bit strange.
->=20
-> It's probably just easier that way.
-> I guess you could do the following, but I'm not sure that it is really
-> worth it.
->=20
-> +raid6-$(CONFIG_X86) :=3D  raid6mmx.o raid6sse1.o
-> +raid6-$(CONFIG_X86_64) :=3D raid6sse2.o
+Because I see the same degredation local vs. remote. My path for readdir 
+and lookup are short. I dynamically (via math) create
+the file names on the fly and lookup simply reads a static table in 
+memory for inode number. One thing I can check are calls
+to igetblk inside of lookup.
 
-plain x86 can also do some sse2 ;) (x2, not x4)
-As X86_64 also defines plain X86, this could be just
+Jeff
 
-> +raid6-$(CONFIG_X86) :=3D  raid6mmx.o raid6sse1.o raid6sse2.o
+> > 
+> > Jeff
+> > 
+> > >[...]
+> > >
+> > > > 
+> > > > Jeff
+> > >
+>
+>Nikita.
+>
+> > >
+> > >  
+> > >
+>
+>  
+>
 
-And perhaps IA64 will need this also ?
-Thanks, anyways.
-I will send it to Andrew, to see if it goes in.
-
-by
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like se=
-x:
-werewolf!able!es                         \         It's better when it's fr=
-ee
-Mandriva Linux release 2006.1 (Cooker) for i586
-Linux 2.6.14-jam2 (gcc 4.0.2 (4.0.2-1mdk for Mandriva Linux release 2006.1))
-
---Sig_.Qsq=KuNFOqX+3AOo_rR_Gx
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDd7TeRlIHNEGnKMMRAgr2AJ9MXrnEZuRDQmfVmtbHLnKHKRYw7gCfcAoz
-CnjWfe0h9h/3TaGWGKFOUI0=
-=SbeB
------END PGP SIGNATURE-----
-
---Sig_.Qsq=KuNFOqX+3AOo_rR_Gx--

@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbVKMBxT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbVKMCQB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750716AbVKMBxT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 20:53:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbVKMBxT
+	id S1750851AbVKMCQB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 21:16:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbVKMCQB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 20:53:19 -0500
-Received: from smtp104.sbc.mail.re2.yahoo.com ([68.142.229.101]:3183 "HELO
-	smtp104.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1750716AbVKMBxS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 20:53:18 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Resume from swsusp stopped working with 2.6.14 and 2.6.15-rc1
-Date: Sat, 12 Nov 2005 20:53:11 -0500
-User-Agent: KMail/1.8.3
-Cc: Bj?rn Mork <bmork@dod.no>, linux-kernel@vger.kernel.org
-References: <87zmoa0yv5.fsf@obelix.mork.no> <200511121023.23245.dtor_core@ameritech.net> <20051112203935.GA1594@elf.ucw.cz>
-In-Reply-To: <20051112203935.GA1594@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511122053.11630.dtor_core@ameritech.net>
+	Sat, 12 Nov 2005 21:16:01 -0500
+Received: from smtp3.hushmail.com ([65.39.178.135]:60944 "EHLO
+	smtp3.hushmail.com") by vger.kernel.org with ESMTP id S1750812AbVKMCQA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 21:16:00 -0500
+Message-Id: <200511130215.jAD2Fn2H020249@mailserver2.hushmail.com>
+Date: Sat, 12 Nov 2005 18:15:46 -0800
+To: <linux-kernel@vger.kernel.org>
+Subject: linux/fs/binfmt_elf.c removal of check
+From: <sigint@hush.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 12 November 2005 15:39, Pavel Machek wrote:
-> Hi!
-> 
-> > This is unlikely... serio has the proper support for freezing as
-> > far as I understand:
-> > 
-> > static int serio_thread(void *nothing)
-> > {
-> >         do {
-> >                 serio_handle_events();
-> >                 wait_event_interruptible(serio_wait,
-> >                         kthread_should_stop() || !list_empty(&serio_event_list));
-> >                 try_to_freeze();
-> >         } while (!kthread_should_stop());
-> > 
-> >         printk(KERN_DEBUG "serio: kseriod exiting\n");
-> >         return 0;
-> > }
-> > 
-> > Pavel, any ideas?
-> 
-> No ideas... it works for me on x32.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hmm, I just suspended/resumed twice in a row, everything wokrs just fine.
-I also have a touchpoad and a trackpoint, as does the original poster...
+Attached is a small patch that deletes an unneccesary check in
+binfmt_elf.c load_elf_binary().
 
--- 
-Dmitry
+'end_code' is initialized to 0 on line 602 but 'k' is initialized
+to 'k = elf_ppnt->p_vaddr + elf_ppnt->p_filesz' on line 880. This
+check (may) not be neccessary because on line 614 elf_ppnt-
+>p_filesz is checked against PATH_MAX and the integer 2. elf_ppnt-
+>p_filesz does not appear to be altered before the check. Please
+double check the change, but I do not think the comparison is
+needed on line 881. I am not on the list please CC me on any
+replies. Thanks
+
+patch produced with 'diff -Npur'
+
+- --- a/fs/binfmt_elf.c   2005-11-12 22:19:08.000000000 -0500
++++ b/fs/binfmt_elf.c   2005-11-12 22:17:54.000000000 -0500
+@@ -878,7 +878,7 @@ static int load_elf_binary(struct linux_
+
+                if (k > elf_bss)
+                        elf_bss = k;
+- -               if ((elf_ppnt->p_flags & PF_X) && end_code < k)
++               if ((elf_ppnt->p_flags & PF_X))
+                        end_code = k;
+                if (end_data < k)
+                        end_data = k;
+-----BEGIN PGP SIGNATURE-----
+Note: This signature can be verified at https://www.hushtools.com/verify
+Version: Hush 2.4
+
+wkYEARECAAYFAkN2slwACgkQ8+KJMsQVzCE42gCgiYrs5iWz95OlcZRgYGxJh7XeZd8A
+n3pGiikzdQh2RJe/GLJbyy/Q427/
+=TTTY
+-----END PGP SIGNATURE-----
+
+
+
+
+Concerned about your privacy? Instantly send FREE secure email, no account required
+http://www.hushmail.com/send?l=480
+
+Get the best prices on SSL certificates from Hushmail
+https://www.hushssl.com?l=485
+

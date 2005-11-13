@@ -1,55 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbVKMTZT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbVKMTfX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750868AbVKMTZT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 14:25:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750862AbVKMTZT
+	id S1750733AbVKMTfX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 14:35:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750862AbVKMTfX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 14:25:19 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:54414 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750835AbVKMTZS (ORCPT
+	Sun, 13 Nov 2005 14:35:23 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:55310 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1750733AbVKMTfW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 14:25:18 -0500
-Date: Sun, 13 Nov 2005 11:24:31 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Dave Jones <davej@redhat.com>
-cc: Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 1/10] Cr4 is valid on some 486s
-In-Reply-To: <20051113074241.GA29796@redhat.com>
-Message-ID: <Pine.LNX.4.64.0511131118020.3263@g5.osdl.org>
-References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com>
- <20051111103605.GC27805@elf.ucw.cz> <4374F2D5.7010106@vmware.com>
- <Pine.LNX.4.64.0511111147390.4627@g5.osdl.org> <4374FB89.6000304@vmware.com>
- <Pine.LNX.4.64.0511111218110.4627@g5.osdl.org> <20051113074241.GA29796@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 13 Nov 2005 14:35:22 -0500
+Date: Sun, 13 Nov 2005 20:36:25 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+Cc: "Jeff V. Merkey" <jmerkey@soleranetworks.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9 reporting 1 Gigabyte/second throughput on bio's, timer skew possible?
+Message-ID: <20051113193625.GI3699@suse.de>
+References: <437521FB.6040000@soleranetworks.com> <20051112095157.GA3699@suse.de> <4375C916.8020804@wolfmountaingroup.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4375C916.8020804@wolfmountaingroup.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 13 Nov 2005, Dave Jones wrote:
+On Sat, Nov 12 2005, Jeff V. Merkey wrote:
+> Jens Axboe wrote:
 > 
-> Looks like the Ubuntu people already did this...
+> >On Fri, Nov 11 2005, Jeff V. Merkey wrote:
+> > 
+> >
+> >>I have allocated 393,216 bio buffers I statically maintain in a chain 
+> >>and am running the dsfs file system with 3 x gigabit links fully 
+> >>saturated.  meta-data
+> >>increases the write sizes to 720 MB/Second on dual 9500 controllers with 
+> >>8 drives each (total of 16) 7200 RPM Drives.  I am seeing some 
+> >>congestion and bursting on the bio chains as they are submitted.  
+> >>
+> 
+> 
+> >16 disks on 2 controllers, I'm 100% sure they are lots of people
+> >pushing 2.6 much further than that! I wouldn't evne call that a big
+> >setup.
+> > 
+> >
+> Probably not for this type of application.
+> 
+> > 
+> >
+> >>DSFS dynamically generates html status files form within the file 
+> >>system.  When the system gets somewhat behind, I am seeing bursts > 1 
+> >>GB/Second which exceeds the theoretical limit of the bus.   I have a 
+> >>timer function that runs every second and profiles the I/O throughput 
+> >>created by DSFS with bio submissions and captured packets.  I am asking 
+> >>if there is clock skew at these data rates with use of the timer 
+> >>functions.  The system appears to be sustaining 1GB/Second throughput on 
+> >>dual controllers.  I have verified through data rates the system is 
+> >>sustaining 800 megabytes/second with these 1GB/S bursts.  I am curious 
+> >>if there is potentially timer skew at these higher rates since I am 
+> >>having a hard time accepting that I can push 1GB/S through a bus rated 
+> >>at only 850 MB/S for DMA based transfers.   The unit is accessible by 
+> >>   
+> >>
+> >
+> >Note that the linux io stats accounting in 2.6.9 accounts queued io, not
+> >io completions. So it's quite possible to have burst rates > bus speeds
+> >for async io. 2.6.15-rc1 change this.
+> >
+> > 
+> >
+> So you are willing to log into the unit and validate these numbers? I 
+> would like for an
+> someone other than me to validate I am seeing these rates.
 
-Yeah, that looks like a sane patch, although I dislike the #ifdef config 
-option thing (either it works or it doesn't).
+If you average the bandwidth over a time long enough to eliminate the
+bursty queueing rates, your average rage should drop to what the
+hardware can actually do. Or dig out the patch from 2.6.15-rc1 for
+ll_rw_blk.c and apply it to 2.6.9, find it here:
 
-It also does it the right way: using LOCK_PREFIX means that you catch 
-exactly the users that depend on SMP, and not _all_ "lock" prefixes (as 
-mentioned, some of the lock prefixes are there as memory fences and are 
-valid and needed even on UP). So me likee.
+http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=d72d904a5367ad4ca3f2c9a2ce8c3a68f0b28bf0;hp=d83c671fb7023f69a9582e622d01525054f23b66
 
-The only question being whether you'd actually want to nop out the 
-spinlock instructions _entirely_ (in addition to changing the nops on 
-things like semaphores). Without the lock, they're not that expensive, but 
-hey, it's still a useless (memory-modifying) instruction.
+-- 
+Jens Axboe
 
-		Linus

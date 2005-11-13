@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbVKMWMu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbVKMWYt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750768AbVKMWMu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 17:12:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbVKMWMu
+	id S1750764AbVKMWYt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 17:24:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbVKMWYt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 17:12:50 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:44499
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1750763AbVKMWMt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 17:12:49 -0500
-Subject: Re: [PATCH] rt11 Fill out default_simple_type
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Daniel Walker <dwalker@mvista.com>,
-       sdietrich@mvista.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20051113221122.GE3839@smtp.west.cox.net>
-References: <Pine.LNX.4.64.0511120639420.15898@dhcp153.mvista.com>
-	 <20051112144816.GA24942@elte.hu>
-	 <1131918975.32542.61.camel@tglx.tec.linutronix.de>
-	 <20051113221122.GE3839@smtp.west.cox.net>
-Content-Type: text/plain
-Organization: linutronix
-Date: Sun, 13 Nov 2005 23:17:10 +0100
-Message-Id: <1131920230.32542.63.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Sun, 13 Nov 2005 17:24:49 -0500
+Received: from mail.gondor.com ([212.117.64.182]:50189 "EHLO moria.gondor.com")
+	by vger.kernel.org with ESMTP id S1750764AbVKMWYt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Nov 2005 17:24:49 -0500
+Date: Sun, 13 Nov 2005 23:24:56 +0100
+From: Jan Niehusmann <jan@gondor.com>
+To: linux-kernel@vger.kernel.org, James Ketrenos <jketreno@linux.intel.com>
+Subject: [PATCH 2.6.14-rc1 1/1] IPW2100/2200: Question on menuconfig
+Message-ID: <20051113222455.GA23910@knautsch.gondor.com>
+References: <434B2AE2.1070709@linuxwireless.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <434B2AE2.1070709@linuxwireless.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-11-13 at 15:11 -0700, Tom Rini wrote:
-> On Sun, Nov 13, 2005 at 10:56:15PM +0100, Thomas Gleixner wrote:
-> > On Sat, 2005-11-12 at 15:48 +0100, Ingo Molnar wrote:
-> > > doesnt apply. Also, the set_type line has whitespace damage.
-> > > 
-> > > 	Ingo
-> > 
-> > I have integrated the initial patch from Tom Rini into the arm generic
-> > irq patch set.
-> > 
-> > http://www.tglx.de/projects/armirq/
-> 
-> Which was from Daniel of cousre.
+This patch makes the IPW2100 and IPW2200 options available in
+the configuration menu even if IEEE80211 has not been selected before.
+This behaviour is more intuitive for people which are not familiar with
+the driver internals.
+The suggestion for this change was made by Alejandro Bonilla Beeche.
 
-Sorry, was not obvious from the mail and Signed-off lines
+Signed-off-by: Jan Niehusmann <jan@gondor.com>
 
-	tglx
-
-
-
+diff --git a/drivers/net/wireless/Kconfig b/drivers/net/wireless/Kconfig
+--- a/drivers/net/wireless/Kconfig
++++ b/drivers/net/wireless/Kconfig
+@@ -139,8 +139,9 @@ comment "Wireless 802.11b ISA/PCI cards 
+ 
+ config IPW2100
+ 	tristate "Intel PRO/Wireless 2100 Network Connection"
+-	depends on NET_RADIO && PCI && IEEE80211
++	depends on NET_RADIO && PCI
+ 	select FW_LOADER
++	select IEEE80211
+ 	---help---
+           A driver for the Intel PRO/Wireless 2100 Network 
+ 	  Connection 802.11b wireless network adapter.
+@@ -192,8 +193,9 @@ config IPW_DEBUG
+ 
+ config IPW2200
+ 	tristate "Intel PRO/Wireless 2200BG and 2915ABG Network Connection"
+-	depends on IEEE80211 && PCI
++	depends on PCI
+ 	select FW_LOADER
++	select IEEE80211
+ 	---help---
+           A driver for the Intel PRO/Wireless 2200BG and 2915ABG Network
+ 	  Connection adapters. 
+ 

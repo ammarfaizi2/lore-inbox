@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbVKMWYt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750769AbVKMWZj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750764AbVKMWYt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 17:24:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbVKMWYt
+	id S1750769AbVKMWZj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 17:25:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750781AbVKMWZi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 17:24:49 -0500
-Received: from mail.gondor.com ([212.117.64.182]:50189 "EHLO moria.gondor.com")
-	by vger.kernel.org with ESMTP id S1750764AbVKMWYt (ORCPT
+	Sun, 13 Nov 2005 17:25:38 -0500
+Received: from mailfe04.tele2.fr ([212.247.154.108]:9928 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S1750769AbVKMWZh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 17:24:49 -0500
-Date: Sun, 13 Nov 2005 23:24:56 +0100
-From: Jan Niehusmann <jan@gondor.com>
-To: linux-kernel@vger.kernel.org, James Ketrenos <jketreno@linux.intel.com>
-Subject: [PATCH 2.6.14-rc1 1/1] IPW2100/2200: Question on menuconfig
-Message-ID: <20051113222455.GA23910@knautsch.gondor.com>
-References: <434B2AE2.1070709@linuxwireless.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 13 Nov 2005 17:25:37 -0500
+X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
+Date: Sun, 13 Nov 2005 23:25:14 +0100
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Dave Jones <davej@redhat.com>, Jason <dravet@hotmail.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] vgacon: Workaround for resize bug in some chipsets
+Message-ID: <20051113222514.GK4972@bouh.residence.ens-lyon.fr>
+Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+	"Antonino A. Daplas" <adaplas@gmail.com>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Dave Jones <davej@redhat.com>, Jason <dravet@hotmail.com>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>
+References: <43766AC5.9080406@gmail.com> <20051113110618.GD4117@implementation> <43774EAE.90004@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <434B2AE2.1070709@linuxwireless.org>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <43774EAE.90004@gmail.com>
+User-Agent: Mutt/1.5.9i-nntp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes the IPW2100 and IPW2200 options available in
-the configuration menu even if IEEE80211 has not been selected before.
-This behaviour is more intuitive for people which are not familiar with
-the driver internals.
-The suggestion for this change was made by Alejandro Bonilla Beeche.
+Antonino A. Daplas, le Sun 13 Nov 2005 22:33:18 +0800, a écrit :
+> Samuel Thibault wrote:
+> > Antonino A. Daplas, le Sun 13 Nov 2005 06:20:53 +0800, a écrit :
+> >> "I updated to the development kernel and now during boot only the top of the
+> >> text is visable. For example the monitor screen the is the lines and I can
+> >> only  see text in the asterik area.
+> >> ---------------------
+> >> | ****************  |
+> >> | *              *  |
+> >> | *              *  |
+> >> | ****************  |
+> >> |                   |
+> >> |                   |
+> >> |                   |
+> >> ---------------------
+> > 
+> > Are you missing some left and right part too? What are the dimensions of
+> > the text screen at bootup? What bootloader are you using? (It could be a
+> > bug in the boot up text screen dimension discovery).
+> 
+> It was just the height.  All numbers (done with printk's) look okay from
+> bootup. He gets 80 and 25 for ORIG_VIDEO_NUM_COLS and ORIG_VIDEO_NUM_LINES
+> respectively.
 
-Signed-off-by: Jan Niehusmann <jan@gondor.com>
+And you got less than 25 lines? How many exactly?
 
-diff --git a/drivers/net/wireless/Kconfig b/drivers/net/wireless/Kconfig
---- a/drivers/net/wireless/Kconfig
-+++ b/drivers/net/wireless/Kconfig
-@@ -139,8 +139,9 @@ comment "Wireless 802.11b ISA/PCI cards 
- 
- config IPW2100
- 	tristate "Intel PRO/Wireless 2100 Network Connection"
--	depends on NET_RADIO && PCI && IEEE80211
-+	depends on NET_RADIO && PCI
- 	select FW_LOADER
-+	select IEEE80211
- 	---help---
-           A driver for the Intel PRO/Wireless 2100 Network 
- 	  Connection 802.11b wireless network adapter.
-@@ -192,8 +193,9 @@ config IPW_DEBUG
- 
- config IPW2200
- 	tristate "Intel PRO/Wireless 2200BG and 2915ABG Network Connection"
--	depends on IEEE80211 && PCI
-+	depends on PCI
- 	select FW_LOADER
-+	select IEEE80211
- 	---help---
-           A driver for the Intel PRO/Wireless 2200BG and 2915ABG Network
- 	  Connection adapters. 
- 
+Regards,
+Samuel

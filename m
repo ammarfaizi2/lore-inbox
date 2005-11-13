@@ -1,52 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbVKMUXn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750965AbVKMUaI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750760AbVKMUXn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 15:23:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbVKMUXm
+	id S1750965AbVKMUaI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 15:30:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750964AbVKMUaH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 15:23:42 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:65416 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750760AbVKMUXm (ORCPT
+	Sun, 13 Nov 2005 15:30:07 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:30874 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750835AbVKMUaG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 15:23:42 -0500
-Date: Sun, 13 Nov 2005 12:23:37 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: ia64 SN2 - migration costs: 1) nearly zero 2) BUG 3) repeated
-Message-Id: <20051113122337.2767b84d.pj@sgi.com>
-In-Reply-To: <20051113121309.226543ca.pj@sgi.com>
-References: <20051112135410.3eef5641.pj@sgi.com>
-	<20051112144949.3b331aa1.pj@sgi.com>
-	<20051113071716.GA31075@elte.hu>
-	<20051113121309.226543ca.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 13 Nov 2005 15:30:06 -0500
+Date: Sun, 13 Nov 2005 12:29:39 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Dave Jones <davej@redhat.com>
+cc: Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH 1/10] Cr4 is valid on some 486s
+In-Reply-To: <Pine.LNX.4.64.0511131118020.3263@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0511131210570.3263@g5.osdl.org>
+References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com>
+ <20051111103605.GC27805@elf.ucw.cz> <4374F2D5.7010106@vmware.com>
+ <Pine.LNX.4.64.0511111147390.4627@g5.osdl.org> <4374FB89.6000304@vmware.com>
+ <Pine.LNX.4.64.0511111218110.4627@g5.osdl.org> <20051113074241.GA29796@redhat.com>
+ <Pine.LNX.4.64.0511131118020.3263@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ah - no sooner do I send that than I see a key fact.
 
-On this last boot, with no migration_debug and the original config
-on a 2.6.14-mm2 kernel, ia64 sn2_defconfig,
- 1) The console output to the screen showed one good matrix.
- 2) The /var/log/messages file shows six bad (zero'd) matrices.
 
-I have not seen anything these last two days that is inconsistent
-with the above two observations.
+On Sun, 13 Nov 2005, Linus Torvalds wrote:
+> 
+> The only question being whether you'd actually want to nop out the 
+> spinlock instructions _entirely_ (in addition to changing the nops on 
+> things like semaphores). Without the lock, they're not that expensive, but 
+> hey, it's still a useless (memory-modifying) instruction.
 
-Presumably this is more some confusion with how the boottime
-kernel prints are captured in /var/log/messages than it is
-a problem with the migration cost matrix.
+Actually, that may turn out to be a dangerous idea.
 
-The ball is still on my side of the tennis court.  I can't make
-out the player on the other side yet through the fog, but I doubt
-it's Ingo.
+Sad but true: There's a few tests like
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+	#define assert_spin_locked(x)  BUG_ON(!spin_is_locked(x))
+
+and
+
+	#define __raw_spin_unlock_wait(lock) \
+		do { while (__raw_spin_is_locked(lock)) cpu_relax(); } while (0)
+
+that would also need to be nopped out if we nop out the code that updates 
+the spinlock (right now they are just disabled entirely on UP, exactly 
+because tests like this don't work without the lock being instantiated).
+
+But it would be wonderful if we could just nop out the whole call to the 
+spinlock (most of them are out-of-line). It would help I$ footprint, and 
+likely help improve dynamic scheduling around that call on many CPU's too.
+
+So we can easily remove the lock prefix on the spinlock ops, but sadly we 
+can't do some other "obvious" optimizations.
+
+We _could_ nop out the actual conditional on the lock result for a 
+spinlock, and turn
+
+	lock ; decb %0
+	js ...
+
+into
+
+	nop ; decb %0
+	multi-byte-nop
+
+which would help avoid some unnecessary branch prediction etc.
+
+			Linus

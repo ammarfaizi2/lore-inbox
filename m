@@ -1,66 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932511AbVKMOvk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964921AbVKMQLT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932511AbVKMOvk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 09:51:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbVKMOvk
+	id S964921AbVKMQLT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 11:11:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964924AbVKMQLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 09:51:40 -0500
-Received: from hulk.hostingexpert.com ([69.57.134.39]:20972 "EHLO
-	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S932511AbVKMOvj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 09:51:39 -0500
-Message-ID: <437752FF.9060200@m1k.net>
-Date: Sun, 13 Nov 2005 09:51:43 -0500
-From: Michael Krufky <mkrufky@m1k.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Sun, 13 Nov 2005 11:11:19 -0500
+Received: from vvv.conterra.de ([212.124.44.162]:62116 "EHLO conterra.de")
+	by vger.kernel.org with ESMTP id S964921AbVKMQLS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Nov 2005 11:11:18 -0500
+Message-ID: <437765A0.6070805@conterra.de>
+Date: Sun, 13 Nov 2005 17:11:12 +0100
+From: =?ISO-8859-1?Q?Dieter_St=FCken?= <stueken@conterra.de>
 MIME-Version: 1.0
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-CC: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix missing includes for 2.6.15-rc1
-References: <Pine.LNX.4.63.0511131323250.9037@gockel.physik3.uni-rostock.de>
-In-Reply-To: <Pine.LNX.4.63.0511131323250.9037@gockel.physik3.uni-rostock.de>
+To: linux-kernel@vger.kernel.org
+Subject: Q: obtain 2.6.x libata-dev updates with git 
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Schmielau wrote:
+sorry for my stupid question:
 
->Include fixes for 2.6.15-rc1 for removing sched.h from module.h.
->Compile tested on alpha, arm, ia64, mips, powerpc, ppc64, and x86_64.
->
->Signed-off-by: Tim Schmielau <tim@physik3.uni-rostock.de>
->---
->Andrew:
->This one is incremental on top of fix-missing-includes-for-2.6.14-git11.patch
->
->  
->
-[snip]
+after trying to use git since a few days, i pulled down my own
+git repository and successfully checked out libata-dev. After
+I updated my repository today, I get out a 2.6.15-rc1 release now.
+However I want to stay with 2.6.14 by now and apply the libata
+tree to this. I even see the desired tag in my repository, but
+in spite of all document reading I can't find out how to checkout
+this tag and how to apply the current libata tree then.
 
->diff -urp linux-2.6.15-rc1-sr0/drivers/media/dvb/frontends/nxt200x.c linux-2.6.15-rc1-sr2/drivers/media/dvb/frontends/nxt200x.c
->--- linux-2.6.15-rc1-sr0/drivers/media/dvb/frontends/nxt200x.c	2005-11-13 10:19:44.000000000 +0100
->+++ linux-2.6.15-rc1-sr2/drivers/media/dvb/frontends/nxt200x.c	2005-11-13 10:21:36.000000000 +0100
->@@ -44,6 +44,8 @@
-> #include <linux/init.h>
-> #include <linux/module.h>
-> #include <linux/moduleparam.h>
->+#include <linux/slab.h>
->+#include <linux/string.h>
-> 
-> #include "dvb_frontend.h"
-> #include "dvb-pll.h"
->  
->
-This portion of the patch has been applied to dvb-kernel cvs.
-
-Acked-by: Michael Krufky <mkrufky@m1k.net>
+Can someone give me a hint or a link please?
+-- 
+Dieter Stüken, con terra GmbH, Münster
+     stueken@conterra.de
+     http://www.conterra.de/
+     (0)251-7474-501

@@ -1,76 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964850AbVKMHrW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964906AbVKMH7b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964850AbVKMHrW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 02:47:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964852AbVKMHrV
+	id S964906AbVKMH7b (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 02:59:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964905AbVKMH7b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 02:47:21 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:24029 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S964850AbVKMHrV (ORCPT
+	Sun, 13 Nov 2005 02:59:31 -0500
+Received: from send.forptr.21cn.com ([202.105.45.49]:37321 "HELO 21cn.com")
+	by vger.kernel.org with SMTP id S964902AbVKMH7b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 02:47:21 -0500
-Date: Sat, 12 Nov 2005 23:47:10 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: nickpiggin@yahoo.com.au, rohit.seth@intel.com, torvalds@osdl.org,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: Cleanup of __alloc_pages
-Message-Id: <20051112234710.3d567e21.pj@sgi.com>
-In-Reply-To: <20051112231211.372be3a9.akpm@osdl.org>
-References: <20051107174349.A8018@unix-os.sc.intel.com>
-	<20051107175358.62c484a3.akpm@osdl.org>
-	<1131416195.20471.31.camel@akash.sc.intel.com>
-	<43701FC6.5050104@yahoo.com.au>
-	<20051107214420.6d0f6ec4.pj@sgi.com>
-	<43703EFB.1010103@yahoo.com.au>
-	<1131473876.2400.9.camel@akash.sc.intel.com>
-	<43716476.1030306@yahoo.com.au>
-	<20051112210913.0b365815.pj@sgi.com>
-	<20051112211429.294b3783.pj@sgi.com>
-	<20051112231211.372be3a9.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 13 Nov 2005 02:59:31 -0500
+Message-ID: <4376F2CE.4050003@21cn.com>
+Date: Sun, 13 Nov 2005 16:01:18 +0800
+From: Yan Zheng <yanzheng@21cn.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: netdev@vger.kernel.org
+CC: linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
+Subject: [PATCH]small fix for __ipv6_addr_type(...)
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AIMC-AUTH: yanzheng
+X-AIMC-MAILFROM: yanzheng@21cn.com
+X-AIMC-Msg-ID: USenMbOB
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yes, the fact that GFP_ATOMIC also implies "use the emergency pool" is
-> unfortunate, and perhaps the two should always have been separated out, at
-> least to make the programmer think about whether the code really needs
-> access to the emergency pools.   Usually it does.
+Hi.
 
-Ah - now it makes more sense.
+I think the scope for loopback address should be node local.
 
-The key invisible fact in the gfp.h line:
+Regards
 
-  #define GFP_ATOMIC      (__GFP_VALID | __GFP_HIGH)
+Signed-off-by: Yan Zheng <yanzheng@21cn.com>
 
-is that __GFP_WAIT is *not* set (making it mean don't sleep).
-All the other commonly used GFP_* flags do have __GFP_WAIT.
-
-I have no issue with ATOMIC also meaning "use emergency pool".
-That's an appropriate simplication, that fits the usage well.
-
-I just had a mental block on the invisible unset __GFP_WAIT bit.
-
-Would you look kindly on a patch that did:
-
-
---- 2.6.14-mm2.orig/include/linux/gfp.h	2005-11-12 23:36:57.258103418 -0800
-+++ 2.6.14-mm2/include/linux/gfp.h	2005-11-12 23:42:35.287219455 -0800
-@@ -58,6 +58,7 @@ struct vm_area_struct;
- 			__GFP_NOFAIL|__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP| \
- 			__GFP_NOMEMALLOC|__GFP_HARDWALL)
+========================================================================
+--- linux-2.6.15-rc1/net/ipv6/addrconf.c	2005-11-13 12:23:06.000000000 +0800
++++ linux/net/ipv6/addrconf.c	2005-11-13 15:50:03.000000000 +0800
+@@ -249,7 +249,7 @@ int __ipv6_addr_type(const struct in6_ad
  
-+/* GFP_ATOMIC means both !wait (__GFP_WAIT not set) and use emergency pool */
- #define GFP_ATOMIC	(__GFP_VALID | __GFP_HIGH)
- #define GFP_NOIO	(__GFP_VALID | __GFP_WAIT)
- #define GFP_NOFS	(__GFP_VALID | __GFP_WAIT | __GFP_IO)
-
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+ 			if (addr->s6_addr32[3] == htonl(0x00000001))
+ 				return (IPV6_ADDR_LOOPBACK | IPV6_ADDR_UNICAST |
+-					IPV6_ADDR_SCOPE_TYPE(IPV6_ADDR_SCOPE_LINKLOCAL));	/* addr-select 3.4 */
++					IPV6_ADDR_SCOPE_TYPE(IPV6_ADDR_SCOPE_NODELOCAL));	/* addr-select 3.4 */
+ 
+ 			return (IPV6_ADDR_COMPATv4 | IPV6_ADDR_UNICAST |
+ 				IPV6_ADDR_SCOPE_TYPE(IPV6_ADDR_SCOPE_GLOBAL));	/* addr-select 3.3 */

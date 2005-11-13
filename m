@@ -1,68 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbVKMHce@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbVKMHlp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932133AbVKMHce (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 02:32:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbVKMHce
+	id S964785AbVKMHlp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 02:41:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbVKMHlo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 02:32:34 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:53446 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932133AbVKMHce (ORCPT
+	Sun, 13 Nov 2005 02:41:44 -0500
+Received: from verein.lst.de ([213.95.11.210]:62387 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S964785AbVKMHlo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 02:32:34 -0500
-Date: Sun, 13 Nov 2005 08:32:28 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: john stultz <johnstul@us.ibm.com>, Darren Hart <dvhltc@us.ibm.com>,
-       Nishanth Aravamudan <nacc@us.ibm.com>,
-       Frank Sorenson <frank@tuxrocks.com>,
-       George Anzinger <george@mvista.com>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/13] Time: Generic Timeofday Subsystem (v B10)
-Message-ID: <20051113073228.GA31468@elte.hu>
-References: <20051112044850.8240.91581.sendpatchset@cog.beaverton.ibm.com> <p73lkzt49wr.fsf@verdi.suse.de>
+	Sun, 13 Nov 2005 02:41:44 -0500
+Date: Sun, 13 Nov 2005 08:41:36 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: gerg@uclinux.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] m68knommu: enable_irq/disable_irq
+Message-ID: <20051113074136.GA816@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <p73lkzt49wr.fsf@verdi.suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+mach_enable_irq/mach_disable_irq are never actually set, so let's remove
+them.
 
-* Andi Kleen <ak@suse.de> wrote:
+Btw, is it really intentionally that enable_irq/disable_irq are no-ops on
+m68knommu?
 
-> At least on x86-64 there is currently so much other timer related 
-> development going on (per CPU TSC timers, no idle tick, 64bit HPET 
-> etc.)  that I don't want any x86-64 bits of that merged for the next 
-> time. The other stuff needs to settle first.
-> 
-> I haven't read the patchset in full detail, but from a quick look it's 
-> also not obvious too me in which way it is easier and cleaner than the 
-> old setup. While the old code was quirky in parts the new one seems to 
-> fall more in the overmodularization/too many indirect callbacks trap.
 
-there are 3 "generic" components needed right now to clean up all time 
-related stuff: GTOD, ktimers and clockevents. [you know the first two, 
-and clockevents is new code from Thomas Gleixner that generalizes timer 
-interrupts and introduces one compact notion for 'clock chips'.]
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-what is the point? Ontop of these, a previously difficult feature, High 
-Resolution Timers became _massively_ simpler. All of these patches exist 
-together in the -rt tree, so it's not handwaving. The same will be the 
-case for idle ticks / dynamic ticks [we started with HRT because it is 
-so much harder than idle ticks]. So i do agree with you that GTOD needs 
-more work, but it also makes time related features all that much easier.
-
-right now it's GTOD that needs the most work before it can be merged 
-upstream, so you picked the right one to criticise :-)
-
-	Ingo
+Index: linux-2.6/arch/m68knommu/kernel/m68k_ksyms.c
+===================================================================
+--- linux-2.6.orig/arch/m68knommu/kernel/m68k_ksyms.c	2005-10-31 12:23:08.000000000 +0100
++++ linux-2.6/arch/m68knommu/kernel/m68k_ksyms.c	2005-11-12 09:22:34.000000000 +0100
+@@ -38,8 +38,6 @@
+ 
+ EXPORT_SYMBOL(ip_fast_csum);
+ 
+-EXPORT_SYMBOL(mach_enable_irq);
+-EXPORT_SYMBOL(mach_disable_irq);
+ EXPORT_SYMBOL(kernel_thread);
+ 
+ /* Networking helper routines. */
+Index: linux-2.6/arch/m68knommu/kernel/setup.c
+===================================================================
+--- linux-2.6.orig/arch/m68knommu/kernel/setup.c	2005-11-07 21:30:08.000000000 +0100
++++ linux-2.6/arch/m68knommu/kernel/setup.c	2005-11-12 09:22:26.000000000 +0100
+@@ -65,8 +65,6 @@
+ /* machine dependent irq functions */
+ void (*mach_init_IRQ) (void) = NULL;
+ irqreturn_t (*(*mach_default_handler)[]) (int, void *, struct pt_regs *) = NULL;
+-void (*mach_enable_irq) (unsigned int) = NULL;
+-void (*mach_disable_irq) (unsigned int) = NULL;
+ int (*mach_get_irq_list) (struct seq_file *, void *) = NULL;
+ void (*mach_process_int) (int irq, struct pt_regs *fp) = NULL;
+ void (*mach_trap_init) (void);
+Index: linux-2.6/include/asm-m68knommu/irq.h
+===================================================================
+--- linux-2.6.orig/include/asm-m68knommu/irq.h	2005-11-07 21:30:09.000000000 +0100
++++ linux-2.6/include/asm-m68knommu/irq.h	2005-11-12 09:22:05.000000000 +0100
+@@ -84,8 +84,8 @@
+ /*
+  * Some drivers want these entry points
+  */
+-#define enable_irq(x)	(mach_enable_irq  ? (*mach_enable_irq)(x)  : 0)
+-#define disable_irq(x)	(mach_disable_irq ? (*mach_disable_irq)(x) : 0)
++#define enable_irq(x)	0
++#define disable_irq(x)	do { } while (0)
+ 
+ #define enable_irq_nosync(x)	enable_irq(x)
+ #define disable_irq_nosync(x)	disable_irq(x)

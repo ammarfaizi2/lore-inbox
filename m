@@ -1,40 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbVKMEup@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbVKMFJl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751345AbVKMEup (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 23:50:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbVKMEup
+	id S932108AbVKMFJl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 00:09:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbVKMFJl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 23:50:45 -0500
-Received: from mail.ocs.com.au ([202.147.117.210]:24515 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S1751345AbVKMEuo (ORCPT
+	Sun, 13 Nov 2005 00:09:41 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:50821 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1751352AbVKMFJk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 23:50:44 -0500
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
-From: Keith Owens <kaos@ocs.com.au>
-To: coywolf@sosdg.org
-Cc: akpm@osdl.org, Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       Arjan van de Ven <arjan@infradead.org>, Josh Boyer <jdub@us.ibm.com>
-Subject: Re: [patch] mark text section read-only 
-In-reply-to: Your message of "Sat, 12 Nov 2005 11:34:55 CDT."
-             <20051112163455.GA1425@everest.sosdg.org> 
+	Sun, 13 Nov 2005 00:09:40 -0500
+Date: Sat, 12 Nov 2005 21:09:13 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: rohit.seth@intel.com, akpm@osdl.org, torvalds@osdl.org, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: Cleanup of __alloc_pages
+Message-Id: <20051112210913.0b365815.pj@sgi.com>
+In-Reply-To: <43716476.1030306@yahoo.com.au>
+References: <20051107174349.A8018@unix-os.sc.intel.com>
+	<20051107175358.62c484a3.akpm@osdl.org>
+	<1131416195.20471.31.camel@akash.sc.intel.com>
+	<43701FC6.5050104@yahoo.com.au>
+	<20051107214420.6d0f6ec4.pj@sgi.com>
+	<43703EFB.1010103@yahoo.com.au>
+	<1131473876.2400.9.camel@akash.sc.intel.com>
+	<43716476.1030306@yahoo.com.au>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 13 Nov 2005 15:50:03 +1100
-Message-ID: <3066.1131857403@ocs3.ocs.com.au>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 12 Nov 2005 11:34:55 -0500, 
-Coywolf Qi Hunt <coywolf@sosdg.org> wrote:
->+config DEBUG_ROTEXT
->+	bool "Write protect kernel text"
->+	depends on DEBUG_KERNEL
->+	help
->+	  Mark the kernel text as write-protected in the pagetables,
->+	  in order to catch accidental (and incorrect) writes to kernel text
->+	  area. This option will increase TLB pressure thus impact performance.
->+	  Note this may conflict with kprobes. If in doubt, say "N".
+The __GFP_HIGH, GFP_ATOMIC, __GFP_WAIT flags are still driving me bonkers.
 
-Also conflicts with kdb, kgdb, and any other kernel debugger that uses
-software breakpoints.
+It seems to me that:
+ 1) __GFP_WAIT is supposed to mean can wait, and __alloc_pages()
+    keys off that bit to set its "wait" variable.  Good so far.
+ 2) __GFP_HIGH is supposed to mean can access emergency pools
+    (use lower watermarks), and __alloc_pages() does that.  Also
+    good so far.
+ 3) But gfp.h defines GFP_ATOMIC to be an alias for __GFP_HIGH,
+    and many callers through out the kernel use GFP_ATOMIC to mean
+    "can't sleep" or "can't wait" or some such.  These folks are
+    not getting the service they expect - they are asking for the
+    most aggressive form of allocation (short perhaps of the
+    special case for allocations that will net free more memory
+    than they require, such as exiting), and they get the half way
+    improvement instead, with the possibility of sleeping (!).
 
+The confusion even extends to the comments in __alloc_pages(),
+such as in the lines:
+
+	/* Atomic allocations - we can't balance anything */
+	if (!wait)
+		goto nopage;
+
+The "!wait" condition is --not-- GFP_ATOMIC, which is what
+one might think was meant by "Atomic allocations", and likely
+what the many users of GFP_ATOMIC were expecting - a nopage
+response in such cases.
+
+Perhaps GFP_ATOMIC should be its own __GFP_ATOMIC bit, with a BUG_ON
+if both __GFP_ATOMIC and __GFP_WAIT are set at the same time,
+leaving __GFP_HIGH for the few uses where people were just asking
+to go a bit lower in the reserves.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

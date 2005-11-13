@@ -1,48 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964906AbVKMH7b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbVKMIAF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964906AbVKMH7b (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 02:59:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964905AbVKMH7b
+	id S964903AbVKMIAF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 03:00:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964905AbVKMIAB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 02:59:31 -0500
-Received: from send.forptr.21cn.com ([202.105.45.49]:37321 "HELO 21cn.com")
-	by vger.kernel.org with SMTP id S964902AbVKMH7b (ORCPT
+	Sun, 13 Nov 2005 03:00:01 -0500
+Received: from verein.lst.de ([213.95.11.210]:15284 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S964903AbVKMIAB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 02:59:31 -0500
-Message-ID: <4376F2CE.4050003@21cn.com>
-Date: Sun, 13 Nov 2005 16:01:18 +0800
-From: Yan Zheng <yanzheng@21cn.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: netdev@vger.kernel.org
-CC: linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
-Subject: [PATCH]small fix for __ipv6_addr_type(...)
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AIMC-AUTH: yanzheng
-X-AIMC-MAILFROM: yanzheng@21cn.com
-X-AIMC-Msg-ID: USenMbOB
+	Sun, 13 Nov 2005 03:00:01 -0500
+Date: Sun, 13 Nov 2005 08:59:56 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] remove enable_irq_nosync
+Message-ID: <20051113075956.GA987@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+m68k, m68knommu and h8300 define this, but it's not actually used
+anywhere.
 
-I think the scope for loopback address should be node local.
 
-Regards
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-Signed-off-by: Yan Zheng <yanzheng@21cn.com>
-
-========================================================================
---- linux-2.6.15-rc1/net/ipv6/addrconf.c	2005-11-13 12:23:06.000000000 +0800
-+++ linux/net/ipv6/addrconf.c	2005-11-13 15:50:03.000000000 +0800
-@@ -249,7 +249,7 @@ int __ipv6_addr_type(const struct in6_ad
+Index: linux-2.6/include/asm-h8300/irq.h
+===================================================================
+--- linux-2.6.orig/include/asm-h8300/irq.h	2005-11-13 00:06:45.000000000 +0100
++++ linux-2.6/include/asm-h8300/irq.h	2005-11-13 00:07:53.000000000 +0100
+@@ -61,11 +61,6 @@
  
- 			if (addr->s6_addr32[3] == htonl(0x00000001))
- 				return (IPV6_ADDR_LOOPBACK | IPV6_ADDR_UNICAST |
--					IPV6_ADDR_SCOPE_TYPE(IPV6_ADDR_SCOPE_LINKLOCAL));	/* addr-select 3.4 */
-+					IPV6_ADDR_SCOPE_TYPE(IPV6_ADDR_SCOPE_NODELOCAL));	/* addr-select 3.4 */
+ extern void enable_irq(unsigned int);
+ extern void disable_irq(unsigned int);
+-
+-/*
+- * Some drivers want these entry points
+- */
+-#define enable_irq_nosync(x)	enable_irq(x)
+ #define disable_irq_nosync(x)	disable_irq(x)
  
- 			return (IPV6_ADDR_COMPATv4 | IPV6_ADDR_UNICAST |
- 				IPV6_ADDR_SCOPE_TYPE(IPV6_ADDR_SCOPE_GLOBAL));	/* addr-select 3.3 */
+ struct irqaction;
+Index: linux-2.6/include/asm-m68k/irq.h
+===================================================================
+--- linux-2.6.orig/include/asm-m68k/irq.h	2005-11-13 00:06:45.000000000 +0100
++++ linux-2.6/include/asm-m68k/irq.h	2005-11-13 00:07:53.000000000 +0100
+@@ -70,8 +70,6 @@
+ 
+ extern void (*enable_irq)(unsigned int);
+ extern void (*disable_irq)(unsigned int);
+-
+-#define disable_irq_nosync	disable_irq
+ #define enable_irq_nosync	enable_irq
+ 
+ struct pt_regs;
+Index: linux-2.6/include/asm-m68knommu/irq.h
+===================================================================
+--- linux-2.6.orig/include/asm-m68knommu/irq.h	2005-11-13 00:07:53.000000000 +0100
++++ linux-2.6/include/asm-m68knommu/irq.h	2005-11-13 00:08:09.000000000 +0100
+@@ -86,8 +86,6 @@
+  */
+ #define enable_irq(x)	0
+ #define disable_irq(x)	do { } while (0)
+-
+-#define enable_irq_nosync(x)	enable_irq(x)
+ #define disable_irq_nosync(x)	disable_irq(x)
+ 
+ struct irqaction;

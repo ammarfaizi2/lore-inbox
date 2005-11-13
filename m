@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750920AbVKMThG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbVKMTj7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750920AbVKMThG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 14:37:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750977AbVKMThG
+	id S1750987AbVKMTj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 14:39:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750988AbVKMTj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 14:37:06 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:35985 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750969AbVKMThE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 14:37:04 -0500
-Date: Sun, 13 Nov 2005 11:36:42 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Andi Kleen <ak@suse.de>, Dave Jones <davej@redhat.com>,
-       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 1/10] Cr4 is valid on some 486s
-In-Reply-To: <1131910902.25311.21.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0511131130370.3263@g5.osdl.org>
-References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com> 
- <p734q6g4xuc.fsf@verdi.suse.de>  <1131902775.25311.16.camel@localhost.localdomain>
-  <200511132000.45836.ak@suse.de> <1131910902.25311.21.camel@localhost.localdomain>
+	Sun, 13 Nov 2005 14:39:59 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:21488 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S1750979AbVKMTj6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Nov 2005 14:39:58 -0500
+Message-ID: <437796B7.9070800@mvista.com>
+Date: Sun, 13 Nov 2005 11:40:39 -0800
+From: Todd Poynor <tpoynor@mvista.com>
+User-Agent: Thunderbird 1.5 (X11/20051025)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Ian Campbell <ijc@hellion.org.uk>, linux-mtd@lists.infradead.org,
+       David Woodhouse <dwmw2@infradead.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: latest mtd changes broke collie
+References: <20051110095050.GC2021@elf.ucw.cz> <1131616948.27347.174.camel@baythorne.infradead.org> <20051110103823.GB2401@elf.ucw.cz> <1131619903.27347.177.camel@baythorne.infradead.org> <20051110105954.GE2401@elf.ucw.cz> <1131621090.27347.184.camel@baythorne.infradead.org> <20051110224158.GC9905@elf.ucw.cz> <4373DEB4.5070406@mvista.com> <20051111001617.GD9905@elf.ucw.cz> <1131692514.3525.41.camel@localhost.localdomain> <20051112213355.GA4676@elf.ucw.cz>
+In-Reply-To: <20051112213355.GA4676@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pavel Machek wrote:
+
+> [Plus I get a warning from jffs2 that flashsize is not aligned to
+> erasesize. Then I get lot of messages that empty flash at XXX ends at
+> XXX.]
+
+The datasheet ref'ed earlier says the chips have a 64KB erase block 
+size, and the sharp driver multiplies that value by an interleave of 4 
+chips to set the erase size.  What erase size is set under the new 
+setup?  cat /proc/mtd or set loglevel for KERN_DEBUG at chip probe time. 
+  The new code is setting it based on what was read from the CFI query 
+info reported by the chip times the interleave factor (which apparently 
+should be set as 4 after detecting 4 chips if CONFIG_MTD_CFI_I4=y).
 
 
-On Sun, 13 Nov 2005, Alan Cox wrote:
->
-> On Sul, 2005-11-13 at 20:00 +0100, Andi Kleen wrote:
-> > It's a bad hack anyways. Better would be probably to use a uncached WC write.
-> > I would rather use that.
-> 
-> I'm not clear that anything but lock operations have the required
-> guarantee of atomicity relative to bus masters which are not processors.
-> Especially so on intel.
-
-The thing is, we wouldn't ever remove _all_ lock prefixes. Only the ones 
-that already depend on SMP.
-
-So the memory barriers etc that have lock prefixes even on UP would be 
-totally untouched.
-
-		Linus
+-- 
+Todd

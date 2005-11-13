@@ -1,75 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbVKMHlp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbVKMHnP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964785AbVKMHlp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 02:41:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbVKMHlo
+	id S964787AbVKMHnP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 02:43:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964850AbVKMHnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 02:41:44 -0500
-Received: from verein.lst.de ([213.95.11.210]:62387 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S964785AbVKMHlo (ORCPT
+	Sun, 13 Nov 2005 02:43:14 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:58012 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964787AbVKMHnO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 02:41:44 -0500
-Date: Sun, 13 Nov 2005 08:41:36 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: gerg@uclinux.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] m68knommu: enable_irq/disable_irq
-Message-ID: <20051113074136.GA816@lst.de>
+	Sun, 13 Nov 2005 02:43:14 -0500
+Date: Sun, 13 Nov 2005 02:42:41 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH 1/10] Cr4 is valid on some 486s
+Message-ID: <20051113074241.GA29796@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Pratap Subrahmanyam <pratap@vmware.com>,
+	Christopher Li <chrisl@vmware.com>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	Ingo Molnar <mingo@elte.hu>
+References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com> <20051111103605.GC27805@elf.ucw.cz> <4374F2D5.7010106@vmware.com> <Pine.LNX.4.64.0511111147390.4627@g5.osdl.org> <4374FB89.6000304@vmware.com> <Pine.LNX.4.64.0511111218110.4627@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+In-Reply-To: <Pine.LNX.4.64.0511111218110.4627@g5.osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mach_enable_irq/mach_disable_irq are never actually set, so let's remove
-them.
+On Fri, Nov 11, 2005 at 12:22:07PM -0800, Linus Torvalds wrote:
+ > 
+ > 
+ > On Fri, 11 Nov 2005, Zachary Amsden wrote:
+ > > 
+ > > Yes, this is fine, but is it worth writing the feature discovery code?  I
+ > > suppose it doesn't matter, as it gets jettisoned after init.  I guess it is
+ > > just preference.
+ > 
+ > Well, you could do the feature discovery by trying to take a fault early 
+ > at boot-time. That's how we verify that write-protect works, and how we 
+ > check that math exceptions come in the right way..
+ > 
+ > > Could we consider doing the same with LOCK prefix for SMP kernels booted on
+ > > UP?  Evil grin.
+ > 
+ > Not so evil - I think it's been discussed. Not with alternates (not worth 
+ > it), but it wouldn't be hard to do: just add a new section for "lock 
+ > address", and have each inline asm that does a lock prefix do basically
+ > 
+ > 	1:
+ > 		lock ; xyzzy
+ > 
+ > 	.section .lock.address
+ > 	.long 1b
+ > 	.previous
+ > 
+ > and then just walk the ".lock.address" thing and turn all locks into 0x90 
+ > (nop).
 
-Btw, is it really intentionally that enable_irq/disable_irq are no-ops on
-m68knommu?
+Looks like the Ubuntu people already did this...
 
+http://www.kernel.org/git/?p=linux/kernel/git/bcollins/ubuntu-2.6.git;a=commitdiff;h=048985336e32efe665cddd348e92e4a4a5351415;hp=1cb630c2b5aaad7cedaa78aa135e6cecf5ab91ac
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+		Dave
 
-Index: linux-2.6/arch/m68knommu/kernel/m68k_ksyms.c
-===================================================================
---- linux-2.6.orig/arch/m68knommu/kernel/m68k_ksyms.c	2005-10-31 12:23:08.000000000 +0100
-+++ linux-2.6/arch/m68knommu/kernel/m68k_ksyms.c	2005-11-12 09:22:34.000000000 +0100
-@@ -38,8 +38,6 @@
- 
- EXPORT_SYMBOL(ip_fast_csum);
- 
--EXPORT_SYMBOL(mach_enable_irq);
--EXPORT_SYMBOL(mach_disable_irq);
- EXPORT_SYMBOL(kernel_thread);
- 
- /* Networking helper routines. */
-Index: linux-2.6/arch/m68knommu/kernel/setup.c
-===================================================================
---- linux-2.6.orig/arch/m68knommu/kernel/setup.c	2005-11-07 21:30:08.000000000 +0100
-+++ linux-2.6/arch/m68knommu/kernel/setup.c	2005-11-12 09:22:26.000000000 +0100
-@@ -65,8 +65,6 @@
- /* machine dependent irq functions */
- void (*mach_init_IRQ) (void) = NULL;
- irqreturn_t (*(*mach_default_handler)[]) (int, void *, struct pt_regs *) = NULL;
--void (*mach_enable_irq) (unsigned int) = NULL;
--void (*mach_disable_irq) (unsigned int) = NULL;
- int (*mach_get_irq_list) (struct seq_file *, void *) = NULL;
- void (*mach_process_int) (int irq, struct pt_regs *fp) = NULL;
- void (*mach_trap_init) (void);
-Index: linux-2.6/include/asm-m68knommu/irq.h
-===================================================================
---- linux-2.6.orig/include/asm-m68knommu/irq.h	2005-11-07 21:30:09.000000000 +0100
-+++ linux-2.6/include/asm-m68knommu/irq.h	2005-11-12 09:22:05.000000000 +0100
-@@ -84,8 +84,8 @@
- /*
-  * Some drivers want these entry points
-  */
--#define enable_irq(x)	(mach_enable_irq  ? (*mach_enable_irq)(x)  : 0)
--#define disable_irq(x)	(mach_disable_irq ? (*mach_disable_irq)(x) : 0)
-+#define enable_irq(x)	0
-+#define disable_irq(x)	do { } while (0)
- 
- #define enable_irq_nosync(x)	enable_irq(x)
- #define disable_irq_nosync(x)	disable_irq(x)

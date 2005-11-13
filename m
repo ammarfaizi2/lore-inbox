@@ -1,46 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbVKMWA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbVKMWDv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750751AbVKMWA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 17:00:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbVKMWA0
+	id S1750756AbVKMWDv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 17:03:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbVKMWDv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 17:00:26 -0500
-Received: from zproxy.gmail.com ([64.233.162.201]:17440 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750751AbVKMWAZ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 17:00:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tLIBt53pfUJYq7T4E+xtl9eRqP4elB9NLk0PO2hx1GMBTiM5URCJMLwhmIkjdAvkMSV8q1WVPEOWtoYcucswvhpZrosba3+8Rz626ROJ/J0g/1TDTZjm+yObTpKBuZgGzhffG/hRjE1/l/jU6LCQVZOb7NMc+d1XHIsxvx7tCl8=
-Message-ID: <6bffcb0e0511131400t16ca6cecy@mail.gmail.com>
-Date: Sun, 13 Nov 2005 23:00:25 +0100
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-To: "breno@kalangolinux.org" <breno@kalangolinux.org>
-Subject: Re: Linux Kernel -KLG extraversion
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051113214928.19391.qmail@webmail.locasite.com.br>
+	Sun, 13 Nov 2005 17:03:51 -0500
+Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:8576 "EHLO
+	vger.utah-nac.org") by vger.kernel.org with ESMTP id S1750756AbVKMWDu
+	(ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Sun, 13 Nov 2005 17:03:50 -0500
+Message-ID: <4377B21F.8040408@wolfmountaingroup.com>
+Date: Sun, 13 Nov 2005 14:37:35 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051113214928.19391.qmail@webmail.locasite.com.br>
+To: Douglas McNaught <doug@mcnaught.org>
+Cc: jmerkey <jmerkey@soleranetworks.com>,
+       Nikita Danilov <nikita@clusterfs.com>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+Subject: Re: Severe VFS Performance Issues 2.6 with > 95000 directory entries
+References: <4376B787.9000108@soleranetworks.com>	<17271.13688.298525.23645@gargle.gargle.HOWL>	<4377A999.7090305@soleranetworks.com> <m2u0egp67z.fsf@Douglas-McNaughts-Powerbook.local>
+In-Reply-To: <m2u0egp67z.fsf@Douglas-McNaughts-Powerbook.local>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Douglas McNaught wrote:
 
-On 13 Nov 2005 21:49:28 -0000, breno@kalangolinux.org
-<breno@kalangolinux.org> wrote:
-> Hello,
+>jmerkey <jmerkey@soleranetworks.com> writes:
 >
-> We have in my linux distro project a Linux Kernel extraversion with some changes. Is there
-> a possibility put it available in kernel.org ?
+>  
 >
-> Thanks
+>>Nikita Danilov wrote:
+>>
+>>    
+>>
+>>>Jeff V. Merkey writes:
+>>>      
+>>>
+>>>>>The subject line speaks for itself.   This is using standard VFS
+>>>>>          
+>>>>>
+>>>readdir > and lookup calls through the VFSwith ftp.  Very poor. 
+>>>
+>>>Reiser4 works fine with 100M entries in a directory, so VFS is not a
+>>>bottleneck here.
+>>> 
+>>>
+>>>      
+>>>
+>>how about with ftp running on top? Try running FTP in directory with
+>>100M entries. See how long it takes to return the data to
+>>the remote client for a dir listing.
+>>    
+>>
+>
+>What filesystem are you using?  If it's ext3 without dirindex turned
+>on, that would definitely explain it.
+>
+>  
+>
+I just noticed the I_NEW flag for iget which prevents multiple calls to 
+refresh the inode. There's another code section where I update the 
+filesize field
+after I call iget from lookup. This does not explain it either since I 
+use math here to hash and post into the inode. I am still convinced that 
+either in userspace
+or in the kernel VFS, there's still a case where readdit goes linear and 
+starts to exhibit (O)(Log 2(N)) behavior as the directory gets large 
+(above 50,000 entries).
 
-It may help:
-http://www.kernel.org/faq/#account
-
-Regards,
-Michal Piotrowski
+Jeff

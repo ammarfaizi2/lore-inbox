@@ -1,85 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbVKMVYC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbVKMV1G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750717AbVKMVYC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 16:24:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbVKMVYC
+	id S1750714AbVKMV1G (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 16:27:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750718AbVKMV1G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 16:24:02 -0500
-Received: from havoc.gtf.org ([69.61.125.42]:5767 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1750711AbVKMVYA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 16:24:00 -0500
-Date: Sun, 13 Nov 2005 16:23:56 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [git patches] 2.6.x libata fixes
-Message-ID: <20051113212356.GA2649@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Sun, 13 Nov 2005 16:27:06 -0500
+Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:6016 "EHLO
+	vger.utah-nac.org") by vger.kernel.org with ESMTP id S1750714AbVKMV1D
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Nov 2005 16:27:03 -0500
+Message-ID: <4377A97C.70609@soleranetworks.com>
+Date: Sun, 13 Nov 2005 14:00:44 -0700
+From: jmerkey <jmerkey@soleranetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+Cc: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9 reporting 1 Gigabyte/second throughput on bio's, timer
+ skew possible?
+References: <437521FB.6040000@soleranetworks.com> <20051112095157.GA3699@suse.de> <4375C916.8020804@wolfmountaingroup.com> <20051113193625.GI3699@suse.de>
+In-Reply-To: <20051113193625.GI3699@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jens Axboe wrote:
 
-Please pull from 'upstream-fixes' branch of
-master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
+>On Sat, Nov 12 2005, Jeff V. Merkey wrote:
+>  
+>
+>>Jens Axboe wrote:
+>>
+>>    
+>>
+>>>On Fri, Nov 11 2005, Jeff V. Merkey wrote:
+>>>
+>>>
+>>>      
+>>>
+>>>>I have allocated 393,216 bio buffers I statically maintain in a chain 
+>>>>and am running the dsfs file system with 3 x gigabit links fully 
+>>>>saturated.  meta-data
+>>>>increases the write sizes to 720 MB/Second on dual 9500 controllers with 
+>>>>8 drives each (total of 16) 7200 RPM Drives.  I am seeing some 
+>>>>congestion and bursting on the bio chains as they are submitted.  
+>>>>
+>>>>        
+>>>>
+>>    
+>>
+>>>16 disks on 2 controllers, I'm 100% sure they are lots of people
+>>>pushing 2.6 much further than that! I wouldn't evne call that a big
+>>>setup.
+>>>
+>>>
+>>>      
+>>>
+>>Probably not for this type of application.
+>>
+>>    
+>>
+>>>      
+>>>
+>>>>DSFS dynamically generates html status files form within the file 
+>>>>system.  When the system gets somewhat behind, I am seeing bursts > 1 
+>>>>GB/Second which exceeds the theoretical limit of the bus.   I have a 
+>>>>timer function that runs every second and profiles the I/O throughput 
+>>>>created by DSFS with bio submissions and captured packets.  I am asking 
+>>>>if there is clock skew at these data rates with use of the timer 
+>>>>functions.  The system appears to be sustaining 1GB/Second throughput on 
+>>>>dual controllers.  I have verified through data rates the system is 
+>>>>sustaining 800 megabytes/second with these 1GB/S bursts.  I am curious 
+>>>>if there is potentially timer skew at these higher rates since I am 
+>>>>having a hard time accepting that I can push 1GB/S through a bus rated 
+>>>>at only 850 MB/S for DMA based transfers.   The unit is accessible by 
+>>>>  
+>>>>
+>>>>        
+>>>>
+>>>Note that the linux io stats accounting in 2.6.9 accounts queued io, not
+>>>io completions. So it's quite possible to have burst rates > bus speeds
+>>>for async io. 2.6.15-rc1 change this.
+>>>
+>>>
+>>>
+>>>      
+>>>
+>>So you are willing to log into the unit and validate these numbers? I 
+>>would like for an
+>>someone other than me to validate I am seeing these rates.
+>>    
+>>
+>
+>If you average the bandwidth over a time long enough to eliminate the
+>bursty queueing rates, your average rage should drop to what the
+>hardware can actually do. Or dig out the patch from 2.6.15-rc1 for
+>ll_rw_blk.c and apply it to 2.6.9, find it here:
+>
+>http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=d72d904a5367ad4ca3f2c9a2ce8c3a68f0b28bf0;hp=d83c671fb7023f69a9582e622d01525054f23b66
+>
+>  
+>
+Jens,
 
-to receive the following fixes:
+Thanks. I'll dig out the patch. I am measuring the rates on the back end 
+and they are running at 720-800 MB/S apart from what's being reported from
+the bio submission. At any rate, I ave to say the bio performance is 
+stunning in comparison to Windows 2003.
 
- drivers/scsi/libata-core.c |    3 +--
- drivers/scsi/libata-scsi.c |    6 ++++++
- drivers/scsi/sata_sil24.c  |    1 +
- 3 files changed, 8 insertions(+), 2 deletions(-)
-
-Mark Lord:
-      libata: fix comments on ata_tf_from_fis()
-      [libata passthru] address slave devices correctly
-
-Tejun Heo:
-      sil24: add missing ata_pad_free()
-
-diff --git a/drivers/scsi/libata-core.c b/drivers/scsi/libata-core.c
-index e51d9a8..d81db3a 100644
---- a/drivers/scsi/libata-core.c
-+++ b/drivers/scsi/libata-core.c
-@@ -532,8 +532,7 @@ void ata_tf_to_fis(const struct ata_task
-  *	@fis: Buffer from which data will be input
-  *	@tf: Taskfile to output
-  *
-- *	Converts a standard ATA taskfile to a Serial ATA
-- *	FIS structure (Register - Host to Device).
-+ *	Converts a serial ATA FIS structure to a standard ATA taskfile.
-  *
-  *	LOCKING:
-  *	Inherited from caller.
-diff --git a/drivers/scsi/libata-scsi.c b/drivers/scsi/libata-scsi.c
-index 261be24..0df4b68 100644
---- a/drivers/scsi/libata-scsi.c
-+++ b/drivers/scsi/libata-scsi.c
-@@ -2276,6 +2276,12 @@ ata_scsi_pass_thru(struct ata_queued_cmd
- 		tf->device = scsicmd[8];
- 		tf->command = scsicmd[9];
- 	}
-+	/*
-+	 * If slave is possible, enforce correct master/slave bit
-+	*/
-+	if (qc->ap->flags & ATA_FLAG_SLAVE_POSS)
-+		tf->device = qc->dev->devno ?
-+			tf->device | ATA_DEV1 : tf->device & ~ATA_DEV1;
- 
- 	/*
- 	 * Filter SET_FEATURES - XFER MODE command -- otherwise,
-diff --git a/drivers/scsi/sata_sil24.c b/drivers/scsi/sata_sil24.c
-index d3198d9..55e744d 100644
---- a/drivers/scsi/sata_sil24.c
-+++ b/drivers/scsi/sata_sil24.c
-@@ -687,6 +687,7 @@ static void sil24_port_stop(struct ata_p
- 	struct sil24_port_priv *pp = ap->private_data;
- 
- 	sil24_cblk_free(pp, dev);
-+	ata_pad_free(ap, dev);
- 	kfree(pp);
- }
- 
+Jeff

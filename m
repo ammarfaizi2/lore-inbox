@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932357AbVKMKla@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932428AbVKMLAP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932357AbVKMKla (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 05:41:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932373AbVKMKla
+	id S932428AbVKMLAP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 06:00:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbVKMLAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 05:41:30 -0500
-Received: from ns2.suse.de ([195.135.220.15]:48815 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932357AbVKMKl3 (ORCPT
+	Sun, 13 Nov 2005 06:00:15 -0500
+Received: from mail.suse.de ([195.135.220.2]:16863 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932428AbVKMLAO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 05:41:29 -0500
-From: Neil Brown <neilb@suse.de>
-To: "Miro Dietiker, MD Systems" <info@md-systems.ch>
-Date: Sun, 13 Nov 2005 21:41:12 +1100
+	Sun, 13 Nov 2005 06:00:14 -0500
+To: Dave Jones <davej@redhat.com>
+Cc: Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>, torvalds@osdl.org
+Subject: Re: [PATCH 1/10] Cr4 is valid on some 486s
+References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com>
+	<20051111103605.GC27805@elf.ucw.cz> <4374F2D5.7010106@vmware.com>
+	<Pine.LNX.4.64.0511111147390.4627@g5.osdl.org>
+	<4374FB89.6000304@vmware.com>
+	<Pine.LNX.4.64.0511111218110.4627@g5.osdl.org>
+	<20051113074241.GA29796@redhat.com>
+From: Andi Kleen <ak@suse.de>
+Date: 13 Nov 2005 11:59:55 +0100
+In-Reply-To: <20051113074241.GA29796@redhat.com>
+Message-ID: <p734q6g4xuc.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17271.6216.944507.182685@cse.unsw.edu.au>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Locking md device and system for several seconds
-In-Reply-To: message from Miro Dietiker, MD Systems on Sunday November 13
-References: <014101c5e83d$759c3df0$4001a8c0@MDSYSPORT>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday November 13, info@md-systems.ch wrote:
-> Hi!
+Dave Jones <davej@redhat.com> writes:
 > 
-> I'm using kernel 2.6.14.2 with md (RAID1 static) as bootable.
+> Looks like the Ubuntu people already did this...
 > 
-> While md synching (initial creation or after marked one as failed,
-> removed and re-added) there are some locking problems with the
-> complete system/kernel.
+> http://www.kernel.org/git/?p=linux/kernel/git/bcollins/ubuntu-2.6.git;a=commitdiff;h=048985336e32efe665cddd348e92e4a4a5351415;hp=1cb630c2b5aaad7cedaa78aa135e6cecf5ab91ac
 
-Can you check which IO scheduler the drives are using, try different
-schedulers, and see if it makes a different.
+It's probably not needed. At least AMD K7/K8 has a SYSCFG MSR bit to
+do this (or rather they disable bus cycles for locks that makes them
+very cheap) Intel has one too in a different MSR that looks similar.
+With some luck they're even already set by the BIOS on UP systems.  I
+know they are on some AMD systems.
 
-     grep . /sys/block/*/queue/scheduler
+But overall the feature doesn't help longer term because single
+threaded CPUs are on their way out.
 
-will show you (the one in [brackets] is active). 
-Then just echo a new value out to each file.
-
-I've had one report that [anticipatory] causes this problem and [cfq]
-removes it.  Could you confirm that?
-
-Thanks,
-
-NeilBrown
-
+-Andi

@@ -1,25 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbVKMVOZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbVKMVRF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750708AbVKMVOZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 16:14:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750709AbVKMVOZ
+	id S1750709AbVKMVRF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 16:17:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbVKMVRF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 16:14:25 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:21686 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750708AbVKMVOY (ORCPT
+	Sun, 13 Nov 2005 16:17:05 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:59577 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750709AbVKMVRE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 16:14:24 -0500
-Date: Sun, 13 Nov 2005 22:14:09 +0100
+	Sun, 13 Nov 2005 16:17:04 -0500
+Date: Sun, 13 Nov 2005 22:16:52 +0100
 From: Pavel Machek <pavel@ucw.cz>
 To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [RFT][PATCH 3/3] swsusp: improve freeing of memory
-Message-ID: <20051113211409.GD2119@elf.ucw.cz>
-References: <200511122113.22177.rjw@sisk.pl> <200511122124.42675.rjw@sisk.pl>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFT][PATCH 2/3] swsusp: introduce the swap map structure
+Message-ID: <20051113211652.GE2119@elf.ucw.cz>
+References: <200511122113.22177.rjw@sisk.pl> <200511122122.45063.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200511122124.42675.rjw@sisk.pl>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200511122122.45063.rjw@sisk.pl>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,53 +28,41 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> This patch makes swsusp free only as much memory as needed and not as much
-> as possible.
+> This patch introduces the swap map structure that can be used by swsusp for
+> keeping tracks of data pages written to the swap.  The structure itself is
+> described in a comment within the patch.
+> 
+> The overall idea is to reduce the amount of metadata written to the swap
+> and to write and read the image pages sequentially, in a file-alike way.
+> This makes the swap-handling part of swsusp fairly independent of its
+> snapshot-handling part and will hopefully allow us to completely
+> separate these two parts in the future.
+> 
+> Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
 
-Looks okay to me. ACK, modulo few small things.
+ACK.
 
-> -
->  /* References to section boundaries */
->  extern const void __nosave_begin, __nosave_end;
->  
->  extern unsigned int nr_copy_pages;
-> -extern suspend_pagedir_t *pagedir_nosave;
-> -extern suspend_pagedir_t *pagedir_save;
-> +extern struct pbe *pagedir_nosave;
-> +
-> +/*
-> + * This compilation switch determines the way in which memory will be freed
-> + * during suspend.  If defined, only as much memory will be freed as needed
-> + * to complete the suspend.  Otherwise, the largest possible amount of memory
-> + * will be freed.
-> + */
-> +#define OPPORTUNISTIC_SHRINKING		1
-
-Can you use little less tabelators? Also shorter name for this one
-might be "FREE_ALL". 
-
-> +/*
-> + * During suspend, on each attempt to free some more memory SHRINK_BITE
-> + * is used as the number of pages to free
-> + */
-> +#define SHRINK_BITE	10000
-
-Does this really need this kind of visibility? There's nothing user
-should tweak here.
-
->  /**
-> + *	On resume it is necessary to trace and eventually free the unsafe
-> + *	pages that have been allocated, because they are needed for I/O
-> + *	(on x86-64 we likely will "eat" these pages once again while
-> + *	creating the temporary page translation tables)
-> + */
-> +
-> +struct eaten_page {
-> +	struct eaten_page	*next;
-> +	char			padding[PAGE_SIZE - sizeof(void *)];
+> +struct swap_map_handle {
+> +	void			*tfm; /* Needed for the encryption */
+> +	struct swap_map_page	*cur;
+> +	unsigned int		k;
 > +};
 
-Less tabelators here, please...
+I thought you killed encryption in 1/3?
 
+> @@ -33,6 +33,9 @@
+>  
+>  #include "power.h"
+>  
+> +struct pbe *pagedir_nosave = NULL;
+> +unsigned int nr_copy_pages = 0;
+> +
+>  #ifdef CONFIG_HIGHMEM
+>  struct highmem_page {
+>  	char *data;
+
+You don't need to initialize to zero/NULL.
+
+								Pavel
 -- 
 Thanks, Sharp!

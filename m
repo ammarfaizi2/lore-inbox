@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbVKMAmI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964895AbVKMAuB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964898AbVKMAmI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 19:42:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964900AbVKMAmI
+	id S964895AbVKMAuB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 19:50:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbVKMAuB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 19:42:08 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:46546 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S964898AbVKMAmI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 19:42:08 -0500
-Date: Sun, 13 Nov 2005 01:41:28 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: inode kernel option for HA clustering/rsync
-Message-ID: <20051113004128.GR2491@marowsky-bree.de>
-References: <BAY103-F135A769ABB42E29158E0DBAA580@phx.gbl>
+	Sat, 12 Nov 2005 19:50:01 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:9923 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S964895AbVKMAuA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 19:50:00 -0500
+Subject: Re: PROBLEM: No initialization of sound card
+From: Lee Revell <rlrevell@joe-job.com>
+To: David Wragg <david@wragg.org>
+Cc: Pelle =?ISO-8859-1?Q?Lundstr=F6m?= <lunper@gmail.com>,
+       linux-kernel@vger.kernel.org,
+       ALSA user list <alsa-user@lists.sourceforge.net>
+In-Reply-To: <m3veyxo8jb.fsf@dwragg.oilspace.com>
+References: <m3veyxo8jb.fsf@dwragg.oilspace.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Sat, 12 Nov 2005 19:21:14 -0500
+Message-Id: <1131841275.15223.17.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <BAY103-F135A769ABB42E29158E0DBAA580@phx.gbl>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2005-11-12T04:38:42, Matt Hersant <mhearse@hotmail.com> wrote:
+On Sat, 2005-11-12 at 21:34 +0000, David Wragg wrote:
+> On Sat, 2005-11-12 at 21:43 +0100, Pelle Lundström wrote:
+> > 1. Kernel 2.6.14.2 fails to locate and initiate sound card.
+> 
+> I have seen similar problems due to trailing spaces on option lines in
+> /etc/modprobe.com.  These get interpreted by the kernel as zero-length
+> options, causing similar "unknown parameter" errors. So check that
+> file, and remove any suspicious spaces at the ends of lines.
 
-> I'm working on a clustering project which utilizes rsync for system 
-> mirroring.  A main priority is to reduce rsync runtime and IO load.  I have 
-> heard of a kernel 'inode' option which can be used to cache a list of 
-> modified files.  The list of files is then passed to rsync on the next run. 
-> Has anyone heard of this kernel option.  Thanks in advance.
+Run "lsmod | grep ^snd | cut -d\  -f1 | xargs rmmod" then modprobe
+snd_es18xx from the command line, then send the output of dmesg if it
+does not work.
 
-google:inotify
+FYI, please cc: alsa-user at lists.sourceforge.net with any future ALSA
+bug reports (alsa-devel if you have a patch).
 
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-High Availability & Clustering
-SUSE Labs, Research and Development
-SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
-"Ignorance more frequently begets confidence than does knowledge"
+Lee
 

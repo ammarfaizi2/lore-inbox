@@ -1,35 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751340AbVKMEYi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbVKMEqV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751340AbVKMEYi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 23:24:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbVKMEYi
+	id S1751343AbVKMEqV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 23:46:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbVKMEqV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 23:24:38 -0500
-Received: from 219-75-232-131.eonet.ne.jp ([219.75.232.131]:33540 "HELO
+	Sat, 12 Nov 2005 23:46:21 -0500
+Received: from 219-75-232-131.eonet.ne.jp ([219.75.232.131]:56836 "HELO
 	viper2.netfort.gr.jp") by vger.kernel.org with SMTP
-	id S1751340AbVKMEYi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 23:24:38 -0500
-Date: Sun, 13 Nov 2005 13:24:37 +0900
-Message-ID: <87zmo9yy2i.dancerj%dancer@netfort.gr.jp>
+	id S1751343AbVKMEqV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 23:46:21 -0500
+Date: Sun, 13 Nov 2005 13:46:20 +0900
+Message-ID: <87u0ehyx2b.dancerj%dancer@netfort.gr.jp>
 From: Junichi Uekawa <dancer@netfort.gr.jp>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Cc: "Nickolay V. Shmyrev" <nshmyrev@yandex.ru>,
-       Linux and Kernel Video <video4linux-list@redhat.com>,
-       Junichi Uekawa <dancer@netfort.gr.jp>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Michael Krufky <mkrufky@m1k.net>,
-       linux-kernel@vger.kernel.org, debian-amd64@lists.debian.org
-Subject: Re: [x86_64] 2.6.14-git13 mplayer fails with "v4l2: ioctl queue buffer failed: Bad address" (2 Nov 2005, 11 Nov 2005)
-In-Reply-To: <20051113025417.GN5706@mea-ext.zmailer.org>
-References: <87fyqeicge.dancerj%dancer@netfort.gr.jp>
-	<87wtjg5gh2.dancerj%dancer@netfort.gr.jp>
-	<4373D087.5050908@linuxtv.org>
-	<87psp859sd.dancerj%dancer@netfort.gr.jp>
-	<43740F06.6030504@m1k.net>
-	<87y83vl780.dancerj%dancer@netfort.gr.jp>
-	<87ek5nb9ec.dancerj%dancer@netfort.gr.jp>
-	<Pine.LNX.4.61.0511111355080.16161@goblin.wat.veritas.com>
-	<1131834172.8368.6.camel@localhost.localdomain>
-	<20051113025417.GN5706@mea-ext.zmailer.org>
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: user-mode-linux-user@lists.sourceforge.net,
+       Junichi Uekawa <dancer@netfort.gr.jp>, linux-kernel@vger.kernel.org
+Subject: Re: [uml-user] 2.6.14.git: user-mode-linux/x86_64 does not build
+In-Reply-To: <200511121304.12747.blaisorblade@yahoo.it>
+References: <87r79mfxjj.dancerj%dancer@netfort.gr.jp>
+	<200511121304.12747.blaisorblade@yahoo.it>
 User-Agent: Wanderlust/2.14.0 (Africa) SEMI/1.14.6 (Maruoka) FLIM/1.14.7
  (=?ISO-8859-4?Q?Sanj=F2?=) APEL/10.6 Emacs/21.4 (x86_64-pc-linux-gnu)
  MULE/5.0 (SAKAKI)
@@ -38,109 +27,40 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi
 
-> This EFAULT rejection is due to change in  get_user_pages()  function
-> in mm/memory.c  file of  2.6.14-git2
+> > UML does not build from linus's git tree for a while, with the
+> > following compilation error.
 > 
+> Ok, I must start catching up - I have lots of fixes but not yet found the time 
+> to re-read and send them. This is one of them.
 > 
-> @@ -945,8 +947,8 @@ int get_user_pages(struct task_struct *t
->                         continue;
->                 }
->  
-> -               if (!vma || (vma->vm_flags & VM_IO)
-> -                               || !(flags & vma->vm_flags))
-> +               if (!vma || (vma->vm_flags & (VM_IO | VM_RESERVED))
-> +                               || !(vm_flags & vma->vm_flags))
->                         return i ? : -EFAULT;
->  
->                 if (is_vm_hugetlb_page(vma)) {
+> > .config is attached later.
 > 
+> > CONFIG_X86_CMPXCHG=y
 > 
-> I don't know how to use git tools to see, whose patch actually
-> did this particular change.
+> > CONFIG_RWSEM_GENERIC_SPINLOCK=y
+> > CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+> 
+> This is what's causing the error, these options should be mutually exclusive. 
+> 
+> > CONFIG_64BIT=y
+> Arh, this is the problem... I made a mistake for x86_64, and the fix has not 
+> yet been sent up. Patch attached.
 
-To quote:
->    MAP_PRIVATE, PROT_WRITE of VM_RESERVED regions is tentatively being
->    deprecated.  We never completely handled it correctly anyway, and is be
->    reintroduced in future if required (Hugh has a proof of concept).
-
-
-
-
-
-diff-tree b5810039a54e5babf428e9a1e89fc1940fabff11 (from f9c98d0287de42221c62448Author: Nick Piggin <nickpiggin@yahoo.com.au>
-Date:   Sat Oct 29 18:16:12 2005 -0700
-
-    [PATCH] core remove PageReserved
-
-    Remove PageReserved() calls from core code by tightening VM_RESERVED
-    handling in mm/ to cover PageReserved functionality.
-
-    PageReserved special casing is removed from get_page and put_page.
-
-    All setting and clearing of PageReserved is retained, and it is now flagged
-    in the page_alloc checks to help ensure we don't introduce any refcount
-    based freeing of Reserved pages.
-
-    MAP_PRIVATE, PROT_WRITE of VM_RESERVED regions is tentatively being
-    deprecated.  We never completely handled it correctly anyway, and is be
-    reintroduced in future if required (Hugh has a proof of concept).
-
-    Once PageReserved() calls are removed from kernel/power/swsusp.c, and all
-    arch/ and driver code, the Set and Clear calls, and the PG_reserved bit can
-    be trivially removed.
-
-    Last real user of PageReserved is swsusp, which uses PageReserved to
-    determine whether a struct page points to valid memory or not.  This still
-    needs to be addressed (a generic page_is_ram() should work).
-
-    A last caveat: the ZERO_PAGE is now refcounted and managed with rmap (and
-    thus mapcounted and count towards shared rss).  These writes to the struct
-    page could cause excessive cacheline bouncing on big systems.  There are a
-    number of ways this could be addressed if it is an issue.
-
-    Signed-off-by: Nick Piggin <npiggin@suse.de>
-
-    Refcount bug fix for filemap_xip.c
-
-    Signed-off-by: Carsten Otte <cotte@de.ibm.com>
-    Signed-off-by: Andrew Morton <akpm@osdl.org>
-    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+With your patch it builds now, and somewhat runs, not excercised it enough yet.
 
 
-
-I think the relevant changes (snipped out) are:
-
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 0c64484..da42093 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -157,7 +157,7 @@ extern unsigned int kobjsize(const void
-
- #define VM_DONTCOPY    0x00020000      /* Do not copy this vma on fork */
- #define VM_DONTEXPAND  0x00040000      /* Cannot expand with mremap() */
--#define VM_RESERVED    0x00080000      /* Don't unmap it from swap_out */
-+#define VM_RESERVED    0x00080000      /* Pages managed in a special way */
- #define VM_ACCOUNT     0x00100000      /* Is a VM accounted object */
- #define VM_HUGETLB     0x00400000      /* Huge TLB Page VM */
- #define VM_NONLINEAR   0x00800000      /* Is non-linear (remap_file_pages) */
-
-diff --git a/mm/memory.c b/mm/memory.c
-index da642b5..e83f944 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -967,7 +992,7 @@ int get_user_pages(struct task_struct *t
-                        continue;
-                }
-
--               if (!vma || (vma->vm_flags & VM_IO)
-+               if (!vma || (vma->vm_flags & (VM_IO | VM_RESERVED))
-                                || !(flags & vma->vm_flags))
-                        return i ? : -EFAULT;
-
+A snippet of a log of a functional UML session:
+sh-3.00# chroot /home/dancer/i386-chroot/1/ /bin/bash
+chroot: cannot run command `/bin/bash': Exec format error
+sh-3.00# file /home/dancer/i386-chroot/1/bin/bash
+/home/dancer/i386-chroot/1/bin/bash: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), for GNU/Linux 2.2.0, dynamically linked (uses shared libs), stripped
+sh-3.00# uname -a
+Linux (none) 2.6.14-g508862e4 #1 Sun Nov 13 13:30:32 JST 2005 x86_64 GNU/Linux
 
 
 regards,
 	junichi
-
+-- 
+dancer@{debian.org,netfort.gr.jp}   Debian Project

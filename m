@@ -1,45 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbVKMTj7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbVKMTku@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750987AbVKMTj7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 14:39:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750988AbVKMTj7
+	id S1751007AbVKMTku (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 14:40:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751001AbVKMTkt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 14:39:59 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:21488 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S1750979AbVKMTj6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 14:39:58 -0500
-Message-ID: <437796B7.9070800@mvista.com>
-Date: Sun, 13 Nov 2005 11:40:39 -0800
-From: Todd Poynor <tpoynor@mvista.com>
-User-Agent: Thunderbird 1.5 (X11/20051025)
+	Sun, 13 Nov 2005 14:40:49 -0500
+Received: from mail-in-08.arcor-online.net ([151.189.21.48]:10114 "EHLO
+	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1750988AbVKMTks (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Nov 2005 14:40:48 -0500
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: [PATCH] vgacon: Workaround for resize bug in some chipsets
+To: "Antonino A. Daplas" <adaplas@gmail.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Dave Jones <davej@redhat.com>, Jason <dravet@hotmail.com>,
+       Samuel Thibault <samuel.thibault@ens-lyon.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Reply-To: 7eggert@gmx.de
+Date: Sun, 13 Nov 2005 20:41:04 +0100
+References: <58c2Z-8jG-23@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Ian Campbell <ijc@hellion.org.uk>, linux-mtd@lists.infradead.org,
-       David Woodhouse <dwmw2@infradead.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: latest mtd changes broke collie
-References: <20051110095050.GC2021@elf.ucw.cz> <1131616948.27347.174.camel@baythorne.infradead.org> <20051110103823.GB2401@elf.ucw.cz> <1131619903.27347.177.camel@baythorne.infradead.org> <20051110105954.GE2401@elf.ucw.cz> <1131621090.27347.184.camel@baythorne.infradead.org> <20051110224158.GC9905@elf.ucw.cz> <4373DEB4.5070406@mvista.com> <20051111001617.GD9905@elf.ucw.cz> <1131692514.3525.41.camel@localhost.localdomain> <20051112213355.GA4676@elf.ucw.cz>
-In-Reply-To: <20051112213355.GA4676@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1EbNir-0006ky-DP@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+Antonino A. Daplas <adaplas@gmail.com> wrote:
 
-> [Plus I get a warning from jffs2 that flashsize is not aligned to
-> erasesize. Then I get lot of messages that empty flash at XXX ends at
-> XXX.]
+> +++ b/drivers/video/console/vgacon.c
+> +#define VGA_FONTWIDTH       8   /* VGA does not support fontwidths != 8 */
 
-The datasheet ref'ed earlier says the chips have a 64KB erase block 
-size, and the sharp driver multiplies that value by an interleave of 4 
-chips to set the erase size.  What erase size is set under the new 
-setup?  cat /proc/mtd or set loglevel for KERN_DEBUG at chip probe time. 
-  The new code is setting it based on what was read from the CFI query 
-info reported by the chip times the interleave factor (which apparently 
-should be set as 4 after detecting 4 chips if CONFIG_MTD_CFI_I4=y).
+This is not true, VGA cards do support fontwidth=9, but the ninth column
+can only be blank or (optionally and only in the range of the IBM block
+chars) copied from the eighth column, cloning the behaviour of the MDA
+graphics card. If you disable this feature, you'll get 90x25 text resolution
+within standard VGA timings.
 
+BTW while looking at this file:
 
+1) I see ORIG_VIDEO_EGA_BX (defined to (screen_info.orig_video_ega_bx)
+being checked to be 0x10, but I don't find a place where the associated
+variable is set to this value. Nor do I get the meaning of this variable
+by reading it's name.
+
+2) If the videomode is 7, the card is asumed not to be a VGA card.
+VGA does support videomode 7, so this test is wrong. However, I don't
+asume this mode to be used on normal systems as nobody complained.
+
+I asume from the fragments I read that the correct fix would be to read
+the Display Combination Code for VGA (detects additional CGA and MDA
+adapters), then detect EGA (if it is, don't forget to check to check bit
+3 of 0x487) and use the return code and finally to use the CRTC address
+from the BIOS (The video mode may be set to 5 or 6 in order to make a
+mouse driver work in Hercules graphics). In case of EGA, we'll
+have to detect additional adapters manually. (Unfortunaly I threw away my
+EGA-compatible monitor, so I don't know if I can test it.)
+
+3) Having a text mode is tested by a blacklist of graphic modes. I don't
+think this is good, but I've not yet read everything in this file.
 -- 
-Todd
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

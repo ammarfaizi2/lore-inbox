@@ -1,81 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbVKMHnP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964850AbVKMHrW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964787AbVKMHnP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 02:43:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964850AbVKMHnO
+	id S964850AbVKMHrW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 02:47:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964852AbVKMHrV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 02:43:14 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:58012 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964787AbVKMHnO (ORCPT
+	Sun, 13 Nov 2005 02:47:21 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:24029 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S964850AbVKMHrV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 02:43:14 -0500
-Date: Sun, 13 Nov 2005 02:42:41 -0500
-From: Dave Jones <davej@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 1/10] Cr4 is valid on some 486s
-Message-ID: <20051113074241.GA29796@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Pratap Subrahmanyam <pratap@vmware.com>,
-	Christopher Li <chrisl@vmware.com>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	Ingo Molnar <mingo@elte.hu>
-References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com> <20051111103605.GC27805@elf.ucw.cz> <4374F2D5.7010106@vmware.com> <Pine.LNX.4.64.0511111147390.4627@g5.osdl.org> <4374FB89.6000304@vmware.com> <Pine.LNX.4.64.0511111218110.4627@g5.osdl.org>
+	Sun, 13 Nov 2005 02:47:21 -0500
+Date: Sat, 12 Nov 2005 23:47:10 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: nickpiggin@yahoo.com.au, rohit.seth@intel.com, torvalds@osdl.org,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: Cleanup of __alloc_pages
+Message-Id: <20051112234710.3d567e21.pj@sgi.com>
+In-Reply-To: <20051112231211.372be3a9.akpm@osdl.org>
+References: <20051107174349.A8018@unix-os.sc.intel.com>
+	<20051107175358.62c484a3.akpm@osdl.org>
+	<1131416195.20471.31.camel@akash.sc.intel.com>
+	<43701FC6.5050104@yahoo.com.au>
+	<20051107214420.6d0f6ec4.pj@sgi.com>
+	<43703EFB.1010103@yahoo.com.au>
+	<1131473876.2400.9.camel@akash.sc.intel.com>
+	<43716476.1030306@yahoo.com.au>
+	<20051112210913.0b365815.pj@sgi.com>
+	<20051112211429.294b3783.pj@sgi.com>
+	<20051112231211.372be3a9.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0511111218110.4627@g5.osdl.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 11, 2005 at 12:22:07PM -0800, Linus Torvalds wrote:
- > 
- > 
- > On Fri, 11 Nov 2005, Zachary Amsden wrote:
- > > 
- > > Yes, this is fine, but is it worth writing the feature discovery code?  I
- > > suppose it doesn't matter, as it gets jettisoned after init.  I guess it is
- > > just preference.
- > 
- > Well, you could do the feature discovery by trying to take a fault early 
- > at boot-time. That's how we verify that write-protect works, and how we 
- > check that math exceptions come in the right way..
- > 
- > > Could we consider doing the same with LOCK prefix for SMP kernels booted on
- > > UP?  Evil grin.
- > 
- > Not so evil - I think it's been discussed. Not with alternates (not worth 
- > it), but it wouldn't be hard to do: just add a new section for "lock 
- > address", and have each inline asm that does a lock prefix do basically
- > 
- > 	1:
- > 		lock ; xyzzy
- > 
- > 	.section .lock.address
- > 	.long 1b
- > 	.previous
- > 
- > and then just walk the ".lock.address" thing and turn all locks into 0x90 
- > (nop).
+> Yes, the fact that GFP_ATOMIC also implies "use the emergency pool" is
+> unfortunate, and perhaps the two should always have been separated out, at
+> least to make the programmer think about whether the code really needs
+> access to the emergency pools.   Usually it does.
 
-Looks like the Ubuntu people already did this...
+Ah - now it makes more sense.
 
-http://www.kernel.org/git/?p=linux/kernel/git/bcollins/ubuntu-2.6.git;a=commitdiff;h=048985336e32efe665cddd348e92e4a4a5351415;hp=1cb630c2b5aaad7cedaa78aa135e6cecf5ab91ac
+The key invisible fact in the gfp.h line:
 
-		Dave
+  #define GFP_ATOMIC      (__GFP_VALID | __GFP_HIGH)
 
+is that __GFP_WAIT is *not* set (making it mean don't sleep).
+All the other commonly used GFP_* flags do have __GFP_WAIT.
+
+I have no issue with ATOMIC also meaning "use emergency pool".
+That's an appropriate simplication, that fits the usage well.
+
+I just had a mental block on the invisible unset __GFP_WAIT bit.
+
+Would you look kindly on a patch that did:
+
+
+--- 2.6.14-mm2.orig/include/linux/gfp.h	2005-11-12 23:36:57.258103418 -0800
++++ 2.6.14-mm2/include/linux/gfp.h	2005-11-12 23:42:35.287219455 -0800
+@@ -58,6 +58,7 @@ struct vm_area_struct;
+ 			__GFP_NOFAIL|__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP| \
+ 			__GFP_NOMEMALLOC|__GFP_HARDWALL)
+ 
++/* GFP_ATOMIC means both !wait (__GFP_WAIT not set) and use emergency pool */
+ #define GFP_ATOMIC	(__GFP_VALID | __GFP_HIGH)
+ #define GFP_NOIO	(__GFP_VALID | __GFP_WAIT)
+ #define GFP_NOFS	(__GFP_VALID | __GFP_WAIT | __GFP_IO)
+
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

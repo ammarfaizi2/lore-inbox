@@ -1,81 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbVKMWwQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbVKMXgM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750777AbVKMWwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 17:52:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbVKMWwQ
+	id S1750784AbVKMXgM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 18:36:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbVKMXgM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 17:52:16 -0500
-Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:64915 "EHLO
-	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1750777AbVKMWwP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 17:52:15 -0500
-Message-ID: <4377C39D.2080602@bigpond.net.au>
-Date: Mon, 14 Nov 2005 09:52:13 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+	Sun, 13 Nov 2005 18:36:12 -0500
+Received: from zproxy.gmail.com ([64.233.162.200]:52215 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750784AbVKMXgM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Nov 2005 18:36:12 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=D7cFIwOiiS17uu2D/ABv8AAP7qUaaGLhImLMap8IOjDxP2814KEIwmKfar1HtJ3sQARaLtLMMF/wtoIYJ8AL4mp4TPmgbLStI0LQqu1FcGA0QIvNUWS2yHpsqRwMrXpSuXCsoRoiIh3D67zQswWb0tDOspZoZqGHuWeUWNxVp6s=
+Message-ID: <4377CDD8.1000509@gmail.com>
+Date: Mon, 14 Nov 2005 07:35:52 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Chris Han <xiphux@gmail.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Jake Moilanen <moilanen@austin.ibm.com>
-Subject: Re: [PATCH] plugsched - update Kconfig-1
-References: <434F01EA.6060709@bigpond.net.au> <200511131637.40704.kernel@kolivas.org> <4377031F.5000902@bigpond.net.au> <200511132030.36777.kernel@kolivas.org>
-In-Reply-To: <200511132030.36777.kernel@kolivas.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sun, 13 Nov 2005 22:52:13 +0000
+To: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
+CC: 7eggert@gmx.de, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
+       Jason <dravet@hotmail.com>,
+       Samuel Thibault <samuel.thibault@ens-lyon.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] vgacon: Workaround for resize bug in some chipsets
+References: <58c2Z-8jG-23@gated-at.bofh.it> <E1EbNir-0006ky-DP@be1.lrz> <4377BA19.2060600@gmail.com> <4377BD8A.9070404@kolumbus.fi>
+In-Reply-To: <4377BD8A.9070404@kolumbus.fi>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> On Sun, 13 Nov 2005 20:10, Peter Williams wrote:
+Mika Penttilä wrote:
+> Antonino A. Daplas wrote:
 > 
->>Con Kolivas wrote:
+>> Bodo Eggert wrote:
+>>  
 >>
->>>On Sun, 13 Nov 2005 16:22, Peter Williams wrote:
+>>> Antonino A. Daplas <adaplas@gmail.com> wrote:
 >>>
->>>>Con Kolivas wrote:
->>>>
->>>>>On Sun, 13 Nov 2005 12:34, Peter Williams wrote:
->>>>>
->>>>>>1. Make the ability to select which schedulers are built in independent
->>>>>>of EMBEDDED.
->>>>>>2. Only offer builtin schedulers as choice for the default scheduler.
->>>>>>3. Only build in ingosched if PLUGSCHED is not configured.
->>>>>
->>>>>I disagree with 3. Surely people might want to build in only one
->>>>>scheduler that is not ingosched without other choices.
->>>>
->>>>Yes, and they would be able to do that by selecting PLUGSCHED and then
->>>>selecting only the scheduler that they want.  But this then leads to the
->>>>observation that PLUGSCHED is probably makes things unnecessarily
->>>>complex and all that is required is a means to select the schedulers to
->>>>be built in and a choice of default (much like for the IO schedulers)?
->>>
->>>Indeed it may be better to remove the "plugsched" option entirely. Once
->>>patched in it's not like you are building the kernel without the
->>>plugsched infrastructure. Provided each extra scheduler does not increase
->>>the kernel size too much (and a test build with/without all schedulers
->>>should tell you that), it may be best to just have the scheduler choice
->>>in the top menu and only expose the "schedulers to build in" under
->>>embedded.
+>>>   
+>>>> +++ b/drivers/video/console/vgacon.c
+>>>> +#define VGA_FONTWIDTH       8   /* VGA does not support fontwidths
+>>>> != 8 */
+>>>>     
+>>> This is not true, VGA cards do support fontwidth=9, but the ninth column
+>>>   
 >>
->>I can't see why this should be restricted to embedded systems?
+>> Yes.  What it should mean is that vgacon does not support fontwidths
+>> != 8.
+>>
+>>  
+>>
+> I think vgacon doesn't touch the 8/9 pixel setting, so  the fonts are hw
+> extended to 9 pixels by VGA in many modes.
 > 
-> 
-> It's just convention that size options go in there; it's not really just for 
-> embedded systems.
 
-OK.  I guess I'm sometimes guilty of taking things too literally :-(
+It's not a hardware limitation, but vgacon is hardcoded to accept fonts that are
+only 8 pixels wide.  You can try it by doing a setfont.
 
-I'll read up on Kconfig again before I make any changes.
-
-Thanks
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Tony

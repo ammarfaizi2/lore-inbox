@@ -1,123 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbVKMHi6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbVKMHce@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbVKMHi6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 02:38:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbVKMHi6
+	id S932133AbVKMHce (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 02:32:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbVKMHce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 02:38:58 -0500
-Received: from verein.lst.de ([213.95.11.210]:59315 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S932081AbVKMHi5 (ORCPT
+	Sun, 13 Nov 2005 02:32:34 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:53446 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932133AbVKMHce (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 02:38:57 -0500
-Date: Sun, 13 Nov 2005 08:38:47 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: adaplas@pol.net
-Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] sanitize ->fb_ioctl prototype
-Message-ID: <20051113073847.GA748@lst.de>
-References: <20051111083457.GA26175@lst.de>
+	Sun, 13 Nov 2005 02:32:34 -0500
+Date: Sun, 13 Nov 2005 08:32:28 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@suse.de>
+Cc: john stultz <johnstul@us.ibm.com>, Darren Hart <dvhltc@us.ibm.com>,
+       Nishanth Aravamudan <nacc@us.ibm.com>,
+       Frank Sorenson <frank@tuxrocks.com>,
+       George Anzinger <george@mvista.com>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/13] Time: Generic Timeofday Subsystem (v B10)
+Message-ID: <20051113073228.GA31468@elte.hu>
+References: <20051112044850.8240.91581.sendpatchset@cog.beaverton.ibm.com> <p73lkzt49wr.fsf@verdi.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051111083457.GA26175@lst.de>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+In-Reply-To: <p73lkzt49wr.fsf@verdi.suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 11, 2005 at 09:34:57AM +0100, Christoph Hellwig wrote:
-> The ioctl and file arguments to ->fb_ioctl are totally unused and there's
-> not reason a driver should need them.
+
+* Andi Kleen <ak@suse.de> wrote:
+
+> At least on x86-64 there is currently so much other timer related 
+> development going on (per CPU TSC timers, no idle tick, 64bit HPET 
+> etc.)  that I don't want any x86-64 bits of that merged for the next 
+> time. The other stuff needs to settle first.
 > 
-> Also update the ->fb_compat_ioctl prototype to be the same as ->fb_mmap.
+> I haven't read the patchset in full detail, but from a quick look it's 
+> also not obvious too me in which way it is easier and cleaner than the 
+> old setup. While the old code was quirky in parts the new one seems to 
+> fall more in the overmodularization/too many indirect callbacks trap.
 
-Updates for the newly added sbusfb_compat_ioctl:
+there are 3 "generic" components needed right now to clean up all time 
+related stuff: GTOD, ktimers and clockevents. [you know the first two, 
+and clockevents is new code from Thomas Gleixner that generalizes timer 
+interrupts and introduces one compact notion for 'clock chips'.]
 
+what is the point? Ontop of these, a previously difficult feature, High 
+Resolution Timers became _massively_ simpler. All of these patches exist 
+together in the -rt tree, so it's not handwaving. The same will be the 
+case for idle ticks / dynamic ticks [we started with HRT because it is 
+so much harder than idle ticks]. So i do agree with you that GTOD needs 
+more work, but it also makes time related features all that much easier.
 
-Index: linux-2.6/drivers/video/sbuslib.c
-===================================================================
---- linux-2.6.orig/drivers/video/sbuslib.c	2005-11-12 23:49:59.000000000 +0100
-+++ linux-2.6/drivers/video/sbuslib.c	2005-11-12 23:56:33.000000000 +0100
-@@ -196,8 +196,8 @@
- #define FBIOPUTCMAP32	_IOW('F', 3, struct fbcmap32)
- #define FBIOGETCMAP32	_IOW('F', 4, struct fbcmap32)
- 
--static int fbiogetputcmap(struct file *file, struct fb_info *info,
--		unsigned int cmd, unsigned long arg)
-+static int fbiogetputcmap(struct fb_info *info, unsigned int cmd,
-+		unsigned long arg)
- {
- 	struct fbcmap32 __user *argp = (void __user *)arg;
- 	struct fbcmap __user *p = compat_alloc_user_space(sizeof(*p));
-@@ -213,10 +213,9 @@
- 	ret |= put_user(compat_ptr(addr), &p->blue);
- 	if (ret)
- 		return -EFAULT;
--	return info->fbops->fb_ioctl(file->f_dentry->d_inode, file,
--			(cmd == FBIOPUTCMAP32) ?
-+	return info->fbops->fb_ioctl(info, (cmd == FBIOPUTCMAP32) ?
- 			FBIOPUTCMAP_SPARC : FBIOGETCMAP_SPARC,
--			(unsigned long)p, info);
-+			(unsigned long)p);
- }
- 
- struct fbcursor32 {
-@@ -233,8 +232,7 @@
- #define FBIOSCURSOR32	_IOW('F', 24, struct fbcursor32)
- #define FBIOGCURSOR32	_IOW('F', 25, struct fbcursor32)
- 
--static int fbiogscursor(struct file *file, struct fb_info *info,
--		unsigned long arg)
-+static int fbiogscursor(struct fb_info *info, unsigned long arg)
- {
- 	struct fbcursor __user *p = compat_alloc_user_space(sizeof(*p));
- 	struct fbcursor32 __user *argp =  (void __user *)arg;
-@@ -257,12 +255,11 @@
- 	ret |= put_user(compat_ptr(addr), &p->image);
- 	if (ret)
- 		return -EFAULT;
--	return info->fbops->fb_ioctl(file->f_dentry->d_inode, file,
--			FBIOSCURSOR, (unsigned long)p, info);
-+	return info->fbops->fb_ioctl(info, FBIOSCURSOR, (unsigned long)p);
- }
- 
--long sbusfb_compat_ioctl(struct file *file, unsigned int cmd,
--		unsigned long arg, struct fb_info *info)
-+int sbusfb_compat_ioctl(struct fb_info *info, unsigned int cmd,
-+		unsigned long arg)
- {
- 	switch (cmd) {
- 	case FBIOGTYPE:
-@@ -275,14 +272,13 @@
- 	case FBIOSCURPOS:
- 	case FBIOGCURPOS:
- 	case FBIOGCURMAX:
--		return info->fbops->fb_ioctl(file->f_dentry->d_inode,
--				file, cmd, arg, info);
-+		return info->fbops->fb_ioctl(info, cmd, arg);
- 	case FBIOPUTCMAP32:
--		return fbiogetputcmap(file, info, cmd, arg);
-+		return fbiogetputcmap(info, cmd, arg);
- 	case FBIOGETCMAP32:
--		return fbiogetputcmap(file, info, cmd, arg);
-+		return fbiogetputcmap(info, cmd, arg);
- 	case FBIOSCURSOR32:
--		return fbiogscursor(file, info, arg);
-+		return fbiogscursor(info, arg);
- 	default:
- 		return -ENOIOCTLCMD;
- 	}
-Index: linux-2.6/drivers/video/sbuslib.h
-===================================================================
---- linux-2.6.orig/drivers/video/sbuslib.h	2005-11-12 23:49:59.000000000 +0100
-+++ linux-2.6/drivers/video/sbuslib.h	2005-11-12 23:54:53.000000000 +0100
-@@ -20,7 +20,7 @@
- int sbusfb_ioctl_helper(unsigned long cmd, unsigned long arg,
- 			struct fb_info *info,
- 			int type, int fb_depth, unsigned long fb_size);
--long sbusfb_compat_ioctl(struct file *file, unsigned int cmd,
--		unsigned long arg, struct fb_info *info);
-+int sbusfb_compat_ioctl(struct fb_info *info, struct file *file,
-+			unsigned int cmd);
- 
- #endif /* _SBUSLIB_H */
+right now it's GTOD that needs the most work before it can be merged 
+upstream, so you picked the right one to criticise :-)
+
+	Ingo

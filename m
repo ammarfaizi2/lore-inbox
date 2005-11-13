@@ -1,35 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbVKMEUp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbVKMERB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751335AbVKMEUp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 23:20:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbVKMEUp
+	id S1751323AbVKMERB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 23:17:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbVKMERA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 23:20:45 -0500
-Received: from mail.fieldses.org ([66.93.2.214]:39361 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP
-	id S1751335AbVKMEUo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 23:20:44 -0500
-Date: Sat, 12 Nov 2005 23:20:43 -0500
-To: Xin Zhao <uszhaoxin@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS question: what's the use of nfs3_async_handle_jukebox?
-Message-ID: <20051113042043.GA18838@fieldses.org>
-References: <4ae3c140511121244v3cfdb3c6v133d67d8fa42c46b@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4ae3c140511121244v3cfdb3c6v133d67d8fa42c46b@mail.gmail.com>
-User-Agent: Mutt/1.5.11
-From: "J. Bruce Fields" <bfields@fieldses.org>
+	Sat, 12 Nov 2005 23:17:00 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:55449 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S1751323AbVKMERA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 23:17:00 -0500
+Subject: [PATCH] add missing option in kconfig for ipw2200 monitor mode
+From: Kasper Sandberg <lkml@metanurb.dk>
+To: LKML Mailinglist <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>
+Content-Type: multipart/mixed; boundary="=-Tq9lvDFc4C2nFnxLrhC6"
+Date: Sun, 13 Nov 2005 05:16:54 +0100
+Message-Id: <1131855414.16512.1.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 12, 2005 at 03:44:35PM -0500, Xin Zhao wrote:
-> I am reading the NFS codes, but got stuck at the
-> nfs3_async_handle_jukebox() function. What's the use of this function?
-> IS there any document about this? Thanks!
 
-It just delays and then retries the original rpc call.  See the
-explanation of NFSERR_JUKEBOX in rfc 1813.
+--=-Tq9lvDFc4C2nFnxLrhC6
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
---b.
+This patch adds monitor mode option to ipw2200....
+
+signed-off-by: Kasper Sandberg <lkml@metanurb.dk>
+
+--=-Tq9lvDFc4C2nFnxLrhC6
+Content-Disposition: attachment; filename=fix-missing-ipw2200-option.diff
+Content-Type: text/x-patch; name=fix-missing-ipw2200-option.diff; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+
+diff -Naur linux-2.6.15-rc1-a/drivers/net/wireless/Kconfig linux-2.6.15-rc1-b/drivers/net/wireless/Kconfig
+--- linux-2.6.15-rc1-a/drivers/net/wireless/Kconfig	2005-11-13 05:11:39.451031050 +0100
++++ linux-2.6.15-rc1-b/drivers/net/wireless/Kconfig	2005-11-13 05:12:36.834130145 +0100
+@@ -217,6 +217,15 @@
+           say M here and read <file:Documentation/modules.txt>.  The module
+           will be called ipw2200.ko.
+ 
++config IPW2200_MONITOR
++        bool "Enable promiscuous mode"
++        depends on IPW2200
++        ---help---
++          Enables promiscuous/monitor mode support for the ipw2200 driver.
++          With this feature compiled into the driver, you can switch to
++          promiscuous mode via the Wireless Tool's Monitor mode.  While in this
++          mode, no packets can be sent.
++
+ config IPW_DEBUG
+ 	bool "Enable full debugging output in IPW2200 module."
+ 	depends on IPW2200
+
+--=-Tq9lvDFc4C2nFnxLrhC6--
+

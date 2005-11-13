@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbVKMAaL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964897AbVKMAhB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964899AbVKMAaL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Nov 2005 19:30:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964898AbVKMAaL
+	id S964897AbVKMAhB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Nov 2005 19:37:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964898AbVKMAhB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Nov 2005 19:30:11 -0500
-Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:43021 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S964896AbVKMAaJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Nov 2005 19:30:09 -0500
-Date: Sun, 13 Nov 2005 11:29:45 +1100
-To: Nicolas Pitre <nico@cam.org>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Linux Crypto Mailing List <linux-crypto@vger.kernel.org>
-Subject: Re: [PATCH 2/5] crypto/sha1.c: avoid shifting count left and right
-Message-ID: <20051113002945.GB22130@gondor.apana.org.au>
-References: <Pine.LNX.4.64.0510241347081.5288@localhost.localdomain> <Pine.LNX.4.64.0510241356270.5288@localhost.localdomain>
+	Sat, 12 Nov 2005 19:37:01 -0500
+Received: from gate.crashing.org ([63.228.1.57]:16858 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S964897AbVKMAhA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Nov 2005 19:37:00 -0500
+Subject: Re: asm/delay.h missing on powerpc (was: Re: Linuv 2.6.15-rc1)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Michael Buesch <mbuesch@freenet.de>
+Cc: linuxppc-dev@ozlabs.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200511130013.45610.mbuesch@freenet.de>
+References: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org>
+	 <Pine.LNX.4.64.0511121257000.3263@g5.osdl.org>
+	 <1131834254.7406.43.camel@gaston>  <200511130013.45610.mbuesch@freenet.de>
+Content-Type: text/plain; charset=utf-8
+Date: Sun, 13 Nov 2005 11:33:13 +1100
+Message-Id: <1131841993.5504.13.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0510241356270.5288@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 24, 2005 at 05:57:06PM +0000, Nicolas Pitre wrote:
+On Sun, 2005-11-13 at 00:13 +0100, Michael Buesch wrote:
+> On Saturday 12 November 2005 23:24, you wrote:
+> > Ìt should still work. I'm running -rc1 with "powerpc" on mine so that at
+> > least works, it's possible that we broke "ppc", I'll have a look and
+> > send a fix.
 > 
-> This patch avoids shifting the count left and right needlessly for each
-> call to sha1_update().  It instead can be done only once at the end in
-> sha1_final().
-> 
-> Keeping the previous test example (sha1_update() successively called with
-> len=64), a 1.3% performance increase can be observed on i386, or 0.2% on
-> ARM.  The generated code is also smaller on ARM.
+> powerpc arch builds and runs now, but
+> I have problems compiling the bcm430x driver. It includes linux/delay.h.
+> linux/delay.h includes asm/delay.h, which does not exist.
+> What to do now?
 
-Patch applied.
+I suspect that building drivers out of tree doesn't work very well with
+the new "merged" architecture where includes are split between asm/ppc
+and asm-powerpc... You should make sure that you build the driver with
+the same ARCH as the kernel, that is ARCH=powerpc at least, if we got
+the Makefiles right, that should give you all the headers...
 
-So in summary, patch 1 has been applied with some additional changes.
-Patch 2 is applied as is except for a change to accomodate the cpu->be
-change from Denis.
+(building glibc is definitely a pain :)
 
-Patches 3-5 have been made redundant by the cpu->be change.
+Ben.
 
-Thanks again for your efforts in making sha1 smaller and faster.
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

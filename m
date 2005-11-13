@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbVKMV13@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbVKMVfz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbVKMV13 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 16:27:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbVKMV13
+	id S1750711AbVKMVfz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 16:35:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbVKMVfz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 16:27:29 -0500
-Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:6528 "EHLO
-	vger.utah-nac.org") by vger.kernel.org with ESMTP id S1750718AbVKMV12
-	(ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Sun, 13 Nov 2005 16:27:28 -0500
-Message-ID: <4377A999.7090305@soleranetworks.com>
-Date: Sun, 13 Nov 2005 14:01:13 -0700
-From: jmerkey <jmerkey@soleranetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+	Sun, 13 Nov 2005 16:35:55 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:52363 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750711AbVKMVfy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Nov 2005 16:35:54 -0500
+Message-ID: <4377B1AE.8070806@zytor.com>
+Date: Sun, 13 Nov 2005 13:35:42 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Nikita Danilov <nikita@clusterfs.com>
-Cc: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: Re: Severe VFS Performance Issues 2.6 with > 95000 directory entries
-References: <4376B787.9000108@soleranetworks.com> <17271.13688.298525.23645@gargle.gargle.HOWL>
-In-Reply-To: <17271.13688.298525.23645@gargle.gargle.HOWL>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Neil Brown <neilb@suse.de>
+CC: "J.A. Magallon" <jamagallon@able.es>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: x86 building altivec for raid ?
+References: <20051113220213.55fc6fae@werewolf.auna.net> <17271.44949.625740.612801@cse.unsw.edu.au>
+In-Reply-To: <17271.44949.625740.612801@cse.unsw.edu.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita Danilov wrote:
+Neil Brown wrote:
+> On Sunday November 13, jamagallon@able.es wrote:
+> 
+>>Kernel is 2.6.14-mm2.
+>>This is an x86 box, why does it compile raid6altivec*.c ? I suppose it
+>>does not generate any code, because of some #ifdef magic, but why does
+>>it build them anyways ? Looks a bit strange.
+> 
+> It's probably just easier that way.
+> I guess you could do the following, but I'm not sure that it is really
+> worth it.
+> 
 
->Jeff V. Merkey writes:
-> > 
-> > The subject line speaks for itself.   This is using standard VFS readdir 
-> > and lookup calls through the VFSwith ftp.  Very poor. 
->
->Reiser4 works fine with 100M entries in a directory, so VFS is not a
->bottleneck here.
->  
->
+Yes, it's really just simpler.  It ends up being an empty .o file on 
+non-altivec machines.
 
-how about with ftp running on top? Try running FTP in directory with
-100M entries. See how long it takes to return the data to
-the remote client for a dir listing.
+I don't object to changing it, but it doesn't seem worth it to change it.
 
-Jeff
-
->[...]
->
-> > 
-> > Jeff
->
->Nikita.
->
->  
->
-
-
+	-hpa

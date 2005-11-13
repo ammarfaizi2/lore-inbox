@@ -1,49 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbVKMVEl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbVKMVOZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750707AbVKMVEl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 16:04:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750708AbVKMVEk
+	id S1750708AbVKMVOZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 16:14:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750709AbVKMVOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 16:04:40 -0500
-Received: from gate.crashing.org ([63.228.1.57]:63712 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750707AbVKMVEk (ORCPT
+	Sun, 13 Nov 2005 16:14:25 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:21686 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750708AbVKMVOY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 16:04:40 -0500
-Subject: Re: [PATCH] ppc64: Thermal control for SMU based machines
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Paul Mackerras <paulus@samba.org>,
-       Linux/PPC Development <linuxppc-dev@ozlabs.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.62.0511131845230.17491@numbat.sonytel.be>
-References: <200511080502.jA852dWI011502@hera.kernel.org>
-	 <Pine.LNX.4.62.0511131845230.17491@numbat.sonytel.be>
-Content-Type: text/plain
-Date: Mon, 14 Nov 2005 08:00:33 +1100
-Message-Id: <1131915634.5504.69.camel@gaston>
+	Sun, 13 Nov 2005 16:14:24 -0500
+Date: Sun, 13 Nov 2005 22:14:09 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [RFT][PATCH 3/3] swsusp: improve freeing of memory
+Message-ID: <20051113211409.GD2119@elf.ucw.cz>
+References: <200511122113.22177.rjw@sisk.pl> <200511122124.42675.rjw@sisk.pl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200511122124.42675.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-> > --- a/drivers/macintosh/Kconfig
-> > +++ b/drivers/macintosh/Kconfig
-> > @@ -169,6 +169,25 @@ config THERM_PM72
-> >  	  This driver provides thermostat and fan control for the desktop
-> >  	  G5 machines. 
-> >  
-> > +config WINDFARM
-> > +	tristate "New PowerMac thermal control infrastructure"
-> 
-> Shouldn't this depend on some PowerMac-related variables, to prevent it from
-> showing up on m68k?
+> This patch makes swsusp free only as much memory as needed and not as much
+> as possible.
 
-Well, the windfarm core is not really platform specific at all ...
-Christoph even proposed to move it to some more "common" place, though
-as I said, I want to work on it a bit more before that happens.
+Looks okay to me. ACK, modulo few small things.
 
-Ben.
+> -
+>  /* References to section boundaries */
+>  extern const void __nosave_begin, __nosave_end;
+>  
+>  extern unsigned int nr_copy_pages;
+> -extern suspend_pagedir_t *pagedir_nosave;
+> -extern suspend_pagedir_t *pagedir_save;
+> +extern struct pbe *pagedir_nosave;
+> +
+> +/*
+> + * This compilation switch determines the way in which memory will be freed
+> + * during suspend.  If defined, only as much memory will be freed as needed
+> + * to complete the suspend.  Otherwise, the largest possible amount of memory
+> + * will be freed.
+> + */
+> +#define OPPORTUNISTIC_SHRINKING		1
 
+Can you use little less tabelators? Also shorter name for this one
+might be "FREE_ALL". 
 
+> +/*
+> + * During suspend, on each attempt to free some more memory SHRINK_BITE
+> + * is used as the number of pages to free
+> + */
+> +#define SHRINK_BITE	10000
+
+Does this really need this kind of visibility? There's nothing user
+should tweak here.
+
+>  /**
+> + *	On resume it is necessary to trace and eventually free the unsafe
+> + *	pages that have been allocated, because they are needed for I/O
+> + *	(on x86-64 we likely will "eat" these pages once again while
+> + *	creating the temporary page translation tables)
+> + */
+> +
+> +struct eaten_page {
+> +	struct eaten_page	*next;
+> +	char			padding[PAGE_SIZE - sizeof(void *)];
+> +};
+
+Less tabelators here, please...
+
+-- 
+Thanks, Sharp!

@@ -1,80 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbVKMLGW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964912AbVKMLJk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932395AbVKMLGW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 06:06:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbVKMLGW
+	id S964912AbVKMLJk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 06:09:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbVKMLJj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 06:06:22 -0500
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:19377 "EHLO
-	pilet.ens-lyon.fr") by vger.kernel.org with ESMTP id S932395AbVKMLGV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 06:06:21 -0500
-Date: Sun, 13 Nov 2005 12:06:18 +0100
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Dave Jones <davej@redhat.com>, Jason <dravet@hotmail.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] vgacon: Workaround for resize bug in some chipsets
-Message-ID: <20051113110618.GD4117@implementation>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	"Antonino A. Daplas" <adaplas@gmail.com>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Dave Jones <davej@redhat.com>, Jason <dravet@hotmail.com>,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>
-References: <43766AC5.9080406@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <43766AC5.9080406@gmail.com>
-User-Agent: Mutt/1.5.9i-nntp
+	Sun, 13 Nov 2005 06:09:39 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:58265 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S932473AbVKMLJj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Nov 2005 06:09:39 -0500
+Message-ID: <43771EEB.9080808@drzeus.cx>
+Date: Sun, 13 Nov 2005 12:09:31 +0100
+From: Pierre Ossman <drzeus@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.7-2.1.fc4.nr (X11/20051011)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Herbert Xu <herbert@gondor.apana.org.au>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Register interrupt handler when net device is registered.
+ Avoids missing
+References: <E1Eb7yZ-00064D-00@gondolin.me.apana.org.au>
+In-Reply-To: <E1Eb7yZ-00064D-00@gondolin.me.apana.org.au>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Antonino A. Daplas, le Sun 13 Nov 2005 06:20:53 +0800, a écrit :
-> "I updated to the development kernel and now during boot only the top of the
-> text is visable. For example the monitor screen the is the lines and I can
-> only  see text in the asterik area.
-> ---------------------
-> | ****************  |
-> | *              *  |
-> | *              *  |
-> | ****************  |
-> |                   |
-> |                   |
-> |                   |
-> ---------------------
+Herbert Xu wrote:
+> Pierre Ossman <drzeus@drzeus.cx> wrote:
+> 
+>>interrupts if the interrupt mask gets out of sync.
+> 
+> 
+> What about fixing the interrupt mask instead rather than keeping
+> the IRQ handler registered all time?
+> 
 
-Are you missing some left and right part too? What are the dimensions of
-the text screen at bootup? What bootloader are you using? (It could be a
-bug in the boot up text screen dimension discovery).
+The best solution would be to put the device in the same state as it
+normally is when it is down. But I do not know the network subsystem or
+the 8139c+ well enough to do this myself.
 
-> I have a Silicon Graphics 1600sw LCD panel with a Number Nine Revolution 4
-> video card."
+> BTW, you should submit this via Jeff Garzik <jgarzik@pobox.com> and
+> netdev@vger.kernel.org.
+> 
 
-Does vgacon.c properly discovers that it is a VGA board?
+I did. I also cc:d the author of the suspend code. No one answered.
 
-> This bug seems to be a glitch in the VGA core of this chipset.  Resizing
-> the screen triggers the mentioned bug.
-
-Do vga-only games (like old DOS-mode games) work with it?
-
-> The workaround is to make vgacon avoid calling vgacon_doresize() if the
-> display parameters did not change.
-
-I.e. never call it, actually.
-
-> A definitive fix will need to be provided by someone who knows and has the
-> hardware.
-
-I'm not sure it is hardware-specific. Maybe you have a combination of
-vga bios/bootloader/vga=ask/... that prevents vgacon.c from properly
-discovering the dimensions of the text screen.
-
-
-Well, else it looks like a "safe side" patch: people now hit by such bug
-won't be hit any more unless using stty or such.
-
-Regards,
-Samuel
+Rgds
+Pierre

@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbVKMTku@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750919AbVKMT5n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751007AbVKMTku (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 14:40:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751001AbVKMTkt
+	id S1750919AbVKMT5n (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 14:57:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbVKMT5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 14:40:49 -0500
-Received: from mail-in-08.arcor-online.net ([151.189.21.48]:10114 "EHLO
-	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1750988AbVKMTks (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 14:40:48 -0500
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-Subject: Re: [PATCH] vgacon: Workaround for resize bug in some chipsets
-To: "Antonino A. Daplas" <adaplas@gmail.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Dave Jones <davej@redhat.com>, Jason <dravet@hotmail.com>,
-       Samuel Thibault <samuel.thibault@ens-lyon.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Reply-To: 7eggert@gmx.de
-Date: Sun, 13 Nov 2005 20:41:04 +0100
-References: <58c2Z-8jG-23@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Sun, 13 Nov 2005 14:57:43 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:44456 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751011AbVKMT5m
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Nov 2005 14:57:42 -0500
+Message-ID: <43779A7E.7020201@zytor.com>
+Date: Sun, 13 Nov 2005 11:56:46 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1EbNir-0006ky-DP@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Andi Kleen <ak@suse.de>, Dave Jones <davej@redhat.com>,
+       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>, torvalds@osdl.org
+Subject: Re: [PATCH 1/10] Cr4 is valid on some 486s
+References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com>	 <20051111103605.GC27805@elf.ucw.cz> <4374F2D5.7010106@vmware.com>	 <Pine.LNX.4.64.0511111147390.4627@g5.osdl.org>	 <4374FB89.6000304@vmware.com>	 <Pine.LNX.4.64.0511111218110.4627@g5.osdl.org>	 <20051113074241.GA29796@redhat.com>  <p734q6g4xuc.fsf@verdi.suse.de> <1131902775.25311.16.camel@localhost.localdomain>
+In-Reply-To: <1131902775.25311.16.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Antonino A. Daplas <adaplas@gmail.com> wrote:
+Alan Cox wrote:
+> On Sul, 2005-11-13 at 11:59 +0100, Andi Kleen wrote:
+> 
+>>Dave Jones <davej@redhat.com> writes:
+>>
+>>>Looks like the Ubuntu people already did this...
+>>>
+>>>http://www.kernel.org/git/?p=linux/kernel/git/bcollins/ubuntu-2.6.git;a=commitdiff;h=048985336e32efe665cddd348e92e4a4a5351415;hp=1cb630c2b5aaad7cedaa78aa135e6cecf5ab91ac
+>>
+>>It's probably not needed. At least AMD K7/K8 has a SYSCFG MSR bit to
+>>do this (or rather they disable bus cycles for locks that makes them
+>>very cheap) Intel has one too in a different MSR that looks similar.
+>>With some luck they're even already set by the BIOS on UP systems.  I
+>>know they are on some AMD systems.
+> 
+> I'd hope the vendors are not doing that by default because we have
+> kernel code that uses lock against not other processors but other bus
+> masters. The ECC code is one example. Is there any good info on the AMD
+> one so I can make the EDAC code put the processor back in x86 compatible
+> mode so that it behaves safely when scrubbing.
+> 
 
-> +++ b/drivers/video/console/vgacon.c
-> +#define VGA_FONTWIDTH       8   /* VGA does not support fontwidths != 8 */
+I can't speak about AMD, but on Transmeta's CPUs operations against 
+cached memory are *always* atomic; the atomicity is guaranteed by the 
+cache hierarchy.  The LOCK prefix does have effects against uncached memory.
 
-This is not true, VGA cards do support fontwidth=9, but the ninth column
-can only be blank or (optionally and only in the range of the IBM block
-chars) copied from the eighth column, cloning the behaviour of the MDA
-graphics card. If you disable this feature, you'll get 90x25 text resolution
-within standard VGA timings.
-
-BTW while looking at this file:
-
-1) I see ORIG_VIDEO_EGA_BX (defined to (screen_info.orig_video_ega_bx)
-being checked to be 0x10, but I don't find a place where the associated
-variable is set to this value. Nor do I get the meaning of this variable
-by reading it's name.
-
-2) If the videomode is 7, the card is asumed not to be a VGA card.
-VGA does support videomode 7, so this test is wrong. However, I don't
-asume this mode to be used on normal systems as nobody complained.
-
-I asume from the fragments I read that the correct fix would be to read
-the Display Combination Code for VGA (detects additional CGA and MDA
-adapters), then detect EGA (if it is, don't forget to check to check bit
-3 of 0x487) and use the return code and finally to use the CRTC address
-from the BIOS (The video mode may be set to 5 or 6 in order to make a
-mouse driver work in Hercules graphics). In case of EGA, we'll
-have to detect additional adapters manually. (Unfortunaly I threw away my
-EGA-compatible monitor, so I don't know if I can test it.)
-
-3) Having a text mode is tested by a blacklist of graphic modes. I don't
-think this is good, but I've not yet read everything in this file.
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+	-hpa

@@ -1,62 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbVKNBE3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbVKNBLR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750807AbVKNBE3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 20:04:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbVKNBE3
+	id S1750816AbVKNBLR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 20:11:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbVKNBLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 20:04:29 -0500
-Received: from zproxy.gmail.com ([64.233.162.197]:26142 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750807AbVKNBE2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 20:04:28 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gTk4I18Qqtkfe1xN+0RKzBKl6X99LfR6p9vcA4YH9tU/d8QIUTrBj/KPCQMhe0KdansDoJ9g93w1lU4ntrq9GZ0UivPoz+2/pCefKhQP6yNTtyxp6NxHNMZrWEIIe1nX3+tLdONjQG5GAeQzJeS/5bOsz0Qjfu/nHLuygfPDE5g=
-Message-ID: <9a8748490511131704m18dcfa37re8100b469388fe3c@mail.gmail.com>
-Date: Mon, 14 Nov 2005 02:04:28 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Michael Buesch <mbuesch@freenet.de>
-Subject: Re: Linuv 2.6.15-rc1
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Paul Mackerras <paulus@samba.org>, linuxppc-dev@ozlabs.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200511122237.17157.mbuesch@freenet.de>
+	Sun, 13 Nov 2005 20:11:17 -0500
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:21708 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1750816AbVKNBLR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Nov 2005 20:11:17 -0500
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: [PATCH 7/15] misc: Make x86 doublefault handling optional
+To: Andi Kleen <ak@suse.de>, Matt Mackall <mpm@selenic.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Reply-To: 7eggert@gmx.de
+Date: Mon, 14 Nov 2005 01:33:18 +0100
+References: <57CC5-7cD-21@gated-at.bofh.it> <57CC5-7cD-19@gated-at.bofh.it> <58gSR-6FB-13@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org>
-	 <200511122145.38409.mbuesch@freenet.de>
-	 <Pine.LNX.4.64.0511121257000.3263@g5.osdl.org>
-	 <200511122237.17157.mbuesch@freenet.de>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1EbSHf-0007LU-4t@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/12/05, Michael Buesch <mbuesch@freenet.de> wrote:
-> On Saturday 12 November 2005 22:00, you wrote:
-> >
-> > On Sat, 12 Nov 2005, Michael Buesch wrote:
-> > >
-> > > Latest GIT tree does not boot on my G4 PowerBook.
-> >
-> > What happens if you do
-> >
-> >       make ARCH=powerpc
-> >
-> > and build everything that way (including the "config" phase)?
->
-> I did
-> make mrproper
-> copy the .config over again
+Andi Kleen <ak@suse.de> wrote:
 
-are you not missing a "make oldconfig" step here?
+> Matt Mackall <mpm@selenic.com> writes:
+> 
+>> This adds configurable support for doublefault reporting on x86
+> 
+> I think that's a bad idea. Users will disable it and then
+> send bad bug reports. Better bug reports are worth 4K.
 
-> make ARCH=powerpc menuconfig
-
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+depends on EMBEDDED?
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

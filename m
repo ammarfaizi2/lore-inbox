@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750833AbVKNGDg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750843AbVKNGKM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750833AbVKNGDg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 01:03:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbVKNGDg
+	id S1750843AbVKNGKM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 01:10:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750888AbVKNGKM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 01:03:36 -0500
-Received: from [59.181.96.147] ([59.181.96.147]:6272 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1750833AbVKNGDf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 01:03:35 -0500
-Subject: prob with 2.6 Makefile
-From: Sapna Todwal <sapna@neoaccel.com>
-Reply-To: sapna@neoaccel.com
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Neoaccel India Pvt. Ltd
-Message-Id: <1131948242.3168.19.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-14) 
-Date: Mon, 14 Nov 2005 11:34:02 +0530
+	Mon, 14 Nov 2005 01:10:12 -0500
+Received: from smtp102.sbc.mail.re2.yahoo.com ([68.142.229.103]:30849 "HELO
+	smtp102.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1750843AbVKNGKL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 01:10:11 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Neil Brown <neilb@suse.de>
+Subject: Re: uinput broken in 2.6.15-rc1
+Date: Mon, 14 Nov 2005 01:10:04 -0500
+User-Agent: KMail/1.8.3
+Cc: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>, vojtech@suse.cz,
+       linux-kernel@vger.kernel.org
+References: <17272.7295.464735.805122@cse.unsw.edu.au>
+In-Reply-To: <17272.7295.464735.805122@cse.unsw.edu.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511140110.05991.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a few doubs with the 2.6 makefile
-Suppose I have the following dir structure:
-		maindir
-		    |
-		-------
-		|       |
-	       subdir1 subdir2
+On Monday 14 November 2005 00:11, Neil Brown wrote:
+> 
+> The 'uinput' driver doesn't work well in 2.6.15-rc1.  It
+> triggers this complaint:
+> 		printk(KERN_WARNING "input: device %s is statically allocated, will not register\n"
+> 			"Please convert to input_allocate_device() or contact dtor_core@ameritech.net\n",
+> 			dev->name ? dev->name : "<Unknown>");
+> 
+> The following patch fixes it for me, but I'm not convinced it is
+> correct.  I would expect it to need a special 'free' routine to match
+> the special 'alloc' routine, but I couldn't easily find one.
+> 
 
-Now both of this subdirs have many .c files which are to be compiled and
-linked together to make final1.o & final2.o files in the subdirs
-subdir1  & subdir2 respectively.
+Hi,
 
-Now i want to link this two files subdir1/final1.o & subdir2/final2.o ,
-in the maindir to make file say final.o file in maindir .
+This should work OK as long as you don't try to reuse the uinput device
+because input_unregister_device frees the data structure for you and
+uinput does not expect to lose part of its data structure.
 
-So the Makefile in maindir looks like:
+I am trying to comer up with a proper fix...
 
-obj-m := subdir1/ subdir2/
-
-This will traverse the subdir1 & subdir2 and call their makefiles.
-But how do i make final.o from subdir1/final1.o and subdir2/final2.o
-
-Kindly help me with the solution.
-
-Thanks in advance,
-Regards,
-Sapna
-
-
+-- 
+Dmitry

@@ -1,46 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbVKNPyW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbVKNPzn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751162AbVKNPyW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 10:54:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbVKNPyW
+	id S1751163AbVKNPzn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 10:55:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbVKNPzn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 10:54:22 -0500
-Received: from rtr.ca ([64.26.128.89]:31716 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1751162AbVKNPyW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 10:54:22 -0500
-Message-ID: <4378B327.3080301@rtr.ca>
-Date: Mon, 14 Nov 2005 10:54:15 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.xx:  dirty pages never being sync'd to disk?
-References: <4378ADB2.7040905@rtr.ca> <1131982550.2821.41.camel@laptopd505.fenrus.org> <4378B1FB.1060201@rtr.ca>
-In-Reply-To: <4378B1FB.1060201@rtr.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Nov 2005 10:55:43 -0500
+Received: from ojjektum.uhulinux.hu ([62.112.194.64]:26817 "EHLO
+	ojjektum.uhulinux.hu") by vger.kernel.org with ESMTP
+	id S1751163AbVKNPzm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 10:55:42 -0500
+Date: Mon, 14 Nov 2005 16:55:24 +0100
+From: Pozsar Balazs <pozsy@uhulinux.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: start_kernel / local_irq_enable() can be very slow
+Message-ID: <20051114155524.GF6457@ojjektum.uhulinux.hu>
+References: <20051112155453.GC21291@ojjektum.uhulinux.hu> <20051113234451.73f2527b.akpm@osdl.org> <Pine.LNX.4.64.0511140740260.3263@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0511140740260.3263@g5.osdl.org>
+User-Agent: Mutt/1.5.7i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are all of the values from /proc/sys/vm/
 
-     0  block_dump
-    10  dirty_background_ratio
-  3000  dirty_expire_centisecs
-    40  dirty_ratio
-   500  dirty_writeback_centisecs
-     0  laptop_mode
-     0  legacy_va_layout
-   256 32  lowmem_reserve_ratio
-65536  max_map_count
-  3831  min_free_kbytes
-     2  nr_pdflush_threads
-     0  overcommit_memory
-    50  overcommit_ratio
-     3  page-cluster
-    60  swappiness
-   300  swap_token_timeout
-   100  vfs_cache_pressure
+> > You could do something like:
+> > 
+> > int trace_irqs;
+> > 
+> > 	trace_irqs = 1;
+> > 	local_irq_enble();
+> > 	trace_irqs = 0;
+> 
+> Do "trace_irqs = 10" first.
+> 
+> > then, over in handle_IRQ_event():
+> > 
+> > 	if (trace_irqs)
+> > 		print_symbol("calling %s\n", (unsigned long)action->handler);
+> 
+> And decrement it here somewhere.
+> 
+> If it's delayed by up to three seconds, it sounds like there's a _lot_ of 
+> interrupts happening, and I don't think there's any point in showing all 
+> of them.
+
+Well, after using tons of printk's I found that the following is 
+happening:
+ - irqs get enabled, and the timer interrupt gets handled,
+ - arch/i386/kernel/timer.c::timer_interrupt gets called,
+ - which in turn calls cur_timer->mark_offset(), which is
+ - arch/i386/kernel/timers/timer_pm.c::mark_offset_pmtmr(), where we 
+   finally arrive to:
+        /* compensate for lost ticks */
+        if (lost >= 2)
+                jiffies_64 += lost - 1;
+
+So no irq storm here, everything works as it should, the jiffies gets 
+updated as it should, that's why it _seems_ from printk's that it takes 
+long. (And only 1 irq happens.)
+
+
+The main question though remains: what takes up seconds on the kernel 
+boot, and why is it so undeterministic how long it takes (sometimes just 
+0.3s, sometimes even 3s)? (Something before timers get enabled.)
+
+
+-- 
+pozsy

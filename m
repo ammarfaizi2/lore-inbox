@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbVKNTiM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbVKNTid@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751251AbVKNTiM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 14:38:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbVKNTiM
+	id S1751264AbVKNTid (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 14:38:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbVKNTid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 14:38:12 -0500
-Received: from 81-178-76-253.dsl.pipex.com ([81.178.76.253]:63907 "EHLO
+	Mon, 14 Nov 2005 14:38:33 -0500
+Received: from 81-178-76-253.dsl.pipex.com ([81.178.76.253]:64931 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1751251AbVKNTiK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 14:38:10 -0500
-Date: Mon, 14 Nov 2005 19:37:37 +0000
+	id S1751261AbVKNTiR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 14:38:17 -0500
+Date: Mon, 14 Nov 2005 19:37:41 +0000
 To: akpm@osdl.org
 Cc: apw@shadowen.org, kravetz@us.ibm.com, haveblue@us.ibm.com,
        lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/4] __add_section remove unused pgdat definition
-Message-ID: <20051114193737.GA15487@shadowen.org>
+Subject: [PATCH 4/4] memory_hotplug_name should be const
+Message-ID: <20051114193741.GA15508@shadowen.org>
 References: <exportbomb.1131997056@pinky>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,21 +25,22 @@ From: Andy Whitcroft <apw@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-__add_section defines an unused pointer to the zones pgdat.  Remove
-this definition.  This fixes a compile warning.
+The hotplug ops name entry for memory (memory_hotplug_name) should
+be const.  This fixes a compiler warning when HOTPLUG is enabled.
 
 Signed-off-by: Andy Whitcroft <apw@shadowen.org>
 ---
- memory_hotplug.c |    1 -
- 1 file changed, 1 deletion(-)
-diff -upN reference/mm/memory_hotplug.c current/mm/memory_hotplug.c
---- reference/mm/memory_hotplug.c
-+++ current/mm/memory_hotplug.c
-@@ -42,7 +42,6 @@ extern int sparse_add_one_section(struct
- 				  int nr_pages);
- static int __add_section(struct zone *zone, unsigned long phys_start_pfn)
- {
--	struct pglist_data *pgdat = zone->zone_pgdat;
- 	int nr_pages = PAGES_PER_SECTION;
- 	int ret;
+ memory.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff -upN reference/drivers/base/memory.c current/drivers/base/memory.c
+--- reference/drivers/base/memory.c
++++ current/drivers/base/memory.c
+@@ -30,7 +30,7 @@ static struct sysdev_class memory_sysdev
+ };
+ EXPORT_SYMBOL(memory_sysdev_class);
  
+-static char *memory_hotplug_name(struct kset *kset, struct kobject *kobj)
++static const char *memory_hotplug_name(struct kset *kset, struct kobject *kobj)
+ {
+ 	return MEMORY_CLASS_NAME;
+ }

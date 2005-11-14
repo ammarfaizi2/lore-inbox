@@ -1,79 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751273AbVKNVwT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbVKNVwq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751273AbVKNVwT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 16:52:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbVKNVwT
+	id S1751114AbVKNVwq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 16:52:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbVKNVwq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 16:52:19 -0500
-Received: from gw02.applegatebroadband.net ([207.55.227.2]:55541 "EHLO
-	data.mvista.com") by vger.kernel.org with ESMTP id S1751273AbVKNVwT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 16:52:19 -0500
-Message-ID: <4379070C.8090709@mvista.com>
-Date: Mon, 14 Nov 2005 13:52:12 -0800
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: Greg KH <greg@kroah.com>, ganzinger@mvista.com,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Calibration issues with USB disc present.
-References: <43750EFD.3040106@mvista.com>	 <1131746228.2542.11.camel@cog.beaverton.ibm.com>	 <20051112050502.GC27700@kroah.com> <4376130D.1080500@mvista.com>	 <20051112213332.GA16016@kroah.com> <4378DDC5.80103@mvista.com>	 <20051114184940.GA876@kroah.com> <1131998339.4668.16.camel@leatherman>
-In-Reply-To: <1131998339.4668.16.camel@leatherman>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Nov 2005 16:52:46 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:36243 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751271AbVKNVwo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 16:52:44 -0500
+Date: Mon, 14 Nov 2005 16:52:29 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] oops-tracing: mention digital photos
+Message-ID: <20051114215229.GA9043@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+References: <200511140302.jAE32voh027313@hera.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200511140302.jAE32voh027313@hera.kernel.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
-> On Mon, 2005-11-14 at 10:49 -0800, Greg KH wrote:
-> 
->>On Mon, Nov 14, 2005 at 10:56:05AM -0800, George Anzinger wrote:
->>
->>>Greg KH wrote:
->>>
->>>>On Sat, Nov 12, 2005 at 08:06:37AM -0800, George Anzinger wrote:
->>>>
->>>>>Greg KH wrote:
->>>>
->>>>On these boxes, I'd just recommend disabling USB legacy support
->>>>completly, if possible.  And then complain loudly to the vendor to fix
->>>>their BIOS.
->>>
->>>But if one is booting from that device...
->>
->>Booting from a USB device?  I can see this happening when installing a
->>distro, and you boot from the USB cdrom, but not for "normal"
->>operations.
+On Sun, Nov 13, 2005 at 07:02:57PM -0800, Linux Kernel wrote:
+ > tree 849707fda27c41466eabae0119d6386826ddb7dc
+ > parent 113fab1386f0093602d9f48b424b945cafd3db23
+ > author Diego Calleja <diegocg@gmail.com> Mon, 14 Nov 2005 08:07:40 -0800
+ > committer Linus Torvalds <torvalds@g5.osdl.org> Mon, 14 Nov 2005 10:14:17 -0800
+ > 
+ > [PATCH] oops-tracing: mention digital photos
+ > 
+ > Signed-off-by: Andrew Morton <akpm@osdl.org>
+ > Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 
-I think it was a hard drive they were trying to support.
->>
->>Oh well, publicly mock the manufacturer for doing horrible things in
->>their BIOS and then no one will buy the boxes, and we will not have
->>problems :)
+Something I've found handy countless times when users do this..
 
-Long term, maybe, but it will not close the bug report I have in hand...
-> 
-> 
-> I suspect the right fix is in-between. We should try to push hardware
-> makers away from using SMIs recklessly, but we should also do our best
-> to work around those that don't. The same problems crop up w/
-> virtualization where time-based calibration may be interrupted.
-> 
-> George, again, there has been some SMI resistant delay calibration code
-> added recently. You mentioned this problem was seen on 2.4 kernel, so
-> you could verify that the new code in 2.6.14 works and if so, try
-> backporting it.
-> 
-> If not we need to see what else we can do about improving delay
-> calibration (its a similar tick-based problem to what I'm addressing
-> with the timeofday rework) or reducing the use of delay by using
-> something else.
-> 
-I will look at that code, but we also need to address the same problem in the TSC calibration area.
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+Signed-off-by: Dave Jones <davej@redhat.com>
+
+--- linus/Documentation/oops-tracing.txt~	2005-11-14 16:47:54.000000000 -0500
++++ linus/Documentation/oops-tracing.txt	2005-11-14 16:51:02.000000000 -0500
+@@ -32,7 +32,10 @@ the disk is not available then you have 
+     has restarted.  Messy but it is the only option if you have not
+     planned for a crash. Alternatively, you can take a picture of
+     the screen with a digital camera - not nice, but better than
+-    nothing.
++    nothing.  If the messages scroll off the top of the console, you
++    may find that booting with a higher resolution (eg, vga=791)
++    will allow you to read more of the text. (Caveat: This needs vesafb,
++    so won't help for 'early' oopses)
+ 
+ (2) Boot with a serial console (see Documentation/serial-console.txt),
+     run a null modem to a second machine and capture the output there

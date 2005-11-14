@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbVKNVPE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbVKNVPl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932129AbVKNVPE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 16:15:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbVKNVPE
+	id S932135AbVKNVPl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 16:15:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbVKNVPk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 16:15:04 -0500
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:42581 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932129AbVKNVPC
+	Mon, 14 Nov 2005 16:15:40 -0500
+Received: from zproxy.gmail.com ([64.233.162.198]:29062 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932134AbVKNVPj convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 16:15:02 -0500
-Message-ID: <4378FED8.2060505@tmr.com>
-Date: Mon, 14 Nov 2005 16:17:12 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
+	Mon, 14 Nov 2005 16:15:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=q3MzKRTQkDg9lb+3eMMQdWRxXNay55LzbL0uykAQC+DsA85kXsfhhRjFvlcGhhY+P2zEtaCAASOKGq+Y6qNc4BpeYzLzaINLF1kSqWsqI0OGmhptKhMHjGg89D9NOxyiUF0ZPrgKONbuOJKLHUHf9qHnOgfXsR0jfwbea3tvbLY=
+Message-ID: <9929d2390511141315t2fb15b2aucbbebcbe4cec7ef1@mail.gmail.com>
+Date: Mon, 14 Nov 2005 13:15:38 -0800
+From: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, mpm@selenic.com
+Subject: [BUG] netpoll is unable to handle skb's using packet split
 MIME-Version: 1.0
-To: David.Ronis@mcgill.ca
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Serious IDE problem still present in 2.6.14
-References: <Pine.LNX.4.44.0510301030120.26176-100000@coffee.psychology.mcmaster.ca>	 <1130689871.6348.3.camel@montroll.chem.mcgill.ca>	 <4365511C.7040903@yahoo.de>	 <1130713716.6348.7.camel@montroll.chem.mcgill.ca>	 <4365596F.4060105@yahoo.de>	 <1130785344.5932.6.camel@montroll.chem.mcgill.ca>	 <43673DFE.4000702@yahoo.de>	 <1131022436.6016.4.camel@montroll.chem.mcgill.ca>	 <436A9C30.3080705@yahoo.de> <1131680793.6300.20.camel@montroll.chem.mcgill.ca>
-In-Reply-To: <1131680793.6300.20.camel@montroll.chem.mcgill.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Ronis wrote:
-> I've been busy and have been a bit late responding to this.  In short,
-> have a problem with disk performance on a HP Pavilion laptop in the
-> 2.6.1[34] kernels (it works fine under 2.6.12.x).  I've summarized much
-> of the tests I've run on in a post to linux-kernel and linux-ide (when
-> we thought it was a problem in the ATIIXP module) at:
-> 
->    http://marc.theaimsgroup.com/?l=linux-kernel&m=112802950411697&w=2
-> 
-> After working with Stefan for a bit, we determined that the problem is
-> in the ACPI modules (in fact setting ACPI=ht at boot fixes it, although
-> other things seem to break, as described below).  Stefan suggested I
-> repost the bug to the linux-kernel list, and so here it is.
+When using packet split, netpoll times out when doing a netdump.
 
-Is this read performance, write performance, or both? And have you 
-checked the output in dmesg? See anything with blockdev? Detailed lspci 
-output and /proc/interrupts?
+Server logs:
+--netdump[14973]: Got too many timeouts in handshaking, ignoring
+client 172.0.2.250
+--netdump[14973]: Got too many timeouts waiting for SHOW_STATUS for
+client 172.0.2.250, rebooting it.
 
-I don't have anything in mand, just looking for information which might 
-in some universe get diddled by ACPI.
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+When packet split is not used, netpoll dumps correctly.  This was
+reproduced using the initial setup:
+
+HP DL380G3 (Server)
+RHEL4 U1
+7170 NIC
+e1000 driver
+
+HP DL380G4 (Client)
+RHEL3 U5
+7170 NIC
+e1000 driver
+
+We also tested using the latest RHEL4 U2 on the client, with the same results.
+
+Netpoll does not appear to be able to handle skb's using packet split,
+a possible resolution would be to test for packet split and to use
+skb_linearize() in netpoll to resolve the issue.
+
+--
+Cheers,
+Jeff

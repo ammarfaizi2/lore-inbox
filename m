@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbVKNXXK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751314AbVKNXZc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751309AbVKNXXK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 18:23:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbVKNXXJ
+	id S1751314AbVKNXZc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 18:25:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbVKNXZc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 18:23:09 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:46287 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751309AbVKNXXI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 18:23:08 -0500
-Date: Mon, 14 Nov 2005 15:23:16 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: apw@shadowen.org, kravetz@us.ibm.com, haveblue@us.ibm.com,
-       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/4] register_ and unregister_memory_notifier should be
- global
-Message-Id: <20051114152316.4060d30c.akpm@osdl.org>
-In-Reply-To: <20051114193738.GA15494@shadowen.org>
-References: <exportbomb.1131997056@pinky>
-	<20051114193738.GA15494@shadowen.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Nov 2005 18:25:32 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:41160 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751314AbVKNXZb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 18:25:31 -0500
+Date: Mon, 14 Nov 2005 15:25:00 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Adam Litke <agl@us.ibm.com>
+cc: linux-mm@kvack.org, ak@suse.de, linux-kernel@vger.kernel.org,
+       kenneth.w.chen@intel.com, wli@holomorphy.com
+Subject: Re: [RFC] NUMA memory policy support for HUGE pages
+In-Reply-To: <1132007410.13502.35.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.62.0511141523100.4676@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.62.0511111051080.20589@schroedinger.engr.sgi.com> 
+ <Pine.LNX.4.62.0511111225100.21071@schroedinger.engr.sgi.com> 
+ <1131980814.13502.12.camel@localhost.localdomain> 
+ <Pine.LNX.4.62.0511141340160.4663@schroedinger.engr.sgi.com>
+ <1132007410.13502.35.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Whitcroft <apw@shadowen.org> wrote:
->
-> Both register_memory_notifer and unregister_memory_notifier are global
-> and declared so in linux.h.  Update the HOTPLUG specific definitions
-> to match.  This fixes a compile warning when HOTPLUG is enabled.
+On Mon, 14 Nov 2005, Adam Litke wrote:
+
+> On Mon, 2005-11-14 at 13:46 -0800, Christoph Lameter wrote:
+> > This is V2 of the patch.
+> > 
+> > Changes:
+> > 
+> > - Cleaned up by folding find_or_alloc() into hugetlb_no_page().
 > 
+> IMHO this is not really a cleanup.  When the demand fault patch stack
+> was first accepted, we decided to separate out find_or_alloc_huge_page()
+> because it has the page_cache retry loop with several exit conditions.
+> no_page() has its own backout logic and mixing the two makes for a
+> tangled mess.  Can we leave that hunk out please?
 
-There is no linux.h and I can find no .h file which declares
-register_memory_notifier().  Please clarify?
+It seemed to me that find_or_alloc_huge_pages has a pretty simple backout 
+logic that folds nicely into no_page(). Both functions share a lot of 
+variables and putting them together not only increases the readability of 
+the code but also makes the function smaller and execution more efficient.
 
-
-> ---
->  memory.c |    4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> diff -upN reference/drivers/base/memory.c current/drivers/base/memory.c
-> --- reference/drivers/base/memory.c
-> +++ current/drivers/base/memory.c
-> @@ -50,12 +50,12 @@ static struct kset_hotplug_ops memory_ho
->  
->  static struct notifier_block *memory_chain;
->  
-> -static int register_memory_notifier(struct notifier_block *nb)
-> +int register_memory_notifier(struct notifier_block *nb)
->  {
->          return notifier_chain_register(&memory_chain, nb);
->  }
->  
-> -static void unregister_memory_notifier(struct notifier_block *nb)
-> +void unregister_memory_notifier(struct notifier_block *nb)
->  {
->          notifier_chain_unregister(&memory_chain, nb);
->  }

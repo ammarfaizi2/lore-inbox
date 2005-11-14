@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbVKNLyf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbVKNMAX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751088AbVKNLyf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 06:54:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbVKNLyf
+	id S1751095AbVKNMAX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 07:00:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbVKNMAX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 06:54:35 -0500
-Received: from perninha.conectiva.com.br ([200.140.247.100]:2253 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S1751088AbVKNLye (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 06:54:34 -0500
-Date: Mon, 14 Nov 2005 09:54:32 -0200
-From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
-To: akpm <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, abhay_salunke@dell.com
-Subject: [PATCH] - Fixes sparse warnings in dell_rbu driver.
-Message-Id: <20051114095432.5b53ad5d.lcapitulino@mandriva.com.br>
-Organization: Mandriva
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-conectiva-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 14 Nov 2005 07:00:23 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:49050 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S1751095AbVKNMAW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 07:00:22 -0500
+Message-ID: <43787C46.30707@drzeus.cx>
+Date: Mon, 14 Nov 2005 13:00:06 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.6a1 (X11/20051022)
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Jens Axboe <axboe@suse.de>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+References: <20051114021127.GC5735@stusta.de> <4378650A.1070209@drzeus.cx>	 <1131964282.2821.11.camel@laptopd505.fenrus.org>	 <20051114111108.GR3699@suse.de>	 <1131967167.2821.14.camel@laptopd505.fenrus.org>	 <20051114112402.GT3699@suse.de>	 <1131967678.2821.21.camel@laptopd505.fenrus.org>	 <20051114113442.GU3699@suse.de> <1131969212.2821.27.camel@laptopd505.fenrus.org>
+In-Reply-To: <1131969212.2821.27.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Arjan van de Ven wrote:
+>
+> The experience with Fedora so far is exceptionally good; in early 2.6
+> there were some reports with XFS stacked on top of DM, but since then
+> XFS has gone on a stack diet... also the -mm patches to do non-recursive
+> IO submission will bury this (mostly theoretical) monster for good.
+>
+>   
 
-The patch below fixes the following sparse warnings:
+Fedora with their 2.6.12 and raid+xfs+nfs still causes occasional 
+problems for me. Haven't tried their 2.6.14. But until the block layer 
+modifications are mainline I'm sticking with 8 KiB. My heart momentarily 
+stops every time the file server decides to have a kernel panic, so 
+better safe than sorry.
 
-drivers/firmware/dell_rbu.c:108:37: warning: Using plain integer as NULL pointer
-drivers/firmware/dell_rbu.c:109:31: warning: Using plain integer as NULL pointer
-drivers/firmware/dell_rbu.c:181:27: warning: Using plain integer as NULL pointer
+Rgds
+Pierre
 
-Signed-off-by: Luiz Capitulino <lcapitulino@mandriva.com.br>
 
- drivers/firmware/dell_rbu.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/firmware/dell_rbu.c b/drivers/firmware/dell_rbu.c
---- a/drivers/firmware/dell_rbu.c
-+++ b/drivers/firmware/dell_rbu.c
-@@ -105,8 +105,8 @@ static int create_packet(void *data, siz
- 	int ordernum = 0;
- 	int retval = 0;
- 	unsigned int packet_array_size = 0;
--	void **invalid_addr_packet_array = 0;
--	void *packet_data_temp_buf = 0;
-+	void **invalid_addr_packet_array = NULL;
-+	void *packet_data_temp_buf = NULL;
- 	unsigned int idx = 0;
- 
- 	pr_debug("create_packet: entry \n");
-@@ -178,7 +178,7 @@ static int create_packet(void *data, siz
- 						packet_data_temp_buf),
- 					allocation_floor);
- 			invalid_addr_packet_array[idx++] = packet_data_temp_buf;
--			packet_data_temp_buf = 0;
-+			packet_data_temp_buf = NULL;
- 		}
- 	}
- 	spin_lock(&rbu_data.lock);
-
--- 
-Luiz Fernando N. Capitulino

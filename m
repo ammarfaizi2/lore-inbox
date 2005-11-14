@@ -1,81 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbVKNRa5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbVKNRf5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751193AbVKNRa5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 12:30:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbVKNRa5
+	id S1751202AbVKNRf5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 12:35:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbVKNRf5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 12:30:57 -0500
-Received: from mivlgu.ru ([81.18.140.87]:38551 "EHLO master.mivlgu.local")
-	by vger.kernel.org with ESMTP id S1751193AbVKNRa5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 12:30:57 -0500
-Date: Mon, 14 Nov 2005 20:30:50 +0300
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: linux-pci@atrey.karlin.mff.cuni.cz
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] PCIE: make bus_id for PCI Express devices unique
-Message-ID: <20051114173050.GB24496@master.mivlgu.local>
+	Mon, 14 Nov 2005 12:35:57 -0500
+Received: from ganesha.gnumonks.org ([213.95.27.120]:3256 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S1751202AbVKNRf5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 12:35:57 -0500
+Date: Mon, 14 Nov 2005 18:35:54 +0100
+From: Harald Welte <laforge@gnumonks.org>
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Cc: akpm@osdl.org
+Subject: [PATCH] Make sysctl.h (again) useable from userspace
+Message-ID: <20051114173554.GK4773@sunbeam.de.gnumonks.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="9ToWwKEyhugL+MAz"
 Content-Disposition: inline
+User-Agent: mutt-ng devel-20050619 (Debian)
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The bus_id string must be unique for all devices of that bus in the
-system, not just for devices with the same parent - otherwise multiple
-symlinks with identical names appear in /sys/bus/pci_express/devices.
 
-Signed-off-by: Sergey Vlasov <vsu@altlinux.ru>
+--9ToWwKEyhugL+MAz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+Make sysctl.h (again) useable from userspace
+
+Signed-off-by: Harald Welte <laforge@netfilter.org>
 
 ---
+commit b3d70298da3a00f29dd82cf16c1f13407ad2ac09
+tree 740a126b72a8c1b1281ae159c0966960934aa207
+parent 67e27e3ff7ef24e505d49d368fc3504569de86ef
+author Harald Welte <laforge@netfilter.org> Mon, 14 Nov 2005 18:32:50 +0100
+committer Harald Welte <laforge@netfilter.org> Mon, 14 Nov 2005 18:32:50 +0=
+100
 
- drivers/pci/pcie/portdrv_core.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ include/linux/sysctl.h |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
- Here is the example of brokenness (observed with 2.6.15-rc1, 2.6.14 and
- even some earlier versions):
+diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
+--- a/include/linux/sysctl.h
++++ b/include/linux/sysctl.h
+@@ -20,7 +20,6 @@
+=20
+ #include <linux/kernel.h>
+ #include <linux/types.h>
+-#include <linux/list.h>
+ #include <linux/compiler.h>
+=20
+ struct file;
+@@ -859,6 +858,7 @@ enum
+ };
+=20
+ #ifdef __KERNEL__
++#include <linux/list.h>
+=20
+ extern void sysctl_init(void);
+=20
+--=20
+- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+"Privacy in residential applications is a desirable marketing option."
+                                                  (ETSI EN 300 175-7 Ch. A6)
 
- /sys/bus/pci_express/devices:
- total 0
- lrwxrwxrwx  1 root root 0 Nov 14 08:45 pcie00 -> ../../../devices/pci0000:00/0000:00:0e.0/pcie00
- lrwxrwxrwx  1 root root 0 Nov 14 08:45 pcie00 -> ../../../devices/pci0000:00/0000:00:0e.0/pcie00
- lrwxrwxrwx  1 root root 0 Nov 14 08:45 pcie00 -> ../../../devices/pci0000:00/0000:00:0e.0/pcie00
- lrwxrwxrwx  1 root root 0 Nov 14 08:45 pcie00 -> ../../../devices/pci0000:00/0000:00:0e.0/pcie00
- lrwxrwxrwx  1 root root 0 Nov 14 08:45 pcie03 -> ../../../devices/pci0000:00/0000:00:0e.0/pcie03
- lrwxrwxrwx  1 root root 0 Nov 14 08:45 pcie03 -> ../../../devices/pci0000:00/0000:00:0e.0/pcie03
- lrwxrwxrwx  1 root root 0 Nov 14 08:45 pcie03 -> ../../../devices/pci0000:00/0000:00:0e.0/pcie03
- lrwxrwxrwx  1 root root 0 Nov 14 08:45 pcie03 -> ../../../devices/pci0000:00/0000:00:0e.0/pcie03
+--9ToWwKEyhugL+MAz
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
- After applying the patch this becomes:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
- /sys/bus/pci_express/devices:
- total 0
- lrwxrwxrwx  1 root root 0 Nov 14 09:45 0000:00:0b.0:pcie00 -> ../../../devices/pci0000:00/0000:00:0b.0/0000:00:0b.0:pcie00
- lrwxrwxrwx  1 root root 0 Nov 14 09:45 0000:00:0b.0:pcie03 -> ../../../devices/pci0000:00/0000:00:0b.0/0000:00:0b.0:pcie03
- lrwxrwxrwx  1 root root 0 Nov 14 09:45 0000:00:0c.0:pcie00 -> ../../../devices/pci0000:00/0000:00:0c.0/0000:00:0c.0:pcie00
- lrwxrwxrwx  1 root root 0 Nov 14 09:45 0000:00:0c.0:pcie03 -> ../../../devices/pci0000:00/0000:00:0c.0/0000:00:0c.0:pcie03
- lrwxrwxrwx  1 root root 0 Nov 14 09:45 0000:00:0d.0:pcie00 -> ../../../devices/pci0000:00/0000:00:0d.0/0000:00:0d.0:pcie00
- lrwxrwxrwx  1 root root 0 Nov 14 09:45 0000:00:0d.0:pcie03 -> ../../../devices/pci0000:00/0000:00:0d.0/0000:00:0d.0:pcie03
- lrwxrwxrwx  1 root root 0 Nov 14 09:45 0000:00:0e.0:pcie00 -> ../../../devices/pci0000:00/0000:00:0e.0/0000:00:0e.0:pcie00
- lrwxrwxrwx  1 root root 0 Nov 14 09:45 0000:00:0e.0:pcie03 -> ../../../devices/pci0000:00/0000:00:0e.0/0000:00:0e.0:pcie03
+iD8DBQFDeMr6XaXGVTD0i/8RAshzAJkBm0d6keOnOj4e/1zz0MxH/jCT1QCeJB3K
+Tz+068dF7YFRsbYAL3UUaBU=
+=eUL8
+-----END PGP SIGNATURE-----
 
-applies-to: c4c2d62da01963dd519b8a16c3959fe9531614b0
-2a1f8b84baa4447b7cf091f59f5d921a47ce5f59
-diff --git a/drivers/pci/pcie/portdrv_core.c b/drivers/pci/pcie/portdrv_core.c
-index 467a4ce..e4e5f1e 100644
---- a/drivers/pci/pcie/portdrv_core.c
-+++ b/drivers/pci/pcie/portdrv_core.c
-@@ -238,8 +238,8 @@ static void pcie_device_init(struct pci_
- 	device->driver = NULL;
- 	device->driver_data = NULL;
- 	device->release = release_pcie_device;	/* callback to free pcie dev */
--	sprintf(&device->bus_id[0], "pcie%02x",
--		get_descriptor_id(port_type, service_type));
-+	snprintf(device->bus_id, sizeof(device->bus_id), "%s:pcie%02x",
-+		 pci_name(parent), get_descriptor_id(port_type, service_type));
- 	device->parent = &parent->dev;
- }
- 
----
-0.99.9.GIT
+--9ToWwKEyhugL+MAz--

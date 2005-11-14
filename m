@@ -1,69 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbVKNTYl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbVKNT0j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751249AbVKNTYl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 14:24:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbVKNTYk
+	id S1751252AbVKNT0j (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 14:26:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbVKNT0j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 14:24:40 -0500
-Received: from ganesha.gnumonks.org ([213.95.27.120]:18916 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S1751249AbVKNTYk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 14:24:40 -0500
-Date: Mon, 14 Nov 2005 20:24:38 +0100
-From: Harald Welte <laforge@gnumonks.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net, akpm@osdl.org
-Subject: Re: [PATCH] Make usbdevice_fs.h (again) useable from userspace
-Message-ID: <20051114192438.GM4773@sunbeam.de.gnumonks.org>
-References: <20051114173727.GL4773@sunbeam.de.gnumonks.org> <1131990327.2821.44.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="djJN5oi3zFpblwUd"
-Content-Disposition: inline
-In-Reply-To: <1131990327.2821.44.camel@laptopd505.fenrus.org>
-User-Agent: mutt-ng devel-20050619 (Debian)
-X-Spam-Score: 0.0 (/)
+	Mon, 14 Nov 2005 14:26:39 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:24448 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751252AbVKNT0i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 14:26:38 -0500
+Date: Mon, 14 Nov 2005 11:25:54 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Gerd Knorr <kraxel@suse.de>
+cc: Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
+       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH 1/10] Cr4 is valid on some 486s
+In-Reply-To: <4378A7F3.9070704@suse.de>
+Message-ID: <Pine.LNX.4.64.0511141118000.3263@g5.osdl.org>
+References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com>
+ <20051111103605.GC27805@elf.ucw.cz> <4374F2D5.7010106@vmware.com>
+ <Pine.LNX.4.64.0511111147390.4627@g5.osdl.org> <4374FB89.6000304@vmware.com>
+ <Pine.LNX.4.64.0511111218110.4627@g5.osdl.org> <20051113074241.GA29796@redhat.com>
+ <Pine.LNX.4.64.0511131118020.3263@g5.osdl.org> <Pine.LNX.4.64.0511131210570.3263@g5.osdl.org>
+ <4378A7F3.9070704@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---djJN5oi3zFpblwUd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Nov 14, 2005 at 06:45:27PM +0100, Arjan van de Ven wrote:
-> On Mon, 2005-11-14 at 18:37 +0100, Harald Welte wrote:
-> > Make usbdevice_fs.h (again) useable from userspace
-> >=20
-> > If we have CONFIG_COMPAT enabled, then userspace programs using
-> > usbdevice_fs.h won't compile anymore.
->=20
-> how does the userspace application set CONFIG_COMPAT??
+On Mon, 14 Nov 2005, Gerd Knorr wrote:
+> 
+> Throwing another patch into the discussion ;)
 
-duh. good question.  Seems like the application was broken by somehow
-including config.h, so we can safely ignore this.  Sorry for the noise.
+Ouch, this one is really ugly.
 
---=20
-- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-"Privacy in residential applications is a desirable marketing option."
-                                                  (ETSI EN 300 175-7 Ch. A6)
+If you want to go this way, then you should instead add an X86_FEATURE_SMP 
+that gets cleared on UP and on SMP with just one core (and detect when CPU 
+hotplug ain't gonna happen ;), and then do
 
---djJN5oi3zFpblwUd
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+	#ifdef CONFIG_SMP
+	#define smp_alternative(x,y) alternative(x,y,X86_FEATURE_SMP)
+	#else
+	#define smp_alternative(x,y) asm(x)
+	#endif
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+or something similar, instead of creating a totally new infrastructure to 
+do the thing that "alternative()" already does.
 
-iD8DBQFDeOR2XaXGVTD0i/8RAlxYAKCmPqHbbsjbDogSifbU/cftzc/usACbB45n
-VsgAJO8n7+Uw5YcmBBH98Wc=
-=y57G
------END PGP SIGNATURE-----
+(Yeah, the above doesn't really work, since usually the SMP form is the 
+longer one, and "alternative()" wants the long complex one first. So maybe 
+the x86 feature needs to be "X86_FEATURE_UP" instead, since it's now a 
+"feature" to only have one core ;)
 
---djJN5oi3zFpblwUd--
+			Linus

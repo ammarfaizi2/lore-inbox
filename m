@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbVKNMf4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751111AbVKNMlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751109AbVKNMf4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 07:35:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbVKNMf4
+	id S1751111AbVKNMlg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 07:41:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbVKNMlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 07:35:56 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:47572 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751109AbVKNMfz (ORCPT
+	Mon, 14 Nov 2005 07:41:36 -0500
+Received: from gold.veritas.com ([143.127.12.110]:32354 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751111AbVKNMlf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 07:35:55 -0500
-From: Andi Kleen <ak@suse.de>
-To: "Jan Beulich" <JBeulich@novell.com>
-Subject: Re: [discuss] Re: [PATCH 5/39] NLKD/x86-64 - early/late CPU up/down notification
-Date: Mon, 14 Nov 2005 13:37:14 +0100
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
-References: <43720DAE.76F0.0078.0@novell.com> <200511101410.16903.ak@suse.de> <43785304.76F0.0078.0@novell.com>
-In-Reply-To: <43785304.76F0.0078.0@novell.com>
+	Mon, 14 Nov 2005 07:41:35 -0500
+Date: Mon, 14 Nov 2005 12:40:14 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+cc: Gleb Natapov <gleb@minantech.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Nick's core remove PageReserved broke vmware...
+In-Reply-To: <20051114123432.GQ20871@mellanox.co.il>
+Message-ID: <Pine.LNX.4.61.0511141237180.2655@goblin.wat.veritas.com>
+References: <20051114122759.GE5492@minantech.com> <20051114123432.GQ20871@mellanox.co.il>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511141337.14365.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 14 Nov 2005 12:41:28.0941 (UTC) FILETIME=[BBD061D0:01C5E918]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 14 November 2005 09:04, Jan Beulich wrote:
+On Mon, 14 Nov 2005, Michael S. Tsirkin wrote:
+> Quoting Gleb Natapov <gleb@minantech.com>:
+> > On Mon, Nov 14, 2005 at 02:25:35PM +0200, Michael S. Tsirkin wrote:
+> > > 
+> > > There's one thing that I have thought about: what happens
+> > > if I set DONTFORK on a page which already has COW set
+> > > (e.g. after fork)?
+> > > 
+> > > It seems that the right thing would be to force a page copy -
+> > > otherwise the page can get copied on write.
 
-> Assuming you mean CPU_ONLINE and CPU_DEAD. 
+No, keep it simple, DONTFORK simply marks the area as not to be included
+in a fork from that time onwards (until perhaps a DOFORK follows).
 
-Yes
+> > I thought about it. It should not happen for OpenIB since get_user_pages
+> > will break COW for us and I don't think we should complicate DONTFORK
+> > implementation by doing break during madvise().
 
-> But no, I don't really like 
-> this. The most significant difference is that the existing notifications
-> are not sent on the starting CPU, but on the one it got started from.
-> The point in time is only the second reason for not using these.
+Exactly.
 
-Ok, I can see your point. Let's say a new notifier for that would
-be ok if you can find at least one other existing in tree user and 
-convert it  to it. Does that sound fair? 
+> Hmm, I assumed we call madvise before driver does get_user_pages,
+> otherwise an application could fork in between.
 
-Note I'm about to remove the IO apic watchdog setup, so that one
-doesn't count.
+I think we're all of us assuming that.
 
--Andi
+> Should we worry about this?
+
+About what?
+
+Hugh

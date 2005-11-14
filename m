@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbVKNAfG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbVKNAg3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750809AbVKNAfG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 19:35:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbVKNAfF
+	id S1750810AbVKNAg3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 19:36:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750813AbVKNAg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 19:35:05 -0500
-Received: from zproxy.gmail.com ([64.233.162.200]:10736 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750809AbVKNAfE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 19:35:04 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JX/i5fPLFy9ccqcA0SpHJn4KsAN/67nWkwKAcxFktX3P7nETicOfAM0sC5fgvQYrHKYCzcj9hEraIIpU/jQBeNbo9xCUVxvt8zpvIZWB38yabc/Y9/EJXJTf5+wq4lJ5z1I10vUR6HIo865XFNDs+HDHwmJs7DA8vmd6y2dre2o=
-Message-ID: <9a8748490511131635p2663cd14k964cf18515ad9f66@mail.gmail.com>
-Date: Mon, 14 Nov 2005 01:35:03 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: Modules are missed while compiling the same version of kernel
-Cc: Neo Jia <cjia@cse.unl.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <1131822591.15223.5.camel@mindpipe>
+	Sun, 13 Nov 2005 19:36:29 -0500
+Received: from fsmlabs.com ([168.103.115.128]:10191 "EHLO spamalot.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S1750810AbVKNAg3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Nov 2005 19:36:29 -0500
+X-ASG-Debug-ID: 1131928584-16917-87-0
+X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
+Date: Sun, 13 Nov 2005 16:42:10 -0800 (PST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: "Raj, Ashok" <ashok.raj@intel.com>
+cc: Andrew Morton <akpm@osdl.org>, Nathan Lynch <nathanl@austin.ibm.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, ak@muc.de,
+       rusty@rustycorp.com.au, Srivatsa Vaddagiri <vatsa@in.ibm.com>,
+       jschopp@austin.ibm.com,
+       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>,
+       Dave Jones <davej@redhat.com>
+X-ASG-Orig-Subj: RE: Documentation for CPU hotplug support
+Subject: RE: Documentation for CPU hotplug support
+In-Reply-To: <A28EFEDC5416054BA1026D892753E9AF0BBDD08C@orsmsx404.amr.corp.intel.com>
+Message-ID: <Pine.LNX.4.61.0511131508530.24091@montezuma.fsmlabs.com>
+References: <A28EFEDC5416054BA1026D892753E9AF0BBDD08C@orsmsx404.amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <43756131.5020702@cse.unl.edu>
-	 <9a8748490511120634h64a74359s59e4eab3ca8fdda2@mail.gmail.com>
-	 <1131822591.15223.5.camel@mindpipe>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.5268
+	Rule breakdown below pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/12/05, Lee Revell <rlrevell@joe-job.com> wrote:
-> On Sat, 2005-11-12 at 15:34 +0100, Jesper Juhl wrote:
-> > You are adding the -rt patchset, the changes in there could also
-> > account for some of the difference although I must admit I don't know
-> > exactely what changes the -rt patchset makes - I've never really
-> > looked at it.
->
-> Actually he's talking about RTLinux, which is a commercial product.  He
-> needs to contact his support rep.  Or depending on the nature of his RT
-> constraints, consider the -rt kernel.
->
-Ohh, whoopsie, I thought he was talking about Ingo's -rt patches.
-Thank you for clearing that up.
+On Sat, 12 Nov 2005, Raj, Ashok wrote:
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+> >
+> >Ashok was my patch for the cpufreq driver *that* horrible? Or perhaps
+> we
+> >just need to move things like the set_cpus_allowed further up in the
+> calls
+> >and handle everything in one location. Interested?
+> >
+> 
+> I have been on to multiple things recently, I think I saw your post, but
+> didn't look at it closer.
+> 
+> Yes, moving things higher up would definitely help, especially the
+> set_cpus_allowed(). 
+> 
+> We should also do the same for the case where we have the list of
+> dependent cpus in the mask before calling the lower level functions. 
+> 
+> Zwane, if you want to take a shot at it, that would be awesome.. I might
+> not be able to get to this immediately.
+
+Urgh making it generic turned out to be fairly complicated due to the 
+number of sleeping calls done from the lowlevel drivers and handling the 
+disabling and enabling of preemption just got too ugly.

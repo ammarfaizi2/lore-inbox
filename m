@@ -1,75 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbVKNT3H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751256AbVKNTaX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751255AbVKNT3H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 14:29:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbVKNT3H
+	id S1751256AbVKNTaX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 14:30:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbVKNTaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 14:29:07 -0500
-Received: from mout2.freenet.de ([194.97.50.155]:41348 "EHLO mout2.freenet.de")
-	by vger.kernel.org with ESMTP id S1751255AbVKNT3G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 14:29:06 -0500
-From: Michael Buesch <mbuesch@freenet.de>
-To: Linus Torvalds <torvalds@osdl.org>, Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Date: Mon, 14 Nov 2005 20:28:35 +0100
-User-Agent: KMail/1.8.3
-References: <20051114133802.38755.qmail@web50205.mail.yahoo.com> <1131992968.2821.50.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0511141116180.3263@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0511141116180.3263@g5.osdl.org>
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Dave Jones <davej@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Alex Davis <alex14641@yahoo.com>, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Message-Id: <200511142028.35448.mbuesch@freenet.de>
-Content-Type: multipart/signed;
-  boundary="nextPart12445492.i1WKZSTkCG";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Nov 2005 14:30:22 -0500
+Received: from frankvm.xs4all.nl ([80.126.170.174]:24016 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S1751256AbVKNTaW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 14:30:22 -0500
+Date: Mon, 14 Nov 2005 20:30:21 +0100
+From: Frank van Maarseveen <frankvm@frankvm.com>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6.14.2] Debug: sleeping function called from invalid context at mm/slab.c:2459
+Message-ID: <20051114193021.GA15010@janus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart12445492.i1WKZSTkCG
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+2.6.14.2 on a AMD Athlon X2 3800
 
-On Monday 14 November 2005 20:17, you wrote:
->=20
-> On Mon, 14 Nov 2005, Arjan van de Ven wrote:
-> >=20
-> > there now is a specification for the broadcom wireless, and a driver is
-> > being written right now to that specification; and it seems to be
-> > getting along quite well (it's not ready for primetime use yet but at
-> > least they can send and receive stuff, which is probably the hardest
-> > part)
->=20
-> Goodie. With Broadcom and Intel on-board, we should have most of the=20
-> market covered in wireless, and ndiswrappers really should be less of an=
-=20
-> argument (it was never an argument for me personally, but for others..).=
-=20
+Nov 14 20:17:30 iapetus kernel: in_atomic():1, irqs_disabled():0
+Nov 14 20:17:30 iapetus kernel:  [<c010410e>] dump_stack+0x1e/0x20
+Nov 14 20:17:30 iapetus kernel:  [<c01211c5>] __might_sleep+0xa5/0xb0
+Nov 14 20:17:30 iapetus kernel:  [<c01512cd>] __kmalloc+0xdd/0x100
+Nov 14 20:17:30 iapetus kernel:  [<c041d8bd>] pskb_expand_head+0x4d/0x150
+Nov 14 20:17:30 iapetus kernel:  [<c043bbc7>] netlink_broadcast+0x387/0x3c0
+Nov 14 20:17:30 iapetus kernel:  [<c04a4673>] nfnetlink_send+0x63/0xa0
+Nov 14 20:17:30 iapetus kernel:  [<c0484d20>] ctnetlink_conntrack_event+0x3a0/0xac0
+Nov 14 20:17:30 iapetus kernel:  [<c013239d>] notifier_call_chain+0x2d/0x50
+Nov 14 20:17:30 iapetus kernel:  [<c047fadb>] destroy_conntrack+0x12b/0x190
+Nov 14 20:17:30 iapetus kernel:  [<c0480b35>] ip_conntrack_in+0x1a5/0x360
+Nov 14 20:17:30 iapetus kernel:  [<c047eda6>] ip_conntrack_local+0x66/0x70
+Nov 14 20:17:30 iapetus kernel:  [<c04a2fd8>] nf_iterate+0x68/0xb0
+Nov 14 20:17:30 iapetus kernel:  [<c04a308d>] nf_hook_slow+0x6d/0x140
+Nov 14 20:17:30 iapetus kernel:  [<c04460ab>] ip_queue_xmit+0x47b/0x5f0
+Nov 14 20:17:30 iapetus kernel:  [<c0457402>] tcp_transmit_skb+0x442/0x6e0
+Nov 14 20:17:30 iapetus kernel:  [<c0459fb7>] tcp_connect+0x2f7/0x380
+Nov 14 20:17:30 iapetus kernel:  [<c045c0c7>] tcp_v4_connect+0x627/0xb70
+Nov 14 20:17:30 iapetus kernel:  [<c046bddd>] inet_stream_connect+0x7d/0x1a0
+Nov 14 20:17:30 iapetus kernel:  [<c0419328>] sys_connect+0x78/0xa0
+Nov 14 20:17:30 iapetus kernel:  [<c0419db3>] sys_socketcall+0xa3/0x240
+Nov 14 20:17:30 iapetus kernel:  [<c01031fb>] sysenter_past_esp+0x54/0x75
 
-I really hope we get this thing usable in a few weeks.
-Looks good so far... .
 
-However, I did not test the broadcom driver on 4k-stacks,
-as I only have a G4 with a broadcom card. ;) But I do not expect any proble=
-ms.
-
-=2D-=20
-Greetings Michael.
-
---nextPart12445492.i1WKZSTkCG
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDeOVjlb09HEdWDKgRAutJAJ467uniMAJpP+pfmFMXXEafn1QhdACfeF1z
-d1opROgM0UjFBWfgI/1ir88=
-=Uggo
------END PGP SIGNATURE-----
-
---nextPart12445492.i1WKZSTkCG--
+-- 
+Frank

@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbVKNSZQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbVKNS3f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751225AbVKNSZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 13:25:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbVKNSZP
+	id S1751216AbVKNS3f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 13:29:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbVKNS3e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 13:25:15 -0500
-Received: from nproxy.gmail.com ([64.233.182.197]:14344 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751225AbVKNSZN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 13:25:13 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=cbi7Rtm0XN7nF/Ovl0EdQsSthhP0hJovXvYOb6RvfvqvLqT//3mDdSMTqhODwGX0BtPKhcqBDg6EmkdB1s1H2qhSVgnjx5fgY+9la9HvJFr9BAEl5Dl7TSKJxoMGLPuldXMDdr51e6X5oHyB9+7YAm3Y+iwr2QMohFmtdgHkauk=
-Message-ID: <84144f020511141025h7e6bacdbs20101616d0bc74fe@mail.gmail.com>
-Date: Mon, 14 Nov 2005 20:25:12 +0200
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Zilvinas Valinskas <zilvinas@gemtek.lt>
-Subject: Re: Linuv 2.6.15-rc1
-Cc: Alexandre Buisse <alexandre.buisse@ens-lyon.fr>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051114143248.GA3859@gemtek.lt>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org>
-	 <4378980C.7060901@ens-lyon.fr> <20051114143248.GA3859@gemtek.lt>
+	Mon, 14 Nov 2005 13:29:34 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:6371 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751216AbVKNS3e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 13:29:34 -0500
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+From: Arjan van de Ven <arjan@infradead.org>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: Dave Jones <davej@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Alex Davis <alex14641@yahoo.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200511141822.31315.s0348365@sms.ed.ac.uk>
+References: <20051114133802.38755.qmail@web50205.mail.yahoo.com>
+	 <200511141802.45788.s0348365@sms.ed.ac.uk>
+	 <20051114181854.GB3652@redhat.com>
+	 <200511141822.31315.s0348365@sms.ed.ac.uk>
+Content-Type: text/plain
+Date: Mon, 14 Nov 2005 19:29:28 +0100
+Message-Id: <1131992968.2821.50.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Zilvinas,
 
-On 11/14/05, Zilvinas Valinskas <zilvinas@gemtek.lt> wrote:
-> the same problem is present with 2.6.14 + ipw2200 1.0.8/ieee80211 1.1.6
-> too. I didn't report problem as I am using madwifi drivers (which
-> taints the kernel) and thought it was related to madwifi CVS (latest)
-> and the newest ipw2200 drivers.
+> LWN has a piece on the possible options, but I suppose you could use the 
+> argument that forcibly breaking ndiswrapper will spur new driver development 
+> (but if you look at vendors like Broadcom, they have seem consistently 
+> unwilling to do this).
 
-Please post your .config.
+there now is a specification for the broadcom wireless, and a driver is
+being written right now to that specification; and it seems to be
+getting along quite well (it's not ready for primetime use yet but at
+least they can send and receive stuff, which is probably the hardest
+part)
 
-                             Pekka

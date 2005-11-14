@@ -1,71 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbVKNWCV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbVKNWCY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932176AbVKNWCV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 17:02:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbVKNWCV
+	id S932189AbVKNWCY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 17:02:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbVKNWCY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 17:02:21 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:34214 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751285AbVKNWCU (ORCPT
+	Mon, 14 Nov 2005 17:02:24 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:38547 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751275AbVKNWCX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 17:02:20 -0500
-Subject: Re: [PATCH 0/13] Time: Generic Timeofday Subsystem (v B10)
-From: john stultz <johnstul@us.ibm.com>
-To: Frank Sorenson <frank@tuxrocks.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Darren Hart <dvhltc@us.ibm.com>, Nishanth Aravamudan <nacc@us.ibm.com>,
-       George Anzinger <george@mvista.com>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Thomas Gleixner <tglx@linutronix.de>
-In-Reply-To: <4379074D.5060308@tuxrocks.com>
-References: <20051112044850.8240.91581.sendpatchset@cog.beaverton.ibm.com>
-	 <4378FFFF.4010706@tuxrocks.com> <1132004327.4668.30.camel@leatherman>
-	 <4379074D.5060308@tuxrocks.com>
-Content-Type: text/plain
-Date: Mon, 14 Nov 2005 14:02:15 -0800
-Message-Id: <1132005736.4668.34.camel@leatherman>
+	Mon, 14 Nov 2005 17:02:23 -0500
+Date: Mon, 14 Nov 2005 14:02:16 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [patch 3/5] atomic: atomic_inc_not_zero
+Message-Id: <20051114140216.3481799a.pj@sgi.com>
+In-Reply-To: <20051114134841.083ea51c.akpm@osdl.org>
+References: <436416AD.3050709@yahoo.com.au>
+	<4364171C.7020103@yahoo.com.au>
+	<43641755.5010004@yahoo.com.au>
+	<4364178E.8040502@yahoo.com.au>
+	<20051114082956.609ff5cd.pj@sgi.com>
+	<20051114134841.083ea51c.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-11-14 at 14:53 -0700, Frank Sorenson wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> john stultz wrote:
-> > Hmm... Not sure if this is mis-calibration or just bad-interaction w/
-> > kthrt. Mind sending a dmesg to me?
-> 
-> dmesg attached
+> Please send patch.
 
-Thanks, I'll start looking into it.
+I can't.  I don't understand what Nick intends here.
+If it's obvious to you, hit me with a clue stick,
+and I'd be glad to patch it.
 
-> >>and 'pit' seems to produce errors (system will not switch from pit to
-> >>another clocksource anymore):
-> 
-> Odd.  This time, I got the errors when I switched from acpi_pm (which it
-> had defaulted to at bootup) to jiffies.  System has not locked at one
-> clocksource yet, though.
-
-Yea, jiffies and pit are similarly non-continuous clocksources.
-
-> > Do the TOD patches have this issue by themselves, or is this only with
-> > kthrt? I know I had some issues with non-continuous clocksources (pit,
-> > jiffies) with the kthrt patch, where it wouldn't fall back to
-> > non-high-res when the clocksource stopped supporting it.
-> 
-> I only tried with kthrt because I ran into lots of conflicts when
-> applying the patches to more recent kernels otherwise.  I can try again
-> with 2.6.14-mm2 in order to test it out.
-
-You can alternatively drop the patches in the kthrt set that are after
-the timeofday patches in Thomas' series file. Or even just disable the
-high-res config option and see if that changes anything.
-
-thanks
--john
-
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

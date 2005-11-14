@@ -1,74 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbVKNXHd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbVKNXIf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932233AbVKNXHd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 18:07:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbVKNXHd
+	id S932167AbVKNXIf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 18:08:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbVKNXIf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 18:07:33 -0500
-Received: from www.tuxrocks.com ([64.62.190.123]:2825 "EHLO tuxrocks.com")
-	by vger.kernel.org with ESMTP id S932233AbVKNXHc (ORCPT
+	Mon, 14 Nov 2005 18:08:35 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:35734 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932167AbVKNXIf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 18:07:32 -0500
-Message-ID: <437918A0.8000308@tuxrocks.com>
-Date: Mon, 14 Nov 2005 16:07:12 -0700
-From: Frank Sorenson <frank@tuxrocks.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc3 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Darren Hart <dvhltc@us.ibm.com>, Nishanth Aravamudan <nacc@us.ibm.com>,
-       George Anzinger <george@mvista.com>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH 0/13] Time: Generic Timeofday Subsystem (v B10)
-References: <20051112044850.8240.91581.sendpatchset@cog.beaverton.ibm.com>	 <4378FFFF.4010706@tuxrocks.com> <1132004327.4668.30.camel@leatherman>	 <4379074D.5060308@tuxrocks.com> <1132005736.4668.34.camel@leatherman>
-In-Reply-To: <1132005736.4668.34.camel@leatherman>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Nov 2005 18:08:35 -0500
+Date: Tue, 15 Nov 2005 00:07:39 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>, dwmw2@infradead.org
+Subject: [patch] Partial support for mtd on collie
+Message-ID: <20051114230739.GA17587@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This adds support for sharp collie. I probably got regions wrong,
+because chip can not be written to, but readonly support is still
+better than no support at all.
 
-john stultz wrote:
-> On Mon, 2005-11-14 at 14:53 -0700, Frank Sorenson wrote:
-> 
->>-----BEGIN PGP SIGNED MESSAGE-----
->>Hash: SHA1
->>
->>john stultz wrote:
->>
->>>Hmm... Not sure if this is mis-calibration or just bad-interaction w/
->>>kthrt. Mind sending a dmesg to me?
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-Okay, the c3tsc clock drift is definitely not an interaction with kthrt.
- Here is 2.6.14-mm2 + the TOD B10 patches:
-14 Nov 15:54:52   offset: -0.003031       drift: -3091.0 ppm
-14 Nov 15:55:52   offset: -0.184073       drift: -3018.57377049 ppm
-14 Nov 15:56:52   offset: -0.345268       drift: -2853.95041322 ppm
-14 Nov 15:57:53   offset: -0.463002       drift: -2544.2967033 ppm
-14 Nov 15:58:53   offset: -0.587743       drift: -2428.93801653 ppm
+diff --git a/drivers/mtd/chips/jedec_probe.c b/drivers/mtd/chips/jedec_probe.c
+--- a/drivers/mtd/chips/jedec_probe.c
++++ b/drivers/mtd/chips/jedec_probe.c
+@@ -25,6 +25,8 @@
+ #include <linux/mtd/cfi.h>
+ #include <linux/mtd/gen_probe.h>
+ 
++#define DEBUG(a, b...) printk(b)
++
+ /* Manufacturers */
+ #define MANUFACTURER_AMD	0x0001
+ #define MANUFACTURER_ATMEL	0x001f
+@@ -34,6 +36,7 @@
+ #define MANUFACTURER_MACRONIX	0x00C2
+ #define MANUFACTURER_NEC	0x0010
+ #define MANUFACTURER_PMC	0x009D
++#define MANUFACTURER_SHARP	0x00b0
+ #define MANUFACTURER_SST	0x00BF
+ #define MANUFACTURER_ST		0x0020
+ #define MANUFACTURER_TOSHIBA	0x0098
+@@ -124,6 +127,9 @@
+ #define PM49FL004	0x006E
+ #define PM49FL008	0x006A
+ 
++/* Sharp */
++#define LH28F640BF	0x00b0
++
+ /* ST - www.st.com */
+ #define M29W800DT	0x00D7
+ #define M29W800DB	0x005B
+@@ -271,6 +277,19 @@ struct amd_flash_info {
+  */
+ static const struct amd_flash_info jedec_table[] = {
+ 	{
++		.mfr_id		= MANUFACTURER_SHARP,
++		.dev_id		= LH28F640BF,
++		.name		= "LH28F640BF",
++		.uaddr		= {
++                        [0] = MTD_UADDR_UNNECESSARY,    /* x8 */
++		},
++		.DevSize	= SIZE_4MiB,
++                .CmdSet         = P_ID_INTEL_STD,
++                .NumEraseRegions= 1,
++                .regions        = {
++                        ERASEINFO(0x40000,16),
++                }
++	}, {
+ 		.mfr_id		= MANUFACTURER_AMD,
+ 		.dev_id		= AM29F032B,
+ 		.name		= "AMD AM29F032B",
+diff --git a/drivers/mtd/maps/sa1100-flash.c b/drivers/mtd/maps/sa1100-flash.c
+--- a/drivers/mtd/maps/sa1100-flash.c
++++ b/drivers/mtd/maps/sa1100-flash.c
+@@ -211,6 +211,9 @@ static int sa1100_probe_subdev(struct sa
+ 		goto err;
+ 	}
+ 	subdev->mtd->owner = THIS_MODULE;
++#ifdef CONFIG_SA1100_COLLIE
++	subdev->mtd->unlock(subdev->mtd, 0xc0000, subdev->mtd->size - 0xc0000);
++#endif
+ 
+ 	printk(KERN_INFO "SA1100 flash: CFI device at 0x%08lx, %dMiB, "
+ 		"%d-bit\n", phys, subdev->mtd->size >> 20,
 
-Running just 2.6.14-mm2 + TOD B10, I seem to be unable to reproduce the
-Badness errors, and the clocksource has not frozen at one setting.
-
-I can provide a dmesg if needed.
-
-Frank
-- --
-Frank Sorenson - KD7TZK
-Systems Manager, Computer Science Department
-Brigham Young University
-frank@tuxrocks.com
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.7 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFDeRigaI0dwg4A47wRAsv6AJ4sPwUMg44sRN+kGpYjKjF8+qZWIACfZ1YL
-pLHKnEHkMjMi32kGWeT+gEw=
-=9hHi
------END PGP SIGNATURE-----
+-- 
+Thanks, Sharp!

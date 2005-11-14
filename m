@@ -1,45 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbVKNNhu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbVKNNiF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751121AbVKNNhu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 08:37:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbVKNNhu
+	id S1751124AbVKNNiF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 08:38:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbVKNNiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 08:37:50 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:35804 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751121AbVKNNhu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 08:37:50 -0500
-Subject: Re: 2.6.15-rc1: kswapd crash
-From: Arjan van de Ven <arjan@infradead.org>
-To: Mark Lord <lkml@rtr.ca>
-Cc: Adrian Bunk <bunk@stusta.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <43788F17.1080507@rtr.ca>
-References: <4377D1B2.8070003@rtr.ca> <20051114004758.GA5735@stusta.de>
-	 <4377FFA7.4030400@rtr.ca> <20051114035616.GD5735@stusta.de>
-	 <43788F17.1080507@rtr.ca>
-Content-Type: text/plain
-Date: Mon, 14 Nov 2005 14:37:44 +0100
-Message-Id: <1131975465.2821.33.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 14 Nov 2005 08:38:05 -0500
+Received: from web50205.mail.yahoo.com ([206.190.38.46]:43965 "HELO
+	web50205.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1751122AbVKNNiD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 08:38:03 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=MdP1/g0ph5w1pGscTBPeFoKB1s7nqIgyB4UOYRPW+Z89MijV8W3lmkS0oi8nY8WVL0a/ZEjbQIj2tQZW6rs9eoZmTsBl9fXmV8E4lkT+lyNKhZn5n1P5swHsuy3SOFtkS4a+rLVccH9uKVY2ATQttbrokFiKU+tW0b2DVwuIiC8=  ;
+Message-ID: <20051114133802.38755.qmail@web50205.mail.yahoo.com>
+Date: Mon, 14 Nov 2005 05:38:02 -0800 (PST)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This will break ndiswrapper. Why can't we just leave this in and let people choose? 
 
-> It's not.  VMware had never been run to that point.
-
-well the kernel modules are loaded...
+I code, therefore I am
 
 
+		
+__________________________________ 
+Yahoo! FareChase: Search multiple travel sites in one click.
+http://farechase.yahoo.com

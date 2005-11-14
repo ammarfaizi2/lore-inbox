@@ -1,52 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750843AbVKNGKM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750945AbVKNHWD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750843AbVKNGKM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 01:10:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750888AbVKNGKM
+	id S1750945AbVKNHWD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 02:22:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbVKNHWD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 01:10:12 -0500
-Received: from smtp102.sbc.mail.re2.yahoo.com ([68.142.229.103]:30849 "HELO
-	smtp102.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1750843AbVKNGKL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 01:10:11 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Neil Brown <neilb@suse.de>
-Subject: Re: uinput broken in 2.6.15-rc1
-Date: Mon, 14 Nov 2005 01:10:04 -0500
-User-Agent: KMail/1.8.3
-Cc: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>, vojtech@suse.cz,
+	Mon, 14 Nov 2005 02:22:03 -0500
+Received: from xproxy.gmail.com ([66.249.82.205]:63772 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750945AbVKNHWC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 02:22:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Ka1nVytDrUGev7kO9f55bdPrxIXUR7aCcFmYuZRO34LhD4nu78YsmJqP+4Ye5wJdeUCMkgS257n71RIuEugPwwPQXcJ6AZHEkbjyzZHYspnSr8j9DTR2sa9B/82zR/ee4gFtispQDYdQLp7Nkgj0YiNPC9pcN7wObjhHFZefRUc=
+Message-ID: <489ecd0c0511132322n4cfc0125r1358ba6136aaa0dc@mail.gmail.com>
+Date: Mon, 14 Nov 2005 15:22:01 +0800
+From: Luke Yang <luke.adi@gmail.com>
+To: Andrey Volkov <avolkov@varma-el.com>
+Subject: Re: ADI Blackfin patch for kernel 2.6.14
+Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>, bunk@stusta.de,
        linux-kernel@vger.kernel.org
-References: <17272.7295.464735.805122@cse.unsw.edu.au>
-In-Reply-To: <17272.7295.464735.805122@cse.unsw.edu.au>
+In-Reply-To: <4375D8D4.9010605@varma-el.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200511140110.05991.dtor_core@ameritech.net>
+References: <489ecd0c0511010128x41d39643x37893ad48a8ef42a@mail.gmail.com>
+	 <20051101165136.GU8009@stusta.de>
+	 <489ecd0c0511012306w434d75fbs90e1969d82a07922@mail.gmail.com>
+	 <489ecd0c0511032059n394abbb2s9865c22de9b2c448@mail.gmail.com>
+	 <20051104230644.GA20625@kroah.com>
+	 <489ecd0c0511062258k4183d206odefd3baa46bb9a04@mail.gmail.com>
+	 <20051107165928.GA15586@kroah.com>
+	 <20051107235035.2bdb00e1.akpm@osdl.org>
+	 <489ecd0c0511110326j3a01cabbheeeac6168193a0b0@mail.gmail.com>
+	 <4375D8D4.9010605@varma-el.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 14 November 2005 00:11, Neil Brown wrote:
-> 
-> The 'uinput' driver doesn't work well in 2.6.15-rc1.  It
-> triggers this complaint:
-> 		printk(KERN_WARNING "input: device %s is statically allocated, will not register\n"
-> 			"Please convert to input_allocate_device() or contact dtor_core@ameritech.net\n",
-> 			dev->name ? dev->name : "<Unknown>");
-> 
-> The following patch fixes it for me, but I'm not convinced it is
-> correct.  I would expect it to need a special 'free' routine to match
-> the special 'alloc' routine, but I couldn't easily find one.
-> 
+On 11/12/05, Andrey Volkov <avolkov@varma-el.com> wrote:
+> Luke Yang wrote:
+> >>Does this architecture support SMP?  I see it's BROKEN_ON_SMP, but there
+> >>seems to be some smp-style stuff in there.
+> >
+> >
+> >    It doesn't support SMP now.
+>
+> Wrong, how about dual core BF56x subfamily? It's true SMP beast.
+> Or you are try to told that "current SOFTWARE arch doesn't
+> support it yet", am I right?
 
-Hi,
+ Yes, BF56x does have two cores in one chip. But we are not going to
+make it a SMP system. The second core is going to be used as a pure
+DSP, do some encode/decode work. Remember Blackfin itself is a DSP
+anyway.
 
-This should work OK as long as you don't try to reuse the uinput device
-because input_unregister_device frees the data structure for you and
-uinput does not expect to lose part of its data structure.
+>
+> Also, returning to previous posts, ALL BF5xx have normal
+> MMU (which possible not so useful for DSP tasks).
 
-I am trying to comer up with a proper fix...
+  Actually current BF5xx DSPs don't have a real MMU. It runs uClinux.
+The called  "MMU" in the mannual is only a cache management and memory
+protect unit, not a virtual memory unit.
 
--- 
-Dmitry
+>
+> --
+> Regards
+> Andrey Volkov
+>
+>

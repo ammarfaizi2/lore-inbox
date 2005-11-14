@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbVKNUXy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbVKNUWs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932094AbVKNUXy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 15:23:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932093AbVKNUXy
+	id S932097AbVKNUWs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 15:22:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932093AbVKNUWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 15:23:54 -0500
-Received: from mail.kroah.org ([69.55.234.183]:4039 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932094AbVKNUTn (ORCPT
+	Mon, 14 Nov 2005 15:22:17 -0500
+Received: from mail.kroah.org ([69.55.234.183]:5063 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932095AbVKNUTn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 14 Nov 2005 15:19:43 -0500
-Date: Mon, 14 Nov 2005 12:06:14 -0800
+Date: Mon, 14 Nov 2005 12:06:00 -0800
 From: Greg Kroah-Hartman <gregkh@suse.de>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       david-b@pacbell.net
-Subject: [patch 11/12] USB: onetouch doesn't suspend yet
-Message-ID: <20051114200614.GL2319@kroah.com>
+       zaitcev@redhat.com, akpm@osdl.org
+Subject: [patch 08/12] USB: usbdevfs_ioctl 32bit fix
+Message-ID: <20051114200600.GI2319@kroah.com>
 References: <20051114200100.984523000@press.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="usb-onetouch-doesn-t-suspend-yet.patch"
+Content-Disposition: inline; filename="usb-usbdevfs_ioctl-from-32bit-fix.patch"
 In-Reply-To: <20051114200456.GA2319@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Brownell <david-b@pacbell.net>
+From: Andrew Morton <akpm@osdl.org>
 
-The onetouch support doesn't suspend correctly (leaves an interrupt
-URB posted, instead of unlinking it) so for now just disable it
-when PM is in the air.
+drivers/usb/core/devio.c: In function `proc_ioctl_compat':
+drivers/usb/core/devio.c:1401: warning: passing arg 1 of `compat_ptr' makes integer from pointer without a cast
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+NFI if this is correct...
+
+Cc: Pete Zaitcev <zaitcev@redhat.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
 ---
- drivers/usb/storage/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- gregkh-2.6.orig/drivers/usb/storage/Kconfig
-+++ gregkh-2.6/drivers/usb/storage/Kconfig
-@@ -115,7 +115,7 @@ config USB_STORAGE_JUMPSHOT
+ drivers/usb/core/devio.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- gregkh-2.6.orig/drivers/usb/core/devio.c	2005-11-02 09:25:03.000000000 -0800
++++ gregkh-2.6/drivers/usb/core/devio.c	2005-11-02 12:02:56.000000000 -0800
+@@ -1392,7 +1392,7 @@
+ }
  
- config USB_STORAGE_ONETOUCH
- 	bool "Support OneTouch Button on Maxtor Hard Drives (EXPERIMENTAL)"
--	depends on USB_STORAGE && INPUT_EVDEV && EXPERIMENTAL
-+	depends on USB_STORAGE && INPUT_EVDEV && EXPERIMENTAL && !PM
- 	help
- 	  Say Y here to include additional code to support the Maxtor OneTouch
- 	  USB hard drive's onetouch button.
+ #ifdef CONFIG_COMPAT
+-static int proc_ioctl_compat(struct dev_state *ps, void __user *arg)
++static int proc_ioctl_compat(struct dev_state *ps, compat_uptr_t arg)
+ {
+ 	struct usbdevfs_ioctl32 __user *uioc;
+ 	struct usbdevfs_ioctl ctrl;
+@@ -1511,7 +1511,7 @@
+ 
+ 	case USBDEVFS_IOCTL32:
+ 		snoop(&dev->dev, "%s: IOCTL\n", __FUNCTION__);
+-		ret = proc_ioctl_compat(ps, p);
++		ret = proc_ioctl_compat(ps, (compat_uptr_t)(long)p);
+ 		break;
+ #endif
+ 
 
 --

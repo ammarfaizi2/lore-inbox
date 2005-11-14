@@ -1,39 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbVKNNeW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbVKNNhu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750722AbVKNNeW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 08:34:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbVKNNeW
+	id S1751121AbVKNNhu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 08:37:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbVKNNhu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 08:34:22 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:62408 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S1750722AbVKNNeW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 08:34:22 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] mark text section read-only
-References: <20051107105624.GA6531@infradead.org>
-	<20051107105807.GB6531@infradead.org>
-	<1131372374.23658.1.camel@windu.rchland.ibm.com>
-	<1131373248.2858.17.camel@laptopd505.fenrus.org>
-	<2cd57c900511110139v221ed3f3m@mail.gmail.com>
-	<1131702428.2833.8.camel@laptopd505.fenrus.org>
-	<2cd57c900511111057n3a7741ddw@mail.gmail.com>
-	<20051111190447.GA14481@everest.sosdg.org>
-From: "Linh Dang" <linhd@nortel.com>
-Organization: Null
-Date: Mon, 14 Nov 2005 08:34:08 -0500
-In-Reply-To: <20051111190447.GA14481@everest.sosdg.org> (Coywolf Qi Hunt's
- message of "Fri, 11 Nov 2005 14:04:47 -0500")
-Message-ID: <wn5fypzl5f3.fsf@linhd-2.ca.nortel.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 14 Nov 2005 08:37:50 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:35804 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751121AbVKNNhu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 08:37:50 -0500
+Subject: Re: 2.6.15-rc1: kswapd crash
+From: Arjan van de Ven <arjan@infradead.org>
+To: Mark Lord <lkml@rtr.ca>
+Cc: Adrian Bunk <bunk@stusta.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <43788F17.1080507@rtr.ca>
+References: <4377D1B2.8070003@rtr.ca> <20051114004758.GA5735@stusta.de>
+	 <4377FFA7.4030400@rtr.ca> <20051114035616.GD5735@stusta.de>
+	 <43788F17.1080507@rtr.ca>
+Content-Type: text/plain
+Date: Mon, 14 Nov 2005 14:37:44 +0100
+Message-Id: <1131975465.2821.33.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-on PPC32, the kernel uses memory thru BAT registers. How would this
-works?
+> It's not.  VMware had never been run to that point.
 
--- 
-Linh Dang
+well the kernel modules are loaded...
+
+

@@ -1,38 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbVKNRva@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbVKNSCz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751204AbVKNRva (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 12:51:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbVKNRva
+	id S1751215AbVKNSCz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 13:02:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbVKNSCz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 12:51:30 -0500
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:64428 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S1751204AbVKNRva
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 12:51:30 -0500
-Message-ID: <4378CE9B.9020802@rtr.ca>
-Date: Mon, 14 Nov 2005 12:51:23 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
-X-Accept-Language: en, en-us
+	Mon, 14 Nov 2005 13:02:55 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:53920 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP
+	id S1751215AbVKNSCz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 13:02:55 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+Date: Mon, 14 Nov 2005 18:02:45 +0000
+User-Agent: KMail/1.9
+Cc: Alex Davis <alex14641@yahoo.com>, linux-kernel@vger.kernel.org
+References: <20051114133802.38755.qmail@web50205.mail.yahoo.com> <1131979779.5751.17.camel@localhost.localdomain>
+In-Reply-To: <1131979779.5751.17.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Mark Lord <lkml@rtr.ca>
-Cc: Badari Pulavarty <pbadari@gmail.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.xx:  dirty pages never being sync'd to disk?
-References: <4378ADB2.7040905@rtr.ca>	 <1131982550.2821.41.camel@laptopd505.fenrus.org>  <4378B1FB.1060201@rtr.ca> <1131987398.24066.7.camel@localhost.localdomain> <4378C626.4030107@rtr.ca> <4378CD12.9010606@rtr.ca>
-In-Reply-To: <4378CD12.9010606@rtr.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511141802.45788.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote:
-> Another intriguing observation:
-> 
-> If I do my file copy test from files that are already cached,
-> then the data usually gets committed to disk more or less
-> right away.
+On Monday 14 November 2005 14:49, Alan Cox wrote:
+> On Llu, 2005-11-14 at 05:38 -0800, Alex Davis wrote:
+> > This will break ndiswrapper. Why can't we just leave this in and let
+> > people choose?
+>
+> If we spent our entire lives waiting for people to fix code nothing
+> would ever happen. Removing 8K stacks is a good thing to do for many
+> reasons. The ndis wrapper people have known it is coming for a long
+> time, and if it has a lot of users I'm sure someone in that community
+> will take the time to make patches.
 
-And even in that case, /proc/meminfo still shows the memory
-as "Dirty", until a "sync" is done.  Why is that?
+I honestly don't know if this is the case, but is it conceivable that no patch 
+could be written to resolve this, because the Windows drivers themselves only 
+respect Windows stack limits (which are presumably still 8K?).
+
+-- 
+Cheers,
+Alistair.
+
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

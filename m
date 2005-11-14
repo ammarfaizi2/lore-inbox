@@ -1,63 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750893AbVKNEEr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750905AbVKNEel@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750893AbVKNEEr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 23:04:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750899AbVKNEEr
+	id S1750905AbVKNEel (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 23:34:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750906AbVKNEel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 23:04:47 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:20685 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750893AbVKNEEZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 23:04:25 -0500
-Date: Sun, 13 Nov 2005 20:04:15 -0800 (PST)
-From: Paul Jackson <pj@sgi.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
-       Simon Derr <Simon.Derr@bull.net>, Christoph Lameter <clameter@sgi.com>,
-       "Rohit, Seth" <rohit.seth@intel.com>, Paul Jackson <pj@sgi.com>
-Message-Id: <20051114040415.13951.86293.sendpatchset@jackhammer.engr.sgi.com>
-In-Reply-To: <20051114040329.13951.39891.sendpatchset@jackhammer.engr.sgi.com>
-References: <20051114040329.13951.39891.sendpatchset@jackhammer.engr.sgi.com>
-Subject: [PATCH 05/05] mm GFP_ATOMIC comment
+	Sun, 13 Nov 2005 23:34:41 -0500
+Received: from wombat.indigo.net.au ([202.0.185.19]:18184 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S1750904AbVKNEek (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Nov 2005 23:34:40 -0500
+Date: Mon, 14 Nov 2005 12:35:09 -0500 (EST)
+From: Ian Kent <raven@themaw.net>
+X-X-Sender: raven@wombat.indigo.net.au
+To: plug@plug.org.au
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [plug] smb client timeout problem - FIXED
+In-Reply-To: <200511132309.43738.sboak@westnet.com.au>
+Message-ID: <Pine.LNX.4.58.0511141227170.13074@wombat.indigo.net.au>
+References: <200511120941.57985.sboak@westnet.com.au> <200511132309.43738.sboak@westnet.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-themaw-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=-5.899,
+	required 5, autolearn=not spam, ALL_TRUSTED -3.30, BAYES_00 -2.60)
+X-themaw-MailScanner-From: raven@themaw.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clarify in comments that GFP_ATOMIC means both "don't sleep"
-and "use emergency pools", hence both ALLOC_DIP_ALOT and
-ALLOC_DIP_SOME.
+On Sun, 13 Nov 2005, Steve Boak wrote:
 
-Signed-off-by: Paul Jackson <pj@sgi.com>
+> Update...
+> 
+> Just in case someone else comes up with this problem, I found the answer by 
+> combining all the information (more hints actually) that I gleaned from 
+> google, and then taking a stab in the dark :-)
+> 
+> The simple fix is to use the cifs filesystem instead of smbfs when mounting 
+> remote samba shares on a Linux box. Apparently cifs has superceded smbfs and 
+> works much better in this case, but I still need to use smbfs when mounting 
+> shares from my windows box. Information is rather hard to find on the subject 
+> of samba/smbfs/cifs.
 
----
+smbfs is currently unmaintained and likely to move to depricated status 
+some time soon, so bug fixes are probably not being done.
 
- include/linux/gfp.h |    1 +
- mm/page_alloc.c     |    3 ++-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+I believe CIFS will be recommened for everything and should work for 
+everything in the near future or already does.
 
---- 2.6.14-mm2.orig/include/linux/gfp.h	2005-11-13 09:57:03.317369370 -0800
-+++ 2.6.14-mm2/include/linux/gfp.h	2005-11-13 10:31:05.590802684 -0800
-@@ -58,6 +58,7 @@ struct vm_area_struct;
- 			__GFP_NOFAIL|__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP| \
- 			__GFP_NOMEMALLOC|__GFP_HARDWALL)
- 
-+/* GFP_ATOMIC means both !wait (__GFP_WAIT not set) and use emergency pool */
- #define GFP_ATOMIC	(__GFP_VALID | __GFP_HIGH)
- #define GFP_NOIO	(__GFP_VALID | __GFP_WAIT)
- #define GFP_NOFS	(__GFP_VALID | __GFP_WAIT | __GFP_IO)
---- 2.6.14-mm2.orig/mm/page_alloc.c	2005-11-13 10:21:13.804965981 -0800
-+++ 2.6.14-mm2/mm/page_alloc.c	2005-11-13 10:32:33.090792563 -0800
-@@ -926,7 +926,8 @@ restart:
- 	 *
- 	 * The caller may dip into page reserves a bit more if the caller
- 	 * cannot run direct reclaim, or if the caller has realtime scheduling
--	 * policy or is asking for __GFP_HIGH memory.
-+	 * policy or is asking for __GFP_HIGH memory.  GFP_ATOMIC requests will
-+	 * set both ALLOC_DIP_ALOT (!wait) and ALLOC_DIP_SOME (__GFP_HIGH).
- 	 */
- 	alloc_flags = 0;
- 	if ((unlikely(rt_task(p)) && !in_interrupt()) || !wait)
+> 
+> I had to recompile the kernel to get cifs support.
+> 
+> Not sure of the finer details yet, but at least now I have a working system 
+> again. Here's the combinations I have found that works:
+> 
+> (Note that all my tests were done with at least kernel 2.6.13, Samba 3.0.20b, 
+> and Debian Testing on both machines)
+> 
+> Linux client	mount -t cifs ...	shares from Samba server
+> Linux client	mount -t smbfs ...	shares from Windows-2000
+> Windows client	uses smbfs?	shares from Samba server
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Interesting to see that this is still a problem in 2.6.13.
+Have you tried 2.6.14?
+
+Anyone know the status of CIFS?
+
+Ian
+

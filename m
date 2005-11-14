@@ -1,70 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbVKNUeJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbVKNUnM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932073AbVKNUeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 15:34:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbVKNUeJ
+	id S932098AbVKNUnM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 15:43:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbVKNUnL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 15:34:09 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:8708 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932073AbVKNUeH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 15:34:07 -0500
-Message-ID: <4378F4BE.6010207@vmware.com>
-Date: Mon, 14 Nov 2005 12:34:06 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Gerd Knorr <kraxel@suse.de>,
-       Dave Jones <davej@redhat.com>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 1/10] Cr4 is valid on some 486s
-References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com>	 <20051111103605.GC27805@elf.ucw.cz> <4374F2D5.7010106@vmware.com>	 <Pine.LNX.4.64.0511111147390.4627@g5.osdl.org>	 <4374FB89.6000304@vmware.com>	 <Pine.LNX.4.64.0511111218110.4627@g5.osdl.org>	 <20051113074241.GA29796@redhat.com>	 <Pine.LNX.4.64.0511131118020.3263@g5.osdl.org>	 <Pine.LNX.4.64.0511131210570.3263@g5.osdl.org> <4378A7F3.9070704@suse.de>	 <Pine.LNX.4.64.0511141118000.3263@g5.osdl.org>	 <4378E97E.2060707@vmware.com> <1131997971.2821.68.camel@laptopd505.fenrus.org>
-In-Reply-To: <1131997971.2821.68.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Nov 2005 20:34:06.0798 (UTC) FILETIME=[C269F6E0:01C5E95A]
+	Mon, 14 Nov 2005 15:43:11 -0500
+Received: from www.swissdisk.com ([216.144.233.50]:32387 "EHLO
+	swissweb.swissdisk.com") by vger.kernel.org with ESMTP
+	id S932098AbVKNUnL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 15:43:11 -0500
+Date: Mon, 14 Nov 2005 11:35:02 -0800
+From: Ben Collins <bcollins@debian.org>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@osdl.org>
+Subject: [RESEND PATCH 2.6.15-rc1] Update location of ll_rw_blk.c in kernel-api.tmpl
+Message-ID: <20051114193502.GA15937@swissdisk.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+Picked from the ubuntu-2.6 tree
 
->On Mon, 2005-11-14 at 11:46 -0800, Zachary Amsden wrote:
->
->  
->
->>It seems that SMP vs. UP lock / spinlock overhead is relevant even for 
->>future, multi-core CPUs in a virtualization context, as the notion of 
->>hotplug here is based on scheduling constraints of the virtualization 
->>engine, and the kernel can quite readily end up with only one VCPU.
->>    
->>
->
->
->this assumes that you don't just always want to assume and use SMP
->primitives in a virtualized context. I sort of question that assumption;
->sure these things have overhead, especially "lock", but if the solution
->is more complexity and weird things to hide that half-percent or less of
->performance difference... then do remember that such complexity is not
->free either. Runtime tricks cost. 
->  
->
+diff-tree d96fe6eeebd11fb8f70d091eb368e901cec64e1b (from cfd55027d8596fdd19e0023573cc0a6b92994d35)
+Author: Ben Collins <bcollins@ubuntu.com>
+Date:   Sat Nov 12 09:29:51 2005 -0500
 
-Runtime tricks that increase complexity cost, yes.  It's all a question 
-of measured gain vs. complexity.  But a couple of percent gained on an 
-overall basis can be magnified enormously if you are looking at a 
-workload that stresses a particular path.  I would expect some of those 
-gains to be non-trivial, especially if considering the optimizations you 
-could do on page table updates knowing you needn't worry about SMP 
-issues anymore.  Even UP has (still?) some places where additional locks 
-are present here, and could benefit from having SMP alternatives.
+    [UBUNTU:Documentation] Update location of ll_rw_blk.c in docs
+    
+    The change in location for ll_rw_blk.c from drivers/block/ to block/
+    caused failure to generate documentation.
+    
+    UpstreamStatus: Submitted for 2.6.15
+    
+    Signed-off-by: Ben Collins <bcollins@ubuntu.com>
 
-Zach
+diff --git a/Documentation/DocBook/kernel-api.tmpl b/Documentation/DocBook/kernel-api.tmpl
+--- a/Documentation/DocBook/kernel-api.tmpl
++++ b/Documentation/DocBook/kernel-api.tmpl
+@@ -388,7 +388,7 @@ X!Edrivers/pnp/system.c
+ 
+   <chapter id="blkdev">
+      <title>Block Devices</title>
+-!Edrivers/block/ll_rw_blk.c
++!Eblock/ll_rw_blk.c
+   </chapter>
+ 
+   <chapter id="miscdev">
+diff --git a/Documentation/block/biodoc.txt b/Documentation/block/biodoc.txt
+--- a/Documentation/block/biodoc.txt
++++ b/Documentation/block/biodoc.txt
+@@ -1063,8 +1063,8 @@ Aside:
+ 4.4 I/O contexts
+ I/O contexts provide a dynamically allocated per process data area. They may
+ be used in I/O schedulers, and in the block layer (could be used for IO statis,
+-priorities for example). See *io_context in drivers/block/ll_rw_blk.c, and
+-as-iosched.c for an example of usage in an i/o scheduler.
++priorities for example). See *io_context in block/ll_rw_blk.c, and as-iosched.c
++for an example of usage in an i/o scheduler.
+ 
+ 
+ 5. Scalability related changes
+
+-- 
+Ubuntu     - http://www.ubuntu.com/
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+SwissDisk  - http://www.swissdisk.com/
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,40 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbVKNVLT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbVKNVPf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932107AbVKNVLT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 16:11:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbVKNVLT
+	id S932130AbVKNVPf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 16:15:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbVKNVPf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 16:11:19 -0500
-Received: from gold.veritas.com ([143.127.12.110]:31506 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S932107AbVKNVLS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 16:11:18 -0500
-Date: Mon, 14 Nov 2005 15:58:50 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-cc: Gleb Natapov <gleb@minantech.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Nick's core remove PageReserved broke vmware...
-In-Reply-To: <20051114145252.GT20871@mellanox.co.il>
-Message-ID: <Pine.LNX.4.61.0511141556480.4428@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0511101251060.7127@goblin.wat.veritas.com>
- <20051114145252.GT20871@mellanox.co.il>
+	Mon, 14 Nov 2005 16:15:35 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:19869 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S932130AbVKNVPd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 16:15:33 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+Date: Mon, 14 Nov 2005 22:16:16 +0100
+User-Agent: KMail/1.8.3
+References: <20051114133802.38755.qmail@web50205.mail.yahoo.com> <Pine.LNX.4.64.0511141116180.3263@g5.osdl.org> <200511142028.35448.mbuesch@freenet.de>
+In-Reply-To: <200511142028.35448.mbuesch@freenet.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 14 Nov 2005 21:11:17.0961 (UTC) FILETIME=[F44A6B90:01C5E95F]
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511142216.16806.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Nov 2005, Michael S. Tsirkin wrote:
+Hi,
+
+On Monday, 14 of November 2005 20:28, Michael Buesch wrote:
+> On Monday 14 November 2005 20:17, you wrote:
+> > 
+> > On Mon, 14 Nov 2005, Arjan van de Ven wrote:
+> > > 
+> > > there now is a specification for the broadcom wireless, and a driver is
+> > > being written right now to that specification; and it seems to be
+> > > getting along quite well (it's not ready for primetime use yet but at
+> > > least they can send and receive stuff, which is probably the hardest
+> > > part)
+> > 
+> > Goodie. With Broadcom and Intel on-board, we should have most of the 
+> > market covered in wireless, and ndiswrappers really should be less of an 
+> > argument (it was never an argument for me personally, but for others..). 
 > 
-> Okay, here's an updated version.
+> I really hope we get this thing usable in a few weeks.
+> Looks good so far... .
 
-Looked good to me, but as usual Gleb noticed what I missed.  And you
-should be working against 2.6.15-rc1 or 2.6.15-rc1-git, not 2.6.14.
+Great!
 
-Hugh
+> However, I did not test the broadcom driver on 4k-stacks,
+> as I only have a G4 with a broadcom card. ;) But I do not expect any problems.
+
+If you want someone to test it on x86-64, I think I can do that.
+
+Greetings,
+Rafael

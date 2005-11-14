@@ -1,66 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbVKNM3m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbVKNMcl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751105AbVKNM3m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 07:29:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbVKNM3m
+	id S1751110AbVKNMcl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 07:32:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbVKNMcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 07:29:42 -0500
-Received: from mxfep02.bredband.com ([195.54.107.73]:34987 "EHLO
-	mxfep02.bredband.com") by vger.kernel.org with ESMTP
-	id S1751105AbVKNM3m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 07:29:42 -0500
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-X-IronPort-AV: i="3.97,326,1125871200"; 
-   d="scan'208"; a="9946590:sNHT29758239"
-Message-ID: <4378832E.6050105@stesmi.com>
-Date: Mon, 14 Nov 2005 13:29:34 +0100
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marc Perkel <marc@perkel.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 939 pin Opteron vs. Athlon 64? What's the difference?
-References: <43753726.8060205@perkel.com>
-In-Reply-To: <43753726.8060205@perkel.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira Milter 1.0.7; VAE 6.29.0.5; VDF 6.29.0.100
+	Mon, 14 Nov 2005 07:32:41 -0500
+Received: from [194.90.237.34] ([194.90.237.34]:44252 "EHLO
+	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP
+	id S1751110AbVKNMck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 07:32:40 -0500
+Date: Mon, 14 Nov 2005 14:34:32 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Gleb Natapov <gleb@minantech.com>
+Cc: Hugh Dickins <hugh@veritas.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Nick's core remove PageReserved broke vmware...
+Message-ID: <20051114123432.GQ20871@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20051114122759.GE5492@minantech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051114122759.GE5492@minantech.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Marc Perkel wrote:
-> OK - I'm confused. What is the difference between an Athlon 64 and a 939
-> pin Opteron? Or the difference between a 939 pin dual core Athlon and a
-> 939 pin dual core opteron?
+Quoting Gleb Natapov <gleb@minantech.com>:
+> Subject: Re: Nick's core remove PageReserved broke vmware...
 > 
-> I understand that the 940 pin Opterons can be used on multiple processor
-> boards. But I just don't get it about using a single opteron.
-> 
-> Also - while I'm asking - AMD Semprtons now are 64 bit - so what's the
-> difference between a 64 bit Sempton and a 64 Bit athlon?
-> 
+> On Mon, Nov 14, 2005 at 02:25:35PM +0200, Michael S. Tsirkin wrote:
+> > Quoting Hugh Dickins <hugh@veritas.com>:
+> > > Subject: Re: Nick's core remove PageReserved broke vmware...
+> > > 
+> > > On Tue, 8 Nov 2005, Michael S. Tsirkin wrote:
+> > > > 
+> > > > Hugh, did you have something like the following in mind
+> > > > (this is only boot-tested and only on x86-64)?
+> > > 
+> > > Yes, that looks pretty good to me, a few comments below.
+> > > Only another twenty or so architectures to go ;)
+> > 
+> > There's one thing that I have thought about: what happens
+> > if I set DONTFORK on a page which already has COW set
+> > (e.g. after fork)?
+> > 
+> > It seems that the right thing would be to force a page copy -
+> > otherwise the page can get copied on write.
+>
+> I thought about it. It should not happen for OpenIB since get_user_pages
+> will break COW for us and I don't think we should complicate DONTFORK
+> implementation by doing break during madvise().
 
-While this is an interesting subject, I ponder what it has to do on the
-Linux Kernel development list.
+Hmm, I assumed we call madvise before driver does get_user_pages,
+otherwise an application could fork in between.
+Should we worry about this?
 
-939 pin opterons use unregistered memory and 940 uses registered memory.
-
-Opterons in 939 pin packaging are the same as the FX- chips basically.
-
-64bit Sempron has less cache than 64bit Athlon.
-
-// Stefan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFDeIMuBrn2kJu9P78RAvizAKCjqsLK09DzFY5G1DGPXTg8AaLdlwCgsFyz
-FtxDVZ7fCANI/gGK+hFVtmA=
-=wHHj
------END PGP SIGNATURE-----
+-- 
+MST

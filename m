@@ -1,39 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbVKNSKQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbVKNSTI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751217AbVKNSKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 13:10:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbVKNSKQ
+	id S1751212AbVKNSTI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 13:19:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbVKNSTH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 13:10:16 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:39660 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751217AbVKNSKP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 13:10:15 -0500
-Date: Mon, 14 Nov 2005 10:09:26 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Adam Litke <agl@us.ibm.com>
-cc: linux-mm@kvack.org, ak@suse.de, linux-kernel@vger.kernel.org,
-       kenneth.w.chen@intel.com, wli@holomorphy.com
-Subject: Re: [RFC] NUMA memory policy support for HUGE pages
-In-Reply-To: <1131980814.13502.12.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.62.0511141007590.353@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.62.0511111051080.20589@schroedinger.engr.sgi.com> 
- <Pine.LNX.4.62.0511111225100.21071@schroedinger.engr.sgi.com>
- <1131980814.13502.12.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 14 Nov 2005 13:19:07 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:5093 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751212AbVKNSTG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 13:19:06 -0500
+Date: Mon, 14 Nov 2005 13:18:54 -0500
+From: Dave Jones <davej@redhat.com>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Alex Davis <alex14641@yahoo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+Message-ID: <20051114181854.GB3652@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Alex Davis <alex14641@yahoo.com>, linux-kernel@vger.kernel.org
+References: <20051114133802.38755.qmail@web50205.mail.yahoo.com> <1131979779.5751.17.camel@localhost.localdomain> <200511141802.45788.s0348365@sms.ed.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200511141802.45788.s0348365@sms.ed.ac.uk>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Nov 2005, Adam Litke wrote:
+On Mon, Nov 14, 2005 at 06:02:45PM +0000, Alistair John Strachan wrote:
+ > On Monday 14 November 2005 14:49, Alan Cox wrote:
+ > > On Llu, 2005-11-14 at 05:38 -0800, Alex Davis wrote:
+ > > > This will break ndiswrapper. Why can't we just leave this in and let
+ > > > people choose?
+ > >
+ > > If we spent our entire lives waiting for people to fix code nothing
+ > > would ever happen. Removing 8K stacks is a good thing to do for many
+ > > reasons. The ndis wrapper people have known it is coming for a long
+ > > time, and if it has a lot of users I'm sure someone in that community
+ > > will take the time to make patches.
+ > 
+ > I honestly don't know if this is the case, but is it conceivable that no patch 
+ > could be written to resolve this, because the Windows drivers themselves only 
+ > respect Windows stack limits (which are presumably still 8K?).
 
-> On Fri, 2005-11-11 at 12:28 -0800, Christoph Lameter wrote:
-> > I just saw that mm2 is out. This is the same patch against mm2 with 
-> > hugetlb COW support.
-> 
-> This all seems reasonable to me.  Were you planning to send out a
-> separate patch to support MPOL_BIND?
+Windows drivers can actually use more than 8KB. So in some situations,
+you're already screwed.  There are already cases where vendors customer
+service are now telling people "Use ndiswrapper" when people ask about
+Linux support.
 
-MPOL_BIND will provide a zonelist with only the nodes allowed. This is 
-included in the way the policy layer builds the zonelists.
+If we continue down this path, we'll have no native wireless drivers for Linux.
+The answer is not to complain to linux-kernel for breaking ndiswrapper,
+but complain to the vendors for not releasing specifications for
+native drivers to be written.
+
+		Dave
 

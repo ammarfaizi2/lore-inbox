@@ -1,148 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbVKNXvc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932173AbVKNXx0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932248AbVKNXvc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 18:51:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbVKNXvc
+	id S932173AbVKNXx0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 18:53:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbVKNXx0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 18:51:32 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:28125 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932249AbVKNXvb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 18:51:31 -0500
-Subject: 2.6.14 X spinning in the kernel
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm@osdl.org, hugh@veritas.com
-Content-Type: text/plain
-Date: Mon, 14 Nov 2005 15:51:21 -0800
-Message-Id: <1132012281.24066.36.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Nov 2005 18:53:26 -0500
+Received: from ns2.g-housing.de ([81.169.133.75]:41444 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S932173AbVKNXxZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 18:53:25 -0500
+Message-ID: <43792372.2010409@g-house.de>
+Date: Tue, 15 Nov 2005 00:53:22 +0100
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: Andrew Morton <akpm@osdl.org>
+Subject: 2.6.14-mm2: no .config.old any more?
+Content-Type: multipart/mixed;
+ boundary="------------070603000701090703080403"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-My 2-cpu EM64T machine started showing this problem again on 2.6.14.
-On some reboots, X seems to spin in the kernel forever.
-
-sysrq-t output shows nothing.
-
-X             R  running task       0  3607   3589          3903
-(L-TLB)
-
-top shows:
- 3607 root      25   0     0    0    0 R 99.1  0.0 262:04.69 X
+This is a multi-part message in MIME format.
+--------------070603000701090703080403
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
-So, I wrote a module to do smp_call_function() on all CPUs
-to show stacks on them. CPU0 seems to be spinning in exit_mmap().
-I did this multiple times to collect stacks few times.
+hi,
 
-Is this a known issue ?
+i noticed that 2.6.14-mm2 does not generate a .config.old anymore, so that 
+i can undo changes. i see that the Kconfig system is probably in flux 
+again ("Why did oldconfig's behavior change in 2.6.15-rc1?"), but i have 
+not seen this issue being reported:
 
-Thanks,
-Badari
+% cp .config .config.really-old
+% make menuconfig
+[...]
+scripts/kconfig/mconf arch/x86_64/Kconfig
+#
+# using defaults found in .config
+#
 
-1st time:
----------
-CPU1:
+*** End of Linux kernel configuration.
+*** Execute 'make' to build the kernel or try 'make help'.
 
-Call Trace:<ffffffff880ed02b>{:mod:showacpu+43}
-<ffffffff880ed04b>{:mod:init_mod+11}
-       <ffffffff80154162>{sys_init_module+306}
-<ffffffff8010dc26>{system_call+126}
+% diff .config.really-old .config
+4c4
+< # Tue Nov 15 00:23:53 2005
+---
+ > # Tue Nov 15 00:24:41 2005
+1454c1454
+< CONFIG_PRINTK_TIME=y
+---
+ > # CONFIG_PRINTK_TIME is not set
 
-CPU0:
+% ls .config.old
+ls: .config.old: No such file or directory
 
-Call Trace: <IRQ> <ffffffff880ed02b>{:mod:showacpu+43}
-<ffffffff80119399>{smp_call_function_interrupt+73}
-       <ffffffff8010e8f0>{call_function_interrupt+132}  <EOI>
-<ffffffff8016eb1a>{unmap_vmas+1114}
-       <ffffffff8016ec1c>{unmap_vmas+1372} <ffffffff801749f6>{exit_mmap
-+166}
-       <ffffffff80134014>{mmput+52} <ffffffff8018f2ca>{flush_old_exec
-+2474}
-       <ffffffff801833d5>{vfs_read+341}
-<ffffffff801b4933>{load_elf_binary+1507}
-       <ffffffff80162131>{buffered_rmqueue+529}
-<ffffffff8017c99b>{alloc_page_interleave+59}
-       <ffffffff8018e284>{copy_strings+516}
-<ffffffff801b4350>{load_elf_binary+0}
-       <ffffffff8018f8f9>{search_binary_handler+201}
-<ffffffff8018fc5f>{do_execve+415}
-       <ffffffff8010dc26>{system_call+126} <ffffffff8010c6e4>{sys_execve
-+68}
-       <ffffffff8010e046>{stub_execve+106}
+attached patch reverts one change introduced in 2.6.14-mm1 and fixes it 
+for me, but i doubt that it is the right thing to do....
 
+thanks,
+Christian.
+-- 
+BOFH excuse #404:
 
-2nd time:
-----------
+Sysadmin accidentally destroyed pager with a large hammer.
 
-CPU1:
+--------------070603000701090703080403
+Content-Type: text/plain;
+ name="2.6.14-mm2-config.old.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="2.6.14-mm2-config.old.diff"
 
-Call Trace:<ffffffff880ed02b>{:mod:showacpu+43}
-<ffffffff880ed04b>{:mod:init_mod+11}
-       <ffffffff80154162>{sys_init_module+306}
-<ffffffff8010dc26>{system_call+126}
-
-CPU0:
-
-Call Trace: <IRQ> <ffffffff880ed02b>{:mod:showacpu+43}
-<ffffffff80119399>{smp_call_function_interrupt+73}
-       <ffffffff8010e8f0>{call_function_interrupt+132}  <EOI>
-<ffffffff8017245f>{remove_vm_struct+63}
-       <ffffffff80172453>{remove_vm_struct+51}
-<ffffffff80174ac7>{exit_mmap+375}
-       <ffffffff80134014>{mmput+52} <ffffffff8018f2ca>{flush_old_exec
-+2474}
-       <ffffffff801833d5>{vfs_read+341}
-<ffffffff801b4933>{load_elf_binary+1507}
-       <ffffffff80162131>{buffered_rmqueue+529}
-<ffffffff8017c99b>{alloc_page_interleave+59}
-       <ffffffff8018e284>{copy_strings+516}
-<ffffffff801b4350>{load_elf_binary+0}
-       <ffffffff8018f8f9>{search_binary_handler+201}
-<ffffffff8018fc5f>{do_execve+415}
-       <ffffffff8010dc26>{system_call+126} <ffffffff8010c6e4>{sys_execve
-+68}
-       <ffffffff8010e046>{stub_execve+106}
-
-
-3rd time:
----------
-CPU1:
-
-Call Trace:<ffffffff880ed02b>{:mod:showacpu+43}
-<ffffffff880ed04b>{:mod:init_mod+11}
-       <ffffffff80154162>{sys_init_module+306}
-<ffffffff8010dc26>{system_call+126}
-
-CPU0:
-
-Call Trace: <IRQ> <ffffffff880ed02b>{:mod:showacpu+43}
-<ffffffff80119399>{smp_call_function_interrupt+73}
-       <ffffffff8010e8f0>{call_function_interrupt+132}  <EOI>
-<ffffffff801618b4>{__mod_page_state+36}
-       <ffffffff80161e09>{free_hot_cold_page+41}
-<ffffffff80161ef5>{__pagevec_free+37}
-       <ffffffff801699df>{release_pages+367}
-<ffffffff80178c0b>{free_pages_and_swap_cache+123}
-       <ffffffff80174a62>{exit_mmap+274} <ffffffff80134014>{mmput+52}
-       <ffffffff8018f2ca>{flush_old_exec+2474}
-<ffffffff801833d5>{vfs_read+341}
-       <ffffffff801b4933>{load_elf_binary+1507}
-<ffffffff80162131>{buffered_rmqueue+529}
-       <ffffffff8017c99b>{alloc_page_interleave+59}
-<ffffffff8018e284>{copy_strings+516}
-       <ffffffff801b4350>{load_elf_binary+0}
-<ffffffff8018f8f9>{search_binary_handler+201}
-       <ffffffff8018fc5f>{do_execve+415} <ffffffff8010dc26>{system_call
-+126}
-       <ffffffff8010c6e4>{sys_execve+68} <ffffffff8010e046>{stub_execve
-+106}
-
-
-
-
+LS0tIGxpbnV4LTIuNi1tbS9zY3JpcHRzL2tjb25maWcvY29uZmRhdGEuYy4yLjYuMTQtbW0y
+CTIwMDUtMTEtMTUgMDA6NDE6MjkuNjQ3Mzk5NDY0ICswMTAwCisrKyBsaW51eC0yLjYtbW0v
+c2NyaXB0cy9rY29uZmlnL2NvbmZkYXRhLmMJMjAwNS0xMS0xNSAwMDo0NToyMS4yOTExODQy
+NTYgKzAxMDAKQEAgLTUxOCwyMyArNTE4LDEzIEBAIGludCBjb25mX3dyaXRlKGNvbnN0IGNo
+YXIgKm5hbWUpCiAJCWlmICghbmFtZSkKIAkJCW5hbWUgPSBjb25mX2RlZl9maWxlbmFtZTsK
+IAkJc3ByaW50Zih0bXBuYW1lLCAiJXMub2xkIiwgbmFtZSk7Ci0vLwkJcHJpbnRmKCJyZW5h
+bWUxKCVzLCAlcylcbiIsIG5hbWUsIHRtcG5hbWUpOwotLy8JCXJlbmFtZShuYW1lLCB0bXBu
+YW1lKTsKKwkJcmVuYW1lKG5hbWUsIHRtcG5hbWUpOwogCX0KIAlzcHJpbnRmKHRtcG5hbWUs
+ICIlcyVzIiwgZGlybmFtZSwgYmFzZW5hbWUpOwotLy8JcHJpbnRmKCJyZW5hbWUyKCVzLCAl
+cylcbiIsIG5ld25hbWUsIHRtcG5hbWUpOwotI2lmIDAKIAlpZiAocmVuYW1lKG5ld25hbWUs
+IHRtcG5hbWUpKQogCQlyZXR1cm4gMTsKLSNlbHNlCi0JewotCQljaGFyIGJ1ZlsyNTZdOwot
+CQlzcHJpbnRmKGJ1ZiwgImNwICVzICVzIiwgbmV3bmFtZSwgdG1wbmFtZSk7Ci0JCXN5c3Rl
+bShidWYpOwotCQl1bmxpbmsobmV3bmFtZSk7Ci0JfQotI2VuZGlmCi0gCXN5bV9jaGFuZ2Vf
+Y291bnQgPSAwOwotIAorCisJc3ltX2NoYW5nZV9jb3VudCA9IDA7CisKIAlyZXR1cm4gMDsK
+IH0K
+--------------070603000701090703080403--

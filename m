@@ -1,69 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbVKNUv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbVKNUw7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbVKNUv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 15:51:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbVKNUv0
+	id S932118AbVKNUw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 15:52:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbVKNUw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 15:51:26 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:57813 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932113AbVKNUvZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 15:51:25 -0500
-Date: Mon, 14 Nov 2005 15:51:10 -0500
-From: "John W. Linville" <linville@redhat.com>
-To: fedora-list@redhat.com, fedora-announce-list@redhat.com,
-       fedora-devel-list@redhat.com
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] fedora-netdev kernel repository
-Message-ID: <20051114205110.GK25755@redhat.com>
-Reply-To: linville@redhat.com, linville@tuxdriver.com
-Mail-Followup-To: fedora-list@redhat.com, fedora-announce-list@redhat.com,
-	fedora-devel-list@redhat.com, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
+	Mon, 14 Nov 2005 15:52:59 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:38539 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932118AbVKNUw6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 15:52:58 -0500
+Subject: Re: [PATCH 1/10] Cr4 is valid on some 486s
+From: Arjan van de Ven <arjan@infradead.org>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Gerd Knorr <kraxel@suse.de>,
+       Dave Jones <davej@redhat.com>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <4378F4BE.6010207@vmware.com>
+References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com>
+	 <20051111103605.GC27805@elf.ucw.cz> <4374F2D5.7010106@vmware.com>
+	 <Pine.LNX.4.64.0511111147390.4627@g5.osdl.org>
+	 <4374FB89.6000304@vmware.com>
+	 <Pine.LNX.4.64.0511111218110.4627@g5.osdl.org>
+	 <20051113074241.GA29796@redhat.com>
+	 <Pine.LNX.4.64.0511131118020.3263@g5.osdl.org>
+	 <Pine.LNX.4.64.0511131210570.3263@g5.osdl.org> <4378A7F3.9070704@suse.de>
+	 <Pine.LNX.4.64.0511141118000.3263@g5.osdl.org>
+	 <4378E97E.2060707@vmware.com>
+	 <1131997971.2821.68.camel@laptopd505.fenrus.org>
+	 <4378F4BE.6010207@vmware.com>
+Content-Type: text/plain
+Date: Mon, 14 Nov 2005 21:52:46 +0100
+Message-Id: <1132001567.2821.71.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fedora-netdev!
 
-This message is to announce the availability of a new Fedora-based
-kernel repository.  The kernels available there are based upon
-the standard Fedora kernels, with the addition of current upstream
-networking patches which are more recent than the Fedora kernel's
-upstream base.  More information is available here:
+> 
+> Runtime tricks that increase complexity cost, yes.  It's all a question 
+> of measured gain vs. complexity.  But a couple of percent gained on an 
+> overall basis can be magnified enormously if you are looking at a 
+> workload that stresses a particular path. 
 
-	http://people.redhat.com/linville/kernels/fedora-netdev/
+a couple of percents sounds really really high to me. If it's really
+that then I think Andi's conclusion is wrong with respect to that
+locking cliff; if we spend a few percent of our performance on locks in
+the uncontended case we're way over the edge in my opinion.
 
-The purpose of this repository is two-fold: 1) to make bleeding-edge
-linux kernel networking developments available to Fedora users who
-need or want access to them; and, 2) to open-up the Fedora user
-base as a better testing resource for the kernel netdev community.
-I hope this will prove to be a win-win situation for both camps.
+>  I would expect some of those 
+> gains to be non-trivial, especially if considering the optimizations you 
+> could do on page table updates knowing you needn't worry about SMP 
 
-If you are a Fedora user with an interest or need for the latest
-developments in Linux kernel networking, then _please_ try the
-kernels from this repository.  Your testing and feedback is greatly
-appreciated, desperately requested, and graciously accepted.
-Thanks in advance!
+page table updates happen in the hypervisor in a xen like
+paravirtualized setup right? so that happens outside the kernel..
 
-Please feel free to contact me at this address regarding these
-kernels or other Fedora-related issues (especially networking).
-If your interest is coming from the netdev/upstream side of the house,
-you may want to contact me as linville@tuxdriver.com instead.
 
-Thanks,
-
-John
-
-P.S.  For those who just want to cut to the chase, do this (as root):
-
-   cd /etc/yum.repos.d
-   wget http://people.redhat.com/linville/kernels/fedora-netdev/fedora-netdev.repo
-   yum update
-
--- 
-John W. Linville
-linville@redhat.com

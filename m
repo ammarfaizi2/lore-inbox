@@ -1,50 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbVKNUWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbVKNUVA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932103AbVKNUWM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 15:22:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbVKNUVo
+	id S932101AbVKNUVA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 15:21:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932088AbVKNUUm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 15:21:44 -0500
-Received: from mail.kroah.org ([69.55.234.183]:6599 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932096AbVKNUTp (ORCPT
+	Mon, 14 Nov 2005 15:20:42 -0500
+Received: from mail-par.bigfish.com ([217.117.146.230]:59230 "EHLO
+	mail4-par-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S932101AbVKNUUf convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 15:19:45 -0500
-Date: Mon, 14 Nov 2005 12:06:10 -0800
-From: Greg Kroah-Hartman <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       balatka@email.cz
-Subject: [patch 10/12] USB: cp2101.c: Jablotron usb serial interface identification
-Message-ID: <20051114200610.GK2319@kroah.com>
-References: <20051114200100.984523000@press.kroah.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="usb-cp2101-new-id.patch"
-In-Reply-To: <20051114200456.GA2319@kroah.com>
-User-Agent: Mutt/1.5.11
+	Mon, 14 Nov 2005 15:20:35 -0500
+X-BigFish: V
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [Question] PCI device memory management
+Date: Mon, 14 Nov 2005 15:20:28 -0500
+Message-ID: <18860D00A1C724419B900535DB985FB40161457E@torcaexmb2.atitech.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Question] PCI device memory management
+Thread-Index: AcXnI925dXnlcNm9RVim0YHoROD0nQCMCwaw
+From: "Alex Song" <asong@ati.com>
+To: <dsaxena@plexity.net>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 14 Nov 2005 20:20:27.0107 (UTC) FILETIME=[D9D70B30:01C5E958]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Josef Balatka <balatka@email.cz>
+Hi,
 
-Jablotron usb serial interface identification
+The PCI device memory is shared by several hardware blocks, say, the
+DSP, the video decoder, video overlay, etc. And these hardware blocks
+are also on this PCI device. So I need to do some memory management over
+the PCI device memory based on the hardware needs. A function like what
+kmalloc does for system memory but must simpler, I think.
 
-Signed-off-by: Josef Balatka <balatka@email.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+So, for example, the video decoder needs some memory to put its decoded
+picture. Its driver calls this function to allocate some PCI device
+memory, tells the decoder where the memory is and starts the decoder.
+The decoder will decode MPEG2 stream and put the decoded picture in this
+piece of PCI device memory. Other drivers are similar.
 
----
- drivers/usb/serial/cp2101.c |    1 +
- 1 file changed, 1 insertion(+)
+I guess request/release_region don't apply here cause the caller of
+these functions knows exactly where the memory/io is.
+Mapping to user space may also be necessary in our driver but I think
+that's after we allocate a chunk of memory from this PCI device memory
+space.
 
---- gregkh-2.6.orig/drivers/usb/serial/cp2101.c	2005-11-02 09:25:03.000000000 -0800
-+++ gregkh-2.6/drivers/usb/serial/cp2101.c	2005-11-02 12:04:11.000000000 -0800
-@@ -60,6 +60,7 @@
- 	{ USB_DEVICE(0x10C4, 0x80F6) }, /* Suunto sports instrument */
- 	{ USB_DEVICE(0x10A6, 0xAA26) }, /* Knock-off DCU-11 cable */
- 	{ USB_DEVICE(0x10AB, 0x10C5) },	/* Siemens MC60 Cable */
-+	{ USB_DEVICE(0x16D6, 0x0001) }, /* Jablotron serial interface */
- 	{ } /* Terminating Entry */
- };
- 
+Hope this is clear.
 
---
+Thanks a lot,
+
+Alex
+
+
+
+
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org 
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Deepak Saxena
+> Sent: Friday, November 11, 2005 7:56 PM
+> To: Alex Song
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: [Question] PCI device memory management
+> 
+> On Nov 11 2005, at 16:53, Alex Song was caught saying:
+> > Hi,
+> > 
+> > Our PCI device has a lot of memory and we have to provide memory 
+> > management function for it.
+> > 
+> > Does kernel already have this mechanism in place?
+> > 
+> > Or we have to manage it on our own?
+> 
+> I'm guessing what you mean is that there is more memory on 
+> the device then can be mapped in via the outbound window?  
+> You will have to carve it up into chunks and map/unmap 
+> regions as needed.
+> Can you provide a bit more detail on what exactly you need to do?
+> 
+> ~Deepak
+> 
+> --
+> Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
+> 
+> When law and duty are one, united by religion, you never 
+> become fully conscious, fully aware of yourself. You are 
+> always a little less than an individual. - Frank Herbert
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in the body of a message to 
+> majordomo@vger.kernel.org More majordomo info at  
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+

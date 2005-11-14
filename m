@@ -1,309 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbVKNXJm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbVKNXJs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932234AbVKNXJm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 18:09:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbVKNXJm
+	id S1751286AbVKNXJs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 18:09:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbVKNXJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 18:09:42 -0500
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:18590 "EHLO
+	Mon, 14 Nov 2005 18:09:43 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:19870 "EHLO
 	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S1751285AbVKNXJl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1751286AbVKNXJl convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 14 Nov 2005 18:09:41 -0500
 From: "Rafael J. Wysocki" <rjw@sisk.pl>
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 1/3] swsusp: remove encryption
-Date: Mon, 14 Nov 2005 23:49:47 +0100
+Subject: [PATCH 0/3] swsusp: improve freeing of memory
+Date: Mon, 14 Nov 2005 23:47:57 +0100
 User-Agent: KMail/1.8.3
 Cc: Pavel Machek <pavel@suse.cz>, LKML <linux-kernel@vger.kernel.org>
-References: <200511142347.58233.rjw@sisk.pl>
-In-Reply-To: <200511142347.58233.rjw@sisk.pl>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200511142349.47787.rjw@sisk.pl>
+Message-Id: <200511142347.58233.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes the image encryption that is only used by swsusp instead
-of zeroing the image after resume in order to prevent someone from
-reading some confidential data from it in the future and it does not protect
-the image from being read by an unauthorized person before resume.
-The functionality it provides should really belong to the user space
-and will possibly be reimplemented after the swap-handling functionality
-of swsusp is moved to the user space.
+Hi,
 
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+Currently swsusp frees as much memory as possible during suspend.  This slows
+down the suspend and causes the system to be slow after resume due to
+the swapping-in activity.  The following series of patches is designed to
+change this behavior so that swsusp will free only as much memory as necessary
+to complete the suspend.
 
- kernel/power/swsusp.c |  163 +-------------------------------------------------
- 1 files changed, 4 insertions(+), 159 deletions(-)
+The patches have been acked by Pavel (modulo some minor issues related to
+the naming of constants, formatting etc. that are hopefully fixed now).
 
-Index: linux-2.6.14-mm2/kernel/power/swsusp.c
-===================================================================
---- linux-2.6.14-mm2.orig/kernel/power/swsusp.c	2005-11-11 11:25:45.000000000 +0100
-+++ linux-2.6.14-mm2/kernel/power/swsusp.c	2005-11-14 22:39:26.000000000 +0100
-@@ -30,9 +30,6 @@
-  * Alex Badea <vampire@go.ro>:
-  * Fixed runaway init
-  *
-- * Andreas Steinmetz <ast@domdv.de>:
-- * Added encrypted suspend option
-- *
-  * More state savers are welcome. Especially for the scsi layer...
-  *
-  * For TODOs,FIXMEs also look in Documentation/power/swsusp.txt
-@@ -67,10 +64,6 @@
- #include <asm/tlbflush.h>
- #include <asm/io.h>
- 
--#include <linux/random.h>
--#include <linux/crypto.h>
--#include <asm/scatterlist.h>
--
- #include "power.h"
- 
- #ifdef CONFIG_HIGHMEM
-@@ -81,10 +74,6 @@
- static int restore_highmem(void) { return 0; }
- #endif
- 
--#define CIPHER "aes"
--#define MAXKEY 32
--#define MAXIV  32
--
- extern char resume_file[];
- 
- /* Local variables that should not be affected by save */
-@@ -102,8 +91,7 @@
- #define SWSUSP_SIG	"S1SUSPEND"
- 
- static struct swsusp_header {
--	char reserved[PAGE_SIZE - 20 - MAXKEY - MAXIV - sizeof(swp_entry_t)];
--	u8 key_iv[MAXKEY+MAXIV];
-+	char reserved[PAGE_SIZE - 20 - sizeof(swp_entry_t)];
- 	swp_entry_t swsusp_info;
- 	char	orig_sig[10];
- 	char	sig[10];
-@@ -123,131 +111,6 @@
- static unsigned short swapfile_used[MAX_SWAPFILES];
- static unsigned short root_swap;
- 
--static int write_page(unsigned long addr, swp_entry_t *loc);
--static int bio_read_page(pgoff_t page_off, void *page);
--
--static u8 key_iv[MAXKEY+MAXIV];
--
--#ifdef CONFIG_SWSUSP_ENCRYPT
--
--static int crypto_init(int mode, void **mem)
--{
--	int error = 0;
--	int len;
--	char *modemsg;
--	struct crypto_tfm *tfm;
--
--	modemsg = mode ? "suspend not possible" : "resume not possible";
--
--	tfm = crypto_alloc_tfm(CIPHER, CRYPTO_TFM_MODE_CBC);
--	if(!tfm) {
--		printk(KERN_ERR "swsusp: no tfm, %s\n", modemsg);
--		error = -EINVAL;
--		goto out;
--	}
--
--	if(MAXKEY < crypto_tfm_alg_min_keysize(tfm)) {
--		printk(KERN_ERR "swsusp: key buffer too small, %s\n", modemsg);
--		error = -ENOKEY;
--		goto fail;
--	}
--
--	if (mode)
--		get_random_bytes(key_iv, MAXKEY+MAXIV);
--
--	len = crypto_tfm_alg_max_keysize(tfm);
--	if (len > MAXKEY)
--		len = MAXKEY;
--
--	if (crypto_cipher_setkey(tfm, key_iv, len)) {
--		printk(KERN_ERR "swsusp: key setup failure, %s\n", modemsg);
--		error = -EKEYREJECTED;
--		goto fail;
--	}
--
--	len = crypto_tfm_alg_ivsize(tfm);
--
--	if (MAXIV < len) {
--		printk(KERN_ERR "swsusp: iv buffer too small, %s\n", modemsg);
--		error = -EOVERFLOW;
--		goto fail;
--	}
--
--	crypto_cipher_set_iv(tfm, key_iv+MAXKEY, len);
--
--	*mem=(void *)tfm;
--
--	goto out;
--
--fail:	crypto_free_tfm(tfm);
--out:	return error;
--}
--
--static __inline__ void crypto_exit(void *mem)
--{
--	crypto_free_tfm((struct crypto_tfm *)mem);
--}
--
--static __inline__ int crypto_write(struct pbe *p, void *mem)
--{
--	int error = 0;
--	struct scatterlist src, dst;
--
--	src.page   = virt_to_page(p->address);
--	src.offset = 0;
--	src.length = PAGE_SIZE;
--	dst.page   = virt_to_page((void *)&swsusp_header);
--	dst.offset = 0;
--	dst.length = PAGE_SIZE;
--
--	error = crypto_cipher_encrypt((struct crypto_tfm *)mem, &dst, &src,
--					PAGE_SIZE);
--
--	if (!error)
--		error = write_page((unsigned long)&swsusp_header,
--				&(p->swap_address));
--	return error;
--}
--
--static __inline__ int crypto_read(struct pbe *p, void *mem)
--{
--	int error = 0;
--	struct scatterlist src, dst;
--
--	error = bio_read_page(swp_offset(p->swap_address), (void *)p->address);
--	if (!error) {
--		src.offset = 0;
--		src.length = PAGE_SIZE;
--		dst.offset = 0;
--		dst.length = PAGE_SIZE;
--		src.page = dst.page = virt_to_page((void *)p->address);
--
--		error = crypto_cipher_decrypt((struct crypto_tfm *)mem, &dst,
--						&src, PAGE_SIZE);
--	}
--	return error;
--}
--#else
--static __inline__ int crypto_init(int mode, void *mem)
--{
--	return 0;
--}
--
--static __inline__ void crypto_exit(void *mem)
--{
--}
--
--static __inline__ int crypto_write(struct pbe *p, void *mem)
--{
--	return write_page(p->address, &(p->swap_address));
--}
--
--static __inline__ int crypto_read(struct pbe *p, void *mem)
--{
--	return bio_read_page(swp_offset(p->swap_address), (void *)p->address);
--}
--#endif
--
- static int mark_swapfiles(swp_entry_t prev)
- {
- 	int error;
-@@ -259,7 +122,6 @@
- 	    !memcmp("SWAPSPACE2",swsusp_header.sig, 10)) {
- 		memcpy(swsusp_header.orig_sig,swsusp_header.sig, 10);
- 		memcpy(swsusp_header.sig,SWSUSP_SIG, 10);
--		memcpy(swsusp_header.key_iv, key_iv, MAXKEY+MAXIV);
- 		swsusp_header.swsusp_info = prev;
- 		error = rw_swap_page_sync(WRITE,
- 					  swp_entry(root_swap, 0),
-@@ -405,10 +267,6 @@
- 	int error = 0, i = 0;
- 	unsigned int mod = nr_copy_pages / 100;
- 	struct pbe *p;
--	void *tfm;
--
--	if ((error = crypto_init(1, &tfm)))
--		return error;
- 
- 	if (!mod)
- 		mod = 1;
-@@ -417,14 +275,11 @@
- 	for_each_pbe (p, pagedir_nosave) {
- 		if (!(i%mod))
- 			printk( "\b\b\b\b%3d%%", i / mod );
--		if ((error = crypto_write(p, tfm))) {
--			crypto_exit(tfm);
-+		if ((error = write_page(p->address, &p->swap_address)))
- 			return error;
--		}
- 		i++;
- 	}
- 	printk("\b\b\b\bdone\n");
--	crypto_exit(tfm);
- 	return error;
- }
- 
-@@ -550,7 +405,6 @@
- 	if ((error = close_swap()))
- 		goto FreePagedir;
-  Done:
--	memset(key_iv, 0, MAXKEY+MAXIV);
- 	return error;
-  FreePagedir:
- 	free_pagedir_entries();
-@@ -812,8 +666,6 @@
- 		return error;
- 	if (!memcmp(SWSUSP_SIG, swsusp_header.sig, 10)) {
- 		memcpy(swsusp_header.sig, swsusp_header.orig_sig, 10);
--		memcpy(key_iv, swsusp_header.key_iv, MAXKEY+MAXIV);
--		memset(swsusp_header.key_iv, 0, MAXKEY+MAXIV);
- 
- 		/*
- 		 * Reset swap signature now.
-@@ -840,10 +692,6 @@
- 	int error = 0;
- 	int i = 0;
- 	int mod = swsusp_info.image_pages / 100;
--	void *tfm;
--
--	if ((error = crypto_init(0, &tfm)))
--		return error;
- 
- 	if (!mod)
- 		mod = 1;
-@@ -855,15 +703,13 @@
- 		if (!(i % mod))
- 			printk("\b\b\b\b%3d%%", i / mod);
- 
--		if ((error = crypto_read(p, tfm))) {
--			crypto_exit(tfm);
-+		if ((error = bio_read_page(swp_offset(p->swap_address),
-+						(void *)p->address)))
- 			return error;
--		}
- 
- 		i++;
- 	}
- 	printk("\b\b\b\bdone\n");
--	crypto_exit(tfm);
- 	return error;
- }
- 
-@@ -986,7 +832,6 @@
- 
- 	error = read_suspend_image();
- 	blkdev_put(resume_bdev);
--	memset(key_iv, 0, MAXKEY+MAXIV);
- 
- 	if (!error)
- 		pr_debug("swsusp: Reading resume file was successful\n");
+Please consider for applying.
+
+Greetings,
+Rafael
 

@@ -1,43 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbVKNJXe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751065AbVKNKD4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751027AbVKNJXe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 04:23:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751028AbVKNJXd
+	id S1751065AbVKNKD4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 05:03:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751066AbVKNKD4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 04:23:33 -0500
-Received: from mail-in-06.arcor-online.net ([151.189.21.46]:61885 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1751026AbVKNJXd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 04:23:33 -0500
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-Subject: Re: [PATCH] vgacon: Workaround for resize bug in some chipsets
-To: Jason Dravet <dravet@hotmail.com>, adaplas@gmail.com,
-       samuel.thibault@ens-lyon.org, torvalds@osdl.org, akpm@osdl.org,
-       davej@redhat.com, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Mon, 14 Nov 2005 10:24:02 +0100
-References: <58DvZ-6en-1@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1EbaZH-0000cM-LC@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+	Mon, 14 Nov 2005 05:03:56 -0500
+Received: from www.postmet.com.128.244.195.in-addr.arpa ([195.244.128.17]:20872
+	"HELO mail.postmet.com") by vger.kernel.org with SMTP
+	id S1751063AbVKNKDz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 05:03:55 -0500
+Subject: PROBLEM:kernel complilation
+From: Alexander Kozyrev <ceo@postmet.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: PostMet Corporation
+Message-Id: <1131962621.7294.20.camel@sis1700.postmet.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 14 Nov 2005 12:03:41 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jason Dravet <dravet@hotmail.com> wrote:
+1)[root@asterisk1 linux-2.6.9-11.EL]# uname -a
+Linux asterisk1.local 2.6.9-11.EL #1 Wed Jun 8 16:59:52 CDT 2005 i686
+i686 i386 GNU/Linux
 
-> When I run stty rows 20 I get a screen of 80x20.  I can see the top 10 rows
-> and the bottom 10 rows are invisible.
 
-I asume your VGA indicates that it'll divide it's scanline counter by 2.
-Please add a printk("vgacon: mode=%2.2x\n", mode) before line 512 and report
-the value. A real fix will depend on this value. In the meantime, removing
-the lines 512 and 513 from the original file should be a temporary fix.
+2) [root@asterisk1 linux-2.6.9-11.EL]# cat /proc/version
+Linux version 2.6.9-11.EL (buildcentos@build1.hughesjr.centos.org) (gcc
+version 3.4.3 20050227 (Red Hat 3.4.3-22)) #1 Wed Jun 8 16:59:52 CDT
+2005
+
+3) Problem with kernel/built-in.o! No any files (and built-in.o) in dir
+kernel.
+
+<....>
+  gcc -Wp,-MD,arch/i386/lib/.usercopy.o.d -nostdinc -iwithprefix include
+-D__KERNEL__ -Iinclude -Iinclude2 -I/usr/src/linux-2.6.9-11.EL/include
+-I/usr/src/linux-2.6.9-11.EL/arch/i386/lib -Iarch/i386/lib -Wall
+-Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Os
+-fomit-frame-pointer -g -Wdeclaration-after-statement -pipe -msoft-float
+-m32 -fno-builtin-sprintf -fno-builtin-log2 -fno-builtin-puts
+-mpreferred-stack-boundary=2 -fno-unit-at-a-time -march=pentium3
+-I/usr/src/linux-2.6.9-11.EL/include/asm-i386/mach-default
+-Iinclude/asm-i386/mach-default  -DKBUILD_BASENAME=usercopy
+-DKBUILD_MODNAME=usercopy -c -o arch/i386/lib/.tmp_usercopy.o
+/usr/src/linux-2.6.9-11.EL/arch/i386/lib/usercopy.c
+  rm -f arch/i386/lib/lib.a; ar  rcs arch/i386/lib/lib.a
+arch/i386/lib/bitops.o arch/i386/lib/checksum.o arch/i386/lib/delay.o
+arch/i386/lib/getuser.o arch/i386/lib/memcpy.o arch/i386/lib/strstr.o
+arch/i386/lib/usercopy.o
+  set -e; . /usr/src/linux-2.6.9-11.EL/scripts/mkversion > .tmp_version;
+mv -f .tmp_version .version; make -f
+/usr/src/linux-2.6.9-11.EL/scripts/Makefile.build obj=init
+  CHK     include/linux/compile.h
+  UPD     include/linux/compile.h
+  gcc -Wp,-MD,init/.version.o.d -nostdinc -iwithprefix include
+-D__KERNEL__ -Iinclude -Iinclude2 -I/usr/src/linux-2.6.9-11.EL/include
+-I/usr/src/linux-2.6.9-11.EL/init -Iinit -Wall -Wstrict-prototypes
+-Wno-trigraphs -fno-strict-aliasing -fno-common -Os -fomit-frame-pointer
+-g -Wdeclaration-after-statement -pipe -msoft-float -m32
+-fno-builtin-sprintf -fno-builtin-log2 -fno-builtin-puts
+-mpreferred-stack-boundary=2 -fno-unit-at-a-time -march=pentium3
+-I/usr/src/linux-2.6.9-11.EL/include/asm-i386/mach-default
+-Iinclude/asm-i386/mach-default  -DKBUILD_BASENAME=version
+-DKBUILD_MODNAME=version -c -o init/.tmp_version.o
+/usr/src/linux-2.6.9-11.EL/init/version.c
+   ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o
+init/mounts.o init/initramfs.o
+  ld -m elf_i386  -o .tmp_vmlinux1 -T arch/i386/kernel/vmlinux.lds
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o
+--start-group  usr/built-in.o  arch/i386/kernel/built-in.o 
+arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o 
+arch/i386/crypto/built-in.o  kernel/built-in.o  mm/built-in.o 
+fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o 
+lib/lib.a  arch/i386/lib/lib.a  lib/built-in.o 
+arch/i386/lib/built-in.o  drivers/built-in.o  sound/built-in.o 
+arch/i386/pci/built-in.o  arch/i386/power/built-in.o  net/built-in.o
+--end-group
+ld: kernel/built-in.o: No such file: No such file or directory
+make[1]: *** [.tmp_vmlinux1] Error 1
+make: *** [_all] Error 2
+
+4) Was tried:
+
+[root@asterisk1 linux-2.6.9-11.EL]# make  V=1 kernel/
+O=/usr/src/kernels/custom
+make -C /usr/src/kernels/custom         \
+KBUILD_SRC=/usr/src/linux-2.6.9-11.EL        KBUILD_VERBOSE=1   \
+KBUILD_CHECK= KBUILD_EXTMOD=""  \
+        -f /usr/src/linux-2.6.9-11.EL/Makefile kernel/
+make -f /usr/src/linux-2.6.9-11.EL/scripts/Makefile.build
+obj=scripts/basic
+make -f /usr/src/linux-2.6.9-11.EL/scripts/Makefile.build obj=scripts
+make -f /usr/src/linux-2.6.9-11.EL/scripts/Makefile.build
+obj=scripts/genksyms
+make -f /usr/src/linux-2.6.9-11.EL/scripts/Makefile.build
+obj=scripts/mod
+  CHK     include/linux/version.h
+make -f /usr/src/linux-2.6.9-11.EL/scripts/Makefile.build
+obj=arch/i386/kernel arch/i386/kernel/asm-offsets.s
+make[2]: `arch/i386/kernel/asm-offsets.s' is up to date.
+make KBUILD_MODULES=1 -f
+/usr/src/linux-2.6.9-11.EL/scripts/Makefile.build obj=kernel
+
+5) Tried one more time:
+[root@asterisk1 linux-2.6.9-11.EL]# make  V=1 O=/usr/src/kernels/custom
+make -C /usr/src/kernels/custom         \
+KBUILD_SRC=/usr/src/linux-2.6.9-11.EL        KBUILD_VERBOSE=1   \
+KBUILD_CHECK= KBUILD_EXTMOD=""  \
+        -f /usr/src/linux-2.6.9-11.EL/Makefile _all
+if /usr/bin/env test ! /usr/src/linux-2.6.9-11.EL -ef
+/usr/src/kernels/custom; then \
+/bin/sh /usr/src/linux-2.6.9-11.EL/scripts/mkmakefile              \
+    /usr/src/linux-2.6.9-11.EL /usr/src/kernels/custom 2 6         \
+    > /usr/src/kernels/custom/Makefile;                                
+\
+fi
+  Using /usr/src/linux-2.6.9-11.EL as source for kernel
+if [ -h /usr/src/linux-2.6.9-11.EL/include/asm -o -f
+/usr/src/linux-2.6.9-11.EL/.config ]; then \
+        echo "  /usr/src/linux-2.6.9-11.EL is not clean, please run
+'make mrproper'";\
+        echo "  in the '/usr/src/linux-2.6.9-11.EL' directory.";\
+        /bin/false; \
+fi;
+if [ ! -d include2 ]; then mkdir -p include2; fi;
+ln -fsn /usr/src/linux-2.6.9-11.EL/include/asm-i386 include2/asm
+  CHK     include/linux/version.h
+rm -rf .tmp_versions
+mkdir -p .tmp_versions
 
 -- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+
+

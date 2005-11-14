@@ -1,50 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbVKNXvE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbVKNXvc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932172AbVKNXvE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 18:51:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbVKNXvE
+	id S932248AbVKNXvc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 18:51:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbVKNXvc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 18:51:04 -0500
-Received: from web52912.mail.yahoo.com ([206.190.49.22]:21383 "HELO
-	web52912.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S932172AbVKNXvD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 18:51:03 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=c8mPKbU89cuYZ33c1A0TWQj9POjDm0H7t0y6tjcwXv5FCJLDS4g0ewWYSjChu0uqOBDKf8vM7VomvzDNd5+cuL0tkJ3KsaUVmGhZhSVqPkjeHU360lfc2J4s6xl+0cxrgRK4QwYxEtEBRSDA7DfHSzKdp9xpZgvp4sQ7Pdt39yA=  ;
-Message-ID: <20051114235102.64514.qmail@web52912.mail.yahoo.com>
-Date: Mon, 14 Nov 2005 23:51:02 +0000 (GMT)
-From: Chris Rankin <rankincj@yahoo.com>
-Subject: Re: [OOPS] Linux 2.6.14.2 and DVB USB
-To: David Brigada <brigad@rpi.edu>
-Cc: linux-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20051114233924.GA9772@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 14 Nov 2005 18:51:32 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:28125 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932249AbVKNXvb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 18:51:31 -0500
+Subject: 2.6.14 X spinning in the kernel
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm@osdl.org, hugh@veritas.com
+Content-Type: text/plain
+Date: Mon, 14 Nov 2005 15:51:21 -0800
+Message-Id: <1132012281.24066.36.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- David Brigada <brigad@rpi.edu> wrote:
-> It seems as though there were messages that were still being sent to and
-> from your device when you disconnected it.  Try to make sure that you
-> quit all the software that was using the device,
+Hi,
 
-I'm fairly certain that I'd shut xine down.
+My 2-cpu EM64T machine started showing this problem again on 2.6.14.
+On some reboots, X seems to spin in the kernel forever.
 
-> and if possible, remove
-> the kernel module that the device uses before removing the device.
+sysrq-t output shows nothing.
 
-This sounds contrary to the entire concept of hotplugging to me. And I don't think that a typical
-desktop user would be happy to be told that s/he needs to become root and unload kernel modules
-before s/he can unplug a USB device.
+X             R  running task       0  3607   3589          3903
+(L-TLB)
 
-Cheers,
-Chris
+top shows:
+ 3607 root      25   0     0    0    0 R 99.1  0.0 262:04.69 X
 
 
+So, I wrote a module to do smp_call_function() on all CPUs
+to show stacks on them. CPU0 seems to be spinning in exit_mmap().
+I did this multiple times to collect stacks few times.
 
-		
-___________________________________________________________ 
-To help you stay safe and secure online, we've developed the all new Yahoo! Security Centre. http://uk.security.yahoo.com
+Is this a known issue ?
+
+Thanks,
+Badari
+
+1st time:
+---------
+CPU1:
+
+Call Trace:<ffffffff880ed02b>{:mod:showacpu+43}
+<ffffffff880ed04b>{:mod:init_mod+11}
+       <ffffffff80154162>{sys_init_module+306}
+<ffffffff8010dc26>{system_call+126}
+
+CPU0:
+
+Call Trace: <IRQ> <ffffffff880ed02b>{:mod:showacpu+43}
+<ffffffff80119399>{smp_call_function_interrupt+73}
+       <ffffffff8010e8f0>{call_function_interrupt+132}  <EOI>
+<ffffffff8016eb1a>{unmap_vmas+1114}
+       <ffffffff8016ec1c>{unmap_vmas+1372} <ffffffff801749f6>{exit_mmap
++166}
+       <ffffffff80134014>{mmput+52} <ffffffff8018f2ca>{flush_old_exec
++2474}
+       <ffffffff801833d5>{vfs_read+341}
+<ffffffff801b4933>{load_elf_binary+1507}
+       <ffffffff80162131>{buffered_rmqueue+529}
+<ffffffff8017c99b>{alloc_page_interleave+59}
+       <ffffffff8018e284>{copy_strings+516}
+<ffffffff801b4350>{load_elf_binary+0}
+       <ffffffff8018f8f9>{search_binary_handler+201}
+<ffffffff8018fc5f>{do_execve+415}
+       <ffffffff8010dc26>{system_call+126} <ffffffff8010c6e4>{sys_execve
++68}
+       <ffffffff8010e046>{stub_execve+106}
+
+
+2nd time:
+----------
+
+CPU1:
+
+Call Trace:<ffffffff880ed02b>{:mod:showacpu+43}
+<ffffffff880ed04b>{:mod:init_mod+11}
+       <ffffffff80154162>{sys_init_module+306}
+<ffffffff8010dc26>{system_call+126}
+
+CPU0:
+
+Call Trace: <IRQ> <ffffffff880ed02b>{:mod:showacpu+43}
+<ffffffff80119399>{smp_call_function_interrupt+73}
+       <ffffffff8010e8f0>{call_function_interrupt+132}  <EOI>
+<ffffffff8017245f>{remove_vm_struct+63}
+       <ffffffff80172453>{remove_vm_struct+51}
+<ffffffff80174ac7>{exit_mmap+375}
+       <ffffffff80134014>{mmput+52} <ffffffff8018f2ca>{flush_old_exec
++2474}
+       <ffffffff801833d5>{vfs_read+341}
+<ffffffff801b4933>{load_elf_binary+1507}
+       <ffffffff80162131>{buffered_rmqueue+529}
+<ffffffff8017c99b>{alloc_page_interleave+59}
+       <ffffffff8018e284>{copy_strings+516}
+<ffffffff801b4350>{load_elf_binary+0}
+       <ffffffff8018f8f9>{search_binary_handler+201}
+<ffffffff8018fc5f>{do_execve+415}
+       <ffffffff8010dc26>{system_call+126} <ffffffff8010c6e4>{sys_execve
++68}
+       <ffffffff8010e046>{stub_execve+106}
+
+
+3rd time:
+---------
+CPU1:
+
+Call Trace:<ffffffff880ed02b>{:mod:showacpu+43}
+<ffffffff880ed04b>{:mod:init_mod+11}
+       <ffffffff80154162>{sys_init_module+306}
+<ffffffff8010dc26>{system_call+126}
+
+CPU0:
+
+Call Trace: <IRQ> <ffffffff880ed02b>{:mod:showacpu+43}
+<ffffffff80119399>{smp_call_function_interrupt+73}
+       <ffffffff8010e8f0>{call_function_interrupt+132}  <EOI>
+<ffffffff801618b4>{__mod_page_state+36}
+       <ffffffff80161e09>{free_hot_cold_page+41}
+<ffffffff80161ef5>{__pagevec_free+37}
+       <ffffffff801699df>{release_pages+367}
+<ffffffff80178c0b>{free_pages_and_swap_cache+123}
+       <ffffffff80174a62>{exit_mmap+274} <ffffffff80134014>{mmput+52}
+       <ffffffff8018f2ca>{flush_old_exec+2474}
+<ffffffff801833d5>{vfs_read+341}
+       <ffffffff801b4933>{load_elf_binary+1507}
+<ffffffff80162131>{buffered_rmqueue+529}
+       <ffffffff8017c99b>{alloc_page_interleave+59}
+<ffffffff8018e284>{copy_strings+516}
+       <ffffffff801b4350>{load_elf_binary+0}
+<ffffffff8018f8f9>{search_binary_handler+201}
+       <ffffffff8018fc5f>{do_execve+415} <ffffffff8010dc26>{system_call
++126}
+       <ffffffff8010c6e4>{sys_execve+68} <ffffffff8010e046>{stub_execve
++106}
+
+
+
+

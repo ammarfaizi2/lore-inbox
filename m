@@ -1,51 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbVKND4S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbVKNEDo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750877AbVKND4S (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 22:56:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750881AbVKND4S
+	id S1750885AbVKNEDo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 23:03:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750886AbVKNEDo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 22:56:18 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:35343 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750876AbVKND4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 22:56:17 -0500
-Date: Mon, 14 Nov 2005 04:56:16 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Mark Lord <lkml@rtr.ca>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-rc1: kswapd crash
-Message-ID: <20051114035616.GD5735@stusta.de>
-References: <4377D1B2.8070003@rtr.ca> <20051114004758.GA5735@stusta.de> <4377FFA7.4030400@rtr.ca>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4377FFA7.4030400@rtr.ca>
-User-Agent: Mutt/1.5.11
+	Sun, 13 Nov 2005 23:03:44 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:56524 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750884AbVKNEDo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Nov 2005 23:03:44 -0500
+Date: Sun, 13 Nov 2005 20:03:29 -0800 (PST)
+From: Paul Jackson <pj@sgi.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
+       Simon Derr <Simon.Derr@bull.net>, Christoph Lameter <clameter@sgi.com>,
+       "Rohit, Seth" <rohit.seth@intel.com>, Paul Jackson <pj@sgi.com>
+Message-Id: <20051114040329.13951.39891.sendpatchset@jackhammer.engr.sgi.com>
+Subject: [PATCH 01/05] mm fix __alloc_pages cpuset ALLOC_* flags
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 13, 2005 at 10:08:23PM -0500, Mark Lord wrote:
-> Adrian Bunk wrote:
-> >
-> >Perhaps your vmware modules?
-> 
-> No, not those.  They've been there for years.
->...
+Two changes to the setting of the ALLOC_CPUSET flag in
+mm/page_alloc.c:__alloc_pages()
 
-So why did you delete the tainted line from the Oops output you sent?
+ 1) A bug fix - the "ignoring mins" case should not be honoring
+    ALLOC_CPUSET.  This case of all cases, since it is handling a
+    request that will free up more memory than is asked for (exiting
+    tasks, e.g.) should be allowed to escape cpuset constraints
+    when memory is tight.
 
-It might be a bug in the kernel or a bug in your vmware modules exposed 
-by the new kernel.
+ 2) A logic change to make it simpler.  Honor cpusets even on
+    GFP_ATOMIC (!wait) requests.  With this, cpuset confinement
+    applies to all requests except ALLOC_NO_WATERMARKS, so that
+    in a subsequent cleanup patch, I can remove the ALLOC_CPUSET
+    flag entirely.  Since I don't know any real reason this
+    logic has to be either way, I am choosing the path of the
+    simplest code.
 
-Unless the opposite is proven, the latter is assumed...
+Signed-off-by: Paul Jackson <pj@sgi.com>
 
-cu
-Adrian
+---
+
+ mm/page_alloc.c |    5 ++---
+ 1 files changed, 2 insertions(+), 3 deletions(-)
+
+--- 2.6.14-mm2.orig/mm/page_alloc.c	2005-11-12 22:25:03.305301135 -0800
++++ 2.6.14-mm2/mm/page_alloc.c	2005-11-12 22:27:30.519813285 -0800
+@@ -933,8 +933,7 @@ restart:
+ 		alloc_flags |= ALLOC_HARDER;
+ 	if (gfp_mask & __GFP_HIGH)
+ 		alloc_flags |= ALLOC_HIGH;
+-	if (wait)
+-		alloc_flags |= ALLOC_CPUSET;
++	alloc_flags |= ALLOC_CPUSET;
+ 
+ 	/*
+ 	 * Go through the zonelist again. Let __GFP_HIGH and allocations
+@@ -956,7 +955,7 @@ restart:
+ nofail_alloc:
+ 			/* go through the zonelist yet again, ignoring mins */
+ 			page = get_page_from_freelist(gfp_mask, order,
+-				zonelist, ALLOC_NO_WATERMARKS|ALLOC_CPUSET);
++				zonelist, ALLOC_NO_WATERMARKS);
+ 			if (page)
+ 				goto got_pg;
+ 			if (gfp_mask & __GFP_NOFAIL) {
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,51 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751299AbVKNXRz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbVKNXXK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751299AbVKNXRz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 18:17:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbVKNXRy
+	id S1751309AbVKNXXK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 18:23:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbVKNXXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 18:17:54 -0500
-Received: from pat.uio.no ([129.240.130.16]:50918 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1751275AbVKNXRy (ORCPT
+	Mon, 14 Nov 2005 18:23:09 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:46287 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751309AbVKNXXI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 18:17:54 -0500
-Subject: Re: [PATCH 0/12] FS-Cache: Generic filesystem caching facility
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, dhowells@redhat.com,
-       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20051114150347.1188499e.akpm@osdl.org>
-References: <dhowells1132005277@warthog.cambridge.redhat.com>
-	 <Pine.LNX.4.64.0511141428390.3263@g5.osdl.org>
-	 <20051114150347.1188499e.akpm@osdl.org>
-Content-Type: text/plain
-Date: Mon, 14 Nov 2005 18:17:33 -0500
-Message-Id: <1132010253.8802.20.camel@lade.trondhjem.org>
+	Mon, 14 Nov 2005 18:23:08 -0500
+Date: Mon, 14 Nov 2005 15:23:16 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: apw@shadowen.org, kravetz@us.ibm.com, haveblue@us.ibm.com,
+       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/4] register_ and unregister_memory_notifier should be
+ global
+Message-Id: <20051114152316.4060d30c.akpm@osdl.org>
+In-Reply-To: <20051114193738.GA15494@shadowen.org>
+References: <exportbomb.1131997056@pinky>
+	<20051114193738.GA15494@shadowen.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-2.871, required 12,
-	autolearn=disabled, AWL 1.94, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-11-14 at 15:03 -0800, Andrew Morton wrote:
+Andy Whitcroft <apw@shadowen.org> wrote:
+>
+> Both register_memory_notifer and unregister_memory_notifier are global
+> and declared so in linux.h.  Update the HOTPLUG specific definitions
+> to match.  This fixes a compile warning when HOTPLUG is enabled.
+> 
 
-> I think we need an NFS implementation and some numbers which make it
-> interesting.  Or at least, some AFS numbers, some explanation as to why
-> they can be extrapolated to NFS and some degree of interest from the NFS
-> guys.   Ditto CIFS.
+There is no linux.h and I can find no .h file which declares
+register_memory_notifier().  Please clarify?
 
-There is a lot of interest from the HPC community for this sort of thing
-on NFS. Basically, it will help server scalability for projects that
-have large numbers of read-only files accessed by large numbers of
-clients.
 
-AFAIK, Steve Dickson (steved@redhat.com) is working on the NFS hooks for
-FS-Cache.
-
-Cheers,
-  Trond
-
+> ---
+>  memory.c |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> diff -upN reference/drivers/base/memory.c current/drivers/base/memory.c
+> --- reference/drivers/base/memory.c
+> +++ current/drivers/base/memory.c
+> @@ -50,12 +50,12 @@ static struct kset_hotplug_ops memory_ho
+>  
+>  static struct notifier_block *memory_chain;
+>  
+> -static int register_memory_notifier(struct notifier_block *nb)
+> +int register_memory_notifier(struct notifier_block *nb)
+>  {
+>          return notifier_chain_register(&memory_chain, nb);
+>  }
+>  
+> -static void unregister_memory_notifier(struct notifier_block *nb)
+> +void unregister_memory_notifier(struct notifier_block *nb)
+>  {
+>          notifier_chain_unregister(&memory_chain, nb);
+>  }

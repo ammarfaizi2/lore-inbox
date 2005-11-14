@@ -1,119 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbVKNTdl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbVKNTiL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751257AbVKNTdl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 14:33:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbVKNTdl
+	id S1751241AbVKNTiL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 14:38:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbVKNTiL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 14:33:41 -0500
-Received: from mail.kroah.org ([69.55.234.183]:5298 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751257AbVKNTdl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 14:33:41 -0500
-Date: Mon, 14 Nov 2005 10:49:41 -0800
-From: Greg KH <greg@kroah.com>
-To: George Anzinger <george@mvista.com>
-Cc: john stultz <johnstul@us.ibm.com>, ganzinger@mvista.com,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Calibration issues with USB disc present.
-Message-ID: <20051114184940.GA876@kroah.com>
-References: <43750EFD.3040106@mvista.com> <1131746228.2542.11.camel@cog.beaverton.ibm.com> <20051112050502.GC27700@kroah.com> <4376130D.1080500@mvista.com> <20051112213332.GA16016@kroah.com> <4378DDC5.80103@mvista.com>
+	Mon, 14 Nov 2005 14:38:11 -0500
+Received: from 81-178-76-253.dsl.pipex.com ([81.178.76.253]:63651 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S1751241AbVKNTiK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 14:38:10 -0500
+Date: Mon, 14 Nov 2005 19:37:40 +0000
+To: akpm@osdl.org
+Cc: apw@shadowen.org, kravetz@us.ibm.com, haveblue@us.ibm.com,
+       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH 3/4] register_memory should be global
+Message-ID: <20051114193740.GA15501@shadowen.org>
+References: <exportbomb.1131997056@pinky>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4378DDC5.80103@mvista.com>
-User-Agent: Mutt/1.5.11
+InReply-To: <exportbomb.1131997056@pinky>
+User-Agent: Mutt/1.5.9i
+From: Andy Whitcroft <apw@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 14, 2005 at 10:56:05AM -0800, George Anzinger wrote:
-> Greg KH wrote:
-> >On Sat, Nov 12, 2005 at 08:06:37AM -0800, George Anzinger wrote:
-> >
-> >>Greg KH wrote:
-> >>
-> >>>On Fri, Nov 11, 2005 at 01:57:07PM -0800, john stultz wrote:
-> >>>
-> >>>
-> >>>>On Fri, 2005-11-11 at 13:37 -0800, George Anzinger wrote:
-> >>>>
-> >>>>
-> >>>>>John,
-> >>>>>
-> >>>>>Have you run into this.  One of the USB disc controllers has the 
-> >>>>>ability to boot the system, however, it needs SMM code to do this.  
-> >>>>>This SMM code, somehow, causes SMI interrupts (which are higher 
-> >>>>>priority than NMI interrutps and not maskable) which it needs to do 
-> >>>>>its thing.
-> >>>>>
-> >>>>>Problem is that if one of these occurs while calibrating the TSC or 
-> >>>>>the delay code, it can cause a wrong result.  We have seen both a too 
-> >>>>>long and a too short result (depending on where the interrut happens).
-> >>>>>
-> >>>>>They have found the root cause of TSC calibration problem.
-> >>>>>Now they ask for the fix or workaround.
-> >>>>>
-> >>>>>That is the BIOS is periodically interrupted by USB controller and the 
-> >>>>>CPU
-> >>>>>waits during the processing of these interrupts.
-> >>>>>Their experiments say the interrupt interval is 260mSec and the BIOS 
-> >>>>>needs
-> >>>>>150uSec - 200uSec for processing.
-> >>>>>It is proved that the problem doesn't reproduce by masking such SMI in 
-> >>>>>BIOS.
-> >>>>>They say SMI is for BIOS emulation for connecting legacy devices to 
-> >>>>>USB.
-> >>>>>Without such an emulation it's impossible to boot from USB-FD for 
-> >>>>>instance,
-> >>>>>they say too.
-> >>>>
-> >>>>Hmmm. I haven't heard of this issue specifically, but yes, I'm quite
-> >>>>familiar with the pain BIOS SMIs can cause and I'm not surprised that it
-> >>>>would affect the TSC/delay calibration code.
-> >>>>
-> >>>>Is this still an issue w/ 2.6.14? I know the new TSC based delay
-> >>>>calibration code is supposed to be SMI resilient, but I haven't really
-> >>>>played with it closely.
-> >>>>
-> >>>>Not sure what the best method to move forward would be. I suspect
-> >>>>disabling the SMI code early in boot (I thought the usb legacy handoff
-> >>>>stuff already did this?) would help. Then the actual Linux USB drivers
-> >>>>can take over before we switch from the initrd to the root filesystem.
-> >>>>
-> >>>>Greg, do you have a suggestion?
-> >>>
-> >>>
-> >>>I only ever saw this when people forgot to load the USB drivers.  Once
-> >>>the kernel took over USB support, there was no problem (if there was,
-> >>>that's a BIOS bug.)  The handoff code in 2.6.14 should help a lot with
-> >>>this too.
-> >>>
-> >>
-> >>Ah... are you saying that the USB support code stops the SMM/SMI prior to 
-> >>the TSC & delay calibration?  Also, this problem was noted in a 2.4.20 
-> >>kernel.  Any help there?
-> >
-> >
-> >I do not know where in the boot process the TSC and delay calibration is
-> >done.  If it happens before the PCI bus is probed, then no, it does not
-> >happen before this.
-> 
-> My guess is that the PCI bus code would like to use delay() so I rather 
-> think it is calibrated prior to this :(
-> >
-> >On these boxes, I'd just recommend disabling USB legacy support
-> >completly, if possible.  And then complain loudly to the vendor to fix
-> >their BIOS.
-> 
-> But if one is booting from that device...
+register_memory is global and declared so in linux.h.  Update the
+HOTPLUG specific definition to match.  This fixes a compile warning
+when HOTPLUG is enabled.
 
-Booting from a USB device?  I can see this happening when installing a
-distro, and you boot from the USB cdrom, but not for "normal"
-operations.
-
-Oh well, publicly mock the manufacturer for doing horrible things in
-their BIOS and then no one will buy the boxes, and we will not have
-problems :)
-
-thanks,
-
-greg k-h
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+---
+ memory.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+diff -upN reference/drivers/base/memory.c current/drivers/base/memory.c
+--- reference/drivers/base/memory.c
++++ current/drivers/base/memory.c
+@@ -63,8 +63,7 @@ void unregister_memory_notifier(struct n
+ /*
+  * register_memory - Setup a sysfs device for a memory block
+  */
+-static int
+-register_memory(struct memory_block *memory, struct mem_section *section,
++int register_memory(struct memory_block *memory, struct mem_section *section,
+ 		struct node *root)
+ {
+ 	int error;

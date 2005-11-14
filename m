@@ -1,87 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbVKNQ4u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbVKNRP0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751196AbVKNQ4u (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 11:56:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbVKNQ4u
+	id S1751199AbVKNRP0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 12:15:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbVKNRP0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 11:56:50 -0500
-Received: from xproxy.gmail.com ([66.249.82.192]:29841 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751196AbVKNQ4u (ORCPT
+	Mon, 14 Nov 2005 12:15:26 -0500
+Received: from rtr.ca ([64.26.128.89]:37853 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1751199AbVKNRPZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 11:56:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=JloPaLQoTzFDFDkdKq4nU1DLlkYhM3qLDik9ErE7KU++6N+5lOPgf5bGodYFGZBRcyokz0Re2k9LG/iUVMBIhj3gdXUruCJuaQQytnqPh/PGauBfYh3J4eLgucL76uuuIOt8sqLBXER6T6tpVzXEkIioNJu4K6PydXOfVbYAkpo=
-Subject: Re: 2.6.xx:  dirty pages never being sync'd to disk?
-From: Badari Pulavarty <pbadari@gmail.com>
-To: Mark Lord <lkml@rtr.ca>
+	Mon, 14 Nov 2005 12:15:25 -0500
+Message-ID: <4378C626.4030107@rtr.ca>
+Date: Mon, 14 Nov 2005 12:15:18 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Badari Pulavarty <pbadari@gmail.com>
 Cc: Arjan van de Ven <arjan@infradead.org>,
        Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4378B1FB.1060201@rtr.ca>
-References: <4378ADB2.7040905@rtr.ca>
-	 <1131982550.2821.41.camel@laptopd505.fenrus.org>  <4378B1FB.1060201@rtr.ca>
-Content-Type: text/plain
-Date: Mon, 14 Nov 2005 08:56:38 -0800
-Message-Id: <1131987398.24066.7.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Subject: Re: 2.6.xx:  dirty pages never being sync'd to disk?
+References: <4378ADB2.7040905@rtr.ca>	 <1131982550.2821.41.camel@laptopd505.fenrus.org>  <4378B1FB.1060201@rtr.ca> <1131987398.24066.7.camel@localhost.localdomain>
+In-Reply-To: <1131987398.24066.7.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-11-14 at 10:49 -0500, Mark Lord wrote:
-> Arjan van de Ven wrote:
-> > On Mon, 2005-11-14 at 10:30 -0500, Mark Lord wrote:
-> ..
-> >>My Notebook computer has 2GB of RAM, and the 2.6.xx kernel seems quite
-> >>happy to leave hundreds of MB of dirty unsync'd pages laying around
-> ..
-> >>/proc/sys/vm/dirty_expire_centisecs = 3000 (30 seconds)
-> >>/proc/sys/vm/dirty_writeback_centisecs = 500 (5 seconds)
-> ..
-> > do you have laptop mode enabled? That changes the behavior bigtime in
-> > this regard and makes the kernel behave quite different.
-> 
-> No.  Laptop-mode mostly just modifies the dirty_expire
-> and related settings, and I have them set as shown above.
-> But there's also this:
-> 
-> /proc/sys/vm/laptop_mode = 0
-> 
-> > also if these are files written to by mmap, the kernel only really sees
-> > those as dirty when the mapping gets taken down
-> 
-> They certainly show up in the counts in /proc/meminfo under "Dirty",
-> so I assumed that means the kernel knows they are dirty.
-> 
-> A simple test I do for this:
-> 
-> $ mkdir t
-> $ cp /usr/src/*.bz2  t    (about 400-500MB worth of kernel tar files)
-> 
-> In another window, I do this:
-> 
-> $ while (sleep 1); do echo -n "`date`: "; grep Dirty /proc/meminfo; done
-> 
-> And then watch the count get large, but take virtually forever
-> to count back down to a "safe" value.
-> 
-> Typing "sync" causes all the Dirty pages to immediately be flushed to disk,
-> as expected.
-> 
-> Here's what the monitoring of /proc/meminfo shows,
-> on an otherwise mostly idle system after having done
-> the big file copies noted earlier:
-> 
-> Mon Nov 14 10:40:22 EST 2005: Dirty:          481284 kB
-> Mon Nov 14 10:40:23 EST 2005: Dirty:          479680 kB
+Badari Pulavarty wrote:
+>
+> Interesting. Since you have a very easy to reproduce case -
+> can you write a program to do posix_fadvise(POSIX_FADV_DONTNEED)
+> on those files in directory "t" and see what happens ?
 
+Sure.  It appears to cause an immediate "sync" of the file data
+to disk (lots of drive activity for a few seconds), and the Dirty
+count from /proc/meminfo reduces correspondingly.
 
-Interesting. Since you have a very easy to reproduce case -
-can you write a program to do posix_fadvise(POSIX_FADV_DONTNEED)
-on those files in directory "t" and see what happens ?
+Oddly enough, the Dirty count didn't go all the way down, though.
+Doing a "sync" or a second run of the program afterwards does
+get the count down to zero immediately, without any significant I/O.
 
-Thanks,
-Badari
+Strange.
 
+#include <fcntl.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+
+int main (int argc, char *argv[])
+{
+         while (--argc > 0) {
+                 int fd = open(*++argv, O_RDWR);
+                 if (fd == -1) {
+                         perror(*argv);
+                 } else {
+                         int posix_fadvise(int, off_t, off_t, int);
+                         const int POSIX_FADV_DONTNEED = 4;
+                         int rc = posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED);
+                         if (rc == -1)
+                                 perror(*argv);
+                         close(fd);
+                 }
+         }
+         return 0;
+}

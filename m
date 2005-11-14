@@ -1,46 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751263AbVKNTqs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbVKNTx3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751263AbVKNTqs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 14:46:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751266AbVKNTqs
+	id S1751268AbVKNTx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 14:53:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbVKNTx3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 14:46:48 -0500
-Received: from wasp.net.au ([203.190.192.17]:24462 "EHLO wasp.net.au")
-	by vger.kernel.org with ESMTP id S1751263AbVKNTqr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 14:46:47 -0500
-Message-ID: <4378E9A8.5050807@wasp.net.au>
-Date: Mon, 14 Nov 2005 23:46:48 +0400
-From: Brad Campbell <brad@wasp.net.au>
-User-Agent: Thunderbird 1.5 (X11/20051025)
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: George Anzinger <george@mvista.com>, john stultz <johnstul@us.ibm.com>,
-       ganzinger@mvista.com, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Calibration issues with USB disc present.
-References: <43750EFD.3040106@mvista.com> <1131746228.2542.11.camel@cog.beaverton.ibm.com> <20051112050502.GC27700@kroah.com> <4376130D.1080500@mvista.com> <20051112213332.GA16016@kroah.com> <4378DDC5.80103@mvista.com> <20051114184940.GA876@kroah.com>
-In-Reply-To: <20051114184940.GA876@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 14 Nov 2005 14:53:29 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:32432 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751268AbVKNTx3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 14:53:29 -0500
+Subject: Re: [PATCH 1/10] Cr4 is valid on some 486s
+From: Arjan van de Ven <arjan@infradead.org>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Gerd Knorr <kraxel@suse.de>,
+       Dave Jones <davej@redhat.com>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <4378E97E.2060707@vmware.com>
+References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com>
+	 <20051111103605.GC27805@elf.ucw.cz> <4374F2D5.7010106@vmware.com>
+	 <Pine.LNX.4.64.0511111147390.4627@g5.osdl.org>
+	 <4374FB89.6000304@vmware.com>
+	 <Pine.LNX.4.64.0511111218110.4627@g5.osdl.org>
+	 <20051113074241.GA29796@redhat.com>
+	 <Pine.LNX.4.64.0511131118020.3263@g5.osdl.org>
+	 <Pine.LNX.4.64.0511131210570.3263@g5.osdl.org> <4378A7F3.9070704@suse.de>
+	 <Pine.LNX.4.64.0511141118000.3263@g5.osdl.org>
+	 <4378E97E.2060707@vmware.com>
+Content-Type: text/plain
+Date: Mon, 14 Nov 2005 20:52:51 +0100
+Message-Id: <1131997971.2821.68.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
->>> completly, if possible.  And then complain loudly to the vendor to fix
->>> their BIOS.
->> But if one is booting from that device...
-> 
-> Booting from a USB device?  I can see this happening when installing a
-> distro, and you boot from the USB cdrom, but not for "normal"
-> operations.
-> 
+On Mon, 2005-11-14 at 11:46 -0800, Zachary Amsden wrote:
 
-Just as a point of reference I have a machine here that boots from a USB keystick and runs from an 
-NFS Root. It's a diskless machine that has no net-boot ability. I have used this on a number of 
-machines over recent history.
+> It seems that SMP vs. UP lock / spinlock overhead is relevant even for 
+> future, multi-core CPUs in a virtualization context, as the notion of 
+> hotplug here is based on scheduling constraints of the virtualization 
+> engine, and the kernel can quite readily end up with only one VCPU.
 
-Brad
--- 
-"Human beings, who are almost unique in having the ability
-to learn from the experience of others, are also remarkable
-for their apparent disinclination to do so." -- Douglas Adams
+
+this assumes that you don't just always want to assume and use SMP
+primitives in a virtualized context. I sort of question that assumption;
+sure these things have overhead, especially "lock", but if the solution
+is more complexity and weird things to hide that half-percent or less of
+performance difference... then do remember that such complexity is not
+free either. Runtime tricks cost. 
+

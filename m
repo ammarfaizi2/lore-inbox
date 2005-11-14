@@ -1,44 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbVKNRTP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbVKNRa5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751201AbVKNRTP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 12:19:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbVKNRTP
+	id S1751193AbVKNRa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 12:30:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbVKNRa5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 12:19:15 -0500
-Received: from mail.kroah.org ([69.55.234.183]:23530 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751201AbVKNRTO (ORCPT
+	Mon, 14 Nov 2005 12:30:57 -0500
+Received: from mivlgu.ru ([81.18.140.87]:38551 "EHLO master.mivlgu.local")
+	by vger.kernel.org with ESMTP id S1751193AbVKNRa5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 12:19:14 -0500
-Date: Mon, 14 Nov 2005 09:05:14 -0800
-From: Greg KH <gregkh@suse.de>
-To: Serge Hallyn <serue@us.ibm.com>
-Cc: Linda Xie <lxie@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       John Rose <johnrose@austin.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-mm1
-Message-ID: <20051114170514.GA18741@suse.de>
-References: <20051110130626.GA7966@sergelap.austin.ibm.com> <OFE00FE25C.725B5669-ON872570B5.0066EFF0-862570B5.00679646@us.ibm.com> <20051111175904.GA21272@sergelap.austin.ibm.com>
+	Mon, 14 Nov 2005 12:30:57 -0500
+Date: Mon, 14 Nov 2005 20:30:50 +0300
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: linux-pci@atrey.karlin.mff.cuni.cz
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] PCIE: make bus_id for PCI Express devices unique
+Message-ID: <20051114173050.GB24496@master.mivlgu.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051111175904.GA21272@sergelap.austin.ibm.com>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 11, 2005 at 11:59:04AM -0600, Serge Hallyn wrote:
-> Quoting Linda Xie (lxie@us.ibm.com):
-> > Hi Andrew,
-> > 
-> > It seems that the latest mm1 doesn't have  the following patch that John 
-> > Rose sent on last Friday.
-> 
-> One more thing seems to be missing.  -mm2 compiles and boots if
-> i add:
-> 
-> Signed-off-by: Serge Hallyn <serue@us.ibm.com>
+The bus_id string must be unique for all devices of that bus in the
+system, not just for devices with the same parent - otherwise multiple
+symlinks with identical names appear in /sys/bus/pci_express/devices.
 
-John and Linda, is this patch correct?
+Signed-off-by: Sergey Vlasov <vsu@altlinux.ru>
 
-thanks,
 
-greg k-h
+---
+
+ drivers/pci/pcie/portdrv_core.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+ Here is the example of brokenness (observed with 2.6.15-rc1, 2.6.14 and
+ even some earlier versions):
+
+ /sys/bus/pci_express/devices:
+ total 0
+ lrwxrwxrwx  1 root root 0 Nov 14 08:45 pcie00 -> ../../../devices/pci0000:00/0000:00:0e.0/pcie00
+ lrwxrwxrwx  1 root root 0 Nov 14 08:45 pcie00 -> ../../../devices/pci0000:00/0000:00:0e.0/pcie00
+ lrwxrwxrwx  1 root root 0 Nov 14 08:45 pcie00 -> ../../../devices/pci0000:00/0000:00:0e.0/pcie00
+ lrwxrwxrwx  1 root root 0 Nov 14 08:45 pcie00 -> ../../../devices/pci0000:00/0000:00:0e.0/pcie00
+ lrwxrwxrwx  1 root root 0 Nov 14 08:45 pcie03 -> ../../../devices/pci0000:00/0000:00:0e.0/pcie03
+ lrwxrwxrwx  1 root root 0 Nov 14 08:45 pcie03 -> ../../../devices/pci0000:00/0000:00:0e.0/pcie03
+ lrwxrwxrwx  1 root root 0 Nov 14 08:45 pcie03 -> ../../../devices/pci0000:00/0000:00:0e.0/pcie03
+ lrwxrwxrwx  1 root root 0 Nov 14 08:45 pcie03 -> ../../../devices/pci0000:00/0000:00:0e.0/pcie03
+
+ After applying the patch this becomes:
+
+ /sys/bus/pci_express/devices:
+ total 0
+ lrwxrwxrwx  1 root root 0 Nov 14 09:45 0000:00:0b.0:pcie00 -> ../../../devices/pci0000:00/0000:00:0b.0/0000:00:0b.0:pcie00
+ lrwxrwxrwx  1 root root 0 Nov 14 09:45 0000:00:0b.0:pcie03 -> ../../../devices/pci0000:00/0000:00:0b.0/0000:00:0b.0:pcie03
+ lrwxrwxrwx  1 root root 0 Nov 14 09:45 0000:00:0c.0:pcie00 -> ../../../devices/pci0000:00/0000:00:0c.0/0000:00:0c.0:pcie00
+ lrwxrwxrwx  1 root root 0 Nov 14 09:45 0000:00:0c.0:pcie03 -> ../../../devices/pci0000:00/0000:00:0c.0/0000:00:0c.0:pcie03
+ lrwxrwxrwx  1 root root 0 Nov 14 09:45 0000:00:0d.0:pcie00 -> ../../../devices/pci0000:00/0000:00:0d.0/0000:00:0d.0:pcie00
+ lrwxrwxrwx  1 root root 0 Nov 14 09:45 0000:00:0d.0:pcie03 -> ../../../devices/pci0000:00/0000:00:0d.0/0000:00:0d.0:pcie03
+ lrwxrwxrwx  1 root root 0 Nov 14 09:45 0000:00:0e.0:pcie00 -> ../../../devices/pci0000:00/0000:00:0e.0/0000:00:0e.0:pcie00
+ lrwxrwxrwx  1 root root 0 Nov 14 09:45 0000:00:0e.0:pcie03 -> ../../../devices/pci0000:00/0000:00:0e.0/0000:00:0e.0:pcie03
+
+applies-to: c4c2d62da01963dd519b8a16c3959fe9531614b0
+2a1f8b84baa4447b7cf091f59f5d921a47ce5f59
+diff --git a/drivers/pci/pcie/portdrv_core.c b/drivers/pci/pcie/portdrv_core.c
+index 467a4ce..e4e5f1e 100644
+--- a/drivers/pci/pcie/portdrv_core.c
++++ b/drivers/pci/pcie/portdrv_core.c
+@@ -238,8 +238,8 @@ static void pcie_device_init(struct pci_
+ 	device->driver = NULL;
+ 	device->driver_data = NULL;
+ 	device->release = release_pcie_device;	/* callback to free pcie dev */
+-	sprintf(&device->bus_id[0], "pcie%02x",
+-		get_descriptor_id(port_type, service_type));
++	snprintf(device->bus_id, sizeof(device->bus_id), "%s:pcie%02x",
++		 pci_name(parent), get_descriptor_id(port_type, service_type));
+ 	device->parent = &parent->dev;
+ }
+ 
+---
+0.99.9.GIT

@@ -1,64 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbVKNT5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbVKNT4t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932075AbVKNT5L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 14:57:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932074AbVKNT5K
+	id S932069AbVKNT4t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 14:56:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbVKNT4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 14:57:10 -0500
-Received: from fed1rmmtao03.cox.net ([68.230.241.36]:53740 "EHLO
-	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
-	id S1751267AbVKNT5A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 14:57:00 -0500
-Date: Mon, 14 Nov 2005 12:56:39 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Adrian Bunk <bunk@stusta.de>, Michael Buesch <mbuesch@freenet.de>,
-       Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
-       linuxppc-dev@ozlabs.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linuv 2.6.15-rc1
-Message-ID: <20051114195639.GI3839@smtp.west.cox.net>
-References: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org> <200511122237.17157.mbuesch@freenet.de> <20051112215304.GB21448@stusta.de> <200511122257.05552.mbuesch@freenet.de> <20051112222045.GC21448@stusta.de> <1131834667.7406.49.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1131834667.7406.49.camel@gaston>
-User-Agent: Mutt/1.5.9i
+	Mon, 14 Nov 2005 14:56:49 -0500
+Received: from mail.timesys.com ([65.117.135.102]:23215 "EHLO
+	postfix.timesys.com") by vger.kernel.org with ESMTP id S932069AbVKNT4s
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 14:56:48 -0500
+Message-ID: <4378EA29.1000400@timesys.com>
+Date: Mon, 14 Nov 2005 14:48:57 -0500
+From: john cooper <john.cooper@timesys.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Luca Falavigna <dktrkranz@gmail.com>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org,
+       john cooper <john.cooper@timesys.com>
+Subject: Re: [BUG] Softlockup detected with linux-2.6.14-rt6
+References: <4378B48E.6010006@gmail.com>
+In-Reply-To: <4378B48E.6010006@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 Nov 2005 19:51:16.0078 (UTC) FILETIME=[C62538E0:01C5E954]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 13, 2005 at 09:31:06AM +1100, Benjamin Herrenschmidt wrote:
+Luca Falavigna wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> > ucSystemType is a variable that is EXPORT_SYMBOL'ed but never used in 
-> > any way.
-> > 
-> > _prep_type is a variable that is needlessly EXPORT_SYMBOL'ed.
+> I found this softlockup bug involving arts daemon using a
+> linux-2.6.14-rt6 kernel (with "Complete Preemption" and "Detect Soft
+> Lockups" compiled in).
+> This bug does not happen everytime: I was able to reproduce it only
+> three times in a week. Here is the oops message (obtained from my
+> printer because system is frozen):
 > 
-> Therse are old PREP stuffs
-> 
-> > But prep_init points to the real problem:
-> > 
-> > CONFIG_PPC_PREP requires code from arch/ppc/platforms/, but this 
-> > directory is never visited.
-> > 
-> > What is the correct fix?
-> > Migrate the code from arch/ppc/platforms/ to arch/powerpc/platforms/ ?
-> 
-> Yes, PREP need to be migrated, but that includes adding some minimum
-> device-tree support for it among others. And few people still have PREP
-> machines, I'm not even sure we have access to one here in ozlabs... I
-> think for 2.6.15, we'd better just disable it in .config for
-> ARCH=powerpc.
+> BUG: artsd:4177, possible softlockup detected on CPU#0!
+> [<c0146db4>] softlockup_detected+0x34/0x40 (8)
+> [<c0146e69>] softlockup_tick+0xa9/axb0 (20)
+> [<c01388a1>] timer_interrupt+0x21/0x40 (12)
+> [<c014724e>] handle_IRQ_event+0x63/0xf0 (12)
+> [<c01476a3>] __do_IRQ+0xa3/0x150 (48)
+> [<c0105594>] do_IRQ+0x34/0x70 (40)
+> [<c0103d42>] common_interrupt+0x1a/0x20 (8)
+> [<c0103d42>] common_interrupt+0x1a/0x20 (20)
+> [<c01bfcc0>] __delay+0x20/0x30 (44)
+> [<c91f16a4>] snd_timer_close+0x1b4/0x2b0 [snd_timer] (12)
+> [<c0a7f36a>] fasync_helper+0x7a/0x100 (12)
+> [<c91f307c>] snd_timer_user_release+0x4c/0x80 [snd_timer] (28)
+> [<c016c14d>] __fput+0xad/0x1a0 (24)
+> [<c0a6a632>] filp_close+0x52/0x90 (40)
+> [<c016a6e0>] sys_close+0x70/0xc0 (24)
+> [<c01032fd>] syscall_call+0x7/0xb (28)
 
-I think we really should just drop _prep_type from being exported.  the
-uc* stuff doesn't look to be used, but we can clean that up as its
-converted to arch/powerpc.  But I don't think anything out of tree uses
-_prep_type (it's used at a very low level, it really couldn't be used at
-the modular level).
+We are seeing this too, particularly [IIRC exclusively]
+on MIPS and PPC though there isn't any obvious target
+architecture correlation.  It appears to be a false
+positive as the system seems otherwise responsive to
+general scheduling.  It's on my list to address but not
+a priority just yet.
 
-As an occasional PReP monkey,
-Acked-by: Tom Rini <trini@kernel.crashing.org>
+Adding a sched pri/policy printk to show_task() and
+inserting a call to show_state() in the softlockup
+detect routine should shed some light.
+
+-john
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+john.cooper@timesys.com

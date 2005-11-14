@@ -1,43 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbVKNXJs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751299AbVKNXRz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751286AbVKNXJs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 18:09:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbVKNXJn
+	id S1751299AbVKNXRz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 18:17:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbVKNXRy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 18:09:43 -0500
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:19870 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S1751286AbVKNXJl convert rfc822-to-8bit (ORCPT
+	Mon, 14 Nov 2005 18:17:54 -0500
+Received: from pat.uio.no ([129.240.130.16]:50918 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1751275AbVKNXRy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 18:09:41 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
+	Mon, 14 Nov 2005 18:17:54 -0500
+Subject: Re: [PATCH 0/12] FS-Cache: Generic filesystem caching facility
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 0/3] swsusp: improve freeing of memory
-Date: Mon, 14 Nov 2005 23:47:57 +0100
-User-Agent: KMail/1.8.3
-Cc: Pavel Machek <pavel@suse.cz>, LKML <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200511142347.58233.rjw@sisk.pl>
+Cc: Linus Torvalds <torvalds@osdl.org>, dhowells@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20051114150347.1188499e.akpm@osdl.org>
+References: <dhowells1132005277@warthog.cambridge.redhat.com>
+	 <Pine.LNX.4.64.0511141428390.3263@g5.osdl.org>
+	 <20051114150347.1188499e.akpm@osdl.org>
+Content-Type: text/plain
+Date: Mon, 14 Nov 2005 18:17:33 -0500
+Message-Id: <1132010253.8802.20.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-2.871, required 12,
+	autolearn=disabled, AWL 1.94, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 2005-11-14 at 15:03 -0800, Andrew Morton wrote:
 
-Currently swsusp frees as much memory as possible during suspend.  This slows
-down the suspend and causes the system to be slow after resume due to
-the swapping-in activity.  The following series of patches is designed to
-change this behavior so that swsusp will free only as much memory as necessary
-to complete the suspend.
+> I think we need an NFS implementation and some numbers which make it
+> interesting.  Or at least, some AFS numbers, some explanation as to why
+> they can be extrapolated to NFS and some degree of interest from the NFS
+> guys.   Ditto CIFS.
 
-The patches have been acked by Pavel (modulo some minor issues related to
-the naming of constants, formatting etc. that are hopefully fixed now).
+There is a lot of interest from the HPC community for this sort of thing
+on NFS. Basically, it will help server scalability for projects that
+have large numbers of read-only files accessed by large numbers of
+clients.
 
-Please consider for applying.
+AFAIK, Steve Dickson (steved@redhat.com) is working on the NFS hooks for
+FS-Cache.
 
-Greetings,
-Rafael
+Cheers,
+  Trond
 

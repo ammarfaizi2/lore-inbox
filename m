@@ -1,68 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbVKNHqj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750973AbVKNHs1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750972AbVKNHqj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 02:46:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750971AbVKNHqj
+	id S1750973AbVKNHs1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 02:48:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750974AbVKNHs1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 02:46:39 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:63429 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750958AbVKNHqi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 02:46:38 -0500
-Subject: Re: [PATCH 1/10] Cr4 is valid on some 486s
-From: Arjan van de Ven <arjan@infradead.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>,
-       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1131917530.25311.27.camel@localhost.localdomain>
-References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com>
-	 <p734q6g4xuc.fsf@verdi.suse.de>
-	 <1131902775.25311.16.camel@localhost.localdomain>
-	 <200511132000.45836.ak@suse.de>
-	 <1131910902.25311.21.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0511131130370.3263@g5.osdl.org>
-	 <1131917530.25311.27.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 14 Nov 2005 08:46:13 +0100
-Message-Id: <1131954373.2821.1.camel@laptopd505.fenrus.org>
+	Mon, 14 Nov 2005 02:48:27 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:47264 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750971AbVKNHs0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 02:48:26 -0500
+Date: Sun, 13 Nov 2005 23:44:51 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Pozsar Balazs <pozsy@uhulinux.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: start_kernel / local_irq_enable() can be very slow
+Message-Id: <20051113234451.73f2527b.akpm@osdl.org>
+In-Reply-To: <20051112155453.GC21291@ojjektum.uhulinux.hu>
+References: <20051112155453.GC21291@ojjektum.uhulinux.hu>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-11-13 at 21:32 +0000, Alan Cox wrote:
-> On Sul, 2005-11-13 at 11:36 -0800, Linus Torvalds wrote:
-> > The thing is, we wouldn't ever remove _all_ lock prefixes. Only the ones 
-> > that already depend on SMP.
-> > 
-> > So the memory barriers etc that have lock prefixes even on UP would be 
-> > totally untouched.
+Pozsar Balazs <pozsy@uhulinux.hu> wrote:
+>
+> I've noticed that the local_irq_enable() call in 
+>  init/main.c::start_kernel() takes 0.3 .. 3.0 seconds on every boot.
+>  (Measured using printk's around it.)
 > 
-> That much makes sense. Having some magic MSR reloaded to turn lock
-> effects off is a bit more of a problem for ECC scrubbing however.
+>  I am wondering what happens during this call (which is effectively one 
+>  "sti"), why does it take so much time sometimes, and why does it vary so 
+>  much, why isn't it (more) deterministic.
 
-well... you can expect many bioses to have done the MSR hack for you
-already... so if you can't cope with that you have to set the MSR to the
-value you want it to have regardless.
+Presumably as soon as it does the sti, the CPU takes one or more interrupts
+and runs off and does something.
+
+I wonder what?
+
+You could do something like:
+
+int trace_irqs;
+
+	trace_irqs = 1;
+	local_irq_enble();
+	trace_irqs = 0;
+
+then, over in handle_IRQ_event():
+
+	if (trace_irqs)
+		print_symbol("calling %s\n", (unsigned long)action->handler);
 
 

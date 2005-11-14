@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751314AbVKNXZc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbVKNXZZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751314AbVKNXZc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 18:25:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbVKNXZc
+	id S1751312AbVKNXZZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 18:25:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbVKNXZZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 18:25:32 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:41160 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751314AbVKNXZb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 18:25:31 -0500
-Date: Mon, 14 Nov 2005 15:25:00 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Adam Litke <agl@us.ibm.com>
-cc: linux-mm@kvack.org, ak@suse.de, linux-kernel@vger.kernel.org,
-       kenneth.w.chen@intel.com, wli@holomorphy.com
-Subject: Re: [RFC] NUMA memory policy support for HUGE pages
-In-Reply-To: <1132007410.13502.35.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.62.0511141523100.4676@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.62.0511111051080.20589@schroedinger.engr.sgi.com> 
- <Pine.LNX.4.62.0511111225100.21071@schroedinger.engr.sgi.com> 
- <1131980814.13502.12.camel@localhost.localdomain> 
- <Pine.LNX.4.62.0511141340160.4663@schroedinger.engr.sgi.com>
- <1132007410.13502.35.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 14 Nov 2005 18:25:25 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:6790 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751312AbVKNXZY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 18:25:24 -0500
+Subject: Re: [PATCH 0/13] Time: Generic Timeofday Subsystem (v B10)
+From: john stultz <johnstul@us.ibm.com>
+To: Frank Sorenson <frank@tuxrocks.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Darren Hart <dvhltc@us.ibm.com>, Nishanth Aravamudan <nacc@us.ibm.com>,
+       George Anzinger <george@mvista.com>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <437918A0.8000308@tuxrocks.com>
+References: <20051112044850.8240.91581.sendpatchset@cog.beaverton.ibm.com>
+	 <4378FFFF.4010706@tuxrocks.com> <1132004327.4668.30.camel@leatherman>
+	 <4379074D.5060308@tuxrocks.com> <1132005736.4668.34.camel@leatherman>
+	 <437918A0.8000308@tuxrocks.com>
+Content-Type: text/plain
+Date: Mon, 14 Nov 2005 15:25:23 -0800
+Message-Id: <1132010724.4668.40.camel@leatherman>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Nov 2005, Adam Litke wrote:
-
-> On Mon, 2005-11-14 at 13:46 -0800, Christoph Lameter wrote:
-> > This is V2 of the patch.
-> > 
-> > Changes:
-> > 
-> > - Cleaned up by folding find_or_alloc() into hugetlb_no_page().
+On Mon, 2005-11-14 at 16:07 -0700, Frank Sorenson wrote:
+> >>john stultz wrote:
+> >>>Hmm... Not sure if this is mis-calibration or just bad-interaction w/
+> >>>kthrt. Mind sending a dmesg to me?
 > 
-> IMHO this is not really a cleanup.  When the demand fault patch stack
-> was first accepted, we decided to separate out find_or_alloc_huge_page()
-> because it has the page_cache retry loop with several exit conditions.
-> no_page() has its own backout logic and mixing the two makes for a
-> tangled mess.  Can we leave that hunk out please?
+> Okay, the c3tsc clock drift is definitely not an interaction with kthrt.
+>  Here is 2.6.14-mm2 + the TOD B10 patches:
+> 14 Nov 15:54:52   offset: -0.003031       drift: -3091.0 ppm
+> 14 Nov 15:55:52   offset: -0.184073       drift: -3018.57377049 ppm
+> 14 Nov 15:56:52   offset: -0.345268       drift: -2853.95041322 ppm
+> 14 Nov 15:57:53   offset: -0.463002       drift: -2544.2967033 ppm
+> 14 Nov 15:58:53   offset: -0.587743       drift: -2428.93801653 ppm
+> 
+> Running just 2.6.14-mm2 + TOD B10, I seem to be unable to reproduce the
+> Badness errors, and the clocksource has not frozen at one setting.
+> 
+> I can provide a dmesg if needed.
 
-It seemed to me that find_or_alloc_huge_pages has a pretty simple backout 
-logic that folds nicely into no_page(). Both functions share a lot of 
-variables and putting them together not only increases the readability of 
-the code but also makes the function smaller and execution more efficient.
+Hrm.. How about sending a dmesg of just vanilla 2.6.14-mm2? Also does
+the behavior change booting w/ idle=poll ?
+
+Thanks so much for the problem report and testing, btw!
+-john
 

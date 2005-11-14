@@ -1,76 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbVKNUnM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbVKNUv0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932098AbVKNUnM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 15:43:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbVKNUnL
+	id S932113AbVKNUv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 15:51:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbVKNUv0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 15:43:11 -0500
-Received: from www.swissdisk.com ([216.144.233.50]:32387 "EHLO
-	swissweb.swissdisk.com") by vger.kernel.org with ESMTP
-	id S932098AbVKNUnL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 15:43:11 -0500
-Date: Mon, 14 Nov 2005 11:35:02 -0800
-From: Ben Collins <bcollins@debian.org>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@osdl.org>
-Subject: [RESEND PATCH 2.6.15-rc1] Update location of ll_rw_blk.c in kernel-api.tmpl
-Message-ID: <20051114193502.GA15937@swissdisk.com>
+	Mon, 14 Nov 2005 15:51:26 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:57813 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932113AbVKNUvZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 15:51:25 -0500
+Date: Mon, 14 Nov 2005 15:51:10 -0500
+From: "John W. Linville" <linville@redhat.com>
+To: fedora-list@redhat.com, fedora-announce-list@redhat.com,
+       fedora-devel-list@redhat.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] fedora-netdev kernel repository
+Message-ID: <20051114205110.GK25755@redhat.com>
+Reply-To: linville@redhat.com, linville@tuxdriver.com
+Mail-Followup-To: fedora-list@redhat.com, fedora-announce-list@redhat.com,
+	fedora-devel-list@redhat.com, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Picked from the ubuntu-2.6 tree
+Fedora-netdev!
 
-diff-tree d96fe6eeebd11fb8f70d091eb368e901cec64e1b (from cfd55027d8596fdd19e0023573cc0a6b92994d35)
-Author: Ben Collins <bcollins@ubuntu.com>
-Date:   Sat Nov 12 09:29:51 2005 -0500
+This message is to announce the availability of a new Fedora-based
+kernel repository.  The kernels available there are based upon
+the standard Fedora kernels, with the addition of current upstream
+networking patches which are more recent than the Fedora kernel's
+upstream base.  More information is available here:
 
-    [UBUNTU:Documentation] Update location of ll_rw_blk.c in docs
-    
-    The change in location for ll_rw_blk.c from drivers/block/ to block/
-    caused failure to generate documentation.
-    
-    UpstreamStatus: Submitted for 2.6.15
-    
-    Signed-off-by: Ben Collins <bcollins@ubuntu.com>
+	http://people.redhat.com/linville/kernels/fedora-netdev/
 
-diff --git a/Documentation/DocBook/kernel-api.tmpl b/Documentation/DocBook/kernel-api.tmpl
---- a/Documentation/DocBook/kernel-api.tmpl
-+++ b/Documentation/DocBook/kernel-api.tmpl
-@@ -388,7 +388,7 @@ X!Edrivers/pnp/system.c
- 
-   <chapter id="blkdev">
-      <title>Block Devices</title>
--!Edrivers/block/ll_rw_blk.c
-+!Eblock/ll_rw_blk.c
-   </chapter>
- 
-   <chapter id="miscdev">
-diff --git a/Documentation/block/biodoc.txt b/Documentation/block/biodoc.txt
---- a/Documentation/block/biodoc.txt
-+++ b/Documentation/block/biodoc.txt
-@@ -1063,8 +1063,8 @@ Aside:
- 4.4 I/O contexts
- I/O contexts provide a dynamically allocated per process data area. They may
- be used in I/O schedulers, and in the block layer (could be used for IO statis,
--priorities for example). See *io_context in drivers/block/ll_rw_blk.c, and
--as-iosched.c for an example of usage in an i/o scheduler.
-+priorities for example). See *io_context in block/ll_rw_blk.c, and as-iosched.c
-+for an example of usage in an i/o scheduler.
- 
- 
- 5. Scalability related changes
+The purpose of this repository is two-fold: 1) to make bleeding-edge
+linux kernel networking developments available to Fedora users who
+need or want access to them; and, 2) to open-up the Fedora user
+base as a better testing resource for the kernel netdev community.
+I hope this will prove to be a win-win situation for both camps.
+
+If you are a Fedora user with an interest or need for the latest
+developments in Linux kernel networking, then _please_ try the
+kernels from this repository.  Your testing and feedback is greatly
+appreciated, desperately requested, and graciously accepted.
+Thanks in advance!
+
+Please feel free to contact me at this address regarding these
+kernels or other Fedora-related issues (especially networking).
+If your interest is coming from the netdev/upstream side of the house,
+you may want to contact me as linville@tuxdriver.com instead.
+
+Thanks,
+
+John
+
+P.S.  For those who just want to cut to the chase, do this (as root):
+
+   cd /etc/yum.repos.d
+   wget http://people.redhat.com/linville/kernels/fedora-netdev/fedora-netdev.repo
+   yum update
 
 -- 
-Ubuntu     - http://www.ubuntu.com/
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-SwissDisk  - http://www.swissdisk.com/
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+John W. Linville
+linville@redhat.com

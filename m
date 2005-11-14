@@ -1,107 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbVKNRhb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbVKNRhy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751206AbVKNRhb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 12:37:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbVKNRha
+	id S1751207AbVKNRhy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 12:37:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbVKNRhy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 12:37:30 -0500
-Received: from ganesha.gnumonks.org ([213.95.27.120]:9656 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S1751206AbVKNRh3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 12:37:29 -0500
-Date: Mon, 14 Nov 2005 18:37:27 +0100
-From: Harald Welte <laforge@gnumonks.org>
-To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Cc: linux-usb-devel@lists.sourceforge.net, akpm@osdl.org
-Subject: [PATCH] Make usbdevice_fs.h (again) useable from userspace
-Message-ID: <20051114173727.GL4773@sunbeam.de.gnumonks.org>
+	Mon, 14 Nov 2005 12:37:54 -0500
+Received: from [85.21.88.2] ([85.21.88.2]:48267 "HELO mail.dev.rtsoft.ru")
+	by vger.kernel.org with SMTP id S1751207AbVKNRhx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 12:37:53 -0500
+Subject: Re: [patch 2.6.14-git] SPI core, refresh
+From: dmitry pervushin <dpervushin@gmail.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200511102355.11505.david-b@pacbell.net>
+References: <200511102355.11505.david-b@pacbell.net>
+Content-Type: text/plain
+Date: Mon, 14 Nov 2005 20:32:10 +0300
+Message-Id: <1131989530.5700.24.camel@fj-laptop.dev.rtsoft.ru>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1R6ZDISWaA1muLP0"
-Content-Disposition: inline
-User-Agent: mutt-ng devel-20050619 (Debian)
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "ganesha", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Make usbdevice_fs.h (again) useable from userspace If
-	we have CONFIG_COMPAT enabled, then userspace programs using
-	usbdevice_fs.h won't compile anymore. Signed-off-by: Harald Welte
-	<laforge@netfilter.org> [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 TW_EV                  BODY: Odd Letter Triples with EV
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2005-11-10 at 23:55 -0800, David Brownell wrote:
+> I thought I'd send out a refresh of this simple SPI framework,
+> updated to build on recent kernels.  The patch description
+> inludes a summary of what changed ... not much, though there
+> is now a Documentation/spi directory with a FAQ-ish writeup.
+I'd like to comment you framework; there are some places that still are
+suspicious to me. First of all, it is better to inline the patch; this
+makes easier commenting etc.
+My comments follow:
++       void                    *controller_state;
++       const void              *controller_data;
+Why to use the separate controller_data/controller_state fields ? At
+learuesting qest one of them fits to the platform_data
++struct spi_transfer {
++       /* it's ok if tx_buf == rx_buf (right?)
++        * for MicroWire, one buffer must be null
++        * buffers must work with dma_*map_single() calls
++        */
++       const void      *tx_buf;
++       void            *rx_buf;
++       unsigned        len;
++
++       /* REVISIT for now, these are only for the controller driver's
++        * use, for recording dma mappings
++        */
++       dma_addr_t      tx_dma;
++       dma_addr_t      rx_dma;
+OK, you requesting that tx/rx buffer must be DMA-capable. And why you
+are using stack-allocated buffers, for example, in spi_w8r8 ? If
+protocol driver is not enough smart to transfer small amouts of data not
+using DMA, this could crash the system...
++struct spi_message {
++       struct spi_transfer     *transfers;
++       unsigned                n_transfer;
++
++       struct spi_device       *spi;
++
++       /* completion is reported through a callback */
++       void                    FASTCALL((*complete)(void *context));
+As far as I understand, the protocol driver is requested to call
+complete somewhere after processing the message; even ignoring my
+preference to call this function as part of common message processing,
+I'd prefer to see exported/inline function like spi_message_complete
+(struct spi_message* msg). It is not clear that controller driver _must_
+call the `complete' as part of processing message.
++static inline int spi_w8r8(struct spi_device *spi, u8 cmd)
++{
++       int                     status;
++       u8                      result;
++
++       status = spi_write_then_read(spi, &cmd, 1, &result, 1);
+This breaks the statement that buffers must be dma_single_map'able :(
+Namely, result cannot be mapped.
++/**
++ * spi_w8r16 - SPI synchronous 8 bit write followed by 16 bit read
++ * @spi: device with which data will be exchanged
++ * @cmd: command to be written before data is read back
++ *
++ * This returns the (unsigned) sixteen bit number returned by the
++ * device, or else a negative error code.  Callable only from
++ * contexts that can sleep.
++ *
++ * The number is returned in wire-order, which is at least sometimes
++ * big-endian.
++ */
++static inline int spi_w8r16(struct spi_device *spi, u8 cmd)
++{
++       int                     status;
++       u16                     result;
++
++       status = spi_write_then_read(spi, &cmd, 1, (u8 *) &result, 2);
++
++       /* return negative errno or unsigned value */
++       return (status < 0) ? status : result;
++}
+Incorrect mixing int (signed int!) and u16. What if spi_write_then_read
+read the value, say, 0xFFFF ? Is it the correct result or -1 indicating
+error ?
 
---1R6ZDISWaA1muLP0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Make usbdevice_fs.h (again) useable from userspace
++       if (status < 0) {
++               dev_dbg(dev, "can't %s %s, status %d\n",
++                               "add", proxy->dev.bus_id, status);
++fail:
++               class_device_put(&master->cdev);
++               kfree(proxy);
++               return NULL;
++       }
+Using goto to the middle of compound statement... I personally do not
+like this. This can be easily moved out of block.
 
-If we have CONFIG_COMPAT enabled, then userspace programs using
-usbdevice_fs.h won't compile anymore.
+There will be more comments...
+-- 
+cheers, dmitry pervushin
 
-Signed-off-by: Harald Welte <laforge@netfilter.org>
-
----
-commit 17c6b20f34d9d68918346af2a2eb6433b09af0e3
-tree 397763d1e6776163d45d97702a54d352295940c2
-parent b3d70298da3a00f29dd82cf16c1f13407ad2ac09
-author Harald Welte <laforge@netfilter.org> Mon, 14 Nov 2005 18:34:23 +0100
-committer Harald Welte <laforge@netfilter.org> Mon, 14 Nov 2005 18:34:23 +0=
-100
-
- include/linux/usbdevice_fs.h |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
-
-diff --git a/include/linux/usbdevice_fs.h b/include/linux/usbdevice_fs.h
---- a/include/linux/usbdevice_fs.h
-+++ b/include/linux/usbdevice_fs.h
-@@ -123,6 +123,7 @@ struct usbdevfs_hub_portinfo {
- 	char port [127];	/* e.g. port 3 connects to device 27 */
- };
-=20
-+#ifdef __KERNEL__
- #ifdef CONFIG_COMPAT
- #include <linux/compat.h>
- struct usbdevfs_urb32 {
-@@ -147,6 +148,7 @@ struct usbdevfs_ioctl32 {
- 	compat_caddr_t data;
- };
- #endif
-+#endif
-=20
- #define USBDEVFS_CONTROL           _IOWR('U', 0, struct usbdevfs_ctrltrans=
-fer)
- #define USBDEVFS_BULK              _IOWR('U', 2, struct usbdevfs_bulktrans=
-fer)
-
---=20
-- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-"Privacy in residential applications is a desirable marketing option."
-                                                  (ETSI EN 300 175-7 Ch. A6)
-
---1R6ZDISWaA1muLP0
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDeMtXXaXGVTD0i/8RAt0uAJ9BwJiESKmEme0b7Yw6KR4FR+1jRQCfTHuQ
-p5Aqs/KgZfc+bq1nNNy4pvA=
-=c/Hg
------END PGP SIGNATURE-----
-
---1R6ZDISWaA1muLP0--

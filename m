@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbVKNMl5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbVKNNUb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751113AbVKNMl5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 07:41:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbVKNMl4
+	id S1751112AbVKNNUb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 08:20:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbVKNNUb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 07:41:56 -0500
-Received: from taurus.voltaire.com ([193.47.165.240]:8983 "EHLO
-	taurus.voltaire.com") by vger.kernel.org with ESMTP
-	id S1751113AbVKNMlz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 07:41:55 -0500
-Date: Mon, 14 Nov 2005 14:41:11 +0200
-From: Gleb Natapov <gleb@minantech.com>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: Hugh Dickins <hugh@veritas.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Nick's core remove PageReserved broke vmware...
-Message-ID: <20051114124111.GF5492@minantech.com>
-References: <20051114122759.GE5492@minantech.com> <20051114123432.GQ20871@mellanox.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051114123432.GQ20871@mellanox.co.il>
-X-OriginalArrivalTime: 14 Nov 2005 12:41:54.0252 (UTC) FILETIME=[CAE688C0:01C5E918]
+	Mon, 14 Nov 2005 08:20:31 -0500
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:59520 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S1751112AbVKNNUa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 08:20:30 -0500
+Message-ID: <43788F17.1080507@rtr.ca>
+Date: Mon, 14 Nov 2005 08:20:23 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.15-rc1: kswapd crash
+References: <4377D1B2.8070003@rtr.ca> <20051114004758.GA5735@stusta.de> <4377FFA7.4030400@rtr.ca> <20051114035616.GD5735@stusta.de>
+In-Reply-To: <20051114035616.GD5735@stusta.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 14, 2005 at 02:34:32PM +0200, Michael S. Tsirkin wrote:
-> Quoting Gleb Natapov <gleb@minantech.com>:
-> > Subject: Re: Nick's core remove PageReserved broke vmware...
-> > 
-> > On Mon, Nov 14, 2005 at 02:25:35PM +0200, Michael S. Tsirkin wrote:
-> > > Quoting Hugh Dickins <hugh@veritas.com>:
-> > > > Subject: Re: Nick's core remove PageReserved broke vmware...
-> > > > 
-> > > > On Tue, 8 Nov 2005, Michael S. Tsirkin wrote:
-> > > > > 
-> > > > > Hugh, did you have something like the following in mind
-> > > > > (this is only boot-tested and only on x86-64)?
-> > > > 
-> > > > Yes, that looks pretty good to me, a few comments below.
-> > > > Only another twenty or so architectures to go ;)
-> > > 
-> > > There's one thing that I have thought about: what happens
-> > > if I set DONTFORK on a page which already has COW set
-> > > (e.g. after fork)?
-> > > 
-> > > It seems that the right thing would be to force a page copy -
-> > > otherwise the page can get copied on write.
-> >
-> > I thought about it. It should not happen for OpenIB since get_user_pages
-> > will break COW for us and I don't think we should complicate DONTFORK
-> > implementation by doing break during madvise().
-> 
-> Hmm, I assumed we call madvise before driver does get_user_pages,
-> otherwise an application could fork in between.
-> Should we worry about this?
-> 
-OK, we set VM_DONTFORK on vma and than driver calls get_user_pages()
-that actually do page table walking and COW breaking. Or do I miss
-something here?
+Adrian Bunk wrote:
 
---
-			Gleb.
+> So why did you delete the tainted line from the Oops output you sent?
+
+I didn't.  Strictly a cut and paste, no changes.
+
+> It might be a bug in the kernel or a bug in your vmware modules exposed 
+> by the new kernel.
+
+It's not.  VMware had never been run to that point.
+There's something wrong with this kernel,
+that wasn't wrong with 2.6.13.
+
+Dunno what yet.  It may never crash again,
+or it might do it Windows-style on some machines.
+
+Just a data point for Linus, that's all.
+
+Cheers

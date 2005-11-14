@@ -1,63 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750927AbVKNFLi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750952AbVKNFwe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750927AbVKNFLi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 00:11:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750929AbVKNFLi
+	id S1750952AbVKNFwe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 00:52:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750953AbVKNFwe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 00:11:38 -0500
-Received: from mx2.suse.de ([195.135.220.15]:28574 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750924AbVKNFLh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 00:11:37 -0500
-From: Neil Brown <neilb@suse.de>
-To: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>,
-       dtor_core@ameritech.net, vojtech@suse.cz
-Date: Mon, 14 Nov 2005 16:11:27 +1100
-MIME-Version: 1.0
+	Mon, 14 Nov 2005 00:52:34 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:10882 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750951AbVKNFwe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 00:52:34 -0500
+Date: Mon, 14 Nov 2005 11:24:57 +0530
+From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Zachary Amsden <zach@vmware.com>, virtualization@lists.osdl.org,
+       Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Martin Bligh <mbligh@mbligh.org>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>, ananth@in.ibm.com,
+       anil.s.keshavamurthy@intel.com, davem@davemloft.net
+Subject: Re: [PATCH 19/21] i386 Kprobes semaphore fix
+Message-ID: <20051114055457.GA26887@in.ibm.com>
+Reply-To: prasanna@in.ibm.com
+References: <200511080439.jA84diI6009951@zach-dev.vmware.com> <200511091438.11848.ak@suse.de> <437227FD.6040905@vmware.com> <200511111625.57165.ak@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17272.7295.464735.805122@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: uinput broken in 2.6.15-rc1
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <200511111625.57165.ak@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > Let me stress that if you are running on modified segment state, you
+> > have no way to safely determine the virtual address on which you took an
+> > instruction trap (int3, general protection, etc..).  If you can't
+> > determine the virtual address safely, you can't back out your code patch
+> > to remove the breakpoint.  At this point, you can't execute the next
+> 
+> Kernel kprobes solves this by executing the code out of line. I don't know
+> how they want to do that in user space though (need a safe address for that),
+> but somehow that can be likely done.
 
+In case of user space probes we adopt a similar method for executing the code
+out-of-line. In user space probes  we find free space in the current
+ process address space and copy the original instruction to that location and
+ execute that instruction from that location. User processes use stack space
+ to store local variables, agruments and return values. Normally the stack
+ space either below or above the stack pointer indicates the free stack space.
+Also in case of no stack free space, we can expand the process stack, copy the 
+instruction and execute the instruction from that location.
+Detials about this method is discussed on systemtap mailing lists. URL is below.
 
-The 'uinput' driver doesn't work well in 2.6.15-rc1.  It
-triggers this complaint:
-		printk(KERN_WARNING "input: device %s is statically allocated, will not register\n"
-			"Please convert to input_allocate_device() or contact dtor_core@ameritech.net\n",
-			dev->name ? dev->name : "<Unknown>");
+http://sourceware.org/ml/systemtap/2005-q3/msg00542.html
 
-The following patch fixes it for me, but I'm not convinced it is
-correct.  I would expect it to need a special 'free' routine to match
-the special 'alloc' routine, but I couldn't easily find one.
+Please let me know if you have any other solution to the above problem.
 
-NeilBrown
-
-Signed-off-by: Neil Brown <neilb@suse.de>
-
-### Diffstat output
- ./drivers/input/misc/uinput.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff ./drivers/input/misc/uinput.c~current~ ./drivers/input/misc/uinput.c
---- ./drivers/input/misc/uinput.c~current~	2005-11-14 14:34:56.000000000 +1100
-+++ ./drivers/input/misc/uinput.c	2005-11-14 15:17:01.000000000 +1100
-@@ -199,10 +199,9 @@ static int uinput_open(struct inode *ino
- 	spin_lock_init(&newdev->requests_lock);
- 	init_waitqueue_head(&newdev->requests_waitq);
- 
--	newinput = kmalloc(sizeof(struct input_dev), GFP_KERNEL);
-+	newinput = input_allocate_device();
- 	if (!newinput)
- 		goto cleanup;
--	memset(newinput, 0, sizeof(struct input_dev));
- 
- 	newdev->dev = newinput;
- 
+Thanks
+Prasanna
+-- 
+Prasanna S Panchamukhi
+Linux Technology Center
+India Software Labs, IBM Bangalore
+Email: prasanna@in.ibm.com
+Ph: 91-80-25044636

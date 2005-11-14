@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbVKNVPl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbVKNVQH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932135AbVKNVPl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 16:15:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbVKNVPk
+	id S932137AbVKNVQH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 16:16:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbVKNVQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 16:15:40 -0500
-Received: from zproxy.gmail.com ([64.233.162.198]:29062 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932134AbVKNVPj convert rfc822-to-8bit
+	Mon, 14 Nov 2005 16:16:07 -0500
+Received: from [194.90.237.34] ([194.90.237.34]:23000 "EHLO
+	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S932137AbVKNVQD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 16:15:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=q3MzKRTQkDg9lb+3eMMQdWRxXNay55LzbL0uykAQC+DsA85kXsfhhRjFvlcGhhY+P2zEtaCAASOKGq+Y6qNc4BpeYzLzaINLF1kSqWsqI0OGmhptKhMHjGg89D9NOxyiUF0ZPrgKONbuOJKLHUHf9qHnOgfXsR0jfwbea3tvbLY=
-Message-ID: <9929d2390511141315t2fb15b2aucbbebcbe4cec7ef1@mail.gmail.com>
-Date: Mon, 14 Nov 2005 13:15:38 -0800
-From: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, mpm@selenic.com
-Subject: [BUG] netpoll is unable to handle skb's using packet split
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 14 Nov 2005 16:16:03 -0500
+Date: Mon, 14 Nov 2005 23:17:56 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Gleb Natapov <gleb@minantech.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Nick's core remove PageReserved broke vmware...
+Message-ID: <20051114211756.GD3603@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <Pine.LNX.4.61.0511141556480.4428@goblin.wat.veritas.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0511141556480.4428@goblin.wat.veritas.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When using packet split, netpoll times out when doing a netdump.
+Quoting r. Hugh Dickins <hugh@veritas.com>:
+> Subject: Re: Nick's core remove PageReserved broke vmware...
+> 
+> On Mon, 14 Nov 2005, Michael S. Tsirkin wrote:
+> > 
+> > Okay, here's an updated version.
+> 
+> Looked good to me, but as usual Gleb noticed what I missed.
 
-Server logs:
---netdump[14973]: Got too many timeouts in handshaking, ignoring
-client 172.0.2.250
---netdump[14973]: Got too many timeouts waiting for SHOW_STATUS for
-client 172.0.2.250, rebooting it.
+Yep, I fixed that in an updated patch. Thanks very much Gleb!
 
-When packet split is not used, netpoll dumps correctly.  This was
-reproduced using the initial setup:
+> And you
+> should be working against 2.6.15-rc1 or 2.6.15-rc1-git, not 2.6.14.
+> 
+> Hugh
+> 
 
-HP DL380G3 (Server)
-RHEL4 U1
-7170 NIC
-e1000 driver
+So - its submission time?
+I shall go over these 20 missing architectures then :)
 
-HP DL380G4 (Client)
-RHEL3 U5
-7170 NIC
-e1000 driver
-
-We also tested using the latest RHEL4 U2 on the client, with the same results.
-
-Netpoll does not appear to be able to handle skb's using packet split,
-a possible resolution would be to test for packet split and to use
-skb_linearize() in netpoll to resolve the issue.
-
---
-Cheers,
-Jeff
+-- 
+MST

@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbVKNT4p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbVKNT5L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932068AbVKNT4p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 14:56:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932069AbVKNT4p
+	id S932075AbVKNT5L (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 14:57:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932074AbVKNT5K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 14:56:45 -0500
-Received: from mail.kroah.org ([69.55.234.183]:26811 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932068AbVKNT4o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 14:56:44 -0500
-Date: Mon, 14 Nov 2005 11:43:09 -0800
-From: Greg KH <greg@kroah.com>
-To: Brad Campbell <brad@wasp.net.au>
-Cc: George Anzinger <george@mvista.com>, john stultz <johnstul@us.ibm.com>,
-       ganzinger@mvista.com, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Calibration issues with USB disc present.
-Message-ID: <20051114194309.GA1945@kroah.com>
-References: <43750EFD.3040106@mvista.com> <1131746228.2542.11.camel@cog.beaverton.ibm.com> <20051112050502.GC27700@kroah.com> <4376130D.1080500@mvista.com> <20051112213332.GA16016@kroah.com> <4378DDC5.80103@mvista.com> <20051114184940.GA876@kroah.com> <4378E9A8.5050807@wasp.net.au>
+	Mon, 14 Nov 2005 14:57:10 -0500
+Received: from fed1rmmtao03.cox.net ([68.230.241.36]:53740 "EHLO
+	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
+	id S1751267AbVKNT5A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 14:57:00 -0500
+Date: Mon, 14 Nov 2005 12:56:39 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Adrian Bunk <bunk@stusta.de>, Michael Buesch <mbuesch@freenet.de>,
+       Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
+       linuxppc-dev@ozlabs.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linuv 2.6.15-rc1
+Message-ID: <20051114195639.GI3839@smtp.west.cox.net>
+References: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org> <200511122237.17157.mbuesch@freenet.de> <20051112215304.GB21448@stusta.de> <200511122257.05552.mbuesch@freenet.de> <20051112222045.GC21448@stusta.de> <1131834667.7406.49.camel@gaston>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4378E9A8.5050807@wasp.net.au>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <1131834667.7406.49.camel@gaston>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 14, 2005 at 11:46:48PM +0400, Brad Campbell wrote:
-> Greg KH wrote:
-> >>>completly, if possible.  And then complain loudly to the vendor to fix
-> >>>their BIOS.
-> >>But if one is booting from that device...
-> >
-> >Booting from a USB device?  I can see this happening when installing a
-> >distro, and you boot from the USB cdrom, but not for "normal"
-> >operations.
-> >
+On Sun, Nov 13, 2005 at 09:31:06AM +1100, Benjamin Herrenschmidt wrote:
 > 
-> Just as a point of reference I have a machine here that boots from a USB 
-> keystick and runs from an NFS Root. It's a diskless machine that has no 
-> net-boot ability. I have used this on a number of machines over recent 
-> history.
+> > ucSystemType is a variable that is EXPORT_SYMBOL'ed but never used in 
+> > any way.
+> > 
+> > _prep_type is a variable that is needlessly EXPORT_SYMBOL'ed.
+> 
+> Therse are old PREP stuffs
+> 
+> > But prep_init points to the real problem:
+> > 
+> > CONFIG_PPC_PREP requires code from arch/ppc/platforms/, but this 
+> > directory is never visited.
+> > 
+> > What is the correct fix?
+> > Migrate the code from arch/ppc/platforms/ to arch/powerpc/platforms/ ?
+> 
+> Yes, PREP need to be migrated, but that includes adding some minimum
+> device-tree support for it among others. And few people still have PREP
+> machines, I'm not even sure we have access to one here in ozlabs... I
+> think for 2.6.15, we'd better just disable it in .config for
+> ARCH=powerpc.
 
-Then I guess your BIOS didn't do the horrible things that the original
-poster was reporting, which is good :)
+I think we really should just drop _prep_type from being exported.  the
+uc* stuff doesn't look to be used, but we can clean that up as its
+converted to arch/powerpc.  But I don't think anything out of tree uses
+_prep_type (it's used at a very low level, it really couldn't be used at
+the modular level).
 
-thanks,
+As an occasional PReP monkey,
+Acked-by: Tom Rini <trini@kernel.crashing.org>
 
-greg k-h
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

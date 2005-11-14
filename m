@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbVKNVQH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbVKNVRz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932137AbVKNVQH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 16:16:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbVKNVQH
+	id S932138AbVKNVRz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 16:17:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbVKNVRz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 16:16:07 -0500
-Received: from [194.90.237.34] ([194.90.237.34]:23000 "EHLO
-	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S932137AbVKNVQD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 16:16:03 -0500
-Date: Mon, 14 Nov 2005 23:17:56 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Gleb Natapov <gleb@minantech.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Nick's core remove PageReserved broke vmware...
-Message-ID: <20051114211756.GD3603@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <Pine.LNX.4.61.0511141556480.4428@goblin.wat.veritas.com>
+	Mon, 14 Nov 2005 16:17:55 -0500
+Received: from www.swissdisk.com ([216.144.233.50]:39299 "EHLO
+	swissweb.swissdisk.com") by vger.kernel.org with ESMTP
+	id S932138AbVKNVRy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 16:17:54 -0500
+Date: Mon, 14 Nov 2005 12:09:55 -0800
+From: Ben Collins <bcollins@ubuntu.com>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH 2.6.15-rc1] Add missing EXPORT_SYMBOLS() for __ide_mm_* functions on powerpc
+Message-ID: <20051114200955.GC15937@swissdisk.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0511141556480.4428@goblin.wat.veritas.com>
-User-Agent: Mutt/1.4.2.1i
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Hugh Dickins <hugh@veritas.com>:
-> Subject: Re: Nick's core remove PageReserved broke vmware...
-> 
-> On Mon, 14 Nov 2005, Michael S. Tsirkin wrote:
-> > 
-> > Okay, here's an updated version.
-> 
-> Looked good to me, but as usual Gleb noticed what I missed.
+These exported symbols are in arch/ppc/ but missing from arch/powerpc/ for
+ppc32 builds.
 
-Yep, I fixed that in an updated patch. Thanks very much Gleb!
 
-> And you
-> should be working against 2.6.15-rc1 or 2.6.15-rc1-git, not 2.6.14.
-> 
-> Hugh
-> 
-
-So - its submission time?
-I shall go over these 20 missing architectures then :)
+--- a/arch/powerpc/kernel/ppc_ksyms.c
++++ b/arch/powerpc/kernel/ppc_ksyms.c
+@@ -105,6 +105,11 @@ EXPORT_SYMBOL(__clear_user);
+ EXPORT_SYMBOL(__strncpy_from_user);
+ EXPORT_SYMBOL(__strnlen_user);
+ 
++EXPORT_SYMBOL(__ide_mm_insl);
++EXPORT_SYMBOL(__ide_mm_outsw);
++EXPORT_SYMBOL(__ide_mm_insw);
++EXPORT_SYMBOL(__ide_mm_outsl);
++
+ EXPORT_SYMBOL(_insb);
+ EXPORT_SYMBOL(_outsb);
+ EXPORT_SYMBOL(_insw);
 
 -- 
-MST
+   Ben Collins <ben.collins@ubuntu.com>
+   Developer
+   Ubuntu Linux

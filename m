@@ -1,70 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750952AbVKNFwe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750833AbVKNGDg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750952AbVKNFwe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 00:52:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750953AbVKNFwe
+	id S1750833AbVKNGDg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 01:03:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbVKNGDg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 00:52:34 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:10882 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750951AbVKNFwe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 00:52:34 -0500
-Date: Mon, 14 Nov 2005 11:24:57 +0530
-From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Zachary Amsden <zach@vmware.com>, virtualization@lists.osdl.org,
-       Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Martin Bligh <mbligh@mbligh.org>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>, ananth@in.ibm.com,
-       anil.s.keshavamurthy@intel.com, davem@davemloft.net
-Subject: Re: [PATCH 19/21] i386 Kprobes semaphore fix
-Message-ID: <20051114055457.GA26887@in.ibm.com>
-Reply-To: prasanna@in.ibm.com
-References: <200511080439.jA84diI6009951@zach-dev.vmware.com> <200511091438.11848.ak@suse.de> <437227FD.6040905@vmware.com> <200511111625.57165.ak@suse.de>
+	Mon, 14 Nov 2005 01:03:36 -0500
+Received: from [59.181.96.147] ([59.181.96.147]:6272 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S1750833AbVKNGDf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 01:03:35 -0500
+Subject: prob with 2.6 Makefile
+From: Sapna Todwal <sapna@neoaccel.com>
+Reply-To: sapna@neoaccel.com
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: Neoaccel India Pvt. Ltd
+Message-Id: <1131948242.3168.19.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200511111625.57165.ak@suse.de>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-14) 
+Date: Mon, 14 Nov 2005 11:34:02 +0530
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Let me stress that if you are running on modified segment state, you
-> > have no way to safely determine the virtual address on which you took an
-> > instruction trap (int3, general protection, etc..).  If you can't
-> > determine the virtual address safely, you can't back out your code patch
-> > to remove the breakpoint.  At this point, you can't execute the next
-> 
-> Kernel kprobes solves this by executing the code out of line. I don't know
-> how they want to do that in user space though (need a safe address for that),
-> but somehow that can be likely done.
+I have a few doubs with the 2.6 makefile
+Suppose I have the following dir structure:
+		maindir
+		    |
+		-------
+		|       |
+	       subdir1 subdir2
 
-In case of user space probes we adopt a similar method for executing the code
-out-of-line. In user space probes  we find free space in the current
- process address space and copy the original instruction to that location and
- execute that instruction from that location. User processes use stack space
- to store local variables, agruments and return values. Normally the stack
- space either below or above the stack pointer indicates the free stack space.
-Also in case of no stack free space, we can expand the process stack, copy the 
-instruction and execute the instruction from that location.
-Detials about this method is discussed on systemtap mailing lists. URL is below.
+Now both of this subdirs have many .c files which are to be compiled and
+linked together to make final1.o & final2.o files in the subdirs
+subdir1  & subdir2 respectively.
 
-http://sourceware.org/ml/systemtap/2005-q3/msg00542.html
+Now i want to link this two files subdir1/final1.o & subdir2/final2.o ,
+in the maindir to make file say final.o file in maindir .
 
-Please let me know if you have any other solution to the above problem.
+So the Makefile in maindir looks like:
 
-Thanks
-Prasanna
--- 
-Prasanna S Panchamukhi
-Linux Technology Center
-India Software Labs, IBM Bangalore
-Email: prasanna@in.ibm.com
-Ph: 91-80-25044636
+obj-m := subdir1/ subdir2/
+
+This will traverse the subdir1 & subdir2 and call their makefiles.
+But how do i make final.o from subdir1/final1.o and subdir2/final2.o
+
+Kindly help me with the solution.
+
+Thanks in advance,
+Regards,
+Sapna
+
+

@@ -1,82 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbVKNDqq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbVKND4S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750869AbVKNDqq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Nov 2005 22:46:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbVKNDqq
+	id S1750877AbVKND4S (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Nov 2005 22:56:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750881AbVKND4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Nov 2005 22:46:46 -0500
-Received: from bay103-f29.bay103.hotmail.com ([65.54.174.39]:16906 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S1750867AbVKNDqp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Nov 2005 22:46:45 -0500
-Message-ID: <BAY103-F2918D48FE561F67EE3790ADF5A0@phx.gbl>
-X-Originating-IP: [68.252.187.134]
-X-Originating-Email: [dravet@hotmail.com]
-From: "Jason Dravet" <dravet@hotmail.com>
-To: adaplas@gmail.com, samuel.thibault@ens-lyon.org
-Cc: torvalds@osdl.org, akpm@osdl.org, davej@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] vgacon: Workaround for resize bug in some chipsets
-Date: Sun, 13 Nov 2005 21:46:45 -0600
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 14 Nov 2005 03:46:46.0143 (UTC) FILETIME=[08F9E8F0:01C5E8CE]
+	Sun, 13 Nov 2005 22:56:18 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:35343 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750876AbVKND4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Nov 2005 22:56:17 -0500
+Date: Mon, 14 Nov 2005 04:56:16 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Mark Lord <lkml@rtr.ca>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.15-rc1: kswapd crash
+Message-ID: <20051114035616.GD5735@stusta.de>
+References: <4377D1B2.8070003@rtr.ca> <20051114004758.GA5735@stusta.de> <4377FFA7.4030400@rtr.ca>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4377FFA7.4030400@rtr.ca>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: "Antonino A. Daplas" <adaplas@gmail.com>
->To: Samuel Thibault <samuel.thibault@ens-lyon.org>
->CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,  
->Dave Jones <davej@redhat.com>, Jason <dravet@hotmail.com>,  Linux Kernel 
->Development <linux-kernel@vger.kernel.org>
->Subject: Re: [PATCH] vgacon: Workaround for resize bug in some chipsets
->Date: Mon, 14 Nov 2005 07:37:17 +0800
->
->Samuel Thibault wrote:
-> > Antonino A. Daplas, le Sun 13 Nov 2005 22:33:18 +0800, a écrit :
-> >> Samuel Thibault wrote:
-> >>> Antonino A. Daplas, le Sun 13 Nov 2005 06:20:53 +0800, a écrit :
-> >>>> "I updated to the development kernel and now during boot only the top 
->of the
-> >>>> text is visable. For example the monitor screen the is the lines and 
->I can
-> >>>> only  see text in the asterik area.
-> >>>> ---------------------
-> >>>> | ****************  |
-> >>>> | *              *  |
-> >>>> | *              *  |
-> >>>> | ****************  |
-> >>>> |                   |
-> >>>> |                   |
-> >>>> |                   |
-> >>>> ---------------------
-> >>> Are you missing some left and right part too? What are the dimensions 
->of
-> >>> the text screen at bootup? What bootloader are you using? (It could be 
->a
-> >>> bug in the boot up text screen dimension discovery).
-> >> It was just the height.  All numbers (done with printk's) look okay 
->from
-> >> bootup. He gets 80 and 25 for ORIG_VIDEO_NUM_COLS and 
->ORIG_VIDEO_NUM_LINES
-> >> respectively.
+On Sun, Nov 13, 2005 at 10:08:23PM -0500, Mark Lord wrote:
+> Adrian Bunk wrote:
 > >
-> > And you got less than 25 lines? How many exactly?
->
->If the original size was at 80x25, and vgacon_doresize() was called, the
->the resulting screen is only 80x12.5. The 13th line has its bottom half
->chopped off, and the rest of the lines (14-25) is invisible.
->
->If he sets it at < 25, he gets a window much smaller than 12.5, but he did
->not specify. So my guess is his chipset programs the screen height by 1/2
->of the value of the requested rows.
->
->Tony
+> >Perhaps your vmware modules?
+> 
+> No, not those.  They've been there for years.
+>...
 
-When I run stty rows 20 I get a screen of 80x20.  I can see the top 10 rows 
-and the bottom 10 rows are invisible.
+So why did you delete the tainted line from the Oops output you sent?
 
-Thanks,
-Jason Dravet
+It might be a bug in the kernel or a bug in your vmware modules exposed 
+by the new kernel.
 
+Unless the opposite is proven, the latter is assumed...
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

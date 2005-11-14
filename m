@@ -1,64 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbVKNT0j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbVKNT3H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751252AbVKNT0j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 14:26:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbVKNT0j
+	id S1751255AbVKNT3H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 14:29:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbVKNT3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 14:26:39 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:24448 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751252AbVKNT0i (ORCPT
+	Mon, 14 Nov 2005 14:29:07 -0500
+Received: from mout2.freenet.de ([194.97.50.155]:41348 "EHLO mout2.freenet.de")
+	by vger.kernel.org with ESMTP id S1751255AbVKNT3G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 14:26:38 -0500
-Date: Mon, 14 Nov 2005 11:25:54 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Gerd Knorr <kraxel@suse.de>
-cc: Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 1/10] Cr4 is valid on some 486s
-In-Reply-To: <4378A7F3.9070704@suse.de>
-Message-ID: <Pine.LNX.4.64.0511141118000.3263@g5.osdl.org>
-References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com>
- <20051111103605.GC27805@elf.ucw.cz> <4374F2D5.7010106@vmware.com>
- <Pine.LNX.4.64.0511111147390.4627@g5.osdl.org> <4374FB89.6000304@vmware.com>
- <Pine.LNX.4.64.0511111218110.4627@g5.osdl.org> <20051113074241.GA29796@redhat.com>
- <Pine.LNX.4.64.0511131118020.3263@g5.osdl.org> <Pine.LNX.4.64.0511131210570.3263@g5.osdl.org>
- <4378A7F3.9070704@suse.de>
+	Mon, 14 Nov 2005 14:29:06 -0500
+From: Michael Buesch <mbuesch@freenet.de>
+To: Linus Torvalds <torvalds@osdl.org>, Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+Date: Mon, 14 Nov 2005 20:28:35 +0100
+User-Agent: KMail/1.8.3
+References: <20051114133802.38755.qmail@web50205.mail.yahoo.com> <1131992968.2821.50.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0511141116180.3263@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0511141116180.3263@g5.osdl.org>
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Dave Jones <davej@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Alex Davis <alex14641@yahoo.com>, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <200511142028.35448.mbuesch@freenet.de>
+Content-Type: multipart/signed;
+  boundary="nextPart12445492.i1WKZSTkCG";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--nextPart12445492.i1WKZSTkCG
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
+On Monday 14 November 2005 20:17, you wrote:
+>=20
+> On Mon, 14 Nov 2005, Arjan van de Ven wrote:
+> >=20
+> > there now is a specification for the broadcom wireless, and a driver is
+> > being written right now to that specification; and it seems to be
+> > getting along quite well (it's not ready for primetime use yet but at
+> > least they can send and receive stuff, which is probably the hardest
+> > part)
+>=20
+> Goodie. With Broadcom and Intel on-board, we should have most of the=20
+> market covered in wireless, and ndiswrappers really should be less of an=
+=20
+> argument (it was never an argument for me personally, but for others..).=
+=20
 
-On Mon, 14 Nov 2005, Gerd Knorr wrote:
-> 
-> Throwing another patch into the discussion ;)
+I really hope we get this thing usable in a few weeks.
+Looks good so far... .
 
-Ouch, this one is really ugly.
+However, I did not test the broadcom driver on 4k-stacks,
+as I only have a G4 with a broadcom card. ;) But I do not expect any proble=
+ms.
 
-If you want to go this way, then you should instead add an X86_FEATURE_SMP 
-that gets cleared on UP and on SMP with just one core (and detect when CPU 
-hotplug ain't gonna happen ;), and then do
+=2D-=20
+Greetings Michael.
 
-	#ifdef CONFIG_SMP
-	#define smp_alternative(x,y) alternative(x,y,X86_FEATURE_SMP)
-	#else
-	#define smp_alternative(x,y) asm(x)
-	#endif
+--nextPart12445492.i1WKZSTkCG
+Content-Type: application/pgp-signature
 
-or something similar, instead of creating a totally new infrastructure to 
-do the thing that "alternative()" already does.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-(Yeah, the above doesn't really work, since usually the SMP form is the 
-longer one, and "alternative()" wants the long complex one first. So maybe 
-the x86 feature needs to be "X86_FEATURE_UP" instead, since it's now a 
-"feature" to only have one core ;)
+iD8DBQBDeOVjlb09HEdWDKgRAutJAJ467uniMAJpP+pfmFMXXEafn1QhdACfeF1z
+d1opROgM0UjFBWfgI/1ir88=
+=Uggo
+-----END PGP SIGNATURE-----
 
-			Linus
+--nextPart12445492.i1WKZSTkCG--

@@ -1,118 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932515AbVKONYH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932520AbVKON1L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932515AbVKONYH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 08:24:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbVKONYH
+	id S932520AbVKON1L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 08:27:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932524AbVKON1L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 08:24:07 -0500
-Received: from ra.tuxdriver.com ([24.172.12.4]:26893 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S932515AbVKONYG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 08:24:06 -0500
-Date: Tue, 15 Nov 2005 08:23:34 -0500
-From: Neil Horman <nhorman@tuxdriver.com>
-To: Jay Vosburgh <fubar@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, bonding-devel@lists.sourceforge.net,
-       akpm@osdl.org
-Subject: Re: [Bonding-devel] Re: [PATCH] fix ifenslave to not fail on lack of IP information
-Message-ID: <20051115132334.GA6027@hmsreliant.homelinux.net>
-References: <20051106032432.GA11464@localhost.localdomain> <200511111835.jABIZ1bc023937@death.nxdomain.ibm.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="J2SCkAp4GZ/dPZZf"
+	Tue, 15 Nov 2005 08:27:11 -0500
+Received: from nproxy.gmail.com ([64.233.182.197]:10107 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932520AbVKON1J convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 08:27:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=k06u8kGrjJlaara5wThTe9Hok2TyMQFQryafz3jQlOFadwu+1UpnBXzFjbpfOjVeFqyB9M11I9BBCupZMedRCBkqA4kv+HE7mo4Xk02zxhCVG4w26tE4XljWqbl/roKyfbD99c2fiuOWngFOdmAUq2SgH1VjjiLg3oZV1zdb9Cc=
+Message-ID: <58cb370e0511150527r415a1916t4fbadfc654a2bd18@mail.gmail.com>
+Date: Tue, 15 Nov 2005 14:27:08 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.6.15-rc1: IDE: fix potential data corruption with SL82C105 interfaces
+In-Reply-To: <20051112165548.GB28987@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <200511111835.jABIZ1bc023937@death.nxdomain.ibm.com>
-User-Agent: Mutt/1.4.1i
+References: <20051112165548.GB28987@flint.arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 11/12/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> We must _never_ _ever_ on pain of death enable IDE DMA on SL82C105
+> chipsets where the southbridge revision is <= 5, otherwise data
+> corruption will occur.
+>
+> Strangely this used to work, but something has changed in the upper
+> echelons of the IDE layer to break the hosts decision to deny DMA.
+> Let's make it crystal clear to the IDE layer that we know best.
 
---J2SCkAp4GZ/dPZZf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Has it changed recently?
 
-On Fri, Nov 11, 2005 at 10:35:01AM -0800, Jay Vosburgh wrote:
->=20
-> 	You never did say which version of bonding you're using (or I
-> just cleverly missed it) , but I assume it's an old one, 2.5.something
-> I'd guess, with the old abi.  For that case, yes, your patch makes
-> sense.
->=20
-The RHEL kernel series use a variety of different versions of the bonding
-driver, and yes, some of the prievious update releases use a older version =
-of
-the bonding abi.
+AFAICS this bug was introduced long time ago in the sl82c105
+driver itself by setting hwif->autodma in init_hwif_sl82c105()
+without checking for bridge revision:
 
-> 	Can you rework your patch to also remove the fprintf and post
-> that to the usual lists?  If it's not an error to fail to set the
-> address, there's no reason to complain about it.  In truth, the
-> set_if_addr() is all cosmetic; the kernel doesn't actually use that
-> information for the slaves, so we could arguably remove it totally, but
-> that might confuse end users.  Plus, ifenslave is on its way out, so I'd
-> just as soon not change it more than necessary.
->=20
-> 	-J
->=20
-As requested, here is a rework of my previous patch, removing the unneeded
-fprintf bits.  Tested successfully by me, and several of the origional repo=
-rters.
+http://linux.bkbits.net:8080/linux-2.6/patch@1.497.94.23?nav=index.html|src/|src/drivers|src/drivers/ide|src/drivers/ide/pci|related/drivers/ide/pci/sl82c105.c|cset@1.497.94.23
 
-Regards
-Neil
+> Note: due to the urgency of this fix, I will be applying this to the
+> ARM tree.  Any comments/criticisms can be dealt with further patches.
 
-Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
+Fine with me.
 
-
- ifenslave.c |    9 +--------
- 1 files changed, 1 insertion(+), 8 deletions(-)
-
-
-
-diff --git a/Documentation/networking/ifenslave.c b/Documentation/networkin=
-g/ifenslave.c
---- a/Documentation/networking/ifenslave.c
-+++ b/Documentation/networking/ifenslave.c
-@@ -693,13 +693,7 @@ static int enslave(char *master_ifname,=20
- 		/* Older bonding versions would panic if the slave has no IP
- 		 * address, so get the IP setting from the master.
- 		 */
--		res =3D set_if_addr(master_ifname, slave_ifname);
--		if (res) {
--			fprintf(stderr,
--				"Slave '%s': Error: set address failed\n",
--				slave_ifname);
--			return res;
--		}
-+		set_if_addr(master_ifname, slave_ifname);
- 	} else {
- 		res =3D clear_if_addr(slave_ifname);
- 		if (res) {
-@@ -1085,7 +1079,6 @@ static int set_if_addr(char *master_ifna
- 				slave_ifname, ifra[i].req_name,
- 				strerror(saved_errno));
-=20
--			return res;
- 		}
-=20
- 		ipaddr =3D ifr.ifr_addr.sa_data;
---=20
-/***************************************************
- *Neil Horman
- *Software Engineer
- *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
- ***************************************************/
-
---J2SCkAp4GZ/dPZZf
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFDeeFWM+bEoZKnT6ERAoukAJ9eJshfq0V7hJk3kbc3i4dMQHzrEQCfdgyz
-2Fy6AZuOQ9regjNwF+JlLsI=
-=VHTV
------END PGP SIGNATURE-----
-
---J2SCkAp4GZ/dPZZf--
+Bartlomiej

@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbVKOWIl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbVKOWJX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932111AbVKOWIl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 17:08:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbVKOWIl
+	id S932136AbVKOWJX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 17:09:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbVKOWJW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 17:08:41 -0500
-Received: from mail.suse.de ([195.135.220.2]:21664 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932111AbVKOWIk (ORCPT
+	Tue, 15 Nov 2005 17:09:22 -0500
+Received: from mail.kroah.org ([69.55.234.183]:65178 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932136AbVKOWJW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 17:08:40 -0500
-From: Andreas Schwab <schwab@suse.de>
-To: Greg KH <gregkh@suse.de>
+	Tue, 15 Nov 2005 17:09:22 -0500
+Date: Tue, 15 Nov 2005 13:54:03 -0800
+From: Greg KH <gregkh@suse.de>
+To: Avuton Olrich <avuton@gmail.com>
 Cc: linux-kernel@vger.kernel.org, greg@kroah.com
 Subject: Re: [RFC] HOWTO do Linux kernel development - take 2
-References: <20051115210459.GA11363@kroah.com>
-X-Yow: It's OKAY --- I'm an INTELLECTUAL, too.
-Date: Tue, 15 Nov 2005 23:08:39 +0100
-In-Reply-To: <20051115210459.GA11363@kroah.com> (Greg KH's message of "Tue, 15
-	Nov 2005 13:05:00 -0800")
-Message-ID: <je4q6dimxk.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Message-ID: <20051115215403.GA12116@suse.de>
+References: <20051115210459.GA11363@kroah.com> <3aa654a40511151352h5771060ekf1781b9d59b26b26@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3aa654a40511151352h5771060ekf1781b9d59b26b26@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <gregkh@suse.de> writes:
+On Tue, Nov 15, 2005 at 01:52:46PM -0800, Avuton Olrich wrote:
+> On 11/15/05, Greg KH <gregkh@suse.de> wrote:
+> 
+> >  - After two weeks a -rc1 kernel is released and now is possible to push only
+> >   patches that do not include new functionalities that could affect the
+> >    stability of the whole kernel.  Please note that a whole new driver (or
+> 
+> (functionalities is not a word, this maybe better)
+> 
+> - After two weeks a -rc1 kernel is released and it is only possible to
+> push patches which don't offer new features, or could affect the
+> stability of the kernel.
+> 
+> > 2.6.x.y -stable kernel tree
+> > ---------------------------
+> > Kernels with 4 digit versions are -stable kernels. They contain
+> > relativly small and critical fixes for security problems or significant
+> > regressions discovered in a given 2.6.x kernel.
+> 
+> relatively
 
->  - "Programming the 80386" by Crawford and Gelsinger [Sybek]
+Nice, thanks for finding these, I've fixed them up.
 
-You mean "[Sybex]"?
-
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+greg k-h

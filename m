@@ -1,42 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932557AbVKOXMu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932561AbVKOXPJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932557AbVKOXMu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 18:12:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932561AbVKOXMu
+	id S932561AbVKOXPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 18:15:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbVKOXPI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 18:12:50 -0500
-Received: from rwcrmhc13.comcast.net ([216.148.227.118]:59103 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S932557AbVKOXMt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 18:12:49 -0500
-In-Reply-To: <1132095974.5646.55.camel@gaston>
-References: <111520052143.16540.437A5680000BE8A60000409C220076369200009A9B9CD3040A029D0A05@comcast.net> <1132095974.5646.55.camel@gaston>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <158A2505-0919-4F7C-96DC-C7A6F3016169@comcast.net>
-Cc: debian-powerpc@lists.debian.org, linux-kernel@vger.kernel.org
+	Tue, 15 Nov 2005 18:15:08 -0500
+Received: from mtagate2.uk.ibm.com ([195.212.29.135]:45993 "EHLO
+	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S932561AbVKOXPG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 18:15:06 -0500
+Message-ID: <437A6BF5.9040901@fr.ibm.com>
+Date: Wed, 16 Nov 2005 00:15:01 +0100
+From: Cedric Le Goater <clg@fr.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Paul Jackson <pj@sgi.com>
+CC: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       frankeh@watson.ibm.com, haveblue@us.ibm.com
+Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
+References: <20051114212341.724084000@sergelap>	<20051114153649.75e265e7.pj@sgi.com>	<20051115010155.GA3792@IBM-BWN8ZTBWAO1>	<20051114175140.06c5493a.pj@sgi.com>	<20051115022931.GB6343@sergelap.austin.ibm.com>	<20051114193715.1dd80786.pj@sgi.com>	<20051115051501.GA3252@IBM-BWN8ZTBWAO1>	<20051114223513.3145db39.pj@sgi.com>	<20051115081100.GA2488@IBM-BWN8ZTBWAO1>	<20051115010624.2ca9237d.pj@sgi.com>	<20051115190030.GA16790@sergelap.austin.ibm.com> <20051115141146.5add977c.pj@sgi.com>
+In-Reply-To: <20051115141146.5add977c.pj@sgi.com>
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: Parag Warudkar <kernel-stuff@comcast.net>
-Subject: Re: PowerBook5,8 - TrackPad update
-Date: Tue, 15 Nov 2005 18:12:46 -0500
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Paul Jackson wrote:
 
-On Nov 15, 2005, at 6:06 PM, Benjamin Herrenschmidt wrote:
+> Oh dear.  I'm drifting away from advocating a pid-range preallocation
+> and toward thinking we need a more systematic approach, design and
+> architecture.  This isn't just pids.  Simple range based preallocation
+> won't help much on some of the other resources that we need to virtualize.
 
->
-> hi Parag !
->
-> You should probably post those updates to linuxppc-dev@ozlabs.org
->
-> Ben
->
+Ah ! you said the word: "virtualize".
 
-Hi
+> The Zap pods are sounding good to me right now, properly embedded
+> in the kernel rather than hacking the syscall table via a module.
 
-Thanks, I wasn't aware of that. Will post there once it's done.
+hacking the syscall table via a module is evil and does not work. You can't
+hack pids in a signal siginfo that way, you won't support NPTL, etc.
 
-Parg
+> In any case, I am suspecting that starting the job in some sort
+> of nice container should be a prerequisite for relocating or
+> checkpoint/restarting the job.
+
+Indeed. Did you ever think about using PAGG as a foundation for a
+checkpoint/restart container ?
+
+Aggregation and isolation are key requirements for checkpoint/restart. And
+then, the next one that comes on the list is private namespace or
+virtualization, depends how you call it :)
+
+C.
+
+

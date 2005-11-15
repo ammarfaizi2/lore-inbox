@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbVKOCcE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbVKOCm4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932292AbVKOCcE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 21:32:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932290AbVKOCcE
+	id S932290AbVKOCm4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 21:42:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbVKOCm4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 21:32:04 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:12986 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932287AbVKOCcC (ORCPT
+	Mon, 14 Nov 2005 21:42:56 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:23743 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932290AbVKOCmz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 21:32:02 -0500
-Message-ID: <43794890.7060102@RedHat.com>
-Date: Mon, 14 Nov 2005 21:31:44 -0500
-From: Steve Dickson <SteveD@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
+	Mon, 14 Nov 2005 21:42:55 -0500
+Message-ID: <43794B23.7010303@redhat.com>
+Date: Mon, 14 Nov 2005 20:42:43 -0600
+From: Mike Christie <mchristi@redhat.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: torvalds@osdl.org, linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] FS-Cache: Make NFS use FS-Cache
-References: <dhowells1132005277@warthog.cambridge.redhat.com>	<43792217.7030102@RedHat.com> <20051114160730.7d141291.akpm@osdl.org>
-In-Reply-To: <20051114160730.7d141291.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Olivier Galibert <galibert@pobox.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+References: <4378650A.1070209@drzeus.cx> <1131964282.2821.11.camel@laptopd505.fenrus.org> <20051114111108.GR3699@suse.de> <1131967167.2821.14.camel@laptopd505.fenrus.org> <20051114112402.GT3699@suse.de> <1131967678.2821.21.camel@laptopd505.fenrus.org> <20051114113442.GU3699@suse.de> <1131969212.2821.27.camel@laptopd505.fenrus.org> <20051114120417.GA33935@dspnet.fr.eu.org> <43792C82.5010707@redhat.com> <20051115005800.GA9543@dspnet.fr.eu.org>
+In-Reply-To: <20051115005800.GA9543@dspnet.fr.eu.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Steve Dickson <SteveD@redhat.com> wrote:
+Olivier Galibert wrote:
+> On Mon, Nov 14, 2005 at 06:32:02PM -0600, Mike Christie wrote:
 > 
->>Here is a NFS patch that incorporates the FS-Cache hooks. The
->>caching is done on a per filesystem bases using the new 
->>-o fsc mount flag (i.e mount -o fsc server:/export /mnt/export)
+>>If you have stack problem with iscsi then you should post it to those 
+>>lists or send me a pointer offlist. There were problems with iscsi and 
+>>XFS but they should be fixed in mainline. The XFS + iscsi problems that 
+>>have been reported have not been stack usage problems though.
 > 
 > 
-> OK, thanks.   What's the maturity of this patch?
-Well its as mature as the can be as this point. The
-patch has followed along with David's cachefs patches since
-2.6.10 (I believe) and I've take a number of percussions
-and did quite bit of testing to ensure there are not any
-regressions when the -o fsc mount is not used.
-
+> That hasn't been very efficient last time.  In any case, on the latest
+> version I tried (0.4-408, I can't blow up the backup machine every
+> other day):
 > 
-> Are you in a position to publish performance testing results?
-Not really... or at least I haven't... maybe David has some...
+> - iscsi-tape is incompatible with tg3 and works with e1000
+> 
+> - iscsi-disk blows after a random time in what seems to be a (irq?)
+>   stack explosion on x86 but not on x86-64 (which iirc has bigger
+>   stacks).  Seems to because the serial console blows too and only
+>   writes a handful of characters.
+> 
 
-We've be mostly working on stability and data integrity, in our
-copious spare time of course ;-) . And to be quite honest
-there are still some stability issue to iron out... But we both felt,
-at this point, the best thing to do is get more eyeballs on the
-code so we can ensure it moves in the right direction....
-
-steved.
-
+And these only occur with 4k stacks? Do you have the traces still?

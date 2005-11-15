@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbVKOPFI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbVKOPHH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932344AbVKOPFI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 10:05:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbVKOPFH
+	id S932385AbVKOPHH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 10:07:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbVKOPHH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 10:05:07 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:14217 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932344AbVKOPFF (ORCPT
+	Tue, 15 Nov 2005 10:07:07 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:10129 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932385AbVKOPHF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 10:05:05 -0500
-Message-ID: <4379FA09.3040807@watson.ibm.com>
-Date: Tue, 15 Nov 2005 10:08:57 -0500
-From: Shailabh Nagar <nagar@watson.ibm.com>
-Reply-To: nagar@watson.ibm.com
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [Patch 1/4] Delay accounting: Initialization
-References: <43796596.2010908@watson.ibm.com> <20051114202017.6f8c0327.akpm@osdl.org>
-In-Reply-To: <20051114202017.6f8c0327.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Nov 2005 10:07:05 -0500
+Date: Tue, 15 Nov 2005 10:06:43 -0500
+From: Dave Jones <davej@redhat.com>
+To: Markus Lidel <Markus.Lidel@shadowconnect.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 4/5] I2O: Bugfixes
+Message-ID: <20051115150643.GB4516@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Markus Lidel <Markus.Lidel@shadowconnect.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <4379AAED.3020307@shadowconnect.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4379AAED.3020307@shadowconnect.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Shailabh Nagar <nagar@watson.ibm.com> wrote:
-> 
->>+	*ts = sched_clock();
-> 
-> 
-> I'm not sure that it's kosher to use sched_clock() for fine-grained
-> timestamping like this.  Ingo had issues with it last time this happened?  
-> 
-> <too lazy to read all the code> Do you normalise these numbers in some
-> manner before presenting them to userspace?  If so, by what means?
+On Tue, Nov 15, 2005 at 10:31:25AM +0100, Markus Lidel wrote:
+ > Changes:
+ > --------
+ > - Removed some kmalloc's with __GFP_ZERO and replace it with memset()
+ >   because it didn't work properly.
 
-The cpu delay data collected by schedstats (which is jiffies based)
-is normalized to nanosecs. The timestamps based on sched_clock() are exported
-as is. As Marcelo pointed out, thats not good enough since sched_clock() itself
-could return jiffie-based resolution.  So some normalization will be needed for
-that data as well.
+kzalloc() perhaps ?
 
-
+		Dave
 

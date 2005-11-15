@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751450AbVKORYp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751454AbVKORcT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751450AbVKORYp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 12:24:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751453AbVKORYp
+	id S1751454AbVKORcT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 12:32:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751455AbVKORcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 12:24:45 -0500
-Received: from verein.lst.de ([213.95.11.210]:26778 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S1751450AbVKORYo (ORCPT
+	Tue, 15 Nov 2005 12:32:19 -0500
+Received: from hera.kernel.org ([140.211.167.34]:3742 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1751454AbVKORcS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 12:24:44 -0500
-Date: Tue, 15 Nov 2005 18:24:38 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Christoph Hellwig <hch@lst.de>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/4] add compat_ioctl methods to dasd
-Message-ID: <20051115172438.GA10445@lst.de>
-References: <20051104221652.GB9384@lst.de> <20051112093340.GA15702@lst.de> <1132066277.6014.35.camel@localhost.localdomain>
+	Tue, 15 Nov 2005 12:32:18 -0500
+Date: Tue, 15 Nov 2005 10:20:35 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [Patch 1/4] Delay accounting: Initialization
+Message-ID: <20051115122035.GB32373@logos.cnet>
+References: <43796596.2010908@watson.ibm.com> <20051114202017.6f8c0327.akpm@osdl.org> <20051115064954.GB31904@logos.cnet> <4379FC75.80704@watson.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1132066277.6014.35.camel@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+In-Reply-To: <4379FC75.80704@watson.ibm.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 15, 2005 at 03:51:17PM +0100, Martin Schwidefsky wrote:
-> On Sat, 2005-11-12 at 10:33 +0100, Christoph Hellwig wrote:
-> > On Fri, Nov 04, 2005 at 11:16:52PM +0100, Christoph Hellwig wrote:
-> > > all dasd ioctls are directly useable from 32bit process, thus switch
-> > > the dasd driver to unlocked_ioctl/compat_ioctl and get rid of the
-> > > translations in the global table.
+On Tue, Nov 15, 2005 at 10:19:17AM -0500, Shailabh Nagar wrote:
+> Marcelo Tosatti wrote:
+> > On Mon, Nov 14, 2005 at 08:20:17PM -0800, Andrew Morton wrote:
 > > 
-> > ping on all the four s390 compat_ioctl patches.  These are few of the
-> > remaining arch compat_ioctl bits and I'd really really like to get rid
-> > of them soonish.
+> >>Shailabh Nagar <nagar@watson.ibm.com> wrote:
+> >>
+> >>>+	*ts = sched_clock();
+> >>
+> >>I'm not sure that it's kosher to use sched_clock() for fine-grained
+> >>timestamping like this.  Ingo had issues with it last time this happened?  
+
+Maybe Ingo had some other issue other than !use_rtc ? Better check.
+
+> > If the system boots with use_rtc == 0 you're going to get jiffies based
+> > resolution from sched_clock(). I have a 1GHz Pentium 3 around here which
+> > does that.
 > 
-> Current status on the four patches:
-> 1) dasd ioctl patch didn't compile (missing semicolon after
-> lock_kernel())
+> Good point, thanks. This reemphasizes the need for better normalization
+> at output time.
 
-oops.
+> > Maybe use do_gettimeofday() for such systems?
+> 
+> Perhaps getnstimeofday() so resolution isn't reduced to msec level unnecessarily.
+> In these patches, userspace takes responsibility for handling wraparound so
+> delivering a reasonably high-resolution delay data from the kernel is preferable.
+> 
+> > 
+> > Would be nice to have a sort of per-arch overridable "gettime()" function?
+> > 
+> 
+> Provided as part of this patch ?
 
-> and doesn't work after fixing the compile problem. It's a
-> problem with the bdev->bd_disk->private_data which is NULL at the time
-> the partition detection code calls the BIODASDINFO and HDIO_GETGEO ioctl
-> with ioctl_by_bdev. I don't see an easy way to fix this right now.
+Yep, think so. My comment meant that its nice to hide away architecture 
+speficic code from generic code, so you don't have to add #ifdef's and 
+such.
 
-my patch doesn't change anything related to dereferencing those fields.
-
-I see the problem that you're probably having: ioctl_by_bdev calls
-->ioctl without ensuring ->open has been called previously.  But I don't
-see why this couldn't have happened previously.
+Not sure about the nicer way to do that.
 

@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbVKOKHW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbVKOKQe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932336AbVKOKHW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 05:07:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932337AbVKOKHV
+	id S932340AbVKOKQe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 05:16:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbVKOKQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 05:07:21 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:59107 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932336AbVKOKHT (ORCPT
+	Tue, 15 Nov 2005 05:16:34 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:63213 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932340AbVKOKQd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 05:07:19 -0500
-Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: "SERGE E. HALLYN [imap]" <serue@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       frankeh@watson.ibm.com
-In-Reply-To: <20051115010624.2ca9237d.pj@sgi.com>
-References: <20051114212341.724084000@sergelap>
-	 <20051114153649.75e265e7.pj@sgi.com>
-	 <20051115010155.GA3792@IBM-BWN8ZTBWAO1>
-	 <20051114175140.06c5493a.pj@sgi.com>
-	 <20051115022931.GB6343@sergelap.austin.ibm.com>
-	 <20051114193715.1dd80786.pj@sgi.com>
-	 <20051115051501.GA3252@IBM-BWN8ZTBWAO1>
-	 <20051114223513.3145db39.pj@sgi.com>
-	 <20051115081100.GA2488@IBM-BWN8ZTBWAO1>
-	 <20051115010624.2ca9237d.pj@sgi.com>
-Content-Type: text/plain
-Date: Tue, 15 Nov 2005 11:07:10 +0100
-Message-Id: <1132049230.6108.23.camel@localhost>
+	Tue, 15 Nov 2005 05:16:33 -0500
+Date: Tue, 15 Nov 2005 02:16:02 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: neilb@suse.de, linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no
+Subject: Re: [PATCH ] Fix some problems with truncate and mtime semantics.
+Message-Id: <20051115021602.5119744c.akpm@osdl.org>
+In-Reply-To: <20051115095610.GA23605@infradead.org>
+References: <20051115125657.9403.patches@notabene>
+	<1051115020002.9459@suse.de>
+	<20051115095610.GA23605@infradead.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-15 at 01:06 -0800, Paul Jackson wrote:
-> No - tasks get the pid the kernel gives them at fork, as always.
-> The task keeps that exact same pid, across all checkpoints, restarts
-> and migrations.  Nothing that the application process has to worry
-> about, either inside the kernel code or in userspace, beyond the fork
-> code honoring the assigned pid range when allocating a new pid.
+Christoph Hellwig <hch@infradead.org> wrote:
+>
+> > -int do_truncate(struct dentry *dentry, loff_t length, struct file *filp)
+> > +int do_truncate(struct dentry *dentry, loff_t length, unsigned int time_attrs,
+> > +	struct file *filp)
+> >  {
+> >  	int err;
+> >  	struct iattr newattrs;
+> > @@ -204,7 +205,7 @@ int do_truncate(struct dentry *dentry, l
+> >  		return -EINVAL;
+> >  
+> >  	newattrs.ia_size = length;
+> > -	newattrs.ia_valid = ATTR_SIZE | ATTR_CTIME;
+> > +	newattrs.ia_valid = ATTR_SIZE | time_attrs;
+> 
+> I'd rather make the argument and boolean update_times flag and this:
+> 
 
-The main issues I worry about with such a static allocation scheme are
-getting the allocation patterns right, without causing new restrictions
-on the containers.  This kind of scheme is completely thrown out the
-window if someone wanted to start a process on their disconnected laptop
-and later migrate it to another machine when they connect back up to the
-network.  
-
-> The real complexity comes, I claim, from changing the pid from a
-> system-wide name space to a partially per-job namespace.  You can
-> never do that conversion entirely and will always have confusions
-> around the edges, as pids relative to one virtual server are used,
-> incorrectly, in the environment of another virtual server or system
-> wide.
-
-You're basically concerned about pids "leaking" across containers, and
-confusing applications in the process?  That's a pretty valid concern.
-However, the long-term goal here is to virtualize more than pids.  As
-you noted, this will include thing like shm ids.  Yes, I worry that
-we'll end up modifying a _ton_ of stuff in the process of doing this.
-
-As for passing confusing pids from different namespaces in the
-filesystem, like in /var/run, there are solutions in the pipeline.
-Private namespaces and versioned filesystems should be able to cope with
-this kind of isolation very nicely.
-
--- Dave
+That sentence is incomprehensible.  Want to have another go?
 

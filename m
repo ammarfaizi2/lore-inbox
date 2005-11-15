@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965087AbVKOXqS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965089AbVKOXrK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965087AbVKOXqS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 18:46:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965088AbVKOXqS
+	id S965089AbVKOXrK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 18:47:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965084AbVKOXrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 18:46:18 -0500
-Received: from smtpout.mac.com ([17.250.248.73]:19652 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S965086AbVKOXqR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 18:46:17 -0500
-In-Reply-To: <20051115112504.4b645a86.akpm@osdl.org>
-References: <20051114150347.1188499e.akpm@osdl.org> <dhowells1132005277@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0511141428390.3263@g5.osdl.org> <11717.1132077542@warthog.cambridge.redhat.com> <20051115112504.4b645a86.akpm@osdl.org>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <2F392031-A796-4343-A85A-F459CAA7E51B@mac.com>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, linux-cachefs@redhat.com,
-       linux-fsdevel@vger.kernel.org, nfsv4@linux-nfs.org
+	Tue, 15 Nov 2005 18:47:09 -0500
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:41373 "EHLO
+	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S965088AbVKOXrI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 18:47:08 -0500
+Message-ID: <437A74AB.5060402@student.ltu.se>
+Date: Wed, 16 Nov 2005 00:52:11 +0100
+From: Richard Knutsson <ricknu-0@student.ltu.se>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: alex.kern@gmx.de
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH -mm2] aty: remove unnecessary CONFIG_PCI
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [PATCH 0/12] FS-Cache: Generic filesystem caching facility
-Date: Tue, 15 Nov 2005 18:45:58 -0500
-To: Andrew Morton <akpm@osdl.org>
-X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 15, 2005, at 14:25, Andrew Morton wrote:
-> Can you remind me again why it requires a blockdev rather than a  
-> regular file?
->
-> coz people are just going to go and use a loopback mount to get  
-> their blockdev, which is a bit sad.
+Signed-off-by: Richard Knutsson
 
-FS-Cache != CacheFS, although the names are a bit confusing.  FS- 
-Cache is a generic cache frontend for filesystems, while CacheFS is a  
-provider backend that uses a block define internally.  You could  
-_also_ use cache files.  If you look at the [0/12] in the list, you  
-can see a diagram explaining this all in detail.
+---
 
-Cheers,
-Kyle Moffett
-
---
-There are two ways of constructing a software design. One way is to  
-make it so simple that there are obviously no deficiencies. And the  
-other way is to make it so complicated that there are no obvious  
-deficiencies.  The first method is far more difficult.
-   -- C.A.R. Hoare
+diff -Narup a/drivers/video/aty/atyfb_base.c b/drivers/video/aty/atyfb_base.c
+--- a/drivers/video/aty/atyfb_base.c	2005-11-11 14:59:33.000000000 +0100
++++ b/drivers/video/aty/atyfb_base.c	2005-11-15 23:27:40.000000000 +0100
+@@ -3692,9 +3692,7 @@ static int __init atyfb_init(void)
+     atyfb_setup(option);
+ #endif
+ 
+-#ifdef CONFIG_PCI
+     pci_register_driver(&atyfb_driver);
+-#endif
+ #ifdef CONFIG_ATARI
+     atyfb_atari_probe();
+ #endif
+@@ -3703,9 +3701,7 @@ static int __init atyfb_init(void)
+ 
+ static void __exit atyfb_exit(void)
+ {
+-#ifdef CONFIG_PCI
+ 	pci_unregister_driver(&atyfb_driver);
+-#endif
+ }
+ 
+ module_init(atyfb_init);
 
 

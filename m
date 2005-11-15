@@ -1,1039 +1,2128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932530AbVKOO4A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751441AbVKOOz0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932530AbVKOO4A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 09:56:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbVKOOz7
+	id S1751441AbVKOOz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 09:55:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751442AbVKOOz0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 09:55:59 -0500
-Received: from moutng.kundenserver.de ([212.227.126.171]:35059 "EHLO
+	Tue, 15 Nov 2005 09:55:26 -0500
+Received: from moutng.kundenserver.de ([212.227.126.183]:22749 "EHLO
 	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932378AbVKOOza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 09:55:30 -0500
-Message-Id: <20051115210408.933936000@localhost>
+	id S1751441AbVKOOzY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 09:55:24 -0500
+Message-Id: <20051115210408.777988000@localhost>
 References: <20051115205347.395355000@localhost>
-Date: Tue, 15 Nov 2005 15:53:51 -0500
+Date: Tue, 15 Nov 2005 15:53:50 -0500
 From: Arnd Bergmann <arnd@arndb.de>
 To: akpm@osdl.org
 Cc: Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
        linux-kernel@vger.kernel.org, mnutter@us.ibm.com,
        Arnd Bergmann <arndb@de.ibm.com>
-Subject: [PATCH 4/5] spufs: add spu-side context switch code
-Content-Disposition: inline; filename=spufs-generated-files.diff
+Subject: [PATCH 3/5] kernel-side context switch code for spufs
+Content-Disposition: inline; filename=spufs-context-part2-4.diff
 X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add the source code that is used to generate spu_save_dump.h and
-spu_restore_dump.h. Since a full spu tool chain is needed to
-generate these files, the default remains to use the shipped
-versions in order to keep the number of tools for building the
-kernel down.
+This adds the code needed to perform a context switch from
+spufs, following the recommended 76-step sequence.
 
-From: Mark Nutter: <mnutter@us.ibm.com>
+From: Mark Nutter <mnutter@us.ibm.com>
 Signed-off-by: Arnd Bergmann <arndb@de.ibm.com>
 
 ---
 
- Makefile           |   49 ++++
- spu_restore.c      |  336 +++++++++++++++++++++++++++++++++
- spu_restore_crt0.S |  116 +++++++++++
- spu_save.c         |  195 +++++++++++++++++++
- spu_save_crt0.S    |  102 ++++++++++
- spu_utils.h        |  160 +++++++++++++++
- 6 files changed, 958 insertions(+)
+ switch.c | 2052 ++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 2046 insertions(+), 6 deletions(-)
 
-Index: linux-cg/arch/powerpc/platforms/cell/spufs/Makefile
+Index: linux-cg/arch/powerpc/platforms/cell/spufs/switch.c
 ===================================================================
---- linux-cg.orig/arch/powerpc/platforms/cell/spufs/Makefile
-+++ linux-cg/arch/powerpc/platforms/cell/spufs/Makefile
-@@ -2,4 +2,53 @@ obj-$(CONFIG_SPU_FS) += spufs.o
+--- linux-cg.orig/arch/powerpc/platforms/cell/spufs/switch.c
++++ linux-cg/arch/powerpc/platforms/cell/spufs/switch.c
+@@ -52,6 +52,2019 @@
+ #include "spu_save_dump.h"
+ #include "spu_restore_dump.h"
  
- spufs-y += inode.o file.o context.o switch.o syscalls.o
- 
-+# Rules to build switch.o with the help of SPU tool chain
-+SPU_CROSS	:= spu-
-+SPU_CC		:= $(SPU_CROSS)gcc
-+SPU_AS		:= $(SPU_CROSS)gcc
-+SPU_LD		:= $(SPU_CROSS)ld
-+SPU_OBJCOPY	:= $(SPU_CROSS)objcopy
-+SPU_CFLAGS	:= -O2 -Wall -I$(srctree)/include -I$(objtree)/include2
-+SPU_AFLAGS	:= -c -D__ASSEMBLY__ -I$(srctree)/include -I$(objtree)/include2
-+SPU_LDFLAGS	:= -N -Ttext=0x0
++#if 0
++#define POLL_WHILE_TRUE(_c) {				\
++    do {						\
++    } while (_c);					\
++  }
++#else
++#define RELAX_SPIN_COUNT				1000
++#define POLL_WHILE_TRUE(_c) {				\
++    do {						\
++	int _i;						\
++	for (_i=0; _i<RELAX_SPIN_COUNT && (_c); _i++) { \
++	    cpu_relax();				\
++	}						\
++	if (unlikely(_c)) yield();			\
++	else break;					\
++    } while (_c);					\
++  }
++#endif				/* debug */
 +
- $(obj)/switch.o: $(obj)/spu_save_dump.h $(obj)/spu_restore_dump.h
++#define POLL_WHILE_FALSE(_c) 	POLL_WHILE_TRUE(!(_c))
 +
-+# Compile SPU files
-+      cmd_spu_cc = $(SPU_CC) $(SPU_CFLAGS) -c -o $@ $<
-+quiet_cmd_spu_cc = SPU_CC  $@
-+$(obj)/spu_%.o: $(src)/spu_%.c
-+	$(call if_changed,spu_cc)
-+
-+# Assemble SPU files
-+      cmd_spu_as = $(SPU_AS) $(SPU_AFLAGS) -o $@ $<
-+quiet_cmd_spu_as = SPU_AS  $@
-+$(obj)/spu_%.o: $(src)/spu_%.S
-+	$(call if_changed,spu_as)
-+
-+# Link SPU Executables
-+      cmd_spu_ld = $(SPU_LD) $(SPU_LDFLAGS) -o $@ $^
-+quiet_cmd_spu_ld = SPU_LD  $@
-+$(obj)/spu_%: $(obj)/spu_%_crt0.o $(obj)/spu_%.o
-+	$(call if_changed,spu_ld)
-+
-+# Copy into binary format
-+      cmd_spu_objcopy = $(SPU_OBJCOPY) -O binary $< $@
-+quiet_cmd_spu_objcopy = OBJCOPY $@
-+$(obj)/spu_%.bin: $(src)/spu_%
-+	$(call if_changed,spu_objcopy)
-+
-+# create C code from ELF executable
-+cmd_hexdump   = ( \
-+		echo "/*" ; \
-+		echo " * $*_dump.h: Copyright (C) 2005 IBM." ; \
-+		echo " * Hex-dump auto generated from $*.c." ; \
-+		echo " * Do not edit!" ; \
-+		echo " */" ; \
-+		echo "static unsigned int $*_code[] __page_aligned = {" ; \
-+		hexdump -v -e '4/4 "0x%08x, " "\n"' $< ; \
-+		echo "};" ; \
-+		) > $@
-+quiet_cmd_hexdump = HEXDUMP $@
-+$(obj)/%_dump.h: $(obj)/%.bin
-+	$(call if_changed,hexdump)
-Index: linux-cg/arch/powerpc/platforms/cell/spufs/spu_restore.c
-===================================================================
---- /dev/null
-+++ linux-cg/arch/powerpc/platforms/cell/spufs/spu_restore.c
-@@ -0,0 +1,336 @@
-+/*
-+ * spu_restore.c
-+ *
-+ * (C) Copyright IBM Corp. 2005
-+ *
-+ * SPU-side context restore sequence outlined in
-+ * Synergistic Processor Element Book IV
-+ *
-+ * Author: Mark Nutter <mnutter@us.ibm.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2, or (at your option)
-+ * any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ */
-+
-+
-+#ifndef LS_SIZE
-+#define LS_SIZE                 0x40000	/* 256K (in bytes) */
-+#endif
-+
-+typedef unsigned int u32;
-+typedef unsigned long long u64;
-+
-+#include <spu_intrinsics.h>
-+#include <asm/spu_csa.h>
-+#include "spu_utils.h"
-+
-+#define BR_INSTR		0x327fff80	/* br -4         */
-+#define NOP_INSTR		0x40200000	/* nop           */
-+#define HEQ_INSTR		0x7b000000	/* heq $0, $0    */
-+#define STOP_INSTR		0x00000000	/* stop 0x0      */
-+#define ILLEGAL_INSTR		0x00800000	/* illegal instr */
-+#define RESTORE_COMPLETE	0x00003ffc	/* stop 0x3ffc   */
-+
-+static inline void fetch_regs_from_mem(addr64 lscsa_ea)
++static inline void acquire_spu_lock(struct spu *spu)
 +{
-+	unsigned int ls = (unsigned int)&regs_spill[0];
-+	unsigned int size = sizeof(regs_spill);
-+	unsigned int tag_id = 0;
-+	unsigned int cmd = 0x40;	/* GET */
-+
-+	spu_writech(MFC_LSA, ls);
-+	spu_writech(MFC_EAH, lscsa_ea.ui[0]);
-+	spu_writech(MFC_EAL, lscsa_ea.ui[1]);
-+	spu_writech(MFC_Size, size);
-+	spu_writech(MFC_TagID, tag_id);
-+	spu_writech(MFC_Cmd, cmd);
++	/* Save, Step 1:
++	 * Restore, Step 1:
++	 *    Acquire SPU-specific mutual exclusion lock.
++	 *    TBD.
++	 */
 +}
 +
-+static inline void restore_upper_240kb(addr64 lscsa_ea)
++static inline void release_spu_lock(struct spu *spu)
 +{
-+	unsigned int ls = 16384;
-+	unsigned int list = (unsigned int)&dma_list[0];
-+	unsigned int size = sizeof(dma_list);
-+	unsigned int tag_id = 0;
-+	unsigned int cmd = 0x44;	/* GETL */
-+
-+	/* Restore, Step 4:
-+	 *    Enqueue the GETL command (tag 0) to the MFC SPU command
-+	 *    queue to transfer the upper 240 kb of LS from CSA.
++	/* Restore, Step 76:
++	 *    Release SPU-specific mutual exclusion lock.
++	 *    TBD.
 +	 */
-+	spu_writech(MFC_LSA, ls);
-+	spu_writech(MFC_EAH, lscsa_ea.ui[0]);
-+	spu_writech(MFC_EAL, list);
-+	spu_writech(MFC_Size, size);
-+	spu_writech(MFC_TagID, tag_id);
-+	spu_writech(MFC_Cmd, cmd);
 +}
 +
-+static inline void restore_decr(void)
++static inline int check_spu_isolate(struct spu_state *csa, struct spu *spu)
 +{
-+	unsigned int offset;
-+	unsigned int decr_running;
-+	unsigned int decr;
-+
-+	/* Restore, Step 6:
-+	 *    If the LSCSA "decrementer running" flag is set
-+	 *    then write the SPU_WrDec channel with the
-+	 *    decrementer value from LSCSA.
-+	 */
-+	offset = LSCSA_QW_OFFSET(decr_status);
-+	decr_running = regs_spill[offset].slot[0];
-+	if (decr_running) {
-+		offset = LSCSA_QW_OFFSET(decr);
-+		decr = regs_spill[offset].slot[0];
-+		spu_writech(SPU_WrDec, decr);
-+	}
-+}
-+
-+static inline void write_ppu_mb(void)
-+{
-+	unsigned int offset;
-+	unsigned int data;
-+
-+	/* Restore, Step 11:
-+	 *    Write the MFC_WrOut_MB channel with the PPU_MB
-+	 *    data from LSCSA.
-+	 */
-+	offset = LSCSA_QW_OFFSET(ppu_mb);
-+	data = regs_spill[offset].slot[0];
-+	spu_writech(SPU_WrOutMbox, data);
-+}
-+
-+static inline void write_ppuint_mb(void)
-+{
-+	unsigned int offset;
-+	unsigned int data;
-+
-+	/* Restore, Step 12:
-+	 *    Write the MFC_WrInt_MB channel with the PPUINT_MB
-+	 *    data from LSCSA.
-+	 */
-+	offset = LSCSA_QW_OFFSET(ppuint_mb);
-+	data = regs_spill[offset].slot[0];
-+	spu_writech(SPU_WrOutIntrMbox, data);
-+}
-+
-+static inline void restore_fpcr(void)
-+{
-+	unsigned int offset;
-+	vector unsigned int fpcr;
-+
-+	/* Restore, Step 13:
-+	 *    Restore the floating-point status and control
-+	 *    register from the LSCSA.
-+	 */
-+	offset = LSCSA_QW_OFFSET(fpcr);
-+	fpcr = regs_spill[offset].v;
-+	spu_mtfpscr(fpcr);
-+}
-+
-+static inline void restore_srr0(void)
-+{
-+	unsigned int offset;
-+	unsigned int srr0;
-+
-+	/* Restore, Step 14:
-+	 *    Restore the SPU SRR0 data from the LSCSA.
-+	 */
-+	offset = LSCSA_QW_OFFSET(srr0);
-+	srr0 = regs_spill[offset].slot[0];
-+	spu_writech(SPU_WrSRR0, srr0);
-+}
-+
-+static inline void restore_event_mask(void)
-+{
-+	unsigned int offset;
-+	unsigned int event_mask;
-+
-+	/* Restore, Step 15:
-+	 *    Restore the SPU_RdEventMsk data from the LSCSA.
-+	 */
-+	offset = LSCSA_QW_OFFSET(event_mask);
-+	event_mask = regs_spill[offset].slot[0];
-+	spu_writech(SPU_WrEventMask, event_mask);
-+}
-+
-+static inline void restore_tag_mask(void)
-+{
-+	unsigned int offset;
-+	unsigned int tag_mask;
-+
-+	/* Restore, Step 16:
-+	 *    Restore the SPU_RdTagMsk data from the LSCSA.
-+	 */
-+	offset = LSCSA_QW_OFFSET(tag_mask);
-+	tag_mask = regs_spill[offset].slot[0];
-+	spu_writech(MFC_WrTagMask, tag_mask);
-+}
-+
-+static inline void restore_complete(void)
-+{
-+	extern void exit_fini(void);
-+	unsigned int *exit_instrs = (unsigned int *)exit_fini;
-+	unsigned int offset;
-+	unsigned int stopped_status;
-+	unsigned int stopped_code;
-+
-+	/* Restore, Step 18:
-+	 *    Issue a stop-and-signal instruction with
-+	 *    "good context restore" signal value.
-+	 *
-+	 * Restore, Step 19:
-+	 *    There may be additional instructions placed
-+	 *    here by the PPE Sequence for SPU Context
-+	 *    Restore in order to restore the correct
-+	 *    "stopped state".
-+	 *
-+	 *    This step is handled here by analyzing the
-+	 *    LSCSA.stopped_status and then modifying the
-+	 *    exit() function to behave appropriately.
-+	 */
-+
-+	offset = LSCSA_QW_OFFSET(stopped_status);
-+	stopped_status = regs_spill[offset].slot[0];
-+	stopped_code = regs_spill[offset].slot[1];
-+
-+	switch (stopped_status) {
-+	case SPU_STOPPED_STATUS_P_I:
-+		/* SPU_Status[P,I]=1.  Add illegal instruction
-+		 * followed by stop-and-signal instruction after
-+		 * end of restore code.
-+		 */
-+		exit_instrs[0] = RESTORE_COMPLETE;
-+		exit_instrs[1] = ILLEGAL_INSTR;
-+		exit_instrs[2] = STOP_INSTR | stopped_code;
-+		break;
-+	case SPU_STOPPED_STATUS_P_H:
-+		/* SPU_Status[P,H]=1.  Add 'heq $0, $0' followed
-+		 * by stop-and-signal instruction after end of
-+		 * restore code.
-+		 */
-+		exit_instrs[0] = RESTORE_COMPLETE;
-+		exit_instrs[1] = HEQ_INSTR;
-+		exit_instrs[2] = STOP_INSTR | stopped_code;
-+		break;
-+	case SPU_STOPPED_STATUS_S_P:
-+		/* SPU_Status[S,P]=1.  Add nop instruction
-+		 * followed by 'br -4' after end of restore
-+		 * code.
-+		 */
-+		exit_instrs[0] = RESTORE_COMPLETE;
-+		exit_instrs[1] = STOP_INSTR | stopped_code;
-+		exit_instrs[2] = NOP_INSTR;
-+		exit_instrs[3] = BR_INSTR;
-+		break;
-+	case SPU_STOPPED_STATUS_S_I:
-+		/* SPU_Status[S,I]=1.  Add  illegal instruction
-+		 * followed by 'br -4' after end of restore code.
-+		 */
-+		exit_instrs[0] = RESTORE_COMPLETE;
-+		exit_instrs[1] = ILLEGAL_INSTR;
-+		exit_instrs[2] = NOP_INSTR;
-+		exit_instrs[3] = BR_INSTR;
-+		break;
-+	case SPU_STOPPED_STATUS_I:
-+		/* SPU_Status[I]=1. Add illegal instruction followed
-+		 * by infinite loop after end of restore sequence.
-+		 */
-+		exit_instrs[0] = RESTORE_COMPLETE;
-+		exit_instrs[1] = ILLEGAL_INSTR;
-+		exit_instrs[2] = NOP_INSTR;
-+		exit_instrs[3] = BR_INSTR;
-+		break;
-+	case SPU_STOPPED_STATUS_S:
-+		/* SPU_Status[S]=1. Add two 'nop' instructions. */
-+		exit_instrs[0] = RESTORE_COMPLETE;
-+		exit_instrs[1] = NOP_INSTR;
-+		exit_instrs[2] = NOP_INSTR;
-+		exit_instrs[3] = BR_INSTR;
-+		break;
-+	case SPU_STOPPED_STATUS_H:
-+		/* SPU_Status[H]=1. Add 'heq $0, $0' instruction
-+		 * after end of restore code.
-+		 */
-+		exit_instrs[0] = RESTORE_COMPLETE;
-+		exit_instrs[1] = HEQ_INSTR;
-+		exit_instrs[2] = NOP_INSTR;
-+		exit_instrs[3] = BR_INSTR;
-+		break;
-+	case SPU_STOPPED_STATUS_P:
-+		/* SPU_Status[P]=1. Add stop-and-signal instruction
-+		 * after end of restore code.
-+		 */
-+		exit_instrs[0] = RESTORE_COMPLETE;
-+		exit_instrs[1] = STOP_INSTR | stopped_code;
-+		break;
-+	case SPU_STOPPED_STATUS_R:
-+		/* SPU_Status[I,S,H,P,R]=0. Add infinite loop. */
-+		exit_instrs[0] = RESTORE_COMPLETE;
-+		exit_instrs[1] = NOP_INSTR;
-+		exit_instrs[2] = NOP_INSTR;
-+		exit_instrs[3] = BR_INSTR;
-+		break;
-+	default:
-+		/* SPU_Status[R]=1. No additonal instructions. */
-+		break;
-+	}
-+	spu_sync();
-+}
-+
-+/**
-+ * main - entry point for SPU-side context restore.
-+ *
-+ * This code deviates from the documented sequence in the
-+ * following aspects:
-+ *
-+ * 	1. The EA for LSCSA is passed from PPE in the
-+ *	   signal notification channels.
-+ *	2. The register spill area is pulled by SPU
-+ *	   into LS, rather than pushed by PPE.
-+ *	3. All 128 registers are restored by exit().
-+ *	4. The exit() function is modified at run
-+ *	   time in order to properly restore the
-+ *	   SPU_Status register.
-+ */
-+int main()
-+{
-+	addr64 lscsa_ea;
-+
-+	lscsa_ea.ui[0] = spu_readch(SPU_RdSigNotify1);
-+	lscsa_ea.ui[1] = spu_readch(SPU_RdSigNotify2);
-+	fetch_regs_from_mem(lscsa_ea);
-+
-+	set_event_mask();		/* Step 1.  */
-+	set_tag_mask();			/* Step 2.  */
-+	build_dma_list(lscsa_ea);	/* Step 3.  */
-+	restore_upper_240kb(lscsa_ea);	/* Step 4.  */
-+					/* Step 5: done by 'exit'. */
-+	restore_decr();			/* Step 6. */
-+	enqueue_putllc(lscsa_ea);	/* Step 7. */
-+	set_tag_update();		/* Step 8. */
-+	read_tag_status();		/* Step 9. */
-+	read_llar_status();		/* Step 10. */
-+	write_ppu_mb();			/* Step 11. */
-+	write_ppuint_mb();		/* Step 12. */
-+	restore_fpcr();			/* Step 13. */
-+	restore_srr0();			/* Step 14. */
-+	restore_event_mask();		/* Step 15. */
-+	restore_tag_mask();		/* Step 16. */
-+					/* Step 17. done by 'exit'. */
-+	restore_complete();		/* Step 18. */
-+
-+	return 0;
-+}
-Index: linux-cg/arch/powerpc/platforms/cell/spufs/spu_restore_crt0.S
-===================================================================
---- /dev/null
-+++ linux-cg/arch/powerpc/platforms/cell/spufs/spu_restore_crt0.S
-@@ -0,0 +1,116 @@
-+/*
-+ * crt0_r.S: Entry function for SPU-side context restore.
-+ *
-+ * Copyright (C) 2005 IBM
-+ *
-+ * Entry and exit function for SPU-side of the context restore
-+ * sequence.  Sets up an initial stack frame, then branches to
-+ * 'main'.  On return, restores all 128 registers from the LSCSA
-+ * and exits.
-+ *
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2, or (at your option)
-+ * any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+
-+#include <asm/spu_csa.h>
-+
-+.data
-+.align 7
-+.globl regs_spill
-+regs_spill:
-+.space SIZEOF_SPU_SPILL_REGS, 0x0
-+
-+.text
-+.global _start
-+_start:
-+	/* Initialize the stack pointer to point to 16368
-+	 * (16kb-16). The back chain pointer is initialized
-+	 * to NULL.
-+	 */
-+	il      $0, 0
-+	il      $SP, 16368
-+	stqd    $0, 0($SP)
-+
-+	/* Allocate a minimum stack frame for the called main.
-+	 * This is needed so that main has a place to save the
-+	 * link register when it calls another function.
-+	 */
-+	stqd    $SP, -160($SP)
-+	ai      $SP, $SP, -160
-+
-+	/* Call the program's main function. */
-+	brsl    $0, main
-+
-+.global exit
-+.global	_exit
-+exit:
-+_exit:
-+	/* SPU Context Restore, Step 5: Restore the remaining 112 GPRs. */
-+	ila     $3, regs_spill + 256
-+restore_regs:
-+	lqr     $4, restore_reg_insts
-+restore_reg_loop:
-+	ai      $4, $4, 4
-+	.balignl 16, 0x40200000
-+restore_reg_insts:       /* must be quad-word aligned. */
-+	lqd     $16, 0($3)
-+	lqd     $17, 16($3)
-+	lqd     $18, 32($3)
-+	lqd     $19, 48($3)
-+	andi    $5, $4, 0x7F
-+	stqr    $4, restore_reg_insts
-+	ai      $3, $3, 64
-+	brnz    $5, restore_reg_loop
-+
-+	/* SPU Context Restore Step 17: Restore the first 16 GPRs. */
-+	lqa $0, regs_spill + 0
-+	lqa $1, regs_spill + 16
-+	lqa $2, regs_spill + 32
-+	lqa $3, regs_spill + 48
-+	lqa $4, regs_spill + 64
-+	lqa $5, regs_spill + 80
-+	lqa $6, regs_spill + 96
-+	lqa $7, regs_spill + 112
-+	lqa $8, regs_spill + 128
-+	lqa $9, regs_spill + 144
-+	lqa $10, regs_spill + 160
-+	lqa $11, regs_spill + 176
-+	lqa $12, regs_spill + 192
-+	lqa $13, regs_spill + 208
-+	lqa $14, regs_spill + 224
-+	lqa $15, regs_spill + 240
-+
-+	/* Under normal circumstances, the 'exit' function
-+	 * terminates with 'stop SPU_RESTORE_COMPLETE',
-+	 * indicating that the SPU-side restore code has
-+	 * completed.
-+	 *
-+	 * However it is possible that instructions immediately
-+	 * following the 'stop 0x3ffc' have been modified at run
-+	 * time so as to recreate the exact SPU_Status settings
-+	 * from the application, e.g. illegal instruciton, halt,
-+	 * etc.
-+	 */
-+.global exit_fini
-+.global	_exit_fini
-+exit_fini:
-+_exit_fini:
-+	stop	SPU_RESTORE_COMPLETE
-+	stop	0
-+	stop	0
-+	stop	0
-+
-+	/* Pad the size of this crt0.o to be multiple of 16 bytes. */
-+.balignl 16, 0x0
-Index: linux-cg/arch/powerpc/platforms/cell/spufs/spu_save.c
-===================================================================
---- /dev/null
-+++ linux-cg/arch/powerpc/platforms/cell/spufs/spu_save.c
-@@ -0,0 +1,195 @@
-+/*
-+ * spu_save.c
-+ *
-+ * (C) Copyright IBM Corp. 2005
-+ *
-+ * SPU-side context save sequence outlined in
-+ * Synergistic Processor Element Book IV
-+ *
-+ * Author: Mark Nutter <mnutter@us.ibm.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2, or (at your option)
-+ * any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ */
-+
-+
-+#ifndef LS_SIZE
-+#define LS_SIZE                 0x40000	/* 256K (in bytes) */
-+#endif
-+
-+typedef unsigned int u32;
-+typedef unsigned long long u64;
-+
-+#include <spu_intrinsics.h>
-+#include <asm/spu_csa.h>
-+#include "spu_utils.h"
-+
-+static inline void save_event_mask(void)
-+{
-+	unsigned int offset;
++	struct spu_problem __iomem *prob = spu->problem;
++	u32 isolate_state;
 +
 +	/* Save, Step 2:
-+	 *    Read the SPU_RdEventMsk channel and save to the LSCSA.
++	 * Save, Step 6:
++	 *     If SPU_Status[E,L,IS] any field is '1', this
++	 *     SPU is in isolate state and cannot be context
++	 *     saved at this time.
 +	 */
-+	offset = LSCSA_QW_OFFSET(event_mask);
-+	regs_spill[offset].slot[0] = spu_readch(SPU_RdEventStatMask);
++	isolate_state = SPU_STATUS_ISOLATED_STATE |
++	    SPU_STATUS_ISOLATED_LOAD_STAUTUS | SPU_STATUS_ISOLATED_EXIT_STAUTUS;
++	return (in_be32(&prob->spu_status_R) & isolate_state) ? 1 : 0;
 +}
 +
-+static inline void save_tag_mask(void)
++static inline void disable_interrupts(struct spu_state *csa, struct spu *spu)
 +{
-+	unsigned int offset;
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
 +
 +	/* Save, Step 3:
-+	 *    Read the SPU_RdTagMsk channel and save to the LSCSA.
-+	 */
-+	offset = LSCSA_QW_OFFSET(tag_mask);
-+	regs_spill[offset].slot[0] = spu_readch(MFC_RdTagMask);
-+}
-+
-+static inline void save_upper_240kb(addr64 lscsa_ea)
-+{
-+	unsigned int ls = 16384;
-+	unsigned int list = (unsigned int)&dma_list[0];
-+	unsigned int size = sizeof(dma_list);
-+	unsigned int tag_id = 0;
-+	unsigned int cmd = 0x24;	/* PUTL */
-+
-+	/* Save, Step 7:
-+	 *    Enqueue the PUTL command (tag 0) to the MFC SPU command
-+	 *    queue to transfer the remaining 240 kb of LS to CSA.
-+	 */
-+	spu_writech(MFC_LSA, ls);
-+	spu_writech(MFC_EAH, lscsa_ea.ui[0]);
-+	spu_writech(MFC_EAL, list);
-+	spu_writech(MFC_Size, size);
-+	spu_writech(MFC_TagID, tag_id);
-+	spu_writech(MFC_Cmd, cmd);
-+}
-+
-+static inline void save_fpcr(void)
-+{
-+	// vector unsigned int fpcr;
-+	unsigned int offset;
-+
-+	/* Save, Step 9:
-+	 *    Issue the floating-point status and control register
-+	 *    read instruction, and save to the LSCSA.
-+	 */
-+	offset = LSCSA_QW_OFFSET(fpcr);
-+	regs_spill[offset].v = spu_mffpscr();
-+}
-+
-+static inline void save_decr(void)
-+{
-+	unsigned int offset;
-+
-+	/* Save, Step 10:
-+	 *    Read and save the SPU_RdDec channel data to
-+	 *    the LSCSA.
-+	 */
-+	offset = LSCSA_QW_OFFSET(decr);
-+	regs_spill[offset].slot[0] = spu_readch(SPU_RdDec);
-+}
-+
-+static inline void save_srr0(void)
-+{
-+	unsigned int offset;
-+
-+	/* Save, Step 11:
-+	 *    Read and save the SPU_WSRR0 channel data to
-+	 *    the LSCSA.
-+	 */
-+	offset = LSCSA_QW_OFFSET(srr0);
-+	regs_spill[offset].slot[0] = spu_readch(SPU_RdSRR0);
-+}
-+
-+static inline void spill_regs_to_mem(addr64 lscsa_ea)
-+{
-+	unsigned int ls = (unsigned int)&regs_spill[0];
-+	unsigned int size = sizeof(regs_spill);
-+	unsigned int tag_id = 0;
-+	unsigned int cmd = 0x20;	/* PUT */
-+
-+	/* Save, Step 13:
-+	 *    Enqueue a PUT command (tag 0) to send the LSCSA
-+	 *    to the CSA.
-+	 */
-+	spu_writech(MFC_LSA, ls);
-+	spu_writech(MFC_EAH, lscsa_ea.ui[0]);
-+	spu_writech(MFC_EAL, lscsa_ea.ui[1]);
-+	spu_writech(MFC_Size, size);
-+	spu_writech(MFC_TagID, tag_id);
-+	spu_writech(MFC_Cmd, cmd);
-+}
-+
-+static inline void enqueue_sync(addr64 lscsa_ea)
-+{
-+	unsigned int tag_id = 0;
-+	unsigned int cmd = 0xCC;
-+
-+	/* Save, Step 14:
-+	 *    Enqueue an MFC_SYNC command (tag 0).
-+	 */
-+	spu_writech(MFC_TagID, tag_id);
-+	spu_writech(MFC_Cmd, cmd);
-+}
-+
-+static inline void save_complete(void)
-+{
-+	/* Save, Step 18:
-+	 *    Issue a stop-and-signal instruction indicating
-+	 *    "save complete".  Note: This function will not
-+	 *    return!!
-+	 */
-+	spu_stop(SPU_SAVE_COMPLETE);
-+}
-+
-+/**
-+ * main - entry point for SPU-side context save.
-+ *
-+ * This code deviates from the documented sequence as follows:
-+ *
-+ *      1. The EA for LSCSA is passed from PPE in the
-+ *         signal notification channels.
-+ *      2. All 128 registers are saved by crt0.o.
-+ */
-+int main()
-+{
-+	addr64 lscsa_ea;
-+
-+	lscsa_ea.ui[0] = spu_readch(SPU_RdSigNotify1);
-+	lscsa_ea.ui[1] = spu_readch(SPU_RdSigNotify2);
-+
-+	/* Step 1: done by exit(). */
-+	save_event_mask();	/* Step 2.  */
-+	save_tag_mask();	/* Step 3.  */
-+	set_event_mask();	/* Step 4.  */
-+	set_tag_mask();		/* Step 5.  */
-+	build_dma_list(lscsa_ea);	/* Step 6.  */
-+	save_upper_240kb(lscsa_ea);	/* Step 7.  */
-+	/* Step 8: done by exit(). */
-+	save_fpcr();		/* Step 9.  */
-+	save_decr();		/* Step 10. */
-+	save_srr0();		/* Step 11. */
-+	enqueue_putllc(lscsa_ea);	/* Step 12. */
-+	spill_regs_to_mem(lscsa_ea);	/* Step 13. */
-+	enqueue_sync(lscsa_ea);	/* Step 14. */
-+	set_tag_update();	/* Step 15. */
-+	read_tag_status();	/* Step 16. */
-+	read_llar_status();	/* Step 17. */
-+	save_complete();	/* Step 18. */
-+
-+	return 0;
-+}
-Index: linux-cg/arch/powerpc/platforms/cell/spufs/spu_save_crt0.S
-===================================================================
---- /dev/null
-+++ linux-cg/arch/powerpc/platforms/cell/spufs/spu_save_crt0.S
-@@ -0,0 +1,102 @@
-+/*
-+ * crt0_s.S: Entry function for SPU-side context save.
-+ *
-+ * Copyright (C) 2005 IBM
-+ *
-+ * Entry function for SPU-side of the context save sequence.
-+ * Saves all 128 GPRs, sets up an initial stack frame, then
-+ * branches to 'main'.
-+ *
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2, or (at your option)
-+ * any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+
-+#include <asm/spu_csa.h>
-+
-+.data
-+.align 7
-+.globl regs_spill
-+regs_spill:
-+.space SIZEOF_SPU_SPILL_REGS, 0x0
-+
-+.text
-+.global _start
-+_start:
-+	/* SPU Context Save Step 1: Save the first 16 GPRs. */
-+	stqa $0, regs_spill + 0
-+	stqa $1, regs_spill + 16
-+	stqa $2, regs_spill + 32
-+	stqa $3, regs_spill + 48
-+	stqa $4, regs_spill + 64
-+	stqa $5, regs_spill + 80
-+	stqa $6, regs_spill + 96
-+	stqa $7, regs_spill + 112
-+	stqa $8, regs_spill + 128
-+	stqa $9, regs_spill + 144
-+	stqa $10, regs_spill + 160
-+	stqa $11, regs_spill + 176
-+	stqa $12, regs_spill + 192
-+	stqa $13, regs_spill + 208
-+	stqa $14, regs_spill + 224
-+	stqa $15, regs_spill + 240
-+
-+	/* SPU Context Save, Step 8: Save the remaining 112 GPRs. */
-+	ila     $3, regs_spill + 256
-+save_regs:
-+	lqr     $4, save_reg_insts
-+save_reg_loop:
-+	ai      $4, $4, 4
-+	.balignl 16, 0x40200000
-+save_reg_insts:       /* must be quad-word aligned. */
-+	stqd    $16, 0($3)
-+	stqd    $17, 16($3)
-+	stqd    $18, 32($3)
-+	stqd    $19, 48($3)
-+	andi    $5, $4, 0x7F
-+	stqr    $4, save_reg_insts
-+	ai      $3, $3, 64
-+	brnz    $5, save_reg_loop
-+
-+	/* Initialize the stack pointer to point to 16368
-+	 * (16kb-16). The back chain pointer is initialized
-+	 * to NULL.
-+	 */
-+	il	$0, 0
-+	il	$SP, 16368
-+	stqd	$0, 0($SP)
-+
-+	/* Allocate a minimum stack frame for the called main.
-+	 * This is needed so that main has a place to save the
-+	 * link register when it calls another function.
-+	 */
-+	stqd	$SP, -160($SP)
-+	ai	$SP, $SP, -160
-+
-+	/* Call the program's main function. */
-+	brsl	$0, main
-+
-+	/* In this case main should not return; if it does
-+	 * there has been an error in the sequence.  Execute
-+	 * stop-and-signal with code=0.
-+	 */
-+.global exit
-+.global	_exit
-+exit:
-+_exit:
-+	stop	0x0
-+
-+	/* Pad the size of this crt0.o to be multiple of 16 bytes. */
-+.balignl 16, 0x0
-+
-Index: linux-cg/arch/powerpc/platforms/cell/spufs/spu_utils.h
-===================================================================
---- /dev/null
-+++ linux-cg/arch/powerpc/platforms/cell/spufs/spu_utils.h
-@@ -0,0 +1,160 @@
-+/*
-+ * utils.h: Utilities for SPU-side of the context switch operation.
-+ *
-+ * (C) Copyright IBM 2005
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2, or (at your option)
-+ * any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+
-+#ifndef _SPU_CONTEXT_UTILS_H_
-+#define _SPU_CONTEXT_UTILS_H_
-+
-+/*
-+ * 64-bit safe EA.
-+ */
-+typedef union {
-+	unsigned long long ull;
-+	unsigned int ui[2];
-+} addr64;
-+
-+/*
-+ * 128-bit register template.
-+ */
-+typedef union {
-+	unsigned int slot[4];
-+	vector unsigned int v;
-+} spu_reg128v;
-+
-+/*
-+ * DMA list structure.
-+ */
-+struct dma_list_elem {
-+	unsigned int size;
-+	unsigned int ea_low;
-+};
-+
-+/*
-+ * Declare storage for 8-byte aligned DMA list.
-+ */
-+struct dma_list_elem dma_list[15] __attribute__ ((aligned(8)));
-+
-+/*
-+ * External definition for storage
-+ * declared in crt0.
-+ */
-+extern spu_reg128v regs_spill[NR_SPU_SPILL_REGS];
-+
-+/*
-+ * Compute LSCSA byte offset for a given field.
-+ */
-+static struct spu_lscsa *dummy = (struct spu_lscsa *)0;
-+#define LSCSA_BYTE_OFFSET(_field)  \
-+	((char *)(&(dummy->_field)) - (char *)(&(dummy->gprs[0].slot[0])))
-+#define LSCSA_QW_OFFSET(_field)  (LSCSA_BYTE_OFFSET(_field) >> 4)
-+
-+static inline void set_event_mask(void)
-+{
-+	unsigned int event_mask = 0;
-+
-+	/* Save, Step 4:
-+	 * Restore, Step 1:
-+	 *    Set the SPU_RdEventMsk channel to zero to mask
-+	 *    all events.
-+	 */
-+	spu_writech(SPU_WrEventMask, event_mask);
-+}
-+
-+static inline void set_tag_mask(void)
-+{
-+	unsigned int tag_mask = 1;
-+
-+	/* Save, Step 5:
 +	 * Restore, Step 2:
-+	 *    Set the SPU_WrTagMsk channel to '01' to unmask
-+	 *    only tag group 0.
++	 *     Save INT_Mask_class0 in CSA.
++	 *     Write INT_MASK_class0 with value of 0.
++	 *     Save INT_Mask_class1 in CSA.
++	 *     Write INT_MASK_class1 with value of 0.
++	 *     Save INT_Mask_class2 in CSA.
++	 *     Write INT_MASK_class2 with value of 0.
 +	 */
-+	spu_writech(MFC_WrTagMask, tag_mask);
++	spin_lock_irq(&spu->register_lock);
++	if (csa) {
++		csa->priv1.int_mask_class0_RW =
++		    in_be64(&priv1->int_mask_class0_RW);
++		csa->priv1.int_mask_class1_RW =
++		    in_be64(&priv1->int_mask_class1_RW);
++		csa->priv1.int_mask_class2_RW =
++		    in_be64(&priv1->int_mask_class2_RW);
++	}
++	out_be64(&priv1->int_mask_class0_RW, 0UL);
++	out_be64(&priv1->int_mask_class1_RW, 0UL);
++	out_be64(&priv1->int_mask_class2_RW, 0UL);
++	eieio();
++	spin_unlock_irq(&spu->register_lock);
 +}
 +
-+static inline void build_dma_list(addr64 lscsa_ea)
++static inline void set_watchdog_timer(struct spu_state *csa, struct spu *spu)
 +{
-+	unsigned int ea_low;
-+	int i;
-+
-+	/* Save, Step 6:
-+	 * Restore, Step 3:
-+	 *    Update the effective address for the CSA in the
-+	 *    pre-canned DMA-list in local storage.
++	/* Save, Step 4:
++	 * Restore, Step 25.
++	 *    Set a software watchdog timer, which specifies the
++	 *    maximum allowable time for a context save sequence.
++	 *
++	 *    For present, this implementation will not set a global
++	 *    watchdog timer, as virtualization & variable system load
++	 *    may cause unpredictable execution times.
 +	 */
-+	ea_low = lscsa_ea.ui[1];
-+	ea_low += LSCSA_BYTE_OFFSET(ls[16384]);
++}
 +
-+	for (i = 0; i < 15; i++, ea_low += 16384) {
-+		dma_list[i].size = 16384;
-+		dma_list[i].ea_low = ea_low;
++static inline void inhibit_user_access(struct spu_state *csa, struct spu *spu)
++{
++	/* Save, Step 5:
++	 * Restore, Step 3:
++	 *     Inhibit user-space access (if provided) to this
++	 *     SPU by unmapping the virtual pages assigned to
++	 *     the SPU memory-mapped I/O (MMIO) for problem
++	 *     state. TBD.
++	 */
++}
++
++static inline void set_switch_pending(struct spu_state *csa, struct spu *spu)
++{
++	/* Save, Step 7:
++	 * Restore, Step 5:
++	 *     Set a software context switch pending flag.
++	 */
++	set_bit(SPU_CONTEXT_SWITCH_PENDING_nr, &spu->flags);
++	mb();
++}
++
++static inline void save_mfc_cntl(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 8:
++	 *     Read and save MFC_CNTL[Ss].
++	 */
++	if (csa) {
++		csa->priv2.mfc_control_RW = in_be64(&priv2->mfc_control_RW) &
++		    MFC_CNTL_SUSPEND_DMA_STATUS_MASK;
 +	}
 +}
 +
-+static inline void enqueue_putllc(addr64 lscsa_ea)
++static inline void save_spu_runcntl(struct spu_state *csa, struct spu *spu)
 +{
-+	unsigned int ls = 0;
-+	unsigned int size = 128;
-+	unsigned int tag_id = 0;
-+	unsigned int cmd = 0xB4;	/* PUTLLC */
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Save, Step 9:
++	 *     Save SPU_Runcntl in the CSA.  This value contains
++	 *     the "Application Desired State".
++	 */
++	csa->prob.spu_runcntl_RW = in_be32(&prob->spu_runcntl_RW);
++}
++
++static inline void save_mfc_sr1(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++
++	/* Save, Step 10:
++	 *     Save MFC_SR1 in the CSA.
++	 */
++	csa->priv1.mfc_sr1_RW = in_be64(&priv1->mfc_sr1_RW);
++}
++
++static inline void save_spu_status(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Save, Step 11:
++	 *     Read SPU_Status[R], and save to CSA.
++	 */
++	if ((in_be32(&prob->spu_status_R) & SPU_STATUS_RUNNING) == 0) {
++		csa->prob.spu_status_R = in_be32(&prob->spu_status_R);
++	} else {
++		u32 stopped;
++
++		out_be32(&prob->spu_runcntl_RW, SPU_RUNCNTL_STOP);
++		eieio();
++		POLL_WHILE_TRUE(in_be32(&prob->spu_status_R) &
++				SPU_STATUS_RUNNING);
++		stopped =
++		    SPU_STATUS_INVALID_INSTR | SPU_STATUS_SINGLE_STEP |
++		    SPU_STATUS_STOPPED_BY_HALT | SPU_STATUS_STOPPED_BY_STOP;
++		if ((in_be32(&prob->spu_status_R) & stopped) == 0)
++			csa->prob.spu_status_R = SPU_STATUS_RUNNING;
++		else
++			csa->prob.spu_status_R = in_be32(&prob->spu_status_R);
++	}
++}
++
++static inline void save_mfc_decr(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
 +
 +	/* Save, Step 12:
-+	 * Restore, Step 7:
-+	 *    Send a PUTLLC (tag 0) command to the MFC using
-+	 *    an effective address in the CSA in order to
-+	 *    remove any possible lock-line reservation.
++	 *     Read MFC_CNTL[Ds].  Update saved copy of
++	 *     CSA.MFC_CNTL[Ds].
 +	 */
-+	spu_writech(MFC_LSA, ls);
-+	spu_writech(MFC_EAH, lscsa_ea.ui[0]);
-+	spu_writech(MFC_EAL, lscsa_ea.ui[1]);
-+	spu_writech(MFC_Size, size);
-+	spu_writech(MFC_TagID, tag_id);
-+	spu_writech(MFC_Cmd, cmd);
++	if (in_be64(&priv2->mfc_control_RW) & MFC_CNTL_DECREMENTER_RUNNING) {
++		csa->priv2.mfc_control_RW |= MFC_CNTL_DECREMENTER_RUNNING;
++		csa->suspend_time = get_cycles();
++		out_be64(&priv2->spu_chnlcntptr_RW, 7ULL);
++		eieio();
++		csa->spu_chnldata_RW[7] = in_be64(&priv2->spu_chnldata_RW);
++		eieio();
++	}
 +}
 +
-+static inline void set_tag_update(void)
++static inline void halt_mfc_decr(struct spu_state *csa, struct spu *spu)
 +{
-+	unsigned int update_any = 1;
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
 +
++	/* Save, Step 13:
++	 *     Write MFC_CNTL[Dh] set to a '1' to halt
++	 *     the decrementer.
++	 */
++	out_be64(&priv2->mfc_control_RW, MFC_CNTL_DECREMENTER_HALTED);
++	eieio();
++}
++
++static inline void save_timebase(struct spu_state *csa, struct spu *spu)
++{
++	/* Save, Step 14:
++	 *    Read PPE Timebase High and Timebase low registers
++	 *    and save in CSA.  TBD.
++	 */
++	csa->suspend_time = get_cycles();
++}
++
++static inline void remove_other_spu_access(struct spu_state *csa,
++					   struct spu *spu)
++{
 +	/* Save, Step 15:
-+	 * Restore, Step 8:
-+	 *    Write the MFC_TagUpdate channel with '01'.
++	 *     Remove other SPU access to this SPU by unmapping
++	 *     this SPU's pages from their address space.  TBD.
 +	 */
-+	spu_writech(MFC_WrTagUpdate, update_any);
 +}
 +
-+static inline void read_tag_status(void)
++static inline void do_mfc_mssync(struct spu_state *csa, struct spu *spu)
 +{
++	struct spu_problem __iomem *prob = spu->problem;
++
 +	/* Save, Step 16:
-+	 * Restore, Step 9:
-+	 *    Read the MFC_TagStat channel data.
++	 * Restore, Step 11.
++	 *     Write SPU_MSSync register. Poll SPU_MSSync[P]
++	 *     for a value of 0.
 +	 */
-+	spu_readch(MFC_RdTagStat);
++	out_be64(&prob->spc_mssync_RW, 1UL);
++	POLL_WHILE_TRUE(in_be64(&prob->spc_mssync_RW) & MS_SYNC_PENDING);
 +}
 +
-+static inline void read_llar_status(void)
++static inline void issue_mfc_tlbie(struct spu_state *csa, struct spu *spu)
 +{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++
 +	/* Save, Step 17:
-+	 * Restore, Step 10:
-+	 *    Read the MFC_AtomicStat channel data.
++	 * Restore, Step 12.
++	 * Restore, Step 48.
++	 *     Write TLB_Invalidate_Entry[IS,VPN,L,Lp]=0 register.
++	 *     Then issue a PPE sync instruction.
 +	 */
-+	spu_readch(MFC_RdAtomicStat);
++	out_be64(&priv1->tlb_invalidate_entry_W, 0UL);
++	mb();
 +}
 +
-+#endif				/* _SPU_CONTEXT_UTILS_H_ */
++static inline void handle_pending_interrupts(struct spu_state *csa,
++					     struct spu *spu)
++{
++	/* Save, Step 18:
++	 *     Handle any pending interrupts from this SPU
++	 *     here.  This is OS or hypervisor specific.  One
++	 *     option is to re-enable interrupts to handle any
++	 *     pending interrupts, with the interrupt handlers
++	 *     recognizing the software Context Switch Pending
++	 *     flag, to ensure the SPU execution or MFC command
++	 *     queue is not restarted.  TBD.
++	 */
++}
++
++static inline void save_mfc_queues(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++	int i;
++
++	/* Save, Step 19:
++	 *     If MFC_Cntl[Se]=0 then save
++	 *     MFC command queues.
++	 */
++	if ((in_be64(&priv2->mfc_control_RW) & MFC_CNTL_DMA_QUEUES_EMPTY) == 0) {
++		for (i = 0; i < 8; i++) {
++			csa->priv2.puq[i].mfc_cq_data0_RW =
++			    in_be64(&priv2->puq[i].mfc_cq_data0_RW);
++			csa->priv2.puq[i].mfc_cq_data1_RW =
++			    in_be64(&priv2->puq[i].mfc_cq_data1_RW);
++			csa->priv2.puq[i].mfc_cq_data2_RW =
++			    in_be64(&priv2->puq[i].mfc_cq_data2_RW);
++			csa->priv2.puq[i].mfc_cq_data3_RW =
++			    in_be64(&priv2->puq[i].mfc_cq_data3_RW);
++		}
++		for (i = 0; i < 16; i++) {
++			csa->priv2.spuq[i].mfc_cq_data0_RW =
++			    in_be64(&priv2->spuq[i].mfc_cq_data0_RW);
++			csa->priv2.spuq[i].mfc_cq_data1_RW =
++			    in_be64(&priv2->spuq[i].mfc_cq_data1_RW);
++			csa->priv2.spuq[i].mfc_cq_data2_RW =
++			    in_be64(&priv2->spuq[i].mfc_cq_data2_RW);
++			csa->priv2.spuq[i].mfc_cq_data3_RW =
++			    in_be64(&priv2->spuq[i].mfc_cq_data3_RW);
++		}
++	}
++}
++
++static inline void save_ppu_querymask(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Save, Step 20:
++	 *     Save the PPU_QueryMask register
++	 *     in the CSA.
++	 */
++	csa->prob.dma_querymask_RW = in_be32(&prob->dma_querymask_RW);
++}
++
++static inline void save_ppu_querytype(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Save, Step 21:
++	 *     Save the PPU_QueryType register
++	 *     in the CSA.
++	 */
++	csa->prob.dma_querytype_RW = in_be32(&prob->dma_querytype_RW);
++}
++
++static inline void save_mfc_csr_tsq(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 22:
++	 *     Save the MFC_CSR_TSQ register
++	 *     in the LSCSA.
++	 */
++	csa->priv2.spu_tag_status_query_RW =
++	    in_be64(&priv2->spu_tag_status_query_RW);
++}
++
++static inline void save_mfc_csr_cmd(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 23:
++	 *     Save the MFC_CSR_CMD1 and MFC_CSR_CMD2
++	 *     registers in the CSA.
++	 */
++	csa->priv2.spu_cmd_buf1_RW = in_be64(&priv2->spu_cmd_buf1_RW);
++	csa->priv2.spu_cmd_buf2_RW = in_be64(&priv2->spu_cmd_buf2_RW);
++}
++
++static inline void save_mfc_csr_ato(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 24:
++	 *     Save the MFC_CSR_ATO register in
++	 *     the CSA.
++	 */
++	csa->priv2.spu_atomic_status_RW = in_be64(&priv2->spu_atomic_status_RW);
++}
++
++static inline void save_mfc_tclass_id(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++
++	/* Save, Step 25:
++	 *     Save the MFC_TCLASS_ID register in
++	 *     the CSA.
++	 */
++	csa->priv1.mfc_tclass_id_RW = in_be64(&priv1->mfc_tclass_id_RW);
++}
++
++static inline void set_mfc_tclass_id(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++
++	/* Save, Step 26:
++	 * Restore, Step 23.
++	 *     Write the MFC_TCLASS_ID register with
++	 *     the value 0x10000000.
++	 */
++	out_be64(&priv1->mfc_tclass_id_RW, 0x10000000);
++	eieio();
++}
++
++static inline void purge_mfc_queue(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 27:
++	 * Restore, Step 14.
++	 *     Write MFC_CNTL[Pc]=1 (purge queue).
++	 */
++	out_be64(&priv2->mfc_control_RW, MFC_CNTL_PURGE_DMA_REQUEST);
++	eieio();
++}
++
++static inline void wait_purge_complete(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 28:
++	 *     Poll MFC_CNTL[Ps] until value '11' is read
++	 *     (purge complete).
++	 */
++	POLL_WHILE_FALSE(in_be64(&priv2->mfc_control_RW) &
++			 MFC_CNTL_PURGE_DMA_COMPLETE);
++}
++
++static inline void save_mfc_slbs(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++	int i;
++
++	/* Save, Step 29:
++	 *     If MFC_SR1[R]='1', save SLBs in CSA.
++	 */
++	if (in_be64(&priv1->mfc_sr1_RW) & MFC_STATE1_RELOCATE_MASK) {
++		csa->priv2.slb_index_W = in_be64(&priv2->slb_index_W);
++		for (i = 0; i < 8; i++) {
++			out_be64(&priv2->slb_index_W, i);
++			eieio();
++			csa->slb_esid_RW[i] = in_be64(&priv2->slb_esid_RW);
++			csa->slb_vsid_RW[i] = in_be64(&priv2->slb_vsid_RW);
++			eieio();
++		}
++	}
++}
++
++static inline void setup_mfc_sr1(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++
++	/* Save, Step 30:
++	 * Restore, Step 18:
++	 *     Write MFC_SR1 with MFC_SR1[D=0,S=1] and
++	 *     MFC_SR1[TL,R,Pr,T] set correctly for the
++	 *     OS specific environment.
++	 *
++	 *     Implementation note: The SPU-side code
++	 *     for save/restore is privileged, so the
++	 *     MFC_SR1[Pr] bit is not set.
++	 *
++	 */
++	out_be64(&priv1->mfc_sr1_RW, (MFC_STATE1_MASTER_RUN_CONTROL_MASK |
++				      MFC_STATE1_RELOCATE_MASK |
++				      MFC_STATE1_BUS_TLBIE_MASK));
++}
++
++static inline void save_spu_npc(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Save, Step 31:
++	 *     Save SPU_NPC in the CSA.
++	 */
++	csa->prob.spu_npc_RW = in_be32(&prob->spu_npc_RW);
++}
++
++static inline void save_spu_privcntl(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 32:
++	 *     Save SPU_PrivCntl in the CSA.
++	 */
++	csa->priv2.spu_privcntl_RW = in_be64(&priv2->spu_privcntl_RW);
++}
++
++static inline void reset_spu_privcntl(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 33:
++	 * Restore, Step 16:
++	 *     Write SPU_PrivCntl[S,Le,A] fields reset to 0.
++	 */
++	out_be64(&priv2->spu_privcntl_RW, 0UL);
++	eieio();
++}
++
++static inline void save_spu_lslr(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 34:
++	 *     Save SPU_LSLR in the CSA.
++	 */
++	csa->priv2.spu_lslr_RW = in_be64(&priv2->spu_lslr_RW);
++}
++
++static inline void reset_spu_lslr(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 35:
++	 * Restore, Step 17.
++	 *     Reset SPU_LSLR.
++	 */
++	out_be64(&priv2->spu_lslr_RW, LS_ADDR_MASK);
++	eieio();
++}
++
++static inline void save_spu_cfg(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 36:
++	 *     Save SPU_Cfg in the CSA.
++	 */
++	csa->priv2.spu_cfg_RW = in_be64(&priv2->spu_cfg_RW);
++}
++
++static inline void save_pm_trace(struct spu_state *csa, struct spu *spu)
++{
++	/* Save, Step 37:
++	 *     Save PM_Trace_Tag_Wait_Mask in the CSA.
++	 *     Not performed by this implementation.
++	 */
++}
++
++static inline void save_mfc_rag(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++
++	/* Save, Step 38:
++	 *     Save RA_GROUP_ID register and the
++	 *     RA_ENABLE reigster in the CSA.
++	 */
++	csa->priv1.resource_allocation_groupID_RW =
++	    in_be64(&priv1->resource_allocation_groupID_RW);
++	csa->priv1.resource_allocation_enable_RW =
++	    in_be64(&priv1->resource_allocation_enable_RW);
++}
++
++static inline void save_ppu_mb_stat(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Save, Step 39:
++	 *     Save MB_Stat register in the CSA.
++	 */
++	csa->prob.mb_stat_R = in_be32(&prob->mb_stat_R);
++}
++
++static inline void save_ppu_mb(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Save, Step 40:
++	 *     Save the PPU_MB register in the CSA.
++	 */
++	csa->prob.pu_mb_R = in_be32(&prob->pu_mb_R);
++}
++
++static inline void save_ppuint_mb(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 41:
++	 *     Save the PPUINT_MB register in the CSA.
++	 */
++	csa->priv2.puint_mb_R = in_be64(&priv2->puint_mb_R);
++}
++
++static inline void save_ch_part1(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++	u64 idx, ch_indices[7] = { 0UL, 1UL, 3UL, 4UL, 24UL, 25UL, 27UL };
++	int i;
++
++	/* Save, Step 42:
++	 *     Save the following CH: [0,1,3,4,24,25,27]
++	 */
++	for (i = 0; i < 7; i++) {
++		idx = ch_indices[i];
++		out_be64(&priv2->spu_chnlcntptr_RW, idx);
++		eieio();
++		csa->spu_chnldata_RW[idx] = in_be64(&priv2->spu_chnldata_RW);
++		csa->spu_chnlcnt_RW[idx] = in_be64(&priv2->spu_chnlcnt_RW);
++		out_be64(&priv2->spu_chnldata_RW, 0UL);
++		out_be64(&priv2->spu_chnlcnt_RW, 0UL);
++		eieio();
++	}
++}
++
++static inline void save_spu_mb(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++	int i;
++
++	/* Save, Step 43:
++	 *     Save SPU Read Mailbox Channel.
++	 */
++	out_be64(&priv2->spu_chnlcntptr_RW, 29UL);
++	eieio();
++	csa->spu_chnlcnt_RW[29] = in_be64(&priv2->spu_chnlcnt_RW);
++	for (i = 0; i < 4; i++) {
++		csa->pu_mailbox_data[i] = in_be64(&priv2->spu_chnldata_RW);
++	}
++	out_be64(&priv2->spu_chnlcnt_RW, 0UL);
++	eieio();
++}
++
++static inline void save_mfc_cmd(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 44:
++	 *     Save MFC_CMD Channel.
++	 */
++	out_be64(&priv2->spu_chnlcntptr_RW, 21UL);
++	eieio();
++	csa->spu_chnlcnt_RW[21] = in_be64(&priv2->spu_chnlcnt_RW);
++	eieio();
++}
++
++static inline void reset_ch(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++	u64 ch_indices[4] = { 21UL, 23UL, 28UL, 30UL };
++	u64 ch_counts[4] = { 16UL, 1UL, 1UL, 1UL };
++	u64 idx;
++	int i;
++
++	/* Save, Step 45:
++	 *     Reset the following CH: [21, 23, 28, 30]
++	 */
++	for (i = 0; i < 4; i++) {
++		idx = ch_indices[i];
++		out_be64(&priv2->spu_chnlcntptr_RW, idx);
++		eieio();
++		out_be64(&priv2->spu_chnlcnt_RW, ch_counts[i]);
++		eieio();
++	}
++}
++
++static inline void resume_mfc_queue(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 46:
++	 * Restore, Step 25.
++	 *     Write MFC_CNTL[Sc]=0 (resume queue processing).
++	 */
++	out_be64(&priv2->mfc_control_RW, MFC_CNTL_RESUME_DMA_QUEUE);
++}
++
++static inline void invalidate_slbs(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Save, Step 45:
++	 * Restore, Step 19:
++	 *     If MFC_SR1[R]=1, write 0 to SLB_Invalidate_All.
++	 */
++	if (in_be64(&priv1->mfc_sr1_RW) & MFC_STATE1_RELOCATE_MASK) {
++		out_be64(&priv2->slb_invalidate_all_W, 0UL);
++		eieio();
++	}
++}
++
++static inline void get_kernel_slb(u64 ea, u64 slb[2])
++{
++	slb[0] = (get_kernel_vsid(ea) << SLB_VSID_SHIFT) | SLB_VSID_KERNEL;
++	slb[1] = (ea & ESID_MASK) | SLB_ESID_V;
++
++	/* Large pages are used for kernel text/data, but not vmalloc.  */
++	if (cpu_has_feature(CPU_FTR_16M_PAGE)
++	    && REGION_ID(ea) == KERNEL_REGION_ID)
++		slb[0] |= SLB_VSID_L;
++}
++
++static inline void load_mfc_slb(struct spu *spu, u64 slb[2], int slbe)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	out_be64(&priv2->slb_index_W, slbe);
++	eieio();
++	out_be64(&priv2->slb_vsid_RW, slb[0]);
++	out_be64(&priv2->slb_esid_RW, slb[1]);
++	eieio();
++}
++
++static inline void setup_mfc_slbs(struct spu_state *csa, struct spu *spu)
++{
++	u64 code_slb[2];
++	u64 lscsa_slb[2];
++
++	/* Save, Step 47:
++	 * Restore, Step 30.
++	 *     If MFC_SR1[R]=1, write 0 to SLB_Invalidate_All
++	 *     register, then initialize SLB_VSID and SLB_ESID
++	 *     to provide access to SPU context save code and
++	 *     LSCSA.
++	 *
++	 *     This implementation places both the context
++	 *     switch code and LSCSA in kernel address space.
++	 *
++	 *     Further this implementation assumes that the
++	 *     MFC_SR1[R]=1 (in other words, assume that
++	 *     translation is desired by OS environment).
++	 */
++	invalidate_slbs(csa, spu);
++	get_kernel_slb((unsigned long)&spu_save_code[0], code_slb);
++	get_kernel_slb((unsigned long)csa->lscsa, lscsa_slb);
++	load_mfc_slb(spu, code_slb, 0);
++	if ((lscsa_slb[0] != code_slb[0]) || (lscsa_slb[1] != code_slb[1]))
++		load_mfc_slb(spu, lscsa_slb, 1);
++}
++
++static inline void set_switch_active(struct spu_state *csa, struct spu *spu)
++{
++	/* Save, Step 48:
++	 * Restore, Step 23.
++	 *     Change the software context switch pending flag
++	 *     to context switch active.
++	 */
++	set_bit(SPU_CONTEXT_SWITCH_ACTIVE_nr, &spu->flags);
++	clear_bit(SPU_CONTEXT_SWITCH_PENDING_nr, &spu->flags);
++	mb();
++}
++
++static inline void enable_interrupts(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++	unsigned long class1_mask = CLASS1_ENABLE_SEGMENT_FAULT_INTR |
++	    CLASS1_ENABLE_STORAGE_FAULT_INTR;
++
++	/* Save, Step 49:
++	 * Restore, Step 22:
++	 *     Reset and then enable interrupts, as
++	 *     needed by OS.
++	 *
++	 *     This implementation enables only class1
++	 *     (translation) interrupts.
++	 */
++	spin_lock_irq(&spu->register_lock);
++	out_be64(&priv1->int_stat_class0_RW, ~(0UL));
++	out_be64(&priv1->int_stat_class1_RW, ~(0UL));
++	out_be64(&priv1->int_stat_class2_RW, ~(0UL));
++	out_be64(&priv1->int_mask_class0_RW, 0UL);
++	out_be64(&priv1->int_mask_class1_RW, class1_mask);
++	out_be64(&priv1->int_mask_class2_RW, 0UL);
++	spin_unlock_irq(&spu->register_lock);
++}
++
++static inline int send_mfc_dma(struct spu *spu, unsigned long ea,
++			       unsigned int ls_offset, unsigned int size,
++			       unsigned int tag, unsigned int rclass,
++			       unsigned int cmd)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++	union mfc_tag_size_class_cmd command;
++	unsigned int transfer_size;
++	volatile unsigned int status = 0x0;
++
++	while (size > 0) {
++		transfer_size =
++		    (size > MFC_MAX_DMA_SIZE) ? MFC_MAX_DMA_SIZE : size;
++		command.u.mfc_size = transfer_size;
++		command.u.mfc_tag = tag;
++		command.u.mfc_rclassid = rclass;
++		command.u.mfc_cmd = cmd;
++		do {
++			out_be32(&prob->mfc_lsa_W, ls_offset);
++			out_be64(&prob->mfc_ea_W, ea);
++			out_be64(&prob->mfc_union_W.all64, command.all64);
++			status =
++			    in_be32(&prob->mfc_union_W.by32.mfc_class_cmd32);
++			if (unlikely(status & 0x2)) {
++				cpu_relax();
++			}
++		} while (status & 0x3);
++		size -= transfer_size;
++		ea += transfer_size;
++		ls_offset += transfer_size;
++	}
++	return 0;
++}
++
++static inline void save_ls_16kb(struct spu_state *csa, struct spu *spu)
++{
++	unsigned long addr = (unsigned long)&csa->lscsa->ls[0];
++	unsigned int ls_offset = 0x0;
++	unsigned int size = 16384;
++	unsigned int tag = 0;
++	unsigned int rclass = 0;
++	unsigned int cmd = MFC_PUT_CMD;
++
++	/* Save, Step 50:
++	 *     Issue a DMA command to copy the first 16K bytes
++	 *     of local storage to the CSA.
++	 */
++	send_mfc_dma(spu, addr, ls_offset, size, tag, rclass, cmd);
++}
++
++static inline void set_spu_npc(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Save, Step 51:
++	 * Restore, Step 31.
++	 *     Write SPU_NPC[IE]=0 and SPU_NPC[LSA] to entry
++	 *     point address of context save code in local
++	 *     storage.
++	 *
++	 *     This implementation uses SPU-side save/restore
++	 *     programs with entry points at LSA of 0.
++	 */
++	out_be32(&prob->spu_npc_RW, 0);
++	eieio();
++}
++
++static inline void set_signot1(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++	union {
++		u64 ull;
++		u32 ui[2];
++	} addr64;
++
++	/* Save, Step 52:
++	 * Restore, Step 32:
++	 *    Write SPU_Sig_Notify_1 register with upper 32-bits
++	 *    of the CSA.LSCSA effective address.
++	 */
++	addr64.ull = (u64) csa->lscsa;
++	out_be32(&prob->signal_notify1, addr64.ui[0]);
++	eieio();
++}
++
++static inline void set_signot2(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++	union {
++		u64 ull;
++		u32 ui[2];
++	} addr64;
++
++	/* Save, Step 53:
++	 * Restore, Step 33:
++	 *    Write SPU_Sig_Notify_2 register with lower 32-bits
++	 *    of the CSA.LSCSA effective address.
++	 */
++	addr64.ull = (u64) csa->lscsa;
++	out_be32(&prob->signal_notify2, addr64.ui[1]);
++	eieio();
++}
++
++static inline void send_save_code(struct spu_state *csa, struct spu *spu)
++{
++	unsigned long addr = (unsigned long)&spu_save_code[0];
++	unsigned int ls_offset = 0x0;
++	unsigned int size = sizeof(spu_save_code);
++	unsigned int tag = 0;
++	unsigned int rclass = 0;
++	unsigned int cmd = MFC_GETFS_CMD;
++
++	/* Save, Step 54:
++	 *     Issue a DMA command to copy context save code
++	 *     to local storage and start SPU.
++	 */
++	send_mfc_dma(spu, addr, ls_offset, size, tag, rclass, cmd);
++}
++
++static inline void set_ppu_querymask(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Save, Step 55:
++	 * Restore, Step 38.
++	 *     Write PPU_QueryMask=1 (enable Tag Group 0)
++	 *     and issue eieio instruction.
++	 */
++	out_be32(&prob->dma_querymask_RW, MFC_TAGID_TO_TAGMASK(0));
++	eieio();
++}
++
++static inline void wait_tag_complete(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++	struct spu_problem __iomem *prob = spu->problem;
++	u32 mask = MFC_TAGID_TO_TAGMASK(0);
++	unsigned long flags;
++
++	/* Save, Step 56:
++	 * Restore, Step 39.
++	 * Restore, Step 39.
++	 * Restore, Step 46.
++	 *     Poll PPU_TagStatus[gn] until 01 (Tag group 0 complete)
++	 *     or write PPU_QueryType[TS]=01 and wait for Tag Group
++	 *     Complete Interrupt.  Write INT_Stat_Class0 or
++	 *     INT_Stat_Class2 with value of 'handled'.
++	 */
++	POLL_WHILE_FALSE(in_be32(&prob->dma_tagstatus_R) & mask);
++
++	local_irq_save(flags);
++	out_be64(&priv1->int_stat_class0_RW, ~(0UL));
++	out_be64(&priv1->int_stat_class2_RW, ~(0UL));
++	local_irq_restore(flags);
++}
++
++static inline void wait_spu_stopped(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++	struct spu_problem __iomem *prob = spu->problem;
++	unsigned long flags;
++
++	/* Save, Step 57:
++	 * Restore, Step 40.
++	 *     Poll until SPU_Status[R]=0 or wait for SPU Class 0
++	 *     or SPU Class 2 interrupt.  Write INT_Stat_class0
++	 *     or INT_Stat_class2 with value of handled.
++	 */
++	POLL_WHILE_TRUE(in_be32(&prob->spu_status_R) & SPU_STATUS_RUNNING);
++
++	local_irq_save(flags);
++	out_be64(&priv1->int_stat_class0_RW, ~(0UL));
++	out_be64(&priv1->int_stat_class2_RW, ~(0UL));
++	local_irq_restore(flags);
++}
++
++static inline int check_save_status(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++	u32 complete;
++
++	/* Save, Step 54:
++	 *     If SPU_Status[P]=1 and SPU_Status[SC] = "success",
++	 *     context save succeeded, otherwise context save
++	 *     failed.
++	 */
++	complete = ((SPU_SAVE_COMPLETE << SPU_STOP_STATUS_SHIFT) |
++		    SPU_STATUS_STOPPED_BY_STOP);
++	return (in_be32(&prob->spu_status_R) != complete) ? 1 : 0;
++}
++
++static inline void terminate_spu_app(struct spu_state *csa, struct spu *spu)
++{
++	/* Restore, Step 4:
++	 *    If required, notify the "using application" that
++	 *    the SPU task has been terminated.  TBD.
++	 */
++}
++
++static inline void suspend_mfc(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Restore, Step 7:
++	 * Restore, Step 47.
++	 *     Write MFC_Cntl[Dh,Sc]='1','1' to suspend
++	 *     the queue and halt the decrementer.
++	 */
++	out_be64(&priv2->mfc_control_RW, MFC_CNTL_SUSPEND_DMA_QUEUE |
++		 MFC_CNTL_DECREMENTER_HALTED);
++	eieio();
++}
++
++static inline void wait_suspend_mfc_complete(struct spu_state *csa,
++					     struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Restore, Step 8:
++	 * Restore, Step 47.
++	 *     Poll MFC_CNTL[Ss] until 11 is returned.
++	 */
++	POLL_WHILE_FALSE(in_be64(&priv2->mfc_control_RW) &
++			 MFC_CNTL_SUSPEND_COMPLETE);
++}
++
++static inline int suspend_spe(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Restore, Step 9:
++	 *    If SPU_Status[R]=1, stop SPU execution
++	 *    and wait for stop to complete.
++	 *
++	 *    Returns       1 if SPU_Status[R]=1 on entry.
++	 *                  0 otherwise
++	 */
++	if (in_be32(&prob->spu_status_R) & SPU_STATUS_RUNNING) {
++		if (in_be32(&prob->spu_status_R) &
++		    SPU_STATUS_ISOLATED_EXIT_STAUTUS) {
++			POLL_WHILE_TRUE(in_be32(&prob->spu_status_R) &
++					SPU_STATUS_RUNNING);
++		}
++		if ((in_be32(&prob->spu_status_R) &
++		     SPU_STATUS_ISOLATED_LOAD_STAUTUS)
++		    || (in_be32(&prob->spu_status_R) &
++			SPU_STATUS_ISOLATED_STATE)) {
++			out_be32(&prob->spu_runcntl_RW, SPU_RUNCNTL_STOP);
++			eieio();
++			POLL_WHILE_TRUE(in_be32(&prob->spu_status_R) &
++					SPU_STATUS_RUNNING);
++			out_be32(&prob->spu_runcntl_RW, 0x2);
++			eieio();
++			POLL_WHILE_TRUE(in_be32(&prob->spu_status_R) &
++					SPU_STATUS_RUNNING);
++		}
++		if (in_be32(&prob->spu_status_R) &
++		    SPU_STATUS_WAITING_FOR_CHANNEL) {
++			out_be32(&prob->spu_runcntl_RW, SPU_RUNCNTL_STOP);
++			eieio();
++			POLL_WHILE_TRUE(in_be32(&prob->spu_status_R) &
++					SPU_STATUS_RUNNING);
++		}
++		return 1;
++	}
++	return 0;
++}
++
++static inline void clear_spu_status(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++
++	/* Restore, Step 10:
++	 *    If SPU_Status[R]=0 and SPU_Status[E,L,IS]=1,
++	 *    release SPU from isolate state.
++	 */
++	if (!(in_be32(&prob->spu_status_R) & SPU_STATUS_RUNNING)) {
++		if (in_be32(&prob->spu_status_R) &
++		    SPU_STATUS_ISOLATED_EXIT_STAUTUS) {
++			out_be64(&priv1->mfc_sr1_RW,
++				 MFC_STATE1_MASTER_RUN_CONTROL_MASK);
++			eieio();
++			out_be32(&prob->spu_runcntl_RW, SPU_RUNCNTL_RUNNABLE);
++			eieio();
++			POLL_WHILE_TRUE(in_be32(&prob->spu_status_R) &
++					SPU_STATUS_RUNNING);
++		}
++		if ((in_be32(&prob->spu_status_R) &
++		     SPU_STATUS_ISOLATED_LOAD_STAUTUS)
++		    || (in_be32(&prob->spu_status_R) &
++			SPU_STATUS_ISOLATED_STATE)) {
++			out_be64(&priv1->mfc_sr1_RW,
++				 MFC_STATE1_MASTER_RUN_CONTROL_MASK);
++			eieio();
++			out_be32(&prob->spu_runcntl_RW, 0x2);
++			eieio();
++			POLL_WHILE_TRUE(in_be32(&prob->spu_status_R) &
++					SPU_STATUS_RUNNING);
++		}
++	}
++}
++
++static inline void reset_ch_part1(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++	u64 ch_indices[7] = { 0UL, 1UL, 3UL, 4UL, 24UL, 25UL, 27UL };
++	u64 idx;
++	int i;
++
++	/* Restore, Step 20:
++	 *     Reset the following CH: [0,1,3,4,24,25,27]
++	 */
++	for (i = 0; i < 7; i++) {
++		idx = ch_indices[i];
++		out_be64(&priv2->spu_chnlcntptr_RW, idx);
++		eieio();
++		out_be64(&priv2->spu_chnldata_RW, 0UL);
++		out_be64(&priv2->spu_chnlcnt_RW, 0UL);
++		eieio();
++	}
++}
++
++static inline void reset_ch_part2(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++	u64 ch_indices[5] = { 21UL, 23UL, 28UL, 29UL, 30UL };
++	u64 ch_counts[5] = { 16UL, 1UL, 1UL, 0UL, 1UL };
++	u64 idx;
++	int i;
++
++	/* Restore, Step 21:
++	 *     Reset the following CH: [21, 23, 28, 29, 30]
++	 */
++	for (i = 0; i < 5; i++) {
++		idx = ch_indices[i];
++		out_be64(&priv2->spu_chnlcntptr_RW, idx);
++		eieio();
++		out_be64(&priv2->spu_chnlcnt_RW, ch_counts[i]);
++		eieio();
++	}
++}
++
++static inline void setup_spu_status_part1(struct spu_state *csa,
++					  struct spu *spu)
++{
++	u32 status_P = SPU_STATUS_STOPPED_BY_STOP;
++	u32 status_I = SPU_STATUS_INVALID_INSTR;
++	u32 status_H = SPU_STATUS_STOPPED_BY_HALT;
++	u32 status_S = SPU_STATUS_SINGLE_STEP;
++	u32 status_S_I = SPU_STATUS_SINGLE_STEP | SPU_STATUS_INVALID_INSTR;
++	u32 status_S_P = SPU_STATUS_SINGLE_STEP | SPU_STATUS_STOPPED_BY_STOP;
++	u32 status_P_H = SPU_STATUS_STOPPED_BY_HALT |SPU_STATUS_STOPPED_BY_STOP;
++	u32 status_P_I = SPU_STATUS_STOPPED_BY_STOP |SPU_STATUS_INVALID_INSTR;
++	u32 status_code;
++
++	/* Restore, Step 27:
++	 *     If the CSA.SPU_Status[I,S,H,P]=1 then add the correct
++	 *     instruction sequence to the end of the SPU based restore
++	 *     code (after the "context restored" stop and signal) to
++	 *     restore the correct SPU status.
++	 *
++	 *     NOTE: Rather than modifying the SPU executable, we
++	 *     instead add a new 'stopped_status' field to the
++	 *     LSCSA.  The SPU-side restore reads this field and
++	 *     takes the appropriate action when exiting.
++	 */
++
++	status_code =
++	    (csa->prob.spu_status_R >> SPU_STOP_STATUS_SHIFT) & 0xFFFF;
++	if ((csa->prob.spu_status_R & status_P_I) == status_P_I) {
++
++		/* SPU_Status[P,I]=1 - Illegal Instruction followed
++		 * by Stop and Signal instruction, followed by 'br -4'.
++		 *
++		 */
++		csa->lscsa->stopped_status.slot[0] = SPU_STOPPED_STATUS_P_I;
++		csa->lscsa->stopped_status.slot[1] = status_code;
++
++	} else if ((csa->prob.spu_status_R & status_P_H) == status_P_H) {
++
++		/* SPU_Status[P,H]=1 - Halt Conditional, followed
++		 * by Stop and Signal instruction, followed by
++		 * 'br -4'.
++		 */
++		csa->lscsa->stopped_status.slot[0] = SPU_STOPPED_STATUS_P_H;
++		csa->lscsa->stopped_status.slot[1] = status_code;
++
++	} else if ((csa->prob.spu_status_R & status_S_P) == status_S_P) {
++
++		/* SPU_Status[S,P]=1 - Stop and Signal instruction
++		 * followed by 'br -4'.
++		 */
++		csa->lscsa->stopped_status.slot[0] = SPU_STOPPED_STATUS_S_P;
++		csa->lscsa->stopped_status.slot[1] = status_code;
++
++	} else if ((csa->prob.spu_status_R & status_S_I) == status_S_I) {
++
++		/* SPU_Status[S,I]=1 - Illegal instruction followed
++		 * by 'br -4'.
++		 */
++		csa->lscsa->stopped_status.slot[0] = SPU_STOPPED_STATUS_S_I;
++		csa->lscsa->stopped_status.slot[1] = status_code;
++
++	} else if ((csa->prob.spu_status_R & status_P) == status_P) {
++
++		/* SPU_Status[P]=1 - Stop and Signal instruction
++		 * followed by 'br -4'.
++		 */
++		csa->lscsa->stopped_status.slot[0] = SPU_STOPPED_STATUS_P;
++		csa->lscsa->stopped_status.slot[1] = status_code;
++
++	} else if ((csa->prob.spu_status_R & status_H) == status_H) {
++
++		/* SPU_Status[H]=1 - Halt Conditional, followed
++		 * by 'br -4'.
++		 */
++		csa->lscsa->stopped_status.slot[0] = SPU_STOPPED_STATUS_H;
++
++	} else if ((csa->prob.spu_status_R & status_S) == status_S) {
++
++		/* SPU_Status[S]=1 - Two nop instructions.
++		 */
++		csa->lscsa->stopped_status.slot[0] = SPU_STOPPED_STATUS_S;
++
++	} else if ((csa->prob.spu_status_R & status_I) == status_I) {
++
++		/* SPU_Status[I]=1 - Illegal instruction followed
++		 * by 'br -4'.
++		 */
++		csa->lscsa->stopped_status.slot[0] = SPU_STOPPED_STATUS_I;
++
++	}
++}
++
++static inline void setup_spu_status_part2(struct spu_state *csa,
++					  struct spu *spu)
++{
++	u32 mask;
++
++	/* Restore, Step 28:
++	 *     If the CSA.SPU_Status[I,S,H,P,R]=0 then
++	 *     add a 'br *' instruction to the end of
++	 *     the SPU based restore code.
++	 *
++	 *     NOTE: Rather than modifying the SPU executable, we
++	 *     instead add a new 'stopped_status' field to the
++	 *     LSCSA.  The SPU-side restore reads this field and
++	 *     takes the appropriate action when exiting.
++	 */
++	mask = SPU_STATUS_INVALID_INSTR |
++	    SPU_STATUS_SINGLE_STEP |
++	    SPU_STATUS_STOPPED_BY_HALT |
++	    SPU_STATUS_STOPPED_BY_STOP | SPU_STATUS_RUNNING;
++	if (!(csa->prob.spu_status_R & mask)) {
++		csa->lscsa->stopped_status.slot[0] = SPU_STOPPED_STATUS_R;
++	}
++}
++
++static inline void restore_mfc_rag(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++
++	/* Restore, Step 29:
++	 *     Restore RA_GROUP_ID register and the
++	 *     RA_ENABLE reigster from the CSA.
++	 */
++	out_be64(&priv1->resource_allocation_groupID_RW,
++		 csa->priv1.resource_allocation_groupID_RW);
++	out_be64(&priv1->resource_allocation_enable_RW,
++		 csa->priv1.resource_allocation_enable_RW);
++}
++
++static inline void send_restore_code(struct spu_state *csa, struct spu *spu)
++{
++	unsigned long addr = (unsigned long)&spu_restore_code[0];
++	unsigned int ls_offset = 0x0;
++	unsigned int size = sizeof(spu_restore_code);
++	unsigned int tag = 0;
++	unsigned int rclass = 0;
++	unsigned int cmd = MFC_GETFS_CMD;
++
++	/* Restore, Step 37:
++	 *     Issue MFC DMA command to copy context
++	 *     restore code to local storage.
++	 */
++	send_mfc_dma(spu, addr, ls_offset, size, tag, rclass, cmd);
++}
++
++static inline void setup_decr(struct spu_state *csa, struct spu *spu)
++{
++	/* Restore, Step 34:
++	 *     If CSA.MFC_CNTL[Ds]=1 (decrementer was
++	 *     running) then adjust decrementer, set
++	 *     decrementer running status in LSCSA,
++	 *     and set decrementer "wrapped" status
++	 *     in LSCSA.
++	 */
++	if (csa->priv2.mfc_control_RW & MFC_CNTL_DECREMENTER_RUNNING) {
++		cycles_t resume_time = get_cycles();
++		cycles_t delta_time = resume_time - csa->suspend_time;
++
++		csa->lscsa->decr.slot[0] = delta_time;
++	}
++}
++
++static inline void setup_ppu_mb(struct spu_state *csa, struct spu *spu)
++{
++	/* Restore, Step 35:
++	 *     Copy the CSA.PU_MB data into the LSCSA.
++	 */
++	csa->lscsa->ppu_mb.slot[0] = csa->prob.pu_mb_R;
++}
++
++static inline void setup_ppuint_mb(struct spu_state *csa, struct spu *spu)
++{
++	/* Restore, Step 36:
++	 *     Copy the CSA.PUINT_MB data into the LSCSA.
++	 */
++	csa->lscsa->ppuint_mb.slot[0] = csa->priv2.puint_mb_R;
++}
++
++static inline int check_restore_status(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++	u32 complete;
++
++	/* Restore, Step 40:
++	 *     If SPU_Status[P]=1 and SPU_Status[SC] = "success",
++	 *     context restore succeeded, otherwise context restore
++	 *     failed.
++	 */
++	complete = ((SPU_RESTORE_COMPLETE << SPU_STOP_STATUS_SHIFT) |
++		    SPU_STATUS_STOPPED_BY_STOP);
++	return (in_be32(&prob->spu_status_R) != complete) ? 1 : 0;
++}
++
++static inline void restore_spu_privcntl(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Restore, Step 41:
++	 *     Restore SPU_PrivCntl from the CSA.
++	 */
++	out_be64(&priv2->spu_privcntl_RW, csa->priv2.spu_privcntl_RW);
++	eieio();
++}
++
++static inline void restore_status_part1(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++	u32 mask;
++
++	/* Restore, Step 42:
++	 *     If any CSA.SPU_Status[I,S,H,P]=1, then
++	 *     restore the error or single step state.
++	 */
++	mask = SPU_STATUS_INVALID_INSTR |
++	    SPU_STATUS_SINGLE_STEP |
++	    SPU_STATUS_STOPPED_BY_HALT | SPU_STATUS_STOPPED_BY_STOP;
++	if (csa->prob.spu_status_R & mask) {
++		out_be32(&prob->spu_runcntl_RW, SPU_RUNCNTL_RUNNABLE);
++		eieio();
++		POLL_WHILE_TRUE(in_be32(&prob->spu_status_R) &
++				SPU_STATUS_RUNNING);
++	}
++}
++
++static inline void restore_status_part2(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++	u32 mask;
++
++	/* Restore, Step 43:
++	 *     If all CSA.SPU_Status[I,S,H,P,R]=0 then write
++	 *     SPU_RunCntl[R0R1]='01', wait for SPU_Status[R]=1,
++	 *     then write '00' to SPU_RunCntl[R0R1] and wait
++	 *     for SPU_Status[R]=0.
++	 */
++	mask = SPU_STATUS_INVALID_INSTR |
++	    SPU_STATUS_SINGLE_STEP |
++	    SPU_STATUS_STOPPED_BY_HALT |
++	    SPU_STATUS_STOPPED_BY_STOP | SPU_STATUS_RUNNING;
++	if (!(csa->prob.spu_status_R & mask)) {
++		out_be32(&prob->spu_runcntl_RW, SPU_RUNCNTL_RUNNABLE);
++		eieio();
++		POLL_WHILE_FALSE(in_be32(&prob->spu_status_R) &
++				 SPU_STATUS_RUNNING);
++		out_be32(&prob->spu_runcntl_RW, SPU_RUNCNTL_STOP);
++		eieio();
++		POLL_WHILE_TRUE(in_be32(&prob->spu_status_R) &
++				SPU_STATUS_RUNNING);
++	}
++}
++
++static inline void restore_ls_16kb(struct spu_state *csa, struct spu *spu)
++{
++	unsigned long addr = (unsigned long)&csa->lscsa->ls[0];
++	unsigned int ls_offset = 0x0;
++	unsigned int size = 16384;
++	unsigned int tag = 0;
++	unsigned int rclass = 0;
++	unsigned int cmd = MFC_GET_CMD;
++
++	/* Restore, Step 44:
++	 *     Issue a DMA command to restore the first
++	 *     16kb of local storage from CSA.
++	 */
++	send_mfc_dma(spu, addr, ls_offset, size, tag, rclass, cmd);
++}
++
++static inline void clear_interrupts(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++
++	/* Restore, Step 49:
++	 *     Write INT_MASK_class0 with value of 0.
++	 *     Write INT_MASK_class1 with value of 0.
++	 *     Write INT_MASK_class2 with value of 0.
++	 *     Write INT_STAT_class0 with value of -1.
++	 *     Write INT_STAT_class1 with value of -1.
++	 *     Write INT_STAT_class2 with value of -1.
++	 */
++	spin_lock_irq(&spu->register_lock);
++	out_be64(&priv1->int_mask_class0_RW, 0UL);
++	out_be64(&priv1->int_mask_class1_RW, 0UL);
++	out_be64(&priv1->int_mask_class2_RW, 0UL);
++	out_be64(&priv1->int_stat_class0_RW, ~(0UL));
++	out_be64(&priv1->int_stat_class1_RW, ~(0UL));
++	out_be64(&priv1->int_stat_class2_RW, ~(0UL));
++	spin_unlock_irq(&spu->register_lock);
++}
++
++static inline void restore_mfc_queues(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++	int i;
++
++	/* Restore, Step 50:
++	 *     If MFC_Cntl[Se]!=0 then restore
++	 *     MFC command queues.
++	 */
++	if ((csa->priv2.mfc_control_RW & MFC_CNTL_DMA_QUEUES_EMPTY_MASK) == 0) {
++		for (i = 0; i < 8; i++) {
++			out_be64(&priv2->puq[i].mfc_cq_data0_RW,
++				 csa->priv2.puq[i].mfc_cq_data0_RW);
++			out_be64(&priv2->puq[i].mfc_cq_data1_RW,
++				 csa->priv2.puq[i].mfc_cq_data1_RW);
++			out_be64(&priv2->puq[i].mfc_cq_data2_RW,
++				 csa->priv2.puq[i].mfc_cq_data2_RW);
++			out_be64(&priv2->puq[i].mfc_cq_data3_RW,
++				 csa->priv2.puq[i].mfc_cq_data3_RW);
++		}
++		for (i = 0; i < 16; i++) {
++			out_be64(&priv2->spuq[i].mfc_cq_data0_RW,
++				 csa->priv2.spuq[i].mfc_cq_data0_RW);
++			out_be64(&priv2->spuq[i].mfc_cq_data1_RW,
++				 csa->priv2.spuq[i].mfc_cq_data1_RW);
++			out_be64(&priv2->spuq[i].mfc_cq_data2_RW,
++				 csa->priv2.spuq[i].mfc_cq_data2_RW);
++			out_be64(&priv2->spuq[i].mfc_cq_data3_RW,
++				 csa->priv2.spuq[i].mfc_cq_data3_RW);
++		}
++	}
++	eieio();
++}
++
++static inline void restore_ppu_querymask(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Restore, Step 51:
++	 *     Restore the PPU_QueryMask register from CSA.
++	 */
++	out_be32(&prob->dma_querymask_RW, csa->prob.dma_querymask_RW);
++	eieio();
++}
++
++static inline void restore_ppu_querytype(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Restore, Step 52:
++	 *     Restore the PPU_QueryType register from CSA.
++	 */
++	out_be32(&prob->dma_querytype_RW, csa->prob.dma_querytype_RW);
++	eieio();
++}
++
++static inline void restore_mfc_csr_tsq(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Restore, Step 53:
++	 *     Restore the MFC_CSR_TSQ register from CSA.
++	 */
++	out_be64(&priv2->spu_tag_status_query_RW,
++		 csa->priv2.spu_tag_status_query_RW);
++	eieio();
++}
++
++static inline void restore_mfc_csr_cmd(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Restore, Step 54:
++	 *     Restore the MFC_CSR_CMD1 and MFC_CSR_CMD2
++	 *     registers from CSA.
++	 */
++	out_be64(&priv2->spu_cmd_buf1_RW, csa->priv2.spu_cmd_buf1_RW);
++	out_be64(&priv2->spu_cmd_buf2_RW, csa->priv2.spu_cmd_buf2_RW);
++	eieio();
++}
++
++static inline void restore_mfc_csr_ato(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Restore, Step 55:
++	 *     Restore the MFC_CSR_ATO register from CSA.
++	 */
++	out_be64(&priv2->spu_atomic_status_RW, csa->priv2.spu_atomic_status_RW);
++}
++
++static inline void restore_mfc_tclass_id(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++
++	/* Restore, Step 56:
++	 *     Restore the MFC_TCLASS_ID register from CSA.
++	 */
++	out_be64(&priv1->mfc_tclass_id_RW, csa->priv1.mfc_tclass_id_RW);
++	eieio();
++}
++
++static inline void set_llr_event(struct spu_state *csa, struct spu *spu)
++{
++	u64 ch0_cnt, ch0_data;
++	u64 ch1_data;
++
++	/* Restore, Step 57:
++	 *    Set the Lock Line Reservation Lost Event by:
++	 *      1. OR CSA.SPU_Event_Status with bit 21 (Lr) set to 1.
++	 *      2. If CSA.SPU_Channel_0_Count=0 and
++	 *         CSA.SPU_Wr_Event_Mask[Lr]=1 and
++	 *         CSA.SPU_Event_Status[Lr]=0 then set
++	 *         CSA.SPU_Event_Status_Count=1.
++	 */
++	ch0_cnt = csa->spu_chnlcnt_RW[0];
++	ch0_data = csa->spu_chnldata_RW[0];
++	ch1_data = csa->spu_chnldata_RW[1];
++	csa->spu_chnldata_RW[0] |= MFC_LLR_LOST_EVENT;
++	if ((ch0_cnt == 0) && !(ch0_data & MFC_LLR_LOST_EVENT) &&
++	    (ch1_data & MFC_LLR_LOST_EVENT)) {
++		csa->spu_chnlcnt_RW[0] = 1;
++	}
++}
++
++static inline void restore_decr_wrapped(struct spu_state *csa, struct spu *spu)
++{
++	/* Restore, Step 58:
++	 *     If the status of the CSA software decrementer
++	 *     "wrapped" flag is set, OR in a '1' to
++	 *     CSA.SPU_Event_Status[Tm].
++	 */
++	if (csa->lscsa->decr_status.slot[0] == 1) {
++		csa->spu_chnldata_RW[0] |= 0x20;
++	}
++	if ((csa->lscsa->decr_status.slot[0] == 1) &&
++	    (csa->spu_chnlcnt_RW[0] == 0 &&
++	     ((csa->spu_chnldata_RW[2] & 0x20) == 0x0) &&
++	     ((csa->spu_chnldata_RW[0] & 0x20) != 0x1))) {
++		csa->spu_chnlcnt_RW[0] = 1;
++	}
++}
++
++static inline void restore_ch_part1(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++	u64 idx, ch_indices[7] = { 0UL, 1UL, 3UL, 4UL, 24UL, 25UL, 27UL };
++	int i;
++
++	/* Restore, Step 59:
++	 *     Restore the following CH: [0,1,3,4,24,25,27]
++	 */
++	for (i = 0; i < 7; i++) {
++		idx = ch_indices[i];
++		out_be64(&priv2->spu_chnlcntptr_RW, idx);
++		eieio();
++		out_be64(&priv2->spu_chnldata_RW, csa->spu_chnldata_RW[idx]);
++		out_be64(&priv2->spu_chnlcnt_RW, csa->spu_chnlcnt_RW[idx]);
++		eieio();
++	}
++}
++
++static inline void restore_ch_part2(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++	u64 ch_indices[3] = { 9UL, 21UL, 23UL };
++	u64 ch_counts[3] = { 1UL, 16UL, 1UL };
++	u64 idx;
++	int i;
++
++	/* Restore, Step 60:
++	 *     Restore the following CH: [9,21,23].
++	 */
++	ch_counts[0] = 1UL;
++	ch_counts[1] = csa->spu_chnlcnt_RW[21];
++	ch_counts[2] = 1UL;
++	for (i = 0; i < 3; i++) {
++		idx = ch_indices[i];
++		out_be64(&priv2->spu_chnlcntptr_RW, idx);
++		eieio();
++		out_be64(&priv2->spu_chnlcnt_RW, ch_counts[i]);
++		eieio();
++	}
++}
++
++static inline void restore_spu_lslr(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Restore, Step 61:
++	 *     Restore the SPU_LSLR register from CSA.
++	 */
++	out_be64(&priv2->spu_lslr_RW, csa->priv2.spu_lslr_RW);
++	eieio();
++}
++
++static inline void restore_spu_cfg(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Restore, Step 62:
++	 *     Restore the SPU_Cfg register from CSA.
++	 */
++	out_be64(&priv2->spu_cfg_RW, csa->priv2.spu_cfg_RW);
++	eieio();
++}
++
++static inline void restore_pm_trace(struct spu_state *csa, struct spu *spu)
++{
++	/* Restore, Step 63:
++	 *     Restore PM_Trace_Tag_Wait_Mask from CSA.
++	 *     Not performed by this implementation.
++	 */
++}
++
++static inline void restore_spu_npc(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Restore, Step 64:
++	 *     Restore SPU_NPC from CSA.
++	 */
++	out_be32(&prob->spu_npc_RW, csa->prob.spu_npc_RW);
++	eieio();
++}
++
++static inline void restore_spu_mb(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++	int i;
++
++	/* Restore, Step 65:
++	 *     Restore MFC_RdSPU_MB from CSA.
++	 */
++	out_be64(&priv2->spu_chnlcntptr_RW, 29UL);
++	eieio();
++	out_be64(&priv2->spu_chnlcnt_RW, csa->spu_chnlcnt_RW[29]);
++	for (i = 0; i < 4; i++) {
++		out_be64(&priv2->spu_chnldata_RW, csa->pu_mailbox_data[i]);
++	}
++	eieio();
++}
++
++static inline void check_ppu_mb_stat(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++	u32 dummy = 0;
++
++	/* Restore, Step 66:
++	 *     If CSA.MB_Stat[P]=0 (mailbox empty) then
++	 *     read from the PPU_MB register.
++	 */
++	if ((csa->prob.mb_stat_R & 0xFF) == 0) {
++		dummy = in_be32(&prob->pu_mb_R);
++		eieio();
++	}
++}
++
++static inline void check_ppuint_mb_stat(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++	u64 dummy = 0UL;
++
++	/* Restore, Step 66:
++	 *     If CSA.MB_Stat[I]=0 (mailbox empty) then
++	 *     read from the PPUINT_MB register.
++	 */
++	if ((csa->prob.mb_stat_R & 0xFF0000) == 0) {
++		dummy = in_be64(&priv2->puint_mb_R);
++		eieio();
++		out_be64(&priv1->int_stat_class2_RW,
++			 CLASS2_ENABLE_MAILBOX_INTR);
++		eieio();
++	}
++}
++
++static inline void restore_mfc_slbs(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++	int i;
++
++	/* Restore, Step 68:
++	 *     If MFC_SR1[R]='1', restore SLBs from CSA.
++	 */
++	if (csa->priv1.mfc_sr1_RW & MFC_STATE1_RELOCATE_MASK) {
++		for (i = 0; i < 8; i++) {
++			out_be64(&priv2->slb_index_W, i);
++			eieio();
++			out_be64(&priv2->slb_esid_RW, csa->slb_esid_RW[i]);
++			out_be64(&priv2->slb_vsid_RW, csa->slb_vsid_RW[i]);
++			eieio();
++		}
++		out_be64(&priv2->slb_index_W, csa->priv2.slb_index_W);
++		eieio();
++	}
++}
++
++static inline void restore_mfc_sr1(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++
++	/* Restore, Step 69:
++	 *     Restore the MFC_SR1 register from CSA.
++	 */
++	out_be64(&priv1->mfc_sr1_RW, csa->priv1.mfc_sr1_RW);
++	eieio();
++}
++
++static inline void restore_other_spu_access(struct spu_state *csa,
++					    struct spu *spu)
++{
++	/* Restore, Step 70:
++	 *     Restore other SPU mappings to this SPU. TBD.
++	 */
++}
++
++static inline void restore_spu_runcntl(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_problem __iomem *prob = spu->problem;
++
++	/* Restore, Step 71:
++	 *     If CSA.SPU_Status[R]=1 then write
++	 *     SPU_RunCntl[R0R1]='01'.
++	 */
++	if (csa->prob.spu_status_R & SPU_STATUS_RUNNING) {
++		out_be32(&prob->spu_runcntl_RW, SPU_RUNCNTL_RUNNABLE);
++		eieio();
++	}
++}
++
++static inline void restore_mfc_cntl(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv2 __iomem *priv2 = spu->priv2;
++
++	/* Restore, Step 72:
++	 *    Restore the MFC_CNTL register for the CSA.
++	 */
++	out_be64(&priv2->mfc_control_RW, csa->priv2.mfc_control_RW);
++	eieio();
++}
++
++static inline void enable_user_access(struct spu_state *csa, struct spu *spu)
++{
++	/* Restore, Step 73:
++	 *     Enable user-space access (if provided) to this
++	 *     SPU by mapping the virtual pages assigned to
++	 *     the SPU memory-mapped I/O (MMIO) for problem
++	 *     state. TBD.
++	 */
++}
++
++static inline void reset_switch_active(struct spu_state *csa, struct spu *spu)
++{
++	/* Restore, Step 74:
++	 *     Reset the "context switch active" flag.
++	 */
++	clear_bit(SPU_CONTEXT_SWITCH_ACTIVE_nr, &spu->flags);
++	mb();
++}
++
++static inline void reenable_interrupts(struct spu_state *csa, struct spu *spu)
++{
++	struct spu_priv1 __iomem *priv1 = spu->priv1;
++
++	/* Restore, Step 75:
++	 *     Re-enable SPU interrupts.
++	 */
++	spin_lock_irq(&spu->register_lock);
++	out_be64(&priv1->int_mask_class0_RW, csa->priv1.int_mask_class0_RW);
++	out_be64(&priv1->int_mask_class1_RW, csa->priv1.int_mask_class1_RW);
++	out_be64(&priv1->int_mask_class2_RW, csa->priv1.int_mask_class2_RW);
++	spin_unlock_irq(&spu->register_lock);
++}
++
++static int quiece_spu(struct spu_state *prev, struct spu *spu)
++{
++	/*
++	 * Combined steps 2-18 of SPU context save sequence, which
++	 * quiesce the SPU state (disable SPU execution, MFC command
++	 * queues, decrementer, SPU interrupts, etc.).
++	 *
++	 * Returns      0 on success.
++	 *              2 if failed step 2.
++	 *              6 if failed step 6.
++	 */
++
++	if (check_spu_isolate(prev, spu)) {	/* Step 2. */
++		return 2;
++	}
++	disable_interrupts(prev, spu);	        /* Step 3. */
++	set_watchdog_timer(prev, spu);	        /* Step 4. */
++	inhibit_user_access(prev, spu);	        /* Step 5. */
++	if (check_spu_isolate(prev, spu)) {	/* Step 6. */
++		return 6;
++	}
++	set_switch_pending(prev, spu);	        /* Step 7. */
++	save_mfc_cntl(prev, spu);		/* Step 8. */
++	save_spu_runcntl(prev, spu);	        /* Step 9. */
++	save_mfc_sr1(prev, spu);	        /* Step 10. */
++	save_spu_status(prev, spu);	        /* Step 11. */
++	save_mfc_decr(prev, spu);	        /* Step 12. */
++	halt_mfc_decr(prev, spu);	        /* Step 13. */
++	save_timebase(prev, spu);		/* Step 14. */
++	remove_other_spu_access(prev, spu);	/* Step 15. */
++	do_mfc_mssync(prev, spu);	        /* Step 16. */
++	issue_mfc_tlbie(prev, spu);	        /* Step 17. */
++	handle_pending_interrupts(prev, spu);	/* Step 18. */
++
++	return 0;
++}
++
++static void save_csa(struct spu_state *prev, struct spu *spu)
++{
++	/*
++	 * Combine steps 19-44 of SPU context save sequence, which
++	 * save regions of the privileged & problem state areas.
++	 */
++
++	save_mfc_queues(prev, spu);	/* Step 19. */
++	save_ppu_querymask(prev, spu);	/* Step 20. */
++	save_ppu_querytype(prev, spu);	/* Step 21. */
++	save_mfc_csr_tsq(prev, spu);	/* Step 22. */
++	save_mfc_csr_cmd(prev, spu);	/* Step 23. */
++	save_mfc_csr_ato(prev, spu);	/* Step 24. */
++	save_mfc_tclass_id(prev, spu);	/* Step 25. */
++	set_mfc_tclass_id(prev, spu);	/* Step 26. */
++	purge_mfc_queue(prev, spu);	/* Step 27. */
++	wait_purge_complete(prev, spu);	/* Step 28. */
++	save_mfc_slbs(prev, spu);	/* Step 29. */
++	setup_mfc_sr1(prev, spu);	/* Step 30. */
++	save_spu_npc(prev, spu);	/* Step 31. */
++	save_spu_privcntl(prev, spu);	/* Step 32. */
++	reset_spu_privcntl(prev, spu);	/* Step 33. */
++	save_spu_lslr(prev, spu);	/* Step 34. */
++	reset_spu_lslr(prev, spu);	/* Step 35. */
++	save_spu_cfg(prev, spu);	/* Step 36. */
++	save_pm_trace(prev, spu);	/* Step 37. */
++	save_mfc_rag(prev, spu);	/* Step 38. */
++	save_ppu_mb_stat(prev, spu);	/* Step 39. */
++	save_ppu_mb(prev, spu);	        /* Step 40. */
++	save_ppuint_mb(prev, spu);	/* Step 41. */
++	save_ch_part1(prev, spu);	/* Step 42. */
++	save_spu_mb(prev, spu);	        /* Step 43. */
++	save_mfc_cmd(prev, spu);	/* Step 44. */
++	reset_ch(prev, spu);	        /* Step 45. */
++}
++
++static void save_lscsa(struct spu_state *prev, struct spu *spu)
++{
++	/*
++	 * Perform steps 46-57 of SPU context save sequence,
++	 * which save regions of the local store and register
++	 * file.
++	 */
++
++	resume_mfc_queue(prev, spu);	/* Step 46. */
++	setup_mfc_slbs(prev, spu);	/* Step 47. */
++	set_switch_active(prev, spu);	/* Step 48. */
++	enable_interrupts(prev, spu);	/* Step 49. */
++	save_ls_16kb(prev, spu);	/* Step 50. */
++	set_spu_npc(prev, spu);	        /* Step 51. */
++	set_signot1(prev, spu);		/* Step 52. */
++	set_signot2(prev, spu);		/* Step 53. */
++	send_save_code(prev, spu);	/* Step 54. */
++	set_ppu_querymask(prev, spu);	/* Step 55. */
++	wait_tag_complete(prev, spu);	/* Step 56. */
++	wait_spu_stopped(prev, spu);	/* Step 57. */
++}
++
++static void harvest(struct spu_state *prev, struct spu *spu)
++{
++	/*
++	 * Perform steps 2-25 of SPU context restore sequence,
++	 * which resets an SPU either after a failed save, or
++	 * when using SPU for first time.
++	 */
++
++	disable_interrupts(prev, spu);	        /* Step 2.  */
++	inhibit_user_access(prev, spu);	        /* Step 3.  */
++	terminate_spu_app(prev, spu);	        /* Step 4.  */
++	set_switch_pending(prev, spu);	        /* Step 5.  */
++	remove_other_spu_access(prev, spu);	/* Step 6.  */
++	suspend_mfc(prev, spu);	                /* Step 7.  */
++	wait_suspend_mfc_complete(prev, spu);	/* Step 8.  */
++	if (!suspend_spe(prev, spu))	        /* Step 9.  */
++		clear_spu_status(prev, spu);	/* Step 10. */
++	do_mfc_mssync(prev, spu);	        /* Step 11. */
++	issue_mfc_tlbie(prev, spu);	        /* Step 12. */
++	handle_pending_interrupts(prev, spu);	/* Step 13. */
++	purge_mfc_queue(prev, spu);	        /* Step 14. */
++	wait_purge_complete(prev, spu);	        /* Step 15. */
++	reset_spu_privcntl(prev, spu);	        /* Step 16. */
++	reset_spu_lslr(prev, spu);              /* Step 17. */
++	setup_mfc_sr1(prev, spu);	        /* Step 18. */
++	invalidate_slbs(prev, spu);	        /* Step 19. */
++	reset_ch_part1(prev, spu);	        /* Step 20. */
++	reset_ch_part2(prev, spu);	        /* Step 21. */
++	enable_interrupts(prev, spu);	        /* Step 22. */
++	set_switch_active(prev, spu);	        /* Step 23. */
++	set_mfc_tclass_id(prev, spu);	        /* Step 24. */
++	resume_mfc_queue(prev, spu);	        /* Step 25. */
++}
++
++static void restore_lscsa(struct spu_state *next, struct spu *spu)
++{
++	/*
++	 * Perform steps 26-40 of SPU context restore sequence,
++	 * which restores regions of the local store and register
++	 * file.
++	 */
++
++	set_watchdog_timer(next, spu);	        /* Step 26. */
++	setup_spu_status_part1(next, spu);	/* Step 27. */
++	setup_spu_status_part2(next, spu);	/* Step 28. */
++	restore_mfc_rag(next, spu);	        /* Step 29. */
++	setup_mfc_slbs(next, spu);	        /* Step 30. */
++	set_spu_npc(next, spu);	                /* Step 31. */
++	set_signot1(next, spu);	                /* Step 32. */
++	set_signot2(next, spu);	                /* Step 33. */
++	setup_decr(next, spu);	                /* Step 34. */
++	setup_ppu_mb(next, spu);	        /* Step 35. */
++	setup_ppuint_mb(next, spu);	        /* Step 36. */
++	send_restore_code(next, spu);	        /* Step 37. */
++	set_ppu_querymask(next, spu);	        /* Step 38. */
++	wait_tag_complete(next, spu);	        /* Step 39. */
++	wait_spu_stopped(next, spu);	        /* Step 40. */
++}
++
++static void restore_csa(struct spu_state *next, struct spu *spu)
++{
++	/*
++	 * Combine steps 41-76 of SPU context restore sequence, which
++	 * restore regions of the privileged & problem state areas.
++	 */
++
++	restore_spu_privcntl(next, spu);	/* Step 41. */
++	restore_status_part1(next, spu);	/* Step 42. */
++	restore_status_part2(next, spu);	/* Step 43. */
++	restore_ls_16kb(next, spu);	        /* Step 44. */
++	wait_tag_complete(next, spu);	        /* Step 45. */
++	suspend_mfc(next, spu);	                /* Step 46. */
++	wait_suspend_mfc_complete(next, spu);	/* Step 47. */
++	issue_mfc_tlbie(next, spu);	        /* Step 48. */
++	clear_interrupts(next, spu);	        /* Step 49. */
++	restore_mfc_queues(next, spu);	        /* Step 50. */
++	restore_ppu_querymask(next, spu);	/* Step 51. */
++	restore_ppu_querytype(next, spu);	/* Step 52. */
++	restore_mfc_csr_tsq(next, spu);	        /* Step 53. */
++	restore_mfc_csr_cmd(next, spu);	        /* Step 54. */
++	restore_mfc_csr_ato(next, spu);	        /* Step 55. */
++	restore_mfc_tclass_id(next, spu);	/* Step 56. */
++	set_llr_event(next, spu);	        /* Step 57. */
++	restore_decr_wrapped(next, spu);	/* Step 58. */
++	restore_ch_part1(next, spu);	        /* Step 59. */
++	restore_ch_part2(next, spu);	        /* Step 60. */
++	restore_spu_lslr(next, spu);	        /* Step 61. */
++	restore_spu_cfg(next, spu);	        /* Step 62. */
++	restore_pm_trace(next, spu);	        /* Step 63. */
++	restore_spu_npc(next, spu);	        /* Step 64. */
++	restore_spu_mb(next, spu);	        /* Step 65. */
++	check_ppu_mb_stat(next, spu);	        /* Step 66. */
++	check_ppuint_mb_stat(next, spu);	/* Step 67. */
++	restore_mfc_slbs(next, spu);	        /* Step 68. */
++	restore_mfc_sr1(next, spu);	        /* Step 69. */
++	restore_other_spu_access(next, spu);	/* Step 70. */
++	restore_spu_runcntl(next, spu);	        /* Step 71. */
++	restore_mfc_cntl(next, spu);	        /* Step 72. */
++	enable_user_access(next, spu);	        /* Step 73. */
++	reset_switch_active(next, spu);	        /* Step 74. */
++	reenable_interrupts(next, spu);	        /* Step 75. */
++}
++
++static int __do_spu_save(struct spu_state *prev, struct spu *spu)
++{
++	int rc;
++
++	/*
++	 * SPU context save can be broken into three phases:
++	 *
++	 *     (a) quiesce [steps 2-16].
++	 *     (b) save of CSA, performed by PPE [steps 17-42]
++	 *     (c) save of LSCSA, mostly performed by SPU [steps 43-52].
++	 *
++	 * Returns      0 on success.
++	 *              2,6 if failed to quiece SPU
++	 *              53 if SPU-side of save failed.
++	 */
++
++	rc = quiece_spu(prev, spu);	        /* Steps 2-16. */
++	switch (rc) {
++	default:
++	case 2:
++	case 6:
++		harvest(prev, spu);
++		return rc;
++		break;
++	case 0:
++		break;
++	}
++	save_csa(prev, spu);	                /* Steps 17-43. */
++	save_lscsa(prev, spu);	                /* Steps 44-53. */
++	return check_save_status(prev, spu);	/* Step 54.     */
++}
++
++static int __do_spu_restore(struct spu_state *next, struct spu *spu)
++{
++	int rc;
++
++	/*
++	 * SPU context restore can be broken into three phases:
++	 *
++	 *    (a) harvest (or reset) SPU [steps 2-24].
++	 *    (b) restore LSCSA [steps 25-40], mostly performed by SPU.
++	 *    (c) restore CSA [steps 41-76], performed by PPE.
++	 *
++	 * The 'harvest' step is not performed here, but rather
++	 * as needed below.
++	 */
++
++	restore_lscsa(next, spu);	        /* Steps 24-39. */
++	rc = check_restore_status(next, spu);	/* Step 40.     */
++	switch (rc) {
++	default:
++		/* Failed. Return now. */
++		return rc;
++		break;
++	case 0:
++		/* Fall through to next step. */
++		break;
++	}
++	restore_csa(next, spu);
++
++	return 0;
++}
++
+ /**
+  * spu_save - SPU context save, with locking.
+  * @prev: pointer to SPU context save area, to be saved.
+@@ -61,9 +2074,13 @@
+  */
+ int spu_save(struct spu_state *prev, struct spu *spu)
+ {
+-	/* XXX missing */
++	int rc;
+ 
+-	return 0;
++	acquire_spu_lock(spu);	        /* Step 1.     */
++	rc = __do_spu_save(prev, spu);	/* Steps 2-53. */
++	release_spu_lock(spu);
++
++	return rc;
+ }
+ 
+ /**
+@@ -77,9 +2094,14 @@ int spu_save(struct spu_state *prev, str
+  */
+ int spu_restore(struct spu_state *new, struct spu *spu)
+ {
+-	/* XXX missing */
++	int rc;
+ 
+-	return 0;
++	acquire_spu_lock(spu);
++	harvest(NULL, spu);
++	rc = __do_spu_restore(new, spu);
++	release_spu_lock(spu);
++
++	return rc;
+ }
+ 
+ /**
+@@ -93,9 +2115,17 @@ int spu_restore(struct spu_state *new, s
+  */
+ int spu_switch(struct spu_state *prev, struct spu_state *new, struct spu *spu)
+ {
+-	/* XXX missing */
++	int rc;
+ 
+-	return 0;
++	acquire_spu_lock(spu);	        /* Save, Step 1.     */
++	rc = __do_spu_save(prev, spu);	/* Save, Steps 2-53. */
++	if (rc != 0) {
++		harvest(prev, spu);
++	}
++	rc = __do_spu_restore(new, spu);
++	release_spu_lock(spu);
++
++	return rc;
+ }
+ 
+ static void init_prob(struct spu_state *csa)
+Index: linux-cg/include/asm-powerpc/spu_csa.h
+===================================================================
+--- linux-cg.orig/include/asm-powerpc/spu_csa.h
++++ linux-cg/include/asm-powerpc/spu_csa.h
+@@ -200,7 +200,6 @@ struct spu_priv2_collapsed {
+ 	u64 spu_chnlcnt_RW;
+ 	u64 spu_chnldata_RW;
+ 	u64 spu_cfg_RW;
+-	u64 spu_pm_trace_tag_status_RW;
+ 	u64 spu_tag_status_query_RW;
+ 	u64 spu_cmd_buf1_RW;
+ 	u64 spu_cmd_buf2_RW;
 
 --
 

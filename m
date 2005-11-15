@@ -1,47 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965045AbVKOWXR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965048AbVKOWZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965045AbVKOWXR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 17:23:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965042AbVKOWXR
+	id S965048AbVKOWZT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 17:25:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965049AbVKOWZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 17:23:17 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:46060 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965045AbVKOWXQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 17:23:16 -0500
-Subject: Re: [PATCH] hugepages: fold find_or_alloc_pages into huge_no_page()
-From: Adam Litke <agl@us.ibm.com>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: linux-mm@kvack.org, ak@suse.de, linux-kernel@vger.kernel.org,
-       kenneth.w.chen@intel.com, wli@holomorphy.com, akpm@osdl.org
-In-Reply-To: <Pine.LNX.4.62.0511151345470.11011@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.62.0511151345470.11011@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Organization: IBM
-Date: Tue, 15 Nov 2005 16:22:09 -0600
-Message-Id: <1132093329.22243.18.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Tue, 15 Nov 2005 17:25:19 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:41690 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S965048AbVKOWZR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 17:25:17 -0500
+Message-ID: <437A613A.1020705@watson.ibm.com>
+Date: Tue, 15 Nov 2005 17:29:14 -0500
+From: Shailabh Nagar <nagar@watson.ibm.com>
+Reply-To: nagar@watson.ibm.com
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Parag Warudkar <kernel-stuff@comcast.net>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch 1/4] Delay accounting: Initialization
+References: <43796596.2010908@watson.ibm.com> <1F92A563-B430-49FE-895E-FB93DC64981E@comcast.net>
+In-Reply-To: <1F92A563-B430-49FE-895E-FB93DC64981E@comcast.net>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-15 at 13:47 -0800, Christoph Lameter wrote:
-> The number of parameters for find_or_alloc_page increases significantly after
-> policy support is added to huge pages. Simplify the code by folding
-> find_or_alloc_huge_page() into hugetlb_no_page().
+Parag Warudkar wrote:
 > 
-> Adam Litke objected to this piece in an earlier patch but I think this is a
-> good simplification. Diffstat shows that we can get rid of almost half of the
-> lines of find_or_alloc_page(). If we can find no consensus then lets simply drop
-> this patch.
+> On Nov 14, 2005, at 11:35 PM, Shailabh Nagar wrote:
+> 
+>> +/* because of hardware timer drifts in SMPs and task continue on 
+>> different cpu
+>> + * then where the start_ts was taken there is a possibility that
+>> + * end_ts < start_ts by some usecs. In this case we ignore the diff
+>> + * and add nothing to the total.
+> 
+> 
+> Curious as to when would this occur. Probably for tasks running on a 
+> SMP machine for a very short period of time (timer drift should not  be
+> hopefully that high) and switching CPUs in that short period of time?
 
-Okay.  Since I am the only objector I'll be willing to back down if
-we're sure find_or_alloc_huge_page() has no extra value as a separate
-function.  Five parameters is getting a bit unwieldy and suggests it's
-usefulness outside of hugetlb_no_page() is near zero.
+Possibly. Also, the simpler case of wraparound needs to be handled. Since
+one delay sample isn't significant, dropping it seemed the safest bet.
 
--- 
-Adam Litke - (agl at us.ibm.com)
-IBM Linux Technology Center
+
+>> +config STATS_CONNECTOR
+>> +config DELAY_ACCT
+> 
+> 
+> Probably TASK_DELAY_STATS_CONNECTOR and TASK_DELAY_ACCOUNTING are 
+> better names?
+
+TASK_DELAY_ACCOUNTING is better since thats what the code protected
+does.
+
+STATS_CONNECTOR can be used to transmit stats other than per-task
+delays (current patch also transmits cpu run time). Also there's a possibility
+that the overall per-task accounting solution whose discussion was proposed
+by Andrew will deviate from delays. So how about TASK_STATS_CONNECTOR.
+
+Will fix in next round.
+
+
+>> @@ -813,6 +821,9 @@ struct task_struct {
+>>      int cpuset_mems_generation;
+>>  #endif
+>>      atomic_t fs_excl;    /* holding fs exclusive resources */
+>> +#ifdef    CONFIG_DELAY_ACCT
+>> +    struct task_delay_info delays;
+>> +#endif
+>>  };
+> 
+> 
+> Does this mean, whether or not the per task delay accounting is used, 
+> we have a constant overhead of sizeof(spinlock_t) + 2*sizeof (uint32_t)
+> + 2* sizeof(uint64_t) bytes going into the struct  task_struct?. Is it
+> possible/beneficial to use struct task_delay_info  *delays instead and
+> allocate it if task wants to use the information?
+> 
+
+Doing so would have value in the case where the feature is configured but
+no one ever registers to listen for it. The cost of doing this would be
+- adding more code to the fork path to allocate conditionally
+- make the collecting of the delays conditional on a similar check
+- cache pollution from following an extra pointer in the pgflt/io_schedule paths
+I'm not sure is this really matters for these two code paths.
+
+Even if one does this, once the first listener registers, all future tasks
+(and even the current ones) will have to go ahead and allocate the structure
+and accounting of delays will have to switch to unconditional mode. This is
+because the delay data has cumulative value...future listeners will be
+interested in data collected earlier (as long as task is still running). And
+once the first listener registers, you can no longer be sure no one's interested
+in the future.
+
+Another alternative is to let userland control the overhead of allocation and
+collection completely through a /proc/sys/kernel/delayacct variable.
+When its switched on, it triggers an allocation for all existing tasks in the
+system, turns on allocation in fork() for future tasks, and collection of the stats.
+When turned off, collection of stats stops as does allocation for future tasks
+(not worth going in and deallocating structs for existing tasks).
+
+Does this seem worth it ?
+
+-- Shailabh
+
+
+> Parag
+>
+
 

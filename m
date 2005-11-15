@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964987AbVKOSVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964988AbVKOSWd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964987AbVKOSVE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 13:21:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964989AbVKOSVE
+	id S964988AbVKOSWd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 13:22:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964989AbVKOSWd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 13:21:04 -0500
-Received: from mo01.iij4u.or.jp ([210.130.0.20]:65248 "EHLO mo01.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S964987AbVKOSVD (ORCPT
+	Tue, 15 Nov 2005 13:22:33 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:11405 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S964988AbVKOSWc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 13:21:03 -0500
-Date: Wed, 16 Nov 2005 03:20:45 +0900 (JST)
-Message-Id: <20051116.032045.98162396.okuyamak@dd.iij4u.or.jp>
-To: evan@coolrunningconcepts.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Timer idea
-From: Kenichi Okuyama <okuyamak@dd.iij4u.or.jp>
-In-Reply-To: <20051115102425.0iln2874xjoc4g84@coolrunningconcepts.com>
-References: <20051115102425.0iln2874xjoc4g84@coolrunningconcepts.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Nov 2005 13:22:32 -0500
+Date: Tue, 15 Nov 2005 10:22:06 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: torvalds@osdl.org, marcelo.tosatti@cyclades.com, kravetz@us.ibm.com,
+       raybry@mpdtxmail.amd.com, lee.schermerhorn@hp.com,
+       linux-kernel@vger.kernel.org, magnus.damm@gmail.com, pj@sgi.com,
+       haveblue@us.ibm.com, kamezawa.hiroyu@jp.fujitsu.com
+Subject: Re: [PATCH 1/5] Swap Migration V5: LRU operations
+In-Reply-To: <20051115100248.5ba2383d.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.62.0511151011150.10267@schroedinger.engr.sgi.com>
+References: <20051101031239.12488.76816.sendpatchset@schroedinger.engr.sgi.com>
+ <20051101031244.12488.38211.sendpatchset@schroedinger.engr.sgi.com>
+ <20051114214415.1e107c7b.akpm@osdl.org> <Pine.LNX.4.62.0511150837190.9258@schroedinger.engr.sgi.com>
+ <20051115100248.5ba2383d.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Evan,
+On Tue, 15 Nov 2005, Andrew Morton wrote:
 
->>>>> "Evan" == evan  <evan@coolrunningconcepts.com> writes:
-Evan> I was thinking about benchmarking, profiling, and various other applications
-Evan> that might need frequent access to the current time.  Polling timers or
-Evan> frequent timer signal delivery both seem like there would be a lot of overhead.
-Evan>  I was thinking it would be nice if you could just read the time information
-Evan> without making an OS call.
+> But lru_add_drain_per_cpu() will be called from interrupt context: the IPI
+> handler.
 
-This will only work on IA32...but..
+Ahh.. thought you meant the lru_add_drain run on the local processor.
+ 
+> I'm asking whether it is safe for the IPI handler to reenable interupts on
+> all architectures.  It might be so, but I don't recall ever having seen it
+> discussed, nor have I seen code which does it.
 
-I usually use "Time Slice Counter" which is 64bit register counting
-up the CPU Freq for this purpose. Since it's built into CPU, no OS
-call overhead happens. Also, because now-a-day CPU runs in very high
-speed, each count will give you upto 0.3nsec accuracy.
+smp_call_function is also used by the slab allocator to drain the 
+pages. All the spinlocks in there and those of the page allocator (called 
+for freeing pages) use spin_lock_irqsave. Why is this not used for 
+lru_add_drain() and friends?
 
-Speed step technology might slow the CPU Freq, so it's true that
-things aren't as accurate as it used to be. But this is the best I
-can find.
+Maybe we need to start a new thread so that others see it?
 
-I though similar counter is available for PowerPC too.
-# At least, PPC601 had something similar.
-
-
-Evan> I figure the kernel keeps accurate records of current time information and the
-Evan> values of various timers.  I then had the idea that one could have a /dev or
-Evan> maybe a /proc entry that would allow you to mmap() the kernel records (read
-Evan> only) and then you could read this information right from the kernel without
-Evan> any overhead.
-
-There is overhead.
-
-If you mmap(), address is reserved, but shall not have memory
-assigned yet. When you read the address, exception will occur, and
-then memory will be attached. THIS action is overhead.
-
-Also, once it's attached, there's no way for OS to know when that
-mapped page can be freed, to fill in newer value.
-
-I don't think mmap() idea will work as good as it seems.
-I might be making mistake, though.
-
-best regards,
----- 
-Kenichi Okuyama

@@ -1,73 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751008AbVKOPrd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751410AbVKOPtX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751008AbVKOPrd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 10:47:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751410AbVKOPrc
+	id S1751410AbVKOPtX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 10:49:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbVKOPtX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 10:47:32 -0500
-Received: from znsun1.ifh.de ([141.34.1.16]:64151 "EHLO znsun1.ifh.de")
-	by vger.kernel.org with ESMTP id S1751008AbVKOPrc (ORCPT
+	Tue, 15 Nov 2005 10:49:23 -0500
+Received: from atlrel7.hp.com ([156.153.255.213]:30623 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S1751410AbVKOPtW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 10:47:32 -0500
-Date: Tue, 15 Nov 2005 16:46:47 +0100 (CET)
-From: Patrick Boettcher <patrick.boettcher@desy.de>
-X-X-Sender: pboettch@pub3.ifh.de
-To: Johannes Stezenbach <js@linuxtv.org>
-Cc: Chris Rankin <rankincj@yahoo.com>, linux-dvb-maintainer@linuxtv.org,
-       David Brigada <brigad@rpi.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [linux-dvb-maintainer] Re: [OOPS] Linux 2.6.14.2 and DVB USB
-In-Reply-To: <20051115152823.GA4079@linuxtv.org>
-Message-ID: <Pine.LNX.4.64.0511151633490.29360@pub3.ifh.de>
-References: <20051114235102.64514.qmail@web52912.mail.yahoo.com>    
- <Pine.LNX.4.64.0511150939010.18517@pub3.ifh.de> <20051115152823.GA4079@linuxtv.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-Spam-Report: ALL_TRUSTED,BAYES_00
+	Tue, 15 Nov 2005 10:49:22 -0500
+Date: Tue, 15 Nov 2005 07:49:05 -0800
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: Andi Kleen <ak@muc.de>, Arjan van de Ven <arjan@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Arnd Bergmann <arnd@arndb.de>,
+       linux-kernel@vger.kernel.org, benh@kernel.crashing.org,
+       paulus@samba.org, stephane.eranian@hp.com
+Subject: Re: + perfmon2-reserve-system-calls.patch added to -mm tree
+Message-ID: <20051115154905.GC24983@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <B8E391BBE9FE384DAA4C5C003888BE6F04F630BF@scsmsx401.amr.corp.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F04F630BF@scsmsx401.amr.corp.intel.com>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+tony,
 
-On Tue, 15 Nov 2005, Johannes Stezenbach wrote:
->> Unfortunately the dvb-core is currently not able to handle hotplugging
->> while a dvb application is accessing a dvb-dev-node. This applies
->> for every dvb-device, not only for dvb-usb devices, but no one ever tried
->> to unplug a DVB PCI card while using it, yet.
->>
->> Before unplugging a device, you can check if the module is removable to
->> make sure that really no application is currently using it. (You will get
->> "module in use" then).
->>
->> We already thought about that problem and we think that dvbdev.c is the
->> correct place to start implementing that, but I don't have enough
->> knowledge (and time) to do that now, sorry.
->
-> I thought someone sent a patch which fixes it for the cinergyT2
-> recently? Wouldn't the same approach work for dvb-usb?
-> (But I haven't had a chance to test the cinergyT2 patch yet.)
+On Tue, Nov 15, 2005 at 07:28:35AM -0800, Luck, Tony wrote:
+> 
+> >> Either way, either the emulation is in the kernel or it's not. If it's
+> >> there (like it is now) it deserves maintenance. If it's not, it should
+> >> be removed from the tree, since the only thing it's otherwise good for
+> >> is potential security holes.
+> >
+> >I suppose it's still useful for all current IA64 users (Montecito
+> >is not shipping yet and older CPUs support x86 in hardware) who don't like 
+> >binary only software.
+> 
+> I was planning on asking who still depends on the emulation code
+> a while after Montecito is shipping.  Until then I'll try to do
+> what makes sense in keeping the ia32 emulation system call table
+> up to date.
+> 
+> The perfmon syscalls would be an example of something that should
+> *NOT* go into the ia32 emulation syscall table.  It makes no sense
+> whatever to put them there.  I don't believe that the h/w emulation
+> provides any performance counter emulation, and even if it did a
+> user who cared about the performance of their application would do
+> far better to re-compile it as native ia64 than to mess around
+> trying to optimize their x86 binary.
+> 
+I agree. The PMU between, let's a P4, and IA-64 is totally
+different. It does not make sense to try and emulate the P4
+PMU on an Ia-64 system. Similarly, it  does not make sense
+to develop a monitoring tool for IA-64 compiled in X86 mode
+and relying on the emulation layer. 
 
-Once Deti Fliegl created that patch I had a look at it to figure out if it 
-can easily be adapted to dvb-usb. This is was my answer:
+The only thing we need to ensure is that those system calls
+don't do anything, i.e., if ever invoked in IA-32 HW emulation
+they would need to go to sys_ni().
 
-http://www.linuxtv.org/pipermail/linux-dvb/2005-October/005333.html
+-- 
 
-After that mail I had some private mails with Deti, but he is currently 
-too busy to adapt his mechanism to dvbdev.c and I'm too stupid.
-
-The cinergy-driver handles the frontend in a different way and that's 
-why it is possible to fix it like Deti does it.
-
-If I could fix it in in dvb-usb, then it would be again only fixed for a 
-small amount of devices. For DVB-PCMCIA-cards using the default 
-fe-architecture will also cause Oopses like that, when unplugging while 
-having the device in use. That's why, IMHO, the dvb-core should be made 
-hotplug-safe, not a single driver. Even worse: it's not just the 
-frontend-device-nodes, but also the demux-nodes (and I think the other 
-onces too).
-
-best regards,
-Patrick.
-
---
-   Mail: patrick.boettcher@desy.de
-   WWW:  http://www.wi-bw.tfh-wildau.de/~pboettch/
+-Stephane

@@ -1,70 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964983AbVKOSJB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964984AbVKOSKe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964983AbVKOSJB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 13:09:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964986AbVKOSJB
+	id S964984AbVKOSKe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 13:10:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964986AbVKOSKe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 13:09:01 -0500
-Received: from ccerelbas02.cce.hp.com ([161.114.21.105]:43205 "EHLO
-	ccerelbas02.cce.hp.com") by vger.kernel.org with ESMTP
-	id S964983AbVKOSJB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 13:09:01 -0500
-Subject: Re: [PATCH 1/5] Swap Migration V5: LRU operations
-From: Lee Schermerhorn <lee.schermerhorn@hp.com>
-Reply-To: lee.schermerhorn@hp.com
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       marcelo.tosatti@cyclades.com, kravetz@us.ibm.com,
-       raybry@mpdtxmail.amd.com, linux-kernel@vger.kernel.org,
-       magnus.damm@gmail.com, pj@sgi.com, haveblue@us.ibm.com,
-       kamezawa.hiroyu@jp.fujitsu.com
-In-Reply-To: <Pine.LNX.4.62.0511150837190.9258@schroedinger.engr.sgi.com>
-References: <20051101031239.12488.76816.sendpatchset@schroedinger.engr.sgi.com>
-	 <20051101031244.12488.38211.sendpatchset@schroedinger.engr.sgi.com>
-	 <20051114214415.1e107c7b.akpm@osdl.org>
-	 <Pine.LNX.4.62.0511150837190.9258@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Organization: LOSL, Nashua
-Date: Tue, 15 Nov 2005 13:08:35 -0500
-Message-Id: <1132078115.5230.2.camel@localhost.localdomain>
+	Tue, 15 Nov 2005 13:10:34 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:51080 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S964984AbVKOSKe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 13:10:34 -0500
+Date: Tue, 15 Nov 2005 10:10:31 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: serue@us.ibm.com, linux-kernel@vger.kernel.org, frankeh@watson.ibm.com
+Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
+Message-Id: <20051115101031.10064301.pj@sgi.com>
+In-Reply-To: <1132049230.6108.23.camel@localhost>
+References: <20051114212341.724084000@sergelap>
+	<20051114153649.75e265e7.pj@sgi.com>
+	<20051115010155.GA3792@IBM-BWN8ZTBWAO1>
+	<20051114175140.06c5493a.pj@sgi.com>
+	<20051115022931.GB6343@sergelap.austin.ibm.com>
+	<20051114193715.1dd80786.pj@sgi.com>
+	<20051115051501.GA3252@IBM-BWN8ZTBWAO1>
+	<20051114223513.3145db39.pj@sgi.com>
+	<20051115081100.GA2488@IBM-BWN8ZTBWAO1>
+	<20051115010624.2ca9237d.pj@sgi.com>
+	<1132049230.6108.23.camel@localhost>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-15 at 08:38 -0800, Christoph Lameter wrote:
-> On Mon, 14 Nov 2005, Andrew Morton wrote:
-> 
-> > >  +int isolate_lru_page(struct page *page)
-> > >  +{
-> > >  +	int rc = 0;
-> > >  +	struct zone *zone = page_zone(page);
-> > >  +
-> > >  +redo:
-> > >  +	spin_lock_irq(&zone->lru_lock);
-> > >  +	rc = __isolate_lru_page(zone, page);
-> > >  +	spin_unlock_irq(&zone->lru_lock);
-> > >  +	if (rc == 0) {
-> > >  +		/*
-> > >  +		 * Maybe this page is still waiting for a cpu to drain it
-> > >  +		 * from one of the lru lists?
-> > >  +		 */
-> > >  +		smp_call_function(&lru_add_drain_per_cpu, NULL, 0 , 1);
-> > 
-> > lru_add_drain() ends up doing spin_unlock_irq(), so we'll enable interrupts
-> > within the smp_call_function() handler.  Is that legal on all
-> > architectures?
-> 
-> isolate_lru_pages() is only called within a process context in the swap 
-> migration patches. The hotplug folks may have to address this if they want 
-> to isolate pages from interrupts etc.
-> 
+Well ... from your response, Dave, I think you understood what I was
+saying.  Thanks.
 
-I believe Andrew is refering to the calls from the interprocessor
-interrupt handlers triggered by the smp_call_function().  Looks like
-ia64 runs IPI handlers with interrupts enabled [SA_INTERRUPT], so should
-be OK there, but maybe not for all archs?
+> The main issues I worry about with such a static allocation scheme are
+> getting the allocation patterns right, without causing new restrictions
+> on the containers.
 
-Lee
+Yes - the basic problem with pre-allocating static containers is that
+you have to pre-allocate them ;).
 
+
+> This kind of scheme is completely thrown out the
+> window if someone wanted to start a process on their disconnected laptop
+> and later migrate it to another machine when they connect back up to the
+> network.  
+
+Transparent relocation without anticipating and preparing in _some_
+way for that relocation prior to starting the job has the potential
+to be one of those "Just say no to crazy requirements" moments.  I am
+sure some marketing folks don't agree.
+
+
+> You're basically concerned about pids "leaking" across containers, and
+> confusing applications in the process?  That's a pretty valid concern.
+
+Partly that, yes.  Pids have been a system-wide notion since forever.
+They get buried in lots of places and uses.
+
+There is a natural tendency in these virtualization efforts to put
+blinders on, and be encouraged by the potential ease of solving the
+first 80% or 90% of the problem.
+
+The kernel needs to be clear and consistent in what notions it
+supports, avoiding getting caught between two inconsistent models
+without a clear definition of which model applies when.
+
+
+> we'll end up modifying a _ton_ of stuff in the process of doing this.
+
+That's the kicker.  Pid remapping seems useless by itself unless the
+rest of this stuff is modified as well, to make a workable solution.
+I'm looking for the larger design, before deciding on individual
+patches.
+
+My intuition is that somehow or other, jobs that have the potential
+to be restarted or relocated have to start their life in a container
+that isolates them.
+
+My mind is wandering now to something Xen like, perhaps.  Something
+Open Source, available to us all, but with key virtualizations in
+middleware rather then the kernel.  See also the results of a Google
+search on "checkpoint restart comparison zap" and the pods of Zap:
+http://www.cs.cmu.edu/~sosman/publications/osdi2002/ZAP-OSDI.html.
+
+This Zap paper is a good example of the design overview required to
+motivate the individual patches needed to provide such a solution.
+Their pod construct is not exactly what I was concocting in my
+replies on this thread so far, but is far better thought out and more
+persuasive, even to me.
+
+A proposal that integrated a next generation Zap into the kernel
+would be most interesting.  We don't have to keep it isolated to a
+loadable kernel module that hacks the system call table, which may
+give us leverage on improving it in other ways.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

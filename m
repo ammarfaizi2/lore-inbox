@@ -1,49 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965015AbVKOUYn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965017AbVKOUbD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965015AbVKOUYn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 15:24:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbVKOUYm
+	id S965017AbVKOUbD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 15:31:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965034AbVKOUbC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 15:24:42 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:42735 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S965015AbVKOUYm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 15:24:42 -0500
-Subject: [RFC] ARM PF_IRQSOFF and PSR_Q_BIT
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: mingo@elte.hu
-Cc: linux-kernel@vger.kernel.org, tglx@linutronics.de
-Content-Type: text/plain
-Organization: MontaVista
-Date: Tue, 15 Nov 2005 12:24:40 -0800
-Message-Id: <1132086280.32066.8.camel@dhcp153.mvista.com>
+	Tue, 15 Nov 2005 15:31:02 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:28290 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S965017AbVKOUbA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 15:31:00 -0500
+Date: Tue, 15 Nov 2005 15:28:27 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Lee <linuxtwidler@gmail.com>
+Cc: linux-kernel@vger.kernel.org, pageexec@freemail.hu
+Subject: Re: 4k stack overflow and stack traces
+Message-ID: <20051115202827.GC31988@kvack.org>
+References: <20051110083525.6cfe6f35@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051110083525.6cfe6f35@localhost>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Nov 10, 2005 at 08:35:25AM -0600, Lee wrote:
+> Is there a way to get a stacktrace in this case so we can identify which 
+> execution path is causing this stack overflos ?
 
-	In my ARM config PF_IRQSOFF and PSR_Q_BIT are equal. So you end up with
-a __RAW_LOCAL_ILLEGAL_MASK that is identical to the PF_IRQSOFF flag. I
-get some weird errors in this config, but with PSR_T_BIT everything is
-fine .. Any thoughts?
+It could be done...  Before coming up with a patch for that, what sort of 
+setup are you running -- filesystem, raid array, drivers, etc?  Combined 
+with the results of a 'make checkstack' that's usually enough to get an 
+idea where the problem is.  Thanks,
 
-Daniel
-
-Index: linux-2.6.14.2/include/asm-arm/system.h
-===================================================================
---- linux-2.6.14.2.orig/include/asm-arm/system.h
-+++ linux-2.6.14.2/include/asm-arm/system.h
-@@ -308,7 +308,7 @@ do {									\
-  * bit when thumb mode is disabled. The PSR_s and PSR_x bits are for
-  * future extensions and definitely unreliable.
-  */
--#define __RAW_LOCAL_ILLEGAL_MASK      PSR_Q_BIT
-+#define __RAW_LOCAL_ILLEGAL_MASK      PSR_T_BIT
- 
- #include <linux/rt_irq.h>
- 
-
-
+		-ben

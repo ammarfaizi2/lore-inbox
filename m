@@ -1,67 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965085AbVKOXnw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965087AbVKOXqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965085AbVKOXnw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 18:43:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965083AbVKOXnv
+	id S965087AbVKOXqS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 18:46:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965088AbVKOXqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 18:43:51 -0500
-Received: from bay108-f7.bay108.hotmail.com ([65.54.162.17]:31590 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S965081AbVKOXnu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 18:43:50 -0500
-Message-ID: <BAY108-F7B49C0F56D3AF2CD03DF4C05D0@phx.gbl>
-X-Originating-IP: [198.87.131.194]
-X-Originating-Email: [joneserstein@hotmail.com]
-From: "Jones Joneser" <joneserstein@hotmail.com>
-To: linux-ide@vger.kernel.org
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: PROBLEM: Tyan s2822 and SATA slowness / erratic speeds kernel 2.6
-Date: Tue, 15 Nov 2005 23:43:50 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 15 Nov 2005 23:43:50.0458 (UTC) FILETIME=[6E0461A0:01C5EA3E]
+	Tue, 15 Nov 2005 18:46:18 -0500
+Received: from smtpout.mac.com ([17.250.248.73]:19652 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S965086AbVKOXqR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 18:46:17 -0500
+In-Reply-To: <20051115112504.4b645a86.akpm@osdl.org>
+References: <20051114150347.1188499e.akpm@osdl.org> <dhowells1132005277@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0511141428390.3263@g5.osdl.org> <11717.1132077542@warthog.cambridge.redhat.com> <20051115112504.4b645a86.akpm@osdl.org>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <2F392031-A796-4343-A85A-F459CAA7E51B@mac.com>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, linux-cachefs@redhat.com,
+       linux-fsdevel@vger.kernel.org, nfsv4@linux-nfs.org
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH 0/12] FS-Cache: Generic filesystem caching facility
+Date: Tue, 15 Nov 2005 18:45:58 -0500
+To: Andrew Morton <akpm@osdl.org>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Machine:
-Tyan s2822G3NR-D
-Silicon Image, Inc. SiI 3114
-SATA Drives: Western Digital 300gb / seagate 80 gb
+On Nov 15, 2005, at 14:25, Andrew Morton wrote:
+> Can you remind me again why it requires a blockdev rather than a  
+> regular file?
+>
+> coz people are just going to go and use a loopback mount to get  
+> their blockdev, which is a bit sad.
 
-Initially we thought we had a network issue because we were seeing a 
-slowdown when transferring files > 512Mb in size (by whatever method: rsync, 
-cp, scp, etc.) between two of the Tyan servers, we see the first 512Mb go at 
-a decent rate (tens of megabytes per second) and then the rate plummets to 
-below 500k/sec.   However we reproduce the issue locally on a machine thus 
-eliminating the network card issue. We also had tried with different 
-ethernet cards and x-over cable.
+FS-Cache != CacheFS, although the names are a bit confusing.  FS- 
+Cache is a generic cache frontend for filesystems, while CacheFS is a  
+provider backend that uses a block define internally.  You could  
+_also_ use cache files.  If you look at the [0/12] in the list, you  
+can see a diagram explaining this all in detail.
 
+Cheers,
+Kyle Moffett
 
-We are using CentOS 4 and have tried both 4.1 and 4.2 (the latest edition) 
-64 and 32 bit.  We have tried ubuntu, gentoo, and vanilla kernels.  We have 
-upgraded our BIOS to the latest and experimented with different BIOS 
-settings (from 'safe' to 'optimal' with many variants in between.) We have 
-tried it with ACPI switched off, with 4gb of RAM and with 8gb of RAM. We 
-have upgraded the BIOS to 3.04 & then 3.05.  The best we get is that under 
-the ubuntu, gentoo, and a 2.4 kernel we can see stable performance that is 
-well below what we should be getting ~20MiB/s.
-
-No matter what combination of configuration we try, we consistently see this 
-issue.  We have even tried and LSI SATA controller w/ Tyan motherboard and 
-experienced the same issues.
-
-We moved the SATA controller to a Dell PE 1750 and experience none of the 
-slowdowns, consistent ly 45-50MiB/s performance with no erraticness in speed 
-or drops in performance.
-
-We suspect the issue is related to the combo of the Tyan mobo with the SATA 
-controller subsystem but need some assistance in further nailing down the 
-cause and solution to this issue.
-
-Let me know of any additional information that I can provide to assist with 
-the debugging of this issue.
-
-Thanks,
--asher
+--
+There are two ways of constructing a software design. One way is to  
+make it so simple that there are obviously no deficiencies. And the  
+other way is to make it so complicated that there are no obvious  
+deficiencies.  The first method is far more difficult.
+   -- C.A.R. Hoare
 
 

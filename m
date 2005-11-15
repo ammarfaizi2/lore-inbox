@@ -1,67 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932459AbVKOMvV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbVKOMtF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932459AbVKOMvV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 07:51:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932466AbVKOMvV
+	id S932439AbVKOMtF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 07:49:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932459AbVKOMtF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 07:51:21 -0500
-Received: from nproxy.gmail.com ([64.233.182.206]:56821 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932459AbVKOMvU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 07:51:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=W/7ppvSOt/ALtkSGw51ita6VorYTju8y4TZqcWsiOt2ZD85IbSoqri+tdPrzkqvp4pAqf7WTcwIRsQXCGBEJCY8UcunnPoPBnoGcXeCFhWekNYQavVaHu5UUvu98hXo6JP3jByu7Dx1pccif73T+mATq3v3DPj3vG841MZZvys4=
-Message-ID: <84144f020511150451l6ef30420g5a83a147c61f34a8@mail.gmail.com>
-Date: Tue, 15 Nov 2005 14:51:16 +0200
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Zilvinas Valinskas <zilvinas@gemtek.lt>
-Subject: Re: Linuv 2.6.15-rc1
-Cc: Andrew Morton <akpm@osdl.org>,
-       Alexandre Buisse <alexandre.buisse@ens-lyon.fr>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, yi.zhu@intel.com,
-       jketreno@linux.intel.com
-In-Reply-To: <20051115115657.GA30489@gemtek.lt>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org>
-	 <4378980C.7060901@ens-lyon.fr> <20051114162942.5b163558.akpm@osdl.org>
-	 <20051115100519.GA5567@gemtek.lt> <20051115115657.GA30489@gemtek.lt>
+	Tue, 15 Nov 2005 07:49:05 -0500
+Received: from 238-193.adsl.pool.ew.hu ([193.226.238.193]:8202 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S932439AbVKOMtE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 07:49:04 -0500
+To: neilb@suse.de
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no
+In-reply-to: <17273.47953.233462.316302@cse.unsw.edu.au> (message from Neil
+	Brown on Tue, 15 Nov 2005 21:41:21 +1100)
+Subject: Re: [PATCH ] Fix some problems with truncate and mtime semantics.
+References: <20051115125657.9403.patches@notabene>
+	<1051115020002.9459@suse.de>
+	<E1Ebxp3-0003me-00@dorka.pomaz.szeredi.hu> <17273.47953.233462.316302@cse.unsw.edu.au>
+Message-Id: <E1Ec0ET-0003tz-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 15 Nov 2005 13:48:17 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Zilvinas,
+> > > Finally, if vmtruncate succeeds, and ATTR_SIZE is the only change
+> > > requested, we now fall-through and mark_inode_dirty.  If a filesystem
+> > > did not have a ->truncate function, then vmtruncate will have changed
+> > > i_size, without marking the inode as 'dirty', and I think this is wrong.
+> > 
+> > And if filesystem does not have a ->truncate() function and it caller
+> > was [f]truncate(), ctime and mtime won't be set.
+> > 
+> > That's wrong too, isn't it?
+> 
+> I don't think that is a problem.  
+> The filesystem would have had a ->setattr function which would have
+> been told that the size had changed, and it would have had to change
+> the inode, and so would have updated the ctime and probably mtime.
 
-On 11/15/05, Zilvinas Valinskas <zilvinas@gemtek.lt> wrote:
-> Eventually kernel will freeze (I can trigger this reliably, tried 3
-> times and it "worked" 3 times as well). Although I've seen no error message
-> printed to console - sysrq-T always shows the same stack trace (in
-> wpa_supplicant context:
+What if filesystem has neither ->truncate() nor ->setattr()?
+E.g. ramfs and derivatives.
 
-[snip]
+> Changing i_size without marking the inode dirty is an issue of
+> consistency of common data structures and inode_setattr should be
+> careful about that.
+> 
+> Changing ctime/mtime when the isize changes is an issue of filesystem
+> correctness, and the filesystem callbacks should handle that.
 
-> http://www.gemtek.lt/~zilvinas/backtrace.jpg
+Yes, but VFS should have a sane default when filesystem doesn't have
+the methods.  It's the same with all the other methods.
 
-Would be helpful to see the oops message... If you don't have serial
-console handy, you can do the below to disable the call trace.
+Miklos
 
-                         Pekka
-
-Index: 2.6/arch/i386/kernel/traps.c
-===================================================================
---- 2.6.orig/arch/i386/kernel/traps.c
-+++ 2.6/arch/i386/kernel/traps.c
-@@ -185,8 +185,10 @@ void show_stack(struct task_struct *task
- 			printk("\n       ");
- 		printk("%08lx ", *stack++);
- 	}
-+#if 0
- 	printk("\nCall Trace:\n");
- 	show_trace(task, esp);
-+#endif
- }
-
- /*

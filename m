@@ -1,72 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751356AbVKOGGA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbVKOGPN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751356AbVKOGGA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 01:06:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbVKOGGA
+	id S932283AbVKOGPN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 01:15:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbVKOGPN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 01:06:00 -0500
-Received: from mail.kroah.org ([69.55.234.183]:19422 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751356AbVKOGF7 (ORCPT
+	Tue, 15 Nov 2005 01:15:13 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:23982 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932283AbVKOGPL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 01:05:59 -0500
-Date: Mon, 14 Nov 2005 21:52:29 -0800
-From: Greg KH <greg@kroah.com>
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] HOWTO do Linux kernel development
-Message-ID: <20051115055229.GA6163@kroah.com>
-References: <20051114220709.GA5234@kroah.com> <2cd57c900511141708y5d11fd34n@mail.gmail.com> <20051115043846.GA28005@kroah.com> <2cd57c900511142151h7d8f97b3p@mail.gmail.com>
+	Tue, 15 Nov 2005 01:15:11 -0500
+Date: Tue, 15 Nov 2005 00:06:58 -0500
+From: Dave Jones <davej@redhat.com>
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+Message-ID: <20051115050658.GA13660@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	"Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
+	Lee Revell <rlrevell@joe-job.com>,
+	Robert Hancock <hancockr@shaw.ca>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <58MJb-2Sn-37@gated-at.bofh.it> <58NvO-46M-23@gated-at.bofh.it> <58Rpx-1m6-11@gated-at.bofh.it> <58UGF-6qR-27@gated-at.bofh.it> <58UQf-6Da-3@gated-at.bofh.it> <437933B6.1000503@shaw.ca> <1132020468.27215.25.camel@mindpipe> <20051115032819.GA5620@redhat.com> <43795575.9010904@wolfmountaingroup.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <2cd57c900511142151h7d8f97b3p@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <43795575.9010904@wolfmountaingroup.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 15, 2005 at 01:51:44PM +0800, Coywolf Qi Hunt wrote:
-> 2005/11/15, Greg KH <greg@kroah.com>:
-> > On Tue, Nov 15, 2005 at 09:08:30AM +0800, Coywolf Qi Hunt wrote:
-> > > 2005/11/15, Greg KH <gregkh@suse.de>:
-> > > > So, I've been working on a document for the past week or so to help
-> > > > alleviate a lot of these problems.  If nothing else, it should be a place
-> > > > where anyone can point someone to when they ask the common questions, or
-> > > > do something in the not-correct way.  I'd like to add this to the Linux
-> > > > kernel source tree, so it will be kept up to date over time, as things
-> > > > change (like the development process.)  Ideally I'd like to put it in
-> > > > the main directory as HOWTO, but I don't know how others feel about
-> > >
-> > > You put it in the top directory to draw the most attention? Compare to
-> > > source trees of other kernel projects, Linux source tree looks clean.
-> > > Please don't spoil that. What's wrong with Documentation/ ?
-> >
-> > People do not seem to even realize Documentation/ is there :(
-> 
-> Those who don't notice Documentation, don't deserve it, and are not
-> likely/willingly to be the audience,
+On Mon, Nov 14, 2005 at 08:26:45PM -0700, Jeff V. Merkey wrote:
 
-Actually this is exactly the audience this is for, people who do not
-know where to look for the stuff they are trying to find.
+ > NetWare used 16K stacks in kernel by default.
 
-Now getting people to realize that this is the file they really want to
-look at is a different task, but not impossible.
+unsubscribe netware-kernel
 
-> > Now if those same people would notice anything in the root directory
-> > either, is another story...
-> 
-> That is rather like top-posting or CAPITALIZATION, or spamming.
-
-Cool, I'm a top-poster, SPAMMER for creating a HOWTO file in the root
-directory of the kernel tree.  And here I thought I had been called
-every bad name in the book before :)
-
-> > It's just a suggestion.
-> 
-> We are unlikely to relocate files. So if it gets there, it'll stay
-> there all along.
-
-git makes it trivial to move files, so this is not true at all.
-
-thanks,
-
-greg k-h

@@ -1,91 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751429AbVKOOhV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751434AbVKOOjc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751429AbVKOOhV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 09:37:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751430AbVKOOhV
+	id S1751434AbVKOOjc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 09:39:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbVKOOjc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 09:37:21 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:27030 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751429AbVKOOhU (ORCPT
+	Tue, 15 Nov 2005 09:39:32 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:46760 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751431AbVKOOjb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 09:37:20 -0500
-Message-ID: <4379F29D.3090306@watson.ibm.com>
-Date: Tue, 15 Nov 2005 09:37:17 -0500
-From: Hubertus Franke <frankeh@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+	Tue, 15 Nov 2005 09:39:31 -0500
+Message-ID: <4379F31D.4000508@pobox.com>
+Date: Tue, 15 Nov 2005 09:39:25 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-CC: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org,
-       haveblue@us.ibm.com
-Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
-References: <20051114212341.724084000@sergelap> <20051114153649.75e265e7.pj@sgi.com> <20051115010155.GA3792@IBM-BWN8ZTBWAO1> <20051114175140.06c5493a.pj@sgi.com> <20051115022931.GB6343@sergelap.austin.ibm.com> <20051114193715.1dd80786.pj@sgi.com> <20051115051501.GA3252@IBM-BWN8ZTBWAO1> <20051114223513.3145db39.pj@sgi.com> <20051115081100.GA2488@IBM-BWN8ZTBWAO1> <20051115010624.2ca9237d.pj@sgi.com> <20051115133222.GA2232@IBM-BWN8ZTBWAO1>
-In-Reply-To: <20051115133222.GA2232@IBM-BWN8ZTBWAO1>
+To: Bogdan Costescu <Bogdan.Costescu@iwr.uni-heidelberg.de>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Marvell SATA fixes v2
+References: <20051114050404.GA18144@havoc.gtf.org> <Pine.LNX.4.63.0511151437320.3015@dingo.iwr.uni-heidelberg.de>
+In-Reply-To: <Pine.LNX.4.63.0511151437320.3015@dingo.iwr.uni-heidelberg.de>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Serge E. Hallyn wrote:
-> Quoting Paul Jackson (pj@sgi.com):
+Bogdan Costescu wrote:
+> On Mon, 14 Nov 2005, Jeff Garzik wrote:
 > 
+>> Finally got Marvell 50XX SATA to the point where it, too, complains
+>> about "ATA: abnormal status 0x80 on port ...11C"... which is progress :)
+> 
+> 
+> Thanks for picking up the sata_mv development, Jeff!
+> 
+> I can confirm your results on a 5041 controller:
+> 
+> sata_mv 0000:02:08.0: version 0.25
+> ACPI: PCI Interrupt 0000:02:08.0[A] -> GSI 26 (level, low) -> IRQ 177
+> sata_mv 0000:02:08.0: 32 slots 4 ports SCSI mode IRQ via MSI
+> ata11: SATA max UDMA/133 cmd 0x0 ctl 0xF8C22120 bmdma 0x0 irq 177
+> ata12: SATA max UDMA/133 cmd 0x0 ctl 0xF8C24120 bmdma 0x0 irq 177
+> ata13: SATA max UDMA/133 cmd 0x0 ctl 0xF8C26120 bmdma 0x0 irq 177
+> ata14: SATA max UDMA/133 cmd 0x0 ctl 0xF8C28120 bmdma 0x0 irq 177
+> ATA: abnormal status 0x80 on port 0xF8C2211C
+> ata11: dev 0 cfg 49:2f00 82:74eb 83:7feb 84:4123 85:74e9 86:3c03 87:4123 
+> 88:007f
+> ata11: dev 0 ATA-7, max UDMA/133, 781422768 sectors: LBA48
+> 
+> (there is a 400GB Hitachi disk attached to the first port)
 
-There have been a few suggestions going fro and back.
-Let me address them all at once.
+hey, great, that's farther than I got.
 
-(A) why a vpid?
 
-For transparent checkpointing. Vserver for instance has not implemented
-a checkpoint/restart yet, because without this concept it is not possible.
-The moment you want transparent checkpoint, you need to deal with the fact
-that the results of a getpid() are in register (worst case) and upon
-restart the system must provide the same pid on the different machine.
-That immediately suggest pid range reservation... but see point (B) below.
+> However, when running 'insmod ./sata_mv.ko' with a disk attched, insmod 
+> doesn't return, it gets blocked into "D" state (gdb says "ptrace: 
+> Operation not permitted." while strace attaches but doesn't show 
+> anything and cannot be detached). This is with the 2.6.15-rc1 based FC 
+> devel kernel (2.6.14-1.1665), using up-to-date FC4 user space, if that 
+> helps... This is not an one-off, I was able to reproduce it three times 
+> out of three :-(
 
-(B) syscall interception and LD_PRELOAD:
+any chance you could obtain additional debugging output by turning on
+#undef ATA_DEBUG                /* debugging output */
+#undef ATA_VERBOSE_DEBUG        /* yet more debugging output */
 
-In principle that is possible, but it leads to potentially inefficient code
-and at large leaves the issue of pid space creation and migration on the table.
-However it makes clear that as long as I keep the transformation or mappings
-consistent between virtual and real, that this is a quite useful concept.
+in include/linux/libata.h?  this would help us see where it is stuck in 
+'D' state.
 
-The question now is how deep into the kernel do I have to drive it in order to
-create an efficient implementation.
+Also, you might try turning off CONFIG_PCI_MSI, in case MSI is 
+problematic on your machine, or on this card.
 
-(C) Fixed PID range allocation:
 
-That is completely unscalable and unnecessary:
+> Another thing that I noticed and don't know if it's normal is that the 
+> ataXX ports remain "allocated" even after rmmod; I have two ICH6 ports 
+> (ata1 and 2) and then insmod-ed the sata_mv driver 2 times without disks 
+> attached (which took ata3-6 and ata7-10) and then the insmod shown above.
 
-First PID range allocation at a global level (e.g. cluster level) requires some agent.
-Given that PID_MAX ~ 2**22 leaves us on 32-bit architectures with only 512 pidspaces (negative
-range needs to be preserved I think).
-However it is not unreasonable to assume that 512 different pidspaces per OS image is not
-a restriction.
-Hence, when a pidspace is migrated it will be assigned a different pidspace id.
-Then going with   kernelpid =  (pidspace_id << 22) | vpid is an efficient means to
-map between virtual pidspace and physical pidspace and vice versa.
-All that needs to be managed is local pidspace allocation.
-The translations from vpid <-> pid are very light weight as can be seen from the above
-composition.
+That's expect, as we just use a simple counter to create a unique id:
 
-Take for example the vserver system. A local vserver agent could maintain the
-pidspace allocation. On creation of a vserver it assigns the next available pidspace.
-That pidspace id is internal to vserver and is not exported as a property of a vserver.
-When a vserver is migrated to a different machine, a potentially different pidspace
-is allocate, yet all the vpids remain the same.
+         host->unique_id = ata_unique_id++;
 
-(D) Cross compilation
+Regards and thanks,
 
-I do all stuff on s390 so that space is covered.
+	Jeff
 
-If I missed some of the issues that were raised let me know and we will try to address
-those.
 
-I am part of Serge's team and have been working on intercepting the various places
-where virtual to real pid translations have to occur in the kernel.
-It's still in pretty bad shape, but it boots for the default pid space (:- ).
-Of my head I say there are about 40 places each to do the translation.
-Many are in the /proc/fs, some in the signal handling
-
-I hope by end of the week I have something to post that gives idea how we are thinking
-this could be realized.

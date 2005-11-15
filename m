@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964953AbVKORCs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964956AbVKORDS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964953AbVKORCs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 12:02:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964956AbVKORCs
+	id S964956AbVKORDS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 12:03:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964958AbVKORDS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 12:02:48 -0500
-Received: from mail.kroah.org ([69.55.234.183]:49294 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964953AbVKORCr (ORCPT
+	Tue, 15 Nov 2005 12:03:18 -0500
+Received: from smtp5-g19.free.fr ([212.27.42.35]:56705 "EHLO smtp5-g19.free.fr")
+	by vger.kernel.org with ESMTP id S964924AbVKORDR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 12:02:47 -0500
-Date: Tue, 15 Nov 2005 08:49:01 -0800
-From: Greg KH <greg@kroah.com>
-To: linas <linas@austin.ibm.com>
-Cc: Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/7] PCI Error Recovery
-Message-ID: <20051115164901.GA12968@kroah.com>
-References: <20051108234911.GC19593@austin.ibm.com> <20051114214703.GG19593@austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 15 Nov 2005 12:03:17 -0500
+From: Duncan Sands <duncan.sands@math.u-psud.fr>
+To: Hugh Dickins <hugh@veritas.com>
+Subject: Re: 2.6.15-rc1-git1: BTTV: no picture with grabdisplay; later, an Oops
+Date: Tue, 15 Nov 2005 18:03:12 +0100
+User-Agent: KMail/1.8.3
+Cc: Meelis Roos <mroos@linux.ee>, linux-kernel@vger.kernel.org,
+       mchehab@brturbo.com.br
+References: <20051115141305.049CF14200@rhn.tartu-labor> <Pine.LNX.4.61.0511151508110.3622@goblin.wat.veritas.com> <200511151744.04320.baldrick@free.fr>
+In-Reply-To: <200511151744.04320.baldrick@free.fr>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051114214703.GG19593@austin.ibm.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200511151803.13099.duncan.sands@math.u-psud.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 14, 2005 at 03:47:03PM -0600, linas wrote:
-> On Tue, Nov 08, 2005 at 05:49:11PM -0600, linas was heard to remark:
-> > 
-> > Following seven patches implement the PCI error reporting and recovery
-> > header and device driver changes as recently discussed, w/all requested
-> > changes & etc. These are tested and wrk well.  Please apply.
-> 
-> These patches don't seem to be in either linux-2.6.15-rc1-git2 or linux-2.6.15-mm2
-> 
-> Is there something else I need to do, besides nag?
+>...
+> with this change, I can't get as far as selecting channels (previous situation):
+> I consistently get the following Oops on starting xawtv (tried three times).
+> However, as well as your change I slimmed down my kernel config and turned on
+> CONFIG_DEBUG_PAGEALLOC, so it is not clear whether the change to memory.c is
+> responsable.  I will try again, reverting the memory.c change.
 
-Address the issue that was brought up on lkml with them?
+Reverting the change, I still get the oops when I start xawtv.  So for the moment
+I am unable to say if your suggestion cures the "no picture" problem or not.
 
-thanks,
+Best wishes,
 
-greg k-h
+Duncan.

@@ -1,122 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbVKODbr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbVKODfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932350AbVKODbr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 22:31:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbVKODbN
+	id S932335AbVKODfN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 22:35:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbVKODfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 22:31:13 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:26293 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932350AbVKODaz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 22:30:55 -0500
-Message-ID: <4379659E.90905@watson.ibm.com>
-Date: Mon, 14 Nov 2005 23:35:42 -0500
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Patch 2/4] Delay accounting: Block I/O delays
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Nov 2005 22:35:12 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:8150 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932335AbVKODfK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 22:35:10 -0500
+Date: Mon, 14 Nov 2005 22:35:02 -0500
+From: Dave Jones <davej@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, info@colognechip.com,
+       Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] i4l: update hfc_usb driver
+Message-ID: <20051115033502.GB5620@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	info@colognechip.com, Greg KH <greg@kroah.com>
+References: <200511071721.jA7HLC18028788@hera.kernel.org> <20051115004518.GA26922@redhat.com> <20051114193025.7ca34fac.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051114193025.7ca34fac.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-delayacct-blkio.patch
+On Mon, Nov 14, 2005 at 07:30:25PM -0800, Andrew Morton wrote:
+ > Dave Jones <davej@redhat.com> wrote:
+ > >
+ > > On Mon, Nov 07, 2005 at 09:21:12AM -0800, Linux Kernel wrote:
+ > >  > tree 0bb0aeb735a917561cf4d91d4c3fa1ed5434bede
+ > >  > parent 6978bbc097c2f665c336927a9d56ae39ef75fa56
+ > >  > author Martin Bachem <info@colognechip.com> Mon, 07 Nov 2005 17:00:20 -0800
+ > >  > committer Linus Torvalds <torvalds@g5.osdl.org> Mon, 07 Nov 2005 23:53:47 -0800
+ > >  > 
+ > >  > [PATCH] i4l: update hfc_usb driver
+ > >  > 
+ > >  >   - cleanup source
+ > >  >   - remove nonfunctional code parts
+ > > 
+ > > Something isn't right with this.  We've got a number of reports from
+ > > Fedora rawhide users over the last few days since this went in that
+ > > this module is now auto-loading itself, and preventing other usb devices
+ > > from working.
+ > 
+ > Putting the USB_DEVICE() thingies back in seems to fix it up?
 
-Record time spent by a task waiting to queue and complete block I/O.
+Sounds good to me :-)
 
-Signed-off-by: Shailabh Nagar <nagar@watson.ibm.com>
-
- include/linux/delayacct.h |   16 +++++++++++++++-
- include/linux/sched.h     |    2 ++
- kernel/sched.c            |    7 +++++++
- 3 files changed, 24 insertions(+), 1 deletion(-)
-
-Index: linux-2.6.14/include/linux/delayacct.h
-===================================================================
---- linux-2.6.14.orig/include/linux/delayacct.h
-+++ linux-2.6.14/include/linux/delayacct.h
-@@ -43,6 +43,19 @@ static inline void delayacct_timestamp(u
- #define test_ts_integrity(start_ts, end_ts)  (1)
- #endif
-
-+static inline void delayacct_blkio(unsigned long long ts)
-+{
-+	unsigned long long now = sched_clock();
-+
-+	if (!test_ts_integrity(ts, now))
-+		return;
-+
-+	spin_lock(&current->delays.lock);
-+	current->delays.blkio_delay += now - ts;
-+	current->delays.blkio_count++;
-+	spin_unlock(&current->delays.lock);
-+}
-+
- #else
-
- static inline void delayacct_init(struct task_struct *tsk)
-@@ -50,7 +63,8 @@ static inline void delayacct_init(struct
- #define delayacct_def_var(ts)
- static inline void delayacct_timestamp(unsigned long long *ts)
- {}
--
-+static inline void delayacct_blkio(unsigned long long ts)
-+{}
- #endif /* CONFIG_DELAY_ACCT */
-
-
-Index: linux-2.6.14/include/linux/sched.h
-===================================================================
---- linux-2.6.14.orig/include/linux/sched.h
-+++ linux-2.6.14/include/linux/sched.h
-@@ -502,6 +502,8 @@ struct task_delay_info {
- 	spinlock_t	lock;
-
- 	/* Add stats in pairs: uint64_t delay, uint32_t count */
-+	uint64_t blkio_delay;	/* wait for block io completion */
-+	uint32_t blkio_count;
- };
- #endif
-
-Index: linux-2.6.14/kernel/sched.c
-===================================================================
---- linux-2.6.14.orig/kernel/sched.c
-+++ linux-2.6.14/kernel/sched.c
-@@ -47,6 +47,7 @@
- #include <linux/syscalls.h>
- #include <linux/times.h>
- #include <linux/acct.h>
-+#include <linux/delayacct.h>
- #include <asm/tlb.h>
-
- #include <asm/unistd.h>
-@@ -4083,10 +4084,13 @@ EXPORT_SYMBOL(yield);
- void __sched io_schedule(void)
- {
- 	struct runqueue *rq = &per_cpu(runqueues, raw_smp_processor_id());
-+	delayacct_def_var(ts);
-
-+	delayacct_timestamp(&ts);
- 	atomic_inc(&rq->nr_iowait);
- 	schedule();
- 	atomic_dec(&rq->nr_iowait);
-+	delayacct_blkio(ts);
- }
-
- EXPORT_SYMBOL(io_schedule);
-@@ -4095,10 +4099,13 @@ long __sched io_schedule_timeout(long ti
- {
- 	struct runqueue *rq = &per_cpu(runqueues, raw_smp_processor_id());
- 	long ret;
-+	delayacct_def_var(ts);
-
-+	delayacct_timestamp(&ts);
- 	atomic_inc(&rq->nr_iowait);
- 	ret = schedule_timeout(timeout);
- 	atomic_dec(&rq->nr_iowait);
-+	delayacct_blkio(ts);
- 	return ret;
- }
+		Dave
 

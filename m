@@ -1,64 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965043AbVKOWUy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965045AbVKOWXR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965043AbVKOWUy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 17:20:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965042AbVKOWUy
+	id S965045AbVKOWXR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 17:23:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965042AbVKOWXR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 17:20:54 -0500
-Received: from atlrel8.hp.com ([156.153.255.206]:36538 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S932548AbVKOWUv (ORCPT
+	Tue, 15 Nov 2005 17:23:17 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:46060 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965045AbVKOWXQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 17:20:51 -0500
-Message-ID: <437A5F42.3080100@hp.com>
-Date: Tue, 15 Nov 2005 17:20:50 -0500
-From: Vlad Yasevich <vladislav.yasevich@hp.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051109)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Yan Zheng <yanzheng@21cn.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       yoshfuji@linux-ipv6.org
-Subject: Re: [PATCH]small fix for __ipv6_addr_type(...)
-References: <4376F2CE.4050003@21cn.com>
-In-Reply-To: <4376F2CE.4050003@21cn.com>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=UTF-8
+	Tue, 15 Nov 2005 17:23:16 -0500
+Subject: Re: [PATCH] hugepages: fold find_or_alloc_pages into huge_no_page()
+From: Adam Litke <agl@us.ibm.com>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: linux-mm@kvack.org, ak@suse.de, linux-kernel@vger.kernel.org,
+       kenneth.w.chen@intel.com, wli@holomorphy.com, akpm@osdl.org
+In-Reply-To: <Pine.LNX.4.62.0511151345470.11011@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.62.0511151345470.11011@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Organization: IBM
+Date: Tue, 15 Nov 2005 16:22:09 -0600
+Message-Id: <1132093329.22243.18.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No, according to RFC 4007, loopback is considered a link-local
-address.
+On Tue, 2005-11-15 at 13:47 -0800, Christoph Lameter wrote:
+> The number of parameters for find_or_alloc_page increases significantly after
+> policy support is added to huge pages. Simplify the code by folding
+> find_or_alloc_huge_page() into hugetlb_no_page().
+> 
+> Adam Litke objected to this piece in an earlier patch but I think this is a
+> good simplification. Diffstat shows that we can get rid of almost half of the
+> lines of find_or_alloc_page(). If we can find no consensus then lets simply drop
+> this patch.
 
--vlad
+Okay.  Since I am the only objector I'll be willing to back down if
+we're sure find_or_alloc_huge_page() has no extra value as a separate
+function.  Five parameters is getting a bit unwieldy and suggests it's
+usefulness outside of hugetlb_no_page() is near zero.
 
-Yan Zheng wrote:
-> Hi.
-> 
-> I think the scope for loopback address should be node local.
-> 
-> Regards
-> 
-> Signed-off-by: Yan Zheng <yanzheng@21cn.com>
-> 
-> ========================================================================
-> --- linux-2.6.15-rc1/net/ipv6/addrconf.c    2005-11-13
-> 12:23:06.000000000 +0800
-> +++ linux/net/ipv6/addrconf.c    2005-11-13 15:50:03.000000000 +0800
-> @@ -249,7 +249,7 @@ int __ipv6_addr_type(const struct in6_ad
-> 
->             if (addr->s6_addr32[3] == htonl(0x00000001))
->                 return (IPV6_ADDR_LOOPBACK | IPV6_ADDR_UNICAST |
-> -                   
-> IPV6_ADDR_SCOPE_TYPE(IPV6_ADDR_SCOPE_LINKLOCAL));    /* addr-select 3.4 */
-> +                   
-> IPV6_ADDR_SCOPE_TYPE(IPV6_ADDR_SCOPE_NODELOCAL));    /* addr-select 3.4 */
-> 
->             return (IPV6_ADDR_COMPATv4 | IPV6_ADDR_UNICAST |
->                 IPV6_ADDR_SCOPE_TYPE(IPV6_ADDR_SCOPE_GLOBAL));    /*
-> addr-select 3.3 */
-> -
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+-- 
+Adam Litke - (agl at us.ibm.com)
+IBM Linux Technology Center
+

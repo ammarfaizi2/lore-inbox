@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbVKODLc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbVKODZi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932316AbVKODLc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 22:11:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932319AbVKODLc
+	id S1751325AbVKODZi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 22:25:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbVKODZi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 22:11:32 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:20940 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932316AbVKODLb (ORCPT
+	Mon, 14 Nov 2005 22:25:38 -0500
+Received: from ns2.suse.de ([195.135.220.15]:7897 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751325AbVKODZh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 22:11:31 -0500
-Date: Mon, 14 Nov 2005 22:10:53 -0500
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Badari Pulavarty <pbadari@us.ibm.com>, linux-kernel@vger.kernel.org,
-       hugh@veritas.com, Dave Airlie <airlied@linux.ie>
-Subject: Re: 2.6.14 X spinning in the kernel
-Message-ID: <20051115031053.GA32155@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Badari Pulavarty <pbadari@us.ibm.com>, linux-kernel@vger.kernel.org,
-	hugh@veritas.com, Dave Airlie <airlied@linux.ie>
-References: <1132012281.24066.36.camel@localhost.localdomain> <20051114161704.5b918e67.akpm@osdl.org> <1132015952.24066.45.camel@localhost.localdomain> <20051114173037.286db0d4.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 14 Nov 2005 22:25:37 -0500
+From: Andi Kleen <ak@suse.de>
+To: linux@horizon.com
+Subject: Re: Balancing near the locking cliff, with some numbers
+Date: Tue, 15 Nov 2005 04:26:50 +0100
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <20051114120337.3088.qmail@science.horizon.com>
+In-Reply-To: <20051114120337.3088.qmail@science.horizon.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051114173037.286db0d4.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200511150426.50550.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 14, 2005 at 05:30:37PM -0800, Andrew Morton wrote:
+Mr Linux,
 
- > > CPU0:
- > > ffffffff8053c750 0000000000000000 00000000000018ff ffff81011c9a4230
- > >        ffff81011c9a4000 ffffffff8053c788 ffffffff8026de8f
- > > ffffffff8053c7a8
- > >        ffffffff80119591 ffffffff8053c7a8
- > > Call Trace: <IRQ> <ffffffff8026de8f>{showacpu+47}
- > > <ffffffff80119591>{smp_call_function_interrupt+81}
- > >        <ffffffff8010e968>{call_function_interrupt+132}  <EOI>
- > > <ffffffff880fa225>{:radeon:radeon_do_wait_for_idle+117}
- > >        <ffffffff880fa236>{:radeon:radeon_do_wait_for_idle+134}
- > >        <ffffffff880fa590>{:radeon:radeon_do_cp_idle+336}
- > > <ffffffff880fc215>{:radeon:radeon_do_release+85}
- > >        <ffffffff88104369>{:radeon:radeon_driver_pretakedown+9}
- > >        <ffffffff802783aa>{drm_takedown+74}
- > 
- > ah-hah.  We've had machines stuck in radeon_do_wait_for_idle() before.  In
- > fact, my workstation was doing it a year or two back.
- > 
- > Are you able to identify the most recent kernel which didn't do this?
- > 
- > David, is there a common cause for this?  ISTR that it's a semi-FAQ.
+On Monday 14 November 2005 13:03, linux@horizon.com wrote:
 
-We've seen a few reports of this in the Fedora bugzilla over the
-last year or so too. It seems to come and go.  The best explanation
-I've heard so far is "The GPU got really confused".
+> This is very interesting data, thank you!
+> This is using the standard IDE driver?
+> And the path names were absolute?
 
-		Dave
+Yes. No.
 
+> 
+> What would be really nice is a full trace of the locks acquired so we
+> can look for specific problems.  (I can see the OpenSolaris folks puffing
+> up to crow about dtrace already.)
+
+> Barring that, a few variants like hot-cache cases, different file systems
+> (includig tmpfs), and different device drivers would be informative.
+> (You could also try the different ext3 journalling modes.)
+
+I have no plans to generate such data right now, but if you want to
+do it yourself I can send you my patches as a starting point. Should be easy enough
+using relayfs.
+
+> I'm not sre quite how you did this, but assuming you just installed global
+> counters via macros 
+
+per process counters.
+
+> and ran the test by booting with init=
+
+from a normal shell in a running system
+
+-Andi

@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbVKOBJ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbVKOBJw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751280AbVKOBJ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 20:09:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbVKOBJ3
+	id S932239AbVKOBJw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 20:09:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbVKOBJw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 20:09:29 -0500
-Received: from mail10.syd.optusnet.com.au ([211.29.132.191]:35494 "EHLO
-	mail10.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751280AbVKOBJ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 20:09:28 -0500
+	Mon, 14 Nov 2005 20:09:52 -0500
+Received: from web50209.mail.yahoo.com ([206.190.38.50]:9559 "HELO
+	web50209.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1751298AbVKOBJv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 20:09:51 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=W6bcd/gY0NN79Q6oqM/B9QxAq7WXyvdk6G3yosF4rPgfahmo2jgyTEL48bvG0XFXDH1XiFqQOGAHvJK8IbLBvvPcBLiZE/vv/jwO7WHIQDARzum2ZegpbEAn3M3YcQHXCC1rzIgr/bHW5zNA3pbid3ZK2q7AWKe2YG3O424GsdA=  ;
+Message-ID: <20051115010951.54439.qmail@web50209.mail.yahoo.com>
+Date: Mon, 14 Nov 2005 17:09:50 -0800 (PST)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1131979779.5751.17.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17273.13602.687203.565440@wombat.chubb.wattle.id.au>
-Date: Tue, 15 Nov 2005 12:08:50 +1100
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: Claudio Scordino <cloud.of.andor@gmail.com>
-Cc: "Magnus Naeslund(f)" <mag@fbab.net>,
-       "Hua Zhong (hzhong)" <hzhong@cisco.com>, linux-kernel@vger.kernel.org,
-       kernelnewbies@nl.linux.org
-Subject: Re: [PATCH] getrusage sucks
-In-Reply-To: <200511110211.05642.cloud.of.andor@gmail.com>
-References: <75D9B5F4E50C8B4BB27622BD06C2B82BCF2FD4@xmb-sjc-235.amer.cisco.com>
-	<200511110123.29664.cloud.of.andor@gmail.com>
-	<4373E69B.6040206@fbab.net>
-	<200511110211.05642.cloud.of.andor@gmail.com>
-X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Claudio" == Claudio Scordino <cloud.of.andor@gmail.com> writes:
+That doesn't answer my question. I want to know what __problems__
+are caused by allowing the __choice__ of stack sizes.
 
->> You need to wrap this with a read_lock(&tasklist_lock) to be safe,
->> I think.
-Claudio> Right. Probably this was the meaning also of Hua's
-Claudio> mail. Sorry, but I didn't get it immediately.
+-Alex
 
-Claudio> So, what if I do as follows ? Do you see any problem with
-Claudio> this solution ?
 
-You should probably restrict the ability to read a process's usage to
-a suitably privileged user -- i.e., effective uid same as the task's,
-or capable(CAP_SYS_RESOURCE) or maybe capable(CAP_SYS_ADMIN)
+--- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> If we spent our entire lives waiting for people to fix code nothing
+> would ever happen. Removing 8K stacks is a good thing to do for many
+> reasons. The ndis wrapper people have known it is coming for a long
+> time, and if it has a lot of users I'm sure someone in that community
+> will take the time to make patches.
+> 
+> 
 
--- 
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*
+
+I code, therefore I am
+
+
+		
+__________________________________ 
+Yahoo! FareChase: Search multiple travel sites in one click.
+http://farechase.yahoo.com

@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932563AbVKOXX1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932567AbVKOXY0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932563AbVKOXX1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 18:23:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932565AbVKOXX1
+	id S932567AbVKOXY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 18:24:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932568AbVKOXYZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 18:23:27 -0500
-Received: from mail-haw.bigfish.com ([12.129.199.61]:60780 "EHLO
-	mail32-haw-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S932563AbVKOXX0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 18:23:26 -0500
-X-BigFish: V
-Message-ID: <437A6DEC.4030900@am.sony.com>
-Date: Tue, 15 Nov 2005 15:23:24 -0800
-From: Tim Bird <tim.bird@am.sony.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Guillaume Chazarain <guichaz@yahoo.fr>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Bird, Tim" <Tim.Bird@am.sony.com>
-Subject: Re: [-mm PATCH 1/2] printk return value: fix it
-References: <4379D1F7.1000701@yahoo.fr>
-In-Reply-To: <4379D1F7.1000701@yahoo.fr>
-Content-Type: text/plain; charset=UTF-8
+	Tue, 15 Nov 2005 18:24:25 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:64909 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932567AbVKOXYY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 18:24:24 -0500
+Date: Tue, 15 Nov 2005 15:24:14 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Mel Gorman <mel@csn.ul.ie>
+Cc: linux-mm@kvack.org, mel@csn.ul.ie, mingo@elte.hu,
+       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       nickpiggin@yahoo.com.au
+Subject: Re: [PATCH 4/5] Light Fragmentation Avoidance V20: 004_percpu
+Message-Id: <20051115152414.568dc3a8.pj@sgi.com>
+In-Reply-To: <20051115165007.21980.37336.sendpatchset@skynet.csn.ul.ie>
+References: <20051115164946.21980.2026.sendpatchset@skynet.csn.ul.ie>
+	<20051115165007.21980.37336.sendpatchset@skynet.csn.ul.ie>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guillaume Chazarain wrote:
-> What's the true meaning of the printk return value?
-> Should it include the priority prefix length of 3? and what about the
-> timing
-> information? In both cases it was broken:
-> 
-> strace -e write echo 1 > /dev/kmsg
-> => write(1, "1\n", 2)                      = 5
-> strace -e write echo "<1>1" > /dev/kmsg
-> => write(1, "<1>1\n", 5)                   = 8
-This is clearly a bug, but due to (almost) no one
-ever checking the return value, it has gone unnoticed.
+Mel wrote:
+> -		mark -= mark / 2;			[A]
+> +		mark /= 2;				[B]
+>  	if (alloc_flags & ALLOC_HARDER)
+> -		mark -= mark / 4;			[C]
+> +		mark /= 4;				[D]
 
-> 
-> The returned length was "length of input string + 3", I made it "length
-> of string output to the log buffer".
+Why these changes?  For each of [A] - [D] above, if I start with a
+value of mark == 33 and recycle that same mark through the above
+transformation 16 times, I get the following sequence of values:
 
-I agree with this change.  I think it fits with how
-the size is returned from printf in user space,
-which can be greater than the length of the format
-string when values are replaced in the string.  So
-at least for printf, there is a precedent for returning a
-number greater than the length of the submitted string.
+ A:  33  17   9   5   3   2   1   1   1   1   1   1   1   1   1   1
+ B:  33  16   8   4   2   1   0   0   0   0   0   0   0   0   0   0
+ C:  33  25  19  15  12   9   7   6   5   4   3   3   3   3   3   3
+ D:  33   8   2   0   0   0   0   0   0   0   0   0   0   0   0   0
 
- -- Tim
+Comparing [A] to [B], observe that [A] converges to 1, but [B] to 0,
+due to handling the underflow differently.
 
-=============================
-Tim Bird
-Architecture Group Chair, CE Linux Forum
-Senior Staff Engineer, Sony Electronics
-=============================
+Comparing [C] to [D], observe that [D] converges to 0, due to the
+different underflow, and converges much faster, since it is taking off
+3/4's instead of 1/4 each iteration.
 
+I doubt you want this change.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

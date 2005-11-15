@@ -1,39 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965076AbVKOXiH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965078AbVKOXk3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965076AbVKOXiH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 18:38:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965078AbVKOXiG
+	id S965078AbVKOXk3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 18:40:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965079AbVKOXk3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 18:38:06 -0500
-Received: from mail.suse.de ([195.135.220.2]:60848 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S965076AbVKOXiF (ORCPT
+	Tue, 15 Nov 2005 18:40:29 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:21741 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965078AbVKOXk2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 18:38:05 -0500
-From: Andi Kleen <ak@suse.de>
-To: Mel Gorman <mel@csn.ul.ie>
-Subject: Re: [PATCH 2/5] Light Fragmentation Avoidance V20: 002_usemap
-Date: Wed, 16 Nov 2005 00:36:53 +0100
-User-Agent: KMail/1.8.2
-Cc: linux-mm@kvack.org, mingo@elte.hu, lhms-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au
-References: <20051115164946.21980.2026.sendpatchset@skynet.csn.ul.ie> <20051115164957.21980.8731.sendpatchset@skynet.csn.ul.ie>
-In-Reply-To: <20051115164957.21980.8731.sendpatchset@skynet.csn.ul.ie>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Nov 2005 18:40:28 -0500
+Date: Tue, 15 Nov 2005 18:40:07 -0500
+From: Dave Jones <davej@redhat.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+Subject: Re: [linux-pm] [RFC] userland swsusp
+Message-ID: <20051115234007.GO17023@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Pavel Machek <pavel@ucw.cz>,
+	kernel list <linux-kernel@vger.kernel.org>,
+	"Rafael J. Wysocki" <rjw@sisk.pl>,
+	Linux-pm mailing list <linux-pm@lists.osdl.org>
+References: <20051115212942.GA9828@elf.ucw.cz> <20051115222549.GF17023@redhat.com> <20051115233201.GA10143@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511160036.54461.ak@suse.de>
+In-Reply-To: <20051115233201.GA10143@elf.ucw.cz>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 November 2005 17:49, Mel Gorman wrote:
-> This patch adds a "usemap" to the allocator. Each bit in the usemap indicates
-> whether a block of 2^(MAX_ORDER-1) pages are being used for kernel or
-> easily-reclaimed allocations. This enumerates two types of allocations;
+On Wed, Nov 16, 2005 at 12:32:01AM +0100, Pavel Machek wrote:
 
-This will increase cache line footprint, which is costly.
-Why can't this be done in the page flags?
+ > If this goes in, you can still keep using old method... I'll not
+ > remove it anytime soon.
 
--Andi
+Ok.
+
+ > > Even it were not for this, the whole idea seems misconcieved to me
+ > > anyway.
+ > 
+ > ...but how do you provide nice, graphical progress bar for swsusp
+ > without this? People want that, and "esc to abort", compression,
+ > encryption. Too much to be done in kernel space, IMNSHO.
+ 
+I'll take "rootkit doesnt work" over "bells and whistles".
+
+I think most users actually care more about "works" than
+"looks pretty, and then fails spectacularly".
+
+		Dave
 

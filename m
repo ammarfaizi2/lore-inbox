@@ -1,85 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751424AbVKOLPf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932368AbVKOLRs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751424AbVKOLPf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 06:15:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751425AbVKOLPf
+	id S932368AbVKOLRs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 06:17:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbVKOLRs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 06:15:35 -0500
-Received: from ppsw-7.csi.cam.ac.uk ([131.111.8.137]:43976 "EHLO
-	ppsw-7.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1751424AbVKOLPf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 06:15:35 -0500
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Tue, 15 Nov 2005 11:15:25 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-cc: NeilBrown <neilb@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH ] Fix some problems with truncate and mtime semantics.
-In-Reply-To: <1132020190.8802.28.camel@lade.trondhjem.org>
-Message-ID: <Pine.LNX.4.64.0511151108340.14874@hermes-1.csi.cam.ac.uk>
-References: <20051115125657.9403.patches@notabene>  <1051115020002.9459@suse.de>
- <1132020190.8802.28.camel@lade.trondhjem.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 15 Nov 2005 06:17:48 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:6804 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932368AbVKOLRs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 06:17:48 -0500
+Date: Tue, 15 Nov 2005 05:17:31 -0600
+From: Robin Holt <holt@sgi.com>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Hubertus Franke <frankeh@watson.ibm.com>,
+       Dave Hansen <haveblue@us.ibm.com>, hch@infradead.org
+Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
+Message-ID: <20051115111731.GA9976@lnx-holt.americas.sgi.com>
+References: <20051114212341.724084000@sergelap>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051114212341.724084000@sergelap>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Nov 2005, Trond Myklebust wrote:
-> On Tue, 2005-11-15 at 13:00 +1100, NeilBrown wrote:
-> > Resubmitting this patch to fix truncate/mtime semantics.  
-> > 
-> > It is against 2.6.14-mm2 and is probably suitable for 2.6.15, but can
-> > be held over to 2.6.16 if you are feeling cautious.
-> > 
-> > NeilBrown
-> > 
-> > ### Comments for Changeset
-> > 
-> > SUS requires that when truncating a file to the size that it currently
-> > is:
-> >   truncate and ftruncate should NOT modify ctime or mtime
-> >   O_EXCL SHOULD modify ctime and mtime.
->     ^^^^^ O_CREAT ;-)
+On Mon, Nov 14, 2005 at 03:23:41PM -0600, Serge E. Hallyn wrote:
+> --
+> 
+> I'm part of a project implementing checkpoint/restart processes.
+> After a process or group of processes is checkpointed, killed, and
+> restarted, the changing of pids could confuse them.  There are many
+> other such issues, but we wanted to start with pids.
 
-O_TRUNC actually ;-)  See:
+Can't you just build a restart preloader which intercepts system calls
+and translates pids?  Wouldn't this keep the kernel simpler and only
+affect those applications that are being restarted?  Christoph, I
+added you since you seem to tirelessly promote using preloaders to
+work around this type of issue.  Is it possible?
 
-	http://www.opengroup.org/onlinepubs/009695399/functions/open.html
-
-<quote>
-If O_CREAT is set and the file did not previously exist, upon successful 
-completion, open() shall mark for update the st_atime, st_ctime, and 
-st_mtime fields of the file and the st_ctime and st_mtime fields of the 
-parent directory.
-
-If O_TRUNC is set and the file did previously exist, upon successful 
-completion, open() shall mark for update the st_ctime and st_mtime fields 
-of the file.
-</quote>
-
-Given we are talking about truncate, we only care about O_TRUNC.  
-O_CREAT/O_EXCL of course set A/C/M time as the file is newly created and 
-hence all three values are set to the current system time!
-
-> > Currently mtime and ctime are always modified on most local
-> > filesystems (side effect of ->truncate) or never modified (on NFS).
-> > 
-> > With this patch:
-> >   ATTR_CTIME|ATTR_MTIME are sent with ATTR_SIZE precisely when 
-> >     an update of these times is required whether size changes or not 
-> >     (via a new argument to do_truncate).  This allows NFS to do
-> >     the right thing for O_EXCL.
->                           ^^^^^
-
-O_TRUNC...
-
-Best regards,
-
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Thanks,
+Robin

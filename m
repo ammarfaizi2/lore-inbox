@@ -1,55 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932402AbVKOPJh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932531AbVKOPMs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932402AbVKOPJh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 10:09:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932487AbVKOPJh
+	id S932531AbVKOPMs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 10:12:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932532AbVKOPMs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 10:09:37 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:45511 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932402AbVKOPJg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 10:09:36 -0500
-Date: Tue, 15 Nov 2005 10:09:32 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Keith Owens <kaos@sgi.com>
-cc: linux-kernel@vger.kernel.org, Stephen Hemminger <shemminger@osdl.org>,
-       Andi Kleen <ak@suse.de>, Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Subject: Re: [Patch 2.6.15-rc1] Clean up the die notifier registration routines
-In-Reply-To: <12454.1132027138@kao2.melbourne.sgi.com>
-Message-ID: <Pine.LNX.4.44L0.0511151007560.4851-100000@iolanthe.rowland.org>
+	Tue, 15 Nov 2005 10:12:48 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:15745 "EHLO
+	linuxbipbip.grupopie.com") by vger.kernel.org with ESMTP
+	id S932531AbVKOPMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 10:12:48 -0500
+Message-ID: <4379FAED.7030700@grupopie.com>
+Date: Tue, 15 Nov 2005 15:12:45 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+References: <20051114133802.38755.qmail@web50205.mail.yahoo.com> <1131979779.5751.17.camel@localhost.localdomain> <dlal2q$kdo$1@sea.gmane.org>
+In-Reply-To: <dlal2q$kdo$1@sea.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Nov 2005, Keith Owens wrote:
+Giridhar Pemmasani wrote:
+> Alan Cox wrote:
+> 
+>>reasons. The ndis wrapper people have known it is coming for a long
+>>time, and if it has a lot of users I'm sure someone in that community
+>>will take the time to make patches.
+> 
+>[...]
+> Any suggestions on how ndiswrapper can live with this patch would be greatly
+> appreciated.
 
-> Remove the extraneous die_notifier_lock, notifier_chain_register()
-> and notifier_chain_unregister already take a lock.  Also there is some
-> work being done to make the generic notify code race safe and the
-> die_notifier_lock would get in that way of that rework.  See
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=113175279131346&w=2
-> 
-> Add unregister_die_notifier() and export it on all architectures.
-> 
-> Export register_die_notifier() on some architectures, others already
-> had an export.
-> 
-> Correct include/asm-*/kdebug.h to define the functions as extern.
-> 
-> Remove trailing whitespace in include/asm-x86_64/kdebug.h.
-> 
-> Compile tested on i386 and x86_64, powerpc and sparc64 have only been
-> desk checked.  The ia64 version of this code has already been changed
-> in 2.6.15-rc1.
+One idea that has not yet been suggested, is to use a x86 emulator to 
+run the driver code.
 
-Keith, can you delay this patch until the general notifier fixups have
-been merged?  Most of what you did duplicates changes that we are making
-and some of it will clash.
+I did some development a while ago, to reduce the size a x86 emulator to 
+run VGA BIOS functions. If an emulator like this would make it to the 
+kernel it could also be used to change video modes even using the VESA 
+driver, suspend/resume the VGA using the VGA own code, etc.
 
-Alan Stern
+The final size of the emulator was a little over 30k, but there was 
+still room for even more reductions.
 
+
+The advantages:
+
+  - the driver runs in a complete sandbox
+
+  - support for running NDIS drivers in multiple architectures (not just 
+x86)
+
+  - the emulator could be shared amongst more kernel subsystems in need 
+of an emulator (VESA, for instance)
+
+
+Disadvantages:
+
+  - increase in kernel code size (about 30k)
+
+  - decrease in driver code execution speed
+
+
+I'm not really advocating for this, just wanted to make sure people 
+would be aware of all the solutions available before committing to any 
+approach.
+
+-- 
+Paulo Marques - www.grupopie.com
+
+The rule is perfect: in all matters of opinion our
+adversaries are insane.
+Mark Twain

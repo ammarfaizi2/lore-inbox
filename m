@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbVKOAQs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbVKOAY5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932203AbVKOAQs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 19:16:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbVKOAQr
+	id S932210AbVKOAY5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 19:24:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbVKOAY5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 19:16:47 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:13020 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932203AbVKOAQr (ORCPT
+	Mon, 14 Nov 2005 19:24:57 -0500
+Received: from main.gmane.org ([80.91.229.2]:30173 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932210AbVKOAY4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 19:16:47 -0500
-Date: Mon, 14 Nov 2005 16:17:04 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, hugh@veritas.com
-Subject: Re: 2.6.14 X spinning in the kernel
-Message-Id: <20051114161704.5b918e67.akpm@osdl.org>
-In-Reply-To: <1132012281.24066.36.camel@localhost.localdomain>
-References: <1132012281.24066.36.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Mon, 14 Nov 2005 19:24:56 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kalin KOZHUHAROV <kalin@thinrope.net>
+Subject: Re: [RFC] HOWTO do Linux kernel development
+Date: Tue, 15 Nov 2005 09:18:35 +0900
+Message-ID: <4379295B.1020601@thinrope.net>
+References: <20051114220709.GA5234@kroah.com> <20051114221005.GA5539@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+Cc: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051023)
+X-Accept-Language: en-us, en
+In-Reply-To: <20051114221005.GA5539@kroah.com>
+X-Enigmail-Version: 0.93.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty <pbadari@us.ibm.com> wrote:
->
-> My 2-cpu EM64T machine started showing this problem again on 2.6.14.
-> On some reboots, X seems to spin in the kernel forever.
+Greg KH wrote:
+> On Mon, Nov 14, 2005 at 02:07:09PM -0800, Greg KH wrote:
 > 
-> sysrq-t output shows nothing.
-> 
-> X             R  running task       0  3607   3589          3903
-> (L-TLB)
-> 
-> top shows:
->  3607 root      25   0     0    0    0 R 99.1  0.0 262:04.69 X
+>>So, I've been working on a document for the past week or so to help
+>>alleviate a lot of these problems.
 > 
 > 
-> So, I wrote a module to do smp_call_function() on all CPUs
-> to show stacks on them. CPU0 seems to be spinning in exit_mmap().
-> I did this multiple times to collect stacks few times.
-> 
-> Is this a known issue ?
+> Oh, the latest version can be found at:
+> 	http://www.kernel.org/git/?p=linux/kernel/git/gregkh/patches.git;a=blob;f=HOWTO
+> as I'm keeping it in my git patch tree.
 
-Nope.  Maybe your vma list has a loop in it, in remove_vma()?  slab
-debugging would detect that, due to the repeated
-kmem_cache_free(vm_area_cachep, vma);
+As far as the development proces is in TODO state, what about adding Paolo Ciarrocchi's (CCed) doc
+there?
+	http://linux.tar.bz/articles/2.6-development_process
+
+NB: I just host the artice (with Paolo's permission), and actualy from a few hours ago :-)
+
+Kalin.
+-- 
+|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
++-> http://ThinRope.net/ <-+
+|[ ______________________ ]|
 

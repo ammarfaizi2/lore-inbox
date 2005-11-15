@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751366AbVKOHpz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbVKOHuf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751366AbVKOHpz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 02:45:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751367AbVKOHpz
+	id S1751363AbVKOHuf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 02:50:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751368AbVKOHuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 02:45:55 -0500
-Received: from xproxy.gmail.com ([66.249.82.204]:58280 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751366AbVKOHpy convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 02:45:54 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=WCKZ9yOp+K8j/M19kMVJwekarSAlYpUI1YVVehJjMyPzEL+8gnhqgnZRfsTTx9ElGEzmE7ftz2vzUwmMMb2oGhhx2vNFs2TvFV//YiZutUdhQsRaxoMEWpTwAjRA9mF2XVeGIbzfoQsnCa01GpZApyyyct9VMuhHmgasXVSU50w=
-Message-ID: <64c763540511142345g4ca0b184y28962dae494f22b4@mail.gmail.com>
-Date: Tue, 15 Nov 2005 13:15:54 +0530
-From: Block Device <blockdevice@gmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: A standard snapshot notification framework in Linux ?
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 15 Nov 2005 02:50:35 -0500
+Received: from styx.suse.cz ([82.119.242.94]:49324 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1751363AbVKOHuf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 02:50:35 -0500
+Date: Tue, 15 Nov 2005 08:50:26 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Andi Kleen <ak@suse.de>
+Cc: discuss@x86-64.org, george@mvista.com, Jan Beulich <JBeulich@novell.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: [PATCH 13/39] NLKD/x86-64 - time adjustment
+Message-ID: <20051115075026.GA11994@midnight.suse.cz>
+References: <43720DAE.76F0.0078.0@novell.com> <20051112204428.GA14733@midnight.suse.cz> <43792DFF.1000300@mvista.com> <200511150205.25339.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200511150205.25339.ak@suse.de>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Nov 15, 2005 at 02:05:24AM +0100, Andi Kleen wrote:
 
-   does the linux kernel provide a mechanism whereby applications can
-register themselves
-to be notified when a snapshot is being taken of the volume they might
-be writing to.
+> On Tuesday 15 November 2005 01:38, George Anzinger wrote:
+> 
+> > Doesn't this depend on the atomic nature of the 64-bit read?  If it
+> > is really two 32-bit reads one would need to do extra work to make
+> > sure the two parts belong together.
+> 
+> Please take a look at the Subject.
+ 
+Still, the HPET doesn't necessarily have to be a 64-bit device. At least
+on AMD systems, where it's implemented in AMD8111 Thor, it's bundled
+together with other, 32-bit PCI devices like USB. On the other hand, the
+8111 HPET doesn't implement a 64-bit conter, and it's likely that the
+Intel implementation in the northbridges (or *CH, as Intel prefers
+calling the things) is likely native 64-bit.
 
-   If there is no such framework then how do backup applications
-guarantee ( application level ) consistency. I have seen freeze_bdev
-and friends which work for file systems and how the device mapper uses
-them. But when it comes to application level consistency, a mechanism
-is required to give the application a chance to flush &  quiesce its
-writes so that the backup taken will be consistent for the application
-also. Windows has the VSS ( Volume Shadow Service ) which provides an
-elaborate framework for this. Is anyone working on something similar
-for Linux and if not why is it not such a worthwhile idea ?
-
-Regards
-BD
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

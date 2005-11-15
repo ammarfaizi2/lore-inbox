@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932379AbVKOEha@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932384AbVKOEue@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932379AbVKOEha (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 23:37:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932381AbVKOEha
+	id S932384AbVKOEue (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 23:50:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbVKOEue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 23:37:30 -0500
-Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:25984 "EHLO
-	vger.utah-nac.org") by vger.kernel.org with ESMTP id S932379AbVKOEh3
+	Mon, 14 Nov 2005 23:50:34 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:15292 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932384AbVKOEud
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 23:37:29 -0500
-Message-ID: <43795FE2.1020607@wolfmountaingroup.com>
-Date: Mon, 14 Nov 2005 21:11:14 -0700
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Robert Hancock <hancockr@shaw.ca>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-References: <58XuN-29u-17@gated-at.bofh.it> <58XuN-29u-19@gated-at.bofh.it> <58XuN-29u-21@gated-at.bofh.it> <58XuN-29u-23@gated-at.bofh.it> <58XuN-29u-25@gated-at.bofh.it> <58XuN-29u-15@gated-at.bofh.it> <58YAt-3Fs-5@gated-at.bofh.it> <58ZGo-5ba-13@gated-at.bofh.it> <5909m-5JB-5@gated-at.bofh.it> <43795F35.3050904@shaw.ca> <43795C55.9080305@wolfmountaingroup.com> <43796489.8090500@shaw.ca>
-In-Reply-To: <43796489.8090500@shaw.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Nov 2005 23:50:33 -0500
+Date: Mon, 14 Nov 2005 23:15:01 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: linux-kernel@vger.kernel.org, frankeh@watson.ibm.com, haveblue@us.ibm.com
+Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
+Message-ID: <20051115051501.GA3252@IBM-BWN8ZTBWAO1>
+References: <20051114212341.724084000@sergelap> <20051114153649.75e265e7.pj@sgi.com> <20051115010155.GA3792@IBM-BWN8ZTBWAO1> <20051114175140.06c5493a.pj@sgi.com> <20051115022931.GB6343@sergelap.austin.ibm.com> <20051114193715.1dd80786.pj@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051114193715.1dd80786.pj@sgi.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Hancock wrote:
+Quoting Paul Jackson (pj@sgi.com):
+> Serge wrote:
+> > the vserver model
+> 
+> What's that?
 
-> Jeff V. Merkey wrote:
->
->> What?  There's more kernel apps than just ndis network drivers that 
->> get ported.  ndiswrapper is busted (which is used for a lot of laptops)
->> without 4K stacks.
->
->
-> Which is why ndiswrapper needs to get fixed to work with 4K stacks. 
-> ndiswrapper is the thing that's doing the wierd stuff, it needs to 
-> adapt to the kernel, not the other way around. The reasons to use 4K 
-> stacks are strong enough that they are not made up for by the fact 
-> that ndiswrapper currently would like to have more stack space.
+:)  Well a vserver pretends to be a full system of its own, though you
+can have lots of vservers on one machine.  Processes in each virtual
+server see only other processes in the same vserver.  However in
+vserver the pids they see are the real kernel pids - except for one
+process per vserver which can be the fakeinit.  Other processes in the
+same vserver see it as pid 1, but to the kernel it is still known by
+its real pid.
 
-The NDIS drivers require the 8K stack, not ndiswrapper.
+> How large is our numeric pid space (on 64 bit systems, anyway)?  If
+> large enough, then reservation of pid ranges becomes an easy task.  If
+> say we had 10 bits to spare, then a server farm could pre-ordain say a
+> thousand virtual servers, which come and go on various hardware
+> systems, each virtual server with its own hostname, pid-range, and
+> other such paraphernalia.
 
->
-> Windows apparently has 12K of kernel stack for drivers.. in that case 
-> even 8K of stack in Linux would not necessarily be enough. If 
-> ndiswrapper wants to run Windows code in the kernel with any amount of 
-> reliability it should be providing its own stack which is the size 
-> that the code expects.
->
->> My laptop is a Compaq and there isn't a Linux driver for the 
->> wireless.  I also discovered Fedora Core 4 won't install
->> on a Compaq Presario with SATA (stacks crashes).
->
->
-> How do you know this is related to the stack? Did you report this as a 
-> bug?
+In fact this is one way we considered implementing the virtual pids -
+the pidspace id would be the upper some bits of the pid, and the vpid
+would be the lower bits, so that the kernel pid would simply be
+(pidspace_id << some_shift | vpid).
 
-
-Because I use MDB, a kernel debugger I wrote that inserts beneath Linux 
-via DRLX or inside of it, and I watched it crash in the Linux SCSI 
-code.  There's code in Linux proper that also walks off the end of the 
-stack.  No I did not report it.  But now I have.
-
-Jeff
+-serge
 

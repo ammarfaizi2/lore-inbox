@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964924AbVKOROI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751452AbVKORYp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964924AbVKOROI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 12:14:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964925AbVKOROI
+	id S1751452AbVKORYp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 12:24:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751453AbVKORYp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 12:14:08 -0500
-Received: from mail.timesys.com ([65.117.135.102]:65424 "EHLO
-	postfix.timesys.com") by vger.kernel.org with ESMTP id S964924AbVKOROG
+	Tue, 15 Nov 2005 12:24:45 -0500
+Received: from esc14.midphase.com ([66.225.203.133]:45187 "EHLO
+	esc14.midphase.com") by vger.kernel.org with ESMTP id S1751452AbVKORYo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 12:14:06 -0500
-Message-ID: <437A14FB.8050206@timesys.com>
-Date: Tue, 15 Nov 2005 12:03:55 -0500
-From: john cooper <john.cooper@timesys.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Tue, 15 Nov 2005 12:24:44 -0500
+Message-ID: <20051115102425.0iln2874xjoc4g84@coolrunningconcepts.com>
+Date: Tue, 15 Nov 2005 10:24:25 -0700
+From: evan@coolrunningconcepts.com
+To: linux-kernel@vger.kernel.org
+Subject: Timer idea
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Luca Falavigna <dktrkranz@gmail.com>, linux-kernel@vger.kernel.org,
-       john cooper <john.cooper@timesys.com>
-Subject: Re: [BUG] Softlockup detected with linux-2.6.14-rt6
-References: <4378B48E.6010006@gmail.com> <20051115153257.GA9727@elte.hu>
-In-Reply-To: <20051115153257.GA9727@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset=ISO-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Nov 2005 17:06:10.0609 (UTC) FILETIME=[E0705A10:01C5EA06]
+User-Agent: Internet Messaging Program (IMP) H3 (4.0.3)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - esc14.midphase.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [32001 32001] / [47 12]
+X-AntiAbuse: Sender Address Domain - coolrunningconcepts.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Luca Falavigna <dktrkranz@gmail.com> wrote:
->>I found this softlockup bug involving arts daemon using a
->>linux-2.6.14-rt6 kernel (with "Complete Preemption" and "Detect Soft
->>Lockups" compiled in).
->>This bug does not happen everytime: I was able to reproduce it only
->>three times in a week. [...]
-> 
-> 
-> does this happen with -rt13 too? I have fixed a softlockup 
-> false-positive in it.
+I was thinking about benchmarking, profiling, and various other applications
+that might need frequent access to the current time.  Polling timers or
+frequent timer signal delivery both seem like there would be a lot of overhead.
+ I was thinking it would be nice if you could just read the time information
+without making an OS call.
 
-Just curious what the cause of the false positive was?
+I figure the kernel keeps accurate records of current time information and the
+values of various timers.  I then had the idea that one could have a /dev or
+maybe a /proc entry that would allow you to mmap() the kernel records (read
+only) and then you could read this information right from the kernel without
+any overhead.
 
--john
-
--- 
-john.cooper@timesys.com
+Comments?  Please CC me on replies.

@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965074AbVKOXfM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965077AbVKOXiI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965074AbVKOXfM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 18:35:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965076AbVKOXfL
+	id S965077AbVKOXiI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 18:38:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965078AbVKOXiI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 18:35:11 -0500
-Received: from gate.crashing.org ([63.228.1.57]:43150 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S965074AbVKOXfK (ORCPT
+	Tue, 15 Nov 2005 18:38:08 -0500
+Received: from ns2.suse.de ([195.135.220.15]:6866 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965077AbVKOXiG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 18:35:10 -0500
-Date: Tue, 15 Nov 2005 17:31:57 -0600 (CST)
-From: Kumar Gala <galak@gate.crashing.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>, Greg KH <greg@kroah.com>
-cc: linux-kernel@vger.kernel.org
-Subject: overlapping resources for platform devices?
-Message-ID: <Pine.LNX.4.44.0511151727170.32393-100000@gate.crashing.org>
+	Tue, 15 Nov 2005 18:38:06 -0500
+From: Andi Kleen <ak@suse.de>
+To: Mel Gorman <mel@csn.ul.ie>
+Subject: Re: [PATCH 5/5] Light Fragmentation Avoidance V20: 005_configurable
+Date: Wed, 16 Nov 2005 00:39:20 +0100
+User-Agent: KMail/1.8.2
+Cc: linux-mm@kvack.org, mingo@elte.hu, linux-kernel@vger.kernel.org,
+       nickpiggin@yahoo.com.au, lhms-devel@lists.sourceforge.net
+References: <20051115164946.21980.2026.sendpatchset@skynet.csn.ul.ie> <20051115165012.21980.51131.sendpatchset@skynet.csn.ul.ie>
+In-Reply-To: <20051115165012.21980.51131.sendpatchset@skynet.csn.ul.ie>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511160039.21243.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guys,
+On Tuesday 15 November 2005 17:50, Mel Gorman wrote:
+> The anti-defragmentation strategy has memory overhead. This patch allows
+> the strategy to be disabled for small memory systems or if it is known the
+> workload is suffering because of the strategy. It also acts to show where
+> the anti-defrag strategy interacts with the standard buddy allocator.
 
-I was wondering if there was any issue in changing platform_device_add to
-use insert_resource instead of request_resource.  The reason for this
-change is to handle several cases where we have device registers that
-overlap that two different drivers are handling.
+If anything this should be a boot time option or perhaps sysctl, not a config.
+In general CONFIGs that change runtime behaviour are evil - just makes
+changing the option more painful, causes problems for distribution
+users, doesn't make much sense, etc.etc.
 
-The biggest case of this is with ethernet on a number of PowerPC based 
-systems where a subset of the ethernet controllers registers are used for 
-MDIO/PHY bus control.  We currently hack around the limitation by having 
-the MDIO/PHY bus not actually register an memory resource region.
+Also #ifdef as a documentation device is a really really scary concept.
+Yuck.
 
-If the following looks good I'll send a more formal patch.
-
--- kumar
-
---- a/drivers/base/platform.c
-+++ b/drivers/base/platform.c
-@@ -257,7 +257,7 @@ int platform_device_add(struct platform_
-                                p = &ioport_resource;
-                }
- 
--               if (p && request_resource(p, r)) {
-+               if (p && insert_resource(p, r)) {
-                        printk(KERN_ERR
-                               "%s: failed to claim resource %d\n",
-                               pdev->dev.bus_id, i);
-
+-Andi
 

@@ -1,74 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbVKOVFY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbVKOVLX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932077AbVKOVFY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 16:05:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932093AbVKOVFY
+	id S1750745AbVKOVLX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 16:11:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbVKOVLX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 16:05:24 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:16054 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932077AbVKOVFW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 16:05:22 -0500
-Subject: Re: [PATCH 0/13] Time: Generic Timeofday Subsystem (v B10)
-From: john stultz <johnstul@us.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Frank Sorenson <frank@tuxrocks.com>, lkml <linux-kernel@vger.kernel.org>,
-       Darren Hart <dvhltc@us.ibm.com>, Nishanth Aravamudan <nacc@us.ibm.com>,
-       George Anzinger <george@mvista.com>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Thomas Gleixner <tglx@linutronix.de>
-In-Reply-To: <20051115205355.GA20885@elte.hu>
-References: <20051112044850.8240.91581.sendpatchset@cog.beaverton.ibm.com>
-	 <4378FFFF.4010706@tuxrocks.com> <1132004327.4668.30.camel@leatherman>
-	 <4379074D.5060308@tuxrocks.com> <1132005736.4668.34.camel@leatherman>
-	 <437918A0.8000308@tuxrocks.com> <1132010724.4668.40.camel@leatherman>
-	 <43796C76.8070603@tuxrocks.com> <1132084415.2906.12.camel@leatherman>
-	 <20051115205355.GA20885@elte.hu>
-Content-Type: text/plain
-Date: Tue, 15 Nov 2005 13:04:45 -0800
-Message-Id: <1132088686.2906.16.camel@leatherman>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Nov 2005 16:11:23 -0500
+Received: from spirit.analogic.com ([204.178.40.4]:36624 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP
+	id S1750745AbVKOVLX convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 16:11:23 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <437A4315.6040604@nortel.com>
+References: <20051115102425.0iln2874xjoc4g84@coolrunningconcepts.com> <Pine.LNX.4.61.0511151401400.6145@chaos.analogic.com> <437A4315.6040604@nortel.com>
+X-OriginalArrivalTime: 15 Nov 2005 21:11:22.0453 (UTC) FILETIME=[21619850:01C5EA29]
+Content-class: urn:content-classes:message
+Subject: Re: Timer idea
+Date: Tue, 15 Nov 2005 16:11:17 -0500
+Message-ID: <Pine.LNX.4.61.0511151542460.6510@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Timer idea
+Thread-Index: AcXqKSFrIT0udLJ5SqeP2zmsXnR5Lg==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Christopher Friesen" <cfriesen@nortel.com>
+Cc: <evan@coolrunningconcepts.com>,
+       "Linux kernel" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-15 at 21:53 +0100, Ingo Molnar wrote:
-> * john stultz <johnstul@us.ibm.com> wrote:
-> 
-> > > idle=poll does seem to fix the major clock drift problem.  There may
-> > > still be an issue, but it's much smaller:
-> > > 
-> > > 2.6.14-mm2-todb10:
-> > > 14 Nov 21:50:57      offset: -0.025373       drift: -22404.0 ppm
-> > > 14 Nov 21:51:59      offset: -1.577053       drift: -24985.4603175 ppm
-> > > 14 Nov 21:53:00      offset: -3.104569       drift: -25012.9032258 ppm
-> > > 
-> > > 2.6.14-mm2-todb10 with idle=poll:
-> > > 14 Nov 21:37:59      offset: 5.9e-05         drift: 63.0 ppm
-> > > 14 Nov 21:39:00      offset: 0.003207        drift: 51.7903225806 ppm
-> > 
-> > Hmm. It seems the c3 compensation is triggering when it shouldn't, or 
-> > maybe its over compensating.
-> > 
-> > I can't reproduce it on my laptop. Do you recall if in previous tests 
-> > you saw anything like this? I'm trying to narrow down if its just a 
-> > difference in hardware or if something in the c3 idle code changed.
-> 
-> it's with an earlier queue of yours, but maybe it's related: i have a 
-> report that HPET causes HRT inaccuracies (e.g. sleeps for 20 msecs last 
-> 21 msecs). If all HPET options are turned off in the .config then 
-> everything is fine and accurate.
 
-Hmm. HPET would be separate from this, I believe. I suspect that could
-be related to the HPET legacy replacement functionality, where the HPET
-is triggering the timer interrupts. Not something I changed, but
-probably should be looked into.
+On Tue, 15 Nov 2005, Christopher Friesen wrote:
 
-thanks
--john
+> linux-os (Dick Johnson) wrote:
+>
+>> On ix86 machines, basic time comes from chip(s), read from ports.
+>> That's just another tiny little problem.
+>
+> I'm sure you already know this, but x86 can also use the HPET for
+> timestamps, as well as the TSC if it's available.
+>
+> Chris
+>
 
+Yes. Also, it can be 64 bits on 64 bit machines. Memory-mapping
+isn't a solve-all, though. The mayor problem is that there
+are so many ways to get incompatible time:
 
+ 	PIT, RTC, TSC, HPET.
 
+... Every one requires a knowledge of a specific architecture  --
+and every one has its own set of problems. If HPET was a problem
+solver, then it would be a step in the right direction. Unfortunately
+it just makes another set of unique problems.
 
+The new hardware timer should-have-been something that does:
+
+ 	(1) A memory mapped register that reads time with
+ 	microsecond resolution like POSIX wants.
+ 	(2) A memory mapped register to which is written an
+ 	offset to adjust the time (in +/- microseconds).
+ 	(3) A memory mapped register to course-set time like
+ 	'time_t'.
+ 	(4) It should have been PCI/Based so if the motherboard
+ 	didn't have one built-in, you could buy one and plug
+ 	it in.
+
+... Now, with everything done in hardware, there is no problem
+with obtaining a correct, adjustable time. Anything less is
+just a patch on a patch. Such a timer-chip, if made with a built-
+in low-temperature coefficient AT-cut crystal could have been
+developed to sell for under two dollars, in 1,000 quantities. Of
+course if you have to make a plug-in board with a PCI interface,
+that's much more expensive, but only the cost of a cheap network
+card.
+
+It looks like Intel had some timer-chip macro-cells that they
+wanted to unload. There was no technical thought put into the
+HPET. Yes, they claimed that it can be used for multimedia and,
+in fact, it was first called a "multimedia timer". So new
+ix86 boards will have what Apple boards have.
+
+In a previous generation, VAXen had the right idea. A separate
+device that kept time, starting at zero. The clock time was the
+sum of boot-time, clock-time, and time-adjust quadwords. Unfortunately
+the time was in micro-fortnights because it used a bus-clock for
+the interval.
+
+The concept of the three values, manipulated by hardware, not
+software, will certainly be the ultimate solution to time-keeping.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13.4 on an i686 machine (5589.51 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+.
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

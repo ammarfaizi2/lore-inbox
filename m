@@ -1,44 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751383AbVKOIsX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbVKOIuF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751383AbVKOIsX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 03:48:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbVKOIsX
+	id S1751384AbVKOIuF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 03:50:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbVKOIuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 03:48:23 -0500
-Received: from verein.lst.de ([213.95.11.210]:44684 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S1751383AbVKOIsV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 03:48:21 -0500
-Date: Tue, 15 Nov 2005 09:48:00 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Greg Ungerer <gerg@snapgear.com>
-Cc: Christoph Hellwig <hch@lst.de>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] m68knommu: enable_irq/disable_irq
-Message-ID: <20051115084800.GA1542@lst.de>
-References: <20051113074136.GA816@lst.de> <437993A8.8050702@snapgear.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <437993A8.8050702@snapgear.com>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+	Tue, 15 Nov 2005 03:50:05 -0500
+Received: from smtp107.mail.sc5.yahoo.com ([66.163.169.227]:63332 "HELO
+	smtp107.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751384AbVKOIuB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 03:50:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=rmqq8uM3OoomTgSAiFSZABxWL5vuQcswn+NH9uPh699+z3ERUHdipv6AGbTqoeOnHn84YZU+q8HN6jtaL2F8JEDGsQ7DZ+9Lsde82Ufzf2WVeEqgxONHpd5smodJrn3ERsGD+JKcAL+1U0xbqtkEhwgqyepygtRDLJi1QbUVt8Y=  ;
+Message-ID: <4379A1C4.509@yahoo.com.au>
+Date: Tue, 15 Nov 2005 19:52:20 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Paul Jackson <pj@sgi.com>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Simon Derr <Simon.Derr@bull.net>, Christoph Lameter <clameter@sgi.com>,
+       "Rohit, Seth" <rohit.seth@intel.com>
+Subject: Re: [PATCH 01/05] mm fix __alloc_pages cpuset ALLOC_* flags
+References: <20051114040329.13951.39891.sendpatchset@jackhammer.engr.sgi.com>
+In-Reply-To: <20051114040329.13951.39891.sendpatchset@jackhammer.engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 15, 2005 at 05:52:08PM +1000, Greg Ungerer wrote:
-> Hi Christoph,
+Paul Jackson wrote:
+> Two changes to the setting of the ALLOC_CPUSET flag in
+> mm/page_alloc.c:__alloc_pages()
 > 
-> Christoph Hellwig wrote:
-> >mach_enable_irq/mach_disable_irq are never actually set, so let's remove
-> >them.
-> >
-> >Btw, is it really intentionally that enable_irq/disable_irq are no-ops on
-> >m68knommu?
+>  1) A bug fix - the "ignoring mins" case should not be honoring
+>     ALLOC_CPUSET.  This case of all cases, since it is handling a
+>     request that will free up more memory than is asked for (exiting
+>     tasks, e.g.) should be allowed to escape cpuset constraints
+>     when memory is tight.
 > 
-> No, I think they should be implemented. It would clean up some driver
-> irq ugliness in some of the m68knommu arch specific drivers.
+>  2) A logic change to make it simpler.  Honor cpusets even on
+>     GFP_ATOMIC (!wait) requests.  With this, cpuset confinement
+>     applies to all requests except ALLOC_NO_WATERMARKS, so that
+>     in a subsequent cleanup patch, I can remove the ALLOC_CPUSET
+>     flag entirely.  Since I don't know any real reason this
+>     logic has to be either way, I am choosing the path of the
+>     simplest code.
+> 
 
-Any chance you could investigate using the kernel/irq/ framework for
-m68knommu?  It's one of the few architectures not using that code yet.
+Hi,
 
+I think #1 is OK, however I was under the impression that you
+introduced the exception reverted in #2 due to seeing atomic
+allocation failures?!
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

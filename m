@@ -1,57 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbVKOBbW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932228AbVKOBfe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932242AbVKOBbW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 20:31:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbVKOBbV
+	id S932228AbVKOBfe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 20:35:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbVKOBfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 20:31:21 -0500
-Received: from xenotime.net ([66.160.160.81]:41417 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932242AbVKOBbV (ORCPT
+	Mon, 14 Nov 2005 20:35:34 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:5349 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932228AbVKOBfd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 20:31:21 -0500
-Date: Mon, 14 Nov 2005 17:31:18 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Paul Jackson <pj@sgi.com>
-cc: Josh Boyer <jwboyer@gmail.com>, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: [RFC] HOWTO do Linux kernel development
-In-Reply-To: <20051114172544.31c87778.pj@sgi.com>
-Message-ID: <Pine.LNX.4.58.0511141729360.20249@shark.he.net>
-References: <20051114220709.GA5234@kroah.com> <20051114221005.GA5539@kroah.com>
- <625fc13d0511141632k541fe338wb9a51222f4a0f453@mail.gmail.com>
- <20051114172544.31c87778.pj@sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 14 Nov 2005 20:35:33 -0500
+Date: Mon, 14 Nov 2005 17:35:30 -0800
+From: Paul Jackson <pj@sgi.com>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, frankeh@watson.ibm.com, haveblue@us.ibm.com
+Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
+Message-Id: <20051114173530.4df6b344.pj@sgi.com>
+In-Reply-To: <20051115010155.GA3792@IBM-BWN8ZTBWAO1>
+References: <20051114212341.724084000@sergelap>
+	<20051114153649.75e265e7.pj@sgi.com>
+	<20051115010155.GA3792@IBM-BWN8ZTBWAO1>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Nov 2005, Paul Jackson wrote:
+Serge wrote:
+> Ok, thanks - will send out a new patchset to do this.
 
-> Josh wrote:
-> > In a community that is looking for the best technical solution
-> > possible, there is no place for ego.
->
-> No, there is a place for ego, an essential place.  Some of the best
-> hackers on lkml have no shortage of ego.  They just don't get their ego
-> too closely attached to any particular piece of code or technical
-> position.  Rather they take pride in their willingness and ability to
-> find better answers (even in their own work, done five minutes ago ;).
->
-> I don't normally quote Colin Powell (a recent U.S. Secretary of State),
-> but this one time he said it well:
->
->
-> 	Avoid having your ego so close to your position that
-> 	when your position falls, your ego goes with it.
->
-> 					-- Colin Powell
-
-Nice advice.  I (too often) see people who are working on the
-<technology du jour> to be so tied up with it that they
-think it's the greatest thing around.
-
-> Ego deficient pansies risk wilting on lkml.
+This one change probably isn't worth new patches.
+At least keep this in mind next time.  No biggie
+either way.
 
 -- 
-~Randy
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

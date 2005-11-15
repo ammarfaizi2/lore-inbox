@@ -1,52 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbVKOCtK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbVKOCw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932293AbVKOCtK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 21:49:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbVKOCtK
+	id S932298AbVKOCw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 21:52:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932299AbVKOCw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 21:49:10 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:8171 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S932293AbVKOCtJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 21:49:09 -0500
-Date: Tue, 15 Nov 2005 02:48:54 +0000 (GMT)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Andrew Morton <akpm@osdl.org>
-Cc: Badari Pulavarty <pbadari@us.ibm.com>, linux-kernel@vger.kernel.org,
-       hugh@veritas.com
-Subject: Re: 2.6.14 X spinning in the kernel
-In-Reply-To: <20051114173037.286db0d4.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0511150247160.24064@skynet>
-References: <1132012281.24066.36.camel@localhost.localdomain>
- <20051114161704.5b918e67.akpm@osdl.org> <1132015952.24066.45.camel@localhost.localdomain>
- <20051114173037.286db0d4.akpm@osdl.org>
+	Mon, 14 Nov 2005 21:52:56 -0500
+Received: from zproxy.gmail.com ([64.233.162.200]:52160 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932298AbVKOCwz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 21:52:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ChB9kyaFcG2woQGykgil0IHq87Qr0u256u2YUTgTAd0iHr59gNNZdFTvuUwUM89EXvDylT38qQ3qKmoSpJssb4T8pbmRwXI+UTIT217yu0hFruiCaolSMihy2P0ik0ifQXNzQ17axTBDZlAY57029LCsEPr4II+lSKMseJ9rXhA=
+Message-ID: <625fc13d0511141852t1daeb059p97e6ef4f535bda20@mail.gmail.com>
+Date: Mon, 14 Nov 2005 20:52:55 -0600
+From: Josh Boyer <jwboyer@gmail.com>
+To: Paul Jackson <pj@sgi.com>
+Subject: Re: [RFC] HOWTO do Linux kernel development
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, greg@kroah.com
+In-Reply-To: <20051114184205.073692cd.pj@sgi.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051114220709.GA5234@kroah.com> <20051114221005.GA5539@kroah.com>
+	 <625fc13d0511141632k541fe338wb9a51222f4a0f453@mail.gmail.com>
+	 <20051114172544.31c87778.pj@sgi.com>
+	 <625fc13d0511141816v66317c09r3eb2b7743569a5a1@mail.gmail.com>
+	 <20051114184205.073692cd.pj@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
+On 11/14/05, Paul Jackson <pj@sgi.com> wrote:
+> > Apparently that isn't my forte.
 >
-> ah-hah.  We've had machines stuck in radeon_do_wait_for_idle() before.  In
-> fact, my workstation was doing it a year or two back.
->
-> Are you able to identify the most recent kernel which didn't do this?
->
-> David, is there a common cause for this?  ISTR that it's a semi-FAQ.
+> It may well be your forte.  I was commenting on your post, not on you.
 
-Yes invariably the GPU has crashed and isn't responding to anything.
-unfortuantely radeons have a lot of reasons for crashing most of them very
-unrelated to anything like reality...  we normally try and approach them
-on a case by case basis as some can be solved easily some not so...
+How about this:
 
-Also what X was doing etc at the time is invalulable info..
+The goal of the kernel community is to provide the best possible
+kernel there is.  When you submit a patch for acceptance, it will be
+reviewed on it's technical merits and those alone.  So, what should
+you be expecting?
 
-Dave.
+- criticism,
+- comments
+- requests for change
+- requests justification.
 
+Remember, this is part of getting your patch into the kernel.  You
+have to be able to take criticism and comments about your patches,
+evaluate them at a technical level and either rework your patches or
+provide clear and concise reasoning as to why those changes should not
+be made.
 
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-Linux kernel - DRI, VAX / pam_smb / ILUG
+What should you not do?
 
+- expect your patch to be accepted without question
+- become defensive
+- ignore comments and resubmit the patch without making any changes
+- explain how your project is funded by XYZ and therefore must be
+awesome as it is
+
+In a community that is looking for the best technical solution
+possible, there will always be differing opinions on how beneficial a
+patch is.  You have to be cooperative, and
+willing to adapt your idea to fit within the kernel.  Or at least be
+willing to prove your idea is worth it.  Remember, being wrong is ok
+as long as you are willing to work toward a solution that is right.
+
+josh

@@ -1,82 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965006AbVKOTNS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964972AbVKOTRm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965006AbVKOTNS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 14:13:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965009AbVKOTNS
+	id S964972AbVKOTRm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 14:17:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965007AbVKOTRm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 14:13:18 -0500
-Received: from spirit.analogic.com ([204.178.40.4]:18949 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S965006AbVKOTNR convert rfc822-to-8bit
+	Tue, 15 Nov 2005 14:17:42 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:34484 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S964972AbVKOTRm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 14:13:17 -0500
+	Tue, 15 Nov 2005 14:17:42 -0500
+Message-ID: <437A3453.6080000@watson.ibm.com>
+Date: Tue, 15 Nov 2005 14:17:39 -0500
+From: Hubertus Franke <frankeh@watson.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <20051115102425.0iln2874xjoc4g84@coolrunningconcepts.com>
-References: <20051115102425.0iln2874xjoc4g84@coolrunningconcepts.com>
-X-OriginalArrivalTime: 15 Nov 2005 19:13:16.0370 (UTC) FILETIME=[A1BF2320:01C5EA18]
-Content-class: urn:content-classes:message
-Subject: Re: Timer idea
-Date: Tue, 15 Nov 2005 14:13:16 -0500
-Message-ID: <Pine.LNX.4.61.0511151401400.6145@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Timer idea
-Thread-Index: AcXqGKHI6hyy5WM8ScOSQf82hwxYGg==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: <evan@coolrunningconcepts.com>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+CC: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org,
+       haveblue@us.ibm.com
+Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
+References: <20051114212341.724084000@sergelap> <20051114153649.75e265e7.pj@sgi.com> <20051115010155.GA3792@IBM-BWN8ZTBWAO1> <20051114175140.06c5493a.pj@sgi.com> <20051115022931.GB6343@sergelap.austin.ibm.com> <20051114193715.1dd80786.pj@sgi.com> <20051115051501.GA3252@IBM-BWN8ZTBWAO1> <20051114223513.3145db39.pj@sgi.com> <20051115081100.GA2488@IBM-BWN8ZTBWAO1> <20051115010624.2ca9237d.pj@sgi.com> <20051115190030.GA16790@sergelap.austin.ibm.com>
+In-Reply-To: <20051115190030.GA16790@sergelap.austin.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Serge E. Hallyn wrote:
+> Quoting Paul Jackson (pj@sgi.com):
+> 
+>>An additional per-task attribute, set by a batch manager typically
+>>when it starts a job on a checkpointable, restartable, movable
+>>"virtual server" connects the job parent task, and hence all its
+>>descendents in that job, with a named kernel object that has among its
+>>attributes a pid range.  When fork is handing out new pids, it honors
+>>that pid range.  User level code, in the batch manager or system
+>>administration layer manages a set of these named virtual servers,
+>>including assigning pid ranges to them, and puts what is usually the
+>>same such configuration on each server in the farm.
+> 
 
-On Tue, 15 Nov 2005 evan@coolrunningconcepts.com wrote:
+And that's how we implement this.
+The difference is that the pidrange-id is assigned on the fly,
+that is when the virtual server is created or recreated after restart.
 
-> I was thinking about benchmarking, profiling, and various other applications
-> that might need frequent access to the current time.  Polling timers or
-> frequent timer signal delivery both seem like there would be a lot of
-> overhead.
-> I was thinking it would be nice if you could just read the time information
-> without making an OS call.
->
-> I figure the kernel keeps accurate records of current time information and the
-> values of various timers.  I then had the idea that one could have a /dev or
-> maybe a /proc entry that would allow you to mmap() the kernel records (read
-> only) and then you could read this information right from the kernel without
-> any overhead.
+This, as described in my previous note, is more scalable, because I don't have
+to do a global pidrange partitioning.
+global pidrange partitioning has implications, for instance what if I simply
+want to freeze an app only to restart it much later. This would freeze that
+range autmatically.
 
-Great invention, read some timer without any overhead! I guess if
-you can figure it out you are up for a Nobel Prize, certainly a new
-breakthrough.
+On process restart, we force fork to use a particular <pidspace/pid> for its
+kernel pid assignment, rather then searching for a free one.
 
-FYI, even if you put some kernel spinning count in shared-memory,
-it would have overhead. In fact, users might even be able DOS the
-machine by spinning on that count. Putting time in /proc or /dev
-also has great overhead. Have you ever looked at how these
-file-systems work?
+-- Hubertus
 
-On ix86 machines, basic time comes from chip(s), read from ports.
-That's just another tiny little problem.
 
-The time-keeping in Linux certainly has a few problems and they
-don't seem to be getting resolved, just exchanging one set of
-problems for another as the timer code has been rewritten many
-times. It would helpful if somebody did take a fresh new look
-at timekeeping, but reading something from shared memory just
-isn't relevant.
 
->
-> Comments?  Please CC me on replies.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.51 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

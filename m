@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964959AbVKORFU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964966AbVKORIY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964959AbVKORFU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 12:05:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964957AbVKORFU
+	id S964966AbVKORIY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 12:08:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964967AbVKORIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 12:05:20 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:58764 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964941AbVKORFS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 12:05:18 -0500
-Date: Tue, 15 Nov 2005 09:05:08 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Howells <dhowells@redhat.com>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-cachefs@redhat.com,
-       linux-fsdevel@vger.kernel.org, nfsv4@linux-nfs.org
-Subject: Re: [PATCH 0/12] FS-Cache: Generic filesystem caching facility
-In-Reply-To: <29307.1132062707@warthog.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.64.0511150901280.3945@g5.osdl.org>
-References: <Pine.LNX.4.64.0511141428390.3263@g5.osdl.org> 
- <dhowells1132005277@warthog.cambridge.redhat.com> <29307.1132062707@warthog.cambridge.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 15 Nov 2005 12:08:24 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:23233 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S964966AbVKORIX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 12:08:23 -0500
+Date: Tue, 15 Nov 2005 11:08:20 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org,
+       frankeh@watson.ibm.com, haveblue@us.ibm.com
+Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
+Message-ID: <20051115170819.GC2832@IBM-BWN8ZTBWAO1>
+References: <20051114212341.724084000@sergelap> <20051114153649.75e265e7.pj@sgi.com> <20051115010155.GA3792@IBM-BWN8ZTBWAO1> <20051114175140.06c5493a.pj@sgi.com> <20051115022931.GB6343@sergelap.austin.ibm.com> <20051114193715.1dd80786.pj@sgi.com> <20051115051501.GA3252@IBM-BWN8ZTBWAO1> <20051115164708.GA12807@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051115164708.GA12807@kroah.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 15 Nov 2005, David Howells wrote:
->
-> I don't think I have a need for both. Either I give you a cookie (for which
-> there may be nothing in the cache); or I give you the "negative" cookie for
-> which there's definitely nothing in the cache, and gracefully refuse to
-> service it.
+Quoting Greg KH (greg@kroah.com):
+> On Mon, Nov 14, 2005 at 11:15:01PM -0600, Serge E. Hallyn wrote:
+> > Quoting Paul Jackson (pj@sgi.com):
+> > > Serge wrote:
+> > > > the vserver model
+> > > 
+> > > What's that?
+> > 
+> > :)  Well a vserver pretends to be a full system of its own, though you
+> > can have lots of vservers on one machine.  Processes in each virtual
+> > server see only other processes in the same vserver.  However in
+> > vserver the pids they see are the real kernel pids - except for one
+> > process per vserver which can be the fakeinit.  Other processes in the
+> > same vserver see it as pid 1, but to the kernel it is still known by
+> > its real pid.
 > 
-> So, would you still rather I used NULL? If so, I can change it easily enough.
+> Why not just use Xen?  It can handle process migration from one virtual
+> machine to another just fine.
 
-Yes, if you don't have real negative cookies, then just use NULL.
+It handles vm migration, but not process migration.  The most compelling
+thing (imo) which the latter allows you to do is live OS upgrade under
+an application.  Xen won't let you do that.  Of course load-balancing is
+also more fine-grained and powerful with process set migration, and
+the overhead of a full OS per migrateable job is quite heavy.
 
-Think of malloc(). It doesn't return MALLOC_OUT_OF_MEMORY_COOKIE when it 
-won't give you any more memory. It returns NULL.
+That's not to say we don't also want to use Xen :) - it has it's own
+advantages and I'm not intending to denigrate those.  We just hope to
+get both!
 
-The advantage of NULL is that people know what it is, and that the C 
-language _defines_ that you can do "if (xyzzy)" to test for non-NULL. 
-Conversely, the disadvantage of using a special cookie (that just happens 
-to be NULL) is that the test for NULL still _works_, so now you have two 
-ways of doing something and the compiler will never warn.
+-serge
 
-So in a very real sense, NULL _always_ exists. You can't make it go away 
-by defining it to another name, and by using another name you just confuse 
-things (if they are in fact the same).
-
-		Linus

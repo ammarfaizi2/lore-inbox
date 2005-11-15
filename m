@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964956AbVKORDS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964959AbVKORFU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964956AbVKORDS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 12:03:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964958AbVKORDS
+	id S964959AbVKORFU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 12:05:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964957AbVKORFU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 12:03:18 -0500
-Received: from smtp5-g19.free.fr ([212.27.42.35]:56705 "EHLO smtp5-g19.free.fr")
-	by vger.kernel.org with ESMTP id S964924AbVKORDR (ORCPT
+	Tue, 15 Nov 2005 12:05:20 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:58764 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964941AbVKORFS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 12:03:17 -0500
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: Hugh Dickins <hugh@veritas.com>
-Subject: Re: 2.6.15-rc1-git1: BTTV: no picture with grabdisplay; later, an Oops
-Date: Tue, 15 Nov 2005 18:03:12 +0100
-User-Agent: KMail/1.8.3
-Cc: Meelis Roos <mroos@linux.ee>, linux-kernel@vger.kernel.org,
-       mchehab@brturbo.com.br
-References: <20051115141305.049CF14200@rhn.tartu-labor> <Pine.LNX.4.61.0511151508110.3622@goblin.wat.veritas.com> <200511151744.04320.baldrick@free.fr>
-In-Reply-To: <200511151744.04320.baldrick@free.fr>
+	Tue, 15 Nov 2005 12:05:18 -0500
+Date: Tue, 15 Nov 2005 09:05:08 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: David Howells <dhowells@redhat.com>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-cachefs@redhat.com,
+       linux-fsdevel@vger.kernel.org, nfsv4@linux-nfs.org
+Subject: Re: [PATCH 0/12] FS-Cache: Generic filesystem caching facility
+In-Reply-To: <29307.1132062707@warthog.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.64.0511150901280.3945@g5.osdl.org>
+References: <Pine.LNX.4.64.0511141428390.3263@g5.osdl.org> 
+ <dhowells1132005277@warthog.cambridge.redhat.com> <29307.1132062707@warthog.cambridge.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511151803.13099.duncan.sands@math.u-psud.fr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->...
-> with this change, I can't get as far as selecting channels (previous situation):
-> I consistently get the following Oops on starting xawtv (tried three times).
-> However, as well as your change I slimmed down my kernel config and turned on
-> CONFIG_DEBUG_PAGEALLOC, so it is not clear whether the change to memory.c is
-> responsable.  I will try again, reverting the memory.c change.
 
-Reverting the change, I still get the oops when I start xawtv.  So for the moment
-I am unable to say if your suggestion cures the "no picture" problem or not.
 
-Best wishes,
+On Tue, 15 Nov 2005, David Howells wrote:
+>
+> I don't think I have a need for both. Either I give you a cookie (for which
+> there may be nothing in the cache); or I give you the "negative" cookie for
+> which there's definitely nothing in the cache, and gracefully refuse to
+> service it.
+> 
+> So, would you still rather I used NULL? If so, I can change it easily enough.
 
-Duncan.
+Yes, if you don't have real negative cookies, then just use NULL.
+
+Think of malloc(). It doesn't return MALLOC_OUT_OF_MEMORY_COOKIE when it 
+won't give you any more memory. It returns NULL.
+
+The advantage of NULL is that people know what it is, and that the C 
+language _defines_ that you can do "if (xyzzy)" to test for non-NULL. 
+Conversely, the disadvantage of using a special cookie (that just happens 
+to be NULL) is that the test for NULL still _works_, so now you have two 
+ways of doing something and the compiler will never warn.
+
+So in a very real sense, NULL _always_ exists. You can't make it go away 
+by defining it to another name, and by using another name you just confuse 
+things (if they are in fact the same).
+
+		Linus

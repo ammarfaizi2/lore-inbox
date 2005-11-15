@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932556AbVKOXGi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965073AbVKOXIS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932556AbVKOXGi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 18:06:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932558AbVKOXGi
+	id S965073AbVKOXIS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 18:08:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965074AbVKOXIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 18:06:38 -0500
-Received: from gate.crashing.org ([63.228.1.57]:19086 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932556AbVKOXGh (ORCPT
+	Tue, 15 Nov 2005 18:08:18 -0500
+Received: from mail.ocs.com.au ([202.147.117.210]:15812 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S965073AbVKOXIR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 18:06:37 -0500
-Subject: Re: PowerBook5,8 - TrackPad update
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Parag Warudkar <kernel-stuff@comcast.net>
-Cc: debian-powerpc@lists.debian.org, linux-kernel@vger.kernel.org
-In-Reply-To: <111520052143.16540.437A5680000BE8A60000409C220076369200009A9B9CD3040A029D0A05@comcast.net>
-References: <111520052143.16540.437A5680000BE8A60000409C220076369200009A9B9CD3040A029D0A05@comcast.net>
-Content-Type: text/plain
-Date: Wed, 16 Nov 2005 10:06:14 +1100
-Message-Id: <1132095974.5646.55.camel@gaston>
+	Tue, 15 Nov 2005 18:08:17 -0500
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
+From: Keith Owens <kaos@sgi.com>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Hubertus Franke <frankeh@watson.ibm.com>,
+       Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [RFC] [PATCH 12/13] Change pid accesses: ia64 and mips 
+In-reply-to: Your message of "Mon, 14 Nov 2005 15:23:53 MDT."
+             <20051114212530.486945000@sergelap> 
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 16 Nov 2005 10:08:12 +1100
+Message-ID: <22645.1132096092@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-15 at 21:43 +0000, Parag Warudkar wrote:
-> Just a heads up - After some lame hacking I finally have got the trackpad on the PB5,8  (15" Late Oct 2005) to work. 
-> 
-> Ok, here is the current definition of working - mouse moves but for that you have to roll over on the trackpad ;)!
-> 
-> Currently negotiating with it so that it's happy with the fingers!! :D
-> 
-> Will post the modified source once for appletouch once it starts working acceptably.
+On Mon, 14 Nov 2005 15:23:53 -0600, 
+"Serge E. Hallyn" <serue@us.ibm.com> wrote:
+>Index: linux-2.6.15-rc1/arch/ia64/kernel/mca.c
+>===================================================================
+>--- linux-2.6.15-rc1.orig/arch/ia64/kernel/mca.c
+>+++ linux-2.6.15-rc1/arch/ia64/kernel/mca.c
+>@@ -755,9 +755,9 @@ ia64_mca_modify_original_stack(struct pt
+> 	 * (swapper or nested MCA/INIT) then use the start of the previous comm
+> 	 * field suffixed with its cpu.
+> 	 */
+>-	if (previous_current->pid)
+>+	if (previous_task_pid(current))
+> 		snprintf(comm, sizeof(comm), "%s %d",
+>-			current->comm, previous_current->pid);
+>+			current->comm, previous_task_pid(current));
+> 	else {
+> 		int l;
+> 		if ((p = strchr(previous_current->comm, ' ')))
 
-hi Parag !
-
-You should probably post those updates to linuxppc-dev@ozlabs.org
-
-Ben
-
+That makes no sense, previous_task_pid() is not defined anywhere.
+Looks like a global edit error and should probably be
+task_pid(previous_current).
 

@@ -1,69 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751472AbVKORrE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751466AbVKORt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751472AbVKORrE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 12:47:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751470AbVKORrE
+	id S1751466AbVKORt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 12:49:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbVKORt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 12:47:04 -0500
-Received: from mail.kroah.org ([69.55.234.183]:26272 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751467AbVKORrB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 12:47:01 -0500
-Date: Tue, 15 Nov 2005 09:33:07 -0800
-From: Greg KH <gregkh@suse.de>
-To: Andi Kleen <ak@suse.de>
+	Tue, 15 Nov 2005 12:49:56 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:56969 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751466AbVKORtz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 12:49:55 -0500
+Subject: Re: DMA transfer with kiobuf, kernel 2.4.21
+From: Arjan van de Ven <arjan@infradead.org>
+To: sej <trash@aie-etudes.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] HOWTO do Linux kernel development
-Message-ID: <20051115173307.GB13707@suse.de>
-References: <20051114220709.GA5234@kroah.com> <p73veyu2crf.fsf@verdi.suse.de>
+In-Reply-To: <437A1D6E.4060302@aie-etudes.com>
+References: <437A1D6E.4060302@aie-etudes.com>
+Content-Type: text/plain
+Date: Tue, 15 Nov 2005 18:49:45 +0100
+Message-Id: <1132076986.2822.34.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <p73veyu2crf.fsf@verdi.suse.de>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 15, 2005 at 03:42:44PM +0100, Andi Kleen wrote:
-> Greg KH <gregkh@suse.de> writes:
+On Tue, 2005-11-15 at 18:39 +0100, sej wrote:
+> Hi,
+> I allocate a big chunck of memory from user space with :
 > 
-> > The kernel is written using GNU C and the GNU toolchain. While it
-> > adheres to the ISO C99 (??) standard, it uses a number of extensions
+> #define MEM_SIZE_DMA (128*1024*1024)
+> // allocate 128MB of memory
+> void *_pVirtualMem = memalign(sysconf(_SC_PAGESIZE), MEM_SIZE_DMA);
 > 
-> C89 - The few left over gcc 2.95 users are blocking modern C constructs.
-> Even without that it would be a C99 subset, e.g. arbitary long long divisions 
-> or floating point are not supported.
+> // Reserve memory
+> memset(_pVirtualMem, 0, MEM_SIZE_DMA);
 > 
-> Also the kernel is a freestanding C environment, so parts are not supported.
-
-Thanks, I've modified it to mention this.
-
-> > Also realize that it is not acceptable to send patches for inclusion
-> > that are unfinished and will be "fixed up later."
+> // Lock memory
+> if (!mlock(_pVirtualMem, MEM_SIZE_DMA ))
+> {
+> free(_pVirtualMem);
+> return false;
+> }
 > 
-> I'm not sure I fully agree on that. I conflicts with the "merge early, merge
-> often" imperative.  IMHO it's ok to submit patches that are not perfect,
-> but improve something or make a incremental cleanup step, as long as the
-> problems are not severe and the patch by itself is a clear improvement. Of course
-> this is handled on a case by case basis.
+> Then I call an IOCTL from my driver (DmaMapDescrpImg) to create a DMA
+> scatter gather list.
 
-Yeah, it is a case-by-case, but generally we want to know up front what
-the final result is going to be.
+that sounds the wrong approach.. why don't you make your device driver
+export an mmap function.. and let the userspace app use that ?
 
-> > Justify your change
-> > -------------------
-> > 
-> > Along with breaking up your patches, it is very important for you to let
-> > the Linux community know why they should add this change.  New features
-> > must be justified as being needed and useful.
+
 > 
-> My request is that each patch should carry a meaningful changelog.
-> That should tell why and a rough (doesn't need to be detailed) overview how
-> the change is done.
+> transfer->Descript[i].size        = PAGE_SIZE;
+> transfer->Descript[i].pciaddr    = (ULONG)
+> virt_to_phys(page_address(iobuf->maplist[idxIobuf]));
 
-Others privately commented on this too, and I've added a section
-describing it.
+you really need to use the PCI DMA mapping api!
 
-Thanks for the comments.
 
-greg k-h
+

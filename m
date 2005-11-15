@@ -1,69 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964993AbVKOUAG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965024AbVKOUFf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964993AbVKOUAG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 15:00:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965023AbVKOUAG
+	id S965024AbVKOUFf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 15:05:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965026AbVKOUFf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 15:00:06 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:53642 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964993AbVKOUAC (ORCPT
+	Tue, 15 Nov 2005 15:05:35 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:51409 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965024AbVKOUFe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 15:00:02 -0500
-Date: Tue, 15 Nov 2005 21:00:10 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: john cooper <john.cooper@timesys.com>
-Cc: Luca Falavigna <dktrkranz@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Softlockup detected with linux-2.6.14-rt6
-Message-ID: <20051115200010.GA13802@elte.hu>
-References: <4378B48E.6010006@gmail.com> <20051115153257.GA9727@elte.hu> <437A14FB.8050206@timesys.com>
+	Tue, 15 Nov 2005 15:05:34 -0500
+Date: Tue, 15 Nov 2005 12:05:09 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH 01/15] mm: poison struct page for ptlock
+Message-Id: <20051115120509.0de0cd85.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0511151947010.7872@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com>
+	<Pine.LNX.4.61.0511100142160.5814@goblin.wat.veritas.com>
+	<20051109181022.71c347d4.akpm@osdl.org>
+	<20051115104916.353e7ade.akpm@osdl.org>
+	<Pine.LNX.4.61.0511151947010.7872@goblin.wat.veritas.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <437A14FB.8050206@timesys.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* john cooper <john.cooper@timesys.com> wrote:
-
-> Ingo Molnar wrote:
-> >* Luca Falavigna <dktrkranz@gmail.com> wrote:
-> >>I found this softlockup bug involving arts daemon using a
-> >>linux-2.6.14-rt6 kernel (with "Complete Preemption" and "Detect Soft
-> >>Lockups" compiled in).
-> >>This bug does not happen everytime: I was able to reproduce it only
-> >>three times in a week. [...]
-> >
-> >
-> >does this happen with -rt13 too? I have fixed a softlockup 
-> >false-positive in it.
+Hugh Dickins <hugh@veritas.com> wrote:
+>
+> On Tue, 15 Nov 2005, Andrew Morton wrote:
+> > 
+> > It occurs to me that we can do the above if (__GNUC__ > 2), or whatever.
+> > 
+> > That way, the only people who have a 4-byte-larger pageframe are those who
+> > use CONFIG_PREEMPT, NR_CPUS>=4 and gcc-2.x.y.  An acceptably small
+> > community, I suspect.
 > 
-> Just curious what the cause of the false positive was?
+> I can't really think of this at the moment (though the PageReserved
+> fixups going smoother this evening).  Acceptably small community, yes.
+> But wouldn't it plunge us into the very mess of wrappers we were trying
+> to avoid with anony structunions, to handle the __GNUC__ differences?
 
-the fix is below - we didnt reset the 'light' counter in the else 
-branch.
+Nope, all the changes would be constrained to the definition of struct
+page, and struct page is special.
 
-	Ingo
+struct page {
+	...
+#if __GNUC__ > 2
+	union {
+		spinlock_t ptl;
+		struct {
+			unsigned long private;
+			struct address_space *mapping;
+		}
+	}
+#else
+	union {
+		unsigned long private;
+		spinlock_t ptl;
+	} u;
+	struct address_space *mapping;
+#endif
 
-Index: linux/kernel/softlockup.c
-===================================================================
---- linux.orig/kernel/softlockup.c
-+++ linux/kernel/softlockup.c
-@@ -90,7 +90,8 @@ void softlockup_tick(void)
- 
- 		wake_up_process(per_cpu(watchdog_task, this_cpu));
- 		per_cpu(timeout, this_cpu) = jiffies + msecs_to_jiffies(1000);
--	}
-+	} else
-+		touch_light_softlockup_watchdog();
- 
- 	if (per_cpu(print_timestamp, this_cpu) == timestamp)
- 		return;
+
+and
+
+#if __GNUC__ > 2
+#define page_private(page)		((page)->private)
+#define set_page_private(page, v)	((page)->private = (v))
+#else
+#define page_private(page)		((page)->u.private)
+#define set_page_private(page, v)	((page)->u.private = (v))
+#endif
+
+Of course, adding "u." and "u.s." all over the place would be a sane
+solution, but we can do that later - I'm sure we'll be changing struct page
+again.
+
+View the above as "a space optimisation made possible by gcc-3.x".

@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751455AbVKORdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751459AbVKORjq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751455AbVKORdo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 12:33:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751457AbVKORdo
+	id S1751459AbVKORjq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 12:39:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbVKORjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 12:33:44 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:34016 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751455AbVKORdn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 12:33:43 -0500
-Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: "SERGE E. HALLYN [imap]" <serue@us.ibm.com>, Paul Jackson <pj@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       frankeh@watson.ibm.com
-In-Reply-To: <20051115164708.GA12807@kroah.com>
-References: <20051114212341.724084000@sergelap>
-	 <20051114153649.75e265e7.pj@sgi.com>
-	 <20051115010155.GA3792@IBM-BWN8ZTBWAO1>
-	 <20051114175140.06c5493a.pj@sgi.com>
-	 <20051115022931.GB6343@sergelap.austin.ibm.com>
-	 <20051114193715.1dd80786.pj@sgi.com>
-	 <20051115051501.GA3252@IBM-BWN8ZTBWAO1>  <20051115164708.GA12807@kroah.com>
-Content-Type: text/plain
-Date: Tue, 15 Nov 2005 18:33:39 +0100
-Message-Id: <1132076019.6108.67.camel@localhost>
+	Tue, 15 Nov 2005 12:39:46 -0500
+Received: from mail.kroah.org ([69.55.234.183]:38045 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751459AbVKORjq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 12:39:46 -0500
+Date: Tue, 15 Nov 2005 09:25:28 -0800
+From: Greg KH <greg@kroah.com>
+To: Doug Thompson <norsk5@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] EDAC and the sysfs
+Message-ID: <20051115172528.GB13658@kroah.com>
+References: <20051114223105.GA5868@kroah.com> <20051115004704.91557.qmail@web50106.mail.yahoo.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051115004704.91557.qmail@web50106.mail.yahoo.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-15 at 08:47 -0800, Greg KH wrote:
-> Why not just use Xen?  It can handle process migration from one virtual
-> machine to another just fine.
+On Mon, Nov 14, 2005 at 04:47:03PM -0800, Doug Thompson wrote:
+> For each Chip-Select Row (csrow) there would be
+> information. I am still trying to determine if each
+> csrow would be in its own directory or all cwrows just
+> flat in the mc0, mc1, ... directories. 
+> 
+> Assuming each csrow is in its own directory (which is
+> the way I am leaning) below:
+> 
+> csrow0/
+> csrow1/
+> csrow2/
+> csrow3/
+> ...
+> 
+> info files in the above directories:
+> 
+> memory_size
+> memory_type
+> device_type
+> edac_mode
+> ue_count
+> ce_count
+> ce_count_channel_0
+> ce_count_channel_1
+> dimm_label
+> dimm_label_channel_0
+> dimm_label_channel_1
+> 
 
-Xen is relatively slow compared to the approach that we want to use.
-It's a pain in the neck to set up, especially if you want a _lot_ of
-partitions.  We were going to try to compare the relative performance of
-the two approaches as as the number of vservers and Xen VMs is
-increased.  We haven't found anyone brave enough to set up 100 Xen
-guests on a single system. :)
+Ok, thanks for the details, it makes more sense now.  Your heirachy
+seems sane, have you implemented it to see if it works properly?
 
-The overhead of storing the application snapshots that we're envisioning
-can be quite tiny compared to Xen.  This becomes horribly important if
-you want to store the snapshots for a bit, and not simply keep one
-around for long enough to restore the image elsewhere.
+thanks,
 
-Xen doesn't share Linux caches between partitions.  So, as you increase
-the number of Xen partitions, the overhead of storing things like the
-'/' dentry goes up pretty linearly.  Keeping only one Linux instance
-around makes such things much nicer to share.
-
-The laundry-list of advantages is pretty long.  This is starting to
-sound like a good OLS paper :)
-
--- Dave
-
+greg k-h

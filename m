@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751412AbVKOJcX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbVKOJuc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751412AbVKOJcX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 04:32:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751415AbVKOJcW
+	id S1751408AbVKOJuc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 04:50:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751415AbVKOJuc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 04:32:22 -0500
-Received: from ns.firmix.at ([62.141.48.66]:10114 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S1751412AbVKOJcU (ORCPT
+	Tue, 15 Nov 2005 04:50:32 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:34201 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1751408AbVKOJub (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 04:32:20 -0500
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Robert Hancock <hancockr@shaw.ca>
-Cc: ndiswrapper-general@lists.sourceforge.net,
-       "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <43796489.8090500@shaw.ca>
-References: <58XuN-29u-17@gated-at.bofh.it> <58XuN-29u-19@gated-at.bofh.it>
-	 <58XuN-29u-21@gated-at.bofh.it> <58XuN-29u-23@gated-at.bofh.it>
-	 <58XuN-29u-25@gated-at.bofh.it> <58XuN-29u-15@gated-at.bofh.it>
-	 <58YAt-3Fs-5@gated-at.bofh.it> <58ZGo-5ba-13@gated-at.bofh.it>
-	 <5909m-5JB-5@gated-at.bofh.it> <43795F35.3050904@shaw.ca>
-	 <43795C55.9080305@wolfmountaingroup.com>  <43796489.8090500@shaw.ca>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Tue, 15 Nov 2005 10:31:58 +0100
-Message-Id: <1132047119.27192.14.camel@tara.firmix.at>
+	Tue, 15 Nov 2005 04:50:31 -0500
+Date: Tue, 15 Nov 2005 01:50:08 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Simon.Derr@bull.net, clameter@sgi.com, rohit.seth@intel.com
+Subject: Re: [PATCH 01/05] mm fix __alloc_pages cpuset ALLOC_* flags
+Message-Id: <20051115015008.55d5a25e.pj@sgi.com>
+In-Reply-To: <4379A1C4.509@yahoo.com.au>
+References: <20051114040329.13951.39891.sendpatchset@jackhammer.engr.sgi.com>
+	<4379A1C4.509@yahoo.com.au>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-11-14 at 22:31 -0600, Robert Hancock wrote:
-> Jeff V. Merkey wrote:
-> > What?  There's more kernel apps than just ndis network drivers that get 
-> > ported.  ndiswrapper is busted (which is used for a lot of laptops)
-> > without 4K stacks.
-> 
-> Which is why ndiswrapper needs to get fixed to work with 4K stacks. 
-> ndiswrapper is the thing that's doing the wierd stuff, it needs to adapt 
-> to the kernel, not the other way around. The reasons to use 4K stacks 
-> are strong enough that they are not made up for by the fact that 
-> ndiswrapper currently would like to have more stack space.
+Nick wrote:
+> I was under the impression that you
+> introduced the exception reverted in #2 due to seeing atomic
+> allocation failures?!
 
-There was a discussion weeks (or already months?) ago about this. The
-ndiswrapper maintainer had no problem with private stacks for the NDIS
-drivers but IIRC there where some issues with callbacks from the NDIS
-drivers which led to the conclusion that it's way too much of a hassle
-to get it working and stable.
-And yes, you need ndiswrapper for almost all of the WLAN drivers since
-there is no documentation of them.
+For the record, the discussion Nick is recalling starts here:
 
-	Bernd
+  http://www.ussg.iu.edu/hypermail/linux/kernel/0503.3/0763.html
+
+My motivation for letting GFP_ATOMIC requests escape cpuset confinement
+was not based on seeing real world events, but based on code reading.
+
+If some GFP_ATOMIC requests fail, the system can panic.  Apparently
+these allocations are in init and setup code, where only a really
+sick system could fail a kmalloc() anyway.  But, back then in March
+2005, I concluded that GFP_ATOMIC requests were the absolute most
+essential allocations to satisfy, at all costs, cpusets be damned.
+
+This time around, when reading __alloc_pages() again, I realized that
+GFP_ATOMIC requests did not get the highest priority in setting
+watermarks.  Even they had to leave some reserves behind.  The only
+allocations allowed to ignore all mins were the special case of
+allocations that promised to free more memory than they were consuming,
+really soon now (such as an exiting task).
+
+I figured this time that what's good for watermark setting is good for
+cpuset setting.
+
 -- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

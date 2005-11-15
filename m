@@ -1,58 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751057AbVKOVm1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751053AbVKOVne@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751057AbVKOVm1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 16:42:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751055AbVKOVm1
+	id S1751053AbVKOVne (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 16:43:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751052AbVKOVne
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 16:42:27 -0500
-Received: from heidi.rubysoft.com ([64.34.164.143]:53444 "EHLO
-	heidi.rubysoft.com") by vger.kernel.org with ESMTP id S1750839AbVKOVm0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 16:42:26 -0500
-Message-ID: <437A5630.90401@cardaccess-inc.com>
-Date: Tue, 15 Nov 2005 14:42:08 -0700
-From: Jeff Hansen <jhansen@cardaccess-inc.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051014)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: IXDP425 Setup Bug
-Content-Type: multipart/mixed;
- boundary="------------020902020407080407020802"
+	Tue, 15 Nov 2005 16:43:34 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:52097 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1750839AbVKOVnd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 16:43:33 -0500
+From: kernel-stuff@comcast.net (Parag Warudkar)
+To: debian-powerpc@lists.debian.org
+Cc: linux-kernel@vger.kernel.org
+Subject: PowerBook5,8 - TrackPad update
+Date: Tue, 15 Nov 2005 21:43:28 +0000
+Message-Id: <111520052143.16540.437A5680000BE8A60000409C220076369200009A9B9CD3040A029D0A05@comcast.net>
+X-Mailer: AT&T Message Center Version 1 (Dec 17 2004)
+X-Authenticated-Sender: a2VybmVsLXN0dWZmQGNvbWNhc3QubmV0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020902020407080407020802
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Just a heads up - After some lame hacking I finally have got the trackpad on the PB5,8  (15" Late Oct 2005) to work. 
 
-To whom it is concerned:
+Ok, here is the current definition of working - mouse moves but for that you have to roll over on the trackpad ;)!
 
-There is a typo in the ARM IXDP425 setup definition that mistakenly 
-tries to use UART1's IRQ for UART2's traffic.  The patch is attached.
+Currently negotiating with it so that it's happy with the fingers!! :D
 
--Jeff Hansen
-Card Access, Inc.
+Will post the modified source once for appletouch once it starts working acceptably.
 
-
---------------020902020407080407020802
-Content-Type: text/x-patch;
- name="ixdp425-setup.c.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ixdp425-setup.c.patch"
-
---- arch/arm/mach-ixp4xx/ixdp425-setup.c.orig	2005-11-15 13:54:16.000000000 -0700
-+++ arch/arm/mach-ixp4xx/ixdp425-setup.c	2005-11-15 14:20:23.000000000 -0700
-@@ -90,7 +90,7 @@
- 	{
- 		.mapbase	= IXP4XX_UART2_BASE_PHYS,
- 		.membase	= (char *)IXP4XX_UART2_BASE_VIRT + REG_OFFSET,
--		.irq		= IRQ_IXP4XX_UART1,
-+		.irq		= IRQ_IXP4XX_UART2,
- 		.flags		= UPF_BOOT_AUTOCONF,
- 		.iotype		= UPIO_MEM,
- 		.regshift	= 2,
-
---------------020902020407080407020802--
+Parag

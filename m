@@ -1,95 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965060AbVKOWvd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965062AbVKOWxv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965060AbVKOWvd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 17:51:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965059AbVKOWvd
+	id S965062AbVKOWxv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 17:53:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965064AbVKOWxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 17:51:33 -0500
-Received: from mail.kroah.org ([69.55.234.183]:44204 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965060AbVKOWvc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 17:51:32 -0500
-Date: Tue, 15 Nov 2005 14:30:58 -0800
-From: Greg KH <gregkh@suse.de>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: [RFC] HOWTO do Linux kernel development - take 2
-Message-ID: <20051115223057.GA12986@suse.de>
-References: <20051115210459.GA11363@kroah.com> <9a8748490511151421g2eb40cebyee78a88991867ac@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9a8748490511151421g2eb40cebyee78a88991867ac@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+	Tue, 15 Nov 2005 17:53:51 -0500
+Received: from sccrmhc12.comcast.net ([63.240.77.82]:49304 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S965062AbVKOWxu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 17:53:50 -0500
+In-Reply-To: <437A613A.1020705@watson.ibm.com>
+References: <43796596.2010908@watson.ibm.com> <1F92A563-B430-49FE-895E-FB93DC64981E@comcast.net> <437A613A.1020705@watson.ibm.com>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <4ABDC730-2888-4DBE-B1DC-62362A87EEB7@comcast.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+From: Parag Warudkar <kernel-stuff@comcast.net>
+Subject: Re: [Patch 1/4] Delay accounting: Initialization
+Date: Tue, 15 Nov 2005 17:53:32 -0500
+To: nagar@watson.ibm.com
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 15, 2005 at 11:21:03PM +0100, Jesper Juhl wrote:
-> On 11/15/05, Greg KH <gregkh@suse.de> wrote:
-> > Here's an updated version of the "HOTO do Linux kernel development"
-> > document that I've been working on.
-> >
-> [snip]
-> > Here is a list of some of the different kernel trees available:
-> >   git trees:
-> >     - Kbuild development tree, Sam Ravnborg <sam@ravnborg.org>
-> >         kernel.org:/pub/scm/linux/kernel/git/sam/kbuild.git
-> >
-> >     - ACPI development tree, Len Brown <len.brown@intel.com>
-> >         kernel.org:/pub/scm/linux/kernel/git/lenb/linux-acpi-2.6.git
-> >
-> >     - Block development tree, Jens Axboe <axboe@suse.de>
-> >         kernel.org:/pub/scm/linux/kernel/git/axboe/linux-2.6-block.git
-> >
-> >     - DRM development tree, Dave Airlie <airlied@linux.ie>
-> >         kernel.org:/pub/scm/linux/kernel/git/airlied/drm-2.6.git
-> >
-> >     - ia64 development tree, Tony Luck <tony.luck@intel.com>
-> >         kernel.org:/pub/scm/linux/kernel/git/aegl/linux-2.6.git
-> >
-> >     - ieee1394 development tree, Jody McIntyre <scjody@modernduck.com>
-> >         kernel.org:/pub/scm/linux/kernel/git/scjody/ieee1394.git
-> >
-> >     - infiniband, Roland Dreier <rolandd@cisco.com>
-> >         kernel.org:/pub/scm/linux/kernel/git/roland/infiniband.git
-> >
-> >     - libata, Jeff Garzik <jgarzik@pobox.com>
-> >         kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
-> >
-> >     - network drivers, Jeff Garzik <jgarzik@pobox.com>
-> >         kernel.org:/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
-> >
-> >     - pcmcia, Dominik Brodowski <linux@dominikbrodowski.net>
-> >         kernel.org:/pub/scm/linux/kernel/git/brodo/pcmcia-2.6.git
-> >
-> >     - SCSI, James Bottomley <James.Bottomley@SteelEye.com>
-> >         kernel.org:/pub/scm/linux/kernel/git/jejb/scsi-misc-2.6.git
-> >
-> 
-> As I see it, this list is almost guaranteed to a) be incomplete, b) be
-> outdated almost from the start, c) require often patching of your
-> HOWTO to keep updated when tree locations/names change or people
-> change email addr.
 
-patches often isn't a problem, the kernel seems to handle that just fine
-:)
+On Nov 15, 2005, at 5:29 PM, Shailabh Nagar wrote:
+>>
+>> Curious as to when would this occur. Probably for tasks running on a
+>> SMP machine for a very short period of time (timer drift should  
+>> not  be
+>> hopefully that high) and switching CPUs in that short period of time?
+>
+> Possibly. Also, the simpler case of wraparound needs to be handled.  
+> Since
+> one delay sample isn't significant, dropping it seemed the safest bet.
+>
+Yep, better to report zero than invalid values.
 
-> Wouldn't it be better to simply point to http://kernel.org/git for the list?
+>
+>>> +config STATS_CONNECTOR
+>>> +config DELAY_ACCT
+>>
+>>
+>> Probably TASK_DELAY_STATS_CONNECTOR and TASK_DELAY_ACCOUNTING are
+>> better names?
+>
+> TASK_DELAY_ACCOUNTING is better since thats what the code protected
+> does.
+>
+> STATS_CONNECTOR can be used to transmit stats other than per-task
+> delays (current patch also transmits cpu run time). Also there's a  
+> possibility
+> that the overall per-task accounting solution whose discussion was  
+> proposed
+> by Andrew will deviate from delays. So how about TASK_STATS_CONNECTOR.
+>>
 
-Hm, probably.  I'll add that also, I think it is good to point to the
-real trees, as people do want to know that at times and this information
-isn't listed anywhere (as evident by the ammount of digging I had to do
-to find these trees...)
+Sounds good.
 
-> And email addresses for people can be found in CREDITS & MAINTAINERS,
-> why duplicate info here instead of pointing to those 2 canonical
-> documents?
+>> Does this mean, whether or not the per task delay accounting is used,
+>> we have a constant overhead of sizeof(spinlock_t) + 2*sizeof  
+>> (uint32_t)
+>> + 2* sizeof(uint64_t) bytes going into the struct  task_struct?.  
+>> Is it
+>> possible/beneficial to use struct task_delay_info  *delays instead  
+>> and
+>> allocate it if task wants to use the information?
+>>
+>
+> Doing so would have value in the case where the feature is  
+> configured but
+> no one ever registers to listen for it.
 
-I'm not meaning to duplicate anything, as we don't have "location of
-development git/quilt tree" entry in the MAINTAINERS file.  Hm, that
-does sound like the proper place for such an entry, doesn't it?  Anyone
-want to propose that addition?
+Precisely. Such a feature will be used only occasionally I suppose.
+I didn't read the code deeply but are any scheduling decisions  
+altered based on
+this data? If not, then it makes sense to not account unless required.
 
-thanks,
+I think it should be possible to do it on demand, per process instead  
+of forcing
+the accounting on _all_ processes which cumulatively becomes a  
+sizeable o/h.
 
-greg k-h
+Per Process activation of this feature will add significant value  
+IMHO. (Of course,
+if that's possible in first place.)
+
+> The cost of doing this would be
+> - adding more code to the fork path to allocate conditionally
+
+Just an unlikely branch for normal code path - not a big deal.
+Also I am thinking it could be handled outside of fork?
+
+> - make the collecting of the delays conditional on a similar check
+
+Weighing this against the actual accounting - I think it's a win.
+
+> - cache pollution from following an extra pointer in the pgflt/ 
+> io_schedule paths
+> I'm not sure is this really matters for these two code paths.
+
+Possibly.
+
+> Even if one does this, once the first listener registers, all  
+> future tasks
+> (and even the current ones) will have to go ahead and allocate the  
+> structure
+> and accounting of delays will have to switch to unconditional mode.  
+> This is
+> because the delay data has cumulative value...future listeners will be
+> interested in data collected earlier (as long as task is still  
+> running). And
+> once the first listener registers, you can no longer be sure no  
+> one's interested
+> in the future.
+>
+
+Is it possible to do it per process? Forcing it on all processes is  
+what I was trying
+to avoid given the feature's usage pattern.
+
+> Another alternative is to let userland control the overhead of  
+> allocation and
+> collection completely through a /proc/sys/kernel/delayacct variable.
+> When its switched on, it triggers an allocation for all existing  
+> tasks in the
+> system, turns on allocation in fork() for future tasks, and  
+> collection of the stats.
+> When turned off, collection of stats stops as does allocation for  
+> future tasks
+> (not worth going in and deallocating structs for existing tasks).
+
+> Does this seem worth it ?
+>
+
+Definitely not unless we can do it per process and on demand.
+
+> -- Shailabh
+>
+
+Cheers
+
+Parag

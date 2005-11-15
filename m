@@ -1,60 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932333AbVKOKGp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbVKOKHW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932333AbVKOKGp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 05:06:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932337AbVKOKGp
+	id S932336AbVKOKHW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 05:07:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932337AbVKOKHV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 05:06:45 -0500
-Received: from barclay.balt.net ([195.14.162.78]:27486 "EHLO barclay.balt.net")
-	by vger.kernel.org with ESMTP id S932333AbVKOKGo (ORCPT
+	Tue, 15 Nov 2005 05:07:21 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:59107 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932336AbVKOKHT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 05:06:44 -0500
-Date: Tue, 15 Nov 2005 12:05:19 +0200
-From: Zilvinas Valinskas <zilvinas@gemtek.lt>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Alexandre Buisse <alexandre.buisse@ens-lyon.fr>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, yi.zhu@intel.com,
-       jketreno@linux.intel.com
-Subject: Re: Linuv 2.6.15-rc1
-Message-ID: <20051115100519.GA5567@gemtek.lt>
-Reply-To: Zilvinas Valinskas <zilvinas@gemtek.lt>
-References: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org> <4378980C.7060901@ens-lyon.fr> <20051114162942.5b163558.akpm@osdl.org>
+	Tue, 15 Nov 2005 05:07:19 -0500
+Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: "SERGE E. HALLYN [imap]" <serue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       frankeh@watson.ibm.com
+In-Reply-To: <20051115010624.2ca9237d.pj@sgi.com>
+References: <20051114212341.724084000@sergelap>
+	 <20051114153649.75e265e7.pj@sgi.com>
+	 <20051115010155.GA3792@IBM-BWN8ZTBWAO1>
+	 <20051114175140.06c5493a.pj@sgi.com>
+	 <20051115022931.GB6343@sergelap.austin.ibm.com>
+	 <20051114193715.1dd80786.pj@sgi.com>
+	 <20051115051501.GA3252@IBM-BWN8ZTBWAO1>
+	 <20051114223513.3145db39.pj@sgi.com>
+	 <20051115081100.GA2488@IBM-BWN8ZTBWAO1>
+	 <20051115010624.2ca9237d.pj@sgi.com>
+Content-Type: text/plain
+Date: Tue, 15 Nov 2005 11:07:10 +0100
+Message-Id: <1132049230.6108.23.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051114162942.5b163558.akpm@osdl.org>
-X-Attribution: Zilvinas
-X-Url: http://www.gemtek.lt/
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, 
+On Tue, 2005-11-15 at 01:06 -0800, Paul Jackson wrote:
+> No - tasks get the pid the kernel gives them at fork, as always.
+> The task keeps that exact same pid, across all checkpoints, restarts
+> and migrations.  Nothing that the application process has to worry
+> about, either inside the kernel code or in userspace, beyond the fork
+> code honoring the assigned pid range when allocating a new pid.
 
-I am compiling the latest git snapshot 4060994c3e337b40e0f6fa8ce2cc178e021baf3d.
-I will let you know if anything comes up.
+The main issues I worry about with such a static allocation scheme are
+getting the allocation patterns right, without causing new restrictions
+on the containers.  This kind of scheme is completely thrown out the
+window if someone wanted to start a process on their disconnected laptop
+and later migrate it to another machine when they connect back up to the
+network.  
 
-Z.
+> The real complexity comes, I claim, from changing the pid from a
+> system-wide name space to a partially per-job namespace.  You can
+> never do that conversion entirely and will always have confusions
+> around the edges, as pids relative to one virtual server are used,
+> incorrectly, in the environment of another virtual server or system
+> wide.
 
-On Mon, Nov 14, 2005 at 04:29:42PM -0800, Andrew Morton wrote:
-> This looks like some sort of slab scribble, possibly caused by faulty
-> error-path handling in the ipw2200 code.
-> 
-> Please enable CONFIG_DEBUG_SLAB and see if that picks anything up.
-> 
-> Also enable CONFIG_DEBUG_PAGEALLOC.
-> 
-> You may also get more info by setting CONFIG_IPW_DEBUG and loading the
-> module with `debug=65535' (guess).
-> 
-> Whatever you do, don't fix the firmware loading failure (sorry).  Doing
-> that will cause you to not be able to reproduce this bug ;)
+You're basically concerned about pids "leaking" across containers, and
+confusing applications in the process?  That's a pretty valid concern.
+However, the long-term goal here is to virtualize more than pids.  As
+you noted, this will include thing like shm ids.  Yes, I worry that
+we'll end up modifying a _ton_ of stuff in the process of doing this.
 
-Hmmm, I didn't see any problems related to f/w loading ...
+As for passing confusing pids from different namespaces in the
+filesystem, like in /var/run, there are solutions in the pipeline.
+Private namespaces and versioned filesystems should be able to cope with
+this kind of isolation very nicely.
 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+-- Dave
+

@@ -1,79 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932551AbVKOWUw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965044AbVKOWVS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932551AbVKOWUw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 17:20:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932549AbVKOWUw
+	id S965044AbVKOWVS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 17:21:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965046AbVKOWVR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 17:20:52 -0500
-Received: from xproxy.gmail.com ([66.249.82.203]:58135 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932197AbVKOWUv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 17:20:51 -0500
+	Tue, 15 Nov 2005 17:21:17 -0500
+Received: from zproxy.gmail.com ([64.233.162.207]:13352 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965044AbVKOWVE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 17:21:04 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:in-reply-to:references:mime-version:content-type:message-id:cc:content-transfer-encoding:from:subject:date:to:x-mailer;
-        b=ePPzCGczCCIB3/v90Yx4/4XxZOCovyl7rZCz/rsqQETgcP+dQoE9Eh42nBm4dG35EfhAl+EMWUzpKXByrY7hsAjT0H758YK84R7PrwiuT18UFRd1UpPdV+VsYMLuzPVV1Ve8+2MAh4hO8Xcm9gxGF4491CfgiLtAKf57e/JY8TU=
-In-Reply-To: <20051115201051.GA13473@dreamland.darkstar.lan>
-References: <20051115201051.GA13473@dreamland.darkstar.lan>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <1398FFBE-CFDF-45C9-9F0B-E1992F6ADE6C@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: sitexec <cmdkhh@gmail.com>
-Subject: Re: [RFC] HOWTO do Linux kernel development
-Date: Tue, 15 Nov 2005 14:20:34 -0800
-To: Luca <kronos@kronoz.cjb.net>
-X-Mailer: Apple Mail (2.746.2)
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gG37scVv6uhJBQVxDrsXuKkW2poMg5kt+XDYmo+5JEZFXc4C84Juhk5nsaZ6Lxy/X9v4Wce9+hBPMoYxnCGMmOWdPZDxYo1GuqI1SUdiRvFwmyW8Jjf++JeYyVpvF1XioYoeBwH3IQ2eyXEj+ytuy/4vvVqtwuv58QkPJzzsm/I=
+Message-ID: <9a8748490511151421g2eb40cebyee78a88991867ac@mail.gmail.com>
+Date: Tue, 15 Nov 2005 23:21:03 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Greg KH <gregkh@suse.de>
+Subject: Re: [RFC] HOWTO do Linux kernel development - take 2
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com
+In-Reply-To: <20051115210459.GA11363@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051115210459.GA11363@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Nov 15, 2005, at 12:10 PM, Luca wrote:
-
-> Greg KH <gregkh@suse.de> ha scritto:
->> Intro
->> -----
-> [...]
->> Though they
->> are not a good substitute for a solid C education and/or years of
->> experience, the following books are good, if anything for reference:
->>
->> "The C Programming Language" by Kernighan and Ritchie [Prentice Hall]
->> "Practical C Programming" by Steve Oualline [O'Reilly]
->> "Programming the 80386" by Crawford and Gelsinger [Sybek]
->> "UNIX Systems for Modern Architectures" by Curt Schimmel [Addison  
->> Wesley]
+On 11/15/05, Greg KH <gregkh@suse.de> wrote:
+> Here's an updated version of the "HOTO do Linux kernel development"
+> document that I've been working on.
 >
-> Hi Greg,
-> you may want to add:
+[snip]
+> Here is a list of some of the different kernel trees available:
+>   git trees:
+>     - Kbuild development tree, Sam Ravnborg <sam@ravnborg.org>
+>         kernel.org:/pub/scm/linux/kernel/git/sam/kbuild.git
 >
-> "Linux Kernel Development, 2nd ed." by Robert Love [Novell Press]
-> and
-> "Linux Device Drivers, 3rd ed." by J. Corbet, A. Rubini and G.  
-> Kroah-Hartman [O'Reilly]
+>     - ACPI development tree, Len Brown <len.brown@intel.com>
+>         kernel.org:/pub/scm/linux/kernel/git/lenb/linux-acpi-2.6.git
 >
-> IMHO the first one is a must-have for beginners who want to have an
-> overall picture of the kernel and LDD is very helpful when you  
-> start doing
-> some real work :
-just wanted to let anyone who wants the two books (linux kernel  
-development & linux device drivers) mentioned you can get them for 56 
-$ together on amazon which is a pretty good deal
+>     - Block development tree, Jens Axboe <axboe@suse.de>
+>         kernel.org:/pub/scm/linux/kernel/git/axboe/linux-2.6-block.git
+>
+>     - DRM development tree, Dave Airlie <airlied@linux.ie>
+>         kernel.org:/pub/scm/linux/kernel/git/airlied/drm-2.6.git
+>
+>     - ia64 development tree, Tony Luck <tony.luck@intel.com>
+>         kernel.org:/pub/scm/linux/kernel/git/aegl/linux-2.6.git
+>
+>     - ieee1394 development tree, Jody McIntyre <scjody@modernduck.com>
+>         kernel.org:/pub/scm/linux/kernel/git/scjody/ieee1394.git
+>
+>     - infiniband, Roland Dreier <rolandd@cisco.com>
+>         kernel.org:/pub/scm/linux/kernel/git/roland/infiniband.git
+>
+>     - libata, Jeff Garzik <jgarzik@pobox.com>
+>         kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
+>
+>     - network drivers, Jeff Garzik <jgarzik@pobox.com>
+>         kernel.org:/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
+>
+>     - pcmcia, Dominik Brodowski <linux@dominikbrodowski.net>
+>         kernel.org:/pub/scm/linux/kernel/git/brodo/pcmcia-2.6.git
+>
+>     - SCSI, James Bottomley <James.Bottomley@SteelEye.com>
+>         kernel.org:/pub/scm/linux/kernel/git/jejb/scsi-misc-2.6.git
+>
 
--site
+As I see it, this list is almost guaranteed to a) be incomplete, b) be
+outdated almost from the start, c) require often patching of your
+HOWTO to keep updated when tree locations/names change or people
+change email addr.
 
+Wouldn't it be better to simply point to http://kernel.org/git for the list?
+And email addresses for people can be found in CREDITS & MAINTAINERS,
+why duplicate info here instead of pointing to those 2 canonical
+documents?
 
-> Luca
-> -- 
-> Home: http://kronoz.cjb.net
-> Al termine di un pranzo di nozze mi hanno dato un
-> amaro alle erbe cosi' schifoso che perfino sull'etichetta
-> c'era un frate che vomitava.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux- 
-> kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

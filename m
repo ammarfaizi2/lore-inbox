@@ -1,146 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965002AbVKOTxf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965016AbVKOTxk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965002AbVKOTxf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 14:53:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965016AbVKOTxf
+	id S965016AbVKOTxk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 14:53:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbVKOTxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 14:53:35 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:51868 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965002AbVKOTxe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 14:53:34 -0500
-Date: Tue, 15 Nov 2005 11:54:14 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@us.ibm.com, vatsa@in.ibm.com, dipankar@in.ibm.com
-Subject: [PATCH] add success/failure indication to RCU torture test
-Message-ID: <20051115195414.GA2454@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
+	Tue, 15 Nov 2005 14:53:40 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:46224 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S965016AbVKOTxj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 14:53:39 -0500
+Subject: Re: [PATCH 0/13] Time: Generic Timeofday Subsystem (v B10)
+From: john stultz <johnstul@us.ibm.com>
+To: Frank Sorenson <frank@tuxrocks.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Darren Hart <dvhltc@us.ibm.com>, Nishanth Aravamudan <nacc@us.ibm.com>,
+       George Anzinger <george@mvista.com>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <43796C76.8070603@tuxrocks.com>
+References: <20051112044850.8240.91581.sendpatchset@cog.beaverton.ibm.com>
+	 <4378FFFF.4010706@tuxrocks.com> <1132004327.4668.30.camel@leatherman>
+	 <4379074D.5060308@tuxrocks.com> <1132005736.4668.34.camel@leatherman>
+	 <437918A0.8000308@tuxrocks.com> <1132010724.4668.40.camel@leatherman>
+	 <43796C76.8070603@tuxrocks.com>
+Content-Type: text/plain
+Date: Tue, 15 Nov 2005 11:53:34 -0800
+Message-Id: <1132084415.2906.12.camel@leatherman>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Mon, 2005-11-14 at 22:04 -0700, Frank Sorenson wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> john stultz wrote:
+> > Hrm.. How about sending a dmesg of just vanilla 2.6.14-mm2? Also does
+> > the behavior change booting w/ idle=poll ?
+> 
+> idle=poll does seem to fix the major clock drift problem.  There may
+> still be an issue, but it's much smaller:
+> 
+> 2.6.14-mm2-todb10:
+> 14 Nov 21:50:57      offset: -0.025373       drift: -22404.0 ppm
+> 14 Nov 21:51:59      offset: -1.577053       drift: -24985.4603175 ppm
+> 14 Nov 21:53:00      offset: -3.104569       drift: -25012.9032258 ppm
+> 
+> 2.6.14-mm2-todb10 with idle=poll:
+> 14 Nov 21:37:59      offset: 5.9e-05         drift: 63.0 ppm
+> 14 Nov 21:39:00      offset: 0.003207        drift: 51.7903225806 ppm
 
-One issue with the RCU torture test is that the current error flagging
-can be lost in dmesg.  This patch adds a "SUCCESS"/"FAILURE" string
-to the line that flags the end of the test, where it can easily be
-seen with "dmesg | tail" at the end of the test.  Also adds tests of
-architecture-specific memory barriers -- or, more likely, of the RCU
-torture test itself.
+Hmm. It seems the c3 compensation is triggering when it shouldn't, or
+maybe its over compensating. 
 
-CC: <vatsa@in.ibm.com>
-Signed-off-by: <paulmck@us.ibm.com>
+I can't reproduce it on my laptop. Do you recall if in previous tests
+you saw anything like this? I'm trying to narrow down if its just a
+difference in hardware or if something in the c3 idle code changed.
 
----
+thanks
+-john
 
- rcutorture.c |   30 ++++++++++++++++++++++++------
- 1 files changed, 24 insertions(+), 6 deletions(-)
 
-diff -urpNa -X dontdiff linux-2.6.14-mm1/kernel/rcutorture.c linux-2.6.14-mm1-rcutortureerr/kernel/rcutorture.c
---- linux-2.6.14-mm1/kernel/rcutorture.c	2005-11-08 08:18:55.000000000 -0800
-+++ linux-2.6.14-mm1-rcutortureerr/kernel/rcutorture.c	2005-11-15 11:46:57.000000000 -0800
-@@ -80,6 +80,7 @@ struct rcu_torture {
- 	struct rcu_head rtort_rcu;
- 	int rtort_pipe_count;
- 	struct list_head rtort_free;
-+	int rtort_mbtest;
- };
- 
- static int fullstop = 0;	/* stop generating callbacks at test end. */
-@@ -96,6 +97,8 @@ static atomic_t rcu_torture_wcount[RCU_T
- atomic_t n_rcu_torture_alloc;
- atomic_t n_rcu_torture_alloc_fail;
- atomic_t n_rcu_torture_free;
-+atomic_t n_rcu_torture_mberror;
-+atomic_t n_rcu_torture_error;
- 
- /*
-  * Allocate an element from the rcu_tortures pool.
-@@ -145,9 +148,10 @@ rcu_torture_cb(struct rcu_head *p)
- 	if (i > RCU_TORTURE_PIPE_LEN)
- 		i = RCU_TORTURE_PIPE_LEN;
- 	atomic_inc(&rcu_torture_wcount[i]);
--	if (++rp->rtort_pipe_count >= RCU_TORTURE_PIPE_LEN)
-+	if (++rp->rtort_pipe_count >= RCU_TORTURE_PIPE_LEN) {
-+		rp->rtort_mbtest = 0;
- 		rcu_torture_free(rp);
--	else
-+	} else
- 		call_rcu(p, rcu_torture_cb);
- }
- 
-@@ -204,6 +208,7 @@ rcu_torture_writer(void *arg)
- 		rp->rtort_pipe_count = 0;
- 		udelay(rcu_random(&rand) & 0x3ff);
- 		old_rp = rcu_torture_current;
-+		rp->rtort_mbtest = 1;
- 		rcu_assign_pointer(rcu_torture_current, rp);
- 		smp_wmb();
- 		if (old_rp != NULL) {
-@@ -248,6 +253,8 @@ rcu_torture_reader(void *arg)
- 			schedule_timeout_interruptible(HZ);
- 			continue;
- 		}
-+		if (p->rtort_mbtest == 0)
-+			atomic_inc(&n_rcu_torture_mberror);
- 		udelay(rcu_random(&rand) & 0x7f);
- 		preempt_disable();
- 		pipe_count = p->rtort_pipe_count;
-@@ -296,16 +303,22 @@ rcu_torture_printk(char *page)
- 	}
- 	cnt += sprintf(&page[cnt], "rcutorture: ");
- 	cnt += sprintf(&page[cnt],
--		       "rtc: %p ver: %ld tfle: %d rta: %d rtaf: %d rtf: %d",
-+		       "rtc: %p ver: %ld tfle: %d rta: %d rtaf: %d rtf: %d "
-+		       "rtmbe: %d",
- 		       rcu_torture_current,
- 		       rcu_torture_current_version,
- 		       list_empty(&rcu_torture_freelist),
- 		       atomic_read(&n_rcu_torture_alloc),
- 		       atomic_read(&n_rcu_torture_alloc_fail),
--		       atomic_read(&n_rcu_torture_free));
-+		       atomic_read(&n_rcu_torture_free),
-+		       atomic_read(&n_rcu_torture_mberror));
-+	if (atomic_read(&n_rcu_torture_mberror) != 0)
-+		cnt += sprintf(&page[cnt], " !!!");
- 	cnt += sprintf(&page[cnt], "\nrcutorture: ");
--	if (i > 1)
-+	if (i > 1) {
- 		cnt += sprintf(&page[cnt], "!!! ");
-+		atomic_inc(&n_rcu_torture_error);
-+	}
- 	cnt += sprintf(&page[cnt], "Reader Pipe: ");
- 	for (i = 0; i < RCU_TORTURE_PIPE_LEN + 1; i++)
- 		cnt += sprintf(&page[cnt], " %ld", pipesummary[i]);
-@@ -396,7 +409,9 @@ rcu_torture_cleanup(void)
- 	for (i = 0; i < RCU_TORTURE_PIPE_LEN; i++)
- 		synchronize_rcu();
- 	rcu_torture_stats_print();  /* -After- the stats thread is stopped! */
--	PRINTK_STRING("--- End of test");
-+	printk(KERN_ALERT TORTURE_FLAG
-+	       "--- End of test: %s\n",
-+	       atomic_read(&n_rcu_torture_error) == 0 ? "SUCCESS" : "FAILURE");
- }
- 
- static int
-@@ -421,6 +436,7 @@ rcu_torture_init(void)
- 
- 	INIT_LIST_HEAD(&rcu_torture_freelist);
- 	for (i = 0; i < sizeof(rcu_tortures) / sizeof(rcu_tortures[0]); i++) {
-+		rcu_tortures[i].rtort_mbtest = 0;
- 		list_add_tail(&rcu_tortures[i].rtort_free,
- 			      &rcu_torture_freelist);
- 	}
-@@ -432,6 +448,8 @@ rcu_torture_init(void)
- 	atomic_set(&n_rcu_torture_alloc, 0);
- 	atomic_set(&n_rcu_torture_alloc_fail, 0);
- 	atomic_set(&n_rcu_torture_free, 0);
-+	atomic_set(&n_rcu_torture_mberror, 0);
-+	atomic_set(&n_rcu_torture_error, 0);
- 	for (i = 0; i < RCU_TORTURE_PIPE_LEN + 1; i++)
- 		atomic_set(&rcu_torture_wcount[i], 0);
- 	for_each_cpu(cpu) {

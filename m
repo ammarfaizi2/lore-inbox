@@ -1,67 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbVKOCJw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbVKOCOL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932278AbVKOCJw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 21:09:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbVKOCJw
+	id S932219AbVKOCOL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 21:14:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbVKOCOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 21:09:52 -0500
-Received: from mx1.suse.de ([195.135.220.2]:59559 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932278AbVKOCJv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 21:09:51 -0500
-From: Neil Brown <neilb@suse.de>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: Tue, 15 Nov 2005 13:09:45 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 14 Nov 2005 21:14:11 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:62879 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932219AbVKOCOK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 21:14:10 -0500
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+From: Lee Revell <rlrevell@joe-job.com>
+To: Robert Hancock <hancockr@shaw.ca>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <437933B6.1000503@shaw.ca>
+References: <58MJb-2Sn-37@gated-at.bofh.it> <58NvO-46M-23@gated-at.bofh.it>
+	 <58Rpx-1m6-11@gated-at.bofh.it> <58UGF-6qR-27@gated-at.bofh.it>
+	 <58UQf-6Da-3@gated-at.bofh.it>  <437933B6.1000503@shaw.ca>
+Content-Type: text/plain
+Date: Mon, 14 Nov 2005 21:07:48 -0500
+Message-Id: <1132020468.27215.25.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-Message-ID: <17273.17257.418305.280087@cse.unsw.edu.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH ] Fix some problems with truncate and mtime semantics.
-In-Reply-To: message from Trond Myklebust on Monday November 14
-References: <20051115125657.9403.patches@notabene>
-	<1051115020002.9459@suse.de>
-	<1132020190.8802.28.camel@lade.trondhjem.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday November 14, trond.myklebust@fys.uio.no wrote:
-> On Tue, 2005-11-15 at 13:00 +1100, NeilBrown wrote:
-> > Resubmitting this patch to fix truncate/mtime semantics.  
-> > 
-> > It is against 2.6.14-mm2 and is probably suitable for 2.6.15, but can
-> > be held over to 2.6.16 if you are feeling cautious.
-> > 
-> > NeilBrown
-> > 
-> > ### Comments for Changeset
-> > 
-> > SUS requires that when truncating a file to the size that it currently
-> > is:
-> >   truncate and ftruncate should NOT modify ctime or mtime
-> >   O_EXCL SHOULD modify ctime and mtime.
->     ^^^^^ O_CREAT ;-)
-
-Groan... thanks Trond.
-Andrew .. if you could just do a little edit there for me, I'd really
-appreciate it :-(
-
-NeilBrown
-
+On Mon, 2005-11-14 at 19:02 -0600, Robert Hancock wrote:
+> Giridhar Pemmasani wrote:
+> > Shouldn't I have to prevent scheduler from changing the tasks when executing
+> > Windows code? Otherwise, kernel gets wrong current thread information,
+> > which is based on stack pointer. This is the stumbling block for implementing
+> > private stacks.
 > 
-> > Currently mtime and ctime are always modified on most local
-> > filesystems (side effect of ->truncate) or never modified (on NFS).
-> > 
-> > With this patch:
-> >   ATTR_CTIME|ATTR_MTIME are sent with ATTR_SIZE precisely when 
-> >     an update of these times is required whether size changes or not 
-> >     (via a new argument to do_truncate).  This allows NFS to do
-> >     the right thing for O_EXCL.
->                           ^^^^^
-> 
-> Cheers,
->   Trond
+> As long as preemption is disabled when the driver code is executing
+
+Um, but it's really really bad for drivers to do that.
+
+Lee
+

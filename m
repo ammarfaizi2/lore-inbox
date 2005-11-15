@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964855AbVKOQ1p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbVKOQaP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964855AbVKOQ1p (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 11:27:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964859AbVKOQ1p
+	id S964880AbVKOQaP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 11:30:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964887AbVKOQaP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 11:27:45 -0500
-Received: from s0003.shadowconnect.net ([213.239.201.226]:12996 "EHLO
-	mail.shadowconnect.com") by vger.kernel.org with ESMTP
-	id S964855AbVKOQ1o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 11:27:44 -0500
-Message-ID: <437A0C7B.1060309@shadowconnect.com>
-Date: Tue, 15 Nov 2005 17:27:39 +0100
-From: Markus Lidel <Markus.Lidel@shadowconnect.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+	Tue, 15 Nov 2005 11:30:15 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:39810 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S964880AbVKOQaN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 11:30:13 -0500
+Message-ID: <437A0CBA.3050302@zytor.com>
+Date: Tue, 15 Nov 2005 08:28:42 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Dave Jones <davej@redhat.com>
-CC: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 4/5] I2O: Bugfixes
-References: <4379AAED.3020307@shadowconnect.com> <20051115150643.GB4516@redhat.com>
-In-Reply-To: <20051115150643.GB4516@redhat.com>
+CC: Arjan van de Ven <arjan@infradead.org>, Zachary Amsden <zach@vmware.com>,
+       Gerd Knorr <kraxel@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH 1/10] Cr4 is valid on some 486s
+References: <Pine.LNX.4.64.0511131118020.3263@g5.osdl.org> <Pine.LNX.4.64.0511131210570.3263@g5.osdl.org> <4378A7F3.9070704@suse.de> <Pine.LNX.4.64.0511141118000.3263@g5.osdl.org> <4379ECC1.20005@suse.de> <437A0649.7010702@suse.de> <437A0710.4020107@vmware.com> <1132070764.2822.27.camel@laptopd505.fenrus.org> <20051115161041.GA1749@redhat.com> <437A0965.7020909@zytor.com> <20051115161949.GC1749@redhat.com>
+In-Reply-To: <20051115161949.GC1749@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
 Dave Jones wrote:
-> On Tue, Nov 15, 2005 at 10:31:25AM +0100, Markus Lidel wrote:
->  > Changes:
->  > --------
->  > - Removed some kmalloc's with __GFP_ZERO and replace it with memset()
->  >   because it didn't work properly.
+>  > 
+>  > If you have CPU hotplug enabled, you can run SMP code!
 > 
-> kzalloc() perhaps ?
+> Sure, but if you boot with 1 CPU, spinlocks get nop'd to emulate UP,
+> and on a 'installed a new cpu' hotplug event, they all come back.
+> 
 
-Ahhh, yep, that was what i'm looking for :-D In the next update i'll 
-replace it with the proper function...
+The point that you don't nop if you have hotplug enabled (which is not 
+the norm.)
 
-Thanks for the hint!
-
-
-
-Best regards,
-
-
-Markus Lidel
-------------------------------------------
-Markus Lidel (Senior IT Consultant)
-
-Shadow Connect GmbH
-Carl-Reisch-Weg 12
-D-86381 Krumbach
-Germany
-
-Phone:  +49 82 82/99 51-0
-Fax:    +49 82 82/99 51-11
-
-E-Mail: Markus.Lidel@shadowconnect.com
-URL:    http://www.shadowconnect.com
+	-hpa

@@ -1,65 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbVKOIz0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751390AbVKOI50@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751386AbVKOIz0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 03:55:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbVKOIz0
+	id S1751390AbVKOI50 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 03:57:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbVKOI50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 03:55:26 -0500
-Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:29372 "HELO
-	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1751386AbVKOIzZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 03:55:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=2uKpYrldgSnxu1QVPx+LuXYckihMFPVxWwpYXM4iqQC1qgmvF3/Vicevute8m03ed0CvHAbkW9J5tmNnskhqGwID5QwlNOVO9sV27vdTJYGlG0hAZMTJa2PaOwvfJeSR3/5A1ksjt9vyvcgWATKENAl0osAtdKPID0CruUEvlE0=  ;
-Message-ID: <4379A30A.2090200@yahoo.com.au>
-Date: Tue, 15 Nov 2005 19:57:46 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 3/5] atomic: atomic_inc_not_zero
-References: <436416AD.3050709@yahoo.com.au>	<4364171C.7020103@yahoo.com.au>	<43641755.5010004@yahoo.com.au>	<4364178E.8040502@yahoo.com.au>	<20051114082956.609ff5cd.pj@sgi.com>	<20051114134841.083ea51c.akpm@osdl.org>	<20051114140216.3481799a.pj@sgi.com> <20051114150945.7078e51a.akpm@osdl.org>
-In-Reply-To: <20051114150945.7078e51a.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Nov 2005 03:57:26 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:22159 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751390AbVKOI5Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 03:57:24 -0500
+Date: Tue, 15 Nov 2005 03:57:18 -0500
+From: Jeff Garzik <jgarzik@redhat.com>
+To: Linux filesystem caching discussion list 
+	<linux-cachefs@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, nfsv4@linux-nfs.org,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [Linux-cachefs] Re: [PATCH 0/12] FS-Cache: Generic filesystem caching facility
+Message-ID: <20051115085718.GA15464@devserv.devel.redhat.com>
+References: <dhowells1132005277@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0511141428390.3263@g5.osdl.org> <20051114150347.1188499e.akpm@osdl.org> <1132010253.8802.20.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1132010253.8802.20.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Paul Jackson <pj@sgi.com> wrote:
+On Mon, Nov 14, 2005 at 06:17:33PM -0500, Trond Myklebust wrote:
+> On Mon, 2005-11-14 at 15:03 -0800, Andrew Morton wrote:
 > 
->>>Please send patch.
->>
->>I can't.  I don't understand what Nick intends here.
->>If it's obvious to you, hit me with a clue stick,
->>and I'd be glad to patch it.
->>
+> > I think we need an NFS implementation and some numbers which make it
+> > interesting.  Or at least, some AFS numbers, some explanation as to why
+> > they can be extrapolated to NFS and some degree of interest from the NFS
+> > guys.   Ditto CIFS.
 > 
+> There is a lot of interest from the HPC community for this sort of thing
+> on NFS. Basically, it will help server scalability for projects that
+> have large numbers of read-only files accessed by large numbers of
+> clients.
 > 
-> This, I assume?
-> 
+> AFAIK, Steve Dickson (steved@redhat.com) is working on the NFS hooks for
+> FS-Cache.
 
-Yes. Doh. Thanks.
+Well, I'm not in the HPC community, but I have a lot of interest in seeing
+cachefs + nfs working in the upstream kernel.
 
-> --- 25/arch/sparc/lib/atomic32.c~sparc32-atomic32-build-fix	Mon Nov 14 15:08:44 2005
-> +++ 25-akpm/arch/sparc/lib/atomic32.c	Mon Nov 14 15:08:48 2005
-> @@ -66,7 +66,6 @@ int atomic_add_unless(atomic_t *v, int a
->  	return ret != u;
->  }
->  
-> -static inline void atomic_clear_mask(unsigned long mask, unsigned long *addr)
->  /* Atomic operations are already serializing */
->  void atomic_set(atomic_t *v, int i)
->  {
-> _
-> 
-> 
+	Jeff, misses cachefs from the Solaris days
 
--- 
-SUSE Labs, Novell Inc.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+

@@ -1,43 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965040AbVKOWTf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932551AbVKOWUw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965040AbVKOWTf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 17:19:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbVKOWTf
+	id S932551AbVKOWUw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 17:20:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932549AbVKOWUw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 17:19:35 -0500
-Received: from xproxy.gmail.com ([66.249.82.199]:5902 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932197AbVKOWTf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 17:19:35 -0500
+	Tue, 15 Nov 2005 17:20:52 -0500
+Received: from xproxy.gmail.com ([66.249.82.203]:58135 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932197AbVKOWUv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 17:20:51 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kKL+6uyeIIHOQqH4wxIKfokvceXGbMR0LtnzwU2uj1mQkCnJgsfnSnbZGx10l2ZCbGlsSrFrBB90Y9lBZ1/ik2AvPT3muXEKYbhken88aTGAkEM/Dm/XIdkglfRv/mH5kYTtppdvfdqHhYAfKFneOWxC1z9AlHmcyANK4w9qddg=
-Message-ID: <eada2a070511151419j5d94ec55xb36c6ae7d17ea30a@mail.gmail.com>
-Date: Tue, 15 Nov 2005 14:19:33 -0800
-From: Tim Pepper <lnxninja@us.ibm.com>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Subject: Re: [PATCH] Add NUMA policy support for huge pages.
-Cc: akpm@osdl.org, Adam Litke <agl@us.ibm.com>, linux-mm@kvack.org, ak@suse.de,
-       linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com,
-       wli@holomorphy.com
-In-Reply-To: <Pine.LNX.4.62.0511151342310.10995@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.62.0511151342310.10995@schroedinger.engr.sgi.com>
+        h=received:in-reply-to:references:mime-version:content-type:message-id:cc:content-transfer-encoding:from:subject:date:to:x-mailer;
+        b=ePPzCGczCCIB3/v90Yx4/4XxZOCovyl7rZCz/rsqQETgcP+dQoE9Eh42nBm4dG35EfhAl+EMWUzpKXByrY7hsAjT0H758YK84R7PrwiuT18UFRd1UpPdV+VsYMLuzPVV1Ve8+2MAh4hO8Xcm9gxGF4491CfgiLtAKf57e/JY8TU=
+In-Reply-To: <20051115201051.GA13473@dreamland.darkstar.lan>
+References: <20051115201051.GA13473@dreamland.darkstar.lan>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <1398FFBE-CFDF-45C9-9F0B-E1992F6ADE6C@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: sitexec <cmdkhh@gmail.com>
+Subject: Re: [RFC] HOWTO do Linux kernel development
+Date: Tue, 15 Nov 2005 14:20:34 -0800
+To: Luca <kronos@kronoz.cjb.net>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/15/05, Christoph Lameter <clameter@engr.sgi.com> wrote:
-> --- linux-2.6.14-mm2.orig/mm/mempolicy.c        2005-11-15 10:29:53.000000000 -0800
-> +++ linux-2.6.14-mm2/mm/mempolicy.c     2005-11-15 12:30:26.000000000 -0800
-> @@ -1005,6 +1005,34 @@ static unsigned offset_il_node(struct me
->         return nid;
->  }
->
-> +/* Caculate a node number for interleave */
-      ^^^^^
 
-Calculate even...
+On Nov 15, 2005, at 12:10 PM, Luca wrote:
+
+> Greg KH <gregkh@suse.de> ha scritto:
+>> Intro
+>> -----
+> [...]
+>> Though they
+>> are not a good substitute for a solid C education and/or years of
+>> experience, the following books are good, if anything for reference:
+>>
+>> "The C Programming Language" by Kernighan and Ritchie [Prentice Hall]
+>> "Practical C Programming" by Steve Oualline [O'Reilly]
+>> "Programming the 80386" by Crawford and Gelsinger [Sybek]
+>> "UNIX Systems for Modern Architectures" by Curt Schimmel [Addison  
+>> Wesley]
+>
+> Hi Greg,
+> you may want to add:
+>
+> "Linux Kernel Development, 2nd ed." by Robert Love [Novell Press]
+> and
+> "Linux Device Drivers, 3rd ed." by J. Corbet, A. Rubini and G.  
+> Kroah-Hartman [O'Reilly]
+>
+> IMHO the first one is a must-have for beginners who want to have an
+> overall picture of the kernel and LDD is very helpful when you  
+> start doing
+> some real work :
+just wanted to let anyone who wants the two books (linux kernel  
+development & linux device drivers) mentioned you can get them for 56 
+$ together on amazon which is a pretty good deal
+
+-site
+
+
+> Luca
+> -- 
+> Home: http://kronoz.cjb.net
+> Al termine di un pranzo di nozze mi hanno dato un
+> amaro alle erbe cosi' schifoso che perfino sull'etichetta
+> c'era un frate che vomitava.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux- 
+> kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

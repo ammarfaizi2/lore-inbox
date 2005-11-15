@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751433AbVKOOmp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751436AbVKOOsa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751433AbVKOOmp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 09:42:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751435AbVKOOmp
+	id S1751436AbVKOOsa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 09:48:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbVKOOs3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 09:42:45 -0500
-Received: from cantor.suse.de ([195.135.220.2]:3730 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751433AbVKOOmp (ORCPT
+	Tue, 15 Nov 2005 09:48:29 -0500
+Received: from ns.suse.de ([195.135.220.2]:54419 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751436AbVKOOs3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 09:42:45 -0500
-To: Greg KH <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] HOWTO do Linux kernel development
-References: <20051114220709.GA5234@kroah.com>
+	Tue, 15 Nov 2005 09:48:29 -0500
 From: Andi Kleen <ak@suse.de>
-Date: 15 Nov 2005 15:42:44 +0100
-In-Reply-To: <20051114220709.GA5234@kroah.com>
-Message-ID: <p73veyu2crf.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+To: Magnus Damm <magnus.damm@gmail.com>
+Subject: Re: [PATCH 01/05] NUMA: Generic code
+Date: Tue, 15 Nov 2005 15:15:04 +0100
+User-Agent: KMail/1.8.2
+Cc: Magnus Damm <magnus@valinux.co.jp>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, pj@sgi.com
+References: <20051110090920.8083.54147.sendpatchset@cherry.local> <200511110516.37980.ak@suse.de> <aec7e5c30511150034t5ff9e362jb3261e2e23479b31@mail.gmail.com>
+In-Reply-To: <aec7e5c30511150034t5ff9e362jb3261e2e23479b31@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511151515.05201.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <gregkh@suse.de> writes:
-
-> The kernel is written using GNU C and the GNU toolchain. While it
-> adheres to the ISO C99 (??) standard, it uses a number of extensions
-
-C89 - The few left over gcc 2.95 users are blocking modern C constructs.
-Even without that it would be a C99 subset, e.g. arbitary long long divisions 
-or floating point are not supported.
-
-Also the kernel is a freestanding C environment, so parts are not supported.
-
-> Also realize that it is not acceptable to send patches for inclusion
-> that are unfinished and will be "fixed up later."
-
-I'm not sure I fully agree on that. I conflicts with the "merge early, merge
-often" imperative.  IMHO it's ok to submit patches that are not perfect,
-but improve something or make a incremental cleanup step, as long as the
-problems are not severe and the patch by itself is a clear improvement. Of course
-this is handled on a case by case basis.
+On Tuesday 15 November 2005 09:34, Magnus Damm wrote:
 
 > 
-> Justify your change
-> -------------------
+> My plan with breaking out the NUMA emulation code was to merge my i386
+> stuff with the x86_64 code, but as you say - it might be overkill.
 > 
-> Along with breaking up your patches, it is very important for you to let
-> the Linux community know why they should add this change.  New features
-> must be justified as being needed and useful.
+> What do you think about the fact that real NUMA nodes now can be
+> divided into several smaller nodes?
 
-My request is that each patch should carry a meaningful changelog.
-That should tell why and a rough (doesn't need to be detailed) overview how
-the change is done.
+Is it really needed? I never needed it.  Normally numa emulation 
+is just for basic numa testing, and for that just an independent
+split is good enough.
 
 -Andi

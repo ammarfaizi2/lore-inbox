@@ -1,89 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbVKOCCJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbVKOCDo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932271AbVKOCCJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 21:02:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbVKOCCJ
+	id S932274AbVKOCDo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 21:03:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbVKOCDo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 21:02:09 -0500
-Received: from ozlabs.org ([203.10.76.45]:2966 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932271AbVKOCCH (ORCPT
+	Mon, 14 Nov 2005 21:03:44 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:61905 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932274AbVKOCDn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 21:02:07 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17273.16792.850639.195427@cargo.ozlabs.ibm.com>
-Date: Tue, 15 Nov 2005 13:02:00 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: vojtech@suse.cz
-CC: linux-kernel@vger.kernel.org, Michael Neuling <mikey@neuling.org>
-Subject: [PATCH] Allow arch to veto PC speaker beeper initialization
-X-Mailer: VM 7.19 under Emacs 21.4.1
+	Mon, 14 Nov 2005 21:03:43 -0500
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Tue, 15 Nov 2005 13:03:21 +1100
+Message-Id: <1051115020321.9502@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: linux-kernel@vger.kernel.org, matthew@wil.cx
+Subject: [PATCH ] Fix overflow tests for compat_sys_fcntl64 locking.
+References: <20051115130026.9469.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Michael Neuling <mikey@neuling.org>
+Resubmitting this fix for compat_sys_fcntl64's handling of locking
+(previous version had some typos).
 
-This patch provides an arch hook in the PC speaker beeper driver which
-gives the arch code an opportunity to determine whether the machine
-has an i8253 timer or not.  If it doesn't we don't want the driver to
-go poking at the i8253's ports; there might be nothing there or there
-might be something else there which would be upset by being poked at.
+Is against 2.6.14-mm2, should be suitable for 2.6.15, but can be held
+over to 2.6.16 if you are feeling cautious.
 
-We want to be able to build ppc64 kernels which work both on machines
-that have an i8253 equivalent (e.g. some pSeries) and on machines that
-don't (e.g. G5 powermacs), which is why we don't just remove it from
-the config.
+Thanks,
+NeilBrown
 
-Signed-off-by: Michael Neuling <mikey@neuling.org>
-Signed-off-by: Paul Mackerras <paulus@samba.org>
----
+### Comments for Changeset
 
-Could this go in please, preferably for 2.6.15?  Some people are
-finding that their G5 powermacs lock up when this driver pokes the PIT
-registers.
+When making an fctl locking call through compat_sys_fcntl64
+(i.e. a 32bit app on a 64bit kernel), the syscall can return
+a locking range that is in conflict with the queried lock.
 
- drivers/input/misc/pcspkr.c   |    5 +++++
- include/asm-powerpc/8253pit.h |   13 +++++++++++++
- 2 files changed, 18 insertions(+)
+If some aspect of this range does not fit in the 32bit structure,
+something needs to be done.
 
-Index: linux-2.6/drivers/input/misc/pcspkr.c
-===================================================================
---- linux-2.6.orig/drivers/input/misc/pcspkr.c	2005-10-31 15:16:39.000000000 +1100
-+++ linux-2.6/drivers/input/misc/pcspkr.c	2005-10-31 15:21:13.000000000 +1100
-@@ -66,6 +66,11 @@
- 
- static int __init pcspkr_init(void)
- {
-+#ifdef HAS_PCSPKR_ARCH_INIT
-+	int rc = pcspkr_arch_init();
-+	if (rc)
-+		return rc;
-+#endif
- 	pcspkr_dev = input_allocate_device();
- 	if (!pcspkr_dev)
- 		return -ENOMEM;
-Index: linux-2.6/include/asm-powerpc/8253pit.h
-===================================================================
---- linux-2.6.orig/include/asm-powerpc/8253pit.h	2005-10-31 15:02:18.000000000 +1100
-+++ linux-2.6/include/asm-powerpc/8253pit.h	2005-10-31 15:20:30.000000000 +1100
-@@ -5,6 +5,19 @@
-  * 8253/8254 Programmable Interval Timer
-  */
- 
-+#include <asm/prom.h>
+The current code is wrong in several respects:
+
+- It returns data to userspace even if no conflict was found
+   i.e. it should check l_type for F_UNLCK
+- It returns -EOVERFLOW too agressively.   A lock range covering
+  the last possible byte of the file (start = COMPAT_OFF_T_MAX,
+  len = 1) should be possible, but is rejected with the current test.
+- A extra-long 'len' should not be a problem.  If only that part
+  of the conflicting lock that would be visible to the 32bit
+  app needs to be reported to the 32bit app anyway.
+
+This patch addresses those three issues and adds a comment to
+(hopefully) record it for posterity.
+
+Note: this patch mainly affects test-cases.  Real applications rarely
+is ever see the problems.
+
+Signed-off-by: Neil Brown <neilb@suse.de>
+
+### Diffstat output
+ ./fs/compat.c |   26 ++++++++++++++++++++------
+ 1 file changed, 20 insertions(+), 6 deletions(-)
+
+diff ./fs/compat.c~current~ ./fs/compat.c
+--- ./fs/compat.c~current~	2005-11-15 10:31:19.000000000 +1100
++++ ./fs/compat.c	2005-11-15 10:31:19.000000000 +1100
+@@ -493,10 +493,22 @@ asmlinkage long compat_sys_fcntl64(unsig
+ 		set_fs(KERNEL_DS);
+ 		ret = sys_fcntl(fd, cmd, (unsigned long)&f);
+ 		set_fs(old_fs);
+-		if (cmd == F_GETLK && ret == 0) {
+-			if ((f.l_start >= COMPAT_OFF_T_MAX) ||
+-			    ((f.l_start + f.l_len) > COMPAT_OFF_T_MAX))
++		if (cmd == F_GETLK && ret == 0 && f.l_type == F_UNLCK) {
++			/* there was a conflicting lock, and we need to return
++			 * the data... but it needs to fit in the compat structure.
++			 * l_start shouldn't be too big, unless the original
++			 * start + end is greater than COMPAT_OFF_T_MAX, in which
++			 * case the app was asking for trouble, so we return
++			 * -EOVERFLOW in that case.
++			 * l_len could be too big, in which case we just truncate it,
++			 * and only allow the app to see that part of the conflicting
++			 * lock that might make sense to it anyway
++			 */
 +
- #define PIT_TICK_RATE	1193182UL
- 
-+#define HAS_PCSPKR_ARCH_INIT
-+
-+static inline int pcspkr_arch_init(void)
-+{
-+	struct device_node *np;
-+
-+	np = of_find_compatible_node(NULL, NULL, "pnpPNP,100");
-+	of_node_put(np);
-+	return np ? 0 : -ENODEV;
-+}
-+
- #endif	/* _ASM_POWERPC_8253PIT_H */
++			if (f.l_start > COMPAT_OFF_T_MAX)
+ 				ret = -EOVERFLOW;
++			if (f.l_len > COMPAT_OFF_T_MAX)
++				f.l_len = COMPAT_OFF_T_MAX;
+ 			if (ret == 0)
+ 				ret = put_compat_flock(&f, compat_ptr(arg));
+ 		}
+@@ -514,10 +526,12 @@ asmlinkage long compat_sys_fcntl64(unsig
+ 				((cmd == F_SETLK64) ? F_SETLK : F_SETLKW),
+ 				(unsigned long)&f);
+ 		set_fs(old_fs);
+-		if (cmd == F_GETLK64 && ret == 0) {
+-			if ((f.l_start >= COMPAT_LOFF_T_MAX) ||
+-			    ((f.l_start + f.l_len) > COMPAT_LOFF_T_MAX))
++		if (cmd == F_GETLK64 && ret == 0 && f.l_type == F_UNLCK) {
++			/* need to return lock information - see above for commentary */
++			if (f.l_start > COMPAT_LOFF_T_MAX)
+ 				ret = -EOVERFLOW;
++			if (f.l_len > COMPAT_LOFF_T_MAX)
++				f.l_len = COMPAT_LOFF_T_MAX;
+ 			if (ret == 0)
+ 				ret = put_compat_flock64(&f, compat_ptr(arg));
+ 		}

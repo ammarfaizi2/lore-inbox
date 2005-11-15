@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbVKOAcG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbVKOAee@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932213AbVKOAcG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 19:32:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbVKOAcG
+	id S932216AbVKOAee (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 19:34:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbVKOAee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 19:32:06 -0500
-Received: from xenotime.net ([66.160.160.81]:27322 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932213AbVKOAcE (ORCPT
+	Mon, 14 Nov 2005 19:34:34 -0500
+Received: from ns2.g-housing.de ([81.169.133.75]:64229 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S932216AbVKOAed (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 19:32:04 -0500
-Date: Mon, 14 Nov 2005 16:32:03 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Kalin KOZHUHAROV <kalin@thinrope.net>
-cc: linux-kernel@vger.kernel.org,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Subject: Re: [RFC] HOWTO do Linux kernel development
-In-Reply-To: <4379295B.1020601@thinrope.net>
-Message-ID: <Pine.LNX.4.58.0511141630050.8548@shark.he.net>
-References: <20051114220709.GA5234@kroah.com> <20051114221005.GA5539@kroah.com>
- <4379295B.1020601@thinrope.net>
+	Mon, 14 Nov 2005 19:34:33 -0500
+Message-ID: <43792D16.2020404@g-house.de>
+Date: Tue, 15 Nov 2005 01:34:30 +0100
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-mm2: no .config.old any more?
+References: <43792372.2010409@g-house.de> <20051114160502.6ef9d1e8.akpm@osdl.org>
+In-Reply-To: <20051114160502.6ef9d1e8.akpm@osdl.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Nov 2005, Kalin KOZHUHAROV wrote:
+Andrew Morton schrieb:
+> 
+> A proper patch (which maybe does an lstat+special-stuff) would be nice.
 
-> Greg KH wrote:
-> > On Mon, Nov 14, 2005 at 02:07:09PM -0800, Greg KH wrote:
-> >
-> >>So, I've been working on a document for the past week or so to help
-> >>alleviate a lot of these problems.
-> >
-> >
-> > Oh, the latest version can be found at:
-> > 	http://www.kernel.org/git/?p=linux/kernel/git/gregkh/patches.git;a=blob;f=HOWTO
-> > as I'm keeping it in my git patch tree.
->
-> As far as the development proces is in TODO state, what about adding Paolo Ciarrocchi's (CCed) doc
-> there?
-> 	http://linux.tar.bz/articles/2.6-development_process
->
-> NB: I just host the artice (with Paolo's permission), and actualy from a few hours ago :-)
->
-> Kalin.
+hm, sorry, but i don't think i can help out here.
 
-As good as that article is, it only mentions "review" for
--stable patches -- nothing about how new functionality or
-other fixes are reviewed and added to Linux, which is a
-big oversight IMO... although not at all easy to write/describe.
+> But that particular diff only appears in the -mm rollup when I'm carrying
+> other patches against confdata.c, which rarely happens.  So it'll go away
+> again.
 
+thank you.
+
+Christian.
 -- 
-~Randy
+BOFH excuse #74:
+
+You're out of memory

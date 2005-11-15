@@ -1,105 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751385AbVKOIjE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbVKOImT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751385AbVKOIjE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 03:39:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbVKOIim
+	id S1751382AbVKOImT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 03:42:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbVKOImT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 03:38:42 -0500
-Received: from ams-iport-1.cisco.com ([144.254.224.140]:53425 "EHLO
-	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S1751382AbVKOIik (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 03:38:40 -0500
-Subject: [git patch review 3/3] [IB] mthca: don't disable RDMA writes if no
-	responder resources
-From: Roland Dreier <rolandd@cisco.com>
-Date: Tue, 15 Nov 2005 08:38:30 +0000
-To: linux-kernel@vger.kernel.org, openib-general@openib.org
-X-Mailer: IB-patch-reviewer
-Content-Transfer-Encoding: 8bit
-Message-ID: <1132043910918-bea399454f2ff33e@cisco.com>
-In-Reply-To: <1132043910918-5d38e36f350b7b00@cisco.com>
-X-OriginalArrivalTime: 15 Nov 2005 08:38:32.0065 (UTC) FILETIME=[F5BB5F10:01C5E9BF]
+	Tue, 15 Nov 2005 03:42:19 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:29097 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751382AbVKOImT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 03:42:19 -0500
+Date: Tue, 15 Nov 2005 09:42:30 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org
+Subject: [patch] fix smp_processor_id() use in the cache-hot autodetector
+Message-ID: <20051115084230.GA19472@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Responder resources are only required to handle RDMA reads and atomic
-operations, not RDMA writes.  So the driver should allow RDMA writes
-even if responder resources are set to 0.  This is especially
-important for the UC transport -- with the old code, it was impossible
-to enable RDMA writes for UC QPs.
 
-Signed-off-by: Roland Dreier <rolandd@cisco.com>
+this patch fixes the DEBUG_PREEMPT warnings reported by Paul Jackson.  
+The reason why raw_smp_processor_id() is fine here is that we dont care 
+about the _precise_ CPU ID the boot process happens on, only about the 
+quad. (the reason for this whole code is that NUMAQ doesnt like being 
+migrated to a non-boot quad.) So we mark whatever CPU ID we happen to be 
+on, and migrate back to it once calibration has finished.
 
----
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
- drivers/infiniband/hw/mthca/mthca_qp.c |   27 ++++++++++++---------------
- 1 files changed, 12 insertions(+), 15 deletions(-)
+ kernel/sched.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-applies-to: 2d17f2cdc77646d07cb2a598e3d2bcbdf94675ad
-cbc5b2bb9e226c2b2b981836d2289912e2ef3c1c
-diff --git a/drivers/infiniband/hw/mthca/mthca_qp.c b/drivers/infiniband/hw/mthca/mthca_qp.c
-index 760c418..5899f0c 100644
---- a/drivers/infiniband/hw/mthca/mthca_qp.c
-+++ b/drivers/infiniband/hw/mthca/mthca_qp.c
-@@ -730,15 +730,16 @@ int mthca_modify_qp(struct ib_qp *ibqp, 
- 	}
+Index: linux/kernel/sched.c
+===================================================================
+--- linux.orig/kernel/sched.c
++++ linux/kernel/sched.c
+@@ -5480,7 +5480,7 @@ __devinit static unsigned long long meas
  
- 	if (attr_mask & IB_QP_ACCESS_FLAGS) {
-+		qp_context->params2 |=
-+			cpu_to_be32(attr->qp_access_flags & IB_ACCESS_REMOTE_WRITE ?
-+				    MTHCA_QP_BIT_RWE : 0);
-+
- 		/*
--		 * Only enable RDMA/atomics if we have responder
--		 * resources set to a non-zero value.
-+		 * Only enable RDMA reads and atomics if we have
-+		 * responder resources set to a non-zero value.
- 		 */
- 		if (qp->resp_depth) {
- 			qp_context->params2 |=
--				cpu_to_be32(attr->qp_access_flags & IB_ACCESS_REMOTE_WRITE ?
--					    MTHCA_QP_BIT_RWE : 0);
--			qp_context->params2 |=
- 				cpu_to_be32(attr->qp_access_flags & IB_ACCESS_REMOTE_READ ?
- 					    MTHCA_QP_BIT_RRE : 0);
- 			qp_context->params2 |=
-@@ -759,31 +760,27 @@ int mthca_modify_qp(struct ib_qp *ibqp, 
- 		if (qp->resp_depth && !attr->max_dest_rd_atomic) {
- 			/*
- 			 * Lowering our responder resources to zero.
--			 * Turn off RDMA/atomics as responder.
--			 * (RWE/RRE/RAE in params2 already zero)
-+			 * Turn off reads RDMA and atomics as responder.
-+			 * (RRE/RAE in params2 already zero)
- 			 */
--			qp_param->opt_param_mask |= cpu_to_be32(MTHCA_QP_OPTPAR_RWE |
--								MTHCA_QP_OPTPAR_RRE |
-+			qp_param->opt_param_mask |= cpu_to_be32(MTHCA_QP_OPTPAR_RRE |
- 								MTHCA_QP_OPTPAR_RAE);
- 		}
+ void __devinit calibrate_migration_costs(void)
+ {
+-	int cpu1 = -1, cpu2 = -1, cpu, orig_cpu = smp_processor_id();
++	int cpu1 = -1, cpu2 = -1, cpu, orig_cpu = raw_smp_processor_id();
+ 	struct sched_domain *sd;
+ 	unsigned long distance, max_distance = 0;
+ 	unsigned long long cost;
+@@ -5567,7 +5567,7 @@ void __devinit calibrate_migration_costs
+ 	 * Move back to the original CPU. NUMA-Q gets confused
+ 	 * if we migrate to another quad during bootup.
+ 	 */
+-	if (smp_processor_id() != orig_cpu) {
++	if (raw_smp_processor_id() != orig_cpu) {
+ 		cpumask_t mask = cpumask_of_cpu(orig_cpu),
+ 			saved_mask = current->cpus_allowed;
  
- 		if (!qp->resp_depth && attr->max_dest_rd_atomic) {
- 			/*
- 			 * Increasing our responder resources from
--			 * zero.  Turn on RDMA/atomics as appropriate.
-+			 * zero.  Turn on RDMA reads and atomics as
-+			 * appropriate.
- 			 */
- 			qp_context->params2 |=
--				cpu_to_be32(qp->atomic_rd_en & IB_ACCESS_REMOTE_WRITE ?
--					    MTHCA_QP_BIT_RWE : 0);
--			qp_context->params2 |=
- 				cpu_to_be32(qp->atomic_rd_en & IB_ACCESS_REMOTE_READ ?
- 					    MTHCA_QP_BIT_RRE : 0);
- 			qp_context->params2 |=
- 				cpu_to_be32(qp->atomic_rd_en & IB_ACCESS_REMOTE_ATOMIC ?
- 					    MTHCA_QP_BIT_RAE : 0);
- 
--			qp_param->opt_param_mask |= cpu_to_be32(MTHCA_QP_OPTPAR_RWE |
--								MTHCA_QP_OPTPAR_RRE |
-+			qp_param->opt_param_mask |= cpu_to_be32(MTHCA_QP_OPTPAR_RRE |
- 								MTHCA_QP_OPTPAR_RAE);
- 		}
- 
----
-0.99.9g

@@ -1,38 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbVKOD2n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932346AbVKODam@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932329AbVKOD2n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 22:28:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbVKOD2l
+	id S932346AbVKODam (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 22:30:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbVKODal
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 22:28:41 -0500
-Received: from main.gmane.org ([80.91.229.2]:37825 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932329AbVKOD2k (ORCPT
+	Mon, 14 Nov 2005 22:30:41 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:2710 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932346AbVKODal (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 22:28:40 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Date: Mon, 14 Nov 2005 22:27:03 -0500
-Message-ID: <dlbkhv$hp4$1@sea.gmane.org>
-References: <58MJb-2Sn-37@gated-at.bofh.it> <58NvO-46M-23@gated-at.bofh.it> <58Rpx-1m6-11@gated-at.bofh.it> <58UGF-6qR-27@gated-at.bofh.it> <58UQf-6Da-3@gated-at.bofh.it> <437933B6.1000503@shaw.ca> <1132020468.27215.25.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ool-18b913a0.dyn.optonline.net
-User-Agent: KNode/0.10
+	Mon, 14 Nov 2005 22:30:41 -0500
+Message-ID: <4379658E.1020707@watson.ibm.com>
+Date: Mon, 14 Nov 2005 23:35:26 -0500
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [RFC][Patch 0/4] Per-task delay accounting
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
+Here is a set of patches that adds per-task delay accounting to
+Linux. In this context, delays is the time spent by a task
+waiting for some resource to become available. Currently the patches
+record (or make available) the following delays:
 
-> Um, but it's really really bad for drivers to do that.
+CPU delay: time spent on runqueue waiting for a CPU to run on
+Block I/O delay: waiting for block I/O to complete (including any
+		wait for queueing the request)
+Page fault delay: waiting for page faults (major & minor) to get
+		completed
 
-Not really. The Windows driver calls kernel API (in this case ndiswraper
-functions) whenever it needs to wait on an event, sleep etc. So if preempt
-is enabled on the way back (from Windows driver to Linux kernel call), it
-shouldn't be a problem as far as preempt is concerned.
 
-Giri
+Having this information allows one to adjust the priorities (cpu, io)
+and rss limits of a task. e.g. if task A is spending too much time
+waiting for block I/O to complete compared to task B, bumping up
+A's I/O priority relative to that of B might help.This isn't particularly
+useful if one always want A to get more I/O bandwidth than B. But if one
+is interested in dynamically adjusting priorities, delay statistics
+complete the feedback loop.
+
+The statistics are collected by simple timestamping and recording of
+intervals in the task_struct. The cpu stats are already being collected
+by the schedstats so no additional code is needed in the hot path of a
+context switch.
+
+They are made available through a connector interface which allows
+- stats for a given <pid> to be obtained in response to a command
+which specifies the <pid>. The need for dynamically obtaining delay
+stats is the reason why piggybacking delay stats onto BSD process
+accounting wasn't considered.
+- stats for exiting tasks to be sent to userspace listeners. This can
+be useful for collecting statistics by any kind of grouping done by
+the userspace agent. Such groupings (banks/process aggregates/classes)
+have been proposed by different projects.
+
+Comments on the patches are requested.
+
+--Shailabh
+
+
+Series
+
+delayacct-init.patch
+delayacct-blkio.patch
+delayacct-pgflt.patch
+delayacct-connector.patch
+
 

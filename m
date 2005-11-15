@@ -1,68 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbVKOMQG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932393AbVKOMSh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932390AbVKOMQG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 07:16:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbVKOMQG
+	id S932393AbVKOMSh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 07:18:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbVKOMSh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 07:16:06 -0500
-Received: from hera.kernel.org ([140.211.167.34]:34947 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932390AbVKOMQF (ORCPT
+	Tue, 15 Nov 2005 07:18:37 -0500
+Received: from sophia.inria.fr ([138.96.64.20]:31900 "EHLO sophia.inria.fr")
+	by vger.kernel.org with ESMTP id S932393AbVKOMSh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 07:16:05 -0500
-Date: Tue, 15 Nov 2005 05:05:03 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+	Tue, 15 Nov 2005 07:18:37 -0500
+Message-ID: <4379D1F7.1000701@yahoo.fr>
+Date: Tue, 15 Nov 2005 13:17:59 +0100
+From: Guillaume Chazarain <guichaz@yahoo.fr>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
-Cc: Shailabh Nagar <nagar@watson.ibm.com>, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-Subject: Re: [RFC][Patch 0/4] Per-task delay accounting
-Message-ID: <20051115070503.GC31904@logos.cnet>
-References: <4379658E.1020707@watson.ibm.com> <20051114201741.3d5496b3.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051114201741.3d5496b3.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1i
+CC: linux-kernel@vger.kernel.org, tim.bird@am.sony.com
+Subject: [-mm PATCH 1/2] printk return value: fix it
+References: <42F08FE6.8000601@yahoo.fr> <430CA2CE.4070403@am.sony.com>
+In-Reply-To: <430CA2CE.4070403@am.sony.com>
+Content-Type: multipart/mixed;
+ boundary="------------020201050408030807070005"
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0 (sophia.inria.fr [138.96.64.20]); Tue, 15 Nov 2005 13:18:02 +0100 (MET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 14, 2005 at 08:17:41PM -0800, Andrew Morton wrote:
-> Shailabh Nagar <nagar@watson.ibm.com> wrote:
-> >
-> > They are made available through a connector interface which allows
-> >  - stats for a given <pid> to be obtained in response to a command
-> >  which specifies the <pid>. The need for dynamically obtaining delay
-> >  stats is the reason why piggybacking delay stats onto BSD process
-> >  accounting wasn't considered.
-> 
-> I think this is the first time that anyone has come out with real code
-> which does per-task accounting via connector.
-> 
-> Which makes one wonder where this will end up.  If numerous different
-> people add numerous different accounting messages, presumably via different
-> connector channels then it may all end up a bit of a mess.  Given the way
-> kernel development happens, that's pretty likely.
-> 
-> For example, should the next developer create a new message type, or should
-> he tack his desired fields onto the back of yours?  If the former, we'll
-> end up with quite a lot of semi-duplicated code and a lot more messages and
-> resources than we strictly need.  If the latter, then perhaps the
-> versioning you have in there will suffice - I'm not sure.
-> 
-> I wonder if at this stage we should take a shot at some overarching "how do
-> do per-task accounting messages over connector" design which can at least
-> incorporate the various things which people have been talking about
-> recently?
+This is a multi-part message in MIME format.
+--------------020201050408030807070005
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Another point to be taken in consideration is that SystemTap should make
-it possible to add such instrumentation on-the-fly.
+What's the true meaning of the printk return value?
+Should it include the priority prefix length of 3? and what about the timing
+information? In both cases it was broken:
 
-Means you don't have to maintain such statistics code (which are likely
-to change often due to users needs) in the mainline kernel.
+strace -e write echo 1 > /dev/kmsg
+=> write(1, "1\n", 2)                      = 5
+strace -e write echo "<1>1" > /dev/kmsg
+=> write(1, "<1>1\n", 5)                   = 8
 
-The burden goes to userspace where the kernel hooks are compiled and
-inserted.
+The returned length was "length of input string + 3", I made it "length
+of string output to the log buffer".
 
-OTOH, when you think of kernel's fast rate of change, that might not be
-a very good option.
+Note that I couldn't find any printk caller in the kernel interested by its 
+return value besides kmsg_write.
 
-Just my two cents.
+Signed-off-by: Guillaume Chazarain <guichaz@yahoo.fr>
+Acked-By: Tim Bird <tim.bird@am.sony.com>
+
+---
+  printk.c |    6 +++---
+  1 files changed, 3 insertions(+), 3 deletions(-)
+
+
+
+-- 
+Guillaume
+
+
+
+--------------020201050408030807070005
+Content-Type: text/x-patch;
+ name="printk.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="printk.diff"
+
+diff -r d18e06f9c571 kernel/printk.c
+--- a/kernel/printk.c	Mon Nov 14 10:22:49 2005 +0800
++++ b/kernel/printk.c	Mon Nov 14 15:02:56 2005 +0100
+@@ -569,7 +569,7 @@
+ 				   p[1] <= '7' && p[2] == '>') {
+ 					loglev_char = p[1];
+ 					p += 3;
+-					printed_len += 3;
++					printed_len -= 3;
+ 				} else {
+ 					loglev_char = default_message_loglevel
+ 						+ '0';
+@@ -584,7 +584,7 @@
+ 
+ 				for (tp = tbuf; tp < tbuf + tlen; tp++)
+ 					emit_log_char(*tp);
+-				printed_len += tlen - 3;
++				printed_len += tlen;
+ 			} else {
+ 				if (p[0] != '<' || p[1] < '0' ||
+ 				   p[1] > '7' || p[2] != '>') {
+@@ -592,8 +592,8 @@
+ 					emit_log_char(default_message_loglevel
+ 						+ '0');
+ 					emit_log_char('>');
++					printed_len += 3;
+ 				}
+-				printed_len += 3;
+ 			}
+ 			log_level_unknown = 0;
+ 			if (!*p)
+
+
+--------------020201050408030807070005--

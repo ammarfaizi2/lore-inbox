@@ -1,32 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbVKOON3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932494AbVKOOOI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932415AbVKOON3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 09:13:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932494AbVKOON3
+	id S932494AbVKOOOI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 09:14:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbVKOOOI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 09:13:29 -0500
-Received: from tartu.cyber.ee ([193.40.6.68]:62479 "EHLO tartu.cyber.ee")
-	by vger.kernel.org with ESMTP id S932415AbVKOON2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 09:13:28 -0500
-From: Meelis Roos <mroos@linux.ee>
-To: baldrick@free.fr, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-rc1-git1: BTTV: no picture with grabdisplay; later, an Oops
-In-Reply-To: <200511151242.00047.baldrick@free.fr>
-User-Agent: tin/1.7.10-20050815 ("Grimsay") (UNIX) (Linux/2.6.14-g741b2252 (i686))
-Message-Id: <20051115141305.049CF14200@rhn.tartu-labor>
-Date: Tue, 15 Nov 2005 16:13:05 +0200 (EET)
+	Tue, 15 Nov 2005 09:14:08 -0500
+Received: from nproxy.gmail.com ([64.233.182.199]:21135 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932494AbVKOOOH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 09:14:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=b1/faviVD1TTV+KVBKB74X0PzYgaOrOiUjchM2cfibey33/dWWhvgvhaZQH0FDZXCkWNB2KcMgkMFzojtrVzv029fiZKkWwteLllBvya5Mo8kPV9S3QXh6FQYYrtYFsU1Li/frRwipoEZPekqHZ9nRY/oYwh2p9P6Fw/nw+En5o=
+Message-ID: <2cd57c900511150614p27943135r@mail.gmail.com>
+Date: Tue, 15 Nov 2005 22:14:04 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+To: Linux Kernel ml <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.6.15-rc1 crashed my file system for 2.6.14
+In-Reply-To: <20051115135526.GA24374@tik.ee.ethz.ch>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051115135526.GA24374@tik.ee.ethz.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DS> When I change channels, a picture flashes onto the screen for a fraction of
-DS> a second, then the screen becomes black.  The picture glimpsed seems to be =
-DS> four
-DS> copies of the tv show, arranged in a 2x2 matrix.
+2005/11/15, Lukas Ruf <ruf@rawip.org>:
+> Dear all,
+>
+> today, I tried linux-2.6.15-rc1 on my laptop (thinkpad t40p).
+> Before it had been running 2.6.14 without troubles.
+>
+> What happened:
+>
+> - compiled 2.6.15-rc1 with the 2.6.14 .config file.
+>
+> - make install modules_install ; update-grub
+>
+> - booted into 2.6.15-rc1
+>
+> - started X.org (latest available in Debian unstable, DNR version)
+>
+> - crashed the screen output -> rebooted
+>
+> - booted in 2.6.14 (that run without problems)
+>
+> - received the 'VFS ... cannot mount root ...' error message
 
-Similar "Bad address" and "Invalid argument" errors here. xawtv works
-but only in overlay mode. tvtime tries non-overlay and gets these
-errors. Card is Hauppauge WinTV with bt878. 2.6.14 works.
+What's the detalls here? screen shots maybe.
 
--- 
-Meelis Roos
+>   (ext2 and ext3 are statically compiled into the kernel)
+>
+> - booted into Knoppix, fsck.ext3 didn't show any error
+>
+> - retried 2.6.14 -- same error persists
+>
+> - 2.6.15-rc1 boots still smoothly
+>
+> - however, 2.6.15-rc1 has still no screen output after trying to
+>   start X.
+
+what does /var/log/Xorg.0.log show?
+
+>
+> ---> how can I get back to 2.6.14 without loosing data
+>
+> Any help is very welcome and urgently needed.
+--
+Coywolf Qi Hunt
+http://sosdg.org/~coywolf/

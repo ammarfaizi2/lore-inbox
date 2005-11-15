@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751436AbVKOOsa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbVKOOtv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751436AbVKOOsa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 09:48:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbVKOOs3
+	id S1751437AbVKOOtv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 09:49:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751438AbVKOOtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 09:48:29 -0500
-Received: from ns.suse.de ([195.135.220.2]:54419 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751436AbVKOOs3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 09:48:29 -0500
-From: Andi Kleen <ak@suse.de>
-To: Magnus Damm <magnus.damm@gmail.com>
-Subject: Re: [PATCH 01/05] NUMA: Generic code
-Date: Tue, 15 Nov 2005 15:15:04 +0100
-User-Agent: KMail/1.8.2
-Cc: Magnus Damm <magnus@valinux.co.jp>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, pj@sgi.com
-References: <20051110090920.8083.54147.sendpatchset@cherry.local> <200511110516.37980.ak@suse.de> <aec7e5c30511150034t5ff9e362jb3261e2e23479b31@mail.gmail.com>
-In-Reply-To: <aec7e5c30511150034t5ff9e362jb3261e2e23479b31@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511151515.05201.ak@suse.de>
+	Tue, 15 Nov 2005 09:49:51 -0500
+Received: from nasc-out-2.nasc.inter.net ([203.176.60.254]:42670 "EHLO
+	nasc-out-2.nasc.inter.net") by vger.kernel.org with ESMTP
+	id S1751437AbVKOOtu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 09:49:50 -0500
+From: "info" <shop@computermail.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Non Profit Driectory 2005 Available  linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Date: Tue, 15 Nov 2005 09:49:24 -0500
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E1Ec27s-0006o8-00@app2.nasc.inter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 November 2005 09:34, Magnus Damm wrote:
 
-> 
-> My plan with breaking out the NUMA emulation code was to merge my i386
-> stuff with the x86_64 code, but as you say - it might be overkill.
-> 
-> What do you think about the fact that real NUMA nodes now can be
-> divided into several smaller nodes?
+Canada Books
+26 Bellevue
+St-Anne-des-Lacs
+Qc, Canada
+J0R 1B0
 
-Is it really needed? I never needed it.  Normally numa emulation 
-is just for basic numa testing, and for that just an independent
-split is good enough.
+Press release
+linux-kernel@vger.kernel.org
 
--Andi
+The Non-Profit Directory 2005 is now available.
+
+This publication  contains more than 85,000 Non-Profit organizations and
+Foundations located in both the United States and Canada.
+ 
+It is fully searchable with Acrobat Reader and makes it easy to look for
+keywords in the document. You will find a wealth of information to either
+finance your next project or team up with other organizations.
+
+You will have access to: Non-Profit name, Clickable URLS to their website
+and a full description of their activities and objectives.
+
+The publication is sold for $149.95
+
+To order please call: 450-224-9275
+
+If you do not wish to receive communication from us in the future please
+write "nop" in the subject line to: rmv19@inmail24.com

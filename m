@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964972AbVKOTRm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965007AbVKOTTx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964972AbVKOTRm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 14:17:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965007AbVKOTRm
+	id S965007AbVKOTTx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 14:19:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965009AbVKOTTx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 14:17:42 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:34484 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S964972AbVKOTRm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 14:17:42 -0500
-Message-ID: <437A3453.6080000@watson.ibm.com>
-Date: Tue, 15 Nov 2005 14:17:39 -0500
-From: Hubertus Franke <frankeh@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-CC: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org,
-       haveblue@us.ibm.com
-Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
-References: <20051114212341.724084000@sergelap> <20051114153649.75e265e7.pj@sgi.com> <20051115010155.GA3792@IBM-BWN8ZTBWAO1> <20051114175140.06c5493a.pj@sgi.com> <20051115022931.GB6343@sergelap.austin.ibm.com> <20051114193715.1dd80786.pj@sgi.com> <20051115051501.GA3252@IBM-BWN8ZTBWAO1> <20051114223513.3145db39.pj@sgi.com> <20051115081100.GA2488@IBM-BWN8ZTBWAO1> <20051115010624.2ca9237d.pj@sgi.com> <20051115190030.GA16790@sergelap.austin.ibm.com>
-In-Reply-To: <20051115190030.GA16790@sergelap.austin.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Nov 2005 14:19:53 -0500
+Received: from main.gmane.org ([80.91.229.2]:17631 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S965007AbVKOTTw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 14:19:52 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Matthieu CASTET <castet.matthieu@free.fr>
+Subject: Re: ADI Blackfin patch for kernel 2.6.14
+Date: Tue, 15 Nov 2005 20:11:52 +0100
+Message-ID: <pan.2005.11.15.19.11.50.359544@free.fr>
+References: <6.1.1.1.0.20051114132644.01ec1170@ptg1.spd.analog.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: cac94-1-81-57-151-96.fbx.proxad.net
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Serge E. Hallyn wrote:
-> Quoting Paul Jackson (pj@sgi.com):
-> 
->>An additional per-task attribute, set by a batch manager typically
->>when it starts a job on a checkpointable, restartable, movable
->>"virtual server" connects the job parent task, and hence all its
->>descendents in that job, with a named kernel object that has among its
->>attributes a pid range.  When fork is handing out new pids, it honors
->>that pid range.  User level code, in the batch manager or system
->>administration layer manages a set of these named virtual servers,
->>including assigning pid ranges to them, and puts what is usually the
->>same such configuration on each server in the farm.
-> 
+Hi,
 
-And that's how we implement this.
-The difference is that the pidrange-id is assigned on the fly,
-that is when the virtual server is created or recreated after restart.
+Le Mon, 14 Nov 2005 15:53:42 -0500, Robin Getz a écrit :
 
-This, as described in my previous note, is more scalable, because I don't have
-to do a global pidrange partitioning.
-global pidrange partitioning has implications, for instance what if I simply
-want to freeze an app only to restart it much later. This would freeze that
-range autmatically.
+> Andrew wrote:
+> Since you asked - The Blackfin Processor includes the common 4 processor Ps 
+> that people request for embedded designs - price, power, performance & 
+> penguins.
 
-On process restart, we force fork to use a particular <pidspace/pid> for its
-kernel pid assignment, rather then searching for a free one.
+Could I add that ADI chips may be are cheap, but the implementation for
+that could be ugly.
 
--- Hubertus
+For example for the usb eagle (adsl chip) developped by ADI, they put the
+smallest RAM as possible on the board. For that reason the DSP firmware is
+swapped on the host computer : the firmware is split in pages and when the
+chip wants a new page it asks it via an interrupt and the host sends the
+requested page...
 
+Also ADI never cares to correct some bugs in the usb eagle firmware nor to
+sent us a correct documentation (after 6 months of discusion, they sent us
+a 3 years old documentation and they never agree to put a
+license for the firmware).
 
+Finaly most of the linux code from ADI that I saw in my eagle usb projects
+and in my job weren't very Linux compliant/robust (the first version of
+eagle usb driver made by ADI had a memleack that make the modem unsuable
+after some hours of use) [1].
+
+I know there are different teams at Analog device and blackfin guys aren't
+related to these projects.
+
+I hope backfin project will change my vision of ADI ;)
+
+Matthieu
+
+[1] we have a joke about that : (in french) Là où ADI passe, les
+standards trépassent.
 

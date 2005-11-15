@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932520AbVKON1L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932484AbVKONc0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932520AbVKON1L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 08:27:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932524AbVKON1L
+	id S932484AbVKONc0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 08:32:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932521AbVKONc0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 08:27:11 -0500
-Received: from nproxy.gmail.com ([64.233.182.197]:10107 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932520AbVKON1J convert rfc822-to-8bit
+	Tue, 15 Nov 2005 08:32:26 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:34455 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932484AbVKONcZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 08:27:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=k06u8kGrjJlaara5wThTe9Hok2TyMQFQryafz3jQlOFadwu+1UpnBXzFjbpfOjVeFqyB9M11I9BBCupZMedRCBkqA4kv+HE7mo4Xk02zxhCVG4w26tE4XljWqbl/roKyfbD99c2fiuOWngFOdmAUq2SgH1VjjiLg3oZV1zdb9Cc=
-Message-ID: <58cb370e0511150527r415a1916t4fbadfc654a2bd18@mail.gmail.com>
-Date: Tue, 15 Nov 2005 14:27:08 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.6.15-rc1: IDE: fix potential data corruption with SL82C105 interfaces
-In-Reply-To: <20051112165548.GB28987@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 15 Nov 2005 08:32:25 -0500
+Date: Tue, 15 Nov 2005 07:32:22 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: linux-kernel@vger.kernel.org, frankeh@watson.ibm.com, haveblue@us.ibm.com
+Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
+Message-ID: <20051115133222.GA2232@IBM-BWN8ZTBWAO1>
+References: <20051114212341.724084000@sergelap> <20051114153649.75e265e7.pj@sgi.com> <20051115010155.GA3792@IBM-BWN8ZTBWAO1> <20051114175140.06c5493a.pj@sgi.com> <20051115022931.GB6343@sergelap.austin.ibm.com> <20051114193715.1dd80786.pj@sgi.com> <20051115051501.GA3252@IBM-BWN8ZTBWAO1> <20051114223513.3145db39.pj@sgi.com> <20051115081100.GA2488@IBM-BWN8ZTBWAO1> <20051115010624.2ca9237d.pj@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20051112165548.GB28987@flint.arm.linux.org.uk>
+In-Reply-To: <20051115010624.2ca9237d.pj@sgi.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/12/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> We must _never_ _ever_ on pain of death enable IDE DMA on SL82C105
-> chipsets where the southbridge revision is <= 5, otherwise data
-> corruption will occur.
->
-> Strangely this used to work, but something has changed in the upper
-> echelons of the IDE layer to break the hosts decision to deny DMA.
-> Let's make it crystal clear to the IDE layer that we know best.
+Quoting Paul Jackson (pj@sgi.com):
+> > But in the end isn't that more complicated than our approach?  The
+> > kernel still needs to be modified to let processes request their pids,
+> 
+> No - getpid() works, as always.  Perhaps I don't understand your
+> comment.
+> 
+> 
+> > and now processes have to worry *always* about the value or range of
+> > their pids, both at startup and restart. 
+> 
+> No - tasks get the pid the kernel gives them at fork, as always.
+> The task keeps that exact same pid, across all checkpoints, restarts
+> and migrations.  Nothing that the application process has to worry
+> about, either inside the kernel code or in userspace, beyond the fork
+> code honoring the assigned pid range when allocating a new pid.
 
-Has it changed recently?
+Ok, so we have fork code to dole out pid ranges per vserver, I see where
+the app doesn't need to request a pid on startup.  But what about restart?
+Surely the app still needs to be restarted with the same pid - just that
+now we are more trusting that the pid remains available bc of the pid
+ranges?
 
-AFAICS this bug was introduced long time ago in the sl82c105
-driver itself by setting hwif->autodma in init_hwif_sl82c105()
-without checking for bridge revision:
+> No wide spread kernel code change, compared to yours.  As now, tasks
 
-http://linux.bkbits.net:8080/linux-2.6/patch@1.497.94.23?nav=index.html|src/|src/drivers|src/drivers/ide|src/drivers/ide/pci|related/drivers/ide/pci/sl82c105.c|cset@1.497.94.23
+Note that while the patch is large, so far its main purpose is to introduce
+a clean concept rather than hack the vpid idea in.  The latter has beem done
+before, and only requires intercepting the points where pids go from user
+to kernel.  This leaves the question of which pid is which more ambiguous.
 
-> Note: due to the urgency of this fix, I will be applying this to the
-> ARM tree.  Any comments/criticisms can be dealt with further patches.
+-serge
 
-Fine with me.
-
-Bartlomiej

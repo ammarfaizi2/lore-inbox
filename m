@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932570AbVKOX2f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932575AbVKOXcT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932570AbVKOX2f (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 18:28:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932571AbVKOX2f
+	id S932575AbVKOXcT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 18:32:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932576AbVKOXcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 18:28:35 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:3247 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S932570AbVKOX2e (ORCPT
+	Tue, 15 Nov 2005 18:32:19 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:21709 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932575AbVKOXcT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 18:28:34 -0500
-Date: Tue, 15 Nov 2005 15:28:28 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Cedric Le Goater <clg@fr.ibm.com>
-Cc: serue@us.ibm.com, linux-kernel@vger.kernel.org, frankeh@watson.ibm.com,
-       haveblue@us.ibm.com
-Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
-Message-Id: <20051115152828.7451993b.pj@sgi.com>
-In-Reply-To: <437A6BF5.9040901@fr.ibm.com>
-References: <20051114212341.724084000@sergelap>
-	<20051114153649.75e265e7.pj@sgi.com>
-	<20051115010155.GA3792@IBM-BWN8ZTBWAO1>
-	<20051114175140.06c5493a.pj@sgi.com>
-	<20051115022931.GB6343@sergelap.austin.ibm.com>
-	<20051114193715.1dd80786.pj@sgi.com>
-	<20051115051501.GA3252@IBM-BWN8ZTBWAO1>
-	<20051114223513.3145db39.pj@sgi.com>
-	<20051115081100.GA2488@IBM-BWN8ZTBWAO1>
-	<20051115010624.2ca9237d.pj@sgi.com>
-	<20051115190030.GA16790@sergelap.austin.ibm.com>
-	<20051115141146.5add977c.pj@sgi.com>
-	<437A6BF5.9040901@fr.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Tue, 15 Nov 2005 18:32:19 -0500
+Date: Wed, 16 Nov 2005 00:32:01 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Dave Jones <davej@redhat.com>, kernel list <linux-kernel@vger.kernel.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+Subject: Re: [linux-pm] [RFC] userland swsusp
+Message-ID: <20051115233201.GA10143@elf.ucw.cz>
+References: <20051115212942.GA9828@elf.ucw.cz> <20051115222549.GF17023@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051115222549.GF17023@redhat.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cedric wrote:
-> Indeed. Did you ever think about using PAGG as a foundation for a
-> checkpoint/restart container ?
+Hi!
 
-Other than the name, I didn't realize that PAGG provided a
-good foundation for this work.  However, I should let my
-PAGG colleagues address that further if worthwhile.
+>  > This is prototype of userland swsusp. I'd like kernel parts to go in,
+>  > probably for 2.6.16. Now, I'm not sure about the interface, ioctls are
+>  > slightly ugly, OTOH it would be probably overkill to introduce
+>  > syscalls just for this. (I'll need to add an ioctl for freeing memory
+>  > in future).
+> 
+> Just for info: If this goes in, Red Hat/Fedora kernels will fork
+> swsusp development, as this method just will not work there.
+> (We have a restricted /dev/mem that prevents writes to arbitary
+>  memory regions, as part of a patchset to prevent rootkits)
 
+If this goes in, you can still keep using old method... I'll not
+remove it anytime soon.
+
+> Even it were not for this, the whole idea seems misconcieved to me
+> anyway.
+
+...but how do you provide nice, graphical progress bar for swsusp
+without this? People want that, and "esc to abort", compression,
+encryption. Too much to be done in kernel space, IMNSHO.
+							Pavel
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Thanks, Sharp!

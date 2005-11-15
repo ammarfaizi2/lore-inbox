@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbVKOVws@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbVKOV4R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932093AbVKOVws (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 16:52:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbVKOVws
+	id S932117AbVKOV4R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 16:56:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbVKOV4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 16:52:48 -0500
-Received: from xproxy.gmail.com ([66.249.82.200]:16137 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932093AbVKOVwr convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 16:52:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=GkDClqHLNnWhy+LAjPMysvXTEILwcAjSdkMdXeKXc0Snx43pWRyyd5rhgGdkZItIFpZXHuunBPgo2WlicPmUzTpg6+G33W6cD/2PDLMZE6AmQPBVlBgC25ZnwaCvn1jbDUGo7n8XuSpiSZnNOvo2qCejC7KHjCQXCfEHFXGrIYY=
-Message-ID: <3aa654a40511151352h5771060ekf1781b9d59b26b26@mail.gmail.com>
-Date: Tue, 15 Nov 2005 13:52:46 -0800
-From: Avuton Olrich <avuton@gmail.com>
-To: Greg KH <gregkh@suse.de>
-Subject: Re: [RFC] HOWTO do Linux kernel development - take 2
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com
-In-Reply-To: <20051115210459.GA11363@kroah.com>
+	Tue, 15 Nov 2005 16:56:17 -0500
+Received: from ozlabs.org ([203.10.76.45]:61327 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S965031AbVKOV4R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 16:56:17 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051115210459.GA11363@kroah.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17274.22908.867547.10612@cargo.ozlabs.ibm.com>
+Date: Wed, 16 Nov 2005 08:56:12 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: linas <linas@austin.ibm.com>
+Cc: Greg KH <greg@kroah.com>, linuxppc64-dev@ozlabs.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/7] PCI Error Recovery
+In-Reply-To: <20051115175934.GO19593@austin.ibm.com>
+References: <20051108234911.GC19593@austin.ibm.com>
+	<20051114214703.GG19593@austin.ibm.com>
+	<20051115164901.GA12968@kroah.com>
+	<20051115175934.GO19593@austin.ibm.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/15/05, Greg KH <gregkh@suse.de> wrote:
+linas writes:
 
->  - After two weeks a -rc1 kernel is released and now is possible to push only
->   patches that do not include new functionalities that could affect the
->    stability of the whole kernel.  Please note that a whole new driver (or
+> ? I'm sorry, I'm crawling the archives, and can't find any threads 
+> that haven't already been addressed in the final patchset.
 
-(functionalities is not a word, this maybe better)
+I think someone wanted you to make the bitwise thing an unsigned int
+rather than an int.  I don't remember any other changes being
+requested, if someone did want something, hopefully they'll chime in
+and remind us. :)
 
-- After two weeks a -rc1 kernel is released and it is only possible to
-push patches which don't offer new features, or could affect the
-stability of the kernel.
-
-> 2.6.x.y -stable kernel tree
-> ---------------------------
-> Kernels with 4 digit versions are -stable kernels. They contain
-> relativly small and critical fixes for security problems or significant
-> regressions discovered in a given 2.6.x kernel.
-
-relatively
-
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Paul.

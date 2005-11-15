@@ -1,117 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbVKOVYW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750792AbVKOV2h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750790AbVKOVYW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 16:24:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbVKOVYW
+	id S1750792AbVKOV2h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 16:28:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbVKOV2g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 16:24:22 -0500
-Received: from [195.144.244.147] ([195.144.244.147]:28133 "EHLO
-	amanaus.varma-el.com") by vger.kernel.org with ESMTP
-	id S1750790AbVKOVYW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 16:24:22 -0500
-Message-ID: <437A5202.2080807@varma-el.com>
-Date: Wed, 16 Nov 2005 00:24:18 +0300
-From: Andrey Volkov <avolkov@varma-el.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ru-ru, ru
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: khali@linux-fr.org, lm-sensors@lm-sensors.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1] Added support of ST m41t85 rtc chip
-References: <4378960F.8030800@varma-el.com> <20051114164118.7270c6ce.akpm@osdl.org>
-In-Reply-To: <20051114164118.7270c6ce.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 15 Nov 2005 16:28:36 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:13223
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1750792AbVKOV2g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 16:28:36 -0500
+Date: Tue, 15 Nov 2005 13:28:36 -0800 (PST)
+Message-Id: <20051115.132836.41612515.davem@davemloft.net>
+To: Markus.Lidel@shadowconnect.com
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/5] I2O: SPARC fixes
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <4379AADD.5000600@shadowconnect.com>
+References: <4379AADD.5000600@shadowconnect.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Andrey Volkov <avolkov@varma-el.com> wrote:
-> 
->>...
->>Added support of ST M41T85 RTC
->>
->>...
->>
->>+ulong
->>+m41t85_get_rtc_time(void)
-> 
-> 
-> Does this need to have global scope?
-> 
-> It appears to have no callers.
+From: Markus Lidel <Markus.Lidel@shadowconnect.com>
+Date: Tue, 15 Nov 2005 10:31:09 +0100
 
-I use this function(s) in platform driver (which still in dev stage) of
-our board as platform get_rtc_time/set_rtc_time by same way as Mark in
-the katana does.
+> +config I2O_LCT_NOTIFY_ON_CHANGES
+> +	bool "Enable LCT notification"
+> +	depends on I2O
+> +	default y
+> +	---help---
+> +	  Only say N here if you have a I2O controller from SUN. The SUN
+> +	  firmware doesn't support LCT notification on changes. If this option
+> +	  is enabled on such a controller the driver will hang up in a endless
+> +	  loop. On all other controllers say Y.
+> +
+> +	  If unsure, say Y.
+> +
 
-May be better create special header in include/linux?
-(And convert m41t80.c and arch/ppc/katana.c too)
+This should be detected at runtime, and that is easily done.
 
->>+static void
->>+m41t85_set_tlet(ulong arg)
->>+{
->>+	struct rtc_time	tm;
->>+	ulong	nowtime = *(ulong *)arg;
->>+
->>+	to_tm(nowtime, &tm);
->>+	tm.tm_year = (tm.tm_year - 1900) % 100;
->>+
->>+	tm.tm_sec = BIN2BCD(tm.tm_sec);
->>+	tm.tm_min = BIN2BCD(tm.tm_min);
->>+	tm.tm_hour = BIN2BCD(tm.tm_hour);
->>+	tm.tm_mon = BIN2BCD(tm.tm_mon);
->>+	tm.tm_mday = BIN2BCD(tm.tm_mday);
->>+	tm.tm_year = BIN2BCD(tm.tm_year);
->>+
->>+	down(&m41t85_mutex);
-> 
-> 
-> Cannot do down() in a tasklet handler!  Enable CONFIG_DEBUG_PREEMPT and
-> CONFIG_DEBUG_SPINLOCK_SLEEP, retest.
+You can use the PCI device to get at the firmware device
+node, and use that to look for a firmware device node property
+that identifies it as a card from Sun.
 
-Oops, you're right. It's copy-paste bug from m41t00.c
-(which then buggy too).
-
-> 
-> schedule_work() might be an appropriate fix.
-> 
-> 
->>+int
->>+m41t85_set_rtc_time(ulong nowtime)
->>+{
->>+	new_time = nowtime;
->>+
->>+	if (in_interrupt())
->>+		tasklet_schedule(&m41t85_tasklet);
->>+	else
->>+		m41t85_set_tlet((ulong)&new_time);
->>+
->>+	return 0;
->>+}
-> 
-> 
-> hm, this function isn't referenced from within this patch either.
-
-Same as above.
-
-> 
-> 
->>+	#if defined (CONFIG_SENSORS_M41T85_SQW_FRQ)
-> 
-> 
-> #if's normally start in column zero.
-> 
-> 
->>+		ret = i2c_smbus_write_byte_data(client, RTC_SQW_ADDR, CONFIG_SENSORS_M41T85_SQW_FRQ);
-> 
-> 
-> My, what large xterms you have ;)
-
-Tabs=4 and 1280 full screened :). Ok I fix it to 80 columns.
-
---
-Regards
-Andrey Volkov
-
+Usually the "name" property has some identifying string in it.
+Sometimes there is a property with the string "fcode" in it and you
+could look for that as well.

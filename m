@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964966AbVKORIY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964924AbVKOROI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964966AbVKORIY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 12:08:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964967AbVKORIY
+	id S964924AbVKOROI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 12:14:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964925AbVKOROI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 12:08:24 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:23233 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S964966AbVKORIX
+	Tue, 15 Nov 2005 12:14:08 -0500
+Received: from mail.timesys.com ([65.117.135.102]:65424 "EHLO
+	postfix.timesys.com") by vger.kernel.org with ESMTP id S964924AbVKOROG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 12:08:23 -0500
-Date: Tue, 15 Nov 2005 11:08:20 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org,
-       frankeh@watson.ibm.com, haveblue@us.ibm.com
-Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
-Message-ID: <20051115170819.GC2832@IBM-BWN8ZTBWAO1>
-References: <20051114212341.724084000@sergelap> <20051114153649.75e265e7.pj@sgi.com> <20051115010155.GA3792@IBM-BWN8ZTBWAO1> <20051114175140.06c5493a.pj@sgi.com> <20051115022931.GB6343@sergelap.austin.ibm.com> <20051114193715.1dd80786.pj@sgi.com> <20051115051501.GA3252@IBM-BWN8ZTBWAO1> <20051115164708.GA12807@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051115164708.GA12807@kroah.com>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 15 Nov 2005 12:14:06 -0500
+Message-ID: <437A14FB.8050206@timesys.com>
+Date: Tue, 15 Nov 2005 12:03:55 -0500
+From: john cooper <john.cooper@timesys.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Luca Falavigna <dktrkranz@gmail.com>, linux-kernel@vger.kernel.org,
+       john cooper <john.cooper@timesys.com>
+Subject: Re: [BUG] Softlockup detected with linux-2.6.14-rt6
+References: <4378B48E.6010006@gmail.com> <20051115153257.GA9727@elte.hu>
+In-Reply-To: <20051115153257.GA9727@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Nov 2005 17:06:10.0609 (UTC) FILETIME=[E0705A10:01C5EA06]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Greg KH (greg@kroah.com):
-> On Mon, Nov 14, 2005 at 11:15:01PM -0600, Serge E. Hallyn wrote:
-> > Quoting Paul Jackson (pj@sgi.com):
-> > > Serge wrote:
-> > > > the vserver model
-> > > 
-> > > What's that?
-> > 
-> > :)  Well a vserver pretends to be a full system of its own, though you
-> > can have lots of vservers on one machine.  Processes in each virtual
-> > server see only other processes in the same vserver.  However in
-> > vserver the pids they see are the real kernel pids - except for one
-> > process per vserver which can be the fakeinit.  Other processes in the
-> > same vserver see it as pid 1, but to the kernel it is still known by
-> > its real pid.
+Ingo Molnar wrote:
+> * Luca Falavigna <dktrkranz@gmail.com> wrote:
+>>I found this softlockup bug involving arts daemon using a
+>>linux-2.6.14-rt6 kernel (with "Complete Preemption" and "Detect Soft
+>>Lockups" compiled in).
+>>This bug does not happen everytime: I was able to reproduce it only
+>>three times in a week. [...]
 > 
-> Why not just use Xen?  It can handle process migration from one virtual
-> machine to another just fine.
+> 
+> does this happen with -rt13 too? I have fixed a softlockup 
+> false-positive in it.
 
-It handles vm migration, but not process migration.  The most compelling
-thing (imo) which the latter allows you to do is live OS upgrade under
-an application.  Xen won't let you do that.  Of course load-balancing is
-also more fine-grained and powerful with process set migration, and
-the overhead of a full OS per migrateable job is quite heavy.
+Just curious what the cause of the false positive was?
 
-That's not to say we don't also want to use Xen :) - it has it's own
-advantages and I'm not intending to denigrate those.  We just hope to
-get both!
+-john
 
--serge
-
+-- 
+john.cooper@timesys.com

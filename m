@@ -1,63 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbVKOMAP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932372AbVKOMBK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932388AbVKOMAP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 07:00:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbVKOMAO
+	id S932372AbVKOMBK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 07:01:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbVKOMBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 07:00:14 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:47471 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932382AbVKOMAM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 07:00:12 -0500
-Date: Tue, 15 Nov 2005 13:00:16 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Tejun Heo <htejun@gmail.com>, linux-ide@vger.kernel.org,
-       lkml <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH] libata error handling fixes (ATAPI)
-Message-ID: <20051115120016.GD7787@suse.de>
-References: <20051114195717.GA24373@havoc.gtf.org> <20051115074148.GA17459@htj.dyndns.org> <4379AA5B.1060900@pobox.com> <4379B28E.9070708@gmail.com> <4379C062.3010302@pobox.com>
+	Tue, 15 Nov 2005 07:01:10 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:51336 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932372AbVKOMBI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 07:01:08 -0500
+Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Robin Holt <holt@sgi.com>
+Cc: "SERGE E. HALLYN [imap]" <serue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>, hch@infradead.org
+In-Reply-To: <20051115111731.GA9976@lnx-holt.americas.sgi.com>
+References: <20051114212341.724084000@sergelap>
+	 <20051115111731.GA9976@lnx-holt.americas.sgi.com>
+Content-Type: text/plain
+Date: Tue, 15 Nov 2005 13:01:04 +0100
+Message-Id: <1132056064.6108.35.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4379C062.3010302@pobox.com>
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 15 2005, Jeff Garzik wrote:
-> >For departure of libata from SCSI, I was thinking more of another more 
-> >generic block device framework in which libata can live in.  And I 
-> >thought that it was reasonable to assume that the framework would supply 
-> >a EH mechanism which supports queue stalling/draining and separate 
-> >thread.  So, my EH patches tried to make the same environment for libata 
-> 
-> A big reason why libata uses the SCSI layer is infrastructure like this. 
->  It would certainly be nice to see timeouts and EH at the block layer. 
->  The block layer itself already supports queue stalling/draining.
+On Tue, 2005-11-15 at 05:17 -0600, Robin Holt wrote:
+> Can't you just build a restart preloader which intercepts system calls
+> and translates pids?  Wouldn't this keep the kernel simpler and only
+> affect those applications that are being restarted?  Christoph, I
+> added you since you seem to tirelessly promote using preloaders to
+> work around this type of issue.  Is it possible?
 
-I have a pretty simple plan for this:
+Statically linked applications really throw a pretty big monkey wrench
+into that kind of plan.  I'd hate to give up on _any_ statically linked
+app from the beginning.
 
-- Add a timer to struct request. It already has a timeout field for
-  SG_IO originated requests, we could easily utilize this in general.
-  I'm not sure how the querying of timeout would happen so far, it would
-  probably require a q->set_rq_timeout() hook to ask the low level
-  driver to set/return rq->timeout for a given request.
-
-- Add a timeout hook to struct request_queue that would get invoked from
-  the timeout handler. Something along the lines of:
-
-        - Timeout on a request happens. Freeze the queue and use
-          kblockd to take the actual timeout into process context, where
-          we call the queue ->rq_timeout() hook. Unfreeze/reschedule
-          queue operations based on what the ->rq_timeout() hook tells
-          us.
-
-That is generic enough to be able to arm the timeout automatically from
-->elevator_activate_req_fn() and dearm it when it completes or gets
-deactivated. It should also be possible to implement the SCSI error
-handling on top of that.
-
--- 
-Jens Axboe
+-- Dave
 

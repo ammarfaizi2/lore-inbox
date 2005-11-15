@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbVKOXEx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932556AbVKOXGi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932218AbVKOXEx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 18:04:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932555AbVKOXEx
+	id S932556AbVKOXGi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 18:06:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932558AbVKOXGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 18:04:53 -0500
-Received: from xenotime.net ([66.160.160.81]:15254 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932218AbVKOXEw (ORCPT
+	Tue, 15 Nov 2005 18:06:38 -0500
+Received: from gate.crashing.org ([63.228.1.57]:19086 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932556AbVKOXGh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 18:04:52 -0500
-Date: Tue, 15 Nov 2005 15:04:51 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Paul Jackson <pj@sgi.com>
-cc: Mel Gorman <mel@csn.ul.ie>, linux-mm@kvack.org, mingo@elte.hu,
-       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
-       lhms-devel@lists.sourceforge.net
-Subject: Re: [PATCH 1/5] Light Fragmentation Avoidance V20: 001_antidefrag_flags
-In-Reply-To: <20051115150054.606ce0df.pj@sgi.com>
-Message-ID: <Pine.LNX.4.58.0511151503290.28745@shark.he.net>
-References: <20051115164946.21980.2026.sendpatchset@skynet.csn.ul.ie>
- <20051115164952.21980.3852.sendpatchset@skynet.csn.ul.ie>
- <20051115150054.606ce0df.pj@sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 15 Nov 2005 18:06:37 -0500
+Subject: Re: PowerBook5,8 - TrackPad update
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+Cc: debian-powerpc@lists.debian.org, linux-kernel@vger.kernel.org
+In-Reply-To: <111520052143.16540.437A5680000BE8A60000409C220076369200009A9B9CD3040A029D0A05@comcast.net>
+References: <111520052143.16540.437A5680000BE8A60000409C220076369200009A9B9CD3040A029D0A05@comcast.net>
+Content-Type: text/plain
+Date: Wed, 16 Nov 2005 10:06:14 +1100
+Message-Id: <1132095974.5646.55.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Nov 2005, Paul Jackson wrote:
+On Tue, 2005-11-15 at 21:43 +0000, Parag Warudkar wrote:
+> Just a heads up - After some lame hacking I finally have got the trackpad on the PB5,8  (15" Late Oct 2005) to work. 
+> 
+> Ok, here is the current definition of working - mouse moves but for that you have to roll over on the trackpad ;)!
+> 
+> Currently negotiating with it so that it's happy with the fingers!! :D
+> 
+> Will post the modified source once for appletouch once it starts working acceptably.
 
-> Mel wrote:
-> >  #define __GFP_VALID	((__force gfp_t)0x80000000u) /* valid GFP flags */
-> >
-> > +/*
-> > + * Allocation type modifier
-> > + * __GFP_EASYRCLM: Easily reclaimed pages like userspace or buffer pages
-> > + */
-> > +#define __GFP_EASYRCLM   0x80000u  /* User and other easily reclaimed pages */
-> > +
->
-> How about fitting the style (casts, just one line) of the other flags,
-> so that these added six lines become instead just the one line:
->
->    #define __GFP_EASYRCLM   ((__force gfp_t)0x80000u)  /* easily reclaimed pages */
->
-> (Yeah - it was probably me that asked for -more- comments sometime in
-> the past - consistency is not my strong suit ;).
+hi Parag !
 
-Conversely, if you are going to go to the effort of lots of docs,
-please do it in kernel-doc format.
-  Documentation/kernel-doc-nano-HOWTO.txt
+You should probably post those updates to linuxppc-dev@ozlabs.org
 
--- 
-~Randy
+Ben
+
+

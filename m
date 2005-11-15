@@ -1,81 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751465AbVKORqS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751472AbVKORrE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751465AbVKORqS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 12:46:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751466AbVKORqS
+	id S1751472AbVKORrE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 12:47:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751470AbVKORrE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 12:46:18 -0500
-Received: from hera.kernel.org ([140.211.167.34]:60574 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1751465AbVKORqR (ORCPT
+	Tue, 15 Nov 2005 12:47:04 -0500
+Received: from mail.kroah.org ([69.55.234.183]:26272 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751467AbVKORrB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 12:46:17 -0500
-Date: Tue, 15 Nov 2005 10:34:30 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [Patch 1/4] Delay accounting: Initialization
-Message-ID: <20051115123430.GC32373@logos.cnet>
-References: <43796596.2010908@watson.ibm.com> <20051114202017.6f8c0327.akpm@osdl.org> <20051115064954.GB31904@logos.cnet> <4379FC75.80704@watson.ibm.com> <20051115122035.GB32373@logos.cnet>
+	Tue, 15 Nov 2005 12:47:01 -0500
+Date: Tue, 15 Nov 2005 09:33:07 -0800
+From: Greg KH <gregkh@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] HOWTO do Linux kernel development
+Message-ID: <20051115173307.GB13707@suse.de>
+References: <20051114220709.GA5234@kroah.com> <p73veyu2crf.fsf@verdi.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051115122035.GB32373@logos.cnet>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <p73veyu2crf.fsf@verdi.suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 15, 2005 at 10:20:35AM -0200, Marcelo Tosatti wrote:
-> On Tue, Nov 15, 2005 at 10:19:17AM -0500, Shailabh Nagar wrote:
-> > Marcelo Tosatti wrote:
-> > > On Mon, Nov 14, 2005 at 08:20:17PM -0800, Andrew Morton wrote:
-> > > 
-> > >>Shailabh Nagar <nagar@watson.ibm.com> wrote:
-> > >>
-> > >>>+	*ts = sched_clock();
-> > >>
-> > >>I'm not sure that it's kosher to use sched_clock() for fine-grained
-> > >>timestamping like this.  Ingo had issues with it last time this happened?  
+On Tue, Nov 15, 2005 at 03:42:44PM +0100, Andi Kleen wrote:
+> Greg KH <gregkh@suse.de> writes:
 > 
-> Maybe Ingo had some other issue other than !use_rtc ? Better check.
+> > The kernel is written using GNU C and the GNU toolchain. While it
+> > adheres to the ISO C99 (??) standard, it uses a number of extensions
 > 
-> > > If the system boots with use_rtc == 0 you're going to get jiffies based
-> > > resolution from sched_clock(). I have a 1GHz Pentium 3 around here which
-> > > does that.
-> > 
-> > Good point, thanks. This reemphasizes the need for better normalization
-> > at output time.
+> C89 - The few left over gcc 2.95 users are blocking modern C constructs.
+> Even without that it would be a C99 subset, e.g. arbitary long long divisions 
+> or floating point are not supported.
 > 
-> > > Maybe use do_gettimeofday() for such systems?
-> > 
-> > Perhaps getnstimeofday() so resolution isn't reduced to msec level unnecessarily.
-Yep.
-> > In these patches, userspace takes responsibility for handling wraparound so
-> > delivering a reasonably high-resolution delay data from the kernel is preferable.
-> > 
-> > > 
-> > > Would be nice to have a sort of per-arch overridable "gettime()" function?
-> > > 
-> > 
-> > Provided as part of this patch ?
-> 
-> Yep, think so. 
+> Also the kernel is a freestanding C environment, so parts are not supported.
 
-Actually I dont think there is any kind of "get_timestamp()" style 
-API now. Maybe it would be nice to create one? Its generic functionality 
-after all.
+Thanks, I've modified it to mention this.
 
-blktrace is also using sched_clock(), too.
-
-
-> My comment meant that its nice to hide away architecture 
-> speficic code from generic code, so you don't have to add #ifdef's and 
-> such.
+> > Also realize that it is not acceptable to send patches for inclusion
+> > that are unfinished and will be "fixed up later."
 > 
-> Not sure about the nicer way to do that.
+> I'm not sure I fully agree on that. I conflicts with the "merge early, merge
+> often" imperative.  IMHO it's ok to submit patches that are not perfect,
+> but improve something or make a incremental cleanup step, as long as the
+> problems are not severe and the patch by itself is a clear improvement. Of course
+> this is handled on a case by case basis.
+
+Yeah, it is a case-by-case, but generally we want to know up front what
+the final result is going to be.
+
+> > Justify your change
+> > -------------------
+> > 
+> > Along with breaking up your patches, it is very important for you to let
+> > the Linux community know why they should add this change.  New features
+> > must be justified as being needed and useful.
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> My request is that each patch should carry a meaningful changelog.
+> That should tell why and a rough (doesn't need to be detailed) overview how
+> the change is done.
+
+Others privately commented on this too, and I've added a section
+describing it.
+
+Thanks for the comments.
+
+greg k-h

@@ -1,73 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932494AbVKOOOI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751426AbVKOO2u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932494AbVKOOOI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 09:14:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbVKOOOI
+	id S1751426AbVKOO2u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 09:28:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751428AbVKOO2u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 09:14:08 -0500
-Received: from nproxy.gmail.com ([64.233.182.199]:21135 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932494AbVKOOOH convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 09:14:07 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=b1/faviVD1TTV+KVBKB74X0PzYgaOrOiUjchM2cfibey33/dWWhvgvhaZQH0FDZXCkWNB2KcMgkMFzojtrVzv029fiZKkWwteLllBvya5Mo8kPV9S3QXh6FQYYrtYFsU1Li/frRwipoEZPekqHZ9nRY/oYwh2p9P6Fw/nw+En5o=
-Message-ID: <2cd57c900511150614p27943135r@mail.gmail.com>
-Date: Tue, 15 Nov 2005 22:14:04 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-To: Linux Kernel ml <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.6.15-rc1 crashed my file system for 2.6.14
-In-Reply-To: <20051115135526.GA24374@tik.ee.ethz.ch>
+	Tue, 15 Nov 2005 09:28:50 -0500
+Received: from petasus.ims.intel.com ([62.118.80.130]:57053 "EHLO
+	petasus.ims.intel.com") by vger.kernel.org with ESMTP
+	id S1751426AbVKOO2t convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 09:28:49 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051115135526.GA24374@tik.ee.ethz.ch>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: [PATCH] assembler debug info
+Date: Tue, 15 Nov 2005 17:28:31 +0300
+Message-ID: <E124AAE027DA384D8B919F93E4D8C708AB275E@mssmsx402nb>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] assembler debug info
+Thread-Index: AcXp8NpqDAmJ52ewThWbSJ8yILkj0w==
+From: "Fedotov, Anton" <anton.fedotov@intel.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <trivial@rustcorp.com.au>, <torvalds@osdl.org>
+X-OriginalArrivalTime: 15 Nov 2005 14:28:32.0514 (UTC) FILETIME=[DAF99620:01C5E9F0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2005/11/15, Lukas Ruf <ruf@rawip.org>:
-> Dear all,
->
-> today, I tried linux-2.6.15-rc1 on my laptop (thinkpad t40p).
-> Before it had been running 2.6.14 without troubles.
->
-> What happened:
->
-> - compiled 2.6.15-rc1 with the 2.6.14 .config file.
->
-> - make install modules_install ; update-grub
->
-> - booted into 2.6.15-rc1
->
-> - started X.org (latest available in Debian unstable, DNR version)
->
-> - crashed the screen output -> rebooted
->
-> - booted in 2.6.14 (that run without problems)
->
-> - received the 'VFS ... cannot mount root ...' error message
+        This patch compensates lack of debug information from assembler
+files.
+It helps nm or objdump (with option -l)  to find a filename and line
+number for 
+each symbol defined in *.S files using debugging information.
+        Signed-off-by: Anton Fedotov <anton.fedotov@intel.com>
 
-What's the detalls here? screen shots maybe.
-
->   (ext2 and ext3 are statically compiled into the kernel)
->
-> - booted into Knoppix, fsck.ext3 didn't show any error
->
-> - retried 2.6.14 -- same error persists
->
-> - 2.6.15-rc1 boots still smoothly
->
-> - however, 2.6.15-rc1 has still no screen output after trying to
->   start X.
-
-what does /var/log/Xorg.0.log show?
-
->
-> ---> how can I get back to 2.6.14 without loosing data
->
-> Any help is very welcome and urgently needed.
---
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+diff -urN linux-2.6.14/Makefile linux/Makefile
+--- linux-2.6.14/Makefile	2005-10-28 04:02:08.000000000 +0400
++++ linux/Makefile	2005-11-10 15:49:54.000000000 +0300
+@@ -525,6 +525,7 @@
+ 
+ ifdef CONFIG_DEBUG_INFO
+ CFLAGS		+= -g
++AFLAGS		+= -g
+ endif
+ 
+ include $(srctree)/arch/$(ARCH)/Makefile

@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbVKOGpn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbVKOGqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932315AbVKOGpn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 01:45:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbVKOGpn
+	id S932310AbVKOGqH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 01:46:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbVKOGqH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 01:45:43 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:59844
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932231AbVKOGpm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 01:45:42 -0500
-Date: Mon, 14 Nov 2005 22:45:45 -0800 (PST)
-Message-Id: <20051114.224545.101398810.davem@davemloft.net>
-To: mpm@selenic.com
-Cc: jeffrey.t.kirsher@intel.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [BUG] netpoll is unable to handle skb's using packet split
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20051115062947.GI31287@waste.org>
-References: <20051114.213922.16377460.davem@davemloft.net>
-	<20051114.214130.57199557.davem@davemloft.net>
-	<20051115062947.GI31287@waste.org>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Tue, 15 Nov 2005 01:46:07 -0500
+Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:28800 "EHLO
+	vger.utah-nac.org") by vger.kernel.org with ESMTP id S932310AbVKOGqF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 01:46:05 -0500
+Message-ID: <43797E05.5090107@wolfmountaingroup.com>
+Date: Mon, 14 Nov 2005 23:19:49 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dave Jones <davej@redhat.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+References: <58MJb-2Sn-37@gated-at.bofh.it> <58NvO-46M-23@gated-at.bofh.it> <58Rpx-1m6-11@gated-at.bofh.it> <58UGF-6qR-27@gated-at.bofh.it> <58UQf-6Da-3@gated-at.bofh.it> <437933B6.1000503@shaw.ca> <1132020468.27215.25.camel@mindpipe> <20051115032819.GA5620@redhat.com> <43795575.9010904@wolfmountaingroup.com> <20051115050658.GA13660@redhat.com>
+In-Reply-To: <20051115050658.GA13660@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Matt Mackall <mpm@selenic.com>
-Date: Mon, 14 Nov 2005 22:29:47 -0800
+Dave Jones wrote:
 
-> Can we make any assumptions about the size and position of fragments.
-> For instance, will the first N data bytes of a UDP packet all be in
-> the same fragment?
+>On Mon, Nov 14, 2005 at 08:26:45PM -0700, Jeff V. Merkey wrote:
+>
+> > NetWare used 16K stacks in kernel by default.
+>
+>unsubscribe netware-kernel
+>  
+>
 
-Nope, they can be fragmented any way possible.
+Making the point that in 1990, folks had grown beyond 4K stacks in 
+kernels, along with MS DOS 640K Limitations.
 
-For packet parsing, you don't need any of this anyways.
-Just use the things that the normal network input stack
-uses, for example you could use something like
-skb_header_pointer(), or pskb_may_pull().
+:-)
 
-For example, a clean way to parse a UDP header at the
-front of an SKB is:
+Jeff
 
-	struct udphdr *uh, _tmp;
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
 
-	uh = skb_header_pointer(skb, 0, sizeof(_tmp), &_tmp);
-	if (uh->sport = foo && uh->dport == bar)
-		...
-
-The UDP input path uses:
-
-	struct udphdr *uh;
-
-	if (!pskb_may_pull(skb, sizeof(struct udphdr)))
-		goto header_error;
-
-	uh = skb->h.uh;
-
-Unfortunately, pskb_may_pull() may need to call __pskb_pull_tail()
-which in turn might do a pskb_expand_head() and thus a GFP_ATOMIC
-memory allocation.

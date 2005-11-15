@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932541AbVKOPco@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932542AbVKOPez@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932541AbVKOPco (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 10:32:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932542AbVKOPco
+	id S932542AbVKOPez (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 10:34:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbVKOPez
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 10:32:44 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:57256 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932541AbVKOPcn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 10:32:43 -0500
-Date: Tue, 15 Nov 2005 16:32:57 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Luca Falavigna <dktrkranz@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Softlockup detected with linux-2.6.14-rt6
-Message-ID: <20051115153257.GA9727@elte.hu>
-References: <4378B48E.6010006@gmail.com>
+	Tue, 15 Nov 2005 10:34:55 -0500
+Received: from extgw-uk.mips.com ([62.254.210.129]:7943 "EHLO
+	bacchus.net.dhis.org") by vger.kernel.org with ESMTP
+	id S932542AbVKOPey (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 10:34:54 -0500
+Date: Tue, 15 Nov 2005 15:34:44 +0000
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Tony <tony.uestc@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: MOD_INC_USE_COUNT
+Message-ID: <20051115153444.GB15733@linux-mips.org>
+References: <437347B5.6080201@gmail.com> <Pine.LNX.4.61.0511100859400.18912@chaos.analogic.com> <43735766.3070205@gmail.com> <20051113102930.GA16973@linux-mips.org> <43795C71.6070108@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4378B48E.6010006@gmail.com>
+In-Reply-To: <43795C71.6070108@gmail.com>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Nov 15, 2005 at 11:56:33AM +0800, Tony wrote:
 
-* Luca Falavigna <dktrkranz@gmail.com> wrote:
+> >Not strange at all.  The typical network driver is implemented using
+> >pci_register_driver which will set the owner filed of the driver's struct
+> >driver which then is being used for internal reference counting.  Other
+> >busses or line disciplines (SLIP, PPP, AX.25 ...) need to do the equivalent
+> >or the kernel will believe reference counting isn't necessary and it's
+> >ok to unload the module at any time.
+> >
+> >In which driver did you hit this problem?
+> >
+> >  Ralf
+> >
+> I have a radio connected to host using ethernet. I'm writing a radio 
+> driver that masquerade radio as a NIC. when the module is loaded, I just 
+> register_netdev a net_device struct, while unregister_netdev at module 
+> cleanup.
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> I found this softlockup bug involving arts daemon using a
-> linux-2.6.14-rt6 kernel (with "Complete Preemption" and "Detect Soft
-> Lockups" compiled in).
-> This bug does not happen everytime: I was able to reproduce it only
-> three times in a week. [...]
+register_netdev / unregister_netdev don't deal with the .owner stuff, so
+your bug isn't there.  If your NIC is a PCI card, it should register it's
+driver through pci_register_driver which would deal with the necessary
+reference counting.  If it's implemented as a platform device you're
+presumably calling driver_register() before platform_device_register() and
+driver_register() would do the necessary magic for you.  If you're using a
+different bus it may have it's own variant of driver_register which you
+should call.  If you don't, you have a problem :-)
 
-does this happen with -rt13 too? I have fixed a softlockup 
-false-positive in it.
-
-	Ingo
+  Ralf

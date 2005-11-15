@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932418AbVKOM0D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbVKOM0b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932418AbVKOM0D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 07:26:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbVKOM0D
+	id S932431AbVKOM0b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 07:26:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbVKOM0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 07:26:03 -0500
-Received: from smtp101.mail.sc5.yahoo.com ([216.136.174.139]:58511 "HELO
-	smtp101.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932415AbVKOM0A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 07:26:00 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=e7/Y0dA1v3C6L06xYh0XA//uqAomum0ElY9t1DjuzOfP1z7YGoEY+BIO/+IwpjpG34DOh0/g9+1z1wjyMOPMkoqBKkf8cdh/GwJ9lTM4qj8eSZAkCWVbrd8oPexnm4+OF9oGmsLqr5BmbIq0P46VEr37kcIODJLysMj0MMqknTo=  ;
-Message-ID: <4379D452.3000803@yahoo.com.au>
-Date: Tue, 15 Nov 2005 23:28:02 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-CC: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-cachefs@redhat.com, linux-fsdevel@vger.kernel.org,
-       nfsv4@linux-nfs.org
-Subject: Re: [PATCH 0/12] FS-Cache: Generic filesystem caching facility
-References: <dhowells1132005277@warthog.cambridge.redhat.com>
-In-Reply-To: <dhowells1132005277@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Nov 2005 07:26:31 -0500
+Received: from holomorphy.com ([66.93.40.71]:2511 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S932420AbVKOM0a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 07:26:30 -0500
+Date: Tue, 15 Nov 2005 04:18:22 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: Adam Litke <agl@us.ibm.com>, linux-mm@kvack.org, ak@suse.de,
+       linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com
+Subject: Re: [RFC] NUMA memory policy support for HUGE pages
+Message-ID: <20051115121822.GB6916@holomorphy.com>
+References: <Pine.LNX.4.62.0511111051080.20589@schroedinger.engr.sgi.com> <Pine.LNX.4.62.0511111225100.21071@schroedinger.engr.sgi.com> <1131980814.13502.12.camel@localhost.localdomain> <Pine.LNX.4.62.0511141340160.4663@schroedinger.engr.sgi.com> <1132007410.13502.35.camel@localhost.localdomain> <Pine.LNX.4.62.0511141523100.4676@schroedinger.engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0511141523100.4676@schroedinger.engr.sgi.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells wrote:
-> This series of patches does four things:
-> 
+On Mon, 14 Nov 2005, Adam Litke wrote:
+>> IMHO this is not really a cleanup.  When the demand fault patch stack
+>> was first accepted, we decided to separate out find_or_alloc_huge_page()
+>> because it has the page_cache retry loop with several exit conditions.
+>> no_page() has its own backout logic and mixing the two makes for a
+>> tangled mess.  Can we leave that hunk out please?
 
-Missing patch 11/12 here. Can you post a link or try resending?
+On Mon, Nov 14, 2005 at 03:25:00PM -0800, Christoph Lameter wrote:
+> It seemed to me that find_or_alloc_huge_pages has a pretty simple backout 
+> logic that folds nicely into no_page(). Both functions share a lot of 
+> variables and putting them together not only increases the readability of 
+> the code but also makes the function smaller and execution more efficient.
 
--- 
-SUSE Labs, Novell Inc.
+Looks like this is on the road to inclusion and so on. I'm not picky
+about either approach wrt. nopage/etc. and find_or_alloc_huge_page()
+affairs. Just get a consensus together and send it in.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Thanks.
+
+
+-- wli

@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbVKOE3R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbVKOEbN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932371AbVKOE3R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 23:29:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbVKOE3R
+	id S932376AbVKOEbN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 23:31:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbVKOEbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 23:29:17 -0500
-Received: from mail.kroah.org ([69.55.234.183]:19894 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932371AbVKOE3R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 23:29:17 -0500
-Date: Mon, 14 Nov 2005 20:14:18 -0800
-From: Greg KH <greg@kroah.com>
-To: Luke Yang <luke.adi@gmail.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       bunk@stusta.de, linux-kernel@vger.kernel.org
-Subject: Re: ADI Blackfin patch for kernel 2.6.14
-Message-ID: <20051115041418.GA20565@kroah.com>
-References: <489ecd0c0511032059n394abbb2s9865c22de9b2c448@mail.gmail.com> <20051104230644.GA20625@kroah.com> <489ecd0c0511062258k4183d206odefd3baa46bb9a04@mail.gmail.com> <20051107165928.GA15586@kroah.com> <20051107235035.2bdb00e1.akpm@osdl.org> <489ecd0c0511110326j3a01cabbheeeac6168193a0b0@mail.gmail.com> <20051112214741.GB16334@kroah.com> <489ecd0c0511132334rc0d8a18n9ccf1bdd30d564a0@mail.gmail.com> <1131954765.2821.6.camel@laptopd505.fenrus.org> <489ecd0c0511141840t4e7ba87ftfdba8c287063565f@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <489ecd0c0511141840t4e7ba87ftfdba8c287063565f@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+	Mon, 14 Nov 2005 23:31:13 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:62648 "EHLO
+	pd2mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S932376AbVKOEbM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 23:31:12 -0500
+Date: Mon, 14 Nov 2005 22:31:05 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+In-reply-to: <43795C55.9080305@wolfmountaingroup.com>
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <43796489.8090500@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <58XuN-29u-17@gated-at.bofh.it> <58XuN-29u-19@gated-at.bofh.it>
+ <58XuN-29u-21@gated-at.bofh.it> <58XuN-29u-23@gated-at.bofh.it>
+ <58XuN-29u-25@gated-at.bofh.it> <58XuN-29u-15@gated-at.bofh.it>
+ <58YAt-3Fs-5@gated-at.bofh.it> <58ZGo-5ba-13@gated-at.bofh.it>
+ <5909m-5JB-5@gated-at.bofh.it> <43795F35.3050904@shaw.ca>
+ <43795C55.9080305@wolfmountaingroup.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 15, 2005 at 10:40:05AM +0800, Luke Yang wrote:
-> On 11/14/05, Arjan van de Ven <arjan@infradead.org> wrote:
-> >
-> > > > The process is like maintaining any other part of the kernel:
-> > > >   - Try to make sure it works on all releases (harder to do with a full
-> > > >     arch, I know, but not impossible.)
-> > >
-> > >   Does this include all the rc releases? and the 2.6.14.x releases?
-> > >
-> > > >   - keep it up to date with bugfixes and the such
-> > >
-> > >   So the process is: when kernel release a new version, we should
-> > > update our arch related files to the new kernel, then send you the
-> > > patch. Am I right?
-> >
-> > well the idea is that you fix things BEFORE the kernel is released for
-> > final, so that the final releases work out of the box (well out of
-> > kernel.org). This implies that you sort of track the git tree on a
-> > regular basis, but at minimum look at the first -rc kernel.
-> 
->   yep, that's our plan. And for the 2.6.14.1, 2.6.14.2... versions, do
-> we have to follow every of them?
+Jeff V. Merkey wrote:
+> What?  There's more kernel apps than just ndis network drivers that get 
+> ported.  ndiswrapper is busted (which is used for a lot of laptops)
+> without 4K stacks.
 
-They should hopefully _not_ break anything, due to the small size of
-those releases.  If they do, please let the stable team know.
+Which is why ndiswrapper needs to get fixed to work with 4K stacks. 
+ndiswrapper is the thing that's doing the wierd stuff, it needs to adapt 
+to the kernel, not the other way around. The reasons to use 4K stacks 
+are strong enough that they are not made up for by the fact that 
+ndiswrapper currently would like to have more stack space.
 
-thanks,
+Windows apparently has 12K of kernel stack for drivers.. in that case 
+even 8K of stack in Linux would not necessarily be enough. If 
+ndiswrapper wants to run Windows code in the kernel with any amount of 
+reliability it should be providing its own stack which is the size that 
+the code expects.
 
-greg k-h
+> My laptop is a Compaq and there isn't a Linux driver 
+> for the wireless.  I also discovered Fedora Core 4 won't install
+> on a Compaq Presario with SATA (stacks crashes).
+
+How do you know this is related to the stack? Did you report this as a bug?
+
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751390AbVKOI50@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751391AbVKOI6L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751390AbVKOI50 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 03:57:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbVKOI50
+	id S1751391AbVKOI6L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 03:58:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbVKOI6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 03:57:26 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:22159 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751390AbVKOI5Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 03:57:24 -0500
-Date: Tue, 15 Nov 2005 03:57:18 -0500
-From: Jeff Garzik <jgarzik@redhat.com>
-To: Linux filesystem caching discussion list 
-	<linux-cachefs@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, nfsv4@linux-nfs.org,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [Linux-cachefs] Re: [PATCH 0/12] FS-Cache: Generic filesystem caching facility
-Message-ID: <20051115085718.GA15464@devserv.devel.redhat.com>
-References: <dhowells1132005277@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0511141428390.3263@g5.osdl.org> <20051114150347.1188499e.akpm@osdl.org> <1132010253.8802.20.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1132010253.8802.20.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 15 Nov 2005 03:58:10 -0500
+Received: from smtp017.mail.yahoo.com ([216.136.174.114]:57231 "HELO
+	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1751392AbVKOI6J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 03:58:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=udOiD/1yVfvXgR1n/l1CRoH6POR5DpuR/0irqHB2x/qyKunQVwA3pBkS2006hUugCyJ6xeUoqN+ZxT83Hc2Kr6/VoBfBHN8jRCnHjFmVmsaiW7aysBnYpKhZxOHRb2pQQTdTG0LsmzwNNCthIC+MebKVJT9wQ9kP2ogB4mgpsNY=  ;
+Message-ID: <4379A399.1080407@yahoo.com.au>
+Date: Tue, 15 Nov 2005 20:00:09 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Paul Jackson <pj@sgi.com>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Simon Derr <Simon.Derr@bull.net>, Christoph Lameter <clameter@sgi.com>,
+       "Rohit, Seth" <rohit.seth@intel.com>
+Subject: Re: [PATCH 03/05] mm rationalize __alloc_pages ALLOC_* flag names
+References: <20051114040329.13951.39891.sendpatchset@jackhammer.engr.sgi.com> <20051114040353.13951.82602.sendpatchset@jackhammer.engr.sgi.com>
+In-Reply-To: <20051114040353.13951.82602.sendpatchset@jackhammer.engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 14, 2005 at 06:17:33PM -0500, Trond Myklebust wrote:
-> On Mon, 2005-11-14 at 15:03 -0800, Andrew Morton wrote:
+Paul Jackson wrote:
+> Rationalize mm/page_alloc.c:__alloc_pages() ALLOC flag names.
 > 
-> > I think we need an NFS implementation and some numbers which make it
-> > interesting.  Or at least, some AFS numbers, some explanation as to why
-> > they can be extrapolated to NFS and some degree of interest from the NFS
-> > guys.   Ditto CIFS.
-> 
-> There is a lot of interest from the HPC community for this sort of thing
-> on NFS. Basically, it will help server scalability for projects that
-> have large numbers of read-only files accessed by large numbers of
-> clients.
-> 
-> AFAIK, Steve Dickson (steved@redhat.com) is working on the NFS hooks for
-> FS-Cache.
 
-Well, I'm not in the HPC community, but I have a lot of interest in seeing
-cachefs + nfs working in the upstream kernel.
+I don't really see the need for this. The names aren't
+clearly better, and the downside is that they move away
+from the terminlogy we've been using in the page allocator
+for the past few years.
 
-	Jeff, misses cachefs from the Solaris days
+-- 
+SUSE Labs, Novell Inc.
 
-
-
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,158 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbVKOERF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932363AbVKOESF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932366AbVKOERF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 23:17:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbVKOERF
+	id S932363AbVKOESF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 23:18:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbVKOESF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 23:17:05 -0500
-Received: from fed1rmmtao03.cox.net ([68.230.241.36]:29866 "EHLO
-	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
-	id S932362AbVKOERE convert rfc822-to-8bit (ORCPT
+	Mon, 14 Nov 2005 23:18:05 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:54176 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932363AbVKOESD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 23:17:04 -0500
-From: Junio C Hamano <junkio@cox.net>
-To: git@vger.kernel.org
-Subject: [ANNOUNCE] GIT 0.99.9i aka 1.0rc2
-cc: linux-kernel@vger.kernel.org
-Date: Mon, 14 Nov 2005 20:17:02 -0800
-Message-ID: <7vr79isfy9.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Mon, 14 Nov 2005 23:18:03 -0500
+Date: Mon, 14 Nov 2005 20:17:41 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: [RFC][Patch 0/4] Per-task delay accounting
+Message-Id: <20051114201741.3d5496b3.akpm@osdl.org>
+In-Reply-To: <4379658E.1020707@watson.ibm.com>
+References: <4379658E.1020707@watson.ibm.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-GIT 0.99.9i aka 1.0rc2 is found at usual places.
+Shailabh Nagar <nagar@watson.ibm.com> wrote:
+>
+> They are made available through a connector interface which allows
+>  - stats for a given <pid> to be obtained in response to a command
+>  which specifies the <pid>. The need for dynamically obtaining delay
+>  stats is the reason why piggybacking delay stats onto BSD process
+>  accounting wasn't considered.
 
-I think the source-tree-wise almost everything is done except:
+I think this is the first time that anyone has come out with real code
+which does per-task accounting via connector.
 
- - http-fetch file descriptor leak fix; I tried Nick's
-   clean-ups, but haven't tried Pasky's patch yet.  Walt reports
-   neither patch fixed the problem.  I wasted the weekend not
-   being able to reproduce this myself, until Pasky reminded me
-   that I have an old special code in git-clone, which was
-   unrelated to this problem, but nevertheless was masking it.
+Which makes one wonder where this will end up.  If numerous different
+people add numerous different accounting messages, presumably via different
+connector channels then it may all end up a bit of a mess.  Given the way
+kernel development happens, that's pretty likely.
 
- - Preparation for later dash-less "git frotz" installation
-   scheme.  As I said earlier, I intend to do 1.0 with a
-   Makefile that installs everything in one directory (either
-   $HOME/bin or /usr/bin) by default, but at least we should
-   encourage our users to get used to spelling the subcommands
-   in dash-less form.  Andreas Ericsson's git wrapper
-   implementation was reviewed favourably on the list, and I'd
-   like to go with it.
+For example, should the next developer create a new message type, or should
+he tack his desired fields onto the back of yours?  If the former, we'll
+end up with quite a lot of semi-duplicated code and a lot more messages and
+resources than we strictly need.  If the latter, then perhaps the
+versioning you have in there will suffice - I'm not sure.
 
- - archimport update by Eric Wong has not been reviewed yet;
-   this is difficult for me since I do not use tla anymore, and
-   I am asking help from Martin Langhoff.  I am hoping Eric and
-   Martin would come up with an updated patch that satisfies the
-   needs of both, at that time the update will happen.
-   Personally I do not think 1.0 has to wait for this.
-
-There is a bit of restructuring in the binary packaging for RPM
-(and probably Debian side needs matching change as well) before
-1.0 can happen.
-
-Anyway, here is the short-log between 0.99.9g and 0.99.9i.
-Please give it a good beating.
-
--- >8 -- cut here -- >8 --
-
-Alex Riesen:
-      allow git-update-ref create refs with slashes in names
-
-Andreas Ericsson:
-      git-clone: Keep remote names when cloning unless explicitly told not to.
-      git-clone: Allow cloning into directories other than child of current dir.
-      git-branch: Mention -d and -D in man-page.
-
-Chris Wright:
-      specfile cleanups
-
-Fredrik Kuivinen:
-      merge-recursive: Indent the output properly
-      merge-recursive: Add copyright notice
-      merge-recursive: Use '~' instead of '_' to separate file names from branch names
-
-Jim Radford:
-      Add missing git-core and cvsps RPM dependencies.
-
-Josef Weidendorfer:
-      Let git-clone/git-fetch follow HTTP redirections
-      Bugfix: stop if directory already exists
-      Remove git-rename. git-mv does the same
-
-Junio C Hamano:
-      Documentation: "host:path/to/repo" is git native over ssh.
-      Do not lose author name information to locale gotchas.
-      Add --pretty=fuller
-      octopus: do not do AND'ed merge base.
-      RPM: arch submodule needs tla.
-      merge-base: fully contaminate the well.
-      merge-base: avoid unnecessary postprocessing.
-      Add test case for merge-base.
-      git-show-branch: tighten merge-base computation.
-      Fully detect uninteresting commits.
-      t1200: use --topo-order to keep the show-branch output stable.
-      INSTALL: duplicate python requirements from Makefile
-      merge with /dev/null as base, instead of punting O==empty case
-      merge-one-file: use common as base, instead of emptiness.
-      Documentation: git-apply --no-add
-      merge-one-file: use empty- or common-base condintionally in two-stage merge.
-      git-prune: prune redundant packs
-      git-lost+found
-      Rename .git/lost+found to .git/lost-found.
-      Documentation: asciidoc sources are utf-8
-      Ignore built git-lost+found.
-      Debian: build-depend on libexpat-dev.
-      Rename lost+found to lost-found.
-      Separate LDFLAGS and CFLAGS.
-      apply: fix binary patch detection.
-      Update topo-order test.
-
-Kai Ruemmler:
-      Fix compilation warnings in pack-redundant.c
-
-Linus Torvalds:
-      Fix git-rev-list "date order" with --topo-order
-
-Lukas_Sandström:
-      Change 'cache' to 'index' in the docs
-      Add git-pack-intersect
-      Add documentation for git-pack-intersect
-      Add git-pack-intersect to .gitignore
-      Make git-repack use git-pack-intersect.
-      Rename git-pack-intersect to git-pack-redundant
-      Make git-pack-redundant consider alt-odbs
-
-Martin Langhoff:
-      archimport: handle pika escaping
-
-Matthias Urlichs:
-      debian packaging: git-cvs needs cvsps
-      Remove trailing slashes
-      Depend on asciidoc 7 (at least).
-
-Nick Hengeveld:
-      Fix for multiple alternates requests in http-fetch
-      Fix fd leak in http-fetch
-
-Nikolai Weibull:
-      Document the -n command-line option to git-unpack-objects
-      Document a couple of missing command-line options.
-      Documentation nitpicking
-
-Pavel Roskin:
-      Add --no-commit-id option for git-diff-tree, use it in gitk
-      git-clone: quote destination directory name
-
-Petr Baudis:
-      Fix confusing git-update-ref error message
-      Show URL in the "Getting <foo> list" http-fetch messages
-
-Thomas Matysik:
-      Add expat and expat-devel dependencies (for http-push) to RPM spec.
-      Split gitk into seperate RPM package
-
-
+I wonder if at this stage we should take a shot at some overarching "how do
+do per-task accounting messages over connector" design which can at least
+incorporate the various things which people have been talking about
+recently?

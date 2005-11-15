@@ -1,49 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbVKOM0b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbVKOMeG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932431AbVKOM0b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 07:26:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbVKOM0b
+	id S932422AbVKOMeG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 07:34:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbVKOMeG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 07:26:31 -0500
-Received: from holomorphy.com ([66.93.40.71]:2511 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S932420AbVKOM0a (ORCPT
+	Tue, 15 Nov 2005 07:34:06 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:25303 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S932422AbVKOMeF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 07:26:30 -0500
-Date: Tue, 15 Nov 2005 04:18:22 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: Adam Litke <agl@us.ibm.com>, linux-mm@kvack.org, ak@suse.de,
-       linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com
-Subject: Re: [RFC] NUMA memory policy support for HUGE pages
-Message-ID: <20051115121822.GB6916@holomorphy.com>
-References: <Pine.LNX.4.62.0511111051080.20589@schroedinger.engr.sgi.com> <Pine.LNX.4.62.0511111225100.21071@schroedinger.engr.sgi.com> <1131980814.13502.12.camel@localhost.localdomain> <Pine.LNX.4.62.0511141340160.4663@schroedinger.engr.sgi.com> <1132007410.13502.35.camel@localhost.localdomain> <Pine.LNX.4.62.0511141523100.4676@schroedinger.engr.sgi.com>
-Mime-Version: 1.0
+	Tue, 15 Nov 2005 07:34:05 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0511141523100.4676@schroedinger.engr.sgi.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17273.54692.917859.828838@alkaid.it.uu.se>
+Date: Tue, 15 Nov 2005 13:33:40 +0100
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>
+Subject: Re: [PATCH] ppc: Fix boot with yaboot with ARCH=ppc
+In-Reply-To: <1132039305.5646.17.camel@gaston>
+References: <1132039305.5646.17.camel@gaston>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Nov 2005, Adam Litke wrote:
->> IMHO this is not really a cleanup.  When the demand fault patch stack
->> was first accepted, we decided to separate out find_or_alloc_huge_page()
->> because it has the page_cache retry loop with several exit conditions.
->> no_page() has its own backout logic and mixing the two makes for a
->> tangled mess.  Can we leave that hunk out please?
+Benjamin Herrenschmidt writes:
+ > The merge of machine types broke boot with yaboot & ARCH=ppc due to the
+ > old code still retreiving the old-syle machine type passed in by yaboot.
+ > This patch fixes it by translating those old numbers. Since that whole
+ > mecanism is deprecated, this is a temporary fix until ARCH=ppc uses the
+ > new prom_init that the merged architecture now uses for both ppc32 and
+ > ppc64 (after 2.6.15)
+ > 
+ > Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-On Mon, Nov 14, 2005 at 03:25:00PM -0800, Christoph Lameter wrote:
-> It seemed to me that find_or_alloc_huge_pages has a pretty simple backout 
-> logic that folds nicely into no_page(). Both functions share a lot of 
-> variables and putting them together not only increases the readability of 
-> the code but also makes the function smaller and execution more efficient.
+This fixed my eMac, thanks.
 
-Looks like this is on the road to inclusion and so on. I'm not picky
-about either approach wrt. nopage/etc. and find_or_alloc_huge_page()
-affairs. Just get a consensus together and send it in.
+Acked-by: Mikael Pettersson <mikpe@csd.uu.se>
 
-Thanks.
-
-
--- wli
+ > 
+ > Index: linux-work/arch/ppc/kernel/setup.c
+ > ===================================================================
+ > --- linux-work.orig/arch/ppc/kernel/setup.c	2005-11-15 18:15:23.000000000 +1100
+ > +++ linux-work/arch/ppc/kernel/setup.c	2005-11-15 18:18:37.000000000 +1100
+ > @@ -602,7 +602,19 @@
+ >  #endif /* CONFIG_BLK_DEV_INITRD */
+ >  #ifdef CONFIG_PPC_MULTIPLATFORM
+ >  		case BI_MACHTYPE:
+ > -			_machine = data[0];
+ > +			/* Machine types changed with the merge. Since the
+ > +			 * bootinfo are now deprecated, we can just hard code
+ > +			 * the appropriate conversion here for when we are
+ > +			 * called with yaboot which passes us a machine type
+ > +			 * this way.
+ > +			 */
+ > +			switch(data[0]) {
+ > +			case 1: _machine = _MACH_prep; break;
+ > +			case 2: _machine = _MACH_Pmac; break;
+ > +			case 4: _machine = _MACH_chrp; break;
+ > +			default:
+ > +				_machine = data[0];
+ > +			}
+ >  			break;
+ >  #endif
+ >  		case BI_MEMSIZE:
+ > 
+ > 
+ > -
+ > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+ > the body of a message to majordomo@vger.kernel.org
+ > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ > Please read the FAQ at  http://www.tux.org/lkml/
+ > 

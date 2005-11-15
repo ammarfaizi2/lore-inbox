@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964973AbVKOSxE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964974AbVKOSx3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964973AbVKOSxE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 13:53:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbVKOSxD
+	id S964974AbVKOSx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 13:53:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964975AbVKOSx3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 13:53:03 -0500
-Received: from hera.kernel.org ([140.211.167.34]:40354 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S964973AbVKOSxB (ORCPT
+	Tue, 15 Nov 2005 13:53:29 -0500
+Received: from mx1.suse.de ([195.135.220.2]:19925 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964974AbVKOSx2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 13:53:01 -0500
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: MOD_INC_USE_COUNT
-Date: Tue, 15 Nov 2005 10:52:57 -0800
-Organization: OSDL
-Message-ID: <20051115105257.6a272cdf@localhost.localdomain>
-References: <437347B5.6080201@gmail.com>
+	Tue, 15 Nov 2005 13:53:28 -0500
+Date: Tue, 15 Nov 2005 19:53:26 +0100
+From: Olaf Hering <olh@suse.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Kumar Gala <galak@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>,
+       Michael Buesch <mbuesch@freenet.de>,
+       ppc-dev list <linuxppc-dev@ozlabs.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linuv 2.6.15-rc1
+Message-ID: <20051115185326.GA13782@suse.de>
+References: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org> <200511122145.38409.mbuesch@freenet.de> <Pine.LNX.4.64.0511121257000.3263@g5.osdl.org> <200511122237.17157.mbuesch@freenet.de> <1131834336.7406.46.camel@gaston> <71C11A0C-4FC8-4081-A890-A4FF7DA48752@kernel.crashing.org> <1131915560.5504.67.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1132080777 23994 10.8.0.74 (15 Nov 2005 18:52:57 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Tue, 15 Nov 2005 18:52:57 +0000 (UTC)
-X-Newsreader: Sylpheed-Claws 1.9.15 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <1131915560.5504.67.camel@gaston>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Nov 2005 21:14:29 +0800
-Tony <tony.uestc@gmail.com> wrote:
+ On Mon, Nov 14, Benjamin Herrenschmidt wrote:
 
-> Hello All,
-> Usually, when a net_device->open is called, it will MOD_INC_USE_COUNT on 
-> success. It is removed since 2.5.x, then should I increase the use 
-> count? how? thx.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> On Sun, 2005-11-13 at 10:37 -0600, Kumar Gala wrote:
+> 
+> > Can we please add some defconfigs for arch/powerpc to possibly help  
+> > with this issue.  I'm think a pmac32, pmac64, and whatever other 64  
+> > bit configs would be a good start.
+> 
+> The 64 bits defconfigs are there already. I'll do a pmac one.
 
-Did you read Documentation/network/netdevices.txt?
-
-Networking devices don't do ref counting because they should be removable
-at any time! Because of hotplug and failover, it just doesn't work to keep
-track of ref counting network devices. 
-
-What happens is that each protocol is notified on module removal of a
-network device. The protocol then cleans up all references to that
-device. If the protocol is buggy, then you will see the kernel
-wait and print a message that ref count is still not correct.
-
+Can you move also arch/ppc64/defconfig into arch/powerpc/configs/?
 
 -- 
-Stephen Hemminger <shemminger@osdl.org>
-OSDL http://developer.osdl.org/~shemminger
+short story of a lazy sysadmin:
+ alias appserv=wotan

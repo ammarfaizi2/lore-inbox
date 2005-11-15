@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751389AbVKOJD7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbVKOJGQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751389AbVKOJD7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 04:03:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbVKOJD6
+	id S1751396AbVKOJGQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 04:06:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbVKOJGQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 04:03:58 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:56285 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751389AbVKOJD6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 04:03:58 -0500
-Date: Tue, 15 Nov 2005 01:03:03 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: pj@sgi.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Simon.Derr@bull.net, clameter@sgi.com, rohit.seth@intel.com
-Subject: Re: [PATCH 03/05] mm rationalize __alloc_pages ALLOC_* flag names
-Message-Id: <20051115010303.6bc04222.akpm@osdl.org>
-In-Reply-To: <4379A399.1080407@yahoo.com.au>
-References: <20051114040329.13951.39891.sendpatchset@jackhammer.engr.sgi.com>
-	<20051114040353.13951.82602.sendpatchset@jackhammer.engr.sgi.com>
-	<4379A399.1080407@yahoo.com.au>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 15 Nov 2005 04:06:16 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:11977 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751396AbVKOJGO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 04:06:14 -0500
+Date: Tue, 15 Nov 2005 09:06:12 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-kernel@vger.kernel.org, eranian@hpl.hp.com, ak@muc.de,
+       benh@kernel.crashing.org, paulus@samba.org, stephane.eranian@hp.com,
+       tony.luck@intel.com
+Subject: Re: + perfmon2-reserve-system-calls.patch added to -mm tree
+Message-ID: <20051115090612.GA22160@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org,
+	eranian@hpl.hp.com, ak@muc.de, benh@kernel.crashing.org,
+	paulus@samba.org, stephane.eranian@hp.com, tony.luck@intel.com
+References: <200511142329.jAENTfmS004600@shell0.pdx.osdl.net> <200511150050.27556.arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200511150050.27556.arnd@arndb.de>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->
-> Paul Jackson wrote:
-> > Rationalize mm/page_alloc.c:__alloc_pages() ALLOC flag names.
-> > 
-> 
-> I don't really see the need for this. The names aren't
-> clearly better, and the downside is that they move away
-> from the terminlogy we've been using in the page allocator
-> for the past few years.
+On Tue, Nov 15, 2005 at 12:50:26AM +0100, Arnd Bergmann wrote:
+> > --- 25/include/asm-powerpc/unistd.h~perfmon2-reserve-system-calls???????Mon Nov 14 15:27:32 2005
+> > +++ 25-akpm/include/asm-powerpc/unistd.h????????Mon Nov 14 15:27:32 2005
+> > @@ -296,8 +296,20 @@
+> > ?#define __NR_inotify_init??????275
+> > ?#define __NR_inotify_add_watch?276
+> > ?#define __NR_inotify_rm_watch??277
+> > +#define __NR_pfm_create_context????????278
+> > +#define __NR_pfm_write_pmcs????279
+> > +#define __NR_pfm_write_pmds????280
+> > +#define __NR_pfm_read_pmds?????281
+> > +#define __NR_pfm_load_context??282
+> > +#define __NR_pfm_start?????????283
+> > +#define __NR_pfm_stop??????????284
+> > +#define __NR_pfm_restart???????285
+> > +#define __NR_pfm_create_evtsets????????286
+> > +#define __NR_pfm_getinfo_evtsets 287
+> > +#define __NR_pfm_delete_evtsets 288
+> > +#define __NR_pfm_unload_context????????289
+> > ?
+> > -#define __NR_syscalls??????????278
+> > +#define __NR_syscalls??????????290
 
-I thought they were heaps better, actually.
+I thought we didn't reserve syscall numbers?
 
--#define ALLOC_NO_WATERMARKS	0x01 /* don't check watermarks at all */
--#define ALLOC_HARDER		0x02 /* try to alloc harder */
--#define ALLOC_HIGH		0x04 /* __GFP_HIGH set */
-+#define ALLOC_DONT_DIP	0x01 	/* don't dip into memory reserves */
-+#define ALLOC_DIP_SOME	0x02 	/* dip into reserves some */
-+#define ALLOC_DIP_ALOT	0x04 	/* dip into reserves further */
-+#define ALLOC_MUSTHAVE	0x08 	/* ignore all constraints */
+anyway, this is an awfull lot of syscalls numbers for what essentially
+is a driver not core kernel functionality.  I think we should do an API
+review first.
 
-very explicit.
+and why didn't this patch get sent to lkml for review?

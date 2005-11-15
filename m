@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965041AbVKOWQ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965040AbVKOWTf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965041AbVKOWQ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 17:16:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbVKOWQ5
+	id S965040AbVKOWTf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 17:19:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbVKOWTf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 17:16:57 -0500
-Received: from mail.kroah.org ([69.55.234.183]:12191 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932155AbVKOWQ5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 17:16:57 -0500
-Date: Tue, 15 Nov 2005 14:01:36 -0800
-From: Greg KH <gregkh@suse.de>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: [RFC] HOWTO do Linux kernel development - take 2
-Message-ID: <20051115220136.GA12413@suse.de>
-References: <20051115210459.GA11363@kroah.com> <9a8748490511151406y72e82354w5c5599ea6201d38e@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 15 Nov 2005 17:19:35 -0500
+Received: from xproxy.gmail.com ([66.249.82.199]:5902 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932197AbVKOWTf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 17:19:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=kKL+6uyeIIHOQqH4wxIKfokvceXGbMR0LtnzwU2uj1mQkCnJgsfnSnbZGx10l2ZCbGlsSrFrBB90Y9lBZ1/ik2AvPT3muXEKYbhken88aTGAkEM/Dm/XIdkglfRv/mH5kYTtppdvfdqHhYAfKFneOWxC1z9AlHmcyANK4w9qddg=
+Message-ID: <eada2a070511151419j5d94ec55xb36c6ae7d17ea30a@mail.gmail.com>
+Date: Tue, 15 Nov 2005 14:19:33 -0800
+From: Tim Pepper <lnxninja@us.ibm.com>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Subject: Re: [PATCH] Add NUMA policy support for huge pages.
+Cc: akpm@osdl.org, Adam Litke <agl@us.ibm.com>, linux-mm@kvack.org, ak@suse.de,
+       linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com,
+       wli@holomorphy.com
+In-Reply-To: <Pine.LNX.4.62.0511151342310.10995@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <9a8748490511151406y72e82354w5c5599ea6201d38e@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+References: <Pine.LNX.4.62.0511151342310.10995@schroedinger.engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 15, 2005 at 11:06:04PM +0100, Jesper Juhl wrote:
-> On 11/15/05, Greg KH <gregkh@suse.de> wrote:
-> > Here's an updated version of the "HOTO do Linux kernel development"
-> > document that I've been working on.
-> >
-> > For a description of why I started this, please see:
-> >         http://thread.gmane.org/gmane.linux.kernel/348689
-> >
-> > I've addressed all of the comments that I have received, and flushed out
-> > the the TODO sections.  I'd appreciate any comments on this version, as
-> > I think it's looking pretty good and finished for now.  If no one
-> > objects, I'll send it in a patch for inclusion in the main tree soon.
-> >
-> [snip]
-> >
-> >   Documentation/applying-patches.txt
-> >     A good introduction describing exactly what a patch is, how to
-> >     create it, and how to apply it to the different development branches
-> >     of the kernel.
-> >
-> [snip]
-> 
-> I don't believe I mention anything about patch /creation/ in
-> applying-patches.txt, at least the point of the document when I wrote
-> it was to explain what a patch is, how to apply it and give a short
-> description of the various trees.
-> So, your description is accurate except for the "how to create it" bit.
+On 11/15/05, Christoph Lameter <clameter@engr.sgi.com> wrote:
+> --- linux-2.6.14-mm2.orig/mm/mempolicy.c        2005-11-15 10:29:53.000000000 -0800
+> +++ linux-2.6.14-mm2/mm/mempolicy.c     2005-11-15 12:30:26.000000000 -0800
+> @@ -1005,6 +1005,34 @@ static unsigned offset_il_node(struct me
+>         return nid;
+>  }
+>
+> +/* Caculate a node number for interleave */
+      ^^^^^
 
-Ah, you are right.  I was thinking of the SubmittingPatches file, that
-is where we describe how to create a patch.
-
-thanks for catching this, I've fixed it up.
-
-greg k-h
+Calculate even...

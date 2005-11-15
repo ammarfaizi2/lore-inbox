@@ -1,123 +1,195 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964830AbVKOQq6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964928AbVKOQuB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964830AbVKOQq6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 11:46:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964907AbVKOQq6
+	id S964928AbVKOQuB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 11:50:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964929AbVKOQuB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 11:46:58 -0500
-Received: from nproxy.gmail.com ([64.233.182.195]:31004 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964830AbVKOQq5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 11:46:57 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ErJHTrdNb1Pu71YWgwWNdEXOb3Z2VIPnAYivnk5sDMNsjPFZfbAJmj9n7UP/qER25VcK2aVjP9OWKhM8GHrtW0iVOOgRqILP4s6VF2SIW81ORaC0W14PgdQH79r/tYrzA1bTq8ldMv+qnjoaWjNvdLtxATjJ1oX07hYt8BvZ/SU=
-Message-ID: <58cb370e0511150846r5f8c89aagddf902e9b6ab6361@mail.gmail.com>
-Date: Tue, 15 Nov 2005 17:46:55 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Bryce Nesbitt <bryce1@obviously.com>
-Subject: Re: ide: failed opcode errors, thousands of them, 2.6.13-15
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43784187.4060607@obviously.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <43784187.4060607@obviously.com>
+	Tue, 15 Nov 2005 11:50:01 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:35500 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S964928AbVKOQuA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 11:50:00 -0500
+From: Mel Gorman <mel@csn.ul.ie>
+To: linux-mm@kvack.org
+Cc: Mel Gorman <mel@csn.ul.ie>, mingo@elte.hu,
+       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       nickpiggin@yahoo.com.au
+Message-Id: <20051115164957.21980.8731.sendpatchset@skynet.csn.ul.ie>
+In-Reply-To: <20051115164946.21980.2026.sendpatchset@skynet.csn.ul.ie>
+References: <20051115164946.21980.2026.sendpatchset@skynet.csn.ul.ie>
+Subject: [PATCH 2/5] Light Fragmentation Avoidance V20: 002_usemap
+Date: Tue, 15 Nov 2005 16:49:59 +0000 (GMT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/14/05, Bryce Nesbitt <bryce1@obviously.com> wrote:
-> This is using a SUSE Linux 10.0 build.  I installed a new DVD burner,
-> and now get 1 error per second in
-> the kernel ring buffer:
->
-> Nov 13 23:31:18 linux kernel: hdc: packet command error: status=0x51 {
-> DriveReady SeekComplete Error }
-> Nov 13 23:31:18 linux kernel: hdc: packet command error: error=0x54 {
-> AbortedCommand LastFailedSense=0x05 }
-> Nov 13 23:31:18 linux kernel: ide: failed opcode was: unknown
-> Nov 13 23:31:19 linux udevd[2297]: get_netlink_msg: no ACTION in payload
-> found, skip event 'mount'
-> Nov 13 23:31:19 linux kernel: ISO 9660 Extensions: Microsoft Joliet Level 3
-> Nov 13 23:31:19 linux kernel: ISO 9660 Extensions: RRIP_1991A
-> Nov 13 23:31:19 linux kernel: hdc: packet command error: status=0x51 {
-> DriveReady SeekComplete Error }
-> Nov 13 23:31:19 linux kernel: hdc: packet command error: error=0x54 {
-> AbortedCommand LastFailedSense=0x05 }
-> Nov 13 23:31:19 linux kernel: ide: failed opcode was: unknown
-> Nov 13 23:31:20 linux kernel: hdc: packet command error: status=0x51 {
-> DriveReady SeekComplete Error }
-> Nov 13 23:31:20 linux kernel: hdc: packet command error: error=0x54 {
-> AbortedCommand LastFailedSense=0x05 }
-> Nov 13 23:31:20 linux kernel: ide: failed opcode was: unknown
->
-> This is similar to report:
-> http://lkml.org/lkml/2005/9/21/300  DMA broken in mainline 2.6.13.2
-> _AND_ opensuse vendor 2.6.13-15
->
->
-> Like the first reporter, I also have a LITEON SOHW-1693S DVD burner.
-> Curiously enough mine works fine (burns and reads DVD's just fine).
-> DMA on or DMA off makes no difference.
-> Note the HDIO_GETGEO error below.
-> Is there anything else I can probe to help track down this issue?
+This patch adds a "usemap" to the allocator. Each bit in the usemap indicates
+whether a block of 2^(MAX_ORDER-1) pages are being used for kernel or
+easily-reclaimed allocations. This enumerates two types of allocations;
 
-Try latest _vanilla_ kernel (2.6.15-rc1), if it still doesn't work
-please fill the bug on http://bugme.osdl.org.
+RCLM_NORLM:	These are kernel allocations that cannot be reclaimed
+		on demand.
+RCLM_EASY:	These are pages allocated with __GFP_EASYRCLM flag set. They are
+		considered to be user and other easily reclaimed pages such
+		as buffers
 
-> linux:/home/bryce # lspci
-> ...
-> 00:04.1 IDE interface: VIA Technologies, Inc.
-> VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
->
-> linux:/home/bryce # hdparm /dev/hdc
-> /dev/hdc:
->  IO_support   =  1 (32-bit)
->  unmaskirq    =  1 (on)
->  using_dma    =  0 (off)
->  keepsettings =  0 (off)
->  readonly     =  0 (off)
->  readahead    = 256 (on)
->  HDIO_GETGEO failed: Invalid argument
->
-> linux:/home/bryce # hdparm -iI /dev/hdc
->
-> /dev/hdc:
->
->  Model=LITE-ON DVDRW SOHW-1693S, FwRev=KS0B, SerialNo=
->  Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
->  RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
->  BuffType=unknown, BuffSize=0kB, MaxMultSect=0
->  (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
->  IORDY=yes, tPIO={min:227,w/IORDY:120}, tDMA={min:120,rec:120}
->  PIO modes:  pio0 pio1 pio2 pio3 pio4
->  DMA modes:  mdma0 mdma1 mdma2
->  UDMA modes: udma0 udma1 udma2
->  AdvancedPM=no
->  Drive conforms to: device does not report version:
->
->  * signifies the current active mode
->
->
-> ATAPI CD-ROM, with removable media
->         Model Number:       LITE-ON DVDRW SOHW-1693S
->         Serial Number:
->         Firmware Revision:  KS0B
-> Standards:
->         Used: ATAPI for CD-ROMs, SFF-8020i, r2.5
->         Supported: CD-ROM ATAPI-2
-> Configuration:
->         DRQ response: 50us.
->         Packet size: 12 bytes
-> Capabilities:
->         LBA, IORDY(cannot be disabled)
->         DMA: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 *udma4
->              Cycle time: min=120ns recommended=120ns
->         PIO: pio0 pio1 pio2 pio3 pio4
->              Cycle time: no flow control=227ns  IORDY flow control=120ns
->
-> linux:/home/bryce # uname -a
-> Linux linux 2.6.13-15-default #1 Tue Sep 13 14:56:15 UTC 2005 i686
-> athlon i386 GNU/Linux
+gfpflags_to_rclmtype() converts gfp_flags to their corresponding RCLM_TYPE.
+
+Signed-off-by: Mel Gorman <mel@csn.ul.ie>
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.14-mm2-001_antidefrag_flags/include/linux/mmzone.h linux-2.6.14-mm2-002_usemap/include/linux/mmzone.h
+--- linux-2.6.14-mm2-001_antidefrag_flags/include/linux/mmzone.h	2005-11-13 21:22:26.000000000 +0000
++++ linux-2.6.14-mm2-002_usemap/include/linux/mmzone.h	2005-11-15 12:42:15.000000000 +0000
+@@ -21,6 +21,11 @@
+ #else
+ #define MAX_ORDER CONFIG_FORCE_MAX_ZONEORDER
+ #endif
++#define PAGES_PER_MAXORDER (1 << (MAX_ORDER-1))
++
++#define RCLM_NORCLM   0
++#define RCLM_EASY     1
++#define RCLM_TYPES    2
+ 
+ struct free_area {
+ 	struct list_head	free_list;
+@@ -147,6 +152,12 @@ struct zone {
+ #endif
+ 	struct free_area	free_area[MAX_ORDER];
+ 
++#ifndef CONFIG_SPARSEMEM
++	/*
++	 * The map tracks what each 2^MAX_ORDER-1 sized block is being used for.
++	 */
++	unsigned long		*free_area_usemap;
++#endif
+ 
+ 	ZONE_PADDING(_pad1_)
+ 
+@@ -502,9 +513,14 @@ extern struct pglist_data contig_page_da
+ #define PAGES_PER_SECTION       (1UL << PFN_SECTION_SHIFT)
+ #define PAGE_SECTION_MASK	(~(PAGES_PER_SECTION-1))
+ 
++#define FREE_AREA_BITS		64
++
+ #if (MAX_ORDER - 1 + PAGE_SHIFT) > SECTION_SIZE_BITS
+ #error Allocator MAX_ORDER exceeds SECTION_SIZE
+ #endif
++#if ((SECTION_SIZE_BITS - MAX_ORDER)) > FREE_AREA_BITS
++#error free_area_usemap is not big enough
++#endif
+ 
+ struct page;
+ struct mem_section {
+@@ -517,6 +533,7 @@ struct mem_section {
+ 	 * before using it wrong.
+ 	 */
+ 	unsigned long section_mem_map;
++	DECLARE_BITMAP(free_area_usemap, FREE_AREA_BITS);
+ };
+ 
+ #ifdef CONFIG_SPARSEMEM_EXTREME
+@@ -585,6 +602,18 @@ static inline struct mem_section *__pfn_
+ 	return __nr_to_section(pfn_to_section_nr(pfn));
+ }
+ 
++static inline unsigned long *pfn_to_usemap(struct zone *zone,
++						unsigned long pfn)
++{
++	return &__pfn_to_section(pfn)->free_area_usemap[0];
++}
++
++static inline int pfn_to_bitidx(struct zone *zone, unsigned long pfn)
++{
++	pfn &= (PAGES_PER_SECTION-1);
++	return (pfn >> (MAX_ORDER-1));
++}
++
+ #define pfn_to_page(pfn) 						\
+ ({ 									\
+ 	unsigned long __pfn = (pfn);					\
+@@ -622,6 +651,17 @@ void sparse_init(void);
+ #else
+ #define sparse_init()	do {} while (0)
+ #define sparse_index_init(_sec, _nid)  do {} while (0)
++static inline unsigned long *pfn_to_usemap(struct zone *zone,
++						unsigned long pfn)
++{
++	return zone->free_area_usemap;
++}
++
++static inline int pfn_to_bitidx(struct zone *zone, unsigned long pfn)
++{
++	pfn = pfn - zone->zone_start_pfn;
++	return (pfn >> (MAX_ORDER-1));
++}
+ #endif /* CONFIG_SPARSEMEM */
+ 
+ #ifdef CONFIG_NODES_SPAN_OTHER_NODES
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.14-mm2-001_antidefrag_flags/mm/page_alloc.c linux-2.6.14-mm2-002_usemap/mm/page_alloc.c
+--- linux-2.6.14-mm2-001_antidefrag_flags/mm/page_alloc.c	2005-11-13 21:22:26.000000000 +0000
++++ linux-2.6.14-mm2-002_usemap/mm/page_alloc.c	2005-11-15 12:42:15.000000000 +0000
+@@ -68,6 +68,19 @@ int sysctl_lowmem_reserve_ratio[MAX_NR_Z
+ 
+ EXPORT_SYMBOL(totalram_pages);
+ 
++static inline int get_pageblock_type(struct zone *zone, struct page *page)
++{
++	unsigned long pfn = page_to_pfn(page);
++	return !!test_bit(pfn_to_bitidx(zone, pfn),
++			pfn_to_usemap(zone, pfn));
++}
++
++static inline void change_pageblock_type(struct zone *zone, struct page *page)
++{
++	unsigned long pfn = page_to_pfn(page);
++	__change_bit(pfn_to_bitidx(zone, pfn), pfn_to_usemap(zone, pfn));
++}
++
+ /*
+  * Used by page_zone() to look up the address of the struct zone whose
+  * id is encoded in the upper bits of page->flags
+@@ -1847,6 +1860,38 @@ inline void setup_pageset(struct per_cpu
+ 	INIT_LIST_HEAD(&pcp->list);
+ }
+ 
++#ifndef CONFIG_SPARSEMEM
++#define roundup(x, y) ((((x)+((y)-1))/(y))*(y))
++/*
++ * Calculate the size of the zone->usemap in bytes rounded to an unsigned long
++ * Start by making sure zonesize is a multiple of MAX_ORDER-1 by rounding up
++ * Then figure 1 RCLM_TYPE worth of bits per MAX_ORDER-1, finally round up
++ * what is now in bits to nearest long in bits, then return it in bytes.
++ */
++static unsigned long __init usemap_size(unsigned long zonesize)
++{
++	unsigned long usemapsize;
++
++	usemapsize = roundup(zonesize, PAGES_PER_MAXORDER);
++	usemapsize = usemapsize >> (MAX_ORDER-1);
++	usemapsize = roundup(usemapsize, 8 * sizeof(unsigned long));
++
++	return usemapsize / 8;
++}
++
++static void __init setup_usemap(struct pglist_data *pgdat,
++				struct zone *zone, unsigned long zonesize)
++{
++	unsigned long usemapsize = usemap_size(zonesize);
++	zone->free_area_usemap = alloc_bootmem_node(pgdat, usemapsize);
++	memset(zone->free_area_usemap, ~RCLM_NORCLM, usemapsize);
++	memset(zone->free_area_usemap, RCLM_NORCLM, usemapsize/2);
++}
++#else
++static void inline setup_usemap(struct pglist_data *pgdat,
++				struct zone *zone, unsigned long zonesize) {}
++#endif /* CONFIG_SPARSEMEM */
++
+ #ifdef CONFIG_NUMA
+ /*
+  * Boot pageset table. One per cpu which is going to be used for all
+@@ -2060,6 +2105,7 @@ static void __init free_area_init_core(s
+ 		zonetable_add(zone, nid, j, zone_start_pfn, size);
+ 		init_currently_empty_zone(zone, zone_start_pfn, size);
+ 		zone_start_pfn += size;
++		setup_usemap(pgdat, zone, size);
+ 	}
+ }
+ 

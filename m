@@ -1,65 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932532AbVKOPPs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbVKOPR3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932532AbVKOPPs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 10:15:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932537AbVKOPPs
+	id S932389AbVKOPR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 10:17:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932535AbVKOPR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 10:15:48 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:63395 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932532AbVKOPPq (ORCPT
+	Tue, 15 Nov 2005 10:17:29 -0500
+Received: from gold.veritas.com ([143.127.12.110]:51647 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S932389AbVKOPR3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 10:15:46 -0500
-Message-ID: <4379FC75.80704@watson.ibm.com>
-Date: Tue, 15 Nov 2005 10:19:17 -0500
-From: Shailabh Nagar <nagar@watson.ibm.com>
-Reply-To: nagar@watson.ibm.com
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Tue, 15 Nov 2005 10:17:29 -0500
+Date: Tue, 15 Nov 2005 15:15:14 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Meelis Roos <mroos@linux.ee>
+cc: Duncan Sands <baldrick@free.fr>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rc1-git1: BTTV: no picture with grabdisplay; later, an
+ Oops
+In-Reply-To: <20051115141305.049CF14200@rhn.tartu-labor>
+Message-ID: <Pine.LNX.4.61.0511151508110.3622@goblin.wat.veritas.com>
+References: <20051115141305.049CF14200@rhn.tartu-labor>
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [Patch 1/4] Delay accounting: Initialization
-References: <43796596.2010908@watson.ibm.com> <20051114202017.6f8c0327.akpm@osdl.org> <20051115064954.GB31904@logos.cnet>
-In-Reply-To: <20051115064954.GB31904@logos.cnet>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 15 Nov 2005 15:16:29.0343 (UTC) FILETIME=[8DB2DAF0:01C5E9F7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-> On Mon, Nov 14, 2005 at 08:20:17PM -0800, Andrew Morton wrote:
+On Tue, 15 Nov 2005, Meelis Roos wrote:
+> DS> When I change channels, a picture flashes onto the screen for a fraction of
+> DS> a second, then the screen becomes black.  The picture glimpsed seems to be =
+> DS> four
+> DS> copies of the tv show, arranged in a 2x2 matrix.
 > 
->>Shailabh Nagar <nagar@watson.ibm.com> wrote:
->>
->>>+	*ts = sched_clock();
->>
->>I'm not sure that it's kosher to use sched_clock() for fine-grained
->>timestamping like this.  Ingo had issues with it last time this happened?  
-> 
-> 
-> If the system boots with use_rtc == 0 you're going to get jiffies based
-> resolution from sched_clock(). I have a 1GHz Pentium 3 around here which
-> does that.
+> Similar "Bad address" and "Invalid argument" errors here. xawtv works
+> but only in overlay mode. tvtime tries non-overlay and gets these
+> errors. Card is Hauppauge WinTV with bt878. 2.6.14 works.
 
-Good point, thanks. This reemphasizes the need for better normalization
-at output time.
+This is likely to be due to the PageReserved changes, as were other bttv
+problems reported.  We're still working on the right patch for that,
+or might even revert.  In the meanwhile you could try removing the
+" | VM_RESERVED" from mm/memory.c get_user_pages(), to see if that
+really does correct it (though it's not the whole of the right answer).
 
-> Maybe use do_gettimeofday() for such systems?
+The OOPSes Duncan saw, I don't know about those: I wouldn't expect
+them to be due to this cause, but could be wrong.
 
-Perhaps getnstimeofday() so resolution isn't reduced to msec level unnecessarily.
-In these patches, userspace takes responsibility for handling wraparound so
-delivering a reasonably high-resolution delay data from the kernel is preferable.
-
-> 
-> Would be nice to have a sort of per-arch overridable "gettime()" function?
-> 
-
-Provided as part of this patch ?
-
-
->><too lazy to read all the code> Do you normalise these numbers in some
->>manner before presenting them to userspace?  If so, by what means?
-
-
-
+Hugh

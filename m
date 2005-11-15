@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932542AbVKOPez@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932544AbVKOPkK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932542AbVKOPez (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 10:34:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbVKOPez
+	id S932544AbVKOPkK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 10:40:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbVKOPkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 10:34:55 -0500
-Received: from extgw-uk.mips.com ([62.254.210.129]:7943 "EHLO
-	bacchus.net.dhis.org") by vger.kernel.org with ESMTP
-	id S932542AbVKOPey (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 10:34:54 -0500
-Date: Tue, 15 Nov 2005 15:34:44 +0000
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Tony <tony.uestc@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: MOD_INC_USE_COUNT
-Message-ID: <20051115153444.GB15733@linux-mips.org>
-References: <437347B5.6080201@gmail.com> <Pine.LNX.4.61.0511100859400.18912@chaos.analogic.com> <43735766.3070205@gmail.com> <20051113102930.GA16973@linux-mips.org> <43795C71.6070108@gmail.com>
+	Tue, 15 Nov 2005 10:40:10 -0500
+Received: from main.gmane.org ([80.91.229.2]:41691 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932544AbVKOPkI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 10:40:08 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: walt <wa1ter@myrealbox.com>
+Subject: Re: [ANNOUNCE] GIT 0.99.9i aka 1.0rc2
+Date: Tue, 15 Nov 2005 07:26:37 -0800
+Organization: none
+Message-ID: <Pine.LNX.4.64.0511150715390.17817@x2.ybpnyarg>
+References: <7vr79isfy9.fsf@assigned-by-dhcp.cox.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43795C71.6070108@gmail.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: adsl-69-234-227-15.dsl.irvnca.pacbell.net
+In-Reply-To: <7vr79isfy9.fsf@assigned-by-dhcp.cox.net>
+Cc: git@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 15, 2005 at 11:56:33AM +0800, Tony wrote:
 
-> >Not strange at all.  The typical network driver is implemented using
-> >pci_register_driver which will set the owner filed of the driver's struct
-> >driver which then is being used for internal reference counting.  Other
-> >busses or line disciplines (SLIP, PPP, AX.25 ...) need to do the equivalent
-> >or the kernel will believe reference counting isn't necessary and it's
-> >ok to unload the module at any time.
-> >
-> >In which driver did you hit this problem?
-> >
-> >  Ralf
-> >
-> I have a radio connected to host using ethernet. I'm writing a radio 
-> driver that masquerade radio as a NIC. when the module is loaded, I just 
-> register_netdev a net_device struct, while unregister_netdev at module 
-> cleanup.
 
-register_netdev / unregister_netdev don't deal with the .owner stuff, so
-your bug isn't there.  If your NIC is a PCI card, it should register it's
-driver through pci_register_driver which would deal with the necessary
-reference counting.  If it's implemented as a platform device you're
-presumably calling driver_register() before platform_device_register() and
-driver_register() would do the necessary magic for you.  If you're using a
-different bus it may have it's own variant of driver_register which you
-should call.  If you don't, you have a problem :-)
+On Mon, 14 Nov 2005, Junio C Hamano wrote:
 
-  Ralf
+> GIT 0.99.9i aka 1.0rc2 is found at usual places.
+>
+> I think the source-tree-wise almost everything is done except:
+>
+>  - http-fetch file descriptor leak fix; I tried Nick's
+>    clean-ups, but haven't tried Pasky's patch yet.  Walt reports
+>    neither patch fixed the problem.  I wasted the weekend not
+>    being able to reproduce this myself, until Pasky reminded me
+>    that I have an old special code in git-clone, which was
+>    unrelated to this problem, but nevertheless was masking it.
+
+So, you're saying that you have *not* fixed it?  Hm.  Using the
+up-to-the-minute repository versions of cogito and git I can now
+do a successful clone of the git repository with ulimit -n 64,
+which I couldn't do two days ago.  When I get home I'll try it
+again on NetBSD also.
+
+

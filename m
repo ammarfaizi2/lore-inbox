@@ -1,91 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932500AbVKONnf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932513AbVKONut@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932500AbVKONnf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 08:43:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbVKONnf
+	id S932513AbVKONut (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 08:50:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbVKONut
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 08:43:35 -0500
-Received: from zproxy.gmail.com ([64.233.162.194]:44183 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932500AbVKONne (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 08:43:34 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=G0dSaA8Ay21jMG/s4nmE2QeTaeCs/4G3wDc16m0FQmMf8AWxFprYB33eNzyNZ7jqVANdBV91D2W5iEhc9/B5o9ZDw+oEAibm+5WMlqrBygrkaKCG5q1CcoSXxwB0AkqK2RAR8JIAOtBKBMeTfIgTwveTiSSYOxTvMXJrY1kwgpA=
-Message-ID: <4379E5F7.6000107@gmail.com>
-Date: Tue, 15 Nov 2005 22:43:19 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+	Tue, 15 Nov 2005 08:50:49 -0500
+Received: from mailrelay.tu-graz.ac.at ([129.27.2.202]:32402 "EHLO
+	mailrelay2.tu-graz.ac.at") by vger.kernel.org with ESMTP
+	id S932513AbVKONus (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 08:50:48 -0500
+Message-ID: <4379E7C5.8010601@derhammer.net>
+Date: Tue, 15 Nov 2005 14:51:01 +0100
+From: Michael Hammer <michael@derhammer.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Carlos Pardo <Carlos.Pardo@siliconimage.com>
-Subject: Re: [PATCH] libata error handling fixes (ATAPI)
-References: <20051114195717.GA24373@havoc.gtf.org> <20051115074148.GA17459@htj.dyndns.org> <4379AA5B.1060900@pobox.com>
-In-Reply-To: <4379AA5B.1060900@pobox.com>
+To: Clemens Koller <clemens.koller@anagramm.de>, linux-kernel@vger.kernel.org
+Subject: Re: Probably problem with Promise SATA Controller
+References: <43750DFD.4030808@derhammer.net> <4379D505.5050608@anagramm.de>
+In-Reply-To: <4379D505.5050608@anagramm.de>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 
-> TUR fails for me, too.  It triggers the EH code, which is why I wound up 
-> needing to fix it :)
-> 
-> Have you dumped the D2H FIS returned by the drive, when the TUR fails? 
-> What does it look like?  What does the D2H FIS look like after REQUEST 
-> SENSE?
-> 
-> I bet there is some "clear error" actions we need to take on sil24, 
-> before it work there.
-> 
+Clemens Koller wrote:
 
-Okay, I finally got my SATA dvd writer working and successfully mounted 
-a debian cdrom (with some number of gloss hacks).  I had to do the 
-following to get this thing to work.
+> Hello, Michael,
+>
+> You use:
+>
+>> - Mass storage controller: Promise Technology, Inc. 
+>> PDC20518/PDC40518                                  (SATAII 150 TX4)
+>>      -> with 3 Seagate Cheetah 7200.8 250 GB attached
+>> The SATA HDDs from Seagate are working in an array
+>
+>
+> And you got some errors:
+>
+>> Nov 11 21:30:39 artemis ata3: status=0x51 { DriveReady SeekComplete 
+>> Error }
+>> Nov 11 21:30:39 artemis ata3: called with no error (51)!
+>> Nov 11 21:30:39 artemis ata4: status=0x51 { DriveReady SeekComplete 
+>> Error }
+>> Nov 11 21:30:39 artemis ata4: called with no error (51)!
+>> ...
+>> ata4: status=0x51 { DriveReady SeekComplete Error }
+>> ata4: called with no error (51)!
+>> ata1: status=0x51 { DriveReady SeekComplete Error }
+>> ata1: called with no error (51)!
+>> ata2: status=0x51 { DriveReady SeekComplete Error }
+>> ata2: called with no error (51)!
+>
+>
+> Maybe a similar problem was mine:
+> I got also errors (very rarely):
+>
+> Oct 30 02:45:30 rio3 kernel: hdh: dma_timer_expiry: dma status == 0x61
+> Oct 30 02:45:40 rio3 kernel: hdh: DMA timeout error
+> Oct 30 02:45:40 rio3 kernel: hdh: dma timeout error: status=0xd0 { Busy }
+> Oct 30 02:45:40 rio3 kernel:
+> Oct 30 02:45:40 rio3 kernel: ide: failed opcode was: unknown
+> Oct 30 02:45:40 rio3 kernel: hdg: DMA disabled
+> Oct 30 02:45:40 rio3 kernel: hdh: DMA disabled
+> Oct 30 02:45:40 rio3 kernel: PDC202XX: Secondary channel reset.
+> Oct 30 02:45:41 rio3 kernel: ide3: reset: success
+> Oct 30 02:46:11 rio3 kernel: hdh: irq timeout: status=0xd0 { Busy }
+> Oct 30 02:46:11 rio3 kernel:
+> Oct 30 02:46:11 rio3 kernel: ide: failed opcode was: unknown
+> Oct 30 02:46:11 rio3 kernel: PDC202XX: Secondary channel reset.
+> Oct 30 02:46:12 rio3 kernel: ide3: reset: success
+> Oct 30 02:46:42 rio3 kernel: hdh: irq timeout: status=0xd0 { Busy }
+> [... repeating about 20 times...]
+>
+> On a Promise PDC20269 Ultra133 TX2 PCI-Card (parallel ATA) soft-raid
+> configuration with three hard disks attached as shown below:
+>
+> Primary Master: Maxtor MaxLine III 300GB (UDMA 133)
+> Primary Slave: Maxtor DiamondMax 9 100GB (UDMA 100)
+> Secondary Master: Maxtor MaxLine III 300GB (UDMA 133)
+> Secondary Slave: none
+>
+> The raid1 consists of the two 300GB disks.
+>
+> This configuration was only used to get the data from the
+> 100GB disk to the raid1. By doing a simple copy & verification.
+> I've checked the data several times, the data is correct.
+> I know that mixing DMA modes is a bad idea, but in my case it
+> was just the way to get my work done. After the copy,
+> I removed the 100GB disk and since then the machine is used
+> in production without any problems.
+>
+> Maybe there is an issue with 2+1 disks on ata or ide-channels?
+>
+> Best greets,
+>
+Hi Clemens!
 
-* prb->fis doesn't contain proper signature after phy reset.  I just 
-forced DEV_ATAPI as a temporary measure.  In the original sii driver 
-where SRST is used instead of PHY RESET, my ATAPI drive registered 
-correct signature but my harddisk's signature didn't show up.
+I am not very experienced on all the stuff around PATA and SATA but in 
+my opinion there is difference between your case (you have an explicit 
+error: "DMA timeout error") and my situation.
 
-* As all commands hang after failed TUR, which BTW fails rightfully with 
-06h (UNIT ATTENTION due to prior reset) and then 02h's (NOT READY), I 
-avoided TUR failures by issuing REQUEST SENSE first, which returns NO 
-SENSE but does clear UA condition, and then waiting for more than 10secs 
-to give the drive time to become ready.
+The problem for me is the messge: "ata : called with no error (51)!" 
+This means not more than libata-scsi was not able to translate the error 
+message from an ATA error to a scsi error. (that is only my point of 
+view...  again I am not experienced on this topic) So it is very 
+difficult to me to investigate the reason for the error. I would guess 
+that your error really means some kind of problem with the dma modes of 
+your hdds. In my case this shouldn't be a problem because the 3 disks 
+are fully identical.
 
-* With above two changes, no command fails and I can mount the cdrom.
+I am still searching for a solution, that's the reason for ataching your 
+message and posting it to the kernel mailing list. I am still hoping for 
+an advice to solve this issue.
 
-------------------
+Best regards and thank you for your interest,
 
-And here are things that I've found out so far....
-
-* ATAPI commands without data (TEST_UNIT_READY, ALLOW_MEDIUM_REMOVAL...) 
-work happily with any prb->ctrl flag (no flag, PRB_CTRL_PACKET_READ or 
-PRB_CTRL_PACKET_WRITE).
-
-* Currently, sil24_reset_controller() is called on every error interrupt 
-to make sure the controller is ready for further operation. 
-Unfortunately, the current reset_controller() seems to reset PHY too. 
-The drive becomes NOT READY after reset_controller().  So, when TUR 
-fails, it falls into TUR, fail with NOT READY, reset which makes the 
-drive NOT READY again cycle.
-
-* Wihtout sil24_reset_controller(), no further command can be issued. 
-The controller doesn't seem to be operating normally after DEV_ERR.
-
---------------------
-
-So, what we need to know to make sil24 work happily with ATAPI devices.
-
-* How to get device signature on initialization.
-
-* How to make the controller operational again after a DEV_ERR without 
-affecting the attached device.
-
--- 
-tejun
+Michael

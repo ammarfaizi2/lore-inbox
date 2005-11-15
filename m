@@ -1,70 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbVKOAah@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbVKOAai@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932168AbVKOAah (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 19:30:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbVKOAag
+	id S932212AbVKOAai (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 19:30:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbVKOAai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 19:30:36 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:3047 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932168AbVKOAag (ORCPT
+	Mon, 14 Nov 2005 19:30:38 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:64190 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932212AbVKOAah (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 19:30:36 -0500
-Date: Mon, 14 Nov 2005 19:30:26 -0500
-From: Dave Jones <davej@redhat.com>
-To: Greg KH <greg@kroah.com>
-Cc: Doug Thompson <norsk5@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] EDAC and the sysfs
-Message-ID: <20051115003026.GA12266@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
-	Doug Thompson <norsk5@yahoo.com>, linux-kernel@vger.kernel.org
-References: <20051114221419.10324.qmail@web50101.mail.yahoo.com> <20051114223105.GA5868@kroah.com>
+	Mon, 14 Nov 2005 19:30:37 -0500
+Date: Mon, 14 Nov 2005 16:30:31 -0800
+From: mike kravetz <kravetz@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andy Whitcroft <apw@shadowen.org>, haveblue@us.ibm.com,
+       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/4] register_ and unregister_memory_notifier should be global
+Message-ID: <20051115003031.GA19640@w-mikek2.ibm.com>
+References: <exportbomb.1131997056@pinky> <20051114193738.GA15494@shadowen.org> <20051114152316.4060d30c.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051114223105.GA5868@kroah.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20051114152316.4060d30c.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 14, 2005 at 02:31:05PM -0800, Greg Kroah-Hartman wrote:
- > On Mon, Nov 14, 2005 at 02:14:19PM -0800, Doug Thompson wrote:
- > > 
- > > I am trying to design the sysfs interface tree for the
- > > new set of EDAC modules that are waiting for this
- > > interface, before being put into the kernel.  
- > > 
- > > Currently the original EDAC (bluesmoke) has its own
- > > /proc directory (/proc/mc) with files and a directory
- > > (0,1,2,...)for each memory controller on the system.
- > > This will be removed and the new information interface
- > > will be placed in the sysfs.
- > > 
- > > One proposal is to place the information in
- > > /sys/devices/system in the following directories:
- > 
- > Why not use /sys/firmware/ instead?
+On Mon, Nov 14, 2005 at 03:23:16PM -0800, Andrew Morton wrote:
+> Andy Whitcroft <apw@shadowen.org> wrote:
+> >
+> > Both register_memory_notifer and unregister_memory_notifier are global
+> > and declared so in linux.h.  Update the HOTPLUG specific definitions
+> > to match.  This fixes a compile warning when HOTPLUG is enabled.
+> 
+> There is no linux.h and I can find no .h file which declares
+> register_memory_notifier().  Please clarify?
 
-Probably the same reason we don't have the cpufreq (for eg)
-stuff under /sys/firmware.  Because it's poking hardware,
-not manipulating firmware.
+I'm pretty sure Andy meant to say <linux/memory.h> not linux.h.
 
-/sys/devices/system makes a lot more sense, as thats
-where the cpu level machine check stuff is (amongst other
-similar things).
-
- > > I have failed to date to really find a policy or set
- > > of rules of use for the sysfs as to what goes where
- > > for such items as EDAC. After searching the web,
- > > articles and thinking about this for some time now, I
- > > am requesting comments on the sysfs model for where
- > > EDAC would fit best.
- > 
- > What exactly does EDAC do (and what does it stand for anyway?)
-
-Reports hardware events read from chipset specific registers.
-Similar to /sys/devices/system/machinecheck/, but from
-chipset instead of CPU. (That's grossly simplified, but
-hopefully gets the idea across).
-
-		Dave
-
+-- 
+Mike

@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751438AbVKOOvb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932514AbVKOOw2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751438AbVKOOvb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 09:51:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbVKOOvb
+	id S932514AbVKOOw2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 09:52:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbVKOOw2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 09:51:31 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:62652 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751438AbVKOOva (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 09:51:30 -0500
-Subject: Re: [PATCH 1/4] add compat_ioctl methods to dasd
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: Christoph Hellwig <hch@lst.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20051112093340.GA15702@lst.de>
-References: <20051104221652.GB9384@lst.de>  <20051112093340.GA15702@lst.de>
-Content-Type: text/plain
-Date: Tue, 15 Nov 2005 15:51:17 +0100
-Message-Id: <1132066277.6014.35.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Nov 2005 09:52:28 -0500
+Received: from pc-4082.ethz.ch ([129.132.119.169]:56206 "EHLO
+	komsys-pc-ruf.ethz.ch") by vger.kernel.org with ESMTP
+	id S1751440AbVKOOw1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 09:52:27 -0500
+Date: Tue, 15 Nov 2005 15:52:26 +0100
+From: Lukas Ruf <ruf@rawip.org>
+To: Linux Kernel ml <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.6.15-rc1 crashed my file system for 2.6.14
+Message-ID: <20051115145226.GA25699@tik.ee.ethz.ch>
+Reply-To: Lukas Ruf <ruf@rawip.org>
+Mail-Followup-To: Linux Kernel ml <linux-kernel@vger.kernel.org>
+References: <20051115135526.GA24374@tik.ee.ethz.ch>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051115135526.GA24374@tik.ee.ethz.ch>
+X-GPG: 0x81FCF845 -- visit http://www.ch.pgp.net
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-11-12 at 10:33 +0100, Christoph Hellwig wrote:
-> On Fri, Nov 04, 2005 at 11:16:52PM +0100, Christoph Hellwig wrote:
-> > all dasd ioctls are directly useable from 32bit process, thus switch
-> > the dasd driver to unlocked_ioctl/compat_ioctl and get rid of the
-> > translations in the global table.
-> 
-> ping on all the four s390 compat_ioctl patches.  These are few of the
-> remaining arch compat_ioctl bits and I'd really really like to get rid
-> of them soonish.
+> Lukas Ruf <ruf@rawip.org> [2005-11-15 14:55]:
+>
+[...]
+>
+> ---> how can I get back to 2.6.14 without loosing data
+>
 
-Current status on the four patches:
-1) dasd ioctl patch didn't compile (missing semicolon after
-lock_kernel()) and doesn't work after fixing the compile problem. It's a
-problem with the bdev->bd_disk->private_data which is NULL at the time
-the partition detection code calls the BIODASDINFO and HDIO_GETGEO ioctl
-with ioctl_by_bdev. I don't see an easy way to fix this right now.
-2) fs3270 ioctl patch is fine. Fullscreen test works after fixing the
-independent class_device_create problem (NULL argument missing, patch
-will follow).
-3) remove TIOCGSERIAL/TIOCSSERIAL patch. Fine with me. 
-4) tape ioctl patch. Not yet sure about this one. Need to ask Stefan
-Bader.
+I rebooted with Knoppix.
 
+Turned off ext3 journal on my root partition.
+
+rebooted with Knoppix.
+
+Run fsck.ext2 on my root partition.
+
+Turned on ext3 journal on my root parition.
+
+Rebooted with 2.6.14 without problems.
+
+---> my problem is solved.  Thanks anyway.
+
+wbr,
+Lukas
 -- 
-blue skies,
-   Martin
-
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
-
-
+Lukas Ruf   <http://www.lpr.ch> | Ad Personam
+rbacs      <http://wiki.lpr.ch> | Restaurants, Bars and Clubs
+Raw IP   <http://www.rawip.org> | Low Level Network Programming
+Style  <http://email.rawip.org> | How to write emails

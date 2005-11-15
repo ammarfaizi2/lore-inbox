@@ -1,48 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbVKOKQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbVKOKQE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932340AbVKOKQe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 05:16:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbVKOKQe
+	id S932337AbVKOKQE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 05:16:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbVKOKQE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 05:16:34 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:63213 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932340AbVKOKQd (ORCPT
+	Tue, 15 Nov 2005 05:16:04 -0500
+Received: from [210.76.114.20] ([210.76.114.20]:30168 "EHLO ccoss.com.cn")
+	by vger.kernel.org with ESMTP id S932337AbVKOKQD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 05:16:33 -0500
-Date: Tue, 15 Nov 2005 02:16:02 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: neilb@suse.de, linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no
-Subject: Re: [PATCH ] Fix some problems with truncate and mtime semantics.
-Message-Id: <20051115021602.5119744c.akpm@osdl.org>
-In-Reply-To: <20051115095610.GA23605@infradead.org>
-References: <20051115125657.9403.patches@notabene>
-	<1051115020002.9459@suse.de>
-	<20051115095610.GA23605@infradead.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 15 Nov 2005 05:16:03 -0500
+Message-ID: <4379B5EB.40709@ccoss.com.cn>
+Date: Tue, 15 Nov 2005 18:18:19 +0800
+From: liyu <liyu@ccoss.com.cn>
+Reply-To: liyu@ccoss.com.cn
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: zh-cn,zh
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [Question]How to restrict some kind of task?
+Content-Type: text/plain; charset=gb18030; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> wrote:
->
-> > -int do_truncate(struct dentry *dentry, loff_t length, struct file *filp)
-> > +int do_truncate(struct dentry *dentry, loff_t length, unsigned int time_attrs,
-> > +	struct file *filp)
-> >  {
-> >  	int err;
-> >  	struct iattr newattrs;
-> > @@ -204,7 +205,7 @@ int do_truncate(struct dentry *dentry, l
-> >  		return -EINVAL;
-> >  
-> >  	newattrs.ia_size = length;
-> > -	newattrs.ia_valid = ATTR_SIZE | ATTR_CTIME;
-> > +	newattrs.ia_valid = ATTR_SIZE | time_attrs;
-> 
-> I'd rather make the argument and boolean update_times flag and this:
-> 
+Hi, All.
 
-That sentence is incomprehensible.  Want to have another go?
+    I want to restrict some kind of task.
+   
+    For example, for some task have one schedule policy SCHED_XYZ, when 
+it reach beyond
+40% CPU time, we force it yield CPU.
+   
+    I inserted some code in scheduler_tick(), like this:
+
+>         if (check_task_overload(rq)) {
+>                 if (xyz_task(p) && yield_cpu(p, rq)) {
+>                         set_tsk_need_resched(p);
+>                         p->prio = effective_prio(p);
+>                         p->time_slice = task_timeslice(p);
+>                         p->first_time_slice = 0;
+>                         goto out_unlock;
+>                 }
+>         }
+
+
+    Of course, before these code, we hold our rq->lock first, so we should
+go to 'out_unlock'.
+    The function xyz_task(p) just is macro (p->policy == SCHED_XYZ), and
+yield_cpu() also is simple, it just move the task to expired array,
+
+int yield_cpu(task_t *p, runqueue_t *rq)
+{
+    dequeue_task(p, p->array);
+    requeue_task(p, rq->expired);
+    return 1;
+}
+
+    These code are so simple, but is make system crash, if I create some
+XYZ policy task.
+   
+    I tried the more radical idea (remove these tasks from runqueue to 
+our one
+list_head that spin_lock protected), but crash again and again.
+
+    if need, I can paste my global patch.
+   
+    Thanks in advanced.
+
+-liyu
+
+   
+   
+ 
 

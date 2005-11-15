@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964936AbVKOQx1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964948AbVKOQxY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964936AbVKOQx1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 11:53:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964924AbVKOQx1
+	id S964948AbVKOQxY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 11:53:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbVKOQxY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 11:53:27 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:29064 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964951AbVKOQxZ (ORCPT
+	Tue, 15 Nov 2005 11:53:24 -0500
+Received: from znsun1.ifh.de ([141.34.1.16]:14758 "EHLO znsun1.ifh.de")
+	by vger.kernel.org with ESMTP id S964948AbVKOQxW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 11:53:25 -0500
-Date: Tue, 15 Nov 2005 08:52:58 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Zachary Amsden <zach@vmware.com>
-cc: Arjan van de Ven <arjan@infradead.org>, Gerd Knorr <kraxel@suse.de>,
-       Dave Jones <davej@redhat.com>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 1/10] Cr4 is valid on some 486s
-In-Reply-To: <437A0BC3.3060909@vmware.com>
-Message-ID: <Pine.LNX.4.64.0511150849590.3945@g5.osdl.org>
-References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com> 
- <20051111103605.GC27805@elf.ucw.cz> <4374F2D5.7010106@vmware.com> 
- <Pine.LNX.4.64.0511111147390.4627@g5.osdl.org>  <4374FB89.6000304@vmware.com>
-  <Pine.LNX.4.64.0511111218110.4627@g5.osdl.org>  <20051113074241.GA29796@redhat.com>
-  <Pine.LNX.4.64.0511131118020.3263@g5.osdl.org>  <Pine.LNX.4.64.0511131210570.3263@g5.osdl.org>
- <4378A7F3.9070704@suse.de>  <Pine.LNX.4.64.0511141118000.3263@g5.osdl.org>
- <4379ECC1.20005@suse.de>  <437A0649.7010702@suse.de>  <437A0710.4020107@vmware.com>
- <1132070764.2822.27.camel@laptopd505.fenrus.org> <437A0BC3.3060909@vmware.com>
+	Tue, 15 Nov 2005 11:53:22 -0500
+Date: Tue, 15 Nov 2005 17:52:41 +0100 (CET)
+From: Patrick Boettcher <patrick.boettcher@desy.de>
+X-X-Sender: pboettch@pub3.ifh.de
+To: Johannes Stezenbach <js@linuxtv.org>
+Cc: Chris Rankin <rankincj@yahoo.com>, linux-dvb-maintainer@linuxtv.org,
+       David Brigada <brigad@rpi.edu>, linux-kernel@vger.kernel.org,
+       Deti Fliegl <deti@fliegl.de>
+Subject: Re: [linux-dvb-maintainer] Re: [OOPS] Linux 2.6.14.2 and DVB USB
+In-Reply-To: <20051115164321.GA4331@linuxtv.org>
+Message-ID: <Pine.LNX.4.64.0511151747050.29360@pub3.ifh.de>
+References: <20051114235102.64514.qmail@web52912.mail.yahoo.com>    
+ <Pine.LNX.4.64.0511150939010.18517@pub3.ifh.de>     <20051115152823.GA4079@linuxtv.org>
+     <Pine.LNX.4.64.0511151633490.29360@pub3.ifh.de> <20051115164321.GA4331@linuxtv.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-Spam-Report: ALL_TRUSTED,BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 15 Nov 2005, Johannes Stezenbach wrote:
+>> If I could fix it in in dvb-usb, then it would be again only fixed for a
+>> small amount of devices. For DVB-PCMCIA-cards using the default
+>> fe-architecture will also cause Oopses like that, when unplugging while
+>> having the device in use. That's why, IMHO, the dvb-core should be made
+>> hotplug-safe, not a single driver. Even worse: it's not just the
+>> frontend-device-nodes, but also the demux-nodes (and I think the other
+>> onces too).
+>
+> I agree. Could you post a summary of your conversation with Deti to
+> linux-dvb so someone else could start working on it?
 
+Actually, that was the summary :). He said, it should be more generally 
+done, I suggested him to look into dvbdev.c, then he said is too busy.
 
-On Tue, 15 Nov 2005, Zachary Amsden wrote:
-> 
-> It's not overkill in the virtualization context, and there are (struggling,
-> but infinite possibilities) opportunities for native here as well.
+In one email he explained his mechanism to me, but you can understand it 
+also by looking at his cinergy-patch, I think.
 
-No, there are almost no opportunities for native.
-
-Especially with SMP, doing on-line code switching is really really nasty. 
-You basically have to shut down all CPU's to make sure there are no races 
-with other CPU's executing the code while it's being rewritten.
-
-I'd be very very nervous about it. It would have to be some major 
-performance feature for it to make sense over a simple "switch function 
-pointers around" approach.
-
-		Linus
+Patrick.

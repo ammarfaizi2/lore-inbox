@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932266AbVKOCkI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbVKOCtK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932266AbVKOCkI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 21:40:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbVKOCkI
+	id S932293AbVKOCtK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 21:49:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbVKOCtK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 21:40:08 -0500
-Received: from zproxy.gmail.com ([64.233.162.204]:31911 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932266AbVKOCkG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 21:40:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=MPvzot9upHrlN9tJh+nZ9mWz6aU1h8Fqc8TT6+1Coy1UAXKtxDCPklqHCLM4LdDU21PQGT1FjwguJ29ScspSbsjKJf/ehVo4msyYG4pjpHKF1iJtoUQlgeO2pHhO+s5klBIIBM/SpHF7o0js+HfhRF0rjxRu0Li/QLp8svi9XTQ=
-Message-ID: <489ecd0c0511141840t4e7ba87ftfdba8c287063565f@mail.gmail.com>
-Date: Tue, 15 Nov 2005 10:40:05 +0800
-From: Luke Yang <luke.adi@gmail.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: ADI Blackfin patch for kernel 2.6.14
-Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>, bunk@stusta.de,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1131954765.2821.6.camel@laptopd505.fenrus.org>
+	Mon, 14 Nov 2005 21:49:10 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:8171 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S932293AbVKOCtJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 21:49:09 -0500
+Date: Tue, 15 Nov 2005 02:48:54 +0000 (GMT)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Andrew Morton <akpm@osdl.org>
+Cc: Badari Pulavarty <pbadari@us.ibm.com>, linux-kernel@vger.kernel.org,
+       hugh@veritas.com
+Subject: Re: 2.6.14 X spinning in the kernel
+In-Reply-To: <20051114173037.286db0d4.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0511150247160.24064@skynet>
+References: <1132012281.24066.36.camel@localhost.localdomain>
+ <20051114161704.5b918e67.akpm@osdl.org> <1132015952.24066.45.camel@localhost.localdomain>
+ <20051114173037.286db0d4.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <489ecd0c0511010128x41d39643x37893ad48a8ef42a@mail.gmail.com>
-	 <489ecd0c0511032059n394abbb2s9865c22de9b2c448@mail.gmail.com>
-	 <20051104230644.GA20625@kroah.com>
-	 <489ecd0c0511062258k4183d206odefd3baa46bb9a04@mail.gmail.com>
-	 <20051107165928.GA15586@kroah.com>
-	 <20051107235035.2bdb00e1.akpm@osdl.org>
-	 <489ecd0c0511110326j3a01cabbheeeac6168193a0b0@mail.gmail.com>
-	 <20051112214741.GB16334@kroah.com>
-	 <489ecd0c0511132334rc0d8a18n9ccf1bdd30d564a0@mail.gmail.com>
-	 <1131954765.2821.6.camel@laptopd505.fenrus.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/14/05, Arjan van de Ven <arjan@infradead.org> wrote:
->
-> > > The process is like maintaining any other part of the kernel:
-> > >   - Try to make sure it works on all releases (harder to do with a full
-> > >     arch, I know, but not impossible.)
-> >
-> >   Does this include all the rc releases? and the 2.6.14.x releases?
-> >
-> > >   - keep it up to date with bugfixes and the such
-> >
-> >   So the process is: when kernel release a new version, we should
-> > update our arch related files to the new kernel, then send you the
-> > patch. Am I right?
->
-> well the idea is that you fix things BEFORE the kernel is released for
-> final, so that the final releases work out of the box (well out of
-> kernel.org). This implies that you sort of track the git tree on a
-> regular basis, but at minimum look at the first -rc kernel.
-
-  yep, that's our plan. And for the 2.6.14.1, 2.6.14.2... versions, do
-we have to follow every of them?
 
 >
+> ah-hah.  We've had machines stuck in radeon_do_wait_for_idle() before.  In
+> fact, my workstation was doing it a year or two back.
 >
+> Are you able to identify the most recent kernel which didn't do this?
+>
+> David, is there a common cause for this?  ISTR that it's a semi-FAQ.
+
+Yes invariably the GPU has crashed and isn't responding to anything.
+unfortuantely radeons have a lot of reasons for crashing most of them very
+unrelated to anything like reality...  we normally try and approach them
+on a case by case basis as some can be solved easily some not so...
+
+Also what X was doing etc at the time is invalulable info..
+
+Dave.
+
+
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+Linux kernel - DRI, VAX / pam_smb / ILUG
+

@@ -1,78 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965023AbVKOUHb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965025AbVKOUKa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965023AbVKOUHb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 15:07:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965025AbVKOUHb
+	id S965025AbVKOUKa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 15:10:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965026AbVKOUKa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 15:07:31 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:11261 "EHLO
-	dhcp153.mvista.com") by vger.kernel.org with ESMTP id S965023AbVKOUHa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 15:07:30 -0500
-Date: Tue, 15 Nov 2005 12:07:18 -0800 (PST)
-From: Daniel Walker <dwalker@mvista.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: john cooper <john.cooper@timesys.com>,
-       Luca Falavigna <dktrkranz@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Softlockup detected with linux-2.6.14-rt6
-In-Reply-To: <20051115200010.GA13802@elte.hu>
-Message-ID: <Pine.LNX.4.64.0511151206000.29907@dhcp153.mvista.com>
-References: <4378B48E.6010006@gmail.com> <20051115153257.GA9727@elte.hu>
- <437A14FB.8050206@timesys.com> <20051115200010.GA13802@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 15 Nov 2005 15:10:30 -0500
+Received: from apollo2.tiscali.it ([213.205.33.82]:48062 "EHLO
+	cp3a.criticalpath.priv") by vger.kernel.org with ESMTP
+	id S965025AbVKOUKa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 15:10:30 -0500
+Date: Tue, 15 Nov 2005 21:10:51 +0100
+From: Luca <kronos@kronoz.cjb.net>
+To: linux-kernel@vger.kernel.org
+Cc: Greg KH <gregkh@suse.de>
+Subject: Re: [RFC] HOWTO do Linux kernel development
+Message-ID: <20051115201051.GA13473@dreamland.darkstar.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051114220709.GA5234@kroah.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greg KH <gregkh@suse.de> ha scritto:
+> Intro
+> -----
+[...]
+> Though they
+> are not a good substitute for a solid C education and/or years of
+> experience, the following books are good, if anything for reference:
+> 
+> "The C Programming Language" by Kernighan and Ritchie [Prentice Hall]
+> "Practical C Programming" by Steve Oualline [O'Reilly]
+> "Programming the 80386" by Crawford and Gelsinger [Sybek]
+> "UNIX Systems for Modern Architectures" by Curt Schimmel [Addison Wesley]
 
-Wasn't this thread related to a real lock up? I thought Luca said that 
-the stack trace came from his printer.
+Hi Greg,
+you may want to add:
 
-I thought it might be related to the __delay troubles ..
+"Linux Kernel Development, 2nd ed." by Robert Love [Novell Press]
+and
+"Linux Device Drivers, 3rd ed." by J. Corbet, A. Rubini and G. Kroah-Hartman [O'Reilly]
 
-Daniel
+IMHO the first one is a must-have for beginners who want to have an
+overall picture of the kernel and LDD is very helpful when you start doing
+some real work :)
 
-On Tue, 15 Nov 2005, Ingo Molnar wrote:
-
->
-> * john cooper <john.cooper@timesys.com> wrote:
->
->> Ingo Molnar wrote:
->>> * Luca Falavigna <dktrkranz@gmail.com> wrote:
->>>> I found this softlockup bug involving arts daemon using a
->>>> linux-2.6.14-rt6 kernel (with "Complete Preemption" and "Detect Soft
->>>> Lockups" compiled in).
->>>> This bug does not happen everytime: I was able to reproduce it only
->>>> three times in a week. [...]
->>>
->>>
->>> does this happen with -rt13 too? I have fixed a softlockup
->>> false-positive in it.
->>
->> Just curious what the cause of the false positive was?
->
-> the fix is below - we didnt reset the 'light' counter in the else
-> branch.
->
-> 	Ingo
->
-> Index: linux/kernel/softlockup.c
-> ===================================================================
-> --- linux.orig/kernel/softlockup.c
-> +++ linux/kernel/softlockup.c
-> @@ -90,7 +90,8 @@ void softlockup_tick(void)
->
-> 		wake_up_process(per_cpu(watchdog_task, this_cpu));
-> 		per_cpu(timeout, this_cpu) = jiffies + msecs_to_jiffies(1000);
-> -	}
-> +	} else
-> +		touch_light_softlockup_watchdog();
->
-> 	if (per_cpu(print_timestamp, this_cpu) == timestamp)
-> 		return;
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Luca
+-- 
+Home: http://kronoz.cjb.net
+Al termine di un pranzo di nozze mi hanno dato un
+amaro alle erbe cosi' schifoso che perfino sull'etichetta
+c'era un frate che vomitava.

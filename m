@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932372AbVKOMBK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbVKOMBB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932372AbVKOMBK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 07:01:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbVKOMBK
+	id S932386AbVKOMBB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 07:01:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbVKOMBA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 07:01:10 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:51336 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932372AbVKOMBI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 07:01:08 -0500
-Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Robin Holt <holt@sgi.com>
-Cc: "SERGE E. HALLYN [imap]" <serue@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>, hch@infradead.org
-In-Reply-To: <20051115111731.GA9976@lnx-holt.americas.sgi.com>
-References: <20051114212341.724084000@sergelap>
-	 <20051115111731.GA9976@lnx-holt.americas.sgi.com>
-Content-Type: text/plain
-Date: Tue, 15 Nov 2005 13:01:04 +0100
-Message-Id: <1132056064.6108.35.camel@localhost>
+	Tue, 15 Nov 2005 07:01:00 -0500
+Received: from hera.kernel.org ([140.211.167.34]:45442 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S932372AbVKOMA7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 07:00:59 -0500
+Date: Tue, 15 Nov 2005 04:49:54 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Shailabh Nagar <nagar@watson.ibm.com>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [Patch 1/4] Delay accounting: Initialization
+Message-ID: <20051115064954.GB31904@logos.cnet>
+References: <43796596.2010908@watson.ibm.com> <20051114202017.6f8c0327.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051114202017.6f8c0327.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-15 at 05:17 -0600, Robin Holt wrote:
-> Can't you just build a restart preloader which intercepts system calls
-> and translates pids?  Wouldn't this keep the kernel simpler and only
-> affect those applications that are being restarted?  Christoph, I
-> added you since you seem to tirelessly promote using preloaders to
-> work around this type of issue.  Is it possible?
+On Mon, Nov 14, 2005 at 08:20:17PM -0800, Andrew Morton wrote:
+> Shailabh Nagar <nagar@watson.ibm.com> wrote:
+> >
+> > +	*ts = sched_clock();
+> 
+> I'm not sure that it's kosher to use sched_clock() for fine-grained
+> timestamping like this.  Ingo had issues with it last time this happened?  
 
-Statically linked applications really throw a pretty big monkey wrench
-into that kind of plan.  I'd hate to give up on _any_ statically linked
-app from the beginning.
+If the system boots with use_rtc == 0 you're going to get jiffies based
+resolution from sched_clock(). I have a 1GHz Pentium 3 around here which
+does that.
 
--- Dave
+Maybe use do_gettimeofday() for such systems?
 
+Would be nice to have a sort of per-arch overridable "gettime()" function?
+
+> <too lazy to read all the code> Do you normalise these numbers in some
+> manner before presenting them to userspace?  If so, by what means?

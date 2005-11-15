@@ -1,126 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbVKOL6Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbVKOMAP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932381AbVKOL6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 06:58:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbVKOL6Z
+	id S932388AbVKOMAP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 07:00:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbVKOMAO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 06:58:25 -0500
-Received: from barclay.balt.net ([195.14.162.78]:17741 "EHLO barclay.balt.net")
-	by vger.kernel.org with ESMTP id S932381AbVKOL6Y (ORCPT
+	Tue, 15 Nov 2005 07:00:14 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:47471 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932382AbVKOMAM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 06:58:24 -0500
-Date: Tue, 15 Nov 2005 13:56:57 +0200
-From: Zilvinas Valinskas <zilvinas@gemtek.lt>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Alexandre Buisse <alexandre.buisse@ens-lyon.fr>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, yi.zhu@intel.com,
-       jketreno@linux.intel.com
-Subject: Re: Linuv 2.6.15-rc1
-Message-ID: <20051115115657.GA30489@gemtek.lt>
-Reply-To: Zilvinas Valinskas <zilvinas@gemtek.lt>
-References: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org> <4378980C.7060901@ens-lyon.fr> <20051114162942.5b163558.akpm@osdl.org> <20051115100519.GA5567@gemtek.lt>
+	Tue, 15 Nov 2005 07:00:12 -0500
+Date: Tue, 15 Nov 2005 13:00:16 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Tejun Heo <htejun@gmail.com>, linux-ide@vger.kernel.org,
+       lkml <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH] libata error handling fixes (ATAPI)
+Message-ID: <20051115120016.GD7787@suse.de>
+References: <20051114195717.GA24373@havoc.gtf.org> <20051115074148.GA17459@htj.dyndns.org> <4379AA5B.1060900@pobox.com> <4379B28E.9070708@gmail.com> <4379C062.3010302@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051115100519.GA5567@gemtek.lt>
-X-Attribution: Zilvinas
-X-Url: http://www.gemtek.lt/
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <4379C062.3010302@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello again,
-
-Compiled and installed the latest snapshot. Rebooted and started in
-single mode. During boot the following versions are reported :
- 
- ipw2200 driver  git-1.0.8,
- ieee80211 stack git-1.1.7. 
- 
-The following configuration options (under "kernel hacking" menu) have 
-been enabled:
-
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_DETECT_SOFTLOCKUP=y
-CONFIG_DEBUG_SLAB=y
-CONFIG_DEBUG_BUGVERBOSE=y
-CONFIG_EARLY_PRINTK=y
-CONFIG_DEBUG_PAGEALLOC=y
-CONFIG_4KSTACKS=y
-
-Then - I simply ran wpasupplicant (version 0.4.6). Simple sequence:
-
-wpa_supplicant -Dwext -ddd -i eth0 -c wpa.conf 
-<scan / assoc - attempts to authenticate ...>
-then Control-C 
-
-So far so good. No problem. 
-
-Then try again several times :
-
-wpa_supplicant -Dwext -ddd -i eth0 -c wpa.conf 
-<scan / assoc - attempts to authenticate ...>
-then Control-C 
-
-Eventually kernel will freeze (I can trigger this reliably, tried 3
-times and it "worked" 3 times as well). Although I've seen no error message 
-printed to console - sysrq-T always shows the same stack trace (in
-wpa_supplicant context:
-
-ipw_request_direct_scan
-__change_page_attr
-poison_obj
-dbg_redzone1
-autiremove_wake_function
-ipw_wx_set_scan+0x7f/0x81
-copy_from_user
-wirelees_process_ioctl
-ipw_wx_set_scan+0x0/0x81
-sock_ioctl
-do_ioctl
-vfs_ioctl
-sys_ioctl
-sysenter_past_esp
-
-http://www.gemtek.lt/~zilvinas/backtrace.jpg 
-
-Zilvinas Valinskas
-
-
-On Tue, Nov 15, 2005 at 12:05:19PM +0200, Zilvinas Valinskas wrote:
-> Hello, 
+On Tue, Nov 15 2005, Jeff Garzik wrote:
+> >For departure of libata from SCSI, I was thinking more of another more 
+> >generic block device framework in which libata can live in.  And I 
+> >thought that it was reasonable to assume that the framework would supply 
+> >a EH mechanism which supports queue stalling/draining and separate 
+> >thread.  So, my EH patches tried to make the same environment for libata 
 > 
-> I am compiling the latest git snapshot 4060994c3e337b40e0f6fa8ce2cc178e021baf3d.
-> I will let you know if anything comes up.
-> 
-> Z.
-> 
-> On Mon, Nov 14, 2005 at 04:29:42PM -0800, Andrew Morton wrote:
-> > This looks like some sort of slab scribble, possibly caused by faulty
-> > error-path handling in the ipw2200 code.
-> > 
-> > Please enable CONFIG_DEBUG_SLAB and see if that picks anything up.
-> > 
-> > Also enable CONFIG_DEBUG_PAGEALLOC.
-> > 
-> > You may also get more info by setting CONFIG_IPW_DEBUG and loading the
-> > module with `debug=65535' (guess).
-> > 
-> > Whatever you do, don't fix the firmware loading failure (sorry).  Doing
-> > that will cause you to not be able to reproduce this bug ;)
-> 
-> Hmmm, I didn't see any problems related to f/w loading ...
-> 
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> A big reason why libata uses the SCSI layer is infrastructure like this. 
+>  It would certainly be nice to see timeouts and EH at the block layer. 
+>  The block layer itself already supports queue stalling/draining.
+
+I have a pretty simple plan for this:
+
+- Add a timer to struct request. It already has a timeout field for
+  SG_IO originated requests, we could easily utilize this in general.
+  I'm not sure how the querying of timeout would happen so far, it would
+  probably require a q->set_rq_timeout() hook to ask the low level
+  driver to set/return rq->timeout for a given request.
+
+- Add a timeout hook to struct request_queue that would get invoked from
+  the timeout handler. Something along the lines of:
+
+        - Timeout on a request happens. Freeze the queue and use
+          kblockd to take the actual timeout into process context, where
+          we call the queue ->rq_timeout() hook. Unfreeze/reschedule
+          queue operations based on what the ->rq_timeout() hook tells
+          us.
+
+That is generic enough to be able to arm the timeout automatically from
+->elevator_activate_req_fn() and dearm it when it completes or gets
+deactivated. It should also be possible to implement the SCSI error
+handling on top of that.
+
+-- 
+Jens Axboe
+

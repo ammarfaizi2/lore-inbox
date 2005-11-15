@@ -1,79 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932531AbVKOPMs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932539AbVKOPPc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932531AbVKOPMs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 10:12:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932532AbVKOPMs
+	id S932539AbVKOPPc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 10:15:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932538AbVKOPPc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 10:12:48 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:15745 "EHLO
-	linuxbipbip.grupopie.com") by vger.kernel.org with ESMTP
-	id S932531AbVKOPMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 10:12:48 -0500
-Message-ID: <4379FAED.7030700@grupopie.com>
-Date: Tue, 15 Nov 2005 15:12:45 +0000
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+	Tue, 15 Nov 2005 10:15:32 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:20649 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932536AbVKOPPb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 10:15:31 -0500
+Message-ID: <4379FB8C.3050904@pobox.com>
+Date: Tue, 15 Nov 2005 10:15:24 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-References: <20051114133802.38755.qmail@web50205.mail.yahoo.com> <1131979779.5751.17.camel@localhost.localdomain> <dlal2q$kdo$1@sea.gmane.org>
-In-Reply-To: <dlal2q$kdo$1@sea.gmane.org>
+To: Bogdan Costescu <Bogdan.Costescu@iwr.uni-heidelberg.de>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Marvell SATA fixes v2
+References: <20051114050404.GA18144@havoc.gtf.org> <Pine.LNX.4.63.0511151437320.3015@dingo.iwr.uni-heidelberg.de> <4379F31D.4000508@pobox.com> <Pine.LNX.4.63.0511151554330.3015@dingo.iwr.uni-heidelberg.de>
+In-Reply-To: <Pine.LNX.4.63.0511151554330.3015@dingo.iwr.uni-heidelberg.de>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giridhar Pemmasani wrote:
-> Alan Cox wrote:
-> 
->>reasons. The ndis wrapper people have known it is coming for a long
->>time, and if it has a lot of users I'm sure someone in that community
->>will take the time to make patches.
-> 
->[...]
-> Any suggestions on how ndiswrapper can live with this patch would be greatly
-> appreciated.
+Bogdan Costescu wrote:
+> I don't think that this is really what you wanted - you probably wanted 
+> the place in libata where insmod stops, but the root FS is on another 
+> SATA disk connected to the ICH6, so if I enable DEBUG for libata this 
+> controller/disk will log quite a lot, right ?
 
-One idea that has not yet been suggested, is to use a x86 emulator to 
-run the driver code.
+Correct on all counts :(
 
-I did some development a while ago, to reduce the size a x86 emulator to 
-run VGA BIOS functions. If an emulator like this would make it to the 
-kernel it could also be used to change video modes even using the VESA 
-driver, suspend/resume the VGA using the VGA own code, etc.
-
-The final size of the emulator was a little over 30k, but there was 
-still room for even more reductions.
+	Jeff
 
 
-The advantages:
-
-  - the driver runs in a complete sandbox
-
-  - support for running NDIS drivers in multiple architectures (not just 
-x86)
-
-  - the emulator could be shared amongst more kernel subsystems in need 
-of an emulator (VESA, for instance)
-
-
-Disadvantages:
-
-  - increase in kernel code size (about 30k)
-
-  - decrease in driver code execution speed
-
-
-I'm not really advocating for this, just wanted to make sure people 
-would be aware of all the solutions available before committing to any 
-approach.
-
--- 
-Paulo Marques - www.grupopie.com
-
-The rule is perfect: in all matters of opinion our
-adversaries are insane.
-Mark Twain

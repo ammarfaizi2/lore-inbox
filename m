@@ -1,41 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbVKOAai@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbVKOAcl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932212AbVKOAai (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 19:30:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbVKOAai
+	id S932214AbVKOAcl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 19:32:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbVKOAcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 19:30:38 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:64190 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932212AbVKOAah (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 19:30:37 -0500
-Date: Mon, 14 Nov 2005 16:30:31 -0800
-From: mike kravetz <kravetz@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andy Whitcroft <apw@shadowen.org>, haveblue@us.ibm.com,
-       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/4] register_ and unregister_memory_notifier should be global
-Message-ID: <20051115003031.GA19640@w-mikek2.ibm.com>
-References: <exportbomb.1131997056@pinky> <20051114193738.GA15494@shadowen.org> <20051114152316.4060d30c.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 14 Nov 2005 19:32:41 -0500
+Received: from zproxy.gmail.com ([64.233.162.195]:16630 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932214AbVKOAck convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 19:32:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=UEIkYbIlA9nIUIaq3JF8WxF0hufP19sJVQ6qUbcNmjNzsGY/9PQ6BLWmIjGMrHDVH2L7b7ejbM6cHelmOzU1v03j1PjCGYctBY1DVkCtKstq9QRrxxAyEJdPkMC7ehfGMFizDabOiea+c7NsFb4nS/TpdMTHvz6TwFAx54QlaGM=
+Message-ID: <625fc13d0511141632k541fe338wb9a51222f4a0f453@mail.gmail.com>
+Date: Mon, 14 Nov 2005 18:32:39 -0600
+From: Josh Boyer <jwboyer@gmail.com>
+To: Greg KH <gregkh@suse.de>
+Subject: Re: [RFC] HOWTO do Linux kernel development
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+In-Reply-To: <20051114221005.GA5539@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051114152316.4060d30c.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+References: <20051114220709.GA5234@kroah.com> <20051114221005.GA5539@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 14, 2005 at 03:23:16PM -0800, Andrew Morton wrote:
-> Andy Whitcroft <apw@shadowen.org> wrote:
-> >
-> > Both register_memory_notifer and unregister_memory_notifier are global
-> > and declared so in linux.h.  Update the HOTPLUG specific definitions
-> > to match.  This fixes a compile warning when HOTPLUG is enabled.
-> 
-> There is no linux.h and I can find no .h file which declares
-> register_memory_notifier().  Please clarify?
+On 11/14/05, Greg KH <gregkh@suse.de> wrote:
+> On Mon, Nov 14, 2005 at 02:07:09PM -0800, Greg KH wrote:
+> > So, I've been working on a document for the past week or so to help
+> > alleviate a lot of these problems.
+>
+> Oh, the latest version can be found at:
+>         http://www.kernel.org/git/?p=linux/kernel/git/gregkh/patches.git;a=blob;f=HOWTO
+> as I'm keeping it in my git patch tree.
 
-I'm pretty sure Andy meant to say <linux/memory.h> not linux.h.
+I don't know if this should go in the <TODO> section of the
+development process or somewhere else within "Working with the
+community", but I think something along the lines of this might be
+helpful:
 
--- 
-Mike
+Leave your ego at home
+---------------------------------
+
+The goal of the kernel community is to provide the best possible
+kernel there is.  When you submit a patch for acceptance, it will be
+reviewed on it's technical merits and those alone.  So, what should
+you be expecting?
+
+- criticism,
+- comments
+- requests for change
+- requests justification.
+
+Remember, this is part of getting your patch into the kernel.  You
+have to be able to take criticism and comments about your patches,
+evaluate them at a technical level and either rework your patches or
+provide clear and concise reasoning as to why those changes should not
+be made.
+
+What should you not do?
+
+- expect your patch to be accepted without question
+- become defensive
+- ignore comments and resubmit the patch without making any changes
+- explain how your project is funded by XYZ and therefore must be
+awesome as it is
+
+In a community that is looking for the best technical solution
+possible, there is no place for ego.  You have to be cooperative,
+polite, and willing to adapt your idea to fit within the kernel. 
+Remember, being wrong is ok as long as you are willing to work toward
+a solution that is right.
+
+josh

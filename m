@@ -1,60 +1,34 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751020AbVKNJRe (ORCPT <rfc822;ralf@linux-mips.org>);
-	Mon, 14 Nov 2005 04:17:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751023AbVKNJRe
+	id S932083AbVKOAXW (ORCPT <rfc822;ralf@linux-mips.org>);
+	Mon, 14 Nov 2005 19:23:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbVKOAXW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 04:17:34 -0500
-Received: from bay108-f7.bay108.hotmail.com ([65.54.162.17]:29883 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S1751020AbVKNJRe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 04:17:34 -0500
-Message-ID: <BAY108-F7C165CDD6E716CC6B65AB845A0@phx.gbl>
-X-Originating-IP: [192.116.66.19]
-X-Originating-Email: [industrial_solenoid@msn.com]
-Reply-To: solenoidindustrial_rep00@yahoo.com.hk
-From: "Solenoid Inudstrial" <industrial_solenoid@msn.com>
-Subject: Respond Urgently
-Date: Mon, 14 Nov 2005 09:17:29 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 14 Nov 2005 09:17:30.0291 (UTC) FILETIME=[3D029830:01C5E8FC]
-To: unlisted-recipients:; (no To-header on input)
+	Mon, 14 Nov 2005 19:23:22 -0500
+Received: from [81.88.140.66] ([81.88.140.66]:56332 "HELO 81.88.140.66")
+	by vger.kernel.org with SMTP id S932083AbVKOAXV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 19:23:21 -0500
+From: "Houston Huggins" <rgravesnziv@4netmail.com>
+Reply-To: "Houston Huggins" <rgravesnziv@4netmail.com>
+Message-ID: <1773997660.5080586901@4netmail.com>
+Date: Mon, 14 Nov 2005 19:26:36 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: <---->
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751020AbVKNJRe@vger.kernel.org>
-
-Liu Chang
-Director;
-Solenoids Industrial Co Ltd.
-55 An Suing East 9th Street,
-Taichung, Taiwan
-                           YOUR SERVICES ARE REQUIRED
-
-We are exporters based in theTaiwan. We export raw materials such as 
-Calcite, Barytes, Manganese Dioxide , Dolomite, Mica , China 
-Clay,MangneseDioxide,Ferrous(Iron) Oxide, Paints, Rubber,Plastics and 
-Construction chemicals from Asia and intoEurope, America and
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932083AbVKOAXW@vger.kernel.org>
 
 
-Our company, Solenoids Industrial Co. Ltd. was established in 2001.
+Naughty Gay Guy At Home In Shower Shows Dick
 
-We are interested in employing your services, to work with us as our payment 
-agent, who can help us eastablish a medium of recieving payment on our 
-behalf for Goods and raw materials we supply to our clients in 
-Europe,America or Australia.
+All things must change to something new, to something strange.
 
-Subject to your satisfaction with this proposal, you will be given the 
-opportunity to negotiate the mode of our payment for your services as our 
-representative.
+http://tabygyrimu.com/main/
 
-If you decide to work for us, please forward to us immediately via 
-email,your phone/fax number and your full contact address.
-
-We anxiously await your response.
-Sincerely,
-
-Mr.liu Chang.
-
-Taiwan
+In America journalism is apt to be regarded as an extension of history: in Britain, as an extension of conversation.It is easier to believe than to doubt.
+All concord's born of contraries.Desire for security keeps littleness little and threatens the great with smallness.''
 
 

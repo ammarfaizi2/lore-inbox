@@ -1,55 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbVKODfN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbVKODhY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932335AbVKODfN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 22:35:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbVKODfM
+	id S932345AbVKODhY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 22:37:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbVKODhY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 22:35:12 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:8150 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932335AbVKODfK (ORCPT
+	Mon, 14 Nov 2005 22:37:24 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:43954 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932345AbVKODhX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 22:35:10 -0500
-Date: Mon, 14 Nov 2005 22:35:02 -0500
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, info@colognechip.com,
-       Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] i4l: update hfc_usb driver
-Message-ID: <20051115033502.GB5620@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	info@colognechip.com, Greg KH <greg@kroah.com>
-References: <200511071721.jA7HLC18028788@hera.kernel.org> <20051115004518.GA26922@redhat.com> <20051114193025.7ca34fac.akpm@osdl.org>
+	Mon, 14 Nov 2005 22:37:23 -0500
+Date: Mon, 14 Nov 2005 19:37:15 -0800
+From: Paul Jackson <pj@sgi.com>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, frankeh@watson.ibm.com, haveblue@us.ibm.com
+Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
+Message-Id: <20051114193715.1dd80786.pj@sgi.com>
+In-Reply-To: <20051115022931.GB6343@sergelap.austin.ibm.com>
+References: <20051114212341.724084000@sergelap>
+	<20051114153649.75e265e7.pj@sgi.com>
+	<20051115010155.GA3792@IBM-BWN8ZTBWAO1>
+	<20051114175140.06c5493a.pj@sgi.com>
+	<20051115022931.GB6343@sergelap.austin.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051114193025.7ca34fac.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 14, 2005 at 07:30:25PM -0800, Andrew Morton wrote:
- > Dave Jones <davej@redhat.com> wrote:
- > >
- > > On Mon, Nov 07, 2005 at 09:21:12AM -0800, Linux Kernel wrote:
- > >  > tree 0bb0aeb735a917561cf4d91d4c3fa1ed5434bede
- > >  > parent 6978bbc097c2f665c336927a9d56ae39ef75fa56
- > >  > author Martin Bachem <info@colognechip.com> Mon, 07 Nov 2005 17:00:20 -0800
- > >  > committer Linus Torvalds <torvalds@g5.osdl.org> Mon, 07 Nov 2005 23:53:47 -0800
- > >  > 
- > >  > [PATCH] i4l: update hfc_usb driver
- > >  > 
- > >  >   - cleanup source
- > >  >   - remove nonfunctional code parts
- > > 
- > > Something isn't right with this.  We've got a number of reports from
- > > Fedora rawhide users over the last few days since this went in that
- > > this module is now auto-loading itself, and preventing other usb devices
- > > from working.
- > 
- > Putting the USB_DEVICE() thingies back in seems to fix it up?
+Serge wrote:
+> the vserver model
 
-Sounds good to me :-)
+What's that?
 
-		Dave
+> Unfortunately that would not work for checkpoints across boots,
 
+That could be made to work, by an early init script that looked in the
+"checkedpointed tasks storage locker" on disk, and reserved any pid's
+used therein, marking them as frozen.  A little care can ensure that
+no task with such a pid is already running.
+
+> or, more importantly, for process (set) migration.
+
+Migration to a system that has already been up a while, where no
+reservation of pid's was made ahead of time, hence where pid's overlap,
+would not work with my EFROZEN scheme - you are right there.
+
+How large is our numeric pid space (on 64 bit systems, anyway)?  If
+large enough, then reservation of pid ranges becomes an easy task.  If
+say we had 10 bits to spare, then a server farm could pre-ordain say a
+thousand virtual servers, which come and go on various hardware
+systems, each virtual server with its own hostname, pid-range, and
+other such paraphernalia.
+
+However there is an elephant in the room, or a camel outside the tent
+or some such.  Yes, the camel's nose may well fit inside the tent,
+but before we invite his nose, we should have some idea if the rest
+of the camel will fit.
+
+In other words, since I don't see any compelling reason for this
+virtualization of pids -except- for checkpoint/restart sorts of
+features, the usefulness of pid virtualization would seem to rest on
+the acceptability of the rest of the checkpoint/restart proposal.
+
+For all I know now (not much) the amount of effort required to
+sufficiently virtualize all the elements of the Linux kernel-user
+interface enough to enable robust job migration across machines and
+reboots may well make virtualizing the kernel's address space look easy.
+Linux is not VM.
+
+Hence, until sold on the larger direction, I am skeptical of this
+first step.
+
+Though, I will grant, I am interested too.  A good Linux
+checkpoint/restart solution would be valuable.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

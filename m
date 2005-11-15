@@ -1,86 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751288AbVKOBNB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbVKOBOJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751288AbVKOBNB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Nov 2005 20:13:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbVKOBNB
+	id S1751313AbVKOBOJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Nov 2005 20:14:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbVKOBOI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Nov 2005 20:13:01 -0500
-Received: from web50115.mail.yahoo.com ([206.190.39.163]:38294 "HELO
-	web50115.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1751288AbVKOBNA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Nov 2005 20:13:00 -0500
+	Mon, 14 Nov 2005 20:14:08 -0500
+Received: from zproxy.gmail.com ([64.233.162.203]:18372 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751304AbVKOBOH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Nov 2005 20:14:07 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=Ff3BmwKAsHQGk44QffTgsnvlFLYvzS7hbzRPz8KaPLpysGtATMtlsl5gMzpyFChOmPv0ikC3gIhvQqZpU482VIZnZDSkQOdMaXIFP3+azqyzBYcydWBD+OJINP4EGfpkaoeR2MBXBvXiIJKZd4AifF91a66Rx2JYEN7Tpz/qhHY=  ;
-Message-ID: <20051115011257.825.qmail@web50115.mail.yahoo.com>
-Date: Mon, 14 Nov 2005 17:12:57 -0800 (PST)
-From: Doug Thompson <norsk5@yahoo.com>
-Subject: Re: [RFC] EDAC and the sysfs
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051115004704.91557.qmail@web50106.mail.yahoo.com>
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Tl9QbHm6sQG/NKmx/LkBwOyagjFU1/1lRMW1RLQ7bXZqDsWKXdLuri1/EWMsWjGaCFmrKOK1ptxkSYWhpTUboNEUGfL3ZQOsHpRKqKmeQYx36r1iWT0QSfisUpmZD+VMy3Pr5vv0XhAWg1mLIfQ3yDZlb13oRW4hFnFiH3yc9pQ=
+Message-ID: <d4b6d3ea0511141714o2e3e23daqb87f4d0ffa0146df@mail.gmail.com>
+Date: Mon, 14 Nov 2005 17:14:06 -0800
+From: Michael Madore <michael.madore@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: USB handoff, irq 193: nobody cared!
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+I'm getting the following errors in my kernel log with 2.6.14:
 
---- Doug Thompson <norsk5@yahoo.com> wrote:
+Nov 14 09:27:06 asl95 kernel: ACPI: PCI Interrupt 0000:00:03.2[A] ->
+GSI 10 (level, low) -> IRQ 193
+Nov 14 09:27:06 asl95 kernel: ehci_hcd 0000:00:03.2: EHCI Host Controller
+Nov 14 09:27:06 asl95 kernel: ehci_hcd 0000:00:03.2: new USB bus
+registered, assigned bus number 1
+Nov 14 09:27:06 asl95 kernel: ehci_hcd 0000:00:03.2: irq 193, io mem 0xfebfd000
+Nov 14 09:27:06 asl95 kernel: ehci_hcd 0000:00:03.2: USB 2.0
+initialized, EHCI 1.00, driver 10 Dec 2004
+Nov 14 09:27:07 asl95 kernel: hub 1-0:1.0: USB hub found
+Nov 14 09:27:07 asl95 kernel: hub 1-0:1.0: 4 ports detected
+Nov 14 09:27:07 asl95 kernel: hub 1-0:1.0: over-current change on port 1
+Nov 14 09:27:07 asl95 kernel: ACPI: PCI Interrupt 0000:00:03.0[A] ->
+GSI 10 (level, low) -> IRQ 193
+Nov 14 09:27:07 asl95 kernel: ohci_hcd 0000:00:03.0: OHCI Host Controller
+Nov 14 09:27:07 asl95 kernel: ohci_hcd 0000:00:03.0: new USB bus
+registered, assigned bus number 2
+Nov 14 09:27:07 asl95 kernel: ohci_hcd 0000:00:03.0: irq 193, io mem 0xfebfb000
+Nov 14 09:27:07 asl95 kernel: hub 2-0:1.0: USB hub found
+Nov 14 09:27:07 asl95 kernel: hub 2-0:1.0: 2 ports detected
+Nov 14 09:27:07 asl95 kernel: ACPI: PCI Interrupt 0000:00:03.1[A] ->
+GSI 10 (level, low) -> IRQ 193
+Nov 14 09:27:08 asl95 kernel: ohci_hcd 0000:00:03.1: OHCI Host Controller
+Nov 14 09:27:08 asl95 kernel: irq 193: nobody cared!
 
-> What is EDAC and what does it stand for?
-> 
-> EDAC= Error Detection And Correction.
+I don't see this behavior under kernel 2.6.12.  Running git-bisect, I
+narrowed it down to this change:
 
-> > For PCI Parity Error detection controls and
-> > information files:
-> > 
-> >    /sys/devices/system/edac/pci
-> 
-> That kind of controls and  files?
+d49d431744007cec0ee1a3ade96f9e0f100c7907 is first bad commit
+diff-tree d49d431744007cec0ee1a3ade96f9e0f100c7907 (from
+9198769363d4dc1d63d49ec b2e2b189aceb42d94)
+Author: David Brownell <david-b@pacbell.net>
+Date:   Sat May 7 13:21:50 2005 -0700
 
-I left out new PCI whitelist/blacklist control files I
-am also working on:
+    [PATCH] USB: misc ehci updates
 
-pci_parity_whitelist
-pci_parity_blacklist
+    Various minor EHCI updates
 
+       * Dump some more info in the debug dumps, notably the product
+         description (e.g. chip vendor), BIOS handhake flags, and
+         debug port status (when it's not managed by the HCD).
 
-Since some unmentioned (and expensive) pci boards fail
-to conform with the PCI spec when dealing with PCI
-parity status reporting (or they just plain have
-bugs),  the pci scanning feature needs a whitelist or
-a blacklist of "vendor_id:device_id" to specificly
-scan or not scan.
+       * Minor updates to the BIOS handoff code:  always flag the HCD
+         as owned by Linux (in case BIOS doesn't grab it "early"),
+         and on the buggy-BIOS path always match the "early handoff"
+         code and forcibly disable SMI IRQs.
 
-If there is a whitelist, no blacklist occurs. When a
-blacklist is written to, the whitelist is erased and
-devices on blacklist are skipped on the scanning.
+       * For the disabled 64bit DMA support, there's now a constant
+         to use for the mask; use it.
 
-format of info to write to these controls, in hex:
+    Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+    Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-vendor_id:device_id[,vendor_id:device_id...]
+:040000 040000 e883b4103743cfeb337c5b914affcdcb51adc23f
+c55d891960ce2b85c70a9b43 2730c3a4aa70261c M      drivers
 
+Reverting this patch restores the original behavior.  Also, I only see
+this error if USB legacy support is _disabled_ in the BIOS.  If I
+enable legacy support, then the error goes away.
 
-I have timed both ECC scanning and PCI parity
-scanning.
-
-ECC scanning on a dual opteron is 170 TSC clocks.
-
-PCI Parity for 24 devices is 65000 TSC clocks. Ouch! 
-When all devices are blacklisted, the iterator is 2700
-TSC clocks. 
-
-doug t
-
-
-
-
-"If you think Education is expensive, just try Ignorance"
-
-"Don't tell people HOW to do things, tell them WHAT you
-want and they will surprise you with their ingenuity."
-                   Gen George Patton
-
+Mike

@@ -1,47 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964852AbVKOSjj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964971AbVKOSkd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964852AbVKOSjj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 13:39:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964941AbVKOSjj
+	id S964971AbVKOSkd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 13:40:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964969AbVKOSkd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 13:39:39 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:9165 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S964852AbVKOSji (ORCPT
+	Tue, 15 Nov 2005 13:40:33 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:32323 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S964941AbVKOSkb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 13:39:38 -0500
-Date: Tue, 15 Nov 2005 10:39:27 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Hubertus Franke <frankeh@watson.ibm.com>
-Cc: serue@us.ibm.com, linux-kernel@vger.kernel.org, haveblue@us.ibm.com
-Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
-Message-Id: <20051115103927.2ca4bffb.pj@sgi.com>
-In-Reply-To: <4379F29D.3090306@watson.ibm.com>
-References: <20051114212341.724084000@sergelap>
-	<20051114153649.75e265e7.pj@sgi.com>
-	<20051115010155.GA3792@IBM-BWN8ZTBWAO1>
-	<20051114175140.06c5493a.pj@sgi.com>
-	<20051115022931.GB6343@sergelap.austin.ibm.com>
-	<20051114193715.1dd80786.pj@sgi.com>
-	<20051115051501.GA3252@IBM-BWN8ZTBWAO1>
-	<20051114223513.3145db39.pj@sgi.com>
-	<20051115081100.GA2488@IBM-BWN8ZTBWAO1>
-	<20051115010624.2ca9237d.pj@sgi.com>
-	<20051115133222.GA2232@IBM-BWN8ZTBWAO1>
-	<4379F29D.3090306@watson.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Tue, 15 Nov 2005 13:40:31 -0500
+Date: Tue, 15 Nov 2005 19:41:31 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Mike Christie <michaelc@cs.wisc.edu>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Tejun Heo <htejun@gmail.com>,
+       linux-ide@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH] libata error handling fixes (ATAPI)
+Message-ID: <20051115184131.GJ7787@suse.de>
+References: <20051114195717.GA24373@havoc.gtf.org> <20051115074148.GA17459@htj.dyndns.org> <4379AA5B.1060900@pobox.com> <4379B28E.9070708@gmail.com> <4379C062.3010302@pobox.com> <20051115120016.GD7787@suse.de> <437A2814.1060308@cs.wisc.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <437A2814.1060308@cs.wisc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't think that the checkpoint/restart/relocation design should be
-driven by mico-optimizations of getpid().  It needs to be driven by
-a design that addresses (for better or worse) the many larger questions
-encountered in such an effort.
+On Tue, Nov 15 2005, Mike Christie wrote:
+> Jens Axboe wrote:
+> >On Tue, Nov 15 2005, Jeff Garzik wrote:
+> >
+> >>>For departure of libata from SCSI, I was thinking more of another more 
+> >>>generic block device framework in which libata can live in.  And I 
+> >>>thought that it was reasonable to assume that the framework would supply 
+> >>>a EH mechanism which supports queue stalling/draining and separate 
+> >>>thread.  So, my EH patches tried to make the same environment for libata 
+> >>
+> >>A big reason why libata uses the SCSI layer is infrastructure like this. 
+> >>It would certainly be nice to see timeouts and EH at the block layer. 
+> >>The block layer itself already supports queue stalling/draining.
+> >
+> >
+> >I have a pretty simple plan for this:
+> >
+> >- Add a timer to struct request. It already has a timeout field for
+> >  SG_IO originated requests, we could easily utilize this in general.
+> >  I'm not sure how the querying of timeout would happen so far, it would
+> >  probably require a q->set_rq_timeout() hook to ask the low level
+> >  driver to set/return rq->timeout for a given request.
+> >
+> >- Add a timeout hook to struct request_queue that would get invoked from
+> >  the timeout handler. Something along the lines of:
+> >
+> >        - Timeout on a request happens. Freeze the queue and use
+> >          kblockd to take the actual timeout into process context, where
+> >          we call the queue ->rq_timeout() hook. Unfreeze/reschedule
+> >          queue operations based on what the ->rq_timeout() hook tells
+> >          us.
+> >
+> >That is generic enough to be able to arm the timeout automatically from
+> >->elevator_activate_req_fn() and dearm it when it completes or gets
+> >deactivated. It should also be possible to implement the SCSI error
+> >handling on top of that.
+> >
+> 
+> To disable the timeout would you then have scsi_done call a block layer 
+> function to disarm it then follow the current flow where or do you think 
+> it would be nice to move the scsi softirq code up to block layer. So 
+> scsi_done would call a block layer function that would disarm the timer, 
+> add the request to a block layer softirq list (a list like scsi-ml's 
+> scsi_done_q), and then in the block layer softirq function it could call 
+> a request_queue callout which for scsi-ml's device queue would call 
+> scsi_decide_disposition and return if it wanted the request requeued or 
+> how many sectors completed or to kick off the eh. I had stated on this 
+> for my block layer multipath driver, but can seperate the patches if 
+> this would be useful.
+
+Yeah, that was part of my plan as well. I did post such a patch a year
+or so ago, in a thread about decreasing ide completion latencies.
+
+> Would ide benefit from running from a softirq and would it be able to 
+> use such a thing?
+
+It's generally useful as it allows lock free completion from the irq
+path, so that's goodness.
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Jens Axboe
+

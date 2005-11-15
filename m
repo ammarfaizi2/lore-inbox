@@ -1,89 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964971AbVKOSkd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964968AbVKOSqy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964971AbVKOSkd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 13:40:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964969AbVKOSkd
+	id S964968AbVKOSqy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 13:46:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964969AbVKOSqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 13:40:33 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:32323 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S964941AbVKOSkb (ORCPT
+	Tue, 15 Nov 2005 13:46:54 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:24241 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964968AbVKOSqx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 13:40:31 -0500
-Date: Tue, 15 Nov 2005 19:41:31 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Mike Christie <michaelc@cs.wisc.edu>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Tejun Heo <htejun@gmail.com>,
-       linux-ide@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH] libata error handling fixes (ATAPI)
-Message-ID: <20051115184131.GJ7787@suse.de>
-References: <20051114195717.GA24373@havoc.gtf.org> <20051115074148.GA17459@htj.dyndns.org> <4379AA5B.1060900@pobox.com> <4379B28E.9070708@gmail.com> <4379C062.3010302@pobox.com> <20051115120016.GD7787@suse.de> <437A2814.1060308@cs.wisc.edu>
+	Tue, 15 Nov 2005 13:46:53 -0500
+Date: Tue, 15 Nov 2005 10:46:05 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: torvalds@osdl.org, marcelo.tosatti@cyclades.com, kravetz@us.ibm.com,
+       raybry@mpdtxmail.amd.com, lee.schermerhorn@hp.com,
+       linux-kernel@vger.kernel.org, magnus.damm@gmail.com, pj@sgi.com,
+       haveblue@us.ibm.com, kamezawa.hiroyu@jp.fujitsu.com
+Subject: Re: [PATCH 1/5] Swap Migration V5: LRU operations
+Message-Id: <20051115104605.5020764d.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.62.0511151011150.10267@schroedinger.engr.sgi.com>
+References: <20051101031239.12488.76816.sendpatchset@schroedinger.engr.sgi.com>
+	<20051101031244.12488.38211.sendpatchset@schroedinger.engr.sgi.com>
+	<20051114214415.1e107c7b.akpm@osdl.org>
+	<Pine.LNX.4.62.0511150837190.9258@schroedinger.engr.sgi.com>
+	<20051115100248.5ba2383d.akpm@osdl.org>
+	<Pine.LNX.4.62.0511151011150.10267@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <437A2814.1060308@cs.wisc.edu>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 15 2005, Mike Christie wrote:
-> Jens Axboe wrote:
-> >On Tue, Nov 15 2005, Jeff Garzik wrote:
-> >
-> >>>For departure of libata from SCSI, I was thinking more of another more 
-> >>>generic block device framework in which libata can live in.  And I 
-> >>>thought that it was reasonable to assume that the framework would supply 
-> >>>a EH mechanism which supports queue stalling/draining and separate 
-> >>>thread.  So, my EH patches tried to make the same environment for libata 
-> >>
-> >>A big reason why libata uses the SCSI layer is infrastructure like this. 
-> >>It would certainly be nice to see timeouts and EH at the block layer. 
-> >>The block layer itself already supports queue stalling/draining.
-> >
-> >
-> >I have a pretty simple plan for this:
-> >
-> >- Add a timer to struct request. It already has a timeout field for
-> >  SG_IO originated requests, we could easily utilize this in general.
-> >  I'm not sure how the querying of timeout would happen so far, it would
-> >  probably require a q->set_rq_timeout() hook to ask the low level
-> >  driver to set/return rq->timeout for a given request.
-> >
-> >- Add a timeout hook to struct request_queue that would get invoked from
-> >  the timeout handler. Something along the lines of:
-> >
-> >        - Timeout on a request happens. Freeze the queue and use
-> >          kblockd to take the actual timeout into process context, where
-> >          we call the queue ->rq_timeout() hook. Unfreeze/reschedule
-> >          queue operations based on what the ->rq_timeout() hook tells
-> >          us.
-> >
-> >That is generic enough to be able to arm the timeout automatically from
-> >->elevator_activate_req_fn() and dearm it when it completes or gets
-> >deactivated. It should also be possible to implement the SCSI error
-> >handling on top of that.
-> >
+Christoph Lameter <clameter@engr.sgi.com> wrote:
+>
+> On Tue, 15 Nov 2005, Andrew Morton wrote:
 > 
-> To disable the timeout would you then have scsi_done call a block layer 
-> function to disarm it then follow the current flow where or do you think 
-> it would be nice to move the scsi softirq code up to block layer. So 
-> scsi_done would call a block layer function that would disarm the timer, 
-> add the request to a block layer softirq list (a list like scsi-ml's 
-> scsi_done_q), and then in the block layer softirq function it could call 
-> a request_queue callout which for scsi-ml's device queue would call 
-> scsi_decide_disposition and return if it wanted the request requeued or 
-> how many sectors completed or to kick off the eh. I had stated on this 
-> for my block layer multipath driver, but can seperate the patches if 
-> this would be useful.
+> > But lru_add_drain_per_cpu() will be called from interrupt context: the IPI
+> > handler.
+> 
+> Ahh.. thought you meant the lru_add_drain run on the local processor.
+>  
+> > I'm asking whether it is safe for the IPI handler to reenable interupts on
+> > all architectures.  It might be so, but I don't recall ever having seen it
+> > discussed, nor have I seen code which does it.
+> 
+> smp_call_function is also used by the slab allocator to drain the 
+> pages. All the spinlocks in there and those of the page allocator (called 
+> for freeing pages) use spin_lock_irqsave. Why is this not used for 
+> lru_add_drain() and friends?
 
-Yeah, that was part of my plan as well. I did post such a patch a year
-or so ago, in a thread about decreasing ide completion latencies.
+It's a microoptimisation - lru_add_drain() is always called with local irqs
+enabled, so no need for irqsave.
 
-> Would ide benefit from running from a softirq and would it be able to 
-> use such a thing?
+I don't think spin_lock_irqsave() is notably more expensive than
+spin_lock_irq() - the cost is in the irq disabling and in the atomic
+operation.
 
-It's generally useful as it allows lock free completion from the irq
-path, so that's goodness.
+> Maybe we need to start a new thread so that others see it?
 
--- 
-Jens Axboe
-
+Spose so.  If we cannot convince ourselves that local_irq_enable() in an
+ipi handler is safe, we need to convert any called functions to use
+irqsave.

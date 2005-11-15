@@ -1,60 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932535AbVKOP3O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932540AbVKOP3g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932535AbVKOP3O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 10:29:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932537AbVKOP3O
+	id S932540AbVKOP3g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 10:29:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932537AbVKOP3g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 10:29:14 -0500
-Received: from allen.werkleitz.de ([80.190.251.108]:6635 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S932535AbVKOP3O
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 10:29:14 -0500
-Date: Tue, 15 Nov 2005 16:28:23 +0100
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Patrick Boettcher <patrick.boettcher@desy.de>
-Cc: Chris Rankin <rankincj@yahoo.com>, linux-dvb-maintainer@linuxtv.org,
-       David Brigada <brigad@rpi.edu>, linux-kernel@vger.kernel.org
-Message-ID: <20051115152823.GA4079@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Patrick Boettcher <patrick.boettcher@desy.de>,
-	Chris Rankin <rankincj@yahoo.com>, linux-dvb-maintainer@linuxtv.org,
-	David Brigada <brigad@rpi.edu>, linux-kernel@vger.kernel.org
-References: <20051114235102.64514.qmail@web52912.mail.yahoo.com> <Pine.LNX.4.64.0511150939010.18517@pub3.ifh.de>
+	Tue, 15 Nov 2005 10:29:36 -0500
+Received: from fmr22.intel.com ([143.183.121.14]:3013 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932540AbVKOP3f convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 10:29:35 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0511150939010.18517@pub3.ifh.de>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: 84.189.250.252
-Subject: Re: [linux-dvb-maintainer] Re: [OOPS] Linux 2.6.14.2 and DVB USB
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: + perfmon2-reserve-system-calls.patch added to -mm tree
+Date: Tue, 15 Nov 2005 07:28:35 -0800
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F04F630BF@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: + perfmon2-reserve-system-calls.patch added to -mm tree
+Thread-Index: AcXp6iK3RuByl3gRT/aWyBxj8ddeKwADSL5g
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Andi Kleen" <ak@muc.de>, "Arjan van de Ven" <arjan@infradead.org>
+Cc: <eranian@hpl.hp.com>, "Andrew Morton" <akpm@osdl.org>,
+       "Arnd Bergmann" <arnd@arndb.de>, <linux-kernel@vger.kernel.org>,
+       <benh@kernel.crashing.org>, <paulus@samba.org>,
+       <stephane.eranian@hp.com>
+X-OriginalArrivalTime: 15 Nov 2005 15:28:40.0483 (UTC) FILETIME=[417DF730:01C5E9F9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 15, 2005 Patrick Boettcher wrote:
-> On Mon, 14 Nov 2005, Chris Rankin wrote:
-> >This sounds contrary to the entire concept of hotplugging to me. And I 
-> >don't think that a typical
-> >desktop user would be happy to be told that s/he needs to become root and 
-> >unload kernel modules
-> >before s/he can unplug a USB device.
-> 
-> Unfortunately the dvb-core is currently not able to handle hotplugging 
-> while a dvb application is accessing a dvb-dev-node. This applies 
-> for every dvb-device, not only for dvb-usb devices, but no one ever tried 
-> to unplug a DVB PCI card while using it, yet.
-> 
-> Before unplugging a device, you can check if the module is removable to 
-> make sure that really no application is currently using it. (You will get 
-> "module in use" then).
-> 
-> We already thought about that problem and we think that dvbdev.c is the 
-> correct place to start implementing that, but I don't have enough 
-> knowledge (and time) to do that now, sorry.
+>> ... which is a binary only, proprietary application.
+>
+>The IA32 emulation part of it is actually shipped in source. 
+>Somehow they manage to link a binary only object to it though.
 
-I thought someone sent a patch which fixes it for the cinergyT2
-recently? Wouldn't the same approach work for dvb-usb?
-(But I haven't had a chance to test the cinergyT2 patch yet.)
+There are two parts to the ia32 emulation ... the part that handles
+all the Linux syscall emulation is open (LGPL I think).  The part
+that handles translation of x86 instructions into ia64 instructions
+is the binary only part ... a shared library that gets attached by
+the Linux layer ... this same binary blob is used on all operating
+systems.
 
-Johannes
+>> Either way, either the emulation is in the kernel or it's not. If it's
+>> there (like it is now) it deserves maintenance. If it's not, it should
+>> be removed from the tree, since the only thing it's otherwise good for
+>> is potential security holes.
+>
+>I suppose it's still useful for all current IA64 users (Montecito
+>is not shipping yet and older CPUs support x86 in hardware) who don't like 
+>binary only software.
+
+I was planning on asking who still depends on the emulation code
+a while after Montecito is shipping.  Until then I'll try to do
+what makes sense in keeping the ia32 emulation system call table
+up to date.
+
+The perfmon syscalls would be an example of something that should
+*NOT* go into the ia32 emulation syscall table.  It makes no sense
+whatever to put them there.  I don't believe that the h/w emulation
+provides any performance counter emulation, and even if it did a
+user who cared about the performance of their application would do
+far better to re-compile it as native ia64 than to mess around
+trying to optimize their x86 binary.
+
+-Tony

@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932575AbVKOXcT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965074AbVKOXfM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932575AbVKOXcT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 18:32:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932576AbVKOXcT
+	id S965074AbVKOXfM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 18:35:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965076AbVKOXfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 18:32:19 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:21709 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932575AbVKOXcT (ORCPT
+	Tue, 15 Nov 2005 18:35:11 -0500
+Received: from gate.crashing.org ([63.228.1.57]:43150 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S965074AbVKOXfK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 18:32:19 -0500
-Date: Wed, 16 Nov 2005 00:32:01 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Dave Jones <davej@redhat.com>, kernel list <linux-kernel@vger.kernel.org>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>
-Subject: Re: [linux-pm] [RFC] userland swsusp
-Message-ID: <20051115233201.GA10143@elf.ucw.cz>
-References: <20051115212942.GA9828@elf.ucw.cz> <20051115222549.GF17023@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051115222549.GF17023@redhat.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Tue, 15 Nov 2005 18:35:10 -0500
+Date: Tue, 15 Nov 2005 17:31:57 -0600 (CST)
+From: Kumar Gala <galak@gate.crashing.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>, Greg KH <greg@kroah.com>
+cc: linux-kernel@vger.kernel.org
+Subject: overlapping resources for platform devices?
+Message-ID: <Pine.LNX.4.44.0511151727170.32393-100000@gate.crashing.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Guys,
 
->  > This is prototype of userland swsusp. I'd like kernel parts to go in,
->  > probably for 2.6.16. Now, I'm not sure about the interface, ioctls are
->  > slightly ugly, OTOH it would be probably overkill to introduce
->  > syscalls just for this. (I'll need to add an ioctl for freeing memory
->  > in future).
-> 
-> Just for info: If this goes in, Red Hat/Fedora kernels will fork
-> swsusp development, as this method just will not work there.
-> (We have a restricted /dev/mem that prevents writes to arbitary
->  memory regions, as part of a patchset to prevent rootkits)
+I was wondering if there was any issue in changing platform_device_add to
+use insert_resource instead of request_resource.  The reason for this
+change is to handle several cases where we have device registers that
+overlap that two different drivers are handling.
 
-If this goes in, you can still keep using old method... I'll not
-remove it anytime soon.
+The biggest case of this is with ethernet on a number of PowerPC based 
+systems where a subset of the ethernet controllers registers are used for 
+MDIO/PHY bus control.  We currently hack around the limitation by having 
+the MDIO/PHY bus not actually register an memory resource region.
 
-> Even it were not for this, the whole idea seems misconcieved to me
-> anyway.
+If the following looks good I'll send a more formal patch.
 
-...but how do you provide nice, graphical progress bar for swsusp
-without this? People want that, and "esc to abort", compression,
-encryption. Too much to be done in kernel space, IMNSHO.
-							Pavel
--- 
-Thanks, Sharp!
+-- kumar
+
+--- a/drivers/base/platform.c
++++ b/drivers/base/platform.c
+@@ -257,7 +257,7 @@ int platform_device_add(struct platform_
+                                p = &ioport_resource;
+                }
+ 
+-               if (p && request_resource(p, r)) {
++               if (p && insert_resource(p, r)) {
+                        printk(KERN_ERR
+                               "%s: failed to claim resource %d\n",
+                               pdev->dev.bus_id, i);
+
+

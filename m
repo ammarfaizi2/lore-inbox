@@ -1,98 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbVKOOLU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbVKOOMW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932467AbVKOOLU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 09:11:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbVKOOLT
+	id S932391AbVKOOMW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 09:12:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932505AbVKOOMW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 09:11:19 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:39080 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932389AbVKOOLT (ORCPT
+	Tue, 15 Nov 2005 09:12:22 -0500
+Received: from ns.suse.de ([195.135.220.2]:55178 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932391AbVKOOMW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 09:11:19 -0500
-Message-ID: <4379EC82.1030509@pobox.com>
-Date: Tue, 15 Nov 2005 09:11:14 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+	Tue, 15 Nov 2005 09:12:22 -0500
+Message-ID: <4379ECC1.20005@suse.de>
+Date: Tue, 15 Nov 2005 15:12:17 +0100
+From: Gerd Knorr <kraxel@suse.de>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Carlos Pardo <Carlos.Pardo@siliconimage.com>
-Subject: Re: [PATCH] libata error handling fixes (ATAPI)
-References: <20051114195717.GA24373@havoc.gtf.org> <20051115074148.GA17459@htj.dyndns.org> <4379AA5B.1060900@pobox.com> <4379E5F7.6000107@gmail.com>
-In-Reply-To: <4379E5F7.6000107@gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
+       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH 1/10] Cr4 is valid on some 486s
+References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com> <20051111103605.GC27805@elf.ucw.cz> <4374F2D5.7010106@vmware.com> <Pine.LNX.4.64.0511111147390.4627@g5.osdl.org> <4374FB89.6000304@vmware.com> <Pine.LNX.4.64.0511111218110.4627@g5.osdl.org> <20051113074241.GA29796@redhat.com> <Pine.LNX.4.64.0511131118020.3263@g5.osdl.org> <Pine.LNX.4.64.0511131210570.3263@g5.osdl.org> <4378A7F3.9070704@suse.de> <Pine.LNX.4.64.0511141118000.3263@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0511141118000.3263@g5.osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo wrote:
-> * prb->fis doesn't contain proper signature after phy reset.  I just 
-
-This makes sense.  Each PRB slot in the card's RAM only contains 
-something useful after you have submitted a PRB, and had some results 
-returned.
-
-
-> * As all commands hang after failed TUR, which BTW fails rightfully with 
-> 06h (UNIT ATTENTION due to prior reset) and then 02h's (NOT READY), I 
-> avoided TUR failures by issuing REQUEST SENSE first, which returns NO 
-> SENSE but does clear UA condition, and then waiting for more than 10secs 
-> to give the drive time to become ready.
-
-10 seconds is certainly a long time.
-
-grep for msleep(150) in libata code, though.
-
-
-> * With above two changes, no command fails and I can mount the cdrom.
+Linus Torvalds wrote:
 > 
-> ------------------
+> On Mon, 14 Nov 2005, Gerd Knorr wrote:
+>> Throwing another patch into the discussion ;)
 > 
-> And here are things that I've found out so far....
-> 
-> * ATAPI commands without data (TEST_UNIT_READY, ALLOW_MEDIUM_REMOVAL...) 
-> work happily with any prb->ctrl flag (no flag, PRB_CTRL_PACKET_READ or 
-> PRB_CTRL_PACKET_WRITE).
+> Ouch, this one is really ugly.
 
-I suppose no-flag is the right answer, then...
+I somehow expected that answer, it took me quite some time to figure 
+what the patch does.  It certainly needs at least a number of cleanups 
+before I'd consider it mergable.  The alternative() macro is much easier 
+to read.
 
+> If you want to go this way, then you should instead add an X86_FEATURE_SMP 
+> that gets cleared on UP and on SMP with just one core (and detect when CPU 
+> hotplug ain't gonna happen ;), and then do
 
-> * Currently, sil24_reset_controller() is called on every error interrupt 
-> to make sure the controller is ready for further operation. 
-> Unfortunately, the current reset_controller() seems to reset PHY too. 
-> The drive becomes NOT READY after reset_controller().  So, when TUR 
-> fails, it falls into TUR, fail with NOT READY, reset which makes the 
-> drive NOT READY again cycle.
+Well, the "no hotplug" probably is exactly the reason why the patch 
+doesn't use the existing alternatives mechanism, it's a boot-time 
+one-way ticket.  The xenified linux kernel actually switches both ways 
+at runtime if you plug in/out a second virtual CPU.
 
-Standard init sequence includes checking SStatus, then if a device is 
-present, waiting until Port Ready (bit 31) of PORT_CTRL_STAT is set.  It 
-doesn't look like sata_sil24 does that.
+> 	#ifdef CONFIG_SMP
+> 	#define smp_alternative(x,y) alternative(x,y,X86_FEATURE_SMP)
+> 	#else
+> 	#define smp_alternative(x,y) asm(x)
+> 	#endif
 
+I don't like the idea very much.  That covers only 50% of what the patch 
+does, you can patch SMP => UP but not the other way around.  Doesn't 
+matter much on real hardware, but for virtual it is quite useful.
 
-> * Wihtout sil24_reset_controller(), no further command can be issued. 
-> The controller doesn't seem to be operating normally after DEV_ERR.
+> or something similar, instead of creating a totally new infrastructure to 
+> do the thing that "alternative()" already does.
 
-The port stops, when any error occurs.  For device errors, set 
-PORT_CS_INIT bit in PORT_CTRL_STAT, then wait for Port Ready (bit 31, 
-see above).
+Yep, extending alternatives is probably better than duplicating the 
+code.  Maybe having some alternative_smp() macro which places both code 
+versions into the .altinstr_replacement table?  If that sounds ok I'll 
+try to come up with a experimental patch.  If not: other ideas are welcome.
 
+cheers,
 
-> So, what we need to know to make sil24 work happily with ATAPI devices.
-> 
-> * How to get device signature on initialization.
-
-AFAICS, you _must_ send a soft reset PRB.  This will be needed anyway, 
-for port multiplier support.
-
-
-> * How to make the controller operational again after a DEV_ERR without 
-> affecting the attached device.
-
-Assert PORT_CS_INIT, then wait for Port Ready.  __ONLY__ do this for 
-errors PORT_CERR_DEV and PORT_CERR_SDB.
-
-	Jeff
-
+   Gerd
 

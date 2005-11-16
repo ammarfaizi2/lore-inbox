@@ -1,64 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030543AbVKPWmU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030544AbVKPWnA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030543AbVKPWmU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 17:42:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030544AbVKPWmU
+	id S1030544AbVKPWnA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 17:43:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030546AbVKPWnA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 17:42:20 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:16042 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1030543AbVKPWmU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 17:42:20 -0500
-Date: Wed, 16 Nov 2005 22:42:08 +0000 (GMT)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Max Krasnyansky <maxk@qualcomm.com>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, hugh@veritas.com
-Subject: Re: 2.6.14 X spinning in the kernel
-In-Reply-To: <1132177953.24066.80.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0511162238480.24969@skynet>
-References: <1132012281.24066.36.camel@localhost.localdomain> 
- <20051114161704.5b918e67.akpm@osdl.org>  <1132015952.24066.45.camel@localhost.localdomain>
-  <20051114173037.286db0d4.akpm@osdl.org> <437A6609.4050803@us.ibm.com> 
- <437B9FAC.4090809@qualcomm.com> <1132177953.24066.80.camel@localhost.localdomain>
+	Wed, 16 Nov 2005 17:43:00 -0500
+Received: from nproxy.gmail.com ([64.233.182.207]:39493 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030544AbVKPWm7 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 17:42:59 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=cirrwaUqFQa4mL326A7Wb0CNm1EesyAAzYHcLg7i9/06GOsCqsQT+TzEJwiDfU1eKUsb/Qg0+KNnElwKgwUFExKYTb0uxSSKlxfWab8oEcpIBwZS3bDRe5dE4R3gz81mHJsL4IZPtHBMxgZxA3Pf4SkU5kjlSBT0sPr78C0baso=
+Message-ID: <7fce76bf0511161442q5eef217dhe14f6ff1625437a2@mail.gmail.com>
+Date: Wed, 16 Nov 2005 22:42:58 +0000
+From: Lee Causier <leecausier@gmail.com>
+To: Davy Durham <pubaddr2@davyandbeth.com>
+Subject: Re: virtual NICs
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <437BAB0B.1090504@davyandbeth.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <437B932F.3090607@davyandbeth.com>
+	 <Pine.LNX.4.61.0511161540080.5251@chaos.analogic.com>
+	 <437BAB0B.1090504@davyandbeth.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+Just a quick note..
 
->
-> I traced it little further.
->
-> It looks like radeon_freelist_get() is always returning NULL.
-> Which seem to have 2 loops
-> 	- top loop is for for 10000 times (usec_timeout).
-> 	- second one for length of the list ?
->
-> 	for (t = 0; t < dev_priv->usec_timeout; t++)
-> 		..
-> 		for (i = start; i < dma->buf_count; i++) {
->
-> 		..
-> 		}
-> 	}
->
-> Which is making it even worse.
->
-> And also, radeon_cp_get_buffers() is getting called repeatedly.
+iirc, virtual interfaces are necessary in order to configure multiple
+IP addresses using "ifconfig", but if you use iproute2's tools you can
+add any/all IPs to one interface (the original, eg eth0, br0, vlan0001
+etc) with a command like "ip addr add 12.3.45.66/28 dev eth0" and then
+all the addresses are considered equal; although ifconfig will only
+list one of the IPs (it appears that it is restricted to
+"understanding" only one IP per interface)
 
-Again I say this is a chip hang, the chip isn't consuming any more data,
-so we run out of buffers...
+Cheers,
 
-Can you send me lspci -v, /var/log/Xorg.0.log, xorg.conf
+Lee Causier.
+Undergraduate
+BSc Computer Science (Year 1)
 
-If you are running a PCI Radeon you are screwed with the latest Fedora X
-packages, roll back a few to find the ones that work, the FC people took a
-really hacky patch from ATI and thought it was a good idea, and now it is
-in X.org, or turn off DRI...
-
-Dave.
-
--- David Airlie, Software Engineer http://www.skynet.ie/~airlied / airlied
-at skynet.ie Linux kernel - DRI, VAX / pam_smb / ILUG
+On 11/16/05, Davy Durham <pubaddr2@davyandbeth.com> wrote:
+> First, thanks for the prompt response.
+>
+> linux-os (Dick Johnson) wrote:
+>
+> >Of course there is extra work! Any time something has to be checked
+> >(filtered), there is the overhead of the filtering. In the case of
+> >two or more IP addresses, the software has to perform an ARP on two
+> >or more IPs. This means that it needs to "listen" for more queries.
+> >Note that machines on Ethernet, communicate using their hardware-
+> >addresses i.e., the "IEEE station address". But, the initial route
+> >to the target machine needs to be set up by broadcasting an IP address,
+> >thereby asking everybody on the LAN if the IP address belongs to them.
+> >Hopefully only one machine answers. This sequence is called ARP
+> >(address resolution protocol).
+> >
+> >
+> >
+> My question was whether the one being defined to eth0 has an advantage
+> over the one assigned to eth0:0 since one is real and one is virtual.
+> My uninformed instinct told me to wonder if the NIC hardware itself
+> somehow gets told to handle the IP assigned to eth0 and something in the
+> linux software has to handle the IP assigned to eth0:0
+>
+> I realize that the machine will have to do more work total.  But I
+> wonder if it's any more work than if the server has two NICs with two
+> different IPs.
+>
+> >Adding more IP addresses is like adding more machines as far as
+> >the source (perhaps a router) is concerned. Adding more IP addresses
+> >to a single host is sometimes necessary, but it is not without
+> >cost. Basically, don't do it unless it's necessary.
+> >
+> >
+> >
+> It's necessary because of the in-born inability for name based virtual
+> hosting to be done over SSL (though I think this inability was
+> unnecessary in that it could have been relaxed if just a little bit of
+> unsecured data could be transmitted in the SSL header allowing the
+> server to make some decision based on that clear data.. but that's
+> another matter).
+>
+> Thanks again,
+>   Davy
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

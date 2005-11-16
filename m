@@ -1,133 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030534AbVKPWZR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030535AbVKPWZv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030534AbVKPWZR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 17:25:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030535AbVKPWZR
+	id S1030535AbVKPWZv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 17:25:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030539AbVKPWZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 17:25:17 -0500
-Received: from ihemail1.lucent.com ([192.11.222.161]:9453 "EHLO
-	ihemail1.lucent.com") by vger.kernel.org with ESMTP
-	id S1030534AbVKPWZP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 17:25:15 -0500
-Message-ID: <0C6AA2145B810F499C69B0947DC5078107BCDE20@oh0012exch001p.cb.lucent.com>
-From: "Cipriani, Lawrence V (Larry)" <lvc@lucent.com>
-To: "David S. Miller" <davem@davemloft.net>,
-       "Cipriani, Lawrence V (Larry)" <lvc@lucent.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: bugs in /usr/src/linux/net/ipv6/mcast.c
-Date: Wed, 16 Nov 2005 17:24:37 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
+	Wed, 16 Nov 2005 17:25:50 -0500
+Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:29411 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S1030535AbVKPWZt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 17:25:49 -0500
+Subject: Re: [linux-pm] [RFC] userland swsusp
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Pavel Machek <pavel@suse.cz>
+Cc: Greg KH <greg@kroah.com>, "Gross, Mark" <mark.gross@intel.com>,
+       Dave Jones <DaveJ@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+In-Reply-To: <20051116220500.GF12505@elf.ucw.cz>
+References: <F760B14C9561B941B89469F59BA3A8470BDD12EB@orsmsx401.amr.corp.intel.com>
+	 <20051116164429.GA5630@kroah.com> <1132172445.25230.73.camel@localhost>
+	 <20051116220500.GF12505@elf.ucw.cz>
 Content-Type: text/plain
+Organization: Cyclades
+Message-Id: <1132175574.25230.111.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 17 Nov 2005 08:13:20 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
-Thanks.  We're on 2.4.x  For what it's worth, here are a few more I found:
-
-/usr/src/linux/drivers/sound/vidc.c: extra semicolon near line 227
-
-for (new2size = 128; new2size < newsize; new2size <<= 1);  	!!!
-        if (new2size - newsize > newsize - (new2size >> 1))
-                new2size >>= 1;                            
-
------------------------------------------------------------
-/usr/src/linux/sound/drivers/serialmidi.c: extra semicolon near line 441
-
-        if (serial->sdev);                             !!!
-                kfree(serial->sdev);                   
-
------------------------------------------------------------
-
-/usr/src/linux/drivers/s390/misc/chandev.c: extra semicolon near line 2031
-
-	if(chandev_find_eligible_channels(curr_chandev,
-		&read_chandev,
-		&write_chandev,
-		&data_chandev,
-		&next_chandev,
-		curr_force->chan_type));			!!!
-	{                                               
-
------------------------------------------------------------
-
-/usr/src/linux/drivers/s390/misc/chandev.c: extra semicolong near line 2150
-
-while(!atomic_compare_and_swap(TRUE,FALSE,&chandev_new_msck));		!!!
-{                                                             
-        chandev_probe();                                      
-}                                                             
-
------------------------------------------------------------
-
-/usr/src/linux/drivers/s390/block/dasd.c: extra semicolon near line 1528
-
-		if (device->discipline->term_IO (cqr) != 0);  !!!
-			cqr->status = CQR_STATUS_FAILED;
-
------------------------------------------------------------
-
-/usr/src/linux/drivers/scsi/ide-scsi.c: extra semicolon near line 855
-
-	for (id = 0;
-	        id < MAX_HWIFS*MAX_DRIVES && idescsi_drives[id];
-	                    id++);		!!!
-	        idescsi_setup(drive, scsi, id);
-
------------------------------------------------------------
-/usr/src/linux/drivers/scsi/osst.c: extra semicolon near line 5264
-
-                for (nbr=0; osst_buffers[nbr] != STbuffer && nbr < osst_nbr_buffers; nbr++);   	!!!
-                        printk(OSST_DEB_MSG
-                           "osst :D: Expanded tape buffer %d (%d bytes, %d->%d segments, dma: %d, a: %p).\n",
-                           nbr, got, STbuffer->orig_sg_segs, STbuffer->sg_segs, need_dma, STbuffer->b_data);
-                        printk(OSST_DEB_MSG
-                           "osst :D: segment sizes: first %d, last %d bytes.\n",
-                           STbuffer->sg[0].length, STbuffer->sg[segs-1].length);
-
------------------------------------------------------------
-
-I'm not sure about this one, it sure looks hinky:
-
-/usr/src/linux/abi/svr4/misc.c: extra semicolon near line 564:
-
-for (p = tmp; *p; p++); 		!!!
-        p--;            
-
-might need to be:
-
-for (p = tmp; *p; p++)
-        p--;            
-
------------------------------------------------------------
-
-My C/C++ static analyzer reported several other things too, I'll send them in later.
-
-Larry
-
------Original Message-----
-From: David S. Miller [mailto:davem@davemloft.net]
-Sent: Wednesday, November 16, 2005 4:02 PM
-To: lvc@lucent.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bugs in /usr/src/linux/net/ipv6/mcast.c
-
-
-From: "Cipriani, Lawrence V (Larry)" <lvc@lucent.com>
-Date: Wed, 16 Nov 2005 09:53:07 -0500
-
-> /usr/src/linux/net/ipv6/mcast.c: extra semicolon near line 609         
->                 if (mc->sfmode == MCAST_INCLUDE && i >= psl->sl_count);
->                         rv = 0;                                        
-> should be:
-> 		    if (mc->sfmode == MCAST_EXCLUDE && i >= psl->sl_count)
-> 				rv = 0;
+On Thu, 2005-11-17 at 09:05, Pavel Machek wrote:
+> Hi!
 > 
-> /usr/src/linux/net/ipv6/mcast.c: extra semicolon near line 611         
->                 if (mc->sfmode == MCAST_EXCLUDE && i < psl->sl_count); 
->                         rv = 0;                             
-> should be:
-> 		    if (mc->sfmode == MCAST_EXCLUDE && i < psl->sl_count)
-> 				rv = 0;
+> > > Please, everyone realize that Nigel's code is not going to be merged
+> > > into mainline as it is today.  He knows it, and everyone else involved
+> > > knows it.  Nigel also knows the proper procedure for getting his changes
+> > > into mainline, if he so desires, as we all sat in a room last July and
+> > > discussed this (lwn.net has a summary somewhere about it too...)
+> > 
+> > Do you mean "as it was in July"? I haven't been sitting on my hands
+> > since July :)  My wife will testify to that!
+> ...
+> > I've also split the one patch that most people see into what is
+> > currently about 225 smaller patches, each adding only one small part, am
+> > writing descriptions for them all and am preparing to build a git tree
+> > from it.
+> 
+> I'm not sure that gets suspend2 any closer to merging. 225 small
+> patches is still awful lot of code :-(. Now... if something can be
+> done in userspace, it probably should. And I'm trying to show that
+> suspend2 functionality can indeed be done in userspace.
+> 
+> So... to get 225 patches in, you'll need to explain that
+> userland-swsusp can't work. If you can do that, please be nice and do
+> it soon, so that I don't waste too much time on userland-swsusp.
 
-These have been fixed for a while now in 2.6.x
+I thought Dave already did that.
+
+Regards,
+
+Nigel
+

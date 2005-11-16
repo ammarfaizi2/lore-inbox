@@ -1,94 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030249AbVKPJEi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030247AbVKPJEW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030249AbVKPJEi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 04:04:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030250AbVKPJEi
+	id S1030247AbVKPJEW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 04:04:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030249AbVKPJEW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 04:04:38 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:59302 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1030249AbVKPJEg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 04:04:36 -0500
-Message-ID: <437AF619.2000101@jp.fujitsu.com>
-Date: Wed, 16 Nov 2005 18:04:25 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
+	Wed, 16 Nov 2005 04:04:22 -0500
+Received: from rwcrmhc13.comcast.net ([216.148.227.118]:55977 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1030247AbVKPJEV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 04:04:21 -0500
+Message-ID: <437AF612.6050402@namesys.com>
+Date: Wed, 16 Nov 2005 01:04:18 -0800
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-mm2
-References: <20051110203544.027e992c.akpm@osdl.org>
-In-Reply-To: <20051110203544.027e992c.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       vs <vs@thebsh.namesys.com>
+Subject: [Fwd: [PATCH] clear_page_dirty_for_io.patch]
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------020102080402060209070201"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I saw following errors while compilng with CONFIG_MEMORY_HOTPLUG=y.
-
-==
-drivers/base/memory.c:28: error: static declaration of 'memory_sysdev_class' follows non-static declaration
-include/linux/memory.h:88: error: previous declaration of 'memory_sysdev_class' was here
-drivers/base/memory.c:47: warning: initialization from incompatible pointer type
-drivers/base/memory.c:54: error: static declaration of 'register_memory_notifier' follows non-static declaration
-include/linux/memory.h:85: error: previous declaration of 'register_memory_notifier' was here
-drivers/base/memory.c:59: error: static declaration of 'unregister_memory_notifier' follows non-static declaration
-include/linux/memory.h:86: error: previous declaration of 'unregister_memory_notifier' was here
-drivers/base/memory.c:69: error: static declaration of 'register_memory' follows non-static declaration
-include/linux/memory.h:73: error: previous declaration of 'register_memory' was here
-==
-
-patch is attached.
-
--- Kame
-
-Compile fix for /driver/base/memory.c
-
-Signed-Off-by KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+This is a multi-part message in MIME format.
+--------------020102080402060209070201
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
 
-Index: linux-2.6.14-mm2/drivers/base/memory.c
-===================================================================
---- linux-2.6.14-mm2.orig/drivers/base/memory.c
-+++ linux-2.6.14-mm2/drivers/base/memory.c
-@@ -25,12 +25,12 @@
 
-  #define MEMORY_CLASS_NAME	"memory"
+--------------020102080402060209070201
+Content-Type: message/rfc822;
+ name="[PATCH] clear_page_dirty_for_io.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="[PATCH] clear_page_dirty_for_io.patch"
 
--static struct sysdev_class memory_sysdev_class = {
-+struct sysdev_class memory_sysdev_class = {
-  	set_kset_name(MEMORY_CLASS_NAME),
-  };
-  EXPORT_SYMBOL(memory_sysdev_class);
+Return-Path: <vs@namesys.com>
+Delivered-To: reiser@namesys.com
+Received: (qmail 24712 invoked from network); 15 Nov 2005 17:02:31 -0000
+Received: from ppp83-237-207-83.pppoe.mtu-net.ru (HELO ?192.168.1.10?) (83.237.207.83)
+  by thebsh.namesys.com with SMTP; 15 Nov 2005 17:02:31 -0000
+Message-ID: <437A1493.5060000@namesys.com>
+Date: Tue, 15 Nov 2005 20:02:11 +0300
+From: "Vladimir V. Saveliev" <vs@namesys.com>
+Organization: Namesys
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hans Reiser <reiser@namesys.com>
+Subject: [PATCH] clear_page_dirty_for_io.patch
+X-Enigmail-Version: 0.91.0.0
+Content-Type: multipart/mixed;
+ boundary="------------090601070101070405030001"
 
--static char *memory_hotplug_name(struct kset *kset, struct kobject *kobj)
-+static const char *memory_hotplug_name(struct kset *kset, struct kobject *kobj)
-  {
-  	return MEMORY_CLASS_NAME;
-  }
-@@ -50,12 +50,12 @@ static struct kset_hotplug_ops memory_ho
+This is a multi-part message in MIME format.
+--------------090601070101070405030001
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-  static struct notifier_block *memory_chain;
+This is a request to make clear_page_dirty_for_io() EXPORT_SYMBOL. 2.6.14 has it
+exported. So, there is nothing wrong in asking to EXPORT_SYMBOL it back.
 
--static int register_memory_notifier(struct notifier_block *nb)
-+int register_memory_notifier(struct notifier_block *nb)
-  {
-          return notifier_chain_register(&memory_chain, nb);
-  }
+--------------090601070101070405030001
+Content-Type: text/plain;
+ name="export-clear_page_dirty_for_io.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="export-clear_page_dirty_for_io.patch"
 
--static void unregister_memory_notifier(struct notifier_block *nb)
-+void unregister_memory_notifier(struct notifier_block *nb)
-  {
-          notifier_chain_unregister(&memory_chain, nb);
-  }
-@@ -63,7 +63,7 @@ static void unregister_memory_notifier(s
-  /*
-   * register_memory - Setup a sysfs device for a memory block
-   */
--static int
-+int
-  register_memory(struct memory_block *memory, struct mem_section *section,
-  		struct node *root)
-  {
 
+From: Vladimir V. Saveliev <vs@namesys.com>
+
+This patch makes clear_page_dirty_for_io to be EXTERN_SYMBOL.
+
+Signed-off-by: Vladimir V. Saveliev <vs@namesys.com>
+
+
+ mm/page-writeback.c |    2 ++
+ 1 files changed, 2 insertions(+)
+
+diff -puN mm/page-writeback.c~export-clear_page_dirty_for_io mm/page-writeback.c
+--- linux-2.6.14-mm2/mm/page-writeback.c~export-clear_page_dirty_for_io	2005-11-14 18:33:38.000000000 +0300
++++ linux-2.6.14-mm2-vs/mm/page-writeback.c	2005-11-14 18:34:17.000000000 +0300
+@@ -751,6 +751,8 @@ int clear_page_dirty_for_io(struct page 
+ 	return TestClearPageDirty(page);
+ }
+ 
++EXPORT_SYMBOL(clear_page_dirty_for_io);
++
+ int test_clear_page_writeback(struct page *page)
+ {
+ 	struct address_space *mapping = page_mapping(page);
+
+_
+
+--------------090601070101070405030001--
+
+
+
+--------------020102080402060209070201--

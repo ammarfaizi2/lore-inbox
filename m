@@ -1,93 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030517AbVKPVwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030519AbVKPVwn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030517AbVKPVwW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 16:52:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030519AbVKPVwW
+	id S1030519AbVKPVwn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 16:52:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030521AbVKPVwm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 16:52:22 -0500
-Received: from ihug-mail.icp-qv1-irony4.iinet.net.au ([203.59.1.198]:6784 "EHLO
-	ihug-mail.icp-qv1-irony4.iinet.net.au") by vger.kernel.org with ESMTP
-	id S1030517AbVKPVwV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 16:52:21 -0500
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-Message-ID: <437BAA0E.2020602@eyal.emu.id.au>
-Date: Thu, 17 Nov 2005 08:52:14 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-CC: list linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: hware clock left bad after a system failure
-References: <437B3C62.2090803@eyal.emu.id.au> <Pine.LNX.4.61.0511161037130.12055@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0511161037130.12055@chaos.analogic.com>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 16 Nov 2005 16:52:42 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:1496 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030519AbVKPVwl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 16:52:41 -0500
+Subject: Re: 2.6.14 X spinning in the kernel
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Max Krasnyansky <maxk@qualcomm.com>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       hugh@veritas.com, Dave Airlie <airlied@linux.ie>
+In-Reply-To: <437B9FAC.4090809@qualcomm.com>
+References: <1132012281.24066.36.camel@localhost.localdomain>
+	 <20051114161704.5b918e67.akpm@osdl.org>
+	 <1132015952.24066.45.camel@localhost.localdomain>
+	 <20051114173037.286db0d4.akpm@osdl.org> <437A6609.4050803@us.ibm.com>
+	 <437B9FAC.4090809@qualcomm.com>
+Content-Type: text/plain
+Date: Wed, 16 Nov 2005 13:52:33 -0800
+Message-Id: <1132177953.24066.80.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
-> On Wed, 16 Nov 2005, Eyal Lebedinsky wrote:
+On Wed, 2005-11-16 at 13:07 -0800, Max Krasnyansky wrote:
+> Badari Pulavarty wrote:
+> >> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> >>
+> >>> On Mon, 2005-11-14 at 16:17 -0800, Andrew Morton wrote:
+> >>>
+> >>>> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> >>>>
+> >>>>> My 2-cpu EM64T machine started showing this problem again on 2.6.14.
+> >>>>> On some reboots, X seems to spin in the kernel forever.
+> >>>>>
+> >>>>> sysrq-t output shows nothing.
+> >>>>>
+> >>>>> X             R  running task       0  3607   3589          3903
+> >>>>> (L-TLB)
+> >>>>>
+> >>>>> top shows:
+> >>>>> 3607 root      25   0     0    0    0 R 99.1  0.0 262:04.69 X
+> >>>>>
+> >>>>>
+> >>>>> So, I wrote a module to do smp_call_function() on all CPUs
+> >>>>> to show stacks on them. CPU0 seems to be spinning in exit_mmap().
+> >>>>> I did this multiple times to collect stacks few times.
+> >>>>>
+> >>>>> Is this a known issue ?
 > 
-> 
->>I recently had two cases where my machine locked up and needed
->>a hard reset. The last time magic SysRq did not respond at all.
->>
->>In these cases I found that the hware clock was set incorrectly
->>and the machine comes up with a bad date. It seems that the clock
->>is ahead by as much as my TZ (+10 in my case). I may be able
->>to understand if it was set 10h behind (kernel set it to UTC)
->>but this is the other way. The machine comes up with UTC+20.
->>
->>Now this is just trouble. The machine comes up and spends 15m
->>fscking. I then reset the clock and reboot and it does the whole
->>fsck again because it thinks the fs was not checked for eons. It
->>does not understand time in the future.
->>
->>So the points are
->>
->>- why is the clock mangled in this way?
-> 
-> 
-> I am assuming that you have an ix86 kind of machine.
-> 
-> It's probably mangled because you had a hardware-crash.
-> 
-> If you have a driver that accesses the RTC, it needs to leave
-> the index register at offset 0 so that a hardware crash can
-> only upset the seconds. Otherwise, even the RTC checksum
-> can get screwed up, forcing manual reconfiguration of the
-> BIOS.
-> 
-> During a hardware-crash, the chip enables may go TRUE. This
-> means that an RTC write can occur with junk that's on the
-> data-bus.
-> 
-> Now, you need to find out why you had a hardware-crash which
-> is quite unlike a software-crash. A hardware crash occurs when
-> you turn OFF the power or the power-good line from the
-> power-supply goes FALSE. You do not get a hardware-crash from
-> hitting the reset button. You may have induced the RTC failure
-> if you hit the power switch instead of the reset button.
+> I've seen similar problems on dual Opteron HP xw9300/Radeon 7000 PCI box with 2.6.11.12
+> and latest X from Fedora x86-64 YUM repos.
+> I haven't done any traces but it sounds like the same problem (ie X server is spinning).
+> Disabling DRI in xorg.conf fixed it for me.
 
-I hit the reset. In one case I managed to reboot using magic SysRq.
+Okay. Thank you.
 
-The crashes are related to disk problems. In one case the hda/b
-controller went down (last message said DMA disabled on both)
-and in another case the system was doing a proper shutdown
-when it failed to complete and a reset was necessary. I suspect
-a problem with the SATA card which I know has some driver issues
-(promise SATA II 150 TX4).
+I traced it little further.
 
-The point of the post was the fact that the clock was not randomly
-set but clearly at +20h after the reboot. This was the case in the
-last two crashes. This is too coincidental and I suspect that some
-logic does play with the RTC and if a proper shutdown does not
-complete it may not be restored correctly.
+It looks like radeon_freelist_get() is always returning NULL.
+Which seem to have 2 loops 
+	- top loop is for for 10000 times (usec_timeout).
+	- second one for length of the list ?
 
--- 
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
-	attach .zip as .dat
+	for (t = 0; t < dev_priv->usec_timeout; t++)
+		..
+		for (i = start; i < dma->buf_count; i++) {
+
+		..
+		}
+	}
+
+Which is making it even worse. 
+
+And also, radeon_cp_get_buffers() is getting called repeatedly.
+
+Thanks,
+Badari
+

@@ -1,38 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030458AbVKPTmo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030460AbVKPToi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030458AbVKPTmo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 14:42:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030459AbVKPTmo
+	id S1030460AbVKPToi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 14:44:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030464AbVKPToi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 14:42:44 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:4498 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1030458AbVKPTmn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 14:42:43 -0500
-Subject: Re: OOPS - 2.6.14.2 | 2.6.15-rc1-git4 - qla2xxx
-From: Lee Revell <rlrevell@joe-job.com>
-To: Michele Baldessari <michele-lists@pupazzo.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051116193608.GA8500@michele.pupazzo.org>
-References: <20051116193608.GA8500@michele.pupazzo.org>
-Content-Type: text/plain
-Date: Wed, 16 Nov 2005 14:42:37 -0500
-Message-Id: <1132170157.27215.63.camel@mindpipe>
+	Wed, 16 Nov 2005 14:44:38 -0500
+Received: from 90.Red-213-97-199.staticIP.rima-tde.net ([213.97.199.90]:26735
+	"HELO fargo") by vger.kernel.org with SMTP id S1030460AbVKPToh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 14:44:37 -0500
+Date: Wed, 16 Nov 2005 20:44:14 +0100
+From: David =?utf-8?B?R8OzbWV6?= <david@pleyades.net>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: /net/sched/Kconfig broken
+Message-ID: <20051116194414.GA14953@fargo>
+Mail-Followup-To: Linux-kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-16 at 20:36 +0100, Michele Baldessari wrote:
-> Hi,
-> 
-> As per subject I get an OOPS on bootup with qla2xx cards using 2.6.14.2
-> or 2.6.15-rc1-git4. Description follows:
+Hi all,
 
-This is not an Oops it's a soft lockup.  It means some program ran in
-the kernel for a long time without rescheduling which is considered a
-bug.
+It's impossible to enable the U32 classifier in QoS submenu, to use it
+with the "tc" application. In fact there are 23 :-/ options and suboptions
+that are missing from the configuration because it seems that the Kconfig
+file is broken.
 
-Lee
+I don't know enough Kconfig syntax, but it seems that one of the problems
+is here:
 
+config NET_CLS_ROUTE
+   bool
+   default n
+
+Anyway removing this doesn't show all the options, just some of them,
+so there are more problems with the net/sched/Kconfig file.
+
+
+-- 
+David Gómez                                      Jabber ID: davidge@jabber.org

@@ -1,84 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030513AbVKPVdS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030479AbVKPVfe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030513AbVKPVdS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 16:33:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030514AbVKPVdS
+	id S1030479AbVKPVfe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 16:35:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030498AbVKPVfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 16:33:18 -0500
-Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:50331 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S1030513AbVKPVdR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 16:33:17 -0500
+	Wed, 16 Nov 2005 16:35:34 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:43906 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1030496AbVKPVfd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 16:35:33 -0500
+Date: Wed, 16 Nov 2005 22:35:17 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: Greg KH <greg@kroah.com>,
+       Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [linux-pm] [RFC] userland swsusp
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Greg KH <greg@kroah.com>
-Cc: "Gross, Mark" <mark.gross@intel.com>, Pavel Machek <pavel@ucw.cz>,
-       Dave Jones <DaveJ@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>
-In-Reply-To: <20051116164429.GA5630@kroah.com>
-References: <F760B14C9561B941B89469F59BA3A8470BDD12EB@orsmsx401.amr.corp.intel.com>
-	 <20051116164429.GA5630@kroah.com>
-Content-Type: text/plain
-Organization: Cyclades
-Message-Id: <1132172445.25230.73.camel@localhost>
+Message-ID: <20051116213517.GD12505@elf.ucw.cz>
+References: <20051115212942.GA9828@elf.ucw.cz> <20051115222549.GF17023@redhat.com> <20051115233201.GA10143@elf.ucw.cz> <1132115730.2499.37.camel@localhost> <20051116061459.GA31181@kroah.com> <1132120845.25230.13.camel@localhost> <20051116165023.GB5630@kroah.com> <1132171051.25230.53.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 17 Nov 2005 07:20:45 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1132171051.25230.53.camel@localhost>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hi, all!
 
-On Thu, 2005-11-17 at 03:44, Greg KH wrote:
-> Please, everyone realize that Nigel's code is not going to be merged
-> into mainline as it is today.  He knows it, and everyone else involved
-> knows it.  Nigel also knows the proper procedure for getting his changes
-> into mainline, if he so desires, as we all sat in a room last July and
-> discussed this (lwn.net has a summary somewhere about it too...)
-
-Do you mean "as it was in July"? I haven't been sitting on my hands
-since July :)  My wife will testify to that!
-
-I've been working on implementing the last new features I want in,
-fixing bugs and generally making it as stable and reliable as I can.
-(Sorry Andrew, but I'm being a perfectionist). At the same time, many of
-the parts that made Suspend2 be considered huge and ugly have been
-merged. The pm_message_t stuff, for example, was adopted early by
-Suspend2 and part of those stats you saw in July. The patch currently
-still includes the workqueue nofreeze patch, Christoph's todo list
-freezer modifications. These account for virtually all of the changes
-outside of kernel/power.
-
-I've also split the one patch that most people see into what is
-currently about 225 smaller patches, each adding only one small part, am
-writing descriptions for them all and am preparing to build a git tree
-from it.
-
-Hopefully that shows that I am working toward merging, just maybe not in
-the way that you were imagining. You'll remember that I've argued before
-that trying to patch swsusp into Suspend2 is infeasible. I'm not even
-trying to do it.
-
-Regards,
-
-Nigel
-
-> So, here's Pavel trying to make things better and people are complaining
-> about it.  Argue that the technical points are invalid (like Dave did.)
-> But don't just sit around and kvetch, that doesn't help out anyone.
+> > > > It's also implemented in the kernel, which is exactly the wrong place
+> > > > for this.  Pavel is doing this properly, why do you doubt him?
+> > > 
+> > > You yourself called it a hack not long ago.
+> > 
+> > I did, in the proud tradition of neat hacks.  It's a very nice
+> > accomplishment that this even works, and I'm impressed.
+> > 
+> > > I'm not sure why you think the userspace is the right place for
+> > > suspending.
+> > 
+> > If he can come up with an implementation that works, and puts stuff like
+> > the pretty spinning wheels and progress bars and encryption in
+> > userspace, that's great.  That stuff doesn't belong in the kerenel if we
+> > can possibly help it.
 > 
-> thanks,
+> I can agree with putting splash screens and userspace stuff in
+> userspace. Suspend2 has had that too, since March. But the guts of
+> the
+
+Well, I'd say that having to resort to netlink is ... not quite
+nice. You get all the complexity of having userspace running during
+suspend, and get very little benefit.
+
+> code is a different thing. Encryption - well, I think we're both using
+> cryptoapi now, so that's more easily done in the kernel.
+
+Its not only encryption. It is encryption, compression, support for
+suspend over network, support for suspend into file. That's quite a
+lot of stuff.
+
+> > Then propose a better way to do this, if you can see one.
 > 
-> greg k-h
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> We've done the user interface in userspace using netlink to
+> communication.
+> 
+> We've done storing a full image of memory by storing the page cache
+> separately to the rest of the image, so that it doesn't need to have an
+> atomic copy made. (Nothing that uses the page cache is running anyway).
+> Having done this, we can use the memory occupied by the page cache for
+> our atomic copy, and just reread the overwritten page cache pages if we
+> need to cancel the suspend. Suspend2 has done this since... beta18 I
+> think.
+
+...at expense of complexity, and hooks all over the kernel. Yes, if
+you modify kernel a bit, nothing will use the page cache.
+
+Anyway, I believe we have solution for that one. See Rafael's recent
+patches -- "only free as much memory as neccessary" should do the
+trick, without excessive complexity.
+
+> > > I know that Pavel and I have such different ideas about what should be
+> > > done that it's not worth the effort.
+> > 
+> > I'm sorry that you feel this way.  I thought that after our meeting in
+> > July that things were different.
+> 
+> I'm sorry you came away with that impression. I want to work together,
+> but I'm not willing to settle for a minimalist implementation. Pavel, on
+> the other hand, wanted a minimalist implementation at first. He seems to
+> be changing his mind a bit now, but I'm not sure how far that will go.
+
+Well, I do not want the complexity of two page sets. I think Rafael's
+patches will provide almost equivalent functionality. Other than that,
+all your features should be doable. I'm not saying I'm going to write
+those patches myself, but I'll certainly not reject them just because
+they are too big.
+								Pavel
 -- 
-
-
+Thanks, Sharp!

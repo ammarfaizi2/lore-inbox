@@ -1,102 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965216AbVKPDXa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965207AbVKPDWe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965216AbVKPDXa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 22:23:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965208AbVKPDXR
+	id S965207AbVKPDWe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 22:22:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965209AbVKPDWe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 22:23:17 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:8408 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S965216AbVKPDW4
+	Tue, 15 Nov 2005 22:22:34 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:3288 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S965207AbVKPDWc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 22:22:56 -0500
-Subject: [RFC][PATCH 6/6] PCI PM: pci_save/restore_state improvements
+	Tue, 15 Nov 2005 22:22:32 -0500
+Subject: [RFC][PATCH 2/6] PCI PM: capability probing and setup
 From: Adam Belay <abelay@novell.com>
 To: Linux-pm mailing list <linux-pm@lists.osdl.org>, Greg KH <gregkh@suse.de>
 Cc: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Date: Tue, 15 Nov 2005 22:31:42 -0500
-Message-Id: <1132111902.9809.59.camel@localhost.localdomain>
+Date: Tue, 15 Nov 2005 22:31:17 -0500
+Message-Id: <1132111878.9809.52.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes some improvements to pci_save_state and
-pci_restore_state.  Instead of saving and restoring all standard
-registers (even read-only ones), it only restores necessary registers.
-Also, the command register is handled more carefully.  Let me know if
-I'm missing anything important.
+This patch updates the PCI subsystem to probe the PCI capability
+registers in one pass.  This data is stored in "struct pci_dev_pm".  As
+a result, we can avoid having to redetect PCI PM support in every PM
+related call.  Also, we don't have to access PCI config space as often.
+
+"struct pci_dev_pm" will likely be expanded to include PM accounting
+data in the near future.
 
 
---- a/drivers/pci/pm.c	2005-11-13 20:32:24.000000000 -0500
-+++ b/drivers/pci/pm.c	2005-11-13 20:29:32.000000000 -0500
-@@ -53,10 +53,13 @@
-  */
- int pci_save_state(struct pci_dev *dev)
- {
--	int i;
--	/* XXX: 100% dword access ok here? */
--	for (i = 0; i < 16; i++)
--		pci_read_config_dword(dev, i * 4,&dev->saved_config_space[i]);
-+	struct pci_dev_config * conf = &dev->saved_config;
-+
-+	pci_read_config_word(dev, PCI_COMMAND, &conf->command);
-+	pci_read_config_byte(dev, PCI_CACHE_LINE_SIZE, &conf->cacheline_size);
-+	pci_read_config_byte(dev, PCI_LATENCY_TIMER, &conf->latency_timer);
-+	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &conf->interrupt_line);
-+
- 	return 0;
+--- a/drivers/pci/pm.c	2005-11-07 08:08:00.000000000 -0500
++++ b/drivers/pci/pm.c	2005-11-07 08:09:11.000000000 -0500
+@@ -294,3 +294,60 @@
  }
  
-@@ -68,10 +71,20 @@
-  */
- int pci_restore_state(struct pci_dev *dev)
- {
--	int i;
-+	u16 command;
-+	struct pci_dev_config * conf = &dev->saved_config;
+ EXPORT_SYMBOL(pci_enable_wake);
 +
-+	command = conf->command & ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY |
-+				    PCI_COMMAND_MASTER);
 +
-+	pci_write_config_word(dev, PCI_COMMAND, command);
-+	pci_write_config_byte(dev, PCI_CACHE_LINE_SIZE, conf->cacheline_size);
-+	pci_write_config_byte(dev, PCI_LATENCY_TIMER, conf->latency_timer);
-+	pci_write_config_byte(dev, PCI_INTERRUPT_PIN, conf->interrupt_line);
-+	
-+	pci_restore_bars(dev);
-+	
++/*
++ * PCI PM capability detection and setup
++ */
++
++int pci_setup_device_pm(struct pci_dev *dev)
++{
++	int pm;
++	u16 pmcsr, pmc;
++	struct pci_dev_pm *pm_data;
++
++	pm = pci_find_capability(dev, PCI_CAP_ID_PM);
++	if (!pm) {
++		dev->current_state = PCI_D0;
++		return 0;
++	}
++
++	pci_read_config_word(dev,pm + PCI_PM_PMC,&pmc);
++
++	if ((pmc & PCI_PM_CAP_VER_MASK) > 3) {
++		printk(KERN_DEBUG
++		       "PCI: %s has unsupported PM cap regs version (%u)\n",
++		       pci_name(dev), pmc & PCI_PM_CAP_VER_MASK);
++		return -EIO;
++	}
++
++	dev->pm = pm_data = kmalloc(sizeof(struct pci_dev_pm), GFP_KERNEL);
++	if (!pm_data)
++		return -ENOMEM;
++
++	memset(pm_data, 0, sizeof(struct pci_dev_pm));
++
++	pm_data->pm_offset = pm;
++
++	/* determine supported device states */
++	/* all PM capable devices support at least D0 and D3 */
++	pm_data->state_mask |= ((1 << PCI_D0) | (1 << PCI_D3hot));
++	if (pmc & PCI_PM_CAP_D1)
++		pm_data->state_mask |= (1 << PCI_D1);
++	if (pmc & PCI_PM_CAP_D2)
++		pm_data->state_mask |= (1 << PCI_D2);
++
++	/* PME capabilities */
++	pm_data->pme_mask = ((pmc & PCI_PM_CAP_PME_MASK)
++			 >> (ffs(PCI_PM_CAP_PME_MASK) - 1));
++
++	pci_read_config_word(dev, pm + PCI_PM_CTRL, &pmcsr);
++
++	/* device context retention */
++	pm_data->dsi = (pmc & PCI_PM_CAP_DSI) ? 1 : 0;
++	pm_data->no_soft_reset = (pmcsr & PCI_PM_CTRL_NO_SOFT_RESET) ? 1 : 0;
++
++	dev->current_state = (pmcsr & PCI_PM_CTRL_STATE_MASK);
++
++	return 0;
++}
+--- a/drivers/pci/probe.c	2005-11-07 08:08:00.000000000 -0500
++++ b/drivers/pci/probe.c	2005-11-07 08:05:10.000000000 -0500
+@@ -601,8 +601,7 @@
+ 	pr_debug("PCI: Found %s [%04x/%04x] %06x %02x\n", pci_name(dev),
+ 		 dev->vendor, dev->device, class, dev->hdr_type);
  
--	for (i = 0; i < 16; i++)
--		pci_write_config_dword(dev,i * 4, dev->saved_config_space[i]);
- 	return 0;
- }
+-	/* "Unknown power state" */
+-	dev->current_state = PCI_UNKNOWN;
++	pci_setup_device_pm(dev);
  
---- a/include/linux/pci.h	2005-11-08 17:10:22.000000000 -0500
-+++ b/include/linux/pci.h	2005-11-13 20:21:20.000000000 -0500
-@@ -68,6 +68,13 @@
+ 	/* Early fixups, before probing the BARs */
+ 	pci_fixup_device(pci_fixup_early, dev);
+--- a/include/linux/pci.h	2005-11-07 08:08:00.000000000 -0500
++++ b/include/linux/pci.h	2005-11-07 08:02:55.000000000 -0500
+@@ -68,6 +68,18 @@
  #define DEVICE_COUNT_COMPATIBLE	4
  #define DEVICE_COUNT_RESOURCE	12
  
-+struct pci_dev_config {
-+	unsigned short	command;
-+	unsigned char	cacheline_size;
-+	unsigned char	latency_timer;
-+	unsigned char	interrupt_line;
++struct pci_dev_pm {
++	unsigned int	pm_offset;	/* the PCI PM capability offset */
++
++	unsigned int	dsi:1;		/* vendor-specific initialization needed
++					   after a reset */
++	unsigned int	no_soft_reset:1; /* PCI config context retained when
++					    going from D3_hot to D0 */
++
++	unsigned char	state_mask;	/* a mask of supported power states */
++	unsigned char	pme_mask;	/* a mask of power states that allow #PME */ 
 +};
 +
- struct pci_dev_pm {
- 	unsigned int	pm_offset;	/* the PCI PM capability offset */
+ typedef int __bitwise pci_power_t;
  
-@@ -152,7 +159,7 @@
- 	unsigned int	is_busmaster:1; /* device is busmaster */
- 	unsigned int	no_msi:1;	/* device may not use msi */
+ #define PCI_D0		((pci_power_t __force) 0)
+@@ -78,6 +90,12 @@
+ #define PCI_UNKNOWN	((pci_power_t __force) 5)
+ #define PCI_POWER_ERROR	((pci_power_t __force) -1)
  
--	u32		saved_config_space[16]; /* config space saved at suspend time */
-+	struct pci_dev_config saved_config; /* config space saved for power management */
- 	struct bin_attribute *rom_attr; /* attribute descriptor for sysfs ROM entry */
- 	int rom_attr_enabled;		/* has display of the rom attribute been enabled? */
- 	struct bin_attribute *res_attr[DEVICE_COUNT_RESOURCE]; /* sysfs file for resources */
++#define PCI_PME_D0	0x01;
++#define PCI_PME_D1	0x02;
++#define PCI_PME_D2	0x04;
++#define PCI_PME_D3hot	0x08;
++#define PCI_PME_D3cold	0x10;
++
+ /*
+  * The pci_dev structure is used to describe PCI devices.
+  */
+@@ -106,6 +124,7 @@
+ 					   this if your device has broken DMA
+ 					   or supports 64-bit transfers.  */
+ 
++	struct pci_dev_pm *pm;		/* power management information */
+ 	pci_power_t     current_state;  /* Current operating state. In ACPI-speak,
+ 					   this is D0-D3, D0 being fully functional,
+ 					   and D3 being off. */
 
 

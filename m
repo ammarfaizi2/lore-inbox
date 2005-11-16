@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965189AbVKPDEK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965198AbVKPDOs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965189AbVKPDEK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 22:04:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965196AbVKPDEK
+	id S965198AbVKPDOs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 22:14:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965199AbVKPDOr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 22:04:10 -0500
-Received: from zproxy.gmail.com ([64.233.162.194]:31534 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965189AbVKPDEJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 22:04:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=jdC9CvCqoE1VhFfe7k0cgV6FPLI+SpINZf917WSfXv6TzHgG5VPkSNiDDU/iMc+VbxlVJIZPn5z7S4tcUorKyLXgmzZ7u2n59DJPoJE+bCmy4hztPH6xubwm3AOZPV0arjSlr8dMiR21nN8y5glnl4PJ4l951I0rq/PReiDTw0g=
-Message-ID: <437AA1A0.6080409@gmail.com>
-Date: Wed, 16 Nov 2005 12:04:00 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Carlos Pardo <Carlos.Pardo@siliconimage.com>
-Subject: Re: [PATCH] libata error handling fixes (ATAPI)
-References: <20051114195717.GA24373@havoc.gtf.org> <20051115074148.GA17459@htj.dyndns.org> <4379AA5B.1060900@pobox.com> <4379E5F7.6000107@gmail.com> <4379EC82.1030509@pobox.com>
-In-Reply-To: <4379EC82.1030509@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Nov 2005 22:14:47 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:14071 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S965198AbVKPDOq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 22:14:46 -0500
+Date: Tue, 15 Nov 2005 20:15:20 -0700
+From: "Mark A. Greer" <mgreer@mvista.com>
+To: Andrey Volkov <avolkov@varma-el.com>
+Cc: Jean Delvare <khali@linux-fr.org>, lm-sensors@lm-sensors.org,
+       linux-kernel@vger.kernel.org, "Mark A. Greer" <mgreer@mvista.com>
+Subject: Re: [PATCH 1/1] Added support of ST m41t85 rtc chip
+Message-ID: <20051116031520.GL5546@mag.az.mvista.com>
+References: <4378960F.8030800@varma-el.com> <20051115215226.4e6494e0.khali@linux-fr.org> <437A57CB.8090302@varma-el.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <437A57CB.8090302@varma-el.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 
-> The port stops, when any error occurs.  For device errors, set 
-> PORT_CS_INIT bit in PORT_CTRL_STAT, then wait for Port Ready (bit 31, 
-> see above).
-> 
+On Wed, Nov 16, 2005 at 12:48:59AM +0300, Andrey Volkov wrote:
 
-Yeap, this did the trick.  I'm working on SRST/init stuff and I think I 
-can post patches later today.  What workload do you use for testing a 
-ATAPI device?  I'm currently thinking of the following...
+<snip>
 
-* mounting & tarr'ing cdrom & unmount
-* repeat above with eject/load
-* burning a cdrom
-* ripping a music cd with cdparanoia
+> > 
+> > Mark, care to comment on that possibility, and/or on the code itself?
+> > 
+> And, please, remove unnecessary PPC dependence from Kconfig.
 
-Any other thing I can try?
+When I originally submitted the m41t00 patch, I made it clear that it
+was PPC only and gave the reason why:
 
--- 
-tejun
+http://archives.andrew.net.au/lm-sensors/msg29280.html
+
+What processor arch did you test your m41t85 driver on?
+AFAICT, PPC is the only arch that uses that exact definition of
+get/set_rtc_time().
+
+Mark

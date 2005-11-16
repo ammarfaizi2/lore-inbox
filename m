@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030476AbVKPWEN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030524AbVKPWFl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030476AbVKPWEN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 17:04:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030522AbVKPWEN
+	id S1030524AbVKPWFl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 17:05:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030525AbVKPWFk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 17:04:13 -0500
-Received: from web34102.mail.mud.yahoo.com ([66.163.178.100]:44456 "HELO
-	web34102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030476AbVKPWEM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 17:04:12 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=SimfUxYBcdwnrKvug6Tqnw4Y+SZ/ve0/9qDa5yFARj1CrpAo5LP7yVzpHeIqUJdfBNe3MJHF7EbTMRjBKmKpHd1G3gxnnaHatJvCFHQ8djZ25TkU9jaeUxpUZNI4xqlhYEaRw9TWajysxoGM4y1DORk0x82vJQGCD4oulUzLX9Y=  ;
-Message-ID: <20051116220406.25675.qmail@web34102.mail.mud.yahoo.com>
-Date: Wed, 16 Nov 2005 14:04:06 -0800 (PST)
-From: Kenny Simpson <theonetruekenny@yahoo.com>
-Subject: Re: mmap over nfs leads to excessive system load
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <1132178234.8811.64.camel@lade.trondhjem.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 16 Nov 2005 17:05:40 -0500
+Received: from mgrava.tizianodinca.com ([195.47.199.19]:29622 "EHLO
+	mail2.rhx.it") by vger.kernel.org with ESMTP id S1030524AbVKPWFj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 17:05:39 -0500
+Date: Wed, 16 Nov 2005 23:05:37 +0100
+From: Michele Baldessari <michele@pupazzo.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: OOPS - 2.6.14.2 | 2.6.15-rc1-git4 - qla2xxx
+Message-ID: <20051116220537.GA24359@michele.pupazzo.org>
+Mail-Followup-To: Lee Revell <rlrevell@joe-job.com>,
+	linux-kernel@vger.kernel.org
+References: <20051116193608.GA8500@michele.pupazzo.org> <1132170157.27215.63.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <1132170157.27215.63.camel@mindpipe>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> I'm getting lost here. Please could you spell out the testcases that are
-> not working.
+* Lee Revell (rlrevell@joe-job.com) wrote:
+> On Wed, 2005-11-16 at 20:36 +0100, Michele Baldessari wrote:
+> > Hi,
+> > 
+> > As per subject I get an OOPS on bootup with qla2xx cards using 2.6.14.2
+> > or 2.6.15-rc1-git4. Description follows:
 > 
-> Are you saying that the combination mmap() + pwrite64() fails on
-> O_DIRECT, but works on ordinary open, and that mmap() + ftruncate64()
-> always works?
-> 
-> Cheers,
->   Trond
-> 
-ftruncate64 works with O_DIRECT
-ftruncate64 works w/o O_DIRECT
+> This is not an Oops it's a soft lockup.  It means some program ran in
+> the kernel for a long time without rescheduling which is considered a
+> bug.
 
-pwrite64 FAILS with O_DIRECT at ~4GB
-pwrite64 works w/o O_DIRECT.
+Ah I see, thanks for the correction ;)
+ 
+Given it didn't happen on 2.6.13.4 I thought I'd post about it, still
+worth fixing IMO.
 
-I am re-running these tests to confirm (could take a minute).
-
-All opens are with O_RDWR | O_CREAT | O_LARGEFILE.
-All test over GbE w/ jumbo frames (8160 mtu) to a netapp filer (via x-over cable).
-
--Kenny
-
-
-
-		
-__________________________________ 
-Yahoo! FareChase: Search multiple travel sites in one click.
-http://farechase.yahoo.com
+--
+Michele

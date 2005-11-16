@@ -1,45 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030551AbVKPWsZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030550AbVKPWvL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030551AbVKPWsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 17:48:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030550AbVKPWsT
+	id S1030550AbVKPWvL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 17:51:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030552AbVKPWvK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 17:48:19 -0500
-Received: from 90.Red-213-97-199.staticIP.rima-tde.net ([213.97.199.90]:33365
-	"HELO fargo") by vger.kernel.org with SMTP id S1030552AbVKPWsG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 17:48:06 -0500
-Date: Wed, 16 Nov 2005 23:47:46 +0100
-From: David =?utf-8?B?R8OzbWV6?= <david@pleyades.net>
-To: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
-Subject: Re: /net/sched/Kconfig broken
-Message-ID: <20051116224746.GB8903@fargo>
-Mail-Followup-To: "David S. Miller" <davem@davemloft.net>,
-	linux-kernel@vger.kernel.org
-References: <20051116194414.GA14953@fargo> <20051116.115141.33136176.davem@davemloft.net> <20051116201020.GA15113@fargo>
+	Wed, 16 Nov 2005 17:51:10 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:45251 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1030550AbVKPWvJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 17:51:09 -0500
+Date: Wed, 16 Nov 2005 23:50:47 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: Greg KH <greg@kroah.com>, "Gross, Mark" <mark.gross@intel.com>,
+       Dave Jones <DaveJ@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+Subject: Re: [linux-pm] [RFC] userland swsusp
+Message-ID: <20051116225047.GJ12505@elf.ucw.cz>
+References: <F760B14C9561B941B89469F59BA3A8470BDD12EB@orsmsx401.amr.corp.intel.com> <20051116164429.GA5630@kroah.com> <1132172445.25230.73.camel@localhost> <20051116220500.GF12505@elf.ucw.cz> <1132175574.25230.111.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20051116201020.GA15113@fargo>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <1132175574.25230.111.camel@localhost>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-On Nov 16 at 09:10:20, David Gómez wrote:
-> > I can enable this just fine by using "make config", making
-> > sure to enable CONFIG_NET_SCHED, then CONFIG_NET_CLS_BASIC,
-> > and then the necessary classifiers (including U32) are offered
-> > to be enabled.
+> > > I've also split the one patch that most people see into what is
+> > > currently about 225 smaller patches, each adding only one small part, am
+> > > writing descriptions for them all and am preparing to build a git tree
+> > > from it.
+> > 
+> > I'm not sure that gets suspend2 any closer to merging. 225 small
+> > patches is still awful lot of code :-(. Now... if something can be
+> > done in userspace, it probably should. And I'm trying to show that
+> > suspend2 functionality can indeed be done in userspace.
+> > 
+> > So... to get 225 patches in, you'll need to explain that
+> > userland-swsusp can't work. If you can do that, please be nice and do
+> > it soon, so that I don't waste too much time on userland-swsusp.
 > 
-> Sorry for not giving more details. I'm using make menuconfig
-> in a 2.6.14 kernel After selecting CONFIG_NET_SCHED and CONFIG_NET_CLS_BASIC
-> i don't see new options, the last option visible is NET_CLS_ROUTE4.
+> I thought Dave already did that.
 
-I tested 'gconfig' and i'm able to see all the options in the QoS menu,
-so the problem seems 'menuconfig' related...
+No, I do not think so. He did not like the user<->kernel interface;
+but that can be changed (and Rafael has plans to do that). I think we
+can present nicer interface to userland without much code. Or maybe
+not; but we can certainly limit /dev/kmem for suspend only -- and that
+should make it acceptable security-wise.
+
+                                                                Pavel
 
 -- 
-David Gómez                                      Jabber ID: davidge@jabber.org
+Thanks, Sharp!

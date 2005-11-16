@@ -1,57 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030358AbVKPPJq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030366AbVKPPKK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030358AbVKPPJq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 10:09:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030362AbVKPPJq
+	id S1030366AbVKPPKK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 10:10:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030364AbVKPPKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 10:09:46 -0500
-Received: from xproxy.gmail.com ([66.249.82.203]:4327 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030358AbVKPPJp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 10:09:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=X0UjNJOD5aSU8V75N/h2W2frLCfFJeCyFE24M5oBlNYiQ88Cnkn3W6UC+q9tojtcnIiuZOsKXe5qPPlG8cZNfb/88mfQtSEBlNuPnhpg9W+mYO/NIzNgGAZO/xCG96FFx6gPMY1XeLs5s1dEA6Aizi6TiSUdEPHOU6XkvEODlpI=
-Message-ID: <5bdc1c8b0511160709r47c1a9afk18e47a83ced2743d@mail.gmail.com>
-Date: Wed, 16 Nov 2005 07:09:44 -0800
-From: Mark Knecht <markknecht@gmail.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: 2.6.15-rc1 - NForce4 PCI-E agpgart support?
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1132153102.2834.37.camel@laptopd505.fenrus.org>
+	Wed, 16 Nov 2005 10:10:10 -0500
+Received: from mail.linicks.net ([217.204.244.146]:32691 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S1030365AbVKPPKI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 10:10:08 -0500
+From: Nick Warne <nick@linicks.net>
+To: kaos@ocs.com.au
+Subject: 2.4.31 make - path name breakage (perhaps)
+Date: Wed, 16 Nov 2005 15:09:04 +0000
+User-Agent: KMail/1.8.1
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <5bdc1c8b0511160650k4a9e0575h29403a5de47af952@mail.gmail.com>
-	 <1132153102.2834.37.camel@laptopd505.fenrus.org>
+Message-Id: <200511161509.04855.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/16/05, Arjan van de Ven <arjan@infradead.org> wrote:
-> On Wed, 2005-11-16 at 06:50 -0800, Mark Knecht wrote:
-> > Hi,
-> >    I downloaded and built 2.6.15-rc1 as a test assuming Ingo will
-> > release -rt support for this one of these days. (No rush Ingo!) It
-> > booted on my AMD64 machine and is running fine AFAICT.
-> >
-> >    One thing I was expecting to see was agpgart support for the
-> > NForce4 chipset. Is this something that's coming or am I missing where
-> > the configuration is done?
-> >
-> >    I have a PCI-Express based Radeon and would like to get better
-> > performance. I'm presuming that agpgart support is part of that
-> > solution? (As it was on earlier architectures?)
->
-> I'm pretty sure PCI-Express and AGP are mutually exclusive....
+Hi Keith,
 
-Ah, of course! My bad... They are different buses and connectors. I
-was really thinking more of the 'gart' part of the agpgart.
+I googled a bit on this, but the nature of the bug makes it impossible to 
+search properly.
 
-Is there any requirement/need/value for something like a PCI-E-gart?
-Or does this relocation requirement go out the window somehow when a
-graphics device moves to PCI-Express?
+I found this out as I was trying to build Netgear router DG834 firmware from 
+GPL source, and make dep fails.
 
-Thanks,
-Mark
+The reason is due to the untarred path name that includes () I found.
+
+I tested on virgin kernel 2.4.31 with GNU Make version 3.79.1.
+
+top level directory of kernel source as a test:
+
+linux-2.4.31(test)/
+
+And the errors (with a lot removed) - it does a little first then:
+
+> make mrproper
+/bin/sh: -c: line 1: syntax error near unexpected token 
+`/home/nick/kernel/linux-2.4.31(t'
+...
+...
+make: *** [mrproper] Error 2
+
+> make dep
+/bin/sh: -c: line 1: syntax error near unexpected token 
+`/home/nick/kernel/linux-2.4.31(test)'
+...
+...
+make[2]: *** [fastdep] Error 2
+make[2]: Leaving directory `/home/nick/kernel/linux-2.4.31(test)/kernel'
+make[1]: *** [_sfdep_kernel] Error 2
+make[1]: Leaving directory `/home/nick/kernel/linux-2.4.31(test)'
+make: *** [dep-files] Error 2
+
+
+
+I haven't a clue if this is a 'make' issue or not, but a few tests on other 
+source builds ok.
+
+Nick
+-- 
+http://sourceforge.net/projects/quake2plus/
+
+"Person who say it cannot be done should not interrupt person doing it."
+-Chinese Proverb
+

@@ -1,58 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030515AbVKPVuK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030517AbVKPVwW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030515AbVKPVuK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 16:50:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030519AbVKPVuK
+	id S1030517AbVKPVwW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 16:52:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030519AbVKPVwW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 16:50:10 -0500
-Received: from pat.uio.no ([129.240.130.16]:50587 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1030515AbVKPVuI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 16:50:08 -0500
-Subject: Re: mmap over nfs leads to excessive system load
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andrew Morton <akpm@osdl.org>
-Cc: theonetruekenny@yahoo.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20051116133130.625cd19b.akpm@osdl.org>
-References: <20051116150141.29549.qmail@web34113.mail.mud.yahoo.com>
-	 <1132163057.8811.15.camel@lade.trondhjem.org>
-	 <20051116100053.44d81ae2.akpm@osdl.org>
-	 <1132166062.8811.30.camel@lade.trondhjem.org>
-	 <20051116110938.1bf54339.akpm@osdl.org>
-	 <1132171500.8811.37.camel@lade.trondhjem.org>
-	 <20051116133130.625cd19b.akpm@osdl.org>
-Content-Type: text/plain
-Date: Wed, 16 Nov 2005 16:49:45 -0500
-Message-Id: <1132177785.8811.57.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Wed, 16 Nov 2005 16:52:22 -0500
+Received: from ihug-mail.icp-qv1-irony4.iinet.net.au ([203.59.1.198]:6784 "EHLO
+	ihug-mail.icp-qv1-irony4.iinet.net.au") by vger.kernel.org with ESMTP
+	id S1030517AbVKPVwV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 16:52:21 -0500
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAA==
+Message-ID: <437BAA0E.2020602@eyal.emu.id.au>
+Date: Thu, 17 Nov 2005 08:52:14 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+CC: list linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: hware clock left bad after a system failure
+References: <437B3C62.2090803@eyal.emu.id.au> <Pine.LNX.4.61.0511161037130.12055@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0511161037130.12055@chaos.analogic.com>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.724, required 12,
-	autolearn=disabled, AWL 1.28, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-16 at 13:31 -0800, Andrew Morton wrote:
-> But block-backed filesytems have the same concern: we don't want to do a
-> whole bunch of 4k I/Os.  Hence the writepages() interface, which is the
-> appropriate place to be building up these large I/Os.
+linux-os (Dick Johnson) wrote:
+> On Wed, 16 Nov 2005, Eyal Lebedinsky wrote:
 > 
-> NFS does nfw_writepages->mpage_writepages->nfs_writepage and to build the
-> large I/Os it leaves the I/O pending on return from nfs_writepage().  It
-> appears to flush any pending pages on the exit path from nfs_writepages().
 > 
-> If that's a correct reading then there doesn't appear to be any way in
-> which there's dangling I/O left to do after nfs_writepages() completes.
+>>I recently had two cases where my machine locked up and needed
+>>a hard reset. The last time magic SysRq did not respond at all.
+>>
+>>In these cases I found that the hware clock was set incorrectly
+>>and the machine comes up with a bad date. It seems that the clock
+>>is ahead by as much as my TZ (+10 in my case). I may be able
+>>to understand if it was set 10h behind (kernel set it to UTC)
+>>but this is the other way. The machine comes up with UTC+20.
+>>
+>>Now this is just trouble. The machine comes up and spends 15m
+>>fscking. I then reset the clock and reboot and it does the whole
+>>fsck again because it thinks the fs was not checked for eons. It
+>>does not understand time in the future.
+>>
+>>So the points are
+>>
+>>- why is the clock mangled in this way?
+> 
+> 
+> I am assuming that you have an ix86 kind of machine.
+> 
+> It's probably mangled because you had a hardware-crash.
+> 
+> If you have a driver that accesses the RTC, it needs to leave
+> the index register at offset 0 so that a hardware crash can
+> only upset the seconds. Otherwise, even the RTC checksum
+> can get screwed up, forcing manual reconfiguration of the
+> BIOS.
+> 
+> During a hardware-crash, the chip enables may go TRUE. This
+> means that an RTC write can occur with junk that's on the
+> data-bus.
+> 
+> Now, you need to find out why you had a hardware-crash which
+> is quite unlike a software-crash. A hardware crash occurs when
+> you turn OFF the power or the power-good line from the
+> power-supply goes FALSE. You do not get a hardware-crash from
+> hitting the reset button. You may have induced the RTC failure
+> if you hit the power switch instead of the reset button.
 
-Agreed. AFAICS, nfs_writepages should be quite OK, however writepage()
-on its own _is_ problematic.
+I hit the reset. In one case I managed to reboot using magic SysRq.
 
-Look at the usage in write_one_page(), which calls directly down to
-->writepage(), and then immediately does a wait_on_page_writeback().
+The crashes are related to disk problems. In one case the hda/b
+controller went down (last message said DMA disabled on both)
+and in another case the system was doing a proper shutdown
+when it failed to complete and a reset was necessary. I suspect
+a problem with the SATA card which I know has some driver issues
+(promise SATA II 150 TX4).
 
-How is the filesystem supposed to distinguish between the cases
-"VM->writepage()", and "VM->writepages->mpage_writepages->writepage()"?
+The point of the post was the fact that the clock was not randomly
+set but clearly at +20h after the reboot. This was the case in the
+last two crashes. This is too coincidental and I suspect that some
+logic does play with the RTC and if a proper shutdown does not
+complete it may not be restored correctly.
 
-Cheers,
-  Trond
-
+-- 
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+	attach .zip as .dat

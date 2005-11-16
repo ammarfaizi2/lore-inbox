@@ -1,61 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030417AbVKPRAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751481AbVKPRBu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030417AbVKPRAF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 12:00:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030414AbVKPRAF
+	id S1751481AbVKPRBu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 12:01:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbVKPRBu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 12:00:05 -0500
-Received: from mail.kroah.org ([69.55.234.183]:58765 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1030417AbVKPRAE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 12:00:04 -0500
-Date: Wed, 16 Nov 2005 08:44:29 -0800
-From: Greg KH <greg@kroah.com>
-To: "Gross, Mark" <mark.gross@intel.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Dave Jones <davej@redhat.com>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>
-Subject: Re: [linux-pm] [RFC] userland swsusp
-Message-ID: <20051116164429.GA5630@kroah.com>
-References: <F760B14C9561B941B89469F59BA3A8470BDD12EB@orsmsx401.amr.corp.intel.com>
+	Wed, 16 Nov 2005 12:01:50 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:46480 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751481AbVKPRBt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 12:01:49 -0500
+Date: Wed, 16 Nov 2005 09:02:25 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Thomas Gleixner <tglx@linutronix.de>, pluto@agmk.net,
+       john cooper <john.cooper@timesys.com>,
+       Benedikt Spranger <bene@linutronix.de>,
+       Daniel Walker <dwalker@mvista.com>,
+       Tom Rini <trini@kernel.crashing.org>,
+       George Anzinger <george@mvista.com>
+Subject: Re: 2.6.14-rt13
+Message-ID: <20051116170225.GC4976@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20051115090827.GA20411@elte.hu> <437AABFF.2010405@cybsft.com> <20051116084037.GC14829@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <F760B14C9561B941B89469F59BA3A8470BDD12EB@orsmsx401.amr.corp.intel.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20051116084037.GC14829@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 16, 2005 at 08:10:19AM -0800, Gross, Mark wrote:
-> I worry that this is just adding more thrash to a historically unstable
-> implementation.  How long do we users have to wait for a swsusp
-> implementation where we don't have to worry about breaking from one
-> kernel release to the next?
+On Wed, Nov 16, 2005 at 09:40:37AM +0100, Ingo Molnar wrote:
+> 
+> * K.R. Foley <kr@cybsft.com> wrote:
+> 
+> > >  - big RCU torture-test update (Paul E. McKenney)
+> > 
+> > In case anyone else makes the same mistake I did. If you are using the 
+> > same config from a previous build, you may have RCU_TORTURE_TEST=Y 
+> > (not module) and not even know it when running RT patches. You will 
+> > however definitely notice it if you use the config to build a non RT 
+> > kernel like 2.6.15-rc1. The previous RT patch defaulted 
+> > RCU_TORTURE_TEST=y. By the way, the fact that I didn't even notice 
+> > that the torture test was running with the RT kernel is a true measure 
+> > of how well things have progressed. :-)
+> 
+> yeah - i left it on by default, i usually do that with new debugging 
+> features, to give new code more exposure. In other words, mass 
+> distributed RCU stress-testing by stealth ;-)
 
-Never, you are hereby consigned to always have a broken swsusp
-implementation on your machines.
+Cool!!!  If anyone sees a printk line starting with "rcutorture:" 
+that includes the string "!!!", please pass it along accompanied by
+your config and what your workload was doing at the time.
 
-There, feel better?  Or perhaps you could join in and help with the
-current effort to make things better...
+						Thanx, Paul
 
-> I agree with this post http://lkml.org/lkml/2005/9/15/125 and note that
-> making too large of a change thrashes the users a lot and if it doesn't
-> solve a real problem or enable something critical, why make the changes?
-
-Ok, so you are happy with what we currently have in the kernel tree
-today?  Great, use that, I know it works for me and I'm happy with it...
-
-Please, everyone realize that Nigel's code is not going to be merged
-into mainline as it is today.  He knows it, and everyone else involved
-knows it.  Nigel also knows the proper procedure for getting his changes
-into mainline, if he so desires, as we all sat in a room last July and
-discussed this (lwn.net has a summary somewhere about it too...)
-
-So, here's Pavel trying to make things better and people are complaining
-about it.  Argue that the technical points are invalid (like Dave did.)
-But don't just sit around and kvetch, that doesn't help out anyone.
-
-thanks,
-
-greg k-h
+> I'll make it default-off once the RCU related changes have calmed down.  
+> The rcutorture kernel threads run at nice +19 so they should be barely 
+> noticeable. (except for a sudden and unexplained spike in the world's 
+> power consumption, and the resulting energy crisis ;-)
+> 
+> 	Ingo
+> 

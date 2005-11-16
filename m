@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030334AbVKPNqU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030329AbVKPNs2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030334AbVKPNqU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 08:46:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030327AbVKPNqU
+	id S1030329AbVKPNs2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 08:48:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030333AbVKPNs2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 08:46:20 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:63801 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1030319AbVKPNqT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 08:46:19 -0500
-Date: Wed, 16 Nov 2005 14:47:11 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Mike Christie <michaelc@cs.wisc.edu>, Tejun Heo <htejun@gmail.com>,
-       linux-ide@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH] libata error handling fixes (ATAPI)
-Message-ID: <20051116134711.GC7787@suse.de>
-References: <20051114195717.GA24373@havoc.gtf.org> <20051115074148.GA17459@htj.dyndns.org> <4379AA5B.1060900@pobox.com> <4379B28E.9070708@gmail.com> <4379C062.3010302@pobox.com> <20051115120016.GD7787@suse.de> <437A2814.1060308@cs.wisc.edu> <20051115184131.GJ7787@suse.de> <20051116124035.GX7787@suse.de> <437B34C9.8050105@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <437B34C9.8050105@pobox.com>
+	Wed, 16 Nov 2005 08:48:28 -0500
+Received: from mail.timesys.com ([65.117.135.102]:45752 "EHLO
+	postfix.timesys.com") by vger.kernel.org with ESMTP
+	id S1030329AbVKPNs2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 08:48:28 -0500
+Message-ID: <437B36DA.7090404@timesys.com>
+Date: Wed, 16 Nov 2005 08:40:42 -0500
+From: john cooper <john.cooper@timesys.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "venkata jagadish.p" <cpvjagadeesh@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       john cooper <john.cooper@timesys.com>
+Subject: Re: RT patched kernel debugging
+References: <437B5FD3.7020404@gmail.com>
+In-Reply-To: <437B5FD3.7020404@gmail.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
+X-OriginalArrivalTime: 16 Nov 2005 13:42:55.0906 (UTC) FILETIME=[A63E1820:01C5EAB3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 16 2005, Jeff Garzik wrote:
-> Jens Axboe wrote:
-> >I updated that patch, and converted IDE and SCSI to use it. See the
-> >results here:
-> >
-> >http://brick.kernel.dk/git/?p=linux-2.6-block.git;a=shortlog;h=blk-softirq
-> >
-> >The main change from the version posted last october is killing the
-> >'slightly' overdesigned completion queue hashing.
+venkata jagadish.p wrote:
+> Hi all,
+> I am trying to debug the RT patched kernel with UML. But it is showing 
+> these errors
+> My kernel version is 2.6.13 and applied patch-2.6.13-rt14 to this kernel
 > 
-> Oh yeah:  you shouldn't need to make scsi_retry_command() exported. 
-> It's private to scsi, to just publish it in scsi_priv.h.
+> 
+> gcc -Wall -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing 
+> -fno-common -ffreestanding -O2 -fno-omit-frame-pointer 
+> -fno-optimize-sibling-calls -g -D__arch_um__ -DSUBARCH=\"i386\" 
+> -Iarch/um/include -I/usr/src/linux-2.6.13/arch/um/kernel/tt/include 
+> -I/usr/src/linux-2.6.13/arch/um/kernel/skas/include -Dvmap=kernel_vmap 
+> -Derrno=kernel_errno -Dsigprocmask=kernel_sigprocmask 
+> -fno-unit-at-a-time -U__i386__ -Ui386 -D_LARGEFILE64_SOURCE 
+> -Wdeclaration-after-statement -Wno-pointer-sign -nostdinc -isystem 
+> /usr/lib/gcc/i386-redhat-linux/4.0.0/include -D__KERNEL__ -Iinclude -S 
+> -o arch/um/kernel-offsets.s arch/um/sys-i386/kernel-offsets.c
+> In file included from arch/um/sys-i386/kernel-offsets.c:3:
+> include/linux/sched.h: In function ‘set_tsk_need_resched_delayed’:
+> include/linux/sched.h:1465: error: ‘TIF_NEED_RESCHED_DELAYED’ undeclared 
+> (first use in this function)
 
-Oh right, I'll make that change. Thanks!
+That's odd.  Did the patch apply cleanly?
+TIF_NEED_RESCHED_DELAYED should be defined in
+include/asm-i386/thread_info.h for an i386
+target.
 
-> Tangent:  As part of my libata work, I'm thinking about un-exporting 
-> scsi_finish_command(), and instead exporting scsi_eh_flush_done_q() and 
-> scsi_eh_finish_cmd().
-
-Sounds ok.
+-john
 
 -- 
-Jens Axboe
-
+john.cooper@timesys.com

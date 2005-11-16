@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932585AbVKPFcO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932590AbVKPFo2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932585AbVKPFcO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 00:32:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932586AbVKPFcO
+	id S932590AbVKPFo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 00:44:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932589AbVKPFo1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 00:32:14 -0500
-Received: from smtpout6.uol.com.br ([200.221.4.197]:18609 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S932585AbVKPFcN
+	Wed, 16 Nov 2005 00:44:27 -0500
+Received: from dial169-252.awalnet.net ([213.184.169.252]:10255 "EHLO
+	raad.intranet") by vger.kernel.org with ESMTP id S932587AbVKPFo1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 00:32:13 -0500
-Date: Wed, 16 Nov 2005 03:31:56 -0200
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: Avuton Olrich <avuton@gmail.com>
-Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: [RFC] HOWTO do Linux kernel development - take 2
-Message-ID: <20051116053155.GC25037@ime.usp.br>
-Mail-Followup-To: Avuton Olrich <avuton@gmail.com>,
-	Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-	greg@kroah.com
-References: <20051115210459.GA11363@kroah.com> <3aa654a40511151352h5771060ekf1781b9d59b26b26@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Wed, 16 Nov 2005 00:44:27 -0500
+From: Al Boldi <a1426z@gawab.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 12/18] shared mount handling: bind and rbind
+Date: Wed, 16 Nov 2005 08:35:28 +0300
+User-Agent: KMail/1.5
+Cc: Ram Pai <linuxram@us.ibm.com>, Miklos Szeredi <miklos@szeredi.hu>,
+       Al Viro <viro@ftp.linux.org.uk>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, Rob Landley <rob@landley.net>
+References: <E1EZInj-0001Ez-AV@ZenIV.linux.org.uk> <200511152129.04079.rob@landley.net> <Pine.LNX.4.64.0511151948570.13959@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0511151948570.13959@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3aa654a40511151352h5771060ekf1781b9d59b26b26@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200511160835.28636.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 15 2005, Avuton Olrich wrote:
-> (functionalities is not a word, this maybe better)
+Linus Torvalds wrote:
+> This is why we have "pivot_root()" and "chroot()", which can both be used
+> to do what you want to do. You mount the new root somewhere else, and then
+> you chroot (or pivot-root) to it. And THEN you do 'chdir("/")' to move the
+> cwd into the new root too (and only at that point have you "lost" the old
+> root - although you can actually get it back if you have some file
+> descriptor open to it).
 
-Sorry, I am not a native English speaker, but I think that functionality
-is a word in English.
+Wouldn't this constitute a security flaw?
 
-<http://dictionary.reference.com/search?q=functionality>.
+Shouldn't chroot jail you?
 
-Anyway, Greg, I like your text so much that I will hand it to the
-instructor of "Technical English" at the University where I teach and,
-perhaps, some students will like what they read.
+--
+Al
 
-
-Thanks for the initiative, Rogério Brito.
-
--- 
-Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
-Homepage of the algorithms package : http://algorithms.berlios.de
-Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/

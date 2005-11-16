@@ -1,46 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965198AbVKPDOs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965197AbVKPDOV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965198AbVKPDOs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 22:14:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965199AbVKPDOr
+	id S965197AbVKPDOV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 22:14:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965198AbVKPDOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 22:14:47 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:14071 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S965198AbVKPDOq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 22:14:46 -0500
-Date: Tue, 15 Nov 2005 20:15:20 -0700
-From: "Mark A. Greer" <mgreer@mvista.com>
-To: Andrey Volkov <avolkov@varma-el.com>
-Cc: Jean Delvare <khali@linux-fr.org>, lm-sensors@lm-sensors.org,
-       linux-kernel@vger.kernel.org, "Mark A. Greer" <mgreer@mvista.com>
-Subject: Re: [PATCH 1/1] Added support of ST m41t85 rtc chip
-Message-ID: <20051116031520.GL5546@mag.az.mvista.com>
-References: <4378960F.8030800@varma-el.com> <20051115215226.4e6494e0.khali@linux-fr.org> <437A57CB.8090302@varma-el.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <437A57CB.8090302@varma-el.com>
-User-Agent: Mutt/1.5.9i
+	Tue, 15 Nov 2005 22:14:21 -0500
+Received: from gort.metaparadigm.com ([203.117.131.12]:18566 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id S965197AbVKPDOU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 22:14:20 -0500
+Message-ID: <437AA3EA.4030405@metaparadigm.com>
+Date: Wed, 16 Nov 2005 11:13:46 +0800
+From: Michael Clark <michael@metaparadigm.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+Subject: Re: userspace block driver?
+References: <4371A4ED.9020800@pobox.com>
+In-Reply-To: <4371A4ED.9020800@pobox.com>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 16, 2005 at 12:48:59AM +0300, Andrey Volkov wrote:
+Jeff Garzik wrote:
 
-<snip>
+>
+> Has anybody put any thought towards how a userspace block driver would
+> work?
+>
+> Consider a block device implemented via an SSL network connection.  I
+> don't want to put SSL in the kernel, which means the only other
+> alternative is to pass data to/from a userspace daemon.
+>
+> Anybody have any favorite methods?  [similar to] mmap'd packet socket?
+> ramfs?
 
-> > 
-> > Mark, care to comment on that possibility, and/or on the code itself?
-> > 
-> And, please, remove unnecessary PPC dependence from Kconfig.
 
-When I originally submitted the m41t00 patch, I made it clear that it
-was PPC only and gave the reason why:
+Here is a user block device i've been using for my own userspace block
+device drivers for some years now:
 
-http://archives.andrew.net.au/lm-sensors/msg29280.html
+  http://gort.metaparadigm.com/userblk/
 
-What processor arch did you test your m41t85 driver on?
-AFAICT, PPC is the only arch that uses that exact definition of
-get/set_rtc_time().
+This code is 2.6 based. 2.6 has made it much more reliable to do this
+due to the separation of writeback into the 'pdflush' thread lessening
+the likely hood of deadlocks. I've had very good results with this code
+under quite heavy memory pressure (you need a carefully written
+userspace which mlocks itself into memory and avoids doing certain things).
 
-Mark
+I wrote it because the nbd and enbd implementations didn't provide a
+nice and/or simple interface for a local userspace daemon.
+
+enbd was closer to what I needed but when I looked at it I thought it's
+blocking on a ioctl was an ugly design - plus it was overcomplicated
+with enbd specific features.
+
+I chose to use a kernel <-> user comms model based on Alan Cox's psdev
+with a char device using read and write and a mmap area for the block
+request data (potentially allowing me to implement zero copy in the
+future by mapping the bio into the user address space).
+
+It is named 'ub' as it was written way before the USB driver although as
+I hadn't published my work no one was aware of this. I should come up
+with a new name. Perhaps 'bdu'?
+
+I'm actually using the code in a production environment on a lab of 25
+linux machines with a hybrid network block device / local disk caching
+implementation in userspace (to make netboot less disk intensive -
+similar to how Apple's netboot system work's). The userspace
+implementation also does local COW onto disk (to avoid the need for a
+stateless readonly type linux system which is hard to achieve). I have
+source for this available if anyone is interested. The link above only
+contains a simple userspace example implementation.
+
+The 'metaboot' system which uses 'ub' does a lot of smart things such as
+'commit' and 'rollback' of block deltas and has a cache coherency
+protocol to only invalidate changed blocks on clients local caches so I
+can upgrade a bunch of quasi netboot/cache machines with minimal network
+traffic (much more scalable then normal fatclient netbooting).
+
+I can put up a webpage with links to CVS, etc it anyone is interested.
+
+~mc

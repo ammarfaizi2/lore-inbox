@@ -1,57 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030197AbVKPGrT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030199AbVKPGy4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030197AbVKPGrT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 01:47:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030195AbVKPGqy
+	id S1030199AbVKPGy4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 01:54:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbVKPGy4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 01:46:54 -0500
-Received: from mail.kroah.org ([69.55.234.183]:37770 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751214AbVKPGqw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 01:46:52 -0500
-Date: Tue, 15 Nov 2005 22:31:26 -0800
-From: Greg KH <gregkh@suse.de>
-To: Adam Belay <abelay@novell.com>
-Cc: Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 6/6] PCI PM: pci_save/restore_state improvements
-Message-ID: <20051116063125.GE31375@suse.de>
-References: <1132111902.9809.59.camel@localhost.localdomain>
+	Wed, 16 Nov 2005 01:54:56 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:48598 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751184AbVKPGyz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 01:54:55 -0500
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+From: Arjan van de Ven <arjan@infradead.org>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+Cc: "Wed, 16 Nov 2005 00:41:11 +0100" <grundig@teleline.es>,
+       Bernd Petrovitsch <bernd@firmix.at>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <DCB14CD5-D70E-4CA5-984A-F61DFB104E05@comcast.net>
+References: <20051116004111.45f3f704.grundig@teleline.es>
+	 <DCB14CD5-D70E-4CA5-984A-F61DFB104E05@comcast.net>
+Content-Type: text/plain
+Date: Wed, 16 Nov 2005 07:54:47 +0100
+Message-Id: <1132124087.2834.1.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1132111902.9809.59.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 15, 2005 at 10:31:42PM -0500, Adam Belay wrote:
-> This patch makes some improvements to pci_save_state and
-> pci_restore_state.  Instead of saving and restoring all standard
-> registers (even read-only ones), it only restores necessary registers.
-> Also, the command register is handled more carefully.  Let me know if
-> I'm missing anything important.
+On Tue, 2005-11-15 at 18:56 -0500, Parag Warudkar wrote:
+> On Nov 15, 2005, at 6:41 PM, Wed, 16 Nov 2005 00:41:11 +0100 wrote:
 > 
+> >
+> >> documentation for broadcom wireless:
+> >> http://bcm-specs.sipsolutions.net/
+> >> embrionic driver based on this spec:
+> >> http://bcm43xx.berlios.de/
+> >
+> >
+> > Maybe a good deal would be to delay the 4K patch until some  
+> > preliminary
+> > version of those is merged?
 > 
-> --- a/drivers/pci/pm.c	2005-11-13 20:32:24.000000000 -0500
-> +++ b/drivers/pci/pm.c	2005-11-13 20:29:32.000000000 -0500
-> @@ -53,10 +53,13 @@
->   */
->  int pci_save_state(struct pci_dev *dev)
->  {
-> -	int i;
-> -	/* XXX: 100% dword access ok here? */
-> -	for (i = 0; i < 16; i++)
-> -		pci_read_config_dword(dev, i * 4,&dev->saved_config_space[i]);
-> +	struct pci_dev_config * conf = &dev->saved_config;
-> +
-> +	pci_read_config_word(dev, PCI_COMMAND, &conf->command);
-> +	pci_read_config_byte(dev, PCI_CACHE_LINE_SIZE, &conf->cacheline_size);
-> +	pci_read_config_byte(dev, PCI_LATENCY_TIMER, &conf->latency_timer);
-> +	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &conf->interrupt_line);
+> Andi had some pretty valid comments against the 4K approach.
+> Here - http://lkml.org/lkml/2005/9/6/4
+> I didn't see anyone contradicting his opinion. Seems very plausible  
+> to me.
 
-Why are we saving and restoring smaller ammounts of config space now?
+the only argument I see is "we had overflows in 2.4 with 8k". In fact
+that is part of why 4K stacks was done! With 4k/4k stacks there is MORE
+stack space than in 2.4. Most of the overflows I've seen in 2.4 were
+nested interrupts with complex softirqs; with the 4k/4k stack approach
+interrupts have MORE stack space available than in 2.4, making overflows
+less likely. In addition the 2.6 kernel has undergone a "stack diet",
+the final piece of which is the IO submission change that is now in -mm.
 
-thanks,
 
-greg k-h
+

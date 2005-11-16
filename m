@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030342AbVKPO0c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030343AbVKPOdg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030342AbVKPO0c (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 09:26:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030343AbVKPO0c
+	id S1030343AbVKPOdg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 09:33:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030344AbVKPOdg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 09:26:32 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:49159 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1030342AbVKPO0b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 09:26:31 -0500
-Date: Wed, 16 Nov 2005 15:27:35 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Coywolf Qi Hunt <qiyong@fc-cn.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] new block/ directory comment tidy
-Message-ID: <20051116142735.GJ7787@suse.de>
-References: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org> <20051113090156.GA4417@infradead.org> <20051113110517.GG3699@suse.de> <20051116061525.GA3035@localhost.localdomain> <20051116074850.GA20259@infradead.org> <20051116075732.GQ7787@suse.de> <20051116080855.GA3418@localhost.localdomain>
+	Wed, 16 Nov 2005 09:33:36 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:7875 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1030343AbVKPOdf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 09:33:35 -0500
+Date: Wed, 16 Nov 2005 08:33:13 -0600
+From: Robin Holt <holt@sgi.com>
+To: Christoph Hellwig <hch@infradead.org>, Paul Jackson <pj@sgi.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Simon.Derr@bull.net, steiner@sgi.com
+Subject: Re: [PATCH] cpuset export symbols gpl
+Message-ID: <20051116143313.GG4573@lnx-holt.americas.sgi.com>
+References: <20051116012254.6470.89326.sendpatchset@jackhammer.engr.sgi.com> <20051115173935.5fc75e00.akpm@osdl.org> <20051115180336.11139847.pj@sgi.com> <20051116081627.GA20555@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051116080855.GA3418@localhost.localdomain>
+In-Reply-To: <20051116081627.GA20555@infradead.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 16 2005, Coywolf Qi Hunt wrote:
-> On Wed, Nov 16, 2005 at 08:57:32AM +0100, Jens Axboe wrote:
-> > On Wed, Nov 16 2005, Christoph Hellwig wrote:
-> > > On Wed, Nov 16, 2005 at 02:15:25PM +0800, Coywolf Qi Hunt wrote:
-> > > > On Sun, Nov 13, 2005 at 12:05:18PM +0100, Jens Axboe wrote:
-> > > > > On Sun, Nov 13 2005, Christoph Hellwig wrote:
-> > > > > > Shouldn't fs/bio.c, fs/block_dev.c and fs/partitions/* move to block/
-> > > > > > aswell?
-> > > > > 
-> > > > > Yup, that's the intention. I just started off with drivers/block/* to
-> > > > > get it going.
-> > > >  
-> > > > 
-> > > > New block/ directory comment tidy.
-> > > 
-> > > Please just kill these lines instead.
+On Wed, Nov 16, 2005 at 08:16:27AM +0000, Christoph Hellwig wrote:
+> On Tue, Nov 15, 2005 at 06:03:36PM -0800, Paul Jackson wrote:
+> > Andrew wrote (of exporting cpuset symbols)
+> > > We normally would do this when such modules are merged.  Do tell us more..
 > > 
-> > Agree, they don't really add anything.
+> > It was an oversight not to do this when cpusets went in last year,
+> > but we didn't notice, as the loadable module we cared about had a
+> > hack in place from earlier development that avoided needing this.
+> > 
+> > In cleaning this up, we realized that the module needed to access
+> > task->cpuset->cpus_allowed, and that the correct (and safe) way to
+> > do this, via cpuset_cpus_allowed(), was not available to the module.
+> > 
+> > The other 4 exports I added on general principles, but don't have
+> > any pressing need for.  The one I need is cpuset_cpus_allowed().
+> > 
+> > The loadable module in question we call 'dplace', and is used to
+> > provide fancier cpuset-relative task placement by manipulating
+> > task->cpus_allowed at exec.
 > 
-> They did. Linus could use them as a hint to rescue his kernel source code after
-> some filesystem crash. :p
-> 
-> Signed-off-by: Coywolf Qi Hunt <qiyong@fc-cn.com>
+> Again, where is the module.  Please submit the change to export the
+> symbols in the same patch series as that module.  And honestly I don't
+> think it'll survive review when it's poking that deeply into cpuset
+> internals, but we'll see how to do it properly once it's sent here.
 
-Thanks applied.
+I would argue that it does not dig deeply enough.  I think it would be
+better to expand dplace to handle early-for activity.  It would be nice
+to get a hook in do_fork before the call to copy_process so we can place
+the child task struct on the destination instead of the source node.
 
--- 
-Jens Axboe
+That said, I could swear that dplace or something that looks a lot like
+dplace was already posted on lkml, but I did not find it when I searched.
+Maybe my archive is missing some stuff.
 
+Robin

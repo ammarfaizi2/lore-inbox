@@ -1,27 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030223AbVKPIcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030226AbVKPIdr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030223AbVKPIcM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 03:32:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030224AbVKPIcM
+	id S1030226AbVKPIdr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 03:33:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030224AbVKPIdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 03:32:12 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:44944 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030223AbVKPIcL (ORCPT
+	Wed, 16 Nov 2005 03:33:47 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:21905 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030225AbVKPIdq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 03:32:11 -0500
-Date: Wed, 16 Nov 2005 09:32:14 +0100
+	Wed, 16 Nov 2005 03:33:46 -0500
+Date: Wed, 16 Nov 2005 09:33:59 +0100
 From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Mark Knecht <markknecht@gmail.com>, pavel@suse.cz,
+To: Andi Kleen <ak@suse.de>
+Cc: Steven Rostedt <rostedt@goodmis.org>, pavel@suse.cz,
        LKML <linux-kernel@vger.kernel.org>,
        Thomas Gleixner <tglx@linutronix.de>
 Subject: Re: [PATCH -rt] race condition in fs/compat.c with compat_sys_ioctl
-Message-ID: <20051116083214.GA14829@elte.hu>
-References: <1131821278.5047.8.camel@localhost.localdomain> <5bdc1c8b0511121725u6df7ad9csb9cb56777fa6fe64@mail.gmail.com> <Pine.LNX.4.58.0511122149020.25152@localhost.localdomain> <5bdc1c8b0511121914v12dc4402u424fbaf416bf3710@mail.gmail.com> <1131853456.5047.14.camel@localhost.localdomain> <5bdc1c8b0511130634h501fb565v58906bdfae788814@mail.gmail.com> <1131994030.5047.17.camel@localhost.localdomain> <5bdc1c8b0511141057l60a2e778x89155cd5484d532f@mail.gmail.com> <1132115386.5047.61.camel@localhost.localdomain>
+Message-ID: <20051116083359.GB14829@elte.hu>
+References: <1131821278.5047.8.camel@localhost.localdomain> <5bdc1c8b0511121725u6df7ad9csb9cb56777fa6fe64@mail.gmail.com> <Pine.LNX.4.58.0511122149020.25152@localhost.localdomain> <5bdc1c8b0511121914v12dc4402u424fbaf416bf3710@mail.gmail.com> <1131853456.5047.14.camel@localhost.localdomain> <5bdc1c8b0511130634h501fb565v58906bdfae788814@mail.gmail.com> <1131994030.5047.17.camel@localhost.localdomain> <5bdc1c8b0511141057l60a2e778x89155cd5484d532f@mail.gmail.com> <1132115386.5047.61.camel@localhost.localdomain> <p73y83pp25r.fsf@verdi.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1132115386.5047.61.camel@localhost.localdomain>
+In-Reply-To: <p73y83pp25r.fsf@verdi.suse.de>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamScore: 0.0
 X-ELTE-SpamLevel: 
@@ -34,38 +34,19 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+* Andi Kleen <ak@suse.de> wrote:
 
->  	down_read(&ioctl32_sem);
->  	for (t = ioctl32_hash_table[ioctl32_hash(cmd)]; t; t = t->next) {
-> -		if (t->cmd == cmd)
-> +		if (t->cmd == cmd) {
-> +			handler = t->handler;
-> +			up_read(&ioctl32_sem);
->  			goto found_handler;
-> +		}
->  	}
->  	up_read(&ioctl32_sem);
+> Steven Rostedt <rostedt@goodmis.org> writes:
+> > 
+> > That's the problem. I found out that one ioctl might sleep holding the
+> > sem and won't be woken up until another process calls another ioctl to
+> > wake it up. But unfortunately, the one waking up the sleeper will block
+> > on the sem.  (the killer was tty_wait_until_sent)
+> 
+> You should have looked into mainline first. The semaphore is already 
+> gone because it wasn't even needed anymore.
 
-i think this problem only triggers on RT kernels, because the RT kernel 
-only allows a single reader within a read-semaphore. This works well in 
-99.9% of the cases. You just found the remaining 0.1% :-| The better 
-solution within -rt would be to change ioctl32_sem to a compat 
-semaphore, via the patch below. Can you confirm that this solves the 
-bootup problem too?
+well 2.6.14 isnt _that_ old :-) But in any case, it's great that the 
+semaphore is gone!
 
 	Ingo
-
-Index: linux/fs/compat.c
-===================================================================
---- linux.orig/fs/compat.c
-+++ linux/fs/compat.c
-@@ -268,7 +268,7 @@ out:
- 
- #define IOCTL_HASHSIZE 256
- static struct ioctl_trans *ioctl32_hash_table[IOCTL_HASHSIZE];
--static DECLARE_RWSEM(ioctl32_sem);
-+static COMPAT_DECLARE_RWSEM(ioctl32_sem);
- 
- extern struct ioctl_trans ioctl_start[];
- extern int ioctl_table_size;

@@ -1,53 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030480AbVKPUKr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbVKPUOa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030480AbVKPUKr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 15:10:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030485AbVKPUKr
+	id S932296AbVKPUOa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 15:14:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932577AbVKPUO3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 15:10:47 -0500
-Received: from 90.Red-213-97-199.staticIP.rima-tde.net ([213.97.199.90]:7211
-	"HELO fargo") by vger.kernel.org with SMTP id S1030480AbVKPUKq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 15:10:46 -0500
-Date: Wed, 16 Nov 2005 21:10:20 +0100
-From: David =?utf-8?B?R8OzbWV6?= <david@pleyades.net>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: /net/sched/Kconfig broken
-Message-ID: <20051116201020.GA15113@fargo>
-Mail-Followup-To: "David S. Miller" <davem@davemloft.net>,
-	linux-kernel@vger.kernel.org
-References: <20051116194414.GA14953@fargo> <20051116.115141.33136176.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20051116.115141.33136176.davem@davemloft.net>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 16 Nov 2005 15:14:29 -0500
+Received: from intranet.networkstreaming.com ([24.227.179.66]:25259 "EHLO
+	networkstreaming.com") by vger.kernel.org with ESMTP
+	id S932296AbVKPUO3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 15:14:29 -0500
+Message-ID: <437B932F.3090607@davyandbeth.com>
+Date: Wed, 16 Nov 2005 14:14:39 -0600
+From: Davy Durham <pubaddr2@davyandbeth.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050322
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: virtual NICs
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Nov 2005 20:13:56.0765 (UTC) FILETIME=[460114D0:01C5EAEA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
+Curious question:
 
-On Nov 16 at 11:51:41, David S. Miller wrote:
-> From: David Gómez <david@pleyades.net>
-> Date: Wed, 16 Nov 2005 20:44:14 +0100
-> 
-> > It's impossible to enable the U32 classifier in QoS submenu, to use it
-> > with the "tc" application. In fact there are 23 :-/ options and suboptions
-> > that are missing from the configuration because it seems that the Kconfig
-> > file is broken.
-> 
-> I can enable this just fine by using "make config", making
-> sure to enable CONFIG_NET_SCHED, then CONFIG_NET_CLS_BASIC,
-> and then the necessary classifiers (including U32) are offered
-> to be enabled.
+  If I configure multiple IP addresses to a NIC, and assign 1.2.3.4 to 
+eth0 and 5.6.7.8 to eth0:0 (a virtual NIC) is there extra work involved 
+on the part of the CPU or memory or whatever in routing traffic via 
+5.6.7.8 than 1.2.3.4.. I mean does one IP have an advantage over the 
+other in any sense?
 
-Sorry for not giving more details. I'm using make menuconfig
-in a 2.6.14 kernel After selecting CONFIG_NET_SCHED and CONFIG_NET_CLS_BASIC
-i don't see new options, the last option visible is NET_CLS_ROUTE4.
-
-thanks,
-
--- 
-David Gómez                                      Jabber ID: davidge@jabber.org
+Thanks,
+  Davy

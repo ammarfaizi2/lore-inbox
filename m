@@ -1,74 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030420AbVKPSZm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030426AbVKPSc6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030420AbVKPSZm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 13:25:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030421AbVKPSZm
+	id S1030426AbVKPSc6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 13:32:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030427AbVKPSc6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 13:25:42 -0500
-Received: from xproxy.gmail.com ([66.249.82.201]:59594 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030420AbVKPSZl convert rfc822-to-8bit
+	Wed, 16 Nov 2005 13:32:58 -0500
+Received: from gw02.applegatebroadband.net ([207.55.227.2]:8442 "EHLO
+	data.mvista.com") by vger.kernel.org with ESMTP id S1030426AbVKPSc5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 13:25:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jtfxNYEHwKSo2WbY32oz4+qrHOXxJOz2NnSHNx+mqLhBI+2G29eiOXcyPqgpneEtAJzog50hUBqYSr266L5uPjbK6x0etu5qVFqcF/H+lewEIn8LTpORfQN8tFfays7VNKBbqZJCwGF4tKlFTpR8/kSdacyKwoIqnFORf1CqnH8=
-Message-ID: <5bdc1c8b0511161025q20569fa4hd8c187503e9af1c2@mail.gmail.com>
-Date: Wed, 16 Nov 2005 10:25:40 -0800
-From: Mark Knecht <markknecht@gmail.com>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Subject: Re: 2.6.15-rc1 - NForce4 PCI-E agpgart support?
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200511161802.47244.s0348365@sms.ed.ac.uk>
+	Wed, 16 Nov 2005 13:32:57 -0500
+Message-ID: <437B7B45.5070104@mvista.com>
+Date: Wed, 16 Nov 2005 10:32:37 -0800
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <5bdc1c8b0511160650k4a9e0575h29403a5de47af952@mail.gmail.com>
-	 <1132153102.2834.37.camel@laptopd505.fenrus.org>
-	 <5bdc1c8b0511160709r47c1a9afk18e47a83ced2743d@mail.gmail.com>
-	 <200511161802.47244.s0348365@sms.ed.ac.uk>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+CC: Alex Williamson <alex.williamson@hp.com>, rmk+serial@arm.linux.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] backup timer for UARTs that lose interrupts (take 2)
+References: <1132158489.5457.10.camel@tdi> <437B6C9C.3060307@mvista.com> <Pine.LNX.4.58.0511160939180.23982@shark.he.net>
+In-Reply-To: <Pine.LNX.4.58.0511160939180.23982@shark.he.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/16/05, Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-> On Wednesday 16 November 2005 15:09, Mark Knecht wrote:
-> > On 11/16/05, Arjan van de Ven <arjan@infradead.org> wrote:
-> > > On Wed, 2005-11-16 at 06:50 -0800, Mark Knecht wrote:
-> > > > Hi,
-> > > >    I downloaded and built 2.6.15-rc1 as a test assuming Ingo will
-> > > > release -rt support for this one of these days. (No rush Ingo!) It
-> > > > booted on my AMD64 machine and is running fine AFAICT.
-> > > >
-> > > >    One thing I was expecting to see was agpgart support for the
-> > > > NForce4 chipset. Is this something that's coming or am I missing where
-> > > > the configuration is done?
-> > > >
-> > > >    I have a PCI-Express based Radeon and would like to get better
-> > > > performance. I'm presuming that agpgart support is part of that
-> > > > solution? (As it was on earlier architectures?)
-> > >
-> > > I'm pretty sure PCI-Express and AGP are mutually exclusive....
-> >
-> > Ah, of course! My bad... They are different buses and connectors. I
-> > was really thinking more of the 'gart' part of the agpgart.
-> >
-> > Is there any requirement/need/value for something like a PCI-E-gart?
-> > Or does this relocation requirement go out the window somehow when a
-> > graphics device moves to PCI-Express?
->
-> Yes, you don't need it with PCIe.
->
-> --
-> Cheers,
-> Alistair.
+Randy.Dunlap wrote:
+> On Wed, 16 Nov 2005, George Anzinger wrote:
+> 
+> 
+>>Could you _please_ not put inline patches after the signature mark ("-- ").  In my mailer (mozilla)
+>>this causes the patch to be greyed out and, more importantly, NOT included in a reply.  This, in
+>>turn, makes it hard to comment on details in the patch.
+> 
+> 
+> 
+> Would it help if Alex used the documented canonical patch format,
+> using "---" instead of "-- "?  I sorta doubt it.
 
-Thanks Alistair.
+I suspect it would.  The "-- \n" is a documented signature mark (took 
+me a while to find this out) and I have found no way to make mozilla 
+do anything different with it.  I don't have any documentation on 
+"---" but it surly is not a signature mark and I suspect most mailers 
+will not attach any signifigance to it.
 
-So, should I be able to see better grapohics performance on my Radeon
-PCI-E device with 2.6.15-rc1? Are there setups I should test for you
-guys? (I'm not a developer.)
 
-Thanks,
-Mark
+> 
+> BTW, George, please hit Return/Enter around column 70+...
+
+Sorry, some how my wrap line length moved up to 100.  Fixed now.
+
+-- 
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

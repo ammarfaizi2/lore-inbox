@@ -1,90 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751484AbVKPRGi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751505AbVKPRJy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751484AbVKPRGi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 12:06:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbVKPRGh
+	id S1751505AbVKPRJy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 12:09:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751503AbVKPRJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 12:06:37 -0500
-Received: from mail.kroah.org ([69.55.234.183]:24721 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751484AbVKPRGh (ORCPT
+	Wed, 16 Nov 2005 12:09:53 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:8975 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751496AbVKPRJw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 12:06:37 -0500
-Date: Wed, 16 Nov 2005 08:50:24 -0800
-From: Greg KH <greg@kroah.com>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>
-Subject: Re: [linux-pm] [RFC] userland swsusp
-Message-ID: <20051116165023.GB5630@kroah.com>
-References: <20051115212942.GA9828@elf.ucw.cz> <20051115222549.GF17023@redhat.com> <20051115233201.GA10143@elf.ucw.cz> <1132115730.2499.37.camel@localhost> <20051116061459.GA31181@kroah.com> <1132120845.25230.13.camel@localhost>
+	Wed, 16 Nov 2005 12:09:52 -0500
+Date: Wed, 16 Nov 2005 18:10:51 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Mike Christie <michaelc@cs.wisc.edu>, Jeff Garzik <jgarzik@pobox.com>,
+       Tejun Heo <htejun@gmail.com>, linux-ide@vger.kernel.org,
+       lkml <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH] libata error handling fixes (ATAPI)
+Message-ID: <20051116171051.GP7787@suse.de>
+References: <4379AA5B.1060900@pobox.com> <4379B28E.9070708@gmail.com> <4379C062.3010302@pobox.com> <20051115120016.GD7787@suse.de> <437A2814.1060308@cs.wisc.edu> <20051115184131.GJ7787@suse.de> <20051116124035.GX7787@suse.de> <58cb370e0511160704w4803a085h7bd6ab352d8c94e6@mail.gmail.com> <20051116153119.GN7787@suse.de> <58cb370e0511160806t1defd373w981e213d1cdeb2b3@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1132120845.25230.13.camel@localhost>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <58cb370e0511160806t1defd373w981e213d1cdeb2b3@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 16, 2005 at 05:00:45PM +1100, Nigel Cunningham wrote:
-> Hi.
+On Wed, Nov 16 2005, Bartlomiej Zolnierkiewicz wrote:
+> On 11/16/05, Jens Axboe <axboe@suse.de> wrote:
+> > On Wed, Nov 16 2005, Bartlomiej Zolnierkiewicz wrote:
+> > > On 11/16/05, Jens Axboe <axboe@suse.de> wrote:
+> > >
+> > > > I updated that patch, and converted IDE and SCSI to use it. See the
+> > > > results here:
+> > > >
+> > > > http://brick.kernel.dk/git/?p=linux-2.6-block.git;a=shortlog;h=blk-softirq
+> > >
+> > > I like it but:
+> > >
+> > > * "we know it's either an FS or PC request" assumption in
+> > >   ide_softirq_done() is really wrong
+> >
+> > It used to be correct :-)
 > 
-> On Wed, 2005-11-16 at 17:14, Greg KH wrote:
-> > On Wed, Nov 16, 2005 at 06:35:30AM +0200, Dumitru Ciobarcianu wrote:
-> > > ??n data de Mi, 16-11-2005 la 00:32 +0100, Pavel Machek a scris:
-> > > > ...but how do you provide nice, graphical progress bar for swsusp
-> > > > without this? People want that, and "esc to abort", compression,
-> > > > encryption. Too much to be done in kernel space, IMNSHO.
-> > > 
-> > > Pavel, you really should _listen_ when someone else is talking about the
-> > > same things in different implementations. suspend2 has this feature
-> > > (nice graphical progress bars in userspace) for a long time now and it's
-> > > compatible with the fedora kernels.
-> > 
-> > It's also implemented in the kernel, which is exactly the wrong place
-> > for this.  Pavel is doing this properly, why do you doubt him?
+> Sorry but it has been always like that,
+> other requests also pass through ide_end_request()
+> (which of course needs fixing).
+
+You misunderstand, for calls to blk_complete_request() it wasn't true
+initially since it always obyed rq_all_done() (which returns 0 for
+non-fs and non-pc requests).
+
+> > Irk it's nasty, since it basically means we have to hold ide_lock over
+> > the entire functions looking at hwgroup->rq.
+> >
+> > It's ok for __ide_end_request() to be entered with the ide_lock held,
+> > the costly affair is usually completing the request. Which now happens
+> > outside of the lock.
 > 
-> You yourself called it a hack not long ago.
-
-I did, in the proud tradition of neat hacks.  It's a very nice
-accomplishment that this even works, and I'm impressed.
-
-> I'm not sure why you think the userspace is the right place for
-> suspending.
-
-If he can come up with an implementation that works, and puts stuff like
-the pretty spinning wheels and progress bars and encryption in
-userspace, that's great.  That stuff doesn't belong in the kerenel if we
-can possibly help it.
-
-> It seems to me that the very fact that it requires access to
-> structures that are normally only visible to the kernel is pretty
-> telling.
-
-So it needs some work :)
-
-> To be fair, it is true at the same time that graphical interfaces
-> don't belong in the kernel - but the vast majority of it - calculating
-> what to write and doing the writing does. It's only by hamstringing
-> himself and the user - limiting the image to half of memory that Pavel
-> (and dropping support for writing to swap) that Pavel can make this
-> work.
-
-Then propose a better way to do this, if you can see one.
-
-> > > Why don't you and Nigel (of suspend2) can just work together on this ?
-> > > It's a shame that much work is wasted in duplicated effort.
-> > 
-> > It's not duplicated, Nigel knows what need to be done to work together,
-> > if he so desires.
+> We should get rid of ide_preempt later.
 > 
-> I know that Pavel and I have such different ideas about what should be
-> done that it's not worth the effort.
+> This will also allow us to remove ide_do_drive_cmd()
+> and use blk_execute_rq() exclusively.
 
-I'm sorry that you feel this way.  I thought that after our meeting in
-July that things were different.
+That would be very nice! Reminds me that there might still be a race
+with head insertion and REQ_STARTED request in front in the block layer,
+that needs inspection. But killing ide_do_drive_cmd() would be very
+nice.
 
-thanks,
+-- 
+Jens Axboe
 
-greg k-h

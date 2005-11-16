@@ -1,52 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965187AbVKPCfT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965188AbVKPCnH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965187AbVKPCfT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 21:35:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965188AbVKPCfT
+	id S965188AbVKPCnH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 21:43:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965189AbVKPCnH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 21:35:19 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:30856 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S965187AbVKPCfS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 21:35:18 -0500
-Message-ID: <437A9AE5.8070001@jp.fujitsu.com>
-Date: Wed, 16 Nov 2005 11:35:17 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
-MIME-Version: 1.0
-To: Mel Gorman <mel@csn.ul.ie>
-CC: linux-mm@kvack.org, mingo@elte.hu, linux-kernel@vger.kernel.org,
-       nickpiggin@yahoo.com.au, lhms-devel@lists.sourceforge.net
-Subject: Re: [PATCH 3/5] Light Fragmentation Avoidance V20: 003_fragcore
-References: <20051115164946.21980.2026.sendpatchset@skynet.csn.ul.ie> <20051115165002.21980.14423.sendpatchset@skynet.csn.ul.ie>
-In-Reply-To: <20051115165002.21980.14423.sendpatchset@skynet.csn.ul.ie>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 15 Nov 2005 21:43:07 -0500
+Received: from zeus1.kernel.org ([204.152.191.4]:56974 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S965188AbVKPCnF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 21:43:05 -0500
+In-Reply-To: <437A8142.7030106@watson.ibm.com>
+References: <43796596.2010908@watson.ibm.com> <1F92A563-B430-49FE-895E-FB93DC64981E@comcast.net> <437A613A.1020705@watson.ibm.com> <4ABDC730-2888-4DBE-B1DC-62362A87EEB7@comcast.net> <437A8142.7030106@watson.ibm.com>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <A604D1E7-577F-4452-8E7B-A9DF871E08CC@comcast.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
 Content-Transfer-Encoding: 7bit
+From: Parag Warudkar <kernel-stuff@comcast.net>
+Subject: Re: [Patch 1/4] Delay accounting: Initialization
+Date: Tue, 15 Nov 2005 21:41:21 -0500
+To: nagar@watson.ibm.com
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-> +/* Remove an element from the buddy allocator from the fallback list */
-> +static struct page *__rmqueue_fallback(struct zone *zone, int order,
-> +							int alloctype)
+On Nov 15, 2005, at 7:45 PM, Shailabh Nagar wrote:
 
-Should we avoid this fallback as much as possible ?
-I think this is a weak point of this approach.
+> So how about this:
+>
+> Have /proc/sys/kernel/delayacct and a corresponding kernel boot  
+> parameter (for setting
+> the switch early) which control just the collection of data.  
+> Allocation always happens.
 
+Yep, if per task isn't worth doing that sounds reasonable.
 
-> +		/*
-> +		 * If breaking a large block of pages, place the buddies
-> +		 * on the preferred allocation list
-> +		 */
-> +		if (unlikely(current_order >= MAX_ORDER / 2)) {
-> +			alloctype = !alloctype;
-> +			change_pageblock_type(zone, page);
-> +			area = &zone->free_area_lists[alloctype][current_order];
-> +		}
-Changing RCLM_NORCLM to RLCM_EASY is okay ??
-If so, I think adding similar code to free_pages_bulk() is better.
-
--- Kame
-
+Parag

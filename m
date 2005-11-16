@@ -1,73 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965211AbVKPDYE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965204AbVKPDaN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965211AbVKPDYE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 22:24:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965213AbVKPDWz
+	id S965204AbVKPDaN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 22:30:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965209AbVKPDaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 22:22:55 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:5848 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S965209AbVKPDWj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 22:22:39 -0500
-Subject: [RFC][PATCH 4/6] PCI PM: update pci_enable_wake()
-From: Adam Belay <abelay@novell.com>
-To: Linux-pm mailing list <linux-pm@lists.osdl.org>, Greg KH <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Tue, 15 Nov 2005 22:31:25 -0500
-Message-Id: <1132111885.9809.55.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Tue, 15 Nov 2005 22:30:12 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:62924
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S965204AbVKPDaK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 22:30:10 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 12/18] shared mount handling: bind and rbind
+Date: Tue, 15 Nov 2005 21:29:03 -0600
+User-Agent: KMail/1.8
+Cc: Ram Pai <linuxram@us.ibm.com>, Miklos Szeredi <miklos@szeredi.hu>,
+       Al Viro <viro@ftp.linux.org.uk>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+References: <E1EZInj-0001Ez-AV@ZenIV.linux.org.uk> <1131561849.5400.384.camel@localhost> <Pine.LNX.4.64.0511091054290.3247@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0511091054290.3247@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511152129.04079.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch updates pci_enable_wake() to use "struct pci_dev_pm".
+On Wednesday 09 November 2005 12:59, Linus Torvalds wrote:
+> > no. I said application _should_not_ depend on it, because it is a
+> > undefined semantics.
+>
+> It's definitely neither unusual nor undefined. I do all my umounts by
+> directory (in fact, doing it by anything else really _is_ badly defined,
+> since a block device can be mounted in many places), and the only sane
+> semantics would be to peel off the last mount on that directory.
 
+I noticed this upgrading busybox mount a few months back.  I was trying to 
+figure out if the correct semantics for umount /dev/block were to umount 
+_all_ instances of this block device, or umount just the most recent one.  I 
+wound up just passing it through to the kernel and letting it decide, but I 
+wasn't sure why it did what it did.
 
---- a/drivers/pci/pm.c	2005-11-07 08:18:18.000000000 -0500
-+++ b/drivers/pci/pm.c	2005-11-07 08:17:21.000000000 -0500
-@@ -247,28 +247,19 @@
-  */
- int pci_enable_wake(struct pci_dev *dev, pci_power_t state, int enable)
- {
--	int pm;
- 	u16 value;
--
--	/* find PCI PM capability in list */
--	pm = pci_find_capability(dev, PCI_CAP_ID_PM);
-+	struct pci_dev_pm *data = dev->pm;
- 
- 	/* If device doesn't support PM Capabilities, but request is to disable
- 	 * wake events, it's a nop; otherwise fail */
--	if (!pm) 
-+	if (!data) 
- 		return enable ? -EIO : 0; 
- 
--	/* Check device's ability to generate PME# */
--	pci_read_config_word(dev,pm+PCI_PM_PMC,&value);
--
--	value &= PCI_PM_CAP_PME_MASK;
--	value >>= ffs(PCI_PM_CAP_PME_MASK) - 1;   /* First bit of mask */
--
- 	/* Check if it can generate PME# from requested state. */
--	if (!value || !(value & (1 << state))) 
-+	if (!data->pme_mask || !(data->pme_mask & (1 << state)))
- 		return enable ? -EINVAL : 0;
- 
--	pci_read_config_word(dev, pm + PCI_PM_CTRL, &value);
-+	pci_read_config_word(dev, data->pm_offset + PCI_PM_CTRL, &value);
- 
- 	/* Clear PME_Status by writing 1 to it and enable PME# */
- 	value |= PCI_PM_CTRL_PME_STATUS | PCI_PM_CTRL_PME_ENABLE;
-@@ -276,7 +267,7 @@
- 	if (!enable)
- 		value &= ~PCI_PM_CTRL_PME_ENABLE;
- 
--	pci_write_config_word(dev, pm + PCI_PM_CTRL, value);
-+	pci_write_config_word(dev, data->pm_offset + PCI_PM_CTRL, value);
- 	
- 	return 0;
- }
+The 2.6 multiple mount semantics are still new enough that the tools are just 
+now catching up.  Last I checked, the standard mount was kind of unhappy with 
+--bind and --move mounts (they were corrupting /etc/mtab):
 
+http://www.busybox.net/lists/busybox/2005-August/015285.html
 
+The side effects of mount can be really non-obvious at times.  For example, 
+while implementing busybox's switch_root I found out that this snippet of 
+klibc's run-init.c is slightly wrong:
+  if ( chdir(realroot) )
+    die("chdir to new root");
+/* snip */
+  /* Overmount the root */
+  if ( mount(".", "/", NULL, MS_MOVE, NULL) )
+    die("overmounting root");
+
+  /* chroot, chdir */
+  if ( chroot(".") || chdir("/") )
+    die("chroot");
+
+The || fallback in the third part won't work.  chroot(".") will get you to the 
+new filesystem, but chdir("/") still gets you to the old one, even though 
+we've overmounted it.  (I have no idea why.  I assume it's because / is 
+special.)
+
+Rob

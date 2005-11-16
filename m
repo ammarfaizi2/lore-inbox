@@ -1,76 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030386AbVKPQH6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030389AbVKPQJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030386AbVKPQH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 11:07:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030389AbVKPQH6
+	id S1030389AbVKPQJx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 11:09:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030390AbVKPQJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 11:07:58 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:4234 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S1030386AbVKPQH5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 11:07:57 -0500
-From: kernel-stuff@comcast.net (Parag Warudkar)
-To: Johannes Berg <johannes@sipsolutions.net>
-Cc: debian-powerpc@lists.debian.org, linux-kernel@vger.kernel.org
-Subject: Re: PowerBook5,8 - TrackPad update
-Date: Wed, 16 Nov 2005 16:07:39 +0000
-Message-Id: <111620051607.26898.437B594B000ACFF200006912220074818400009A9B9CD3040A029D0A05@comcast.net>
-X-Mailer: AT&T Message Center Version 1 (Dec 17 2004)
-X-Authenticated-Sender: a2VybmVsLXN0dWZmQGNvbWNhc3QubmV0
+	Wed, 16 Nov 2005 11:09:53 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:385 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030389AbVKPQJw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 11:09:52 -0500
+Date: Wed, 16 Nov 2005 08:04:05 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Zhu Yi <yi.zhu@intel.com>
+cc: Zilvinas Valinskas <zilvinas@gemtek.lt>,
+       Pekka Enberg <penberg@cs.helsinki.fi>, Andrew Morton <akpm@osdl.org>,
+       Alexandre Buisse <alexandre.buisse@ens-lyon.fr>,
+       linux-kernel@vger.kernel.org, jketreno@linux.intel.com
+Subject: Re: Linuv 2.6.15-rc1
+In-Reply-To: <1132120145.18679.12.camel@debian.sh.intel.com>
+Message-ID: <Pine.LNX.4.64.0511160800570.13959@g5.osdl.org>
+References: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org>  <4378980C.7060901@ens-lyon.fr>
+ <20051114162942.5b163558.akpm@osdl.org>  <20051115100519.GA5567@gemtek.lt>
+ <20051115115657.GA30489@gemtek.lt>  <84144f020511150451l6ef30420g5a83a147c61f34a8@mail.gmail.com>
+  <20051115140023.GB9910@gemtek.lt> <1132120145.18679.12.camel@debian.sh.intel.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="NextPart_Webmail_9m3u9jl4l_26898_1132157259_0"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---NextPart_Webmail_9m3u9jl4l_26898_1132157259_0
-Content-Type: text/plain
-Content-Transfer-Encoding: 8bit
 
-
-> That's a pure driver function, and we didn't implement it because we
-> emulate synaptics. I think your erratically moving thing might be caused
-> by a relayout of the order, maybe you should try to observe the
-> interrupt transfers the device gives you in a systematic way like I did
-> with my python scripts? Those display the levels of each byte. Maybe
-> they changed to transmitting not bytes but words for each level?
+On Wed, 16 Nov 2005, Zhu Yi wrote:
 > 
-> johannes
-> 
+> Please try the patch below and see if it makes any difference.
+> http://bughost.org/bugzilla/show_bug.cgi?id=821
 
-Yep the data layout/ordering is cetainly changed. I was thinking of writing something to relayfs and then use scripts to parse and interpret. But now I think I will be better off using your driver+scripts to sample the data.  
+Hmm. That patch does
 
-Thanks!
++	error->log = (struct ipw_event *)((u8 *)error->elem +
+ 					  (sizeof(*error->elem) * elem_len));
 
-Parag
+which really can be much more cleanly written as
 
+	error->log = (void *)(error->elem + elem_len);
 
+since pointer addition does the "multiply by pointer element size" on it's 
+own.
 
+For future reference, you want to make just a byte add, the cleanest way 
+(in kernel, where we use the gcc "void *" additions) is
 
+	newptr = offset + (void *)oldptr;
 
---NextPart_Webmail_9m3u9jl4l_26898_1132157259_0
-Content-Type: message/rfc822
+ho humm..
 
-From: Johannes Berg <johannes@sipsolutions.net>
-To: Parag Warudkar <kernel-stuff@comcast.net>
-Cc: debian-powerpc@lists.debian.org, linux-kernel@vger.kernel.org
-Subject: Re: PowerBook5,8 - TrackPad update
-Date: Wed, 16 Nov 2005 15:49:55 +0000
-Content-Type: Multipart/mixed;
- boundary="NextPart_Webmail_9m3u9jl4l_26898_1132157259_1"
-
---NextPart_Webmail_9m3u9jl4l_26898_1132157259_1
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Comment: Johannes Berg (SIP Solutions)
-
-iD8DBQBDe1UY/ETPhpq3jKURAlOTAKCP1M1eRU6BniR/knv9qH5xNj9wsQCgoize
-WNP0oX6q7dO6jthZ0+XMlkw=
-=AOIf
------END PGP SIGNATURE-----
-
---NextPart_Webmail_9m3u9jl4l_26898_1132157259_1--
-
---NextPart_Webmail_9m3u9jl4l_26898_1132157259_0--
+		Linus

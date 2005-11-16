@@ -1,148 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965212AbVKPDiF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965215AbVKPDo0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965212AbVKPDiF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 22:38:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965214AbVKPDiF
+	id S965215AbVKPDo0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 22:44:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965217AbVKPDo0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 22:38:05 -0500
-Received: from ms-smtp-02-smtplb.tampabay.rr.com ([65.32.5.132]:26003 "EHLO
-	ms-smtp-02.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id S965212AbVKPDiE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 22:38:04 -0500
-Message-ID: <437AA996.9080505@cfl.rr.com>
-Date: Tue, 15 Nov 2005 22:37:58 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051010)
-X-Accept-Language: en-us, en
+	Tue, 15 Nov 2005 22:44:26 -0500
+Received: from xproxy.gmail.com ([66.249.82.206]:52453 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965215AbVKPDo0 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 22:44:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=HWJXka5O0+JNWvi16Q50i9nqVKPe2SYEr6ZN4j3kHEv9H3B23Sptk0uyMn923KBKKE9qZxBF0S5i0unSQCPVNPBd+KlgqN1QpBgdUFKcErf4QssqRm2k/L4z9K3ktsqccAYmEf+pDpSL9NTNN+8g+s2AKJOvN+FP0qulG3BAg8s=
+Message-ID: <489ecd0c0511151944r1552bae3oed5ee88a49795482@mail.gmail.com>
+Date: Wed, 16 Nov 2005 11:44:25 +0800
+From: Luke Yang <luke.adi@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: ADI Blackfin patch for kernel 2.6.14
+Cc: Greg KH <greg@kroah.com>, bunk@stusta.de, linux-kernel@vger.kernel.org
+In-Reply-To: <20051107235035.2bdb00e1.akpm@osdl.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: VIA SATA Raid needs a long time to recover from suspend
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <489ecd0c0511010128x41d39643x37893ad48a8ef42a@mail.gmail.com>
+	 <20051101165136.GU8009@stusta.de>
+	 <489ecd0c0511012306w434d75fbs90e1969d82a07922@mail.gmail.com>
+	 <489ecd0c0511032059n394abbb2s9865c22de9b2c448@mail.gmail.com>
+	 <20051104230644.GA20625@kroah.com>
+	 <489ecd0c0511062258k4183d206odefd3baa46bb9a04@mail.gmail.com>
+	 <20051107165928.GA15586@kroah.com>
+	 <20051107235035.2bdb00e1.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been debugging a power management problem for a few days now, and 
-I believe I have finally solved the problem.  Because it involved 
-patching the kernel, I felt I should share the fix here in hopes that it 
-can be improved and/or integrated into future kernels.  Right now I am 
-running 2.6.14.2 on amd64, compiled myself, with the ubuntu breezy amd64 
-distribution. 
+>
+>
+> bix:/home/akpm> grep volatile bfin_r2_4kernel-2.6.14.patch | wc -l
+>    2901
+>
+> Cow.  You know that volatile in-kernel is basically always wrong?
+>
+  I really don't know that...  Could you refer me to any document or
+posts talking about it? thank you!
 
-First I'll state the fix.  It involved changing two lines in 
-include/linux/libata.h:
-
-static inline u8 ata_busy_wait(struct ata_port *ap, unsigned int bits,
-                   unsigned int max)
-{
-    u8 status;
-
-    do {
-        udelay(100);                                 <-- changed to 100 
-from 10
-        status = ata_chk_status(ap);
-        max--;
-    } while ((status & bits) && (max > 0));
-
-    return status;
-}
-
-and:
-
-static inline u8 ata_wait_idle(struct ata_port *ap)
-{
-    u8 status = ata_busy_wait(ap, ATA_BUSY | ATA_DRQ, 
-10000);             <-- changed to 10,000 from 1,000
-
-    if (status & (ATA_BUSY | ATA_DRQ)) {
-        unsigned long l = ap->ioaddr.status_addr;
-        printk(KERN_WARNING
-               "ATA: abnormal status 0x%X on port 0x%lX\n",
-               status, l);
-    }
-
-    return status;
-}
-
-The problem seems to be that my VIA SATA raid controller requires more 
-time to recover from being suspended.  It looks like the code in 
-sata_via.c restores the task file after a resume, then calls 
-ata_wait_idle to wait for the busy bit to clear.  The problem was that 
-this function timed out before the busy bit cleared, resulting in 
-messages like this:
-
-ATA: abnormal status 0x80 on port 0xE007
-
-Then if there was an IO request made immediately after resuming, it 
-would timeout and fail, because it was issued before the hardware was 
-ready.  Changing the timeout resolved this.  I tried changing both the 
-udelay and ata_busy_wait lines to increase the timeout, and it did not 
-seem to matter which I changed, as long as the total timeout was 
-increased by a factor of 100. 
-
-Since increasing the maximum timeout, suspend and hibernate work great 
-for me.  While experiencing this bug, it may have exposed another bug, 
-which I will mention now in passing.  As I said before, after a resume, 
-if there was an IO request made immediately ( before the busy bit 
-finally did clear ) it would timeout and fail.  It seemed the kernel 
-filled the buffer cache for the requested block with garbage rather than 
-retry the read.  It seems to me that at some point, the read should have 
-been retried.  The symptoms of this were:
-
-1) When suspend.sh called resume.sh immediately after the echo mem > 
-/sys/power/state line, then on resume, the read would fail in a block in 
-the resierfs tree that was required to lookup the resume.sh file.  This 
-caused reiserfs to complain about errors in the node, and the script 
-failed to execute.  Further attempts to touch the script, even with ls 
--al /etc/acpi/resume.sh failed with EPERM.  I would think that at worst, 
-this should fail with EIO or something, not EPERM. 
-
-2) At one point I tried running echo mem > /sys/power/state ; df.  After 
-the resume, the IO read failed when trying to load df, and I got an 
-error message saying the kernel could not execute the binary file.  
-Further attempts to run df failed also.  Other IO at this point was fine. 
-
-This leads me to think that when the IO failed, rather than inform the 
-calling code of the failure, for example, with an EIO status, the buffer 
-cache got filled with junk, and this should not happen.  Either the 
-operation should succeed, and the correct data be returned, or it should 
-fail, and the caller should be informed of the failure, and not given 
-incorrect data. 
-
-When the first IO immediately following the suspend failed, I got these 
-messages:
-
-[   32.013538] ata1: command 0x35 timeout, stat 0x50 host_stat 0x1
-[   32.045510] ata2: command 0x35 timeout, stat 0x50 host_stat 0x1
-
-As long as no IO was immediately requested after the resume ( i.e. if I 
-echo mem > /sys/power/state on an otherwise idle system, rather than 
-using suspend.sh ) then these errors did not happen, only the abnormal 
-status messages did. 
-
-For reference, my system is configured as follows:
-
-Motherboard: Asus K8V Deluxe
-CPU: AMD Athlon 64 3200+
-RAM: 1 GB of Corsair low latency pc3200 ddr sdram
-Video: ATI Radeon 9800 Pro with a Samsung 930B 19 inch LCD display
-Disks: 2 WD 36 gig SATA 10,000 rpm raptors in a raid0 configuration on 
-the via sata raid controller
-Partitions:
-
-/dev/mapper/via_hfciifae1: 40 gig winxp NTFS partition
-/dev/mapper/via_hfciifae3: 10 gig experimental partition
-/dev/mapper/via_hfciifae5: 50 meg ext2 /boot partition
-/dev/mapper/via_hfciifae6: 1 gig swap partition
-/dev/mapper/via_hfciifae7: 22 gig reiserfs root partition
-
-If anyone has any suggestions of further tests I can perform to narrow 
-down the problem, or a better solution for it, you have my full 
-cooperation.  If this fix seems acceptable, then I hope it can be merged 
-in the next kernel release. 
-
-PS> Please CC me on any replies, as I am not subscribed to this list
-
-
-
-
+Regards,
+Luke

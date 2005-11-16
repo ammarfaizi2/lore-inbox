@@ -1,182 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965236AbVKPDvA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965226AbVKPDvA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965236AbVKPDvA (ORCPT <rfc822;willy@w.ods.org>);
+	id S965226AbVKPDvA (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 15 Nov 2005 22:51:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965226AbVKPDut
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965232AbVKPDus
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 22:50:49 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:27806 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965225AbVKPDud
+	Tue, 15 Nov 2005 22:50:48 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:28318 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965226AbVKPDuh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 22:50:33 -0500
+	Tue, 15 Nov 2005 22:50:37 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 3/8] isaectomy: g_NCR5380
+Subject: [PATCH 4/8] isaectomy: in2000
 Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Message-Id: <E1EcEJc-0007dq-8T@ZenIV.linux.org.uk>
+Message-Id: <E1EcEJh-0007dw-8i@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Wed, 16 Nov 2005 03:50:32 +0000
+Date: Wed, 16 Nov 2005 03:50:37 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Al Viro <viro@zeniv.linux.org.uk>
-Date: 1132110458 -0500
+Date: 1132110514 -0500
 
-switched CONFIG_SCSI_G_NCR5380_MEM code in g_NCR5380 to ioremap(); massaged
-g_NCR5380.h accordingly.
+switched to ioremap(), cleaned the probing up a bit.
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ---
 
- drivers/scsi/g_NCR5380.c |   28 +++++++++++++++++++++-------
- drivers/scsi/g_NCR5380.h |   23 +++++++++++++++++------
- 2 files changed, 38 insertions(+), 13 deletions(-)
+ drivers/scsi/in2000.c |   24 ++++++++++++++++++------
+ 1 files changed, 18 insertions(+), 6 deletions(-)
 
-6432444077b99d420f973ce8f1e748792f50a161
-diff --git a/drivers/scsi/g_NCR5380.c b/drivers/scsi/g_NCR5380.c
---- a/drivers/scsi/g_NCR5380.c
-+++ b/drivers/scsi/g_NCR5380.c
-@@ -127,7 +127,7 @@ static int ncr_53c400a = NCR_NOT_SET;
- static int dtc_3181e = NCR_NOT_SET;
+e44467683e39fd741741d07d49515e3b20e3e104
+diff --git a/drivers/scsi/in2000.c b/drivers/scsi/in2000.c
+--- a/drivers/scsi/in2000.c
++++ b/drivers/scsi/in2000.c
+@@ -1898,6 +1898,21 @@ static int int_tab[] in2000__INITDATA = 
+ 	10
+ };
  
- static struct override {
--	NCR5380_implementation_fields;
-+	NCR5380_map_type NCR5380_map_name;
- 	int irq;
- 	int dma;
- 	int board;		/* Use NCR53c400, Ricoh, etc. extensions ? */
-@@ -299,6 +299,10 @@ int __init generic_NCR5380_detect(struct
- 	};
- 	int flags = 0;
- 	struct Scsi_Host *instance;
-+#ifdef CONFIG_SCSI_G_NCR5380_MEM
-+	unsigned long base;
-+	void __iomem *iomem;
-+#endif
++static int probe_bios(u32 addr, u32 *s1, uchar *switches)
++{
++	void __iomem *p = ioremap(addr, 0x34);
++	if (!p)
++		return 0;
++	*s1 = readl(p + 0x10);
++	if (*s1 == 0x41564f4e || readl(p + 0x30) == 0x61776c41) {
++		/* Read the switch image that's mapped into EPROM space */
++		*switches = ~readb(p + 0x20);
++		iounmap(p);
++		return 1;
++	}
++	iounmap(p);
++	return 0;
++}
  
- 	if (ncr_irq != NCR_NOT_SET)
- 		overrides[0].irq = ncr_irq;
-@@ -424,15 +428,22 @@ int __init generic_NCR5380_detect(struct
- 			region_size = NCR5380_region_size;
- 		}
- #else
--		if(!request_mem_region(overrides[current_override].NCR5380_map_name, NCR5380_region_size, "ncr5380"))
-+		base = overrides[current_override].NCR5380_map_name;
-+		if (!request_mem_region(base, NCR5380_region_size, "ncr5380"))
-+			continue;
-+		iomem = ioremap(base, NCR5380_region_size);
-+		if (!iomem) {
-+			release_mem_region(base, NCR5380_region_size);
- 			continue;
-+		}
- #endif
- 		instance = scsi_register(tpnt, sizeof(struct NCR5380_hostdata));
- 		if (instance == NULL) {
- #ifndef CONFIG_SCSI_G_NCR5380_MEM
- 			release_region(overrides[current_override].NCR5380_map_name, region_size);
- #else
--			release_mem_region(overrides[current_override].NCR5380_map_name, NCR5380_region_size);
-+			iounmap(iomem);
-+			release_mem_region(base, NCR5380_region_size);
- #endif
- 			continue;
- 		}
-@@ -440,6 +451,8 @@ int __init generic_NCR5380_detect(struct
- 		instance->NCR5380_instance_name = overrides[current_override].NCR5380_map_name;
- #ifndef CONFIG_SCSI_G_NCR5380_MEM
- 		instance->n_io_port = region_size;
-+#else
-+		((struct NCR5380_hostdata *)instance->hostdata).iomem = iomem;
- #endif
+ static int __init in2000_detect(struct scsi_host_template * tpnt)
+ {
+@@ -1930,6 +1945,7 @@ static int __init in2000_detect(struct s
  
- 		NCR5380_init(instance, flags);
-@@ -509,6 +522,7 @@ int generic_NCR5380_release_resources(st
- #ifndef CONFIG_SCSI_G_NCR5380_MEM
- 	release_region(instance->NCR5380_instance_name, instance->n_io_port);
- #else
-+	iounmap(((struct NCR5380_hostdata *)instance->hostdata).iomem);
- 	release_mem_region(instance->NCR5380_instance_name, NCR5380_region_size);
- #endif
+ 	detect_count = 0;
+ 	for (bios = 0; bios_tab[bios]; bios++) {
++		u32 s1 = 0;
+ 		if (check_setup_args("ioport", &val, buf)) {
+ 			base = val;
+ 			switches = ~inb(base + IO_SWITCHES) & 0xff;
+@@ -1941,13 +1957,9 @@ static int __init in2000_detect(struct s
+  * for the obvious ID strings. We look for the 2 most common ones and
+  * hope that they cover all the cases...
+  */
+-		else if (isa_readl(bios_tab[bios] + 0x10) == 0x41564f4e || isa_readl(bios_tab[bios] + 0x30) == 0x61776c41) {
++		else if (probe_bios(bios_tab[bios], &s1, &switches)) {
+ 			printk("Found IN2000 BIOS at 0x%x ", (unsigned int) bios_tab[bios]);
  
-@@ -586,7 +600,7 @@ static inline int NCR5380_pread(struct S
- 		}
- #else
- 		/* implies CONFIG_SCSI_G_NCR5380_MEM */
--		isa_memcpy_fromio(dst + start, NCR53C400_host_buffer + NCR5380_map_name, 128);
-+		memcpy_fromio(dst + start, iomem + NCR53C400_host_buffer, 128);
- #endif
- 		start += 128;
- 		blocks--;
-@@ -606,7 +620,7 @@ static inline int NCR5380_pread(struct S
- 		}
- #else
- 		/* implies CONFIG_SCSI_G_NCR5380_MEM */
--		isa_memcpy_fromio(dst + start, NCR53C400_host_buffer + NCR5380_map_name, 128);
-+		memcpy_fromio(dst + start, iomem + NCR53C400_host_buffer, 128);
- #endif
- 		start += 128;
- 		blocks--;
-@@ -671,7 +685,7 @@ static inline int NCR5380_pwrite(struct 
- 		}
- #else
- 		/* implies CONFIG_SCSI_G_NCR5380_MEM */
--		isa_memcpy_toio(NCR53C400_host_buffer + NCR5380_map_name, src + start, 128);
-+		memcpy_toio(iomem + NCR53C400_host_buffer, src + start, 128);
- #endif
- 		start += 128;
- 		blocks--;
-@@ -687,7 +701,7 @@ static inline int NCR5380_pwrite(struct 
- 		}
- #else
- 		/* implies CONFIG_SCSI_G_NCR5380_MEM */
--		isa_memcpy_toio(NCR53C400_host_buffer + NCR5380_map_name, src + start, 128);
-+		memcpy_toio(iomem + NCR53C400_host_buffer, src + start, 128);
- #endif
- 		start += 128;
- 		blocks--;
-diff --git a/drivers/scsi/g_NCR5380.h b/drivers/scsi/g_NCR5380.h
---- a/drivers/scsi/g_NCR5380.h
-+++ b/drivers/scsi/g_NCR5380.h
-@@ -82,6 +82,15 @@ static const char* generic_NCR5380_info(
- #define NCR5380_read(reg) (inb(NCR5380_map_name + (reg)))
- #define NCR5380_write(reg, value) (outb((value), (NCR5380_map_name + (reg))))
+-/* Read the switch image that's mapped into EPROM space */
+-
+-			switches = ~((isa_readb(bios_tab[bios] + 0x20) & 0xff));
+-
+ /* Find out where the IO space is */
  
-+#define NCR5380_implementation_fields \
-+    NCR5380_map_type NCR5380_map_name
-+
-+#define NCR5380_local_declare() \
-+    register NCR5380_implementation_fields
-+
-+#define NCR5380_setup(instance) \
-+    NCR5380_map_name = (NCR5380_map_type)((instance)->NCR5380_instance_name)
-+
- #else 
- /* therefore CONFIG_SCSI_G_NCR5380_MEM */
+ 			x = switches & (SW_ADDR0 | SW_ADDR1);
+@@ -2037,7 +2049,7 @@ static int __init in2000_detect(struct s
  
-@@ -95,18 +104,20 @@ static const char* generic_NCR5380_info(
- #define NCR53C400_host_buffer 0x3900
- #define NCR5380_region_size 0x3a00
+ /* Older BIOS's had a 'sync on/off' switch - use its setting */
  
--#define NCR5380_read(reg) isa_readb(NCR5380_map_name + NCR53C400_mem_base + (reg))
--#define NCR5380_write(reg, value) isa_writeb(value, NCR5380_map_name + NCR53C400_mem_base + (reg))
--#endif
-+#define NCR5380_read(reg) readb(iomem + NCR53C400_mem_base + (reg))
-+#define NCR5380_write(reg, value) writeb(value, iomem + NCR53C400_mem_base + (reg))
- 
- #define NCR5380_implementation_fields \
--    NCR5380_map_type NCR5380_map_name
-+    NCR5380_map_type NCR5380_map_name; \
-+    void __iomem *iomem;
- 
- #define NCR5380_local_declare() \
--    register NCR5380_implementation_fields
-+    register void __iomem *iomem
- 
- #define NCR5380_setup(instance) \
--    NCR5380_map_name = (NCR5380_map_type)((instance)->NCR5380_instance_name)
-+    iomem = (((struct NCR5380_hostdata *)(instance)->hostdata).iomem)
-+
-+#endif
- 
- #define NCR5380_intr generic_NCR5380_intr
- #define NCR5380_queue_command generic_NCR5380_queue_command
+-		if (isa_readl(bios_tab[bios] + 0x10) == 0x41564f4e && (switches & SW_SYNC_DOS5))
++		if (s1 == 0x41564f4e && (switches & SW_SYNC_DOS5))
+ 			hostdata->sync_off = 0x00;	/* sync defaults to on */
+ 		else
+ 			hostdata->sync_off = 0xff;	/* sync defaults to off */
 

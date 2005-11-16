@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932594AbVKPJ6s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932595AbVKPKFq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932594AbVKPJ6s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 04:58:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932595AbVKPJ6s
+	id S932595AbVKPKFq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 05:05:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932596AbVKPKFq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 04:58:48 -0500
-Received: from ns2.suse.de ([195.135.220.15]:44459 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932594AbVKPJ6r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 04:58:47 -0500
-Message-ID: <437B02C8.4080504@suse.de>
-Date: Wed, 16 Nov 2005 10:58:32 +0100
-From: Gerd Knorr <kraxel@suse.de>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
+	Wed, 16 Nov 2005 05:05:46 -0500
+Received: from nproxy.gmail.com ([64.233.182.192]:36071 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932595AbVKPKFq convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 05:05:46 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Yp1eyrZJAJF64//kLP5c1z5ojfo2Kq8iPHJoQ/uEYpA6PTAEuVn7OqZjltI8PIKM/HajxzfT6hyQkPgmoodh/tIfhmDLt4/VAsHoXjnb8ffZEGOUseAbLccFe7fLoVVTz4qZ59+9G122+QB7JlizesYsaEqUg4kEUEpFBWdu5MY=
+Message-ID: <84144f020511160205y27c494a2mee464987d3ef773e@mail.gmail.com>
+Date: Wed, 16 Nov 2005 12:05:43 +0200
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Zilvinas Valinskas <zilvinas@gemtek.lt>
+Subject: Re: Linuv 2.6.15-rc1
+Cc: Zhu Yi <yi.zhu@intel.com>, Andrew Morton <akpm@osdl.org>,
+       Alexandre Buisse <alexandre.buisse@ens-lyon.fr>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, jketreno@linux.intel.com
+In-Reply-To: <20051116094551.GA23140@gemtek.lt>
 MIME-Version: 1.0
-To: Roland Dreier <rolandd@cisco.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
-       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 1/10] Cr4 is valid on some 486s
-References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com>	<20051111103605.GC27805@elf.ucw.cz> <4374F2D5.7010106@vmware.com>	<Pine.LNX.4.64.0511111147390.4627@g5.osdl.org>	<4374FB89.6000304@vmware.com>	<Pine.LNX.4.64.0511111218110.4627@g5.osdl.org>	<20051113074241.GA29796@redhat.com>	<Pine.LNX.4.64.0511131118020.3263@g5.osdl.org>	<Pine.LNX.4.64.0511131210570.3263@g5.osdl.org>	<4378A7F3.9070704@suse.de>	<Pine.LNX.4.64.0511141118000.3263@g5.osdl.org>	<4379ECC1.20005@suse.de> <437A0649.7010702@suse.de> <52r79h7v2f.fsf@cisco.com>
-In-Reply-To: <52r79h7v2f.fsf@cisco.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org>
+	 <4378980C.7060901@ens-lyon.fr> <20051114162942.5b163558.akpm@osdl.org>
+	 <20051115100519.GA5567@gemtek.lt> <20051115115657.GA30489@gemtek.lt>
+	 <84144f020511150451l6ef30420g5a83a147c61f34a8@mail.gmail.com>
+	 <20051115140023.GB9910@gemtek.lt>
+	 <1132120145.18679.12.camel@debian.sh.intel.com>
+	 <20051116094551.GA23140@gemtek.lt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier wrote:
->     > +#define alternative_smp(smpinstr, upinstr) asm(upinstr, ##input)
-> 
-> this wouldn't build with CONFIG_SMP=n -- you forgot the input param here.
+Hi,
 
-Yep, and I've noticed meanwhile that it becomes quite messy if you try 
-to do that with asm instructions which have both input and output 
-parameters.  One way around that would be to use named parameters in the 
-inline assembler.  Problem with that is that only gcc >= 3.1 understands 
-those and at the moment the minimun requited compiler for the kernel 
-still is gcc 2.95.3 according to Documentation/Changes ...
+On 11/16/05, Zilvinas Valinskas <zilvinas@gemtek.lt> wrote:
+> Please see : http://www.gemtek.lt/~zilvinas/dumps/trace
+>
+> This time I didn't see oops printed again :( Don't understand why,
+> although I have managed to capture SysRQ-T output - see URL above.
+> Kernel has been updated this morning to revision:
 
-Is it an option to raise the required gcc version to 3.x, given that 
-even Debian/stable ships with gcc 3.3 these days?
+No firmware loading errors either? Please try out the patch I sent you
+earlier _if_ the firmware still fails to load.
 
-cheers,
+Could you please post your lspci -v output?
 
-   Gerd
-
+                          Pekka

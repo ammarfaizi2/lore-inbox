@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964994AbVKPR2N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965106AbVKPRba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964994AbVKPR2N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 12:28:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965042AbVKPR2M
+	id S965106AbVKPRba (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 12:31:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965101AbVKPRba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 12:28:12 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:15277 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964994AbVKPR2L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 12:28:11 -0500
-Subject: Re: [RFC] HOWTO do Linux kernel development - take 2
-From: David Woodhouse <dwmw2@infradead.org>
-To: Greg KH <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com
-In-Reply-To: <20051115210459.GA11363@kroah.com>
-References: <20051115210459.GA11363@kroah.com>
-Content-Type: text/plain
-Date: Wed, 16 Nov 2005 17:28:09 +0000
-Message-Id: <1132162089.21643.87.camel@hades.cambridge.redhat.com>
+	Wed, 16 Nov 2005 12:31:30 -0500
+Received: from ausc60pc101.us.dell.com ([143.166.85.206]:10779 "EHLO
+	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
+	id S965096AbVKPRb3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 12:31:29 -0500
+X-IronPort-AV: i="3.97,338,1125896400"; 
+   d="scan'208"; a="341287047:sNHT90442228"
+Date: Wed, 16 Nov 2005 11:31:23 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: minyard@acm.org, akpm@osdl.org, torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, openipmi-developer@lists.sourceforge.net
+Subject: [PATCH 2.6.15-rc] ipmi: missing NULL test for kthread
+Message-ID: <20051116173123.GA25777@lists.us.dell.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-15 at 13:05 -0800, Greg KH wrote:
->  - "Programming the 80386" by Crawford and Gelsinger [Sybek]
+On IPMI systems with BT interfaces, we don't start the kernel thread,
+so smi_info->thread is NULL.  Test for NULL when stopping the thread,
+because kthread_stop() doesn't, and an oops ensues otherwise.
 
-Maybe, but on the whole I suspect we'd do well if fewer people were
-thinking about one particular legacy architecture when writing kernel
-code. 
-
-Newbie kernel hackers ought to be working on something SMP, big-endian
-and 64-bit. Get into good habits right away.
+Signed-off-by: Matt Domsch <Matt_Domsch@dell.com>
 
 -- 
-dwmw2
+Matt Domsch
+Software Architect
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
 
+diff -urNp --exclude-from=/home/mdomsch/excludes --minimal linux-2.6/drivers/char/ipmi/ipmi_si_intf.c linux-2.6.ipmi/drivers/char/ipmi/ipmi_si_intf.c
+--- linux-2.6/drivers/char/ipmi/ipmi_si_intf.c	Wed Nov 16 08:45:57 2005
++++ linux-2.6.ipmi/drivers/char/ipmi/ipmi_si_intf.c	Wed Nov 16 08:49:12 2005
+@@ -2203,7 +2203,7 @@ static void setup_xaction_handlers(struc
+ 
+ static inline void wait_for_timer_and_thread(struct smi_info *smi_info)
+ {
+-	if (smi_info->thread != ERR_PTR(-ENOMEM))
++	if (smi_info->thread != NULL && smi_info->thread != ERR_PTR(-ENOMEM))
+ 		kthread_stop(smi_info->thread);
+ 	del_timer_sync(&smi_info->si_timer);
+ }

@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbVKPHJA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbVKPHMO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751205AbVKPHJA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 02:09:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbVKPHJA
+	id S1751302AbVKPHMO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 02:12:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751458AbVKPHMO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 02:09:00 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:15064 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S1751205AbVKPHI7
+	Wed, 16 Nov 2005 02:12:14 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:16344 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S1751302AbVKPHMN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 02:08:59 -0500
-Subject: Re: [RFC][PATCH 1/6] PCI PM: create pm.c and relocate PM functions
+	Wed, 16 Nov 2005 02:12:13 -0500
+Subject: Re: [RFC][PATCH 2/6] PCI PM: capability probing and setup
 From: Adam Belay <abelay@novell.com>
 To: Greg KH <gregkh@suse.de>
 Cc: Linux-pm mailing list <linux-pm@lists.osdl.org>,
        linux-kernel@vger.kernel.org
-In-Reply-To: <20051116061813.GA31375@suse.de>
-References: <1132111873.9809.50.camel@localhost.localdomain>
-	 <20051116061813.GA31375@suse.de>
+In-Reply-To: <20051116062154.GB31375@suse.de>
+References: <1132111878.9809.52.camel@localhost.localdomain>
+	 <20051116062154.GB31375@suse.de>
 Content-Type: text/plain
-Date: Wed, 16 Nov 2005 02:17:39 -0500
-Message-Id: <1132125459.3656.4.camel@localhost.localdomain>
+Date: Wed, 16 Nov 2005 02:21:01 -0500
+Message-Id: <1132125661.3656.7.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-15 at 22:18 -0800, Greg KH wrote:
-> On Tue, Nov 15, 2005 at 10:31:13PM -0500, Adam Belay wrote:
-> > pci_save_state(), pci_restore_state(), pci_enable_wake(),
-> > pci_choose_state(), and pci_set_power_state() are moved to
-> > drivers/pci/pm.c.
-> > 
-> > This patch makes several code cleanups but no functional changes.
+On Tue, 2005-11-15 at 22:21 -0800, Greg KH wrote:
+> On Tue, Nov 15, 2005 at 10:31:17PM -0500, Adam Belay wrote:
+> > +int pci_setup_device_pm(struct pci_dev *dev)
 > 
-> Looks good but:
-> 
-> > --- a/drivers/pci/pm.c	1969-12-31 19:00:00.000000000 -0500
-> > +++ b/drivers/pci/pm.c	2005-10-24 06:23:15.000000000 -0400
-> > @@ -0,0 +1,296 @@
-> > +/*
-> > + * pm.c - PCI Device Power Management
-> > + */ 
-> 
-> You should say where this came from, and the copyrights for that file.
-> 
+> Care to give kernel doc for this new function?
 
-To be honest I'm not entirely sure where they came from.  As with most
-of the PCI files, I'm guessing dozens of patches have touched them.  In
-any case, I'll include the original header from pci.c.
+Absolutely.  I was planing to do this but must have forgotten.
+
+> > +	unsigned char	state_mask;	/* a mask of supported power states */
+> > +	unsigned char	pme_mask;	/* a mask of power states that allow #PME */ 
+> 
+> Trailing space, use quilt it strips this :)
+
+Sorry about that :)
+
+> 
+> > +	struct pci_dev_pm *pm;		/* power management information */
+> 
+> Why make this a pointer and not just part of this structure?  Don't all
+> pci devices need this?
+
+Actually, not every PCI device supports the PCI PM spec.  There are many
+devices, even in modern systems, that can only be in D0.  I was thinking
+we could save some memory and allocate this structure when PCI PM is
+detected.  Would that be ok?
 
 Thanks,
 Adam

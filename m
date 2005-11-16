@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030487AbVKPUIn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030480AbVKPUKr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030487AbVKPUIn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 15:08:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030485AbVKPUIm
+	id S1030480AbVKPUKr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 15:10:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030485AbVKPUKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 15:08:42 -0500
-Received: from [212.76.86.25] ([212.76.86.25]:14607 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S1030484AbVKPUIl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 15:08:41 -0500
-From: Al Boldi <a1426z@gawab.com>
-To: Shaya Potter <spotter@cs.columbia.edu>
-Subject: Re: [PATCH 12/18] shared mount handling: bind and rbind
-Date: Wed, 16 Nov 2005 23:05:31 +0300
-User-Agent: KMail/1.5
-Cc: torvalds@osdl.org, linuxram@us.ibm.com, viro@ftp.linux.org.uk,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       rob@landley.net, Miklos Szeredi <miklos@szeredi.hu>
-References: <E1EZInj-0001Ez-AV@ZenIV.linux.org.uk> <E1EcIVw-0005ZH-00@dorka.pomaz.szeredi.hu> <1132149576.8155.23.camel@localhost.localdomain>
-In-Reply-To: <1132149576.8155.23.camel@localhost.localdomain>
-MIME-Version: 1.0
+	Wed, 16 Nov 2005 15:10:47 -0500
+Received: from 90.Red-213-97-199.staticIP.rima-tde.net ([213.97.199.90]:7211
+	"HELO fargo") by vger.kernel.org with SMTP id S1030480AbVKPUKq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 15:10:46 -0500
+Date: Wed, 16 Nov 2005 21:10:20 +0100
+From: David =?utf-8?B?R8OzbWV6?= <david@pleyades.net>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: /net/sched/Kconfig broken
+Message-ID: <20051116201020.GA15113@fargo>
+Mail-Followup-To: "David S. Miller" <davem@davemloft.net>,
+	linux-kernel@vger.kernel.org
+References: <20051116194414.GA14953@fargo> <20051116.115141.33136176.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Message-Id: <200511162303.33103.a1426z@gawab.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20051116.115141.33136176.davem@davemloft.net>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shaya Potter wrote:
-> I created a patch years ago that creates a chain of "chroot" points, and
-> any past chroot point would be considered a place that follow_dotdot
-> would consider a root.  There didn't seem much interest in the patch
-> though.
+Hi David,
 
-Could you resubmit this patch for possible inclusion in 2.6.16, and make it a 
-runtime option such that the default behaviour remains unchanged?
+On Nov 16 at 11:51:41, David S. Miller wrote:
+> From: David Gómez <david@pleyades.net>
+> Date: Wed, 16 Nov 2005 20:44:14 +0100
+> 
+> > It's impossible to enable the U32 classifier in QoS submenu, to use it
+> > with the "tc" application. In fact there are 23 :-/ options and suboptions
+> > that are missing from the configuration because it seems that the Kconfig
+> > file is broken.
+> 
+> I can enable this just fine by using "make config", making
+> sure to enable CONFIG_NET_SCHED, then CONFIG_NET_CLS_BASIC,
+> and then the necessary classifiers (including U32) are offered
+> to be enabled.
 
-Thanks!!!
+Sorry for not giving more details. I'm using make menuconfig
+in a 2.6.14 kernel After selecting CONFIG_NET_SCHED and CONFIG_NET_CLS_BASIC
+i don't see new options, the last option visible is NET_CLS_ROUTE4.
 
---
-Al
+thanks,
+
+-- 
+David Gómez                                      Jabber ID: davidge@jabber.org

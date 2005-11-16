@@ -1,72 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965176AbVKPCHW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965181AbVKPCRz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965176AbVKPCHW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 21:07:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965178AbVKPCHW
+	id S965181AbVKPCRz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 21:17:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965182AbVKPCRz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 21:07:22 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:37324 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S965176AbVKPCHV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 21:07:21 -0500
-Date: Wed, 16 Nov 2005 02:07:17 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Andi Kleen <ak@suse.de>
-Cc: linux-mm@kvack.org, mingo@elte.hu, lhms-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au
-Subject: Re: [PATCH 2/5] Light Fragmentation Avoidance V20: 002_usemap
-In-Reply-To: <200511160252.05494.ak@suse.de>
-Message-ID: <Pine.LNX.4.58.0511160200530.8470@skynet>
-References: <20051115164946.21980.2026.sendpatchset@skynet.csn.ul.ie>
- <200511160036.54461.ak@suse.de> <Pine.LNX.4.58.0511160137540.8470@skynet>
- <200511160252.05494.ak@suse.de>
+	Tue, 15 Nov 2005 21:17:55 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:47621 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S965181AbVKPCRy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 21:17:54 -0500
+Date: Wed, 16 Nov 2005 03:17:54 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Greg KH <greg@kroah.com>
+Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] HOWTO do Linux kernel development - take 2
+Message-ID: <20051116021754.GM5735@stusta.de>
+References: <20051115210459.GA11363@kroah.com> <20051116002348.GL5735@stusta.de> <20051116011032.GA16604@kroah.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051116011032.GA16604@kroah.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Nov 2005, Andi Kleen wrote:
+On Tue, Nov 15, 2005 at 05:10:32PM -0800, Greg KH wrote:
+> On Wed, Nov 16, 2005 at 01:23:48AM +0100, Adrian Bunk wrote:
+>...
+> > LDD (as you might have heard, it's also available online for free ;-) )
+> > and the book by Robert Love are good starting points for learning kernel 
+> > programming, and they should IMHO be listed here.
+> 
+> But that's what the Documentation/kernel-docs.txt file has in it.  I
 
-> On Wednesday 16 November 2005 02:43, Mel Gorman wrote:
->
-> > 1. I was using a page flag, valuable commodity, thought I would get kicked
-> >    for it. Usemap uses 1 bit per 2^(MAX_ORDER-1) pages. Page flags uses
-> >    2^(MAX_ORDER-1) bits at worse case.
->
-> Why does it need multiple bits? A page can only be in one order at a
-> time, can't it?
->
+It seems you haven't looked at kernel-docs.txt before saying this...
 
-Yes, but 1024 pages in one block is one bit per page. Usemap uses 1 page
-for all 1024.
+kernel-docs.txt is so heavily outdated we should better remove it.
 
-> > 2. Fragmentation avoidance tended to break down, very fast.
->
-> Why? The algorithm should the same, no?
->
+> don't want to get into judging which kernel books go into this file, as
+> people might think I am a bit biased :)
 
-That's what I thought when I wrote it first but it broke down fast
-according to bench-stresshighalloc. I'll need to re-examine the patches
-and see where I went wrong.
+Judging from the questions I see from newbies on linux-kernel (who 
+should be the target audience of your document), you are omitting the 
+answer to the most frequently asked question.
 
-> > 3. When changing a block of pages from one type to another, there was no
-> >    fast way to make sure all pages currently allocation would end up on
-> >    the correct free list
->
-> If you can change the bitmap you can change as well mem_map
->
+I'd say noone disagrees that LDD and the book by Robert Love are the 
+books mentioned most often (and by different kernel developers) when 
+people ask which book to read as introduction for kernel hacking.
 
-That's iterating through, potentially, 1024 pages which I considered too
-expensive. In terms of code complexity, the page-flags patch adds 237
-which is not much of a saving in comparison to 275 that the usemap
-approach uses.
+>...
+> > >...
+> > > Becoming A Kernel Developer
+> > > ---------------------------
+> > >...
+> > > If you already have a chunk of code that you want to put into the kernel
+> > > tree, but need some help getting it in the proper form, the
+> > > kernel-mentors project was created to help you out with this.  It is a
+> > > mailing list, and can be found at:
+> > > 	http://selenic.com/mailman/listinfo/kernel-mentors
+> > 
+> > 
+> > This list seems to be nearly dead, and it seems the following one is now 
+> > used instead:
+> >    http://mail.nl.linux.org/kernelnewbies/
+> 
+> I do mention the kernelnewbies project, which includes the mailing list.
+> I hope the mentor's project picks up, I just think not enough people
+> realize it is there.
+>...
 
-Again, I can revisit the page-flag approach if I thought that something
-like this would get merged and people would not choke on another page flag
-being consumed.
+It's perhaps a bit out of the scope of this discussion, but do we really 
+need both of these lists? I don't see any real difference between them.
+
+I'd say one of them is enough, or perhaps replace them with one at 
+kernel.org?
+
+cu
+Adrian
 
 -- 
-Mel Gorman
-Part-time Phd Student                          Java Applications Developer
-University of Limerick                         IBM Dublin Software Lab
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

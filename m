@@ -1,94 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030290AbVKPR6r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030291AbVKPSBQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030290AbVKPR6r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 12:58:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030293AbVKPR6r
+	id S1030291AbVKPSBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 13:01:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030293AbVKPSBQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 12:58:47 -0500
-Received: from bay103-f17.bay103.hotmail.com ([65.54.174.27]:62239 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S1030290AbVKPR6r
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 12:58:47 -0500
-Message-ID: <BAY103-F17B16A3E9D5B3E06ACB57CDF5C0@phx.gbl>
-X-Originating-IP: [68.75.63.180]
-X-Originating-Email: [dravet@hotmail.com]
-From: "Jason Dravet" <dravet@hotmail.com>
-To: samuel.thibault@ens-lyon.org
-Cc: 7eggert@gmx.de, adaplas@gmail.com, torvalds@osdl.org, akpm@osdl.org,
-       davej@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] vgacon: Workaround for resize bug in some chipsets
-Date: Wed, 16 Nov 2005 11:58:42 -0600
+	Wed, 16 Nov 2005 13:01:16 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:5548 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030291AbVKPSBP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 13:01:15 -0500
+Date: Wed, 16 Nov 2005 10:00:53 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: theonetruekenny@yahoo.com, linux-kernel@vger.kernel.org
+Subject: Re: mmap over nfs leads to excessive system load
+Message-Id: <20051116100053.44d81ae2.akpm@osdl.org>
+In-Reply-To: <1132163057.8811.15.camel@lade.trondhjem.org>
+References: <20051116150141.29549.qmail@web34113.mail.mud.yahoo.com>
+	<1132163057.8811.15.camel@lade.trondhjem.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 16 Nov 2005 17:58:42.0335 (UTC) FILETIME=[616D52F0:01C5EAD7]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Samuel Thibault <samuel.thibault@ens-lyon.org>
->To: Jason Dravet <dravet@hotmail.com>
->CC: 7eggert@gmx.de, adaplas@gmail.com, torvalds@osdl.org, 
->akpm@osdl.org,davej@redhat.com, linux-kernel@vger.kernel.org
->Subject: Re: [PATCH] vgacon: Workaround for resize bug in some chipsets
->Date: Wed, 16 Nov 2005 03:25:08 +0100
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 >
->Hi,
+> On Wed, 2005-11-16 at 07:01 -0800, Kenny Simpson wrote:
+> > --- Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+> > > Anyhow, does the following patch help?
+> > 
+> > Unfortunately, not:
+> > 
+> > samples  %        symbol name
+> > 545009   15.2546  find_get_pages_tag
+> 
+> Argh... I totally missed the point there with the last patch. We should
+> be resyncing the page tag with the value of the PG_dirty flag...
+> 
+> OK, please back out the patch that I sent you, and try this one instead.
+> 
+> ...
+> diff --git a/fs/nfs/write.c b/fs/nfs/write.c
+> index 8f71e76..61ec355 100644
+> --- a/fs/nfs/write.c
+> +++ b/fs/nfs/write.c
+> @@ -213,6 +213,7 @@ static int nfs_writepage_sync(struct nfs
+>  	} while (count);
+>  	/* Update file length */
+>  	nfs_grow_file(page, offset, written);
+> +	clear_page_dirty_tag(page);
+>  	/* Set the PG_uptodate flag? */
+>  	nfs_mark_uptodate(page, offset, written);
 >
->Jason Dravet, le Tue 15 Nov 2005 19:50:39 -0600, a écrit :
-> > Here are the results:
-> > y=25   fonth=16   deffh=16   vidfh=16   scanl=400
-> > overflow=ff
-> > vsync_end=8f
-> > vdisp_end=1f
->
->Ah, this is odd indeed: your hardware uses 800 scanlines
->(overflow:(512+256)+vdisp_end:0x1f), while the actual needed lines
->should be y:25*fonth:16 ... Maybe it is actually using a 32 lines font.
->
->Just to make sure about every VGA bits, could you install the
->svgatextmode package, which holds a getVGAreg command, and run twice
->
->for i in `seq 0 24` ; do getVGAreg CRTC $i ; done
->
->The first time while having a correct full text screen rendering, and
->the second time after vgacon_doresize() has blanked the bottom half of
->the screen.
->
->Regards,
->Samuel
+> ....  
+> +int clear_page_dirty_tag(struct page *page)
+> +{
+> +	struct address_space *mapping = page_mapping(page);
+> +
+> +	if (mapping) {
+> +		unsigned long flags;
+> +
+> +		write_lock_irqsave(&mapping->tree_lock, flags);
+> +		if (!PageDirty(page))
+> +			radix_tree_tag_clear(&mapping->page_tree,
+> +						page_index(page),
+> +						PAGECACHE_TAG_DIRTY);
+> +		write_unlock_irqrestore(&mapping->tree_lock, flags);
+> +	}
+> +}
 
-For some reason my custom 2.6.14 kernels no longer boot.  While I look into 
-this here are the results when only half the screen works:
+That will fix it, but the PageWriteback accounting is still wrong.
 
-VGA 'CRTC' register, index 0 (=0x0) contains 89 (=0x59 =b01011001)
-VGA 'CRTC' register, index 1 (=0x1) contains 79 (=0x4f =b01001111)
-VGA 'CRTC' register, index 2 (=0x2) contains 79 (=0x4f =b01001111)
-VGA 'CRTC' register, index 3 (=0x3) contains 157 (=0x9d =b10011101)
-VGA 'CRTC' register, index 4 (=0x4) contains 84 (=0x54 =b01010100)
-VGA 'CRTC' register, index 5 (=0x5) contains 27 (=0x1b =b00011011)
-VGA 'CRTC' register, index 6 (=0x6) contains 255 (=0xff =b11111111)
-VGA 'CRTC' register, index 7 (=0x7) contains 191 (=0xbf =b10111111)
-VGA 'CRTC' register, index 8 (=0x8) contains 0 (=0x00 =b00000000)
-VGA 'CRTC' register, index 9 (=0x9) contains 239 (=0xef =b11101111)
-VGA 'CRTC' register, index 10 (=0xa) contains 13 (=0x0d =b00001101)
-VGA 'CRTC' register, index 11 (=0xb) contains 14 (=0x0e =b00001110)
-VGA 'CRTC' register, index 12 (=0xc) contains 40 (=0x28 =b00101000)
-VGA 'CRTC' register, index 13 (=0xd) contains 240 (=0xf0 =b11110000)
-VGA 'CRTC' register, index 14 (=0xe) contains 42 (=0x2a =b00101010)
-VGA 'CRTC' register, index 15 (=0xf) contains 32 (=0x20 =b00100000)
-VGA 'CRTC' register, index 16 (=0x10) contains 125 (=0x7d =b01111101)
-VGA 'CRTC' register, index 17 (=0x11) contains 143 (=0x8f =b10001111)
-VGA 'CRTC' register, index 18 (=0x12) contains 143 (=0x8f =b10001111)
-VGA 'CRTC' register, index 19 (=0x13) contains 40 (=0x28 =b00101000)
-VGA 'CRTC' register, index 20 (=0x14) contains 31 (=0x1f =b00011111)
-VGA 'CRTC' register, index 21 (=0x15) contains 30 (=0x1e =b00011110)
-VGA 'CRTC' register, index 22 (=0x16) contains 0 (=0x00 =b00000000)
-VGA 'CRTC' register, index 23 (=0x17) contains 163 (=0xa3 =b10100011)
-VGA 'CRTC' register, index 24 (=0x18) contains 255 (=0xff =b11111111)
+Is it not possible to use set_page_writeback()/end_page_writeback()?
 
-I will send the whole screen results when I find and fix the problem.  I am 
-running the fedora core development system with all but todays updates.
-
-Thanks,
-Jason
-
-
+Are these pages marked "unstable" at this time?

@@ -1,67 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030558AbVKPXAQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030571AbVKPXGn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030558AbVKPXAQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 18:00:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030559AbVKPXAQ
+	id S1030571AbVKPXGn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 18:06:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030573AbVKPXGm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 18:00:16 -0500
-Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:57571
-	"EHLO pinky.shadowen.org") by vger.kernel.org with ESMTP
-	id S1030558AbVKPXAO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 18:00:14 -0500
-Date: Wed, 16 Nov 2005 23:00:03 +0000
-To: Mike Kravetz <kravetz@us.ibm.com>
-Cc: Andy Whitcroft <apw@shadowen.org>, Anton Blanchard <anton@samba.org>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: [PATCH 1/3] kvaddr_to_nid not used in common code
-Message-ID: <20051116230003.GA16467@shadowen.org>
-References: <exportbomb.1132181992@pinky>
+	Wed, 16 Nov 2005 18:06:42 -0500
+Received: from pat.uio.no ([129.240.130.16]:40173 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1030571AbVKPXGm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 18:06:42 -0500
+Subject: Re: mmap over nfs leads to excessive system load
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Kenny Simpson <theonetruekenny@yahoo.com>,
+       Charles Lever <cel@citi.umich.edu>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051116223937.28115.qmail@web34112.mail.mud.yahoo.com>
+References: <20051116223937.28115.qmail@web34112.mail.mud.yahoo.com>
+Content-Type: text/plain
+Date: Wed, 16 Nov 2005 18:06:18 -0500
+Message-Id: <1132182378.8811.93.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-InReply-To: <exportbomb.1132181992@pinky>
-User-Agent: Mutt/1.5.9i
-From: Andy Whitcroft <apw@shadowen.org>
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.962, required 12,
+	autolearn=disabled, AWL 1.04, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kvaddr_to_nid not used in common code
+On Wed, 2005-11-16 at 14:39 -0800, Kenny Simpson wrote:
+> --- Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+> > I'm getting lost here. Please could you spell out the testcases that are
+> > not working.
+> 
+> I've redone my test cases and have confirmed that O_DIRECT with pwrite64 triggers the bad
+> condition.
+> 
+> The cases that are fine are:
+>   pwrite64
+>   ftruncate with O_DIRECT
+>   ftruncate
+> 
+> Also, when the system is in this state, if I try to 'ls' the file,
+> the 'ls' process becomes stuck in state D in sync_page.  stracing the 'ls'
+> shows it is in a call to stat64.
+> 
+> -Kenny
 
-kvaddr_to_nid() isn't used in common code nor in i386 code.
-Remove these definitions.
+Chuck, can you take a look at this?
 
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
----
- asm-i386/mmzone.h |    5 -----
- linux/mmzone.h    |    5 -----
- 2 files changed, 10 deletions(-)
-diff -upN reference/include/asm-i386/mmzone.h current/include/asm-i386/mmzone.h
---- reference/include/asm-i386/mmzone.h
-+++ current/include/asm-i386/mmzone.h
-@@ -76,11 +76,6 @@ static inline int pfn_to_nid(unsigned lo
-  * Following are macros that each numa implmentation must define.
-  */
- 
--/*
-- * Given a kernel address, find the home node of the underlying memory.
-- */
--#define kvaddr_to_nid(kaddr)	pfn_to_nid(__pa(kaddr) >> PAGE_SHIFT)
--
- #define node_start_pfn(nid)	(NODE_DATA(nid)->node_start_pfn)
- #define node_end_pfn(nid)						\
- ({									\
-diff -upN reference/include/linux/mmzone.h current/include/linux/mmzone.h
---- reference/include/linux/mmzone.h
-+++ current/include/linux/mmzone.h
-@@ -575,11 +575,6 @@ static inline int valid_section_nr(unsig
- 	return valid_section(__nr_to_section(nr));
- }
- 
--/*
-- * Given a kernel address, find the home node of the underlying memory.
-- */
--#define kvaddr_to_nid(kaddr)	pfn_to_nid(__pa(kaddr) >> PAGE_SHIFT)
--
- static inline struct mem_section *__pfn_to_section(unsigned long pfn)
- {
- 	return __nr_to_section(pfn_to_section_nr(pfn));
+Kenny is seeing what a hang when using pwrite64() on an O_DIRECT file
+and the file size exceeds 4Gb. Server is a NetApp filer w/ NFSv3.
+
+I had a quick look at nfs_file_direct_write(), and among other things,
+it would appear that it is not doing any of the usual overflow checks on
+*pos and the count size (see generic_write_checks()). In particular,
+checks are missing against overflow vs. MAX_NON_LFS if O_LARGEFILE is
+not set (and also against overflow vs. s_maxbytes, but that is less
+relevant here).
+
+Cheers,
+  Trond
+

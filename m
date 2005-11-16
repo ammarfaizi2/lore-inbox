@@ -1,36 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030238AbVKPIvo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030239AbVKPI4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030238AbVKPIvo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 03:51:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030222AbVKPIvo
+	id S1030239AbVKPI4T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 03:56:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030240AbVKPI4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 03:51:44 -0500
-Received: from eurogra4543-2.clients.easynet.fr ([212.180.52.86]:39868 "HELO
-	briare1.heliogroup.fr") by vger.kernel.org with SMTP
-	id S1030238AbVKPIvn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 03:51:43 -0500
-From: Hubert Tonneau <hubert.tonneau@fullpliant.org>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel crash report in SCSI over USB with kernel 2.6.14
-Date: Wed, 16 Nov 2005 08:45:41 GMT
-Message-ID: <05GFF0511@briare1.heliogroup.fr>
-X-Mailer: Pliant 94
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 16 Nov 2005 03:56:19 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:56507 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1030239AbVKPI4T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 03:56:19 -0500
+Date: Wed, 16 Nov 2005 09:56:05 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Dave Jones <davej@redhat.com>, kernel list <linux-kernel@vger.kernel.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+Subject: Re: [linux-pm] [RFC] userland swsusp
+Message-ID: <20051116085605.GE10143@elf.ucw.cz>
+References: <20051115212942.GA9828@elf.ucw.cz> <20051115222549.GF17023@redhat.com> <20051115233201.GA10143@elf.ucw.cz> <20051115234007.GO17023@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051115234007.GO17023@redhat.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is stock Linux 2.6.14, SMP, with 6 USB disks and no real SCSI hardware.
+Hi!
 
-The kernel stack crash report is:
-scsi_end_request +0xaf/0xc0 [scsi_mod]
-scsi_io_completion
-scsi_finish_commands
-scsi_softirg
-__rcu_process_callblacks
-ksoftirqd
-ksoftirqd
-kthread
-kthread
-kernel_thread_helper
+>  > > Even it were not for this, the whole idea seems misconcieved to me
+>  > > anyway.
+>  > 
+>  > ...but how do you provide nice, graphical progress bar for swsusp
+>  > without this? People want that, and "esc to abort", compression,
+>  > encryption. Too much to be done in kernel space, IMNSHO.
+>  
+> I'll take "rootkit doesnt work" over "bells and whistles".
 
+It moves bunch of code from kernelspace to userspace. You don't have
+to add bells and whistles at the same time. That's normally called
+good thing. If Fedora has special needs, fine.
+								Pavel
+-- 
+Thanks, Sharp!

@@ -1,48 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030224AbVKPIeY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030228AbVKPIgE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030224AbVKPIeY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 03:34:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030229AbVKPIeY
+	id S1030228AbVKPIgE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 03:36:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030229AbVKPIgE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 03:34:24 -0500
-Received: from mail1.kontent.de ([81.88.34.36]:25494 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S1030225AbVKPIeX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 03:34:23 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Date: Wed, 16 Nov 2005 09:34:21 +0100
-User-Agent: KMail/1.8
-Cc: Alex Davis <alex14641@yahoo.com>, linux-kernel@vger.kernel.org
-References: <20051116005034.73421.qmail@web50210.mail.yahoo.com> <1132128212.2834.17.camel@laptopd505.fenrus.org>
-In-Reply-To: <1132128212.2834.17.camel@laptopd505.fenrus.org>
+	Wed, 16 Nov 2005 03:36:04 -0500
+Received: from smtp8.clb.oleane.net ([213.56.31.28]:52666 "EHLO
+	smtp8.clb.oleane.net") by vger.kernel.org with ESMTP
+	id S1030228AbVKPIgB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 03:36:01 -0500
+Message-ID: <437AEF61.1030704@aie-etudes.com>
+Date: Wed, 16 Nov 2005 09:35:45 +0100
+From: sej <trash@aie-etudes.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200511160934.21444.oliver@neukum.org>
+To: Arjan van de Ven <arjan@infradead.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: DMA transfer with kiobuf, kernel 2.4.21
+References: <437A1D6E.4060302@aie-etudes.com>	 <1132076986.2822.34.camel@laptopd505.fenrus.org>	 <437A20AA.8020001@aie-etudes.com> <1132077714.2822.36.camel@laptopd505.fenrus.org>
+In-Reply-To: <1132077714.2822.36.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 16. November 2005 09:03 schrieb Arjan van de Ven:
-> * less CPU cache footprint due to interrupt stacks
->    - interrupt stacks are per cpu now instead of borrowing the per
->      thread stack space; this both has less impact on the caches, and
->      has more cache hits; the per cpu stack will be in cache more than
->      the previously scattered bits and pieces
-> * more stack space is available for interrupts compared to 2.4 kernels
->    - in 2.4 kernels only 2Kb was available for interrupt context (to
->      keep 4K available for user context). With complex softirqs such as
->      PPP and firewall rules and nested interrupts this wasn't always
->      enough. Compared to 2.6-with-8Kstacks is a bit harder; there is
->      2Kb extra available there compared to 2.4 and arguably some of that
->      extra is for interrupts.
+Hi,
+thank you for your help.
+I will read the DMA documentation. But I need to make DMA on User memory 
+space allocated in user space. Because I don't want the kernel to make 
+allocation and deallocation during execution for stability.
+Best regards.
+Sebastien
 
-This is due to having interrupt stacks. Is there any reason not to have
-8K task stacks and per CPU interrupt stacks?
 
-	Regards
-		Oliver
+Arjan van de Ven wrote :
+
+>On Tue, 2005-11-15 at 18:53 +0100, sej wrote:
+>  
+>
+>>>that sounds the wrong approach.. why don't you make your device driver
+>>>export an mmap function.. and let the userspace app use that ?
+>>>      
+>>>
+>>I can't because I need to allocate 128MB of memory per PCI card and if I put for example 4 cards, I'll have 512MB in kernel memory, and I think there will be some problem in kernel.
+>>    
+>>
+>
+>no there isn't.. there is no rule that memory you allocate for this as
+>to be lowmem... at all.
+>
+>  
+>
+>>
+>>    
+>>
+>>>transfer->Descript[i].size        = PAGE_SIZE;
+>>>transfer->Descript[i].pciaddr    = (ULONG)
+>>>virt_to_phys(page_address(iobuf->maplist[idxIobuf]));
+>>> 
+>>>
+>>>      
+>>>
+>>>you really need to use the PCI DMA mapping api!
+>>>      
+>>>
+>>I have a plx bridge PCI9656 with a DMA controler. So I have to make a 
+>>descriptor table with physical address and size.
+>>I work in 32 bits address mode, but I don't know which function to call 
+>>to get a 36bits address for my controler.
+>>    
+>>
+>
+>see the PCI DMA mapping api. the docs for it are in Documentation/
+>
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>  
+>
 

@@ -1,70 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751479AbVKPPbk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030374AbVKPPcQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751479AbVKPPbk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 10:31:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751477AbVKPPbk
+	id S1030374AbVKPPcQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 10:32:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030362AbVKPPcQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 10:31:40 -0500
-Received: from cpe-24-94-57-164.stny.res.rr.com ([24.94.57.164]:35991 "EHLO
-	gandalf.stny.rr.com") by vger.kernel.org with ESMTP
-	id S1751479AbVKPPbj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 10:31:39 -0500
-Subject: [patch -rt] make gendev_rel_sem a compat_semaphore
-From: Steven Rostedt <rostedt@kihontech.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Wed, 16 Nov 2005 10:31:32 -0500
-Message-Id: <1132155092.6266.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Nov 2005 10:32:16 -0500
+Received: from main.gmane.org ([80.91.229.2]:1444 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1030374AbVKPPcO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 10:32:14 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Pasi Savolainen <psavo@iki.fi>
+Subject: Re: 2.6.14 X spinning in the kernel
+Date: Wed, 16 Nov 2005 15:24:10 +0000 (UTC)
+Message-ID: <slrndnmjor.1ff.psavo@varg.dyndns.org>
+References: <1132012281.24066.36.camel@localhost.localdomain>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: a11a.mannikko1.ton.tut.fi
+X-Face: $sk2zxhxVp'QPUj~kr+z:<m>#+84DO\Ab{4Hes1.P>]p=XhgsnwZM^[:"M?W#_x{W5[lu7i bqv7lOL`]5G%fH"Pgd5;+t"w)sOPDg::&T$Z9p#|xSMIb`$Udj6u14lh]imQ\z
+User-Agent: slrn/0.9.8.1pl1 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+* Badari Pulavarty <pbadari@us.ibm.com>:
+> Hi,
+>
+> My 2-cpu EM64T machine started showing this problem again on 2.6.14.
+> On some reboots, X seems to spin in the kernel forever.
+>
+> sysrq-t output shows nothing.
+>
+> X             R  running task       0  3607   3589          3903
+> (L-TLB)
+>
+> top shows:
+>  3607 root      25   0     0    0    0 R 99.1  0.0 262:04.69 X
 
-I was getting the following:
 
-BUG: nonzero lock count 10 at exit time?
-        modprobe: 2972 [ffff81007e1aaf70, 116]
+I get something like than on 2xAthlon, but kernel 2.6.12 (some debian
+version, AFAIK slightly patched). In my case XOrg (6.8.2 -> 6.9-rc)
+doesn't hang but continues to work, I notice other hung process from
+rising load.
+Video card is Radeon 9200. When I restart X (logout to gdm), hung
+process disappears.
 
-Call Trace:<ffffffff8014e2db>{printk_task+43} <ffffffff8015040f>{check_no_held_locks+111}
-       <ffffffff80136d3c>{do_exit+3036} <ffffffff80136f5c>{do_group_exit+268}
-       <ffffffff80136f72>{sys_exit_group+18} <ffffffff8011e471>{ia32_sysret+0}
-
----------------------------
-| preempt count: 00000000 ]
-| 0-level deep critical section nesting:
-----------------------------------------
-hdc: ATAPI 40X DVD-ROM DVD-R CD-R/RW drive, 2048kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.20
-
-BUG: modprobe/2972, lock held at task exit time!
- [ffffffff8809fd00] {(struct semaphore *)(&hwif->gendev_rel_sem)}
-.. held by:          modprobe: 2972 [ffff81007e1aaf70, 116]
-... acquired at:               init_hwif_data+0xaf/0x1a0 [ide_core]
-
-[snipped to not be so annoying]
-
-Looking into this I see that gendev_rel_sem, which is only used when the
-device is unregistered, is defined as a semaphore.  This patch changes
-this to be a compat_semaphore.
-
--- Steve
-
-Index: linux-2.6.14-rt13/include/linux/ide.h
-===================================================================
---- linux-2.6.14-rt13.orig/include/linux/ide.h	2005-11-15 11:12:37.000000000 -0500
-+++ linux-2.6.14-rt13/include/linux/ide.h	2005-11-16 10:09:10.000000000 -0500
-@@ -910,7 +910,7 @@
- 	unsigned	sg_mapped  : 1;	/* sg_table and sg_nents are ready */
- 
- 	struct device	gendev;
--	struct semaphore gendev_rel_sem; /* To deal with device release() */
-+	struct compat_semaphore gendev_rel_sem; /* To deal with device release() */
- 
- 	void		*hwif_data;	/* extra hwif data */
- 
-
+-- 
+   Psi -- <http://www.iki.fi/pasi.savolainen>
 

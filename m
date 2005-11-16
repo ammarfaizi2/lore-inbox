@@ -1,44 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030449AbVKPTv1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030456AbVKPTwU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030449AbVKPTv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 14:51:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030456AbVKPTv0
+	id S1030456AbVKPTwU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 14:52:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030457AbVKPTwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 14:51:26 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:36790
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1030449AbVKPTv0 convert rfc822-to-8bit (ORCPT
+	Wed, 16 Nov 2005 14:52:20 -0500
+Received: from atlrel7.hp.com ([156.153.255.213]:49029 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S1030456AbVKPTwT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 14:51:26 -0500
-Date: Wed, 16 Nov 2005 11:51:41 -0800 (PST)
-Message-Id: <20051116.115141.33136176.davem@davemloft.net>
-To: david@pleyades.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: /net/sched/Kconfig broken
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20051116194414.GA14953@fargo>
-References: <20051116194414.GA14953@fargo>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 16 Nov 2005 14:52:19 -0500
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: "Gabriel A. Devenyi" <ace@staticwave.ca>
+Subject: Re: [RESEND] [PATCH] drivers/acpi/asus_acpi.c unsigned comparison
+Date: Wed, 16 Nov 2005 12:52:08 -0700
+User-Agent: KMail/1.8.2
+Cc: sziwan@users.sourceforge.net, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net,
+       Karol Kozimor <sziwan@users.sourceforge.net>,
+       Julien Lerouge <julien.lerouge@free.fr>,
+       acpi4asus-user@lists.sourceforge.net
+References: <200511121616.14940.ace@staticwave.ca>
+In-Reply-To: <200511121616.14940.ace@staticwave.ca>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511161252.08927.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Gómez <david@pleyades.net>
-Date: Wed, 16 Nov 2005 20:44:14 +0100
+On Saturday 12 November 2005 2:16 pm, Gabriel A. Devenyi wrote:
+> It helps if I attach the patch.
 
-> It's impossible to enable the U32 classifier in QoS submenu, to use it
-> with the "tc" application. In fact there are 23 :-/ options and suboptions
-> that are missing from the configuration because it seems that the Kconfig
-> file is broken.
+And send it to the right places (copied, from MAINTAINERS).
 
-I can enable this just fine by using "make config", making
-sure to enable CONFIG_NET_SCHED, then CONFIG_NET_CLS_BASIC,
-and then the necessary classifiers (including U32) are offered
-to be enabled.
-
-Perhaps there is something amiss in the configuration mechanism
-you are trying to use.  So you might want to tell us which kernel
-config menu program you are trying to use so this can be debugged
-further.
+> proc_write_brn, and proc_write_disp both use a parameter "count" to store the result from parse_arg.
+> The return of parse_arg is an int, but count is declared as an unsigned int, and later checked versus zero,
+> which is meaningless. This patch fixes the declaration of count in both functions.
+> 
+> Thanks to LinuxICC (http://linuxicc.sf.net)
+> 
+> Signed-off-by: Gabriel A. Devenyi <ace@staticwave.ca>
+> 
+> diff --git a/drivers/acpi/asus_acpi.c b/drivers/acpi/asus_acpi.c
+> index fec895a..9dfd0cd 100644
+> --- a/drivers/acpi/asus_acpi.c
+> +++ b/drivers/acpi/asus_acpi.c
+> @@ -748,7 +748,7 @@ proc_read_brn(char *page, char **start, 
+>  
+>  static int
+>  proc_write_brn(struct file *file, const char __user * buffer,
+> -	       unsigned long count, void *data)
+> +	       long count, void *data)
+>  {
+>  	int value;
+>  
+> @@ -798,7 +798,7 @@ proc_read_disp(char *page, char **start,
+>   */
+>  static int
+>  proc_write_disp(struct file *file, const char __user * buffer,
+> -		unsigned long count, void *data)
+> +		long count, void *data)
+>  {
+>  	int value;
+>  
+> 
+> 
+> -- 
+> Gabriel A. Devenyi
+> ace@staticwave.ca
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

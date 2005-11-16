@@ -1,96 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030213AbVKPIJB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030219AbVKPIMw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030213AbVKPIJB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 03:09:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030214AbVKPIJB
+	id S1030219AbVKPIMw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 03:12:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030220AbVKPIMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 03:09:01 -0500
-Received: from [218.25.172.144] ([218.25.172.144]:17156 "HELO mail.fc-cn.com")
-	by vger.kernel.org with SMTP id S1030213AbVKPIJA (ORCPT
+	Wed, 16 Nov 2005 03:12:52 -0500
+Received: from mail.gmx.net ([213.165.64.20]:3563 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1030219AbVKPIMv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 03:09:00 -0500
-Date: Wed, 16 Nov 2005 16:08:55 +0800
-From: Coywolf Qi Hunt <qiyong@fc-cn.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Christoph Hellwig <hch@infradead.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] new block/ directory comment tidy
-Message-ID: <20051116080855.GA3418@localhost.localdomain>
-References: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org> <20051113090156.GA4417@infradead.org> <20051113110517.GG3699@suse.de> <20051116061525.GA3035@localhost.localdomain> <20051116074850.GA20259@infradead.org> <20051116075732.GQ7787@suse.de>
+	Wed, 16 Nov 2005 03:12:51 -0500
+Date: Wed, 16 Nov 2005 09:12:50 +0100 (MET)
+From: "Michael Kerrisk" <mtk-lkml@gmx.net>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, mtk-manpages@gmx.net
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051116075732.GQ7787@suse.de>
-User-Agent: Mutt/1.5.11
+References: <20051115173307.GB13707@suse.de>
+Subject: Re: [RFC] HOWTO do Linux kernel development
+X-Priority: 3 (Normal)
+X-Authenticated: #23581172
+Message-ID: <711.1132128770@www71.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 16, 2005 at 08:57:32AM +0100, Jens Axboe wrote:
-> On Wed, Nov 16 2005, Christoph Hellwig wrote:
-> > On Wed, Nov 16, 2005 at 02:15:25PM +0800, Coywolf Qi Hunt wrote:
-> > > On Sun, Nov 13, 2005 at 12:05:18PM +0100, Jens Axboe wrote:
-> > > > On Sun, Nov 13 2005, Christoph Hellwig wrote:
-> > > > > Shouldn't fs/bio.c, fs/block_dev.c and fs/partitions/* move to block/
-> > > > > aswell?
-> > > > 
-> > > > Yup, that's the intention. I just started off with drivers/block/* to
-> > > > get it going.
-> > >  
-> > > 
-> > > New block/ directory comment tidy.
-> > 
-> > Please just kill these lines instead.
-> 
-> Agree, they don't really add anything.
+Greg,
 
-They did. Linus could use them as a hint to rescue his kernel source code after
-some filesystem crash. :p
+Under 'Documentation', there is the text:
 
-Signed-off-by: Coywolf Qi Hunt <qiyong@fc-cn.com>
----
+    When new features are added to the kernel, it is recommended 
+    that new documentation files are also added which explain how 
+    to use the feature.
 
-diff -pruN 2.6.14-mm2/block/as-iosched.c 2.6.14-mm2-cy/block/as-iosched.c
---- 2.6.14-mm2/block/as-iosched.c	2005-11-11 16:50:55.000000000 +0800
-+++ 2.6.14-mm2-cy/block/as-iosched.c	2005-11-16 14:05:43.000000000 +0800
-@@ -1,5 +1,3 @@
- /*
-- *  linux/drivers/block/as-iosched.c
-- *
-  *  Anticipatory & deadline i/o scheduler.
-  *
-diff -pruN 2.6.14-mm2/block/cfq-iosched.c 2.6.14-mm2-cy/block/cfq-iosched.c
---- 2.6.14-mm2/block/cfq-iosched.c	2005-11-11 16:50:55.000000000 +0800
-+++ 2.6.14-mm2-cy/block/cfq-iosched.c	2005-11-16 14:06:03.000000000 +0800
-@@ -1,5 +4294967295,3 @@
- /*
-- *  linux/drivers/block/cfq-iosched.c
-- *
-  *  CFQ, or complete fairness queueing, disk scheduler.
-  *
-diff -pruN 2.6.14-mm2/block/deadline-iosched.c 2.6.14-mm2-cy/block/deadline-iosched.c
---- 2.6.14-mm2/block/deadline-iosched.c	2005-11-11 16:50:55.000000000 +0800
-+++ 2.6.14-mm2-cy/block/deadline-iosched.c	2005-11-16 14:06:28.000000000 +0800
-@@ -1,5 +4294967293,3 @@
- /*
-- *  linux/drivers/block/deadline-iosched.c
-- *
-  *  Deadline i/o scheduler.
-  *
-diff -pruN 2.6.14-mm2/block/elevator.c 2.6.14-mm2-cy/block/elevator.c
---- 2.6.14-mm2/block/elevator.c	2005-11-11 16:50:55.000000000 +0800
-+++ 2.6.14-mm2-cy/block/elevator.c	2005-11-16 14:06:49.000000000 +0800
-@@ -1,5 +4294967291,3 @@
- /*
-- *  linux/drivers/block/elevator.c
-- *
-  *  Block device elevator/IO-scheduler.
-  *
-diff -pruN 2.6.14-mm2/block/ll_rw_blk.c 2.6.14-mm2-cy/block/ll_rw_blk.c
---- 2.6.14-mm2/block/ll_rw_blk.c	2005-11-11 16:50:55.000000000 +0800
-+++ 2.6.14-mm2-cy/block/ll_rw_blk.c	2005-11-16 14:04:53.000000000 +0800
-@@ -1,5 +4294967289,3 @@
- /*
-- *  linux/drivers/block/ll_rw_blk.c
-- *
-  * Copyright (C) 1991, 1992 Linus Torvalds
-  * Copyright (C) 1994,      Karl Keyte: Added support for disk statistics
+Could you also add something like:
+
+    When a new feature changes the interface that the kernel 
+    exposes to userland, it is recommended that you send 
+    information or a man-pages patch explaining the change 
+    to the manual pages maintainer at mtk-manpages@gmx.net.
+
+Thanks,
+
+Michael
+
+-- 
+10 GB Mailbox, 100 FreeSMS/Monat http://www.gmx.net/de/go/topmail
++++ GMX - die erste Adresse für Mail, Message, More +++

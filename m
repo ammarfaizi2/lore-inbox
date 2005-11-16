@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965106AbVKPRba@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965096AbVKPRg0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965106AbVKPRba (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 12:31:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965101AbVKPRba
+	id S965096AbVKPRg0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 12:36:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965101AbVKPRg0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 12:31:30 -0500
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:10779 "EHLO
-	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S965096AbVKPRb3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 12:31:29 -0500
-X-IronPort-AV: i="3.97,338,1125896400"; 
-   d="scan'208"; a="341287047:sNHT90442228"
-Date: Wed, 16 Nov 2005 11:31:23 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: minyard@acm.org, akpm@osdl.org, torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, openipmi-developer@lists.sourceforge.net
-Subject: [PATCH 2.6.15-rc] ipmi: missing NULL test for kthread
-Message-ID: <20051116173123.GA25777@lists.us.dell.com>
+	Wed, 16 Nov 2005 12:36:26 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:5760 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S965096AbVKPRgZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 12:36:25 -0500
+Date: Wed, 16 Nov 2005 12:33:58 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Lee <linuxtwidler@gmail.com>
+Cc: linux-kernel@vger.kernel.org, pageexec@freemail.hu
+Subject: Re: 4k stack overflow and stack traces
+Message-ID: <20051116173358.GA982@kvack.org>
+References: <20051110083525.6cfe6f35@localhost> <20051115202827.GC31988@kvack.org> <20051115164005.0d7f5baf@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20051115164005.0d7f5baf@localhost>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On IPMI systems with BT interfaces, we don't start the kernel thread,
-so smi_info->thread is NULL.  Test for NULL when stopping the thread,
-because kthread_stop() doesn't, and an oops ensues otherwise.
+On Tue, Nov 15, 2005 at 04:40:05PM -0600, Lee wrote:
+> see attached for filesystems, devices, current kernel build config
+> 
+> do you advise doing a make checkstack before or after the patch that you speak of making?
 
-Signed-off-by: Matt Domsch <Matt_Domsch@dell.com>
+Yes please, that will give us all the datapoints from your particular 
+gcc version, config and modules.
 
--- 
-Matt Domsch
-Software Architect
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+> I also have iptables configured with nat for local connections enabled
+> 
+> i am also using ethernet bridge (intended for apps like pearpc and qemu, 
+> which i use very infrequently).  
 
-diff -urNp --exclude-from=/home/mdomsch/excludes --minimal linux-2.6/drivers/char/ipmi/ipmi_si_intf.c linux-2.6.ipmi/drivers/char/ipmi/ipmi_si_intf.c
---- linux-2.6/drivers/char/ipmi/ipmi_si_intf.c	Wed Nov 16 08:45:57 2005
-+++ linux-2.6.ipmi/drivers/char/ipmi/ipmi_si_intf.c	Wed Nov 16 08:49:12 2005
-@@ -2203,7 +2203,7 @@ static void setup_xaction_handlers(struc
- 
- static inline void wait_for_timer_and_thread(struct smi_info *smi_info)
- {
--	if (smi_info->thread != ERR_PTR(-ENOMEM))
-+	if (smi_info->thread != NULL && smi_info->thread != ERR_PTR(-ENOMEM))
- 		kthread_stop(smi_info->thread);
- 	del_timer_sync(&smi_info->si_timer);
- }
+Hmmm, does it trigger on any particular network traffic?  I'm wondering 
+if one of the masquerading modules you're using happens to eat just 
+enough stack when mixed with the bridging configuration.
+
+		-ben

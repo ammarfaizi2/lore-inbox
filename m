@@ -1,50 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965174AbVKPCDm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965176AbVKPCHW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965174AbVKPCDm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 21:03:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965176AbVKPCDm
+	id S965176AbVKPCHW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 21:07:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965178AbVKPCHW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 21:03:42 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:968 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S965174AbVKPCDl (ORCPT
+	Tue, 15 Nov 2005 21:07:22 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:37324 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S965176AbVKPCHV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 21:03:41 -0500
-Date: Tue, 15 Nov 2005 18:03:36 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Simon.Derr@bull.net, steiner@sgi.com
-Subject: Re: [PATCH] cpuset export symbols gpl
-Message-Id: <20051115180336.11139847.pj@sgi.com>
-In-Reply-To: <20051115173935.5fc75e00.akpm@osdl.org>
-References: <20051116012254.6470.89326.sendpatchset@jackhammer.engr.sgi.com>
-	<20051115173935.5fc75e00.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Nov 2005 21:07:21 -0500
+Date: Wed, 16 Nov 2005 02:07:17 +0000 (GMT)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: Andi Kleen <ak@suse.de>
+Cc: linux-mm@kvack.org, mingo@elte.hu, lhms-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au
+Subject: Re: [PATCH 2/5] Light Fragmentation Avoidance V20: 002_usemap
+In-Reply-To: <200511160252.05494.ak@suse.de>
+Message-ID: <Pine.LNX.4.58.0511160200530.8470@skynet>
+References: <20051115164946.21980.2026.sendpatchset@skynet.csn.ul.ie>
+ <200511160036.54461.ak@suse.de> <Pine.LNX.4.58.0511160137540.8470@skynet>
+ <200511160252.05494.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew wrote (of exporting cpuset symbols)
-> We normally would do this when such modules are merged.  Do tell us more..
+On Wed, 16 Nov 2005, Andi Kleen wrote:
 
-It was an oversight not to do this when cpusets went in last year,
-but we didn't notice, as the loadable module we cared about had a
-hack in place from earlier development that avoided needing this.
+> On Wednesday 16 November 2005 02:43, Mel Gorman wrote:
+>
+> > 1. I was using a page flag, valuable commodity, thought I would get kicked
+> >    for it. Usemap uses 1 bit per 2^(MAX_ORDER-1) pages. Page flags uses
+> >    2^(MAX_ORDER-1) bits at worse case.
+>
+> Why does it need multiple bits? A page can only be in one order at a
+> time, can't it?
+>
 
-In cleaning this up, we realized that the module needed to access
-task->cpuset->cpus_allowed, and that the correct (and safe) way to
-do this, via cpuset_cpus_allowed(), was not available to the module.
+Yes, but 1024 pages in one block is one bit per page. Usemap uses 1 page
+for all 1024.
 
-The other 4 exports I added on general principles, but don't have
-any pressing need for.  The one I need is cpuset_cpus_allowed().
+> > 2. Fragmentation avoidance tended to break down, very fast.
+>
+> Why? The algorithm should the same, no?
+>
 
-The loadable module in question we call 'dplace', and is used to
-provide fancier cpuset-relative task placement by manipulating
-task->cpus_allowed at exec.
+That's what I thought when I wrote it first but it broke down fast
+according to bench-stresshighalloc. I'll need to re-examine the patches
+and see where I went wrong.
+
+> > 3. When changing a block of pages from one type to another, there was no
+> >    fast way to make sure all pages currently allocation would end up on
+> >    the correct free list
+>
+> If you can change the bitmap you can change as well mem_map
+>
+
+That's iterating through, potentially, 1024 pages which I considered too
+expensive. In terms of code complexity, the page-flags patch adds 237
+which is not much of a saving in comparison to 275 that the usemap
+approach uses.
+
+Again, I can revisit the page-flag approach if I thought that something
+like this would get merged and people would not choke on another page flag
+being consumed.
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Mel Gorman
+Part-time Phd Student                          Java Applications Developer
+University of Limerick                         IBM Dublin Software Lab

@@ -1,55 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030241AbVKPJAc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030244AbVKPJCG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030241AbVKPJAc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 04:00:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030248AbVKPJAc
+	id S1030244AbVKPJCG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 04:02:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030242AbVKPJCF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 04:00:32 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:21203 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030241AbVKPJAb (ORCPT
+	Wed, 16 Nov 2005 04:02:05 -0500
+Received: from smtp21.cstnet.cn ([159.226.251.21]:43714 "HELO cstnet.cn")
+	by vger.kernel.org with SMTP id S1030248AbVKPJCB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 04:00:31 -0500
-Date: Wed, 16 Nov 2005 00:59:58 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Cal Peake <cp@absolutedigital.net>
-Cc: linux-kernel@vger.kernel.org, jcm@jonmasters.org, torvalds@osdl.org,
-       viro@ftp.linux.org.uk, hch@lst.de
-Subject: Re: floppy regression from "[PATCH] fix floppy.c to store correct
- ..."
-Message-Id: <20051116005958.25adcd4a.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0511160034320.988@lancer.cnet.absolutedigital.net>
-References: <Pine.LNX.4.61.0511160034320.988@lancer.cnet.absolutedigital.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Nov 2005 04:02:01 -0500
+X-Originating-IP: [159.226.10.6]
+Message-ID: <014a01c5ea8c$44788fc0$060ae29f@javaboy>
+From: "jywang" <jywang@cnic.cn>
+To: <linux-kernel@vger.kernel.org>
+Subject: is there a bug in kernel?
+Date: Wed, 16 Nov 2005 17:01:01 +0800
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1506
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cal Peake <cp@absolutedigital.net> wrote:
->
-> Hi,
-> 
-> Commit 88baf3e85af72f606363a85e9a60e9e61cc64a6c:
-> 
->  "[PATCH] fix floppy.c to store correct ro/rw status in underlying gendisk"
-> 
-> causes an annoying side-effect. Upon first write attempt to a floppy I get 
-> this:
-> 
-> $ dd if=bootdisk.img of=/dev/fd0 bs=1440k
-> dd: writing `/dev/fd0': Operation not permitted
-> 1+0 records in
-> 0+0 records out
-> 
-> Any successive attempts succeed without problem. Confirmed that backing 
-> out the patch fixes it.
-> 
+i program a server and a client using tcp.
+the client send a string to the server, and the server send the string back
+when it received it.
+all is ok before i set a srr option in the socket.
 
-hmm, yes, when floppy_open() does its test we haven't yet gone and
-determined the state of FD_DISK_WRITABLE.  On later opens, we have done, so
-things work OK.
+the lines i used below:
 
-We may be able to do the test at the end of floppy_open(), after
-check_disk_change() has called floppy_revalidate().  But for O_NDELAY opens
-we appear to be screwed.
+ char opt[7]={131, 7, 4, 192, 168, 1, 1};
+ if(setsockopt(socket_descriptor, SOL_IP, IP_OPTIONS, opt, 7)) printf("error
+find in set options!\n");
+
+
+when this lines are inserted into my program, all packets are ok except the
+last packet send back
+because i monitor the link using libpcap.
+
+it seems the string back ok, but can't be received by my program. the client
+is waiting and waiting and ...
+
+why?
+
+my client program as below:
+-------------
+ socket_descriptor = socket(AF_INET, SOCK_STREAM, 0)) ;
+ char opt[7]={131, 7, 4, 192, 168, 1, 1};
+ if(setsockopt(socket_descriptor, SOL_IP, IP_OPTIONS, opt, 7)) printf("error
+find in set options!\n");
+connect(socket_descriptor, (void *)&pin, sizeof(pin)) == -1);
+send(socket_descriptor, str, strlen(str)+1,0) == -1 );
+recv(socket_descriptor, buf, 8192, 0) == -1) ;
+---------------
+
+my server progarm as below:
+--------------
+  sock_descriptor = socket(AF_INET, SOCK_STREAM, 0);
+  bind(sock_descriptor, (struct sockaddr *)&sin, sizeof(sin)) == -1) ;
+  listen(sock_descriptor, 20) == -1) ;
+  while(1) {
+        temp_sock_descriptor = accept(sock_descriptor, (struct sockaddr
+*)&pin, &address_size);
+        read(temp_sock_descriptor, buf, 16384, 0) == -1) ;
+        printf("\nReceived from client: %s\n", buf);
+        write(temp_sock_descriptor, buf, strlen(buf), 0) == -1) ;
+    }
+--------------
+
+
+
+
+
+
+

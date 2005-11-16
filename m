@@ -1,77 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030235AbVKPImI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030214AbVKPIpw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030235AbVKPImI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 03:42:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030234AbVKPImI
+	id S1030214AbVKPIpw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 03:45:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030218AbVKPIpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 03:42:08 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:15248
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1030231AbVKPImG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 03:42:06 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 12/18] shared mount handling: bind and rbind
-Date: Wed, 16 Nov 2005 02:41:19 -0600
-User-Agent: KMail/1.8
-Cc: Ram Pai <linuxram@us.ibm.com>, Miklos Szeredi <miklos@szeredi.hu>,
-       Al Viro <viro@ftp.linux.org.uk>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-References: <E1EZInj-0001Ez-AV@ZenIV.linux.org.uk> <200511152129.04079.rob@landley.net> <Pine.LNX.4.64.0511151948570.13959@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0511151948570.13959@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Nov 2005 03:45:52 -0500
+Received: from verein.lst.de ([213.95.11.210]:61614 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S1030214AbVKPIpv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 03:45:51 -0500
+Date: Wed, 16 Nov 2005 09:45:44 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Christoph Hellwig <hch@lst.de>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/4] add compat_ioctl methods to dasd
+Message-ID: <20051116084544.GA25181@lst.de>
+References: <20051104221652.GB9384@lst.de> <20051112093340.GA15702@lst.de> <1132066277.6014.35.camel@localhost.localdomain> <20051115172438.GA10445@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511160241.20016.rob@landley.net>
+In-Reply-To: <20051115172438.GA10445@lst.de>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 November 2005 21:53, Linus Torvalds wrote:
-> So if you mount over '/', it won't actually do what you think it does:
-> because when you open "/", it will continue to open the _old_ "/". Exactly
-> the same way that mounting over somebody's cwd won't do what you think it
-> does - because the root and the cwd have been looked-up earlier and are
-> cached with the process.
+On Tue, Nov 15, 2005 at 06:24:38PM +0100, Christoph Hellwig wrote:
+> > and doesn't work after fixing the compile problem. It's a
+> > problem with the bdev->bd_disk->private_data which is NULL at the time
+> > the partition detection code calls the BIODASDINFO and HDIO_GETGEO ioctl
+> > with ioctl_by_bdev. I don't see an easy way to fix this right now.
+> 
+> my patch doesn't change anything related to dereferencing those fields.
+> 
+> I see the problem that you're probably having: ioctl_by_bdev calls
+> ->ioctl without ensuring ->open has been called previously.  But I don't
+> see why this couldn't have happened previously.
 
-So does mounting over / actually accomplish anything?  Or is it sort of an 
-undermount instead of an overmount, resulting in a mounted but inaccessible 
-filesystem?  (In theory, fork() would copy the current cached value of "/", 
-and all absolute path lookups are really sort of relative paths from the 
-cached "/"...)
+So looking at it again I found a bug:  we return EINVAL on an invalid
+ioctl, but the compat layer expects ENOIOCTLCMD so it returns using the
+generic compat bits.  Returning ENOIOCTLCMD from unlocked_ioctl is fine
+aswell as the ioctl layer turns it back.  The patch below fix this issue
+and the missing semicolon after lock_kernel()
 
-I ask because I'm trying to figure out what switch_root's "mount --move . /" 
-accomplishes, other than making /proc/mounts look right.  If we just did the 
-chroot(".") it'd be functionally the same, and slightly smaller (which 
-busybox cares about).
 
-I'm also remembering that while playing around with stuff in a PID 1 shell 
-under UML (trying to figure out how to implement pivot_root), I mounted 
-something directly on / (which was a NOP) and then umount was also a NOP 
-(presumably because it was trying to umount rootfs), meaning I had a mount 
-that had simply _leaked_.  It still showed up in /proc/mounts, but was 
-totally inaccessable and couldn't be removed either.
-
-I guess that's a "don't do that then".
-
-> This is why we have "pivot_root()" and "chroot()", which can both be used
-> to do what you want to do. You mount the new root somewhere else, and then
-> you chroot (or pivot-root) to it. And THEN you do 'chdir("/")' to move the
-> cwd into the new root too (and only at that point have you "lost" the old
-> root - although you can actually get it back if you have some file
-> descriptor open to it).
-
-So all chroot(2) really does is reset the "/" reference?
-
-In the specific case of "mount --move . /" || chroot ("."), I don't see why we 
-need a chdir afterwards, because cwd points to the correct filesystem.  (In 
-fact, for a moment there between the mount move and the chroot it's the 
-_only_ reference we have to this filesystem.)
-
-Perhaps ".." isn't correct unless we chdir again...?
-
->   Linus
-
-Rob
+Index: linux-2.6/drivers/s390/block/dasd_ioctl.c
+===================================================================
+--- linux-2.6.orig/drivers/s390/block/dasd_ioctl.c	2005-11-16 00:59:04.000000000 +0100
++++ linux-2.6/drivers/s390/block/dasd_ioctl.c	2005-11-16 01:02:36.000000000 +0100
+@@ -86,11 +86,11 @@
+ 	struct dasd_device *device = bdev->bd_disk->private_data;
+ 	struct dasd_ioctl *ioctl;
+ 	const char *dir;
+-	int rc = -EINVAL;
++	int rc = -ENOIOCTLCMD;
+ 
+ 	if ((_IOC_DIR(no) != _IOC_NONE) && (data == 0)) {
+ 		PRINT_DEBUG("empty data ptr");
+-		return -EINVAL;
++		goto out;
+ 	}
+ 	dir = _IOC_DIR (no) == _IOC_NONE ? "0" :
+ 		_IOC_DIR (no) == _IOC_READ ? "r" :
+@@ -100,7 +100,7 @@
+ 		      "ioctl 0x%08x %s'0x%x'%d(%d) with data %8lx", no,
+ 		      dir, _IOC_TYPE(no), _IOC_NR(no), _IOC_SIZE(no), data);
+ 
+-	lock_kernel()
++	lock_kernel();
+ 	/* Search for ioctl no in the ioctl list. */
+ 	list_for_each_entry(ioctl, &dasd_ioctl_list, list) {
+ 		if (ioctl->no == no) {
+@@ -109,15 +109,16 @@
+ 				continue;
+ 			rc = ioctl->handler(bdev, no, data);
+ 			module_put(ioctl->owner);
+-			goto out;
++			break;
+ 		}
+ 	}
+ 	/* No ioctl with number no. */
+ 	DBF_DEV_EVENT(DBF_INFO, device,
+ 		      "unknown ioctl 0x%08x=%s'0x%x'%d(%d) data %8lx", no,
+ 		      dir, _IOC_TYPE(no), _IOC_NR(no), _IOC_SIZE(no), data);
+- out:
++ out_unlock:
+ 	unlock_kernel();
++ out:
+ 	return rc;
+ }
+ 

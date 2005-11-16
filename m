@@ -1,59 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbVKPJq0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932593AbVKPJsV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932313AbVKPJq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 04:46:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932592AbVKPJq0
+	id S932593AbVKPJsV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 04:48:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932594AbVKPJsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 04:46:26 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:21179 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932313AbVKPJqZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 04:46:25 -0500
-Subject: Re: [PATCH -rt] race condition in fs/compat.c with compat_sys_ioctl
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Andi Kleen <ak@suse.de>
-Cc: pavel@suse.cz, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
-In-Reply-To: <p73y83pp25r.fsf@verdi.suse.de>
-References: <1131821278.5047.8.camel@localhost.localdomain>
-	 <5bdc1c8b0511121725u6df7ad9csb9cb56777fa6fe64@mail.gmail.com>
-	 <Pine.LNX.4.58.0511122149020.25152@localhost.localdomain>
-	 <5bdc1c8b0511121914v12dc4402u424fbaf416bf3710@mail.gmail.com>
-	 <1131853456.5047.14.camel@localhost.localdomain>
-	 <5bdc1c8b0511130634h501fb565v58906bdfae788814@mail.gmail.com>
-	 <1131994030.5047.17.camel@localhost.localdomain>
-	 <5bdc1c8b0511141057l60a2e778x89155cd5484d532f@mail.gmail.com>
-	 <1132115386.5047.61.camel@localhost.localdomain>
-	 <p73y83pp25r.fsf@verdi.suse.de>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Wed, 16 Nov 2005 04:46:10 -0500
-Message-Id: <1132134370.5047.73.camel@localhost.localdomain>
+	Wed, 16 Nov 2005 04:48:21 -0500
+Received: from barclay.balt.net ([195.14.162.78]:24473 "EHLO barclay.balt.net")
+	by vger.kernel.org with ESMTP id S932593AbVKPJsU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 04:48:20 -0500
+Date: Wed, 16 Nov 2005 11:45:52 +0200
+From: Zilvinas Valinskas <zilvinas@gemtek.lt>
+To: Zhu Yi <yi.zhu@intel.com>
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>, Andrew Morton <akpm@osdl.org>,
+       Alexandre Buisse <alexandre.buisse@ens-lyon.fr>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, jketreno@linux.intel.com
+Subject: Re: Linuv 2.6.15-rc1
+Message-ID: <20051116094551.GA23140@gemtek.lt>
+Reply-To: Zilvinas Valinskas <zilvinas@gemtek.lt>
+References: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org> <4378980C.7060901@ens-lyon.fr> <20051114162942.5b163558.akpm@osdl.org> <20051115100519.GA5567@gemtek.lt> <20051115115657.GA30489@gemtek.lt> <84144f020511150451l6ef30420g5a83a147c61f34a8@mail.gmail.com> <20051115140023.GB9910@gemtek.lt> <1132120145.18679.12.camel@debian.sh.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1132120145.18679.12.camel@debian.sh.intel.com>
+X-Attribution: Zilvinas
+X-Url: http://www.gemtek.lt/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-16 at 06:55 +0100, Andi Kleen wrote:
-> Steven Rostedt <rostedt@goodmis.org> writes:
+Hello,
+
+Please see : http://www.gemtek.lt/~zilvinas/dumps/trace 
+
+This time I didn't see oops printed again :( Don't understand why,
+although I have managed to capture SysRQ-T output - see URL above.
+Kernel has been updated this morning to revision:
+
+f6ff56cd56b83d8edf4b3cffc5c53c56b37a5081 
+
+plus additionally applied patch from URL. Interesting this time I
+haven't seen any signs of slab corruptions or any such things :(
+
+I hope this helps. Any other ideas and things to try out ? :)
+
+btw, what are these messages about:
+ Unknown notification: subtype=40,flags=0xa0,size=40
+
+I've read a ipw2200.c code and didn't see what is subtype=40 ...
+Because once those messages are starting showing up - immediately (most
+of the time) follows by kernel freeze (sysrq is working though ...). 
+
+Zilvinas
+
+On Wed, Nov 16, 2005 at 01:49:04PM +0800, Zhu Yi wrote:
+> On Tue, 2005-11-15 at 16:00 +0200, Zilvinas Valinskas wrote:
+> > Hello again,
 > > 
-> > That's the problem. I found out that one ioctl might sleep holding the
-> > sem and won't be woken up until another process calls another ioctl to
-> > wake it up. But unfortunately, the one waking up the sleeper will block
-> > on the sem.  (the killer was tty_wait_until_sent)
+> > screenshots of ooops (not of the best quality though :( ) - 
+> > http://www.gemtek.lt/~zilvinas/dumps/  - as it can be seen from
+> > screenshots crashing in _ipw_read_indirect_0xa9/0x179 ... This time it
+> > took a while to reproduce a problem. Somehow I get impression it is
+> > either f/w loading related (see attached oops.1 file) and/or initiating
+> > scan and reading back wireless scan results ??? ...
 > 
-> You should have looked into mainline first. The semaphore is already gone
-> because it wasn't even needed anymore.
-
-It's still there in 2.6.15-rc1-git3 (the sem is the down_read of
-ioctl32_sem in fs/compat.c).
-
-No, the problem was unique to the rt patch.  In -rt the default
-down_read is just like a down (since it is very hard to do PI on readers
-and writer locks).  So the solution in -rt was to convert this back to a
-normal RW sem.
-
--- Steve
-
-
+> Please try the patch below and see if it makes any difference.
+> http://bughost.org/bugzilla/show_bug.cgi?id=821
+> 
+> Thanks,
+> -yi
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

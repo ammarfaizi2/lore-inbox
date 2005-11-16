@@ -1,75 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965199AbVKPDPG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965200AbVKPDTF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965199AbVKPDPG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 22:15:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965200AbVKPDPF
+	id S965200AbVKPDTF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 22:19:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965202AbVKPDTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 22:15:05 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:56488 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S965199AbVKPDPD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 22:15:03 -0500
-Date: Wed, 16 Nov 2005 12:14:18 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: Mike Kravetz <kravetz@us.ibm.com>
-Subject: Re: pfn_to_nid under CONFIG_SPARSEMEM and CONFIG_NUMA
-Cc: linux-mm@kvack.org, Andy Whitcroft <apw@shadowen.org>,
-       Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051115221003.GA2160@w-mikek2.ibm.com>
-References: <20051115221003.GA2160@w-mikek2.ibm.com>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.051
-Message-Id: <20051116115548.EE18.Y-GOTO@jp.fujitsu.com>
+	Tue, 15 Nov 2005 22:19:04 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:9648 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965200AbVKPDTD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 22:19:03 -0500
+Message-ID: <437AA51A.6000709@pobox.com>
+Date: Tue, 15 Nov 2005 22:18:50 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+To: Tejun Heo <htejun@gmail.com>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Carlos Pardo <Carlos.Pardo@siliconimage.com>
+Subject: Re: [PATCH] libata error handling fixes (ATAPI)
+References: <20051114195717.GA24373@havoc.gtf.org> <20051115074148.GA17459@htj.dyndns.org> <4379AA5B.1060900@pobox.com> <4379E5F7.6000107@gmail.com> <4379EC82.1030509@pobox.com> <437AA1A0.6080409@gmail.com>
+In-Reply-To: <437AA1A0.6080409@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.21.02 [ja]
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, 15 Nov 2005 14:10:03 -0800
-Mike Kravetz <kravetz@us.ibm.com> wrote:
-
-> The following code/comment is in <linux/mmzone.h> if SPARSEMEM
-> and NUMA are configured.
+Tejun Heo wrote:
+> Jeff Garzik wrote:
 > 
-> /*
->  * These are _only_ used during initialisation, therefore they
->  * can use __initdata ...  They could have names to indicate
->  * this restriction.
->  */
-> #ifdef CONFIG_NUMA
-> #define pfn_to_nid              early_pfn_to_nid
-> #endif
+>>
+>> The port stops, when any error occurs.  For device errors, set 
+>> PORT_CS_INIT bit in PORT_CTRL_STAT, then wait for Port Ready (bit 31, 
+>> see above).
+>>
 > 
-> However, pfn_to_nid is certainly used in check_pte_range() mm/mempolicy.c.
-> I wouldn't be surprised to find more non init time uses if you follow all
-> the call chains.
+> Yeap, this did the trick.  I'm working on SRST/init stuff and I think I 
+> can post patches later today.  What workload do you use for testing a 
+> ATAPI device?  I'm currently thinking of the following...
 > 
-> On ppc64, early_pfn_to_nid now only uses __initdata.  So, I would expect
-> policy code that calls check_pte_range to cause serious problems on ppc64.
+> * mounting & tarr'ing cdrom & unmount
+> * repeat above with eject/load
+> * burning a cdrom
+> * ripping a music cd with cdparanoia
 > 
-> Any suggestions on how this should really be structured?  I'm thinking
-> of removing the above definition of pfn_to_nid to force each architecture
-> to provide a (non init only) version.
+> Any other thing I can try?
 
-Yes! I worried about same things.
-How is this?
+I burn Fedora Core CDs and DVDs, and then run
+	/usr/lib/anaconda-runtime/checkisomd5 --verbose /dev/scd0
 
-static inline int pfn_to_nid(unsigned long pfn)
-{
-	return page_to_nid(pfn_to_page(pfn));
-}
+FC ISOs, and probably many others as well, appear to contain embedded 
+checksums.  This is a really good test, I've found.  I'll burn CDs/DVDs, 
+then use that to validate them on another machine.  Or I'll use 
+checkisomd5 simply as a test of libata ATAPI itself.
 
-page_to_nid() and pfn_to_page() is well defined.
-Probably, this will work on all architecture.
-So, just we should check this should be used after that memmap
-is initialized.
+On a side note:
 
+As a scan through tons of operating system code and vendor drivers 
+shows, as well as behavior I'm seeing on my AHCI + Plextor setup, it is 
+probably helpful for the OS driver to issue internal retries, if the 
+command returns NOT READY.
 
-Bye.
+My setup works without it, successfully burning CDs and DVDs, but has 
+problems with really long commands, and such those which occur when 
+cdrecord(1) finishes a CD burn, and performs its "fixating" step.
 
--- 
-Yasunori Goto 
+It may also be helpful to issue TUR until NOT READY goes away, in 
+ata_bus_probe() after ata_set_mode() completes.
+
+	Jeff
 
 

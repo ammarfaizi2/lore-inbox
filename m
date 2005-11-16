@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932584AbVKPF1J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932585AbVKPFcO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932584AbVKPF1J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 00:27:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932585AbVKPF1J
+	id S932585AbVKPFcO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 00:32:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932586AbVKPFcO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 00:27:09 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:5523 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932584AbVKPF1I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 00:27:08 -0500
-Date: Tue, 15 Nov 2005 21:26:38 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: arnd@arndb.de, linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       mnutter@us.ibm.com, arndb@de.ibm.com
-Subject: Re: [PATCH 1/5] spufs: The SPU file system, base
-Message-Id: <20051115212638.5dca4a66.akpm@osdl.org>
-In-Reply-To: <17274.49289.583486.477211@cargo.ozlabs.ibm.com>
-References: <20051115205347.395355000@localhost>
-	<20051115210408.327453000@localhost>
-	<17274.49289.583486.477211@cargo.ozlabs.ibm.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 16 Nov 2005 00:32:14 -0500
+Received: from smtpout6.uol.com.br ([200.221.4.197]:18609 "EHLO
+	smtp.uol.com.br") by vger.kernel.org with ESMTP id S932585AbVKPFcN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 00:32:13 -0500
+Date: Wed, 16 Nov 2005 03:31:56 -0200
+From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
+To: Avuton Olrich <avuton@gmail.com>
+Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: [RFC] HOWTO do Linux kernel development - take 2
+Message-ID: <20051116053155.GC25037@ime.usp.br>
+Mail-Followup-To: Avuton Olrich <avuton@gmail.com>,
+	Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+	greg@kroah.com
+References: <20051115210459.GA11363@kroah.com> <3aa654a40511151352h5771060ekf1781b9d59b26b26@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3aa654a40511151352h5771060ekf1781b9d59b26b26@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Mackerras <paulus@samba.org> wrote:
->
-> Arnd Bergmann writes:
-> 
-> > --- linux-2.6.15-rc.orig/arch/ppc/kernel/ppc_ksyms.c
-> > +++ linux-2.6.15-rc/arch/ppc/kernel/ppc_ksyms.c
-> > @@ -311,7 +311,6 @@ EXPORT_SYMBOL(__res);
-> >  
-> >  EXPORT_SYMBOL(next_mmu_context);
-> >  EXPORT_SYMBOL(set_context);
-> > -EXPORT_SYMBOL_GPL(__handle_mm_fault); /* For MOL */
-> 
-> Why?  What have you got against MOL? :)
-> 
+On Nov 15 2005, Avuton Olrich wrote:
+> (functionalities is not a word, this maybe better)
 
-The export was moved to mm/memory.c.   No explanation why though...
+Sorry, I am not a native English speaker, but I think that functionality
+is a word in English.
+
+<http://dictionary.reference.com/search?q=functionality>.
+
+Anyway, Greg, I like your text so much that I will hand it to the
+instructor of "Technical English" at the University where I teach and,
+perhaps, some students will like what they read.
+
+
+Thanks for the initiative, Rogério Brito.
+
+-- 
+Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
+Homepage of the algorithms package : http://algorithms.berlios.de
+Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/

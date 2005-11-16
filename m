@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030530AbVKPWiU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030528AbVKPWhl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030530AbVKPWiU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 17:38:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030539AbVKPWiU
+	id S1030528AbVKPWhl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 17:37:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030530AbVKPWhl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 17:38:20 -0500
-Received: from pat.uio.no ([129.240.130.16]:54990 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1030530AbVKPWiT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 17:38:19 -0500
-Subject: Re: mmap over nfs leads to excessive system load
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andrew Morton <akpm@osdl.org>
-Cc: theonetruekenny@yahoo.com, linux-kernel@vger.kernel.org
-In-Reply-To: <1132179796.8811.70.camel@lade.trondhjem.org>
-References: <20051116150141.29549.qmail@web34113.mail.mud.yahoo.com>
-	 <1132163057.8811.15.camel@lade.trondhjem.org>
-	 <20051116100053.44d81ae2.akpm@osdl.org>
-	 <1132166062.8811.30.camel@lade.trondhjem.org>
-	 <20051116110938.1bf54339.akpm@osdl.org>
-	 <1132171500.8811.37.camel@lade.trondhjem.org>
-	 <20051116133130.625cd19b.akpm@osdl.org>
-	 <1132177785.8811.57.camel@lade.trondhjem.org>
-	 <20051116141052.7994ab7d.akpm@osdl.org>
-	 <1132179796.8811.70.camel@lade.trondhjem.org>
+	Wed, 16 Nov 2005 17:37:41 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:39627 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030528AbVKPWhk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 17:37:40 -0500
+Subject: Re: 2.6.14 X spinning in the kernel
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Max Krasnyansky <maxk@qualcomm.com>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, hugh@veritas.com,
+       Dave Airlie <airlied@linux.ie>
+In-Reply-To: <1132179092.3008.9.camel@mindpipe>
+References: <1132012281.24066.36.camel@localhost.localdomain>
+	 <20051114161704.5b918e67.akpm@osdl.org>
+	 <1132015952.24066.45.camel@localhost.localdomain>
+	 <20051114173037.286db0d4.akpm@osdl.org> <437A6609.4050803@us.ibm.com>
+	 <437B9FAC.4090809@qualcomm.com>
+	 <1132177953.24066.80.camel@localhost.localdomain>
+	 <1132179092.3008.9.camel@mindpipe>
 Content-Type: text/plain
-Date: Wed, 16 Nov 2005 17:38:08 -0500
-Message-Id: <1132180688.8811.78.camel@lade.trondhjem.org>
+Date: Wed, 16 Nov 2005 14:37:32 -0800
+Message-Id: <1132180652.24066.87.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.704, required 12,
-	autolearn=disabled, AWL 1.30, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-16 at 17:23 -0500, Trond Myklebust wrote:
-> On Wed, 2005-11-16 at 14:10 -0800, Andrew Morton wrote:
+On Wed, 2005-11-16 at 17:11 -0500, Lee Revell wrote:
+> On Wed, 2005-11-16 at 13:52 -0800, Badari Pulavarty wrote:
+> > 	- top loop is for for 10000 times (usec_timeout).
 > 
-> > > How is the filesystem supposed to distinguish between the cases
-> > > "VM->writepage()", and "VM->writepages->mpage_writepages->writepage()"?
-> > > 
-> > 
-> > Via the writeback_control, hopefully.
-> > 
-> > For write_one_page(), sync_mode==WB_SYNC_ALL, so NFS should start the I/O
-> > immediately (it appears to not do so).
+> Where does usec_timeout get set anyway?  With a DRM ioctl()?  I looked
+> at the radeon source and it looks like it defaults to 100000 (not
+> 10000).  And I can't see where it ever gets set to anything but the
+> default.
 > 
-> Sorry, but so does filemap_fdatawrite(). WB_SYNC_ALL clearly does not
-> discriminate between a writepages() and a single writepage() situation,
-> whatever the original intention was.
+> Lee
 
-IMHO, the correct way to distinguish between the two would be to use the
-wbc->nr_to_write field. If all the instances of writepage() were to set
-that field to '1', then the filesystems could do the right thing.
+Don't know. I added a printk() and it shows
 
-As it is, you have shrink_list() that sets it to the value
-"SWAP_CLUSTER_MAX" for no apparent reason...
+Nov 16 11:43:51 elm3b23 kernel: usec timeout 10000
 
-Cheers,
-  Trond
+Thanks,
+Badari
 

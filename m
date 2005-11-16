@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965191AbVKPC4l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965189AbVKPDEK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965191AbVKPC4l (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 21:56:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965189AbVKPC4l
+	id S965189AbVKPDEK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 22:04:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965196AbVKPDEK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 21:56:41 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:5619 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S965183AbVKPC4l
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 21:56:41 -0500
-Date: Tue, 15 Nov 2005 19:57:14 -0700
-From: "Mark A. Greer" <mgreer@mvista.com>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Andrey Volkov <avolkov@varma-el.com>, lm-sensors@lm-sensors.org,
-       linux-kernel@vger.kernel.org, "Mark A. Greer" <mgreer@mvista.com>
-Subject: Re: [PATCH 1/1] Added support of ST m41t85 rtc chip
-Message-ID: <20051116025714.GK5546@mag.az.mvista.com>
-References: <4378960F.8030800@varma-el.com> <20051115215226.4e6494e0.khali@linux-fr.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051115215226.4e6494e0.khali@linux-fr.org>
-User-Agent: Mutt/1.5.9i
+	Tue, 15 Nov 2005 22:04:10 -0500
+Received: from zproxy.gmail.com ([64.233.162.194]:31534 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965189AbVKPDEJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 22:04:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=jdC9CvCqoE1VhFfe7k0cgV6FPLI+SpINZf917WSfXv6TzHgG5VPkSNiDDU/iMc+VbxlVJIZPn5z7S4tcUorKyLXgmzZ7u2n59DJPoJE+bCmy4hztPH6xubwm3AOZPV0arjSlr8dMiR21nN8y5glnl4PJ4l951I0rq/PReiDTw0g=
+Message-ID: <437AA1A0.6080409@gmail.com>
+Date: Wed, 16 Nov 2005 12:04:00 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Carlos Pardo <Carlos.Pardo@siliconimage.com>
+Subject: Re: [PATCH] libata error handling fixes (ATAPI)
+References: <20051114195717.GA24373@havoc.gtf.org> <20051115074148.GA17459@htj.dyndns.org> <4379AA5B.1060900@pobox.com> <4379E5F7.6000107@gmail.com> <4379EC82.1030509@pobox.com>
+In-Reply-To: <4379EC82.1030509@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jean,
-
-On Tue, Nov 15, 2005 at 09:52:26PM +0100, Jean Delvare wrote:
-
-<snip>
-
-> First, a question. Can't you merge the M41T85 support into the m41t00
-> driver?
+Jeff Garzik wrote:
 > 
-> Mark, care to comment on that possibility, and/or on the code itself?
+> The port stops, when any error occurs.  For device errors, set 
+> PORT_CS_INIT bit in PORT_CTRL_STAT, then wait for Port Ready (bit 31, 
+> see above).
+> 
 
-Sure.
+Yeap, this did the trick.  I'm working on SRST/init stuff and I think I 
+can post patches later today.  What workload do you use for testing a 
+ATAPI device?  I'm currently thinking of the following...
 
-I wrestled with the ST website for the m41t85 datasheet but lost so I
-I can only guess from the patch.  The drivers do look very similar.
-It looks like the m41t85 is basically a m41t00 with an alarm (watchdog
-timer never used AFAICT).  Also there are some differences in register
-offsets and [maybe] some minor differences within the registers but
-nothing that serious.
+* mounting & tarr'ing cdrom & unmount
+* repeat above with eject/load
+* burning a cdrom
+* ripping a music cd with cdparanoia
 
-I think we can combine the two into an m41txx.c and pass the exact type
-in via platform_data--that would be the correct mechanism, right?
-The platform_data could also be used to seed the correct SQW freq and
-eliminate all the Kconfig noise.
+Any other thing I can try?
 
-Comments?
-
-As for Jean's and Andrew's comments about the driver, they seem valid
-to me and should be addressed.  In Andrey's defense, many of them are my
-fault.  Once there is a consensus on the merging m41t00 & m41t85
-question, I'll try to get a fixed up patch within a couple weeks.
-
-Mark
+-- 
+tejun

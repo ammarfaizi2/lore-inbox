@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030464AbVKPUqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030470AbVKPUsU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030464AbVKPUqz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 15:46:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030470AbVKPUqz
+	id S1030470AbVKPUsU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 15:48:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030473AbVKPUsT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 15:46:55 -0500
-Received: from smtp.terra.es ([213.4.129.129]:44223 "EHLO tsmtp1.mail.isp")
-	by vger.kernel.org with ESMTP id S1030464AbVKPUqy convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 15:46:54 -0500
-Date: Wed, 16 Nov 2005 21:46:05 +0100
-From: "Wed, 16 Nov 2005 21:46:05 +0100" <grundig@teleline.es>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: bunk@stusta.de, ak@suse.de, arjan@infradead.org, oliver@neukum.org,
-       jmerkey@utah-nac.org, joern@wohnheim.fh-wedel.de, alex14641@yahoo.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Message-Id: <20051116214605.545d1e4e.grundig@teleline.es>
-In-Reply-To: <20051116190334.GC982@kvack.org>
-References: <20051116005034.73421.qmail@web50210.mail.yahoo.com>
-	<200511161630.59588.oliver@neukum.org>
-	<1132155482.2834.42.camel@laptopd505.fenrus.org>
-	<200511161710.05526.ak@suse.de>
-	<20051116184508.GP5735@stusta.de>
-	<20051116190334.GC982@kvack.org>
-X-Mailer: Sylpheed version 2.1.6 (GTK+ 2.8.3; i486-pc-linux-gnu)
+	Wed, 16 Nov 2005 15:48:19 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:20411 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030470AbVKPUsT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 15:48:19 -0500
+Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>,
+       "SERGE E. HALLYN [imap]" <serue@us.ibm.com>, Paul Jackson <pj@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       frankeh@watson.ibm.com
+In-Reply-To: <20051116203603.GA12505@elf.ucw.cz>
+References: <20051114212341.724084000@sergelap>
+	 <20051114153649.75e265e7.pj@sgi.com>
+	 <20051115055107.GB3252@IBM-BWN8ZTBWAO1>
+	 <20051113152214.GC2193@spitz.ucw.cz>
+	 <9901B851-17B2-4AEB-813F-A92560DFE289@mac.com>
+	 <20051116203603.GA12505@elf.ucw.cz>
+Content-Type: text/plain
+Date: Wed, 16 Nov 2005 21:48:10 +0100
+Message-Id: <1132174090.5937.14.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Wed, 16 Nov 2005 14:03:34 -0500,
-Benjamin LaHaise <bcrl@kvack.org> escribió:
+On Wed, 2005-11-16 at 21:36 +0100, Pavel Machek wrote:
+> Hmm... it is hard to judge a patch without context. Anyway, can't we
+> get process snasphot/resume without virtualizing pids? Could we switch
+> to 128-bits so that pids are never reused or something like that?
 
-> We could implement a stack guard page for the transition period, so that 
+That might work fine for a managed cluster, but it wouldn't be a good
+fit if you ever wanted to support something like a laptop in
+disconnected operation, or if you ever want to restore the same snapshot
+more than once.  There may also be some practical userspace issues
+making pids that large.
 
-CONFIG_DEBUG_STACKOVERFLOW doesn't do that but it looks useful too.
+I also hate bloating types and making them sparse just for the hell of
+it.  It is seriously demoralizing to do a ps and see
+7011827128432950176177290 staring back at you. :)
 
-Does CONFIG_DEBUG_STACKOVERFLOW harm performance a lot? (doesn't 
-look like that for a newbie's eye)
+-- Dave
+

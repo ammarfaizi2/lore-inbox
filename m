@@ -1,45 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030183AbVKPFzh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965232AbVKPF6c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030183AbVKPFzh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 00:55:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030184AbVKPFzh
+	id S965232AbVKPF6c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 00:58:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965245AbVKPF6c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 00:55:37 -0500
-Received: from mx2.suse.de ([195.135.220.15]:8333 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030183AbVKPFzg (ORCPT
+	Wed, 16 Nov 2005 00:58:32 -0500
+Received: from mail.kroah.org ([69.55.234.183]:46564 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S965232AbVKPF6b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 00:55:36 -0500
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: pavel@suse.cz, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH -rt] race condition in fs/compat.c with compat_sys_ioctl
-References: <1131821278.5047.8.camel@localhost.localdomain>
-	<5bdc1c8b0511121725u6df7ad9csb9cb56777fa6fe64@mail.gmail.com>
-	<Pine.LNX.4.58.0511122149020.25152@localhost.localdomain>
-	<5bdc1c8b0511121914v12dc4402u424fbaf416bf3710@mail.gmail.com>
-	<1131853456.5047.14.camel@localhost.localdomain>
-	<5bdc1c8b0511130634h501fb565v58906bdfae788814@mail.gmail.com>
-	<1131994030.5047.17.camel@localhost.localdomain>
-	<5bdc1c8b0511141057l60a2e778x89155cd5484d532f@mail.gmail.com>
-	<1132115386.5047.61.camel@localhost.localdomain>
-From: Andi Kleen <ak@suse.de>
-Date: 16 Nov 2005 06:55:28 +0100
-In-Reply-To: <1132115386.5047.61.camel@localhost.localdomain>
-Message-ID: <p73y83pp25r.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Wed, 16 Nov 2005 00:58:31 -0500
+Date: Tue, 15 Nov 2005 21:38:08 -0800
+From: Greg KH <gregkh@suse.de>
+To: Avuton Olrich <avuton@gmail.com>, linux-kernel@vger.kernel.org,
+       greg@kroah.com
+Subject: Re: [RFC] HOWTO do Linux kernel development - take 2
+Message-ID: <20051116053808.GA20686@suse.de>
+References: <20051115210459.GA11363@kroah.com> <3aa654a40511151352h5771060ekf1781b9d59b26b26@mail.gmail.com> <20051116053155.GC25037@ime.usp.br>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051116053155.GC25037@ime.usp.br>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt <rostedt@goodmis.org> writes:
+On Wed, Nov 16, 2005 at 03:31:56AM -0200, Rog?rio Brito wrote:
 > 
-> That's the problem. I found out that one ioctl might sleep holding the
-> sem and won't be woken up until another process calls another ioctl to
-> wake it up. But unfortunately, the one waking up the sleeper will block
-> on the sem.  (the killer was tty_wait_until_sent)
+> Anyway, Greg, I like your text so much that I will hand it to the
+> instructor of "Technical English" at the University where I teach and,
+> perhaps, some students will like what they read.
 
-You should have looked into mainline first. The semaphore is already gone
-because it wasn't even needed anymore.
+Heh, glad it can be used as a teaching tool.  I know by the amount of
+editing that this document went though by different people, all of the
+grammar should be correct by now :)
 
--Andi
+thanks,
+
+greg k-h

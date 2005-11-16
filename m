@@ -1,69 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030457AbVKPTys@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030462AbVKPTzK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030457AbVKPTys (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 14:54:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030459AbVKPTys
+	id S1030462AbVKPTzK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 14:55:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030461AbVKPTzK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 14:54:48 -0500
-Received: from xproxy.gmail.com ([66.249.82.205]:14267 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030457AbVKPTyr convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 14:54:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ji3SXgfRJ3f4iIdJX+Aqag7gaQ6cSL29cuxfbYquK5JwhgAghIBWOOLo7Vx1q7SHLVfDUBqE5IfUFNbKZReUpU/2raVQsr/4X07KzyvFMnNTUMtIWRMsKGKiHeFY+AlMhq/0Xk2nRpkiaa3V+TuPnr80Dk3aJElr1ShIbmuA6Es=
-Message-ID: <5bdc1c8b0511161154y374b131jaa6c78badc221dd0@mail.gmail.com>
-Date: Wed, 16 Nov 2005 11:54:47 -0800
-From: Mark Knecht <markknecht@gmail.com>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Subject: Re: 2.6.15-rc1 - NForce4 PCI-E agpgart support?
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200511161849.51319.s0348365@sms.ed.ac.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <5bdc1c8b0511160650k4a9e0575h29403a5de47af952@mail.gmail.com>
-	 <200511161802.47244.s0348365@sms.ed.ac.uk>
-	 <5bdc1c8b0511161025q20569fa4hd8c187503e9af1c2@mail.gmail.com>
-	 <200511161849.51319.s0348365@sms.ed.ac.uk>
+	Wed, 16 Nov 2005 14:55:10 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:54495 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1030459AbVKPTzI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 14:55:08 -0500
+Subject: [PATCH] ipw2200: disallow direct scanning when device is down
+	(was: Linuv 2.6.15-rc1)
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Zilvinas Valinskas <zilvinas@gemtek.lt>
+Cc: Zhu Yi <yi.zhu@intel.com>, Andrew Morton <akpm@osdl.org>,
+       Alexandre Buisse <alexandre.buisse@ens-lyon.fr>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, jketreno@linux.intel.com
+In-Reply-To: <20051116181537.GA21709@gemtek.lt>
+References: <20051115100519.GA5567@gemtek.lt>
+	 <20051115115657.GA30489@gemtek.lt>
+	 <84144f020511150451l6ef30420g5a83a147c61f34a8@mail.gmail.com>
+	 <20051115140023.GB9910@gemtek.lt>
+	 <1132120145.18679.12.camel@debian.sh.intel.com>
+	 <20051116094551.GA23140@gemtek.lt> <20051116114052.GA14042@gemtek.lt>
+	 <Pine.LNX.4.58.0511161415010.4402@sbz-30.cs.Helsinki.FI>
+	 <20051116131505.GD31362@gemtek.lt> <1132158813.8902.6.camel@localhost>
+	 <20051116181537.GA21709@gemtek.lt>
+Date: Wed, 16 Nov 2005 21:55:05 +0200
+Message-Id: <1132170906.7963.11.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.4.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/16/05, Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-> On Wednesday 16 November 2005 18:25, Mark Knecht wrote:
-> > On 11/16/05, Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-> > > On Wednesday 16 November 2005 15:09, Mark Knecht wrote:
-> [snip]
-> > > >
-> > > > Is there any requirement/need/value for something like a PCI-E-gart?
-> > > > Or does this relocation requirement go out the window somehow when a
-> > > > graphics device moves to PCI-Express?
-> > >
-> > > Yes, you don't need it with PCIe.
-> > >
-> > > --
-> > > Cheers,
-> > > Alistair.
-> >
-> > Thanks Alistair.
-> >
-> > So, should I be able to see better grapohics performance on my Radeon
-> > PCI-E device with 2.6.15-rc1? Are there setups I should test for you
-> > guys? (I'm not a developer.)
->
-> I think the latest drm tree (which might be part of -rc1, I haven't checked
-> the changelogs) includes support for several PCIe radeons. Your best bet
-> would probably be to compile in DRM (kernel side), check dmesg that it's
-> detected your card, then download the latest snapshot of X11R6 6.9/7.0 and
-> build it.
->
-> The alternative is ATI's proprietary driver which probably already supports
-> your card.
+Hi Zilvinas,
 
-Thanks. I'll see if this old guitar player can get all of that done.
+On Wed, 2005-11-16 at 20:15 +0200, Zilvinas Valinskas wrote:
+> I've tried to reproduce a freeze. For about an hour tortures gave no
+> results. Usual messages:
+> 
+> Nov 16 20:02:00 evo800N kernel: ipw2200: Firmware error detected.  Restarting.
+> Nov 16 20:02:00 evo800N kernel: ipw2200: Sysfs 'error' log already exists.
 
-Cheers,
-Mark
+Unfortunately I don't think we can do much about those as the error
+message seems to indicate that there's a problem with the firmware...
+
+On Wed, 2005-11-16 at 20:15 +0200, Zilvinas Valinskas wrote:
+> Other than that nothing unusual :) Even under X running, I cannot freeze
+> the laptop. Anything else to try ?
+
+Are you still seeing that sysfs related oops? Perhaps the lockup was
+related to that...
+
+Yi, please consider applying the included patch.
+
+			Pekka
+
+[PATCH] ipw2200: disallow direct scanning when device is down
+
+The function ipw_request_direct_scan() should bail out when the device
+is down. This patch fixes an lockup caused by wpa_supplicant
+triggering ipw_request_direct_scan() while the driver was in a middle
+of a reset due to firmware errors.
+
+Thanks to Zilvinas Valinskas for reporting the bug and helping me
+debug it.
+
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+---
+
+ ipw2200.c |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+Index: 2.6/drivers/net/wireless/ipw2200.c
+===================================================================
+--- 2.6.orig/drivers/net/wireless/ipw2200.c
++++ 2.6/drivers/net/wireless/ipw2200.c
+@@ -8926,6 +8926,10 @@ static int ipw_request_direct_scan(struc
+ 	struct ipw_scan_request_ext scan;
+ 	int err = 0, scan_type;
+ 
++	if (!(priv->status & STATUS_INIT) ||
++	    (priv->status & STATUS_EXIT_PENDING))
++		return 0;
++
+ 	down(&priv->sem);
+ 
+ 	if (priv->status & STATUS_RF_KILL_MASK) {
+
+

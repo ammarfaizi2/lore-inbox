@@ -1,41 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030361AbVKPPbJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751479AbVKPPbk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030361AbVKPPbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 10:31:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751477AbVKPPbJ
+	id S1751479AbVKPPbk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 10:31:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751477AbVKPPbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 10:31:09 -0500
-Received: from mail1.kontent.de ([81.88.34.36]:26836 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S1751476AbVKPPbI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 10:31:08 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: jmerkey <jmerkey@utah-nac.org>
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Date: Wed, 16 Nov 2005 16:30:59 +0100
-User-Agent: KMail/1.8
-Cc: =?iso-8859-1?q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-       Andi Kleen <ak@suse.de>, Arjan van de Ven <arjan@infradead.org>,
-       alex14641@yahoo.com, linux-kernel@vger.kernel.org
-References: <20051116005034.73421.qmail@web50210.mail.yahoo.com> <20051116135116.GA24753@wohnheim.fh-wedel.de> <437B453E.8070905@utah-nac.org>
-In-Reply-To: <437B453E.8070905@utah-nac.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 16 Nov 2005 10:31:40 -0500
+Received: from cpe-24-94-57-164.stny.res.rr.com ([24.94.57.164]:35991 "EHLO
+	gandalf.stny.rr.com") by vger.kernel.org with ESMTP
+	id S1751479AbVKPPbj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 10:31:39 -0500
+Subject: [patch -rt] make gendev_rel_sem a compat_semaphore
+From: Steven Rostedt <rostedt@kihontech.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Wed, 16 Nov 2005 10:31:32 -0500
+Message-Id: <1132155092.6266.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511161630.59588.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 16. November 2005 15:42 schrieb jmerkey:
-> Map a blank ro page beneath the address range when stack memory is 
-> mapped is trap on page faults to the page when folks go off the end of 
-> th e stack.
-> 
-> Easy to find.
+Hi Ingo,
 
-Provided you can easily trigger it. I don't see how that is a given.
+I was getting the following:
 
-	Regards
-		Oliver
+BUG: nonzero lock count 10 at exit time?
+        modprobe: 2972 [ffff81007e1aaf70, 116]
+
+Call Trace:<ffffffff8014e2db>{printk_task+43} <ffffffff8015040f>{check_no_held_locks+111}
+       <ffffffff80136d3c>{do_exit+3036} <ffffffff80136f5c>{do_group_exit+268}
+       <ffffffff80136f72>{sys_exit_group+18} <ffffffff8011e471>{ia32_sysret+0}
+
+---------------------------
+| preempt count: 00000000 ]
+| 0-level deep critical section nesting:
+----------------------------------------
+hdc: ATAPI 40X DVD-ROM DVD-R CD-R/RW drive, 2048kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.20
+
+BUG: modprobe/2972, lock held at task exit time!
+ [ffffffff8809fd00] {(struct semaphore *)(&hwif->gendev_rel_sem)}
+.. held by:          modprobe: 2972 [ffff81007e1aaf70, 116]
+... acquired at:               init_hwif_data+0xaf/0x1a0 [ide_core]
+
+[snipped to not be so annoying]
+
+Looking into this I see that gendev_rel_sem, which is only used when the
+device is unregistered, is defined as a semaphore.  This patch changes
+this to be a compat_semaphore.
+
+-- Steve
+
+Index: linux-2.6.14-rt13/include/linux/ide.h
+===================================================================
+--- linux-2.6.14-rt13.orig/include/linux/ide.h	2005-11-15 11:12:37.000000000 -0500
++++ linux-2.6.14-rt13/include/linux/ide.h	2005-11-16 10:09:10.000000000 -0500
+@@ -910,7 +910,7 @@
+ 	unsigned	sg_mapped  : 1;	/* sg_table and sg_nents are ready */
+ 
+ 	struct device	gendev;
+-	struct semaphore gendev_rel_sem; /* To deal with device release() */
++	struct compat_semaphore gendev_rel_sem; /* To deal with device release() */
+ 
+ 	void		*hwif_data;	/* extra hwif data */
+ 
+
+

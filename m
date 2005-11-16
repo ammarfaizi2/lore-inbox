@@ -1,66 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030427AbVKPSe7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030428AbVKPShz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030427AbVKPSe7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 13:34:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030428AbVKPSe7
+	id S1030428AbVKPShz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 13:37:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030431AbVKPShz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 13:34:59 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:50959 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030427AbVKPSe7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 13:34:59 -0500
-Date: Wed, 16 Nov 2005 19:34:58 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Bernd Petrovitsch <bernd@firmix.at>
-Cc: "Wed, 16 Nov 2005 00:41:11 +0100" <grundig@teleline.es>,
-       Arjan van de Ven <arjan@infradead.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Message-ID: <20051116183458.GN5735@stusta.de>
-References: <20051116004111.45f3f704.grundig@teleline.es> <1132131854.1600.12.camel@tara.firmix.at>
+	Wed, 16 Nov 2005 13:37:55 -0500
+Received: from rtsoft2.corbina.net ([85.21.88.2]:22664 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S1030428AbVKPShy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 13:37:54 -0500
+Message-ID: <437B7C7B.5090604@ru.mvista.com>
+Date: Wed, 16 Nov 2005 21:37:47 +0300
+From: Vitaly Bordug <vbordug@ru.mvista.com>
+User-Agent: Thunderbird 1.5 (X11/20051025)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1132131854.1600.12.camel@tara.firmix.at>
-User-Agent: Mutt/1.5.11
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, Kumar Gala <galak@kernel.crashing.org>,
+       Pantelis Antoniou <panto@intracom.gr>
+Subject: [PATCH] ppc32: Added missing define for fs_enet Ethernet driver
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 16, 2005 at 10:04:14AM +0100, Bernd Petrovitsch wrote:
-> On Wed, 2005-11-16 at 00:41 +0100, Wed, 16 Nov 2005 00:41:11 +0100
->                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
->                                    Interesting Name.
-> wrote:
-> > > documentation for broadcom wireless:
-> > > http://bcm-specs.sipsolutions.net/
-> > > embrionic driver based on this spec:
-> > > http://bcm43xx.berlios.de/
-> > 
-> > 
-> > Maybe a good deal would be to delay the 4K patch until some preliminary
-> > version of those is merged? 
-> 
-> Set the default value to "4k" and - to streß it further - remove the
-> questions on `make *config` so that sufficiently interesting people must
-> edit by hand after searching for it.
+This adds the FCC_PSMR_RMII defenition, which is used in fs_enet to enable
+RMII mode.
 
-If you are sufficiently interested, reverting my patch would be more 
-simple than manually hacking a Kconfig file.
+Signed-off-by: Vitaly Bordug <vbordug@ru.mvista.com>
 
-> This will give the correct impression for everyone where it will go,
-> possibly raises the awareness of this area (WLAN drivers) and it doesn't
-> break ATM anything seriously.
-> 
-> 	Bernd
 
-cu
-Adrian
+---
 
--- 
+  include/asm-ppc/cpm2.h |    2 ++
+  1 files changed, 2 insertions(+), 0 deletions(-)
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+applies-to: a4efeaa72988e2e2e2604535283e7f274bc0bc53
+339019bec61c89ca21c48df47519c27a44eab7f5
+diff --git a/include/asm-ppc/cpm2.h b/include/asm-ppc/cpm2.h
+index 43d2ebb..e952d55 100644
+--- a/include/asm-ppc/cpm2.h
++++ b/include/asm-ppc/cpm2.h
+@@ -1091,5 +1091,7 @@ typedef struct im_idma {
+  #define CPM_IMMR_OFFSET	0x101a8
+  #endif
+
++#define FCC_PSMR_RMII   ((uint)0x00020000)      /* Use RMII interface */
++
+  #endif /* __CPM2__ */
+  #endif /* __KERNEL__ */
+---
+Sincerely,
+Vitaly
+
 

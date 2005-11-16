@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030422AbVKPS5K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030435AbVKPS6m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030422AbVKPS5K (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 13:57:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030435AbVKPS5J
+	id S1030435AbVKPS6m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 13:58:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030438AbVKPS6m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 13:57:09 -0500
-Received: from rtsoft2.corbina.net ([85.21.88.2]:26761 "HELO
-	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S1030422AbVKPS5I
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 13:57:08 -0500
-Message-ID: <437B8102.1090900@ru.mvista.com>
-Date: Wed, 16 Nov 2005 21:57:06 +0300
-From: Vitaly Bordug <vbordug@ru.mvista.com>
-User-Agent: Thunderbird 1.5 (X11/20051025)
+	Wed, 16 Nov 2005 13:58:42 -0500
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:22472
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S1030435AbVKPS6l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 13:58:41 -0500
+From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+To: Pavel Machek <pavel@suse.cz>, Hui Cheng <hcheng@cse.unl.edu>
+Cc: kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
+Subject: Re: How to quickly detect the mode change of a hard disk?
+Date: Wed, 16 Nov 2005 12:58:27 -0600
+Message-Id: <20051116185628.M35560@linuxwireless.org>
+In-Reply-To: <20051113151056.GB2193@spitz.ucw.cz>
+References: <200511102334.10926.cloud.of.andor@gmail.com> <Pine.GSO.4.44.0511121122430.15078-100000@cse.unl.edu> <20051113151056.GB2193@spitz.ucw.cz>
+X-Mailer: Open WebMail 2.40 20040816
+X-OriginatingIP: 16.90.17.175 (abonilla@linuxwireless.org)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, Kumar Gala <galak@kernel.crashing.org>
-Subject: [PATCH] ppc32: Fix incorrect PCI frequency value
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The time to wait after deasserting PCI_RST has been counted with
-incorrect value - this patch fixes the issue.
+On Sun, 13 Nov 2005 15:10:56 +0000, Pavel Machek wrote
+> > I am currently doing a kernel module involves detecting/changing
+> > disk mode among STANDBY and ACTIVE/IDLE. I used ide_cmd_wait() to issue
+> > commands like WIN_IDLEIMMEDIATELY and WIN_STANDBYNOW1. The problem is, a
+> > drive in standby mode will automatically awake whenever a disk operation
+> > is requested and I need to know the mode change as soon as possible. (So I
+> 
+> AFAIK there's no nice way to get that info, but it is useful, so 
+> patch would be welcome.
 
-Signed-off-by: Vitaly Bordug <vbordug@ru.mvista.com>
-Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+I would check the hdparm man page again. Still, it sounds interesting.
 
----
+Additionally, it could be cool if someone could finish up or make the option
+for the HD freeze to use it with the HDAPS driver. ;-)
 
-  arch/ppc/syslib/m82xx_pci.c |    3 ++-
-  1 files changed, 2 insertions(+), 1 deletions(-)
-
-applies-to: f571549f6e990531b853304fe9bf74cb488a02ac
-ac9eb05c322380b1d11a0271e1507428b95ab994
-diff --git a/arch/ppc/syslib/m82xx_pci.c b/arch/ppc/syslib/m82xx_pci.c
-index 1d1c395..20f1fa3 100644
---- a/arch/ppc/syslib/m82xx_pci.c
-+++ b/arch/ppc/syslib/m82xx_pci.c
-@@ -248,7 +248,8 @@ pq2ads_setup_pci(struct pci_controller *
-  	pci_div = ( (sccr & SCCR_PCI_MODCK) ? 2 : 1) *
-  			( ( (sccr & SCCR_PCIDF_MSK) >> SCCR_PCIDF_SHIFT) + 1);
-  	freq = (uint)((2*binfo->bi_cpmfreq)/(pci_div));
--	time = (int)666666/freq;
-+	time = (int)66666666/freq;
-+	
-  	/* due to PCI Local Bus spec, some devices needs to wait such a long
-  	time after RST 	deassertion. More specifically, 0.508s for 66MHz & twice more for 33 */
-  	printk("%s: The PCI bus is %d Mhz.\nWaiting %s after deasserting RST...\n",__FILE__,freq,
----
-Sincerely,
-Vitaly
-
-
+.Alejandro

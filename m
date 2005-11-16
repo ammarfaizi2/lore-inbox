@@ -1,51 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030451AbVKPTVN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030425AbVKPTVP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030451AbVKPTVN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 14:21:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030445AbVKPTVM
+	id S1030425AbVKPTVP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 14:21:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030447AbVKPTVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 14:21:12 -0500
-Received: from dsl081-059-088.sfo1.dsl.speakeasy.net ([64.81.59.88]:36843 "EHLO
-	piratehaven.org") by vger.kernel.org with ESMTP id S1030441AbVKPTVK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 14:21:10 -0500
-Date: Wed, 16 Nov 2005 11:21:09 -0800
-From: Brian Pomerantz <bapper@piratehaven.org>
-To: Patrick McHardy <kaber@trash.net>
-Cc: Thomas Graf <tgraf@suug.ch>, netdev@vger.kernel.org, davem@davemloft.net,
-       kuznet@ms2.inr.ac.ru, pekkas@netcore.fi, jmorris@namei.org,
-       yoshfuji@linux-ipv6.org, kaber@coreworks.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [IPV4] Fix secondary IP addresses after promotion
-Message-ID: <20051116192109.GA23233@skull.piratehaven.org>
-References: <20051104184633.GA16256@skull.piratehaven.org> <436BFE08.6030906@trash.net> <20051105010740.GR23537@postel.suug.ch> <436C090D.5020201@trash.net> <436C34F8.3090903@trash.net> <20051105134636.GS23537@postel.suug.ch> <20051107215022.GH23537@postel.suug.ch> <4370B203.8070501@trash.net>
+	Wed, 16 Nov 2005 14:21:14 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:48216 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1030425AbVKPTVL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 14:21:11 -0500
+Date: Wed, 16 Nov 2005 20:22:05 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Mike Christie <michaelc@cs.wisc.edu>, Jeff Garzik <jgarzik@pobox.com>,
+       Tejun Heo <htejun@gmail.com>, linux-ide@vger.kernel.org,
+       lkml <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH] libata error handling fixes (ATAPI)
+Message-ID: <20051116192205.GR7787@suse.de>
+References: <4379C062.3010302@pobox.com> <20051115120016.GD7787@suse.de> <437A2814.1060308@cs.wisc.edu> <20051115184131.GJ7787@suse.de> <20051116124035.GX7787@suse.de> <58cb370e0511160704w4803a085h7bd6ab352d8c94e6@mail.gmail.com> <20051116153119.GN7787@suse.de> <58cb370e0511160806t1defd373w981e213d1cdeb2b3@mail.gmail.com> <20051116171051.GP7787@suse.de> <58cb370e0511161111u7e99c74ufe0bb9019619d5d0@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4370B203.8070501@trash.net>
-User-Agent: Mutt/1.4.2.1i
-X-homepage: http://www.piratehaven.org/~bapper/
+In-Reply-To: <58cb370e0511161111u7e99c74ufe0bb9019619d5d0@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 08, 2005 at 03:11:15PM +0100, Patrick McHardy wrote:
+On Wed, Nov 16 2005, Bartlomiej Zolnierkiewicz wrote:
+> On 11/16/05, Jens Axboe <axboe@suse.de> wrote:
+> > On Wed, Nov 16 2005, Bartlomiej Zolnierkiewicz wrote:
+> > > On 11/16/05, Jens Axboe <axboe@suse.de> wrote:
+> > > > On Wed, Nov 16 2005, Bartlomiej Zolnierkiewicz wrote:
+> > > > > On 11/16/05, Jens Axboe <axboe@suse.de> wrote:
+> > > > >
+> > > > > > I updated that patch, and converted IDE and SCSI to use it. See the
+> > > > > > results here:
+> > > > > >
+> > > > > > http://brick.kernel.dk/git/?p=linux-2.6-block.git;a=shortlog;h=blk-softirq
+> > > > >
+> > > > > I like it but:
+> > > > >
+> > > > > * "we know it's either an FS or PC request" assumption in
+> > > > >   ide_softirq_done() is really wrong
+> > > >
+> > > > It used to be correct :-)
+> > >
+> > > Sorry but it has been always like that,
+> > > other requests also pass through ide_end_request()
+> > > (which of course needs fixing).
+> >
+> > You misunderstand, for calls to blk_complete_request() it wasn't true
+> > initially since it always obyed rq_all_done() (which returns 0 for
+> > non-fs and non-pc requests).
 > 
-> Yes, fixing it correctly looks very hard. Just changing the routes
-> doesn't seem right to me, someone might have added it with exactly
-> this prefsrc and doesn't want it to change, its also not clear how
-> to notify on this. Taking care of correct ordering of the ifa_list
-> is also more complicated without just deleting and readding them.
+> from blk_complete_request() [ the only user of rq_all_done() ]:
 > 
-> I have a patch to do this, but it needs some debugging, for some
-> unknown reason it crashes sometimes if I remove addresses without
-> specifying the mask.
+> + /*
+> + * for partial completions, fall back to normal end io handling.
+> + */
+> + if (unlikely(!partial_ok && !rq_all_done(req, nbytes)))
+> +         if (end_that_request_chunk(req, uptodate, nbytes))
+> +                 return 1;
+> 
+> We still will end up with using ide_softirq_done() for !rq_all_done()
+> case (non FS/PC request) because majority of them (all?) don't use
+> partial completions.
 
-Looks like I'm back on this one because just sending the NETDEV_UP for
-the secondaries didn't work if a primary other than the first one is
-removed.  If you have anything that you need help testing/debugging,
-I'm stuck with this until it is fixed.  I'd prefer not to duplicate
-effort on this if you're close to a fix.  If not, then I'll try to
-come up with something and toss it out for comment.
+Yes, that's what it looks like now... Note I wrote "wasn't", it used to
+look like this:
 
+        if (!rq_all_done(req, nbytes)) {
+                end_that_request_chunk(..);
+                return;
+        }
 
-BAPper
+which of course didn't work, so it was changed to the above which then
+broke the assumption of what type of requests we expect to see in
+ide_softirq_done(). We can't generically handle this case, so it's
+probably best to just add this logic to __ide_end_request() - it's just
+another case for _not_ using the blk_complete_request() path, just like
+the partial case.
+
+-- 
+Jens Axboe
+

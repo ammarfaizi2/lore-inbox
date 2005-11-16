@@ -1,82 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030373AbVKPPfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030368AbVKPPic@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030373AbVKPPfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 10:35:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030372AbVKPPfJ
+	id S1030368AbVKPPic (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 10:38:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751477AbVKPPic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 10:35:09 -0500
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:48805 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1030371AbVKPPfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 10:35:07 -0500
-Subject: Re: [patch -rt] make gendev_rel_sem a compat_semaphore
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1132155092.6266.6.camel@localhost.localdomain>
-References: <1132155092.6266.6.camel@localhost.localdomain>
+	Wed, 16 Nov 2005 10:38:32 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:18389 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751475AbVKPPib (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 10:38:31 -0500
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+From: Arjan van de Ven <arjan@infradead.org>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: jmerkey <jmerkey@utah-nac.org>,
+       =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Andi Kleen <ak@suse.de>, alex14641@yahoo.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200511161630.59588.oliver@neukum.org>
+References: <20051116005034.73421.qmail@web50210.mail.yahoo.com>
+	 <20051116135116.GA24753@wohnheim.fh-wedel.de>
+	 <437B453E.8070905@utah-nac.org>  <200511161630.59588.oliver@neukum.org>
 Content-Type: text/plain
-Date: Wed, 16 Nov 2005 10:34:59 -0500
-Message-Id: <1132155299.6266.8.camel@localhost.localdomain>
+Date: Wed, 16 Nov 2005 16:38:01 +0100
+Message-Id: <1132155482.2834.42.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Crap! I sent this with my kihontech email.  Please respond to this
-instead.  I'm still in the process of moving to my new machine, and the
-email was messed up.
+On Wed, 2005-11-16 at 16:30 +0100, Oliver Neukum wrote:
+> Am Mittwoch, 16. November 2005 15:42 schrieb jmerkey:
+> > Map a blank ro page beneath the address range when stack memory is 
+> > mapped is trap on page faults to the page when folks go off the end of 
+> > th e stack.
+> > 
+> > Easy to find.
+> 
+> Provided you can easily trigger it. I don't see how that is a given.
 
-Thanks,
+the same is true for a unified 8k stack or for the 4k/4k split though.
+Ok sure there's a 1.5Kb difference on the one side.. (but a 2Kb gain on
+the other side)
 
--- Steve
 
-
-On Wed, 2005-11-16 at 10:31 -0500, Steven Rostedt wrote:
-> Hi Ingo,
-> 
-> I was getting the following:
-> 
-> BUG: nonzero lock count 10 at exit time?
->         modprobe: 2972 [ffff81007e1aaf70, 116]
-> 
-> Call Trace:<ffffffff8014e2db>{printk_task+43} <ffffffff8015040f>{check_no_held_locks+111}
->        <ffffffff80136d3c>{do_exit+3036} <ffffffff80136f5c>{do_group_exit+268}
->        <ffffffff80136f72>{sys_exit_group+18} <ffffffff8011e471>{ia32_sysret+0}
-> 
-> ---------------------------
-> | preempt count: 00000000 ]
-> | 0-level deep critical section nesting:
-> ----------------------------------------
-> hdc: ATAPI 40X DVD-ROM DVD-R CD-R/RW drive, 2048kB Cache, UDMA(33)
-> Uniform CD-ROM driver Revision: 3.20
-> 
-> BUG: modprobe/2972, lock held at task exit time!
->  [ffffffff8809fd00] {(struct semaphore *)(&hwif->gendev_rel_sem)}
-> .. held by:          modprobe: 2972 [ffff81007e1aaf70, 116]
-> ... acquired at:               init_hwif_data+0xaf/0x1a0 [ide_core]
-> 
-> [snipped to not be so annoying]
-> 
-> Looking into this I see that gendev_rel_sem, which is only used when the
-> device is unregistered, is defined as a semaphore.  This patch changes
-> this to be a compat_semaphore.
-> 
-> -- Steve
-> 
-> Index: linux-2.6.14-rt13/include/linux/ide.h
-> ===================================================================
-> --- linux-2.6.14-rt13.orig/include/linux/ide.h	2005-11-15 11:12:37.000000000 -0500
-> +++ linux-2.6.14-rt13/include/linux/ide.h	2005-11-16 10:09:10.000000000 -0500
-> @@ -910,7 +910,7 @@
->  	unsigned	sg_mapped  : 1;	/* sg_table and sg_nents are ready */
->  
->  	struct device	gendev;
-> -	struct semaphore gendev_rel_sem; /* To deal with device release() */
-> +	struct compat_semaphore gendev_rel_sem; /* To deal with device release() */
->  
->  	void		*hwif_data;	/* extra hwif data */
->  
-> 
 

@@ -1,96 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965227AbVKPDur@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965222AbVKPDuY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965227AbVKPDur (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 22:50:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965228AbVKPDuq
+	id S965222AbVKPDuY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 22:50:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965223AbVKPDuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 22:50:46 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:28830 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965227AbVKPDum
+	Tue, 15 Nov 2005 22:50:24 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:26782 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965222AbVKPDuX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 22:50:42 -0500
+	Tue, 15 Nov 2005 22:50:23 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 5/8] isaectomy: hp-plus
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Message-Id: <E1EcEJm-0007e2-8y@ZenIV.linux.org.uk>
+Subject: [PATCH 1/8] isaectomy: toshiba.c
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <E1EcEJS-0007dd-7b@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Wed, 16 Nov 2005 03:50:42 +0000
+Date: Wed, 16 Nov 2005 03:50:22 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Al Viro <viro@zeniv.linux.org.uk>
-Date: 1132110563 -0500
+Date: 1132110323 -0500
 
-switch to ioremap()
+switch from isa_read...() to ioremap() and read...()
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ---
 
- drivers/net/hp-plus.c |   17 +++++++++++++----
- 1 files changed, 13 insertions(+), 4 deletions(-)
+ drivers/char/toshiba.c |   38 +++++++++++++++++++++++---------------
+ 1 files changed, 23 insertions(+), 15 deletions(-)
 
-202702a915ccef02d54b57e39a4545e4f310ac76
-diff --git a/drivers/net/hp-plus.c b/drivers/net/hp-plus.c
---- a/drivers/net/hp-plus.c
-+++ b/drivers/net/hp-plus.c
-@@ -141,6 +141,7 @@ static int __init do_hpp_probe(struct ne
- static void cleanup_card(struct net_device *dev)
+0bb582c17832859733b3dd6d408f64234cccf860
+diff --git a/drivers/char/toshiba.c b/drivers/char/toshiba.c
+--- a/drivers/char/toshiba.c
++++ b/drivers/char/toshiba.c
+@@ -355,14 +355,14 @@ static void tosh_set_fn_port(void)
+ /*
+  * Get the machine identification number of the current model
+  */
+-static int tosh_get_machine_id(void)
++static int tosh_get_machine_id(void __iomem *bios)
  {
- 	/* NB: hpp_close() handles free_irq */
-+	iounmap(ei_status.mem);
- 	release_region(dev->base_addr - NIC_OFFSET, HP_IO_EXTENT);
- }
+ 	int id;
+ 	SMMRegisters regs;
+ 	unsigned short bx,cx;
+ 	unsigned long address;
  
-@@ -256,6 +257,12 @@ static int __init hpp_probe1(struct net_
- 		ei_status.block_output = &hpp_mem_block_output;
- 		ei_status.get_8390_hdr = &hpp_mem_get_8390_hdr;
- 		dev->mem_start = mem_start;
-+		ei_status.mem = ioremap(mem_start,
-+					(HP_STOP_PG - HP_START_PG)*256);
-+		if (!ei_status.mem) {
-+			retval = -ENOMEM;
-+			goto out;
-+		}
- 		ei_status.rmem_start = dev->mem_start + TX_PAGES/2*256;
- 		dev->mem_end = ei_status.rmem_end
- 			= dev->mem_start + (HP_STOP_PG - HP_START_PG)*256;
-@@ -268,8 +275,10 @@ static int __init hpp_probe1(struct net_
+-	id = (0x100*(int) isa_readb(0xffffe))+((int) isa_readb(0xffffa));
++	id = (0x100*(int) readb(bios+0xfffe))+((int) readb(bios+0xfffa));
  
- 	retval = register_netdev(dev);
- 	if (retval)
--		goto out;
-+		goto out1;
+ 	/* do we have a SCTTable machine identication number on our hands */
+ 
+@@ -388,12 +388,12 @@ static int tosh_get_machine_id(void)
+ 
+ 		/* now twiddle with our pointer a bit */
+ 
+-		address = 0x000f0000+bx;
+-		cx = isa_readw(address);
+-		address = 0x000f0009+bx+cx;
+-		cx = isa_readw(address);
+-		address = 0x000f000a+cx;
+-		cx = isa_readw(address);
++		address = bx;
++		cx = readw(bios + address);
++		address = 9+bx+cx;
++		cx = readw(bios + address);
++		address = 0xa+cx;
++		cx = readw(bios + address);
+ 
+ 		/* now construct our machine identification number */
+ 
+@@ -416,13 +416,18 @@ static int tosh_probe(void)
+ 	int i,major,minor,day,year,month,flag;
+ 	unsigned char signature[7] = { 0x54,0x4f,0x53,0x48,0x49,0x42,0x41 };
+ 	SMMRegisters regs;
++	void __iomem *bios = ioremap(0xf0000, 0x10000);
++
++	if (!bios)
++		return -ENOMEM;
+ 
+ 	/* extra sanity check for the string "TOSHIBA" in the BIOS because
+ 	   some machines that are not Toshiba's pass the next test */
+ 
+ 	for (i=0;i<7;i++) {
+-		if (isa_readb(0xfe010+i)!=signature[i]) {
++		if (readb(bios+0xe010+i)!=signature[i]) {
+ 			printk("toshiba: not a supported Toshiba laptop\n");
++			iounmap(bios);
+ 			return -ENODEV;
+ 		}
+ 	}
+@@ -438,6 +443,7 @@ static int tosh_probe(void)
+ 
+ 	if ((flag==1) || ((regs.eax & 0xff00)==0x8600)) {
+ 		printk("toshiba: not a supported Toshiba laptop\n");
++		iounmap(bios);
+ 		return -ENODEV;
+ 	}
+ 
+@@ -447,19 +453,19 @@ static int tosh_probe(void)
+ 
+ 	/* next get the machine ID of the current laptop */
+ 
+-	tosh_id = tosh_get_machine_id();
++	tosh_id = tosh_get_machine_id(bios);
+ 
+ 	/* get the BIOS version */
+ 
+-	major = isa_readb(0xfe009)-'0';
+-	minor = ((isa_readb(0xfe00b)-'0')*10)+(isa_readb(0xfe00c)-'0');
++	major = readb(bios+0xe009)-'0';
++	minor = ((readb(bios+0xe00b)-'0')*10)+(readb(bios+0xe00c)-'0');
+ 	tosh_bios = (major*0x100)+minor;
+ 
+ 	/* get the BIOS date */
+ 
+-	day = ((isa_readb(0xffff5)-'0')*10)+(isa_readb(0xffff6)-'0');
+-	month = ((isa_readb(0xffff8)-'0')*10)+(isa_readb(0xffff9)-'0');
+-	year = ((isa_readb(0xffffb)-'0')*10)+(isa_readb(0xffffc)-'0');
++	day = ((readb(bios+0xfff5)-'0')*10)+(readb(bios+0xfff6)-'0');
++	month = ((readb(bios+0xfff8)-'0')*10)+(readb(bios+0xfff9)-'0');
++	year = ((readb(bios+0xfffb)-'0')*10)+(readb(bios+0xfffc)-'0');
+ 	tosh_date = (((year-90) & 0x1f)<<10) | ((month & 0xf)<<6)
+ 		| ((day & 0x1f)<<1);
+ 
+@@ -476,6 +482,8 @@ static int tosh_probe(void)
+ 	if ((tosh_id==0xfccb) || (tosh_id==0xfccc))
+ 		tosh_fan = 1;
+ 
++	iounmap(bios);
++
  	return 0;
-+out1:
-+	iounmap(ei_status.mem);
- out:
- 	release_region(ioaddr, HP_IO_EXTENT);
- 	return retval;
-@@ -378,7 +387,7 @@ hpp_mem_get_8390_hdr(struct net_device *
- 
- 	outw((ring_page<<8), ioaddr + HPP_IN_ADDR);
- 	outw(option_reg & ~(MemDisable + BootROMEnb), ioaddr + HPP_OPTION);
--	isa_memcpy_fromio(hdr, dev->mem_start, sizeof(struct e8390_pkt_hdr));
-+	memcpy_fromio(hdr, ei_status.mem, sizeof(struct e8390_pkt_hdr));
- 	outw(option_reg, ioaddr + HPP_OPTION);
- 	hdr->count = (le16_to_cpu(hdr->count) + 3) & ~3;	/* Round up allocation. */
- }
-@@ -397,7 +406,7 @@ hpp_mem_block_input(struct net_device *d
- 	   Also note that we *can't* use eth_io_copy_and_sum() because
- 	   it will not always copy "count" bytes (e.g. padded IP).  */
- 
--	isa_memcpy_fromio(skb->data, dev->mem_start, count);
-+	memcpy_fromio(skb->data, ei_status.mem, count);
- 	outw(option_reg, ioaddr + HPP_OPTION);
  }
  
-@@ -422,7 +431,7 @@ hpp_mem_block_output(struct net_device *
- 
- 	outw(start_page << 8, ioaddr + HPP_OUT_ADDR);
- 	outw(option_reg & ~(MemDisable + BootROMEnb), ioaddr + HPP_OPTION);
--	isa_memcpy_toio(dev->mem_start, buf, (count + 3) & ~3);
-+	memcpy_toio(ei_status.mem, buf, (count + 3) & ~3);
- 	outw(option_reg, ioaddr + HPP_OPTION);
- 
- 	return;
 

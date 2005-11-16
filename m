@@ -1,60 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932597AbVKPKkF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030270AbVKPKmt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932597AbVKPKkF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 05:40:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030270AbVKPKkF
+	id S1030270AbVKPKmt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 05:42:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030271AbVKPKmt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 05:40:05 -0500
-Received: from barclay.balt.net ([195.14.162.78]:4968 "EHLO barclay.balt.net")
-	by vger.kernel.org with ESMTP id S932597AbVKPKkD (ORCPT
+	Wed, 16 Nov 2005 05:42:49 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:33502 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S1030270AbVKPKms (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 05:40:03 -0500
-Date: Wed, 16 Nov 2005 12:38:34 +0200
-From: Zilvinas Valinskas <zilvinas@gemtek.lt>
-To: Pekka J Enberg <penberg@cs.Helsinki.FI>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Alexandre Buisse <alexandre.buisse@ens-lyon.fr>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, yi.zhu@intel.com,
-       jketreno@linux.intel.com
-Subject: Re: Linuv 2.6.15-rc1
-Message-ID: <20051116103834.GC23140@gemtek.lt>
-Reply-To: Zilvinas Valinskas <zilvinas@gemtek.lt>
-References: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org> <4378980C.7060901@ens-lyon.fr> <20051114162942.5b163558.akpm@osdl.org> <20051115100519.GA5567@gemtek.lt> <20051115115657.GA30489@gemtek.lt> <84144f020511150451l6ef30420g5a83a147c61f34a8@mail.gmail.com> <20051115140023.GB9910@gemtek.lt> <Pine.LNX.4.58.0511161130350.30203@sbz-30.cs.Helsinki.FI>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0511161130350.30203@sbz-30.cs.Helsinki.FI>
-X-Attribution: Zilvinas
-X-Url: http://www.gemtek.lt/
-User-Agent: Mutt/1.5.9i
+	Wed, 16 Nov 2005 05:42:48 -0500
+Date: Wed, 16 Nov 2005 10:42:31 +0000 (GMT)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: linux-mm@kvack.org, mingo@elte.hu, linux-kernel@vger.kernel.org,
+       nickpiggin@yahoo.com.au, lhms-devel@lists.sourceforge.net
+Subject: Re: [PATCH 3/5] Light Fragmentation Avoidance V20: 003_fragcore
+In-Reply-To: <437A9AE5.8070001@jp.fujitsu.com>
+Message-ID: <Pine.LNX.4.58.0511161035010.29156@skynet>
+References: <20051115164946.21980.2026.sendpatchset@skynet.csn.ul.ie>
+ <20051115165002.21980.14423.sendpatchset@skynet.csn.ul.ie>
+ <437A9AE5.8070001@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Pekka, 
+On Wed, 16 Nov 2005, KAMEZAWA Hiroyuki wrote:
 
-compiling kernel with a new patch :)
+> > +/* Remove an element from the buddy allocator from the fallback list */
+> > +static struct page *__rmqueue_fallback(struct zone *zone, int order,
+> > +    int alloctype)
+>
+> Should we avoid this fallback as much as possible ?
 
-> And see if you can trigger the oops with the included patch applied. 
-> Please leave the page and slab debugging config options on.
-> 
-> Thank you for testing!
-> 
-> 			Pekka
-> 
-> Index: 2.6/drivers/net/wireless/ipw2200.c
-> ===================================================================
-> --- 2.6.orig/drivers/net/wireless/ipw2200.c
-> +++ 2.6/drivers/net/wireless/ipw2200.c
-> @@ -11065,6 +11065,7 @@ static int ipw_pci_probe(struct pci_dev 
->  	return 0;
->  
->        out_remove_sysfs:
-> +	ipw_disable_interrupts(priv);
->  	sysfs_remove_group(&pdev->dev.kobj, &ipw_attribute_group);
->        out_release_irq:
->  	free_irq(pdev->irq, priv);
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Avoiding fallback as much as possible is something I would push into a
+zone approach that can be developer separetly to this. I want to give hard
+guarantees in special zones about fallbacks and best effort everywhere
+else with this. Taking complex steps to avoid tough fallbacks here hurts
+the general path on a typical machine.
+
+> I think this is a weak point of this approach.
+>
+> > +    /*
+> > +     * If breaking a large block of pages, place the buddies
+> > +     * on the preferred allocation list
+> > +     */
+> > +    if (unlikely(current_order >= MAX_ORDER / 2)) {
+> > +    alloctype = !alloctype;
+> > +    change_pageblock_type(zone, page);
+> > +    area = &zone->free_area_lists[alloctype][current_order];
+> > +    }
+> Changing RCLM_NORCLM to RLCM_EASY is okay ??
+
+Yes. If anything, it's the other way around one would be concerned about.
+The anti-defrag approach just groups related allocations together as much
+as possible. If the grouping is not possible without taking expensive
+steps like balancing or reclaiming, it tries to steal the largest
+possible block from the other list to reduce the chances that fallbacks
+will occur in the near future.
+
+> If so, I think adding similar code to free_pages_bulk() is better.
+>
+
+It's at allocation time if you know whether fallbacks are needed or not.
+To do something similar at free, you are entering the realm of watermarks,
+balances and tunables. As it is, the usemap tells __free_pages_bulk() what
+free list pages should be going back to.
+
+-- 
+Mel Gorman
+Part-time Phd Student                          Java Applications Developer
+University of Limerick                         IBM Dublin Software Lab

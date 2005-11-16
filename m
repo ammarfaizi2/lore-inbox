@@ -1,72 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030215AbVKPIEE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030213AbVKPIJB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030215AbVKPIEE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 03:04:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030214AbVKPIED
+	id S1030213AbVKPIJB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 03:09:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030214AbVKPIJB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 03:04:03 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:28567 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030215AbVKPIEC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 03:04:02 -0500
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-From: Arjan van de Ven <arjan@infradead.org>
-To: Alex Davis <alex14641@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051116005034.73421.qmail@web50210.mail.yahoo.com>
-References: <20051116005034.73421.qmail@web50210.mail.yahoo.com>
-Content-Type: text/plain
-Date: Wed, 16 Nov 2005 09:03:32 +0100
-Message-Id: <1132128212.2834.17.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 16 Nov 2005 03:09:01 -0500
+Received: from [218.25.172.144] ([218.25.172.144]:17156 "HELO mail.fc-cn.com")
+	by vger.kernel.org with SMTP id S1030213AbVKPIJA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 03:09:00 -0500
+Date: Wed, 16 Nov 2005 16:08:55 +0800
+From: Coywolf Qi Hunt <qiyong@fc-cn.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Christoph Hellwig <hch@infradead.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] new block/ directory comment tidy
+Message-ID: <20051116080855.GA3418@localhost.localdomain>
+References: <Pine.LNX.4.64.0511111753080.3263@g5.osdl.org> <20051113090156.GA4417@infradead.org> <20051113110517.GG3699@suse.de> <20051116061525.GA3035@localhost.localdomain> <20051116074850.GA20259@infradead.org> <20051116075732.GQ7787@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051116075732.GQ7787@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-15 at 16:50 -0800, Alex Davis wrote:
-> Could someone either list or post a link to someplace that lists
-> all the advantages of 4K stacks? 
+On Wed, Nov 16, 2005 at 08:57:32AM +0100, Jens Axboe wrote:
+> On Wed, Nov 16 2005, Christoph Hellwig wrote:
+> > On Wed, Nov 16, 2005 at 02:15:25PM +0800, Coywolf Qi Hunt wrote:
+> > > On Sun, Nov 13, 2005 at 12:05:18PM +0100, Jens Axboe wrote:
+> > > > On Sun, Nov 13 2005, Christoph Hellwig wrote:
+> > > > > Shouldn't fs/bio.c, fs/block_dev.c and fs/partitions/* move to block/
+> > > > > aswell?
+> > > > 
+> > > > Yup, that's the intention. I just started off with drivers/block/* to
+> > > > get it going.
+> > >  
+> > > 
+> > > New block/ directory comment tidy.
+> > 
+> > Please just kill these lines instead.
+> 
+> Agree, they don't really add anything.
 
-* less kernel memory (eg lowmem) used for a thread 
-   - allows more threads on the same system (java!)
-   - increases performance in high-thread systems because more memory
-     is available for disk cache etc
-* thread stacks are now order 0 not order 1
-   - order 0 is easy for the VM, order > 0 is harder (increasingly so
-     the higher the order; so the 16Kb/32Kb request is just really
-     wrong). For order > 0, fragmentation becomes an issue (just look
-     at the entire fragmentation debate from a few weeks ago how bad
-     a problem fragmentation can be). Thread stacks are just about the
-     last remaining "big" user of order > 0 allocations normally.
-     (eg excluding init/setup code)
-   - order 0 allocations come from a per cpu "quicklist" of pages, 
-     while order>0 allocations need to go to a global allocator pool.
-     "global" means "cache line bounces" and "cpu scalability problem".
-* less CPU cache footprint due to interrupt stacks
-   - interrupt stacks are per cpu now instead of borrowing the per
-     thread stack space; this both has less impact on the caches, and
-     has more cache hits; the per cpu stack will be in cache more than
-     the previously scattered bits and pieces
-* more stack space is available for interrupts compared to 2.4 kernels
-   - in 2.4 kernels only 2Kb was available for interrupt context (to
-     keep 4K available for user context). With complex softirqs such as
-     PPP and firewall rules and nested interrupts this wasn't always
-     enough. Compared to 2.6-with-8Kstacks is a bit harder; there is
-     2Kb extra available there compared to 2.4 and arguably some of that
-     extra is for interrupts.
+They did. Linus could use them as a hint to rescue his kernel source code after
+some filesystem crash. :p
 
+Signed-off-by: Coywolf Qi Hunt <qiyong@fc-cn.com>
+---
 
-
-
+diff -pruN 2.6.14-mm2/block/as-iosched.c 2.6.14-mm2-cy/block/as-iosched.c
+--- 2.6.14-mm2/block/as-iosched.c	2005-11-11 16:50:55.000000000 +0800
++++ 2.6.14-mm2-cy/block/as-iosched.c	2005-11-16 14:05:43.000000000 +0800
+@@ -1,5 +1,3 @@
+ /*
+- *  linux/drivers/block/as-iosched.c
+- *
+  *  Anticipatory & deadline i/o scheduler.
+  *
+diff -pruN 2.6.14-mm2/block/cfq-iosched.c 2.6.14-mm2-cy/block/cfq-iosched.c
+--- 2.6.14-mm2/block/cfq-iosched.c	2005-11-11 16:50:55.000000000 +0800
++++ 2.6.14-mm2-cy/block/cfq-iosched.c	2005-11-16 14:06:03.000000000 +0800
+@@ -1,5 +4294967295,3 @@
+ /*
+- *  linux/drivers/block/cfq-iosched.c
+- *
+  *  CFQ, or complete fairness queueing, disk scheduler.
+  *
+diff -pruN 2.6.14-mm2/block/deadline-iosched.c 2.6.14-mm2-cy/block/deadline-iosched.c
+--- 2.6.14-mm2/block/deadline-iosched.c	2005-11-11 16:50:55.000000000 +0800
++++ 2.6.14-mm2-cy/block/deadline-iosched.c	2005-11-16 14:06:28.000000000 +0800
+@@ -1,5 +4294967293,3 @@
+ /*
+- *  linux/drivers/block/deadline-iosched.c
+- *
+  *  Deadline i/o scheduler.
+  *
+diff -pruN 2.6.14-mm2/block/elevator.c 2.6.14-mm2-cy/block/elevator.c
+--- 2.6.14-mm2/block/elevator.c	2005-11-11 16:50:55.000000000 +0800
++++ 2.6.14-mm2-cy/block/elevator.c	2005-11-16 14:06:49.000000000 +0800
+@@ -1,5 +4294967291,3 @@
+ /*
+- *  linux/drivers/block/elevator.c
+- *
+  *  Block device elevator/IO-scheduler.
+  *
+diff -pruN 2.6.14-mm2/block/ll_rw_blk.c 2.6.14-mm2-cy/block/ll_rw_blk.c
+--- 2.6.14-mm2/block/ll_rw_blk.c	2005-11-11 16:50:55.000000000 +0800
++++ 2.6.14-mm2-cy/block/ll_rw_blk.c	2005-11-16 14:04:53.000000000 +0800
+@@ -1,5 +4294967289,3 @@
+ /*
+- *  linux/drivers/block/ll_rw_blk.c
+- *
+  * Copyright (C) 1991, 1992 Linus Torvalds
+  * Copyright (C) 1994,      Karl Keyte: Added support for disk statistics

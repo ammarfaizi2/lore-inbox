@@ -1,87 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030465AbVKPUX3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030471AbVKPUYr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030465AbVKPUX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 15:23:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030471AbVKPUX3
+	id S1030471AbVKPUYr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 15:24:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030485AbVKPUYr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 15:23:29 -0500
-Received: from nikola.com ([64.146.180.228]:12401 "EHLO nikola.com")
-	by vger.kernel.org with ESMTP id S1030465AbVKPUX2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 15:23:28 -0500
-Message-ID: <009401c5eaeb$9a77be00$5e00800a@printserver>
-From: "Jesse Gordon" <jesseg@nikola.com>
-To: <linux-kernel@vger.kernel.org>
-References: <200511121616.14940.ace@staticwave.ca> <200511161252.08927.bjorn.helgaas@hp.com>
-Subject: ICMP Ping being lost between kernel and the ping program.
-Date: Wed, 16 Nov 2005 12:23:27 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+	Wed, 16 Nov 2005 15:24:47 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:14736 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030471AbVKPUYq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 15:24:46 -0500
+Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: "SERGE E. HALLYN [imap]" <serue@us.ibm.com>, Paul Jackson <pj@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       frankeh@watson.ibm.com
+In-Reply-To: <20051113152214.GC2193@spitz.ucw.cz>
+References: <20051114212341.724084000@sergelap>
+	 <20051114153649.75e265e7.pj@sgi.com>
+	 <20051115055107.GB3252@IBM-BWN8ZTBWAO1>
+	 <20051113152214.GC2193@spitz.ucw.cz>
+Content-Type: text/plain
+Date: Wed, 16 Nov 2005 21:24:39 +0100
+Message-Id: <1132172679.5937.6.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.3790.1830
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1830
-X-Authenticated-Sender: jesseg@nikola.com
-X-Spam-Processed: nikola.com, Wed, 16 Nov 2005 12:23:23 -0800
-	(not processed: message from valid local sender)
-X-MDRemoteIP: 64.146.180.228
-X-Return-Path: jesseg@nikola.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-X-MDAV-Processed: nikola.com, Wed, 16 Nov 2005 12:23:24 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings. This is my first post.
+On Sun, 2005-11-13 at 15:22 +0000, Pavel Machek wrote:
+> > @@ -2925,7 +2925,7 @@ void submit_bio(int rw, struct bio *bio)
+> >  	if (unlikely(block_dump)) {
+> >  		char b[BDEVNAME_SIZE];
+> >  		printk(KERN_DEBUG "%s(%d): %s block %Lu on %s\n",
+> > -			current->comm, current->pid,
+> > +			current->comm, task_pid(current),
+> >  			(rw & WRITE) ? "WRITE" : "READ",
+> >  			(unsigned long long)bio->bi_sector,
+> >  			bdevname(bio->bi_bdev,b));
+> 
+> ...and now printk is close to useless, because uer can't know to which
+> pidspace that pid belongs. Oops.
 
-I'm having a weird intermittent problem with ping.
+That is true, but only if we print the virtualized pid.  Before we go
+and actually implement the pid virtualization, we probably need a
+thorough audit of this kind of stuff to see what we really want.
 
-I'm pinging the WAN port of a cheap home DSL firewall (d-link di-604) and 
-sometimes the ping program fails to get a response,
-but if I run tcpdump I can see that the response is indeed coming back.
+There will always be a "real pid" (the real thing in tsk->__pid) backing
+whatever is virtualized and presented to getpid().  I would imagine that
+this is the same that needs to go into dmesg.  
 
-arping on the target IP always works.
-
-We're a small wireless ISP with 40ish customers -- each of whom has a cheap 
-dlink router at their home. We ping each of them regularly to be notified of 
-a wireless loss of connection.
-(The wireless is Trango running at 5.x Ghz or ~900Mhz -- not 802.11) and all 
-the wireless and switches are just ethernet bridges -- so it's a flat 
-network with no ip based routing.
-
-Two different dlink routers cause this problem but not necisarly at the same 
-time.
-
-Two different Linux computers exhibit this problem, although again, not 
-always at the same time. One seems to be more picky -- sometimes just the 
-picky one has a problem, other times they both have the problem.
-
-Also, I have not yet noticed this problem while pinging from a windows 
-computer.
-
-Picky one:Linux 2.4.26
-Less picky one: Linux 2.6.11.11 SMP
-
-Anyhow, I don't know whether the dlinks are sometimes sending out sligly 
-malformed packets, whether they are getting slightly damaged over the 
-wireless network,
-or whether Linux [the kernel] is having a problem, or if the ping program is 
-having the problem. The facts just don't make sense for any of those.
-
-I'll be glad to do all the normal stuff -- upgraded to latest kernel, (I did 
-try upgrading to latest ping not too long ago no help - can try again),  if 
-anyone thinks that'll help me solve the mystery.
-I can even capture the text description of or the raw contents of packets 
-with tcpdump or maybe ethereal, if that will help.
-
-I did one time capture with ethereal a packet when ping was working, then a 
-packet when it wasn't and compared them side by side in two ethereal 
-instances -- and aside from the fields that should have been different, 
-everything looked the same.
-
-Thanks! 
-
+-- Dave
 

@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030337AbVKPNvW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030333AbVKPNwt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030337AbVKPNvW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 08:51:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030336AbVKPNvW
+	id S1030333AbVKPNwt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 08:52:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030339AbVKPNwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 08:51:22 -0500
-Received: from mail.fh-wedel.de ([213.39.232.198]:20639 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1030337AbVKPNvW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 08:51:22 -0500
-Date: Wed, 16 Nov 2005 14:51:16 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Arjan van de Ven <arjan@infradead.org>, alex14641@yahoo.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Message-ID: <20051116135116.GA24753@wohnheim.fh-wedel.de>
-References: <20051116005034.73421.qmail@web50210.mail.yahoo.com> <1132128212.2834.17.camel@laptopd505.fenrus.org> <20051116111812.4a1ea18a.grundig@teleline.es> <1132137638.2834.29.camel@laptopd505.fenrus.org> <p73oe4kpx6n.fsf@verdi.suse.de>
+	Wed, 16 Nov 2005 08:52:49 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:54459 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030333AbVKPNws
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 08:52:48 -0500
+Date: Wed, 16 Nov 2005 07:53:01 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Keith Owens <kaos@sgi.com>
+Cc: linux-kernel@vger.kernel.org, Hubertus Franke <frankeh@watson.ibm.com>,
+       Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [RFC] [PATCH 12/13] Change pid accesses: ia64 and mips
+Message-ID: <20051116135301.GB3960@IBM-BWN8ZTBWAO1>
+References: <20051114212530.486945000@sergelap> <22645.1132096092@ocs3.ocs.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <p73oe4kpx6n.fsf@verdi.suse.de>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <22645.1132096092@ocs3.ocs.com.au>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 November 2005 13:57:36 +0100, Andi Kleen wrote:
+Quoting Keith Owens (kaos@sgi.com):
+> On Mon, 14 Nov 2005 15:23:53 -0600, 
+> "Serge E. Hallyn" <serue@us.ibm.com> wrote:
+> >Index: linux-2.6.15-rc1/arch/ia64/kernel/mca.c
+> >===================================================================
+> >--- linux-2.6.15-rc1.orig/arch/ia64/kernel/mca.c
+> >+++ linux-2.6.15-rc1/arch/ia64/kernel/mca.c
+> >@@ -755,9 +755,9 @@ ia64_mca_modify_original_stack(struct pt
+> > 	 * (swapper or nested MCA/INIT) then use the start of the previous comm
+> > 	 * field suffixed with its cpu.
+> > 	 */
+> >-	if (previous_current->pid)
+> >+	if (previous_task_pid(current))
+> > 		snprintf(comm, sizeof(comm), "%s %d",
+> >-			current->comm, previous_current->pid);
+> >+			current->comm, previous_task_pid(current));
+> > 	else {
+> > 		int l;
+> > 		if ((p = strchr(previous_current->comm, ' ')))
 > 
-> I think it's in general risky. It's like balancing without a safety
-> net.  Might be a nice hobby, but for real production you want a safety
-> net.  That's simple because there are likely some code paths through
-> the code that need more stack space and that are rarely hit (and
-> cannot be easily found by static analysis, e.g. if they involve
-> indirect pointers or particularly complex configuration setups).
+> That makes no sense, previous_task_pid() is not defined anywhere.
+> Looks like a global edit error and should probably be
+> task_pid(previous_current).
 
-It isn't that hard to find such places.  Trouble is that you find so
-many of them and it takes quite a while to go through them all.  Years
-is a good unit for "quite a while".
+Note there are a few more ia64 errors - working on a test compile
+now and will send out a new patch, though i don't have the hw to
+boot-test.
 
-Jörn
+thanks,
+-serge
 
--- 
-With a PC, I always felt limited by the software available. On Unix, 
-I am limited only by my knowledge.
--- Peter J. Schoenster

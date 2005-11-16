@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932590AbVKPFo2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932588AbVKPFsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932590AbVKPFo2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 00:44:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932589AbVKPFo1
+	id S932588AbVKPFsL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 00:48:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932589AbVKPFsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 00:44:27 -0500
-Received: from dial169-252.awalnet.net ([213.184.169.252]:10255 "EHLO
-	raad.intranet") by vger.kernel.org with ESMTP id S932587AbVKPFo1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 00:44:27 -0500
-From: Al Boldi <a1426z@gawab.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 12/18] shared mount handling: bind and rbind
-Date: Wed, 16 Nov 2005 08:35:28 +0300
-User-Agent: KMail/1.5
-Cc: Ram Pai <linuxram@us.ibm.com>, Miklos Szeredi <miklos@szeredi.hu>,
-       Al Viro <viro@ftp.linux.org.uk>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, Rob Landley <rob@landley.net>
-References: <E1EZInj-0001Ez-AV@ZenIV.linux.org.uk> <200511152129.04079.rob@landley.net> <Pine.LNX.4.64.0511151948570.13959@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0511151948570.13959@g5.osdl.org>
+	Wed, 16 Nov 2005 00:48:11 -0500
+Received: from livid.absolutedigital.net ([66.92.46.173]:13018 "EHLO
+	mx2.absolutedigital.net") by vger.kernel.org with ESMTP
+	id S932588AbVKPFsK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 00:48:10 -0500
+Date: Wed, 16 Nov 2005 00:47:58 -0500 (EST)
+From: Cal Peake <cp@absolutedigital.net>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Jon Masters <jcm@jonmasters.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Al Viro <viro@ftp.linux.org.uk>,
+       Christoph Hellwig <hch@lst.de>
+Subject: floppy regression from "[PATCH] fix floppy.c to store correct ..."
+Message-ID: <Pine.LNX.4.61.0511160034320.988@lancer.cnet.absolutedigital.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511160835.28636.a1426z@gawab.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> This is why we have "pivot_root()" and "chroot()", which can both be used
-> to do what you want to do. You mount the new root somewhere else, and then
-> you chroot (or pivot-root) to it. And THEN you do 'chdir("/")' to move the
-> cwd into the new root too (and only at that point have you "lost" the old
-> root - although you can actually get it back if you have some file
-> descriptor open to it).
+Hi,
 
-Wouldn't this constitute a security flaw?
+Commit 88baf3e85af72f606363a85e9a60e9e61cc64a6c:
 
-Shouldn't chroot jail you?
+ "[PATCH] fix floppy.c to store correct ro/rw status in underlying gendisk"
 
---
-Al
+causes an annoying side-effect. Upon first write attempt to a floppy I get 
+this:
+
+$ dd if=bootdisk.img of=/dev/fd0 bs=1440k
+dd: writing `/dev/fd0': Operation not permitted
+1+0 records in
+0+0 records out
+
+Any successive attempts succeed without problem. Confirmed that backing 
+out the patch fixes it.
+
+-cp
+
+-- 
+Phishing, pharming; n.: Ways to obtain phood. -- The Devil's Infosec Dictionary
 

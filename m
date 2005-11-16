@@ -1,147 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030577AbVKPXK7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161002AbVKPXLq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030577AbVKPXK7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 18:10:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030576AbVKPXK7
+	id S1161002AbVKPXLq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 18:11:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161003AbVKPXLq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 18:10:59 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:4044 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030577AbVKPXK6 (ORCPT
+	Wed, 16 Nov 2005 18:11:46 -0500
+Received: from pat.uio.no ([129.240.130.16]:38386 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1161002AbVKPXLp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 18:10:58 -0500
-Date: Wed, 16 Nov 2005 17:10:41 -0600
-To: Greg KH <greg@kroah.com>
-Cc: linuxppc64-dev@ozlabs.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/7] PCI Error Recovery: header file patch
-Message-ID: <20051116231041.GA16057@austin.ibm.com>
-References: <20051108234911.GC19593@austin.ibm.com> <20051108235357.GD19593@austin.ibm.com>
+	Wed, 16 Nov 2005 18:11:45 -0500
+Subject: Re: mmap over nfs leads to excessive system load
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Andrew Morton <akpm@osdl.org>
+Cc: theonetruekenny@yahoo.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20051116144450.47436560.akpm@osdl.org>
+References: <20051116150141.29549.qmail@web34113.mail.mud.yahoo.com>
+	 <1132163057.8811.15.camel@lade.trondhjem.org>
+	 <20051116100053.44d81ae2.akpm@osdl.org>
+	 <1132166062.8811.30.camel@lade.trondhjem.org>
+	 <20051116110938.1bf54339.akpm@osdl.org>
+	 <1132171500.8811.37.camel@lade.trondhjem.org>
+	 <20051116133130.625cd19b.akpm@osdl.org>
+	 <1132177785.8811.57.camel@lade.trondhjem.org>
+	 <20051116141052.7994ab7d.akpm@osdl.org>
+	 <1132179796.8811.70.camel@lade.trondhjem.org>
+	 <20051116144450.47436560.akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 16 Nov 2005 18:10:41 -0500
+Message-Id: <1132182641.8811.97.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051108235357.GD19593@austin.ibm.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: linas <linas@austin.ibm.com>
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.689, required 12,
+	autolearn=disabled, AWL 1.31, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2005-11-16 at 14:44 -0800, Andrew Morton wrote:
 
-Greg, Please apply. This has been modified to use unsigned int's
-per disucssion.
+> Could peek at wbc->nr_pages, or add another boolean to writeback_control
+> for this.
+> 
+> diff -puN include/linux/writeback.h~writeback_control-flag-writepages include/linux/writeback.h
+> --- devel/include/linux/writeback.h~writeback_control-flag-writepages	2005-11-16 14:43:52.000000000 -0800
+> +++ devel-akpm/include/linux/writeback.h	2005-11-16 14:43:52.000000000 -0800
+> @@ -53,10 +53,11 @@ struct writeback_control {
+>  	loff_t start;
+>  	loff_t end;
+>  
+> -	unsigned nonblocking:1;			/* Don't get stuck on request queues */
+> -	unsigned encountered_congestion:1;	/* An output: a queue is full */
+> -	unsigned for_kupdate:1;			/* A kupdate writeback */
+> -	unsigned for_reclaim:1;			/* Invoked from the page allocator */
+> +	unsigned nonblocking:1;		/* Don't get stuck on request queues */
+> +	unsigned encountered_congestion:1; /* An output: a queue is full */
+> +	unsigned for_kupdate:1;		/* A kupdate writeback */
+> +	unsigned for_reclaim:1;		/* Invoked from the page allocator */
+> +	unsigned for_writepages:1;	/* This is a writepages() call */
+>  };
+>  
+>  /*
+> diff -puN mm/page-writeback.c~writeback_control-flag-writepages mm/page-writeback.c
+> --- devel/mm/page-writeback.c~writeback_control-flag-writepages	2005-11-16 14:43:52.000000000 -0800
+> +++ devel-akpm/mm/page-writeback.c	2005-11-16 14:43:52.000000000 -0800
+> @@ -550,11 +550,17 @@ void __init page_writeback_init(void)
+>  
+>  int do_writepages(struct address_space *mapping, struct writeback_control *wbc)
+>  {
+> +	int ret;
+> +
+>  	if (wbc->nr_to_write <= 0)
+>  		return 0;
+> +	wbc->for_writepages = 1;
+>  	if (mapping->a_ops->writepages)
+> -		return mapping->a_ops->writepages(mapping, wbc);
+> -	return generic_writepages(mapping, wbc);
+> +		ret =  mapping->a_ops->writepages(mapping, wbc);
+> +	else
+> +		ret = generic_writepages(mapping, wbc);
+> +	wbc->for_writepages = 0;
+> +	return ret;
+>  }
 
---linas
+That would work...
 
---------
+> > > For vmscan->writepage, wbc->for_reclaim is set, so we know that the IO
+> > > should be pushed immediately.  nfs_writepage() seems to dtrt here.
+> > > 
+> > > With the proposed changes, we don't need that iput() in nfs_writepage(). 
+> > > That worries me because I recall from a couple of years back that there are
+> > > really subtle races with doing iput() on the vmscan->writepage() path. 
+> > > Cannot remember what they were though...
+> > 
+> > Possibly to do with block filesystems that may trigger ->writepage()
+> > while inside iput_final()? NFS can't do that.
+> 
+> iput_final() can call truncate_inode_pages - maybe it was a deadlock, but
+> I'm fairly sure it was a race.
 
-PCI Error Recovery: header file patch
+Doesn't matter. There can be no dirty pages when NFS hits iput_final().
+We make sure that we flush them into the filesystem accounting before we
+release the file descriptor, then we make sure that we don't release the
+dentry before the inode has been synced up.
 
-Various PCI bus errors can be signaled by newer PCI controllers. Recovering 
-from those errors requires an infrastructure to notify affected device drivers 
-of the error, and a way of walking through a reset sequence.  This patch adds 
-a set of callbacks to be used by error recovery routines to notify device 
-drivers of the various stages of recovery.
-
-Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
-
---
-Index: linux-2.6.14-git10/include/linux/pci.h
-===================================================================
---- linux-2.6.14-git10.orig/include/linux/pci.h	2005-11-07 17:24:23.048968436 -0600
-+++ linux-2.6.14-git10/include/linux/pci.h	2005-11-07 17:42:46.026024245 -0600
-@@ -78,6 +78,23 @@
- #define PCI_UNKNOWN	((pci_power_t __force) 5)
- #define PCI_POWER_ERROR	((pci_power_t __force) -1)
- 
-+/** The pci_channel state describes connectivity between the CPU and
-+ *  the pci device.  If some PCI bus between here and the pci device
-+ *  has crashed or locked up, this info is reflected here.
-+ */
-+typedef unsigned int __bitwise pci_channel_state_t;
-+
-+enum pci_channel_state {
-+	/* I/O channel is in normal state */
-+	pci_channel_io_normal = (__force pci_channel_state_t) 1,
-+	
-+	/* I/O to channel is blocked */
-+	pci_channel_io_frozen = (__force pci_channel_state_t) 2,
-+
-+	/* PCI card is dead */
-+	pci_channel_io_perm_failure = (__force pci_channel_state_t) 3,
-+};
-+
- /*
-  * The pci_dev structure is used to describe PCI devices.
-  */
-@@ -110,6 +127,7 @@
- 					   this is D0-D3, D0 being fully functional,
- 					   and D3 being off. */
- 
-+	pci_channel_state_t error_state;  /* current connectivity state */
- 	struct	device	dev;		/* Generic device interface */
- 
- 	/* device is compatible with these IDs */
-@@ -232,6 +250,54 @@
- 	unsigned int use_driver_data:1; /* pci_driver->driver_data is used */
- };
- 
-+/* ---------------------------------------------------------------- */
-+/** PCI Error Recovery System (PCI-ERS).  If a PCI device driver provides
-+ *  a set fof callbacks in struct pci_error_handlers, then that device driver
-+ *  will be notified of PCI bus errors, and will be driven to recovery
-+ *  when an error occurs.
-+ */
-+
-+typedef unsigned int __bitwise pci_ers_result_t;
-+
-+enum pci_ers_result {
-+	/* no result/none/not supported in device driver */
-+	PCI_ERS_RESULT_NONE = (__force pci_ers_result_t) 1,
-+
-+	/* Device driver can recover without slot reset */
-+	PCI_ERS_RESULT_CAN_RECOVER = (__force pci_ers_result_t) 2,
-+
-+	/* Device driver wants slot to be reset. */
-+	PCI_ERS_RESULT_NEED_RESET = (__force pci_ers_result_t) 3,
-+
-+	/* Device has completely failed, is unrecoverable */
-+	PCI_ERS_RESULT_DISCONNECT = (__force pci_ers_result_t) 4,
-+
-+	/* Device driver is fully recovered and operational */
-+	PCI_ERS_RESULT_RECOVERED = (__force pci_ers_result_t) 5,
-+};
-+
-+/* PCI bus error event callbacks */
-+struct pci_error_handlers
-+{
-+	/* PCI bus error detected on this device */
-+	pci_ers_result_t (*error_detected)(struct pci_dev *dev,
-+	                      enum pci_channel_state error);
-+
-+	/* MMIO has been re-enabled, but not DMA */
-+	pci_ers_result_t (*mmio_enabled)(struct pci_dev *dev);
-+
-+	/* PCI Express link has been reset */
-+	pci_ers_result_t (*link_reset)(struct pci_dev *dev);
-+
-+	/* PCI slot has been reset */
-+	pci_ers_result_t (*slot_reset)(struct pci_dev *dev);
-+
-+	/* Device driver may resume normal operations */
-+	void (*resume)(struct pci_dev *dev);
-+};
-+
-+/* ---------------------------------------------------------------- */
-+
- struct module;
- struct pci_driver {
- 	struct list_head node;
-@@ -245,6 +311,7 @@
- 	int  (*enable_wake) (struct pci_dev *dev, pci_power_t state, int enable);   /* Enable wake event */
- 	void (*shutdown) (struct pci_dev *dev);
- 
-+	struct pci_error_handlers *err_handler;
- 	struct device_driver	driver;
- 	struct pci_dynids dynids;
- };
-_______________________________________________
+Cheers,
+  Trond
 

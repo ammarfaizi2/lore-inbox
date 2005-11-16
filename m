@@ -1,65 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030533AbVKPWXe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030532AbVKPWXv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030533AbVKPWXe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 17:23:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030532AbVKPWXd
+	id S1030532AbVKPWXv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 17:23:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030535AbVKPWXv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 17:23:33 -0500
-Received: from pat.uio.no ([129.240.130.16]:21953 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1030539AbVKPWXd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 17:23:33 -0500
-Subject: Re: mmap over nfs leads to excessive system load
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andrew Morton <akpm@osdl.org>
-Cc: theonetruekenny@yahoo.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20051116141052.7994ab7d.akpm@osdl.org>
-References: <20051116150141.29549.qmail@web34113.mail.mud.yahoo.com>
-	 <1132163057.8811.15.camel@lade.trondhjem.org>
-	 <20051116100053.44d81ae2.akpm@osdl.org>
-	 <1132166062.8811.30.camel@lade.trondhjem.org>
-	 <20051116110938.1bf54339.akpm@osdl.org>
-	 <1132171500.8811.37.camel@lade.trondhjem.org>
-	 <20051116133130.625cd19b.akpm@osdl.org>
-	 <1132177785.8811.57.camel@lade.trondhjem.org>
-	 <20051116141052.7994ab7d.akpm@osdl.org>
-Content-Type: text/plain
-Date: Wed, 16 Nov 2005 17:23:16 -0500
-Message-Id: <1132179796.8811.70.camel@lade.trondhjem.org>
+	Wed, 16 Nov 2005 17:23:51 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:35580 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S1030532AbVKPWXu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 17:23:50 -0500
+Date: Wed, 16 Nov 2005 15:24:23 -0700
+From: "Mark A. Greer" <mgreer@mvista.com>
+To: Andy Isaacson <adi@hexapodia.org>
+Cc: "Mark A. Greer" <mgreer@mvista.com>, Andrey Volkov <avolkov@varma-el.com>,
+       Jean Delvare <khali@linux-fr.org>, lm-sensors@lm-sensors.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] Added support of ST m41t85 rtc chip
+Message-ID: <20051116222423.GG30014@mag.az.mvista.com>
+References: <20051116031520.GL5546@mag.az.mvista.com> <20051116185513.GB18217@hexapodia.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.959, required 12,
-	autolearn=disabled, AWL 1.04, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051116185513.GB18217@hexapodia.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-16 at 14:10 -0800, Andrew Morton wrote:
-
-> > How is the filesystem supposed to distinguish between the cases
-> > "VM->writepage()", and "VM->writepages->mpage_writepages->writepage()"?
+On Wed, Nov 16, 2005 at 10:55:13AM -0800, Andy Isaacson wrote:
+> On Tue, Nov 15, 2005 at 08:15:20PM -0700, Mark A. Greer wrote:
+> > On Wed, Nov 16, 2005 at 12:48:59AM +0300, Andrey Volkov wrote:
+> > > > Mark, care to comment on that possibility, and/or on the code itself?
+> > > > 
+> > > And, please, remove unnecessary PPC dependence from Kconfig.
 > > 
+> > When I originally submitted the m41t00 patch, I made it clear that it
+> > was PPC only and gave the reason why:
+> > 
+> > http://archives.andrew.net.au/lm-sensors/msg29280.html
 > 
-> Via the writeback_control, hopefully.
+> I have a MIPS platform with M41T81 (SiByte SWARM,
+> arch/mips/sibyte/swarm/rtc_m41t81.c) that I would dearly love to
+> decruftify.  (Don't pay too much attention to the kernel.org trees for
+> MIPS, you need to pull the git repo on linux-mips.org for the real
+> stuff.)
 > 
-> For write_one_page(), sync_mode==WB_SYNC_ALL, so NFS should start the I/O
-> immediately (it appears to not do so).
+> So I'm definitely interested in this work.
 
-Sorry, but so does filemap_fdatawrite(). WB_SYNC_ALL clearly does not
-discriminate between a writepages() and a single writepage() situation,
-whatever the original intention was.
+Thanks Andy.  I'll check out the m41t81 datasheet and see how well it
+blends with the others.  Also, ppc and mips will have different
+interfaces but it should be acceptable to have two sets of interface
+routines with #ifdef CONFIG_PPC/MIPS around them.
 
-> For vmscan->writepage, wbc->for_reclaim is set, so we know that the IO
-> should be pushed immediately.  nfs_writepage() seems to dtrt here.
-> 
-> With the proposed changes, we don't need that iput() in nfs_writepage(). 
-> That worries me because I recall from a couple of years back that there are
-> really subtle races with doing iput() on the vmscan->writepage() path. 
-> Cannot remember what they were though...
+I'm off to read datasheets now...  :)
 
-Possibly to do with block filesystems that may trigger ->writepage()
-while inside iput_final()? NFS can't do that.
-
-Cheers,
-  Trond
-
+Mark

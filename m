@@ -1,40 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965224AbVKPDsa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965218AbVKPDtg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965224AbVKPDsa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 22:48:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965223AbVKPDs3
+	id S965218AbVKPDtg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 22:49:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965222AbVKPDtg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 22:48:29 -0500
-Received: from rtr.ca ([64.26.128.89]:48273 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S965221AbVKPDs3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 22:48:29 -0500
-Message-ID: <437AAC0B.80106@rtr.ca>
-Date: Tue, 15 Nov 2005 22:48:27 -0500
-From: Mark Lord <liml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
-X-Accept-Language: en, en-us
+	Tue, 15 Nov 2005 22:49:36 -0500
+Received: from mxsf35.cluster1.charter.net ([209.225.28.160]:60392 "EHLO
+	mxsf35.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S965218AbVKPDtf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 22:49:35 -0500
+X-IronPort-AV: i="3.97,336,1125892800"; 
+   d="scan'208"; a="437478922:sNHT15749352"
+Message-ID: <437AABFF.2010405@cybsft.com>
+Date: Tue, 15 Nov 2005 21:48:15 -0600
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Thunderbird 1.5 (X11/20051025)
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Tejun Heo <htejun@gmail.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       Carlos Pardo <Carlos.Pardo@siliconimage.com>
-Subject: Re: [PATCH] libata error handling fixes (ATAPI)
-References: <20051114195717.GA24373@havoc.gtf.org> <20051115074148.GA17459@htj.dyndns.org> <4379AA5B.1060900@pobox.com> <4379E5F7.6000107@gmail.com> <4379EC82.1030509@pobox.com> <437AA1A0.6080409@gmail.com> <437AA51A.6000709@pobox.com>
-In-Reply-To: <437AA51A.6000709@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Thomas Gleixner <tglx@linutronix.de>, pluto@agmk.net,
+       john cooper <john.cooper@timesys.com>,
+       Benedikt Spranger <bene@linutronix.de>,
+       Daniel Walker <dwalker@mvista.com>,
+       Tom Rini <trini@kernel.crashing.org>,
+       George Anzinger <george@mvista.com>
+Subject: Re: 2.6.14-rt13
+References: <20051115090827.GA20411@elte.hu>
+In-Reply-To: <20051115090827.GA20411@elte.hu>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+Ingo Molnar wrote:
+> i have released the 2.6.14-rt13 tree, which can be downloaded from the 
+> usual place:
+> 
+>    http://redhat.com/~mingo/realtime-preempt/
+> 
+> lots of fixes in this release affecting all supported architectures, all 
+> across the board. Big MIPS update from John Cooper.
+> 
+> Changes since 2.6.14-rt1:
+> 
+>  - lots of RCU fixes and updates in signal handling and related areas
+>    (Paul E. McKenney)
+> 
+>  - big RCU torture-test update (Paul E. McKenney)
 >
-> My setup works without it, successfully burning CDs and DVDs, but has 
-> problems with really long commands, and such those which occur when 
-> cdrecord(1) finishes a CD burn, and performs its "fixating" step.
 
-Is this just a case of too-short of a SCSI timeout on CLOSE_TRACK?
-Drivers I have worked on for this generally apply a 2 minute timeout
-for that particular operation, and never have to retry.
+In case anyone else makes the same mistake I did. If you are using the
+same config from a previous build, you may have RCU_TORTURE_TEST=Y (not
+module) and not even know it when running RT patches. You will however
+definitely notice it if you use the config to build a non RT kernel like
+2.6.15-rc1. The previous RT patch defaulted RCU_TORTURE_TEST=y. By the
+way, the fact that I didn't even notice that the torture test was
+running with the RT kernel is a true measure of how well things have
+progressed. :-)
 
-Cheers
+-- 
+   kr

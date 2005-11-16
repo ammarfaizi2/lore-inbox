@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161007AbVKPXUW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030477AbVKPX1X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161007AbVKPXUW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 18:20:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161011AbVKPXUW
+	id S1030477AbVKPX1X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 18:27:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030546AbVKPX1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 18:20:22 -0500
-Received: from amdext4.amd.com ([163.181.251.6]:11756 "EHLO amdext4.amd.com")
-	by vger.kernel.org with ESMTP id S1161007AbVKPXUU (ORCPT
+	Wed, 16 Nov 2005 18:27:23 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:23482 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030477AbVKPX1X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 18:20:20 -0500
-X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
-Date: Wed, 16 Nov 2005 16:23:45 -0700
-From: "Jordan Crouse" <jordan.crouse@amd.com>
-To: linux-kernel@vger.kernel.org
-Subject: PATCH:  Fix poor pointer math in devinet_sysctl_register
-Message-ID: <20051116232345.GA872@cosmic.amd.com>
-MIME-Version: 1.0
-User-Agent: Mutt/1.5.11
-X-WSS-ID: 6F65612D1M4863754-01-01
-Content-Type: text/plain;
- charset=us-ascii
+	Wed, 16 Nov 2005 18:27:23 -0500
+Date: Thu, 17 Nov 2005 00:27:20 +0100
+From: Olaf Hering <olh@suse.de>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
+Subject: Re: [PATCH] ppc64: 64K pages support
+Message-ID: <20051116232720.GA29512@suse.de>
+References: <1130915220.20136.14.camel@gaston> <1130916198.20136.17.camel@gaston> <20051109172125.GA12861@lst.de> <20051109201720.GB5443@w-mikek2.ibm.com> <1131568336.24637.91.camel@gaston> <1131573556.25354.1.camel@localhost.localdomain> <1131573693.24637.109.camel@gaston> <1131574051.25354.3.camel@localhost.localdomain> <20051116230820.GA29068@suse.de> <1132183002.24066.90.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <1132183002.24066.90.camel@localhost.localdomain>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes pointer math that under certain circumstances, results
-in really bad pointers. This was encountered on a system compiled for i486, so
-other compilers may differ, but I don't think it hurts anyone.
+ On Wed, Nov 16, Badari Pulavarty wrote:
 
-Signed-off-by: Jordan Crouse <jordan.crouse@amd.com>
----
+> I think I am using SLES9. Planning to update to SP3.
+> 
+> # rpm -qi glibc | head
+> Name        : glibc                        Relocations: (not
+> relocatable)
+> Version     : 2.3.3                             Vendor: SuSE Linux AG,
+> Nuernberg, Germany
+> Release     : 98.28                         Build Date: Wed Jun 30
+> 15:55:45 2004
 
- net/ipv4/devinet.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+The release number indicates the GA glibc.spec was used, but the
+build date indicates its slightly older than SLES9 GA.
 
-diff --git a/net/ipv4/devinet.c b/net/ipv4/devinet.c
-index 4ec4b2c..7585fce 100644
---- a/net/ipv4/devinet.c
-+++ b/net/ipv4/devinet.c
-@@ -1454,7 +1454,7 @@ static void devinet_sysctl_register(stru
- 		return;
- 	memcpy(t, &devinet_sysctl, sizeof(*t));
- 	for (i = 0; i < ARRAY_SIZE(t->devinet_vars) - 1; i++) {
--		t->devinet_vars[i].data += (char *)p - (char *)&ipv4_devconf;
-+		t->devinet_vars[i].data += (int)((char *)p - (char *)&ipv4_devconf);
- 		t->devinet_vars[i].de = NULL;
- 	}
- 
-
+-- 
+short story of a lazy sysadmin:
+ alias appserv=wotan

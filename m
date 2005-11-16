@@ -1,60 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932558AbVKPBn3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965153AbVKPBod@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932558AbVKPBn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 20:43:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932577AbVKPBn3
+	id S965153AbVKPBod (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 20:44:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965154AbVKPBod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 20:43:29 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:50379 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S932558AbVKPBn3 (ORCPT
+	Tue, 15 Nov 2005 20:44:33 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:10706 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965153AbVKPBoc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 20:43:29 -0500
-Date: Wed, 16 Nov 2005 01:43:25 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Andi Kleen <ak@suse.de>
-Cc: linux-mm@kvack.org, mingo@elte.hu, lhms-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au
-Subject: Re: [PATCH 2/5] Light Fragmentation Avoidance V20: 002_usemap
-In-Reply-To: <200511160036.54461.ak@suse.de>
-Message-ID: <Pine.LNX.4.58.0511160137540.8470@skynet>
-References: <20051115164946.21980.2026.sendpatchset@skynet.csn.ul.ie>
- <20051115164957.21980.8731.sendpatchset@skynet.csn.ul.ie> <200511160036.54461.ak@suse.de>
+	Tue, 15 Nov 2005 20:44:32 -0500
+Message-ID: <437A8FED.3080508@watson.ibm.com>
+Date: Tue, 15 Nov 2005 20:48:29 -0500
+From: Shailabh Nagar <nagar@watson.ibm.com>
+Reply-To: nagar@watson.ibm.com
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Peter Chubb <peterc@gelato.unsw.edu.au>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>
+Subject: Re: [Patch 1/4] Delay accounting: Initialization
+References: <43796596.2010908@watson.ibm.com>	<20051114202017.6f8c0327.akpm@osdl.org> <17274.34333.348600.111728@wombat.chubb.wattle.id.au>
+In-Reply-To: <17274.34333.348600.111728@wombat.chubb.wattle.id.au>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Nov 2005, Andi Kleen wrote:
+Peter Chubb wrote:
+>>>>>>"Andrew" == Andrew Morton <akpm@osdl.org> writes:
+> 
+> 
+> Andrew> Shailabh Nagar <nagar@watson.ibm.com> wrote:
+> 
+>>> + *ts = sched_clock();
+> 
+> 
+> Andrew> I'm not sure that it's kosher to use sched_clock() for
+> Andrew> fine-grained timestamping like this.  Ingo had issues with it
+> Andrew> last time this happened?
+> 
+> It wasn't Ingo, it was Andi Kleen...  for my Microstate Accounting
+> patches, which do very similar things to Shailabh's patchsetm, but
+> using /proc and a system call instead (following Solaris's lead)
+> 
 
-> On Tuesday 15 November 2005 17:49, Mel Gorman wrote:
-> > This patch adds a "usemap" to the allocator. Each bit in the usemap indicates
-> > whether a block of 2^(MAX_ORDER-1) pages are being used for kernel or
-> > easily-reclaimed allocations. This enumerates two types of allocations;
->
-> This will increase cache line footprint, which is costly.
-> Why can't this be done in the page flags?
->
+Were these the comments from Andi to which you refer:
+	http://www.uwsg.indiana.edu/hypermail/linux/kernel/0503.1/1237.html
 
-I actually did a version of these patches using page flags which are
-sitting in a temporary directory. For allocation, it derived the type it
-was reserved for by the list it was on and on free, it used the flags to
-determine what free list it should go back to. There were a few reasons
-why I didn't submit it
+The objections to microstate overhead seemed to stem from the syscall
+overhead, not use of sched_clock() per se.
 
-1. I was using a page flag, valuable commodity, thought I would get kicked
-   for it. Usemap uses 1 bit per 2^(MAX_ORDER-1) pages. Page flags uses
-   2^(MAX_ORDER-1) bits at worse case.
-2. Fragmentation avoidance tended to break down, very fast.
-3. When changing a block of pages from one type to another, there was no
-   fast way to make sure all pages currently allocation would end up on
-   the correct free list
-4. Using page flags performed slower than using a usemap, at least with
-   aim9. As using the usemap did not regress loads like kernel compiles,
-   aim9 or anything else I thought to test, I figured it was not a
-   problem.
 
--- 
-Mel Gorman
-Part-time Phd Student                          Java Applications Developer
-University of Limerick                         IBM Dublin Software Lab
+Andi, Ingo,
+
+Are there problems with using sched_clock()for timestamping if one is prepared
+to live with them not necessarily being nanosecond accurate ? I'm trying to search
+the archives etc. but if you can respond with any quick comments, that'd be very
+helpful.
+
+
+Thanks,
+Shailabh
+

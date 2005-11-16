@@ -1,118 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965109AbVKPA0k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965121AbVKPAl7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965109AbVKPA0k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 19:26:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965110AbVKPA0k
+	id S965121AbVKPAl7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 19:41:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965122AbVKPAl7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 19:26:40 -0500
-Received: from web50106.mail.yahoo.com ([206.190.38.34]:60262 "HELO
-	web50106.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S965109AbVKPA0j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 19:26:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=Dgaan6aejI0IhR7BLDhhYRn3f7fAxk3GMfIwsJ2zEhzehvshxq6A6vY/dHzk1OE8FzHEsKMsGZR7vuF9kXA/Pxg9JcdZ8KOV9F6djQLpvC2QPKbo0XJ+wBR5QgkrSyduzLF51u9FxCkdP7kXtUMDwPliUiumGhabQOAJNyv/RLY=  ;
-Message-ID: <20051116002638.762.qmail@web50106.mail.yahoo.com>
-Date: Tue, 15 Nov 2005 16:26:38 -0800 (PST)
-From: Doug Thompson <norsk5@yahoo.com>
-Subject: Re: [RFC] EDAC and the sysfs
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051115172528.GB13658@kroah.com>
+	Tue, 15 Nov 2005 19:41:59 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:12675 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965121AbVKPAl7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 19:41:59 -0500
+Message-ID: <437A8142.7030106@watson.ibm.com>
+Date: Tue, 15 Nov 2005 19:45:54 -0500
+From: Shailabh Nagar <nagar@watson.ibm.com>
+Reply-To: nagar@watson.ibm.com
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Parag Warudkar <kernel-stuff@comcast.net>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch 1/4] Delay accounting: Initialization
+References: <43796596.2010908@watson.ibm.com> <1F92A563-B430-49FE-895E-FB93DC64981E@comcast.net> <437A613A.1020705@watson.ibm.com> <4ABDC730-2888-4DBE-B1DC-62362A87EEB7@comcast.net>
+In-Reply-To: <4ABDC730-2888-4DBE-B1DC-62362A87EEB7@comcast.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Greg KH <greg@kroah.com> wrote:
-
-> On Mon, Nov 14, 2005 at 04:47:03PM -0800, Doug
-> Thompson wrote:
-> > For each Chip-Select Row (csrow) there would be
-> > information. I am still trying to determine if
-> each
-> > csrow would be in its own directory or all cwrows
-> just
-> > flat in the mc0, mc1, ... directories. 
-> > 
-> > Assuming each csrow is in its own directory (which
-> is
-> > the way I am leaning) below:
-> > 
-> > csrow0/
-> > csrow1/
-> > csrow2/
-> > csrow3/
-> > ...
-> > 
-> > info files in the above directories:
-> > 
-> > memory_size
-> > memory_type
-> > device_type
-> > edac_mode
-> > ue_count
-> > ce_count
-> > ce_count_channel_0
-> > ce_count_channel_1
-> > dimm_label
-> > dimm_label_channel_0
-> > dimm_label_channel_1
-> > 
+Parag Warudkar wrote:
 > 
-> Ok, thanks for the details, it makes more sense now.
->  Your heirachy
-> seems sane, have you implemented it to see if it
-> works properly?
+> On Nov 15, 2005, at 5:29 PM, Shailabh Nagar wrote:
+<snip>
+> 
+>>> Does this mean, whether or not the per task delay accounting is used,
+>>> we have a constant overhead of sizeof(spinlock_t) + 2*sizeof  (uint32_t)
+>>> + 2* sizeof(uint64_t) bytes going into the struct  task_struct?.  Is it
+>>> possible/beneficial to use struct task_delay_info  *delays instead  and
+>>> allocate it if task wants to use the information?
+>>>
+>>
+>> Doing so would have value in the case where the feature is  configured
+>> but no one ever registers to listen for it.
+> 
+> 
+> Precisely. Such a feature will be used only occasionally I suppose.
+> I didn't read the code deeply but are any scheduling decisions  altered
+> based on this data? If not, then it makes sense to not account unless required.
+> 
+> I think it should be possible to do it on demand, per process instead 
+> of forcing the accounting on _all_ processes which cumulatively becomes a  sizeable
+> o/h.
+> 
+> Per Process activation of this feature will add significant value  IMHO.
+> (Of course, if that's possible in first place.)
 
-I began implementing first in /sys/classes and that is
-when I ran into the nested class issue. I then looked
-at the /sys/devices/system interface point and then
-sought more information and then ASKED for RFC from
-the list.
 
-I will now use the /sys/devices/system/edac as my root
-for my files and controls.
-
-Speaking of controls, edac has them  currently in
-/proc/sys/mc. I have proposed to have them in
-/sys/devices/system/edac/mc and friends. 
-
-My question is:  Should I remove entirely my old
-/proc/sys/mc sysctl tree? Or still maintain the
-aliases there (which seems weird)? 
-
-If I do that, then /etc/sysctl.conf will no longer
-allow for setting things up there.
-
-Is there going to be a similiar functionality as
-/etc/sysctl.conf for those items we place in sysfs, in
-the future?
-
-thanks
-
-doug t
-
-PS. These questions on sysfs seem a perfect food
-stream for your 'HOWTO do kernel development'. Trying
-to do new entries in sysfs has been a painstaking
-adventure. After googling the web for info, it
-definitely has been a bit thin on information on sysfs
-at the level I am seeking.
+Per-task activation is useful/possible only for long-running tasks.
+If one is trying to gather stats for a user-defined grouping of tasks
+then it would involve too much overhead & inaccuracy to require monitoring
+to be turned on individually.
 
 > 
-> thanks,
+>> The cost of doing this would be
+>> - adding more code to the fork path to allocate conditionally
 > 
-> greg k-h
 > 
+> Just an unlikely branch for normal code path - not a big deal.
+> Also I am thinking it could be handled outside of fork?
+
+only if per-task activation is done - thats probably what you meant ?
+
+> 
+>> - make the collecting of the delays conditional on a similar check
+> 
+> 
+> Weighing this against the actual accounting - I think it's a win.
+
+Hmmm..since there is locking involved in the stats collection, this is
+starting to make a lot of sense.
+
+> 
+>> - cache pollution from following an extra pointer in the pgflt/
+>> io_schedule paths
+>> I'm not sure is this really matters for these two code paths.
+> 
+> 
+> Possibly.
+> 
+>> Even if one does this, once the first listener registers, all  future
+>> tasks
+>> (and even the current ones) will have to go ahead and allocate the 
+>> structure
+>> and accounting of delays will have to switch to unconditional mode. 
+>> This is
+>> because the delay data has cumulative value...future listeners will be
+>> interested in data collected earlier (as long as task is still 
+>> running). And
+>> once the first listener registers, you can no longer be sure no  one's
+>> interested
+>> in the future.
+>>
+> 
+> Is it possible to do it per process? Forcing it on all processes is 
+> what I was trying to avoid given the feature's usage pattern.
+> 
+>> Another alternative is to let userland control the overhead of 
+>> allocation and
+>> collection completely through a /proc/sys/kernel/delayacct variable.
+>> When its switched on, it triggers an allocation for all existing 
+>> tasks in the
+>> system, turns on allocation in fork() for future tasks, and 
+>> collection of the stats.
+>> When turned off, collection of stats stops as does allocation for 
+>> future tasks
+>> (not worth going in and deallocating structs for existing tasks).
+> 
+> 
+>> Does this seem worth it ?
+>>
+> 
+> Definitely not unless we can do it per process and on demand.
+
+Per-task doesn't seem like a good idea. Neither does allowing dynamic
+switching off/on of the allocation of the delay struct.
+
+So how about this:
+
+Have /proc/sys/kernel/delayacct and a corresponding kernel boot parameter (for setting
+the switch early) which control just the collection of data. Allocation always happens.
 
 
-
-"If you think Education is expensive, just try Ignorance"
-
-"Don't tell people HOW to do things, tell them WHAT you
-want and they will surprise you with their ingenuity."
-                   Gen George Patton
+>> -- Shailabh
+>>
+> 
+> Cheers
+> 
+> Parag
+> 
 

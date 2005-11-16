@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030357AbVKPPIT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030358AbVKPPJq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030357AbVKPPIT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 10:08:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030358AbVKPPIT
+	id S1030358AbVKPPJq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 10:09:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030362AbVKPPJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 10:08:19 -0500
-Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:1920 "EHLO
-	vger.utah-nac.org") by vger.kernel.org with ESMTP id S1030357AbVKPPIT
+	Wed, 16 Nov 2005 10:09:46 -0500
+Received: from xproxy.gmail.com ([66.249.82.203]:4327 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030358AbVKPPJp convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 10:08:19 -0500
-Message-ID: <437B453E.8070905@utah-nac.org>
-Date: Wed, 16 Nov 2005 07:42:06 -0700
-From: jmerkey <jmerkey@utah-nac.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Wed, 16 Nov 2005 10:09:45 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=X0UjNJOD5aSU8V75N/h2W2frLCfFJeCyFE24M5oBlNYiQ88Cnkn3W6UC+q9tojtcnIiuZOsKXe5qPPlG8cZNfb/88mfQtSEBlNuPnhpg9W+mYO/NIzNgGAZO/xCG96FFx6gPMY1XeLs5s1dEA6Aizi6TiSUdEPHOU6XkvEODlpI=
+Message-ID: <5bdc1c8b0511160709r47c1a9afk18e47a83ced2743d@mail.gmail.com>
+Date: Wed, 16 Nov 2005 07:09:44 -0800
+From: Mark Knecht <markknecht@gmail.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: 2.6.15-rc1 - NForce4 PCI-E agpgart support?
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1132153102.2834.37.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-Cc: Andi Kleen <ak@suse.de>, Arjan van de Ven <arjan@infradead.org>,
-       alex14641@yahoo.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-References: <20051116005034.73421.qmail@web50210.mail.yahoo.com> <1132128212.2834.17.camel@laptopd505.fenrus.org> <20051116111812.4a1ea18a.grundig@teleline.es> <1132137638.2834.29.camel@laptopd505.fenrus.org> <p73oe4kpx6n.fsf@verdi.suse.de> <20051116135116.GA24753@wohnheim.fh-wedel.de>
-In-Reply-To: <20051116135116.GA24753@wohnheim.fh-wedel.de>
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <5bdc1c8b0511160650k4a9e0575h29403a5de47af952@mail.gmail.com>
+	 <1132153102.2834.37.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel wrote:
+On 11/16/05, Arjan van de Ven <arjan@infradead.org> wrote:
+> On Wed, 2005-11-16 at 06:50 -0800, Mark Knecht wrote:
+> > Hi,
+> >    I downloaded and built 2.6.15-rc1 as a test assuming Ingo will
+> > release -rt support for this one of these days. (No rush Ingo!) It
+> > booted on my AMD64 machine and is running fine AFAICT.
+> >
+> >    One thing I was expecting to see was agpgart support for the
+> > NForce4 chipset. Is this something that's coming or am I missing where
+> > the configuration is done?
+> >
+> >    I have a PCI-Express based Radeon and would like to get better
+> > performance. I'm presuming that agpgart support is part of that
+> > solution? (As it was on earlier architectures?)
+>
+> I'm pretty sure PCI-Express and AGP are mutually exclusive....
 
->On Wed, 16 November 2005 13:57:36 +0100, Andi Kleen wrote:
->  
->
->>I think it's in general risky. It's like balancing without a safety
->>net.  Might be a nice hobby, but for real production you want a safety
->>net.  That's simple because there are likely some code paths through
->>the code that need more stack space and that are rarely hit (and
->>cannot be easily found by static analysis, e.g. if they involve
->>indirect pointers or particularly complex configuration setups).
->>    
->>
->
->It isn't that hard to find such places.  Trouble is that you find so
->many of them and it takes quite a while to go through them all.  Years
->is a good unit for "quite a while".
->
->Jörn
->
->  
->
-Map a blank ro page beneath the address range when stack memory is 
-mapped is trap on page faults to the page when folks go off the end of 
-th e stack.
+Ah, of course! My bad... They are different buses and connectors. I
+was really thinking more of the 'gart' part of the agpgart.
 
-Easy to find.
+Is there any requirement/need/value for something like a PCI-E-gart?
+Or does this relocation requirement go out the window somehow when a
+graphics device moves to PCI-Express?
 
-Jeff
+Thanks,
+Mark

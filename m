@@ -1,76 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030244AbVKPJCG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030249AbVKPJEi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030244AbVKPJCG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 04:02:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030242AbVKPJCF
+	id S1030249AbVKPJEi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 04:04:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030250AbVKPJEi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 04:02:05 -0500
-Received: from smtp21.cstnet.cn ([159.226.251.21]:43714 "HELO cstnet.cn")
-	by vger.kernel.org with SMTP id S1030248AbVKPJCB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 04:02:01 -0500
-X-Originating-IP: [159.226.10.6]
-Message-ID: <014a01c5ea8c$44788fc0$060ae29f@javaboy>
-From: "jywang" <jywang@cnic.cn>
-To: <linux-kernel@vger.kernel.org>
-Subject: is there a bug in kernel?
-Date: Wed, 16 Nov 2005 17:01:01 +0800
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1506
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
+	Wed, 16 Nov 2005 04:04:38 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:59302 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1030249AbVKPJEg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 04:04:36 -0500
+Message-ID: <437AF619.2000101@jp.fujitsu.com>
+Date: Wed, 16 Nov 2005 18:04:25 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: ja, en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-mm2
+References: <20051110203544.027e992c.akpm@osdl.org>
+In-Reply-To: <20051110203544.027e992c.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i program a server and a client using tcp.
-the client send a string to the server, and the server send the string back
-when it received it.
-all is ok before i set a srr option in the socket.
+I saw following errors while compilng with CONFIG_MEMORY_HOTPLUG=y.
 
-the lines i used below:
+==
+drivers/base/memory.c:28: error: static declaration of 'memory_sysdev_class' follows non-static declaration
+include/linux/memory.h:88: error: previous declaration of 'memory_sysdev_class' was here
+drivers/base/memory.c:47: warning: initialization from incompatible pointer type
+drivers/base/memory.c:54: error: static declaration of 'register_memory_notifier' follows non-static declaration
+include/linux/memory.h:85: error: previous declaration of 'register_memory_notifier' was here
+drivers/base/memory.c:59: error: static declaration of 'unregister_memory_notifier' follows non-static declaration
+include/linux/memory.h:86: error: previous declaration of 'unregister_memory_notifier' was here
+drivers/base/memory.c:69: error: static declaration of 'register_memory' follows non-static declaration
+include/linux/memory.h:73: error: previous declaration of 'register_memory' was here
+==
 
- char opt[7]={131, 7, 4, 192, 168, 1, 1};
- if(setsockopt(socket_descriptor, SOL_IP, IP_OPTIONS, opt, 7)) printf("error
-find in set options!\n");
+patch is attached.
 
+-- Kame
 
-when this lines are inserted into my program, all packets are ok except the
-last packet send back
-because i monitor the link using libpcap.
+Compile fix for /driver/base/memory.c
 
-it seems the string back ok, but can't be received by my program. the client
-is waiting and waiting and ...
-
-why?
-
-my client program as below:
--------------
- socket_descriptor = socket(AF_INET, SOCK_STREAM, 0)) ;
- char opt[7]={131, 7, 4, 192, 168, 1, 1};
- if(setsockopt(socket_descriptor, SOL_IP, IP_OPTIONS, opt, 7)) printf("error
-find in set options!\n");
-connect(socket_descriptor, (void *)&pin, sizeof(pin)) == -1);
-send(socket_descriptor, str, strlen(str)+1,0) == -1 );
-recv(socket_descriptor, buf, 8192, 0) == -1) ;
----------------
-
-my server progarm as below:
---------------
-  sock_descriptor = socket(AF_INET, SOCK_STREAM, 0);
-  bind(sock_descriptor, (struct sockaddr *)&sin, sizeof(sin)) == -1) ;
-  listen(sock_descriptor, 20) == -1) ;
-  while(1) {
-        temp_sock_descriptor = accept(sock_descriptor, (struct sockaddr
-*)&pin, &address_size);
-        read(temp_sock_descriptor, buf, 16384, 0) == -1) ;
-        printf("\nReceived from client: %s\n", buf);
-        write(temp_sock_descriptor, buf, strlen(buf), 0) == -1) ;
-    }
---------------
+Signed-Off-by KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 
 
+Index: linux-2.6.14-mm2/drivers/base/memory.c
+===================================================================
+--- linux-2.6.14-mm2.orig/drivers/base/memory.c
++++ linux-2.6.14-mm2/drivers/base/memory.c
+@@ -25,12 +25,12 @@
 
+  #define MEMORY_CLASS_NAME	"memory"
 
+-static struct sysdev_class memory_sysdev_class = {
++struct sysdev_class memory_sysdev_class = {
+  	set_kset_name(MEMORY_CLASS_NAME),
+  };
+  EXPORT_SYMBOL(memory_sysdev_class);
 
+-static char *memory_hotplug_name(struct kset *kset, struct kobject *kobj)
++static const char *memory_hotplug_name(struct kset *kset, struct kobject *kobj)
+  {
+  	return MEMORY_CLASS_NAME;
+  }
+@@ -50,12 +50,12 @@ static struct kset_hotplug_ops memory_ho
 
+  static struct notifier_block *memory_chain;
+
+-static int register_memory_notifier(struct notifier_block *nb)
++int register_memory_notifier(struct notifier_block *nb)
+  {
+          return notifier_chain_register(&memory_chain, nb);
+  }
+
+-static void unregister_memory_notifier(struct notifier_block *nb)
++void unregister_memory_notifier(struct notifier_block *nb)
+  {
+          notifier_chain_unregister(&memory_chain, nb);
+  }
+@@ -63,7 +63,7 @@ static void unregister_memory_notifier(s
+  /*
+   * register_memory - Setup a sysfs device for a memory block
+   */
+-static int
++int
+  register_memory(struct memory_block *memory, struct mem_section *section,
+  		struct node *root)
+  {
 

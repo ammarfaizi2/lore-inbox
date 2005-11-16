@@ -1,139 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965121AbVKPAl7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965133AbVKPAug@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965121AbVKPAl7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 19:41:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965122AbVKPAl7
+	id S965133AbVKPAug (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 19:50:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965134AbVKPAug
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 19:41:59 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:12675 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965121AbVKPAl7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 19:41:59 -0500
-Message-ID: <437A8142.7030106@watson.ibm.com>
-Date: Tue, 15 Nov 2005 19:45:54 -0500
-From: Shailabh Nagar <nagar@watson.ibm.com>
-Reply-To: nagar@watson.ibm.com
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Tue, 15 Nov 2005 19:50:36 -0500
+Received: from web50210.mail.yahoo.com ([206.190.38.51]:15505 "HELO
+	web50210.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S965133AbVKPAuf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 19:50:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=P7As+Le9dVM2naQ8WZcLoo5sRNiAQihFFanE+CkMe4dvt/Nx31TTU/nzI/Uqb08LZuzJZcv8zDcnaSfGDXQaf4C+sh3MDrq9SL1sxLYx1rglxOUAT6QA/3VAmB27ejqDcXVjrXAhciHyHNqIsUaMu6c8lsU+IX6cy8QF2KlNSu4=  ;
+Message-ID: <20051116005034.73421.qmail@web50210.mail.yahoo.com>
+Date: Tue, 15 Nov 2005 16:50:34 -0800 (PST)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1132000024.16148.1.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Parag Warudkar <kernel-stuff@comcast.net>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch 1/4] Delay accounting: Initialization
-References: <43796596.2010908@watson.ibm.com> <1F92A563-B430-49FE-895E-FB93DC64981E@comcast.net> <437A613A.1020705@watson.ibm.com> <4ABDC730-2888-4DBE-B1DC-62362A87EEB7@comcast.net>
-In-Reply-To: <4ABDC730-2888-4DBE-B1DC-62362A87EEB7@comcast.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Parag Warudkar wrote:
-> 
-> On Nov 15, 2005, at 5:29 PM, Shailabh Nagar wrote:
-<snip>
-> 
->>> Does this mean, whether or not the per task delay accounting is used,
->>> we have a constant overhead of sizeof(spinlock_t) + 2*sizeof  (uint32_t)
->>> + 2* sizeof(uint64_t) bytes going into the struct  task_struct?.  Is it
->>> possible/beneficial to use struct task_delay_info  *delays instead  and
->>> allocate it if task wants to use the information?
->>>
->>
->> Doing so would have value in the case where the feature is  configured
->> but no one ever registers to listen for it.
-> 
-> 
-> Precisely. Such a feature will be used only occasionally I suppose.
-> I didn't read the code deeply but are any scheduling decisions  altered
-> based on this data? If not, then it makes sense to not account unless required.
-> 
-> I think it should be possible to do it on demand, per process instead 
-> of forcing the accounting on _all_ processes which cumulatively becomes a  sizeable
-> o/h.
-> 
-> Per Process activation of this feature will add significant value  IMHO.
-> (Of course, if that's possible in first place.)
+Could someone either list or post a link to someplace that lists
+all the advantages of 4K stacks? 
+
+-Alex
 
 
-Per-task activation is useful/possible only for long-running tasks.
-If one is trying to gather stats for a user-defined grouping of tasks
-then it would involve too much overhead & inaccuracy to require monitoring
-to be turned on individually.
-
-> 
->> The cost of doing this would be
->> - adding more code to the fork path to allocate conditionally
-> 
-> 
-> Just an unlikely branch for normal code path - not a big deal.
-> Also I am thinking it could be handled outside of fork?
-
-only if per-task activation is done - thats probably what you meant ?
-
-> 
->> - make the collecting of the delays conditional on a similar check
-> 
-> 
-> Weighing this against the actual accounting - I think it's a win.
-
-Hmmm..since there is locking involved in the stats collection, this is
-starting to make a lot of sense.
-
-> 
->> - cache pollution from following an extra pointer in the pgflt/
->> io_schedule paths
->> I'm not sure is this really matters for these two code paths.
-> 
-> 
-> Possibly.
-> 
->> Even if one does this, once the first listener registers, all  future
->> tasks
->> (and even the current ones) will have to go ahead and allocate the 
->> structure
->> and accounting of delays will have to switch to unconditional mode. 
->> This is
->> because the delay data has cumulative value...future listeners will be
->> interested in data collected earlier (as long as task is still 
->> running). And
->> once the first listener registers, you can no longer be sure no  one's
->> interested
->> in the future.
->>
-> 
-> Is it possible to do it per process? Forcing it on all processes is 
-> what I was trying to avoid given the feature's usage pattern.
-> 
->> Another alternative is to let userland control the overhead of 
->> allocation and
->> collection completely through a /proc/sys/kernel/delayacct variable.
->> When its switched on, it triggers an allocation for all existing 
->> tasks in the
->> system, turns on allocation in fork() for future tasks, and 
->> collection of the stats.
->> When turned off, collection of stats stops as does allocation for 
->> future tasks
->> (not worth going in and deallocating structs for existing tasks).
-> 
-> 
->> Does this seem worth it ?
->>
-> 
-> Definitely not unless we can do it per process and on demand.
-
-Per-task doesn't seem like a good idea. Neither does allowing dynamic
-switching off/on of the allocation of the delay struct.
-
-So how about this:
-
-Have /proc/sys/kernel/delayacct and a corresponding kernel boot parameter (for setting
-the switch early) which control just the collection of data. Allocation always happens.
+I code, therefore I am
 
 
->> -- Shailabh
->>
-> 
-> Cheers
-> 
-> Parag
-> 
-
+		
+__________________________________ 
+Yahoo! FareChase: Search multiple travel sites in one click.
+http://farechase.yahoo.com

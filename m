@@ -1,69 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030412AbVKPSX2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030420AbVKPSZm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030412AbVKPSX2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 13:23:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030414AbVKPSX2
+	id S1030420AbVKPSZm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 13:25:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030421AbVKPSZm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 13:23:28 -0500
-Received: from mail.kroah.org ([69.55.234.183]:37039 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1030412AbVKPSX1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 13:23:27 -0500
-Date: Wed, 16 Nov 2005 10:06:55 -0800
-From: Greg KH <gregkh@suse.de>
-To: Adam Belay <abelay@novell.com>
-Cc: Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 6/6] PCI PM: pci_save/restore_state improvements
-Message-ID: <20051116180655.GC6908@suse.de>
-References: <1132111902.9809.59.camel@localhost.localdomain> <20051116063125.GE31375@suse.de> <1132125965.3656.15.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 16 Nov 2005 13:25:42 -0500
+Received: from xproxy.gmail.com ([66.249.82.201]:59594 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030420AbVKPSZl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 13:25:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jtfxNYEHwKSo2WbY32oz4+qrHOXxJOz2NnSHNx+mqLhBI+2G29eiOXcyPqgpneEtAJzog50hUBqYSr266L5uPjbK6x0etu5qVFqcF/H+lewEIn8LTpORfQN8tFfays7VNKBbqZJCwGF4tKlFTpR8/kSdacyKwoIqnFORf1CqnH8=
+Message-ID: <5bdc1c8b0511161025q20569fa4hd8c187503e9af1c2@mail.gmail.com>
+Date: Wed, 16 Nov 2005 10:25:40 -0800
+From: Mark Knecht <markknecht@gmail.com>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Subject: Re: 2.6.15-rc1 - NForce4 PCI-E agpgart support?
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200511161802.47244.s0348365@sms.ed.ac.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1132125965.3656.15.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+References: <5bdc1c8b0511160650k4a9e0575h29403a5de47af952@mail.gmail.com>
+	 <1132153102.2834.37.camel@laptopd505.fenrus.org>
+	 <5bdc1c8b0511160709r47c1a9afk18e47a83ced2743d@mail.gmail.com>
+	 <200511161802.47244.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 16, 2005 at 02:26:04AM -0500, Adam Belay wrote:
-> On Tue, 2005-11-15 at 22:31 -0800, Greg KH wrote:
-> > On Tue, Nov 15, 2005 at 10:31:42PM -0500, Adam Belay wrote:
-> > > This patch makes some improvements to pci_save_state and
-> > > pci_restore_state.  Instead of saving and restoring all standard
-> > > registers (even read-only ones), it only restores necessary registers.
-> > > Also, the command register is handled more carefully.  Let me know if
-> > > I'm missing anything important.
-> > > 
-> > > 
-> > > --- a/drivers/pci/pm.c	2005-11-13 20:32:24.000000000 -0500
-> > > +++ b/drivers/pci/pm.c	2005-11-13 20:29:32.000000000 -0500
-> > > @@ -53,10 +53,13 @@
-> > >   */
-> > >  int pci_save_state(struct pci_dev *dev)
-> > >  {
-> > > -	int i;
-> > > -	/* XXX: 100% dword access ok here? */
-> > > -	for (i = 0; i < 16; i++)
-> > > -		pci_read_config_dword(dev, i * 4,&dev->saved_config_space[i]);
-> > > +	struct pci_dev_config * conf = &dev->saved_config;
-> > > +
-> > > +	pci_read_config_word(dev, PCI_COMMAND, &conf->command);
-> > > +	pci_read_config_byte(dev, PCI_CACHE_LINE_SIZE, &conf->cacheline_size);
-> > > +	pci_read_config_byte(dev, PCI_LATENCY_TIMER, &conf->latency_timer);
-> > > +	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &conf->interrupt_line);
-> > 
-> > Why are we saving and restoring smaller ammounts of config space now?
-> 
-> After looking at the spec, it seems that most of the registers we were
-> restoring were read-only and couldn't possibly need to be restored.
-> Also, the PCI PM spec suggests that only a subset of the registers
-> should be restored.  Finally, things like BIST should probably never be
-> touched.
+On 11/16/05, Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+> On Wednesday 16 November 2005 15:09, Mark Knecht wrote:
+> > On 11/16/05, Arjan van de Ven <arjan@infradead.org> wrote:
+> > > On Wed, 2005-11-16 at 06:50 -0800, Mark Knecht wrote:
+> > > > Hi,
+> > > >    I downloaded and built 2.6.15-rc1 as a test assuming Ingo will
+> > > > release -rt support for this one of these days. (No rush Ingo!) It
+> > > > booted on my AMD64 machine and is running fine AFAICT.
+> > > >
+> > > >    One thing I was expecting to see was agpgart support for the
+> > > > NForce4 chipset. Is this something that's coming or am I missing where
+> > > > the configuration is done?
+> > > >
+> > > >    I have a PCI-Express based Radeon and would like to get better
+> > > > performance. I'm presuming that agpgart support is part of that
+> > > > solution? (As it was on earlier architectures?)
+> > >
+> > > I'm pretty sure PCI-Express and AGP are mutually exclusive....
+> >
+> > Ah, of course! My bad... They are different buses and connectors. I
+> > was really thinking more of the 'gart' part of the agpgart.
+> >
+> > Is there any requirement/need/value for something like a PCI-E-gart?
+> > Or does this relocation requirement go out the window somehow when a
+> > graphics device moves to PCI-Express?
+>
+> Yes, you don't need it with PCIe.
+>
+> --
+> Cheers,
+> Alistair.
 
-Ok, but be aware that this _might_ cause problems for some cards/drivers
-that were relying on the old way...  As long as you don't mind me
-assigning those bugs to you, I don't have a problem with this :)
+Thanks Alistair.
 
-thanks,
+So, should I be able to see better grapohics performance on my Radeon
+PCI-E device with 2.6.15-rc1? Are there setups I should test for you
+guys? (I'm not a developer.)
 
-greg k-h
+Thanks,
+Mark

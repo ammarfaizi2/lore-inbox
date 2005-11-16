@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030467AbVKPWBU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030476AbVKPWEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030467AbVKPWBU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 17:01:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030476AbVKPWBT
+	id S1030476AbVKPWEN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 17:04:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030522AbVKPWEN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 17:01:19 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:36504 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030467AbVKPWBT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 17:01:19 -0500
-Subject: Re: [RFC] sys_punchhole()
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Andrew Morton <akpm@osdl.org>, andrea@suse.de, hugh@veritas.com,
-       lkml <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>
-In-Reply-To: <20051113150906.GA2193@spitz.ucw.cz>
-References: <1131664994.25354.36.camel@localhost.localdomain>
-	 <20051110153254.5dde61c5.akpm@osdl.org>
-	 <20051113150906.GA2193@spitz.ucw.cz>
-Content-Type: text/plain
-Date: Wed, 16 Nov 2005 14:01:10 -0800
-Message-Id: <1132178470.24066.85.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Nov 2005 17:04:13 -0500
+Received: from web34102.mail.mud.yahoo.com ([66.163.178.100]:44456 "HELO
+	web34102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030476AbVKPWEM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 17:04:12 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=SimfUxYBcdwnrKvug6Tqnw4Y+SZ/ve0/9qDa5yFARj1CrpAo5LP7yVzpHeIqUJdfBNe3MJHF7EbTMRjBKmKpHd1G3gxnnaHatJvCFHQ8djZ25TkU9jaeUxpUZNI4xqlhYEaRw9TWajysxoGM4y1DORk0x82vJQGCD4oulUzLX9Y=  ;
+Message-ID: <20051116220406.25675.qmail@web34102.mail.mud.yahoo.com>
+Date: Wed, 16 Nov 2005 14:04:06 -0800 (PST)
+From: Kenny Simpson <theonetruekenny@yahoo.com>
+Subject: Re: mmap over nfs leads to excessive system load
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1132178234.8811.64.camel@lade.trondhjem.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-11-13 at 15:09 +0000, Pavel Machek wrote:
-> Hi!
+--- Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+> I'm getting lost here. Please could you spell out the testcases that are
+> not working.
 > 
-> > > We discussed this in madvise(REMOVE) thread - to add support 
-> > > for sys_punchhole(fd, offset, len) to complete the functionality
-> > > (in the future).
-> > > 
-> > > http://marc.theaimsgroup.com/?l=linux-mm&m=113036713810002&w=2
-> > > 
-> > > What I am wondering is, should I invest time now to do it ?
-> > 
-> > I haven't even heard anyone mention a need for this in the past 1-2 years.
+> Are you saying that the combination mmap() + pwrite64() fails on
+> O_DIRECT, but works on ordinary open, and that mmap() + ftruncate64()
+> always works?
 > 
-> Some database people wanted it maybe month ago. It was replaced by some 
-> madvise hack...
+> Cheers,
+>   Trond
+> 
+ftruncate64 works with O_DIRECT
+ftruncate64 works w/o O_DIRECT
 
-Hmm. Someone other than me asking for it ? 
+pwrite64 FAILS with O_DIRECT at ~4GB
+pwrite64 works w/o O_DIRECT.
 
-I did the madvise() hack and asking to see if any one really needs
-sys_punchole().
+I am re-running these tests to confirm (could take a minute).
 
-Thanks,
-Badari
+All opens are with O_RDWR | O_CREAT | O_LARGEFILE.
+All test over GbE w/ jumbo frames (8160 mtu) to a netapp filer (via x-over cable).
 
+-Kenny
+
+
+
+		
+__________________________________ 
+Yahoo! FareChase: Search multiple travel sites in one click.
+http://farechase.yahoo.com

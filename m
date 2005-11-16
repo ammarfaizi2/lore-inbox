@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932589AbVKPVCH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932603AbVKPVHl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932589AbVKPVCH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 16:02:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932601AbVKPVCH
+	id S932603AbVKPVHl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 16:07:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932604AbVKPVHl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 16:02:07 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:20106
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932589AbVKPVCG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 16:02:06 -0500
-Date: Wed, 16 Nov 2005 13:02:02 -0800 (PST)
-Message-Id: <20051116.130202.10764437.davem@davemloft.net>
-To: lvc@lucent.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bugs in /usr/src/linux/net/ipv6/mcast.c
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <0C6AA2145B810F499C69B0947DC5078107BCDB0C@oh0012exch001p.cb.lucent.com>
-References: <0C6AA2145B810F499C69B0947DC5078107BCDB0C@oh0012exch001p.cb.lucent.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 16 Nov 2005 16:07:41 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:14022 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932603AbVKPVHk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 16:07:40 -0500
+Date: Wed, 16 Nov 2005 13:07:26 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: mrmacman_g4@mac.com, serue@us.ibm.com, linux-kernel@vger.kernel.org,
+       frankeh@watson.ibm.com, haveblue@us.ibm.com
+Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
+Message-Id: <20051116130726.2412fbc9.pj@sgi.com>
+In-Reply-To: <20051116203603.GA12505@elf.ucw.cz>
+References: <20051114212341.724084000@sergelap>
+	<20051114153649.75e265e7.pj@sgi.com>
+	<20051115055107.GB3252@IBM-BWN8ZTBWAO1>
+	<20051113152214.GC2193@spitz.ucw.cz>
+	<9901B851-17B2-4AEB-813F-A92560DFE289@mac.com>
+	<20051116203603.GA12505@elf.ucw.cz>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Cipriani, Lawrence V (Larry)" <lvc@lucent.com>
-Date: Wed, 16 Nov 2005 09:53:07 -0500
+> Could we switch
+> to 128-bits so that pids are never reused or something like that?
 
-> /usr/src/linux/net/ipv6/mcast.c: extra semicolon near line 609         
->                 if (mc->sfmode == MCAST_INCLUDE && i >= psl->sl_count);
->                         rv = 0;                                        
-> should be:
-> 		    if (mc->sfmode == MCAST_EXCLUDE && i >= psl->sl_count)
-> 				rv = 0;
-> 
-> /usr/src/linux/net/ipv6/mcast.c: extra semicolon near line 611         
->                 if (mc->sfmode == MCAST_EXCLUDE && i < psl->sl_count); 
->                         rv = 0;                             
-> should be:
-> 		    if (mc->sfmode == MCAST_EXCLUDE && i < psl->sl_count)
-> 				rv = 0;
+Not easily.  We've got a very cool pid-dispenser at this point that
+has excellent performance and scalability, but requires a bit map,
+one bit per potential pid.  That bitmap can't exceed a small percentage
+of main memory on most any configuration, constraining us to perhaps
+20 to 30 bits.  The code currently has a 22 bit arbitrary limit.
+Something like 30 bits would usually only make sense on the terabyte
+NUMA monster boxes.
 
-These have been fixed for a while now in 2.6.x
+128-bit UUID technology scales fine, but adds quite a few compute
+cycles per allocation, and would blow out a whole lot of user code
+expecting to put a pid in a machine word.
 
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

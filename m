@@ -1,178 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030209AbVKPH5v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030212AbVKPH6B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030209AbVKPH5v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 02:57:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030212AbVKPH5v
+	id S1030212AbVKPH6B (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 02:58:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030210AbVKPH6A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 02:57:51 -0500
-Received: from rwcrmhc14.comcast.net ([204.127.198.54]:40113 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1030209AbVKPH5u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 02:57:50 -0500
-Message-ID: <437AE67B.6040405@namesys.com>
-Date: Tue, 15 Nov 2005 23:57:47 -0800
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
+	Wed, 16 Nov 2005 02:58:00 -0500
+Received: from zproxy.gmail.com ([64.233.162.196]:30189 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030212AbVKPH57 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 02:57:59 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=g/4dIOFaP195LZ6K1wBSissL1NRRjRXyNx6ANfdgZVMx2Jxviu0AjGpM7okD9fY/PaFAlCbQPbBQfEx5seEMlADL8rRV9oahBCMhMiQccEf0xLSPklwG2h129ABOTxrTinpJXkJcsREY8H61hI3nkTxXOxW5Pid7mh1no6DVjZo=
+Message-ID: <aec7e5c30511152357g560127c6n88d0bce3b5a2f4e@mail.gmail.com>
+Date: Wed, 16 Nov 2005 16:57:59 +0900
+From: Magnus Damm <magnus.damm@gmail.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH 01/05] NUMA: Generic code
+Cc: Magnus Damm <magnus@valinux.co.jp>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, pj@sgi.com, werner@almesberger.net
+In-Reply-To: <p73sltxowx4.fsf@verdi.suse.de>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: LKML <linux-kernel@vger.kernel.org>, vs <vs@thebsh.namesys.com>
-Subject: [Fwd: [PATCH 1/8] reiser4-add-crc-sendfile.patch]
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------070704090404050200070204"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051110090920.8083.54147.sendpatchset@cherry.local>
+	 <200511110516.37980.ak@suse.de>
+	 <aec7e5c30511150034t5ff9e362jb3261e2e23479b31@mail.gmail.com>
+	 <200511151515.05201.ak@suse.de>
+	 <aec7e5c30511152122w70703fbfl98bd377fb6fb9af4@mail.gmail.com>
+	 <p73sltxowx4.fsf@verdi.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070704090404050200070204
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On 16 Nov 2005 08:48:39 +0100, Andi Kleen <ak@suse.de> wrote:
+> Magnus Damm <magnus.damm@gmail.com> writes:
+> >
+> > For testing, your NUMA emulation code is perfect IMO. But for memory
+> > resource control your NUMA emulation code may be too simple.
+> >
+> > With my patch, CONFIG_NUMA_EMU provides a way to partition a machine
+> > into several smaller nodes, regardless if the machine is using NUMA or
+> > not.
+> >
+> > This NUMA emulation code together with CPUSETS could be seen as a
+> > simple alternative to the memory resource control provided by CKRM.
+>
+> I believe Werner tried to use it at some point for that and it just
+> didn't work very well. So it doesn't seem to be very useful for
+> that usecase.
 
+Sorry, but which one did not work very well? CKRM memory controller or
+NUMA emulation + CPUSETS?
 
+Thanks,
 
---------------070704090404050200070204
-Content-Type: message/rfc822;
- name="[PATCH 1/8] reiser4-add-crc-sendfile.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="[PATCH 1/8] reiser4-add-crc-sendfile.patch"
-
-Return-Path: <vs@tribesman.namesys.com>
-Delivered-To: reiser@namesys.com
-Received: (qmail 24391 invoked from network); 15 Nov 2005 17:00:09 -0000
-Received: from ppp83-237-207-83.pppoe.mtu-net.ru (HELO tribesman.namesys.com) (83.237.207.83)
-  by thebsh.namesys.com with SMTP; 15 Nov 2005 17:00:09 -0000
-Received: by tribesman.namesys.com (Postfix on SuSE Linux 8.0 (i386), from userid 512)
-	id 24DA971D992; Tue, 15 Nov 2005 19:59:46 +0300 (MSK)
-Date: Tue, 15 Nov 2005 19:59:46 +0300
-To: reiser@namesys.com
-Subject: [PATCH 1/8] reiser4-add-crc-sendfile.patch
-Message-ID: <437A1402.mail7J81Q5E1P@tribesman.namesys.com>
-User-Agent: nail 10.5 4/27/03
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="1HOPP1H49V-=-1PCY51JIWA-CUT-HERE-P0PKI199JD-=-1KKUTP511E"
-From: vs@tribesman.namesys.com (Vladimir Saveliev)
-
-This is a multi-part message in MIME format.
-
---1HOPP1H49V-=-1PCY51JIWA-CUT-HERE-P0PKI199JD-=-1KKUTP511E
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-.
-
---1HOPP1H49V-=-1PCY51JIWA-CUT-HERE-P0PKI199JD-=-1KKUTP511E
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="reiser4-add-crc-sendfile.patch"
-
-
-From: Edward Shishkin <edward@namesys.com>
-
-This patch adds sendfile method for cryptcompress files.
-
-Signed-off-by: Vladimir V. Saveliev <vs@namesys.com>
-
-
- fs/reiser4/plugin/file/cryptcompress.c |   35 +++++++++++++++++++++++++++++++--
- fs/reiser4/plugin/file/file.h          |    2 +
- fs/reiser4/plugin/object.c             |    3 +-
- 3 files changed, 37 insertions(+), 3 deletions(-)
-
-diff -puN fs/reiser4/plugin/file/cryptcompress.c~reiser4-add-crc-sendfile fs/reiser4/plugin/file/cryptcompress.c
---- linux-2.6.14-mm2/fs/reiser4/plugin/file/cryptcompress.c~reiser4-add-crc-sendfile	2005-11-15 16:58:35.000000000 +0300
-+++ linux-2.6.14-mm2-vs/fs/reiser4/plugin/file/cryptcompress.c	2005-11-15 17:08:26.000000000 +0300
-@@ -3670,8 +3670,8 @@ int capturepage_cryptcompress(struct pag
- /* plugin->u.file.mmap */
- int mmap_cryptcompress(struct file *file, struct vm_area_struct *vma)
- {
--	return -ENOSYS;
--	//return generic_file_mmap(file, vma);
-+	//return -ENOSYS;
-+	return generic_file_mmap(file, vma);
- }
- 
- /* plugin->u.file.release */
-@@ -3834,6 +3834,37 @@ int setattr_cryptcompress(struct dentry 
- 	return result;
- }
- 
-+/* sendfile_cryptcompress - sendfile of struct file_operations */
-+ssize_t
-+sendfile_cryptcompress(struct file *file, loff_t *ppos, size_t count,
-+		       read_actor_t actor, void *target)
-+{
-+	reiser4_context *ctx;
-+	ssize_t result;
-+	struct inode *inode;
-+	cryptcompress_info_t *info;
-+
-+	inode = file->f_dentry->d_inode;
-+	ctx = init_context(inode->i_sb);
-+	if (IS_ERR(ctx))
-+		return PTR_ERR(ctx);
-+	/*
-+	 * generic_file_sndfile may want to call update_atime. Grab space for
-+	 * stat data update
-+	 */
-+	result = reiser4_grab_space(estimate_update_common(inode),
-+				    BA_CAN_COMMIT);
-+	if (result)
-+		goto exit;
-+	info = cryptcompress_inode_data(inode);
-+	down_read(&info->lock);
-+	result = generic_file_sendfile(file, ppos, count, actor, target);
-+	up_read(&info->lock);
-+ exit:
-+	reiser4_exit_context(ctx);
-+	return result;
-+}
-+
- static int
- save_len_cryptcompress_plugin(struct inode *inode, reiser4_plugin * plugin)
- {
-diff -puN fs/reiser4/plugin/file/file.h~reiser4-add-crc-sendfile fs/reiser4/plugin/file/file.h
---- linux-2.6.14-mm2/fs/reiser4/plugin/file/file.h~reiser4-add-crc-sendfile	2005-11-15 16:58:35.000000000 +0300
-+++ linux-2.6.14-mm2-vs/fs/reiser4/plugin/file/file.h	2005-11-15 16:58:35.000000000 +0300
-@@ -169,6 +169,8 @@ ssize_t read_cryptcompress(struct file *
- ssize_t write_cryptcompress(struct file *, const char __user *buf, size_t write_amount,
- 			    loff_t * off);
- int mmap_cryptcompress(struct file *, struct vm_area_struct *);
-+ssize_t sendfile_cryptcompress(struct file *file, loff_t *ppos, size_t count,
-+			       read_actor_t actor, void *target);
- 
- /* address space operations */
- extern int readpage_cryptcompress(struct file *, struct page *);
-diff -puN fs/reiser4/plugin/object.c~reiser4-add-crc-sendfile fs/reiser4/plugin/object.c
---- linux-2.6.14-mm2/fs/reiser4/plugin/object.c~reiser4-add-crc-sendfile	2005-11-15 16:58:35.000000000 +0300
-+++ linux-2.6.14-mm2-vs/fs/reiser4/plugin/object.c	2005-11-15 16:58:35.000000000 +0300
-@@ -306,7 +306,7 @@ file_plugin file_plugins[LAST_FILE_PLUGI
- 			.write = write_cryptcompress,
- 			.mmap = mmap_cryptcompress,
- 			.fsync = sync_common,
--			.sendfile = sendfile_common
-+			.sendfile = sendfile_cryptcompress
- 		},
- 		.as_ops = {
- 			.writepage = reiser4_writepage,
-@@ -331,6 +331,7 @@ file_plugin file_plugins[LAST_FILE_PLUGI
- 		.owns_item = owns_item_common,
- 		.can_add_link = can_add_link_common,
- 		.detach = dummyop,
-+		.bind = dummyop,
- 		.safelink = safelink_common,
- 		.estimate = {
- 			.create = estimate_create_common,
-
-_
-
---1HOPP1H49V-=-1PCY51JIWA-CUT-HERE-P0PKI199JD-=-1KKUTP511E--
-
-
-
---------------070704090404050200070204--
+/ magnus

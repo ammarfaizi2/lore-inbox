@@ -1,43 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030531AbVKPW1d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030452AbVKPW3N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030531AbVKPW1d (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 17:27:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030530AbVKPW1c
+	id S1030452AbVKPW3N (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 17:29:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030526AbVKPW3N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 17:27:32 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:7350 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1030526AbVKPW1b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 17:27:31 -0500
-Subject: Re: 2.6.14 X spinning in the kernel
-From: Lee Revell <rlrevell@joe-job.com>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Max Krasnyansky <maxk@qualcomm.com>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, hugh@veritas.com,
-       Dave Airlie <airlied@linux.ie>
-In-Reply-To: <1132177953.24066.80.camel@localhost.localdomain>
-References: <1132012281.24066.36.camel@localhost.localdomain>
-	 <20051114161704.5b918e67.akpm@osdl.org>
-	 <1132015952.24066.45.camel@localhost.localdomain>
-	 <20051114173037.286db0d4.akpm@osdl.org> <437A6609.4050803@us.ibm.com>
-	 <437B9FAC.4090809@qualcomm.com>
-	 <1132177953.24066.80.camel@localhost.localdomain>
+	Wed, 16 Nov 2005 17:29:13 -0500
+Received: from ihemail1.lucent.com ([192.11.222.161]:11002 "EHLO
+	ihemail1.lucent.com") by vger.kernel.org with ESMTP
+	id S1030452AbVKPW3N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 17:29:13 -0500
+Message-ID: <0C6AA2145B810F499C69B0947DC5078107BCDE24@oh0012exch001p.cb.lucent.com>
+From: "Cipriani, Lawrence V (Larry)" <lvc@lucent.com>
+To: "Cipriani, Lawrence V (Larry)" <lvc@lucent.com>,
+       "'David S. Miller'" <davem@davemloft.net>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: bugs in /usr/src/linux/net/ipv6/mcast.c
+Date: Wed, 16 Nov 2005 17:28:39 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
 Content-Type: text/plain
-Date: Wed, 16 Nov 2005 17:11:31 -0500
-Message-Id: <1132179092.3008.9.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-16 at 13:52 -0800, Badari Pulavarty wrote:
-> 	- top loop is for for 10000 times (usec_timeout).
 
-Where does usec_timeout get set anyway?  With a DRM ioctl()?  I looked
-at the radeon source and it looks like it defaults to 100000 (not
-10000).  And I can't see where it ever gets set to anything but the
-default.
+Actually on this one
 
-Lee
+-------------------------------------------------
 
+/usr/src/linux/abi/svr4/misc.c: extra semicolon near line 564:
+
+for (p = tmp; *p; p++); 		!!!
+        p--;
+
+It's fine the way it is, it would be easier to read if was this instead
+
+for (p = tmp; *p; p++);
+p--;
+
+but no big deal.
+-----------------------------------------------------------
+
+Larry
+
+-----Original Message-----
+From: David S. Miller [mailto:davem@davemloft.net]
+Sent: Wednesday, November 16, 2005 4:02 PM
+To: lvc@lucent.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bugs in /usr/src/linux/net/ipv6/mcast.c
+
+
+From: "Cipriani, Lawrence V (Larry)" <lvc@lucent.com>
+Date: Wed, 16 Nov 2005 09:53:07 -0500
+
+> /usr/src/linux/net/ipv6/mcast.c: extra semicolon near line 609         
+>                 if (mc->sfmode == MCAST_INCLUDE && i >= psl->sl_count);
+>                         rv = 0;                                        
+> should be:
+> 		    if (mc->sfmode == MCAST_EXCLUDE && i >= psl->sl_count)
+> 				rv = 0;
+> 
+> /usr/src/linux/net/ipv6/mcast.c: extra semicolon near line 611         
+>                 if (mc->sfmode == MCAST_EXCLUDE && i < psl->sl_count); 
+>                         rv = 0;                             
+> should be:
+> 		    if (mc->sfmode == MCAST_EXCLUDE && i < psl->sl_count)
+> 				rv = 0;
+
+These have been fixed for a while now in 2.6.x

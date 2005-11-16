@@ -1,67 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030326AbVKPNYF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030323AbVKPNY2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030326AbVKPNYF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 08:24:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030323AbVKPNYE
+	id S1030323AbVKPNY2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 08:24:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030324AbVKPNY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 08:24:04 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:51891 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030321AbVKPNYD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 08:24:03 -0500
-Message-ID: <437B32E5.5030707@pobox.com>
-Date: Wed, 16 Nov 2005 08:23:49 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Mike Christie <michaelc@cs.wisc.edu>, Tejun Heo <htejun@gmail.com>,
-       linux-ide@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH] libata error handling fixes (ATAPI)
-References: <20051114195717.GA24373@havoc.gtf.org> <20051115074148.GA17459@htj.dyndns.org> <4379AA5B.1060900@pobox.com> <4379B28E.9070708@gmail.com> <4379C062.3010302@pobox.com> <20051115120016.GD7787@suse.de> <437A2814.1060308@cs.wisc.edu> <20051115184131.GJ7787@suse.de> <20051116124035.GX7787@suse.de> <437B2C61.7080605@pobox.com> <20051116131333.GA7787@suse.de>
-In-Reply-To: <20051116131333.GA7787@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Wed, 16 Nov 2005 08:24:27 -0500
+Received: from extgw-uk.mips.com ([62.254.210.129]:24583 "EHLO
+	bacchus.net.dhis.org") by vger.kernel.org with ESMTP
+	id S1030323AbVKPNY0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 08:24:26 -0500
+Date: Wed, 16 Nov 2005 13:24:21 +0000
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Tony <tony.uestc@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: MOD_INC_USE_COUNT
+Message-ID: <20051116132421.GC3229@linux-mips.org>
+References: <437347B5.6080201@gmail.com> <Pine.LNX.4.61.0511100859400.18912@chaos.analogic.com> <43735766.3070205@gmail.com> <20051113102930.GA16973@linux-mips.org> <43795C71.6070108@gmail.com> <20051115153444.GB15733@linux-mips.org> <437AE21D.9040501@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <437AE21D.9040501@gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Wed, Nov 16 2005, Jeff Garzik wrote:
-> 
->>Jens Axboe wrote:
->>
->>>I updated that patch, and converted IDE and SCSI to use it. See the
->>>results here:
->>>
->>>http://brick.kernel.dk/git/?p=linux-2.6-block.git;a=shortlog;h=blk-softirq
->>>
->>>The main change from the version posted last october is killing the
->>>'slightly' overdesigned completion queue hashing.
->>
->>Nifty, I like.  Comments:
->>
->>* use of spin_lock_irq() in all completion paths now makes me nervous.
-> 
-> 
-> Should be fine from the paths originating from blk_done_softirq(), as we
-> know interrupts are enabled in the first place. But generally I agree,
-> whenever in doubt always always use the irq saving variants.
-> 
-> 
->>* certainly it's what SCSI does now, but is a softirq really necessary? 
->> Using a tasklet would kill all that per-cpu code, and notifier.
-> 
-> 
-> It would work fine with a tasklet of course, but it's going to generate
-> a _lot_ of traffic on io busy systems so I felt a dedicated softirq was
-> the way to go.
+On Wed, Nov 16, 2005 at 03:39:09PM +0800, Tony wrote:
 
-fair enough.  ACK.
+> >>>Not strange at all.  The typical network driver is implemented using
+> >>>pci_register_driver which will set the owner filed of the driver's struct
+> >>>driver which then is being used for internal reference counting.  Other
+> >>>busses or line disciplines (SLIP, PPP, AX.25 ...) need to do the 
+> >>>equivalent
+> >>>or the kernel will believe reference counting isn't necessary and it's
+> >>>ok to unload the module at any time.
+> >>>
+> >>>In which driver did you hit this problem?
+> >>>
+> >>>Ralf
+> >>>
+> >>
+> >>I have a radio connected to host using ethernet. I'm writing a radio 
+> >>driver that masquerade radio as a NIC. when the module is loaded, I just 
+> >>register_netdev a net_device struct, while unregister_netdev at module 
+> >>cleanup.
+> >
+> >
+> >register_netdev / unregister_netdev don't deal with the .owner stuff, so
+> >your bug isn't there.  If your NIC is a PCI card, it should register it's
+> >driver through pci_register_driver which would deal with the necessary
+> >reference counting.  If it's implemented as a platform device you're
+> >presumably calling driver_register() before platform_device_register() and
+> >driver_register() would do the necessary magic for you.  If you're using a
+> >different bus it may have it's own variant of driver_register which you
+> >should call.  If you don't, you have a problem :-)
+> >
+> >  Ralf
+> >
+> That is indeed my problem. My driver is none of types of drivers, it's 
+> just a software virtual one. I think I should mimic the way SLIP handle 
+> it. thank a loooooooot!!!
 
-	Jeff
+SLIP is a line discipline; it's reference counting happens through
+tty_register_ldisc() but probably your code isn't a line discipline ...
+You however might use the platform device code - see
+include/linux/platform_device.h and the many users throughout the kernel.
+The platform device concept was really meant to support physical hardware
+but it should work just fine in your case.  Maybe
+drivers/net/mipsnet.c can serve as an example - it's a driver for virtual
+NIC on a software emulator.
 
-
-
+  Ralf

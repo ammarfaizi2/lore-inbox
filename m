@@ -1,93 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030462AbVKPTzK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030461AbVKPTzk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030462AbVKPTzK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 14:55:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030461AbVKPTzK
+	id S1030461AbVKPTzk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 14:55:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030476AbVKPTzk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 14:55:10 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:54495 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1030459AbVKPTzI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 14:55:08 -0500
-Subject: [PATCH] ipw2200: disallow direct scanning when device is down
-	(was: Linuv 2.6.15-rc1)
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Zilvinas Valinskas <zilvinas@gemtek.lt>
-Cc: Zhu Yi <yi.zhu@intel.com>, Andrew Morton <akpm@osdl.org>,
-       Alexandre Buisse <alexandre.buisse@ens-lyon.fr>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, jketreno@linux.intel.com
-In-Reply-To: <20051116181537.GA21709@gemtek.lt>
-References: <20051115100519.GA5567@gemtek.lt>
-	 <20051115115657.GA30489@gemtek.lt>
-	 <84144f020511150451l6ef30420g5a83a147c61f34a8@mail.gmail.com>
-	 <20051115140023.GB9910@gemtek.lt>
-	 <1132120145.18679.12.camel@debian.sh.intel.com>
-	 <20051116094551.GA23140@gemtek.lt> <20051116114052.GA14042@gemtek.lt>
-	 <Pine.LNX.4.58.0511161415010.4402@sbz-30.cs.Helsinki.FI>
-	 <20051116131505.GD31362@gemtek.lt> <1132158813.8902.6.camel@localhost>
-	 <20051116181537.GA21709@gemtek.lt>
-Date: Wed, 16 Nov 2005 21:55:05 +0200
-Message-Id: <1132170906.7963.11.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.4.1 
+	Wed, 16 Nov 2005 14:55:40 -0500
+Received: from nproxy.gmail.com ([64.233.182.201]:17768 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030461AbVKPTzh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 14:55:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=uBVP2wAyY/EVlCK8xeuQunZG3Dk/V4H7+vvB/3w3JszTc4lDBEeqGzoj8cfh0uW8Gy/+InKfkFjEy5NtqALuiHwGSdIXIT3oeVlVEd2BQxQe1KrkAEPc2PlI9LIao0KXKQUzG6ADxS5g9dwweBxDs/PX/IhdgDPJeXt15PQjqbs=
+Message-ID: <58cb370e0511161155m1b260895t173c843e7a016f78@mail.gmail.com>
+Date: Wed, 16 Nov 2005 20:55:36 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH] libata error handling fixes (ATAPI)
+Cc: Mike Christie <michaelc@cs.wisc.edu>, Jeff Garzik <jgarzik@pobox.com>,
+       Tejun Heo <htejun@gmail.com>, linux-ide@vger.kernel.org,
+       lkml <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <58cb370e0511161146j4e85ae69y9aad4c9d4e6972e4@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4379C062.3010302@pobox.com> <20051115184131.GJ7787@suse.de>
+	 <20051116124035.GX7787@suse.de>
+	 <58cb370e0511160704w4803a085h7bd6ab352d8c94e6@mail.gmail.com>
+	 <20051116153119.GN7787@suse.de>
+	 <58cb370e0511160806t1defd373w981e213d1cdeb2b3@mail.gmail.com>
+	 <20051116171051.GP7787@suse.de>
+	 <58cb370e0511161111u7e99c74ufe0bb9019619d5d0@mail.gmail.com>
+	 <20051116192205.GR7787@suse.de>
+	 <58cb370e0511161146j4e85ae69y9aad4c9d4e6972e4@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Zilvinas,
+On 11/16/05, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
+> On 11/16/05, Jens Axboe <axboe@suse.de> wrote:
+> > On Wed, Nov 16 2005, Bartlomiej Zolnierkiewicz wrote:
+> > > On 11/16/05, Jens Axboe <axboe@suse.de> wrote:
+> > > > On Wed, Nov 16 2005, Bartlomiej Zolnierkiewicz wrote:
+> > > > > On 11/16/05, Jens Axboe <axboe@suse.de> wrote:
+> > > > > > On Wed, Nov 16 2005, Bartlomiej Zolnierkiewicz wrote:
+> > > > > > > On 11/16/05, Jens Axboe <axboe@suse.de> wrote:
+> > > > > > >
+> > > > > > > > I updated that patch, and converted IDE and SCSI to use it. See the
+> > > > > > > > results here:
+> > > > > > > >
+> > > > > > > > http://brick.kernel.dk/git/?p=linux-2.6-block.git;a=shortlog;h=blk-softirq
+> > > > > > >
+> > > > > > > I like it but:
+> > > > > > >
+> > > > > > > * "we know it's either an FS or PC request" assumption in
+> > > > > > >   ide_softirq_done() is really wrong
+> > > > > >
+> > > > > > It used to be correct :-)
+> > > > >
+> > > > > Sorry but it has been always like that,
+> > > > > other requests also pass through ide_end_request()
+> > > > > (which of course needs fixing).
+> > > >
+> > > > You misunderstand, for calls to blk_complete_request() it wasn't true
+> > > > initially since it always obyed rq_all_done() (which returns 0 for
+> > > > non-fs and non-pc requests).
+> > >
+> > > from blk_complete_request() [ the only user of rq_all_done() ]:
+> > >
+> > > + /*
+> > > + * for partial completions, fall back to normal end io handling.
+> > > + */
+> > > + if (unlikely(!partial_ok && !rq_all_done(req, nbytes)))
+> > > +         if (end_that_request_chunk(req, uptodate, nbytes))
+> > > +                 return 1;
+> > >
+> > > We still will end up with using ide_softirq_done() for !rq_all_done()
+> > > case (non FS/PC request) because majority of them (all?) don't use
+> > > partial completions.
+> >
+> > Yes, that's what it looks like now... Note I wrote "wasn't", it used to
+> > look like this:
+> >
+> >         if (!rq_all_done(req, nbytes)) {
+> >                 end_that_request_chunk(..);
+> >                 return;
+> >         }
+> >
+> > which of course didn't work, so it was changed to the above which then
+> > broke the assumption of what type of requests we expect to see in
+> > ide_softirq_done(). We can't generically handle this case, so it's
+> > probably best to just add this logic to __ide_end_request() - it's just
+> > another case for _not_ using the blk_complete_request() path, just like
+> > the partial case.
+>
+> Sounds better but I honestly think that you simply cannot obtain
+> reliable nr_sectors to complete for FS/PC requests just from the
+> request type.  Two examples are: failed disk flush requests and
+> cd noretry requests (both are of FS type).
 
-On Wed, 2005-11-16 at 20:15 +0200, Zilvinas Valinskas wrote:
-> I've tried to reproduce a freeze. For about an hour tortures gave no
-> results. Usual messages:
-> 
-> Nov 16 20:02:00 evo800N kernel: ipw2200: Firmware error detected.  Restarting.
-> Nov 16 20:02:00 evo800N kernel: ipw2200: Sysfs 'error' log already exists.
+first example is bad :-)
 
-Unfortunately I don't think we can do much about those as the error
-message seems to indicate that there's a problem with the firmware...
+> IMO the best way to fix it is to actually move more (not less!) of
+> the logic from driver->end_request() paths to ide_softirq_done().
 
-On Wed, 2005-11-16 at 20:15 +0200, Zilvinas Valinskas wrote:
-> Other than that nothing unusual :) Even under X running, I cannot freeze
-> the laptop. Anything else to try ?
+Your latest patch is also a good way to fix it
+(now the only thing left is rq->errors/rq->retries discussed earlier).
 
-Are you still seeing that sysfs related oops? Perhaps the lockup was
-related to that...
-
-Yi, please consider applying the included patch.
-
-			Pekka
-
-[PATCH] ipw2200: disallow direct scanning when device is down
-
-The function ipw_request_direct_scan() should bail out when the device
-is down. This patch fixes an lockup caused by wpa_supplicant
-triggering ipw_request_direct_scan() while the driver was in a middle
-of a reset due to firmware errors.
-
-Thanks to Zilvinas Valinskas for reporting the bug and helping me
-debug it.
-
-Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
----
-
- ipw2200.c |    4 ++++
- 1 file changed, 4 insertions(+)
-
-Index: 2.6/drivers/net/wireless/ipw2200.c
-===================================================================
---- 2.6.orig/drivers/net/wireless/ipw2200.c
-+++ 2.6/drivers/net/wireless/ipw2200.c
-@@ -8926,6 +8926,10 @@ static int ipw_request_direct_scan(struc
- 	struct ipw_scan_request_ext scan;
- 	int err = 0, scan_type;
- 
-+	if (!(priv->status & STATUS_INIT) ||
-+	    (priv->status & STATUS_EXIT_PENDING))
-+		return 0;
-+
- 	down(&priv->sem);
- 
- 	if (priv->status & STATUS_RF_KILL_MASK) {
-
-
+Bartlomiej

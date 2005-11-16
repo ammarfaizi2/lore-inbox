@@ -1,38 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030225AbVKPIgz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030230AbVKPIkL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030225AbVKPIgz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 03:36:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030230AbVKPIgz
+	id S1030230AbVKPIkL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 03:40:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbVKPIkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 03:36:55 -0500
-Received: from mx2.suse.de ([195.135.220.15]:8860 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030225AbVKPIgy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 03:36:54 -0500
-From: Andi Kleen <ak@suse.de>
-To: Magnus Damm <magnus.damm@gmail.com>
-Subject: Re: [PATCH 01/05] NUMA: Generic code
-Date: Wed, 16 Nov 2005 09:38:14 +0100
-User-Agent: KMail/1.8.2
-Cc: Magnus Damm <magnus@valinux.co.jp>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, pj@sgi.com, werner@almesberger.net
-References: <20051110090920.8083.54147.sendpatchset@cherry.local> <p73sltxowx4.fsf@verdi.suse.de> <aec7e5c30511152357g560127c6n88d0bce3b5a2f4e@mail.gmail.com>
-In-Reply-To: <aec7e5c30511152357g560127c6n88d0bce3b5a2f4e@mail.gmail.com>
+	Wed, 16 Nov 2005 03:40:10 -0500
+Received: from wproxy.gmail.com ([64.233.184.195]:17910 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030230AbVKPIkJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 03:40:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=E7ZDKjvzzUgafeXCe/rI/H3p3fbdmuoONp7RxErD0Nbli4BL3q/pDoud/DUljsIs0Pp/jCJrxQRmfKKqHRoqJrwazjxRops/oRydp37AV9TfaGFsoi/4ZxsUVYy8dVcbfHZTK7QkTfaG28V6V8g+LkIQAg5OrsBLuBuL4XS11mU=
+Message-ID: <cbec11ac0511160040l86523bavc04a2a950348b79d@mail.gmail.com>
+Date: Wed, 16 Nov 2005 21:40:08 +1300
+From: Ian McDonald <imcdnzl@gmail.com>
+To: Hua Feijun <hua.feijun@gmail.com>
+Subject: Re: help
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3fe1d240511160026h4a262a05u@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200511160938.14992.ak@suse.de>
+References: <3fe1d240511160026h4a262a05u@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 16 November 2005 08:57, Magnus Damm wrote:
+On 11/16/05, Hua Feijun <hua.feijun@gmail.com> wrote:
+> Hi everybody!
+> Could anybody tell me the differentia between linux/em64t and linux/ia64?
+> Should i notice anything during migrating a project form linux/ia64 to
+> linux/em64t?
+> Thanks!!!
 
-> 
-> Sorry, but which one did not work very well? CKRM memory controller or
-> NUMA emulation + CPUSETS?
+They are two quite different processor architectures. Have a look
+using Google at AMD Opteron/Intel Pentium 4 64 bit vs Intel Itanium
+(IA64).
 
-Using simulated nodes for controlling memory.
+At the minimum you will need to recompile anything you do as they are
+incompatiable
 
--Andi
+--
+Ian McDonald
+http://wand.net.nz/~iam4
+WAND Network Research Group
+University of Waikato
+New Zealand

@@ -1,67 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965157AbVKPBrs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965156AbVKPBtE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965157AbVKPBrs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 20:47:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965156AbVKPBrs
+	id S965156AbVKPBtE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 20:49:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965158AbVKPBtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 20:47:48 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:61131 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S965157AbVKPBrr (ORCPT
+	Tue, 15 Nov 2005 20:49:04 -0500
+Received: from ns2.suse.de ([195.135.220.15]:45024 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965156AbVKPBtD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 20:47:47 -0500
-Date: Wed, 16 Nov 2005 01:47:43 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Andi Kleen <ak@suse.de>
-Cc: linux-mm@kvack.org, mingo@elte.hu, linux-kernel@vger.kernel.org,
-       nickpiggin@yahoo.com.au, lhms-devel@lists.sourceforge.net
-Subject: Re: [PATCH 5/5] Light Fragmentation Avoidance V20: 005_configurable
-In-Reply-To: <200511160039.21243.ak@suse.de>
-Message-ID: <Pine.LNX.4.58.0511160143320.8470@skynet>
-References: <20051115164946.21980.2026.sendpatchset@skynet.csn.ul.ie>
- <20051115165012.21980.51131.sendpatchset@skynet.csn.ul.ie>
- <200511160039.21243.ak@suse.de>
+	Tue, 15 Nov 2005 20:49:03 -0500
+From: Andi Kleen <ak@suse.de>
+To: nagar@watson.ibm.com
+Subject: Re: [Patch 1/4] Delay accounting: Initialization
+Date: Wed, 16 Nov 2005 02:50:22 +0100
+User-Agent: KMail/1.8.2
+Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+References: <43796596.2010908@watson.ibm.com> <17274.34333.348600.111728@wombat.chubb.wattle.id.au> <437A8FED.3080508@watson.ibm.com>
+In-Reply-To: <437A8FED.3080508@watson.ibm.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511160250.23213.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Nov 2005, Andi Kleen wrote:
+On Wednesday 16 November 2005 02:48, Shailabh Nagar wrote:
 
-> On Tuesday 15 November 2005 17:50, Mel Gorman wrote:
-> > The anti-defragmentation strategy has memory overhead. This patch allows
-> > the strategy to be disabled for small memory systems or if it is known the
-> > workload is suffering because of the strategy. It also acts to show where
-> > the anti-defrag strategy interacts with the standard buddy allocator.
->
-> If anything this should be a boot time option or perhaps sysctl, not a config.
+> 
+> Are there problems with using sched_clock()for timestamping if one is prepared
+> to live with them not necessarily being nanosecond accurate ? I'm trying to search
+> the archives etc. but if you can respond with any quick comments, that'd be very
+> helpful.
 
-I'll take a look at what's involved in doing this. Using a compile time
-option, I was depending on the compiler to see that
+First it can be relatively slow on P4s (hundreds of cycles) 
 
-for (i = 0; i < RCLM_TYPES; i++) {}
+On other systems it can run with different frequencies on different CPUs,
+so you never need to assume a timestamp from one CPU is comparable with
+the one from other CPUs (the scheduler carefully avoids this)
 
-would only every iterate once and get rid of the loop. If I think there is
-any chance of these patches getting merged, I'll work on making this a
-sysctl or boot-time option rather than a compile option.
+If you need a stable timestamp over multiple CPUs don't use it.
 
-> In general CONFIGs that change runtime behaviour are evil - just makes
-> changing the option more painful, causes problems for distribution
-> users, doesn't make much sense, etc.etc.
->
+In general do_gettimeofday is much safer.
+do_gettimeofday shouldn't be that much slower for the case where TSC
+works, and where it doesn't there is no other alternative.
 
-Agreed, but I felt that some mechanism for disabling this for small
-systems was desirable. As it is right now, I see this as a
-very-small-memory-available option.
-
-> Also #ifdef as a documentation device is a really really scary concept.
-> Yuck.
->
-
-Can't argue with you there. However, for the purposes of discussion here,
-it shows exactly where anti-defrag affects the current allocator.
-
--- 
-Mel Gorman
-Part-time Phd Student                          Java Applications Developer
-University of Limerick                         IBM Dublin Software Lab
+-Andi

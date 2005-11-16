@@ -1,59 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030491AbVKPVKO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030506AbVKPVKI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030491AbVKPVKO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 16:10:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030503AbVKPVKO
+	id S1030506AbVKPVKI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 16:10:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030503AbVKPVKH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 16:10:14 -0500
-Received: from pat.uio.no ([129.240.130.16]:41197 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1030491AbVKPVKM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 16:10:12 -0500
-Subject: Re: mmap over nfs leads to excessive system load
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Kenny Simpson <theonetruekenny@yahoo.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051116205637.88606.qmail@web34112.mail.mud.yahoo.com>
-References: <20051116205637.88606.qmail@web34112.mail.mud.yahoo.com>
+	Wed, 16 Nov 2005 16:10:07 -0500
+Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:51132 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S932608AbVKPVKF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 16:10:05 -0500
+Subject: Re: [linux-pm] [RFC] userland swsusp
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Greg KH <greg@kroah.com>
+Cc: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>
+In-Reply-To: <20051116165023.GB5630@kroah.com>
+References: <20051115212942.GA9828@elf.ucw.cz>
+	 <20051115222549.GF17023@redhat.com> <20051115233201.GA10143@elf.ucw.cz>
+	 <1132115730.2499.37.camel@localhost> <20051116061459.GA31181@kroah.com>
+	 <1132120845.25230.13.camel@localhost>  <20051116165023.GB5630@kroah.com>
 Content-Type: text/plain
-Date: Wed, 16 Nov 2005 16:09:51 -0500
-Message-Id: <1132175392.8811.49.camel@lade.trondhjem.org>
+Organization: Cyclades
+Message-Id: <1132171051.25230.53.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 17 Nov 2005 06:57:31 +1100
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.855, required 12,
-	autolearn=disabled, AWL 1.15, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-16 at 12:56 -0800, Kenny Simpson wrote:
-> I tried the same test, but instead of ftruncate64, I simply did a pwrite64 to get the file
-> extended... and got 40M+ with mostly outbound traffic, and much less CPU usage..... 
-> 
-> Unfortunately, once my test file hit 4295065601, Bad Things (TM) started to happen.  The system
-> time went to 100% of a CPU, and the nfs traffic on that mount stopped.
-> 
-> I got an oprofile of the spinning system:
-> samples  %        symbol name
-> 301039   27.9748  zap_pte_range
-> 156234   14.5184  unmap_vmas
-> 111760   10.3856  __bitmap_weight
-> 103624    9.6295  _spin_lock
-> 97063     9.0198  unmap_page_range
-> 67011     6.2272  unmap_mapping_range
-> 59382     5.5182  sub_preempt_count
-> 51258     4.7633  zap_page_range
-> 25235     2.3450  page_address
-> 16768     1.5582  unmap_mapping_range_vma
-> 13257     1.2319  debug_smp_processor_id
-> 11594     1.0774  add_preempt_count
-> 
-> I also seem unable to kill the test process.
-> 
-> Any ideas?  (2**32 file size issue somewhere?)
+Hi Greg.
 
-Is this NFSv2?
+On Thu, 2005-11-17 at 03:50, Greg KH wrote:
+> On Wed, Nov 16, 2005 at 05:00:45PM +1100, Nigel Cunningham wrote:
+> > Hi.
+> > 
+> > On Wed, 2005-11-16 at 17:14, Greg KH wrote:
+> > > On Wed, Nov 16, 2005 at 06:35:30AM +0200, Dumitru Ciobarcianu wrote:
+> > > > ??n data de Mi, 16-11-2005 la 00:32 +0100, Pavel Machek a scris:
+> > > > > ...but how do you provide nice, graphical progress bar for swsusp
+> > > > > without this? People want that, and "esc to abort", compression,
+> > > > > encryption. Too much to be done in kernel space, IMNSHO.
+> > > > 
+> > > > Pavel, you really should _listen_ when someone else is talking about the
+> > > > same things in different implementations. suspend2 has this feature
+> > > > (nice graphical progress bars in userspace) for a long time now and it's
+> > > > compatible with the fedora kernels.
+> > > 
+> > > It's also implemented in the kernel, which is exactly the wrong place
+> > > for this.  Pavel is doing this properly, why do you doubt him?
+> > 
+> > You yourself called it a hack not long ago.
+> 
+> I did, in the proud tradition of neat hacks.  It's a very nice
+> accomplishment that this even works, and I'm impressed.
+> 
+> > I'm not sure why you think the userspace is the right place for
+> > suspending.
+> 
+> If he can come up with an implementation that works, and puts stuff like
+> the pretty spinning wheels and progress bars and encryption in
+> userspace, that's great.  That stuff doesn't belong in the kerenel if we
+> can possibly help it.
 
-Cheers,
-  Trond
+I can agree with putting splash screens and userspace stuff in
+userspace. Suspend2 has had that too, since March. But the guts of the
+code is a different thing. Encryption - well, I think we're both using
+cryptoapi now, so that's more easily done in the kernel.
+
+> > It seems to me that the very fact that it requires access to
+> > structures that are normally only visible to the kernel is pretty
+> > telling.
+> 
+> So it needs some work :)
+
+rm :)
+
+> > To be fair, it is true at the same time that graphical interfaces
+> > don't belong in the kernel - but the vast majority of it - calculating
+> > what to write and doing the writing does. It's only by hamstringing
+> > himself and the user - limiting the image to half of memory that Pavel
+> > (and dropping support for writing to swap) that Pavel can make this
+> > work.
+> 
+> Then propose a better way to do this, if you can see one.
+
+We've done the user interface in userspace using netlink to
+communication.
+
+We've done storing a full image of memory by storing the page cache
+separately to the rest of the image, so that it doesn't need to have an
+atomic copy made. (Nothing that uses the page cache is running anyway).
+Having done this, we can use the memory occupied by the page cache for
+our atomic copy, and just reread the overwritten page cache pages if we
+need to cancel the suspend. Suspend2 has done this since... beta18 I
+think.
+
+> > > > Why don't you and Nigel (of suspend2) can just work together on this ?
+> > > > It's a shame that much work is wasted in duplicated effort.
+> > > 
+> > > It's not duplicated, Nigel knows what need to be done to work together,
+> > > if he so desires.
+> > 
+> > I know that Pavel and I have such different ideas about what should be
+> > done that it's not worth the effort.
+> 
+> I'm sorry that you feel this way.  I thought that after our meeting in
+> July that things were different.
+
+I'm sorry you came away with that impression. I want to work together,
+but I'm not willing to settle for a minimalist implementation. Pavel, on
+the other hand, wanted a minimalist implementation at first. He seems to
+be changing his mind a bit now, but I'm not sure how far that will go.
+
+Regards,
+
+Nigel
+
+> thanks,
+> 
+> greg k-h
+-- 
+
 

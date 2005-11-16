@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030261AbVKPJlB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbVKPJq0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030261AbVKPJlB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 04:41:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030262AbVKPJlB
+	id S932313AbVKPJq0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 04:46:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932592AbVKPJq0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 04:41:01 -0500
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:61650 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1030261AbVKPJlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 04:41:00 -0500
+	Wed, 16 Nov 2005 04:46:26 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:21179 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932313AbVKPJqZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 04:46:25 -0500
 Subject: Re: [PATCH -rt] race condition in fs/compat.c with compat_sys_ioctl
 From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Mark Knecht <markknecht@gmail.com>, pavel@suse.cz,
-       LKML <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-In-Reply-To: <20051116083214.GA14829@elte.hu>
+To: Andi Kleen <ak@suse.de>
+Cc: pavel@suse.cz, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <p73y83pp25r.fsf@verdi.suse.de>
 References: <1131821278.5047.8.camel@localhost.localdomain>
 	 <5bdc1c8b0511121725u6df7ad9csb9cb56777fa6fe64@mail.gmail.com>
 	 <Pine.LNX.4.58.0511122149020.25152@localhost.localdomain>
@@ -25,53 +24,35 @@ References: <1131821278.5047.8.camel@localhost.localdomain>
 	 <1131994030.5047.17.camel@localhost.localdomain>
 	 <5bdc1c8b0511141057l60a2e778x89155cd5484d532f@mail.gmail.com>
 	 <1132115386.5047.61.camel@localhost.localdomain>
-	 <20051116083214.GA14829@elte.hu>
+	 <p73y83pp25r.fsf@verdi.suse.de>
 Content-Type: text/plain
 Organization: Kihon Technologies
-Date: Wed, 16 Nov 2005 04:40:46 -0500
-Message-Id: <1132134046.5047.68.camel@localhost.localdomain>
+Date: Wed, 16 Nov 2005 04:46:10 -0500
+Message-Id: <1132134370.5047.73.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-16 at 09:32 +0100, Ingo Molnar wrote:
-> * Steven Rostedt <rostedt@goodmis.org> wrote:
+On Wed, 2005-11-16 at 06:55 +0100, Andi Kleen wrote:
+> Steven Rostedt <rostedt@goodmis.org> writes:
+> > 
+> > That's the problem. I found out that one ioctl might sleep holding the
+> > sem and won't be woken up until another process calls another ioctl to
+> > wake it up. But unfortunately, the one waking up the sleeper will block
+> > on the sem.  (the killer was tty_wait_until_sent)
 > 
-> >  	down_read(&ioctl32_sem);
-> >  	for (t = ioctl32_hash_table[ioctl32_hash(cmd)]; t; t = t->next) {
-> > -		if (t->cmd == cmd)
-> > +		if (t->cmd == cmd) {
-> > +			handler = t->handler;
-> > +			up_read(&ioctl32_sem);
-> >  			goto found_handler;
-> > +		}
-> >  	}
-> >  	up_read(&ioctl32_sem);
-> 
-> i think this problem only triggers on RT kernels, because the RT kernel 
-> only allows a single reader within a read-semaphore. This works well in 
-> 99.9% of the cases. You just found the remaining 0.1% :-| The better 
-> solution within -rt would be to change ioctl32_sem to a compat 
-> semaphore, via the patch below. Can you confirm that this solves the 
-> bootup problem too?
-> 
+> You should have looked into mainline first. The semaphore is already gone
+> because it wasn't even needed anymore.
 
-ACK:
+It's still there in 2.6.15-rc1-git3 (the sem is the down_read of
+ioctl32_sem in fs/compat.c).
 
-Well duh!  OK, I blame lack of sleep on missing the obvious (and getting
-up at 4am to go to the bathroom, and then responding to this doesn't
-help ;)
-
-I just applied this patch and it works.  I didn't even notice the word
-"read" in down_read and up_read, otherwise I would have sent you this
-patch.  I was just so frustrated at getting this to work that I just
-assumed that this was a normal down and up. Oh well. At least now I
-don't have to see why this works in the non-rt case.
-
-Thanks Ingo, yes go ahead and apply your patch. That is definitely a
-better solution.
+No, the problem was unique to the rt patch.  In -rt the default
+down_read is just like a down (since it is very hard to do PI on readers
+and writer locks).  So the solution in -rt was to convert this back to a
+normal RW sem.
 
 -- Steve
 

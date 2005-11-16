@@ -1,144 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030289AbVKPRy7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030290AbVKPR6r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030289AbVKPRy7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 12:54:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030290AbVKPRy7
+	id S1030290AbVKPR6r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 12:58:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030293AbVKPR6r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 12:54:59 -0500
-Received: from asclepius3.uwa.edu.au ([130.95.128.60]:33179 "EHLO
-	asclepius.uwa.edu.au") by vger.kernel.org with ESMTP
-	id S1030289AbVKPRy7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 12:54:59 -0500
-X-UWA-Client-IP: 130.95.13.9 (UWA)
-Date: Thu, 17 Nov 2005 01:52:47 +0800
-From: Bernard Blackham <bernard@blackham.com.au>
-To: "Hua Zhong (hzhong)" <hzhong@cisco.com>
-Cc: Ray Bryant <raybry@mpdtxmail.amd.com>,
-       "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
-Message-ID: <20051116175247.GA16804@ucc.gu.uwa.edu.au>
-References: <75D9B5F4E50C8B4BB27622BD06C2B82BD4D428@xmb-sjc-235.amer.cisco.com>
+	Wed, 16 Nov 2005 12:58:47 -0500
+Received: from bay103-f17.bay103.hotmail.com ([65.54.174.27]:62239 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S1030290AbVKPR6r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 12:58:47 -0500
+Message-ID: <BAY103-F17B16A3E9D5B3E06ACB57CDF5C0@phx.gbl>
+X-Originating-IP: [68.75.63.180]
+X-Originating-Email: [dravet@hotmail.com]
+From: "Jason Dravet" <dravet@hotmail.com>
+To: samuel.thibault@ens-lyon.org
+Cc: 7eggert@gmx.de, adaplas@gmail.com, torvalds@osdl.org, akpm@osdl.org,
+       davej@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] vgacon: Workaround for resize bug in some chipsets
+Date: Wed, 16 Nov 2005 11:58:42 -0600
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <75D9B5F4E50C8B4BB27622BD06C2B82BD4D428@xmb-sjc-235.amer.cisco.com>
-Organization: Dagobah Systems
-User-Agent: Mutt/1.5.10i
-X-SpamTest-Info: Profile: Formal (287/051115)
-X-SpamTest-Info: Profile: Detect Hard [UCS 290904]
-X-SpamTest-Info: Profile: SysLog
-X-SpamTest-Info: Profile: Marking Spam - Subject (UCS) [02-08-04]
-X-SpamTest-Status: Not detected
-X-SpamTest-Version: SMTP-Filter Version 2.0.0 [0125], KAS/Release
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 16 Nov 2005 17:58:42.0335 (UTC) FILETIME=[616D52F0:01C5EAD7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 15, 2005 at 06:24:44PM -0800, Hua Zhong (hzhong) wrote:
-> I did some checkpoint/restart work on Linux about 5 years ago (you may
-> still be able to google "CRAK"), so I'm jumping in with my 2 cents.
+>From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+>To: Jason Dravet <dravet@hotmail.com>
+>CC: 7eggert@gmx.de, adaplas@gmail.com, torvalds@osdl.org, 
+>akpm@osdl.org,davej@redhat.com, linux-kernel@vger.kernel.org
+>Subject: Re: [PATCH] vgacon: Workaround for resize bug in some chipsets
+>Date: Wed, 16 Nov 2005 03:25:08 +0100
+>
+>Hi,
+>
+>Jason Dravet, le Tue 15 Nov 2005 19:50:39 -0600, a écrit :
+> > Here are the results:
+> > y=25   fonth=16   deffh=16   vidfh=16   scanl=400
+> > overflow=ff
+> > vsync_end=8f
+> > vdisp_end=1f
+>
+>Ah, this is odd indeed: your hardware uses 800 scanlines
+>(overflow:(512+256)+vdisp_end:0x1f), while the actual needed lines
+>should be y:25*fonth:16 ... Maybe it is actually using a 32 lines font.
+>
+>Just to make sure about every VGA bits, could you install the
+>svgatextmode package, which holds a getVGAreg command, and run twice
+>
+>for i in `seq 0 24` ; do getVGAreg CRTC $i ; done
+>
+>The first time while having a correct full text screen rendering, and
+>the second time after vgacon_doresize() has blanked the bottom half of
+>the screen.
+>
+>Regards,
+>Samuel
 
-Ditto - CryoPID.
+For some reason my custom 2.6.14 kernels no longer boot.  While I look into 
+this here are the results when only half the screen works:
 
-> > Personally, I think that these assumptions are incorrect for a 
-> > checkpoint/restart facility.   I think that:
-> > 
-> > (1)  It is really only possible to checkpoint/restart a 
-> > cooperative process.
+VGA 'CRTC' register, index 0 (=0x0) contains 89 (=0x59 =b01011001)
+VGA 'CRTC' register, index 1 (=0x1) contains 79 (=0x4f =b01001111)
+VGA 'CRTC' register, index 2 (=0x2) contains 79 (=0x4f =b01001111)
+VGA 'CRTC' register, index 3 (=0x3) contains 157 (=0x9d =b10011101)
+VGA 'CRTC' register, index 4 (=0x4) contains 84 (=0x54 =b01010100)
+VGA 'CRTC' register, index 5 (=0x5) contains 27 (=0x1b =b00011011)
+VGA 'CRTC' register, index 6 (=0x6) contains 255 (=0xff =b11111111)
+VGA 'CRTC' register, index 7 (=0x7) contains 191 (=0xbf =b10111111)
+VGA 'CRTC' register, index 8 (=0x8) contains 0 (=0x00 =b00000000)
+VGA 'CRTC' register, index 9 (=0x9) contains 239 (=0xef =b11101111)
+VGA 'CRTC' register, index 10 (=0xa) contains 13 (=0x0d =b00001101)
+VGA 'CRTC' register, index 11 (=0xb) contains 14 (=0x0e =b00001110)
+VGA 'CRTC' register, index 12 (=0xc) contains 40 (=0x28 =b00101000)
+VGA 'CRTC' register, index 13 (=0xd) contains 240 (=0xf0 =b11110000)
+VGA 'CRTC' register, index 14 (=0xe) contains 42 (=0x2a =b00101010)
+VGA 'CRTC' register, index 15 (=0xf) contains 32 (=0x20 =b00100000)
+VGA 'CRTC' register, index 16 (=0x10) contains 125 (=0x7d =b01111101)
+VGA 'CRTC' register, index 17 (=0x11) contains 143 (=0x8f =b10001111)
+VGA 'CRTC' register, index 18 (=0x12) contains 143 (=0x8f =b10001111)
+VGA 'CRTC' register, index 19 (=0x13) contains 40 (=0x28 =b00101000)
+VGA 'CRTC' register, index 20 (=0x14) contains 31 (=0x1f =b00011111)
+VGA 'CRTC' register, index 21 (=0x15) contains 30 (=0x1e =b00011110)
+VGA 'CRTC' register, index 22 (=0x16) contains 0 (=0x00 =b00000000)
+VGA 'CRTC' register, index 23 (=0x17) contains 163 (=0xa3 =b10100011)
+VGA 'CRTC' register, index 24 (=0x18) contains 255 (=0xff =b11111111)
 
-I agree that some processes are, but the majority are not.
+I will send the whole screen results when I find and fix the problem.  I am 
+running the fedora core development system with all but todays updates.
 
-> It's hard, but not impossible, at least theoretically.
+Thanks,
+Jason
 
-Not that hard. Most of the information, if not exported by the
-kernel through other means, can be ascertained from within the
-process itself. For example, FD offsets can be obtained with lseek,
-network connection endpoints with get{sock,peer}name, etc. With a
-little help from ptrace, it's trivial.
-
-> > For this to work with uncooperative processes you have to 
-> > figure out (for example) how to save and restore the file 
-> > system state.  (e.g. how do you get the file position set
-> > correctly for an open file in the restored program instance?)
-> 
-> This is actually one of the simplest problems in checkpoint/restart.
-
-Remote syscalls is how CryoPID does it. Inject some code into the
-target and execute it. CryoPID can also scrape out the contents of
-unlinked (eg, temporary) files (in svn version). You can establish
-what FIFOs joined which FDs of what processes through /proc, and
-capture the in-flight buffers with some more ptracing.
-
-> You'd need kernel support to save the state, and restart could be
-> done entirely in user space to restore the file descriptors.
-
-Just for file offsets? I disagree =)
-
-> > And this doesn't even consider what to do with open network 
-> > connections.
-> 
-> Right, this is really hard. I played with it 5 years ago and I had semi
-> success on restoring network connections (with my limited understanding
-> on Linux networking and some really ugly hacks). I could restart a
-> killed remote Emacs X session with about 50% success rate.
-
-TCP connections can be done with tcpcp (tcpcp.sf.net) and CryoPID
-already supports it (although the patch hasn't been ported past
-2.6.11).
-
-UDP connections are not a hassle being stateless (though CryoPID
-doesn't yet, because it's too easy :)
-
-Unix sockets can be reconnected, but of course protocols might get
-hopelessly confused. However, I am working with the Gtk+ display
-migration code to freeze Gtk+ applications. gtk-demo freezes quite
-happily as does gvim. The Gtk+ guys are working hard to squash some
-remaining bugs to make more apps supported.
-
-However with some prethought, you could hook your X app up to
-something like Xmove and migrate any X application that way.
-
-
-> > Similarly, what does one do about the content of System V shared
-> > memory regions or the contents of System V semaphores?
-
-The contents are not so much an issue, as the ids themselves. They
-face much the same problem as PIDs - you attach/detach to a SHM
-segment by its shmid. These are allocated by the kernel, but cached
-in the process. Some method of requesting a particular shmid would
-make life easier for checkpointing. Ditto semaphores and message
-queues.
-
-> > I'm sure there are many more such problems we can come up with a
-> > careful study of the Linux/Unix API.
-
-For many processes, there isn't all that much that can't be saved
-from userspace. Help from kernel space would certainly make things
-easier/faster/more reliable. This task_pid API being one of them.
-
-> > So, I guess my question is wrt the task_pid API is the
-> > following:   Given that there are a lot of other problems to
-> > solve before transparent checkpointing of uncooperative
-> > processes is possible, why should this partial solution be
-> > accepted into the main line kernel and "set in stone" so to
-> > speak?
-> 
-> I agree with this. Before we see a mature checkpoint/restart solution
-> already implemented, there is no point in doing the vpid thing.
-
-Fair enough.  I'm actually implementing multithreading support for
-CryoPID at the moment.  It currently resumes with the original PIDs
-by editing last_pid in /dev/kmem and forking - a temporary racy
-hack, until a better solution (such as this) appeared.  (It fails if
-the PID is in use, or if anybody else on the system fork()s before
-you do).  I'll give the task_pid patches a try and see how much
-easier life is.
-
-I'm delighted to see Serge and the vserver guys putting the time
-into this! Thanks!
-
-Regards,
-
-Bernard.
 

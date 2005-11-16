@@ -1,66 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965160AbVKPBxL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965164AbVKPCBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965160AbVKPBxL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 20:53:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965161AbVKPBxK
+	id S965164AbVKPCBn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 21:01:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965166AbVKPCBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 20:53:10 -0500
-Received: from mail06.syd.optusnet.com.au ([211.29.132.187]:1455 "EHLO
-	mail06.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S965160AbVKPBxJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 20:53:09 -0500
+	Tue, 15 Nov 2005 21:01:43 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:37016 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S965164AbVKPCBn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 21:01:43 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+Subject: Re: [RFC] HOWTO do Linux kernel development - take 2
+Date: Wed, 16 Nov 2005 02:01:34 +0000
+User-Agent: KMail/1.9
+Cc: Greg KH <greg@kroah.com>, Adrian Bunk <bunk@stusta.de>,
+       Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org
+References: <20051115210459.GA11363@kroah.com> <20051116011032.GA16604@kroah.com> <2cd57c900511151746k341b93a3u@mail.gmail.com>
+In-Reply-To: <2cd57c900511151746k341b93a3u@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <17274.37097.609985.45439@wombat.chubb.wattle.id.au>
-Date: Wed, 16 Nov 2005 12:52:41 +1100
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: nagar@watson.ibm.com
-Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [Patch 1/4] Delay accounting: Initialization
-In-Reply-To: <437A8FED.3080508@watson.ibm.com>
-References: <43796596.2010908@watson.ibm.com>
-	<20051114202017.6f8c0327.akpm@osdl.org>
-	<17274.34333.348600.111728@wombat.chubb.wattle.id.au>
-	<437A8FED.3080508@watson.ibm.com>
-X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Disposition: inline
+Message-Id: <200511160201.34149.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Shailabh" == Shailabh Nagar <nagar@watson.ibm.com> writes:
+On Wednesday 16 November 2005 01:46, Coywolf Qi Hunt wrote:
+> 2005/11/16, Greg KH <greg@kroah.com>:
+> > On Wed, Nov 16, 2005 at 01:23:48AM +0100, Adrian Bunk wrote:
+> > > > Introduction
+> > > > ------------
+> > > >...
+> > > > The kernel is written mostly in C, with some architecture-dependent
+> > > > parts written in assembly. A good understanding of C is required for
+> > > > kernel development.  Assembly (any architecture) is not required
+> > > > unless you plan to do low-level development for that architecture. 
+> > > > Though they are not a good substitute for a solid C education and/or
+> > > > years of experience, the following books are good for, if anything,
+> > > > reference: - "The C Programming Language" by Kernighan and Ritchie
+> > > > [Prentice Hall] - "Practical C Programming" by Steve Oualline
+> > > > [O'Reilly]
+> > > >  - "Programming the 80386" by Crawford and Gelsinger [Sybek]
+> > > >  - "UNIX Systems for Modern Architectures" by Curt Schimmel [Addison
+> > > > Wesley]
+> > >
+> > > "UNIX Systems for Modern Architectures" is a good book about cpu
+> > > caches.
+> > >
+> > > But it's hardly interesting for the average driver writer and even less
+> > > a book about C programming.
+> >
+> > True, I've removed it now, thanks.
+>
+> Also why you have to mention those non-free books here? I don't read
+> them and I live OK. There's plenty of free information one can always
+> find on the net.
+[snip]
 
-Shailabh> Peter Chubb wrote:
->>>>>>> "Andrew" == Andrew Morton <akpm@osdl.org> writes:
->>
-Andrew> Shailabh Nagar <nagar@watson.ibm.com> wrote:
->>
->>>> + *ts = sched_clock();
->>
-Andrew> I'm not sure that it's kosher to use sched_clock() for
-Andrew> fine-grained timestamping like this.  Ingo had issues with it
-Andrew> last time this happened?
->>  It wasn't Ingo, it was Andi Kleen...  for my Microstate Accounting
->> patches, which do very similar things to Shailabh's patchsetm, but
->> using /proc and a system call instead (following Solaris's lead)
->> 
+Some people just prefer a hard copy (which obviously can't be produced for 
+nothing) instead of an on-line reference. I think google.com is already a 
+fairly obvious (almost instinctive) answer to any question these days.
 
-Shailabh> Were these the comments from Andi to which you refer:
-Shailabh> http://www.uwsg.indiana.edu/hypermail/linux/kernel/0503.1/1237.html
+Books vary in quality and comprehensiveness, recommendations are incredibly 
+useful for somebody faced with buying into a subject he has no real knowledge 
+of.
 
-Shailabh> The objections to microstate overhead seemed to stem from
-Shailabh> the syscall overhead, not use of sched_clock() per se.
-
-The objection was to the use of rdtsc (which is sched_clock() on
-platforms that have rdtsc) in fastpaths.
-
-
-Anyway, I think it's time to repost the microstate patches.
 -- 
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*
+Cheers,
+Alistair.
+
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

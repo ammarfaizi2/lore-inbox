@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030226AbVKPIdr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030224AbVKPIeY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030226AbVKPIdr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 03:33:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030224AbVKPIdr
+	id S1030224AbVKPIeY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 03:34:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030229AbVKPIeY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 03:33:47 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:21905 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030225AbVKPIdq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 03:33:46 -0500
-Date: Wed, 16 Nov 2005 09:33:59 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: Steven Rostedt <rostedt@goodmis.org>, pavel@suse.cz,
-       LKML <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH -rt] race condition in fs/compat.c with compat_sys_ioctl
-Message-ID: <20051116083359.GB14829@elte.hu>
-References: <1131821278.5047.8.camel@localhost.localdomain> <5bdc1c8b0511121725u6df7ad9csb9cb56777fa6fe64@mail.gmail.com> <Pine.LNX.4.58.0511122149020.25152@localhost.localdomain> <5bdc1c8b0511121914v12dc4402u424fbaf416bf3710@mail.gmail.com> <1131853456.5047.14.camel@localhost.localdomain> <5bdc1c8b0511130634h501fb565v58906bdfae788814@mail.gmail.com> <1131994030.5047.17.camel@localhost.localdomain> <5bdc1c8b0511141057l60a2e778x89155cd5484d532f@mail.gmail.com> <1132115386.5047.61.camel@localhost.localdomain> <p73y83pp25r.fsf@verdi.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 16 Nov 2005 03:34:24 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:25494 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S1030225AbVKPIeX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 03:34:23 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+Date: Wed, 16 Nov 2005 09:34:21 +0100
+User-Agent: KMail/1.8
+Cc: Alex Davis <alex14641@yahoo.com>, linux-kernel@vger.kernel.org
+References: <20051116005034.73421.qmail@web50210.mail.yahoo.com> <1132128212.2834.17.camel@laptopd505.fenrus.org>
+In-Reply-To: <1132128212.2834.17.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <p73y83pp25r.fsf@verdi.suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200511160934.21444.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Mittwoch, 16. November 2005 09:03 schrieb Arjan van de Ven:
+> * less CPU cache footprint due to interrupt stacks
+>    - interrupt stacks are per cpu now instead of borrowing the per
+>      thread stack space; this both has less impact on the caches, and
+>      has more cache hits; the per cpu stack will be in cache more than
+>      the previously scattered bits and pieces
+> * more stack space is available for interrupts compared to 2.4 kernels
+>    - in 2.4 kernels only 2Kb was available for interrupt context (to
+>      keep 4K available for user context). With complex softirqs such as
+>      PPP and firewall rules and nested interrupts this wasn't always
+>      enough. Compared to 2.6-with-8Kstacks is a bit harder; there is
+>      2Kb extra available there compared to 2.4 and arguably some of that
+>      extra is for interrupts.
 
-* Andi Kleen <ak@suse.de> wrote:
+This is due to having interrupt stacks. Is there any reason not to have
+8K task stacks and per CPU interrupt stacks?
 
-> Steven Rostedt <rostedt@goodmis.org> writes:
-> > 
-> > That's the problem. I found out that one ioctl might sleep holding the
-> > sem and won't be woken up until another process calls another ioctl to
-> > wake it up. But unfortunately, the one waking up the sleeper will block
-> > on the sem.  (the killer was tty_wait_until_sent)
-> 
-> You should have looked into mainline first. The semaphore is already 
-> gone because it wasn't even needed anymore.
+	Regards
+		Oliver
 
-well 2.6.14 isnt _that_ old :-) But in any case, it's great that the 
-semaphore is gone!
-
-	Ingo

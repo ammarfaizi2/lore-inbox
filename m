@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030528AbVKPWhl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030539AbVKPWjj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030528AbVKPWhl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 17:37:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030530AbVKPWhl
+	id S1030539AbVKPWjj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 17:39:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030541AbVKPWjj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 17:37:41 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:39627 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030528AbVKPWhk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 17:37:40 -0500
-Subject: Re: 2.6.14 X spinning in the kernel
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Max Krasnyansky <maxk@qualcomm.com>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, hugh@veritas.com,
-       Dave Airlie <airlied@linux.ie>
-In-Reply-To: <1132179092.3008.9.camel@mindpipe>
-References: <1132012281.24066.36.camel@localhost.localdomain>
-	 <20051114161704.5b918e67.akpm@osdl.org>
-	 <1132015952.24066.45.camel@localhost.localdomain>
-	 <20051114173037.286db0d4.akpm@osdl.org> <437A6609.4050803@us.ibm.com>
-	 <437B9FAC.4090809@qualcomm.com>
-	 <1132177953.24066.80.camel@localhost.localdomain>
-	 <1132179092.3008.9.camel@mindpipe>
-Content-Type: text/plain
-Date: Wed, 16 Nov 2005 14:37:32 -0800
-Message-Id: <1132180652.24066.87.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Nov 2005 17:39:39 -0500
+Received: from web34112.mail.mud.yahoo.com ([66.163.178.110]:36519 "HELO
+	web34112.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030539AbVKPWji (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 17:39:38 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=JromwVJla0PtNT+FvBswCrO8+TlC3zPykpZpr1Wd+Rsejb9ZLpAYwQNHl/bNi5mOcnvYe7vQ15SZbuuc6w0ZhvJm36Nhdck+h366BQDZVEq3Gh504Kn5SxMyv1UtZMafcMMFVXkCgSUH+ChfZIHUDKUl7MnG+HPxi/zvZvkyC9U=  ;
+Message-ID: <20051116223937.28115.qmail@web34112.mail.mud.yahoo.com>
+Date: Wed, 16 Nov 2005 14:39:37 -0800 (PST)
+From: Kenny Simpson <theonetruekenny@yahoo.com>
+Subject: Re: mmap over nfs leads to excessive system load
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1132178234.8811.64.camel@lade.trondhjem.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-16 at 17:11 -0500, Lee Revell wrote:
-> On Wed, 2005-11-16 at 13:52 -0800, Badari Pulavarty wrote:
-> > 	- top loop is for for 10000 times (usec_timeout).
-> 
-> Where does usec_timeout get set anyway?  With a DRM ioctl()?  I looked
-> at the radeon source and it looks like it defaults to 100000 (not
-> 10000).  And I can't see where it ever gets set to anything but the
-> default.
-> 
-> Lee
+--- Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+> I'm getting lost here. Please could you spell out the testcases that are
+> not working.
 
-Don't know. I added a printk() and it shows
+I've redone my test cases and have confirmed that O_DIRECT with pwrite64 triggers the bad
+condition.
 
-Nov 16 11:43:51 elm3b23 kernel: usec timeout 10000
+The cases that are fine are:
+  pwrite64
+  ftruncate with O_DIRECT
+  ftruncate
 
-Thanks,
-Badari
+Also, when the system is in this state, if I try to 'ls' the file,
+the 'ls' process becomes stuck in state D in sync_page.  stracing the 'ls'
+shows it is in a call to stat64.
 
+-Kenny
+
+
+
+		
+__________________________________ 
+Yahoo! FareChase: Search multiple travel sites in one click.
+http://farechase.yahoo.com

@@ -1,78 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030456AbVKPTwU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030457AbVKPTys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030456AbVKPTwU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 14:52:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030457AbVKPTwU
+	id S1030457AbVKPTys (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 14:54:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030459AbVKPTys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 14:52:20 -0500
-Received: from atlrel7.hp.com ([156.153.255.213]:49029 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S1030456AbVKPTwT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 14:52:19 -0500
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: "Gabriel A. Devenyi" <ace@staticwave.ca>
-Subject: Re: [RESEND] [PATCH] drivers/acpi/asus_acpi.c unsigned comparison
-Date: Wed, 16 Nov 2005 12:52:08 -0700
-User-Agent: KMail/1.8.2
-Cc: sziwan@users.sourceforge.net, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net,
-       Karol Kozimor <sziwan@users.sourceforge.net>,
-       Julien Lerouge <julien.lerouge@free.fr>,
-       acpi4asus-user@lists.sourceforge.net
-References: <200511121616.14940.ace@staticwave.ca>
-In-Reply-To: <200511121616.14940.ace@staticwave.ca>
+	Wed, 16 Nov 2005 14:54:48 -0500
+Received: from xproxy.gmail.com ([66.249.82.205]:14267 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030457AbVKPTyr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 14:54:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ji3SXgfRJ3f4iIdJX+Aqag7gaQ6cSL29cuxfbYquK5JwhgAghIBWOOLo7Vx1q7SHLVfDUBqE5IfUFNbKZReUpU/2raVQsr/4X07KzyvFMnNTUMtIWRMsKGKiHeFY+AlMhq/0Xk2nRpkiaa3V+TuPnr80Dk3aJElr1ShIbmuA6Es=
+Message-ID: <5bdc1c8b0511161154y374b131jaa6c78badc221dd0@mail.gmail.com>
+Date: Wed, 16 Nov 2005 11:54:47 -0800
+From: Mark Knecht <markknecht@gmail.com>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Subject: Re: 2.6.15-rc1 - NForce4 PCI-E agpgart support?
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200511161849.51319.s0348365@sms.ed.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200511161252.08927.bjorn.helgaas@hp.com>
+References: <5bdc1c8b0511160650k4a9e0575h29403a5de47af952@mail.gmail.com>
+	 <200511161802.47244.s0348365@sms.ed.ac.uk>
+	 <5bdc1c8b0511161025q20569fa4hd8c187503e9af1c2@mail.gmail.com>
+	 <200511161849.51319.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 12 November 2005 2:16 pm, Gabriel A. Devenyi wrote:
-> It helps if I attach the patch.
+On 11/16/05, Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+> On Wednesday 16 November 2005 18:25, Mark Knecht wrote:
+> > On 11/16/05, Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+> > > On Wednesday 16 November 2005 15:09, Mark Knecht wrote:
+> [snip]
+> > > >
+> > > > Is there any requirement/need/value for something like a PCI-E-gart?
+> > > > Or does this relocation requirement go out the window somehow when a
+> > > > graphics device moves to PCI-Express?
+> > >
+> > > Yes, you don't need it with PCIe.
+> > >
+> > > --
+> > > Cheers,
+> > > Alistair.
+> >
+> > Thanks Alistair.
+> >
+> > So, should I be able to see better grapohics performance on my Radeon
+> > PCI-E device with 2.6.15-rc1? Are there setups I should test for you
+> > guys? (I'm not a developer.)
+>
+> I think the latest drm tree (which might be part of -rc1, I haven't checked
+> the changelogs) includes support for several PCIe radeons. Your best bet
+> would probably be to compile in DRM (kernel side), check dmesg that it's
+> detected your card, then download the latest snapshot of X11R6 6.9/7.0 and
+> build it.
+>
+> The alternative is ATI's proprietary driver which probably already supports
+> your card.
 
-And send it to the right places (copied, from MAINTAINERS).
+Thanks. I'll see if this old guitar player can get all of that done.
 
-> proc_write_brn, and proc_write_disp both use a parameter "count" to store the result from parse_arg.
-> The return of parse_arg is an int, but count is declared as an unsigned int, and later checked versus zero,
-> which is meaningless. This patch fixes the declaration of count in both functions.
-> 
-> Thanks to LinuxICC (http://linuxicc.sf.net)
-> 
-> Signed-off-by: Gabriel A. Devenyi <ace@staticwave.ca>
-> 
-> diff --git a/drivers/acpi/asus_acpi.c b/drivers/acpi/asus_acpi.c
-> index fec895a..9dfd0cd 100644
-> --- a/drivers/acpi/asus_acpi.c
-> +++ b/drivers/acpi/asus_acpi.c
-> @@ -748,7 +748,7 @@ proc_read_brn(char *page, char **start, 
->  
->  static int
->  proc_write_brn(struct file *file, const char __user * buffer,
-> -	       unsigned long count, void *data)
-> +	       long count, void *data)
->  {
->  	int value;
->  
-> @@ -798,7 +798,7 @@ proc_read_disp(char *page, char **start,
->   */
->  static int
->  proc_write_disp(struct file *file, const char __user * buffer,
-> -		unsigned long count, void *data)
-> +		long count, void *data)
->  {
->  	int value;
->  
-> 
-> 
-> -- 
-> Gabriel A. Devenyi
-> ace@staticwave.ca
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Cheers,
+Mark

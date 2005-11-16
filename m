@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030539AbVKPWjj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030541AbVKPWkX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030539AbVKPWjj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 17:39:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030541AbVKPWjj
+	id S1030541AbVKPWkX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 17:40:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030543AbVKPWkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 17:39:39 -0500
-Received: from web34112.mail.mud.yahoo.com ([66.163.178.110]:36519 "HELO
-	web34112.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030539AbVKPWji (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 17:39:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=JromwVJla0PtNT+FvBswCrO8+TlC3zPykpZpr1Wd+Rsejb9ZLpAYwQNHl/bNi5mOcnvYe7vQ15SZbuuc6w0ZhvJm36Nhdck+h366BQDZVEq3Gh504Kn5SxMyv1UtZMafcMMFVXkCgSUH+ChfZIHUDKUl7MnG+HPxi/zvZvkyC9U=  ;
-Message-ID: <20051116223937.28115.qmail@web34112.mail.mud.yahoo.com>
-Date: Wed, 16 Nov 2005 14:39:37 -0800 (PST)
-From: Kenny Simpson <theonetruekenny@yahoo.com>
-Subject: Re: mmap over nfs leads to excessive system load
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <1132178234.8811.64.camel@lade.trondhjem.org>
+	Wed, 16 Nov 2005 17:40:22 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:36524 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S1030541AbVKPWkU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 17:40:20 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: ncunningham@cyclades.com
+Subject: Re: [linux-pm] [RFC] userland swsusp
+Date: Wed, 16 Nov 2005 23:41:03 +0100
+User-Agent: KMail/1.8.3
+Cc: Pavel Machek <pavel@suse.cz>, Greg KH <greg@kroah.com>,
+       "Gross, Mark" <mark.gross@intel.com>, Dave Jones <DaveJ@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+References: <F760B14C9561B941B89469F59BA3A8470BDD12EB@orsmsx401.amr.corp.intel.com> <20051116220500.GF12505@elf.ucw.cz> <1132175574.25230.111.camel@localhost>
+In-Reply-To: <1132175574.25230.111.camel@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511162341.04652.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> I'm getting lost here. Please could you spell out the testcases that are
-> not working.
+Hi,
 
-I've redone my test cases and have confirmed that O_DIRECT with pwrite64 triggers the bad
-condition.
+On Wednesday, 16 of November 2005 22:13, Nigel Cunningham wrote:
+> On Thu, 2005-11-17 at 09:05, Pavel Machek wrote:
+}-- snip --{
+> > So... to get 225 patches in, you'll need to explain that
+> > userland-swsusp can't work. If you can do that, please be nice and do
+> > it soon, so that I don't waste too much time on userland-swsusp.
+> 
+> I thought Dave already did that.
 
-The cases that are fine are:
-  pwrite64
-  ftruncate with O_DIRECT
-  ftruncate
+Not as far as I'm concerned.  He criticised the implementation,
+which I generally agree with, but IMO the overall idea is not wrong.
 
-Also, when the system is in this state, if I try to 'ls' the file,
-the 'ls' process becomes stuck in state D in sync_page.  stracing the 'ls'
-shows it is in a call to stat64.
+BTW, you don't need to export the page flags, use /dev/kmem etc. to implement
+it.  The only concern that I have wrt it is the writing of the image _after_ the
+system has been snapshotted.
 
--Kenny
-
-
-
-		
-__________________________________ 
-Yahoo! FareChase: Search multiple travel sites in one click.
-http://farechase.yahoo.com
+Greetings,
+Rafael

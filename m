@@ -1,69 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030248AbVKPJLY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030242AbVKPJLS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030248AbVKPJLY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 04:11:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030251AbVKPJLY
+	id S1030242AbVKPJLS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 04:11:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030248AbVKPJLS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 04:11:24 -0500
-Received: from webmailv3.ispgateway.de ([80.67.16.113]:22246 "EHLO
-	webmailv3.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1030248AbVKPJLW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 04:11:22 -0500
-Message-ID: <1132132269.437af7ad5f8c4@www.domainfactory-webmail.de>
-Date: Wed, 16 Nov 2005 10:11:09 +0100
-From: Clemens Ladisch <clemens@ladisch.de>
-To: Markus Rechberger <mrechberger@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: snd_usb_audio
-References: <d9def9db0511151518u10342e79r2a980683642051ff@mail.gmail.com>
-In-Reply-To: <d9def9db0511151518u10342e79r2a980683642051ff@mail.gmail.com>
+	Wed, 16 Nov 2005 04:11:18 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:38626
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1030242AbVKPJLQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 04:11:16 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Miklos Szeredi <miklos@szeredi.hu>
+Subject: Re: [PATCH 12/18] shared mount handling: bind and rbind
+Date: Wed, 16 Nov 2005 03:10:24 -0600
+User-Agent: KMail/1.8
+Cc: a1426z@gawab.com, torvalds@osdl.org, linuxram@us.ibm.com,
+       viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+References: <E1EZInj-0001Ez-AV@ZenIV.linux.org.uk> <200511160835.28636.a1426z@gawab.com> <E1EcIVw-0005ZH-00@dorka.pomaz.szeredi.hu>
+In-Reply-To: <E1EcIVw-0005ZH-00@dorka.pomaz.szeredi.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.8
-X-Originating-IP: 213.238.46.206
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511160310.24807.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Markus Rechberger wrote:
-> finally the em28xx driver made it into the kerneltree, but one
-> problem still remains
-> the snd_usb_audio driver.
+On Wednesday 16 November 2005 02:19, Miklos Szeredi wrote:
+> > > This is why we have "pivot_root()" and "chroot()", which can both be
+> > > used to do what you want to do. You mount the new root somewhere else,
+> > > and then you chroot (or pivot-root) to it. And THEN you do 'chdir("/")'
+> > > to move the cwd into the new root too (and only at that point have you
+> > > "lost" the old root - although you can actually get it back if you have
+> > > some file descriptor open to it).
+> >
+> > Wouldn't this constitute a security flaw?
+> >
+> > Shouldn't chroot jail you?
 >
-> The problem with the snd_usb_audio driver is that it only supports
-> up to 10 isochronous packets.
-
-This is packets per URB; we typically have 8 URBs.
-
-> If people watch TV using such a framegrabber device and set audio
-> to > 8000hz the video isoc transfer will break and the video will
-> stop.
-
-What exactly breaks?  Are you using playback or capture?
-
-If there is an underrun when starting a _playback_ stream, then it's a
-known bug that has been fixed in 2.6.15-rc1.
-
-> regarding usbaudio.c (in 2.6.14):
-> #define MAX_PACKS       10
-> #define MAX_PACKS_HS    (MAX_PACKS * 8) /* in high speed mode */
+> No, chroot should just change the root.
 >
-> MAX_PACKS is the upper limit that is adjustable, the second one
-> isn't used at all
->
-> an easy hack would be to allow up to 100 packets but I also have a
-> usb 1.1 soundblaster that might have problems with too many packets.
->
-> The correct value for em28xx devices is around 80 packets.
+> If you don't want to be able to get back the old root, just close all
+> file descriptors _in addition_ to chroot() and chdir().
 
-Did you test this?  Capturing doesn't use MAX_PACKS.
+If you try the chdir by filedescriptor trick on the stdin/stdout/stderr fed 
+into PID 1 when it's started up by the kernel, which filesystem do you wind 
+up in?  (rootfs?)
 
-> does anyone know more about the packet limitations on USB 1.1 and
-> 2.0 devices?
+I ask because switch_root redoes those to point to /dev/console from the real 
+root (presumably for security reasons), and this happens _before_ the init on 
+the real root gets called, and thus before the real root gets to populate 
+its' own dynamic /dev.
 
-The only limitation are the host controller drivers.
+I suppose initramfs could make a temporary /dev, do the mknods for console and 
+the real root, and then mount --move this tmpdir to the real root's /dev once 
+that's available (and then let the real root's udev populate it the rest of 
+the way).  Or the real root could have a hard /dev/console living in the 
+directory that's going to get overmounted by tmpfs later.  Or just leave 
+initramfs accessible until init can switch consoles...
 
+Sigh.  I need to document the requirements here...
 
-HTH
-Clemens
-
+Rob

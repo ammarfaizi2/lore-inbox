@@ -1,49 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030557AbVKPXAJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030560AbVKPXAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030557AbVKPXAJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 18:00:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030558AbVKPXAJ
+	id S1030560AbVKPXAi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 18:00:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030562AbVKPXAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 18:00:09 -0500
-Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:56035
+	Wed, 16 Nov 2005 18:00:38 -0500
+Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:60643
 	"EHLO pinky.shadowen.org") by vger.kernel.org with ESMTP
-	id S1030557AbVKPXAH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 18:00:07 -0500
-Date: Wed, 16 Nov 2005 22:59:53 +0000
+	id S1030560AbVKPXA2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 18:00:28 -0500
+Date: Wed, 16 Nov 2005 23:00:23 +0000
 To: Mike Kravetz <kravetz@us.ibm.com>
 Cc: Andy Whitcroft <apw@shadowen.org>, Anton Blanchard <anton@samba.org>,
        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: [PATCH 0/3] SPARSEMEM: pfn_to_nid implementation
-Message-ID: <exportbomb.1132181992@pinky>
-References: <20051115221003.GA2160@w-mikek2.ibm.com>
+Subject: [PATCH 3/3] sparse provide pfn_to_nid
+Message-ID: <20051116230023.GA16493@shadowen.org>
+References: <exportbomb.1132181992@pinky>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-InReply-To: <20051115221003.GA2160@w-mikek2.ibm.com>
+InReply-To: <exportbomb.1132181992@pinky>
 User-Agent: Mutt/1.5.9i
 From: Andy Whitcroft <apw@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have reviewed the uses of pfn_to_nid() in 2.6.14-mm2.  The only
-user of the non-init pfn_to_nid is the one in check_pte_range().
-So we simply need to profide a non-early pfn_to_nid() implementation
-for SPARSEMEM.  Whilst reviewing these interfaces I found two
-alternative dependant interfaces which are not used.
+sparsemem: provide pfn_to_nid
 
-Following this message are three patches:
+Before SPARSEMEM is initialised we cannot provide an efficient
+pfn_to_nid() implmentation; before initialisation is complete we use
+early_pfn_to_nid() to provide location information.  Until recently
+there was no non-init user of this functionality.  Provide a post
+init pfn_to_nid() implementation.
 
-kvaddr_to_nid-not-used-in-common-code: removes the unused interface
-kvaddr_to_nid().
+Note that this implmentation assumes that the pfn passed has
+been validated with pfn_valid().  The current single user of this
+function already has this check.
 
-pfn_to_pgdat-not-used-in-common-code: removes the unused interface
-pfn_to_pgdat().
-
-sparse-provide-pfn_to_nid: provides pfn_to_nid() for SPARSEMEM.
-Note that this implmentation assumes the pfn has been validated
-prior to use.  The only intree user of this call does this.
-We perhaps need to make this part of the signature for this function.
-
-Mike, how does this look to you?
-
--apw
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+---
+ mmzone.h |   13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
+diff -upN reference/include/linux/mmzone.h current/include/linux/mmzone.h
+--- reference/include/linux/mmzone.h
++++ current/include/linux/mmzone.h
+@@ -598,14 +598,11 @@ static inline int pfn_valid(unsigned lon
+ 	return valid_section(__nr_to_section(pfn_to_section_nr(pfn)));
+ }
+ 
+-/*
+- * These are _only_ used during initialisation, therefore they
+- * can use __initdata ...  They could have names to indicate
+- * this restriction.
+- */
+-#ifdef CONFIG_NUMA
+-#define pfn_to_nid		early_pfn_to_nid
+-#endif
++#define pfn_to_nid(pfn)							\
++({									\
++ 	unsigned long __pfn = (pfn);                                    \
++	page_to_nid(pfn_to_page(pfn));					\
++})
+ 
+ #define early_pfn_valid(pfn)	pfn_valid(pfn)
+ void sparse_init(void);

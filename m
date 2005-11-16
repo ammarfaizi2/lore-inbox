@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965233AbVKPEfv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965221AbVKPEcg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965233AbVKPEfv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 23:35:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965239AbVKPEfv
+	id S965221AbVKPEcg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 23:32:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965239AbVKPEcg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 23:35:51 -0500
-Received: from MailBox.iNES.RO ([80.86.96.21]:48807 "EHLO mailbox.ines.ro")
-	by vger.kernel.org with ESMTP id S965233AbVKPEfu (ORCPT
+	Tue, 15 Nov 2005 23:32:36 -0500
+Received: from holomorphy.com ([66.93.40.71]:16009 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S965221AbVKPEcf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 23:35:50 -0500
-Subject: Re: [linux-pm] [RFC] userland swsusp
-From: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Dave Jones <davej@redhat.com>, kernel list <linux-kernel@vger.kernel.org>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>
-In-Reply-To: <20051115233201.GA10143@elf.ucw.cz>
-References: <20051115212942.GA9828@elf.ucw.cz>
-	 <20051115222549.GF17023@redhat.com>  <20051115233201.GA10143@elf.ucw.cz>
-Content-Type: text/plain; charset=utf-8
-Organization: iNES Group
-Date: Wed, 16 Nov 2005 06:35:30 +0200
-Message-Id: <1132115730.2499.37.camel@localhost>
+	Tue, 15 Nov 2005 23:32:35 -0500
+Date: Tue, 15 Nov 2005 20:31:52 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Kenny Simpson <theonetruekenny@yahoo.com>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: mmap over nfs leads to excessive system load
+Message-ID: <20051116043152.GF6916@holomorphy.com>
+References: <20051115224645.27832.qmail@web34103.mail.mud.yahoo.com> <20051115234731.9539.qmail@web34105.mail.mud.yahoo.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 (2.4.1-4) 
-Content-Transfer-Encoding: 8bit
-X-BitDefender-Scanner: Clean, Agent: BitDefender Milter 1.6.2 on MailBox.iNES.RO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051115234731.9539.qmail@web34105.mail.mud.yahoo.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-În data de Mi, 16-11-2005 la 00:32 +0100, Pavel Machek a scris:
-> ...but how do you provide nice, graphical progress bar for swsusp
-> without this? People want that, and "esc to abort", compression,
-> encryption. Too much to be done in kernel space, IMNSHO.
+On Tue, Nov 15, 2005 at 03:47:30PM -0800, Kenny Simpson wrote:
+> CPU: P4 / Xeon with 2 hyper-threads, speed 2658.47 MHz (estimated)
+> Counted GLOBAL_POWER_EVENTS events (time during which processor is not stopped) with a unit mask
+> of 0x01 (mandatory) count 100000
+> samples  %        symbol name
+> 412585   14.6687  find_get_pages_tag
+> 343898   12.2267  mpage_writepages
+> 290144   10.3155  release_pages
+> 288631   10.2617  unlock_page
+> 286181   10.1746  pci_conf1_write
+> 267619    9.5147  clear_page_dirty_for_io
+> 128128    4.5554  __lookup_tag
+> 120895    4.2982  page_waitqueue
+> 52739     1.8750  _spin_lock_irqsave
+> 43623     1.5509  skb_copy_bits
+> 30157     1.0722  __wake_up_bit
+> 29973     1.0656  _read_lock_irqsave
 
-Pavel, you really should _listen_ when someone else is talking about the
-same things in different implementations. suspend2 has this feature
-(nice graphical progress bars in userspace) for a long time now and it's
-compatible with the fedora kernels.
-
-Why don't you and Nigel (of suspend2) can just work together on this ?
-It's a shame that much work is wasted in duplicated effort.
-
--- 
-Cioby
+67%, or 2/3 of the samples, are in the top 6 functions. Have you tried
+instruction-level profiling? It would be interesting to see what
+codepaths within the functions are the largest offenders.
 
 
+-- wli

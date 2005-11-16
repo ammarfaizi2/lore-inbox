@@ -1,67 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965094AbVKPAGM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965098AbVKPAOY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965094AbVKPAGM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 19:06:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965095AbVKPAGM
+	id S965098AbVKPAOY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 19:14:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965099AbVKPAOY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 19:06:12 -0500
-Received: from mailfe06.tele2.fr ([212.247.154.172]:33505 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S965094AbVKPAGL (ORCPT
+	Tue, 15 Nov 2005 19:14:24 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:52030 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965098AbVKPAOX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 19:06:11 -0500
-X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
-Date: Wed, 16 Nov 2005 01:05:49 +0100
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: Jason Dravet <dravet@hotmail.com>
-Cc: 7eggert@gmx.de, adaplas@gmail.com, torvalds@osdl.org, akpm@osdl.org,
-       davej@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] vgacon: Workaround for resize bug in some chipsets
-Message-ID: <20051116000549.GC5080@bouh.residence.ens-lyon.fr>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	Jason Dravet <dravet@hotmail.com>, 7eggert@gmx.de,
-	adaplas@gmail.com, torvalds@osdl.org, akpm@osdl.org,
-	davej@redhat.com, linux-kernel@vger.kernel.org
-References: <E1EbaZH-0000cM-LC@be1.lrz> <BAY103-F21A2AF88D83C3CE3CAEE19DF5A0@phx.gbl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <BAY103-F21A2AF88D83C3CE3CAEE19DF5A0@phx.gbl>
-User-Agent: Mutt/1.5.9i-nntp
+	Tue, 15 Nov 2005 19:14:23 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:x-enigmail-supports:content-type:content-transfer-encoding;
+        b=MaG4jKw+rDNlz/8j6ZUnKidk54v1P9dvqvMxOOAFh9dkZvttgOO5RwZ016NAmBYJjCWVKcGaUb2Yy19XM/Ldfc/cFaHNFx5EoPZQAFET/oDoeFQkbFNjP8RUQb/zWSsBZLNTYcfNiOAFt2rXmIu6sM/2fdAaQPsVGPl/glCBwu8=
+Message-ID: <437A7A58.8050209@gmail.com>
+Date: Wed, 16 Nov 2005 01:16:24 +0100
+From: Luca Falavigna <dktrkranz@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: it, it-it, en-us, en
+MIME-Version: 1.0
+To: Daniel Walker <dwalker@mvista.com>, Ingo Molnar <mingo@elte.hu>
+CC: john cooper <john.cooper@timesys.com>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] Softlockup detected with linux-2.6.14-rt6
+References: <4378B48E.6010006@gmail.com> <20051115153257.GA9727@elte.hu> <437A14FB.8050206@timesys.com> <20051115200010.GA13802@elte.hu> <Pine.LNX.4.64.0511151206000.29907@dhcp153.mvista.com>
+In-Reply-To: <Pine.LNX.4.64.0511151206000.29907@dhcp153.mvista.com>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Jason Dravet, le Mon 14 Nov 2005 09:27:51 -0600, a écrit :
-> >Jason Dravet <dravet@hotmail.com> wrote:
-> >
-> >> When I run stty rows 20 I get a screen of 80x20.  I can see the top 10 
-> >rows
-> >> and the bottom 10 rows are invisible.
-> >
-> >I asume your VGA indicates that it'll divide it's scanline counter by 2.
-> >Please add a printk("vgacon: mode=%2.2x\n", mode) before line 512 and 
-> >report
-> >the value. A real fix will depend on this value. In the meantime, removing
-> >the lines 512 and 513 from the original file should be a temporary fix.
-> 
-> Here is the result from the printk you requested:
-> vgacon: mode=a3
-> 
-> I commented out lines 512 and 513 and the problem remains.
+Daniel Walker ha scritto:
+|
+| Wasn't this thread related to a real lock up? I thought Luca said that
+| the stack trace came from his printer.
+|
+| I thought it might be related to the __delay troubles ..
+|
+| Daniel
 
-Really strange...
-
-At that same line, could you try adding this:
-
-printk("vgacon: y=%d fonth=%d deffh=%d vidfh=%d scanl=%d\n", height, c->vc_font.height, vga_default_font_height, vga_video_font_height, vga_scan_lines);
-outb_p(VGA_CRTC_OVERFLOW, vga_video_port_reg);
-printk("vgacon: overflow %02x\n",inb_p(vga_video_port_val));
-outb_p(VGA_CRTC_V_SYNC_END, vga_video_port_reg);
-printk("vgacon: vsync_end %02x\n",inb_p(vga_video_port_val));
-outb_p(VGA_CRTC_V_DISP_END, vga_video_port_reg);
-printk("vgacon: vdisp_end %02x\n",inb_p(vga_video_port_val));
+Yes, stack trace was generated by console line printer because system
+was completely stucked.
+Actually I am testing linux-2.6.14-rt13. If this problem come out again,
+I will notify you ASAP.
 
 Regards,
-Samuel
+- --
+					Luca
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iQEVAwUBQ3p6VpK+HIH6ZZ2zAQK/Owf9HvYGrO5IRZFuHByM/KlhoZ/5Abc2vSsk
+/J4aZAsWOSlJOC55N6PsTa5iDIGa7ddKH4ieb1ckNGxUxc8baFSCiuWq/dJta57T
+VRdkh588nPWaSQ9lIQSb5jy4RP8J8uyPc+FQVs//W+sj5YtXsikcB7Jh70GOBKGD
+VOdMTI0bTmD/GahNwGcLGbZDGrVDvfwT0t9tXqCyC4SrQhQfWjyExYArej1hfACL
+xAAM0WTNoi9e1DTeq9YSBXQnfTWj0eyjIWaRNhDcIjPBk3IPumF2xIPlg8nUHpZE
+gazTuzSzZNerXQV62gof8opQUfrLdP/9XR57kRdw0fGRo06a1qZktA==
+=e2JM
+-----END PGP SIGNATURE-----

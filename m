@@ -1,54 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030351AbVKPO6y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030352AbVKPPBo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030351AbVKPO6y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 09:58:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030352AbVKPO6y
+	id S1030352AbVKPPBo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 10:01:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030360AbVKPPBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 09:58:54 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:37576 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030351AbVKPO6x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 09:58:53 -0500
-Subject: Re: 2.6.15-rc1 - NForce4 PCI-E agpgart support?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Mark Knecht <markknecht@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <5bdc1c8b0511160650k4a9e0575h29403a5de47af952@mail.gmail.com>
-References: <5bdc1c8b0511160650k4a9e0575h29403a5de47af952@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 16 Nov 2005 15:58:21 +0100
-Message-Id: <1132153102.2834.37.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 16 Nov 2005 10:01:44 -0500
+Received: from web34113.mail.mud.yahoo.com ([66.163.178.111]:65108 "HELO
+	web34113.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030352AbVKPPBn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 10:01:43 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=VyUkfaQdJFKyMnKADUPtzYC/532ebrRTSepqo+fiwXuDdKw2XRFEzdoY9WkXPYzz3EkoIRZYbu5wF79hYj95yBncCoTmfNTh72hCMngUXszmMrpxxqvpOxHfZT6kxO0lxSCc07i/X3qKWThXsWVdDT1UPWgfPrXo4/6ZFRuBVsg=  ;
+Message-ID: <20051116150141.29549.qmail@web34113.mail.mud.yahoo.com>
+Date: Wed, 16 Nov 2005 07:01:40 -0800 (PST)
+From: Kenny Simpson <theonetruekenny@yahoo.com>
+Subject: Re: mmap over nfs leads to excessive system load
+To: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Andrew Morton <akpm@osdl.org>
+Cc: Kenny Simpson <theonetruekenny@yahoo.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1132149812.8812.16.camel@lade.trondhjem.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-16 at 06:50 -0800, Mark Knecht wrote:
-> Hi,
->    I downloaded and built 2.6.15-rc1 as a test assuming Ingo will
-> release -rt support for this one of these days. (No rush Ingo!) It
-> booted on my AMD64 machine and is running fine AFAICT.
-> 
->    One thing I was expecting to see was agpgart support for the
-> NForce4 chipset. Is this something that's coming or am I missing where
-> the configuration is done?
-> 
->    I have a PCI-Express based Radeon and would like to get better
-> performance. I'm presuming that agpgart support is part of that
-> solution? (As it was on earlier architectures?)
+--- Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+> Anyhow, does the following patch help?
 
-I'm pretty sure PCI-Express and AGP are mutually exclusive....
+Unfortunately, not:
+
+samples  %        symbol name
+545009   15.2546  find_get_pages_tag
+450595   12.6120  mpage_writepages
+383196   10.7255  release_pages
+381479   10.6775  unlock_page
+351513    9.8387  clear_page_dirty_for_io
+317784    8.8947  pci_conf1_write
+167918    4.7000  __lookup_tag
+160701    4.4980  page_waitqueue
+59142     1.6554  _spin_lock_irqsave
+47655     1.3338  skb_copy_bits
+39136     1.0954  __wake_up_bit
+38143     1.0676  _read_lock_irqsave
 
 
+With reducing the window size to 32k, things aren't much different:
+samples  %        symbol name
+474589   21.2001  find_get_pages_tag
+370512   16.5509  mpage_writepages
+310556   13.8727  release_pages
+302571   13.5160  unlock_page
+286541   12.7999  clear_page_dirty_for_io
+119717    5.3478  page_waitqueue
+109920    4.9102  __lookup_tag
+33313     1.4881  pci_conf1_write
+29198     1.3043  __wake_up_bit
+27075     1.2095  _read_lock_irqsave
+25009     1.1172  _read_unlock_irq
+
+... except the performance is much worse than with the 2M buffer (hence the 2M choice).  With the
+smaller buffer, the throughput starts at 8M/sec and quickly drops to 1M/sec.
+
+-Kenny
+
+
+
+		
+__________________________________ 
+Yahoo! FareChase: Search multiple travel sites in one click.
+http://farechase.yahoo.com

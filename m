@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965243AbVKPEAJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965235AbVKPEDY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965243AbVKPEAJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 23:00:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965242AbVKPEAJ
+	id S965235AbVKPEDY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 23:03:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965241AbVKPEDX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 23:00:09 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:14786 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965237AbVKPEAG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 23:00:06 -0500
-Date: Wed, 16 Nov 2005 03:56:50 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, netdev@vger.kernel.org,
-       jonathan@buzzard.org.uk, tlinux-users@linux.toshiba-dme.co.jp,
-       Jaroslav Kysela <perex@suse.cz>
-Subject: Re: [RFC: 2.6 patch] remove ISA legacy functions
-Message-ID: <20051116035650.GA27946@ftp.linux.org.uk>
-References: <20051110182443.514622ed.akpm@osdl.org> <20051111201849.GP5376@stusta.de> <20051111202005.GQ5376@stusta.de> <20051111203601.GR5376@stusta.de> <20051112045216.GY5376@stusta.de> <437578CD.1080501@pobox.com> <20051112051102.GF1658@parisc-linux.org> <43757D5C.8030308@pobox.com> <20051112052918.GG1658@parisc-linux.org> <20051112134820.GG7992@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051112134820.GG7992@ftp.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+	Tue, 15 Nov 2005 23:03:23 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:642 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965235AbVKPEDX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Nov 2005 23:03:23 -0500
+Date: Tue, 15 Nov 2005 20:03:19 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/8] isaectomy: toshiba.c
+In-Reply-To: <E1EcEJS-0007dd-7b@ZenIV.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0511151959270.13959@g5.osdl.org>
+References: <E1EcEJS-0007dd-7b@ZenIV.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 12, 2005 at 01:48:20PM +0000, Al Viro wrote:
-> On Fri, Nov 11, 2005 at 10:29:18PM -0700, Matthew Wilcox wrote:
-> > I think they work fine everywhere.  Adrian wants to remove the API they
-> > use.
-> > 
-> > I think this is a bad idea.  The drivers should be converted.
+
+
+On Wed, 16 Nov 2005, Al Viro wrote:
 > 
-> They are - I'll send patches later today...
+> switch from isa_read...() to ioremap() and read...()
 
-NB: never say these words on a Friday night or you'll get a visit from
-Murphy.
+Hmm.. I actually believe that the isa_read() functions are more portable 
+and easier to use than ioremap().
 
-Apologies for delay, patches sent.
+The reason? A platform will always know where any legacy ISA bus resides, 
+while the "ioremap()" thing will depend on platform PCI code to have set 
+the right offsets (and thus the resource addresses) for whatever bus the 
+PCI device is on.
+
+So doing a "ioremap(0xf0000)" is actually a harder operation at run-time 
+when you have to basically have some special case ("is this address range 
+in the ISA legacy region") than for the platform code to just always map 
+the ISA legacy region at some random offset and then doing "isa_read()" 
+from that.
+
+Is there some underlying reason you want to remove the isa_xxx stuff?
+
+		Linus

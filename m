@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030230AbVKPIkL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030211AbVKPIkz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030230AbVKPIkL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 03:40:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbVKPIkK
+	id S1030211AbVKPIkz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 03:40:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbVKPIkz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 03:40:10 -0500
-Received: from wproxy.gmail.com ([64.233.184.195]:17910 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030230AbVKPIkJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 03:40:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=E7ZDKjvzzUgafeXCe/rI/H3p3fbdmuoONp7RxErD0Nbli4BL3q/pDoud/DUljsIs0Pp/jCJrxQRmfKKqHRoqJrwazjxRops/oRydp37AV9TfaGFsoi/4ZxsUVYy8dVcbfHZTK7QkTfaG28V6V8g+LkIQAg5OrsBLuBuL4XS11mU=
-Message-ID: <cbec11ac0511160040l86523bavc04a2a950348b79d@mail.gmail.com>
-Date: Wed, 16 Nov 2005 21:40:08 +1300
-From: Ian McDonald <imcdnzl@gmail.com>
-To: Hua Feijun <hua.feijun@gmail.com>
-Subject: Re: help
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3fe1d240511160026h4a262a05u@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 16 Nov 2005 03:40:55 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:55491 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030211AbVKPIkx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 03:40:53 -0500
+Date: Wed, 16 Nov 2005 09:40:37 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Thomas Gleixner <tglx@linutronix.de>, pluto@agmk.net,
+       john cooper <john.cooper@timesys.com>,
+       Benedikt Spranger <bene@linutronix.de>,
+       Daniel Walker <dwalker@mvista.com>,
+       Tom Rini <trini@kernel.crashing.org>,
+       George Anzinger <george@mvista.com>
+Subject: Re: 2.6.14-rt13
+Message-ID: <20051116084037.GC14829@elte.hu>
+References: <20051115090827.GA20411@elte.hu> <437AABFF.2010405@cybsft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <3fe1d240511160026h4a262a05u@mail.gmail.com>
+In-Reply-To: <437AABFF.2010405@cybsft.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/16/05, Hua Feijun <hua.feijun@gmail.com> wrote:
-> Hi everybody!
-> Could anybody tell me the differentia between linux/em64t and linux/ia64?
-> Should i notice anything during migrating a project form linux/ia64 to
-> linux/em64t?
-> Thanks!!!
 
-They are two quite different processor architectures. Have a look
-using Google at AMD Opteron/Intel Pentium 4 64 bit vs Intel Itanium
-(IA64).
+* K.R. Foley <kr@cybsft.com> wrote:
 
-At the minimum you will need to recompile anything you do as they are
-incompatiable
+> >  - big RCU torture-test update (Paul E. McKenney)
+> 
+> In case anyone else makes the same mistake I did. If you are using the 
+> same config from a previous build, you may have RCU_TORTURE_TEST=Y 
+> (not module) and not even know it when running RT patches. You will 
+> however definitely notice it if you use the config to build a non RT 
+> kernel like 2.6.15-rc1. The previous RT patch defaulted 
+> RCU_TORTURE_TEST=y. By the way, the fact that I didn't even notice 
+> that the torture test was running with the RT kernel is a true measure 
+> of how well things have progressed. :-)
 
---
-Ian McDonald
-http://wand.net.nz/~iam4
-WAND Network Research Group
-University of Waikato
-New Zealand
+yeah - i left it on by default, i usually do that with new debugging 
+features, to give new code more exposure. In other words, mass 
+distributed RCU stress-testing by stealth ;-)
+
+I'll make it default-off once the RCU related changes have calmed down.  
+The rcutorture kernel threads run at nice +19 so they should be barely 
+noticeable. (except for a sudden and unexplained spike in the world's 
+power consumption, and the resulting energy crisis ;-)
+
+	Ingo

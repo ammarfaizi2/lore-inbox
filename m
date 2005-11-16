@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030561AbVKPXAs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030557AbVKPXAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030561AbVKPXAs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 18:00:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030562AbVKPXAk
+	id S1030557AbVKPXAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 18:00:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030558AbVKPXAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 18:00:40 -0500
-Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:59107
+	Wed, 16 Nov 2005 18:00:09 -0500
+Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:56035
 	"EHLO pinky.shadowen.org") by vger.kernel.org with ESMTP
-	id S1030559AbVKPXAU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 18:00:20 -0500
-Date: Wed, 16 Nov 2005 23:00:13 +0000
+	id S1030557AbVKPXAH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 18:00:07 -0500
+Date: Wed, 16 Nov 2005 22:59:53 +0000
 To: Mike Kravetz <kravetz@us.ibm.com>
 Cc: Andy Whitcroft <apw@shadowen.org>, Anton Blanchard <anton@samba.org>,
        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: [PATCH 2/3] pfn_to_pgdat not used in common code
-Message-ID: <20051116230013.GA16480@shadowen.org>
-References: <exportbomb.1132181992@pinky>
+Subject: [PATCH 0/3] SPARSEMEM: pfn_to_nid implementation
+Message-ID: <exportbomb.1132181992@pinky>
+References: <20051115221003.GA2160@w-mikek2.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-InReply-To: <exportbomb.1132181992@pinky>
+InReply-To: <20051115221003.GA2160@w-mikek2.ibm.com>
 User-Agent: Mutt/1.5.9i
 From: Andy Whitcroft <apw@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pfn_to_pgdat not used in common code
+I have reviewed the uses of pfn_to_nid() in 2.6.14-mm2.  The only
+user of the non-init pfn_to_nid is the one in check_pte_range().
+So we simply need to profide a non-early pfn_to_nid() implementation
+for SPARSEMEM.  Whilst reviewing these interfaces I found two
+alternative dependant interfaces which are not used.
 
-pfn_to_pgdat() isn't used in common code.  Remove definition.
+Following this message are three patches:
 
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
----
- mmzone.h |    5 -----
- 1 file changed, 5 deletions(-)
-diff -upN reference/include/linux/mmzone.h current/include/linux/mmzone.h
---- reference/include/linux/mmzone.h
-+++ current/include/linux/mmzone.h
-@@ -607,11 +607,6 @@ static inline int pfn_valid(unsigned lon
- #define pfn_to_nid		early_pfn_to_nid
- #endif
- 
--#define pfn_to_pgdat(pfn)						\
--({									\
--	NODE_DATA(pfn_to_nid(pfn));					\
--})
--
- #define early_pfn_valid(pfn)	pfn_valid(pfn)
- void sparse_init(void);
- #else
+kvaddr_to_nid-not-used-in-common-code: removes the unused interface
+kvaddr_to_nid().
+
+pfn_to_pgdat-not-used-in-common-code: removes the unused interface
+pfn_to_pgdat().
+
+sparse-provide-pfn_to_nid: provides pfn_to_nid() for SPARSEMEM.
+Note that this implmentation assumes the pfn has been validated
+prior to use.  The only intree user of this call does this.
+We perhaps need to make this part of the signature for this function.
+
+Mike, how does this look to you?
+
+-apw

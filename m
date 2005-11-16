@@ -1,96 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965219AbVKPDXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965216AbVKPDXa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965219AbVKPDXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Nov 2005 22:23:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965209AbVKPDW4
+	id S965216AbVKPDXa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Nov 2005 22:23:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965208AbVKPDXR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Nov 2005 22:22:56 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:4568 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S965208AbVKPDWg
+	Tue, 15 Nov 2005 22:23:17 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:8408 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S965216AbVKPDW4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Nov 2005 22:22:36 -0500
-Subject: [RFC][PATCH 3/6] PCI PM: update pci_set_power_state()
+	Tue, 15 Nov 2005 22:22:56 -0500
+Subject: [RFC][PATCH 6/6] PCI PM: pci_save/restore_state improvements
 From: Adam Belay <abelay@novell.com>
 To: Linux-pm mailing list <linux-pm@lists.osdl.org>, Greg KH <gregkh@suse.de>
 Cc: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Date: Tue, 15 Nov 2005 22:31:22 -0500
-Message-Id: <1132111882.9809.53.camel@localhost.localdomain>
+Date: Tue, 15 Nov 2005 22:31:42 -0500
+Message-Id: <1132111902.9809.59.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch updates pci_set_power_state() to use "struct pci_dev_pm".
+This patch makes some improvements to pci_save_state and
+pci_restore_state.  Instead of saving and restoring all standard
+registers (even read-only ones), it only restores necessary registers.
+Also, the command register is handled more carefully.  Let me know if
+I'm missing anything important.
 
 
---- a/drivers/pci/pm.c	2005-11-07 08:14:49.000000000 -0500
-+++ b/drivers/pci/pm.c	2005-11-07 08:13:33.000000000 -0500
-@@ -100,44 +100,32 @@
+--- a/drivers/pci/pm.c	2005-11-13 20:32:24.000000000 -0500
++++ b/drivers/pci/pm.c	2005-11-13 20:29:32.000000000 -0500
+@@ -53,10 +53,13 @@
   */
- int pci_set_power_state(struct pci_dev *dev, pci_power_t state)
+ int pci_save_state(struct pci_dev *dev)
  {
--	int pm, need_restore = 0;
--	u16 pmcsr, pmc;
-+	int need_restore = 0;
-+	struct pci_dev_pm *data = dev->pm;
-+	u16 pmcsr;
- 
- 	/* bound the state we're entering */
- 	if (state > PCI_D3hot)
- 		state = PCI_D3hot;
- 
-+	if (dev->current_state == state) 
-+		return 0;
+-	int i;
+-	/* XXX: 100% dword access ok here? */
+-	for (i = 0; i < 16; i++)
+-		pci_read_config_dword(dev, i * 4,&dev->saved_config_space[i]);
++	struct pci_dev_config * conf = &dev->saved_config;
 +
-+	if (!data)
-+		return -EIO;
++	pci_read_config_word(dev, PCI_COMMAND, &conf->command);
++	pci_read_config_byte(dev, PCI_CACHE_LINE_SIZE, &conf->cacheline_size);
++	pci_read_config_byte(dev, PCI_LATENCY_TIMER, &conf->latency_timer);
++	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &conf->interrupt_line);
 +
- 	/* Validate current state:
- 	 * Can enter D0 from any state, but if we can only go deeper 
- 	 * to sleep if we're already in a low power state
- 	 */
- 	if (state != PCI_D0 && dev->current_state > state)
- 		return -EINVAL;
--	else if (dev->current_state == state) 
--		return 0;        /* we're already there */
--
--	/* find PCI PM capability in list */
--	pm = pci_find_capability(dev, PCI_CAP_ID_PM);
--	
--	/* abort if the device doesn't support PM capabilities */
--	if (!pm)
--		return -EIO; 
--
--	pci_read_config_word(dev,pm + PCI_PM_PMC,&pmc);
--	if ((pmc & PCI_PM_CAP_VER_MASK) > 3) {
--		printk(KERN_DEBUG
--		       "PCI: %s has unsupported PM cap regs version (%u)\n",
--		       pci_name(dev), pmc & PCI_PM_CAP_VER_MASK);
--		return -EIO;
--	}
+ 	return 0;
+ }
  
- 	/* check if this device supports the desired state */
--	if (state == PCI_D1 && !(pmc & PCI_PM_CAP_D1))
--		return -EIO;
--	else if (state == PCI_D2 && !(pmc & PCI_PM_CAP_D2))
-+	if (!(dev->pm->state_mask & (1 << state)))
- 		return -EIO;
+@@ -68,10 +71,20 @@
+  */
+ int pci_restore_state(struct pci_dev *dev)
+ {
+-	int i;
++	u16 command;
++	struct pci_dev_config * conf = &dev->saved_config;
++
++	command = conf->command & ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY |
++				    PCI_COMMAND_MASTER);
++
++	pci_write_config_word(dev, PCI_COMMAND, command);
++	pci_write_config_byte(dev, PCI_CACHE_LINE_SIZE, conf->cacheline_size);
++	pci_write_config_byte(dev, PCI_LATENCY_TIMER, conf->latency_timer);
++	pci_write_config_byte(dev, PCI_INTERRUPT_PIN, conf->interrupt_line);
++	
++	pci_restore_bars(dev);
++	
  
--	pci_read_config_word(dev, pm + PCI_PM_CTRL, &pmcsr);
-+	pci_read_config_word(dev, data->pm_offset + PCI_PM_CTRL, &pmcsr);
+-	for (i = 0; i < 16; i++)
+-		pci_write_config_dword(dev,i * 4, dev->saved_config_space[i]);
+ 	return 0;
+ }
  
- 	/* If we're (effectively) in D3, force entire word to 0.
- 	 * This doesn't affect PME_Status, disables PME_En, and
-@@ -161,7 +149,7 @@
- 	}
+--- a/include/linux/pci.h	2005-11-08 17:10:22.000000000 -0500
++++ b/include/linux/pci.h	2005-11-13 20:21:20.000000000 -0500
+@@ -68,6 +68,13 @@
+ #define DEVICE_COUNT_COMPATIBLE	4
+ #define DEVICE_COUNT_RESOURCE	12
  
- 	/* enter specified state */
--	pci_write_config_word(dev, pm + PCI_PM_CTRL, pmcsr);
-+	pci_write_config_word(dev, data->pm_offset + PCI_PM_CTRL, pmcsr);
++struct pci_dev_config {
++	unsigned short	command;
++	unsigned char	cacheline_size;
++	unsigned char	latency_timer;
++	unsigned char	interrupt_line;
++};
++
+ struct pci_dev_pm {
+ 	unsigned int	pm_offset;	/* the PCI PM capability offset */
  
- 	/* Mandatory power management transition delays */
- 	/* see PCI PM 1.1 5.6.1 table 18 */
+@@ -152,7 +159,7 @@
+ 	unsigned int	is_busmaster:1; /* device is busmaster */
+ 	unsigned int	no_msi:1;	/* device may not use msi */
+ 
+-	u32		saved_config_space[16]; /* config space saved at suspend time */
++	struct pci_dev_config saved_config; /* config space saved for power management */
+ 	struct bin_attribute *rom_attr; /* attribute descriptor for sysfs ROM entry */
+ 	int rom_attr_enabled;		/* has display of the rom attribute been enabled? */
+ 	struct bin_attribute *res_attr[DEVICE_COUNT_RESOURCE]; /* sysfs file for resources */
 
 

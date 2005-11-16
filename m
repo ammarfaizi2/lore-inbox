@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030339AbVKPOEZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030319AbVKPODx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030339AbVKPOEZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 09:04:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030341AbVKPOEY
+	id S1030319AbVKPODx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 09:03:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030339AbVKPODx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 09:04:24 -0500
-Received: from ihug-mail.icp-qv1-irony1.iinet.net.au ([203.59.1.195]:39871
-	"EHLO mail-ihug.icp-qv1-irony1.iinet.net.au") by vger.kernel.org
-	with ESMTP id S1030339AbVKPOEX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 09:04:23 -0500
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-Message-ID: <437B3C62.2090803@eyal.emu.id.au>
-Date: Thu, 17 Nov 2005 01:04:18 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
+	Wed, 16 Nov 2005 09:03:53 -0500
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:39815 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S1030319AbVKPODw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 09:03:52 -0500
+Date: Wed, 16 Nov 2005 15:03:51 +0100
+From: Sander <sander@humilis.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: sander@humilis.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-mm1 libata pata_via
+Message-ID: <20051116140351.GA14284@favonius>
+Reply-To: sander@humilis.net
+References: <6397E994-0BC3-445F-BF2B-CD3D0ADB0E02@bootc.net> <20051108121318.GB23549@favonius> <1131455213.25192.26.camel@localhost.localdomain> <1131467696.25192.47.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: list linux-kernel <linux-kernel@vger.kernel.org>
-Subject: hware clock left bad after a system failure
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1131467696.25192.47.camel@localhost.localdomain>
+X-Uptime: 15:00:09 up 2 days,  3:31, 22 users,  load average: 1.19, 1.55, 1.64
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently had two cases where my machine locked up and needed
-a hard reset. The last time magic SysRq did not respond at all.
+Alan Cox wrote (ao):
+> On Maw, 2005-11-08 at 13:06 +0000, Alan Cox wrote:
+> > On Maw, 2005-11-08 at 13:13 +0100, Sander wrote:
+> > > The two pata disks are master and slave. I might try them on separate
+> > > channels later (especially if you want me to :-)
+> > 
+> > Would be interesting. It shouldn't change the behaviour but more info is
+> > good.
+> 
+> Also can you tell me if the drives are on 40 or 80 wire cables ?
 
-In these cases I found that the hware clock was set incorrectly
-and the machine comes up with a bad date. It seems that the clock
-is ahead by as much as my TZ (+10 in my case). I may be able
-to understand if it was set 10h behind (kernel set it to UTC)
-but this is the other way. The machine comes up with UTC+20.
+The drives are on a 40 wire cable. I'll change that to 80 right now.
 
-Now this is just trouble. The machine comes up and spends 15m
-fscking. I then reset the clock and reboot and it does the whole
-fsck again because it thinks the fs was not checked for eons. It
-does not understand time in the future.
+Btw, with unpatched kernel 2.6.14-mm2 I don't see the drives anymore.
 
-So the points are
-
-- why is the clock mangled in this way?
-- should e2fsck not allow future check time (maybe within some
-  limits)?
+# zgrep CONFIG_SCSI_PATA_VIA /proc/config.gz 
+CONFIG_SCSI_PATA_VIA=y
 
 -- 
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
-	attach .zip as .dat
+Humilis IT Services and Solutions
+http://www.humilis.net

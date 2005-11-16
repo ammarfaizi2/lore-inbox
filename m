@@ -1,62 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030343AbVKPOdg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030345AbVKPOgi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030343AbVKPOdg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 09:33:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030344AbVKPOdg
+	id S1030345AbVKPOgi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 09:36:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030347AbVKPOgi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 09:33:36 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:7875 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1030343AbVKPOdf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 09:33:35 -0500
-Date: Wed, 16 Nov 2005 08:33:13 -0600
-From: Robin Holt <holt@sgi.com>
-To: Christoph Hellwig <hch@infradead.org>, Paul Jackson <pj@sgi.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Simon.Derr@bull.net, steiner@sgi.com
-Subject: Re: [PATCH] cpuset export symbols gpl
-Message-ID: <20051116143313.GG4573@lnx-holt.americas.sgi.com>
-References: <20051116012254.6470.89326.sendpatchset@jackhammer.engr.sgi.com> <20051115173935.5fc75e00.akpm@osdl.org> <20051115180336.11139847.pj@sgi.com> <20051116081627.GA20555@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 16 Nov 2005 09:36:38 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:37506 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030345AbVKPOgi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 09:36:38 -0500
+From: Arnd Bergmann <arndb@de.ibm.com>
+Reply-To: arnd@arndb.de
+Organization: IBM Deutschland Entwicklung GmbH
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 1/5] spufs: The SPU file system, base
+Date: Wed, 16 Nov 2005 15:38:16 +0100
+User-Agent: KMail/1.7.2
+Cc: Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, mnutter@us.ibm.com
+References: <20051115205347.395355000@localhost> <17274.49289.583486.477211@cargo.ozlabs.ibm.com> <20051115212638.5dca4a66.akpm@osdl.org>
+In-Reply-To: <20051115212638.5dca4a66.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-In-Reply-To: <20051116081627.GA20555@infradead.org>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200511161538.17507.arndb@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 16, 2005 at 08:16:27AM +0000, Christoph Hellwig wrote:
-> On Tue, Nov 15, 2005 at 06:03:36PM -0800, Paul Jackson wrote:
-> > Andrew wrote (of exporting cpuset symbols)
-> > > We normally would do this when such modules are merged.  Do tell us more..
+On Middeweken 16 November 2005 06:26, Andrew Morton wrote:
 > > 
-> > It was an oversight not to do this when cpusets went in last year,
-> > but we didn't notice, as the loadable module we cared about had a
-> > hack in place from earlier development that avoided needing this.
+> > Why?  What have you got against MOL? :)
 > > 
-> > In cleaning this up, we realized that the module needed to access
-> > task->cpuset->cpus_allowed, and that the correct (and safe) way to
-> > do this, via cpuset_cpus_allowed(), was not available to the module.
-> > 
-> > The other 4 exports I added on general principles, but don't have
-> > any pressing need for.  The one I need is cpuset_cpus_allowed().
-> > 
-> > The loadable module in question we call 'dplace', and is used to
-> > provide fancier cpuset-relative task placement by manipulating
-> > task->cpus_allowed at exec.
 > 
-> Again, where is the module.  Please submit the change to export the
-> symbols in the same patch series as that module.  And honestly I don't
-> think it'll survive review when it's poking that deeply into cpuset
-> internals, but we'll see how to do it properly once it's sent here.
+> The export was moved to mm/memory.c.   No explanation why though...
+> 
+Sorry about the lack of explanation. There was a short discussion
+about this in August, see http://lkml.org/lkml/2005/8/8/205 :
 
-I would argue that it does not dig deeply enough.  I think it would be
-better to expand dplace to handle early-for activity.  It would be nice
-to get a hook in do_fork before the call to copy_process so we can place
-the child task struct on the destination instead of the source node.
+On Mon, 8 Aug 2005 11:42:03 -0700 (PDT), Linus Torvalds wrote: 
+> I don't see any reason not to make it global if there are two
+> architectures that need it. Especially as long as it's marked GPL-only so 
+> that people don't start misusing it.
 
-That said, I could swear that dplace or something that looks a lot like
-dplace was already posted on lkml, but I did not find it when I searched.
-Maybe my archive is missing some stuff.
+The __handle_mm_fault symbol is used by spu_base.ko because
+the DMA page fault handler calls handle_mm_fault.
 
-Robin
+Of course at the point where ppc_ksyms.c gets merged into arch/powerpc,
+there would again only be one architecture needing it...
+
+	Arnd <><

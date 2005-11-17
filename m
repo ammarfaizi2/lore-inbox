@@ -1,71 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751236AbVKQVZi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbVKQV2q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751236AbVKQVZi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 16:25:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbVKQVZi
+	id S1751265AbVKQV2q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 16:28:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbVKQV2p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 16:25:38 -0500
-Received: from smtprelay03.ispgateway.de ([80.67.18.15]:42960 "EHLO
-	smtprelay03.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1751236AbVKQVZi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 16:25:38 -0500
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 09/11] unpaged: ZERO_PAGE in VM_UNPAGED
-Date: Thu, 17 Nov 2005 22:25:26 +0100
-User-Agent: KMail/1.7.2
-Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-References: <Pine.LNX.4.61.0511171925290.4563@goblin.wat.veritas.com> <Pine.LNX.4.61.0511171938080.4563@goblin.wat.veritas.com>
-In-Reply-To: <Pine.LNX.4.61.0511171938080.4563@goblin.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1256992.g7Bujoyvzu";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200511172225.31973.ioe-lkml@rameria.de>
+	Thu, 17 Nov 2005 16:28:45 -0500
+Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:56265 "EHLO
+	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
+	id S1751265AbVKQV2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 16:28:45 -0500
+Date: Thu, 17 Nov 2005 22:28:42 +0100
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       torvalds@osdl.org
+Subject: Re: USB key generates ioctl_internal_command errors
+Message-ID: <20051117212842.GA8110@hardeman.nu>
+Mail-Followup-To: Pete Zaitcev <zaitcev@redhat.com>,
+	linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+	torvalds@osdl.org
+References: <mailman.1132184643.7273.linux-kernel2news@redhat.com> <20051116183424.5f1ebeac.zaitcev@redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="4Ckj6UjgE2iN1+kY"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20051116183424.5f1ebeac.zaitcev@redhat.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1256992.g7Bujoyvzu
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+
+--4Ckj6UjgE2iN1+kY
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-Hi Hugh,
+On Wed, Nov 16, 2005 at 06:34:24PM -0800, Pete Zaitcev wrote:
+>On Wed, 16 Nov 2005 23:52:32 +0100, David Härdeman <david@2gen.com> wrote:
+>> usb-storage: waiting for device to settle before scanning
+>>   Vendor: I0MEGA    Model: UMni1GB*IOM2K4    Rev: 1.01
+>>   Type:   Direct-Access                      ANSI SCSI revision: 02
+>> SCSI device sda: 2048000 512-byte hdwr sectors (1049 MB)
+>> sda: Write Protect is off
+>> sda: Mode Sense: 00 00 00 00
+>> sda: assuming drive cache: write through
+>> ioctl_internal_command: <8 0 0 0> return code = 8000002
+>>    : Current: sense key=0x0
+>>     ASC=0x0 ASCQ=0x0
+>> SCSI device sda: 2048000 512-byte hdwr sectors (1049 MB)
+>
+>I think it's harmless. I saw things like that, and initially I plugged
+>them with workarounds like this:
 
-On Thursday 17 November 2005 20:38, Hugh Dickins wrote:
-> It's strange enough to be looking out for anonymous pages in VM_UNPAGED
-> areas, let's not insert the ZERO_PAGE there - though whether it would
-> matter will depend on what we decide about ZERO_PAGE refcounting.
+Thanks for the pointer, and yes, it is harmless, but it floods the 
+console with the messages which hides other (potentially important) 
+messages...following your example I've made a patch which fixes the 
+problem. It's trivial so I hope It'll find it's way into the kernel 
+soon.
 
-We do we refcount ZERO_PAGE at all?
-Ok, there may be multiple, but they exist always and always at
-the same physical addresses, right?
+Re,
+David Härdeman
 
-So why do we care at all?
-Memory hotplug?
-Doesn't it suffice there, that they are reverse mappable?
-
-Aren't they a perfect candidate for a VM_UNPAGED from /dev/zero :-)
+Signed-off-by: David Härdeman <david@2gen.com>
 
 
-Regards
+--4Ckj6UjgE2iN1+kY
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline; filename="usb-iomega-umini-is-unusual.patch"
+Content-Transfer-Encoding: 8bit
 
-Ingo Oeser
+--- linux-2.6.14.2/drivers/usb/storage/unusual_devs.h.orig	2005-11-11 06:33:12.000000000 +0100
++++ linux-2.6.14.2/drivers/usb/storage/unusual_devs.h	2005-11-17 22:10:47.000000000 +0100
+@@ -1086,6 +1086,15 @@
+ 		US_SC_DEVICE, US_PR_DEVICE, NULL,
+ 		US_FL_GO_SLOW ),
+ 
++/*
++ * David Härdeman <david@2gen.com>
++ * The key makes the SCSI stack print confusing (but harmless) messages
++ */
++UNUSUAL_DEV(  0x4146, 0xba01, 0x0100, 0x0100,
++		"Iomega",
++		"Micro Mini 1GB",
++		US_SC_DEVICE, US_PR_DEVICE, NULL, US_FL_NOT_LOCKABLE ),
++
+ #ifdef CONFIG_USB_STORAGE_SDDR55
+ UNUSUAL_DEV(  0x55aa, 0xa103, 0x0000, 0x9999, 
+ 		"Sandisk",
 
-
---nextPart1256992.g7Bujoyvzu
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDfPVLU56oYWuOrkARAmeTAJ9DGZB4AMmkeqx0k7u57qOEdkuqRQCdFNP5
-EKP/7Pt2Hvv5NnbSVfsam2w=
-=gzyb
------END PGP SIGNATURE-----
-
---nextPart1256992.g7Bujoyvzu--
+--4Ckj6UjgE2iN1+kY--

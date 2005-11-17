@@ -1,43 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161067AbVKQBPU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030568AbVKQBRk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161067AbVKQBPU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 20:15:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161068AbVKQBPU
+	id S1030568AbVKQBRk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 20:17:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030583AbVKQBRk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 20:15:20 -0500
-Received: from mail.kroah.org ([69.55.234.183]:7648 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161067AbVKQBPU (ORCPT
+	Wed, 16 Nov 2005 20:17:40 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:19899 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1030568AbVKQBRk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 20:15:20 -0500
-Date: Wed, 16 Nov 2005 16:55:12 -0800
-From: Greg KH <gregkh@suse.de>
-To: David Kubicek <dave@awk.cz>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       torvalds@osdl.org, akpm@osdl.org
-Subject: Re: USB patches for 2.6.15-rc1??
-Message-ID: <20051117005512.GB15140@suse.de>
-References: <20051114200456.GA2319@kroah.com> <20051114200924.GA2531@kroah.com> <20051115084801.GA13387@awk.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051115084801.GA13387@awk.cz>
-User-Agent: Mutt/1.5.11
+	Wed, 16 Nov 2005 20:17:40 -0500
+Date: Thu, 17 Nov 2005 02:17:28 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] prefer pkg-config for the QT check 
+Message-ID: <Pine.LNX.4.61.0511170147200.861@scrub.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 15, 2005 at 09:48:01AM +0100, David Kubicek wrote:
-> may I ask you what about the "URB/buffer ring queue" patch I've
-> submitted months ago for CDC ACM modems and which you accepted into your
-> tree when Oliver sent it to you for merging like a week ago?
+Hi,
 
-It's only been in my tree for a week.  It came to me after I had done
-the big merge cycle with Linus after 2.6.14 came out.  For major changes
-to a driver like this one, I want to get some good testing in the -mm
-tree, and then it will go into mainline.
+This makes pkg-config now the prefered way to configure QT and properly 
+fixes the recent Fedora breakage and leaves the old QT detection as 
+fallback mechanism.
 
-So, it will be a few more weeks, I'll send it to Linus after 2.6.15 is
-out.
+Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 
-thanks,
+---
 
-greg k-h
+ scripts/kconfig/Makefile |   68 ++++++++++++++++++++++++++---------------------
+ 1 file changed, 39 insertions(+), 29 deletions(-)
+
+Index: linux-2.6-mm/scripts/kconfig/Makefile
+===================================================================
+--- linux-2.6-mm.orig/scripts/kconfig/Makefile	2005-11-14 18:57:59.000000000 +0100
++++ linux-2.6-mm/scripts/kconfig/Makefile	2005-11-14 21:16:58.000000000 +0100
+@@ -129,8 +129,8 @@ endif
+ HOSTCFLAGS_lex.zconf.o	:= -I$(src)
+ HOSTCFLAGS_zconf.tab.o	:= -I$(src)
+ 
+-HOSTLOADLIBES_qconf	= -L$(QTLIBPATH) -Wl,-rpath,$(QTLIBPATH) -l$(LIBS_QT) -ldl
+-HOSTCXXFLAGS_qconf.o	= -I$(QTDIR)/include -D LKC_DIRECT_LINK
++HOSTLOADLIBES_qconf	= $(KC_QT_LIBS) -ldl
++HOSTCXXFLAGS_qconf.o	= $(KC_QT_CFLAGS) -D LKC_DIRECT_LINK
+ 
+ HOSTLOADLIBES_gconf	= `pkg-config gtk+-2.0 gmodule-2.0 libglade-2.0 --libs`
+ HOSTCFLAGS_gconf.o	= `pkg-config gtk+-2.0 gmodule-2.0 libglade-2.0 --cflags` \
+@@ -139,40 +139,50 @@ HOSTCFLAGS_gconf.o	= `pkg-config gtk+-2.
+ $(obj)/qconf.o: $(obj)/.tmp_qtcheck
+ 
+ ifeq ($(qconf-target),1)
+-MOC = $(QTDIR)/bin/moc
+-QTLIBPATH = $(QTDIR)/lib
++$(obj)/.tmp_qtcheck: $(src)/Makefile
+ -include $(obj)/.tmp_qtcheck
+ 
+ # QT needs some extra effort...
+ $(obj)/.tmp_qtcheck:
+-	@set -e; for d in $$QTDIR /usr/share/qt* /usr/lib/qt*; do \
+-	  if [ -f $$d/include/qconfig.h ]; then DIR=$$d; break; fi; \
+-	done; \
+-	if [ -z "$$DIR" ]; then \
+-	  echo "*"; \
+-	  echo "* Unable to find the QT installation. Please make sure that the"; \
+-	  echo "* QT development package is correctly installed and the QTDIR"; \
+-	  echo "* environment variable is set to the correct location."; \
+-	  echo "*"; \
+-	  false; \
+-	fi; \
+-	LIBPATH=$$DIR/lib; LIB=qt; \
+-	if [ -f $$QTLIB/libqt-mt.so ] ; then \
+-		LIB=qt-mt; \
+-		LIBPATH=$$QTLIB; \
++	@set -e; echo "  CHECK   qt"; dir=""; pkg=""; \
++	pkg-config --exists qt 2> /dev/null && pkg=qt; \
++	pkg-config --exists qt-mt 2> /dev/null && pkg=qt-mt; \
++	if [ -n "$$pkg" ]; then \
++	  cflags="\$$(shell pkg-config $$pkg --cflags)"; \
++	  libs="\$$(shell pkg-config $$pkg --libs)"; \
++	  moc="\$$(shell pkg-config $$pkg --variable=prefix)/bin/moc"; \
++	  dir="$$(pkg-config $$pkg --variable=prefix)"; \
+ 	else \
+-		$(HOSTCXX) -print-multi-os-directory > /dev/null 2>&1 && \
+-		LIBPATH=$$DIR/lib/$$($(HOSTCXX) -print-multi-os-directory); \
+-		if [ -f $$LIBPATH/libqt-mt.so ]; then LIB=qt-mt; fi; \
++	  for d in $$QTDIR /usr/share/qt* /usr/lib/qt*; do \
++	    if [ -f $$d/include/qconfig.h ]; then dir=$$d; break; fi; \
++	  done; \
++	  if [ -z "$$dir" ]; then \
++	    echo "*"; \
++	    echo "* Unable to find the QT installation. Please make sure that"; \
++	    echo "* the QT development package is correctly installed and"; \
++	    echo "* either install pkg-config or set the QTDIR environment"; \
++	    echo "* variable to the correct location."; \
++	    echo "*"; \
++	    false; \
++	  fi; \
++	  libpath=$$dir/lib; lib=qt; osdir=""; \
++	  $(HOSTCXX) -print-multi-os-directory > /dev/null 2>&1 && \
++	    osdir=x$$($(HOSTCXX) -print-multi-os-directory); \
++	  test -d $$libpath/$$osdir && libpath=$$libpath/$$osdir; \
++	  test -f $$libpath/libqt-mt.so && lib=qt-mt; \
++	  cflags="-I$$dir/include"; \
++	  libs="-L$$libpath -Wl,-rpath,$$libpath -l$$lib"; \
++	  moc="$$dir/bin/moc"; \
+ 	fi; \
+-	echo "QTDIR=$$DIR" > $@; echo "QTLIBPATH=$$LIBPATH" >> $@; \
+-	echo "LIBS_QT=$$LIB" >> $@; \
+-	if [ ! -x $$DIR/bin/moc -a -x /usr/bin/moc ]; then \
++	if [ ! -x $$dir/bin/moc -a -x /usr/bin/moc ]; then \
+ 	  echo "*"; \
+-	  echo "* Unable to find $$DIR/bin/moc, using /usr/bin/moc instead."; \
++	  echo "* Unable to find $$dir/bin/moc, using /usr/bin/moc instead."; \
+ 	  echo "*"; \
+-	  echo "MOC=/usr/bin/moc" >> $@; \
+-	fi
++	  moc="/usr/bin/moc"; \
++	fi; \
++	echo "KC_QT_CFLAGS=$$cflags" > $@; \
++	echo "KC_QT_LIBS=$$libs" >> $@; \
++	echo "KC_QT_MOC=$$moc" >> $@
+ endif
+ 
+ $(obj)/gconf.o: $(obj)/.tmp_gtkcheck
+@@ -210,7 +220,7 @@ $(obj)/qconf.o: $(obj)/qconf.moc $(obj)/
+ $(obj)/gconf.o: $(obj)/lkc_defs.h
+ 
+ $(obj)/%.moc: $(src)/%.h
+-	$(MOC) -i $< -o $@
++	$(KC_QT_MOC) -i $< -o $@
+ 
+ $(obj)/lkc_defs.h: $(src)/lkc_proto.h
+ 	sed < $< > $@ 's/P(\([^,]*\),.*/#define \1 (\*\1_p)/'

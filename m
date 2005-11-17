@@ -1,41 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbVKQWIg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbVKQWPA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932282AbVKQWIg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 17:08:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbVKQWIg
+	id S932289AbVKQWPA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 17:15:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964807AbVKQWO7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 17:08:36 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:56015 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932282AbVKQWIf (ORCPT
+	Thu, 17 Nov 2005 17:14:59 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:30419 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932289AbVKQWO7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 17:08:35 -0500
+	Thu, 17 Nov 2005 17:14:59 -0500
 From: David Howells <dhowells@redhat.com>
-In-Reply-To: <25039.1132150357@warthog.cambridge.redhat.com> 
-References: <25039.1132150357@warthog.cambridge.redhat.com> 
-To: Alexander Zangerl <az@bond.edu.au>
-Cc: torvalds@osdl.org, akpm@osdl.org, keyrings@linux-nfs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Keyrings] [PATCH] Keys: Permit key expiry time to be set 
+In-Reply-To: <200511172130.jAHLUCP0010033@turing-police.cc.vt.edu> 
+References: <200511172130.jAHLUCP0010033@turing-police.cc.vt.edu>  <20051117111807.6d4b0535.akpm@osdl.org> 
+To: Valdis.Kletnieks@vt.edu
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rc1-mm1 
 X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
-Date: Thu, 17 Nov 2005 22:08:06 +0000
-Message-ID: <8585.1132265286@warthog.cambridge.redhat.com>
+Date: Thu, 17 Nov 2005 22:14:46 +0000
+Message-ID: <8752.1132265686@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I've stuck an updated keyutils tarball and SRPM on:
+Valdis.Kletnieks@vt.edu wrote:
 
-	http://people.redhat.com/~dhowells/keyutils/keyutils-0.3-2.tar.bz2 
-	http://people.redhat.com/~dhowells/keyutils/keyutils-0.3-2.src.rpm
+> Why does keyctl.c declare it as 'asmlinkage'?
 
-For those who want to play with the new facilities.
+Because it's wrong.
 
+Acked-By: David Howells <dhowells@redhat.com>
 
-Alexander Zangerl: I've incorporated my take on your patch by which
-/sbin/request-key can be made to dangle a slave program at the ends of a pair
-of pipes to do the work. The callout_info is passed to stdin and the payload
-data retrieved via stdout. You configure it by sticking a '|' symbol in front
-of the program name in /etc/request-key.conf. Can you test it please. That bit
-compiles, but I haven't had time to test it yet, so it may not work.
-
-David

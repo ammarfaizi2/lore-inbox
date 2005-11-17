@@ -1,79 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965118AbVKQXlZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965120AbVKQXmX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965118AbVKQXlZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 18:41:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965120AbVKQXlZ
+	id S965120AbVKQXmX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 18:42:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965127AbVKQXmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 18:41:25 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:21212 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S965118AbVKQXlY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 18:41:24 -0500
-Subject: Re: [RFC][PATCH 6/6] PCI PM: pci_save/restore_state improvements
-From: Adam Belay <abelay@novell.com>
-To: Greg KH <gregkh@suse.de>
-Cc: Linux-pm mailing list <linux-pm@lists.osdl.org>,
+	Thu, 17 Nov 2005 18:42:23 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:57008
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S965120AbVKQXmW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 18:42:22 -0500
+Date: Thu, 17 Nov 2005 15:41:39 -0800 (PST)
+Message-Id: <20051117.154139.97107477.davem@davemloft.net>
+To: hugh@veritas.com
+Cc: akpm@osdl.org, nickpiggin@yahoo.com.au, annabellesgarden@yahoo.de,
        linux-kernel@vger.kernel.org
-In-Reply-To: <20051116180655.GC6908@suse.de>
-References: <1132111902.9809.59.camel@localhost.localdomain>
-	 <20051116063125.GE31375@suse.de>
-	 <1132125965.3656.15.camel@localhost.localdomain>
-	 <20051116180655.GC6908@suse.de>
-Content-Type: text/plain
-Date: Thu, 17 Nov 2005 18:50:30 -0500
-Message-Id: <1132271430.3656.23.camel@localhost.localdomain>
+Subject: Re: [PATCH 03/11] unpaged: sound nopage get_page
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.61.0511171930090.4563@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0511171925290.4563@goblin.wat.veritas.com>
+	<Pine.LNX.4.61.0511171930090.4563@goblin.wat.veritas.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-16 at 10:06 -0800, Greg KH wrote:
-> On Wed, Nov 16, 2005 at 02:26:04AM -0500, Adam Belay wrote:
-> > On Tue, 2005-11-15 at 22:31 -0800, Greg KH wrote:
-> > > On Tue, Nov 15, 2005 at 10:31:42PM -0500, Adam Belay wrote:
-> > > > This patch makes some improvements to pci_save_state and
-> > > > pci_restore_state.  Instead of saving and restoring all standard
-> > > > registers (even read-only ones), it only restores necessary registers.
-> > > > Also, the command register is handled more carefully.  Let me know if
-> > > > I'm missing anything important.
-> > > > 
-> > > > 
-> > > > --- a/drivers/pci/pm.c	2005-11-13 20:32:24.000000000 -0500
-> > > > +++ b/drivers/pci/pm.c	2005-11-13 20:29:32.000000000 -0500
-> > > > @@ -53,10 +53,13 @@
-> > > >   */
-> > > >  int pci_save_state(struct pci_dev *dev)
-> > > >  {
-> > > > -	int i;
-> > > > -	/* XXX: 100% dword access ok here? */
-> > > > -	for (i = 0; i < 16; i++)
-> > > > -		pci_read_config_dword(dev, i * 4,&dev->saved_config_space[i]);
-> > > > +	struct pci_dev_config * conf = &dev->saved_config;
-> > > > +
-> > > > +	pci_read_config_word(dev, PCI_COMMAND, &conf->command);
-> > > > +	pci_read_config_byte(dev, PCI_CACHE_LINE_SIZE, &conf->cacheline_size);
-> > > > +	pci_read_config_byte(dev, PCI_LATENCY_TIMER, &conf->latency_timer);
-> > > > +	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &conf->interrupt_line);
-> > > 
-> > > Why are we saving and restoring smaller ammounts of config space now?
-> > 
-> > After looking at the spec, it seems that most of the registers we were
-> > restoring were read-only and couldn't possibly need to be restored.
-> > Also, the PCI PM spec suggests that only a subset of the registers
-> > should be restored.  Finally, things like BIST should probably never be
-> > touched.
+From: Hugh Dickins <hugh@veritas.com>
+Date: Thu, 17 Nov 2005 19:31:36 +0000 (GMT)
+
+> Something noticed when studying use of VM_RESERVED in different drivers:
+> snd_usX2Y_hwdep_pcm_vm_nopage omitted to get_page: fixed.
 > 
-> Ok, but be aware that this _might_ cause problems for some cards/drivers
-> that were relying on the old way...  As long as you don't mind me
-> assigning those bugs to you, I don't have a problem with this :)
+> And how did this work before?  Aargh!  That nopage is returning a page
+> from within a buffer allocated by snd_malloc_pages, which allocates a
+> high-order page, then does SetPageReserved on each 0-order page within.
+> 
+> That would have worked in 2.6.14, because when the area was unmapped,
+> PageReserved inhibited put_page.  2.6.15-rc1 removed that inhibition
+> (while leaving ineffective PageReserveds around for now), but it hasn't
+> caused trouble because.. we've not been freeing from VM_RESERVED at all.
+> 
+> Signed-off-by: Hugh Dickins <hugh@veritas.com>
 
-I'm probably going to regret this, but I'd be happy to take on any PCI
-PM subsystem bug reports.  Unless I forgot a register we need to
-restore, I'm not expecting this to cause too many problems.  A little
-time in -mm should shake out any issues out rather quickly.
+There is probably a lot of other grot like this in various drivers.
 
-Thanks,
-Adam
+The amazing thing about this is that all of these drivers getting
+snuffed up by VM_RESERVED issues are trying to do essentially the
+same thing.  They want to allocate some buffers, which the device
+can DMA into and out of, and mmap() those buffers into user space
+in some sane way.
 
+The video capture driver layer drivers/media/video/video-buf.c is
+probably the best known example, and all the other copies in the
+tree of this logic is some derivative.
 
+Note also that the AF_PACKET mmap() facility (in
+net/packet/af_packet.c) does this VM_RESERVED stuff, but I think since
+it never does the get_user_pages() bit like the video capture drivers
+do, it didn't trigger any of the new messages or BUG() traps.
+
+I say "I think" because I haven't tested this stuff out specifically.

@@ -1,82 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161134AbVKQE5i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161139AbVKQFfq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161134AbVKQE5i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 23:57:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161141AbVKQE5i
+	id S1161139AbVKQFfq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 00:35:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161141AbVKQFfq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 23:57:38 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:60170 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1161134AbVKQE5i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 23:57:38 -0500
-Date: Thu, 17 Nov 2005 05:38:53 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: jonathan@jonmasters.org
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ipt_ROUTE loopback
-Message-ID: <20051117043853.GH11266@alpha.home.local>
-References: <35fb2e590511161901t7a615992s123a22cd8403511d@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 17 Nov 2005 00:35:46 -0500
+Received: from wproxy.gmail.com ([64.233.184.198]:1993 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161139AbVKQFfq convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 00:35:46 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=FPgtzguL+8OX/grG3tqgLX+089oNRBzqtyXu8SuwhOL0QHIDmpY7XNnJUflT4rWTEzAo4mWmwLIKqh4I+FKlz3Wki7o5TPKgIwLiZvpazbWQT30eJSztSRdDfKBln8ukHpRy6Ub98GInXoxsAjV7Y7ojdbNBtLQmQyBpd3e6sj8=
+Message-ID: <4ae3c140511162135j7a72299eg8223dfedab8eea62@mail.gmail.com>
+Date: Thu, 17 Nov 2005 00:35:43 -0500
+From: Xin Zhao <uszhaoxin@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: nfs3 implementation issue?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <35fb2e590511161901t7a615992s123a22cd8403511d@mail.gmail.com>
-User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 17, 2005 at 03:01:46AM +0000, Jon Masters wrote:
-> Folks,
-> 
-> I'm trying to find an easy way to have a Linux box completely ignore
-> the local routing table and have traffic destined for one interface go
-> out of a loopback cable and back into the other rather than traversing
-> the local routing within the host, viz:
-> 
-> eth0
-> x.x.x.x
->    |
->    | <--- loopback cable
->    |
-> eth1
-> y.y.y.y
->
-> This is completely against normal practice, but useful for test. I've
-> so far tried playing around with iproute2 and have this evening built
-> up ipt_ROUTE, which seems more promising. I can get traffic forced out
-> of the "correct" interface and bypass the local routing table, but it
-> always has the destination MAC of the first interface when it reaches
-> the second.
-> 
-> So, I can bodge the destination MAC (I'm still deciding how to do that
-> - maybe I'll take apart ipt_ROUTE and have it do MAC rewriting too)
-> but I'm curious as to whether there's a "right" way to do this that
-> I've so far missed? I've considered using the briding code in some
-> weird kind of transparent-yet-not-really bridge setup, but I don't
-> really want to do that.
-> 
-> Any suggestions? This seems like something others must have also
-> wanted to do. I'm happy to break things in doing it, but I'm hopeful
-> for a "you missed this page...".
+In nfs/nfs3proc.c: nfs3_read_done(), I saw the following line:
 
-You missed this page...  :-)
+   struct nfs_write_data *data = (struct nfs_write_data *) task->tk_calldata;
 
-You need to use Julian Anastasov's "send-to-self" patch from ssi.bg/~ja/.
-The problem is not with ipt_route, but with the local addresses. If you
-want the packet to go out, you need to remove the local route for the
-destination. The packet will then go out, but when it will come back,
-the system won't take it because its destination won't match a local
-route. Try "ip r l t local" to see what I mean.
+I don't know why the tk_calldata is regarded as nfs_write_data instead
+of nfs_read_data. When this rpc call is set up, we put
+task->tk_calldata as a nfs_read_data object, why will it become a
+nfs_write_data after the rpc call is done?
 
-With Julian's patch, IIRC, you write '1' into /proc/sys/net/ipv4/$IF/loop,
-then you define some cross-routes for destinations with the respective
-sources from the opposite interfaces, then all packets routed out with
-a 'looped' interface address in their source will effectively go out.
+Can someone explain this a little bit?
 
-I also suggest that you get his whole '-ja' patch, and that you look
-in Documentation/networking/ip-sysctl.txt in which he adds some
-documentation about this (and I believe there was a more complete
-example on his site).
+Thanks!
 
-Good luck,
-Willy
-
+Xin

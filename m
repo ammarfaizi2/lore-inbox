@@ -1,39 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbVKQWSn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbVKQWUK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964865AbVKQWSn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 17:18:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964835AbVKQWSn
+	id S964835AbVKQWUK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 17:20:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964877AbVKQWUK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 17:18:43 -0500
-Received: from verein.lst.de ([213.95.11.210]:26592 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S964865AbVKQWSm (ORCPT
+	Thu, 17 Nov 2005 17:20:10 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:15558 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964835AbVKQWUI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 17:18:42 -0500
-Date: Thu, 17 Nov 2005 23:18:25 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Christoph Hellwig <hch@lst.de>, wein@de.ibm.com, Horst.Hummel@de.ibm.com,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/4] add compat_ioctl methods to dasd
-Message-ID: <20051117221825.GA26057@lst.de>
-References: <20051104221652.GB9384@lst.de> <20051112093340.GA15702@lst.de> <1132066277.6014.35.camel@localhost.localdomain> <20051115172438.GA10445@lst.de> <20051116084544.GA25181@lst.de> <1132230452.5463.10.camel@localhost.localdomain>
+	Thu, 17 Nov 2005 17:20:08 -0500
+Date: Thu, 17 Nov 2005 14:20:23 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: vgoyal@in.ibm.com
+Cc: linux-kernel@vger.kernel.org, fastboot@lists.osdl.org, ak@suse.de,
+       ebiederm@xmission.com
+Subject: Re: [PATCH 9/10] kdump: read previous kernel's memory
+Message-Id: <20051117142023.43764d8b.akpm@osdl.org>
+In-Reply-To: <20051117132944.GM3981@in.ibm.com>
+References: <20051117131339.GD3981@in.ibm.com>
+	<20051117131825.GE3981@in.ibm.com>
+	<20051117132004.GF3981@in.ibm.com>
+	<20051117132138.GG3981@in.ibm.com>
+	<20051117132315.GH3981@in.ibm.com>
+	<20051117132437.GI3981@in.ibm.com>
+	<20051117132557.GJ3981@in.ibm.com>
+	<20051117132659.GK3981@in.ibm.com>
+	<20051117132850.GL3981@in.ibm.com>
+	<20051117132944.GM3981@in.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1132230452.5463.10.camel@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 17, 2005 at 01:27:32PM +0100, Martin Schwidefsky wrote:
-> blkdev_ioctl is explicitly called with a NULL file pointer. That can't
-> work with block device drivers that use unlocked ioctls. We'd need to
-> create a struct file with at least a valid f_dentry->d_inode->i_bdev
-> chain in ioctl_by_bdev to make it work with unlocked ioctls. Not nice ..
+Vivek Goyal <vgoyal@in.ibm.com> wrote:
+>
+> +ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
+> +                               size_t csize, unsigned long offset, int userbuf)
+> +{
+> +	void  *vaddr;
+> +
+> +	if (!csize)
+> +		return 0;
+> +
+> +	vaddr = kmap_atomic_pfn(pfn, KM_PTE0);
+> +
+> +	if (userbuf) {
+> +		if (copy_to_user(buf, (vaddr + offset), csize)) {
+> +			kunmap_atomic(vaddr, KM_PTE0);
+> +			return -EFAULT;
 
-Yes, you're right.  Looks like we finally need to do the long-planned
-sanitizing of the blkdev ioctl interface first.
+The copy_*_user() inside kmap_atomic() is problematic.
 
-Let's drop the patch for now.
+On some configs (eg, x86, highmem) the process is running atomically, hence
+the copy_*_user() will *refuse* to fault in the user's page if it's not
+present.  Because pagefaulting involves doing things which sleep.
 
+So
+
+a) This code will generate might_sleep() warnings at runtime and
+
+b) It'll return -EFAULT for user pages which haven't been faulted in yet.
+
+
+We do all sorts of gruesome tricks in mm/filemap.c to get around all this. 
+I don't think your code is as performance-sensitive, so a suitable fix
+might be to double-copy the data.  Make sure that the same physical page is
+used as a bounce page for each copy (ie: get the caller to pass it in) and
+that page will be cache-hot and the performance should be acceptable.
+
+If it really is performance-sensitive then you'll need to play filemap.c
+games.  It'd be better to use a sleeping kmap instead, if poss.  That's
+kmap().
+
+Please send an incremental patch when it's sorted.  

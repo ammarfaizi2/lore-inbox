@@ -1,61 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932409AbVKQQeE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932414AbVKQQmn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932409AbVKQQeE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 11:34:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbVKQQeE
+	id S932414AbVKQQmn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 11:42:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932416AbVKQQmm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 11:34:04 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:37595 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932409AbVKQQeD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 11:34:03 -0500
-Date: Thu, 17 Nov 2005 22:11:55 +0530
-From: Dinakar Guniguntala <dino@in.ibm.com>
+	Thu, 17 Nov 2005 11:42:42 -0500
+Received: from smtp.mailbox.net.uk ([195.82.125.32]:35561 "EHLO
+	smtp.mailbox.co.uk") by vger.kernel.org with ESMTP id S932414AbVKQQmm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 11:42:42 -0500
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Transfer-Encoding: 7bit
+Message-Id: <0B4DF355-7EC7-4B4E-8869-44349F436624@garrett.co.uk>
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
 To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>, david singleton <dsingleton@mvista.com>
-Subject: Re: PI BUG with -rt13
-Message-ID: <20051117164155.GA3974@in.ibm.com>
-Reply-To: dino@in.ibm.com
-References: <20051117161817.GA3935@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051117161817.GA3935@in.ibm.com>
-User-Agent: Mutt/1.4.2.1i
+From: Russell Garrett <russ@garrett.co.uk>
+Subject: Strange memory usage with Opteron/NUMA
+Date: Thu, 17 Nov 2005 16:42:36 +0000
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+We have several dual-Opteron/8GB RAM systems, all of which run an  
+application (MySQL) which allocates a fixed block of 6.5GB of RAM,  
+and looking at ps confirms this. However, when running the kernel  
+(2.6.14.2) with the K8_NUMA option enabled, 2GB of swap is used (on  
+top of the 6.5GB of physical memory), although the process only  
+claims to be using 6.5GB in total. Additionally, the kernel is  
+definitely swapping this imaginary memory in and out.
 
-I also get this sometimes when running the same test
+Switching the K8_NUMA option off eliminates this.
 
-	-Dinakar
+Here is an example ps line:
 
-BUG: Unable to handle kernel NULL pointer dereference at virtual address 00000286
- printing eip:
-c012220c
-*pde = 00000000
-Oops: 0002 [#1]
-PREEMPT SMP
-Modules linked in:
-CPU:    3
-EIP:    0060:[<c012220c>]    Not tainted VLI
-EFLAGS: 00010287   (2.6.14-rt13)
-EIP is at run_timer_softirq+0x174/0x385
-eax: 00000282   ebx: 00000282   ecx: f63bde54   edx: f7f33f70
-esi: c3070fe8   edi: 00000000   ebp: c3070fe0   esp: f7f33f58
-ds: 007b   es: 007b   ss: 0068   preempt: 00000001
-Process softirq-timer/3 (pid: 31, threadinfo=f7f32000 task=f7f268d0 stack_left=7972 worst_left=-1)
-Stack: c3070fe0 c3071840 0000000f f7f32000 c307100c f7f32000 f63bde54 f63c1e54
-       0000007b f7f32000 f7f32000 c04a3380 f7f32000 c011e70a c0450788 00000001
-       f7f33fa8 fffffffd c04a3380 00000002 00000001 f7f32000 f7f4bedc c3070f8c
-Call Trace:
- [<c011e70a>] ksoftirqd+0xea/0x160 (56)
- [<c011e620>] ksoftirqd+0x0/0x160 (44)
- [<c012cda1>] kthread+0xa3/0xcd (4)
- [<c012ccfe>] kthread+0x0/0xcd (28)
- [<c0100ebd>] kernel_thread_helper+0x5/0xb (16)
-Code: 04 8b 44 24 18 8d 7c 24 18 89 79 04 89 4c 24 18 89 50 04 89 02 89 5b 04 89 5e 60 eb 7f 8b 59 14 8b 79 10 89 4d 28 8b 51
- <0>Fatal exception: panic in 5 seconds
+mysql     2395  3.5 85.1 7296648 6921696 ?   S    Nov15 101:03 /usr/ 
+local/mysql/bin/mysqld --basedir=/usr/local/mysql --datad
 
+And the associated /proc/meminfo contents:
 
+MemTotal:      8126276 kB
+MemFree:         27664 kB
+Buffers:          3644 kB
+Cached:        1042952 kB
+SwapCached:    2681912 kB
+Active:        6938484 kB
+Inactive:      1051096 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:      8126276 kB
+LowFree:         27664 kB
+SwapTotal:     5831552 kB
+SwapFree:      2915596 kB
+Dirty:             896 kB
+Writeback:         664 kB
+Mapped:        6929904 kB
+Slab:            80720 kB
+CommitLimit:   9894688 kB
+Committed_AS:  7352452 kB
+PageTables:      14592 kB
+VmallocTotal: 34359738367 kB
+VmallocUsed:      3312 kB
+VmallocChunk: 34359734971 kB
+
+Thanks in advance,
+
+Russ Garrett
+russ@last.fm

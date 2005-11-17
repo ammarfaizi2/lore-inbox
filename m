@@ -1,111 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbVLPIiE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbVLPIgt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932183AbVLPIiE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 03:38:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbVLPIiE
+	id S932181AbVLPIgt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 03:36:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbVLPIgt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 03:38:04 -0500
-Received: from rtsoft3.corbina.net ([85.21.88.6]:30591 "EHLO
-	buildserver.ru.mvista.com") by vger.kernel.org with ESMTP
-	id S932183AbVLPIiC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 03:38:02 -0500
-Message-ID: <43A27CDA.4020304@ru.mvista.com>
-Date: Fri, 16 Dec 2005 11:37:46 +0300
-From: Vitaly Wool <vwool@ru.mvista.com>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
+	Fri, 16 Dec 2005 03:36:49 -0500
+Received: from ns.dynamicweb.hu ([195.228.155.139]:53914 "EHLO dynamicweb.hu")
+	by vger.kernel.org with ESMTP id S932181AbVLPIgt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 03:36:49 -0500
+Message-ID: <003d01c5eb51$3abb29f0$a700a8c0@dcccs>
+From: "JaniD++" <djani22@dynamicweb.hu>
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <88056F38E9E48644A0F562A38C64FB6006A225B1@scsmsx403.amr.corp.intel.com>
+Subject: Re: irq balancing question
+Date: Thu, 17 Nov 2005 09:28:56 +0100
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org,
-       dpervushin@gmail.com, akpm@osdl.org, basicmark@yahoo.com,
-       komal_shah802003@yahoo.com, stephen@streetfiresound.com,
-       spi-devel-general@lists.sourceforge.net, Joachim_Jaeger@digi.com
-Subject: Re: [PATCH/RFC] SPI: add DMAUNSAFE analog to David Brownell's core
-References: <20051212182026.4e393d5a.vwool@ru.mvista.com> <20051214171842.GB30546@kroah.com> <43A05C32.3070501@ru.mvista.com> <200512141102.53599.david-b@pacbell.net> <43A1118E.9040608@ru.mvista.com> <20051215164444.GA14870@kroah.com> <43A1ECE4.6010600@ru.mvista.com> <20051215230217.GA11880@kroah.com>
-In-Reply-To: <20051215230217.GA11880@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
 
->On Fri, Dec 16, 2005 at 01:23:32AM +0300, Vitaly Wool wrote:
->  
->
->>Greg KH wrote:
->>
->>    
->>
->>>On Thu, Dec 15, 2005 at 09:47:42AM +0300, Vitaly Wool wrote:
->>>
->>>
->>>      
->>>
->>>>David Brownell wrote:
->>>>
->>>>  
->>>>
->>>>        
->>>>
->>>>>No, "stupid drivers will suffer"; nothing new.  Just observe
->>>>>how the ads7846 touchscreen driver does small async transfers.
->>>>>
->>>>>
->>>>>    
->>>>>
->>>>>          
->>>>>
->>>>One cannot allocate memory in interrupt context, so the way to go is 
->>>>allocating it on stack, thus the buffer is not DMA-safe.
->>>>Making it DMA-safe in thread that does the very message processing is a 
->>>>good way of overcoming this.
->>>>Using preallocated buffer is not a good way, since it may well be
->>>>already used by another interrupt or not yet processed by the worker
->>>>thread (or tasklet, or whatever).
->>>>  
->>>>
->>>>        
->>>>
->>>Yes it is a good way.  That's the way USB currently works in the kernel,
->>>and it works just fine.  It keeps the rules simple and everyone knows
->>>what needs to be done.
->>>
->>>
->>>      
->>>
->>Looking at my usbnet stuff, I can't share that opinion :-/
->>Are you really ready to lower the performance and quality of service 
->>just for approach uniformity?
->>    
->>
->
->What performance issues?  As an example, USB has this rule, and we can
->saturate a 480Mbit line with a _userspace_ driver (loads of memcopy
->calles involved there.)
->  
->
-What CPU is used there? I guess it's not 144 MHz ARM ;-)
+----- Original Message ----- 
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "JaniD++" <djani22@dynamicweb.hu>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Thursday, December 15, 2005 3:00 PM
+Subject: RE: irq balancing question
 
->  
->
->>And, can you please point me out the examples of devices behind USB bus 
->>that need to write registers from an interrupt context?
->>    
->>
->
->usb to serial drivers need to allocate buffers for their write functions
->as they can be called in irq context from a tty line dicipline, which
->causes a USB packet to be dynamically created and sent to the USB core.
->I also think the USB network and ATM drivers have these requirements
->too, just search for GFP_ATOMIC in the drivers/usb/ directory to find
->these instances.
->  
->
-Oh BTW... I'm experiencing constant problems with root filesystem over 
-NFS over usbnet on my target
-I'm getting "server not responding, still trying" error whenever the 
-system (208-MHz ARM926 board) is under heavy load.
-I think it may well be related to the thing we discuss.
 
-Vitaly
+> >> >----- Original Message ----- 
+> >> >From: "Arjan van de Ven" <arjan@infradead.org>
+> >> >To: "JaniD++" <djani22@dynamicweb.hu>
+> >> >> On Wed, 2005-12-14 at 22:05 +0100, JaniD++ wrote:
+> >> >> > Hello, list,
+> >> >> >
+> >> >> > I try to tune my system with manually irq assigning, but
+> >> >this simple not
+> >> >> > works, and i don't know why. :(
+> >> >> > I have already read all the documentation in the kernel
+> >> >tree, and search
+> >> >in
+> >> >> > google, but i can not find any valuable reason.
+> >> >>
+> >> >>
+> >> >> which chipset? there is a chipset that is broken wrt irq
+> >balancing so
+> >> >> the kernel refuses to do it there...
+> >> >
+> >> >This happens all of my systems, with different hardware.
+> >> >
+> >> >In the example is Intel SE7520AF2,  IntelR E7520 Chipset, +2x
+> >> >Xeon with HT.
+> >> >
+> >> >And the other systems is Abit IS7, intel 865, and only one P4
+> >> >CPU with HT,
+> >> >but the issue is the same.
+> >> >
+> >>
+> >> Which kernel and which architecture (i386 or x86-64?)
+> >
+> >i386, and kernel 2.6.14 - 2.6.15-rc3
+>
+> Things should work with 2.6.15-rc5.
+> There was a bug with this that was fixed recently. The patch here
+> http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commi
+> t;h=fe655d3a06488c8a188461bca493e9f23fc8c448
+
+Ahh, thanks! :-)
+This fix the problem!
+
+>
+> >
+> >(the intel xeon CPU can work x86-64 kernels?)
+> >
+>
+> Yes. If your CPUs have EM64T capability, then they can run x86-64
+> kernels.
+
+OK, i will try it! ;-)
+
+Thanks,
+Janos
+
+>
+> Thanks,
+> Venki
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

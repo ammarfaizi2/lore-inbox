@@ -1,84 +1,240 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbVKQUiE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbVKQUjf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964836AbVKQUiE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 15:38:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964835AbVKQUiE
+	id S964843AbVKQUjf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 15:39:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964844AbVKQUje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 15:38:04 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:39838 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964836AbVKQUiC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 15:38:02 -0500
-Date: Thu, 17 Nov 2005 15:37:31 -0500
-From: Dave Jones <davej@redhat.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Olivier Galibert <galibert@pobox.com>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] [RFC] userland swsusp
-Message-ID: <20051117203731.GG5772@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Lee Revell <rlrevell@joe-job.com>,
-	Olivier Galibert <galibert@pobox.com>,
-	Linux-pm mailing list <linux-pm@lists.osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <F760B14C9561B941B89469F59BA3A8470BDD12EB@orsmsx401.amr.corp.intel.com> <20051116164429.GA5630@kroah.com> <1132172445.25230.73.camel@localhost> <20051116220500.GF12505@elf.ucw.cz> <20051117170202.GB10402@dspnet.fr.eu.org> <1132257432.4438.8.camel@mindpipe> <20051117201204.GA32376@dspnet.fr.eu.org> <1132258855.4438.11.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 17 Nov 2005 15:39:34 -0500
+Received: from nproxy.gmail.com ([64.233.182.204]:24452 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964843AbVKQUje convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 15:39:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=apVH9XpG0dcxc9vA5kd9UFrrM2rxBKueMdD8Uj4UITd1VerE4EAh2Y8/GHpCdZKzcK0CLQ7qUwY2IYWEifuBe7t4H+0Ab/Gkf4XJfXE6KUWed2Aofs/GdbrTVadaHN+c1kCoTEAwm6cpN7ekGli6eusburbfTYFRwPXxOoZEn40=
+Message-ID: <58cb370e0511171239i16e0aaffr237ef7af68ece946@mail.gmail.com>
+Date: Thu, 17 Nov 2005 21:39:32 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Tejun Heo <htejun@gmail.com>
+Subject: Re: [PATCH linux-2.6-block:post-2.6.15 09/10] blk: add FUA support to IDE
+Cc: axboe@suse.de, jgarzik@pobox.com, James.Bottomley@steeleye.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20051117153509.5A77ED53@htj.dyndns.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1132258855.4438.11.camel@mindpipe>
-User-Agent: Mutt/1.4.2.1i
+References: <20051117153509.B89B4777@htj.dyndns.org>
+	 <20051117153509.5A77ED53@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 17, 2005 at 03:20:55PM -0500, Lee Revell wrote:
- > On Thu, 2005-11-17 at 21:12 +0100, Olivier Galibert wrote:
- > > On Thu, Nov 17, 2005 at 02:57:11PM -0500, Lee Revell wrote:
- > > > On Thu, 2005-11-17 at 18:02 +0100, Olivier Galibert wrote:
- > > > > On Wed, Nov 16, 2005 at 11:05:00PM +0100, Pavel Machek wrote:
- > > > > > Now... if something can be
- > > > > > done in userspace, it probably should.
- > > > > 
- > > > > And that usually means it just isn't done.  Cases in point:
- > > > > multichannel audio software mixing, video pixel formats conversion.
- > > > 
- > > > What are you talking about?  ALSA does mixing in userspace, it works
- > > > great.
- > > 
- > > You have an interesting definition of "great".
- > > 
- > > 1- It doesn't work without an annoyingly complex, extremely badly
- > >    documented user configuration. To the point that it doesn't work in
- > >    either an out-of-the-box, updated Fedora Core 3 nor an
- > >    out-of-the-box gentoo.
- > 
- > File a bug report with your distro then.  This is supposed to work OOTB.
+On 11/17/05, Tejun Heo <htejun@gmail.com> wrote:
+> 09_blk_ide-add-fua-support.patch
+>
+>         Add FUA support to IDE
+>
+> Signed-off-by: Tejun Heo <htejun@gmail.com>
+>
+>  drivers/ide/ide-disk.c |   57 +++++++++++++++++++++++++++++++++++++++++--------
+>  include/linux/hdreg.h  |   16 ++++++++++++-
+>  include/linux/ide.h    |    3 ++
+>  3 files changed, 65 insertions(+), 11 deletions(-)
+>
+> Index: work/drivers/ide/ide-disk.c
+> ===================================================================
+> --- work.orig/drivers/ide/ide-disk.c    2005-11-18 00:35:06.000000000 +0900
+> +++ work/drivers/ide/ide-disk.c 2005-11-18 00:35:07.000000000 +0900
+> @@ -164,13 +164,14 @@ static ide_startstop_t __ide_do_rw_disk(
+>         ide_hwif_t *hwif        = HWIF(drive);
+>         unsigned int dma        = drive->using_dma;
+>         u8 lba48                = (drive->addressing == 1) ? 1 : 0;
+> +       int fua                 = blk_fua_rq(rq);
+>         task_ioreg_t command    = WIN_NOP;
+>         ata_nsector_t           nsectors;
+>
+>         nsectors.all            = (u16) rq->nr_sectors;
+>
+>         if (hwif->no_lba48_dma && lba48 && dma) {
+> -               if (block + rq->nr_sectors > 1ULL << 28)
+> +               if (block + rq->nr_sectors > 1ULL << 28 || fua)
+>                         dma = 0;
+>                 else
+>                         lba48 = 0;
+> @@ -226,6 +227,16 @@ static ide_startstop_t __ide_do_rw_disk(
+>                         hwif->OUTB(tasklets[6], IDE_HCYL_REG);
+>                         hwif->OUTB(0x00|drive->select.all,IDE_SELECT_REG);
+>                 } else {
+> +                       if (unlikely(fua)) {
+> +                               /*
+> +                                * This happens if LBA48 addressing is
+> +                                * turned off during operation.
+> +                                */
+> +                               printk(KERN_ERR "%s: FUA write but LBA48 off\n",
+> +                                      drive->name);
+> +                               goto fail;
+> +                       }
+> +
+>                         hwif->OUTB(0x00, IDE_FEATURE_REG);
+>                         hwif->OUTB(nsectors.b.low, IDE_NSECTOR_REG);
+>                         hwif->OUTB(block, IDE_SECTOR_REG);
+> @@ -253,9 +264,12 @@ static ide_startstop_t __ide_do_rw_disk(
+>         if (dma) {
+>                 if (!hwif->dma_setup(drive)) {
+>                         if (rq_data_dir(rq)) {
+> -                               command = lba48 ? WIN_WRITEDMA_EXT : WIN_WRITEDMA;
+> -                               if (drive->vdma)
+> -                                       command = lba48 ? WIN_WRITE_EXT: WIN_WRITE;
+> +                               if (!fua) {
+> +                                       command = lba48 ? WIN_WRITEDMA_EXT : WIN_WRITEDMA;
+> +                                       if (drive->vdma)
+> +                                               command = lba48 ? WIN_WRITE_EXT: WIN_WRITE;
+> +                               } else
+> +                                       command = ATA_CMD_WRITE_FUA_EXT;
 
-I don't know about other distros, but here's how that usually goes for Fedora users..
+What does happen for fua && drive->vdma case?
 
-1. user installs new release, and sound doesn't work.
-2. user blames ALSA, bug gets filed against kernel.
-3. I take a look, sometimes we get to play "ping pong the bug between
-   userspace & kernel component" for a while
-4. I throw my hands in the air and say "tell the upstream ALSA developers"
-5. user does so
-6. user comes back to Fedora bugzilla with the response
-   "Alsa people told me its a Fedora bug".
+>                         } else {
+>                                 command = lba48 ? WIN_READDMA_EXT : WIN_READDMA;
+>                                 if (drive->vdma)
+> @@ -284,8 +298,20 @@ static ide_startstop_t __ide_do_rw_disk(
+>         } else {
+>                 if (drive->mult_count) {
+>                         hwif->data_phase = TASKFILE_MULTI_OUT;
+> -                       command = lba48 ? WIN_MULTWRITE_EXT : WIN_MULTWRITE;
+> +                       if (!fua)
+> +                               command = lba48 ? WIN_MULTWRITE_EXT : WIN_MULTWRITE;
+> +                       else
+> +                               command = ATA_CMD_WRITE_MULTI_FUA_EXT;
+>                 } else {
+> +                       if (unlikely(fua)) {
+> +                               /*
+> +                                * This happens if multisector PIO is
+> +                                * turned off during operation.
+> +                                */
+> +                               printk(KERN_ERR "%s: FUA write but in single "
+> +                                      "sector PIO mode\n", drive->name);
+> +                               goto fail;
+> +                       }
 
-So, given we ship unpatched[1] ALSA, my faith in the
-possibility of ALSA working "OOTB" is somewhat lacking.
+Wouldn't it be better to do the following check at the beginning
+of __ide_do_rw_disk() (after checking for dma vs lba48):
 
-These bugs usually sit in our bugzilla, every so often
-I'll ping them after I've rebased to a new release, and
-surprise surprise, they magically get fixed.
-(Although every release we seem to trade one set of
- working sound drivers for a new set of broken ones).
+        if (fua) {
+                if (!lba48 || ((!dma || drive->vdma) && !drive->mult_count))
+                        goto fail_fua;
+        }
 
+...
 
-Colour me jaded.
+and fail the request if needed *before* actually touching any
+hardware registers?
 
-		Dave
+fail_fua:
+        printk(KERN_ERR "%s: FUA write unsupported (lba48=%u dma=%u"
+                                       " vdma=%u mult_count=%u)\n", drive->name,
+                                       lba48, dma, drive->vdma,
+drive->mult_count);
+        ide_end_request(drive, 0, 0);
+        return ide_stopped;
 
-[1] kernel sound/ is unpatched.  alsa-utils is unpatched. alsa-lib carries
-one patch from alsa cvs.
+>                         hwif->data_phase = TASKFILE_OUT;
+>                         command = lba48 ? WIN_WRITE_EXT : WIN_WRITE;
+>                 }
+> @@ -295,6 +321,10 @@ static ide_startstop_t __ide_do_rw_disk(
+>
+>                 return pre_task_out_intr(drive, rq);
+>         }
+> +
+> + fail:
+> +       ide_end_request(drive, 0, 0);
+> +       return ide_stopped;
+>  }
+>
+>  /*
+> @@ -846,7 +876,7 @@ static void idedisk_setup (ide_drive_t *
+>  {
+>         struct hd_driveid *id = drive->id;
+>         unsigned long long capacity;
+> -       int barrier;
+> +       int barrier, fua;
+>
+>         idedisk_add_settings(drive);
+>
+> @@ -967,10 +997,19 @@ static void idedisk_setup (ide_drive_t *
+>                         barrier = 0;
+>         }
+>
+> -       printk(KERN_INFO "%s: cache flushes %ssupported\n",
+> -               drive->name, barrier ? "" : "not ");
+> +       fua = barrier && idedisk_supports_lba48(id) && ide_id_has_fua(id);
+> +       /* When using PIO, FUA needs multisector. */
+> +       if ((!drive->using_dma || drive->hwif->no_lba48_dma) &&
+> +           drive->mult_count == 0)
+> +               fua = 0;
 
+Shouldn't this check also for drive->vdma?
+
+> +
+> +       printk(KERN_INFO "%s: cache flushes %ssupported%s\n",
+> +              drive->name, barrier ? "" : "not ",
+> +              fua ? " w/ FUA" : "");
+>         if (barrier) {
+> -               blk_queue_ordered(drive->queue, QUEUE_ORDERED_DRAIN_FLUSH,
+> +               unsigned ordered = fua ? QUEUE_ORDERED_DRAIN_FUA
+> +                                      : QUEUE_ORDERED_DRAIN_FLUSH;
+> +               blk_queue_ordered(drive->queue, ordered,
+>                                   idedisk_prepare_flush, GFP_KERNEL);
+>                 blk_queue_issue_flush_fn(drive->queue, idedisk_issue_flush);
+>         } else if (!drive->wcache)
+> Index: work/include/linux/hdreg.h
+> ===================================================================
+> --- work.orig/include/linux/hdreg.h     2005-11-18 00:06:46.000000000 +0900
+> +++ work/include/linux/hdreg.h  2005-11-18 00:35:07.000000000 +0900
+> @@ -550,7 +550,13 @@ struct hd_driveid {
+>                                          * cmd set-feature supported extensions
+>                                          * 15:  Shall be ZERO
+>                                          * 14:  Shall be ONE
+> -                                        * 13:6 reserved
+> +                                        * 13:  IDLE IMMEDIATE w/ UNLOAD FEATURE
+> +                                        * 12:11 reserved for technical report
+> +                                        * 10:  URG for WRITE STREAM
+> +                                        *  9:  URG for READ STREAM
+> +                                        *  8:  64-bit World wide name
+> +                                        *  7:  WRITE DMA QUEUED FUA EXT
+> +                                        *  6:  WRITE DMA/MULTIPLE FUA EXT
+>                                          *  5:  General Purpose Logging
+>                                          *  4:  Streaming Feature Set
+>                                          *  3:  Media Card Pass Through
+> @@ -600,7 +606,13 @@ struct hd_driveid {
+>                                          * command set-feature default
+>                                          * 15:  Shall be ZERO
+>                                          * 14:  Shall be ONE
+> -                                        * 13:6 reserved
+> +                                        * 13:  IDLE IMMEDIATE w/ UNLOAD FEATURE
+> +                                        * 12:11 reserved for technical report
+> +                                        * 10:  URG for WRITE STREAM
+> +                                        *  9:  URG for READ STREAM
+> +                                        *  8:  64-bit World wide name
+> +                                        *  7:  WRITE DMA QUEUED FUA EXT
+> +                                        *  6:  WRITE DMA/MULTIPLE FUA EXT
+>                                          *  5:  General Purpose Logging enabled
+>                                          *  4:  Valid CONFIGURE STREAM executed
+>                                          *  3:  Media Card Pass Through enabled
+> Index: work/include/linux/ide.h
+> ===================================================================
+> --- work.orig/include/linux/ide.h       2005-11-18 00:14:29.000000000 +0900
+> +++ work/include/linux/ide.h    2005-11-18 00:35:07.000000000 +0900
+> @@ -1503,6 +1503,9 @@ extern struct bus_type ide_bus_type;
+>  /* check if CACHE FLUSH (EXT) command is supported (bits defined in ATA-6) */
+>  #define ide_id_has_flush_cache(id)     ((id)->cfs_enable_2 & 0x3000)
+>
+> +/* check if WRITE DMA FUA EXT command is supported (defined in ATA-8) */
+> +#define ide_id_has_fua(id)             ((id)->cfsse & 0x0040)
+> +
+>  /* some Maxtor disks have bit 13 defined incorrectly so check bit 10 too */
+>  #define ide_id_has_flush_cache_ext(id) \
+>         (((id)->cfs_enable_2 & 0x2400) == 0x2400)
+>
+>

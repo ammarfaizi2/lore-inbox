@@ -1,71 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbVKQTFT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932499AbVKQTHt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932490AbVKQTFT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 14:05:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbVKQTFT
+	id S932499AbVKQTHt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 14:07:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932501AbVKQTHt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 14:05:19 -0500
-Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:29824 "EHLO
-	vger.utah-nac.org") by vger.kernel.org with ESMTP id S932490AbVKQTFS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 14:05:18 -0500
-Message-ID: <437CCE4B.3020900@wolfmountaingroup.com>
-Date: Thu, 17 Nov 2005 11:39:07 -0700
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Thu, 17 Nov 2005 14:07:49 -0500
+Received: from numenor.qualcomm.com ([129.46.51.58]:9394 "EHLO
+	numenor.qualcomm.com") by vger.kernel.org with ESMTP
+	id S932499AbVKQTHs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 14:07:48 -0500
+Message-ID: <437CD4EE.4060807@qualcomm.com>
+Date: Thu, 17 Nov 2005 11:07:26 -0800
+From: Max Krasnyansky <maxk@qualcomm.com>
+User-Agent: Thunderbird 1.4.1 (X11/20051006)
 MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Compaq Presario "reboot" problems
-References: <Pine.LNX.4.61.0511171314440.10063@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0511171314440.10063@chaos.analogic.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, tom.l.nguyen@intel.com,
+       Greg KH <gregkh@suse.de>
+Subject: Re: PCI MSI: the new interrupt routing headache
+References: <437C18AF.7050508@pobox.com>
+In-Reply-To: <437C18AF.7050508@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Verified. I saw this problem a few weeks back and I am running Windows 
-2000 and 2003 on separate systems now. Windows 2000
-is such a pig it needs its own system in any event.
+Hi Jeff,
+> 
+> I just got SATA working on Marvell.  After fixing a bunch of issues in 
+> the driver, the final issue was lack of interrupts.  Disabling 
+> CONFIG_PCI_MSI solved that, and suddenly the driver was working quite 
+> nicely.
+> 
+> The general problem is that pci_enable_msi() is not failing, on systems 
+> that do not support MSI.  This leads to Infiniband, tg3, and other 
+> drivers working around this problem by including an MSI-interrupts-work 
+> test during probe.
+> 
+> Perhaps its because I like leading edge stuff, and am playing with 
+> drivers for PCI MSI hardware, but it seems like I am running into this 
+> pci_enable_msi()-doesnt-fail problem more and more frequently.  First 
+> tg3, then AHCI, now sata_mv.
+> 
+> What needs to be done, to detect working PCI message signalled 
+> interrupts such that pci_enable_msi() fails properly?
+It fails correctly when MSI quirk is enabled. I had the same problems
+on AMD 8131 based machine with 2.6.11 kernel. E1000 was enabling MSI and
+not getting any interrupts. Later (.13 I think) MSI quirk was introduced for
+8131 chipset and everything started working (without having to hack E1000
+that is).
+May be you should just add your platform to the PCI quirks list ?
 
-Jeff
-
-linux-os (Dick Johnson) wrote:
-
->With Linux-2.4.26 I reported that if a Compaq gets rebooted while
->running Linux-2.4.26, it will not be able to restart Windows 2000.
->It cam restart Linux fine. Today, I tried the same thing with
->Linux-2.6.13.4. It fails, too.
->
->The symptoms are that you just "reboot" Linux. When the GRUB loader
->comes up, I select my Windows-2000/professional. That M$ Crap comes
->up to where it's just about to start the high-resolution screen.
->Then it stops forever, no interrupts, no nothing. I need to disconnect
->power and remove the battery to recover.
->
->It appears as though Linux is still restarting as a "warm boot",
->rather than a cold boot (in other words, putting magic in the
->shutdown byte of CMOS) so the hardware doesn't get properly
->initialized. Would somebody please check this out. When changing
->operating systems, you need a cold-boot.
->
->Cheers,
->Dick Johnson
->Penguin : Linux version 2.6.13.4 on an i686 machine (5589.44 BogoMips).
->Warning : 98.36% of all statistics are fiction.
->.
->
->****************************************************************
->The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
->
->Thank you.
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-
+Max

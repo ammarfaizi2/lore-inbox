@@ -1,72 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbVKQVLa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbVKQVMY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964872AbVKQVLa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 16:11:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbVKQVLa
+	id S964876AbVKQVMY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 16:12:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbVKQVMY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 16:11:30 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:41139 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964872AbVKQVL3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 16:11:29 -0500
-Date: Thu, 17 Nov 2005 13:11:20 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: paulus@samba.org, anton@samba.org, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, apw@shadowen.org
-Subject: Re: [PATCH] ppc64 need HPAGE_SHIFT when huge pages disabled
-Message-Id: <20051117131120.5a61b9ba.akpm@osdl.org>
-In-Reply-To: <20051117170031.GA30223@shadowen.org>
-References: <20051117170031.GA30223@shadowen.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 17 Nov 2005 16:12:24 -0500
+Received: from lakshmi.addtoit.com ([198.99.130.6]:3343 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S964876AbVKQVMY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 16:12:24 -0500
+Date: Thu, 17 Nov 2005 17:04:36 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: akpm@osdl.org, Linux kernel <linux-kernel@vger.kernel.org>,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [PATCH 3/4] UML - Properly invoke x86_64 system calls
+Message-ID: <20051117220436.GA10871@ccure.user-mode-linux.org>
+References: <200511172110.jAHLASIB010204@ccure.user-mode-linux.org> <Pine.LNX.4.61.0511171528570.10664@chaos.analogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0511171528570.10664@chaos.analogic.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Whitcroft <apw@shadowen.org> wrote:
->
-> With the new powerpc architecture we don't seem to be able to disable
-> huge pages anymore.
+Dear Wrongbot,
+	Thank you for your concern.
+
+On Thu, Nov 17, 2005 at 03:37:14PM -0500, linux-os (Dick Johnson) wrote:
+> In 64-bit world, the same is supposed to apply as well.
+> If RCX is now precious, it's a GCC bug that should be fixed.
 > 
->     mm/built-in.o(.toc1+0xae0): undefined reference to `HPAGE_SHIFT'
->     make: *** [.tmp_vmlinux1] Error 1
-> 
-> We seem to need to define HPAGE_SHIFT to something when HUGETLB_PAGE isn't
-> defined.  This patch defines it to 0 when we have no support.
-> 
+> Yes?
 
-Yes, i386 defines HPAGE_SHIFT always.
+No.
 
-> 
-> Signed-off-by: Andy Whitcroft <apw@shadowen.org>
-> ---
-> diff -upN reference/include/asm-powerpc/page_64.h current/include/asm-powerpc/page_64.h
-> --- reference/include/asm-powerpc/page_64.h
-> +++ current/include/asm-powerpc/page_64.h
-> @@ -86,7 +86,11 @@ static inline void copy_page(void *to, v
->  extern u64 ppc64_pft_size;
->  
->  /* Large pages size */
-> +#ifdef CONFIG_HUGETLB_PAGE
->  extern unsigned int HPAGE_SHIFT;
-> +#else
-> +#define HPAGE_SHIFT 0
-> +#endif
->  #define HPAGE_SIZE		((1UL) << HPAGE_SHIFT)
->  #define HPAGE_MASK		(~(HPAGE_SIZE - 1))
->  #define HUGETLB_PAGE_ORDER	(HPAGE_SHIFT - PAGE_SHIFT)
+Here's a technical tidbit for you to digest, mangle, and later regurgitate
+in yor usual pseudo-authoritative manner:
 
-I think this change will cause a compile warning in mm/memory.c:
+	The x86_64 syscall instruction is defined to contain the process 
+	return address on return to userspace.  Hence, it (like RAX) is
+	destroyed by the syscall instruction.
 
-			if (unlikely(is_vm_hugetlb_page(vma))) {
-				unmap_hugepage_range(vma, start, end);
-				zap_work -= (end - start) /
-						(HPAGE_SIZE / PAGE_SIZE);
-
-This code will be removed by the compiler.  But before that happens, we're
-doing a divide by zero and the compiler will whine.
-
-So I'd suggest that you set the !CONFIG_HUGETLB_PAGE value of HPAGE_SHIFT
-to PAGE_SHIFT, not to zero.  I'll make that change locally..
+				Jeff

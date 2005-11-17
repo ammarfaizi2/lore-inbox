@@ -1,55 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbVKQRH4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932427AbVKQRM7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932396AbVKQRH4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 12:07:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbVKQRHz
+	id S932427AbVKQRM7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 12:12:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbVKQRM7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 12:07:55 -0500
-Received: from pat.uio.no ([129.240.130.16]:22990 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932396AbVKQRHz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 12:07:55 -0500
-Subject: Re: mmap over nfs leads to excessive system load
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: cel@citi.umich.edu
-Cc: Kenny Simpson <theonetruekenny@yahoo.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <437CB78E.5010707@citi.umich.edu>
-References: <20051116223937.28115.qmail@web34112.mail.mud.yahoo.com>
-	 <1132182378.8811.93.camel@lade.trondhjem.org>
-	 <437CB78E.5010707@citi.umich.edu>
-Content-Type: text/plain
-Date: Thu, 17 Nov 2005 12:07:35 -0500
-Message-Id: <1132247255.8028.10.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-2.947, required 12,
-	autolearn=disabled, AWL 1.87, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+	Thu, 17 Nov 2005 12:12:59 -0500
+Received: from zproxy.gmail.com ([64.233.162.194]:6432 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932427AbVKQRM6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 12:12:58 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WV391Fr7RSOhjjf/uEfJFuV3jSpboVwQNKQTTBIXBMZHFikqwmdPQPj2aHfH7PhAsi3r4LcZDozu25m/qBpzOGpwDduWzoA8Zi4V6+tN9Gur7K9CB1/qXSonc0gygB4SoS8PZ7Nj/zTGA0wTt1GYu29O9dNnFkIaU33n2KU3kUE=
+Message-ID: <29495f1d0511170912x2cceac78w766f0c800ee3f718@mail.gmail.com>
+Date: Thu, 17 Nov 2005 09:12:58 -0800
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: Dag Nygren <dag@newtech.fi>
+Subject: Re: nanosleep with small value
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051117163047.30293.qmail@dag.newtech.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051117163047.30293.qmail@dag.newtech.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-11-17 at 12:02 -0500, Chuck Lever wrote:
-> Trond Myklebust wrote:
-> > I had a quick look at nfs_file_direct_write(), and among other things,
-> > it would appear that it is not doing any of the usual overflow checks on
-> > *pos and the count size (see generic_write_checks()). In particular,
-> > checks are missing against overflow vs. MAX_NON_LFS if O_LARGEFILE is
-> > not set (and also against overflow vs. s_maxbytes, but that is less
-> > relevant here).
-> 
-> the architecture is to allow the NFS protocol and server to do these checks.
+On 11/17/05, Dag Nygren <dag@newtech.fi> wrote:
+>
+> Hi,
+>
+> seeing a strange thing happening here:
+> using nanosleep() with a smallish value gives me a very long sleeptime?
+>
+> Is this because of a context switch being forced?
+> Shouldn't the scheduler change affect that?
+>
+> The test program:
+> ===================================
+> #include <time.h>
+> #include <sched.h>
+> #include <stdio.h>
+>
+> void delay_ns(unsigned long dly)
+> {
+>         static struct timespec time;
+>         int err;
+>         {
+>                 time.tv_sec = 0;
+>                 time.tv_nsec = dly;
+>                 err = nanosleep(&time, NULL);
+>                 if (err) {
+>                         perror( "nanosleep failed" );
+>                 }
+>         }
+> }
+>
+>
+> main()
+> {
+>         int i;
+>
+>         struct sched_param mysched;
+>         int err;
+>
+>         if ( sched_getparam( 0, &mysched ) != 0 )
+>                 perror( "" );
+>         else {
+>                 mysched.sched_priority = sched_get_priority_max(SCHED_FIFO);
+>                 err = sched_setscheduler(0, SCHED_FIFO, &mysched);
+>                 if( err != 0 ) {
+>                         fprintf (stderr,"sched_setscheduler returned: %d\n",
+> err );
+>                         perror( "" );
+>                 }
+>         }
+>
+>         for (i=0; i < 1000; i++)
+>                 delay_ns(1000UL);
+> }
+> ==================================
+> The result running this is:
+> % time ./tst
+>
+> real    0m8.000s
+> user    0m0.000s
+> sys     0m0.000s
+>
+> I would have expected about 1000 * 1 us + overhead,
+> but 8 seconds ????
 
-No it isn't.
+Which kernel, what value of HZ? In either case, it's absurd to assume
+that the kernel is going to provide you 1 microsecond resolution in
+2.6 mainline, as the best HZ value is 1000 (1 millisecond). And we
+don't busy-wait ever in nanosleep(). So the fastest your loop can run
+is 1000 * 1 ms = 1 second. That's assuming the only time-consuming
+thing is sleeping (minimal overhead). But, in sys_nanosleep(), we
+convert nanoseconds to jiffies and add 1 if you requested any sleep
+time. So,
 
-The NFS protocol has no clue as to whether or not you opened the file
-using O_LARGEFILE. For NFSv2, we do _not_ want file pointers to wrap
-once they hit the 32-bit boundary.
+HZ = 100
+     1000 * (10 + 1 ms) = 11 s
+HZ = 250
+     1000 * (4 + 1 ms) = 5 s
+HZ = 1000
+     1000 * (1 + 1 ms) = 2 s (which is what Dick Johnson reported).
 
-The protocol and server cannot be involved in any of those checks. They
-must be done on the client.
+Note, that with HZ=250, there might be some extra rounding occurring
+timespec_to_jiffies() that I've forgotten.
 
-Cheers,
-  Trond
+So 8 s may not be terribly unreasonable. I don't know, though, what's
+add the 3 seconds if you're using 250.
 
+Thanks,
+Nish

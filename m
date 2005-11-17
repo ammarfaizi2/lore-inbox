@@ -1,61 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161062AbVKQBMH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161067AbVKQBPU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161062AbVKQBMH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 20:12:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161064AbVKQBMH
+	id S1161067AbVKQBPU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 20:15:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161068AbVKQBPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 20:12:07 -0500
-Received: from zproxy.gmail.com ([64.233.162.206]:61287 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161062AbVKQBMG (ORCPT
+	Wed, 16 Nov 2005 20:15:20 -0500
+Received: from mail.kroah.org ([69.55.234.183]:7648 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161067AbVKQBPU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 20:12:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=tgVbJ5uIME6vlHtpDzVfOa3J+onUb5QRFICLamT0Yr5QNqpZ6s30S6798wGLh7icVx8Yb9mk+0qaEejRrV57s41g8Dkzr0Y9PdXhvp/NTplUM8B1C88AZI2Uyoigj2X/WthVcgx6oYmmBlArSWWBvW3Ckbfr0W9dv1TsYENmniM=
-Message-ID: <437BD8D9.9030904@gmail.com>
-Date: Thu, 17 Nov 2005 09:11:53 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@2gen.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: X and intelfb fight over videomode
-References: <20051117000144.GA29144@hardeman.nu>
-In-Reply-To: <20051117000144.GA29144@hardeman.nu>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 16 Nov 2005 20:15:20 -0500
+Date: Wed, 16 Nov 2005 16:55:12 -0800
+From: Greg KH <gregkh@suse.de>
+To: David Kubicek <dave@awk.cz>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       torvalds@osdl.org, akpm@osdl.org
+Subject: Re: USB patches for 2.6.15-rc1??
+Message-ID: <20051117005512.GB15140@suse.de>
+References: <20051114200456.GA2319@kroah.com> <20051114200924.GA2531@kroah.com> <20051115084801.GA13387@awk.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051115084801.GA13387@awk.cz>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Härdeman wrote:
-> Using the information from this thread:
-> http://marc.theaimsgroup.com/?t=112593256400003&r=1&w=2
-> 
-> I've now compiled a kernel with the intelfb and fbcon drivers linked in
-> (no other fb drivers). By booting the kernel with vga=0x318 I get a
-> 1024x768@16bpp console and drm/agp also seems happy.
-> 
-> However, as soon as X starts, the following message is printed to the
-> kernel log:
-> 
-> mtrr: base(0xe0020000) is not aligned on a size(0x300000) boundary
-> [drm:drm_unlock] *ERROR* Process 3013 using kernel context 0
-> 
-> Everything seems to work in X though. The first time that I switch from
-> X to a vc, the screen stays black for a few seconds before I get the VC
-> and then I get this:
-> 
-> intelfb: Changing the video mode is not supported.
-> intelfb: ring buffer : space: 61488 wanted 65472
-> intelfb: lockup - turning off hardware acceleration
-> 
-> I have X set to also use 1024x768@16bpp, what else do I need to do to
-> make sure that intelfb and X play nice together?
-> 
+On Tue, Nov 15, 2005 at 09:48:01AM +0100, David Kubicek wrote:
+> may I ask you what about the "URB/buffer ring queue" patch I've
+> submitted months ago for CDC ACM modems and which you accepted into your
+> tree when Oliver sent it to you for merging like a week ago?
 
-Try booting with video=intelfb:1024x768-16@60,mtrr=0. Do not include
-the vga=0x318 option.  This prevents intelfb from changing the videomode.
+It's only been in my tree for a week.  It came to me after I had done
+the big merge cycle with Linus after 2.6.14 came out.  For major changes
+to a driver like this one, I want to get some good testing in the -mm
+tree, and then it will go into mainline.
 
-Tony
+So, it will be a few more weeks, I'll send it to Linus after 2.6.15 is
+out.
+
+thanks,
+
+greg k-h

@@ -1,52 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbVKQNqo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbVKQNwo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750824AbVKQNqo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 08:46:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbVKQNqo
+	id S1750826AbVKQNwo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 08:52:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbVKQNwo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 08:46:44 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:995 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S1750824AbVKQNqn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 08:46:43 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: "Cipriani, Lawrence V (Larry)" <lvc@lucent.com>, kai.germaschewski@gmx.de,
-       kkeil@suse.de, isdn4linux@listserv.isdn4linux.de
-Subject: Re: bugs in /usr/src/linux/net/ipv6/mcast.c
-Date: Thu, 17 Nov 2005 15:46:00 +0200
-User-Agent: KMail/1.8.2
-Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
-References: <0C6AA2145B810F499C69B0947DC5078107BCDE20@oh0012exch001p.cb.lucent.com>
-In-Reply-To: <0C6AA2145B810F499C69B0947DC5078107BCDE20@oh0012exch001p.cb.lucent.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Nov 2005 08:52:44 -0500
+Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:32643 "EHLO
+	ti41.telemetry-investments.com") by vger.kernel.org with ESMTP
+	id S1750826AbVKQNwo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 08:52:44 -0500
+Date: Thu, 17 Nov 2005 08:52:42 -0500
+From: "Bill Rugolsky Jr." <bill@rugolsky.com>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: jonathan@jonmasters.org, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ipt_ROUTE loopback
+Message-ID: <20051117135242.GC25134@ti64.telemetry-investments.com>
+Mail-Followup-To: "Bill Rugolsky Jr." <bill@rugolsky.com>,
+	Willy Tarreau <willy@w.ods.org>, jonathan@jonmasters.org,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <35fb2e590511161901t7a615992s123a22cd8403511d@mail.gmail.com> <20051117043853.GH11266@alpha.home.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511171546.00862.vda@ilport.com.ua>
+In-Reply-To: <20051117043853.GH11266@alpha.home.local>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2.6.14 in drivers/isdn/hisax:
+On Thu, Nov 17, 2005 at 05:38:53AM +0100, Willy Tarreau wrote:
+> You need to use Julian Anastasov's "send-to-self" patch from ssi.bg/~ja/.
+> The problem is not with ipt_route, but with the local addresses. If you
+> want the packet to go out, you need to remove the local route for the
+> destination. The packet will then go out, but when it will come back,
+> the system won't take it because its destination won't match a local
+> route. Try "ip r l t local" to see what I mean.
+> 
+> With Julian's patch, IIRC, you write '1' into /proc/sys/net/ipv4/$IF/loop,
+> then you define some cross-routes for destinations with the respective
+> sources from the opposite interfaces, then all packets routed out with
+> a 'looped' interface address in their source will effectively go out.
+> 
+> I also suggest that you get his whole '-ja' patch, and that you look
+> in Documentation/networking/ip-sysctl.txt in which he adds some
+> documentation about this (and I believe there was a more complete
+> example on his site).
 
-# grep -r '[^a-z0-9_]if *([^()]*([^)]*)[^)]*);' .
-./hfc_sx.c:     if (Read_hfc(cs, HFCSX_INT_S1));
-./hfc_sx.c:     if (Read_hfc(cs, HFCSX_INT_S2));
-./hfc_sx.c:                                             if (Read_hfc(cs, HFCSX_INT_S1));
-./hfc_pci.c:    if (Read_hfc(cs, HFCPCI_INT_S1));
-./hfc_pci.c:    if (Read_hfc(cs, HFCPCI_INT_S1));
-./hfc_pci.c:                                            if (Read_hfc(cs, HFCPCI_INT_S1));
+I've used Julian's patch; it worked fine.  But while trying to debug some
+issues with a 4xE1/T1 card, I had to do external loopback with an
+unpatched 2.4 kernel.  IIRC, the following did the trick:
 
-These are not bugs, but rather "interesting" coding style:
+for p in 0 1
+do
+   /sbin/ip link set dev hdlc$p up multicast on
+   /sbin/ip addr add dev hdlc$p local 192.168.$p.1 peer 192.168.$p.2
+   echo 0 > /proc/sys/net/ipv4/conf/hdlc$p/rp_filter
+done
 
-        Write_hfc(cs, HFCSX_INT_M1, cs->hw.hfcsx.int_m1);
+# Trick the kernel into sending the packets over the wire
+/sbin/iptables -t mangle -F
+/sbin/iptables -t nat -F
+/sbin/iptables -t nat -A POSTROUTING -d 192.168.0.2 -j SNAT --to 192.168.1.2
+/sbin/iptables -t nat -A POSTROUTING -d 192.168.1.2 -j SNAT --to 192.168.0.2
+/sbin/iptables -t nat -A PREROUTING -t nat -d 192.168.1.2 -j DNAT --to 192.168.0.1
+/sbin/iptables -t nat -A PREROUTING -t nat -d 192.168.0.2 -j DNAT --to 192.168.1.1
 
-        /* Clear already pending ints */
-        if (Read_hfc(cs, HFCSX_INT_S1));
+To test, send traffic to either 192.168.0.2, or 192.168.1.2, e.g.,
 
-        Write_hfc(cs, HFCSX_STATES, HFCSX_LOAD_STATE | 2);      /* HFC ST 2 */
+    ping -T tsandaddr 192.168.0.2
 
-Obviously author tried to silence something like lint.
-I think it may be replaced with (void)expr; construct.
---
-vda
+Regards,
+
+	Bill Rugolsky

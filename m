@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932434AbVKQRDL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbVKQRH4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932434AbVKQRDL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 12:03:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbVKQRDK
+	id S932396AbVKQRH4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 12:07:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbVKQRHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 12:03:10 -0500
-Received: from digitalimplant.org ([64.62.235.95]:51623 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S932434AbVKQRDJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 12:03:09 -0500
-Date: Thu, 17 Nov 2005 09:03:05 -0800 (PST)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: Greg KH <greg@kroah.com>
-cc: Olivier Galibert <galibert@pobox.com>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>
-Subject: Re: [linux-pm] [RFC] userland swsusp
-In-Reply-To: <20051117164451.GA27178@kroah.com>
-Message-ID: <Pine.LNX.4.50.0511170901250.6343-100000@monsoon.he.net>
-References: <F760B14C9561B941B89469F59BA3A8470BDD12EB@orsmsx401.amr.corp.intel.com>
- <20051116191051.GG2193@spitz.ucw.cz> <20051117165437.GA10402@dspnet.fr.eu.org>
- <20051117164451.GA27178@kroah.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 17 Nov 2005 12:07:55 -0500
+Received: from pat.uio.no ([129.240.130.16]:22990 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932396AbVKQRHz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 12:07:55 -0500
+Subject: Re: mmap over nfs leads to excessive system load
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: cel@citi.umich.edu
+Cc: Kenny Simpson <theonetruekenny@yahoo.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <437CB78E.5010707@citi.umich.edu>
+References: <20051116223937.28115.qmail@web34112.mail.mud.yahoo.com>
+	 <1132182378.8811.93.camel@lade.trondhjem.org>
+	 <437CB78E.5010707@citi.umich.edu>
+Content-Type: text/plain
+Date: Thu, 17 Nov 2005 12:07:35 -0500
+Message-Id: <1132247255.8028.10.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-2.947, required 12,
+	autolearn=disabled, AWL 1.87, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2005-11-17 at 12:02 -0500, Chuck Lever wrote:
+> Trond Myklebust wrote:
+> > I had a quick look at nfs_file_direct_write(), and among other things,
+> > it would appear that it is not doing any of the usual overflow checks on
+> > *pos and the count size (see generic_write_checks()). In particular,
+> > checks are missing against overflow vs. MAX_NON_LFS if O_LARGEFILE is
+> > not set (and also against overflow vs. s_maxbytes, but that is less
+> > relevant here).
+> 
+> the architecture is to allow the NFS protocol and server to do these checks.
 
-On Thu, 17 Nov 2005, Greg KH wrote:
+No it isn't.
 
-> On Thu, Nov 17, 2005 at 05:54:37PM +0100, Olivier Galibert wrote:
-> > On Wed, Nov 16, 2005 at 07:10:52PM +0000, Pavel Machek wrote:
-> > > What unstable implementation? swsusp had very little regressions over past
-> > > year or so. Drivers were different story, but nothing changes w.r.t. drivers.
-> >
-> > Do you mean swsusp is actually supposed to work?  Suspend-to-ram,
-> > suspend-to-disk or both?
->
-> Both.  -to-ram depends on your video chip, but to-disk should work just
-> fine.  If not, please report bugs.
+The NFS protocol has no clue as to whether or not you opened the file
+using O_LARGEFILE. For NFSv2, we do _not_ want file pointers to wrap
+once they hit the 32-bit boundary.
 
-swsusp has nothing to do with suspend-to-ram. swsusp is a
-platform-independent implementation of suspend-to-disk. STR is
-very-platform dependent. Please see the file:
+The protocol and server cannot be involved in any of those checks. They
+must be done on the client.
 
-	Documentation/power/states.txt
-
-for more info.
-
-
-	Pat
+Cheers,
+  Trond
 

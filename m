@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbVKQNa4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbVKQNfU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750817AbVKQNa4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 08:30:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbVKQNa4
+	id S1750819AbVKQNfU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 08:35:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbVKQNfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 08:30:56 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:37592 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750817AbVKQNaz (ORCPT
+	Thu, 17 Nov 2005 08:35:19 -0500
+Received: from mail3.netbeat.de ([193.254.185.27]:51688 "HELO mail3.netbeat.de")
+	by vger.kernel.org with SMTP id S1750819AbVKQNfT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 08:30:55 -0500
-Date: Thu, 17 Nov 2005 19:00:57 +0530
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Morton Andrew Morton <akpm@osdl.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>
-Cc: ak@suse.de, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 10/10] kexec: increase max segment limit
-Message-ID: <20051117133057.GN3981@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20051117131339.GD3981@in.ibm.com> <20051117131825.GE3981@in.ibm.com> <20051117132004.GF3981@in.ibm.com> <20051117132138.GG3981@in.ibm.com> <20051117132315.GH3981@in.ibm.com> <20051117132437.GI3981@in.ibm.com> <20051117132557.GJ3981@in.ibm.com> <20051117132659.GK3981@in.ibm.com> <20051117132850.GL3981@in.ibm.com> <20051117132944.GM3981@in.ibm.com>
+	Thu, 17 Nov 2005 08:35:19 -0500
+Subject: [PATCH linux-2.6-14-mm2] block: problem unloading I/O-Scheduler
+	Module
+From: Dirk Henning Gerdes <mail@dirk-gerdes.de>
+To: Tejun Heo <htejun@gmail.com>, Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4357B10E.7010608@gmail.com>
+References: <20051019123429.450E4424@htj.dyndns.org>
+	 <20051019123429.D377069C@htj.dyndns.org> <20051020112109.GC2811@suse.de>
+	 <20051020135124.GB26004@htj.dyndns.org> <20051020141104.GQ2811@suse.de>
+	 <4357AB3F.1050004@gmail.com> <20051020144108.GR2811@suse.de>
+	 <4357B10E.7010608@gmail.com>
+Content-Type: text/plain
+Date: Thu, 17 Nov 2005 14:34:24 +0100
+Message-Id: <1132234464.4856.12.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051117132944.GM3981@in.ibm.com>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+If you have compiled an I/O-Scheduler as module you cannot unload it,
+because of a memory-error.
 
+Signed-off-by: Dirk Gerdes mail@dirk-gerdes.de
 
-o In some cases, the number of segments, on a kexec load, exceeds
-  the existing cap of 8. This patch increases the KEXEC_SEGMENT_MAX
-  limit from 8 to 16.
-
-Signed-off-by:Rachita Kothiyal <rachita@in.ibm.com>
-Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
----
-
- linux-2.6.15-rc1-1M-dynamic-root/include/linux/kexec.h |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN include/linux/kexec.h~kexec-increase-max-segment-limit include/linux/kexec.h
---- linux-2.6.15-rc1-1M-dynamic/include/linux/kexec.h~kexec-increase-max-segment-limit	2005-11-17 11:11:15.000000000 +0530
-+++ linux-2.6.15-rc1-1M-dynamic-root/include/linux/kexec.h	2005-11-17 11:11:15.000000000 +0530
-@@ -41,7 +41,7 @@ typedef unsigned long kimage_entry_t;
- #define IND_DONE         0x4
- #define IND_SOURCE       0x8
+--- linux-2.6.14-mm2-pagecache/block/elevator.c	2005-11-17
+12:37:10.000000000 +0100
++++ linux-2.6.14-mm2-pagecache_fix/block/elevator.c	2005-11-17
+14:05:41.000000000 +0100
+@@ -656,7 +656,7 @@
+ 		struct io_context *ioc = p->io_context;
+ 		struct cfq_io_context *cic;
  
--#define KEXEC_SEGMENT_MAX 8
-+#define KEXEC_SEGMENT_MAX 16
- struct kexec_segment {
- 	void __user *buf;
- 	size_t bufsz;
-_
+-		if (ioc->cic_root.rb_node != NULL) {
++		if (ioc != NULL && ioc->cic_root.rb_node != NULL) {
+ 			cic = rb_entry(rb_first(&ioc->cic_root), struct cfq_io_context,
+rb_node);
+ 			cic->exit(ioc);
+ 			cic->dtor(ioc);
+
+

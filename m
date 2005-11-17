@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbVKQVfo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751477AbVKQVm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751344AbVKQVfo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 16:35:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751428AbVKQVfo
+	id S1751477AbVKQVm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 16:42:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbVKQVm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 16:35:44 -0500
-Received: from nikola.com ([64.146.180.228]:22717 "EHLO nikola.com")
-	by vger.kernel.org with ESMTP id S1751344AbVKQVfo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 16:35:44 -0500
-Message-ID: <00b501c5ebbe$dafc7960$5e00800a@printserver>
-From: "Jesse Gordon" <jesseg@nikola.com>
-To: "Jesse Gordon" <jesseg@nikola.com>, <linux-kernel@vger.kernel.org>
-References: <200511121616.14940.ace@staticwave.ca> <200511161252.08927.bjorn.helgaas@hp.com> <009401c5eaeb$9a77be00$5e00800a@printserver>
-Subject: Re: ICMP Ping being lost between kernel and the ping program. (Solved!)
-Date: Thu, 17 Nov 2005 13:35:39 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=response
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.3790.1830
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1830
-X-Authenticated-Sender: jesseg@nikola.com
-X-Spam-Processed: nikola.com, Thu, 17 Nov 2005 13:35:37 -0800
-	(not processed: message from valid local sender)
-X-MDRemoteIP: 64.146.180.228
-X-Return-Path: jesseg@nikola.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-X-MDAV-Processed: nikola.com, Thu, 17 Nov 2005 13:35:39 -0800
+	Thu, 17 Nov 2005 16:42:29 -0500
+Received: from keetweej.xs4all.nl ([213.84.46.114]:44482 "EHLO
+	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
+	id S1751477AbVKQVm2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 16:42:28 -0500
+Date: Thu, 17 Nov 2005 22:42:26 +0100
+From: Folkert van Heusden <folkert@vanheusden.com>
+To: linux-kernel@vger.kernel.org
+Subject: monitoring disk access
+Message-ID: <20051117214225.GF5732@vanheusden.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: www.unixexpert.nl
+X-Chameleon-Return-To: folkert@vanheusden.com
+X-Xfmail-Return-To: folkert@vanheusden.com
+X-Phonenumber: +31-6-41278122
+X-URL: http://www.vanheusden.com/
+X-PGP-KeyID: 1F28D8AE
+X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
+X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
+Read-Receipt-To: <folkert@vanheusden.com>
+Reply-By: Fri Nov 18 21:09:35 CET 2005
+X-Message-Flag: MultiTail - tail on steroids
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-"Jesse Gordon" <jesseg@nikola.com> wrote:
+Hi,
 
->Subject: ICMP Ping being lost between kernel and the ping program.
->
-> Greetings. This is my first post.
->
-> I'm having a weird intermittent problem with ping.
->
-> I'm pinging the WAN port of a cheap home DSL firewall (d-link di-604) and 
-> sometimes the ping program fails to get a response,
-> but if I run tcpdump I can see that the response is indeed coming back.
-> .. snip ..
-> -Jesse
-
-Solved.
-
-The Dlink firewalls were responding with stale ICMP Identifier when pinged a 
-second time, and the ping program was ignoring the responses which had a 
-stale Identifier.
-
-The windows box always works because it always uses the same number for 
-Identifier. Ugh.
-
-Thanks!
-
--Jesse 
+Is it possible in the linux kernel to monitor disk access? Like what
+process access what files when? (like with dtrace)
+Google doesn't know it.
 
 
+Folkert van Heusden
+
+-- 
+Try MultiTail! Multiple windows with logfiles, filtered with regular
+expressions, colored output, etc. etc. www.vanheusden.com/multitail/
+----------------------------------------------------------------------
+Get your PGP/GPG key signed at www.biglumber.com!
+----------------------------------------------------------------------
+Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com

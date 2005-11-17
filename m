@@ -1,53 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932461AbVKQScs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbVKQSra@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932461AbVKQScs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 13:32:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932474AbVKQScs
+	id S932463AbVKQSra (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 13:47:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932480AbVKQSra
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 13:32:48 -0500
-Received: from soundwarez.org ([217.160.171.123]:57275 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S932461AbVKQScr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 13:32:47 -0500
-Date: Thu, 17 Nov 2005 19:32:36 +0100
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Greg KH <greg@kroah.com>
-Cc: Doug Thompson <norsk5@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] EDAC and the sysfs
-Message-ID: <20051117183236.GA24650@vrfy.org>
-References: <20051117070516.GB20760@kroah.com> <20051117172053.87207.qmail@web50112.mail.yahoo.com> <20051117171856.GB27534@kroah.com>
+	Thu, 17 Nov 2005 13:47:30 -0500
+Received: from ip213-185-39-113.laajakaista.mtv3.fi ([213.185.39.113]:2493
+	"HELO dag.newtech.fi") by vger.kernel.org with SMTP id S932463AbVKQSra convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 13:47:30 -0500
+Message-ID: <20051117184728.2863.qmail@dag.newtech.fi>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-0.27
+To: Nish Aravamudan <nish.aravamudan@gmail.com>
+cc: Dag Nygren <dag@newtech.fi>, linux-kernel@vger.kernel.org, dag@newtech.fi
+Subject: Re: nanosleep with small value 
+In-Reply-To: Message from Nish Aravamudan <nish.aravamudan@gmail.com> 
+   of "Thu, 17 Nov 2005 09:12:58 PST." <29495f1d0511170912x2cceac78w766f0c800ee3f718@mail.gmail.com> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051117171856.GB27534@kroah.com>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: Thu, 17 Nov 2005 20:47:28 +0200
+From: Dag Nygren <dag@newtech.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 17, 2005 at 09:18:56AM -0800, Greg KH wrote:
-> On Thu, Nov 17, 2005 at 09:20:53AM -0800, Doug Thompson wrote:
-> > > But you can just probably use a udev rule to
-> > > initialize your things
-> > > properly, that's what all of the distros are now
-> > > using.
-> > 
-> > Ok. That's another area for me to research. edac does
-> > not have any /dev/ entries, just the files and
-> > controls previous mentioned. 
-> > 
-> > So, from your comment then, udev has some mechanism to
-> > set controls in sysfs?
+> On 11/17/05, Dag Nygren <dag@newtech.fi> wrote:
+
 > 
-> udev gets called whenever you add a kobject to the system.  You can then
-> do whatever you want in udev when this happens.  As an example, on one
-> distro, when a bluetooth device is created by the kernel, a bluetooth
-> startup script is run by udev.
+> Which kernel, what value of HZ?
 
-We do things like this:
-  ACTION=="add", SUBSYSTEM="scsi", SYSFS{type}=="1", RUN+="/bin/sh -c 'echo 900 > /sys/$DEVPATH/timeout'"
+Sorry, the kernel is 2.6.13 and HZ is 250.
 
-There are only very few users now, that set values in sysfs. If that is
-a common need to change values with udev rules we may integrate that into
-udev itself, instead of calling a shell, but that works fine so far.
+> In either case, it's absurd to assume
+> that the kernel is going to provide you 1 microsecond resolution in
+> 2.6 mainline, as the best HZ value is 1000 (1 millisecond). And we
+> don't busy-wait ever in nanosleep().
 
-Kay
+Not?
+The man page for nanosleep saya that times under 2 us are implemented
+by a busywait and  this is why I expected it to work.
+
+> So the fastest your loop can run
+> is 1000 * 1 ms = 1 second. That's assuming the only time-consuming
+> thing is sleeping (minimal overhead). But, in sys_nanosleep(), we
+> convert nanoseconds to jiffies and add 1 if you requested any sleep
+> time. So,
+> 
+> HZ = 100
+>      1000 * (10 + 1 ms) = 11 s
+> HZ = 250
+>      1000 * (4 + 1 ms) = 5 s
+> HZ = 1000
+>      1000 * (1 + 1 ms) = 2 s (which is what Dick Johnson reported).
+> 
+> Note, that with HZ=250, there might be some extra rounding occurring
+> timespec_to_jiffies() that I've forgotten.
+> 
+> So 8 s may not be terribly unreasonable. I don't know, though, what's
+> add the 3 seconds if you're using 250.
+
+OK, in that case the manpage should be changed. And an alternative
+has to be worked out by me ;-).
+
+Thankyou
+Dag
+

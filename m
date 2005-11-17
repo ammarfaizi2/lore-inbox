@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932417AbVKQQ4S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932416AbVKQRAu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932417AbVKQQ4S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 11:56:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbVKQQ4S
+	id S932416AbVKQRAu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 12:00:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbVKQRAu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 11:56:18 -0500
-Received: from web34111.mail.mud.yahoo.com ([66.163.178.109]:33914 "HELO
-	web34111.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932416AbVKQQ4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 11:56:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=lOFa9rYlO+d8BXLjEzMxHS7sURyZvQhdl4ENx1CLdEQwUZhgAmW0SPn8oAywHAkQIdVEWdPW00xB8qlIRY1/JDP6920MNcuL7wik0lPceA9pO/vmV2DFY05//xF0IKDd9MPOmXwD8QlcVy2wlRdXixirUVmZYrLN3UgflCzmATA=  ;
-Message-ID: <20051117165616.57535.qmail@web34111.mail.mud.yahoo.com>
-Date: Thu, 17 Nov 2005 08:56:16 -0800 (PST)
-From: Kenny Simpson <theonetruekenny@yahoo.com>
-Subject: Re: mmap over nfs leads to excessive system load
-To: cel@citi.umich.edu, Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Kenny Simpson <theonetruekenny@yahoo.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <437CA485.1070706@citi.umich.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 17 Nov 2005 12:00:50 -0500
+Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:63678
+	"EHLO pinky.shadowen.org") by vger.kernel.org with ESMTP
+	id S932416AbVKQRAt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 12:00:49 -0500
+Date: Thu, 17 Nov 2005 17:00:31 +0000
+To: Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>
+Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       Andy Whitcroft <apw@shadowen.org>
+Subject: [PATCH] ppc64 need HPAGE_SHIFT when huge pages disabled
+Message-ID: <20051117170031.GA30223@shadowen.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+From: Andy Whitcroft <apw@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Chuck Lever <cel@citi.umich.edu> wrote:
-> 
-> 'uname -a' on the client?
+With the new powerpc architecture we don't seem to be able to disable
+huge pages anymore.
 
-Linux tux6127 2.6.15-rc1 #6 SMP PREEMPT Wed Nov 16 14:47:14 EST 2005 i686 GNU/Linux
+    mm/built-in.o(.toc1+0xae0): undefined reference to `HPAGE_SHIFT'
+    make: *** [.tmp_vmlinux1] Error 1
 
-I also sent the .config on a previous posting.  I can send it again if you'd like.
+We seem to need to define HPAGE_SHIFT to something when HUGETLB_PAGE isn't
+defined.  This patch defines it to 0 when we have no support.
 
--Kenny
+How does this look?  Against 2.6.15-rc1-mm1.
 
-
-
-		
-__________________________________ 
-Yahoo! FareChase: Search multiple travel sites in one click.
-http://farechase.yahoo.com
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+---
+diff -upN reference/include/asm-powerpc/page_64.h current/include/asm-powerpc/page_64.h
+--- reference/include/asm-powerpc/page_64.h
++++ current/include/asm-powerpc/page_64.h
+@@ -86,7 +86,11 @@ static inline void copy_page(void *to, v
+ extern u64 ppc64_pft_size;
+ 
+ /* Large pages size */
++#ifdef CONFIG_HUGETLB_PAGE
+ extern unsigned int HPAGE_SHIFT;
++#else
++#define HPAGE_SHIFT 0
++#endif
+ #define HPAGE_SIZE		((1UL) << HPAGE_SHIFT)
+ #define HPAGE_MASK		(~(HPAGE_SIZE - 1))
+ #define HUGETLB_PAGE_ORDER	(HPAGE_SHIFT - PAGE_SHIFT)

@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964863AbVKQVBd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964862AbVKQVBP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964863AbVKQVBd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 16:01:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbVKQVBc
+	id S964862AbVKQVBP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 16:01:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964863AbVKQVBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 16:01:32 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:14763 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964863AbVKQVBb (ORCPT
+	Thu, 17 Nov 2005 16:01:15 -0500
+Received: from holomorphy.com ([66.93.40.71]:18621 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S964862AbVKQVBO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 16:01:31 -0500
-Date: Thu, 17 Nov 2005 16:01:05 -0500
-From: Dave Jones <davej@redhat.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Olivier Galibert <galibert@pobox.com>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] [RFC] userland swsusp
-Message-ID: <20051117210105.GJ5772@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Lee Revell <rlrevell@joe-job.com>,
-	Olivier Galibert <galibert@pobox.com>,
-	Linux-pm mailing list <linux-pm@lists.osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <F760B14C9561B941B89469F59BA3A8470BDD12EB@orsmsx401.amr.corp.intel.com> <20051116164429.GA5630@kroah.com> <1132172445.25230.73.camel@localhost> <20051116220500.GF12505@elf.ucw.cz> <20051117170202.GB10402@dspnet.fr.eu.org> <1132257432.4438.8.camel@mindpipe> <20051117201204.GA32376@dspnet.fr.eu.org> <1132258855.4438.11.camel@mindpipe> <20051117203731.GG5772@redhat.com> <1132260851.5959.15.camel@mindpipe>
+	Thu, 17 Nov 2005 16:01:14 -0500
+Date: Thu, 17 Nov 2005 12:59:28 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Paul Mackerras <paulus@samba.org>,
+       Ben Herrenschmidt <benh@kernel.crashing.org>,
+       "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 05/11] unpaged: VM_UNPAGED
+Message-ID: <20051117205928.GL6916@holomorphy.com>
+References: <Pine.LNX.4.61.0511171925290.4563@goblin.wat.veritas.com> <Pine.LNX.4.61.0511171932440.4563@goblin.wat.veritas.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1132260851.5959.15.camel@mindpipe>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <Pine.LNX.4.61.0511171932440.4563@goblin.wat.veritas.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 17, 2005 at 03:54:11PM -0500, Lee Revell wrote:
- > On Thu, 2005-11-17 at 15:37 -0500, Dave Jones wrote:
- > > (Although every release we seem to trade one set of
- > >  working sound drivers for a new set of broken ones). 
- > 
- > Because the ALSA project does not have access to the wide variety of
- > hardware required to regression test every sound driver change.  People
- > like Red Hat and OSDL do, but they don't help.
+On Thu, Nov 17, 2005 at 07:34:55PM +0000, Hugh Dickins wrote:
+> Although we tend to associate VM_RESERVED with remap_pfn_range, quite a
+> few drivers set VM_RESERVED on areas which are then populated by nopage.
+> The PageReserved removal in 2.6.15-rc1 changed VM_RESERVED not to free
+> pages in zap_pte_range, without changing those drivers not to set it:
+> so their pages just leak away.
+> Let's not change miscellaneous drivers now: introduce VM_UNPAGED at the
+> core, to flag the special areas where the ptes may have no struct page,
+> or if they have then it's not to be touched.  Replace most instances of
+> VM_RESERVED in core mm by VM_UNPAGED.  Force it on in remap_pfn_range,
+> and the sparc and sparc64 io_remap_pfn_range.
+> Revert addition of VM_RESERVED to powerpc vdso, it's not needed there.
+> Is it needed anywhere?  It still governs the mm->reserved_vm statistic,
+> and special vmas not to be merged, and areas not to be core dumped; but
+> could probably be eliminated later (the drivers are probably specifying
+> it because in 2.4 it kept swapout off the vma, but in 2.6 we work from
+> the LRU, which these pages don't get on).
 
-Maybe you could let me know where we keep all that hardware ?
-I'd really like to know, and you seem more informed on what
-Red Hat have/do than I am.
+Eminently reasonable. This solves a lot of problems.
+Acked-by: William Irwin <wli@holomorphy.com>
 
-Perhaps you could tell the OSDL people too.
 
-Thanks,
-
-		Dave
-
+-- wli

@@ -1,55 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbVKQN5q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbVKQOAK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750827AbVKQN5q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 08:57:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbVKQN5q
+	id S1750829AbVKQOAK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 09:00:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbVKQOAK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 08:57:46 -0500
-Received: from 90.Red-213-97-199.staticIP.rima-tde.net ([213.97.199.90]:30299
-	"HELO fargo") by vger.kernel.org with SMTP id S1750827AbVKQN5q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 08:57:46 -0500
-Date: Thu, 17 Nov 2005 14:57:31 +0100
-From: David =?utf-8?B?R8OzbWV6?= <david@pleyades.net>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
-Subject: Re: /net/sched/Kconfig broken
-Message-ID: <20051117135731.GA11238@fargo>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	"David S. Miller" <davem@davemloft.net>,
-	linux-kernel@vger.kernel.org
-References: <20051116194414.GA14953@fargo> <20051116.115141.33136176.davem@davemloft.net> <20051116201020.GA15113@fargo> <20051116231650.GR5735@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Thu, 17 Nov 2005 09:00:10 -0500
+Received: from mail13.syd.optusnet.com.au ([211.29.132.194]:47805 "EHLO
+	mail13.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1750829AbVKQOAJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 09:00:09 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: linux-mm@kvack.org
+Subject: [PATCH] mm: is_dma_zone
+Date: Fri, 18 Nov 2005 00:59:50 +1100
+User-Agent: KMail/1.8.3
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20051116231650.GR5735@stusta.de>
-User-Agent: Mutt/1.4.2.1i
+X-Length: 1912
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200511180059.51211.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
+Add a simple is_dma helper function to remain consistent with respect to
+avoiding the use of ZONE_* outside the headers.
 
-On Nov 17 at 12:16:50, Adrian Bunk wrote:
-> > Sorry for not giving more details. I'm using make menuconfig
-> > in a 2.6.14 kernel After selecting CONFIG_NET_SCHED and CONFIG_NET_CLS_BASIC
-> > i don't see new options, the last option visible is NET_CLS_ROUTE4.
-> 
-> And if you select NET_CLS_ROUTE4, this should automatically select 
-> NET_CLS_ROUTE.
-> 
-> Are you saying that after enabling NET_CLS_ROUTE4, the option 
-> NET_CLS_ROUTE is not set in your .config?
+Signed-off-by: Con Kolivas <kernel@kolivas.org>
 
-No, the option is set. But the changes are not visible in make menuconfig, that
-is, i cannot select options that depend on NET_CLS_ROUTE.
+ include/linux/mmzone.h |    5 +++++
+ mm/swap_prefetch.c     |    2 +-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-I found out that if i select NET_CLS_ROUTE4, save my changes and exit
-menuconfig, execute again make menuconfig and go to QoS options, then the new
-available options are visible. So menuconfig has some problem refreshing
-contents :?
+---
 
-thanks,
-
--- 
-David Gómez                                      Jabber ID: davidge@jabber.org
+Index: linux-2.6.14-mm2/include/linux/mmzone.h
+===================================================================
+--- linux-2.6.14-mm2.orig/include/linux/mmzone.h
++++ linux-2.6.14-mm2/include/linux/mmzone.h
+@@ -425,6 +425,11 @@ static inline int is_normal(struct zone 
+ 	return zone == zone->zone_pgdat->node_zones + ZONE_NORMAL;
+ }
+ 
++static inline int is_dma(struct zone *zone)
++{
++	return zone == zone->zone_pgdat->node_zones + ZONE_DMA;
++}
++
+ /* These two functions are used to setup the per zone pages min values */
+ struct ctl_table;
+ struct file;
+Index: linux-2.6.14-mm2/mm/swap_prefetch.c
+===================================================================
+--- linux-2.6.14-mm2.orig/mm/swap_prefetch.c
++++ linux-2.6.14-mm2/mm/swap_prefetch.c
+@@ -180,7 +180,7 @@ static struct page *prefetch_get_page(vo
+ 			continue;
+ 
+ 		/* We don't prefetch into DMA */
+-		if (zone_idx(z) == ZONE_DMA)
++		if (is_dma(z))
+ 			continue;
+ 
+ 		free = z->free_pages;

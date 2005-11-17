@@ -1,106 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964819AbVKQTh7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbVKQTin@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964819AbVKQTh7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 14:37:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964821AbVKQTh7
+	id S964813AbVKQTin (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 14:38:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964821AbVKQTin
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 14:37:59 -0500
-Received: from silver.veritas.com ([143.127.12.111]:29217 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S964819AbVKQTh6
+	Thu, 17 Nov 2005 14:38:43 -0500
+Received: from silver.veritas.com ([143.127.12.111]:38177 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S964813AbVKQTim
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 14:37:58 -0500
-Date: Thu, 17 Nov 2005 19:36:40 +0000 (GMT)
+	Thu, 17 Nov 2005 14:38:42 -0500
+Date: Thu, 17 Nov 2005 19:37:23 +0000 (GMT)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@goblin.wat.veritas.com
 To: Andrew Morton <akpm@osdl.org>
 cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
-Subject: [PATCH 06/11] unpaged: VM_NONLINEAR VM_RESERVED
+Subject: [PATCH 07/11] unpaged: COW on VM_UNPAGED
 In-Reply-To: <Pine.LNX.4.61.0511171925290.4563@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0511171935030.4563@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0511171936440.4563@goblin.wat.veritas.com>
 References: <Pine.LNX.4.61.0511171925290.4563@goblin.wat.veritas.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 17 Nov 2005 19:37:58.0383 (UTC) FILETIME=[69EBDFF0:01C5EBAE]
+X-OriginalArrivalTime: 17 Nov 2005 19:38:41.0852 (UTC) FILETIME=[83D4B7C0:01C5EBAE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's one peculiar use of VM_RESERVED which the previous patch left
-behind: because VM_NONLINEAR's try_to_unmap_cluster uses vm_private_data
-as a swapout cursor, but should never meet VM_RESERVED vmas, it was a
-way of extending VM_NONLINEAR to VM_RESERVED vmas using vm_private_data
-for some other purpose.  But that's an empty set - they don't have the
-populate function required.  So just throw away those VM_RESERVED tests.
+Remove the BUG_ON(vma->vm_flags & VM_UNPAGED) from do_wp_page, and let
+it do Copy-On-Write without touching the VM_UNPAGED's page counts - but
+this is incomplete, because the anonymous page it inserts will itself
+need to be handled, here and in other functions - next patch.
 
-But one more interesting in rmap.c has to go too: try_to_unmap_one will
-want to swap out an anonymous page from VM_RESERVED or VM_UNPAGED area.
+We still don't copy the page if the pfn is invalid, because the
+copy_user_highpage interface does not allow it.  But that's not been
+a problem in the past: can be added in later if the need arises.
 
 Signed-off-by: Hugh Dickins <hugh@veritas.com>
 ---
 
- mm/fremap.c |    6 ++----
- mm/rmap.c   |   15 +++++----------
- 2 files changed, 7 insertions(+), 14 deletions(-)
+ mm/memory.c |   37 +++++++++++++++++++++++++------------
+ 1 files changed, 25 insertions(+), 12 deletions(-)
 
---- unpaged05/mm/fremap.c	2005-11-17 15:11:02.000000000 +0000
-+++ unpaged06/mm/fremap.c	2005-11-17 15:11:16.000000000 +0000
-@@ -204,12 +204,10 @@ asmlinkage long sys_remap_file_pages(uns
- 	 * Make sure the vma is shared, that it supports prefaulting,
- 	 * and that the remapped range is valid and fully within
- 	 * the single existing vma.  vm_private_data is used as a
--	 * swapout cursor in a VM_NONLINEAR vma (unless VM_RESERVED
--	 * or VM_LOCKED, but VM_LOCKED could be revoked later on).
-+	 * swapout cursor in a VM_NONLINEAR vma.
- 	 */
- 	if (vma && (vma->vm_flags & VM_SHARED) &&
--		(!vma->vm_private_data ||
--			(vma->vm_flags & (VM_NONLINEAR|VM_RESERVED))) &&
-+		(!vma->vm_private_data || (vma->vm_flags & VM_NONLINEAR)) &&
- 		vma->vm_ops && vma->vm_ops->populate &&
- 			end > start && start >= vma->vm_start &&
- 				end <= vma->vm_end) {
---- unpaged05/mm/rmap.c	2005-11-12 09:01:25.000000000 +0000
-+++ unpaged06/mm/rmap.c	2005-11-17 15:11:16.000000000 +0000
-@@ -529,10 +529,8 @@ static int try_to_unmap_one(struct page 
- 	 * If the page is mlock()d, we cannot swap it out.
- 	 * If it's recently referenced (perhaps page_referenced
- 	 * skipped over this mm) then we should reactivate it.
--	 *
--	 * Pages belonging to VM_RESERVED regions should not happen here.
- 	 */
--	if ((vma->vm_flags & (VM_LOCKED|VM_RESERVED)) ||
-+	if ((vma->vm_flags & VM_LOCKED) ||
- 			ptep_clear_flush_young(vma, address, pte)) {
- 		ret = SWAP_FAIL;
- 		goto out_unmap;
-@@ -727,7 +725,7 @@ static int try_to_unmap_file(struct page
+--- unpaged06/mm/memory.c	2005-11-17 15:11:02.000000000 +0000
++++ unpaged07/mm/memory.c	2005-11-17 15:11:30.000000000 +0000
+@@ -1277,22 +1277,28 @@ static int do_wp_page(struct mm_struct *
+ 		unsigned long address, pte_t *page_table, pmd_t *pmd,
+ 		spinlock_t *ptl, pte_t orig_pte)
+ {
+-	struct page *old_page, *new_page;
++	struct page *old_page, *src_page, *new_page;
+ 	unsigned long pfn = pte_pfn(orig_pte);
+ 	pte_t entry;
+ 	int ret = VM_FAULT_MINOR;
  
- 	list_for_each_entry(vma, &mapping->i_mmap_nonlinear,
- 						shared.vm_set.list) {
--		if (vma->vm_flags & (VM_LOCKED|VM_RESERVED))
-+		if (vma->vm_flags & VM_LOCKED)
- 			continue;
- 		cursor = (unsigned long) vma->vm_private_data;
- 		if (cursor > max_nl_cursor)
-@@ -761,7 +759,7 @@ static int try_to_unmap_file(struct page
- 	do {
- 		list_for_each_entry(vma, &mapping->i_mmap_nonlinear,
- 						shared.vm_set.list) {
--			if (vma->vm_flags & (VM_LOCKED|VM_RESERVED))
-+			if (vma->vm_flags & VM_LOCKED)
- 				continue;
- 			cursor = (unsigned long) vma->vm_private_data;
- 			while ( cursor < max_nl_cursor &&
-@@ -783,11 +781,8 @@ static int try_to_unmap_file(struct page
- 	 * in locked vmas).  Reset cursor on all unreserved nonlinear
- 	 * vmas, now forgetting on which ones it had fallen behind.
+-	BUG_ON(vma->vm_flags & VM_UNPAGED);
+-
+ 	if (unlikely(!pfn_valid(pfn))) {
+ 		/*
+ 		 * Page table corrupted: show pte and kill process.
++		 * Or it's an attempt to COW an out-of-map VM_UNPAGED
++		 * entry, which copy_user_highpage does not support.
+ 		 */
+ 		print_bad_pte(vma, orig_pte, address);
+ 		ret = VM_FAULT_OOM;
+ 		goto unlock;
+ 	}
+ 	old_page = pfn_to_page(pfn);
++	src_page = old_page;
++
++	if (unlikely(vma->vm_flags & VM_UNPAGED)) {
++		old_page = NULL;
++		goto gotten;
++	}
+ 
+ 	if (PageAnon(old_page) && !TestSetPageLocked(old_page)) {
+ 		int reuse = can_share_swap_page(old_page);
+@@ -1313,11 +1319,12 @@ static int do_wp_page(struct mm_struct *
+ 	 * Ok, we need to copy. Oh, well..
  	 */
--	list_for_each_entry(vma, &mapping->i_mmap_nonlinear,
--						shared.vm_set.list) {
--		if (!(vma->vm_flags & VM_RESERVED))
--			vma->vm_private_data = NULL;
--	}
-+	list_for_each_entry(vma, &mapping->i_mmap_nonlinear, shared.vm_set.list)
-+		vma->vm_private_data = NULL;
- out:
- 	spin_unlock(&mapping->i_mmap_lock);
+ 	page_cache_get(old_page);
++gotten:
+ 	pte_unmap_unlock(page_table, ptl);
+ 
+ 	if (unlikely(anon_vma_prepare(vma)))
+ 		goto oom;
+-	if (old_page == ZERO_PAGE(address)) {
++	if (src_page == ZERO_PAGE(address)) {
+ 		new_page = alloc_zeroed_user_highpage(vma, address);
+ 		if (!new_page)
+ 			goto oom;
+@@ -1325,7 +1332,7 @@ static int do_wp_page(struct mm_struct *
+ 		new_page = alloc_page_vma(GFP_HIGHUSER, vma, address);
+ 		if (!new_page)
+ 			goto oom;
+-		copy_user_highpage(new_page, old_page, address);
++		copy_user_highpage(new_page, src_page, address);
+ 	}
+ 
+ 	/*
+@@ -1333,11 +1340,14 @@ static int do_wp_page(struct mm_struct *
+ 	 */
+ 	page_table = pte_offset_map_lock(mm, pmd, address, &ptl);
+ 	if (likely(pte_same(*page_table, orig_pte))) {
+-		page_remove_rmap(old_page);
+-		if (!PageAnon(old_page)) {
++		if (old_page) {
++			page_remove_rmap(old_page);
++			if (!PageAnon(old_page)) {
++				dec_mm_counter(mm, file_rss);
++				inc_mm_counter(mm, anon_rss);
++			}
++		} else
+ 			inc_mm_counter(mm, anon_rss);
+-			dec_mm_counter(mm, file_rss);
+-		}
+ 		flush_cache_page(vma, address, pfn);
+ 		entry = mk_pte(new_page, vma->vm_page_prot);
+ 		entry = maybe_mkwrite(pte_mkdirty(entry), vma);
+@@ -1351,13 +1361,16 @@ static int do_wp_page(struct mm_struct *
+ 		new_page = old_page;
+ 		ret |= VM_FAULT_WRITE;
+ 	}
+-	page_cache_release(new_page);
+-	page_cache_release(old_page);
++	if (new_page)
++		page_cache_release(new_page);
++	if (old_page)
++		page_cache_release(old_page);
+ unlock:
+ 	pte_unmap_unlock(page_table, ptl);
  	return ret;
+ oom:
+-	page_cache_release(old_page);
++	if (old_page)
++		page_cache_release(old_page);
+ 	return VM_FAULT_OOM;
+ }
+ 

@@ -1,53 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964862AbVKQVBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbVKQVB5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964862AbVKQVBP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 16:01:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964863AbVKQVBP
+	id S964867AbVKQVB5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 16:01:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbVKQVB4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 16:01:15 -0500
-Received: from holomorphy.com ([66.93.40.71]:18621 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S964862AbVKQVBO (ORCPT
+	Thu, 17 Nov 2005 16:01:56 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:63919 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964864AbVKQVBz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 16:01:14 -0500
-Date: Thu, 17 Nov 2005 12:59:28 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Paul Mackerras <paulus@samba.org>,
-       Ben Herrenschmidt <benh@kernel.crashing.org>,
-       "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 05/11] unpaged: VM_UNPAGED
-Message-ID: <20051117205928.GL6916@holomorphy.com>
-References: <Pine.LNX.4.61.0511171925290.4563@goblin.wat.veritas.com> <Pine.LNX.4.61.0511171932440.4563@goblin.wat.veritas.com>
+	Thu, 17 Nov 2005 16:01:55 -0500
+Date: Thu, 17 Nov 2005 13:02:15 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org, rohit.seth@intel.com
+Subject: Re: 2.6.15-rc1-git crashes in kswapd
+Message-Id: <20051117130215.33889990.akpm@osdl.org>
+In-Reply-To: <20051117160624.GR7787@suse.de>
+References: <20051117154754.GP7787@suse.de>
+	<20051117160624.GR7787@suse.de>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0511171932440.4563@goblin.wat.veritas.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 17, 2005 at 07:34:55PM +0000, Hugh Dickins wrote:
-> Although we tend to associate VM_RESERVED with remap_pfn_range, quite a
-> few drivers set VM_RESERVED on areas which are then populated by nopage.
-> The PageReserved removal in 2.6.15-rc1 changed VM_RESERVED not to free
-> pages in zap_pte_range, without changing those drivers not to set it:
-> so their pages just leak away.
-> Let's not change miscellaneous drivers now: introduce VM_UNPAGED at the
-> core, to flag the special areas where the ptes may have no struct page,
-> or if they have then it's not to be touched.  Replace most instances of
-> VM_RESERVED in core mm by VM_UNPAGED.  Force it on in remap_pfn_range,
-> and the sparc and sparc64 io_remap_pfn_range.
-> Revert addition of VM_RESERVED to powerpc vdso, it's not needed there.
-> Is it needed anywhere?  It still governs the mm->reserved_vm statistic,
-> and special vmas not to be merged, and areas not to be core dumped; but
-> could probably be eliminated later (the drivers are probably specifying
-> it because in 2.4 it kept swapout off the vma, but in 2.6 we work from
-> the LRU, which these pages don't get on).
+Jens Axboe <axboe@suse.de> wrote:
+>
+> does zonelist->zones change further down the path
+> and we need the revalidation before after restarting?
+> 
 
-Eminently reasonable. This solves a lot of problems.
-Acked-by: William Irwin <wli@holomorphy.com>
+err, yeah.   Like this, I think?
 
 
--- wli
+
+We modify local variable `z' while walking across the zones.  So we need to
+restore it if we do the `goto restart' thing in the rare case where the
+oom-killer was called.
+
+
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ mm/page_alloc.c |    9 ++++-----
+ 1 files changed, 4 insertions(+), 5 deletions(-)
+
+diff -puN mm/page_alloc.c~alloc_pages-oops-fix mm/page_alloc.c
+--- 25/mm/page_alloc.c~alloc_pages-oops-fix	Thu Nov 17 12:58:38 2005
++++ 25-akpm/mm/page_alloc.c	Thu Nov 17 12:59:19 2005
+@@ -845,13 +845,12 @@ __alloc_pages(gfp_t gfp_mask, unsigned i
+ 
+ 	might_sleep_if(wait);
+ 
+-	z = zonelist->zones;  /* the list of zones suitable for gfp_mask */
++restart:
++	z = zonelist->zones;	  /* the list of zones suitable for gfp_mask */
+ 
+-	if (unlikely(*z == NULL)) {
+-		/* Should this ever happen?? */
++	if (unlikely(*z == NULL)) /* Should this ever happen?? */
+ 		return NULL;
+-	}
+-restart:
++
+ 	page = get_page_from_freelist(gfp_mask|__GFP_HARDWALL, order,
+ 				zonelist, ALLOC_CPUSET);
+ 	if (page)
+_
+

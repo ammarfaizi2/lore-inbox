@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964801AbVKQSNi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbVKQS1p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964801AbVKQSNi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 13:13:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964802AbVKQSNh
+	id S932453AbVKQS1p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 13:27:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbVKQS1p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 13:13:37 -0500
-Received: from mail.kroah.org ([69.55.234.183]:39590 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964801AbVKQSNf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 13:13:35 -0500
-Date: Thu, 17 Nov 2005 09:58:11 -0800
-From: Greg KH <greg@kroah.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: build error in current -git tree
-Message-ID: <20051117175811.GA28263@kroah.com>
-References: <20051117171047.GA27534@kroah.com> <Pine.LNX.4.64.0511170941220.13959@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0511170941220.13959@g5.osdl.org>
-User-Agent: Mutt/1.5.11
+	Thu, 17 Nov 2005 13:27:45 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:56028 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932453AbVKQS1o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 13:27:44 -0500
+Date: Thu, 17 Nov 2005 10:27:35 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Robin Holt <holt@sgi.com>
+cc: Mel Gorman <mel@csn.ul.ie>, Russ Anderson <rja@sgi.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: How to handle a hugepage with bad physical memory?
+In-Reply-To: <20051117144332.GC4316@lnx-holt.americas.sgi.com>
+Message-ID: <Pine.LNX.4.62.0511171026070.20976@schroedinger.engr.sgi.com>
+References: <20051116131012.GE4573@lnx-holt.americas.sgi.com>
+ <Pine.LNX.4.62.0511161155380.16434@schroedinger.engr.sgi.com>
+ <20051117144332.GC4316@lnx-holt.americas.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 17, 2005 at 09:42:12AM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Thu, 17 Nov 2005, Greg KH wrote:
-> >
-> > In trying to build your kernel tree right now, I get the following
-> > error:
-> 
-> Heh. That's what I get for being on ppc64 now.
-> 
-> This should fix it (and I'll try it out on my laptop before I commit it).
+On Thu, 17 Nov 2005, Robin Holt wrote:
 
-Yup, your commited change fixed it for me, thanks.
+> > > With the new hugepages concept, would it be possible to only mark
+> > > the default pagesize portion of a hugepage as bad and then return the
+> > > remainder of the hugepage for normal use?  What would we basically need
+> > > to do to accomplish this?  Are there patches in the community which we
+> > > should wait to see how they progress before we do any work on this front?
+> > 
+> > On IA64 we have one PTE for a huge page in a different region, so we 
+> > cannot unmap a page sized section. Other architectures may have PTEs for 
+> > each page sized section of a huge page. For those it may make sense 
+> > (but then the management of the page is done via the first page_struct, 
+> > which likely results in some challenging VM issues).
+> 
+> I think you misunderstood me.  I was talking about killing the process.
+> All the mappings get destroyed.  I want to reclaim as much of that huge
+> page as possible.
 
-greg k-h
+You are right. If you can reclaim the whole page (as you can when killing 
+a process) then you can isolate the bad page and free the rest. There 
+would have to be special code for that in the hugetlb layer.
+

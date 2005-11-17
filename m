@@ -1,38 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965142AbVKQXzn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965140AbVKQXzW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965142AbVKQXzn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 18:55:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965168AbVKQXzn
+	id S965140AbVKQXzW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 18:55:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965141AbVKQXzW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 18:55:43 -0500
-Received: from mail.kroah.org ([69.55.234.183]:36536 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965142AbVKQXza (ORCPT
+	Thu, 17 Nov 2005 18:55:22 -0500
+Received: from mail.kroah.org ([69.55.234.183]:30392 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S965140AbVKQXzW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 18:55:30 -0500
-Date: Thu, 17 Nov 2005 15:39:58 -0800
+	Thu, 17 Nov 2005 18:55:22 -0500
+Date: Thu, 17 Nov 2005 13:56:13 -0800
 From: Greg KH <greg@kroah.com>
-To: Adam Belay <abelay@novell.com>
-Cc: Greg KH <gregkh@suse.de>, Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-pm] Re: [RFC][PATCH 6/6] PCI PM: pci_save/restore_state improvements
-Message-ID: <20051117233957.GB10464@kroah.com>
-References: <1132111902.9809.59.camel@localhost.localdomain> <20051116063125.GE31375@suse.de> <1132125965.3656.15.camel@localhost.localdomain> <20051116180655.GC6908@suse.de> <1132271430.3656.23.camel@localhost.localdomain>
+To: kernel list <linux-kernel@vger.kernel.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+Subject: Re: [linux-pm] [RFC] userland swsusp
+Message-ID: <20051117215612.GA8797@kroah.com>
+References: <F760B14C9561B941B89469F59BA3A8470BDD12EB@orsmsx401.amr.corp.intel.com> <20051116191051.GG2193@spitz.ucw.cz> <20051117165437.GA10402@dspnet.fr.eu.org> <20051117164451.GA27178@kroah.com> <20051117201509.GA25250@finwe.eu.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1132271430.3656.23.camel@localhost.localdomain>
+In-Reply-To: <20051117201509.GA25250@finwe.eu.org>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 17, 2005 at 06:50:30PM -0500, Adam Belay wrote:
+On Thu, Nov 17, 2005 at 09:15:09PM +0100, Jacek Kawa wrote:
+> Greg KH wrote:
 > 
-> I'm probably going to regret this, but I'd be happy to take on any PCI
-> PM subsystem bug reports.  Unless I forgot a register we need to
-> restore, I'm not expecting this to cause too many problems.  A little
-> time in -mm should shake out any issues out rather quickly.
+> > > > What unstable implementation? swsusp had very little regressions over past
+> > > > year or so. Drivers were different story, but nothing changes w.r.t. drivers.
+> > > Do you mean swsusp is actually supposed to work?  Suspend-to-ram,
+> > > suspend-to-disk or both?
+> > Both.  -to-ram depends on your video chip, but to-disk should work just
+> > fine.  If not, please report bugs.
+> 
+> Thanks, I've just realized, that I probably forgot to CC anyone last time... 
+> :)
+> 
+> So, may I kindly ask to look on:
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0511.1/1863.html ?
 
-Ok, respin them and I'll be glad to add them to my tree.
+Care to file this in bugzilla.kernel.org and assign it to Pavel?
 
 thanks,
 

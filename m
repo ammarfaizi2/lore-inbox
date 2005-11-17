@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbVKQVpc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751501AbVKQVth@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751361AbVKQVpc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 16:45:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbVKQVpc
+	id S1751501AbVKQVth (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 16:49:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751503AbVKQVth
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 16:45:32 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:500 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751361AbVKQVpb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 16:45:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=Af0FK0Kevv4kjjjTRX+V103RJHfjjjYxTkzJKBH42ndClvmlZ/pLcfqOIoEKKM2iHnDzCqGp8+yJXpOmuPt3Ri3irDY8uLWa0JvPk9BUXXiZFyOYWJPCNiFJhfXXfpKZIMpUPf9iZkKUzR2Q5JKGaB6f+4dFGJBwfyFJFeaWe8Q=
-Date: Thu, 17 Nov 2005 22:45:13 +0100
-From: Diego Calleja <diegocg@gmail.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: rlrevell@joe-job.com, chrisw@osdl.org, davej@redhat.com,
-       galibert@pobox.com, linux-pm@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-pm] [RFC] userland swsusp
-Message-Id: <20051117224513.d80572d0.diegocg@gmail.com>
-In-Reply-To: <20051117211856.GS5856@shell0.pdx.osdl.net>
-References: <1132172445.25230.73.camel@localhost>
-	<20051116220500.GF12505@elf.ucw.cz>
-	<20051117170202.GB10402@dspnet.fr.eu.org>
-	<1132257432.4438.8.camel@mindpipe>
-	<20051117201204.GA32376@dspnet.fr.eu.org>
-	<1132258855.4438.11.camel@mindpipe>
-	<20051117203731.GG5772@redhat.com>
-	<1132260851.5959.15.camel@mindpipe>
-	<20051117210643.GG7991@shell0.pdx.osdl.net>
-	<1132262060.5959.21.camel@mindpipe>
-	<20051117211856.GS5856@shell0.pdx.osdl.net>
-X-Mailer: Sylpheed version 2.1.6 (GTK+ 2.8.3; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Thu, 17 Nov 2005 16:49:37 -0500
+Received: from 8.ctyme.com ([69.50.231.8]:46495 "EHLO darwin.ctyme.com")
+	by vger.kernel.org with ESMTP id S1751501AbVKQVth (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 16:49:37 -0500
+Message-ID: <437CFAF0.30500@perkel.com>
+Date: Thu, 17 Nov 2005 13:49:36 -0800
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.14.2 Kernel Panic - Athlon X2 SATA NVidia Chipset
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spamfilter-host: darwin.ctyme.com - http://www.junkemailfilter.com"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Thu, 17 Nov 2005 13:18:56 -0800,
-Chris Wright <chrisw@osdl.org> escribió:
+I was attempting to do some upgrades last night and run into a bug again 
+that I thought had been fixed but apparently hasn't. The kernel crashed 
+and I got the same gargage in the screen about the sata_nv drivers. 
+(Sorry I can't be more specific but it want a screen full of SATA 
+relared errors and panic).
 
-> Yeah, bad bug reports are indeed a pain.  One thing that may help ALSA is
-> more frequent merging with mainline.  Then the delta between ALSA cvs
-> (and hence ALSA developers) and mainline (users) is smaller.
+The current computer that was running is an Asus A8V Deluxe MB. Had IDE 
+drives and doing great. When I tried switching to SATA drives it ran for 
+about an hour and then crashed as stated above. Put the old IDE drive 
+back in and doing fine again. Unlike before when I thought it was 
+related to having 4 gigs of ram - this machine only had 3 gigs.
 
-What about using kernel's bugzilla? Alsa has a (weird) bug tracker but
-some people reports bugs in bugzilla.kernel.org aswell (just a suggestion,
-it seems weird to have two places to report bugs and I bet that's not good
-for users)
+Additionally, tried to switch computers to a new machine I just built. 
+The new computer has a Gigabyte GA-K8N51GMF-9 Motherboard. Again it's 
+nVidia. Has 2 SATA drives in it and was working fine with a single core 
+processor. I switched CPUs and put the dual core in and within minutes I 
+got the same SATA related crash.
+
+Whatever the problem is with nVidia and SATA and Athlon X2 processors - 
+it is still not fixed. Anyone else seeing this? I'm not a programmer. 
+What can I do to help?
+
+-- 
+Marc Perkel - marc@perkel.com
+
+Spam Filter: http://www.junkemailfilter.com
+    My Blog: http://marc.perkel.com
+

@@ -1,107 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964960AbVKQWuc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964882AbVKQWyt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964960AbVKQWuc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 17:50:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964946AbVKQWub
+	id S964882AbVKQWyt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 17:54:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964883AbVKQWys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 17:50:31 -0500
-Received: from nproxy.gmail.com ([64.233.182.206]:25755 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964960AbVKQWub convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 17:50:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=de0IRMA9ayym9MpSjj125BKAk0sjX8lxshYsavDa4/HHKRgobn0RqBVeb6P3UL9PmomuUAiBDHOE17+E297AlM5L4xqvwqmBOuKMY5kA6fv33ozpu5imFI+bEdxLjXTcn1n9rOVtQBRjksWmKPoLfRron9TmxzEm/0sZ5t8DKrI=
-Message-ID: <e294b46e0511171450o14816979x9e20fa547654be65@mail.gmail.com>
-Date: Thu, 17 Nov 2005 22:50:29 +0000
-From: Bradley Chapman <kakadu@gmail.com>
-To: Bart Samwel <bart@samwel.tk>
-Subject: Re: Laptop mode causing writes to wrong sectors?
-Cc: linux-kernel@vger.kernel.org, Jan Niehusmann <jan@gondor.com>
-In-Reply-To: <437CF478.7010406@samwel.tk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <e294b46e0511170522v5762d48jcaff8413e33b2ebe@mail.gmail.com>
-	 <437C9334.3020606@samwel.tk>
-	 <e294b46e0511170822w79e5478asf49183c8447c7c77@mail.gmail.com>
-	 <437CF478.7010406@samwel.tk>
+	Thu, 17 Nov 2005 17:54:48 -0500
+Received: from fmr24.intel.com ([143.183.121.16]:10208 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S964882AbVKQWyr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 17:54:47 -0500
+Subject: Re: 2.6.15-rc1-git crashes in kswapd
+From: Rohit Seth <rohit.seth@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051117130215.33889990.akpm@osdl.org>
+References: <20051117154754.GP7787@suse.de> <20051117160624.GR7787@suse.de>
+	 <20051117130215.33889990.akpm@osdl.org>
+Content-Type: text/plain
+Organization: Intel 
+Date: Thu, 17 Nov 2005 15:00:52 -0800
+Message-Id: <1132268452.14243.4.camel@akash.sc.intel.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Nov 2005 22:53:57.0635 (UTC) FILETIME=[CAFB5530:01C5EBC9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mr. Samwel,
-
-On 11/17/05, Bart Samwel <bart@samwel.tk> wrote:
-> Bradley Chapman wrote:
-> > Mr. Samwel,
+On Thu, 2005-11-17 at 13:02 -0800, Andrew Morton wrote:
+> Jens Axboe <axboe@suse.de> wrote:
 > >
-> > On 11/17/05, Bart Samwel <bart@samwel.tk> wrote:
-> >> OK, that's the second report then. I'm beginning to worry. :/
-> >>
-> >> Are you seeing any DMA timeout messages in your kernel log?
-> >
-> > Once, when my /var partition got trashed - about thirty or forty loud
-> > and scary messages from the IDE core saying that various disk accesses
-> > (i.e. normal read/writes) were failing. I do believe DMA was
-> > mentioned.
->
-> This could be the problem I was talking about. Was this happening during
-> spindown or not?
+> > does zonelist->zones change further down the path
+> > and we need the revalidation before after restarting?
+> > 
+> 
+> err, yeah.   Like this, I think?
+> 
+> 
 
-I believe so. I only noticed it when I checked my dmesg after the
-ipw2200 driver crapped out yet again...
+Good catch Jens.  The zone variables (and their initialization) got
+slightly changed because we moved the zone_statistics part from
+_alloc_pages to get_page_from_freelist function.
 
->
-> > Another time (i.e. just now), I got five Oopses in a row, most of them
-> > in kmem_cache_alloc() but with one in generic_aio_file_read().
-> > Unfortunately I am using fglrx right now so they are probably quite
-> > meaningless...*
->
-> I guess so. They all oops on reading the same address (0x05c2a5bb),
-> there's something corrupted in the slab cache, cause unknown. Very
-> possibly fglrx.
+Andrew's patch below is the right fix.
 
-Indeed. I expected as such.
+-rohit
+> 
+> We modify local variable `z' while walking across the zones.  So we need to
+> restore it if we do the `goto restart' thing in the rare case where the
+> oom-killer was called.
+> 
+> 
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> ---
+> 
+>  mm/page_alloc.c |    9 ++++-----
+>  1 files changed, 4 insertions(+), 5 deletions(-)
+> 
+> diff -puN mm/page_alloc.c~alloc_pages-oops-fix mm/page_alloc.c
+> --- 25/mm/page_alloc.c~alloc_pages-oops-fix	Thu Nov 17 12:58:38 2005
+> +++ 25-akpm/mm/page_alloc.c	Thu Nov 17 12:59:19 2005
+> @@ -845,13 +845,12 @@ __alloc_pages(gfp_t gfp_mask, unsigned i
+>  
+>  	might_sleep_if(wait);
+>  
+> -	z = zonelist->zones;  /* the list of zones suitable for gfp_mask */
+> +restart:
+> +	z = zonelist->zones;	  /* the list of zones suitable for gfp_mask */
+>  
+> -	if (unlikely(*z == NULL)) {
+> -		/* Should this ever happen?? */
+> +	if (unlikely(*z == NULL)) /* Should this ever happen?? */
+>  		return NULL;
+> -	}
+> -restart:
+> +
+>  	page = get_page_from_freelist(gfp_mask|__GFP_HARDWALL, order,
+>  				zonelist, ALLOC_CPUSET);
+>  	if (page)
+> _
+> 
 
->
-> > Most of the time though, I don't see anything.
->
-> ...while still experiencing corruption?
->
-> >> Bradley, Jan, since when have these problems been happening? Kernel
-> >> version-wise, I mean?
-> >
-> > They started with 2.6.13. I can't remember ever expereincing random
-> > partition trashing or random file corruption in 2.6.12. I tried
-> > 2.6.14.1 - that kernel did Bad Things as well.
-> >
-> > So far though, as long as I stay on juice, 2.6.13 seems to behave.
->
-> Hmmmm. This means that you could still be experiencing the same thing
-> that Andrea Gelmini was reporting. Could you try the things he said made
-> it worse, and check if things go wrong? You are, of course, allowed to
-> decline because of the risk involved. :-) The things are:
->
-> Big activity:
->
-> * iozone -A
-> * unrar big file
-> * In order to make it happen faster:
->         cd /proc/sys/vm
->         echo 100 > dirty_background_ratio
->         echo 1000000 > dirty_expire_centisecs
->         echo 100 > dirty_ratio
->         echo 1000000 > dirty_writeback_centisecs
-
-No thanks. I'll stick to 'normal usage' triggers and see if I can
-gather any data that way ;-)))
-
->
-> --Bart
->
-
-Brad
---
-SCREW THE ADS! http://adblock.mozdev.org/

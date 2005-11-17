@@ -1,41 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964914AbVKQXFg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965042AbVKQXHi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964914AbVKQXFg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 18:05:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964916AbVKQXFf
+	id S965042AbVKQXHi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 18:07:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964934AbVKQXHi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 18:05:35 -0500
-Received: from zproxy.gmail.com ([64.233.162.203]:43224 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964914AbVKQXFf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 18:05:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=jqkVgoD/NfEAh3rlZfTWJ4Wb5Qw6CzDy+GI5oTHZdPa3RmUfG7zfLMQE6FrW+E5N+YEbZEOyg10jkDswu9EK3XF7xnsxt/kKHzzY4irvSDGGBHuJB68ZM1b8mIn2YRNpfz2O+8+/4QVxKfhFO8GAMTHKM88cpUYFznhiR4EQYPw=
-Message-ID: <4ae3c140511171505j33dc4c2ere731f1b3c55f9741@mail.gmail.com>
-Date: Thu, 17 Nov 2005 18:05:34 -0500
-From: Xin Zhao <uszhaoxin@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: workqueue is not working?
+	Thu, 17 Nov 2005 18:07:38 -0500
+Received: from gate.crashing.org ([63.228.1.57]:60838 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S965042AbVKQXHh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 18:07:37 -0500
+Date: Thu, 17 Nov 2005 17:05:02 -0600 (CST)
+From: Kumar Gala <galak@gate.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux-kernel@vger.kernel.org, <linuxppc-embedded@ozlabs.org>,
+       Paul Mackerras <paulus@samba.org>, <dave@cray.com>
+Subject: [PATCH] ppc: Fix MPC83xx device table
+Message-ID: <Pine.LNX.4.44.0511171704240.15752-100000@gate.crashing.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tried to schedule some work in an softirq handler. The way I did is
-as follows:
+The SVRs for MPC8343/E where incorrect and really the SVRs
+for MPC8347/E.
 
-I use create_workqueue to initialize a workqueue "vrpciod_workqueue",
+Signed-off-by: David Updegraff <dave@cray.com>
+Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
 
-in the softirq, I do INIT_WORK(work, func, data), and then
-queue_work(vrpciod_workqueue, work);
+---
+commit 6eba85c696e0a0fef59435bd641110a759b308ab
+tree 0f2393d85f4f225793508a321460c74579c9d834
+parent 5b45c04aa9d209ba1a71ff8061fda9ae3979ddd6
+author Kumar Gala <galak@kernel.crashing.org> Thu, 17 Nov 2005 17:06:02 -0600
+committer Kumar Gala <galak@kernel.crashing.org> Thu, 17 Nov 2005 17:06:02 -0600
 
-I think func() should be called a bit later. However, I noticed that
-func() is never called by the workqueue. I don't know why.
+ arch/ppc/syslib/mpc83xx_sys.c |   28 ++++++++++++++++++++++++++--
+ 1 files changed, 26 insertions(+), 2 deletions(-)
 
-Can soneone give me some suggestions? Many thanks!
+diff --git a/arch/ppc/syslib/mpc83xx_sys.c b/arch/ppc/syslib/mpc83xx_sys.c
+index a152398..82cf3ab 100644
+--- a/arch/ppc/syslib/mpc83xx_sys.c
++++ b/arch/ppc/syslib/mpc83xx_sys.c
+@@ -69,9 +69,33 @@ struct ppc_sys_spec ppc_sys_specs[] = {
+ 		},
+ 	},
+ 	{
+-		.ppc_sys_name	= "8343E",
++		.ppc_sys_name	= "8347E",
+ 		.mask 		= 0xFFFF0000,
+ 		.value 		= 0x80540000,
++		.num_devices	= 9,
++		.device_list	= (enum ppc_sys_devices[])
++		{
++			MPC83xx_TSEC1, MPC83xx_TSEC2, MPC83xx_IIC1,
++			MPC83xx_IIC2, MPC83xx_DUART, MPC83xx_SEC2,
++			MPC83xx_USB2_DR, MPC83xx_USB2_MPH, MPC83xx_MDIO
++		},
++	},
++	{
++		.ppc_sys_name	= "8347",
++		.mask 		= 0xFFFF0000,
++		.value 		= 0x80550000,
++		.num_devices	= 8,
++		.device_list	= (enum ppc_sys_devices[])
++		{
++			MPC83xx_TSEC1, MPC83xx_TSEC2, MPC83xx_IIC1,
++			MPC83xx_IIC2, MPC83xx_DUART,
++			MPC83xx_USB2_DR, MPC83xx_USB2_MPH, MPC83xx_MDIO
++		},
++	},
++	{
++		.ppc_sys_name	= "8343E",
++		.mask 		= 0xFFFF0000,
++		.value 		= 0x80560000,
+ 		.num_devices	= 8,
+ 		.device_list	= (enum ppc_sys_devices[])
+ 		{
+@@ -83,7 +107,7 @@ struct ppc_sys_spec ppc_sys_specs[] = {
+ 	{
+ 		.ppc_sys_name	= "8343",
+ 		.mask 		= 0xFFFF0000,
+-		.value 		= 0x80550000,
++		.value 		= 0x80570000,
+ 		.num_devices	= 7,
+ 		.device_list	= (enum ppc_sys_devices[])
+ 		{
 
-Xin

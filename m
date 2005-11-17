@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964788AbVKQSMf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964801AbVKQSNi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964788AbVKQSMf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 13:12:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbVKQSMc
+	id S964801AbVKQSNi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 13:13:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964802AbVKQSNh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 13:12:32 -0500
-Received: from mail.kroah.org ([69.55.234.183]:17826 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932499AbVKQSEI (ORCPT
+	Thu, 17 Nov 2005 13:13:37 -0500
+Received: from mail.kroah.org ([69.55.234.183]:39590 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964801AbVKQSNf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 13:04:08 -0500
-Date: Thu, 17 Nov 2005 09:47:28 -0800
-From: Greg Kroah-Hartman <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       david-b@pacbell.net
-Subject: [patch 11/22] USB: onetouch doesn't suspend yet
-Message-ID: <20051117174728.GL11174@kroah.com>
-References: <20051117174227.007572000@press.kroah.org>
+	Thu, 17 Nov 2005 13:13:35 -0500
+Date: Thu, 17 Nov 2005 09:58:11 -0800
+From: Greg KH <greg@kroah.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: build error in current -git tree
+Message-ID: <20051117175811.GA28263@kroah.com>
+References: <20051117171047.GA27534@kroah.com> <Pine.LNX.4.64.0511170941220.13959@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="usb-onetouch-doesn-t-suspend-yet.patch"
-In-Reply-To: <20051117174609.GA11174@kroah.com>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0511170941220.13959@g5.osdl.org>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Brownell <david-b@pacbell.net>
+On Thu, Nov 17, 2005 at 09:42:12AM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Thu, 17 Nov 2005, Greg KH wrote:
+> >
+> > In trying to build your kernel tree right now, I get the following
+> > error:
+> 
+> Heh. That's what I get for being on ppc64 now.
+> 
+> This should fix it (and I'll try it out on my laptop before I commit it).
 
-The onetouch support doesn't suspend correctly (leaves an interrupt
-URB posted, instead of unlinking it) so for now just disable it
-when PM is in the air.
+Yup, your commited change fixed it for me, thanks.
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
----
- drivers/usb/storage/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- usb-2.6.orig/drivers/usb/storage/Kconfig
-+++ usb-2.6/drivers/usb/storage/Kconfig
-@@ -115,7 +115,7 @@ config USB_STORAGE_JUMPSHOT
- 
- config USB_STORAGE_ONETOUCH
- 	bool "Support OneTouch Button on Maxtor Hard Drives (EXPERIMENTAL)"
--	depends on USB_STORAGE && INPUT_EVDEV && EXPERIMENTAL
-+	depends on USB_STORAGE && INPUT_EVDEV && EXPERIMENTAL && !PM
- 	help
- 	  Say Y here to include additional code to support the Maxtor OneTouch
- 	  USB hard drive's onetouch button.
-
---
+greg k-h

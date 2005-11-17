@@ -1,35 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161052AbVKQBFg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161051AbVKQBEg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161052AbVKQBFg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 20:05:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161053AbVKQBFg
+	id S1161051AbVKQBEg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 20:04:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161052AbVKQBEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 20:05:36 -0500
-Received: from quechua.inka.de ([193.197.184.2]:1728 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S1161052AbVKQBFf (ORCPT
+	Wed, 16 Nov 2005 20:04:35 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:58541 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1161051AbVKQBEf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 20:05:35 -0500
-From: Bernd Eckenfels <ecki@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: virtual NICs
-Organization: Private Site running Debian GNU/Linux
-In-Reply-To: <7fce76bf0511161442q5eef217dhe14f6ff1625437a2@mail.gmail.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
-Message-Id: <E1EcYDT-0002A9-00@calista.inka.de>
-Date: Thu, 17 Nov 2005 02:05:31 +0100
+	Wed, 16 Nov 2005 20:04:35 -0500
+Date: Wed, 16 Nov 2005 17:04:18 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, Simon.Derr@bull.net,
+       steiner@sgi.com
+Subject: Re: [PATCH] cpuset export symbols gpl
+Message-Id: <20051116170418.6ed410a4.pj@sgi.com>
+In-Reply-To: <20051116081627.GA20555@infradead.org>
+References: <20051116012254.6470.89326.sendpatchset@jackhammer.engr.sgi.com>
+	<20051115173935.5fc75e00.akpm@osdl.org>
+	<20051115180336.11139847.pj@sgi.com>
+	<20051116081627.GA20555@infradead.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <7fce76bf0511161442q5eef217dhe14f6ff1625437a2@mail.gmail.com> you wrote:
-> iirc, virtual interfaces are necessary in order to configure multiple
-> IP addresses using "ifconfig"
+Christoph wrote:
+> Again, where is the module.
 
-"ifconfig add" works only with v6, yes. (However this feature is easy to add
-http://net-tools.berlios.de)
+I will have to consult with the interested parties offline.
 
-Note: there are some differences between alias interfaces and additional
-interface addresses, because there is a primary address.
+Nevermind this patch for now.
 
-Gruss
-Bernd
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

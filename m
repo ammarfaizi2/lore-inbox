@@ -1,53 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030580AbVKQABq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030562AbVKQAEY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030580AbVKQABq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 19:01:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030581AbVKQABq
+	id S1030562AbVKQAEY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 19:04:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030566AbVKQAEX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 19:01:46 -0500
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:11743 "EHLO
-	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
-	id S1030580AbVKQABp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 19:01:45 -0500
-Date: Thu, 17 Nov 2005 01:01:44 +0100
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
-To: linux-kernel@vger.kernel.org
-Subject: X and intelfb fight over videomode
-Message-ID: <20051117000144.GA29144@hardeman.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Wed, 16 Nov 2005 19:04:23 -0500
+Received: from numenor.qualcomm.com ([129.46.51.58]:749 "EHLO
+	numenor.qualcomm.com") by vger.kernel.org with ESMTP
+	id S1030562AbVKQAEX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 19:04:23 -0500
+Message-ID: <437BC8D6.4040402@qualcomm.com>
+Date: Wed, 16 Nov 2005 16:03:34 -0800
+From: Max Krasnyansky <maxk@qualcomm.com>
+User-Agent: Thunderbird 1.4.1 (X11/20051006)
+MIME-Version: 1.0
+To: george@mvista.com
+CC: john stultz <johnstul@us.ibm.com>, Greg KH <greg@kroah.com>,
+       ganzinger@mvista.com, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Calibration issues with USB disc present.
+References: <43750EFD.3040106@mvista.com>	 <1131746228.2542.11.camel@cog.beaverton.ibm.com>	 <20051112050502.GC27700@kroah.com> <4376130D.1080500@mvista.com>	 <20051112213332.GA16016@kroah.com> <4378DDC5.80103@mvista.com>	 <20051114184940.GA876@kroah.com> <1131998339.4668.16.camel@leatherman> <4379070C.8090709@mvista.com>
+In-Reply-To: <4379070C.8090709@mvista.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Using the information from this thread:
-http://marc.theaimsgroup.com/?t=112593256400003&r=1&w=2
+George Anzinger wrote:
 
-I've now compiled a kernel with the intelfb and fbcon drivers linked in 
-(no other fb drivers). By booting the kernel with vga=0x318 I get a 
-1024x768@16bpp console and drm/agp also seems happy.
+>>> Oh well, publicly mock the manufacturer for doing horrible things in
+>>> their BIOS and then no one will buy the boxes, and we will not have
+>>> problems :)
+> 
+> Long term, maybe, but it will not close the bug report I have in hand...
+>>
+>>
+>> I suspect the right fix is in-between. We should try to push hardware
+>> makers away from using SMIs recklessly, but we should also do our best
+>> to work around those that don't. The same problems crop up w/
+>> virtualization where time-based calibration may be interrupted.
+>>
+>> George, again, there has been some SMI resistant delay calibration code
+>> added recently. You mentioned this problem was seen on 2.4 kernel, so
+>> you could verify that the new code in 2.6.14 works and if so, try
+>> backporting it.
+>>
+>> If not we need to see what else we can do about improving delay
+>> calibration (its a similar tick-based problem to what I'm addressing
+>> with the timeofday rework) or reducing the use of delay by using
+>> something else.
+>>
+> I will look at that code, but we also need to address the same problem 
+> in the TSC calibration area.
 
-However, as soon as X starts, the following message is printed to the 
-kernel log:
+I think in the short term your best bet is to globally disable SMI at early
+boot stage (ie before TSC calibration).
+Some people might argue that it's not the most graceful solution because it might
+brake some BIOS features but it's a very common trick that is used by RT folks
+(for example RTAI has configurable option to enable SMI workaround) because
+on some chipset/BIOS combinations SMIs introduce horrible latencies. And you
+cannot do much about that other than disabling SMI.
+I have not seen any reports of negative side effects of disabling SMI yet. But
+if you're worried about that you could re-enable it later when you're done with
+TSC calibration and stuff.
 
-mtrr: base(0xe0020000) is not aligned on a size(0x300000) boundary
-[drm:drm_unlock] *ERROR* Process 3013 using kernel context 0
-
-Everything seems to work in X though. The first time that I switch 
-from X to a vc, the screen stays black for a few seconds before I get 
-the VC and then I get this:
-
-intelfb: Changing the video mode is not supported.
-intelfb: ring buffer : space: 61488 wanted 65472
-intelfb: lockup - turning off hardware acceleration
-
-I have X set to also use 1024x768@16bpp, what else do I need to do to 
-make sure that intelfb and X play nice together?
-
-Re,
-David
-
-PS
-Please CC me on any replies
+Max
 

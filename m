@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161038AbVKQAHx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161036AbVKQAKd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161038AbVKQAHx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 19:07:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161037AbVKQAHx
+	id S1161036AbVKQAKd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 19:10:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030581AbVKQAKd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 19:07:53 -0500
-Received: from ns2.g-housing.de ([81.169.133.75]:50309 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S1161031AbVKQAHu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 19:07:50 -0500
-Message-ID: <437BC98E.9020002@g-house.de>
-Date: Thu, 17 Nov 2005 01:06:38 +0100
-From: Christian <evil@g-house.de>
-User-Agent: Mail/News 1.6a1 (Windows/20051004)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: netdev@vger.kernel.org
-Subject: Re: 2.6.15-rc1: NET_CLS_U32 not working?
-References: <437BBC59.70301@g-house.de> <20051116235813.GS5735@stusta.de>
-In-Reply-To: <20051116235813.GS5735@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 16 Nov 2005 19:10:33 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:51676 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030568AbVKQAKb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 19:10:31 -0500
+Subject: Re: 2.6.14 X spinning in the kernel
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Dave Airlie <airlied@linux.ie>
+Cc: Max Krasnyansky <maxk@qualcomm.com>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, hugh@veritas.com
+In-Reply-To: <Pine.LNX.4.58.0511162238480.24969@skynet>
+References: <1132012281.24066.36.camel@localhost.localdomain>
+	 <20051114161704.5b918e67.akpm@osdl.org>
+	 <1132015952.24066.45.camel@localhost.localdomain>
+	 <20051114173037.286db0d4.akpm@osdl.org> <437A6609.4050803@us.ibm.com>
+	 <437B9FAC.4090809@qualcomm.com>
+	 <1132177953.24066.80.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0511162238480.24969@skynet>
+Content-Type: text/plain
+Date: Wed, 16 Nov 2005 16:10:23 -0800
+Message-Id: <1132186223.24066.97.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-X-Antivirus: avast! (VPS 0546-3, 16.11.2005), Outbound message
-X-Antivirus-Status: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk schrieb:
+
+> Can you send me lspci -v, /var/log/Xorg.0.log, xorg.conf
 > 
-> I'm assuming you are trying to insert the new module in your old kernel?
+> If you are running a PCI Radeon you are screwed with the latest Fedora X
+> packages, roll back a few to find the ones that work, the FC people took a
+> really hacky patch from ATI and thought it was a good idea, and now it is
+> in X.org, or turn off DRI...
 
-yes, i tried to "modprobe" the compiled cls_u32 module. but the "make 
-modules" errors are there anyway. i tried to compile a fresh 2.6.15-rc1 
-on a different machine (where i can't do "modprobe") and the errors were 
-there too: http://nerdbynature.de/bits/sheep/2.6.15-rc1/make-modules.log
+I turned off DRI for now and X is happy.
 
-> This is one of the unfortunate but hardly avoidable cases where adding a 
-> module requires installing a new kernel.
+Thanks,
+Badari
 
-despite of the errors on "make modules" i'll reboot with the "new" 
-kernel asap.
-
-> BTW: Please Cc netdev@vger.kernel.org on networking issues.
-
-ok, will do that.
-
-
-thank you,
-Christian.
--- 
-BOFH excuse #442:
-
-Trojan horse ran out of hay

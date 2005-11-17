@@ -1,44 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbVKQTwF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964837AbVKQTyj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964826AbVKQTwF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 14:52:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964828AbVKQTwF
+	id S964837AbVKQTyj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 14:54:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbVKQTyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 14:52:05 -0500
-Received: from khc.piap.pl ([195.187.100.11]:28164 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S964826AbVKQTwE (ORCPT
+	Thu, 17 Nov 2005 14:54:39 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:27286 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964837AbVKQTyj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 14:52:04 -0500
-To: dsaxena@plexity.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: dma_is_consistent() is nonsensical...
-References: <20051117184745.GA23776@plexity.net>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Thu, 17 Nov 2005 20:52:02 +0100
-In-Reply-To: <20051117184745.GA23776@plexity.net> (Deepak Saxena's message
- of "Thu, 17 Nov 2005 10:47:45 -0800")
-Message-ID: <m3ek5frr19.fsf@defiant.localdomain>
+	Thu, 17 Nov 2005 14:54:39 -0500
+Date: Thu, 17 Nov 2005 11:54:32 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Maneesh Soni <maneesh@in.ibm.com>
+cc: LKML <linux-kernel@vger.kernel.org>, venkatesh.pallipadi@intel.com,
+       len.brown@intel.com, Andrew Morton <akpm@osdl.org>
+Subject: Re: maxcpus=1 broken, ACPI bug?
+In-Reply-To: <20051117063103.GB6836@in.ibm.com>
+Message-ID: <Pine.LNX.4.64.0511171137450.13959@g5.osdl.org>
+References: <20051117063103.GB6836@in.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Deepak Saxena <dsaxena@plexity.net> writes:
 
-> Working on adding support for cache-coherent operation to ARM and 
-> wondering exactly what this API is supposed to do. From the name it
-> is obviously supposed to tell the caller (only one in the kernel...
-> drivers/scsi/53c700.c) whether the provided dma_handle is cache-coherent
-> or not.  In the case of multiple DMA domains where certain devices
-> are on snooping interfaces and others are not we really want to know what
-> device the DMA address is on so can we add a struct device* ptr to this 
-> function? Or can we just kill it since nobody is actually using it? 
-> Calling dma_alloc_coherent should always return coherent/consistent 
-> (why the different naming conventions too?) so I don't really see a real 
-> use case. 
 
-I would have to look at the current code but yes, there were issues
-like that in the past. Coherent vs consistent - there are two APIs
-(DMA and PCI) each with a different name for this.
--- 
-Krzysztof Halasa
+On Thu, 17 Nov 2005, Maneesh Soni wrote:
+> 
+> Using maxcpus=1 boot option, hangs the system while booting. It was
+> working till 2.6.13-rc2. After git bisect I found that after backing
+> out this ACPI patch it works again, though I had to manually sort the
+> reject while backing out.
+> 
+> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=acf05f4b7f558051ea0028e8e617144123650272
+
+Hmm. That patch had a totally idiotic thinko in it (look at the for-loop 
+in acpi_processor_get_power_info_default() and notice how it doesn't 
+actually change anything in the loop).
+
+That thinko was later fixed (albeit in a really stupid way, and the same 
+cut-and-paste bug still exists in acpi_processor_get_power_info_fadt()).
+
+Anyway, can you test this diff? It
+
+ (a) removes the insane (and in one case incorrect) memset loop
+ (b) makes the code that sets "pr->flags.power = 1" match the comment and 
+     the previous behaviour.
+
+Does that make a difference?
+
+		Linus
+
+---
+diff --git a/drivers/acpi/processor_idle.c b/drivers/acpi/processor_idle.c
+index 573b6a9..2445828 100644
+--- a/drivers/acpi/processor_idle.c
++++ b/drivers/acpi/processor_idle.c
+@@ -524,8 +524,7 @@ static int acpi_processor_get_power_info
+ 	if (!pr->pblk)
+ 		return_VALUE(-ENODEV);
+ 
+-	for (i = 0; i < ACPI_PROCESSOR_MAX_POWER; i++)
+-		memset(pr->power.states, 0, sizeof(struct acpi_processor_cx));
++	memset(pr->power.states, 0, sizeof(pr->power.states));
+ 
+ 	/* if info is obtained from pblk/fadt, type equals state */
+ 	pr->power.states[ACPI_STATE_C1].type = ACPI_STATE_C1;
+@@ -559,9 +558,7 @@ static int acpi_processor_get_power_info
+ 
+ 	ACPI_FUNCTION_TRACE("acpi_processor_get_power_info_default_c1");
+ 
+-	for (i = 0; i < ACPI_PROCESSOR_MAX_POWER; i++)
+-		memset(&(pr->power.states[i]), 0,
+-		       sizeof(struct acpi_processor_cx));
++	memset(pr->power.states, 0, sizeof(pr->power.states));
+ 
+ 	/* if info is obtained from pblk/fadt, type equals state */
+ 	pr->power.states[ACPI_STATE_C1].type = ACPI_STATE_C1;
+@@ -873,7 +870,8 @@ static int acpi_processor_get_power_info
+ 	for (i = 1; i < ACPI_PROCESSOR_MAX_POWER; i++) {
+ 		if (pr->power.states[i].valid) {
+ 			pr->power.count = i;
+-			pr->flags.power = 1;
++			if (pr->power.states[i].type >= ACPI_STATE_C2)
++				pr->flags.power = 1;
+ 		}
+ 	}
+ 

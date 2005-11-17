@@ -1,75 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbVKQTrS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbVKQTtc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964785AbVKQTrS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 14:47:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964812AbVKQTrS
+	id S964825AbVKQTtc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 14:49:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964824AbVKQTtc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 14:47:18 -0500
-Received: from www.tuxrocks.com ([64.62.190.123]:26891 "EHLO tuxrocks.com")
-	by vger.kernel.org with ESMTP id S964785AbVKQTrR (ORCPT
+	Thu, 17 Nov 2005 14:49:32 -0500
+Received: from 90.Red-213-97-199.staticIP.rima-tde.net ([213.97.199.90]:13151
+	"HELO fargo") by vger.kernel.org with SMTP id S964825AbVKQTtb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 14:47:17 -0500
-Message-ID: <437CDE3D.90606@tuxrocks.com>
-Date: Thu, 17 Nov 2005 12:47:09 -0700
-From: Frank Sorenson <frank@tuxrocks.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc3 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dag Nygren <dag@newtech.fi>
-CC: Nish Aravamudan <nish.aravamudan@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: nanosleep with small value
-References: <20051117191119.15126.qmail@dag.newtech.fi>
-In-Reply-To: <20051117191119.15126.qmail@dag.newtech.fi>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Nov 2005 14:49:31 -0500
+Date: Thu, 17 Nov 2005 20:49:18 +0100
+From: David =?utf-8?B?R8OzbWV6?= <david@pleyades.net>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Adrian Bunk <bunk@stusta.de>, "David S. Miller" <davem@davemloft.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: /net/sched/Kconfig broken
+Message-ID: <20051117194918.GB12121@fargo>
+Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
+	Adrian Bunk <bunk@stusta.de>,
+	"David S. Miller" <davem@davemloft.net>,
+	linux-kernel@vger.kernel.org
+References: <20051116194414.GA14953@fargo> <20051116.115141.33136176.davem@davemloft.net> <20051116201020.GA15113@fargo> <20051116231650.GR5735@stusta.de> <20051117135731.GA11238@fargo> <Pine.LNX.4.61.0511171643430.1610@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.61.0511171643430.1610@scrub.home>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi Roman,
 
-Dag Nygren wrote:
-> But what is the point of having a nanosleep() in that case when you could do
-> just fine with usleep() ?
+On Nov 17 at 04:51:51, Roman Zippel wrote:
+> No, they were there before too, but you have to go up one level to see 
+> them.
 
-I'd suggest looking into the kthrt patches (which incorporates ktimers
-and John Stultz's timeofday patches):  http://www.tglx.de/projects/ktimers/
+I see them know. It was dificcult to find them...
 
-Running your program, here are some results (latest git tree with the
-latest kthrt and timeofday patches):
+> It's better in 2.6.15-rc1-git5, but the menu structure is still a little 
+> messed up, the patch below properly indents all menu entries.
 
-shortest of 10 runs as non-root:
-real    0m0.418s
-user    0m0.000s
-sys     0m0.003s
+Thanks for the patch, i'll apply it.
 
-longest of 10 runs as non-root:
-real    0m0.794s
-user    0m0.000s
-sys     0m0.002s
+regards,
 
-shortest of 10 runs as root:
-real    0m0.066s
-user    0m0.001s
-sys     0m0.007s
-
-longest of 10 runs as root:
-real    0m0.325s
-user    0m0.000s
-sys     0m0.004s
-
-Frank
-- --
-Frank Sorenson - KD7TZK
-Systems Manager, Computer Science Department
-Brigham Young University
-frank@tuxrocks.com
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.7 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFDfN49aI0dwg4A47wRAoHxAKDTeMGGnv21qem2Ll+SG8x5q+pV7ACgpUiT
-ru0P0KXOet7eNJhLYNRJvpk=
-=7IFW
------END PGP SIGNATURE-----
+-- 
+David Gómez                                      Jabber ID: davidge@jabber.org

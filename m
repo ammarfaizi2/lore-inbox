@@ -1,52 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965129AbVKQXpe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965136AbVKQXr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965129AbVKQXpe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 18:45:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965131AbVKQXpe
+	id S965136AbVKQXr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 18:47:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965131AbVKQXr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 18:45:34 -0500
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:25312 "EHLO
-	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
-	id S965129AbVKQXpd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 18:45:33 -0500
-Date: Fri, 18 Nov 2005 00:45:10 +0100
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: X and intelfb fight over videomode
-Message-ID: <20051117234510.GA3854@hardeman.nu>
-References: <20051117000144.GA29144@hardeman.nu> <437BD8D9.9030904@gmail.com> <20051117014558.GA30088@hardeman.nu> <437C0BF2.4010400@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <437C0BF2.4010400@gmail.com>
-User-Agent: Mutt/1.5.11
-X-SA-Score: -2.6
+	Thu, 17 Nov 2005 18:47:59 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:62144
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S965136AbVKQXr6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 18:47:58 -0500
+Date: Thu, 17 Nov 2005 15:46:48 -0800 (PST)
+Message-Id: <20051117.154648.66150660.davem@davemloft.net>
+To: hugh@veritas.com
+Cc: akpm@osdl.org, nickpiggin@yahoo.com.au, paulus@samba.org,
+       benh@kernel.crashing.org, wli@holomorphy.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 05/11] unpaged: VM_UNPAGED
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.61.0511171932440.4563@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0511171925290.4563@goblin.wat.veritas.com>
+	<Pine.LNX.4.61.0511171932440.4563@goblin.wat.veritas.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 17, 2005 at 12:49:54PM +0800, Antonino A. Daplas wrote:
->Ignore the hack I mentioned in the previous thread.  Try this patch instead.
+From: Hugh Dickins <hugh@veritas.com>
+Date: Thu, 17 Nov 2005 19:34:55 +0000 (GMT)
 
-Didn't help, the messages remain the same (tried with vga=0x318 and 
-video=intelfb:1024x768-32@60,mtrr=0 vga=0x318).
+> Use the VM_SHM slot for VM_UNPAGED, and define VM_SHM to 0: it serves no
+> purpose whatsoever, and should be removed from drivers when we clean up.
 
-Boot:
-intelfb: 00:02.0: Intel(R) 852GM, aperture size 128MB, stolen memory 8060kB
-intelfb: Non-CRT device is enabled ( LVDS port ).  Disabling mode switching.
-intelfb: Initial video mode is 1024x768-32@60.
-intelfb: Changing the video mode is not supported.
-Console: switching to colour frame buffer device 128x48
-
-Starting X:
-mtrr: base(0xe0020000) is not aligned on a size(0x300000) boundary
-[drm:drm_unlock] *ERROR* Process 2976 using kernel context 0
-
-First time I switch from X to VC:
-intelfb: Changing the video mode is not supported.
-intelfb: ring buffer : space: 6024 wanted 65472
-intelfb: lockup - turning off hardware acceleration
-
-Other suggestions?
-
-//David
+VM_SHM does absolutely nothing in 2.4.x as well, I'd recommend
+killing it off now.

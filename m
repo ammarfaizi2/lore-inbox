@@ -1,60 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161128AbVKQEuK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161134AbVKQE5i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161128AbVKQEuK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 23:50:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161131AbVKQEuK
+	id S1161134AbVKQE5i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 23:57:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161141AbVKQE5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 23:50:10 -0500
-Received: from wproxy.gmail.com ([64.233.184.206]:17322 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161128AbVKQEuJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 23:50:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=BPlfFvb07i+90G9jkkmYIMEd9CekzA+Z38mc92yOeGCHCu4nzd1FTK54qinV6BuN4LxOrpSaenRZU4MAQQiQgCZuxtTTYZM0hzeV7SjA5yExDX2kXp1ukuqj2BLwtY4hUiUK7GJXRdqZvZABKaB55p6XLGpdNDm1ifPApEuPnoI=
-Message-ID: <437C0BF2.4010400@gmail.com>
-Date: Thu, 17 Nov 2005 12:49:54 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@2gen.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: X and intelfb fight over videomode
-References: <20051117000144.GA29144@hardeman.nu> <437BD8D9.9030904@gmail.com> <20051117014558.GA30088@hardeman.nu>
-In-Reply-To: <20051117014558.GA30088@hardeman.nu>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 16 Nov 2005 23:57:38 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:60170 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1161134AbVKQE5i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 23:57:38 -0500
+Date: Thu, 17 Nov 2005 05:38:53 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: jonathan@jonmasters.org
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ipt_ROUTE loopback
+Message-ID: <20051117043853.GH11266@alpha.home.local>
+References: <35fb2e590511161901t7a615992s123a22cd8403511d@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <35fb2e590511161901t7a615992s123a22cd8403511d@mail.gmail.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Härdeman wrote:
-> On Thu, Nov 17, 2005 at 09:11:53AM +0800, Antonino A. Daplas wrote:
->> David Härdeman wrote:
->>> intelfb: Changing the video mode is not supported.
+On Thu, Nov 17, 2005 at 03:01:46AM +0000, Jon Masters wrote:
+> Folks,
 > 
+> I'm trying to find an easy way to have a Linux box completely ignore
+> the local routing table and have traffic destined for one interface go
+> out of a loopback cable and back into the other rather than traversing
+> the local routing within the host, viz:
 > 
-> Suggestions?
+> eth0
+> x.x.x.x
+>    |
+>    | <--- loopback cable
+>    |
+> eth1
+> y.y.y.y
+>
+> This is completely against normal practice, but useful for test. I've
+> so far tried playing around with iproute2 and have this evening built
+> up ipt_ROUTE, which seems more promising. I can get traffic forced out
+> of the "correct" interface and bypass the local routing table, but it
+> always has the destination MAC of the first interface when it reaches
+> the second.
+> 
+> So, I can bodge the destination MAC (I'm still deciding how to do that
+> - maybe I'll take apart ipt_ROUTE and have it do MAC rewriting too)
+> but I'm curious as to whether there's a "right" way to do this that
+> I've so far missed? I've considered using the briding code in some
+> weird kind of transparent-yet-not-really bridge setup, but I don't
+> really want to do that.
+> 
+> Any suggestions? This seems like something others must have also
+> wanted to do. I'm happy to break things in doing it, but I'm hopeful
+> for a "you missed this page...".
 
-Ignore the hack I mentioned in the previous thread.  Try this patch instead.
+You missed this page...  :-)
 
-Tony
+You need to use Julian Anastasov's "send-to-self" patch from ssi.bg/~ja/.
+The problem is not with ipt_route, but with the local addresses. If you
+want the packet to go out, you need to remove the local route for the
+destination. The packet will then go out, but when it will come back,
+the system won't take it because its destination won't match a local
+route. Try "ip r l t local" to see what I mean.
 
---- a/drivers/video/intelfb/intelfbdrv.c
-+++ b/drivers/video/intelfb/intelfbdrv.c
-@@ -1283,6 +1283,14 @@ intelfb_set_par(struct fb_info *info)
- 
- 	if (FIXED_MODE(dinfo)) {
- 		ERR_MSG("Changing the video mode is not supported.\n");
-+
-+		/* 
-+		 * We need to at least initialize the 2D engine even
-+		 * if changing the mode is not allowed
-+		 */
-+		if (ACCEL(dinfo, info))
-+			intelfbhw_2d_start(dinfo);
-+
- 		return -EINVAL;
- 	}
- 
+With Julian's patch, IIRC, you write '1' into /proc/sys/net/ipv4/$IF/loop,
+then you define some cross-routes for destinations with the respective
+sources from the opposite interfaces, then all packets routed out with
+a 'looped' interface address in their source will effectively go out.
+
+I also suggest that you get his whole '-ja' patch, and that you look
+in Documentation/networking/ip-sysctl.txt in which he adds some
+documentation about this (and I believe there was a more complete
+example on his site).
+
+Good luck,
+Willy
+

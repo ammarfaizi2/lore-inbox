@@ -1,137 +1,175 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbVKQTin@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbVKQTjX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964813AbVKQTin (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 14:38:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964821AbVKQTin
+	id S964818AbVKQTjX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 14:39:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964821AbVKQTjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 14:38:43 -0500
-Received: from silver.veritas.com ([143.127.12.111]:38177 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S964813AbVKQTim
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 14:38:42 -0500
-Date: Thu, 17 Nov 2005 19:37:23 +0000 (GMT)
+	Thu, 17 Nov 2005 14:39:23 -0500
+Received: from gold.veritas.com ([143.127.12.110]:5433 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S964818AbVKQTjW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 14:39:22 -0500
+Date: Thu, 17 Nov 2005 19:38:03 +0000 (GMT)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@goblin.wat.veritas.com
 To: Andrew Morton <akpm@osdl.org>
 cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
-Subject: [PATCH 07/11] unpaged: COW on VM_UNPAGED
+Subject: [PATCH 08/11] unpaged: anon in VM_UNPAGED
 In-Reply-To: <Pine.LNX.4.61.0511171925290.4563@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0511171936440.4563@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0511171937290.4563@goblin.wat.veritas.com>
 References: <Pine.LNX.4.61.0511171925290.4563@goblin.wat.veritas.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 17 Nov 2005 19:38:41.0852 (UTC) FILETIME=[83D4B7C0:01C5EBAE]
+X-OriginalArrivalTime: 17 Nov 2005 19:39:21.0877 (UTC) FILETIME=[9BB00C50:01C5EBAE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove the BUG_ON(vma->vm_flags & VM_UNPAGED) from do_wp_page, and let
-it do Copy-On-Write without touching the VM_UNPAGED's page counts - but
-this is incomplete, because the anonymous page it inserts will itself
-need to be handled, here and in other functions - next patch.
+copy_one_pte needs to copy the anonymous COWed pages in a VM_UNPAGED
+area, zap_pte_range needs to free them, do_wp_page needs to COW them:
+just like ordinary pages, not like the unpaged.
 
-We still don't copy the page if the pfn is invalid, because the
-copy_user_highpage interface does not allow it.  But that's not been
-a problem in the past: can be added in later if the need arises.
+But recognizing them is a little subtle: because PageReserved is no
+longer a condition for remap_pfn_range, we can now mmap all of /dev/mem
+(whether the distro permits, and whether it's advisable on this or that
+architecture, is another matter).  So if we can see a PageAnon, it may
+not be ours to mess with (or may be ours from elsewhere in the address
+space).  I suspect there's an entertaining insoluble self-referential
+problem here, but the page_is_anon function does a good practical job,
+and MAP_PRIVATE PROT_WRITE VM_UNPAGED will always be an odd choice.
+
+In updating the comment on page_address_in_vma, noticed a potential
+NULL dereference, in a path we don't actually take, but fixed it.
 
 Signed-off-by: Hugh Dickins <hugh@veritas.com>
 ---
 
- mm/memory.c |   37 +++++++++++++++++++++++++------------
- 1 files changed, 25 insertions(+), 12 deletions(-)
+ mm/memory.c |   63 +++++++++++++++++++++++++++++++++++++++---------------------
+ mm/rmap.c   |    7 ++++--
+ 2 files changed, 46 insertions(+), 24 deletions(-)
 
---- unpaged06/mm/memory.c	2005-11-17 15:11:02.000000000 +0000
-+++ unpaged07/mm/memory.c	2005-11-17 15:11:30.000000000 +0000
-@@ -1277,22 +1277,28 @@ static int do_wp_page(struct mm_struct *
- 		unsigned long address, pte_t *page_table, pmd_t *pmd,
- 		spinlock_t *ptl, pte_t orig_pte)
- {
--	struct page *old_page, *new_page;
-+	struct page *old_page, *src_page, *new_page;
- 	unsigned long pfn = pte_pfn(orig_pte);
- 	pte_t entry;
- 	int ret = VM_FAULT_MINOR;
+--- unpaged07/mm/memory.c	2005-11-17 15:11:30.000000000 +0000
++++ unpaged08/mm/memory.c	2005-11-17 15:11:43.000000000 +0000
+@@ -350,6 +350,22 @@ void print_bad_pte(struct vm_area_struct
+ }
  
--	BUG_ON(vma->vm_flags & VM_UNPAGED);
--
- 	if (unlikely(!pfn_valid(pfn))) {
- 		/*
- 		 * Page table corrupted: show pte and kill process.
-+		 * Or it's an attempt to COW an out-of-map VM_UNPAGED
-+		 * entry, which copy_user_highpage does not support.
- 		 */
- 		print_bad_pte(vma, orig_pte, address);
- 		ret = VM_FAULT_OOM;
- 		goto unlock;
- 	}
- 	old_page = pfn_to_page(pfn);
-+	src_page = old_page;
+ /*
++ * page_is_anon applies strict checks for an anonymous page belonging to
++ * this vma at this address.  It is used on VM_UNPAGED vmas, which are
++ * usually populated with shared originals (which must not be counted),
++ * but occasionally contain private COWed copies (when !VM_SHARED, or
++ * perhaps via ptrace when VM_SHARED).  An mmap of /dev/mem might window
++ * free pages, pages from other processes, or from other parts of this:
++ * it's tricky, but try not to be deceived by foreign anonymous pages.
++ */
++static inline int page_is_anon(struct page *page,
++			struct vm_area_struct *vma, unsigned long addr)
++{
++	return page && PageAnon(page) && page_mapped(page) &&
++		page_address_in_vma(page, vma) == addr;
++}
 +
-+	if (unlikely(vma->vm_flags & VM_UNPAGED)) {
-+		old_page = NULL;
-+		goto gotten;
-+	}
++/*
+  * copy one vm_area from one task to the other. Assumes the page tables
+  * already present in the new task to be cleared in the whole range
+  * covered by this vma.
+@@ -381,23 +397,22 @@ copy_one_pte(struct mm_struct *dst_mm, s
+ 		goto out_set_pte;
+ 	}
+ 
+-	/* If the region is VM_UNPAGED, the mapping is not
+-	 * mapped via rmap - duplicate the pte as is.
+-	 */
+-	if (vm_flags & VM_UNPAGED)
+-		goto out_set_pte;
+-
+ 	pfn = pte_pfn(pte);
+-	/* If the pte points outside of valid memory but
++	page = pfn_valid(pfn)? pfn_to_page(pfn): NULL;
++
++	if (unlikely(vm_flags & VM_UNPAGED))
++		if (!page_is_anon(page, vma, addr))
++			goto out_set_pte;
++
++	/*
++	 * If the pte points outside of valid memory but
+ 	 * the region is not VM_UNPAGED, we have a problem.
+ 	 */
+-	if (unlikely(!pfn_valid(pfn))) {
++	if (unlikely(!page)) {
+ 		print_bad_pte(vma, pte, addr);
+ 		goto out_set_pte; /* try to do something sane */
+ 	}
+ 
+-	page = pfn_to_page(pfn);
+-
+ 	/*
+ 	 * If it's a COW mapping, write protect it both
+ 	 * in the parent and the child
+@@ -568,17 +583,20 @@ static unsigned long zap_pte_range(struc
+ 			continue;
+ 		}
+ 		if (pte_present(ptent)) {
+-			struct page *page = NULL;
++			struct page *page;
++			unsigned long pfn;
+ 
+ 			(*zap_work) -= PAGE_SIZE;
+ 
+-			if (!(vma->vm_flags & VM_UNPAGED)) {
+-				unsigned long pfn = pte_pfn(ptent);
+-				if (unlikely(!pfn_valid(pfn)))
+-					print_bad_pte(vma, ptent, addr);
+-				else
+-					page = pfn_to_page(pfn);
+-			}
++			pfn = pte_pfn(ptent);
++			page = pfn_valid(pfn)? pfn_to_page(pfn): NULL;
++
++			if (unlikely(vma->vm_flags & VM_UNPAGED)) {
++				if (!page_is_anon(page, vma, addr))
++					page = NULL;
++			} else if (unlikely(!page))
++				print_bad_pte(vma, ptent, addr);
++
+ 			if (unlikely(details) && page) {
+ 				/*
+ 				 * unmap_shared_mapping_pages() wants to
+@@ -1295,10 +1313,11 @@ static int do_wp_page(struct mm_struct *
+ 	old_page = pfn_to_page(pfn);
+ 	src_page = old_page;
+ 
+-	if (unlikely(vma->vm_flags & VM_UNPAGED)) {
+-		old_page = NULL;
+-		goto gotten;
+-	}
++	if (unlikely(vma->vm_flags & VM_UNPAGED))
++		if (!page_is_anon(old_page, vma, address)) {
++			old_page = NULL;
++			goto gotten;
++		}
  
  	if (PageAnon(old_page) && !TestSetPageLocked(old_page)) {
  		int reuse = can_share_swap_page(old_page);
-@@ -1313,11 +1319,12 @@ static int do_wp_page(struct mm_struct *
- 	 * Ok, we need to copy. Oh, well..
- 	 */
- 	page_cache_get(old_page);
-+gotten:
- 	pte_unmap_unlock(page_table, ptl);
+--- unpaged07/mm/rmap.c	2005-11-17 15:11:16.000000000 +0000
++++ unpaged08/mm/rmap.c	2005-11-17 15:11:43.000000000 +0000
+@@ -225,7 +225,9 @@ vma_address(struct page *page, struct vm
  
- 	if (unlikely(anon_vma_prepare(vma)))
- 		goto oom;
--	if (old_page == ZERO_PAGE(address)) {
-+	if (src_page == ZERO_PAGE(address)) {
- 		new_page = alloc_zeroed_user_highpage(vma, address);
- 		if (!new_page)
- 			goto oom;
-@@ -1325,7 +1332,7 @@ static int do_wp_page(struct mm_struct *
- 		new_page = alloc_page_vma(GFP_HIGHUSER, vma, address);
- 		if (!new_page)
- 			goto oom;
--		copy_user_highpage(new_page, old_page, address);
-+		copy_user_highpage(new_page, src_page, address);
- 	}
- 
- 	/*
-@@ -1333,11 +1340,14 @@ static int do_wp_page(struct mm_struct *
- 	 */
- 	page_table = pte_offset_map_lock(mm, pmd, address, &ptl);
- 	if (likely(pte_same(*page_table, orig_pte))) {
--		page_remove_rmap(old_page);
--		if (!PageAnon(old_page)) {
-+		if (old_page) {
-+			page_remove_rmap(old_page);
-+			if (!PageAnon(old_page)) {
-+				dec_mm_counter(mm, file_rss);
-+				inc_mm_counter(mm, anon_rss);
-+			}
-+		} else
- 			inc_mm_counter(mm, anon_rss);
--			dec_mm_counter(mm, file_rss);
--		}
- 		flush_cache_page(vma, address, pfn);
- 		entry = mk_pte(new_page, vma->vm_page_prot);
- 		entry = maybe_mkwrite(pte_mkdirty(entry), vma);
-@@ -1351,13 +1361,16 @@ static int do_wp_page(struct mm_struct *
- 		new_page = old_page;
- 		ret |= VM_FAULT_WRITE;
- 	}
--	page_cache_release(new_page);
--	page_cache_release(old_page);
-+	if (new_page)
-+		page_cache_release(new_page);
-+	if (old_page)
-+		page_cache_release(old_page);
- unlock:
- 	pte_unmap_unlock(page_table, ptl);
- 	return ret;
- oom:
--	page_cache_release(old_page);
-+	if (old_page)
-+		page_cache_release(old_page);
- 	return VM_FAULT_OOM;
- }
- 
+ /*
+  * At what user virtual address is page expected in vma? checking that the
+- * page matches the vma: currently only used by unuse_process, on anon pages.
++ * page matches the vma: currently only used on anon pages, by unuse_vma;
++ * and by extraordinary checks on anon pages in VM_UNPAGED vmas, taking
++ * care that an mmap of /dev/mem might window free and foreign pages.
+  */
+ unsigned long page_address_in_vma(struct page *page, struct vm_area_struct *vma)
+ {
+@@ -234,7 +236,8 @@ unsigned long page_address_in_vma(struct
+ 		    (void *)page->mapping - PAGE_MAPPING_ANON)
+ 			return -EFAULT;
+ 	} else if (page->mapping && !(vma->vm_flags & VM_NONLINEAR)) {
+-		if (vma->vm_file->f_mapping != page->mapping)
++		if (!vma->vm_file ||
++		    vma->vm_file->f_mapping != page->mapping)
+ 			return -EFAULT;
+ 	} else
+ 		return -EFAULT;

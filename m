@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161091AbVKQC7M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161094AbVKQDFU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161091AbVKQC7M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 21:59:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161094AbVKQC7M
+	id S1161094AbVKQDFU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 22:05:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161095AbVKQDFU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 21:59:12 -0500
-Received: from yue.linux-ipv6.org ([203.178.140.15]:49419 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S1161091AbVKQC7M
+	Wed, 16 Nov 2005 22:05:20 -0500
+Received: from zproxy.gmail.com ([64.233.162.193]:10025 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161094AbVKQDFT convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 21:59:12 -0500
-Date: Thu, 17 Nov 2005 11:59:48 +0900 (JST)
-Message-Id: <20051117.115948.117652717.yoshfuji@linux-ipv6.org>
-To: linux-kernel@vger.kernel.org
-Subject: Compilation Error in arch/i386/apm.c
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-Organization: USAGI/WIDE Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Nov 2005 22:05:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iMSXiG8OJS+QcJfAo8SSJrHJXndgUh4H70qz4KHQ6ruNernwcVfmO3qNC8P/dl+iHhDocME4iJrR9gqSZuPWPRYAlVyts+On9tY0J+3ELtJg8XFcfd69ynaqVuuFqVegXpBwEwKYU159k01Trdm1zEmytCldkmvvZHdjmrNkV68=
+Message-ID: <35fb2e590511161905k49ca023fs3a28b613e6a294d3@mail.gmail.com>
+Date: Thu, 17 Nov 2005 03:05:18 +0000
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>
+Subject: Re: OSDL Patent Commons for Linux
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <437BA9AA.6000208@wolfmountaingroup.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <437BA9AA.6000208@wolfmountaingroup.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Failed to compile current git tree.
+On 11/16/05, Jeffrey V. Merkey <jmerkey@wolfmountaingroup.com> wrote:
 
-% make
-  CHK     include/linux/version.h
-  CHK     include/linux/compile.h
-  UPD     include/linux/compile.h
-  CC      init/version.o
-  LD      init/built-in.o
-  CHK     usr/initramfs_list
-  CC [M]  arch/i386/kernel/apm.o
-arch/i386/kernel/apm.c: In function `apm_init':
-arch/i386/kernel/apm.c:2304: error: `pm_active' undeclared (first use in this function)
-arch/i386/kernel/apm.c:2304: error: (Each undeclared identifier is reported only once
-arch/i386/kernel/apm.c:2304: error: for each function it appears in.)
-arch/i386/kernel/apm.c: In function `apm_exit':
-arch/i386/kernel/apm.c:2410: error: `pm_active' undeclared (first use in this function)
-make[1]: *** [arch/i386/kernel/apm.o] Error 1
-make: *** [arch/i386/kernel] Error 2
+> Someone needs ping Novell about patent  6,728,959 for SMP Strong
+> Affinity and get it added to the patent commons project at OSDL.  It
+> will help defeat  any claims brought by that certain Lindon Utah company
+> owning SMP in Linux.   I noticed Novell has signed up but not placed any
+> patents into the project.  Just thought I'd remind folks.  Linux uses
+> strong affinity in much of its architecture.  Having that patent in the
+> commons will remove any claims that Linux SMP infringes Unix.
 
--- 
-YOSHIFUJI Hideaki @ USAGI Project  <yoshfuji@linux-ipv6.org>
-GPG-FP  : 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+Interesting. We're researching a piece on "Patent Commons" at the
+moment (linuxuser.co.uk) so I'll pass that along.
+
+Jon.

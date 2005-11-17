@@ -1,88 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbVKQT64@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964777AbVKQUEo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964841AbVKQT64 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 14:58:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964842AbVKQT64
+	id S964777AbVKQUEo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 15:04:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964895AbVKQUEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 14:58:56 -0500
-Received: from smtprelay04.ispgateway.de ([80.67.18.16]:14776 "EHLO
-	smtprelay04.ispgateway.de") by vger.kernel.org with ESMTP
-	id S964841AbVKQT6z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 14:58:55 -0500
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] [PATCH 02/02] USB: add dynamic id functionality to USB core
-Date: Thu, 17 Nov 2005 20:58:42 +0100
-User-Agent: KMail/1.7.2
-Cc: Greg KH <gregkh@suse.de>, Alan Stern <stern@rowland.harvard.edu>,
-       linux-usb-devel@lists.sourceforge.net
-References: <20051117003241.GC14896@kroah.com> <Pine.LNX.4.44L0.0511171049070.5089-100000@iolanthe.rowland.org> <20051117162533.GB26824@suse.de>
-In-Reply-To: <20051117162533.GB26824@suse.de>
+	Thu, 17 Nov 2005 15:04:44 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:55004 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S964777AbVKQUEn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 15:04:43 -0500
+Date: Thu, 17 Nov 2005 15:04:42 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Greg KH <greg@kroah.com>
+cc: Patrick Mochel <mochel@digitalimplant.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Small fixups to driver core
+Message-ID: <Pine.LNX.4.44L0.0511171444400.4452-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1913874.3OIxKZYTDZ";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200511172058.48797.ioe-lkml@rameria.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1913874.3OIxKZYTDZ
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Greg:
 
-Hi,
+This patch (as603) makes a few small fixes to the driver core:
 
-On Thursday 17 November 2005 17:25, Greg KH wrote:
-> On Thu, Nov 17, 2005 at 10:55:33AM -0500, Alan Stern wrote:
-> > On Wed, 16 Nov 2005, Greg KH wrote:
-> > > +static int usb_create_newid_file(struct usb_driver *usb_drv)
-> > > +{
-> > > +	int error =3D 0;
-> > > +
-> > > +	if (usb_drv->probe !=3D NULL)
-> > > +		error =3D sysfs_create_file(&usb_drv->driver.kobj,
-> > > +					  &driver_attr_new_id.attr);
-> > > +	return error;
-> > > +}
-> >=20
-> > This deserves to be an inline function.
+	Change spin_lock_irq for a klist lock to spin_lock;
 
-Come on, this is just a gloryfied if :-)
+	Fix reference count leaks;
 
-static inline int usb_create_newid_file(struct usb_driver *usb_drv)
-{
-	if (usb_drv->probe !=3D NULL) {
-		return sysfs_create_file(&usb_drv->driver.kobj,
-					  &driver_attr_new_id.attr);
-	} else {
-		return 0;
-	}
-}
+	Minor spelling and formatting changes.
 
-> It's just not worth it to inline these, it's not speed critical at all.
-> I prefer to not inline stuff unless it help out somehow.
-
-I think this could help GCC, but this should be proved, of course :-)
-
-Regards
-
-Ingo Oeser
+Alan Stern
 
 
 
---nextPart1913874.3OIxKZYTDZ
-Content-Type: application/pgp-signature
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+---
 
-iD8DBQBDfOD4U56oYWuOrkARAoEJAKDF1eUnDWXfonkVeUDWM2scwkyD1ACfcV8k
-IJHFlm/B88dqtv/1fXDxsLA=
-=c+w4
------END PGP SIGNATURE-----
+Greg, you originally write driver_bind and driver_unbind.  Shame on you
+for messing up the refcounting!  :-)
 
---nextPart1913874.3OIxKZYTDZ--
+
+Index: usb-2.6/drivers/base/bus.c
+===================================================================
+--- usb-2.6.orig/drivers/base/bus.c
++++ usb-2.6/drivers/base/bus.c
+@@ -133,7 +133,7 @@ static struct kobj_type ktype_bus = {
+ decl_subsys(bus, &ktype_bus, NULL);
+ 
+ 
+-/* Manually detach a device from it's associated driver. */
++/* Manually detach a device from its associated driver. */
+ static int driver_helper(struct device *dev, void *data)
+ {
+ 	const char *name = data;
+@@ -151,14 +151,13 @@ static ssize_t driver_unbind(struct devi
+ 	int err = -ENODEV;
+ 
+ 	dev = bus_find_device(bus, NULL, (void *)buf, driver_helper);
+-	if ((dev) &&
+-	    (dev->driver == drv)) {
++	if (dev && dev->driver == drv) {
+ 		device_release_driver(dev);
+ 		err = count;
+ 	}
+-	if (err)
+-		return err;
+-	return count;
++	put_device(dev);
++	put_bus(bus);
++	return err;
+ }
+ static DRIVER_ATTR(unbind, S_IWUSR, NULL, driver_unbind);
+ 
+@@ -175,16 +174,14 @@ static ssize_t driver_bind(struct device
+ 	int err = -ENODEV;
+ 
+ 	dev = bus_find_device(bus, NULL, (void *)buf, driver_helper);
+-	if ((dev) &&
+-	    (dev->driver == NULL)) {
++	if (dev && dev->driver == NULL) {
+ 		down(&dev->sem);
+ 		err = driver_probe_device(drv, dev);
+ 		up(&dev->sem);
+-		put_device(dev);
+ 	}
+-	if (err)
+-		return err;
+-	return count;
++	put_device(dev);
++	put_bus(bus);
++	return err;
+ }
+ static DRIVER_ATTR(bind, S_IWUSR, NULL, driver_bind);
+ 
+Index: usb-2.6/drivers/base/dd.c
+===================================================================
+--- usb-2.6.orig/drivers/base/dd.c
++++ usb-2.6/drivers/base/dd.c
+@@ -62,7 +62,6 @@ void device_bind_driver(struct device * 
+  *	because we don't know the format of the ID structures, nor what
+  *	is to be considered a match and what is not.
+  *
+- *
+  *	This function returns 1 if a match is found, an error if one
+  *	occurs (that is not -ENODEV or -ENXIO), and 0 otherwise.
+  *
+@@ -158,7 +157,6 @@ static int __driver_attach(struct device
+ 		driver_probe_device(drv, dev);
+ 	up(&dev->sem);
+ 
+-
+ 	return 0;
+ }
+ 
+@@ -225,15 +223,15 @@ void driver_detach(struct device_driver 
+ 	struct device * dev;
+ 
+ 	for (;;) {
+-		spin_lock_irq(&drv->klist_devices.k_lock);
++		spin_lock(&drv->klist_devices.k_lock);
+ 		if (list_empty(&drv->klist_devices.k_list)) {
+-			spin_unlock_irq(&drv->klist_devices.k_lock);
++			spin_unlock(&drv->klist_devices.k_lock);
+ 			break;
+ 		}
+ 		dev = list_entry(drv->klist_devices.k_list.prev,
+ 				struct device, knode_driver.n_node);
+ 		get_device(dev);
+-		spin_unlock_irq(&drv->klist_devices.k_lock);
++		spin_unlock(&drv->klist_devices.k_lock);
+ 
+ 		down(&dev->sem);
+ 		if (dev->driver == drv)
+

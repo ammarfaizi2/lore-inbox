@@ -1,48 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750963AbVKQOm0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbVKQOtR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750963AbVKQOm0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 09:42:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750965AbVKQOm0
+	id S1750987AbVKQOtR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 09:49:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750990AbVKQOtR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 09:42:26 -0500
-Received: from cantor.suse.de ([195.135.220.2]:6537 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750946AbVKQOmZ (ORCPT
+	Thu, 17 Nov 2005 09:49:17 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:6107 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S1750987AbVKQOtQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 09:42:25 -0500
-From: Andi Kleen <ak@suse.de>
-To: "Wed, 16 Nov 2005 21:46:05 +0100" <grundig@teleline.es>
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Date: Thu, 17 Nov 2005 03:01:00 +0100
-User-Agent: KMail/1.8.2
-Cc: Benjamin LaHaise <bcrl@kvack.org>, bunk@stusta.de, arjan@infradead.org,
-       oliver@neukum.org, jmerkey@utah-nac.org, joern@wohnheim.fh-wedel.de,
-       alex14641@yahoo.com, linux-kernel@vger.kernel.org
-References: <20051116005034.73421.qmail@web50210.mail.yahoo.com> <20051116190334.GC982@kvack.org> <20051116214605.545d1e4e.grundig@teleline.es>
-In-Reply-To: <20051116214605.545d1e4e.grundig@teleline.es>
+	Thu, 17 Nov 2005 09:49:16 -0500
+Date: Thu, 17 Nov 2005 14:49:01 +0000 (GMT)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: Robin Holt <holt@sgi.com>
+Cc: Christoph Lameter <clameter@engr.sgi.com>, Russ Anderson <rja@sgi.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: How to handle a hugepage with bad physical memory?
+In-Reply-To: <20051117144332.GC4316@lnx-holt.americas.sgi.com>
+Message-ID: <Pine.LNX.4.58.0511171445300.29264@skynet>
+References: <20051116131012.GE4573@lnx-holt.americas.sgi.com>
+ <Pine.LNX.4.62.0511161155380.16434@schroedinger.engr.sgi.com>
+ <20051117144332.GC4316@lnx-holt.americas.sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200511170301.01910.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 16 November 2005 21:46, Wed, 16 Nov 2005 21:46:05 +0100 wrote:
-> El Wed, 16 Nov 2005 14:03:34 -0500,
-> Benjamin LaHaise <bcrl@kvack.org> escribió:
-> 
-> > We could implement a stack guard page for the transition period, so that 
-> 
-> CONFIG_DEBUG_STACKOVERFLOW doesn't do that but it looks useful too.
-> 
-> Does CONFIG_DEBUG_STACKOVERFLOW harm performance a lot? (doesn't 
-> look like that for a newbie's eye)
+On Thu, 17 Nov 2005, Robin Holt wrote:
 
-No, it's very cheap. In fact it could be probably enabled by default.
+> On Wed, Nov 16, 2005 at 11:58:13AM -0800, Christoph Lameter wrote:
+> > On Wed, 16 Nov 2005, Robin Holt wrote:
+> >
+> > > Russ Anderson recently introduced a patch into ia64 that changes MCA
+> > > behavior.  When the MCA is caused by a user reference to a users memory,
+> > > we put an extra reference on the page and kill the user.  This leaves
+> > > the working memory available for other jobs while causing a leak of the
+> > > bad page.
+> > >
+> > > I don't know if Russ has done any testing with hugetlbfs pages.  I preface
+> > > the remainder of my comments with a huge "I don't know anything"
+> > > disclaimer.
+> > >
+> > > With the new hugepages concept, would it be possible to only mark
+> > > the default pagesize portion of a hugepage as bad and then return the
+> > > remainder of the hugepage for normal use?  What would we basically need
+> > > to do to accomplish this?  Are there patches in the community which we
+> > > should wait to see how they progress before we do any work on this front?
+> >
+> > On IA64 we have one PTE for a huge page in a different region, so we
+> > cannot unmap a page sized section. Other architectures may have PTEs for
+> > each page sized section of a huge page. For those it may make sense
+> > (but then the management of the page is done via the first page_struct,
+> > which likely results in some challenging VM issues).
+>
+> Christoph,
+>
+> I think you misunderstood me.  I was talking about killing the process.
+> All the mappings get destroyed.  I want to reclaim as much of that huge
+> page as possible.
+>
+> Once everything is cleared up, I would like to break the huge page back
+> into normal-size pages and free those.
+>
 
--Andi
+Then for each struct page making up that huge page, clear all the flags
+(see how the flags are cleared in mm/page_alloc.c#bad_page()), set the
+count to 1 (set_page_count(page, 1)) and free it as an order 0 page
+(__free_page(page, 0)). Some will end up on the per-cpu lists and if the
+lists are full, they will end up on the zone free lists as expected. This
+is similar to what happens when the buddy allocator is being setup so look
+at mm/bootmem.c#free_all_bootmem_core(pg_data_t) to get an idea of what
+has to happen.
 
-P.S.: Can you please chose a less irritating realname?
-
- 
+-- 
+Mel Gorman
+Part-time Phd Student                          Java Applications Developer
+University of Limerick                         IBM Dublin Software Lab

@@ -1,128 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932444AbVKQRU5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932450AbVKQRaA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932444AbVKQRU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 12:20:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932441AbVKQRU5
+	id S932450AbVKQRaA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 12:30:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbVKQRaA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 12:20:57 -0500
-Received: from web50112.mail.yahoo.com ([206.190.39.149]:20641 "HELO
-	web50112.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S932440AbVKQRU4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 12:20:56 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=e8caNDvTYVpJfMgYpmX5TAsyFVqujFCGKlCy6U23SVy9F7U9DIWoKVIVarQ3ASuPPuthix1/2RXECCWKIfKv4mtK00Y4GvVgfajaCqfjBPQlCHuB7sWvUB8f8/bx84uuzCODyWXjd4DaHnjrRoLWFHHKDL2kzzToL6yp9x6afB4=  ;
-Message-ID: <20051117172053.87207.qmail@web50112.mail.yahoo.com>
-Date: Thu, 17 Nov 2005 09:20:53 -0800 (PST)
-From: Doug Thompson <norsk5@yahoo.com>
-Subject: Re: [RFC] EDAC and the sysfs
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051117070516.GB20760@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 17 Nov 2005 12:30:00 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:26756 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932450AbVKQR37 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 12:29:59 -0500
+Subject: Re: A problem with ktimer
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Claudio Scordino <cloud.of.andor@gmail.com>
+Cc: kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200511171639.27565.cloud.of.andor@gmail.com>
+References: <200511171639.27565.cloud.of.andor@gmail.com>
+Content-Type: text/plain
+Date: Thu, 17 Nov 2005 12:28:08 -0500
+Message-Id: <1132248488.10522.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
---- Greg KH <greg@kroah.com> wrote:
-
-> On Tue, Nov 15, 2005 at 04:26:38PM -0800, Doug
-> Thompson wrote:
-
-> > My question is:  Should I remove entirely my old
-> > /proc/sys/mc sysctl tree? Or still maintain the
-> > aliases there (which seems weird)? 
+On Thu, 2005-11-17 at 16:39 +0100, Claudio Scordino wrote:
+> Hi,
 > 
-> That would be wierd, just drop the sysctl stuff.
+>    I know that ktimer is not yet part of the main tree of the Linux kernel.
 > 
-> > If I do that, then /etc/sysctl.conf will no longer
-> > allow for setting things up there.
+> However, maybe someone can help me to understand why the following code in a 
+> module makes crash my x86_64.
 > 
-> True.
+> Many thanks,
 > 
-> > Is there going to be a similiar functionality as
-> > /etc/sysctl.conf for those items we place in
-> sysfs, in
-> > the future?
+>              Claudio
 > 
-> If you want to write one, sure :)
-
-Good idea. Seems I have hit the edge of current
-features. That's is good for now there is another food
-item for a TODO list.
-
 > 
-> But you can just probably use a udev rule to
-> initialize your things
-> properly, that's what all of the distros are now
-> using.
-
-Ok. That's another area for me to research. edac does
-not have any /dev/ entries, just the files and
-controls previous mentioned. 
-
-So, from your comment then, udev has some mechanism to
-set controls in sysfs?
-
-
 > 
-> > PS. These questions on sysfs seem a perfect food
-> > stream for your 'HOWTO do kernel development'.
-> Trying
-> > to do new entries in sysfs has been a painstaking
-> > adventure. After googling the web for info, it
-> > definitely has been a bit thin on information on
-> sysfs
-> > at the level I am seeking.
+> struct ktimer mytimer;
 > 
-> sysfs and the driver model are woefully
-> underdocumented.  Right now, I'd
-> recommend the Linux Device Drivers, third edition,
-> free online if you
-> don't want to buy it, for anyone doing any driver
-> core stuff.  It has a
-> whole chapter that is the most up-to-date and the
-> best description I've
-> seen so far.
-
-Yes, I have LDD 3rd and it is good. I have also have
-Robert Love's book and it has some good stuff on the
-device model and sysfs, but I assume since the whole
-feature is fairly new its documentation and
-understanding are still in the nursery.
-
-I also came across Patrick Mochel's paper given at
-Linux Symposium in June 2005. That helped.
-
->From the src on the machinecheck currently in sysfs, I
-see it implements the 'subsystem' feature of sysfs.
->From that code I see the pattern I can use.
-
+> void myfunction()
+> {
+>         int i;
+> }
 > 
-> But even then, it is out of date, due to api
-> changes, sorry.
 > 
-> thanks,
-> 
-> greg k-h
-> 
+> static int module_insert(void)
+> {
+>    ktime_t mytime = ktime_set(1,0);
+>    mytimer.function = myfunction;
+>    mytimer.data = NULL;
+>    ktimer_init(&mytimer);
+>    ktimer_start(&mytimer, &mytime, KTIMER_REL);
+>    //...
+> }
 
-at least there is some docs AND some people to ask
-questions to.
+You must do the ktimer_init first!
 
-thanks
+So the order must be:
 
-doug t
+   ktimer_init(&mytimer);
+   mytimer.function = myfunction;
+   mytimer.data = NULL;
+   //...
 
+Think of ktimer_init like memset(...) (since it actually does a memset)
 
+You wouldn't do;
 
-"If you think Education is expensive, just try Ignorance"
+struct myvar;
 
-"Don't tell people HOW to do things, tell them WHAT you
-want and they will surprise you with their ingenuity."
-                   Gen George Patton
+myvar.my_field = 1;
+memset(&myvar, 0, sizeof(myvar));
+
+Right ;-)
+
+-- Steve
+
 

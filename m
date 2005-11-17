@@ -1,113 +1,241 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbVKQUc0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbVKQUhZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932411AbVKQUc0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 15:32:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbVKQUc0
+	id S964832AbVKQUhZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 15:37:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964835AbVKQUhZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 15:32:26 -0500
-Received: from smtp3-g19.free.fr ([212.27.42.29]:44775 "EHLO smtp3-g19.free.fr")
-	by vger.kernel.org with ESMTP id S932411AbVKQUcZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 15:32:25 -0500
-Message-ID: <437CF690.5060206@free.fr>
-Date: Thu, 17 Nov 2005 21:30:56 +0000
-From: =?ISO-8859-1?Q?St=E9phane_BAUSSON?= <stephane.bausson@free.fr>
-User-Agent: Thunderbird 1.4 (X11/20050908)
+	Thu, 17 Nov 2005 15:37:25 -0500
+Received: from spirit.analogic.com ([204.178.40.4]:47369 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP id S964832AbVKQUhY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 15:37:24 -0500
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Fail to buil linux-2.6.14
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <200511172110.jAHLASIB010204@ccure.user-mode-linux.org>
+References: <200511172110.jAHLASIB010204@ccure.user-mode-linux.org>
+X-OriginalArrivalTime: 17 Nov 2005 20:37:23.0545 (UTC) FILETIME=[B6EC6C90:01C5EBB6]
+Content-class: urn:content-classes:message
+Subject: Re: [PATCH 3/4] UML - Properly invoke x86_64 system calls
+Date: Thu, 17 Nov 2005 15:37:14 -0500
+Message-ID: <Pine.LNX.4.61.0511171528570.10664@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 3/4] UML - Properly invoke x86_64 system calls
+Thread-Index: AcXrtrbzsoZ7EXHuTwKLFtvcewZ0Qw==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Jeff Dike" <jdike@addtoit.com>
+Cc: <akpm@osdl.org>, "Linux kernel" <linux-kernel@vger.kernel.org>,
+       <user-mode-linux-devel@lists.sourceforge.net>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I am failing to build 2.6.14, any idea or direction for investigation ?
 
-======================================
-if test ! /usr/src/linux-2.6.14 -ef /usr/src/linux-2.6.14; then \
-/bin/sh /usr/src/linux-2.6.14/scripts/mkmakefile              \
-    /usr/src/linux-2.6.14 /usr/src/linux-2.6.14 2 6         \
-    > /usr/src/linux-2.6.14/Makefile;                                 \
-    echo '  GEN    /usr/src/linux-2.6.14/Makefile';                   \
-fi
-set -e; echo '  CHK     include/linux/version.h'; mkdir -p 
-include/linux/;      if [ `echo -n "2.6.14.1" | wc -c ` -gt 64 ]; then 
-echo '"2.6.14.1" exceeds 64 characters' >&2; exit 1; fi; (echo \#define 
-UTS_RELEASE \"2.6.14.1\"; echo \#define LINUX_VERSION_CODE `expr 2 \\* 
-65536 + 6 \\* 256 + 14`; echo '#define KERNEL_VERSION(a,b,c) (((a) << 
-16) + ((b) << 8) + (c))'; ) < /usr/src/linux-2.6.14/Makefile > 
-include/linux/version.h.tmp; if [ -r include/linux/version.h ] && cmp -s 
-include/linux/version.h include/linux/version.h.tmp; then rm -f 
-include/linux/version.h.tmp; else echo '  UPD     
-include/linux/version.h'; mv -f include/linux/version.h.tmp 
-include/linux/version.h; fi
-  CHK     include/linux/version.h
-make -f scripts/Makefile.build obj=scripts/basic
-rm -rf .tmp_versions
-mkdir -p .tmp_versions
-make -f scripts/Makefile.build obj=.
-mkdir -p arch/i386/kernel/
-make -f scripts/Makefile.build obj=scripts
-make -f scripts/Makefile.build obj=scripts/mod
-make -f scripts/Makefile.build obj=init
-  CHK     include/linux/compile.h
-/bin/sh /usr/src/linux-2.6.14/scripts/mkcompile_h include/linux/compile.h \
-"i386" "y" "y" "gcc -m32 -Wall -Wundef -Wstrict-prototypes 
--Wno-trigraphs -fno-strict-aliasing -fno-common -ffreestanding -O2     
--fomit-frame-pointer -pipe -msoft-float -mpreferred-stack-boundary=2 
--fno-unit-at-a-time -march=i686 -mtune=pentium4 
--Iinclude/asm-i386/mach-default -Wdeclaration-after-statement "
-make -f scripts/Makefile.build obj=usr
-set -e; echo '  CHK     usr/initramfs_list'; mkdir -p usr/; /bin/sh 
-/usr/src/linux-2.6.14/scripts/gen_initramfs_list.sh   < usr/Makefile > 
-usr/initramfs_list.tmp; if [ -r usr/initramfs_list ] && cmp -s 
-usr/initramfs_list usr/initramfs_list.tmp; then rm -f 
-usr/initramfs_list.tmp; else echo '  UPD     usr/initramfs_list'; mv -f 
-usr/initramfs_list.tmp usr/initramfs_list; fi
-  CHK     usr/initramfs_list
-make -f scripts/Makefile.build obj=arch/i386/kernel
-make -f scripts/Makefile.build obj=arch/i386/kernel/acpi
-make -f scripts/Makefile.build obj=arch/i386/kernel/cpu
-make -f scripts/Makefile.build obj=arch/i386/kernel/cpu/mcheck
-make -f scripts/Makefile.build obj=arch/i386/kernel/cpu/mtrr
-make -f scripts/Makefile.build obj=arch/i386/kernel/timers
-  gcc -m32 -m elf_i386 -nostdlib -shared -s -Wl,-soname=linux-gate.so.1 
--Wl,-T,arch/i386/kernel/vsyscall.lds arch/i386/kernel/vsyscall-int80.o 
-arch/i386/kernel/vsyscall-note.o -o arch/i386/kernel/vsyscall-int80.so
-/local/gnu/binutils/bin/ld: section .text [ffffe400 -> ffffe45f] 
-overlaps section .dynstr [ffffe17c -> ffffe9cd]
-/local/gnu/binutils/bin/ld: section .note [ffffe460 -> ffffe477] 
-overlaps section .dynstr [ffffe17c -> ffffe9cd]
-/local/gnu/binutils/bin/ld: section .eh_frame [ffffe478 -> ffffe56b] 
-overlaps section .dynstr [ffffe17c -> ffffe9cd]
-/local/gnu/binutils/bin/ld: section .dynamic [ffffe56c -> ffffe5eb] 
-overlaps section .dynstr [ffffe17c -> ffffe9cd]
-/local/gnu/binutils/bin/ld: section .useless [ffffe5ec -> ffffe5f7] 
-overlaps section .dynstr [ffffe17c -> ffffe9cd]
-/local/gnu/binutils/bin/ld: arch/i386/kernel/vsyscall-int80.so: section 
-.text lma 0xffffe400 overlaps previous sections
-/local/gnu/binutils/bin/ld: arch/i386/kernel/vsyscall-int80.so: section 
-.note lma 0xffffe460 overlaps previous sections
-/local/gnu/binutils/bin/ld: arch/i386/kernel/vsyscall-int80.so: section 
-.eh_frame_hdr lma 0xffffe478 overlaps previous sections
-/local/gnu/binutils/bin/ld: arch/i386/kernel/vsyscall-int80.so: section 
-.eh_frame lma 0xffffe49c overlaps previous sections
-/local/gnu/binutils/bin/ld: arch/i386/kernel/vsyscall-int80.so: section 
-.dynamic lma 0xffffe590 overlaps previous sections
-/local/gnu/binutils/bin/ld: arch/i386/kernel/vsyscall-int80.so: section 
-.useless lma 0xffffe610 overlaps previous sections
-/local/gnu/binutils/bin/ld: arch/i386/kernel/vsyscall-int80.so: section 
-.gnu.version lma 0xffffe9ce overlaps previous sections
-/local/gnu/binutils/bin/ld: arch/i386/kernel/vsyscall-int80.so: section 
-.gnu.version_d lma 0xffffe9e0 overlaps previous sections
-collect2: ld returned 1 exit status
-make[1]: *** [arch/i386/kernel/vsyscall-int80.so] Error 1
-make: *** [arch/i386/kernel] Error 2
+On Thu, 17 Nov 2005, Jeff Dike wrote:
 
+> This patch makes stub_segv use the stub_syscall macros.  This was
+> needed anyway, but the bug that prompted this was the discovery that
+> gcc was storing stuff in RCX, which is trashed across a system
+> call.
 
--- 
- stephane.bausson@free.fr  -  Lherm (31,France)
+But the C-calling convention used by gcc for 32-bit systems
+is supposed to allow the called-function to destroy general-
+purpose registers but not index registers. In other words,
+ECX, EDX are supposed to be available and EAX is used for
+return-values. The register size isn't supposed to have
+anything to do with it (longword/quadword)!
 
- 
- 
+In 64-bit world, the same is supposed to apply as well.
+If RCX is now precious, it's a GCC bug that should be fixed.
 
+Yes?
+
+   This is exactly the sort of problem that the new macros fix.
+> There is a stub_syscall0 for getpid.
+> stub_segv was changed to be a libc file, and that caused some
+> include changes.
+>
+> Signed-off-by: Jeff Dike <jdike@addtoit.com>
+>
+> Index: linux-2.6.15/arch/um/include/sysdep-i386/stub.h
+> ===================================================================
+> --- linux-2.6.15.orig/arch/um/include/sysdep-i386/stub.h	2005-11-17 14:59:30.000000000 -0500
+> +++ linux-2.6.15/arch/um/include/sysdep-i386/stub.h	2005-11-17 14:59:55.000000000 -0500
+> @@ -16,6 +16,15 @@
+> #define STUB_MMAP_NR __NR_mmap2
+> #define MMAP_OFFSET(o) ((o) >> PAGE_SHIFT)
+>
+> +static inline long stub_syscall0(long syscall)
+> +{
+> +	long ret;
+> +
+> +	__asm__ volatile ("int $0x80" : "=a" (ret) : "0" (syscall));
+> +
+> +	return ret;
+> +}
+> +
+> static inline long stub_syscall1(long syscall, long arg1)
+> {
+> 	long ret;
+> Index: linux-2.6.15/arch/um/include/sysdep-x86_64/stub.h
+> ===================================================================
+> --- linux-2.6.15.orig/arch/um/include/sysdep-x86_64/stub.h	2005-11-17 14:59:30.000000000 -0500
+> +++ linux-2.6.15/arch/um/include/sysdep-x86_64/stub.h	2005-11-17 14:59:55.000000000 -0500
+> @@ -6,7 +6,6 @@
+> #ifndef __SYSDEP_STUB_H
+> #define __SYSDEP_STUB_H
+>
+> -#include <asm/ptrace.h>
+> #include <asm/unistd.h>
+> #include <sysdep/ptrace_user.h>
+>
+> @@ -20,6 +19,17 @@
+> #define __syscall_clobber "r11","rcx","memory"
+> #define __syscall "syscall"
+>
+> +static inline long stub_syscall0(long syscall)
+> +{
+> +	long ret;
+> +
+> +	__asm__ volatile (__syscall
+> +		: "=a" (ret)
+> +		: "0" (syscall) : __syscall_clobber );
+> +
+> +	return ret;
+> +}
+> +
+> static inline long stub_syscall2(long syscall, long arg1, long arg2)
+> {
+> 	long ret;
+> Index: linux-2.6.15/arch/um/sys-i386/Makefile
+> ===================================================================
+> --- linux-2.6.15.orig/arch/um/sys-i386/Makefile	2005-11-17 14:59:30.000000000 -0500
+> +++ linux-2.6.15/arch/um/sys-i386/Makefile	2005-11-17 14:59:55.000000000 -0500
+> @@ -5,7 +5,7 @@
+> obj-$(CONFIG_HIGHMEM) += highmem.o
+> obj-$(CONFIG_MODULES) += module.o
+>
+> -USER_OBJS := bugs.o ptrace_user.o sigcontext.o fault.o
+> +USER_OBJS := bugs.o ptrace_user.o sigcontext.o fault.o stub_segv.o
+>
+> SYMLINKS = bitops.c semaphore.c highmem.c module.c
+>
+> Index: linux-2.6.15/arch/um/sys-i386/stub_segv.c
+> ===================================================================
+> --- linux-2.6.15.orig/arch/um/sys-i386/stub_segv.c	2005-11-17 14:59:30.000000000 -0500
+> +++ linux-2.6.15/arch/um/sys-i386/stub_segv.c	2005-11-17 14:59:55.000000000 -0500
+> @@ -3,9 +3,11 @@
+>  * Licensed under the GPL
+>  */
+>
+> -#include <asm/signal.h>
+> +#include <signal.h>
+> +#include <sys/select.h> /* The only way I can see to get sigset_t */
+> #include <asm/unistd.h>
+> #include "uml-config.h"
+> +#include "sysdep/stub.h"
+> #include "sysdep/sigcontext.h"
+> #include "sysdep/faultinfo.h"
+>
+> @@ -13,13 +15,14 @@
+> stub_segv_handler(int sig)
+> {
+> 	struct sigcontext *sc = (struct sigcontext *) (&sig + 1);
+> +	int pid;
+>
+> 	GET_FAULTINFO_FROM_SC(*((struct faultinfo *) UML_CONFIG_STUB_DATA),
+> 			      sc);
+>
+> -	__asm__("movl %0, %%eax ; int $0x80": : "g" (__NR_getpid));
+> -	__asm__("movl %%eax, %%ebx ; movl %0, %%eax ; movl %1, %%ecx ;"
+> -		"int $0x80": : "g" (__NR_kill), "g" (SIGUSR1));
+> +	pid = stub_syscall0(__NR_getpid);
+> +	stub_syscall2(__NR_kill, pid, SIGUSR1);
+> +
+> 	/* Load pointer to sigcontext into esp, since we need to leave
+> 	 * the stack in its original form when we do the sigreturn here, by
+> 	 * hand.
+> Index: linux-2.6.15/arch/um/sys-x86_64/Makefile
+> ===================================================================
+> --- linux-2.6.15.orig/arch/um/sys-x86_64/Makefile	2005-11-17 14:59:30.000000000 -0500
+> +++ linux-2.6.15/arch/um/sys-x86_64/Makefile	2005-11-17 14:59:55.000000000 -0500
+> @@ -12,7 +12,7 @@
+> obj-y := ksyms.o
+> obj-$(CONFIG_MODULES) += module.o um_module.o
+>
+> -USER_OBJS := ptrace_user.o sigcontext.o
+> +USER_OBJS := ptrace_user.o sigcontext.o stub_segv.o
+>
+> SYMLINKS = bitops.c csum-copy.S csum-partial.c csum-wrappers.c ldt.c memcpy.S \
+> 	thunk.S module.c
+> Index: linux-2.6.15/arch/um/sys-x86_64/stub_segv.c
+> ===================================================================
+> --- linux-2.6.15.orig/arch/um/sys-x86_64/stub_segv.c	2005-11-17 14:59:30.000000000 -0500
+> +++ linux-2.6.15/arch/um/sys-x86_64/stub_segv.c	2005-11-17 15:12:23.000000000 -0500
+> @@ -3,14 +3,14 @@
+>  * Licensed under the GPL
+>  */
+>
+> -#include <asm/signal.h>
+> +#include <stddef.h>
+> +#include <signal.h>
+> #include <linux/compiler.h>
+> #include <asm/unistd.h>
+> -#include <asm/ucontext.h>
+> #include "uml-config.h"
+> #include "sysdep/sigcontext.h"
+> #include "sysdep/faultinfo.h"
+> -#include <stddef.h>
+> +#include "sysdep/stub.h"
+>
+> /* Copied from sys-x86_64/signal.c - Can't find an equivalent definition
+>  * in the libc headers anywhere.
+> @@ -31,21 +31,21 @@
+> stub_segv_handler(int sig)
+> {
+> 	struct ucontext *uc;
+> +        int pid;
+>
+> 	__asm__("movq %%rdx, %0" : "=g" (uc) :);
+> 	GET_FAULTINFO_FROM_SC(*((struct faultinfo *) UML_CONFIG_STUB_DATA),
+> 			      &uc->uc_mcontext);
+>
+> -	__asm__("movq %0, %%rax ; syscall": : "g" (__NR_getpid));
+> -	__asm__("movq %%rax, %%rdi ; movq %0, %%rax ; movq %1, %%rsi ;"
+> -		"syscall": : "g" (__NR_kill), "g" (SIGUSR1) :
+> -		"%rdi", "%rax", "%rsi");
+> +	pid = stub_syscall0(__NR_getpid);
+> +	stub_syscall2(__NR_kill, pid, SIGUSR1);
+> +
+> 	/* sys_sigreturn expects that the stack pointer will be 8 bytes into
+> 	 * the signal frame.  So, we use the ucontext pointer, which we know
+> 	 * already, to get the signal frame pointer, and add 8 to that.
+> 	 */
+> -	__asm__("movq %0, %%rsp": :
+> +	__asm__("movq %0, %%rsp; movq %1, %%rax ; syscall": :
+> 		"g" ((unsigned long) container_of(uc, struct rt_sigframe,
+> -						  uc) + 8));
+> -	__asm__("movq %0, %%rax ; syscall" : : "g" (__NR_rt_sigreturn));
+> +						  uc) + 8),
+> +                "g" (__NR_rt_sigreturn));
+> }
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13.4 on an i686 machine (5589.44 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+.
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

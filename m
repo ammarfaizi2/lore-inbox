@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbVKQIeO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbVKQIfF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750700AbVKQIeO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 03:34:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750701AbVKQIeO
+	id S1750701AbVKQIfF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 03:35:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750703AbVKQIfF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 03:34:14 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:7350 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750700AbVKQIeN (ORCPT
+	Thu, 17 Nov 2005 03:35:05 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:1693 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S1750701AbVKQIfE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 03:34:13 -0500
-Date: Thu, 17 Nov 2005 09:34:27 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch -rt] make gendev_rel_sem a compat_semaphore
-Message-ID: <20051117083427.GA16354@elte.hu>
-References: <1132155092.6266.6.camel@localhost.localdomain> <1132155299.6266.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1132155299.6266.8.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Thu, 17 Nov 2005 03:35:04 -0500
+Message-ID: <437C40AE.2020309@drzeus.cx>
+Date: Thu, 17 Nov 2005 09:34:54 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mail/News 1.5 (X11/20051105)
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: IOMMU and scatterlist limits
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm writing a PCI driver for the first time and I'm trying to wrap my
+head around the DMA mappings in that world. I've done a ISA driver which
+uses DMA, but this is a bit more complex and the documentation doesn't
+explain everything.
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+What I'm particularly confused about is how the IOMMU should be handled
+with regard to scatterlist limits. My hardware cannot handle
+scatterlists, only a single DMA address. But from what I understand the
+IOMMU can be very similar to a normal "CPU" MMU. So it should be able to
+aggregate pages that are non-continuous in physical memory into one
+single block in bus memory. Now the question is what do I set
+nr_phys_segments and nr_hw_segments to? Of course the code also needs to
+handle systems without an IOMMU.
 
-> I was getting the following:
-> 
-> BUG: nonzero lock count 10 at exit time?
->         modprobe: 2972 [ffff81007e1aaf70, 116]
-
-> Looking into this I see that gendev_rel_sem, which is only used when 
-> the device is unregistered, is defined as a semaphore.  This patch 
-> changes this to be a compat_semaphore.
-
-thanks, applied.
-
-	Ingo
+Rgds
+Pierre

@@ -1,63 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161045AbVKQAbQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161043AbVKQAeF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161045AbVKQAbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 19:31:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161042AbVKQAbQ
+	id S1161043AbVKQAeF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 19:34:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161044AbVKQAeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 19:31:16 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:26884 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1161045AbVKQAbP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 19:31:15 -0500
-Date: Thu, 17 Nov 2005 01:31:15 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>
-Cc: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Andi Kleen <ak@suse.de>, Arjan van de Ven <arjan@infradead.org>,
-       Oliver Neukum <oliver@neukum.org>, jmerkey <jmerkey@utah-nac.org>,
-       alex14641@yahoo.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Message-ID: <20051117003115.GT5735@stusta.de>
-References: <20051116005034.73421.qmail@web50210.mail.yahoo.com> <200511161630.59588.oliver@neukum.org> <1132155482.2834.42.camel@laptopd505.fenrus.org> <200511161710.05526.ak@suse.de> <20051116184508.GP5735@stusta.de> <20051117000654.GA11128@wohnheim.fh-wedel.de> <437BB7D1.2090109@wolfmountaingroup.com> <437BB8A3.9030701@wolfmountaingroup.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <437BB8A3.9030701@wolfmountaingroup.com>
-User-Agent: Mutt/1.5.11
+	Wed, 16 Nov 2005 19:34:05 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:7300 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161043AbVKQAeD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 19:34:03 -0500
+Subject: Re: [PATCH] ppc64: 64K pages support
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Sonny Rao <sonny.rao@gmail.com>
+Cc: Olaf Hering <olh@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
+In-Reply-To: <ac0de0c00511161557o379fbc71le6d5c5e2ff9a314b@mail.gmail.com>
+References: <1130915220.20136.14.camel@gaston>
+	 <1130916198.20136.17.camel@gaston> <20051109172125.GA12861@lst.de>
+	 <20051109201720.GB5443@w-mikek2.ibm.com> <1131568336.24637.91.camel@gaston>
+	 <1131573556.25354.1.camel@localhost.localdomain>
+	 <1131573693.24637.109.camel@gaston>
+	 <1131574051.25354.3.camel@localhost.localdomain>
+	 <20051116230820.GA29068@suse.de>
+	 <1132183002.24066.90.camel@localhost.localdomain>
+	 <ac0de0c00511161557o379fbc71le6d5c5e2ff9a314b@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 16 Nov 2005 16:33:55 -0800
+Message-Id: <1132187635.24066.99.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 16, 2005 at 03:54:27PM -0700, Jeffrey V. Merkey wrote:
-> > 
-> >The SCSI layer needs to be checked.  I reproduced another crash on 
-> >today on an older Niksun box running off the end of the stack.
-> >
-> >Jeff
-> >
-> >
-> It's somewhere in the scanning code.  There's a case where it runs off 
-> the end of the stack.  Check the compaq drivers for SATA as well, they 
-> also crash in a similiar place during bus scan.  Both occurred during 
-> bootup, so I wasn't able to get a log of the particulars.  Should be 
-> easy to reproduce.  Compaq Presario 2200.
+On Wed, 2005-11-16 at 17:57 -0600, Sonny Rao wrote:
+> On 11/16/05, Badari Pulavarty <pbadari@us.ibm.com> wrote:
+>         On Thu, 2005-11-17 at 00:08 +0100, Olaf Hering wrote:
+>         >  On Wed, Nov 09, Badari Pulavarty wrote:
+>         >
+>         > > On Thu, 2005-11-10 at 09:01 +1100, Benjamin Herrenschmidt
+>         wrote:
+>         > > > > I didn't have any luck on 2.6.14-git12 either.
+>         > > > > I tried 64k page support on my P570.
+>         > > > >
+>         > > > > Here are the console messages:
+>         > > >
+>         > > > What distro do you use in userland ? Some older glibc
+>         versions have a 
+>         > > > bug that cause issues with 64k pages, though it
+>         generally happens with
+>         > > > login blowing up, not init ...
+>         > >
+>         > > SLES9 (could be SLES9 SP1).
+>         >
+>         > Can you double check? rpm -qi glibc | head should be
+>         enough. 
+>         > Would be bad if SP2 or SP3 does not work with 64k.
+>         >
+>         
+>         I think I am using SLES9. Planning to update to SP3.
+> 
+>  
+> Badari, the problem is with your toolchain.. 
+> the binutils in SLES9 is too old (even in SP3)
+> 
+> The issue is that it cannot align something (the zero page I think) to
+> 64kb .
+> 
+> SLES9 SP3 has "GNU ld version 2.15.90.0.1.1 20040303 (SuSE Linux)"
+> 
+> But I have to use binutils 2.15.94 to make a 64kb kernel boot
+> properly 
+> (I can give you the package offline if you need)
 
-Are you using completely unmodified ftp.kernel.org kernels?
+Thank you Sonny. I updated my binutils package and 64k pagesize
+kernel works fine for me (atleast booted fine).
 
-Which version?
-
-If it occurs during bootup, you should see the error displayed.
-Please use a digital camera to photograph the error and send a linkt ot 
-the photo.
-
-> Jeff
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Thanks,
+Badari
 

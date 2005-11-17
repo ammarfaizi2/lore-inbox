@@ -1,93 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbVKQRAS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbVKQRCI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932405AbVKQRAS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 12:00:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbVKQRAS
+	id S932423AbVKQRCI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 12:02:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbVKQRCH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 12:00:18 -0500
-Received: from mail.kroah.org ([69.55.234.183]:20616 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932405AbVKQRAR (ORCPT
+	Thu, 17 Nov 2005 12:02:07 -0500
+Received: from citi.umich.edu ([141.211.133.111]:17023 "EHLO citi.umich.edu")
+	by vger.kernel.org with ESMTP id S932423AbVKQRCG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 12:00:17 -0500
-Date: Thu, 17 Nov 2005 08:25:33 -0800
-From: Greg KH <gregkh@suse.de>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] [PATCH 02/02] USB: add dynamic id functionality to USB core
-Message-ID: <20051117162533.GB26824@suse.de>
-References: <20051117003241.GC14896@kroah.com> <Pine.LNX.4.44L0.0511171049070.5089-100000@iolanthe.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0511171049070.5089-100000@iolanthe.rowland.org>
-User-Agent: Mutt/1.5.11
+	Thu, 17 Nov 2005 12:02:06 -0500
+Message-ID: <437CB78E.5010707@citi.umich.edu>
+Date: Thu, 17 Nov 2005 12:02:06 -0500
+From: Chuck Lever <cel@citi.umich.edu>
+Reply-To: cel@citi.umich.edu
+Organization: Network Appliance, Inc.
+User-Agent: Mozilla Thunderbird 1.0.7-1.4.1 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Kenny Simpson <theonetruekenny@yahoo.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: mmap over nfs leads to excessive system load
+References: <20051116223937.28115.qmail@web34112.mail.mud.yahoo.com> <1132182378.8811.93.camel@lade.trondhjem.org>
+In-Reply-To: <1132182378.8811.93.camel@lade.trondhjem.org>
+Content-Type: multipart/mixed;
+ boundary="------------040107040102040606010100"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 17, 2005 at 10:55:33AM -0500, Alan Stern wrote:
-> A few minor comments...
-> 
-> On Wed, 16 Nov 2005, Greg KH wrote:
-> 
-> > +static ssize_t store_new_id(struct device_driver *driver,
-> > +			    const char *buf, size_t count)
-> > +{
-> > +	struct usb_driver *usb_drv = to_usb_driver(driver);
-> > +	struct usb_dynid *dynid;
-> > +	u32 idVendor = 0;
-> > +	u32 idProduct = 0;
-> > +	int fields = 0;
-> > +
-> > +	fields = sscanf(buf, "%x %x", &idVendor, &idProduct);
-> > +	if (fields < 0)
-> > +		return -EINVAL;
-> 
-> Don't you want to test (fields < 2)?
+This is a multi-part message in MIME format.
+--------------040107040102040606010100
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-No, it's ok to just specify the vendor, if you want a product of 0 :)
+Trond Myklebust wrote:
+> I had a quick look at nfs_file_direct_write(), and among other things,
+> it would appear that it is not doing any of the usual overflow checks on
+> *pos and the count size (see generic_write_checks()). In particular,
+> checks are missing against overflow vs. MAX_NON_LFS if O_LARGEFILE is
+> not set (and also against overflow vs. s_maxbytes, but that is less
+> relevant here).
 
-PCI does it this way too.
+the architecture is to allow the NFS protocol and server to do these checks.
 
-> > +	if (get_driver(&usb_drv->driver)) {
-> > +		driver_attach(&usb_drv->driver);
-> > +		put_driver(&usb_drv->driver);
-> > +	}
-> 
-> Here you don't have to refer to &usb_drv->driver; you can just refer to 
-> driver.
+--------------040107040102040606010100
+Content-Type: text/x-vcard; charset=utf-8;
+ name="cel.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="cel.vcf"
 
-Good point, changed, thanks.
+begin:vcard
+fn:Chuck Lever
+n:Lever;Charles
+org:Network Appliance, Incorporated;Linux NFS Client Development
+adr:535 West William Street, Suite 3100;;Center for Information Technology Integration;Ann Arbor;MI;48103-4943;USA
+email;internet:cel@citi.umich.edu
+title:Member of Technical Staff
+tel;work:+1 734 763 4415
+tel;fax:+1 734 763 4434
+tel;home:+1 734 668 1089
+x-mozilla-html:FALSE
+url:http://www.monkey.org/~cel/
+version:2.1
+end:vcard
 
-> > +static int usb_create_newid_file(struct usb_driver *usb_drv)
-> > +{
-> > +	int error = 0;
-> > +
-> > +	if (usb_drv->probe != NULL)
-> > +		error = sysfs_create_file(&usb_drv->driver.kobj,
-> > +					  &driver_attr_new_id.attr);
-> > +	return error;
-> > +}
-> 
-> This deserves to be an inline function.
-> 
-> > +static void usb_free_dynids(struct usb_driver *usb_drv)
-> > +{
-> > +	struct usb_dynid *dynid, *n;
-> > +
-> > +	spin_lock(&usb_drv->dynids.lock);
-> > +	list_for_each_entry_safe(dynid, n, &usb_drv->dynids.list, node) {
-> > +		list_del(&dynid->node);
-> > +		kfree(dynid);
-> > +	}
-> > +	spin_unlock(&usb_drv->dynids.lock);
-> > +}
-> 
-> This could be inline as well, although being longer, its overhead is less 
-> noticeable.
 
-It's just not worth it to inline these, it's not speed critical at all.
-I prefer to not inline stuff unless it help out somehow.
-
-thanks for the review,
-
-greg k-h
+--------------040107040102040606010100--

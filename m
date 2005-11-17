@@ -1,46 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964831AbVKQTlg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbVKQTrS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964831AbVKQTlg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 14:41:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964829AbVKQTlg
+	id S964785AbVKQTrS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 14:47:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964812AbVKQTrS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 14:41:36 -0500
-Received: from gold.veritas.com ([143.127.12.110]:36665 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S964826AbVKQTle (ORCPT
+	Thu, 17 Nov 2005 14:47:18 -0500
+Received: from www.tuxrocks.com ([64.62.190.123]:26891 "EHLO tuxrocks.com")
+	by vger.kernel.org with ESMTP id S964785AbVKQTrR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 14:41:34 -0500
-Date: Thu, 17 Nov 2005 19:40:14 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
-Subject: [PATCH 11/11] unpaged: copy_page_range vma
-In-Reply-To: <Pine.LNX.4.61.0511171925290.4563@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0511171939280.4563@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0511171925290.4563@goblin.wat.veritas.com>
+	Thu, 17 Nov 2005 14:47:17 -0500
+Message-ID: <437CDE3D.90606@tuxrocks.com>
+Date: Thu, 17 Nov 2005 12:47:09 -0700
+From: Frank Sorenson <frank@tuxrocks.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc3 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 17 Nov 2005 19:41:32.0705 (UTC) FILETIME=[E9AAD110:01C5EBAE]
+To: Dag Nygren <dag@newtech.fi>
+CC: Nish Aravamudan <nish.aravamudan@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: nanosleep with small value
+References: <20051117191119.15126.qmail@dag.newtech.fi>
+In-Reply-To: <20051117191119.15126.qmail@dag.newtech.fi>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For copy_one_pte's print_bad_pte to show the task correctly (instead
-of "???"), dup_mmap must pass down parent vma rather than child vma.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
----
+Dag Nygren wrote:
+> But what is the point of having a nanosleep() in that case when you could do
+> just fine with usleep() ?
 
- kernel/fork.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+I'd suggest looking into the kthrt patches (which incorporates ktimers
+and John Stultz's timeofday patches):  http://www.tglx.de/projects/ktimers/
 
---- unpaged10/kernel/fork.c	2005-11-17 13:53:21.000000000 +0000
-+++ unpaged11/kernel/fork.c	2005-11-17 15:12:25.000000000 +0000
-@@ -263,7 +263,7 @@ static inline int dup_mmap(struct mm_str
- 		rb_parent = &tmp->vm_rb;
- 
- 		mm->map_count++;
--		retval = copy_page_range(mm, oldmm, tmp);
-+		retval = copy_page_range(mm, oldmm, mpnt);
- 
- 		if (tmp->vm_ops && tmp->vm_ops->open)
- 			tmp->vm_ops->open(tmp);
+Running your program, here are some results (latest git tree with the
+latest kthrt and timeofday patches):
+
+shortest of 10 runs as non-root:
+real    0m0.418s
+user    0m0.000s
+sys     0m0.003s
+
+longest of 10 runs as non-root:
+real    0m0.794s
+user    0m0.000s
+sys     0m0.002s
+
+shortest of 10 runs as root:
+real    0m0.066s
+user    0m0.001s
+sys     0m0.007s
+
+longest of 10 runs as root:
+real    0m0.325s
+user    0m0.000s
+sys     0m0.004s
+
+Frank
+- --
+Frank Sorenson - KD7TZK
+Systems Manager, Computer Science Department
+Brigham Young University
+frank@tuxrocks.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.7 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFDfN49aI0dwg4A47wRAoHxAKDTeMGGnv21qem2Ll+SG8x5q+pV7ACgpUiT
+ru0P0KXOet7eNJhLYNRJvpk=
+=7IFW
+-----END PGP SIGNATURE-----

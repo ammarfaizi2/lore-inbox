@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932462AbVKQS7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932469AbVKQTBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932462AbVKQS7O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 13:59:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932464AbVKQS7O
+	id S932469AbVKQTBd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 14:01:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbVKQTBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 13:59:14 -0500
-Received: from jack.kinetikon.it ([62.152.125.81]:9932 "EHLO mail.towertech.it")
-	by vger.kernel.org with ESMTP id S932462AbVKQS7N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 13:59:13 -0500
-Date: Thu, 17 Nov 2005 19:58:58 +0100
-From: Alessandro Zummo <azummo-lists@towertech.it>
-To: linux-kernel@vger.kernel.org
-Cc: linux-arm-kernel@lists.arm.linux.org.uk
-Subject: [RFC] kernel RTC infrastructure
-Message-ID: <20051117195858.61079ed0@inspiron>
-Organization: Tower Technologies
-X-Mailer: Sylpheed-Claws 1.9.14 (GTK+ 2.6.10; i486-pc-linux-gnu)
-Mime-Version: 1.0
+	Thu, 17 Nov 2005 14:01:33 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:13252 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932469AbVKQTBd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 14:01:33 -0500
+Message-ID: <1132254076.437cd37c713fd@imap.linux.ibm.com>
+Date: Thu, 17 Nov 2005 14:01:16 -0500
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: RE: maxcpus=1 broken, ACPI bug?
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.7
+X-Originating-IP: 9.182.62.236
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Quoting "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>:
 
- Hello,
-
-   I'd like to ask a few questions about the kernel RTC infrastructure.
-
- Actually, it seems that each different RTC driver is working on is own:
-
- drivers/char/ds1286.c
- drivers/char/genrtc.c
- drivers/char/ip27-rtc.c
- drivers/char/rtc.c
- drivers/input/misc/hp_sdc_rtc.c
+> 
+> Hi,
+> 
+> I am not yet able to see how this patch can cause a hang like that. My
+> initial guess is that it has got something to with idle routine and
+> preempt. I will look more into this and try to reproduce it locally. Can
+> you please try out disable preemption in your config and try 2.6.15-rc1
+> and let me know how it goes.
  
- are all self-contained RTC drivers.
+Hi Venki,
 
- The situation is a slightly better on ARM, where
- arch/arm/common/rtctime.c
- contains common RTC registration code (register_rtc(...)).
+Thanks for looking into this. I tried 2.6.15-rc1 with CONFIG_PREEMPT_NONE=y 
+but still it hangs in the same way.
 
- Has an interface like the ARM one been pondered for the whole
- kernel?
-
- Could it be used as the standard kernel RTC interface?
- 
- Thanks!
+Thanks
+Maneesh
 
 -- 
-
- Best regards,
-
- Alessandro Zummo,
-  Tower Technologies - Turin, Italy
-
-  http://www.towertech.it
-
+Maneesh Soni
+IBM Linux Technology Center
+IBM India Software Labs,
+Bangalore, India
+Ph. 91-80-25044990
+email: maneesh@in.ibm.com

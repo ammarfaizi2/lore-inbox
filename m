@@ -1,24 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965120AbVKQXmX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965128AbVKQXoG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965120AbVKQXmX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 18:42:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965127AbVKQXmX
+	id S965128AbVKQXoG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 18:44:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965129AbVKQXoG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 18:42:23 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:57008
+	Thu, 17 Nov 2005 18:44:06 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:58800
 	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S965120AbVKQXmW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 18:42:22 -0500
-Date: Thu, 17 Nov 2005 15:41:39 -0800 (PST)
-Message-Id: <20051117.154139.97107477.davem@davemloft.net>
+	id S965128AbVKQXoF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 18:44:05 -0500
+Date: Thu, 17 Nov 2005 15:43:23 -0800 (PST)
+Message-Id: <20051117.154323.10862063.davem@davemloft.net>
 To: hugh@veritas.com
-Cc: akpm@osdl.org, nickpiggin@yahoo.com.au, annabellesgarden@yahoo.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 03/11] unpaged: sound nopage get_page
+Cc: akpm@osdl.org, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 04/11] unpaged: unifdefed PageCompound
 From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.61.0511171930090.4563@goblin.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.61.0511171931400.4563@goblin.wat.veritas.com>
 References: <Pine.LNX.4.61.0511171925290.4563@goblin.wat.veritas.com>
-	<Pine.LNX.4.61.0511171930090.4563@goblin.wat.veritas.com>
+	<Pine.LNX.4.61.0511171931400.4563@goblin.wat.veritas.com>
 X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
@@ -27,37 +26,23 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Hugh Dickins <hugh@veritas.com>
-Date: Thu, 17 Nov 2005 19:31:36 +0000 (GMT)
+Date: Thu, 17 Nov 2005 19:32:40 +0000 (GMT)
 
-> Something noticed when studying use of VM_RESERVED in different drivers:
-> snd_usX2Y_hwdep_pcm_vm_nopage omitted to get_page: fixed.
+> It looks like snd_xxx is not the only nopage to be using PageReserved as
+> a way of holding a high-order page together: which no longer works, but
+> is masked by our failure to free from VM_RESERVED areas.  We cannot fix
+> that bug without first substituting another way to hold the high-order
+> page together, while farming out the 0-order pages from within it.
 > 
-> And how did this work before?  Aargh!  That nopage is returning a page
-> from within a buffer allocated by snd_malloc_pages, which allocates a
-> high-order page, then does SetPageReserved on each 0-order page within.
-> 
-> That would have worked in 2.6.14, because when the area was unmapped,
-> PageReserved inhibited put_page.  2.6.15-rc1 removed that inhibition
-> (while leaving ineffective PageReserveds around for now), but it hasn't
-> caused trouble because.. we've not been freeing from VM_RESERVED at all.
+> That's just what PageCompound is designed for, but it's been kept under
+> CONFIG_HUGETLB_PAGE.  Remove the #ifdefs: which saves some space (out-
+> of-line put_page), doesn't slow down what most needs to be fast (already
+> using hugetlb), and unifies the way we handle high-order pages.
 > 
 > Signed-off-by: Hugh Dickins <hugh@veritas.com>
 
-There is probably a lot of other grot like this in various drivers.
+I think this is a good change regardless of the VM_RESERVED issues.
 
-The amazing thing about this is that all of these drivers getting
-snuffed up by VM_RESERVED issues are trying to do essentially the
-same thing.  They want to allocate some buffers, which the device
-can DMA into and out of, and mmap() those buffers into user space
-in some sane way.
-
-The video capture driver layer drivers/media/video/video-buf.c is
-probably the best known example, and all the other copies in the
-tree of this logic is some derivative.
-
-Note also that the AF_PACKET mmap() facility (in
-net/packet/af_packet.c) does this VM_RESERVED stuff, but I think since
-it never does the get_user_pages() bit like the video capture drivers
-do, it didn't trigger any of the new messages or BUG() traps.
-
-I say "I think" because I haven't tested this stuff out specifically.
+I've been wanting to use this facility in some sparc64 bits in
+the past, for example.  But since it was HUGETLB guarded that
+wasn't possible.

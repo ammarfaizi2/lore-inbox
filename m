@@ -1,84 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbVKQVYK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751236AbVKQVZi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751253AbVKQVYK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 16:24:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbVKQVYK
+	id S1751236AbVKQVZi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 16:25:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbVKQVZi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 16:24:10 -0500
-Received: from bsamwel.xs4all.nl ([82.92.179.183]:1873 "EHLO samwel.tk")
-	by vger.kernel.org with ESMTP id S1751253AbVKQVYI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 16:24:08 -0500
-Message-ID: <437CF478.7010406@samwel.tk>
-Date: Thu, 17 Nov 2005 22:22:00 +0100
-From: Bart Samwel <bart@samwel.tk>
-User-Agent: Thunderbird 1.5 (Windows/20051025)
+	Thu, 17 Nov 2005 16:25:38 -0500
+Received: from smtprelay03.ispgateway.de ([80.67.18.15]:42960 "EHLO
+	smtprelay03.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1751236AbVKQVZi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 16:25:38 -0500
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 09/11] unpaged: ZERO_PAGE in VM_UNPAGED
+Date: Thu, 17 Nov 2005 22:25:26 +0100
+User-Agent: KMail/1.7.2
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+References: <Pine.LNX.4.61.0511171925290.4563@goblin.wat.veritas.com> <Pine.LNX.4.61.0511171938080.4563@goblin.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.61.0511171938080.4563@goblin.wat.veritas.com>
 MIME-Version: 1.0
-To: Bradley Chapman <kakadu@gmail.com>
-CC: linux-kernel@vger.kernel.org, Jan Niehusmann <jan@gondor.com>
-Subject: Re: Laptop mode causing writes to wrong sectors?
-References: <e294b46e0511170522v5762d48jcaff8413e33b2ebe@mail.gmail.com>	 <437C9334.3020606@samwel.tk> <e294b46e0511170822w79e5478asf49183c8447c7c77@mail.gmail.com>
-In-Reply-To: <e294b46e0511170822w79e5478asf49183c8447c7c77@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart1256992.g7Bujoyvzu";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 127.0.0.1
-X-SA-Exim-Mail-From: bart@samwel.tk
-X-SA-Exim-Scanned: No (on samwel.tk); SAEximRunCond expanded to false
+Message-Id: <200511172225.31973.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bradley Chapman wrote:
-> Mr. Samwel,
-> 
-> On 11/17/05, Bart Samwel <bart@samwel.tk> wrote:
->> OK, that's the second report then. I'm beginning to worry. :/
->>
->> Are you seeing any DMA timeout messages in your kernel log?
-> 
-> Once, when my /var partition got trashed - about thirty or forty loud
-> and scary messages from the IDE core saying that various disk accesses
-> (i.e. normal read/writes) were failing. I do believe DMA was
-> mentioned.
+--nextPart1256992.g7Bujoyvzu
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-This could be the problem I was talking about. Was this happening during 
-spindown or not?
+Hi Hugh,
 
-> Another time (i.e. just now), I got five Oopses in a row, most of them
-> in kmem_cache_alloc() but with one in generic_aio_file_read(). 
-> Unfortunately I am using fglrx right now so they are probably quite
-> meaningless...*
+On Thursday 17 November 2005 20:38, Hugh Dickins wrote:
+> It's strange enough to be looking out for anonymous pages in VM_UNPAGED
+> areas, let's not insert the ZERO_PAGE there - though whether it would
+> matter will depend on what we decide about ZERO_PAGE refcounting.
 
-I guess so. They all oops on reading the same address (0x05c2a5bb), 
-there's something corrupted in the slab cache, cause unknown. Very 
-possibly fglrx.
+We do we refcount ZERO_PAGE at all?
+Ok, there may be multiple, but they exist always and always at
+the same physical addresses, right?
 
-> Most of the time though, I don't see anything.
+So why do we care at all?
+Memory hotplug?
+Doesn't it suffice there, that they are reverse mappable?
 
-...while still experiencing corruption?
+Aren't they a perfect candidate for a VM_UNPAGED from /dev/zero :-)
 
->> Bradley, Jan, since when have these problems been happening? Kernel
->> version-wise, I mean?
-> 
-> They started with 2.6.13. I can't remember ever expereincing random
-> partition trashing or random file corruption in 2.6.12. I tried
-> 2.6.14.1 - that kernel did Bad Things as well.
-> 
-> So far though, as long as I stay on juice, 2.6.13 seems to behave.
 
-Hmmmm. This means that you could still be experiencing the same thing 
-that Andrea Gelmini was reporting. Could you try the things he said made 
-it worse, and check if things go wrong? You are, of course, allowed to 
-decline because of the risk involved. :-) The things are:
+Regards
 
-Big activity:
+Ingo Oeser
 
-* iozone -A
-* unrar big file
-* In order to make it happen faster:
-	cd /proc/sys/vm
-	echo 100 > dirty_background_ratio
-	echo 1000000 > dirty_expire_centisecs
-	echo 100 > dirty_ratio
-	echo 1000000 > dirty_writeback_centisecs
 
---Bart
+--nextPart1256992.g7Bujoyvzu
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDfPVLU56oYWuOrkARAmeTAJ9DGZB4AMmkeqx0k7u57qOEdkuqRQCdFNP5
+EKP/7Pt2Hvv5NnbSVfsam2w=
+=gzyb
+-----END PGP SIGNATURE-----
+
+--nextPart1256992.g7Bujoyvzu--

@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbVKQNwm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbVKQN5q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750780AbVKQNwm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 08:52:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbVKQNwm
+	id S1750827AbVKQN5q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 08:57:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbVKQN5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 08:52:42 -0500
-Received: from mo01.iij4u.or.jp ([210.130.0.20]:2281 "EHLO mo01.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S1750780AbVKQNwl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 08:52:41 -0500
-Date: Thu, 17 Nov 2005 22:52:36 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: YOSHIFUJI Hideaki / =?ISO-2022-JP?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel@vger.kernel.org
-Subject: Re: Compilation Error in arch/i386/apm.c
-Message-Id: <20051117225236.21e13114.yuasa@hh.iij4u.or.jp>
-In-Reply-To: <20051117.115948.117652717.yoshfuji@linux-ipv6.org>
-References: <20051117.115948.117652717.yoshfuji@linux-ipv6.org>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
+	Thu, 17 Nov 2005 08:57:46 -0500
+Received: from 90.Red-213-97-199.staticIP.rima-tde.net ([213.97.199.90]:30299
+	"HELO fargo") by vger.kernel.org with SMTP id S1750827AbVKQN5q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 08:57:46 -0500
+Date: Thu, 17 Nov 2005 14:57:31 +0100
+From: David =?utf-8?B?R8OzbWV6?= <david@pleyades.net>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
+Subject: Re: /net/sched/Kconfig broken
+Message-ID: <20051117135731.GA11238@fargo>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
+	"David S. Miller" <davem@davemloft.net>,
+	linux-kernel@vger.kernel.org
+References: <20051116194414.GA14953@fargo> <20051116.115141.33136176.davem@davemloft.net> <20051116201020.GA15113@fargo> <20051116231650.GR5735@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20051116231650.GR5735@stusta.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Nov 2005 11:59:48 +0900 (JST)
-YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org> wrote:
+Hi Adrian,
 
-> Failed to compile current git tree.
+On Nov 17 at 12:16:50, Adrian Bunk wrote:
+> > Sorry for not giving more details. I'm using make menuconfig
+> > in a 2.6.14 kernel After selecting CONFIG_NET_SCHED and CONFIG_NET_CLS_BASIC
+> > i don't see new options, the last option visible is NET_CLS_ROUTE4.
+> 
+> And if you select NET_CLS_ROUTE4, this should automatically select 
+> NET_CLS_ROUTE.
+> 
+> Are you saying that after enabling NET_CLS_ROUTE4, the option 
+> NET_CLS_ROUTE is not set in your .config?
 
-Please check CONFIG_PM_LEGACY in your config.
+No, the option is set. But the changes are not visible in make menuconfig, that
+is, i cannot select options that depend on NET_CLS_ROUTE.
 
-Yoichi
+I found out that if i select NET_CLS_ROUTE4, save my changes and exit
+menuconfig, execute again make menuconfig and go to QoS options, then the new
+available options are visible. So menuconfig has some problem refreshing
+contents :?
 
-> % make
->   CHK     include/linux/version.h
->   CHK     include/linux/compile.h
->   UPD     include/linux/compile.h
->   CC      init/version.o
->   LD      init/built-in.o
->   CHK     usr/initramfs_list
->   CC [M]  arch/i386/kernel/apm.o
-> arch/i386/kernel/apm.c: In function `apm_init':
-> arch/i386/kernel/apm.c:2304: error: `pm_active' undeclared (first use in this function)
-> arch/i386/kernel/apm.c:2304: error: (Each undeclared identifier is reported only once
-> arch/i386/kernel/apm.c:2304: error: for each function it appears in.)
-> arch/i386/kernel/apm.c: In function `apm_exit':
-> arch/i386/kernel/apm.c:2410: error: `pm_active' undeclared (first use in this function)
-> make[1]: *** [arch/i386/kernel/apm.o] Error 1
-> make: *** [arch/i386/kernel] Error 2
+thanks,
 
+-- 
+David Gómez                                      Jabber ID: davidge@jabber.org

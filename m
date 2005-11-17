@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbVKQPhB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbVKQPjJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751170AbVKQPhB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 10:37:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbVKQPgz
+	id S1751000AbVKQPjJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 10:39:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbVKQPjI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 10:36:55 -0500
+	Thu, 17 Nov 2005 10:39:08 -0500
 Received: from zproxy.gmail.com ([64.233.162.194]:30071 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751135AbVKQPgw (ORCPT
+	by vger.kernel.org with ESMTP id S1751345AbVKQPhE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 10:36:52 -0500
+	Thu, 17 Nov 2005 10:37:04 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
-        b=smVgOkp99kFmtY2klKSyQGT22dX7rlqN9LR7OGElqCfEFmy4dTq3RVF2NQo9Ett0IJQNpVBG1CT7YSfSVTF3O/XuWiIyX3+UIa9IgFiUaUnYt+fQmCrcMnS4mv+QJTkiBs82RPhsCQ/HmFidLjOszkxigMAdonpdAAAy/BYESjs=
+        b=Vl3lLXcunW08DP1pQrIrJzlzKlIgkPcqYz3/onmYzrZJ25bzYWHXkHoJWLVkr694yDmxkNpdjlbF1ViCcug5n7/rQN0t1pIbKuGlU8wK/lIMrFe5/9HDdO1BxwWC7c+Iw4Ihb9iAR9s8zAXk8g+4V7Zd6V/O3/xahaIYwM18VEs=
 From: Tejun Heo <htejun@gmail.com>
 To: axboe@suse.de, jgarzik@pobox.com, James.Bottomley@steeleye.com,
        bzolnier@gmail.com
@@ -21,188 +21,187 @@ User-Agent: lksp 0.3
 Content-Type: text/plain; charset=US-ASCII
 References: <20051117153509.B89B4777@htj.dyndns.org>
 In-Reply-To: <20051117153509.B89B4777@htj.dyndns.org>
-Subject: Re: [PATCH linux-2.6-block:post-2.6.15 06/10] blk: update libata to use new blk_ordered
-Message-ID: <20051117153509.7996C28F@htj.dyndns.org>
-Date: Fri, 18 Nov 2005 00:36:41 +0900 (KST)
+Subject: Re: [PATCH linux-2.6-block:post-2.6.15 09/10] blk: add FUA support to IDE
+Message-ID: <20051117153509.5A77ED53@htj.dyndns.org>
+Date: Fri, 18 Nov 2005 00:36:57 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-06_blk_libata-update-ordered.patch
+09_blk_ide-add-fua-support.patch
 
-	Reflect changes in SCSI midlayer and updated to use new
-        ordered request implementation
+	Add FUA support to IDE
 
 Signed-off-by: Tejun Heo <htejun@gmail.com>
 
- ahci.c         |    1 -
- ata_piix.c     |    1 -
- sata_mv.c      |    1 -
- sata_nv.c      |    1 -
- sata_promise.c |    1 -
- sata_sil.c     |    1 -
- sata_sil24.c   |    1 -
- sata_sis.c     |    1 -
- sata_svw.c     |    1 -
- sata_sx4.c     |    1 -
- sata_uli.c     |    1 -
- sata_via.c     |    1 -
- sata_vsc.c     |    1 -
- 13 files changed, 13 deletions(-)
+ drivers/ide/ide-disk.c |   57 +++++++++++++++++++++++++++++++++++++++++--------
+ include/linux/hdreg.h  |   16 ++++++++++++-
+ include/linux/ide.h    |    3 ++
+ 3 files changed, 65 insertions(+), 11 deletions(-)
 
-Index: work/drivers/scsi/ahci.c
+Index: work/drivers/ide/ide-disk.c
 ===================================================================
---- work.orig/drivers/scsi/ahci.c	2005-11-18 00:14:21.000000000 +0900
-+++ work/drivers/scsi/ahci.c	2005-11-18 00:35:06.000000000 +0900
-@@ -213,7 +213,6 @@ static struct scsi_host_template ahci_sh
- 	.dma_boundary		= AHCI_DMA_BOUNDARY,
- 	.slave_configure	= ata_scsi_slave_config,
- 	.bios_param		= ata_std_bios_param,
--	.ordered_flush		= 1,
- };
+--- work.orig/drivers/ide/ide-disk.c	2005-11-18 00:35:06.000000000 +0900
++++ work/drivers/ide/ide-disk.c	2005-11-18 00:35:07.000000000 +0900
+@@ -164,13 +164,14 @@ static ide_startstop_t __ide_do_rw_disk(
+ 	ide_hwif_t *hwif	= HWIF(drive);
+ 	unsigned int dma	= drive->using_dma;
+ 	u8 lba48		= (drive->addressing == 1) ? 1 : 0;
++	int fua			= blk_fua_rq(rq);
+ 	task_ioreg_t command	= WIN_NOP;
+ 	ata_nsector_t		nsectors;
  
- static const struct ata_port_operations ahci_ops = {
-Index: work/drivers/scsi/ata_piix.c
+ 	nsectors.all		= (u16) rq->nr_sectors;
+ 
+ 	if (hwif->no_lba48_dma && lba48 && dma) {
+-		if (block + rq->nr_sectors > 1ULL << 28)
++		if (block + rq->nr_sectors > 1ULL << 28 || fua)
+ 			dma = 0;
+ 		else
+ 			lba48 = 0;
+@@ -226,6 +227,16 @@ static ide_startstop_t __ide_do_rw_disk(
+ 			hwif->OUTB(tasklets[6], IDE_HCYL_REG);
+ 			hwif->OUTB(0x00|drive->select.all,IDE_SELECT_REG);
+ 		} else {
++			if (unlikely(fua)) {
++				/*
++				 * This happens if LBA48 addressing is
++				 * turned off during operation.
++				 */
++				printk(KERN_ERR "%s: FUA write but LBA48 off\n",
++				       drive->name);
++				goto fail;
++			}
++
+ 			hwif->OUTB(0x00, IDE_FEATURE_REG);
+ 			hwif->OUTB(nsectors.b.low, IDE_NSECTOR_REG);
+ 			hwif->OUTB(block, IDE_SECTOR_REG);
+@@ -253,9 +264,12 @@ static ide_startstop_t __ide_do_rw_disk(
+ 	if (dma) {
+ 		if (!hwif->dma_setup(drive)) {
+ 			if (rq_data_dir(rq)) {
+-				command = lba48 ? WIN_WRITEDMA_EXT : WIN_WRITEDMA;
+-				if (drive->vdma)
+-					command = lba48 ? WIN_WRITE_EXT: WIN_WRITE;
++				if (!fua) {
++					command = lba48 ? WIN_WRITEDMA_EXT : WIN_WRITEDMA;
++					if (drive->vdma)
++						command = lba48 ? WIN_WRITE_EXT: WIN_WRITE;
++				} else
++					command = ATA_CMD_WRITE_FUA_EXT;
+ 			} else {
+ 				command = lba48 ? WIN_READDMA_EXT : WIN_READDMA;
+ 				if (drive->vdma)
+@@ -284,8 +298,20 @@ static ide_startstop_t __ide_do_rw_disk(
+ 	} else {
+ 		if (drive->mult_count) {
+ 			hwif->data_phase = TASKFILE_MULTI_OUT;
+-			command = lba48 ? WIN_MULTWRITE_EXT : WIN_MULTWRITE;
++			if (!fua)
++				command = lba48 ? WIN_MULTWRITE_EXT : WIN_MULTWRITE;
++			else
++				command = ATA_CMD_WRITE_MULTI_FUA_EXT;
+ 		} else {
++			if (unlikely(fua)) {
++				/*
++				 * This happens if multisector PIO is
++				 * turned off during operation.
++				 */
++				printk(KERN_ERR "%s: FUA write but in single "
++				       "sector PIO mode\n", drive->name);
++				goto fail;
++			}
+ 			hwif->data_phase = TASKFILE_OUT;
+ 			command = lba48 ? WIN_WRITE_EXT : WIN_WRITE;
+ 		}
+@@ -295,6 +321,10 @@ static ide_startstop_t __ide_do_rw_disk(
+ 
+ 		return pre_task_out_intr(drive, rq);
+ 	}
++
++ fail:
++	ide_end_request(drive, 0, 0);
++	return ide_stopped;
+ }
+ 
+ /*
+@@ -846,7 +876,7 @@ static void idedisk_setup (ide_drive_t *
+ {
+ 	struct hd_driveid *id = drive->id;
+ 	unsigned long long capacity;
+-	int barrier;
++	int barrier, fua;
+ 
+ 	idedisk_add_settings(drive);
+ 
+@@ -967,10 +997,19 @@ static void idedisk_setup (ide_drive_t *
+ 			barrier = 0;
+ 	}
+ 
+-	printk(KERN_INFO "%s: cache flushes %ssupported\n",
+-		drive->name, barrier ? "" : "not ");
++	fua = barrier && idedisk_supports_lba48(id) && ide_id_has_fua(id);
++	/* When using PIO, FUA needs multisector. */
++	if ((!drive->using_dma || drive->hwif->no_lba48_dma) &&
++	    drive->mult_count == 0)
++		fua = 0;
++
++	printk(KERN_INFO "%s: cache flushes %ssupported%s\n",
++	       drive->name, barrier ? "" : "not ",
++	       fua ? " w/ FUA" : "");
+ 	if (barrier) {
+-		blk_queue_ordered(drive->queue, QUEUE_ORDERED_DRAIN_FLUSH,
++		unsigned ordered = fua ? QUEUE_ORDERED_DRAIN_FUA
++				       : QUEUE_ORDERED_DRAIN_FLUSH;
++		blk_queue_ordered(drive->queue, ordered,
+ 				  idedisk_prepare_flush, GFP_KERNEL);
+ 		blk_queue_issue_flush_fn(drive->queue, idedisk_issue_flush);
+ 	} else if (!drive->wcache)
+Index: work/include/linux/hdreg.h
 ===================================================================
---- work.orig/drivers/scsi/ata_piix.c	2005-11-18 00:14:21.000000000 +0900
-+++ work/drivers/scsi/ata_piix.c	2005-11-18 00:35:06.000000000 +0900
-@@ -144,7 +144,6 @@ static struct scsi_host_template piix_sh
- 	.dma_boundary		= ATA_DMA_BOUNDARY,
- 	.slave_configure	= ata_scsi_slave_config,
- 	.bios_param		= ata_std_bios_param,
--	.ordered_flush		= 1,
- };
- 
- static const struct ata_port_operations piix_pata_ops = {
-Index: work/drivers/scsi/sata_mv.c
+--- work.orig/include/linux/hdreg.h	2005-11-18 00:06:46.000000000 +0900
++++ work/include/linux/hdreg.h	2005-11-18 00:35:07.000000000 +0900
+@@ -550,7 +550,13 @@ struct hd_driveid {
+ 					 * cmd set-feature supported extensions
+ 					 * 15:	Shall be ZERO
+ 					 * 14:	Shall be ONE
+-					 * 13:6	reserved
++					 * 13:  IDLE IMMEDIATE w/ UNLOAD FEATURE
++					 * 12:11 reserved for technical report
++					 * 10:  URG for WRITE STREAM
++					 *  9:  URG for READ STREAM
++					 *  8:  64-bit World wide name
++					 *  7:  WRITE DMA QUEUED FUA EXT
++					 *  6:  WRITE DMA/MULTIPLE FUA EXT
+ 					 *  5:	General Purpose Logging
+ 					 *  4:	Streaming Feature Set
+ 					 *  3:	Media Card Pass Through
+@@ -600,7 +606,13 @@ struct hd_driveid {
+ 					 * command set-feature default
+ 					 * 15:	Shall be ZERO
+ 					 * 14:	Shall be ONE
+-					 * 13:6	reserved
++					 * 13:  IDLE IMMEDIATE w/ UNLOAD FEATURE
++					 * 12:11 reserved for technical report
++					 * 10:  URG for WRITE STREAM
++					 *  9:  URG for READ STREAM
++					 *  8:  64-bit World wide name
++					 *  7:  WRITE DMA QUEUED FUA EXT
++					 *  6:  WRITE DMA/MULTIPLE FUA EXT
+ 					 *  5:	General Purpose Logging enabled
+ 					 *  4:	Valid CONFIGURE STREAM executed
+ 					 *  3:	Media Card Pass Through enabled
+Index: work/include/linux/ide.h
 ===================================================================
---- work.orig/drivers/scsi/sata_mv.c	2005-11-18 00:14:22.000000000 +0900
-+++ work/drivers/scsi/sata_mv.c	2005-11-18 00:35:06.000000000 +0900
-@@ -287,7 +287,6 @@ static struct scsi_host_template mv_sht 
- 	.dma_boundary		= MV_DMA_BOUNDARY,
- 	.slave_configure	= ata_scsi_slave_config,
- 	.bios_param		= ata_std_bios_param,
--	.ordered_flush		= 1,
- };
+--- work.orig/include/linux/ide.h	2005-11-18 00:14:29.000000000 +0900
++++ work/include/linux/ide.h	2005-11-18 00:35:07.000000000 +0900
+@@ -1503,6 +1503,9 @@ extern struct bus_type ide_bus_type;
+ /* check if CACHE FLUSH (EXT) command is supported (bits defined in ATA-6) */
+ #define ide_id_has_flush_cache(id)	((id)->cfs_enable_2 & 0x3000)
  
- static const struct ata_port_operations mv_ops = {
-Index: work/drivers/scsi/sata_nv.c
-===================================================================
---- work.orig/drivers/scsi/sata_nv.c	2005-11-18 00:14:22.000000000 +0900
-+++ work/drivers/scsi/sata_nv.c	2005-11-18 00:35:06.000000000 +0900
-@@ -235,7 +235,6 @@ static struct scsi_host_template nv_sht 
- 	.dma_boundary		= ATA_DMA_BOUNDARY,
- 	.slave_configure	= ata_scsi_slave_config,
- 	.bios_param		= ata_std_bios_param,
--	.ordered_flush		= 1,
- };
- 
- static const struct ata_port_operations nv_ops = {
-Index: work/drivers/scsi/sata_promise.c
-===================================================================
---- work.orig/drivers/scsi/sata_promise.c	2005-11-18 00:14:22.000000000 +0900
-+++ work/drivers/scsi/sata_promise.c	2005-11-18 00:35:06.000000000 +0900
-@@ -111,7 +111,6 @@ static struct scsi_host_template pdc_ata
- 	.dma_boundary		= ATA_DMA_BOUNDARY,
- 	.slave_configure	= ata_scsi_slave_config,
- 	.bios_param		= ata_std_bios_param,
--	.ordered_flush		= 1,
- };
- 
- static const struct ata_port_operations pdc_sata_ops = {
-Index: work/drivers/scsi/sata_sil.c
-===================================================================
---- work.orig/drivers/scsi/sata_sil.c	2005-11-18 00:14:22.000000000 +0900
-+++ work/drivers/scsi/sata_sil.c	2005-11-18 00:35:06.000000000 +0900
-@@ -147,7 +147,6 @@ static struct scsi_host_template sil_sht
- 	.dma_boundary		= ATA_DMA_BOUNDARY,
- 	.slave_configure	= ata_scsi_slave_config,
- 	.bios_param		= ata_std_bios_param,
--	.ordered_flush		= 1,
- };
- 
- static const struct ata_port_operations sil_ops = {
-Index: work/drivers/scsi/sata_sis.c
-===================================================================
---- work.orig/drivers/scsi/sata_sis.c	2005-11-18 00:14:22.000000000 +0900
-+++ work/drivers/scsi/sata_sis.c	2005-11-18 00:35:06.000000000 +0900
-@@ -99,7 +99,6 @@ static struct scsi_host_template sis_sht
- 	.dma_boundary		= ATA_DMA_BOUNDARY,
- 	.slave_configure	= ata_scsi_slave_config,
- 	.bios_param		= ata_std_bios_param,
--	.ordered_flush		= 1,
- };
- 
- static const struct ata_port_operations sis_ops = {
-Index: work/drivers/scsi/sata_svw.c
-===================================================================
---- work.orig/drivers/scsi/sata_svw.c	2005-11-18 00:14:22.000000000 +0900
-+++ work/drivers/scsi/sata_svw.c	2005-11-18 00:35:06.000000000 +0900
-@@ -303,7 +303,6 @@ static struct scsi_host_template k2_sata
- 	.proc_info		= k2_sata_proc_info,
- #endif
- 	.bios_param		= ata_std_bios_param,
--	.ordered_flush		= 1,
- };
- 
- 
-Index: work/drivers/scsi/sata_sx4.c
-===================================================================
---- work.orig/drivers/scsi/sata_sx4.c	2005-11-18 00:14:22.000000000 +0900
-+++ work/drivers/scsi/sata_sx4.c	2005-11-18 00:35:06.000000000 +0900
-@@ -194,7 +194,6 @@ static struct scsi_host_template pdc_sat
- 	.dma_boundary		= ATA_DMA_BOUNDARY,
- 	.slave_configure	= ata_scsi_slave_config,
- 	.bios_param		= ata_std_bios_param,
--	.ordered_flush		= 1,
- };
- 
- static const struct ata_port_operations pdc_20621_ops = {
-Index: work/drivers/scsi/sata_uli.c
-===================================================================
---- work.orig/drivers/scsi/sata_uli.c	2005-11-18 00:14:22.000000000 +0900
-+++ work/drivers/scsi/sata_uli.c	2005-11-18 00:35:06.000000000 +0900
-@@ -87,7 +87,6 @@ static struct scsi_host_template uli_sht
- 	.dma_boundary		= ATA_DMA_BOUNDARY,
- 	.slave_configure	= ata_scsi_slave_config,
- 	.bios_param		= ata_std_bios_param,
--	.ordered_flush		= 1,
- };
- 
- static const struct ata_port_operations uli_ops = {
-Index: work/drivers/scsi/sata_via.c
-===================================================================
---- work.orig/drivers/scsi/sata_via.c	2005-11-18 00:14:22.000000000 +0900
-+++ work/drivers/scsi/sata_via.c	2005-11-18 00:35:06.000000000 +0900
-@@ -106,7 +106,6 @@ static struct scsi_host_template svia_sh
- 	.dma_boundary		= ATA_DMA_BOUNDARY,
- 	.slave_configure	= ata_scsi_slave_config,
- 	.bios_param		= ata_std_bios_param,
--	.ordered_flush		= 1,
- };
- 
- static const struct ata_port_operations svia_sata_ops = {
-Index: work/drivers/scsi/sata_vsc.c
-===================================================================
---- work.orig/drivers/scsi/sata_vsc.c	2005-11-18 00:14:22.000000000 +0900
-+++ work/drivers/scsi/sata_vsc.c	2005-11-18 00:35:06.000000000 +0900
-@@ -235,7 +235,6 @@ static struct scsi_host_template vsc_sat
- 	.dma_boundary		= ATA_DMA_BOUNDARY,
- 	.slave_configure	= ata_scsi_slave_config,
- 	.bios_param		= ata_std_bios_param,
--	.ordered_flush		= 1,
- };
- 
- 
-Index: work/drivers/scsi/sata_sil24.c
-===================================================================
---- work.orig/drivers/scsi/sata_sil24.c	2005-11-18 00:14:22.000000000 +0900
-+++ work/drivers/scsi/sata_sil24.c	2005-11-18 00:35:06.000000000 +0900
-@@ -272,7 +272,6 @@ static struct scsi_host_template sil24_s
- 	.dma_boundary		= ATA_DMA_BOUNDARY,
- 	.slave_configure	= ata_scsi_slave_config,
- 	.bios_param		= ata_std_bios_param,
--	.ordered_flush		= 1, /* NCQ not supported yet */
- };
- 
- static const struct ata_port_operations sil24_ops = {
++/* check if WRITE DMA FUA EXT command is supported (defined in ATA-8) */
++#define ide_id_has_fua(id)		((id)->cfsse & 0x0040)
++
+ /* some Maxtor disks have bit 13 defined incorrectly so check bit 10 too */
+ #define ide_id_has_flush_cache_ext(id)	\
+ 	(((id)->cfs_enable_2 & 0x2400) == 0x2400)
 

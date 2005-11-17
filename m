@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964839AbVKQUNd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964895AbVKQUMW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964839AbVKQUNd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 15:13:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbVKQUNd
+	id S964895AbVKQUMW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 15:12:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbVKQUMW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 15:13:33 -0500
-Received: from pa208.myslowice.sdi.tpnet.pl ([213.76.228.208]:47548 "EHLO
-	finwe.eu.org") by vger.kernel.org with ESMTP id S964839AbVKQUNc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 15:13:32 -0500
-Date: Thu, 17 Nov 2005 21:15:09 +0100
-From: Jacek Kawa <jfk@zeus.polsl.gliwice.pl>
-To: Greg KH <greg@kroah.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
+	Thu, 17 Nov 2005 15:12:22 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:10770 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S964895AbVKQUMV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 15:12:21 -0500
+Date: Thu, 17 Nov 2005 21:12:04 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Linux-pm mailing list <linux-pm@lists.osdl.org>
 Subject: Re: [linux-pm] [RFC] userland swsusp
-Message-ID: <20051117201509.GA25250@finwe.eu.org>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	kernel list <linux-kernel@vger.kernel.org>,
+Message-ID: <20051117201204.GA32376@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Lee Revell <rlrevell@joe-job.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
 	Linux-pm mailing list <linux-pm@lists.osdl.org>
-References: <F760B14C9561B941B89469F59BA3A8470BDD12EB@orsmsx401.amr.corp.intel.com> <20051116191051.GG2193@spitz.ucw.cz> <20051117165437.GA10402@dspnet.fr.eu.org> <20051117164451.GA27178@kroah.com>
-MIME-Version: 1.0
+References: <F760B14C9561B941B89469F59BA3A8470BDD12EB@orsmsx401.amr.corp.intel.com> <20051116164429.GA5630@kroah.com> <1132172445.25230.73.camel@localhost> <20051116220500.GF12505@elf.ucw.cz> <20051117170202.GB10402@dspnet.fr.eu.org> <1132257432.4438.8.camel@mindpipe>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051117164451.GA27178@kroah.com>
-Organization: Kreatorzy Kreacji Bialej
-User-Agent: Mutt/1.5.11
+In-Reply-To: <1132257432.4438.8.camel@mindpipe>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+On Thu, Nov 17, 2005 at 02:57:11PM -0500, Lee Revell wrote:
+> On Thu, 2005-11-17 at 18:02 +0100, Olivier Galibert wrote:
+> > On Wed, Nov 16, 2005 at 11:05:00PM +0100, Pavel Machek wrote:
+> > > Now... if something can be
+> > > done in userspace, it probably should.
+> > 
+> > And that usually means it just isn't done.  Cases in point:
+> > multichannel audio software mixing, video pixel formats conversion.
+> 
+> What are you talking about?  ALSA does mixing in userspace, it works
+> great.
 
-> > > What unstable implementation? swsusp had very little regressions over past
-> > > year or so. Drivers were different story, but nothing changes w.r.t. drivers.
-> > Do you mean swsusp is actually supposed to work?  Suspend-to-ram,
-> > suspend-to-disk or both?
-> Both.  -to-ram depends on your video chip, but to-disk should work just
-> fine.  If not, please report bugs.
+You have an interesting definition of "great".
 
-Thanks, I've just realized, that I probably forgot to CC anyone last time... 
-:)
+1- It doesn't work without an annoyingly complex, extremely badly
+   documented user configuration. To the point that it doesn't work in
+   either an out-of-the-box, updated Fedora Core 3 nor an
+   out-of-the-box gentoo.
 
-So, may I kindly ask to look on:
-http://www.ussg.iu.edu/hypermail/linux/kernel/0511.1/1863.html ?
+2- It doesn't work for programs that do not use the annoyingly complex
+   and horribly documented alsa library, which includes everything
+   that still uses OSS[1].
 
-Thanks!
+You call that great?  Multiple audio streams is such a basic feature
+it should work, period.  No if, no buts, and no obligatory library.
+Which doesn't preclude having it in userspace, mind you.  But it
+should never have been the _application_'s responsability.
 
--- 
-Jacek Kawa
+  OG.
+
+[1] Which is so easier to use for normal programs' audio it's not
+    funny.

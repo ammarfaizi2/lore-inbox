@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbVKQTtc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbVKQTwF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964825AbVKQTtc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 14:49:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964824AbVKQTtc
+	id S964826AbVKQTwF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 14:52:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964828AbVKQTwF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 14:49:32 -0500
-Received: from 90.Red-213-97-199.staticIP.rima-tde.net ([213.97.199.90]:13151
-	"HELO fargo") by vger.kernel.org with SMTP id S964825AbVKQTtb (ORCPT
+	Thu, 17 Nov 2005 14:52:05 -0500
+Received: from khc.piap.pl ([195.187.100.11]:28164 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S964826AbVKQTwE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 14:49:31 -0500
-Date: Thu, 17 Nov 2005 20:49:18 +0100
-From: David =?utf-8?B?R8OzbWV6?= <david@pleyades.net>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Adrian Bunk <bunk@stusta.de>, "David S. Miller" <davem@davemloft.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: /net/sched/Kconfig broken
-Message-ID: <20051117194918.GB12121@fargo>
-Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
-	Adrian Bunk <bunk@stusta.de>,
-	"David S. Miller" <davem@davemloft.net>,
-	linux-kernel@vger.kernel.org
-References: <20051116194414.GA14953@fargo> <20051116.115141.33136176.davem@davemloft.net> <20051116201020.GA15113@fargo> <20051116231650.GR5735@stusta.de> <20051117135731.GA11238@fargo> <Pine.LNX.4.61.0511171643430.1610@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.61.0511171643430.1610@scrub.home>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 17 Nov 2005 14:52:04 -0500
+To: dsaxena@plexity.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: dma_is_consistent() is nonsensical...
+References: <20051117184745.GA23776@plexity.net>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Thu, 17 Nov 2005 20:52:02 +0100
+In-Reply-To: <20051117184745.GA23776@plexity.net> (Deepak Saxena's message
+ of "Thu, 17 Nov 2005 10:47:45 -0800")
+Message-ID: <m3ek5frr19.fsf@defiant.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Roman,
+Deepak Saxena <dsaxena@plexity.net> writes:
 
-On Nov 17 at 04:51:51, Roman Zippel wrote:
-> No, they were there before too, but you have to go up one level to see 
-> them.
+> Working on adding support for cache-coherent operation to ARM and 
+> wondering exactly what this API is supposed to do. From the name it
+> is obviously supposed to tell the caller (only one in the kernel...
+> drivers/scsi/53c700.c) whether the provided dma_handle is cache-coherent
+> or not.  In the case of multiple DMA domains where certain devices
+> are on snooping interfaces and others are not we really want to know what
+> device the DMA address is on so can we add a struct device* ptr to this 
+> function? Or can we just kill it since nobody is actually using it? 
+> Calling dma_alloc_coherent should always return coherent/consistent 
+> (why the different naming conventions too?) so I don't really see a real 
+> use case. 
 
-I see them know. It was dificcult to find them...
-
-> It's better in 2.6.15-rc1-git5, but the menu structure is still a little 
-> messed up, the patch below properly indents all menu entries.
-
-Thanks for the patch, i'll apply it.
-
-regards,
-
+I would have to look at the current code but yes, there were issues
+like that in the past. Coherent vs consistent - there are two APIs
+(DMA and PCI) each with a different name for this.
 -- 
-David Gómez                                      Jabber ID: davidge@jabber.org
+Krzysztof Halasa

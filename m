@@ -1,77 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbVKQWUK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964910AbVKQWXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964835AbVKQWUK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 17:20:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964877AbVKQWUK
+	id S964910AbVKQWXk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 17:23:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964911AbVKQWXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 17:20:10 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:15558 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964835AbVKQWUI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 17:20:08 -0500
-Date: Thu, 17 Nov 2005 14:20:23 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: vgoyal@in.ibm.com
-Cc: linux-kernel@vger.kernel.org, fastboot@lists.osdl.org, ak@suse.de,
-       ebiederm@xmission.com
-Subject: Re: [PATCH 9/10] kdump: read previous kernel's memory
-Message-Id: <20051117142023.43764d8b.akpm@osdl.org>
-In-Reply-To: <20051117132944.GM3981@in.ibm.com>
-References: <20051117131339.GD3981@in.ibm.com>
-	<20051117131825.GE3981@in.ibm.com>
-	<20051117132004.GF3981@in.ibm.com>
-	<20051117132138.GG3981@in.ibm.com>
-	<20051117132315.GH3981@in.ibm.com>
-	<20051117132437.GI3981@in.ibm.com>
-	<20051117132557.GJ3981@in.ibm.com>
-	<20051117132659.GK3981@in.ibm.com>
-	<20051117132850.GL3981@in.ibm.com>
-	<20051117132944.GM3981@in.ibm.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 17 Nov 2005 17:23:40 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:59543 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S964910AbVKQWXj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 17:23:39 -0500
+Message-Id: <200511172223.jAHMNUEt014746@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: David Howells <dhowells@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rc1-mm1 
+In-Reply-To: Your message of "Thu, 17 Nov 2005 22:14:46 GMT."
+             <8752.1132265686@warthog.cambridge.redhat.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <200511172130.jAHLUCP0010033@turing-police.cc.vt.edu> <20051117111807.6d4b0535.akpm@osdl.org>
+            <8752.1132265686@warthog.cambridge.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_1132266210_3677P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Thu, 17 Nov 2005 17:23:30 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vivek Goyal <vgoyal@in.ibm.com> wrote:
->
-> +ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
-> +                               size_t csize, unsigned long offset, int userbuf)
-> +{
-> +	void  *vaddr;
-> +
-> +	if (!csize)
-> +		return 0;
-> +
-> +	vaddr = kmap_atomic_pfn(pfn, KM_PTE0);
-> +
-> +	if (userbuf) {
-> +		if (copy_to_user(buf, (vaddr + offset), csize)) {
-> +			kunmap_atomic(vaddr, KM_PTE0);
-> +			return -EFAULT;
+--==_Exmh_1132266210_3677P
+Content-Type: text/plain; charset=us-ascii
 
-The copy_*_user() inside kmap_atomic() is problematic.
+On Thu, 17 Nov 2005 22:14:46 GMT, David Howells said:
+> 
+> Valdis.Kletnieks@vt.edu wrote:
+> 
+> > Why does keyctl.c declare it as 'asmlinkage'?
+> 
+> Because it's wrong.
 
-On some configs (eg, x86, highmem) the process is running atomically, hence
-the copy_*_user() will *refuse* to fault in the user's page if it's not
-present.  Because pagefaulting involves doing things which sleep.
-
-So
-
-a) This code will generate might_sleep() warnings at runtime and
-
-b) It'll return -EFAULT for user pages which haven't been faulted in yet.
+Am chasing another issue - once I got past that, it wouldn't boot at all.
+Grub would act like it was loading, then 2 seconds or so later, grub would
+start up again.  My first guess was CONFIG_DEBUG_RODATA=y, but I ruled that
+out.  More detail once I've done some more binary searching and ruled out
+self-inflicted idiocy....
 
 
-We do all sorts of gruesome tricks in mm/filemap.c to get around all this. 
-I don't think your code is as performance-sensitive, so a suitable fix
-might be to double-copy the data.  Make sure that the same physical page is
-used as a bounce page for each copy (ie: get the caller to pass it in) and
-that page will be cache-hot and the performance should be acceptable.
+--==_Exmh_1132266210_3677P
+Content-Type: application/pgp-signature
 
-If it really is performance-sensitive then you'll need to play filemap.c
-games.  It'd be better to use a sleeping kmap instead, if poss.  That's
-kmap().
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Please send an incremental patch when it's sorted.  
+iD8DBQFDfQLicC3lWbTT17ARAvitAJ4uIGQi9Jw7FWKzqfIu6p5ZMPW9GQCgoaUL
+FsYAzJMgfwdk59J7YXzfaEM=
+=aHsH
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1132266210_3677P--

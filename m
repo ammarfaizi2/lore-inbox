@@ -1,67 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750982AbVKQPte@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbVKQPzg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750982AbVKQPte (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 10:49:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750992AbVKQPte
+	id S932170AbVKQPzg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 10:55:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbVKQPzg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 10:49:34 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:4368 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750982AbVKQPtd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 10:49:33 -0500
-Date: Thu, 17 Nov 2005 15:49:25 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Kumar Gala <galak@kernel.crashing.org>
-Cc: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: overlapping resources for platform devices?
-Message-ID: <20051117154925.GA26032@flint.arm.linux.org.uk>
-Mail-Followup-To: Kumar Gala <galak@kernel.crashing.org>,
-	Greg KH <greg@kroah.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0511151727170.32393-100000@gate.crashing.org> <20051116064123.GA31824@kroah.com> <18C975E2-BA90-4595-8C50-63E5CFB9C0A1@kernel.crashing.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <18C975E2-BA90-4595-8C50-63E5CFB9C0A1@kernel.crashing.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 17 Nov 2005 10:55:36 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:18917 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932170AbVKQPzf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 10:55:35 -0500
+Date: Thu, 17 Nov 2005 10:55:33 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Greg KH <gregkh@suse.de>
+cc: linux-usb-devel@lists.sourceforge.net, <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] [PATCH 02/02] USB: add dynamic id functionality
+ to USB core
+In-Reply-To: <20051117003241.GC14896@kroah.com>
+Message-ID: <Pine.LNX.4.44L0.0511171049070.5089-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 17, 2005 at 09:36:38AM -0600, Kumar Gala wrote:
-> 
-> On Nov 16, 2005, at 12:41 AM, Greg KH wrote:
-> 
-> >On Tue, Nov 15, 2005 at 05:31:57PM -0600, Kumar Gala wrote:
-> >>Guys,
-> >>
-> >>I was wondering if there was any issue in changing  
-> >>platform_device_add to
-> >>use insert_resource instead of request_resource.  The reason for this
-> >>change is to handle several cases where we have device registers that
-> >>overlap that two different drivers are handling.
-> >>
-> >>The biggest case of this is with ethernet on a number of PowerPC  
-> >>based
-> >>systems where a subset of the ethernet controllers registers are  
-> >>used for
-> >>MDIO/PHY bus control.  We currently hack around the limitation by  
-> >>having
-> >>the MDIO/PHY bus not actually register an memory resource region.
-> >>
-> >>If the following looks good I'll send a more formal patch.
-> >
-> >Looks good to me, but Russell knows this code much better than I.
-> >
-> >thanks,
-> >
-> >greg k-h
-> 
-> Russell, any issues?
+A few minor comments...
 
-Haven't managed to look at this yet - busy catching up after illness.
+On Wed, 16 Nov 2005, Greg KH wrote:
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+> +static ssize_t store_new_id(struct device_driver *driver,
+> +			    const char *buf, size_t count)
+> +{
+> +	struct usb_driver *usb_drv = to_usb_driver(driver);
+> +	struct usb_dynid *dynid;
+> +	u32 idVendor = 0;
+> +	u32 idProduct = 0;
+> +	int fields = 0;
+> +
+> +	fields = sscanf(buf, "%x %x", &idVendor, &idProduct);
+> +	if (fields < 0)
+> +		return -EINVAL;
+
+Don't you want to test (fields < 2)?
+
+> +	if (get_driver(&usb_drv->driver)) {
+> +		driver_attach(&usb_drv->driver);
+> +		put_driver(&usb_drv->driver);
+> +	}
+
+Here you don't have to refer to &usb_drv->driver; you can just refer to 
+driver.
+
+> +static int usb_create_newid_file(struct usb_driver *usb_drv)
+> +{
+> +	int error = 0;
+> +
+> +	if (usb_drv->probe != NULL)
+> +		error = sysfs_create_file(&usb_drv->driver.kobj,
+> +					  &driver_attr_new_id.attr);
+> +	return error;
+> +}
+
+This deserves to be an inline function.
+
+> +static void usb_free_dynids(struct usb_driver *usb_drv)
+> +{
+> +	struct usb_dynid *dynid, *n;
+> +
+> +	spin_lock(&usb_drv->dynids.lock);
+> +	list_for_each_entry_safe(dynid, n, &usb_drv->dynids.list, node) {
+> +		list_del(&dynid->node);
+> +		kfree(dynid);
+> +	}
+> +	spin_unlock(&usb_drv->dynids.lock);
+> +}
+
+This could be inline as well, although being longer, its overhead is less 
+noticeable.
+
+Alan Stern
+

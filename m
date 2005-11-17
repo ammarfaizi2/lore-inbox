@@ -1,85 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161102AbVKQCLs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161116AbVKQCe3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161102AbVKQCLs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 21:11:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161103AbVKQCLs
+	id S1161116AbVKQCe3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 21:34:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161117AbVKQCe3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 21:11:48 -0500
-Received: from send.forptr.21cn.com ([202.105.45.49]:8419 "HELO 21cn.com")
-	by vger.kernel.org with SMTP id S1161102AbVKQCLr (ORCPT
+	Wed, 16 Nov 2005 21:34:29 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:10884 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161116AbVKQCe3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 21:11:47 -0500
-Message-ID: <437BE773.6010007@21cn.com>
-Date: Thu, 17 Nov 2005 10:14:11 +0800
-From: Yan Zheng <yanzheng@21cn.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: netdev@vger.kernel.org
-CC: linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
-Subject: [PATCH]IPv6: Acquire addrconf_hash_lock for reading instead of writing
- in addrconf_verify(...)
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AIMC-AUTH: yanzheng
-X-AIMC-MAILFROM: yanzheng@21cn.com
-X-AIMC-Msg-ID: 5k4R9cOB
+	Wed, 16 Nov 2005 21:34:29 -0500
+Date: Wed, 16 Nov 2005 18:34:24 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: David =?UTF-8?B?SMOkcmRlbWFu?= <david@2gen.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB key generates ioctl_internal_command errors
+Message-Id: <20051116183424.5f1ebeac.zaitcev@redhat.com>
+In-Reply-To: <mailman.1132184643.7273.linux-kernel2news@redhat.com>
+References: <mailman.1132184643.7273.linux-kernel2news@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Wed, 16 Nov 2005 23:52:32 +0100, David Härdeman <david@2gen.com> wrote:
 
-addrconf_verify(...) only traverse address hash table when addrconf_hash_lock is held
-for writing, and it may hold addrconf_hash_lock for a long time. So I think it's better
-to acquire addrconf_hash_lock for reading instead of  writing
+> usb-storage: waiting for device to settle before scanning
+>   Vendor: I0MEGA    Model: UMni1GB*IOM2K4    Rev: 1.01
+>   Type:   Direct-Access                      ANSI SCSI revision: 02
+> SCSI device sda: 2048000 512-byte hdwr sectors (1049 MB)
+> sda: Write Protect is off
+> sda: Mode Sense: 00 00 00 00
+> sda: assuming drive cache: write through
+> ioctl_internal_command: <8 0 0 0> return code = 8000002
+>    : Current: sense key=0x0
+>     ASC=0x0 ASCQ=0x0
+> SCSI device sda: 2048000 512-byte hdwr sectors (1049 MB)
 
-Signed-off-by: Yan Zheng <yanzheng@21cn.com>
+I think it's harmless. I saw things like that, and initially I plugged
+them with workarounds like this:
 
-============================================================
---- a/net/ipv6/addrconf.c	2005-11-17 09:27:54.000000000 +0800
-+++ b/net/ipv6/addrconf.c	2005-11-17 09:25:42.000000000 +0800
-@@ -2627,7 +2627,7 @@ static void addrconf_verify(unsigned lon
- 	for (i=0; i < IN6_ADDR_HSIZE; i++) {
- 
- restart:
--		write_lock(&addrconf_hash_lock);
-+		read_lock(&addrconf_hash_lock);
- 		for (ifp=inet6_addr_lst[i]; ifp; ifp=ifp->lst_next) {
- 			unsigned long age;
- #ifdef CONFIG_IPV6_PRIVACY
-@@ -2649,7 +2649,7 @@ restart:
- 			if (age >= ifp->valid_lft) {
- 				spin_unlock(&ifp->lock);
- 				in6_ifa_hold(ifp);
--				write_unlock(&addrconf_hash_lock);
-+				read_unlock(&addrconf_hash_lock);
- 				ipv6_del_addr(ifp);
- 				goto restart;
- 			} else if (age >= ifp->prefered_lft) {
-@@ -2668,7 +2668,7 @@ restart:
- 
- 				if (deprecate) {
- 					in6_ifa_hold(ifp);
--					write_unlock(&addrconf_hash_lock);
-+					read_unlock(&addrconf_hash_lock);
- 
- 					ipv6_ifa_notify(0, ifp);
- 					in6_ifa_put(ifp);
-@@ -2686,7 +2686,7 @@ restart:
- 						in6_ifa_hold(ifp);
- 						in6_ifa_hold(ifpub);
- 						spin_unlock(&ifp->lock);
--						write_unlock(&addrconf_hash_lock);
-+						read_unlock(&addrconf_hash_lock);
- 						ipv6_create_tempaddr(ifpub, ifp);
- 						in6_ifa_put(ifpub);
- 						in6_ifa_put(ifp);
-@@ -2703,7 +2703,7 @@ restart:
- 				spin_unlock(&ifp->lock);
- 			}
- 		}
--		write_unlock(&addrconf_hash_lock);
-+		read_unlock(&addrconf_hash_lock);
- 	}
- 
- 	addr_chk_timer.expires = time_before(next, jiffies + HZ) ? jiffies + HZ : next;
+/*
+ * Pete Zaitcev <zaitcev@yahoo.com>, from Patrick C. F. Ernzer, bz#162559.
+ * The key does not actually break, but it returns zero sense which
+ * makes our SCSI stack to print confusing messages.
+ */
+UNUSUAL_DEV(  0x0457, 0x0150, 0x0100, 0x0100,
+		"USBest Technology",	/* sold by Transcend */
+		"USB Mass Storage Device",
+		US_SC_DEVICE, US_PR_DEVICE, NULL, US_FL_NOT_LOCKABLE ),
+
+But perhaps we want the SCSI stack to do something about it, dunno.
+
+If you're nervous about messages, use ub, it's mostly silent :-)
+
+-- Pete

@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751477AbVKQVm3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751460AbVKQVmK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751477AbVKQVm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 16:42:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbVKQVm3
+	id S1751460AbVKQVmK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 16:42:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751477AbVKQVmK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 16:42:29 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:44482 "EHLO
-	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
-	id S1751477AbVKQVm2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 16:42:28 -0500
-Date: Thu, 17 Nov 2005 22:42:26 +0100
-From: Folkert van Heusden <folkert@vanheusden.com>
+	Thu, 17 Nov 2005 16:42:10 -0500
+Received: from main.gmane.org ([80.91.229.2]:49320 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751460AbVKQVmJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 16:42:09 -0500
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: monitoring disk access
-Message-ID: <20051117214225.GF5732@vanheusden.com>
+From: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+Date: Thu, 17 Nov 2005 16:34:20 -0500
+Message-ID: <dlit0i$5k0$1@sea.gmane.org>
+References: <1132020468.27215.25.camel@mindpipe> <20051115032819.GA5620@redhat.com> <43795575.9010904@wolfmountaingroup.com> <20051115050658.GA13660@redhat.com> <43797E05.5090107@wolfmountaingroup.com> <17273.34218.334118.264701@cse.unsw.edu.au> <4379846E.2070006@wolfmountaingroup.com> <20051115141851.18c2c276.grundig@teleline.es> <1132061045.2822.20.camel@laptopd505.fenrus.org> <dld3cs$1sh$1@sea.gmane.org> <20051115185543.GI5735@stusta.de> <437CD916.7030705@tmr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: www.unixexpert.nl
-X-Chameleon-Return-To: folkert@vanheusden.com
-X-Xfmail-Return-To: folkert@vanheusden.com
-X-Phonenumber: +31-6-41278122
-X-URL: http://www.vanheusden.com/
-X-PGP-KeyID: 1F28D8AE
-X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
-X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
-Read-Receipt-To: <folkert@vanheusden.com>
-Reply-By: Fri Nov 18 21:09:35 CET 2005
-X-Message-Flag: MultiTail - tail on steroids
-User-Agent: Mutt/1.5.10i
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: lmcgw.cs.sunysb.edu
+User-Agent: KNode/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Is it possible in the linux kernel to monitor disk access? Like what
-process access what files when? (like with dtrace)
-Google doesn't know it.
+Bill Davidsen wrote:
 
 
-Folkert van Heusden
+> process matters as much as a beer fart in a cow barn.
 
--- 
-Try MultiTail! Multiple windows with logfiles, filtered with regular
-expressions, colored output, etc. etc. www.vanheusden.com/multitail/
-----------------------------------------------------------------------
-Get your PGP/GPG key signed at www.biglumber.com!
-----------------------------------------------------------------------
-Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com
+This one cracked me up :-)
+
+> It seems like a lot of effort is being spent making things run in 4k
+> stacks, with minimal consideration of what benefits are gained or if
+> there are other ways to gain them. It just feels as though it's being
+> done to prove it's possible. Linux is about choice, let's go back to that.
+
+I couldn't agree more.
+
+Giri
+

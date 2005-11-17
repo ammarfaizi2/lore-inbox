@@ -1,81 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932450AbVKQRaA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbVKQRb2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932450AbVKQRaA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 12:30:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbVKQRaA
+	id S932437AbVKQRb2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 12:31:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbVKQRb2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 12:30:00 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:26756 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932450AbVKQR37 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 12:29:59 -0500
-Subject: Re: A problem with ktimer
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Claudio Scordino <cloud.of.andor@gmail.com>
-Cc: kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200511171639.27565.cloud.of.andor@gmail.com>
-References: <200511171639.27565.cloud.of.andor@gmail.com>
-Content-Type: text/plain
-Date: Thu, 17 Nov 2005 12:28:08 -0500
-Message-Id: <1132248488.10522.4.camel@localhost.localdomain>
+	Thu, 17 Nov 2005 12:31:28 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:43269 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S932451AbVKQRb1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 12:31:27 -0500
+Date: Thu, 17 Nov 2005 18:31:17 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: kernel list <linux-kernel@vger.kernel.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+Subject: Re: [linux-pm] [RFC] userland swsusp
+Message-ID: <20051117173117.GC10402@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	kernel list <linux-kernel@vger.kernel.org>,
+	Linux-pm mailing list <linux-pm@lists.osdl.org>
+References: <F760B14C9561B941B89469F59BA3A8470BDD12EB@orsmsx401.amr.corp.intel.com> <20051116191051.GG2193@spitz.ucw.cz> <20051117165437.GA10402@dspnet.fr.eu.org> <20051117164451.GA27178@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051117164451.GA27178@kroah.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-11-17 at 16:39 +0100, Claudio Scordino wrote:
-> Hi,
-> 
->    I know that ktimer is not yet part of the main tree of the Linux kernel.
-> 
-> However, maybe someone can help me to understand why the following code in a 
-> module makes crash my x86_64.
-> 
-> Many thanks,
-> 
->              Claudio
-> 
-> 
-> 
-> struct ktimer mytimer;
-> 
-> void myfunction()
-> {
->         int i;
-> }
-> 
-> 
-> static int module_insert(void)
-> {
->    ktime_t mytime = ktime_set(1,0);
->    mytimer.function = myfunction;
->    mytimer.data = NULL;
->    ktimer_init(&mytimer);
->    ktimer_start(&mytimer, &mytime, KTIMER_REL);
->    //...
-> }
+On Thu, Nov 17, 2005 at 08:44:51AM -0800, Greg KH wrote:
+> Both.  -to-ram depends on your video chip,
 
-You must do the ktimer_init first!
+i855GM with xorg-6.8.2 (-r6 gentoo) ?
 
-So the order must be:
-
-   ktimer_init(&mytimer);
-   mytimer.function = myfunction;
-   mytimer.data = NULL;
-   //...
-
-Think of ktimer_init like memset(...) (since it actually does a memset)
-
-You wouldn't do;
-
-struct myvar;
-
-myvar.my_field = 1;
-memset(&myvar, 0, sizeof(myvar));
-
-Right ;-)
-
--- Steve
+i830CGC with xorg-6.8.2 (-r4 gentoo) ?
 
 
+> but to-disk should work just fine.
+
+Ok.
+
+> If not, please report bugs.
+
+I shall.
+
+Is the acpi problem with PWRF used over PWRC and PWRF not sending
+events (hence no wakeup) solved?
+
+  OG.

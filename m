@@ -1,60 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964910AbVKQWXk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964897AbVKQWd7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964910AbVKQWXk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 17:23:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964911AbVKQWXk
+	id S964897AbVKQWd7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 17:33:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964898AbVKQWd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 17:23:40 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:59543 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S964910AbVKQWXj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 17:23:39 -0500
-Message-Id: <200511172223.jAHMNUEt014746@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: David Howells <dhowells@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-rc1-mm1 
-In-Reply-To: Your message of "Thu, 17 Nov 2005 22:14:46 GMT."
-             <8752.1132265686@warthog.cambridge.redhat.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <200511172130.jAHLUCP0010033@turing-police.cc.vt.edu> <20051117111807.6d4b0535.akpm@osdl.org>
-            <8752.1132265686@warthog.cambridge.redhat.com>
+	Thu, 17 Nov 2005 17:33:59 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:60047 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964897AbVKQWd6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 17:33:58 -0500
+Date: Thu, 17 Nov 2005 23:33:40 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Jan Niehusmann <jan@gondor.com>
+Cc: bart@samwel.tk, linux-kernel@vger.kernel.org
+Subject: Re: Laptop mode causing writes to wrong sectors?
+Message-ID: <20051117223340.GD14597@elf.ucw.cz>
+References: <20051116181612.GA9231@knautsch.gondor.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1132266210_3677P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 17 Nov 2005 17:23:30 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051116181612.GA9231@knautsch.gondor.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1132266210_3677P
-Content-Type: text/plain; charset=us-ascii
+Hi!
 
-On Thu, 17 Nov 2005 22:14:46 GMT, David Howells said:
+> let me start by stating that the following is mainly guessed. I may be
+> completely wrong. Still I think you may be interested in my
+> observations, and perhaps you already got similar reports?
 > 
-> Valdis.Kletnieks@vt.edu wrote:
+> On my laptop, running 2.6.14, I'm observing some strange file- and
+> filesystem corruptions. First, I thought it may have been caused by an
+> ext3 bug because the first corruption I did observe happened shortly
+> after an ext3 journal replay.
 > 
-> > Why does keyctl.c declare it as 'asmlinkage'?
+> I did report this to linux-kernel, but without any helpful response:
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0511.0/0129.html
+> (Subject: ext3 corruption: "JBD: no valid journal superblock found")
 > 
-> Because it's wrong.
+> But now, I got another hint pointing to a possible cause of this
+> problem: I found a file - /usr/lib/libatlas.so.3.0 - which was corrupted
+> by 4k of it being overwritten by a different file, which I recognized. 
+> And that file happened to be an uncompressed manual page.
+> 
+> As usually the manual pages are only stored compressed, this must have
+> happened when I actually did look at that manual page, which causes the
+> uncompressed version to be written to a file in /tmp/. And the best is:
+> I actually remember when I did read that man page, and it was while the
+> notebook ran on battery power, which is quite seldom. On battery power,
+> I have laptop mode activated and the hard disk spun down after a short
+> idle time.
+> 
+> Why do I think this is related to the corruption? Well, on the one hand,
+> I'm compiling kernels quite often, tracking linus' git repository,
+> and
 
-Am chasing another issue - once I got past that, it wouldn't boot at all.
-Grub would act like it was loading, then 2 seconds or so later, grub would
-start up again.  My first guess was CONFIG_DEBUG_RODATA=y, but I ruled that
-out.  More detail once I've done some more binary searching and ruled out
-self-inflicted idiocy....
+Can you try some filesystem test while forcing disk spindowns via
+hdparm?
 
+It may be bug in laptop mode, or a bug in ide (or something
+related)... trying spindowns without laptopmode would be helpful.
 
---==_Exmh_1132266210_3677P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFDfQLicC3lWbTT17ARAvitAJ4uIGQi9Jw7FWKzqfIu6p5ZMPW9GQCgoaUL
-FsYAzJMgfwdk59J7YXzfaEM=
-=aHsH
------END PGP SIGNATURE-----
-
---==_Exmh_1132266210_3677P--
+								Pavel
+-- 
+Thanks, Sharp!

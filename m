@@ -1,89 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964837AbVKQTyj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964840AbVKQT5X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964837AbVKQTyj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 14:54:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbVKQTyj
+	id S964840AbVKQT5X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 14:57:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964841AbVKQT5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 14:54:39 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:27286 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964837AbVKQTyj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 14:54:39 -0500
-Date: Thu, 17 Nov 2005 11:54:32 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Maneesh Soni <maneesh@in.ibm.com>
-cc: LKML <linux-kernel@vger.kernel.org>, venkatesh.pallipadi@intel.com,
-       len.brown@intel.com, Andrew Morton <akpm@osdl.org>
-Subject: Re: maxcpus=1 broken, ACPI bug?
-In-Reply-To: <20051117063103.GB6836@in.ibm.com>
-Message-ID: <Pine.LNX.4.64.0511171137450.13959@g5.osdl.org>
-References: <20051117063103.GB6836@in.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 17 Nov 2005 14:57:23 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:13462 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S964840AbVKQT5W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 14:57:22 -0500
+Subject: Re: [linux-pm] [RFC] userland swsusp
+From: Lee Revell <rlrevell@joe-job.com>
+To: Olivier Galibert <galibert@pobox.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+In-Reply-To: <20051117170202.GB10402@dspnet.fr.eu.org>
+References: <F760B14C9561B941B89469F59BA3A8470BDD12EB@orsmsx401.amr.corp.intel.com>
+	 <20051116164429.GA5630@kroah.com> <1132172445.25230.73.camel@localhost>
+	 <20051116220500.GF12505@elf.ucw.cz>
+	 <20051117170202.GB10402@dspnet.fr.eu.org>
+Content-Type: text/plain
+Date: Thu, 17 Nov 2005 14:57:11 -0500
+Message-Id: <1132257432.4438.8.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 17 Nov 2005, Maneesh Soni wrote:
+On Thu, 2005-11-17 at 18:02 +0100, Olivier Galibert wrote:
+> On Wed, Nov 16, 2005 at 11:05:00PM +0100, Pavel Machek wrote:
+> > Now... if something can be
+> > done in userspace, it probably should.
 > 
-> Using maxcpus=1 boot option, hangs the system while booting. It was
-> working till 2.6.13-rc2. After git bisect I found that after backing
-> out this ACPI patch it works again, though I had to manually sort the
-> reject while backing out.
-> 
-> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=acf05f4b7f558051ea0028e8e617144123650272
+> And that usually means it just isn't done.  Cases in point:
+> multichannel audio software mixing, video pixel formats conversion.
 
-Hmm. That patch had a totally idiotic thinko in it (look at the for-loop 
-in acpi_processor_get_power_info_default() and notice how it doesn't 
-actually change anything in the loop).
+What are you talking about?  ALSA does mixing in userspace, it works
+great.
 
-That thinko was later fixed (albeit in a really stupid way, and the same 
-cut-and-paste bug still exists in acpi_processor_get_power_info_fadt()).
+Lee
 
-Anyway, can you test this diff? It
-
- (a) removes the insane (and in one case incorrect) memset loop
- (b) makes the code that sets "pr->flags.power = 1" match the comment and 
-     the previous behaviour.
-
-Does that make a difference?
-
-		Linus
-
----
-diff --git a/drivers/acpi/processor_idle.c b/drivers/acpi/processor_idle.c
-index 573b6a9..2445828 100644
---- a/drivers/acpi/processor_idle.c
-+++ b/drivers/acpi/processor_idle.c
-@@ -524,8 +524,7 @@ static int acpi_processor_get_power_info
- 	if (!pr->pblk)
- 		return_VALUE(-ENODEV);
- 
--	for (i = 0; i < ACPI_PROCESSOR_MAX_POWER; i++)
--		memset(pr->power.states, 0, sizeof(struct acpi_processor_cx));
-+	memset(pr->power.states, 0, sizeof(pr->power.states));
- 
- 	/* if info is obtained from pblk/fadt, type equals state */
- 	pr->power.states[ACPI_STATE_C1].type = ACPI_STATE_C1;
-@@ -559,9 +558,7 @@ static int acpi_processor_get_power_info
- 
- 	ACPI_FUNCTION_TRACE("acpi_processor_get_power_info_default_c1");
- 
--	for (i = 0; i < ACPI_PROCESSOR_MAX_POWER; i++)
--		memset(&(pr->power.states[i]), 0,
--		       sizeof(struct acpi_processor_cx));
-+	memset(pr->power.states, 0, sizeof(pr->power.states));
- 
- 	/* if info is obtained from pblk/fadt, type equals state */
- 	pr->power.states[ACPI_STATE_C1].type = ACPI_STATE_C1;
-@@ -873,7 +870,8 @@ static int acpi_processor_get_power_info
- 	for (i = 1; i < ACPI_PROCESSOR_MAX_POWER; i++) {
- 		if (pr->power.states[i].valid) {
- 			pr->power.count = i;
--			pr->flags.power = 1;
-+			if (pr->power.states[i].type >= ACPI_STATE_C2)
-+				pr->flags.power = 1;
- 		}
- 	}
- 

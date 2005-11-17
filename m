@@ -1,42 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964919AbVKQWgO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbVKQWln@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964919AbVKQWgO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 17:36:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964932AbVKQWgO
+	id S964911AbVKQWln (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 17:41:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbVKQWln
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 17:36:14 -0500
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:19891 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S964922AbVKQWgN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 17:36:13 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
+	Thu, 17 Nov 2005 17:41:43 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:55492 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S964911AbVKQWlm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 17:41:42 -0500
+Date: Thu, 17 Nov 2005 14:41:38 -0800
+From: Mike Kravetz <kravetz@us.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 0/3][Resend] swsusp: improve freeing of memory
-Date: Thu, 17 Nov 2005 23:22:14 +0100
-User-Agent: KMail/1.8.3
-Cc: Pavel Machek <pavel@suse.cz>, LKML <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
+Cc: Paul Mackerras <paulus@samba.org>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] Remove arch independent NODES_SPAN_OTHER_NODES
+Message-ID: <20051117224138.GA5393@w-mikek2.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511172322.14735.rjw@sisk.pl>
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+The NODES_SPAN_OTHER_NODES config option was created so that DISCONTIGMEM
+could handle pSeries numa layouts.  However, support for DISCONTIGMEM has
+been replaced by SPARSEMEM on powerpc.  As a result, this config option and
+supporting code is no longer needed.
 
-The following series of patches is designed to make swsusp free only as much
-memory as necessary to complete the suspend and not as much as possible.
-This speeds up the suspend substantially and makes the system much more
-responsive after resume, especially on machines with a lot of RAM.
+I have already sent a patch to Paul that removes the option from powerpc
+specific code.  This removes the arch independent piece.  Doesn't really
+matter which is applied first.
 
-The patches are against 2.6.15-rc1-mm1.
+Signed-off-by: Mike Kravetz <kravetz@us.ibm.com>
 
-They have been acked by Pavel (Pavel please confirm).
-
-Please apply (please drop any previous iterations of these patches if you have
-them queued).
-
-Greetings,
-Rafael
+diff -Naupr linux-2.6.15-rc1-mm1/include/linux/mmzone.h linux-2.6.15-rc1-mm1.work/include/linux/mmzone.h
+--- linux-2.6.15-rc1-mm1/include/linux/mmzone.h	2005-11-17 18:22:08.000000000 +0000
++++ linux-2.6.15-rc1-mm1.work/include/linux/mmzone.h	2005-11-17 19:02:40.000000000 +0000
+@@ -610,12 +610,6 @@ void sparse_init(void);
+ #define sparse_index_init(_sec, _nid)  do {} while (0)
+ #endif /* CONFIG_SPARSEMEM */
+ 
+-#ifdef CONFIG_NODES_SPAN_OTHER_NODES
+-#define early_pfn_in_nid(pfn, nid)	(early_pfn_to_nid(pfn) == (nid))
+-#else
+-#define early_pfn_in_nid(pfn, nid)	(1)
+-#endif
+-
+ #ifndef early_pfn_valid
+ #define early_pfn_valid(pfn)	(1)
+ #endif
+diff -Naupr linux-2.6.15-rc1-mm1/mm/page_alloc.c linux-2.6.15-rc1-mm1.work/mm/page_alloc.c
+--- linux-2.6.15-rc1-mm1/mm/page_alloc.c	2005-11-17 18:22:08.000000000 +0000
++++ linux-2.6.15-rc1-mm1.work/mm/page_alloc.c	2005-11-17 19:03:24.000000000 +0000
+@@ -1752,8 +1752,6 @@ void __devinit memmap_init_zone(unsigned
+ 	for (pfn = start_pfn; pfn < end_pfn; pfn++, page++) {
+ 		if (!early_pfn_valid(pfn))
+ 			continue;
+-		if (!early_pfn_in_nid(pfn, nid))
+-			continue;
+ 		page = pfn_to_page(pfn);
+ 		set_page_links(page, zone, nid, pfn);
+ 		set_page_count(page, 1);

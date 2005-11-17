@@ -1,67 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161071AbVKQBcy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030496AbVKQBhE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161071AbVKQBcy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 20:32:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161072AbVKQBcx
+	id S1030496AbVKQBhE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 20:37:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030547AbVKQBhD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 20:32:53 -0500
-Received: from mail.suse.de ([195.135.220.2]:42925 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1161071AbVKQBcx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 20:32:53 -0500
-From: Andreas Schwab <schwab@suse.de>
-To: Olaf Hering <olh@suse.de>
-Cc: Badari Pulavarty <pbadari@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
-Subject: Re: [PATCH] ppc64: 64K pages support
-References: <1130915220.20136.14.camel@gaston>
-	<1130916198.20136.17.camel@gaston> <20051109172125.GA12861@lst.de>
-	<20051109201720.GB5443@w-mikek2.ibm.com>
-	<1131568336.24637.91.camel@gaston>
-	<1131573556.25354.1.camel@localhost.localdomain>
-	<1131573693.24637.109.camel@gaston>
-	<1131574051.25354.3.camel@localhost.localdomain>
-	<20051116230820.GA29068@suse.de>
-	<1132183002.24066.90.camel@localhost.localdomain>
-	<20051116232720.GA29512@suse.de>
-X-Yow: OKAY!!  Turn on the sound ONLY for TRYNEL CARPETING,
- FULLY-EQUIPPED R.V.'S and FLOATATION SYSTEMS!!
-Date: Thu, 17 Nov 2005 02:32:45 +0100
-In-Reply-To: <20051116232720.GA29512@suse.de> (Olaf Hering's message of "Thu,
-	17 Nov 2005 00:27:20 +0100")
-Message-ID: <je64qs83eq.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 16 Nov 2005 20:37:03 -0500
+Received: from bay103-f28.bay103.hotmail.com ([65.54.174.38]:50151 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S1030496AbVKQBhA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Nov 2005 20:37:00 -0500
+Message-ID: <BAY103-F28EE011A9ED5BBFB3F5D4FDF5F0@phx.gbl>
+X-Originating-IP: [70.131.134.203]
+X-Originating-Email: [dravet@hotmail.com]
+In-Reply-To: <20051116235216.GB7573@bouh.residence.ens-lyon.fr>
+From: "Jason Dravet" <dravet@hotmail.com>
+To: samuel.thibault@ens-lyon.org
+Cc: 7eggert@gmx.de, adaplas@gmail.com, torvalds@osdl.org, akpm@osdl.org,
+       davej@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] vgacon: Workaround for resize bug in some chipsets
+Date: Wed, 16 Nov 2005 19:37:00 -0600
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 17 Nov 2005 01:37:00.0408 (UTC) FILETIME=[678E4780:01C5EB17]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Hering <olh@suse.de> writes:
-
->  On Wed, Nov 16, Badari Pulavarty wrote:
+>From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+>To: Jason Dravet <dravet@hotmail.com>
+>CC: 7eggert@gmx.de, adaplas@gmail.com, torvalds@osdl.org, 
+>akpm@osdl.org,davej@redhat.com, linux-kernel@vger.kernel.org
+>Subject: Re: [PATCH] vgacon: Workaround for resize bug in some chipsets
+>Date: Thu, 17 Nov 2005 00:52:16 +0100
 >
->> I think I am using SLES9. Planning to update to SP3.
->> 
->> # rpm -qi glibc | head
->> Name        : glibc                        Relocations: (not
->> relocatable)
->> Version     : 2.3.3                             Vendor: SuSE Linux AG,
->> Nuernberg, Germany
->> Release     : 98.28                         Build Date: Wed Jun 30
->> 15:55:45 2004
+>Hi,
 >
-> The release number indicates the GA glibc.spec was used, but the
-> build date indicates its slightly older than SLES9 GA.
+>The following patch should correct the issue:
+>
+>When doublescan mode is in use, scanlines must be doubled.
+>
+>Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
+>
+>--- drivers/video/console/vgacon.c.orig	2005-11-17 00:40:02.000000000 +0100
+>+++ drivers/video/console/vgacon.c	2005-11-17 00:42:27.000000000 +0100
+>@@ -502,10 +502,16 @@
+>  {
+>  	unsigned long flags;
+>  	unsigned int scanlines = height * c->vc_font.height;
+>-	u8 scanlines_lo, r7, vsync_end, mode;
+>+	u8 scanlines_lo, r7, vsync_end, mode, max_scan;
+>
+>  	spin_lock_irqsave(&vga_lock, flags);
+>
+>+	outb_p(VGA_CRTC_MAX_SCAN, vga_video_port_reg);
+>+	max_scan = inb_p(vga_video_port_val);
+>+
+>+	if (max_scan & 0x80)
+>+		scanlines <<= 1;
+>+
+>  	outb_p(VGA_CRTC_MODE, vga_video_port_reg);
+>  	mode = inb_p(vga_video_port_val);
+>
 
-Build date is local time (timezone has been chopped off here).
+The patch does fix my problem.  Thank you Samuel.  I really appreciate the 
+work you and Antonino have done on this issue.  I look forward to seeing 
+this patch in the mainline.
 
-Andreas.
+Thanks again,
+Jason Dravet
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+

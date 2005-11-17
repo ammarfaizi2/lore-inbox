@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750844AbVKQOCU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbVKQOGL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750844AbVKQOCU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 09:02:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750845AbVKQOCU
+	id S1750851AbVKQOGL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 09:06:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750853AbVKQOGL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 09:02:20 -0500
-Received: from ihug-mail.icp-qv1-irony1.iinet.net.au ([203.59.1.195]:45967
-	"EHLO mail-ihug.icp-qv1-irony1.iinet.net.au") by vger.kernel.org
-	with ESMTP id S1750844AbVKQOCS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 09:02:18 -0500
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-Message-ID: <437C8D67.2030806@eyal.emu.id.au>
-Date: Fri, 18 Nov 2005 01:02:15 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-CC: list linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: hware clock left bad after a system failure
-References: <437B3C62.2090803@eyal.emu.id.au> <Pine.LNX.4.61.0511161037130.12055@chaos.analogic.com> <437BAA0E.2020602@eyal.emu.id.au> <Pine.LNX.4.61.0511170822590.7964@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0511170822590.7964@chaos.analogic.com>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 17 Nov 2005 09:06:11 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:31484 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750851AbVKQOGK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 09:06:10 -0500
+Subject: [patch -rt] add EXPORT_PER_CPU_LOCKED_SYMBOL to asm-x86_64/percpu.h
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Thu, 17 Nov 2005 09:05:58 -0500
+Message-Id: <1132236358.11652.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
-> On Wed, 16 Nov 2005, Eyal Lebedinsky wrote:
-[report of hwclock breakage trimmed]
-> 
-> If your machine was being heavily swapped when the disk problems
-> occurred, this __might__ explain the corruption. However, I would
-> first check RAM, do not overclock, etc. It might be that bad
-> RAM, in fact, is the reason for all your problems and you don't
-> really have disk or driver problems at all.
+Hi Ingo,
 
-I will now keep watching for q while quietly. Earlier today I had
-another such hard lockup, identical errors claiming a disk failure.
+I was getting some module dependency problems until I found that the
+source of these problems was that there was no
+EXPORT_PER_CPU_LOCKED_SYMBOL in the asm-x86_64.
 
-This time I went into the BIOS on bootup and the clock was set
-correctly. Good. Booted and it did the usual fscks but then dropped
-into a shell when errors were found on /. I did the necessary fscks.
+Here's the patch:
 
-On a hunch I did 'date' and the clock was 11h ahead (we actually
-are +11 now). So the problem is during the boot, not during the
-crash. I consider that the boot thinks that I am running a UTC
-hwclock and adjusts for this, when in fact I run a local time
-hwclock. There must be something in the scripts that goes funny
-if / does an fsck and then drops into the recovery shell.
+-- Steve
 
-I will start looking in this direction.
+Index: linux-2.6.14-rt13/include/asm-x86_64/percpu.h
+===================================================================
+--- linux-2.6.14-rt13.orig/include/asm-x86_64/percpu.h	2005-11-15 11:12:37.000000000 -0500
++++ linux-2.6.14-rt13/include/asm-x86_64/percpu.h	2005-11-17 08:53:47.000000000 -0500
+@@ -70,5 +70,7 @@
+ 
+ #define EXPORT_PER_CPU_SYMBOL(var) EXPORT_SYMBOL(per_cpu__##var)
+ #define EXPORT_PER_CPU_SYMBOL_GPL(var) EXPORT_SYMBOL_GPL(per_cpu__##var)
++#define EXPORT_PER_CPU_LOCKED_SYMBOL(var) EXPORT_SYMBOL(per_cpu_lock__##var##_locked); EXPORT_SYMBOL(per_cpu__##var##_locked)
++#define EXPORT_PER_CPU_LOCKED_SYMBOL_GPL(var) EXPORT_SYMBOL_GPL(per_cpu_lock__##var##_locked); EXPORT_SYMBOL_GPL(per_cpu__##var##_locked)
+ 
+ #endif /* _ASM_X8664_PERCPU_H_ */
 
-This is Debian Sarge in x86.
 
-Thanks
-
--- 
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
-	attach .zip as .dat

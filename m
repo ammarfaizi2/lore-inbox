@@ -1,51 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbVKQXkb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965118AbVKQXlZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964898AbVKQXkb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 18:40:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965118AbVKQXkb
+	id S965118AbVKQXlZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 18:41:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965120AbVKQXlZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 18:40:31 -0500
-Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:45890 "EHLO
-	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S964898AbVKQXkb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 18:40:31 -0500
-Date: Thu, 17 Nov 2005 23:40:27 +0000 (GMT)
-From: Ken Moffat <zarniwhoop@ntlworld.com>
-To: =?ISO-8859-1?Q?St=E9phane_BAUSSON?= <stephane.bausson@free.fr>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Fail to buil linux-2.6.14
-In-Reply-To: <437CF690.5060206@free.fr>
-Message-ID: <Pine.LNX.4.63.0511172335570.15546@deepthought.mydomain>
-References: <437CF690.5060206@free.fr>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463809536-1049896897-1132270827=:15546"
+	Thu, 17 Nov 2005 18:41:25 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:21212 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S965118AbVKQXlY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 18:41:24 -0500
+Subject: Re: [RFC][PATCH 6/6] PCI PM: pci_save/restore_state improvements
+From: Adam Belay <abelay@novell.com>
+To: Greg KH <gregkh@suse.de>
+Cc: Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20051116180655.GC6908@suse.de>
+References: <1132111902.9809.59.camel@localhost.localdomain>
+	 <20051116063125.GE31375@suse.de>
+	 <1132125965.3656.15.camel@localhost.localdomain>
+	 <20051116180655.GC6908@suse.de>
+Content-Type: text/plain
+Date: Thu, 17 Nov 2005 18:50:30 -0500
+Message-Id: <1132271430.3656.23.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Wed, 2005-11-16 at 10:06 -0800, Greg KH wrote:
+> On Wed, Nov 16, 2005 at 02:26:04AM -0500, Adam Belay wrote:
+> > On Tue, 2005-11-15 at 22:31 -0800, Greg KH wrote:
+> > > On Tue, Nov 15, 2005 at 10:31:42PM -0500, Adam Belay wrote:
+> > > > This patch makes some improvements to pci_save_state and
+> > > > pci_restore_state.  Instead of saving and restoring all standard
+> > > > registers (even read-only ones), it only restores necessary registers.
+> > > > Also, the command register is handled more carefully.  Let me know if
+> > > > I'm missing anything important.
+> > > > 
+> > > > 
+> > > > --- a/drivers/pci/pm.c	2005-11-13 20:32:24.000000000 -0500
+> > > > +++ b/drivers/pci/pm.c	2005-11-13 20:29:32.000000000 -0500
+> > > > @@ -53,10 +53,13 @@
+> > > >   */
+> > > >  int pci_save_state(struct pci_dev *dev)
+> > > >  {
+> > > > -	int i;
+> > > > -	/* XXX: 100% dword access ok here? */
+> > > > -	for (i = 0; i < 16; i++)
+> > > > -		pci_read_config_dword(dev, i * 4,&dev->saved_config_space[i]);
+> > > > +	struct pci_dev_config * conf = &dev->saved_config;
+> > > > +
+> > > > +	pci_read_config_word(dev, PCI_COMMAND, &conf->command);
+> > > > +	pci_read_config_byte(dev, PCI_CACHE_LINE_SIZE, &conf->cacheline_size);
+> > > > +	pci_read_config_byte(dev, PCI_LATENCY_TIMER, &conf->latency_timer);
+> > > > +	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &conf->interrupt_line);
+> > > 
+> > > Why are we saving and restoring smaller ammounts of config space now?
+> > 
+> > After looking at the spec, it seems that most of the registers we were
+> > restoring were read-only and couldn't possibly need to be restored.
+> > Also, the PCI PM spec suggests that only a subset of the registers
+> > should be restored.  Finally, things like BIST should probably never be
+> > touched.
+> 
+> Ok, but be aware that this _might_ cause problems for some cards/drivers
+> that were relying on the old way...  As long as you don't mind me
+> assigning those bugs to you, I don't have a problem with this :)
 
----1463809536-1049896897-1132270827=:15546
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+I'm probably going to regret this, but I'd be happy to take on any PCI
+PM subsystem bug reports.  Unless I forgot a register we need to
+restore, I'm not expecting this to cause too many problems.  A little
+time in -mm should shake out any issues out rather quickly.
 
-On Thu, 17 Nov 2005, Stéphane BAUSSON wrote:
+Thanks,
+Adam
 
-> Hi, I am failing to build 2.6.14, any idea or direction for investigation ?
->
-> ======================================
-> /local/gnu/binutils/bin/ld: section .text [ffffe400 -> ffffe45f] overlaps 
-> section .dynstr [ffffe17c -> ffffe9cd]
-> /local/gnu/binutils/bin/ld: section .note [ffffe460 -> ffffe477] overlaps 
-> section .dynstr [ffffe17c -> ffffe9cd]
 
-  Get a better binutils ?  I don't know what you've installed in 
-/local/gnu/binutils, but it clearly doesn't get along with the kernel 
-you've compiled.  Maybe it's broken (at least from a kernel viewpoint), 
-maybe it simply doesn't match the version of gcc you are using.
-
-Ken
--- 
-  das eine Mal als Tragödie, das andere Mal als Farce
-
----1463809536-1049896897-1132270827=:15546--

@@ -1,120 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbVKQQFX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbVKQQHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932294AbVKQQFX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 11:05:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbVKQQFX
+	id S932301AbVKQQHw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 11:07:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbVKQQHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 11:05:23 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:22033 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932294AbVKQQFW (ORCPT
+	Thu, 17 Nov 2005 11:07:52 -0500
+Received: from bsamwel.xs4all.nl ([82.92.179.183]:5454 "EHLO samwel.tk")
+	by vger.kernel.org with ESMTP id S932301AbVKQQHw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 11:05:22 -0500
-Date: Thu, 17 Nov 2005 17:06:24 +0100
-From: Jens Axboe <axboe@suse.de>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, rohit.seth@intel.com
-Subject: Re: 2.6.15-rc1-git crashes in kswapd
-Message-ID: <20051117160624.GR7787@suse.de>
-References: <20051117154754.GP7787@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051117154754.GP7787@suse.de>
+	Thu, 17 Nov 2005 11:07:52 -0500
+Message-ID: <437CAA62.8090101@samwel.tk>
+Date: Thu, 17 Nov 2005 17:05:54 +0100
+From: Bart Samwel <bart@samwel.tk>
+User-Agent: Thunderbird 1.5 (Windows/20051025)
+MIME-Version: 1.0
+To: Jan Niehusmann <jan@gondor.com>
+CC: Bradley Chapman <kakadu@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Laptop mode causing writes to wrong sectors?
+References: <e294b46e0511170522v5762d48jcaff8413e33b2ebe@mail.gmail.com> <437C9334.3020606@samwel.tk> <20051117154124.GA1813@knautsch.gondor.com>
+In-Reply-To: <20051117154124.GA1813@knautsch.gondor.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 127.0.0.1
+X-SA-Exim-Mail-From: bart@samwel.tk
+X-SA-Exim-Scanned: No (on samwel.tk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 17 2005, Jens Axboe wrote:
-> Hi,
+Jan Niehusmann wrote:
+>> Bradley, Jan, since when have these problems been happening? Kernel 
+>> version-wise, I mean?
 > 
-> Running some disk tests on a box here (which has always been stable),
-> crashes in kswapd after the oom killer has triggered. It appears to be
-> calling wakeup_kswapd() with zone == NULL. Recent __alloc_pages()
-> "cleanup" perhaps not functionally equivelant?
+> I didn't notice these problems before 2.6.14. As these corruptions are
+> not happening very often, and as I usually do not run the notebook on
+> battery power, the problem may have existed for a while, though.
 > 
-> 
-> oom-killer: gfp_mask=0x200d2, order=0
-> Mem-info:
-> DMA per-cpu:
-> cpu 0 hot: low 0, high 12, batch 2 used:0
-> cpu 0 cold: low 0, high 4, batch 1 used:3
-> DMA32 per-cpu:
-> cpu 0 hot: low 0, high 384, batch 64 used:41
-> cpu 0 cold: low 0, high 128, batch 32 used:63
-> Normal per-cpu: empty
-> HighMem per-cpu: empty
-> Free pages:        5396kB (0kB HighMem)
-> Active:55783 inactive:61639 dirty:0 writeback:0 unstable:0 free:1349 slab:6009 mapped:117281 pagetables:811
-> DMA free:2020kB min:56kB low:68kB high:84kB active:8200kB inactive:0kB present:10204kB pages_scanned:8293 all_unreclaimable? yes
-> lowmem_reserve[]: 0 488 488 488
-> DMA32 free:3376kB min:2796kB low:3492kB high:4192kB active:214932kB inactive:246556kB present:500140kB pages_scanned:289230 all_unreclaimable? no
-> lowmem_reserve[]: 0 0 0 0
-> Normal free:0kB min:0kB low:0kB high:0kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
-> lowmem_reserve[]: 0 0 0 0
-> HighMem free:0kB min:128kB low:128kB high:128kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
-> lowmem_reserve[]: 0 0 0 0
-> DMA: 1*4kB 0*8kB 0*16kB 1*32kB 1*64kB 1*128kB 1*256kB 1*512kB 1*1024kB 0*2048kB 0*4096kB = 2020kB
-> DMA32: 0*4kB 0*8kB 5*16kB 1*32kB 1*64kB 1*128kB 0*256kB 0*512kB 1*1024kB 1*2048kB 0*4096kB = 3376kB
-> Normal: empty
-> HighMem: empty
-> Swap cache: add 5310, delete 5278, find 817/1120, race 0+1
-> Free swap  = 1103376kB
-> Total swap = 1116476kB
-> Free swap:       1103376kB
-> 130864 pages of RAM
-> 4182 reserved pages
-> 338330 pages shared
-> 32 pages swap cached
-> Out of Memory: Killed process 4045 (fio).
-> Unable to handle kernel NULL pointer dereference at 00000000000006b8 RIP: 
-> <ffffffff8015a2e1>{wakeup_kswapd+8}
-> PGD 11fea067 PUD 11b24067 PMD 0 
-> Oops: 0000 [1] SMP 
-> CPU 0 
-> Modules linked in: aic7xxx scsi_transport_spi ide_cd cdrom loop
-> Pid: 2256, comm: slpd Not tainted 2.6.15-rc1-ga620bc08 #15
-> RIP: 0010:[<ffffffff8015a2e1>] <ffffffff8015a2e1>{wakeup_kswapd+8}
-> RSP: 0000:ffff81000f87dca8  EFLAGS: 00010292
-> RAX: ffffffff804edd60 RBX: 0000000000000000 RCX: 0000000000000000
-> RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
-> RBP: ffff81001cf3e040 R08: 0000000000000000 R09: 0000000000000000
-> R10: 00000000000001f9 R11: 0000000000000001 R12: 00000000000200d2
-> R13: 0000000000000000 R14: ffffffff804edd50 R15: 0000000000000000
-> FS:  00002aaaab4a16e0(0000) GS:ffffffff80624800(0000) knlGS:00000000556e28e0
-> CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-> CR2: 00000000000006b8 CR3: 000000001430d000 CR4: 00000000000006e0
-> Process slpd (pid: 2256, threadinfo ffff81000f87c000, task ffff81001cf3e040)
-> Stack: 0000000000000000 0000000000000000 ffff81001cf3e040 ffffffff80154e1e 
->        ffff810000000000 000000100000008d ffffffff804edd60 000200d200000008 
->        0000000000000000 ffffffff8014ff29 
-> Call Trace:<ffffffff80154e1e>{__alloc_pages+119} <ffffffff8014ff29>{__lock_page+95}
->        <ffffffff80166ebe>{read_swap_cache_async+61} <ffffffff8015da45>{swapin_readahead+85}
->        <ffffffff8015fe11>{__handle_mm_fault+1758} <ffffffff803dbfd9>{do_page_fault+1049}
->        <ffffffff801393bd>{lock_timer_base+27} <ffffffff8013a059>{__mod_timer+177}
->        <ffffffff8013a143>{try_to_del_timer_sync+86} <ffffffff80134a8c>{do_setitimer+352}
->        <ffffffff8010e955>{error_exit+0} 
-> 
-> Code: 48 83 bf b8 06 00 00 00 74 55 48 8b af 98 06 00 00 48 8b 57 
-> RIP <ffffffff8015a2e1>{wakeup_kswapd+8} RSP <ffff81000f87dca8>
-> CR2: 00000000000006b8
+> Today I did a simple test: I activated laptop mode with a 10s idle
+> timeout, and made a script write files with uniqe identifiers, followed
+> by a sync, every 60 seconds. After nearly an hour, I didn't see any
+> corruption, though at least some of these writes have triggered
+> a spin-up. When I have some spare time I'll do more intensive testing.
 
-This fixes it for me, does zonelist->zones change further down the path
-and we need the revalidation before after restarting?
+Well, the syncs should trigger a spinup every time. Laptop mode does not 
+influence syncs, really.
 
+> Additionally, I mounted more than half of the partitions on this
+> notebook read only, and made a 1:1 copy of these partitions to an
+> external hard drive. Therefore, I can check later if something
+> accidentally did write to these areas.
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 104e69c..77c663f 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -857,6 +857,7 @@ restart:
- 	if (page)
- 		goto got_pg;
- 
-+	z = zonelist->zones;  /* the list of zones suitable for gfp_mask */
- 	do
- 		wakeup_kswapd(*z, order);
- 	while (*(++z));
+"more than half"? Exactly how many partitions *are* there on this 
+notebook? ;)
 
+> If you have any suggestions for additional test, please tell me.
 
--- 
-Jens Axboe
+Perhaps you could enable /proc/sys/vm/block_dump. This makes the kernel 
+output all disk activity, including block numbers. By looking up the 
+corrupted block numbers in your logs you can check later if the 
+corrupting write was done by the kernel (i.e., software fault) or not 
+(hardware fault).
 
+Note that the output of block_dump may not go into your logs by default, 
+because it's output with KERN_DEBUG. You may need to change your log 
+settings.
+
+You can add extra context on ext3's state by enabling JBD debugging 
+(CONFIG_JBD_DEBUG, IIRC).
+
+> The random filesystem corruption had one positive effect: I never had
+> such a good backup of my data before. ;-)
+
+It made me rethink my backup strategy as well. :)
+
+--Bart

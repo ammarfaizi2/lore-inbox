@@ -1,75 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbVKQQHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932338AbVKQQIb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932301AbVKQQHw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 11:07:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbVKQQHw
+	id S932338AbVKQQIb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 11:08:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbVKQQIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 11:07:52 -0500
-Received: from bsamwel.xs4all.nl ([82.92.179.183]:5454 "EHLO samwel.tk")
-	by vger.kernel.org with ESMTP id S932301AbVKQQHw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 11:07:52 -0500
-Message-ID: <437CAA62.8090101@samwel.tk>
-Date: Thu, 17 Nov 2005 17:05:54 +0100
-From: Bart Samwel <bart@samwel.tk>
-User-Agent: Thunderbird 1.5 (Windows/20051025)
-MIME-Version: 1.0
-To: Jan Niehusmann <jan@gondor.com>
-CC: Bradley Chapman <kakadu@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Laptop mode causing writes to wrong sectors?
-References: <e294b46e0511170522v5762d48jcaff8413e33b2ebe@mail.gmail.com> <437C9334.3020606@samwel.tk> <20051117154124.GA1813@knautsch.gondor.com>
-In-Reply-To: <20051117154124.GA1813@knautsch.gondor.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 17 Nov 2005 11:08:30 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:31726 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S932338AbVKQQIa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 11:08:30 -0500
+Subject: Re: [patch -rt] make gendev_rel_sem a compat_semaphore
+From: Daniel Walker <dwalker@mvista.com>
+Reply-To: dwalker@mvista.com
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1132155299.6266.8.camel@localhost.localdomain>
+References: <1132155092.6266.6.camel@localhost.localdomain>
+	 <1132155299.6266.8.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: MontaVista
+Date: Thu, 17 Nov 2005 08:08:29 -0800
+Message-Id: <1132243709.6744.10.camel@dhcp153.mvista.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 127.0.0.1
-X-SA-Exim-Mail-From: bart@samwel.tk
-X-SA-Exim-Scanned: No (on samwel.tk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Niehusmann wrote:
->> Bradley, Jan, since when have these problems been happening? Kernel 
->> version-wise, I mean?
+
+How would you feel if we move this lock to a completion() . It's such a
+small lock, and completions are faster anyway .. It might be a good test
+bed for some other compat locks .
+
+Daniel  
+
+
+On Wed, 2005-11-16 at 10:34 -0500, Steven Rostedt wrote:
+> Crap! I sent this with my kihontech email.  Please respond to this
+> instead.  I'm still in the process of moving to my new machine, and the
+> email was messed up.
 > 
-> I didn't notice these problems before 2.6.14. As these corruptions are
-> not happening very often, and as I usually do not run the notebook on
-> battery power, the problem may have existed for a while, though.
+> Thanks,
 > 
-> Today I did a simple test: I activated laptop mode with a 10s idle
-> timeout, and made a script write files with uniqe identifiers, followed
-> by a sync, every 60 seconds. After nearly an hour, I didn't see any
-> corruption, though at least some of these writes have triggered
-> a spin-up. When I have some spare time I'll do more intensive testing.
+> -- Steve
+> 
+> 
+> On Wed, 2005-11-16 at 10:31 -0500, Steven Rostedt wrote:
+> > Hi Ingo,
+> > 
+> > I was getting the following:
+> > 
+> > BUG: nonzero lock count 10 at exit time?
+> >         modprobe: 2972 [ffff81007e1aaf70, 116]
+> > 
+> > Call Trace:<ffffffff8014e2db>{printk_task+43} <ffffffff8015040f>{check_no_held_locks+111}
+> >        <ffffffff80136d3c>{do_exit+3036} <ffffffff80136f5c>{do_group_exit+268}
+> >        <ffffffff80136f72>{sys_exit_group+18} <ffffffff8011e471>{ia32_sysret+0}
+> > 
+> > ---------------------------
+> > | preempt count: 00000000 ]
+> > | 0-level deep critical section nesting:
+> > ----------------------------------------
+> > hdc: ATAPI 40X DVD-ROM DVD-R CD-R/RW drive, 2048kB Cache, UDMA(33)
+> > Uniform CD-ROM driver Revision: 3.20
+> > 
+> > BUG: modprobe/2972, lock held at task exit time!
+> >  [ffffffff8809fd00] {(struct semaphore *)(&hwif->gendev_rel_sem)}
+> > .. held by:          modprobe: 2972 [ffff81007e1aaf70, 116]
+> > ... acquired at:               init_hwif_data+0xaf/0x1a0 [ide_core]
+> > 
+> > [snipped to not be so annoying]
+> > 
+> > Looking into this I see that gendev_rel_sem, which is only used when the
+> > device is unregistered, is defined as a semaphore.  This patch changes
+> > this to be a compat_semaphore.
+> > 
+> > -- Steve
+> > 
+> > Index: linux-2.6.14-rt13/include/linux/ide.h
+> > ===================================================================
+> > --- linux-2.6.14-rt13.orig/include/linux/ide.h	2005-11-15 11:12:37.000000000 -0500
+> > +++ linux-2.6.14-rt13/include/linux/ide.h	2005-11-16 10:09:10.000000000 -0500
+> > @@ -910,7 +910,7 @@
+> >  	unsigned	sg_mapped  : 1;	/* sg_table and sg_nents are ready */
+> >  
+> >  	struct device	gendev;
+> > -	struct semaphore gendev_rel_sem; /* To deal with device release() */
+> > +	struct compat_semaphore gendev_rel_sem; /* To deal with device release() */
+> >  
+> >  	void		*hwif_data;	/* extra hwif data */
+> >  
+> > 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Well, the syncs should trigger a spinup every time. Laptop mode does not 
-influence syncs, really.
-
-> Additionally, I mounted more than half of the partitions on this
-> notebook read only, and made a 1:1 copy of these partitions to an
-> external hard drive. Therefore, I can check later if something
-> accidentally did write to these areas.
-
-"more than half"? Exactly how many partitions *are* there on this 
-notebook? ;)
-
-> If you have any suggestions for additional test, please tell me.
-
-Perhaps you could enable /proc/sys/vm/block_dump. This makes the kernel 
-output all disk activity, including block numbers. By looking up the 
-corrupted block numbers in your logs you can check later if the 
-corrupting write was done by the kernel (i.e., software fault) or not 
-(hardware fault).
-
-Note that the output of block_dump may not go into your logs by default, 
-because it's output with KERN_DEBUG. You may need to change your log 
-settings.
-
-You can add extra context on ext3's state by enabling JBD debugging 
-(CONFIG_JBD_DEBUG, IIRC).
-
-> The random filesystem corruption had one positive effect: I never had
-> such a good backup of my data before. ;-)
-
-It made me rethink my backup strategy as well. :)
-
---Bart

@@ -1,40 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750943AbVKQVTt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751154AbVKQVXf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750943AbVKQVTt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 16:19:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbVKQVTt
+	id S1751154AbVKQVXf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 16:23:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbVKQVXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 16:19:49 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:18359 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750941AbVKQVTs (ORCPT
+	Thu, 17 Nov 2005 16:23:35 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:27562 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751154AbVKQVXe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 16:19:48 -0500
-Date: Thu, 17 Nov 2005 13:18:56 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Chris Wright <chrisw@osdl.org>, Dave Jones <davej@redhat.com>,
-       Olivier Galibert <galibert@pobox.com>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] [RFC] userland swsusp
-Message-ID: <20051117211856.GS5856@shell0.pdx.osdl.net>
-References: <1132172445.25230.73.camel@localhost> <20051116220500.GF12505@elf.ucw.cz> <20051117170202.GB10402@dspnet.fr.eu.org> <1132257432.4438.8.camel@mindpipe> <20051117201204.GA32376@dspnet.fr.eu.org> <1132258855.4438.11.camel@mindpipe> <20051117203731.GG5772@redhat.com> <1132260851.5959.15.camel@mindpipe> <20051117210643.GG7991@shell0.pdx.osdl.net> <1132262060.5959.21.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1132262060.5959.21.camel@mindpipe>
-User-Agent: Mutt/1.5.6i
+	Thu, 17 Nov 2005 16:23:34 -0500
+Date: Thu, 17 Nov 2005 22:23:21 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+cc: Giuliano Pochini <pochini@shiny.it>, alex@alexfisher.me.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Jeff V. Merkey" <jmerkey@utah-nac.org>,
+       Michael Buesch <mbuesch@freenet.de>
+Subject: Re: Would I be violating the GPL?
+In-Reply-To: <20051110191244.GG9488@csclub.uwaterloo.ca>
+Message-ID: <Pine.LNX.4.61.0511172221580.4792@yvahk01.tjqt.qr>
+References: <XFMail.20051102104916.pochini@shiny.it>
+ <Pine.LNX.4.61.0511102002160.17092@yvahk01.tjqt.qr> <20051110191244.GG9488@csclub.uwaterloo.ca>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="1283855629-1481410914-1132262601=:4792"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Lee Revell (rlrevell@joe-job.com) wrote:
-> OK I should not single out Red Hat or OSDL, it just seems like we get a
-> lot more general gripes about ALSA regressions than we see good bug
-> reports.  All I am saying is that maybe someone from a distro with
-> access to bug reports from a huge user base has some ideas for how we
-> could better deal with these regressions.  The ALSA project does not get
-> many good bug reports because we are farther from the users.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Yeah, bad bug reports are indeed a pain.  One thing that may help ALSA is
-more frequent merging with mainline.  Then the delta between ALSA cvs
-(and hence ALSA developers) and mainline (users) is smaller.
+--1283855629-1481410914-1132262601=:4792
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+
+
+
+Building for VMware Workstation 5.0.0.
+Using 2.6.x kernel build system.
+make -C /lib/modules/2.6.13-AS20/build/include/.. SUBDIRS=$PWD 
+SRCROOT=$PWD/. modules
+  CC [M]  /usr/lib/vmware/modules/source/vmmon-only/linux/driver.o
+  CC [M]  /usr/lib/vmware/modules/source/vmmon-only/linux/hostif.o
+  CC [M]  /usr/lib/vmware/modules/source/vmmon-only/common/cpuid.o
+  CC [M]  /usr/lib/vmware/modules/source/vmmon-only/common/hash.o
+  CC [M]  /usr/lib/vmware/modules/source/vmmon-only/common/memtrack.o
+  CC [M]  /usr/lib/vmware/modules/source/vmmon-only/common/phystrack.o
+  CC [M]  /usr/lib/vmware/modules/source/vmmon-only/common/task.o
+cc1plus: warning: command line option "-Wstrict-prototypes" is valid for 
+Ada/C/ObjC but not for C++
+cc1plus: warning: command line option 
+"-Werror-implicit-function-declaration" is valid for C/ObjC but not for C++
+cc1plus: warning: command line option "-Wdeclaration-after-statement" is 
+valid for C/ObjC but not for C++
+cc1plus: warning: command line option "-Wno-pointer-sign" is valid for 
+C/ObjC but not for C++
+cc1plus: warning: command line option "-Wstrict-prototypes" is valid for 
+Ada/C/ObjC but not for C++
+cc1plus: warning: command line option "-ffreestanding" is valid for C/ObjC 
+but not for C++
+include/asm/bitops.h: In function ■int find_first_bit(const long unsigned 
+int*,
+unsigned int)■:
+include/asm/bitops.h:334: warning: comparison between signed and unsigned 
+integer expressions
+[...]
+
+
+
+>> It does, to a limited degree. Just look at the VMware vmmon/vmnet driver 
+>> sources.
+>
+>At least version 4.5.2 appears to be entirely c code to me.  What looks
+>like c++ to you in there?
+
+
+Jan Engelhardt
+-- 
+| Alphagate Systems, http://alphagate.hopto.org/
+| jengelh's site, http://jengelh.hopto.org/
+--1283855629-1481410914-1132262601=:4792--

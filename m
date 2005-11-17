@@ -1,54 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932499AbVKQTHt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932501AbVKQTKb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932499AbVKQTHt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 14:07:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932501AbVKQTHt
+	id S932501AbVKQTKb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 14:10:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932502AbVKQTKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 14:07:49 -0500
-Received: from numenor.qualcomm.com ([129.46.51.58]:9394 "EHLO
-	numenor.qualcomm.com") by vger.kernel.org with ESMTP
-	id S932499AbVKQTHs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 14:07:48 -0500
-Message-ID: <437CD4EE.4060807@qualcomm.com>
-Date: Thu, 17 Nov 2005 11:07:26 -0800
-From: Max Krasnyansky <maxk@qualcomm.com>
-User-Agent: Thunderbird 1.4.1 (X11/20051006)
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, tom.l.nguyen@intel.com,
-       Greg KH <gregkh@suse.de>
-Subject: Re: PCI MSI: the new interrupt routing headache
-References: <437C18AF.7050508@pobox.com>
-In-Reply-To: <437C18AF.7050508@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Nov 2005 14:10:31 -0500
+Received: from [63.240.77.84] ([63.240.77.84]:52164 "EHLO
+	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S932501AbVKQTKb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 14:10:31 -0500
+Date: Thu, 17 Nov 2005 11:09:53 -0800
+From: Deepak Saxena <dsaxena@plexity.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix IXP4xx I2C driver build breakage
+Message-ID: <20051117190952.GA24121@plexity.net>
+Reply-To: dsaxena@plexity.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: Plexity Networks
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff,
-> 
-> I just got SATA working on Marvell.  After fixing a bunch of issues in 
-> the driver, the final issue was lack of interrupts.  Disabling 
-> CONFIG_PCI_MSI solved that, and suddenly the driver was working quite 
-> nicely.
-> 
-> The general problem is that pci_enable_msi() is not failing, on systems 
-> that do not support MSI.  This leads to Infiniband, tg3, and other 
-> drivers working around this problem by including an MSI-interrupts-work 
-> test during probe.
-> 
-> Perhaps its because I like leading edge stuff, and am playing with 
-> drivers for PCI MSI hardware, but it seems like I am running into this 
-> pci_enable_msi()-doesnt-fail problem more and more frequently.  First 
-> tg3, then AHCI, now sata_mv.
-> 
-> What needs to be done, to detect working PCI message signalled 
-> interrupts such that pci_enable_msi() fails properly?
-It fails correctly when MSI quirk is enabled. I had the same problems
-on AMD 8131 based machine with 2.6.11 kernel. E1000 was enabling MSI and
-not getting any interrupts. Later (.13 I think) MSI quirk was introduced for
-8131 chipset and everything started working (without having to hack E1000
-that is).
-May be you should just add your platform to the PCI quirks list ?
 
-Max
+Platform device conversion missed a couple of spots.
+
+Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
+
+diff --git a/drivers/i2c/busses/i2c-ixp4xx.c b/drivers/i2c/busses/i2c-ixp4xx.c
+index aa36855..f87220b 100644
+--- a/drivers/i2c/busses/i2c-ixp4xx.c
++++ b/drivers/i2c/busses/i2c-ixp4xx.c
+@@ -35,7 +35,7 @@
+ 
+ #include <asm/hardware.h>	/* Pick up IXP4xx-specific bits */
+ 
+-static struct device_driver ixp4xx_i2c_driver;
++static struct platform_driver ixp4xx_i2c_driver;
+ 
+ static inline int ixp4xx_scl_pin(void *data)
+ {
+@@ -128,7 +128,7 @@ static int ixp4xx_i2c_probe(struct platf
+ 	drv_data->algo_data.timeout = 100;
+ 
+ 	drv_data->adapter.id = I2C_HW_B_IXP4XX;
+-	strlcpy(drv_data->adapter.name, ixp4xx_i2c_driver.name,
++	strlcpy(drv_data->adapter.name, ixp4xx_i2c_driver.driver.name,
+ 		I2C_NAME_SIZE);
+ 	drv_data->adapter.algo_data = &drv_data->algo_data;
+ 
+@@ -140,7 +140,8 @@ static int ixp4xx_i2c_probe(struct platf
+ 	gpio_line_set(gpio->sda_pin, 0);
+ 
+ 	if ((err = i2c_bit_add_bus(&drv_data->adapter) != 0)) {
+-		printk(KERN_ERR "ERROR: Could not install %s\n", dev->bus_id);
++		printk(KERN_ERR "ERROR: Could not install %s\n", 
++				plat_dev->dev.bus_id);
+ 
+ 		kfree(drv_data);
+ 		return err;
+
+
+-- 
+Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
+
+"To question your government is not unpatriotic - to not question your
+ government is unpatriotic." -  Senator Chuck Hagel (R-NE) - Nov 15, 2005

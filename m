@@ -1,62 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161090AbVKQDBs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161091AbVKQC7M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161090AbVKQDBs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Nov 2005 22:01:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161089AbVKQDBs
+	id S1161091AbVKQC7M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Nov 2005 21:59:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161094AbVKQC7M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Nov 2005 22:01:48 -0500
-Received: from zproxy.gmail.com ([64.233.162.199]:2196 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161090AbVKQDBr convert rfc822-to-8bit
+	Wed, 16 Nov 2005 21:59:12 -0500
+Received: from yue.linux-ipv6.org ([203.178.140.15]:49419 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S1161091AbVKQC7M
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Nov 2005 22:01:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=YX9zpcfddd4eRWmRQdyZVdne0Hp/mr+ZlqqexEYKPmLOMGiU/LFzikvk+xMmWPGEHWAU95teYAtSCMfFq+U7aiDQpbod83UpouQkEP9hW4Jm8A5bNUrfsWjKV5fYVQ2DIwlkdBebFVt78uZNLwctIDRM98GnKa/KaJyGrHu1hR4=
-Message-ID: <35fb2e590511161901t7a615992s123a22cd8403511d@mail.gmail.com>
-Date: Thu, 17 Nov 2005 03:01:46 +0000
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: ipt_ROUTE loopback
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Wed, 16 Nov 2005 21:59:12 -0500
+Date: Thu, 17 Nov 2005 11:59:48 +0900 (JST)
+Message-Id: <20051117.115948.117652717.yoshfuji@linux-ipv6.org>
+To: linux-kernel@vger.kernel.org
+Subject: Compilation Error in arch/i386/apm.c
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+Organization: USAGI/WIDE Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Folks,
+Failed to compile current git tree.
 
-I'm trying to find an easy way to have a Linux box completely ignore
-the local routing table and have traffic destined for one interface go
-out of a loopback cable and back into the other rather than traversing
-the local routing within the host, viz:
+% make
+  CHK     include/linux/version.h
+  CHK     include/linux/compile.h
+  UPD     include/linux/compile.h
+  CC      init/version.o
+  LD      init/built-in.o
+  CHK     usr/initramfs_list
+  CC [M]  arch/i386/kernel/apm.o
+arch/i386/kernel/apm.c: In function `apm_init':
+arch/i386/kernel/apm.c:2304: error: `pm_active' undeclared (first use in this function)
+arch/i386/kernel/apm.c:2304: error: (Each undeclared identifier is reported only once
+arch/i386/kernel/apm.c:2304: error: for each function it appears in.)
+arch/i386/kernel/apm.c: In function `apm_exit':
+arch/i386/kernel/apm.c:2410: error: `pm_active' undeclared (first use in this function)
+make[1]: *** [arch/i386/kernel/apm.o] Error 1
+make: *** [arch/i386/kernel] Error 2
 
-eth0
-x.x.x.x
-   |
-   | <--- loopback cable
-   |
-eth1
-y.y.y.y
-
-This is completely against normal practice, but useful for test. I've
-so far tried playing around with iproute2 and have this evening built
-up ipt_ROUTE, which seems more promising. I can get traffic forced out
-of the "correct" interface and bypass the local routing table, but it
-always has the destination MAC of the first interface when it reaches
-the second.
-
-So, I can bodge the destination MAC (I'm still deciding how to do that
-- maybe I'll take apart ipt_ROUTE and have it do MAC rewriting too)
-but I'm curious as to whether there's a "right" way to do this that
-I've so far missed? I've considered using the briding code in some
-weird kind of transparent-yet-not-really bridge setup, but I don't
-really want to do that.
-
-Any suggestions? This seems like something others must have also
-wanted to do. I'm happy to break things in doing it, but I'm hopeful
-for a "you missed this page...".
-
-Jon.
+-- 
+YOSHIFUJI Hideaki @ USAGI Project  <yoshfuji@linux-ipv6.org>
+GPG-FP  : 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

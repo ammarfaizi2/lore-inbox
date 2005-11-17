@@ -1,240 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbVKQUjf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964853AbVKQUqT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964843AbVKQUjf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 15:39:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964844AbVKQUje
+	id S964853AbVKQUqT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 15:46:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964854AbVKQUqT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 15:39:34 -0500
-Received: from nproxy.gmail.com ([64.233.182.204]:24452 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964843AbVKQUje convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 15:39:34 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=apVH9XpG0dcxc9vA5kd9UFrrM2rxBKueMdD8Uj4UITd1VerE4EAh2Y8/GHpCdZKzcK0CLQ7qUwY2IYWEifuBe7t4H+0Ab/Gkf4XJfXE6KUWed2Aofs/GdbrTVadaHN+c1kCoTEAwm6cpN7ekGli6eusburbfTYFRwPXxOoZEn40=
-Message-ID: <58cb370e0511171239i16e0aaffr237ef7af68ece946@mail.gmail.com>
-Date: Thu, 17 Nov 2005 21:39:32 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Tejun Heo <htejun@gmail.com>
-Subject: Re: [PATCH linux-2.6-block:post-2.6.15 09/10] blk: add FUA support to IDE
-Cc: axboe@suse.de, jgarzik@pobox.com, James.Bottomley@steeleye.com,
+	Thu, 17 Nov 2005 15:46:19 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:24743 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S964853AbVKQUqS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 15:46:18 -0500
+Date: Thu, 17 Nov 2005 21:46:17 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Dave Jones <davej@redhat.com>, Hugh Dickins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
        linux-kernel@vger.kernel.org
-In-Reply-To: <20051117153509.5A77ED53@htj.dyndns.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Subject: Re: [PATCH 02/11] unpaged: private write VM_RESERVED
+Message-ID: <20051117204617.GA10925@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Dave Jones <davej@redhat.com>, Hugh Dickins <hugh@veritas.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.61.0511171925290.4563@goblin.wat.veritas.com> <Pine.LNX.4.61.0511171929210.4563@goblin.wat.veritas.com> <20051117194102.GE5772@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20051117153509.B89B4777@htj.dyndns.org>
-	 <20051117153509.5A77ED53@htj.dyndns.org>
+In-Reply-To: <20051117194102.GE5772@redhat.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/17/05, Tejun Heo <htejun@gmail.com> wrote:
-> 09_blk_ide-add-fua-support.patch
->
->         Add FUA support to IDE
->
-> Signed-off-by: Tejun Heo <htejun@gmail.com>
->
->  drivers/ide/ide-disk.c |   57 +++++++++++++++++++++++++++++++++++++++++--------
->  include/linux/hdreg.h  |   16 ++++++++++++-
->  include/linux/ide.h    |    3 ++
->  3 files changed, 65 insertions(+), 11 deletions(-)
->
-> Index: work/drivers/ide/ide-disk.c
-> ===================================================================
-> --- work.orig/drivers/ide/ide-disk.c    2005-11-18 00:35:06.000000000 +0900
-> +++ work/drivers/ide/ide-disk.c 2005-11-18 00:35:07.000000000 +0900
-> @@ -164,13 +164,14 @@ static ide_startstop_t __ide_do_rw_disk(
->         ide_hwif_t *hwif        = HWIF(drive);
->         unsigned int dma        = drive->using_dma;
->         u8 lba48                = (drive->addressing == 1) ? 1 : 0;
-> +       int fua                 = blk_fua_rq(rq);
->         task_ioreg_t command    = WIN_NOP;
->         ata_nsector_t           nsectors;
->
->         nsectors.all            = (u16) rq->nr_sectors;
->
->         if (hwif->no_lba48_dma && lba48 && dma) {
-> -               if (block + rq->nr_sectors > 1ULL << 28)
-> +               if (block + rq->nr_sectors > 1ULL << 28 || fua)
->                         dma = 0;
->                 else
->                         lba48 = 0;
-> @@ -226,6 +227,16 @@ static ide_startstop_t __ide_do_rw_disk(
->                         hwif->OUTB(tasklets[6], IDE_HCYL_REG);
->                         hwif->OUTB(0x00|drive->select.all,IDE_SELECT_REG);
->                 } else {
-> +                       if (unlikely(fua)) {
-> +                               /*
-> +                                * This happens if LBA48 addressing is
-> +                                * turned off during operation.
-> +                                */
-> +                               printk(KERN_ERR "%s: FUA write but LBA48 off\n",
-> +                                      drive->name);
-> +                               goto fail;
-> +                       }
-> +
->                         hwif->OUTB(0x00, IDE_FEATURE_REG);
->                         hwif->OUTB(nsectors.b.low, IDE_NSECTOR_REG);
->                         hwif->OUTB(block, IDE_SECTOR_REG);
-> @@ -253,9 +264,12 @@ static ide_startstop_t __ide_do_rw_disk(
->         if (dma) {
->                 if (!hwif->dma_setup(drive)) {
->                         if (rq_data_dir(rq)) {
-> -                               command = lba48 ? WIN_WRITEDMA_EXT : WIN_WRITEDMA;
-> -                               if (drive->vdma)
-> -                                       command = lba48 ? WIN_WRITE_EXT: WIN_WRITE;
-> +                               if (!fua) {
-> +                                       command = lba48 ? WIN_WRITEDMA_EXT : WIN_WRITEDMA;
-> +                                       if (drive->vdma)
-> +                                               command = lba48 ? WIN_WRITE_EXT: WIN_WRITE;
-> +                               } else
-> +                                       command = ATA_CMD_WRITE_FUA_EXT;
+Hi!
 
-What does happen for fua && drive->vdma case?
+On Thu, Nov 17, 2005 at 02:41:02PM -0500, Dave Jones wrote:
+> On Thu, Nov 17, 2005 at 07:30:04PM +0000, Hugh Dickins wrote:
+>  > The PageReserved removal in 2.6.15-rc1 issued a "deprecated" message
+>  > when you tried to mmap or mprotect MAP_PRIVATE PROT_WRITE a VM_RESERVED,
+>  > and failed with -EACCES: because do_wp_page lacks the refinement to COW
+>  > pages in those areas, nor do we expect to find anonymous pages in them;
+>  > and it seemed just bloat to add code for handling such a peculiar case.
+>  > But immediately it caused vbetool and ddcprobe (using lrmi) to fail.
+>  > 
+>  > So revert the "deprecated" messages, letting mmap and mprotect succeed.
+>  > But leave do_wp_page's BUG_ON(vma->vm_flags & VM_RESERVED) in place
+>  > until we've added the code to do it right: so this particular patch is
+>  > only good if the app doesn't really need to write to that private area.
+>  > 
+>  > Dave Jones has changed vbetool & ddcprobe to use MAP_SHARED or PROT_READ
+>  > just as well, but we don't want to force people to update their tools.
+> 
+> Actually Dave Miller did the detective work on that one, I just
+> rebuilt some packages, and spread the good word :)
 
->                         } else {
->                                 command = lba48 ? WIN_READDMA_EXT : WIN_READDMA;
->                                 if (drive->vdma)
-> @@ -284,8 +298,20 @@ static ide_startstop_t __ide_do_rw_disk(
->         } else {
->                 if (drive->mult_count) {
->                         hwif->data_phase = TASKFILE_MULTI_OUT;
-> -                       command = lba48 ? WIN_MULTWRITE_EXT : WIN_MULTWRITE;
-> +                       if (!fua)
-> +                               command = lba48 ? WIN_MULTWRITE_EXT : WIN_MULTWRITE;
-> +                       else
-> +                               command = ATA_CMD_WRITE_MULTI_FUA_EXT;
->                 } else {
-> +                       if (unlikely(fua)) {
-> +                               /*
-> +                                * This happens if multisector PIO is
-> +                                * turned off during operation.
-> +                                */
-> +                               printk(KERN_ERR "%s: FUA write but in single "
-> +                                      "sector PIO mode\n", drive->name);
-> +                               goto fail;
-> +                       }
+My Samsung X05 requires vbetool to resume from suspend-to-ram properly. Up
+to 2.6.14, vbetool-0.3 worked fine; the PageReserved patch broke this (as
+reported). Also the new package by Dave {Miller,Jones} didn't help and does
+not help, even with these new 11 patches. Using the unmodified, original
+vbetool-0.3, though, does work as expected, and I can resume back into X
+again.
 
-Wouldn't it be better to do the following check at the beginning
-of __ide_do_rw_disk() (after checking for dma vs lba48):
+kernel			vbetool-0.3	vbetool-0.3+lrmi-patch
+--------------------------------------------------------------
+2.6.14			+		?
+2.6.15-rc1		-		-
+2.6.15-rc1+patches	+		-
 
-        if (fua) {
-                if (!lba48 || ((!dma || drive->vdma) && !drive->mult_count))
-                        goto fail_fua;
-        }
 
-...
 
-and fail the request if needed *before* actually touching any
-hardware registers?
+However -- and this is the first time I'm experiencing this bug, I now got
+this in my dmesg right after the last resume from sleep.
 
-fail_fua:
-        printk(KERN_ERR "%s: FUA write unsupported (lba48=%u dma=%u"
-                                       " vdma=%u mult_count=%u)\n", drive->name,
-                                       lba48, dma, drive->vdma,
-drive->mult_count);
-        ide_end_request(drive, 0, 0);
-        return ide_stopped;
 
->                         hwif->data_phase = TASKFILE_OUT;
->                         command = lba48 ? WIN_WRITE_EXT : WIN_WRITE;
->                 }
-> @@ -295,6 +321,10 @@ static ide_startstop_t __ide_do_rw_disk(
->
->                 return pre_task_out_intr(drive, rq);
->         }
-> +
-> + fail:
-> +       ide_end_request(drive, 0, 0);
-> +       return ide_stopped;
->  }
->
->  /*
-> @@ -846,7 +876,7 @@ static void idedisk_setup (ide_drive_t *
->  {
->         struct hd_driveid *id = drive->id;
->         unsigned long long capacity;
-> -       int barrier;
-> +       int barrier, fua;
->
->         idedisk_add_settings(drive);
->
-> @@ -967,10 +997,19 @@ static void idedisk_setup (ide_drive_t *
->                         barrier = 0;
->         }
->
-> -       printk(KERN_INFO "%s: cache flushes %ssupported\n",
-> -               drive->name, barrier ? "" : "not ");
-> +       fua = barrier && idedisk_supports_lba48(id) && ide_id_has_fua(id);
-> +       /* When using PIO, FUA needs multisector. */
-> +       if ((!drive->using_dma || drive->hwif->no_lba48_dma) &&
-> +           drive->mult_count == 0)
-> +               fua = 0;
+[4294994.302000] Restarting tasks... done
+[4295188.230000] Bad page state at free_hot_cold_page (in process 'gaim', page c15eb020)
+[4295188.230000] flags:0x80000414 mapping:00000000 mapcount:0 count:0
+[4295188.230000] flags:0x80000414 mapping:00000000 mapcount:0 count:0
+[4295188.230000] Backtrace:
+[4295188.230000]  [<c0103b59>] dump_stack+0x15/0x17
+[4295188.230000]  [<c0138f99>] bad_page+0x5b/0x92
+[4295188.230000]  [<c013967b>] free_hot_cold_page+0x5c/0xfe
+[4295188.230000]  [<c0139727>] free_hot_page+0xa/0xc
+[4295188.230000]  [<c013eff0>] __page_cache_release+0x8f/0x94
+[4295188.230000]  [<c013ecd3>] put_page+0x5b/0x5d
+[4295188.230000]  [<c0148d69>] free_page_and_swap_cache+0x2c/0x2f
+[4295188.230000]  [<c0142609>] zap_pte_range+0x1a1/0x214
+[4295188.230000]  [<c014271a>] unmap_page_range+0x9e/0xe8
+[4295188.230000]  [<c0142827>] unmap_vmas+0xc3/0x199
+[4295188.230000]  [<c0145cf7>] unmap_region+0x77/0xf2
+[4295188.230000]  [<c0145f91>] do_munmap+0xdd/0xf3
+[4295188.230000]  [<c0145ff6>] sys_munmap+0x4f/0x68
+[4295188.230000]  [<c0102cab>] sysenter_past_esp+0x54/0x75
+[4295188.230000] Trying to fix it up, but a reboot is needed
+[4295188.230000] Bad page state at free_hot_cold_page (in process 'gaim', page c15eb040)
+[4295188.230000] flags:0x80000414 mapping:00000000 mapcount:0 count:0
+[4295188.230000] Backtrace:
+[4295188.230000]  [<c0103b59>] dump_stack+0x15/0x17
+[4295188.230000]  [<c0138f99>] bad_page+0x5b/0x92
+[4295188.230000]  [<c013967b>] free_hot_cold_page+0x5c/0xfe
+[4295188.230000]  [<c0139727>] free_hot_page+0xa/0xc
+[4295188.230000]  [<c013eff0>] __page_cache_release+0x8f/0x94
+[4295188.230000]  [<c013ecd3>] put_page+0x5b/0x5d
+[4295188.230000]  [<c0148d69>] free_page_and_swap_cache+0x2c/0x2f
+[4295188.230000]  [<c0142609>] zap_pte_range+0x1a1/0x214
+[4295188.230000]  [<c014271a>] unmap_page_range+0x9e/0xe8
+[4295188.230000]  [<c0142827>] unmap_vmas+0xc3/0x199
+[4295188.230000]  [<c0145cf7>] unmap_region+0x77/0xf2
+[4295188.230000]  [<c0145f91>] do_munmap+0xdd/0xf3
+[4295188.230000]  [<c0145ff6>] sys_munmap+0x4f/0x68
+[4295188.230000]  [<c0102cab>] sysenter_past_esp+0x54/0x75
+[4295188.230000] Trying to fix it up, but a reboot is needed
+[4295188.230000] Bad page state at free_hot_cold_page (in process 'gaim', page c15eb060)
+[4295188.230000] flags:0x80000414 mapping:00000000 mapcount:0 count:0
+[4295188.230000] Backtrace:
+[4295188.230000]  [<c0103b59>] dump_stack+0x15/0x17
+[4295188.230000]  [<c0138f99>] bad_page+0x5b/0x92
+[4295188.230000]  [<c013967b>] free_hot_cold_page+0x5c/0xfe
+[4295188.230000]  [<c0139727>] free_hot_page+0xa/0xc
+[4295188.230000]  [<c013eff0>] __page_cache_release+0x8f/0x94
+[4295188.231000]  [<c013ecd3>] put_page+0x5b/0x5d
 
-Shouldn't this check also for drive->vdma?
+... and so on. Don't know whether this is related... and it isn't
+reproducible.
 
-> +
-> +       printk(KERN_INFO "%s: cache flushes %ssupported%s\n",
-> +              drive->name, barrier ? "" : "not ",
-> +              fua ? " w/ FUA" : "");
->         if (barrier) {
-> -               blk_queue_ordered(drive->queue, QUEUE_ORDERED_DRAIN_FLUSH,
-> +               unsigned ordered = fua ? QUEUE_ORDERED_DRAIN_FUA
-> +                                      : QUEUE_ORDERED_DRAIN_FLUSH;
-> +               blk_queue_ordered(drive->queue, ordered,
->                                   idedisk_prepare_flush, GFP_KERNEL);
->                 blk_queue_issue_flush_fn(drive->queue, idedisk_issue_flush);
->         } else if (!drive->wcache)
-> Index: work/include/linux/hdreg.h
-> ===================================================================
-> --- work.orig/include/linux/hdreg.h     2005-11-18 00:06:46.000000000 +0900
-> +++ work/include/linux/hdreg.h  2005-11-18 00:35:07.000000000 +0900
-> @@ -550,7 +550,13 @@ struct hd_driveid {
->                                          * cmd set-feature supported extensions
->                                          * 15:  Shall be ZERO
->                                          * 14:  Shall be ONE
-> -                                        * 13:6 reserved
-> +                                        * 13:  IDLE IMMEDIATE w/ UNLOAD FEATURE
-> +                                        * 12:11 reserved for technical report
-> +                                        * 10:  URG for WRITE STREAM
-> +                                        *  9:  URG for READ STREAM
-> +                                        *  8:  64-bit World wide name
-> +                                        *  7:  WRITE DMA QUEUED FUA EXT
-> +                                        *  6:  WRITE DMA/MULTIPLE FUA EXT
->                                          *  5:  General Purpose Logging
->                                          *  4:  Streaming Feature Set
->                                          *  3:  Media Card Pass Through
-> @@ -600,7 +606,13 @@ struct hd_driveid {
->                                          * command set-feature default
->                                          * 15:  Shall be ZERO
->                                          * 14:  Shall be ONE
-> -                                        * 13:6 reserved
-> +                                        * 13:  IDLE IMMEDIATE w/ UNLOAD FEATURE
-> +                                        * 12:11 reserved for technical report
-> +                                        * 10:  URG for WRITE STREAM
-> +                                        *  9:  URG for READ STREAM
-> +                                        *  8:  64-bit World wide name
-> +                                        *  7:  WRITE DMA QUEUED FUA EXT
-> +                                        *  6:  WRITE DMA/MULTIPLE FUA EXT
->                                          *  5:  General Purpose Logging enabled
->                                          *  4:  Valid CONFIGURE STREAM executed
->                                          *  3:  Media Card Pass Through enabled
-> Index: work/include/linux/ide.h
-> ===================================================================
-> --- work.orig/include/linux/ide.h       2005-11-18 00:14:29.000000000 +0900
-> +++ work/include/linux/ide.h    2005-11-18 00:35:07.000000000 +0900
-> @@ -1503,6 +1503,9 @@ extern struct bus_type ide_bus_type;
->  /* check if CACHE FLUSH (EXT) command is supported (bits defined in ATA-6) */
->  #define ide_id_has_flush_cache(id)     ((id)->cfs_enable_2 & 0x3000)
->
-> +/* check if WRITE DMA FUA EXT command is supported (defined in ATA-8) */
-> +#define ide_id_has_fua(id)             ((id)->cfsse & 0x0040)
-> +
->  /* some Maxtor disks have bit 13 defined incorrectly so check bit 10 too */
->  #define ide_id_has_flush_cache_ext(id) \
->         (((id)->cfs_enable_2 & 0x2400) == 0x2400)
->
->
+
+	Dominik

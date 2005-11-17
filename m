@@ -1,65 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbVKRXiG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbVKRXjH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751180AbVKRXiG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 18:38:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbVKRXiF
+	id S1751191AbVKRXjH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 18:39:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbVKRXjG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 18:38:05 -0500
-Received: from smtp3.Stanford.EDU ([171.67.16.138]:2751 "EHLO
-	smtp3.Stanford.EDU") by vger.kernel.org with ESMTP id S1751180AbVKRXiE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 18:38:04 -0500
-Subject: Re: 2.6.14-rt13
-From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: nando@ccrma.Stanford.EDU, Lee Revell <rlrevell@joe-job.com>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, "K.R. Foley" <kr@cybsft.com>,
-       Thomas Gleixner <tglx@linutronix.de>, pluto@agmk.net,
-       john cooper <john.cooper@timesys.com>,
-       Benedikt Spranger <bene@linutronix.de>,
-       Daniel Walker <dwalker@mvista.com>,
-       Tom Rini <trini@kernel.crashing.org>,
-       George Anzinger <george@mvista.com>
-In-Reply-To: <Pine.LNX.4.58.0511181725030.17504@gandalf.stny.rr.com>
-References: <20051115090827.GA20411@elte.hu>
-	 <1132336954.20672.11.camel@cmn3.stanford.edu>
-	 <1132350882.6874.23.camel@mindpipe>
-	 <1132351533.4735.37.camel@cmn3.stanford.edu>
-	 <20051118220755.GA3029@elte.hu> <1132352143.6874.31.camel@mindpipe>
-	 <Pine.LNX.4.58.0511181725030.17504@gandalf.stny.rr.com>
-Content-Type: text/plain
-Date: Fri, 18 Nov 2005 15:36:58 -0800
-Message-Id: <1132357018.4735.51.camel@cmn3.stanford.edu>
+	Fri, 18 Nov 2005 18:39:06 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:3729 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1751191AbVKRXjE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 18:39:04 -0500
+Date: Thu, 17 Nov 2005 13:54:22 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Greg KH <greg@kroah.com>
+Cc: Coywolf Qi Hunt <coywolf@gmail.com>, Greg KH <gregkh@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] HOWTO do Linux kernel development
+Message-ID: <20051117135421.GJ2193@spitz.ucw.cz>
+References: <20051114220709.GA5234@kroah.com> <2cd57c900511141708y5d11fd34n@mail.gmail.com> <20051115043846.GA28005@kroah.com> <2cd57c900511142151h7d8f97b3p@mail.gmail.com> <20051115055229.GA6163@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051115055229.GA6163@kroah.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-11-18 at 17:25 -0500, Steven Rostedt wrote:
-> On Fri, 18 Nov 2005, Lee Revell wrote:
+Hi!
+
+> > Those who don't notice Documentation, don't deserve it, and are not
+> > likely/willingly to be the audience,
 > 
-> > On Fri, 2005-11-18 at 23:07 +0100, Ingo Molnar wrote:
-> > > * Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
-> > >
-> > > > Arghhh, at least I take this as a confirmation that the TSCs do drift
-> > > > and there is no workaround. It currently makes the -rt/Jack
-> > > > combination not very useful, at least in my tests.
-> > > >
-> > > > Is there a way to resync the TSCs?
-> > >
-> > > no reasonable way. Does idle=poll make any difference?
-> >
-> > But JACK itself uses rdtsc() for timing calculations so TSC drift is
-> > invariably fatal.
+> Actually this is exactly the audience this is for, people who do not
+> know where to look for the stuff they are trying to find.
 > 
-> Can it simply be pinned to a cpu?
+> Now getting people to realize that this is the file they really want to
+> look at is a different task, but not impossible.
+> 
+> > > Now if those same people would notice anything in the root directory
+> > > either, is another story...
+> > 
+> > That is rather like top-posting or CAPITALIZATION, or spamming.
+> 
+> Cool, I'm a top-poster, SPAMMER for creating a HOWTO file in the root
+> directory of the kernel tree.  And here I thought I had been called
+> every bad name in the book before :)
 
-Is there a way to know in which cpu a process is running? At least Jack
-could ignore timinig issues if the measurement is going to happen in a
-different cpu than the one where the original timestamp was collected. 
+HOWTO is really wrong name for it. I'd expect "how to compile kernel" there.
+Plus, some people actually needing advice will miss it because they'll only
+search Doc*/
 
--- Fernando
-
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

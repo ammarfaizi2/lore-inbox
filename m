@@ -1,97 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbVKQPk4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751016AbVKQPls@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932131AbVKQPk4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 10:40:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbVKQPk4
+	id S1751016AbVKQPls (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 10:41:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbVKQPls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 10:40:56 -0500
-Received: from citi.umich.edu ([141.211.133.111]:44888 "EHLO citi.umich.edu")
-	by vger.kernel.org with ESMTP id S1751135AbVKQPky (ORCPT
+	Thu, 17 Nov 2005 10:41:48 -0500
+Received: from mail.gondor.com ([212.117.64.182]:45325 "EHLO moria.gondor.com")
+	by vger.kernel.org with ESMTP id S1751016AbVKQPlr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 10:40:54 -0500
-Message-ID: <437CA485.1070706@citi.umich.edu>
-Date: Thu, 17 Nov 2005 10:40:53 -0500
-From: Chuck Lever <cel@citi.umich.edu>
-Reply-To: cel@citi.umich.edu
-Organization: Network Appliance, Inc.
-User-Agent: Mozilla Thunderbird 1.0.7-1.4.1 (X11/20050929)
-X-Accept-Language: en-us, en
+	Thu, 17 Nov 2005 10:41:47 -0500
+Date: Thu, 17 Nov 2005 16:41:25 +0100
+From: Jan Niehusmann <jan@gondor.com>
+To: Bart Samwel <bart@samwel.tk>
+Cc: Bradley Chapman <kakadu@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Laptop mode causing writes to wrong sectors?
+Message-ID: <20051117154124.GA1813@knautsch.gondor.com>
+References: <e294b46e0511170522v5762d48jcaff8413e33b2ebe@mail.gmail.com> <437C9334.3020606@samwel.tk>
 MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Kenny Simpson <theonetruekenny@yahoo.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: mmap over nfs leads to excessive system load
-References: <20051116223937.28115.qmail@web34112.mail.mud.yahoo.com> <1132182378.8811.93.camel@lade.trondhjem.org>
-In-Reply-To: <1132182378.8811.93.camel@lade.trondhjem.org>
-Content-Type: multipart/mixed;
- boundary="------------090300060806040105080109"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <437C9334.3020606@samwel.tk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090300060806040105080109
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, Nov 17, 2005 at 03:27:00PM +0100, Bart Samwel wrote:
+> OK, that's the second report then. I'm beginning to worry. :/
 
-Trond Myklebust wrote:
-> On Wed, 2005-11-16 at 14:39 -0800, Kenny Simpson wrote:
-> 
->>--- Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
->>
->>>I'm getting lost here. Please could you spell out the testcases that are
->>>not working.
->>
->>I've redone my test cases and have confirmed that O_DIRECT with pwrite64 triggers the bad
->>condition.
->>
->>The cases that are fine are:
->>  pwrite64
->>  ftruncate with O_DIRECT
->>  ftruncate
->>
->>Also, when the system is in this state, if I try to 'ls' the file,
->>the 'ls' process becomes stuck in state D in sync_page.  stracing the 'ls'
->>shows it is in a call to stat64.
->>
->>-Kenny
-> 
-> 
-> Chuck, can you take a look at this?
-> 
-> Kenny is seeing a hang when using pwrite64() on an O_DIRECT file
-> and the file size exceeds 4Gb. Server is a NetApp filer w/ NFSv3.
-> 
-> I had a quick look at nfs_file_direct_write(), and among other things,
-> it would appear that it is not doing any of the usual overflow checks on
-> *pos and the count size (see generic_write_checks()). In particular,
-> checks are missing against overflow vs. MAX_NON_LFS if O_LARGEFILE is
-> not set (and also against overflow vs. s_maxbytes, but that is less
-> relevant here).
+And I'm not feeling so lonely any more ;-)
 
-'uname -a' on the client?
+> Bradley, Jan, since when have these problems been happening? Kernel 
+> version-wise, I mean?
 
+I didn't notice these problems before 2.6.14. As these corruptions are
+not happening very often, and as I usually do not run the notebook on
+battery power, the problem may have existed for a while, though.
 
---------------090300060806040105080109
-Content-Type: text/x-vcard; charset=utf-8;
- name="cel.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="cel.vcf"
+Today I did a simple test: I activated laptop mode with a 10s idle
+timeout, and made a script write files with uniqe identifiers, followed
+by a sync, every 60 seconds. After nearly an hour, I didn't see any
+corruption, though at least some of these writes have triggered
+a spin-up. When I have some spare time I'll do more intensive testing.
 
-begin:vcard
-fn:Chuck Lever
-n:Lever;Charles
-org:Network Appliance, Incorporated;Linux NFS Client Development
-adr:535 West William Street, Suite 3100;;Center for Information Technology Integration;Ann Arbor;MI;48103-4943;USA
-email;internet:cel@citi.umich.edu
-title:Member of Technical Staff
-tel;work:+1 734 763 4415
-tel;fax:+1 734 763 4434
-tel;home:+1 734 668 1089
-x-mozilla-html:FALSE
-url:http://www.monkey.org/~cel/
-version:2.1
-end:vcard
+Additionally, I mounted more than half of the partitions on this
+notebook read only, and made a 1:1 copy of these partitions to an
+external hard drive. Therefore, I can check later if something
+accidentally did write to these areas.
 
+If you have any suggestions for additional test, please tell me.
 
---------------090300060806040105080109--
+The random filesystem corruption had one positive effect: I never had
+such a good backup of my data before. ;-)
+
+Jan
+

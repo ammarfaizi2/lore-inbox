@@ -1,54 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030260AbVKRRkA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030256AbVKRRja@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030260AbVKRRkA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 12:40:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030305AbVKRRkA
+	id S1030256AbVKRRja (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 12:39:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030260AbVKRRja
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 12:40:00 -0500
-Received: from pa208.myslowice.sdi.tpnet.pl ([213.76.228.208]:50151 "EHLO
-	finwe.eu.org") by vger.kernel.org with ESMTP id S1030260AbVKRRj7
+	Fri, 18 Nov 2005 12:39:30 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:55777 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030256AbVKRRj3 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 12:39:59 -0500
-Date: Fri, 18 Nov 2005 18:41:50 +0100
-From: Jacek Kawa <jfk@zeus.polsl.gliwice.pl>
-To: Greg KH <greg@kroah.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>
-Subject: Re: [linux-pm] [RFC] userland swsusp
-Message-ID: <20051118174150.GA12640@finwe.eu.org>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	kernel list <linux-kernel@vger.kernel.org>,
-	Linux-pm mailing list <linux-pm@lists.osdl.org>
-References: <F760B14C9561B941B89469F59BA3A8470BDD12EB@orsmsx401.amr.corp.intel.com> <20051116191051.GG2193@spitz.ucw.cz> <20051117165437.GA10402@dspnet.fr.eu.org> <20051117164451.GA27178@kroah.com> <20051117201509.GA25250@finwe.eu.org> <20051117215612.GA8797@kroah.com>
+	Fri, 18 Nov 2005 12:39:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=HElL5V++mWlpu2fuf/1bqfYv+YvlEP7ZAcb3/8++VOySJtgoGPTl4gxdKfWgmWYHaCdu/QAeJdNeVZSi522ASssCEYaC3IzCAP00k8PDWvC/G/bthSWAt6/mrkw9coV5ppDecldpQeic+tV03pxD62T0zaeIqrUAUlnNk2F3YNw=
+Message-ID: <569d37b00511180939t6145a294q1e563c38d9b2f316@mail.gmail.com>
+Date: Fri, 18 Nov 2005 12:39:29 -0500
+From: Trevor Woerner <twoerner.k@gmail.com>
+To: Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@us.ibm.com>
+Subject: updated latency measurements
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051117215612.GA8797@kroah.com>
-Organization: Kreatorzy Kreacji Bialej
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote;
+The latest version of my report which measures the latency of
+user-space processes running on Linux via a hardware device is
+available. This report measures the latency of the 2.6.14.2 kernel and
+compares it to a 2.6.14.2 kernel with Ingo's -rt12 patches.
 
-> > > > > What unstable implementation? swsusp had very little regressions over past
-> > > > > year or so. Drivers were different story, but nothing changes w.r.t. drivers.
-> > > > Do you mean swsusp is actually supposed to work?  Suspend-to-ram,
-> > > > suspend-to-disk or both?
-> > > Both.  -to-ram depends on your video chip, but to-disk should work just
-> > > fine.  If not, please report bugs.
-> > Thanks, I've just realized, that I probably forgot to CC anyone last time... 
-> > :)
-> > So, may I kindly ask to look on:
-> > http://www.ussg.iu.edu/hypermail/linux/kernel/0511.1/1863.html ?
-> Care to file this in bugzilla.kernel.org and assign it to Pavel?
+http://geek.vtnet.ca/embedded.html
 
-Sure :)
+You'll probably just want to skip to the results of the high-load scenario here:
 
-http://bugzilla.kernel.org/show_bug.cgi?id=5626
+http://geek.vtnet.ca/embedded/LatencyTests/html/results-ts3.html
 
-Thanks
-
-
--- 
-Jacek Kawa
+The graphs include: latency measurements, max latency, min latency,
+loadavg, and a measure of processor busyness. A separate histogram
+indicates measurement distribution.

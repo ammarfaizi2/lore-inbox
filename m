@@ -1,73 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161084AbVKRMd3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161109AbVKRMfh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161084AbVKRMd3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 07:33:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161099AbVKRMd1
+	id S1161109AbVKRMfh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 07:35:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161107AbVKRMfh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 07:33:27 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:35782 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161084AbVKRMdF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 07:33:05 -0500
-Date: Fri, 18 Nov 2005 18:03:07 +0530
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, fastboot@lists.osdl.org, ak@suse.de,
-       ebiederm@xmission.com
-Subject: Re: [PATCH 3/10] kdump: export per cpu crash notes pointer through sysfs
-Message-ID: <20051118123307.GF7217@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20051117131339.GD3981@in.ibm.com> <20051117131825.GE3981@in.ibm.com> <20051117132004.GF3981@in.ibm.com> <20051117132138.GG3981@in.ibm.com> <20051117140723.3cd2e831.akpm@osdl.org>
+	Fri, 18 Nov 2005 07:35:37 -0500
+Received: from postel.suug.ch ([195.134.158.23]:43482 "EHLO postel.suug.ch")
+	by vger.kernel.org with ESMTP id S1161105AbVKRMfg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 07:35:36 -0500
+Date: Fri, 18 Nov 2005 13:35:57 +0100
+From: Thomas Graf <tgraf@suug.ch>
+To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>
+Cc: yanzheng@21cn.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [DEBUG INFO]IPv6: sleeping function called from invalid context.
+Message-ID: <20051118123557.GD20395@postel.suug.ch>
+References: <437D23EB.4020204@21cn.com> <20051118.094721.49574151.yoshfuji@linux-ipv6.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051117140723.3cd2e831.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20051118.094721.49574151.yoshfuji@linux-ipv6.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 17, 2005 at 02:07:23PM -0800, Andrew Morton wrote:
-> Vivek Goyal <vgoyal@in.ibm.com> wrote:
-> >
-> > +	/*
-> > +	 * Might be reading other cpu's data based on which cpu read thread
-> > +	 * has been scheduled. But cpu data (memory) is allocated once during
-> > +	 * boot up and this data does not change there after. Hence this
-> > +	 * operation should be safe. No locking required.
-> > +	 */
-> > +	get_cpu();
-> > +	addr = __pa(per_cpu_ptr(crash_notes, cpunum));
-> > +	rc = sprintf(buf, "%Lx\n", addr);
-> > +	put_cpu();
+* YOSHIFUJI Hideaki / ?$B5HF#1QL@ <yoshfuji@linux-ipv6.org> 2005-11-18 09:47
+> In article <437D23EB.4020204@21cn.com> (at Fri, 18 Nov 2005 08:44:27 +0800), Yan Zheng <yanzheng@21cn.com> says:
 > 
-> I don't think the get_cpu() and put_cpu() are needed here?
+> > I get follow message when switch to single user mode and the kernel version is 2.6.15-rc1-git5.
+> :
+> > Nov 18 08:26:23 localhost kernel: Debug: sleeping function called from invalid context at mm/slab.c:2472
+> > Nov 18 08:26:23 localhost kernel: in_atomic():1, irqs_disabled():0
+> > Nov 18 08:26:23 localhost kernel:  [<c0149d5a>] kmem_cache_alloc+0x5a/0x70
+> > Nov 18 08:26:23 localhost kernel:  [<e0f47336>] inet6_dump_fib+0xb6/0x110 [ipv6]
+> 
+> I remember someone replaced GFP_ATOMIC with GFP_KERNEL...
 
-Thanks. I have done the changes. Please find attached the incremental patch.
-
-Thanks
-Vivek
-
-
-o Removes the call to get_cpu() and put_cpu() as it is not required.
-
-Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
----
-
- linux-2.6.15-rc1-mm2-1M-root/drivers/base/cpu.c |    2 --
- 1 files changed, 2 deletions(-)
-
-diff -puN drivers/base/cpu.c~kdump-export-crash-notes-sysfs-remove-get-cpu drivers/base/cpu.c
---- linux-2.6.15-rc1-mm2-1M/drivers/base/cpu.c~kdump-export-crash-notes-sysfs-remove-get-cpu	2005-11-18 16:08:28.000000000 +0530
-+++ linux-2.6.15-rc1-mm2-1M-root/drivers/base/cpu.c	2005-11-18 16:08:28.000000000 +0530
-@@ -101,10 +101,8 @@ static ssize_t show_crash_notes(struct s
- 	 * boot up and this data does not change there after. Hence this
- 	 * operation should be safe. No locking required.
- 	 */
--	get_cpu();
- 	addr = __pa(per_cpu_ptr(crash_notes, cpunum));
- 	rc = sprintf(buf, "%Lx\n", addr);
--	put_cpu();
- 	return rc;
- }
- static SYSDEV_ATTR(crash_notes, 0400, show_crash_notes, NULL);
-_
+I did. I think it was right, why would an allocation be necessary on
+the second call to inet6_dump_fib()? The walker allocated in process
+context on the first call should be reused from cb->args[0].

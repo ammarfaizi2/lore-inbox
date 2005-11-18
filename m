@@ -1,72 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932617AbVKRI4q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030593AbVKRJCR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932617AbVKRI4q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 03:56:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932620AbVKRI4q
+	id S1030593AbVKRJCR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 04:02:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030592AbVKRJCR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 03:56:46 -0500
-Received: from nproxy.gmail.com ([64.233.182.197]:49387 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932617AbVKRI4p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 03:56:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=povoosXde+OesvvSq2JZsL0463EvLd1wQ8GeTaOP4kEo6spcEd5LIHMrwlX0lnxuohoCXmoz9jdqaxKlbDEr6aHAOrMHkUSTbdb8aaqairl2Ao3IyLFhBdC1mY1z2GbhZJiXV+guElRQxh+zdn/kfZn3kqRCR4IiHar0vYzc2Tc=
-Message-ID: <40f323d00511180056i5bafa5c3qffbd3b774b499ac4@mail.gmail.com>
-Date: Fri, 18 Nov 2005 09:56:43 +0100
-From: Benoit Boissinot <benoit.boissinot@ens-lyon.fr>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.15-rc1-mm2
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051117234645.4128c664.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_1369_8877175.1132304203974"
-References: <20051117234645.4128c664.akpm@osdl.org>
+	Fri, 18 Nov 2005 04:02:17 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:28428 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1030590AbVKRJCP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 04:02:15 -0500
+Date: Fri, 18 Nov 2005 09:01:59 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: saw@saw.sw.com.sg, jgarzik@pobox.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] remove drivers/net/eepro100.c
+Message-ID: <20051118090158.GA11621@flint.arm.linux.org.uk>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>, saw@saw.sw.com.sg,
+	jgarzik@pobox.com, linux-kernel@vger.kernel.org,
+	netdev@vger.kernel.org
+References: <20051118033302.GO11494@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051118033302.GO11494@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_1369_8877175.1132304203974
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Fri, Nov 18, 2005 at 04:33:02AM +0100, Adrian Bunk wrote:
+> This patch removes the obsolete drivers/net/eepro100.c driver.
+> 
+> Is there any reason why it should be kept?
 
-On 11/18/05, Andrew Morton <akpm@osdl.org> wrote:
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc1/=
-2.6.15-rc1-mm2/
->
->
-> - I'm releasing this so that Hugh's MM rework can get a spin.
->
->   Anyone who had post-2.6.14 problems related to the VM_RESERVED changes
->   (device drivers malfunctioning, obscure userspace hardware-poking
->   applications stopped working, etc) please test.
->
->   We'd especially like testing of the graphics DRM drivers across as many
->   card types as poss.
->
-I tried running neverball and had "bad page state".
+Tt's the only driver which works correctly on ARM CPUs.  e100 is
+basically buggy.  This has been discussed here on lkml and more
+recently on linux-netdev.  If anyone has any further questions
+please read the archives of those two lists.
 
-dmesg and lspci -v attached
-
-Please ask if you need more informations.
-
-regards,
-
-Benoit
-
-------=_Part_1369_8877175.1132304203974
-Content-Type: application/octet-stream; name=dmesg.log
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="dmesg.log"
-
-
-------=_Part_1369_8877175.1132304203974
-Content-Type: application/octet-stream; name=lspci
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="lspci"
-
-
-------=_Part_1369_8877175.1132304203974--
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

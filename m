@@ -1,44 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161200AbVKRUwF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbVKRUwc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161200AbVKRUwF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 15:52:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161199AbVKRUwE
+	id S964806AbVKRUwc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 15:52:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbVKRUwc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 15:52:04 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:13870 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1161200AbVKRUwC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 15:52:02 -0500
-Date: Fri, 18 Nov 2005 21:49:47 +0100
-From: Jens Axboe <axboe@suse.de>
-To: mikem <mikem@beardog.cca.cpqcorp.net>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       hpa@zytor.com, sitniko@infonet.ee
-Subject: Re: [PATCH 1/3] cciss: bug fix for hpacucli
-Message-ID: <20051118204946.GB25454@suse.de>
-References: <20051118163357.GA10928@beardog.cca.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051118163357.GA10928@beardog.cca.cpqcorp.net>
+	Fri, 18 Nov 2005 15:52:32 -0500
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:9814 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S964806AbVKRUwb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 15:52:31 -0500
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, tom.l.nguyen@intel.com,
+       Greg KH <gregkh@suse.de>
+Subject: Re: PCI MSI: the new interrupt routing headache
+X-Message-Flag: Warning: May contain useful information
+References: <437C18AF.7050508@pobox.com>
+From: Roland Dreier <rolandd@cisco.com>
+Date: Fri, 18 Nov 2005 12:52:22 -0800
+In-Reply-To: <437C18AF.7050508@pobox.com> (Jeff Garzik's message of "Thu, 17
+ Nov 2005 00:44:15 -0500")
+Message-ID: <52acg14r21.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 18 Nov 2005 20:52:23.0119 (UTC) FILETIME=[F98645F0:01C5EC81]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 18 2005, mikem wrote:
-> Patch 1 of 3
-> 
-> This patch fixes a bug that breaks hpacucli, a command line interface
-> for the HP Array Config Utility. Without this fix the utility will
-> not detect any controllers in the system. I thought I had already fixed
-> this, but I guess not.
-> 
-> Thanks to all who reported the issue. Please consider this this inclusion.
+    Jeff> What needs to be done, to detect working PCI message
+    Jeff> signalled interrupts such that pci_enable_msi() fails
+    Jeff> properly?
 
-Lovely, hope this makes it able to configure my drives on the tiger now
-:).
+There are two things that cause MSIs not to work.  First, the PCI host
+bridge may not have working MSI support.  To handle this, we have the
+"msi_quirk" which is set by the PCI quirk code.  For example, this is
+used on systems with AMD-8131 PCI-X bridges.  (As I've noted
+elsewhere, this is actually too crude a method -- actual systems exist
+with e.g. both AMD-8131 and Nforce4 PCI bridges, so that MSI works for
+PCIe devices but not devices below the AMD-8131)
 
-Applied.
+Second, there are PCI devices that have an MSI capability but which
+don't have working MSI support.  Most revisions of the e1000 fall into
+this category.  In this case, it is up to the driver to know when it's
+safe to try to enable MSI.
 
--- 
-Jens Axboe
+However, given that MSI/MSI-X is not in wide use, there is undoubtedly
+much more broken hardware (both chipsets and devices) that we don't
+know about and need to add quirks or driver workarounds for.
 
+Hence, in the interest of discovering this hardware and also in
+getting less cryptic bug reports, it's a good idea to add a test that
+interrupts actually work in any driver that tries to enable MSI or
+MSI-X.  Since it requires knowledge of a device to know how to get the
+device to trigger an interrupt, this test has to be done in each
+driver and can't be centralized.
+
+ - R.

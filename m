@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030251AbVKRR7a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161011AbVKRSEi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030251AbVKRR7a (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 12:59:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030266AbVKRR73
+	id S1161011AbVKRSEi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 13:04:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030276AbVKRSEi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 12:59:29 -0500
-Received: from nproxy.gmail.com ([64.233.182.196]:34476 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030251AbVKRR73 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 12:59:29 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=fiBoYvdpJJioekrcncpiVV8tFbbSS6J/2XNY9RQOHVKP3A6CT1Th+htkRn8sCYvoVoCRqT59wAis3exAdpJ762RhwPleW/0m/5lH9jNqz7sv9lZsSPe4alSGtty/gtEt3gIhbSa4EXdr7oe/mb2jX0GWaa4ipTr1nXcPrNjLvIo=
-Message-ID: <c775eb9b0511180959r12206562h5a294d9505d95d04@mail.gmail.com>
-Date: Fri, 18 Nov 2005 12:59:28 -0500
-From: Bharath Ramesh <krosswindz@gmail.com>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Subject: Re: intel8x0 sound of silence on dell system
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051118162300.GA22092@kvack.org>
+	Fri, 18 Nov 2005 13:04:38 -0500
+Received: from rwcrmhc11.comcast.net ([216.148.227.117]:61636 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1030266AbVKRSEi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 13:04:38 -0500
+Message-ID: <437E17B2.9090009@namesys.com>
+Date: Fri, 18 Nov 2005 10:04:34 -0800
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051118162300.GA22092@kvack.org>
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Adrian Bunk <bunk@stusta.de>, reiserfs-list@namesys.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] fs/reiser4/: possible cleanups
+References: <20051118033310.GQ11494@stusta.de>	 <437D8FB3.2000108@namesys.com> <1132302717.2830.41.camel@laptopd505.fenrus.org>
+In-Reply-To: <1132302717.2830.41.camel@laptopd505.fenrus.org>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Probably the sound car is muted. you might want to try out the
-alsamixer to unmute the card.
+Arjan van de Ven wrote:
 
-On 11/18/05, Benjamin LaHaise <bcrl@kvack.org> wrote:
-> Hello all,
+> gcc can and does optimize static functions more. A function being static
 >
-> On trying out head on my workstation, it seems that no sound comes out.
-> The module is getting loaded and the interrupts line for the 'Intel ICH5'
-> is increasing.  The RHEL 4 kernel is known to work on this machine.  The
-> only output from the driver is below.  Any ideas?
+>(and not having it's address taken) means that gcc is aware of all
+>callers of this one function (unlike non-static obviously where places
+>outside the current .c may call it). That knowledge can and is used for
+>optimization. (and increasingly so in newer gcc's)
 >
->                 -ben
 >
-> intel8x0_measure_ac97_clock: measured 51314 usecs
-> intel8x0: clocking to 48000
-> --
-> "Time is what keeps everything from happening all at once." -- John Wheeler
-> Don't Email: <dont@kvack.org>.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 >
+>  
+>
+Interesting.  We should use static wherever we can then.

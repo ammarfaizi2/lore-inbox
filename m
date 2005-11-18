@@ -1,112 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932325AbVKRDhH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbVKRDiB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932325AbVKRDhH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 22:37:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbVKRDhG
+	id S932263AbVKRDiB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 22:38:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbVKRDiB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 22:37:06 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:63238 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932325AbVKRDhE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 22:37:04 -0500
-Date: Fri, 18 Nov 2005 04:37:02 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Cc: rusty@rustcorp.com.au, dwmw2@infradead.org, linux-mtd@lists.infradead.org
-Subject: [2.6 patch] build kernel/intermodule.c only when required
-Message-ID: <20051118033702.GY11494@stusta.de>
-References: <20051118014055.GK11494@stusta.de> <20051117175015.6aa99fcf.akpm@osdl.org> <20051118020640.GM11494@stusta.de> <20051117182047.5fe1a5eb.akpm@osdl.org> <20051118024433.GN11494@stusta.de> <20051117185529.31d33192.akpm@osdl.org> <20051118031751.GA2773@redhat.com>
-MIME-Version: 1.0
+	Thu, 17 Nov 2005 22:38:01 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:20900 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932263AbVKRDh7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 22:37:59 -0500
+Date: Fri, 18 Nov 2005 09:07:55 +0530
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, fastboot@lists.osdl.org, ak@suse.de,
+       ebiederm@xmission.com
+Subject: Re: [PATCH 2/10] kdump: dynamic per cpu allocation of memory for saving cpu registers
+Message-ID: <20051118033755.GA3779@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20051117131339.GD3981@in.ibm.com> <20051117131825.GE3981@in.ibm.com> <20051117132004.GF3981@in.ibm.com> <20051117140138.454c59a8.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051118031751.GA2773@redhat.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20051117140138.454c59a8.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 17, 2005 at 10:17:51PM -0500, Dave Jones wrote:
-> On Thu, Nov 17, 2005 at 06:55:29PM -0800, Andrew Morton wrote:
+On Thu, Nov 17, 2005 at 02:01:38PM -0800, Andrew Morton wrote:
 > 
->  > > IMHO the warnings are the best solution for getting a vast amount fixed, 
->  > > and then it's time to think about the rest.
->  > 
->  > But the warnings don't *work*.  I'm *still* staring at stupid pm_register
->  > and intermodule_foo warnings.  How long has that been?
+> Please always generate diffs against the latest kernel!  I changed the
+> patch to reflect the new location of ppc64's machine_kexec.c.
 > 
-> Too long.  I think the mtd stuff won't ever get fixed until after that
-> function gets removed.
 
-Let's limit the inclusion of kernel/intermodule.c to the users of these 
-drivers.
+Sorry. That's a mistake. I shall take care of it next time onwards.
 
-> 		Dave
+> In that file, I notice that this comment has become more informative:
+> 
+> /*
+>  * Provide a dummy crash_notes definition until crash dump is implemented.
+>  * This prevents breakage of crash_notes attribute in kernel/ksysfs.c.
+>  */
+> note_buf_t crash_notes[NR_CPUS];
+> 
+> Please check that with your new implementation, the above "breakage"
+> (whatever it was) remains fixed.
+>
 
-cu
-Adrian
+With this patchset "crash_notes" has been moved in architecture independent
+portion (). Hence there is no need for architecture dependent definitions.
+So this change should be fine.
 
-
-<--  snip  -->
-
-
-Let's build kernel/intermodule.c only when required.
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
- drivers/mtd/chips/Kconfig   |    1 +
- drivers/mtd/devices/Kconfig |    1 +
- init/Kconfig                |    3 +++
- kernel/Makefile             |    3 ++-
- 4 files changed, 7 insertions(+), 1 deletion(-)
-
---- linux-2.6.15-rc1-mm1-full/init/Kconfig.old	2005-11-18 03:22:53.000000000 +0100
-+++ linux-2.6.15-rc1-mm1-full/init/Kconfig	2005-11-18 03:23:29.000000000 +0100
-@@ -456,6 +456,9 @@
- 	default !SLAB
- 	bool
- 
-+config OBSOLETE_INTERMODULE
-+	tristate
-+
- menu "Loadable module support"
- 
- config MODULES
---- linux-2.6.15-rc1-mm1-full/kernel/Makefile.old	2005-11-18 03:21:55.000000000 +0100
-+++ linux-2.6.15-rc1-mm1-full/kernel/Makefile	2005-11-18 03:22:35.000000000 +0100
-@@ -6,10 +6,11 @@
- 	    exit.o itimer.o time.o softirq.o resource.o \
- 	    sysctl.o capability.o ptrace.o timer.o user.o \
- 	    signal.o sys.o kmod.o workqueue.o pid.o \
--	    rcupdate.o intermodule.o extable.o params.o posix-timers.o \
-+	    rcupdate.o extable.o params.o posix-timers.o \
- 	    kthread.o wait.o kfifo.o sys_ni.o posix-cpu-timers.o \
- 	    ktimers.o
- 
-+obj-$(CONFIG_OBSOLETE_INTERMODULE) += intermodule.o
- obj-$(CONFIG_FUTEX) += futex.o
- obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
- obj-$(CONFIG_SMP) += cpu.o spinlock.o
---- linux-2.6.15-rc1-mm1-full/drivers/mtd/chips/Kconfig.old	2005-11-18 03:23:52.000000000 +0100
-+++ linux-2.6.15-rc1-mm1-full/drivers/mtd/chips/Kconfig	2005-11-18 03:28:09.000000000 +0100
-@@ -31,6 +31,7 @@
- 
- config MTD_GEN_PROBE
- 	tristate
-+	select OBSOLETE_INTERMODULE
- 
- config MTD_CFI_ADV_OPTIONS
- 	bool "Flash chip driver advanced configuration options"
---- linux-2.6.15-rc1-mm1-full/drivers/mtd/devices/Kconfig.old	2005-11-18 03:25:17.000000000 +0100
-+++ linux-2.6.15-rc1-mm1-full/drivers/mtd/devices/Kconfig	2005-11-18 03:27:46.000000000 +0100
-@@ -202,6 +202,7 @@
- config MTD_DOCPROBE
- 	tristate
- 	select MTD_DOCECC
-+	select OBSOLETE_INTERMODULE
- 
- config MTD_DOCECC
- 	tristate
-
+Thanks
+Vivek 

@@ -1,52 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbVKRWlP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbVKRWmF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932120AbVKRWlP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 17:41:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbVKRWlP
+	id S932119AbVKRWmF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 17:42:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbVKRWmF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 17:41:15 -0500
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:38080 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S932120AbVKRWlO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 17:41:14 -0500
-Date: Fri, 18 Nov 2005 17:41:13 -0500
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: dvd writes truncated 3 Mbytes
-Message-ID: <20051118224113.GJ9488@csclub.uwaterloo.ca>
-References: <200511181703.47903.gene.heskett@verizon.net>
+	Fri, 18 Nov 2005 17:42:05 -0500
+Received: from smtp2.Stanford.EDU ([171.67.16.125]:2014 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S932119AbVKRWmE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 17:42:04 -0500
+Subject: Re: 2.6.14-rt13
+From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
+       "Paul E. McKenney" <paulmck@us.ibm.com>, "K.R. Foley" <kr@cybsft.com>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Thomas Gleixner <tglx@linutronix.de>, pluto@agmk.net,
+       john cooper <john.cooper@timesys.com>,
+       Benedikt Spranger <bene@linutronix.de>,
+       Daniel Walker <dwalker@mvista.com>,
+       Tom Rini <trini@kernel.crashing.org>,
+       George Anzinger <george@mvista.com>
+In-Reply-To: <20051118220755.GA3029@elte.hu>
+References: <20051115090827.GA20411@elte.hu>
+	 <1132336954.20672.11.camel@cmn3.stanford.edu>
+	 <1132350882.6874.23.camel@mindpipe>
+	 <1132351533.4735.37.camel@cmn3.stanford.edu>
+	 <20051118220755.GA3029@elte.hu>
+Content-Type: text/plain
+Date: Fri, 18 Nov 2005 14:41:29 -0800
+Message-Id: <1132353689.4735.43.camel@cmn3.stanford.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200511181703.47903.gene.heskett@verizon.net>
-User-Agent: Mutt/1.5.9i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 18, 2005 at 05:03:47PM -0500, Gene Heskett wrote:
-> I've just tried to burn a dvd iso 4 times, 2 different brands of disks,
-> getting an identical but bad md5sum for all 4 writes.
+On Fri, 2005-11-18 at 23:07 +0100, Ingo Molnar wrote:
+> * Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
 > 
-> K3B reports it has written 1160 or 1163 Mbytes each time, but doesn't
-> seem to have a problem with that.
+> > Arghhh, at least I take this as a confirmation that the TSCs do drift 
+> > and there is no workaround. It currently makes the -rt/Jack 
+> > combination not very useful, at least in my tests.
+> > 
+> > Is there a way to resync the TSCs?
 > 
-> Kernel is 2.6.14.2, without packet writing for cd/dvd turned on, but I
-> have one with it enabled building now.  K3B is 0.11.13, cdrecord is
-> 2.1(dvd), groisofs is 5.21, mkisofs is 2.1-a34.  The drive is a Lite-On
-> DVDRW SOHW-1673S.
-> 
-> Has anyone else encountered a similar problem?  I've been making
-> good cd's all along with no problems, in this new drive, till now.
+> no reasonable way. Does idle=poll make any difference?
 
-Seems more of an application issue than a kernel issue.
+I don't know yet, and I may never know :-) I've been running it for a
+while and so far works but that's what I thought yesterday of -rt13. It
+is not practical for normal use, it just heats the cpu unnecessarily and
+there's no way to control it other than a reboot. I'll keep my machine
+running like this till I go home later. 
 
-Does it work from the command line (could be a k3b bug after all)?
+-- Fernando
 
-cdrecord with dvd support (unless prodvd version) is not worth using on
-most drives.  growisofs is great for most drives.
 
-The cdwrite mailinst list at lists.debian.org (not debian specific) is
-the best place I know to get answers to cd/dvd writing questions.
-
-Len Sorensen

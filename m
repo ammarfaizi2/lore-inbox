@@ -1,101 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030216AbVKRR0G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030180AbVKRR0D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030216AbVKRR0G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 12:26:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbVKRR0G
+	id S1030180AbVKRR0D (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 12:26:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbVKRR0C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 12:26:06 -0500
+	Fri, 18 Nov 2005 12:26:02 -0500
 Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:20431 "EHLO
 	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S932332AbVKRR0E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 12:26:04 -0500
-Subject: [PATCH 2/5] slab: remove unused align parameter from alloc_percpu
+	id S932332AbVKRR0A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 12:26:00 -0500
+Subject: [PATCH 1/5] slab: rename obj_reallen to obj_size
 From: Pekka Enberg <penberg@cs.helsinki.fi>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, colpatch@us.ibm.com,
        manfred@colorfullife.com
 Content-Type: text/plain
-Message-Id: <iq5uu6.r1w80m.fi2lra14o0wdqqk5ln4hwlcm.beaver@cs.helsinki.fi>
-In-Reply-To: <iq5uu1.87bo1s.3tcvszwr6pjjr4ngr04pw358p.beaver@cs.helsinki.fi>
-Date: Fri, 18 Nov 2005 19:20:30 +0200
+Message-Id: <iq5uu1.87bo1s.3tcvszwr6pjjr4ngr04pw358p.beaver@cs.helsinki.fi>
+Date: Fri, 18 Nov 2005 19:20:25 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-__alloc_percpu and alloc_percpu both take an 'align' argument which is
-completely ignored.  snmp6_mib_init() in net/ipv6/af_inet6.c attempts to
-use it, but it will be ignored.  Therefore, remove the 'align' argument
-and fixup the lone caller.
+This patch renames the obj_reallen() function to obj_size() which makes the
+code more readable.
 
-Signed-off-by: Matthew Dobson <colpatch@us.ibm.com>
 Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
 ---
 
- include/linux/percpu.h |    7 +++----
- mm/slab.c              |    3 +--
- net/ipv6/af_inet6.c    |    4 ++--
- 3 files changed, 6 insertions(+), 8 deletions(-)
+ slab.c |   21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
-Index: 2.6/include/linux/percpu.h
-===================================================================
---- 2.6.orig/include/linux/percpu.h
-+++ 2.6/include/linux/percpu.h
-@@ -33,14 +33,14 @@ struct percpu_data {
-         (__typeof__(ptr))__p->ptrs[(cpu)];	\
- })
- 
--extern void *__alloc_percpu(size_t size, size_t align);
-+extern void *__alloc_percpu(size_t size);
- extern void free_percpu(const void *);
- 
- #else /* CONFIG_SMP */
- 
- #define per_cpu_ptr(ptr, cpu) ({ (void)(cpu); (ptr); })
- 
--static inline void *__alloc_percpu(size_t size, size_t align)
-+static inline void *__alloc_percpu(size_t size)
- {
- 	void *ret = kmalloc(size, GFP_KERNEL);
- 	if (ret)
-@@ -55,7 +55,6 @@ static inline void free_percpu(const voi
- #endif /* CONFIG_SMP */
- 
- /* Simple wrapper for the common case: zeros memory. */
--#define alloc_percpu(type) \
--	((type *)(__alloc_percpu(sizeof(type), __alignof__(type))))
-+#define alloc_percpu(type)	((type *)(__alloc_percpu(sizeof(type))))
- 
- #endif /* __LINUX_PERCPU_H */
 Index: 2.6/mm/slab.c
 ===================================================================
 --- 2.6.orig/mm/slab.c
 +++ 2.6/mm/slab.c
-@@ -2949,9 +2949,8 @@ EXPORT_SYMBOL(__kmalloc);
-  * Objects should be dereferenced using the per_cpu_ptr macro only.
-  *
-  * @size: how many bytes of memory are required.
-- * @align: the alignment, which can't be greater than SMP_CACHE_BYTES.
-  */
--void *__alloc_percpu(size_t size, size_t align)
-+void *__alloc_percpu(size_t size)
+@@ -508,7 +508,7 @@ static int obj_dbghead(kmem_cache_t *cac
+ 	return cachep->dbghead;
+ }
+ 
+-static int obj_reallen(kmem_cache_t *cachep)
++static int obj_size(kmem_cache_t *cachep)
  {
- 	int i;
- 	struct percpu_data *pdata = kmalloc(sizeof (*pdata), GFP_KERNEL);
-Index: 2.6/net/ipv6/af_inet6.c
-===================================================================
---- 2.6.orig/net/ipv6/af_inet6.c
-+++ 2.6/net/ipv6/af_inet6.c
-@@ -596,11 +596,11 @@ snmp6_mib_init(void *ptr[2], size_t mibs
- 	if (ptr == NULL)
- 		return -EINVAL;
+ 	return cachep->reallen;
+ }
+@@ -536,7 +536,12 @@ static void **dbg_userword(kmem_cache_t 
+ #else
  
--	ptr[0] = __alloc_percpu(mibsize, mibalign);
-+	ptr[0] = __alloc_percpu(mibsize);
- 	if (!ptr[0])
- 		goto err0;
+ #define obj_dbghead(x)			0
+-#define obj_reallen(cachep)		(cachep->objsize)
++
++static int obj_size(kmem_cache_t *cachep)
++{
++	return cachep->objsize;
++}
++
+ #define dbg_redzone1(cachep, objp)	({BUG(); (unsigned long *)NULL;})
+ #define dbg_redzone2(cachep, objp)	({BUG(); (unsigned long *)NULL;})
+ #define dbg_userword(cachep, objp)	({BUG(); (void **)NULL;})
+@@ -1259,7 +1264,7 @@ static void kmem_rcu_free(struct rcu_hea
+ static void store_stackinfo(kmem_cache_t *cachep, unsigned long *addr,
+ 				unsigned long caller)
+ {
+-	int size = obj_reallen(cachep);
++	int size = obj_size(cachep);
  
--	ptr[1] = __alloc_percpu(mibsize, mibalign);
-+	ptr[1] = __alloc_percpu(mibsize);
- 	if (!ptr[1])
- 		goto err1;
+ 	addr = (unsigned long *)&((char*)addr)[obj_dbghead(cachep)];
+ 
+@@ -1291,7 +1296,7 @@ static void store_stackinfo(kmem_cache_t
+ 
+ static void poison_obj(kmem_cache_t *cachep, void *addr, unsigned char val)
+ {
+-	int size = obj_reallen(cachep);
++	int size = obj_size(cachep);
+ 	addr = &((char*)addr)[obj_dbghead(cachep)];
+ 
+ 	memset(addr, val, size);
+@@ -1330,7 +1335,7 @@ static void print_objinfo(kmem_cache_t *
+ 		printk("\n");
+ 	}
+ 	realobj = (char*)objp+obj_dbghead(cachep);
+-	size = obj_reallen(cachep);
++	size = obj_size(cachep);
+ 	for (i=0; i<size && lines;i+=16, lines--) {
+ 		int limit;
+ 		limit = 16;
+@@ -1347,7 +1352,7 @@ static void check_poison_obj(kmem_cache_
+ 	int lines = 0;
+ 
+ 	realobj = (char*)objp+obj_dbghead(cachep);
+-	size = obj_reallen(cachep);
++	size = obj_size(cachep);
+ 
+ 	for (i=0;i<size;i++) {
+ 		char exp = POISON_FREE;
+@@ -3069,7 +3074,7 @@ EXPORT_SYMBOL(free_percpu);
+ 
+ unsigned int kmem_cache_size(kmem_cache_t *cachep)
+ {
+-	return obj_reallen(cachep);
++	return obj_size(cachep);
+ }
+ EXPORT_SYMBOL(kmem_cache_size);
+ 
+@@ -3607,7 +3612,7 @@ unsigned int ksize(const void *objp)
+ 	if (unlikely(objp == NULL))
+ 		return 0;
+ 
+-	return obj_reallen(page_get_cache(virt_to_page(objp)));
++	return obj_size(page_get_cache(virt_to_page(objp)));
+ }
+ 
  

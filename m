@@ -1,64 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932447AbVKRDwv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbVKRDzm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932447AbVKRDwv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 22:52:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbVKRDwv
+	id S932446AbVKRDzm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 22:55:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbVKRDzm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 22:52:51 -0500
-Received: from ozlabs.org ([203.10.76.45]:17046 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932447AbVKRDwu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 22:52:50 -0500
-Date: Fri, 18 Nov 2005 14:52:36 +1100
-From: David Gibson <hermes@gibson.dropbear.id.au>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: proski@gnu.org, orinoco-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, jgarzik@pobox.com, netdev@vger.kernel.org
-Subject: Re: [Orinoco-devel] [2.6 patch] drivers/net/wireless/orinoco.h: "extern inline" -> "static inline"
-Message-ID: <20051118035236.GB23760@localhost.localdomain>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>, proski@gnu.org,
-	orinoco-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-	jgarzik@pobox.com, netdev@vger.kernel.org
-References: <20051118033329.GU11494@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 17 Nov 2005 22:55:42 -0500
+Received: from wproxy.gmail.com ([64.233.184.202]:13189 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932446AbVKRDzl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 22:55:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=RlQkV+hMXJMNyuJDThF47IWlXyzPujeXdviBLK2a7UUqfD2gdDhkgXc5ngrqJGOSS9uRkJkBbfpwDCAw463DGX4ZOBDyme3xRPNhUDNRIA4cMChCWrl1xoxRch2U0NNznoKeaqdMbz29BGemWCjHua6z6Td7uEf8yyNpeJyM5HU=
+Message-ID: <7cd5d4b40511171955y7787b880i53d89c35a0629b3d@mail.gmail.com>
+Date: Fri, 18 Nov 2005 11:55:40 +0800
+From: jeff shia <tshxiayu@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: can we sleep at the bottom half environment?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051118033329.GU11494@stusta.de>
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 18, 2005 at 04:33:29AM +0100, Adrian Bunk wrote:
-> "extern inline" doesn't make much sense.
+hello,
+      can we sleep at the bottom half environment?such as in a softirq
+or a workqueue? why?
+     Thank you!
 
-Yes it does.  "extern inline" tells gcc not to fall back to out of
-line version if it can't inline the function.  These functions *must*
-by inlined, or they'll break horribly on Sparc, at least.
-
-> --- linux-2.6.15-rc1-mm1-full/drivers/net/wireless/orinoco.h.old	2005-11-18 02:38:43.000000000 +0100
-> +++ linux-2.6.15-rc1-mm1-full/drivers/net/wireless/orinoco.h	2005-11-18 02:38:47.000000000 +0100
-> @@ -155,7 +155,7 @@
->   * SPARC, due to its weird semantics for save/restore flags. extern
->   * inline should prevent the kernel from linking or module from
->   * loading if they are not inlined. */
-> -extern inline int orinoco_lock(struct orinoco_private *priv,
-> +static inline int orinoco_lock(struct orinoco_private *priv,
->  			       unsigned long *flags)
->  {
->  	spin_lock_irqsave(&priv->lock, *flags);
-> @@ -168,7 +168,7 @@
->  	return 0;
->  }
->  
-> -extern inline void orinoco_unlock(struct orinoco_private *priv,
-> +static inline void orinoco_unlock(struct orinoco_private *priv,
->  				  unsigned long *flags)
->  {
->  	spin_unlock_irqrestore(&priv->lock, *flags);
-> 
-
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/~dgibson
+jeffshia

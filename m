@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932518AbVKRHJt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932548AbVKRHK4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932518AbVKRHJt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 02:09:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbVKRHJt
+	id S932548AbVKRHK4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 02:10:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932553AbVKRHK4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 02:09:49 -0500
-Received: from xenotime.net ([66.160.160.81]:9894 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932518AbVKRHJs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 02:09:48 -0500
-Date: Thu, 17 Nov 2005 23:10:09 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] update the email address of Randy Dunlap
-Message-Id: <20051117231009.0d13c262.rdunlap@xenotime.net>
-In-Reply-To: <20051118040219.GA11494@stusta.de>
-References: <20051118040219.GA11494@stusta.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 18 Nov 2005 02:10:56 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:20686
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S932548AbVKRHK4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 02:10:56 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] Re: [PATCH 2/4] UML - Eliminate anonymous union and clean up symlink lossage
+Date: Fri, 18 Nov 2005 01:10:34 -0600
+User-Agent: KMail/1.8
+Cc: Jeff Dike <jdike@addtoit.com>, akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <200511172110.jAHLAQoe010199@ccure.user-mode-linux.org> <200511180103.29950.rob@landley.net>
+In-Reply-To: <200511180103.29950.rob@landley.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511180110.35169.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Nov 2005 05:02:19 +0100 Adrian Bunk wrote:
+On Friday 18 November 2005 01:03, Rob Landley wrote:
+> On Thursday 17 November 2005 15:10, Jeff Dike wrote:
+> > This gives a name to the anonymous union introduced in
+> > skas-hold-own-ldt, allowing to build on a wider range of gccs.
+>
+> Or narrower range, in the case of Ubuntu "Horny Hedgehog".  2.6.15-rc1
+> builds fine by itself, or with just patch 1 in this series, but with patch
+> 2...
 
-> This patch removes all references to the bouncing address 
-> rddunlap@osdl.org and one dead web page from the kernel.
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+To clarify, 1, 3 and 4 in this series all build fine for me.  Only patch 2 is 
+breaking my build.
 
-OK.  Thanks.
-
----
-~Randy
+Rob

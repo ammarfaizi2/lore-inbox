@@ -1,87 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbVKRXB1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbVKRXQZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751093AbVKRXB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 18:01:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbVKRXB1
+	id S1750813AbVKRXQZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 18:16:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbVKRXQZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 18:01:27 -0500
-Received: from zproxy.gmail.com ([64.233.162.200]:18580 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751093AbVKRXB0 (ORCPT
+	Fri, 18 Nov 2005 18:16:25 -0500
+Received: from aeimail.aei.ca ([206.123.6.84]:7411 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S1750813AbVKRXQY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 18:01:26 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer;
-        b=GLwJY/IlEZFimWOD5cC6+nmM8X79fLInAxKe78RP6fxj/I9VxdO+1hoeMcX6x2ihR/+nujXR320ZOCUjGIagt1n1gxZsfUgQgq9cnRx3W3egnWMp9XCH55o58bGFNzSkltTtHTTZzosemSQdkgDIDk24+wQv7MH40qG+uzkS1nY=
-Subject: Re: 2.6.15-rc1-mm2 breaks strace
-From: Badari Pulavarty <pbadari@gmail.com>
-To: Bernhard Rosenkraenzer <bero@arklinux.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, akpm@osdl.org
-In-Reply-To: <200511182240.34512.bero@arklinux.org>
-References: <200511182240.34512.bero@arklinux.org>
-Content-Type: multipart/mixed; boundary="=-lMeMPxNdGokBs8S8u79I"
-Date: Fri, 18 Nov 2005 15:00:35 -0800
-Message-Id: <1132354835.24066.195.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Fri, 18 Nov 2005 18:16:24 -0500
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Ian McDonald <imcdnzl@gmail.com>
+Subject: Re: 2.6.15-rc1-mm1
+Date: Fri, 18 Nov 2005 18:16:01 -0500
+User-Agent: KMail/1.8.2
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <20051117111807.6d4b0535.akpm@osdl.org> <20051118203727.GA23151@kroah.com> <cbec11ac0511181314g7edaee33j47cbc6118228e49b@mail.gmail.com>
+In-Reply-To: <cbec11ac0511181314g7edaee33j47cbc6118228e49b@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511181816.01645.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-lMeMPxNdGokBs8S8u79I
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-
-On Fri, 2005-11-18 at 22:40 +0100, Bernhard Rosenkraenzer wrote:
-> 2.6.15-rc1-mm2 works nicely here, aside from the artsd stuff someone else 
-> already reported, and an new issue with strace (last known working: 
-> 2.6.14-mm2)
+On Friday 18 November 2005 16:14, Ian McDonald wrote:
+> On 11/19/05, Greg KH <greg@kroah.com> wrote:
+> > Are you using debian?
+> > If so, what version of udev are you using?  There are some known
+> > reported problems with this, so I would suggest referring to the udev
+> > bug list.
+> >
+> In particular check the version requirements for udev - you need to be
+> on a version greater than or equal to 71. Sarge/stable has a really
+> old version. In particular I am running unstable as I had too many
+> funny errors (including this one) - but etch should be fine.
 > 
-> [bero@localhost bero]$ strace ls
-> execve("/bin/ls", ["ls"], [/* 33 vars */]) = 0
-> Segmentation fault
-> [ls output without any traces beyond execve-ing ls displayed here]
+> If running another distribution check this also as it is a real requirement.
 > 
-> Also interesting:
-> [bero@localhost bero]$ strace strace ls
-> execve("/usr/bin/strace", ["strace", "ls"], [/* 20 vars */]) = 0
-> Segmentation fault
-> execve("/bin/ls", ["ls"], [/* 20 vars */]) = 0
-> [ls output without any traces displayed here]
+> To find the latest version of udev required check Documentation/Changes
 
+devinfo -v 
+udevinfo, version 074 
 
-Try Christoph's patch.
+dpkg -s 
+Package: udev
+Status: install ok installed
+Priority: extra
+Section: admin
+Installed-Size: 1072
+Maintainer: Marco d'Itri <md@linux.it>
+Architecture: amd64
+Version: 0.074-3
 
-Thanks,
-Badari
+Interestingly the same udev works fine with 14-rc4-mm1.  I'll check the debian
+bugs.
 
-
-
---=-lMeMPxNdGokBs8S8u79I
-Content-Disposition: attachment; filename=ptrace-fix.patch
-Content-Type: text/x-patch; name=ptrace-fix.patch; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
-Looks like 2.6.15-rc1-mm1 has total crap in ptrace_get_task_struct
-(and it looks like my fault because I sent out a wrong patch).
-
-The patch below should fix it:
-
-Index: linux-2.6/kernel/ptrace.c
-===================================================================
---- linux-2.6.orig/kernel/ptrace.c	2005-11-18 10:25:35.000000000 +0100
-+++ linux-2.6/kernel/ptrace.c	2005-11-18 10:25:54.000000000 +0100
-@@ -459,7 +459,7 @@
- 	read_unlock(&tasklist_lock);
- 	if (!child)
- 		return ERR_PTR(-ESRCH);
--	return 0;
-+	return child;
- }
- 
- #ifndef __ARCH_SYS_PTRACE
-
-
---=-lMeMPxNdGokBs8S8u79I--
-
+Thanks
+Ed Tomlinson

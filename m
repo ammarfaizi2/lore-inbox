@@ -1,154 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbVKRNak@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbVKRNhM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750717AbVKRNak (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 08:30:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbVKRNak
+	id S1750724AbVKRNhM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 08:37:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbVKRNhM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 08:30:40 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:43429
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1750717AbVKRNaj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 08:30:39 -0500
-Message-Id: <437DE59C.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Fri, 18 Nov 2005 14:30:52 +0100
-From: "Jan Beulich" <JBeulich@novell.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <vincent.hanquez@cl.cam.ac.uk>
-Subject: [PATCH] i386: change more uses of user_mode to user_mode_vm
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=__Part1D3F2E9C.1__="
+	Fri, 18 Nov 2005 08:37:12 -0500
+Received: from wproxy.gmail.com ([64.233.184.199]:37986 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750724AbVKRNhK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 08:37:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=HbrFFqg4iLCYZm8VbIkzCyPL80crsZViBIqc8r62mtMC6AdWEm7yqbKcz+E+HN5/YTpbFpsA7jyMLsr/UHr4YYknlbatLEWKpTJiJ/5eVIg+WkLK5TzXhYbwXCWuTp8X/NyCY/s8NoFd+2RAbVeQlFazY9Umh+lRj2U8cwpIvus=
+Message-ID: <f990dfce0511180537i4becb5f1k611a58874e9bf972@mail.gmail.com>
+Date: Fri, 18 Nov 2005 08:37:09 -0500
+From: Brett Russ <bruss@alum.wpi.edu>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH] Marvell SATA fixes v2
+Cc: Bogdan Costescu <Bogdan.Costescu@iwr.uni-heidelberg.de>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <437D2DED.5030602@pobox.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051114050404.GA18144@havoc.gtf.org>
+	 <Pine.LNX.4.63.0511151437320.3015@dingo.iwr.uni-heidelberg.de>
+	 <4379F31D.4000508@pobox.com>
+	 <Pine.LNX.4.63.0511152108140.3015@dingo.iwr.uni-heidelberg.de>
+	 <437D2DED.5030602@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME message. If you are reading this text, you may want to 
-consider changing to a mail reader or gateway that understands how to 
-properly handle MIME multipart messages.
+On 11/17/05, Jeff Garzik <jgarzik@pobox.com> wrote:
+> See if you can give the latest git tree a try (what will be
+> 2.6.15-rc1-git6, later tonight).  I think I've killed most of the
+> sata_mv bugs, and have it working here on both 50xx and 60xx.
 
---=__Part1D3F2E9C.1__=
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hey Jeff,
 
->commit 76381fee7e8feb4c22be636aa5d4765dbe4fbf9e
->Author: Vincent Hanquez <vincent.hanquez@cl.cam.ac.uk>
->Date:   Thu Jun 23 00:08:46 2005 -0700
->
->    [PATCH] xen: x86_64: use more usermode macro
->    
->    Make use of the user_mode macro where it's possible.  This is
-useful for Xen
->    because it will need only to redefine only the macro to a
-hypervisor call.
-   
-Having just learned about the existance of user_mode_vm, I am of the
-opinion that the above changeset is incomplete, i.e. it missed
-converting some previous uses of user_mode to user_mode_vm. While most
-of them could be considered just cosmentical, at least the one in
-die_nmi isn't.
+Been reading the patches you've been sending.  Thanks for picking it
+up--there's no way I have time to work on it lately.  Glad to hear you
+got it working on 50xx.  Some comments:
 
-Signed-Off-By: Jan Beulich <jbeulich@novell.com>
+-in the future, can you separate whitespace only patch mailings with
+functional patches?  I know that's something you request of others,
+but it helps us too.
 
-(actual patch attached)
+-the version # of sata_mv doesn't look like it was bumped.  Did I miss it?
 
---=__Part1D3F2E9C.1__=
-Content-Type: text/plain; name="linux-2.6.15-rc1-i386-user_mode_vm.patch"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="linux-2.6.15-rc1-i386-user_mode_vm.patch"
-
->commit 76381fee7e8feb4c22be636aa5d4765dbe4fbf9e
->Author: Vincent Hanquez <vincent.hanquez@cl.cam.ac.uk>
->Date:   Thu Jun 23 00:08:46 2005 -0700
->
->    [PATCH] xen: x86_64: use more usermode macro
->    
->    Make use of the user_mode macro where it's possible.  This is useful for Xen
->    because it will need only to redefine only the macro to a hypervisor call.
-   
-Having just learned about the existance of user_mode_vm, I am of the
-opinion that the above changeset is incomplete, i.e. it missed
-converting some previous uses of user_mode to user_mode_vm. While most
-of them could be considered just cosmentical, at least the one in
-die_nmi isn't.
-
-From: Jan Beulich <jbeulich@novell.com>
-
-Signed-Off-By: Jan Beulich <jbeulich@novell.com>
-
---- linux-2.6.15-rc1/arch/i386/kernel/crash.c	2005-11-18 13:11:59.000000000 +0100
-+++ 2.6.15-rc1/arch/i386/kernel/crash.c	2005-11-18 13:17:57.000000000 +0100
-@@ -142,7 +142,7 @@ static int crash_nmi_callback(struct pt_
- 		return 1;
- 	local_irq_disable();
- 
--	if (!user_mode(regs)) {
-+	if (!user_mode_vm(regs)) {
- 		crash_setup_regs(&fixed_regs, regs);
- 		regs = &fixed_regs;
- 	}
---- linux-2.6.15-rc1/arch/i386/kernel/process.c	2005-11-18 13:11:59.000000000 +0100
-+++ 2.6.15-rc1/arch/i386/kernel/process.c	2005-11-18 13:20:12.000000000 +0100
-@@ -294,7 +294,7 @@ void show_regs(struct pt_regs * regs)
- 	printk("EIP: %04x:[<%08lx>] CPU: %d\n",0xffff & regs->xcs,regs->eip, smp_processor_id());
- 	print_symbol("EIP is at %s\n", regs->eip);
- 
--	if (user_mode(regs))
-+	if (user_mode_vm(regs))
- 		printk(" ESP: %04x:%08lx",0xffff & regs->xss,regs->esp);
- 	printk(" EFLAGS: %08lx    %s  (%s)\n",
- 	       regs->eflags, print_tainted(), system_utsname.release);
---- linux-2.6.15-rc1/arch/i386/kernel/traps.c	2005-11-18 13:11:59.000000000 +0100
-+++ 2.6.15-rc1/arch/i386/kernel/traps.c	2005-11-18 13:21:19.000000000 +0100
-@@ -210,7 +210,7 @@ void show_registers(struct pt_regs *regs
- 
- 	esp = (unsigned long) (&regs->esp);
- 	savesegment(ss, ss);
--	if (user_mode(regs)) {
-+	if (user_mode_vm(regs)) {
- 		in_kernel = 0;
- 		esp = regs->esp;
- 		ss = regs->xss & 0xffff;
-@@ -589,7 +589,7 @@ void die_nmi (struct pt_regs *regs, cons
- 	/* If we are in kernel we are probably nested up pretty bad
- 	 * and might aswell get out now while we still can.
- 	*/
--	if (!user_mode(regs)) {
-+	if (!user_mode_vm(regs)) {
- 		current->thread.trap_no = 2;
- 		crash_kexec(regs);
- 	}
---- linux-2.6.15-rc1/include/asm-i386/mach-default/do_timer.h	2005-10-28 02:02:08.000000000 +0200
-+++ 2.6.15-rc1/include/asm-i386/mach-default/do_timer.h	2005-11-18 13:16:52.000000000 +0100
-@@ -18,7 +18,7 @@ static inline void do_timer_interrupt_ho
- {
- 	do_timer(regs);
- #ifndef CONFIG_SMP
--	update_process_times(user_mode(regs));
-+	update_process_times(user_mode_vm(regs));
- #endif
- /*
-  * In the SMP case we use the local APIC timer interrupt to do the
---- linux-2.6.15-rc1/include/asm-i386/mach-visws/do_timer.h	2005-10-28 02:02:08.000000000 +0200
-+++ 2.6.15-rc1/include/asm-i386/mach-visws/do_timer.h	2005-11-18 13:17:05.000000000 +0100
-@@ -11,7 +11,7 @@ static inline void do_timer_interrupt_ho
- 
- 	do_timer(regs);
- #ifndef CONFIG_SMP
--	update_process_times(user_mode(regs));
-+	update_process_times(user_mode_vm(regs));
- #endif
- /*
-  * In the SMP case we use the local APIC timer interrupt to do the
---- linux-2.6.15-rc1/include/asm-i386/mach-voyager/do_timer.h	2005-10-28 02:02:08.000000000 +0200
-+++ 2.6.15-rc1/include/asm-i386/mach-voyager/do_timer.h	2005-11-18 13:17:16.000000000 +0100
-@@ -5,7 +5,7 @@ static inline void do_timer_interrupt_ho
- {
- 	do_timer(regs);
- #ifndef CONFIG_SMP
--	update_process_times(user_mode(regs));
-+	update_process_times(user_mode_vm(regs));
- #endif
- 
- 	voyager_timer_interrupt(regs);
-
---=__Part1D3F2E9C.1__=--
+thanks,
+BR

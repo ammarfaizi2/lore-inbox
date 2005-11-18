@@ -1,81 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161117AbVKRSoF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161119AbVKRS4O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161117AbVKRSoF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 13:44:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161119AbVKRSoE
+	id S1161119AbVKRS4O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 13:56:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161121AbVKRS4O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 13:44:04 -0500
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:13517 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1161117AbVKRSoD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 13:44:03 -0500
-Message-ID: <437E215E.30500@tmr.com>
-Date: Fri, 18 Nov 2005 13:45:50 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: bart@samwel.tk, linux-kernel@vger.kernel.org
-Subject: Re: Laptop mode causing writes to wrong sectors?
-References: <20051116181612.GA9231@knautsch.gondor.com> <20051117223340.GD14597@elf.ucw.cz>
-In-Reply-To: <20051117223340.GD14597@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 18 Nov 2005 13:56:14 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:1475 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1161119AbVKRS4O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 13:56:14 -0500
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+Cc: Dave Jones <davej@redhat.com>, Lee Revell <rlrevell@joe-job.com>,
+       Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <43797E05.5090107@wolfmountaingroup.com>
+References: <58MJb-2Sn-37@gated-at.bofh.it> <58NvO-46M-23@gated-at.bofh.it>
+	 <58Rpx-1m6-11@gated-at.bofh.it> <58UGF-6qR-27@gated-at.bofh.it>
+	 <58UQf-6Da-3@gated-at.bofh.it> <437933B6.1000503@shaw.ca>
+	 <1132020468.27215.25.camel@mindpipe> <20051115032819.GA5620@redhat.com>
+	 <43795575.9010904@wolfmountaingroup.com>
+	 <20051115050658.GA13660@redhat.com>
+	 <43797E05.5090107@wolfmountaingroup.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Fri, 18 Nov 2005 19:27:45 +0000
+Message-Id: <1132342065.25914.81.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
-> 
-> 
->>let me start by stating that the following is mainly guessed. I may be
->>completely wrong. Still I think you may be interested in my
->>observations, and perhaps you already got similar reports?
->>
->>On my laptop, running 2.6.14, I'm observing some strange file- and
->>filesystem corruptions. First, I thought it may have been caused by an
->>ext3 bug because the first corruption I did observe happened shortly
->>after an ext3 journal replay.
->>
->>I did report this to linux-kernel, but without any helpful response:
->>http://www.ussg.iu.edu/hypermail/linux/kernel/0511.0/0129.html
->>(Subject: ext3 corruption: "JBD: no valid journal superblock found")
->>
->>But now, I got another hint pointing to a possible cause of this
->>problem: I found a file - /usr/lib/libatlas.so.3.0 - which was corrupted
->>by 4k of it being overwritten by a different file, which I recognized. 
->>And that file happened to be an uncompressed manual page.
->>
->>As usually the manual pages are only stored compressed, this must have
->>happened when I actually did look at that manual page, which causes the
->>uncompressed version to be written to a file in /tmp/. And the best is:
->>I actually remember when I did read that man page, and it was while the
->>notebook ran on battery power, which is quite seldom. On battery power,
->>I have laptop mode activated and the hard disk spun down after a short
->>idle time.
->>
->>Why do I think this is related to the corruption? Well, on the one hand,
->>I'm compiling kernels quite often, tracking linus' git repository,
->>and
-> 
-> 
-> Can you try some filesystem test while forcing disk spindowns via
-> hdparm?
-> 
-> It may be bug in laptop mode, or a bug in ide (or something
-> related)... trying spindowns without laptopmode would be helpful.
-> 
-I don't know if it would be helpful, but I run several servers with 
-multiple drives, usually 4-5, some of which are in RAID and some aren't, 
-and they all spin down and restart without problems many times a day. 
-The kernel is 2.6.14.? with one patch to get my unsupported VIA IDE working.
+On Llu, 2005-11-14 at 23:19 -0700, Jeff V. Merkey wrote:
+> Making the point that in 1990, folks had grown beyond 4K stacks in 
+> kernels, along with MS DOS 640K Limitations.
 
-My laptop also has a spindown (five min from memory) and I have yet to 
-have a problem with it. Don't know if any of that is "spindowns without 
-laptopmode" in a useful sense.
+And Linux 8086 uses 512 byte kernel stacks, and really wants a bit of
+tuning to get down to 256.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Its about discipline and design not year
+

@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030514AbVKRIhP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030559AbVKRIoQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030514AbVKRIhP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 03:37:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030526AbVKRIhP
+	id S1030559AbVKRIoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 03:44:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030565AbVKRIoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 03:37:15 -0500
-Received: from [210.76.114.20] ([210.76.114.20]:2478 "EHLO ccoss.com.cn")
-	by vger.kernel.org with ESMTP id S1030514AbVKRIhO (ORCPT
+	Fri, 18 Nov 2005 03:44:16 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:54477 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1030559AbVKRIoP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 03:37:14 -0500
-Message-ID: <437D92C5.1060902@ccoss.com.cn>
-Date: Fri, 18 Nov 2005 16:37:25 +0800
-From: liyu <liyu@ccoss.com.cn>
-Reply-To: liyu@ccoss.com.cn
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: zh-cn,zh
-MIME-Version: 1.0
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: [Question] spin_lock in interrupt handler.
-References: <4379B5EB.40709@ccoss.com.cn> <437A8867.8080809@ccoss.com.cn> <437C2133.2030103@ccoss.com.cn> <200511172057.33131.kernel@kolivas.org>
-In-Reply-To: <200511172057.33131.kernel@kolivas.org>
-Content-Type: text/plain; charset=gb18030; format=flowed
+	Fri, 18 Nov 2005 03:44:15 -0500
+Date: Fri, 18 Nov 2005 00:43:59 -0800
+From: Paul Jackson <pj@sgi.com>
+To: David Howells <dhowells@redhat.com>
+Cc: akpm@osdl.org, sct@redhat.com, dhowells@redhat.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, linux-cachefs@redhat.com,
+       linux-fsdevel@vger.kernel.org, nfsv4@linux-nfs.org
+Subject: Re: [PATCH 0/12] FS-Cache: Generic filesystem caching facility
+Message-Id: <20051118004359.3e69626b.pj@sgi.com>
+In-Reply-To: <4204.1132255682@warthog.cambridge.redhat.com>
+References: <20051116035639.3eaa7a35.akpm@osdl.org>
+	<20051115112504.4b645a86.akpm@osdl.org>
+	<20051114150347.1188499e.akpm@osdl.org>
+	<dhowells1132005277@warthog.cambridge.redhat.com>
+	<Pine.LNX.4.64.0511141428390.3263@g5.osdl.org>
+	<11717.1132077542@warthog.cambridge.redhat.com>
+	<1932.1132140406@warthog.cambridge.redhat.com>
+	<4204.1132255682@warthog.cambridge.redhat.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, every one in LKML.
+David wrote:
+> > Maybe on the fourth or fifth time it'll occur you to put it into the
+> > changelog.
+> 
+> But that's not what's changed.
 
-    I have one question about how to use spin_lock.
+Just a guess - perhaps the following clarifies this point of confusion:
 
-    I read Documentation/spinlocks.txt wrote by Linus. The Lesson 1 and 
-2 are simple for me.
-But I confused in Lesson 3. The most doublt is why we can not use 
-spin_lock_irq*() version in
-interrupt handler?
+The "changelog" isn't so much for what you've changed, relative to the
+previous version of that patch.  It is for what will go into the Linux
+change history for this patch, when accepted.
 
-    At i386, I known the interrupt is disabled in interrupt handler. I 
-think this feature is
-supplied in handware-level. The spin_lock_irqrestore() will use  'sti'  
-instruction internal, it will change interrupt mask bit in FLAGS 
-register, do this have re-enable interrupt, even in interrput handler? I 
-can not sure this.
+To quote Documentation/SubmittingPatches, which calls this the
+"explanation body":
 
-    Thanks in advanced.
+    The explanation body will be committed to the permanent source
+    changelog, so should make sense to a competent reader who has long
+    since forgotten the immediate details of the discussion that might
+    have led to this patch.
 
--liyu
-   
-
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

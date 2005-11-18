@@ -1,39 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932478AbVKREcf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751496AbVKREt5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932478AbVKREcf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 23:32:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbVKREcf
+	id S1751496AbVKREt5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 23:49:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751509AbVKREt5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 23:32:35 -0500
-Received: from mx2.suse.de ([195.135.220.15]:29331 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932478AbVKREcf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 23:32:35 -0500
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Subject: Re: [PATCH] NUMA policies in the slab allocator V2
-Date: Fri, 18 Nov 2005 05:31:47 +0100
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, akpm@osdl.org
-References: <Pine.LNX.4.62.0511171745410.22486@schroedinger.engr.sgi.com> <200511180359.17598.ak@suse.de> <Pine.LNX.4.62.0511171925090.22785@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0511171925090.22785@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Nov 2005 23:49:57 -0500
+Received: from mgr2.xmission.com ([198.60.22.202]:56280 "EHLO
+	mgr2.xmission.com") by vger.kernel.org with ESMTP id S1751496AbVKREt4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 23:49:56 -0500
+Date: Thu, 17 Nov 2005 21:49:45 -0700
+From: Hans Fugal <hans@fugal.net>
+To: linux-kernel@vger.kernel.org
+Cc: Ingo Molnar <mingo@elte.hu>
+Message-ID: <20051118044945.GA6647@falcon.fugal.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511180531.47764.ak@suse.de>
+Content-Transfer-Encoding: 8BIT
+X-Editor: Vim http://vim.sf.net/
+X-Info: http://hans.fugal.net/
+X-Operating-System: Linux falcon 2.6.13-rt13
+User-Agent: Mutt/1.5.9i
+Subject: 2.6.14-rt13 panic on boot
+X-SA-Exim-Connect-IP: 166.70.27.96
+X-SA-Exim-Mail-From: fugalh@falcon.fugal.net
+X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
+X-SA-Exim-Scanned: Yes (on mgr4.xmission.com)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 18 November 2005 04:38, Christoph Lameter wrote:
-> You really want to run the useless fastpath? Examine lists etc for
-> the local node despite the policy telling you to get off node?
+2.6.14-rt13 panics on my machine during the boot process. It gets to the
+point where it loads my sound card, or just after (it goes by too fast
+to tell), and then panics verbosely. You can see the .config, a terrible
+movie, and screenshot at:
 
-Yes.
+http://hans.fugal.net/tmp/2.6.14-rt13
 
-> Hmm. Is a hugepage ever allocated from interrupt context?
-
-They aren't.
-
--Andi
+-- 
+Hans Fugal ; http://hans.fugal.net
+ 
+There's nothing remarkable about it. All one has to do is hit the 
+right keys at the right time and the instrument plays itself.
+    -- Johann Sebastian Bach

@@ -1,78 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161095AbVKRMsW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161088AbVKRMwH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161095AbVKRMsW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 07:48:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161099AbVKRMsW
+	id S1161088AbVKRMwH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 07:52:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161099AbVKRMwH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 07:48:22 -0500
-Received: from spirit.analogic.com ([204.178.40.4]:45573 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP
-	id S1161095AbVKRMsV convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 07:48:21 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <200511181351.41159.vda@ilport.com.ua>
-References: <Pine.LNX.4.61.0511171314440.10063@chaos.analogic.com> <200511181351.41159.vda@ilport.com.ua>
-X-OriginalArrivalTime: 18 Nov 2005 12:48:18.0170 (UTC) FILETIME=[5962C5A0:01C5EC3E]
+	Fri, 18 Nov 2005 07:52:07 -0500
+Received: from us01smtp1.synopsys.com ([198.182.44.79]:18687 "EHLO
+	boden.synopsys.com") by vger.kernel.org with ESMTP id S1161088AbVKRMwF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 07:52:05 -0500
 Content-class: urn:content-classes:message
-Subject: Re: Compaq Presario "reboot" problems
-Date: Fri, 18 Nov 2005 07:48:17 -0500
-Message-ID: <Pine.LNX.4.61.0511180747430.15582@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Compaq Presario "reboot" problems
-Thread-Index: AcXsPll9ZwRCkOt1S/unEJ2NP067Yg==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Denis Vlasenko" <vda@ilport.com.ua>
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
+Subject: RE: Does Linux has File Stream mapping support...?
+Date: Fri, 18 Nov 2005 18:21:59 +0530
+Message-ID: <7EC22963812B4F40AE780CF2F140AFE920906A@IN01WEMBX1.internal.synopsys.com>
+Thread-Topic: Does Linux has File Stream mapping support...?
+Thread-Index: AcXsO8jtdA+wMx7xTNml/n+jL9xOKQAAlpiw
+From: "Arijit Das" <Arijit.Das@synopsys.com>
+To: <7eggert@gmx.de>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 18 Nov 2005 12:52:04.0100 (UTC) FILETIME=[E00CF440:01C5EC3E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ye...I know of tee.
 
-On Fri, 18 Nov 2005, Denis Vlasenko wrote:
+But the issue here is I have a HUGE Compiler (an Simulation tool) in which thousands of places there are "printf" statements to print messages to STDOUT stream. Now, a requirement came up which needs all those messages thrown to STDOUT also to be logged in a LOGFILE (in addition to STDOUT). Yes, this can be done through tee...but the usage model of the compiler doesn't leave that possibility open for me. 
 
-> On Thursday 17 November 2005 20:51, linux-os (Dick Johnson) wrote:
->>
->> With Linux-2.4.26 I reported that if a Compaq gets rebooted while
->> running Linux-2.4.26, it will not be able to restart Windows 2000.
->> It cam restart Linux fine. Today, I tried the same thing with
->> Linux-2.6.13.4. It fails, too.
->>
->> The symptoms are that you just "reboot" Linux. When the GRUB loader
->> comes up, I select my Windows-2000/professional. That M$ Crap comes
->> up to where it's just about to start the high-resolution screen.
->> Then it stops forever, no interrupts, no nothing. I need to disconnect
->> power and remove the battery to recover.
->>
->> It appears as though Linux is still restarting as a "warm boot",
->> rather than a cold boot (in other words, putting magic in the
->> shutdown byte of CMOS) so the hardware doesn't get properly
->> initialized. Would somebody please check this out. When changing
->> operating systems, you need a cold-boot.
->
-> Can you check which driver does that? The test would be to
-> boot a special Linux setup which reboots immediately
-> (say, wuth init=/some/reboot_script.sh boot param).
->
-> Then start removing drivers from kernel until you
-> can boot Win successfully after Linux reboots.
-> --
-> vda
->
+So, am looking for a solution inside the Compiler code.
 
-Yes. Just as soom as I finish a "work break". I'll get back.
+Thanks,
+Arijit
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.44 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
+-----Original Message-----
+From: Bodo Eggert [mailto:harvested.in.lkml@7eggert.dyndns.org] 
+Sent: Friday, November 18, 2005 6:00 PM
+To: Arijit Das; linux-kernel@vger.kernel.org
+Subject: Re: Does Linux has File Stream mapping support...?
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+Arijit Das <Arijit.Das@synopsys.com> wrote:
 
-Thank you.
+> Is it possible to have File Stream Mapping in Linux? What I mean is
+> this...
+> 
+> FILE * fp1 = fopen("/foo", "w");
+> FILE * fp2 = fopen("/bar", "w");
+> FILE * fp_common = <Stream_Mapping_Func>(fp1, fp2);
+> 
+> fprint(fp_common, "This should be written to both files ... /foo and
+> /bar");
+
+It's a userspace problem. man "tee".
+
+Doing this in the kernel would be horrible.
+
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

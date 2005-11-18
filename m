@@ -1,85 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbVKRWhq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbVKRWlP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932116AbVKRWhq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 17:37:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbVKRWhq
+	id S932120AbVKRWlP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 17:41:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbVKRWlP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 17:37:46 -0500
-Received: from web50110.mail.yahoo.com ([206.190.38.38]:8873 "HELO
-	web50110.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S932116AbVKRWhp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 17:37:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=SV93cKCuXW3xQYTWgaceKdgHlOsyNIX0ZxszBLTNCzGimQxKQNPG8Zh+9zTOp1nw7mjciI+uOmYUj9wrESIazfiUfwE9gyCAW5FbRfc7RFQdXliGluCpjpddQruH+3Xu7ermMQPpTuI/hM1aAKZ8kokjv6+6sN84jXwYpWhOizo=  ;
-Message-ID: <20051118223744.88496.qmail@web50110.mail.yahoo.com>
-Date: Fri, 18 Nov 2005 14:37:44 -0800 (PST)
-From: Doug Thompson <norsk5@yahoo.com>
-Subject: [RFC] EDAC and /sys/devices/system
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 18 Nov 2005 17:41:15 -0500
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:38080 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S932120AbVKRWlO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 17:41:14 -0500
+Date: Fri, 18 Nov 2005 17:41:13 -0500
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: dvd writes truncated 3 Mbytes
+Message-ID: <20051118224113.GJ9488@csclub.uwaterloo.ca>
+References: <200511181703.47903.gene.heskett@verizon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200511181703.47903.gene.heskett@verizon.net>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, I have been playing now with the sysdev class of
-APIs for installing objects into /sys/devices/system.
-Unforturnately, the capabilities of that do not
-provide me with what I was wanting for EDAC.
+On Fri, Nov 18, 2005 at 05:03:47PM -0500, Gene Heskett wrote:
+> I've just tried to burn a dvd iso 4 times, 2 different brands of disks,
+> getting an identical but bad md5sum for all 4 writes.
+> 
+> K3B reports it has written 1160 or 1163 Mbytes each time, but doesn't
+> seem to have a problem with that.
+> 
+> Kernel is 2.6.14.2, without packet writing for cd/dvd turned on, but I
+> have one with it enabled building now.  K3B is 0.11.13, cdrecord is
+> 2.1(dvd), groisofs is 5.21, mkisofs is 2.1-a34.  The drive is a Lite-On
+> DVDRW SOHW-1673S.
+> 
+> Has anyone else encountered a similar problem?  I've been making
+> good cd's all along with no problems, in this new drive, till now.
 
-What I was wanting was an extra directory called
-'edac'. In that directory was to be various types of
-edac devices (memory controller and PCI Parity to
-start)
+Seems more of an application issue than a kernel issue.
 
-In the directory /sys/devices/system:
+Does it work from the command line (could be a k3b bug after all)?
 
-edac/mc/mc0/<attr and controls>
-edac/mc/mc1/<attr and controls>
-edac/mc/<attr and controls>
+cdrecord with dvd support (unless prodvd version) is not worth using on
+most drives.  growisofs is great for most drives.
 
-and
+The cdwrite mailinst list at lists.debian.org (not debian specific) is
+the best place I know to get answers to cd/dvd writing questions.
 
-edac/pci/<attr and controls>
-
-This would allow for future edac components.
-
-What I found out was that /sys/devices/system doesn't
-allow for nested subsystems. At least not from what I
-have read.
-
-With the current APIs I can have the following in
-/sys/devices/system:
-
-edac_mc/edac_mc0/<attr and controls>
-edac_mc/edac_mc1/<attr and controls>
-edac_mc/<attr and controls>
-
-and
-
-edac_pci/edac_pci0/<attr and controls>
-
-
-One solution is to add to the sysdev.c API set, but I
-just don't want to go there. 
-
-So, it seems that what I can implement is the last set
-of layout
-above.
-
-Thoughts?
-
-Thanks
-
-doug t
-
-
-
-"If you think Education is expensive, just try Ignorance"
-
-"Don't tell people HOW to do things, tell them WHAT you
-want and they will surprise you with their ingenuity."
-                   Gen George Patton
-
+Len Sorensen

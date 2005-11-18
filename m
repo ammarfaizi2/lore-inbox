@@ -1,42 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161025AbVKSAKm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161047AbVKSALm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161025AbVKSAKm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 19:10:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030271AbVKSAKm
+	id S1161047AbVKSALm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 19:11:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030271AbVKSALm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 19:10:42 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:5774 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1030266AbVKSAKm (ORCPT
+	Fri, 18 Nov 2005 19:11:42 -0500
+Received: from mail.kroah.org ([69.55.234.183]:25756 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030266AbVKSALm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 19:10:42 -0500
-Date: Fri, 18 Nov 2005 16:10:34 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Avi Kivity <avi@argo.co.il>
-Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [RFC][PATCH 0/8] Critical Page Pool
-Message-Id: <20051118161034.4ea38a09.pj@sgi.com>
-In-Reply-To: <437E3CC2.6000003@argo.co.il>
-References: <437E2C69.4000708@us.ibm.com>
-	<437E2F22.6000809@argo.co.il>
-	<437E30A8.1040307@us.ibm.com>
-	<437E3CC2.6000003@argo.co.il>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Fri, 18 Nov 2005 19:11:42 -0500
+Date: Fri, 18 Nov 2005 15:51:16 -0800
+From: Greg KH <greg@kroah.com>
+To: Ed Tomlinson <tomlins@cam.org>
+Cc: Ian McDonald <imcdnzl@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rc1-mm1
+Message-ID: <20051118235116.GA26405@kroah.com>
+References: <20051117111807.6d4b0535.akpm@osdl.org> <cbec11ac0511181314g7edaee33j47cbc6118228e49b@mail.gmail.com> <200511181816.01645.tomlins@cam.org> <200511181835.11719.tomlins@cam.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200511181835.11719.tomlins@cam.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Avi wrote:
-> This may not be possible. What if subsystem A depends on subsystem B to 
-> do its work, both are critical, and subsystem A allocated all the memory 
-> reserve?
+On Fri, Nov 18, 2005 at 06:35:11PM -0500, Ed Tomlinson wrote:
+> On Friday 18 November 2005 18:16, Ed Tomlinson wrote:
+> > On Friday 18 November 2005 16:14, Ian McDonald wrote:
+> > > On 11/19/05, Greg KH <greg@kroah.com> wrote:
+> > > > Are you using debian?
+> > > > If so, what version of udev are you using?  There are some known
+> > > > reported problems with this, so I would suggest referring to the udev
+> > > > bug list.
+> > > >
+> > > In particular check the version requirements for udev - you need to be
+> > > on a version greater than or equal to 71. Sarge/stable has a really
+> > > old version. In particular I am running unstable as I had too many
+> > > funny errors (including this one) - but etch should be fine.
+> > > 
+> > > If running another distribution check this also as it is a real requirement.
+> > > 
+> > > To find the latest version of udev required check Documentation/Changes
+> > 
+> > devinfo -v 
+> > udevinfo, version 074 
+> > 
+> > dpkg -s 
+> > Package: udev
+> > Status: install ok installed
+> > Priority: extra
+> > Section: admin
+> > Installed-Size: 1072
+> > Maintainer: Marco d'Itri <md@linux.it>
+> > Architecture: amd64
+> > Version: 0.074-3
+> > 
+> > Interestingly the same udev works fine with 14-rc4-mm1.  I'll check the debian
+> > bugs.
+> 
+> There does not seem to be anything that fits this reported as a debian bug.  Where
+> is the udev bugs list?
 
-Apparently Matthew's subsystems have some knowable upper limits on
-their critical memory needs, so that your scenario can be avoided.
+For Debian?  I have no idea as I do not use it :)
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+For general udev issues/queries try the linux-hotplug-devel mailing
+list.
+
+Oh, and are you sure you actually have the proper module loaded?
+
+thanks,
+
+greg k-h

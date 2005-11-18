@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161246AbVKRVOF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750950AbVKRVTN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161246AbVKRVOF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 16:14:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161249AbVKRVOF
+	id S1750950AbVKRVTN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 16:19:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750956AbVKRVTN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 16:14:05 -0500
-Received: from wproxy.gmail.com ([64.233.184.195]:7951 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161246AbVKRVOE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 16:14:04 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pj9oaKSDdR/zyutwfRYnUo7KVz6vl/59PPhQIAYoPmZwX4lmQ+fnju3lNwi6uYJkNk6VkCKJDXIn8MHdQMf/Ii5sCtkKWCM0jLU+DAHQOa2rZUMxCYgSLwzbkGRJ3f++1ScwGb7sP1U5zpGlSglYQUIv1twTBRot3dREWlIOfFU=
-Message-ID: <cbec11ac0511181314g7edaee33j47cbc6118228e49b@mail.gmail.com>
-Date: Sat, 19 Nov 2005 10:14:03 +1300
-From: Ian McDonald <imcdnzl@gmail.com>
-To: Greg KH <greg@kroah.com>
-Subject: Re: 2.6.15-rc1-mm1
-Cc: Ed Tomlinson <tomlins@cam.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20051118203727.GA23151@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 18 Nov 2005 16:19:13 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:50589 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750935AbVKRVTN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 16:19:13 -0500
+Date: Fri, 18 Nov 2005 16:18:47 -0500
+From: Dave Jones <davej@redhat.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+Subject: Re: [linux-pm] [RFC] userland swsusp
+Message-ID: <20051118211847.GA3881@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@ucw.cz>,
+	kernel list <linux-kernel@vger.kernel.org>,
+	"Rafael J. Wysocki" <rjw@sisk.pl>,
+	Linux-pm mailing list <linux-pm@lists.osdl.org>
+References: <20051115212942.GA9828@elf.ucw.cz> <20051115222549.GF17023@redhat.com> <1132342590.25914.86.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20051117111807.6d4b0535.akpm@osdl.org>
-	 <200511180743.44838.tomlins@cam.org>
-	 <20051118203727.GA23151@kroah.com>
+In-Reply-To: <1132342590.25914.86.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/19/05, Greg KH <greg@kroah.com> wrote:
-> Are you using debian?
-> If so, what version of udev are you using?  There are some known
-> reported problems with this, so I would suggest referring to the udev
-> bug list.
->
-In particular check the version requirements for udev - you need to be
-on a version greater than or equal to 71. Sarge/stable has a really
-old version. In particular I am running unstable as I had too many
-funny errors (including this one) - but etch should be fine.
+On Fri, Nov 18, 2005 at 07:36:29PM +0000, Alan Cox wrote:
+ > On Maw, 2005-11-15 at 17:25 -0500, Dave Jones wrote:
+ > > Just for info: If this goes in, Red Hat/Fedora kernels will fork
+ > > swsusp development, as this method just will not work there.
+ > > (We have a restricted /dev/mem that prevents writes to arbitary
+ > >  memory regions, as part of a patchset to prevent rootkits)
+ > 
+ > Perhaps it is trying to tell you that you should be using SELinux rules
+ > not kernel hacks for this purpose ?
 
-If running another distribution check this also as it is a real requirement.
+I don't think selinux can give you the granularity to say
+"process can access this bit of the file only", at least not yet.
 
-To find the latest version of udev required check Documentation/Changes
+Even if that was capable however, it still doesn't solve the problem.
+Pavel's implementation wants to write to arbitary address spaces, which is
+what we're trying to prevent. The two are at odds with each other.
 
-Ian
---
-Ian McDonald
-http://wand.net.nz/~iam4
-WAND Network Research Group
-University of Waikato
-New Zealand
+		Dave
+

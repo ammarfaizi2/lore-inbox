@@ -1,97 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030594AbVKRJ3E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030597AbVKRJhw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030594AbVKRJ3E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 04:29:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030598AbVKRJ3E
+	id S1030597AbVKRJhw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 04:37:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030598AbVKRJhw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 04:29:04 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:51177 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030594AbVKRJ3D (ORCPT
+	Fri, 18 Nov 2005 04:37:52 -0500
+Received: from main.gmane.org ([80.91.229.2]:8930 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1030597AbVKRJhv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 04:29:03 -0500
-Date: Fri, 18 Nov 2005 10:29:09 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: David Singleton <dsingleton@mvista.com>
-Cc: dino@in.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: PI BUG with -rt13
-Message-ID: <20051118092909.GC4858@elte.hu>
-References: <20051117161817.GA3935@in.ibm.com> <437D0C59.1060607@mvista.com>
+	Fri, 18 Nov 2005 04:37:51 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?Q?Bj=F8rn_Mork?= <bmork@dod.no>
+Subject: Re: Resume from swsusp stopped working with 2.6.14 and 2.6.15-rc1
+Date: Fri, 18 Nov 2005 10:37:03 +0100
+Organization: Doodads Olivia Decades
+Message-ID: <87u0eathz4.fsf@obelix.mork.no>
+References: <87zmoa0yv5.fsf@obelix.mork.no>
+	<d120d5000511171357g4d7a8d54hcc1c1d1cffa8856e@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <437D0C59.1060607@mvista.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: obelix.mork.no
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+Cancel-Lock: sha1:bPhUT6u/2oSRz3pV+IZ4X3mrnio=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
+> On 11/12/05, Bjørn Mork <bmork@dod.no> wrote:
+>> IPv6 over IPv4 tunneling driver
+>> NET: Registered protocol family 17
+>> Using IPI Shortcut mode
+>> Stopping tasks: ===<6>Synaptics Touchpad, model: 1, fw: 5.9, id: 0x2c6ab1, caps: 0x884793/0x0
+>> serio: Synaptics pass-through port at isa0060/serio1/input0
+>> input: SynPS/2 Synaptics TouchPad as /class/input/input1
+>>
+>>  stopping tasks failed (1 tasks remaining)
+>> Restarting tasks...<6> Strange, kseriod not stopped
+>>  done
+>
+> Crazy idea - did you let it finish booting or you hit suspend as soon
+> as you could? It looks like kseriod was busy discovering your
+> touchpad/trackpoint for the first time...
 
-* David Singleton <dsingleton@mvista.com> wrote:
+The boot was complete, even including X running.
 
-> >I was testing PI support in the -rt tree (-rt13) when I hit the BUG
-> >below. I am using the BULL/Montavista glibc patches. However I would
-> >think this can be reproduced using just plain FUTEX_WAKE/WAIT_ROBUST
-> >APIs as well, though I havent tried.  I can send out the test code
-> >if anybody is interested. I have attached the .config below.
-> > 
-> >
+> Anyway, Pavel, I think 6 seconds it too short of a timeout for
+> stopping all tasks. PS/2 is pretty slow, trackpad reset can take up to
+> 2 seconds alone...
+>
+> Bjorn, does it help if you change TIMEOUT in kernel/power/process.c to 30 * HZ?
 
->    If I make the lock in the timer_base_s struct a raw spinlock this 
-> BUG goes away.
+Yup.  Resume is working with this change in an otherwise unchanged
+2.6.15-rc1, so that seems to be it.
 
-that most likely just papers over the real bug. Given task-reference 
-count bug i fixed in the robust/PI-futexes code (see the patch below) i 
-suspect some more races and/or plain incorrect code.
+Thanks.
 
-[this patch below also converts the robust/PI-futex code to use RCU 
-instead of the tasklist_lock - which should remove a major latency 
-source from the futex code].
 
-	Ingo
+Bjørn
+-- 
+You sound like a real weakling.
 
-Index: linux/kernel/rt.c
-===================================================================
---- linux.orig/kernel/rt.c
-+++ linux/kernel/rt.c
-@@ -2939,15 +2939,20 @@ EXPORT_SYMBOL(rt_mutex_owned_by);
-  * and now own the lock, or negative values for failure, or positive
-  * values for the amount of time we waited before getting the lock.
-  */
--int fastcall down_futex(struct rt_mutex *lock, unsigned long time, pid_t owner_pid)
-+int fastcall
-+down_futex(struct rt_mutex *lock, unsigned long time, pid_t owner_pid)
- {
- 	struct task_struct *owner_task = NULL;
- #ifdef CONFIG_DEBUG_DEADLOCKS
- 	unsigned long eip = CALLER_ADDR0;
- #endif
--	read_lock(&tasklist_lock);
-+	int ret;
-+
-+	rcu_read_lock();
- 	owner_task = find_task_by_pid(owner_pid);
--	read_unlock(&tasklist_lock);
-+	if (!get_task_struct_rcu(owner_task))
-+		owner_task = NULL;
-+	rcu_read_unlock();
- 
- 	if (!owner_task)
- 		return -EOWNERDEAD;
-@@ -2956,7 +2961,10 @@ int fastcall down_futex(struct rt_mutex 
- 		__down_mutex(lock __EIP__);
- 		rt_mutex_set_owner(lock, owner_task->thread_info);
- 	}
--	return __down_interruptible(lock, time __EIP__);
-+	ret = __down_interruptible(lock, time __EIP__);
-+	put_task_struct(owner_task);
-+
-+	return ret;
- }
- EXPORT_SYMBOL(down_futex);
- 

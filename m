@@ -1,97 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161106AbVKRNBK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030600AbVKRNFh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161106AbVKRNBK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 08:01:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161107AbVKRNBK
+	id S1030600AbVKRNFh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 08:05:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030601AbVKRNFh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 08:01:10 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:24876 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161106AbVKRNBJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 08:01:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=fUFj+D7aXWrtbKgfQL+EEsxGjAnTKTX9OZrTBhWrDxvTp6fHW3DY8EKqPrAuHrSaf1ak0sp0eOKU8ndO+99EROfgheDvRiLI1hVkiinaoSgM+g7CWKpe1ctGTWNFPFJjBUZ3hR7d8ta/jTvvOTJB3KZyfGsd0RH1VkNLQnkN2so=
-Message-ID: <6880bed30511180501r1fd6edd1hc64258842b8b0567@mail.gmail.com>
-Date: Fri, 18 Nov 2005 14:01:08 +0100
-From: Bas Westerbaan <bas.westerbaan@gmail.com>
-To: Arijit Das <Arijit.Das@synopsys.com>
-Subject: Re: Does Linux has File Stream mapping support...?
-Cc: 7eggert@gmx.de, linux-kernel@vger.kernel.org
-In-Reply-To: <6880bed30511180459s66efa480y9a8c5f90b1bc73ac@mail.gmail.com>
+	Fri, 18 Nov 2005 08:05:37 -0500
+Received: from mail-in-06.arcor-online.net ([151.189.21.46]:43992 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1030600AbVKRNFg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 08:05:36 -0500
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+To: Denis Vlasenko <vda@ilport.com.ua>,
+       Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>,
+       Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Fri, 18 Nov 2005 14:06:09 +0100
+References: <58YAt-3Fs-5@gated-at.bofh.it> <59ecB-15H-13@gated-at.bofh.it> <59htx-69E-13@gated-at.bofh.it> <5acUX-PU-31@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <7EC22963812B4F40AE780CF2F140AFE920906A@IN01WEMBX1.internal.synopsys.com>
-	 <6880bed30511180459s66efa480y9a8c5f90b1bc73ac@mail.gmail.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1Ed5wP-0000cs-VL@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Or you could - more cleanly - do a replace through all your source
-files (with an editor or a tool) which replaces printf with log (or
-something similar) and implement that function with the code to write
-to the log file and to stdout.
+Denis Vlasenko <vda@ilport.com.ua> wrote:
+> On Wednesday 16 November 2005 00:27, Giridhar Pemmasani wrote:
 
-On 11/18/05, Bas Westerbaan <bas.westerbaan@gmail.com> wrote:
-> Maybe an (ugly) way around it would be to simply use a parent process
-> which captures the stdout of your compiler and writes it to the log
-> file and prints it to its own stdout.
->
->
-> On 11/18/05, Arijit Das <Arijit.Das@synopsys.com> wrote:
-> > Ye...I know of tee.
-> >
-> > But the issue here is I have a HUGE Compiler (an Simulation tool) in which thousands of places there are "printf" statements to print messages to STDOUT stream. Now, a requirement came up which needs all those messages thrown to STDOUT also to be logged in a LOGFILE (in addition to STDOUT). Yes, this can be done through tee...but the usage model of the compiler doesn't leave that possibility open for me.
-> >
-> > So, am looking for a solution inside the Compiler code.
-> >
-> > Thanks,
-> > Arijit
-> >
-> > -----Original Message-----
-> > From: Bodo Eggert [mailto:harvested.in.lkml@7eggert.dyndns.org]
-> > Sent: Friday, November 18, 2005 6:00 PM
-> > To: Arijit Das; linux-kernel@vger.kernel.org
-> > Subject: Re: Does Linux has File Stream mapping support...?
-> >
-> > Arijit Das <Arijit.Das@synopsys.com> wrote:
-> >
-> > > Is it possible to have File Stream Mapping in Linux? What I mean is
-> > > this...
-> > >
-> > > FILE * fp1 = fopen("/foo", "w");
-> > > FILE * fp2 = fopen("/bar", "w");
-> > > FILE * fp_common = <Stream_Mapping_Func>(fp1, fp2);
-> > >
-> > > fprint(fp_common, "This should be written to both files ... /foo and
-> > > /bar");
-> >
-> > It's a userspace problem. man "tee".
-> >
-> > Doing this in the kernel would be horrible.
-> >
-> > --
-> > Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-> > verbreiteten Lügen zu sabotieren.
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
->
->
->
-> --
-> Bas Westerbaan
-> http://blog.w-nz.com/
-> GPG Public Keys: http://w-nz.com/keys/bas.westerbaan.asc
->
+[because of ndiswrapper, ...]
 
+> Companies got nice excuse for not giving us docs, making those
+> months/years even longer.
 
---
-Bas Westerbaan
-http://blog.w-nz.com/
-GPG Public Keys: http://w-nz.com/keys/bas.westerbaan.asc
+<snip>
+
+> Ok, how can we make any progress on obtaining docs for TI acx wireless
+> chipset? Or on Prism54 "softmac" chipset? The reply is "Open source
+> driver already exists (ndiswrapper), go away".
+
+That why are these cards (Netgear WG511) are documented as being supported
+in the CONFIG_PRISM54 help text. I asume the list was copied from the same
+bad list of supported cards that made me buy one in the first place. If
+there was no ndiswrapper support, I'd have been fooled to completely waste
+my money, with ndiswrapper I can at least partially use it. I do neither
+want to wait some years to use a by-then obsolete card nor can I help
+developing a driver beyond doing some testing.
+
+BTW: What about creating a "Native linux support" logo saying "If you find
+a slot and plug it in, you can use it with a vanilla kernel on any arch and
+get vendor support"? That would help against Netgear's faksimile products of
+working models or ATI's claims for having "linux support".
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

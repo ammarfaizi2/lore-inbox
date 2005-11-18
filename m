@@ -1,97 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161194AbVKRUln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbVKRUms@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161194AbVKRUln (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 15:41:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161196AbVKRUln
+	id S964782AbVKRUms (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 15:42:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbVKRUms
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 15:41:43 -0500
-Received: from odyssey.analogic.com ([204.178.40.5]:16403 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1161194AbVKRUll convert rfc822-to-8bit (ORCPT
+	Fri, 18 Nov 2005 15:42:48 -0500
+Received: from fw5.argo.co.il ([194.90.79.130]:26375 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S964782AbVKRUmq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 15:41:41 -0500
+	Fri, 18 Nov 2005 15:42:46 -0500
+Message-ID: <437E3CC2.6000003@argo.co.il>
+Date: Fri, 18 Nov 2005 22:42:42 +0200
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <437E3617.8000207@superbug.demon.co.uk>
-References: <7EC22963812B4F40AE780CF2F140AFE920904A@IN01WEMBX1.internal.synopsys.com> <437E3617.8000207@superbug.demon.co.uk>
-X-OriginalArrivalTime: 18 Nov 2005 20:41:40.0107 (UTC) FILETIME=[7A426DB0:01C5EC80]
-Content-class: urn:content-classes:message
-Subject: Re: Does Linux has File Stream mapping support...?
-Date: Fri, 18 Nov 2005 15:41:39 -0500
-Message-ID: <Pine.LNX.4.61.0511181530010.10758@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Does Linux has File Stream mapping support...?
-Thread-Index: AcXsgHpJboExxuTMTTKNdHghwSqbVw==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "James Courtier-Dutton" <James@superbug.demon.co.uk>
-Cc: "Arijit Das" <Arijit.Das@synopsys.com>,
-       "Linux kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: Matthew Dobson <colpatch@us.ibm.com>
+CC: linux-kernel@vger.kernel.org, Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [RFC][PATCH 0/8] Critical Page Pool
+References: <437E2C69.4000708@us.ibm.com> <437E2F22.6000809@argo.co.il> <437E30A8.1040307@us.ibm.com>
+In-Reply-To: <437E30A8.1040307@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Nov 2005 20:42:44.0965 (UTC) FILETIME=[A0EAF950:01C5EC80]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matthew Dobson wrote:
 
-On Fri, 18 Nov 2005, James Courtier-Dutton wrote:
-
-> Arijit Das wrote:
->> Is it possible to have File Stream Mapping in Linux? What I mean is
->> this...
->>
->> FILE * fp1 = fopen("/foo", "w");
->> FILE * fp2 = fopen("/bar", "w");
->> FILE * fp_common = <Stream_Mapping_Func>(fp1, fp2);
->>
->> fprint(fp_common, "This should be written to both files ... /foo and
->> /bar");
->>
->> So, what I am looking for is anything written to "fp_common" should
->> actually be written to the streams fp1 and fp2.
->>
->> Does Linux support this any way? Is there any way to achieve this...? Is
->> there anything like <Stream_Mapping_Func>(above) ...?
->>
->> Do pardon me if you feel that it is a wrong Forum to ask this question
->> but I tried everywhere else and thought that implementers would best
->> know about it, if at all anything like that exists.
->>
->> Thanks,
->> Arijit
->> -
+>Avi Kivity wrote:
+>  
 >
-> Why not just output to a file, and then use "tail -f filename"
+>>1. If you have two subsystems which allocate critical pages, how do you
+>>protect against the condition where one subsystem allocates all the
+>>critical memory, causing the second to oom?
+>>    
+>>
+>
+>You don't.  You make sure that you size the critical pool appropriately for
+>your workload.
+>
+>  
+>
+This may not be possible. What if subsystem A depends on subsystem B to 
+do its work, both are critical, and subsystem A allocated all the memory 
+reserve?
+If A and B have different allocation thresholds, the deadlock is avoided.
 
-I just did a 'google' to see if anybody had such a function.
-It looks like he's going to have to write his own because there
-isn't anything like that yet.
+At the very least you need a critical pool per subsystem.
 
-I don't know what you'd use it for because it's easy to
-make two or more...
- 	fputs(buffer, file1);
- 	fputs(buffer, file2);
- 	fputs(buffer, file3);
-...etc.
+>  
+>
+>>2. There already exists a critical pool: ordinary allocations fail if
+>>free memory is below some limit, but special processes (kswapd) can
+>>allocate that memory by setting PF_MEMALLOC. Perhaps this should be
+>>extended, possibly with a per-process threshold.
+>>    
+>>
+>
+>The exception for threads with PF_MEMALLOC set is there because those
+>threads are essentially promising that if the kernel gives them memory,
+>they will use that memory to free up MORE memory.  If we ignore that
+>promise, and (ab)use the PF_MEMALLOC flag to simply bypass the
+>zone_watermarks, we'll simply OOM faster, and potentially in situations
+>that could be avoided (ie: we steal memory that kswapd could have used to
+>free up more memory).
+>  
+>
+Sure, but that's just an example of a critical subsystem.
 
-Also, if he's using terminal I/O scripts, he should investigate
-`tee`.
+If we introduce yet another mechanism for critical memory allocation, 
+we'll have a hard time making different subsystems, which use different 
+critical allocation mechanisms, play well together.
 
-Maybe he thinks that stuff would get written simultaneously if
-there were any such function!
+I propose that instead of a single watermark, there should be a 
+watermark per critical subsystem. The watermarks would be arranged 
+according to the dependency graph, with the depended-on services allowed 
+to go the deepest into the reserves.
 
-Arijit, computers can't walk and chew gum at the same time.
-Nothing gets written simultaneously! Just chose the order at
-which you would like to have buffered I/O occur and, except
-for 'stderr' even that order isn't guaranteed!
+(instead of PF_MEMALLOC have a tsk->memory_allocation_threshold, or 
+similar. set it to 0 for kswapd, and for other systems according to taste)
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.54 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

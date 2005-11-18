@@ -1,89 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbVKRW6I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751087AbVKRXBH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751079AbVKRW6I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 17:58:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbVKRW6I
+	id S1751087AbVKRXBH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 18:01:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbVKRXBH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 17:58:08 -0500
-Received: from zproxy.gmail.com ([64.233.162.192]:53032 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751079AbVKRW6H (ORCPT
+	Fri, 18 Nov 2005 18:01:07 -0500
+Received: from zeus1.kernel.org ([204.152.191.4]:5793 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751087AbVKRXBG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 17:58:07 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer;
-        b=q6v8UP+aL8UYGvjg4+uTUtxDI1X2GnFksz+54CkUI5TpjIBrhl3HBk4x0OReAG9QjUchWFINQ16cZPEpcXTVLLRsqi9ELDL0Uf+UOo0zc3tblWarYt4VJji45hjPDsrvnKAXCp6DKBgyp0HDzoqkriRZrtsfRWOVIoAzbyo6E8A=
-Subject: re: 2.6.15-rc1-mm2 - strace unhappy
-From: Badari Pulavarty <pbadari@gmail.com>
-To: Kenny Simpson <theonetruekenny@yahoo.com>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051118205741.97473.qmail@web34113.mail.mud.yahoo.com>
-References: <20051118205741.97473.qmail@web34113.mail.mud.yahoo.com>
-Content-Type: multipart/mixed; boundary="=-uGyjG8Cw2tksbTA1C5pf"
-Date: Fri, 18 Nov 2005 14:58:01 -0800
-Message-Id: <1132354681.24066.192.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Fri, 18 Nov 2005 18:01:06 -0500
+Date: Fri, 18 Nov 2005 23:37:44 +0100
+Message-Id: <200511182237.jAIMbi8N030215@erigona.fi.muni.cz>
+From: Jiri Slaby <jirislaby@gmail.com>
+To: Bernhard Rosenkraenzer <bero@arklinux.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: 2.6.15-rc1-mm2 breaks strace
+In-reply-to: <200511182240.34512.bero@arklinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bernhard Rosenkraenzer wrote:
+>2.6.15-rc1-mm2 works nicely here, aside from the artsd stuff someone else 
+>already reported, and an new issue with strace (last known working: 
+>2.6.14-mm2)
+I think, that the problem emerged in rc1-mm1, there are some changes in ptrace.c
+(2.6.14-mm2 works fine for me).
+>
+>[bero@localhost bero]$ strace ls
+>execve("/bin/ls", ["ls"], [/* 33 vars */]) = 0
+>Segmentation fault
+>[ls output without any traces beyond execve-ing ls displayed here]
+>
+>Also interesting:
+>[bero@localhost bero]$ strace strace ls
+>execve("/usr/bin/strace", ["strace", "ls"], [/* 20 vars */]) = 0
+>Segmentation fault
+>execve("/bin/ls", ["ls"], [/* 20 vars */]) = 0
+>[ls output without any traces displayed here]
 
---=-uGyjG8Cw2tksbTA1C5pf
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+And I have this in logs:
 
-On Fri, 2005-11-18 at 12:57 -0800, Kenny Simpson wrote:
-> strace causes the kernel to croak:
-> 
-> cd /tmp
-> strace ls
-> *BOOM*
-> 
-> Nov 18 15:44:31 tux6127 kernel: [  221.522945] c0126b5b
-> Nov 18 15:44:31 tux6127 kernel: [  221.523069] PREEMPT SMP DEBUG_PAGEALLOC
-> Nov 18 15:44:31 tux6127 kernel: [  221.523268] Modules linked in: autofs4 parport_pc parport
-> floppy rtc i2c_i801 i2c_core generic usbhid uhci_hcd tg3 snd_intel8x0 snd_ac97_codec snd_ac97_bus
-> snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd soundcore snd_page_alloc ehci_hcd usbcore mousedev
-> e1000 bcm5700 unix
-> Nov 18 15:44:31 tux6127 kernel: [  221.524392] CPU:    0
-> Nov 18 15:44:31 tux6127 kernel: [  221.524393] EIP:    0060:[<c0126b5b>]    Not tainted VLI
-> Nov 18 15:44:31 tux6127 kernel: [  221.524394] EFLAGS: 00010202   (2.6.15-rc1-mm2) 
-> Nov 18 15:44:31 tux6127 kernel: [  221.524525] EIP is at ptrace_check_attach+0x24/0xc4
+Unable to handle kernel NULL pointer dereference at virtual address 00000010 printing eip:
+c0125a25
+*pde = 00000000
+Oops: 0000 [#1]
+PREEMPT SMP 
+last sysfs file: /devices/platform/i2c-9191/9191-0290/temp3_input
+Modules linked in: usblp it87 hwmon_vid i2c_isa sunrpc ipv6 video ohci1394 ieee1394 emu10k1_gp gameport ide_cd cdrom
+CPU:    0
+EIP:    0060:[<c0125a25>]    Not tainted VLI
+EFLAGS: 00210206   (2.6.15-rc1-mm2) 
+EIP is at ptrace_check_attach+0x19/0xb8
+eax: 00ffffff   ebx: 00000000   ecx: c5ea0b3c   edx: c5ea0b38
+esi: 00000000   edi: 00000000   ebp: c6106f90   esp: c6106f80
+ds: 007b   es: 007b   ss: 0068
+Process strace (pid: 23486, threadinfo=c6106000 task=c17ba550)
+Stack: c01262dc 00000000 00000000 00000018 c6106fb4 c0126344 00000000 00000000 
+       00000000 c6106fbc 00000018 00000000 5000cff4 c6106000 c0102e15 00000018 
+       00005bbf 00000001 00000000 5000cff4 bf8ced48 ffffffda 0000007b c010007b 
+Call Trace:
+ [<c0103c82>] show_stack+0x9a/0xd0
+ [<c0103e42>] show_registers+0x16a/0x1fa
+ [<c010407c>] die+0x123/0x1ae
+ [<c03c3b3c>] do_page_fault+0x33c/0x66e
+ [<c010393b>] error_code+0x4f/0x54
+ [<c0126344>] sys_ptrace+0x5a/0xcf
+ [<c0102e15>] syscall_call+0x7/0xb
+Code: cc ba 42 c0 c7 43 68 c8 ba 42 c0 89 50 04 89 02 eb a4 55 89 e5 57 56 53 83 ec 04 8b 75 08 8b 7d 0c b8 00 2d 4c c0 e8 16 d5 29 00 <8b> 56 10 f6 c2 01 75 25 bb fd ff ff ff b8 00 2d 4c c0 e8 65 d7 
+ <3>BUG: strace[23486] exited with nonzero preempt_count 1!
 
-
-
-Christoph sent this patch earlier, which fixed same problem for me.
-
-
-Thanks,
-Badari
-
-
-
---=-uGyjG8Cw2tksbTA1C5pf
-Content-Disposition: attachment; filename=ptrace-fix.patch
-Content-Type: text/x-patch; name=ptrace-fix.patch; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
-Looks like 2.6.15-rc1-mm1 has total crap in ptrace_get_task_struct
-(and it looks like my fault because I sent out a wrong patch).
-
-The patch below should fix it:
-
-Index: linux-2.6/kernel/ptrace.c
-===================================================================
---- linux-2.6.orig/kernel/ptrace.c	2005-11-18 10:25:35.000000000 +0100
-+++ linux-2.6/kernel/ptrace.c	2005-11-18 10:25:54.000000000 +0100
-@@ -459,7 +459,7 @@
- 	read_unlock(&tasklist_lock);
- 	if (!child)
- 		return ERR_PTR(-ESRCH);
--	return 0;
-+	return child;
- }
- 
- #ifndef __ARCH_SYS_PTRACE
-
-
---=-uGyjG8Cw2tksbTA1C5pf--
-
+regards,
+--
+Jiri Slaby         www.fi.muni.cz/~xslaby
+\_.-^-._   jirislaby@gmail.com   _.-^-._/
+B67499670407CE62ACC8 22A032CC55C339D47A7E

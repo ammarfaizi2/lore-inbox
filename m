@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161109AbVKRMfh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161093AbVKRMnx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161109AbVKRMfh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 07:35:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161107AbVKRMfh
+	id S1161093AbVKRMnx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 07:43:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161095AbVKRMnw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 07:35:37 -0500
-Received: from postel.suug.ch ([195.134.158.23]:43482 "EHLO postel.suug.ch")
-	by vger.kernel.org with ESMTP id S1161105AbVKRMfg (ORCPT
+	Fri, 18 Nov 2005 07:43:52 -0500
+Received: from aeimail.aei.ca ([206.123.6.84]:61911 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S1161093AbVKRMnw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 07:35:36 -0500
-Date: Fri, 18 Nov 2005 13:35:57 +0100
-From: Thomas Graf <tgraf@suug.ch>
-To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>
-Cc: yanzheng@21cn.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [DEBUG INFO]IPv6: sleeping function called from invalid context.
-Message-ID: <20051118123557.GD20395@postel.suug.ch>
-References: <437D23EB.4020204@21cn.com> <20051118.094721.49574151.yoshfuji@linux-ipv6.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 18 Nov 2005 07:43:52 -0500
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.15-rc1-mm1
+Date: Fri, 18 Nov 2005 07:43:44 -0500
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <20051117111807.6d4b0535.akpm@osdl.org>
+In-Reply-To: <20051117111807.6d4b0535.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20051118.094721.49574151.yoshfuji@linux-ipv6.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200511180743.44838.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* YOSHIFUJI Hideaki / ?$B5HF#1QL@ <yoshfuji@linux-ipv6.org> 2005-11-18 09:47
-> In article <437D23EB.4020204@21cn.com> (at Fri, 18 Nov 2005 08:44:27 +0800), Yan Zheng <yanzheng@21cn.com> says:
-> 
-> > I get follow message when switch to single user mode and the kernel version is 2.6.15-rc1-git5.
-> :
-> > Nov 18 08:26:23 localhost kernel: Debug: sleeping function called from invalid context at mm/slab.c:2472
-> > Nov 18 08:26:23 localhost kernel: in_atomic():1, irqs_disabled():0
-> > Nov 18 08:26:23 localhost kernel:  [<c0149d5a>] kmem_cache_alloc+0x5a/0x70
-> > Nov 18 08:26:23 localhost kernel:  [<e0f47336>] inet6_dump_fib+0xb6/0x110 [ipv6]
-> 
-> I remember someone replaced GFP_ATOMIC with GFP_KERNEL...
+On Thursday 17 November 2005 14:18, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc1/2.6.15-rc1-mm1
 
-I did. I think it was right, why would an allocation be necessary on
-the second call to inet6_dump_fib()? The walker allocated in process
-context on the first call should be reused from cb->args[0].
+Hi,
+
+Any ideas why the mousedev module does not load automaticly with 15-rc1-mm1?
+
+With 14-rc4-mm1 all is ok.  With 15-rc1-mm1 I have no /dev/input which causes Xorg fun.  The 
+mouse is connected to a usb hub and is detected when I unplug and replug it.  I used make oldconfig 
+from a 14-rc4-mm1 config.  Dist is debian amd64 unstable and is up to date.
+
+When I manually modprobe mousedev things work as expected
+
+DRM works fine and dri is enabled.
+
+Ideas,
+Ed Tomlinson

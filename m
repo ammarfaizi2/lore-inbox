@@ -1,60 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030559AbVKRIoQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932617AbVKRI4q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030559AbVKRIoQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 03:44:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030565AbVKRIoQ
+	id S932617AbVKRI4q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 03:56:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932620AbVKRI4q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 03:44:16 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:54477 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1030559AbVKRIoP (ORCPT
+	Fri, 18 Nov 2005 03:56:46 -0500
+Received: from nproxy.gmail.com ([64.233.182.197]:49387 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932617AbVKRI4p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 03:44:15 -0500
-Date: Fri, 18 Nov 2005 00:43:59 -0800
-From: Paul Jackson <pj@sgi.com>
-To: David Howells <dhowells@redhat.com>
-Cc: akpm@osdl.org, sct@redhat.com, dhowells@redhat.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, linux-cachefs@redhat.com,
-       linux-fsdevel@vger.kernel.org, nfsv4@linux-nfs.org
-Subject: Re: [PATCH 0/12] FS-Cache: Generic filesystem caching facility
-Message-Id: <20051118004359.3e69626b.pj@sgi.com>
-In-Reply-To: <4204.1132255682@warthog.cambridge.redhat.com>
-References: <20051116035639.3eaa7a35.akpm@osdl.org>
-	<20051115112504.4b645a86.akpm@osdl.org>
-	<20051114150347.1188499e.akpm@osdl.org>
-	<dhowells1132005277@warthog.cambridge.redhat.com>
-	<Pine.LNX.4.64.0511141428390.3263@g5.osdl.org>
-	<11717.1132077542@warthog.cambridge.redhat.com>
-	<1932.1132140406@warthog.cambridge.redhat.com>
-	<4204.1132255682@warthog.cambridge.redhat.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Nov 2005 03:56:45 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=povoosXde+OesvvSq2JZsL0463EvLd1wQ8GeTaOP4kEo6spcEd5LIHMrwlX0lnxuohoCXmoz9jdqaxKlbDEr6aHAOrMHkUSTbdb8aaqairl2Ao3IyLFhBdC1mY1z2GbhZJiXV+guElRQxh+zdn/kfZn3kqRCR4IiHar0vYzc2Tc=
+Message-ID: <40f323d00511180056i5bafa5c3qffbd3b774b499ac4@mail.gmail.com>
+Date: Fri, 18 Nov 2005 09:56:43 +0100
+From: Benoit Boissinot <benoit.boissinot@ens-lyon.fr>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.15-rc1-mm2
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051117234645.4128c664.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_1369_8877175.1132304203974"
+References: <20051117234645.4128c664.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David wrote:
-> > Maybe on the fourth or fifth time it'll occur you to put it into the
-> > changelog.
-> 
-> But that's not what's changed.
+------=_Part_1369_8877175.1132304203974
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Just a guess - perhaps the following clarifies this point of confusion:
+On 11/18/05, Andrew Morton <akpm@osdl.org> wrote:
+>
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc1/=
+2.6.15-rc1-mm2/
+>
+>
+> - I'm releasing this so that Hugh's MM rework can get a spin.
+>
+>   Anyone who had post-2.6.14 problems related to the VM_RESERVED changes
+>   (device drivers malfunctioning, obscure userspace hardware-poking
+>   applications stopped working, etc) please test.
+>
+>   We'd especially like testing of the graphics DRM drivers across as many
+>   card types as poss.
+>
+I tried running neverball and had "bad page state".
 
-The "changelog" isn't so much for what you've changed, relative to the
-previous version of that patch.  It is for what will go into the Linux
-change history for this patch, when accepted.
+dmesg and lspci -v attached
 
-To quote Documentation/SubmittingPatches, which calls this the
-"explanation body":
+Please ask if you need more informations.
 
-    The explanation body will be committed to the permanent source
-    changelog, so should make sense to a competent reader who has long
-    since forgotten the immediate details of the discussion that might
-    have led to this patch.
+regards,
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Benoit
+
+------=_Part_1369_8877175.1132304203974
+Content-Type: application/octet-stream; name=dmesg.log
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="dmesg.log"
+
+
+------=_Part_1369_8877175.1132304203974
+Content-Type: application/octet-stream; name=lspci
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="lspci"
+
+
+------=_Part_1369_8877175.1132304203974--

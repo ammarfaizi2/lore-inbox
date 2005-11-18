@@ -1,102 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161163AbVKRUEZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161169AbVKRUFS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161163AbVKRUEZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 15:04:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161155AbVKRUEZ
+	id S1161169AbVKRUFS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 15:05:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161164AbVKRUFS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 15:04:25 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:37854 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161163AbVKRUEY (ORCPT
+	Fri, 18 Nov 2005 15:05:18 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:20619 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1161155AbVKRUFQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 15:04:24 -0500
-Date: Fri, 18 Nov 2005 20:04:11 +0000
-From: Alasdair G Kergon <agk@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Jonathan E Brassow <jbrassow@redhat.com>
-Subject: [PATCH] device-mapper raid1: add default mirror
-Message-ID: <20051118200411.GS11878@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Jonathan E Brassow <jbrassow@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 18 Nov 2005 15:05:16 -0500
+Date: Fri, 18 Nov 2005 12:05:02 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net
+Subject: [PATCH] SwapMig: Switch error handling in migrate_pages to use -Exx
+In-Reply-To: <Pine.LNX.4.62.0511181200020.27515@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.62.0511181202440.27515@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.62.0511181200020.27515@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch introduces a new field to the mirror_set (default_mirror)
-to store the default mirror.
+Use -Exxx instead of numeric return codes and cleanup the code
+in migrate_pages() using -Exx error codes.
 
-(A subsequent patch will allow us to change the default mirror
-in the event of a failure.)
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-From: Jonathan E Brassow <jbrassow@redhat.com>
-Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
-
-Index: linux-2.6.14/drivers/md/dm-raid1.c
+Index: linux-2.6.15-rc1-mm2/mm/vmscan.c
 ===================================================================
---- linux-2.6.14.orig/drivers/md/dm-raid1.c	2005-11-18 20:01:05.000000000 +0000
-+++ linux-2.6.14/drivers/md/dm-raid1.c	2005-11-18 20:01:26.000000000 +0000
-@@ -562,6 +562,8 @@ struct mirror_set {
- 	region_t nr_regions;
- 	int in_sync;
- 
-+	struct mirror *default_mirror;	/* Default mirror */
-+
- 	unsigned int nr_mirrors;
- 	struct mirror mirror[0];
- };
-@@ -611,7 +613,7 @@ static int recover(struct mirror_set *ms
- 	unsigned long flags = 0;
- 
- 	/* fill in the source */
--	m = ms->mirror + DEFAULT_MIRROR;
-+	m = ms->default_mirror;
- 	from.bdev = m->dev->bdev;
- 	from.sector = m->offset + region_to_sector(reg->rh, reg->key);
- 	if (reg->key == (ms->nr_regions - 1)) {
-@@ -627,7 +629,7 @@ static int recover(struct mirror_set *ms
- 
- 	/* fill in the destinations */
- 	for (i = 0, dest = to; i < ms->nr_mirrors; i++) {
--		if (i == DEFAULT_MIRROR)
-+		if (&ms->mirror[i] == ms->default_mirror)
- 			continue;
- 
- 		m = ms->mirror + i;
-@@ -682,7 +684,7 @@ static void do_recovery(struct mirror_se
- static struct mirror *choose_mirror(struct mirror_set *ms, sector_t sector)
- {
- 	/* FIXME: add read balancing */
--	return ms->mirror + DEFAULT_MIRROR;
-+	return ms->default_mirror;
- }
- 
+--- linux-2.6.15-rc1-mm2.orig/mm/vmscan.c	2005-11-18 10:04:05.000000000 -0800
++++ linux-2.6.15-rc1-mm2/mm/vmscan.c	2005-11-18 10:12:01.000000000 -0800
+@@ -608,10 +608,6 @@ int putback_lru_pages(struct list_head *
  /*
-@@ -709,7 +711,7 @@ static void do_reads(struct mirror_set *
- 		if (rh_in_sync(&ms->rh, region, 0))
- 			m = choose_mirror(ms, bio->bi_sector);
- 		else
--			m = ms->mirror + DEFAULT_MIRROR;
-+			m = ms->default_mirror;
+  * swapout a single page
+  * page is locked upon entry, unlocked on exit
+- *
+- * return codes:
+- *	0 = complete
+- *	1 = retry
+  */
+ static int swap_page(struct page *page)
+ {
+@@ -652,7 +648,7 @@ unlock_retry:
+ 	unlock_page(page);
  
- 		map_bio(ms, m, bio);
- 		generic_make_request(bio);
-@@ -833,7 +835,7 @@ static void do_writes(struct mirror_set 
- 		rh_delay(&ms->rh, bio);
- 
- 	while ((bio = bio_list_pop(&nosync))) {
--		map_bio(ms, ms->mirror + DEFAULT_MIRROR, bio);
-+		map_bio(ms, ms->default_mirror, bio);
- 		generic_make_request(bio);
- 	}
+ retry:
+-	return 1;
++	return -EAGAIN;
  }
-@@ -900,6 +902,7 @@ static struct mirror_set *alloc_context(
- 	ms->nr_mirrors = nr_mirrors;
- 	ms->nr_regions = dm_sector_div_up(ti->len, region_size);
- 	ms->in_sync = 0;
-+	ms->default_mirror = &ms->mirror[DEFAULT_MIRROR];
+ /*
+  * migrate_pages
+@@ -671,6 +667,8 @@ retry:
+  * is only swapping out pages and never touches the second
+  * list. The direct migration patchset
+  * extends this function to avoid the use of swap.
++ *
++ * Return: Number of pages not migrated when "to" ran empty.
+  */
+ int migrate_pages(struct list_head *from, struct list_head *to,
+ 		  struct list_head *moved, struct list_head *failed)
+@@ -681,6 +679,7 @@ int migrate_pages(struct list_head *from
+ 	struct page *page;
+ 	struct page *page2;
+ 	int swapwrite = current->flags & PF_SWAPWRITE;
++	int rc;
  
- 	if (rh_init(&ms->rh, ms, dl, region_size, ms->nr_regions)) {
- 		ti->error = "dm-mirror: Error creating dirty region hash";
+ 	if (!swapwrite)
+ 		current->flags |= PF_SWAPWRITE;
+@@ -702,11 +701,12 @@ redo:
+ 		 * use lock_page() to have a higher chance of acquiring the
+ 		 * lock.
+ 		 */
++		rc = -EAGAIN;
+ 		if (pass > 2)
+ 			lock_page(page);
+ 		else
+ 			if (TestSetPageLocked(page))
+-				goto retry_later;
++				goto next;
+ 
+ 		/*
+ 		 * Only wait on writeback if we have already done a pass where
+@@ -715,18 +715,19 @@ redo:
+ 		if (pass > 0) {
+ 			wait_on_page_writeback(page);
+ 		} else {
+-			if (PageWriteback(page)) {
+-				unlock_page(page);
+-				goto retry_later;
+-			}
++			if (PageWriteback(page))
++				goto unlock_page;
+ 		}
+ 
++		/*
++		 * Anonymous pages must have swap cache references otherwise
++		 * the information contained in the page maps cannot be
++		 * preserved.
++		 */
+ 		if (PageAnon(page) && !PageSwapCache(page)) {
+ 			if (!add_to_swap(page, GFP_KERNEL)) {
+-				unlock_page(page);
+-				list_move(&page->lru, failed);
+-				nr_failed++;
+-				continue;
++				rc = -ENOMEM;
++				goto unlock_page;
+ 			}
+ 		}
+ 
+@@ -738,8 +739,19 @@ redo:
+ 			list_move(&page->lru, moved);
+ 			continue;
+ 		}
+-retry_later:
+-		retry++;
++
++unlock_page:
++		unlock_page(page);
++
++next:
++		if (rc == -EAGAIN)
++			retry++;
++
++		else if (rc) {
++			/* Permanent failure to migrate the page */
++			list_move(&page->lru, failed);
++			nr_failed++;
++		}
+ 	}
+ 	if (retry && pass++ < 10)
+ 		goto redo;

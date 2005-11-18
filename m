@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbVKRAZX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbVKRA3I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750725AbVKRAZX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 19:25:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbVKRAZX
+	id S1750706AbVKRA3I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 19:29:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750709AbVKRA3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 19:25:23 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:62110 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1750725AbVKRAZX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 19:25:23 -0500
-Date: Thu, 17 Nov 2005 16:24:51 -0800
-From: Rajesh Shah <rajesh.shah@intel.com>
-To: Niklas Kallman <kjarvel@home.se>
-Cc: Jack Howarth <howarth@bromo.msbb.uc.edu>, linux-kernel@vger.kernel.org
-Subject: Re: PCI error on x86_64 2.6.13 kernel
-Message-ID: <20051117162450.A21575@unix-os.sc.intel.com>
-Reply-To: Rajesh Shah <rajesh.shah@intel.com>
-References: <fa.gf7dlu0.a4g9qo@ifi.uio.no> <435FEFBD.8010702@home.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 17 Nov 2005 19:29:08 -0500
+Received: from ns.suse.de ([195.135.220.2]:16863 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750706AbVKRA3H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 19:29:07 -0500
+From: Andi Kleen <ak@suse.de>
+To: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH] x86-64: dma_ops for DMA mapping -K4
+Date: Fri, 18 Nov 2005 01:28:03 +0100
+User-Agent: KMail/1.8
+Cc: Muli Ben-Yehuda <mulix@mulix.org>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Ravikiran G Thirumalai <kiran@scalex86.org>, niv@us.ibm.com,
+       Jon Mason <jdmason@us.ibm.com>, Jimi Xenidis <jimix@watson.ibm.com>,
+       Muli Ben-Yehuda <MULI@il.ibm.com>,
+       "Shai Fultheim (shai@scalex86.org)" <shai@scalex86.org>
+References: <20051117131622.GC11966@granada.merseine.nu> <20051117220348.GA9297@infradead.org>
+In-Reply-To: <20051117220348.GA9297@infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <435FEFBD.8010702@home.se>; from kjarvel@home.se on Wed, Oct 26, 2005 at 11:06:05PM +0200
+Message-Id: <200511180128.04096.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 26, 2005 at 11:06:05PM +0200, Niklas Kallman wrote:
-> Jack Howarth wrote:
-> >    Has anyone reported the following? For both of the 2.6.13 based
-> > kernels released so far on Fedora Core 4 for x86_64, we are seeing
-> > error messages of the form...
-> > 
-> > Oct  3 11:21:48 XXXXX  kernel:   MEM window: d0200000-d02fffff
-> > Oct  3 11:21:48 XXXXX  kernel:   PREFETCH window: disabled.
-> > Oct  3 11:21:48 XXXXX  kernel: PCI: Failed to allocate mem resource #6:20000 f0000000 for 0000:09:00.0
-> > 
+On Thursday 17 November 2005 23:03, Christoph Hellwig wrote:
 
-I ran into a similar problem, and posted a fix, see
-http://marc.theaimsgroup.com/?l=linux-pci&m=113225006603745&w=2
+> Any chance you could move struct dma_mapping_ops to generic code and
+> implement the dma_ operations ontop of them in linux/dma-mapping.h if
+> the arch sets a WANT_DMA_MAPPING_OPS symbol?  This kind of switch is
+> duplicated in far too many architectures.
 
-Can you try it to see if this problem goes away?
+If anything asm-generic, not ifdef.
 
-thanks,
-Rajesh
-
+-Andi

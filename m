@@ -1,128 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbVKRP7a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbVKRQI0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932078AbVKRP7a (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 10:59:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbVKRP7a
+	id S932302AbVKRQI0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 11:08:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbVKRQI0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 10:59:30 -0500
-Received: from nproxy.gmail.com ([64.233.182.198]:43038 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932078AbVKRP7a convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 10:59:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=r6GU0upv8euto0I9GzhAI7nq00fMvuKvxH6EP+TOTIy6Hsv/ta2aGKc0CIQgqGMKHHM3tdwKpDGnOpII6MnzNeIyY4Vu1U7JF5EwcWvFww5KTM0PMV37Loy+01V+OSt9dW90X6I3QDCGQfYLAlZ2T93zkeokbEGTcY54XsO6t7E=
-Message-ID: <58cb370e0511180759u4cb50535gfd7b96100a0bd70f@mail.gmail.com>
-Date: Fri, 18 Nov 2005 16:59:28 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Tejun Heo <htejun@gmail.com>
-Subject: Re: [PATCH linux-2.6-block:post-2.6.15 08/10] blk: update IDE to use new blk_ordered
-Cc: axboe@suse.de, jgarzik@pobox.com, James.Bottomley@steeleye.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <437DEE35.9060901@gmail.com>
+	Fri, 18 Nov 2005 11:08:26 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:3270 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932302AbVKRQIZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 11:08:25 -0500
+Message-ID: <437DFC66.3040209@pobox.com>
+Date: Fri, 18 Nov 2005 11:08:06 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051117153509.B89B4777@htj.dyndns.org>
-	 <20051117153509.061D8991@htj.dyndns.org>
-	 <58cb370e0511171211p60e7c248mda477015cf1bd7c5@mail.gmail.com>
-	 <437DEE35.9060901@gmail.com>
+To: Brett Russ <bruss@alum.wpi.edu>
+CC: Bogdan Costescu <Bogdan.Costescu@iwr.uni-heidelberg.de>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Marvell SATA fixes v2
+References: <20051114050404.GA18144@havoc.gtf.org>	 <Pine.LNX.4.63.0511151437320.3015@dingo.iwr.uni-heidelberg.de>	 <4379F31D.4000508@pobox.com>	 <Pine.LNX.4.63.0511152108140.3015@dingo.iwr.uni-heidelberg.de>	 <437D2DED.5030602@pobox.com> <f990dfce0511180537i4becb5f1k611a58874e9bf972@mail.gmail.com>
+In-Reply-To: <f990dfce0511180537i4becb5f1k611a58874e9bf972@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Brett Russ wrote:
+> On 11/17/05, Jeff Garzik <jgarzik@pobox.com> wrote:
+> 
+>>See if you can give the latest git tree a try (what will be
+>>2.6.15-rc1-git6, later tonight).  I think I've killed most of the
+>>sata_mv bugs, and have it working here on both 50xx and 60xx.
+> 
+> 
+> Hey Jeff,
+> 
+> Been reading the patches you've been sending.  Thanks for picking it
+> up--there's no way I have time to work on it lately.  Glad to hear you
+> got it working on 50xx.  Some comments:
+> 
+> -in the future, can you separate whitespace only patch mailings with
+> functional patches?  I know that's something you request of others,
+> but it helps us too.
 
-On 11/18/05, Tejun Heo <htejun@gmail.com> wrote:
-> Hello, Bartlomiej.
->
-> Bartlomiej Zolnierkiewicz wrote:
-> > On 11/17/05, Tejun Heo <htejun@gmail.com> wrote:
-> >
-> > I fail to see how the partial completions (good + bad sectors)
-> > are done in your new scheme, please explain.
-> >
->
-> It doesn't.  I've noted this way back when I posted this patchset the
-> second time.
+They are separated out in the git repo, and also in the automated 
+mailing list git-commits-head@vger.kernel.org.
 
-This should be noted in the patch description not in the announcement.
 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=111795127124020&w=2
->
-> Rationales
->
-> * The actual barrier IO request is issued as a part of ordered sequence.
->   When any part of this sequence fails (any of leading flush, barrier IO
-> or post flush), the whole sequence should be considered to have failed.
->
-> e.g. if leading flush fails, there's no point in reporting partial or
-> full success of barrier IO.  Ditto for tailing flush.  We can special
-> case when only part of barrier IO fails and report partial barrier
-> success, but 1. benefits are doubtful  2. even if it's implemented, it
-> wouldn't work (see next rationale)
->
-> * Barrier requests are not mergeable.  ie. Each barrier bio is turned
-> into one barrier request and partially completing the request doesn't
-> result in any successfully completed bio.
+> -the version # of sata_mv doesn't look like it was bumped.  Did I miss it?
 
-However your flush request can fail on the sector _completely_
-unrelated to the barrier request so in this case old code worked
-differently.  Anyway I'm fine with this change (previous logic was
-too complicated).
+That was intentional:  since sata_mv just went upstream in this upcoming 
+release (2.6.15), the version number was already bumped.
 
-> * SCSI doesn't handle partial completion of barrier IOs.
->
-> >
-> >>-
-> >>-static int idedisk_prepare_flush(request_queue_t *q, struct request *rq)
-> >>-{
-> >>-       ide_drive_t *drive = q->queuedata;
-> >>-
-> >>-       if (!drive->wcache)
-> >>-               return 0;
-> >
-> >
-> > What does happen if somebody disables drive->wcache later?
-> >
->
-> Thanks for pointing out.  I've moved ordered configuration into
-> write_cache such that ordered is reconfigured when write_cache changes.
-> There can be in-flight barrier requests which are inconsistent with the
-> newly updated setting, but 1. it's not too unfair to assume that user is
-> responsible for that synchronization 2. the original implementation had
-> the same issue 3. the consequence is not catastrophic.
+	Jeff
 
-The consequence could be increased number of bugreports about
-failed IDE commands which wasn't the case with !drive->wcache check
-in place - please leave as it was.
 
-> >> static void ide_cacheflush_p(ide_drive_t *drive)
-> >>@@ -1034,6 +993,8 @@ static int ide_disk_remove(struct device
-> >>        struct ide_disk_obj *idkp = drive->driver_data;
-> >>        struct gendisk *g = idkp->disk;
-> >>
-> >>+       blk_queue_ordered(drive->queue, QUEUE_ORDERED_NONE, NULL, 0);
-> >>+
-> >
-> >
-> > Shouldn't this be done in ide_disk_release()?
->
-> Hmmm... The thing is that, AFAIK, requests are not supposed to be issued
-> after ->remove is called (->remove is called only on module unload
-> unless hardware is hot-unplugged and HL driver cannot be unloaded while
-> it's still opened).  I think that's why both sd and ide-disk issue the
-> last cache flush in ->remove callbacks but not in ->release.
-
-Are you sure?  I think that only calling del_gendisk() assures you
-that there won't be outstanding fs requests?
-
-I have also noticed bug in ide_disk_remove() - ide_cacheflush_p()
-should be called after del_gendisk() - I will fix it later.
-
-BTW Nowadays you can dynamically dettach/attach driver from/to
-device using sysfs interface.
-
-Thanks,
-Bartlomiej

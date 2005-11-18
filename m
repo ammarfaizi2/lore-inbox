@@ -1,72 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750934AbVKRWvx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbVKRW6I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750934AbVKRWvx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 17:51:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750848AbVKRWvx
+	id S1751079AbVKRW6I (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 17:58:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbVKRW6I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 17:51:53 -0500
-Received: from vms040pub.verizon.net ([206.46.252.40]:20949 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1750779AbVKRWvw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 17:51:52 -0500
-Date: Fri, 18 Nov 2005 17:51:50 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: dvd writes truncated 3 Mbytes
-In-reply-to: <20051118224113.GJ9488@csclub.uwaterloo.ca>
-To: linux-kernel@vger.kernel.org
-Message-id: <200511181751.51021.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <200511181703.47903.gene.heskett@verizon.net>
- <20051118224113.GJ9488@csclub.uwaterloo.ca>
-User-Agent: KMail/1.7
+	Fri, 18 Nov 2005 17:58:08 -0500
+Received: from zproxy.gmail.com ([64.233.162.192]:53032 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751079AbVKRW6H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 17:58:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer;
+        b=q6v8UP+aL8UYGvjg4+uTUtxDI1X2GnFksz+54CkUI5TpjIBrhl3HBk4x0OReAG9QjUchWFINQ16cZPEpcXTVLLRsqi9ELDL0Uf+UOo0zc3tblWarYt4VJji45hjPDsrvnKAXCp6DKBgyp0HDzoqkriRZrtsfRWOVIoAzbyo6E8A=
+Subject: re: 2.6.15-rc1-mm2 - strace unhappy
+From: Badari Pulavarty <pbadari@gmail.com>
+To: Kenny Simpson <theonetruekenny@yahoo.com>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051118205741.97473.qmail@web34113.mail.mud.yahoo.com>
+References: <20051118205741.97473.qmail@web34113.mail.mud.yahoo.com>
+Content-Type: multipart/mixed; boundary="=-uGyjG8Cw2tksbTA1C5pf"
+Date: Fri, 18 Nov 2005 14:58:01 -0800
+Message-Id: <1132354681.24066.192.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 18 November 2005 17:41, Lennart Sorensen wrote:
->On Fri, Nov 18, 2005 at 05:03:47PM -0500, Gene Heskett wrote:
->> I've just tried to burn a dvd iso 4 times, 2 different brands of
->> disks, getting an identical but bad md5sum for all 4 writes.
->>
->> K3B reports it has written 1160 or 1163 Mbytes each time, but doesn't
->> seem to have a problem with that.
->>
->> Kernel is 2.6.14.2, without packet writing for cd/dvd turned on, but
->> I have one with it enabled building now.  K3B is 0.11.13, cdrecord is
->> 2.1(dvd), groisofs is 5.21, mkisofs is 2.1-a34.  The drive is a
->> Lite-On DVDRW SOHW-1673S.
->>
->> Has anyone else encountered a similar problem?  I've been making
->> good cd's all along with no problems, in this new drive, till now.
->
->Seems more of an application issue than a kernel issue.
 
-To me too.
+--=-uGyjG8Cw2tksbTA1C5pf
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
->Does it work from the command line (could be a k3b bug after all)?
+On Fri, 2005-11-18 at 12:57 -0800, Kenny Simpson wrote:
+> strace causes the kernel to croak:
+> 
+> cd /tmp
+> strace ls
+> *BOOM*
+> 
+> Nov 18 15:44:31 tux6127 kernel: [  221.522945] c0126b5b
+> Nov 18 15:44:31 tux6127 kernel: [  221.523069] PREEMPT SMP DEBUG_PAGEALLOC
+> Nov 18 15:44:31 tux6127 kernel: [  221.523268] Modules linked in: autofs4 parport_pc parport
+> floppy rtc i2c_i801 i2c_core generic usbhid uhci_hcd tg3 snd_intel8x0 snd_ac97_codec snd_ac97_bus
+> snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd soundcore snd_page_alloc ehci_hcd usbcore mousedev
+> e1000 bcm5700 unix
+> Nov 18 15:44:31 tux6127 kernel: [  221.524392] CPU:    0
+> Nov 18 15:44:31 tux6127 kernel: [  221.524393] EIP:    0060:[<c0126b5b>]    Not tainted VLI
+> Nov 18 15:44:31 tux6127 kernel: [  221.524394] EFLAGS: 00010202   (2.6.15-rc1-mm2) 
+> Nov 18 15:44:31 tux6127 kernel: [  221.524525] EIP is at ptrace_check_attach+0x24/0xc4
 
-Haven't tried it, thats always been a puzzle for me.
 
->cdrecord with dvd support (unless prodvd version) is not worth using on
->most drives.  growisofs is great for most drives.
->
->The cdwrite mailinst list at lists.debian.org (not debian specific) is
->the best place I know to get answers to cd/dvd writing questions.
 
-I'll post there, thanks.  Waiting on sub confirm notice now.
->
->Len Sorensen
+Christoph sent this patch earlier, which fixed same problem for me.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.36% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+
+Thanks,
+Badari
+
+
+
+--=-uGyjG8Cw2tksbTA1C5pf
+Content-Disposition: attachment; filename=ptrace-fix.patch
+Content-Type: text/x-patch; name=ptrace-fix.patch; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+Looks like 2.6.15-rc1-mm1 has total crap in ptrace_get_task_struct
+(and it looks like my fault because I sent out a wrong patch).
+
+The patch below should fix it:
+
+Index: linux-2.6/kernel/ptrace.c
+===================================================================
+--- linux-2.6.orig/kernel/ptrace.c	2005-11-18 10:25:35.000000000 +0100
++++ linux-2.6/kernel/ptrace.c	2005-11-18 10:25:54.000000000 +0100
+@@ -459,7 +459,7 @@
+ 	read_unlock(&tasklist_lock);
+ 	if (!child)
+ 		return ERR_PTR(-ESRCH);
+-	return 0;
++	return child;
+ }
+ 
+ #ifndef __ARCH_SYS_PTRACE
+
+
+--=-uGyjG8Cw2tksbTA1C5pf--
 

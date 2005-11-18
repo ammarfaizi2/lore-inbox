@@ -1,46 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932383AbVKRT7W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161161AbVKRUCv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932383AbVKRT7W (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 14:59:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbVKRT7W
+	id S1161161AbVKRUCv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 15:02:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161155AbVKRUCv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 14:59:22 -0500
-Received: from web34109.mail.mud.yahoo.com ([66.163.178.107]:14936 "HELO
-	web34109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932383AbVKRT7V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 14:59:21 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=B1vEKSx/wejKzWPAGGhgQdSkU7Z+M6NYFmCleq3eDtQB3XG3i+6LSGfPkjz8JPn94pZNlr7vNij0EcbDloKOWgKTX8MqLSfvC9HIaaVph7VNCjr92OAwHonebmy+ocFGNZXhcBRPuzfniCO8I9aVLNZtKEDbIA5GOMIFq2pS8hw=  ;
-Message-ID: <20051118195921.20264.qmail@web34109.mail.mud.yahoo.com>
-Date: Fri, 18 Nov 2005 11:59:20 -0800 (PST)
-From: Kenny Simpson <theonetruekenny@yahoo.com>
-Subject: Re: mmap over nfs leads to excessive system load
-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Charles Lever <cel@citi.umich.edu>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <1132182378.8811.93.camel@lade.trondhjem.org>
+	Fri, 18 Nov 2005 15:02:51 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:34233 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1161161AbVKRUCu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 15:02:50 -0500
+Date: Fri, 18 Nov 2005 12:02:37 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net
+Subject: [PATCH] SwapMig: Do not free the page in swap_page() 
+Message-ID: <Pine.LNX.4.62.0511181200020.27515@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yet another data point:
+Do not free the page in swap_page() to allow the page to be managed by
+the caller of migrate_page().
 
-Under 2.6.8-2 (debain sarge kernel), the test does not cause a spin.
-Instead, the file extension via pwrite does not allow the new pages to be usable by
-remap_file_pages.
-However, munmap/mmap are happy to use pages intoduces by the pwrite...
-and happily writes more than 4GB.
+If the page count dropped to 1 then rely on the next loop in migrate_pages()
+to deal with the page of freeing it directly.
 
--Kenny
+Some whitespace cleanup.
 
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-
-	
-		
-__________________________________ 
-Yahoo! Mail - PC Magazine Editors' Choice 2005 
-http://mail.yahoo.com
+Index: linux-2.6.15-rc1-mm2/mm/vmscan.c
+===================================================================
+--- linux-2.6.15-rc1-mm2.orig/mm/vmscan.c	2005-11-18 09:47:15.000000000 -0800
++++ linux-2.6.15-rc1-mm2/mm/vmscan.c	2005-11-18 10:04:05.000000000 -0800
+@@ -627,41 +627,32 @@ static int swap_page(struct page *page)
+ 		case PAGE_KEEP:
+ 		case PAGE_ACTIVATE:
+ 			goto unlock_retry;
++
+ 		case PAGE_SUCCESS:
+ 			goto retry;
++
+ 		case PAGE_CLEAN:
+ 			; /* try to free the page below */
+ 		}
+ 	}
+ 
+ 	if (PagePrivate(page)) {
+-		if (!try_to_release_page(page, GFP_KERNEL))
++		if (!try_to_release_page(page, GFP_KERNEL) ||
++		    (!mapping && page_count(page) == 1))
+ 			goto unlock_retry;
+-		if (!mapping && page_count(page) == 1)
+-			goto free_it;
+ 	}
+ 
+-	if (!remove_mapping(mapping, page))
+-		goto unlock_retry;		/* truncate got there first */
+-
+-free_it:
+-	/*
+-	 * We may free pages that were taken off the active list
+-	 * by isolate_lru_page. However, free_hot_cold_page will check
+-	 * if the active bit is set. So clear it.
+-	 */
+-	ClearPageActive(page);
+-
+-	list_del(&page->lru);
+-	unlock_page(page);
+-	put_page(page);
+- 	return 0;
++	if (remove_mapping(mapping, page)) {
++		/* Success */
++		unlock_page(page);
++		return 0;
++	}
+ 
+ unlock_retry:
+ 	unlock_page(page);
+ 
+ retry:
+-       return 1;
++	return 1;
+ }
+ /*
+  * migrate_pages

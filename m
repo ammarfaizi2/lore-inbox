@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030186AbVKRSHL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161012AbVKRSHs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030186AbVKRSHL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 13:07:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030229AbVKRSHK
+	id S1161012AbVKRSHs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 13:07:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161022AbVKRSHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 13:07:10 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:5557 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S1030186AbVKRSHI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 13:07:08 -0500
-Date: Fri, 18 Nov 2005 13:04:10 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Bharath Ramesh <krosswindz@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: intel8x0 sound of silence on dell system
-Message-ID: <20051118180410.GA22566@kvack.org>
-References: <20051118162300.GA22092@kvack.org> <c775eb9b0511180959r12206562h5a294d9505d95d04@mail.gmail.com>
+	Fri, 18 Nov 2005 13:07:48 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:46490 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1161012AbVKRSHr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 13:07:47 -0500
+Date: Fri, 18 Nov 2005 18:07:43 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: akpm@osdl.org, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.15-rc1-mm1 panic in ptrace_check_attach()
+Message-ID: <20051118180743.GA3708@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Badari Pulavarty <pbadari@us.ibm.com>, akpm@osdl.org,
+	lkml <linux-kernel@vger.kernel.org>
+References: <1132336600.24066.179.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <c775eb9b0511180959r12206562h5a294d9505d95d04@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1132336600.24066.179.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No, like I said, booting the RHEL4 kernel works like a charm.  alsamixer 
-does not show it being muted.
-
-		-ben
-
-On Fri, Nov 18, 2005 at 12:59:28PM -0500, Bharath Ramesh wrote:
-> Probably the sound car is muted. you might want to try out the
-> alsamixer to unmute the card.
+On Fri, Nov 18, 2005 at 09:56:40AM -0800, Badari Pulavarty wrote:
+> Hi Andrew,
 > 
-> On 11/18/05, Benjamin LaHaise <bcrl@kvack.org> wrote:
-> > Hello all,
-> >
-> > On trying out head on my workstation, it seems that no sound comes out.
-> > The module is getting loaded and the interrupts line for the 'Intel ICH5'
-> > is increasing.  The RHEL 4 kernel is known to work on this machine.  The
-> > only output from the driver is below.  Any ideas?
-> >
-> >                 -ben
-> >
-> > intel8x0_measure_ac97_clock: measured 51314 usecs
-> > intel8x0: clocking to 48000
-> > --
-> > "Time is what keeps everything from happening all at once." -- John Wheeler
-> > Don't Email: <dont@kvack.org>.
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
+> I am not sure if its already reported. I get panic in
+> ptrace_check_attach() while trying to run UML on 2.6.15-rc1-mm1.
+> 
+> Going to try 2.6.15-rc1-mm2 now. 
 
--- 
-"Time is what keeps everything from happening all at once." -- John Wheeler
-Don't Email: <dont@kvack.org>.
+Looks like 2.6.15-rc1-mm1 has total crap in ptrace_get_task_struct
+(and it looks like my fault because I sent out a wrong patch).
+
+The patch below should fix it:
+
+Index: linux-2.6/kernel/ptrace.c
+===================================================================
+--- linux-2.6.orig/kernel/ptrace.c	2005-11-18 10:25:35.000000000 +0100
++++ linux-2.6/kernel/ptrace.c	2005-11-18 10:25:54.000000000 +0100
+@@ -459,7 +459,7 @@
+ 	read_unlock(&tasklist_lock);
+ 	if (!child)
+ 		return ERR_PTR(-ESRCH);
+-	return 0;
++	return child;
+ }
+ 
+ #ifndef __ARCH_SYS_PTRACE

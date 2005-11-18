@@ -1,38 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161201AbVKRUfN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161137AbVKRUjQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161201AbVKRUfN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 15:35:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161198AbVKRUfM
+	id S1161137AbVKRUjQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 15:39:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161183AbVKRUjQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 15:35:12 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:42990 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S1161203AbVKRUfI
+	Fri, 18 Nov 2005 15:39:16 -0500
+Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:48256 "EHLO
+	vger.utah-nac.org") by vger.kernel.org with ESMTP id S1161137AbVKRUjP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 15:35:08 -0500
-Date: Fri, 18 Nov 2005 13:35:40 -0700
-From: "Mark A. Greer" <mgreer@mvista.com>
-To: "Mark A. Greer" <mgreer@mvista.com>
-Cc: Andy Isaacson <adi@hexapodia.org>, Andrey Volkov <avolkov@varma-el.com>,
-       Jean Delvare <khali@linux-fr.org>, lm-sensors@lm-sensors.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1] Added support of ST m41t85 rtc chip
-Message-ID: <20051118203540.GD16728@mag.az.mvista.com>
-References: <20051116031520.GL5546@mag.az.mvista.com> <20051116185513.GB18217@hexapodia.org> <20051116222423.GG30014@mag.az.mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051116222423.GG30014@mag.az.mvista.com>
-User-Agent: Mutt/1.5.9i
+	Fri, 18 Nov 2005 15:39:15 -0500
+Message-ID: <437E35D3.1050105@soleranetworks.com>
+Date: Fri, 18 Nov 2005 13:13:07 -0700
+From: jmerkey <jmerkey@soleranetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: jmerkey <jmerkey@soleranetworks.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Swap Bug Massive EXT3 Corruption on FC4 with 2.6.14 update
+References: <437CC67C.4060109@soleranetworks.com> <1132346133.5238.4.camel@localhost.localdomain> <437E33E5.2060603@soleranetworks.com>
+In-Reply-To: <437E33E5.2060603@soleranetworks.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 16, 2005 at 03:24:23PM -0700, Mark A. Greer wrote:
+jmerkey wrote:
 
-> I'm off to read datasheets now...  :)
+> Alan Cox wrote:
+>
+>> On Iau, 2005-11-17 at 11:05 -0700, jmerkey wrote:
+>>  
+>>
+>>> To reproduce, install FC2 on an /dev/hda device with defaults, then 
+>>> install FC4 on a /dev/hdb device, build the 2.6.14 update for
+>>> FC4 and watch your data disappear.
+>>>   
+>>
+>>
+>> Should be reported in the FC bugzilla although I've not been able to
+>> reproduce it.
+>>
+>>
+>>  
+>>
+>
+> Alan,
+>
+> I'll report over there.  I reproduced it with an install of Suse 10.0 
+> and FC4 and got to the bottom of it.  During install of FC4, anaconda 
+> allocates
+> the swap partitions assigned to Suse 10.0 on /dev/hda (or any swap 
+> partitions on the primary drive) for use during the install.  After 
+> the install
+> completes, FC4 uses this LABEL-SWAP-hda2 (etc.) method for determining 
+> which partitions to use for swap.  What happened here it turned
+> out was not related to swap extents, but misidentifcation of which 
+> partition was assigned this LABEL-XXX tag.  Upon first boot of FC4,
+> it allocated /dev/hda6 (the / partitition) as swap and started 
+> swapping to the / partition for Suse 10.0.  I first saw it when I 
+> installed FC4 on a system
+> with FC2.  After FC2 / partition got trashed, I reinstalled with Suse 
+> 10.0 (since I am porting DSFS to all of these distributions) and then 
+> reinstalled
+> FC4 on /dev/hdb -- same thing happened again.
+> I just finished reinstalling Suse 10.0 and tried with FC2 on 
+> /dev/hdb.  FC2 does the same thing and gets mixed on on Swap on the 
+> /dev/hda device, but this time, it did not corrupt the Suse 10.0 on 
+> /dev/hda.  This appears to be a bug in anaconda and the setup for the 
+> FCX distributions.  ES and AS probably do the same thing since they 
+> use anaconda, so I would have someone look into this.
+>
+> Jeff
+>
+NOTE;  One this that's unique in this case is that after I instal DSFS 
+rpms, I remove these LABEL-XXX constructs from the grub.conf and 
+/etc/fstab files and use the actual device names /dev/hdX.  It seems 
+related to removing these labels in a running distribution.
 
-Well, the people who sign my paychecks wanted me to do something else
-for the last couple days so I haven't looked at this yet.  And now I'm
-leaving soon and will be taking next week off so I won't even start on
-this until the week of Nov 28.  Sorry...
-
-Mark
+Jeff

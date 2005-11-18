@@ -1,44 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161175AbVKRUYM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbVKRUba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161175AbVKRUYM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 15:24:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161177AbVKRUYM
+	id S932466AbVKRUba (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 15:31:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbVKRUba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 15:24:12 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:57824 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161154AbVKRUYK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 15:24:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EfXl4DMjR/88J+VPodwQAb7x/fLMm7/n32yLaT2rRqRaHoI7vEkuxZmyHk44Otoo04cqnWLPCjR8c7CsSEkXS76S318svZOumKy9dHjzjD4VHO9ntH+C1HNwjqOm8vaHeMz664HBiqprCWCT4iOyq6aBbO/J93dUStJWHkp1N28=
-Message-ID: <39e6f6c70511181224r20801b61j87c856c703ab2b4d@mail.gmail.com>
-Date: Fri, 18 Nov 2005 18:24:10 -0200
-From: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: [2.6 patch] move some code to net/ipx/af_ipx.c
-Cc: Matt Mackall <mpm@selenic.com>, acme@conectiva.com.br,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-In-Reply-To: <20051118052252.GG11494@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <6.282480653@selenic.com> <7.282480653@selenic.com>
-	 <20051114015707.GB5735@stusta.de> <20051118052252.GG11494@stusta.de>
+	Fri, 18 Nov 2005 15:31:30 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:3006 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932449AbVKRUb0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 15:31:26 -0500
+Date: Fri, 18 Nov 2005 12:31:21 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: linux-kernel@vger.kernel.org
+Cc: Christoph Lameter <clameter@sgi.com>, lhms-devel@lists.sourceforge.net
+Message-Id: <20051118203120.27780.39644.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20051118203105.27780.9782.sendpatchset@schroedinger.engr.sgi.com>
+References: <20051118203105.27780.9782.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [PATCH 3/6] Direct Migration V4: remove_from_swap() to remove swap ptes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/18/05, Adrian Bunk <bunk@stusta.de> wrote:
-> On Mon, Nov 14, 2005 at 02:57:07AM +0100, Adrian Bunk wrote:
-> > On Fri, Nov 11, 2005 at 02:35:51AM -0600, Matt Mackall wrote:
-> > > trivial: drop unused 802.3 code if we compile without IPX
-> > >
-> > > (originally from http://wohnheim.fh-wedel.de/~joern/software/kernel/je/25/)
+Add remove_from_swap
 
-Thanks Adrian, from a quick glance looks OK, I'll review it later
-today to see if everything is fine wrt appletalk, tr, etc.
+remove_from_swap() allows the restoration of the pte entries that existed
+before page migration occurred for anonymous pages by walking the reverse
+maps. This reduces swap use and establishes regular pte's without the need
+for page faults.
 
-- Arnaldo
+V3->V4:
+- Add new function remove_vma_swap in swapfile.c to encapsulate
+  the functionality needed instead of exporting unuse_vma.
+- Add #ifdef CONFIG_MIGRATION
+
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
+
+Index: linux-2.6.15-rc1-mm2/include/linux/swap.h
+===================================================================
+--- linux-2.6.15-rc1-mm2.orig/include/linux/swap.h	2005-11-18 11:52:08.000000000 -0800
++++ linux-2.6.15-rc1-mm2/include/linux/swap.h	2005-11-18 12:28:37.000000000 -0800
+@@ -264,6 +264,9 @@ extern int remove_exclusive_swap_page(st
+ struct backing_dev_info;
+ 
+ extern spinlock_t swap_lock;
++#ifdef CONFIG_MIGRATION
++extern int remove_vma_swap(struct vm_area_struct *vma, struct page *page);
++#endif
+ 
+ /* linux/mm/thrash.c */
+ extern struct mm_struct * swap_token_mm;
+Index: linux-2.6.15-rc1-mm2/mm/swapfile.c
+===================================================================
+--- linux-2.6.15-rc1-mm2.orig/mm/swapfile.c	2005-11-18 11:52:08.000000000 -0800
++++ linux-2.6.15-rc1-mm2/mm/swapfile.c	2005-11-18 12:28:37.000000000 -0800
+@@ -532,6 +532,16 @@ static int unuse_mm(struct mm_struct *mm
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_MIGRATION
++int remove_vma_swap(struct vm_area_struct *vma, struct page *page)
++{
++	swp_entry_t entry = { .val = page_private(page) };
++
++	return unuse_vma(vma, entry, page);
++}
++#endif
++
++
+ /*
+  * Scan swap_map from current position to next entry still in use.
+  * Recycle to start on reaching the end, returning 0 when empty.
+Index: linux-2.6.15-rc1-mm2/mm/rmap.c
+===================================================================
+--- linux-2.6.15-rc1-mm2.orig/mm/rmap.c	2005-11-18 09:47:15.000000000 -0800
++++ linux-2.6.15-rc1-mm2/mm/rmap.c	2005-11-18 12:28:37.000000000 -0800
+@@ -205,6 +205,28 @@ out:
+ 	return anon_vma;
+ }
+ 
++#ifdef CONFIG_MIGRATION
++/*
++ * Remove an anonymous page from swap replacing the swap pte's
++ * through real pte's pointing to valid pages.
++ */
++void remove_from_swap(struct page *page)
++{
++	struct anon_vma *anon_vma;
++	struct vm_area_struct *vma;
++
++	if (!PageAnon(page))
++		return;
++
++	anon_vma = page_lock_anon_vma(page);
++	if (!anon_vma)
++		return;
++
++	list_for_each_entry(vma, &anon_vma->head, anon_vma_node)
++		remove_vma_swap(vma, page);
++}
++#endif
++
+ /*
+  * At what user virtual address is page expected in vma?
+  */
+Index: linux-2.6.15-rc1-mm2/include/linux/rmap.h
+===================================================================
+--- linux-2.6.15-rc1-mm2.orig/include/linux/rmap.h	2005-11-11 17:43:36.000000000 -0800
++++ linux-2.6.15-rc1-mm2/include/linux/rmap.h	2005-11-18 12:28:37.000000000 -0800
+@@ -91,6 +91,9 @@ static inline void page_dup_rmap(struct 
+  */
+ int page_referenced(struct page *, int is_locked, int ignore_token);
+ int try_to_unmap(struct page *);
++#ifdef CONFIG_MIGRATION
++void remove_from_swap(struct page *page);
++#endif
+ 
+ /*
+  * Called from mm/filemap_xip.c to unmap empty zero page
+Index: linux-2.6.15-rc1-mm2/mm/vmscan.c
+===================================================================
+--- linux-2.6.15-rc1-mm2.orig/mm/vmscan.c	2005-11-18 12:28:17.000000000 -0800
++++ linux-2.6.15-rc1-mm2/mm/vmscan.c	2005-11-18 12:28:37.000000000 -0800
+@@ -981,13 +981,15 @@ next:
+ 
+ 		else if (rc) {
+ 			/* Permanent failure */
++			remove_from_swap(page);
+ 			list_move(&page->lru, failed);
+ 			nr_failed++;
+ 		} else {
+-			if (newpage)
++			if (newpage) {
+  				/* Successful migration. Return new page to LRU */
++				remove_from_swap(newpage);
+ 				move_to_lru(newpage);
+-
++			}
+  			list_move(&page->lru, moved);
+ 		}
+ 	}

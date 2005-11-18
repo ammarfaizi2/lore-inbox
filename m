@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161063AbVKRL0z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161031AbVKRLX0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161063AbVKRL0z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 06:26:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161054AbVKRL0y
+	id S1161031AbVKRLX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 06:23:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161044AbVKRLXZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 06:26:54 -0500
-Received: from mailrelay2.lrz-muenchen.de ([129.187.254.102]:14787 "EHLO
-	mailrelay2.lrz-muenchen.de") by vger.kernel.org with ESMTP
-	id S1161063AbVKRL0x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 06:26:53 -0500
-From: Bernd Donner <bdonner@physik.tu-muenchen.de>
-Organization: TU =?iso-8859-1?q?M=FCnchen?=
-To: linux-kernel@vger.kernel.org
-Subject: Re: Resume from swsusp stopped working with 2.6.14 and 2.6.15-rc1
-Date: Fri, 18 Nov 2005 14:46:47 +0100
-User-Agent: KMail/1.8.2
-References: <87zmoa0yv5.fsf@obelix.mork.no> <d120d5000511171357g4d7a8d54hcc1c1d1cffa8856e@mail.gmail.com>
-In-Reply-To: <d120d5000511171357g4d7a8d54hcc1c1d1cffa8856e@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Nov 2005 06:23:25 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:27601 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S1161031AbVKRLXZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 06:23:25 -0500
+Date: Fri, 18 Nov 2005 19:25:01 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 04/16] radix-tree: look-aside cache
+Message-ID: <20051118112501.GB6401@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
+	Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>
+References: <20051109134938.757187000@localhost.localdomain> <20051109141448.974675000@localhost.localdomain> <437286BD.4000107@yahoo.com.au> <20051110052538.GA6585@mail.ustc.edu.cn> <4372EDA1.3000103@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511181446.48044.bdonner@physik.tu-muenchen.de>
+In-Reply-To: <4372EDA1.3000103@yahoo.com.au>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 17 November 2005 22:57, Dmitry Torokhov wrote:
-> Crazy idea - did you let it finish booting or you hit suspend as soon
-> as you could? It looks like kseriod was busy discovering your
-> touchpad/trackpoint for the first time...
+Hi Nick,
 
-I did let it finish booting. Since the resume failed, i patiently waited for 
-fsck and X startup to finish.
+On Thu, Nov 10, 2005 at 05:50:09PM +1100, Nick Piggin wrote:
+> Profile numbers would be great for the cached / non-cached cases.
 
-> Anyway, Pavel, I think 6 seconds it too short of a timeout for
-> stopping all tasks. PS/2 is pretty slow, trackpad reset can take up to
-> 2 seconds alone...
->
-> Bjorn, does it help if you change TIMEOUT in kernel/power/process.c to 30 *
-> HZ?
+Sorry for the delay!
 
-Increasing the TIMEOUT to 30 seconds on an 2.6.14 kernel does solve the 
-reported problem for me. The resume now succeeds.
+I run two rounds of oprofile on the context based method, which is the user of
+radix_tree_lookup_{head,tail}, which take advantage of the look-aside cache.
+This is the diffprofile grep output(disable vs. enable cache):
 
-Thanks
-Bernd
+radixtree-lookaside-cache.diffprofile1:        -8   -53.3% radix_tree_lookup_head
+radixtree-lookaside-cache.diffprofile1:       -30    -7.8% radix_tree_lookup_node
+radixtree-lookaside-cache.diffprofile1:       -34   -18.9% radix_tree_insert
+
+radixtree-lookaside-cache.diffprofile2:        16    10.9% radix_tree_insert
+radixtree-lookaside-cache.diffprofile2:        12    18.8% radix_tree_preload
+radixtree-lookaside-cache.diffprofile2:         6    42.9% radix_tree_lookup_tail
+radixtree-lookaside-cache.diffprofile2:        -7   -63.6% radix_tree_lookup_head
+radixtree-lookaside-cache.diffprofile2:       -23   -10.5% radix_tree_delete
+radixtree-lookaside-cache.diffprofile2:       -29    -6.9% radix_tree_lookup_node
+
+Regards,
+Wu

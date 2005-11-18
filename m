@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbVKRO53@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbVKRO6l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750756AbVKRO53 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 09:57:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbVKRO53
+	id S1750762AbVKRO6l (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 09:58:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750764AbVKRO6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 09:57:29 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:919 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750756AbVKRO52 (ORCPT
+	Fri, 18 Nov 2005 09:58:41 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:46231 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750762AbVKRO6k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 09:57:28 -0500
-Date: Fri, 18 Nov 2005 14:57:23 +0000
+	Fri, 18 Nov 2005 09:58:40 -0500
+Date: Fri, 18 Nov 2005 14:58:37 +0000
 From: Alasdair G Kergon <agk@redhat.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Jonathan E Brassow <jbrassow@redhat.com>
-Subject: [PATCH] device-mapper raid1: drop mark_region spinlock fix
-Message-ID: <20051118145723.GL11878@agk.surrey.redhat.com>
+Cc: linux-kernel@vger.kernel.org, David Teigland <teigland@redhat.com>
+Subject: [PATCH] device-mapper: add dm_find_md
+Message-ID: <20051118145837.GM11878@agk.surrey.redhat.com>
 Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
 	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Jonathan E Brassow <jbrassow@redhat.com>
+	David Teigland <teigland@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -25,67 +25,50 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The spinlock region_lock is held while calling mark_region which can
-sleep.  Drop the spinlock before calling that function.
+Abstract dm_find_md() from dm_get_mdptr() to allow use elsewhere.
 
-A region's state and inclusion in the clean list are altered
-by rh_inc and rh_dec.  The state variable is set to RH_CLEAN in rh_dec, 
-but only if 'pending' is zero.  It is set to RH_DIRTY in rh_inc, but 
-not if it is already so.  The changes to 'pending', the state, and 
-the region's inclusion in the clean list need to be atomicly.
-
-From: Jonathan E Brassow <jbrassow@redhat.com>
+From: David Teigland <teigland@redhat.com>
 Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
 
-Index: linux-2.6.14/drivers/md/dm-raid1.c
+Index: linux-2.6.14/drivers/md/dm.c
 ===================================================================
---- linux-2.6.14.orig/drivers/md/dm-raid1.c	2005-10-26 20:14:27.000000000 +0100
-+++ linux-2.6.14/drivers/md/dm-raid1.c	2005-10-26 20:23:03.000000000 +0100
-@@ -376,16 +376,18 @@ static void rh_inc(struct region_hash *r
- 	read_lock(&rh->hash_lock);
- 	reg = __rh_find(rh, region);
- 
-+	spin_lock_irq(&rh->region_lock);
- 	atomic_inc(&reg->pending);
- 
--	spin_lock_irq(&rh->region_lock);
- 	if (reg->state == RH_CLEAN) {
--		rh->log->type->mark_region(rh->log, reg->key);
--
- 		reg->state = RH_DIRTY;
- 		list_del_init(&reg->list);	/* take off the clean list */
--	}
--	spin_unlock_irq(&rh->region_lock);
-+		spin_unlock_irq(&rh->region_lock);
-+
-+		rh->log->type->mark_region(rh->log, reg->key);
-+	} else
-+		spin_unlock_irq(&rh->region_lock);
-+
- 
- 	read_unlock(&rh->hash_lock);
+--- linux-2.6.14.orig/drivers/md/dm.c	2005-11-18 14:40:40.000000000 +0000
++++ linux-2.6.14/drivers/md/dm.c	2005-11-18 14:40:48.000000000 +0000
+@@ -913,10 +913,9 @@ int dm_create_with_minor(unsigned int mi
+ 	return create_aux(minor, 1, result);
  }
-@@ -408,21 +410,17 @@ static void rh_dec(struct region_hash *r
- 	reg = __rh_lookup(rh, region);
- 	read_unlock(&rh->hash_lock);
  
-+	spin_lock_irqsave(&rh->region_lock, flags);
- 	if (atomic_dec_and_test(&reg->pending)) {
--		spin_lock_irqsave(&rh->region_lock, flags);
--		if (atomic_read(&reg->pending)) { /* check race */
--			spin_unlock_irqrestore(&rh->region_lock, flags);
--			return;
--		}
- 		if (reg->state == RH_RECOVERING) {
- 			list_add_tail(&reg->list, &rh->quiesced_regions);
- 		} else {
- 			reg->state = RH_CLEAN;
- 			list_add(&reg->list, &rh->clean_regions);
- 		}
--		spin_unlock_irqrestore(&rh->region_lock, flags);
- 		should_wake = 1;
- 	}
-+	spin_unlock_irqrestore(&rh->region_lock, flags);
+-void *dm_get_mdptr(dev_t dev)
++static struct mapped_device *dm_find_md(dev_t dev)
+ {
+ 	struct mapped_device *md;
+-	void *mdptr = NULL;
+ 	unsigned minor = MINOR(dev);
  
- 	if (should_wake)
- 		wake();
+ 	if (MAJOR(dev) != _major || minor >= (1 << MINORBITS))
+@@ -925,12 +924,22 @@ void *dm_get_mdptr(dev_t dev)
+ 	down(&_minor_lock);
+ 
+ 	md = idr_find(&_minor_idr, minor);
+-
+-	if (md && (dm_disk(md)->first_minor == minor))
+-		mdptr = md->interface_ptr;
++	if (!md || (dm_disk(md)->first_minor != minor))
++		md = NULL;
+ 
+ 	up(&_minor_lock);
+ 
++	return md;
++}
++
++void *dm_get_mdptr(dev_t dev)
++{
++	struct mapped_device *md;
++	void *mdptr = NULL;
++
++	md = dm_find_md(dev);
++	if (md)
++		mdptr = md->interface_ptr;
+ 	return mdptr;
+ }
+ 

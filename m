@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbVKRPCb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbVKRPCr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750772AbVKRPCb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 10:02:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbVKRPCb
+	id S1750778AbVKRPCr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 10:02:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbVKRPCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 10:02:31 -0500
-Received: from usbb-lacimss3.unisys.com ([192.63.108.53]:7440 "EHLO
-	usbb-lacimss3.unisys.com") by vger.kernel.org with ESMTP
-	id S1750772AbVKRPCa convert rfc822-to-8bit (ORCPT
+	Fri, 18 Nov 2005 10:02:47 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:60313 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750778AbVKRPCq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 10:02:30 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: bug in drivers/pci/hotplug/ibmphp_pci.c
-Date: Fri, 18 Nov 2005 09:58:50 -0500
-Message-ID: <5E735516D527134997ABD465886BBDA61ABFA7@USTR-EXCH5.na.uis.unisys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: bug in drivers/pci/hotplug/ibmphp_pci.c
-Thread-Index: AcXsUJYN1wzRPMxXQzSbdCk2ifNqXA==
-From: "Jordan, William P" <William.Jordan@unisys.com>
-To: <gregkh@suse.de>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 18 Nov 2005 14:58:51.0820 (UTC) FILETIME=[969AE6C0:01C5EC50]
+	Fri, 18 Nov 2005 10:02:46 -0500
+Date: Fri, 18 Nov 2005 15:02:35 +0000
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org,
+       Andrew Stribblehill <a.d.stribblehill@durham.ac.uk>
+Subject: [PATCH] device-mapper: remove unused definition
+Message-ID: <20051118150235.GQ11878@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Andrew Stribblehill <a.d.stribblehill@durham.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch removes an unused #define.
+ 
+From: Andrew Stribblehill <a.d.stribblehill@durham.ac.uk>
+Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
 
-I noticed what appears to be a cut/paste error in
-drivers/pci/hotplug/ibmphp_pci.c:
-
-***************
-*** 969,975 ****
-  			debug ("io 32\n");
-  			need_io_upper = TRUE;
-  		}
-! 		if ((io_base & PCI_PREF_RANGE_TYPE_MASK) ==
-PCI_PREF_RANGE_TYPE_64) {
-  			debug ("pfmem 64\n");
-  			need_pfmem_upper = TRUE;
-  		}
---- 969,975 ----
-  			debug ("io 32\n");
-  			need_io_upper = TRUE;
-  		}
-! 		if ((pfmem_base & PCI_PREF_RANGE_TYPE_MASK) ==
-PCI_PREF_RANGE_TYPE_64) {
-  			debug ("pfmem 64\n");
-  			need_pfmem_upper = TRUE;
-  		}
-
-I've verified that the bug still exists in 2.6.15-rc1
-
-Bill Jordan
-Unisys Corporation
+Index: linux-2.6.14-rc2/drivers/md/dm-io.h
+===================================================================
+--- linux-2.6.14-rc2.orig/drivers/md/dm-io.h	2005-09-20 04:00:41.000000000 +0100
++++ linux-2.6.14-rc2/drivers/md/dm-io.h	2005-09-26 22:36:36.000000000 +0100
+@@ -9,9 +9,6 @@
+ 
+ #include "dm.h"
+ 
+-/* FIXME make this configurable */
+-#define DM_MAX_IO_REGIONS 8
+-
+ struct io_region {
+ 	struct block_device *bdev;
+ 	sector_t sector;

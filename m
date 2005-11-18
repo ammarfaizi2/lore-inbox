@@ -1,35 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbVKRB1S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbVKRBlE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932165AbVKRB1S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 20:27:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbVKRB1S
+	id S932238AbVKRBlE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 20:41:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbVKRBlE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 20:27:18 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:52416 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751339AbVKRB1R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 20:27:17 -0500
-Message-ID: <437D2DED.5030602@pobox.com>
-Date: Thu, 17 Nov 2005 20:27:09 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Thu, 17 Nov 2005 20:41:04 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:60165 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932224AbVKRBlD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 20:41:03 -0500
+Date: Fri, 18 Nov 2005 02:41:02 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, George Anzinger <george@mvista.com>
+Cc: linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>
+Subject: [-mm patch] kernel/signal.c: fix compile warning
+Message-ID: <20051118014102.GL11494@stusta.de>
+References: <20051117111807.6d4b0535.akpm@osdl.org>
 MIME-Version: 1.0
-To: Bogdan Costescu <Bogdan.Costescu@iwr.uni-heidelberg.de>
-CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Marvell SATA fixes v2
-References: <20051114050404.GA18144@havoc.gtf.org> <Pine.LNX.4.63.0511151437320.3015@dingo.iwr.uni-heidelberg.de> <4379F31D.4000508@pobox.com> <Pine.LNX.4.63.0511152108140.3015@dingo.iwr.uni-heidelberg.de>
-In-Reply-To: <Pine.LNX.4.63.0511152108140.3015@dingo.iwr.uni-heidelberg.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051117111807.6d4b0535.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-See if you can give the latest git tree a try (what will be 
-2.6.15-rc1-git6, later tonight).  I think I've killed most of the 
-sata_mv bugs, and have it working here on both 50xx and 60xx.
+On Thu, Nov 17, 2005 at 11:18:07AM -0800, Andrew Morton wrote:
+>...
+> Changes since 2.6.14-mm2:
+>...
+> +sigaction-should-clear-all-signals-on-sig_ign-not-just.patch
+> 
+>  Signal code fix
+>...
 
-	Jeff
 
+Patches get bonus points when they don't introduce new compile 
+warnings...
+
+<--  snip  -->
+
+...
+  CC      kernel/signal.o
+kernel/signal.c: In function 'rm_from_queue_full':
+kernel/signal.c:638: warning: control may reach end of non-void function 'sigisemptyset' being inlined
+...
+
+<--  snip  -->
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.15-rc1-mm1-full/include/linux/signal.h.old	2005-11-18 00:47:49.000000000 +0100
++++ linux-2.6.15-rc1-mm1-full/include/linux/signal.h	2005-11-18 00:52:13.000000000 +0100
+@@ -102,6 +102,7 @@
+ 		return set->sig[0] == 0;
+ 	default:
+ 		_NSIG_WORDS_is_unsupported_size();
++		return 0;
+ 	}
+ }
+ 
 

@@ -1,50 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161023AbVKRKiH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161032AbVKRKyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161023AbVKRKiH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 05:38:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161025AbVKRKiH
+	id S1161032AbVKRKyM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 05:54:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161039AbVKRKyL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 05:38:07 -0500
-Received: from us01smtp1.synopsys.com ([198.182.44.79]:16624 "EHLO
-	boden.synopsys.com") by vger.kernel.org with ESMTP id S1161023AbVKRKiF convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 05:38:05 -0500
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
-Subject: Does Linux has File Stream mapping support...?
-Date: Fri, 18 Nov 2005 16:08:00 +0530
-Message-ID: <7EC22963812B4F40AE780CF2F140AFE920904A@IN01WEMBX1.internal.synopsys.com>
-Thread-Topic: Does Linux has File Stream mapping support...?
-Thread-Index: AcXsLCWMuKPq1JEnRAKN1DyQ7rQdyw==
-From: "Arijit Das" <Arijit.Das@synopsys.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 18 Nov 2005 10:38:04.0460 (UTC) FILETIME=[280D3EC0:01C5EC2C]
+	Fri, 18 Nov 2005 05:54:11 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:9371 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S1161032AbVKRKyL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 05:54:11 -0500
+Date: Fri, 18 Nov 2005 18:55:26 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.15-rc1-mm2
+Message-ID: <20051118105526.GA6401@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <20051109134938.757187000@localhost.localdomain> <20051109141454.336639000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051117234645.4128c664.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is it possible to have File Stream Mapping in Linux? What I mean is
-this...
+Hi,
 
-FILE * fp1 = fopen("/foo", "w");
-FILE * fp2 = fopen("/bar", "w");
-FILE * fp_common = <Stream_Mapping_Func>(fp1, fp2);
+This patch should fix a link error:
 
-fprint(fp_common, "This should be written to both files ... /foo and
-/bar");
+arch/i386/kernel/built-in.o: In function `parse_cmdline_early':
+: undefined reference to `elfcorehdr_addr'
+arch/i386/kernel/built-in.o: In function `parse_cmdline_early':
+: undefined reference to `elfcorehdr_addr'
 
-So, what I am looking for is anything written to "fp_common" should
-actually be written to the streams fp1 and fp2.
+Regards,
+Wu
+---
 
-Does Linux support this any way? Is there any way to achieve this...? Is
-there anything like <Stream_Mapping_Func>(above) ...?
+ arch/i386/kernel/setup.c   |    2 +-
+ arch/x86_64/kernel/setup.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-Do pardon me if you feel that it is a wrong Forum to ask this question
-but I tried everywhere else and thought that implementers would best
-know about it, if at all anything like that exists.
-
-Thanks,
-Arijit
+--- linux-2.6.15-rc1-mm2.orig/arch/i386/kernel/setup.c
++++ linux-2.6.15-rc1-mm2/arch/i386/kernel/setup.c
+@@ -898,7 +898,7 @@ static void __init parse_cmdline_early (
+ 			}
+ 		}
+ #endif
+-#ifdef CONFIG_CRASH_DUMP
++#ifdef CONFIG_PROC_VMCORE
+ 		/* elfcorehdr= specifies the location of elf core header
+ 		 * stored by the crashed kernel.
+ 		 */
+--- linux-2.6.15-rc1-mm2.orig/arch/x86_64/kernel/setup.c
++++ linux-2.6.15-rc1-mm2/arch/x86_64/kernel/setup.c
+@@ -418,7 +418,7 @@ static __init void parse_cmdline_early (
+ 		}
+ #endif
+ 
+-#ifdef CONFIG_CRASH_DUMP
++#ifdef CONFIG_PROC_VMCORE
+ 		/* elfcorehdr= specifies the location of elf core header
+ 		 * stored by the crashed kernel. This option will be passed
+ 		 * by kexec loader to the capture kernel.

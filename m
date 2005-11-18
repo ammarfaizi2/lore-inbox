@@ -1,73 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbVKRUbI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161176AbVKRUbL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932407AbVKRUbI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 15:31:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbVKRUbH
+	id S1161176AbVKRUbL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 15:31:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbVKRUbL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 15:31:07 -0500
-Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:46464 "EHLO
-	vger.utah-nac.org") by vger.kernel.org with ESMTP id S932407AbVKRUbG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 15:31:06 -0500
-Message-ID: <437E33E5.2060603@soleranetworks.com>
-Date: Fri, 18 Nov 2005 13:04:53 -0700
-From: jmerkey <jmerkey@soleranetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Swap Bug Massive EXT3 Corruption on FC4 with 2.6.14 update
-References: <437CC67C.4060109@soleranetworks.com> <1132346133.5238.4.camel@localhost.localdomain>
-In-Reply-To: <1132346133.5238.4.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Nov 2005 15:31:11 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:29334 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S932410AbVKRUbJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 15:31:09 -0500
+Date: Fri, 18 Nov 2005 12:31:05 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: linux-kernel@vger.kernel.org
+Cc: Christoph Lameter <clameter@sgi.com>, lhms-devel@lists.sourceforge.net
+Message-Id: <20051118203105.27780.9782.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [PATCH 0/6] Direct Migration V4: Overview
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Changes V3->V4:
 
->On Iau, 2005-11-17 at 11:05 -0700, jmerkey wrote:
->  
->
->>To reproduce, install FC2 on an /dev/hda device with defaults, then 
->>install FC4 on a /dev/hdb device, build the 2.6.14 update for
->>FC4 and watch your data disappear.
->>    
->>
->
->Should be reported in the FC bugzilla although I've not been able to
->reproduce it.
->
->
->  
->
+- Patchset against 2.6.15-rc1-mm2 + two swap migration fixes posted today.
+- Remove what is already in 2.6.14-rc1-mm2 which results in a significant
+  cleanup of the code.
 
-Alan,
+Changes V2->V3:
 
-I'll report over there.  I reproduced it with an install of Suse 10.0 
-and FC4 and got to the bottom of it.  During install of FC4, anaconda 
-allocates
-the swap partitions assigned to Suse 10.0 on /dev/hda (or any swap 
-partitions on the primary drive) for use during the install.  After the 
-install
-completes, FC4 uses this LABEL-SWAP-hda2 (etc.) method for determining 
-which partitions to use for swap.  What happened here it turned
-out was not related to swap extents, but misidentifcation of which 
-partition was assigned this LABEL-XXX tag.  Upon first boot of FC4,
-it allocated /dev/hda6 (the / partitition) as swap and started swapping 
-to the / partition for Suse 10.0.  I first saw it when I installed FC4 
-on a system
-with FC2.  After FC2 / partition got trashed, I reinstalled with Suse 
-10.0 (since I am porting DSFS to all of these distributions) and then 
-reinstalled
-FC4 on /dev/hdb -- same thing happened again. 
+- Patchset against 2.6.14-mm2
+- Fix single processor build and builds without CONFIG_MIGRATION
+- export symbols for filesystems that are modules and for
+  modules using migrate_pages().
+- Paul Jackson's cpuset migration support is in 2.6.14-mm2 so
+  this patchset can be easily applied to -mm2 to get from swap
+  based to direct page migration.
 
-I just finished reinstalling Suse 10.0 and tried with FC2 on /dev/hdb.  
-FC2 does the same thing and gets mixed on on Swap on the /dev/hda 
-device, but this time, it did not corrupt the Suse 10.0 on /dev/hda.  
-This appears to be a bug in anaconda and the setup for the FCX 
-distributions.  ES and AS probably do the same thing since they use 
-anaconda, so I would have someone look into this.
+Changes V1->V2:
+- Call node_remap with the right parameters in do_migrate_pages().
+- Take radix tree lock while examining page count to avoid races with
+  find_get_page() and various *_get_pages based on it.
+- Convert direct ptes to swap ptes before radix tree update to avoid
+  more races.
+- Fix problem if CONFIG_MIGRATION is off for buffer_migrate_page
+- Add documentation about page migration
+- Change migrate_pages() api so that the caller can decide what
+  to do about the migrated pages (badmem handling and hotplug
+  have to remove those pages for good).
+- Drop config patch (already in mm)
+- Add try_to_unmap patch
+- Patchset now against 2.6.14-mm1 without requiring additional patches.
 
-Jeff
+Note that the page migration here is different from the one of the memory
+hotplug project. Pages are migrated in order to improve performance.
+A best effort is made to migrate all pages that are in use by user space
+and that are swappable. If a couple of pages are not moved then the
+performance of a process will not increase as much as wanted but the
+application will continue to function properly.
+
+Much of the ideas for this code were originally developed in the memory
+hotplug project and we hope that this code also will allow the hotplug
+project to build on this patch in order to get to their goals. We also
+would like to be able to move bad memory at SGI which is likely something
+that will also be based on this patchset.
+
+I am very thankful for the support of the hotplug developers for bringing
+this patchset about. The migration of kernel pages, slab pages and
+other unswappable pages that is also needed by the hotplug project
+and for the remapping of bad memory is likely to require a significant
+amount of additional changes to the Linux kernel beyond the scope of
+this page migration endeavor.
+
+Page migration can be triggered via:
+
+A. Specifying MPOL_MF_MOVE(_ALL) when setting a new policy
+   for a range of addresses of a process.
+
+B. Calling sys_migrate_pages() to control the location of the pages of
+   another process. Pages may migrate back through swapping if memory
+   policies, cpuset nodes and the node on which the process is executing
+   are not changed by other means.
+   sys_migrate_pages() may be particularly useful to move the pages of
+   a process if the scheduler has shifted the execution of a process
+   to a different node.
+
+C. Changing the cpuset of a task (moving tasks to another cpuset or modifying
+   its set of allowed nodes) if a special option is set in the cpuset. The
+   cpuset code will call into the page migration layer in order to move the
+   process to its new environment. This is the preferred and easiest method
+   to use page migration. Thanks to Paul Jackson for realizing this
+   functionality.
+
+The patchset consists of six patches (only the first two are necessary to
+have basic direct migration support):
+
+1. SwapCache patch
+
+   SwapCache pages may have changed their type after lock_page().
+   Check for this and retry lookup if the page is no longer a SwapCache
+   page.
+
+2. migrate_pages()
+
+   Basic direct migration with fallback to swap if all other attempts
+   fail.
+
+3. remove_from_swap()
+
+   Page migration installs swap ptes for anonymous pages in order to
+   preserve the information contained in the page tables. This patch
+   removes the swap ptes and replaces them with real ones after migration.
+
+4. upgrade of MPOL_MF_MOVE and sys_migrate_pages()
+
+   Add logic to mm/mempolicy.c to allow the policy layer to control
+   direct page migration. Thanks to Paul Jackson for the interative
+   logic to move between sets of nodes.
+
+
+5. buffer_migrate_pages() patch
+
+   Allow migration without writing back dirty pages. Add filesystem dependent
+   migration support for ext2/ext3 and xfs. Use swapper space to setup a
+   method to migrate anonymous pages without writeback.
+
+6. try_unmap patch
+
+   Allows to distinguish between permanent failure conditions and transient
+   conditions that may go away after a retry.
+
+Credits (also in mm/vmscan.c):
+
+The idea for this scheme of page migration was first developed in the context
+of the memory hotplug project. The main authors of the migration code from
+the memory hotplug project are:
+
+IWAMOTO Toshihiro <iwamoto@valinux.co.jp>
+Hirokazu Takahashi <taka@valinux.co.jp>
+Dave Hansen <haveblue@us.ibm.com>
+

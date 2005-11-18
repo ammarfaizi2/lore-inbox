@@ -1,39 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161229AbVKRVCB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbVKRVIg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161229AbVKRVCB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 16:02:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161228AbVKRVCB
+	id S964810AbVKRVIg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 16:08:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbVKRVIg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 16:02:01 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:13107 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1161225AbVKRVCA (ORCPT
+	Fri, 18 Nov 2005 16:08:36 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:35479 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932197AbVKRVIf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 16:02:00 -0500
-Date: Fri, 18 Nov 2005 22:03:00 +0100
-From: Jens Axboe <axboe@suse.de>
-To: mikem <mikem@beardog.cca.cpqcorp.net>
-Cc: akpm@osdl.org, jgarzick@pobox.com, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [PATCH 3/3] cciss: add put_disk into cleanup routines
-Message-ID: <20051118210300.GD25454@suse.de>
-References: <20051118174655.GA22116@beardog.cca.cpqcorp.net>
+	Fri, 18 Nov 2005 16:08:35 -0500
+Date: Fri, 18 Nov 2005 16:08:00 -0500
+From: Dave Jones <davej@redhat.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: "David S. Miller" <davem@davemloft.net>, nickpiggin@yahoo.com.au,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 07/11] unpaged: COW on VM_UNPAGED
+Message-ID: <20051118210800.GB28205@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Hugh Dickins <hugh@veritas.com>,
+	"David S. Miller" <davem@davemloft.net>, nickpiggin@yahoo.com.au,
+	akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.61.0511171936440.4563@goblin.wat.veritas.com> <20051117.155230.25121238.davem@davemloft.net> <437D6AD0.5080909@yahoo.com.au> <20051117.224516.118147408.davem@davemloft.net> <Pine.LNX.4.61.0511180730530.5435@goblin.wat.veritas.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051118174655.GA22116@beardog.cca.cpqcorp.net>
+In-Reply-To: <Pine.LNX.4.61.0511180730530.5435@goblin.wat.veritas.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 18 2005, mikem wrote:
-> Patch 3 of 3
-> 
-> Jeff Garzik pointed me to his code to see how to remove a disk from
-> the system _properly_. Well, here it is...
-> Every place we remove disks we are now testing before calling del_gendisk
-> or blk_cleanup_queue and then call put_disk.
+On Fri, Nov 18, 2005 at 08:02:02AM +0000, Hugh Dickins wrote:
 
-Thanks, applied.
+ > No, that was not too hasty: we all agreed that the case _ought_ not to
+ > arise, and we hadn't worked out the right code to handle it if it did
+ > arise.  What was disappointing is that nobody hit the warnings while
+ > it was in -mm, but only when it hit Linus' tree.
 
--- 
-Jens Axboe
+It was found quite quickly though.  Fedora rawhide tracks Linus'
+-git trees on an almost daily basis, and this change blew up
+the installer, so it wasn't hard to reproduce :)
+
+ddcprobe isn't something that a lot of people run on a daily basis
+(probably just the installer people, and they never see -mm kernels),
+but I'm surprised that vbetool didn't get spotted when it was in -mm,
+as more and more people seem to be trying out suspend/resume these days.
+
+Maybe suspend was busted for some other reason at the time it
+was in -mm, so people never got that far ?
+
+		Dave
 

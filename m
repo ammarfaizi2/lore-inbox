@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbVKRA3I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751071AbVKRAhE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbVKRA3I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 19:29:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750709AbVKRA3I
+	id S1751071AbVKRAhE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 19:37:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbVKRAhE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 19:29:08 -0500
-Received: from ns.suse.de ([195.135.220.2]:16863 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750706AbVKRA3H (ORCPT
+	Thu, 17 Nov 2005 19:37:04 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:21736 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1751071AbVKRAhB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 19:29:07 -0500
-From: Andi Kleen <ak@suse.de>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH] x86-64: dma_ops for DMA mapping -K4
-Date: Fri, 18 Nov 2005 01:28:03 +0100
-User-Agent: KMail/1.8
-Cc: Muli Ben-Yehuda <mulix@mulix.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Ravikiran G Thirumalai <kiran@scalex86.org>, niv@us.ibm.com,
-       Jon Mason <jdmason@us.ibm.com>, Jimi Xenidis <jimix@watson.ibm.com>,
-       Muli Ben-Yehuda <MULI@il.ibm.com>,
-       "Shai Fultheim (shai@scalex86.org)" <shai@scalex86.org>
-References: <20051117131622.GC11966@granada.merseine.nu> <20051117220348.GA9297@infradead.org>
-In-Reply-To: <20051117220348.GA9297@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 17 Nov 2005 19:37:01 -0500
+Subject: Re: tty_flip_buffer
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: linux-kernel@vger.kernel.org, mansarov@us.ibm.com
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511180128.04096.ak@suse.de>
+Date: Fri, 18 Nov 2005 01:08:42 +0000
+Message-Id: <1132276122.25914.23.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 17 November 2005 23:03, Christoph Hellwig wrote:
+On Maw, 2005-11-15 at 15:38 -0600, V. Ananda Krishnan wrote:
+> tty_insert_flip_string_flags() API?  When I looked into the 
+> implementation of the tty_insert_flip_string_flags API in tty_io.c, I 
+> was little confused.
 
-> Any chance you could move struct dma_mapping_ops to generic code and
-> implement the dma_ operations ontop of them in linux/dma-mapping.h if
-> the arch sets a WANT_DMA_MAPPING_OPS symbol?  This kind of switch is
-> duplicated in far too many architectures.
+The flags buffer is used to hold the state of each character. Its
+usually TTY_NORMAL and is set to TTY_NORMAL by the functions not taking
+a flag value. It serves the same task as the flag buffer in the old
+tty_flip.
 
-If anything asm-generic, not ifdef.
+> Also, can any one explain me the function of the free queue head in the 
+> struct tty_bufhead?
 
--Andi
+Private to the tty layer pointer to allow small buffers as used with
+byte at a time uarts to be recycled not freed/allocated
+
+Alan
+

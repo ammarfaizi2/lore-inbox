@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbVKRNUR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbVKRN1K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751330AbVKRNUR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 08:20:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbVKRNUR
+	id S1750707AbVKRN1K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 08:27:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750717AbVKRN1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 08:20:17 -0500
-Received: from outmx020.isp.belgacom.be ([195.238.2.201]:15244 "EHLO
-	outmx020.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S1751330AbVKRNUQ convert rfc822-to-8bit (ORCPT
+	Fri, 18 Nov 2005 08:27:10 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:32718 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750707AbVKRN1I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 08:20:16 -0500
-From: Jan De Luyck <lkml@kcore.org>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6.14.2] port smartcard driver to new pcmcia infrastructure?
-Date: Fri, 18 Nov 2005 14:21:05 +0100
-User-Agent: KMail/1.8.2
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Fri, 18 Nov 2005 08:27:08 -0500
+Date: Fri, 18 Nov 2005 14:27:15 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Dinakar Guniguntala <dino@in.ibm.com>
+Cc: David Singleton <dsingleton@mvista.com>, linux-kernel@vger.kernel.org
+Subject: Re: PI BUG with -rt13
+Message-ID: <20051118132715.GA3314@elte.hu>
+References: <20051117161817.GA3935@in.ibm.com> <437D0C59.1060607@mvista.com> <20051118092909.GC4858@elte.hu> <20051118132137.GA5639@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511181421.05251.lkml@kcore.org>
+In-Reply-To: <20051118132137.GA5639@in.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello list,
 
-I'm currently looking into getting my smartcard driver to work. O2Micro was 
-nice enough to opensource the driver [1]. The driver compiles without 
-problems, and can be insmod' without triggering any problem. The main problem 
-lies that it doesn't seem to be calling the ozscrx_attach function, which 
-sets up the irq's and everything, thus causing the subsequent open of the 
-device to fail with -ENODEV.
+* Dinakar Guniguntala <dino@in.ibm.com> wrote:
 
-The laptop in question is an Acer TM803, with an 
-in-the-cardbus-system-integrated SmartCard reader.
+> Ingo, Thanks for providing the fix. However I still hit the same bug 
+> even with your changes
 
-Does anyone have any idea how i can continue debugging this?
+even with my patch the robust-futex code is still quite broken. E.g. in 
+down_futex(), it accesses rt-mutex internals without any locking (!):
 
-Thanks.
+        if (rt_mutex_free(lock)) {
+                __down_mutex(lock __EIP__);
+                rt_mutex_set_owner(lock, owner_task->thread_info);
+        }
 
-Jan
+both rt_mutex_free() and rt_mutex_set_owner() must be called with the 
+proper locking. David?
 
-[1] ftp://scrdriver:scrdriver@209.19.104.194/Linux or  
-http://www.musclecard.com/drivers/readers/files/O2Micro_PCMCIA_SCR_202_Linux_Kernel26_OpenSource.tar.gz
-
-
--- 
-Se o filme fosse gaúcho...
-
-Mamãe Faz Cem anos -- A Véia tá Cheirando a Defunto 
+	Ingo

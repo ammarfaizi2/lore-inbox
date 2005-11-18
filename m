@@ -1,51 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030198AbVKRRJf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030202AbVKRRMx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030198AbVKRRJf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 12:09:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030186AbVKRRJf
+	id S1030202AbVKRRMx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 12:12:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030210AbVKRRMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 12:09:35 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:39630 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030198AbVKRRJe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 12:09:34 -0500
-Subject: Re: [PATCH linux-2.6-block:post-2.6.15 09/10] blk: add FUA support
-	to IDE
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Tejun Heo <htejun@gmail.com>, axboe@suse.de, jgarzik@pobox.com,
-       James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
-In-Reply-To: <58cb370e0511180838x621d35c9w57df4551016cd52f@mail.gmail.com>
-References: <20051117153509.B89B4777@htj.dyndns.org>
-	 <20051117153509.5A77ED53@htj.dyndns.org>
-	 <58cb370e0511171239i16e0aaffr237ef7af68ece946@mail.gmail.com>
-	 <437DF271.6050702@gmail.com>
-	 <58cb370e0511180817p48602e3ap6d3ef49b842e8a00@mail.gmail.com>
-	 <1132333365.25914.53.camel@localhost.localdomain>
-	 <58cb370e0511180838x621d35c9w57df4551016cd52f@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 18 Nov 2005 17:41:18 +0000
-Message-Id: <1132335678.25914.55.camel@localhost.localdomain>
+	Fri, 18 Nov 2005 12:12:53 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:26920
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S1030202AbVKRRMx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 12:12:53 -0500
+Date: Fri, 18 Nov 2005 18:12:49 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, edwardsg@sgi.com
+Subject: shrinker->nr = LONG_MAX means deadlock for icache
+Message-ID: <20051118171249.GJ24970@opteron.random>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-11-18 at 17:38 +0100, Bartlomiej Zolnierkiewicz wrote:
-> On 11/18/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > On Gwe, 2005-11-18 at 17:17 +0100, Bartlomiej Zolnierkiewicz wrote:
-> > > Probably it should work fine given that drive->mult_count is on.
-> > >
-> > > The only controller using drive->vdma in the current tree is cs5520
-> > > so you should confirm this with Mark Lord & Alan Cox.
-> >
-> > The CS5520 VDMA performs PIO commands with controller driven DMA to PIO
-> > of the data blocks. Thus it can do any PIO command with one data in or
-> > out phase as if it were DMA.
-> 
-> Therefore doing ATA_CMD_WRITE_MULTI_FUA_EXT w/ VDMA
-> should be just fine as is WIN_WRITE_EXT w/ VDMA currently?
+Hello,
 
-As I understand it yes
+Greg Edwards found some deadlock in the icache shrinker.
 
+I believe the major bug is that the VM is currently potentially setting
+nr = LONG_MAX before shrinking the icache (and the icache shrinker never
+returns -1, which means the api doesn't currently require shrinkers to
+return -1 when they're finished).
+
+The below is the most obviously safe way I could address this problem
+(still untested).
+
+This is not necessairly the way we want to fix it in mainline, but it at
+least shows what I believe to be the major cuplrit in the code (i.e. nr
+growing insane ;).
+
+Comments welcome as usual.
+
+Signed-off-by: Andrea Arcangeli <andrea@suse.de>
+
+diff -r 5111ab3d0d8a mm/vmscan.c
+--- a/mm/vmscan.c	Fri Nov 18 09:26:56 2005 +0800
++++ b/mm/vmscan.c	Fri Nov 18 19:01:55 2005 +0200
+@@ -201,13 +201,21 @@
+ 	list_for_each_entry(shrinker, &shrinker_list, list) {
+ 		unsigned long long delta;
+ 		unsigned long total_scan;
++		unsigned long max_pass = (*shrinker->shrinker)(0, gfp_mask);
+ 
+ 		delta = (4 * scanned) / shrinker->seeks;
+-		delta *= (*shrinker->shrinker)(0, gfp_mask);
++		delta *= max_pass;
+ 		do_div(delta, lru_pages + 1);
+ 		shrinker->nr += delta;
+ 		if (shrinker->nr < 0)
+ 			shrinker->nr = LONG_MAX;	/* It wrapped! */
++		/*
++		 * Avoid risking looping forever due to too large nr value:
++		 * never try to free more than twice the estimate number of
++		 * freeable entries.
++		 */
++		if (shrinker->nr > max_pass * 2)
++			shrinker->nr = max_pass * 2;
+ 
+ 		total_scan = shrinker->nr;
+ 		shrinker->nr = 0;

@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbVKRTdH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750918AbVKRTex@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750892AbVKRTdH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 14:33:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750908AbVKRTdH
+	id S1750918AbVKRTex (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 14:34:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750933AbVKRTex
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 14:33:07 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:39879 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750892AbVKRTdG
+	Fri, 18 Nov 2005 14:34:53 -0500
+Received: from zproxy.gmail.com ([64.233.162.205]:34961 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750917AbVKRTew convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 14:33:06 -0500
-Message-ID: <437E2C69.4000708@us.ibm.com>
-Date: Fri, 18 Nov 2005 11:32:57 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Fri, 18 Nov 2005 14:34:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ZQ5u13y+4tyiURKha79YTP+GOTGT7cPKMU3Bi6mTlxwj7Re9x763urmFZT3iNl5iHSg9DFMeMgAZNDJ7G5lKPsaGu3VbV6z6raH0iYg0HMEXL/NrNk5OA/EWYnu7D2L72xcjlyULklxuBJYugRqR9D3RKkUO1RQa2Fmqs906rGY=
+Message-ID: <625fc13d0511181134lc074b8avcc8db47b8723583@mail.gmail.com>
+Date: Fri, 18 Nov 2005 13:34:51 -0600
+From: Josh Boyer <jwboyer@gmail.com>
+To: Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: [patch 1/3] Add SCM info to MAINTAINERS
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, scjody@steamballoon.com
+In-Reply-To: <20051118173106.GB20860@kroah.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Linux Memory Management <linux-mm@kvack.org>
-Subject: [RFC][PATCH 0/8] Critical Page Pool
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051118173930.270902000@press.kroah.org>
+	 <20051118173054.GA20860@kroah.com> <20051118173106.GB20860@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have a clustering product that needs to be able to guarantee that the
-networking system won't stop functioning in the case of OOM/low memory
-condition.  The current mempool system is inadequate because to keep the
-whole networking stack functioning, we need more than 1 or 2 slab caches to
-be guaranteed.  We need to guarantee that any request made with a specific
-flag will succeed, assuming of course that you've made your "critical page
-pool" big enough.
+On 11/18/05, Greg Kroah-Hartman <gregkh@suse.de> wrote:
+> From: Jody McIntyre <scjody@steamballoon.com>
+>
+> Add tree information to MAINTAINERS file.
 
-The following patch series implements such a critical page pool.  It
-creates 2 userspace triggers:
+Missed MTD git tree at:
 
-/proc/sys/vm/critical_pages: write the number of pages you want to reserve
-for the critical pool into this file
+git kernel.org:/pub/scm/linux/kernel/git/tglx/mtd-2.6.git
 
-/proc/sys/vm/in_emergency: write a non-zero value to tell the kernel that
-the system is in an emergency state and authorize the kernel to dip into
-the critical pool to satisfy critical allocations.
+MTD also has a CVS tree... which begs the question as to whether or
+not CVS trees can be added to the SCM type?
 
-We mark critical allocations with the __GFP_CRITICAL flag, and when the
-system is in an emergency state, we are allowed to delve into this pool to
-satisfy __GFP_CRITICAL allocations that cannot be satisfied through the
-normal means.
-
-Feedback on our approach would be appreciated.
-
-Thanks!
-
--Matt
+josh

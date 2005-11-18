@@ -1,46 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030610AbVKRKKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161000AbVKRKVr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030610AbVKRKKa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 05:10:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030611AbVKRKKa
+	id S1161000AbVKRKVr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 05:21:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161006AbVKRKVr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 05:10:30 -0500
-Received: from smtp4.brturbo.com.br ([200.199.201.180]:54402 "EHLO
-	smtp4.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S1030610AbVKRKKa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 05:10:30 -0500
-Subject: Re: 2.6.15-rc1-mm2
-From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051117234645.4128c664.akpm@osdl.org>
-References: <20051117234645.4128c664.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Fri, 18 Nov 2005 08:10:24 -0200
-Message-Id: <1132308624.27425.2.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1-3mdk 
-Content-Transfer-Encoding: 8bit
-To: unlisted-recipients:; (no To-header on input)
+	Fri, 18 Nov 2005 05:21:47 -0500
+Received: from bigip-smtp1.dyxnet.com ([202.66.146.141]:52966 "EHLO
+	bigip-smtp1.dyxnet.com") by vger.kernel.org with ESMTP
+	id S1161000AbVKRKVq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 05:21:46 -0500
+Message-ID: <437DAB32.1010004@thizgroup.com>
+Date: Fri, 18 Nov 2005 18:21:38 +0800
+From: Zhang Le <robert@thizgroup.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051028)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: jeff shia <tshxiayu@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: can we sleep at the bottom half environment?
+References: <7cd5d4b40511171955y7787b880i53d89c35a0629b3d@mail.gmail.com>
+In-Reply-To: <7cd5d4b40511171955y7787b880i53d89c35a0629b3d@mail.gmail.com>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Qui, 2005-11-17 às 23:46 -0800, Andrew Morton escreveu:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc1/2.6.15-rc1-mm2/
-> 
-> 
-> - I'm releasing this so that Hugh's MM rework can get a spin.
-> 
->   Anyone who had post-2.6.14 problems related to the VM_RESERVED changes
->   (device drivers malfunctioning, obscure userspace hardware-poking
->   applications stopped working, etc) please test.
-> 
->   We'd especially like testing of the graphics DRM drivers across as many
->   card types as poss.
-	Also V4L users should test. We had lots of complain or malfunctioning
-on x32 and non-functioning on x64 archtectures that seems to be related
-to VM_RESERVED.
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Cheers, 
-Mauro.
+jeff shia wrote:
+
+| hello, can we sleep at the bottom half environment?such as in a
+| softirq or a workqueue? why? Thank you!
+|
+| jeffshia
+|
+in workqueue,     ok
+in softirq,             not ok
+check Robert Love's "Linux Kernel Development".
+
+- --
+Zhang Le, Robert
+Linux Engineer/Trainer
+
+ThizLinux Laboratory Limited
+Address: Unit 1004, 10/F, Tower B,
+Hunghom Commercial Centre, 37 Ma Tau Wai Road,
+To Kwa Wan, Kowloon, Hong Kong
+Telephone: (852) 2735 2725
+Mobile:(852) 9845 4336
+Fax: (852) 2111 0702
+URL: http://www.thizgroup.com
+Public key: gpg --keyserver pgp.mit.edu --recv-keys 1E4E2973
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFDfasxvFHICB5OKXMRAizUAKCCo4uCMzQRpgSnPFb4DFQKs/EkDACgkpOe
+89sGCzsxu6AjHoUfyMeRooU=
+=B36D
+-----END PGP SIGNATURE-----
 

@@ -1,69 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbVKTRTu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751297AbVKTRgs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751296AbVKTRTu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 12:19:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751299AbVKTRTu
+	id S1751297AbVKTRgs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 12:36:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751299AbVKTRgs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 12:19:50 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:44496 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1751297AbVKTRTt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 12:19:49 -0500
-Message-ID: <4380B015.9060005@steeleye.com>
-Date: Sun, 20 Nov 2005 12:19:17 -0500
-From: Paul Clements <paul.clements@steeleye.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Sun, 20 Nov 2005 12:36:48 -0500
+Received: from ns2.suse.de ([195.135.220.15]:22717 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751297AbVKTRgr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 12:36:47 -0500
+Date: Fri, 18 Nov 2005 17:05:07 +0100
+From: "Andi Kleen" <ak@suse.de>
+To: virtualization@lists.osdl.org, linux-kernel@vger.kernel.org,
+       bunk@stusta.de
+Message-ID: <437DFBB3.mailLJC11TKEB@suse.de>
+User-Agent: nail 10.6 11/15/03
 MIME-Version: 1.0
-To: Herbert Xu <herbert@gondor.apana.org.au>
-CC: akpm@osdl.org, djani22@dynamicweb.hu,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [NBD] Use per-device semaphore instead of BKL
-References: <200511190345.jAJ3jFC3016406@shell0.pdx.osdl.net> <437F4C85.3070108@steeleye.com> <20051119223419.GA1751@gondor.apana.org.au> <20051120015807.GA3593@gondor.apana.org.au>
-In-Reply-To: <20051120015807.GA3593@gondor.apana.org.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Xu wrote:
-> On Sun, Nov 20, 2005 at 09:34:19AM +1100, herbert wrote:
-> 
->>This is intentional actually.  nbd_clear_queue never races against
->>nbd_find_request because the ioctl is protected by the BKL.  If it
->>weren't, then we have much worse problems to worry about (e.g.,
->>while you're clearing the queue someone else could have set the
->>socket again and started queueing requests).
-> 
-> 
-> Actually, we do have bigger problems :) The BKL is dropped every
-> time you sleep, and nbd_do_it is definitely a frequent sleeper :)
+Sender: ak@brahms.suse.de
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org
+Subject: Re: [2.6 patch] mark virt_to_bus/bus_to_virt as __deprecated on i386
+References: <20051118014055.GK11494@stusta.de>
+From: Andi Kleen <ak@suse.de>
+Date: 18 Nov 2005 17:05:07 +0100
+In-Reply-To: <20051118014055.GK11494@stusta.de>
+Message-ID: <p73lkzmhrgs.fsf@brahms.suse.de>
+Lines: 17
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 
-The dropping of the lock in nbd_do_it is actually critical to the way 
-nbd functions. nbd_do_it runs for the lifetime of the nbd device, so if 
-nbd_do_it were holding some lock (BKL or otherwise), we'd have big problems.
+Adrian Bunk <bunk@stusta.de> writes:
 
+> virt_to_bus/bus_to_virt are long deprecated, mark them as __deprecated 
+> on i386.
 
-> This isn't really an issue in practice though because the NBD
-> client program is single-threaded and doesn't share its file
-> descriptors with anyone else.
+I don't think you can do that. We still need these functions in low 
+level architecture code at least.
 
-Right, there's no problem in practice.
+Using __pa/__va doesn't cut it because it won't work on Xen guests
+which have different views on bus vs physical addresses. The Xen
+code is (hopefully) in the process of being merged, so intentionally
+breaking them isn't a good idea.
 
+So if anything there would need to be replacement functions for it
+first that do the same thing. But why not just keep the old ones?
 
-> However, we shouldn't make it too easy for the user to shoot himself
-> in the foot.  If he's going to do that, let him at least pay for the
-> bullet :)
-> 
-> So here is a patch to use a per-device semaphore instead of the
-> BKL to protect the ioctl's against each other.
-
-The problem with this patch is that no ioctls can come in once nbd_do_it 
-starts because nbd_do_it runs for the lifetime of the device.
-
-I think we really just need to add the acquiring of queue_lock in 
-nbd_clear_que to your previous patch and leave it at that. I'll code 
-that up and test it.
-
-Thanks,
-Paul
+-Andi

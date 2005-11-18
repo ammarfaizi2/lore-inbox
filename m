@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161260AbVKRVtG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161259AbVKRVtD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161260AbVKRVtG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 16:49:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbVKRVtG
+	id S1161259AbVKRVtD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 16:49:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbVKRVtD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 16:49:06 -0500
-Received: from mailhost.u-strasbg.fr ([130.79.200.155]:24312 "EHLO
-	mailhost.u-strasbg.fr") by vger.kernel.org with ESMTP
-	id S1161260AbVKRVtE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 16:49:04 -0500
-Message-ID: <437E4B78.80908@crc.u-strasbg.fr>
-Date: Fri, 18 Nov 2005 22:45:28 +0100
-From: Philippe Pegon <Philippe.Pegon@crc.u-strasbg.fr>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051016)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: mikem <mikem@beardog.cca.cpqcorp.net>
-CC: akpm@osdl.org, axboe@suse.de, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, hpa@zytor.com, sitniko@infonet.ee
-Subject: Re: [PATCH 1/3] cciss: bug fix for hpacucli
-References: <20051118163357.GA10928@beardog.cca.cpqcorp.net>
-In-Reply-To: <20051118163357.GA10928@beardog.cca.cpqcorp.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0 (mailhost.u-strasbg.fr [IPv6:2001:660:2402::155]); Fri, 18 Nov 2005 22:47:15 +0100 (CET)
+	Fri, 18 Nov 2005 16:49:03 -0500
+Received: from mail.kroah.org ([69.55.234.183]:57047 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932197AbVKRVtB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 16:49:01 -0500
+Date: Fri, 18 Nov 2005 13:20:32 -0800
+From: Greg KH <greg@kroah.com>
+To: Dave Jones <davej@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+Subject: Re: [linux-pm] [RFC] userland swsusp
+Message-ID: <20051118212032.GA23950@kroah.com>
+References: <20051115212942.GA9828@elf.ucw.cz> <20051115222549.GF17023@redhat.com> <1132342590.25914.86.camel@localhost.localdomain> <20051118211847.GA3881@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051118211847.GA3881@redhat.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mikem wrote:
-> Patch 1 of 3
-> 
-> This patch fixes a bug that breaks hpacucli, a command line interface
-> for the HP Array Config Utility. Without this fix the utility will
-> not detect any controllers in the system. I thought I had already fixed
-> this, but I guess not.
-> 
-> Thanks to all who reported the issue. Please consider this this inclusion.
+On Fri, Nov 18, 2005 at 04:18:47PM -0500, Dave Jones wrote:
+> Even if that was capable however, it still doesn't solve the problem.
+> Pavel's implementation wants to write to arbitary address spaces, which is
+> what we're trying to prevent. The two are at odds with each other.
 
-reply too fast ;)
-thanks you a lot for that one
+I agree, he needs to find a different way to get that information into
+and out of the kernel than that device node for it to be accepted into
+mainline.  But for now, it's a nice way to mock up the fuctionality
+needed.
 
---
-Philippe Pegon
+thanks,
+
+greg k-h

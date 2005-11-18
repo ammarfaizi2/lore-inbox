@@ -1,90 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750958AbVKRVUV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161221AbVKRVXa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750958AbVKRVUV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 16:20:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750962AbVKRVUV
+	id S1161221AbVKRVXa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 16:23:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750984AbVKRVX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 16:20:21 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:54188 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750957AbVKRVUT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 16:20:19 -0500
-Date: Fri, 18 Nov 2005 13:19:57 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Reuben Farrelly <reuben-lkml@reub.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-rc1-mm1
-Message-Id: <20051118131957.3ea831c9.akpm@osdl.org>
-In-Reply-To: <437E408A.8010808@reub.net>
-References: <20051117111807.6d4b0535.akpm@osdl.org>
-	<437D80BD.7030609@reub.net>
-	<20051117234252.087fa813.akpm@osdl.org>
-	<437E408A.8010808@reub.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 18 Nov 2005 16:23:29 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:49121 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750967AbVKRVX3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 16:23:29 -0500
+Subject: Re: [linux-pm] [RFC] userland swsusp
+From: Arjan van de Ven <arjan@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Dave Jones <davej@redhat.com>, Pavel Machek <pavel@ucw.cz>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+In-Reply-To: <1132342590.25914.86.camel@localhost.localdomain>
+References: <20051115212942.GA9828@elf.ucw.cz>
+	 <20051115222549.GF17023@redhat.com>
+	 <1132342590.25914.86.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 18 Nov 2005 22:23:17 +0100
+Message-Id: <1132348998.2830.80.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reuben Farrelly <reuben-lkml@reub.net> wrote:
->
-> I don't think I should be able to make this happen so easily though:
+On Fri, 2005-11-18 at 19:36 +0000, Alan Cox wrote:
+> On Maw, 2005-11-15 at 17:25 -0500, Dave Jones wrote:
+> > Just for info: If this goes in, Red Hat/Fedora kernels will fork
+> > swsusp development, as this method just will not work there.
+> > (We have a restricted /dev/mem that prevents writes to arbitary
+> >  memory regions, as part of a patchset to prevent rootkits)
 > 
-> 
->  [root@tornado ~]# rmmod e100
->  [root@tornado ~]# rmmod sky2
->  [root@tornado ~]# strace modprobe e100
->  Unable to handle kernel NULL pointer dereference at virtual address 00000010
->    printing eip:
->  c0124fc7
->  *pde = 00000000
->  Oops: 0000 [#1]
->  PREEMPT SMP
->  last sysfs file: /class/net/eth0/flags
->  Modules linked in: nfsd exportfs lockd sunrpc autofs4 lm85 hwmon_vid eeprom ipv6 
->  binfmt_misc hw_random crc32 piix i2c_i801
->  CPU:    0
->  EIP:    0060:[<c0124fc7>]    Not tainted VLI
->  EFLAGS: 00010202   (2.6.15-rc1-mm2-preempt)
->  EIP is at ptrace_check_attach+0x14/0xaf
+> Perhaps it is trying to tell you that you should be using SELinux rules
+> not kernel hacks for this purpose ?
+
+actually no. SELinux can't work, we've looked at that bigtime. Basically
+/dev/mem has 3 types in one, and to apply security you need different
+roles for each in selinux. so the only option to apply selinux
+*anything* is to first split /dev/mem up.
+
+types:
+1) accessing non-ram memory (eg PCI mmio space) by X and the likes
+   (ideally should use sysfs but hey, changing X for this will take 
+   forever)
+2) accessing bios memory in the lower 1Gb for various emulation like
+   purposes (including vbetool and X mode setting)
+3) accessing things the kernel sees as RAM
+
+they are very distinct security wise.
 
 
-This might help..
-
-
-Begin forwarded message:
-
-Date: Fri, 18 Nov 2005 18:07:43 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: akpm@osdl.org, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-rc1-mm1 panic in ptrace_check_attach()
-
-
-On Fri, Nov 18, 2005 at 09:56:40AM -0800, Badari Pulavarty wrote:
-> Hi Andrew,
-> 
-> I am not sure if its already reported. I get panic in
-> ptrace_check_attach() while trying to run UML on 2.6.15-rc1-mm1.
-> 
-> Going to try 2.6.15-rc1-mm2 now. 
-
-Looks like 2.6.15-rc1-mm1 has total crap in ptrace_get_task_struct
-(and it looks like my fault because I sent out a wrong patch).
-
-The patch below should fix it:
-
-Index: linux-2.6/kernel/ptrace.c
-===================================================================
---- linux-2.6.orig/kernel/ptrace.c	2005-11-18 10:25:35.000000000 +0100
-+++ linux-2.6/kernel/ptrace.c	2005-11-18 10:25:54.000000000 +0100
-@@ -459,7 +459,7 @@
- 	read_unlock(&tasklist_lock);
- 	if (!child)
- 		return ERR_PTR(-ESRCH);
--	return 0;
-+	return child;
- }
- 
- #ifndef __ARCH_SYS_PTRACE

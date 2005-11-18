@@ -1,82 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161137AbVKRUjQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161192AbVKRUjd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161137AbVKRUjQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 15:39:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161183AbVKRUjQ
+	id S1161192AbVKRUjd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 15:39:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161193AbVKRUjd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 15:39:16 -0500
-Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:48256 "EHLO
-	vger.utah-nac.org") by vger.kernel.org with ESMTP id S1161137AbVKRUjP
+	Fri, 18 Nov 2005 15:39:33 -0500
+Received: from nproxy.gmail.com ([64.233.182.198]:41860 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161183AbVKRUjb convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 15:39:15 -0500
-Message-ID: <437E35D3.1050105@soleranetworks.com>
-Date: Fri, 18 Nov 2005 13:13:07 -0700
-From: jmerkey <jmerkey@soleranetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Fri, 18 Nov 2005 15:39:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lZ/tkvT39q+bi/bb0Xdz8FZqj0WNpImNVTsUS8UcJcS48+FXaozAEcrQCzh2w+Mx3+rLFoCId/ny+kENQAZbb9vOdMAc6V8EMNiIB0NWTXNc9Lfy89D2Nn3JMpZZgG6U5oEAWGrX97xjUNU0tA2E+Pe33V1THoOobV8JD5mECdM=
+Message-ID: <58cb370e0511181239n369c9a88hd9292055e4d03d92@mail.gmail.com>
+Date: Fri, 18 Nov 2005 21:39:29 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Daniel Drake <dsd@gentoo.org>
+Subject: Re: [PATCH] via82cxxx IDE: Remove /proc/via entry
+Cc: Grzegorz Kulewski <kangur@polcom.net>, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       posting@blx4.net, vsu@altlinux.ru
+In-Reply-To: <434EE534.6010500@gentoo.org>
 MIME-Version: 1.0
-To: jmerkey <jmerkey@soleranetworks.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Swap Bug Massive EXT3 Corruption on FC4 with 2.6.14 update
-References: <437CC67C.4060109@soleranetworks.com> <1132346133.5238.4.camel@localhost.localdomain> <437E33E5.2060603@soleranetworks.com>
-In-Reply-To: <437E33E5.2060603@soleranetworks.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <43146CC3.4010005@gentoo.org>
+	 <58cb370e05083008121f2eb783@mail.gmail.com>
+	 <43179CC9.8090608@gentoo.org>
+	 <58cb370e050927062049be32f8@mail.gmail.com>
+	 <433B16BD.7040409@gentoo.org>
+	 <Pine.LNX.4.63.0509290042160.21130@alpha.polcom.net>
+	 <58cb370e0509290027404f5224@mail.gmail.com>
+	 <Pine.LNX.4.63.0510091707220.21130@alpha.polcom.net>
+	 <434EE534.6010500@gentoo.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jmerkey wrote:
+On 10/13/05, Daniel Drake <dsd@gentoo.org> wrote:
+> Hi,
+>
+> Grzegorz Kulewski wrote:
+> >>> As a user of this controller, I think that if it is not then this patch
+> >>> should be changed to export it or should be dropped. The data from that
+> >>> file is really helpfull in debugging problems (for example related to
+> >>> bad
+> >>> cables or breaking disks/cdroms).
+>
+> Per Bart's suggestion, I've created a user-space app which shows identical
+> data (and doesn't even rely on the via82cxxx IDE driver).
+>
+> http://www.reactivated.net/software/viaideinfo/
+>
+> So, I think we should be clear to drop /proc/ide/via now.
 
-> Alan Cox wrote:
->
->> On Iau, 2005-11-17 at 11:05 -0700, jmerkey wrote:
->>  
->>
->>> To reproduce, install FC2 on an /dev/hda device with defaults, then 
->>> install FC4 on a /dev/hdb device, build the 2.6.14 update for
->>> FC4 and watch your data disappear.
->>>   
->>
->>
->> Should be reported in the FC bugzilla although I've not been able to
->> reproduce it.
->>
->>
->>  
->>
->
-> Alan,
->
-> I'll report over there.  I reproduced it with an install of Suse 10.0 
-> and FC4 and got to the bottom of it.  During install of FC4, anaconda 
-> allocates
-> the swap partitions assigned to Suse 10.0 on /dev/hda (or any swap 
-> partitions on the primary drive) for use during the install.  After 
-> the install
-> completes, FC4 uses this LABEL-SWAP-hda2 (etc.) method for determining 
-> which partitions to use for swap.  What happened here it turned
-> out was not related to swap extents, but misidentifcation of which 
-> partition was assigned this LABEL-XXX tag.  Upon first boot of FC4,
-> it allocated /dev/hda6 (the / partitition) as swap and started 
-> swapping to the / partition for Suse 10.0.  I first saw it when I 
-> installed FC4 on a system
-> with FC2.  After FC2 / partition got trashed, I reinstalled with Suse 
-> 10.0 (since I am porting DSFS to all of these distributions) and then 
-> reinstalled
-> FC4 on /dev/hdb -- same thing happened again.
-> I just finished reinstalling Suse 10.0 and tried with FC2 on 
-> /dev/hdb.  FC2 does the same thing and gets mixed on on Swap on the 
-> /dev/hda device, but this time, it did not corrupt the Suse 10.0 on 
-> /dev/hda.  This appears to be a bug in anaconda and the setup for the 
-> FCX distributions.  ES and AS probably do the same thing since they 
-> use anaconda, so I would have someone look into this.
->
-> Jeff
->
-NOTE;  One this that's unique in this case is that after I instal DSFS 
-rpms, I remove these LABEL-XXX constructs from the grub.conf and 
-/etc/fstab files and use the actual device names /dev/hdX.  It seems 
-related to removing these labels in a running distribution.
-
-Jeff
+patch applied, thanks for working on this

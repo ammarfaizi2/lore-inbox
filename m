@@ -1,75 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932564AbVKRH3D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932615AbVKRHnV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932564AbVKRH3D (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 02:29:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030398AbVKRH3B
+	id S932615AbVKRHnV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 02:43:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932617AbVKRHnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 02:29:01 -0500
-Received: from gold.veritas.com ([143.127.12.110]:31650 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1030394AbVKRH3A (ORCPT
+	Fri, 18 Nov 2005 02:43:21 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:53709 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932615AbVKRHnU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 02:29:00 -0500
-Date: Fri, 18 Nov 2005 07:27:36 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: "David S. Miller" <davem@davemloft.net>
-cc: nickpiggin@yahoo.com.au, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 07/11] unpaged: COW on VM_UNPAGED
-In-Reply-To: <20051117.224516.118147408.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.61.0511180724060.5435@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0511171936440.4563@goblin.wat.veritas.com>
- <20051117.155230.25121238.davem@davemloft.net> <437D6AD0.5080909@yahoo.com.au>
- <20051117.224516.118147408.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 18 Nov 2005 07:28:56.0240 (UTC) FILETIME=[BBFC4B00:01C5EC11]
+	Fri, 18 Nov 2005 02:43:20 -0500
+Date: Thu, 17 Nov 2005 23:42:52 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Reuben Farrelly <reuben-lkml@reub.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rc1-mm1
+Message-Id: <20051117234252.087fa813.akpm@osdl.org>
+In-Reply-To: <437D80BD.7030609@reub.net>
+References: <20051117111807.6d4b0535.akpm@osdl.org>
+	<437D80BD.7030609@reub.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Nov 2005, David S. Miller wrote:
-> From: Nick Piggin <nickpiggin@yahoo.com.au>
-> Date: Fri, 18 Nov 2005 16:46:56 +1100
+Reuben Farrelly <reuben-lkml@reub.net> wrote:
+>
+> Hi,
 > 
-> > I think for 2.6.15, yes. We [read: I :(] was too hasty in removing
-> > this completely.
+> On 18/11/2005 8:18 a.m., Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc1/2.6.15-rc1-mm1
+> > 
+> > - reiser4 significantly updated
+> > 
+> > 
+> > 
+> > 
+> > Changes since 2.6.14-mm2:
+> 
+> This has been one of the best -mm releases in a while.  No problems compiling
+> or running - and so far nearly 18 hours uptime without any surprises.
 
-No, that was not too hasty: we all agreed that the case _ought_ not to
-arise, and we hadn't worked out the right code to handle it if it did
-arise.  What was disappointing is that nobody reported the messages
-while it was in -mm, but
+We'll have to try harder.  -mm2 is up there now, to break everything again.
 
-> > However I think it would not be unresonable to spit
-> > out a warning, and remove it in 2.6.??
+> Following up on a posting from the last -mm release,  I'm still seeing errors 
+> loading multiple network drivers as modules (e100 and sky2) when 
+> CONFIG_PREEMPT_BKL is enabled, with 2.6.14-mm1, 2.6.14-mm2 and now
+> 2.6.15-rc1-mm1.  Mainline git doesn't exhibit the problem, so it's -mm specific.
 > 
-> I am so convinced that handling COW faults on VM_RESERVED is
-> unnecessary, that I think it's prudent to spit out a warning
-> for MAP_PRIVATE+VM_RESERVED and changing it to MAP_SHARED
-> to complete the mmap() call.
+> This is what is logged:
 > 
-> I bet every single application still works.
+> Nov 18 17:40:42 tornado kernel: e100: 0000:06:03.0: e100_eeprom_load: EEPROM
+> corrupted
+> Nov 18 17:40:42 tornado kernel: ACPI: PCI interrupt for device 0000:06:03.0
+> disabled
+> Nov 18 17:40:42 tornado kernel: e100: probe of 0000:06:03.0 failed with error -11
+> Nov 18 17:40:43 tornado kernel: ACPI: PCI Interrupt 0000:04:00.0[A] -> GSI 17
+> (level, low) -> IRQ 177
+> Nov 18 17:40:43 tornado kernel: sky2 0000:04:00.0: unsupported chip type 0xff
+> Nov 18 17:40:43 tornado kernel: ACPI: PCI interrupt for device 0000:04:00.0
+> disabled
+> Nov 18 17:40:43 tornado kernel: sky2: probe of 0000:04:00.0 failed with error -95
 > 
-> And we'll have none of this rediculious complex crap handling COW
-> pages in VM_RESERVED areas, which I believe is seriously more
-> complicated than what we started with before any of the VM_RESERVED
-> changed went into 2.6.15.  In fact, we might as well go back to the
-> 2.6.14 stuff instead.  I do not see the second half of Hugh's patches
-> as progress, it's a severe regression to even 2.6.14
+> I'm certain that both of these NIC's are OK as they work fine with 
+> CONFIG_PREEMPT_BKL not selected.
 > 
-> Doing a get_user_pages() on a VM_UNPAGED area, that's sane, and
-> we know exactly what makes use of that.  COW faults on VM_UNPAGED
-> areas, that's not sane, and we don't know of a single instance
-> which correctly needs that behavior.
+> With CONFIG_PREEMPT_BKL disabled and an otherwise identical config, the
+> driver modules load up just fine.
 > 
-> MAP_SHARED mappings of reserved pages shared between driver, device,
-> and userspace is common and understandable.  But MAP_PRIVATE mappings
-> of such things?  Please show me an example of something legitimately
-> using that, and not doing so by mistake.  I will drop all of my
-> arguments once I see that :-)
+> A known good kernel with this config was 2.6.14-rc5-mm1.
+> I have backed out git-netdev-all but it made no difference, as well as backed 
+> out the e100 changes in -mm on 2.6.15-mm2, again no difference.  So I suspect 
+> it's not a netdev driver problem.
 > 
-> Because, frankly, a lot of these COW on VM_UNPAGED patches seemingly
-> are derived from studying the MM and a few drivers and saying "oh yes,
-> that's _possible_" but that is far from being enough to justify this
-> complexity.  We really need to see real usage, that makes sense.
-> All the cases I've investigated in userspace are "they really want
-> MAP_SHARED" or "they didn't need PROT_WRITE in the first place".
-> 
+> What else can I do to help narrow down the problem?  What other trees or patches 
+> would be worth backing out to try and narrow it down?
+
+I'd be suspecting the PCI changes firstly.  That's gregkh-pci-*. 
+
+Conceivably git-acpi, but that hasn't changed in quite some time.  In fact,
+no ACPI changes since 2.6.14-rc5-mm1.
+
+After that I don't know, sorry.   Binary search time?

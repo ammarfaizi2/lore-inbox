@@ -1,31 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbVKRXTJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbVKRXfU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751165AbVKRXTJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 18:19:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbVKRXTJ
+	id S1751179AbVKRXfU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 18:35:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbVKRXfU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 18:19:09 -0500
-Received: from mail.kroah.org ([69.55.234.183]:29066 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751165AbVKRXTI (ORCPT
+	Fri, 18 Nov 2005 18:35:20 -0500
+Received: from aeimail.aei.ca ([206.123.6.84]:31995 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S1751179AbVKRXfT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 18:19:08 -0500
-Date: Fri, 18 Nov 2005 15:03:23 -0800
-From: Greg KH <greg@kroah.com>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: Ian McDonald <imcdnzl@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
+	Fri, 18 Nov 2005 18:35:19 -0500
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Ian McDonald <imcdnzl@gmail.com>
 Subject: Re: 2.6.15-rc1-mm1
-Message-ID: <20051118230323.GA25824@kroah.com>
-References: <20051117111807.6d4b0535.akpm@osdl.org> <20051118203727.GA23151@kroah.com> <cbec11ac0511181314g7edaee33j47cbc6118228e49b@mail.gmail.com> <200511181816.01645.tomlins@cam.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Date: Fri, 18 Nov 2005 18:35:11 -0500
+User-Agent: KMail/1.8.2
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <20051117111807.6d4b0535.akpm@osdl.org> <cbec11ac0511181314g7edaee33j47cbc6118228e49b@mail.gmail.com> <200511181816.01645.tomlins@cam.org>
 In-Reply-To: <200511181816.01645.tomlins@cam.org>
-User-Agent: Mutt/1.5.11
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511181835.11719.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 18, 2005 at 06:16:01PM -0500, Ed Tomlinson wrote:
+On Friday 18 November 2005 18:16, Ed Tomlinson wrote:
 > On Friday 18 November 2005 16:14, Ian McDonald wrote:
 > > On 11/19/05, Greg KH <greg@kroah.com> wrote:
 > > > Are you using debian?
@@ -58,10 +61,8 @@ On Fri, Nov 18, 2005 at 06:16:01PM -0500, Ed Tomlinson wrote:
 > Interestingly the same udev works fine with 14-rc4-mm1.  I'll check the debian
 > bugs.
 
-Lots of things have changed in the input core since that kernel version.
-Others have reported this same issue, see the thread from Ted Tso on
-lkml a while ago when 2.6.15-rc1 came out.
+There does not seem to be anything that fits this reported as a debian bug.  Where
+is the udev bugs list?
 
-thanks,
-
-greg k-h
+TIA
+Ed Tomlinson 

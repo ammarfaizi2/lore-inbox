@@ -1,302 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161187AbVKRUdP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161191AbVKRUer@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161187AbVKRUdP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 15:33:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161184AbVKRUbp
+	id S1161191AbVKRUer (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 15:34:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161192AbVKRUeq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 15:31:45 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:7618 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1161181AbVKRUbl (ORCPT
+	Fri, 18 Nov 2005 15:34:46 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:21124 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161191AbVKRUeo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 15:31:41 -0500
-Date: Fri, 18 Nov 2005 12:31:31 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: linux-kernel@vger.kernel.org
-Cc: Christoph Lameter <clameter@sgi.com>, lhms-devel@lists.sourceforge.net
-Message-Id: <20051118203131.27780.89093.sendpatchset@schroedinger.engr.sgi.com>
-In-Reply-To: <20051118203105.27780.9782.sendpatchset@schroedinger.engr.sgi.com>
-References: <20051118203105.27780.9782.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 5/6] Direct Migration V4: Avoid writeback / page_migrate() method
+	Fri, 18 Nov 2005 15:34:44 -0500
+Date: Fri, 18 Nov 2005 20:34:28 +0000
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] device-mapper: make lock_fs optional
+Message-ID: <20051118203428.GU11878@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Migrate a page with buffers without requiring writeback
+Devices only needs syncing when creating snapshots,
+so make this optional when suspending a device.
 
-This introduces a new address space operation migratepage() that
-may be used by a filesystem to implement its own version of page migration.
+Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
 
-A version is provided that migrates buffers attached to pages. Some
-filesystems (ext2, ext3, xfs) are modified to utilize this feature.
-
-The swapper address space operation are modified so that a regular
-migrate_page() will occur for anonymous pages without writeback
-(migrate_pages forces every anonymous page to have a swap entry).
-
-V2->V3:
-- export functions for filesystems that are modules and for modules that
-  perform migration by calling migrate_pages().
-- Fix macro name clash. Fix build on UP and systems without CONFIG_MIGRATION
-
-V1->V2:
-- Fix CONFIG_MIGRATION handling
-
-Signed-off-by: Mike Kravetz <kravetz@us.ibm.com>
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
-
-Index: linux-2.6.15-rc1-mm2/include/linux/fs.h
+Index: linux-2.6.14/drivers/md/dm-ioctl.c
 ===================================================================
---- linux-2.6.15-rc1-mm2.orig/include/linux/fs.h	2005-11-18 09:47:15.000000000 -0800
-+++ linux-2.6.15-rc1-mm2/include/linux/fs.h	2005-11-18 12:28:41.000000000 -0800
-@@ -366,6 +366,8 @@ struct address_space_operations {
- 			loff_t offset, unsigned long nr_segs);
- 	struct page* (*get_xip_page)(struct address_space *, sector_t,
- 			int);
-+	/* migrate the contents of a page to the specified target */
-+	int (*migratepage) (struct page *, struct page *);
- };
+--- linux-2.6.14.orig/drivers/md/dm-ioctl.c	2005-11-14 23:10:57.000000000 +0000
++++ linux-2.6.14/drivers/md/dm-ioctl.c	2005-11-14 23:11:24.000000000 +0000
+@@ -700,7 +700,7 @@ static int do_suspend(struct dm_ioctl *p
+ 		return -ENXIO;
  
- struct backing_dev_info;
-@@ -1720,6 +1722,12 @@ extern void simple_release_fs(struct vfs
+ 	if (!dm_suspended(md))
+-		r = dm_suspend(md);
++		r = dm_suspend(md, 1);
  
- extern ssize_t simple_read_from_buffer(void __user *, size_t, loff_t *, const void *, size_t);
+ 	if (!r)
+ 		r = __dev_status(md, param);
+@@ -738,7 +738,7 @@ static int do_resume(struct dm_ioctl *pa
+ 	if (new_map) {
+ 		/* Suspend if it isn't already suspended */
+ 		if (!dm_suspended(md))
+-			dm_suspend(md);
++			dm_suspend(md, 1);
  
-+#ifdef CONFIG_MIGRATION
-+extern int buffer_migrate_page(struct page *, struct page *);
-+#else
-+#define buffer_migrate_page NULL
-+#endif
-+
- extern int inode_change_ok(struct inode *, struct iattr *);
- extern int __must_check inode_setattr(struct inode *, struct iattr *);
- 
-Index: linux-2.6.15-rc1-mm2/mm/swap_state.c
+ 		r = dm_swap_table(md, new_map);
+ 		if (r) {
+Index: linux-2.6.14/drivers/md/dm.h
 ===================================================================
---- linux-2.6.15-rc1-mm2.orig/mm/swap_state.c	2005-11-18 09:47:15.000000000 -0800
-+++ linux-2.6.15-rc1-mm2/mm/swap_state.c	2005-11-18 12:28:41.000000000 -0800
-@@ -26,6 +26,7 @@ static struct address_space_operations s
- 	.writepage	= swap_writepage,
- 	.sync_page	= block_sync_page,
- 	.set_page_dirty	= __set_page_dirty_nobuffers,
-+	.migratepage	= migrate_page,
- };
- 
- static struct backing_dev_info swap_backing_dev_info = {
-Index: linux-2.6.15-rc1-mm2/fs/xfs/linux-2.6/xfs_aops.c
-===================================================================
---- linux-2.6.15-rc1-mm2.orig/fs/xfs/linux-2.6/xfs_aops.c	2005-11-11 17:43:36.000000000 -0800
-+++ linux-2.6.15-rc1-mm2/fs/xfs/linux-2.6/xfs_aops.c	2005-11-18 12:28:41.000000000 -0800
-@@ -1348,4 +1348,5 @@ struct address_space_operations linvfs_a
- 	.commit_write		= generic_commit_write,
- 	.bmap			= linvfs_bmap,
- 	.direct_IO		= linvfs_direct_IO,
-+	.migratepage		= buffer_migrate_page,
- };
-Index: linux-2.6.15-rc1-mm2/fs/buffer.c
-===================================================================
---- linux-2.6.15-rc1-mm2.orig/fs/buffer.c	2005-11-18 09:47:14.000000000 -0800
-+++ linux-2.6.15-rc1-mm2/fs/buffer.c	2005-11-18 12:28:41.000000000 -0800
-@@ -3051,6 +3051,71 @@ asmlinkage long sys_bdflush(int func, lo
- }
- 
+--- linux-2.6.14.orig/drivers/md/dm.h	2005-11-14 23:10:57.000000000 +0000
++++ linux-2.6.14/drivers/md/dm.h	2005-11-14 23:11:24.000000000 +0000
+@@ -69,7 +69,7 @@ void dm_put(struct mapped_device *md);
  /*
-+ * Migration function for pages with buffers. This function can only be used
-+ * if the underlying filesystem guarantees that no other references to "page"
-+ * exist.
-+ */
-+#ifdef CONFIG_MIGRATION
-+int buffer_migrate_page(struct page *newpage, struct page *page)
-+{
-+	struct address_space *mapping = page->mapping;
-+	struct buffer_head *bh, *head;
-+
-+	if (!mapping)
-+		return -EAGAIN;
-+
-+	if (!page_has_buffers(page))
-+		return migrate_page(newpage, page);
-+
-+	head = page_buffers(page);
-+
-+	if (migrate_page_remove_references(newpage, page, 3))
-+		return -EAGAIN;
-+
-+	spin_lock(&mapping->private_lock);
-+
-+	bh = head;
-+	do {
-+		get_bh(bh);
-+		lock_buffer(bh);
-+		bh = bh->b_this_page;
-+
-+	} while (bh != head);
-+
-+	ClearPagePrivate(page);
-+	set_page_private(newpage, page_private(page));
-+	set_page_private(page, 0);
-+	put_page(page);
-+	get_page(newpage);
-+
-+	bh = head;
-+	do {
-+		set_bh_page(bh, newpage, bh_offset(bh));
-+		bh = bh->b_this_page;
-+
-+	} while (bh != head);
-+
-+	SetPagePrivate(newpage);
-+	spin_unlock(&mapping->private_lock);
-+
-+	migrate_page_copy(newpage, page);
-+
-+	spin_lock(&mapping->private_lock);
-+	bh = head;
-+	do {
-+		unlock_buffer(bh);
-+ 		put_bh(bh);
-+		bh = bh->b_this_page;
-+
-+	} while (bh != head);
-+	spin_unlock(&mapping->private_lock);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL(buffer_migrate_page);
-+#endif
-+
-+/*
-  * Buffer-head allocation
+  * A device can still be used while suspended, but I/O is deferred.
   */
- static kmem_cache_t *bh_cachep;
-Index: linux-2.6.15-rc1-mm2/fs/ext3/inode.c
-===================================================================
---- linux-2.6.15-rc1-mm2.orig/fs/ext3/inode.c	2005-11-18 09:47:15.000000000 -0800
-+++ linux-2.6.15-rc1-mm2/fs/ext3/inode.c	2005-11-18 12:28:41.000000000 -0800
-@@ -1564,6 +1564,7 @@ static struct address_space_operations e
- 	.invalidatepage	= ext3_invalidatepage,
- 	.releasepage	= ext3_releasepage,
- 	.direct_IO	= ext3_direct_IO,
-+	.migratepage	= buffer_migrate_page,
- };
- 
- static struct address_space_operations ext3_writeback_aops = {
-@@ -1577,6 +1578,7 @@ static struct address_space_operations e
- 	.invalidatepage	= ext3_invalidatepage,
- 	.releasepage	= ext3_releasepage,
- 	.direct_IO	= ext3_direct_IO,
-+	.migratepage	= buffer_migrate_page,
- };
- 
- static struct address_space_operations ext3_journalled_aops = {
-Index: linux-2.6.15-rc1-mm2/fs/ext2/inode.c
-===================================================================
---- linux-2.6.15-rc1-mm2.orig/fs/ext2/inode.c	2005-11-11 17:43:36.000000000 -0800
-+++ linux-2.6.15-rc1-mm2/fs/ext2/inode.c	2005-11-18 12:28:41.000000000 -0800
-@@ -706,6 +706,7 @@ struct address_space_operations ext2_aop
- 	.bmap			= ext2_bmap,
- 	.direct_IO		= ext2_direct_IO,
- 	.writepages		= ext2_writepages,
-+	.migratepage		= buffer_migrate_page,
- };
- 
- struct address_space_operations ext2_aops_xip = {
-@@ -723,6 +724,7 @@ struct address_space_operations ext2_nob
- 	.bmap			= ext2_bmap,
- 	.direct_IO		= ext2_direct_IO,
- 	.writepages		= ext2_writepages,
-+	.migratepage		= buffer_migrate_page,
- };
+-int dm_suspend(struct mapped_device *md);
++int dm_suspend(struct mapped_device *md, int with_lockfs);
+ int dm_resume(struct mapped_device *md);
  
  /*
-Index: linux-2.6.15-rc1-mm2/fs/xfs/linux-2.6/xfs_buf.c
+Index: linux-2.6.14/drivers/md/dm.c
 ===================================================================
---- linux-2.6.15-rc1-mm2.orig/fs/xfs/linux-2.6/xfs_buf.c	2005-11-11 17:43:36.000000000 -0800
-+++ linux-2.6.15-rc1-mm2/fs/xfs/linux-2.6/xfs_buf.c	2005-11-18 12:28:41.000000000 -0800
-@@ -1568,6 +1568,7 @@ xfs_mapping_buftarg(
- 	struct address_space	*mapping;
- 	static struct address_space_operations mapping_aops = {
- 		.sync_page = block_sync_page,
-+		.migratepage = fail_migrate_page,
- 	};
- 
- 	inode = new_inode(bdev->bd_inode->i_sb);
-Index: linux-2.6.15-rc1-mm2/mm/vmscan.c
-===================================================================
---- linux-2.6.15-rc1-mm2.orig/mm/vmscan.c	2005-11-18 12:28:37.000000000 -0800
-+++ linux-2.6.15-rc1-mm2/mm/vmscan.c	2005-11-18 12:28:41.000000000 -0800
-@@ -606,6 +606,15 @@ int putback_lru_pages(struct list_head *
- }
- 
- /*
-+ * Non migratable page
-+ */
-+int fail_migrate_page(struct page *newpage, struct page *page)
-+{
-+	return -EIO;
-+}
-+EXPORT_SYMBOL(fail_migrate_page);
-+
-+/*
-  * swapout a single page
-  * page is locked upon entry, unlocked on exit
+--- linux-2.6.14.orig/drivers/md/dm.c	2005-11-14 23:10:57.000000000 +0000
++++ linux-2.6.14/drivers/md/dm.c	2005-11-14 23:11:24.000000000 +0000
+@@ -55,6 +55,7 @@ union map_info *dm_get_mapinfo(struct bi
   */
-@@ -761,6 +770,8 @@ int migrate_page_remove_references(struc
+ #define DMF_BLOCK_IO 0
+ #define DMF_SUSPENDED 1
++#define DMF_FROZEN 2
  
- 	return 0;
- }
-+EXPORT_SYMBOL(swap_page);
-+EXPORT_SYMBOL(migrate_page_remove_references);
- 
- /*
-  * Copy the page to its new location
-@@ -810,6 +821,7 @@ void migrate_page_copy(struct page *newp
- 	if (PageWriteback(newpage))
- 		end_page_writeback(newpage);
- }
-+EXPORT_SYMBOL(migrate_page_copy);
- 
- /*
-  * Common logic to directly migrate a single page suitable for
-@@ -828,6 +840,7 @@ int migrate_page(struct page *newpage, s
- 
- 	return 0;
- }
-+EXPORT_SYMBOL(migrate_page);
- 
- /*
-  * migrate_pages
-@@ -928,6 +941,11 @@ redo:
- 		if (!mapping)
- 			goto unlock_both;
- 
-+		if (mapping->a_ops->migratepage) {
-+			rc = mapping->a_ops->migratepage(newpage, page);
-+			goto unlock_both;
-+                }
-+
- 		/*
- 		 * Trigger writeout if page is dirty
- 		 */
-@@ -1043,6 +1061,7 @@ redo:
+ struct mapped_device {
+ 	struct rw_semaphore io_lock;
+@@ -1021,6 +1022,8 @@ static int lock_fs(struct mapped_device 
+ 		return r;
  	}
- 	return rc;
+ 
++	set_bit(DMF_FROZEN, &md->flags);
++
+ 	/* don't bdput right now, we don't want the bdev
+ 	 * to go away while it is locked.
+ 	 */
+@@ -1029,8 +1032,12 @@ static int lock_fs(struct mapped_device 
+ 
+ static void unlock_fs(struct mapped_device *md)
+ {
++	if (!test_bit(DMF_FROZEN, &md->flags))
++		return;
++
+ 	thaw_bdev(md->suspended_bdev, md->frozen_sb);
+ 	md->frozen_sb = NULL;
++	clear_bit(DMF_FROZEN, &md->flags);
  }
-+EXPORT_SYMBOL(migrate_pages);
- #endif
  
  /*
-Index: linux-2.6.15-rc1-mm2/include/linux/swap.h
-===================================================================
---- linux-2.6.15-rc1-mm2.orig/include/linux/swap.h	2005-11-18 12:28:37.000000000 -0800
-+++ linux-2.6.15-rc1-mm2/include/linux/swap.h	2005-11-18 12:28:41.000000000 -0800
-@@ -184,6 +184,11 @@ extern int migrate_page_remove_reference
- extern void migrate_page_copy(struct page *, struct page *);
- extern int migrate_pages(struct list_head *l, struct list_head *t,
- 		struct list_head *moved, struct list_head *failed);
-+extern int fail_migrate_page(struct page *, struct page *);
-+#else
-+/* Possible settings for the migrate_page() method in address_operations */
-+#define migrate_page NULL
-+#define fail_migrate_page NULL
- #endif
+@@ -1040,7 +1047,7 @@ static void unlock_fs(struct mapped_devi
+  * dm_bind_table, dm_suspend must be called to flush any in
+  * flight bios and ensure that any further io gets deferred.
+  */
+-int dm_suspend(struct mapped_device *md)
++int dm_suspend(struct mapped_device *md, int do_lockfs)
+ {
+ 	struct dm_table *map = NULL;
+ 	DECLARE_WAITQUEUE(wait, current);
+@@ -1064,9 +1071,11 @@ int dm_suspend(struct mapped_device *md)
+ 	}
  
- #ifdef CONFIG_MMU
+ 	/* Flush I/O to the device. */
+-	r = lock_fs(md);
+-	if (r)
+-		goto out;
++	if (do_lockfs) {
++		r = lock_fs(md);
++		if (r)
++			goto out;
++	}
+ 
+ 	/*
+ 	 * First we set the BLOCK_IO flag so no more ios will be mapped.

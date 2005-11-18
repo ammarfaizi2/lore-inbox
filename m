@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964922AbVKRASg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbVKRAZX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964922AbVKRASg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 19:18:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965130AbVKRASg
+	id S1750725AbVKRAZX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 19:25:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbVKRAZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 19:18:36 -0500
-Received: from msgbas1x.cos.agilent.com ([192.25.240.36]:45292 "EHLO
-	msgbas1x.cos.agilent.com") by vger.kernel.org with ESMTP
-	id S964922AbVKRASf convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 19:18:35 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: question about driver built-in kernel
-Date: Thu, 17 Nov 2005 17:18:34 -0700
-Message-ID: <08A354A3A9CCA24F9EE9BE13600CFBC501A31910@wcosmb07.cos.agilent.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: question about driver built-in kernel
-Thread-Index: AcXr1EDVuNTRj+e7QMyAOpBcIxCIsgAASNew
-From: <yiding_wang@agilent.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 18 Nov 2005 00:18:34.0878 (UTC) FILETIME=[9D4121E0:01C5EBD5]
+	Thu, 17 Nov 2005 19:25:23 -0500
+Received: from fmr22.intel.com ([143.183.121.14]:62110 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1750725AbVKRAZX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 19:25:23 -0500
+Date: Thu, 17 Nov 2005 16:24:51 -0800
+From: Rajesh Shah <rajesh.shah@intel.com>
+To: Niklas Kallman <kjarvel@home.se>
+Cc: Jack Howarth <howarth@bromo.msbb.uc.edu>, linux-kernel@vger.kernel.org
+Subject: Re: PCI error on x86_64 2.6.13 kernel
+Message-ID: <20051117162450.A21575@unix-os.sc.intel.com>
+Reply-To: Rajesh Shah <rajesh.shah@intel.com>
+References: <fa.gf7dlu0.a4g9qo@ifi.uio.no> <435FEFBD.8010702@home.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <435FEFBD.8010702@home.se>; from kjarvel@home.se on Wed, Oct 26, 2005 at 11:06:05PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have two driver modules to support our hardware for some applications. Both modules worked fine as loadable modules. Now I need to build both drivers in kernel 2.6.11-8. I have changed configuration file and make file. Both drivers are built OK with kernel together. Now I have two concerns:
+On Wed, Oct 26, 2005 at 11:06:05PM +0200, Niklas Kallman wrote:
+> Jack Howarth wrote:
+> >    Has anyone reported the following? For both of the 2.6.13 based
+> > kernels released so far on Fedora Core 4 for x86_64, we are seeing
+> > error messages of the form...
+> > 
+> > Oct  3 11:21:48 XXXXX  kernel:   MEM window: d0200000-d02fffff
+> > Oct  3 11:21:48 XXXXX  kernel:   PREFETCH window: disabled.
+> > Oct  3 11:21:48 XXXXX  kernel: PCI: Failed to allocate mem resource #6:20000 f0000000 for 0000:09:00.0
+> > 
 
-1, Because both drivers were loaded as module before, the entry point for both driver is "init_module()". Since both drivers are built in kernel, the entry name is conflicting. Changing one entry point name will make driver built OK. However, I am concerned that loading kernel will not pick up the driver with changed entry point name. What is the best way to handle this situation?
+I ran into a similar problem, and posted a fix, see
+http://marc.theaimsgroup.com/?l=linux-pci&m=113225006603745&w=2
 
-2, One of built-in driver requires to be loaded before the second one. Because these two drivers are not belong to any existing group, such as network, scsi, where is the best place these two driver can be specified for loading sequence? I checked init.d and rc* files but did not figure out proper place to handle the requirement.
+Can you try it to see if this problem goes away?
 
-Many Thanks!
+thanks,
+Rajesh
 
-Eddie

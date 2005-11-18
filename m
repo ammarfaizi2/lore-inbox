@@ -1,90 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbVKRBIr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751318AbVKRBN2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751316AbVKRBIr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 20:08:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbVKRBIr
+	id S1751318AbVKRBN2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 20:13:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbVKRBN1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 20:08:47 -0500
-Received: from xproxy.gmail.com ([66.249.82.203]:62817 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751316AbVKRBIq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 20:08:46 -0500
+	Thu, 17 Nov 2005 20:13:27 -0500
+Received: from zproxy.gmail.com ([64.233.162.194]:10387 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751318AbVKRBN1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 20:13:27 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=pgCG72VoladG1pZrW/z1dAz/UmqrFI5CQ5PA2FAesHK1GQzMk83jr+sh5B2OA52N4Fmx2VX2FVytcf/eTl7MCiFIRbGTARJJsaHucfIxGQlitNFUvqLi//TGux6m7nB0QKYq7nXeNu9kymsp81NkqJpH/oCnSUKfxS1wiuitkUM=
-Message-ID: <437D298A.7070203@gmail.com>
-Date: Fri, 18 Nov 2005 09:08:26 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ab7AfV+Z0brEbophicRyNGevjCfLOjcfoHer597g802rRJX1adSu1IIEiNwW75ND46S0arzDZm26bNDoxYAZvLJIE+Kyqysf7QTNwCG7s41xwMIH4pIKRQQ0pywY2NvpGxykSJhiJGThT9gg6PWoAgmids2fISNVIgmNyOjhQcQ=
+Message-ID: <35fb2e590511171713p159695casde2bed085f6f0368@mail.gmail.com>
+Date: Fri, 18 Nov 2005 01:13:26 +0000
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: Willy Tarreau <willy@w.ods.org>
+Subject: Re: ipt_ROUTE loopback
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051117043853.GH11266@alpha.home.local>
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@2gen.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Sylvain Meyer <sylvain.meyer@worldonline.fr>
-Subject: Re: X and intelfb fight over videomode
-References: <20051117000144.GA29144@hardeman.nu> <437BD8D9.9030904@gmail.com> <20051117014558.GA30088@hardeman.nu> <437C0BF2.4010400@gmail.com> <20051117234510.GA3854@hardeman.nu>
-In-Reply-To: <20051117234510.GA3854@hardeman.nu>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <35fb2e590511161901t7a615992s123a22cd8403511d@mail.gmail.com>
+	 <20051117043853.GH11266@alpha.home.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Härdeman wrote:
-> On Thu, Nov 17, 2005 at 12:49:54PM +0800, Antonino A. Daplas wrote:
->> Ignore the hack I mentioned in the previous thread.  Try this patch
->> instead.
-> 
-> Didn't help, the messages remain the same (tried with vga=0x318 and
-> video=intelfb:1024x768-32@60,mtrr=0 vga=0x318).
-> 
-> Boot:
-> intelfb: 00:02.0: Intel(R) 852GM, aperture size 128MB, stolen memory 8060kB
-> intelfb: Non-CRT device is enabled ( LVDS port ).  Disabling mode
-> switching.
-> intelfb: Initial video mode is 1024x768-32@60.
-> intelfb: Changing the video mode is not supported.
-> Console: switching to colour frame buffer device 128x48
-> 
-> Starting X:
-> mtrr: base(0xe0020000) is not aligned on a size(0x300000) boundary
-> [drm:drm_unlock] *ERROR* Process 2976 using kernel context 0
-> 
-> First time I switch from X to VC:
-> intelfb: Changing the video mode is not supported.
-> intelfb: ring buffer : space: 6024 wanted 65472
-> intelfb: lockup - turning off hardware acceleration
-> 
+On 11/17/05, Willy Tarreau <willy@w.ods.org> wrote:
 
-Well, intelfb is at the mercy of X if it's in 'fixed mode'.
+> You missed this page...  :-)
 
-> Other suggestions?
+Excellent, as I hoped.
 
-I'm adding Sylvain, the intelfb maintainer, to the CC list.
+> You need to use Julian Anastasov's "send-to-self" patch from ssi.bg/~ja/.
+> The problem is not with ipt_route, but with the local addresses. If you
+> want the packet to go out, you need to remove the local route for the
+> destination. The packet will then go out, but when it will come back,
+> the system won't take it because its destination won't match a local
+> route. Try "ip r l t local" to see what I mean.
 
-How about this one?  It also resets the ringbuffer before re-initializing
-it again.
+Yes. But the ROUTE target could also do this if I hacked up its route
+function. I realised the problem was in the local routing table (as I
+mentioned earlier) but it looks like this patch will save me
+re-implementing yet another wheel.
 
-Tony
+Cheers,
 
-diff --git a/drivers/video/intelfb/intelfbdrv.c b/drivers/video/intelfb/intelfbdrv.c
-index 427689e..f1e7778 100644
---- a/drivers/video/intelfb/intelfbdrv.c
-+++ b/drivers/video/intelfb/intelfbdrv.c
-@@ -1283,6 +1283,16 @@ intelfb_set_par(struct fb_info *info)
- 
- 	if (FIXED_MODE(dinfo)) {
- 		ERR_MSG("Changing the video mode is not supported.\n");
-+
-+		/* 
-+		 * We need to at least initialize the 2D engine even
-+		 * if changing the mode is not allowed
-+		 */
-+		if (ACCEL(dinfo, info)) {
-+			intelfbhw_2d_stop(dinfo);
-+			intelfbhw_2d_start(dinfo);
-+		}
-+
- 		return -EINVAL;
- 	}
- 
+Jon.

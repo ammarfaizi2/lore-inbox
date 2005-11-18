@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbVKRQeL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbVKRQiy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932334AbVKRQeL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 11:34:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbVKRQeL
+	id S964789AbVKRQiy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 11:38:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbVKRQiy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 11:34:11 -0500
-Received: from atlrel6.hp.com ([156.153.255.205]:28083 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S932334AbVKRQeK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 11:34:10 -0500
-Date: Fri, 18 Nov 2005 10:33:57 -0600
-From: mikem <mikem@beardog.cca.cpqcorp.net>
-To: akpm@osdl.org, axboe@suse.de
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, hpa@zytor.com,
-       sitniko@infonet.ee
-Subject: [PATCH 1/3] cciss: bug fix for hpacucli
-Message-ID: <20051118163357.GA10928@beardog.cca.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 18 Nov 2005 11:38:54 -0500
+Received: from nproxy.gmail.com ([64.233.182.193]:37265 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964789AbVKRQiy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 11:38:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=OspC2IOlG36xtFm+ka5GL4NN3KBajMis2KCoOHGATm3ac5gHAmIacI3UsJRmhA+8TvKfE1pH0ZdYkzq53R0nHu7z7K5ow5QjDmT59feuprwfjitj0XE4j0wHzfgf0RFRqrBsDmcWsFfsCIbpyp98UK+e8sCChIsjzBaNlHO1EUc=
+Message-ID: <58cb370e0511180838x621d35c9w57df4551016cd52f@mail.gmail.com>
+Date: Fri, 18 Nov 2005 17:38:50 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH linux-2.6-block:post-2.6.15 09/10] blk: add FUA support to IDE
+Cc: Tejun Heo <htejun@gmail.com>, axboe@suse.de, jgarzik@pobox.com,
+       James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
+In-Reply-To: <1132333365.25914.53.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+References: <20051117153509.B89B4777@htj.dyndns.org>
+	 <20051117153509.5A77ED53@htj.dyndns.org>
+	 <58cb370e0511171239i16e0aaffr237ef7af68ece946@mail.gmail.com>
+	 <437DF271.6050702@gmail.com>
+	 <58cb370e0511180817p48602e3ap6d3ef49b842e8a00@mail.gmail.com>
+	 <1132333365.25914.53.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch 1 of 3
+On 11/18/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Gwe, 2005-11-18 at 17:17 +0100, Bartlomiej Zolnierkiewicz wrote:
+> > Probably it should work fine given that drive->mult_count is on.
+> >
+> > The only controller using drive->vdma in the current tree is cs5520
+> > so you should confirm this with Mark Lord & Alan Cox.
+>
+> The CS5520 VDMA performs PIO commands with controller driven DMA to PIO
+> of the data blocks. Thus it can do any PIO command with one data in or
+> out phase as if it were DMA.
 
-This patch fixes a bug that breaks hpacucli, a command line interface
-for the HP Array Config Utility. Without this fix the utility will
-not detect any controllers in the system. I thought I had already fixed
-this, but I guess not.
+Therefore doing ATA_CMD_WRITE_MULTI_FUA_EXT w/ VDMA
+should be just fine as is WIN_WRITE_EXT w/ VDMA currently?
 
-Thanks to all who reported the issue. Please consider this this inclusion.
+> > Long-term we should see if it is possible to remove dynamic IDE
+> > drive configuration and always just use the best possible settings.
+>
+> Hotplug rather prevents that. For the lifetime of a drive connection
+> most of the settings ought to be settable once. Speeds are the obvious
+> exception.
 
-Signed-off-by: Mike Miller
+I'm talking only about lifetime of a drive connection here
+so I think that we fully agree on this one.
 
---------------------------------------------------------------------------------
-
- include/linux/cciss_ioctl.h |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN include/linux/cciss_ioctl.h~cciss_fix_for_cli include/linux/cciss_ioctl.h
---- linux-2.6.14.2/include/linux/cciss_ioctl.h~cciss_fix_for_cli	2005-11-18 10:20:38.692304096 -0600
-+++ linux-2.6.14.2-mikem/include/linux/cciss_ioctl.h	2005-11-18 10:21:14.112919344 -0600
-@@ -10,8 +10,8 @@
- typedef struct _cciss_pci_info_struct
- {
- 	unsigned char 	bus;
--	unsigned short	domain;
- 	unsigned char 	dev_fn;
-+	unsigned short	domain;
- 	__u32 		board_id;
- } cciss_pci_info_struct; 
- 
-_
+Thanks,
+Bartlomiej

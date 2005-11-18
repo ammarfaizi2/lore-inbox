@@ -1,165 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbVKRBDd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbVKRBIr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751331AbVKRBDd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 20:03:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbVKRBDc
+	id S1751316AbVKRBIr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 20:08:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbVKRBIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 20:03:32 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:15800 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751331AbVKRBDP (ORCPT
+	Thu, 17 Nov 2005 20:08:47 -0500
+Received: from xproxy.gmail.com ([66.249.82.203]:62817 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751316AbVKRBIq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 20:03:15 -0500
-Date: Thu, 17 Nov 2005 17:03:13 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, Christoph Lameter <clameter@sgi.com>,
-       lhms-devel@lists.sourceforge.net
-Message-Id: <20051118010313.22328.87781.sendpatchset@schroedinger.engr.sgi.com>
-In-Reply-To: <20051118010257.22328.49524.sendpatchset@schroedinger.engr.sgi.com>
-References: <20051118010257.22328.49524.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 4/4] SwapMig: Extend parameters for migrate_pages()
+	Thu, 17 Nov 2005 20:08:46 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=pgCG72VoladG1pZrW/z1dAz/UmqrFI5CQ5PA2FAesHK1GQzMk83jr+sh5B2OA52N4Fmx2VX2FVytcf/eTl7MCiFIRbGTARJJsaHucfIxGQlitNFUvqLi//TGux6m7nB0QKYq7nXeNu9kymsp81NkqJpH/oCnSUKfxS1wiuitkUM=
+Message-ID: <437D298A.7070203@gmail.com>
+Date: Fri, 18 Nov 2005 09:08:26 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@2gen.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Sylvain Meyer <sylvain.meyer@worldonline.fr>
+Subject: Re: X and intelfb fight over videomode
+References: <20051117000144.GA29144@hardeman.nu> <437BD8D9.9030904@gmail.com> <20051117014558.GA30088@hardeman.nu> <437C0BF2.4010400@gmail.com> <20051117234510.GA3854@hardeman.nu>
+In-Reply-To: <20051117234510.GA3854@hardeman.nu>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Extend the parameters of migrate_pages() to allow the caller control
-over the fate of successfully migrated or impossible to migrate pages.
+David Härdeman wrote:
+> On Thu, Nov 17, 2005 at 12:49:54PM +0800, Antonino A. Daplas wrote:
+>> Ignore the hack I mentioned in the previous thread.  Try this patch
+>> instead.
+> 
+> Didn't help, the messages remain the same (tried with vga=0x318 and
+> video=intelfb:1024x768-32@60,mtrr=0 vga=0x318).
+> 
+> Boot:
+> intelfb: 00:02.0: Intel(R) 852GM, aperture size 128MB, stolen memory 8060kB
+> intelfb: Non-CRT device is enabled ( LVDS port ).  Disabling mode
+> switching.
+> intelfb: Initial video mode is 1024x768-32@60.
+> intelfb: Changing the video mode is not supported.
+> Console: switching to colour frame buffer device 128x48
+> 
+> Starting X:
+> mtrr: base(0xe0020000) is not aligned on a size(0x300000) boundary
+> [drm:drm_unlock] *ERROR* Process 2976 using kernel context 0
+> 
+> First time I switch from X to VC:
+> intelfb: Changing the video mode is not supported.
+> intelfb: ring buffer : space: 6024 wanted 65472
+> intelfb: lockup - turning off hardware acceleration
+> 
 
-Swap migration and direct migration will have the same interface after this
-patch so that patches can be independently applied to the policy layer
-and the core migration code.
+Well, intelfb is at the mercy of X if it's in 'fixed mode'.
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+> Other suggestions?
 
-Index: linux-2.6.15-rc1-mm1/include/linux/swap.h
-===================================================================
---- linux-2.6.15-rc1-mm1.orig/include/linux/swap.h	2005-11-17 16:57:30.000000000 -0800
-+++ linux-2.6.15-rc1-mm1/include/linux/swap.h	2005-11-17 16:58:18.000000000 -0800
-@@ -179,7 +179,8 @@ extern int vm_swappiness;
- #ifdef CONFIG_MIGRATION
- extern int isolate_lru_page(struct page *p);
- extern int putback_lru_pages(struct list_head *l);
--extern int migrate_pages(struct list_head *l, struct list_head *t);
-+extern int migrate_pages(struct list_head *l, struct list_head *t,
-+		struct list_head *moved, struct list_head *failed);
- #endif
+I'm adding Sylvain, the intelfb maintainer, to the CC list.
+
+How about this one?  It also resets the ringbuffer before re-initializing
+it again.
+
+Tony
+
+diff --git a/drivers/video/intelfb/intelfbdrv.c b/drivers/video/intelfb/intelfbdrv.c
+index 427689e..f1e7778 100644
+--- a/drivers/video/intelfb/intelfbdrv.c
++++ b/drivers/video/intelfb/intelfbdrv.c
+@@ -1283,6 +1283,16 @@ intelfb_set_par(struct fb_info *info)
  
- #ifdef CONFIG_MMU
-Index: linux-2.6.15-rc1-mm1/mm/vmscan.c
-===================================================================
---- linux-2.6.15-rc1-mm1.orig/mm/vmscan.c	2005-11-17 16:57:35.000000000 -0800
-+++ linux-2.6.15-rc1-mm1/mm/vmscan.c	2005-11-17 16:57:46.000000000 -0800
-@@ -681,10 +681,10 @@ retry:
-  * list. The direct migration patchset
-  * extends this function to avoid the use of swap.
-  */
--int migrate_pages(struct list_head *l, struct list_head *t)
-+int migrate_pages(struct list_head *from, struct list_head *to,
-+		  struct list_head *moved, struct list_head *failed)
- {
- 	int retry;
--	LIST_HEAD(failed);
- 	int nr_failed = 0;
- 	int pass = 0;
- 	struct page *page;
-@@ -697,12 +697,12 @@ int migrate_pages(struct list_head *l, s
- redo:
- 	retry = 0;
- 
--	list_for_each_entry_safe(page, page2, l, lru) {
-+	list_for_each_entry_safe(page, page2, from, lru) {
- 		cond_resched();
- 
- 		if (page_count(page) == 1) {
- 			/* page was freed from under us. So we are done. */
--			move_to_lru(page);
-+			list_move(&page->lru, moved);
- 			continue;
- 		}
- 		/*
-@@ -733,7 +733,7 @@ redo:
- 		if (PageAnon(page) && !PageSwapCache(page)) {
- 			if (!add_to_swap(page, GFP_KERNEL)) {
- 				unlock_page(page);
--				list_move(&page->lru, &failed);
-+				list_move(&page->lru, failed);
- 				nr_failed++;
- 				continue;
- 			}
-@@ -743,8 +743,10 @@ redo:
- 		 * Page is properly locked and writeback is complete.
- 		 * Try to migrate the page.
- 		 */
--		if (!swap_page(page))
-+		if (!swap_page(page)) {
-+			list_move(&page->lru, moved);
- 			continue;
+ 	if (FIXED_MODE(dinfo)) {
+ 		ERR_MSG("Changing the video mode is not supported.\n");
++
++		/* 
++		 * We need to at least initialize the 2D engine even
++		 * if changing the mode is not allowed
++		 */
++		if (ACCEL(dinfo, info)) {
++			intelfbhw_2d_stop(dinfo);
++			intelfbhw_2d_start(dinfo);
 +		}
- retry_later:
- 		retry++;
++
+ 		return -EINVAL;
  	}
-@@ -754,9 +756,6 @@ retry_later:
- 	if (!swapwrite)
- 		current->flags &= ~PF_SWAPWRITE;
  
--	if (!list_empty(&failed))
--		list_splice(&failed, l);
--
- 	return nr_failed + retry;
- }
- 
-Index: linux-2.6.15-rc1-mm1/mm/mempolicy.c
-===================================================================
---- linux-2.6.15-rc1-mm1.orig/mm/mempolicy.c	2005-11-17 16:54:24.000000000 -0800
-+++ linux-2.6.15-rc1-mm1/mm/mempolicy.c	2005-11-17 16:57:46.000000000 -0800
-@@ -438,6 +438,19 @@ static int contextualize_policy(int mode
- 	return mpol_check_policy(mode, nodes);
- }
- 
-+static int swap_pages(struct list_head *pagelist)
-+{
-+	LIST_HEAD(moved);
-+	LIST_HEAD(failed);
-+	int n;
-+
-+	n = migrate_pages(pagelist, NULL, &moved, &failed);
-+	putback_lru_pages(&failed);
-+	putback_lru_pages(&moved);
-+
-+	return n;
-+}
-+
- long do_mbind(unsigned long start, unsigned long len,
- 		unsigned long mode, nodemask_t *nmask, unsigned long flags)
- {
-@@ -490,10 +503,13 @@ long do_mbind(unsigned long start, unsig
- 	      (flags & (MPOL_MF_MOVE | MPOL_MF_MOVE_ALL)) ? &pagelist : NULL);
- 	err = PTR_ERR(vma);
- 	if (!IS_ERR(vma)) {
-+		int nr_failed = 0;
-+
- 		err = mbind_range(vma, start, end, new);
- 		if (!list_empty(&pagelist))
--			migrate_pages(&pagelist, NULL);
--		if (!err && !list_empty(&pagelist) && (flags & MPOL_MF_STRICT))
-+			nr_failed = swap_pages(&pagelist);
-+
-+		if (!err && nr_failed && (flags & MPOL_MF_STRICT))
- 			err = -EIO;
- 	}
- 	if (!list_empty(&pagelist))
-@@ -644,11 +660,12 @@ int do_migrate_pages(struct mm_struct *m
- 	down_read(&mm->mmap_sem);
- 	check_range(mm, mm->mmap->vm_start, TASK_SIZE, &nodes,
- 			flags | MPOL_MF_DISCONTIG_OK, &pagelist);
-+
- 	if (!list_empty(&pagelist)) {
--		migrate_pages(&pagelist, NULL);
--		if (!list_empty(&pagelist))
--			count = putback_lru_pages(&pagelist);
-+		count = swap_pages(&pagelist);
-+		putback_lru_pages(&pagelist);
- 	}
-+
- 	up_read(&mm->mmap_sem);
- 	return count;
- }

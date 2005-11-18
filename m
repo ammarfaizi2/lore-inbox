@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161119AbVKRS4O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161123AbVKRS7e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161119AbVKRS4O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 13:56:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161121AbVKRS4O
+	id S1161123AbVKRS7e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 13:59:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161124AbVKRS7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 13:56:14 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:1475 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1161119AbVKRS4O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 13:56:14 -0500
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-Cc: Dave Jones <davej@redhat.com>, Lee Revell <rlrevell@joe-job.com>,
-       Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <43797E05.5090107@wolfmountaingroup.com>
-References: <58MJb-2Sn-37@gated-at.bofh.it> <58NvO-46M-23@gated-at.bofh.it>
-	 <58Rpx-1m6-11@gated-at.bofh.it> <58UGF-6qR-27@gated-at.bofh.it>
-	 <58UQf-6Da-3@gated-at.bofh.it> <437933B6.1000503@shaw.ca>
-	 <1132020468.27215.25.camel@mindpipe> <20051115032819.GA5620@redhat.com>
-	 <43795575.9010904@wolfmountaingroup.com>
-	 <20051115050658.GA13660@redhat.com>
-	 <43797E05.5090107@wolfmountaingroup.com>
-Content-Type: text/plain
+	Fri, 18 Nov 2005 13:59:34 -0500
+Received: from moutvdom.kundenserver.de ([212.227.126.249]:9470 "EHLO
+	moutvdomng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1161123AbVKRS7d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 13:59:33 -0500
+Message-ID: <437E2494.6010005@anagramm.de>
+Date: Fri, 18 Nov 2005 19:59:32 +0100
+From: Clemens Koller <clemens.koller@anagramm.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.6.14.2 - Hard link count is wrong
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Fri, 18 Nov 2005 19:27:45 +0000
-Message-Id: <1132342065.25914.81.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-11-14 at 23:19 -0700, Jeff V. Merkey wrote:
-> Making the point that in 1990, folks had grown beyond 4K stacks in 
-> kernels, along with MS DOS 640K Limitations.
+Hi, There!
 
-And Linux 8086 uses 512 byte kernel stacks, and really wants a bit of
-tuning to get down to 256.
+On a newly installed 2.6.14.2 (vanilla), when I do a
 
-Its about discipline and design not year
+root@testserver: /$ find | grep something.conf
 
+I get
+
+.....
+find: WARNING: Hard link count is wrong for .: this may be a bug in your filesystem driver.  Automatically turning on find's -noleaf option.  Earlier results may have failed to include directories that should have been searched.
+
+According to google, this might be a kernel bug due to some problems in /proc, see:
+https://www.redhat.com/archives/fedora-list/2005-September/msg02474.html
+Well, how to debug that problem?
+
+Greets,
+
+-- 
+Clemens Koller
+_______________________________
+R&D Imaging Devices
+Anagramm GmbH
+Rupert-Mayer-Str. 45/1
+81379 Muenchen
+Germany
+
+http://www.anagramm.de
+Phone: +49-89-741518-50
+Fax: +49-89-741518-19

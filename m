@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751040AbVKRByK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbVKRBxy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751040AbVKRByK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 20:54:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbVKRByK
+	id S1750853AbVKRBxy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 20:53:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750970AbVKRBxy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 20:54:10 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:13455 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750970AbVKRByH (ORCPT
+	Thu, 17 Nov 2005 20:53:54 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:10639 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750853AbVKRBxx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 20:54:07 -0500
-Date: Thu, 17 Nov 2005 17:53:43 -0800
+	Thu, 17 Nov 2005 20:53:53 -0500
+Date: Thu, 17 Nov 2005 17:50:15 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Richard Knutsson <ricknu-0@student.ltu.se>
+To: Adrian Bunk <bunk@stusta.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-rc1-mm1
-Message-Id: <20051117175343.2b2c0a9c.akpm@osdl.org>
-In-Reply-To: <437D3205.3080506@student.ltu.se>
-References: <20051117111807.6d4b0535.akpm@osdl.org>
-	<437D3205.3080506@student.ltu.se>
+Subject: Re: [2.6 patch] mark virt_to_bus/bus_to_virt as __deprecated on
+ i386
+Message-Id: <20051117175015.6aa99fcf.akpm@osdl.org>
+In-Reply-To: <20051118014055.GK11494@stusta.de>
+References: <20051118014055.GK11494@stusta.de>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -25,19 +25,15 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Knutsson <ricknu-0@student.ltu.se> wrote:
+Adrian Bunk <bunk@stusta.de> wrote:
 >
-> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc1/2.6.15-rc1-mm1
->  >  
->  >
->  Got a compiler-error:
+> virt_to_bus/bus_to_virt are long deprecated, mark them as __deprecated 
+> on i386.
 > 
->    CC      drivers/serial/jsm/jsm_tty.o
->  drivers/serial/jsm/jsm_tty.c: In function `jsm_input':
->  drivers/serial/jsm/jsm_tty.c:592: error: structure has no member named `flip'
->  drivers/serial/jsm/jsm_tty.c:619: error: structure has no member named `flip'
->  drivers/serial/jsm/jsm_tty.c:620: error: structure has no member named `flip'
 
-Yes, sorry, JSM is known-to-be-bust-in-mm.  The maintainers are working
-(slowly) on fixing it up.
+Problem is, nobody's fixing these things.  There's no point in adding spam
+to the kernel build unless it actually gets us some action, and I haven't
+seen any evidence that it does.
+
+Stick it under CONFIG_I_AM_A_DEVELOPER_WHO_HAS_TIME_TO_FIX_STUFF.
 

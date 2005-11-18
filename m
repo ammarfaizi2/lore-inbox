@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932548AbVKRHK4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932553AbVKRHML@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932548AbVKRHK4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 02:10:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932553AbVKRHK4
+	id S932553AbVKRHML (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 02:12:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932559AbVKRHML
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 02:10:56 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:20686
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S932548AbVKRHK4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 02:10:56 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] Re: [PATCH 2/4] UML - Eliminate anonymous union and clean up symlink lossage
-Date: Fri, 18 Nov 2005 01:10:34 -0600
-User-Agent: KMail/1.8
-Cc: Jeff Dike <jdike@addtoit.com>, akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <200511172110.jAHLAQoe010199@ccure.user-mode-linux.org> <200511180103.29950.rob@landley.net>
-In-Reply-To: <200511180103.29950.rob@landley.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Nov 2005 02:12:11 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:40168 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S932553AbVKRHMJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 02:12:09 -0500
+Date: Fri, 18 Nov 2005 08:12:08 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: davej@redhat.com, hugh@veritas.com, akpm@osdl.org, nickpiggin@yahoo.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 02/11] unpaged: private write VM_RESERVED
+Message-ID: <20051118071208.GA15705@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	"David S. Miller" <davem@davemloft.net>, davej@redhat.com,
+	hugh@veritas.com, akpm@osdl.org, nickpiggin@yahoo.com.au,
+	linux-kernel@vger.kernel.org
+References: <20051117194102.GE5772@redhat.com> <20051117204617.GA10925@isilmar.linta.de> <20051117205156.GH5772@redhat.com> <20051117.155856.44665420.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511180110.35169.rob@landley.net>
+In-Reply-To: <20051117.155856.44665420.davem@davemloft.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 18 November 2005 01:03, Rob Landley wrote:
-> On Thursday 17 November 2005 15:10, Jeff Dike wrote:
-> > This gives a name to the anonymous union introduced in
-> > skas-hold-own-ldt, allowing to build on a wider range of gccs.
->
-> Or narrower range, in the case of Ubuntu "Horny Hedgehog".  2.6.15-rc1
-> builds fine by itself, or with just patch 1 in this series, but with patch
-> 2...
+Hi,
 
-To clarify, 1, 3 and 4 in this series all build fine for me.  Only patch 2 is 
-breaking my build.
+On Thu, Nov 17, 2005 at 03:58:56PM -0800, David S. Miller wrote:
+> > Davem's initial analysis was on ddcprobe, it's possible that whilst the
+> > code is the same in both projects, that vbetool's needs are different
+> > enough to require a different patch.
+> 
+> I don't think so, but lrmi.c instances are doing exactly the
+> same stuff so the same fix ought to work in both spots.
+> 
+> It could be some other 2.6.15 change that's mucked up suspend-to-ram
+> resume for this person.
 
-Rob
+No. 2.6.15-rc1-git-as-of-yesterday and Hugh's patches plus original
+vbetool-0.3 works fine, but it plus vbetool-0.3-lrmi.patch breaks resume for
+this person's notebook, i.e. mine. And it's repeatable.
+
+	Dominik

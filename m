@@ -1,73 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbVKRQcZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbVKRQeL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932400AbVKRQcZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 11:32:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbVKRQcZ
+	id S932334AbVKRQeL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 11:34:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbVKRQeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 11:32:25 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:47373 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932334AbVKRQcY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 11:32:24 -0500
-Date: Fri, 18 Nov 2005 16:32:09 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Adrian Bunk <bunk@stusta.de>, saw@saw.sw.com.sg,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [RFC: 2.6 patch] remove drivers/net/eepro100.c
-Message-ID: <20051118163208.GA23355@flint.arm.linux.org.uk>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Adrian Bunk <bunk@stusta.de>, saw@saw.sw.com.sg,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-	"David S. Miller" <davem@davemloft.net>
-References: <20051118033302.GO11494@stusta.de> <20051118090158.GA11621@flint.arm.linux.org.uk> <437DFD6C.1020106@pobox.com>
+	Fri, 18 Nov 2005 11:34:11 -0500
+Received: from atlrel6.hp.com ([156.153.255.205]:28083 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S932334AbVKRQeK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 11:34:10 -0500
+Date: Fri, 18 Nov 2005 10:33:57 -0600
+From: mikem <mikem@beardog.cca.cpqcorp.net>
+To: akpm@osdl.org, axboe@suse.de
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, hpa@zytor.com,
+       sitniko@infonet.ee
+Subject: [PATCH 1/3] cciss: bug fix for hpacucli
+Message-ID: <20051118163357.GA10928@beardog.cca.cpqcorp.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <437DFD6C.1020106@pobox.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 18, 2005 at 11:12:28AM -0500, Jeff Garzik wrote:
-> Russell King wrote:
-> >On Fri, Nov 18, 2005 at 04:33:02AM +0100, Adrian Bunk wrote:
-> >
-> >>This patch removes the obsolete drivers/net/eepro100.c driver.
-> >>
-> >>Is there any reason why it should be kept?
-> >
-> >
-> >Tt's the only driver which works correctly on ARM CPUs.  e100 is
-> >basically buggy.  This has been discussed here on lkml and more
-> >recently on linux-netdev.  If anyone has any further questions
-> >please read the archives of those two lists.
-> 
-> After reading the archives, one discovers the current status is:
-> 
-> 	waiting on ARM folks to test e100
-> 
-> Latest reference is public message-id <4371A373.6000308@pobox.com>, 
-> which was CC'd to you.
-> 
-> There is a patch in netdev-2.6.git#e100-sbit and in Andrew's -mm tree 
-> that should solve the ARM problems, and finally allow us to kill 
-> eepro100.  But it's waiting for feedback...
+Patch 1 of 3
 
-So what you're saying is that it's down to me to test the thing.
+This patch fixes a bug that breaks hpacucli, a command line interface
+for the HP Array Config Utility. Without this fix the utility will
+not detect any controllers in the system. I thought I had already fixed
+this, but I guess not.
 
-Ok.
+Thanks to all who reported the issue. Please consider this this inclusion.
 
-I've been extremely patient waiting for e100 to get fixed (it's been
-literally _years_), and I think it isn't surprising that the hardware
-it was noticed on has been packed away.
+Signed-off-by: Mike Miller
 
-Now I ask the same of others for when I'm (a) well enough to enter
-the cold environment in which this machine is currently stored and
-(b) can find the time to resurect the machine.
+--------------------------------------------------------------------------------
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+ include/linux/cciss_ioctl.h |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -puN include/linux/cciss_ioctl.h~cciss_fix_for_cli include/linux/cciss_ioctl.h
+--- linux-2.6.14.2/include/linux/cciss_ioctl.h~cciss_fix_for_cli	2005-11-18 10:20:38.692304096 -0600
++++ linux-2.6.14.2-mikem/include/linux/cciss_ioctl.h	2005-11-18 10:21:14.112919344 -0600
+@@ -10,8 +10,8 @@
+ typedef struct _cciss_pci_info_struct
+ {
+ 	unsigned char 	bus;
+-	unsigned short	domain;
+ 	unsigned char 	dev_fn;
++	unsigned short	domain;
+ 	__u32 		board_id;
+ } cciss_pci_info_struct; 
+ 
+_

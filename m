@@ -1,40 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750984AbVKRV3y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751010AbVKRVca@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750984AbVKRV3y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 16:29:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751001AbVKRV3y
+	id S1751010AbVKRVca (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 16:32:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751012AbVKRVca
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 16:29:54 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:39844 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750984AbVKRV3y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 16:29:54 -0500
-Date: Fri, 18 Nov 2005 16:29:38 -0500
-From: Dave Jones <davej@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: dell_rbu driver depends on x86[64]
-Message-ID: <20051118212938.GB3881@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	linux-kernel@vger.kernel.org
+	Fri, 18 Nov 2005 16:32:30 -0500
+Received: from ccerelbas04.cce.hp.com ([161.114.21.107]:3514 "EHLO
+	ccerelbas04.cce.hp.com") by vger.kernel.org with ESMTP
+	id S1751006AbVKRVc3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 16:32:29 -0500
+Date: Fri, 18 Nov 2005 15:32:17 -0600
+From: mikem <mikem@beardog.cca.cpqcorp.net>
+To: Jens Axboe <axboe@suse.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH 2/3] cciss: bug fix for BIG_PASS_THRU
+Message-ID: <20051118213217.GA23551@beardog.cca.cpqcorp.net>
+References: <20051118164112.GA14937@beardog.cca.cpqcorp.net> <20051118210123.GC25454@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20051118210123.GC25454@suse.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This driver only appears on IA32 & EM64T boxes.
+On Fri, Nov 18, 2005 at 10:01:24PM +0100, Jens Axboe wrote:
+> On Fri, Nov 18 2005, mikem wrote:
+> > Patch 2 of 3
+> > 
+> > Applications using CCISS_BIG_PASSTHRU complained that the data written
+> > was zeros.  The code looked alright, but it seems that copy_from_user 
+> > already does a memset on the buffer. Removing it from the pass-through
+> > fixes the apps.
+> 
+> Hmm, I don't like this patch, since you never clear the buffer for reads
+> now. If the controller for some reason doesn't overwrite this buffer,
+> you could be leaking privileged data! Your bug is because you do:
+> 
+>         if (write && copy_from_user(...))
+>                 fail
+>         else
+>                 clear
+> 
+> so you end up in the clear case for any case where copy_from_user()
+> doesn't fail. I've fixed it up for you, this is what I committed:
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+Thanks, Jens.
 
---- linux-2.6.14/drivers/firmware/Kconfig~	2005-11-14 19:23:45.000000000 -0500
-+++ linux-2.6.14/drivers/firmware/Kconfig	2005-11-14 19:24:18.000000000 -0500
-@@ -60,6 +60,7 @@ config EFI_PCDP
- 
- config DELL_RBU
- 	tristate "BIOS update support for DELL systems via sysfs"
-+	depends on X86
- 	select FW_LOADER
- 	help
- 	 Say m if you want to have the option of updating the BIOS for your
-
+> 
+> diff --git a/drivers/block/cciss.c b/drivers/block/cciss.c
+> index e239a6c..33f8341 100644
+> --- a/drivers/block/cciss.c
+> +++ b/drivers/block/cciss.c
+> @@ -1017,10 +1017,11 @@ static int cciss_ioctl(struct inode *ino
+>  				status = -ENOMEM;
+>  				goto cleanup1;
+>  			}
+> -			if (ioc->Request.Type.Direction == XFER_WRITE &&
+> -				copy_from_user(buff[sg_used], data_ptr, sz)) {
+> +			if (ioc->Request.Type.Direction == XFER_WRITE) {
+> +				if (copy_from_user(buff[sg_used], data_ptr, sz)) {
+>  					status = -ENOMEM;
+> -					goto cleanup1;			
+> +					goto cleanup1;
+> +				}
+>  			} else {
+>  				memset(buff[sg_used], 0, sz);
+>  			}
+> 
+> -- 
+> Jens Axboe
+> 

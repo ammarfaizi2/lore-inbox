@@ -1,124 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161191AbVKRUer@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161188AbVKRUdO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161191AbVKRUer (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 15:34:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161192AbVKRUeq
+	id S1161188AbVKRUdO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 15:33:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161187AbVKRUdG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 15:34:46 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:21124 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161191AbVKRUeo (ORCPT
+	Fri, 18 Nov 2005 15:33:06 -0500
+Received: from zproxy.gmail.com ([64.233.162.205]:44006 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161183AbVKRUcx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 15:34:44 -0500
-Date: Fri, 18 Nov 2005 20:34:28 +0000
-From: Alasdair G Kergon <agk@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] device-mapper: make lock_fs optional
-Message-ID: <20051118203428.GU11878@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 18 Nov 2005 15:32:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=GBtqX+WGKdTM5Cjp72Nz0kAV0xQj+qhZIXvZv66aVzMzZPImMpDiZMowQRkcrfky5MgptUWnAQiChDolMdKILfyjqetCdwW3eBiEwPhf1eEkMw+kCNQDpJTuiPQUmBKoscTfh3I4dX3C8lkYmxBgF9vSXIceYcGi97uU4fEL994=
+Message-ID: <437E3A5D.1090006@gmail.com>
+Date: Sat, 19 Nov 2005 04:32:29 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@2gen.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Sylvain Meyer <sylvain.meyer@worldonline.fr>
+Subject: Re: X and intelfb fight over videomode
+References: <20051117000144.GA29144@hardeman.nu> <437BD8D9.9030904@gmail.com> <20051117014558.GA30088@hardeman.nu> <437C0BF2.4010400@gmail.com> <20051117234510.GA3854@hardeman.nu> <437D298A.7070203@gmail.com> <20051118183607.GA3866@hardeman.nu>
+In-Reply-To: <20051118183607.GA3866@hardeman.nu>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Devices only needs syncing when creating snapshots,
-so make this optional when suspending a device.
+David Härdeman wrote:
+> On Fri, Nov 18, 2005 at 09:08:26AM +0800, Antonino A. Daplas wrote:
+>> David Härdeman wrote:
+>>> First time I switch from X to VC:
+>>> intelfb: Changing the video mode is not supported.
+>>> intelfb: ring buffer : space: 6024 wanted 65472
+>>> intelfb: lockup - turning off hardware acceleration
+>>>
+>>
+>> Well, intelfb is at the mercy of X if it's in 'fixed mode'.
+>>
+>>> Other suggestions?
+>>
+>> I'm adding Sylvain, the intelfb maintainer, to the CC list.
+>>
+>> How about this one?  It also resets the ringbuffer before re-initializing
+>> it again.
+> 
+> That made no change at all unfortunately, the messages are exactly the
+> same as before...
 
-Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
+That's the limit to what I can do (I don't have the hardware) and let's just
+wait for the maintainer to respond.
 
-Index: linux-2.6.14/drivers/md/dm-ioctl.c
-===================================================================
---- linux-2.6.14.orig/drivers/md/dm-ioctl.c	2005-11-14 23:10:57.000000000 +0000
-+++ linux-2.6.14/drivers/md/dm-ioctl.c	2005-11-14 23:11:24.000000000 +0000
-@@ -700,7 +700,7 @@ static int do_suspend(struct dm_ioctl *p
- 		return -ENXIO;
- 
- 	if (!dm_suspended(md))
--		r = dm_suspend(md);
-+		r = dm_suspend(md, 1);
- 
- 	if (!r)
- 		r = __dev_status(md, param);
-@@ -738,7 +738,7 @@ static int do_resume(struct dm_ioctl *pa
- 	if (new_map) {
- 		/* Suspend if it isn't already suspended */
- 		if (!dm_suspended(md))
--			dm_suspend(md);
-+			dm_suspend(md, 1);
- 
- 		r = dm_swap_table(md, new_map);
- 		if (r) {
-Index: linux-2.6.14/drivers/md/dm.h
-===================================================================
---- linux-2.6.14.orig/drivers/md/dm.h	2005-11-14 23:10:57.000000000 +0000
-+++ linux-2.6.14/drivers/md/dm.h	2005-11-14 23:11:24.000000000 +0000
-@@ -69,7 +69,7 @@ void dm_put(struct mapped_device *md);
- /*
-  * A device can still be used while suspended, but I/O is deferred.
-  */
--int dm_suspend(struct mapped_device *md);
-+int dm_suspend(struct mapped_device *md, int with_lockfs);
- int dm_resume(struct mapped_device *md);
- 
- /*
-Index: linux-2.6.14/drivers/md/dm.c
-===================================================================
---- linux-2.6.14.orig/drivers/md/dm.c	2005-11-14 23:10:57.000000000 +0000
-+++ linux-2.6.14/drivers/md/dm.c	2005-11-14 23:11:24.000000000 +0000
-@@ -55,6 +55,7 @@ union map_info *dm_get_mapinfo(struct bi
-  */
- #define DMF_BLOCK_IO 0
- #define DMF_SUSPENDED 1
-+#define DMF_FROZEN 2
- 
- struct mapped_device {
- 	struct rw_semaphore io_lock;
-@@ -1021,6 +1022,8 @@ static int lock_fs(struct mapped_device 
- 		return r;
- 	}
- 
-+	set_bit(DMF_FROZEN, &md->flags);
-+
- 	/* don't bdput right now, we don't want the bdev
- 	 * to go away while it is locked.
- 	 */
-@@ -1029,8 +1032,12 @@ static int lock_fs(struct mapped_device 
- 
- static void unlock_fs(struct mapped_device *md)
- {
-+	if (!test_bit(DMF_FROZEN, &md->flags))
-+		return;
-+
- 	thaw_bdev(md->suspended_bdev, md->frozen_sb);
- 	md->frozen_sb = NULL;
-+	clear_bit(DMF_FROZEN, &md->flags);
- }
- 
- /*
-@@ -1040,7 +1047,7 @@ static void unlock_fs(struct mapped_devi
-  * dm_bind_table, dm_suspend must be called to flush any in
-  * flight bios and ensure that any further io gets deferred.
-  */
--int dm_suspend(struct mapped_device *md)
-+int dm_suspend(struct mapped_device *md, int do_lockfs)
- {
- 	struct dm_table *map = NULL;
- 	DECLARE_WAITQUEUE(wait, current);
-@@ -1064,9 +1071,11 @@ int dm_suspend(struct mapped_device *md)
- 	}
- 
- 	/* Flush I/O to the device. */
--	r = lock_fs(md);
--	if (r)
--		goto out;
-+	if (do_lockfs) {
-+		r = lock_fs(md);
-+		if (r)
-+			goto out;
-+	}
- 
- 	/*
- 	 * First we set the BLOCK_IO flag so no more ios will be mapped.
+For now, you can eliminate that message by turning acceleration off.
+
+video=intelfb:accel:0
+
+Another solution is to disable direct rendering, but I don't think you want
+that.
+
+Tony
+
+PS: I saw this problem before with i810fb, and this is because the i810 driver
+of X and i810fb shared the same ringbuffer.  But the i810 chipset has 2 ringbuffers,
+so I just made i810fb use the ringbuffer that is not touched by X/DRI. (I don't
+know the status now since I don't have this chipset anymore).  That is one 
+solution.

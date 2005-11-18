@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbVKRQnM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964795AbVKRQqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964787AbVKRQnM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 11:43:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964792AbVKRQnM
+	id S964795AbVKRQqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 11:46:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964816AbVKRQqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 11:43:12 -0500
-Received: from [217.149.127.10] ([217.149.127.10]:27357 "EHLO
-	stine.vestdata.no") by vger.kernel.org with ESMTP id S964787AbVKRQnL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 11:43:11 -0500
-Date: Fri, 18 Nov 2005 17:42:27 +0100
-From: Ragnar =?iso-8859-15?Q?Kj=F8rstad?= <kernel@ragnark.vestdata.no>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Andrew Morton <akpm@osdl.org>, Badari Pulavarty <pbadari@us.ibm.com>,
-       andrea@suse.de, hugh@veritas.com, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [RFC] sys_punchhole()
-Message-ID: <20051118164227.GA14697@vestdata.no>
-References: <1131664994.25354.36.camel@localhost.localdomain> <20051110153254.5dde61c5.akpm@osdl.org> <20051113150906.GA2193@spitz.ucw.cz>
+	Fri, 18 Nov 2005 11:46:25 -0500
+Received: from mail.kroah.org ([69.55.234.183]:13523 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964795AbVKRQqZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 11:46:25 -0500
+Date: Thu, 17 Nov 2005 17:39:04 -0800
+From: Greg KH <greg@kroah.com>
+To: Ingo Oeser <ioe-lkml@rameria.de>
+Cc: linux-kernel@vger.kernel.org, Greg KH <gregkh@suse.de>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] [PATCH 02/02] USB: add dynamic id functionality to USB core
+Message-ID: <20051118013904.GA11916@kroah.com>
+References: <20051117003241.GC14896@kroah.com> <Pine.LNX.4.44L0.0511171049070.5089-100000@iolanthe.rowland.org> <20051117162533.GB26824@suse.de> <200511172058.48797.ioe-lkml@rameria.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20051113150906.GA2193@spitz.ucw.cz>
-User-Agent: Mutt/1.4.1i
-X-Zet.no-MailScanner-Information: Please contact the ISP for more information
-X-Zet.no-MailScanner: Found to be clean
-X-MailScanner-From: ragnark@stine.vestdata.no
+In-Reply-To: <200511172058.48797.ioe-lkml@rameria.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 13, 2005 at 03:09:06PM +0000, Pavel Machek wrote:
-> > > We discussed this in madvise(REMOVE) thread - to add support 
-> > > for sys_punchhole(fd, offset, len) to complete the functionality
-> > > (in the future).
-> > > 
-> > > http://marc.theaimsgroup.com/?l=linux-mm&m=113036713810002&w=2
-> > > 
-> > > What I am wondering is, should I invest time now to do it ?
-> > 
-> > I haven't even heard anyone mention a need for this in the past 1-2 years.
+On Thu, Nov 17, 2005 at 08:58:42PM +0100, Ingo Oeser wrote:
+> Hi,
 > 
-> Some database people wanted it maybe month ago. It was replaced by some 
-> madvise hack...
+> On Thursday 17 November 2005 17:25, Greg KH wrote:
+> > On Thu, Nov 17, 2005 at 10:55:33AM -0500, Alan Stern wrote:
+> > > On Wed, 16 Nov 2005, Greg KH wrote:
+> > > > +static int usb_create_newid_file(struct usb_driver *usb_drv)
+> > > > +{
+> > > > +	int error = 0;
+> > > > +
+> > > > +	if (usb_drv->probe != NULL)
+> > > > +		error = sysfs_create_file(&usb_drv->driver.kobj,
+> > > > +					  &driver_attr_new_id.attr);
+> > > > +	return error;
+> > > > +}
+> > > 
+> > > This deserves to be an inline function.
+> 
+> Come on, this is just a gloryfied if :-)
+> 
+> static inline int usb_create_newid_file(struct usb_driver *usb_drv)
+> {
+> 	if (usb_drv->probe != NULL) {
+> 		return sysfs_create_file(&usb_drv->driver.kobj,
+> 					  &driver_attr_new_id.attr);
+> 	} else {
+> 		return 0;
+> 	}
+> }
 
+Yes it is.  But it's an #ifdef if, which makes it want to be a separate
+function.
 
-sys_punchhole is also potentially very useful for Hirarchial Storage
-Management. (Holes are typically used for data that have been migrated
-to tape).
+thanks,
 
-
-
-
--- 
-Ragnar Kjørstad
+greg k-h

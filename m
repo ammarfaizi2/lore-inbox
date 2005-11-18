@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030259AbVKRRa1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030217AbVKRRc0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030259AbVKRRa1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 12:30:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030217AbVKRRa1
+	id S1030217AbVKRRc0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 12:32:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964844AbVKRRcZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 12:30:27 -0500
-Received: from waste.org ([64.81.244.121]:8322 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S964782AbVKRRa0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 12:30:26 -0500
-Date: Fri, 18 Nov 2005 09:27:27 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: acme@conectiva.com.br, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [2.6 patch] move some code to net/ipx/af_ipx.c
-Message-ID: <20051118172727.GB31287@waste.org>
-References: <6.282480653@selenic.com> <7.282480653@selenic.com> <20051114015707.GB5735@stusta.de> <20051118052252.GG11494@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051118052252.GG11494@stusta.de>
-User-Agent: Mutt/1.5.9i
+	Fri, 18 Nov 2005 12:32:25 -0500
+Received: from moutng.kundenserver.de ([212.227.126.188]:54494 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S964782AbVKRRcZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 12:32:25 -0500
+Message-ID: <437E0F3A.2000906@free.fr>
+Date: Fri, 18 Nov 2005 18:28:26 +0100
+From: Olivier Croquette <ocroquette@free.fr>
+User-Agent: Mozilla Thunderbird 1.0.7 (Macintosh/20050923)
+X-Accept-Language: fr-fr, en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+CC: autofs@linux.kernel.org, raven@themaw.net
+Subject: Automount ghost option
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:e39ae1980843c849592344a98bbbf26f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 18, 2005 at 06:22:52AM +0100, Adrian Bunk wrote:
-> > 
-> > This patch isn't bad, but looking closer we could move the contents of 
-> > p8023.c as well as the contents of at least p8022.c and pe2.c into 
-> > af_ipx.c.
-> > 
-> > Is the contents of any of these three files expected to be used
-> > outside IPX (closest candidate would be appletalk)?
-> 
-> Below is a patch implementing what I was thinking of.
 
-Looks reasonable.
+I want the automount mount points to be visible even if they are not 
+mounted.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+It seems the "ghost" option implements that. I can find several 
+references on the internet which indicates it is available, like:
+http://gentoo-wiki.com/HOWTO_Auto_mount_filesystems_(AUTOFS)
+
+Nevertheless, on some recent distributions I have tested on, this option 
+is not available.
+
+Can anyone tell me in which version of automount it is present?
+Or is it a distribution specific patch?
+
+Thanks!
+
+Olivier
+
+

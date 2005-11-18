@@ -1,261 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbVKRTp4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbVKRTq4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932304AbVKRTp4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 14:45:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbVKRTp4
+	id S932353AbVKRTq4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 14:46:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932362AbVKRTq4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 14:45:56 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:4498 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932304AbVKRTpz (ORCPT
+	Fri, 18 Nov 2005 14:46:56 -0500
+Received: from mtaout2.012.net.il ([84.95.2.4]:45360 "EHLO mtaout2.012.net.il")
+	by vger.kernel.org with ESMTP id S932353AbVKRTqz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 14:45:55 -0500
-Message-ID: <437E2F6F.4010509@us.ibm.com>
-Date: Fri, 18 Nov 2005 11:45:51 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Linux Memory Management <linux-mm@kvack.org>
-Subject: [RFC][PATCH 7/8] __cache_grow()
-References: <437E2C69.4000708@us.ibm.com>
-In-Reply-To: <437E2C69.4000708@us.ibm.com>
-Content-Type: multipart/mixed;
- boundary="------------090408010301040100020904"
+	Fri, 18 Nov 2005 14:46:55 -0500
+Date: Fri, 18 Nov 2005 21:45:48 +0200
+From: Muli Ben-Yehuda <mulix@mulix.org>
+Subject: Re: [PATCH] x86-64: dma_ops for DMA mapping -K4
+In-reply-to: <20051117220348.GA9297@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Ravikiran G Thirumalai <kiran@scalex86.org>, niv@us.ibm.com,
+       Jon Mason <jdmason@us.ibm.com>, Jimi Xenidis <jimix@watson.ibm.com>,
+       Muli Ben-Yehuda <MULI@il.ibm.com>,
+       "Shai Fultheim (shai@scalex86.org)" <shai@scalex86.org>
+Message-id: <20051118194548.GB3070@granada.merseine.nu>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+References: <20051117131622.GC11966@granada.merseine.nu>
+ <20051117220348.GA9297@infradead.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090408010301040100020904
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Thu, Nov 17, 2005 at 10:03:48PM +0000, Christoph Hellwig wrote:
+> On Thu, Nov 17, 2005 at 03:16:22PM +0200, Muli Ben-Yehuda wrote:
+> > Hi Andi,
+> > 
+> > Here's the latest version of the dma_ops patch. The patch is against
+> > Linus's tree as of yesterday and applies cleanly to
+> > 2.6.15-rc1-git5. Tested on AMD64 and Intel EM64 (x366) with gart,
+> > swiotlb, nommu and iommu=off. Please apply...
+> 
+> Any chance you could move struct dma_mapping_ops to generic code and
+> implement the dma_ operations ontop of them in linux/dma-mapping.h if
+> the arch sets a WANT_DMA_MAPPING_OPS symbol?  This kind of switch is
+> duplicated in far too many architectures.
 
-Create a helper for cache_grow() that handles doing the cache coloring and
-allocating & initializing the struct slab.
+I'm looking at this now. PPC, IA64 and parisc have something like
+this, as well as x86-64 with my patch applied. The others either have
+dma_ops with completely different semantics or choose the dma ops
+implementation at compile time. However, each arch needs a slightly
+different definition of dma_mapping_ops - I'm not sure having one
+definition catering to all archs is better than what we have now,
+considering the DMA mapping implementation is inherently arch
+specific.
 
--Matt
+Cheers,
+Muli
+-- 
+Muli Ben-Yehuda
+http://www.mulix.org | http://mulix.livejournal.com/
 
---------------090408010301040100020904
-Content-Type: text/x-patch;
- name="slab_prep-__cache_grow.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="slab_prep-__cache_grow.patch"
-
-Create a helper function, __cache_grow(), called by cache_grow().  This allows
-us to move the cache coloring and struct slab allocation & initialization to
-its own discrete function.
-
-Also, move both functions below some debugging function definitions, so they can be used
-in these functions by the next patch without needing forward declarations.
-
-Signed-off-by: Matthew Dobson <colpatch@us.ibm.com>
-
-Index: linux-2.6.15-rc1+critical_pool/mm/slab.c
-===================================================================
---- linux-2.6.15-rc1+critical_pool.orig/mm/slab.c	2005-11-17 16:45:09.979876248 -0800
-+++ linux-2.6.15-rc1+critical_pool/mm/slab.c	2005-11-17 16:49:45.118048888 -0800
-@@ -2209,95 +2209,6 @@ static void set_slab_attr(kmem_cache_t *
- 	}
- }
- 
--/*
-- * Grow (by 1) the number of slabs within a cache.  This is called by
-- * kmem_cache_alloc() when there are no active objs left in a cache.
-- */
--static int cache_grow(kmem_cache_t *cachep, gfp_t flags, int nid)
--{
--	struct slab *slabp;
--	void *objp;
--	size_t offset;
--	gfp_t local_flags;
--	unsigned long ctor_flags;
--	struct kmem_list3 *l3;
--
--	/*
--	 * Be lazy and only check for valid flags here,
--	 * keeping it out of the critical path in kmem_cache_alloc().
--	 */
--	if (flags & ~(SLAB_DMA|SLAB_LEVEL_MASK|SLAB_NO_GROW))
--		BUG();
--	if (flags & SLAB_NO_GROW)
--		return 0;
--
--	ctor_flags = SLAB_CTOR_CONSTRUCTOR;
--	local_flags = (flags & SLAB_LEVEL_MASK);
--	if (!(local_flags & __GFP_WAIT))
--		/*
--		 * Not allowed to sleep.  Need to tell a constructor about
--		 * this - it might need to know...
--		 */
--		ctor_flags |= SLAB_CTOR_ATOMIC;
--
--	/* About to mess with non-constant members - lock. */
--	check_irq_off();
--	spin_lock(&cachep->spinlock);
--
--	/* Get colour for the slab, and cal the next value. */
--	offset = cachep->colour_next;
--	cachep->colour_next++;
--	if (cachep->colour_next >= cachep->colour)
--		cachep->colour_next = 0;
--	offset *= cachep->colour_off;
--
--	spin_unlock(&cachep->spinlock);
--
--	check_irq_off();
--	if (local_flags & __GFP_WAIT)
--		local_irq_enable();
--
--	/*
--	 * Ensure caller isn't asking for DMA memory if the slab wasn't created
--	 * with the SLAB_DMA flag.
--	 * Also ensure the caller *is* asking for DMA memory if the slab was
--	 * created with the SLAB_DMA flag.
--	 */
--	kmem_flagcheck(cachep, flags);
--
--	/* Get mem for the objects by allocating a physical page from 'nid' */
--	if (!(objp = kmem_getpages(cachep, flags, nid)))
--		goto out_nomem;
--
--	/* Get slab management. */
--	if (!(slabp = alloc_slabmgmt(cachep, objp, offset, local_flags)))
--		goto out_freepages;
--
--	slabp->nid = nid;
--	set_slab_attr(cachep, slabp, objp);
--
--	cache_init_objs(cachep, slabp, ctor_flags);
--
--	if (local_flags & __GFP_WAIT)
--		local_irq_disable();
--	check_irq_off();
--	l3 = cachep->nodelists[nid];
--	spin_lock(&l3->list_lock);
--
--	/* Make slab active. */
--	list_add_tail(&slabp->list, &(l3->slabs_free));
--	STATS_INC_GROWN(cachep);
--	l3->free_objects += cachep->num;
--	spin_unlock(&l3->list_lock);
--	return 1;
--out_freepages:
--	kmem_freepages(cachep, objp);
--out_nomem:
--	if (local_flags & __GFP_WAIT)
--		local_irq_disable();
--	return 0;
--}
--
- #if DEBUG
- /*
-  * Perform extra freeing checks:
-@@ -2430,6 +2341,105 @@ bad:
- #define check_slabp(x,y)			do { } while(0)
- #endif
- 
-+/**
-+ * Helper function for cache_grow().  Handle cache coloring, allocating a
-+ * struct slab and initializing the slab.
-+ */
-+static struct slab *__cache_grow(kmem_cache_t *cachep, void *objp, gfp_t flags)
-+{
-+	struct slab *slabp;
-+	size_t offset;
-+	unsigned int local_flags;
-+	unsigned long ctor_flags;
-+
-+	ctor_flags = SLAB_CTOR_CONSTRUCTOR;
-+	local_flags = (flags & SLAB_LEVEL_MASK);
-+	if (!(local_flags & __GFP_WAIT))
-+		/*
-+		 * Not allowed to sleep.  Need to tell a constructor about
-+		 * this - it might need to know...
-+		 */
-+		ctor_flags |= SLAB_CTOR_ATOMIC;
-+
-+	/* About to mess with non-constant members - lock. */
-+	check_irq_off();
-+	spin_lock(&cachep->spinlock);
-+
-+	/* Get colour for the slab, and cal the next value. */
-+	offset = cachep->colour_next;
-+	cachep->colour_next++;
-+	if (cachep->colour_next >= cachep->colour)
-+		cachep->colour_next = 0;
-+	offset *= cachep->colour_off;
-+
-+	spin_unlock(&cachep->spinlock);
-+
-+	check_irq_off();
-+	if (local_flags & __GFP_WAIT)
-+		local_irq_enable();
-+
-+	/* Get slab management. */
-+	if (!(slabp = alloc_slabmgmt(cachep, objp, offset, local_flags)))
-+		goto out;
-+
-+	set_slab_attr(cachep, slabp, objp);
-+	cache_init_objs(cachep, slabp, ctor_flags);
-+
-+out:
-+	if (local_flags & __GFP_WAIT)
-+		local_irq_disable();
-+	check_irq_off();
-+	return slabp;
-+}
-+
-+/**
-+ * Grow (by 1) the number of slabs within a cache.  This is called by
-+ * kmem_cache_alloc() when there are no active objs left in a cache.
-+ */
-+static int cache_grow(kmem_cache_t *cachep, gfp_t flags, int nid)
-+{
-+	struct slab *slabp = NULL;
-+	void *objp = NULL;
-+
-+	/*
-+	 * Be lazy and only check for valid flags here,
-+ 	 * keeping it out of the critical path in kmem_cache_alloc().
-+	 */
-+	if (flags & ~(SLAB_DMA|SLAB_LEVEL_MASK|SLAB_NO_GROW))
-+		BUG();
-+	if (flags & SLAB_NO_GROW)
-+		goto out;
-+
-+	/*
-+	 * Ensure caller isn't asking for DMA memory if the slab wasn't created
-+	 * with the SLAB_DMA flag.
-+	 * Also ensure the caller *is* asking for DMA memory if the slab was
-+	 * created with the SLAB_DMA flag.
-+	 */
-+	kmem_flagcheck(cachep, flags);
-+
-+	/* Get mem for the objects by allocating a physical page from 'nid' */
-+	if ((objp = kmem_getpages(cachep, flags, nid))) {
-+		struct kmem_list3 *l3 = cachep->nodelists[nid];
-+
-+		if (!(slabp = __cache_grow(cachep, objp, flags))) {
-+			kmem_freepages(cachep, objp);
-+			objp = NULL;
-+			goto out;
-+		}
-+		slabp->nid = nid;
-+
-+		STATS_INC_GROWN(cachep);
-+		/* Make slab active. */
-+		spin_lock(&l3->list_lock);
-+		list_add_tail(&slabp->list, &l3->slabs_free);
-+		l3->free_objects += cachep->num;
-+		spin_unlock(&l3->list_lock);
-+	}
-+out:
-+	return objp != NULL;
-+}
-+
- static void *cache_alloc_refill(kmem_cache_t *cachep, gfp_t flags)
- {
- 	int batchcount;
-
---------------090408010301040100020904--

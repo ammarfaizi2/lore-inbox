@@ -1,23 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932615AbVKRHnV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030236AbVKRHrJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932615AbVKRHnV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 02:43:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932617AbVKRHnV
+	id S1030236AbVKRHrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 02:47:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932571AbVKRHrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 02:43:21 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:53709 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932615AbVKRHnU (ORCPT
+	Fri, 18 Nov 2005 02:47:09 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:43214 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932569AbVKRHrG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 02:43:20 -0500
-Date: Thu, 17 Nov 2005 23:42:52 -0800
+	Fri, 18 Nov 2005 02:47:06 -0500
+Date: Thu, 17 Nov 2005 23:46:45 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Reuben Farrelly <reuben-lkml@reub.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-rc1-mm1
-Message-Id: <20051117234252.087fa813.akpm@osdl.org>
-In-Reply-To: <437D80BD.7030609@reub.net>
-References: <20051117111807.6d4b0535.akpm@osdl.org>
-	<437D80BD.7030609@reub.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.15-rc1-mm2
+Message-Id: <20051117234645.4128c664.akpm@osdl.org>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -25,61 +21,221 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reuben Farrelly <reuben-lkml@reub.net> wrote:
->
-> Hi,
-> 
-> On 18/11/2005 8:18 a.m., Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc1/2.6.15-rc1-mm1
-> > 
-> > - reiser4 significantly updated
-> > 
-> > 
-> > 
-> > 
-> > Changes since 2.6.14-mm2:
-> 
-> This has been one of the best -mm releases in a while.  No problems compiling
-> or running - and so far nearly 18 hours uptime without any surprises.
 
-We'll have to try harder.  -mm2 is up there now, to break everything again.
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc1/2.6.15-rc1-mm2/
 
-> Following up on a posting from the last -mm release,  I'm still seeing errors 
-> loading multiple network drivers as modules (e100 and sky2) when 
-> CONFIG_PREEMPT_BKL is enabled, with 2.6.14-mm1, 2.6.14-mm2 and now
-> 2.6.15-rc1-mm1.  Mainline git doesn't exhibit the problem, so it's -mm specific.
-> 
-> This is what is logged:
-> 
-> Nov 18 17:40:42 tornado kernel: e100: 0000:06:03.0: e100_eeprom_load: EEPROM
-> corrupted
-> Nov 18 17:40:42 tornado kernel: ACPI: PCI interrupt for device 0000:06:03.0
-> disabled
-> Nov 18 17:40:42 tornado kernel: e100: probe of 0000:06:03.0 failed with error -11
-> Nov 18 17:40:43 tornado kernel: ACPI: PCI Interrupt 0000:04:00.0[A] -> GSI 17
-> (level, low) -> IRQ 177
-> Nov 18 17:40:43 tornado kernel: sky2 0000:04:00.0: unsupported chip type 0xff
-> Nov 18 17:40:43 tornado kernel: ACPI: PCI interrupt for device 0000:04:00.0
-> disabled
-> Nov 18 17:40:43 tornado kernel: sky2: probe of 0000:04:00.0 failed with error -95
-> 
-> I'm certain that both of these NIC's are OK as they work fine with 
-> CONFIG_PREEMPT_BKL not selected.
-> 
-> With CONFIG_PREEMPT_BKL disabled and an otherwise identical config, the
-> driver modules load up just fine.
-> 
-> A known good kernel with this config was 2.6.14-rc5-mm1.
-> I have backed out git-netdev-all but it made no difference, as well as backed 
-> out the e100 changes in -mm on 2.6.15-mm2, again no difference.  So I suspect 
-> it's not a netdev driver problem.
-> 
-> What else can I do to help narrow down the problem?  What other trees or patches 
-> would be worth backing out to try and narrow it down?
 
-I'd be suspecting the PCI changes firstly.  That's gregkh-pci-*. 
+- I'm releasing this so that Hugh's MM rework can get a spin.
 
-Conceivably git-acpi, but that hasn't changed in quite some time.  In fact,
-no ACPI changes since 2.6.14-rc5-mm1.
+  Anyone who had post-2.6.14 problems related to the VM_RESERVED changes
+  (device drivers malfunctioning, obscure userspace hardware-poking
+  applications stopped working, etc) please test.
 
-After that I don't know, sorry.   Binary search time?
+  We'd especially like testing of the graphics DRM drivers across as many
+  card types as poss.
+
+- cifs is busted when built as a module.  Mysteriously.
+
+- Added the parisc devel tree to the -mm lineup as git-parisc.patch (Kyle
+  McMartin <kyle@mcmartin.ca>)
+
+- Added the powerpc devel tree to the -mm lineup as git-powerpc.patch (Paul
+  MacKerras).
+
+- Dropped the powerpc devel tree again due to refusal to boot.  Next time
+  for sure.
+
+- The JSM driver is still busted.  Make sure that CONFIG_SERIAL_JSM=n
+
+- The UML update here is reported to cause a compile failure.
+
+
+
+Changes since 2.6.15-rc1-mm1:
+
+ linus.patch
+ git-acpi.patch
+ git-agpgart.patch
+ git-blktrace.patch
+ git-block.patch
+ git-cfq.patch
+ git-cifs.patch
+ git-drm.patch
+ git-ia64.patch
+ git-ieee1394.patch
+ git-infiniband.patch
+ git-libata-all.patch
+ git-netdev-all.patch
+ git-ocfs2.patch
+ git-parisc.patch
+ git-pcmcia.patch
+ git-sas.patch
+ git-cryptodev.patch
+
+ Subsystem trees.
+
+-cifs-build-fix.patch
+-gregkh-usb-usb-fix-dummy_hcd-breakage.patch
+-gregkh-usb-usb-serial-history-not-old.patch
+-gregkh-usb-add-new-wacom-devices-to-usb-hid-core-list.patch
+-gregkh-usb-usb-wacom-tablet-driver-update.patch
+-gregkh-usb-usb-fix-unused-variable-warning.patch
+-gregkh-usb-usb-delete-bluetty-leftovers.patch
+-gregkh-usb-usbfs_dir_inode_operations-cleanup.patch
+-gregkh-usb-usb-usbdevfs_ioctl-from-32bit-fix.patch
+-gregkh-usb-usb-storage-blacklist-entry-removal.patch
+-gregkh-usb-usb-cp2101-new-id.patch
+-gregkh-usb-usb-onetouch-doesn-t-suspend-yet.patch
+-gregkh-usb-usb-pl2303-adds-new-ids.patch
+-gregkh-usb-usb-pl2303-updates-pl2303_update_line_status.patch
+-gregkh-usb-usb-adapt-microtek-driver-to-new-scsi-features.patch
+-gregkh-usb-usb-storage-fix-detection-of-kodak-flash-readers-in-shuttle_usbat-driver.patch
+-gregkh-usb-usb-fix-race-in-kaweth-disconnect.patch
+-gregkh-usb-usb-devio-warning-fix.patch
+-gregkh-usb-usb-maxtor-onetouch-button-support-for-older-drives.patch
+-gregkh-usb-usb-ohci-lh7a404-platform-device-conversion-fixup.patch
+ gregkh-usb-usb-libusual.patch
+-gregkh-usb-usb-serial-anydata.patch
+-ipw2200-disallow-direct-scanning-when-device-is-down.patch
+-cifs-read-write-operation-fixes-and-cleanups.patch
+-parisc-remove-drm-compat-ioctls-handlers.patch
+-parisc-implement-compat_ioctl-for-pa_perf.patch
+
+ Merged
+
++tpm-remove-pci-kconfig-dependency.patch
+
+ TPM driver cleanup
+
++ppc64-need-hpage_shift-when-huge-pages-disabled.patch
+
+ ppc64 build fix
+
++s390-fix-class_device_create-calls-in-3270-the-driver.patch
+
+ s390 driver fix
+
++uml-eliminate-use-of-local-in-clone-stub.patch
++uml-eliminate-anonymous-union-and-clean-up-symlink-lossage.patch
++uml-properly-invoke-x86_64-system-calls.patch
++uml-eliminate-use-of-libc-page_size.patch
+
+ UML update
+
++unpaged-get_user_pages-vm_reserved.patch
++unpaged-private-write-vm_reserved.patch
++unpaged-sound-nopage-get_page.patch
++unpaged-unifdefed-pagecompound.patch
++unpaged-vm_unpaged.patch
++unpaged-vm_nonlinear-vm_reserved.patch
++unpaged-cow-on-vm_unpaged.patch
++unpaged-anon-in-vm_unpaged.patch
++unpaged-zero_page-in-vm_unpaged.patch
++unpaged-pg_reserved-bad_page.patch
++unpaged-copy_page_range-vma.patch
+
+ VM_RESERVED fixes
+
++fix-error-handling-with-put_compat_statfs.patch
+
+ compat handling fix
+
++fix-hugetlbfs_statfs-reporting-of-block-limits.patch
+
+ Make hugetlbfs do statfs better
+
++git-libata-sata_mv-build-fix.patch
+
+ Fix git-libata-all.patch
+
++backup-timer-for-uarts-that-lose-interrupts-take-3.patch
+
+ Serial driver workaround for dodgy hardware.
+
++mm-remove-arch-independent-nodes_span_other_nodes.patch
+
+ mm cleanup
+
++numa-policies-in-the-slab-allocator-v2.patch
++numa-policies-in-the-slab-allocator-v2-fix.patch
+
+ Fix NUMA allocation via the slab allocator (still under discussion)
+
++mm-add-is_dma_zone-helper.patch
++mm-add-populated_zone-helper.patch
+
+ mm cleanups
+
++swap-migration-v5-mpol_mf_move-interface-unpaged-fix.patch
+
+ Fix swap-migration-v5-mpol_mf_move-interface.patch for Hugh's stuff.
+
++swapmig-config_migration-fixes.patch
++swapmig-add_to_swap-avoid-atomic-allocations.patch
++swapmig-drop-unused-pages-immediately.patch
++swapmig-extend-parameters-for-migrate_pages.patch
+
+ Update the page-migration-via-swap feature.
+
++swsusp-remove-encryption.patch
++swsusp-introduce-the-swap-map-structure.patch
++swsusp-improve-freeing-of-memory.patch
+
+ swsusp cleanups
+
++keys-permit-running-process-to-instantiate-keys-warning-fix.patch
+
+ Fix keys-permit-running-process-to-instantiate-keys.patch
+
++sigaction-should-clear-all-signals-on-sig_ign-not-just-fix.patch
+
+ Fix sigaction-should-clear-all-signals-on-sig_ign-not-just.patch
+
++optionally-skip-initramfs-check.patch
+
+ Faster booting on embedded systems.
+
++docs-updated-some-code-docs.patch
+
+ Documentation updates
+
++prefer-pkg-config-for-the-qt-check.patch
+
+ Update `make pkg-config'.
+
+-spufs-the-spu-file-system-base.patch
+-spufs-make-all-exports-gpl-only.patch
+-spufs-switchable-spu-contexts.patch
+-kernel-side-context-switch-code-for-spufs.patch
+-spufs-add-spu-side-context-switch-code.patch
+-spufs-cooperative-scheduler-support.patch
+
+ Dropped - these are in the git-powerpc tree which isn't here.
+
++kdump-i386-save-ss-esp-bug-fix.patch
++kdump-dynamic-per-cpu-allocation-of-memory-for-saving-cpu-registers.patch
++kdump-export-per-cpu-crash-notes-pointer-through-sysfs.patch
++kdump-save-registers-early-inline-functions.patch
++kdump-x86_64-add-memmmap-command-line-option.patch
++kdump-x86_64-add-elfcorehdr-command-line-option.patch
++kdump-x86_64-kexec-on-panic.patch
++kdump-x86_64-save-cpu-registers-upon-crash.patch
++kdump-read-previous-kernels-memory.patch
++kexec-increase-max-segment-limit.patch
+
+ Kernel crashdumpiung update
+
+-add-compat_ioctl-methods-to-dasd.patch
+-add-compat_ioctl-methods-to-dasd-fix.patch
+
+ Dropped - wrong.
+
++drivers-char-use-array_size-macro.patch
+
+ Cleanup.
+
+
+All 617 patches:
+
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc1/2.6.15-rc1-mm2/patch-list
+

@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161181AbVKRUch@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161180AbVKRUcB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161181AbVKRUch (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 15:32:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161183AbVKRUc0
+	id S1161180AbVKRUcB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 15:32:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbVKRUbs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 15:32:26 -0500
-Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:47232 "EHLO
-	vger.utah-nac.org") by vger.kernel.org with ESMTP id S1161181AbVKRUcG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 15:32:06 -0500
-Message-ID: <437E3426.50608@wolfmountaingroup.com>
-Date: Fri, 18 Nov 2005 13:05:58 -0700
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Dave Jones <davej@redhat.com>, Lee Revell <rlrevell@joe-job.com>,
-       Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-References: <58MJb-2Sn-37@gated-at.bofh.it> <58NvO-46M-23@gated-at.bofh.it>	 <58Rpx-1m6-11@gated-at.bofh.it> <58UGF-6qR-27@gated-at.bofh.it>	 <58UQf-6Da-3@gated-at.bofh.it> <437933B6.1000503@shaw.ca>	 <1132020468.27215.25.camel@mindpipe> <20051115032819.GA5620@redhat.com>	 <43795575.9010904@wolfmountaingroup.com>	 <20051115050658.GA13660@redhat.com>	 <43797E05.5090107@wolfmountaingroup.com> <1132342065.25914.81.camel@localhost.localdomain>
-In-Reply-To: <1132342065.25914.81.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Nov 2005 15:31:48 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:48573 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1161178AbVKRUbh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 15:31:37 -0500
+Date: Fri, 18 Nov 2005 15:29:10 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Bharath Ramesh <krosswindz@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: intel8x0 sound of silence on dell system
+Message-ID: <20051118202910.GD22566@kvack.org>
+References: <20051118162300.GA22092@kvack.org> <c775eb9b0511180959r12206562h5a294d9505d95d04@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c775eb9b0511180959r12206562h5a294d9505d95d04@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Sorry, but it isn't muted.  I'm not a newbie. ;-)
 
->On Llu, 2005-11-14 at 23:19 -0700, Jeff V. Merkey wrote:
->  
->
->>Making the point that in 1990, folks had grown beyond 4K stacks in 
->>kernels, along with MS DOS 640K Limitations.
->>    
->>
->
->And Linux 8086 uses 512 byte kernel stacks, and really wants a bit of
->tuning to get down to 256.
->
->Its about discipline and design not year
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-Amen.
+		-ben
 
-:-)
+On Fri, Nov 18, 2005 at 12:59:28PM -0500, Bharath Ramesh wrote:
+> Probably the sound car is muted. you might want to try out the
+> alsamixer to unmute the card.
+> 
+> On 11/18/05, Benjamin LaHaise <bcrl@kvack.org> wrote:
+> > Hello all,
+> >
+> > On trying out head on my workstation, it seems that no sound comes out.
+> > The module is getting loaded and the interrupts line for the 'Intel ICH5'
+> > is increasing.  The RHEL 4 kernel is known to work on this machine.  The
+> > only output from the driver is below.  Any ideas?
+> >
+> >                 -ben
+> >
+> > intel8x0_measure_ac97_clock: measured 51314 usecs
+> > intel8x0: clocking to 48000
+> > --
+> > "Time is what keeps everything from happening all at once." -- John Wheeler
+> > Don't Email: <dont@kvack.org>.
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Jeff
+-- 
+"Time is what keeps everything from happening all at once." -- John Wheeler
+Don't Email: <dont@kvack.org>.

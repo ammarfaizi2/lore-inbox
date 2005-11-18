@@ -1,62 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbVKRT6W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161144AbVKRT7m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932370AbVKRT6W (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 14:58:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932383AbVKRT6V
+	id S1161144AbVKRT7m (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 14:59:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161140AbVKRT7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 14:58:21 -0500
-Received: from kickapoo.web.itd.umich.edu ([141.211.144.142]:14471 "EHLO
-	kickapoo.web.itd.umich.edu") by vger.kernel.org with ESMTP
-	id S932370AbVKRT6V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 14:58:21 -0500
-Message-ID: <20051118145820.ctd0sliukgwgk080@web.mail.umich.edu>
-Date: Fri, 18 Nov 2005 14:58:20 -0500
-From: jstipins@umich.edu
-To: linux-kernel@vger.kernel.org
-Subject: NPTL bug?  2.6.11.12 on an AMD64
+	Fri, 18 Nov 2005 14:59:41 -0500
+Received: from gold.veritas.com ([143.127.12.110]:50546 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1161144AbVKRT7k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 14:59:40 -0500
+Date: Fri, 18 Nov 2005 19:58:17 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Ingo Oeser <ioe-lkml@rameria.de>
+cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [PATCH 09/11] unpaged: ZERO_PAGE in VM_UNPAGED
+In-Reply-To: <200511172225.31973.ioe-lkml@rameria.de>
+Message-ID: <Pine.LNX.4.61.0511181942320.3305@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0511171925290.4563@goblin.wat.veritas.com>
+ <Pine.LNX.4.61.0511171938080.4563@goblin.wat.veritas.com>
+ <200511172225.31973.ioe-lkml@rameria.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=ISO-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) H3 (4.0.3)
-X-Remote-Browser: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US;
-	rv:1.7.12) Gecko/20050915 Firefox/1.0.7
-X-IMP-Server: 141.211.144.244
-X-Originating-IP: 71.82.73.173
-X-Originating-User: jstipins
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 18 Nov 2005 19:59:35.0487 (UTC) FILETIME=[9977FCF0:01C5EC7A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+On Thu, 17 Nov 2005, Ingo Oeser wrote:
+> 
+> We do we refcount ZERO_PAGE at all?
 
-I apologize in advance if this question is inappropriate for this mailing
-list.  I welcome any suggestions for a more appropriate forum.
+We never used to.  They were, and for the moment still are, marked
+PageReserved.  Prior to 2.6.15-rc we didn't refcount reserved pages,
+but now we're trying to move away from PageReserved (some differences
+of opinion how far to go), so refcounting them.
 
-I am running kernel 2.6.11.12 on an AMD Athlon 64, but the kernel is just
-the straightforward i486 compilation -- no optimizations, no 64-bit.  The
-distribution is LFS 6.1, which apparently runs without any problem.  The
-glibc version is 2.3.4, built with gcc 3.4.3.
+We're currently refcounting the ZERO_PAGE(s) simply because the
+common case is refcounted: it would just be extra tests and code
+NOT to refcount the ZERO_PAGE(s).  If they were a commoner case,
+then it would indeed be worth avoiding refcounting them, but it
+currently doesn't appear to be worth the effort.
 
-When I build glibc 2.3.4, 2.3.5, or 2.3.6, using gcc 3.4.3 or 4.0.2, the
-"make check" test suite fails exactly one test, which I think may be due
-to the kernel.  The "nptl/tst-clock2.c" test fails (in every configuration
-listed), and we have:
+But it is still up in the air: there is or may be an issue with
+refcounts overflowing, and if it's clear that the ZERO_PAGE is
+the only one vulnerable on any architecture, then I'm sure we'd
+deal with it by not refcounting them.  However, I believe the
+issue extends to mapped file pages too: though you need a huge
+amount of RAM to reach overflow, so it's not something we need
+to resolve this week.
 
-/sources/glibc-build# cat /sources/glibc-build/nptl/tst-clock2.out
-difference between thread 0 and 1 too small (0.053511687)
+> Ok, there may be multiple, but they exist always and always at
+> the same physical addresses, right?
 
-Here is a link to a person who has reported exactly the same problem,
-although he does not indicate if he is using an AMD64 processor:
-http://archives.linuxfromscratch.org/mail-archives/lfs-support/2005-August/028065.html
+Right.
 
-Does anyone have any insight into this problem?  There is next to nothing
-on google about it (search on "tst-clock2"), which makes me think it's some
-rare combination of processor and kernel.
+> So why do we care at all?
+> Memory hotplug?
+> Doesn't it suffice there, that they are reverse mappable?
 
-Again, I welcome any suggestions for a more appropriate forum.  I wanted to
-ask here before trying the glibc mailing lists, because they seem pretty clear
-about not entertaining build error questions.
+Actually, they're not reverse mappable: we tend to find
+there's not much gained by swapping out the ZERO_PAGE ;)
 
-Thanks very much for your help,
--Janis
+Hugh

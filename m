@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932555AbVKRGpl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbVKRGvH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932555AbVKRGpl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 01:45:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932560AbVKRGpl
+	id S932347AbVKRGvH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 01:51:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932479AbVKRGvH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 01:45:41 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:41349
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932555AbVKRGpl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 01:45:41 -0500
-Date: Thu, 17 Nov 2005 22:45:16 -0800 (PST)
-Message-Id: <20051117.224516.118147408.davem@davemloft.net>
-To: nickpiggin@yahoo.com.au
-Cc: hugh@veritas.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 07/11] unpaged: COW on VM_UNPAGED
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <437D6AD0.5080909@yahoo.com.au>
-References: <Pine.LNX.4.61.0511171936440.4563@goblin.wat.veritas.com>
-	<20051117.155230.25121238.davem@davemloft.net>
-	<437D6AD0.5080909@yahoo.com.au>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Fri, 18 Nov 2005 01:51:07 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:57066 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932347AbVKRGvG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 01:51:06 -0500
+Message-ID: <437D79F3.9070301@jp.fujitsu.com>
+Date: Fri, 18 Nov 2005 15:51:31 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: ja, en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: compile fix 2.6.15-rc1-mm1 + EXPERIMENTAL+  CONFIG_SPARSEMEM + X86_PC
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-Date: Fri, 18 Nov 2005 16:46:56 +1100
+Hi,
 
-> I think for 2.6.15, yes. We [read: I :(] was too hasty in removing
-> this completely. However I think it would not be unresonable to spit
-> out a warning, and remove it in 2.6.??
+This is a compile fix for
+X86_PC && EXPERIMENTAL && CONFIG_SPARSEMEM=y && !CONFIG_NEED_MULTIPLE_NODES
 
-I am so convinced that handling COW faults on VM_RESERVED is
-unnecessary, that I think it's prudent to spit out a warning
-for MAP_PRIVATE+VM_RESERVED and changing it to MAP_SHARED
-to complete the mmap() call.
+BTW, on x86, it looks I can select CONFIG_NUMA=y but will not set
+CONFIG_NEED_MULTIPLE_NODES. It this expected ?
 
-I bet every single application still works.
+-- Kamezawa Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 
-And we'll have none of this rediculious complex crap handling COW
-pages in VM_RESERVED areas, which I believe is seriously more
-complicated than what we started with before any of the VM_RESERVED
-changed went into 2.6.15.  In fact, we might as well go back to the
-2.6.14 stuff instead.  I do not see the second half of Hugh's patches
-as progress, it's a severe regression to even 2.6.14
+Signed-Off-By KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com
+--
+Index: linux-2.6.15-rc1-mm1/include/linux/mmzone.h
+===================================================================
+--- linux-2.6.15-rc1-mm1.orig/include/linux/mmzone.h
++++ linux-2.6.15-rc1-mm1/include/linux/mmzone.h
+@@ -596,12 +596,13 @@ static inline int pfn_valid(unsigned lon
+  		return 0;
+  	return valid_section(__nr_to_section(pfn_to_section_nr(pfn)));
+  }
+-
++#ifdef CONFIG_NEED_MULTIPLE_NODES
+  #define pfn_to_nid(pfn)							\
+  ({									\
+   	unsigned long __pfn = (pfn);                                    \
+  	page_to_nid(pfn_to_page(pfn));					\
+  })
++#endif
 
-Doing a get_user_pages() on a VM_UNPAGED area, that's sane, and
-we know exactly what makes use of that.  COW faults on VM_UNPAGED
-areas, that's not sane, and we don't know of a single instance
-which correctly needs that behavior.
+  #define early_pfn_valid(pfn)	pfn_valid(pfn)
+  void sparse_init(void);
+Index: linux-2.6.15-rc1-mm1/drivers/base/memory.c
+===================================================================
+--- linux-2.6.15-rc1-mm1.orig/drivers/base/memory.c
++++ linux-2.6.15-rc1-mm1/drivers/base/memory.c
+@@ -25,7 +25,7 @@
 
-MAP_SHARED mappings of reserved pages shared between driver, device,
-and userspace is common and understandable.  But MAP_PRIVATE mappings
-of such things?  Please show me an example of something legitimately
-using that, and not doing so by mistake.  I will drop all of my
-arguments once I see that :-)
+  #define MEMORY_CLASS_NAME	"memory"
 
-Because, frankly, a lot of these COW on VM_UNPAGED patches seemingly
-are derived from studying the MM and a few drivers and saying "oh yes,
-that's _possible_" but that is far from being enough to justify this
-complexity.  We really need to see real usage, that makes sense.
-All the cases I've investigated in userspace are "they really want
-MAP_SHARED" or "they didn't need PROT_WRITE in the first place".
+-static struct sysdev_class memory_sysdev_class = {
++struct sysdev_class memory_sysdev_class = {
+  	set_kset_name(MEMORY_CLASS_NAME),
+  };
+  EXPORT_SYMBOL(memory_sysdev_class);
+

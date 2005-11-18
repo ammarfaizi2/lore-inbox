@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964816AbVKRWE3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbVKRWGi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964816AbVKRWE3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 17:04:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964820AbVKRWE3
+	id S932081AbVKRWGi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 17:06:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbVKRWGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 17:04:29 -0500
-Received: from xproxy.gmail.com ([66.249.82.202]:16080 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964816AbVKRWE2 convert rfc822-to-8bit
+	Fri, 18 Nov 2005 17:06:38 -0500
+Received: from smtp2.Stanford.EDU ([171.67.16.125]:54944 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S932081AbVKRWGh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 17:04:28 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=qG+o45nIpzJdjoHrOIC9orn9NSlZ2hdwtDKB3Q3a0dmo4aPVSQX8siDP50CS5eZVcGxv3T/WqDqKqPVjeelukA/unBSXVFYv7BhlSrFQa+sAhH+wUORbnw97vcYePmpaFln5G2Q38/7PDWxW8VB68fE3XRyvThNTi59m9sRrgqw=
-Message-ID: <deb0cdf00511181404k70828875ged944bb3910069b5@mail.gmail.com>
-Date: Fri, 18 Nov 2005 14:04:28 -0800
-From: Jeff Johnson <jellofan@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: linux 2.6.13.4 (snapgear-3.3.0) scripts/mod/modpost dumps core
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Fri, 18 Nov 2005 17:06:37 -0500
+Subject: Re: 2.6.14-rt13
+From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: nando@ccrma.Stanford.EDU, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>,
+       "K.R. Foley" <kr@cybsft.com>, Steven Rostedt <rostedt@goodmis.org>,
+       Thomas Gleixner <tglx@linutronix.de>, pluto@agmk.net,
+       john cooper <john.cooper@timesys.com>,
+       Benedikt Spranger <bene@linutronix.de>,
+       Daniel Walker <dwalker@mvista.com>,
+       Tom Rini <trini@kernel.crashing.org>,
+       George Anzinger <george@mvista.com>
+In-Reply-To: <1132350882.6874.23.camel@mindpipe>
+References: <20051115090827.GA20411@elte.hu>
+	 <1132336954.20672.11.camel@cmn3.stanford.edu>
+	 <1132350882.6874.23.camel@mindpipe>
+Content-Type: text/plain
+Date: Fri, 18 Nov 2005 14:05:33 -0800
+Message-Id: <1132351533.4735.37.camel@cmn3.stanford.edu>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm new at this, so hopefully this is OK.  I'm working on an embedded
-system using snapgear-3.3.0 (linux 2.6.13.4).  The kernel build fails
-when executing modpost -- it dumps core.  I have debugged the problem.
-In modpost.c:buf_printf() appears the following code:
-      len = vsnprintf(tmp, SZ, fmt, ap);
-      if (buf->size - buf->pos < len + 1) {
-          buf->size += 128;
-          buf->p = realloc(buf->p, buf->size);
-      }
-      strncpy(buf->p + buf->pos, tmp, len + 1);
+On Fri, 2005-11-18 at 16:54 -0500, Lee Revell wrote:
+> On Fri, 2005-11-18 at 10:02 -0800, Fernando Lopez-Lezcano wrote:
+> > You mentioned before that the TSC's from both cpus could drift from
+> > each other over time. Assuming that is the source of timing (I have no
+> > idea) that could explain the behavior of Jack, it gets a reference
+> > time from one of the cpus and then compares that with what it gets
+> > from either cpu depending on where it is running at a given time. If
+> > it is the same cpu all is fine, if it is the other and it has drifted
+> > then the warning is printed.  
+> 
+> Yes, JACK uses rdtsc() for microsecond resolution timing and assumes
+> that the TSCs are in sync.
+> 
+> I've asked on this list what a better time source could be and didn't
+> get any useful responses, people just told me "use gettimeofday()" which
+> is WAY too slow.
 
-What I have discovered is that in my environment, in some cases the
-output from vsnprintf() exceeds 128 characters.  So when the test for
-"remaining space < len" fails, and the buf is realloc'ed, not enough
-memory is allocated, and the subsequent strncpy overflows the buffer.
+Arghhh, at least I take this as a confirmation that the TSCs do drift
+and there is no workaround. It currently makes the -rt/Jack combination
+not very useful, at least in my tests. 
 
-My solution was to change the assignment of buf->size as follows:
-          buf->size += 128 * ((len/128)+1);
+Is there a way to resync the TSCs?
+-- Fernando
 
-This will cause buf->size to increment by enough 128 byte blocks to
-hold the string.  If it isn't important to increment in 128 byte
-chunks, then I suppose you could just have:
-          buf->size += SZ;
 
-Thanks
-Jeff

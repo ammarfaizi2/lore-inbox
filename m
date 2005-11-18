@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161008AbVKRKcF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161023AbVKRKiH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161008AbVKRKcF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 05:32:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161020AbVKRKcF
+	id S1161023AbVKRKiH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 05:38:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161025AbVKRKiH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 05:32:05 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:54405 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161008AbVKRKcE
+	Fri, 18 Nov 2005 05:38:07 -0500
+Received: from us01smtp1.synopsys.com ([198.182.44.79]:16624 "EHLO
+	boden.synopsys.com") by vger.kernel.org with ESMTP id S1161023AbVKRKiF convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 05:32:04 -0500
-Date: Fri, 18 Nov 2005 15:59:33 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, venkatesh.pallipadi@intel.com,
-       len.brown@intel.com, Andrew Morton <akpm@osdl.org>
-Subject: Re: maxcpus=1 broken, ACPI bug?
-Message-ID: <20051118102933.GA5687@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <20051117063103.GB6836@in.ibm.com> <Pine.LNX.4.64.0511171137450.13959@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0511171137450.13959@g5.osdl.org>
-User-Agent: Mutt/1.5.10i
+	Fri, 18 Nov 2005 05:38:05 -0500
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
+Subject: Does Linux has File Stream mapping support...?
+Date: Fri, 18 Nov 2005 16:08:00 +0530
+Message-ID: <7EC22963812B4F40AE780CF2F140AFE920904A@IN01WEMBX1.internal.synopsys.com>
+Thread-Topic: Does Linux has File Stream mapping support...?
+Thread-Index: AcXsLCWMuKPq1JEnRAKN1DyQ7rQdyw==
+From: "Arijit Das" <Arijit.Das@synopsys.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 18 Nov 2005 10:38:04.0460 (UTC) FILETIME=[280D3EC0:01C5EC2C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 17, 2005 at 11:54:32AM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Thu, 17 Nov 2005, Maneesh Soni wrote:
-> > 
-> > Using maxcpus=1 boot option, hangs the system while booting. It was
-> > working till 2.6.13-rc2. After git bisect I found that after backing
-> > out this ACPI patch it works again, though I had to manually sort the
-> > reject while backing out.
-> > 
-> > http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=acf05f4b7f558051ea0028e8e617144123650272
-> 
-> Hmm. That patch had a totally idiotic thinko in it (look at the for-loop 
-> in acpi_processor_get_power_info_default() and notice how it doesn't 
-> actually change anything in the loop).
-> 
-> That thinko was later fixed (albeit in a really stupid way, and the same 
-> cut-and-paste bug still exists in acpi_processor_get_power_info_fadt()).
-> 
-> Anyway, can you test this diff? It
-> 
->  (a) removes the insane (and in one case incorrect) memset loop
->  (b) makes the code that sets "pr->flags.power = 1" match the comment and 
->      the previous behaviour.
-> 
-> Does that make a difference?
-> 
+Is it possible to have File Stream Mapping in Linux? What I mean is
+this...
 
-Yes, it works now. I just have to remove the declaration of "i" at
-both the places to avoid compiler warnings.
+FILE * fp1 = fopen("/foo", "w");
+FILE * fp2 = fopen("/bar", "w");
+FILE * fp_common = <Stream_Mapping_Func>(fp1, fp2);
 
-Thanks a lot..
-Maneesh
+fprint(fp_common, "This should be written to both files ... /foo and
+/bar");
 
--- 
-Maneesh Soni
-Linux Technology Center, 
-IBM India Software Labs,
-Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-25044990
+So, what I am looking for is anything written to "fp_common" should
+actually be written to the streams fp1 and fp2.
+
+Does Linux support this any way? Is there any way to achieve this...? Is
+there anything like <Stream_Mapping_Func>(above) ...?
+
+Do pardon me if you feel that it is a wrong Forum to ask this question
+but I tried everywhere else and thought that implementers would best
+know about it, if at all anything like that exists.
+
+Thanks,
+Arijit

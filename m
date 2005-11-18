@@ -1,71 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbVKRHDv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932508AbVKRHGF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932275AbVKRHDv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 02:03:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932479AbVKRHDv
+	id S932508AbVKRHGF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 02:06:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932553AbVKRHGF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 02:03:51 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:13721
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S932275AbVKRHDv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 02:03:51 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Jeff Dike <jdike@addtoit.com>
-Subject: Re: [PATCH 2/4] UML - Eliminate anonymous union and clean up symlink lossage
-Date: Fri, 18 Nov 2005 01:03:29 -0600
-User-Agent: KMail/1.8
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-References: <200511172110.jAHLAQoe010199@ccure.user-mode-linux.org>
-In-Reply-To: <200511172110.jAHLAQoe010199@ccure.user-mode-linux.org>
+	Fri, 18 Nov 2005 02:06:05 -0500
+Received: from wproxy.gmail.com ([64.233.184.202]:7089 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932508AbVKRHGB convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 02:06:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=sHzL81s/wCmKqDoGsXPI/05CiFu9oyPSzbS4LZyrSIQVL96MZE7BsHQr59EYaBZxCHk1YPSCVRKl+f/ea3kkOabbzDgIGFhIbkkWLgM15rZwb6pDEsPNymHIdTeWBvyBaPXURz8R5IZg9GAEuEZDTyKJHHBDdkzXmcK27y9zfeI=
+Message-ID: <3fe1d240511172306ved25caam@mail.gmail.com>
+Date: Fri, 18 Nov 2005 15:06:00 +0800
+From: Hua Feijun <hua.feijun@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: a problem with ia64_fc
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200511180103.29950.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 17 November 2005 15:10, Jeff Dike wrote:
-> This gives a name to the anonymous union introduced in
-> skas-hold-own-ldt, allowing to build on a wider range of gccs.
-
-Or narrower range, in the case of Ubuntu "Horny Hedgehog".  2.6.15-rc1 builds 
-fine by itself, or with just patch 1 in this series, but with patch 2...
-
-  CHK     include/linux/version.h
-  UPD     include/linux/version.h
-  SYMLINK include/asm -> include/asm-um
-  SPLIT   include/linux/autoconf.h -> include/config/*
-gcc -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing 
--fno-common -ffreestanding -O2     -fomit-frame-pointer  -D__arch_um__ 
--DSUBARCH=\"i386\" -Iarch/um/include 
--I/home/landley/newbuild/firmware-build/tmpdir/linux-2.6.14/arch/um/include  
--I/home/landley/newbuild/firmware-build/tmpdir/linux-2.6.14/arch/um/kernel/skas/include 
--Dvmap=kernel_vmap -Din6addr_loopback=kernel_in6addr_loopback 
--Derrno=kernel_errno -Dsigprocmask=kernel_sigprocmask  -U__i386__ -Ui386 
--march=i686 -mpreferred-stack-boundary=2 -D_LARGEFILE64_SOURCE    -nostdinc 
--isystem /usr/lib/gcc-lib/i486-linux/3.3.5/include -D__KERNEL__ -Iinclude 
--Iinclude2 
--I/home/landley/newbuild/firmware-build/tmpdir/linux-2.6.14/include -include 
-include/linux/autoconf.h -S -o 
-arch/um/kernel-offsets.s /home/landley/newbuild/firmware-build/tmpdir/linux-2.6.14/arch/um/sys-i386/kernel-offsets.c
-In file included 
-from /home/landley/newbuild/firmware-build/tmpdir/linux-2.6.14/arch/um/include/um_mmu.h:17,
-                 from include2/asm/mmu.h:9,
-                 from /home/landley/newbuild/firmware-build/tmpdir/linux-2.6.14/include/linux/sched.h:23,
-                 from /home/landley/newbuild/firmware-build/tmpdir/linux-2.6.14/arch/um/sys-i386/kernel-offsets.c:3:
-/home/landley/newbuild/firmware-build/tmpdir/linux-2.6.14/arch/um/kernel/skas/include/mmu-skas.h:19: 
-error: syntax error before "uml_ldt_t"
-/home/landley/newbuild/firmware-build/tmpdir/linux-2.6.14/arch/um/kernel/skas/include/mmu-skas.h:19: 
-warning: no semicolon at end of struct or union
-In file included from include2/asm/mmu.h:9,
-                 from /home/landley/newbuild/firmware-build/tmpdir/linux-2.6.14/include/linux/sched.h:23,
-                 from /home/landley/newbuild/firmware-build/tmpdir/linux-2.6.14/arch/um/sys-i386/kernel-offsets.c:3:
-/home/landley/newbuild/firmware-build/tmpdir/linux-2.6.14/arch/um/include/um_mmu.h:25: 
-error: field `skas' has incomplete type
-make[2]: *** [arch/um/kernel-offsets.s] Error 1
-make[1]: *** [_all] Error 2
-make: *** [all] Error 2
+Who can tell me the function of ia64_fc and  what is  the different of
+system_call_table among ia64,x86_64t and i386?
+Thanks very much!!!!!!!

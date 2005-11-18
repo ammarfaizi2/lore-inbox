@@ -1,49 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161073AbVKRMJ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161066AbVKRMMT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161073AbVKRMJ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 07:09:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161074AbVKRMJ3
+	id S1161066AbVKRMMT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 07:12:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161079AbVKRMMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 07:09:29 -0500
-Received: from main.gmane.org ([80.91.229.2]:19949 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1161073AbVKRMJ2 (ORCPT
+	Fri, 18 Nov 2005 07:12:18 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:26807 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S1161066AbVKRMMS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 07:09:28 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Stefan Seyfried <seife@suse.de>
-Subject: Re: [patch 1/1] cpufreq_conservative/ondemand: invert meaning of
- 'ignore nice'
-Date: Fri, 18 Nov 2005 13:07:01 +0100
-Message-ID: <dlkg55$9tn$1@sea.gmane.org>
-References: <20051110151111.GA16994@inskipp.digriz.org.uk> <200511110248.58751.kernel@kolivas.org>
+	Fri, 18 Nov 2005 07:12:18 -0500
+Date: Fri, 18 Nov 2005 20:12:13 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 04/16] radix-tree: look-aside cache
+Message-ID: <20051118121213.GA3807@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
+	Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>
+References: <20051109134938.757187000@localhost.localdomain> <20051109141448.974675000@localhost.localdomain> <437286BD.4000107@yahoo.com.au> <20051110052538.GA6585@mail.ustc.edu.cn> <4372EDA1.3000103@yahoo.com.au> <20051118112501.GB6401@mail.ustc.edu.cn>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: charybdis-ext.suse.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050715 Thunderbird/1.0.6 Mnenhy/0.7.2.0
-X-Accept-Language: en-us, en
-In-Reply-To: <200511110248.58751.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051118112501.GB6401@mail.ustc.edu.cn>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> On Fri, 11 Nov 2005 02:11, Alexander Clouter wrote:
->> The use of the 'ignore_nice' sysfs file is confusing to anyone using it.
->> This removes the sysfs file 'ignore_nice' and in its place creates a
->> 'ignore_nice_load' entry which defaults to '1'; meaning nice'd processes
->> are not counted towards the 'business' caclulation.
+On Fri, Nov 18, 2005 at 07:25:01PM +0800, Wu Fengguang wrote:
+> I run two rounds of oprofile on the context based method, which is the user of
+> radix_tree_lookup_{head,tail}, which take advantage of the look-aside cache.
+> This is the diffprofile grep output(disable vs. enable cache):
 > 
-> And just for the last time I'll argue that the default should be 0. I have yet 
-> to discuss this with any laptop user who thinks that 1 is the correct default 
-> for ondemand.
+> radixtree-lookaside-cache.diffprofile1:        -8   -53.3% radix_tree_lookup_head
+> radixtree-lookaside-cache.diffprofile1:       -30    -7.8% radix_tree_lookup_node
+> radixtree-lookaside-cache.diffprofile1:       -34   -18.9% radix_tree_insert
+> 
+> radixtree-lookaside-cache.diffprofile2:        16    10.9% radix_tree_insert
+> radixtree-lookaside-cache.diffprofile2:        12    18.8% radix_tree_preload
+> radixtree-lookaside-cache.diffprofile2:         6    42.9% radix_tree_lookup_tail
+> radixtree-lookaside-cache.diffprofile2:        -7   -63.6% radix_tree_lookup_head
+> radixtree-lookaside-cache.diffprofile2:       -23   -10.5% radix_tree_delete
+> radixtree-lookaside-cache.diffprofile2:       -29    -6.9% radix_tree_lookup_node
 
-i think that 1 is the correct default for ondemand.
-And i know that discussion is fruitless - everybody has its own
-preference, i prefer battery runtime before almost everything else :-)
--- 
-Stefan Seyfried                  \ "I didn't want to write for pay. I
-QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
-SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen
+The above profile data are gathered on comparing two big files:
 
+# du /temp/kernel/bigfile*
+626M    /temp/kernel/bigfile
+626M    /temp/kernel/bigfile2
+
+I run another real life test:
+
+# grep -r 'asdfghjkl;' /backup/test/linux-2.6.14-rc4-git4-orig/
+
+radixtree-lookaside-cache.diffprofile3:        16    43.2% radix_tree_tag_clear
+radixtree-lookaside-cache.diffprofile3:         8    24.2% radix_tree_tag_set
+radixtree-lookaside-cache.diffprofile3:        -9    -5.8% radix_tree_lookup_node
+
+radixtree-lookaside-cache.diffprofile4:         7     4.5% radix_tree_lookup_node
+radixtree-lookaside-cache.diffprofile4:        -8   -11.8% radix_tree_tag_clear
+
+As expected, there's no noticable difference for small files.
+
+Regards,
+Wu

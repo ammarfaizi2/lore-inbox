@@ -1,93 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbVKRHEw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbVKRHDv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932479AbVKRHEw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 02:04:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932508AbVKRHEw
+	id S932275AbVKRHDv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 02:03:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932479AbVKRHDv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 02:04:52 -0500
-Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:23264 "EHLO
-	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S932479AbVKRHEv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 02:04:51 -0500
-Date: Fri, 18 Nov 2005 08:04:40 +0100
-From: Voluspa <lista1@telia.com>
-To: linux-kernel@vger.kernel.org
-Cc: rajesh.shah@intel.com, kjarvel@home.se, howarth@bromo.msbb.uc.edu
-Subject: Re: PCI error on x86_64 2.6.13 kernel
-Message-Id: <20051118080440.4aaf4a6d.lista1@telia.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 18 Nov 2005 02:03:51 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:13721
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S932275AbVKRHDv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 02:03:51 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Jeff Dike <jdike@addtoit.com>
+Subject: Re: [PATCH 2/4] UML - Eliminate anonymous union and clean up symlink lossage
+Date: Fri, 18 Nov 2005 01:03:29 -0600
+User-Agent: KMail/1.8
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+References: <200511172110.jAHLAQoe010199@ccure.user-mode-linux.org>
+In-Reply-To: <200511172110.jAHLAQoe010199@ccure.user-mode-linux.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511180103.29950.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 17 November 2005 15:10, Jeff Dike wrote:
+> This gives a name to the anonymous union introduced in
+> skas-hold-own-ldt, allowing to build on a wider range of gccs.
 
-On 2005-11-18 0:24:51 Rajesh Shah wrote:
->On Wed, Oct 26, 2005 at 11:06:05PM +0200, Niklas Kallman wrote:
->>Jack Howarth wrote:
->>> Has anyone reported the following? For both of the 2.6.13 based
->>> kernels released so far on Fedora Core 4 for x86_64, we are seeing
->>> error messages of the form...
->>> 
->>> Oct  3 11:21:48 XXXXX  kernel:   MEM window: d0200000-d02fffff
->>> Oct  3 11:21:48 XXXXX  kernel:   PREFETCH window: disabled.
->>> Oct  3 11:21:48 XXXXX  kernel: PCI: Failed to allocate mem resource #6:20000 \
->>> f0000000 for 0000:09:00.0 
->
->I ran into a similar problem, and posted a fix, see
->http://marc.theaimsgroup.com/?l=linux-pci&m=113225006603745&w=2
->
->Can you try it to see if this problem goes away?
+Or narrower range, in the case of Ubuntu "Horny Hedgehog".  2.6.15-rc1 builds 
+fine by itself, or with just patch 1 in this series, but with patch 2...
 
-Even though your patch touched arch/i386/pci/i386.c I tried it in my pure AMD64
-environment. No luck... I remember when this PCI error turned up, but since it
-was non-fatal I shrugged it off. Early 2.6.13 it was. Booting back on my
-non-distro, plain kernel.org notebook I indeed see that 2.6.11.11 and 2.6.12
-are fine.
-
-Here the effected device is the builtin nvidia GPU (GeForce FX Go5700 64MB):
-
-[...]
-Boot video device is 0000:01:00.0
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
-ACPI: PCI Interrupt Link [ALKA] (IRQs 16 17 18 19 20 21 22 23) *10, disabled.
-ACPI: PCI Interrupt Link [ALKB] (IRQs 16 17 18 19 20 21 22 23) *10, disabled.
-ACPI: PCI Interrupt Link [ALKC] (IRQs 22) *11, disabled.
-ACPI: PCI Interrupt Link [ALKD] (IRQs 21) *11, disabled.
-ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 7 9 12 14 15) *10
-ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 7 *10 12 14 15)
-ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 7 *11 12 14 15)
-ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 7 9 10 *11 12 14 15)
-ACPI: Embedded Controller [EC] (gpe 11)
-Linux Plug and Play Support v0.97 (c) Adam Belay
-pnp: PnP ACPI init
-pnp: PnP ACPI: found 10 devices
-SCSI subsystem initialized
-PCI: Using ACPI for IRQ routing
-PCI: If a device doesn't work, try "pci=routeirq".  If it helps, post a report
-pnp: 00:05: ioport range 0x600-0x60f has been reserved
-pnp: 00:05: ioport range 0x1c0-0x1cf has been reserved
-pnp: 00:05: ioport range 0x4d0-0x4d1 has been reserved
-pnp: 00:05: ioport range 0xfe10-0xfe11 could not be reserved
-PCI: Failed to allocate mem resource #6:20000@f0000000 for 0000:01:00.0
-PCI: Bridge: 0000:00:01.0
-  IO window: disabled.
-  MEM window: c1000000-c1ffffff
-  PREFETCH window: e0000000-efffffff
-PCI: Bus 2, cardbus bridge: 0000:00:0b.0
-  IO window: 00002000-000020ff
-  IO window: 00002400-000024ff
-  PREFETCH window: 88000000-89ffffff
-  MEM window: 8a000000-8bffffff
-PCI: Bus 6, cardbus bridge: 0000:00:0b.1
-  IO window: 00002800-000028ff
-  IO window: 00002c00-00002cff
-  PREFETCH window: 8c000000-8dffffff
-  MEM window: 8e000000-8fffffff
-PCI: Setting latency timer of device 0000:00:01.0 to 64
-[... asf...]
-
-Mvh
-Mats Johannesson
---
+  CHK     include/linux/version.h
+  UPD     include/linux/version.h
+  SYMLINK include/asm -> include/asm-um
+  SPLIT   include/linux/autoconf.h -> include/config/*
+gcc -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing 
+-fno-common -ffreestanding -O2     -fomit-frame-pointer  -D__arch_um__ 
+-DSUBARCH=\"i386\" -Iarch/um/include 
+-I/home/landley/newbuild/firmware-build/tmpdir/linux-2.6.14/arch/um/include  
+-I/home/landley/newbuild/firmware-build/tmpdir/linux-2.6.14/arch/um/kernel/skas/include 
+-Dvmap=kernel_vmap -Din6addr_loopback=kernel_in6addr_loopback 
+-Derrno=kernel_errno -Dsigprocmask=kernel_sigprocmask  -U__i386__ -Ui386 
+-march=i686 -mpreferred-stack-boundary=2 -D_LARGEFILE64_SOURCE    -nostdinc 
+-isystem /usr/lib/gcc-lib/i486-linux/3.3.5/include -D__KERNEL__ -Iinclude 
+-Iinclude2 
+-I/home/landley/newbuild/firmware-build/tmpdir/linux-2.6.14/include -include 
+include/linux/autoconf.h -S -o 
+arch/um/kernel-offsets.s /home/landley/newbuild/firmware-build/tmpdir/linux-2.6.14/arch/um/sys-i386/kernel-offsets.c
+In file included 
+from /home/landley/newbuild/firmware-build/tmpdir/linux-2.6.14/arch/um/include/um_mmu.h:17,
+                 from include2/asm/mmu.h:9,
+                 from /home/landley/newbuild/firmware-build/tmpdir/linux-2.6.14/include/linux/sched.h:23,
+                 from /home/landley/newbuild/firmware-build/tmpdir/linux-2.6.14/arch/um/sys-i386/kernel-offsets.c:3:
+/home/landley/newbuild/firmware-build/tmpdir/linux-2.6.14/arch/um/kernel/skas/include/mmu-skas.h:19: 
+error: syntax error before "uml_ldt_t"
+/home/landley/newbuild/firmware-build/tmpdir/linux-2.6.14/arch/um/kernel/skas/include/mmu-skas.h:19: 
+warning: no semicolon at end of struct or union
+In file included from include2/asm/mmu.h:9,
+                 from /home/landley/newbuild/firmware-build/tmpdir/linux-2.6.14/include/linux/sched.h:23,
+                 from /home/landley/newbuild/firmware-build/tmpdir/linux-2.6.14/arch/um/sys-i386/kernel-offsets.c:3:
+/home/landley/newbuild/firmware-build/tmpdir/linux-2.6.14/arch/um/include/um_mmu.h:25: 
+error: field `skas' has incomplete type
+make[2]: *** [arch/um/kernel-offsets.s] Error 1
+make[1]: *** [_all] Error 2
+make: *** [all] Error 2

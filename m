@@ -1,61 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbVKRDnM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbVKRDvu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932249AbVKRDnM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 22:43:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbVKRDnM
+	id S932435AbVKRDvu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 22:51:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbVKRDvu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 22:43:12 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:23956
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932249AbVKRDnL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 22:43:11 -0500
-Date: Thu, 17 Nov 2005 19:42:39 -0800 (PST)
-Message-Id: <20051117.194239.37311109.davem@davemloft.net>
-To: davej@redhat.com
-Cc: akpm@osdl.org, bunk@stusta.de, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] mark virt_to_bus/bus_to_virt as __deprecated on
- i386
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20051118031751.GA2773@redhat.com>
-References: <20051118024433.GN11494@stusta.de>
-	<20051117185529.31d33192.akpm@osdl.org>
-	<20051118031751.GA2773@redhat.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Thu, 17 Nov 2005 22:51:50 -0500
+Received: from ozlabs.org ([203.10.76.45]:14230 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932435AbVKRDvu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 22:51:50 -0500
+Date: Fri, 18 Nov 2005 14:51:34 +1100
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-hugepage-dev@opensource.ibm.com
+Subject: [PATCH] Fix hugetlbfs_statfs() reporting of block limits
+Message-ID: <20051118035134.GA23760@localhost.localdomain>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, linux-hugepage-dev@opensource.ibm.com
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Dave Jones <davej@redhat.com>
-Date: Thu, 17 Nov 2005 22:17:51 -0500
+Andrew, please apply.
 
-> On Thu, Nov 17, 2005 at 06:55:29PM -0800, Andrew Morton wrote:
-> 
->  > > IMHO the warnings are the best solution for getting a vast amount fixed, 
->  > > and then it's time to think about the rest.
->  > 
->  > But the warnings don't *work*.  I'm *still* staring at stupid pm_register
->  > and intermodule_foo warnings.  How long has that been?
-> 
-> Too long.  I think the mtd stuff won't ever get fixed until after that
-> function gets removed.
+Currently, if a hugetlbfs is mounted without limits (the default),
+statfs() will return -1 for max/free/used blocks.  This does not
+appear to be in line with normal convention: simple_statfs() and
+shmem_statfs() both return 0 in similar cases.  Worse, it confuses the
+translation logic in put_compat_statfs(), causing it to return
+-EOVERFLOW on such a mount.
 
-That's unfortunate considering we did cure the DRM cases :-)
+This patch alters hugetlbfs_statfs() to return 0 for max/free/used
+blocks on a mount without limits.  Note that we need the test in the
+patch below, rather than just using 0 in the sbinfo structure, because
+the -1 marked in the free blocks field is used internally to tell the
+difference between a full filesystem and one with no limit.
 
-My only thought is that virt_to_bus() and friends are a special case
-because they mean compilation failure on most non-x86 platforms.
+Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
 
-And frankly, __deprecated serves a different purpose as far as I'm
-concerned.  It let's people working on stuff outside the tree know
-that "oops you shouldn't be using that interface".
+Index: working-2.6/fs/hugetlbfs/inode.c
+===================================================================
+--- working-2.6.orig/fs/hugetlbfs/inode.c	2005-11-18 14:06:55.000000000 +1100
++++ working-2.6/fs/hugetlbfs/inode.c	2005-11-18 14:28:27.000000000 +1100
+@@ -509,10 +509,14 @@
+ 	buf->f_bsize = HPAGE_SIZE;
+ 	if (sbinfo) {
+ 		spin_lock(&sbinfo->stat_lock);
+-		buf->f_blocks = sbinfo->max_blocks;
+-		buf->f_bavail = buf->f_bfree = sbinfo->free_blocks;
+-		buf->f_files = sbinfo->max_inodes;
+-		buf->f_ffree = sbinfo->free_inodes;
++		/* If no limits set, just report 0 for max/free/used
++		 * blocks, like simple_statfs() */
++		if (sbinfo->max_blocks >= 0) {
++			buf->f_blocks = sbinfo->max_blocks;
++			buf->f_bavail = buf->f_bfree = sbinfo->free_blocks;
++			buf->f_files = sbinfo->max_inodes;
++			buf->f_ffree = sbinfo->free_inodes;
++		}
+ 		spin_unlock(&sbinfo->stat_lock);
+ 	}
+ 	buf->f_namelen = NAME_MAX;
 
-The deprecated warnings are so easy to filter out, so I don't think
-noise is a good argument.  I see them all the time too.
+-- 
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson
 
-The whole DMA API we have today was added 4+ years ago specifically
-to get rid of virt_to_bus() and friends.  It's been mostly successful,
-but one last nudge like this deprecation marking might help get us over
-the edge and finally delete the thing for good. :-)
+----- End forwarded message -----
 
-Anyways, my 2cents.
+-- 
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson

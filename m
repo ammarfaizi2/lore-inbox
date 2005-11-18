@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbVKRDia@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbVKRDnM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932399AbVKRDia (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 22:38:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbVKRDi3
+	id S932249AbVKRDnM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 22:43:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbVKRDnM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 22:38:29 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:13530 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932399AbVKRDi2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 22:38:28 -0500
-Date: Thu, 17 Nov 2005 19:38:17 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Andi Kleen <ak@suse.de>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, akpm@osdl.org
-Subject: Re: [PATCH] NUMA policies in the slab allocator V2
-In-Reply-To: <200511180359.17598.ak@suse.de>
-Message-ID: <Pine.LNX.4.62.0511171925090.22785@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.62.0511171745410.22486@schroedinger.engr.sgi.com>
- <200511180359.17598.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 17 Nov 2005 22:43:12 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:23956
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932249AbVKRDnL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Nov 2005 22:43:11 -0500
+Date: Thu, 17 Nov 2005 19:42:39 -0800 (PST)
+Message-Id: <20051117.194239.37311109.davem@davemloft.net>
+To: davej@redhat.com
+Cc: akpm@osdl.org, bunk@stusta.de, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] mark virt_to_bus/bus_to_virt as __deprecated on
+ i386
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20051118031751.GA2773@redhat.com>
+References: <20051118024433.GN11494@stusta.de>
+	<20051117185529.31d33192.akpm@osdl.org>
+	<20051118031751.GA2773@redhat.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Nov 2005, Andi Kleen wrote:
+From: Dave Jones <davej@redhat.com>
+Date: Thu, 17 Nov 2005 22:17:51 -0500
 
-> On Friday 18 November 2005 02:51, Christoph Lameter wrote:
-> > This patch fixes a regression in 2.6.14 against 2.6.13 that causes an
-> > imbalance in memory allocation during bootup.
+> On Thu, Nov 17, 2005 at 06:55:29PM -0800, Andrew Morton wrote:
 > 
-> I still think it's wrongly implemented. We shouldn't be slowing down the slab 
-> fast path for this. Also BTW if anything your check would need to be 
-> dependent on !in_interrupt(), otherwise the policy of slab allocations
-> in interrupt context will change randomly based on what the current
-> process is doing (that's wrong, interrupts should be always local)
-> But of course that would make the fast path even slower ...
+>  > > IMHO the warnings are the best solution for getting a vast amount fixed, 
+>  > > and then it's time to think about the rest.
+>  > 
+>  > But the warnings don't *work*.  I'm *still* staring at stupid pm_register
+>  > and intermodule_foo warnings.  How long has that been?
+> 
+> Too long.  I think the mtd stuff won't ever get fixed until after that
+> function gets removed.
 
-We can add that check to slab_node() to avoid these issues and it will be 
-out of the fast path then. I would like to hear about alternatives to 
-this. You really want to run the useless fastpath? Examine lists etc for 
-the local node despite the policy telling you to get off node?
+That's unfortunate considering we did cure the DRM cases :-)
 
-Hmm. Is a hugepage ever allocated from interrupt context? We may have the 
-same issues there.
+My only thought is that virt_to_bus() and friends are a special case
+because they mean compilation failure on most non-x86 platforms.
 
-Index: linux-2.6/mm/mempolicy.c
-===================================================================
---- linux-2.6.orig/mm/mempolicy.c	2005-11-17 19:30:10.862617183 -0800
-+++ linux-2.6/mm/mempolicy.c	2005-11-17 19:31:47.040578059 -0800
-@@ -774,6 +774,9 @@
-  */
- unsigned slab_node(struct mempolicy *policy)
- {
-+	if (in_interrupt())
-+		return numa_node_id();
-+
- 	switch (policy->policy) {
- 	case MPOL_INTERLEAVE:
- 		return interleave_nodes(policy);
+And frankly, __deprecated serves a different purpose as far as I'm
+concerned.  It let's people working on stuff outside the tree know
+that "oops you shouldn't be using that interface".
 
+The deprecated warnings are so easy to filter out, so I don't think
+noise is a good argument.  I see them all the time too.
+
+The whole DMA API we have today was added 4+ years ago specifically
+to get rid of virt_to_bus() and friends.  It's been mostly successful,
+but one last nudge like this deprecation marking might help get us over
+the edge and finally delete the thing for good. :-)
+
+Anyways, my 2cents.

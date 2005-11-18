@@ -1,59 +1,288 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030600AbVKRNFh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030601AbVKRNOM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030600AbVKRNFh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 08:05:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030601AbVKRNFh
+	id S1030601AbVKRNOM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 08:14:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030602AbVKRNOM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 08:05:37 -0500
-Received: from mail-in-06.arcor-online.net ([151.189.21.46]:43992 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1030600AbVKRNFg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 08:05:36 -0500
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-To: Denis Vlasenko <vda@ilport.com.ua>,
-       Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>,
-       Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Fri, 18 Nov 2005 14:06:09 +0100
-References: <58YAt-3Fs-5@gated-at.bofh.it> <59ecB-15H-13@gated-at.bofh.it> <59htx-69E-13@gated-at.bofh.it> <5acUX-PU-31@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1Ed5wP-0000cs-VL@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+	Fri, 18 Nov 2005 08:14:12 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:24220 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030601AbVKRNOL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 08:14:11 -0500
+Date: Fri, 18 Nov 2005 18:51:37 +0530
+From: Dinakar Guniguntala <dino@in.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: David Singleton <dsingleton@mvista.com>, linux-kernel@vger.kernel.org
+Subject: Re: PI BUG with -rt13
+Message-ID: <20051118132137.GA5639@in.ibm.com>
+Reply-To: dino@in.ibm.com
+References: <20051117161817.GA3935@in.ibm.com> <437D0C59.1060607@mvista.com> <20051118092909.GC4858@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051118092909.GC4858@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko <vda@ilport.com.ua> wrote:
-> On Wednesday 16 November 2005 00:27, Giridhar Pemmasani wrote:
+On Fri, Nov 18, 2005 at 10:29:09AM +0100, Ingo Molnar wrote:
+> 
+> * David Singleton <dsingleton@mvista.com> wrote:
+> 
+> > >I was testing PI support in the -rt tree (-rt13) when I hit the BUG
+> > >below. I am using the BULL/Montavista glibc patches. However I would
+> > >think this can be reproduced using just plain FUTEX_WAKE/WAIT_ROBUST
+> > >APIs as well, though I havent tried.  I can send out the test code
+> > >if anybody is interested. I have attached the .config below.
+> > > 
+> > >
+> 
+> >    If I make the lock in the timer_base_s struct a raw spinlock this 
+> > BUG goes away.
+> 
+> that most likely just papers over the real bug. Given task-reference 
+> count bug i fixed in the robust/PI-futexes code (see the patch below) i 
+> suspect some more races and/or plain incorrect code.
+> 
+> [this patch below also converts the robust/PI-futex code to use RCU 
+> instead of the tasklist_lock - which should remove a major latency 
+> source from the futex code].
+> 
 
-[because of ndiswrapper, ...]
+[snip patch]
 
-> Companies got nice excuse for not giving us docs, making those
-> months/years even longer.
 
-<snip>
+Ingo, Thanks for providing the fix. However I still hit the same bug
+even with your changes
 
-> Ok, how can we make any progress on obtaining docs for TI acx wireless
-> chipset? Or on Prism54 "softmac" chipset? The reply is "Open source
-> driver already exists (ndiswrapper), go away".
+	-Dinakar
 
-That why are these cards (Netgear WG511) are documented as being supported
-in the CONFIG_PRISM54 help text. I asume the list was copied from the same
-bad list of supported cards that made me buy one in the first place. If
-there was no ndiswrapper support, I'd have been fooled to completely waste
-my money, with ndiswrapper I can at least partially use it. I do neither
-want to wait some years to use a by-then obsolete card nor can I help
-developing a driver beyond doing some testing.
 
-BTW: What about creating a "Native linux support" logo saying "If you find
-a slot and plug it in, you can use it with a vanilla kernel on any arch and
-get vendor support"? That would help against Netgear's faksimile products of
-working models or ATI's claims for having "linux support".
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+testpi-1/1153[CPU#1]: BUG in FREE_WAITER at kernel/rt.c:1368
+ [<c011a700>] __WARN_ON+0x60/0x80 (8)
+ [<c037e97e>] __down_mutex+0x4fe/0x7fd (48)
+ [<c01337a9>] pi_setprio+0xa1/0x642 (104)
+ [<c0122796>] lock_timer_base+0x19/0x33 (8)
+ [<c0380d7d>] _spin_lock_irqsave+0x1d/0x46 (12)
+ [<c0122796>] lock_timer_base+0x19/0x33 (8)
+ [<c0122796>] lock_timer_base+0x19/0x33 (16)
+ [<c01227e8>] __mod_timer+0x38/0xdf (16)
+ [<c013b15b>] sub_preempt_count+0x1a/0x1e (12)
+ [<c03806dd>] __down_interruptible+0x923/0xb2b (20)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (16)
+ [<c03813b4>] _raw_spin_unlock+0x12/0x2c (8)
+ [<c0134ba6>] process_timeout+0x0/0x9 (36)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (64)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (24)
+ [<c0138270>] down_futex+0x66/0xab (8)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (12)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (20)
+ [<c013affe>] add_preempt_count_ti+0x1e/0xc6 (100)
+ [<c03813b4>] _raw_spin_unlock+0x12/0x2c (44)
+ [<c013d06e>] do_futex+0x96/0xfc (24)
+ [<c013d1cc>] sys_futex+0xf8/0x104 (40)
+ [<c0102ce7>] sysenter_past_esp+0x54/0x75 (60)
+---------------------------
+| preempt count: 00000001 ]
+| 1-level deep critical section nesting:
+----------------------------------------
+.. [<c013b0c0>] .... add_preempt_count+0x1a/0x1e
+.....[<00000000>] ..   ( <= stext+0x3feffd68/0x8)
+
+------------------------------
+| showing all locks held by: |  (testpi-1/1153 [f7bd2730,  69]):
+------------------------------
+
+#001:             [c3878fe0] {&base->t_base.lock}
+... acquired at:               lock_timer_base+0x19/0x33
+
+testpi-1/1153[CPU#2]: BUG in FREE_WAITER at kernel/rt.c:1368
+ [<c011a700>] __WARN_ON+0x60/0x80 (8)
+ [<c037e97e>] __down_mutex+0x4fe/0x7fd (48)
+ [<c03813b4>] _raw_spin_unlock+0x12/0x2c (100)
+ [<c0122838>] __mod_timer+0x88/0xdf (12)
+ [<c0380c3d>] __lock_text_start+0x1d/0x41 (12)
+ [<c0122838>] __mod_timer+0x88/0xdf (8)
+ [<c0122838>] __mod_timer+0x88/0xdf (16)
+ [<c013b15b>] sub_preempt_count+0x1a/0x1e (12)
+ [<c03806dd>] __down_interruptible+0x923/0xb2b (20)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (16)
+ [<c03813b4>] _raw_spin_unlock+0x12/0x2c (8)
+ [<c0134ba6>] process_timeout+0x0/0x9 (36)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (64)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (24)
+ [<c0138270>] down_futex+0x66/0xab (8)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (12)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (20)
+ [<c013affe>] add_preempt_count_ti+0x1e/0xc6 (100)
+ [<c03813b4>] _raw_spin_unlock+0x12/0x2c (44)
+ [<c013d06e>] do_futex+0x96/0xfc (24)
+ [<c013d1cc>] sys_futex+0xf8/0x104 (40)
+ [<c0102ce7>] sysenter_past_esp+0x54/0x75 (60)
+---------------------------
+| preempt count: 00000001 ]
+| 1-level deep critical section nesting:
+----------------------------------------
+.. [<c013b0c0>] .... add_preempt_count+0x1a/0x1e
+.....[<00000000>] ..   ( <= stext+0x3feffd68/0x8)
+
+------------------------------
+| showing all locks held by: |  (testpi-1/1153 [f7bd2730,  69]):
+------------------------------
+
+#001:             [c3888fe0] {&base->t_base.lock}
+... acquired at:               __mod_timer+0x88/0xdf
+
+testpi-1/1155[CPU#0]: BUG in FREE_WAITER at kernel/rt.c:1368
+ [<c011a700>] __WARN_ON+0x60/0x80 (8)
+ [<c037e97e>] __down_mutex+0x4fe/0x7fd (48)
+ [<c01337a9>] pi_setprio+0xa1/0x642 (104)
+ [<c0122796>] lock_timer_base+0x19/0x33 (8)
+ [<c0380d7d>] _spin_lock_irqsave+0x1d/0x46 (12)
+ [<c0122796>] lock_timer_base+0x19/0x33 (8)
+ [<c0122796>] lock_timer_base+0x19/0x33 (16)
+ [<c01227e8>] __mod_timer+0x38/0xdf (16)
+ [<c013b15b>] sub_preempt_count+0x1a/0x1e (12)
+ [<c03806dd>] __down_interruptible+0x923/0xb2b (20)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (16)
+ [<c0134ba6>] process_timeout+0x0/0x9 (44)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (64)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (24)
+ [<c0138270>] down_futex+0x66/0xab (8)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (12)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (20)
+ [<c03813b4>] _raw_spin_unlock+0x12/0x2c (76)
+ [<c0380c3d>] __lock_text_start+0x1d/0x41 (24)
+ [<c013d06e>] do_futex+0x96/0xfc (68)
+ [<c013d1cc>] sys_futex+0xf8/0x104 (40)
+ [<c0102ce7>] sysenter_past_esp+0x54/0x75 (60)
+---------------------------
+| preempt count: 00000001 ]
+| 1-level deep critical section nesting:
+----------------------------------------
+.. [<c013b0c0>] .... add_preempt_count+0x1a/0x1e
+.....[<00000000>] ..   ( <= stext+0x3feffd68/0x8)
+
+------------------------------
+| showing all locks held by: |  (testpi-1/1155 [f6fb8730,   0]):
+------------------------------
+
+#001:             [c3868fe0] {&base->t_base.lock}
+... acquired at:               lock_timer_base+0x19/0x33
+
+
+===================================================================
+
+
+Different testcase, similar result
+
+
+testpi-2/1159[CPU#1]: BUG in FREE_WAITER at kernel/rt.c:1368
+ [<c011a700>] __WARN_ON+0x60/0x80 (8)
+ [<c037e97e>] __down_mutex+0x4fe/0x7fd (48)
+ [<c01337a9>] pi_setprio+0xa1/0x642 (104)
+ [<c0122796>] lock_timer_base+0x19/0x33 (8)
+ [<c0380d7d>] _spin_lock_irqsave+0x1d/0x46 (12)
+ [<c0122796>] lock_timer_base+0x19/0x33 (8)
+ [<c0122796>] lock_timer_base+0x19/0x33 (16)
+ [<c01227e8>] __mod_timer+0x38/0xdf (16)
+ [<c013b15b>] sub_preempt_count+0x1a/0x1e (12)
+ [<c03806dd>] __down_interruptible+0x923/0xb2b (20)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (16)
+ [<c03813b4>] _raw_spin_unlock+0x12/0x2c (8)
+ [<c0134ba6>] process_timeout+0x0/0x9 (36)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (64)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (24)
+ [<c0138270>] down_futex+0x66/0xab (8)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (12)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (20)
+ [<c013affe>] add_preempt_count_ti+0x1e/0xc6 (100)
+ [<c03813b4>] _raw_spin_unlock+0x12/0x2c (44)
+ [<c013d06e>] do_futex+0x96/0xfc (24)
+ [<c013d1cc>] sys_futex+0xf8/0x104 (40)
+ [<c0102ce7>] sysenter_past_esp+0x54/0x75 (60)
+---------------------------
+| preempt count: 00000001 ]
+| 1-level deep critical section nesting:
+----------------------------------------
+.. [<c013b0c0>] .... add_preempt_count+0x1a/0x1e
+.....[<00000000>] ..   ( <= stext+0x3feffd68/0x8)
+
+------------------------------
+| showing all locks held by: |  (testpi-2/1159 [f6650020,  69]):
+------------------------------
+#001:             [c3878fe0] {&base->t_base.lock}
+... acquired at:               lock_timer_base+0x19/0x33
+
+testpi-2/1160[CPU#1]: BUG in FREE_WAITER at kernel/rt.c:1368
+ [<c011a700>] __WARN_ON+0x60/0x80 (8)
+ [<c037e97e>] __down_mutex+0x4fe/0x7fd (48)
+ [<c01337a9>] pi_setprio+0xa1/0x642 (104)
+ [<c0122796>] lock_timer_base+0x19/0x33 (8)
+ [<c0380d7d>] _spin_lock_irqsave+0x1d/0x46 (12)
+ [<c0122796>] lock_timer_base+0x19/0x33 (8)
+ [<c0122796>] lock_timer_base+0x19/0x33 (16)
+ [<c01227e8>] __mod_timer+0x38/0xdf (16)
+ [<c013b15b>] sub_preempt_count+0x1a/0x1e (12)
+ [<c03806dd>] __down_interruptible+0x923/0xb2b (20)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (16)
+ [<c0134ba6>] process_timeout+0x0/0x9 (44)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (64)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (24)
+ [<c0138270>] down_futex+0x66/0xab (8)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (12)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (20)
+ [<c03813b4>] _raw_spin_unlock+0x12/0x2c (76)
+ [<c013d06e>] do_futex+0x96/0xfc (92)
+ [<c013d1cc>] sys_futex+0xf8/0x104 (40)
+ [<c0102ce7>] sysenter_past_esp+0x54/0x75 (60)
+---------------------------
+| preempt count: 00000001 ]
+| 1-level deep critical section nesting:
+----------------------------------------
+.. [<c013b0c0>] .... add_preempt_count+0x1a/0x1e
+.....[<00000000>] ..   ( <= stext+0x3feffd68/0x8)
+
+------------------------------
+| showing all locks held by: |  (testpi-2/1160 [f6f58830,  59]):
+------------------------------
+#001:             [c3878fe0] {&base->t_base.lock}
+... acquired at:               lock_timer_base+0x19/0x33
+
+testpi-2/1161[CPU#2]: BUG in FREE_WAITER at kernel/rt.c:1368
+ [<c011a700>] __WARN_ON+0x60/0x80 (8)
+ [<c037e97e>] __down_mutex+0x4fe/0x7fd (48)
+ [<c01337a9>] pi_setprio+0xa1/0x642 (104)
+ [<c0122796>] lock_timer_base+0x19/0x33 (8)
+ [<c0380d7d>] _spin_lock_irqsave+0x1d/0x46 (12)
+ [<c0122796>] lock_timer_base+0x19/0x33 (8)
+ [<c0122796>] lock_timer_base+0x19/0x33 (16)
+ [<c01227e8>] __mod_timer+0x38/0xdf (16)
+ [<c013b15b>] sub_preempt_count+0x1a/0x1e (12)
+ [<c03806dd>] __down_interruptible+0x923/0xb2b (20)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (16)
+ [<c0134ba6>] process_timeout+0x0/0x9 (44)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (64)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (24)
+ [<c0138270>] down_futex+0x66/0xab (8)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (12)
+ [<c013c8cd>] futex_wait_robust+0x151/0x25b (20)
+ [<c03813b4>] _raw_spin_unlock+0x12/0x2c (76)
+ [<c0380c3d>] __lock_text_start+0x1d/0x41 (24)
+ [<c013d06e>] do_futex+0x96/0xfc (68)
+ [<c013d1cc>] sys_futex+0xf8/0x104 (40)
+ [<c0102ce7>] sysenter_past_esp+0x54/0x75 (60)
+---------------------------
+| preempt count: 00000001 ]
+| 1-level deep critical section nesting:
+----------------------------------------
+.. [<c013b0c0>] .... add_preempt_count+0x1a/0x1e
+.....[<00000000>] ..   ( <= stext+0x3feffd68/0x8)
+
+------------------------------
+| showing all locks held by: |  (testpi-2/1161 [f6c08120,   0]):
+------------------------------
+#001:             [c3888fe0] {&base->t_base.lock}
+... acquired at:               lock_timer_base+0x19/0x33
+
+

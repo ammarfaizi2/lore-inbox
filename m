@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161249AbVKRVmd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161260AbVKRVtG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161249AbVKRVmd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 16:42:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbVKRVmd
+	id S1161260AbVKRVtG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 16:49:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbVKRVtG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 16:42:33 -0500
-Received: from build.arklinux.osuosl.org ([140.211.166.26]:10645 "EHLO
-	mail.arklinux.org") by vger.kernel.org with ESMTP id S932197AbVKRVmc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 16:42:32 -0500
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: 2.6.15-rc1-mm2 breaks strace
-Date: Fri, 18 Nov 2005 22:40:33 +0100
-User-Agent: KMail/1.8.92
+	Fri, 18 Nov 2005 16:49:06 -0500
+Received: from mailhost.u-strasbg.fr ([130.79.200.155]:24312 "EHLO
+	mailhost.u-strasbg.fr") by vger.kernel.org with ESMTP
+	id S1161260AbVKRVtE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 16:49:04 -0500
+Message-ID: <437E4B78.80908@crc.u-strasbg.fr>
+Date: Fri, 18 Nov 2005 22:45:28 +0100
+From: Philippe Pegon <Philippe.Pegon@crc.u-strasbg.fr>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051016)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: mikem <mikem@beardog.cca.cpqcorp.net>
+CC: akpm@osdl.org, axboe@suse.de, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, hpa@zytor.com, sitniko@infonet.ee
+Subject: Re: [PATCH 1/3] cciss: bug fix for hpacucli
+References: <20051118163357.GA10928@beardog.cca.cpqcorp.net>
+In-Reply-To: <20051118163357.GA10928@beardog.cca.cpqcorp.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511182240.34512.bero@arklinux.org>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0 (mailhost.u-strasbg.fr [IPv6:2001:660:2402::155]); Fri, 18 Nov 2005 22:47:15 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.15-rc1-mm2 works nicely here, aside from the artsd stuff someone else 
-already reported, and an new issue with strace (last known working: 
-2.6.14-mm2)
+mikem wrote:
+> Patch 1 of 3
+> 
+> This patch fixes a bug that breaks hpacucli, a command line interface
+> for the HP Array Config Utility. Without this fix the utility will
+> not detect any controllers in the system. I thought I had already fixed
+> this, but I guess not.
+> 
+> Thanks to all who reported the issue. Please consider this this inclusion.
 
-[bero@localhost bero]$ strace ls
-execve("/bin/ls", ["ls"], [/* 33 vars */]) = 0
-Segmentation fault
-[ls output without any traces beyond execve-ing ls displayed here]
+reply too fast ;)
+thanks you a lot for that one
 
-Also interesting:
-[bero@localhost bero]$ strace strace ls
-execve("/usr/bin/strace", ["strace", "ls"], [/* 20 vars */]) = 0
-Segmentation fault
-execve("/bin/ls", ["ls"], [/* 20 vars */]) = 0
-[ls output without any traces displayed here]
+--
+Philippe Pegon

@@ -1,64 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161180AbVKRUcB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161179AbVKRUcB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161180AbVKRUcB (ORCPT <rfc822;willy@w.ods.org>);
+	id S1161179AbVKRUcB (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 18 Nov 2005 15:32:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbVKRUbs
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbVKRUbr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 15:31:48 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:48573 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S1161178AbVKRUbh (ORCPT
+	Fri, 18 Nov 2005 15:31:47 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:7362 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1161180AbVKRUbk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 15:31:37 -0500
-Date: Fri, 18 Nov 2005 15:29:10 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Bharath Ramesh <krosswindz@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: intel8x0 sound of silence on dell system
-Message-ID: <20051118202910.GD22566@kvack.org>
-References: <20051118162300.GA22092@kvack.org> <c775eb9b0511180959r12206562h5a294d9505d95d04@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c775eb9b0511180959r12206562h5a294d9505d95d04@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 18 Nov 2005 15:31:40 -0500
+Date: Fri, 18 Nov 2005 12:31:36 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: linux-kernel@vger.kernel.org
+Cc: Christoph Lameter <clameter@sgi.com>, lhms-devel@lists.sourceforge.net
+Message-Id: <20051118203136.27780.51903.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20051118203105.27780.9782.sendpatchset@schroedinger.engr.sgi.com>
+References: <20051118203105.27780.9782.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [PATCH 6/6] Direct Migration V3: SWAP_REFERENCE for try_to_unmap()
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, but it isn't muted.  I'm not a newbie. ;-)
+Distinguish in try_to_umap_one between the case when the page is truly
+unswappable from the case when the page was recently referenced.
 
-		-ben
+The page migration code uses try_to_unmap_one and can avoid calling
+try_to_unmap again if there was a persistent failure.
 
-On Fri, Nov 18, 2005 at 12:59:28PM -0500, Bharath Ramesh wrote:
-> Probably the sound car is muted. you might want to try out the
-> alsamixer to unmute the card.
-> 
-> On 11/18/05, Benjamin LaHaise <bcrl@kvack.org> wrote:
-> > Hello all,
-> >
-> > On trying out head on my workstation, it seems that no sound comes out.
-> > The module is getting loaded and the interrupts line for the 'Intel ICH5'
-> > is increasing.  The RHEL 4 kernel is known to work on this machine.  The
-> > only output from the driver is below.  Any ideas?
-> >
-> >                 -ben
-> >
-> > intel8x0_measure_ac97_clock: measured 51314 usecs
-> > intel8x0: clocking to 48000
-> > --
-> > "Time is what keeps everything from happening all at once." -- John Wheeler
-> > Don't Email: <dont@kvack.org>.
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
--- 
-"Time is what keeps everything from happening all at once." -- John Wheeler
-Don't Email: <dont@kvack.org>.
+Index: linux-2.6.15-rc1-mm2/include/linux/rmap.h
+===================================================================
+--- linux-2.6.15-rc1-mm2.orig/include/linux/rmap.h	2005-11-18 12:28:37.000000000 -0800
++++ linux-2.6.15-rc1-mm2/include/linux/rmap.h	2005-11-18 12:28:44.000000000 -0800
+@@ -122,6 +122,7 @@ unsigned long page_address_in_vma(struct
+  */
+ #define SWAP_SUCCESS	0
+ #define SWAP_AGAIN	1
+-#define SWAP_FAIL	2
++#define SWAP_REFERENCE	2
++#define SWAP_FAIL	3
+ 
+ #endif	/* _LINUX_RMAP_H */
+Index: linux-2.6.15-rc1-mm2/mm/rmap.c
+===================================================================
+--- linux-2.6.15-rc1-mm2.orig/mm/rmap.c	2005-11-18 12:28:37.000000000 -0800
++++ linux-2.6.15-rc1-mm2/mm/rmap.c	2005-11-18 12:28:44.000000000 -0800
+@@ -552,15 +552,20 @@ static int try_to_unmap_one(struct page 
+ 
+ 	/*
+ 	 * If the page is mlock()d, we cannot swap it out.
+-	 * If it's recently referenced (perhaps page_referenced
+-	 * skipped over this mm) then we should reactivate it.
+ 	 */
+-	if ((vma->vm_flags & VM_LOCKED) ||
+-			ptep_clear_flush_young(vma, address, pte)) {
++	if (vma->vm_flags & VM_LOCKED) {
+ 		ret = SWAP_FAIL;
+ 		goto out_unmap;
+ 	}
+ 
++	/* If the page is recently referenced (perhaps page_referenced
++	 * skipped over this mm) then we should reactivate it.
++ 	 */
++	if (ptep_clear_flush_young(vma, address, pte)) {
++		ret = SWAP_REFERENCE;
++		goto out_unmap;
++	}
++
+ 	/* Nuke the page table entry. */
+ 	flush_cache_page(vma, address, page_to_pfn(page));
+ 	pteval = ptep_clear_flush(vma, address, pte);
+@@ -710,7 +715,9 @@ static int try_to_unmap_anon(struct page
+ 
+ 	list_for_each_entry(vma, &anon_vma->head, anon_vma_node) {
+ 		ret = try_to_unmap_one(page, vma);
+-		if (ret == SWAP_FAIL || !page_mapped(page))
++		if (ret == SWAP_FAIL ||
++		    ret == SWAP_REFERENCE ||
++		    !page_mapped(page))
+ 			break;
+ 	}
+ 	spin_unlock(&anon_vma->lock);
+@@ -741,7 +748,9 @@ static int try_to_unmap_file(struct page
+ 	spin_lock(&mapping->i_mmap_lock);
+ 	vma_prio_tree_foreach(vma, &iter, &mapping->i_mmap, pgoff, pgoff) {
+ 		ret = try_to_unmap_one(page, vma);
+-		if (ret == SWAP_FAIL || !page_mapped(page))
++		if (ret == SWAP_FAIL ||
++		    ret == SWAP_REFERENCE ||
++		    !page_mapped(page))
+ 			goto out;
+ 	}
+ 
+@@ -823,7 +832,9 @@ out:
+  *
+  * SWAP_SUCCESS	- we succeeded in removing all mappings
+  * SWAP_AGAIN	- we missed a mapping, try again later
++ * SWAP_REFERENCE - the page was recently referenced
+  * SWAP_FAIL	- the page is unswappable
++ *
+  */
+ int try_to_unmap(struct page *page)
+ {
+Index: linux-2.6.15-rc1-mm2/mm/vmscan.c
+===================================================================
+--- linux-2.6.15-rc1-mm2.orig/mm/vmscan.c	2005-11-18 12:28:41.000000000 -0800
++++ linux-2.6.15-rc1-mm2/mm/vmscan.c	2005-11-18 12:28:44.000000000 -0800
+@@ -470,6 +470,7 @@ static int shrink_list(struct list_head 
+ 		 */
+ 		if (page_mapped(page) && mapping) {
+ 			switch (try_to_unmap(page)) {
++			case SWAP_REFERENCE:
+ 			case SWAP_FAIL:
+ 				goto activate_locked;
+ 			case SWAP_AGAIN:
+@@ -709,8 +710,9 @@ int migrate_page_remove_references(struc
+ 	for(i = 0; i < 10 && page_mapped(page); i++) {
+ 		int rc = try_to_unmap(page);
+ 
+-		if (rc == SWAP_SUCCESS)
++		if (rc == SWAP_SUCCESS || rc == SWAP_FAIL)
+ 			break;
++
+ 		/*
+ 		 * If there are other runnable processes then running
+ 		 * them may make it possible to unmap the page

@@ -1,180 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161027AbVKRTnV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161124AbVKRToj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161027AbVKRTnV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 14:43:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161118AbVKRTnU
+	id S1161124AbVKRToj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 14:44:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161140AbVKRToj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 14:43:20 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:44248 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161027AbVKRTnU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 14:43:20 -0500
-Message-ID: <437E2ED4.9010202@us.ibm.com>
-Date: Fri, 18 Nov 2005 11:43:16 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+	Fri, 18 Nov 2005 14:44:39 -0500
+Received: from fw5.argo.co.il ([194.90.79.130]:24582 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S1161124AbVKRToi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 14:44:38 -0500
+Message-ID: <437E2F22.6000809@argo.co.il>
+Date: Fri, 18 Nov 2005 21:44:34 +0200
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Linux Memory Management <linux-mm@kvack.org>
-Subject: [RFC][PATCH 5/8] get_object/return_object
+To: Matthew Dobson <colpatch@us.ibm.com>
+CC: linux-kernel@vger.kernel.org, Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [RFC][PATCH 0/8] Critical Page Pool
 References: <437E2C69.4000708@us.ibm.com>
 In-Reply-To: <437E2C69.4000708@us.ibm.com>
-Content-Type: multipart/mixed;
- boundary="------------020401040109010106090806"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Nov 2005 19:44:36.0793 (UTC) FILETIME=[81CE2A90:01C5EC78]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020401040109010106090806
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Matthew Dobson wrote:
 
-Move the code to get/return an object back to its slab into their own
-functions.
+>We have a clustering product that needs to be able to guarantee that the
+>networking system won't stop functioning in the case of OOM/low memory
+>condition.  The current mempool system is inadequate because to keep the
+>whole networking stack functioning, we need more than 1 or 2 slab caches to
+>be guaranteed.  We need to guarantee that any request made with a specific
+>flag will succeed, assuming of course that you've made your "critical page
+>pool" big enough.
+>
+>The following patch series implements such a critical page pool.  It
+>creates 2 userspace triggers:
+>
+>/proc/sys/vm/critical_pages: write the number of pages you want to reserve
+>for the critical pool into this file
+>
+>/proc/sys/vm/in_emergency: write a non-zero value to tell the kernel that
+>the system is in an emergency state and authorize the kernel to dip into
+>the critical pool to satisfy critical allocations.
+>
+>We mark critical allocations with the __GFP_CRITICAL flag, and when the
+>system is in an emergency state, we are allowed to delve into this pool to
+>satisfy __GFP_CRITICAL allocations that cannot be satisfied through the
+>normal means.
+>
+>  
+>
+1. If you have two subsystems which allocate critical pages, how do you 
+protect against the condition where one subsystem allocates all the 
+critical memory, causing the second to oom?
 
--Matt
+2. There already exists a critical pool: ordinary allocations fail if 
+free memory is below some limit, but special processes (kswapd) can 
+allocate that memory by setting PF_MEMALLOC. Perhaps this should be 
+extended, possibly with a per-process threshold.
 
---------------020401040109010106090806
-Content-Type: text/x-patch;
- name="slab_prep-get_return_object.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="slab_prep-get_return_object.patch"
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 
-Create two helper functions: get_object_from_slab() & return_object_to_slab().
-Use these two helper function to replace duplicated code in mm/slab.c
-
-These functions will also be reused by a later patch in this series.
-
-Signed-off-by: Matthew Dobson <colpatch@us.ibm.com>
-
-Index: linux-2.6.15-rc1+critical_pool/mm/slab.c
-===================================================================
---- linux-2.6.15-rc1+critical_pool.orig/mm/slab.c	2005-11-17 16:39:24.401412160 -0800
-+++ linux-2.6.15-rc1+critical_pool/mm/slab.c	2005-11-17 16:45:07.337277984 -0800
-@@ -2148,6 +2148,42 @@ static void kmem_flagcheck(kmem_cache_t 
- 	}
- }
- 
-+static void *get_object(kmem_cache_t *cachep, struct slab *slabp, int nid)
-+{
-+	void *obj = slabp->s_mem + (slabp->free * cachep->objsize);
-+	kmem_bufctl_t next;
-+
-+	slabp->inuse++;
-+	next = slab_bufctl(slabp)[slabp->free];
-+#if DEBUG
-+	slab_bufctl(slabp)[slabp->free] = BUFCTL_FREE;
-+	WARN_ON(slabp->nid != nid);
-+#endif
-+	slabp->free = next;
-+
-+	return obj;
-+}
-+
-+static void return_object(kmem_cache_t *cachep, struct slab *slabp, void *objp,
-+			  int nid)
-+{
-+	unsigned int objnr = (objp - slabp->s_mem) / cachep->objsize;
-+
-+#if DEBUG
-+	/* Verify that the slab belongs to the intended node */
-+	WARN_ON(slabp->nid != nid);
-+
-+	if (slab_bufctl(slabp)[objnr] != BUFCTL_FREE) {
-+		printk(KERN_ERR "slab: double free detected in cache "
-+		       "'%s', objp %p\n", cachep->name, objp);
-+		BUG();
-+	}
-+#endif
-+	slab_bufctl(slabp)[objnr] = slabp->free;
-+	slabp->free = objnr;
-+	slabp->inuse--;
-+}
-+
- static void set_slab_attr(kmem_cache_t *cachep, struct slab *slabp, void *objp)
- {
- 	int i;
-@@ -2436,22 +2472,12 @@ retry:
- 		check_slabp(cachep, slabp);
- 		check_spinlock_acquired(cachep);
- 		while (slabp->inuse < cachep->num && batchcount--) {
--			kmem_bufctl_t next;
- 			STATS_INC_ALLOCED(cachep);
- 			STATS_INC_ACTIVE(cachep);
- 			STATS_SET_HIGH(cachep);
- 
--			/* get obj pointer */
--			ac->entry[ac->avail++] = slabp->s_mem +
--				slabp->free*cachep->objsize;
--
--			slabp->inuse++;
--			next = slab_bufctl(slabp)[slabp->free];
--#if DEBUG
--			slab_bufctl(slabp)[slabp->free] = BUFCTL_FREE;
--			WARN_ON(numa_node_id() != slabp->nid);
--#endif
--			slabp->free = next;
-+			ac->entry[ac->avail++] = get_object(cachep, slabp,
-+							    numa_node_id());
- 		}
- 		check_slabp(cachep, slabp);
- 
-@@ -2586,7 +2612,6 @@ static void *__cache_alloc_node(kmem_cac
- 	struct slab *slabp;
- 	struct kmem_list3 *l3;
- 	void *obj;
--	kmem_bufctl_t next;
- 	int x;
- 
- 	l3 = cachep->nodelists[nid];
-@@ -2612,14 +2637,7 @@ retry:
- 
- 	BUG_ON(slabp->inuse == cachep->num);
- 
--	/* get obj pointer */
--	obj =  slabp->s_mem + slabp->free * cachep->objsize;
--	slabp->inuse++;
--	next = slab_bufctl(slabp)[slabp->free];
--#if DEBUG
--	slab_bufctl(slabp)[slabp->free] = BUFCTL_FREE;
--#endif
--	slabp->free = next;
-+	obj = get_object(cachep, slabp, nid);
- 	check_slabp(cachep, slabp);
- 	l3->free_objects--;
- 	/* move slabp to correct slabp list: */
-@@ -2659,29 +2677,14 @@ static void free_block(kmem_cache_t *cac
- 	for (i = 0; i < nr_objects; i++) {
- 		void *objp = objpp[i];
- 		struct slab *slabp;
--		unsigned int objnr;
- 
- 		slabp = GET_PAGE_SLAB(virt_to_page(objp));
- 		l3 = cachep->nodelists[nid];
- 		list_del(&slabp->list);
--		objnr = (objp - slabp->s_mem) / cachep->objsize;
- 		check_spinlock_acquired_node(cachep, nid);
- 		check_slabp(cachep, slabp);
--
--#if DEBUG
--		/* Verify that the slab belongs to the intended node */
--		WARN_ON(slabp->nid != nid);
--
--		if (slab_bufctl(slabp)[objnr] != BUFCTL_FREE) {
--			printk(KERN_ERR "slab: double free detected in cache "
--					"'%s', objp %p\n", cachep->name, objp);
--			BUG();
--		}
--#endif
--		slab_bufctl(slabp)[objnr] = slabp->free;
--		slabp->free = objnr;
-+		return_object(cachep, slabp, objp, nid);
- 		STATS_DEC_ACTIVE(cachep);
--		slabp->inuse--;
- 		l3->free_objects++;
- 		check_slabp(cachep, slabp);
- 
-
---------------020401040109010106090806--

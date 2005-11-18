@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161083AbVKRM35@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161064AbVKRMcu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161083AbVKRM35 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 07:29:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161084AbVKRM35
+	id S1161064AbVKRMcu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 07:32:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161095AbVKRMcu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 07:29:57 -0500
-Received: from mail-in-09.arcor-online.net ([151.189.21.49]:49612 "EHLO
-	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1161083AbVKRM34 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 07:29:56 -0500
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-Subject: Re: Does Linux has File Stream mapping support...?
-To: Arijit Das <Arijit.Das@synopsys.com>, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Fri, 18 Nov 2005 13:30:17 +0100
-References: <5abPs-7Da-41@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1Ed5Nn-0000Zm-2q@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+	Fri, 18 Nov 2005 07:32:50 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:17623 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161064AbVKRMct
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 07:32:49 -0500
+Date: Fri, 18 Nov 2005 18:02:46 +0530
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Morton Andrew Morton <akpm@osdl.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Kdump: i386 compiler warning fix
+Message-ID: <20051118123246.GD7217@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arijit Das <Arijit.Das@synopsys.com> wrote:
+Hi Andrew,
 
-> Is it possible to have File Stream Mapping in Linux? What I mean is
-> this...
-> 
-> FILE * fp1 = fopen("/foo", "w");
-> FILE * fp2 = fopen("/bar", "w");
-> FILE * fp_common = <Stream_Mapping_Func>(fp1, fp2);
-> 
-> fprint(fp_common, "This should be written to both files ... /foo and
-> /bar");
+With a particular config file on i386, I get a compiler warning. This patch
+fixes it. This incremental patch is against 2.6.15-rc1-mm2.
 
-It's a userspace problem. man "tee".
+Thanks
+Vivek
 
-Doing this in the kernel would be horrible.
 
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+o Fixes a compilation warning message in i386
+
+
+Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+---
+
+ linux-2.6.15-rc1-mm2-1M-root/include/asm-i386/kexec.h |    1 +
+ 1 files changed, 1 insertion(+)
+
+diff -puN include/asm-i386/kexec.h~kdump-i386-memcpy-warning-fix include/asm-i386/kexec.h
+--- linux-2.6.15-rc1-mm2-1M/include/asm-i386/kexec.h~kdump-i386-memcpy-warning-fix	2005-11-18 16:08:33.000000000 +0530
++++ linux-2.6.15-rc1-mm2-1M-root/include/asm-i386/kexec.h	2005-11-18 16:08:33.000000000 +0530
+@@ -3,6 +3,7 @@
+ 
+ #include <asm/fixmap.h>
+ #include <asm/ptrace.h>
++#include <asm/string.h>
+ 
+ /*
+  * KEXEC_SOURCE_MEMORY_LIMIT maximum page get_free_page can return.
+_

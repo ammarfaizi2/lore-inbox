@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030288AbVKRSFL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030186AbVKRSHL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030288AbVKRSFL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 13:05:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030276AbVKRSFL
+	id S1030186AbVKRSHL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 13:07:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030229AbVKRSHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 13:05:11 -0500
-Received: from smtp3.Stanford.EDU ([171.67.16.138]:50616 "EHLO
-	smtp3.Stanford.EDU") by vger.kernel.org with ESMTP id S1030293AbVKRSFI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 13:05:08 -0500
-Subject: Re: 2.6.14-rt13
-From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: nando@ccrma.Stanford.EDU, linux-kernel@vger.kernel.org,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, "K.R. Foley" <kr@cybsft.com>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Thomas Gleixner <tglx@linutronix.de>, pluto@agmk.net,
-       john cooper <john.cooper@timesys.com>,
-       Benedikt Spranger <bene@linutronix.de>,
-       Daniel Walker <dwalker@mvista.com>,
-       Tom Rini <trini@kernel.crashing.org>,
-       George Anzinger <george@mvista.com>
-In-Reply-To: <20051115090827.GA20411@elte.hu>
-References: <20051115090827.GA20411@elte.hu>
-Content-Type: text/plain
-Date: Fri, 18 Nov 2005 10:02:34 -0800
-Message-Id: <1132336954.20672.11.camel@cmn3.stanford.edu>
+	Fri, 18 Nov 2005 13:07:10 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:5557 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1030186AbVKRSHI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 13:07:08 -0500
+Date: Fri, 18 Nov 2005 13:04:10 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Bharath Ramesh <krosswindz@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: intel8x0 sound of silence on dell system
+Message-ID: <20051118180410.GA22566@kvack.org>
+References: <20051118162300.GA22092@kvack.org> <c775eb9b0511180959r12206562h5a294d9505d95d04@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c775eb9b0511180959r12206562h5a294d9505d95d04@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-15 at 10:08 +0100, Ingo Molnar wrote:
-> i have released the 2.6.14-rt13 tree, which can be downloaded from the 
-> usual place:
+No, like I said, booting the RHEL4 kernel works like a charm.  alsamixer 
+does not show it being muted.
+
+		-ben
+
+On Fri, Nov 18, 2005 at 12:59:28PM -0500, Bharath Ramesh wrote:
+> Probably the sound car is muted. you might want to try out the
+> alsamixer to unmute the card.
 > 
->    http://redhat.com/~mingo/realtime-preempt/
-> 
-> lots of fixes in this release affecting all supported architectures, all 
-> across the board. Big MIPS update from John Cooper.
+> On 11/18/05, Benjamin LaHaise <bcrl@kvack.org> wrote:
+> > Hello all,
+> >
+> > On trying out head on my workstation, it seems that no sound comes out.
+> > The module is getting loaded and the interrupts line for the 'Intel ICH5'
+> > is increasing.  The RHEL 4 kernel is known to work on this machine.  The
+> > only output from the driver is below.  Any ideas?
+> >
+> >                 -ben
+> >
+> > intel8x0_measure_ac97_clock: measured 51314 usecs
+> > intel8x0: clocking to 48000
+> > --
+> > "Time is what keeps everything from happening all at once." -- John Wheeler
+> > Don't Email: <dont@kvack.org>.
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
 
-Hi Ingo, I'm back from the trip and built -rt13 to test on my dual core
-Athlons. As I emailed you yesterday off the list it looked good, but I
-guess it took longer than usual for things to degrade. This morning I'm
-seeing the usual warnings from Jack. And, for the first time in a while,
-actual xruns. I'll try your suggestion of booting with idle=poll. 
-
-[begin speculation]
-You mentioned before that the TSC's from both cpus could drift from each
-other over time. Assuming that is the source of timing (I have no idea)
-that could explain the behavior of Jack, it gets a reference time from
-one of the cpus and then compares that with what it gets from either cpu
-depending on where it is running at a given time. If it is the same cpu
-all is fine, if it is the other and it has drifted then the warning is
-printed. 
-
--- Fernando
-
-
+-- 
+"Time is what keeps everything from happening all at once." -- John Wheeler
+Don't Email: <dont@kvack.org>.

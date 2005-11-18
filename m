@@ -1,77 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbVKRDvu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932447AbVKRDwv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932435AbVKRDvu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Nov 2005 22:51:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbVKRDvu
+	id S932447AbVKRDwv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Nov 2005 22:52:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbVKRDwv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Nov 2005 22:51:50 -0500
-Received: from ozlabs.org ([203.10.76.45]:14230 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932435AbVKRDvu (ORCPT
+	Thu, 17 Nov 2005 22:52:51 -0500
+Received: from ozlabs.org ([203.10.76.45]:17046 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932447AbVKRDwu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Nov 2005 22:51:50 -0500
-Date: Fri, 18 Nov 2005 14:51:34 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-hugepage-dev@opensource.ibm.com
-Subject: [PATCH] Fix hugetlbfs_statfs() reporting of block limits
-Message-ID: <20051118035134.GA23760@localhost.localdomain>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, linux-hugepage-dev@opensource.ibm.com
+	Thu, 17 Nov 2005 22:52:50 -0500
+Date: Fri, 18 Nov 2005 14:52:36 +1100
+From: David Gibson <hermes@gibson.dropbear.id.au>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: proski@gnu.org, orinoco-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, jgarzik@pobox.com, netdev@vger.kernel.org
+Subject: Re: [Orinoco-devel] [2.6 patch] drivers/net/wireless/orinoco.h: "extern inline" -> "static inline"
+Message-ID: <20051118035236.GB23760@localhost.localdomain>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>, proski@gnu.org,
+	orinoco-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+	jgarzik@pobox.com, netdev@vger.kernel.org
+References: <20051118033329.GU11494@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20051118033329.GU11494@stusta.de>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, please apply.
+On Fri, Nov 18, 2005 at 04:33:29AM +0100, Adrian Bunk wrote:
+> "extern inline" doesn't make much sense.
 
-Currently, if a hugetlbfs is mounted without limits (the default),
-statfs() will return -1 for max/free/used blocks.  This does not
-appear to be in line with normal convention: simple_statfs() and
-shmem_statfs() both return 0 in similar cases.  Worse, it confuses the
-translation logic in put_compat_statfs(), causing it to return
--EOVERFLOW on such a mount.
+Yes it does.  "extern inline" tells gcc not to fall back to out of
+line version if it can't inline the function.  These functions *must*
+by inlined, or they'll break horribly on Sparc, at least.
 
-This patch alters hugetlbfs_statfs() to return 0 for max/free/used
-blocks on a mount without limits.  Note that we need the test in the
-patch below, rather than just using 0 in the sbinfo structure, because
-the -1 marked in the free blocks field is used internally to tell the
-difference between a full filesystem and one with no limit.
-
-Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
-
-Index: working-2.6/fs/hugetlbfs/inode.c
-===================================================================
---- working-2.6.orig/fs/hugetlbfs/inode.c	2005-11-18 14:06:55.000000000 +1100
-+++ working-2.6/fs/hugetlbfs/inode.c	2005-11-18 14:28:27.000000000 +1100
-@@ -509,10 +509,14 @@
- 	buf->f_bsize = HPAGE_SIZE;
- 	if (sbinfo) {
- 		spin_lock(&sbinfo->stat_lock);
--		buf->f_blocks = sbinfo->max_blocks;
--		buf->f_bavail = buf->f_bfree = sbinfo->free_blocks;
--		buf->f_files = sbinfo->max_inodes;
--		buf->f_ffree = sbinfo->free_inodes;
-+		/* If no limits set, just report 0 for max/free/used
-+		 * blocks, like simple_statfs() */
-+		if (sbinfo->max_blocks >= 0) {
-+			buf->f_blocks = sbinfo->max_blocks;
-+			buf->f_bavail = buf->f_bfree = sbinfo->free_blocks;
-+			buf->f_files = sbinfo->max_inodes;
-+			buf->f_ffree = sbinfo->free_inodes;
-+		}
- 		spin_unlock(&sbinfo->stat_lock);
- 	}
- 	buf->f_namelen = NAME_MAX;
-
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/~dgibson
-
------ End forwarded message -----
+> --- linux-2.6.15-rc1-mm1-full/drivers/net/wireless/orinoco.h.old	2005-11-18 02:38:43.000000000 +0100
+> +++ linux-2.6.15-rc1-mm1-full/drivers/net/wireless/orinoco.h	2005-11-18 02:38:47.000000000 +0100
+> @@ -155,7 +155,7 @@
+>   * SPARC, due to its weird semantics for save/restore flags. extern
+>   * inline should prevent the kernel from linking or module from
+>   * loading if they are not inlined. */
+> -extern inline int orinoco_lock(struct orinoco_private *priv,
+> +static inline int orinoco_lock(struct orinoco_private *priv,
+>  			       unsigned long *flags)
+>  {
+>  	spin_lock_irqsave(&priv->lock, *flags);
+> @@ -168,7 +168,7 @@
+>  	return 0;
+>  }
+>  
+> -extern inline void orinoco_unlock(struct orinoco_private *priv,
+> +static inline void orinoco_unlock(struct orinoco_private *priv,
+>  				  unsigned long *flags)
+>  {
+>  	spin_unlock_irqrestore(&priv->lock, *flags);
+> 
 
 -- 
 David Gibson			| I'll have my music baroque, and my code

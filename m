@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750918AbVKRTex@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750917AbVKRTff@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750918AbVKRTex (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 14:34:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750933AbVKRTex
+	id S1750917AbVKRTff (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 14:35:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750934AbVKRTff
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 14:34:53 -0500
-Received: from zproxy.gmail.com ([64.233.162.205]:34961 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750917AbVKRTew convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 14:34:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ZQ5u13y+4tyiURKha79YTP+GOTGT7cPKMU3Bi6mTlxwj7Re9x763urmFZT3iNl5iHSg9DFMeMgAZNDJ7G5lKPsaGu3VbV6z6raH0iYg0HMEXL/NrNk5OA/EWYnu7D2L72xcjlyULklxuBJYugRqR9D3RKkUO1RQa2Fmqs906rGY=
-Message-ID: <625fc13d0511181134lc074b8avcc8db47b8723583@mail.gmail.com>
-Date: Fri, 18 Nov 2005 13:34:51 -0600
-From: Josh Boyer <jwboyer@gmail.com>
-To: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: Re: [patch 1/3] Add SCM info to MAINTAINERS
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, scjody@steamballoon.com
-In-Reply-To: <20051118173106.GB20860@kroah.com>
+	Fri, 18 Nov 2005 14:35:35 -0500
+Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:34517 "EHLO
+	ms-smtp-03-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S1750917AbVKRTfe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 14:35:34 -0500
+Message-ID: <437E2D2A.2070308@austin.rr.com>
+Date: Fri, 18 Nov 2005 13:36:10 -0600
+From: Steve French <smfrench@austin.rr.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051118173930.270902000@press.kroah.org>
-	 <20051118173054.GA20860@kroah.com> <20051118173106.GB20860@kroah.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rc1-mm2
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/18/05, Greg Kroah-Hartman <gregkh@suse.de> wrote:
-> From: Jody McIntyre <scjody@steamballoon.com>
->
-> Add tree information to MAINTAINERS file.
+The missing XATTR ifdef is now fixed in cifs-2.6 git tree along with 
+some minor fixes related to mounts where sfu mount option specified.
 
-Missed MTD git tree at:
+Thanks for pointing this out.
 
-git kernel.org:/pub/scm/linux/kernel/git/tglx/mtd-2.6.git
+Andy Whitcroft <apw@shadowen.org> wrote on 11/18/2005 05:29:47 AM:
 
-MTD also has a CVS tree... which begs the question as to whether or
-not CVS trees can be added to the SCM type?
-
-josh
+ > Andrew Morton wrote:
+ >
+ > > - cifs is busted when built as a module.  Mysteriously.
+ >
+ > Don't know if this is related, but it appears that there is a problem
+ > linking it static.  Specifically when you enable CONFIG_CIFS but not
+ > CONFIG_CIFS_XATTR.  It seems that get_sfu_uid_mode() uses
+ > CIFSSMBQueryEA() which is only available when CIFS_XATTR is defined.
+ > Oddly the error seems to be reported against the function which follows:
+ >
+ >   fs/built-in.o(.text+0x131520): In function `.cifs_get_inode_info':
+ >   : undefined reference to `.CIFSSMBQueryEA'
+ >   make: *** [.tmp_vmlinux1] Error 1
+ >
+ > -apw

@@ -1,67 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161032AbVKRKyM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161063AbVKRL0z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161032AbVKRKyM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 05:54:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161039AbVKRKyL
+	id S1161063AbVKRL0z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 06:26:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161054AbVKRL0y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 05:54:11 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:9371 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1161032AbVKRKyL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 05:54:11 -0500
-Date: Fri, 18 Nov 2005 18:55:26 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+	Fri, 18 Nov 2005 06:26:54 -0500
+Received: from mailrelay2.lrz-muenchen.de ([129.187.254.102]:14787 "EHLO
+	mailrelay2.lrz-muenchen.de") by vger.kernel.org with ESMTP
+	id S1161063AbVKRL0x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 06:26:53 -0500
+From: Bernd Donner <bdonner@physik.tu-muenchen.de>
+Organization: TU =?iso-8859-1?q?M=FCnchen?=
 To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.15-rc1-mm2
-Message-ID: <20051118105526.GA6401@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <20051109134938.757187000@localhost.localdomain> <20051109141454.336639000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: Resume from swsusp stopped working with 2.6.14 and 2.6.15-rc1
+Date: Fri, 18 Nov 2005 14:46:47 +0100
+User-Agent: KMail/1.8.2
+References: <87zmoa0yv5.fsf@obelix.mork.no> <d120d5000511171357g4d7a8d54hcc1c1d1cffa8856e@mail.gmail.com>
+In-Reply-To: <d120d5000511171357g4d7a8d54hcc1c1d1cffa8856e@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051117234645.4128c664.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200511181446.48044.bdonner@physik.tu-muenchen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thursday 17 November 2005 22:57, Dmitry Torokhov wrote:
+> Crazy idea - did you let it finish booting or you hit suspend as soon
+> as you could? It looks like kseriod was busy discovering your
+> touchpad/trackpoint for the first time...
 
-This patch should fix a link error:
+I did let it finish booting. Since the resume failed, i patiently waited for 
+fsck and X startup to finish.
 
-arch/i386/kernel/built-in.o: In function `parse_cmdline_early':
-: undefined reference to `elfcorehdr_addr'
-arch/i386/kernel/built-in.o: In function `parse_cmdline_early':
-: undefined reference to `elfcorehdr_addr'
+> Anyway, Pavel, I think 6 seconds it too short of a timeout for
+> stopping all tasks. PS/2 is pretty slow, trackpad reset can take up to
+> 2 seconds alone...
+>
+> Bjorn, does it help if you change TIMEOUT in kernel/power/process.c to 30 *
+> HZ?
 
-Regards,
-Wu
----
+Increasing the TIMEOUT to 30 seconds on an 2.6.14 kernel does solve the 
+reported problem for me. The resume now succeeds.
 
- arch/i386/kernel/setup.c   |    2 +-
- arch/x86_64/kernel/setup.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
---- linux-2.6.15-rc1-mm2.orig/arch/i386/kernel/setup.c
-+++ linux-2.6.15-rc1-mm2/arch/i386/kernel/setup.c
-@@ -898,7 +898,7 @@ static void __init parse_cmdline_early (
- 			}
- 		}
- #endif
--#ifdef CONFIG_CRASH_DUMP
-+#ifdef CONFIG_PROC_VMCORE
- 		/* elfcorehdr= specifies the location of elf core header
- 		 * stored by the crashed kernel.
- 		 */
---- linux-2.6.15-rc1-mm2.orig/arch/x86_64/kernel/setup.c
-+++ linux-2.6.15-rc1-mm2/arch/x86_64/kernel/setup.c
-@@ -418,7 +418,7 @@ static __init void parse_cmdline_early (
- 		}
- #endif
- 
--#ifdef CONFIG_CRASH_DUMP
-+#ifdef CONFIG_PROC_VMCORE
- 		/* elfcorehdr= specifies the location of elf core header
- 		 * stored by the crashed kernel. This option will be passed
- 		 * by kexec loader to the capture kernel.
+Thanks
+Bernd

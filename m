@@ -1,126 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161231AbVKSDKP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161230AbVKSDYQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161231AbVKSDKP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 22:10:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161233AbVKSDKO
+	id S1161230AbVKSDYQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 22:24:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161232AbVKSDYQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 22:10:14 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:1415 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161231AbVKSDKN (ORCPT
+	Fri, 18 Nov 2005 22:24:16 -0500
+Received: from aeimail.aei.ca ([206.123.6.84]:4548 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S1161230AbVKSDYQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 22:10:13 -0500
-Date: Fri, 18 Nov 2005 19:09:50 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Eric Paris <eparis@redhat.com>
-Cc: linux-kernel@vger.kernel.org, wli@holomorphy.com
-Subject: Re: [PATCH] Fix race in set_max_huge_pages for multiple updaters of
- nr_huge_pages
-Message-Id: <20051118190950.2cff4e54.akpm@osdl.org>
-In-Reply-To: <1132336300.5151.47.camel@localhost.localdomain>
-References: <1132336300.5151.47.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 18 Nov 2005 22:24:16 -0500
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Greg KH <greg@kroah.com>
+Subject: Re: 2.6.15-rc1-mm1
+Date: Fri, 18 Nov 2005 22:24:09 -0500
+User-Agent: KMail/1.8.2
+Cc: Ian McDonald <imcdnzl@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <20051117111807.6d4b0535.akpm@osdl.org> <200511182024.33858.tomlins@cam.org> <20051119012632.GA28458@kroah.com>
+In-Reply-To: <20051119012632.GA28458@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511182224.10392.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Paris <eparis@redhat.com> wrote:
->
-> If there are multiple updaters to /proc/sys/vm/nr_hugepages
-> simultaneously it is possible for the nr_huge_pages variable to become
-> incorrect.  There is no locking in the set_max_huge_pages function
-> around alloc_fresh_huge_page which is able to update nr_huge_pages.  Two
-> callers to alloc_fresh_huge_page could race against each other as could
-> a call to alloc_fresh_huge_page and a call to update_and_free_page.
-> This patch just expands the area covered by the hugetlb_lock to cover
-> the call into alloc_fresh_huge_page.  I'm not sure how we could say that
-> a sysctl section is performance critical where more specific locking
-> would be needed.
+On Friday 18 November 2005 20:26, Greg KH wrote:
+> On Fri, Nov 18, 2005 at 08:24:33PM -0500, Ed Tomlinson wrote:
+> > On Friday 18 November 2005 18:51, Greg KH wrote:
+> > > On Fri, Nov 18, 2005 at 06:35:11PM -0500, Ed Tomlinson wrote:
+> > > > On Friday 18 November 2005 18:16, Ed Tomlinson wrote:
+> > > > > On Friday 18 November 2005 16:14, Ian McDonald wrote:
+> > > > > > On 11/19/05, Greg KH <greg@kroah.com> wrote:
+> > > > > > > Are you using debian?
+> > > > > > > If so, what version of udev are you using?  There are some known
+> > > > > > > reported problems with this, so I would suggest referring to the udev
+> > > > > > > bug list.
+> > > > > > >
+> > > > > > In particular check the version requirements for udev - you need to be
+> > > > > > on a version greater than or equal to 71. Sarge/stable has a really
+> > > > > > old version. In particular I am running unstable as I had too many
+> > > > > > funny errors (including this one) - but etch should be fine.
+> > > > > > 
+> > > > > > If running another distribution check this also as it is a real requirement.
+> > > > > > 
+> > > > > > To find the latest version of udev required check Documentation/Changes
+> > > > > 
+> > > > > devinfo -v 
+> > > > > udevinfo, version 074 
+> > > > > 
+> > > > > dpkg -s 
+> > > > > Package: udev
+> > > > > Status: install ok installed
+> > > > > Priority: extra
+> > > > > Section: admin
+> > > > > Installed-Size: 1072
+> > > > > Maintainer: Marco d'Itri <md@linux.it>
+> > > > > Architecture: amd64
+> > > > > Version: 0.074-3
+> > > > > 
+> > > > > Interestingly the same udev works fine with 14-rc4-mm1.  I'll check the debian
+> > > > > bugs.
+> > > > 
+> > > > There does not seem to be anything that fits this reported as a debian bug.  Where
+> > > > is the udev bugs list?
+> > > 
+> > > For Debian?  I have no idea as I do not use it :)
+> > > 
+> > > For general udev issues/queries try the linux-hotplug-devel mailing
+> > > list.
+> > > 
+> > > Oh, and are you sure you actually have the proper module loaded?
+> > 
+> > Think only the mousedev module is not loaded.  Once I modprobe it the mouse works
+> > and the /dev/input/mice appears.  The mouse works normally with all buttons and wheels
+> > acting normal.
 > 
-> My reproducer was to run a couple copies of the following script
-> simultaneously
-> 
-> while [ true ]; do
-> 	echo 1000 > /proc/sys/vm/nr_hugepages
-> 	echo 500 > /proc/sys/vm/nr_hugepages
-> 	echo 750 > /proc/sys/vm/nr_hugepages
-> 	echo 100 > /proc/sys/vm/nr_hugepages
-> 	echo 0 > /proc/sys/vm/nr_hugepages
-> done
-> 
-> and then watch /proc/meminfo and eventually you will see things like
-> 
-> HugePages_Total:     100
-> HugePages_Free:      109
-> 
-> After applying the patch all seemed well.
-> 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
-> ----
-> 
->  hugetlb.c |   10 +++++++---
->  1 files changed, 7 insertions(+), 3 deletions(-)
-> 
-> --- linux-2.6.14.2/mm/hugetlb.c.old
-> +++ linux-2.6.14.2/mm/hugetlb.c
-> @@ -22,6 +22,7 @@
->  static struct list_head hugepage_freelists[MAX_NUMNODES];
->  static unsigned int nr_huge_pages_node[MAX_NUMNODES];
->  static unsigned int free_huge_pages_node[MAX_NUMNODES];
-> +/* This lock protects updates to hugepage_freelists, nr_huge_pages, and free_huge_pages */
->  static DEFINE_SPINLOCK(hugetlb_lock);
->  
->  static void enqueue_huge_page(struct page *page)
-> @@ -172,10 +173,13 @@
->  static unsigned long set_max_huge_pages(unsigned long count)
->  {
->  	while (count > nr_huge_pages) {
-> -		struct page *page = alloc_fresh_huge_page();
-> -		if (!page)
-> -			return nr_huge_pages;
-> +		struct page *page;
->  		spin_lock(&hugetlb_lock);
-> +		page = alloc_fresh_huge_page();
-> +		if (!page) {
-> +			spin_unlock(&hugetlb_lock);
-> +			return nr_huge_pages;
-> +		}
->  		enqueue_huge_page(page);
->  		spin_unlock(&hugetlb_lock);
->  	}
+> Then you just need to make sure that module is loaded properly, which
+> doesn't sound like a udev issue :)
 
-Nope, alloc_fresh_huge_page() does a GFP_HIGHUSER allocation, which can
-sleep and may not be called inside spinlock.  You would have seen a spew of
-might_sleep() warnings if this was tested with the appropriate kernel
-debugging options.
+Then its a kernel problem.  
 
+It works with the _same_ user space in 2.6.14-rc4-mm1 and fails with 15-rc1-mm2...  
+This implies either something is broken in the kernel or udev is not doing its job with 
+the new (input?) changes.  Since I switched to udev this summer I have not had to load 
+many modules certainly not mousedev.
 
-How about this?
+I'll do a bit of experimenting this weekend to see if I cannot figure out more about what is 
+happening.
 
---- devel/mm/hugetlb.c~hugetlb-fix-race-in-set_max_huge_pages-for-multiple-updaters-of-nr_huge_pages	2005-11-18 19:04:10.000000000 -0800
-+++ devel-akpm/mm/hugetlb.c	2005-11-18 19:07:26.000000000 -0800
-@@ -22,6 +22,10 @@ unsigned long max_huge_pages;
- static struct list_head hugepage_freelists[MAX_NUMNODES];
- static unsigned int nr_huge_pages_node[MAX_NUMNODES];
- static unsigned int free_huge_pages_node[MAX_NUMNODES];
-+
-+/*
-+ * Protects updates to hugepage_freelists, nr_huge_pages, and free_huge_pages
-+ */
- static DEFINE_SPINLOCK(hugetlb_lock);
- 
- static void enqueue_huge_page(struct page *page)
-@@ -61,8 +65,10 @@ static struct page *alloc_fresh_huge_pag
- 					HUGETLB_PAGE_ORDER);
- 	nid = (nid + 1) % num_online_nodes();
- 	if (page) {
-+		spin_lock(&hugetlb_lock);
- 		nr_huge_pages++;
- 		nr_huge_pages_node[page_to_nid(page)]++;
-+		spin_unlock(&hugetlb_lock);
- 	}
- 	return page;
- }
-_
-
+Thanks for the help
+Ed

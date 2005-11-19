@@ -1,78 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750978AbVKSJ0a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbVKSJdA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750978AbVKSJ0a (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 04:26:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750980AbVKSJ03
+	id S1750993AbVKSJdA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 04:33:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbVKSJdA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 04:26:29 -0500
-Received: from styx.suse.cz ([82.119.242.94]:57790 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1750975AbVKSJ03 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 04:26:29 -0500
-Date: Sat, 19 Nov 2005 10:26:22 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Bart Samwel <bart@samwel.tk>
-Cc: Pavel Machek <pavel@ucw.cz>, Bill Davidsen <davidsen@tmr.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Laptop mode causing writes to wrong sectors?
-Message-ID: <20051119092622.GA13622@midnight.suse.cz>
-References: <20051116181612.GA9231@knautsch.gondor.com> <20051117223340.GD14597@elf.ucw.cz> <437E215E.30500@tmr.com> <20051118232019.GA2359@spitz.ucw.cz> <437EE4B3.2090408@samwel.tk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 19 Nov 2005 04:33:00 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:3745 "EHLO
+	grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1750956AbVKSJc7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 04:32:59 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: ncunningham@cyclades.com
+Subject: Re: [linux-pm] [RFC] userland swsusp
+Date: Sat, 19 Nov 2005 03:32:26 -0600
+User-Agent: KMail/1.8
+Cc: Greg KH <greg@kroah.com>,
+       Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>
+References: <20051115212942.GA9828@elf.ucw.cz> <20051116061459.GA31181@kroah.com> <1132120845.25230.13.camel@localhost>
+In-Reply-To: <1132120845.25230.13.camel@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <437EE4B3.2090408@samwel.tk>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.10i
+Message-Id: <200511190332.29150.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 19, 2005 at 09:39:15AM +0100, Bart Samwel wrote:
-> Pavel Machek wrote:
-> >>My laptop also has a spindown (five min from memory) and I have yet to 
-> >>have a problem with it. Don't know if any of that is "spindowns without 
-> >>laptopmode" in a useful sense.
-> >
-> >Unless you can also reproduce the failure... no, probably does not help
-> >much.
-> 
-> Okay, let's recap.
-> 
-> * There are a lot of people who are not having problems. The people who 
-> *are* having problems can usually reproduce them. My interpretation: the 
-> problem is triggered by some hardware and/or kernel config settings.
-> 
-> * A significant proportion of the people who *do* have trouble see 
-> messages about DMA timeouts. The problems do also occur on other 
-> hardware, but seem to be most pronounced on Thinkpad T40s. On those 
-> machines, the DMA timeout problems are triggered *especially* when the 
-> madwifi drivers are loaded (see 
-> http://bugzilla.ubuntu.com/show_bug.cgi?id=6108).
-> 
-> Perhaps I should start collection kernel configs and hardware specs, see 
-> if there are any unexpected commonalities. The influence of the madwifi 
-> drivers suggest that we could be be looking for anything really. What do 
-> you think?
- 
-The issue might be that these people are using
+On Wednesday 16 November 2005 00:00, Nigel Cunningham wrote:
+> > It's not duplicated, Nigel knows what need to be done to work together,
+> > if he so desires.
+>
+> I know that Pavel and I have such different ideas about what should be
+> done that it's not worth the effort.
 
-	hdparm -S xxx
-	
-	or
+So first it was Pavel and Patrick Mochel...
 
-	hdparm -y / -Y
+Then Pavel and Nigel...
 
-while a much better way to do
+Recently Dave Jones rumbled about a suspend fork...
 
-	hdparm -B 63
+You sure you software suspend guys haven't been hanging out with the IDE 
+maintainers?
 
-The -S option should in theory be safe, but I remember some drives did
-behave unpredictably if this was used. -y/-Y is much tougher and some
-drives will not work reliably unless first woken up manually before
-issuing a read/write request.
-
-On the other hand, -B is pretty safe on drives that support it, and all
-IBM notebook drives do.
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Rob

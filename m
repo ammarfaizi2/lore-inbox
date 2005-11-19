@@ -1,41 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbVKSVDw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbVKSVMZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750847AbVKSVDw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 16:03:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750845AbVKSVDw
+	id S1750846AbVKSVMZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 16:12:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbVKSVMZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 16:03:52 -0500
-Received: from postel.suug.ch ([195.134.158.23]:36584 "EHLO postel.suug.ch")
-	by vger.kernel.org with ESMTP id S1750841AbVKSVDv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 16:03:51 -0500
-Date: Sat, 19 Nov 2005 22:04:11 +0100
-From: Thomas Graf <tgraf@suug.ch>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: yoshfuji@linux-ipv6.org, yanzheng@21cn.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [DEBUG INFO]IPv6: sleeping function called from invalid context.
-Message-ID: <20051119210411.GE20395@postel.suug.ch>
-References: <20051118123557.GD20395@postel.suug.ch> <E1EdRCZ-0007uy-00@gondolin.me.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1EdRCZ-0007uy-00@gondolin.me.apana.org.au>
+	Sat, 19 Nov 2005 16:12:25 -0500
+Received: from moutng.kundenserver.de ([212.227.126.171]:32499 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750829AbVKSVMY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 16:12:24 -0500
+Date: Sat, 19 Nov 2005 22:12:12 +0100 (CET)
+From: Armin Schindler <armin@melware.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: isdn4linux@listserv.isdn4linux.de, kkeil@suse.de,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] drivers/isdn/: add missing #include's
+In-Reply-To: <20051119075943.GD16060@stusta.de>
+Message-ID: <Pine.LNX.4.61.0511192208310.21536@phoenix.one.melware.de>
+References: <20051119075943.GD16060@stusta.de>
+Organization: Cytronics & Melware
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:4f0aeee4703bc17a8237042c4702a75a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Herbert Xu <herbert@gondor.apana.org.au> 2005-11-19 22:48
-> Thomas Graf <tgraf@suug.ch> wrote:
-> > 
-> > I did. I think it was right, why would an allocation be necessary on
-> > the second call to inet6_dump_fib()? The walker allocated in process
-> > context on the first call should be reused from cb->args[0].
-> 
-> Continued dumps are always called under spin lock (see netlink_dump).
-> So we need to use GFP_ATOMIC in dumpers.
+On Sat, 19 Nov 2005, Adrian Bunk wrote:
+> Every file should #include the headers containing the prototypes for 
+> it's global functions.
 
-The continued dumps wouldn't be the problem, the walker is allocated
-on the initial dump call. It was a mistake though, nlk->cb_lock spin
-lock is always held for cb->dump() even though it should only be
-required during the nlk->cb != NULL check. netlink_dump_start()
-guarantees to only allow one dumper per socket at a time.
+Agreed. 
+ 
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Signed-off-by: Armin Schindler <armin@melware.de>
+
+---
+
+ drivers/isdn/capi/capifs.c           |    2 ++
+ drivers/isdn/hardware/eicon/os_bri.c |    1 +
+ drivers/isdn/hardware/eicon/os_pri.c |    1 +
+ 3 files changed, 4 insertions(+)
+
+--- linux-2.6.15-rc1-mm2-full/drivers/isdn/capi/capifs.c.old	2005-11-19 03:41:08.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/drivers/isdn/capi/capifs.c	2005-11-19 03:41:21.000000000 +0100
+@@ -17,6 +17,8 @@
+ #include <linux/ctype.h>
+ #include <linux/sched.h>	/* current */
+ 
++#include "capifs.h"
++
+ MODULE_DESCRIPTION("CAPI4Linux: /dev/capi/ filesystem");
+ MODULE_AUTHOR("Carsten Paeth");
+ MODULE_LICENSE("GPL");
+--- linux-2.6.15-rc1-mm2-full/drivers/isdn/hardware/eicon/os_bri.c.old	2005-11-19 03:47:24.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/drivers/isdn/hardware/eicon/os_bri.c	2005-11-19 03:47:38.000000000 +0100
+@@ -16,6 +16,7 @@
+ #include "diva_pci.h"
+ #include "mi_pc.h"
+ #include "pc_maint.h"
++#include "dsrv_bri.h"
+ 
+ /*
+ **  IMPORTS
+--- linux-2.6.15-rc1-mm2-full/drivers/isdn/hardware/eicon/os_pri.c.old	2005-11-19 03:49:19.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/drivers/isdn/hardware/eicon/os_pri.c	2005-11-19 03:49:32.000000000 +0100
+@@ -18,6 +18,7 @@
+ #include "pc_maint.h"
+ #include "dsp_tst.h"
+ #include "diva_dma.h"
++#include "dsrv_pri.h"
+ 
+ /* --------------------------------------------------------------------------
+    OS Dependent part of XDI driver for DIVA PRI Adapter
+

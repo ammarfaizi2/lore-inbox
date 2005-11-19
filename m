@@ -1,75 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbVKSVMZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbVKSVMe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750846AbVKSVMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 16:12:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbVKSVMZ
+	id S1750829AbVKSVMe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 16:12:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbVKSVMd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 16:12:25 -0500
-Received: from moutng.kundenserver.de ([212.227.126.171]:32499 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1750829AbVKSVMY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 16:12:24 -0500
-Date: Sat, 19 Nov 2005 22:12:12 +0100 (CET)
-From: Armin Schindler <armin@melware.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: isdn4linux@listserv.isdn4linux.de, kkeil@suse.de,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] drivers/isdn/: add missing #include's
-In-Reply-To: <20051119075943.GD16060@stusta.de>
-Message-ID: <Pine.LNX.4.61.0511192208310.21536@phoenix.one.melware.de>
-References: <20051119075943.GD16060@stusta.de>
-Organization: Cytronics & Melware
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:4f0aeee4703bc17a8237042c4702a75a
+	Sat, 19 Nov 2005 16:12:33 -0500
+Received: from zproxy.gmail.com ([64.233.162.200]:5234 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750829AbVKSVMd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 16:12:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:reply-to:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+        b=PBjqWjQd96xWZV89ZtOd7IiqK2vIXWbi2/3UOb5OUP+J+cCXdgq2B2mYrrZzBNSn635MuwJHVcB61w461xauSfUDjSCigD0JKjpl8ZloNDTzpYluDE8s03eTEjxnQm9pVZ0dalKIgUu88XxIf2Al5E86umiqpZ7ympr9R0J7wEU=
+Subject: Re: AMD 64 system clock speed
+From: Chris Largret <largret@gmail.com>
+Reply-To: largret@gmail.com
+To: jstipins@umich.edu
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051118200132.jiwizt3ho0ook00w@web.mail.umich.edu>
+References: <20051118200132.jiwizt3ho0ook00w@web.mail.umich.edu>
+Content-Type: text/plain
+Date: Sat, 19 Nov 2005 13:12:26 -0800
+Message-Id: <1132434746.18950.9.camel@shogun.daga.dyndns.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 Dropline GNOME 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Nov 2005, Adrian Bunk wrote:
-> Every file should #include the headers containing the prototypes for 
-> it's global functions.
+On Fri, 2005-11-18 at 20:01 -0500, jstipins@umich.edu wrote:
+> Hi there,
+> 
+> My earlier question regarding the glibc "make check" nptl/tst-clock2.c
+> failure turns out to be due to my system clock running 3x normal speed.
+> 
+> Evidently, this is a known issue with 2.6.x kernels running on AMD 64
+> processors.  The "noapic" boot option fixes the clock problem, but disrupts
+> other things... ethernet does work, etc.  The solution seems to be using
+> "apci=noirq noapic" as boot options.
+> 
+> I am using the 2.6.14.2 kernel, and still need to use those boot parameters.
+> What is the current state of this bug?
 
-Agreed. 
- 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Signed-off-by: Armin Schindler <armin@melware.de>
+Interestingly, I found out last night that the 2.4.26 kernel can
+recognize both processors in my X2. Unfortunately, it had the same time
+synchronization issues as the newer 2.6.12+ kernels that I have been
+running. It isn't solely related to the new kernel series.
 
----
-
- drivers/isdn/capi/capifs.c           |    2 ++
- drivers/isdn/hardware/eicon/os_bri.c |    1 +
- drivers/isdn/hardware/eicon/os_pri.c |    1 +
- 3 files changed, 4 insertions(+)
-
---- linux-2.6.15-rc1-mm2-full/drivers/isdn/capi/capifs.c.old	2005-11-19 03:41:08.000000000 +0100
-+++ linux-2.6.15-rc1-mm2-full/drivers/isdn/capi/capifs.c	2005-11-19 03:41:21.000000000 +0100
-@@ -17,6 +17,8 @@
- #include <linux/ctype.h>
- #include <linux/sched.h>	/* current */
- 
-+#include "capifs.h"
-+
- MODULE_DESCRIPTION("CAPI4Linux: /dev/capi/ filesystem");
- MODULE_AUTHOR("Carsten Paeth");
- MODULE_LICENSE("GPL");
---- linux-2.6.15-rc1-mm2-full/drivers/isdn/hardware/eicon/os_bri.c.old	2005-11-19 03:47:24.000000000 +0100
-+++ linux-2.6.15-rc1-mm2-full/drivers/isdn/hardware/eicon/os_bri.c	2005-11-19 03:47:38.000000000 +0100
-@@ -16,6 +16,7 @@
- #include "diva_pci.h"
- #include "mi_pc.h"
- #include "pc_maint.h"
-+#include "dsrv_bri.h"
- 
- /*
- **  IMPORTS
---- linux-2.6.15-rc1-mm2-full/drivers/isdn/hardware/eicon/os_pri.c.old	2005-11-19 03:49:19.000000000 +0100
-+++ linux-2.6.15-rc1-mm2-full/drivers/isdn/hardware/eicon/os_pri.c	2005-11-19 03:49:32.000000000 +0100
-@@ -18,6 +18,7 @@
- #include "pc_maint.h"
- #include "dsp_tst.h"
- #include "diva_dma.h"
-+#include "dsrv_pri.h"
- 
- /* --------------------------------------------------------------------------
-    OS Dependent part of XDI driver for DIVA PRI Adapter
+--
+Chris Largret <http://daga.dyndns.org>
 

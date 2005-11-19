@@ -1,400 +1,312 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161238AbVKSCT5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161236AbVKSCUT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161238AbVKSCT5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 21:19:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161236AbVKSCT5
+	id S1161236AbVKSCUT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 21:20:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161228AbVKSCUT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 21:19:57 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:54508 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161237AbVKSCT4
+	Fri, 18 Nov 2005 21:20:19 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:63202 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161236AbVKSCUH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 21:19:56 -0500
-Subject: [RFC][PATCH 2/7]: simple set of notifier_head definition changes
+	Fri, 18 Nov 2005 21:20:07 -0500
+Subject: [RFC][PATCH 3/7]: notifier_head changes with removal of reducdant
+	protection
 From: Chandra Seetharaman <sekharan@us.ibm.com>
 Reply-To: sekharan@us.ibm.com
 To: linux-kernel@vger.kernel.org
 Cc: lse-tech@lists.sourceforge.net, Alan Stern <stern@rowland.harvard.edu>
 Content-Type: text/plain
 Organization: IBM
-Date: Fri, 18 Nov 2005 18:19:54 -0800
-Message-Id: <1132366794.9617.14.camel@linuxchandra>
+Date: Fri, 18 Nov 2005 18:20:05 -0800
+Message-Id: <1132366805.9617.15.camel@linuxchandra>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-6) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simple set of changes to files affected by the interface change in 1/7.
-This patch updates the definitions and declarations of many of the
-notifier chain heads.  It also removes some repeated declarations in
-include/linux/memory.h.
+This patch includes changes to notifier chain head definitions and removal
+of additional protection that is no longer needed.
 
 Signed-off-by:  Chandra Seetharaman <sekharan@us.ibm.com>
 Signed-off-by:  Alan Stern <stern@rowland.harvard.edu>
 -----
 
- arch/alpha/kernel/setup.c                   |    2 +-
- arch/powerpc/platforms/pseries/reconfig.c   |    2 +-
- arch/s390/kernel/process.c                  |    2 +-
- drivers/base/memory.c                       |    2 +-
- drivers/char/ipmi/ipmi_si_intf.c            |    2 +-
- drivers/macintosh/adb.c                     |    2 +-
- drivers/macintosh/via-pmu.c                 |    2 +-
- drivers/macintosh/via-pmu68k.c              |    2 +-
- drivers/macintosh/windfarm_core.c           |    2 +-
- drivers/video/fbmem.c                       |    2 +-
- include/linux/adb.h                         |    2 +-
- include/linux/kernel.h                      |    2 +-
- include/linux/memory.h                      |    4 ----
- include/linux/netfilter_ipv4/ip_conntrack.h |    4 ++--
- include/net/netfilter/nf_conntrack.h        |    4 ++--
- kernel/panic.c                              |    2 +-
- kernel/sys.c                                |    2 +-
- net/bluetooth/hci_core.c                    |    2 +-
- net/core/dev.c                              |    2 +-
- net/decnet/dn_dev.c                         |    2 +-
- net/ipv4/devinet.c                          |    2 +-
- net/ipv4/netfilter/ip_conntrack_core.c      |    4 ++--
- net/ipv6/addrconf.c                         |    2 +-
- net/netfilter/nf_conntrack_core.c           |    4 ++--
- net/netlink/af_netlink.c                    |    2 +-
- 25 files changed, 28 insertions(+), 32 deletions(-)
+ drivers/cpufreq/cpufreq.c |   19 +++----------------
+ kernel/cpu.c              |   12 ++----------
+ kernel/module.c           |   17 +++--------------
+ kernel/profile.c          |   35 +++++------------------------------
+ 4 files changed, 13 insertions(+), 70 deletions(-)
 
-Index: l2615-rc1-notifiers/arch/alpha/kernel/setup.c
+Index: l2615-rc1-notifiers/drivers/cpufreq/cpufreq.c
 ===================================================================
---- l2615-rc1-notifiers.orig/arch/alpha/kernel/setup.c
-+++ l2615-rc1-notifiers/arch/alpha/kernel/setup.c
-@@ -42,7 +42,7 @@
- #include <asm/setup.h>
- #include <asm/io.h>
+--- l2615-rc1-notifiers.orig/drivers/cpufreq/cpufreq.c
++++ l2615-rc1-notifiers/drivers/cpufreq/cpufreq.c
+@@ -50,9 +50,8 @@ static inline void adjust_jiffies(unsign
+  * changes to devices when the CPU clock speed changes.
+  * The mutex locks both lists.
+  */
+-static struct notifier_block    *cpufreq_policy_notifier_list;
+-static struct notifier_block    *cpufreq_transition_notifier_list;
+-static DECLARE_RWSEM		(cpufreq_notifier_rwsem);
++static BLOCKING_NOTIFIER_HEAD(cpufreq_policy_notifier_list);
++static BLOCKING_NOTIFIER_HEAD(cpufreq_transition_notifier_list);
  
--extern struct notifier_block *panic_notifier_list;
-+extern struct notifier_head panic_notifier_list;
- static int alpha_panic_event(struct notifier_block *, unsigned long, void *);
- static struct notifier_block alpha_panic_block = {
- 	alpha_panic_event,
-Index: l2615-rc1-notifiers/net/ipv4/devinet.c
-===================================================================
---- l2615-rc1-notifiers.orig/net/ipv4/devinet.c
-+++ l2615-rc1-notifiers/net/ipv4/devinet.c
-@@ -79,7 +79,7 @@ static struct ipv4_devconf ipv4_devconf_
+
+ static LIST_HEAD(cpufreq_governor_list);
+@@ -241,7 +240,6 @@ void cpufreq_notify_transition(struct cp
+ 	freqs->flags = cpufreq_driver->flags;
+ 	dprintk("notification %u of frequency transition to %u kHz\n", state, freqs->new);
  
- static void rtmsg_ifa(int event, struct in_ifaddr *);
+-	down_read(&cpufreq_notifier_rwsem);
+ 	switch (state) {
+ 	case CPUFREQ_PRECHANGE:
+ 		/* detect if the driver reported a value as "old frequency" which
+@@ -269,7 +267,6 @@ void cpufreq_notify_transition(struct cp
+ 			cpufreq_cpu_data[freqs->cpu]->cur = freqs->new;
+ 		break;
+ 	}
+-	up_read(&cpufreq_notifier_rwsem);
+ }
+ EXPORT_SYMBOL_GPL(cpufreq_notify_transition);
  
--static struct notifier_block *inetaddr_chain;
-+static BLOCKING_NOTIFIER_HEAD(inetaddr_chain);
- static void inet_del_ifa(struct in_device *in_dev, struct in_ifaddr **ifap,
- 			 int destroy);
- #ifdef CONFIG_SYSCTL
-Index: l2615-rc1-notifiers/net/bluetooth/hci_core.c
-===================================================================
---- l2615-rc1-notifiers.orig/net/bluetooth/hci_core.c
-+++ l2615-rc1-notifiers/net/bluetooth/hci_core.c
-@@ -73,7 +73,7 @@ DEFINE_RWLOCK(hci_cb_list_lock);
- struct hci_proto *hci_proto[HCI_MAX_PROTO];
- 
- /* HCI notifiers list */
--static struct notifier_block *hci_notifier;
-+static ATOMIC_NOTIFIER_HEAD(hci_notifier);
- 
- /* ---- HCI notifications ---- */
- 
-Index: l2615-rc1-notifiers/net/decnet/dn_dev.c
-===================================================================
---- l2615-rc1-notifiers.orig/net/decnet/dn_dev.c
-+++ l2615-rc1-notifiers/net/decnet/dn_dev.c
-@@ -67,7 +67,7 @@ dn_address decnet_address = 0;
- 
- static DEFINE_RWLOCK(dndev_lock);
- static struct net_device *decnet_default_device;
--static struct notifier_block *dnaddr_chain;
-+static BLOCKING_NOTIFIER_HEAD(dnaddr_chain);
- 
- static struct dn_dev *dn_dev_create(struct net_device *dev, int *err);
- static void dn_dev_delete(struct net_device *dev);
-Index: l2615-rc1-notifiers/net/netlink/af_netlink.c
-===================================================================
---- l2615-rc1-notifiers.orig/net/netlink/af_netlink.c
-+++ l2615-rc1-notifiers/net/netlink/af_netlink.c
-@@ -121,7 +121,7 @@ static void netlink_destroy_callback(str
- static DEFINE_RWLOCK(nl_table_lock);
- static atomic_t nl_table_users = ATOMIC_INIT(0);
- 
--static struct notifier_block *netlink_chain;
-+static ATOMIC_NOTIFIER_HEAD(netlink_chain);
- 
- static u32 netlink_group_mask(u32 group)
+@@ -1052,7 +1049,6 @@ int cpufreq_register_notifier(struct not
  {
-Index: l2615-rc1-notifiers/net/ipv6/addrconf.c
-===================================================================
---- l2615-rc1-notifiers.orig/net/ipv6/addrconf.c
-+++ l2615-rc1-notifiers/net/ipv6/addrconf.c
-@@ -145,7 +145,7 @@ static void inet6_prefix_notify(int even
- 				struct prefix_info *pinfo);
- static int ipv6_chk_same_addr(const struct in6_addr *addr, struct net_device *dev);
+ 	int ret;
  
--static struct notifier_block *inet6addr_chain;
-+static ATOMIC_NOTIFIER_HEAD(inet6addr_chain);
+-	down_write(&cpufreq_notifier_rwsem);
+ 	switch (list) {
+ 	case CPUFREQ_TRANSITION_NOTIFIER:
+ 		ret = notifier_chain_register(&cpufreq_transition_notifier_list, nb);
+@@ -1063,7 +1059,6 @@ int cpufreq_register_notifier(struct not
+ 	default:
+ 		ret = -EINVAL;
+ 	}
+-	up_write(&cpufreq_notifier_rwsem);
  
- struct ipv6_devconf ipv6_devconf = {
- 	.forwarding		= 0,
-Index: l2615-rc1-notifiers/arch/powerpc/platforms/pseries/reconfig.c
+ 	return ret;
+ }
+@@ -1084,7 +1079,6 @@ int cpufreq_unregister_notifier(struct n
+ {
+ 	int ret;
+ 
+-	down_write(&cpufreq_notifier_rwsem);
+ 	switch (list) {
+ 	case CPUFREQ_TRANSITION_NOTIFIER:
+ 		ret = notifier_chain_unregister(&cpufreq_transition_notifier_list, nb);
+@@ -1095,7 +1089,6 @@ int cpufreq_unregister_notifier(struct n
+ 	default:
+ 		ret = -EINVAL;
+ 	}
+-	up_write(&cpufreq_notifier_rwsem);
+ 
+ 	return ret;
+ }
+@@ -1281,8 +1274,6 @@ static int __cpufreq_set_policy(struct c
+ 	if (ret)
+ 		goto error_out;
+ 
+-	down_read(&cpufreq_notifier_rwsem);
+-
+ 	/* adjust if necessary - all reasons */
+ 	notifier_call_chain(&cpufreq_policy_notifier_list, CPUFREQ_ADJUST,
+ 			    policy);
+@@ -1294,17 +1285,13 @@ static int __cpufreq_set_policy(struct c
+ 	/* verify the cpu speed can be set within this limit,
+ 	   which might be different to the first one */
+ 	ret = cpufreq_driver->verify(policy);
+-	if (ret) {
+-		up_read(&cpufreq_notifier_rwsem);
++	if (ret)
+ 		goto error_out;
+-	}
+ 
+ 	/* notification of the new policy */
+ 	notifier_call_chain(&cpufreq_policy_notifier_list, CPUFREQ_NOTIFY,
+ 			    policy);
+ 
+-	up_read(&cpufreq_notifier_rwsem);
+-
+ 	data->min    = policy->min;
+ 	data->max    = policy->max;
+ 
+Index: l2615-rc1-notifiers/kernel/cpu.c
 ===================================================================
---- l2615-rc1-notifiers.orig/arch/powerpc/platforms/pseries/reconfig.c
-+++ l2615-rc1-notifiers/arch/powerpc/platforms/pseries/reconfig.c
-@@ -94,7 +94,7 @@ static struct device_node *derive_parent
- 	return parent;
+--- l2615-rc1-notifiers.orig/kernel/cpu.c
++++ l2615-rc1-notifiers/kernel/cpu.c
+@@ -19,7 +19,7 @@
+ DECLARE_MUTEX(cpucontrol);
+ EXPORT_SYMBOL_GPL(cpucontrol);
+ 
+-static struct notifier_block *cpu_chain;
++static BLOCKING_NOTIFIER_HEAD(cpu_chain);
+ 
+ /*
+  * Used to check by callers if they need to acquire the cpucontrol
+@@ -42,21 +42,13 @@ EXPORT_SYMBOL_GPL(current_in_cpu_hotplug
+ /* Need to know about CPUs going up/down? */
+ int register_cpu_notifier(struct notifier_block *nb)
+ {
+-	int ret;
+-
+-	if ((ret = down_interruptible(&cpucontrol)) != 0)
+-		return ret;
+-	ret = notifier_chain_register(&cpu_chain, nb);
+-	up(&cpucontrol);
+-	return ret;
++	return notifier_chain_register(&cpu_chain, nb);
+ }
+ EXPORT_SYMBOL(register_cpu_notifier);
+ 
+ void unregister_cpu_notifier(struct notifier_block *nb)
+ {
+-	down(&cpucontrol);
+ 	notifier_chain_unregister(&cpu_chain, nb);
+-	up(&cpucontrol);
+ }
+ EXPORT_SYMBOL(unregister_cpu_notifier);
+ 
+Index: l2615-rc1-notifiers/kernel/module.c
+===================================================================
+--- l2615-rc1-notifiers.orig/kernel/module.c
++++ l2615-rc1-notifiers/kernel/module.c
+@@ -62,26 +62,17 @@ static DEFINE_SPINLOCK(modlist_lock);
+ static DECLARE_MUTEX(module_mutex);
+ static LIST_HEAD(modules);
+ 
+-static DECLARE_MUTEX(notify_mutex);
+-static struct notifier_block * module_notify_list;
++static BLOCKING_NOTIFIER_HEAD(module_notify_list);
+ 
+ int register_module_notifier(struct notifier_block * nb)
+ {
+-	int err;
+-	down(&notify_mutex);
+-	err = notifier_chain_register(&module_notify_list, nb);
+-	up(&notify_mutex);
+-	return err;
++	return notifier_chain_register(&module_notify_list, nb);
+ }
+ EXPORT_SYMBOL(register_module_notifier);
+ 
+ int unregister_module_notifier(struct notifier_block * nb)
+ {
+-	int err;
+-	down(&notify_mutex);
+-	err = notifier_chain_unregister(&module_notify_list, nb);
+-	up(&notify_mutex);
+-	return err;
++	return notifier_chain_unregister(&module_notify_list, nb);
+ }
+ EXPORT_SYMBOL(unregister_module_notifier);
+ 
+@@ -1905,9 +1896,7 @@ sys_init_module(void __user *umod,
+ 	/* Drop lock so they can recurse */
+ 	up(&module_mutex);
+ 
+-	down(&notify_mutex);
+ 	notifier_call_chain(&module_notify_list, MODULE_STATE_COMING, mod);
+-	up(&notify_mutex);
+ 
+ 	/* Start the module */
+ 	if (mod->init != NULL)
+Index: l2615-rc1-notifiers/kernel/profile.c
+===================================================================
+--- l2615-rc1-notifiers.orig/kernel/profile.c
++++ l2615-rc1-notifiers/kernel/profile.c
+@@ -86,61 +86,41 @@ void __init profile_init(void)
+  
+ #ifdef CONFIG_PROFILING
+  
+-static DECLARE_RWSEM(profile_rwsem);
+-static DEFINE_RWLOCK(handoff_lock);
+-static struct notifier_block * task_exit_notifier;
+-static struct notifier_block * task_free_notifier;
+-static struct notifier_block * munmap_notifier;
++static BLOCKING_NOTIFIER_HEAD(task_exit_notifier);
++static ATOMIC_NOTIFIER_HEAD(task_free_notifier);
++static BLOCKING_NOTIFIER_HEAD(munmap_notifier);
+  
+ void profile_task_exit(struct task_struct * task)
+ {
+-	down_read(&profile_rwsem);
+ 	notifier_call_chain(&task_exit_notifier, 0, task);
+-	up_read(&profile_rwsem);
+ }
+  
+ int profile_handoff_task(struct task_struct * task)
+ {
+ 	int ret;
+-	read_lock(&handoff_lock);
+ 	ret = notifier_call_chain(&task_free_notifier, 0, task);
+-	read_unlock(&handoff_lock);
+ 	return (ret == NOTIFY_OK) ? 1 : 0;
  }
  
--static struct notifier_block *pSeries_reconfig_chain;
-+static BLOCKING_NOTIFIER_HEAD(pSeries_reconfig_chain);
- 
- int pSeries_reconfig_notifier_register(struct notifier_block *nb)
+ void profile_munmap(unsigned long addr)
  {
-Index: l2615-rc1-notifiers/arch/s390/kernel/process.c
-===================================================================
---- l2615-rc1-notifiers.orig/arch/s390/kernel/process.c
-+++ l2615-rc1-notifiers/arch/s390/kernel/process.c
-@@ -68,7 +68,7 @@ unsigned long thread_saved_pc(struct tas
- /*
-  * Need to know about CPUs going idle?
-  */
--static struct notifier_block *idle_chain;
-+static BLOCKING_NOTIFIER_HEAD(idle_chain);
+-	down_read(&profile_rwsem);
+ 	notifier_call_chain(&munmap_notifier, 0, (void *)addr);
+-	up_read(&profile_rwsem);
+ }
  
- int register_idle_notifier(struct notifier_block *nb)
+ int task_handoff_register(struct notifier_block * n)
  {
-Index: l2615-rc1-notifiers/drivers/base/memory.c
-===================================================================
---- l2615-rc1-notifiers.orig/drivers/base/memory.c
-+++ l2615-rc1-notifiers/drivers/base/memory.c
-@@ -48,7 +48,7 @@ static struct kset_hotplug_ops memory_ho
- 	.hotplug	= memory_hotplug,
- };
- 
--static struct notifier_block *memory_chain;
-+static BLOCKING_NOTIFIER_HEAD(memory_chain);
- 
- static int register_memory_notifier(struct notifier_block *nb)
- {
-Index: l2615-rc1-notifiers/drivers/char/ipmi/ipmi_si_intf.c
-===================================================================
---- l2615-rc1-notifiers.orig/drivers/char/ipmi/ipmi_si_intf.c
-+++ l2615-rc1-notifiers/drivers/char/ipmi/ipmi_si_intf.c
-@@ -226,7 +226,7 @@ struct smi_info
-         struct task_struct *thread;
- };
- 
--static struct notifier_block *xaction_notifier_list;
-+static ATOMIC_NOTIFIER_HEAD(xaction_notifier_list);
- static int register_xaction_notifier(struct notifier_block * nb)
- {
- 	return notifier_chain_register(&xaction_notifier_list, nb);
-Index: l2615-rc1-notifiers/drivers/macintosh/adb.c
-===================================================================
---- l2615-rc1-notifiers.orig/drivers/macintosh/adb.c
-+++ l2615-rc1-notifiers/drivers/macintosh/adb.c
-@@ -80,7 +80,7 @@ static struct adb_driver *adb_driver_lis
- static struct class *adb_dev_class;
- 
- struct adb_driver *adb_controller;
--struct notifier_block *adb_client_list = NULL;
-+BLOCKING_NOTIFIER_HEAD(adb_client_list);
- static int adb_got_sleep;
- static int adb_inited;
- static pid_t adb_probe_task_pid;
-Index: l2615-rc1-notifiers/drivers/macintosh/via-pmu.c
-===================================================================
---- l2615-rc1-notifiers.orig/drivers/macintosh/via-pmu.c
-+++ l2615-rc1-notifiers/drivers/macintosh/via-pmu.c
-@@ -182,7 +182,7 @@ extern int disable_kernel_backlight;
- 
- int __fake_sleep;
- int asleep;
--struct notifier_block *sleep_notifier_list;
-+BLOCKING_NOTIFIER_HEAD(sleep_notifier_list);
- 
- #ifdef CONFIG_ADB
- static int adb_dev_map = 0;
-Index: l2615-rc1-notifiers/drivers/macintosh/via-pmu68k.c
-===================================================================
---- l2615-rc1-notifiers.orig/drivers/macintosh/via-pmu68k.c
-+++ l2615-rc1-notifiers/drivers/macintosh/via-pmu68k.c
-@@ -102,7 +102,7 @@ static int pmu_kind = PMU_UNKNOWN;
- static int pmu_fully_inited = 0;
- 
- int asleep;
--struct notifier_block *sleep_notifier_list;
-+BLOCKING_NOTIFIER_HEAD(sleep_notifier_list);
- 
- static int pmu_probe(void);
- static int pmu_init(void);
-Index: l2615-rc1-notifiers/drivers/macintosh/windfarm_core.c
-===================================================================
---- l2615-rc1-notifiers.orig/drivers/macintosh/windfarm_core.c
-+++ l2615-rc1-notifiers/drivers/macintosh/windfarm_core.c
-@@ -49,7 +49,7 @@
- static LIST_HEAD(wf_controls);
- static LIST_HEAD(wf_sensors);
- static DECLARE_MUTEX(wf_lock);
--static struct notifier_block *wf_client_list;
-+static BLOCKING_NOTIFIER_HEAD(wf_client_list);
- static int wf_client_count;
- static unsigned int wf_overtemp;
- static unsigned int wf_overtemp_counter;
-Index: l2615-rc1-notifiers/drivers/video/fbmem.c
-===================================================================
---- l2615-rc1-notifiers.orig/drivers/video/fbmem.c
-+++ l2615-rc1-notifiers/drivers/video/fbmem.c
-@@ -55,7 +55,7 @@
- 
- #define FBPIXMAPSIZE	(1024 * 8)
- 
--static struct notifier_block *fb_notifier_list;
-+static BLOCKING_NOTIFIER_HEAD(fb_notifier_list);
- struct fb_info *registered_fb[FB_MAX];
- int num_registered_fb;
- 
-Index: l2615-rc1-notifiers/include/linux/adb.h
-===================================================================
---- l2615-rc1-notifiers.orig/include/linux/adb.h
-+++ l2615-rc1-notifiers/include/linux/adb.h
-@@ -85,7 +85,7 @@ enum adb_message {
-     ADB_MSG_POST_RESET	/* Called after resetting the bus (re-do init & register) */
- };
- extern struct adb_driver *adb_controller;
--extern struct notifier_block *adb_client_list;
-+extern struct notifier_head adb_client_list;
- 
- int adb_request(struct adb_request *req, void (*done)(struct adb_request *),
- 		int flags, int nbytes, ...);
-Index: l2615-rc1-notifiers/include/linux/kernel.h
-===================================================================
---- l2615-rc1-notifiers.orig/include/linux/kernel.h
-+++ l2615-rc1-notifiers/include/linux/kernel.h
-@@ -85,7 +85,7 @@ extern int cond_resched(void);
- 		(__x < 0) ? -__x : __x;		\
- 	})
- 
--extern struct notifier_block *panic_notifier_list;
-+extern struct notifier_head panic_notifier_list;
- extern long (*panic_blink)(long time);
- NORET_TYPE void panic(const char * fmt, ...)
- 	__attribute__ ((NORET_AND format (printf, 1, 2)));
-Index: l2615-rc1-notifiers/include/linux/memory.h
-===================================================================
---- l2615-rc1-notifiers.orig/include/linux/memory.h
-+++ l2615-rc1-notifiers/include/linux/memory.h
-@@ -80,10 +80,6 @@ extern void unregister_memory_notifier(s
- #define CONFIG_MEM_BLOCK_SIZE	(PAGES_PER_SECTION<<PAGE_SHIFT)
- 
- extern int invalidate_phys_mapping(unsigned long, unsigned long);
--struct notifier_block;
+-	int err = -EINVAL;
 -
--extern int register_memory_notifier(struct notifier_block *nb);
--extern void unregister_memory_notifier(struct notifier_block *nb);
+-	write_lock(&handoff_lock);
+-	err = notifier_chain_register(&task_free_notifier, n);
+-	write_unlock(&handoff_lock);
+-	return err;
++	return notifier_chain_register(&task_free_notifier, n);
+ }
  
- extern struct sysdev_class memory_sysdev_class;
- #endif /* CONFIG_MEMORY_HOTPLUG */
-Index: l2615-rc1-notifiers/include/linux/netfilter_ipv4/ip_conntrack.h
-===================================================================
---- l2615-rc1-notifiers.orig/include/linux/netfilter_ipv4/ip_conntrack.h
-+++ l2615-rc1-notifiers/include/linux/netfilter_ipv4/ip_conntrack.h
-@@ -309,8 +309,8 @@ DECLARE_PER_CPU(struct ip_conntrack_ecac
+ int task_handoff_unregister(struct notifier_block * n)
+ {
+-	int err = -EINVAL;
+-
+-	write_lock(&handoff_lock);
+-	err = notifier_chain_unregister(&task_free_notifier, n);
+-	write_unlock(&handoff_lock);
+-	return err;
++	return notifier_chain_unregister(&task_free_notifier, n);
+ }
  
- #define CONNTRACK_ECACHE(x)	(__get_cpu_var(ip_conntrack_ecache).x)
+ int profile_event_register(enum profile_type type, struct notifier_block * n)
+ {
+ 	int err = -EINVAL;
   
--extern struct notifier_block *ip_conntrack_chain;
--extern struct notifier_block *ip_conntrack_expect_chain;
-+extern struct notifier_head ip_conntrack_chain;
-+extern struct notifier_head ip_conntrack_expect_chain;
+-	down_write(&profile_rwsem);
+- 
+ 	switch (type) {
+ 		case PROFILE_TASK_EXIT:
+ 			err = notifier_chain_register(&task_exit_notifier, n);
+@@ -150,8 +130,6 @@ int profile_event_register(enum profile_
+ 			break;
+ 	}
+  
+-	up_write(&profile_rwsem);
+- 
+ 	return err;
+ }
  
- static inline int ip_conntrack_register_notifier(struct notifier_block *nb)
+@@ -160,8 +138,6 @@ int profile_event_unregister(enum profil
  {
-Index: l2615-rc1-notifiers/include/net/netfilter/nf_conntrack.h
-===================================================================
---- l2615-rc1-notifiers.orig/include/net/netfilter/nf_conntrack.h
-+++ l2615-rc1-notifiers/include/net/netfilter/nf_conntrack.h
-@@ -269,8 +269,8 @@ DECLARE_PER_CPU(struct nf_conntrack_ecac
+ 	int err = -EINVAL;
+  
+-	down_write(&profile_rwsem);
+- 
+ 	switch (type) {
+ 		case PROFILE_TASK_EXIT:
+ 			err = notifier_chain_unregister(&task_exit_notifier, n);
+@@ -171,7 +147,6 @@ int profile_event_unregister(enum profil
+ 			break;
+ 	}
  
- #define CONNTRACK_ECACHE(x)	(__get_cpu_var(nf_conntrack_ecache).x)
+-	up_write(&profile_rwsem);
+ 	return err;
+ }
  
--extern struct notifier_block *nf_conntrack_chain;
--extern struct notifier_block *nf_conntrack_expect_chain;
-+extern struct notifier_head nf_conntrack_chain;
-+extern struct notifier_head nf_conntrack_expect_chain;
- 
- static inline int nf_conntrack_register_notifier(struct notifier_block *nb)
- {
-Index: l2615-rc1-notifiers/kernel/panic.c
-===================================================================
---- l2615-rc1-notifiers.orig/kernel/panic.c
-+++ l2615-rc1-notifiers/kernel/panic.c
-@@ -26,7 +26,7 @@ int tainted;
- 
- EXPORT_SYMBOL(panic_timeout);
- 
--struct notifier_block *panic_notifier_list;
-+ATOMIC_NOTIFIER_HEAD(panic_notifier_list);
- 
- EXPORT_SYMBOL(panic_notifier_list);
- 
-Index: l2615-rc1-notifiers/net/core/dev.c
-===================================================================
---- l2615-rc1-notifiers.orig/net/core/dev.c
-+++ l2615-rc1-notifiers/net/core/dev.c
-@@ -192,7 +192,7 @@ static inline struct hlist_head *dev_ind
-  *	Our notifier list
-  */
- 
--static struct notifier_block *netdev_chain;
-+static BLOCKING_NOTIFIER_HEAD(netdev_chain);
- 
- /*
-  *	Device drivers call our routines to queue packets here. We empty the
-Index: l2615-rc1-notifiers/net/ipv4/netfilter/ip_conntrack_core.c
-===================================================================
---- l2615-rc1-notifiers.orig/net/ipv4/netfilter/ip_conntrack_core.c
-+++ l2615-rc1-notifiers/net/ipv4/netfilter/ip_conntrack_core.c
-@@ -80,8 +80,8 @@ static int ip_conntrack_vmalloc;
- static unsigned int ip_conntrack_next_id = 1;
- static unsigned int ip_conntrack_expect_next_id = 1;
- #ifdef CONFIG_IP_NF_CONNTRACK_EVENTS
--struct notifier_block *ip_conntrack_chain;
--struct notifier_block *ip_conntrack_expect_chain;
-+ATOMIC_NOTIFIER_HEAD(ip_conntrack_chain);
-+ATOMIC_NOTIFIER_HEAD(ip_conntrack_expect_chain);
- 
- DEFINE_PER_CPU(struct ip_conntrack_ecache, ip_conntrack_ecache);
- 
-Index: l2615-rc1-notifiers/net/netfilter/nf_conntrack_core.c
-===================================================================
---- l2615-rc1-notifiers.orig/net/netfilter/nf_conntrack_core.c
-+++ l2615-rc1-notifiers/net/netfilter/nf_conntrack_core.c
-@@ -83,8 +83,8 @@ static LIST_HEAD(unconfirmed);
- static int nf_conntrack_vmalloc;
- 
- #ifdef CONFIG_NF_CONNTRACK_EVENTS
--struct notifier_block *nf_conntrack_chain;
--struct notifier_block *nf_conntrack_expect_chain;
-+ATOMIC_NOTIFIER_HEAD(nf_conntrack_chain);
-+ATOMIC_NOTIFIER_HEAD(nf_conntrack_expect_chain);
- 
- DEFINE_PER_CPU(struct nf_conntrack_ecache, nf_conntrack_ecache);
- 
-Index: l2615-rc1-notifiers/kernel/sys.c
-===================================================================
---- l2615-rc1-notifiers.orig/kernel/sys.c
-+++ l2615-rc1-notifiers/kernel/sys.c
-@@ -93,7 +93,7 @@ int cad_pid = 1;
-  *	and the like. 
-  */
- 
--static struct notifier_block *reboot_notifier_list;
-+static BLOCKING_NOTIFIER_HEAD(reboot_notifier_list);
- 
- /**
-  *	notifier_chain_register	- Add notifier to a notifier chain
 
 -- 
 

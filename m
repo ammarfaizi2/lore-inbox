@@ -1,65 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750945AbVKSHpR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750973AbVKSIoh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750945AbVKSHpR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 02:45:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbVKSHpR
+	id S1750973AbVKSIoh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 03:44:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750974AbVKSIoh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 02:45:17 -0500
-Received: from styx.suse.cz ([82.119.242.94]:23997 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1750945AbVKSHpP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 02:45:15 -0500
-Date: Sat, 19 Nov 2005 08:45:03 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: George Anzinger <george@mvista.com>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, "K.R. Foley" <kr@cybsft.com>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Thomas Gleixner <tglx@linutronix.de>, pluto@agmk.net,
-       john cooper <john.cooper@timesys.com>,
-       Benedikt Spranger <bene@linutronix.de>,
-       Daniel Walker <dwalker@mvista.com>,
-       Tom Rini <trini@kernel.crashing.org>
-Subject: Re: 2.6.14-rt13
-Message-ID: <20051119074503.GA12551@midnight.suse.cz>
-References: <20051115090827.GA20411@elte.hu> <1132336954.20672.11.camel@cmn3.stanford.edu> <1132350882.6874.23.camel@mindpipe> <1132351533.4735.37.camel@cmn3.stanford.edu> <1132351984.6874.29.camel@mindpipe> <20051118223233.GA7794@midnight.suse.cz> <437E8DC8.4070101@mvista.com>
+	Sat, 19 Nov 2005 03:44:37 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:26543 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750971AbVKSIog (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 03:44:36 -0500
+Subject: Re: [linux-pm] [RFC] userland swsusp
+From: Arjan van de Ven <arjan@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Dave Jones <davej@redhat.com>, Pavel Machek <pavel@ucw.cz>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+In-Reply-To: <1132351635.5238.12.camel@localhost.localdomain>
+References: <20051115212942.GA9828@elf.ucw.cz>
+	 <20051115222549.GF17023@redhat.com>
+	 <1132342590.25914.86.camel@localhost.localdomain>
+	 <1132348998.2830.80.camel@laptopd505.fenrus.org>
+	 <1132351635.5238.12.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Sat, 19 Nov 2005 09:44:25 +0100
+Message-Id: <1132389865.2829.2.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <437E8DC8.4070101@mvista.com>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 18, 2005 at 06:28:24PM -0800, George Anzinger wrote:
-
-> >There are many mechanisms to keep time:
-> >
-> >1) RTC: 0.5 sec resolution, interrupts
-> >2) PIT: takes ages to read, overflows at each timer interrupt
-> >3) PMTMR: takes ages to read, overflows in approx 4 seconds, no interrupt
+On Fri, 2005-11-18 at 22:07 +0000, Alan Cox wrote:
+> On Gwe, 2005-11-18 at 22:23 +0100, Arjan van de Ven wrote:
+> > 1) accessing non-ram memory (eg PCI mmio space) by X and the likes
+> >    (ideally should use sysfs but hey, changing X for this will take 
+> >    forever)
 > 
-> The PMTMR can be read from user space (if you can find it).  See the 
-> "iopl" man page.  It is an I/O access and so is slow, but you can read 
-> it.
+> Once sysfs supports the relevant capabilities fixing X actually doesn't
+> look too horrible
 
-Yes, however this must be limited to a small number of privileged
-applications - iopl() is only available to CAP_SYS_RAWIO IIRC,
-and thus it's not suitable for general use.
+I think the kernel already supports this since at least july if not
+earlier. If there's something missing... someone needs to speak up..
 
-> Finding it is another matter.  It does not have a fixed address (i.e. 
-> it differs from machine to machine, but is constant on any given 
-> machine).  The boot code roots it out of an info block put in memory 
-> by the BIOS.  I suppose one could put a printk in the boot code to 
-> disclose it...
+(yes vga arbitrage is missing but well that's not there today by any
+means either so not a regression)
 
-There is really no reason to do that, since the time to read it (~1200
-ns) is much less than the time to enter the kernel (less than 200 ns),
-so gettimeofday() is definitely easier to use and also doesn't overflow.
+> , the PCI mapping routines are abstracted and done by
+> PCITAG (ie PCI device). You would need the ISA hole too in some cases.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+this may need /dev/mem a bit longer, but hopefully is rarer. Once the
+pci side is fixed I bet this only is easy to do as well
+
+

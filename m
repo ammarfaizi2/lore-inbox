@@ -1,50 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbVKSTXp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbVKSTa2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750770AbVKSTXp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 14:23:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbVKSTXp
+	id S1750777AbVKSTa2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 14:30:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbVKSTa2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 14:23:45 -0500
-Received: from mtiwmhc11.worldnet.att.net ([204.127.131.115]:46016 "EHLO
-	mtiwmhc11.worldnet.att.net") by vger.kernel.org with ESMTP
-	id S1750770AbVKSTXo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 14:23:44 -0500
-From: Larry.Finger@att.net (Larry.Finger@lwfinger.net)
-To: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org (kernel)
-Subject: Re: DMA mode locked off when via82cxxx ide driver built as module in 2.6.14
-Date: Sat, 19 Nov 2005 19:23:43 +0000
-Message-Id: <111920051923.4214.437F7BBF00022AD50000107621603763169D0A09020700D2979D9D0E04@att.net>
-X-Mailer: AT&T Message Center Version 1 (Nov 10 2005)
-X-Authenticated-Sender: TGFycnkuRmluZ2VyQGF0dC5uZXQ=
+	Sat, 19 Nov 2005 14:30:28 -0500
+Received: from inet-tsb.toshiba.co.jp ([202.33.96.40]:60360 "EHLO
+	inet-tsb.toshiba.co.jp") by vger.kernel.org with ESMTP
+	id S1750773AbVKSTa1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 14:30:27 -0500
+Date: Sun, 20 Nov 2005 04:30:18 +0900 (JST)
+Message-Id: <200511191930.jAJJUJEv022269@toshiba.co.jp>
+To: khc@pm.waw.pl
+Cc: laforge@netfilter.org, netfilter-devel@lists.netfilter.org,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: build bug: ipt_CONNMARK.c: undefined reference to
+ `need_ip_conntrack'
+From: Yasuyuki KOZAKAI <yasuyuki.kozakai@toshiba.co.jp>
+In-Reply-To: <m364qolfuv.fsf@defiant.localdomain>
+References: <m364qolfuv.fsf@defiant.localdomain>
+X-Mailer: Mew version 4.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+Mime-Version: 1.0
+Content-Type: Multipart/Mixed;
+ boundary="--Next_Part(Sun_Nov_20_04_30_18_2005_933)--"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+----Next_Part(Sun_Nov_20_04_30_18_2005_933)--
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
- -------------- Original message ----------------------
-From: Vojtech Pavlik <vojtech@suse.cz>
-> On Sat, Nov 19, 2005 at 06:59:37PM +0000, Larry.Finger@lwfinger.net wrote:
-> > My HP ze1115 notebook uses the via82cxxx ide driver. If I configure the kernel 
-> build to make that driver as a module, the driver is correctly added to initrd 
-> and is loaded at boot time; however, DMA mode is turned off. It cannot be turned 
-> on even if I use an 'hdparm -d1 /dev/hda' command.
-> > 
-> > Is this a bug, or do I need some kind of IDE=XXX boot command? As expected, 
-> system performance in this mode is horrible.
->  
-> What chipset does your notebook use? 'lspci -vv' should give a good
-> answer.
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Sat, 19 Nov 2005 18:14:32 +0100
 
-Portion of output of lspci -vv:
+>   LD      init/built-in.o
+>   LD      .tmp_vmlinux1
+> net/built-in.o(.init.text+0x1adb): In function `init':
+> ipt_CONNMARK.c: undefined reference to `need_ip_conntrack'
+> make[2]: *** [.tmp_vmlinux1] Error 1
+> 
+> Last merged Linus' git: b286e39207237e2f6929959372bf66d9a8d05a82
+> (i.e., current 2.6.15rc1+).
+
+Thanks for report. Could you check this patch ?
+
+Signed-off-by: Yasuyuki Kozakai <yasuyuki.kozakai@toshiba.co.jp>
+
+-- Yasuyuki Kozakai
+
+----Next_Part(Sun_Nov_20_04_30_18_2005_933)--
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline; filename="kconfig.patch"
+
+[NETFILTER] fixed dependencies between modules related with ip_conntrack
+
+- IP_NF_CONNTRACK_MARK is bool and depends on only IP_NF_CONNTRACK which is
+  tristate. If a variable depends on IP_NF_CONNTRACK_MARK and
+  doesn't care about IP_NF_CONNTRACK, it can be y. This must be avoided.
+- IP_NF_CT_ACCT has same problem.
+- IP_NF_TARGET_CLUSTERIP also depends on IP_NF_MANGLE.
+
+Signed-off-by: Yasuyuki Kozakai <yasuyuki.kozakai@toshiba.co.jp>
+
+---
+commit 99b60eb9f5dab5bc6e008e1ea0434cbcacb479e7
+tree 14a745e19d569d6a122ba1464df55b03ba6b1f54
+parent 777c88274354f764f9f0c42b403a63b1a1707ced
+author Yasuyuki Kozakai <yasuyuki.kozakai@toshiba.co.jp> Sun, 20 Nov 2005 04:07:51 +0900
+committer Yasuyuki Kozakai <yasuyuki.kozakai@toshiba.co.jp> Sun, 20 Nov 2005 04:07:51 +0900
+
+ net/ipv4/netfilter/Kconfig |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/net/ipv4/netfilter/Kconfig b/net/ipv4/netfilter/Kconfig
+index 9d3c8b5..0bc0052 100644
+--- a/net/ipv4/netfilter/Kconfig
++++ b/net/ipv4/netfilter/Kconfig
+@@ -440,7 +440,7 @@ config IP_NF_MATCH_COMMENT
+ config IP_NF_MATCH_CONNMARK
+ 	tristate  'Connection mark match support'
+ 	depends on IP_NF_IPTABLES
+-	depends on IP_NF_CONNTRACK_MARK || (NF_CONNTRACK_MARK && NF_CONNTRACK_IPV4)
++	depends on (IP_NF_CONNTRACK && IP_NF_CONNTRACK_MARK) || (NF_CONNTRACK_MARK && NF_CONNTRACK_IPV4)
+ 	help
+ 	  This option adds a `connmark' match, which allows you to match the
+ 	  connection mark value previously set for the session by `CONNMARK'. 
+@@ -452,7 +452,7 @@ config IP_NF_MATCH_CONNMARK
+ config IP_NF_MATCH_CONNBYTES
+ 	tristate  'Connection byte/packet counter match support'
+ 	depends on IP_NF_IPTABLES
+-	depends on IP_NF_CT_ACCT || (NF_CT_ACCT && NF_CONNTRACK_IPV4)
++	depends on (IP_NF_CONNTRACK && IP_NF_CT_ACCT) || (NF_CT_ACCT && NF_CONNTRACK_IPV4)
+ 	help
+ 	  This option adds a `connbytes' match, which allows you to match the
+ 	  number of bytes and/or packets for each direction within a connection.
+@@ -767,7 +767,7 @@ config IP_NF_TARGET_TTL
+ config IP_NF_TARGET_CONNMARK
+ 	tristate  'CONNMARK target support'
+ 	depends on IP_NF_MANGLE
+-	depends on IP_NF_CONNTRACK_MARK || (NF_CONNTRACK_MARK && NF_CONNTRACK_IPV4)
++	depends on (IP_NF_CONNTRACK && IP_NF_CONNTRACK_MARK) || (NF_CONNTRACK_MARK && NF_CONNTRACK_IPV4)
+ 	help
+ 	  This option adds a `CONNMARK' target, which allows one to manipulate
+ 	  the connection mark value.  Similar to the MARK target, but
+@@ -779,8 +779,8 @@ config IP_NF_TARGET_CONNMARK
  
-00:11.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06) (prog-if 8a [Master SecP PriP])
-        Subsystem: Hewlett-Packard Company: Unknown device 0022
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64
-        Region 4: I/O ports at 1100 [size=16]
-        Capabilities: [c0] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+ config IP_NF_TARGET_CLUSTERIP
+ 	tristate "CLUSTERIP target support (EXPERIMENTAL)"
+-	depends on IP_NF_IPTABLES && EXPERIMENTAL
+-	depends on IP_NF_CONNTRACK_MARK || (NF_CONNTRACK_MARK && NF_CONNTRACK_IPV4)
++	depends on IP_NF_MANGLE && EXPERIMENTAL
++	depends on (IP_NF_CONNTRACK && IP_NF_CONNTRACK_MARK) || (NF_CONNTRACK_MARK && NF_CONNTRACK_IPV4)
+ 	help
+ 	  The CLUSTERIP target allows you to build load-balancing clusters of
+ 	  network servers without having a dedicated load-balancing
 
-
-
+----Next_Part(Sun_Nov_20_04_30_18_2005_933)----

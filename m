@@ -1,70 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbVKSTPA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbVKSTQH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750753AbVKSTPA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 14:15:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbVKSTPA
+	id S1750763AbVKSTQH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 14:16:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbVKSTQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 14:15:00 -0500
-Received: from 8.ctyme.com ([69.50.231.8]:55244 "EHLO darwin.ctyme.com")
-	by vger.kernel.org with ESMTP id S1750753AbVKSTO7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 14:14:59 -0500
-Message-ID: <437F79B1.9050703@perkel.com>
-Date: Sat, 19 Nov 2005 11:14:57 -0800
-From: Marc Perkel <marc@perkel.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
-X-Accept-Language: en-us, en
+	Sat, 19 Nov 2005 14:16:07 -0500
+Received: from nproxy.gmail.com ([64.233.182.197]:64228 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750763AbVKSTQG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 14:16:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=F62H9vVbF/wyJf6gG1XQKkYlV55iLmgLWRpDJ8kcn1ZidWfIPCmohE5wCAlccV2mzscZ78JDiY9JvvZtkiDjTe9pzroG2mcmdm22aejL8cxZd6IWgaTrunO7Fks5PXG/fbogM2MxwvZNizYlgUxCcSf6KLPEQmzSgryailLMkmU=
+Message-ID: <58cb370e0511191116r7196828bu3790113f38f6c8ad@mail.gmail.com>
+Date: Sat, 19 Nov 2005 20:16:04 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: "Larry.Finger@lwfinger.net" <Larry.Finger@att.net>
+Subject: Re: DMA mode locked off when via82cxxx ide driver built as module in 2.6.14
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <111920051859.9281.437F7619000700AC0000244121603763169D0A09020700D2979D9D0E04@att.net>
 MIME-Version: 1.0
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Does Linux support powering down SATA drives?
-References: <437F63C1.6010507@perkel.com> <1132426887.19692.11.camel@localhost.localdomain> <200511191900.12165.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200511191900.12165.s0348365@sms.ed.ac.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spamfilter-host: darwin.ctyme.com - http://www.junkemailfilter.com"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <111920051859.9281.437F7619000700AC0000244121603763169D0A09020700D2979D9D0E04@att.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Alistair John Strachan wrote:
-
->On Saturday 19 November 2005 19:01, Alan Cox wrote:
->  
+On 11/19/05, Larry.Finger@lwfinger.net <Larry.Finger@att.net> wrote:
+> My HP ze1115 notebook uses the via82cxxx ide driver. If I configure the kernel
+> build to make that driver as a module, the driver is correctly added to initrd
+> and is loaded at boot time; > however, DMA mode is turned off. It cannot be
+> turned on even if I use an 'hdparm -d1 /dev/hda' command.
 >
->>On Sad, 2005-11-19 at 09:41 -0800, Marc Perkel wrote:
->>    
->>
->>>Trying to save power consumption. I have a backup drive that is used
->>>only once a day to back up the main drive. So - why should I run it more
->>>that 10 minutes a day? What I'd like to do is keep it in an off state
->>>and then at night power it on, mount it up, do the backup, unmount it,
->>>and shut it down. Can I do that?
->>>      
->>>
->>SATA not yet, USB you could however.
->>    
->>
->
->Or PATA, of course. I switch off two of my HDs 4 minutes after last use with 
->the commands:
->
->hdparm -S 48 /dev/hde
->hdparm -S 48 /dev/hdg
->
->Isn't there a passthru patch in the works to let commands, such as the one 
->required for suspend, through to a SATA device?
->
->  
->
+> Is this a bug, or do I need some kind of IDE=XXX boot command?
+> As expected, system > performance in this mode is horrible.
 
-So - why isn't there more SATA support. Seems like this and SMART aren't 
-supported. What's up with that? Why is SATA harder than IDE?
+You've probably left generic IDE support (CONFIG_IDE_GENERIC=y) compiled-in.
 
--- 
-Marc Perkel - marc@perkel.com
+You need to disabled it in order to use via82cxxx as module.
 
-Spam Filter: http://www.junkemailfilter.com
-    My Blog: http://marc.perkel.com
-
+Bartlomiej

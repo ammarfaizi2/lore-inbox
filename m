@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbVKSU4r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbVKSVAA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750826AbVKSU4r (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 15:56:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbVKSU4r
+	id S1750835AbVKSVAA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 16:00:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbVKSVAA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 15:56:47 -0500
-Received: from holomorphy.com ([66.93.40.71]:47278 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S1750826AbVKSU4q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 15:56:46 -0500
-Date: Sat, 19 Nov 2005 12:55:57 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: "David S. Miller" <davem@davemloft.net>, akpm@osdl.org,
-       nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 04/11] unpaged: unifdefed PageCompound
-Message-ID: <20051119205557.GO6916@holomorphy.com>
-References: <Pine.LNX.4.61.0511171925290.4563@goblin.wat.veritas.com> <Pine.LNX.4.61.0511171931400.4563@goblin.wat.veritas.com> <20051117.154323.10862063.davem@davemloft.net> <Pine.LNX.4.61.0511192003060.2846@goblin.wat.veritas.com>
+	Sat, 19 Nov 2005 16:00:00 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:41539 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S1750829AbVKSU77
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 15:59:59 -0500
+Date: Sat, 19 Nov 2005 22:01:11 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@davemloft.net>,
+       davej@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] mark virt_to_bus/bus_to_virt as __deprecated on i386
+Message-ID: <20051119210110.GA7799@mars.ravnborg.org>
+References: <20051118024433.GN11494@stusta.de> <20051117185529.31d33192.akpm@osdl.org> <20051118031751.GA2773@redhat.com> <20051117.194239.37311109.davem@davemloft.net> <20051117200354.6acb3599.akpm@osdl.org> <20051119003435.GA29775@mars.ravnborg.org> <20051119205120.GQ16060@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0511192003060.2846@goblin.wat.veritas.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20051119205120.GQ16060@stusta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Nov 2005, David S. Miller wrote:
->> I think this is a good change regardless of the VM_RESERVED issues.
->> I've been wanting to use this facility in some sparc64 bits in
->> the past, for example.  But since it was HUGETLB guarded that
->> wasn't possible.
+On Sat, Nov 19, 2005 at 09:51:20PM +0100, Adrian Bunk wrote:
+> On Sat, Nov 19, 2005 at 01:34:35AM +0100, Sam Ravnborg wrote:
+> > On Thu, Nov 17, 2005 at 08:03:54PM -0800, Andrew Morton wrote:
+> > > "David S. Miller" <davem@davemloft.net> wrote:
+> > > >
+> > > > The deprecated warnings are so easy to filter out, so I don't think
+> > > >  noise is a good argument.  I see them all the time too.
+> > > 
+> > > That works for you and me.  But how to train all those people who write
+> > > warny patches?
+> > 
+> > Would it work to use -Werror only on some parts of the kernel.
+> > Thinking of teaching kbuild to recursively apply a flags to gcc.
+> > 
+> > Then we could say that kernel/ should be warning free (to a start).
+> 
+> We can do better as we do currently, but we cannever get the kernel 100% 
+> warning free for all supported kernel configurations and all supported 
+> gcc versions.
+> 
+> E.g. gcc emitting some "unused variable" warnings when compiling with 
+> CONFIG_PCI=n is quite common, and although they could all be fixed there 
+> will always be some warnings with unusual kernel configurations.
 
-On Sat, Nov 19, 2005 at 08:15:13PM +0000, Hugh Dickins wrote:
-> I've only just found that we have to supply the __GFP_COMP flag to get
-> this working.  And one of the routes through snd_dma_alloc_pages goes
-> to sbus_alloc_consistent.  Would you be happy for me to send Andrew a
-> patch with sparc and sparc64 sbus_alloc_consistent including __GFP_COMP?
-> Ought I to do the same in the sparc and sparc64 pci_alloc_consistent??
+I had no issue with adding more gcc flags, but this is a very valid
+argument. So I will for now not do it.
+>From a kbuild perspective it could be useful in other situations
+to have the possibility to add a variable that was set also and only in
+sub-directories. But I will not dive into it before a better reason show
+up.
 
-I usually end up deferring to Dave on the driver issues, but this time
-I can independently agree in an informed manner.
-
-
--- wli
+	Sam

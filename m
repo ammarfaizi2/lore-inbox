@@ -1,44 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbVKSTyE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbVKST46@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750782AbVKSTyE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 14:54:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbVKSTyE
+	id S1750783AbVKST46 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 14:56:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbVKST46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 14:54:04 -0500
-Received: from mtiwmhc12.worldnet.att.net ([204.127.131.116]:2229 "EHLO
-	mtiwmhc12.worldnet.att.net") by vger.kernel.org with ESMTP
-	id S1750782AbVKSTyB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 14:54:01 -0500
-From: Larry.Finger@att.net (Larry.Finger@lwfinger.net)
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: DMA mode locked off when via82cxxx ide driver built as module in 2.6.14
-Date: Sat, 19 Nov 2005 19:53:50 +0000
-Message-Id: <111920051953.4931.437F82CD000CADC20000134321603763169D0A09020700D2979D9D0E04@att.net>
-X-Mailer: AT&T Message Center Version 1 (Nov 10 2005)
-X-Authenticated-Sender: TGFycnkuRmluZ2VyQGF0dC5uZXQ=
+	Sat, 19 Nov 2005 14:56:58 -0500
+Received: from gold.veritas.com ([143.127.12.110]:38197 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1750783AbVKST45 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 14:56:57 -0500
+Date: Sat, 19 Nov 2005 19:57:02 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Dominik Brodowski <linux@dominikbrodowski.net>,
+       Benoit Boissinot <benoit.boissinot@ens-lyon.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, Michael Krufky <mkrufky@m1k.net>
+cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Marc Koschewski <marc@osknowledge.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rc1-mm2 0x414 Bad page states
+In-Reply-To: <Pine.LNX.4.61.0511182214200.4797@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0511191950100.2846@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0511181906240.2853@goblin.wat.veritas.com>
+ <Pine.LNX.4.61.0511182214200.4797@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 19 Nov 2005 19:56:53.0014 (UTC) FILETIME=[630A5360:01C5ED43]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
- -------------- Original message ----------------------
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-> On 11/19/05, Larry.Finger@lwfinger.net <Larry.Finger@att.net> wrote:
-> > My HP ze1115 notebook uses the via82cxxx ide driver. If I configure the kernel
-> > build to make that driver as a module, the driver is correctly added to initrd
-> > and is loaded at boot time; > however, DMA mode is turned off. It cannot be
-> > turned on even if I use an 'hdparm -d1 /dev/hda' command.
-> >
-> > Is this a bug, or do I need some kind of IDE=XXX boot command?
-> > As expected, system > performance in this mode is horrible.
+On Fri, 18 Nov 2005, Hugh Dickins wrote:
 > 
-> You've probably left generic IDE support (CONFIG_IDE_GENERIC=y) compiled-in.
-> 
-> You need to disabled it in order to use via82cxxx as module.
-> 
+> Thanks for the info you've sent so far, implicating
+> snd_pcm_mmap_data_nopage.  But I've still not got it.  Will resume
+> tomorrow.  If you can, would you please each send me your .config
+> and your full startup dmesg (in case they help to focus me on which
+> paths to look down in sound).  You needn't spam akpm or lkml with them.
 
-Thanks for your help. That was indeed the problem. All is well now.
+And thanks for the further info you sent, which allowed me to rebuild my
+kernel to reproduce the problem easily with artsd.  Though the answer was
+staring me in the face from the first info you sent (and did occasionally
+flit through my mind without being properly swatted), even in my Subject
+line above: why were the page flags 0x414 instead of 0x4414 i.e. what had
+happened to the PageCompound flag which I thought one of my patches was
+adding?
 
-> Bartlomiej
+Whoops, I'd completely missed that now we have to pass __GFP_COMP to
+turn on that behaviour, because there are or were a few other places
+which get confused by compound page behaviour.  There's an excellent,
+illuminating, prescient comment on compound pages by Andrew in
+ChangeLog-2.6.6: but though he there foresees sound DMA buffers needing
+it, I've a suspicion that DRM and some others might also be needing it.
 
+So I'll go on a trawl through the source before finalizing the fix,
+but below is the patch you guys need.  Does this patch deal with your
+Bad page states too, Marc?  Does it help your mouse at all somehow?
 
+Hugh
+
+--- 2.6.15-rc1-mm2/sound/core/memalloc.c	2005-11-12 09:01:28.000000000 +0000
++++ linux/sound/core/memalloc.c	2005-11-19 19:03:32.000000000 +0000
+@@ -197,6 +197,7 @@ void *snd_malloc_pages(size_t size, gfp_
+ 
+ 	snd_assert(size > 0, return NULL);
+ 	snd_assert(gfp_flags != 0, return NULL);
++	gfp_flags |= __GFP_COMP;	/* compound page lets parts be mapped */
+ 	pg = get_order(size);
+ 	if ((res = (void *) __get_free_pages(gfp_flags, pg)) != NULL) {
+ 		mark_pages(virt_to_page(res), pg);
+@@ -241,6 +242,7 @@ static void *snd_malloc_dev_pages(struct
+ 	snd_assert(dma != NULL, return NULL);
+ 	pg = get_order(size);
+ 	gfp_flags = GFP_KERNEL
++		| __GFP_COMP	/* compound page lets parts be mapped */
+ 		| __GFP_NORETRY /* don't trigger OOM-killer */
+ 		| __GFP_NOWARN; /* no stack trace print - this call is non-critical */
+ 	res = dma_alloc_coherent(dev, PAGE_SIZE << pg, dma, gfp_flags);

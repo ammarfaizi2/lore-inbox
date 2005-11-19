@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751111AbVKSNjm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbVKSOF3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751111AbVKSNjm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 08:39:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbVKSNjm
+	id S1751121AbVKSOF3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 09:05:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVKSOF3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 08:39:42 -0500
-Received: from smtp3.nextra.sk ([195.168.1.142]:16396 "EHLO mailhub3.nextra.sk")
-	by vger.kernel.org with ESMTP id S1751111AbVKSNjl (ORCPT
+	Sat, 19 Nov 2005 09:05:29 -0500
+Received: from mail.gondor.com ([212.117.64.182]:8967 "EHLO moria.gondor.com")
+	by vger.kernel.org with ESMTP id S1751121AbVKSOF3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 08:39:41 -0500
-Message-ID: <437F2B20.7030909@rainbow-software.org>
-Date: Sat, 19 Nov 2005 14:39:44 +0100
-From: Ondrej Zary <linux@rainbow-software.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
+	Sat, 19 Nov 2005 09:05:29 -0500
+Date: Sat, 19 Nov 2005 15:05:28 +0100
+From: Jan Niehusmann <jan@gondor.com>
+To: Bart Samwel <bart@samwel.tk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Laptop mode causing writes to wrong sectors?
+Message-ID: <20051119140527.GA4725@knautsch.gondor.com>
+References: <20051116181612.GA9231@knautsch.gondor.com> <20051117223340.GD14597@elf.ucw.cz> <437E215E.30500@tmr.com> <20051118232019.GA2359@spitz.ucw.cz> <437EE4B3.2090408@samwel.tk>
 MIME-Version: 1.0
-To: Denis Vlasenko <vda@ilport.com.ua>
-CC: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Compaq Presario "reboot" problems
-References: <Pine.LNX.4.61.0511171314440.10063@chaos.analogic.com> <437D118A.3000306@rainbow-software.org> <200511181348.59957.vda@ilport.com.ua>
-In-Reply-To: <200511181348.59957.vda@ilport.com.ua>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <437EE4B3.2090408@samwel.tk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko wrote:
-> On Friday 18 November 2005 01:26, Ondrej Zary wrote:
-> 
->>linux-os (Dick Johnson) wrote:
->>
->>>It appears as though Linux is still restarting as a "warm boot",
->>>rather than a cold boot (in other words, putting magic in the
->>>shutdown byte of CMOS) so the hardware doesn't get properly
->>>initialized. Would somebody please check this out. When changing
->>>operating systems, you need a cold-boot.
->>
->>No, it does not. I know that my desktop PC reboots with a beep (and 
->>shows CPU information) from Linux - and it does not beep when rebooting 
->>from Windows 98.
->>Some BIOSes don't like when some devices are in some state. One example 
->>is my DTK FortisPro TOP-5A notebook - when rebooted from Linux, it hangs 
->>during POST - the fix was to add setpci <someting> to shutdown scripts 
->>to zero-out some cardbus controller registers.
-> 
-> 
-> Did you report it to lkml and/or dirver maintainer?
+On Sat, Nov 19, 2005 at 09:39:15AM +0100, Bart Samwel wrote:
+> * A significant proportion of the people who *do* have trouble see 
+> messages about DMA timeouts. The problems do also occur on other 
+> hardware, but seem to be most pronounced on Thinkpad T40s. On those 
+> machines, the DMA timeout problems are triggered *especially* when the 
+> madwifi drivers are loaded (see 
+> http://bugzilla.ubuntu.com/show_bug.cgi?id=6108).
 
-Not yet. I haven't tried any kernel newer than 2.6.8.1 (because of the 
-monitor mode patch for orinoco wifi card) so I don't know if the problem 
-is still there.
-Also Linux does not like APM on this notebook. But I don't have free 
-time to play with thing like these...
+That's interesting. Both Bradley and me are using ipw2200, an in the
+madwifi thread, one person also mentions he is using this driver. I
+don't know if madwifi and ipw2200 use common or very similar code. But
+perhaps this problem really is caused by a combination of laptop
+mode / disk spinup and certain wireless drivers?
 
--- 
-Ondrej Zary
+As far as I remember all corruptions I observed happened while being
+connected to wireless lan. But that alone never triggered the bug, I had
+to enable laptop mode as well.
+
+Unfortunately, I still have to find a way to reliably trigger the
+problem. None of my test scripts which try to trigger disk activity
+while the drive is spun down caused any corruption yet.
+
+Jan
+
+

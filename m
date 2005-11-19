@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbVKSKxG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbVKSK4J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751173AbVKSKxG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 05:53:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbVKSKxG
+	id S1751233AbVKSK4J (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 05:56:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751046AbVKSK4J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 05:53:06 -0500
-Received: from nproxy.gmail.com ([64.233.182.207]:53109 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751166AbVKSKxF convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 05:53:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=HQu4V3Jm/fMROeSk7g/e1Euqffrd1gXqpkjNpGc5UbFblEwFUKUo/uDE5lTYi8SMlDyUGXDmIVK+TPuG7EXDkDeYdZeS1U7SEpuv/XQQYhAi/TnUfDFosu7AbdWhIO8F5a+r+55rFYts2FM3JSsRFq698pZSPHGYPBj4vWOuFgA=
-Message-ID: <84144f020511190253p5f689346u8729bce45bd7df5@mail.gmail.com>
-Date: Sat, 19 Nov 2005 12:53:03 +0200
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Phillip Hellewell <phillip@hellewell.homeip.net>
-Subject: Re: [PATCH 7/12: eCryptfs] File operations
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       viro@ftp.linux.org.uk, mike@halcrow.us, mhalcrow@us.ibm.com,
-       mcthomps@us.ibm.com, yoder1@us.ibm.com
-In-Reply-To: <20051119042029.GG15747@sshock.rn.byu.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sat, 19 Nov 2005 05:56:09 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:5558 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750884AbVKSK4I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 05:56:08 -0500
+Date: Sat, 19 Nov 2005 10:55:55 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Jens Axboe <axboe@suse.de>, Mike Christie <michaelc@cs.wisc.edu>,
+       Jeff Garzik <jgarzik@pobox.com>, Tejun Heo <htejun@gmail.com>,
+       linux-ide@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH] libata error handling fixes (ATAPI)
+Message-ID: <20051119105555.GA25402@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+	Jens Axboe <axboe@suse.de>, Mike Christie <michaelc@cs.wisc.edu>,
+	Jeff Garzik <jgarzik@pobox.com>, Tejun Heo <htejun@gmail.com>,
+	linux-ide@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>,
+	SCSI Mailing List <linux-scsi@vger.kernel.org>
+References: <4379AA5B.1060900@pobox.com> <4379B28E.9070708@gmail.com> <4379C062.3010302@pobox.com> <20051115120016.GD7787@suse.de> <437A2814.1060308@cs.wisc.edu> <20051115184131.GJ7787@suse.de> <20051116124035.GX7787@suse.de> <58cb370e0511160704w4803a085h7bd6ab352d8c94e6@mail.gmail.com> <20051116153119.GN7787@suse.de> <58cb370e0511160806t1defd373w981e213d1cdeb2b3@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20051119041130.GA15559@sshock.rn.byu.edu>
-	 <20051119042029.GG15747@sshock.rn.byu.edu>
+In-Reply-To: <58cb370e0511160806t1defd373w981e213d1cdeb2b3@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/19/05, Phillip Hellewell <phillip@hellewell.homeip.net> wrote:
-> +/**
-> + * Opens the file specified by inode.
-> + *
-> + * @param inode        inode speciying file to open
-> + * @param file Structure to return filled in
-> + * @return Zero on success; non-zero otherwise
-> + */
+On Wed, Nov 16, 2005 at 05:06:45PM +0100, Bartlomiej Zolnierkiewicz wrote:
+> This will also allow us to remove ide_do_drive_cmd()
+> and use blk_execute_rq() exclusively.
 
-General comment: please use the kerneldoc format properly or don't use
-kerneldoc at all.
-
-                             Pekka
+While we're talking about moving things to generic request-based stuff,
+any chance one of you could look over to convert ide-cd internal request
+submissions to BLOCK_PC?  It's the last user of REQ_PC.  After that changing
+the CD layer to submit BLOCK_PC commands directly instead of the
+->packet_command hook would be a logical next step.

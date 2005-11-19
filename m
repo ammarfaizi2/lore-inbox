@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbVKSAkg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbVKSAmD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751132AbVKSAkg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 19:40:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbVKSAkg
+	id S1751133AbVKSAmD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 19:42:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbVKSAmD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 19:40:36 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:43403 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751132AbVKSAkg (ORCPT
+	Fri, 18 Nov 2005 19:42:03 -0500
+Received: from mail.kroah.org ([69.55.234.183]:27048 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751133AbVKSAmB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 19:40:36 -0500
-Date: Fri, 18 Nov 2005 19:39:08 -0500
-From: Dave Jones <davej@redhat.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@davemloft.net>,
-       bunk@stusta.de, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] mark virt_to_bus/bus_to_virt as __deprecated on i386
-Message-ID: <20051119003908.GK3881@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>,
-	"David S. Miller" <davem@davemloft.net>, bunk@stusta.de,
-	linux-kernel@vger.kernel.org
-References: <20051118024433.GN11494@stusta.de> <20051117185529.31d33192.akpm@osdl.org> <20051118031751.GA2773@redhat.com> <20051117.194239.37311109.davem@davemloft.net> <20051117200354.6acb3599.akpm@osdl.org> <20051119003435.GA29775@mars.ravnborg.org>
+	Fri, 18 Nov 2005 19:42:01 -0500
+Date: Fri, 18 Nov 2005 16:25:48 -0800
+From: Greg KH <greg@kroah.com>
+To: Doug Thompson <norsk5@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] EDAC and /sys/devices/system
+Message-ID: <20051119002548.GA27269@kroah.com>
+References: <20051118223744.88496.qmail@web50110.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051119003435.GA29775@mars.ravnborg.org>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20051118223744.88496.qmail@web50110.mail.yahoo.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 19, 2005 at 01:34:35AM +0100, Sam Ravnborg wrote:
- > On Thu, Nov 17, 2005 at 08:03:54PM -0800, Andrew Morton wrote:
- > > "David S. Miller" <davem@davemloft.net> wrote:
- > > >
- > > > The deprecated warnings are so easy to filter out, so I don't think
- > > >  noise is a good argument.  I see them all the time too.
- > > 
- > > That works for you and me.  But how to train all those people who write
- > > warny patches?
- > 
- > Would it work to use -Werror only on some parts of the kernel.
- > Thinking of teaching kbuild to recursively apply a flags to gcc.
+On Fri, Nov 18, 2005 at 02:37:44PM -0800, Doug Thompson wrote:
+> Well, I have been playing now with the sysdev class of
+> APIs for installing objects into /sys/devices/system.
+> Unforturnately, the capabilities of that do not
+> provide me with what I was wanting for EDAC.
+> 
+> What I was wanting was an extra directory called
+> 'edac'. In that directory was to be various types of
+> edac devices (memory controller and PCI Parity to
+> start)
+> 
+> In the directory /sys/devices/system:
+> 
+> edac/mc/mc0/<attr and controls>
+> edac/mc/mc1/<attr and controls>
+> edac/mc/<attr and controls>
+> 
+> and
+> 
+> edac/pci/<attr and controls>
+> 
+> This would allow for future edac components.
+> 
+> What I found out was that /sys/devices/system doesn't
+> allow for nested subsystems. At least not from what I
+> have read.
 
-Only if you also add a load of gcc switches to disable some
-of the more pointless warnings, and also can live with released
-kernels breaking each time a new gcc gets released.
+Why?  It should work just fine, you might need to export a variable that
+isn't global, right?  It shouldn't be more complex than that.
 
-It's an uphill battle, which is why I only suggested it in
-a humourous context.
+thanks,
 
-		Dave
-
+greg k-h

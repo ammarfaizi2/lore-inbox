@@ -1,54 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161149AbVKSCGh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161174AbVKSCIE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161149AbVKSCGh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 21:06:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161154AbVKSCGh
+	id S1161174AbVKSCIE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 21:08:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161183AbVKSCIE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 21:06:37 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:1165 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1161149AbVKSCGg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 21:06:36 -0500
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-From: Lee Revell <rlrevell@joe-job.com>
-To: Rob Landley <rob@landley.net>
-Cc: Adrian Bunk <bunk@stusta.de>, Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200511181933.27320.rob@landley.net>
-References: <1132020468.27215.25.camel@mindpipe>
-	 <dld3cs$1sh$1@sea.gmane.org> <20051115185543.GI5735@stusta.de>
-	 <200511181933.27320.rob@landley.net>
-Content-Type: text/plain
-Date: Fri, 18 Nov 2005 21:02:59 -0500
-Message-Id: <1132365780.6874.53.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Nov 2005 21:08:04 -0500
+Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:18398 "EHLO
+	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1161174AbVKSCIC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 21:08:02 -0500
+Message-ID: <437E8904.40001@gentoo.org>
+Date: Sat, 19 Nov 2005 02:08:04 +0000
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051104)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Clemens Koller <clemens.koller@anagramm.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.14.2 - Hard link count is wrong
+References: <437E2494.6010005@anagramm.de>
+In-Reply-To: <437E2494.6010005@anagramm.de>
+Content-Type: multipart/mixed;
+ boundary="------------060400040500020203060603"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-11-18 at 19:33 -0600, Rob Landley wrote:
-> On Tuesday 15 November 2005 12:55, Adrian Bunk wrote:
-> > I experienced something similar with my patch to schedule OSS drivers
-> > with ALSA replacements for removal - when someone reported he needed an
-> > OSS driver for $reason I asked him for bug numbers in the ALSA bug
-> > tracking system - and the highest number were 4 new bugs against one
-> > ALSA driver.
+This is a multi-part message in MIME format.
+--------------060400040500020203060603
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Clemens Koller wrote:
+> I get
 > 
-> Speaking of which: I've been playing with qemu recently, and the sound card it 
-> emulates is a sound blaster 16.  Which only seems to have an OSS driver, no 
-> ALSA...
+> .....
+> find: WARNING: Hard link count is wrong for .: this may be a bug in your 
+> filesystem driver.  Automatically turning on find's -noleaf option.  
+> Earlier results may have failed to include directories that should have 
+> been searched.
 > 
-> This is known?  If so I might take a whack at porting this if I get really 
-> bored this weekend...
+> According to google, this might be a kernel bug due to some problems in 
+> /proc, see:
+> https://www.redhat.com/archives/fedora-list/2005-September/msg02474.html
+> Well, how to debug that problem?
 
-There already is an ALSA driver, check out sound/isa/sb/sb16.c:
+That find check is somewhat incorrect (hard link count can be legally modified 
+after the search was started and before it finished), but I did fix up the 
+/proc problems that existed a while back.
 
-/*
- *  Driver for SoundBlaster 16/AWE32/AWE64 soundcards
- *  Copyright (c) by Jaroslav Kysela <perex@suse.cz>
+This patch will give you a more useful error from findutils.
 
-etc
+Daniel
 
-Lee
+--------------060400040500020203060603
+Content-Type: text/x-patch;
+ name="be-specific-about-hardlink-counts.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="be-specific-about-hardlink-counts.patch"
 
+findutils-4.2.20 made me aware of the incorrect hardlink counts in /proc and
+I've been fixing them up.
+
+Although find made me aware of the issue, the message it prints could be more
+useful: it doesn't show an accurate location of where the incorrect count
+exists (instead, it seems to use the path that you gave to find on the command
+line), and it would be nice if it could also report the hardlink count which
+it read (on pseudo-filesystems like /proc this isn't very static). 
+
+--- findutils-4.2.20/find/find.c.orig	2005-03-03 22:30:10.000000000 +0000
++++ findutils-4.2.20/find/find.c	2005-04-03 13:45:06.000000000 +0100
+@@ -1811,8 +1811,8 @@ process_dir (char *pathname, char *name,
+ 		   * doesn't really handle hard links with Unix semantics.
+ 		   * In the latter case, -noleaf should be used routinely.
+ 		   */
+-		  error(0, 0, _("WARNING: Hard link count is wrong for %s: this may be a bug in your filesystem driver.  Automatically turning on find's -noleaf option.  Earlier results may have failed to include directories that should have been searched."),
+-			parent);
++		  error(0, 0, _("WARNING: Hard link count (%d) is wrong for %s: this may be a bug in your filesystem driver.  Automatically turning on find's -noleaf option.  Earlier results may have failed to include directories that should have been searched."),
++			statp->st_nlink, pathname);
+ 		  state.exit_status = 1; /* We know the result is wrong, now */
+ 		  options.no_leaf_check = true;	/* Don't make same
+ 						   mistake again */
+
+--------------060400040500020203060603--

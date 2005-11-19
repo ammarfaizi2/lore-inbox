@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbVKSN0y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbVKSNoa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751108AbVKSN0y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 08:26:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbVKSN0y
+	id S1751110AbVKSNoa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 08:44:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbVKSNoa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 08:26:54 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:2348 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751108AbVKSN0x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 08:26:53 -0500
-Date: Sat, 19 Nov 2005 14:27:50 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Christoph Hellwig <hch@infradead.org>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Mike Christie <michaelc@cs.wisc.edu>, Jeff Garzik <jgarzik@pobox.com>,
-       Tejun Heo <htejun@gmail.com>, linux-ide@vger.kernel.org,
-       lkml <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH] libata error handling fixes (ATAPI)
-Message-ID: <20051119132750.GJ25454@suse.de>
-References: <4379B28E.9070708@gmail.com> <4379C062.3010302@pobox.com> <20051115120016.GD7787@suse.de> <437A2814.1060308@cs.wisc.edu> <20051115184131.GJ7787@suse.de> <20051116124035.GX7787@suse.de> <58cb370e0511160704w4803a085h7bd6ab352d8c94e6@mail.gmail.com> <20051116153119.GN7787@suse.de> <58cb370e0511160806t1defd373w981e213d1cdeb2b3@mail.gmail.com> <20051119105555.GA25402@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 19 Nov 2005 08:44:30 -0500
+Received: from zproxy.gmail.com ([64.233.162.195]:48047 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751110AbVKSNo3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 08:44:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gD3QmshDKbXV8tMRvEihE/RtMboYpZ1D8PYbIoAys5nC8j23NG5xEtaYdyuCEvCnB5qMo/ZBe/uUdY5Aj1o3RQqUuZ31HFeWW30D10TVEXSsE85oGrWVEaA9puHABV9rN8tb5/MYRhrgk2ucykZgfP5WoGCGG8hiUFVmGy6Dhuo=
+Message-ID: <9a8748490511190544k86a616by5918de40fc89a5cf@mail.gmail.com>
+Date: Sat, 19 Nov 2005 14:44:28 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [2.6 patch] mark virt_to_bus/bus_to_virt as __deprecated on i386
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051117175015.6aa99fcf.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051119105555.GA25402@infradead.org>
+References: <20051118014055.GK11494@stusta.de>
+	 <20051117175015.6aa99fcf.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 19 2005, Christoph Hellwig wrote:
-> On Wed, Nov 16, 2005 at 05:06:45PM +0100, Bartlomiej Zolnierkiewicz wrote:
-> > This will also allow us to remove ide_do_drive_cmd()
-> > and use blk_execute_rq() exclusively.
-> 
-> While we're talking about moving things to generic request-based stuff,
-> any chance one of you could look over to convert ide-cd internal request
-> submissions to BLOCK_PC?  It's the last user of REQ_PC.  After that changing
-> the CD layer to submit BLOCK_PC commands directly instead of the
-> ->packet_command hook would be a logical next step.
+On 11/18/05, Andrew Morton <akpm@osdl.org> wrote:
+> Adrian Bunk <bunk@stusta.de> wrote:
+> >
+> > virt_to_bus/bus_to_virt are long deprecated, mark them as __deprecated
+> > on i386.
+> >
+>
+> Problem is, nobody's fixing these things.  There's no point in adding spam
+> to the kernel build unless it actually gets us some action, and I haven't
+> seen any evidence that it does.
+>
+I for one was not aware that these functions were considered to be
+deprecated, some log "spam" would have alerted me to that fact.
 
-Yup, that's clearly the way to go.
+I'll take a look at fixing up some of these, just need to go dig up
+some docs on what the replacements are first, so be patient...
 
--- 
-Jens Axboe
-
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

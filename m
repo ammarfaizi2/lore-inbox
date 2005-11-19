@@ -1,38 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbVKSUap@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbVKSUct@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750789AbVKSUap (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 15:30:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750791AbVKSUap
+	id S1750791AbVKSUct (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 15:32:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbVKSUct
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 15:30:45 -0500
-Received: from smtp3.nextra.sk ([195.168.1.142]:1297 "EHLO mailhub3.nextra.sk")
-	by vger.kernel.org with ESMTP id S1750789AbVKSUao (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 15:30:44 -0500
-Message-ID: <437F8B7E.5050805@rainbow-software.org>
-Date: Sat, 19 Nov 2005 21:30:54 +0100
-From: Ondrej Zary <linux@rainbow-software.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Marc Perkel <marc@perkel.com>,
+	Sat, 19 Nov 2005 15:32:49 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:36613 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750791AbVKSUcs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 15:32:48 -0500
+Date: Sat, 19 Nov 2005 08:59:43 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: mac@melware.de
+Cc: isdn4linux@listserv.isdn4linux.de, kkeil@suse.de, kai.germaschewski@gmx.de,
        linux-kernel@vger.kernel.org
-Subject: Re: Does Linux support powering down SATA drives?
-References: <437F63C1.6010507@perkel.com> <200511191900.12165.s0348365@sms.ed.ac.uk> <1132431907.19692.15.camel@localhost.localdomain> <200511192021.40922.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200511192021.40922.s0348365@sms.ed.ac.uk>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [2.6 patch] drivers/isdn/: add missing #include's
+Message-ID: <20051119075943.GD16060@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alistair John Strachan wrote:
-> My mistake, I was unaware of the difference between "Suspend" and (presumably) 
-> "Sleep". I've tried the latter without success on a Maxtor 120G here, does 
-> this work for anybody else (hdparm -Y)?
+Every file should #include the headers containing the prototypes for 
+it's global functions.
 
-I've tried hdparm -Y - only once - the drive went to sleep mode and did 
-not came back, I had to use reset button.
 
--- 
-Ondrej Zary
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+ drivers/isdn/capi/capifs.c           |    2 ++
+ drivers/isdn/hardware/eicon/os_bri.c |    1 +
+ drivers/isdn/hardware/eicon/os_pri.c |    1 +
+ 3 files changed, 4 insertions(+)
+
+--- linux-2.6.15-rc1-mm2-full/drivers/isdn/capi/capifs.c.old	2005-11-19 03:41:08.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/drivers/isdn/capi/capifs.c	2005-11-19 03:41:21.000000000 +0100
+@@ -17,6 +17,8 @@
+ #include <linux/ctype.h>
+ #include <linux/sched.h>	/* current */
+ 
++#include "capifs.h"
++
+ MODULE_DESCRIPTION("CAPI4Linux: /dev/capi/ filesystem");
+ MODULE_AUTHOR("Carsten Paeth");
+ MODULE_LICENSE("GPL");
+--- linux-2.6.15-rc1-mm2-full/drivers/isdn/hardware/eicon/os_bri.c.old	2005-11-19 03:47:24.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/drivers/isdn/hardware/eicon/os_bri.c	2005-11-19 03:47:38.000000000 +0100
+@@ -16,6 +16,7 @@
+ #include "diva_pci.h"
+ #include "mi_pc.h"
+ #include "pc_maint.h"
++#include "dsrv_bri.h"
+ 
+ /*
+ **  IMPORTS
+--- linux-2.6.15-rc1-mm2-full/drivers/isdn/hardware/eicon/os_pri.c.old	2005-11-19 03:49:19.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/drivers/isdn/hardware/eicon/os_pri.c	2005-11-19 03:49:32.000000000 +0100
+@@ -18,6 +18,7 @@
+ #include "pc_maint.h"
+ #include "dsp_tst.h"
+ #include "diva_dma.h"
++#include "dsrv_pri.h"
+ 
+ /* --------------------------------------------------------------------------
+    OS Dependent part of XDI driver for DIVA PRI Adapter
+

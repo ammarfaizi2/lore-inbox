@@ -1,67 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbVKSMFF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbVKSMGK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751089AbVKSMFF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 07:05:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbVKSMFF
+	id S1751090AbVKSMGK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 07:06:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbVKSMGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 07:05:05 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:62402 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1751089AbVKSMFD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 07:05:03 -0500
-Subject: Re: [PATCH 1/5] slab: rename obj_reallen to obj_size
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, colpatch@us.ibm.com
-In-Reply-To: <437F1333.5010308@colorfullife.com>
-References: <iq5uu1.87bo1s.3tcvszwr6pjjr4ngr04pw358p.beaver@cs.helsinki.fi>
-	 <437F1333.5010308@colorfullife.com>
-Date: Sat, 19 Nov 2005 14:04:56 +0200
-Message-Id: <1132401896.17963.5.camel@localhost>
+	Sat, 19 Nov 2005 07:06:09 -0500
+Received: from pne-smtpout2-sn2.hy.skanova.net ([81.228.8.164]:33717 "EHLO
+	pne-smtpout2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S1751090AbVKSMGI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 07:06:08 -0500
+Date: Sat, 19 Nov 2005 13:05:48 +0100
+From: Voluspa <lista1@telia.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, rajesh.shah@intel.com, kjarvel@home.se,
+       howarth@bromo.msbb.uc.edu
+Subject: Re: PCI error on x86_64 2.6.13 kernel
+Message-Id: <20051119130548.1d86e1d9.lista1@telia.com>
+In-Reply-To: <20051119011840.GB28175@kroah.com>
+References: <20051118080440.4aaf4a6d.lista1@telia.com>
+	<20051119011840.GB28175@kroah.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.4.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Manfred,
+On Fri, 18 Nov 2005 17:18:40 -0800 Greg KH wrote:
+> Is there any way you could be able to run 'git bisect' between 2.6.12
+> and 2.6.13 to try to find the offending changeset?  I would really
+> appreciate it.
 
-On Sat, 2005-11-19 at 12:57 +0100, Manfred Spraul wrote:
-> With your change, cachep->objsize is the internal allocation and 
-> obj_size(cachep) is the user visible part. This reduces the readability.
-> I agree that the names obj_size and reallen are bad. What about the 
-> attached patch?
+I'll take one beer (or in .ru: \u043f\u0438\u0432\u043e) for each hour ;-) This is a six-pack:
 
-I like your patch a lot. Some comments below.
+299de0343c7d18448a69c635378342e9214b14af is first bad commit
+diff-tree 299de0343c7d18448a69c635378342e9214b14af (from 90b54929b626c80056262d9d99b3f48522e404d0)
 
-> +	/*
-> +	 * If debugging is enabled, then the allocator can add additional
-> +	 * fields and/or padding to every object. objsize contains the total
-> +	 * object size including these internal fields, the following two
-> +	 * variables contain the offset to the user object and its size.
-> +	 */
-> +	int			user_off;
+Marvellous tool, that git. But it took less time - for us users - when we only had to
+wave in a general -rc direction...
 
-user_offset is more readable.
+I've not tried to back the commit out from a 2.6.14 kernel, though. Will wait for a real fix.
 
-> +	int			user_size;
-
->  #endif
->  };
-> -static int obj_dbghead(kmem_cache_t *cachep)
-> +static int obj_user_off(kmem_cache_t *cachep)
-
-So why not call the above obj_offset() ?
-
-> -static int obj_reallen(kmem_cache_t *cachep)
-> +static int obj_user_size(kmem_cache_t *cachep)
-
-and this one obj_size() ?
-
-Other than that looks good.
-
-Acked-by: Pekka Enberg <penberg@cs.helsinki.fi>
-
-				Pekka
-
+Mvh
+Mats Johannesson
+--

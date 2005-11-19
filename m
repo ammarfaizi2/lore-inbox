@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbVKSUyI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbVKSU4r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750825AbVKSUyI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 15:54:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbVKSUyI
+	id S1750826AbVKSU4r (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 15:56:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbVKSU4r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 15:54:08 -0500
-Received: from zproxy.gmail.com ([64.233.162.201]:4613 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750825AbVKSUyH convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 15:54:07 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=X9tqngCQdZaf4jI6dkHWx/1g+bMtPKVhveskjBIMgnPYfCsytatD0cxJRIlH6WbuaKHsI8o15yby2RzkenEClKp2ZU4Ijo5ZAOK7Ee5x8nzLjBz+sZqP7k0JhZf3OyM9VC5hXnBr5iiV23rzMucpkEqpilF98HCgWSIIBkixrEA=
-Message-ID: <3aa654a40511191254x4bf50cc8l6a9b8786f1a5ebc8@mail.gmail.com>
-Date: Sat, 19 Nov 2005 12:54:07 -0800
-From: Avuton Olrich <avuton@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Kernel panic: Machine check exception
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1132406652.5238.19.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sat, 19 Nov 2005 15:56:47 -0500
+Received: from holomorphy.com ([66.93.40.71]:47278 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S1750826AbVKSU4q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 15:56:46 -0500
+Date: Sat, 19 Nov 2005 12:55:57 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: "David S. Miller" <davem@davemloft.net>, akpm@osdl.org,
+       nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 04/11] unpaged: unifdefed PageCompound
+Message-ID: <20051119205557.GO6916@holomorphy.com>
+References: <Pine.LNX.4.61.0511171925290.4563@goblin.wat.veritas.com> <Pine.LNX.4.61.0511171931400.4563@goblin.wat.veritas.com> <20051117.154323.10862063.davem@davemloft.net> <Pine.LNX.4.61.0511192003060.2846@goblin.wat.veritas.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <3aa654a40511190145v6f4df755wf16673050d077edb@mail.gmail.com>
-	 <1132406652.5238.19.camel@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.61.0511192003060.2846@goblin.wat.veritas.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/19/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Sad, 2005-11-19 at 01:45 -0800, Avuton Olrich wrote:
-> > CPU 0: Machine Check Exception
-> > TSC 17c72bcfba8               4 Bank 4: b200000000070F0F
-> > Kernel panic - not syncing: Machine check
->
->
-> Thats almost certainly a hardware fault. Machine checks are signalled
-> when the processor finds itself in a "can't happen" type of state.
+On Thu, 17 Nov 2005, David S. Miller wrote:
+>> I think this is a good change regardless of the VM_RESERVED issues.
+>> I've been wanting to use this facility in some sparc64 bits in
+>> the past, for example.  But since it was HUGETLB guarded that
+>> wasn't possible.
 
-Is there a good way to narrow it down? I guess running a badmem
-program would be good to start with, otherwise ...(?).
+On Sat, Nov 19, 2005 at 08:15:13PM +0000, Hugh Dickins wrote:
+> I've only just found that we have to supply the __GFP_COMP flag to get
+> this working.  And one of the routes through snd_dma_alloc_pages goes
+> to sbus_alloc_consistent.  Would you be happy for me to send Andrew a
+> patch with sparc and sparc64 sbus_alloc_consistent including __GFP_COMP?
+> Ought I to do the same in the sparc and sparc64 pci_alloc_consistent??
 
-thanks,
-avuton
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+I usually end up deferring to Dave on the driver issues, but this time
+I can independently agree in an informed manner.
+
+
+-- wli

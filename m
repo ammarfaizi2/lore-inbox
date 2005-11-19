@@ -1,82 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751293AbVKSBH0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751184AbVKSBHt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751293AbVKSBH0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 20:07:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbVKSBH0
+	id S1751184AbVKSBHt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 20:07:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbVKSBHt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 20:07:26 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:33760 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751293AbVKSBHZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 20:07:25 -0500
-Date: Fri, 18 Nov 2005 17:07:44 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: compile fix 2.6.15-rc1-mm1 + EXPERIMENTAL+  CONFIG_SPARSEMEM +
- X86_PC
-Message-Id: <20051118170744.2c852d25.akpm@osdl.org>
-In-Reply-To: <437D79F3.9070301@jp.fujitsu.com>
-References: <437D79F3.9070301@jp.fujitsu.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 18 Nov 2005 20:07:49 -0500
+Received: from s0003.shadowconnect.net ([213.239.201.226]:54205 "EHLO
+	mail.shadowconnect.com") by vger.kernel.org with ESMTP
+	id S1751184AbVKSBHs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 20:07:48 -0500
+Message-ID: <437E7ADB.5080200@shadowconnect.com>
+Date: Sat, 19 Nov 2005 02:07:39 +0100
+From: Markus Lidel <Markus.Lidel@shadowconnect.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@davemloft.net>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/5] I2O: SPARC fixes
+References: <4379AADD.5000600@shadowconnect.com>	<20051115.132836.41612515.davem@davemloft.net>	<437B254E.9040909@shadowconnect.com> <20051116.111843.23450955.davem@davemloft.net>
+In-Reply-To: <20051116.111843.23450955.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
->
-> Hi,
-> 
-> This is a compile fix for
-> X86_PC && EXPERIMENTAL && CONFIG_SPARSEMEM=y && !CONFIG_NEED_MULTIPLE_NODES
-> 
-> BTW, on x86, it looks I can select CONFIG_NUMA=y but will not set
-> CONFIG_NEED_MULTIPLE_NODES. It this expected ?
-> 
+Hello,
 
-This patch is difficult for me to handle, because I don't know which
-patches it fixes - probably it fixes two separate ones and needs to become
-two patches.  Usually it's obvious which patches are being fixed. 
-Sometimes reporters will tell me which patch is being fixed (extra nice!). 
-In this case, it's unobvious.
+David S. Miller wrote:
+> From: Markus Lidel <Markus.Lidel@shadowconnect.com>
+> Date: Wed, 16 Nov 2005 13:25:50 +0100
+>>>This should be detected at runtime, and that is easily done.
+>>>You can use the PCI device to get at the firmware device
+>>>node, and use that to look for a firmware device node property
+>>>that identifies it as a card from Sun.
+>>>Usually the "name" property has some identifying string in it.
+>>>Sometimes there is a property with the string "fcode" in it and you
+>>>could look for that as well.
+>>OK, i'll look at it... Thanks for the hint!
+> Actually, my idea won't work if the card is used in a non-Sparc
+> system.  Do these cards have PCI subsystem vendor or device ID's that
+> identify it as a Sun card?
 
-Please always include the text of the error messages when fixing compile
-errors.
+Here's the output of lspci:
 
-Please send me the .config.
+0003:01:03.0 Memory controller: Adaptec (formerly DPT) Domino RAID Engine 
+(rev 02)
+         Subsystem: Adaptec (formerly DPT) Domino RAID Engine
+         Flags: bus master, medium devsel, latency 32, IRQ 0082efe0
+         BIST result: 00
+         Memory at 000001c980100000 (32-bit, non-prefetchable) [size=64K]
+         Memory at 000001c988000000 (32-bit, prefetchable) [size=128M]
 
-> --
-> Index: linux-2.6.15-rc1-mm1/include/linux/mmzone.h
-> ===================================================================
-> --- linux-2.6.15-rc1-mm1.orig/include/linux/mmzone.h
-> +++ linux-2.6.15-rc1-mm1/include/linux/mmzone.h
-> @@ -596,12 +596,13 @@ static inline int pfn_valid(unsigned lon
->   		return 0;
->   	return valid_section(__nr_to_section(pfn_to_section_nr(pfn)));
->   }
-> -
-> +#ifdef CONFIG_NEED_MULTIPLE_NODES
->   #define pfn_to_nid(pfn)							\
->   ({									\
->    	unsigned long __pfn = (pfn);                                    \
->   	page_to_nid(pfn_to_page(pfn));					\
->   })
-> +#endif
-> 
->   #define early_pfn_valid(pfn)	pfn_valid(pfn)
->   void sparse_init(void);
-> Index: linux-2.6.15-rc1-mm1/drivers/base/memory.c
-> ===================================================================
-> --- linux-2.6.15-rc1-mm1.orig/drivers/base/memory.c
-> +++ linux-2.6.15-rc1-mm1/drivers/base/memory.c
-> @@ -25,7 +25,7 @@
-> 
->   #define MEMORY_CLASS_NAME	"memory"
-> 
-> -static struct sysdev_class memory_sysdev_class = {
-> +struct sysdev_class memory_sysdev_class = {
->   	set_kset_name(MEMORY_CLASS_NAME),
->   };
->   EXPORT_SYMBOL(memory_sysdev_class);
+0003:01:04.0 I2O: Adaptec (formerly DPT) SmartRAID V Controller (rev 03)
+         Subsystem: Adaptec (formerly DPT) SmartRAID V Controller
+         Flags: bus master, medium devsel, latency 1, IRQ 0082ef80
+         BIST result: 00
+         Memory at 000001c990000000 (32-bit, non-prefetchable) [size=2M]
+         I/O ports at 0000000002010400 [size=256]
+         Expansion ROM at 0000000080000000 [disabled] [size=32K]
+
+As it looks it's equal to the "Intel" based cards...
+
+Don't think it will work then, right?
+
+
+
+Best regards,
+
+
+Markus Lidel
+------------------------------------------
+Markus Lidel (Senior IT Consultant)
+
+Shadow Connect GmbH
+Carl-Reisch-Weg 12
+D-86381 Krumbach
+Germany
+
+Phone:  +49 82 82/99 51-0
+Fax:    +49 82 82/99 51-11
+
+E-Mail: Markus.Lidel@shadowconnect.com
+URL:    http://www.shadowconnect.com

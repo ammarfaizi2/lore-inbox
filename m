@@ -1,138 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbVKSQl6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbVKSQnd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750711AbVKSQl6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 11:41:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750712AbVKSQl6
+	id S1750712AbVKSQnd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 11:43:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbVKSQnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 11:41:58 -0500
-Received: from mail3.netbeat.de ([193.254.185.27]:5027 "HELO mail3.netbeat.de")
-	by vger.kernel.org with SMTP id S1750711AbVKSQl5 (ORCPT
+	Sat, 19 Nov 2005 11:43:33 -0500
+Received: from mail3.netbeat.de ([193.254.185.27]:18600 "HELO mail3.netbeat.de")
+	by vger.kernel.org with SMTP id S1750712AbVKSQnc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 11:41:57 -0500
-Subject: [Patch 1/2] 2.6.15-rc1-mm2: disabling the pagecache for doing
+	Sat, 19 Nov 2005 11:43:32 -0500
+Subject: [Patch 2/2] 2.6.15-rc1-mm2: disabling the pagecache for doing
 	benchmarks
 From: Dirk Henning Gerdes <mail@dirk-gerdes.de>
 To: LKML <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Date: Sat, 19 Nov 2005 17:41:27 +0100
-Message-Id: <1132418487.11657.15.camel@home.sweethome>
+Date: Sat, 19 Nov 2005 17:43:02 +0100
+Message-Id: <1132418582.11657.18.camel@home.sweethome>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The changes in the do_generic-mapping_read function...
+The module to get acces over the proc-fs
 
+Signed-off-by: Dirk Gerdes <mail@dirk-gerdes.de>
 
-
-Signed-off-by: Dirk Gerdes
 --
-
-
---- linux-2.6.15-rc1-mm2/mm/filemap.c	2005-11-19 12:31:43.000000000
+diff -pruN linux-2.6.15-rc1-mm2/block/Kconfig
+linux-2.6.15-rc1-mm2-pagecache/block/Kconfig
+--- linux-2.6.15-rc1-mm2/block/Kconfig	2005-11-19 12:31:42.000000000
 +0100
-+++ linux-2.6.15-rc1-mm2-pagecache/mm/filemap.c	2005-11-19 13:29:44.000000000 +0100
-@@ -738,6 +738,55 @@ grab_cache_page_nowait(struct address_sp
++++ linux-2.6.15-rc1-mm2-pagecache/block/Kconfig	2005-11-19
+13:29:44.000000000 +0100
+@@ -23,3 +23,9 @@ config BLK_DEV_IO_TRACE
+ 	  git://brick.kernel.dk/data/git/blktrace.git
  
- EXPORT_SYMBOL(grab_cache_page_nowait);
+ source block/Kconfig.iosched
++
++config PAGECACHE_TOGGLE
++	bool "toggle for using pagecache reading from block-devices"
++	help
++	  This is very useful if you would likr to do benchmarks on the 
++	  performance of the I/O-Schedulers.
+diff -pruN linux-2.6.15-rc1-mm2/block/Makefile
+linux-2.6.15-rc1-mm2-pagecache/block/Makefile
+--- linux-2.6.15-rc1-mm2/block/Makefile	2005-11-19 12:31:42.000000000
++0100
++++ linux-2.6.15-rc1-mm2-pagecache/block/Makefile	2005-11-19
+13:29:44.000000000 +0100
+@@ -10,3 +10,4 @@ obj-$(CONFIG_IOSCHED_DEADLINE)	+= deadli
+ obj-$(CONFIG_IOSCHED_CFQ)	+= cfq-iosched.o
  
+ obj-$(CONFIG_BLK_DEV_IO_TRACE)	+= blktrace.o
++obj-$(CONFIG_PAGECACHE_TOGGLE)	+= pagecache.o
+diff -pruN linux-2.6.15-rc1-mm2/block/pagecache.c
+linux-2.6.15-rc1-mm2-pagecache/block/pagecache.c
+--- linux-2.6.15-rc1-mm2/block/pagecache.c	1970-01-01 01:00:00.000000000
++0100
++++ linux-2.6.15-rc1-mm2-pagecache/block/pagecache.c	2005-11-19
+13:29:44.000000000 +0100
+@@ -0,0 +1,76 @@
++#include <linux/module.h>
++#include <linux/proc_fs.h>
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <asm/uaccess.h>
++//#include <linux/pagecache.h>
 +
 +
++MODULE_LICENSE("GPL");
 +
-+void make_page_not_uptodate(struct page *page)
++extern int pagecache;
++
++
++static struct proc_dir_entry 	*benchmark_dir, 
++				*pagecache_entry;
++		
++				
++				
++
++			
++				
++static int pagecache_entry_read(char *buf, char **start,off_t
+offset,int size, int *eof, void *data)
 +{
-+        struct buffer_head *bh, *first;
-+	//printk("make_page_not_uptodate_called\n");
-+        lock_page(page);
-+        if(!PageDirty(page)){
-+                ClearPageUptodate(page);
-+                if (page_has_buffers(page)){
-+                        bh = page_buffers(page);
-+                        first = bh;
-+                        do{
-+                                lock_buffer(bh);
-+                                if(!buffer_dirty(bh)){
-+                                        clear_buffer_uptodate(bh);
-+                                }
-+                      		unlock_buffer(bh);
-+
-+                                bh=bh->b_this_page;
-+
-+                        }while(bh != first);
-+                }
-+        }
-+        unlock_page(page);
-+        release_pages(&page, 1, 0);
++	printk("%i__\n",pagecache);
++	int bytes_written = 0;
++	if (pagecache) 
++		bytes_written = snprintf(buf, size, "[on] off\n");
++	else
++		bytes_written = snprintf(buf, size, " on [off]\n");
++	return bytes_written;
 +}
 +
-+int pagecache = 1;      // bool pagecache on / off
-+                        // 1 : on
-+			// 2 : off
-+EXPORT_SYMBOL(pagecache);
-+
-+
-+
- /*
-  * This is a generic file read routine, and uses the
-  * mapping->a_ops->readpage() function for the actual low-level
-@@ -765,6 +814,7 @@ void do_generic_mapping_read(struct addr
- 	unsigned long prev_index;
- 	loff_t isize;
- 	struct page *cached_page;
-+        struct page *foundpage = NULL;
- 	int error;
- 	struct file_ra_state ra = *_ra;
- 
-@@ -780,6 +830,17 @@ void do_generic_mapping_read(struct addr
- 		goto out;
- 
- 	end_index = (isize - 1) >> PAGE_CACHE_SHIFT;
-+
-+/**
-+if the needed page is in Page Cache its PageUptodate-Bit is cleared, so it have to be read again
-+*/
-+	if (pagecache == 0){
-+		foundpage = find_get_page(mapping,index);
-+		if (foundpage != NULL){
-+			make_page_not_uptodate(foundpage);
-+		}
++static int pagecache_entry_write(struct file * instanz, const char
+__user *userbuffer, unsigned long count, void *data)
++{	
++	char *kernel_buffer;
++	int not_copied;
++		
++	kernel_buffer = kmalloc(count, GFP_KERNEL);
++	if (!kernel_buffer)
++		return -ENOMEM;
++	not_copied = copy_from_user(kernel_buffer, userbuffer, count);
++	if (strncmp (kernel_buffer,"on",2)==0){
++	 	pagecache=1;
++	}
++	else if (strncmp (kernel_buffer,"off",3)==0){
++		pagecache=0;
 +	}
 +
- 	for (;;) {
- 		struct page *page;
- 		unsigned long nr, ret;
-@@ -797,9 +858,12 @@ void do_generic_mapping_read(struct addr
- 		nr = nr - offset;
- 
- 		cond_resched();
--		if (index == next_index)
--			next_index = page_cache_readahead(mapping, &ra, filp,
--					index, last_index - index);
++	kfree(kernel_buffer);
++	return count-not_copied;
++}
 +
-+/**page_cache_readahead should only be used, if pagecache is activated */
-+                if (pagecache){
-+			if (index == next_index)
-+				next_index = page_cache_readahead(mapping, &ra, filp,index, last_index - index);
-+		}
- 
- find_page:
- 		page = find_get_page(mapping, index);
-@@ -842,8 +906,15 @@ page_ok:
- 		offset &= ~PAGE_CACHE_MASK;
- 
- 		page_cache_release(page);
--		if (ret == nr && desc->count)
-+		if (ret == nr && desc->count){
-+			if (pagecache == 0){
-+                                foundpage = find_get_page(mapping,index);
-+                                if (foundpage != NULL){
-+                                        make_page_not_uptodate(foundpage);
-+                                }
-+                        }
- 			continue;
-+		}
- 		goto out;
- 
- page_not_up_to_date:
++static int __init my_init(void)
++{
++	
++	
++	benchmark_dir = proc_mkdir("benchmark",NULL);
++	pagecache_entry = create_proc_entry("pagecache",S_IRUGO,
+benchmark_dir);
++	if (pagecache_entry){
++		pagecache_entry->read_proc  = pagecache_entry_read;
++		pagecache_entry->write_proc = pagecache_entry_write;
++		
++		pagecache_entry->data      = NULL;	
++	}
++	
++	return 0;
++}
++static void __exit my_exit(void){
++	if (pagecache_entry) 	remove_proc_entry("pagecache",benchmark_dir);
++	if (benchmark_dir)	remove_proc_entry("benchmark",NULL);
++}
++
++
++module_init(my_init);
++module_exit(my_exit);
++
+
 

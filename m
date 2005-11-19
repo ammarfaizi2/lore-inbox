@@ -1,132 +1,212 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161210AbVKSC3l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbVKSCjl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161210AbVKSC3l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 21:29:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161212AbVKSC3l
+	id S1750831AbVKSCjl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 21:39:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbVKSCjl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 21:29:41 -0500
-Received: from gw02.applegatebroadband.net ([207.55.227.2]:17140 "EHLO
-	data.mvista.com") by vger.kernel.org with ESMTP id S1161210AbVKSC3l
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 21:29:41 -0500
-Message-ID: <437E8DC8.4070101@mvista.com>
-Date: Fri, 18 Nov 2005 18:28:24 -0800
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: Lee Revell <rlrevell@joe-job.com>,
-       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, "K.R. Foley" <kr@cybsft.com>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Thomas Gleixner <tglx@linutronix.de>, pluto@agmk.net,
-       john cooper <john.cooper@timesys.com>,
+	Fri, 18 Nov 2005 21:39:41 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:7623 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750831AbVKSCjl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 21:39:41 -0500
+Subject: Re: 2.6.14-rt13
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>,
+       "K.R. Foley" <kr@cybsft.com>, Thomas Gleixner <tglx@linutronix.de>,
+       pluto@agmk.net, john cooper <john.cooper@timesys.com>,
        Benedikt Spranger <bene@linutronix.de>,
        Daniel Walker <dwalker@mvista.com>,
-       Tom Rini <trini@kernel.crashing.org>
-Subject: Re: 2.6.14-rt13
-References: <20051115090827.GA20411@elte.hu> <1132336954.20672.11.camel@cmn3.stanford.edu> <1132350882.6874.23.camel@mindpipe> <1132351533.4735.37.camel@cmn3.stanford.edu> <1132351984.6874.29.camel@mindpipe> <20051118223233.GA7794@midnight.suse.cz>
-In-Reply-To: <20051118223233.GA7794@midnight.suse.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+       Tom Rini <trini@kernel.crashing.org>,
+       George Anzinger <george@mvista.com>
+In-Reply-To: <1132353689.4735.43.camel@cmn3.stanford.edu>
+References: <20051115090827.GA20411@elte.hu>
+	 <1132336954.20672.11.camel@cmn3.stanford.edu>
+	 <1132350882.6874.23.camel@mindpipe>
+	 <1132351533.4735.37.camel@cmn3.stanford.edu>
+	 <20051118220755.GA3029@elte.hu>
+	 <1132353689.4735.43.camel@cmn3.stanford.edu>
+Content-Type: text/plain
+Date: Fri, 18 Nov 2005 21:39:07 -0500
+Message-Id: <1132367947.5706.11.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
-> On Fri, Nov 18, 2005 at 05:13:03PM -0500, Lee Revell wrote:
+On Fri, 2005-11-18 at 14:41 -0800, Fernando Lopez-Lezcano wrote:
+> On Fri, 2005-11-18 at 23:07 +0100, Ingo Molnar wrote:
+> > * Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
+> > 
+> > > Arghhh, at least I take this as a confirmation that the TSCs do drift 
+> > > and there is no workaround. It currently makes the -rt/Jack 
+> > > combination not very useful, at least in my tests.
+> > > 
+> > > Is there a way to resync the TSCs?
+> > 
+> > no reasonable way. Does idle=poll make any difference?
 > 
->>On Fri, 2005-11-18 at 14:05 -0800, Fernando Lopez-Lezcano wrote:
->>
->>>On Fri, 2005-11-18 at 16:54 -0500, Lee Revell wrote:
->>>
->>>>On Fri, 2005-11-18 at 10:02 -0800, Fernando Lopez-Lezcano wrote:
->>>>
->>>>>You mentioned before that the TSC's from both cpus could drift from
->>>>>each other over time. Assuming that is the source of timing (I have no
->>>>>idea) that could explain the behavior of Jack, it gets a reference
->>>>>time from one of the cpus and then compares that with what it gets
->>>>>from either cpu depending on where it is running at a given time. If
->>>>>it is the same cpu all is fine, if it is the other and it has drifted
->>>>>then the warning is printed.  
->>>>
->>>>Yes, JACK uses rdtsc() for microsecond resolution timing and assumes
->>>>that the TSCs are in sync.
->>>>
->>>>I've asked on this list what a better time source could be and didn't
->>>>get any useful responses, people just told me "use gettimeofday()" which
->>>>is WAY too slow.
->>>
->>>Arghhh, at least I take this as a confirmation that the TSCs do drift
->>>and there is no workaround. It currently makes the -rt/Jack combination
->>>not very useful, at least in my tests. 
->>>
->>>Is there a way to resync the TSCs?
->>
->>I don't think so.  A better question is what mechanism have the hardware
->>vendors provided to replace the apparently-no-longer-reliable TSC for
->>cheap high res timing on modern machines.  Unfortunately I suspect the
->>answer at this point is "nothing, you're screwed".
-> 
-> 
-> There are many mechanisms to keep time:
-> 
-> 1) RTC: 0.5 sec resolution, interrupts
-> 2) PIT: takes ages to read, overflows at each timer interrupt
-> 3) PMTMR: takes ages to read, overflows in approx 4 seconds, no interrupt
+> I don't know yet, and I may never know :-) I've been running it for a
+> while and so far works but that's what I thought yesterday of -rt13. It
+> is not practical for normal use, it just heats the cpu unnecessarily and
+> there's no way to control it other than a reboot.
 
-The PMTMR can be read from user space (if you can find it).  See the 
-"iopl" man page.  It is an I/O access and so is slow, but you can read 
-it.
+Not anymore! 
 
-Finding it is another matter.  It does not have a fixed address (i.e. 
-it differs from machine to machine, but is constant on any given 
-machine).  The boot code roots it out of an info block put in memory 
-by the BIOS.  I suppose one could put a printk in the boot code to 
-disclose it...
+OK, I used this as an exercise to learn how kobject and sysfs work (I've
+been putting this off for too long). So if this isn't exactly proper,
+let me know :-)
 
-George
--- 
+Ingo,  This could be a temporary patch until we come up with a better
+solution.  This adds  /sys/kernel/idle/idle_poll, which if idle=poll is
+_not_ set, it still lets you switch the machine to idle=poll on the fly,
+as well as turn it off. If you have idle=poll, this doesn't even show
+up.
+
+So for example (I'm currently running it):
+
+# cat /sys/kernel/idle/idle_poll
+off
+# echo 1 > /sys/kernel/idle/idle_poll
+# cat /sys/kernel/idle/idle_poll on
+# echo 0 > /sys/kernel/idle/idle_poll
+# cat /sys/kernel/idle/idle_poll off
+
+# echo on > /sys/kernel/idle/idle_poll
+and 
+# echo off > /sys/kernel/idle/idle_poll
+also work.
+
+So like I said.  This could be used for just those that need to have
+idle=poll for running benchmarks but don't want to reboot when they are
+done.
+
+-- Steve
+
+PS. I haven't tested to see if the idle actually changes, but it looks
+pretty obvious in the code in cpu_idle:
+
+			idle = pm_idle;
+			if (!idle)
+				idle = default_idle;
+			if (cpu_is_offline(smp_processor_id()))
+				play_dead();
+			stop_critical_timing();
+			propagate_preempt_locks_value();
+			idle();
 
 
-> 4) HPET: slow to read, overflows in 5 minutes. Nice, but usually not present.
-> 5) TSC: fast, completely unreliable. Frequency changes, CPUs diverge over time.
-> 6) LAPIC: reasonably fast, unreliable, per-cpu
-> 
-> Userspace can only use 1), 4) and 5). mplayer uses the RTC to
-> synchronize, using it as a 1 kHz interrupt source.
-> 
-> The kernel does quite a lot of magic and jumps through many hoops to
-> make a reliable and fast time source combining these.
-> 
-> 
->>I've read that gettimeofday() does not have to enter the kernel on
->>x86-64, maybe it's fast enough, though almost certainly orders of
->>magnitude slower than rdtsc(). 
-> 
-> 
-> It depends on the hardware config, and kernel version. With my latest
-> patch it takes approximately 175 ns on a reasonably fast CPU to do
-> gettimeofday() from userspace. And much better results will be possible
-> (~5x better) when RDTSCP enabled CPUs become available.
-> 
-> This patch still has problems, and as such I'll still have to rewrite
-> significant portions before I release it.
-> 
-> Anyway, current gettimeofday() on SMP AMD x86-64 can be as bad as 1500ns.
-> 
-> 
->>It seems like a huge step backwards for
->>any apps with high res timing requirements.
-> 
-> 
-> gettimeofday() is the only guaranteed working mechanism. And it's as
-> fast as the hardware allows.
-> 
 
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+Index: linux-2.6.14-rt13/arch/x86_64/kernel/process.c
+===================================================================
+--- linux-2.6.14-rt13.orig/arch/x86_64/kernel/process.c	2005-11-15 11:12:37.000000000 -0500
++++ linux-2.6.14-rt13/arch/x86_64/kernel/process.c	2005-11-18 21:12:53.000000000 -0500
+@@ -822,3 +822,104 @@
+ 		sp -= get_random_int() % 8192;
+ 	return sp & ~0xf;
+ }
++
++#ifdef CONFIG_SYSFS
++#include <linux/kobject.h>
++#include <linux/sysfs.h>
++#include <linux/spinlock.h>
++
++#define KERNEL_ATTR_RW(_name) \
++static struct subsys_attribute _name##_attr = \
++	__ATTR(_name, 0644, _name##_show, _name##_store)
++
++static spinlock_t idle_switch_lock = SPIN_LOCK_UNLOCKED(idle_switch_lock);
++
++static struct idlep_kobject
++{
++	struct kobject kobj;
++	int is_poll;
++	void (*idle)(void);
++} idle_kobj;
++
++static ssize_t idle_poll_show(struct subsystem *subsys, char *page)
++{
++	return sprintf(page, "%s\n", (idle_kobj.is_poll ? "on" : "off"));
++}
++
++static ssize_t idle_poll_store(struct subsystem *subsys,
++			       const char *buf, size_t len)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&idle_switch_lock, flags);
++
++	if (strncmp(buf,"1",1)==0 ||
++	    (len >=2 && strncmp(buf,"on",2)==0)) {
++		if (idle_kobj.is_poll != 1) {
++			idle_kobj.is_poll = 1;
++			pm_idle = poll_idle;
++		}
++	} else if (strncmp(buf,"0",1)==0 ||
++		   (len >= 3 && strncmp(buf,"off",3)==0)) {
++		if (idle_kobj.is_poll != 0) {
++			idle_kobj.is_poll = 0;
++			pm_idle = idle_kobj.idle;
++		}
++	}
++
++	spin_unlock_irqrestore(&idle_switch_lock, flags);
++
++	return len;
++}
++
++
++KERNEL_ATTR_RW(idle_poll);
++
++static struct attribute * idle_attrs[] = {
++	&idle_poll_attr.attr,
++	NULL
++};
++
++static struct attribute_group idle_attr_group = {
++	.attrs = idle_attrs,
++};
++
++static int __init idle_poll_set_init(void)
++{
++	int err;
++
++	/*
++	 * If the default is alread poll_idle then
++	 * don't even bother with this.
++	 */
++	if (pm_idle == poll_idle)
++		return 0;
++
++	memset(&idle_kobj, 0, sizeof(idle_kobj));
++
++	idle_kobj.is_poll = 0;
++	idle_kobj.idle = pm_idle;
++
++	err = kobject_set_name(&idle_kobj.kobj, "%s", "idle");
++	if (err)
++		goto out;
++
++	idle_kobj.kobj.parent = &kernel_subsys.kset.kobj;
++	err = kobject_register(&idle_kobj.kobj);
++	if (err)
++		goto out;
++
++	err = sysfs_create_group(&idle_kobj.kobj,
++				 &idle_attr_group);
++	if (err)
++		goto out;
++
++	return 0;
++out:
++	printk(KERN_INFO "Problem setting up sysfs idle_poll\n");
++	return 0;
++}
++
++late_initcall(idle_poll_set_init);
++#endif /* CONFIG_FS */
++
+
+

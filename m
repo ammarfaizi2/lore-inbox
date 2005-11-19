@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbVKSFwb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750952AbVKSGCD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750930AbVKSFwb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 00:52:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750932AbVKSFwb
+	id S1750952AbVKSGCD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 01:02:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbVKSGCD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 00:52:31 -0500
-Received: from mail.kroah.org ([69.55.234.183]:30888 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750930AbVKSFwa (ORCPT
+	Sat, 19 Nov 2005 01:02:03 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:20386 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750952AbVKSGCB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 00:52:30 -0500
-Date: Fri, 18 Nov 2005 21:37:01 -0800
-From: Greg KH <greg@kroah.com>
-To: yiding_wang@agilent.com
+	Sat, 19 Nov 2005 01:02:01 -0500
+Date: Fri, 18 Nov 2005 22:01:44 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Jones <davej@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: question about driver built-in kernel
-Message-ID: <20051119053701.GA31259@kroah.com>
-References: <08A354A3A9CCA24F9EE9BE13600CFBC5032F842D@wcosmb07.cos.agilent.com>
+Subject: Re: dell_rbu driver depends on x86[64]
+Message-Id: <20051118220144.11671174.akpm@osdl.org>
+In-Reply-To: <20051118212938.GB3881@redhat.com>
+References: <20051118212938.GB3881@redhat.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <08A354A3A9CCA24F9EE9BE13600CFBC5032F842D@wcosmb07.cos.agilent.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 18, 2005 at 06:57:38PM -0700, yiding_wang@agilent.com wrote:
-> Thanks Greg! 
+Dave Jones <davej@redhat.com> wrote:
+>
+> This driver only appears on IA32 & EM64T boxes.
 > 
-> Got everything straighten up.
+> Signed-off-by: Dave Jones <davej@redhat.com>
+> 
+> --- linux-2.6.14/drivers/firmware/Kconfig~	2005-11-14 19:23:45.000000000 -0500
+> +++ linux-2.6.14/drivers/firmware/Kconfig	2005-11-14 19:24:18.000000000 -0500
+> @@ -60,6 +60,7 @@ config EFI_PCDP
 >  
-> 1, replaced init_module() by __init init_module to avoid kernel build conflict.
-> 2, arranged correct sequence in Makefile to load two drivers in proper order.
-> 
-> Now it looks the pci bus register accessing has problem. If loaded as
-> module, everything works fine. If build in kernel, it always failed at
-> the spot driver resetting the chip through register during the kernel
-> loading. It seems the pci base address mapping or something related
-> has problem. Is there any difference for ioremap call between the
-> kernel loading and after system is up? Is anything special on pci
-> device register accessing during the kernel booting, compare with
-> after system boot up?
+>  config DELL_RBU
+>  	tristate "BIOS update support for DELL systems via sysfs"
+> +	depends on X86
+>  	select FW_LOADER
+>  	help
+>  	 Say m if you want to have the option of updating the BIOS for your
 
-Do you have a pointer to your source code, so we can look at it to see
-what is wrong?
-
-thanks,
-
-greg k-h
+Does it not compile on other architectures?  If it does, there's an
+argument for leaving it there, for compile coverage.

@@ -1,80 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161208AbVKSB5l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161152AbVKSCD5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161208AbVKSB5l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 20:57:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161210AbVKSB5l
+	id S1161152AbVKSCD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 21:03:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161154AbVKSCD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 20:57:41 -0500
-Received: from msgbas2x.cos.agilent.com ([192.25.240.37]:37316 "EHLO
-	msgbas2x.cos.agilent.com") by vger.kernel.org with ESMTP
-	id S1161209AbVKSB5k convert rfc822-to-8bit (ORCPT
+	Fri, 18 Nov 2005 21:03:57 -0500
+Received: from zproxy.gmail.com ([64.233.162.203]:47271 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161152AbVKSCD5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 20:57:40 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-content-class: urn:content-classes:message
+	Fri, 18 Nov 2005 21:03:57 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:content-type:content-transfer-encoding;
+        b=PW2IliwG+DdU+Y7AYFC1Y+FeJhqLO4UQ4uwiO5zrKopo7qsc0oHQF1Ua/V0nNNndTn84te/XNg93pTxAkKzSolWdkw71j6YkwZRemP8MfR+szIWTtwi1l+dgAy/XXL/FvVRRM7qXJ/IZKGMDjF+piKc7GsakFwfq4lDskPEzHe8=
+Message-ID: <437E850A.2080903@gmail.com>
+Date: Sat, 19 Nov 2005 09:51:06 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: question about driver built-in kernel
-Date: Fri, 18 Nov 2005 18:57:38 -0700
-Message-ID: <08A354A3A9CCA24F9EE9BE13600CFBC5032F842D@wcosmb07.cos.agilent.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: question about driver built-in kernel
-Thread-Index: AcXsqYege/zCwqjDSOuC2/w9xykjDQAAarDA
-From: <yiding_wang@agilent.com>
-To: <greg@kroah.com>, <yiding_wang@agilent.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 19 Nov 2005 01:57:38.0939 (UTC) FILETIME=[9E9A9CB0:01C5ECAC]
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] vgacon: Fix usage of stale height value on vc initialization
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Greg! 
+Reported by: Wayne E. Harlan
 
-Got everything straighten up.
+"[1.] One line summary of the problem:
+When the kernel option "vga=1" is used, additional tty's (alt+control+Fx
+with x=2,3,4,5, etc) do not provide the full 50 lines of output.  The first
+one does have 50 lines, however.
+
+[2.] Full description of the problem/report:
+These addtitional tty's show only 39 lines plus the top pixel of the 40-th
+line.  The remaining lines are black and not shown.  Kernel version
+2.6.13.4 does not show this problem."
+
+This bug is caused by using a stale font height value on vgacon_init.
+
+Booting with vga=1 gives an 80x50 screen with an 8x8 font.  Somewhere
+during the initialization, the font was changed to 8x9 and the first
+vc was correctly resized to 80x44.  However, the rest of the vc's were
+not allocated yet, and when they were subsequently initialized, they
+still used a font height of 8 (instead of 9) causing the mentioned bug.
+
+Fix by saving the new font height to vga_video_font_height.
+
+Signed-off-by: Antonino Daplas <adaplas@pol.net>
+---
+
+ drivers/video/console/vgacon.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/video/console/vgacon.c b/drivers/video/console/vgacon.c
+index 5ce8348..b49f645 100644
+--- a/drivers/video/console/vgacon.c
++++ b/drivers/video/console/vgacon.c
+@@ -979,7 +979,8 @@ static int vgacon_adjust_height(struct v
+ 	outb_p(0x12, vga_video_port_reg);	/* Vertical display limit */
+ 	outb_p(vde, vga_video_port_val);
+ 	spin_unlock_irq(&vga_lock);
+-
++	vga_video_font_height = fontheight;
++	
+ 	for (i = 0; i < MAX_NR_CONSOLES; i++) {
+ 		struct vc_data *c = vc_cons[i].d;
  
-1, replaced init_module() by __init init_module to avoid kernel build conflict.
-2, arranged correct sequence in Makefile to load two drivers in proper order.
 
-Now it looks the pci bus register accessing has problem. If loaded as module, everything works fine. If build in kernel, it always failed at the spot driver resetting the chip through register during the kernel loading. It seems the pci base address mapping or something related has problem. Is there any difference for ioremap call between the kernel loading and after system is up? Is anything special on pci device register accessing during the kernel booting, compare with after system boot up?
-
-Thanks!
-
-Eddie 
-
------Original Message-----
-From: Greg KH [mailto:greg@kroah.com] 
-Sent: Friday, November 18, 2005 5:20 PM
-To: yiding_wang@agilent.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: question about driver built-in kernel
-
-On Thu, Nov 17, 2005 at 05:18:34PM -0700, yiding_wang@agilent.com wrote:
-> We have two driver modules to support our hardware for some
-> applications. Both modules worked fine as loadable modules. Now I need
-> to build both drivers in kernel 2.6.11-8. I have changed configuration
-> file and make file. Both drivers are built OK with kernel together.
-
-Have a pointer to the source for these drivers?
-
-> 1, Because both drivers were loaded as module before, the entry point
-> for both driver is "init_module()". Since both drivers are built in
-> kernel, the entry name is conflicting. Changing one entry point name
-> will make driver built OK. However, I am concerned that loading kernel
-> will not pick up the driver with changed entry point name. What is the
-> best way to handle this situation?
-
-Make your init module function static, like all other kernel drivers.
-
-> 2, One of built-in driver requires to be loaded before the second one.
-> Because these two drivers are not belong to any existing group, such
-> as network, scsi, where is the best place these two driver can be
-> specified for loading sequence? I checked init.d and rc* files but did
-> not figure out proper place to handle the requirement.
-
-The linker specifies the loading order.
-
-hope this helps,
-
-greg k-h

@@ -1,75 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750850AbVKSLMb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbVKSLim@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750850AbVKSLMb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 06:12:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751058AbVKSLMa
+	id S1751077AbVKSLim (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 06:38:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751082AbVKSLim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 06:12:30 -0500
-Received: from bsamwel.xs4all.nl ([82.92.179.183]:24425 "EHLO samwel.tk")
-	by vger.kernel.org with ESMTP id S1750850AbVKSLMa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 06:12:30 -0500
-Message-ID: <437F082A.6040301@samwel.tk>
-Date: Sat, 19 Nov 2005 12:10:34 +0100
-From: Bart Samwel <bart@samwel.tk>
-User-Agent: Thunderbird 1.5 (Windows/20051025)
-MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: Pavel Machek <pavel@ucw.cz>, Bill Davidsen <davidsen@tmr.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Laptop mode causing writes to wrong sectors?
-References: <20051116181612.GA9231@knautsch.gondor.com> <20051117223340.GD14597@elf.ucw.cz> <437E215E.30500@tmr.com> <20051118232019.GA2359@spitz.ucw.cz> <437EE4B3.2090408@samwel.tk> <20051119092622.GA13622@midnight.suse.cz>
-In-Reply-To: <20051119092622.GA13622@midnight.suse.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 127.0.0.1
-X-SA-Exim-Mail-From: bart@samwel.tk
-X-SA-Exim-Scanned: No (on samwel.tk); SAEximRunCond expanded to false
+	Sat, 19 Nov 2005 06:38:42 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:15437
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S1751077AbVKSLim (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 06:38:42 -0500
+Date: Sat, 19 Nov 2005 12:38:34 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, edwardsg@sgi.com
+Subject: Re: shrinker->nr = LONG_MAX means deadlock for icache
+Message-ID: <20051119113834.GB18782@opteron.random>
+References: <20051118171249.GJ24970@opteron.random> <20051118232904.4231ad87.akpm@osdl.org> <20051119103723.GA18782@opteron.random> <20051119030306.3049837d.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051119030306.3049837d.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
+On Sat, Nov 19, 2005 at 03:03:06AM -0800, Andrew Morton wrote:
+> It would be nice to understand exactly what's gone wrong.
 
-> The issue might be that these people are using
-> 
-> 	hdparm -S xxx
-> 	
-> 	or
-> 
-> 	hdparm -y / -Y
-> 
-> while a much better way to do
-> 
-> 	hdparm -B 63
-> 
-> The -S option should in theory be safe, but I remember some drives did
-> behave unpredictably if this was used.
+I found something more, see below.
 
-Well, some drives have a specific lower limit on the -S values that are 
-supported. That's the only compatibility problem I've ever encountered 
-with -S. (And you can find out if a drive has a lower limit by checking 
-hdparm -i.)
+> I guess so, although I worry that this way we'll obscure the real bug,
+> whatever it is.
 
-> -y/-Y is much tougher and some
-> drives will not work reliably unless first woken up manually before
-> issuing a read/write request.
+Now that I understand better the math around scanned and lru_pages I
+believe their caller could be the reason they have this huge number in
+"nr" is because they pass 0 to shrink all slabs entries. As said in the
+previous email they lockup when invoking the slab shrinking with the
+toss-cache feature.  They should have passed "tossed" as third parameter
+too, not 0.
 
-In fact, -Y is problematic but -y usually isn't. -Y puts the drive to 
-sleep and requires that Linux reset the complete IDE controller before 
-using it again, while -y simply puts the drive in standby mode, leaving 
-it up to the drive to decide when it spins up. I've never heard of any 
-problems with -y.
+			int tossed = atomic_read(&npgs_tossed);
+			shrink_slab(tossed, GFP_KERNEL, 0 /* shrink max */);
+			atomic_set(&npgs_tossed, 0);
 
-> On the other hand, -B is pretty safe on drives that support it, and all
-> IBM notebook drives do.
+The zero as thrid parameter means nr will be "max_pass * scanned", so if
+both the page-lru is huge and the icache is huge, that can lead to an
+huge value.
 
-Not true, unfortunately. In fact, I had to change the default config of 
-laptop-mode-tools a while ago so that it wouldn't use -B, as it seemed 
-to be one of the *causes* of hangup/corruption problems. This was also 
-an issue on Thinkpads, and I think it was also noted in the ubuntu bug I 
-linked to earlier.
+They should also add a WARN_ON to be sure that "tossed" is never
+negative just in case: when the "tossed" gets sign zero extended during
+the int2unsigned-long conversion, that could generate the huge number if
+tossed was negative.
 
-An additional problem is that the values for -B are not really 
-standardized, while the values for -S are.
+So the caller has to be fixed too, even if now it would be ok to pass 0
+without risking huge nr values (after fixing the unrelated __GFP_IO bug).
 
---Bart
+So hopefully the "0" as third parameter is good enough to explain the
+(other) real bug and we won't be hiding more bugs with this fix.
+
+> Sure.  You've limited the number of scanned objects in one pass to twice
+> the number of objects - there's no point in doing more work than that.
+
+Agreed.
+
+> A return value of 3 is very odd.  I'd be suspecting a mismeasurement. 
+> Unless someone had altered vfs_cache_pressure.
+
+Exactly.
+
+> OK.  Well If Edward&co could do a bit more investigation it'd be great -
+> meanwhile I'll hang onto this (and might add some mm-only debugging,
+> depending on how Edward gets on):
+
+Looks good to me, thanks!

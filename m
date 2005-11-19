@@ -1,59 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbVKSAmD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751238AbVKSAp2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751133AbVKSAmD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 19:42:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbVKSAmD
+	id S1751238AbVKSAp2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 19:45:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbVKSAp2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 19:42:03 -0500
-Received: from mail.kroah.org ([69.55.234.183]:27048 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751133AbVKSAmB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 19:42:01 -0500
-Date: Fri, 18 Nov 2005 16:25:48 -0800
-From: Greg KH <greg@kroah.com>
-To: Doug Thompson <norsk5@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] EDAC and /sys/devices/system
-Message-ID: <20051119002548.GA27269@kroah.com>
-References: <20051118223744.88496.qmail@web50110.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051118223744.88496.qmail@web50110.mail.yahoo.com>
-User-Agent: Mutt/1.5.11
+	Fri, 18 Nov 2005 19:45:28 -0500
+Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:50581 "EHLO
+	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1751238AbVKSAp2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 19:45:28 -0500
+Message-ID: <437E75A5.7020406@bigpond.net.au>
+Date: Sat, 19 Nov 2005 11:45:25 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Peter Williams <pwil3058@bigpond.net.au>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Jake Moilanen <moilanen@austin.ibm.com>
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.1.4 for 2.6.14 and 2.6.15-rc1
+References: <437819D3.4010104@bigpond.net.au>
+In-Reply-To: <437819D3.4010104@bigpond.net.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 19 Nov 2005 00:45:25 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 18, 2005 at 02:37:44PM -0800, Doug Thompson wrote:
-> Well, I have been playing now with the sysdev class of
-> APIs for installing objects into /sys/devices/system.
-> Unforturnately, the capabilities of that do not
-> provide me with what I was wanting for EDAC.
+Peter Williams wrote:
+> This version updates the staircase scheduler to Con's version and makes 
+> modifications to the interactive bonus mechanisms in spa_ws and zaphod 
+> to use interactive sleepiness instead of ordinary sleepiness.
 > 
-> What I was wanting was an extra directory called
-> 'edac'. In that directory was to be various types of
-> edac devices (memory controller and PCI Parity to
-> start)
+> A patch for 2.6.15-rc1 is available at:
 > 
-> In the directory /sys/devices/system:
+> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.4-for-2.6.15-rc1.patch?download> 
 > 
-> edac/mc/mc0/<attr and controls>
-> edac/mc/mc1/<attr and controls>
-> edac/mc/<attr and controls>
 > 
-> and
+> and a patch to upgrade the 6.1.3 version for 2.6.14 to 6.1.4 is
+> available at:
 > 
-> edac/pci/<attr and controls>
+> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.3-to-6.1.4-for-2.6.14.patch?download> 
 > 
-> This would allow for future edac components.
 > 
-> What I found out was that /sys/devices/system doesn't
-> allow for nested subsystems. At least not from what I
-> have read.
+> Very Brief Documentation:
+> 
+> You can select a default scheduler at kernel build time.  If you wish to
+> boot with a scheduler other than the default it can be selected at boot
+> time by adding:
+> 
+> cpusched=<scheduler>
+> 
+> to the boot command line where <scheduler> is one of: ingosched,
+> nicksched, staircase, spa_no_frills, spa_ws, spa_svr or zaphod.  If you
+> don't change the default when you build the kernel the default scheduler
+> will be ingosched (which is the normal scheduler).
+> 
+> The scheduler in force on a running system can be determined by the
+> contents of:
+> 
+> /proc/scheduler
+> 
+> Control parameters for the scheduler can be read/set via files in:
+> 
+> /sys/cpusched/<scheduler>/
+> 
+> Peter
 
-Why?  It should work just fine, you might need to export a variable that
-isn't global, right?  It shouldn't be more complex than that.
+Patch for 2.6.15-rc1-mm2 now available at:
 
-thanks,
+<http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.4-for-2.6.15-rc1-mm2.patch?download>
 
-greg k-h
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

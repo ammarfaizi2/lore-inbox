@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750955AbVKSKCT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751011AbVKSKES@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750955AbVKSKCT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 05:02:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750966AbVKSKCT
+	id S1751011AbVKSKES (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 05:04:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751014AbVKSKES
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 05:02:19 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:45971 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750898AbVKSKCS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 05:02:18 -0500
+	Sat, 19 Nov 2005 05:04:18 -0500
+Received: from zproxy.gmail.com ([64.233.162.196]:39264 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750999AbVKSKER convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 05:04:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MFzAn5gMMh6WfBspFppG4VT2dmjx6sXuiTe/EKnIo54xwonROxxkUrDDg4ns9Ac2UkSN2cAWnd3w/qsRhTohhhivEaSx1l0MKYiDntQ4lD59XnWnmVIjzNx09KlRRwJZuMZCOKbFAa93YvtDTAYJDtZvZ1bCqf0T20mhUqCXUws=
+Message-ID: <3aa654a40511190204kd19159bpcf043780dc71dbdc@mail.gmail.com>
+Date: Sat, 19 Nov 2005 02:04:17 -0800
+From: Avuton Olrich <avuton@gmail.com>
+To: Arjan van de Ven <arjan@infradead.org>
 Subject: Re: Kernel panic: Machine check exception
-From: Arjan van de Ven <arjan@infradead.org>
-To: Avuton Olrich <avuton@gmail.com>
 Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3aa654a40511190145v6f4df755wf16673050d077edb@mail.gmail.com>
+In-Reply-To: <1132394528.2829.4.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 References: <3aa654a40511190145v6f4df755wf16673050d077edb@mail.gmail.com>
-Content-Type: text/plain
-Date: Sat, 19 Nov 2005 11:02:08 +0100
-Message-Id: <1132394528.2829.4.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	 <1132394528.2829.4.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-11-19 at 01:45 -0800, Avuton Olrich wrote:
-> My new computer has been locking up, sooner or later, since I've been
-> using it. I happened to be at the console when it panic'd but it
-> didn't leave me with many details.
+On 11/19/05, Arjan van de Ven <arjan@infradead.org> wrote:
+> does it happen without the nvidia binary module as well?
 
+As (I think I said) the kernel wasn't tainted at the time, I had not
+even started X yet, so to answer your question it does happen without
+the nvidia binary module.
 
-does it happen without the nvidia binary module as well?
+avuton
 
-
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

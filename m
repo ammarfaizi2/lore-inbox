@@ -1,44 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbVKSBBd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751293AbVKSBH0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751281AbVKSBBd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 20:01:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbVKSBBd
+	id S1751293AbVKSBH0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 20:07:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbVKSBH0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 20:01:33 -0500
-Received: from fox.web.itd.umich.edu ([141.211.144.141]:45547 "EHLO
-	fox.web.itd.umich.edu") by vger.kernel.org with ESMTP
-	id S1751184AbVKSBBc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 20:01:32 -0500
-Message-ID: <20051118200132.jiwizt3ho0ook00w@web.mail.umich.edu>
-Date: Fri, 18 Nov 2005 20:01:32 -0500
-From: jstipins@umich.edu
-To: linux-kernel@vger.kernel.org
-Subject: AMD 64 system clock speed
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=ISO-8859-1
-Content-Disposition: inline
+	Fri, 18 Nov 2005 20:07:26 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:33760 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751293AbVKSBHZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 20:07:25 -0500
+Date: Fri, 18 Nov 2005 17:07:44 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: compile fix 2.6.15-rc1-mm1 + EXPERIMENTAL+  CONFIG_SPARSEMEM +
+ X86_PC
+Message-Id: <20051118170744.2c852d25.akpm@osdl.org>
+In-Reply-To: <437D79F3.9070301@jp.fujitsu.com>
+References: <437D79F3.9070301@jp.fujitsu.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) H3 (4.0.3)
-X-Remote-Browser: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US;
-	rv:1.7.12) Gecko/20050915 Firefox/1.0.7
-X-IMP-Server: 141.211.144.110
-X-Originating-IP: 71.82.73.173
-X-Originating-User: jstipins
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
+>
+> Hi,
+> 
+> This is a compile fix for
+> X86_PC && EXPERIMENTAL && CONFIG_SPARSEMEM=y && !CONFIG_NEED_MULTIPLE_NODES
+> 
+> BTW, on x86, it looks I can select CONFIG_NUMA=y but will not set
+> CONFIG_NEED_MULTIPLE_NODES. It this expected ?
+> 
 
-My earlier question regarding the glibc "make check" nptl/tst-clock2.c
-failure turns out to be due to my system clock running 3x normal speed.
+This patch is difficult for me to handle, because I don't know which
+patches it fixes - probably it fixes two separate ones and needs to become
+two patches.  Usually it's obvious which patches are being fixed. 
+Sometimes reporters will tell me which patch is being fixed (extra nice!). 
+In this case, it's unobvious.
 
-Evidently, this is a known issue with 2.6.x kernels running on AMD 64
-processors.  The "noapic" boot option fixes the clock problem, but disrupts
-other things... ethernet does work, etc.  The solution seems to be using
-"apci=noirq noapic" as boot options.
+Please always include the text of the error messages when fixing compile
+errors.
 
-I am using the 2.6.14.2 kernel, and still need to use those boot parameters.
-What is the current state of this bug?
+Please send me the .config.
 
--Janis
+> --
+> Index: linux-2.6.15-rc1-mm1/include/linux/mmzone.h
+> ===================================================================
+> --- linux-2.6.15-rc1-mm1.orig/include/linux/mmzone.h
+> +++ linux-2.6.15-rc1-mm1/include/linux/mmzone.h
+> @@ -596,12 +596,13 @@ static inline int pfn_valid(unsigned lon
+>   		return 0;
+>   	return valid_section(__nr_to_section(pfn_to_section_nr(pfn)));
+>   }
+> -
+> +#ifdef CONFIG_NEED_MULTIPLE_NODES
+>   #define pfn_to_nid(pfn)							\
+>   ({									\
+>    	unsigned long __pfn = (pfn);                                    \
+>   	page_to_nid(pfn_to_page(pfn));					\
+>   })
+> +#endif
+> 
+>   #define early_pfn_valid(pfn)	pfn_valid(pfn)
+>   void sparse_init(void);
+> Index: linux-2.6.15-rc1-mm1/drivers/base/memory.c
+> ===================================================================
+> --- linux-2.6.15-rc1-mm1.orig/drivers/base/memory.c
+> +++ linux-2.6.15-rc1-mm1/drivers/base/memory.c
+> @@ -25,7 +25,7 @@
+> 
+>   #define MEMORY_CLASS_NAME	"memory"
+> 
+> -static struct sysdev_class memory_sysdev_class = {
+> +struct sysdev_class memory_sysdev_class = {
+>   	set_kset_name(MEMORY_CLASS_NAME),
+>   };
+>   EXPORT_SYMBOL(memory_sysdev_class);

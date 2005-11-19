@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbVKSQCZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbVKSQiz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbVKSQCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 11:02:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750706AbVKSQCZ
+	id S1750708AbVKSQiz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 11:38:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750711AbVKSQiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 11:02:25 -0500
-Received: from vms040pub.verizon.net ([206.46.252.40]:61009 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1750701AbVKSQCY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 11:02:24 -0500
-Date: Sat, 19 Nov 2005 11:02:18 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: dvd writes truncated 3 Mbytes
-In-reply-to: <200511181703.47903.gene.heskett@verizon.net>
+	Sat, 19 Nov 2005 11:38:55 -0500
+Received: from mail3.netbeat.de ([193.254.185.27]:23448 "HELO mail3.netbeat.de")
+	by vger.kernel.org with SMTP id S1750708AbVKSQiz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 11:38:55 -0500
+Subject: [Patch 0/2] 2.6.15-rc1-mm2: disabling the pagecache for doing
+	benchmarks
+From: Dirk Henning Gerdes <mail@dirk-gerdes.de>
 To: linux-kernel@vger.kernel.org
-Message-id: <200511191102.18997.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <200511181703.47903.gene.heskett@verizon.net>
-User-Agent: KMail/1.7
+In-Reply-To: <437F4F5F.6000304@aknet.ru>
+References: <437F4F5F.6000304@aknet.ru>
+Content-Type: text/plain
+Date: Sat, 19 Nov 2005 17:38:15 +0100
+Message-Id: <1132418295.11657.11.camel@home.sweethome>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 18 November 2005 17:03, Gene Heskett wrote:
->Greetings;
->
->I've just tried to burn a dvd iso 4 times, 2 different brands of disks,
->getting an identical but bad md5sum for all 4 writes.
->
->K3B reports it has written 1160 or 1163 Mbytes each time, but doesn't
->seem to have a problem with that.
->
->Kernel is 2.6.14.2, without packet writing for cd/dvd turned on, but I
->have one with it enabled building now.  K3B is 0.11.13, cdrecord is
->2.1(dvd), groisofs is 5.21, mkisofs is 2.1-a34.  The drive is a Lite-On
->DVDRW SOHW-1673S.
->
->Has anyone else encountered a similar problem?  I've been making
->good cd's all along with no problems, in this new drive, till now.
+For doing some benchmarks on the block-layer especially for the
+I/O-Schedulers I thought it would be very useful, to turn off the
+pagecache.
+Therefore I implemented a global integer as bool for toggling it on and
+off.
+If "pagecache" is set "1" everything works as normal.
+If it's set to "0" the pagecache is disabled by marking all pages as
+not-uptodate to force the pagecache to load them again.
 
-An update in case anyone here cares.  The dvd is read in its entirety
-by md5sum, the whole 4.7Gb of it.  A cmp -l on the src iso and the disk
-reports nothing different before the EOF on the src iso image, so I
-had a good burn all 5 times...
+In the next step I wrote a module to get access to this bool via the
+proc-fs.
 
-I've mailed the gnu folks at their bug address.
+It would be very nice if anybody could have a look on it.
 
+Thanks
+
+Dirk Gerdes
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.36% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+
+
 

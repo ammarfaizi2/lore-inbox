@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbVKSVAA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbVKSVDw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750835AbVKSVAA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 16:00:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbVKSVAA
+	id S1750847AbVKSVDw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 16:03:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750845AbVKSVDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 16:00:00 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:41539 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S1750829AbVKSU77
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 15:59:59 -0500
-Date: Sat, 19 Nov 2005 22:01:11 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@davemloft.net>,
-       davej@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] mark virt_to_bus/bus_to_virt as __deprecated on i386
-Message-ID: <20051119210110.GA7799@mars.ravnborg.org>
-References: <20051118024433.GN11494@stusta.de> <20051117185529.31d33192.akpm@osdl.org> <20051118031751.GA2773@redhat.com> <20051117.194239.37311109.davem@davemloft.net> <20051117200354.6acb3599.akpm@osdl.org> <20051119003435.GA29775@mars.ravnborg.org> <20051119205120.GQ16060@stusta.de>
+	Sat, 19 Nov 2005 16:03:52 -0500
+Received: from postel.suug.ch ([195.134.158.23]:36584 "EHLO postel.suug.ch")
+	by vger.kernel.org with ESMTP id S1750841AbVKSVDv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 16:03:51 -0500
+Date: Sat, 19 Nov 2005 22:04:11 +0100
+From: Thomas Graf <tgraf@suug.ch>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: yoshfuji@linux-ipv6.org, yanzheng@21cn.com, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [DEBUG INFO]IPv6: sleeping function called from invalid context.
+Message-ID: <20051119210411.GE20395@postel.suug.ch>
+References: <20051118123557.GD20395@postel.suug.ch> <E1EdRCZ-0007uy-00@gondolin.me.apana.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051119205120.GQ16060@stusta.de>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <E1EdRCZ-0007uy-00@gondolin.me.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 19, 2005 at 09:51:20PM +0100, Adrian Bunk wrote:
-> On Sat, Nov 19, 2005 at 01:34:35AM +0100, Sam Ravnborg wrote:
-> > On Thu, Nov 17, 2005 at 08:03:54PM -0800, Andrew Morton wrote:
-> > > "David S. Miller" <davem@davemloft.net> wrote:
-> > > >
-> > > > The deprecated warnings are so easy to filter out, so I don't think
-> > > >  noise is a good argument.  I see them all the time too.
-> > > 
-> > > That works for you and me.  But how to train all those people who write
-> > > warny patches?
+* Herbert Xu <herbert@gondor.apana.org.au> 2005-11-19 22:48
+> Thomas Graf <tgraf@suug.ch> wrote:
 > > 
-> > Would it work to use -Werror only on some parts of the kernel.
-> > Thinking of teaching kbuild to recursively apply a flags to gcc.
-> > 
-> > Then we could say that kernel/ should be warning free (to a start).
+> > I did. I think it was right, why would an allocation be necessary on
+> > the second call to inet6_dump_fib()? The walker allocated in process
+> > context on the first call should be reused from cb->args[0].
 > 
-> We can do better as we do currently, but we cannever get the kernel 100% 
-> warning free for all supported kernel configurations and all supported 
-> gcc versions.
-> 
-> E.g. gcc emitting some "unused variable" warnings when compiling with 
-> CONFIG_PCI=n is quite common, and although they could all be fixed there 
-> will always be some warnings with unusual kernel configurations.
+> Continued dumps are always called under spin lock (see netlink_dump).
+> So we need to use GFP_ATOMIC in dumpers.
 
-I had no issue with adding more gcc flags, but this is a very valid
-argument. So I will for now not do it.
->From a kbuild perspective it could be useful in other situations
-to have the possibility to add a variable that was set also and only in
-sub-directories. But I will not dive into it before a better reason show
-up.
-
-	Sam
+The continued dumps wouldn't be the problem, the walker is allocated
+on the initial dump call. It was a mistake though, nlk->cb_lock spin
+lock is always held for cb->dump() even though it should only be
+required during the nlk->cb != NULL check. netlink_dump_start()
+guarantees to only allow one dumper per socket at a time.

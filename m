@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161103AbVKSBfi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161115AbVKSBiY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161103AbVKSBfi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 20:35:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161111AbVKSBfh
+	id S1161115AbVKSBiY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 20:38:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161121AbVKSBiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 20:35:37 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:25996
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1161110AbVKSBfg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 20:35:36 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Date: Fri, 18 Nov 2005 19:33:27 -0600
-User-Agent: KMail/1.8
-Cc: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>, linux-kernel@vger.kernel.org
-References: <1132020468.27215.25.camel@mindpipe> <dld3cs$1sh$1@sea.gmane.org> <20051115185543.GI5735@stusta.de>
-In-Reply-To: <20051115185543.GI5735@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Nov 2005 20:38:24 -0500
+Received: from mail.kroah.org ([69.55.234.183]:6847 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161115AbVKSBiX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 20:38:23 -0500
+Date: Fri, 18 Nov 2005 17:22:40 -0800
+From: Greg KH <greg@kroah.com>
+To: Josh Boyer <jwboyer@gmail.com>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       scjody@steamballoon.com
+Subject: Re: [patch 1/3] Add SCM info to MAINTAINERS
+Message-ID: <20051119012240.GD28175@kroah.com>
+References: <20051118173930.270902000@press.kroah.org> <20051118173054.GA20860@kroah.com> <20051118173106.GB20860@kroah.com> <625fc13d0511181134lc074b8avcc8db47b8723583@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511181933.27320.rob@landley.net>
+In-Reply-To: <625fc13d0511181134lc074b8avcc8db47b8723583@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 November 2005 12:55, Adrian Bunk wrote:
-> I experienced something similar with my patch to schedule OSS drivers
-> with ALSA replacements for removal - when someone reported he needed an
-> OSS driver for $reason I asked him for bug numbers in the ALSA bug
-> tracking system - and the highest number were 4 new bugs against one
-> ALSA driver.
+On Fri, Nov 18, 2005 at 01:34:51PM -0600, Josh Boyer wrote:
+> On 11/18/05, Greg Kroah-Hartman <gregkh@suse.de> wrote:
+> > From: Jody McIntyre <scjody@steamballoon.com>
+> >
+> > Add tree information to MAINTAINERS file.
+> 
+> Missed MTD git tree at:
+> 
+> git kernel.org:/pub/scm/linux/kernel/git/tglx/mtd-2.6.git
 
-Speaking of which: I've been playing with qemu recently, and the sound card it 
-emulates is a sound blaster 16.  Which only seems to have an OSS driver, no 
-ALSA...
+Care to send a patch for this, and any others that might have been
+missed?
 
-This is known?  If so I might take a whack at porting this if I get really 
-bored this weekend...
+thanks,
 
-Rob
+greg k-h

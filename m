@@ -1,74 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbVKSNTz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbVKSN0y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750702AbVKSNTz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 08:19:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbVKSNTz
+	id S1751108AbVKSN0y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 08:26:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbVKSN0y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 08:19:55 -0500
-Received: from post.pl ([212.85.96.51]:974 "HELO v00051.home.net.pl")
-	by vger.kernel.org with SMTP id S1750702AbVKSNTz (ORCPT
+	Sat, 19 Nov 2005 08:26:54 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:2348 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751108AbVKSN0x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 08:19:55 -0500
-Message-ID: <437F267A.9030206@post.pl>
-Date: Sat, 19 Nov 2005 14:19:54 +0100
-From: Marcin Garski <mgarski@post.pl>
-Reply-To: mgarski@post.pl
-User-Agent: Mozilla Thunderbird 1.0.7 (Linux)
-X-Accept-Language: pl, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Compile warnings in 2.6.14.2 (x86_64)
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sat, 19 Nov 2005 08:26:53 -0500
+Date: Sat, 19 Nov 2005 14:27:50 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Christoph Hellwig <hch@infradead.org>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Mike Christie <michaelc@cs.wisc.edu>, Jeff Garzik <jgarzik@pobox.com>,
+       Tejun Heo <htejun@gmail.com>, linux-ide@vger.kernel.org,
+       lkml <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH] libata error handling fixes (ATAPI)
+Message-ID: <20051119132750.GJ25454@suse.de>
+References: <4379B28E.9070708@gmail.com> <4379C062.3010302@pobox.com> <20051115120016.GD7787@suse.de> <437A2814.1060308@cs.wisc.edu> <20051115184131.GJ7787@suse.de> <20051116124035.GX7787@suse.de> <58cb370e0511160704w4803a085h7bd6ab352d8c94e6@mail.gmail.com> <20051116153119.GN7787@suse.de> <58cb370e0511160806t1defd373w981e213d1cdeb2b3@mail.gmail.com> <20051119105555.GA25402@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051119105555.GA25402@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Please CC me on replies, I am not subscribed to the list, thanks!]
+On Sat, Nov 19 2005, Christoph Hellwig wrote:
+> On Wed, Nov 16, 2005 at 05:06:45PM +0100, Bartlomiej Zolnierkiewicz wrote:
+> > This will also allow us to remove ide_do_drive_cmd()
+> > and use blk_execute_rq() exclusively.
+> 
+> While we're talking about moving things to generic request-based stuff,
+> any chance one of you could look over to convert ide-cd internal request
+> submissions to BLOCK_PC?  It's the last user of REQ_PC.  After that changing
+> the CD layer to submit BLOCK_PC commands directly instead of the
+> ->packet_command hook would be a logical next step.
 
-GCC: gcc version 4.0.1 20050727 (Red Hat 4.0.1-5)
-OS: Fedora Core 4 (x86_64)
+Yup, that's clearly the way to go.
 
-drivers/md/dm-linear.c: In function ‘linear_ctr’:
-drivers/md/dm-linear.c:41: warning: format ‘%lu’ expects type ‘long 
-unsigned int *’, but argument 3 has type ‘sector_t *’
-
-drivers/md/dm-linear.c: In function ‘linear_status’:
-drivers/md/dm-linear.c:91: warning: format ‘%lu’ expects type ‘long 
-unsigned int’, but argument 5 has type ‘sector_t’
-
-drivers/md/dm-stripe.c: In function ‘get_stripe’:
-drivers/md/dm-stripe.c:54: warning: format ‘%lu’ expects type ‘long 
-unsigned int *’, but argument 3 has type ‘sector_t *’
-
-drivers/md/dm-stripe.c: In function ‘stripe_status’:
-drivers/md/dm-stripe.c:198: warning: format ‘%lu’ expects type ‘long 
-unsigned int’, but argument 5 has type ‘sector_t’
-
-drivers/md/dm-stripe.c:200: warning: format ‘%lu’ expects type ‘long 
-unsigned int’, but argument 5 has type ‘sector_t’
-
-drivers/md/dm-crypt.c: In function ‘crypt_ctr’:
-drivers/md/dm-crypt.c:656: warning: format ‘%lu’ expects type ‘long 
-unsigned int *’, but argument 3 has type ‘sector_t *’
-
-drivers/md/dm-crypt.c:661: warning: format ‘%lu’ expects type ‘long 
-unsigned int *’, but argument 3 has type ‘sector_t *’
-
-drivers/md/dm-crypt.c: In function ‘crypt_status’:
-drivers/md/dm-crypt.c:903: warning: format ‘%lu’ expects type ‘long 
-unsigned int’, but argument 4 has type ‘sector_t’
-
-drivers/md/dm-crypt.c:903: warning: format ‘%lu’ expects type ‘long 
-unsigned int’, but argument 6 has type ‘sector_t’
-
-drivers/usb/input/yealink.c: In function ‘usb_probe’:
-drivers/usb/input/yealink.c:909: warning: format ‘%d’ expects type 
-‘int’, but argument 4 has type ‘long unsigned int’
-
-lib/ts_kmp.c:125: warning: initialization from incompatible pointer type
-
-lib/ts_bm.c:165: warning: initialization from incompatible pointer type
-
-lib/ts_fsm.c:318: warning: initialization from incompatible pointer type
 -- 
-Marcin Garski
+Jens Axboe
+

@@ -1,90 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbVKSAVt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750933AbVKSAVj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751224AbVKSAVt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 19:21:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbVKSAVt
+	id S1750933AbVKSAVj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 19:21:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbVKSAVj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 19:21:49 -0500
-Received: from main.gmane.org ([80.91.229.2]:64173 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751224AbVKSAVs (ORCPT
+	Fri, 18 Nov 2005 19:21:39 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:19101 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750933AbVKSAVj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 19:21:48 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Date: Fri, 18 Nov 2005 18:32:58 -0500
-Message-ID: <dllob1$441$1@sea.gmane.org>
-References: <1132020468.27215.25.camel@mindpipe> <20051115185543.GI5735@stusta.de> <20051115222656.8D11816F4D9@smtp.lmc.cs.sunysb.edu> <200511181340.25529.vda@ilport.com.ua>
+	Fri, 18 Nov 2005 19:21:39 -0500
+Date: Fri, 18 Nov 2005 16:21:12 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Matthew Dobson <colpatch@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC][PATCH 2/8] Create emergency trigger
+Message-Id: <20051118162112.7bf21df5.pj@sgi.com>
+In-Reply-To: <437E2D57.9050304@us.ibm.com>
+References: <437E2C69.4000708@us.ibm.com>
+	<437E2D57.9050304@us.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: lmcgw.cs.sunysb.edu
-User-Agent: KNode/0.10
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko wrote:
+> @@ -876,6 +879,16 @@ __alloc_pages(gfp_t gfp_mask, unsigned i
+>  	int can_try_harder;
+>  	int did_some_progress;
+>  
+> +	if (is_emergency_alloc(gfp_mask)) {
 
->> This issue raises a concern for me as developer of ndiswrapper. I
->> perceive that some kernel developers have strong opinions against
->> ndiswrapper. I see ndiswrapper as contributing my 2 cents - I have no
->> vested interests in ndiswrapper, although it will be sad to see lot of
->> effort and time put into ndiswrapper go waste.
-> 
-> Does it mean that you support ndiswrapper just because you wrote it?
-> I understand this, but it's not a valid technical reason why
-> it should be supported.
+Can this check for is_emergency_alloc be moved lower in __alloc_pages?
 
-What logic did you use to infer that? I only said I am continuing to develop
-ndiswrapper and "vested interests" comment is to indicate that I have
-nothing to gain by supporting ndiswrapper in Linux kernel; I am doing what
-I can so people with unsupported wireless cards can use them in Linux.
+I don't see any reason why most __alloc_pages() calls, that succeed
+easily in the first loop over the zonelist, have to make this check.
+This would save one conditional test and jump on the most heavily
+used code path in __alloc_pages().
 
-> Companies got nice excuse for not giving us docs, making those
-> months/years even longer.
-> 
->> And so on. I
->> am not trying to argue in favor of ndiswrapper at the cost of open
->> source drivers, but that there is a genuine need for such a project,
->> at least for now.
-
-TI ACX chipset has been out long before ndiswrapper supported it. It has
-been years since that chipset is out. In fact, ACX 100 chipset is no longer
-made. Still the open source driver doesn't support WEP/WPA (I could be
-wrong about current status, but at least until recently it was not). As I
-said before, ndiswrapper is not competition to open source drivers - if
-anything, it could be used to understand what the Windows driver does and
-that may help in developing/improving open source driver.
-
-> BTW, a few of wireless developers are interested in writing _open source
-> firmware_ (not just driver) for these, and it is not that hard to do,
-> if only we had the docs on components which make up the device.
-
-I agree. But that is big "if".
-
-> How can we hope to persuade companies into releasing that info
-> when they are escaping from giving us even docs on "external" interface
-> to their firmware with ndiswrapper argument, let alone on "internal"
-> components?
-
-This argument is debatable: There are wireless cards that didn't have
-drivers even before ndiswrapper supported them. To claim that if they are
-supported with anything less than an open source driver is hurting Linux is
-one opinion. Given a choice, many people (I myself included) would chose
-open source driver, but there are others that want to use the hardware they
-have in Linux right now. Until an open source driver is available, I am
-helping provide support for some hardware, so such people can use that
-hardware in Linux.
-
-I also would like to point out that using NDIS drivers in Linux is not
-exactly same as using binary drivers: Whereas full-binary drivers hide
-everything, NDIS drivers use an API to do anything/everything from the
-kernel (e.g., to obtain/release a spinlcok, allocate/free memory etc).
-ndiswrapper implements that API, so one can understand what an NDIS driver
-is doing at the level of that API. In a way it is similar to loading
-firmware (that runs on CPU) into open source driver.
-
-Giri
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

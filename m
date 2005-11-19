@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbVKSJdA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750957AbVKSJ1l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750993AbVKSJdA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 04:33:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbVKSJdA
+	id S1750957AbVKSJ1l (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 04:27:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750980AbVKSJ1l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 04:33:00 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:3745 "EHLO
-	grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1750956AbVKSJc7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 04:32:59 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: ncunningham@cyclades.com
-Subject: Re: [linux-pm] [RFC] userland swsusp
-Date: Sat, 19 Nov 2005 03:32:26 -0600
-User-Agent: KMail/1.8
-Cc: Greg KH <greg@kroah.com>,
-       Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>
-References: <20051115212942.GA9828@elf.ucw.cz> <20051116061459.GA31181@kroah.com> <1132120845.25230.13.camel@localhost>
-In-Reply-To: <1132120845.25230.13.camel@localhost>
+	Sat, 19 Nov 2005 04:27:41 -0500
+Received: from mx1.suse.de ([195.135.220.2]:61870 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750956AbVKSJ1k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 04:27:40 -0500
+From: Neil Brown <neilb@suse.de>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Date: Sat, 19 Nov 2005 20:27:30 +1100
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511190332.29150.rob@landley.net>
+Message-ID: <17278.61442.424759.803762@cse.unsw.edu.au>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Mark Vojkovich <mvojkovi@XFree86.Org>,
+       Michael Schmitz <schmitz@zirkon.biophys.uni-duesseldorf.de>,
+       Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 0/3] Uinput update
+In-Reply-To: message from Dmitry Torokhov on Friday November 18
+References: <20051119043840.747384000.dtor_core@ameritech.net>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 16 November 2005 00:00, Nigel Cunningham wrote:
-> > It's not duplicated, Nigel knows what need to be done to work together,
-> > if he so desires.
->
-> I know that Pavel and I have such different ideas about what should be
-> done that it's not worth the effort.
+On Friday November 18, dtor_core@ameritech.net wrote:
+> Hi,
+> 
+> The following patches update uinput driver to perform dynamic input
+> allocation, add some locking and ioctl to allow setting EV_SW.
+> 
+> Any testing will be greatly appreciated.
 
-So first it was Pavel and Patrick Mochel...
+Well it certainly solved the problems I was having with uinput,
+Thanks!
 
-Then Pavel and Nigel...
-
-Recently Dave Jones rumbled about a suspend fork...
-
-You sure you software suspend guys haven't been hanging out with the IDE 
-maintainers?
-
-Rob
+NeilBrown

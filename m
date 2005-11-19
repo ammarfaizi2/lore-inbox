@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750875AbVKSVpR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbVKSVpP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750875AbVKSVpR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 16:45:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750901AbVKSVpQ
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 16:45:16 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:38273 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750879AbVKSVpP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1750874AbVKSVpP (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 19 Nov 2005 16:45:15 -0500
-Subject: PATCH: VIA alternative patch set
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sat, 19 Nov 2005 22:17:30 +0000
-Message-Id: <1132438650.19692.48.camel@localhost.localdomain>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750899AbVKSVpP
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sat, 19 Nov 2005 16:45:15 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:62954
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1750874AbVKSVpO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 16:45:14 -0500
+Date: Sat, 19 Nov 2005 13:41:14 -0800 (PST)
+Message-Id: <20051119.134114.115024780.davem@davemloft.net>
+To: wli@holomorphy.com
+Cc: hugh@veritas.com, akpm@osdl.org, nickpiggin@yahoo.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 04/11] unpaged: unifdefed PageCompound
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20051119205557.GO6916@holomorphy.com>
+References: <20051117.154323.10862063.davem@davemloft.net>
+	<Pine.LNX.4.61.0511192003060.2846@goblin.wat.veritas.com>
+	<20051119205557.GO6916@holomorphy.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This set applies if you want to fix the pata_via enablebits but don't
-want to rely on the private_data patch or push that into the main tree
-yet.
+From: William Lee Irwin III <wli@holomorphy.com>
+Date: Sat, 19 Nov 2005 12:55:57 -0800
 
-Alan
+> On Thu, 17 Nov 2005, David S. Miller wrote:
+> >> I think this is a good change regardless of the VM_RESERVED issues.
+> >> I've been wanting to use this facility in some sparc64 bits in
+> >> the past, for example.  But since it was HUGETLB guarded that
+> >> wasn't possible.
+> 
+> On Sat, Nov 19, 2005 at 08:15:13PM +0000, Hugh Dickins wrote:
+> > I've only just found that we have to supply the __GFP_COMP flag to get
+> > this working.  And one of the routes through snd_dma_alloc_pages goes
+> > to sbus_alloc_consistent.  Would you be happy for me to send Andrew a
+> > patch with sparc and sparc64 sbus_alloc_consistent including __GFP_COMP?
+> > Ought I to do the same in the sparc and sparc64 pci_alloc_consistent??
+> 
+> I usually end up deferring to Dave on the driver issues, but this time
+> I can independently agree in an informed manner.
 
-diff -u --exclude-from /usr/src/exclude --new-file --recursive linux.vanilla-2.6.14-mm2/drivers/scsi/pata_via.c linux-2.6.14-mm2/drivers/scsi/pata_via.c
---- linux.vanilla-2.6.14-mm2/drivers/scsi/pata_via.c	2005-11-19 17:28:03.000000000 +0000
-+++ linux-2.6.14-mm2/drivers/scsi/pata_via.c	2005-11-19 17:34:41.000000000 +0000
-@@ -151,8 +151,8 @@
- 
- 	/* Note: When we add VIA 6410 remember it doesn't have enable bits */
- 	static struct pci_bits via_enable_bits[] = {
--		{ 0x40, 0x02, 0x02 },
--		{ 0x40, 0x01, 0x01 }
-+		{ 0x40, 1, 0x02, 0x02 },
-+		{ 0x40, 1, 0x01, 0x01 }
- 	};
- 
- 	if (!pci_test_config_bits(pdev, &via_enable_bits[ap->hard_port_no])) {
+What is it needed for in this case?  We never try to use those
+pci_alloc_consistent() pages independantly, ie. freeing up
+individual pages from a non-zero order allocation.
+
+Just curious. :-)
 

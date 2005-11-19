@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbVKSAfH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbVKSAkg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751130AbVKSAfH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 19:35:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbVKSAfH
+	id S1751132AbVKSAkg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 19:40:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbVKSAkg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 19:35:07 -0500
-Received: from mail.metronet.co.uk ([213.162.97.75]:53481 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP
-	id S1751130AbVKSAfF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 19:35:05 -0500
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] optional use "gzip --rsyncable" for bzImage
-Date: Sat, 19 Nov 2005 00:34:55 +0000
-User-Agent: KMail/1.9
-Cc: "Ph. Marek" <philipp.marek@bmlv.gv.at>, linux-kernel@vger.kernel.org
-References: <200511161408.49287.philipp.marek@bmlv.gv.at> <20051116175413.208d27db.akpm@osdl.org>
-In-Reply-To: <20051116175413.208d27db.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Nov 2005 19:40:36 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:43403 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751132AbVKSAkg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 19:40:36 -0500
+Date: Fri, 18 Nov 2005 19:39:08 -0500
+From: Dave Jones <davej@redhat.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@davemloft.net>,
+       bunk@stusta.de, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] mark virt_to_bus/bus_to_virt as __deprecated on i386
+Message-ID: <20051119003908.GK3881@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>,
+	"David S. Miller" <davem@davemloft.net>, bunk@stusta.de,
+	linux-kernel@vger.kernel.org
+References: <20051118024433.GN11494@stusta.de> <20051117185529.31d33192.akpm@osdl.org> <20051118031751.GA2773@redhat.com> <20051117.194239.37311109.davem@davemloft.net> <20051117200354.6acb3599.akpm@osdl.org> <20051119003435.GA29775@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511190034.55328.s0348365@sms.ed.ac.uk>
+In-Reply-To: <20051119003435.GA29775@mars.ravnborg.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 17 November 2005 01:54, Andrew Morton wrote:
-> "Ph. Marek" <philipp.marek@bmlv.gv.at> wrote:
-> >  As (at least in debian) gzip has the "--rsyncable" parameter included,
-> >  I'd like to suggest this patch to (configurable) use this for bzImage
-> > creation.
->
-> I'd doubt if this works with a compressed a.out.  Most changes one would
-> make to a kernel at the source level will cause changes all over the
-> generated binary, so rsync will send the whole compressed file anyway.
->
-> For example, a few-byte change in size of a function will cause a huge
-> number of `call xxxxxxxx' opcodes to turn into `call xxxxxxxx+N'.
->
-> So I'll need some convincing.  But even if convinced, this seems like an
-> exceedingly obscure thing that not many people would be interested in.
+On Sat, Nov 19, 2005 at 01:34:35AM +0100, Sam Ravnborg wrote:
+ > On Thu, Nov 17, 2005 at 08:03:54PM -0800, Andrew Morton wrote:
+ > > "David S. Miller" <davem@davemloft.net> wrote:
+ > > >
+ > > > The deprecated warnings are so easy to filter out, so I don't think
+ > > >  noise is a good argument.  I see them all the time too.
+ > > 
+ > > That works for you and me.  But how to train all those people who write
+ > > warny patches?
+ > 
+ > Would it work to use -Werror only on some parts of the kernel.
+ > Thinking of teaching kbuild to recursively apply a flags to gcc.
 
-Sounds like a patch for the debian kernel team, since GNU's latest alpha gzip 
-version doesn't support --rsyncable.
+Only if you also add a load of gcc switches to disable some
+of the more pointless warnings, and also can live with released
+kernels breaking each time a new gcc gets released.
 
-[alistair] 00:34 [~] gzip --rsyncable
-gzip: unrecognized option `--rsyncable'
-gzip 1.3.5
+It's an uphill battle, which is why I only suggested it in
+a humourous context.
 
--- 
-Cheers,
-Alistair.
+		Dave
 
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.

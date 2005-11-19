@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750926AbVKSF1k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750932AbVKSFyR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750926AbVKSF1k (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 00:27:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750930AbVKSF1k
+	id S1750932AbVKSFyR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 00:54:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbVKSFyR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 00:27:40 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:38539 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750848AbVKSF1j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 00:27:39 -0500
-Date: Sat, 19 Nov 2005 00:26:14 -0500
-From: Dave Jones <davej@redhat.com>
-To: Rob Landley <rob@landley.net>
-Cc: Lee Revell <rlrevell@joe-job.com>, Adrian Bunk <bunk@stusta.de>,
-       Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Message-ID: <20051119052613.GC32402@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Rob Landley <rob@landley.net>, Lee Revell <rlrevell@joe-job.com>,
-	Adrian Bunk <bunk@stusta.de>,
-	Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>,
-	linux-kernel@vger.kernel.org
-References: <1132020468.27215.25.camel@mindpipe> <200511182043.34655.rob@landley.net> <1132370572.6874.56.camel@mindpipe> <200511182138.30017.rob@landley.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 19 Nov 2005 00:54:17 -0500
+Received: from rwcrmhc12.comcast.net ([204.127.198.43]:49055 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1750932AbVKSFyQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 00:54:16 -0500
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [linux-pm] [RFC] userland swsusp
+Date: Fri, 18 Nov 2005 20:18:21 -0800
+User-Agent: KMail/1.8.92
+Cc: Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>,
+       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+References: <20051115212942.GA9828@elf.ucw.cz> <1132348998.2830.80.camel@laptopd505.fenrus.org> <1132351635.5238.12.camel@localhost.localdomain>
+In-Reply-To: <1132351635.5238.12.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-6"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200511182138.30017.rob@landley.net>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200511182018.22060.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 18, 2005 at 09:38:29PM -0600, Rob Landley wrote:
+On Friday, November 18, 2005 2:07 pm, Alan Cox wrote:
+> On Gwe, 2005-11-18 at 22:23 +0100, Arjan van de Ven wrote:
+> > 1) accessing non-ram memory (eg PCI mmio space) by X and the likes
+> >    (ideally should use sysfs but hey, changing X for this will take
+> >    forever)
+>
+> Once sysfs supports the relevant capabilities fixing X actually
+> doesn't look too horrible, the PCI mapping routines are abstracted
+> and done by PCITAG (ie PCI device). You would need the ISA hole too
+> in some cases.
 
- > that entire menu doesn't show up unless you've selected ISA under the bus menu 
- > (which I thought means we probe for ISA slots, not that we don't support ISA 
- > devices built onto the motherboard).
+It's actually partly done already (at least for ia64, but the code I put 
+together works on x86 too, iirc, and should work elsewhere).  The ISA 
+stuff is exported on a per-bus basis in legacy_io and legacy_mem files.
 
-Common misconception.  CONFIG_ISA means "Show me drivers that need
-an ISA bus". Nothing more, nothing less.
+If vbetool and friends want to get at the ROM, they can use the sysfs 
+rom file like everyone else.  There are problems with this however, on 
+systems where the ROM is unpacked at 0xc0000 or something, especially 
+if the unpacked version is modified by the BIOS at startup time, not 
+sure how to address that reliably.
 
-You can't actually probe for the existance of an ISA slot, only
-(unsafely) probe for a specific ISA device by poking ports.
-
-		Dave
-
+Jesse

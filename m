@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbVKSUnW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbVKSUoq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750809AbVKSUnW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 15:43:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbVKSUnW
+	id S1750817AbVKSUoq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 15:44:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbVKSUoq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 15:43:22 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:50693 "HELO
+	Sat, 19 Nov 2005 15:44:46 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:52741 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750802AbVKSUnV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 15:43:21 -0500
-Date: Sat, 19 Nov 2005 21:43:20 +0100
+	id S1750817AbVKSUop (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 15:44:45 -0500
+Date: Sat, 19 Nov 2005 21:44:44 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Mark Lord <lkml@rtr.ca>
-Cc: jgarzik@pobox.com, tulip-users@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] remove drivers/net/tulip/xircom_tulip_cb.c
-Message-ID: <20051119204319.GN16060@stusta.de>
-References: <20051118033306.GP11494@stusta.de> <437E56EA.8070103@rtr.ca>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: sam@ravnborg.org, akpm@osdl.org, davej@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] mark virt_to_bus/bus_to_virt as __deprecated on i386
+Message-ID: <20051119204444.GP16060@stusta.de>
+References: <20051117.194239.37311109.davem@davemloft.net> <20051117200354.6acb3599.akpm@osdl.org> <20051119003435.GA29775@mars.ravnborg.org> <20051118.171943.53979015.davem@davemloft.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <437E56EA.8070103@rtr.ca>
+In-Reply-To: <20051118.171943.53979015.davem@davemloft.net>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 18, 2005 at 05:34:18PM -0500, Mark Lord wrote:
-> Adrian Bunk wrote:
-> >This patch removes the obsolete drivers/net/tulip/xircom_tulip_cb.c 
-> >driver.
-> >
-> >Is there any reason why it should be kept?
+On Fri, Nov 18, 2005 at 05:19:43PM -0800, David S. Miller wrote:
+> From: Sam Ravnborg <sam@ravnborg.org>
+> Date: Sat, 19 Nov 2005 01:34:35 +0100
 > 
-> Yes.  It is the only driver that works
-> without lockups on Xircom Cardbus cards.
-> Or so has been the case any time I've tried
-> the alternatives.
+> > On Thu, Nov 17, 2005 at 08:03:54PM -0800, Andrew Morton wrote:
+> > > "David S. Miller" <davem@davemloft.net> wrote:
+> > > >
+> > > > The deprecated warnings are so easy to filter out, so I don't think
+> > > >  noise is a good argument.  I see them all the time too.
+> > > 
+> > > That works for you and me.  But how to train all those people who write
+> > > warny patches?
+> > 
+> > Would it work to use -Werror only on some parts of the kernel.
+> > Thinking of teaching kbuild to recursively apply a flags to gcc.
+> > 
+> > Then we could say that kernel/ should be warning free (to a start).
 > 
-> Is there any good reason to nuke it?
+> Many ports already add -Werror to the CFLAGS via their
+> arch/${ARCH}/* makefiles.
 
-- there's a more recent driver for the same hardware
-- the driver uses the deprecated virt_to_bus/bus_to_virt we want to get 
-  rid of
-
-Can you give me a pointer to your bug report containing more details 
-regarding the problems you had with the xircom_cb driver?
+They only add it to EXTRA_CFLAGS for one specifig subdirectory.
 
 cu
 Adrian

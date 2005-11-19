@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161115AbVKSBiY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161111AbVKSBkL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161115AbVKSBiY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 20:38:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161121AbVKSBiY
+	id S1161111AbVKSBkL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 20:40:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161121AbVKSBkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 20:38:24 -0500
-Received: from mail.kroah.org ([69.55.234.183]:6847 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161115AbVKSBiX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 20:38:23 -0500
-Date: Fri, 18 Nov 2005 17:22:40 -0800
-From: Greg KH <greg@kroah.com>
-To: Josh Boyer <jwboyer@gmail.com>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       scjody@steamballoon.com
-Subject: Re: [patch 1/3] Add SCM info to MAINTAINERS
-Message-ID: <20051119012240.GD28175@kroah.com>
-References: <20051118173930.270902000@press.kroah.org> <20051118173054.GA20860@kroah.com> <20051118173106.GB20860@kroah.com> <625fc13d0511181134lc074b8avcc8db47b8723583@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 18 Nov 2005 20:40:10 -0500
+Received: from zproxy.gmail.com ([64.233.162.199]:30943 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161111AbVKSBkJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 20:40:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BS4SkXUF4hDbY1hWYF/8quC/boDm3fPQZwWBA5fyu8tW4Hcw1EEs5CTadqJ3Q1bi8qgTcK5nwCXrntiRQ45bWEyP/oO0Z0sAdOw8azIiPlxHetWBgj4XNp0QzW79CMY663Jc0lM5Psirk+qe4kdEPEElyAqw30EPXZZ8MN6pkX0=
+Message-ID: <cbec11ac0511181740w2428b5c5k90bff5322f19aaa3@mail.gmail.com>
+Date: Sat, 19 Nov 2005 14:40:08 +1300
+From: Ian McDonald <imcdnzl@gmail.com>
+To: Ed Tomlinson <tomlins@cam.org>
+Subject: Re: 2.6.15-rc1-mm1
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200511182024.33858.tomlins@cam.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <625fc13d0511181134lc074b8avcc8db47b8723583@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+References: <20051117111807.6d4b0535.akpm@osdl.org>
+	 <200511181835.11719.tomlins@cam.org>
+	 <20051118235116.GA26405@kroah.com>
+	 <200511182024.33858.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 18, 2005 at 01:34:51PM -0600, Josh Boyer wrote:
-> On 11/18/05, Greg Kroah-Hartman <gregkh@suse.de> wrote:
-> > From: Jody McIntyre <scjody@steamballoon.com>
-> >
-> > Add tree information to MAINTAINERS file.
-> 
-> Missed MTD git tree at:
-> 
-> git kernel.org:/pub/scm/linux/kernel/git/tglx/mtd-2.6.git
+> Think only the mousedev module is not loaded.  Once I modprobe it the mouse works
+> and the /dev/input/mice appears.  The mouse works normally with all buttons and wheels
+> acting normal.
+>
+I was having this on one of my machines. I'll try and track this down
+next week probably if it still occurs and use git-bisect on it if
+nobody else does first though. I'll check out the thread mentioned as
+well.
 
-Care to send a patch for this, and any others that might have been
-missed?
-
-thanks,
-
-greg k-h
+Ian
+--
+Ian McDonald
+http://wand.net.nz/~iam4
+WAND Network Research Group
+University of Waikato
+New Zealand

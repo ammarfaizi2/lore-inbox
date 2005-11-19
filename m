@@ -1,361 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161240AbVKSDdg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161258AbVKSDf1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161240AbVKSDdg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 22:33:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161265AbVKSDdf
+	id S1161258AbVKSDf1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 22:35:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161265AbVKSDf1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 22:33:35 -0500
-Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:39172 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1161240AbVKSDdf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 22:33:35 -0500
-Date: Sat, 19 Nov 2005 14:32:52 +1100
-To: Andrew Morton <akpm@osdl.org>
-Cc: djani22@dynamicweb.hu,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [NBD] Fix TX/RX race condition
-Message-ID: <20051119033252.GA22163@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="sdtB3X0nJg68CQEu"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Fri, 18 Nov 2005 22:35:27 -0500
+Received: from wombat.indigo.net.au ([202.0.185.19]:9228 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S1161258AbVKSDf1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 22:35:27 -0500
+Date: Sat, 19 Nov 2005 11:35:02 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+To: Olivier Croquette <ocroquette@free.fr>
+cc: LKML <linux-kernel@vger.kernel.org>, autofs@linux.kernel.org
+Subject: Re: Automount ghost option
+In-Reply-To: <437E0F3A.2000906@free.fr>
+Message-ID: <Pine.LNX.4.63.0511191116260.2069@donald.themaw.net>
+References: <437E0F3A.2000906@free.fr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-themaw-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=-1.896,
+	required 5, autolearn=not spam, BAYES_00 -2.60,
+	DATE_IN_PAST_12_24 0.70)
+X-themaw-MailScanner-From: raven@themaw.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 18 Nov 2005, Olivier Croquette wrote:
 
---sdtB3X0nJg68CQEu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> 
+> I want the automount mount points to be visible even if they are not mounted.
+> 
+> It seems the "ghost" option implements that. I can find several references on
+> the internet which indicates it is available, like:
+> http://gentoo-wiki.com/HOWTO_Auto_mount_filesystems_(AUTOFS)
 
-Hi:
+This looks like a good description of to do it.
 
-Janos Haar of First NetCenter Bt. reported numerous crashes involving
-the NBD driver.  With his help, this was tracked down to bogus bio
-vectors which in turn was the result of a race condition between the
-receive/transmit routines in the NBD driver.
+> 
+> Nevertheless, on some recent distributions I have tested on, this option is
+> not available.
 
-The bug manifests itself like this:
+For example?
 
-CPU0				CPU1
-do_nbd_request
-	add req to queuelist
-	nbd_send_request
-		send req head
-		for each bio
-			kmap
-			send
-				nbd_read_stat
-					nbd_find_request
-					nbd_end_request
-			kunmap
+It is available on all recent RedHat distributions, Debian 3.1, latest 
+SuSE and although last time I looked Gentoo is a little behind on their 
+release and patches it should still work. I also recommend a fairly recent 
+2.6 kernel in order to get the latest bug fixes. I've fallen somewhat 
+behind in updating my 2.4 patches but those that are available at 
 
-When CPU1 finishes nbd_end_request, the request and all its associated
-bio's are freed.  So when CPU0 calls kunmap whose argument is derived
-from the last bio, it may crash.
+http://www.kernel.org/pub/linux/daemons/autofs/v4
 
-Under normal circumstances, the race occurs only on the last bio.
-However, if an error is encountered on the remote NBD server (such
-as an incorrect magic number in the request), or if there were a bug
-in the server, it is possible for the nbd_end_request to occur any
-time after the request's addition to the queuelist.
+should work adequately.
 
-The following patch fixes this problem by making sure that requests
-are not added to the queuelist until after they have been completed
-transmission.
+> 
+> Can anyone tell me in which version of automount it is present?
+> Or is it a distribution specific patch?
 
-In order for the receiving side to be ready for responses involving
-requests still being transmitted, the patch introduces the concept of
-the active request.
+Preferably 4.1.4 with at least the patches autofs-4.1.4-*.patch from 
+kernel.org above applied but distributions that have a 4.1 version should 
+work.
 
-When a response matches the current active request, its processing is
-delayed until after the tranmission has come to a stop.
+You need to be aware that some maps cannot be browsable (the terminology 
+is about to change from ghosting). For example
 
-This has been tested by Janos and it has been successful in curing
-this race condition.
+*	host:/some/dir/&
 
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+is not browsable because autofs cannot know what the map keys at startup.
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Basically, if the map keys cannot be known in advance they will not be 
+seen, at least immediately after startup.
+ 
+Ian
 
---sdtB3X0nJg68CQEu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
-
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -54,11 +54,15 @@
- #include <linux/errno.h>
- #include <linux/file.h>
- #include <linux/ioctl.h>
-+#include <linux/compiler.h>
-+#include <linux/err.h>
-+#include <linux/kernel.h>
- #include <net/sock.h>
- 
- #include <linux/devfs_fs_kernel.h>
- 
- #include <asm/uaccess.h>
-+#include <asm/system.h>
- #include <asm/types.h>
- 
- #include <linux/nbd.h>
-@@ -230,14 +234,6 @@ static int nbd_send_req(struct nbd_devic
- 	request.len = htonl(size);
- 	memcpy(request.handle, &req, sizeof(req));
- 
--	down(&lo->tx_lock);
--
--	if (!sock || !lo->sock) {
--		printk(KERN_ERR "%s: Attempted send on closed socket\n",
--				lo->disk->disk_name);
--		goto error_out;
--	}
--
- 	dprintk(DBG_TX, "%s: request %p: sending control (%s@%llu,%luB)\n",
- 			lo->disk->disk_name, req,
- 			nbdcmd_to_ascii(nbd_cmd(req)),
-@@ -276,11 +272,9 @@ static int nbd_send_req(struct nbd_devic
- 			}
- 		}
- 	}
--	up(&lo->tx_lock);
- 	return 0;
- 
- error_out:
--	up(&lo->tx_lock);
- 	return 1;
- }
- 
-@@ -289,9 +283,14 @@ static struct request *nbd_find_request(
- 	struct request *req;
- 	struct list_head *tmp;
- 	struct request *xreq;
-+	int err;
- 
- 	memcpy(&xreq, handle, sizeof(xreq));
- 
-+	err = wait_event_interruptible(lo->active_wq, lo->active_req != xreq);
-+	if (unlikely(err))
-+		goto out;
-+
- 	spin_lock(&lo->queue_lock);
- 	list_for_each(tmp, &lo->queue_head) {
- 		req = list_entry(tmp, struct request, queuelist);
-@@ -302,7 +301,11 @@ static struct request *nbd_find_request(
- 		return req;
- 	}
- 	spin_unlock(&lo->queue_lock);
--	return NULL;
-+
-+	err = -ENOENT;
-+
-+out:
-+	return ERR_PTR(err);
- }
- 
- static inline int sock_recv_bvec(struct socket *sock, struct bio_vec *bvec)
-@@ -331,7 +334,11 @@ static struct request *nbd_read_stat(str
- 		goto harderror;
- 	}
- 	req = nbd_find_request(lo, reply.handle);
--	if (req == NULL) {
-+	if (unlikely(IS_ERR(req))) {
-+		result = PTR_ERR(req);
-+		if (result != -ENOENT)
-+			goto harderror;
-+
- 		printk(KERN_ERR "%s: Unexpected reply (%p)\n",
- 				lo->disk->disk_name, reply.handle);
- 		result = -EBADR;
-@@ -395,19 +402,21 @@ static void nbd_clear_que(struct nbd_dev
- 
- 	BUG_ON(lo->magic != LO_MAGIC);
- 
--	do {
--		req = NULL;
--		spin_lock(&lo->queue_lock);
--		if (!list_empty(&lo->queue_head)) {
--			req = list_entry(lo->queue_head.next, struct request, queuelist);
--			list_del_init(&req->queuelist);
--		}
--		spin_unlock(&lo->queue_lock);
--		if (req) {
--			req->errors++;
--			nbd_end_request(req);
--		}
--	} while (req);
-+	/*
-+	 * lo->sock == NULL guarantees that the queue will not grow beyond the
-+	 * current active request.
-+	 */
-+	BUG_ON(lo->sock);
-+	wait_event(lo->active_wq, !lo->active_req);
-+	smp_rmb();
-+
-+	while (!list_empty(&lo->queue_head)) {
-+		req = list_entry(lo->queue_head.next, struct request,
-+				 queuelist);
-+		list_del_init(&req->queuelist);
-+		req->errors++;
-+		nbd_end_request(req);
-+	}
- }
- 
- /*
-@@ -435,11 +444,6 @@ static void do_nbd_request(request_queue
- 
- 		BUG_ON(lo->magic != LO_MAGIC);
- 
--		if (!lo->file) {
--			printk(KERN_ERR "%s: Request when not-ready\n",
--					lo->disk->disk_name);
--			goto error_out;
--		}
- 		nbd_cmd(req) = NBD_CMD_READ;
- 		if (rq_data_dir(req) == WRITE) {
- 			nbd_cmd(req) = NBD_CMD_WRITE;
-@@ -453,32 +457,34 @@ static void do_nbd_request(request_queue
- 		req->errors = 0;
- 		spin_unlock_irq(q->queue_lock);
- 
--		spin_lock(&lo->queue_lock);
--
--		if (!lo->file) {
--			spin_unlock(&lo->queue_lock);
--			printk(KERN_ERR "%s: failed between accept and semaphore, file lost\n",
--					lo->disk->disk_name);
-+		down(&lo->tx_lock);
-+		if (unlikely(!lo->sock)) {
-+			up(&lo->tx_lock);
-+			printk(KERN_ERR "%s: Attempted send on closed socket\n",
-+			       lo->disk->disk_name);
- 			req->errors++;
- 			nbd_end_request(req);
- 			spin_lock_irq(q->queue_lock);
- 			continue;
- 		}
- 
--		list_add(&req->queuelist, &lo->queue_head);
--		spin_unlock(&lo->queue_lock);
-+		lo->active_req = req;
- 
- 		if (nbd_send_req(lo, req) != 0) {
- 			printk(KERN_ERR "%s: Request send failed\n",
- 					lo->disk->disk_name);
--			if (nbd_find_request(lo, (char *)&req) != NULL) {
--				/* we still own req */
--				req->errors++;
--				nbd_end_request(req);
--			} else /* we're racing with nbd_clear_que */
--				printk(KERN_DEBUG "nbd: can't find req\n");
-+			req->errors++;
-+			nbd_end_request(req);
-+		} else {
-+			spin_lock(&lo->queue_lock);
-+			list_add(&req->queuelist, &lo->queue_head);
-+			spin_unlock(&lo->queue_lock);
- 		}
- 
-+		lo->active_req = NULL;
-+		up(&lo->tx_lock);
-+		wake_up_all(&lo->active_wq);
-+
- 		spin_lock_irq(q->queue_lock);
- 		continue;
- 
-@@ -529,17 +535,10 @@ static int nbd_ioctl(struct inode *inode
- 		down(&lo->tx_lock);
- 		lo->sock = NULL;
- 		up(&lo->tx_lock);
--		spin_lock(&lo->queue_lock);
- 		file = lo->file;
- 		lo->file = NULL;
--		spin_unlock(&lo->queue_lock);
- 		nbd_clear_que(lo);
--		spin_lock(&lo->queue_lock);
--		if (!list_empty(&lo->queue_head)) {
--			printk(KERN_ERR "nbd: disconnect: some requests are in progress -> please try again.\n");
--			error = -EBUSY;
--		}
--		spin_unlock(&lo->queue_lock);
-+		BUG_ON(!list_empty(&lo->queue_head));
- 		if (file)
- 			fput(file);
- 		return error;
-@@ -598,24 +597,19 @@ static int nbd_ioctl(struct inode *inode
- 			lo->sock = NULL;
- 		}
- 		up(&lo->tx_lock);
--		spin_lock(&lo->queue_lock);
- 		file = lo->file;
- 		lo->file = NULL;
--		spin_unlock(&lo->queue_lock);
- 		nbd_clear_que(lo);
- 		printk(KERN_WARNING "%s: queue cleared\n", lo->disk->disk_name);
- 		if (file)
- 			fput(file);
- 		return lo->harderror;
- 	case NBD_CLEAR_QUE:
--		down(&lo->tx_lock);
--		if (lo->sock) {
--			up(&lo->tx_lock);
--			return 0; /* probably should be error, but that would
--				   * break "nbd-client -d", so just return 0 */
--		}
--		up(&lo->tx_lock);
--		nbd_clear_que(lo);
-+		/*
-+		 * This is for compatibility only.  The queue is always cleared
-+		 * by NBD_DO_IT or NBD_CLEAR_SOCK.
-+		 */
-+		BUG_ON(!lo->sock && !list_empty(&lo->queue_head));
- 		return 0;
- 	case NBD_PRINT_DEBUG:
- 		printk(KERN_INFO "%s: next = %p, prev = %p, head = %p\n",
-@@ -688,6 +682,7 @@ static int __init nbd_init(void)
- 		spin_lock_init(&nbd_dev[i].queue_lock);
- 		INIT_LIST_HEAD(&nbd_dev[i].queue_head);
- 		init_MUTEX(&nbd_dev[i].tx_lock);
-+		init_waitqueue_head(&nbd_dev[i].active_wq);
- 		nbd_dev[i].blksize = 1024;
- 		nbd_dev[i].bytesize = 0x7ffffc00ULL << 10; /* 2TB */
- 		disk->major = NBD_MAJOR;
-diff --git a/include/linux/nbd.h b/include/linux/nbd.h
---- a/include/linux/nbd.h
-+++ b/include/linux/nbd.h
-@@ -37,18 +37,26 @@ enum {
- /* userspace doesn't need the nbd_device structure */
- #ifdef __KERNEL__
- 
-+#include <linux/wait.h>
-+
- /* values for flags field */
- #define NBD_READ_ONLY 0x0001
- #define NBD_WRITE_NOCHK 0x0002
- 
-+struct request;
-+
- struct nbd_device {
- 	int flags;
- 	int harderror;		/* Code of hard error			*/
- 	struct socket * sock;
- 	struct file * file; 	/* If == NULL, device is not ready, yet	*/
- 	int magic;
-+
- 	spinlock_t queue_lock;
- 	struct list_head queue_head;/* Requests are added here...	*/
-+	struct request *active_req;
-+	wait_queue_head_t active_wq;
-+
- 	struct semaphore tx_lock;
- 	struct gendisk *disk;
- 	int blksize;
-
---sdtB3X0nJg68CQEu--

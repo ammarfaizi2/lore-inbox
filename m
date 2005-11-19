@@ -1,49 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbVKSUFL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbVKSUPE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750785AbVKSUFL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 15:05:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbVKSUFL
+	id S1750793AbVKSUPE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 15:15:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbVKSUPE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 15:05:11 -0500
-Received: from styx.suse.cz ([82.119.242.94]:4812 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1750785AbVKSUFK (ORCPT
+	Sat, 19 Nov 2005 15:15:04 -0500
+Received: from gold.veritas.com ([143.127.12.110]:48694 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1750793AbVKSUPC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 15:05:10 -0500
-Date: Sat, 19 Nov 2005 21:05:03 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: "Larry.Finger@lwfinger.net" <Larry.Finger@att.net>
-Cc: kernel <linux-kernel@vger.kernel.org>
-Subject: Re: DMA mode locked off when via82cxxx ide driver built as module in 2.6.14
-Message-ID: <20051119200503.GA19921@midnight.ucw.cz>
-References: <111920051952.4178.437F8296000E123B0000105221603763169D0A09020700D2979D9D0E04@att.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <111920051952.4178.437F8296000E123B0000105221603763169D0A09020700D2979D9D0E04@att.net>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.10i
+	Sat, 19 Nov 2005 15:15:02 -0500
+Date: Sat, 19 Nov 2005 20:15:13 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: "David S. Miller" <davem@davemloft.net>,
+       William Irwin <wli@holomorphy.com>
+cc: akpm@osdl.org, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 04/11] unpaged: unifdefed PageCompound
+In-Reply-To: <20051117.154323.10862063.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.61.0511192003060.2846@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0511171925290.4563@goblin.wat.veritas.com>
+ <Pine.LNX.4.61.0511171931400.4563@goblin.wat.veritas.com>
+ <20051117.154323.10862063.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 19 Nov 2005 20:15:02.0030 (UTC) FILETIME=[EC24FAE0:01C5ED45]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 19, 2005 at 07:52:55PM +0000, Larry.Finger@lwfinger.net wrote:
+On Thu, 17 Nov 2005, David S. Miller wrote:
+> From: Hugh Dickins <hugh@veritas.com>
+> Date: Thu, 17 Nov 2005 19:32:40 +0000 (GMT)
+> 
+> > That's just what PageCompound is designed for, but it's been kept under
+> > CONFIG_HUGETLB_PAGE.  Remove the #ifdefs: which saves some space (out-
+> > of-line put_page), doesn't slow down what most needs to be fast (already
+> > using hugetlb), and unifies the way we handle high-order pages.
+> > 
+> > Signed-off-by: Hugh Dickins <hugh@veritas.com>
+> 
+> I think this is a good change regardless of the VM_RESERVED issues.
+> 
+> I've been wanting to use this facility in some sparc64 bits in
+> the past, for example.  But since it was HUGETLB guarded that
+> wasn't possible.
 
-> Sorry, here is the whole lspci -vv listing. Incidentally, the fix
-> suggested by Bartlomiej Zolnierkiewicz that I needed to disable
-> generic IDE support (CONFIG_IDE_GENERIC=y) is correct. Once I disabled
-> that parameter, all is well. Thanks for your help.
+I've only just found that we have to supply the __GFP_COMP flag to get
+this working.  And one of the routes through snd_dma_alloc_pages goes
+to sbus_alloc_consistent.  Would you be happy for me to send Andrew a
+patch with sparc and sparc64 sbus_alloc_consistent including __GFP_COMP?
+Ought I to do the same in the sparc and sparc64 pci_alloc_consistent??
 
-Indeed, vt8231 is well supported.
+Thanks,
+Hugh
+
+--- 2.6.15-rc1-mm2/arch/sparc/kernel/ioport.c	2005-06-17 20:48:29.000000000 +0100
++++ linux/arch/sparc/kernel/ioport.c	2005-11-19 19:11:04.000000000 +0000
+@@ -252,7 +252,7 @@ void *sbus_alloc_consistent(struct sbus_
+ 	}
  
-> 00:11.0 ISA bridge: VIA Technologies, Inc. VT8231 [PCI-to-ISA Bridge] (rev 10)
->         Subsystem: Hewlett-Packard Company: Unknown device 0022
->         Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
->         Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
->         Latency: 0
->         Capabilities: [c0] Power Management version 2
->                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
->                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+ 	order = get_order(len_total);
+-	if ((va = __get_free_pages(GFP_KERNEL, order)) == 0)
++	if ((va = __get_free_pages(GFP_KERNEL|__GFP_COMP, order)) == 0)
+ 		goto err_nopages;
  
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+ 	if ((res = kmalloc(sizeof(struct resource), GFP_KERNEL)) == NULL)
+--- 2.6.15-rc1-mm2/arch/sparc64/kernel/sbus.c	2005-11-12 09:00:36.000000000 +0000
++++ linux/arch/sparc64/kernel/sbus.c	2005-11-19 19:12:53.000000000 +0000
+@@ -327,7 +327,7 @@ void *sbus_alloc_consistent(struct sbus_
+ 	order = get_order(size);
+ 	if (order >= 10)
+ 		return NULL;
+-	first_page = __get_free_pages(GFP_KERNEL, order);
++	first_page = __get_free_pages(GFP_KERNEL|__GFP_COMP, order);
+ 	if (first_page == 0UL)
+ 		return NULL;
+ 	memset((char *)first_page, 0, PAGE_SIZE << order);

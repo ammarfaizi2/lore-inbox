@@ -1,77 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbVKST46@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbVKSUFL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750783AbVKST46 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 14:56:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbVKST46
+	id S1750785AbVKSUFL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 15:05:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbVKSUFL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 14:56:58 -0500
-Received: from gold.veritas.com ([143.127.12.110]:38197 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1750783AbVKST45 (ORCPT
+	Sat, 19 Nov 2005 15:05:11 -0500
+Received: from styx.suse.cz ([82.119.242.94]:4812 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1750785AbVKSUFK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 14:56:57 -0500
-Date: Sat, 19 Nov 2005 19:57:02 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-       Benoit Boissinot <benoit.boissinot@ens-lyon.org>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, Michael Krufky <mkrufky@m1k.net>
-cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Marc Koschewski <marc@osknowledge.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-rc1-mm2 0x414 Bad page states
-In-Reply-To: <Pine.LNX.4.61.0511182214200.4797@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0511191950100.2846@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0511181906240.2853@goblin.wat.veritas.com>
- <Pine.LNX.4.61.0511182214200.4797@goblin.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 19 Nov 2005 19:56:53.0014 (UTC) FILETIME=[630A5360:01C5ED43]
+	Sat, 19 Nov 2005 15:05:10 -0500
+Date: Sat, 19 Nov 2005 21:05:03 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: "Larry.Finger@lwfinger.net" <Larry.Finger@att.net>
+Cc: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: DMA mode locked off when via82cxxx ide driver built as module in 2.6.14
+Message-ID: <20051119200503.GA19921@midnight.ucw.cz>
+References: <111920051952.4178.437F8296000E123B0000105221603763169D0A09020700D2979D9D0E04@att.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <111920051952.4178.437F8296000E123B0000105221603763169D0A09020700D2979D9D0E04@att.net>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Nov 2005, Hugh Dickins wrote:
-> 
-> Thanks for the info you've sent so far, implicating
-> snd_pcm_mmap_data_nopage.  But I've still not got it.  Will resume
-> tomorrow.  If you can, would you please each send me your .config
-> and your full startup dmesg (in case they help to focus me on which
-> paths to look down in sound).  You needn't spam akpm or lkml with them.
+On Sat, Nov 19, 2005 at 07:52:55PM +0000, Larry.Finger@lwfinger.net wrote:
 
-And thanks for the further info you sent, which allowed me to rebuild my
-kernel to reproduce the problem easily with artsd.  Though the answer was
-staring me in the face from the first info you sent (and did occasionally
-flit through my mind without being properly swatted), even in my Subject
-line above: why were the page flags 0x414 instead of 0x4414 i.e. what had
-happened to the PageCompound flag which I thought one of my patches was
-adding?
+> Sorry, here is the whole lspci -vv listing. Incidentally, the fix
+> suggested by Bartlomiej Zolnierkiewicz that I needed to disable
+> generic IDE support (CONFIG_IDE_GENERIC=y) is correct. Once I disabled
+> that parameter, all is well. Thanks for your help.
 
-Whoops, I'd completely missed that now we have to pass __GFP_COMP to
-turn on that behaviour, because there are or were a few other places
-which get confused by compound page behaviour.  There's an excellent,
-illuminating, prescient comment on compound pages by Andrew in
-ChangeLog-2.6.6: but though he there foresees sound DMA buffers needing
-it, I've a suspicion that DRM and some others might also be needing it.
-
-So I'll go on a trawl through the source before finalizing the fix,
-but below is the patch you guys need.  Does this patch deal with your
-Bad page states too, Marc?  Does it help your mouse at all somehow?
-
-Hugh
-
---- 2.6.15-rc1-mm2/sound/core/memalloc.c	2005-11-12 09:01:28.000000000 +0000
-+++ linux/sound/core/memalloc.c	2005-11-19 19:03:32.000000000 +0000
-@@ -197,6 +197,7 @@ void *snd_malloc_pages(size_t size, gfp_
+Indeed, vt8231 is well supported.
  
- 	snd_assert(size > 0, return NULL);
- 	snd_assert(gfp_flags != 0, return NULL);
-+	gfp_flags |= __GFP_COMP;	/* compound page lets parts be mapped */
- 	pg = get_order(size);
- 	if ((res = (void *) __get_free_pages(gfp_flags, pg)) != NULL) {
- 		mark_pages(virt_to_page(res), pg);
-@@ -241,6 +242,7 @@ static void *snd_malloc_dev_pages(struct
- 	snd_assert(dma != NULL, return NULL);
- 	pg = get_order(size);
- 	gfp_flags = GFP_KERNEL
-+		| __GFP_COMP	/* compound page lets parts be mapped */
- 		| __GFP_NORETRY /* don't trigger OOM-killer */
- 		| __GFP_NOWARN; /* no stack trace print - this call is non-critical */
- 	res = dma_alloc_coherent(dev, PAGE_SIZE << pg, dma, gfp_flags);
+> 00:11.0 ISA bridge: VIA Technologies, Inc. VT8231 [PCI-to-ISA Bridge] (rev 10)
+>         Subsystem: Hewlett-Packard Company: Unknown device 0022
+>         Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
+>         Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+>         Latency: 0
+>         Capabilities: [c0] Power Management version 2
+>                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+>                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+ 
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

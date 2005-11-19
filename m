@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbVKTIFs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751083AbVKTIQG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751109AbVKTIFs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 03:05:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751113AbVKTIFr
+	id S1751083AbVKTIQG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 03:16:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751126AbVKTIQG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 03:05:47 -0500
-Received: from gold.veritas.com ([143.127.12.110]:26464 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1751109AbVKTIFr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 03:05:47 -0500
-Date: Sun, 20 Nov 2005 08:05:37 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Miles Lane <miles.lane@gmail.com>
-cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-rc1-mm2 -- Bad page state at free_hot_cold_page (in
- process 'aplay', page c18eef30)
-In-Reply-To: <a44ae5cd0511192256u20f0e594kc65cbaba108ff06e@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0511200804500.3938@goblin.wat.veritas.com>
-References: <a44ae5cd0511192256u20f0e594kc65cbaba108ff06e@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 20 Nov 2005 08:05:47.0090 (UTC) FILETIME=[3694BB20:01C5EDA9]
+	Sun, 20 Nov 2005 03:16:06 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:20454 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1751083AbVKTIQF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 03:16:05 -0500
+Date: Sat, 19 Nov 2005 23:32:03 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Mark Lord <lkml@rtr.ca>
+Cc: Phillip Susi <psusi@cfl.rr.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: VIA SATA Raid needs a long time to recover from suspend
+Message-ID: <20051119233202.GB3361@spitz.ucw.cz>
+References: <437AA996.9080505@cfl.rr.com> <20051116170642.313aeada.akpm@osdl.org> <437BFF4A.4060402@cfl.rr.com> <437D1B81.7000402@rtr.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <437D1B81.7000402@rtr.ca>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Nov 2005, Miles Lane wrote:
-> [17179671.700000] Bad page state at free_hot_cold_page (in process
-> 'aplay', page c18eef30)
-> [17179671.700000] flags:0x80000414 mapping:00000000 mapcount:0 count:0
+Hi!
+> >>This change will increase the minimum delay in both ata_wait_idle() and
+> >>ata_busy_wait() from 10 usec to 100 usec, which is not a good change.
+> >>
+> >>It would be less damaging to increase the delay in ata_wait_idle() from
+> >>1000 to 100,000.  A one second spin is a bit sad, but the hardware's 
+> >>bust,
+> 
+> I wonder if this the same problem that prevents resume-from-ram
+> from working on my system when I use an older hard drive,
+> rather than the newer model that came installed (notebook)..
+> 
+> Whenever resume fails, the hard drive light is on solid
+> and the system is unresponsive.  And the backlight is off so no
+> debug info available (no serial ports, either).
 
-Please let me know if it's not fixed by:
+Debugging this sucks, sorry. Usefull methods are keyboard leds and system
+beeper. printk-over-morse comes to mind :-).
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 
---- 2.6.15-rc1-mm2/sound/core/memalloc.c	2005-11-12 09:01:28.000000000 +0000
-+++ linux/sound/core/memalloc.c	2005-11-19 19:03:32.000000000 +0000
-@@ -197,6 +197,7 @@ void *snd_malloc_pages(size_t size, gfp_
- 
- 	snd_assert(size > 0, return NULL);
- 	snd_assert(gfp_flags != 0, return NULL);
-+	gfp_flags |= __GFP_COMP;	/* compound page lets parts be mapped */
- 	pg = get_order(size);
- 	if ((res = (void *) __get_free_pages(gfp_flags, pg)) != NULL) {
- 		mark_pages(virt_to_page(res), pg);
-@@ -241,6 +242,7 @@ static void *snd_malloc_dev_pages(struct
- 	snd_assert(dma != NULL, return NULL);
- 	pg = get_order(size);
- 	gfp_flags = GFP_KERNEL
-+		| __GFP_COMP	/* compound page lets parts be mapped */
- 		| __GFP_NORETRY /* don't trigger OOM-killer */
- 		| __GFP_NOWARN; /* no stack trace print - this call is non-critical */
- 	res = dma_alloc_coherent(dev, PAGE_SIZE << pg, dma, gfp_flags);

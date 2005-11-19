@@ -1,80 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751238AbVKSAp2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbVKSAsH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751238AbVKSAp2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 19:45:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbVKSAp2
+	id S1751250AbVKSAsH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Nov 2005 19:48:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbVKSAsG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 19:45:28 -0500
-Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:50581 "EHLO
-	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1751238AbVKSAp2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Nov 2005 19:45:28 -0500
-Message-ID: <437E75A5.7020406@bigpond.net.au>
-Date: Sat, 19 Nov 2005 11:45:25 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Fri, 18 Nov 2005 19:48:06 -0500
+Received: from zproxy.gmail.com ([64.233.162.202]:13676 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751250AbVKSAsF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 19:48:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:x-enigmail-supports:content-type:content-transfer-encoding;
+        b=MU5ljINwzBK4iUAyrDTF4bVQb0Bc4I9CvYw++MtID1PISMFFopzd9sZWxOJ0hyQeQMBPcOS9kYLExUIIO/6OqS5Myz69j/a5krVN7rH/4MbFw8PG7Kt7PQdDcd3bwJ/26D31Fo2v34Azf3y/1HtLiVnB/39nafRGspAxkxCBPqk=
+Message-ID: <437E76CC.4000202@gmail.com>
+Date: Sat, 19 Nov 2005 01:50:20 +0100
+From: Luca Falavigna <dktrkranz@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: it, it-it, en-us, en
 MIME-Version: 1.0
-To: Peter Williams <pwil3058@bigpond.net.au>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Jake Moilanen <moilanen@austin.ibm.com>
-Subject: Re: [ANNOUNCE][RFC] PlugSched-6.1.4 for 2.6.14 and 2.6.15-rc1
-References: <437819D3.4010104@bigpond.net.au>
-In-Reply-To: <437819D3.4010104@bigpond.net.au>
+To: "K.R. Foley" <kr@cybsft.com>
+CC: Ingo Molnar <mingo@elte.hu>, Daniel Walker <dwalker@mvista.com>,
+       john cooper <john.cooper@timesys.com>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] Softlockup detected with linux-2.6.14-rt6
+References: <4378B48E.6010006@gmail.com> <20051115153257.GA9727@elte.hu> <437A14FB.8050206@timesys.com> <20051115200010.GA13802@elte.hu> <Pine.LNX.4.64.0511151206000.29907@dhcp153.mvista.com> <437A7A58.8050209@gmail.com> <437DF0A8.6060409@gmail.com> <437E1E95.2010809@cybsft.com>
+In-Reply-To: <437E1E95.2010809@cybsft.com>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 19 Nov 2005 00:45:25 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> This version updates the staircase scheduler to Con's version and makes 
-> modifications to the interactive bonus mechanisms in spa_ws and zaphod 
-> to use interactive sleepiness instead of ordinary sleepiness.
-> 
-> A patch for 2.6.15-rc1 is available at:
-> 
-> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.4-for-2.6.15-rc1.patch?download> 
-> 
-> 
-> and a patch to upgrade the 6.1.3 version for 2.6.14 to 6.1.4 is
-> available at:
-> 
-> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.3-to-6.1.4-for-2.6.14.patch?download> 
-> 
-> 
-> Very Brief Documentation:
-> 
-> You can select a default scheduler at kernel build time.  If you wish to
-> boot with a scheduler other than the default it can be selected at boot
-> time by adding:
-> 
-> cpusched=<scheduler>
-> 
-> to the boot command line where <scheduler> is one of: ingosched,
-> nicksched, staircase, spa_no_frills, spa_ws, spa_svr or zaphod.  If you
-> don't change the default when you build the kernel the default scheduler
-> will be ingosched (which is the normal scheduler).
-> 
-> The scheduler in force on a running system can be determined by the
-> contents of:
-> 
-> /proc/scheduler
-> 
-> Control parameters for the scheduler can be read/set via files in:
-> 
-> /sys/cpusched/<scheduler>/
-> 
-> Peter
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Patch for 2.6.15-rc1-mm2 now available at:
+K.R. Foley ha scritto:
+|> The slow booting sounds a lot like the RCU_TORTURE_TEST slowing things
+|> down. You might try turning off RCU_TORTURE_TEST or setting it to be a
+|> module.
 
-<http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.4-for-2.6.15-rc1-mm2.patch?download>
+RCU torture test is not compiled at all
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+iQEVAwUBQ352ypK+HIH6ZZ2zAQKyKAf8DCP61LE52PSx7yedqof2G9qGfhqa6Tiz
+/tgTfAmzzsQ2KvQUiYIDU5snmZmM5vbMYvtv07T/D+E5o/9BqIa8yJt1mFh0EcPr
+uOGljrUTCyNdR+4LXe2H8Tdacc7k0DOjfxxDDoTKJoWv6al4a+K5FAy6wxfHIr2t
+whpsceXSZxyRPY9EmOpupFxcGjnoq+ywURqPHm3D8qVfSJwT24U9bRu/7hkrbFy6
+lRJQssnD7o/Dcf+xtuvQkDD5AzrcOVdI8KDGD1AO+S7pGcnPAxA0aPdeCQsUuOs5
+RF6Z7VeQuBvffuxSXW7BgGNA9W0aA+UZMFw0qVkqrjblTTp/QhcExA==
+=Qjq4
+-----END PGP SIGNATURE-----

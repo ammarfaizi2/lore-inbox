@@ -1,67 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750942AbVKSWYI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750963AbVKSWYd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750942AbVKSWYI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 17:24:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750943AbVKSWYI
+	id S1750963AbVKSWYd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 17:24:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750979AbVKSWYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 17:24:08 -0500
-Received: from ganesha.gnumonks.org ([213.95.27.120]:59266 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S1750920AbVKSWYG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 17:24:06 -0500
-Date: Sat, 19 Nov 2005 23:23:57 +0100
-From: Harald Welte <laforge@netfilter.org>
-To: Yasuyuki KOZAKAI <yasuyuki.kozakai@toshiba.co.jp>
-Cc: khc@pm.waw.pl, netfilter-devel@lists.netfilter.org, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: build bug: ipt_CONNMARK.c: undefined reference to `need_ip_conntrack'
-Message-ID: <20051119222356.GI24948@sunbeam.de.gnumonks.org>
-Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
-	Yasuyuki KOZAKAI <yasuyuki.kozakai@toshiba.co.jp>, khc@pm.waw.pl,
-	netfilter-devel@lists.netfilter.org, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <m364qolfuv.fsf@defiant.localdomain> <200511191930.jAJJUJ2n022269@toshiba.co.jp>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qp4W5+cUSnZs0RIF"
-Content-Disposition: inline
-In-Reply-To: <200511191930.jAJJUJ2n022269@toshiba.co.jp>
-User-Agent: mutt-ng devel-20050619 (Debian)
-X-Spam-Score: 0.0 (/)
+	Sat, 19 Nov 2005 17:24:32 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:33542 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1750963AbVKSWYc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 17:24:32 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Avuton Olrich <avuton@gmail.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel panic: Machine check exception
+References: <3aa654a40511190145v6f4df755wf16673050d077edb@mail.gmail.com>
+	<1132406652.5238.19.camel@localhost.localdomain>
+	<3aa654a40511191254x4bf50cc8l6a9b8786f1a5ebc8@mail.gmail.com>
+	<1132436886.19692.17.camel@localhost.localdomain>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: the prosecution rests its case.
+Date: Sat, 19 Nov 2005 22:24:17 +0000
+In-Reply-To: <1132436886.19692.17.camel@localhost.localdomain> (Alan Cox's
+ message of "19 Nov 2005 21:16:21 -0000")
+Message-ID: <87ek5ce0oe.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 19 Nov 2005, Alan Cox stipulated:
+> On Sad, 2005-11-19 at 12:54 -0800, Avuton Olrich wrote:
+>> Is there a good way to narrow it down? I guess running a badmem
+>> program would be good to start with, otherwise ...(?).
+> 
+> A memory test may be worth doing but most machine checks indicate the
+> fault is more serious than bad memory.
 
---qp4W5+cUSnZs0RIF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Some of them are certainly not very serious in their effects. I get this
+persistently, once every couple of months, on one of my machines (an
+Athlon 4 with 768Mb of ECC RAM):
 
-On Sun, Nov 20, 2005 at 04:30:18AM +0900, Yasuyuki KOZAKAI wrote:
+kernel: MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
+kernel: Bank 2: 940040000000017a
 
-> Thanks for report. Could you check this patch ?
+and I think it *is* a single slightly wobbly bit (the wobble being too
+slight for memtest to find).
 
-thanks, applied and forwarded.
---=20
-- Harald Welte <laforge@netfilter.org>                 http://netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
+Nothing discernible has ever gone wrong as a result of that, right down
+to repeated GCC enable-checking bootstrap-and-tests completing without
+error (well, without any more than the expected XFAILs).
 
---qp4W5+cUSnZs0RIF
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+(I'm just *assuming* the `Bank 2' in this message refers to a bank of
+RAM. Doubtless this assumption will now be shown to be utterly wrong and
+a sign of terminal foolishness on my part... ;) )
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+-- 
+`Y'know, London's nice at this time of year. If you like your cities
+ freezing cold and full of surly gits.' --- David Damerell
 
-iD8DBQFDf6X8XaXGVTD0i/8RAmqUAJ0Ug4nxcHTk0eHIjUCYZG91NIs6/ACghFmn
-bcCj4vR6ZGhEJalfLQwuIgc=
-=b9Up
------END PGP SIGNATURE-----
-
---qp4W5+cUSnZs0RIF--

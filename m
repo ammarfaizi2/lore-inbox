@@ -1,17 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750910AbVKSEoN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbVKSEoM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750910AbVKSEoN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Nov 2005 23:44:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751367AbVKSEoN
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Nov 2005 23:44:13 -0500
-Received: from smtp102.sbc.mail.re2.yahoo.com ([68.142.229.103]:48246 "HELO
-	smtp102.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1750910AbVKSEoM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1750909AbVKSEoM (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 18 Nov 2005 23:44:12 -0500
-Message-Id: <20051119044255.007314000.dtor_core@ameritech.net>
-References: <20051119043840.747384000.dtor_core@ameritech.net>
-Date: Fri, 18 Nov 2005 23:38:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbVKSEoM
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 18 Nov 2005 23:44:12 -0500
+Received: from smtp106.sbc.mail.re2.yahoo.com ([68.142.229.99]:57758 "HELO
+	smtp106.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1750909AbVKSEoM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Nov 2005 23:44:12 -0500
+Message-Id: <20051119043840.747384000.dtor_core@ameritech.net>
+Date: Fri, 18 Nov 2005 23:38:40 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: Vojtech Pavlik <vojtech@suse.cz>
 Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
@@ -20,47 +19,21 @@ Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
        Michael Schmitz <schmitz@zirkon.biophys.uni-duesseldorf.de>,
        Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>,
        Neil Brown <neilb@suse.de>, linux-kernel@vger.kernel.org
-Subject: [patch 2/3] Uinput: add UI_SET_SWBIT ioctl
-Content-Disposition: inline; filename=uinput-add-sw-ioctl.patch
+Subject: [patch 0/3] Uinput update
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Input: uinput - add UI_SET_SWBIT ioctl
+Hi,
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
+The following patches update uinput driver to perform dynamic input
+allocation, add some locking and ioctl to allow setting EV_SW.
 
- drivers/input/misc/uinput.c |    4 ++++
- include/linux/uinput.h      |    1 +
- 2 files changed, 5 insertions(+)
+Any testing will be greatly appreciated.
 
-Index: work/drivers/input/misc/uinput.c
-===================================================================
---- work.orig/drivers/input/misc/uinput.c
-+++ work/drivers/input/misc/uinput.c
-@@ -495,6 +495,10 @@ static long uinput_ioctl(struct file *fi
- 			retval = uinput_set_bit(arg, ffbit, FF_MAX);
- 			break;
- 
-+		case UI_SET_SWBIT:
-+			retval = uinput_set_bit(arg, swbit, SW_MAX);
-+			break;
-+
- 		case UI_SET_PHYS:
- 			if (udev->state == UIST_CREATED) {
- 				retval = -EINVAL;
-Index: work/include/linux/uinput.h
-===================================================================
---- work.orig/include/linux/uinput.h
-+++ work/include/linux/uinput.h
-@@ -91,6 +91,7 @@ struct uinput_ff_erase {
- #define UI_SET_SNDBIT		_IOW(UINPUT_IOCTL_BASE, 106, int)
- #define UI_SET_FFBIT		_IOW(UINPUT_IOCTL_BASE, 107, int)
- #define UI_SET_PHYS		_IOW(UINPUT_IOCTL_BASE, 108, char*)
-+#define UI_SET_SWBIT		_IOW(UINPUT_IOCTL_BASE, 109, int)
- 
- #define UI_BEGIN_FF_UPLOAD	_IOWR(UINPUT_IOCTL_BASE, 200, struct uinput_ff_upload)
- #define UI_END_FF_UPLOAD	_IOW(UINPUT_IOCTL_BASE, 201, struct uinput_ff_upload)
+Thanks!
+
+--
+Dmitry
 

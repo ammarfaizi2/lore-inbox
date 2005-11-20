@@ -1,55 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbVKTTM2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbVKTTNE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932069AbVKTTM2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 14:12:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932068AbVKTTM2
+	id S932067AbVKTTNE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 14:13:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbVKTTND
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 14:12:28 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:20445 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932065AbVKTTM1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 14:12:27 -0500
-Subject: Re: [PATCH 4/12: eCryptfs] Main module functions
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: Phillip Hellewell <phillip@hellewell.homeip.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       viro@ftp.linux.org.uk, mike@halcrow.us, mhalcrow@us.ibm.com,
-       mcthomps@us.ibm.com, yoder1@us.ibm.com
-In-Reply-To: <Pine.LNX.4.64.0511201531010.20876@hermes-1.csi.cam.ac.uk>
-References: <20051119041130.GA15559@sshock.rn.byu.edu>
-	 <20051119041740.GD15747@sshock.rn.byu.edu>
-	 <84144f020511190247n5cf17800lb4ff019aa406470@mail.gmail.com>
-	 <Pine.LNX.4.64.0511201531010.20876@hermes-1.csi.cam.ac.uk>
-Date: Sun, 20 Nov 2005 21:06:56 +0200
-Message-Id: <1132513616.8032.3.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sun, 20 Nov 2005 14:13:03 -0500
+Received: from mail.gmx.de ([213.165.64.20]:64426 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932067AbVKTTNC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 14:13:02 -0500
+X-Authenticated: #438326
+From: Michael Geithe <warpy@gmx.de>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: Linux 2.6.15-rc2
+Date: Sun, 20 Nov 2005 20:13:00 +0100
+User-Agent: KMail/1.8.3
+References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org> <200511201420.55062.warpy@gmx.de> <200511201113.29911.dtor_core@ameritech.net>
+In-Reply-To: <200511201113.29911.dtor_core@ameritech.net>
+Cc: lkml <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.4.1 
+Content-Disposition: inline
+Message-Id: <200511202013.00879.warpy@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Anton,
+Hi,
 
-On 11/19/05, Phillip Hellewell <phillip@hellewell.homeip.net> wrote:
-> > > +                       BUG();
-> > > +                       err = -EINVAL;
-> > > +                       goto out;
+On Sunday 20 November 2005 17:13, you wrote:
+> On Sunday 20 November 2005 08:20, Michael Geithe wrote:
+> > Hi,
+> > i get this after plugged in dvb-t/Cinergy T2 with Kernel 2.6.15-git*/rc*.
+>
+> Hm, is there one driver in drivers/media that I left working? Please
+> try the patch below.
 
-On Sat, 19 Nov 2005, Pekka Enberg wrote:
-> > Why do you want to BUG() and then handle the situation?
+> Subjtect: Fix an OOPS is CinergyT2
 
-On Sun, 2005-11-20 at 15:34 +0000, Anton Altaparmakov wrote:
-> Because you can define BUG() to nothing (on embedded builds for example) 
-> and then you would be screwed if you don't handle the error gracefully.  
-> You should never assume something does not return, except perhaps a 
-> panic() although someone might even get rid of that one day...
+> Fix an OOPS is CinergyT2 driver when registering IR remote
 
-You have a point but in this case, I don't understand why they don't
-just handle it gracefully since they clearly can do so. Also, I was
-under the impression that people who disable BUG() are knowingly taking
-the risk...
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
-			Pekka
 
+>  drivers/media/dvb/cinergyT2/cinergyT2.c |    2 +-
+> 1 files changed, 1 insertion(+), 1 deletion(-)
+
+>  Index: work/drivers/media/dvb/cinergyT2/cinergyT2.c
+>  ===================================================================
+>  --- work.orig/drivers/media/dvb/cinergyT2/cinergyT2.c
+>  +++ work/drivers/media/dvb/cinergyT2/cinergyT2.c
+>  @@ -772,7 +772,7 @@ static int cinergyt2_register_rc(struct 
+>          input_dev->name = DRIVER_NAME " remote control";
+>          input_dev->phys = cinergyt2->phys;
+>          input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
+>  -       for (i = 0; ARRAY_SIZE(rc_keys); i += 3)
+>  +       for (i = 0; i < ARRAY_SIZE(rc_keys); i += 3)
+>                  set_bit(rc_keys[i + 2], input_dev->keybit);
+>          input_dev->keycodesize = 0;
+>          input_dev->keycodemax = 0;
+
+Thanks,  it works. :-)
+
+M. Geithe
+-

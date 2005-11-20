@@ -1,65 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbVKTWid@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbVKTWxE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750894AbVKTWid (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 17:38:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbVKTWic
+	id S932102AbVKTWxE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 17:53:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbVKTWxE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 17:38:32 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:6045 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750894AbVKTWic (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 17:38:32 -0500
-Date: Sun, 20 Nov 2005 16:38:29 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Dave Hansen <haveblue@us.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Paul Jackson <pj@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       frankeh@watson.ibm.com
-Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
-Message-ID: <20051120223829.GA9601@sergelap.austin.ibm.com>
-References: <20051114212341.724084000@sergelap> <20051114153649.75e265e7.pj@sgi.com> <20051115055107.GB3252@IBM-BWN8ZTBWAO1> <20051113152214.GC2193@spitz.ucw.cz> <9901B851-17B2-4AEB-813F-A92560DFE289@mac.com> <20051116203603.GA12505@elf.ucw.cz> <1132174090.5937.14.camel@localhost> <20051119233010.GA3361@spitz.ucw.cz>
+	Sun, 20 Nov 2005 17:53:04 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:47539 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932102AbVKTWxD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 17:53:03 -0500
+Date: Sun, 20 Nov 2005 22:52:56 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Markus Lidel <Markus.Lidel@shadowconnect.com>
+Cc: "David S. Miller" <davem@davemloft.net>, alan@lxorguk.ukuu.org.uk,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/5] I2O: SPARC fixes
+Message-ID: <20051120225256.GC27946@ftp.linux.org.uk>
+References: <437E7ADB.5080200@shadowconnect.com> <20051118.172230.126076770.davem@davemloft.net> <1132371039.5238.14.camel@localhost.localdomain> <20051118.203707.129707514.davem@davemloft.net> <4380EDB1.1080308@shadowconnect.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051119233010.GA3361@spitz.ucw.cz>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <4380EDB1.1080308@shadowconnect.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Pavel Machek (pavel@ucw.cz):
-> Hi!
-> 
-> > > Hmm... it is hard to judge a patch without context. Anyway, can't we
-> > > get process snasphot/resume without virtualizing pids? Could we switch
-> > > to 128-bits so that pids are never reused or something like that?
-> > 
-> > That might work fine for a managed cluster, but it wouldn't be a good
-> > fit if you ever wanted to support something like a laptop in
-> > disconnected operation, or if you ever want to restore the same snapshot
-> > more than once.  There may also be some practical userspace issues
-> > making pids that large.
-> > 
-> > I also hate bloating types and making them sparse just for the hell of
-> > it.  It is seriously demoralizing to do a ps and see
-> > 7011827128432950176177290 staring back at you. :)
-> 
-> Well, doing cat /var/something/foo.pid, and seeing pid of unrelated process
-> is wrong, too... especially if you try to kill it....
+On Sun, Nov 20, 2005 at 10:42:09PM +0100, Markus Lidel wrote:
+> Hi...
+> Sounds good to me. Could i then find out if some BE<=>LE issues are still 
+> left? If so, is there a document which describes how it is done, or at 
+> least has a driver added it already?
 
-Good point.  However the foo.pid scheme is incompatible with
-checkpoint/restart and migration regardless.
+Hmm...
 
-	a. what good is trying to kill something using such a file if
-	the process is checkpointed+killed, to be restarted later?
-	b. it is expected that any files used by a checkpointable
-	processes exist on a network fs, so that the fd can be moved.
-	What good is foo.pid if it's on a network filesystem?
+struct i2o_message {
+        union {
+                struct {
+                        u8 version_offset;
+                        u8 flags;
+                        u16 size;
+                        u32 target_tid:12;
+                        u32 init_tid:12;
+                        u32 function:8;
+                        u32 icntxt;     /* initiator context */
+                        u32 tcntxt;     /* transaction context */
+                } s;
+                u32 head[4];
+        } u;
+        /* List follows */
+        u32 body[0];
+};
 
-So if you wanted to checkpoint and restart/migrate a process with a
-foo.pid type of file, you might need to start it with a private
-tmpfs in a private namespace.  That part is trivial to do as part
-of the management tools, though checkpointing a whole tmpfs per process
-could be unfortunate.
-
--serge
+is one hell of an endianness issue right fscking there.

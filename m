@@ -1,92 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbVKTXwo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbVKTXyi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932141AbVKTXwo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 18:52:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbVKTXwo
+	id S932130AbVKTXyi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 18:54:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbVKTXyi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 18:52:44 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:5137 "HELO
+	Sun, 20 Nov 2005 18:54:38 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:10001 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932141AbVKTXwn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 18:52:43 -0500
-Date: Mon, 21 Nov 2005 00:52:42 +0100
+	id S932130AbVKTXyh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 18:54:37 -0500
+Date: Mon, 21 Nov 2005 00:54:36 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Dave Jones <davej@redhat.com>, bcollins@debian.org, dan@dennedy.org,
-       linux1394-devel@lists.sourceforge.net, scjody@steamballoon.com,
-       linux-kernel@vger.kernel.org, stable@kernel.org
+To: Jody McIntyre <scjody@steamballoon.com>
+Cc: bcollins@debian.org, dan@dennedy.org,
+       linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       stable@kernel.org
 Subject: Re: [2.6 patch] drivers/ieee1394/raw1394.c: fix a NULL pointer dereference
-Message-ID: <20051120235242.GR16060@stusta.de>
-References: <20051120232009.GH16060@stusta.de> <20051120234055.GF28918@redhat.com>
+Message-ID: <20051120235436.GT16060@stusta.de>
+References: <20051120232009.GH16060@stusta.de> <20051120233351.GA20781@conscoop.ottawa.on.ca> <20051120234612.GQ16060@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051120234055.GF28918@redhat.com>
+In-Reply-To: <20051120234612.GQ16060@stusta.de>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 20, 2005 at 06:40:55PM -0500, Dave Jones wrote:
-> On Mon, Nov 21, 2005 at 12:20:09AM +0100, Adrian Bunk wrote:
->  > The coverity checker spotted that this was a NULL pointer dereference in 
->  > the "if (copy_from_user(...))" case.
->  > 
->  > 
->  > Signed-off-by: Adrian Bunk <bunk@stusta.de>
->  > 
->  > --- linux-2.6.15-rc1-mm2-full/drivers/ieee1394/raw1394.c.old	2005-11-20 22:08:57.000000000 +0100
->  > +++ linux-2.6.15-rc1-mm2-full/drivers/ieee1394/raw1394.c	2005-11-20 22:09:34.000000000 +0100
->  > @@ -2166,7 +2166,8 @@
->  >  			}
->  >  		}
->  >  	}
->  > -	kfree(cache->filled_head);
->  > +	if(cache->filled_head)
->  > +		kfree(cache->filled_head);
->  >  	kfree(cache);
->  >  
->  >  	if (ret >= 0) {
->  > 
+On Mon, Nov 21, 2005 at 12:46:12AM +0100, Adrian Bunk wrote:
+> On Sun, Nov 20, 2005 at 06:33:51PM -0500, Jody McIntyre wrote:
+> > On Mon, Nov 21, 2005 at 12:20:09AM +0100, Adrian Bunk wrote:
+> > > +	if(cache->filled_head)
+> > > +		kfree(cache->filled_head);
+> > 
+> > Try again.  kfree() of a NULL pointer is perfectly fine.
 > 
-> How do we get that far with a NULL filled_head ?
-> If the kmalloc that fills cache->filled_head fails, we bail out early above.
+> The problem is that cache is NULL...
 
-The problem is not a NULL filled_head.
+And my patch didn't fix this...
 
-The problem is that in the "if (copy_from_user(...))" case, cache has 
-already been freed.
-
-But thinking about this, my patch is also wrong and creates a memory 
-leak and the real bug is the freeing of cache above.
-
-What about the patch below?
-
-> 		Dave
+What about the second try of my patch?
 
 cu
 Adrian
 
+-- 
 
-<--  snip  -->
-
-
-The coverity checker spotted that this was a NULL pointer dereference in 
-the "if (copy_from_user(...))" case since the next step is to 
-kfree(cache->filled_head).
-
-There's no need to free cache at this point, and it's getting free'd 
-later.
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.15-rc1-mm2-full/drivers/ieee1394/raw1394.c.old	2005-11-20 22:08:57.000000000 +0100
-+++ linux-2.6.15-rc1-mm2-full/drivers/ieee1394/raw1394.c	2005-11-21 00:49:38.000000000 +0100
-@@ -2131,7 +2131,6 @@
- 			   req->req.length)) {
- 		csr1212_release_keyval(fi->csr1212_dirs[dr]);
- 		fi->csr1212_dirs[dr] = NULL;
--		CSR1212_FREE(cache);
- 		ret = -EFAULT;
- 	} else {
- 		cache->len = req->req.length;
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

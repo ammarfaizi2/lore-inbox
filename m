@@ -1,65 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbVKTUhh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750802AbVKTUiR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750798AbVKTUhh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 15:37:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbVKTUhh
+	id S1750802AbVKTUiR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 15:38:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750804AbVKTUiR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 15:37:37 -0500
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:54967 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S1750798AbVKTUhg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 15:37:36 -0500
-Date: Sun, 20 Nov 2005 21:36:03 +0100
-From: Luca <kronos@kronoz.cjb.net>
-To: linux-kernel@vger.kernel.org
-Cc: axboe@suse.de
-Subject: [2.6.14.2] Badness in as_insert_request at drivers/block/as-iosched.c:1519
-Message-ID: <20051120203603.GA12216@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-Mime-Version: 1.0
+	Sun, 20 Nov 2005 15:38:17 -0500
+Received: from webbox4.loswebos.de ([213.187.93.205]:21406 "EHLO
+	webbox4.loswebos.de") by vger.kernel.org with ESMTP
+	id S1750802AbVKTUiQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 15:38:16 -0500
+Date: Sun, 20 Nov 2005 21:16:12 +0100
+From: Marc Koschewski <marc@osknowledge.org>
+To: Fabio Erculiani <lxnay@lxnaydesign.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [IDEA] Enable debugging in userspace?
+Message-ID: <20051120201611.GA7981@stiffy.osknowledge.org>
+References: <200511202054.42479.lxnay@lxnaydesign.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <200511202054.42479.lxnay@lxnaydesign.net>
+X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
+X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
+X-Operating-System: Linux stiffy 2.6.15-rc1-marc
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-while playing an audio CD with XMMS using digital audio extraction the
-kernel started flooding my logs (syslog writes my kernel logs synchronously)
-with the following message:
+* Fabio Erculiani <lxnay@lxnaydesign.net> [2005-11-20 20:54:42 +0100]:
 
- cdrom: dropping to single frame dma
- arq->state: 4
- Badness in as_insert_request at drivers/block/as-iosched.c:1519
-  [<c0104027>] dump_stack+0x17/0x20
-  [<c0263b2c>] as_insert_request+0x5c/0x160
-  [<c025aa0a>] __elv_add_request+0x8a/0xc0
-  [<c025aa75>] elv_add_request+0x35/0x70
-  [<c025dc4b>] blk_execute_rq_nowait+0x3b/0x50
-  [<c025dcda>] blk_execute_rq+0x7a/0xb0
-  [<c028daad>] cdrom_read_cdda_bpc+0x14d/0x1b0
-  [<c028db68>] cdrom_read_cdda+0x58/0xc0
-  [<c028f025>] mmc_ioctl+0x735/0x930
-  [<c028e5c2>] cdrom_ioctl+0x9f2/0xca0
-  [<c028aabe>] idecd_ioctl+0x5e/0x70
-  [<c025ffa5>] blkdev_driver_ioctl+0x45/0x80
-  [<c0260157>] blkdev_ioctl+0x177/0x180
-  [<c0162a7b>] block_ioctl+0x1b/0x30
-  [<c016cf74>] do_ioctl+0x74/0x90
-  [<c016d109>] vfs_ioctl+0x59/0x1c0
-  [<c016d2a9>] sys_ioctl+0x39/0x60
-  [<c01031a5>] syscall_call+0x7/0xb
+> Today, one idea is floating around me and bugging my brain (read: headache).
+> If I could be a newbie, and if I have a problem with the latest and greatest 
+> linux distro, I start googling and looking for a solution. The problem is 
+> that someone write that I have to enable debugging mode in kernel 
+> configuration, recompile everything and reboot. That's quite impossible for a 
+> newbie, isn't it?
+> So, why don't add an option to enable/disable debugging mode in sysfs?
+> 
+> Like:
+> 
+> /* DEBUG MODE ON */
+> echo "1" > /sys/kernel/debugging/debug_mode
+> /* DEBUG MODE OFF */
+> echo "0" > /sys/kernel/debugging/debug_mode
+> 
+> I know that debugging code might (remove "might") increase the kernel size, 
+> but men, we have >256MB of RAM and >1GB of hard drive space.
+> 
 
-This happens both with my DVD unit and the CD/RW unit. The cause may be
-a couple of skratches on the disk (my portable cd player is happy with
-it though) and the drives behave fine with other audio disks. In the
-dmesg there isn't any other error related to the cd (i.e. no medium
-errors...)
+Fabio,
 
-As workaround I'm using noop scheduler for the unit...
+basically I would rate such a 'solution' a pro. But first a few cons
+came up my mind:
 
-Luca
--- 
-Home: http://kronoz.cjb.net
-K.R.O.N.O.S
-Kinetic Replicant Optimized for Nocturnal Observation and Sabotage
+1.) If you globally enable 'debug_mode' the user (and even more the
+    newbie) is blown away by the enormous messages that would show up
+    and thus these would be rendered useless in some way.
+2.) The debug messages would appear 'just in time'. No matter, if they
+    do because of a fault or just for informational purposes. How do you
+    want to achieve to stack the messages i the right order for someone
+    who does NOT deal with a system's internal to interpret these
+    messages correctly? I mean, we're not talking about such stuff as 
+
+	    usbcore: registered new driver usbmouse
+
+    We're talking about stuff like
+
+	    hub->hdev[XXX]: hub->status->hub = XXX,
+
+    OK, anything my be tagged with the module the info comes from but
+    this would mean a) enormous amount of work to do tagging the
+    messages and b) implementing the messages that'll be thrown, when
+    the debug_mode is enabled.
+3.) It would be a rather optional thing as probs have been located using
+    back- and calltrace + friends. Important errors or failures are
+    reported in the logs nevertheless.
+4.) Worse problems (besides stuff as 'My ACX100 Wireless adaptor does
+    not work out of the box' are usually fixed by the distros people who
+    know how to handle kernel bugs.
+
+Regards,
+	Marc

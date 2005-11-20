@@ -1,75 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbVKTMT1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbVKTMx3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751222AbVKTMT1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 07:19:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbVKTMT1
+	id S1751228AbVKTMx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 07:53:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbVKTMx3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 07:19:27 -0500
-Received: from zorg.st.net.au ([203.16.233.9]:6604 "EHLO borg.st.net.au")
-	by vger.kernel.org with ESMTP id S1751222AbVKTMT0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 07:19:26 -0500
-Message-ID: <43806A13.80706@torque.net>
-Date: Sun, 20 Nov 2005 22:20:35 +1000
-From: Douglas Gilbert <dougg@torque.net>
-Reply-To: dougg@torque.net
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Sun, 20 Nov 2005 07:53:29 -0500
+Received: from zproxy.gmail.com ([64.233.162.194]:7633 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751228AbVKTMx3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 07:53:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GiCCfX1WQG1vkx8xzrBWTCiUJFfZbfZZBNXoEy9m/zEoVCDXrQs0crqOit+luuv+bkPH6OwSWGIQdiA+BwG5TCaU2Cy5bpr5NrrKt43K4yNoPKWrGgTjoeZy+2+pebpDr7DaDCBnohq0BkVGCUQIU0EWDlRQXObeOtqqUVH7co4=
+Message-ID: <6bffcb0e0511200453g65c76fa4h@mail.gmail.com>
+Date: Sun, 20 Nov 2005 13:53:28 +0100
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+To: Hugh Dickins <hugh@veritas.com>
+Subject: Re: 2.6.15-rc1-mm2
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0511200802460.3938@goblin.wat.veritas.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: marc@perkel.com
-Subject: Re: Does Linux support powering down SATA drives?
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051117234645.4128c664.akpm@osdl.org>
+	 <6bffcb0e0511191623q31a143fdr@mail.gmail.com>
+	 <Pine.LNX.4.61.0511200802460.3938@goblin.wat.veritas.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Perkel wrote:
-> Trying to save power consumption. I have a backup drive that is used
-> only once a day to back up the main drive. So - why should I run it more
-> that 10 minutes a day? What I'd like to do is keep it in an off state
-> and then at night power it on, mount it up, do the backup, unmount it,
-> and shut it down. Can I do that?
+Hi,
 
-Yes, from lk 2.6.14 onwards.
+On 20/11/05, Hugh Dickins <hugh@veritas.com> wrote:
+> On Sun, 20 Nov 2005, Michal Piotrowski wrote:
+> >
+> > It looks similar to Rafael J. Wysocki report. It's full reproductible
+> > and appears when playing mp3's in totem.
+> >
+> > debian:/home/michal# cat /var/log/kern.log | grep -c "Bad page state
+> > at free_hot_cold_page"
+>
+> Please let me know if it's not fixed by:
+>
+> --- 2.6.15-rc1-mm2/sound/core/memalloc.c        2005-11-12 09:01:28.000000000 +0000
+> +++ linux/sound/core/memalloc.c 2005-11-19 19:03:32.000000000 +0000
+> @@ -197,6 +197,7 @@ void *snd_malloc_pages(size_t size, gfp_
+>
+>         snd_assert(size > 0, return NULL);
+>         snd_assert(gfp_flags != 0, return NULL);
+> +       gfp_flags |= __GFP_COMP;        /* compound page lets parts be mapped */
+>         pg = get_order(size);
+>         if ((res = (void *) __get_free_pages(gfp_flags, pg)) != NULL) {
+>                 mark_pages(virt_to_page(res), pg);
+> @@ -241,6 +242,7 @@ static void *snd_malloc_dev_pages(struct
+>         snd_assert(dma != NULL, return NULL);
+>         pg = get_order(size);
+>         gfp_flags = GFP_KERNEL
+> +               | __GFP_COMP    /* compound page lets parts be mapped */
+>                 | __GFP_NORETRY /* don't trigger OOM-killer */
+>                 | __GFP_NOWARN; /* no stack trace print - this call is non-critical */
+>         res = dma_alloc_coherent(dev, PAGE_SIZE << pg, dma, gfp_flags);
+>
 
-An implementation (based on SAT:
-http://www.t10.org/ftp/t10/drafts/sat/sat-r07.pdf) of
-the START STOP UNIT SCSI command went into libata in
-lk 2.6.14 . Hence you can use SCSI tools such as
-sg_start (sg3_utils) or sdparm (sdparm) to place a
-SATA disk in standby mode. For example:
-"sg_start 0 /dev/sda" and "sdparm --command=stop /dev/sda"
-are equivalent to "hdparm -y". The next command sent to that
-disk will cause it to spin up again.
+Patch has fixed problem. Thanks.
 
-The power state machines of SCSI disks, ATA disks
-and CD/DVD drives overlap but are not the same.
-SATA and SAS transports add some wrinkles, see:
-http://www.torque.net/sg/power.html
-Spinning down disks with no mounted file systems makes
-sense. However repeatedly spinning down a disk that is
-periodically (e.g. 30 seconds later) accessed may shorten
-its life.
-
-In lk 2.6.15-rc1 implementations of the ATA COMMAND
-PASS THROUGH (12 and 16 byte) SCSI commands went into
-libata. These are defined in SAT (reference above).
-libata also translates the HDIO_DRIVE_CMD and
-HDIO_DRIVE_TASK ioctls into those pass through commands.
-Recent versions of hdparm (I've tried 6.1 and 6.3) work as
-expected. Hence "hdparm -y /dev/sda" puts the libata-connected
-SATA disk /dev/sda into standby mode.
-smartmontools also works for libata-connected SATA disks
-in lk 2.6.15-rc1 .
-
-The picture is not as bright for external USB and
-1394 enclosures of ATA disks. They need to either
-support the START STOP UNIT SCSI command or the
-SAT pass through commands. I have not seen the
-former and won't hold my breath waiting for the
-latter.
-
-Doug Gilbert
-
+Regards,
+Michal Piotrowski

@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750888AbVKTWg4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbVKTWid@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750888AbVKTWg4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 17:36:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750894AbVKTWg4
+	id S1750894AbVKTWid (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 17:38:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbVKTWic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 17:36:56 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:33878 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S1750861AbVKTWg4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 17:36:56 -0500
-Subject: Re: Linux 2.6.15-rc2
-From: Kasper Sandberg <lkml@metanurb.dk>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200511200018.11791.gene.heskett@verizon.net>
-References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org>
-	 <200511200018.11791.gene.heskett@verizon.net>
-Content-Type: text/plain
-Date: Sun, 20 Nov 2005 23:36:54 +0100
-Message-Id: <1132526214.15938.5.camel@localhost>
+	Sun, 20 Nov 2005 17:38:32 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:6045 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750894AbVKTWic (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 17:38:32 -0500
+Date: Sun, 20 Nov 2005 16:38:29 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Dave Hansen <haveblue@us.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Paul Jackson <pj@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       frankeh@watson.ibm.com
+Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
+Message-ID: <20051120223829.GA9601@sergelap.austin.ibm.com>
+References: <20051114212341.724084000@sergelap> <20051114153649.75e265e7.pj@sgi.com> <20051115055107.GB3252@IBM-BWN8ZTBWAO1> <20051113152214.GC2193@spitz.ucw.cz> <9901B851-17B2-4AEB-813F-A92560DFE289@mac.com> <20051116203603.GA12505@elf.ucw.cz> <1132174090.5937.14.camel@localhost> <20051119233010.GA3361@spitz.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051119233010.GA3361@spitz.ucw.cz>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-11-20 at 00:18 -0500, Gene Heskett wrote:
-> On Saturday 19 November 2005 22:40, Linus Torvalds wrote:
-> >There it is (or will soon be - the tar-ball and patches are still
-> >uploading, and mirroring can obviously take some time after that).
+Quoting Pavel Machek (pavel@ucw.cz):
+> Hi!
 > 
-> First breakage report, tvtime, blue screen no audio.  Trying slightly
-> different .config for next build.  My tuner (OR51132) seems to be
-> permanently selected in an xconfig screen.  Dunno if thats good or bad
-> ATM.
-if it needs to be loaded with a parameter you will need to build it as a
-module.. my saa7134 chip needs card=9.
-
-i am experiencing same problems with saa7134, no video, however i do get
-audio.
-
-this is a way to (incorrectly according to v4l devs) "fix" it:
-drivers/media/video/video-buf.c
-change line 1233 to this:
-        vma->vm_flags |= VM_DONTEXPAND;
-
+> > > Hmm... it is hard to judge a patch without context. Anyway, can't we
+> > > get process snasphot/resume without virtualizing pids? Could we switch
+> > > to 128-bits so that pids are never reused or something like that?
+> > 
+> > That might work fine for a managed cluster, but it wouldn't be a good
+> > fit if you ever wanted to support something like a laptop in
+> > disconnected operation, or if you ever want to restore the same snapshot
+> > more than once.  There may also be some practical userspace issues
+> > making pids that large.
+> > 
+> > I also hate bloating types and making them sparse just for the hell of
+> > it.  It is seriously demoralizing to do a ps and see
+> > 7011827128432950176177290 staring back at you. :)
 > 
+> Well, doing cat /var/something/foo.pid, and seeing pid of unrelated process
+> is wrong, too... especially if you try to kill it....
 
+Good point.  However the foo.pid scheme is incompatible with
+checkpoint/restart and migration regardless.
+
+	a. what good is trying to kill something using such a file if
+	the process is checkpointed+killed, to be restarted later?
+	b. it is expected that any files used by a checkpointable
+	processes exist on a network fs, so that the fd can be moved.
+	What good is foo.pid if it's on a network filesystem?
+
+So if you wanted to checkpoint and restart/migrate a process with a
+foo.pid type of file, you might need to start it with a private
+tmpfs in a private namespace.  That part is trivial to do as part
+of the management tools, though checkpointing a whole tmpfs per process
+could be unfortunate.
+
+-serge

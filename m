@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbVKTA5w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750982AbVKTBIi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750899AbVKTA5w (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 19:57:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750937AbVKTA5v
+	id S1750982AbVKTBIi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 20:08:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751008AbVKTBIi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 19:57:51 -0500
-Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:12817 "EHLO
-	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
-	id S1750841AbVKTA5v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 19:57:51 -0500
-Message-ID: <437FCA07.40600@superbug.co.uk>
-Date: Sun, 20 Nov 2005 00:57:43 +0000
-From: James Courtier-Dutton <James@superbug.co.uk>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marc Perkel <marc@perkel.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Does Linux support powering down SATA drives?
-References: <437F63C1.6010507@perkel.com>
-In-Reply-To: <437F63C1.6010507@perkel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 19 Nov 2005 20:08:38 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:61668 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750943AbVKTBIi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 20:08:38 -0500
+Date: Sat, 19 Nov 2005 17:08:18 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel@vger.kernel.org, mingo@redhat.com
+Subject: Re: [PATCH] i386, nmi: signed vs unsigned mixup
+Message-Id: <20051119170818.5e16afae.akpm@osdl.org>
+In-Reply-To: <9a8748490511191630r3ad3e24w4e6d21b3f3b0c3a7@mail.gmail.com>
+References: <200511200010.33658.jesper.juhl@gmail.com>
+	<20051119162805.47796de9.akpm@osdl.org>
+	<9a8748490511191630r3ad3e24w4e6d21b3f3b0c3a7@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Perkel wrote:
-> Trying to save power consumption. I have a backup drive that is used 
-> only once a day to back up the main drive. So - why should I run it more 
-> that 10 minutes a day? What I'd like to do is keep it in an off state 
-> and then at night power it on, mount it up, do the backup, unmount it, 
-> and shut it down. Can I do that?
+Jesper Juhl <jesper.juhl@gmail.com> wrote:
+>
+> > -ETOOTRIVIAL.  The code as-is works OK, and we have these sorts of things
+>  > all over the tee.
+>  >
+>  Fair enough.
 > 
+>  Would a patch to clean this sort of stuff up in bulk all over be of
+>  interrest or should I just leave it alone?
 
-Support is being added soon, I think the latest 2.6.15-rc1 supports 
-passthru. I had to install an extra patch due to a bug where it used the 
-same IDE device irrespective of one asking for /dev/sda or /dev/sdb
-I think the fix will be in rc2.
+Such a patchset would be pretty intrusive and it's not exactly trivial - at
+each site we need to decide whether we should be using signed or unsigned,
+then change one or the other, then do a full-scope check to see what the
+implications of that change are.
 
-hdparm -S60 works fine for me. It spins down, and therefore stay nices a 
-cool.
-hdparm -y should work, and is like an immeadiate -S
-hdparm -Y is kind of dangerous at the moment. It powers down the drive, 
-but will not come back unless the entire IDE bus goes through a reset. 
-The feature to support that is called hotplug, but that is not 
-implemented yet for SATA. So, basically, if you do hdparm -Y, you won't 
-be able to wake it up again at the moment. At least hdparm -S60 is a 
-start towards what you want.
+I think the two risks of signedness sloppiness are a) inadvertent or
+premature overflow and b) comparisons, where the signed quantity went
+negative.
 
-James
+Problem b) is more serious, and `gcc -Wsigned-compare' may be used to
+identify possible problems.  There are quite a lot of places need checking,
+iirc.
+

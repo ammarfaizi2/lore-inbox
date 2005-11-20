@@ -1,98 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbVKTXmq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbVKTXpS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932133AbVKTXmq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 18:42:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbVKTXmp
+	id S932137AbVKTXpS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 18:45:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbVKTXpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 18:42:45 -0500
-Received: from mailgate.Cadence.COM ([158.140.2.1]:60036 "EHLO
-	mailgate.Cadence.COM") by vger.kernel.org with ESMTP
-	id S932133AbVKTXmo convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 18:42:44 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Sun, 20 Nov 2005 18:45:18 -0500
+Received: from zproxy.gmail.com ([64.233.162.194]:31888 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932137AbVKTXpR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 18:45:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=bXkKnHerwKRcBEw+avIV9OUvv9SB6S1suiHcYaSGzU7Ki8m/hcs4B4bmL+z8/fBHI0uZksf2M5OLMDwemp85gQNQcI1wxrvLGOqh+a4fSycHXpzW3m+sJk+tT7nhtLMK6pfFOP4D74U9kp/WiKJ8clOD29gbI0oDhz6xq3iRoNs=
+Message-ID: <9a8748490511201545n70e0e6fftd0f1aaf748abe05@mail.gmail.com>
+Date: Mon, 21 Nov 2005 00:45:14 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [2.6 patch] drivers/ieee1394/raw1394.c: fix a NULL pointer dereference
+Cc: bcollins@debian.org, dan@dennedy.org,
+       linux1394-devel@lists.sourceforge.net, scjody@steamballoon.com,
+       linux-kernel@vger.kernel.org, stable@kernel.org
+In-Reply-To: <20051120232009.GH16060@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Subject: RE: unable to use dpkg 2.6.15-rc2
-Date: Sun, 20 Nov 2005 15:41:00 -0800
-Message-ID: <D11CB0F7920F2641B06153812BB47BD704E2BE@MAILSJ1.global.cadence.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: unable to use dpkg 2.6.15-rc2
-Thread-Index: AcXuJ3tGL9uiDxdgQ0K+49GkHFiR2gABGHG5
-References: <20051120075233.GA20295@the-penguin.otak.com> <20051121100820.D6790390@wobbly.melbourne.sgi.com>
-From: "Chris Croswhite" <csc@cadence.com>
-To: "Nathan Scott" <nathans@sgi.com>,
-       "Lawrence Walton" <lawrence@the-penguin.otak.com>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>, <linux-xfs@oss.sgi.com>
+Content-Disposition: inline
+References: <20051120232009.GH16060@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just another data point, running 2615rc1/2 I do not have an issue with XFS runing on MPT scsi device.
+On 11/21/05, Adrian Bunk <bunk@stusta.de> wrote:
+> The coverity checker spotted that this was a NULL pointer dereference in
+> the "if (copy_from_user(...))" case.
+>
+>
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>
+> --- linux-2.6.15-rc1-mm2-full/drivers/ieee1394/raw1394.c.old    2005-11-20 22:08:57.000000000 +0100
+> +++ linux-2.6.15-rc1-mm2-full/drivers/ieee1394/raw1394.c        2005-11-20 22:09:34.000000000 +0100
+> @@ -2166,7 +2166,8 @@
+>                         }
+>                 }
+>         }
+> -       kfree(cache->filled_head);
+> +       if(cache->filled_head)
+> +               kfree(cache->filled_head);
+>         kfree(cache);
+>
+Hmmm,  kfree() deals with NULL pointers just fine, so there's no
+problem if cache->filled_head is NULL. There is, however, a NULL
+pointer deref problem if `cache' is NULL, but that's not what your
+patch checks for.
+
+Shouldn't your patch be doing something like this (that is if cache
+can ever be NULL at this point)?  :
+
+--- linux-2.6.15-rc2-orig/drivers/ieee1394/raw1394.c    2005-11-20
+22:25:27.000000000 +0100
++++ linux-2.6.15-rc2/drivers/ieee1394/raw1394.c 2005-11-21
+00:33:34.000000000 +0100
+@@ -2171,8 +2171,10 @@ static int modify_config_rom(struct file
+                        }
+                }
+        }
+-       kfree(cache->filled_head);
+-       kfree(cache);
++       if (cache) {
++               kfree(cache->filled_head);
++               kfree(cache);
++       }
+
+        if (ret >= 0) {
+                /* we have to free the request, because we queue no response,
 
 
------Original Message-----
-From: linux-xfs-bounce@oss.sgi.com on behalf of Nathan Scott
-Sent: Sun 20-Nov-05 15:08
-To: Lawrence Walton
-Cc: linux-kernel; linux-xfs@oss.sgi.com
-Subject: Re: unable to use dpkg 2.6.15-rc2
- 
-Hi there,
-
-On Sat, Nov 19, 2005 at 11:52:33PM -0800, Lawrence Walton wrote:
-> Hi!
-> 
-> This is the second report of this error.
-
-Please CC linux-xfs if you want to be sure XFS people see your
-report.
-
-> It's reproducible in 2.6.15-rc1, 2.6.15-rc1-mm1, 2.6.15-rc1-mm2 and
-> 2.6.15-rc2.
-> 
-> It does not occur in 2.6.14.
-> 
-> Most easily triggered by "make clean" in the Linux source, for those of
-> you without access to dpkg. But both clean and dpkg will trigger it.
-
-So far I've not been able to reproduce this; I'm using "make clean"
-and it works just fine for me (I'm using the current git tree).
-
-> There are no oops.
-
-No, it looks like XFS is stuck waiting for an IO to complete.
-
-> I'm not sure what to report next, though If I were to guess it is a
-> interaction between XFS file system and SCSI. I've got another SCSI box
-> that is very similar that runs rc1, rc1-mm1 and rc1-mm2 just fine, the
-> only real difference being it has a ext3 file system instead.
-> 
-> The driver for the SCSI card (aic7xxx) did not appear change. 
-> lspi says it's a Adaptec AIC-7892A U160/m (rev 2) card.
-
->From your earlier report with the stack traces included, it looks
-like XFS is waiting for a log write to complete, but it never
-does (which is not valid driver behaviour).  I'm using the sym53c8xx
-driver in my testing BTW, which is different to you, so maybe see if
-this still happens for you with different hardware?  (if you can).
-
-> Questions, patches, flames are welcome.
-
-You could also try to drop the XFS (fs/xfs) code from 2.6.14 into
-2.6.15-rc2 and see if your problem persists.  There isn't anything
-I can see from scanning though everything we committed into .15 so
-far that would explain this.  Oh, an easier test you could do would
-be to try XFS CVS from oss.sgi.com - that has 2.6.14 + all the XFS
-changes since then, so that should confirm/deny an XFS regression
-too.  Thanks!
-
-cheers.
-
--- 
-Nathan
-
-
-
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

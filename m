@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbVKTDBJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbVKTDJG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751170AbVKTDBJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 22:01:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbVKTDBJ
+	id S1751172AbVKTDJG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 22:09:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbVKTDJG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 22:01:09 -0500
-Received: from dsl093-119-032.blt1.dsl.speakeasy.net ([66.93.119.32]:22966
-	"EHLO bushido.realityfailure.org") by vger.kernel.org with ESMTP
-	id S1751170AbVKTDBI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 22:01:08 -0500
-Date: Sat, 19 Nov 2005 22:00:59 -0500 (EST)
-From: John Jasen <jjasen@realityfailure.org>
-X-X-Sender: jjasen@bushido
-To: Benjamin LaHaise <bcrl@kvack.org>
-cc: Bharath Ramesh <krosswindz@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: intel8x0 sound of silence on dell system
-In-Reply-To: <20051118181945.GB22566@kvack.org>
-Message-ID: <Pine.LNX.4.63.0511192200030.16530@bushido>
-References: <20051118162300.GA22092@kvack.org>
- <c775eb9b0511180959r12206562h5a294d9505d95d04@mail.gmail.com>
- <20051118180410.GA22566@kvack.org> <Pine.LNX.4.63.0511181310410.23989@bushido>
- <20051118181945.GB22566@kvack.org>
+	Sat, 19 Nov 2005 22:09:06 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:7127 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751172AbVKTDJF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 22:09:05 -0500
+Date: Sun, 20 Nov 2005 04:08:54 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Rob Landley <rob@landley.net>
+cc: linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: Quick and dirty miniconfig howto, with feature suggestions.
+In-Reply-To: <200511170629.42389.rob@landley.net>
+Message-ID: <Pine.LNX.4.61.0511192338300.1609@scrub.home>
+References: <200511170629.42389.rob@landley.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (bushido.realityfailure.org [10.0.0.10]); Sat, 19 Nov 2005 22:01:00 -0500 (EST)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Nov 2005, Benjamin LaHaise wrote:
+Hi,
 
-> On Fri, Nov 18, 2005 at 01:11:52PM -0500, John Jasen wrote:
->> You can try adding buggy_irq=1, buggy_semaphore=1 or both to your
->> modprobe.conf file, and see if any of those help. It did in my case.
->
-> Doesn't seem to have an effect here.
+On Thu, 17 Nov 2005, Rob Landley wrote:
 
-any dmesg or /var/log/messages output?
+> 1) Add a "make miniconfig" which works like allnoconfig but A) takes 
+> mini.config as its' default name, B) redirects stdout to /dev/null to make it 
+> easier to spot typoed symbols, C) aborts (exits with an error, does not write 
+> new .config) if mini.config isn't found or if it contains an unrecognized 
+> symbol.
 
-lspci output of the card?
+I think I better make allnoconfig silent (unless with V=1 or something), 
+which makes it your miniconfig already almost like allnoconfig.
+I'm not quite sure about aborting there are other error possibilities 
+(e.g. new dependencies), so you never quite can trust the error value 
+anyway.
 
-entry from modprobe.conf?
+> 2) Fix the interaction with O= so that it looks for the mini.config file in 
+> the O= directory and not the source directory, so people don't _have_ to 
+> specify KCONFIG_ALLCONFIG when building out of tree.
 
--- 
--- John E. Jasen (jjasen@realityfailure.org)
--- No one will sorrow for me when I die, because those who would
--- are dead already. -- Lan Mandragoran, The Wheel of Time, New Spring
+I indeed need to fix this.
+
+bye, Roman

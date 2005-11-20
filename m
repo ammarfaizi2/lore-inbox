@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbVKTVHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbVKTVMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932073AbVKTVHe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 16:07:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbVKTVHe
+	id S1750800AbVKTVMR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 16:12:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750861AbVKTVMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 16:07:34 -0500
-Received: from zproxy.gmail.com ([64.233.162.204]:47207 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932073AbVKTVHd convert rfc822-to-8bit
+	Sun, 20 Nov 2005 16:12:17 -0500
+Received: from wproxy.gmail.com ([64.233.184.197]:55801 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750800AbVKTVMQ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 16:07:33 -0500
+	Sun, 20 Nov 2005 16:12:16 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iwfb2T4xYU02irJFOA2S4137PuZMVkbTo36qMRYHbNgxi7OMc2vF32UWhCn6Id/INCuC+0C3fakbQCvHjJkeav7dT/vSUs35DMXZSmdUEY2/l5UbBjrfapoj6QmlF0E88dgSSIpH2c+CxXHv752wjsT5lXO0XxGDTIwyz3F9R3I=
-Message-ID: <29495f1d0511201307n29fd2095md0d9543d5aef9968@mail.gmail.com>
-Date: Sun, 20 Nov 2005 13:07:32 -0800
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: 7eggert@gmx.de
-Subject: Re: I made a patch and would like feedback/testers (drivers/cdrom/aztcd.c)
-Cc: =?ISO-8859-1?Q?Daniel_Marjam=E4ki?= <daniel.marjamaki@comhem.se>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <E1EdwGs-0000qv-NL@be1.lrz>
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=bRsfWAzbfPYz/PlzBKml4MriTVLThlJKGRTyJMGF0U2yZdW2Dt0ZFGSNLqBwcEtebchs3G+KyVt4tZQKRoe9xn0HKPPW5pklluFNFcWk9T1QfzyzNrbnsBJhHS5Ctn2fd7N/U4U6RSoBJ9iWCt+qNb+X8GgBpVDPz5N0b9EvHBM=
+Message-ID: <9611fa230511201312r5f43e8ady7023b4bde170596e@mail.gmail.com>
+Date: Sun, 20 Nov 2005 21:12:15 +0000
+From: Tarkan Erimer <tarkane@gmail.com>
+To: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Sun's ZFS and Linux
+In-Reply-To: <20051119172337.GA24765@thunk.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <5aZsv-3CJ-17@gated-at.bofh.it> <E1EdwGs-0000qv-NL@be1.lrz>
+References: <9611fa230511181538g3e8ec403uafa9ed32b560fb0c@mail.gmail.com>
+	 <20051119172337.GA24765@thunk.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/20/05, Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org> wrote:
-> Daniel Marjamäki <daniel.marjamaki@comhem.se> wrote:
->
-> > -     aztTimeOutCount = 0;
-> > +     aztTimeOut = jiffies + 2;
->
-> Different timeout based on HZ seems wrong.
+On 11/19/05, Theodore Ts'o <tytso@mit.edu> wrote:
+> That wouldn't be a "port", it would have to be a complete
+> reimplementation from scratch.  And, of course, of further concern
+> would be whether or not there are any patents that Sun may have filed
+> covering ZFS.  If the patents have only been licensed for CDDL
+> licensed code, then that won't help a GPL'ed covered reimplementation.
 
-True; I'm trying to think of a good way to emulate 8000000 iterations
-of loop, though. Really, this is not terrible to use 2 jiffies of
-offset, as we try to sleep 1 jiffy each time. As long as we don't get
-a signal *right* away, we'll sleep probably for 2 loops. Not sure,
-though, may be useful to see what happens in practice and then debug
-further for the right value.
+Thanks for the explanation. BTW, I wonder something: Is there any
+possibility to give GPL an exception to include and/or link to CDDL
+code?
 
-May also want to use time_after_eq() not time_after().
-
-Thanks,
-Nish
+Thanks.

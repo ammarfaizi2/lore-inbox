@@ -1,72 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbVKTAaf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750842AbVKTAm4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbVKTAaf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 19:30:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbVKTAaf
+	id S1750842AbVKTAm4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 19:42:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbVKTAm4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 19:30:35 -0500
-Received: from xproxy.gmail.com ([66.249.82.192]:46189 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750714AbVKTAaf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 19:30:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=SukmG+jU0L6iYrkrDd8VrcAFqg/GH6eLJPyUnFCszjkYx4GgbD2Dsnnlg1meEkExFj3rKLn4Pdip+0Ke1XgLoS2PneeSBbZLimedNjaxiLei/E4ArL+oiThjmfBTL+FoTG3j8AjedeZnkfYqVhOeAPmZxV2A7dfRKaBedlhYo9s=
-Message-ID: <9a8748490511191630r3ad3e24w4e6d21b3f3b0c3a7@mail.gmail.com>
-Date: Sun, 20 Nov 2005 01:30:34 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] i386, nmi: signed vs unsigned mixup
-Cc: linux-kernel@vger.kernel.org, mingo@redhat.com
-In-Reply-To: <20051119162805.47796de9.akpm@osdl.org>
+	Sat, 19 Nov 2005 19:42:56 -0500
+Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:44612 "EHLO
+	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1750814AbVKTAmz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 19:42:55 -0500
+Date: Sun, 20 Nov 2005 00:42:52 +0000 (GMT)
+From: Ken Moffat <zarniwhoop@ntlworld.com>
+To: =?ISO-8859-1?Q?St=E9phane_BAUSSON?= <stephane.bausson@free.fr>
+cc: Ken Moffat <zarniwhoop@ntlworld.com>, linux-kernel@vger.kernel.org
+Subject: Re: Fail to buil linux-2.6.14
+In-Reply-To: <437FAFD4.7020304@free.fr>
+Message-ID: <Pine.LNX.4.63.0511200042050.16769@deepthought.mydomain>
+References: <437CF690.5060206@free.fr> <Pine.LNX.4.63.0511172335570.15546@deepthought.mydomain>
+ <437FAFD4.7020304@free.fr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200511200010.33658.jesper.juhl@gmail.com>
-	 <20051119162805.47796de9.akpm@osdl.org>
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463809536-1010228490-1132447372=:16769"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/20/05, Andrew Morton <akpm@osdl.org> wrote:
-> Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> >
-> > In arch/i386/kernel/nmi.c::nmi_watchdog_tick(), the variable `sum' is
-> > of type "int" but it's used to store the result of
-> > per_cpu(irq_stat, cpu).apic_timer_irqs which is an "unsigned int", it's
-> > also later compared to last_irq_sums[cpu] which is also an
-> > "unsigned int", so `sum' really ought to be unsigned itself.
-> > This small patch makes that change.
-> >
-> > ...
-> >
-> > --- linux-2.6.15-rc1-git7-orig/arch/i386/kernel/nmi.c 2005-11-12 18:07:14.000000000 +0100
-> > +++ linux-2.6.15-rc1-git7/arch/i386/kernel/nmi.c      2005-11-19 23:58:17.000000000 +0100
-> > @@ -528,9 +528,10 @@ void nmi_watchdog_tick (struct pt_regs *
-> >        * Since current_thread_info()-> is always on the stack, and we
-> >        * always switch the stack NMI-atomically, it's safe to use
-> >        * smp_processor_id().
-> >        */
-> > -     int sum, cpu = smp_processor_id();
-> > +     unsigned int sum;
-> > +     int cpu = smp_processor_id();
-> >
-> >       sum = per_cpu(irq_stat, cpu).apic_timer_irqs;
-> >
-> >       if (last_irq_sums[cpu] == sum) {
-> >
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+
+---1463809536-1010228490-1132447372=:16769
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
+
+On Sat, 19 Nov 2005, Stéphane BAUSSON wrote:
+
+> I fixed it by increasing the the 0x400 offset in 
+> arch/i386/kernel/vsyscall.lds to 0xb00 ...
+> I do not understand why this issue is specific to my config.
 >
-> -ETOOTRIVIAL.  The code as-is works OK, and we have these sorts of things
-> all over the tee.
->
-Fair enough.
 
-Would a patch to clean this sort of stuff up in bulk all over be of
-interrest or should I just leave it alone?
+  Me neither.  Just out of interest, which version of glibc are you 
+using ?
 
+Ken
+-- 
+  das eine Mal als Tragödie, das andere Mal als Farce
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+---1463809536-1010228490-1132447372=:16769--

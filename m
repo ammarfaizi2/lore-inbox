@@ -1,44 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750981AbVKTHKD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbVKTHXM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750981AbVKTHKD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 02:10:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751060AbVKTHKD
+	id S1750757AbVKTHXM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 02:23:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbVKTHXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 02:10:03 -0500
-Received: from mail.ocs.com.au ([202.147.117.210]:31172 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S1750981AbVKTHKB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 02:10:01 -0500
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
-From: Keith Owens <kaos@ocs.com.au>
-To: Hua Feijun <hua.feijun@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: a problem with ia64_fc 
-In-reply-to: Your message of "Fri, 18 Nov 2005 15:06:00 +0800."
-             <3fe1d240511172306ved25caam@mail.gmail.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 20 Nov 2005 18:09:41 +1100
-Message-ID: <4869.1132470581@ocs3.ocs.com.au>
+	Sun, 20 Nov 2005 02:23:12 -0500
+Received: from nbg01-smtpauth-04.lumison.net ([87.246.68.12]:5297 "EHLO
+	nbg01-smtpauth-04.lumison.net") by vger.kernel.org with ESMTP
+	id S1750757AbVKTHXM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 02:23:12 -0500
+Date: Sun, 20 Nov 2005 07:22:59 +0000 (GMT)
+From: asmith@vtrl.co.uk
+To: linux-kernel@vger.kernel.org
+Subject: Re: Does Linux support powering down SATA drives?
+In-Reply-To: <200511192304.16302.s0348365@sms.ed.ac.uk>
+Message-ID: <Pine.LNX.4.61.0511200718530.25549@vtrl22.vtrl.co.uk>
+References: <437F63C1.6010507@perkel.com> <1132431907.19692.15.camel@localhost.localdomain>
+ <437F9705.80503@perkel.com> <200511192304.16302.s0348365@sms.ed.ac.uk>
+Organization: Valley Technology Research Ltd
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Nov 2005 15:06:00 +0800, 
-Hua Feijun <hua.feijun@gmail.com> wrote:
->Who can tell me the function of ia64_fc
+I would agree with your view on IDE becoming obsolete on hard drives, but I as 
+yet, am not aware of any CD/DVD drives with a SATA interface.
 
-It flushes the cachelines that correspond to an address.  By design the
-IA64 instruction cache does not detect self modifying code, so an
-instruction can be changed in memory but the old instruction can still
-be in cache.  ia64_fc is used to flush the changed cacheline to ensure
-that you execute the modified instruction.
 
->and  what is  the different of
->system_call_table among ia64,x86_64t and i386?
 
-You will have to be more specific about your question, what are you
-trying to do with the syscall table?  Since you are also asking about
-ia64_fc I guess that you are trying to patch the syscall table, and the
-standard answer to that is "DO NOT PATCH THE SYSCALL TABLE!".  It is
-not supported and will not be supported.
 
+On Sat, 19 Nov 2005, Alistair John Strachan wrote:
+
+> On Saturday 19 November 2005 21:20, Marc Perkel wrote:
+> [snip]
+>>
+>> SATA isn't really "new" any more. I personally consider IDE to be
+>> obsolete. Seems to me that Linux should fully support SATA to the same
+>> level as IDE drives. And I'm saying that as someone who doesn't have to
+>> actually code it. But I will leave messages of praise and thanks in this
+>> mailing list if you all catch up.
+>
+> As Alan mentions in another thread, what is needed is true hotplug support,
+> which is difficult with some controllers for which we have poor (or no)
+> documentation. I wouldn't hold your breath.
+>
+> As for pass-thru standby/sleep commands, as long as the pass-thru patch got
+> into mainline, try a very recent version of hdparm which should understand
+> sending the ATA commands over SCSI (libata).
+>
+>

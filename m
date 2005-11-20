@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbVKTXjl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbVKTXma@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932129AbVKTXjl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 18:39:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbVKTXjl
+	id S932131AbVKTXma (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 18:42:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbVKTXma
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 18:39:41 -0500
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:33034 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S932129AbVKTXjk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 18:39:40 -0500
-To: Tarkan Erimer <tarkane@gmail.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Sun's ZFS and Linux
-References: <9611fa230511181538g3e8ec403uafa9ed32b560fb0c@mail.gmail.com>
-	<20051119172337.GA24765@thunk.org>
-	<9611fa230511201312r5f43e8ady7023b4bde170596e@mail.gmail.com>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: more boundary conditions than the Middle East.
-Date: Sun, 20 Nov 2005 23:39:08 +0000
-In-Reply-To: <9611fa230511201312r5f43e8ady7023b4bde170596e@mail.gmail.com> (Tarkan
- Erimer's message of "20 Nov 2005 21:12:42 -0000")
-Message-ID: <87r79a7uub.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
+	Sun, 20 Nov 2005 18:42:30 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:50869 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932131AbVKTXm3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 18:42:29 -0500
+Date: Sun, 20 Nov 2005 18:40:55 -0500
+From: Dave Jones <davej@redhat.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: bcollins@debian.org, dan@dennedy.org,
+       linux1394-devel@lists.sourceforge.net, scjody@steamballoon.com,
+       linux-kernel@vger.kernel.org, stable@kernel.org
+Subject: Re: [2.6 patch] drivers/ieee1394/raw1394.c: fix a NULL pointer dereference
+Message-ID: <20051120234055.GF28918@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Adrian Bunk <bunk@stusta.de>, bcollins@debian.org, dan@dennedy.org,
+	linux1394-devel@lists.sourceforge.net, scjody@steamballoon.com,
+	linux-kernel@vger.kernel.org, stable@kernel.org
+References: <20051120232009.GH16060@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051120232009.GH16060@stusta.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20 Nov 2005, Tarkan Erimer yowled:
-> On 11/19/05, Theodore Ts'o <tytso@mit.edu> wrote:
->> That wouldn't be a "port", it would have to be a complete
->> reimplementation from scratch.  And, of course, of further concern
->> would be whether or not there are any patents that Sun may have filed
->> covering ZFS.  If the patents have only been licensed for CDDL
->> licensed code, then that won't help a GPL'ed covered reimplementation.
-> 
-> Thanks for the explanation. BTW, I wonder something: Is there any
-> possibility to give GPL an exception to include and/or link to CDDL
-> code?
+On Mon, Nov 21, 2005 at 12:20:09AM +0100, Adrian Bunk wrote:
+ > The coverity checker spotted that this was a NULL pointer dereference in 
+ > the "if (copy_from_user(...))" case.
+ > 
+ > 
+ > Signed-off-by: Adrian Bunk <bunk@stusta.de>
+ > 
+ > --- linux-2.6.15-rc1-mm2-full/drivers/ieee1394/raw1394.c.old	2005-11-20 22:08:57.000000000 +0100
+ > +++ linux-2.6.15-rc1-mm2-full/drivers/ieee1394/raw1394.c	2005-11-20 22:09:34.000000000 +0100
+ > @@ -2166,7 +2166,8 @@
+ >  			}
+ >  		}
+ >  	}
+ > -	kfree(cache->filled_head);
+ > +	if(cache->filled_head)
+ > +		kfree(cache->filled_head);
+ >  	kfree(cache);
+ >  
+ >  	if (ret >= 0) {
+ > 
 
-You'd have to get agreement from *all* the kernel's past
-contributors. As some of them are dead this is not likely to happen.
+How do we get that far with a NULL filled_head ?
+If the kmalloc that fills cache->filled_head fails, we bail out early above.
 
-(Well, OK, you could isolate their code and rewrite it but this
-would be a big and annoying job, so you'd need a very compelling
-reason. One extra filesystem isn't likely to be good enough.)
-
--- 
-`Y'know, London's nice at this time of year. If you like your cities
- freezing cold and full of surly gits.' --- David Damerell
+		Dave
 

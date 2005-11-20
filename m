@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751158AbVKTCp7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbVKTCrU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751158AbVKTCp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 21:45:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbVKTCp6
+	id S1751161AbVKTCrU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 21:47:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbVKTCrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 21:45:58 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:59655 "HELO
+	Sat, 19 Nov 2005 21:47:19 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:60167 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751158AbVKTCp6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 21:45:58 -0500
-Date: Sun, 20 Nov 2005 03:45:57 +0100
+	id S1751161AbVKTCrS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 21:47:18 -0500
+Date: Sun, 20 Nov 2005 03:47:17 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: jgarzik@pobox.com
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/scsi/libata-*: make some functions static
-Message-ID: <20051120024557.GW16060@stusta.de>
+To: James.Bottomley@SteelEye.com
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/scsi/: small cleanups
+Message-ID: <20051120024717.GX16060@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,82 +22,71 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes some needlesly global functions static.
+This patch contains the following cleanups:
+- make needlessly global functions static
+- every file should #include the headers containing the prototypes for
+  it's global functions
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- drivers/scsi/libata-core.c |    3 ++-
- drivers/scsi/libata-scsi.c |   18 +++++++++---------
- 2 files changed, 11 insertions(+), 10 deletions(-)
+ drivers/scsi/scsi_sysctl.c       |    1 +
+ drivers/scsi/scsi_sysfs.c        |    3 ++-
+ drivers/scsi/scsi_transport_fc.c |    2 +-
+ drivers/scsi/sr.c                |    2 +-
+ 4 files changed, 5 insertions(+), 3 deletions(-)
 
---- linux-2.6.15-rc1-mm2-full/drivers/scsi/libata-core.c.old	2005-11-20 03:05:43.000000000 +0100
-+++ linux-2.6.15-rc1-mm2-full/drivers/scsi/libata-core.c	2005-11-20 03:06:02.000000000 +0100
-@@ -2775,7 +2775,8 @@
-  *	None.  (grabs host lock)
-  */
+--- linux-2.6.15-rc1-mm2-full/drivers/scsi/scsi_sysfs.c.old	2005-11-20 03:09:18.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/drivers/scsi/scsi_sysfs.c	2005-11-20 03:14:13.000000000 +0100
+@@ -17,6 +17,7 @@
+ #include <scsi/scsi_host.h>
+ #include <scsi/scsi_tcq.h>
+ #include <scsi/scsi_transport.h>
++#include <scsi/scsi_driver.h>
  
--void ata_poll_qc_complete(struct ata_queued_cmd *qc, unsigned int err_mask)
-+static void ata_poll_qc_complete(struct ata_queued_cmd *qc,
-+				 unsigned int err_mask)
+ #include "scsi_priv.h"
+ #include "scsi_logging.h"
+@@ -720,7 +721,7 @@
+ }
+ EXPORT_SYMBOL(scsi_remove_device);
+ 
+-void __scsi_remove_target(struct scsi_target *starget)
++static void __scsi_remove_target(struct scsi_target *starget)
  {
- 	struct ata_port *ap = qc->ap;
+ 	struct Scsi_Host *shost = dev_to_shost(starget->dev.parent);
  	unsigned long flags;
---- linux-2.6.15-rc1-mm2-full/drivers/scsi/libata-scsi.c.old	2005-11-20 03:06:38.000000000 +0100
-+++ linux-2.6.15-rc1-mm2-full/drivers/scsi/libata-scsi.c	2005-11-20 03:08:34.000000000 +0100
-@@ -325,10 +325,10 @@
-  *	RETURNS:
-  *	Command allocated, or %NULL if none available.
-  */
--struct ata_queued_cmd *ata_scsi_qc_new(struct ata_port *ap,
--				       struct ata_device *dev,
--				       struct scsi_cmnd *cmd,
--				       void (*done)(struct scsi_cmnd *))
-+static struct ata_queued_cmd *ata_scsi_qc_new(struct ata_port *ap,
-+					      struct ata_device *dev,
-+					      struct scsi_cmnd *cmd,
-+					      void (*done)(struct scsi_cmnd *))
- {
- 	struct ata_queued_cmd *qc;
+--- linux-2.6.15-rc1-mm2-full/drivers/scsi/scsi_sysctl.c.old	2005-11-20 03:10:57.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/drivers/scsi/scsi_sysctl.c	2005-11-20 03:11:08.000000000 +0100
+@@ -9,6 +9,7 @@
+ #include <linux/sysctl.h>
  
-@@ -364,7 +364,7 @@
-  *	LOCKING:
-  *	inherited from caller
-  */
--void ata_dump_status(unsigned id, struct ata_taskfile *tf)
-+static void ata_dump_status(unsigned id, struct ata_taskfile *tf)
- {
- 	u8 stat = tf->command, err = tf->feature;
+ #include "scsi_logging.h"
++#include "scsi_priv.h"
  
-@@ -413,8 +413,8 @@
-  *	LOCKING:
-  *	spin_lock_irqsave(host_set lock)
-  */
--void ata_to_sense_error(unsigned id, u8 drv_stat, u8 drv_err, u8 *sk, u8 *asc, 
--			u8 *ascq)
-+static void ata_to_sense_error(unsigned id, u8 drv_stat, u8 drv_err,
-+			       u8 *sk, u8 *asc, u8 *ascq)
- {
- 	int i;
  
-@@ -524,7 +524,7 @@
-  *	LOCKING:
-  *	spin_lock_irqsave(host_set lock)
-  */
--void ata_gen_ata_desc_sense(struct ata_queued_cmd *qc)
-+static void ata_gen_ata_desc_sense(struct ata_queued_cmd *qc)
+ static ctl_table scsi_table[] = {
+--- linux-2.6.15-rc1-mm2-full/drivers/scsi/scsi_transport_fc.c.old	2005-11-20 03:11:38.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/drivers/scsi/scsi_transport_fc.c	2005-11-20 03:11:50.000000000 +0100
+@@ -1274,7 +1274,7 @@
+  * Notes:
+  *	This routine assumes no locks are held on entry.
+  **/
+-struct fc_rport *
++static struct fc_rport *
+ fc_rport_create(struct Scsi_Host *shost, int channel,
+ 	struct fc_rport_identifiers  *ids)
  {
- 	struct scsi_cmnd *cmd = qc->scsicmd;
- 	struct ata_taskfile *tf = &qc->tf;
-@@ -600,7 +600,7 @@
-  *	LOCKING:
-  *	inherited from caller
+--- linux-2.6.15-rc1-mm2-full/drivers/scsi/sr.c.old	2005-11-20 03:18:12.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/drivers/scsi/sr.c	2005-11-20 03:18:21.000000000 +0100
+@@ -170,7 +170,7 @@
+  * an inode for that to work, and we do not always have one.
   */
--void ata_gen_fixed_sense(struct ata_queued_cmd *qc)
-+static void ata_gen_fixed_sense(struct ata_queued_cmd *qc)
+ 
+-int sr_media_change(struct cdrom_device_info *cdi, int slot)
++static int sr_media_change(struct cdrom_device_info *cdi, int slot)
  {
- 	struct scsi_cmnd *cmd = qc->scsicmd;
- 	struct ata_taskfile *tf = &qc->tf;
+ 	struct scsi_cd *cd = cdi->handle;
+ 	int retval;
 

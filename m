@@ -1,53 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbVKTXHT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbVKTXIY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbVKTXHT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 18:07:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbVKTXHT
+	id S932107AbVKTXIY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 18:08:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbVKTXIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 18:07:19 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:39902 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932105AbVKTXHR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 18:07:17 -0500
-Date: Sun, 20 Nov 2005 23:07:14 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Markus Lidel <Markus.Lidel@shadowconnect.com>
-Cc: "David S. Miller" <davem@davemloft.net>, alan@lxorguk.ukuu.org.uk,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/5] I2O: SPARC fixes
-Message-ID: <20051120230714.GD27946@ftp.linux.org.uk>
-References: <437E7ADB.5080200@shadowconnect.com> <20051118.172230.126076770.davem@davemloft.net> <1132371039.5238.14.camel@localhost.localdomain> <20051118.203707.129707514.davem@davemloft.net> <4380EDB1.1080308@shadowconnect.com> <20051120225256.GC27946@ftp.linux.org.uk>
+	Sun, 20 Nov 2005 18:08:24 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:44434 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932107AbVKTXIX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 18:08:23 -0500
+Date: Mon, 21 Nov 2005 10:08:20 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: Lawrence Walton <lawrence@the-penguin.otak.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-xfs@oss.sgi.com
+Subject: Re: unable to use dpkg 2.6.15-rc2
+Message-ID: <20051121100820.D6790390@wobbly.melbourne.sgi.com>
+References: <20051120075233.GA20295@the-penguin.otak.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051120225256.GC27946@ftp.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20051120075233.GA20295@the-penguin.otak.com>; from lawrence@the-penguin.otak.com on Sat, Nov 19, 2005 at 11:52:33PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	And here's another fun one:
-                evt->size = size;
-                evt->tcntxt = le32_to_cpu(msg->u.s.tcntxt);
-                evt->event_indicator = le32_to_cpu(msg->body[0]);
-                memcpy(&evt->tcntxt, &msg->u.s.tcntxt, size * 4);
-in i2o_driver_dispatch().
+Hi there,
 
-We have
-struct i2o_event {
-        struct work_struct work;
-        struct i2o_device *i2o_dev;     /* I2O device pointer from which the
-                                           event reply was initiated */
-        u16 size;               /* Size of data in 32-bit words */
-        u32 tcntxt;             /* Transaction context used at
-                                   registration */
-        u32 event_indicator;    /* Event indicator from reply */
-        u32 data[0];            /* Event data from reply */
-};
+On Sat, Nov 19, 2005 at 11:52:33PM -0800, Lawrence Walton wrote:
+> Hi!
+> 
+> This is the second report of this error.
 
-and
-in msg tcntxt goes right before body[0].  So we copy two 32bit values
-converting to host order and then immediately overwrite them with
-unconverted ones.
+Please CC linux-xfs if you want to be sure XFS people see your
+report.
 
-Looks like these assignments were meant to go *after* memcpy() and
-serve as a fixup...
+> It's reproducible in 2.6.15-rc1, 2.6.15-rc1-mm1, 2.6.15-rc1-mm2 and
+> 2.6.15-rc2.
+> 
+> It does not occur in 2.6.14.
+> 
+> Most easily triggered by "make clean" in the Linux source, for those of
+> you without access to dpkg. But both clean and dpkg will trigger it.
+
+So far I've not been able to reproduce this; I'm using "make clean"
+and it works just fine for me (I'm using the current git tree).
+
+> There are no oops.
+
+No, it looks like XFS is stuck waiting for an IO to complete.
+
+> I'm not sure what to report next, though If I were to guess it is a
+> interaction between XFS file system and SCSI. I've got another SCSI box
+> that is very similar that runs rc1, rc1-mm1 and rc1-mm2 just fine, the
+> only real difference being it has a ext3 file system instead.
+> 
+> The driver for the SCSI card (aic7xxx) did not appear change. 
+> lspi says it's a Adaptec AIC-7892A U160/m (rev 2) card.
+
+>From your earlier report with the stack traces included, it looks
+like XFS is waiting for a log write to complete, but it never
+does (which is not valid driver behaviour).  I'm using the sym53c8xx
+driver in my testing BTW, which is different to you, so maybe see if
+this still happens for you with different hardware?  (if you can).
+
+> Questions, patches, flames are welcome.
+
+You could also try to drop the XFS (fs/xfs) code from 2.6.14 into
+2.6.15-rc2 and see if your problem persists.  There isn't anything
+I can see from scanning though everything we committed into .15 so
+far that would explain this.  Oh, an easier test you could do would
+be to try XFS CVS from oss.sgi.com - that has 2.6.14 + all the XFS
+changes since then, so that should confirm/deny an XFS regression
+too.  Thanks!
+
+cheers.
+
+-- 
+Nathan

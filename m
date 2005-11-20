@@ -1,35 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbVKTXjd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbVKTXjl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932128AbVKTXjd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 18:39:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbVKTXjd
+	id S932129AbVKTXjl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 18:39:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbVKTXjl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 18:39:33 -0500
-Received: from [205.233.219.253] ([205.233.219.253]:41679 "EHLO
-	conifer.conscoop.ottawa.on.ca") by vger.kernel.org with ESMTP
-	id S932128AbVKTXjc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 18:39:32 -0500
-Date: Sun, 20 Nov 2005 18:33:51 -0500
-From: Jody McIntyre <scjody@steamballoon.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: bcollins@debian.org, dan@dennedy.org,
-       linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       stable@kernel.org
-Subject: Re: [2.6 patch] drivers/ieee1394/raw1394.c: fix a NULL pointer dereference
-Message-ID: <20051120233351.GA20781@conscoop.ottawa.on.ca>
-References: <20051120232009.GH16060@stusta.de>
-Mime-Version: 1.0
+	Sun, 20 Nov 2005 18:39:41 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:33034 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S932129AbVKTXjk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 18:39:40 -0500
+To: Tarkan Erimer <tarkane@gmail.com>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Sun's ZFS and Linux
+References: <9611fa230511181538g3e8ec403uafa9ed32b560fb0c@mail.gmail.com>
+	<20051119172337.GA24765@thunk.org>
+	<9611fa230511201312r5f43e8ady7023b4bde170596e@mail.gmail.com>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: more boundary conditions than the Middle East.
+Date: Sun, 20 Nov 2005 23:39:08 +0000
+In-Reply-To: <9611fa230511201312r5f43e8ady7023b4bde170596e@mail.gmail.com> (Tarkan
+ Erimer's message of "20 Nov 2005 21:12:42 -0000")
+Message-ID: <87r79a7uub.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051120232009.GH16060@stusta.de>
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 21, 2005 at 12:20:09AM +0100, Adrian Bunk wrote:
-> +	if(cache->filled_head)
-> +		kfree(cache->filled_head);
+On 20 Nov 2005, Tarkan Erimer yowled:
+> On 11/19/05, Theodore Ts'o <tytso@mit.edu> wrote:
+>> That wouldn't be a "port", it would have to be a complete
+>> reimplementation from scratch.  And, of course, of further concern
+>> would be whether or not there are any patents that Sun may have filed
+>> covering ZFS.  If the patents have only been licensed for CDDL
+>> licensed code, then that won't help a GPL'ed covered reimplementation.
+> 
+> Thanks for the explanation. BTW, I wonder something: Is there any
+> possibility to give GPL an exception to include and/or link to CDDL
+> code?
 
-Try again.  kfree() of a NULL pointer is perfectly fine.
+You'd have to get agreement from *all* the kernel's past
+contributors. As some of them are dead this is not likely to happen.
 
-Jody
+(Well, OK, you could isolate their code and rewrite it but this
+would be a big and annoying job, so you'd need a very compelling
+reason. One extra filesystem isn't likely to be good enough.)
+
+-- 
+`Y'know, London's nice at this time of year. If you like your cities
+ freezing cold and full of surly gits.' --- David Damerell
+

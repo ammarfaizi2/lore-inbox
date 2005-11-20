@@ -1,113 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbVKTDn4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751194AbVKTD42@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751201AbVKTDn4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 22:43:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbVKTDn4
+	id S1751194AbVKTD42 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 22:56:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbVKTD42
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 22:43:56 -0500
-Received: from mail20.syd.optusnet.com.au ([211.29.132.201]:53226 "EHLO
-	mail20.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751201AbVKTDnz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 22:43:55 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Subject: Re: [PATCH] i386 no idle hz - aka dynticks v051118-1
-Date: Sun, 20 Nov 2005 14:43:30 +1100
-User-Agent: KMail/1.8.3
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       ck@vds.kolivas.org, tony@atomide.com
-References: <200511182322.11222.kernel@kolivas.org> <Pine.LNX.4.61.0511191237020.20310@montezuma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.61.0511191237020.20310@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511201443.30859.kernel@kolivas.org>
+	Sat, 19 Nov 2005 22:56:28 -0500
+Received: from dp.samba.org ([66.70.73.150]:52185 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S1751194AbVKTD42 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 22:56:28 -0500
+Subject: Re: support for mknod to windows now in cifs vfs
+From: Andrew Bartlett <abartlet@samba.org>
+To: Steve French <smfrench@austin.rr.com>
+Cc: mkoeppe@gmx.de, linux-cifs-client@lists.samba.org,
+       samba-technical@lists.samba.org, linux-kernel@vger.kernel.org
+In-Reply-To: <437F8339.3060502@austin.rr.com>
+References: <437EAA7F.5050907@austin.rr.com>
+	 <1132404007.4397.3.camel@amy.flyaway.abartlet.net>
+	 <437F8339.3060502@austin.rr.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-w/QIDqAaDhFqksqcsEG+"
+Date: Sun, 20 Nov 2005 14:56:44 +1100
+Message-Id: <1132459005.17693.21.camel@amy.flyaway.abartlet.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Nov 2005 07:58, Zwane Mwaikambo wrote:
-> It may be a little hard to see my comments as i've re-attached the patch
-> inline as i couldn't reply-to properly (it was an attachment).
 
-My bad sorry I'm addicted to a graphical MUA. The best I can do is inline the 
-attachment. I could probably cut and paste but I'm afraid of mangling the 
-patch.
+--=-w/QIDqAaDhFqksqcsEG+
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> @@ -932,6 +933,9 @@ void (*wait_timer_tick)(void) __devinitd
->
->  #define APIC_DIVISOR 16
->
-> +static u32 apic_timer_val;
->
-> __read_mostly ?
+On Sat, 2005-11-19 at 13:55 -0600, Steve French wrote:
+> Andrew Bartlett wrote:=20
+> > On Fri, 2005-11-18 at 22:30 -0600, Steve French wrote:
+> >  =20
+> > > I added the code to cifs vfs to enable it do mknod of block and=20
+> > > chardevice even if the server does not support the Unix extensions (s=
+uch=20
+> > > as Windows).  This requires the "sfu" mount option to be specified=20
+> > >    =20
+> >=20
+> > Any reason why this isn't on by default?=20
+> >=20
+> > Andrew Bartlett
+> >  =20
+>=20
+> I agree with most of Martin's points - even on Windows there are a few
+> (possibly with Vista) three ways e.g. to do symlinks.  Although sfu is
+> the most important way to do it it is a bit slower too.
 
-Yeah I like that idea.
+Isn't there also the mac 'magic file size' thing too?  Did that change,
+or should we also cope with servers holding those files?
 
-> +void dyn_tick_interrupt(int irq, struct pt_regs *regs)
-> +{
-> +	int all_were_sleeping = 0;
-> +	int cpu = smp_processor_id();
-> +
-> +	if (!cpu_isset(cpu, nohz_cpu_mask))
-> +		return;
-> +
-> +	spin_lock(dyn_tick_lock);
->
-> This is going to cause contention problems for things like
-> smp_call_function since all processors will be calling back to
-> dyn_tick_interrupt.
+Andrew Bartlett
 
-Hmm got any ideas?
+--=20
+Andrew Bartlett                                http://samba.org/~abartlet/
+Samba Developer, SuSE Labs, Novell Inc.        http://suse.de
+Authentication Developer, Samba Team           http://samba.org
+Student Network Administrator, Hawker College  http://hawkerc.net
 
-> +	if (cpus_equal(nohz_cpu_mask, cpu_online_map))
-> +		all_were_sleeping = 1;
-> +	cpu_clear(cpu, nohz_cpu_mask);
-> +
-> +	if (all_were_sleeping) {
-> +		/* Recover jiffies */
-> +		if (irq) {
->
-> Perhaps simply call the 'irq' parameter as in_irq as right now it seems to
-> mean anything between irq or vector and somewhat confusing.
+--=-w/QIDqAaDhFqksqcsEG+
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Do you mean not pass the irq variables and just check for if (in_irq()) ?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-> @@ -1190,15 +1191,19 @@ static inline void ioapic_register_intr(
->  		if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
->  				trigger == IOAPIC_LEVEL)
->  			irq_desc[vector].handler = &ioapic_level_type;
-> -		else
-> +		else if (vector)
->  			irq_desc[vector].handler = &ioapic_edge_type;
-> +		else
-> +			irq_desc[vector].handler = IOAPIC_EDGE_TYPE_IRQ0;
->
-> Please at least be explicit and not hide things behind #defines
->
-> if (vector == 0)
-> 	irq_desc[vector].handler = &ioapic_edge_type_irq0
+iD8DBQBDf/P8z4A8Wyi0NrsRAh00AJ427jft3Po76caa7IbSs5j/GxDGrACdHODa
+87CEb5Z9CXdTSf3H5IvLfy8=
+=1+/A
+-----END PGP SIGNATURE-----
 
-Well ioapic_edge_type_irq0 doesn't exist on !CONFIG_NO_IDLE_HZ and this was a 
-way of avoiding ifdefs in this .c file. I'll think about it again.
+--=-w/QIDqAaDhFqksqcsEG+--
 
->  DEFINE_PER_CPU(irq_cpustat_t, irq_stat) ____cacheline_maxaligned_in_smp;
->  EXPORT_PER_CPU_SYMBOL(irq_stat);
-> @@ -76,6 +77,8 @@ fastcall unsigned int do_IRQ(struct pt_r
->  	}
->  #endif
->
-> +	dyn_tick_interrupt(irq, regs);
->
-> This looks like it might contribute quite some contention in the irq fast
-> path.
-
-Might or is certain to? I don't really have hardware to test this hypothesis 
-(nor do I know how) so I'd like to know how likely you think it is, and if 
-there is some obvious way to improve this?
-
-Thanks very much for your comments!
-
-Cheers,
-Con

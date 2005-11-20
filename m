@@ -1,36 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbVKTIEY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbVKTIFs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750764AbVKTIEY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 03:04:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbVKTIEY
+	id S1751109AbVKTIFs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 03:05:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751113AbVKTIFr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 03:04:24 -0500
-Received: from gold.veritas.com ([143.127.12.110]:20832 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1750764AbVKTIEX (ORCPT
+	Sun, 20 Nov 2005 03:05:47 -0500
+Received: from gold.veritas.com ([143.127.12.110]:26464 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751109AbVKTIFr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 03:04:23 -0500
-Date: Sun, 20 Nov 2005 08:04:03 +0000 (GMT)
+	Sun, 20 Nov 2005 03:05:47 -0500
+Date: Sun, 20 Nov 2005 08:05:37 +0000 (GMT)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@goblin.wat.veritas.com
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-rc1-mm2
-In-Reply-To: <6bffcb0e0511191623q31a143fdr@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0511200802460.3938@goblin.wat.veritas.com>
-References: <20051117234645.4128c664.akpm@osdl.org> <6bffcb0e0511191623q31a143fdr@mail.gmail.com>
+To: Miles Lane <miles.lane@gmail.com>
+cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.15-rc1-mm2 -- Bad page state at free_hot_cold_page (in
+ process 'aplay', page c18eef30)
+In-Reply-To: <a44ae5cd0511192256u20f0e594kc65cbaba108ff06e@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0511200804500.3938@goblin.wat.veritas.com>
+References: <a44ae5cd0511192256u20f0e594kc65cbaba108ff06e@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 20 Nov 2005 08:04:18.0903 (UTC) FILETIME=[02047670:01C5EDA9]
+X-OriginalArrivalTime: 20 Nov 2005 08:05:47.0090 (UTC) FILETIME=[3694BB20:01C5EDA9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Nov 2005, Michal Piotrowski wrote:
-> 
-> It looks similar to Rafael J. Wysocki report. It's full reproductible
-> and appears when playing mp3's in totem.
-> 
-> debian:/home/michal# cat /var/log/kern.log | grep -c "Bad page state
-> at free_hot_cold_page"
+On Sat, 19 Nov 2005, Miles Lane wrote:
+> [17179671.700000] Bad page state at free_hot_cold_page (in process
+> 'aplay', page c18eef30)
+> [17179671.700000] flags:0x80000414 mapping:00000000 mapcount:0 count:0
 
 Please let me know if it's not fixed by:
 

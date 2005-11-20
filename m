@@ -1,61 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbVKTPiF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbVKTPrl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751251AbVKTPiF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 10:38:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbVKTPiE
+	id S1751260AbVKTPrl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 10:47:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbVKTPrl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 10:38:04 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:32187 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751251AbVKTPiD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 10:38:03 -0500
-Subject: Re: I made a patch and would like feedback/testers
-	(drivers/cdrom/aztcd.c)
-From: Arjan van de Ven <arjan@infradead.org>
-To: Daniel =?ISO-8859-1?Q?Marjam=E4ki?= <daniel.marjamaki@comhem.se>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43809652.8000904@comhem.se>
-References: <43809652.8000904@comhem.se>
-Content-Type: text/plain
-Date: Sun, 20 Nov 2005 16:38:00 +0100
-Message-Id: <1132501080.2857.3.camel@laptopd505.fenrus.org>
+	Sun, 20 Nov 2005 10:47:41 -0500
+Received: from smtp2.brturbo.com.br ([200.199.201.158]:50049 "EHLO
+	smtp2.brturbo.com.br") by vger.kernel.org with ESMTP
+	id S1751260AbVKTPrk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 10:47:40 -0500
+Subject: Re: [2.6 patch] drivers/media/video/: make code static
+From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: video4linux-list@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20051120024432.GV16060@stusta.de>
+References: <20051120024432.GV16060@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Sun, 20 Nov 2005 13:47:23 -0200
+Message-Id: <1132501643.24952.28.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.4.1-3mdk 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   static void op_ok(void)
->   {
-> -	aztTimeOutCount = 0;
-> +	aztTimeOut = jiffies + 2;
->   	do {
->   		aztIndatum = inb(DATA_PORT);
-> -		aztTimeOutCount++;
-> -		if (aztTimeOutCount >= AZT_TIMEOUT) {
-> +		if (time_after(jiffies, aztTimeOut)) {
->   			printk("aztcd: Error Wait OP_OK\n");
->   			break;
->   		}
-> +		schedule_timeout_interruptible(1);
+Adrian,
 
-this I think is not quite right; schedule_timeout_*() doesn't do
-anything unless you set current->state to something. And at that point
-you might as well start using msleep()!
+Em Dom, 2005-11-20 às 03:44 +0100, Adrian Bunk escreveu:
+> This patch makes needlessly global code static.
+> 
+> 
+>  drivers/media/video/bttv-cards.c           |    6 +++---
+>  drivers/media/video/cx25840/cx25840-core.c |    4 ++--
+>  drivers/media/video/em28xx/em28xx-core.c   |    6 +++---
+>  drivers/media/video/em28xx/em28xx-video.c  |    2 +-
+>  drivers/media/video/saa7127.c              |    6 +++---
+>  drivers/media/video/saa7134/saa7134-alsa.c |    9 +++++----
+>  drivers/media/video/saa7134/saa7134-oss.c  |    4 ++--
+>  7 files changed, 19 insertions(+), 18 deletions(-)
+> 
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Thanks for your patch.
 
+> --- linux-2.6.15-rc1-mm2-full/drivers/media/video/saa7134/saa7134-alsa.c.old	2005-11-20 02:49:12.000000000 +0100
+> +++ linux-2.6.15-rc1-mm2-full/drivers/media/video/saa7134/saa7134-alsa.c	2005-11-20 02:58:01.000000000 +0100
+> @@ -58,7 +58,7 @@
+>  module_param_array(index, int, NULL, 0444);
+>  MODULE_PARM_DESC(index, "Index value for SAA7134 capture interface(s).");
+>  
+> -int position;
+> +static int position;
 
-but what you're doing is generally a good idea; busy waits as the
-original code did is quite wrong...
+	This didn't applied at V4L tree. This flag was removed at the latest
+version. We had already a patch including static on some I2C structs and
+other trivial fixes.
+I'll added your patch with fixes on my tree and send to -mm in the next
+V4L patchsets, after the patch that removes position and fixes some
+stuff at saa7134-alsa.
 
+Cheers, 
+Mauro.
 

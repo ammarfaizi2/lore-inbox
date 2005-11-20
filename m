@@ -1,50 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbVKTUCz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbVKTUHP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750748AbVKTUCz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 15:02:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbVKTUCz
+	id S1750779AbVKTUHP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 15:07:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbVKTUHO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 15:02:55 -0500
-Received: from host222-100.pool871.interbusiness.it ([87.1.100.222]:20397 "EHLO
-	zion.home.lan") by vger.kernel.org with ESMTP id S1750748AbVKTUCy
+	Sun, 20 Nov 2005 15:07:14 -0500
+Received: from host222-100.pool871.interbusiness.it ([87.1.100.222]:54662 "EHLO
+	zion.home.lan") by vger.kernel.org with ESMTP id S1750779AbVKTUHN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 15:02:54 -0500
+	Sun, 20 Nov 2005 15:07:13 -0500
 From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 2/2] uml: fix dynamic linking on some 64-bit distros
-Date: Sun, 20 Nov 2005 20:10:22 +0100
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Message-Id: <20051120191021.4189.37355.stgit@zion.home.lan>
-In-Reply-To: <20051120191019.4189.22191.stgit@zion.home.lan>
-References: <20051120191019.4189.22191.stgit@zion.home.lan>
+Subject: [PATCH] [RFC] [Oops fix] module support: record in vermagic ability to unload a module
+Date: Sun, 20 Nov 2005 21:06:07 +0100
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <20051120200606.9802.69236.stgit@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Rob Landley <rob@landley.net>, Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-The current UML build assumes that on x86-64 systems, /lib is a symlink 
-to /lib64, but in some distributions (like PLD and CentOS) they are separate 
-directories, so the 64 bit library loader isn't found.  This patch 
-inserts /lib64 at the start of the rpath on x86-64 UML builds.
+An UML user reported (against 2.6.13.3/UML) he got kernel Oopses when trying to
+rmmod (on a kernel with module unloading enabled) a module compiled with module
+unloading disabled. As crashing is a very correct thing to do in that case, a
+solution is altering the vermagic string to include this too.
 
-Signed-off-by: Rob Landley <rob@landley.net>
+Possibly, however, the code should not crash in this case, even if the module
+didn't support unloading - it should simply abort the module removal. In this case,
+fixing that bug would be a better solution. I've not investigated though.
+
+Thanks to Hayim for reporting.
+
+Cc: Hayim Shaul <hayim@post.tau.ac.il>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- arch/um/Makefile-x86_64 |    4 ++++
- 1 files changed, 4 insertions(+), 0 deletions(-)
+ include/linux/vermagic.h |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletions(-)
 
-diff --git a/arch/um/Makefile-x86_64 b/arch/um/Makefile-x86_64
-index 4f118d5..38df311 100644
---- a/arch/um/Makefile-x86_64
-+++ b/arch/um/Makefile-x86_64
-@@ -12,3 +12,7 @@ CHECKFLAGS  += -m64
- 
- ELF_ARCH := i386:x86-64
- ELF_FORMAT := elf64-x86-64
-+
-+# Not on all 64-bit distros /lib is a symlink to /lib64. PLD is an example.
-+
-+LINK-$(CONFIG_LD_SCRIPT_DYN) += -Wl,-rpath,/lib64
+diff --git a/include/linux/vermagic.h b/include/linux/vermagic.h
+index fadc535..dc7c621 100644
+--- a/include/linux/vermagic.h
++++ b/include/linux/vermagic.h
+@@ -12,6 +12,11 @@
+ #else
+ #define MODULE_VERMAGIC_PREEMPT ""
+ #endif
++#ifdef CONFIG_MODULE_UNLOAD
++#define MODULE_VERMAGIC_MODULE_UNLOAD "mod_unload "
++#else
++#define MODULE_VERMAGIC_MODULE_UNLOAD ""
++#endif
+ #ifndef MODULE_ARCH_VERMAGIC
+ #define MODULE_ARCH_VERMAGIC ""
+ #endif
+@@ -19,5 +24,5 @@
+ #define VERMAGIC_STRING 						\
+ 	UTS_RELEASE " "							\
+ 	MODULE_VERMAGIC_SMP MODULE_VERMAGIC_PREEMPT 			\
+-	MODULE_ARCH_VERMAGIC 						\
++	MODULE_VERMAGIC_MODULE_UNLOAD MODULE_ARCH_VERMAGIC 		\
+ 	"gcc-" __stringify(__GNUC__) "." __stringify(__GNUC_MINOR__)
 

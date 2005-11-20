@@ -1,48 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbVKTDJG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbVKTDZ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751172AbVKTDJG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 22:09:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbVKTDJG
+	id S1750787AbVKTDZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 22:25:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbVKTDZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 22:09:06 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:7127 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751172AbVKTDJF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 22:09:05 -0500
-Date: Sun, 20 Nov 2005 04:08:54 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Rob Landley <rob@landley.net>
-cc: linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>
+	Sat, 19 Nov 2005 22:25:57 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:24773
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1750787AbVKTDZ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 22:25:56 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: linux-kernel@vger.kernel.org
 Subject: Re: Quick and dirty miniconfig howto, with feature suggestions.
-In-Reply-To: <200511170629.42389.rob@landley.net>
-Message-ID: <Pine.LNX.4.61.0511192338300.1609@scrub.home>
+Date: Sat, 19 Nov 2005 21:25:37 -0600
+User-Agent: KMail/1.8
+Cc: Roman Zippel <zippel@linux-m68k.org>, Sam Ravnborg <sam@ravnborg.org>
 References: <200511170629.42389.rob@landley.net>
+In-Reply-To: <200511170629.42389.rob@landley.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <200511192125.37630.rob@landley.net>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_xy+fDVcg8zOzL+5"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--Boundary-00=_xy+fDVcg8zOzL+5
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-On Thu, 17 Nov 2005, Rob Landley wrote:
+On Thursday 17 November 2005 06:29, Rob Landley wrote:
+> --- What is a miniconfig?
+>
+> A new feature of 2.6.15 lets you use miniature configuration files, listing
+> just the symbols you want to enable and letting the configurator enable any
+> dependencies to give you a valid configuration.
+>
+> To make it work, create a mini.config file and run allnoconfig (to create
+> a .config file with all unspecified symbols switched off) with the extra
+> argument "KCONFIG_ALLCONFIG=mini.config".
 
-> 1) Add a "make miniconfig" which works like allnoconfig but A) takes 
-> mini.config as its' default name, B) redirects stdout to /dev/null to make it 
-> easier to spot typoed symbols, C) aborts (exits with an error, does not write 
-> new .config) if mini.config isn't found or if it contains an unrecognized 
-> symbol.
+And here's a shell script that will automatically create a mini.conf from a 
+standard .config file.
 
-I think I better make allnoconfig silent (unless with V=1 or something), 
-which makes it your miniconfig already almost like allnoconfig.
-I'm not quite sure about aborting there are other error possibilities 
-(e.g. new dependencies), so you never quite can trust the error value 
-anyway.
+It does this via the simple expedient of trying to remove each line and seeing 
+which ones make any difference to the generated .config.  (This means it runs 
+make allnoconfig about 1300 times.  This is very very slow, so it displays a 
+progress indicator.)
 
-> 2) Fix the interaction with O= so that it looks for the mini.config file in 
-> the O= directory and not the source directory, so people don't _have_ to 
-> specify KCONFIG_ALLCONFIG when building out of tree.
+To use the script, go into the kernel source directory, create your .config 
+file (via menuconfig or however), rename that .config file to something else 
+(like "myconfig"), then run the script like so:
 
-I indeed need to fix this.
+./miniconfig.sh myconfig
 
-bye, Roman
+(Note you still have to be in the directory where the script can run "make 
+allnoconfig".)  When it finishes, you should have a mini.conf containing the 
+minimal set  of lines necessary to specify that configuration via
+"make KCONFIG_ALLCONFIG=mini.config allnoconfig".
+
+I'm sure there's a better way to do this, but this works now.
+
+Rob
+
+--Boundary-00=_xy+fDVcg8zOzL+5
+Content-Type: application/x-shellscript;
+  name="miniconf.sh"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="miniconf.sh"
+
+#!/bin/sh
+
+# miniconf.sh copyright 2005 by Rob Landley <rob@landley.net>
+# Licensed under the GNU General Public License version 2.
+
+if [ $# -ne 1 ] || [ ! -f "$1" ]
+then
+  echo "Usage: miniconf.sh configfile" 
+fi
+
+if [ "$1" == ".config" ]
+then
+  echo "It overwrites .config, rename it and try again."
+  exit 1
+fi
+
+cp $1 mini.conf
+echo "Calculating mini.conf..."
+
+LENGTH=`cat $1 | wc -l`
+
+# Loop through all lines in the file 
+I=1
+while true
+do
+  if [ $I -gt $LENGTH ]
+  then
+    exit
+  fi
+  sed -n "${I}!p" mini.conf > .config.test
+  # Do a config with this file
+  make allnoconfig KCONFIG_ALLCONFIG=.config.test > /dev/null
+
+  # Compare, skipping first 5 lines which contain changeable date.
+  D=`diff .config $1 | wc -l`
+  if [ $D -eq 4 ]
+  then
+    mv .config.test mini.conf
+    LENGTH=$[$LENGTH-1]
+  else
+    I=$[$I + 1]
+  fi
+  echo -n -e $I/$LENGTH lines `cat mini.conf | wc -c` bytes "\r"
+done
+echo
+
+--Boundary-00=_xy+fDVcg8zOzL+5--

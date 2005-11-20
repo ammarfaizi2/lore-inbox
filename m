@@ -1,64 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750769AbVKTGt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbVKTG4m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750769AbVKTGt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 01:49:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbVKTGsv
+	id S1750796AbVKTG4m (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 01:56:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbVKTG4m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 01:48:51 -0500
-Received: from smtp104.sbc.mail.re2.yahoo.com ([68.142.229.101]:23418 "HELO
-	smtp104.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1750769AbVKTGrN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 01:47:13 -0500
-Message-Id: <20051120064420.957542000.dtor_core@ameritech.net>
-References: <20051120063611.269343000.dtor_core@ameritech.net>
-Date: Sun, 20 Nov 2005 01:36:25 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [git pull 14/14] Fix missing initialization in ir-kbd-gpio.c
-Content-Disposition: inline; filename=ir-kbd-gpio-init-input-dev.patch
+	Sun, 20 Nov 2005 01:56:42 -0500
+Received: from wproxy.gmail.com ([64.233.184.201]:20383 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750796AbVKTG4m convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 01:56:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Vgz0Z23yjyzk/7BnChYno+Z1sNFrdHGV0XvoqUKeMPL4iODWJhRvCdAuVMab4wp9QDSZo3gjU83Ggr57b7HeGrRIZX20pgxpPtZ7HAoRdg1RXWoMJ8TiLxGSPOK/3Un86ZMchX1AaqYNK0QTqInG8vkcUlgCZ2nM/OcoNzrim24=
+Message-ID: <a44ae5cd0511192256u20f0e594kc65cbaba108ff06e@mail.gmail.com>
+Date: Sat, 19 Nov 2005 22:56:41 -0800
+From: Miles Lane <miles.lane@gmail.com>
+To: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: 2.6.15-rc1-mm2 -- Bad page state at free_hot_cold_page (in process 'aplay', page c18eef30)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix missing initialization in ir-kbd-gpio.c
-
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/media/video/ir-kbd-gpio.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
-
-Index: work/drivers/media/video/ir-kbd-gpio.c
-===================================================================
---- work.orig/drivers/media/video/ir-kbd-gpio.c
-+++ work/drivers/media/video/ir-kbd-gpio.c
-@@ -673,7 +673,6 @@ static int ir_probe(struct device *dev)
- 	snprintf(ir->phys, sizeof(ir->phys), "pci-%s/ir0",
- 		 pci_name(sub->core->pci));
- 
--	ir->sub = sub;
- 	ir_input_init(input_dev, &ir->ir, ir_type, ir_codes);
- 	input_dev->name = ir->name;
- 	input_dev->phys = ir->phys;
-@@ -688,6 +687,9 @@ static int ir_probe(struct device *dev)
- 	}
- 	input_dev->cdev.dev = &sub->core->pci->dev;
- 
-+	ir->input = input_dev;
-+	ir->sub = sub;
-+
- 	if (ir->polling) {
- 		INIT_WORK(&ir->work, ir_work, ir);
- 		init_timer(&ir->timer);
-@@ -708,7 +710,6 @@ static int ir_probe(struct device *dev)
- 	/* all done */
- 	dev_set_drvdata(dev, ir);
- 	input_register_device(ir->input);
--	printk(DEVNAME ": %s detected at %s\n",ir->name,ir->phys);
- 
- 	/* the remote isn't as bouncy as a keyboard */
- 	ir->input->rep[REP_DELAY] = repeat_delay;
-
+[17179671.700000] Bad page state at free_hot_cold_page (in process
+'aplay', page c18eef30)
+[17179671.700000] flags:0x80000414 mapping:00000000 mapcount:0 count:0
+[17179671.700000] Backtrace:
+[17179671.700000]  [<c0103de8>] dump_stack+0x1e/0x20
+[17179671.700000]  [<c014c775>] bad_page+0x87/0x140
+[17179671.700000]  [<c014d12d>] free_hot_cold_page+0x43/0x130
+[17179671.700000]  [<c014d224>] free_hot_page+0xa/0xc
+[17179671.700000]  [<c0150b53>] __page_cache_release+0x61/0xbf
+[17179671.700000]  [<c015074d>] put_page+0x3d/0x82
+[17179671.700000]  [<c015e430>] free_page_and_swap_cache+0x24/0x47
+[17179671.700000]  [<c01559e4>] zap_pte_range+0x232/0x348
+[17179671.700000]  [<c0155bdb>] unmap_page_range+0xe1/0x10b
+[17179671.700000]  [<c0155cc4>] unmap_vmas+0xbf/0x237
+[17179671.700000]  [<c015a494>] unmap_region+0xb3/0x158
+[17179671.700000]  [<c015a7f2>] do_munmap+0xf8/0x138
+[17179671.700000]  [<c015a889>] sys_munmap+0x57/0x73
+[17179671.700000]  [<c0102e9f>] sysenter_past_esp+0x54/0x75
+[17179671.700000] ---------------------------
+[17179671.700000] | preempt count: 00000003 ]
+[17179671.700000] | 3 level deep critical section nesting:
+[17179671.700000] ----------------------------------------
+[17179671.700000] .. [<c015a414>] .... unmap_region+0x33/0x158
+[17179671.700000] .....[<c015a7f2>] ..   ( <= do_munmap+0xf8/0x138)
+[17179671.700000] .. [<c01181dd>] .... kmap_atomic+0x15/0x9c
+[17179671.700000] .....[<c01557f2>] ..   ( <= zap_pte_range+0x40/0x348)
+[17179671.700000] .. [<c03ca9dc>] .... _spin_lock+0x13/0x6f
+[17179671.700000] .....[<c0155809>] ..   ( <= zap_pte_range+0x57/0x348)
+[17179671.700000]
+[17179671.700000] Hexdump:
+[17179671.700000] 000: e4 d8 cc c1 9e ff 64 00 f8 57 a7 c1 b8 ad a0 c1
+[17179671.700000] 010: 14 04 00 80 00 00 00 00 ff ff ff ff 00 00 00 00
+[17179671.700000] 020: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[17179671.700000] 030: 00 00 00 00 f0 00 00 00 00 01 10 00 00 02 20 00
+[17179671.700000] 040: 14 04 00 80 ff ff ff ff ff ff ff ff 00 00 00 00
+[17179671.700000] 050: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[17179671.700000] 060: 00 00 00 00 f1 00 00 00 00 01 10 00 00 02 20 00
+[17179671.700000] 070: 00 04 00 80 00 00 00 00 00 00 00 00 00 00 00 00
+[17179671.700000] 080: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[17179671.700000] 090: 00 00 00 00 38 00 00 00 00 01 10 00 00 02 20 00
+[17179671.700000] 0a0: 00 04 00 80 00 00 00 00 00 00 00 00 00 00 00 00
+[17179671.700000] 0b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[17179671.700000] Trying to fix it up, but a reboot is needed

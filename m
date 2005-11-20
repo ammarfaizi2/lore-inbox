@@ -1,46 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbVKTVDG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbVKTVEg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750806AbVKTVDG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 16:03:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbVKTVDG
+	id S1750849AbVKTVEg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 16:04:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbVKTVEg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 16:03:06 -0500
-Received: from gate.crashing.org ([63.228.1.57]:22719 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750806AbVKTVDF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 16:03:05 -0500
-Subject: Re: [BUG] PDC20268 crashing during DMA setup on stock Debian
-	2.6.12-1-powerpc
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       LKML Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <59EA4A9E-0F86-4D53-8DDD-56F6DDC6E726@mac.com>
-References: <20051017005855.132266ac.akpm@osdl.org>
-	 <1129536482.7620.76.camel@gaston>
-	 <6DFB5723-0042-46FE-811F-BF372B068014@mac.com>
-	 <204AB9A8-7701-402F-A6B9-DF455DAA2A3F@mac.com>
-	 <1129760024.7620.219.camel@gaston>
-	 <75FE9776-B88F-453E-9616-850097DB0138@mac.com>
-	 <1129772205.7620.226.camel@gaston>
-	 <59EA4A9E-0F86-4D53-8DDD-56F6DDC6E726@mac.com>
-Content-Type: text/plain
-Date: Mon, 21 Nov 2005 08:00:40 +1100
-Message-Id: <1132520441.6052.41.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Sun, 20 Nov 2005 16:04:36 -0500
+Received: from zproxy.gmail.com ([64.233.162.205]:43311 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750861AbVKTVEg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 16:04:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fs3RWCILzjiKcjCwr/qBPE8forwLLb/UiVHsVFb/+NrNXXr02LKgkEvK850LUwGewCHQruZZ4+M3ZqTtnTcPbjDyPItP7WozN1eZZrKz5syQS7gqJ41rlFxaMyI6Kml90U/7QTAjgMY9NRioAGrlMYtTCxHQxaFE7GV11sTOpyk=
+Message-ID: <29495f1d0511201304p4b5bd863p4c8fccab6f5ef8d6@mail.gmail.com>
+Date: Sun, 20 Nov 2005 13:04:35 -0800
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: I made a patch and would like feedback/testers (drivers/cdrom/aztcd.c)
+Cc: =?ISO-8859-1?Q?Daniel_Marjam=E4ki?= <daniel.marjamaki@comhem.se>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1132501080.2857.3.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <43809652.8000904@comhem.se>
+	 <1132501080.2857.3.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 11/20/05, Arjan van de Ven <arjan@infradead.org> wrote:
+> >   static void op_ok(void)
+> >   {
+> > -     aztTimeOutCount = 0;
+> > +     aztTimeOut = jiffies + 2;
+> >       do {
+> >               aztIndatum = inb(DATA_PORT);
+> > -             aztTimeOutCount++;
+> > -             if (aztTimeOutCount >= AZT_TIMEOUT) {
+> > +             if (time_after(jiffies, aztTimeOut)) {
+> >                       printk("aztcd: Error Wait OP_OK\n");
+> >                       break;
+> >               }
+> > +             schedule_timeout_interruptible(1);
+>
+> this I think is not quite right; schedule_timeout_*() doesn't do
+> anything unless you set current->state to something. And at that point
+> you might as well start using msleep()!
 
-> This is the only possibility that I can think of, but I'm having a  
-> hard time getting enough lines of pre-BUG output.  Is there any way  
-> to turn off the BUG() lines and just show the printks before that point?
+Not true, as Thomas points out. You are right for schedule_timeout(),
+but that's why we introduced the _interruptible() and
+_uninterruptible(). And there are reasons to use schedule_timeout_*()
+instead of msleep() [not necessarily in this case, but in general],
+specifically the presence of wait-queues.
 
-There is a patch from Thibault that fixes it, it should be in 2.6.15-rc2
+> but what you're doing is generally a good idea; busy waits as the
+> original code did is quite wrong...
 
-Ben.
+I agree, and I recommend Daniel post to LKML to get some testing / see
+if anyone actually uses this driver :)
 
-
+Thanks,
+Nish

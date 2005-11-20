@@ -1,76 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbVKTOlB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbVKTOlr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751241AbVKTOlB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 09:41:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbVKTOlB
+	id S1751246AbVKTOlr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 09:41:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbVKTOlr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 09:41:01 -0500
-Received: from nm02mta.dion.ne.jp ([61.117.3.73]:24339 "HELO
-	nm02omta023.dion.ne.jp") by vger.kernel.org with SMTP
-	id S1751241AbVKTOlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 09:41:00 -0500
-Date: Sun, 20 Nov 2005 23:41:07 +0900
-From: Akira Tsukamoto <akira-t@s9.dion.ne.jp>
+	Sun, 20 Nov 2005 09:41:47 -0500
+Received: from host94-205.pool8022.interbusiness.it ([80.22.205.94]:24234 "EHLO
+	waobagger.intranet.nucleus.it") by vger.kernel.org with ESMTP
+	id S1751246AbVKTOlq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 09:41:46 -0500
+From: Massimiliano Hofer <max@bbs.cc.uniud.it>
+Organization: Nucleus snc
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix to clock running too fast
-Message-Id: <20051120230435.6254.AKIRA-T@s9.dion.ne.jp>
+Subject: Re: Kernel 2.6.14.2 - Hard link count is wrong
+Date: Sun, 20 Nov 2005 15:41:28 +0100
+User-Agent: KMail/1.9
+References: <437E2494.6010005@anagramm.de> <437E8904.40001@gentoo.org>
+In-Reply-To: <437E8904.40001@gentoo.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.21.04 [ja]
+Content-Disposition: inline
+Message-Id: <200511201541.28600.max@bbs.cc.uniud.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 19 November 2005 3:08 am, you wrote:
 
-This one line patch adds upper bound testing when evaluating irq timer 
-on boot up.
+> > find: WARNING: Hard link count is wrong for .: this may be a bug in your
+> > filesystem driver.  Automatically turning on find's -noleaf option.
+> > Earlier results may have failed to include directories that should have
+> > been searched.
+> >
+> > According to google, this might be a kernel bug due to some problems in
+> > /proc, see:
+> > https://www.redhat.com/archives/fedora-list/2005-September/msg02474.html
+> > Well, how to debug that problem?
+>
+> That find check is somewhat incorrect (hard link count can be legally
+> modified after the search was started and before it finished), but I did
+> fix up the /proc problems that existed a while back.
+>
+> This patch will give you a more useful error from findutils.
 
-It fix the machine having problem with clock running too fast.
+I just had the same problem (first time ever) with 2.6.14.2.
+The patched find says:
 
-What this patch do is,
-if  timer interrupts running too fast through IO-APIC IRQ then false back to 
-i8259A IRQ.
-
-I really appreciate for the feedback from ATI Xpress 200 chipset user,
-It should eliminate the needs of adding no_timer_check on kernel options.
-
-I have NEC laptop using ATI Xpress 200 chipset with Pentium M 1.8GHz and 
-its clock keep going forward when kernel compiled with local APIC support.
-Many machines based on RS200 chipset seem to have the same problem, 
-including Acer Ferrari 400X AMD notebook or Compaq R4000.
-
-Also I would like to have comments on upper bound limit, 16 ticks, which 
-I chose in this patch. My laptop always reports around 20, which is double from normal.
+find: WARNING: Hard link count (5) is wrong for /proc/bus: this may be a bug 
+in your filesystem driver.  Automatically turning on find's -noleaf option.  
+Earlier results may have failed to include directories that should have been 
+searched.
 
 
---- linux-2.6.14/arch/i386/kernel/io_apic.c	2005-10-28 09:02:08.000000000 +0900
-+++ linux-2.6.14-io_apic-atifix/arch/i386/kernel/io_apic.c	2005-11-09 00:31:56.000000000 +0900
-@@ -1798,21 +1798,21 @@
- 	/* Let ten ticks pass... */
- 	mdelay((10 * 1000) / HZ);
- 
- 	/*
- 	 * Expect a few ticks at least, to be sure some possible
- 	 * glue logic does not lock up after one or two first
- 	 * ticks in a non-ExtINT mode.  Also the local APIC
- 	 * might have cached one ExtINT interrupt.  Finally, at
- 	 * least one tick may be lost due to delays.
- 	 */
--	if (jiffies - t1 > 4)
-+	if (jiffies - t1 > 4 && jiffies - t1 < 16)
- 		return 1;
- 
- 	return 0;
- }
- 
- /*
-  * In the SMP+IOAPIC case it might happen that there are an unspecified
-  * number of pending IRQ events unhandled. These cases are very rare,
-  * so we 'resend' these IRQs via IPIs, to the same CPU. It's much
-  * better to do it this way as thus we do not have to be aware of
+My /proc/bus/ contains this:
 
+# ls -al /proc/bus/
+total 0
+dr-xr-xr-x    5 root root 0 Nov 18 01:45 ./
+dr-xr-xr-x  199 root root 0 Nov 18 02:45 ../
+dr-xr-xr-x    2 root root 0 Nov 20 15:16 input/
+dr-xr-xr-x    2 root root 0 Nov 20 15:16 pccard/
+dr-xr-xr-x    5 root root 0 Nov 20 10:45 pci/
+drwxr-xr-x    6 root root 0 Nov 18 01:45 usb/
+
+
+I checked on a few machines I have with the same kernel version, but this 
+happens only on my notebook. Is there any other test I can do to help 
+pinpoint the problem?
 
 -- 
-Akira Tsukamoto <akira-t@s9.dion.ne.jp> <akira-t@suna-asobi.com>
-
-
+Bye,
+   Massimiliano Hofer

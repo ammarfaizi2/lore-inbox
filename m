@@ -1,70 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbVKTSQv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750882AbVKTSRt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750877AbVKTSQv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 13:16:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750865AbVKTSQv
+	id S1750882AbVKTSRt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 13:17:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750883AbVKTSRt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 13:16:51 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:29384 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750813AbVKTSQu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 13:16:50 -0500
-Subject: Re: 2.6.15-rc1-mm2 -- Bad page state at free_hot_cold_page (in
-	process 'aplay', page c18eef30)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Miles Lane <miles.lane@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       alsa-devel <alsa-devel@lists.sourceforge.net>
-In-Reply-To: <Pine.LNX.4.61.0511200804500.3938@goblin.wat.veritas.com>
-References: <a44ae5cd0511192256u20f0e594kc65cbaba108ff06e@mail.gmail.com>
-	 <Pine.LNX.4.61.0511200804500.3938@goblin.wat.veritas.com>
-Content-Type: text/plain
-Date: Sun, 20 Nov 2005 13:14:27 -0500
-Message-Id: <1132510467.6874.144.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Sun, 20 Nov 2005 13:17:49 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:11423 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750865AbVKTSRs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 13:17:48 -0500
+Date: Sun, 20 Nov 2005 10:17:38 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+cc: Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Miloslav Trmac <mitr@volny.cz>
+Subject: Re: [git pull 00/14] Input updates for 2.6.15
+In-Reply-To: <200511201242.08506.dtor_core@ameritech.net>
+Message-ID: <Pine.LNX.4.64.0511201016220.13959@g5.osdl.org>
+References: <20051120063611.269343000.dtor_core@ameritech.net>
+ <200511201204.08012.dtor_core@ameritech.net> <Pine.LNX.4.64.0511200919080.13959@g5.osdl.org>
+ <200511201242.08506.dtor_core@ameritech.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Added alsa-devel to cc:)
 
-Will this change have any ill effects on older kernels?  If not we
-should fix it in the ALSA tree right?
 
-Lee
-
-On Sun, 2005-11-20 at 08:05 +0000, Hugh Dickins wrote:
-> On Sat, 19 Nov 2005, Miles Lane wrote:
-> > [17179671.700000] Bad page state at free_hot_cold_page (in process
-> > 'aplay', page c18eef30)
-> > [17179671.700000] flags:0x80000414 mapping:00000000 mapcount:0 count:0
+On Sun, 20 Nov 2005, Dmitry Torokhov wrote:
 > 
-> Please let me know if it's not fixed by:
-> 
-> --- 2.6.15-rc1-mm2/sound/core/memalloc.c	2005-11-12 09:01:28.000000000 +0000
-> +++ linux/sound/core/memalloc.c	2005-11-19 19:03:32.000000000 +0000
-> @@ -197,6 +197,7 @@ void *snd_malloc_pages(size_t size, gfp_
->  
->  	snd_assert(size > 0, return NULL);
->  	snd_assert(gfp_flags != 0, return NULL);
-> +	gfp_flags |= __GFP_COMP;	/* compound page lets parts be mapped */
->  	pg = get_order(size);
->  	if ((res = (void *) __get_free_pages(gfp_flags, pg)) != NULL) {
->  		mark_pages(virt_to_page(res), pg);
-> @@ -241,6 +242,7 @@ static void *snd_malloc_dev_pages(struct
->  	snd_assert(dma != NULL, return NULL);
->  	pg = get_order(size);
->  	gfp_flags = GFP_KERNEL
-> +		| __GFP_COMP	/* compound page lets parts be mapped */
->  		| __GFP_NORETRY /* don't trigger OOM-killer */
->  		| __GFP_NOWARN; /* no stack trace print - this call is non-critical */
->  	res = dma_alloc_coherent(dev, PAGE_SIZE << pg, dma, gfp_flags);
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> That cinergyT2 fix (from Linux-2.6.15-rc2 thread) - do you already have it
+> or would you prefer a pull prepared later tonight?
 
+The only one I have is the one I got through davem a couple of days ago: 
+
+  cinergyT2: cinergyt2_register_rc() should return 0 on success
+
+is that the one you're talking about?
+
+		Linus

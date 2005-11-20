@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751057AbVKTBXv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbVKTBeS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751057AbVKTBXv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Nov 2005 20:23:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751076AbVKTBXv
+	id S1751091AbVKTBeS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Nov 2005 20:34:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751127AbVKTBeS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Nov 2005 20:23:51 -0500
-Received: from freelists-180.iquest.net ([206.53.239.180]:33156 "EHLO
-	turing.freelists.org") by vger.kernel.org with ESMTP
-	id S1751053AbVKTBXu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Nov 2005 20:23:50 -0500
-From: John Madden <weez@freelists.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ReiserFS: clm-2201: last flush, clm-2200: last commit
-Date: Sat, 19 Nov 2005 20:23:49 -0500
-User-Agent: KMail/1.8.3
-References: <200511122252.21366.weez@freelists.org>
-In-Reply-To: <200511122252.21366.weez@freelists.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200511192023.49750.weez@freelists.org>
+	Sat, 19 Nov 2005 20:34:18 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:6122 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751091AbVKTBeR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Nov 2005 20:34:17 -0500
+Date: Sat, 19 Nov 2005 17:33:58 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel@vger.kernel.org, mingo@redhat.com
+Subject: Re: [PATCH] i386, nmi: signed vs unsigned mixup
+Message-Id: <20051119173358.2bf1dbb5.akpm@osdl.org>
+In-Reply-To: <9a8748490511191715x61057bc8i1431ca3a24cfb2e6@mail.gmail.com>
+References: <200511200010.33658.jesper.juhl@gmail.com>
+	<20051119162805.47796de9.akpm@osdl.org>
+	<9a8748490511191630r3ad3e24w4e6d21b3f3b0c3a7@mail.gmail.com>
+	<20051119170818.5e16afae.akpm@osdl.org>
+	<9a8748490511191715x61057bc8i1431ca3a24cfb2e6@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 12 November 2005 10:52 pm, John Madden wrote:
-> ReiserFS: dm-5: warning: clm-2200: last commit 2158066944, current
-> 2158066945 ReiserFS: dm-5: warning: clm-2201: last flush 2158065946,
-> current 2158065947
+Jesper Juhl <jesper.juhl@gmail.com> wrote:
 >
-> This is on both 2.6.12.5 (last night) and 2.4.14.1 as of tonight.  fsck
-> reports no corruption and I have no reason other than these warnings to
-> believe there is any, but this is (obviously) troubling nonetheless.  The
-> relevant code is in fs/reiserfs/journal.c.  
+> Ok, so does that mean that, if properly verified, patches for things
+>  that "gcc -Wsigned-compare" flags will be appreciated?
 
-FWIW, I've given up on this and moved the data to another filesystem on the 
-same box, now with no further errors.  I hope at some point someone finds out 
-what causes what I can only assume to be filesystem trashing -- trashing that 
-fsck doesn't find.
+All patches are appreciated, but not all are applied ;)
 
-John
+Sure, go for it - let's see what the patches end up looking like.  We might
+find real bugs in there - I found a bunch of howlers back in 2.3.late. 
+That was with `gcc -W' which turns on more than -Wsigned-compare.
 
-
-
-
--- 
-# John Madden  weez@freelists.org: http://www.nerdarium.com
-# FreeLists: Free mailing lists for all: http://www.freelists.org
-# Linux, Apache, Perl and C: All the best things in life are free!
+Maybe you could prepare a quick overall summary first, see if you can work
+out the overall scope of the problem and then we can take a look at that,
+decide what bits to attack?

@@ -1,91 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbVKUA11@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbVKUAji@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932132AbVKUA11 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 19:27:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbVKUA11
+	id S1750780AbVKUAji (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 19:39:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbVKUAjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 19:27:27 -0500
-Received: from mx.laposte.net ([81.255.54.11]:36660 "EHLO mx.laposte.net")
-	by vger.kernel.org with ESMTP id S932132AbVKUA11 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 19:27:27 -0500
-Subject: Re: Does Linux support powering down SATA drives?
-From: Nicolas Mailhot <nicolas.mailhot@laposte.net>
-To: marc@perkel.com, asmith@vtrl.co.uk
-Cc: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-SdGp/R0zyFs0WfPzPnQ5"
-Organization: Perso
-Date: Mon, 21 Nov 2005 01:27:08 +0100
-Message-Id: <1132532829.3498.6.camel@rousalka.dyndns.org>
+	Sun, 20 Nov 2005 19:39:18 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:60545 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1750780AbVKUAjO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 19:39:14 -0500
+Date: Sun, 20 Nov 2005 23:04:57 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Matthew Dobson <colpatch@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [RFC][PATCH 0/8] Critical Page Pool
+Message-ID: <20051120230456.GE2556@spitz.ucw.cz>
+References: <437E2C69.4000708@us.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 (2.4.1-7) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <437E2C69.4000708@us.ibm.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri 18-11-05 11:32:57, Matthew Dobson wrote:
+> We have a clustering product that needs to be able to guarantee that the
+> networking system won't stop functioning in the case of OOM/low memory
+> condition.  The current mempool system is inadequate because to keep the
+> whole networking stack functioning, we need more than 1 or 2 slab caches to
+> be guaranteed.  We need to guarantee that any request made with a specific
+> flag will succeed, assuming of course that you've made your "critical page
+> pool" big enough.
+> 
+> The following patch series implements such a critical page pool.  It
+> creates 2 userspace triggers:
+> 
+> /proc/sys/vm/critical_pages: write the number of pages you want to reserve
+> for the critical pool into this file
+> 
+> /proc/sys/vm/in_emergency: write a non-zero value to tell the kernel that
+> the system is in an emergency state and authorize the kernel to dip into
+> the critical pool to satisfy critical allocations.
+> 
+> We mark critical allocations with the __GFP_CRITICAL flag, and when the
+> system is in an emergency state, we are allowed to delve into this pool to
+> satisfy __GFP_CRITICAL allocations that cannot be satisfied through the
+> normal means.
 
---=-SdGp/R0zyFs0WfPzPnQ5
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-> I would agree with your view on IDE becoming obsolete on hard drives,
-> but I as yet, am not aware of any CD/DVD drives with a SATA interface.
-
-$  cat /proc/scsi/scsi
-Attached devices:
-Host: scsi1 Channel: 00 Id: 00 Lun: 00
-  Vendor: PLEXTOR  Model: DVDR   PX-716A   Rev: 1.09
-  Type:   CD-ROM                           ANSI SCSI revision: 05
-Host: scsi4 Channel: 00 Id: 00 Lun: 00
-  Vendor: ATA      Model: Maxtor 6L300S0   Rev: BANC
-  Type:   Direct-Access                    ANSI SCSI revision: 05
-Host: scsi5 Channel: 00 Id: 00 Lun: 00
-  Vendor: ATA      Model: Maxtor 6L300S0   Rev: BANC
-  Type:   Direct-Access                    ANSI SCSI revision: 05
-$ /sbin/lspci | grep -i scsi
-$ /sbin/lspci | grep -i ata
-00:07.0 IDE interface: nVidia Corporation CK804 Serial ATA Controller
-(rev f3)
-00:08.0 IDE interface: nVidia Corporation CK804 Serial ATA Controller
-(rev f3)
-01:09.0 Mass storage controller: Silicon Image, Inc. SiI 3114
-[SATALink/SATARaid] Serial ATA Controller (rev 02)
-
-And BTW,
-
-#  /sbin/hdparm -M 128 /dev/hda
-
-/dev/hda:
- setting acoustic management to 128
- acoustic     =3D  0 (128=3Dquiet ... 254=3Dfast)
-
-(failure but I don't care the drive is old and already in AAM mode)
-
-#  /sbin/hdparm -M 128 /dev/sda
-
-/dev/sda:
- setting acoustic management to 128
- HDIO_GET_ACOUSTIC failed: Inappropriate ioctl for device
-
-(This drive however is not and needs it dearly. Plus it's the Linux
-drive, so it's used most of the time)
-
-Regards,
-
---=20
-Nicolas Mailhot
-
---=-SdGp/R0zyFs0WfPzPnQ5
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iEYEABECAAYFAkOBFFsACgkQI2bVKDsp8g2k2ACgpSeUrdVnXjqlydY+R0cKDKX5
-Qb4AoIHWfNz/f0VMRj4sQyyMyd7Q6REI
-=NmS6
------END PGP SIGNATURE-----
-
---=-SdGp/R0zyFs0WfPzPnQ5--
+Ugh, relying on userspace to tell you that you need to dip into emergency
+pool seems to be racy and unreliable. How can you guarantee that userspace
+is scheduled soon enough in case of OOM?
+							Pavel
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

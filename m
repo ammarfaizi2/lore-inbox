@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbVKTQNd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbVKTQRi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751266AbVKTQNd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 11:13:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbVKTQNd
+	id S1751277AbVKTQRi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 11:17:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbVKTQRi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 11:13:33 -0500
-Received: from smtp102.sbc.mail.re2.yahoo.com ([68.142.229.103]:51819 "HELO
-	smtp102.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1751266AbVKTQNc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 11:13:32 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Michael Geithe <warpy@gmx.de>
-Subject: Re: Linux 2.6.15-rc2
-Date: Sun, 20 Nov 2005 11:13:29 -0500
-User-Agent: KMail/1.8.3
-Cc: lkml <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org> <200511201420.55062.warpy@gmx.de>
-In-Reply-To: <200511201420.55062.warpy@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Sun, 20 Nov 2005 11:17:38 -0500
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:9742 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP
+	id S1751277AbVKTQRh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 11:17:37 -0500
+Date: Sun, 20 Nov 2005 17:17:35 +0100
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: Marc Perkel <marc@perkel.com>
+Cc: asmith@vtrl.co.uk, linux-kernel@vger.kernel.org
+Subject: Re: Does Linux support powering down SATA drives?
+Message-ID: <20051120161735.GC3951@irc.pl>
+Mail-Followup-To: Marc Perkel <marc@perkel.com>, asmith@vtrl.co.uk,
+	linux-kernel@vger.kernel.org
+References: <437F63C1.6010507@perkel.com> <1132431907.19692.15.camel@localhost.localdomain> <437F9705.80503@perkel.com> <200511192304.16302.s0348365@sms.ed.ac.uk> <Pine.LNX.4.61.0511200718530.25549@vtrl22.vtrl.co.uk> <43809C0D.9060503@perkel.com> <20051120160446.GB3951@irc.pl> <43809F2B.7050901@perkel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511201113.29911.dtor_core@ameritech.net>
+In-Reply-To: <43809F2B.7050901@perkel.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 20 November 2005 08:20, Michael Geithe wrote:
-> Hi,
-> i get this after plugged in dvb-t/Cinergy T2 with Kernel 2.6.15-git*/rc*.
->
+On Sun, Nov 20, 2005 at 08:07:07AM -0800, Marc Perkel wrote:
+> Tomasz Torcz wrote:
+> 
+> >On Sun, Nov 20, 2005 at 07:53:49AM -0800, Marc Perkel wrote:
+> > 
+> >
+> >>asmith@vtrl.co.uk wrote:
+> >>
+> >>>I would agree with your view on IDE becoming obsolete on hard drives, 
+> >>>but I as yet, am not aware of any CD/DVD drives with a SATA interface.
+> >>>
+> >>That's something that amazes me - why aren't there anu SATA CD/DVD 
+> >>drives? Seems to me that CD/DVD could have the same benifits of using a 
+> >>thin cable and eventually getting away from the IDE interface. 
+> >>   
+> >>
+> >
+> >You can rip one from an Xbox 360 :)
+> >
+> 
+> Oh? What does the Xbox have in it?
 
-Hm, is there one driver in drivers/media that I left working? Please
-try the patch below.
-
+ Xbox *360* - http://www.anandtech.com/systems/showdoc.aspx?i=2610&p=4
+Very thin on details, unfortunately.
+ 
 -- 
-Dmitry
+Tomasz Torcz                 Morality must always be based on practicality.
+zdzichu@irc.-nie.spam-.pl                -- Baron Vladimir Harkonnen
 
-Subjtect: Fix an OOPS is CinergyT2
-
-Fix an OOPS is CinergyT2 driver when registering IR remote
-
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/media/dvb/cinergyT2/cinergyT2.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-Index: work/drivers/media/dvb/cinergyT2/cinergyT2.c
-===================================================================
---- work.orig/drivers/media/dvb/cinergyT2/cinergyT2.c
-+++ work/drivers/media/dvb/cinergyT2/cinergyT2.c
-@@ -772,7 +772,7 @@ static int cinergyt2_register_rc(struct 
- 	input_dev->name = DRIVER_NAME " remote control";
- 	input_dev->phys = cinergyt2->phys;
- 	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
--	for (i = 0; ARRAY_SIZE(rc_keys); i += 3)
-+	for (i = 0; i < ARRAY_SIZE(rc_keys); i += 3)
- 		set_bit(rc_keys[i + 2], input_dev->keybit);
- 	input_dev->keycodesize = 0;
- 	input_dev->keycodemax = 0;

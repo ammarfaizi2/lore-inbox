@@ -1,65 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbVKTVEg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbVKTVHe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750849AbVKTVEg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 16:04:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbVKTVEg
+	id S932073AbVKTVHe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 16:07:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbVKTVHe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 16:04:36 -0500
-Received: from zproxy.gmail.com ([64.233.162.205]:43311 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750861AbVKTVEg convert rfc822-to-8bit
+	Sun, 20 Nov 2005 16:07:34 -0500
+Received: from zproxy.gmail.com ([64.233.162.204]:47207 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932073AbVKTVHd convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 16:04:36 -0500
+	Sun, 20 Nov 2005 16:07:33 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=fs3RWCILzjiKcjCwr/qBPE8forwLLb/UiVHsVFb/+NrNXXr02LKgkEvK850LUwGewCHQruZZ4+M3ZqTtnTcPbjDyPItP7WozN1eZZrKz5syQS7gqJ41rlFxaMyI6Kml90U/7QTAjgMY9NRioAGrlMYtTCxHQxaFE7GV11sTOpyk=
-Message-ID: <29495f1d0511201304p4b5bd863p4c8fccab6f5ef8d6@mail.gmail.com>
-Date: Sun, 20 Nov 2005 13:04:35 -0800
+        b=iwfb2T4xYU02irJFOA2S4137PuZMVkbTo36qMRYHbNgxi7OMc2vF32UWhCn6Id/INCuC+0C3fakbQCvHjJkeav7dT/vSUs35DMXZSmdUEY2/l5UbBjrfapoj6QmlF0E88dgSSIpH2c+CxXHv752wjsT5lXO0XxGDTIwyz3F9R3I=
+Message-ID: <29495f1d0511201307n29fd2095md0d9543d5aef9968@mail.gmail.com>
+Date: Sun, 20 Nov 2005 13:07:32 -0800
 From: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Arjan van de Ven <arjan@infradead.org>
+To: 7eggert@gmx.de
 Subject: Re: I made a patch and would like feedback/testers (drivers/cdrom/aztcd.c)
 Cc: =?ISO-8859-1?Q?Daniel_Marjam=E4ki?= <daniel.marjamaki@comhem.se>,
        linux-kernel@vger.kernel.org
-In-Reply-To: <1132501080.2857.3.camel@laptopd505.fenrus.org>
+In-Reply-To: <E1EdwGs-0000qv-NL@be1.lrz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-References: <43809652.8000904@comhem.se>
-	 <1132501080.2857.3.camel@laptopd505.fenrus.org>
+References: <5aZsv-3CJ-17@gated-at.bofh.it> <E1EdwGs-0000qv-NL@be1.lrz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/20/05, Arjan van de Ven <arjan@infradead.org> wrote:
-> >   static void op_ok(void)
-> >   {
+On 11/20/05, Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org> wrote:
+> Daniel Marjamäki <daniel.marjamaki@comhem.se> wrote:
+>
 > > -     aztTimeOutCount = 0;
 > > +     aztTimeOut = jiffies + 2;
-> >       do {
-> >               aztIndatum = inb(DATA_PORT);
-> > -             aztTimeOutCount++;
-> > -             if (aztTimeOutCount >= AZT_TIMEOUT) {
-> > +             if (time_after(jiffies, aztTimeOut)) {
-> >                       printk("aztcd: Error Wait OP_OK\n");
-> >                       break;
-> >               }
-> > +             schedule_timeout_interruptible(1);
 >
-> this I think is not quite right; schedule_timeout_*() doesn't do
-> anything unless you set current->state to something. And at that point
-> you might as well start using msleep()!
+> Different timeout based on HZ seems wrong.
 
-Not true, as Thomas points out. You are right for schedule_timeout(),
-but that's why we introduced the _interruptible() and
-_uninterruptible(). And there are reasons to use schedule_timeout_*()
-instead of msleep() [not necessarily in this case, but in general],
-specifically the presence of wait-queues.
+True; I'm trying to think of a good way to emulate 8000000 iterations
+of loop, though. Really, this is not terrible to use 2 jiffies of
+offset, as we try to sleep 1 jiffy each time. As long as we don't get
+a signal *right* away, we'll sleep probably for 2 loops. Not sure,
+though, may be useful to see what happens in practice and then debug
+further for the right value.
 
-> but what you're doing is generally a good idea; busy waits as the
-> original code did is quite wrong...
-
-I agree, and I recommend Daniel post to LKML to get some testing / see
-if anyone actually uses this driver :)
+May also want to use time_after_eq() not time_after().
 
 Thanks,
 Nish

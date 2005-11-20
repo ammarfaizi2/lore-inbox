@@ -1,70 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbVKTG4m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbVKTHGY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750796AbVKTG4m (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 01:56:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbVKTG4m
+	id S1750995AbVKTHGY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 02:06:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750859AbVKTHGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 01:56:42 -0500
-Received: from wproxy.gmail.com ([64.233.184.201]:20383 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750796AbVKTG4m convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 01:56:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=Vgz0Z23yjyzk/7BnChYno+Z1sNFrdHGV0XvoqUKeMPL4iODWJhRvCdAuVMab4wp9QDSZo3gjU83Ggr57b7HeGrRIZX20pgxpPtZ7HAoRdg1RXWoMJ8TiLxGSPOK/3Un86ZMchX1AaqYNK0QTqInG8vkcUlgCZ2nM/OcoNzrim24=
-Message-ID: <a44ae5cd0511192256u20f0e594kc65cbaba108ff06e@mail.gmail.com>
-Date: Sat, 19 Nov 2005 22:56:41 -0800
-From: Miles Lane <miles.lane@gmail.com>
-To: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: 2.6.15-rc1-mm2 -- Bad page state at free_hot_cold_page (in process 'aplay', page c18eef30)
-MIME-Version: 1.0
+	Sun, 20 Nov 2005 02:06:00 -0500
+Received: from smtp103.sbc.mail.re2.yahoo.com ([68.142.229.102]:33694 "HELO
+	smtp103.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1750861AbVKTHF7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 02:05:59 -0500
+Message-Id: <20051120064419.913647000.dtor_core@ameritech.net>
+References: <20051120063611.269343000.dtor_core@ameritech.net>
+Date: Sun, 20 Nov 2005 01:36:16 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [git pull 05/14] Wistron - convert to dynamic input_dev allocation
+Content-Disposition: inline; filename=input-dynalloc-wistron.patch
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[17179671.700000] Bad page state at free_hot_cold_page (in process
-'aplay', page c18eef30)
-[17179671.700000] flags:0x80000414 mapping:00000000 mapcount:0 count:0
-[17179671.700000] Backtrace:
-[17179671.700000]  [<c0103de8>] dump_stack+0x1e/0x20
-[17179671.700000]  [<c014c775>] bad_page+0x87/0x140
-[17179671.700000]  [<c014d12d>] free_hot_cold_page+0x43/0x130
-[17179671.700000]  [<c014d224>] free_hot_page+0xa/0xc
-[17179671.700000]  [<c0150b53>] __page_cache_release+0x61/0xbf
-[17179671.700000]  [<c015074d>] put_page+0x3d/0x82
-[17179671.700000]  [<c015e430>] free_page_and_swap_cache+0x24/0x47
-[17179671.700000]  [<c01559e4>] zap_pte_range+0x232/0x348
-[17179671.700000]  [<c0155bdb>] unmap_page_range+0xe1/0x10b
-[17179671.700000]  [<c0155cc4>] unmap_vmas+0xbf/0x237
-[17179671.700000]  [<c015a494>] unmap_region+0xb3/0x158
-[17179671.700000]  [<c015a7f2>] do_munmap+0xf8/0x138
-[17179671.700000]  [<c015a889>] sys_munmap+0x57/0x73
-[17179671.700000]  [<c0102e9f>] sysenter_past_esp+0x54/0x75
-[17179671.700000] ---------------------------
-[17179671.700000] | preempt count: 00000003 ]
-[17179671.700000] | 3 level deep critical section nesting:
-[17179671.700000] ----------------------------------------
-[17179671.700000] .. [<c015a414>] .... unmap_region+0x33/0x158
-[17179671.700000] .....[<c015a7f2>] ..   ( <= do_munmap+0xf8/0x138)
-[17179671.700000] .. [<c01181dd>] .... kmap_atomic+0x15/0x9c
-[17179671.700000] .....[<c01557f2>] ..   ( <= zap_pte_range+0x40/0x348)
-[17179671.700000] .. [<c03ca9dc>] .... _spin_lock+0x13/0x6f
-[17179671.700000] .....[<c0155809>] ..   ( <= zap_pte_range+0x57/0x348)
-[17179671.700000]
-[17179671.700000] Hexdump:
-[17179671.700000] 000: e4 d8 cc c1 9e ff 64 00 f8 57 a7 c1 b8 ad a0 c1
-[17179671.700000] 010: 14 04 00 80 00 00 00 00 ff ff ff ff 00 00 00 00
-[17179671.700000] 020: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-[17179671.700000] 030: 00 00 00 00 f0 00 00 00 00 01 10 00 00 02 20 00
-[17179671.700000] 040: 14 04 00 80 ff ff ff ff ff ff ff ff 00 00 00 00
-[17179671.700000] 050: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-[17179671.700000] 060: 00 00 00 00 f1 00 00 00 00 01 10 00 00 02 20 00
-[17179671.700000] 070: 00 04 00 80 00 00 00 00 00 00 00 00 00 00 00 00
-[17179671.700000] 080: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-[17179671.700000] 090: 00 00 00 00 38 00 00 00 00 01 10 00 00 02 20 00
-[17179671.700000] 0a0: 00 04 00 80 00 00 00 00 00 00 00 00 00 00 00 00
-[17179671.700000] 0b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-[17179671.700000] Trying to fix it up, but a reboot is needed
+Input: wistron - convert to dynamic input_dev allocation
+
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+ drivers/input/misc/wistron_btns.c |   53 ++++++++++++++++++++++++++------------
+ 1 files changed, 37 insertions(+), 16 deletions(-)
+
+Index: work/drivers/input/misc/wistron_btns.c
+===================================================================
+--- work.orig/drivers/input/misc/wistron_btns.c
++++ work/drivers/input/misc/wistron_btns.c
+@@ -149,7 +149,7 @@ err:
+ 	return -ENOMEM;
+ }
+ 
+-static void __exit unmap_bios(void)
++static inline void unmap_bios(void)
+ {
+ 	iounmap(bios_code_map_base);
+ 	iounmap(bios_data_map_base);
+@@ -180,7 +180,7 @@ static void __init bios_attach(void)
+ 	call_bios(&regs);
+ }
+ 
+-static void __exit bios_detach(void)
++static void bios_detach(void)
+ {
+ 	struct regs regs;
+ 
+@@ -342,31 +342,43 @@ static int __init select_keymap(void)
+ 
+  /* Input layer interface */
+ 
+-static struct input_dev input_dev = {
+-	.name = "Wistron laptop buttons",
+-};
++static struct input_dev *input_dev;
+ 
+-static void __init setup_input_dev(void)
++static int __init setup_input_dev(void)
+ {
+ 	const struct key_entry *key;
++	int error;
++
++	input_dev = input_allocate_device();
++	if (!input_dev)
++		return -ENOMEM;
++
++	input_dev->name = "Wistron laptop buttons";
++	input_dev->phys = "wistron/input0";
++	input_dev->id.bustype = BUS_HOST;
+ 
+ 	for (key = keymap; key->type != KE_END; key++) {
+ 		if (key->type == KE_KEY) {
+-			input_dev.evbit[LONG(EV_KEY)] = BIT(EV_KEY);
+-			input_dev.keybit[LONG(key->keycode)]
+-				|= BIT(key->keycode);
++			input_dev->evbit[LONG(EV_KEY)] = BIT(EV_KEY);
++			set_bit(key->keycode, input_dev->keybit);
+ 		}
+ 	}
+ 
+-	input_register_device(&input_dev);
++	error = input_register_device(input_dev);
++	if (error) {
++		input_free_device(input_dev);
++		return error;
++	}
++
++	return 0;
+ }
+ 
+ static void report_key(unsigned keycode)
+ {
+-	input_report_key(&input_dev, keycode, 1);
+-	input_sync(&input_dev);
+-	input_report_key(&input_dev, keycode, 0);
+-	input_sync(&input_dev);
++	input_report_key(input_dev, keycode, 1);
++	input_sync(input_dev);
++	input_report_key(input_dev, keycode, 0);
++	input_sync(input_dev);
+ }
+ 
+  /* Driver core */
+@@ -437,11 +449,14 @@ static int __init wb_module_init(void)
+ 	err = select_keymap();
+ 	if (err)
+ 		return err;
++
+ 	err = map_bios();
+ 	if (err)
+ 		return err;
++
+ 	bios_attach();
+ 	cmos_address = bios_get_cmos_address();
++
+ 	if (have_wifi) {
+ 		u16 wifi = bios_get_default_setting(WIFI);
+ 		if (wifi & 1)
+@@ -452,6 +467,7 @@ static int __init wb_module_init(void)
+ 		if (have_wifi)
+ 			bios_set_state(WIFI, wifi_enabled);
+ 	}
++
+ 	if (have_bluetooth) {
+ 		u16 bt = bios_get_default_setting(BLUETOOTH);
+ 		if (bt & 1)
+@@ -463,7 +479,12 @@ static int __init wb_module_init(void)
+ 			bios_set_state(BLUETOOTH, bluetooth_enabled);
+ 	}
+ 
+-	setup_input_dev();
++	err = setup_input_dev();
++	if (err) {
++		bios_detach();
++		unmap_bios();
++		return err;
++	}
+ 
+ 	poll_bios(1); /* Flush stale event queue and arm timer */
+ 
+@@ -473,7 +494,7 @@ static int __init wb_module_init(void)
+ static void __exit wb_module_exit(void)
+ {
+ 	del_timer_sync(&poll_timer);
+-	input_unregister_device(&input_dev);
++	input_unregister_device(input_dev);
+ 	bios_detach();
+ 	unmap_bios();
+ }
+

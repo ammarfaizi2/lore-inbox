@@ -1,83 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750802AbVKTUiR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbVKTUk2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750802AbVKTUiR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 15:38:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750804AbVKTUiR
+	id S1750804AbVKTUk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 15:40:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbVKTUk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 15:38:17 -0500
-Received: from webbox4.loswebos.de ([213.187.93.205]:21406 "EHLO
-	webbox4.loswebos.de") by vger.kernel.org with ESMTP
-	id S1750802AbVKTUiQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 15:38:16 -0500
-Date: Sun, 20 Nov 2005 21:16:12 +0100
-From: Marc Koschewski <marc@osknowledge.org>
-To: Fabio Erculiani <lxnay@lxnaydesign.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [IDEA] Enable debugging in userspace?
-Message-ID: <20051120201611.GA7981@stiffy.osknowledge.org>
-References: <200511202054.42479.lxnay@lxnaydesign.net>
-MIME-Version: 1.0
+	Sun, 20 Nov 2005 15:40:28 -0500
+Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:31755 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1750804AbVKTUk1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 15:40:27 -0500
+Date: Mon, 21 Nov 2005 07:40:01 +1100
+To: Richard Knutsson <ricknu-0@student.ltu.se>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       jgarzik@pobox.com, ashutosh.naik@gmail.com
+Subject: Re: [PATCH -mm2] net: Fix compiler-error on dgrs.c when !CONFIG_PCI
+Message-ID: <20051120204001.GA11043@gondor.apana.org.au>
+References: <E1EdmMo-00020b-00@gondolin.me.apana.org.au> <438097D2.9020607@student.ltu.se>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200511202054.42479.lxnay@lxnaydesign.net>
-X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
-X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
-X-Operating-System: Linux stiffy 2.6.15-rc1-marc
-User-Agent: Mutt/1.5.11
+In-Reply-To: <438097D2.9020607@student.ltu.se>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Fabio Erculiani <lxnay@lxnaydesign.net> [2005-11-20 20:54:42 +0100]:
+On Sun, Nov 20, 2005 at 04:35:46PM +0100, Richard Knutsson wrote:
+>
+> >-#ifdef CONFIG_EISA
+> >-	cardcount = eisa_driver_register(&dgrs_eisa_driver);
+> >+	cardcount = dgrs_register_eisa();
+> > 	if (cardcount < 0)
+> > 		return cardcount;
+> >-#endif
+> >-	cardcount = pci_register_driver(&dgrs_pci_driver);
+> >-	if (cardcount)
+> >+	cardcount = dgrs_register_pci();
+> >+	if (cardcount < 0) {
+> Are you sure it should be "cardcount < 0" and not "cardcount"?
 
-> Today, one idea is floating around me and bugging my brain (read: headache).
-> If I could be a newbie, and if I have a problem with the latest and greatest 
-> linux distro, I start googling and looking for a solution. The problem is 
-> that someone write that I have to enable debugging mode in kernel 
-> configuration, recompile everything and reboot. That's quite impossible for a 
-> newbie, isn't it?
-> So, why don't add an option to enable/disable debugging mode in sysfs?
-> 
-> Like:
-> 
-> /* DEBUG MODE ON */
-> echo "1" > /sys/kernel/debugging/debug_mode
-> /* DEBUG MODE OFF */
-> echo "0" > /sys/kernel/debugging/debug_mode
-> 
-> I know that debugging code might (remove "might") increase the kernel size, 
-> but men, we have >256MB of RAM and >1GB of hard drive space.
-> 
+Yes if cardcount is >= 0 then the registration was successful.
 
-Fabio,
+> >+		dgrs_unregister_eisa();
+> Why change the behaviour off this driver?
 
-basically I would rate such a 'solution' a pro. But first a few cons
-came up my mind:
+Because the driver was buggy.  When this function returns a non-zero
+value, it must return the system to its original state.
 
-1.) If you globally enable 'debug_mode' the user (and even more the
-    newbie) is blown away by the enormous messages that would show up
-    and thus these would be rendered useless in some way.
-2.) The debug messages would appear 'just in time'. No matter, if they
-    do because of a fault or just for informational purposes. How do you
-    want to achieve to stack the messages i the right order for someone
-    who does NOT deal with a system's internal to interpret these
-    messages correctly? I mean, we're not talking about such stuff as 
+That means if the EISA driver has already been registered then it must
+be unregistered.
 
-	    usbcore: registered new driver usbmouse
-
-    We're talking about stuff like
-
-	    hub->hdev[XXX]: hub->status->hub = XXX,
-
-    OK, anything my be tagged with the module the info comes from but
-    this would mean a) enormous amount of work to do tagging the
-    messages and b) implementing the messages that'll be thrown, when
-    the debug_mode is enabled.
-3.) It would be a rather optional thing as probs have been located using
-    back- and calltrace + friends. Important errors or failures are
-    reported in the logs nevertheless.
-4.) Worse problems (besides stuff as 'My ACX100 Wireless adaptor does
-    not work out of the box' are usually fixed by the distros people who
-    know how to handle kernel bugs.
-
-Regards,
-	Marc
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

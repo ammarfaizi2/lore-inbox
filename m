@@ -1,74 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbVKTOlr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbVKTOii@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751246AbVKTOlr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 09:41:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbVKTOlr
+	id S1751159AbVKTOii (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 09:38:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbVKTOii
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 09:41:47 -0500
-Received: from host94-205.pool8022.interbusiness.it ([80.22.205.94]:24234 "EHLO
-	waobagger.intranet.nucleus.it") by vger.kernel.org with ESMTP
-	id S1751246AbVKTOlq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 09:41:46 -0500
-From: Massimiliano Hofer <max@bbs.cc.uniud.it>
-Organization: Nucleus snc
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.14.2 - Hard link count is wrong
-Date: Sun, 20 Nov 2005 15:41:28 +0100
-User-Agent: KMail/1.9
-References: <437E2494.6010005@anagramm.de> <437E8904.40001@gentoo.org>
-In-Reply-To: <437E8904.40001@gentoo.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Sun, 20 Nov 2005 09:38:38 -0500
+Received: from zproxy.gmail.com ([64.233.162.200]:34266 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751159AbVKTOii (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 09:38:38 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=CC/Yr61eAU0kNG63vi8zsLM6H2XuYnp8Hk+9MwiSMk2baYlEdPp7ItFqTxgjOun+sOTvFbbtDjWZaQopoY1dyqXE68G8TRYZEYkWisYhH+yb4Zx5Es593JKJEgg1Ctib+6WfAkzrvY51M61Cn/jZH8kMObUDHt6O1bKq8EWQ0R4=
+Date: Sun, 20 Nov 2005 17:52:41 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Michael Geithe <warpy@gmx.de>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: cinergyT2 oops (was Re: Linux 2.6.15-rc2)
+Message-ID: <20051120145241.GA18234@mipter.zuzino.mipt.ru>
+References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org> <200511201420.55062.warpy@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511201541.28600.max@bbs.cc.uniud.it>
+In-Reply-To: <200511201420.55062.warpy@gmx.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 19 November 2005 3:08 am, you wrote:
+On Sun, Nov 20, 2005 at 02:20:54PM +0100, Michael Geithe wrote:
+> i get this after plugged in dvb-t/Cinergy T2 with Kernel 2.6.15-git*/rc*.
 
-> > find: WARNING: Hard link count is wrong for .: this may be a bug in your
-> > filesystem driver.  Automatically turning on find's -noleaf option.
-> > Earlier results may have failed to include directories that should have
-> > been searched.
-> >
-> > According to google, this might be a kernel bug due to some problems in
-> > /proc, see:
-> > https://www.redhat.com/archives/fedora-list/2005-September/msg02474.html
-> > Well, how to debug that problem?
->
-> That find check is somewhat incorrect (hard link count can be legally
-> modified after the search was started and before it finished), but I did
-> fix up the /proc problems that existed a while back.
->
-> This patch will give you a more useful error from findutils.
+> usb 3-5.5: new high speed USB device using ehci_hcd and address 7
+> DVB: registering new adapter (TerraTec/qanu USB2.0 Highspeed DVB-T Receiver).
+> Unable to handle kernel paging request at virtual address 0483b400
+>  printing eip:
+> f9060f01
+> *pde = 00000000
+> Oops: 0002 [#1]
+> SMP
+> Modules linked in: cinergyT2 dvb_core w83627hf hwmon_vid eeprom i2c_isa
+> snd_seq_midi snd_emu10k1_synth snd_emux_synth snd_seq_virmidi
+> snd_seq_midi_emul snd_pcm_oss snd_mixer_oss snd_seq_oss snd_seq_midi_event
+> snd_seq usbhid usb_storage ehci_hcd ohci_hcd ohci1394 ieee1394 snd_emu10k1
+> snd_rawmidi snd_seq_device snd_ac97_codec snd_pcm snd_timer snd_ac97_bus
+> snd_page_alloc snd_util_mem snd_hwdep snd soundcore e1000 nvidia i2c_i801
+> intel_agp usbcore
+> CPU:    0
+> EIP:    0060:[<f9060f01>]    Tainted: P      VLI
+			       ^^^^^^^^^^
 
-I just had the same problem (first time ever) with 2.6.14.2.
-The patched find says:
+Can you reproduce it with clean kernel?
 
-find: WARNING: Hard link count (5) is wrong for /proc/bus: this may be a bug 
-in your filesystem driver.  Automatically turning on find's -noleaf option.  
-Earlier results may have failed to include directories that should have been 
-searched.
-
-
-My /proc/bus/ contains this:
-
-# ls -al /proc/bus/
-total 0
-dr-xr-xr-x    5 root root 0 Nov 18 01:45 ./
-dr-xr-xr-x  199 root root 0 Nov 18 02:45 ../
-dr-xr-xr-x    2 root root 0 Nov 20 15:16 input/
-dr-xr-xr-x    2 root root 0 Nov 20 15:16 pccard/
-dr-xr-xr-x    5 root root 0 Nov 20 10:45 pci/
-drwxr-xr-x    6 root root 0 Nov 18 01:45 usb/
-
-
-I checked on a few machines I have with the same kernel version, but this 
-happens only on my notebook. Is there any other test I can do to help 
-pinpoint the problem?
-
--- 
-Bye,
-   Massimiliano Hofer

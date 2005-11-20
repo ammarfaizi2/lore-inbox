@@ -1,58 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbVKTVWq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbVKTVZ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932072AbVKTVWq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 16:22:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbVKTVWq
+	id S932103AbVKTVZ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 16:25:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbVKTVZ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 16:22:46 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:59877 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1750795AbVKTVWq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 16:22:46 -0500
-Date: Sat, 19 Nov 2005 23:44:50 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Hui Cheng <hcheng@cse.unl.edu>
-Cc: Alejandro Bonilla <abonilla@linuxwireless.org>,
-       Pavel Machek <pavel@suse.cz>, kernelnewbies@nl.linux.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: How to quickly detect the mode change of a hard disk?
-Message-ID: <20051119234450.GB1952@spitz.ucw.cz>
-References: <20051116185628.M35560@linuxwireless.org> <Pine.GSO.4.44.0511181333540.20511-100000@cse.unl.edu>
+	Sun, 20 Nov 2005 16:25:58 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:51980 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932103AbVKTVZ5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 16:25:57 -0500
+Date: Sun, 20 Nov 2005 22:27:12 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Luca <kronos@kronoz.cjb.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.14.2] Badness in as_insert_request at drivers/block/as-iosched.c:1519
+Message-ID: <20051120212711.GQ25454@suse.de>
+References: <20051120203603.GA12216@dreamland.darkstar.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.44.0511181333540.20511-100000@cse.unl.edu>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <20051120203603.GA12216@dreamland.darkstar.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > > I am currently doing a kernel module involves detecting/changing
-> > > > disk mode among STANDBY and ACTIVE/IDLE. I used ide_cmd_wait() to issue
-> > > > commands like WIN_IDLEIMMEDIATELY and WIN_STANDBYNOW1. The problem is, a
-> > > > drive in standby mode will automatically awake whenever a disk operation
-> > > > is requested and I need to know the mode change as soon as possible. (So I
-> > >
-> > > AFAIK there's no nice way to get that info, but it is useful, so
-> > > patch would be welcome.
-> >
-> > I would check the hdparm man page again. Still, it sounds interesting.
-> >
-> > Additionally, it could be cool if someone could finish up or make the option
-> > for the HD freeze to use it with the HDAPS driver. ;-)
-> >
-> > .Alejandro
-> >
+On Sun, Nov 20 2005, Luca wrote:
+> Hi,
+> while playing an audio CD with XMMS using digital audio extraction the
+> kernel started flooding my logs (syslog writes my kernel logs synchronously)
+> with the following message:
 > 
-> Thanks for reply :) What I did to handle this problem is a little stupid
-> : Suppose the disk is now in a standby mode. In case that there is a
-> request sent to the disk drive, a kernel thread is awake to detect/update
-> the current disk power mode. The disk power mode is stored in the
-> ide_drive_t structure and be protected by lock. It seems to work fine in
-> my simple tests. But again, there should be better solutions.
+>  cdrom: dropping to single frame dma
+>  arq->state: 4
+>  Badness in as_insert_request at drivers/block/as-iosched.c:1519
+>   [<c0104027>] dump_stack+0x17/0x20
+>   [<c0263b2c>] as_insert_request+0x5c/0x160
+>   [<c025aa0a>] __elv_add_request+0x8a/0xc0
+>   [<c025aa75>] elv_add_request+0x35/0x70
+>   [<c025dc4b>] blk_execute_rq_nowait+0x3b/0x50
+>   [<c025dcda>] blk_execute_rq+0x7a/0xb0
+>   [<c028daad>] cdrom_read_cdda_bpc+0x14d/0x1b0
 
-Can we get the patch?
+This is actually the 'as' request state detection being a little to
+anxious, I think. The cdrom layer reuses the same request several times
+instead of allocating/freeing it inside the loop, and 'as' barfs if the
+request state isn't 'fresh' when it first sees the request after it has
+completed once.
+
+This should work around the issue in the cdrom layer, even though it
+isn't actually buggy.
+
+> This happens both with my DVD unit and the CD/RW unit. The cause may be
+> a couple of skratches on the disk (my portable cd player is happy with
+> it though) and the drives behave fine with other audio disks. In the
+> dmesg there isn't any other error related to the cd (i.e. no medium
+> errors...)
+
+It just so happens to trigger there, because then you drop into single
+frame dma mode which will iterate the loop several times per request
+(which then exposes the bug).
+
+> As workaround I'm using noop scheduler for the unit...
+
+That'll do fine as well, of course.
+
+diff --git a/drivers/cdrom/cdrom.c b/drivers/cdrom/cdrom.c
+index 1539603..7540d27 100644
+--- a/drivers/cdrom/cdrom.c
++++ b/drivers/cdrom/cdrom.c
+@@ -2089,7 +2089,7 @@ static int cdrom_read_cdda_bpc(struct cd
+ 			       int lba, int nframes)
+ {
+ 	request_queue_t *q = cdi->disk->queue;
+-	struct request *rq;
++	struct request *rq = NULL;
+ 	struct bio *bio;
+ 	unsigned int len;
+ 	int nr, ret = 0;
+@@ -2097,13 +2097,13 @@ static int cdrom_read_cdda_bpc(struct cd
+ 	if (!q)
+ 		return -ENXIO;
+ 
+-	rq = blk_get_request(q, READ, GFP_KERNEL);
+-	if (!rq)
+-		return -ENOMEM;
+-
+ 	cdi->last_sense = 0;
+ 
+ 	while (nframes) {
++		rq = blk_get_request(q, READ, GFP_KERNEL);
++		if (!rq)
++			return -ENOMEM;
++
+ 		nr = nframes;
+ 		if (cdi->cdda_method == CDDA_BPC_SINGLE)
+ 			nr = 1;
+@@ -2151,9 +2151,13 @@ static int cdrom_read_cdda_bpc(struct cd
+ 		nframes -= nr;
+ 		lba += nr;
+ 		ubuf += len;
++		blk_put_request(rq);
++		rq = NULL;
+ 	}
+ 
+-	blk_put_request(rq);
++	if (rq)
++		blk_put_request(rq);
++
+ 	return ret;
+ }
+ 
+
 -- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+Jens Axboe
 

@@ -1,96 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbVKTSMG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbVKTSQv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750722AbVKTSMG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 13:12:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbVKTSMG
+	id S1750877AbVKTSQv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 13:16:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750865AbVKTSQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 13:12:06 -0500
-Received: from dns.suna-asobi.com ([210.151.31.146]:48097 "EHLO
-	dns.suna-asobi.com") by vger.kernel.org with ESMTP id S1750722AbVKTSMF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 13:12:05 -0500
-Date: Mon, 21 Nov 2005 03:12:34 +0900
-From: Akira Tsukamoto <akira-t@suna-asobi.com>
-To: john stultz <johnstul@us.ibm.com>
-Subject: Re: athlon x2 + 2.6.14 + SMP = fast clock
-Cc: Christopher Mulcahy <cmulcahy@avesi.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1131490766.27168.669.camel@cog.beaverton.ibm.com>
-References: <1131498162.21752.102.camel@jones> <1131490766.27168.669.camel@cog.beaverton.ibm.com>
-Message-Id: <20051121030949.80C0.AKIRA-T@suna-asobi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+	Sun, 20 Nov 2005 13:16:51 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:29384 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750813AbVKTSQu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 13:16:50 -0500
+Subject: Re: 2.6.15-rc1-mm2 -- Bad page state at free_hot_cold_page (in
+	process 'aplay', page c18eef30)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Miles Lane <miles.lane@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       alsa-devel <alsa-devel@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.61.0511200804500.3938@goblin.wat.veritas.com>
+References: <a44ae5cd0511192256u20f0e594kc65cbaba108ff06e@mail.gmail.com>
+	 <Pine.LNX.4.61.0511200804500.3938@goblin.wat.veritas.com>
+Content-Type: text/plain
+Date: Sun, 20 Nov 2005 13:14:27 -0500
+Message-Id: <1132510467.6874.144.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.21.04 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 08 Nov 2005 14:59:25 -0800
-john stultz <johnstul@us.ibm.com> mentioned:
-> On Tue, 2005-11-08 at 20:02 -0500, Christopher Mulcahy wrote:
-> > On Tue, 2005-11-08 at 13:38 -0800, john stultz wrote:
-> > > On Tue, 2005-11-08 at 15:40 -0500, Christopher Mulcahy wrote:
-> > > > I am running 2.6.14 SMP on an dual-core athlon x2 3800.
-> > > > The system clock runs at roughly twice normal speed.
-> > > 
-> > > Is this a new regression or did the problem occur with 2.6.13 or older
-> > > kernels?
-> > This is a new-machine.
-> > The only other kernel it has seen is the distro-install-kernel ( 2.6.12
-> > uni-processor (ubuntu-5.10) )  ( this kernel does not have a problem,
-> > but it is not SMP )
-> > 
-> > I will try to find time to build 2.4.13 and 2.4.12 SMP kernels with the
-> > ~same config to see if they have the same problem. ( I presume I could
-> > then attach these findings to the original bugzilla report? )
-> 
-> There are a few similar sounding bugs out there:
-> If its an ATI chipset, check out 
-> http://bugzilla.kernel.org/show_bug.cgi?id=3927
-> 
-> If its an nvidia chipset, check out
-> http://bugzilla.kernel.org/show_bug.cgi?id=3341
+(Added alsa-devel to cc:)
 
+Will this change have any ill effects on older kernels?  If not we
+should fix it in the ALSA tree right?
 
-My machine's clock runs about 2X from normal speed.
-Could you try my patch which I just posted a hour ago?
-http://marc.theaimsgroup.com/?l=linux-kernel&m=113249769027262&w=2
+Lee
 
-The patch will detect whether IO-APCI timer interupt is generated too fast 
-and try to use a legacy i8259A IRQ instead.
-
-It might help. It also worked on 2.4.31 kernel for me.
-
-
-
+On Sun, 2005-11-20 at 08:05 +0000, Hugh Dickins wrote:
+> On Sat, 19 Nov 2005, Miles Lane wrote:
+> > [17179671.700000] Bad page state at free_hot_cold_page (in process
+> > 'aplay', page c18eef30)
+> > [17179671.700000] flags:0x80000414 mapping:00000000 mapcount:0 count:0
 > 
+> Please let me know if it's not fixed by:
 > 
-> > > Would you mind opening a kernel bug and attaching your dmesg and config?
-> > > 
-> > > http://bugzilla.kernel.org
-> > > 
-> > will do.
-> 
-> Please tag me as the owner when you do.
-> 
-> > > 
-> > > Also try booting w/ "idle=poll" to see if that doesn't clear up the
-> > > issue.
-> > > 
-> > Tried that without results.
-> 
-> Bummer. Your box may not boot, but trying noapic might help as well.
-> 
-> thanks
-> -john
-> 
+> --- 2.6.15-rc1-mm2/sound/core/memalloc.c	2005-11-12 09:01:28.000000000 +0000
+> +++ linux/sound/core/memalloc.c	2005-11-19 19:03:32.000000000 +0000
+> @@ -197,6 +197,7 @@ void *snd_malloc_pages(size_t size, gfp_
+>  
+>  	snd_assert(size > 0, return NULL);
+>  	snd_assert(gfp_flags != 0, return NULL);
+> +	gfp_flags |= __GFP_COMP;	/* compound page lets parts be mapped */
+>  	pg = get_order(size);
+>  	if ((res = (void *) __get_free_pages(gfp_flags, pg)) != NULL) {
+>  		mark_pages(virt_to_page(res), pg);
+> @@ -241,6 +242,7 @@ static void *snd_malloc_dev_pages(struct
+>  	snd_assert(dma != NULL, return NULL);
+>  	pg = get_order(size);
+>  	gfp_flags = GFP_KERNEL
+> +		| __GFP_COMP	/* compound page lets parts be mapped */
+>  		| __GFP_NORETRY /* don't trigger OOM-killer */
+>  		| __GFP_NOWARN; /* no stack trace print - this call is non-critical */
+>  	res = dma_alloc_coherent(dev, PAGE_SIZE << pg, dma, gfp_flags);
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
 > 
-
--- 
-Akira Tsukamoto <akira-t@suna-asobi.com, at541@columbia.edu>
-
 

@@ -1,54 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbVKTWxE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbVKTWut@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932102AbVKTWxE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 17:53:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbVKTWxE
+	id S932095AbVKTWut (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 17:50:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbVKTWut
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 17:53:04 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:47539 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932102AbVKTWxD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 17:53:03 -0500
-Date: Sun, 20 Nov 2005 22:52:56 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Markus Lidel <Markus.Lidel@shadowconnect.com>
-Cc: "David S. Miller" <davem@davemloft.net>, alan@lxorguk.ukuu.org.uk,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/5] I2O: SPARC fixes
-Message-ID: <20051120225256.GC27946@ftp.linux.org.uk>
-References: <437E7ADB.5080200@shadowconnect.com> <20051118.172230.126076770.davem@davemloft.net> <1132371039.5238.14.camel@localhost.localdomain> <20051118.203707.129707514.davem@davemloft.net> <4380EDB1.1080308@shadowconnect.com>
-Mime-Version: 1.0
+	Sun, 20 Nov 2005 17:50:49 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:18960 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932095AbVKTWus (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 17:50:48 -0500
+Date: Sun, 20 Nov 2005 23:50:47 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: james.smart@emulex.com
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/scsi/lpfc/lpfc_scsi.c: make lpfc_sli_get_scsi_buf() static
+Message-ID: <20051120225047.GY16060@stusta.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4380EDB1.1080308@shadowconnect.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 20, 2005 at 10:42:09PM +0100, Markus Lidel wrote:
-> Hi...
-> Sounds good to me. Could i then find out if some BE<=>LE issues are still 
-> left? If so, is there a document which describes how it is done, or at 
-> least has a driver added it already?
+This patch makes the needlessly global function lpfc_sli_get_scsi_buf() 
+static.
 
-Hmm...
 
-struct i2o_message {
-        union {
-                struct {
-                        u8 version_offset;
-                        u8 flags;
-                        u16 size;
-                        u32 target_tid:12;
-                        u32 init_tid:12;
-                        u32 function:8;
-                        u32 icntxt;     /* initiator context */
-                        u32 tcntxt;     /* transaction context */
-                } s;
-                u32 head[4];
-        } u;
-        /* List follows */
-        u32 body[0];
-};
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-is one hell of an endianness issue right fscking there.
+--- linux-2.6.15-rc1-mm2-full/drivers/scsi/lpfc/lpfc_scsi.c.old	2005-11-20 19:52:28.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/drivers/scsi/lpfc/lpfc_scsi.c	2005-11-20 19:52:45.000000000 +0100
+@@ -136,7 +136,7 @@
+ 	return psb;
+ }
+ 
+-struct  lpfc_scsi_buf*
++static struct lpfc_scsi_buf*
+ lpfc_sli_get_scsi_buf(struct lpfc_hba * phba)
+ {
+ 	struct  lpfc_scsi_buf * lpfc_cmd = NULL;
+

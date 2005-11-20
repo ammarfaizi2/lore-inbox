@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbVKTPeo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbVKTPiF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751253AbVKTPeo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 10:34:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbVKTPeo
+	id S1751251AbVKTPiF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 10:38:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbVKTPiE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 10:34:44 -0500
-Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:38556 "EHLO
-	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1751247AbVKTPen (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 10:34:43 -0500
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Sun, 20 Nov 2005 15:34:28 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-cc: Phillip Hellewell <phillip@hellewell.homeip.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       viro@ftp.linux.org.uk, mike@halcrow.us, mhalcrow@us.ibm.com,
-       mcthomps@us.ibm.com, yoder1@us.ibm.com
-Subject: Re: [PATCH 4/12: eCryptfs] Main module functions
-In-Reply-To: <84144f020511190247n5cf17800lb4ff019aa406470@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0511201531010.20876@hermes-1.csi.cam.ac.uk>
-References: <20051119041130.GA15559@sshock.rn.byu.edu> 
- <20051119041740.GD15747@sshock.rn.byu.edu> <84144f020511190247n5cf17800lb4ff019aa406470@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 20 Nov 2005 10:38:04 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:32187 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751251AbVKTPiD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 10:38:03 -0500
+Subject: Re: I made a patch and would like feedback/testers
+	(drivers/cdrom/aztcd.c)
+From: Arjan van de Ven <arjan@infradead.org>
+To: Daniel =?ISO-8859-1?Q?Marjam=E4ki?= <daniel.marjamaki@comhem.se>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <43809652.8000904@comhem.se>
+References: <43809652.8000904@comhem.se>
+Content-Type: text/plain
+Date: Sun, 20 Nov 2005 16:38:00 +0100
+Message-Id: <1132501080.2857.3.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Nov 2005, Pekka Enberg wrote:
-> On 11/19/05, Phillip Hellewell <phillip@hellewell.homeip.net> wrote:
-> > +                       BUG();
-> > +                       err = -EINVAL;
-> > +                       goto out;
-> 
-> Why do you want to BUG() and then handle the situation?
+>   static void op_ok(void)
+>   {
+> -	aztTimeOutCount = 0;
+> +	aztTimeOut = jiffies + 2;
+>   	do {
+>   		aztIndatum = inb(DATA_PORT);
+> -		aztTimeOutCount++;
+> -		if (aztTimeOutCount >= AZT_TIMEOUT) {
+> +		if (time_after(jiffies, aztTimeOut)) {
+>   			printk("aztcd: Error Wait OP_OK\n");
+>   			break;
+>   		}
+> +		schedule_timeout_interruptible(1);
 
-Because you can define BUG() to nothing (on embedded builds for example) 
-and then you would be screwed if you don't handle the error gracefully.  
-You should never assume something does not return, except perhaps a 
-panic() although someone might even get rid of that one day...
+this I think is not quite right; schedule_timeout_*() doesn't do
+anything unless you set current->state to something. And at that point
+you might as well start using msleep()!
 
-Best regards,
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+but what you're doing is generally a good idea; busy waits as the
+original code did is quite wrong...
+
+

@@ -1,60 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751244AbVKTPHB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbVKTPIu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751244AbVKTPHB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 10:07:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbVKTPHA
+	id S1751245AbVKTPIu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 10:08:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbVKTPIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 10:07:00 -0500
-Received: from web31013.mail.mud.yahoo.com ([68.142.201.71]:38309 "HELO
-	web31013.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751244AbVKTPHA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 10:07:00 -0500
+	Sun, 20 Nov 2005 10:08:50 -0500
+Received: from zproxy.gmail.com ([64.233.162.201]:23738 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751245AbVKTPIu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 10:08:50 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=mST9Rs3EPmD9pK+wFrTafT6A8hnM4B7jIe2B0o/fnzlJt1XR3I6vHlwXrF34hTCyuogewJ9GVOKw3tFOWFG0wvjJHvcZCbp7XJVKtwHSkvIofhF8iu5CW73tMtNkdXXxZx3a9iVi2ZLoZA1Y8IHoJspaw8+Ojfs0BNYIf3Y8L7g=  ;
-Message-ID: <20051120150657.39568.qmail@web31013.mail.mud.yahoo.com>
-Date: Sun, 20 Nov 2005 07:06:57 -0800 (PST)
-From: loop lopy <oferstu@yahoo.com>
-Subject: A question about comm and verifing user memory address inside a system call
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=R5w7+ceo3c9d4hloc7KsBM0TAqraD3OmOM4B2jmDRIpHarFbX8u3EQ8Z2u6Y7IhMb3es6VcQi3aV1Piic9BVpnLWfHRobVN8qPBpcumrqZXJjTn26d1/Cu2vVuXgkfc/hyU+u5A1pir2Ag0eLj5tNuuZ6hG/TmrNBByj8tI5bWM=
+Date: Sun, 20 Nov 2005 18:22:53 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Anders Peter Fugmann <afu@fugmann.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: forcedeth probems using linux 2.6.15-rc1
+Message-ID: <20051120152253.GA19364@mipter.zuzino.mipt.ru>
+References: <437A3672.9000002@fugmann.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <437A3672.9000002@fugmann.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On Tue, Nov 15, 2005 at 08:26:42PM +0100, Anders Peter Fugmann wrote:
+> The forcedeth driver occasionally hangs, sometimes after several hours,
+> sometimes after just a few minutes of traffic. Hardware is a Nvidia NForce3
+> motherboard with onboard LAN
+> (Linux compiled for 64 bit, using gcc 4.0.3 prerelease). Removing and
+> inserting resolves to problem for
+> a short period of time. The driver works without complaints on Linux 2.6.14.
+>
+> The following is being printed to the kernel logs repeatably:
+>
+> Nov 14 22:12:32 gw kernel: NETDEV WATCHDOG: eth1: transmit timed out
 
-I have a few question I would appreaciate if you help
-me with.
+I've filed a bug at kernel bugzilla, so your report won't be lost.
+See http://bugzilla.kernel.org/show_bug.cgi?id=5632
 
-I need to add my own system call to the kernel.
-I know how to do it, but I have a few problems.
-First, I need to pass a null terminated string address
-to the system call by the wrapper, which calls
-int0x80.
-Related to that string there is something called
-'comm', however I havent found what is comm that is
-related to the NULL terminated string or system call.
-So, what can comm be?
-Secondly, when I need to verify that the memory
-address of string, passed as paramter is valid.
-I can use access_ok, but is it enough just to check if
-copy_from_user is successful?
-So, I actually don't need to use access_ok?
+Please, register at http://bugme.osdl.org/createaccount.cgi and add
+yourself to CC list.
 
-I am not subscribed with the list, so I need that the
-replies will be personally CC'ed (not sure exactly
-what that means).
-
-Thanks for any help and reply.
-Ofer.
-
-
-
-	
-		
-__________________________________ 
-Yahoo! Mail - PC Magazine Editors' Choice 2005 
-http://mail.yahoo.com

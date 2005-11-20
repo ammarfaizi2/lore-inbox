@@ -1,140 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751256AbVKTP3a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbVKTPeo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751256AbVKTP3a (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 10:29:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbVKTP3a
+	id S1751253AbVKTPeo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 10:34:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbVKTPeo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 10:29:30 -0500
-Received: from pne-smtpout2-sn2.hy.skanova.net ([81.228.8.164]:54415 "EHLO
-	pne-smtpout2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S1751256AbVKTP3a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 10:29:30 -0500
-Message-ID: <43809652.8000904@comhem.se>
-Date: Sun, 20 Nov 2005 16:29:22 +0100
-From: =?ISO-8859-1?Q?Daniel_Marjam=E4ki?= <daniel.marjamaki@comhem.se>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
-X-Accept-Language: en-us, en
+	Sun, 20 Nov 2005 10:34:44 -0500
+Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:38556 "EHLO
+	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1751247AbVKTPen (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 10:34:43 -0500
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Sun, 20 Nov 2005 15:34:28 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+cc: Phillip Hellewell <phillip@hellewell.homeip.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       viro@ftp.linux.org.uk, mike@halcrow.us, mhalcrow@us.ibm.com,
+       mcthomps@us.ibm.com, yoder1@us.ibm.com
+Subject: Re: [PATCH 4/12: eCryptfs] Main module functions
+In-Reply-To: <84144f020511190247n5cf17800lb4ff019aa406470@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0511201531010.20876@hermes-1.csi.cam.ac.uk>
+References: <20051119041130.GA15559@sshock.rn.byu.edu> 
+ <20051119041740.GD15747@sshock.rn.byu.edu> <84144f020511190247n5cf17800lb4ff019aa406470@mail.gmail.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: =?ISO-8859-1?Q?Daniel_Marjam=E4ki?= <daniel.marjamaki@comhem.se>
-Subject: I made a patch and would like feedback/testers (drivers/cdrom/aztcd.c)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 19 Nov 2005, Pekka Enberg wrote:
+> On 11/19/05, Phillip Hellewell <phillip@hellewell.homeip.net> wrote:
+> > +                       BUG();
+> > +                       err = -EINVAL;
+> > +                       goto out;
+> 
+> Why do you want to BUG() and then handle the situation?
 
-Hello!
-
-I made a patch and I would like feedback.
-If you can test the patch.. please let me know.
-
-Background:
-There are busy loops that time out after 8 million repetitions.
-I made these improvements:
-* Sleep during the busy loops
-* Time out is based on elapsed time
-
-If this patch is accepted, AZT_TIMEOUT can be removed.
+Because you can define BUG() to nothing (on embedded builds for example) 
+and then you would be screwed if you don't handle the error gracefully.  
+You should never assume something does not return, except perhaps a 
+panic() although someone might even get rid of that one day...
 
 Best regards,
-Daniel Marjamäki
 
-diff -up a/drivers/cdrom/aztcd.c b/drivers/cdrom/aztcd.c
-
---- a/drivers/cdrom/aztcd.c	2005-11-17 11:39:53.000000000 +0100
-+++ b/drivers/cdrom/aztcd.c	2005-11-19 17:14:58.000000000 +0100
-@@ -179,6 +179,7 @@
-  #include <linux/ioport.h>
-  #include <linux/string.h>
-  #include <linux/major.h>
-+#include <linux/jiffies.h>
-
-  #include <linux/init.h>
-
-@@ -308,7 +309,7 @@ static char aztDiskChanged = 1;
-  static char aztTocUpToDate = 0;
-
-  static unsigned char aztIndatum;
--static unsigned long aztTimeOutCount;
-+static unsigned long aztTimeOutCount, aztTimeOut;
-  static int aztCmd = 0;
-
-  static DEFINE_SPINLOCK(aztSpin);
-@@ -361,14 +362,14 @@ static int azt_bcd2bin(unsigned char bcd
-  # define OP_OK op_ok()
-  static void op_ok(void)
-  {
--	aztTimeOutCount = 0;
-+	aztTimeOut = jiffies + 2;
-  	do {
-  		aztIndatum = inb(DATA_PORT);
--		aztTimeOutCount++;
--		if (aztTimeOutCount >= AZT_TIMEOUT) {
-+		if (time_after(jiffies, aztTimeOut)) {
-  			printk("aztcd: Error Wait OP_OK\n");
-  			break;
-  		}
-+		schedule_timeout_interruptible(1);
-  	} while (aztIndatum != AFL_OP_OK);
-  }
-
-@@ -377,14 +378,14 @@ static void op_ok(void)
-  # define PA_OK pa_ok()
-  static void pa_ok(void)
-  {
--	aztTimeOutCount = 0;
-+	aztTimeOut = jiffies + 2;
-  	do {
-  		aztIndatum = inb(DATA_PORT);
--		aztTimeOutCount++;
--		if (aztTimeOutCount >= AZT_TIMEOUT) {
-+		if (time_after(jiffies, aztTimeOut)) {
-  			printk("aztcd: Error Wait PA_OK\n");
-  			break;
-  		}
-+		schedule_timeout_interruptible(1);
-  	} while (aztIndatum != AFL_PA_OK);
-  }
-  #endif
-@@ -393,17 +394,17 @@ static void pa_ok(void)
-  # define STEN_LOW  sten_low()
-  static void sten_low(void)
-  {
--	aztTimeOutCount = 0;
-+	aztTimeOut = jiffies + 2;
-  	do {
-  		aztIndatum = inb(STATUS_PORT);
--		aztTimeOutCount++;
--		if (aztTimeOutCount >= AZT_TIMEOUT) {
-+		if (time_after(jiffies, aztTimeOut)) {
-  			if (azt_init_end)
-  				printk
-  				    ("aztcd: Error Wait STEN_LOW commands:%x\n",
-  				     aztCmd);
-  			break;
-  		}
-+		schedule_timeout_interruptible(1);
-  	} while (aztIndatum & AFL_STATUS);
-  }
-
-@@ -411,14 +412,14 @@ static void sten_low(void)
-  # define DTEN_LOW dten_low()
-  static void dten_low(void)
-  {
--	aztTimeOutCount = 0;
-+	aztTimeOut = jiffies + 2;
-  	do {
-  		aztIndatum = inb(STATUS_PORT);
--		aztTimeOutCount++;
--		if (aztTimeOutCount >= AZT_TIMEOUT) {
-+		if (time_after(jiffies, aztTimeOut)) {
-  			printk("aztcd: Error Wait DTEN_OK\n");
-  			break;
-  		}
-+		schedule_timeout_interruptible(1);
-  	} while (aztIndatum & AFL_DATA);
-  }
-
-
-
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

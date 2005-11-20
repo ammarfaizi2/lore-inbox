@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751292AbVKTRgs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbVKTRmL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751292AbVKTRgs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 12:36:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbVKTRgs
+	id S1751204AbVKTRmL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 12:42:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbVKTRmL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 12:36:48 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:22461 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751292AbVKTRgr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 12:36:47 -0500
-Date: Sun, 20 Nov 2005 17:10:47 +0100
-From: "Andi Kleen" <ak@suse.de>
-To: linux-kernel@vger.kernel.org, asmith@vtrl.co.uk
-Message-ID: <4380A007.mail51L11JX15@suse.de>
-User-Agent: nail 10.6 11/15/03
+	Sun, 20 Nov 2005 12:42:11 -0500
+Received: from smtp101.sbc.mail.re2.yahoo.com ([68.142.229.104]:3503 "HELO
+	smtp101.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1751237AbVKTRmK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 12:42:10 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [git pull 00/14] Input updates for 2.6.15
+Date: Sun, 20 Nov 2005 12:42:08 -0500
+User-Agent: KMail/1.8.3
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Miloslav Trmac <mitr@volny.cz>
+References: <20051120063611.269343000.dtor_core@ameritech.net> <200511201204.08012.dtor_core@ameritech.net> <Pine.LNX.4.64.0511200919080.13959@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0511200919080.13959@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511201242.08506.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sender: ak@brahms.suse.de
-To: asmith@vtrl.co.uk
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Does Linux support powering down SATA drives?
-References: <437F63C1.6010507@perkel.com>
-	<1132431907.19692.15.camel@localhost.localdomain>
-	<437F9705.80503@perkel.com> <200511192304.16302.s0348365@sms.ed.ac.uk>
-	<Pine.LNX.4.61.0511200718530.25549@vtrl22.vtrl.co.uk>
-From: Andi Kleen <ak@suse.de>
-Date: 20 Nov 2005 17:10:47 +0100
-In-Reply-To: <Pine.LNX.4.61.0511200718530.25549@vtrl22.vtrl.co.uk>
-Message-ID: <p73hda7i9ko.fsf@brahms.suse.de>
-Lines: 9
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+On Sunday 20 November 2005 12:19, Linus Torvalds wrote:
+> 
+> On Sun, 20 Nov 2005, Dmitry Torokhov wrote:
+> > 
+> > Linus, please hold off the pull - I messed up authorship of Wistron
+> > driver in commit history plus there is another fix for cinergyT2 driver.
+> 
+> Too late. Already pulled, and more importantly, already pushed out.
+>
 
-asmith@vtrl.co.uk writes:
+Oh, ok.. Hopefully Miloslav will forgive me.
 
-> I would agree with your view on IDE becoming obsolete on hard drives,
-> but I as yet, am not aware of any CD/DVD drives with a SATA interface.
+That cinergyT2 fix (from Linux-2.6.15-rc2 thread) - do you already have it
+or would you prefer a pull prepared later tonight?
 
-Plextor is shipping one for example. There are probably more.
-Unfortunately the S-ATAPI support in Linux seems to be still WIP.
-
--Andi
+-- 
+Dmitry

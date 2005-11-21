@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751238AbVKUWti@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbVKUWv1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751238AbVKUWti (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 17:49:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751237AbVKUWti
+	id S1751232AbVKUWv1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 17:51:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbVKUWv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 17:49:38 -0500
-Received: from minus.inr.ac.ru ([194.67.69.97]:59599 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id S1751213AbVKUWth (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 17:49:37 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=ms2.inr.ac.ru;
-  b=ceNlCQafxDPBjl6+F0oYHcFD4lOiclwFd8WXgf6jtm05TJVJWkxOPoTaboUVEerPRi3r5uzp4BocqXyeyn/vxotiKYrV+N/yjACzrSW9PngquUtEkCHlrLb5RxB9ekStwJFebw+iu541+xN9cu+IQfJ9J7ZSaPbbSvsSE7CzPcg=;
-Date: Tue, 22 Nov 2005 01:49:13 +0300
-From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-To: Christopher Friesen <cfriesen@nortel.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, davem@davemloft.net
+	Mon, 21 Nov 2005 17:51:27 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:3289 "EHLO
+	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
+	id S1751131AbVKUWv0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 17:51:26 -0500
+Message-ID: <43824F57.1040007@nortel.com>
+Date: Mon, 21 Nov 2005 16:51:03 -0600
+From: "Christopher Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Herbert Xu <herbert@gondor.apana.org.au>
+CC: kuznet@ms2.inr.ac.ru, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       davem@davemloft.net
 Subject: Re: netlink nlmsg_pid supposed to be pid or tid?
-Message-ID: <20051121224913.GA31287@ms2.inr.ac.ru>
-References: <438220C3.4040602@nortel.com> <E1EeIcx-0006i3-00@gondolin.me.apana.org.au> <20051121213549.GA28187@ms2.inr.ac.ru> <4382406D.1040508@nortel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4382406D.1040508@nortel.com>
-User-Agent: Mutt/1.5.6i
+References: <E1EeJwF-0006wc-00@gondolin.me.apana.org.au>
+In-Reply-To: <E1EeJwF-0006wc-00@gondolin.me.apana.org.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Nov 2005 22:51:05.0158 (UTC) FILETIME=[0DD46E60:01C5EEEE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Herbert Xu wrote:
 
-> TIPC wants the user to fill in the pid to use in the nlmsghdr portion of 
-> a particular message.
+> As I said before, you should not rely on getpid() to work.
 
-It is wrong. netlink_pid used not to be associated with process pids.
-Kernel used pid just as a seed to calculate a random value to bind,
-when user did not bind explicitly. It is equal to current->pid occasionally.
-F.e. libnetlink from iproute autobinds and gets netlink_pid with
-getsockname().
+> You should always use getsockaddr(2) to get your local address.
 
-When user binds the socket himself, he was free to bind to any value,
-including pid and tgid.
+Should that be getsockname(2)?  Anyways, I now understand the issues.
 
-Actually, I remember one discussion. Herbert, wait a minute...
-That's it: February 2005, Subject: [PATCH] Add audit uid to netlink credentials
-We decided (or not?) that binding to anything but tgid and pid
-must be prohibited by security reasons. Apaprently, the finding was lost.
+As it turns out, we were actually already calling getsockname() a bit 
+earlier in the code path, so we can just use the "pid" value from there.
 
-Alexey
+Chris

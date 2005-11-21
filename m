@@ -1,87 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbVKULl7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbVKULp4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932267AbVKULl7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 06:41:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbVKULl7
+	id S932198AbVKULp4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 06:45:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932207AbVKULp4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 06:41:59 -0500
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:58497 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932267AbVKULl6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 06:41:58 -0500
+	Mon, 21 Nov 2005 06:45:56 -0500
+Received: from zproxy.gmail.com ([64.233.162.201]:57663 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932198AbVKULpz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 06:45:55 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:From:To:Cc:Message-Id:In-Reply-To:References:Subject;
-  b=tut1v53kKxtBfo+72Bvo7ONDvnIwK8PS3wrB2mUlxeQTNlOHamDq7XP2FDsfl/vqx1mfDxetXFg0Q1fj3DC4ZSWHmDxIP7A6OSRH1HOyxP4Hci4NFaWB7qMPOwexPb4doM6UG54zfn13U/aX7pl1J6wvPWV3zljoa3p2qbsdu/o=  ;
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>
-Message-Id: <20051121124347.14370.69250.sendpatchset@didi.local0.net>
-In-Reply-To: <20051121123906.14370.3039.sendpatchset@didi.local0.net>
-References: <20051121123906.14370.3039.sendpatchset@didi.local0.net>
-Subject: [patch 11/12] mm: page_alloc cleanups
-Date: Mon, 21 Nov 2005 06:41:58 -0500
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=U4navXRKDWPeo3x89013bupahDyfAZbTtBkY0ujgl4fQ5mC7IMky+KjXp3bFEw64fMUIIucQ9V1P/0Ht/XKUaCajG8rNYqUOXkvDo+EoYnkifC1dTsmw2h7IWyo6tWNye83QNt/1tadxXfE//p96NVNiR/AcukaO1j8I1ikBG68=
+Date: Mon, 21 Nov 2005 12:45:44 +0100
+From: Diego Calleja <diegocg@gmail.com>
+To: Alfred Brons <alfredbrons@yahoo.com>
+Cc: pocm@sat.inesc-id.pt, linux-kernel@vger.kernel.org
+Subject: Re: what is our answer to ZFS?
+Message-Id: <20051121124544.9e502404.diegocg@gmail.com>
+In-Reply-To: <20051121095915.83230.qmail@web36406.mail.mud.yahoo.com>
+References: <11b141710511210144h666d2edfi@mail.gmail.com>
+	<20051121095915.83230.qmail@web36406.mail.mud.yahoo.com>
+X-Mailer: Sylpheed version 2.1.6 (GTK+ 2.8.3; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Small cleanups that does not change generated code with the gcc's
-I've tested with.
+El Mon, 21 Nov 2005 01:59:15 -0800 (PST),
+Alfred Brons <alfredbrons@yahoo.com> escribió:
 
-Signed-off-by: Nick Piggin <npiggin@suse.de>
+> Thanks Paulo!
+> I wasn't aware of this thread.
+> 
+> But my question was: do we have similar functionality
+> in Linux kernel?
+> 
+> Taking in account ZFS availability as 100% open
+> source, I'm starting think about migration to Nexenta
+> OS some of my servers just because of this feature...
 
-Index: linux-2.6/mm/page_alloc.c
-===================================================================
---- linux-2.6.orig/mm/page_alloc.c
-+++ linux-2.6/mm/page_alloc.c
-@@ -438,8 +438,7 @@ void __free_pages_ok(struct page *page, 
-  *
-  * -- wli
-  */
--static inline struct page *
--expand(struct zone *zone, struct page *page,
-+static inline void expand(struct zone *zone, struct page *page,
-  	int low, int high, struct free_area *area)
- {
- 	unsigned long size = 1 << high;
-@@ -453,7 +452,6 @@ expand(struct zone *zone, struct page *p
- 		area->nr_free++;
- 		set_page_order(&page[size], high);
- 	}
--	return page;
- }
- 
- /*
-@@ -505,7 +503,8 @@ static struct page *__rmqueue(struct zon
- 		rmv_page_order(page);
- 		area->nr_free--;
- 		zone->free_pages -= 1UL << order;
--		return expand(zone, page, order, current_order, area);
-+		expand(zone, page, order, current_order, area);
-+		return page;
- 	}
- 
- 	return NULL;
-@@ -520,19 +519,16 @@ static int rmqueue_bulk(struct zone *zon
- 			unsigned long count, struct list_head *list)
- {
- 	int i;
--	int allocated = 0;
--	struct page *page;
- 	
- 	spin_lock(&zone->lock);
- 	for (i = 0; i < count; ++i) {
--		page = __rmqueue(zone, order);
--		if (page == NULL)
-+		struct page *page = __rmqueue(zone, order);
-+		if (unlikely(page == NULL))
- 			break;
--		allocated++;
- 		list_add_tail(&page->lru, list);
- 	}
- 	spin_unlock(&zone->lock);
--	return allocated;
-+	return i;
- }
- 
- #ifdef CONFIG_NUMA
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+
+
+There're some rumors saying that sun might be considering a linux port.
+
+http://www.sun.com/emrkt/campaign_docs/expertexchange/knowledge/solaris_zfs_gen.html#10
+
+Q: Any thoughts on porting ZFS to Linux, AIX, or HPUX?
+A: No plans of porting to AIX and HPUX. Porting to Linux is currently
+being investigated. 
+
+(personally I doubt it, that FAQ was written some time ago and Sun's
+executives change their opinion more often than Linus does ;)

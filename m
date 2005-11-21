@@ -1,130 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbVKUKZm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbVKUKkj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932256AbVKUKZm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 05:25:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbVKUKZm
+	id S932265AbVKUKkj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 05:40:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932266AbVKUKkj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 05:25:42 -0500
-Received: from galaxy.systems.pipex.net ([62.241.162.31]:45251 "EHLO
-	galaxy.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S932256AbVKUKZm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 05:25:42 -0500
-Date: Mon, 21 Nov 2005 10:26:08 +0000 (GMT)
-From: Tigran Aivazian <tigran_aivazian@symantec.com>
-X-X-Sender: tigran@ezer.homenet
-To: Adrian Bunk <bunk@stusta.de>
+	Mon, 21 Nov 2005 05:40:39 -0500
+Received: from zproxy.gmail.com ([64.233.162.196]:27758 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932265AbVKUKki convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 05:40:38 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=EQE7peRTGr+lw0qGr+kqNiTS9U0AA++br0HmFb+hXNeIy6t07l7Uc3n/Bh+l3UsFhX5GT3TgyGxJapFo56v44EtWwPa6E/ywcOdVG5mk1+O9f0W61lXeOGsPO8w+o6XuYn7mVZ3FnW6ANWIshBNVmfpmvwDqlicH+eZeCvd8jO0=
+Message-ID: <9a8748490511210240n97ab19ev8c27dc7b6f0e3d51@mail.gmail.com>
+Date: Mon, 21 Nov 2005 11:40:38 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] i386, nmi: signed vs unsigned mixup
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] arch/i386/kernel/microcode.c: remove the obsolete
- microcode_ioctl
-In-Reply-To: <20051121020404.GV16060@stusta.de>
-Message-ID: <Pine.LNX.4.61.0511211025270.2871@ezer.homenet>
-References: <20051120233116.GN16060@stusta.de> <20051121020404.GV16060@stusta.de>
+In-Reply-To: <9a8748490511191745h6aebd102r91007bc2b84382ff@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200511200010.33658.jesper.juhl@gmail.com>
+	 <20051119162805.47796de9.akpm@osdl.org>
+	 <9a8748490511191630r3ad3e24w4e6d21b3f3b0c3a7@mail.gmail.com>
+	 <20051119170818.5e16afae.akpm@osdl.org>
+	 <9a8748490511191715x61057bc8i1431ca3a24cfb2e6@mail.gmail.com>
+	 <20051119173358.2bf1dbb5.akpm@osdl.org>
+	 <9a8748490511191745h6aebd102r91007bc2b84382ff@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
+On 11/20/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> On 11/20/05, Andrew Morton <akpm@osdl.org> wrote:
+[snip]
+> >
+> > Sure, go for it - let's see what the patches end up looking like.  We might
+> > find real bugs in there - I found a bunch of howlers back in 2.3.late.
+> > That was with `gcc -W' which turns on more than -Wsigned-compare.
+> >
+> > Maybe you could prepare a quick overall summary first, see if you can work
+> > out the overall scope of the problem and then we can take a look at that,
+> > decide what bits to attack?
+> >
+> Sure, I'll do that tomorrow.
+> All these sign issues all over annoy me :)
+> I'll try to get a handle on the scope of the thing tomorrow, then send
+> a mail with what I find, then we can talk about what would be useful
+> to do.
+>
 
-I agree, let's drop that ioctl. Please forward the patch to Andrew as 
-appropriate.
+Ok, I did an allyesconfig build (x86 build) of 2.6.15-rc2 with
+-Wsign-compare and I have some numbers.
 
-Kind regards
-Tigran
+The total number of warnings for the build ended up at 14681
+Of course some of the warnings are not related to sign issues, so
+let's look at just
 
-On Mon, 21 Nov 2005, Adrian Bunk wrote:
+comparison between signed and unsigned   (12378 instances of this one)
+signed and unsigned type in conditional expression   (2109 instances
+of this one)
+comparison of promoted ~unsigned with constant   (4 instances of this one)
 
-> [ grmbl, wrong version of the patch sent... ]
->
-> Nowadays, even Debian stable ships a microcode_ctl utility recent enough
-> to no longer use this ioctl.
->
->
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
->
-> ---
->
-> Documentation/ioctl-mess.txt   |    4 ----
-> Documentation/ioctl-number.txt |    2 --
-> arch/i386/kernel/microcode.c   |   17 -----------------
-> include/asm-i386/processor.h   |    2 --
-> include/asm-x86_64/processor.h |    3 ---
-> 5 files changed, 28 deletions(-)
->
-> --- linux-2.6.15-rc1-mm2-full/arch/i386/kernel/microcode.c.old	2005-11-20 21:30:59.000000000 +0100
-> +++ linux-2.6.15-rc1-mm2-full/arch/i386/kernel/microcode.c	2005-11-20 21:31:24.000000000 +0100
-> @@ -457,26 +457,9 @@
-> 	return ret;
-> }
->
-> -static int microcode_ioctl (struct inode *inode, struct file *file,
-> -		unsigned int cmd, unsigned long arg)
-> -{
-> -	switch (cmd) {
-> -		/*
-> -		 *  XXX: will be removed after microcode_ctl
-> -		 *  is updated to ignore failure of this ioctl()
-> -		 */
-> -		case MICROCODE_IOCFREE:
-> -			return 0;
-> -		default:
-> -			return -EINVAL;
-> -	}
-> -	return -EINVAL;
-> -}
-> -
-> static struct file_operations microcode_fops = {
-> 	.owner		= THIS_MODULE,
-> 	.write		= microcode_write,
-> -	.ioctl		= microcode_ioctl,
-> 	.open		= microcode_open,
-> };
->
-> --- linux-2.6.15-rc1-mm2-full/Documentation/ioctl-mess.txt.old	2005-11-21 00:38:33.000000000 +0100
-> +++ linux-2.6.15-rc1-mm2-full/Documentation/ioctl-mess.txt	2005-11-21 00:38:44.000000000 +0100
-> @@ -2599,10 +2599,6 @@
-> I: (int) arg
-> O: -
->
-> -N: MICROCODE_IOCFREE
-> -I: -
-> -O: -
-> -
-> N: MMTIMER_GETBITS
-> I: -
-> O: -
-> --- linux-2.6.15-rc1-mm2-full/Documentation/ioctl-number.txt.old	2005-11-21 00:39:05.000000000 +0100
-> +++ linux-2.6.15-rc1-mm2-full/Documentation/ioctl-number.txt	2005-11-21 00:39:28.000000000 +0100
-> @@ -78,8 +78,6 @@
-> '#'	00-3F	IEEE 1394 Subsystem	Block for the entire subsystem
-> '1'	00-1F	<linux/timepps.h>	PPS kit from Ulrich Windl
-> 					<ftp://ftp.de.kernel.org/pub/linux/daemons/ntp/PPS/>
-> -'6'	00-10	<asm-i386/processor.h>	Intel IA32 microcode update driver
-> -					<mailto:tigran@veritas.com>
-> '8'	all				SNP8023 advanced NIC card
-> 					<mailto:mcr@solidum.com>
-> 'A'	00-1F	linux/apm_bios.h
-> --- linux-2.6.15-rc1-mm2-full/include/asm-i386/processor.h.old	2005-11-21 00:39:41.000000000 +0100
-> +++ linux-2.6.15-rc1-mm2-full/include/asm-i386/processor.h	2005-11-21 00:40:33.000000000 +0100
-> @@ -602,8 +602,6 @@
-> 	unsigned int reserved[3];
-> 	struct extended_signature sigs[0];
-> };
-> -/* '6' because it used to be for P6 only (but now covers Pentium 4 as well) */
-> -#define MICROCODE_IOCFREE	_IO('6',0)
->
-> /* REP NOP (PAUSE) is a good thing to insert into busy-wait loops. */
-> static inline void rep_nop(void)
-> --- linux-2.6.15-rc1-mm2-full/include/asm-x86_64/processor.h.old	2005-11-21 00:40:37.000000000 +0100
-> +++ linux-2.6.15-rc1-mm2-full/include/asm-x86_64/processor.h	2005-11-21 00:40:42.000000000 +0100
-> @@ -357,9 +357,6 @@
-> 	struct extended_signature sigs[0];
-> };
->
-> -/* '6' because it used to be for P6 only (but now covers Pentium 4 as well) */
-> -#define MICROCODE_IOCFREE	_IO('6',0)
-> -
->
-> #define ASM_NOP1 K8_NOP1
-> #define ASM_NOP2 K8_NOP2
->
+So for the signedness related warnings we have a total of 14491 warnings.
+The 14491 warnings come from a total of 1701 files.
+
+This looks like a lot, but it's really not as bad as it looks since a
+lot of the warnings are duplicates.
+
+Let's take a look at the top 10 offenders :
+
+1)
+4078 counts of
+warning: comparison between signed and unsigned
+from include/asm/bitops.h:339
+
+2)
+1125 counts of
+warning: comparison between signed and unsigned
+from include/linux/netdevice.h:796
+
+3)
+256 counts of
+warning: signed and unsigned type in conditional expression
+from drivers/scsi/aic7xxx/aic79xx_osm_pci.c:79
+
+4)
+256 counts of
+warning: signed and unsigned type in conditional expression
+from drivers/scsi/aic7xxx/aic79xx_osm_pci.c:77
+
+5)
+120 counts of
+warning: signed and unsigned type in conditional expression
+from fs/xfs/xfs_mount.h:458
+
+6)
+90 counts of
+warning: comparison between signed and unsigned
+from include/net/tcp_ecn.h:53
+
+7)
+90 counts of
+warning: comparison between signed and unsigned
+from include/net/tcp.h:866
+
+8)
+90 counts of
+warning: signed and unsigned type in conditional expression
+from include/net/tcp.h:1148
+
+9)
+90 counts of
+warning: signed and unsigned type in conditional expression
+from include/net/tcp.h:1143
+
+10)
+86 counts of
+warning: comparison between signed and unsigned
+from include/linux/fb.h:859
+
+
+So, if we just cleaned up the top 10 offenders we'd get rid of 6281
+out of the total 14491 warnings.
+
+I've not yet looked at what would be involved in fixing these top 10,
+I'll look at that later, for now I just wanted to post the numbers I
+had.
+
+
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

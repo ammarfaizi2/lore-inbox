@@ -1,44 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932447AbVKUSNK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932430AbVKUSRI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932447AbVKUSNK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 13:13:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbVKUSNK
+	id S932430AbVKUSRI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 13:17:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbVKUSRI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 13:13:10 -0500
-Received: from port-195-158-168-246.dynamic.qsc.de ([195.158.168.246]:21377
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S932447AbVKUSNJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 13:13:09 -0500
-Message-ID: <43820E23.2060303@trash.net>
-Date: Mon, 21 Nov 2005 19:12:51 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Folkert van Heusden <folkert@vanheusden.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.14] bug in inet_connection_sock.c -> lowest port always
- skipped
-References: <20051121180224.GY32512@vanheusden.com>
-In-Reply-To: <20051121180224.GY32512@vanheusden.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Nov 2005 13:17:08 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:16570 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932433AbVKUSRH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 13:17:07 -0500
+Date: Mon, 21 Nov 2005 18:59:05 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Sascha Sommer <saschasommer@freenet.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sleeping function called from invaled context at mm/slab.c:2472
+Message-ID: <20051121175905.GC2642@elf.ucw.cz>
+References: <200511211744.25859.saschasommer@freenet.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200511211744.25859.saschasommer@freenet.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Folkert van Heusden wrote:
-> There seems to be a small bug in inet_connection_sock.c: the lowest port
-> set using sysctl (taken from 'sysctl_local_port_range') is always
-> skipped in the first iteration.
-> In inet_csk_get_port one can find this:
->                 if (hashinfo->port_rover < low)
->                         rover = low;
->                 else
->                         rover = hashinfo->port_rover;
->                 do {
->                         rover++;
-> As you can see the first statement is a ++ causing the first port to
-> always be skipped.
+Hi!
 
-This has already been fixed three weeks ago by Stephen Hemminger's port
-randomization patch.
+> I'm not sure if this is the right place to report but
+> suspend to disk in 2.6.15-rc2 triggers the following:
+
+This is ACPI problem... known one, and hard to solve, IIRC.
+
+						Pavel
+-- 
+Thanks, Sharp!

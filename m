@@ -1,99 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbVKUOl6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbVKUOyS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932315AbVKUOl6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 09:41:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbVKUOl5
+	id S932317AbVKUOyS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 09:54:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbVKUOyS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 09:41:57 -0500
-Received: from krusty.dt.E-Technik.uni-dortmund.de ([129.217.163.1]:41677 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S932315AbVKUOl4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 09:41:56 -0500
-Date: Mon, 21 Nov 2005 15:41:50 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: what is our answer to ZFS?
-Message-ID: <20051121144150.GA10189@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <11b141710511210144h666d2edfi@mail.gmail.com> <20051121095915.83230.qmail@web36406.mail.mud.yahoo.com> <20051121101959.GB13927@wohnheim.fh-wedel.de> <20051121114654.GA25180@merlin.emma.line.org> <1132574831.15938.14.camel@localhost> <20051121131832.GB26068@merlin.emma.line.org> <1132582713.15938.22.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 21 Nov 2005 09:54:18 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:32025 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932316AbVKUOyR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 09:54:17 -0500
+Date: Mon, 21 Nov 2005 15:55:31 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Brice Goglin <Brice.Goglin@ens-lyon.org>
+Cc: Anders Karlsson <trudheim@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14.2 - Badness in as_insert_request at drivers/block/as-iosched.c:1519
+Message-ID: <20051121145531.GB15804@suse.de>
+References: <515e525f0511210027u67d8e924j9edb95af7fdd4d9e@mail.gmail.com> <438186D0.1000704@ens-lyon.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1132582713.15938.22.camel@localhost>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
+In-Reply-To: <438186D0.1000704@ens-lyon.org>
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Nov 2005, Kasper Sandberg wrote:
-
-> > If the precondition is "adhere to CodingStyle or you don't get it in",
-> > and the CodingStyle has been established for years, I have zero sympathy
-> > with the maintainer if he's told "no, you didn't follow that well-known
-> > style".
+On Mon, Nov 21 2005, Brice Goglin wrote:
+> Anders Karlsson wrote:
 > 
-> that was not the question, the question is if the code is in development
-> phase or not (being stable or not), where agreed, its their own fault
-> for not writing code which matches the kernel in coding style, however
-> that doesent make it the least bit more unstable.
+> >Morning,
+> >
+> >I am getting loads of these:
+> >
+> >Nov 21 08:10:19 lenin kernel: [17304475.764000] arq->state: 4
+> >Nov 21 08:10:19 lenin kernel: [17304475.764000] Badness in
+> >as_insert_request at drivers/block/as-iosched.c:1519
+> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
+> >[as_insert_request+109/464] as_insert_request+0x6d/0x1d0
+> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
+> >[__elv_add_request+155/224] __elv_add_request+0x9b/0xe0
+> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
+> >[elv_add_request+43/64] elv_add_request+0x2b/0x40
+> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
+> >[blk_execute_rq_nowait+69/96] blk_execute_rq_nowait+0x45/0x60
+> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
+> >[blk_execute_rq+123/224] blk_execute_rq+0x7b/0xe0
+> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
+> >[blk_end_sync_rq+0/48] blk_end_sync_rq+0x0/0x30
+> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
+> >[bio_phys_segments+39/48] bio_phys_segments+0x27/0x30
+> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
+> >[blk_rq_bio_prep+133/176] blk_rq_bio_prep+0x85/0xb0
+> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
+> >[cdrom_read_cdda_bpc+403/512] cdrom_read_cdda_bpc+0x193/0x200
+> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
+> >[cdrom_read_cdda+91/192] cdrom_read_cdda+0x5b/0xc0
+> >Nov 21 08:10:19 lenin kernel: [17304475.764000]  [mmc_ioctl+2098/2784]
+> >mmc_ioctl+0x832/0xae0
+> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
+> >[__wake_up_common+67/112] __wake_up_common+0x43/0x70
+> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
+> >[scsi_cmd_ioctl+191/1328] scsi_cmd_ioctl+0xbf/0x530
+> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
+> >[n_tty_receive_buf+225/3888] n_tty_receive_buf+0xe1/0xf30
+> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
+> >[log_wait_commit+202/256] log_wait_commit+0xca/0x100
+> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
+> >[fast_clear_page+10/80] fast_clear_page+0xa/0x50
+> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
+> >[buffered_rmqueue+398/480] buffered_rmqueue+0x18e/0x1e0
+> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
+> >[generic_ide_ioctl+60/1408] generic_ide_ioctl+0x3c/0x580
+> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
+> >[cdrom_ioctl+230/3536] cdrom_ioctl+0xe6/0xdd0
+> >Nov 21 08:10:20 lenin kernel: [17304475.764000]  [pty_write+103/128]
+> >pty_write+0x67/0x80
+> >Nov 21 08:10:20 lenin kernel: [17304475.764000]  [idecd_ioctl+133/160]
+> >idecd_ioctl+0x85/0xa0
+> >Nov 21 08:10:20 lenin kernel: [17304475.764000] 
+> >[blkdev_ioctl+304/432] blkdev_ioctl+0x130/0x1b0
+> >Nov 21 08:10:20 lenin kernel: [17304475.764000]  [block_ioctl+43/48]
+> >block_ioctl+0x2b/0x30
+> >Nov 21 08:10:20 lenin kernel: [17304475.764000]  [do_ioctl+50/144]
+> >do_ioctl+0x32/0x90
+> >Nov 21 08:10:20 lenin kernel: [17304475.764000]  [vfs_ioctl+96/496]
+> >vfs_ioctl+0x60/0x1f0
+> >Nov 21 08:10:20 lenin kernel: [17304475.764000]  [sys_ioctl+136/160]
+> >sys_ioctl+0x88/0xa0
+> >Nov 21 08:10:20 lenin kernel: [17304475.764000] 
+> >[sysenter_past_esp+84/117] sysenter_past_esp+0x54/0x75
+> >
+> >I flipped the drive (LG GSA4167B DVD±RW) into udma2 mode, enabled udma
+> >and started reading from an audio disc with cdparanoia. I had to abort
+> >the read (^C in shell where running cdparanoia) and noticed the system
+> >became slower for a while. When checking the system logs, I spotted
+> >these stacktraces.
+> >  
+> >
+> 
+> I reported a similar problem while ripping a CD with cdparanoia on
+> 2.6.14 on a
+> thinkpad R52 (http://lkml.org/lkml/2005/11/10/286). But I didn't get any
+> answer.
+> I hope you will get some. Good luck :)
 
-As mentioned, a file system cannot possibly be stable right after merge.
-Having to change formatting is a sweeping change and certainly is a
-barrier across which to look for auditing is all the more difficult.
+Oops, just responded to you, here is the similar report from yesterday:
 
-> > I have had, without hard shutdowns, problems with reiserfs, and
-> > occasionally problems that couldn't be fixed easily. I have never had
-> > such with ext3 on the same hardware.
-> > 
-> you wouldnt want to know what ext3 did to me, which reiserfs AND reiser4
-> never did
-
-OK, we have diametral experiences, and I'm not asking since I trust you
-that I don't want to know, too :) Let's leave it at that.
-
-> > I don't care what its name is. I am aware it is a rewrite, and that is
-> > reason to be all the more chary about adopting it early. People believed
-> > 3.5 to be stable, too, before someone tried NFS...
-
-> nfs works fine with reiser4. you are judging reiser4 by the problems
-> reiserfs had.
-
-Of course I do, same project lead, and probably many of the same
-developers. While they may (and probably will) learn from mistakes,
-changing style is more difficult - and that resulted in one of the major
-non-acceptance reasons reiser4 suffered.
-
-I won't subscribe to reiser4 specific topics before I've tried it, so
-I'll quit. Same about ZFS by the way, it'll be fun some day to try on a
-machine that it can trash at will, but for production, it will have to
-prove itself first. After all, Sun are still fixing ufs and/or logging
-bugs in Solaris 8. (And that's good, they still fix things, and it also
-shows how long it takes to really get a file system stable.)
-
-> i have had less trouble by using the reiser4 patches before even hans
-> considered it stable than i had by using ext3.
-
-Lucky you. I haven't dared try it yet for lack of a test computer to
-trash.
-
-> there is quite a big difference between stuff like submount and the
-> filesystem itself.. and as you pointed out, reiserfs in the beginning
-> was a disappointment, do you seriously think they are willing to take
-> the chance again?
-
-I thing naught about what they're going to put at stake. reiserfs 3 was
-an utter failure for me. It was raved about, hyped, and the bottom line
-was wasted time and a major disappointment.
-
-> > Yup. So the test and fix cycles that were needed for reiserfs 3.5 and
-> > 3.6 will start all over. I hope the Namesys guys were to clueful as to
-> > run all  their reiserfs 3.X regression tests against 4.X with all
-> > plugins and switches, too.
-> you will find that reiser4 is actually very very good.
-
-I haven't asked what I'd find, because I'm not searching. And I might
-find something else than you did - perhaps because you've picked up all
-the good things already when I'll finally go there ;-)
+http://lkml.org/lkml/2005/11/20/119
 
 -- 
-Matthias Andree
+Jens Axboe
+

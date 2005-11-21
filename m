@@ -1,53 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbVKUU4e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbVKUVHz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751052AbVKUU4e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 15:56:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751055AbVKUU4e
+	id S1750708AbVKUVHz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 16:07:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbVKUVHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 15:56:34 -0500
-Received: from nproxy.gmail.com ([64.233.182.198]:29035 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751052AbVKUU4d convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 15:56:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=RyHVVMVEHbzdzEhS7HvRR1t6Clh6c2nF3wrdQtJQkc1GfwXc8bXabPOzndhgzjomTePcaBUOav5iatrV0oTbjGnQGN6WuGH47HTCzH0UH9nicA2BklR4/NY05BVWSvszw49povITKKMd5ZcLlzlyC4psSBo3p5U5cMYiTui9AsQ=
-Message-ID: <7d40d7190511211256o479d1393r@mail.gmail.com>
-Date: Mon, 21 Nov 2005 21:56:32 +0100
-From: Aritz Bastida <aritzbastida@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: disabling NAPI poll
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Mon, 21 Nov 2005 16:07:55 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:16011 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1750708AbVKUVHy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 16:07:54 -0500
+Subject: Re: [PATCH] slab: minor cleanup to kmem_cache_alloc_node
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, manfred@colorfullife.com,
+       Joe Perches <joe@perches.com>
+In-Reply-To: <Pine.LNX.4.62.0511211145500.7813@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0511211627460.18869@sbz-30.cs.Helsinki.FI>
+	 <Pine.LNX.4.62.0511210919001.6497@graphe.net>
+	 <1132598194.8972.4.camel@localhost>
+	 <Pine.LNX.4.62.0511211145500.7813@schroedinger.engr.sgi.com>
+Date: Mon, 21 Nov 2005 23:07:52 +0200
+Message-Id: <1132607272.19332.7.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.4.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everybody.
+Hi,
 
-What I need is to turn off and on the polling done to a network device
-which works with NAPI. I'll explain: the network driver issues
-netif_rx_schedule() and inserts itself in that cpu's poll_list. But,
-transparently, in higher-layer kernel code, that device could be
-extracted from that poll_list (if the machine is in congestion, that's
-the research i'm doing) and added again later.
+On Mon, 2005-11-21 at 11:47 -0800, Christoph Lameter wrote:
+> Remove the gotos. Something like this. It would be nice if we could remove 
+> the printk. Hmm....
 
-To do that, I guess I could just remove the device from the poll_list
-and add it again when needed, but then the cpu in which I'm doing this
-could be different from the previous (if in SMP context), right?
-Anyway, if this is what I have to do, I could just access
-per_cpu(softnet_data, cpu), but I guess a lock is required for that
-(because I am accessing the info for another cpu). In that case, what
-lock?
+Definite improvement to my patch. I think I like Joe's suggestion 
+better, though. (Any mistakes in the following are mine.)
 
-I've looking if there is any function for that purpose, and found
-netif_poll_enable/disable, but I couln't find any information that
-explains what it is for and the purpose of the bit
-__LINK_STATE_RX_SCHED. Anyone can tell?
+			Pekka
 
-Thank you.
-Regards
+Index: 2.6/mm/slab.c
+===================================================================
+--- 2.6.orig/mm/slab.c
++++ 2.6/mm/slab.c
+@@ -2866,21 +2866,16 @@ void *kmem_cache_alloc_node(kmem_cache_t
+ 	unsigned long save_flags;
+ 	void *ptr;
+ 
+-	if (nodeid == -1)
+-		return __cache_alloc(cachep, flags);
+-
+-	if (unlikely(!cachep->nodelists[nodeid])) {
+-		/* Fall back to __cache_alloc if we run into trouble */
+-		printk(KERN_WARNING "slab: not allocating in inactive node %d for cache %s\n", nodeid, cachep->name);
+-		return __cache_alloc(cachep,flags);
+-	}
+-
+ 	cache_alloc_debugcheck_before(cachep, flags);
+ 	local_irq_save(save_flags);
+-	if (nodeid == numa_node_id())
++
++	if (nodeid == -1 || nodeid == numa_node_id())
+ 		ptr = ____cache_alloc(cachep, flags);
+-	else
++	else if (likely(cachep->nodelists[nodeid]))
+ 		ptr = __cache_alloc_node(cachep, flags, nodeid);
++	else
++		ptr = ____cache_alloc(cachep, flags);
++
+ 	local_irq_restore(save_flags);
+ 	ptr = cache_alloc_debugcheck_after(cachep, flags, ptr, __builtin_return_address(0));
+ 
 
-Aritz
+

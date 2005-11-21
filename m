@@ -1,377 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932325AbVKUQHG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbVKUQFQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932325AbVKUQHG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 11:07:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbVKUQHG
+	id S932304AbVKUQFQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 11:05:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbVKUQFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 11:07:06 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:52393
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S932325AbVKUQHE convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 11:07:04 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Roman Zippel <zippel@linux-m68k.org>
-Subject: [PATCH] make miniconfig (take 2)
-Date: Mon, 21 Nov 2005 10:06:47 -0600
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>
-References: <200511170629.42389.rob@landley.net> <Pine.LNX.4.61.0511192338300.1609@scrub.home> <200511210015.21269.rob@landley.net>
-In-Reply-To: <200511210015.21269.rob@landley.net>
+	Mon, 21 Nov 2005 11:05:16 -0500
+Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:14573 "EHLO
+	ms-smtp-03-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S932304AbVKUQFO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 11:05:14 -0500
+Message-ID: <4381EFF3.8000201@austin.rr.com>
+Date: Mon, 21 Nov 2005 10:04:03 -0600
+From: Steve French <smfrench@austin.rr.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200511211006.48289.rob@landley.net>
+To: linux-kernel@vger.kernel.org, eric2.valette@francetelecom.com,
+       torvalds@osdl.com
+Subject: Re: CIFS improvements/wider testing needed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Rob Landley <rob@landley.net>
+Eric,
+Thanks for the feedback - any bugs which you report which I can 
+reproduce - I will treat
+as a very high priority and your testing is helpful.
 
-Add "make miniconfig", plus documentation, plus the script that creates a
-minimal mini.config from a normal .config file.
----
-Blah.  Patch I sent last night was missing 2 lines in scripts/kconfig/conf.c
-(in two case statements around lines 86 and 146 set_no: needed set_mini:
-added).  Fixed and retested so that applying this patch gives the behavior I
-tested, and while I was at it I tweaked the documentation a bit more.
+ > Trying to push Linux in corporate environments in such condition is very
+ > difficult because, due to those bugs, you cannot:
+ >
+ >       1) save a new openoffice document twice,
+ >         2) create mail folders from inside thunderbird (local mailbox 
+shared
+ > with windows),
 
-Here's the extended description again:
+You can avoid these by mounting with "nobrl" (no remote byte range lock) 
+mount option
+(smbfs does not send byte range locks so would not run into this 
+problem, but would run
+into others).    These appear to be byte range locking problems. The 
+problem is that cifs has
+to map advisory to mandatory locks which only works if the application 
+is reasonably well
+behaved (not even Samba has support for advisory locks although
+they will come with the new Unix extensions). It may be made worse by a 
+bug in openoffice
+(some Linux apps such as Evolution lock on the "wrong" file handle which 
+does not fail in posix,
+although is sloppy coding) but I have not confirmed the byte range lock 
+sequence which
+openoffice is trying as we did with Evolution - I did confirm that nobrl 
+(disabling the
+byte range locks on the client) works.  Note that this mount option, 
+although not listed
+as a  bug fix in git per-se - was added to address the evolution etc. 
+locking bugs.  There
+are quite a few of the cifs changes that fall into that category.
 
-This patch is basically a user interface tweak to the new allno.config
-feature that went into 2.6.15-rc1.  The differences between allnoconfig and
-miniconfig are:
+ >         3) avoid to do FSCK after each reboot,
+Not sure that cifs would cause this unless you mean that cifs was hung 
+and shutdown hung.   To
+avoid cases where cifs requests could stay blocked forever (especially 
+locking requests),
+I added a umount_begin routine a few weeks ago to try to free threads 
+blocked in cifs -
+but what I need from users/tests if they see a cifs umount fail is to 
+know where the requests
+are hung so I can add wakeup calls for that condition in
+cifs's umount_begin (you can do "echo t > /proc/sysrq-trigger" then 
+"dmesg > debugdata" to get
+the debugdata which has the callstacks of processes blocked in kernel).
 
-1) Documentation.
+ > I've seen many changes going in CIFS git tree during this period but
+ > only few bugs got really hunted and fixed
+Scanning the bugzilla list I don't see many which are still believed to 
+be valid, but
+the bugzilla list for cifs on bugzilla.samba.org needs to be cleaned up.
 
-2) More easily understandable names (miniconfig and mini.config).
+ >SMBfs do not exibit some of the bugs CIFS has but has other limitations
+SMBfs runs far fewer posix applications.   The main advantage smbfs
+has is in its kerberos support (which is being worked with the new cifs
+upcall) and in that it cheats and opens multiply open files only once and
+with the wrong flags (which can help performance in some cases
+but the lack of safe caching can lead to data corruption).
 
-3) More user-friendly output (just show the warnings, not the successes).
+ >Could other on the LKML list try to reproduce/confirm the following bugs
+ >with the latest snapshot:
+That would be very helpful.
 
-4) Better error handling (the make exits with an error if mini.config isn't
-found or if parsing mini.config generates any warnings).
+ > NB : the second bug appeared with CIFS 1.39 and is not present in 
+2.6.14.2
+ >
+The smb length checking code was fixed in cifs 1.38 or cifs 1.39 (it was 
+missing some
+illegal cases where tcp length of the smb did not match the calculated 
+smb length of
+the three parts of the smb).   It of course could be a security exposure to
+overly relax the length checking code on incoming
+network buffers.  Unfortunately Windows server has at least one bug in which
+its server miscalculates the size of an smb with no data area but an
+illegal pad but the empty bcc (byte data) area of an SMB - this can 
+occur on
+byte range locks but we may be seeing a second case in your example. 
 
-5) A shell script to automatically create mini.config from a normal .config
-file.  (It's very slow, but it works.  Anybody who wants to make confdata.c
-spit this out by itself, feel free.  I definitely took the "bang two rocks
-together, make fire" approach with this shell script.)
+ > BUGS :
+ >         <https://bugzilla.samba.org/show_bug.cgi?id=2673>
+I suspect that this is a difference in default ACLs or share permissions 
+on the windows server side, but
+as I have mentioned additinal data would be helpful as no one else so 
+far has been able to reproduce it
+as far as I know.   If that is not the cause it may be a problem with 
+the emulation of Linux mode
+bits - and of course some three or four of the most recent cifs changes 
+have been working case by
+case through improving this to Windows servers.  It is not easy code to 
+discover and write.
 
-diff -ru linux-2.6.15-rc2.old/Documentation/00-INDEX linux-2.6.15-rc2/Documentation/00-INDEX
---- linux-2.6.15-rc2.old/Documentation/00-INDEX 2005-11-21 09:28:04.000000000 -0600
-+++ linux-2.6.15-rc2/Documentation/00-INDEX	2005-11-21 09:46:35.514090656 -0600
-@@ -174,6 +174,8 @@
- 	- info on boot arguments for the multiple devices driver.
- memory.txt
-  - info on typical Linux memory problems.
-+miniconfig.txt
-+ - How to use miniature human-editable configuration files.
- mips/
-  - directory with info about Linux on MIPS architecture.
- mono.txt
-diff -ru linux-2.6.15-rc2.old/Documentation/miniconfig.txt linux-2.6.15-rc2/Documentation/miniconfig.txt
---- linux-2.6.15-rc2.old/Documentation/miniconfig.txt 2005-11-21 09:36:38.000000000 -0600
-+++ linux-2.6.15-rc2/Documentation/miniconfig.txt 2005-11-21 09:45:23.561029184 -0600
-@@ -0,0 +1,105 @@
-+Miniconfig documentation
-+November 21, 2005
-+Rob Landley <rob@landley.net>
-+=============================
-+
-+What is a miniconfig?
-+---------------------
-+
-+A new feature introduced in 2.6.15 lets you use miniature configuration files,
-+listing just the symbols you want to enable and letting the configurator
-+enable any dependencies needed to give you a valid configuration.
-+
-+To use it, create a mini.config file in whatever directory your .config file
-+would normally live in, and run "make miniconfig".  (You can specify a
-+different file with the argument "KCONFIG_ALLCONFIG=/path/to/mini.config".)
-+
-+Advantages of miniconfig:
-+-------------------------
-+
-+Miniconfigs have several advantages over conventional configuration files:
-+
-+ * They're more portable between versions.  A miniconfig from linux 2.6.15 will
-+   probably build an equivalent 2.6.16 kernel.
-+
-+ * It's easy to see exactly what features have been specified.
-+
-+ * Miniconfigs are human editable, human readable, and provide informative
-+   error messages identifying any unrecognized (typoed) symbols.
-+
-+Creating a mini.config by hand:
-+-------------------------------
-+
-+Run "make allnoconfig", and create an empty mini.config file.  Then go through
-+"make menuconfig" enabling the features you want.  For each feature you enable,
-+look at the help entry (at the top of which is the symbol name for this
-+feature), and add a line to mini.config setting that symbol to the appropriate
-+value, such as:
-+
-+CONFIG_THINGY=y
-+
-+Creating a mini.config from a full .config file:
-+------------------------------------------------
-+
-+Run scripts/miniconfig.sh to automatically create a mini.conf from a full
-+.config file.
-+
-+The script works via the simple expedient of trying to remove each line from
-+.config and keeping only the lines which make a difference in the .config
-+generated by "make miniconfig".  (This means it runs "make miniconfig" about
-+1300 times, which is very very slow, so it displays a progress indicator.)
-+
-+To use the script, go into the kernel source directory, create your .config 
-+file (via menuconfig or however), rename that .config file to another name
-+(like "myconfig"), then run:
-+
-+scripts/miniconfig.sh myconfig
-+
-+When the script finishes, you should have a mini.config file containing
-+the minimal set of lines necessary to specify that configuration via
-+"make miniconfig".
-+
-+Real-world example:
-+-------------------
-+
-+Here's the mini.config I use to build User Mode Linux:
-+
-+CONFIG_MODE_SKAS=y
-+CONFIG_BINFMT_ELF=y
-+CONFIG_HOSTFS=y
-+CONFIG_SYSCTL=y
-+CONFIG_STDERR_CONSOLE=y
-+CONFIG_UNIX98_PTYS=y
-+CONFIG_BLK_DEV_LOOP=y
-+CONFIG_BLK_DEV_UBD=y
-+CONFIG_TMPFS=y
-+CONFIG_SWAP=y
-+CONFIG_LBD=y
-+CONFIG_EXT2_FS=y
-+CONFIG_PROC_FS=y
-+
-+And here's how I build and test it (as a normal user, not as root):
-+
-+# Configure, building in an external directory and using a mini.config file in
-+# my home directory.
-+
-+make KCONFIG_ALLCONFIG=~/uml-config ARCH=um O=../linux-umlbuild miniconfig
-+
-+# change to build directory and build User Mode Linux
-+
-+cd ../linux-umlbuild
-+make ARCH=um
-+
-+# Test run
-+
-+./linux rootfstype=hostfs rw init=/bin/sh
-+$ whoami
-+$ mount -t proc /proc /proc
-+$ cat /proc/cpuinfo
-+$ halt -f
-+
-+# And if I want to regenerate the mini.config from the .config, I do this.
-+# Note the syntax for specifying a different architecture:
-+
-+cp .config myconfig
-+ARCH=um scripts/miniconfig.sh myconfig
-diff -ru linux-2.6.15-rc2.old/scripts/kconfig/conf.c linux-2.6.15-rc2/scripts/kconfig/conf.c
---- linux-2.6.15-rc2.old/scripts/kconfig/conf.c 2005-11-21 09:28:22.000000000 -0600
-+++ linux-2.6.15-rc2/scripts/kconfig/conf.c 2005-11-21 09:23:02.000000000 -0600
-@@ -24,7 +24,8 @@
-  set_yes,
-  set_mod,
-  set_no,
-- set_random
-+ set_random,
-+ set_mini
- } input_mode = ask_all;
- char *defconfig_file;
+ >         <https://bugzilla.samba.org/show_bug.cgi?id=3237>
+I would like to see the debug data ("cat /proc/fs/cifs/DebugData") so I 
+can see if there any
+pending network requests when your shutdown occurs - and I want to see 
+an ethereal trace
+(or tcpdump or equivalent binary trace file) of this so I can see what 
+is going on with this
+malformed response from the server.
+
+ > May I suggest to fix bugs as a priority before adding new features for a
+If there is a known bug, reported and which I can recreate - it is of 
+course my highest priority
+and I would also evaluate patches to fix such as my highest priority - 
+but if they are hard
+or impossible for me to recreate - getting the very, very, very hot 
+issue of Kerberos security
+enablement finished is the priority now.
+
+ > Or at least make sure enough testing is done to avoid regressions?
+There is a large test suite of the typical Linux fs tests (connectathon 
+posix file api,
+fsx, fsstress, dbench, etc.) which is run against Samba and Windows on 
+every
+update of cifs (by me and Shaggy and others who can help from time to time).
+I would love additional testing in the user community especially on a 
+broader set of servers
+than I can test - one person can't possibly have enough servers to test 
+every one of the
+variations of  Windows servers or even Samba/unix platform variants - 
+and there
+are dozens of other nas appliances and cifs servers.
  
-@@ -86,6 +87,7 @@
-  case set_mod:
-  case set_yes:
-  case set_random:
-+ case set_mini:
-   if (sym_has_value(sym)) {
-    printf("%s\n", def);
-    return;
-@@ -143,6 +145,7 @@
-    }
-   }
-  case set_no:
-+ case set_mini:
-   if (sym_tristate_within_range(sym, no)) {
-    line[0] = 'n';
-    line[1] = '\n';
-@@ -376,6 +379,7 @@
-   case set_yes:
-   case set_mod:
-   case set_no:
-+  case set_mini:
-    cnt = def;
-    printf("%d\n", cnt);
-    break;
-@@ -492,7 +496,7 @@
- 
- int main(int ac, char **av)
- {
-- int i = 1;
-+ int i = 1, minifail = 0;
-  const char *name;
-  struct stat tmpstat;
- 
-@@ -530,6 +534,9 @@
-    input_mode = set_random;
-    srandom(time(NULL));
-    break;
-+  case 'M':
-+   input_mode = set_mini;
-+   break;
-   case 'h':
-   case '?':
-    printf("%s [-o|-s] config\n", av[0]);
-@@ -571,22 +578,32 @@
-  case set_mod:
-  case set_yes:
-  case set_random:
-+ case set_mini:
-   name = getenv("KCONFIG_ALLCONFIG");
--  if (name && !stat(name, &tmpstat)) {
--   conf_read_simple(name);
--   break;
-+  if (name) {
-+   if(!stat(name, &tmpstat)) {
-+    conf_read_simple(name);
-+    break;
-+   } else minifail++;
-   }
-   switch (input_mode) {
-   case set_no:  name = "allno.config"; break;
-   case set_mod:  name = "allmod.config"; break;
-   case set_yes:  name = "allyes.config"; break;
-   case set_random: name = "allrandom.config"; break;
-+  case set_mini:  name = "mini.config"; break;
-   default: break;
-   }
-   if (!stat(name, &tmpstat))
-    conf_read_simple(name);
-   else if (!stat("all.config", &tmpstat))
-    conf_read_simple("all.config");
-+  else minifail++;
-+
-+  if ( input_mode == set_mini && (minifail || conf_warnings)) {
-+   fprintf(stderr, _("** Error parsing mini.config\n\n"));
-+   return 1;
-+  }
-   break;
-  default:
-   break;
-diff -ru linux-2.6.15-rc2.old/scripts/kconfig/confdata.c linux-2.6.15-rc2/scripts/kconfig/confdata.c
---- linux-2.6.15-rc2.old/scripts/kconfig/confdata.c 2005-11-21 09:28:22.000000000 -0600
-+++ linux-2.6.15-rc2/scripts/kconfig/confdata.c 2005-11-21 09:21:50.000000000 -0600
-@@ -18,7 +18,8 @@
-  __attribute__ ((format (printf, 1, 2)));
- 
- static const char *conf_filename;
--static int conf_lineno, conf_warnings, conf_unsaved;
-+static int conf_lineno, conf_unsaved;
-+int conf_warnings;
- 
- const char conf_def_filename[] = ".config";
- 
-diff -ru linux-2.6.15-rc2.old/scripts/kconfig/lkc.h linux-2.6.15-rc2/scripts/kconfig/lkc.h
---- linux-2.6.15-rc2.old/scripts/kconfig/lkc.h 2005-11-21 09:28:22.000000000 -0600
-+++ linux-2.6.15-rc2/scripts/kconfig/lkc.h 2005-11-21 09:21:50.000000000 -0600
-@@ -61,6 +61,7 @@
- 
- /* confdata.c */
- extern const char conf_def_filename[];
-+extern int conf_warnings;
- 
- char *conf_get_default_confname(void);
- 
-diff -ru linux-2.6.15-rc2.old/scripts/kconfig/Makefile linux-2.6.15-rc2/scripts/kconfig/Makefile
---- linux-2.6.15-rc2.old/scripts/kconfig/Makefile 2005-11-21 09:28:22.000000000 -0600
-+++ linux-2.6.15-rc2/scripts/kconfig/Makefile 2005-11-21 09:21:50.000000000 -0600
-@@ -42,7 +42,7 @@
-  $(Q)rm -f arch/um/Kconfig_arch
-  $(Q)rm -f scripts/kconfig/linux_*.pot scripts/kconfig/config.pot
- 
--.PHONY: randconfig allyesconfig allnoconfig allmodconfig defconfig
-+.PHONY: randconfig allyesconfig allnoconfig allmodconfig defconfig miniconfig
- 
- randconfig: $(obj)/conf
-  $< -r arch/$(ARCH)/Kconfig
-@@ -67,6 +67,9 @@
- %_defconfig: $(obj)/conf
-  $(Q)$< -D arch/$(ARCH)/configs/$@ arch/$(ARCH)/Kconfig
- 
-+miniconfig: $(obj)/conf
-+ @ $< -M arch/$(ARCH)/Kconfig > /dev/null
-+
- # Help text used by make help
- help:
-  @echo  '  config   - Update current config utilising a line-oriented program'
-@@ -79,6 +82,7 @@
-  @echo  '  allmodconfig   - New config selecting modules when possible'
-  @echo  '  allyesconfig   - New config where all options are accepted with yes'
-  @echo  '  allnoconfig   - New minimal config'
-+ @echo  '  miniconfig   - New config generated from mini.config
- 
- # ===========================================================================
- # Shared Makefile for the various kconfig executables:
-diff -ru linux-2.6.15-rc2.old/scripts/miniconfig.sh linux-2.6.15-rc2/scripts/miniconfig.sh
---- linux-2.6.15-rc2.old/scripts/miniconfig.sh 2005-11-21 09:36:44.000000000 -0600
-+++ linux-2.6.15-rc2/scripts/miniconfig.sh 2005-11-21 09:21:50.000000000 -0600
-@@ -0,0 +1,46 @@
-+#!/bin/sh
-+
-+# miniconfig.sh copyright 2005 by Rob Landley <rob@landley.net>
-+# Licensed under the GNU General Public License version 2.
-+
-+if [ $# -ne 1 ] || [ ! -f "$1" ]
-+then
-+  echo "Usage: miniconfig.sh configfile" 
-+  exit 1
-+fi
-+
-+if [ "$1" == ".config" ]
-+then
-+  echo "It overwrites .config, rename it and try again."
-+  exit 1
-+fi
-+
-+cp $1 mini.config
-+echo "Calculating mini.config..."
-+
-+LENGTH=`cat $1 | wc -l`
-+
-+# Loop through all lines in the file 
-+I=1
-+while true
-+do
-+  if [ $I -gt $LENGTH ]
-+  then
-+    exit
-+  fi
-+  sed -n "${I}!p" mini.config > .config.test
-+  # Do a config with this file
-+  make allnoconfig KCONFIG_ALLCONFIG=.config.test > /dev/null
-+
-+  # Compare.  The date changes so expect a small difference each time.
-+  D=`diff .config $1 | wc -l`
-+  if [ $D -eq 4 ]
-+  then
-+    mv .config.test mini.config
-+    LENGTH=$[$LENGTH-1]
-+  else
-+    I=$[$I + 1]
-+  fi
-+  echo -n -e $I/$LENGTH lines `cat mini.config | wc -c` bytes "\r"
-+done
-+echo
+Although I would like to find a workaround so it does not hang the 
+umount or fail umount
+I am not convinced that this is a typical regression - if a server sends 
+an illegal response which
+we were not catching before ... it would be dangerous to call preventing 
+that potential
+security problem a regression.
+

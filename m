@@ -1,67 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbVKUWzi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751235AbVKUXBf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751198AbVKUWzi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 17:55:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbVKUWzi
+	id S1751235AbVKUXBf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 18:01:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbVKUXBf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 17:55:38 -0500
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:12738 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S1751198AbVKUWzh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 17:55:37 -0500
-Date: Mon, 21 Nov 2005 23:55:27 +0100
-From: Luca <kronos@kronoz.cjb.net>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.14.2] Badness in as_insert_request at drivers/block/as-iosched.c:1519
-Message-ID: <20051121225527.GA25823@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-References: <20051120203603.GA12216@dreamland.darkstar.lan> <20051120212711.GQ25454@suse.de>
+	Mon, 21 Nov 2005 18:01:35 -0500
+Received: from gate.crashing.org ([63.228.1.57]:37578 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751235AbVKUXBe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 18:01:34 -0500
+Subject: Re: [PATCH 4/5] Centralise NO_IRQ definition
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Paul Mackerras <paulus@samba.org>, Ingo Molnar <mingo@elte.hu>,
+       Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Russell King <rmk@arm.linux.org.uk>, Ian Molton <spyro@f2s.com>
+In-Reply-To: <Pine.LNX.4.64.0511211418391.13959@g5.osdl.org>
+References: <E1Ee0G0-0004CN-Az@localhost.localdomain>
+	 <24299.1132571556@warthog.cambridge.redhat.com>
+	 <20051121121454.GA1598@parisc-linux.org>
+	 <Pine.LNX.4.64.0511211047260.13959@g5.osdl.org>
+	 <20051121190632.GG1598@parisc-linux.org>
+	 <Pine.LNX.4.64.0511211124190.13959@g5.osdl.org>
+	 <20051121194348.GH1598@parisc-linux.org>
+	 <Pine.LNX.4.64.0511211150040.13959@g5.osdl.org>
+	 <20051121211544.GA4924@elte.hu>
+	 <17282.15177.804471.298409@cargo.ozlabs.ibm.com>
+	 <Pine.LNX.4.64.0511211339450.13959@g5.osdl.org>
+	 <1132610802.26560.44.camel@gaston>
+	 <Pine.LNX.4.64.0511211418391.13959@g5.osdl.org>
+Content-Type: text/plain
+Date: Tue, 22 Nov 2005 09:58:44 +1100
+Message-Id: <1132613925.26560.54.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051120212711.GQ25454@suse.de>
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il Sun, Nov 20, 2005 at 10:27:12PM +0100, Jens Axboe ha scritto: 
-> On Sun, Nov 20 2005, Luca wrote:
-> > Hi,
-> > while playing an audio CD with XMMS using digital audio extraction the
-> > kernel started flooding my logs (syslog writes my kernel logs synchronously)
-> > with the following message:
-> > 
-> >  cdrom: dropping to single frame dma
-> >  arq->state: 4
-> >  Badness in as_insert_request at drivers/block/as-iosched.c:1519
-> >   [<c0104027>] dump_stack+0x17/0x20
-> >   [<c0263b2c>] as_insert_request+0x5c/0x160
-> >   [<c025aa0a>] __elv_add_request+0x8a/0xc0
-> >   [<c025aa75>] elv_add_request+0x35/0x70
-> >   [<c025dc4b>] blk_execute_rq_nowait+0x3b/0x50
-> >   [<c025dcda>] blk_execute_rq+0x7a/0xb0
-> >   [<c028daad>] cdrom_read_cdda_bpc+0x14d/0x1b0
-> 
-> This is actually the 'as' request state detection being a little to
-> anxious, I think. The cdrom layer reuses the same request several times
-> instead of allocating/freeing it inside the loop, and 'as' barfs if the
-> request state isn't 'fresh' when it first sees the request after it has
-> completed once.
-> 
-> This should work around the issue in the cdrom layer, even though it
-> isn't actually buggy.
-[...]
-> diff --git a/drivers/cdrom/cdrom.c b/drivers/cdrom/cdrom.c
-> index 1539603..7540d27 100644
-> --- a/drivers/cdrom/cdrom.c
-> +++ b/drivers/cdrom/cdrom.c
-[patch]
 
-Thanks, with your patch the warning is gone.
+> So you could just make the ppc PCI probing do
+> 
+> 	dev->irq = PCI_IRQ_BASE + node->intrs[0].line;
+> 
+> and suddenly 0 works equally well for you as it does on a regular PC. 
+> 
+> Notice? Magic. Suddenly "0" means "No irq" on ppc too.
 
-Luca
--- 
-Home: http://kronoz.cjb.net
-Pare che gli uomini facciano l'amore di continuo e le donne solo
-raramente. Ci dev'essere qualcuno che bara.
+Not really, we also need to fix the interrupt controller code among
+others...
+
+Ben.
+
+

@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbVKUWXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbVKUWYd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751129AbVKUWXg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 17:23:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbVKUWXg
+	id S1751180AbVKUWYd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 17:24:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbVKUWYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 17:23:36 -0500
-Received: from gate.crashing.org ([63.228.1.57]:3018 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751129AbVKUWXf (ORCPT
+	Mon, 21 Nov 2005 17:24:33 -0500
+Received: from mail.suse.de ([195.135.220.2]:26777 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751120AbVKUWYc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 17:23:35 -0500
-Subject: Re: [PATCH 4/5] Centralise NO_IRQ definition
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>,
-       Ian Molton <spyro@f2s.com>, Paul Mackerras <paulus@samba.org>
-In-Reply-To: <Pine.LNX.4.64.0511211413390.13959@g5.osdl.org>
-References: <E1Ee0G0-0004CN-Az@localhost.localdomain>
-	 <24299.1132571556@warthog.cambridge.redhat.com>
-	 <20051121121454.GA1598@parisc-linux.org>
-	 <Pine.LNX.4.64.0511211047260.13959@g5.osdl.org>
-	 <20051121190632.GG1598@parisc-linux.org>
-	 <Pine.LNX.4.64.0511211124190.13959@g5.osdl.org>
-	 <20051121194348.GH1598@parisc-linux.org>
-	 <Pine.LNX.4.64.0511211150040.13959@g5.osdl.org>
-	 <1132607776.26560.23.camel@gaston>
-	 <Pine.LNX.4.64.0511211336440.13959@g5.osdl.org>
-	 <1132609994.26560.39.camel@gaston>
-	 <Pine.LNX.4.64.0511211413390.13959@g5.osdl.org>
-Content-Type: text/plain
-Date: Tue, 22 Nov 2005 09:20:44 +1100
-Message-Id: <1132611645.26560.50.camel@gaston>
+	Mon, 21 Nov 2005 17:24:32 -0500
+Date: Mon, 21 Nov 2005 23:24:29 +0100
+From: Andi Kleen <ak@suse.de>
+To: yhlu <yhlu.kernel@gmail.com>
+Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org, linux-kernel@vger.kernel.org,
+       linuxbios@openbios.org
+Subject: Re: x86_64: apic id lift patch
+Message-ID: <20051121222429.GE20775@brahms.suse.de>
+References: <86802c440511211349t6a0a9d30i60e15fa23b86c49d@mail.gmail.com> <20051121220605.GD20775@brahms.suse.de> <86802c440511211417h737474fbt57946f4f2396b701@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <86802c440511211417h737474fbt57946f4f2396b701@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 21, 2005 at 02:17:35PM -0800, yhlu wrote:
+> > Can you please explain clearly:
+> >
+> > - What are you changing.
+> 1.  use core_vir instead of x86_max_cores, for E0 later single core,
+> core_vir could be 2, and x86_max_cores still is 1. So it makes node
+> calculation right.
 
-> If we make PCI_NO_IRQ be -1, then PC's need to remap 0 to that value. In 
-> pretty much _exactly_ the same places that I suggest that the ppc code 
-> should do it.
+max_cores should be 2 here.
 
-No. Remapping a valid number to something else means remapping at
-runtime for all things that manipulate an irq : issuing it,
-enable/disable callbacks, etc...
+> > - What was the problem with the old behaviour
+> 1. for E0 single core, node 2, initial apicid is 4, and old cold will
+> get node=4 instead of 2.
+> 2. if the lifted apicid is not continous, it will assign strange node
+> id to the cpu.
 
-"Fixing" the definition of "no irq" on x86 means only changing the boot
-code that sets up irq numbers, whatever it is.
+Is there a good reason in the BIOS to not make it contiguous?
 
-Thus what solution is technically superior can be argued based on the
-fact that your solution introduce overhead to code path that are hot
-during normal kernel operations.
+> > - Why that particular change
+> 1. We can get exact node id and core id from initial apicid for E0 later.
+> > - Why can't that APIC number setup not be done by the BIOS itself
+> 1. That patch the code more generic. and don't assume the lifted
+> apicid is continous.
 
-Ben.
+It's only the last resort fallback anyways. I would prefer to not
+make it more complicated. The recommend way is you supplying
+a SRAT table, then you're independent of any such fallback heuristics
+and just tell the kernel the right mapping.
 
-
+-Andi

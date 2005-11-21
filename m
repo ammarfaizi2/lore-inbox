@@ -1,39 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbVKUFuv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbVKUFx4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932196AbVKUFuv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 00:50:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932197AbVKUFuv
+	id S932197AbVKUFx4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 00:53:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbVKUFx4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 00:50:51 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:64736 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932196AbVKUFuu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 00:50:50 -0500
-Message-ID: <43816038.9050700@us.ibm.com>
-Date: Sun, 20 Nov 2005 21:50:48 -0800
+	Mon, 21 Nov 2005 00:53:56 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:33982 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932197AbVKUFxz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 00:53:55 -0500
+Message-ID: <438160F0.4010903@us.ibm.com>
+Date: Sun, 20 Nov 2005 21:53:52 -0800
 From: Matthew Dobson <colpatch@us.ibm.com>
 User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Paul Jackson <pj@sgi.com>
-CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [RFC][PATCH 1/8] Create Critical Page Pool
-References: <437E2C69.4000708@us.ibm.com>	<437E2D23.10109@us.ibm.com> <20051118160855.1ea249c8.pj@sgi.com>
-In-Reply-To: <20051118160855.1ea249c8.pj@sgi.com>
+To: Keith Owens <kaos@sgi.com>
+CC: linux-kernel@vger.kernel.org, Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [RFC][PATCH 0/8] Critical Page Pool
+References: <5511.1132472758@ocs3.ocs.com.au>
+In-Reply-To: <5511.1132472758@ocs3.ocs.com.au>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson wrote:
-> Total nit:
+Keith Owens wrote:
+> On Fri, 18 Nov 2005 11:32:57 -0800, 
+> Matthew Dobson <colpatch@us.ibm.com> wrote:
 > 
->  #define __GFP_HARDWALL   ((__force gfp_t)0x40000u) /* Enforce hardwall cpuset memory allocs */
-> +#define __GFP_CRITICAL	((__force gfp_t)0x80000u) /* Critical allocation. MUST succeed! */
+>>We have a clustering product that needs to be able to guarantee that the
+>>networking system won't stop functioning in the case of OOM/low memory
+>>condition.  The current mempool system is inadequate because to keep the
+>>whole networking stack functioning, we need more than 1 or 2 slab caches to
+>>be guaranteed.  We need to guarantee that any request made with a specific
+>>flag will succeed, assuming of course that you've made your "critical page
+>>pool" big enough.
+>>
+>>The following patch series implements such a critical page pool.  It
+>>creates 2 userspace triggers:
+>>
+>>/proc/sys/vm/critical_pages: write the number of pages you want to reserve
+>>for the critical pool into this file
+>>
+>>/proc/sys/vm/in_emergency: write a non-zero value to tell the kernel that
+>>the system is in an emergency state and authorize the kernel to dip into
+>>the critical pool to satisfy critical allocations.
 > 
-> Looks like you used a space instead of a tab.
+> 
+> FWIW, the Kernel Debugger (KDB) has similar problems where the system
+> is dying because of lack of memory but KDB must call some functions
+> that use kmalloc.  A related problem is that sometimes KDB is invoked
+> from a non maskable interrupt, so I could not even trust the state of
+> the spinlocks and the chains in the slab code.
+> 
+> I worked around the problem by adding a last ditch allocator.  Extract
+> from the kdb patch.
 
-It's a tab on my side...  Maybe some whitespace munging by Thunderbird?
-Will make sure it's definitely a tab on the next itteration.
+Ahh... very interesting.  And dissapointingly much smaller than mine. :(
+
+Thanks for the patch and the feedback!
 
 -Matt

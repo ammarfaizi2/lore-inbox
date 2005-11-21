@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbVKUXYB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbVKUXZf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964773AbVKUXYB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 18:24:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964775AbVKUXYB
+	id S964774AbVKUXZf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 18:25:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964775AbVKUXZf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 18:24:01 -0500
-Received: from mail.gmx.de ([213.165.64.20]:51861 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964774AbVKUXYA (ORCPT
+	Mon, 21 Nov 2005 18:25:35 -0500
+Received: from havoc.gtf.org ([69.61.125.42]:25829 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S964774AbVKUXZe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 18:24:00 -0500
-X-Authenticated: #342784
-From: Jens-Michael Hoffmann <jensmh@gmx.de>
-Organization: Hoffmann Information Services GmbH
-To: linux-kernel@vger.kernel.org
-Subject: white space fixes wanted?
-Date: Tue, 22 Nov 2005 00:24:08 +0000
-User-Agent: KMail/1.8.3
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Nov 2005 18:25:34 -0500
+Date: Mon, 21 Nov 2005 18:25:31 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Gustavo Guillermo =?iso-8859-1?Q?P=E9rez?= 
+	<gustavo@compunauta.com>
+Cc: USB development list <linux-usb-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: /dev/sr0 not ready, but working
+Message-ID: <20051121232531.GA24565@havoc.gtf.org>
+References: <200511211600.51338.gustavo@compunauta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200511220024.11046.jensmh@gmx.de>
-X-Y-GMX-Trusted: 0
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200511211600.51338.gustavo@compunauta.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When looking in drivers/ieee1394/pcilynx.c, I noticed that there are a lot of spaces instead of tabs.
-I prepared a patch to fix that.
+On Mon, Nov 21, 2005 at 04:00:51PM -0600, Gustavo Guillermo Pérez wrote:
+> When I use my external case as Firewire or USB 2.0 I got the error on the 
+> kernel syslog:
+> sr 0:0:0:0: Device not ready.
+> last message repeated 187 times
+> 
+> Same using amdtp FireWire Driver and usb-storage driver.
+> 
+> but the drive keeps writing and the media finish and close as espected on the 
+> 95% of times, the other 5% :(.
 
-file size of pcilynx.c before: 53775 bytes
-file size after:                         42870 bytes
+This happens on my S/ATAPI box too...	
 
-patch size is 85356 bytes.
+	Jeff
 
-Should I send this patch to the mailing list?
 
-Jens-Michael
+

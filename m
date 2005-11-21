@@ -1,70 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932445AbVKUTG4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbVKUTGg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932445AbVKUTG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 14:06:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbVKUTG4
+	id S932425AbVKUTGg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 14:06:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbVKUTGg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 14:06:56 -0500
-Received: from msgbas9x.lvld.agilent.com ([192.25.144.41]:8139 "EHLO
-	msgbas9x.lvld.agilent.com") by vger.kernel.org with ESMTP
-	id S932445AbVKUTGz convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 14:06:55 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: question about driver built-in kernel
-Date: Mon, 21 Nov 2005 12:06:52 -0700
-Message-ID: <08A354A3A9CCA24F9EE9BE13600CFBC501A31918@wcosmb07.cos.agilent.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: question about driver built-in kernel
-Thread-Index: AcXszW008lTovCOIQ2SlMybyLXrT/ACAOfdg
-From: <yiding_wang@agilent.com>
-To: <greg@kroah.com>, <yiding_wang@agilent.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 21 Nov 2005 19:06:53.0002 (UTC) FILETIME=[BBB852A0:01C5EECE]
+	Mon, 21 Nov 2005 14:06:36 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:30442 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S932425AbVKUTGf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 14:06:35 -0500
+Date: Mon, 21 Nov 2005 12:06:32 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Russell King <rmk@arm.linux.org.uk>, Ian Molton <spyro@f2s.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Paul Mackerras <paulus@samba.org>
+Subject: Re: [PATCH 4/5] Centralise NO_IRQ definition
+Message-ID: <20051121190632.GG1598@parisc-linux.org>
+References: <E1Ee0G0-0004CN-Az@localhost.localdomain> <24299.1132571556@warthog.cambridge.redhat.com> <20051121121454.GA1598@parisc-linux.org> <Pine.LNX.4.64.0511211047260.13959@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0511211047260.13959@g5.osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Greg,
+On Mon, Nov 21, 2005 at 10:55:24AM -0800, Linus Torvalds wrote:
+> Quite frankly, if we change [PCI_]NO_IRQ to -1, there's almost certainly 
+> going to be a lot of drivers breaking.
 
-Thanks for the support and prompt response. I figure it out the problem is endianess. I worked everything on x86 based system and copied files to PPC system. Somehow I forgot to change the endianess define in my makefile. Now everything works fine!
+There's only one driver using NO_IRQ today (outside of architectures
+which define NO_IRQ to -1, that is).  So *this* series of patches should
+break nothing.  The next series of patches should find all the PCI
+drivers assuming dev->irq == 0 means no interrupt, and then we try to
+break drivers by getting rid of PCI_NO_IRQ.
 
-Again, relay appreciate your help!
+> This is not theory: a _lot_ of real-life PCI devices very much think that 
+> irq 0 means "disabled". Not even just in drivers - in actual _hardware_. 
+> When you write 0 to the irq number for irq routers, they disable that 
+> line. So the "zero as NO_IRQ" is more than just a "several drivers think 
+> that is how it is", it's how a lot of hardware actually works.
 
-Eddie
+That's a common misreading of the PCI spec -- it actually says the
+opposite.  Interrupt Pin works as you've described.  But what we're
+concerned with is Interrupt Line, and PCI 2.3 has the following to say
+in a footnote:
 
------Original Message-----
-From: Greg KH [mailto:greg@kroah.com] 
-Sent: Friday, November 18, 2005 9:37 PM
-To: yiding_wang@agilent.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: question about driver built-in kernel
+	43 For x86 based PCs, the values in this register correspond to
+	IRQ numbers (0-15) of the standard dual 8259 configuration. The
+	value 255 is defined as meaning "unknown" or "no connection" to
+	the interrupt controller. Values between 15 and 254 are reserved.
 
-On Fri, Nov 18, 2005 at 06:57:38PM -0700, yiding_wang@agilent.com wrote:
-> Thanks Greg! 
-> 
-> Got everything straighten up.
->  
-> 1, replaced init_module() by __init init_module to avoid kernel build conflict.
-> 2, arranged correct sequence in Makefile to load two drivers in proper order.
-> 
-> Now it looks the pci bus register accessing has problem. If loaded as
-> module, everything works fine. If build in kernel, it always failed at
-> the spot driver resetting the chip through register during the kernel
-> loading. It seems the pci base address mapping or something related
-> has problem. Is there any difference for ioremap call between the
-> kernel loading and after system is up? Is anything special on pci
-> device register accessing during the kernel booting, compare with
-> after system boot up?
+It's just that Linux doesn't bother to read Interrupt Line if Interrupt
+Pin is 0, and thus leaves the interrupt value at 0 (since the struct was
+memset).
 
-Do you have a pointer to your source code, so we can look at it to see
-what is wrong?
-
-thanks,
-
-greg k-h
+Really, this patch brings x86 back into compliance with what the
+BIOS does ;-)

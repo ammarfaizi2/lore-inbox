@@ -1,45 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbVKUV6K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751111AbVKUV7S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751104AbVKUV6K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 16:58:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbVKUV6K
+	id S1751111AbVKUV7S (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 16:59:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbVKUV7S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 16:58:10 -0500
-Received: from cantor.suse.de ([195.135.220.2]:17557 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751104AbVKUV6J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 16:58:09 -0500
-From: Neil Brown <neilb@suse.de>
-To: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
-Date: Tue, 22 Nov 2005 08:58:02 +1100
-MIME-Version: 1.0
+	Mon, 21 Nov 2005 16:59:18 -0500
+Received: from [205.233.219.253] ([205.233.219.253]:24736 "EHLO
+	conifer.conscoop.ottawa.on.ca") by vger.kernel.org with ESMTP
+	id S1751108AbVKUV7R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 16:59:17 -0500
+Date: Mon, 21 Nov 2005 16:52:26 -0500
+From: Jody McIntyre <scjody@steamballoon.com>
+To: Ben Collins <bcollins@debian.org>
+Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>, Adrian Bunk <bunk@stusta.de>,
+       Dave Jones <davej@redhat.com>, dan@dennedy.org,
+       linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       stable@kernel.org
+Subject: Re: [2.6 patch] drivers/ieee1394/raw1394.c: fix a NULL pointer dereference
+Message-ID: <20051121215226.GN20781@conscoop.ottawa.on.ca>
+References: <20051120232009.GH16060@stusta.de> <20051120234055.GF28918@redhat.com> <20051120235242.GR16060@stusta.de> <43821C47.6010702@s5r6.in-berlin.de> <20051121185609.GB14962@swissdisk.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17282.17130.991367.308610@cse.unsw.edu.au>
-Cc: Lars Roland <lroland@gmail.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Poor Software RAID-0 performance with 2.6.14.2
-In-Reply-To: message from Lennart Sorensen on Monday November 21
-References: <4ad99e050511211231o97d5d7fw59b44527dc25dcea@mail.gmail.com>
-	<20051121204752.GK9488@csclub.uwaterloo.ca>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <20051121185609.GB14962@swissdisk.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday November 21, lsorense@csclub.uwaterloo.ca wrote:
-> On Mon, Nov 21, 2005 at 09:31:14PM +0100, Lars Roland wrote:
-> > I have created a stripe across two 500Gb disks located on separate IDE
-> > channels using:
+On Mon, Nov 21, 2005 at 10:56:09AM -0800, Ben Collins wrote:
 > > 
-> > mdadm -Cv /dev/md0 -c32 -n2 -l0 /dev/hdb /dev/hdd
+> > This looks OK to me. But there seems to be another bug. I think the line
+> > 
+> > 	kfree(cache);
+> > 
+> > after the if and else blocks has to be replaced by
+> > 
+> > 	CSR1212_FREE(cache);
 > 
-> Does -l0 equal stripe or linear?  The mdadm man page doesn't seem clear
-> o that to me.
+> Yes, please. We are trying to keep the csr1212.[ch] files compatible for
+> use in userspace and kernel.
 
-0 is raid0.  I thought that was so blatantly obvious that it wasn't
-worth spelling it out in the man page.  Maybe I was wrong :-(.
+raw1394.c does not have to be kept compatible.  Stefan's suggestion
+doesn't hurt though.  Anyone have a patch?
 
-NeilBrown
+Cheers,
+Jody
+
+
+> 
+> -- 
+> Ubuntu     - http://www.ubuntu.com/
+> Debian     - http://www.debian.org/
+> Linux 1394 - http://www.linux1394.org/
+> SwissDisk  - http://www.swissdisk.com/
+> 
+> 
+> -------------------------------------------------------
+> This SF.Net email is sponsored by the JBoss Inc.  Get Certified Today
+> Register for a JBoss Training Course.  Free Certification Exam
+> for All Training Attendees Through End of 2005. For more info visit:
+> http://ads.osdn.com/?ad_id=7628&alloc_id=16845&op=click
+> _______________________________________________
+> mailing list linux1394-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/linux1394-devel
+
+-- 

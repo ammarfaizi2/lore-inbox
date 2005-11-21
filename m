@@ -1,356 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbVKUIb3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932228AbVKUIb4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932219AbVKUIb3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 03:31:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbVKUIb3
+	id S932228AbVKUIb4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 03:31:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbVKUIb4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 03:31:29 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:28393
+	Mon, 21 Nov 2005 03:31:56 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:32745
 	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S932219AbVKUIb2 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 03:31:28 -0500
+	id S932225AbVKUIbz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 03:31:55 -0500
 From: Rob Landley <rob@landley.net>
 Organization: Boundaries Unlimited
-To: Roman Zippel <zippel@linux-m68k.org>
-Subject: [PATCH] make miniconfig
-Date: Mon, 21 Nov 2005 00:15:20 -0600
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Subject: Re: [RFC] sys_punchhole()
+Date: Mon, 21 Nov 2005 00:46:44 -0600
 User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>
-References: <200511170629.42389.rob@landley.net> <Pine.LNX.4.61.0511192338300.1609@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0511192338300.1609@scrub.home>
+Cc: Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       andrea@suse.de, hugh@veritas.com, lkml <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>
+References: <1131664994.25354.36.camel@localhost.localdomain> <20051113150906.GA2193@spitz.ucw.cz> <1132178470.24066.85.camel@localhost.localdomain>
+In-Reply-To: <1132178470.24066.85.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200511210015.21269.rob@landley.net>
+Message-Id: <200511210046.45236.rob@landley.net>
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Rob Landley <rob@landley.net>
+On Wednesday 16 November 2005 16:01, Badari Pulavarty wrote:
+> Hmm. Someone other than me asking for it ?
+>
+> I did the madvise() hack and asking to see if any one really needs
+> sys_punchole().
 
-Add "make miniconfig", plus documentation, plus the script that creates a
-minimal mini.config from a normal .config file.
----
-This patch is basically a user interface tweak to the new allno.config feature
-that went into 2.6.15-rc1.  The differences between allnoconfig and miniconfig
-are:
+I run into a potential use case for every once in a while.  For example, there 
+was recent discussion on the User Mode Linux list about this, since the 
+"physical memory" that uses is an mmaped file so the logical way to give 
+unused memory back to the host OS (initially via a hotplug memory interface 
+driven by some kind of daemon, since the pagecache expands to fill all 
+available space even when the data is also redundantly cached by the host OS) 
+would by via sys_punchole().
 
-1) Documentation.
+Of course UML's physmem file is normally on a tmpfs() mount, where 
+madvise(DONTNEED) has special behavior to work like punch anyway.  So it 
+looks like special cases to work around this lack can be added ad infinitum 
+so there's never any immediate need for the actual generic functionality.
 
-2) More easily understandable names (miniconfig and mini.config).
+On the other hand, if you're going to support holes at all, having to recreate 
+the file to get your hole back is kind of silly.  I personally think the 
+ability to create holes in a new file but not create holes in an existing 
+file is every bit as strange as being able to extend a file but not truncate 
+it.  (See the java 1.1 api for an example of _that_ particular thinko...)
 
-3) More user-friendly output (just show the warnings, not the successes).
-
-4) Better error handling (the make exits with an error if mini.config isn't
-found or if parsing mini.config generates any warnings).
-
-5) A shell script to automatically create mini.config from a normal .config
-file.  (It's very slow, but it works.  Anybody who wants to make confdata.c
-spit this out by itself, feel free.  I definitely took the "bang two rocks
-together, make fire" approach with this shell script.)
-
-diff -ru linux-2.6.14/Documentation/miniconfig.txt 
-linux-2.6.15-rc1/Documentation/miniconfig.txt
---- linux-2.6.14/Documentation/miniconfig.txt 2005-11-20 22:33:14.000000000 
--0600
-+++ linux-2.6.15-rc1/Documentation/miniconfig.txt 2005-11-20 
-23:30:13.000000000 -0600
-@@ -0,0 +1,99 @@
-+Miniconfig documentation
-+November 21, 2005
-+Rob Landley <rob@landley.net>
-+=============================
-+
-+What is a miniconfig?
-+---------------------
-+
-+A new feature introduced in 2.6.15 lets you use miniature configuration 
-files,
-+listing just the symbols you want to enable and letting the configurator
-+enable any dependencies needed to give you a valid configuration.
-+
-+To use it, create a mini.config file in whatever directory your .config file
-+would normally live in, and run "make miniconfig".  (You can specify a
-+different file with the argument "KCONFIG_ALLCONFIG=/path/to/mini.config".)
-+
-+Advantages of miniconfig:
-+-------------------------
-+
-+Miniconfigs have several advantages over conventional configuration files:
-+
-+ * They're more portable between versions.  A miniconfig from linux 2.6.15 
-will
-+   probably build an equivalent 2.6.16 kernel.
-+
-+ * It's easy to see exactly what features have been specified.
-+
-+ * Miniconfigs are human editable, human readable, and provide informative
-+   error messages identifying any unrecognized (typoed) symbols.
-+
-+Creating a mini.config by hand:
-+-------------------------------
-+
-+Run "make allnoconfig", and create an empty mini.config file.  Then go 
-through
-+"make menuconfig" enabling the features you want.  For each feature you 
-enable,
-+look at the help entry (at the top of which is the symbol name for this
-+feature), and add a line to mini.config setting that symbol to the 
-appropriate
-+value, such as:
-+
-+CONFIG_THINGY=y
-+
-+Creating a mini.config from a full .config file:
-+------------------------------------------------
-+
-+Run scripts/miniconfig.sh to automatically create a mini.conf from a full
-+.config file.
-+
-+The script works via the simple expedient of trying to remove each line from
-+.config and keeping only the lines which make a difference in the .config
-+generated by "make miniconfig".  (This means it runs "make miniconfig" about
-+1300 times, which is very very slow, so it displays a progress indicator.)
-+
-+To use the script, go into the kernel source directory, create your .config 
-+file (via menuconfig or however), rename that .config file to another name
-+(like "myconfig"), then run:
-+
-+scripts/miniconfig.sh myconfig
-+
-+When the script finishes, you should have a mini.config file containing
-+the minimal set of lines necessary to specify that configuration via
-+"make miniconfig".
-+
-+Real-world example:
-+-------------------
-+
-+Here's the mini.config I use to build User Mode Linux:
-+
-+CONFIG_MODE_SKAS=y
-+CONFIG_BINFMT_ELF=y
-+CONFIG_HOSTFS=y
-+CONFIG_SYSCTL=y
-+CONFIG_STDERR_CONSOLE=y
-+CONFIG_UNIX98_PTYS=y
-+CONFIG_BLK_DEV_LOOP=y
-+CONFIG_BLK_DEV_UBD=y
-+CONFIG_TMPFS=y
-+CONFIG_SWAP=y
-+CONFIG_LBD=y
-+CONFIG_EXT2_FS=y
-+CONFIG_PROC_FS=y
-+
-+And here's how I build and test it (as a normal user, not as root):
-+
-+# Configure, building in an external directory and using a mini.config file 
-in
-+# my home directory.
-+
-+make KCONFIG_ALLCONFIG=~/uml-config ARCH=um O=../linux-umlbuild miniconfig
-+
-+# change to build directory and build User Mode Linux
-+
-+cd ../linux-umlbuild
-+make ARCH=um
-+
-+# Test run
-+
-+./linux rootfstype=hostfs rw init=/bin/sh
-+$ whoami
-+$ mount -t proc /proc /proc
-+$ cat /proc/cpuinfo
-+$ halt -f
-diff -ru linux-2.6.14/scripts/kconfig/conf.c 
-linux-2.6.15-rc1/scripts/kconfig/conf.c
---- linux-2.6.14/scripts/kconfig/conf.c 2005-11-20 04:27:22.000000000 -0600
-+++ linux-2.6.15-rc1/scripts/kconfig/conf.c 2005-11-20 04:24:30.000000000 
--0600
-@@ -24,7 +24,8 @@
-  set_yes,
-  set_mod,
-  set_no,
-- set_random
-+ set_random,
-+ set_mini
- } input_mode = ask_all;
- char *defconfig_file;
- 
-@@ -376,6 +377,7 @@
-   case set_yes:
-   case set_mod:
-   case set_no:
-+  case set_mini:
-    cnt = def;
-    printf("%d\n", cnt);
-    break;
-@@ -492,7 +494,7 @@
- 
- int main(int ac, char **av)
- {
-- int i = 1;
-+ int i = 1, minifail = 0;
-  const char *name;
-  struct stat tmpstat;
- 
-@@ -530,6 +532,9 @@
-    input_mode = set_random;
-    srandom(time(NULL));
-    break;
-+  case 'M':
-+   input_mode = set_mini;
-+   break;
-   case 'h':
-   case '?':
-    printf("%s [-o|-s] config\n", av[0]);
-@@ -571,22 +576,32 @@
-  case set_mod:
-  case set_yes:
-  case set_random:
-+ case set_mini:
-   name = getenv("KCONFIG_ALLCONFIG");
--  if (name && !stat(name, &tmpstat)) {
--   conf_read_simple(name);
--   break;
-+  if (name) {
-+   if(!stat(name, &tmpstat)) {
-+    conf_read_simple(name);
-+    break;
-+   } else minifail++;
-   }
-   switch (input_mode) {
-   case set_no:  name = "allno.config"; break;
-   case set_mod:  name = "allmod.config"; break;
-   case set_yes:  name = "allyes.config"; break;
-   case set_random: name = "allrandom.config"; break;
-+  case set_mini:  name = "mini.config"; break;
-   default: break;
-   }
-   if (!stat(name, &tmpstat))
-    conf_read_simple(name);
-   else if (!stat("all.config", &tmpstat))
-    conf_read_simple("all.config");
-+  else minifail++;
-+
-+  if ( input_mode == set_mini && (minifail || conf_warnings)) {
-+   fprintf(stderr, _("** Error parsing mini.config\n\n"));
-+   return 1;
-+  }
-   break;
-  default:
-   break;
-diff -ru linux-2.6.14/scripts/kconfig/confdata.c 
-linux-2.6.15-rc1/scripts/kconfig/confdata.c
---- linux-2.6.14/scripts/kconfig/confdata.c 2005-11-20 04:27:22.000000000 
--0600
-+++ linux-2.6.15-rc1/scripts/kconfig/confdata.c 2005-11-20 04:13:32.000000000 
--0600
-@@ -18,7 +18,8 @@
-  __attribute__ ((format (printf, 1, 2)));
- 
- static const char *conf_filename;
--static int conf_lineno, conf_warnings, conf_unsaved;
-+static int conf_lineno, conf_unsaved;
-+int conf_warnings;
- 
- const char conf_def_filename[] = ".config";
- 
-diff -ru linux-2.6.14/scripts/kconfig/lkc.h 
-linux-2.6.15-rc1/scripts/kconfig/lkc.h
---- linux-2.6.14/scripts/kconfig/lkc.h 2005-11-20 04:27:22.000000000 -0600
-+++ linux-2.6.15-rc1/scripts/kconfig/lkc.h 2005-11-20 04:14:53.000000000 -0600
-@@ -61,6 +61,7 @@
- 
- /* confdata.c */
- extern const char conf_def_filename[];
-+extern int conf_warnings;
- 
- char *conf_get_default_confname(void);
- 
-diff -ru linux-2.6.14/scripts/kconfig/Makefile 
-linux-2.6.15-rc1/scripts/kconfig/Makefile
---- linux-2.6.14/scripts/kconfig/Makefile 2005-11-20 04:27:22.000000000 -0600
-+++ linux-2.6.15-rc1/scripts/kconfig/Makefile 2005-11-20 23:43:57.000000000 
--0600
-@@ -42,7 +42,7 @@
-  $(Q)rm -f arch/um/Kconfig_arch
-  $(Q)rm -f scripts/kconfig/linux_*.pot scripts/kconfig/config.pot
- 
--.PHONY: randconfig allyesconfig allnoconfig allmodconfig defconfig
-+.PHONY: randconfig allyesconfig allnoconfig allmodconfig defconfig miniconfig
- 
- randconfig: $(obj)/conf
-  $< -r arch/$(ARCH)/Kconfig
-@@ -67,6 +67,9 @@
- %_defconfig: $(obj)/conf
-  $(Q)$< -D arch/$(ARCH)/configs/$@ arch/$(ARCH)/Kconfig
- 
-+miniconfig: $(obj)/conf
-+ @ $< -M arch/$(ARCH)/Kconfig > /dev/null
-+
- # Help text used by make help
- help:
-  @echo  '  config   - Update current config utilising a line-oriented 
-program'
-@@ -79,6 +82,7 @@
-  @echo  '  allmodconfig   - New config selecting modules when possible'
-  @echo  '  allyesconfig   - New config where all options are accepted with 
-yes'
-  @echo  '  allnoconfig   - New minimal config'
-+ @echo  '  miniconfig   - New config generated from mini.config
- 
- # ===========================================================================
- # Shared Makefile for the various kconfig executables:
-diff -ru linux-2.6.14/scripts/miniconfig.sh 
-linux-2.6.15-rc1/scripts/miniconfig.sh
---- linux-2.6.14/scripts/miniconfig.sh 2005-11-20 23:31:00.000000000 -0600
-+++ linux-2.6.15-rc1/scripts/miniconfig.sh 2005-11-20 23:15:02.000000000 -0600
-@@ -0,0 +1,46 @@
-+#!/bin/sh
-+
-+# miniconfig.sh copyright 2005 by Rob Landley <rob@landley.net>
-+# Licensed under the GNU General Public License version 2.
-+
-+if [ $# -ne 1 ] || [ ! -f "$1" ]
-+then
-+  echo "Usage: miniconfig.sh configfile" 
-+  exit 1
-+fi
-+
-+if [ "$1" == ".config" ]
-+then
-+  echo "It overwrites .config, rename it and try again."
-+  exit 1
-+fi
-+
-+cp $1 mini.config
-+echo "Calculating mini.config..."
-+
-+LENGTH=`cat $1 | wc -l`
-+
-+# Loop through all lines in the file 
-+I=1
-+while true
-+do
-+  if [ $I -gt $LENGTH ]
-+  then
-+    exit
-+  fi
-+  sed -n "${I}!p" mini.config > .config.test
-+  # Do a config with this file
-+  make allnoconfig KCONFIG_ALLCONFIG=.config.test > /dev/null
-+
-+  # Compare.  The date changes so expect a small difference each time.
-+  D=`diff .config $1 | wc -l`
-+  if [ $D -eq 4 ]
-+  then
-+    mv .config.test mini.config
-+    LENGTH=$[$LENGTH-1]
-+  else
-+    I=$[$I + 1]
-+  fi
-+  echo -n -e $I/$LENGTH lines `cat mini.config | wc -c` bytes "\r"
-+done
-+echo
+Rob

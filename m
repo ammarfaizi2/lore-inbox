@@ -1,73 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbVKUTnx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbVKUTna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932361AbVKUTnx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 14:43:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbVKUTnx
+	id S932233AbVKUTna (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 14:43:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbVKUTna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 14:43:53 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:4557 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S932361AbVKUTnw
+	Mon, 21 Nov 2005 14:43:30 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:33100 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932233AbVKUTna convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 14:43:52 -0500
-Date: Mon, 21 Nov 2005 12:43:48 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Russell King <rmk@arm.linux.org.uk>, Ian Molton <spyro@f2s.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Paul Mackerras <paulus@samba.org>
-Subject: Re: [PATCH 4/5] Centralise NO_IRQ definition
-Message-ID: <20051121194348.GH1598@parisc-linux.org>
-References: <E1Ee0G0-0004CN-Az@localhost.localdomain> <24299.1132571556@warthog.cambridge.redhat.com> <20051121121454.GA1598@parisc-linux.org> <Pine.LNX.4.64.0511211047260.13959@g5.osdl.org> <20051121190632.GG1598@parisc-linux.org> <Pine.LNX.4.64.0511211124190.13959@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 21 Nov 2005 14:43:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XRbL/NL8pgIyxDgBWF2lol8Tz3xoliUi/2a/5w1glO/umnyGjJjZqM1lsQq/mo5a9WaVwZAir6F5hb9BAXXCfwGS7hF2HxLj0N79A0xwvoOaFRUZ0DhOlWlx7s7VabYhHMVh2/+tyf3qufqm3yaBTqkwg05W/p/ZYMiEFW2m5uY=
+Message-ID: <9611fa230511211143t28152e23q22e004800ce315de@mail.gmail.com>
+Date: Mon, 21 Nov 2005 19:43:29 +0000
+From: Tarkan Erimer <tarkane@gmail.com>
+To: Rob Landley <rob@landley.net>
+Subject: Re: Sun's ZFS and Linux
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200511211124.48398.rob@landley.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0511211124190.13959@g5.osdl.org>
-User-Agent: Mutt/1.5.9i
+References: <9611fa230511181538g3e8ec403uafa9ed32b560fb0c@mail.gmail.com>
+	 <20051119172337.GA24765@thunk.org>
+	 <9611fa230511201312r5f43e8ady7023b4bde170596e@mail.gmail.com>
+	 <200511211124.48398.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 21, 2005 at 11:27:05AM -0800, Linus Torvalds wrote:
-> On Mon, 21 Nov 2005, Matthew Wilcox wrote:
-> >
-> > On Mon, Nov 21, 2005 at 10:55:24AM -0800, Linus Torvalds wrote:
-> > > Quite frankly, if we change [PCI_]NO_IRQ to -1, there's almost certainly 
-> > > going to be a lot of drivers breaking.
-> > 
-> > There's only one driver using NO_IRQ today (outside of architectures
-> > which define NO_IRQ to -1, that is).  So *this* series of patches should
-> > break nothing.
-> 
-> Right. But the point is that most drivers will do something like
-> 
-> 	if (!dev->irq)
-> 		return;
-> 
-> (whatever, made up). And that having NO_IRQ be anything but 0 is thus 
-> fundamentally broken.
+The whole picture is more clear now. Thanks for
+this very informative reply.
 
-The idea was to give them something better to use instead of this.
-Whether that be if (has_irq(dev)) return; or some other similar
-construct, I'm not terribly fussed.
+Regards
 
-> I'm NOT talking about PCI specs.
-> 
-> I'm talking about real hardware.
-> 
-> Read pretty much _any_ data-sheet for an interrupt router, and you'll see 
-> that the bit pattern 0000 means _disabled_. 
-
-The only relevant thing I found with google was
-http://www.microsoft.com/whdc/archive/pciirq.mspx
-
-Where it talks about 0 meaning disabled, it says:
-
-	Link Value for INTn#:A value of zero means this interrupt pin is
-	not connected to any other interrupt pins and is not connected
-	to any of the Interrupt Router's interrupt pins.
-
-which is a different bit from where it talks about the AT-compatible
-IRQ numbers.
-
-Everything else I find seems to be talking about Arcnet hardware (!)
+On 11/21/05, Rob Landley <rob@landley.net> wrote:
+> On Sunday 20 November 2005 15:12, Tarkan Erimer wrote:
+> > Thanks for the explanation. BTW, I wonder something: Is there any
+> > possibility to give GPL an exception to include and/or link to CDDL
+> > code?
+>
+> No, and Sun likes it that way.
+>
+> The GPL was the first "copyleft" style license which requires that derivative
+> works be placed under exactly the same terms as the original work.  If the
+> terms of another code are incompatible, they cannot be exactly the same.
+>
+> (Specifically, the GPL says in section 2b, "You must cause any work that you
+> distribute or publish, that in whole or in part contains or is derived from
+> the Program or any part thereof, to be licensed as a whole at no charge to
+> all third parties under the terms of this License."  See
+> "http://www.gnu.org/copyleft/gpl.html" and
+> "http://www.fsf.org/licensing/licenses/index_html#GPLIncompatibleLicenses".)
+>
+> Sun intentionally designed the CDDL to be incompatible with the GPL.  This was
+> a design goal on Sun's part.*  They want to isolate themselves from the
+> existing open source community, and make sure that their code cannot be used
+> with the most common open source license.**  Why they want to do this has
+> been widely speculated about***, but the fact they want an explicit "us vs
+> them, no sharing" stance is not in dispute.
+>
+> Rob
+>
+> * See http://www.vnunet.com/vnunet/news/2127094/sun-slams-predatory-gpl or
+> http://news.com.com/Sun+criticizes+popular+open-source+license/2100-7344_3-5656047.html
+> or http://www.adtmag.com/article.asp?id=10927 plus Sun's official rationale
+> at http://www.sun.com/cddl/CDDL_why_details.html
+>
+> ** According to http://sourceforge.net/softwaremap/trove_list.php?form_cat=13
+> there are currently 72,823 projects on sourceforge specifying a license.  Of
+> those, 48050 have chosen to license their code under the GPL.  That's 65.98%,
+> or about 2/3 of the total.  In politics, this would be flirting with a
+> veto-proof majority.  David Wheeler did a detailed analysis at
+> http://www.dwheeler.com/essays/gpl-compatible.html
+>
+> *** see http://lwn.net/Articles/114839/ or http://lwn.net/Articles/159248/ or
+> http://www.eweek.com/article2/0,1759,1754155,00.asp or
+> http://www.eweek.com/article2/0,1895,1739000,00.asp or
+> http://searchopensource.techtarget.com/qna/0,289202,sid39_gci1060779,00.html
+> or http://www.technewsworld.com/story/40176.html or
+> http://www.vnunet.com/vnunet/news/2126648/sun-hits-back-open-source-critics
+> or...
+>

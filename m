@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751064AbVKUVvB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbVKUVwW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751064AbVKUVvB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 16:51:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbVKUVvA
+	id S1751089AbVKUVwW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 16:52:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbVKUVwW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 16:51:00 -0500
-Received: from mtaout3.012.net.il ([84.95.2.7]:14012 "EHLO mtaout3.012.net.il")
-	by vger.kernel.org with ESMTP id S1751064AbVKUVvA (ORCPT
+	Mon, 21 Nov 2005 16:52:22 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:44708 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751089AbVKUVwV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 16:51:00 -0500
-Date: Mon, 21 Nov 2005 23:50:48 +0200
-From: Muli Ben-Yehuda <mulix@mulix.org>
-Subject: [RFC PATCH 0/3] move swiotlb header file into common code
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Cc: Christoph Hellwig <hch@lst.de>
-Message-id: <20051121215048.GE22728@granada.merseine.nu>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: Mutt/1.5.11
+	Mon, 21 Nov 2005 16:52:21 -0500
+Date: Mon, 21 Nov 2005 13:51:30 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Paul Mackerras <paulus@samba.org>, Matthew Wilcox <matthew@wil.cx>,
+       David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>,
+       Ian Molton <spyro@f2s.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH 4/5] Centralise NO_IRQ definition
+In-Reply-To: <20051121213527.GA6452@elte.hu>
+Message-ID: <Pine.LNX.4.64.0511211350010.13959@g5.osdl.org>
+References: <E1Ee0G0-0004CN-Az@localhost.localdomain>
+ <24299.1132571556@warthog.cambridge.redhat.com> <20051121121454.GA1598@parisc-linux.org>
+ <Pine.LNX.4.64.0511211047260.13959@g5.osdl.org> <20051121190632.GG1598@parisc-linux.org>
+ <Pine.LNX.4.64.0511211124190.13959@g5.osdl.org> <20051121194348.GH1598@parisc-linux.org>
+ <Pine.LNX.4.64.0511211150040.13959@g5.osdl.org> <20051121211544.GA4924@elte.hu>
+ <17282.15177.804471.298409@cargo.ozlabs.ibm.com> <20051121213527.GA6452@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patchset does two main things:
 
-- creates an asm-generic/swiotlb.h header file and makes x86-64 and
-IA64 both use it.
 
-- make swiotlb use 'enum dma_direction_dir' instead of 'int dir',
-which is the right thing to do in the DMA API, and updates x86-64 and
-ia64 accordingly.
+On Mon, 21 Nov 2005, Ingo Molnar wrote:
+> 
+> oh well [*]. Then it's gotta be the !dev->irq.valid thing i guess. 
 
-This is the first step towards having a common IOMMU
-infrastructure. Unfortunatly applying any of the patches require the
-other 2.
+No it's not.
 
-Compile tested on both x86-64 and IA64, I'll appreciate it if someone
-knowledgable about IA64 could double check the IA64 bits.
+The ppc PCI probing could trivilly just turn a 0 into 256 (or equivalent), 
+and mask off the low 7 bits when installing the handler.  They know the 
+interrupt is _really_ 0 from other sources (ie they have a different 
+firmware, with explicit callbacks, and/or hardcoded knowledge).
 
-Cheers,
-Muli
--- 
-Muli Ben-Yehuda
-http://www.mulix.org | http://mulix.livejournal.com/
-
+		Linus

@@ -1,35 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbVKUWNH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbVKUWPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751147AbVKUWNH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 17:13:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbVKUWNG
+	id S1751163AbVKUWPX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 17:15:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbVKUWPX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 17:13:06 -0500
-Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:58628 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751137AbVKUWND
+	Mon, 21 Nov 2005 17:15:23 -0500
+Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:63492 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751107AbVKUWPV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 17:13:03 -0500
+	Mon, 21 Nov 2005 17:15:21 -0500
 From: Herbert Xu <herbert@gondor.apana.org.au>
-To: ricknu-0@student.ltu.se (Richard Knutsson)
-Subject: Re: [PATCH -mm2] net: Fix compiler-error on dgrs.c when !CONFIG_PCI
-Cc: herbert@gondor.apana.org.au, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, jgarzik@pobox.com, ashutosh.naik@gmail.com
+To: cfriesen@nortel.com (Christopher Friesen)
+Subject: Re: netlink nlmsg_pid supposed to be pid or tid?
+Cc: kuznet@ms2.inr.ac.ru, herbert@gondor.apana.org.au, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, davem@davemloft.net
 Organization: Core
-In-Reply-To: <43824066.4080109@student.ltu.se>
+In-Reply-To: <4382406D.1040508@nortel.com>
 X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
 User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1EeJu8-0006vr-00@gondolin.me.apana.org.au>
-Date: Tue, 22 Nov 2005 09:12:52 +1100
+Message-Id: <E1EeJwF-0006wc-00@gondolin.me.apana.org.au>
+Date: Tue, 22 Nov 2005 09:15:03 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Knutsson <ricknu-0@student.ltu.se> wrote:
->
-> We need it even if pci_register_driver() and pci_register_driver() is 
-> empty shells. And instead of removing #endif CONFIG_PCI for 
+Christopher Friesen <cfriesen@nortel.com> wrote:
+> 
+> When an NPTL child thread uses getpid() to specify the pid, it never 
+> receives a response to this request.  Running the same code on the 
+> parent works, and running the same code under Linuxthreads works.
 
-I don't think so.  Please see my previous patch where pci_register_driver
-is not called at all if CONFIG_PCI is not defined.
+As I said before, you should not rely on getpid() to work.  Any other
+process in the system can bind to your pid which makes it unavailable
+to your process.  In which case the kernel will pick an arbitrary
+negative pid as your address.
+
+You should always use getsockaddr(2) to get your local address.
 
 Cheers,
 -- 

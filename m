@@ -1,170 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbVKUMsq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbVKUMxi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932289AbVKUMsq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 07:48:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbVKUMsq
+	id S932288AbVKUMxi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 07:53:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932290AbVKUMxi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 07:48:46 -0500
-Received: from gepetto.dc.ltu.se ([130.240.42.40]:51333 "EHLO
-	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S932279AbVKUMsp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 07:48:45 -0500
-Message-ID: <4381C321.5010805@student.ltu.se>
-Date: Mon, 21 Nov 2005 13:52:49 +0100
-From: Richard Knutsson <ricknu-0@student.ltu.se>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Mon, 21 Nov 2005 07:53:38 -0500
+Received: from smtp-out6.blueyonder.co.uk ([195.188.213.9]:62545 "EHLO
+	smtp-out6.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S932288AbVKUMxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 07:53:37 -0500
+Message-ID: <4381C34D.2030904@blueyonder.co.uk>
+Date: Mon, 21 Nov 2005 12:53:33 +0000
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+Reply-To: sboyce@blueyonder.co.uk
+Organization: blueyonder.co.uk
+User-Agent: Thunderbird 1.5 (X11/20051025)
 MIME-Version: 1.0
-To: Herbert Xu <herbert@gondor.apana.org.au>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       jgarzik@pobox.com, ashutosh.naik@gmail.com
-Subject: Re: [PATCH -mm2] net: Fix compiler-error on dgrs.c when !CONFIG_PCI
-References: <E1EdmMo-00020b-00@gondolin.me.apana.org.au> <438097D2.9020607@student.ltu.se> <20051120204001.GA11043@gondor.apana.org.au>
-In-Reply-To: <20051120204001.GA11043@gondor.apana.org.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Subject: kernel 2.6.15-rc2 x86_64 build fails if ext3 not selected
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
+X-OriginalArrivalTime: 21 Nov 2005 12:54:27.0676 (UTC) FILETIME=[B4DE29C0:01C5EE9A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Xu wrote:
+This only affects x86_64, with ext3 selected the build succeeds.
 
->On Sun, Nov 20, 2005 at 04:35:46PM +0100, Richard Knutsson wrote:
->  
->
->>>-#ifdef CONFIG_EISA
->>>-	cardcount = eisa_driver_register(&dgrs_eisa_driver);
->>>+	cardcount = dgrs_register_eisa();
->>>	if (cardcount < 0)
->>>		return cardcount;
->>>-#endif
->>>-	cardcount = pci_register_driver(&dgrs_pci_driver);
->>>-	if (cardcount)
->>>+	cardcount = dgrs_register_pci();
->>>+	if (cardcount < 0) {
->>>      
->>>
->>Are you sure it should be "cardcount < 0" and not "cardcount"?
->>    
->>
->
->Yes if cardcount is >= 0 then the registration was successful.
->
->  
->
->>>+		dgrs_unregister_eisa();
->>>      
->>>
->>Why change the behaviour off this driver?
->>    
->>
->
->Because the driver was buggy.  When this function returns a non-zero
->value, it must return the system to its original state.
->
->That means if the EISA driver has already been registered then it must
->be unregistered.
->
->Cheers,
->  
->
-What do you think about this patch? Will you sign it? It is no longer an 
-error-warning-fix but a bug-fix (and some cleanup).
-I "took" you implementation of dgrs_(un)register_eisa(), especially 
-since eisa needed to be unregistered if pci succeeds (I take you word 
-for it to be so).
-(BTW, this patch is compiled with CONFIG_PCI set, CONFIG_EISA set and 
-both set without errors/warnings for dgrs.o.)
+   AS [M]  arch/x86_64/crypto/aes-x86_64-asm.o
+   CC [M]  arch/x86_64/crypto/aes.o
+   LD [M]  arch/x86_64/crypto/aes-x86_64.o
+   AS      arch/x86_64/ia32/ia32entry.o
+   CC      arch/x86_64/ia32/sys_ia32.o
+   CC      arch/x86_64/ia32/ia32_ioctl.o
+In file included from include/linux/ext3_jbd.h:20,
+                  from fs/compat_ioctl.c:52,
+                  from arch/x86_64/ia32/ia32_ioctl.c:14:
+include/linux/ext3_fs.h: In function ‘ext3_raw_inode’:
+include/linux/ext3_fs.h:696: error: dereferencing pointer to incomplete type
+include/linux/ext3_fs.h: At top level:
+include/linux/ext3_fs.h:734: error: syntax error before ‘*’ token
+include/linux/ext3_fs.h:734: warning: function declaration isn’t a prototype
+include/linux/ext3_fs.h:735: error: syntax error before ‘*’ token
+include/linux/ext3_fs.h:736: warning: function declaration isn’t a prototype
+include/linux/ext3_fs.h:737: error: syntax error before ‘*’ token
+include/linux/ext3_fs.h:738: warning: function declaration isn’t a prototype
+include/linux/ext3_fs.h:765: error: syntax error before ‘*’ token
+include/linux/ext3_fs.h:765: warning: function declaration isn’t a prototype
+include/linux/ext3_fs.h:766: error: syntax error before ‘*’ token
+include/linux/ext3_fs.h:766: warning: function declaration isn’t a prototype
+include/linux/ext3_fs.h:775: error: syntax error before ‘*’ token
+include/linux/ext3_fs.h:775: warning: function declaration isn’t a prototype
+include/linux/ext3_fs.h:776: error: syntax error before ‘*’ token
+include/linux/ext3_fs.h:776: warning: function declaration isn’t a prototype
+include/linux/ext3_fs.h:777: error: syntax error before ‘*’ token
+include/linux/ext3_fs.h:777: warning: function declaration isn’t a prototype
+include/linux/ext3_fs.h:783: error: syntax error before ‘*’ token
+include/linux/ext3_fs.h:783: warning: function declaration isn’t a prototype
+include/linux/ext3_fs.h:797: error: syntax error before ‘*’ token
+include/linux/ext3_fs.h:797: warning: function declaration isn’t a prototype
+include/linux/ext3_fs.h:798: error: syntax error before ‘*’ token
+include/linux/ext3_fs.h:798: warning: function declaration isn’t a prototype
+In file included from fs/compat_ioctl.c:52,
 
-This patch requirer the 
-"net-fix-compiler-error-on-dgrsc-when-config_pci.patch" (added to the 
--mm tree after 2.6.15-rc1-mm2):
-
---- devel/drivers/net/dgrs.c~net-fix-compiler-error-on-dgrsc-when-config_pci	2005-11-19 18:00:34.000000000 -0800
-+++ devel-akpm/drivers/net/dgrs.c	2005-11-19 18:00:34.000000000 -0800
-@@ -1458,6 +1458,8 @@ static struct pci_driver dgrs_pci_driver
- 	.probe = dgrs_pci_probe,
- 	.remove = __devexit_p(dgrs_pci_remove),
- };
-+#else
-+static struct pci_driver dgrs_pci_driver = {};
- #endif
- 
- 
-
-Signed-off-by: Richard Knutsson <ricknu-0@student.ltu.se>
----
-
-diff -Narup a/drivers/net/dgrs.c b/drivers/net/dgrs.c
---- a/drivers/net/dgrs.c	2005-11-21 11:25:29.000000000 +0100
-+++ b/drivers/net/dgrs.c	2005-11-21 11:38:33.000000000 +0100
-@@ -1522,6 +1522,26 @@ static struct eisa_driver dgrs_eisa_driv
- 		.remove = __devexit_p(dgrs_eisa_remove),
- 	}
- };
-+
-+
-+static inline int dgrs_register_eisa(void)
-+{
-+	return eisa_driver_register(&dgrs_eisa_driver);
-+}
-+
-+static inline void dgrs_unregister_eisa(void)
-+{
-+	eisa_driver_unregister(&dgrs_eisa_driver);
-+}
-+
-+#else
-+
-+static inline int dgrs_register_eisa(void)
-+{
-+	return 0;
-+}
-+
-+static inline void dgrs_unregister_eisa(void) {}
- #endif
- 
- /*
-@@ -1551,7 +1571,7 @@ MODULE_PARM_DESC(nicmode, "Digi RightSwi
- static int __init dgrs_init_module (void)
- {
- 	int	i;
--	int	cardcount = 0;
-+	int	cardcount;
- 
- 	/*
- 	 *	Command line variable overrides
-@@ -1592,25 +1612,23 @@ static int __init dgrs_init_module (void
- 	/*
- 	 *	Find and configure all the cards
- 	 */
--#ifdef CONFIG_EISA
--	cardcount = eisa_driver_register(&dgrs_eisa_driver);
-+
-+	cardcount = dgrs_register_eisa();
- 	if (cardcount < 0)
- 		return cardcount;
--#endif
-+
- 	cardcount = pci_register_driver(&dgrs_pci_driver);
--	if (cardcount)
-+	if (cardcount < 0) {
-+		dgrs_unregister_eisa();
- 		return cardcount;
-+	}
- 	return 0;
- }
- 
- static void __exit dgrs_cleanup_module (void)
- {
--#ifdef CONFIG_EISA
--	eisa_driver_unregister (&dgrs_eisa_driver);
--#endif
--#ifdef CONFIG_PCI
-+	dgrs_unregister_eisa();
- 	pci_unregister_driver (&dgrs_pci_driver);
--#endif
- }
- 
- module_init(dgrs_init_module);
-
-
+Regards
+Sid.
+-- 
+Sid Boyce ... Hamradio License G3VBV, licensed Private Pilot
+Retired IBM/Amdahl Mainframes and Sun/Fujitsu Servers Tech Support 
+Specialist
+Microsoft Windows Free Zone - Linux used for all Computing Tasks

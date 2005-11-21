@@ -1,32 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbVKUI4k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbVKUJL7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932235AbVKUI4k (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 03:56:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbVKUI4k
+	id S932237AbVKUJL7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 04:11:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbVKUJL7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 03:56:40 -0500
-Received: from [198.65.155.216] ([198.65.155.216]:34823 "EHLO
-	mail.islamonline.net") by vger.kernel.org with ESMTP
-	id S932235AbVKUI4j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 03:56:39 -0500
-Date: Mon, 21 Nov 2005 03:56:16 -0500
-From: ben <benegobia@islamonline.net>
-Subject: from Ben
-Message-ID: <0e3791c320afc53dd4c7d47d7897dd4a@islamonline.net>
-X-Mailer: IslamOnline.net 
-X-Originating-IP: 196.3.62.4
+	Mon, 21 Nov 2005 04:11:59 -0500
+Received: from mail13.syd.optusnet.com.au ([211.29.132.194]:33211 "EHLO
+	mail13.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932237AbVKUJL6 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 04:11:58 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Daniel =?iso-8859-1?q?Marjam=E4ki?= <daniel.marjamaki@comhem.se>
+Subject: Re: I made a patch and would like feedback/testers (drivers/cdrom/aztcd.c)
+Date: Mon, 21 Nov 2005 20:11:47 +1100
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org
+References: <5aZsv-3CJ-17@gated-at.bofh.it> <200511211919.11429.kernel@kolivas.org> <43818880.8080800@comhem.se>
+In-Reply-To: <43818880.8080800@comhem.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="windows-1256"
-Content-Transfer-Encoding: 8bit
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200511212011.48122.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Attn Sir/Madam,
+On Mon, 21 Nov 2005 19:42, Daniel Marjamäki wrote:
+> Con Kolivas wrote:
+> > Convention in the kernel would be
+> > 	aztTimeOut =  HZ / 100 ? : 1;
+> > to be at least one tick (works for HZ even below 100) and is at least
+> > 10ms. If you wanted 2 ms then use
+> > 	aztTimeOut =  HZ / 500 ? : 1;
+> > which would give you at least 2ms
+>
+> Thank you Con for the feedback.
+>
+> Hmm.. The minimum value should be 2, right?
+> Otherwise the loop could time out after only a few nanoseconds.. since the
+> loop will then timeout immediately on a clock tick. Or am I wrong?
 
-My name is Ben Egobia, i am the managing director of Prudent Bank PLC  here in Nigeria, on 20th Novmber 2004 MR. Haryanto Tomo from  indonesia, deposited the sum of U$10million dollars with our bank here in Nigeria, up till then i did not hear from him not untill when i received a news that there was a tsunami in asia that killed thousands of  indonesians, including one of nigerian Prudent bank customer, Mr.Haryanto.
- 
-Right now i am contacting you to know if you can help me to receive the money over there as his relatives or next of kin, since all my effort to locate his family with the telephone number he gave me (62853700612) proved nothing, if you are willing to do this deal, you should not in any reason tell anybody about this transaction untill you confirm the money in your account/home, because all we need is to get the document of  (change of onwership account from the federal high court) on your behalf. Always call me on my direct line+ 234-80-2433-6966 for  security reasons or email me on:  ben123451@indiatimes.com
-               
-Waiting for your call now
-Ben Egobia
+ 	aztTimeOut =  HZ / 500 ? : 1;
+Would give you a 2ms timeout on 1000Hz and 500Hz
+It would give you 5ms on 250Hz and 10ms on 100Hz
+
+ie the absolute minimum it would be would be 2ms, but it would always be at 
+least one timer tick which is longer than 2ms at low HZ values.
+
+Cheers,
+Con

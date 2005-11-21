@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbVKUWRh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbVKUWSq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751166AbVKUWRh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 17:17:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbVKUWRh
+	id S1751164AbVKUWSq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 17:18:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbVKUWSq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 17:17:37 -0500
-Received: from zproxy.gmail.com ([64.233.162.194]:30612 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751166AbVKUWRf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 17:17:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=O9Ygi3oE9BZqI15MsLRb+2AqfhtUSDjVe/FCrL3B9LdvdQ54MK6Q2biCao3t8uzr8UDCwijD0JNsq04QlXkE1KGP4fJ1gZjHK5pGBxXRlY+RS4AhTeCVGztA+0d5wOVkDxOj0ZsThHwXJJEY8KO9C5OmOj/EDzy8vYa+nyRn14w=
-Message-ID: <86802c440511211417h737474fbt57946f4f2396b701@mail.gmail.com>
-Date: Mon, 21 Nov 2005 14:17:35 -0800
-From: yhlu <yhlu.kernel@gmail.com>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: x86_64: apic id lift patch
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org, linuxbios@openbios.org
-In-Reply-To: <20051121220605.GD20775@brahms.suse.de>
+	Mon, 21 Nov 2005 17:18:46 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:59562 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751164AbVKUWSp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 17:18:45 -0500
+Date: Mon, 21 Nov 2005 14:18:16 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>,
+       Ian Molton <spyro@f2s.com>, Paul Mackerras <paulus@samba.org>
+Subject: Re: [PATCH 4/5] Centralise NO_IRQ definition
+In-Reply-To: <1132609994.26560.39.camel@gaston>
+Message-ID: <Pine.LNX.4.64.0511211413390.13959@g5.osdl.org>
+References: <E1Ee0G0-0004CN-Az@localhost.localdomain> 
+ <24299.1132571556@warthog.cambridge.redhat.com>  <20051121121454.GA1598@parisc-linux.org>
+  <Pine.LNX.4.64.0511211047260.13959@g5.osdl.org>  <20051121190632.GG1598@parisc-linux.org>
+  <Pine.LNX.4.64.0511211124190.13959@g5.osdl.org>  <20051121194348.GH1598@parisc-linux.org>
+  <Pine.LNX.4.64.0511211150040.13959@g5.osdl.org>  <1132607776.26560.23.camel@gaston>
+  <Pine.LNX.4.64.0511211336440.13959@g5.osdl.org> <1132609994.26560.39.camel@gaston>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <86802c440511211349t6a0a9d30i60e15fa23b86c49d@mail.gmail.com>
-	 <20051121220605.GD20775@brahms.suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Can you please explain clearly:
->
-> - What are you changing.
-1.  use core_vir instead of x86_max_cores, for E0 later single core,
-core_vir could be 2, and x86_max_cores still is 1. So it makes node
-calculation right.
-2. not assuming that lifted apic id is continous. We can get exact
-node id and core id from initial apicid.
-> - What was the problem with the old behaviour
-1. for E0 single core, node 2, initial apicid is 4, and old cold will
-get node=4 instead of 2.
-2. if the lifted apicid is not continous, it will assign strange node
-id to the cpu.
-> - Why that particular change
-1. We can get exact node id and core id from initial apicid for E0 later.
-> - Why can't that APIC number setup not be done by the BIOS itself
-1. That patch the code more generic. and don't assume the lifted
-apicid is continous.
 
-Thanks
 
-YH
+On Tue, 22 Nov 2005, Benjamin Herrenschmidt wrote:
+> 
+> And ? I really don't agree that just because 0 "looks kewl", we should
+> enforce that and add some dodgy remapping all over the place.
+
+That's not at all what I'm saying.
+
+THE "BAD IRQ" MAPPING IS REQUIRED REGARDLESS.
+
+If we make PCI_NO_IRQ be -1, then PC's need to remap 0 to that value. In 
+pretty much _exactly_ the same places that I suggest that the ppc code 
+should do it.
+
+And there are several thousand times more PC's than there are other 
+things.
+
+Got it?
+
+Everybody who argues for PCI_NO_IRQ being -1 is arguing for all the same 
+things I argue that the ppc port should do, except they _also_ argue that 
+we should break now-working setups.
+
+Is that so hard to understand? -1 is no different from 0, except it is in 
+many way sprovably _inferior_. Both need some mapping. But the -1 case 
+needs more of it, _and_ will result in a inferior end result (because the 
+nice "!dev->pci" thing suddenly doesn't work).
+
+See? You're arguing for a technically inferior solution. 
+
+		Linus

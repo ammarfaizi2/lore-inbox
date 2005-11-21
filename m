@@ -1,75 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbVKUQPD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbVKUQPz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932365AbVKUQPD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 11:15:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932362AbVKUQPB
+	id S932362AbVKUQPz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 11:15:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbVKUQPz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 11:15:01 -0500
-Received: from hera.kernel.org ([140.211.167.34]:50057 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932351AbVKUQPA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 11:15:00 -0500
-Date: Mon, 21 Nov 2005 08:49:50 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Rob Landley <rob@landley.net>, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] skip initramfs check
-Message-ID: <20051121104950.GA26480@logos.cnet>
-References: <20051117141432.GD9753@logos.cnet> <200511210130.55774.rob@landley.net> <20051121062350.GA24381@logos.cnet> <200511210904.46495.rob@landley.net> <20051121155050.GK31287@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 21 Nov 2005 11:15:55 -0500
+Received: from xproxy.gmail.com ([66.249.82.202]:36767 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932362AbVKUQPy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 11:15:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=DdagaO9PcWBrowI2O9MtxseL68OCmmuwCNmxfWrLxyvwbhe/apacN5rOezOBl0KhHYrjd6zqtYcte3Ozy9eV+gZhdc8AFy/LqODS7QE0Gikl0Q5vYGJTTdxcOCiyIZwpndZGQmMbsxLisZBFNre5mYhBt6LYDbR3Yi+YIHXlyMo=
+Message-ID: <afcef88a0511210815o160f4a8k772d2cf3954c6602@mail.gmail.com>
+Date: Mon, 21 Nov 2005 10:15:53 -0600
+From: Michael Thompson <michael.craig.thompson@gmail.com>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: Re: [PATCH 6/12: eCryptfs] Superblock operations
+Cc: Phillip Hellewell <phillip@hellewell.homeip.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       viro@ftp.linux.org.uk, mike@halcrow.us, mhalcrow@us.ibm.com,
+       mcthomps@us.ibm.com, yoder1@us.ibm.com
+In-Reply-To: <afcef88a0511210813i5a5f4382k1b5e876fbbb9a931@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051121155050.GK31287@waste.org>
-User-Agent: Mutt/1.5.5.1i
+References: <20051119041130.GA15559@sshock.rn.byu.edu>
+	 <20051119041910.GF15747@sshock.rn.byu.edu>
+	 <84144f020511190250x2efdbfb4vf33245b3f7216fe5@mail.gmail.com>
+	 <afcef88a0511210757y4fdb8c57w221b0fc9e7ee3ee4@mail.gmail.com>
+	 <1132588916.8487.3.camel@localhost>
+	 <afcef88a0511210813i5a5f4382k1b5e876fbbb9a931@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 21, 2005 at 07:50:50AM -0800, Matt Mackall wrote:
-> On Mon, Nov 21, 2005 at 09:04:46AM -0600, Rob Landley wrote:
-> > On Monday 21 November 2005 00:23, Marcelo Tosatti wrote:
-> > > Hi Rob,
-> > > > Query: is the problem that a big initramfs image is being unpacked more
-> > > > than once, or is unpacking an empty initramfs image (134 bytes) causing a
-> > > > significant delay?
-> > >
-> > > The problem is a big non-initramfs RAMDISK image (used for root mountpoint
-> > > on this particular embedded platform), that is decompressed more than once:
-> > >
-> > > - during the initramfs check, which fails because it is not initramfs.
-> > > - during the real RAMDISK decompression to memory.
-> > >
-> > > > I'm fairly certain that back in 1990 I could unzip 134 bytes on my 33 mhz
-> > > > 386 running dos in a fraction of a second.  What's the use case here?
-> > >
-> > > So the issue is not the empty initramfs image (which BTW could probably
-> > > be made unecessary?), but a 10Mb RAMDISK image being decompressed by a
-> > > 48Mhz PPC, which takes quite a few seconds.
-> > >
-> > > Need to rework the patch to use a __setup option as Andrew suggested.
-> > 
-> > It sounds to me like is the initial check (which is just giving a thumbs 
-> > up/thumbs down "is this an initramfs", correct?) only needs to decompress the 
-> > first page or so of data to make this determination.  A quick glance at the 
-> > code seems to imply it's just checking the header and the first entry, so 4k 
-> > should be plenty for that.
-> > 
-> > Some variant of lib/zlib_inflate...  Ouch, bit of a mess there.  Hey Matt: you 
-> > know this area.  Is it feasible to do some kind of:
-> > 
-> > deflate_init(whatever)
-> > deflate_next_x_bytes(source *, dest *, length)
-> > 
-> > To grab a the first X bytes from the initramfs image?
-> 
-> Not at the moment. But I think it is feasible to simply move the ramdisk
-> detection and unpacking inside the ramfs state machine. In other
-> words, add two new states:
-> 
-> - detecting type
-> - unpacking ramdisk
-> 
-> When the first few bytes are fed from the decompressor to the state
-> machine, we either transition to the normal ramfs unpacking or we
-> treat it as a ramdisk.
+On 11/21/05, Michael Thompson <michael.craig.thompson@gmail.com> wrote:
+> On 11/21/05, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
+> > Hi,
+> >
+> > On 11/19/05, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
+> > > > > +/**
+> > > > > + * This is called through iput_final().
+> > > > > + * This is function will replace generic_drop_inode. The end result of which
+> > > > > + * is we are skipping the check in inode->i_nlink, which we do not use.
+> > > > > + */
+> > > > > +static void ecryptfs_drop_inode(struct inode *inode) {
+> > > > > +       generic_delete_inode(inode);
+> > > > > +}
+> > > >
+> > > > Please drop this useless wrapper and introduce it when it actually
+> > > > does something.
+> >
+> > On Mon, 2005-11-21 at 09:57 -0600, Michael Thompson wrote:
+> > > I don't see a problem with doing that, but perhaps there is? Please
+> > > elaborate if so.
+> >
+> > You can set ecryptfs_sops->drop_inode to generic_delete_inode directly,
+> > no?
+>
+> Yes, I do believe I could do that and save a function call. My mind is
+> wobbely today.
 
-Yes that would be ideal. 
+Very wobbley, can't even spell right. Is this an acceptable solution?
+I didn't even bother to ask that ;)
+
+>
+> >
+> >                         Pekka
+> >
+> >
+>
+>
+> --
+> Michael C. Thompson <mcthomps@us.ibm.com>
+> Software-Engineer, IBM LTC Security
+>
+
+
+--
+Michael C. Thompson <mcthomps@us.ibm.com>
+Software-Engineer, IBM LTC Security

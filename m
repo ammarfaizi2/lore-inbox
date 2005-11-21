@@ -1,67 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbVKTX6e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbVKUAAG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbVKTX6e (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 18:58:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbVKTX6e
+	id S932115AbVKUAAG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 19:00:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbVKUAAF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 18:58:34 -0500
-Received: from vms042pub.verizon.net ([206.46.252.42]:37412 "EHLO
-	vms042pub.verizon.net") by vger.kernel.org with ESMTP
-	id S932136AbVKTX6d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 18:58:33 -0500
-Date: Sun, 20 Nov 2005 18:58:32 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Linux 2.6.15-rc2
-In-reply-to: <1132526214.15938.5.camel@localhost>
-To: linux-kernel@vger.kernel.org
-Message-id: <200511201858.32171.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org>
- <200511200018.11791.gene.heskett@verizon.net>
- <1132526214.15938.5.camel@localhost>
-User-Agent: KMail/1.7
+	Sun, 20 Nov 2005 19:00:05 -0500
+Received: from zproxy.gmail.com ([64.233.162.205]:19032 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932115AbVKUAAC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 19:00:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=O9rEv+G/1uNoeX853xsqpsg5MziLhAlXeHEsfQ7PDdskWxh2DDnn+JTsRFFd3yz0+uzdCXxOWH+2eSij7zuBAceMJhSPOGscSqE0FtRy8P3QQN/L2HDxCkQcqDsBOvQiz/umEep9lakqha7bbvtb5CkeoZiiyhNWAyp8bmSf2LE=
+Message-ID: <cbec11ac0511201600r6f819e3vf063041e068bf848@mail.gmail.com>
+Date: Mon, 21 Nov 2005 13:00:02 +1300
+From: Ian McDonald <imcdnzl@gmail.com>
+To: Ed Tomlinson <tomlins@cam.org>
+Subject: Re: 2.6.15-rc1-mm1
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200511182224.10392.tomlins@cam.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051117111807.6d4b0535.akpm@osdl.org>
+	 <200511182024.33858.tomlins@cam.org>
+	 <20051119012632.GA28458@kroah.com>
+	 <200511182224.10392.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 20 November 2005 17:36, Kasper Sandberg wrote:
->On Sun, 2005-11-20 at 00:18 -0500, Gene Heskett wrote:
->> On Saturday 19 November 2005 22:40, Linus Torvalds wrote:
->> >There it is (or will soon be - the tar-ball and patches are still
->> >uploading, and mirroring can obviously take some time after that).
->>
->> First breakage report, tvtime, blue screen no audio.  Trying slightly
->> different .config for next build.  My tuner (OR51132) seems to be
->> permanently selected in an xconfig screen.  Dunno if thats good or
->> bad ATM.
+> It works with the _same_ user space in 2.6.14-rc4-mm1 and fails with 15-rc1-mm2...
+> This implies either something is broken in the kernel or udev is not doing its job with
+> the new (input?) changes.  Since I switched to udev this summer I have not had to load
+> many modules certainly not mousedev.
 >
->if it needs to be loaded with a parameter you will need to build it as
-> a module.. my saa7134 chip needs card=9.
+> I'll do a bit of experimenting this weekend to see if I cannot figure out more about what is
+> happening.
+>
+> Thanks for the help
+> Ed
+>
+I would suggest using git-bisect to find the problem - I do know that
+the problem was/is in Linus Torvalds tree. It was fine around 2.6.13
+timeframe and broke sometime after this. I find git-bisect very
+powerful for testing these types of bugs.
 
-Its never needed an argument before.
+I was going to test myself in this way but the machine which
+experienced the problem caught fire!! I know this sounds like the dog
+ate my homework but unfortunately it was true and it was a machine I
+borrowed too....
 
->i am experiencing same problems with saa7134, no video, however i do
-> get audio.
-
-I wasn't, total digital gibberish on screen.
-
-A full powerdown reboot to 2.6.14.2 fixed it.
-
->this is a way to (incorrectly according to v4l devs) "fix" it:
->drivers/media/video/video-buf.c
->change line 1233 to this:
->        vma->vm_flags |= VM_DONTEXPAND;
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.36% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
-
+Ian
+--
+Ian McDonald
+http://wand.net.nz/~iam4
+WAND Network Research Group
+University of Waikato
+New Zealand

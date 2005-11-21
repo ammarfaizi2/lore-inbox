@@ -1,74 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbVKUP66@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbVKUP6e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932342AbVKUP66 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 10:58:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbVKUP66
+	id S932340AbVKUP6e (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 10:58:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbVKUP6e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 10:58:58 -0500
-Received: from gw1.cosmosbay.com ([62.23.185.226]:9649 "EHLO gw1.cosmosbay.com")
-	by vger.kernel.org with ESMTP id S932342AbVKUP65 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 10:58:57 -0500
-Message-ID: <4381EE9D.1000506@cosmosbay.com>
-Date: Mon, 21 Nov 2005 16:58:21 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
+	Mon, 21 Nov 2005 10:58:34 -0500
+Received: from xproxy.gmail.com ([66.249.82.194]:45331 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932337AbVKUP6d convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 10:58:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=puRphmyrt3BJKlFtvxhjxCUIhkBZo0FWLu/iKj6ihB70WGh74gHbMiJbMDz/2Jmpnf7WcuW8gIWh01abqqPbNWxKTxf6DNJj3ou+lBpxzWs080s+yMbRZ/U/vFU0cPcl0Mya20/51kCTraUUAwhRI2quhAZkbipOJYk7O/ak/2c=
+Message-ID: <afcef88a0511210758t1a898933g9ebae1bbe3a29cca@mail.gmail.com>
+Date: Mon, 21 Nov 2005 09:58:31 -0600
+From: Michael Thompson <michael.craig.thompson@gmail.com>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: Re: [PATCH 7/12: eCryptfs] File operations
+Cc: Phillip Hellewell <phillip@hellewell.homeip.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       viro@ftp.linux.org.uk, mike@halcrow.us, mhalcrow@us.ibm.com,
+       mcthomps@us.ibm.com, yoder1@us.ibm.com
+In-Reply-To: <84144f020511190253p5f689346u8729bce45bd7df5@mail.gmail.com>
 MIME-Version: 1.0
-To: Pekka J Enberg <penberg@cs.Helsinki.FI>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org, manfred@colorfullife.com,
-       christoph@lameter.com
-Subject: Re: [PATCH] slab: minor cleanup to kmem_cache_alloc_node
-References: <Pine.LNX.4.58.0511211627460.18869@sbz-30.cs.Helsinki.FI>
-In-Reply-To: <Pine.LNX.4.58.0511211627460.18869@sbz-30.cs.Helsinki.FI>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Mon, 21 Nov 2005 16:58:21 +0100 (CET)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051119041130.GA15559@sshock.rn.byu.edu>
+	 <20051119042029.GG15747@sshock.rn.byu.edu>
+	 <84144f020511190253p5f689346u8729bce45bd7df5@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka J Enberg a écrit :
-> This patch gets rid of one if-else statement by moving current node allocation
-> check at the beginning of kmem_cache_alloc_node().
-> 
+On 11/19/05, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
+> On 11/19/05, Phillip Hellewell <phillip@hellewell.homeip.net> wrote:
+> > +/**
+> > + * Opens the file specified by inode.
+> > + *
+> > + * @param inode        inode speciying file to open
+> > + * @param file Structure to return filled in
+> > + * @return Zero on success; non-zero otherwise
+> > + */
+>
+> General comment: please use the kerneldoc format properly or don't use
+> kerneldoc at all.
 
-Are you sure this is valid ?
-What about preemption ?
-The "if (nodeid == numa_node_id())" check was done with IRQ off, and you want 
-do do it with IRQ on.
+OK, this will be fixed for the next submission.
 
-> Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
-> ---
-> 
->  slab.c |    7 ++-----
->  1 file changed, 2 insertions(+), 5 deletions(-)
-> 
-> diff --git a/mm/slab.c b/mm/slab.c
-> index 7f80ec3..a05bbfe 100644
-> --- a/mm/slab.c
-> +++ b/mm/slab.c
-> @@ -2881,7 +2881,7 @@ void *kmem_cache_alloc_node(kmem_cache_t
->  	unsigned long save_flags;
->  	void *ptr;
->  
-> -	if (nodeid == -1)
-> +	if (nodeid == -1 || nodeid == numa_node_id())
+>
+>                              Pekka
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 
-<Imagine preemption here, and thread migrated to another NUMA node.>
 
->  		return __cache_alloc(cachep, flags);
->  
->  	if (unlikely(!cachep->nodelists[nodeid])) {
-> @@ -2892,10 +2892,7 @@ void *kmem_cache_alloc_node(kmem_cache_t
->  
->  	cache_alloc_debugcheck_before(cachep, flags);
->  	local_irq_save(save_flags);
-> -	if (nodeid == numa_node_id())
-> -		ptr = ____cache_alloc(cachep, flags);
-> -	else
-> -		ptr = __cache_alloc_node(cachep, flags, nodeid);
-> +	ptr = __cache_alloc_node(cachep, flags, nodeid);
->  	local_irq_restore(save_flags);
->  	ptr = cache_alloc_debugcheck_after(cachep, flags, ptr, __builtin_return_address(0));
->  
-
+--
+Michael C. Thompson <mcthomps@us.ibm.com>
+Software-Engineer, IBM LTC Security

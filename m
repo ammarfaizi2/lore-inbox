@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbVKUH6T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbVKUIJq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932203AbVKUH6T (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 02:58:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbVKUH6T
+	id S932215AbVKUIJq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 03:09:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbVKUIJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 02:58:19 -0500
-Received: from ihug-mail.icp-qv1-irony4.iinet.net.au ([203.59.1.198]:15546
-	"EHLO ihug-mail.icp-qv1-irony4.iinet.net.au") by vger.kernel.org
-	with ESMTP id S932203AbVKUH6S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 02:58:18 -0500
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-Message-ID: <43817E06.3040006@eyal.emu.id.au>
-Date: Mon, 21 Nov 2005 18:57:58 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+	Mon, 21 Nov 2005 03:09:46 -0500
+Received: from pne-smtpout1-sn2.hy.skanova.net ([81.228.8.83]:23946 "EHLO
+	pne-smtpout1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S932215AbVKUIJq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 03:09:46 -0500
+Message-ID: <438180C0.2030503@comhem.se>
+Date: Mon, 21 Nov 2005 09:09:36 +0100
+From: =?ISO-8859-1?Q?Daniel_Marjam=E4ki?= <daniel.marjamaki@comhem.se>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: list linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.14.2: repeated oops in i810 init
-References: <4380EB33.2060305@eyal.emu.id.au> <1132524526.22663.7.camel@mindpipe>
-In-Reply-To: <1132524526.22663.7.camel@mindpipe>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+CC: 7eggert@gmx.de, nish.aravamudan@gmail.com
+Subject: Re: I made a patch and would like feedback/testers (drivers/cdrom/aztcd.c)
+References: <5aZsv-3CJ-17@gated-at.bofh.it> <E1EdwGs-0000qv-NL@be1.lrz>
+In-Reply-To: <E1EdwGs-0000qv-NL@be1.lrz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> On Mon, 2005-11-21 at 08:31 +1100, Eyal Lebedinsky wrote:
-> 
->>I had this happen to me about three times, I captured it twice
->>using serial console [see logs at the bottom].
-> 
-> 
-> Why would you use the old OSS driver?  It's scheduled to be removed from
-> the kernel anyway.  What's wrong with the ALSA driver?
 
-I know. It worked for me for about 10 years and I had no need to fix it
-as it never broke. I know that soon it will be and I will have to figure
-ALSA then.
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+Bodo Eggert wrote:
+> Daniel Marjamäki <daniel.marjamaki@comhem.se> wrote:
+> 
+> 
+>>-     aztTimeOutCount = 0;
+>>+     aztTimeOut = jiffies + 2;
+> 
+> 
+> Different timeout based on HZ seems wrong.
+
+Yes, but..
+
+If I'd say "HZ/100", then all systems that uses my driver must have HZ>=200.
+
+The way I do it:
+All systems will give me a delay for at least a few ms.
+I get the shortest timeout possible on each computer.
+
+
+

@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750996AbVKUVk1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751075AbVKUVls@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750996AbVKUVk1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 16:40:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751047AbVKUVk0
+	id S1751075AbVKUVls (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 16:41:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751069AbVKUVlr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 16:40:26 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:46997 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750996AbVKUVkZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 16:40:25 -0500
-Subject: Re: virtual OSS devices [for making selfish apps happy]
-From: Lee Revell <rlrevell@joe-job.com>
-To: Christian Parpart <trapni@gentoo.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200511212216.10837.trapni@gentoo.org>
-References: <200511212216.10837.trapni@gentoo.org>
-Content-Type: text/plain
-Date: Mon, 21 Nov 2005 16:40:20 -0500
-Message-Id: <1132609221.29178.93.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Nov 2005 16:41:47 -0500
+Received: from mail24.sea5.speakeasy.net ([69.17.117.26]:22752 "EHLO
+	mail24.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1751073AbVKUVlq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 16:41:46 -0500
+Date: Mon, 21 Nov 2005 16:41:50 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@excalibur.intercode
+To: Michael Halcrow <lkml@halcrow.us>
+cc: Andrew Morton <akpm@osdl.org>,
+       Phillip Hellewell <phillip@hellewell.homeip.net>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       viro@ftp.linux.org.uk, mhalcrow@us.ibm.com, mcthomps@us.ibm.com,
+       yoder1@us.ibm.com
+Subject: Re: [PATCH 0/12: eCryptfs] eCryptfs version 0.1
+In-Reply-To: <20051121202825.GA17946@halcrow.us>
+Message-ID: <Pine.LNX.4.63.0511211631140.479@excalibur.intercode>
+References: <20051119041130.GA15559@sshock.rn.byu.edu> <20051118221659.64515ac0.akpm@osdl.org>
+ <20051121202825.GA17946@halcrow.us>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-11-21 at 22:16 +0100, Christian Parpart wrote:
-> Hi all,
-> 
-> I'm having some apps running on my desktop that all want
-> exclusive access to my sound device just for playing audio
-> (and a single app for capturing), namely:
-> 
->  * TeamSpeak (VoIP team voice chat)
->  * Cedega (for playing some win32 games on my beloved box)
->  * KDE/arts (my desktop wants to play some sounds as well wtf)
-> 
-> While I could easily disable my desktop sounds, and yeah, forget about the 
-> music, but I'd still like to be in TeamSpeak (talking to friends and alike) 
-> while playing a game using cedega.
-> 
-> Unfortunately, *all* those stupid (2) apps want exclusive access to the OSS 
-> layout of my ALSA drivers, though, there just came into my mind to buy a 
-> second audio device and wear a second headset (a little one below/under my 
-> big one). But I couldn't find it handy anyway :(
+On Mon, 21 Nov 2005, Michael Halcrow wrote:
 
-This problem is (mostly) solved already.  You have to use aoss (alsa-lib
-based OSS emulation) on top of dmix (software mixing for soundcards too
-lame to do it in hardware).  With a recent ALSA dmix is already used by
-default so the only change needed is to launch the OSS apps with the
-aoss wrapper e.g. aoss ./foo-oss-app.  Since it's not completely
-transparent this problem will have to be solved at the distro level, by
-making sure all OSS apps are run with this wrapper.
+> I think you brought up two categories of potential security
+> vulnerabilities.
 
-This method should only be needed for closed source apps, an open source
-app like artsd should be ported to use the ALSA API.
+> The first has to do with the theoretical security of
+> the algorithms -- do the encrypted files really have the attribute
+> such that decrypting the files without the proper key is
+> computationally infeasible? This is the job for the cryptographers to
+> confront.
+> 
+> The other category has to do with ``exploits''; I assume you are
+> talking about -- for instance -- malicious files that are able to
+> circumvent the intended behavior of the code. Such vulnerabilities may
+> coerce the filesystem to dump the secret key out to an insecure
+> location. This is an extension of the general ``correctness'' problem
+> that can be an issue with any code. I would say that this is the job
+> of the engineers to help prevent. It basically involves verification
+> that eCryptfs is handling all of its memory correctly (i.e., via data
+> and control flow analysis).
 
-Lee
+There's a third important category: the design of the _system_.
 
+(Which you end up discussing somewhat further in the email).
+
+It would be great to have a document which describes the design of the 
+system and includes a comprehensive security analysis.
+
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>

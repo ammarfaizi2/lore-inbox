@@ -1,75 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbVKUPID@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbVKUPIh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932318AbVKUPID (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 10:08:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932319AbVKUPID
+	id S932323AbVKUPIh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 10:08:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932319AbVKUPIh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 10:08:03 -0500
-Received: from zproxy.gmail.com ([64.233.162.192]:6763 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932318AbVKUPIC convert rfc822-to-8bit
+	Mon, 21 Nov 2005 10:08:37 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:6748 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S932326AbVKUPIg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 10:08:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JgNXkbYWpjXGMMRAon3vCnfa6xw6w0SoonmFPQs1aOCGDJQIiV43BXIThhVGci/XzUhP7O7ne6O24dbmXYd7yAbnomzRgrOkamJL8sq1BtMiby+63RSUrou3MfTCSwtyZsmD3+ucnKZkX0Gt79wlfmS5ux0VITilTnKZFDchG7o=
-Message-ID: <29495f1d0511210708t380b7ff7ic6759d59927c12d1@mail.gmail.com>
-Date: Mon, 21 Nov 2005 07:08:01 -0800
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: I made a patch and would like feedback/testers (drivers/cdrom/aztcd.c)
-Cc: Con Kolivas <kernel@kolivas.org>,
-       =?ISO-8859-1?Q?Daniel_Marjam=E4ki?= <daniel.marjamaki@comhem.se>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <4381A5D7.3020307@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <5aZsv-3CJ-17@gated-at.bofh.it>
-	 <200511211919.11429.kernel@kolivas.org> <43818880.8080800@comhem.se>
-	 <200511212011.48122.kernel@kolivas.org>
-	 <4381A5D7.3020307@yahoo.com.au>
+	Mon, 21 Nov 2005 10:08:36 -0500
+Subject: Re: what is our answer to ZFS?
+From: Kasper Sandberg <lkml@metanurb.dk>
+To: Matthias Andree <matthias.andree@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051121144150.GA10189@merlin.emma.line.org>
+References: <11b141710511210144h666d2edfi@mail.gmail.com>
+	 <20051121095915.83230.qmail@web36406.mail.mud.yahoo.com>
+	 <20051121101959.GB13927@wohnheim.fh-wedel.de>
+	 <20051121114654.GA25180@merlin.emma.line.org>
+	 <1132574831.15938.14.camel@localhost>
+	 <20051121131832.GB26068@merlin.emma.line.org>
+	 <1132582713.15938.22.camel@localhost>
+	 <20051121144150.GA10189@merlin.emma.line.org>
+Content-Type: text/plain
+Date: Mon, 21 Nov 2005 16:08:30 +0100
+Message-Id: <1132585711.15938.28.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/21/05, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> Con Kolivas wrote:
-> > On Mon, 21 Nov 2005 19:42, Daniel Marjamäki wrote:
->
-> >>Hmm.. The minimum value should be 2, right?
-> >>Otherwise the loop could time out after only a few nanoseconds.. since the
-> >>loop will then timeout immediately on a clock tick. Or am I wrong?
-> >
-> >
-> >       aztTimeOut =  HZ / 500 ? : 1;
-> > Would give you a 2ms timeout on 1000Hz and 500Hz
-> > It would give you 5ms on 250Hz and 10ms on 100Hz
-> >
-> > ie the absolute minimum it would be would be 2ms, but it would always be at
-> > least one timer tick which is longer than 2ms at low HZ values.
-> >
->
-> Not true. From 'now', the next timer interrupt is somewhere
-> between epsilon and 1/HZ seconds away.
->
-> Luckily, time_after is < rather than <=, so your aztTimeOut would
-> actually make Daniel's code wait until a minimum of *two* timer
-> ticks have elapsed since reading jiffies. So it would manage to
-> scrape by the values of HZ you quoted.
->
-> OTOH, if HZ were between 500 and 1000, it would again be too short
-> due to truncation.
->
-> Better I think would be to use the proper interfaces for converting
-> msecs to jiffies:
->
->    aztTimeOut = jiffies + msecs_to_jiffies(2);
+On Mon, 2005-11-21 at 15:41 +0100, Matthias Andree wrote:
+> On Mon, 21 Nov 2005, Kasper Sandberg wrote:
+> 
+> > > If the precondition is "adhere to CodingStyle or you don't get it in",
+> > > and the CodingStyle has been established for years, I have zero sympathy
+> > > with the maintainer if he's told "no, you didn't follow that well-known
+> > > style".
+> > 
+> > that was not the question, the question is if the code is in development
+> > phase or not (being stable or not), where agreed, its their own fault
+> > for not writing code which matches the kernel in coding style, however
+> > that doesent make it the least bit more unstable.
+> 
+> As mentioned, a file system cannot possibly be stable right after merge.
+> Having to change formatting is a sweeping change and certainly is a
+> barrier across which to look for auditing is all the more difficult.
+before reiser4 was changed alot, to match the codingstyle (agreed, they
+have to obey by the kernels codingstyle), it was stable, so had it been
+merged there it wouldnt have been any less stable.
 
-That's what I get for sleeping. Yes, Nick is right, don't do this
-conversion yourself, please, use the interfaces designed exactly to
-avoid any confusion / HZ-issues (and if those interfaces have
-limitations, as Willy discovered earlier, please fix them).
+> 
+> > > I have had, without hard shutdowns, problems with reiserfs, and
+> > > occasionally problems that couldn't be fixed easily. I have never had
+> > > such with ext3 on the same hardware.
+> > > 
+> > you wouldnt want to know what ext3 did to me, which reiserfs AND reiser4
+> > never did
+> 
+> OK, we have diametral experiences, and I'm not asking since I trust you
+> that I don't want to know, too :) Let's leave it at that.
+> 
+> > > I don't care what its name is. I am aware it is a rewrite, and that is
+> > > reason to be all the more chary about adopting it early. People believed
+> > > 3.5 to be stable, too, before someone tried NFS...
+> 
+> > nfs works fine with reiser4. you are judging reiser4 by the problems
+> > reiserfs had.
+> 
+> Of course I do, same project lead, and probably many of the same
+> developers. While they may (and probably will) learn from mistakes,
+> changing style is more difficult - and that resulted in one of the major
+> non-acceptance reasons reiser4 suffered.
+> 
+> I won't subscribe to reiser4 specific topics before I've tried it, so
+> I'll quit. Same about ZFS by the way, it'll be fun some day to try on a
+> machine that it can trash at will, but for production, it will have to
+> prove itself first. After all, Sun are still fixing ufs and/or logging
+> bugs in Solaris 8. (And that's good, they still fix things, and it also
+> shows how long it takes to really get a file system stable.)
+> 
+> > i have had less trouble by using the reiser4 patches before even hans
+> > considered it stable than i had by using ext3.
+> 
+> Lucky you. I haven't dared try it yet for lack of a test computer to
+> trash.
+i too was reluctant, i ended up using it for the things i REALLY dont
+want to loose.
+> 
+> > there is quite a big difference between stuff like submount and the
+> > filesystem itself.. and as you pointed out, reiserfs in the beginning
+> > was a disappointment, do you seriously think they are willing to take
+> > the chance again?
+> 
+> I thing naught about what they're going to put at stake. reiserfs 3 was
+> an utter failure for me. It was raved about, hyped, and the bottom line
+> was wasted time and a major disappointment.
+> 
+> > > Yup. So the test and fix cycles that were needed for reiserfs 3.5 and
+> > > 3.6 will start all over. I hope the Namesys guys were to clueful as to
+> > > run all  their reiserfs 3.X regression tests against 4.X with all
+> > > plugins and switches, too.
+> > you will find that reiser4 is actually very very good.
+> 
+> I haven't asked what I'd find, because I'm not searching. And I might
+> find something else than you did - perhaps because you've picked up all
+> the good things already when I'll finally go there ;-)
+> 
 
-Thanks,
-Nish

@@ -1,58 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932312AbVKUOa1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbVKUOl6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932312AbVKUOa1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 09:30:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbVKUOa0
+	id S932315AbVKUOl6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 09:41:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbVKUOl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 09:30:26 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:387 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932312AbVKUOa0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 09:30:26 -0500
-Date: Mon, 21 Nov 2005 16:30:07 +0200 (EET)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, manfred@colorfullife.com,
-       christoph@lameter.com
-Subject: [PATCH] slab: minor cleanup to kmem_cache_alloc_node
-Message-ID: <Pine.LNX.4.58.0511211627460.18869@sbz-30.cs.Helsinki.FI>
-Mime-Version: 1.0
+	Mon, 21 Nov 2005 09:41:57 -0500
+Received: from krusty.dt.E-Technik.uni-dortmund.de ([129.217.163.1]:41677 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S932315AbVKUOl4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 09:41:56 -0500
+Date: Mon, 21 Nov 2005 15:41:50 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: what is our answer to ZFS?
+Message-ID: <20051121144150.GA10189@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <11b141710511210144h666d2edfi@mail.gmail.com> <20051121095915.83230.qmail@web36406.mail.mud.yahoo.com> <20051121101959.GB13927@wohnheim.fh-wedel.de> <20051121114654.GA25180@merlin.emma.line.org> <1132574831.15938.14.camel@localhost> <20051121131832.GB26068@merlin.emma.line.org> <1132582713.15938.22.camel@localhost>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1132582713.15938.22.camel@localhost>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch gets rid of one if-else statement by moving current node allocation
-check at the beginning of kmem_cache_alloc_node().
+On Mon, 21 Nov 2005, Kasper Sandberg wrote:
 
-Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
----
+> > If the precondition is "adhere to CodingStyle or you don't get it in",
+> > and the CodingStyle has been established for years, I have zero sympathy
+> > with the maintainer if he's told "no, you didn't follow that well-known
+> > style".
+> 
+> that was not the question, the question is if the code is in development
+> phase or not (being stable or not), where agreed, its their own fault
+> for not writing code which matches the kernel in coding style, however
+> that doesent make it the least bit more unstable.
 
- slab.c |    7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+As mentioned, a file system cannot possibly be stable right after merge.
+Having to change formatting is a sweeping change and certainly is a
+barrier across which to look for auditing is all the more difficult.
 
-diff --git a/mm/slab.c b/mm/slab.c
-index 7f80ec3..a05bbfe 100644
---- a/mm/slab.c
-+++ b/mm/slab.c
-@@ -2881,7 +2881,7 @@ void *kmem_cache_alloc_node(kmem_cache_t
- 	unsigned long save_flags;
- 	void *ptr;
- 
--	if (nodeid == -1)
-+	if (nodeid == -1 || nodeid == numa_node_id())
- 		return __cache_alloc(cachep, flags);
- 
- 	if (unlikely(!cachep->nodelists[nodeid])) {
-@@ -2892,10 +2892,7 @@ void *kmem_cache_alloc_node(kmem_cache_t
- 
- 	cache_alloc_debugcheck_before(cachep, flags);
- 	local_irq_save(save_flags);
--	if (nodeid == numa_node_id())
--		ptr = ____cache_alloc(cachep, flags);
--	else
--		ptr = __cache_alloc_node(cachep, flags, nodeid);
-+	ptr = __cache_alloc_node(cachep, flags, nodeid);
- 	local_irq_restore(save_flags);
- 	ptr = cache_alloc_debugcheck_after(cachep, flags, ptr, __builtin_return_address(0));
- 
+> > I have had, without hard shutdowns, problems with reiserfs, and
+> > occasionally problems that couldn't be fixed easily. I have never had
+> > such with ext3 on the same hardware.
+> > 
+> you wouldnt want to know what ext3 did to me, which reiserfs AND reiser4
+> never did
+
+OK, we have diametral experiences, and I'm not asking since I trust you
+that I don't want to know, too :) Let's leave it at that.
+
+> > I don't care what its name is. I am aware it is a rewrite, and that is
+> > reason to be all the more chary about adopting it early. People believed
+> > 3.5 to be stable, too, before someone tried NFS...
+
+> nfs works fine with reiser4. you are judging reiser4 by the problems
+> reiserfs had.
+
+Of course I do, same project lead, and probably many of the same
+developers. While they may (and probably will) learn from mistakes,
+changing style is more difficult - and that resulted in one of the major
+non-acceptance reasons reiser4 suffered.
+
+I won't subscribe to reiser4 specific topics before I've tried it, so
+I'll quit. Same about ZFS by the way, it'll be fun some day to try on a
+machine that it can trash at will, but for production, it will have to
+prove itself first. After all, Sun are still fixing ufs and/or logging
+bugs in Solaris 8. (And that's good, they still fix things, and it also
+shows how long it takes to really get a file system stable.)
+
+> i have had less trouble by using the reiser4 patches before even hans
+> considered it stable than i had by using ext3.
+
+Lucky you. I haven't dared try it yet for lack of a test computer to
+trash.
+
+> there is quite a big difference between stuff like submount and the
+> filesystem itself.. and as you pointed out, reiserfs in the beginning
+> was a disappointment, do you seriously think they are willing to take
+> the chance again?
+
+I thing naught about what they're going to put at stake. reiserfs 3 was
+an utter failure for me. It was raved about, hyped, and the bottom line
+was wasted time and a major disappointment.
+
+> > Yup. So the test and fix cycles that were needed for reiserfs 3.5 and
+> > 3.6 will start all over. I hope the Namesys guys were to clueful as to
+> > run all  their reiserfs 3.X regression tests against 4.X with all
+> > plugins and switches, too.
+> you will find that reiser4 is actually very very good.
+
+I haven't asked what I'd find, because I'm not searching. And I might
+find something else than you did - perhaps because you've picked up all
+the good things already when I'll finally go there ;-)
+
+-- 
+Matthias Andree

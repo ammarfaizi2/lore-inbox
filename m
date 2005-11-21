@@ -1,104 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbVKUNyb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbVKUOM6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932127AbVKUNyb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 08:54:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbVKUNyb
+	id S932218AbVKUOM6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 09:12:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbVKUOM6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 08:54:31 -0500
-Received: from atlas.informatik.uni-freiburg.de ([132.230.150.3]:35737 "EHLO
-	atlas.informatik.uni-freiburg.de") by vger.kernel.org with ESMTP
-	id S932127AbVKUNyb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 08:54:31 -0500
-Date: Mon, 21 Nov 2005 14:54:20 +0100
-From: Uwe Zeisberger <zeisberg@informatik.uni-freiburg.de>
-To: James Cloos <cloos@jhcloos.com>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Sam Ravnborg <sam@ravnborg.org>
-Subject: [PATCH] Re: make kernelrelease ignoring LOCALVERSION_AUTO
-Message-ID: <20051121135420.GA10389@informatik.uni-freiburg.de>
-References: <m3acfz88qj.fsf@lugabout.cloos.reno.nv.us> <m3mzjy7sg2.fsf@lugabout.cloos.reno.nv.us> <20051121105353.GC6664@informatik.uni-freiburg.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 21 Nov 2005 09:12:58 -0500
+Received: from zproxy.gmail.com ([64.233.162.204]:36314 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932218AbVKUOM5 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 09:12:57 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=bL2Zm4iq98aEESssalp27iiw/S5Ll0/RYjJH8KK37UCxT9eTQI4JWvGmVNVj/GGMRoc8ff93u89D+NC3fuTsw7aAckFvVrR6B1GiXWaNFMwQFVeF8TYdZ3ngc6dJSGHld5eL9GnMzFIDelC9rc5VzFdq3bi4xoOBjXGVbVkysHM=
+Message-ID: <625fc13d0511210612m7c659b9agb7f9a5e1a1de117f@mail.gmail.com>
+Date: Mon, 21 Nov 2005 08:12:56 -0600
+From: Josh Boyer <jwboyer@gmail.com>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [patch 1/3] Add SCM info to MAINTAINERS
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       scjody@steamballoon.com
+In-Reply-To: <20051119012240.GD28175@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051121105353.GC6664@informatik.uni-freiburg.de>
-User-Agent: Mutt/1.5.6+20040523i
-Organization: Universitaet Freiburg, Institut f. Informatik
+References: <20051118173930.270902000@press.kroah.org>
+	 <20051118173054.GA20860@kroah.com> <20051118173106.GB20860@kroah.com>
+	 <625fc13d0511181134lc074b8avcc8db47b8723583@mail.gmail.com>
+	 <20051119012240.GD28175@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uwe Zeisberger wrote:
-> James Cloos wrote:
-> > Whatever the solution, it is commit ac4d5f74a9b243d9f3f123fe5ce609478df208d8
-> > that breaks $(make kernelrelease).
-> That's true, I recently realized that, too, but didn't find the time to
-> react.
-> 
-> In my eyes the solution has to be that .config is included iff it
-> exists.
+On 11/18/05, Greg KH <greg@kroah.com> wrote:
+> On Fri, Nov 18, 2005 at 01:34:51PM -0600, Josh Boyer wrote:
+> > On 11/18/05, Greg Kroah-Hartman <gregkh@suse.de> wrote:
+> > > From: Jody McIntyre <scjody@steamballoon.com>
+> > >
+> > > Add tree information to MAINTAINERS file.
+> >
+> > Missed MTD git tree at:
+> >
+> > git kernel.org:/pub/scm/linux/kernel/git/tglx/mtd-2.6.git
+>
+> Care to send a patch for this, and any others that might have been
+> missed?
 
-Include .config for target kernelrelease if it exists
+Here's the MTD one.  More later as I find them.
 
-With this fix the value of CONFIG_LOCALVERSION is appended to the output
-of `make kernelrelease`.  The git tag is *not* appended (yet) without a
-.config.
+josh
 
-Signed-off-by: Uwe Zeisberger <zeisberg@informatik.uni-freiburg.de>
+Signed-off-by: Josh Boyer <jwboyer@gmail.com>
 
----
+diff --git a/MAINTAINERS b/MAINTAINERS
+index c5cf7d7..1e84be3 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -1695,6 +1695,7 @@ P:        David Woodhouse
+ M:     dwmw2@infradead.org
+ W:     http://www.linux-mtd.infradead.org/
+ L:     linux-mtd@lists.infradead.org
++T:     git kernel.org:/pub/scm/linux/kernel/git/tglx/mtd-2.6.git
+ S:     Maintained
 
- Makefile |   17 ++++++++++++++---
- 1 files changed, 14 insertions(+), 3 deletions(-)
-
-applies-to: bf816f7c7055127415fc3b718e260855df815d55
-02a17e7669dcc6abd51fefc65af2278e95e4855f
-diff --git a/Makefile b/Makefile
-index e7a0443..77b51b8 100644
---- a/Makefile
-+++ b/Makefile
-@@ -407,16 +407,23 @@ outputmakefile:
- # Detect when mixed targets is specified, and make a second invocation
- # of make so .config is not included in this case either (for *config).
- 
--no-dot-config-targets := clean mrproper distclean \
--			 cscope TAGS tags help %docs check% kernelrelease
-+no-dot-config-targets  := clean mrproper distclean \
-+			  cscope TAGS tags help %docs check%
-+
-+opt-dot-config-targets := kernelrelease
- 
- config-targets := 0
- mixed-targets  := 0
- dot-config     := 1
-+opt-dot-config := 0
- 
--ifneq ($(filter $(no-dot-config-targets), $(MAKECMDGOALS)),)
-+ifneq ($(filter $(no-dot-config-targets) $(opt-dot-config-targets), $(MAKECMDGOALS)),)
- 	ifeq ($(filter-out $(no-dot-config-targets), $(MAKECMDGOALS)),)
- 		dot-config := 0
-+	else
-+		ifeq ($(filter-out $(opt-dot-config-targets), $(MAKECMDGOALS)),)
-+			opt-dot-config := 1
-+		endif
- 	endif
- endif
- 
-@@ -483,7 +490,11 @@ ifeq ($(dot-config),1)
- # oldconfig if changes are detected.
- -include .config.cmd
- 
-+ifeq ($(opt-dot-config),1)
-+-include .config
-+else
- include .config
-+endif
- 
- # If .config needs to be updated, it will be done via the dependency
- # that autoconf has on .config.
----
-0.99.9g
-
--- 
-Uwe Zeisberger
-
-primes where sieve (p:xs) = [ x | x<-xs, x `rem` p /= 0 ]; \
-primes = map head (iterate sieve [2..])
+ MICROTEK X6 SCANNER

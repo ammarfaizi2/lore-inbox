@@ -1,75 +1,180 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbVKUSz5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932450AbVKUS6l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932415AbVKUSz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 13:55:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbVKUSz5
+	id S932450AbVKUS6l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 13:58:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbVKUS6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 13:55:57 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:5859 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932415AbVKUSz5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 13:55:57 -0500
-Date: Mon, 21 Nov 2005 10:55:24 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Matthew Wilcox <matthew@wil.cx>
-cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Russell King <rmk@arm.linux.org.uk>, Ian Molton <spyro@f2s.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Paul Mackerras <paulus@samba.org>
-Subject: Re: [PATCH 4/5] Centralise NO_IRQ definition
-In-Reply-To: <20051121121454.GA1598@parisc-linux.org>
-Message-ID: <Pine.LNX.4.64.0511211047260.13959@g5.osdl.org>
-References: <E1Ee0G0-0004CN-Az@localhost.localdomain>
- <24299.1132571556@warthog.cambridge.redhat.com> <20051121121454.GA1598@parisc-linux.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 21 Nov 2005 13:58:40 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:27791 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932450AbVKUS6k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 13:58:40 -0500
+Subject: 2.6.14-rt13 does not build
+From: Lee Revell <rlrevell@joe-job.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Ingo Molnar <mingo@elte.hu>
+Content-Type: multipart/mixed; boundary="=-Gl6HUJCuK3Y9ZGstSQ8Q"
+Date: Mon, 21 Nov 2005 13:58:30 -0500
+Message-Id: <1132599511.29178.69.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-Gl6HUJCuK3Y9ZGstSQ8Q
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-On Mon, 21 Nov 2005, Matthew Wilcox wrote:
->
-> On Mon, Nov 21, 2005 at 11:12:36AM +0000, David Howells wrote:
-> > Matthew Wilcox <matthew@wil.cx> wrote:
-> > 
-> > > +#define NO_IRQ			((unsigned int)(-1))
-> > 
-> > Should this be wrapped with #ifndef?
-> 
-> *sigh*.  The one piece of feedback I got on the last series was from
-> Ingo, and he asked that I *not* wrap it with ifndef.  So, no.
+  CC      kernel/ktimers.o
+kernel/ktimers.c: In function 'enqueue_ktimer':
+kernel/ktimers.c:756: error: incompatible type for argument 1 of
+'trace_special_u64'
+make[1]: *** [kernel/ktimers.o] Error 1
+make: *** [kernel] Error 2
 
-Quite frankly, if we change [PCI_]NO_IRQ to -1, there's almost certainly 
-going to be a lot of drivers breaking.
+.config attached.
 
-On x86, 0 has been the lack of IRQ since basically forever, in one form or 
-another (for devices, that is - there _is_ a timer irq 0, but that's set 
-up separately).
+Lee
 
-Which means that I'd _much_ prefer to other architectures to just follow 
-suit.
+--=-Gl6HUJCuK3Y9ZGstSQ8Q
+Content-Disposition: attachment; filename=config.gz
+Content-Type: application/x-gzip; name=config.gz
+Content-Transfer-Encoding: base64
 
-So for an architecture where irq0 is a valid physical interrupt for a 
-device, why not just translate that "real irq 0" into some other thing? 
-Much less likely to break anything.
+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
+8nsaNtQ3/P0/QGdYCAZwAAA=
 
-In fact, it could be as simple as setting the high bit for any valid 
-interrupt, and then just masking it out in request_irq() and friends. Do 
-something like
 
-	#define PCI_IRQ_VALID_MASK	(1u << 31)
-
-and then if the physical irq is 0, just or in that VALID mask, turning the 
-interrupt into a non-zero, and then when registering it, just and it away 
-again..
-
-This is not theory: a _lot_ of real-life PCI devices very much think that 
-irq 0 means "disabled". Not even just in drivers - in actual _hardware_. 
-When you write 0 to the irq number for irq routers, they disable that 
-line. So the "zero as NO_IRQ" is more than just a "several drivers think 
-that is how it is", it's how a lot of hardware actually works.
-
-		Linus
+--=-Gl6HUJCuK3Y9ZGstSQ8Q--
 

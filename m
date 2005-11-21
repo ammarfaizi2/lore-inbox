@@ -1,62 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932455AbVKUUiV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbVKUUkH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932455AbVKUUiV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 15:38:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932459AbVKUUiU
+	id S932279AbVKUUkH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 15:40:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932460AbVKUUkH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 15:38:20 -0500
-Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:53263 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932455AbVKUUiS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 15:38:18 -0500
-Date: Tue, 22 Nov 2005 07:37:58 +1100
-To: Richard Knutsson <ricknu-0@student.ltu.se>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       jgarzik@pobox.com, ashutosh.naik@gmail.com
-Subject: Re: [PATCH -mm2] net: Fix compiler-error on dgrs.c when !CONFIG_PCI
-Message-ID: <20051121203758.GA25509@gondor.apana.org.au>
-References: <E1EdmMo-00020b-00@gondolin.me.apana.org.au> <438097D2.9020607@student.ltu.se> <20051120204001.GA11043@gondor.apana.org.au> <4381C321.5010805@student.ltu.se>
+	Mon, 21 Nov 2005 15:40:07 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:16526 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932279AbVKUUkF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 15:40:05 -0500
+Date: Mon, 21 Nov 2005 12:39:50 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Kenny Simpson <theonetruekenny@yahoo.com>
+Cc: cel@citi.umich.edu, trond.myklebust@fys.uio.no,
+       linux-kernel@vger.kernel.org
+Subject: Re: infinite loop? with mmap, nfs, pwrite, O_DIRECT
+Message-Id: <20051121123950.5afadab9.akpm@osdl.org>
+In-Reply-To: <20051121184032.80469.qmail@web34101.mail.mud.yahoo.com>
+References: <438208A1.5020300@citi.umich.edu>
+	<20051121184032.80469.qmail@web34101.mail.mud.yahoo.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4381C321.5010805@student.ltu.se>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 21, 2005 at 01:52:49PM +0100, Richard Knutsson wrote:
+Kenny Simpson <theonetruekenny@yahoo.com> wrote:
 >
-> What do you think about this patch? Will you sign it? It is no longer an 
-> error-warning-fix but a bug-fix (and some cleanup).
-> I "took" you implementation of dgrs_(un)register_eisa(), especially 
-> since eisa needed to be unregistered if pci succeeds (I take you word 
-> for it to be so).
-> (BTW, this patch is compiled with CONFIG_PCI set, CONFIG_EISA set and 
-> both set without errors/warnings for dgrs.o.)
-> 
-> This patch requirer the 
-> "net-fix-compiler-error-on-dgrsc-when-config_pci.patch" (added to the 
-> -mm tree after 2.6.15-rc1-mm2):
-> 
-> --- 
-> devel/drivers/net/dgrs.c~net-fix-compiler-error-on-dgrsc-when-config_pci 
-> 2005-11-19 18:00:34.000000000 -0800
-> +++ devel-akpm/drivers/net/dgrs.c	2005-11-19 18:00:34.000000000 -0800
-> @@ -1458,6 +1458,8 @@ static struct pci_driver dgrs_pci_driver
-> 	.probe = dgrs_pci_probe,
-> 	.remove = __devexit_p(dgrs_pci_remove),
-> };
-> +#else
-> +static struct pci_driver dgrs_pci_driver = {};
-> #endif
+> ext3 doesn't let you use pwrite with O_DIRECT
 
-I don't see the point.  We shouldn't have this structure at all
-if CONFIG_PCI is not set.
-
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+ext3 does permit that.  See odwrite.c from
+http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz

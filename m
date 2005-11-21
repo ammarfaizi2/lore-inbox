@@ -1,78 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbVKUBOu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbVKUBOu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932159AbVKUBOu (ORCPT <rfc822;willy@w.ods.org>);
+	id S932161AbVKUBOu (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 20 Nov 2005 20:14:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbVKUBOs
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbVKUBOu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 20:14:48 -0500
-Received: from atlrel6.hp.com ([156.153.255.205]:8936 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S932159AbVKUBOW (ORCPT
+	Sun, 20 Nov 2005 20:14:50 -0500
+Received: from atlrel7.hp.com ([156.153.255.213]:32703 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S932161AbVKUBOP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 20:14:22 -0500
+	Sun, 20 Nov 2005 20:14:15 -0500
 From: Matthew Wilcox <matthew@wil.cx>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Matthew Wilcox <matthew@wil.cx>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Message-Id: <E1Ee0Fz-0004CJ-Vg@localhost.localdomain>
+       linux-kernel@vger.kernel.org
+Subject: [PATCH 1/5] Don't overflow irq_desc array
+Message-Id: <E1Ee0Fz-0004CH-Q1@localhost.localdomain>
 Date: Sun, 20 Nov 2005 20:14:07 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: [PATCH 2/5] Introduce PCI_NO_IRQ and pci_valid_irq()
-
-Explicitly initialise pci_dev->irq with PCI_NO_IRQ, allowing us to change
-the value of PCI_NO_IRQ once all drivers have been audited.
+Check the irq number is within bounds in the functions which weren't
+already checking.
 
 Signed-off-by: Matthew Wilcox <matthew@wil.cx>
 Acked-by: Ingo Molnar <mingo@elte.hu>
 
 ---
 
- drivers/pci/probe.c |    7 +++++--
- include/linux/pci.h |    9 +++++++++
- 2 files changed, 14 insertions(+), 2 deletions(-)
+ kernel/irq/manage.c |   15 +++++++++++++++
+ 1 files changed, 15 insertions(+), 0 deletions(-)
 
-applies-to: 48ad7d3f9b055a9d4c1a1ab1f6dd0a584cfed99c
-53424f050aff8200f80f4d3edf9af7b7f085e6f6
-diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
-index fce2cb2..35ba70b 100644
---- a/drivers/pci/probe.c
-+++ b/drivers/pci/probe.c
-@@ -571,9 +571,12 @@ static void pci_read_irq(struct pci_dev 
- 	unsigned char irq;
+applies-to: bf816f7c7055127415fc3b718e260855df815d55
+2a58094e213ad848c8af39b7740052ecd0b92835
+diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
+index 3bd7226..81c49a4 100644
+--- a/kernel/irq/manage.c
++++ b/kernel/irq/manage.c
+@@ -36,6 +36,9 @@ void synchronize_irq(unsigned int irq)
+ {
+ 	struct irq_desc *desc = irq_desc + irq;
  
- 	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &irq);
--	if (irq)
-+	if (irq) {
- 		pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &irq);
--	dev->irq = irq;
-+		dev->irq = irq;
-+	} else {
-+		dev->irq = PCI_NO_IRQ;
-+	}
- }
- 
- /**
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index de690ca..69cdd00 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -140,6 +140,15 @@ struct pci_dev {
- 	struct bin_attribute *res_attr[DEVICE_COUNT_RESOURCE]; /* sysfs file for resources */
- };
- 
-+/*
-+ * The PCI subsystem has traditionally filled in 0 when no interrupt has been
-+ * assigned.  While we should move to using NO_IRQ instead, many drivers
-+ * remain to be converted.  Once all drivers are using PCI_NO_IRQ, switching
-+ * over should be a simple search-and-replace.
-+ */
-+#define PCI_NO_IRQ		0
-+#define pci_valid_irq(irq)	(irq != PCI_NO_IRQ)
++	if (irq >= NR_IRQS)
++		return;
 +
- #define pci_dev_g(n) list_entry(n, struct pci_dev, global_list)
- #define pci_dev_b(n) list_entry(n, struct pci_dev, bus_list)
- #define	to_pci_dev(n) container_of(n, struct pci_dev, dev)
+ 	while (desc->status & IRQ_INPROGRESS)
+ 		cpu_relax();
+ }
+@@ -60,6 +63,9 @@ void disable_irq_nosync(unsigned int irq
+ 	irq_desc_t *desc = irq_desc + irq;
+ 	unsigned long flags;
+ 
++	if (irq >= NR_IRQS)
++		return;
++
+ 	spin_lock_irqsave(&desc->lock, flags);
+ 	if (!desc->depth++) {
+ 		desc->status |= IRQ_DISABLED;
+@@ -86,6 +92,9 @@ void disable_irq(unsigned int irq)
+ {
+ 	irq_desc_t *desc = irq_desc + irq;
+ 
++	if (irq >= NR_IRQS)
++		return;
++
+ 	disable_irq_nosync(irq);
+ 	if (desc->action)
+ 		synchronize_irq(irq);
+@@ -108,6 +117,9 @@ void enable_irq(unsigned int irq)
+ 	irq_desc_t *desc = irq_desc + irq;
+ 	unsigned long flags;
+ 
++	if (irq >= NR_IRQS)
++		return;
++
+ 	spin_lock_irqsave(&desc->lock, flags);
+ 	switch (desc->depth) {
+ 	case 0:
+@@ -163,6 +175,9 @@ int setup_irq(unsigned int irq, struct i
+ 	unsigned long flags;
+ 	int shared = 0;
+ 
++	if (irq >= NR_IRQS)
++		return -EINVAL;
++
+ 	if (desc->handler == &no_irq_type)
+ 		return -ENOSYS;
+ 	/*
 ---
 0.99.8.GIT

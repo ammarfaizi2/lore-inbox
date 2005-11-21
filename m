@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932384AbVKUQ2g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932380AbVKUQcb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932384AbVKUQ2g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 11:28:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbVKUQ2g
+	id S932380AbVKUQcb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 11:32:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbVKUQcb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 11:28:36 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:1194 "EHLO
-	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S932384AbVKUQ2f
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 11:28:35 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Xose Vazquez Perez <xose.vazquez@gmail.com>
-Subject: Re: [RFC] Documentation dir is a mess
-Date: Mon, 21 Nov 2005 10:28:28 -0600
-User-Agent: KMail/1.8
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
-References: <438069BD.6000401@gmail.com>
-In-Reply-To: <438069BD.6000401@gmail.com>
+	Mon, 21 Nov 2005 11:32:31 -0500
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:35494 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S932380AbVKUQca convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 11:32:30 -0500
+Date: Mon, 21 Nov 2005 17:33:48 +0100 (CET)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Con Kolivas <kernel@kolivas.org>
+cc: Daniel =?iso-8859-1?q?Marjam=E4ki?= <daniel.marjamaki@comhem.se>,
+       linux-kernel@vger.kernel.org, 7eggert@gmx.de, nish.aravamudan@gmail.com
+Subject: Re: I made a patch and would like feedback/testers (drivers/cdrom/aztcd.c)
+In-Reply-To: <200511211919.11429.kernel@kolivas.org>
+Message-ID: <Pine.LNX.4.58.0511211729510.2082@be1.lrz>
+References: <5aZsv-3CJ-17@gated-at.bofh.it> <E1EdwGs-0000qv-NL@be1.lrz>
+ <438180C0.2030503@comhem.se> <200511211919.11429.kernel@kolivas.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511211028.28944.rob@landley.net>
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 20 November 2005 06:19, Xose Vazquez Perez wrote:
-> hi,
->
-> _today_ Documentation/* is a mess of files. It would be good
-> to have the _same_ tree as the code has:
->
-> Documentation/
-> Documentation/arch/
-> Documentation/arch/i386/
-> [...]
-> Documentation/drivers/
-> Documentation/drivers/net/
-> Documentation/drivers/scsi/
-> [...]
-> Documentation/net
-> [...]
+On Mon, 21 Nov 2005, Con Kolivas wrote:
+> On Mon, 21 Nov 2005 19:09, Daniel Marjamäki wrote:
 
-Perhaps you're looking for "make htmldocs"?
+> > The way I do it:
+> > All systems will give me a delay for at least a few ms.
+> > I get the shortest timeout possible on each computer.
+> 
+> Convention in the kernel would be 
+> 	aztTimeOut =  HZ / 100 ? : 1;
+> to be at least one tick (works for HZ even below 100) and is at least 10ms.
 
-Where would you put Documentation/unicode.txt in your proposed layout?  Or 
-Documentation/filesystems/proc.txt?
+You have to add one to the timeout, since you might be just before the end 
+of the timeslice when the delay starts. aztTimeOut = (HZ / 100 ? : 1) + 1;
 
-Rob
+-- 
+Top 100 things you don't want the sysadmin to say:
+11. Can you get VMS for this Sparc thingy?

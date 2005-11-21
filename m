@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750997AbVKUVxj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbVKUVyl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750997AbVKUVxj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 16:53:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbVKUVxj
+	id S1751100AbVKUVyl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 16:54:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbVKUVyl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 16:53:39 -0500
-Received: from gate.crashing.org ([63.228.1.57]:38857 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750997AbVKUVxi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 16:53:38 -0500
-Subject: Re: [PATCH 4/5] Centralise NO_IRQ definition
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
-       Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Russell King <rmk@arm.linux.org.uk>, Ian Molton <spyro@f2s.com>
-In-Reply-To: <17282.15177.804471.298409@cargo.ozlabs.ibm.com>
-References: <E1Ee0G0-0004CN-Az@localhost.localdomain>
-	 <24299.1132571556@warthog.cambridge.redhat.com>
-	 <20051121121454.GA1598@parisc-linux.org>
-	 <Pine.LNX.4.64.0511211047260.13959@g5.osdl.org>
-	 <20051121190632.GG1598@parisc-linux.org>
-	 <Pine.LNX.4.64.0511211124190.13959@g5.osdl.org>
-	 <20051121194348.GH1598@parisc-linux.org>
-	 <Pine.LNX.4.64.0511211150040.13959@g5.osdl.org>
-	 <20051121211544.GA4924@elte.hu>
-	 <17282.15177.804471.298409@cargo.ozlabs.ibm.com>
-Content-Type: text/plain
-Date: Tue, 22 Nov 2005 08:50:57 +1100
-Message-Id: <1132609858.26560.36.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Nov 2005 16:54:41 -0500
+Received: from web34115.mail.mud.yahoo.com ([66.163.178.113]:45219 "HELO
+	web34115.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751096AbVKUVyk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 16:54:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=1Kq2bXD29SXAFA9JRozSAm/jtqtU1OGoppePDZoE6lAUdBYoV1UCE4B+oKwGjIqYd5mDQOU6vsvszAHfv+k+EymVLr9Jk2Oi/7aNy+umopSzbqHtVCh4stMLNVSvY7yKbO8eBCUAhl8PP2TjCoog3+iG916agWlLj++GduzH1Do=  ;
+Message-ID: <20051121215439.67346.qmail@web34115.mail.mud.yahoo.com>
+Date: Mon, 21 Nov 2005 13:54:39 -0800 (PST)
+From: Kenny Simpson <theonetruekenny@yahoo.com>
+Subject: Re: infinite loop? with mmap, nfs, pwrite, O_DIRECT
+To: Andrew Morton <akpm@osdl.org>
+Cc: cel@citi.umich.edu, trond.myklebust@fys.uio.no,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20051121123950.5afadab9.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-22 at 08:25 +1100, Paul Mackerras wrote:
-> Ingo Molnar writes:
-> 
-> > is there any architecture where irq 0 is a legitimate setting that could 
-> > occur in drivers, and which would make NO_IRQ define of 0 non-practical?  
-> 
-> Yes, G5 powermacs have the SATA controller on irq 0.  So if we can't
-> use irq 0, I can't get to my hard disk. :)  Other powermacs also use
-> irq 0 for various things, as do embedded PPC machines.
+Another data point:  In 2.6.8, the test works fine (just like on ext3).
+Any suggestions as to where to start poking, or shall I just do a binary search?
 
-And other non-ppc embedded things I've seen in the past... I think it's
-quite common outside of the x86 world
-
-Ben.
+-Kenny
 
 
+
+	
+		
+__________________________________ 
+Yahoo! Mail - PC Magazine Editors' Choice 2005 
+http://mail.yahoo.com

@@ -1,45 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932420AbVKURup@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbVKURtP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932420AbVKURup (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 12:50:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbVKURuo
+	id S932422AbVKURtP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 12:49:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbVKURtO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 12:50:44 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:1245 "EHLO
-	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S932432AbVKURua
+	Mon, 21 Nov 2005 12:49:14 -0500
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:22198 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S932419AbVKURtC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 12:50:30 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH] make miniconfig (take 2)
-Date: Mon, 21 Nov 2005 11:50:16 -0600
-User-Agent: KMail/1.8
-Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
-       Sam Ravnborg <sam@ravnborg.org>
-References: <200511170629.42389.rob@landley.net> <200511211006.48289.rob@landley.net> <20051121173636.GB2642@elf.ucw.cz>
-In-Reply-To: <20051121173636.GB2642@elf.ucw.cz>
+	Mon, 21 Nov 2005 12:49:02 -0500
+Date: Mon, 21 Nov 2005 18:48:20 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [patch 3/5] s390: uaccess warnings.
+Message-ID: <20051121174820.GC9638@skybase.boeblingen.de.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511211150.17271.rob@landley.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 21 November 2005 11:36, Pavel Machek wrote:
-> How is it supposed to work with cross-compiling.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-That's why I gave the User Mode Linux example in the documentation, which 
-specifies an architecture.  (And in take 2, I added an example of running the 
-makemini.sh script for UML, where you have to specify ARCH=um as an 
-environment variable.)
+[patch 3/5] s390: uaccess warnings.
 
-If there's more to cross-compiling than that, please tell me and I'll work it 
-in.  (I know you have to specify a cross toolchain, but I didn't think that 
-affected the configure step...)
+Convert __access_ok to an inline C function and change __get_user
+primitive to avoid uaccess compiler warnings.
 
->         Pavel
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-Rob
+---
+
+ arch/s390/kernel/compat_linux.c |    2 +-
+ include/asm-s390/uaccess.h      |   14 ++++++++------
+ 2 files changed, 9 insertions(+), 7 deletions(-)
+
+diff -urpN linux-2.6/arch/s390/kernel/compat_linux.c linux-2.6-patched/arch/s390/kernel/compat_linux.c
+--- linux-2.6/arch/s390/kernel/compat_linux.c	2005-10-28 02:02:08.000000000 +0200
++++ linux-2.6-patched/arch/s390/kernel/compat_linux.c	2005-11-21 18:40:05.000000000 +0100
+@@ -279,7 +279,7 @@ asmlinkage long sys32_getegid16(void)
+ 
+ static inline long get_tv32(struct timeval *o, struct compat_timeval *i)
+ {
+-	return (!access_ok(VERIFY_READ, tv32, sizeof(*tv32)) ||
++	return (!access_ok(VERIFY_READ, o, sizeof(*o)) ||
+ 		(__get_user(o->tv_sec, &i->tv_sec) ||
+ 		 __get_user(o->tv_usec, &i->tv_usec)));
+ }
+diff -urpN linux-2.6/include/asm-s390/uaccess.h linux-2.6-patched/include/asm-s390/uaccess.h
+--- linux-2.6/include/asm-s390/uaccess.h	2005-11-21 18:39:53.000000000 +0100
++++ linux-2.6-patched/include/asm-s390/uaccess.h	2005-11-21 18:40:05.000000000 +0100
+@@ -61,8 +61,10 @@
+ #define segment_eq(a,b) ((a).ar4 == (b).ar4)
+ 
+ 
+-#define __access_ok(addr,size) (1)
+-
++static inline int __access_ok(const void *addr, unsigned long size)
++{
++	return 1;
++}
+ #define access_ok(type,addr,size) __access_ok(addr,size)
+ 
+ /*
+@@ -206,25 +208,25 @@ extern int __put_user_bad(void) __attrib
+ 	case 1: {						\
+ 		unsigned char __x;				\
+ 		__get_user_asm(__x, ptr, __gu_err);		\
+-		(x) = (__typeof__(*(ptr))) __x;			\
++		(x) = *(__typeof__(*(ptr)) *) &__x;		\
+ 		break;						\
+ 	};							\
+ 	case 2: {						\
+ 		unsigned short __x;				\
+ 		__get_user_asm(__x, ptr, __gu_err);		\
+-		(x) = (__typeof__(*(ptr))) __x;			\
++		(x) = *(__typeof__(*(ptr)) *) &__x;		\
+ 		break;						\
+ 	};							\
+ 	case 4: {						\
+ 		unsigned int __x;				\
+ 		__get_user_asm(__x, ptr, __gu_err);		\
+-		(x) = (__typeof__(*(ptr))) __x;			\
++		(x) = *(__typeof__(*(ptr)) *) &__x;		\
+ 		break;						\
+ 	};							\
+ 	case 8: {						\
+ 		unsigned long long __x;				\
+ 		__get_user_asm(__x, ptr, __gu_err);		\
+-		(x) = (__typeof__(*(ptr))) __x;			\
++		(x) = *(__typeof__(*(ptr)) *) &__x;		\
+ 		break;						\
+ 	};							\
+ 	default:						\

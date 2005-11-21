@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932482AbVKUXgX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932483AbVKUXh6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932482AbVKUXgX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 18:36:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932483AbVKUXgX
+	id S932483AbVKUXh6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 18:37:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbVKUXh6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 18:36:23 -0500
-Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:32518 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932482AbVKUXgW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 18:36:22 -0500
-Date: Tue, 22 Nov 2005 10:36:09 +1100
-To: Richard Knutsson <ricknu-0@student.ltu.se>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       jgarzik@pobox.com, ashutosh.naik@gmail.com
-Subject: Re: [PATCH -mm2] net: Fix compiler-error on dgrs.c when !CONFIG_PCI
-Message-ID: <20051121233609.GB27327@gondor.apana.org.au>
-References: <E1EeJu8-0006vr-00@gondolin.me.apana.org.au> <4382563E.50502@student.ltu.se>
+	Mon, 21 Nov 2005 18:37:58 -0500
+Received: from gate.crashing.org ([63.228.1.57]:971 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932483AbVKUXh5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 18:37:57 -0500
+Subject: Re: [RFC] Small PCI core patch
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051121230136.GB19212@kroah.com>
+References: <20051121225303.GA19212@kroah.com>
+	 <20051121230136.GB19212@kroah.com>
+Content-Type: text/plain
+Date: Tue, 22 Nov 2005 10:35:32 +1100
+Message-Id: <1132616132.26560.62.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4382563E.50502@student.ltu.se>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 22, 2005 at 12:20:30AM +0100, Richard Knutsson wrote:
-> 
-> Am thinking of removing the #ifdef CONFIG_PCI's in other files, to 
-> "clean up" the code, but that would introduce this problem again, don't 
-> you think it is more readable to make an empty struct when !CONFIG_PCI, 
-> then making new pci_*-functions specific to the driver?
+On Mon, 2005-11-21 at 15:01 -0800, Greg KH wrote:
 
-I think my version is more readable.  However, it's really up to Jeff
-to decide.
+> If you, or your company is relying on closed source kernel modules, your
+> days are numbered.  And what are you going to do, and how are you going
+> to explain things to your bosses and your customers, if possibly,
+> something like this patch were to be accepted?
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+I'm all about it, but good luck trying to convince ATI and/or nVidia ...
+
+For those who haven't noticed, the latest generation of ATI cards have a
+new 2D engine that is completely different from the previous one and
+totally undocumented. So far, they haven't showed any plans to provide
+any kind of documentation for it, unlike what they did for previous
+chipsets, not even 2D and not even under NDA. That means absolutely _0_
+support for it in linux or X.org except maybe with some future version
+of their binary blob, and _0_ support for it for any non-x86
+architecture of course.
+
+At least nVidia still sort-of maintains the obfuscated but working &
+opensource basic 2D driver ... 
+
+On the graphics front, things are actually getting _worse_ everyday.
+
+Ben.
+
+
+

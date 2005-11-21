@@ -1,48 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbVKUVZf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbVKUV0u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750753AbVKUVZf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 16:25:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbVKUVZf
+	id S1750771AbVKUV0u (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 16:26:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbVKUV0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 16:25:35 -0500
-Received: from ozlabs.org ([203.10.76.45]:32235 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750753AbVKUVZf (ORCPT
+	Mon, 21 Nov 2005 16:26:50 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:34786 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750771AbVKUV0t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 16:25:35 -0500
-MIME-Version: 1.0
+	Mon, 21 Nov 2005 16:26:49 -0500
+Date: Mon, 21 Nov 2005 22:26:53 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: David Singleton <dsingleton@mvista.com>
+Cc: Dinakar Guniguntala <dino@in.ibm.com>, linux-kernel@vger.kernel.org,
+       "David F. Carlson" <dave@chronolytics.com>
+Subject: Re: PI BUG with -rt13
+Message-ID: <20051121212653.GA6143@elte.hu>
+References: <20051117161817.GA3935@in.ibm.com> <437D0C59.1060607@mvista.com> <20051118092909.GC4858@elte.hu> <20051118132137.GA5639@in.ibm.com> <20051118132715.GA3314@elte.hu> <8311ADE9-5855-11DA-BBAB-000A959BB91E@mvista.com> <20051118174454.GA2793@elte.hu> <43822480.6080301@mvista.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17282.15177.804471.298409@cargo.ozlabs.ibm.com>
-Date: Tue, 22 Nov 2005 08:25:29 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@osdl.org>, Matthew Wilcox <matthew@wil.cx>,
-       David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>,
-       Ian Molton <spyro@f2s.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH 4/5] Centralise NO_IRQ definition
-In-Reply-To: <20051121211544.GA4924@elte.hu>
-References: <E1Ee0G0-0004CN-Az@localhost.localdomain>
-	<24299.1132571556@warthog.cambridge.redhat.com>
-	<20051121121454.GA1598@parisc-linux.org>
-	<Pine.LNX.4.64.0511211047260.13959@g5.osdl.org>
-	<20051121190632.GG1598@parisc-linux.org>
-	<Pine.LNX.4.64.0511211124190.13959@g5.osdl.org>
-	<20051121194348.GH1598@parisc-linux.org>
-	<Pine.LNX.4.64.0511211150040.13959@g5.osdl.org>
-	<20051121211544.GA4924@elte.hu>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Disposition: inline
+In-Reply-To: <43822480.6080301@mvista.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar writes:
 
-> is there any architecture where irq 0 is a legitimate setting that could 
-> occur in drivers, and which would make NO_IRQ define of 0 non-practical?  
+* David Singleton <dsingleton@mvista.com> wrote:
 
-Yes, G5 powermacs have the SATA controller on irq 0.  So if we can't
-use irq 0, I can't get to my hard disk. :)  Other powermacs also use
-irq 0 for various things, as do embedded PPC machines.
+> Ingo,
+>    here is a patch that provides the correct locking for the rt_mutex 
+> backing the robust pthread_mutex.   The patch also unifies the locking 
+> for all the robust functions and adds support for pthread_mutexes on 
+> the heap.
 
-Paul.
+thanks. Could you split up the patch into a fix and a 'heap' patch (at a 
+minimum)?
+
+it's this portion of the 'heap' patch that looks problematic:
+
+> --- base/linux-2.6.14/include/linux/mm.h	2005-11-18 20:36:53.000000000 -0800
+> +++ wip/linux-2.6.14/include/linux/mm.h	2005-11-21 10:51:19.000000000 -0800
+> @@ -109,6 +109,11 @@
+>  #ifdef CONFIG_NUMA
+>  	struct mempolicy *vm_policy;	/* NUMA policy for the VMA */
+>  #endif
+> +#ifdef CONFIG_FUTEX
+> +	int robust_init;		/* robust initialized? */
+> +	struct list_head robust_list;	/* list of robust futexes in this vma */
+> +	struct semaphore robust_sem;	/* semaphore to protect the list */
+> +#endif
+>  };
+
+why is there per-vma info needed?
+
+Also, what testing did this patch have - should it solve Dinakar's 
+problem(s)?
+
+	Ingo

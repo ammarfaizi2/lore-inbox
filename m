@@ -1,66 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbVKUJTQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbVKUJ2m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932226AbVKUJTQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 04:19:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbVKUJTQ
+	id S932240AbVKUJ2m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 04:28:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbVKUJ2m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 04:19:16 -0500
-Received: from xm.freeshell.ORG ([192.94.73.22]:52209 "EHLO sdf.lonestar.org")
-	by vger.kernel.org with ESMTP id S932226AbVKUJTQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 04:19:16 -0500
-From: Jim Nance <jlnance@sdf.lonestar.org>
-Date: Mon, 21 Nov 2005 09:18:37 +0000
-To: Arijit Das <Arijit.Das@synopsys.com>
-Cc: 7eggert@gmx.de, linux-kernel@vger.kernel.org
-Subject: Re: Does Linux has File Stream mapping support...?
-Message-ID: <20051121091837.GA2619@SDF.LONESTAR.ORG>
-References: <7EC22963812B4F40AE780CF2F140AFE920906A@IN01WEMBX1.internal.synopsys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7EC22963812B4F40AE780CF2F140AFE920906A@IN01WEMBX1.internal.synopsys.com>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 21 Nov 2005 04:28:42 -0500
+Received: from web36409.mail.mud.yahoo.com ([209.191.85.144]:14436 "HELO
+	web36409.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932240AbVKUJ2l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 04:28:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=y9n3aLfPcscE+Zi5sh427J0JewylfroW5JvAyY2Fc9lUFiamfDE1ZnSUX3PnfH+/nKeLMCwyNRxs+whNI04ezUfDRhUAQlDEgZ3mlRp/aHV8/bugmcOg6BXnK9lGRoOzJgUWx07wDalMBxceEu5vko5c/BHRzy7kdWvMZe6n/Fg=  ;
+Message-ID: <20051121092841.47907.qmail@web36409.mail.mud.yahoo.com>
+Date: Mon, 21 Nov 2005 01:28:41 -0800 (PST)
+From: Alfred Brons <alfredbrons@yahoo.com>
+Subject: what is our answer to ZFS?
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 18, 2005 at 06:21:59PM +0530, Arijit Das wrote:
-> Ye...I know of tee.
-> 
-> But the issue here is I have a HUGE Compiler (an Simulation tool)
-> in which thousands of places there are "printf" statements to print
-> messages to STDOUT stream. Now, a requirement came up which needs
-> all those messages thrown to STDOUT also to be logged in a LOGFILE
-> (in addition to STDOUT). Yes, this can be done through tee...but
-> the usage model of the compiler doesn't leave that possibility open
-> for me.
+Hi All,
 
-You have the source code for the compiler?  Put a call to something
-like this at the beginning of main().  I'm leaving out the error handling,
-you can write that ;)
+I just noticed in the news this link:
 
-void startlogging()
-{
-    pid_t tpid;
-    int pfd[2];
-    pipe(pfd);
+http://www.opensolaris.org/os/community/zfs/demos/basics
 
-    tpid=fork();
-    if(tpid==0) {
-        /* child process */
-	close(0);
-	dup2(pfd[0], 0);
-	close(pfd[0]);
-	close(pfd[1]);
-	execl("/usr/bin/tee", "logfile");
-    } else {
-	close(1);
-	dup2(pfd[1], 1);
-	close(pfd[0]);
-	close(pfd[1]);
-    }
-}
+I wonder what would be our respond to this beaste?
 
--- 
-jlnance@sdf.lonestar.org
-SDF Public Access UNIX System - http://sdf.lonestar.org
+btw, you could try it live by using Nexenta
+GNU/Solaris LiveCD at
+http://www.gnusolaris.org/gswiki/Download which is
+Ubuntu-based OpenSolaris
+distribution.
+
+So what is ZFS?
+
+ZFS is a new kind of filesystem that provides simple
+administration, transactional semantics, end-to-end
+data integrity, and immense scalability. ZFS is not an
+incremental improvement to existing technology; it is
+a fundamentally new approach to data management. We've
+blown away 20 years of obsolete assumptions,
+eliminated complexity at the source, and created a
+storage system that's actually a pleasure to use.
+
+ZFS presents a pooled storage model that completely
+eliminates the concept of volumes and the associated
+problems of partitions, provisioning, wasted bandwidth
+and stranded storage. Thousands of filesystems can
+draw from a common storage pool, each one consuming
+only as much space as it actually needs.
+
+All operations are copy-on-write transactions, so the
+on-disk state is always valid. There is no need to
+fsck(1M) a ZFS filesystem, ever. Every block is
+checksummed to prevent silent data corruption, and the
+data is self-healing in replicated (mirrored or RAID)
+configurations.
+
+ZFS provides unlimited constant-time snapshots and
+clones. A snapshot is a read-only point-in-time copy
+of a filesystem, while a clone is a writable copy of a
+snapshot. Clones provide an extremely space-efficient
+way to store many copies of mostly-shared data such as
+workspaces, software installations, and diskless
+clients.
+
+ZFS administration is both simple and powerful. The
+tools are designed from the ground up to eliminate all
+the traditional headaches relating to managing
+filesystems. Storage can be added, disks replaced, and
+data scrubbed with straightforward commands.
+Filesystems can be created instantaneously, snapshots
+and clones taken, native backups made, and a
+simplified property mechanism allows for setting of
+quotas, reservations, compression, and more.
+
+Alfred
+
+
+		
+__________________________________ 
+Yahoo! FareChase: Search multiple travel sites in one click.
+http://farechase.yahoo.com

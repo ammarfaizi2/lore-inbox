@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750955AbVKUUGc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbVKUUMw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750955AbVKUUGc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 15:06:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751045AbVKUUGc
+	id S1750712AbVKUUMw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 15:12:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbVKUUMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 15:06:32 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:28396 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750948AbVKUUGb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 15:06:31 -0500
-Subject: Re: [BUG] 2.6.15-rc1, soft lockup detected while probing IDE
-	devices on AMD7441
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: shurick@sectorb.msk.ru, linux-kernel@vger.kernel.org
-In-Reply-To: <20051120172915.31754054.akpm@osdl.org>
-References: <20051120204656.GA17242@shurick.s2s.msu.ru>
-	 <1132528033.459.12.camel@localhost.localdomain>
-	 <20051120172915.31754054.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 21 Nov 2005 20:38:44 +0000
-Message-Id: <1132605524.11842.38.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Mon, 21 Nov 2005 15:12:52 -0500
+Received: from web34111.mail.mud.yahoo.com ([66.163.178.109]:22635 "HELO
+	web34111.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750712AbVKUUMv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 15:12:51 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=RGSiKeV3ZwbWUw4ht71kJ8torDnhMXZC5nBAhjBeN9BUC560Y0AIgL6DTl2sqEIEI/FP0VS/AO8KDjMyPDbJlAgsKSRPK/ZiQVH3P0HAgZn3iuOAfYQvS8v5WcOK/datQTNfQjiG5aD5gotARZ4dPa1AK3wtQedSo8KKiso5fL4=  ;
+Message-ID: <20051121201250.28812.qmail@web34111.mail.mud.yahoo.com>
+Date: Mon, 21 Nov 2005 12:12:50 -0800 (PST)
+From: Kenny Simpson <theonetruekenny@yahoo.com>
+Subject: Re: infinite loop? with mmap, nfs, pwrite, O_DIRECT
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <438208A1.5020300@citi.umich.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2005-11-20 at 17:29 -0800, Andrew Morton wrote:
-> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > Quite normal. The old IDE probe code takes a long time and it makes the
-> > soft lockup code believe a lockup occurred - rememeber its a debugging
-> > tool not a 100% reliable detector of failures.
-> > 
-> 
-> We could put a touch_softlockup_watchdog() in there.
+> I have a smaller test case (4 system calls, and a memset), that causes the test case to hang in
+an
+> unkillable state*, and makes the system load consume an entire CPU.
 
-Would make sense. Spin up and probe can take over 30 seconds worst case
-and is polled in the IDE world. The loop will eventually exit and a true
-lockup caused by a stuck IORDY line will hang forever in an inb/outb so
-neither softlockup or even nmi lockup would save you.
+Problem still exists in -rc2, but OProfile shows slightly different results:
+samples  %        symbol name
+2919823  86.8716  unmap_mapping_range
+163379    4.8609  _raw_spin_trylock
+36453     1.0846  prio_tree_first
 
+-Kenny
+
+
+
+		
+__________________________________ 
+Start your day with Yahoo! - Make it your home page! 
+http://www.yahoo.com/r/hs

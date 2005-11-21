@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbVKUOTl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbVKUOUJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932300AbVKUOTl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 09:19:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932306AbVKUOTl
+	id S932311AbVKUOUJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 09:20:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbVKUOUI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 09:19:41 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:49051 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932300AbVKUOTk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 09:19:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WdvXCcfwExyMs7akon4G66ss7DDPPMhrpAUqNUlF6bq0bUnzdD7zPvPVCV7ivl9CxJVmJyRKap5BM4P26tkqMrtzPM0cwFYw9ukTeobqcObcC9/N3shBhSpqZBrBCZys58m20VOfB6nPx60Gks7lEMVs6wnvY7UIjoYSLEPvcaM=
-Message-ID: <9611fa230511210619l208b10a8w77aedaa249345448@mail.gmail.com>
-Date: Mon, 21 Nov 2005 14:19:26 +0000
-From: Tarkan Erimer <tarkane@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: what is our answer to ZFS?
-Cc: Diego Calleja <diegocg@gmail.com>
-In-Reply-To: <20051121124544.9e502404.diegocg@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Mon, 21 Nov 2005 09:20:08 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:56785 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932306AbVKUOUH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 09:20:07 -0500
+Date: Mon, 21 Nov 2005 15:19:54 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Dave Jones <davej@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+Subject: Re: [linux-pm] [RFC] userland swsusp
+Message-ID: <20051121141954.GB1655@elf.ucw.cz>
+References: <20051115212942.GA9828@elf.ucw.cz> <20051120214832.GC28918@redhat.com> <20051120220904.GB24132@elf.ucw.cz> <200511211247.45558.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <11b141710511210144h666d2edfi@mail.gmail.com>
-	 <20051121095915.83230.qmail@web36406.mail.mud.yahoo.com>
-	 <20051121124544.9e502404.diegocg@gmail.com>
+In-Reply-To: <200511211247.45558.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/21/05, Diego Calleja <diegocg@gmail.com> wrote:
->
-> There're some rumors saying that sun might be considering a linux port.
->
-> http://www.sun.com/emrkt/campaign_docs/expertexchange/knowledge/solaris_zfs_gen.html#10
->
-> Q: Any thoughts on porting ZFS to Linux, AIX, or HPUX?
-> A: No plans of porting to AIX and HPUX. Porting to Linux is currently
-> being investigated.
->
-> (personally I doubt it, that FAQ was written some time ago and Sun's
-> executives change their opinion more often than Linus does ;)
+Hi!
 
-If It happenned, Sun or someone has port it to linux.
-We will need some VFS changes to handle 128 bit FS as "Jörn ENGEL"
-mentionned previous mail in this thread. Is there any plan or action
-to make VFS handle 128 bit File Sytems like ZFS or future 128 bit
-File Systems ? Any VFS people reply to this, please?
+> > > With what we have in-kernel, and a restricted /dev/mem, achieving the
+> > > attack you mention is a lot less feasible, as the attacker has no access
+> > > to the memory being written out to the suspend partition, even as root.
+> > > Even if they did, people tend to notice boxes shutting down pretty quickly
+> > > making this a not-very-stealthy attack.
+> > 
+> > Can I read somewhere about security model you are using? Would it be
+> > enough to restrict /dev/[k]mem to those people that have right to
+> > update kernel anyway? Or your approach is "noone, absolutely noone has
+> > right to modify running kernel"? [Do you still use loadable modules?]
+> 
+> The problem is that, whatever the security model, if you have access to the
+> kernel memory (eg. via /dev/kmem), you can modify the security rules
+> themselves, so this should better be avoided.
 
-Regards
+Well, under current linux security model, root has all permissions,
+including inserting modifying running kernel, touching hardware
+directly, and installing rootkits. Fedora may be trying to change
+that... but if so, I'd like to know what they are planning.
+								Pavel
+-- 
+Thanks, Sharp!

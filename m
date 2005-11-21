@@ -1,63 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbVKUVRd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbVKUVSD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750726AbVKUVRd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 16:17:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbVKUVRd
+	id S1750736AbVKUVSD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 16:18:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750700AbVKUVSD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 16:17:33 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:61014 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S1750726AbVKUVRc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 16:17:32 -0500
-Subject: Re: Linux 2.6.15-rc2
-From: Kasper Sandberg <postmaster@metanurb.dk>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200511201858.32171.gene.heskett@verizon.net>
-References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org>
-	 <200511200018.11791.gene.heskett@verizon.net>
-	 <1132526214.15938.5.camel@localhost>
-	 <200511201858.32171.gene.heskett@verizon.net>
-Content-Type: text/plain
-Date: Mon, 21 Nov 2005 22:17:25 +0100
-Message-Id: <1132607845.15938.30.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Nov 2005 16:18:03 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:63175 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750736AbVKUVSA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 16:18:00 -0500
+Date: Mon, 21 Nov 2005 13:17:41 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org, manfred@colorfullife.com,
+       Joe Perches <joe@perches.com>
+Subject: Re: [PATCH] slab: minor cleanup to kmem_cache_alloc_node
+In-Reply-To: <1132607272.19332.7.camel@localhost>
+Message-ID: <Pine.LNX.4.62.0511211314560.10768@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0511211627460.18869@sbz-30.cs.Helsinki.FI> 
+ <Pine.LNX.4.62.0511210919001.6497@graphe.net>  <1132598194.8972.4.camel@localhost>
+  <Pine.LNX.4.62.0511211145500.7813@schroedinger.engr.sgi.com>
+ <1132607272.19332.7.camel@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-11-20 at 18:58 -0500, Gene Heskett wrote:
-> On Sunday 20 November 2005 17:36, Kasper Sandberg wrote:
-> >On Sun, 2005-11-20 at 00:18 -0500, Gene Heskett wrote:
-> >> On Saturday 19 November 2005 22:40, Linus Torvalds wrote:
-> >> >There it is (or will soon be - the tar-ball and patches are still
-> >> >uploading, and mirroring can obviously take some time after that).
-> >>
-> >> First breakage report, tvtime, blue screen no audio.  Trying slightly
-> >> different .config for next build.  My tuner (OR51132) seems to be
-> >> permanently selected in an xconfig screen.  Dunno if thats good or
-> >> bad ATM.
-> >
-> >if it needs to be loaded with a parameter you will need to build it as
-> > a module.. my saa7134 chip needs card=9.
-> 
-> Its never needed an argument before.
-then you have a good card, mine is a cheap cheap cheap one which
-apparently doesent have the nessecary embedded info to do proper
-autodetection, so i gotta manually specify which card i have.
+On Mon, 21 Nov 2005, Pekka Enberg wrote:
 
+> Hi,
 > 
-> >i am experiencing same problems with saa7134, no video, however i do
-> > get audio.
+> On Mon, 2005-11-21 at 11:47 -0800, Christoph Lameter wrote:
+> > Remove the gotos. Something like this. It would be nice if we could remove 
+> > the printk. Hmm....
 > 
-> I wasn't, total digital gibberish on screen.
-> 
-> A full powerdown reboot to 2.6.14.2 fixed it.
-> 
-> >this is a way to (incorrectly according to v4l devs) "fix" it:
-> >drivers/media/video/video-buf.c
-> >change line 1233 to this:
-> >        vma->vm_flags |= VM_DONTEXPAND;
-> 
+> Definite improvement to my patch. I think I like Joe's suggestion 
+> better, though. (Any mistakes in the following are mine.)
 
+If we drop the printk then this may be even simpler
+
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
+
+Index: linux-2.6.15-rc1-mm2/mm/slab.c
+===================================================================
+--- linux-2.6.15-rc1-mm2.orig/mm/slab.c	2005-11-21 13:16:07.000000000 -0800
++++ linux-2.6.15-rc1-mm2/mm/slab.c	2005-11-21 13:16:59.000000000 -0800
+@@ -2890,21 +2890,14 @@ void *kmem_cache_alloc_node(kmem_cache_t
+ 	unsigned long save_flags;
+ 	void *ptr;
+ 
+-	if (nodeid == -1)
+-		return __cache_alloc(cachep, flags);
+-
+-	if (unlikely(!cachep->nodelists[nodeid])) {
+-		/* Fall back to __cache_alloc if we run into trouble */
+-		printk(KERN_WARNING "slab: not allocating in inactive node %d for cache %s\n", nodeid, cachep->name);
+-		return __cache_alloc(cachep,flags);
+-	}
+-
+ 	cache_alloc_debugcheck_before(cachep, flags);
+ 	local_irq_save(save_flags);
+-	if (nodeid == numa_node_id())
++
++	if (nodeid == -1 || nodeid == numa_node_id() || !cachep->nodelists[nodeid])
+ 		ptr = ____cache_alloc(cachep, flags);
+ 	else
+ 		ptr = __cache_alloc_node(cachep, flags, nodeid);
++
+ 	local_irq_restore(save_flags);
+ 	ptr = cache_alloc_debugcheck_after(cachep, flags, ptr, __builtin_return_address(0));
+ 

@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751184AbVKUWhO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbVKUWhE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751184AbVKUWhO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 17:37:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbVKUWhO
+	id S1751188AbVKUWhE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 17:37:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbVKUWhE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 17:37:14 -0500
-Received: from [205.233.219.253] ([205.233.219.253]:48043 "EHLO
-	conifer.conscoop.ottawa.on.ca") by vger.kernel.org with ESMTP
-	id S1751184AbVKUWhM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 17:37:12 -0500
-Date: Mon, 21 Nov 2005 17:32:40 -0500
-From: Jody McIntyre <scjody@steamballoon.com>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: bcollins@debian.org, bunk@stusta.de, davej@redhat.com, dan@dennedy.org,
-       linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       stable@kernel.org
-Subject: Re: [2.6 patch] drivers/ieee1394/raw1394.c: fix a NULL pointer dereference
-Message-ID: <20051121223240.GS20781@conscoop.ottawa.on.ca>
-References: <20051121215226.GN20781@conscoop.ottawa.on.ca> <200511212209.jALM9TpR032499@einhorn.in-berlin.de>
+	Mon, 21 Nov 2005 17:37:04 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:17940 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S1751187AbVKUWhC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 17:37:02 -0500
+Date: Mon, 21 Nov 2005 23:37:02 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Subject: [PATCH 0/7] kconfig/menuconfig
+Message-ID: <20051121223702.GA19157@mars.ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200511212209.jALM9TpR032499@einhorn.in-berlin.de>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 21, 2005 at 11:09:02PM +0100, Stefan Richter wrote:
-> [PATCH 2.6.15-rc2] raw1394: fix memory deallocation in modify_config_rom
-> 
-> raw1394: use correct deallocation macro for CSR cache
+Hi Roman & lkml.
 
-Applied.
+I have digged up a serie of patches I had for scripts/lxdialog.
+The net result of the patches are much nicer look in a text-only console
+(that is with no X running). Also the code becomes in some places
+almost readable, using Lindent is just one part of the cure.
 
-Cheers,
-Jody
+Description of the individual patches:
 
->  
-> Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
-> 
-> --- linux-2.6.15-rc2/drivers/ieee1394/raw1394.c.orig	2005-11-21 22:17:13.000000000 +0100
-> +++ linux-2.6.15-rc2/drivers/ieee1394/raw1394.c	2005-11-21 22:29:19.000000000 +0100
-> @@ -2172,7 +2171,7 @@ static int modify_config_rom(struct file
->  		}
->  	}
->  	kfree(cache->filled_head);
-> -	kfree(cache);
-> +	CSR1212_FREE(cache);
->  
->  	if (ret >= 0) {
->  		/* we have to free the request, because we queue no response,
-> 
+[xxx] Lindent of scripts/lxdialog (patch not posted)
+[1/7] fixup after Lindent
+[2/7] make lxdialog sparse clean
+[3/7] introduce a common helper to simplify printing the title
+[4/7] left align the menu lines
+[5/7] fix indention on text-only consoles
+[6/7] make menubox.c more readable using a single macro
+[7/7] truncate long menu lines
 
--- 
+All patches are pushed to the kbuild repository at kernel.org:
+http://www.kernel.org/pub/scm/linux/kernel/git/sam/kbuild.git
+
+Patched will follow as reply to this mail
+
+This is not strictly kbuild stuff but using this repository the patches will
+hit -mm for wider testing.
+
+
+	Sam

@@ -1,146 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbVKUPuo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbVKUPxH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932331AbVKUPuo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 10:50:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932334AbVKUPuo
+	id S932335AbVKUPxH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 10:53:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbVKUPxH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 10:50:44 -0500
-Received: from xproxy.gmail.com ([66.249.82.196]:35275 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932331AbVKUPun convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 10:50:43 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=W6Hxzk6jnSt1Vk4EefjaGICM/U90/OyywgvpUG75yKkJlvp+kWj/ZFzNcTrWlCizZjom3ng8nxILNo0rShIdOXMmiJWEo/7n0YdxJZrKgPTQwRK8CidPX5yBfELZyCsxye0D2iv0anDPM2WX3KghmJmONrVZZ3Tk3Kdns5V/Lvk=
-Message-ID: <afcef88a0511210750g29b0431fwb871f5d1a30649a1@mail.gmail.com>
-Date: Mon, 21 Nov 2005 09:50:41 -0600
-From: Michael Thompson <michael.craig.thompson@gmail.com>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: [PATCH 5/12: eCryptfs] Header declarations
-Cc: Phillip Hellewell <phillip@hellewell.homeip.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       viro@ftp.linux.org.uk, mike@halcrow.us, mhalcrow@us.ibm.com,
-       mcthomps@us.ibm.com, yoder1@us.ibm.com
-In-Reply-To: <84144f020511190237w8b5404em461bb2eaf5fa8ea6@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 21 Nov 2005 10:53:07 -0500
+Received: from waste.org ([64.81.244.121]:58026 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S932335AbVKUPxF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 10:53:05 -0500
+Date: Mon, 21 Nov 2005 07:50:50 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Rob Landley <rob@landley.net>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: [PATCH] skip initramfs check
+Message-ID: <20051121155050.GK31287@waste.org>
+References: <20051117141432.GD9753@logos.cnet> <200511210130.55774.rob@landley.net> <20051121062350.GA24381@logos.cnet> <200511210904.46495.rob@landley.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20051119041130.GA15559@sshock.rn.byu.edu>
-	 <20051119041837.GE15747@sshock.rn.byu.edu>
-	 <84144f020511190237w8b5404em461bb2eaf5fa8ea6@mail.gmail.com>
+In-Reply-To: <200511210904.46495.rob@landley.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/19/05, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
-> Hi Phillip,
->
-> On 11/19/05, Phillip Hellewell <phillip@hellewell.homeip.net> wrote:
-> > +struct ecryptfs_session_key {
-> > +#define ECRYPTFS_USERSPACE_SHOULD_TRY_TO_DECRYPT 0x01
-> > +#define ECRYPTFS_USERSPACE_SHOULD_TRY_TO_ENCRYPT 0x02
-> > +#define ECRYPTFS_CONTAINS_DECRYPTED_KEY 0x04
-> > +#define ECRYPTFS_CONTAINS_ENCRYPTED_KEY 0x08
-> > +       int32_t flags;
-> > +       int32_t encrypted_key_size;
-> > +       int32_t decrypted_key_size;
-> > +       uint8_t decrypted_key[ECRYPTFS_MAX_KEY_BYTES];
-> > +       uint8_t encrypted_key[ECRYPTFS_MAX_ENCRYPTED_KEY_BYTES];
->
-> s32 and u8 are preferred in the kernel.
+On Mon, Nov 21, 2005 at 09:04:46AM -0600, Rob Landley wrote:
+> On Monday 21 November 2005 00:23, Marcelo Tosatti wrote:
+> > Hi Rob,
+> > > Query: is the problem that a big initramfs image is being unpacked more
+> > > than once, or is unpacking an empty initramfs image (134 bytes) causing a
+> > > significant delay?
+> >
+> > The problem is a big non-initramfs RAMDISK image (used for root mountpoint
+> > on this particular embedded platform), that is decompressed more than once:
+> >
+> > - during the initramfs check, which fails because it is not initramfs.
+> > - during the real RAMDISK decompression to memory.
+> >
+> > > I'm fairly certain that back in 1990 I could unzip 134 bytes on my 33 mhz
+> > > 386 running dos in a fraction of a second.  What's the use case here?
+> >
+> > So the issue is not the empty initramfs image (which BTW could probably
+> > be made unecessary?), but a 10Mb RAMDISK image being decompressed by a
+> > 48Mhz PPC, which takes quite a few seconds.
+> >
+> > Need to rework the patch to use a __setup option as Andrew suggested.
+> 
+> It sounds to me like is the initial check (which is just giving a thumbs 
+> up/thumbs down "is this an initramfs", correct?) only needs to decompress the 
+> first page or so of data to make this determination.  A quick glance at the 
+> code seems to imply it's just checking the header and the first entry, so 4k 
+> should be plenty for that.
+> 
+> Some variant of lib/zlib_inflate...  Ouch, bit of a mess there.  Hey Matt: you 
+> know this area.  Is it feasible to do some kind of:
+> 
+> deflate_init(whatever)
+> deflate_next_x_bytes(source *, dest *, length)
+> 
+> To grab a the first X bytes from the initramfs image?
 
-Thanks for that, lots of little things like this were undoubtably
-missed, we use u/s# in other areas. Changed and will be resent after
-all comments are in.
+Not at the moment. But I think it is feasible to simply move the ramdisk
+detection and unpacking inside the ramfs state machine. In other
+words, add two new states:
 
->
-> > +#define OBSERVE_ASSERTS 1
-> > +#ifdef OBSERVE_ASSERTS
-> > +#define ASSERT(EX)                                                           \
-> > +do {                                                                         \
-> > +        if (unlikely(!(EX))) {                                                \
-> > +               printk(KERN_CRIT "ASSERTION FAILED: %s at %s:%d (%s)\n", #EX, \
-> > +                      __FILE__, __LINE__, __FUNCTION__);                     \
-> > +                BUG();                                                        \
-> > +        }                                                                    \
-> > +} while (0)
-> > +#else
-> > +#define ASSERT(EX) ;
-> > +#endif                         /* OBSERVE_ASSERTS */
->
-> Any reason why you can't just use BUG and BUG_ON()?
+- detecting type
+- unpacking ramdisk
 
-No reason? I think we've had this comment before, not sure if we have
-had a decent reason though... let me see if I can find out why we do
-it this way.
+When the first few bytes are fed from the decompressor to the state
+machine, we either transition to the normal ramfs unpacking or we
+treat it as a ramdisk.
 
-> > +
-> > +/**
-> > + * Halcrow: What does the kernel VFS do to ensure that there is no
-> > + * contention for file->private_data?
-> > + */
->
-> Please elaborate?
-
-I believe this is an old and lingering comment. While I don't know who
-originated, it sounds like a question to Michael Halcrow regarding
-locking of a struct file's private data... It will be removed for next
-submission.
-
->
-> > +#define ECRYPTFS_FILE_TO_PRIVATE(file) ((struct ecryptfs_file_info *) \
-> > +                                        ((file)->private_data))
-> > +#define ECRYPTFS_FILE_TO_PRIVATE_SM(file) ((file)->private_data)
-> > +#define ECRYPTFS_FILE_TO_LOWER(file) \
-> > +        ((ECRYPTFS_FILE_TO_PRIVATE(file))->wfi_file)
-> > +#define ECRYPTFS_INODE_TO_PRIVATE(ino) ((struct ecryptfs_inode_info *) \
-> > +                                        (ino)->u.generic_ip)
-> > +#define ECRYPTFS_INODE_TO_PRIVATE_SM(ino) ((ino)->u.generic_ip)
-> > +#define ECRYPTFS_INODE_TO_LOWER(ino) (ECRYPTFS_INODE_TO_PRIVATE(ino)->wii_inode)
-> > +#define ECRYPTFS_SUPERBLOCK_TO_PRIVATE(super) ((struct ecryptfs_sb_info *) \
-> > +                                               (super)->s_fs_info)
-> > +#define ECRYPTFS_SUPERBLOCK_TO_PRIVATE_SM(super) ((super)->s_fs_info)
-> > +#define ECRYPTFS_SUPERBLOCK_TO_LOWER(super) \
-> > +        (ECRYPTFS_SUPERBLOCK_TO_PRIVATE(super)->wsi_sb)
-> > +#define ECRYPTFS_DENTRY_TO_PRIVATE_SM(dentry) ((dentry)->d_fsdata)
-> > +#define ECRYPTFS_DENTRY_TO_PRIVATE(dentry) ((struct ecryptfs_dentry_info *) \
-> > +                                            (dentry)->d_fsdata)
-> > +#define ECRYPTFS_DENTRY_TO_LOWER(dentry) \
-> > +        (ECRYPTFS_DENTRY_TO_PRIVATE(dentry)->wdi_dentry)
->
-> These wrappers seem rather pointless and obfuscating...
-
-I find them make the code a bit more clear. Then again, I understand
-what they do and use them a lot, so I am clearly jaded. You are the
-first person to comment on these wrappers (all previous comments where
-regarding some debug wrappers we had in when we first submitted, I
-like those ones too, but I guess my opinion doesn't carry enough
-weight here ;P) There is no functional reason why these can't be
-removed, but like I said, I think they make the code a lot easier to
-read once you know all they do is sugar-coat a potentially long, and
-potentially confusing, chain of refences, and turn that into some
-phrase-like macro.
-
->
-> > +int virt_to_scatterlist(const void *addr, int size, struct scatterlist *sg,
-> > +                       int sg_size);
->
-> Doesn't seem ecryptfs specific, why is it here?
-
-Ah ha, that should read ecryptfs_virt_to_scatterlist. Again, will be
-changed for next submission. While reviewing the code, there seem to
-be a few more like this. I'll make sure they get updated.
-
->
->                                           Pekka
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
-
-
---
-Michael C. Thompson <mcthomps@us.ibm.com>
-Software-Engineer, IBM LTC Security
+-- 
+Mathematics is the supreme nostalgia of our time.

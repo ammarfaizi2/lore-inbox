@@ -1,90 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbVKUJ2m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbVKUJ2d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932240AbVKUJ2m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 04:28:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbVKUJ2m
+	id S932239AbVKUJ2d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 04:28:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbVKUJ2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 04:28:42 -0500
-Received: from web36409.mail.mud.yahoo.com ([209.191.85.144]:14436 "HELO
-	web36409.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932240AbVKUJ2l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 04:28:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=y9n3aLfPcscE+Zi5sh427J0JewylfroW5JvAyY2Fc9lUFiamfDE1ZnSUX3PnfH+/nKeLMCwyNRxs+whNI04ezUfDRhUAQlDEgZ3mlRp/aHV8/bugmcOg6BXnK9lGRoOzJgUWx07wDalMBxceEu5vko5c/BHRzy7kdWvMZe6n/Fg=  ;
-Message-ID: <20051121092841.47907.qmail@web36409.mail.mud.yahoo.com>
-Date: Mon, 21 Nov 2005 01:28:41 -0800 (PST)
-From: Alfred Brons <alfredbrons@yahoo.com>
-Subject: what is our answer to ZFS?
-To: linux-kernel@vger.kernel.org
+	Mon, 21 Nov 2005 04:28:33 -0500
+Received: from outgoing.smtp.agnat.pl ([193.239.44.83]:47884 "EHLO
+	outgoing.smtp.agnat.pl") by vger.kernel.org with ESMTP
+	id S932239AbVKUJ2d convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 04:28:33 -0500
+From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Organization: SelfOrganizing
+To: cmulcahy@avesi.com
+Subject: Re: athlon x2 + 2.6.14 + SMP = fast clock
+Date: Mon, 21 Nov 2005 10:28:03 +0100
+User-Agent: KMail/1.9
+Cc: Akira Tsukamoto <akira-t@suna-asobi.com>,
+       john stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org
+References: <1131498162.21752.102.camel@jones> <20051121030949.80C0.AKIRA-T@suna-asobi.com> <1132537722.9627.145.camel@harry>
+In-Reply-To: <1132537722.9627.145.camel@harry>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200511211028.04431.arekm@pld-linux.org>
+X-Authenticated-Id: arekm
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Monday 21 November 2005 02:48, Christopher Mulcahy wrote:
+> I am using arch amd64.
+>
+> I applied this patch.
+>
+> http://bugzilla.kernel.org/attachment.cgi?id=6061&action=view
+>
+> It applies to 2.6.14.2 so long as you remove the static declaration of
+> 'int disable_timer_pin_1'
+>
+> It appears to have solved my problem.
 
-I just noticed in the news this link:
+I wonder is this is x86_64 only problem?
 
-http://www.opensolaris.org/os/community/zfs/demos/basics
+I'm having the same problem on dual xeon 1.8GHz i686 with HT enabled, kernel 
+2.6.14.2-4smp. Clock runs twice fast. Previously I was using 2.6.11 kernel 
+with no such problem.
 
-I wonder what would be our respond to this beaste?
+cmdline is: acpi=ht nmi_watchdog=1
 
-btw, you could try it live by using Nexenta
-GNU/Solaris LiveCD at
-http://www.gnusolaris.org/gswiki/Download which is
-Ubuntu-based OpenSolaris
-distribution.
+Unfortunately I can't do any testing right now on this machine but I'll try 
+acpi_skip_timer_override cmdline option as soon as I can.
 
-So what is ZFS?
+> Chris
 
-ZFS is a new kind of filesystem that provides simple
-administration, transactional semantics, end-to-end
-data integrity, and immense scalability. ZFS is not an
-incremental improvement to existing technology; it is
-a fundamentally new approach to data management. We've
-blown away 20 years of obsolete assumptions,
-eliminated complexity at the source, and created a
-storage system that's actually a pleasure to use.
+00:00.0 Host bridge: Intel Corporation E7500 Memory Controller Hub (rev 03)
+00:02.0 PCI bridge: Intel Corporation E7500/E7501 Hub Interface B PCI-to-PCI 
+Bridge (rev 03)
+00:1d.0 USB Controller: Intel Corporation 82801CA/CAM USB (Hub #1) (rev 02)
+00:1e.0 PCI bridge: Intel Corporation 82801 PCI Bridge (rev 42)
+00:1f.0 ISA bridge: Intel Corporation 82801CA LPC Interface Controller (rev 
+02)
+00:1f.1 IDE interface: Intel Corporation 82801CA Ultra ATA Storage Controller 
+(rev 02)
+00:1f.3 SMBus: Intel Corporation 82801CA/CAM SMBus Controller (rev 02)
+01:01.0 Ethernet controller: Intel Corporation 82557/8/9 [Ethernet Pro 100] 
+(rev 10)
+01:02.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
+02:1c.0 PIC: Intel Corporation 82870P2 P64H2 I/OxAPIC (rev 03)
+02:1d.0 PCI bridge: Intel Corporation 82870P2 P64H2 Hub PCI Bridge (rev 03)
+02:1e.0 PIC: Intel Corporation 82870P2 P64H2 I/OxAPIC (rev 03)
+02:1f.0 PCI bridge: Intel Corporation 82870P2 P64H2 Hub PCI Bridge (rev 03)
+03:03.0 Fibre Channel: QLogic Corp. QLA2312 Fibre Channel Adapter (rev 02)
+04:01.0 Ethernet controller: Intel Corporation 82545EM Gigabit Ethernet 
+Controller (Copper) (rev 01)
 
-ZFS presents a pooled storage model that completely
-eliminates the concept of volumes and the associated
-problems of partitions, provisioning, wasted bandwidth
-and stranded storage. Thousands of filesystems can
-draw from a common storage pool, each one consuming
-only as much space as it actually needs.
-
-All operations are copy-on-write transactions, so the
-on-disk state is always valid. There is no need to
-fsck(1M) a ZFS filesystem, ever. Every block is
-checksummed to prevent silent data corruption, and the
-data is self-healing in replicated (mirrored or RAID)
-configurations.
-
-ZFS provides unlimited constant-time snapshots and
-clones. A snapshot is a read-only point-in-time copy
-of a filesystem, while a clone is a writable copy of a
-snapshot. Clones provide an extremely space-efficient
-way to store many copies of mostly-shared data such as
-workspaces, software installations, and diskless
-clients.
-
-ZFS administration is both simple and powerful. The
-tools are designed from the ground up to eliminate all
-the traditional headaches relating to managing
-filesystems. Storage can be added, disks replaced, and
-data scrubbed with straightforward commands.
-Filesystems can be created instantaneously, snapshots
-and clones taken, native backups made, and a
-simplified property mechanism allows for setting of
-quotas, reservations, compression, and more.
-
-Alfred
+# cat /proc/interrupts
+           CPU0       CPU1       CPU2       CPU3
+  0:   47938745          0          0          0    IO-APIC-edge  timer
+  2:          0          0          0          0          XT-PIC  cascade
+  4:      41666          0          0          0    IO-APIC-edge  serial
+  8:          3          0          0          0    IO-APIC-edge  rtc
+145:          0          0          0          0   IO-APIC-level  
+uhci_hcd:usb1
+153:   49053282          0          0          0   IO-APIC-level  eth0
+169:    3839290          0          0          0   IO-APIC-level  qla2300
+177:   45129167          0          0          0   IO-APIC-level  eth1
+NMI:   47939763   47939734   47939732   47939731
+LOC:   47943502   47944012   47944469   47944277
+ERR:          0
+MIS:          0
 
 
-		
-__________________________________ 
-Yahoo! FareChase: Search multiple travel sites in one click.
-http://farechase.yahoo.com
+-- 
+Arkadiusz Mi¶kiewicz                    PLD/Linux Team
+http://www.t17.ds.pwr.wroc.pl/~misiek/  http://ftp.pld-linux.org/

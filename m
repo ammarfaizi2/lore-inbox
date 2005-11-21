@@ -1,30 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbVKUNZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbVKUN15@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750774AbVKUNZU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 08:25:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751026AbVKUNZT
+	id S1750738AbVKUN15 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 08:27:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750775AbVKUN15
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 08:25:19 -0500
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:59809 "HELO
+	Mon, 21 Nov 2005 08:27:57 -0500
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:56740 "HELO
 	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1750775AbVKUNZS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 08:25:18 -0500
+	id S1750738AbVKUN14 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 08:27:56 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com.au;
   h=Received:From:To:Cc:Message-Id:In-Reply-To:References:Subject;
-  b=n7iMo476BsFBvzKZWrovvIuqlqYg6ik9XMtQ0OtxVtLSgzUrSTU+YSyfGcJCllxhDMfxe0p0xYBwVZiWqjNaKJ9NwHC1Zmj6LhPsm45xmMQbW7RTagrTkUx+bUXuBYNGi9VCAKAojQioJ1j6pF7HNsF8sWyXPiL//jNvo9SuAok=  ;
+  b=cvntec/dt/vgcPKXSCaGL3GBi+oTuwJaiadtrsXZNrZNgxCh7O2lQAigMh7EgyoTXRoc6b3KNHq9aQRbNpnMriLdKumtfnV6WGMgXRymDdKKPGep9Js6hAwp5jZucg2I/buRWZri0qgL9Inbh63G+FBbubbnmGiD9lHNM1+w2Mo=  ;
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 To: linux-kernel@vger.kernel.org
 Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>
-Message-Id: <20051121124102.14370.93106.sendpatchset@didi.local0.net>
+Message-Id: <20051121124323.14370.21159.sendpatchset@didi.local0.net>
 In-Reply-To: <20051121123906.14370.3039.sendpatchset@didi.local0.net>
 References: <20051121123906.14370.3039.sendpatchset@didi.local0.net>
-Subject: [patch 5/12] mm: microopt conditions
-Date: Mon, 21 Nov 2005 08:25:18 -0500
+Subject: [patch 10/12] mm: page_state fixes
+Date: Mon, 21 Nov 2005 08:27:56 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Micro optimise some conditionals where we don't need lazy evaluation.
+read_page_state and __get_page_state only traverse online CPUs, which will
+cause results to fluctuate when CPUs are plugged in or out.
 
 Signed-off-by: Nick Piggin <npiggin@suse.de>
 
@@ -32,48 +33,27 @@ Index: linux-2.6/mm/page_alloc.c
 ===================================================================
 --- linux-2.6.orig/mm/page_alloc.c
 +++ linux-2.6/mm/page_alloc.c
-@@ -342,9 +342,9 @@ static inline void __free_pages_bulk (st
+@@ -1140,12 +1140,11 @@ EXPORT_SYMBOL(nr_pagecache);
+ DEFINE_PER_CPU(long, nr_pagecache_local) = 0;
+ #endif
  
- static inline void free_pages_check(const char *function, struct page *page)
+-void __get_page_state(struct page_state *ret, int nr, cpumask_t *cpumask)
++static void __get_page_state(struct page_state *ret, int nr, cpumask_t *cpumask)
  {
--	if (	page_mapcount(page) ||
--		page->mapping != NULL ||
--		page_count(page) != 0 ||
-+	if (unlikely(page_mapcount(page) |
-+		(page->mapping != NULL)  |
-+		(page_count(page) != 0)  |
- 		(page->flags & (
- 			1 << PG_lru	|
- 			1 << PG_private |
-@@ -354,7 +354,7 @@ static inline void free_pages_check(cons
- 			1 << PG_slab	|
- 			1 << PG_swapcache |
- 			1 << PG_writeback |
--			1 << PG_reserved )))
-+			1 << PG_reserved ))))
- 		bad_page(function, page);
- 	if (PageDirty(page))
- 		__ClearPageDirty(page);
-@@ -455,9 +455,9 @@ expand(struct zone *zone, struct page *p
-  */
- static void prep_new_page(struct page *page, int order)
- {
--	if (	page_mapcount(page) ||
--		page->mapping != NULL ||
--		page_count(page) != 0 ||
-+	if (unlikely(page_mapcount(page) |
-+		(page->mapping != NULL)  |
-+		(page_count(page) != 0)  |
- 		(page->flags & (
- 			1 << PG_lru	|
- 			1 << PG_private	|
-@@ -468,7 +468,7 @@ static void prep_new_page(struct page *p
- 			1 << PG_slab    |
- 			1 << PG_swapcache |
- 			1 << PG_writeback |
--			1 << PG_reserved )))
-+			1 << PG_reserved ))))
- 		bad_page(__FUNCTION__, page);
+ 	int cpu = 0;
  
- 	page->flags &= ~(1 << PG_uptodate | 1 << PG_error |
+ 	memset(ret, 0, sizeof(*ret));
+-	cpus_and(*cpumask, *cpumask, cpu_online_map);
+ 
+ 	cpu = first_cpu(*cpumask);
+ 	while (cpu < NR_CPUS) {
+@@ -1198,7 +1197,7 @@ unsigned long read_page_state_offset(uns
+ 	unsigned long ret = 0;
+ 	int cpu;
+ 
+-	for_each_online_cpu(cpu) {
++	for_each_cpu(cpu) {
+ 		unsigned long in;
+ 
+ 		in = (unsigned long)&per_cpu(page_states, cpu) + offset;
 Send instant messages to your online friends http://au.messenger.yahoo.com 

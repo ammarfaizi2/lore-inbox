@@ -1,70 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbVKUQsf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751056AbVKUQvM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751048AbVKUQsf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 11:48:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbVKUQse
+	id S1751056AbVKUQvM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 11:51:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbVKUQvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 11:48:34 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:6292 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1751044AbVKUQse (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 11:48:34 -0500
-Date: Mon, 21 Nov 2005 11:48:32 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Andrew Morton <akpm@osdl.org>
-cc: Kernel development list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Workaround for gcc 2.96 (undefined references)
-Message-ID: <Pine.LNX.4.44L0.0511211145330.4586-100000@iolanthe.rowland.org>
+	Mon, 21 Nov 2005 11:51:12 -0500
+Received: from gold.veritas.com ([143.127.12.110]:51827 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751054AbVKUQvL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 11:51:11 -0500
+Date: Mon, 21 Nov 2005 16:51:14 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Takashi Iwai <tiwai@suse.de>, Lee Revell <rlrevell@joe-job.com>,
+       Miles Lane <miles.lane@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       alsa-devel <alsa-devel@lists.sourceforge.net>
+Subject: Re: 2.6.15-rc1-mm2 -- Bad page state at free_hot_cold_page (in
+ process 'aplay', page c18eef30)
+In-Reply-To: <20051121155239.GC21032@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.61.0511211634440.16632@goblin.wat.veritas.com>
+References: <a44ae5cd0511192256u20f0e594kc65cbaba108ff06e@mail.gmail.com>
+ <Pine.LNX.4.61.0511200804500.3938@goblin.wat.veritas.com>
+ <1132510467.6874.144.camel@mindpipe> <Pine.LNX.4.61.0511201915530.8619@goblin.wat.veritas.com>
+ <s5hlkzinrq5.wl%tiwai@suse.de> <Pine.LNX.4.61.0511211507160.15988@goblin.wat.veritas.com>
+ <20051121155239.GC21032@flint.arm.linux.org.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 21 Nov 2005 16:51:11.0032 (UTC) FILETIME=[C6BA4B80:01C5EEBB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew:
+On Mon, 21 Nov 2005, Russell King wrote:
+> 
+> Does this mean that in arch/arm/mm/consistent.c, we should also set
+> __GFP_COMP ?  Should we be doing that today?
 
-As of 2.6.15-rc1-git4, gcc 2.96 complains about undefined references 
-unless this patch (as607) is applied.  Apparently the old compiler isn't 
-so good at avoiding linker references to unused code.
+No, I don't believe so.  I notice there's use of PageReserved and page
+count manipulation in there, which we may well want to rationalize in
+a later phase, perhaps replacing by __GFP_COMP then; but I don't see
+any need to change what you're doing at this stage.
 
-Alan Stern
+Looking again, to see why you even thought you might need to change:
+the vital thing you're doing (aside from the PageReserved, which is
+becoming irrelevant), which is missing from the regular high-order
+allocation, is the set_page_count(page, 1).  That's why you don't
+need to change: the problems I was writing of come from when the
+0-order page count goes down to 0.
 
+Makes me wonder whether there could be a useful halfway stage to
+compound pages, whether it would help for the page allocator to
+set those counts to 1 generally.
 
-
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-
----
-
-Index: usb-2.6/mm/memory.c
-===================================================================
---- usb-2.6.orig/mm/memory.c
-+++ usb-2.6/mm/memory.c
-@@ -2101,6 +2101,13 @@ int __pud_alloc(struct mm_struct *mm, pg
- 	spin_unlock(&mm->page_table_lock);
- 	return 0;
- }
-+#else
-+
-+/* Workaround for gcc 2.96 */
-+int __pud_alloc(struct mm_struct *mm, pgd_t *pgd, unsigned long address)
-+{
-+	return 0;
-+}
- #endif /* __PAGETABLE_PUD_FOLDED */
- 
- #ifndef __PAGETABLE_PMD_FOLDED
-@@ -2129,6 +2136,13 @@ int __pmd_alloc(struct mm_struct *mm, pu
- 	spin_unlock(&mm->page_table_lock);
- 	return 0;
- }
-+#else
-+
-+/* Workaround for gcc 2.96 */
-+int __pmd_alloc(struct mm_struct *mm, pud_t *pud, unsigned long address)
-+{
-+	return 0;
-+}
- #endif /* __PAGETABLE_PMD_FOLDED */
- 
- int make_pages_present(unsigned long addr, unsigned long end)
-
+Hugh

@@ -1,75 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932438AbVKURt6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932420AbVKURup@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932438AbVKURt6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 12:49:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbVKURtf
+	id S932420AbVKURup (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 12:50:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbVKURuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 12:49:35 -0500
-Received: from citi.umich.edu ([141.211.133.111]:53644 "EHLO citi.umich.edu")
-	by vger.kernel.org with ESMTP id S932419AbVKURtW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 12:49:22 -0500
-Message-ID: <438208A1.5020300@citi.umich.edu>
-Date: Mon, 21 Nov 2005 12:49:21 -0500
-From: Chuck Lever <cel@citi.umich.edu>
-Reply-To: cel@citi.umich.edu
-Organization: Network Appliance, Inc.
-User-Agent: Mozilla Thunderbird 1.0.7-1.4.1 (X11/20050929)
-X-Accept-Language: en-us, en
+	Mon, 21 Nov 2005 12:50:44 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:1245 "EHLO
+	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S932432AbVKURua
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 12:50:30 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH] make miniconfig (take 2)
+Date: Mon, 21 Nov 2005 11:50:16 -0600
+User-Agent: KMail/1.8
+Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
+       Sam Ravnborg <sam@ravnborg.org>
+References: <200511170629.42389.rob@landley.net> <200511211006.48289.rob@landley.net> <20051121173636.GB2642@elf.ucw.cz>
+In-Reply-To: <20051121173636.GB2642@elf.ucw.cz>
 MIME-Version: 1.0
-To: Kenny Simpson <theonetruekenny@yahoo.com>
-Cc: Andrew Morton <akpm@osdl.org>, trond.myklebust@fys.uio.no,
-       linux-kernel@vger.kernel.org
-Subject: Re: infinite loop? with mmap, nfs, pwrite, O_DIRECT
-References: <20051121171332.58073.qmail@web34115.mail.mud.yahoo.com>
-In-Reply-To: <20051121171332.58073.qmail@web34115.mail.mud.yahoo.com>
-Content-Type: multipart/mixed;
- boundary="------------050009030409000200000102"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511211150.17271.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050009030409000200000102
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Monday 21 November 2005 11:36, Pavel Machek wrote:
+> How is it supposed to work with cross-compiling.
 
-Kenny Simpson wrote:
-> I have a smaller test case (4 system calls, and a memset), that causes the test case to hang in an
-> unkillable state*, and makes the system load consume an entire CPU.
-> 
-> *the process is killable if run under strace, but the system load does not drop when the strace is
-> killed.
-> 
-> Pass this the name of a target file on an NFS mount.
-> 
-> (tested to fail on 2.6.15-rc1).
+That's why I gave the User Mode Linux example in the documentation, which 
+specifies an architecture.  (And in take 2, I added an example of running the 
+makemini.sh script for UML, where you have to specify ARCH=um as an 
+environment variable.)
 
-kenny-
+If there's more to cross-compiling than that, please tell me and I'll work it 
+in.  (I know you have to specify a cross toolchain, but I didn't think that 
+affected the configure step...)
 
-i'm assuming that because you copied trond, this is only reproducible on 
-NFS.  have you tried this test on other local and remote file system types?
+>         Pavel
 
---------------050009030409000200000102
-Content-Type: text/x-vcard; charset=utf-8;
- name="cel.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="cel.vcf"
-
-begin:vcard
-fn:Chuck Lever
-n:Lever;Charles
-org:Network Appliance, Incorporated;Linux NFS Client Development
-adr:535 West William Street, Suite 3100;;Center for Information Technology Integration;Ann Arbor;MI;48103-4943;USA
-email;internet:cel@citi.umich.edu
-title:Member of Technical Staff
-tel;work:+1 734 763 4415
-tel;fax:+1 734 763 4434
-tel;home:+1 734 668 1089
-x-mozilla-html:FALSE
-url:http://www.monkey.org/~cel/
-version:2.1
-end:vcard
-
-
---------------050009030409000200000102--
+Rob

@@ -1,334 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbVKUUnv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbVKUUry@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932467AbVKUUnv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 15:43:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbVKUUnq
+	id S932349AbVKUUry (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 15:47:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbVKUUrx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 15:43:46 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:2242 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932459AbVKUUnY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 15:43:24 -0500
-Date: Mon, 21 Nov 2005 12:43:17 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, ak@suse.de,
-       Christoph Lameter <clameter@sgi.com>
-Message-Id: <20051121204317.10630.92857.sendpatchset@schroedinger.engr.sgi.com>
-In-Reply-To: <20051121204301.10630.76569.sendpatchset@schroedinger.engr.sgi.com>
-References: <20051121204301.10630.76569.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 4/4] Move page migration related functions near do_migrate_pages()
+	Mon, 21 Nov 2005 15:47:53 -0500
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:53658 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S932349AbVKUUrx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 15:47:53 -0500
+Date: Mon, 21 Nov 2005 15:47:52 -0500
+To: Lars Roland <lroland@gmail.com>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Poor Software RAID-0 performance with 2.6.14.2
+Message-ID: <20051121204752.GK9488@csclub.uwaterloo.ca>
+References: <4ad99e050511211231o97d5d7fw59b44527dc25dcea@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4ad99e050511211231o97d5d7fw59b44527dc25dcea@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Group page migration functions in mempolicy.c
+On Mon, Nov 21, 2005 at 09:31:14PM +0100, Lars Roland wrote:
+> I have created a stripe across two 500Gb disks located on separate IDE
+> channels using:
+> 
+> mdadm -Cv /dev/md0 -c32 -n2 -l0 /dev/hdb /dev/hdd
 
-Add a forward declaration for migrate_page_add (like gather_stats()) and use
-our new found mobility to group all page migration related function around
-do_migrate_pages().
+Does -l0 equal stripe or linear?  The mdadm man page doesn't seem clear
+o that to me.
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+If it defaults to linear, then you shouldn't expect any performance gain
+since that would just stick one drive after the other (no striping).
+Try explicitly statping -l stripe instead of -l 0.
 
-Index: linux-2.6.15-rc1-mm2/mm/mempolicy.c
-===================================================================
---- linux-2.6.15-rc1-mm2.orig/mm/mempolicy.c	2005-11-21 12:14:43.000000000 -0800
-+++ linux-2.6.15-rc1-mm2/mm/mempolicy.c	2005-11-21 12:21:00.000000000 -0800
-@@ -188,55 +188,9 @@ static struct mempolicy *mpol_new(int mo
- 	return policy;
- }
- 
--/* Check if we are the only process mapping the page in question */
--static inline int single_mm_mapping(struct mm_struct *mm,
--			struct address_space *mapping)
--{
--	struct vm_area_struct *vma;
--	struct prio_tree_iter iter;
--	int rc = 1;
--
--	spin_lock(&mapping->i_mmap_lock);
--	vma_prio_tree_foreach(vma, &iter, &mapping->i_mmap, 0, ULONG_MAX)
--		if (mm != vma->vm_mm) {
--			rc = 0;
--			goto out;
--		}
--	list_for_each_entry(vma, &mapping->i_mmap_nonlinear, shared.vm_set.list)
--		if (mm != vma->vm_mm) {
--			rc = 0;
--			goto out;
--		}
--out:
--	spin_unlock(&mapping->i_mmap_lock);
--	return rc;
--}
--
--/*
-- * Add a page to be migrated to the pagelist
-- */
--static void migrate_page_add(struct vm_area_struct *vma,
--	struct page *page, struct list_head *pagelist, unsigned long flags)
--{
--	/*
--	 * Avoid migrating a page that is shared by others and not writable.
--	 */
--	if ((flags & MPOL_MF_MOVE_ALL) || !page->mapping || PageAnon(page) ||
--	    mapping_writably_mapped(page->mapping) ||
--	    single_mm_mapping(vma->vm_mm, page->mapping)) {
--		int rc = isolate_lru_page(page);
--
--		if (rc == 1)
--			list_add(&page->lru, pagelist);
--		/*
--		 * If the isolate attempt was not successful then we just
--		 * encountered an unswappable page. Something must be wrong.
--	 	 */
--		WARN_ON(rc == 0);
--	}
--}
--
- static void gather_stats(struct page *, void *);
-+static void migrate_page_add(struct vm_area_struct *vma,
-+	struct page *page, struct list_head *pagelist, unsigned long flags);
- 
- /* Scan through pages checking if pages follow certain conditions. */
- static int check_pte_range(struct vm_area_struct *vma, pmd_t *pmd,
-@@ -448,90 +402,6 @@ static int contextualize_policy(int mode
- 	return mpol_check_policy(mode, nodes);
- }
- 
--static int swap_pages(struct list_head *pagelist)
--{
--	LIST_HEAD(moved);
--	LIST_HEAD(failed);
--	int n;
--
--	n = migrate_pages(pagelist, NULL, &moved, &failed);
--	putback_lru_pages(&failed);
--	putback_lru_pages(&moved);
--
--	return n;
--}
--
--long do_mbind(unsigned long start, unsigned long len,
--		unsigned long mode, nodemask_t *nmask, unsigned long flags)
--{
--	struct vm_area_struct *vma;
--	struct mm_struct *mm = current->mm;
--	struct mempolicy *new;
--	unsigned long end;
--	int err;
--	LIST_HEAD(pagelist);
--
--	if ((flags & ~(unsigned long)(MPOL_MF_STRICT |
--				      MPOL_MF_MOVE | MPOL_MF_MOVE_ALL))
--	    || mode > MPOL_MAX)
--		return -EINVAL;
--	if ((flags & MPOL_MF_MOVE_ALL) && !capable(CAP_SYS_RESOURCE))
--		return -EPERM;
--
--	if (start & ~PAGE_MASK)
--		return -EINVAL;
--
--	if (mode == MPOL_DEFAULT)
--		flags &= ~MPOL_MF_STRICT;
--
--	len = (len + PAGE_SIZE - 1) & PAGE_MASK;
--	end = start + len;
--
--	if (end < start)
--		return -EINVAL;
--	if (end == start)
--		return 0;
--
--	if (mpol_check_policy(mode, nmask))
--		return -EINVAL;
--
--	new = mpol_new(mode, nmask);
--	if (IS_ERR(new))
--		return PTR_ERR(new);
--
--	/*
--	 * If we are using the default policy then operation
--	 * on discontinuous address spaces is okay after all
--	 */
--	if (!new)
--		flags |= MPOL_MF_DISCONTIG_OK;
--
--	PDprintk("mbind %lx-%lx mode:%ld nodes:%lx\n",start,start+len,
--			mode,nodes_addr(nodes)[0]);
--
--	down_write(&mm->mmap_sem);
--	vma = check_range(mm, start, end, nmask,
--			  flags | MPOL_MF_INVERT, &pagelist);
--
--	err = PTR_ERR(vma);
--	if (!IS_ERR(vma)) {
--		int nr_failed = 0;
--
--		err = mbind_range(vma, start, end, new);
--		if (!list_empty(&pagelist))
--			nr_failed = swap_pages(&pagelist);
--
--		if (!err && nr_failed && (flags & MPOL_MF_STRICT))
--			err = -EIO;
--	}
--	if (!list_empty(&pagelist))
--		putback_lru_pages(&pagelist);
--
--	up_write(&mm->mmap_sem);
--	mpol_free(new);
--	return err;
--}
--
- /* Set the process memory policy */
- long do_set_mempolicy(int mode, nodemask_t *nodes)
- {
-@@ -652,6 +522,71 @@ long do_get_mempolicy(int *policy, nodem
- }
- 
- /*
-+ * page migration
-+ */
-+
-+/* Check if we are the only process mapping the page in question */
-+static inline int single_mm_mapping(struct mm_struct *mm,
-+			struct address_space *mapping)
-+{
-+	struct vm_area_struct *vma;
-+	struct prio_tree_iter iter;
-+	int rc = 1;
-+
-+	spin_lock(&mapping->i_mmap_lock);
-+	vma_prio_tree_foreach(vma, &iter, &mapping->i_mmap, 0, ULONG_MAX)
-+		if (mm != vma->vm_mm) {
-+			rc = 0;
-+			goto out;
-+		}
-+	list_for_each_entry(vma, &mapping->i_mmap_nonlinear, shared.vm_set.list)
-+		if (mm != vma->vm_mm) {
-+			rc = 0;
-+			goto out;
-+		}
-+out:
-+	spin_unlock(&mapping->i_mmap_lock);
-+	return rc;
-+}
-+
-+/*
-+ * Add a page to be migrated to the pagelist
-+ */
-+static void migrate_page_add(struct vm_area_struct *vma,
-+	struct page *page, struct list_head *pagelist, unsigned long flags)
-+{
-+	/*
-+	 * Avoid migrating a page that is shared by others and not writable.
-+	 */
-+	if ((flags & MPOL_MF_MOVE_ALL) || !page->mapping || PageAnon(page) ||
-+	    mapping_writably_mapped(page->mapping) ||
-+	    single_mm_mapping(vma->vm_mm, page->mapping)) {
-+		int rc = isolate_lru_page(page);
-+
-+		if (rc == 1)
-+			list_add(&page->lru, pagelist);
-+		/*
-+		 * If the isolate attempt was not successful then we just
-+		 * encountered an unswappable page. Something must be wrong.
-+	 	 */
-+		WARN_ON(rc == 0);
-+	}
-+}
-+
-+static int swap_pages(struct list_head *pagelist)
-+{
-+	LIST_HEAD(moved);
-+	LIST_HEAD(failed);
-+	int n;
-+
-+	n = migrate_pages(pagelist, NULL, &moved, &failed);
-+	putback_lru_pages(&failed);
-+	putback_lru_pages(&moved);
-+
-+	return n;
-+}
-+
-+/*
-  * For now migrate_pages simply swaps out the pages from nodes that are in
-  * the source set but not in the target set. In the future, we would
-  * want a function that moves pages between the two nodesets in such
-@@ -681,6 +616,77 @@ int do_migrate_pages(struct mm_struct *m
- 	return count;
- }
- 
-+long do_mbind(unsigned long start, unsigned long len,
-+		unsigned long mode, nodemask_t *nmask, unsigned long flags)
-+{
-+	struct vm_area_struct *vma;
-+	struct mm_struct *mm = current->mm;
-+	struct mempolicy *new;
-+	unsigned long end;
-+	int err;
-+	LIST_HEAD(pagelist);
-+
-+	if ((flags & ~(unsigned long)(MPOL_MF_STRICT |
-+				      MPOL_MF_MOVE | MPOL_MF_MOVE_ALL))
-+	    || mode > MPOL_MAX)
-+		return -EINVAL;
-+	if ((flags & MPOL_MF_MOVE_ALL) && !capable(CAP_SYS_RESOURCE))
-+		return -EPERM;
-+
-+	if (start & ~PAGE_MASK)
-+		return -EINVAL;
-+
-+	if (mode == MPOL_DEFAULT)
-+		flags &= ~MPOL_MF_STRICT;
-+
-+	len = (len + PAGE_SIZE - 1) & PAGE_MASK;
-+	end = start + len;
-+
-+	if (end < start)
-+		return -EINVAL;
-+	if (end == start)
-+		return 0;
-+
-+	if (mpol_check_policy(mode, nmask))
-+		return -EINVAL;
-+
-+	new = mpol_new(mode, nmask);
-+	if (IS_ERR(new))
-+		return PTR_ERR(new);
-+
-+	/*
-+	 * If we are using the default policy then operation
-+	 * on discontinuous address spaces is okay after all
-+	 */
-+	if (!new)
-+		flags |= MPOL_MF_DISCONTIG_OK;
-+
-+	PDprintk("mbind %lx-%lx mode:%ld nodes:%lx\n",start,start+len,
-+			mode,nodes_addr(nodes)[0]);
-+
-+	down_write(&mm->mmap_sem);
-+	vma = check_range(mm, start, end, nmask,
-+			  flags | MPOL_MF_INVERT, &pagelist);
-+
-+	err = PTR_ERR(vma);
-+	if (!IS_ERR(vma)) {
-+		int nr_failed = 0;
-+
-+		err = mbind_range(vma, start, end, new);
-+		if (!list_empty(&pagelist))
-+			nr_failed = swap_pages(&pagelist);
-+
-+		if (!err && nr_failed && (flags & MPOL_MF_STRICT))
-+			err = -EIO;
-+	}
-+	if (!list_empty(&pagelist))
-+		putback_lru_pages(&pagelist);
-+
-+	up_write(&mm->mmap_sem);
-+	mpol_free(new);
-+	return err;
-+}
-+
- /*
-  * User space interface with variable sized bitmaps for nodelists.
-  */
+> the performance is awful on both kernel 2.6.12.5 and 2.6.14.2 (even
+> with hdparm and blockdev tuning), both bonnie++ and hdparm (included
+> below) shows a single disk operating faster than the stripe:
+> 
+> ----
+> dkstorage01:~# hdparm -t /dev/md0
+> /dev/md0:
+>  Timing buffered disk reads:  182 MB in  3.01 seconds =  60.47 MB/sec
+> 
+> dkstorage02:~# hdparm -t /dev/hdc1
+> /dev/hdc1:
+> Timing buffered disk reads:  184 MB in  3.02 seconds =  60.93 MB/sec
+
+How about at least testing one of the drives involved in the raid,
+although I assume they are identical in your case given the numbers.
+
+Did you test this with other kernel versions (older ones) to see if it
+was better in the past?
+
+Any idea where the ide controller is connected?  If it is PCI the whole
+bus only has 133MB/s to give on many systems (some have more of course),
+so maybe 60M/s is quite good.
+
+Len Sorensen

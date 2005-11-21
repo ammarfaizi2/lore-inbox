@@ -1,112 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbVKUVtM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751072AbVKUVu3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751080AbVKUVtM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 16:49:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbVKUVtM
+	id S1751072AbVKUVu3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 16:50:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbVKUVu3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 16:49:12 -0500
-Received: from zproxy.gmail.com ([64.233.162.204]:5143 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751080AbVKUVtK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 16:49:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=smsXs8evJyDGZ4BxEa9tA4hA0wBUcBRjmCbakBt5xmqDD49SsjGIi6AKoqjhI3jpD08Bgwrr4RkvDDDSO7eAm5TFuIlUMQ6wj2HeB0SYUW1rASK/C32dXcWIfUzhjgCNwDzcckRkFsZzM/JPXdbLofzE+GS9zgItp5j7A7iwNa0=
-Message-ID: <86802c440511211349t6a0a9d30i60e15fa23b86c49d@mail.gmail.com>
-Date: Mon, 21 Nov 2005 13:49:09 -0800
-From: yhlu <yhlu.kernel@gmail.com>
-To: Andi Kleen <ak@suse.de>
-Subject: x86_64: apic id lift patch
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org, linuxbios@openbios.org
+	Mon, 21 Nov 2005 16:50:29 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:32931 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751072AbVKUVu2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 16:50:28 -0500
+Date: Mon, 21 Nov 2005 13:49:45 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Paul Mackerras <paulus@samba.org>
+cc: Ingo Molnar <mingo@elte.hu>, Matthew Wilcox <matthew@wil.cx>,
+       David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>,
+       Ian Molton <spyro@f2s.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH 4/5] Centralise NO_IRQ definition
+In-Reply-To: <17282.15177.804471.298409@cargo.ozlabs.ibm.com>
+Message-ID: <Pine.LNX.4.64.0511211339450.13959@g5.osdl.org>
+References: <E1Ee0G0-0004CN-Az@localhost.localdomain>
+ <24299.1132571556@warthog.cambridge.redhat.com> <20051121121454.GA1598@parisc-linux.org>
+ <Pine.LNX.4.64.0511211047260.13959@g5.osdl.org> <20051121190632.GG1598@parisc-linux.org>
+ <Pine.LNX.4.64.0511211124190.13959@g5.osdl.org> <20051121194348.GH1598@parisc-linux.org>
+ <Pine.LNX.4.64.0511211150040.13959@g5.osdl.org> <20051121211544.GA4924@elte.hu>
+ <17282.15177.804471.298409@cargo.ozlabs.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi,
-
-Please check the patch regarding apicid lifting.
-
-For some reason, we need to lift AP apicid but keep the BSP apicid to 0....
-
-Also it solve the E0 later single but have apic id reorder problem...
-
-YH
 
 
-diff --git a/arch/x86_64/kernel/setup.c b/arch/x86_64/kernel/setup.c
---- a/arch/x86_64/kernel/setup.c
-+++ b/arch/x86_64/kernel/setup.c
-@@ -786,13 +786,24 @@ static void __init amd_detect_cmp(struct
- #ifdef CONFIG_SMP
- 	int cpu = smp_processor_id();
- 	unsigned bits;
-+	int cores_vir;
- #ifdef CONFIG_NUMA
- 	int node = 0;
--	unsigned apicid = phys_proc_id[cpu];
-+	unsigned initial_apicid = phys_proc_id[cpu];
-+	unsigned apicid = hard_smp_processor_id();
- #endif
-+	
-+	cores_vir = c->x86_max_cores;
-+	if(cores_vir == 1) {
-+		unsigned level = cpuid_eax(1);
-+		/* double check if it is E0 later, only E0 later can reorder apicid
-for single core */
-+        	if ((level & 0xf0f00) >= 0x20f00) {
-+			cores_vir = 2;
-+		}
-+	}
+On Tue, 22 Nov 2005, Paul Mackerras wrote:
+> 
+> Yes, G5 powermacs have the SATA controller on irq 0.  So if we can't
+> use irq 0, I can't get to my hard disk. :)  Other powermacs also use
+> irq 0 for various things, as do embedded PPC machines.
 
- 	bits = 0;
--	while ((1 << bits) < c->x86_max_cores)
-+	while ((1 << bits) < cores_vir)
- 		bits++;
+That doesn't change any of the logic. There already is no "1:1" mapping of 
+PCI interrupts to what the machine does.
 
- 	/* Low order bits define the core id (index of core in socket) */
-@@ -802,32 +813,23 @@ static void __init amd_detect_cmp(struct
+On all PC hardware, having a zero in the PCI irq register basically means 
+that no irq is enabled. That's a _fact_. It's a fact however much you may 
+not like it. It's how the hardware comes up, and it's how the BIOS leaves 
+it. So "0" absolutely does mean "not allocated". 
 
- #ifdef CONFIG_NUMA
-   	node = phys_proc_id[cpu];
-- 	if (apicid_to_node[apicid] != NUMA_NO_NODE)
-- 		node = apicid_to_node[apicid];
-+
-+ 	if (apicid_to_node[apicid] == NUMA_NO_NODE)
-+ 		apicid_to_node[apicid] = node;
-+	
-  	if (!node_online(node)) {
-- 		/* Two possibilities here:
-+ 		/* One possibilities here:
-  		   - The CPU is missing memory and no node was created.
-- 		   In that case try picking one from a nearby CPU
-- 		   - The APIC IDs differ from the HyperTransport node IDs
-- 		   which the K8 northbridge parsing fills in.
-- 		   Assume they are all increased by a constant offset,
-- 		   but in the same order as the HT nodeids.
-- 		   If that doesn't result in a usable node fall back to the
-- 		   path for the previous case.  */
-- 		int ht_nodeid = apicid - (phys_proc_id[0] << bits);
-- 		if (ht_nodeid >= 0 &&
-- 		    apicid_to_node[ht_nodeid] != NUMA_NO_NODE)
-- 			node = apicid_to_node[ht_nodeid];
-- 		/* Pick a nearby node */
-- 		if (!node_online(node))
-- 			node = nearby_node(apicid);
-+ 		   In that case try picking one from a nearby CPU */
-+ 		node = nearby_node(apicid);
-  	}
-+
- 	numa_set_node(cpu, node);
-+#endif
+Now, the second part of the story is that when it comes to PCI, it doesn't 
+matter what Apple, Sun, or pretty much anybody else has done.  The reason 
+PCI has a separate MMIO and IO space is that it comes from a PC 
+background, and the reason Apple and others use PCI is that through that, 
+there are thousands of controller cards that are sold for PC's that also 
+happen to work on non-PC's.
 
-   	printk(KERN_INFO "CPU %d(%d) -> Node %d -> Core %d\n",
-   			cpu, c->x86_max_cores, node, cpu_core_id[cpu]);
- #endif
--#endif
- }
+So PC usage really is a defining part of PCI. It's what defines basically 
+_all_ of the testing, even under Linux. 
 
- static int __init init_amd(struct cpuinfo_x86 *c)
+So let's face those facts:
+ - we have a 8-bit register (0-255) for firmware telling the kernel what 
+   the pre-allocated interrupt is.
+ - all of those 256 numbers _may_ in fact be valid on some piece of 
+   hardware.
+ - only one of those numbers (0) is de-facto the "no irq line set up" 
+   value.
+ - pretty much all drivers have been tested mainly with 0 being the "no 
+   irq" value.
+
+Those are FACTS. Denying them is a sign of stupidity.
+
+I'd suggest that if some architecture can't live with those facts, it 
+either:
+
+ - define it's own PCI_NO_IRQ value, and face the fact that it will have 
+   to test the drivers and hope they work (and that a lot of them simply 
+   will _not_ work). 
+
+   This is what we have today. It mostly works. Maybe we shouldn't change 
+   it.
+
+ - realize that 0 is special, and use another number for when firmware 
+   tells it 0 _is_ actually a valid irq (maybe 256. Maybe "1u<<31". I 
+   don't care.)
+
+And I won't apply the "turn PCI_NO_IRQ" into -1 generally, because I 
+consider it to be strictly _worse_ than what we have now.
+
+Comprende?
+
+		Linus

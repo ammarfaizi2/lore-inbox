@@ -1,69 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbVKUHzY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbVKUH6T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932184AbVKUHzY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 02:55:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbVKUHzY
+	id S932203AbVKUH6T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 02:58:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbVKUH6T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 02:55:24 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:32278 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932184AbVKUHzY (ORCPT
-	<rfc822;Linux-Kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 02:55:24 -0500
-Date: Mon, 21 Nov 2005 08:56:40 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: Re: [patch 2.6.15-rc2] blk: request poisoning
-Message-ID: <20051121075639.GU25454@suse.de>
-References: <438182E7.9080809@yahoo.com.au> <20051121073357.GS25454@suse.de> <438189F0.3020004@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <438189F0.3020004@yahoo.com.au>
+	Mon, 21 Nov 2005 02:58:19 -0500
+Received: from ihug-mail.icp-qv1-irony4.iinet.net.au ([203.59.1.198]:15546
+	"EHLO ihug-mail.icp-qv1-irony4.iinet.net.au") by vger.kernel.org
+	with ESMTP id S932203AbVKUH6S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 02:58:18 -0500
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAA==
+Message-ID: <43817E06.3040006@eyal.emu.id.au>
+Date: Mon, 21 Nov 2005 18:57:58 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: list linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.14.2: repeated oops in i810 init
+References: <4380EB33.2060305@eyal.emu.id.au> <1132524526.22663.7.camel@mindpipe>
+In-Reply-To: <1132524526.22663.7.camel@mindpipe>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 21 2005, Nick Piggin wrote:
-> Jens Axboe wrote:
-> >On Mon, Nov 21 2005, Nick Piggin wrote:
-> >
-> >>This patch should make request poisoning more useful
-> >>and more easily extendible in the block layer.
-> >>
-> >>Don't think I have hardware that will trigger a requeue,
-> >>but otherwise it has been moderately tested. Comments?
-> >
-> >
-> >I like the idea, but I'm a little worried that it actually introduces
-> >more problems than it solves. See the mail from yesterday for instance,
-> >perfectly fine code but 'as' poisoning triggered.
-> >
-> >And the merging bits already look really ugly :/
-> >
-> >So I guess my question is, did this code ever find any driver problems?
-> >
+Lee Revell wrote:
+> On Mon, 2005-11-21 at 08:31 +1100, Eyal Lebedinsky wrote:
 > 
-> I think it found a few things here and there. Requeueing had a
-> couple of bugs, and I think a couple of things turned up back when
-> AS was a new concept to the block layer.
+>>I had this happen to me about three times, I captured it twice
+>>using serial console [see logs at the bottom].
 > 
-> I think it is useful to try to enforce a coherent usage of the block
-> interface by drivers. For example, the IDE thing may have been a non
-> issue, but you might imagine some io scheduler or future accounting
-> (or something) in the block layer actually does need the request to
-> go through elv_set_request / blk_init_request.
 > 
-> Up to you really. I'm going to rip the code out of as-iosched.c so
-> I just thought it may still be useful for the block layer.
+> Why would you use the old OSS driver?  It's scheduled to be removed from
+> the kernel anyway.  What's wrong with the ALSA driver?
 
-Some of the states are definitely useful (you mention requeue, that's
-one of them) as it can screw up accounting. The merge checking isn't
-very useful and the fact that you have to switch states around it just
-indicates to me that it should be dropped.
+I know. It worked for me for about 10 years and I had no need to fix it
+as it never broke. I know that soon it will be and I will have to figure
+ALSA then.
 
-Also doing the state switching with automatic checks for that transition
-being valid would be cleaner, but probably also slower so...
-
--- 
-Jens Axboe
-
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

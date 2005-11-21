@@ -1,47 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbVKUVwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbVKUVwR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751089AbVKUVwW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 16:52:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbVKUVwW
+	id S1751088AbVKUVwR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 16:52:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbVKUVwR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 16:52:22 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:44708 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751089AbVKUVwV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 16:52:21 -0500
-Date: Mon, 21 Nov 2005 13:51:30 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Paul Mackerras <paulus@samba.org>, Matthew Wilcox <matthew@wil.cx>,
-       David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>,
-       Ian Molton <spyro@f2s.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH 4/5] Centralise NO_IRQ definition
-In-Reply-To: <20051121213527.GA6452@elte.hu>
-Message-ID: <Pine.LNX.4.64.0511211350010.13959@g5.osdl.org>
-References: <E1Ee0G0-0004CN-Az@localhost.localdomain>
- <24299.1132571556@warthog.cambridge.redhat.com> <20051121121454.GA1598@parisc-linux.org>
- <Pine.LNX.4.64.0511211047260.13959@g5.osdl.org> <20051121190632.GG1598@parisc-linux.org>
- <Pine.LNX.4.64.0511211124190.13959@g5.osdl.org> <20051121194348.GH1598@parisc-linux.org>
- <Pine.LNX.4.64.0511211150040.13959@g5.osdl.org> <20051121211544.GA4924@elte.hu>
- <17282.15177.804471.298409@cargo.ozlabs.ibm.com> <20051121213527.GA6452@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 21 Nov 2005 16:52:17 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:13719 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751088AbVKUVwQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 16:52:16 -0500
+Subject: Re: virtual OSS devices [for making selfish apps happy]
+From: Lee Revell <rlrevell@joe-job.com>
+To: Nick Warne <nick@linicks.net>
+Cc: Christian Parpart <trapni@gentoo.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200511212139.12912.nick@linicks.net>
+References: <200511212139.12912.nick@linicks.net>
+Content-Type: text/plain
+Date: Mon, 21 Nov 2005 16:52:11 -0500
+Message-Id: <1132609931.29178.97.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 21 Nov 2005, Ingo Molnar wrote:
+On Mon, 2005-11-21 at 21:39 +0000, Nick Warne wrote:
+> Slack 10 with 2.6.14.2 using ALSA (artsd).
 > 
-> oh well [*]. Then it's gotta be the !dev->irq.valid thing i guess. 
+> I have never had any problems with TS and other apps accessing sound*
+> - KDE notifications happen when I am on TS and playing a game of
+> Quake2 while listening to xmms on my patented mp3's.
+> 
 
-No it's not.
+You probably use an emu10k1 or other hardware mixing soundcard.
 
-The ppc PCI probing could trivilly just turn a 0 into 256 (or equivalent), 
-and mask off the low 7 bits when installing the handler.  They know the 
-interrupt is _really_ 0 from other sources (ie they have a different 
-firmware, with explicit callbacks, and/or hardcoded knowledge).
+Lee
 
-		Linus

@@ -1,160 +1,376 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbVKUQFQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbVKUQKp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932304AbVKUQFQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 11:05:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbVKUQFQ
+	id S932353AbVKUQKp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 11:10:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbVKUQKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 11:05:16 -0500
-Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:14573 "EHLO
-	ms-smtp-03-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S932304AbVKUQFO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 11:05:14 -0500
-Message-ID: <4381EFF3.8000201@austin.rr.com>
-Date: Mon, 21 Nov 2005 10:04:03 -0600
-From: Steve French <smfrench@austin.rr.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
+	Mon, 21 Nov 2005 11:10:44 -0500
+Received: from xproxy.gmail.com ([66.249.82.198]:56437 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932353AbVKUQKn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 11:10:43 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=aosTOUmoVNIo74Mn4W21/LWU7aPqPJ/fKLxjTIQ3F9P+Lukbi1kTRWD66rUymfa+2taykppreqhUfu2aT4K3akkWom44TozIHA6rLdt6MCYcmFC57J1jHvmT0GEZH6qvuf6ff1JApcxIy7lESXWjb5I2Zx2MxNBFXdjVajJw7dg=
+Message-ID: <afcef88a0511210810m751e8d35p603915edf96a67c6@mail.gmail.com>
+Date: Mon, 21 Nov 2005 10:10:42 -0600
+From: Michael Thompson <michael.craig.thompson@gmail.com>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: Re: [PATCH 4/12: eCryptfs] Main module functions
+Cc: Phillip Hellewell <phillip@hellewell.homeip.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       viro@ftp.linux.org.uk, mike@halcrow.us, mhalcrow@us.ibm.com,
+       mcthomps@us.ibm.com, yoder1@us.ibm.com
+In-Reply-To: <84144f020511190247n5cf17800lb4ff019aa406470@mail.gmail.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, eric2.valette@francetelecom.com,
-       torvalds@osdl.com
-Subject: Re: CIFS improvements/wider testing needed
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051119041130.GA15559@sshock.rn.byu.edu>
+	 <20051119041740.GD15747@sshock.rn.byu.edu>
+	 <84144f020511190247n5cf17800lb4ff019aa406470@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric,
-Thanks for the feedback - any bugs which you report which I can 
-reproduce - I will treat
-as a very high priority and your testing is helpful.
+On 11/19/05, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
+> On 11/19/05, Phillip Hellewell <phillip@hellewell.homeip.net> wrote:
+> > +int ecryptfs_verbosity = 1;
+> > +
+> > +module_param(ecryptfs_verbosity, int, 0);
+> > +MODULE_PARM_DESC(ecryptfs_verbosity,
+> > +                "Initial verbosity level (0 or 1; defaults to "
+> > +                "0, which is Quiet)");
+> > +
+> > +void __ecryptfs_printk(int verb, const char *fmt, ...)
+> > +{
+> > +       va_list args;
+> > +       va_start(args, fmt);
+> > +       if ((ecryptfs_verbosity >= verb) && printk_ratelimit())
+> > +               vprintk(fmt, args);
+> > +       va_end(args);
+> > +}
+> > +
+>
+> [snip]
+>
+> > +int ecryptfs_interpose(struct dentry *lower_dentry, struct dentry *dentry,
+> > +                      struct super_block *sb, int flag)
+> > +{
+> > +       struct inode *lower_inode;
+> > +       int err = 0;
+> > +       struct inode *inode;
+> > +
+> > +       ecryptfs_printk(1, KERN_NOTICE, "Enter; lower_dentry = [%p], "
+> > +                       "lower_dentry->d_name.name = [%s], dentry = "
+> > +                       "[%p], dentry->d_name.name = [%s], sb = [%p]; "
+> > +                       "flag = [%.4x]; lower_dentry->d_count "
+> > +                       "= [%d]; dentry->d_count = [%d]\n", lower_dentry,
+> > +                       lower_dentry->d_name.name, dentry, dentry->d_name.name,
+> > +                       sb, flag, atomic_read(&lower_dentry->d_count),
+> > +                       atomic_read(&dentry->d_count));
+>
+> Could you use KERN_DEBUG instead and drop ecryptfs_printk()?
 
- > Trying to push Linux in corporate environments in such condition is very
- > difficult because, due to those bugs, you cannot:
- >
- >       1) save a new openoffice document twice,
- >         2) create mail folders from inside thunderbird (local mailbox 
-shared
- > with windows),
+I don't follow with what you mean. We use ecryptfs_printk for 2 reasons:
+1) Debugging. There is (or atleast at one time was) a large amount of
+ecryptfs_printk's scattered around during the development process.
+Obviously, much has been removed because we don't need them much
+anymore. However, the normal printk functionality doesn't, afaik,
+provide function & line number by default. ecryptfs_printk inserts it
+automatically for easy of use.
 
-You can avoid these by mounting with "nobrl" (no remote byte range lock) 
-mount option
-(smbfs does not send byte range locks so would not run into this 
-problem, but would run
-into others).    These appear to be byte range locking problems. The 
-problem is that cifs has
-to map advisory to mandatory locks which only works if the application 
-is reasonably well
-behaved (not even Samba has support for advisory locks although
-they will come with the new Unix extensions). It may be made worse by a 
-bug in openoffice
-(some Linux apps such as Evolution lock on the "wrong" file handle which 
-does not fail in posix,
-although is sloppy coding) but I have not confirmed the byte range lock 
-sequence which
-openoffice is trying as we did with Evolution - I did confirm that nobrl 
-(disabling the
-byte range locks on the client) works.  Note that this mount option, 
-although not listed
-as a  bug fix in git per-se - was added to address the evolution etc. 
-locking bugs.  There
-are quite a few of the cifs changes that fall into that category.
+2) Verbosity switch. The intent, eventually atleast, is to be able to
+toggle the value of the verbosity level of ecryptfs at run time (this
+isn't implemented at the moment)... or atleast that's my plan :P Its
+not my project so I have to get "approval" etc. The 0th argument is
+the verbosity in which this message applies (1 being just informative,
+0 being critical).
 
- >         3) avoid to do FSCK after each reboot,
-Not sure that cifs would cause this unless you mean that cifs was hung 
-and shutdown hung.   To
-avoid cases where cifs requests could stay blocked forever (especially 
-locking requests),
-I added a umount_begin routine a few weeks ago to try to free threads 
-blocked in cifs -
-but what I need from users/tests if they see a cifs umount fail is to 
-know where the requests
-are hung so I can add wakeup calls for that condition in
-cifs's umount_begin (you can do "echo t > /proc/sysrq-trigger" then 
-"dmesg > debugdata" to get
-the debugdata which has the callstacks of processes blocked in kernel).
 
- > I've seen many changes going in CIFS git tree during this period but
- > only few bugs got really hunted and fixed
-Scanning the bugzilla list I don't see many which are still believed to 
-be valid, but
-the bugzilla list for cifs on bugzilla.samba.org needs to be cleaned up.
+>
+> > +       if (NULL == ECRYPTFS_INODE_TO_LOWER(inode)) {
+> > +               ECRYPTFS_INODE_TO_LOWER(inode) = igrab(lower_inode);
+> > +               /* If we are still NULL at this point, igrab failed.
+> > +                * We are _NOT_ supposed to be failing here */
+> > +               if (NULL == ECRYPTFS_INODE_TO_LOWER(inode)) {
+>
+> If you're worried about assignment, why not use the normal idiom:
+>
+>    if (!p) {
+>       ...
+>    }
 
- >SMBfs do not exibit some of the bugs CIFS has but has other limitations
-SMBfs runs far fewer posix applications.   The main advantage smbfs
-has is in its kerberos support (which is being worked with the new cifs
-upcall) and in that it cheats and opens multiply open files only once and
-with the wrong flags (which can help performance in some cases
-but the lack of safe caching can lead to data corruption).
+No good reason. Is there a reason to change this? (other than
+consistancy, which I agree with, so I'll change it)
 
- >Could other on the LKML list try to reproduce/confirm the following bugs
- >with the latest snapshot:
-That would be very helpful.
+>
+> > +                       BUG();
+> > +                       err = -EINVAL;
+> > +                       goto out;
+>
+> Why do you want to BUG() and then handle the situation?
 
- > NB : the second bug appeared with CIFS 1.39 and is not present in 
-2.6.14.2
- >
-The smb length checking code was fixed in cifs 1.38 or cifs 1.39 (it was 
-missing some
-illegal cases where tcp length of the smb did not match the calculated 
-smb length of
-the three parts of the smb).   It of course could be a security exposure to
-overly relax the length checking code on incoming
-network buffers.  Unfortunately Windows server has at least one bug in which
-its server miscalculates the size of an smb with no data area but an
-illegal pad but the empty bcc (byte data) area of an SMB - this can 
-occur on
-byte range locks but we may be seeing a second case in your example. 
+Simply, we don't. Atleast, not in production code. This was in there
+to be a clear catch if we were ever to fall into this case. A remnant
+of development I am afraid.
 
- > BUGS :
- >         <https://bugzilla.samba.org/show_bug.cgi?id=2673>
-I suspect that this is a difference in default ACLs or share permissions 
-on the windows server side, but
-as I have mentioned additinal data would be helpful as no one else so 
-far has been able to reproduce it
-as far as I know.   If that is not the cause it may be a problem with 
-the emulation of Linux mode
-bits - and of course some three or four of the most recent cifs changes 
-have been working case by
-case through improving this to Windows servers.  It is not easy code to 
-discover and write.
+>
+> > +kmem_cache_t *ecryptfs_sb_info_cache;
+>
+> We have struct kmem_cache now so please consider using it instead.
 
- >         <https://bugzilla.samba.org/show_bug.cgi?id=3237>
-I would like to see the debug data ("cat /proc/fs/cifs/DebugData") so I 
-can see if there any
-pending network requests when your shutdown occurs - and I want to see 
-an ethereal trace
-(or tcpdump or equivalent binary trace file) of this so I can see what 
-is going on with this
-malformed response from the server.
+Noted. Changed.
 
- > May I suggest to fix bugs as a priority before adding new features for a
-If there is a known bug, reported and which I can recreate - it is of 
-course my highest priority
-and I would also evaluate patches to fix such as my highest priority - 
-but if they are hard
-or impossible for me to recreate - getting the very, very, very hot 
-issue of Kerberos security
-enablement finished is the priority now.
+>
+> > +/* This provides a means of backing out cache creations out of the kernel
+> > + * so that we can elegantly fail should we run out of memory.
+> > + */
+> > +#define ECRYPTFS_AUTH_TOK_LIST_ITEM_CACHE      0x0001
+> > +#define ECRYPTFS_AUTH_TOK_PKT_SET_CACHE         0x0002
+> > +#define ECRYPTFS_AUTH_TOK_REQUEST_CACHE         0x0004
+> > +#define ECRYPTFS_AUTH_TOK_REQUEST_BLOB_CACHE    0x0008
+> > +#define ECRYPTFS_FILE_INFO_CACHE               0x0010
+> > +#define ECRYPTFS_DENTRY_INFO_CACHE             0x0020
+> > +#define ECRYPTFS_INODE_INFO_CACHE              0x0040
+> > +#define ECRYPTFS_SB_INFO_CACHE                         0x0080
+> > +#define ECRYPTFS_HEADER_CACHE_0                0x0100
+> > +#define ECRYPTFS_HEADER_CACHE_1                0x0200
+> > +#define ECRYPTFS_HEADER_CACHE_2                0x0400
+> > +#define ECRYPTFS_LOWER_PAGE_CACHE              0x0800
+> > +#define ECRYPTFS_CACHE_CREATION_SUCCESS                0x0FF1
+>
+> A better way would be to either (1) make ecryptfs_init_kmem_caches()
+> clean up after itself on error using gotos or (2) keep caches NULL
+> before initialization and check for that in
+> ecryptfs_free_kmem_caches().
 
- > Or at least make sure enough testing is done to avoid regressions?
-There is a large test suite of the typical Linux fs tests (connectathon 
-posix file api,
-fsx, fsstress, dbench, etc.) which is run against Samba and Windows on 
-every
-update of cifs (by me and Shaggy and others who can help from time to time).
-I would love additional testing in the user community especially on a 
-broader set of servers
-than I can test - one person can't possibly have enough servers to test 
-every one of the
-variations of  Windows servers or even Samba/unix platform variants - 
-and there
-are dozens of other nas appliances and cifs servers.
- 
-Although I would like to find a workaround so it does not hang the 
-umount or fail umount
-I am not convinced that this is a typical regression - if a server sends 
-an illegal response which
-we were not catching before ... it would be dangerous to call preventing 
-that potential
-security problem a regression.
+Only problem with cleanp gotos is it would make the function
+needlessly larger than it already is. I do like the idea of the NULL
+thing better, will have a go at it.
 
+>
+> > +
+> > +static short ecryptfs_allocated_caches;
+> > +
+> > +/**
+> > + * @return Zero on success; non-zero otherwise
+> > + *
+> > + * Sets ecryptfs_allocated_caches with flags so that we can
+> > + * free created caches should we run out of memory during
+> > + * creation period.
+> > + *
+> > + * The overhead for doing this is offset by the fact that we
+> > + * only do this once, and that should there be insufficient
+> > + * memory, then we can elegantly fail, and not leave extra
+> > + * caches around, or worse, panic the kernel trying to free
+> > + * something that's not there.
+> > + */
+> > +static int ecryptfs_init_kmem_caches(void)
+> > +{
+> > +       int rc = 0;
+> > +
+> > +       ecryptfs_auth_tok_list_item_cache =
+> > +           kmem_cache_create("ecryptfs_auth_tok_list_item",
+> > +                             sizeof(struct ecryptfs_auth_tok_list_item),
+> > +                             0, SLAB_HWCACHE_ALIGN, NULL, NULL);
+> > +       if (ecryptfs_auth_tok_list_item_cache)
+> > +               rc |= ECRYPTFS_AUTH_TOK_LIST_ITEM_CACHE;
+> > +       else
+> > +               ecryptfs_printk(0, KERN_WARNING, "ecryptfs_auth_tok_list_item "
+> > +                               "kmem_cache_create failed\n");
+> > +
+> > +       ecryptfs_file_info_cache =
+> > +           kmem_cache_create("ecryptfs_file_cache",
+> > +                             sizeof(struct ecryptfs_file_info),
+> > +                             0, SLAB_HWCACHE_ALIGN, NULL, NULL);
+> > +       if (ecryptfs_file_info_cache)
+> > +               rc |= ECRYPTFS_FILE_INFO_CACHE;
+> > +       else
+> > +               ecryptfs_printk(0, KERN_WARNING, "ecryptfs_file_cache "
+> > +                               "kmem_cache_create failed\n");
+> > +
+> > +       ecryptfs_dentry_info_cache =
+> > +           kmem_cache_create("ecryptfs_dentry_cache",
+> > +                             sizeof(struct ecryptfs_dentry_info),
+> > +                             0, SLAB_HWCACHE_ALIGN, NULL, NULL);
+> > +       if (ecryptfs_dentry_info_cache)
+> > +               rc |= ECRYPTFS_DENTRY_INFO_CACHE;
+> > +       else
+> > +               ecryptfs_printk(0, KERN_WARNING, "ecryptfs_dentry_cache "
+> > +                               "kmem_cache_create failed\n");
+> > +
+> > +       ecryptfs_inode_info_cache =
+> > +           kmem_cache_create("ecryptfs_inode_cache",
+> > +                             sizeof(struct ecryptfs_inode_info), 0,
+> > +                             SLAB_HWCACHE_ALIGN, inode_info_init_once, NULL);
+> > +       if (ecryptfs_inode_info_cache)
+> > +               rc |= ECRYPTFS_INODE_INFO_CACHE;
+> > +       else
+> > +               ecryptfs_printk(0, KERN_WARNING, "ecryptfs_inode_cache "
+> > +                               "kmem_cache_create failed\n");
+> > +
+> > +       ecryptfs_sb_info_cache =
+> > +           kmem_cache_create("ecryptfs_sb_cache",
+> > +                             sizeof(struct ecryptfs_sb_info),
+> > +                             0, SLAB_HWCACHE_ALIGN, NULL, NULL);
+> > +       if (ecryptfs_sb_info_cache)
+> > +               rc |= ECRYPTFS_SB_INFO_CACHE;
+> > +       else
+> > +               ecryptfs_printk(0, KERN_WARNING, "ecryptfs_sb_cache "
+> > +                               "kmem_cache_create failed\n");
+> > +
+> > +       ecryptfs_header_cache_0 =
+> > +           kmem_cache_create("ecryptfs_headers_0", PAGE_CACHE_SIZE,
+> > +                             0, SLAB_HWCACHE_ALIGN, NULL, NULL);
+> > +       if (ecryptfs_header_cache_0)
+> > +               rc |= ECRYPTFS_HEADER_CACHE_0;
+> > +       else
+> > +               ecryptfs_printk(0, KERN_WARNING, "ecryptfs_headers_0 "
+> > +                               "kmem_cache_create failed\n");
+> > +
+> > +       ecryptfs_header_cache_1 =
+> > +           kmem_cache_create("ecryptfs_headers_1", PAGE_CACHE_SIZE,
+> > +                             0, SLAB_HWCACHE_ALIGN, NULL, NULL);
+> > +       if (ecryptfs_header_cache_1)
+> > +               rc |= ECRYPTFS_HEADER_CACHE_1;
+> > +       else
+> > +               ecryptfs_printk(0, KERN_WARNING, "ecryptfs_headers_1 "
+> > +                               "kmem_cache_create failed\n");
+> > +
+> > +       ecryptfs_header_cache_2 =
+> > +           kmem_cache_create("ecryptfs_headers_2", PAGE_CACHE_SIZE,
+> > +                             0, SLAB_HWCACHE_ALIGN, NULL, NULL);
+> > +       if (ecryptfs_header_cache_2)
+> > +               rc |= ECRYPTFS_HEADER_CACHE_2;
+> > +       else
+> > +               ecryptfs_printk(0, KERN_WARNING, "ecryptfs_headers_2 "
+> > +                               "kmem_cache_create failed\n");
+> > +
+> > +       ecryptfs_lower_page_cache =
+> > +           kmem_cache_create("ecryptfs_lower_page_cache", PAGE_CACHE_SIZE,
+> > +                             0, SLAB_HWCACHE_ALIGN, NULL, NULL);
+> > +       if (ecryptfs_lower_page_cache)
+> > +               rc |= ECRYPTFS_LOWER_PAGE_CACHE;
+> > +       else
+> > +               ecryptfs_printk(0, KERN_WARNING, "ecryptfs_lower_page_cache "
+> > +                               "kmem_cache_create failed\n");
+> > +
+> > +       ecryptfs_allocated_caches = rc;
+> > +       rc = ECRYPTFS_CACHE_CREATION_SUCCESS ^ rc;
+> > +       return rc;
+> > +}
+> > +
+> > +/**
+> > + * @return Zero on success; non-zero otherwise
+> > + */
+> > +static int ecryptfs_free_kmem_caches(void)
+> > +{
+> > +       int rc = 0;
+> > +       int err;
+> > +
+> > +       if (ecryptfs_allocated_caches & ECRYPTFS_AUTH_TOK_LIST_ITEM_CACHE) {
+> > +               rc = kmem_cache_destroy(ecryptfs_auth_tok_list_item_cache);
+> > +               if (rc)
+> > +                       ecryptfs_printk(0, KERN_WARNING,
+> > +                                       "Not all ecryptfs_auth_tok_"
+> > +                                       "list_item_cache structures were "
+> > +                                       "freed\n");
+> > +       }
+> > +       if (ecryptfs_allocated_caches & ECRYPTFS_FILE_INFO_CACHE) {
+> > +               err = kmem_cache_destroy(ecryptfs_file_info_cache);
+> > +               if (err)
+> > +                       ecryptfs_printk(0, KERN_WARNING,
+> > +                                       "Not all ecryptfs_file_info_"
+> > +                                       "cache regions were freed\n");
+> > +               rc |= err;
+> > +       }
+> > +       if (ecryptfs_allocated_caches & ECRYPTFS_DENTRY_INFO_CACHE) {
+> > +               err = kmem_cache_destroy(ecryptfs_dentry_info_cache);
+> > +               if (err)
+> > +                       ecryptfs_printk(0, KERN_WARNING,
+> > +                                       "Not all ecryptfs_dentry_info_"
+> > +                                       "cache regions were freed\n");
+> > +               rc |= err;
+> > +       }
+> > +       if (ecryptfs_allocated_caches & ECRYPTFS_INODE_INFO_CACHE) {
+> > +               err = kmem_cache_destroy(ecryptfs_inode_info_cache);
+> > +               if (err)
+> > +                       ecryptfs_printk(0, KERN_WARNING,
+> > +                                       "Not all ecryptfs_inode_info_"
+> > +                                       "cache regions were freed\n");
+> > +               rc |= err;
+> > +       }
+> > +       if (ecryptfs_allocated_caches & ECRYPTFS_SB_INFO_CACHE) {
+> > +               err = kmem_cache_destroy(ecryptfs_sb_info_cache);
+> > +               if (err)
+> > +                       ecryptfs_printk(0, KERN_WARNING,
+> > +                                       "Not all ecryptfs_sb_info_"
+> > +                                       "cache regions were freed\n");
+> > +               rc |= err;
+> > +       }
+> > +       if (ecryptfs_allocated_caches & ECRYPTFS_HEADER_CACHE_0) {
+> > +               err = kmem_cache_destroy(ecryptfs_header_cache_0);
+> > +               if (err)
+> > +                       ecryptfs_printk(0, KERN_WARNING, "Not all ecryptfs_"
+> > +                                       "header_cache_0 regions were freed\n");
+> > +               rc |= err;
+> > +       }
+> > +       if (ecryptfs_allocated_caches & ECRYPTFS_HEADER_CACHE_1) {
+> > +               err = kmem_cache_destroy(ecryptfs_header_cache_1);
+> > +               if (err)
+> > +                       ecryptfs_printk(0, KERN_WARNING, "Not all ecryptfs_"
+> > +                                       "header_cache_1 regions were freed\n");
+> > +               rc |= err;
+> > +       }
+> > +       if (ecryptfs_allocated_caches & ECRYPTFS_HEADER_CACHE_2) {
+> > +               err = kmem_cache_destroy(ecryptfs_header_cache_2);
+> > +               if (err)
+> > +                       ecryptfs_printk(0, KERN_WARNING, "Not all ecryptfs_"
+> > +                                       "header_cache_2 regions were freed\n");
+> > +               rc |= err;
+> > +       }
+> > +       if (ecryptfs_allocated_caches & ECRYPTFS_LOWER_PAGE_CACHE) {
+> > +               err = kmem_cache_destroy(ecryptfs_lower_page_cache);
+> > +               if (err)
+> > +                       ecryptfs_printk(0, KERN_WARNING, "Not all ecryptfs_"
+> > +                                       "lower_page_cache regions were "
+> > +                                       "freed\n");
+> > +               rc |= err;
+> > +       }
+> > +       return rc;
+> > +}
+> > +
+> > +static int __init init_ecryptfs_fs(void)
+> > +{
+> > +       int rc;
+> > +
+> > +       rc = ecryptfs_init_kmem_caches();
+> > +       if (rc) {
+> > +               ecryptfs_printk(0, KERN_EMERG, "Failure occured while "
+> > +                               "attempting to create caches [CREATED: %x]."
+> > +                               "Now freeing caches.\n",
+> > +                               ecryptfs_allocated_caches);
+> > +               ecryptfs_free_kmem_caches();
+> > +               return -ENOMEM;
+> > +       }
+> > +       ecryptfs_printk(1, KERN_NOTICE, "Registering eCryptfs\n");
+> > +       return register_filesystem(&ecryptfs_fs_type);
+>
+> register_filesystem() can fail in which case youre leaking all the
+> slab caches here.
+
+I wasn't aware it _could_ fail, thanks for that.
+
+>
+>                                       Pekka
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+
+
+--
+Michael C. Thompson <mcthomps@us.ibm.com>
+Software-Engineer, IBM LTC Security

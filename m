@@ -1,51 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbVKUAji@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbVKUAtF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932152AbVKUAji (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 19:39:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750890AbVKUAjR
+	id S932149AbVKUAtF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 19:49:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbVKUAtF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 19:39:17 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:62337 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1750944AbVKUAjO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 19:39:14 -0500
-Date: Sun, 20 Nov 2005 23:55:51 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
-Subject: Re: Does Linux support powering down SATA drives?
-Message-ID: <20051120235550.GI2556@spitz.ucw.cz>
-References: <437F63C1.6010507@perkel.com> <1132426887.19692.11.camel@localhost.localdomain> <200511191900.12165.s0348365@sms.ed.ac.uk> <1132431907.19692.15.camel@localhost.localdomain>
+	Sun, 20 Nov 2005 19:49:05 -0500
+Received: from mail.kroah.org ([69.55.234.183]:32453 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932149AbVKUAtE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 19:49:04 -0500
+Date: Sun, 20 Nov 2005 16:26:23 -0800
+From: Greg KH <greg@kroah.com>
+To: Ed Tomlinson <tomlins@cam.org>
+Cc: Ian McDonald <imcdnzl@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rc1-mm1
+Message-ID: <20051121002623.GA11271@kroah.com>
+References: <20051117111807.6d4b0535.akpm@osdl.org> <200511182024.33858.tomlins@cam.org> <20051119012632.GA28458@kroah.com> <200511182224.10392.tomlins@cam.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1132431907.19692.15.camel@localhost.localdomain>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <200511182224.10392.tomlins@cam.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat 19-11-05 20:25:07, Alan Cox wrote:
-> On Sad, 2005-11-19 at 19:00 +0000, Alistair John Strachan wrote:
-> > > SATA not yet, USB you could however.
+On Fri, Nov 18, 2005 at 10:24:09PM -0500, Ed Tomlinson wrote:
+> On Friday 18 November 2005 20:26, Greg KH wrote:
+> > On Fri, Nov 18, 2005 at 08:24:33PM -0500, Ed Tomlinson wrote:
+> > > On Friday 18 November 2005 18:51, Greg KH wrote:
+> > > > On Fri, Nov 18, 2005 at 06:35:11PM -0500, Ed Tomlinson wrote:
+> > > > > On Friday 18 November 2005 18:16, Ed Tomlinson wrote:
+> > > > > > On Friday 18 November 2005 16:14, Ian McDonald wrote:
+> > > > > > > On 11/19/05, Greg KH <greg@kroah.com> wrote:
+> > > > > > > > Are you using debian?
+> > > > > > > > If so, what version of udev are you using?  There are some known
+> > > > > > > > reported problems with this, so I would suggest referring to the udev
+> > > > > > > > bug list.
+> > > > > > > >
+> > > > > > > In particular check the version requirements for udev - you need to be
+> > > > > > > on a version greater than or equal to 71. Sarge/stable has a really
+> > > > > > > old version. In particular I am running unstable as I had too many
+> > > > > > > funny errors (including this one) - but etch should be fine.
+> > > > > > > 
+> > > > > > > If running another distribution check this also as it is a real requirement.
+> > > > > > > 
+> > > > > > > To find the latest version of udev required check Documentation/Changes
+> > > > > > 
+> > > > > > devinfo -v 
+> > > > > > udevinfo, version 074 
+> > > > > > 
+> > > > > > dpkg -s 
+> > > > > > Package: udev
+> > > > > > Status: install ok installed
+> > > > > > Priority: extra
+> > > > > > Section: admin
+> > > > > > Installed-Size: 1072
+> > > > > > Maintainer: Marco d'Itri <md@linux.it>
+> > > > > > Architecture: amd64
+> > > > > > Version: 0.074-3
+> > > > > > 
+> > > > > > Interestingly the same udev works fine with 14-rc4-mm1.  I'll check the debian
+> > > > > > bugs.
+> > > > > 
+> > > > > There does not seem to be anything that fits this reported as a debian bug.  Where
+> > > > > is the udev bugs list?
+> > > > 
+> > > > For Debian?  I have no idea as I do not use it :)
+> > > > 
+> > > > For general udev issues/queries try the linux-hotplug-devel mailing
+> > > > list.
+> > > > 
+> > > > Oh, and are you sure you actually have the proper module loaded?
+> > > 
+> > > Think only the mousedev module is not loaded.  Once I modprobe it the mouse works
+> > > and the /dev/input/mice appears.  The mouse works normally with all buttons and wheels
+> > > acting normal.
 > > 
-> > Or PATA, of course. I switch off two of my HDs 4 minutes after last use with 
-> > the commands:
-> > 
-> > hdparm -S 48 /dev/hde
-> > hdparm -S 48 /dev/hdg
-> > 
-> > Isn't there a passthru patch in the works to let commands, such as the one 
-> > required for suspend, through to a SATA device?
+> > Then you just need to make sure that module is loaded properly, which
+> > doesn't sound like a udev issue :)
 > 
-> The latest kernels support command passthrough for SMART and the like
-> but hdparm -S does not "switch off" anything. It may spin a drive down
-> but the power consumption of 23 hours a day of "spun down" is
-> significant, probably more than the hour it is powered up.
+> Then its a kernel problem.  
 
-Really? Harddrive does not contain AC/DC converters, so situation should be slightly
-better there, no?
-								Pavel
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+Or a broken userspace configuration that just happened to work
+previously :)
 
+I really don't know which one this is, but as it seems it only is
+showing up on Debian systems...
+
+thanks,
+
+greg k-h

@@ -1,111 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbVKUOyS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbVKUOxj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932317AbVKUOyS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 09:54:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbVKUOyS
+	id S932242AbVKUOxj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 09:53:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbVKUOxj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 09:54:18 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:32025 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932316AbVKUOyR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 09:54:17 -0500
-Date: Mon, 21 Nov 2005 15:55:31 +0100
+	Mon, 21 Nov 2005 09:53:39 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:5145 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932242AbVKUOxi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 09:53:38 -0500
+Date: Mon, 21 Nov 2005 15:54:46 +0100
 From: Jens Axboe <axboe@suse.de>
 To: Brice Goglin <Brice.Goglin@ens-lyon.org>
-Cc: Anders Karlsson <trudheim@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14.2 - Badness in as_insert_request at drivers/block/as-iosched.c:1519
-Message-ID: <20051121145531.GB15804@suse.de>
-References: <515e525f0511210027u67d8e924j9edb95af7fdd4d9e@mail.gmail.com> <438186D0.1000704@ens-lyon.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Linux 2.6.14: Badness in as-iosched
+Message-ID: <20051121145446.GA15804@suse.de>
+References: <Pine.LNX.4.64.0510271717190.4664@g5.osdl.org> <4373C042.3060901@ens-lyon.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <438186D0.1000704@ens-lyon.org>
-Content-Transfer-Encoding: 8BIT
+In-Reply-To: <4373C042.3060901@ens-lyon.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 21 2005, Brice Goglin wrote:
-> Anders Karlsson wrote:
+On Thu, Nov 10 2005, Brice Goglin wrote:
+> Hi Jens,
 > 
-> >Morning,
-> >
-> >I am getting loads of these:
-> >
-> >Nov 21 08:10:19 lenin kernel: [17304475.764000] arq->state: 4
-> >Nov 21 08:10:19 lenin kernel: [17304475.764000] Badness in
-> >as_insert_request at drivers/block/as-iosched.c:1519
-> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
-> >[as_insert_request+109/464] as_insert_request+0x6d/0x1d0
-> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
-> >[__elv_add_request+155/224] __elv_add_request+0x9b/0xe0
-> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
-> >[elv_add_request+43/64] elv_add_request+0x2b/0x40
-> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
-> >[blk_execute_rq_nowait+69/96] blk_execute_rq_nowait+0x45/0x60
-> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
-> >[blk_execute_rq+123/224] blk_execute_rq+0x7b/0xe0
-> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
-> >[blk_end_sync_rq+0/48] blk_end_sync_rq+0x0/0x30
-> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
-> >[bio_phys_segments+39/48] bio_phys_segments+0x27/0x30
-> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
-> >[blk_rq_bio_prep+133/176] blk_rq_bio_prep+0x85/0xb0
-> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
-> >[cdrom_read_cdda_bpc+403/512] cdrom_read_cdda_bpc+0x193/0x200
-> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
-> >[cdrom_read_cdda+91/192] cdrom_read_cdda+0x5b/0xc0
-> >Nov 21 08:10:19 lenin kernel: [17304475.764000]  [mmc_ioctl+2098/2784]
-> >mmc_ioctl+0x832/0xae0
-> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
-> >[__wake_up_common+67/112] __wake_up_common+0x43/0x70
-> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
-> >[scsi_cmd_ioctl+191/1328] scsi_cmd_ioctl+0xbf/0x530
-> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
-> >[n_tty_receive_buf+225/3888] n_tty_receive_buf+0xe1/0xf30
-> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
-> >[log_wait_commit+202/256] log_wait_commit+0xca/0x100
-> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
-> >[fast_clear_page+10/80] fast_clear_page+0xa/0x50
-> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
-> >[buffered_rmqueue+398/480] buffered_rmqueue+0x18e/0x1e0
-> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
-> >[generic_ide_ioctl+60/1408] generic_ide_ioctl+0x3c/0x580
-> >Nov 21 08:10:19 lenin kernel: [17304475.764000] 
-> >[cdrom_ioctl+230/3536] cdrom_ioctl+0xe6/0xdd0
-> >Nov 21 08:10:20 lenin kernel: [17304475.764000]  [pty_write+103/128]
-> >pty_write+0x67/0x80
-> >Nov 21 08:10:20 lenin kernel: [17304475.764000]  [idecd_ioctl+133/160]
-> >idecd_ioctl+0x85/0xa0
-> >Nov 21 08:10:20 lenin kernel: [17304475.764000] 
-> >[blkdev_ioctl+304/432] blkdev_ioctl+0x130/0x1b0
-> >Nov 21 08:10:20 lenin kernel: [17304475.764000]  [block_ioctl+43/48]
-> >block_ioctl+0x2b/0x30
-> >Nov 21 08:10:20 lenin kernel: [17304475.764000]  [do_ioctl+50/144]
-> >do_ioctl+0x32/0x90
-> >Nov 21 08:10:20 lenin kernel: [17304475.764000]  [vfs_ioctl+96/496]
-> >vfs_ioctl+0x60/0x1f0
-> >Nov 21 08:10:20 lenin kernel: [17304475.764000]  [sys_ioctl+136/160]
-> >sys_ioctl+0x88/0xa0
-> >Nov 21 08:10:20 lenin kernel: [17304475.764000] 
-> >[sysenter_past_esp+84/117] sysenter_past_esp+0x54/0x75
-> >
-> >I flipped the drive (LG GSA4167B DVD±RW) into udma2 mode, enabled udma
-> >and started reading from an audio disc with cdparanoia. I had to abort
-> >the read (^C in shell where running cdparanoia) and noticed the system
-> >became slower for a while. When checking the system logs, I spotted
-> >these stacktraces.
-> >  
-> >
+> I just hit a badness (actually, tons of badness like this) in as-iosched
+> while ripping
+> an audio CD with ripperX (with cdparanoia as a backend).
+> I was using 2.6.14 on an IBM Thinkpad R52. The kernel has been compiled with
+> gcc-4.0.2-2 (Debian testing).
 > 
-> I reported a similar problem while ripping a CD with cdparanoia on
-> 2.6.14 on a
-> thinkpad R52 (http://lkml.org/lkml/2005/11/10/286). But I didn't get any
-> answer.
-> I hope you will get some. Good luck :)
+> The first badness in dmesg is:
+> 
+> cdrom: dropping to single frame dma
+> arq->state: 4
+> Badness in as_insert_request at drivers/block/as-iosched.c:1519
+>  [<c0237410>] as_insert_request+0x70/0x1d0
+>  [<c022dc25>] __elv_add_request+0xa5/0xe0
+>  [<c022dc8b>] elv_add_request+0x2b/0x40
+>  [<c0230fe6>] blk_execute_rq_nowait+0x46/0x60
+>  [<c023107a>] blk_execute_rq+0x7a/0xe0
+>  [<c0231310>] blk_end_sync_rq+0x0/0x30
+>  [<c0160b77>] bio_phys_segments+0x27/0x30
+>  [<c0232610>] blk_rq_bio_prep+0x40/0xb0
+>  [<c0230dc7>] blk_rq_map_user+0xb7/0xf0
+>  [<c026bc32>] cdrom_read_cdda_bpc+0x182/0x210
+>  [<c026bd1b>] cdrom_read_cdda+0x5b/0xc0
 
-Oops, just responded to you, here is the similar report from yesterday:
+Similar case was posted yesterday (I realize yours is older, just missed
+it the first time around), see my explanation here:
 
 http://lkml.org/lkml/2005/11/20/119
+
+And work-around below.
+
+diff --git a/drivers/cdrom/cdrom.c b/drivers/cdrom/cdrom.c
+index 1539603..7540d27 100644
+--- a/drivers/cdrom/cdrom.c
++++ b/drivers/cdrom/cdrom.c
+@@ -2089,7 +2089,7 @@ static int cdrom_read_cdda_bpc(struct cd
+ 			       int lba, int nframes)
+ {
+ 	request_queue_t *q = cdi->disk->queue;
+-	struct request *rq;
++	struct request *rq = NULL;
+ 	struct bio *bio;
+ 	unsigned int len;
+ 	int nr, ret = 0;
+@@ -2097,13 +2097,13 @@ static int cdrom_read_cdda_bpc(struct cd
+ 	if (!q)
+ 		return -ENXIO;
+ 
+-	rq = blk_get_request(q, READ, GFP_KERNEL);
+-	if (!rq)
+-		return -ENOMEM;
+-
+ 	cdi->last_sense = 0;
+ 
+ 	while (nframes) {
++		rq = blk_get_request(q, READ, GFP_KERNEL);
++		if (!rq)
++			return -ENOMEM;
++
+ 		nr = nframes;
+ 		if (cdi->cdda_method == CDDA_BPC_SINGLE)
+ 			nr = 1;
+@@ -2151,9 +2151,13 @@ static int cdrom_read_cdda_bpc(struct cd
+ 		nframes -= nr;
+ 		lba += nr;
+ 		ubuf += len;
++		blk_put_request(rq);
++		rq = NULL;
+ 	}
+ 
+-	blk_put_request(rq);
++	if (rq)
++		blk_put_request(rq);
++
+ 	return ret;
+ }
+ 
 
 -- 
 Jens Axboe

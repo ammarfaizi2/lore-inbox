@@ -1,85 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751078AbVKUVsE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751073AbVKUVrh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751078AbVKUVsE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 16:48:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751080AbVKUVsD
+	id S1751073AbVKUVrh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 16:47:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751076AbVKUVrh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 16:48:03 -0500
-Received: from [205.233.219.253] ([205.233.219.253]:19912 "EHLO
-	conifer.conscoop.ottawa.on.ca") by vger.kernel.org with ESMTP
-	id S1751078AbVKUVsB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 16:48:01 -0500
-Date: Mon, 21 Nov 2005 16:41:30 -0500
-From: Jody McIntyre <scjody@steamballoon.com>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: Adrian Bunk <bunk@stusta.de>, bcollins@debian.org,
-       linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/ieee1394/csr1212.c: remove dead code
-Message-ID: <20051121214130.GL20781@conscoop.ottawa.on.ca>
-References: <20051120231000.GE16060@stusta.de> <438223D9.8010504@s5r6.in-berlin.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <438223D9.8010504@s5r6.in-berlin.de>
-User-Agent: Mutt/1.5.9i
+	Mon, 21 Nov 2005 16:47:37 -0500
+Received: from zrtps0kp.nortelnetworks.com ([47.140.192.56]:56542 "EHLO
+	zrtps0kp.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S1751073AbVKUVrg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 16:47:36 -0500
+Message-ID: <4382406D.1040508@nortel.com>
+Date: Mon, 21 Nov 2005 15:47:25 -0600
+From: "Christopher Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+CC: Herbert Xu <herbert@gondor.apana.org.au>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, davem@davemloft.net
+Subject: Re: netlink nlmsg_pid supposed to be pid or tid?
+References: <438220C3.4040602@nortel.com> <E1EeIcx-0006i3-00@gondolin.me.apana.org.au> <20051121213549.GA28187@ms2.inr.ac.ru>
+In-Reply-To: <20051121213549.GA28187@ms2.inr.ac.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Nov 2005 21:47:26.0511 (UTC) FILETIME=[29BD23F0:01C5EEE5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 21, 2005 at 08:45:29PM +0100, Stefan Richter wrote:
-
-> Or for better yet, we should use _csr1212_read_keyval() instead so that 
-> we get more sensible error codes.
-
-Good idea.  How about:
-
-
-csr1212: check results of keyval reads
-
-csr1212_parse_csr() did not properly check return values when reading
-keyvals.  Fix this by using _csr1212_read_keyval() instead of
-csr1212_get_keyval() and checking the return code.
-
-Signed-off-by: Jody McIntyre <scjody@steamballoon.com>
-
-Index: linux/drivers/ieee1394/csr1212.c
-===================================================================
---- linux.orig/drivers/ieee1394/csr1212.c
-+++ linux/drivers/ieee1394/csr1212.c
-@@ -1610,16 +1610,16 @@ int csr1212_parse_csr(struct csr1212_csr
- 	csr->root_kv->valid = 0;
- 	csr->root_kv->next = csr->root_kv;
- 	csr->root_kv->prev = csr->root_kv;
--	csr1212_get_keyval(csr, csr->root_kv);
-+	if (_csr1212_read_keyval(csr, csr->root_kv) != CSR1212_SUCCESS)
-+		return ret;
- 
- 	/* Scan through the Root directory finding all extended ROM regions
- 	 * and make cache regions for them */
- 	for (dentry = csr->root_kv->value.directory.dentries_head;
- 	     dentry; dentry = dentry->next) {
- 		if (dentry->kv->key.id == CSR1212_KV_ID_EXTENDED_ROM) {
--			csr1212_get_keyval(csr, dentry->kv);
--
--			if (ret != CSR1212_SUCCESS)
-+			if (_csr1212_read_keyval(csr, dentry->kv) !=
-+						CSR1212_SUCCESS)
- 				return ret;
- 		}
- 	}
-
-> -- 
-> Stefan Richter
-> -=====-=-=-= =-== =-=-=
-> http://arcgraph.de/sr/
+Alexey Kuznetsov wrote:
+> Hello!
 > 
 > 
-> -------------------------------------------------------
-> This SF.Net email is sponsored by the JBoss Inc.  Get Certified Today
-> Register for a JBoss Training Course.  Free Certification Exam
-> for All Training Attendees Through End of 2005. For more info visit:
-> http://ads.osdn.com/?ad_id=7628&alloc_id=16845&op=click
-> _______________________________________________
-> mailing list linux1394-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/linux1394-devel
+>>I tend to agree with you here that tgid makes more sense.
+> 
+> 
+> I agree, apparently netlink_autobind was missed when sed'ing pid->tgid.
+> Of course, it does not matter, but tgid is nicer choice from user's viewpoint.
 
--- 
+I'm glad you agree, but I'm not sure what you mean by "it does not matter".
+
+TIPC wants the user to fill in the pid to use in the nlmsghdr portion of 
+a particular message.
+
+When an NPTL child thread uses getpid() to specify the pid, it never 
+receives a response to this request.  Running the same code on the 
+parent works, and running the same code under Linuxthreads works.
+
+Using gettid() works, but it also means that only the thread that issued 
+the request can read the reply.
+
+Chris

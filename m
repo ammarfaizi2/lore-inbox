@@ -1,70 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbVKURZl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbVKURZA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932370AbVKURZl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 12:25:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbVKURZl
+	id S932364AbVKURZA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 12:25:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbVKURZA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 12:25:41 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:50722 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932370AbVKURZk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 12:25:40 -0500
-Date: Mon, 21 Nov 2005 18:23:28 +0100
-From: Jens Axboe <axboe@suse.de>
-To: mikem <mikem@beardog.cca.cpqcorp.net>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       hpa@zytor.com, sitniko@infonet.ee
-Subject: Re: [PATCH 1/3] cciss: bug fix for hpacucli
-Message-ID: <20051121172328.GH15804@suse.de>
-References: <20051118163357.GA10928@beardog.cca.cpqcorp.net> <20051118204946.GB25454@suse.de> <20051121082810.GV25454@suse.de> <20051121164648.GA7714@beardog.cca.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 21 Nov 2005 12:25:00 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:51341
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S932364AbVKURY6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 12:24:58 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Tarkan Erimer <tarkane@gmail.com>
+Subject: Re: Sun's ZFS and Linux
+Date: Mon, 21 Nov 2005 11:24:48 -0600
+User-Agent: KMail/1.8
+Cc: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
+References: <9611fa230511181538g3e8ec403uafa9ed32b560fb0c@mail.gmail.com> <20051119172337.GA24765@thunk.org> <9611fa230511201312r5f43e8ady7023b4bde170596e@mail.gmail.com>
+In-Reply-To: <9611fa230511201312r5f43e8ady7023b4bde170596e@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051121164648.GA7714@beardog.cca.cpqcorp.net>
+Message-Id: <200511211124.48398.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 21 2005, mikem wrote:
-> On Mon, Nov 21, 2005 at 09:28:10AM +0100, Jens Axboe wrote:
-> > On Fri, Nov 18 2005, Jens Axboe wrote:
-> > > On Fri, Nov 18 2005, mikem wrote:
-> > > > Patch 1 of 3
-> > > > 
-> > > > This patch fixes a bug that breaks hpacucli, a command line interface
-> > > > for the HP Array Config Utility. Without this fix the utility will
-> > > > not detect any controllers in the system. I thought I had already fixed
-> > > > this, but I guess not.
-> > > > 
-> > > > Thanks to all who reported the issue. Please consider this this inclusion.
-> > > 
-> > > Lovely, hope this makes it able to configure my drives on the tiger now
-> > > :).
-> > 
-> > This sort-of makes it work. I get some complaints about unaligned access
-> > when setting up a test array:
-> > 
-> > => controller slot=0 create type=logicaldrive drives=all raid=1 drivetype=sas
-> > .hpacucli(12458): unaligned access to 0x60000fffffcb370e, ip=0x40000000003c8550
-> > => controller slot=0 create type=logicaldrive drives=all raid=1 drivetype=sata
-> > .hpacucli(12458): unaligned access to 0x60000fffffcb4aee, ip=0x40000000003c8550
-> > .hpacucli(12458): unaligned access to 0x60000fffffcb370e, ip=0x40000000003c8550
-> > .hpacucli(12458): unaligned access to 0x60000fffffcb370e, ip=0x40000000003c8550
-> 
-> This seems to be coming out of user space. We'll work with the application
-> folks to investigate. There is a library called infomanager that's used
-> by the app. There may be an issue there. Call you strace the program and
-> send me the results? I haven't seen this in my lab with a vendor kernel.
+On Sunday 20 November 2005 15:12, Tarkan Erimer wrote:
+> Thanks for the explanation. BTW, I wonder something: Is there any
+> possibility to give GPL an exception to include and/or link to CDDL
+> code?
 
-Sure I'll try, I'll boot the box again tomorrow.
+No, and Sun likes it that way.
 
-> > Invoking hpacucli again later on makes it trigger a kobj warning:
-> > 
-> > Badness in kref_get at lib/kref.c:32
-> 
-> Hmmm, is this with my put_disk patch installed?
+The GPL was the first "copyleft" style license which requires that derivative 
+works be placed under exactly the same terms as the original work.  If the 
+terms of another code are incompatible, they cannot be exactly the same.  
 
-Yep, it's with current git HEAD (so all 3 patches you sent).
+(Specifically, the GPL says in section 2b, "You must cause any work that you 
+distribute or publish, that in whole or in part contains or is derived from 
+the Program or any part thereof, to be licensed as a whole at no charge to 
+all third parties under the terms of this License."  See 
+"http://www.gnu.org/copyleft/gpl.html" and 
+"http://www.fsf.org/licensing/licenses/index_html#GPLIncompatibleLicenses".)
 
--- 
-Jens Axboe
+Sun intentionally designed the CDDL to be incompatible with the GPL.  This was 
+a design goal on Sun's part.*  They want to isolate themselves from the 
+existing open source community, and make sure that their code cannot be used 
+with the most common open source license.**  Why they want to do this has 
+been widely speculated about***, but the fact they want an explicit "us vs 
+them, no sharing" stance is not in dispute.
 
+Rob
+
+* See http://www.vnunet.com/vnunet/news/2127094/sun-slams-predatory-gpl or
+http://news.com.com/Sun+criticizes+popular+open-source+license/2100-7344_3-5656047.html 
+or http://www.adtmag.com/article.asp?id=10927 plus Sun's official rationale 
+at http://www.sun.com/cddl/CDDL_why_details.html
+
+** According to http://sourceforge.net/softwaremap/trove_list.php?form_cat=13 
+there are currently 72,823 projects on sourceforge specifying a license.  Of 
+those, 48050 have chosen to license their code under the GPL.  That's 65.98%, 
+or about 2/3 of the total.  In politics, this would be flirting with a 
+veto-proof majority.  David Wheeler did a detailed analysis at 
+http://www.dwheeler.com/essays/gpl-compatible.html
+
+*** see http://lwn.net/Articles/114839/ or http://lwn.net/Articles/159248/ or 
+http://www.eweek.com/article2/0,1759,1754155,00.asp or 
+http://www.eweek.com/article2/0,1895,1739000,00.asp or
+http://searchopensource.techtarget.com/qna/0,289202,sid39_gci1060779,00.html 
+or http://www.technewsworld.com/story/40176.html or 
+http://www.vnunet.com/vnunet/news/2126648/sun-hits-back-open-source-critics
+or...

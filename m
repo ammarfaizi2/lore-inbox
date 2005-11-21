@@ -1,56 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbVKUIxQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbVKUI4k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932234AbVKUIxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 03:53:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbVKUIxQ
+	id S932235AbVKUI4k (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 03:56:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbVKUI4k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 03:53:16 -0500
-Received: from znsun1.ifh.de ([141.34.1.16]:62685 "EHLO znsun1.ifh.de")
-	by vger.kernel.org with ESMTP id S932234AbVKUIxQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 03:53:16 -0500
-Date: Mon, 21 Nov 2005 09:52:20 +0100 (CET)
-From: Patrick Boettcher <pb@linuxtv.org>
-X-X-Sender: pboettch@pub3.ifh.de
-To: Johannes Stezenbach <js@linuxtv.org>
-Cc: Hugo Mills <hugo-lkml@carfax.org.uk>, linux-dvb-maintainer@linuxtv.org,
-       linux-kernel@vger.kernel.org, Jeremy Nysen <jnysen@idx.com.au>
-Subject: Re: [linux-dvb-maintainer] Multiple USB DVB devices cause hard   
- lockups
-In-Reply-To: <20051120021719.GC8157@linuxtv.org>
-Message-ID: <Pine.LNX.4.64.0511210942360.1390@pub3.ifh.de>
-References: <20051109135925.GF12751@localhost.localdomain>
- <20051120021719.GC8157@linuxtv.org>
+	Mon, 21 Nov 2005 03:56:40 -0500
+Received: from [198.65.155.216] ([198.65.155.216]:34823 "EHLO
+	mail.islamonline.net") by vger.kernel.org with ESMTP
+	id S932235AbVKUI4j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 03:56:39 -0500
+Date: Mon, 21 Nov 2005 03:56:16 -0500
+From: ben <benegobia@islamonline.net>
+Subject: from Ben
+Message-ID: <0e3791c320afc53dd4c7d47d7897dd4a@islamonline.net>
+X-Mailer: IslamOnline.net 
+X-Originating-IP: 196.3.62.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-Spam-Report: ALL_TRUSTED,BAYES_00
+Content-Type: text/plain; charset="windows-1256"
+Content-Transfer-Encoding: 8bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeremy, I added you to this discussion, because obviously you are 
-suffering the same problem.
+Attn Sir/Madam,
 
-On Sun, 20 Nov 2005, Johannes Stezenbach wrote:
->>    I'm trying to get a pair of Twinhan Alpha II DVB-USB devices
->> working on the same machine. With a single device plugged in, I can
->> quite easily receive and stream data.
->
-> Maybe Patrick can comment, I believe he tested with multiple
-> USB devices.
-
-Sorry Johannes, that it seems I'm always waiting for your alarm to make me 
-write a Mail - but this time I cannot add anything to find the problem - 
-or maybe I can - not sure :):
-
-I tested it with multiple dvb-usb devices in parallel - but never with 2 
-Twinhan Alpha boxes.
-
-Just a thought: Hugo, can you enable dvb-usb-debug and load the dvb-usb.ko 
-with parameter debug=9 .
-
-Then start the transfer and your syslog will be filled with messages of 
-returning USB-buffers and their sizes. Try to catch some lines from both 
-devices and send them here.
-
-regards,
-Patrick.
+My name is Ben Egobia, i am the managing director of Prudent Bank PLC  here in Nigeria, on 20th Novmber 2004 MR. Haryanto Tomo from  indonesia, deposited the sum of U$10million dollars with our bank here in Nigeria, up till then i did not hear from him not untill when i received a news that there was a tsunami in asia that killed thousands of  indonesians, including one of nigerian Prudent bank customer, Mr.Haryanto.
+ 
+Right now i am contacting you to know if you can help me to receive the money over there as his relatives or next of kin, since all my effort to locate his family with the telephone number he gave me (62853700612) proved nothing, if you are willing to do this deal, you should not in any reason tell anybody about this transaction untill you confirm the money in your account/home, because all we need is to get the document of  (change of onwership account from the federal high court) on your behalf. Always call me on my direct line+ 234-80-2433-6966 for  security reasons or email me on:  ben123451@indiatimes.com
+               
+Waiting for your call now
+Ben Egobia

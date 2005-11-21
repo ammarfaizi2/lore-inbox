@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbVKUWKb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751097AbVKUWKQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751128AbVKUWKb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 17:10:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbVKUWKa
+	id S1751097AbVKUWKQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 17:10:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVKUWKP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 17:10:30 -0500
-Received: from ore.jhcloos.com ([64.240.156.239]:7182 "EHLO ore.jhcloos.com")
-	by vger.kernel.org with ESMTP id S1751130AbVKUWK1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 17:10:27 -0500
-From: James Cloos <cloos@jhcloos.com>
-To: Uwe Zeisberger <zeisberg@informatik.uni-freiburg.de>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [PATCH] Re: make kernelrelease ignoring LOCALVERSION_AUTO
-In-Reply-To: <20051121135420.GA10389@informatik.uni-freiburg.de> (Uwe
-	Zeisberger's message of "Mon, 21 Nov 2005 14:54:20 +0100")
-References: <m3acfz88qj.fsf@lugabout.cloos.reno.nv.us>
-	<m3mzjy7sg2.fsf@lugabout.cloos.reno.nv.us>
-	<20051121105353.GC6664@informatik.uni-freiburg.de>
-	<20051121135420.GA10389@informatik.uni-freiburg.de>
-Copyright: Copyright 2005 James Cloos
-X-Hashcash: 1:23:051121:zeisberg@informatik.uni-freiburg.de::MpoZJ+DqMxlKrjPu:00000000000000000000000000Irj6
-X-Hashcash: 1:23:051121:linux-kernel@vger.kernel.org::PydKwO4eO2ih6tco:000000000000000000000000000000000TbLw
-X-Hashcash: 1:23:051121:torvalds@osdl.org::0uU2MrzcrsmPJ+Ci:00000000000000000000000000000000000000000000OfWM
-X-Hashcash: 1:23:051121:sam@ravnborg.org::WcY7eRPyOcTrfpIc:073Rv
-Date: Mon, 21 Nov 2005 17:10:13 -0500
-Message-ID: <m3sltp4pq2.fsf@lugabout.cloos.reno.nv.us>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/23.0.0 (gnu/linux)
+	Mon, 21 Nov 2005 17:10:15 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:50908 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751097AbVKUWKN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 17:10:13 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-Id: <200511212209.jALM9TpR032499@einhorn.in-berlin.de>
+Date: Mon, 21 Nov 2005 23:09:02 +0100 (CET)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: Re: [2.6 patch] drivers/ieee1394/raw1394.c: fix a NULL pointer
+ dereference
+To: scjody@steamballoon.com
+cc: bcollins@debian.org, bunk@stusta.de, davej@redhat.com, dan@dennedy.org,
+       linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       stable@kernel.org
+In-Reply-To: <20051121215226.GN20781@conscoop.ottawa.on.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/plain; charset=us-ascii
+X-Spam-Score: (-0.477) AWL,BAYES_00,MSGID_FROM_MTA_ID
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Uwe" == Uwe Zeisberger <zeisberg@informatik.uni-freiburg.de> writes:
+[PATCH 2.6.15-rc2] raw1394: fix memory deallocation in modify_config_rom
 
-Uwe> With this fix the value of CONFIG_LOCALVERSION is appended to the
-Uwe> output of `make kernelrelease`.  The git tag is *not* appended
-Uwe> (yet) without a .config.
+raw1394: use correct deallocation macro for CSR cache
+ 
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
 
-That works.
+--- linux-2.6.15-rc2/drivers/ieee1394/raw1394.c.orig	2005-11-21 22:17:13.000000000 +0100
++++ linux-2.6.15-rc2/drivers/ieee1394/raw1394.c	2005-11-21 22:29:19.000000000 +0100
+@@ -2172,7 +2171,7 @@ static int modify_config_rom(struct file
+ 		}
+ 	}
+ 	kfree(cache->filled_head);
+-	kfree(cache);
++	CSR1212_FREE(cache);
+ 
+ 	if (ret >= 0) {
+ 		/* we have to free the request, because we queue no response,
 
-Thanks.
 
--JimC

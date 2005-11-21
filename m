@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbVKUBlV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbVKUBl5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932164AbVKUBlV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 20:41:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbVKUBlV
+	id S932165AbVKUBl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 20:41:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbVKUBl4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 20:41:21 -0500
-Received: from zorg.st.net.au ([203.16.233.9]:35751 "EHLO borg.st.net.au")
-	by vger.kernel.org with ESMTP id S932164AbVKUBlU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 20:41:20 -0500
-Message-ID: <43812606.6030803@torque.net>
-Date: Mon, 21 Nov 2005 11:42:30 +1000
-From: Douglas Gilbert <dougg@torque.net>
-Reply-To: dougg@torque.net
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-scsi@vger.kernel.org
-CC: linux-kernel@vger.kernel.org, tomfa@debian.org, kumba@gentoo.org
-Subject: [ANNOUNCE] sdparm 0.96
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sun, 20 Nov 2005 20:41:56 -0500
+Received: from bay109-f29.bay109.hotmail.com ([64.4.19.39]:45278 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S932165AbVKUBl4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 20:41:56 -0500
+Message-ID: <BAY109-F294DF1CED8A03C75F7DBC190530@phx.gbl>
+X-Originating-IP: [62.79.44.136]
+X-Originating-Email: [zorglub_olsen@hotmail.com]
+In-Reply-To: <200511211213.45798.kernel@kolivas.org>
+From: "Zorglub Olsen" <zorglub_olsen@hotmail.com>
+To: kernel@kolivas.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops on 2.6.14
+Date: Mon, 21 Nov 2005 02:41:53 +0100
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 21 Nov 2005 01:41:53.0485 (UTC) FILETIME=[BFE547D0:01C5EE3C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sdparm is a command line utility designed to get and set
-SCSI device parameters (cf hdparm for ATA disks). Apart
-from SCSI devices (e.g. disks, tapes and enclosures) sdparm
-can be used on any device that uses a SCSI command set.
-Virtually all CD/DVD drives use the SCSI MMC set irrespective
-of the transport. sdparm also can decode VPD pages including
-the device identification page. Commands to start and stop
-the media; load and unload removable media and some other
-housekeeping functions are supported. sdparm can be used in
-both the lk 2.4 and 2.6 series.
+Hi,
 
-This release adds 'capacity', 'sense' and 'sync' commands.
-Change '-ll' to add explanation of some complex mode page
-field values.
+Con Kolivas wrote:
+>Unfortunately we can only provide support for code we wrote and have access
+>to. The nvidia and other proprietary binary only drivers cause bugs that we
+>are unable to debug. Please try to reproduce the problem without any binary
+>only drivers.
+>
 
-For more information and downloads see:
-http://www.torque.net/sg/sdparm.html
-
-Changelog:
-http://www.torque.net/sg/p/sdparm.ChangeLog
+Thank you for your answer. I understand about the binary, I just wasn't able 
+to see that it was the sole cause of the oops.
 
 
-Doug Gilbert
+//Niels
+
+

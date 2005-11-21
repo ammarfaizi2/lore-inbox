@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbVKUKMA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbVKUKUE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932263AbVKUKMA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 05:12:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbVKUKL7
+	id S932255AbVKUKUE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 05:20:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbVKUKUE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 05:11:59 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:25874 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932253AbVKUKL6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 05:11:58 -0500
-Date: Mon, 21 Nov 2005 10:11:45 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Cc: Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org, bunk@stusta.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: (no subject)
-Message-ID: <20051121101144.GA12167@flint.arm.linux.org.uk>
-Mail-Followup-To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>,
-	Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org,
-	bunk@stusta.de, linux-kernel@vger.kernel.org
-References: <437DFBB3.mailLJC11TKEB@suse.de> <31100cb5abcb16617981e6923dd165d0@cl.cam.ac.uk>
+	Mon, 21 Nov 2005 05:20:04 -0500
+Received: from mail.fh-wedel.de ([213.39.232.198]:24551 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S932255AbVKUKUD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 05:20:03 -0500
+Date: Mon, 21 Nov 2005 11:19:59 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Alfred Brons <alfredbrons@yahoo.com>
+Cc: pocm@sat.inesc-id.pt, linux-kernel@vger.kernel.org
+Subject: Re: what is our answer to ZFS?
+Message-ID: <20051121101959.GB13927@wohnheim.fh-wedel.de>
+References: <11b141710511210144h666d2edfi@mail.gmail.com> <20051121095915.83230.qmail@web36406.mail.mud.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <31100cb5abcb16617981e6923dd165d0@cl.cam.ac.uk>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20051121095915.83230.qmail@web36406.mail.mud.yahoo.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 21, 2005 at 10:06:03AM +0000, Keir Fraser wrote:
-> On 18 Nov 2005, at 16:05, Andi Kleen wrote:
-> >I don't think you can do that. We still need these functions in low
-> >level architecture code at least.
-> >
-> >Using __pa/__va doesn't cut it because it won't work on Xen guests
-> >which have different views on bus vs physical addresses. The Xen
-> >code is (hopefully) in the process of being merged, so intentionally
-> >breaking them isn't a good idea.
-> >
-> >So if anything there would need to be replacement functions for it
-> >first that do the same thing. But why not just keep the old ones?
+On Mon, 21 November 2005 01:59:15 -0800, Alfred Brons wrote:
 > 
-> We could make use of virt_to_machine/machine_to_virt instead, which 
-> arguably better describe the intent of those functions. Currently we 
-> only use virt_to_bus/bus_to_virt in our swiotlb implementation, and our 
-> modified dma_map code. In those files I think the existing function 
-> names make some sense, but we can easily change if that's preferred.
+> I wasn't aware of this thread.
+> 
+> But my question was: do we have similar functionality
+> in Linux kernel?
 
-If you're thinking of replacing bus_to_virt/virt_to_bus, you might want
-to think about virt_to_dma(dev, virt) and dma_to_virt(dev, dma) as a
-replacement, where "dev" is the device actually performing the DMA
-(which obviously may not be the device asking for the mapping to be set
-up.)  ARM already has these for use in the architecture code.
+If you have a simple, technical list of the functionality, your
+question will be easily answered.  I still haven't found the time to
+dig for all the information underneith the marketing blur.
+
+o Checksums for data blocks
+  Done by jffs2, not done my any hard disk filesystems I'm aware of.
+
+o Snapshots
+  Use device mapper.
+  Some log structured filesystems are also under development.  For
+  them, snapshots will be trivial to add.  But they don't really exist
+  yet.  (I barely consider reiser4 to exist.  Any filesystem that is
+  not considered good enough for kernel inclusion is effectively still
+  in development phase.)
+
+o Merge of LVM and filesystem layer
+  Not done.  This has some advantages, but also more complexity than
+  seperate LVM and filesystem layers.  Might be considers "not worth
+  it" for some years.
+
+o 128 bit
+  On 32bit machines, you can't even fully utilize a 64bit filesystem
+  without VFS changes.  Have you ever noticed?  Thought so.
+
+o other
+  Dunno, what else they do.  There's the official marketing feature
+  lists, but that's rather useless for comparisons.
+
+Jörn
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Measure. Don't tune for speed until you've measured, and even then
+don't unless one part of the code overwhelms the rest.
+-- Rob Pike

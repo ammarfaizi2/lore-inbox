@@ -1,77 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbVKUPxH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbVKUPw6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932335AbVKUPxH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 10:53:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbVKUPxH
+	id S932334AbVKUPw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 10:52:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbVKUPw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 10:53:07 -0500
-Received: from waste.org ([64.81.244.121]:58026 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S932335AbVKUPxF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 10:53:05 -0500
-Date: Mon, 21 Nov 2005 07:50:50 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Rob Landley <rob@landley.net>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: [PATCH] skip initramfs check
-Message-ID: <20051121155050.GK31287@waste.org>
-References: <20051117141432.GD9753@logos.cnet> <200511210130.55774.rob@landley.net> <20051121062350.GA24381@logos.cnet> <200511210904.46495.rob@landley.net>
+	Mon, 21 Nov 2005 10:52:58 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19725 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932334AbVKUPw5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 10:52:57 -0500
+Date: Mon, 21 Nov 2005 15:52:39 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Takashi Iwai <tiwai@suse.de>, Lee Revell <rlrevell@joe-job.com>,
+       Miles Lane <miles.lane@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       alsa-devel <alsa-devel@lists.sourceforge.net>
+Subject: Re: 2.6.15-rc1-mm2 -- Bad page state at free_hot_cold_page (in process 'aplay', page c18eef30)
+Message-ID: <20051121155239.GC21032@flint.arm.linux.org.uk>
+Mail-Followup-To: Hugh Dickins <hugh@veritas.com>,
+	Takashi Iwai <tiwai@suse.de>, Lee Revell <rlrevell@joe-job.com>,
+	Miles Lane <miles.lane@gmail.com>, Andrew Morton <akpm@osdl.org>,
+	LKML <linux-kernel@vger.kernel.org>,
+	alsa-devel <alsa-devel@lists.sourceforge.net>
+References: <a44ae5cd0511192256u20f0e594kc65cbaba108ff06e@mail.gmail.com> <Pine.LNX.4.61.0511200804500.3938@goblin.wat.veritas.com> <1132510467.6874.144.camel@mindpipe> <Pine.LNX.4.61.0511201915530.8619@goblin.wat.veritas.com> <s5hlkzinrq5.wl%tiwai@suse.de> <Pine.LNX.4.61.0511211507160.15988@goblin.wat.veritas.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200511210904.46495.rob@landley.net>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <Pine.LNX.4.61.0511211507160.15988@goblin.wat.veritas.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 21, 2005 at 09:04:46AM -0600, Rob Landley wrote:
-> On Monday 21 November 2005 00:23, Marcelo Tosatti wrote:
-> > Hi Rob,
-> > > Query: is the problem that a big initramfs image is being unpacked more
-> > > than once, or is unpacking an empty initramfs image (134 bytes) causing a
-> > > significant delay?
-> >
-> > The problem is a big non-initramfs RAMDISK image (used for root mountpoint
-> > on this particular embedded platform), that is decompressed more than once:
-> >
-> > - during the initramfs check, which fails because it is not initramfs.
-> > - during the real RAMDISK decompression to memory.
-> >
-> > > I'm fairly certain that back in 1990 I could unzip 134 bytes on my 33 mhz
-> > > 386 running dos in a fraction of a second.  What's the use case here?
-> >
-> > So the issue is not the empty initramfs image (which BTW could probably
-> > be made unecessary?), but a 10Mb RAMDISK image being decompressed by a
-> > 48Mhz PPC, which takes quite a few seconds.
-> >
-> > Need to rework the patch to use a __setup option as Andrew suggested.
+On Mon, Nov 21, 2005 at 03:46:50PM +0000, Hugh Dickins wrote:
+> So another of my patches in -rc1-mm2 made the PageCompound technique
+> available always, no longer under #ifdef CONFIG_HUGETLB_PAGE: so that
+> get_page and put_page on the later constituents of the high-order
+> page get redirected to the first one, and it should work okay again.
 > 
-> It sounds to me like is the initial check (which is just giving a thumbs 
-> up/thumbs down "is this an initramfs", correct?) only needs to decompress the 
-> first page or so of data to make this determination.  A quick glance at the 
-> code seems to imply it's just checking the header and the first entry, so 4k 
-> should be plenty for that.
-> 
-> Some variant of lib/zlib_inflate...  Ouch, bit of a mess there.  Hey Matt: you 
-> know this area.  Is it feasible to do some kind of:
-> 
-> deflate_init(whatever)
-> deflate_next_x_bytes(source *, dest *, length)
-> 
-> To grab a the first X bytes from the initramfs image?
+> Except that I'd missed that you actually have to choose to have your
+> high-order pages supplied as compound pages, by passing __GFP_COMP.
+> Since I wasn't passing that, they still weren't allocated as compound
+> pages, so were still being freed too soon - and the PG_reserved flag
+> found while freeing gave rise to the "Bad page state" messages seen.
 
-Not at the moment. But I think it is feasible to simply move the ramdisk
-detection and unpacking inside the ramfs state machine. In other
-words, add two new states:
-
-- detecting type
-- unpacking ramdisk
-
-When the first few bytes are fed from the decompressor to the state
-machine, we either transition to the normal ramfs unpacking or we
-treat it as a ramdisk.
+Does this mean that in arch/arm/mm/consistent.c, we should also set
+__GFP_COMP ?  Should we be doing that today?
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

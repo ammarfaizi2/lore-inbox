@@ -1,72 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbVKUB7Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932173AbVKUCEI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932174AbVKUB7Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 20:59:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbVKUB7Z
+	id S932173AbVKUCEI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 21:04:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbVKUCEI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 20:59:25 -0500
-Received: from mail.tmr.com ([64.65.253.246]:7040 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S932174AbVKUB7Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 20:59:25 -0500
-Message-ID: <43812C6F.1000401@tmr.com>
-Date: Sun, 20 Nov 2005 21:09:51 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
+	Sun, 20 Nov 2005 21:04:08 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:57105 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932173AbVKUCEF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 21:04:05 -0500
+Date: Mon, 21 Nov 2005 03:04:04 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: tigran@veritas.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [RFC: 2.6 patch] arch/i386/kernel/microcode.c: remove the obsolete microcode_ioctl
+Message-ID: <20051121020404.GV16060@stusta.de>
+References: <20051120233116.GN16060@stusta.de>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: bart@samwel.tk, linux-kernel@vger.kernel.org
-Subject: Re: Laptop mode causing writes to wrong sectors?
-References: <20051116181612.GA9231@knautsch.gondor.com> <20051117223340.GD14597@elf.ucw.cz> <437E215E.30500@tmr.com> <20051118232019.GA2359@spitz.ucw.cz>
-In-Reply-To: <20051118232019.GA2359@spitz.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051120233116.GN16060@stusta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+[ grmbl, wrong version of the patch sent... ]
 
->Hi!
->
->  
->
->>>Can you try some filesystem test while forcing disk spindowns via
->>>hdparm?
->>>
->>>It may be bug in laptop mode, or a bug in ide (or something
->>>related)... trying spindowns without laptopmode would be helpful.
->>>
->>>      
->>>
->>I don't know if it would be helpful, but I run several servers with 
->>multiple drives, usually 4-5, some of which are in RAID and some aren't, 
->>and they all spin down and restart without problems many times a day. 
->>The kernel is 2.6.14.? with one patch to get my unsupported VIA IDE working.
->>
->>My laptop also has a spindown (five min from memory) and I have yet to 
->>have a problem with it. Don't know if any of that is "spindowns without 
->>laptopmode" in a useful sense.
->>    
->>
->
->Unless you can also reproduce the failure... no, probably does not help
->much.
->  
->
-No, that was really the point, even on multiple systems using spindown, 
-I have no failures. I see four possible causes:
-  1 - spindown
-  2 - laptop mode
-  3 - 1 + 2
-  4 - bad hardware, kernel not at fault
+Nowadays, even Debian stable ships a microcode_ctl utility recent enough 
+to no longer use this ioctl.
 
-Since I have a lot of (1) data I thought eliminating that as a cause by 
-itself might be helpful.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO TMR Associates, Inc
-  Doing interesting things with small computers since 1979
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+ Documentation/ioctl-mess.txt   |    4 ----
+ Documentation/ioctl-number.txt |    2 --
+ arch/i386/kernel/microcode.c   |   17 -----------------
+ include/asm-i386/processor.h   |    2 --
+ include/asm-x86_64/processor.h |    3 ---
+ 5 files changed, 28 deletions(-)
+
+--- linux-2.6.15-rc1-mm2-full/arch/i386/kernel/microcode.c.old	2005-11-20 21:30:59.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/arch/i386/kernel/microcode.c	2005-11-20 21:31:24.000000000 +0100
+@@ -457,26 +457,9 @@
+ 	return ret;
+ }
+ 
+-static int microcode_ioctl (struct inode *inode, struct file *file, 
+-		unsigned int cmd, unsigned long arg)
+-{
+-	switch (cmd) {
+-		/* 
+-		 *  XXX: will be removed after microcode_ctl 
+-		 *  is updated to ignore failure of this ioctl()
+-		 */
+-		case MICROCODE_IOCFREE:
+-			return 0;
+-		default:
+-			return -EINVAL;
+-	}
+-	return -EINVAL;
+-}
+-
+ static struct file_operations microcode_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.write		= microcode_write,
+-	.ioctl		= microcode_ioctl,
+ 	.open		= microcode_open,
+ };
+ 
+--- linux-2.6.15-rc1-mm2-full/Documentation/ioctl-mess.txt.old	2005-11-21 00:38:33.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/Documentation/ioctl-mess.txt	2005-11-21 00:38:44.000000000 +0100
+@@ -2599,10 +2599,6 @@
+ I: (int) arg
+ O: -
+ 
+-N: MICROCODE_IOCFREE
+-I: -
+-O: -
+-
+ N: MMTIMER_GETBITS
+ I: -
+ O: -
+--- linux-2.6.15-rc1-mm2-full/Documentation/ioctl-number.txt.old	2005-11-21 00:39:05.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/Documentation/ioctl-number.txt	2005-11-21 00:39:28.000000000 +0100
+@@ -78,8 +78,6 @@
+ '#'	00-3F	IEEE 1394 Subsystem	Block for the entire subsystem
+ '1'	00-1F	<linux/timepps.h>	PPS kit from Ulrich Windl
+ 					<ftp://ftp.de.kernel.org/pub/linux/daemons/ntp/PPS/>
+-'6'	00-10	<asm-i386/processor.h>	Intel IA32 microcode update driver
+-					<mailto:tigran@veritas.com>
+ '8'	all				SNP8023 advanced NIC card
+ 					<mailto:mcr@solidum.com>
+ 'A'	00-1F	linux/apm_bios.h
+--- linux-2.6.15-rc1-mm2-full/include/asm-i386/processor.h.old	2005-11-21 00:39:41.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/include/asm-i386/processor.h	2005-11-21 00:40:33.000000000 +0100
+@@ -602,8 +602,6 @@
+ 	unsigned int reserved[3];
+ 	struct extended_signature sigs[0];
+ };
+-/* '6' because it used to be for P6 only (but now covers Pentium 4 as well) */
+-#define MICROCODE_IOCFREE	_IO('6',0)
+ 
+ /* REP NOP (PAUSE) is a good thing to insert into busy-wait loops. */
+ static inline void rep_nop(void)
+--- linux-2.6.15-rc1-mm2-full/include/asm-x86_64/processor.h.old	2005-11-21 00:40:37.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/include/asm-x86_64/processor.h	2005-11-21 00:40:42.000000000 +0100
+@@ -357,9 +357,6 @@
+ 	struct extended_signature sigs[0];
+ };
+ 
+-/* '6' because it used to be for P6 only (but now covers Pentium 4 as well) */
+-#define MICROCODE_IOCFREE	_IO('6',0)
+-
+ 
+ #define ASM_NOP1 K8_NOP1
+ #define ASM_NOP2 K8_NOP2
 

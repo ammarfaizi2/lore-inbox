@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbVKUVdm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750914AbVKUVfM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750716AbVKUVdm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 16:33:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbVKUVdl
+	id S1750914AbVKUVfM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 16:35:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750909AbVKUVfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 16:33:41 -0500
-Received: from smtp2.Stanford.EDU ([171.67.16.125]:62186 "EHLO
-	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S1750716AbVKUVdl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 16:33:41 -0500
-Subject: Re: 2.6.14-rt13
-From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: nando@ccrma.Stanford.EDU, linux-kernel@vger.kernel.org,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, "K.R. Foley" <kr@cybsft.com>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Thomas Gleixner <tglx@linutronix.de>, pluto@agmk.net,
-       john cooper <john.cooper@timesys.com>,
-       Benedikt Spranger <bene@linutronix.de>,
-       Daniel Walker <dwalker@mvista.com>,
-       Tom Rini <trini@kernel.crashing.org>,
-       George Anzinger <george@mvista.com>
-In-Reply-To: <20051115090827.GA20411@elte.hu>
-References: <20051115090827.GA20411@elte.hu>
-Content-Type: text/plain
-Date: Mon, 21 Nov 2005 13:32:08 -0800
-Message-Id: <1132608728.4805.20.camel@cmn3.stanford.edu>
+	Mon, 21 Nov 2005 16:35:12 -0500
+Received: from mail.kroah.org ([69.55.234.183]:59109 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750833AbVKUVfJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 16:35:09 -0500
+Date: Mon, 21 Nov 2005 12:27:42 -0800
+From: Greg KH <greg@kroah.com>
+To: yiding_wang@agilent.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: question about driver built-in kernel
+Message-ID: <20051121202742.GA15957@kroah.com>
+References: <08A354A3A9CCA24F9EE9BE13600CFBC501A31918@wcosmb07.cos.agilent.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <08A354A3A9CCA24F9EE9BE13600CFBC501A31918@wcosmb07.cos.agilent.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-15 at 10:08 +0100, Ingo Molnar wrote:
-> i have released the 2.6.14-rt13 tree, which can be downloaded from the 
-> usual place:
+On Mon, Nov 21, 2005 at 12:06:52PM -0700, yiding_wang@agilent.com wrote:
+> Hello Greg,
 > 
->    http://redhat.com/~mingo/realtime-preempt/
-> 
-> lots of fixes in this release affecting all supported architectures, all 
-> across the board. Big MIPS update from John Cooper.
+> Thanks for the support and prompt response. I figure it out the
+> problem is endianess. I worked everything on x86 based system and
+> copied files to PPC system. Somehow I forgot to change the endianess
+> define in my makefile. Now everything works fine!
 
-Can someone tell me if 2.6.14-rt13 is supposed to be fixed re: the
-problems I was having with random screensaver triggering and keyboard
-repeats?
+You should not need a endian define in your makefile, just use the
+kernel build system and it will all work properly.
 
-It is apparently not fixed. 
+By your reluctance to show the source code, am I correct in assuming
+that it is not released under the GPL?
 
-I just had a short burst of key repeats and saw one random screen blank.
-Right now everything seems normal but I was not allucinating :-)
+thanks,
 
--- Fernando
-
-
+greg k-h

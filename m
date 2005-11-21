@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932434AbVKUSEL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbVKUSGr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932434AbVKUSEL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 13:04:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbVKUSEL
+	id S932435AbVKUSGr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 13:06:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbVKUSGr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 13:04:11 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34314 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932434AbVKUSEK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 13:04:10 -0500
-Date: Mon, 21 Nov 2005 17:38:26 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] Shut up warnings in net/core/flow.c
-Message-ID: <20051121173825.GF21032@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 21 Nov 2005 13:06:47 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:37048
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S932435AbVKUSGr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 13:06:47 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: "Christopher Friesen" <cfriesen@nortel.com>
+Subject: Re: [RFC] Documentation dir is a mess
+Date: Mon, 21 Nov 2005 12:05:12 -0600
+User-Agent: KMail/1.8
+Cc: Xose Vazquez Perez <xose.vazquez@gmail.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
+References: <438069BD.6000401@gmail.com> <200511211028.28944.rob@landley.net> <4381F957.3070007@nortel.com>
+In-Reply-To: <4381F957.3070007@nortel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Message-Id: <200511211205.12861.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not really a network problem, more a !SMP issue.
+On Monday 21 November 2005 10:44, Christopher Friesen wrote:
+> > Documentation/filesystems/proc.txt?
+>
+> This one seems obvious:
+>
+> Documentation/fs/proc.txt
 
-net/core/flow.c:295: warning: statement with no effect
+Except that I picked proc.txt because the contents of the file are really 
+about the whole source tree.  (This isn't documentation about the proc 
+filesystem infrastructure, it's documentation about all known users of that 
+infrastructure...)
 
-flow.c:295:        smp_call_function(flow_cache_flush_per_cpu, &info, 1, 0);
+Again, doesn't quite clearly map onto a location in the source tree...
 
-Fix this by converting the macro to an inline function, which
-also increases the typechecking for !SMP builds.
-
-Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
-
-diff --git a/include/linux/smp.h b/include/linux/smp.h
---- a/include/linux/smp.h
-+++ b/include/linux/smp.h
-@@ -94,7 +94,13 @@ void smp_prepare_boot_cpu(void);
-  */
- #define raw_smp_processor_id()			0
- #define hard_smp_processor_id()			0
--#define smp_call_function(func,info,retry,wait)	({ 0; })
-+
-+static inline int smp_call_function(void (*func) (void *info), void *info,
-+				    int retry, int wait)
-+{
-+	return 0;
-+}
-+
- #define on_each_cpu(func,info,retry,wait)	({ func(info); 0; })
- static inline void smp_send_reschedule(int cpu) { }
- #define num_booting_cpus()			1
-
--- 
-Russell King
+Rob

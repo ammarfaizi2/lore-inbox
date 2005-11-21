@@ -1,43 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751054AbVKUQvU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbVKURFU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751054AbVKUQvU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 11:51:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751060AbVKUQvU
+	id S932337AbVKURFU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 12:05:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbVKURFU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 11:51:20 -0500
-Received: from havoc.gtf.org ([69.61.125.42]:43735 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1751054AbVKUQvT (ORCPT
+	Mon, 21 Nov 2005 12:05:20 -0500
+Received: from ns2.suse.de ([195.135.220.15]:24510 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932337AbVKURFU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 11:51:19 -0500
-Date: Mon, 21 Nov 2005 11:51:18 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Rob Landley <rob@landley.net>
-Cc: asmith@vtrl.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: Does Linux support powering down SATA drives?
-Message-ID: <20051121165118.GB1511@havoc.gtf.org>
-References: <437F63C1.6010507@perkel.com> <200511192304.16302.s0348365@sms.ed.ac.uk> <Pine.LNX.4.61.0511200718530.25549@vtrl22.vtrl.co.uk> <200511211021.21939.rob@landley.net>
+	Mon, 21 Nov 2005 12:05:20 -0500
+Date: Mon, 21 Nov 2005 18:05:17 +0100
+From: Andi Kleen <ak@suse.de>
+To: Andrea Arcangeli <andrea@cpushare.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: disable tsc with seccomp
+Message-ID: <20051121170517.GA20775@brahms.suse.de>
+References: <20051105134727.GF18861@opteron.random> <200511051712.09280.ak@suse.de> <20051105163134.GC14064@opteron.random> <200511051804.08306.ak@suse.de> <20051106015542.GE14064@opteron.random> <20051121164349.GE14746@opteron.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200511211021.21939.rob@landley.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20051121164349.GE14746@opteron.random>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 21, 2005 at 10:21:21AM -0600, Rob Landley wrote:
-> On Sunday 20 November 2005 01:22, asmith@vtrl.co.uk wrote:
-> > I would agree with your view on IDE becoming obsolete on hard drives, but I
-> > as yet, am not aware of any CD/DVD drives with a SATA interface.
-> 
-> Laptops?
+On Mon, Nov 21, 2005 at 05:43:49PM +0100, Andrea Arcangeli wrote:
+> Since there was no feedback to my last post, I assume you agree, so
+> please backout the tsc disable so then I can plug the performane counter
+> disable on top of it (at zero additional runtime cost).
 
-Laptops will likely get S/ATAPI later rather than sooner.
+Sorry I don't agree.
 
-But there are definitely S/ATAPI devices out there.  Most are first
-generation, which means they are PATA devices with a SATA bridge (thus
-they appear to the end user to be SATA).
-
-	Jeff
-
-
-
+-Andi

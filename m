@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932485AbVKUXed@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932480AbVKUXfL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932485AbVKUXed (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 18:34:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932481AbVKUXed
+	id S932480AbVKUXfL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 18:35:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbVKUXfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 18:34:33 -0500
-Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:28678 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932484AbVKUXec
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 18:34:32 -0500
-Date: Tue, 22 Nov 2005 10:34:17 +1100
-To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Cc: Christopher Friesen <cfriesen@nortel.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, davem@davemloft.net
-Subject: Re: netlink nlmsg_pid supposed to be pid or tid?
-Message-ID: <20051121233417.GA27327@gondor.apana.org.au>
-References: <438220C3.4040602@nortel.com> <E1EeIcx-0006i3-00@gondolin.me.apana.org.au> <20051121213549.GA28187@ms2.inr.ac.ru> <4382406D.1040508@nortel.com> <20051121224913.GA31287@ms2.inr.ac.ru>
+	Mon, 21 Nov 2005 18:35:11 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:18114 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932480AbVKUXfJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 18:35:09 -0500
+Date: Mon, 21 Nov 2005 15:34:54 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: theonetruekenny@yahoo.com, cel@citi.umich.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: infinite loop? with mmap, nfs, pwrite, O_DIRECT
+Message-Id: <20051121153454.1907d92a.akpm@osdl.org>
+In-Reply-To: <1132612974.8011.12.camel@lade.trondhjem.org>
+References: <20051121213913.61220.qmail@web34115.mail.mud.yahoo.com>
+	<1132612974.8011.12.camel@lade.trondhjem.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051121224913.GA31287@ms2.inr.ac.ru>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 22, 2005 at 01:49:13AM +0300, Alexey Kuznetsov wrote:
-> 
-> Actually, I remember one discussion. Herbert, wait a minute...
-> That's it: February 2005, Subject: [PATCH] Add audit uid to netlink credentials
-> We decided (or not?) that binding to anything but tgid and pid
-> must be prohibited by security reasons. Apaprently, the finding was lost.
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+>
+>  Anything that calls lock_page() should be avoided in O_DIRECT,
 
-Thanks for reminding me.  We may still need to track that down (we
-have now serialised most of the netlink processing so this my not be
-as bad as it was).
+Why?
 
-However, I think explicit binding should still be allowed for root,
-so nobody should take the PID for granted.
+And it's still doing lock_page():
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+	nfs_file_direct_write()
+	->filemap_fdatawrite()
+	  ->do_writepages()
+	    ->nfs_writepages()
+	      ->generic_writepages()
+	        ->mpage_writepages()
+	          ->lock_page()
+
+> however
+>   we should be able to call invalidate_inode_pages() since that doesn't
+>   wait on the page lock.
+
+invalidate_inode_pages2() is better.  And using generic_file_direct_IO() is
+better still, since it handles mmap coherency and only work upon that part
+of the file which is actually undergoing IO.
+

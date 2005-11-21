@@ -1,64 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbVKURJG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbVKURNg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932351AbVKURJG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 12:09:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbVKURJG
+	id S932376AbVKURNg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 12:13:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbVKURNf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 12:09:06 -0500
-Received: from silver.veritas.com ([143.127.12.111]:60000 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S932351AbVKURJE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 12:09:04 -0500
-Date: Mon, 21 Nov 2005 17:09:07 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Takashi Iwai <tiwai@suse.de>
-cc: Lee Revell <rlrevell@joe-job.com>, Miles Lane <miles.lane@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       alsa-devel <alsa-devel@lists.sourceforge.net>
-Subject: Re: 2.6.15-rc1-mm2 -- Bad page state at free_hot_cold_page (in
- process 'aplay', page c18eef30)
-In-Reply-To: <s5h8xvinfg7.wl%tiwai@suse.de>
-Message-ID: <Pine.LNX.4.61.0511211651270.16632@goblin.wat.veritas.com>
-References: <a44ae5cd0511192256u20f0e594kc65cbaba108ff06e@mail.gmail.com>
- <Pine.LNX.4.61.0511200804500.3938@goblin.wat.veritas.com>
- <1132510467.6874.144.camel@mindpipe> <Pine.LNX.4.61.0511201915530.8619@goblin.wat.veritas.com>
- <s5hlkzinrq5.wl%tiwai@suse.de> <Pine.LNX.4.61.0511211507160.15988@goblin.wat.veritas.com>
- <s5h8xvinfg7.wl%tiwai@suse.de>
+	Mon, 21 Nov 2005 12:13:35 -0500
+Received: from web34115.mail.mud.yahoo.com ([66.163.178.113]:50348 "HELO
+	web34115.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932376AbVKURNf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 12:13:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=48Z22d9q7JlyzC207+JYv12Xq6pORlpVdDeqHXUtbN06T53Ok/XHfy5xgHxw0/APD/gLba5VCpWGvDRqs9HDc++YZfwqnRY/1WM0FfacZd7CiHcUkZetlNRJkLQG3jLYzaSDY+NexB9AA1RTqUIfx/S72g7iXVyxLEJ1nJU/zr8=  ;
+Message-ID: <20051121171332.58073.qmail@web34115.mail.mud.yahoo.com>
+Date: Mon, 21 Nov 2005 09:13:32 -0800 (PST)
+From: Kenny Simpson <theonetruekenny@yahoo.com>
+Subject: infinite loop? with mmap, nfs, pwrite, O_DIRECT
+To: Andrew Morton <akpm@osdl.org>
+Cc: trond.myklebust@fys.uio.no, cel@citi.umich.edu,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20051117130403.4155c94c.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 21 Nov 2005 17:09:04.0407 (UTC) FILETIME=[46825270:01C5EEBE]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Nov 2005, Takashi Iwai wrote:
-> 
-> Now another question arises:  Which is the recommended method for
-> mmapping RAM pages, vma nopage callback or remap_pfn_range()?
-> 
-> IIRC, in the ealier versions, the former was recommended because
-> remap_page_range() with page-reserve was regarded as a hack.
+I have a smaller test case (4 system calls, and a memset), that causes the test case to hang in an
+unkillable state*, and makes the system load consume an entire CPU.
 
-I do believe Linus (CC'ed so he can defend himself from my slanders)
-saw it that way for a long while.  I believe he did, and still does,
-think it more correct to work through the intended vm_operations_struct
-methods.  But has relented a little down the years, and now accepts
-that remap_pfn_range is here to stay (as much as anything stays).
+*the process is killable if run under strace, but the system load does not drop when the strace is
+killed.
 
-> But, looking through these changes, I feel that remap_pfn_range() is
-> better (easier and stabler) than vma nopage...
+Pass this the name of a target file on an NFS mount.
 
-I'm not going to make a recommendation: whatever suits you best.
+(tested to fail on 2.6.15-rc1).
 
-It does sometimes look like people converted from remap_pfn_range
-to nopage, just because they felt under pressure to do so.
+-Kenny
 
-It is curious that your snd_pcm_mmap_status_nopage seems to have been
-affected and nothing else (I'd expected trouble in DRM but no sign).
 
-I've CC'ed hch also, he did have some pungent views on how you ought
-better to go about this.
+Here is the test:
 
-Hugh
+#define _GNU_SOURCE
+
+#include <fcntl.h>
+#include <stdio.h>
+#include <strind.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+int main(int argc, char* argv[])
+{
+  if (argc != 2) {
+    printf("usage: %0 <filename>\n", argv[0]);
+    return 0;
+  }
+
+  {
+    int fd = open(argv[1], O_RDWR | O_CREAT | O_LARGEFILE | O_DIRECT, 0644);
+    if (fd < 0) {
+      perror("open");
+      return 0;
+    }
+
+    int window_size = 2 * 1024 * 1024;
+    long long file_size = window_size;
+
+    /* fast-forward */
+    file_size += 2047u * (2 * 1024 * 1024);
+    file_size += window_size + window_size;
+
+    /* grow file */
+    pwrite64(fd, "", 1, file_size);
+
+    {
+      char* mapping_start = (char*)mmap64(0, window_size,
+                                          PROT_READ | PROT_WRITE,
+                                          MAP_SHARED,
+                                          fd, file_size - window_size);
+
+      /* test only fails with this: */
+      memset(mapping_start, 0, window_size);
+    }
+
+    /* grow file */
+    file_size += window_size;
+
+    /* this never returns */
+    pwrite64(fd, "", 1, file_size);
+  }
+  return 0;
+}
+
+
+
+		
+__________________________________ 
+Yahoo! FareChase: Search multiple travel sites in one click.
+http://farechase.yahoo.com

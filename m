@@ -1,67 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbVKUV0u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbVKUV1S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750771AbVKUV0u (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 16:26:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbVKUV0u
+	id S1750784AbVKUV1S (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 16:27:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbVKUV1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 16:26:50 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:34786 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750771AbVKUV0t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 16:26:49 -0500
-Date: Mon, 21 Nov 2005 22:26:53 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: David Singleton <dsingleton@mvista.com>
-Cc: Dinakar Guniguntala <dino@in.ibm.com>, linux-kernel@vger.kernel.org,
-       "David F. Carlson" <dave@chronolytics.com>
-Subject: Re: PI BUG with -rt13
-Message-ID: <20051121212653.GA6143@elte.hu>
-References: <20051117161817.GA3935@in.ibm.com> <437D0C59.1060607@mvista.com> <20051118092909.GC4858@elte.hu> <20051118132137.GA5639@in.ibm.com> <20051118132715.GA3314@elte.hu> <8311ADE9-5855-11DA-BBAB-000A959BB91E@mvista.com> <20051118174454.GA2793@elte.hu> <43822480.6080301@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43822480.6080301@mvista.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Mon, 21 Nov 2005 16:27:18 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:24009 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750784AbVKUV1Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 16:27:16 -0500
+Date: Mon, 21 Nov 2005 13:27:07 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: ak@suse.de
+cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: [PATCH] Move policy_zone determination to the page allocator
+ initialization?
+Message-ID: <Pine.LNX.4.62.0511211325450.10768@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Currently the function to build a zonelist for a BIND policy has the side effect to
+set the policy_zone. This seems to be a bit strange. policy_zone seems to 
+not be initialized elsewhere and therefore 0. Do we police ZONE_DMA if no 
+bind policy has been used yetp?
 
-* David Singleton <dsingleton@mvista.com> wrote:
+This patch moves the determination of the zone to apply policies to into the
+page allocator. We determine the zone while building the zonelist for nodes.
+The default is to policy ZONE_NORMAL. If there are any populated HIGHMEM
+segments then switch to ZONE_HIGHMEM.
 
-> Ingo,
->    here is a patch that provides the correct locking for the rt_mutex 
-> backing the robust pthread_mutex.   The patch also unifies the locking 
-> for all the robust functions and adds support for pthread_mutexes on 
-> the heap.
+Not sure if this is right since I am not aware of the history of this issue.
+Any particular reason the policy_zone determination is in bind_zonelist?
 
-thanks. Could you split up the patch into a fix and a 'heap' patch (at a 
-minimum)?
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-it's this portion of the 'heap' patch that looks problematic:
-
-> --- base/linux-2.6.14/include/linux/mm.h	2005-11-18 20:36:53.000000000 -0800
-> +++ wip/linux-2.6.14/include/linux/mm.h	2005-11-21 10:51:19.000000000 -0800
-> @@ -109,6 +109,11 @@
->  #ifdef CONFIG_NUMA
->  	struct mempolicy *vm_policy;	/* NUMA policy for the VMA */
->  #endif
-> +#ifdef CONFIG_FUTEX
-> +	int robust_init;		/* robust initialized? */
-> +	struct list_head robust_list;	/* list of robust futexes in this vma */
-> +	struct semaphore robust_sem;	/* semaphore to protect the list */
-> +#endif
->  };
-
-why is there per-vma info needed?
-
-Also, what testing did this patch have - should it solve Dinakar's 
-problem(s)?
-
-	Ingo
+Index: linux-2.6.15-rc1-mm2/mm/mempolicy.c
+===================================================================
+--- linux-2.6.15-rc1-mm2.orig/mm/mempolicy.c	2005-11-21 13:17:59.000000000 -0800
++++ linux-2.6.15-rc1-mm2/mm/mempolicy.c	2005-11-21 13:19:15.000000000 -0800
+@@ -102,7 +102,7 @@ static kmem_cache_t *sn_cache;
+ 
+ /* Highest zone. An specific allocation for a zone below that is not
+    policied. */
+-static int policy_zone;
++int policy_zone;
+ 
+ struct mempolicy default_policy = {
+ 	.refcnt = ATOMIC_INIT(1), /* never free it */
+@@ -140,17 +140,9 @@ static struct zonelist *bind_zonelist(no
+ 	if (!zl)
+ 		return NULL;
+ 	num = 0;
+-	for_each_node_mask(nd, *nodes) {
+-		int k;
+-		for (k = MAX_NR_ZONES-1; k >= 0; k--) {
+-			struct zone *z = &NODE_DATA(nd)->node_zones[k];
+-			if (!populated_zone(z))
+-				continue;
+-			zl->zones[num++] = z;
+-			if (k > policy_zone)
+-				policy_zone = k;
+-		}
+-	}
++	for_each_node_mask(nd, *nodes)
++		zl->zones[num++] = &NODE_DATA(nd)->node_zones[policy_zone];
++
+ 	zl->zones[num] = NULL;
+ 	return zl;
+ }
+Index: linux-2.6.15-rc1-mm2/mm/page_alloc.c
+===================================================================
+--- linux-2.6.15-rc1-mm2.orig/mm/page_alloc.c	2005-11-21 13:19:13.000000000 -0800
++++ linux-2.6.15-rc1-mm2/mm/page_alloc.c	2005-11-21 13:19:19.000000000 -0800
+@@ -1491,6 +1491,9 @@ void show_free_areas(void)
+ 	show_swap_cache_info();
+ }
+ 
++/* Used in mempolicy.c */
++extern int policy_zone;
++
+ /*
+  * Builds allocation fallback zone lists.
+  */
+@@ -1507,6 +1510,7 @@ static int __init build_zonelists_node(p
+ 			BUG();
+ #endif
+ 			zonelist->zones[j++] = zone;
++			policy_zone = ZONE_HIGHMEM;
+ 		}
+ 	case ZONE_NORMAL:
+ 		zone = pgdat->node_zones + ZONE_NORMAL;
+@@ -1607,6 +1611,7 @@ static void __init build_zonelists(pg_da
+ 	struct zonelist *zonelist;
+ 	nodemask_t used_mask;
+ 
++	policy_zone = ZONE_NORMAL;
+ 	/* initialize zonelists */
+ 	for (i = 0; i < GFP_ZONETYPES; i++) {
+ 		zonelist = pgdat->node_zonelists + i;

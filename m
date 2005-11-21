@@ -1,60 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbVKUVUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbVKUVVc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750700AbVKUVUF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 16:20:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbVKUVUF
+	id S1750711AbVKUVVc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 16:21:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbVKUVVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 16:20:05 -0500
-Received: from gate.crashing.org ([63.228.1.57]:5321 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750700AbVKUVUD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 16:20:03 -0500
-Subject: Re: [PATCH 4/5] Centralise NO_IRQ definition
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>,
-       Ian Molton <spyro@f2s.com>, Paul Mackerras <paulus@samba.org>
-In-Reply-To: <Pine.LNX.4.64.0511211150040.13959@g5.osdl.org>
-References: <E1Ee0G0-0004CN-Az@localhost.localdomain>
-	 <24299.1132571556@warthog.cambridge.redhat.com>
-	 <20051121121454.GA1598@parisc-linux.org>
-	 <Pine.LNX.4.64.0511211047260.13959@g5.osdl.org>
-	 <20051121190632.GG1598@parisc-linux.org>
-	 <Pine.LNX.4.64.0511211124190.13959@g5.osdl.org>
-	 <20051121194348.GH1598@parisc-linux.org>
-	 <Pine.LNX.4.64.0511211150040.13959@g5.osdl.org>
+	Mon, 21 Nov 2005 16:21:32 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:28507 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S1750711AbVKUVVb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 16:21:31 -0500
+Subject: Bug in promise_new ide conteroller (was: Re: [BUG] PDC20268
+	crashing during DMA setup on stock Debian 2.6.12-1-powerpc)
+From: Kasper Sandberg <lkml@metanurb.dk>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Andrew Morton <akpm@osdl.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       LKML Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1132520441.6052.41.camel@gaston>
+References: <20051017005855.132266ac.akpm@osdl.org>
+	 <1129536482.7620.76.camel@gaston>
+	 <6DFB5723-0042-46FE-811F-BF372B068014@mac.com>
+	 <204AB9A8-7701-402F-A6B9-DF455DAA2A3F@mac.com>
+	 <1129760024.7620.219.camel@gaston>
+	 <75FE9776-B88F-453E-9616-850097DB0138@mac.com>
+	 <1129772205.7620.226.camel@gaston>
+	 <59EA4A9E-0F86-4D53-8DDD-56F6DDC6E726@mac.com>
+	 <1132520441.6052.41.camel@gaston>
 Content-Type: text/plain
-Date: Tue, 22 Nov 2005 08:16:15 +1100
-Message-Id: <1132607776.26560.23.camel@gaston>
+Date: Mon, 21 Nov 2005 22:21:25 +0100
+Message-Id: <1132608085.15938.36.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+i have a promise controller and it fails too, but only some times (never
+during startup).. i get the following errors:
+hdf: dma_intr: bad DMA status (dma_stat=75)
+hdf: dma_intr: status=0x50 { DriveReady SeekComplete }
+ide: failed opcode was: unknown
+hdf: dma_timer_expiry: dma status == 0x60
+hdf: DMA timeout retry
+PDC202XX: Primary channel reset.
+hdf: timeout waiting for DMA
 
-> The fact is, 0 _is_ special. Not just for hardware, but because 0 has a 
-> magical meaning as "false" in the C language.
+and i know for a fact it isnt the indidual controller, as i tried with 2
+other brand new ones, and i know it isnt the drives/cables/computer,
+since i tried switching it all around, and it keeps happening.
 
-I don't agree, irq 0 has been a valid irq on a number of platforms for
-ages (including your own G5, at least some of them have the SATA irq at
-0 :) and this didn't cause any problem for most drivers. The few ones
-that have done broken assumption have been easily fixed using NO_IRQ.
+if it does this while reading/writing the system hardlocks..
 
-"Translating" it means some ugly translation work all over the place,
-which means overhead in the interrupt path (ok, not that much but
-still), plus finding some magic number to put 0 on, which makes things
-much more complicated for archs that have interrupts sorted in nice
-blocks of power of two, etc... a significant burden on arch/PIC code for
-no good reason imho.
 
-I hate arbitrary "translations" when they aren't strictly necessary.
-It's common to have a constant for a "not valid" number in spaces where
-"0" is a valid value, I don't think that "looking simpler" to dump
-driver writers is worth it in this case.
+i wrote promise technical support, which said it could be caused by
+sharing interrupts, so i checked, and it did share with my NIC, so i
+switched to another pci slot, and now it has its own interrupt, YET it
+still keeps doing this..
 
-Ben.
+i would greatly apreciate any help
 
+On Mon, 2005-11-21 at 08:00 +1100, Benjamin Herrenschmidt wrote:
+> > This is the only possibility that I can think of, but I'm having a  
+> > hard time getting enough lines of pre-BUG output.  Is there any way  
+> > to turn off the BUG() lines and just show the printks before that point?
+> 
+> There is a patch from Thibault that fixes it, it should be in 2.6.15-rc2
+> 
+> Ben.
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

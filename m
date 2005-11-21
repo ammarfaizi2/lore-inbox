@@ -1,72 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbVKUVSD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbVKUVUF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750736AbVKUVSD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 16:18:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750700AbVKUVSD
+	id S1750700AbVKUVUF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 16:20:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbVKUVUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 16:18:03 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:63175 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750736AbVKUVSA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 16:18:00 -0500
-Date: Mon, 21 Nov 2005 13:17:41 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org, manfred@colorfullife.com,
-       Joe Perches <joe@perches.com>
-Subject: Re: [PATCH] slab: minor cleanup to kmem_cache_alloc_node
-In-Reply-To: <1132607272.19332.7.camel@localhost>
-Message-ID: <Pine.LNX.4.62.0511211314560.10768@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0511211627460.18869@sbz-30.cs.Helsinki.FI> 
- <Pine.LNX.4.62.0511210919001.6497@graphe.net>  <1132598194.8972.4.camel@localhost>
-  <Pine.LNX.4.62.0511211145500.7813@schroedinger.engr.sgi.com>
- <1132607272.19332.7.camel@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 21 Nov 2005 16:20:05 -0500
+Received: from gate.crashing.org ([63.228.1.57]:5321 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750700AbVKUVUD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 16:20:03 -0500
+Subject: Re: [PATCH 4/5] Centralise NO_IRQ definition
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>,
+       Ian Molton <spyro@f2s.com>, Paul Mackerras <paulus@samba.org>
+In-Reply-To: <Pine.LNX.4.64.0511211150040.13959@g5.osdl.org>
+References: <E1Ee0G0-0004CN-Az@localhost.localdomain>
+	 <24299.1132571556@warthog.cambridge.redhat.com>
+	 <20051121121454.GA1598@parisc-linux.org>
+	 <Pine.LNX.4.64.0511211047260.13959@g5.osdl.org>
+	 <20051121190632.GG1598@parisc-linux.org>
+	 <Pine.LNX.4.64.0511211124190.13959@g5.osdl.org>
+	 <20051121194348.GH1598@parisc-linux.org>
+	 <Pine.LNX.4.64.0511211150040.13959@g5.osdl.org>
+Content-Type: text/plain
+Date: Tue, 22 Nov 2005 08:16:15 +1100
+Message-Id: <1132607776.26560.23.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Nov 2005, Pekka Enberg wrote:
 
-> Hi,
-> 
-> On Mon, 2005-11-21 at 11:47 -0800, Christoph Lameter wrote:
-> > Remove the gotos. Something like this. It would be nice if we could remove 
-> > the printk. Hmm....
-> 
-> Definite improvement to my patch. I think I like Joe's suggestion 
-> better, though. (Any mistakes in the following are mine.)
+> The fact is, 0 _is_ special. Not just for hardware, but because 0 has a 
+> magical meaning as "false" in the C language.
 
-If we drop the printk then this may be even simpler
+I don't agree, irq 0 has been a valid irq on a number of platforms for
+ages (including your own G5, at least some of them have the SATA irq at
+0 :) and this didn't cause any problem for most drivers. The few ones
+that have done broken assumption have been easily fixed using NO_IRQ.
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+"Translating" it means some ugly translation work all over the place,
+which means overhead in the interrupt path (ok, not that much but
+still), plus finding some magic number to put 0 on, which makes things
+much more complicated for archs that have interrupts sorted in nice
+blocks of power of two, etc... a significant burden on arch/PIC code for
+no good reason imho.
 
-Index: linux-2.6.15-rc1-mm2/mm/slab.c
-===================================================================
---- linux-2.6.15-rc1-mm2.orig/mm/slab.c	2005-11-21 13:16:07.000000000 -0800
-+++ linux-2.6.15-rc1-mm2/mm/slab.c	2005-11-21 13:16:59.000000000 -0800
-@@ -2890,21 +2890,14 @@ void *kmem_cache_alloc_node(kmem_cache_t
- 	unsigned long save_flags;
- 	void *ptr;
- 
--	if (nodeid == -1)
--		return __cache_alloc(cachep, flags);
--
--	if (unlikely(!cachep->nodelists[nodeid])) {
--		/* Fall back to __cache_alloc if we run into trouble */
--		printk(KERN_WARNING "slab: not allocating in inactive node %d for cache %s\n", nodeid, cachep->name);
--		return __cache_alloc(cachep,flags);
--	}
--
- 	cache_alloc_debugcheck_before(cachep, flags);
- 	local_irq_save(save_flags);
--	if (nodeid == numa_node_id())
-+
-+	if (nodeid == -1 || nodeid == numa_node_id() || !cachep->nodelists[nodeid])
- 		ptr = ____cache_alloc(cachep, flags);
- 	else
- 		ptr = __cache_alloc_node(cachep, flags, nodeid);
-+
- 	local_irq_restore(save_flags);
- 	ptr = cache_alloc_debugcheck_after(cachep, flags, ptr, __builtin_return_address(0));
- 
+I hate arbitrary "translations" when they aren't strictly necessary.
+It's common to have a constant for a "not valid" number in spaces where
+"0" is a valid value, I don't think that "looking simpler" to dump
+driver writers is worth it in this case.
+
+Ben.
+
+

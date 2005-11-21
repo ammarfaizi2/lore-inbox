@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932333AbVKUXOv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932475AbVKUXPs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932333AbVKUXOv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 18:14:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbVKUXOv
+	id S932475AbVKUXPs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 18:15:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbVKUXPs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 18:14:51 -0500
-Received: from web34114.mail.mud.yahoo.com ([66.163.178.112]:60847 "HELO
-	web34114.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932333AbVKUXOu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 18:14:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=n8k38kB8KP45nek3BE/XrmI4x2NDD0X4rtjhNVgh1UBVBYrJfiuRbGeDJS6SUVklrXcnytsA+xqwyay5yEMQCUHyEdvsIm7Tr88fCCPB5AU0pvfLfKmyhQMsiZgwA3eEkwgYFn69tVFinfJbZN3aID3jpMrysm64LrQ4iz2LJtg=  ;
-Message-ID: <20051121231449.92787.qmail@web34114.mail.mud.yahoo.com>
-Date: Mon, 21 Nov 2005 15:14:49 -0800 (PST)
-From: Kenny Simpson <theonetruekenny@yahoo.com>
-Subject: Re: infinite loop? with mmap, nfs, pwrite, O_DIRECT
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Andrew Morton <akpm@osdl.org>, cel@citi.umich.edu,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1132612974.8011.12.camel@lade.trondhjem.org>
+	Mon, 21 Nov 2005 18:15:48 -0500
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:22205 "EHLO
+	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S932463AbVKUXPq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 18:15:46 -0500
+Message-ID: <4382563E.50502@student.ltu.se>
+Date: Tue, 22 Nov 2005 00:20:30 +0100
+From: Richard Knutsson <ricknu-0@student.ltu.se>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Herbert Xu <herbert@gondor.apana.org.au>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       jgarzik@pobox.com, ashutosh.naik@gmail.com
+Subject: Re: [PATCH -mm2] net: Fix compiler-error on dgrs.c when !CONFIG_PCI
+References: <E1EeJu8-0006vr-00@gondolin.me.apana.org.au>
+In-Reply-To: <E1EeJu8-0006vr-00@gondolin.me.apana.org.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> Ah... It is the pwrite() _after_ the call to mmap() that fails....
-> 
-> OK, does the following patch fix it?
+Herbert Xu wrote:
 
-YES!
+>Richard Knutsson <ricknu-0@student.ltu.se> wrote:
+>  
+>
+>>We need it even if pci_register_driver() and pci_register_driver() is 
+>>empty shells. And instead of removing #endif CONFIG_PCI for 
+>>    
+>>
+>
+>I don't think so.  Please see my previous patch where pci_register_driver
+>is not called at all if CONFIG_PCI is not defined.
+>
+>Cheers,
+>  
+>
+Yes, I know you patch don't need it (thought you commented the patch vs. 
+dgrs.c, not vs. you patch). But to do that, you have to introduce a new 
+dgrs-specific pci-layer to compensate. If you don't want to have an 
+empty struct, is it not nicer/easier to just #ifdef CONFIG_PCI the 
+pci_*-functions? (instead of two inline functions for every used 
+pci_*-function?)
 
-open("/mnt/bar", O_RDWR|O_CREAT|O_TRUNC|O_DIRECT|O_LARGEFILE, 0666) = 3
-pwrite(3, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 4096, 4299161600) = 4096
-mmap2(NULL, 2097152, PROT_READ|PROT_WRITE, MAP_SHARED, 3, 0x100200) = 0xb7c26000
-pwrite(3, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 4096, 4301258752) = 4096
-exit_group(0)                           = ?
+Am thinking of removing the #ifdef CONFIG_PCI's in other files, to 
+"clean up" the code, but that would introduce this problem again, don't 
+you think it is more readable to make an empty struct when !CONFIG_PCI, 
+then making new pci_*-functions specific to the driver?
 
-I'll re-run my original test(s) tomorrow.
-Thanks again!
+cu
 
--Kenny
-
-
-
-		
-__________________________________ 
-Yahoo! FareChase: Search multiple travel sites in one click.
-http://farechase.yahoo.com

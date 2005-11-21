@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbVKUWoy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbVKUWrW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751226AbVKUWoy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 17:44:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbVKUWoy
+	id S1751190AbVKUWrW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 17:47:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbVKUWrV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 17:44:54 -0500
-Received: from mail.kroah.org ([69.55.234.183]:63385 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751220AbVKUWox (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 17:44:53 -0500
-Date: Mon, 21 Nov 2005 14:44:38 -0800
-From: Greg KH <greg@kroah.com>
-To: David Fox <david.fox@linspire.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-rc2 pci_ids.h cleanup is a pain
-Message-ID: <20051121224438.GA18966@kroah.com>
-References: <438249CB.8050200@linspire.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <438249CB.8050200@linspire.com>
-User-Agent: Mutt/1.5.11
+	Mon, 21 Nov 2005 17:47:21 -0500
+Received: from silver.veritas.com ([143.127.12.111]:9896 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1751190AbVKUWrU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 17:47:20 -0500
+Date: Mon, 21 Nov 2005 22:40:30 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: tiwai@suse.de, rmk+lkml@arm.linux.org.uk, wli@holomorphy.com,
+       davem@davemloft.net, torvalds@osdl.org, nickpiggin@yahoo.com.au,
+       airlied@gmail.com, linux-kernel@vger.kernel.org,
+       alsa-devel@lists.sourceforge.net
+Subject: Re: [PATCH 12/11] unpaged: fix sound Bad page states
+In-Reply-To: <20051121124105.1bf8090d.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0511212240060.21223@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0511211801070.17464@goblin.wat.veritas.com>
+ <20051121124105.1bf8090d.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 21 Nov 2005 22:40:24.0742 (UTC) FILETIME=[901CB460:01C5EEEC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 21, 2005 at 02:27:23PM -0800, David Fox wrote:
-> I'm sure I'm not the only person that applies patches to the kernel that 
-> use some of the 500 plus PCI IDS eliminated from pci_ids.h by rc2.  I 
-> would like to see the PCI ids that were removed simply because the don't 
-> occur in the main kernel source restored.  Is there a rationale for 
-> removing them that I'm not aware of?
+On Mon, 21 Nov 2005, Andrew Morton wrote:
+> Hugh Dickins <hugh@veritas.com> wrote:
+> >
+> >   arch/sparc/kernel/ioport.c |    2 +-
+> >   arch/sparc64/kernel/sbus.c |    2 +-
+> >   sound/core/memalloc.c      |    2 ++
+> >   3 files changed, 4 insertions(+), 2 deletions(-)
+> 
+> So with this, do you think everything is in place for a mainline merge?
 
-They were not being used.  Why would you want them in there?
+Yes, I believe so: thanks.
 
-And, what pending patches do you have that patched this file?  Is there
-a reason you have not submitted it for inclusion?
-
-thanks,
-
-greg k-h
+Hugh

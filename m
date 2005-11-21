@@ -1,77 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751042AbVKUQq4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbVKUQsf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751042AbVKUQq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 11:46:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751043AbVKUQq4
+	id S1751048AbVKUQsf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 11:48:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbVKUQse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 11:46:56 -0500
-Received: from wscnet.wsc.cz ([212.80.64.118]:55680 "EHLO wscnet.wsc.cz")
-	by vger.kernel.org with ESMTP id S1751041AbVKUQqz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 11:46:55 -0500
-Message-ID: <4381F9EB.2070505@gmail.com>
-Date: Mon, 21 Nov 2005 17:46:35 +0100
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: cs, en-us, en
+	Mon, 21 Nov 2005 11:48:34 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:6292 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751044AbVKUQse (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 11:48:34 -0500
+Date: Mon, 21 Nov 2005 11:48:32 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Andrew Morton <akpm@osdl.org>
+cc: Kernel development list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Workaround for gcc 2.96 (undefined references)
+Message-ID: <Pine.LNX.4.44L0.0511211145330.4586-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-To: Rob Landley <rob@landley.net>
-CC: Xose Vazquez Perez <xose.vazquez@gmail.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Documentation dir is a mess
-References: <438069BD.6000401@gmail.com> <200511211028.28944.rob@landley.net>
-In-Reply-To: <200511211028.28944.rob@landley.net>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley napsal(a):
+Andrew:
 
->On Sunday 20 November 2005 06:19, Xose Vazquez Perez wrote:
->  
->
->>hi,
->>
->>_today_ Documentation/* is a mess of files. It would be good
->>to have the _same_ tree as the code has:
->>
->>Documentation/
->>Documentation/arch/
->>Documentation/arch/i386/
->>[...]
->>Documentation/drivers/
->>Documentation/drivers/net/
->>Documentation/drivers/scsi/
->>[...]
->>Documentation/net
->>[...]
->>    
->>
->
->Perhaps you're looking for "make htmldocs"?
->  
->
-This is not, what he wants.
+As of 2.6.15-rc1-git4, gcc 2.96 complains about undefined references 
+unless this patch (as607) is applied.  Apparently the old compiler isn't 
+so good at avoiding linker references to unused code.
 
->Where would you put Documentation/unicode.txt in your proposed layout?  Or
->  
->
-Documentation/others? or sth.
+Alan Stern
 
->Documentation/filesystems/proc.txt?
->  
->
-It is somewhere, why to move it, simply rename the directory to fs, as
-he mentioned.
 
-Sorting is not a problem in my opinion. If no other problem occurs, it
-sounds good to me.
 
-regards,
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
 
--- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-\_.-^-._   jirislaby@gmail.com   _.-^-._/
-B67499670407CE62ACC8 22A032CC55C339D47A7E
+---
+
+Index: usb-2.6/mm/memory.c
+===================================================================
+--- usb-2.6.orig/mm/memory.c
++++ usb-2.6/mm/memory.c
+@@ -2101,6 +2101,13 @@ int __pud_alloc(struct mm_struct *mm, pg
+ 	spin_unlock(&mm->page_table_lock);
+ 	return 0;
+ }
++#else
++
++/* Workaround for gcc 2.96 */
++int __pud_alloc(struct mm_struct *mm, pgd_t *pgd, unsigned long address)
++{
++	return 0;
++}
+ #endif /* __PAGETABLE_PUD_FOLDED */
+ 
+ #ifndef __PAGETABLE_PMD_FOLDED
+@@ -2129,6 +2136,13 @@ int __pmd_alloc(struct mm_struct *mm, pu
+ 	spin_unlock(&mm->page_table_lock);
+ 	return 0;
+ }
++#else
++
++/* Workaround for gcc 2.96 */
++int __pmd_alloc(struct mm_struct *mm, pud_t *pud, unsigned long address)
++{
++	return 0;
++}
+ #endif /* __PAGETABLE_PMD_FOLDED */
+ 
+ int make_pages_present(unsigned long addr, unsigned long end)
 

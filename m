@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751073AbVKUVrh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbVKUVtB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751073AbVKUVrh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 16:47:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751076AbVKUVrh
+	id S1751082AbVKUVtB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 16:49:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbVKUVtB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 16:47:37 -0500
-Received: from zrtps0kp.nortelnetworks.com ([47.140.192.56]:56542 "EHLO
-	zrtps0kp.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S1751073AbVKUVrg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 16:47:36 -0500
-Message-ID: <4382406D.1040508@nortel.com>
-Date: Mon, 21 Nov 2005 15:47:25 -0600
-From: "Christopher Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-CC: Herbert Xu <herbert@gondor.apana.org.au>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, davem@davemloft.net
-Subject: Re: netlink nlmsg_pid supposed to be pid or tid?
-References: <438220C3.4040602@nortel.com> <E1EeIcx-0006i3-00@gondolin.me.apana.org.au> <20051121213549.GA28187@ms2.inr.ac.ru>
-In-Reply-To: <20051121213549.GA28187@ms2.inr.ac.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 21 Nov 2005 16:49:01 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:59873 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751082AbVKUVs7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 16:48:59 -0500
+Subject: Re: [PATCH 4/5] Centralise NO_IRQ definition
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
+       Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Russell King <rmk@arm.linux.org.uk>, Ian Molton <spyro@f2s.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+In-Reply-To: <17282.15177.804471.298409@cargo.ozlabs.ibm.com>
+References: <E1Ee0G0-0004CN-Az@localhost.localdomain>
+	 <24299.1132571556@warthog.cambridge.redhat.com>
+	 <20051121121454.GA1598@parisc-linux.org>
+	 <Pine.LNX.4.64.0511211047260.13959@g5.osdl.org>
+	 <20051121190632.GG1598@parisc-linux.org>
+	 <Pine.LNX.4.64.0511211124190.13959@g5.osdl.org>
+	 <20051121194348.GH1598@parisc-linux.org>
+	 <Pine.LNX.4.64.0511211150040.13959@g5.osdl.org>
+	 <20051121211544.GA4924@elte.hu>
+	 <17282.15177.804471.298409@cargo.ozlabs.ibm.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Nov 2005 21:47:26.0511 (UTC) FILETIME=[29BD23F0:01C5EEE5]
+Date: Mon, 21 Nov 2005 22:20:31 +0000
+Message-Id: <1132611631.11842.83.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey Kuznetsov wrote:
-> Hello!
+On Maw, 2005-11-22 at 08:25 +1100, Paul Mackerras wrote:
+> Ingo Molnar writes:
 > 
+> > is there any architecture where irq 0 is a legitimate setting that could 
+> > occur in drivers, and which would make NO_IRQ define of 0 non-practical?  
 > 
->>I tend to agree with you here that tgid makes more sense.
-> 
-> 
-> I agree, apparently netlink_autobind was missed when sed'ing pid->tgid.
-> Of course, it does not matter, but tgid is nicer choice from user's viewpoint.
+> Yes, G5 powermacs have the SATA controller on irq 0.  So if we can't
+> use irq 0, I can't get to my hard disk. :)  Other powermacs also use
+> irq 0 for various things, as do embedded PPC machines.
 
-I'm glad you agree, but I'm not sure what you mean by "it does not matter".
+G5 powermacs have the SATA controller on physical IRQ value 0. Linux IRQ
+values don't need to exactly map. One of the x86 ports handles 'real IRQ
+0' exactly this way. Its a cookie. Sure would benefit from a function
+for turning an IRQ into a description as a cleanup.
 
-TIPC wants the user to fill in the pid to use in the nlmsghdr portion of 
-a particular message.
+Alan
 
-When an NPTL child thread uses getpid() to specify the pid, it never 
-receives a response to this request.  Running the same code on the 
-parent works, and running the same code under Linuxthreads works.
-
-Using gettid() works, but it also means that only the thread that issued 
-the request can read the reply.
-
-Chris

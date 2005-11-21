@@ -1,58 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932475AbVKUXPs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932468AbVKUXUe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932475AbVKUXPs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 18:15:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbVKUXPs
+	id S932468AbVKUXUe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 18:20:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932476AbVKUXUd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 18:15:48 -0500
-Received: from gepetto.dc.ltu.se ([130.240.42.40]:22205 "EHLO
-	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S932463AbVKUXPq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 18:15:46 -0500
-Message-ID: <4382563E.50502@student.ltu.se>
-Date: Tue, 22 Nov 2005 00:20:30 +0100
-From: Richard Knutsson <ricknu-0@student.ltu.se>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Mon, 21 Nov 2005 18:20:33 -0500
+Received: from ozlabs.org ([203.10.76.45]:12526 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932468AbVKUXUd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 18:20:33 -0500
 MIME-Version: 1.0
-To: Herbert Xu <herbert@gondor.apana.org.au>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       jgarzik@pobox.com, ashutosh.naik@gmail.com
-Subject: Re: [PATCH -mm2] net: Fix compiler-error on dgrs.c when !CONFIG_PCI
-References: <E1EeJu8-0006vr-00@gondolin.me.apana.org.au>
-In-Reply-To: <E1EeJu8-0006vr-00@gondolin.me.apana.org.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17282.22077.670148.356981@cargo.ozlabs.ibm.com>
+Date: Tue, 22 Nov 2005 10:20:29 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Matthew Wilcox <matthew@wil.cx>,
+       David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>,
+       Ian Molton <spyro@f2s.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH 4/5] Centralise NO_IRQ definition
+In-Reply-To: <Pine.LNX.4.64.0511211339450.13959@g5.osdl.org>
+References: <E1Ee0G0-0004CN-Az@localhost.localdomain>
+	<24299.1132571556@warthog.cambridge.redhat.com>
+	<20051121121454.GA1598@parisc-linux.org>
+	<Pine.LNX.4.64.0511211047260.13959@g5.osdl.org>
+	<20051121190632.GG1598@parisc-linux.org>
+	<Pine.LNX.4.64.0511211124190.13959@g5.osdl.org>
+	<20051121194348.GH1598@parisc-linux.org>
+	<Pine.LNX.4.64.0511211150040.13959@g5.osdl.org>
+	<20051121211544.GA4924@elte.hu>
+	<17282.15177.804471.298409@cargo.ozlabs.ibm.com>
+	<Pine.LNX.4.64.0511211339450.13959@g5.osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Xu wrote:
+Linus Torvalds writes:
 
->Richard Knutsson <ricknu-0@student.ltu.se> wrote:
->  
->
->>We need it even if pci_register_driver() and pci_register_driver() is 
->>empty shells. And instead of removing #endif CONFIG_PCI for 
->>    
->>
->
->I don't think so.  Please see my previous patch where pci_register_driver
->is not called at all if CONFIG_PCI is not defined.
->
->Cheers,
->  
->
-Yes, I know you patch don't need it (thought you commented the patch vs. 
-dgrs.c, not vs. you patch). But to do that, you have to introduce a new 
-dgrs-specific pci-layer to compensate. If you don't want to have an 
-empty struct, is it not nicer/easier to just #ifdef CONFIG_PCI the 
-pci_*-functions? (instead of two inline functions for every used 
-pci_*-function?)
+> On all PC hardware, having a zero in the PCI irq register basically means 
+> that no irq is enabled. That's a _fact_. It's a fact however much you may 
+> not like it. It's how the hardware comes up, and it's how the BIOS leaves 
+> it. So "0" absolutely does mean "not allocated". 
 
-Am thinking of removing the #ifdef CONFIG_PCI's in other files, to 
-"clean up" the code, but that would introduce this problem again, don't 
-you think it is more readable to make an empty struct when !CONFIG_PCI, 
-then making new pci_*-functions specific to the driver?
+First, are you talking about the interrupt pin register or the
+interrupt line register?
 
-cu
+Secondly, I would say that any driver that looks at either of those
+registers is broken.  Drivers should be looking at dev->irq, which is
+set up by platform code, and may be quite different from what is in
+the interrupt line register.
 
+So the question of what PCI devices do with the value in the interrupt
+line register is pretty much irrelevant.  Those few devices that can
+control their interrupt routing (such as cardbus bridges) don't use
+the interrupt line register for that AFAIK.
+
+I think all we need is for the convention for drivers to be that they
+test for whether the device has an interrupt is to test (dev->irq !=
+NO_IRQ).  Then x86 can have NO_IRQ = 0 and PPC can have NO_IRQ = -1
+and I think everyone is happy (well, nearly everyone, anyway :).
+
+Paul.

@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751240AbVKUXDS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbVKUXEG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751240AbVKUXDS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 18:03:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751243AbVKUXDS
+	id S1751247AbVKUXEG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 18:04:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbVKUXEG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 18:03:18 -0500
-Received: from gate.crashing.org ([63.228.1.57]:41674 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751240AbVKUXDR (ORCPT
+	Mon, 21 Nov 2005 18:04:06 -0500
+Received: from mail.kroah.org ([69.55.234.183]:43426 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751247AbVKUXEB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 18:03:17 -0500
-Subject: Re: [PATCH 4/5] Centralise NO_IRQ definition
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Paul Mackerras <paulus@samba.org>,
-       Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Russell King <rmk@arm.linux.org.uk>, Ian Molton <spyro@f2s.com>
-In-Reply-To: <Pine.LNX.4.64.0511211429190.13959@g5.osdl.org>
-References: <E1Ee0G0-0004CN-Az@localhost.localdomain>
-	 <24299.1132571556@warthog.cambridge.redhat.com>
-	 <20051121121454.GA1598@parisc-linux.org>
-	 <Pine.LNX.4.64.0511211047260.13959@g5.osdl.org>
-	 <20051121190632.GG1598@parisc-linux.org>
-	 <Pine.LNX.4.64.0511211124190.13959@g5.osdl.org>
-	 <20051121194348.GH1598@parisc-linux.org>
-	 <Pine.LNX.4.64.0511211150040.13959@g5.osdl.org>
-	 <20051121211544.GA4924@elte.hu>
-	 <17282.15177.804471.298409@cargo.ozlabs.ibm.com>
-	 <20051121213527.GA6452@elte.hu>
-	 <Pine.LNX.4.64.0511211350010.13959@g5.osdl.org>
-	 <1132610954.26560.46.camel@gaston>
-	 <Pine.LNX.4.64.0511211429190.13959@g5.osdl.org>
-Content-Type: text/plain
-Date: Tue, 22 Nov 2005 10:00:29 +1100
-Message-Id: <1132614030.26560.56.camel@gaston>
+	Mon, 21 Nov 2005 18:04:01 -0500
+Date: Mon, 21 Nov 2005 15:01:41 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Small PCI core patch
+Message-ID: <20051121230136.GB19212@kroah.com>
+References: <20051121225303.GA19212@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051121225303.GA19212@kroah.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 21, 2005 at 02:53:03PM -0800, Greg KH wrote:
+> Subject: PCI: fix up the exported symbols to be the proper license.
 
-> By centralizing NO_IRQ, you either have to break a lot of existing PC 
-> setups, or you have to potentially break (far fewer) PowerPC setups. So 
-> let's not do it at all.
+Ok, now that I have everyone's attention, no I'm not serious about
+submitting this patch, I'm not a fool.  I know the rules about existing
+kernel symbols.
 
-I have no strong feeling vs. centralized or not centralized NO_IRQ
-value. All I want is NO_IRQ to exist on all archs so I can fix the few
-drivers that assume that 0 is no irq.
+But, what if this patch really did go in?  Who would be affected by
+this?  Nothing that is currently in the kernel.org kernel tree, right,
+so what's the big deal?
 
-Ben.
+Oh yeah, closed source drivers that are out side of the tree, but who
+cares about them?
 
+Oh yeah, _very_ large companies rely on them right now, and are working
+on creating more and more closed source drivers.  Why?  Don't they know
+that their legal departments do not agree with this?  Are they
+approaching Linux development in the same way they used to with the old
+Unix systems, i.e. fork and "add value"?
 
+Well, consider this a warning shot for anyone who is relying on closed
+source modules.  What you are doing is trying to take from Linux and not
+give anything back..  The GPL explicitly forbids this, and Linux would
+not be good enough today for you to be using it without that protection.
+There is a reason why you are wanting to use Linux for your internal
+use, and why your customers are asking for it.
+
+If you, or your company is relying on closed source kernel modules, your
+days are numbered.  And what are you going to do, and how are you going
+to explain things to your bosses and your customers, if possibly,
+something like this patch were to be accepted?
+
+Something to think about...
+
+thanks,
+
+greg k-h

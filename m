@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbVKULas@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbVKULhI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932262AbVKULas (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 06:30:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbVKULas
+	id S932264AbVKULhI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 06:37:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932266AbVKULhI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 06:30:48 -0500
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:39395 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S932262AbVKULar (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 06:30:47 -0500
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Mon, 21 Nov 2005 11:30:43 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Andreas Happe <andreashappe@snikt.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: what is our answer to ZFS?
-In-Reply-To: <slrndo37kk.cvi.news_0403@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0511211129400.15044@hermes-1.csi.cam.ac.uk>
-References: <11b141710511210144h666d2edfi@mail.gmail.com>
- <20051121095915.83230.qmail@web36406.mail.mud.yahoo.com>
- <slrndo37kk.cvi.news_0403@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 21 Nov 2005 06:37:08 -0500
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:43389 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932264AbVKULhH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 06:37:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:From:To:Cc:Message-Id:Subject;
+  b=xyCfAPqwQ5/nZSWjEy70bSMDI05XztmBXyUcK6kdLfBSBZYrqrLT2/dvhVIh5fZhLAimwBHSRGaydl2YtTMUUEHRhDSNBErdDTgiUrxeI2PLxhJsm9tJ0U7c2whZGeo8wjLKZ8fiBulbG+GkvNFAFY4rTp6B2Wi2b4vWajqr4xw=  ;
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>
+Message-Id: <20051121123906.14370.3039.sendpatchset@didi.local0.net>
+Subject: [patch 0/12] mm: optimisations
+Date: Mon, 21 Nov 2005 06:37:07 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Nov 2005, Andreas Happe wrote:
-> On 2005-11-21, Alfred Brons <alfredbrons@yahoo.com> wrote:
-> > Thanks Paulo!
-> > I wasn't aware of this thread.
-> >
-> > But my question was: do we have similar functionality
-> > in Linux kernel?
-[snip]
-> >>> Filesystems can be created instantaneously, snapshots and clones
-> >>> taken, native backups made, and a simplified property mechanism
-> >>> allows for setting of quotas, reservations, compression, and more.
-> 
-> excepct per-file compression all thinks should be doable with normal in-kernel
-> fs. per-file compression may be doable with ext2 and special patches, an
-> overlay filesystem or reiser4.
+The following patchset against 2.6.15-rc2 contains optimisations to the
+mm subsystem, mainly the page allocator. Single threaded write-fault
+based allocation performance is improved ~5% on G5 with SMP kernel, and
+~7% on P4 Xeon with SMP kernel (this measurement includes the full fault
+path, page copy, unmapping, and page freeing, so actual kernel allocator
+improvement should be larger).
 
-NTFS has per-file compression although I admit that in Linux this is 
-read-only at present (mostly because it is low priority).
+Thanks to feedback from Christoph, Andi, and Bob Picco.
 
-Best regards,
+This patchset is cut down to include just straight optimisations and no
+behavioural changes.
 
-	Anton
+Nick
+
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+SUSE Labs, Novell Inc.
+
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

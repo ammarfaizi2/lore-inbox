@@ -1,71 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbVKUMxi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbVKUNBT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932288AbVKUMxi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 07:53:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932290AbVKUMxi
+	id S932291AbVKUNBT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 08:01:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932292AbVKUNBT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 07:53:38 -0500
-Received: from smtp-out6.blueyonder.co.uk ([195.188.213.9]:62545 "EHLO
-	smtp-out6.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S932288AbVKUMxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 07:53:37 -0500
-Message-ID: <4381C34D.2030904@blueyonder.co.uk>
-Date: Mon, 21 Nov 2005 12:53:33 +0000
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-Reply-To: sboyce@blueyonder.co.uk
-Organization: blueyonder.co.uk
-User-Agent: Thunderbird 1.5 (X11/20051025)
-MIME-Version: 1.0
+	Mon, 21 Nov 2005 08:01:19 -0500
+Received: from web34712.mail.mud.yahoo.com ([209.191.68.161]:48279 "HELO
+	web34712.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932291AbVKUNBS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 08:01:18 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=rcJqEab6nlputsCf7fleIfP+FHXWbKaNRVoAPeMcB8/OtrXi9erK6amYn2XX7sZwz3keIyJN0hwAa4fAouRkHkL0OFRPBMtJqXvOXq7P4vSv3jpFbHGpmfz3sM/DikGC91USDHsFMthjp/9iMAVfzsx/pINZOkt57embhFLJKFM=  ;
+Message-ID: <20051121130115.44699.qmail@web34712.mail.mud.yahoo.com>
+Date: Mon, 21 Nov 2005 05:01:15 -0800 (PST)
+From: dipankar das <dipankar_dd@yahoo.com>
+Subject: HbaApiNode missing in 2.6.9-22.ELsmp
 To: linux-kernel@vger.kernel.org
-Subject: kernel 2.6.15-rc2 x86_64 build fails if ext3 not selected
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 8bit
-X-OriginalArrivalTime: 21 Nov 2005 12:54:27.0676 (UTC) FILETIME=[B4DE29C0:01C5EE9A]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This only affects x86_64, with ext3 selected the build succeeds.
+Hi,
+ Is the character device HbaApiNode missing in
+2.6.9-22.ELsmp ?
+ Any way to get this ioctl with command
+EXT_CC_GET_DATA working in absence of that or is there
+any other way to get the Controller Error Count and 
+Link Failures for monitoring the Fibre Channel ?
 
-   AS [M]  arch/x86_64/crypto/aes-x86_64-asm.o
-   CC [M]  arch/x86_64/crypto/aes.o
-   LD [M]  arch/x86_64/crypto/aes-x86_64.o
-   AS      arch/x86_64/ia32/ia32entry.o
-   CC      arch/x86_64/ia32/sys_ia32.o
-   CC      arch/x86_64/ia32/ia32_ioctl.o
-In file included from include/linux/ext3_jbd.h:20,
-                  from fs/compat_ioctl.c:52,
-                  from arch/x86_64/ia32/ia32_ioctl.c:14:
-include/linux/ext3_fs.h: In function ‘ext3_raw_inode’:
-include/linux/ext3_fs.h:696: error: dereferencing pointer to incomplete type
-include/linux/ext3_fs.h: At top level:
-include/linux/ext3_fs.h:734: error: syntax error before ‘*’ token
-include/linux/ext3_fs.h:734: warning: function declaration isn’t a prototype
-include/linux/ext3_fs.h:735: error: syntax error before ‘*’ token
-include/linux/ext3_fs.h:736: warning: function declaration isn’t a prototype
-include/linux/ext3_fs.h:737: error: syntax error before ‘*’ token
-include/linux/ext3_fs.h:738: warning: function declaration isn’t a prototype
-include/linux/ext3_fs.h:765: error: syntax error before ‘*’ token
-include/linux/ext3_fs.h:765: warning: function declaration isn’t a prototype
-include/linux/ext3_fs.h:766: error: syntax error before ‘*’ token
-include/linux/ext3_fs.h:766: warning: function declaration isn’t a prototype
-include/linux/ext3_fs.h:775: error: syntax error before ‘*’ token
-include/linux/ext3_fs.h:775: warning: function declaration isn’t a prototype
-include/linux/ext3_fs.h:776: error: syntax error before ‘*’ token
-include/linux/ext3_fs.h:776: warning: function declaration isn’t a prototype
-include/linux/ext3_fs.h:777: error: syntax error before ‘*’ token
-include/linux/ext3_fs.h:777: warning: function declaration isn’t a prototype
-include/linux/ext3_fs.h:783: error: syntax error before ‘*’ token
-include/linux/ext3_fs.h:783: warning: function declaration isn’t a prototype
-include/linux/ext3_fs.h:797: error: syntax error before ‘*’ token
-include/linux/ext3_fs.h:797: warning: function declaration isn’t a prototype
-include/linux/ext3_fs.h:798: error: syntax error before ‘*’ token
-include/linux/ext3_fs.h:798: warning: function declaration isn’t a prototype
-In file included from fs/compat_ioctl.c:52,
+ Please suggest.
 
-Regards
-Sid.
--- 
-Sid Boyce ... Hamradio License G3VBV, licensed Private Pilot
-Retired IBM/Amdahl Mainframes and Sun/Fujitsu Servers Tech Support 
-Specialist
-Microsoft Windows Free Zone - Linux used for all Computing Tasks
+  Br, 
+    Dipankar.
+
+
+		
+__________________________________ 
+Yahoo! FareChase: Search multiple travel sites in one click.
+http://farechase.yahoo.com

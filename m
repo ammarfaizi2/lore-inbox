@@ -1,53 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbVKUPw6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932338AbVKUP5I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932334AbVKUPw6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 10:52:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbVKUPw6
+	id S932338AbVKUP5I (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 10:57:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbVKUP5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 10:52:58 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19725 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932334AbVKUPw5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 10:52:57 -0500
-Date: Mon, 21 Nov 2005 15:52:39 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Takashi Iwai <tiwai@suse.de>, Lee Revell <rlrevell@joe-job.com>,
-       Miles Lane <miles.lane@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       alsa-devel <alsa-devel@lists.sourceforge.net>
-Subject: Re: 2.6.15-rc1-mm2 -- Bad page state at free_hot_cold_page (in process 'aplay', page c18eef30)
-Message-ID: <20051121155239.GC21032@flint.arm.linux.org.uk>
-Mail-Followup-To: Hugh Dickins <hugh@veritas.com>,
-	Takashi Iwai <tiwai@suse.de>, Lee Revell <rlrevell@joe-job.com>,
-	Miles Lane <miles.lane@gmail.com>, Andrew Morton <akpm@osdl.org>,
-	LKML <linux-kernel@vger.kernel.org>,
-	alsa-devel <alsa-devel@lists.sourceforge.net>
-References: <a44ae5cd0511192256u20f0e594kc65cbaba108ff06e@mail.gmail.com> <Pine.LNX.4.61.0511200804500.3938@goblin.wat.veritas.com> <1132510467.6874.144.camel@mindpipe> <Pine.LNX.4.61.0511201915530.8619@goblin.wat.veritas.com> <s5hlkzinrq5.wl%tiwai@suse.de> <Pine.LNX.4.61.0511211507160.15988@goblin.wat.veritas.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 21 Nov 2005 10:57:08 -0500
+Received: from xproxy.gmail.com ([66.249.82.196]:15113 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932336AbVKUP5G convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 10:57:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=D4of7cRSGOquZUAJrPlUj6wMdpKbcdMD1gXWayCoZEd/4+UThhY2K8+s0dAhRkQNf1BSjHflo6nwdsyxq40QNBwPuZxqA47pSHZD1pWO9tjI3uQEPAMy7PoA/pXRjA7VU4LFABVCIj6zrwYgUudIjgGvHrPVw0HvIdk0Bfx6Dgc=
+Message-ID: <afcef88a0511210757y4fdb8c57w221b0fc9e7ee3ee4@mail.gmail.com>
+Date: Mon, 21 Nov 2005 09:57:05 -0600
+From: Michael Thompson <michael.craig.thompson@gmail.com>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: Re: [PATCH 6/12: eCryptfs] Superblock operations
+Cc: Phillip Hellewell <phillip@hellewell.homeip.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       viro@ftp.linux.org.uk, mike@halcrow.us, mhalcrow@us.ibm.com,
+       mcthomps@us.ibm.com, yoder1@us.ibm.com
+In-Reply-To: <84144f020511190250x2efdbfb4vf33245b3f7216fe5@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0511211507160.15988@goblin.wat.veritas.com>
-User-Agent: Mutt/1.4.1i
+References: <20051119041130.GA15559@sshock.rn.byu.edu>
+	 <20051119041910.GF15747@sshock.rn.byu.edu>
+	 <84144f020511190250x2efdbfb4vf33245b3f7216fe5@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 21, 2005 at 03:46:50PM +0000, Hugh Dickins wrote:
-> So another of my patches in -rc1-mm2 made the PageCompound technique
-> available always, no longer under #ifdef CONFIG_HUGETLB_PAGE: so that
-> get_page and put_page on the later constituents of the high-order
-> page get redirected to the first one, and it should work okay again.
-> 
-> Except that I'd missed that you actually have to choose to have your
-> high-order pages supplied as compound pages, by passing __GFP_COMP.
-> Since I wasn't passing that, they still weren't allocated as compound
-> pages, so were still being freed too soon - and the PG_reserved flag
-> found while freeing gave rise to the "Bad page state" messages seen.
+On 11/19/05, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
+> On 11/19/05, Phillip Hellewell <phillip@hellewell.homeip.net> wrote:
+> > +/**
+> > + * This is called through iput_final().
+> > + * This is function will replace generic_drop_inode. The end result of which
+> > + * is we are skipping the check in inode->i_nlink, which we do not use.
+> > + */
+> > +static void ecryptfs_drop_inode(struct inode *inode) {
+> > +       generic_delete_inode(inode);
+> > +}
+>
+> Please drop this useless wrapper and introduce it when it actually
+> does something.
 
-Does this mean that in arch/arm/mm/consistent.c, we should also set
-__GFP_COMP ?  Should we be doing that today?
+It does do something. By providing this function, we over-ride the
+default flow of execution.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+If we did not provide this function, the flow would be the following:
+
+iput_final -> generic_drop_inode -> generic_delete_inode (or
+generic_forget_inode).
+
+However, since we do not care about the i_nlink value, which
+generic_drop_inode checks in order to call generic_delete_inode, we
+simply circumvent the check by redirecting the flow thusly:
+
+iput_final -> ecryptfs_drop_inode -> generic_delete_inode
+
+I don't see a problem with doing that, but perhaps there is? Please
+elaborate if so.
+
+>
+>                            Pekka
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+
+
+--
+Michael C. Thompson <mcthomps@us.ibm.com>
+Software-Engineer, IBM LTC Security

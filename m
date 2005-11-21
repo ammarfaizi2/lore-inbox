@@ -1,37 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbVKUBnw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbVKUBte@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932168AbVKUBnw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 20:43:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbVKUBnw
+	id S932169AbVKUBte (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 20:49:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932171AbVKUBte
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 20:43:52 -0500
-Received: from mail.kroah.org ([69.55.234.183]:35545 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932168AbVKUBnv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 20:43:51 -0500
-Date: Sun, 20 Nov 2005 17:22:56 -0800
-From: Greg KH <greg@kroah.com>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Greg Kroah-Hartman <gregkh@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 2/5] Introduce PCI_NO_IRQ and pci_valid_irq()
-Message-ID: <20051121012255.GA14047@kroah.com>
-References: <E1Ee0Fz-0004CJ-Vg@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1Ee0Fz-0004CJ-Vg@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+	Sun, 20 Nov 2005 20:49:34 -0500
+Received: from vms048pub.verizon.net ([206.46.252.48]:29321 "EHLO
+	vms048pub.verizon.net") by vger.kernel.org with ESMTP
+	id S932169AbVKUBtd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 20:49:33 -0500
+Date: Sun, 20 Nov 2005 20:49:30 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: Linux 2.6.15-rc2
+In-reply-to: <20051121013241.GA7009@linuxtv.org>
+To: Johannes Stezenbach <js@linuxtv.org>, linux-kernel@vger.kernel.org
+Message-id: <200511202049.30952.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org>
+ <200511202007.44600.gene.heskett@verizon.net>
+ <20051121013241.GA7009@linuxtv.org>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 20, 2005 at 08:14:07PM -0500, Matthew Wilcox wrote:
-> Explicitly initialise pci_dev->irq with PCI_NO_IRQ, allowing us to change
-> the value of PCI_NO_IRQ once all drivers have been audited.
+On Sunday 20 November 2005 20:32, Johannes Stezenbach wrote:
+>grep DVB_ALL_FRONTENDS .config
 
-And what will the value of PCI_NO_IRQ going to be?
+[root@coyote linux-2.6.15-rc2]# grep DVB_ALL_FRONTENDS .config
+# CONFIG_VIDEO_CX88_DVB_ALL_FRONTENDS is not set
 
-thanks,
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.36% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
 
-greg k-h

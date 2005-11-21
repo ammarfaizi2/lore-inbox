@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbVKUKLe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbVKUKMA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932251AbVKUKLe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 05:11:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbVKUKLe
+	id S932263AbVKUKMA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 05:12:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbVKUKL7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 05:11:34 -0500
-Received: from ns.firmix.at ([62.141.48.66]:58245 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S932251AbVKUKLe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 05:11:34 -0500
-Subject: Re: Sun's ZFS and Linux
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: Tarkan Erimer <tarkane@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051119172337.GA24765@thunk.org>
-References: <9611fa230511181538g3e8ec403uafa9ed32b560fb0c@mail.gmail.com>
-	 <20051119172337.GA24765@thunk.org>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Mon, 21 Nov 2005 11:11:21 +0100
-Message-Id: <1132567881.22529.42.camel@tara.firmix.at>
+	Mon, 21 Nov 2005 05:11:59 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:25874 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932253AbVKUKL6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 05:11:58 -0500
+Date: Mon, 21 Nov 2005 10:11:45 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Cc: Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org, bunk@stusta.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: (no subject)
+Message-ID: <20051121101144.GA12167@flint.arm.linux.org.uk>
+Mail-Followup-To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>,
+	Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org,
+	bunk@stusta.de, linux-kernel@vger.kernel.org
+References: <437DFBB3.mailLJC11TKEB@suse.de> <31100cb5abcb16617981e6923dd165d0@cl.cam.ac.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <31100cb5abcb16617981e6923dd165d0@cl.cam.ac.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-11-19 at 12:23 -0500, Theodore Ts'o wrote:
-> On Fri, Nov 18, 2005 at 11:38:16PM +0000, Tarkan Erimer wrote:
-> > 
-> > On Nov.16, Sun has open sourced the
-> > (http://www.opensolaris.org/os/announcements/#2005-11-16_welcome_to_the_zfs_community_
-> > ) ZFS. I know that, It is licensed under CDDL. So, It is not GPL
-> > compatible. In this situation, there is no way for Linux mainline. But
-> > I wonder, is there anybody has a plan to port ZFS for Linux as a
-> > separate patch ?
+On Mon, Nov 21, 2005 at 10:06:03AM +0000, Keir Fraser wrote:
+> On 18 Nov 2005, at 16:05, Andi Kleen wrote:
+> >I don't think you can do that. We still need these functions in low
+> >level architecture code at least.
+> >
+> >Using __pa/__va doesn't cut it because it won't work on Xen guests
+> >which have different views on bus vs physical addresses. The Xen
+> >code is (hopefully) in the process of being merged, so intentionally
+> >breaking them isn't a good idea.
+> >
+> >So if anything there would need to be replacement functions for it
+> >first that do the same thing. But why not just keep the old ones?
 > 
-> That wouldn't be a "port", it would have to be a complete
-> reimplementation from scratch.  And, of course, of further concern
-> would be whether or not there are any patents that Sun may have filed
-> covering ZFS.  If the patents have only been licensed for CDDL
-> licensed code, then that won't help a GPL'ed covered reimplementation.
+> We could make use of virt_to_machine/machine_to_virt instead, which 
+> arguably better describe the intent of those functions. Currently we 
+> only use virt_to_bus/bus_to_virt in our swiotlb implementation, and our 
+> modified dma_map code. In those files I think the existing function 
+> names make some sense, but we can easily change if that's preferred.
 
-Hmm, one could thake the zfs as a blurb and write a GPL'ed adapter (as
-external patch) to the Kernel (similar to the nvidia ones and their
-binary blurb drivers). The ZFS blurb would count as "not derived" since
-it is IMHO exactly that.
-And now I don't know if it makes sense, could actually work or how much
-work it is. Experienced VFS people may have a opinion on this.
+If you're thinking of replacing bus_to_virt/virt_to_bus, you might want
+to think about virt_to_dma(dev, virt) and dma_to_virt(dev, dma) as a
+replacement, where "dev" is the device actually performing the DMA
+(which obviously may not be the device asking for the mapping to be set
+up.)  ARM already has these for use in the architecture code.
 
-	Bernd
 -- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

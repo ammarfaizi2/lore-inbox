@@ -1,96 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbVKUMA6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbVKUMHQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932274AbVKUMA6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 07:00:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbVKUMA6
+	id S932275AbVKUMHQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 07:07:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbVKUMHQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 07:00:58 -0500
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:42164 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932274AbVKUMA5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 07:00:57 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:From:To:Cc:Message-Id:In-Reply-To:References:Subject;
-  b=SRb5L+RZoyrdCeqEc39RvW/pzCjKXbg3hZGLwX5nwozABuNYV6ZVrSOGik9nk6DzMzGLlNsvjGcJ2bSfXDIcHW8VF3DJUHkwxNore+DmtWFGfd/MSsTYz1zv+RNS/uWc3IuWVEp29B3PDZpQA2azLKIz7Sszg2EQuf6yOYGdbQc=  ;
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>
-Message-Id: <20051121124212.14370.53831.sendpatchset@didi.local0.net>
-In-Reply-To: <20051121123906.14370.3039.sendpatchset@didi.local0.net>
-References: <20051121123906.14370.3039.sendpatchset@didi.local0.net>
-Subject: [patch 8/12] mm: remove pcp low
-Date: Mon, 21 Nov 2005 07:00:57 -0500
+	Mon, 21 Nov 2005 07:07:16 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:28039 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S932275AbVKUMHO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 07:07:14 -0500
+Subject: Re: what is our answer to ZFS?
+From: Kasper Sandberg <lkml@metanurb.dk>
+To: Matthias Andree <matthias.andree@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051121114654.GA25180@merlin.emma.line.org>
+References: <11b141710511210144h666d2edfi@mail.gmail.com>
+	 <20051121095915.83230.qmail@web36406.mail.mud.yahoo.com>
+	 <20051121101959.GB13927@wohnheim.fh-wedel.de>
+	 <20051121114654.GA25180@merlin.emma.line.org>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Mon, 21 Nov 2005 13:07:11 +0100
+Message-Id: <1132574831.15938.14.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-struct per_cpu_pages.low is useless. Remove it.
+On Mon, 2005-11-21 at 12:46 +0100, Matthias Andree wrote:
+> On Mon, 21 Nov 2005, Jörn Engel wrote:
+> 
+> > o Checksums for data blocks
+> >   Done by jffs2, not done my any hard disk filesystems I'm aware of.
+> 
+> Then allow me to point you to the Amiga file systems. The variants
+> commonly dubbed "Old File System" use only 448 (IIRC) out of 512 bytes
+> in a data block for payload and put their block chaining information,
+> checksum and other "interesting" things into the blocks. This helps
+> recoverability a lot but kills performance, so many people (used to) use
+> the "Fast File System" that uses the full 512 bytes for data blocks.
+> 
+> Whether the Amiga FFS, even with multi-user and directory index updates,
+> has a lot of importance today, is a different question that you didn't
+> pose :-)
+> 
+> >   yet.  (I barely consider reiser4 to exist.  Any filesystem that is
+> >   not considered good enough for kernel inclusion is effectively still
+> >   in development phase.)
+that isnt true, just because it isnt following the kernel coding style
+and therefore has to be changed, does not make it any bit more unstable.
 
-Signed-off-by: Nick Piggin <npiggin@suse.de>
 
-Index: linux-2.6/include/linux/mmzone.h
-===================================================================
---- linux-2.6.orig/include/linux/mmzone.h
-+++ linux-2.6/include/linux/mmzone.h
-@@ -46,7 +46,6 @@ struct zone_padding {
- 
- struct per_cpu_pages {
- 	int count;		/* number of pages in the list */
--	int low;		/* low watermark, refill needed */
- 	int high;		/* high watermark, emptying needed */
- 	int batch;		/* chunk size for buddy add/remove */
- 	struct list_head list;	/* the list of pages */
-Index: linux-2.6/mm/page_alloc.c
-===================================================================
---- linux-2.6.orig/mm/page_alloc.c
-+++ linux-2.6/mm/page_alloc.c
-@@ -719,7 +719,7 @@ buffered_rmqueue(struct zone *zone, int 
- 
- 		pcp = &zone_pcp(zone, get_cpu())->pcp[cold];
- 		local_irq_save(flags);
--		if (pcp->count <= pcp->low)
-+		if (!pcp->count)
- 			pcp->count += rmqueue_bulk(zone, 0,
- 						pcp->batch, &pcp->list);
- 		if (likely(pcp->count)) {
-@@ -1314,10 +1314,9 @@ void show_free_areas(void)
- 			pageset = zone_pcp(zone, cpu);
- 
- 			for (temperature = 0; temperature < 2; temperature++)
--				printk("cpu %d %s: low %d, high %d, batch %d used:%d\n",
-+				printk("cpu %d %s: high %d, batch %d used:%d\n",
- 					cpu,
- 					temperature ? "cold" : "hot",
--					pageset->pcp[temperature].low,
- 					pageset->pcp[temperature].high,
- 					pageset->pcp[temperature].batch,
- 					pageset->pcp[temperature].count);
-@@ -1761,14 +1760,12 @@ inline void setup_pageset(struct per_cpu
- 
- 	pcp = &p->pcp[0];		/* hot */
- 	pcp->count = 0;
--	pcp->low = 0;
- 	pcp->high = 6 * batch;
- 	pcp->batch = max(1UL, 1 * batch);
- 	INIT_LIST_HEAD(&pcp->list);
- 
- 	pcp = &p->pcp[1];		/* cold*/
- 	pcp->count = 0;
--	pcp->low = 0;
- 	pcp->high = 2 * batch;
- 	pcp->batch = max(1UL, batch/2);
- 	INIT_LIST_HEAD(&pcp->list);
-@@ -2164,12 +2161,10 @@ static int zoneinfo_show(struct seq_file
- 				seq_printf(m,
- 					   "\n    cpu: %i pcp: %i"
- 					   "\n              count: %i"
--					   "\n              low:   %i"
- 					   "\n              high:  %i"
- 					   "\n              batch: %i",
- 					   i, j,
- 					   pageset->pcp[j].count,
--					   pageset->pcp[j].low,
- 					   pageset->pcp[j].high,
- 					   pageset->pcp[j].batch);
- 			}
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+> 
+> What the heck is reiserfs? I faintly recall some weirdo crap that broke
+> NFS throughout the better parts of 2.2 and 2.4, would slowly write junk
+> into its structures that reiserfsck could only fix months later.
+well.. i remember that linux 2.6.0 had alot of bugs, is 2.6.14 still
+crap because those particular bugs are fixed now?
+
+> 
+> ReiserFS 3.6 still doesn't work right (you cannot create an arbitrary
+> amount of arbitrary filenames in any one directory even if there's
+> sufficient space), after a while in production, still random flaws in
+> the file systems that then require rebuild-tree that works only halfway.
+> No thanks.
+i have used reiserfs for a long time, and have never had the problem
+that i was required to use rebuild-tree, not have issues requiring other
+actions come, unless i have been hard rebooting/shutting down, in which
+case the journal simply replayed a few transactions.
+
+> 
+> Why would ReiserFS 4 be any different? IMO reiserfs4 should be blocked
+> from kernel baseline until:
+
+you seem to believe that reiser4 (note, reiser4, NOT reiserfs4) is just
+some simple new revision of reiserfs. well guess what, its an entirely
+different filesystem, which before they began the changes to have it
+merged, was completely stable, and i have confidence that it will be
+just as stable again soon.
+
+> 
+> - reiserfs 3.6 is fully fixed up
+> 
+so you are saying that if for some reason the via ide driver for old
+chipsets are broken, we cant merge a via ide driver for new ide
+controllers?
+
+> - reiserfs 4 has been debugged in production outside the kernel for at
+>   least 24 months with a reasonable installed base, by for instance a
+>   large distro using it for the root fs
+no dist will ever use (except perhaps linspire) before its included in
+the kernel.
+> 
+> - there are guarantees that reiserfs 4 will be maintained until the EOL
+>   of the kernel branch it is included into, rather than the current "oh
+>   we have a new toy and don't give a shit about 3.6" behavior.
+why do you think that reiser4 will not be maintained? if there are bugs
+in 3.6 hans is still interrested, but really, do you expect him to still
+spend all the time trying to find bugs in 3.6, when people dont seem to
+have issues, and while he in fact has created an entirely new
+filesystem.
+> 
+> Harsh words, I know, but either version of reiserfs is totally out of
+> the game while I have the systems administrator hat on, and the recent
+> fuss between Namesys and Christoph Hellwig certainly doesn't raise my
+> trust in reiserfs.
+so you are saying that if two people doesent get along the product the
+one person creates somehow falls in quality?
+> 
+

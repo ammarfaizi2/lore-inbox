@@ -1,71 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbVKURPw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbVKURQV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932377AbVKURPw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 12:15:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbVKURPv
+	id S932385AbVKURQV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 12:16:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932388AbVKURQU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 12:15:51 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:25100 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932377AbVKURPv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 12:15:51 -0500
-Date: Mon, 21 Nov 2005 17:15:46 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: akpm@osdl.org
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Shut up warnings in ipc/shm.c
-Message-ID: <20051121171545.GE21032@flint.arm.linux.org.uk>
-Mail-Followup-To: akpm@osdl.org,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
+	Mon, 21 Nov 2005 12:16:20 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:35856
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S932390AbVKURQT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 12:16:19 -0500
+Date: Mon, 21 Nov 2005 18:16:16 +0100
+From: Andrea Arcangeli <andrea@cpushare.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: disable tsc with seccomp
+Message-ID: <20051121171616.GH14746@opteron.random>
+References: <20051105134727.GF18861@opteron.random> <200511051712.09280.ak@suse.de> <20051105163134.GC14064@opteron.random> <200511051804.08306.ak@suse.de> <20051106015542.GE14064@opteron.random> <20051121164349.GE14746@opteron.random> <20051121170517.GA20775@brahms.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20051121170517.GA20775@brahms.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix two warnings in ipc/shm.c
+On Mon, Nov 21, 2005 at 06:05:17PM +0100, Andi Kleen wrote:
+> On Mon, Nov 21, 2005 at 05:43:49PM +0100, Andrea Arcangeli wrote:
+> > Since there was no feedback to my last post, I assume you agree, so
+> > please backout the tsc disable so then I can plug the performane counter
+> > disable on top of it (at zero additional runtime cost).
+> 
+> Sorry I don't agree.
 
-ipc/shm.c:122: warning: statement with no effect
-ipc/shm.c:560: warning: statement with no effect
+You've the config option, turn that off on your systems, what's the
+problem with that?
 
-by converting the macros to empty inline functions.  For safety, let's
-do all three.  This also has the advantage that typechecking gets
-performed even without CONFIG_SHMEM enabled.
-
-Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
-
-diff --git a/include/linux/mm.h b/include/linux/mm.h
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -651,9 +651,24 @@ struct mempolicy *shmem_get_policy(struc
- int shmem_lock(struct file *file, int lock, struct user_struct *user);
- #else
- #define shmem_nopage filemap_nopage
--#define shmem_lock(a, b, c) 	({0;})	/* always in memory, no need to lock */
--#define shmem_set_policy(a, b)	(0)
--#define shmem_get_policy(a, b)	(NULL)
-+
-+static inline int shmem_lock(struct file *file, int lock,
-+			     struct user_struct *user)
-+{
-+	return 0;
-+}
-+
-+static inline int shmem_set_policy(struct vm_area_struct *vma,
-+				   struct mempolicy *new)
-+{
-+	return 0;
-+}
-+
-+static inline struct mempolicy *shmem_get_policy(struct vm_area_struct *vma,
-+						 unsigned long addr)
-+{
-+	return NULL;
-+}
- #endif
- struct file *shmem_file_setup(char *name, loff_t size, unsigned long flags);
- 
-
--- 
-Russell King
+Or does this mean I need to ship kernels myself with covert channels
+made mathematically impossible with seccomp enabled? I'd rather avoid
+having to ship special kernels to run CPUShare as safely as physically
+possible. My time is already too short, so I hope I won't have to take
+care of this additional burden.

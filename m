@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751026AbVKUQoD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751036AbVKUQoh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751026AbVKUQoD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 11:44:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751032AbVKUQoD
+	id S1751036AbVKUQoh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 11:44:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbVKUQoh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 11:44:03 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:34583
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S1751026AbVKUQoC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 11:44:02 -0500
-Date: Mon, 21 Nov 2005 17:43:49 +0100
-From: Andrea Arcangeli <andrea@cpushare.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: disable tsc with seccomp
-Message-ID: <20051121164349.GE14746@opteron.random>
-References: <20051105134727.GF18861@opteron.random> <200511051712.09280.ak@suse.de> <20051105163134.GC14064@opteron.random> <200511051804.08306.ak@suse.de> <20051106015542.GE14064@opteron.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 21 Nov 2005 11:44:37 -0500
+Received: from mout1.freenet.de ([194.97.50.132]:1514 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S1751034AbVKUQof (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 11:44:35 -0500
+From: Sascha Sommer <saschasommer@freenet.de>
+To: linux-kernel@vger.kernel.org
+Subject: sleeping function called from invaled context at mm/slab.c:2472
+Date: Mon, 21 Nov 2005 17:44:25 +0100
+User-Agent: KMail/1.8.3
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051106015542.GE14064@opteron.random>
-To: unlisted-recipients:; (no To-header on input)
+Message-Id: <200511211744.25859.saschasommer@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since there was no feedback to my last post, I assume you agree, so
-please backout the tsc disable so then I can plug the performane counter
-disable on top of it (at zero additional runtime cost).
+Hi,
+I'm not sure if this is the right place to report but
+suspend to disk in 2.6.15-rc2 triggers the following:
 
-Also note: even if it may not be obvious because it's nicely hidden by
-header files, if you disable CONFIG_SECCOMP, the tsc disable patch
-becomes a noop and it's optimized away by gcc (like the rest of
-seccomp).
+Debug: sleeping function called from invalid context at mm/slab.c:2472
+in_atomic():0, irqs_disabled():1
+ [<c014d53a>] kmem_cache_alloc+0x9a/0xc0
+ [<c02fcdc2>] acpi_pci_link_set+0x48/0x18a
+ [<c02fd313>] acpi_pci_link_resume+0x21/0x27
+ [<c02fd336>] irqrouter_resume+0x1d/0x3c
+ [<c03507e9>] __sysdev_resume+0x19/0x90
+ [<c0350b18>] sysdev_resume+0x48/0x67
+ [<c0356315>] device_power_up+0x5/0xa
+ [<c013cdac>] swsusp_suspend+0x6c/0xa0
+ [<c013d7df>] pm_suspend_disk+0x4f/0xb0
+ [<c013bc98>] enter_state+0x68/0xa0
+ [<c013be38>] state_store+0xa8/0xc3
+ [<c01a7567>] flush_write_buffer+0x37/0x40
+ [<c01a75e3>] sysfs_write_file+0x73/0xa0
+ [<c0165366>] vfs_write+0xd6/0x1b0
+ [<c016550b>] sys_write+0x4b/0x80
+ [<c01033a7>] sysenter_past_esp+0x54/0x75
 
-So if you don't want to risk the microslowdown in your systems, just
-disable SECCOMP and be done with it but please resurrect that patch so I
-can fix the performance counters too after that.
+Tell me if you need more info.
 
-Thanks!
+Thanks
+
+Sascha

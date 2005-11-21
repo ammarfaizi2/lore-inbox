@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbVKULps@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbVKULq5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932194AbVKULps (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 06:45:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbVKULps
+	id S932216AbVKULq5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 06:46:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbVKULq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 06:45:48 -0500
-Received: from [85.8.13.51] ([85.8.13.51]:23966 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S932194AbVKULpr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 06:45:47 -0500
-Message-ID: <4381B364.2020808@drzeus.cx>
-Date: Mon, 21 Nov 2005 12:45:40 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mail/News 1.5 (X11/20051105)
+	Mon, 21 Nov 2005 06:46:57 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:24004 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S932216AbVKULq4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 06:46:56 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [linux-pm] [RFC] userland swsusp
+Date: Mon, 21 Nov 2005 12:47:44 +0100
+User-Agent: KMail/1.8.3
+Cc: Dave Jones <davej@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+References: <20051115212942.GA9828@elf.ucw.cz> <20051120214832.GC28918@redhat.com> <20051120220904.GB24132@elf.ucw.cz>
+In-Reply-To: <20051120220904.GB24132@elf.ucw.cz>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [RFC] Secure Digital Host Controller PCI class
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511211247.45558.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm working on a driver for the Secure Digital Host Controller
-interface. This is a generic interface, so it uses a PCI class for
-identification instead of vendor/device ids.
+Hi,
 
-The class ID used is 0805 and the programming interface (correct term?)
-indicates DMA capabilities. Greg, since you're the PCI maintainer,
-perhaps you have the possibility of checking this ID?
+On Sunday, 20 of November 2005 23:09, Pavel Machek wrote:
+}-- snip --{ 
+> > With what we have in-kernel, and a restricted /dev/mem, achieving the
+> > attack you mention is a lot less feasible, as the attacker has no access
+> > to the memory being written out to the suspend partition, even as root.
+> > Even if they did, people tend to notice boxes shutting down pretty quickly
+> > making this a not-very-stealthy attack.
+> 
+> Can I read somewhere about security model you are using? Would it be
+> enough to restrict /dev/[k]mem to those people that have right to
+> update kernel anyway? Or your approach is "noone, absolutely noone has
+> right to modify running kernel"? [Do you still use loadable modules?]
 
-The standard also dictates a register at offset 0x40 in PCI space. This
-is a one byte register detailing the number of slots on the controller
-and the first BAR to use.
+The problem is that, whatever the security model, if you have access to the
+kernel memory (eg. via /dev/kmem), you can modify the security rules
+themselves, so this should better be avoided.
 
-The driver isn't ready yet (I'm aiming for 2.6.16) but this is the PCI
-related patch I'd like committed further on:
+Apart from this, IMO, if it's necessary to access the kernel memory directly
+from a userland process, this means that the process' functionality really
+belongs to the kernel.  Consequently, the code in swsusp that needs
+to access the kernel memory should stay in the kernel, and the rest
+can go to the userland.
 
-
-diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
---- a/include/linux/pci_ids.h
-+++ b/include/linux/pci_ids.h
-@@ -68,6 +68,7 @@
- #define PCI_CLASS_SYSTEM_TIMER         0x0802
- #define PCI_CLASS_SYSTEM_RTC           0x0803
- #define PCI_CLASS_SYSTEM_PCI_HOTPLUG   0x0804
-+#define PCI_CLASS_SYSTEM_SDHCI         0x0805
- #define PCI_CLASS_SYSTEM_OTHER         0x0880
-
- #define PCI_BASE_CLASS_INPUT           0x09
-diff --git a/include/linux/pci_regs.h b/include/linux/pci_regs.h
---- a/include/linux/pci_regs.h
-+++ b/include/linux/pci_regs.h
-@@ -108,6 +108,9 @@
- #define PCI_INTERRUPT_PIN      0x3d    /* 8 bits */
- #define PCI_MIN_GNT            0x3e    /* 8 bits */
- #define PCI_MAX_LAT            0x3f    /* 8 bits */
-+#define PCI_SLOT_INFO          0x40    /* 8 bits */
-+#define  PCI_SLOT_INFO_SLOTS(x)        ((x >> 4) & 7)
-+#define  PCI_SLOT_INFO_FIRST_BAR_MASK  0x07
-
- /* Header type 1 (PCI-to-PCI bridges) */
- #define PCI_PRIMARY_BUS                0x18    /* Primary bus number */
+Greetings,
+Rafael

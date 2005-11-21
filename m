@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932480AbVKUXfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932482AbVKUXgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932480AbVKUXfL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 18:35:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbVKUXfL
+	id S932482AbVKUXgX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 18:36:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932483AbVKUXgX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 18:35:11 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:18114 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932480AbVKUXfJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 18:35:09 -0500
-Date: Mon, 21 Nov 2005 15:34:54 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: theonetruekenny@yahoo.com, cel@citi.umich.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: infinite loop? with mmap, nfs, pwrite, O_DIRECT
-Message-Id: <20051121153454.1907d92a.akpm@osdl.org>
-In-Reply-To: <1132612974.8011.12.camel@lade.trondhjem.org>
-References: <20051121213913.61220.qmail@web34115.mail.mud.yahoo.com>
-	<1132612974.8011.12.camel@lade.trondhjem.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 21 Nov 2005 18:36:23 -0500
+Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:32518 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932482AbVKUXgW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 18:36:22 -0500
+Date: Tue, 22 Nov 2005 10:36:09 +1100
+To: Richard Knutsson <ricknu-0@student.ltu.se>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       jgarzik@pobox.com, ashutosh.naik@gmail.com
+Subject: Re: [PATCH -mm2] net: Fix compiler-error on dgrs.c when !CONFIG_PCI
+Message-ID: <20051121233609.GB27327@gondor.apana.org.au>
+References: <E1EeJu8-0006vr-00@gondolin.me.apana.org.au> <4382563E.50502@student.ltu.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4382563E.50502@student.ltu.se>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
->
->  Anything that calls lock_page() should be avoided in O_DIRECT,
+On Tue, Nov 22, 2005 at 12:20:30AM +0100, Richard Knutsson wrote:
+> 
+> Am thinking of removing the #ifdef CONFIG_PCI's in other files, to 
+> "clean up" the code, but that would introduce this problem again, don't 
+> you think it is more readable to make an empty struct when !CONFIG_PCI, 
+> then making new pci_*-functions specific to the driver?
 
-Why?
+I think my version is more readable.  However, it's really up to Jeff
+to decide.
 
-And it's still doing lock_page():
-
-	nfs_file_direct_write()
-	->filemap_fdatawrite()
-	  ->do_writepages()
-	    ->nfs_writepages()
-	      ->generic_writepages()
-	        ->mpage_writepages()
-	          ->lock_page()
-
-> however
->   we should be able to call invalidate_inode_pages() since that doesn't
->   wait on the page lock.
-
-invalidate_inode_pages2() is better.  And using generic_file_direct_IO() is
-better still, since it handles mmap coherency and only work upon that part
-of the file which is actually undergoing IO.
-
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

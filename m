@@ -1,61 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbVKUNXq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbVKUNZU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbVKUNXq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 08:23:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbVKUNXq
+	id S1750774AbVKUNZU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 08:25:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751026AbVKUNZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 08:23:46 -0500
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:20384 "HELO
+	Mon, 21 Nov 2005 08:25:19 -0500
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:59809 "HELO
 	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1750718AbVKUNXq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 08:23:46 -0500
+	id S1750775AbVKUNZS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 08:25:18 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com.au;
   h=Received:From:To:Cc:Message-Id:In-Reply-To:References:Subject;
-  b=m8ZOZqyarXIkPft+qzz/5UW4Ybk8pNzXulPnCAU4ohx3srLC1vls5vQNdJmD4XdgzIvRaLOdw4T54qDBbpCUpFmFy7/iMzpipfioTrtxPJQI82kbcbgcwMvXqCXIuYFsJyCickiMB1kNZQt2VyhROYrz4uTi825qUNy/d4kXvSU=  ;
+  b=n7iMo476BsFBvzKZWrovvIuqlqYg6ik9XMtQ0OtxVtLSgzUrSTU+YSyfGcJCllxhDMfxe0p0xYBwVZiWqjNaKJ9NwHC1Zmj6LhPsm45xmMQbW7RTagrTkUx+bUXuBYNGi9VCAKAojQioJ1j6pF7HNsF8sWyXPiL//jNvo9SuAok=  ;
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 To: linux-kernel@vger.kernel.org
 Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>
-Message-Id: <20051121123942.14370.90399.sendpatchset@didi.local0.net>
+Message-Id: <20051121124102.14370.93106.sendpatchset@didi.local0.net>
 In-Reply-To: <20051121123906.14370.3039.sendpatchset@didi.local0.net>
 References: <20051121123906.14370.3039.sendpatchset@didi.local0.net>
-Subject: [patch 1/12] mm: free_pages_and_swap_cache opt
-Date: Mon, 21 Nov 2005 08:23:46 -0500
+Subject: [patch 5/12] mm: microopt conditions
+Date: Mon, 21 Nov 2005 08:25:18 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Minor optimization (though it doesn't help in the PREEMPT case, severely
-constrained by small ZAP_BLOCK_SIZE).  free_pages_and_swap_cache works in
-chunks of 16, calling release_pages which works in chunks of PAGEVEC_SIZE.
-But PAGEVEC_SIZE was dropped from 16 to 14 in 2.6.10, so we're now doing
-more spin_lock_irq'ing than necessary: use PAGEVEC_SIZE throughout.
+Micro optimise some conditionals where we don't need lazy evaluation.
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
+Signed-off-by: Nick Piggin <npiggin@suse.de>
 
-Index: linux-2.6/mm/swap_state.c
+Index: linux-2.6/mm/page_alloc.c
 ===================================================================
---- linux-2.6.orig/mm/swap_state.c
-+++ linux-2.6/mm/swap_state.c
-@@ -14,6 +14,7 @@
- #include <linux/pagemap.h>
- #include <linux/buffer_head.h>
- #include <linux/backing-dev.h>
-+#include <linux/pagevec.h>
+--- linux-2.6.orig/mm/page_alloc.c
++++ linux-2.6/mm/page_alloc.c
+@@ -342,9 +342,9 @@ static inline void __free_pages_bulk (st
  
- #include <asm/pgtable.h>
- 
-@@ -272,12 +273,11 @@ void free_page_and_swap_cache(struct pag
-  */
- void free_pages_and_swap_cache(struct page **pages, int nr)
+ static inline void free_pages_check(const char *function, struct page *page)
  {
--	int chunk = 16;
- 	struct page **pagep = pages;
+-	if (	page_mapcount(page) ||
+-		page->mapping != NULL ||
+-		page_count(page) != 0 ||
++	if (unlikely(page_mapcount(page) |
++		(page->mapping != NULL)  |
++		(page_count(page) != 0)  |
+ 		(page->flags & (
+ 			1 << PG_lru	|
+ 			1 << PG_private |
+@@ -354,7 +354,7 @@ static inline void free_pages_check(cons
+ 			1 << PG_slab	|
+ 			1 << PG_swapcache |
+ 			1 << PG_writeback |
+-			1 << PG_reserved )))
++			1 << PG_reserved ))))
+ 		bad_page(function, page);
+ 	if (PageDirty(page))
+ 		__ClearPageDirty(page);
+@@ -455,9 +455,9 @@ expand(struct zone *zone, struct page *p
+  */
+ static void prep_new_page(struct page *page, int order)
+ {
+-	if (	page_mapcount(page) ||
+-		page->mapping != NULL ||
+-		page_count(page) != 0 ||
++	if (unlikely(page_mapcount(page) |
++		(page->mapping != NULL)  |
++		(page_count(page) != 0)  |
+ 		(page->flags & (
+ 			1 << PG_lru	|
+ 			1 << PG_private	|
+@@ -468,7 +468,7 @@ static void prep_new_page(struct page *p
+ 			1 << PG_slab    |
+ 			1 << PG_swapcache |
+ 			1 << PG_writeback |
+-			1 << PG_reserved )))
++			1 << PG_reserved ))))
+ 		bad_page(__FUNCTION__, page);
  
- 	lru_add_drain();
- 	while (nr) {
--		int todo = min(chunk, nr);
-+		int todo = min(nr, PAGEVEC_SIZE);
- 		int i;
- 
- 		for (i = 0; i < todo; i++)
+ 	page->flags &= ~(1 << PG_uptodate | 1 << PG_error |
 Send instant messages to your online friends http://au.messenger.yahoo.com 

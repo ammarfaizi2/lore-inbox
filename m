@@ -1,107 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbVKUIfl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbVKUImz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932223AbVKUIfl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 03:35:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbVKUIfl
+	id S932227AbVKUImz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 03:42:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbVKUImz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 03:35:41 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:23779 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S932227AbVKUIfk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 03:35:40 -0500
-Message-ID: <438186D0.1000704@ens-lyon.org>
-Date: Mon, 21 Nov 2005 03:35:28 -0500
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+	Mon, 21 Nov 2005 03:42:55 -0500
+Received: from pne-smtpout2-sn2.hy.skanova.net ([81.228.8.164]:57784 "EHLO
+	pne-smtpout2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S932227AbVKUImy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 03:42:54 -0500
+Message-ID: <43818880.8080800@comhem.se>
+Date: Mon, 21 Nov 2005 09:42:40 +0100
+From: =?ISO-8859-1?Q?Daniel_Marjam=E4ki?= <daniel.marjamaki@comhem.se>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Anders Karlsson <trudheim@gmail.com>
+To: Con Kolivas <kernel@kolivas.org>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14.2 - Badness in as_insert_request at drivers/block/as-iosched.c:1519
-References: <515e525f0511210027u67d8e924j9edb95af7fdd4d9e@mail.gmail.com>
-In-Reply-To: <515e525f0511210027u67d8e924j9edb95af7fdd4d9e@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: I made a patch and would like feedback/testers (drivers/cdrom/aztcd.c)
+References: <5aZsv-3CJ-17@gated-at.bofh.it> <E1EdwGs-0000qv-NL@be1.lrz> <438180C0.2030503@comhem.se> <200511211919.11429.kernel@kolivas.org>
+In-Reply-To: <200511211919.11429.kernel@kolivas.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anders Karlsson wrote:
 
->Morning,
->
->I am getting loads of these:
->
->Nov 21 08:10:19 lenin kernel: [17304475.764000] arq->state: 4
->Nov 21 08:10:19 lenin kernel: [17304475.764000] Badness in
->as_insert_request at drivers/block/as-iosched.c:1519
->Nov 21 08:10:19 lenin kernel: [17304475.764000] 
->[as_insert_request+109/464] as_insert_request+0x6d/0x1d0
->Nov 21 08:10:19 lenin kernel: [17304475.764000] 
->[__elv_add_request+155/224] __elv_add_request+0x9b/0xe0
->Nov 21 08:10:19 lenin kernel: [17304475.764000] 
->[elv_add_request+43/64] elv_add_request+0x2b/0x40
->Nov 21 08:10:19 lenin kernel: [17304475.764000] 
->[blk_execute_rq_nowait+69/96] blk_execute_rq_nowait+0x45/0x60
->Nov 21 08:10:19 lenin kernel: [17304475.764000] 
->[blk_execute_rq+123/224] blk_execute_rq+0x7b/0xe0
->Nov 21 08:10:19 lenin kernel: [17304475.764000] 
->[blk_end_sync_rq+0/48] blk_end_sync_rq+0x0/0x30
->Nov 21 08:10:19 lenin kernel: [17304475.764000] 
->[bio_phys_segments+39/48] bio_phys_segments+0x27/0x30
->Nov 21 08:10:19 lenin kernel: [17304475.764000] 
->[blk_rq_bio_prep+133/176] blk_rq_bio_prep+0x85/0xb0
->Nov 21 08:10:19 lenin kernel: [17304475.764000] 
->[cdrom_read_cdda_bpc+403/512] cdrom_read_cdda_bpc+0x193/0x200
->Nov 21 08:10:19 lenin kernel: [17304475.764000] 
->[cdrom_read_cdda+91/192] cdrom_read_cdda+0x5b/0xc0
->Nov 21 08:10:19 lenin kernel: [17304475.764000]  [mmc_ioctl+2098/2784]
->mmc_ioctl+0x832/0xae0
->Nov 21 08:10:19 lenin kernel: [17304475.764000] 
->[__wake_up_common+67/112] __wake_up_common+0x43/0x70
->Nov 21 08:10:19 lenin kernel: [17304475.764000] 
->[scsi_cmd_ioctl+191/1328] scsi_cmd_ioctl+0xbf/0x530
->Nov 21 08:10:19 lenin kernel: [17304475.764000] 
->[n_tty_receive_buf+225/3888] n_tty_receive_buf+0xe1/0xf30
->Nov 21 08:10:19 lenin kernel: [17304475.764000] 
->[log_wait_commit+202/256] log_wait_commit+0xca/0x100
->Nov 21 08:10:19 lenin kernel: [17304475.764000] 
->[fast_clear_page+10/80] fast_clear_page+0xa/0x50
->Nov 21 08:10:19 lenin kernel: [17304475.764000] 
->[buffered_rmqueue+398/480] buffered_rmqueue+0x18e/0x1e0
->Nov 21 08:10:19 lenin kernel: [17304475.764000] 
->[generic_ide_ioctl+60/1408] generic_ide_ioctl+0x3c/0x580
->Nov 21 08:10:19 lenin kernel: [17304475.764000] 
->[cdrom_ioctl+230/3536] cdrom_ioctl+0xe6/0xdd0
->Nov 21 08:10:20 lenin kernel: [17304475.764000]  [pty_write+103/128]
->pty_write+0x67/0x80
->Nov 21 08:10:20 lenin kernel: [17304475.764000]  [idecd_ioctl+133/160]
->idecd_ioctl+0x85/0xa0
->Nov 21 08:10:20 lenin kernel: [17304475.764000] 
->[blkdev_ioctl+304/432] blkdev_ioctl+0x130/0x1b0
->Nov 21 08:10:20 lenin kernel: [17304475.764000]  [block_ioctl+43/48]
->block_ioctl+0x2b/0x30
->Nov 21 08:10:20 lenin kernel: [17304475.764000]  [do_ioctl+50/144]
->do_ioctl+0x32/0x90
->Nov 21 08:10:20 lenin kernel: [17304475.764000]  [vfs_ioctl+96/496]
->vfs_ioctl+0x60/0x1f0
->Nov 21 08:10:20 lenin kernel: [17304475.764000]  [sys_ioctl+136/160]
->sys_ioctl+0x88/0xa0
->Nov 21 08:10:20 lenin kernel: [17304475.764000] 
->[sysenter_past_esp+84/117] sysenter_past_esp+0x54/0x75
->
->I flipped the drive (LG GSA4167B DVD±RW) into udma2 mode, enabled udma
->and started reading from an audio disc with cdparanoia. I had to abort
->the read (^C in shell where running cdparanoia) and noticed the system
->became slower for a while. When checking the system logs, I spotted
->these stacktraces.
->  
->
 
-I reported a similar problem while ripping a CD with cdparanoia on
-2.6.14 on a
-thinkpad R52 (http://lkml.org/lkml/2005/11/10/286). But I didn't get any
-answer.
-I hope you will get some. Good luck :)
+Con Kolivas wrote:
+> 
+> Convention in the kernel would be 
+> 	aztTimeOut =  HZ / 100 ? : 1;
+> to be at least one tick (works for HZ even below 100) and is at least 10ms. If 
+> you wanted 2 ms then use
+> 	aztTimeOut =  HZ / 500 ? : 1;
+> which would give you at least 2ms
+> 
 
-Brice
+Thank you Con for the feedback.
+
+Hmm.. The minimum value should be 2, right?
+Otherwise the loop could time out after only a few nanoseconds.. since the loop will then timeout immediately on a clock tick.
+Or am I wrong?
+
+Best regards,
+Daniel Marjamäki
+
+
 

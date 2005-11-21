@@ -1,31 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750908AbVKUDiy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbVKUE1M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750908AbVKUDiy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Nov 2005 22:38:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750912AbVKUDiy
+	id S932177AbVKUE1M (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Nov 2005 23:27:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbVKUE1M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Nov 2005 22:38:54 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:6043 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750904AbVKUDix
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Nov 2005 22:38:53 -0500
-Date: Mon, 21 Nov 2005 03:38:50 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Markus Lidel <Markus.Lidel@shadowconnect.com>
-Cc: "David S. Miller" <davem@davemloft.net>, alan@lxorguk.ukuu.org.uk,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/5] I2O: SPARC fixes
-Message-ID: <20051121033850.GG27946@ftp.linux.org.uk>
-References: <437E7ADB.5080200@shadowconnect.com> <20051118.172230.126076770.davem@davemloft.net> <1132371039.5238.14.camel@localhost.localdomain> <20051118.203707.129707514.davem@davemloft.net> <4380EDB1.1080308@shadowconnect.com> <20051120225256.GC27946@ftp.linux.org.uk> <20051120230714.GD27946@ftp.linux.org.uk> <20051120232158.GE27946@ftp.linux.org.uk> <4381194A.3080609@shadowconnect.com>
+	Sun, 20 Nov 2005 23:27:12 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:31717
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932177AbVKUE1L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Nov 2005 23:27:11 -0500
+Date: Sun, 20 Nov 2005 20:27:09 -0800 (PST)
+Message-Id: <20051120.202709.20027544.davem@davemloft.net>
+To: pavel@suse.cz
+Cc: sam@ravnborg.org, akpm@osdl.org, davej@redhat.com, bunk@stusta.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] mark virt_to_bus/bus_to_virt as __deprecated on
+ i386
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20051120232731.GG2556@spitz.ucw.cz>
+References: <20051117200354.6acb3599.akpm@osdl.org>
+	<20051119003435.GA29775@mars.ravnborg.org>
+	<20051120232731.GG2556@spitz.ucw.cz>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4381194A.3080609@shadowconnect.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 21, 2005 at 01:48:10AM +0100, Markus Lidel wrote:
-> memcpy_fromio(&evt->body[1], &msg->body[1], size * 4);
+From: Pavel Machek <pavel@suse.cz>
+Date: Sun, 20 Nov 2005 23:27:32 +0000
 
-                evt->data, surely?
+> Well, please don't do that. -Werror makes development very painful.
+
+I've had all of arch/sparc64 in -Werror mode for more than a year,
+and it's anything but painful.  It's prevented me from introducing
+numerous bugs inadvertantly.
+
+People miss warnings or flat out ignore them, if the build fails they
+will have to fix it up instead before sending in their changes.
+
+Yes, for a spot like kernel/ it's more difficult since it's
+compilation is influenced by so many configuration and platform
+specific stuff, but that's just too bad.  Getting it warning free is
+still something we can and should do.
+
+Saying it's too hard, so we shouldn't even try, is a self-fufilling
+prophecy.  I definitely want to add -Werror to net/ very very soon.

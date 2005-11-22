@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964975AbVKVQPC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964976AbVKVQRY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964975AbVKVQPC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 11:15:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964976AbVKVQPB
+	id S964976AbVKVQRY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 11:17:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbVKVQRY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 11:15:01 -0500
-Received: from xenotime.net ([66.160.160.81]:64911 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S964975AbVKVQPB (ORCPT
+	Tue, 22 Nov 2005 11:17:24 -0500
+Received: from bee.hiwaay.net ([216.180.54.11]:8912 "EHLO bee.hiwaay.net")
+	by vger.kernel.org with ESMTP id S1751314AbVKVQRX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 11:15:01 -0500
-Date: Tue, 22 Nov 2005 08:14:57 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Bill Davidsen <davidsen@tmr.com>
-cc: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
-       linux-kernel@vger.kernel.org
+	Tue, 22 Nov 2005 11:17:23 -0500
+Date: Tue, 22 Nov 2005 10:17:12 -0600
+From: Chris Adams <cmadams@hiwaay.net>
+To: linux-kernel@vger.kernel.org
 Subject: Re: what is our answer to ZFS?
-In-Reply-To: <43834098.60400@tmr.com>
-Message-ID: <Pine.LNX.4.58.0511220814290.30423@shark.he.net>
-References: <E1EeLp5-0002fZ-00@calista.inka.de> <43825168.6050404@wolfmountaingroup.com>
- <43834098.60400@tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20051122161712.GA942598@hiwaay.net>
+References: <fa.d8ojg69.1p5ovbb@ifi.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051122152531.GU12760@delft.aura.cs.cmu.edu>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Nov 2005, Bill Davidsen wrote:
+Once upon a time, Jan Harkes <jaharkes@cs.cmu.edu> said:
+>The only thing that tends to break are userspace archiving tools like
+>tar, which assume that 2 objects with the same 32-bit st_ino value are
+>identical.
 
-> Jeff V. Merkey wrote:
-> > Bernd Eckenfels wrote:
-> >
-> >> In article <200511211252.04217.rob@landley.net> you wrote:
-> >>
-> >>
-> >>> I believe that on 64 bit platforms, Linux has a 64 bit clean VFS.
-> >>> Python says 2**64 is 18446744073709551616, and that's roughly:
-> >>> 18,446,744,073,709,551,616 bytes
-> >>> 18,446,744,073,709 megs
-> >>> 18,446,744,073 gigs
-> >>> 18,446,744 terabytes
-> >>> 18,446 ...  what are those, pedabytes (petabytes?)
-> >>> 18          zetabytes
-> >>>
-> > There you go.  I deal with this a lot so, those are the names.
-> >
-> > Linux is currently limited to 16 TB per VFS mount point, it's all mute,
-> > unless VFS gets fixed.
-> > mmap won't go above this at present.
-> >
-> What does "it's all mute" mean?
+That assumption is probably made because that's what POSIX and Single
+Unix Specification define: "The st_ino and st_dev fields taken together
+uniquely identify the file within the system."  Don't blame code that
+follows standards for breaking.
 
-It means "it's all moot."
+>I think that by now several actually double check that theinode
+>linkcount is larger than 1.
 
+That is not a good check.  I could have two separate files that have
+multiple links; if st_ino is the same, how can tar make sense of it?
 -- 
-~Randy
+Chris Adams <cmadams@hiwaay.net>
+Systems and Network Administrator - HiWAAY Internet Services
+I don't speak for anybody but myself - that's enough trouble.

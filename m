@@ -1,60 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751035AbVKVIo7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbVKVIw5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751035AbVKVIo7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 03:44:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbVKVIo7
+	id S932244AbVKVIw5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 03:52:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbVKVIw5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 03:44:59 -0500
-Received: from xproxy.gmail.com ([66.249.82.205]:7082 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751059AbVKVIo6 convert rfc822-to-8bit
+	Tue, 22 Nov 2005 03:52:57 -0500
+Received: from mrelay2.soas.ac.uk ([212.219.139.201]:63971 "EHLO
+	mrelay2.soas.ac.uk") by vger.kernel.org with ESMTP id S1751274AbVKVIw4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 03:44:58 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=syZ9wtFFMwbXBBfhK63fb+bAYFYajXyRupxfN4rXmyQ56ujR/IVbMlm5HBEFl0rU4/VfVqvyRQ7l34Y+GXa+SoOE1zG2kES2JscPvUgh3DjuCqqkmai+YN4dBY+72Mp1m0Hot98dgGijZ4VPB2avZGZmBCePfMUpOBldS0ipKhk=
-Message-ID: <21d7e9970511220044w23a3033dyf2f8f2e95e7928aa@mail.gmail.com>
-Date: Tue, 22 Nov 2005 19:44:57 +1100
-From: Dave Airlie <airlied@gmail.com>
-To: Rob Landley <rob@landley.net>
-Subject: Re: [RFC] Small PCI core patch
-Cc: Jon Smirl <jonsmirl@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200511220141.05877.rob@landley.net>
+	Tue, 22 Nov 2005 03:52:56 -0500
+Date: Tue, 22 Nov 2005 08:52:34 +0000
+From: Alexander Clouter <alex@digriz.org.uk>
+To: Ken Moffat <zarniwhoop@ntlworld.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, blaisorblade@yahoo.it,
+       davej@codemonkey.org.uk, davej@redhat.com
+Subject: Re: [patch 1/1] cpufreq_conservative/ondemand: invert meaning of 'ignore nice'
+Message-ID: <20051122085234.GA2487@inskipp.digriz.org.uk>
+References: <20051121181722.GA2599@inskipp.digriz.org.uk> <Pine.LNX.4.63.0511220102330.18504@deepthought.mydomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="NzB8fVQJ5HfG6fxh"
 Content-Disposition: inline
-References: <20051121225303.GA19212@kroah.com>
-	 <1132623268.20233.14.camel@localhost.localdomain>
-	 <9e4733910511211820x3539213arfe20f3939a375b51@mail.gmail.com>
-	 <200511220141.05877.rob@landley.net>
+In-Reply-To: <Pine.LNX.4.63.0511220102330.18504@deepthought.mydomain>
+Organization: diGriz
+X-URL: http://www.digriz.org.uk/
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> On the hardware front, there are some signs of hope.  My dell laptop may
-> actually have a usable open source driver for its video hardware, totally
-> reverse engineered of course:
-> http://r300.sourceforge.net/
->
-> And someday I hope to actually build X from source, and opengl, and try
-> testing this sucker.  It probably won't be this week.  Geeky as I am,
-> building X, DRI, and openGL from source isn't something I do casually.  But
-> how can I try this out any other way?
->
-> The problem isn't the lack of technology.  We've got forcedeth for network
-> cards that never had a spec because when people did this work lots of end
-> users showed up to try it out.  But if you look at the status log for the
-> radeon driver I mentioned above, it only seems to get touched every 2 months
-> and the last time was in july.  And this is something that, according to
-> their web page, mostly works now for the hardware I've got...
 
-The r300 driver is merged into the mainline projects so r300.sf.net is
-no longer the source for it. Mesa CVS now has support for it and as
-far as I know you can grab binary snapshots from
-http://dri.freedesktop.org/snapshots/ saves a lot of compiling from
-source if they work..
+--NzB8fVQJ5HfG6fxh
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Dave.
+Morning Ken,
+
+Ken Moffat <zarniwhoop@ntlworld.com> [20051122 01:21:18 +0000]:
+>
+> On Mon, 21 Nov 2005, Alexander Clouter wrote:
+>=20
+> >The use of the 'ignore_nice' sysfs file is confusing to anyone using it.=
+=20
+> >This removes the sysfs file 'ignore_nice' and in its place creates a=20
+> >'ignore_nice_load' entry which defaults to '1'; meaning nice'd processes=
+=20
+> >are not counted towards the 'business' calculation.
+> >
+> >WARNING: this obvious breaks any userland tools that expected ignore_nic=
+e'=20
+> >to exist, to draw attention to this fact it was concluded on the mailing=
+=20
+> >list that the entry should be removed altogether so the userland app=20
+> >breaks and so the author can build simple to detect workaround.  Having=
+=20
+> >said that it seems currently very few tools even make use of this=20
+> >functionality; all I could find was a Gentoo Wiki entry.
+> >
+> >Signed-off-by: Alexander Clouter <alex-kernel@digriz.org.uk>
+> >
+>=20
+>  Great.  I get to rewrite my initscript for the ondemand governor to=20
+> test for yet another kernel version, and write a 0 to yet another sysfs=
+=20
+> file, just so that any compile I start in an xterm on my desktop box can=
+=20
+> make the processor work for its living.
+>=20
+>  Just what have you cpufreq guys got against nice'd processes ?  It's=20
+> enough to drive a man to powernowd ;)
+>=20
+Con complained about that one too, rightly so.  If you look more recently y=
+ou=20
+will see that the default is actually now '0' so nice'd processes do count=
+=20
+towards the business calculation....I guess I could submit *another* more o=
+r=20
+less duplicate patch to really confuse things to rename the sysfs entry aga=
+in=20
+and it to expect a huge prime number to ignore nice'd processes ;)
+
+Guess you can go back to your initscript and remove that entry :P
+
+Cheers
+
+Alex
+
+> Ken
+> --
+>  das eine Mal als Trag=F6die, das andere Mal als Farce
+
+
+--=20
+ _________________________________
+< Absence makes the heart forget. >
+ ---------------------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+
+--NzB8fVQJ5HfG6fxh
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDgtxSNv5Ugh/sRBYRAqi5AJ9p3hqSrlroe3tmk8ZeOd07l1jlhwCfYyfz
+Yi63N0XzWFRJb6O/3xXmgcs=
+=rS9R
+-----END PGP SIGNATURE-----
+
+--NzB8fVQJ5HfG6fxh--

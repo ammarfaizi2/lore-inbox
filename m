@@ -1,55 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbVKVMnb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964933AbVKVMvq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964930AbVKVMnb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 07:43:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbVKVMnb
+	id S964933AbVKVMvq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 07:51:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964934AbVKVMvq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 07:43:31 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:2338 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S964930AbVKVMna (ORCPT
+	Tue, 22 Nov 2005 07:51:46 -0500
+Received: from sipsolutions.net ([66.160.135.76]:61458 "EHLO sipsolutions.net")
+	by vger.kernel.org with ESMTP id S964933AbVKVMvq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 07:43:30 -0500
-Date: Tue, 22 Nov 2005 13:44:41 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-Cc: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>, linux-kernel@vger.kernel.org
-Subject: Re: ioscheduler and 2.6 kernels
-Message-ID: <20051122124441.GP15804@suse.de>
-References: <20051122115225.GA2529@mail.muni.cz> <4383078A.5010204@stud.feec.vutbr.cz> <20051122121801.GB2529@mail.muni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051122121801.GB2529@mail.muni.cz>
+	Tue, 22 Nov 2005 07:51:46 -0500
+Message-ID: <60396.131.234.108.27.1132663900.squirrel@secure.sipsolutions.net>
+In-Reply-To: <70210ED5-37CA-40BC-8293-FF1DAA3E8BD5@comcast.net>
+References: <111520052143.16540.437A5680000BE8A60000409C220076369200009A9B9CD3040A029D0A05@comcast.net>
+    <70210ED5-37CA-40BC-8293-FF1DAA3E8BD5@comcast.net>
+Date: Tue, 22 Nov 2005 13:51:40 +0100 (CET)
+Subject: Re: PowerBook5,8 - TrackPad update
+From: "Johannes Berg" <johannes@sipsolutions.net>
+To: "Parag Warudkar" <kernel-stuff@comcast.net>
+Cc: "Parag Warudkar" <kernel-stuff@comcast.net>,
+       debian-powerpc@lists.debian.org,
+       "linux-kernel" <linux-kernel@vger.kernel.org>, linuxppc-dev@ozlabs.org
+User-Agent: SquirrelMail/1.4.5
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 22 2005, Lukas Hejtmanek wrote:
-> On Tue, Nov 22, 2005 at 12:56:58PM +0100, Michal Schmidt wrote:
-> > >I have a question about ioschedulers in current 2.6 kernels. Is there an 
-> > >option
-> > >to build iorequest queues per process? I would like to have the queue for 
-> > >each
-> > >process and pick up request in round robin manner, which results in more
-> > >interactive environment. 
-> > 
-> > Isn't this exactly what the CFQ scheduler does?
-> 
-> Friend of me tried all the schedulers and he thinks, that all behave basicaly
-> the same. His testbed is to extract tar archive with lots small files and in
-> parallel to run xterm, which takes serious time. He wonder why.
+Parag Warudkar wrote:
+> Ok, the format interpretation of the trackpad data is taking up more
+> of my time and brain than I was happy with! :)
 
-Your friend has to realize that writeout doesn't typically happen in the
-context of the process dirtying the data. CFQ will set aside a special
-queue(s) for async writeout, though.
+Thanks for sending the data to me, I'll take a look later.
 
-But another major interactivity problem he may see is that if you are
-dirtying a lot of memory, other processes doing reads may get stuck in
-page reclaim when allocating memory (eg getting a new page cache page,
-either directly or perhaps through readahead). Then processes X has to
-wait for async queue Z to flush out memory, thus becoming dependent on
-each other for interactiveness. The io scheduler knows nothing about
-this, so it can't really prevent it from happening.
+I have doubts, however, about using the appletouch driver, if the format
+changed significantly then the code will be largely different.
 
--- 
-Jens Axboe
-
+johannes

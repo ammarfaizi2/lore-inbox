@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965103AbVKVSrt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965107AbVKVSzj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965103AbVKVSrt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 13:47:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965105AbVKVSrt
+	id S965107AbVKVSzj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 13:55:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965110AbVKVSzj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 13:47:49 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:63722 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S965103AbVKVSrs (ORCPT
+	Tue, 22 Nov 2005 13:55:39 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:22463 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S965107AbVKVSzi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 13:47:48 -0500
-Date: Tue, 22 Nov 2005 19:47:39 +0100
+	Tue, 22 Nov 2005 13:55:38 -0500
+Date: Tue, 22 Nov 2005 19:53:23 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Bj?rn Mork <bjorn@mork.no>, linux-kernel@vger.kernel.org
+To: Bj?rn Mork <bmork@dod.no>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Resume from swsusp stopped working with 2.6.14 and 2.6.15-rc1
-Message-ID: <20051122184739.GB1748@elf.ucw.cz>
-References: <87zmoa0yv5.fsf@obelix.mork.no> <d120d5000511181532g69107c76x56a269425056a700@mail.gmail.com> <20051119234850.GC1952@spitz.ucw.cz> <200511220026.55589.dtor_core@ameritech.net>
+Message-ID: <20051122185323.GC1748@elf.ucw.cz>
+References: <87zmoa0yv5.fsf@obelix.mork.no> <d120d5000511181532g69107c76x56a269425056a700@mail.gmail.com> <20051119234850.GC1952@spitz.ucw.cz> <200511220026.55589.dtor_core@ameritech.net> <871x19giuw.fsf@obelix.mork.no> <20051122174643.GB1752@elf.ucw.cz> <871x18ed96.fsf@obelix.mork.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200511220026.55589.dtor_core@ameritech.net>
+In-Reply-To: <871x18ed96.fsf@obelix.mork.no>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,40 +27,27 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > > > >> Bjorn, does it help if you change TIMEOUT in kernel/power/process.c to 30 * HZ?
-> > > > > >
-> > > > > > Funny, I thought that 6 seconds is way too much. Bjorn, please let us
-> > > > > > know if 30 seconds timeout helps.
-> > > > >
-> > > > > It does.
-> > > >
-> > > > Ouch, yes, that's clear. It is stopping tasks during *resume*... So I
-> > > > guess it gets wrong timing by design. Question is what to do with
-> > > > that. Could we make keyboard driver pause the boot until it is done
-> > > > resetting hardware? Or we can increase the timeout... would 10 seconds
-> > > > be enough?
-> > > 
-> > > Well, I think 10 seconds when suspending is a nice and resonable
-> > > number. For resume though I think we should wait much longer, maybe
-> > > even indefinitely - the only thing that timeout achieves is makes
-> > > people fsck because the system can't recover from that state.
-> > 
-> > I see your point, but it does not seem we need that changes this far. Your
-> > patch is better, because we *could* hit that during suspend, just after 
-> > keyboard hotplug... right? And it will make resume faster for affected people.
+> >> Maybe that even would give me a chance to fix some hardware problem
+> >> causing the timeout, and then retry the resume.
+> >
+> > ..while doing resume few times, trying to change hw config to make it
+> > resume is _way_ more dangerous.
 > 
-> I disagree here. While my patch is a right thing to do (and as you
-> know is already merged in mainline) it is not "better". Swsusp should
-> not rely on the other subsystems being "nice" to it. Even with my
-> patch there still could be moments when some thread is not suspended
-> in 6 seconds when resuming causing unneeded resume failure and
-> subsequent fsck. 
-> 
-> Please consider merging the patch below.
+> I guess it would be.  But then, what are the chances it would make the
+> situation any worse?  Probably never would work, but at least I would
 
-Well, I do not think this problem will surface again. It is first
-failure in pretty long time. If it happens again, I'll take your
-patch.
+Yes, you could make the situation worse -- if you actually
+succeeded. We are talking silent corruption on filesystem here...
+
+("swsusp gives you enough rope to blow up small town")...
+
+> Thanks for all the good work!  I've been running Linux on a number of
+> laptops since 1998 and am most impressed by the swsusp evolution the
+> last few years.  Things weren't too bad when APM used to work and
+> "lots of RAM" meant 80GB, but today I don't think I could use a laptop
+> without swsusp.
+
+Thanks. (I'd still like to see that 80GB laptop :-).
 								Pavel
 -- 
 Thanks, Sharp!

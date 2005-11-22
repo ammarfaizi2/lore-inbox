@@ -1,101 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbVKVXFU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030233AbVKVXGh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030229AbVKVXFU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 18:05:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030237AbVKVXFT
+	id S1030233AbVKVXGh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 18:06:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030234AbVKVXGh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 18:05:19 -0500
-Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:47706 "HELO
-	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1030236AbVKVXFS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 18:05:18 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=PK6Gp66gRLhZfzITtDNp3ItLi4UxHkQDZiFpwa4pVIYhdHq4gD+ByUTrnouVhca5AJq/eiYCREyVetPCkW7jUav45KYsA3+PDrWe6GiC69al90LEDyQywdQdemdv2JpQzVjyW1k2OwTRxNgfj0Nj/fzxpzR+WnNoH9tlvI8lWbk=  ;
-Message-ID: <4383B2D4.8040303@yahoo.com.au>
-Date: Wed, 23 Nov 2005 11:07:48 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Tue, 22 Nov 2005 18:06:37 -0500
+Received: from webbox4.loswebos.de ([213.187.93.205]:46217 "EHLO
+	webbox4.loswebos.de") by vger.kernel.org with ESMTP
+	id S1030233AbVKVXGg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 18:06:36 -0500
+Date: Wed, 23 Nov 2005 00:06:48 +0100
+From: Marc Koschewski <marc@osknowledge.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Marc Koschewski <marc@osknowledge.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Airlie <airlied@gmail.com>,
+       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Small PCI core patch
+Message-ID: <20051122230648.GA7482@stiffy.osknowledge.org>
+References: <20051121225303.GA19212@kroah.com> <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston> <21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com> <1132623268.20233.14.camel@localhost.localdomain> <1132626478.26560.104.camel@gaston> <20051122140719.GA6784@stiffy.osknowledge.org> <1132700011.26560.240.camel@gaston>
 MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch 12/12] mm: rmap opt
-References: <20051121123906.14370.3039.sendpatchset@didi.local0.net> <20051121124421.14370.52413.sendpatchset@didi.local0.net> <Pine.LNX.4.61.0511221853500.28318@goblin.wat.veritas.com>
-In-Reply-To: <Pine.LNX.4.61.0511221853500.28318@goblin.wat.veritas.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1132700011.26560.240.camel@gaston>
+X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
+X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
+X-Operating-System: Linux stiffy 2.6.15-rc2-marc
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
-> On Mon, 21 Nov 2005, Nick Piggin wrote:
-> 
-> 
->>Optimise rmap functions by minimising atomic operations when
->>we know there will be no concurrent modifications.
-> 
-> 
-> It's not quite right yet.  A few minor points first:
-> 
+* Benjamin Herrenschmidt <benh@kernel.crashing.org> [2005-11-23 09:53:30 +1100]:
 
-Thanks for looking at it.
-
-> You ought to convert the page_add_anon_rmap in fs/exec.c to
-> page_add_new_anon_rmap: that won't give a huge leap in performance,
-> but it will save someone coming along later and wondering why that
-> particular one isn't "new_".
+> On Tue, 2005-11-22 at 15:07 +0100, Marc Koschewski wrote:
 > 
-
-Yep, you mentioned that before but I must have lost the hunk.
-
-> The mod to page-flags.h at the end: nowhere is __SetPageReferenced
-> used, just cut the page-flags.h change out of your patch.
+> > I use my Nvidia card without the Nvidia drivers for long time now. For
+> > pure X without games and just GNOME and coding I have no need to run the
+> > proprietary driver at all. But maybe for others (mostly for people with
+> > laptops where you cannot simply change video cards due to a
+> > vendor-designed form-factor) it could get worst. What is left for them?
+> > Run non-X environments on the laptop? Even run Windows on it? Puh!
+> > 
+> > A damn stupid circumstance with Nvidia in the end... 
 > 
-> Perhaps that was at one time a half-way house to removing the
-> SetPageReferenced from do_anonymous_page: I support you in that
-> removal (I've several times argued that if it's needed there, then
-> it's also needed in several other like places which lack it; and I
-> think you concluded that it's just not needed); but you ought at least
-> to confess to that in the change comments, if it's not a separate patch.
+> Yes, but at _least_ with nVidia you get this free "nv" driver that they
+> maintain and that gives you basic mode setting & 2D accel... With the
+> newest ATI cards, you don't even get that.
 > 
+> Ben.
 
-You're right. I'll split that and fix the page-flags.h.
-
-> I've spent longest staring at page_remove_rmap.  Here's how it looks:
-> 
-> void page_remove_rmap(struct page *page)
-> {
-> 	int fast = (page_mapcount(page) == 1) &
-> 			PageAnon(page) & (!PageSwapCache(page));
-> 
-> 	/* fast page may become SwapCache here, but nothing new will map it. */
-> 	if (fast)
-> 		reset_page_mapcount(page);
-> 	else if (atomic_add_negative(-1, &page->_mapcount))
-> 		BUG_ON(page_mapcount(page) < 0);
-> 		if (page_test_and_clear_dirty(page))
-> 			set_page_dirty(page);
-> 	else
-> 		return; /* non zero mapcount */
-> /* [comment snipped for these purposes] */
-> 	__dec_page_state(nr_mapped);
-> }
-> 
-> Well, C doesn't yet allow indentation to take the place of braces:
-> I think you'll find your /proc/meminfo Mapped goes up and up, since
-> only on s390 will page_test_and_clear_dirty ever say yes.
-> 
-
-Thanks. It is fairly obscure, and possibly has memory ordering problems.
-Also the conditional jumps and icache usage are increased, so it isn't
-as clear a win as the add_new_anon_rmap's. I'll drop this part for the
-moment.
-
-Nick
-
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+I use xorg's 'nv' driver. That one is _not_ from nVidia, it it?

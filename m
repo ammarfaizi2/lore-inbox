@@ -1,75 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965090AbVKVSHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965078AbVKVSUR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965090AbVKVSHw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 13:07:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965087AbVKVSHw
+	id S965078AbVKVSUR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 13:20:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965083AbVKVSUQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 13:07:52 -0500
-Received: from 81-179-232-225.dsl.pipex.com ([81.179.232.225]:12485 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S965088AbVKVSHv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 13:07:51 -0500
-Date: Tue, 22 Nov 2005 18:07:34 +0000
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andy Whitcroft <apw@shadowen.org>, kravetz@us.ibm.com, anton@samba.org,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: [PATCH 1/2] flatmem split out memory model
-Message-ID: <20051122180734.GA10849@shadowen.org>
-References: <exportbomb.1132682844@pinky>
+	Tue, 22 Nov 2005 13:20:16 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:53920 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S965078AbVKVSUP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 13:20:15 -0500
+Date: Tue, 22 Nov 2005 11:20:14 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Woodhouse <dwmw2@infradead.org>,
+       Paul Mackerras <paulus@samba.org>, Ingo Molnar <mingo@elte.hu>,
+       David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>,
+       Ian Molton <spyro@f2s.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH 4/5] Centralise NO_IRQ definition
+Message-ID: <20051122182014.GO1598@parisc-linux.org>
+References: <20051121190632.GG1598@parisc-linux.org> <Pine.LNX.4.64.0511211124190.13959@g5.osdl.org> <20051121194348.GH1598@parisc-linux.org> <Pine.LNX.4.64.0511211150040.13959@g5.osdl.org> <20051121211544.GA4924@elte.hu> <17282.15177.804471.298409@cargo.ozlabs.ibm.com> <1132611631.11842.83.camel@localhost.localdomain> <1132657991.15117.76.camel@baythorne.infradead.org> <1132668939.20233.47.camel@localhost.localdomain> <Pine.LNX.4.64.0511220856470.13959@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-InReply-To: <exportbomb.1132682844@pinky>
+In-Reply-To: <Pine.LNX.4.64.0511220856470.13959@g5.osdl.org>
 User-Agent: Mutt/1.5.9i
-From: Andy Whitcroft <apw@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pfn_to_nid is memory model specific
+On Tue, Nov 22, 2005 at 09:03:12AM -0800, Linus Torvalds wrote:
+> In short: NO_IRQ _is_ 0. Always has been. It's the only sane value. And 
+> btw, there is no need for that #define at all, exactly because the way you 
+> test for "is this no irq" is by doing "!dev->irq".
 
-The pfn_to_nid() call is memory model specific.  It represents the
-locality identifier for the memory passed.  Classically this would
-be a NUMA node, but not a chunk of memory under DISCONTIGMEM.
-
-The SPARSEMEM and FLATMEM memory model non-NUMA versions of
-pfn_to_nid() are folded together under NEED_MULTIPLE_NODES, while
-DISCONTIGMEM has its own optimisation.  This is all very confusing.
-
-This patch splits out each implementation of pfn_to_nid() so that we
-can see them and the optimisations to each.
-
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
----
- mmzone.h |    7 ++++++-
- 1 files changed, 6 insertions(+), 1 deletion(-)
-diff -upN reference/include/linux/mmzone.h current/include/linux/mmzone.h
---- reference/include/linux/mmzone.h
-+++ current/include/linux/mmzone.h
-@@ -445,7 +445,6 @@ extern struct pglist_data contig_page_da
- #define NODE_DATA(nid)		(&contig_page_data)
- #define NODE_MEM_MAP(nid)	mem_map
- #define MAX_NODES_SHIFT		1
--#define pfn_to_nid(pfn)		(0)
- 
- #else /* CONFIG_NEED_MULTIPLE_NODES */
- 
-@@ -480,6 +479,10 @@ extern struct pglist_data contig_page_da
- #define early_pfn_to_nid(nid)  (0UL)
- #endif
- 
-+#ifdef CONFIG_FLATMEM
-+#define pfn_to_nid(pfn)		(0)
-+#endif
-+
- #define pfn_to_section_nr(pfn) ((pfn) >> PFN_SECTION_SHIFT)
- #define section_nr_to_pfn(sec) ((sec) << PFN_SECTION_SHIFT)
- 
-@@ -604,6 +607,8 @@ static inline int pfn_valid(unsigned lon
-  */
- #ifdef CONFIG_NUMA
- #define pfn_to_nid		early_pfn_to_nid
-+#else
-+#define pfn_to_nid(pfn)		(0)
- #endif
- 
- #define early_pfn_valid(pfn)	pfn_valid(pfn)
+Could you at least take the first patch that checks that we don't go
+outside the bounds of the irq_desc array?

@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030232AbVKVXDB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030227AbVKVXEq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030232AbVKVXDB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 18:03:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbVKVXDA
+	id S1030227AbVKVXEq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 18:04:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030229AbVKVXEq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 18:03:00 -0500
-Received: from thunk.org ([69.25.196.29]:44168 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1030229AbVKVXC6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 18:02:58 -0500
-Date: Tue, 22 Nov 2005 18:02:54 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: Chris Adams <cmadams@hiwaay.net>, linux-kernel@vger.kernel.org
-Subject: Re: what is our answer to ZFS?
-Message-ID: <20051122230254.GC4035@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Anton Altaparmakov <aia21@cam.ac.uk>,
-	Chris Adams <cmadams@hiwaay.net>, linux-kernel@vger.kernel.org
-References: <fa.d8ojg69.1p5ovbb@ifi.uio.no> <20051122161712.GA942598@hiwaay.net> <Pine.LNX.4.64.0511221650360.2763@hermes-1.csi.cam.ac.uk> <20051122171847.GD31823@thunk.org> <Pine.LNX.4.64.0511221921530.7002@hermes-1.csi.cam.ac.uk> <20051122195201.GG31823@thunk.org> <Pine.LNX.4.64.0511221955130.7002@hermes-1.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0511221955130.7002@hermes-1.csi.cam.ac.uk>
-User-Agent: Mutt/1.5.11
+	Tue, 22 Nov 2005 18:04:46 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:42444 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030227AbVKVXEo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 18:04:44 -0500
+Subject: Re: Christmas list for the kernel
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Kasper Sandberg <lkml@metanurb.dk>, Greg KH <greg@kroah.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <9e4733910511221341u695f6765k985ecf0c54daba49@mail.gmail.com>
+References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com>
+	 <20051122204918.GA5299@kroah.com>
+	 <9e4733910511221313t4a1e3c67wc7b08160937eb5c5@mail.gmail.com>
+	 <1132694935.10574.2.camel@localhost>
+	 <9e4733910511221341u695f6765k985ecf0c54daba49@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 22 Nov 2005 23:36:53 +0000
+Message-Id: <1132702614.20233.91.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 22, 2005 at 08:00:58PM +0000, Anton Altaparmakov wrote:
-> 
-> What is your point?  I personally couldn't care less about POSIX (or any 
-> other simillarly old-fashioned standards for that matter).  What counts is 
-> reality and having a working system that does what I want/need it to do.  
-> If that means violating POSIX, so be it.  I am not going to burry my head 
-> in the sand just because POSIX says "you can't do that".  Utilities can be 
-> taught to work with the system instead of blindly following standards.  
+On Maw, 2005-11-22 at 16:41 -0500, Jon Smirl wrote:
+> An example of this is that the serial driver is hard coded to report
+> four legacy serial ports when my system physically only has two. I
+> have to change a #define and recompile the kernel to change this.
 
-Finding all of the utilities and userspace applications that depend on
-some specific POSIX behavior is hard; and convincing them to change,
-instead of fixing the buggy OS, is even harder.  But that's OK, no one
-has to use your filesystem (or operating system) if doesn't conform to
-standards enough that your applications start breaking.
+It does an autodetect sequence to find the ports. If it reports ttyS0-S3
+your system probably has them, they may just not be wired to external
+ports and that is kinda tricky to autodetect
 
-> And anyway the Linux kernel defies POSIX left, right, and centre so if you 
-> care that much you ought to be off fixing all those violations...  (-;
+> looks for everything again anyway. In a more friendly system X would
+> use the info the kernel provides and automatically configure itself
+> for the devices present or hotplugged. You could get rid of your
+> xorg.cong file in this model.
 
-Um, where?  Actually, we're pretty close, and we often spend quite a
-bit of time fixing places where we don't conform to the standards
-correctly.  Look at all of the work that's gone into the kernel to
-make Linux's threads support POSIX compliant, for example.  We did
-*not* tell everyone to go rewrite their applications to use
-LinuxThreads, even if certain aspects of Posix threads are a little
-brain-damaged.  
 
-					- Ted
+Not really as half of xorg.conf is preferences
+

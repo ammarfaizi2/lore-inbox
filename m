@@ -1,53 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965089AbVKVSHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965090AbVKVSHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965089AbVKVSHw (ORCPT <rfc822;willy@w.ods.org>);
+	id S965090AbVKVSHw (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 22 Nov 2005 13:07:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965087AbVKVSHv
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965087AbVKVSHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 13:07:51 -0500
-Received: from 81-179-232-225.dsl.pipex.com ([81.179.232.225]:11973 "EHLO
+	Tue, 22 Nov 2005 13:07:52 -0500
+Received: from 81-179-232-225.dsl.pipex.com ([81.179.232.225]:12485 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S965085AbVKVSHu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 13:07:50 -0500
-Date: Tue, 22 Nov 2005 18:07:24 +0000
+	id S965088AbVKVSHv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 13:07:51 -0500
+Date: Tue, 22 Nov 2005 18:07:34 +0000
 To: Andrew Morton <akpm@osdl.org>
 Cc: Andy Whitcroft <apw@shadowen.org>, kravetz@us.ibm.com, anton@samba.org,
        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: [PATCH 0/2] SPARSEMEM: pfn_to_nid implementation v2
-Message-ID: <exportbomb.1132682844@pinky>
-References: <20051119233151.01ce6c50.akpm@osdl.org>
+Subject: [PATCH 1/2] flatmem split out memory model
+Message-ID: <20051122180734.GA10849@shadowen.org>
+References: <exportbomb.1132682844@pinky>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-InReply-To: <20051119233151.01ce6c50.akpm@osdl.org>
+InReply-To: <exportbomb.1132682844@pinky>
 User-Agent: Mutt/1.5.9i
 From: Andy Whitcroft <apw@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are three places we define pfn_to_nid().  Two in linux/mmzone.h
-and one in asm/mmzone.h.  These in essence represent the three memory
-models.  The definition in linux/mmzone.h under !NEED_MULTIPLE_NODES
-is both the FLATMEM definition and the optimisation for single
-NUMA nodes; the one under SPARSEMEM is the NUMA sparsemem one;
-the one in asm/mmzone.h under DISCONTIGMEM is the discontigmem one.
-This is not in the least bit obvious, particularly the connection
-between the non-NUMA optimisations and the memory models.
+pfn_to_nid is memory model specific
 
-Following in the email are two patches:
+The pfn_to_nid() call is memory model specific.  It represents the
+locality identifier for the memory passed.  Classically this would
+be a NUMA node, but not a chunk of memory under DISCONTIGMEM.
 
-flatmem-split-out-memory-model: simplifies the selection of
-    pfn_to_nid() implementations.  The selection is based primarily
-    off the memory model selected.  Optimisations for non-NUMA are
-    applied where needed.
+The SPARSEMEM and FLATMEM memory model non-NUMA versions of
+pfn_to_nid() are folded together under NEED_MULTIPLE_NODES, while
+DISCONTIGMEM has its own optimisation.  This is all very confusing.
 
-sparse-provide-pfn_to_nid: implement pfn_to_nid() for SPARSEMEM
+This patch splits out each implementation of pfn_to_nid() so that we
+can see them and the optimisations to each.
 
-Boot tested on for both SPARSEMEM and DISCONTIGMEM on all my test
-boxes.  Also compile tested for FLATMEM and SPARSEMEM without NUMA.
-Against 2.6.15-rc2.
-
-Next I'll review the configuration options to see if we can simplify
-them any.
-
--apw
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+---
+ mmzone.h |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletion(-)
+diff -upN reference/include/linux/mmzone.h current/include/linux/mmzone.h
+--- reference/include/linux/mmzone.h
++++ current/include/linux/mmzone.h
+@@ -445,7 +445,6 @@ extern struct pglist_data contig_page_da
+ #define NODE_DATA(nid)		(&contig_page_data)
+ #define NODE_MEM_MAP(nid)	mem_map
+ #define MAX_NODES_SHIFT		1
+-#define pfn_to_nid(pfn)		(0)
+ 
+ #else /* CONFIG_NEED_MULTIPLE_NODES */
+ 
+@@ -480,6 +479,10 @@ extern struct pglist_data contig_page_da
+ #define early_pfn_to_nid(nid)  (0UL)
+ #endif
+ 
++#ifdef CONFIG_FLATMEM
++#define pfn_to_nid(pfn)		(0)
++#endif
++
+ #define pfn_to_section_nr(pfn) ((pfn) >> PFN_SECTION_SHIFT)
+ #define section_nr_to_pfn(sec) ((sec) << PFN_SECTION_SHIFT)
+ 
+@@ -604,6 +607,8 @@ static inline int pfn_valid(unsigned lon
+  */
+ #ifdef CONFIG_NUMA
+ #define pfn_to_nid		early_pfn_to_nid
++#else
++#define pfn_to_nid(pfn)		(0)
+ #endif
+ 
+ #define early_pfn_valid(pfn)	pfn_valid(pfn)

@@ -1,63 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750958AbVKVDrI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750973AbVKVDr6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750958AbVKVDrI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 22:47:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750962AbVKVDrI
+	id S1750973AbVKVDr6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 22:47:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750984AbVKVDr6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 22:47:08 -0500
-Received: from gate.crashing.org ([63.228.1.57]:62156 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750958AbVKVDrH (ORCPT
+	Mon, 21 Nov 2005 22:47:58 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:38793 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750962AbVKVDr4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 22:47:07 -0500
-Subject: Re: [RFC] Small PCI core patch
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Airlie <airlied@gmail.com>,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <9e4733910511211923r69cdb835pf272ac745ae24ed7@mail.gmail.com>
-References: <20051121225303.GA19212@kroah.com>
-	 <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston>
-	 <21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com>
-	 <1132623268.20233.14.camel@localhost.localdomain>
-	 <1132626478.26560.104.camel@gaston>
-	 <9e4733910511211923r69cdb835pf272ac745ae24ed7@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 22 Nov 2005 14:44:27 +1100
-Message-Id: <1132631067.26560.123.camel@gaston>
+	Mon, 21 Nov 2005 22:47:56 -0500
+Date: Mon, 21 Nov 2005 19:47:30 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Neil Brown <neilb@suse.de>
+Cc: sander@humilis.net, linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+Subject: Re: Please help me understand ->writepage. Was Re: segfault mdadm
+ --write-behind, 2.6.14-mm2  (was: Re: RAID1 ramdisk patch)
+Message-Id: <20051121194730.3993f4ca.akpm@osdl.org>
+In-Reply-To: <17282.35980.613583.592130@cse.unsw.edu.au>
+References: <431B9558.1070900@baanhofman.nl>
+	<17179.40731.907114.194935@cse.unsw.edu.au>
+	<20051116133639.GA18274@favonius>
+	<20051116142000.5c63449f.akpm@osdl.org>
+	<17275.48113.533555.948181@cse.unsw.edu.au>
+	<20051117075041.GA5563@favonius>
+	<20051117101251.GA2883@favonius>
+	<20051117101511.GB2883@favonius>
+	<17282.21309.229128.930997@cse.unsw.edu.au>
+	<20051121155144.62bedaab.akpm@osdl.org>
+	<17282.35980.613583.592130@cse.unsw.edu.au>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-11-21 at 22:23 -0500, Jon Smirl wrote:
-> On 11/21/05, Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> > which is obviously impossible) etc... They really doesn't give a shit
-> > about what we think, and will continue to do so until they get a bit fat
-> > lawsuit, that is my opinion at least.
-> 
-> In the US you can't sue to force their hardware open until they are a
-> proven monopoly. And as long as we have both Nvidia and ATI splitting
-> the market we won't get a monopoly.
-
-No but you can sue for GPL breakage if their blob is considered as a
-derivative work or that sort of thing.
-
-> So the choices are:
-> 
-> 1) Live in 1998. What happens in five years R200's are no longer
-> available, fallback to VGA?
+Neil Brown <neilb@suse.de> wrote:
 >
-> 2) Temporarily accept the ugly drivers. Let desktop development
-> continue. Work hard on getting the vendors to see the light and go
-> open source.
+> Uhm, what would you think of testing mapping_cap_writeback_dirty in
+>  write_one_page??  If you don't like it, I can take it into write_page.
 
-Won't happen without some incentive. Besides, I can't accept the ugly
-driver for the very simple reason that they only exist for x86 and I
-have no such thing ...
+write_one_page() is a little library function for filesystems to call, and
+filesystems implicitly know whether or not they have backing store.  So
+probably it's best to do this test in the (unusual) caller.
 
-Your other points are totally irrelevant.
+> > Also, write_page() doesn't need to run set_page_dirty(); ->commit_write()
+> > will do that.
+>
+> Ok.... but I think I'm dropping prepare_write / commit_write.
+>
 
-Ben.
+Those functions do some pretty handy things, like creating disk blocks
+within the file to back the page.  If someone comes along and ftruncate()s
+the bitmap file while you're not looking, what happens?  Generally we use
+i_sem for this sort of thing.
 
 
+If you know that the page is still mapped into the file then yes, you can do
+
+	lock_page()
+	kmap_atomic()
+	<modify>
+	kunmap_atomic()
+	flush_dcache_page()
+	set_page_dirty()
+	unlock_page()
+	write_one_page(wait==1)
+
+but that's rather a lot of work.
+
+bitmap_unplug() looks risky - calling filesystem functions (like
+lock_page()) from inside an unplug function.  Can this all be called from
+the vmscan->writepage path?
+
+It might be simpler and more maintainable to maintain the bitmap in normal
+kernel memory, sync it to disk via higher-level entrypoints like
+sys_write(), vfs_write(), sys_sync(), do_sync(), etc.

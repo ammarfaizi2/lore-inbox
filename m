@@ -1,60 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964990AbVKVQkZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964992AbVKVQkM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964990AbVKVQkZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 11:40:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964993AbVKVQkZ
+	id S964992AbVKVQkM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 11:40:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964990AbVKVQkM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 11:40:25 -0500
-Received: from gateway.argo.co.il ([194.90.79.130]:5394 "EHLO
-	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S964990AbVKVQkX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 11:40:23 -0500
-Message-ID: <438349F4.2080405@argo.co.il>
-Date: Tue, 22 Nov 2005 18:40:20 +0200
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+	Tue, 22 Nov 2005 11:40:12 -0500
+Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:28570 "EHLO
+	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S964992AbVKVQkK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 11:40:10 -0500
+Message-ID: <438349E5.20103@austin.rr.com>
+Date: Tue, 22 Nov 2005 10:40:05 -0600
+From: Steve French <smfrench@austin.rr.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Jon Smirl <jonsmirl@gmail.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Airlie <airlied@gmail.com>,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Small PCI core patch
-References: <20051121225303.GA19212@kroah.com> <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston> <21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com> <1132623268.20233.14.camel@localhost.localdomain> <1132626478.26560.104.camel@gaston> <9e4733910511211923r69cdb835pf272ac745ae24ed7@mail.gmail.com> <43833D61.9050400@argo.co.il> <20051122155143.GA30880@havoc.gtf.org> <43834400.3040506@argo.co.il> <20051122162506.GA32684@havoc.gtf.org>
-In-Reply-To: <20051122162506.GA32684@havoc.gtf.org>
+To: linux-kernel@vger.kernel.org
+Subject: CIFS emulated mode bits
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Nov 2005 16:40:22.0322 (UTC) FILETIME=[6E7AC120:01C5EF83]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+VALETTE Eric RD-MAPS-REN wrote:
 
->On Tue, Nov 22, 2005 at 06:14:56PM +0200, Avi Kivity wrote:
+> Steve French wrote:
 >  
 >
->>You exaggerate. Windows drivers work well enough in Windows (or so I 
->>presume). One just has to implement the environment these drivers 
->>expect, very carefully.
->>    
+>> VALETTE Eric RD-MAPS-REN wrote:
 >>
+>>   
+>>
+>>> Steve French wrote:
+>>>     
+>>
+>> let me know if your cat example works when mounted
+>> with the relatively new "noperm" mount option on the client.   At least
+>> then we will know whether we are looking at a problem with access
+>> control on the server (ntfs acls) or client (unix mode bits and the
+>> .permission entry point)
+>>   
 >
->I exaggerate nothing -- we have real world experience with ndiswrapper
->and similar software, which is exactly the same model you proposed, is
->exactly the same model that has created all sorts of technical, legal,
->and political problems.
+>
+> Works with the "noperm" mount option.
+>
+> --eric
+>
 >  
 >
-I agree that the legal and political problems are real. I offered two 
-solutions to the technical problems.
+OK - That is good, should be relatively easy to debug from here.
 
-However the situation with video drivers is already bad, and 
-deteriorating. I had to hunt on the Internet to get my recent (FC4) 
-distro to support my low-end embedded video (via). In the future it 
-looks like even that won't work.
+To explain what is going on, here is some obvious background.    Windows 
+uses a rich ACL model locally and over the network via CIFS (other 
+protocols such as NFSv4 now do something similar) and Windows of course 
+does not have really have or need Unix mode bits ... and the server 
+(unlike Samba and those that implement the standard SNIA CIFS Unix 
+extensions) does not return emulated mode bits (although it does locally 
+in Windows "services for Unix" and of course also cygwin does something 
+similar) ... so the cifs  client has to approximate mode bits.    If the 
+client makes an incorrect approximation you can get access denied on a 
+client side permission check.   Of course some would argue that for 
+clients that are running as single user desktop clients the client does 
+not need to do perm checks (the server does ACL checks) so just turn off 
+the client permission checks - that is why the "noperm" option is 
+available on the cifs client.
 
->Dumb with a capital 'D'.
->  
->
-I hope you have a better solution.
+So the choices today are:
+
+1) Turn off mode bit checking (on the client) on a particular cifs mount 
+(noperm mount option)
+or
+2) pass in a default mode and uid or gid on the cifs mount that matches 
+what you want (otherwise cifs will use the uid of the mounter, and a 
+default mode).  Although cifs caches the mode bits in the inode if they 
+are modified by an app on the client e.g. via chmod (while the inode 
+stays in memory on the client) - for querying (lookups/stat) on existing 
+files cifs can only use the +R dos attribute to distinguish when to 
+return something other than 0777 (or the default).
+or
+3) turn on the "sfu" mount option on the client and let cifs make the 
+(more expensive) queries to the server for mode information the same way 
+that "services for unix" would.   This does not work for all mode bits 
+yet, as it requires additional CIFS ACL support to be coded, but it does 
+now work for the 3 bits above 0777 (as of just after 2.6.15-rc2).
+
+Following the suggestions of Martin Koeppe and others there may be a 
+need to allow a "cygwin" mount option as well.

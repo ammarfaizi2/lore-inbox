@@ -1,75 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964914AbVKVLLE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964919AbVKVLJR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964914AbVKVLLE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 06:11:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964915AbVKVLLE
+	id S964919AbVKVLJR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 06:09:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964916AbVKVLJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 06:11:04 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:14776 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S964914AbVKVLLD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 06:11:03 -0500
-Date: Tue, 22 Nov 2005 11:10:58 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: Andi Kleen <ak@suse.de>, Andy Whitcroft <apw@shadowen.org>,
-       linux-mm@kvack.org, mingo@elte.hu, lhms-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au
-Subject: Re: [PATCH 2/5] Light Fragmentation Avoidance V20: 002_usemap
-In-Reply-To: <4382F8DD.9090908@jp.fujitsu.com>
-Message-ID: <Pine.LNX.4.58.0511221110220.2476@skynet>
-References: <20051115164946.21980.2026.sendpatchset@skynet.csn.ul.ie>
- <200511160036.54461.ak@suse.de> <Pine.LNX.4.58.0511160137540.8470@skynet>
- <200511160252.05494.ak@suse.de> <Pine.LNX.4.58.0511160200530.8470@skynet>
- <4382EF48.1050107@shadowen.org> <20051122102237.GK20775@brahms.suse.de>
- <Pine.LNX.4.58.0511221026200.31192@skynet> <4382F8DD.9090908@jp.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 22 Nov 2005 06:09:17 -0500
+Received: from yue.linux-ipv6.org ([203.178.140.15]:47886 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S964915AbVKVLJQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 06:09:16 -0500
+Date: Tue, 22 Nov 2005 19:09:30 +0900 (JST)
+Message-Id: <20051122.190930.02663054.yoshfuji@linux-ipv6.org>
+To: hpplinuxml@0xdef.net, dccp@vger.kernel.org, acme@ghostprotocols.net
+Cc: linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
+Subject: Re: [PATCH] dccp sizeof correction
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <20051122105130.GA25078@0xdef.net>
+References: <20051122105130.GA25078@0xdef.net>
+Organization: USAGI/WIDE Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Nov 2005, KAMEZAWA Hiroyuki wrote:
+In article <20051122105130.GA25078@0xdef.net> (at Tue, 22 Nov 2005 11:51:31 +0100), Hagen Paul Pfeifer <hpplinuxml@0xdef.net> says:
 
-> Mel Gorman wrote:
-> > > #define PG_checked               8      /* kill me in 2.5.<early>. */
-> > >
-> > > ?
-> > >
-> > > At least PG_uncached isn't used on many architectures too, so could
-> > > be reused. I don't know why those that use it don't check VMAs instead.
-> > >
-> >
-> >
-> > PG_unchecked appears to be totally unused. It's only users are the macros
-> > that manipulate the bit and mm/page_alloc.c . It appears it has been a
-> > long time since it was used to it is a canditate for reuse.
-> >
->
-> Just a notification..
-> from 2.6.14
->
-> PageUncached      375 include/asm-ia64/uaccess.h       if (PageUncached(page))
-> PageUncached      393 include/asm-ia64/uaccess.h       if (PageUncached(page))
->
-> This is used by /dev/mem
->
->
-> PageChecked       196 fs/afs/dir.c     if (!PageChecked(page))
-> PageChecked       169 fs/ext2/dir.c    if (!PageChecked(page))
-> PageChecked      1372 fs/ext3/inode.c  if (!page_has_buffers(page) ||
-> PageChecked(page)) {
-> PageChecked      1441 fs/ext3/inode.c  WARN_ON(PageChecked(page));
-> PageChecked      2350 fs/reiserfs/inode.c      int checked =
-> PageChecked(page);
-> PageChecked      2853 fs/reiserfs/inode.c      WARN_ON(PageChecked(page));
->
-> This is used by fs, now.
->
+> Setsockopt in DCCP make the assumption that sizeof(int) is the same as
+> sizeof(u32), that isn't correct at all. ;)
 
-d'oh. I was looking for the flags, not the macros :(
+The patch is not correct.
+I think we should use int for DCCP_SOCKOPT_SERVICE.
+
+Signed-off-by: YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
+
+diff --git a/net/dccp/proto.c b/net/dccp/proto.c
+index 8a6b2a9..f4299db 100644
+--- a/net/dccp/proto.c
++++ b/net/dccp/proto.c
+@@ -211,14 +211,21 @@ int dccp_ioctl(struct sock *sk, int cmd,
+ 	return -ENOIOCTLCMD;
+ }
+ 
+-static int dccp_setsockopt_service(struct sock *sk, const u32 service,
++static int dccp_setsockopt_service(struct sock *sk,
+ 				   char __user *optval, int optlen)
+ {
++	u32 service;
+ 	struct dccp_sock *dp = dccp_sk(sk);
+ 	struct dccp_service_list *sl = NULL;
+ 
+-	if (service == DCCP_SERVICE_INVALID_VALUE || 
+-	    optlen > DCCP_SERVICE_LIST_MAX_LEN * sizeof(u32))
++	if (optlen < sizeof(u32) ||
++	    optlen > DCCP_SERCICE_LISR_MAX_LEN * sizeof(u32))
++		return -EINVAL;
++
++	if (get_user(service, (u32 __user *)optval))
++		return -EFAULT;
++
++	if (service == DCCP_SERVICE_INVALID_VALUE)
+ 		return -EINVAL;
+ 
+ 	if (optlen > sizeof(service)) {
+@@ -256,14 +263,14 @@ int dccp_setsockopt(struct sock *sk, int
+ 	if (level != SOL_DCCP)
+ 		return ip_setsockopt(sk, level, optname, optval, optlen);
+ 
++	if (optname == DCCP_SOCKOPT_SERVICE)
++		return dccp_setsockopt_service(sk, optval, optlen);
++
+ 	if (optlen < sizeof(int))
+ 		return -EINVAL;
+ 
+ 	if (get_user(val, (int __user *)optval))
+ 		return -EFAULT;
+-
+-	if (optname == DCCP_SOCKOPT_SERVICE)
+-		return dccp_setsockopt_service(sk, val, optval, optlen);
+ 
+ 	lock_sock(sk);
+ 	dp = dccp_sk(sk);
 
 -- 
-Mel Gorman
-Part-time Phd Student                          Java Applications Developer
-University of Limerick                         IBM Dublin Software Lab
+YOSHIFUJI Hideaki @ USAGI Project  <yoshfuji@linux-ipv6.org>
+GPG-FP  : 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

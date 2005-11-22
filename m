@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030218AbVKVW4d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030220AbVKVW7o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030218AbVKVW4d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 17:56:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030220AbVKVW4d
+	id S1030220AbVKVW7o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 17:59:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030221AbVKVW7o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 17:56:33 -0500
-Received: from gate.crashing.org ([63.228.1.57]:38870 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1030218AbVKVW4c (ORCPT
+	Tue, 22 Nov 2005 17:59:44 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:63420 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030220AbVKVW7n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 17:56:32 -0500
-Subject: Re: [RFC] Small PCI core patch
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Marc Koschewski <marc@osknowledge.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Airlie <airlied@gmail.com>,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051122140719.GA6784@stiffy.osknowledge.org>
-References: <20051121225303.GA19212@kroah.com>
-	 <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston>
-	 <21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com>
-	 <1132623268.20233.14.camel@localhost.localdomain>
-	 <1132626478.26560.104.camel@gaston>
-	 <20051122140719.GA6784@stiffy.osknowledge.org>
-Content-Type: text/plain
-Date: Wed, 23 Nov 2005 09:53:30 +1100
-Message-Id: <1132700011.26560.240.camel@gaston>
+	Tue, 22 Nov 2005 17:59:43 -0500
+Date: Tue, 22 Nov 2005 15:00:02 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
+Cc: torvalds@osdl.org, ak@muc.de, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.15-rc2
+Message-Id: <20051122150002.26adf913.akpm@osdl.org>
+In-Reply-To: <43829ED2.3050003@mnsu.edu>
+References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org>
+	<43829ED2.3050003@mnsu.edu>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-22 at 15:07 +0100, Marc Koschewski wrote:
+Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu> wrote:
+>
+>                 from fs/compat_ioctl.c:52,
+>                  from arch/x86_64/ia32/ia32_ioctl.c:14:
+> include/linux/ext3_fs.h: In function 'ext3_raw_inode':
+> include/linux/ext3_fs.h:696: error: dereferencing pointer to incomplete type
 
-> I use my Nvidia card without the Nvidia drivers for long time now. For
-> pure X without games and just GNOME and coding I have no need to run the
-> proprietary driver at all. But maybe for others (mostly for people with
-> laptops where you cannot simply change video cards due to a
-> vendor-designed form-factor) it could get worst. What is left for them?
-> Run non-X environments on the laptop? Even run Windows on it? Puh!
-> 
-> A damn stupid circumstance with Nvidia in the end... 
+This might help?
 
-Yes, but at _least_ with nVidia you get this free "nv" driver that they
-maintain and that gives you basic mode setting & 2D accel... With the
-newest ATI cards, you don't even get that.
-
-Ben.
-
+--- 25/include/linux/ext3_fs.h~ext3_fsh-needs-buffer_headh	Tue Nov 22 14:59:17 2005
++++ 25-akpm/include/linux/ext3_fs.h	Tue Nov 22 14:59:27 2005
+@@ -19,7 +19,7 @@
+ #include <linux/types.h>
+ #include <linux/ext3_fs_i.h>
+ #include <linux/ext3_fs_sb.h>
+-
++#include <linux/buffer_head.h>
+ 
+ struct statfs;
+ 
+_
 

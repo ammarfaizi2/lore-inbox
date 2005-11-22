@@ -1,31 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965205AbVKVVKX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965046AbVKVVQv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965205AbVKVVKX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 16:10:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965206AbVKVVKW
+	id S965046AbVKVVQv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 16:16:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965223AbVKVVQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 16:10:22 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:44959 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965199AbVKVVKC (ORCPT
+	Tue, 22 Nov 2005 16:16:10 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:50591 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965202AbVKVVKP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 16:10:02 -0500
-Date: Tue, 22 Nov 2005 13:08:04 -0800
+	Tue, 22 Nov 2005 16:10:15 -0500
+Date: Tue, 22 Nov 2005 13:08:38 -0800
 From: Chris Wright <chrisw@osdl.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Marcel Holtmann <marcel@holtmann.org>
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Harald Welte <laforge@netfilter.org>,
-       Krzysztof Piotr Oledzki <ole@ans.pl>,
-       Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [patch 13/23] [PATCH] [NETFILTER] ctnetlink: Fix oops when no ICMP ID info in message
-Message-ID: <20051122210804.GN28140@shell0.pdx.osdl.net>
+       discuss@x86-64.org, Lukas Hejtmanek <xhejtman@mail.muni.cz>,
+       Shaohua Li <shaohua.li@intel.com>, ak@suse.de
+Subject: [patch 19/23] [PATCH] x86_64/i386: Compute correct MTRR mask on early Noconas
+Message-ID: <20051122210838.GT28140@shell0.pdx.osdl.net>
 References: <20051122205223.099537000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="ctnetlink-fix-oops-when-no-icpm-id-info-in-message.patch"
+Content-Disposition: inline; filename="4GB-memory-intel-dual-core.patch"
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -33,72 +33,56 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-This patch fixes an userspace triggered oops. If there is no ICMP_ID
-info the reference to attr will be NULL.
+Force correct address space size for MTRR on some 64bit Intel Xeons
 
-Signed-off-by: Krzysztof Piotr Oledzki <ole@ans.pl>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Harald Welte <laforge@netfilter.org>
+They report 40bit, but only have 36bits of physical address space.
+This caused problems with setting up the correct masks for MTRR,
+resulting in incorrect MTRRs.
+
+CPUID workaround for steppings 0F33h(supporting x86) and 0F34h(supporting x86
+and EM64T). Detail info can be found at:
+http://download.intel.com/design/Xeon/specupdt/30240216.pdf
+http://download.intel.com/design/Pentium4/specupdt/30235221.pdf
+
+Signed-off-by: Shaohua Li <shaohua.li@intel.com>
+Signed-off-by: Andi Kleen <ak@suse.de>
 Signed-off-by: Chris Wright <chrisw@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- net/ipv4/netfilter/ip_conntrack_proto_icmp.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ arch/i386/kernel/cpu/mtrr/main.c |    8 ++++++++
+ arch/x86_64/kernel/setup.c       |    5 +++++
+ 2 files changed, 13 insertions(+)
 
---- linux-2.6.14.2.orig/net/ipv4/netfilter/ip_conntrack_proto_icmp.c
-+++ linux-2.6.14.2/net/ipv4/netfilter/ip_conntrack_proto_icmp.c
-@@ -151,13 +151,13 @@ icmp_error_message(struct sk_buff *skb,
- 	/* Not enough header? */
- 	inside = skb_header_pointer(skb, skb->nh.iph->ihl*4, sizeof(_in), &_in);
- 	if (inside == NULL)
--		return NF_ACCEPT;
-+		return -NF_ACCEPT;
- 
- 	/* Ignore ICMP's containing fragments (shouldn't happen) */
- 	if (inside->ip.frag_off & htons(IP_OFFSET)) {
- 		DEBUGP("icmp_error_track: fragment of proto %u\n",
- 		       inside->ip.protocol);
--		return NF_ACCEPT;
-+		return -NF_ACCEPT;
+--- linux-2.6.14.2.orig/arch/i386/kernel/cpu/mtrr/main.c
++++ linux-2.6.14.2/arch/i386/kernel/cpu/mtrr/main.c
+@@ -626,6 +626,14 @@ void __init mtrr_bp_init(void)
+ 		if (cpuid_eax(0x80000000) >= 0x80000008) {
+ 			u32 phys_addr;
+ 			phys_addr = cpuid_eax(0x80000008) & 0xff;
++			/* CPUID workaround for Intel 0F33/0F34 CPU */
++			if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL &&
++			    boot_cpu_data.x86 == 0xF &&
++			    boot_cpu_data.x86_model == 0x3 &&
++			    (boot_cpu_data.x86_mask == 0x3 ||
++			     boot_cpu_data.x86_mask == 0x4))
++				phys_addr = 36;
++
+ 			size_or_mask = ~((1 << (phys_addr - PAGE_SHIFT)) - 1);
+ 			size_and_mask = ~size_or_mask & 0xfff00000;
+ 		} else if (boot_cpu_data.x86_vendor == X86_VENDOR_CENTAUR &&
+--- linux-2.6.14.2.orig/arch/x86_64/kernel/setup.c
++++ linux-2.6.14.2/arch/x86_64/kernel/setup.c
+@@ -993,6 +993,11 @@ static void __cpuinit init_intel(struct 
+ 		unsigned eax = cpuid_eax(0x80000008);
+ 		c->x86_virt_bits = (eax >> 8) & 0xff;
+ 		c->x86_phys_bits = eax & 0xff;
++		/* CPUID workaround for Intel 0F34 CPU */
++		if (c->x86_vendor == X86_VENDOR_INTEL &&
++		    c->x86 == 0xF && c->x86_model == 0x3 &&
++		    c->x86_mask == 0x4)
++			c->x86_phys_bits = 36;
  	}
  
- 	innerproto = ip_conntrack_proto_find_get(inside->ip.protocol);
-@@ -166,7 +166,7 @@ icmp_error_message(struct sk_buff *skb,
- 	if (!ip_ct_get_tuple(&inside->ip, skb, dataoff, &origtuple, innerproto)) {
- 		DEBUGP("icmp_error: ! get_tuple p=%u", inside->ip.protocol);
- 		ip_conntrack_proto_put(innerproto);
--		return NF_ACCEPT;
-+		return -NF_ACCEPT;
- 	}
- 
- 	/* Ordinarily, we'd expect the inverted tupleproto, but it's
-@@ -174,7 +174,7 @@ icmp_error_message(struct sk_buff *skb,
- 	if (!ip_ct_invert_tuple(&innertuple, &origtuple, innerproto)) {
- 		DEBUGP("icmp_error_track: Can't invert tuple\n");
- 		ip_conntrack_proto_put(innerproto);
--		return NF_ACCEPT;
-+		return -NF_ACCEPT;
- 	}
- 	ip_conntrack_proto_put(innerproto);
- 
-@@ -190,7 +190,7 @@ icmp_error_message(struct sk_buff *skb,
- 
- 		if (!h) {
- 			DEBUGP("icmp_error_track: no match\n");
--			return NF_ACCEPT;
-+			return -NF_ACCEPT;
- 		}
- 		/* Reverse direction from that found */
- 		if (DIRECTION(h) != IP_CT_DIR_REPLY)
-@@ -296,7 +296,8 @@ static int icmp_nfattr_to_tuple(struct n
- 				struct ip_conntrack_tuple *tuple)
- {
- 	if (!tb[CTA_PROTO_ICMP_TYPE-1]
--	    || !tb[CTA_PROTO_ICMP_CODE-1])
-+	    || !tb[CTA_PROTO_ICMP_CODE-1]
-+	    || !tb[CTA_PROTO_ICMP_ID-1])
- 		return -1;
- 
- 	tuple->dst.u.icmp.type = 
+ 	if (c->x86 == 15)
 
 --

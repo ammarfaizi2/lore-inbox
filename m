@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965092AbVKVSbR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965096AbVKVSb4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965092AbVKVSbR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 13:31:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965094AbVKVSbR
+	id S965096AbVKVSb4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 13:31:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965094AbVKVSb4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 13:31:17 -0500
-Received: from wproxy.gmail.com ([64.233.184.194]:19786 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965092AbVKVSbR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 13:31:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=IByHkvb09vAwnTMw6ba+xzJ23OAAEhgWkcWcha1PCXE3qZpkdZCkFhsB4YBD3vXj2y22xMqsxKLmhtqZoopj9DDbtdQolMp7XHR2uQeFAz8FE9VoR2Pk/EBfTxiARNQ9Rd1etsEV87ICLWvFki4P0oJxXAyTy3Ocdk8pEEy7XBE=
-Message-ID: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com>
-Date: Tue, 22 Nov 2005 13:31:16 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Christmas list for the kernel
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Tue, 22 Nov 2005 13:31:56 -0500
+Received: from main.gmane.org ([80.91.229.2]:62938 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S965096AbVKVSbz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 13:31:55 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Matthieu CASTET <castet.matthieu@free.fr>
+Subject: Re: [RFC] Small PCI core patch
+Date: Tue, 22 Nov 2005 19:26:55 +0100
+Message-ID: <pan.2005.11.22.18.26.54.534251@free.fr>
+References: <20051121225303.GA19212@kroah.com> <20051121230136.GB19212@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: cac94-1-81-57-151-96.fbx.proxad.net
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There have been recent comments about the pace of kernel development
-slowing. What are the major areas that still need major work? When the
-thread slows down maybe Linus will tell us what the top ten items
-really are.
+Hi,
 
-To get things started here's a few that I would add:
+Le Mon, 21 Nov 2005 15:01:41 -0800, Greg KH a écrit :
 
-1) graphics, it is a total mess.
+> If you, or your company is relying on closed source kernel modules, your
+> days are numbered.  And what are you going to do, and how are you going
+> to explain things to your bosses and your customers, if possibly,
+> something like this patch were to be accepted?
+> 
+Why not make a crappy GPL driver that just export again
+the symbols ?
 
-2) get Xen merged, virtualization will be key on the server.
-Hotplugable CPUs and memory are tied up in this one.
+MODULE_LICENSE("GPL");
 
-3) Reiser4 merge, Rieser4 itself is not important, it's the new
-concepts about file systems that Reiser4 brings to the kernel that are
-important. Get the issues around the VFS layer sorted out so that this
-can happen. We need some forward evolution in file system concepts.
+pci_bus_read_config_byte_binary (....)
+{
+pci_bus_read_config_byte(...)
+}
+EXPORT_SYMBOL(pci_bus_read_config_byte_binary);
 
-4) Merge klibc and fix up the driver system so that everything is
-hotplugable. This means no more need to configure drivers in the
-kernel, the right drivers will just load automatically.
+[...]
 
---
-Jon Smirl
-jonsmirl@gmail.com
+Also why as an embeded company I can't remove the licence check in the
+kernel I provide to my custommers.
+
+
+No software tricks could force the company to use GPL because GPL allows
+you to remove or short-cut these tricks.
+
+Only the law can do something about softwares that don't comply to GPL
+license...
+It would be great if big companies that use Linux (OSDL, IBM, ...)
+proposes a poll of lawyers which could do something like gpl-violations
+(check if some softwares violate the GPL, if yes contact the copyright
+holders, and if the developpers accept represent them).
+
+
+Matthieu
+
+

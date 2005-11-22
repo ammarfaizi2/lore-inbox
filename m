@@ -1,39 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965148AbVKVTja@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965146AbVKVTkN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965148AbVKVTja (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 14:39:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965146AbVKVTja
+	id S965146AbVKVTkN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 14:40:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965150AbVKVTkM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 14:39:30 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:57805 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965148AbVKVTj2 (ORCPT
+	Tue, 22 Nov 2005 14:40:12 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:34538 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S965146AbVKVTkK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 14:39:28 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <Pine.LNX.4.64.0511221044340.13959@g5.osdl.org> 
-References: <Pine.LNX.4.64.0511221044340.13959@g5.osdl.org>  <Pine.LNX.4.64.0511220856470.13959@g5.osdl.org> <E1Ee0G0-0004CN-Az@localhost.localdomain> <24299.1132571556@warthog.cambridge.redhat.com> <20051121121454.GA1598@parisc-linux.org> <Pine.LNX.4.64.0511211047260.13959@g5.osdl.org> <20051121190632.GG1598@parisc-linux.org> <Pine.LNX.4.64.0511211124190.13959@g5.osdl.org> <20051121194348.GH1598@parisc-linux.org> <Pine.LNX.4.64.0511211150040.13959@g5.osdl.org> <20051121211544.GA4924@elte.hu> <17282.15177.804471.298409@cargo.ozlabs.ibm.com> <1132611631.11842.83.camel@localhost.localdomain> <1132657991.15117.76.camel@baythorne.infradead.org> <1132668939.20233.47.camel@localhost.localdomain> <9497.1132684676@warthog.cambridge.redhat.com> 
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: David Howells <dhowells@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Paul Mackerras <paulus@samba.org>, Ingo Molnar <mingo@elte.hu>,
-       Matthew Wilcox <matthew@wil.cx>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>,
-       Ian Molton <spyro@f2s.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH 4/5] Centralise NO_IRQ definition 
-X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
-Date: Tue, 22 Nov 2005 19:38:50 +0000
-Message-ID: <10979.1132688330@warthog.cambridge.redhat.com>
+	Tue, 22 Nov 2005 14:40:10 -0500
+Date: Tue, 22 Nov 2005 19:40:04 +0000 (GMT)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: Andi Kleen <ak@suse.de>, Andy Whitcroft <apw@shadowen.org>,
+       linux-mm@kvack.org, mingo@elte.hu, lhms-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au
+Subject: Re: [PATCH 2/5] Light Fragmentation Avoidance V20: 002_usemap
+In-Reply-To: <4382F765.4020707@jp.fujitsu.com>
+Message-ID: <Pine.LNX.4.58.0511221937290.2476@skynet>
+References: <20051115164946.21980.2026.sendpatchset@skynet.csn.ul.ie>
+ <200511160036.54461.ak@suse.de> <Pine.LNX.4.58.0511160137540.8470@skynet>
+ <200511160252.05494.ak@suse.de> <Pine.LNX.4.58.0511160200530.8470@skynet>
+ <4382EF48.1050107@shadowen.org> <20051122102237.GK20775@brahms.suse.de>
+ <Pine.LNX.4.58.0511221026200.31192@skynet> <4382F765.4020707@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
+On Tue, 22 Nov 2005, KAMEZAWA Hiroyuki wrote:
 
-> bad hw docs if you have any at all
+> Mel Gorman wrote:
+> > On Tue, 22 Nov 2005, Andi Kleen wrote:
+> >
+> >
+> > > > All of that said, I am not even sure we have a bit left in the page
+> > > > flags on smaller architectures :/.
+> > >
+> > > How about
+> > >
+> > > #define PG_checked               8      /* kill me in 2.5.<early>. */
+> > >
+> > > ?
+> > >
+> > > At least PG_uncached isn't used on many architectures too, so could
+> > > be reused. I don't know why those that use it don't check VMAs instead.
+> > >
+> >
+> >
+> > PG_unchecked appears to be totally unused. It's only users are the macros
+> > that manipulate the bit and mm/page_alloc.c . It appears it has been a
+> > long time since it was used to it is a canditate for reuse.
+> >
+> Considering memory hotplug, I don't want to resize bitmaps at hot-add/remove.
+> no bitmap is welcome :)
+>
 
-The same could be said of Linux. The docs there could be a *lot* better.
+Version has now been posted that has no usemap with the subject "Light
+fragmentation avoidance without usemap". Details on implementation and
+benchmarks are included.
 
-I wonder... might it be worth creating a Wiki or something on kernel.org in
-which kernel docs can be maintained?
-
-David
+-- 
+Mel Gorman
+Part-time Phd Student                          Java Applications Developer
+University of Limerick                         IBM Dublin Software Lab

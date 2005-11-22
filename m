@@ -1,75 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964935AbVKVNAE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbVKVNEy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964935AbVKVNAE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 08:00:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964937AbVKVNAE
+	id S964865AbVKVNEy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 08:04:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964911AbVKVNEy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 08:00:04 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:46259 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S964935AbVKVNAB
+	Tue, 22 Nov 2005 08:04:54 -0500
+Received: from zproxy.gmail.com ([64.233.162.201]:52180 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964865AbVKVNEx convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 08:00:01 -0500
-Date: Tue, 22 Nov 2005 13:59:59 +0100
-From: Jan Kasprzak <kas@fi.muni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.14 kswapd eating too much CPU
-Message-ID: <20051122125959.GR16080@fi.muni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 22 Nov 2005 08:04:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=qEYWufTyaMEcFlJwVtjiS+XvrXNvMi0NvNWEcdRJsbnFZftRWn6omGjJL5qR9Dh1xdYk/VPSsHLj9cn+SA76Pofo3HMAM12BFUtCfITYrS/hrI6SrFCBnsGpQx1OsNd9QW6G2oxH/NvMthCsrk6E1R4wjdNrUceoD6vLmtBATio=
+Message-ID: <625fc13d0511220504h45ff660r1a5dd4e671881037@mail.gmail.com>
+Date: Tue, 22 Nov 2005 07:04:52 -0600
+From: Josh Boyer <jwboyer@gmail.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: [PATCH] Add more SCM trees to MAINTAINERS
+Cc: scjody@steamballoon.com, gregkh@suse.de, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+In-Reply-To: <200511212236.43551.dtor_core@ameritech.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: kas@fi.muni.cz
-X-Muni-Virus-Test: Clean
+References: <625fc13d0511211911j10f8e87dha9be0b71a298c60d@mail.gmail.com>
+	 <200511212236.43551.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello,
+On 11/21/05, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+> On Monday 21 November 2005 22:11, Josh Boyer wrote:
+> > IDE/ATAPI CDROM DRIVER
+> > @@ -1279,6 +1286,7 @@ P:Vojtech Pavlik
+> > M:vojtech@suse.cz
+> > L:linux-input@atrey.karlin.mff.cuni.cz
+> > L:linux-joystick@atrey.karlin.mff.cuni.cz
+> > +T:git kernel.org:/pub/scm/linux/kernel/git/dtor/input.git
+> > S:Maintained
+>
+> This one is not really the official input tree as it is maintained by
+> myself, not Vojtech. He is currently publishes his quilt patchset
+> (a bit dated though) at:
+>
+>         http://www.ucw.cz/~vojtech/input/
 
-I have noticed that on my system kswapd eats too much CPU time every two
-hours or so. This started when I upgraded this server to 2.6.14.2 (was 2.6.13.2
-before), and added another 4 GB of memory (to the total of 8GB). The server
-runs mainly FTP load (proftpd w/ sendfile()), with some other apps (Apache,
-Qmail, etc). It is dual Opteron (Tyan S2882 board) with 8 ATA disks
-on 3ware 7506 controller with SW raid volumes (RAID-1 and RAID-5),
-with XFS and ext3 filesystems.
+Thanks.  I've fixed it up in my git tree.
 
-Here is the top(1) output when the kswapd problem occurs:
-
-top - 13:45:34 up 8 days, 15:49,  2 users,  load average: 3.37, 3.49, 3.44
-Tasks: 325 total,   4 running, 321 sleeping,   0 stopped,   0 zombie
-Cpu(s):  0.5% us, 75.6% sy,  0.8% ni, 20.3% id,  1.3% wa,  0.2% hi,  1.3% si
-Mem:   8174528k total,  8151076k used,    23452k free,    49960k buffers
-Swap: 14651256k total,      640k used, 14650616k free,  7562572k cached
-
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
-   16 root      15   0     0    0    0 R 96.4  0.0   1542:27 kswapd0
-   15 root      15   0     0    0    0 D 52.0  0.0 833:48.37 kswapd1
- 1056 rsyncd    35  19 11196 2608  928 R  3.0  0.0   0:42.29 rsync
- 2082 named     18   0 72816  17m 1888 S  0.7  0.2  47:47.55 named
-18484 ftp       20   5 10028 1556  788 S  0.7  0.0   0:00.02 proftpd
-   26 root      10  -5     0    0    0 S  0.3  0.0 156:47.10 md5_raid5
-
-It can be seen that one kswapd uses almost 100% of CPU,and the other one
-about 50%. The MRTG graph of CPU usage can be seen at
-
-http://www.linux.cz/stats/mrtg-rrd/cpu.html
-
-(orange is the system+irq+softirq time, and red is non-idle (i.e.
-user+sys+nice+irq+softirq, without idle and without iowait). The upgrade
-of the kernel and memory has been done on Saturday, November 12th.
-
-The peaks of the CPU system time happen every two horus or so. The peak
-from ~5am is wider, because at that time various cron daily jobs are run
-(updatedb, and so on).
-
-	Any clues on what is going on here? Thanks,
-
--Yenya
-
--- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/    Journal: http://www.fi.muni.cz/~kas/blog/ |
-> Specs are a basis for _talking_about_ things. But they are _not_ a basis <
-> for implementing software.                              --Linus Torvalds <
+josh

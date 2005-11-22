@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964796AbVKVA2w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964801AbVKVA3f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964796AbVKVA2w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 19:28:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964801AbVKVA2w
+	id S964801AbVKVA3f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 19:29:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964802AbVKVA3f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 19:28:52 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:50895 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964796AbVKVA2v (ORCPT
+	Mon, 21 Nov 2005 19:29:35 -0500
+Received: from xproxy.gmail.com ([66.249.82.199]:63420 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964801AbVKVA3e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 19:28:51 -0500
-Date: Mon, 21 Nov 2005 16:28:37 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: theonetruekenny@yahoo.com, cel@citi.umich.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: infinite loop? with mmap, nfs, pwrite, O_DIRECT
-Message-Id: <20051121162837.1a952543.akpm@osdl.org>
-In-Reply-To: <1132618731.8011.46.camel@lade.trondhjem.org>
-References: <20051121213913.61220.qmail@web34115.mail.mud.yahoo.com>
-	<1132612974.8011.12.camel@lade.trondhjem.org>
-	<20051121153454.1907d92a.akpm@osdl.org>
-	<1132617503.8011.35.camel@lade.trondhjem.org>
-	<20051121160913.6d59c9fa.akpm@osdl.org>
-	<1132618731.8011.46.camel@lade.trondhjem.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 21 Nov 2005 19:29:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=oWTekE2MQV/nkGpYBAw8tH089AlGu3eLqgiOdQ9EuFPi1r6TshafKKxNtXmPPZbn9OP2iB+oIgZHDf5uI1sB9R8KJ3ifc5nQQK2jY4eVx1/nDax2qkYce2W3ZC5ZzLwuQP3OU1e6wh7mBXBUfSemRugH2OphHB/QgitygnPp8VY=
+Message-ID: <43826648.9030606@gmail.com>
+Date: Tue, 22 Nov 2005 08:28:56 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051025)
+MIME-Version: 1.0
+To: Damien Wyart <damien.wyart@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: VESA fb console in 2.6.15
+References: <20051121215531.GA3429@localhost.localdomain>
+In-Reply-To: <20051121215531.GA3429@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
->
-> On Mon, 2005-11-21 at 16:09 -0800, Andrew Morton wrote:
-> > Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> > >
-> > > The only difference I can see between the two paths is the call to
-> > >  unmap_mapping_range(). What effect would that have?
-> > 
-> > It shoots down any mapped pagecache over the affected file region.  Because
-> > the direct-io write is about to make that pagecache out-of-date.  If the
-> > application tries to use that data again it'll get a major fault and will
-> > re-read the file contents.
+Damien Wyart wrote:
+> Hello,
 > 
-> I assume then, that this couldn't be the cause of the
-> invalidate_inode_pages() failing to complete?
+> I've noticed in several versions of 2.6.15 that VESA fb console seems
+> completely broken : it draws screen in several very slow steps, making
+> the whole display almos unusable. And it crashes *very* often, for
+> example when switching to X. The computer is complety locked, and
+> doesn't even respond to SysRQ.
+> 
+> I guess it is quite trivial to reproduce, the difference with 2.6.14 is
+> immediately visible.
+> 
+> I use vga=0x31B as boot param.
+> 
 
-It sounds unlikely.  This hang is associated with crossing the 2G boundary
-isn't it?
+Try booting with:
 
-I don't think we've seen a sysrq-T trace from the hang?
+vga=0x31b video=vesafb:mtrr:3
 
-> Unless there is some
-> method to prevent applications from faulting in the page while we're
-> inside generic_file_direct_IO(), then the same race would be able to
-> occur there.
+or
 
-Yes, there are still windows.
+vga=0x31b video=vesafb:ypan,mtrr:3
 
-Another thing the unmap_mapping_range() does is to push pte-dirty bits into
-the software-dirty flags, so the modified data does get written.  If we
-didn't do this, a page which was dirtied via mmap before the direct-io
-write would get written back _after_ the direct-io write, arguably causing
-corruption.
+Tony
+

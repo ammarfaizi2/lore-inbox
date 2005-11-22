@@ -1,70 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbVKVLnK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751070AbVKVLvB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751249AbVKVLnK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 06:43:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbVKVLnJ
+	id S1751070AbVKVLvB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 06:51:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751299AbVKVLvB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 06:43:09 -0500
-Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:56156 "EHLO
-	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1751249AbVKVLnI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 06:43:08 -0500
-Date: Tue, 22 Nov 2005 11:43:04 +0000 (GMT)
-From: Ken Moffat <zarniwhoop@ntlworld.com>
-To: Con Kolivas <kernel@kolivas.org>
-cc: Dave Jones <davej@redhat.com>, Ken Moffat <zarniwhoop@ntlworld.com>,
-       Alexander Clouter <alex@digriz.org.uk>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, blaisorblade@yahoo.it, davej@codemonkey.org.uk
-Subject: Re: [patch 1/1] cpufreq_conservative/ondemand: invert meaning of
- 'ignore nice'
-In-Reply-To: <200511221331.45601.kernel@kolivas.org>
-Message-ID: <Pine.LNX.4.63.0511221138310.26358@deepthought.mydomain>
-References: <20051121181722.GA2599@inskipp.digriz.org.uk>
- <Pine.LNX.4.63.0511220102330.18504@deepthought.mydomain> <20051122022215.GB1288@redhat.com>
- <200511221331.45601.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463809536-1174806078-1132659784=:26358"
+	Tue, 22 Nov 2005 06:51:01 -0500
+Received: from hera.kernel.org ([140.211.167.34]:9443 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1751070AbVKVLvB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 06:51:01 -0500
+Date: Tue, 22 Nov 2005 04:23:21 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Wu Fengguang <wfg@mail.ustc.edu.cn>, akpm@osdl.org, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] properly account readahead file major faults
+Message-ID: <20051122062321.GA30413@logos.cnet>
+References: <20051121140038.GA27349@logos.cnet> <20051122042443.GA4588@mail.ustc.edu.cn>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051122042443.GA4588@mail.ustc.edu.cn>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Hi Wu!
 
----1463809536-1174806078-1132659784=:26358
-Content-Type: TEXT/PLAIN; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+On Tue, Nov 22, 2005 at 12:24:43PM +0800, Wu Fengguang wrote:
+> Hi,
+> 
+> On Mon, Nov 21, 2005 at 12:00:38PM -0200, Marcelo Tosatti wrote:
+> > Hi,
+> > 
+> > The fault accounting of filemap_dopage() is currently unable to account
+> > for readahead pages as major faults.
+> 
+> Sorry, I don't know much about the definition of major/minor page faults.
+> So I googled one that explains the old behavior:
+> 
+> --> Page Faults <--
+> These come in two varieties. Minor and Major faults. A Major fault results
+> when an application tries to access a memory page that has been swapped out to
+> disk. The page must be swapped back in. A Minor fault results when an
+> application tries to access a memory page that is still in memory, but the
+> physical location of which is not immediately known. The address must be
+> looked up.
 
-On Tue, 22 Nov 2005, Con Kolivas wrote:
+Yep, just that "swapped out"/"swappin in" can be though of as "read
+in/"read out".
 
->> >  Just what have you cpufreq guys got against nice'd processes ?  It's
->> > enough to drive a man to powernowd ;)
->>
->> The opinion on this one started out with everyone saying "Yeah,
->> this is dumb, and should have changed". Now that the change appears
->> in a mergable patch, the opinion seems to have swung the other way.
->>
->> I'm seriously rethinking this change, as no matter what we do,
->> we're going to make some people unhappy, so changing the status quo
->> seems ultimately pointless.
->
-> Eh? I thought he was agreeing with niced processes running full speed but that
-> he misunderstood that that was the new default. Oh well I should have just
-> shut up.
->
-> Con
->
+> With the current accounting logic:
+> - major faults reflect the times one has to wait for real I/O.
+> - the more success read-ahead, the less major faults.
+> - anyway, major+minor faults remain the same for the same benchmark.
+> 
+> With your patch:
+> - major faults are expected to remain the same with whatever read-ahead.
+> - but what's the new meaning of minor faults?
 
-  Hi Con,
+With the patch minor faults are only those faults which can be serviced
+by the pagecache, requiring no I/O.
 
-  looks as if I did misunderstand the default.  In the last week I've 
-seen occasional comments on this from both sides of the debate, so I 
-read the description and got it wrong.
+Pages which hit the first time in cache due to readahead _have_ caused
+IO, and as such they should be counted as major faults.
 
-  Now, if you gentlement will excuse me, I'll just wipe this egg off my 
-face.
+I suppose that if you want to count readahead hits it should be done
+separately (which is now "sort of" available with the "majflt" field).
 
-Ken
--- 
-  das eine Mal als Tragödie, das andere Mal als Farce
-
----1463809536-1174806078-1132659784=:26358--

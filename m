@@ -1,57 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964824AbVKVBbv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbVKVBfY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964824AbVKVBbv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 20:31:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbVKVBbv
+	id S964827AbVKVBfY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 20:35:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964830AbVKVBfY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 20:31:51 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:24241 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S964824AbVKVBbu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 20:31:50 -0500
-Subject: Re: test time-warps [was: Re: 2.6.14-rt13]
-From: Lee Revell <rlrevell@joe-job.com>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Ingo Molnar <mingo@elte.hu>,
-       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>,
-       "K.R. Foley" <kr@cybsft.com>, Steven Rostedt <rostedt@goodmis.org>,
-       Thomas Gleixner <tglx@linutronix.de>, pluto@agmk.net,
-       john cooper <john.cooper@timesys.com>,
-       Benedikt Spranger <bene@linutronix.de>,
-       Daniel Walker <dwalker@mvista.com>,
-       Tom Rini <trini@kernel.crashing.org>,
-       George Anzinger <george@mvista.com>
-In-Reply-To: <1132616496.31144.27.camel@cog.beaverton.ibm.com>
-References: <20051115090827.GA20411@elte.hu>
-	 <1132608728.4805.20.camel@cmn3.stanford.edu>
-	 <20051121221511.GA7255@elte.hu>  <20051121221941.GA11102@elte.hu>
-	 <1132616496.31144.27.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Mon, 21 Nov 2005 20:31:43 -0500
-Message-Id: <1132623104.4772.8.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Nov 2005 20:35:24 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:23705 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964826AbVKVBfX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 20:35:23 -0500
+Date: Mon, 21 Nov 2005 18:35:16 -0700
+From: john stultz <johnstul@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Darren Hart <dvhltc@us.ibm.com>,
+       Nishanth Aravamudan <nacc@us.ibm.com>,
+       Frank Sorenson <frank@tuxrocks.com>,
+       George Anzinger <george@mvista.com>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
+       john stultz <johnstul@us.ibm.com>
+Message-Id: <20051122013515.18537.76463.sendpatchset@cog.beaverton.ibm.com>
+Subject: [PATCH 0/13] Time: Generic Timeofday Subsystem (v B11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-11-21 at 15:41 -0800, john stultz wrote:
-> I believe this is the same dual-core TSC drift that has been seen w/
-> x86-64. I have just added some similar logic to the TSC clocksource
-> that mimics what x86-64 does so an alternative clocksource will be
-> selected automatically.
-> 
-> I should be sending out another release later tonight with these
-> updates.
-> 
+All,
+	The following patchset applies against 2.6.15-rc1-mm2 and provides a
+generic timekeeping subsystem that is independent of the timer
+interrupt. This allows for robust and correct behavior in cases of late
+or lost ticks, avoids interpolation errors, reduces duplication in arch
+specific code, and allows or assists future changes such as high-res
+timers, dynamic ticks, or realtime preemption. Additionally, it provides
+finer nanosecond resolution values to the clock_gettime functions.
 
-It is really unfortunate that the TSC cannot be used for timekeeping on
-these machines.  I wrote a simple benchmark that shows rdtsc on
-Fernando's box to be insanely fast - 10000 iterations in 68
-microseconds.  This was an order of magnitude faster than any other
-machine we tested.  Why would they bother making it so fast if it's
-useless for timekeeping?
+The patch set provides the minimal NTP changes, the clocksource
+abstraction, the core timekeeping code as well as the code to convert
+the i386 and x86-64 archs. I have started on converting more arches, but
+for now I'm focusing on i386 and x86-64.
 
-Lee
+New in this release: 
+o Proper sysfs entries (available_clocksources, current_clocksource)
+o disable pit clocksource on large smp (it doesn't scale)
+o dropped cyclone calibration
+o added extra paraniod checks
+o NUMAQ should not use TSC
+o AMD SMP tsc fallback (similar to x86-64's logic)
 
+Still on the TODO list:
+o Fix Frank Sorenson's c3tsc overcompensation problem
+o More testing 
+o Submit to -mm (as soon as the c3tsc issue is resolved)
+
+I'd like to thank the following people who have contributed ideas,
+criticism, testing and code that has helped shape this work: 
+
+	George Anzinger, Nish Aravamudan, Max Asbock, Dominik Brodowski, Thomas
+Gleixner, Darren Hart, Christoph Lameter, Matt Mackal, Keith Mannthey,
+Ingo Molnar, Martin Schwidefsky, Frank Sorenson, Ulrich Windl, Darrick
+Wong, Roman Zippel and any others whom I've accidentally forgotten.
+
+I'll be out of town for the next couple of days on holiday, so forgive
+me if I don't respond until after Friday. However, do please let me know 
+if you have any comments or feedback and I'll address them as soon as I 
+get back.
+
+thanks 
+-john

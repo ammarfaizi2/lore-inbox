@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964971AbVKVP7N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964974AbVKVQBZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964971AbVKVP7N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 10:59:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964972AbVKVP7N
+	id S964974AbVKVQBZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 11:01:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964972AbVKVQBZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 10:59:13 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:41954 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S964971AbVKVP7M
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 10:59:12 -0500
-Subject: [patch] hdaps: missing an axis.
-From: Robert Love <rml@novell.com>
-To: greg@kroah.com
-Cc: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Tue, 22 Nov 2005 10:57:21 -0500
-Message-Id: <1132675041.29496.2.camel@betsy.boston.ximian.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Nov 2005 11:01:25 -0500
+Received: from usbb-lacimss2.unisys.com ([192.63.108.52]:19461 "EHLO
+	usbb-lacimss2.unisys.com") by vger.kernel.org with ESMTP
+	id S964974AbVKVQBZ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 11:01:25 -0500
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: [PATCH] pci hotplug: Fix cut/paste error
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Date: Tue, 22 Nov 2005 11:01:13 -0500
+Message-ID: <5E735516D527134997ABD465886BBDA61AC2FF@USTR-EXCH5.na.uis.unisys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] pci hotplug: Fix cut/paste error
+Thread-Index: AcXvffat5aawXJVtTBSv3ckPI6UiJA==
+From: "Jordan, William P" <William.Jordan@unisys.com>
+To: <gregkh@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 22 Nov 2005 16:01:14.0914 (UTC) FILETIME=[F750B820:01C5EF7D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: William Jordan <william.jordan@unisys.com>
 
-Greg,
+Fixed code which checked the wrong PCI config register.
+Against linux-2.6.15-rc1
 
-Trivial patch to report both hdaps axises to the joystick device, not
-just the X axis.
+Signed-off-by: William Jordan <william.jordan@unisys.com>
+---
 
-Patch originally by Eugeniy Meshcheryakov <eugen@univ.kiev.ua>.
-
-Signed-off-by: Robert Love <rml@novell.com>
-
-	Robert Love
-
-
-diff -urN a/drivers/hwmon/hdaps.c b/drivers/hwmon/hdaps.c
---- a/drivers/hwmon/hdaps.c	Wed Nov 16 17:18:55 2005
-+++ b/drivers/hwmon/hdaps.c	Tue Nov 22 14:24:25 2005
-@@ -570,7 +570,7 @@
- 	hdaps_idev->evbit[0] = BIT(EV_ABS);
- 	input_set_abs_params(hdaps_idev, ABS_X,
- 			-256, 256, HDAPS_INPUT_FUZZ, HDAPS_INPUT_FLAT);
--	input_set_abs_params(hdaps_idev, ABS_X,
-+	input_set_abs_params(hdaps_idev, ABS_Y,
- 			-256, 256, HDAPS_INPUT_FUZZ, HDAPS_INPUT_FLAT);
- 
- 	input_register_device(hdaps_idev);
-
+--- linux-2.6.15-rc1/drivers/pci/hotplug/ibmphp_pci.c.orig
+2005-11-22 10:14:30.000000000 -0500
++++ linux-2.6.15-rc1/drivers/pci/hotplug/ibmphp_pci.c	2005-11-22
+10:15:05.000000000 -0500
+@@ -969,7 +969,7 @@ static int configure_bridge (struct pci_
+ 			debug ("io 32\n");
+ 			need_io_upper = TRUE;
+ 		}
+-		if ((io_base & PCI_PREF_RANGE_TYPE_MASK) ==
+PCI_PREF_RANGE_TYPE_64) {
++		if ((pfmem_base & PCI_PREF_RANGE_TYPE_MASK) ==
+PCI_PREF_RANGE_TYPE_64) {
+ 			debug ("pfmem 64\n");
+ 			need_pfmem_upper = TRUE;
+ 		}
 

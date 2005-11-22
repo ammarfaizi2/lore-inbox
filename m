@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbVKVAYo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbVKVAZj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964791AbVKVAYo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 19:24:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964792AbVKVAYo
+	id S964792AbVKVAZj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 19:25:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964793AbVKVAZj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 19:24:44 -0500
-Received: from [67.137.28.188] ([67.137.28.188]:19592 "EHLO
-	master.soleranetworks.com") by vger.kernel.org with ESMTP
-	id S964791AbVKVAYo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 19:24:44 -0500
-Message-ID: <43825168.6050404@wolfmountaingroup.com>
-Date: Mon, 21 Nov 2005 15:59:52 -0700
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bernd Eckenfels <ecki@lina.inka.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: what is our answer to ZFS?
-References: <E1EeLp5-0002fZ-00@calista.inka.de>
-In-Reply-To: <E1EeLp5-0002fZ-00@calista.inka.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 21 Nov 2005 19:25:39 -0500
+Received: from pat.uio.no ([129.240.130.16]:62915 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S964792AbVKVAZi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 19:25:38 -0500
+Subject: Re: infinite loop? with mmap, nfs, pwrite, O_DIRECT
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Andrew Morton <akpm@osdl.org>
+Cc: theonetruekenny@yahoo.com, cel@citi.umich.edu,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1132618731.8011.46.camel@lade.trondhjem.org>
+References: <20051121213913.61220.qmail@web34115.mail.mud.yahoo.com>
+	 <1132612974.8011.12.camel@lade.trondhjem.org>
+	 <20051121153454.1907d92a.akpm@osdl.org>
+	 <1132617503.8011.35.camel@lade.trondhjem.org>
+	 <20051121160913.6d59c9fa.akpm@osdl.org>
+	 <1132618731.8011.46.camel@lade.trondhjem.org>
+Content-Type: text/plain
+Date: Mon, 21 Nov 2005 19:25:13 -0500
+Message-Id: <1132619113.8011.48.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-2.894, required 12,
+	autolearn=disabled, AWL 1.92, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Eckenfels wrote:
+On Mon, 2005-11-21 at 19:18 -0500, Trond Myklebust wrote:
+> On Mon, 2005-11-21 at 16:09 -0800, Andrew Morton wrote:
+> > Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+> > >
+> > > The only difference I can see between the two paths is the call to
+> > >  unmap_mapping_range(). What effect would that have?
+> > 
+> > It shoots down any mapped pagecache over the affected file region.  Because
+> > the direct-io write is about to make that pagecache out-of-date.  If the
+> > application tries to use that data again it'll get a major fault and will
+> > re-read the file contents.
+> 
+> I assume then, that this couldn't be the cause of the
+> invalidate_inode_pages() failing to complete? Unless there is some
+  ^^^^^^^^^^^^^^^^^^^^^^^^ invalidate_inode_pages2(), sorry....
 
->In article <200511211252.04217.rob@landley.net> you wrote:
->  
->
->>I believe that on 64 bit platforms, Linux has a 64 bit clean VFS.  Python says 
->>2**64 is 18446744073709551616, and that's roughly:
->>18,446,744,073,709,551,616 bytes
->>18,446,744,073,709 megs
->>18,446,744,073 gigs
->>18,446,744 terabytes
->>18,446 ...  what are those, pedabytes (petabytes?)
->>18          zetabytes
->>
-There you go.  I deal with this a lot so, those are the names.
+> method to prevent applications from faulting in the page while we're
+> inside generic_file_direct_IO(), then the same race would be able to
+> occur there.
 
-Linux is currently limited to 16 TB per VFS mount point, it's all mute, unless VFS gets fixed.
-mmap won't go above this at present.
-
-Jeff
-
-
+Cheers,
+  Trond
 

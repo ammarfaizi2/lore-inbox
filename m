@@ -1,29 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965142AbVKVVLU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965200AbVKVVKN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965142AbVKVVLU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 16:11:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965198AbVKVVKq
+	id S965200AbVKVVKN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 16:10:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965186AbVKVVJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 16:10:46 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:51871 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965208AbVKVVKR (ORCPT
+	Tue, 22 Nov 2005 16:09:40 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:35998 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965188AbVKVVHr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 16:10:17 -0500
-Date: Tue, 22 Nov 2005 13:08:55 -0800
+	Tue, 22 Nov 2005 16:07:47 -0500
+Date: Tue, 22 Nov 2005 13:06:50 -0800
 From: Chris Wright <chrisw@osdl.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org, Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Jean Delvare <khali@linux-fr.org>
-Subject: [patch 22/23] hwmon: Fix lm78 VID conversion
-Message-ID: <20051122210855.GW28140@shell0.pdx.osdl.net>
+       Harald Welte <laforge@netfilter.org>,
+       Yasuyuki Kozakai <yasuyuki.kozakai@toshiba.co.jp>
+Subject: [patch 10/23] [PATCH] [NETFILTER] refcount leak of proto when ctnetlink dumping tuple
+Message-ID: <20051122210650.GK28140@shell0.pdx.osdl.net>
 References: <20051122205223.099537000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="hwmon-lm78-fix-vid.patch"
+Content-Disposition: inline; filename="recount-leak-of-proto-when-ctnetlink-dumping-tuple.patch"
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -31,29 +32,32 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-Fix the lm78 VID reading, which I accidentally broke while making
-this driver use the common vid_from_reg function rather than
-reimplementing its own in 2.6.14-rc1.
-
-I'm not proud of it, trust me.
-
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-Signed-off-by: Chris Wright <chrisw@osdl.org>
 ---
- drivers/hwmon/lm78.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/netfilter/ip_conntrack_netlink.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- linux-2.6.14.2.orig/drivers/hwmon/lm78.c
-+++ linux-2.6.14.2/drivers/hwmon/lm78.c
-@@ -451,7 +451,7 @@ static DEVICE_ATTR(fan3_div, S_IRUGO, sh
- static ssize_t show_vid(struct device *dev, struct device_attribute *attr, char *buf)
+--- linux-2.6.14.2.orig/net/ipv4/netfilter/ip_conntrack_netlink.c
++++ linux-2.6.14.2/net/ipv4/netfilter/ip_conntrack_netlink.c
+@@ -58,14 +58,17 @@ ctnetlink_dump_tuples_proto(struct sk_bu
+ 			    const struct ip_conntrack_tuple *tuple)
  {
- 	struct lm78_data *data = lm78_update_device(dev);
--	return sprintf(buf, "%d\n", vid_from_reg(82, data->vid));
-+	return sprintf(buf, "%d\n", vid_from_reg(data->vid, 82));
- }
- static DEVICE_ATTR(cpu0_vid, S_IRUGO, show_vid, NULL);
+ 	struct ip_conntrack_protocol *proto;
++	int ret = 0;
  
+ 	NFA_PUT(skb, CTA_PROTO_NUM, sizeof(u_int8_t), &tuple->dst.protonum);
+ 
+ 	proto = ip_conntrack_proto_find_get(tuple->dst.protonum);
+-	if (proto && proto->tuple_to_nfattr)
+-		return proto->tuple_to_nfattr(skb, tuple);
++	if (likely(proto && proto->tuple_to_nfattr)) {
++		ret = proto->tuple_to_nfattr(skb, tuple);
++		ip_conntrack_proto_put(proto);
++	}
+ 
+-	return 0;
++	return ret;
+ 
+ nfattr_failure:
+ 	return -1;
 
 --

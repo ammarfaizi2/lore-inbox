@@ -1,186 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965135AbVKVTVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965136AbVKVTZl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965135AbVKVTVk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 14:21:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965138AbVKVTVk
+	id S965136AbVKVTZl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 14:25:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965139AbVKVTZl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 14:21:40 -0500
-Received: from fmr19.intel.com ([134.134.136.18]:10980 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S965135AbVKVTVi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 14:21:38 -0500
-From: Mark Gross <mgross@linux.intel.com>
-Organization: Intel
-To: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] minor clean up and update to tlclk.c for 2.6.15-rc2-git2
-Date: Tue, 22 Nov 2005 11:21:31 -0800
-User-Agent: KMail/1.7.1
-Cc: mark.gross@intel.com
+	Tue, 22 Nov 2005 14:25:41 -0500
+Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:39879 "EHLO
+	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S965136AbVKVTZk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 14:25:40 -0500
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Tue, 22 Nov 2005 19:25:20 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: "Theodore Ts'o" <tytso@mit.edu>
+cc: Chris Adams <cmadams@hiwaay.net>, linux-kernel@vger.kernel.org
+Subject: Re: what is our answer to ZFS?
+In-Reply-To: <20051122171847.GD31823@thunk.org>
+Message-ID: <Pine.LNX.4.64.0511221921530.7002@hermes-1.csi.cam.ac.uk>
+References: <fa.d8ojg69.1p5ovbb@ifi.uio.no> <20051122161712.GA942598@hiwaay.net>
+ <Pine.LNX.4.64.0511221650360.2763@hermes-1.csi.cam.ac.uk>
+ <20051122171847.GD31823@thunk.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511221121.31437.mgross@linux.intel.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This time without the HTLM :(  
+On Tue, 22 Nov 2005, Theodore Ts'o wrote:
+> On Tue, Nov 22, 2005 at 04:55:08PM +0000, Anton Altaparmakov wrote:
+> > > That assumption is probably made because that's what POSIX and Single
+> > > Unix Specification define: "The st_ino and st_dev fields taken together
+> > > uniquely identify the file within the system."  Don't blame code that
+> > > follows standards for breaking.
+> > 
+> > The standards are insufficient however.  For example dealing with named 
+> > streams or extended attributes if exposed as "normal files" would 
+> > naturally have the same st_ino (given they are the same inode as the 
+> > normal file data) and st_dev fields.
+> 
+> Um, but that's why even Solaris's openat(2) proposal doesn't expose
+> streams or extended attributes as "normal files".  The answer is that
+> you can't just expose named streams or extended attributes as "normal
+> files" without screwing yourself.
 
-The following cleans up the telecom clock driver for the MPCBL0010.  
-There was a small TPS change that this update relflects.
-There where some non-static functions that are now static.
+Reiser4 does I believe...
 
-Signed-off-by: Mark Gross <mark.gross@intel.com>
+> Also, I haven't checked to see what Solaris does, but technically
+> their UFS implementation does actually use separate inodes for their
+> named streams, so stat(2) could return separate inode numbers for the
+> named streams.  (In fact, if you take a Solaris UFS filesystem with
+> extended attributs, and run it on a Solaris 8 fsck, the directory
+> containing named streams/extended attributes will show up in
+> lost+found.)
 
+I was not talking about Solaris/UFS.  NTFS has named streams and extended 
+attributes and both are stored as separate attribute records inside the 
+same inode as the data attribute.  (A bit simplified as multiple inodes 
+can be in use for one "file" when an inode's attributes become large than 
+an inode - in that case attributes are either moved whole to a new inode 
+and/or are chopped up in bits and each bit goes to a different inode.)
 
-diff -urN -X dontdiff linux-2.6.15-rc2-git2/drivers/char/tlclk.c linux-2.6.15-rc2-git2-tlclk/drivers/char/tlclk.c
---- linux-2.6.15-rc2-git2/drivers/char/tlclk.c 2005-11-22 09:45:38.000000000 -0800
-+++ linux-2.6.15-rc2-git2-tlclk/drivers/char/tlclk.c 2005-11-22 10:41:42.000000000 -0800
-@@ -34,7 +34,6 @@
- #include <linux/kernel.h> /* printk() */
- #include <linux/fs.h>  /* everything... */
- #include <linux/errno.h> /* error codes */
--#include <linux/delay.h> /* udelay */
- #include <linux/slab.h>
- #include <linux/ioport.h>
- #include <linux/interrupt.h>
-@@ -165,7 +164,7 @@
- filter_select   :
- hardware_switching  :
- hardware_switching_mode  :
--interrupt_switch  :
-+telclock_version  :
- mode_select   :
- refalign   :
- reset    :
-@@ -173,7 +172,6 @@
- select_amcb2_transmit_clock :
- select_redundant_clock  :
- select_ref_frequency  :
--test_mode   :
- 
- All sysfs interfaces are integers in hex format, i.e echo 99 > refalign
- has the same effect as echo 0x99 > refalign.
-@@ -226,7 +224,7 @@
-  return 0;
- }
- 
--ssize_t tlclk_read(struct file *filp, char __user *buf, size_t count,
-+static ssize_t tlclk_read(struct file *filp, char __user *buf, size_t count,
-   loff_t *f_pos)
- {
-  if (count < sizeof(struct tlclk_alarms))
-@@ -242,7 +240,7 @@
-  return  sizeof(struct tlclk_alarms);
- }
- 
--ssize_t tlclk_write(struct file *filp, const char __user *buf, size_t count,
-+static ssize_t tlclk_write(struct file *filp, const char __user *buf, size_t count,
-      loff_t *f_pos)
- {
-  return 0;
-@@ -278,21 +276,21 @@
- static DEVICE_ATTR(current_ref, S_IRUGO, show_current_ref, NULL);
- 
- 
--static ssize_t show_interrupt_switch(struct device *d,
-+static ssize_t show_telclock_version(struct device *d,
-   struct device_attribute *attr, char *buf)
- {
-  unsigned long ret_val;
-  unsigned long flags;
- 
-  spin_lock_irqsave(&event_lock, flags);
-- ret_val = inb(TLCLK_REG6);
-+ ret_val = inb(TLCLK_REG5);
-  spin_unlock_irqrestore(&event_lock, flags);
- 
-  return sprintf(buf, "0x%lX\n", ret_val);
- }
- 
--static DEVICE_ATTR(interrupt_switch, S_IRUGO,
--  show_interrupt_switch, NULL);
-+static DEVICE_ATTR(telclock_version, S_IRUGO,
-+  show_telclock_version, NULL);
- 
- static ssize_t show_alarms(struct device *d,
-   struct device_attribute *attr,  char *buf)
-@@ -436,26 +434,6 @@
- static DEVICE_ATTR(enable_clka0_output, S_IWUGO, NULL,
-   store_enable_clka0_output);
- 
--static ssize_t store_test_mode(struct device *d,
--  struct device_attribute *attr,  const char *buf, size_t count)
--{
-- unsigned long flags;
-- unsigned long tmp;
-- unsigned char val;
--
-- sscanf(buf, "%lX", &tmp);
-- dev_dbg(d, "tmp = 0x%lX\n", tmp);
--
-- val = (unsigned char)tmp;
-- spin_lock_irqsave(&event_lock, flags);
-- SET_PORT_BITS(TLCLK_REG4, 0xfd, 2);
-- spin_unlock_irqrestore(&event_lock, flags);
--
-- return strnlen(buf, count);
--}
--
--static DEVICE_ATTR(test_mode, S_IWUGO, NULL, store_test_mode);
--
- static ssize_t store_select_amcb2_transmit_clock(struct device *d,
-   struct device_attribute *attr, const char *buf, size_t count)
- {
-@@ -475,7 +453,7 @@
-    SET_PORT_BITS(TLCLK_REG3, 0xc7, 0x38);
-    switch (val) {
-    case CLK_8_592MHz:
--    SET_PORT_BITS(TLCLK_REG0, 0xfc, 1);
-+    SET_PORT_BITS(TLCLK_REG0, 0xfc, 2);
-     break;
-    case CLK_11_184MHz:
-     SET_PORT_BITS(TLCLK_REG0, 0xfc, 0);
-@@ -484,7 +462,7 @@
-     SET_PORT_BITS(TLCLK_REG0, 0xfc, 3);
-     break;
-    case CLK_44_736MHz:
--    SET_PORT_BITS(TLCLK_REG0, 0xfc, 2);
-+    SET_PORT_BITS(TLCLK_REG0, 0xfc, 1);
-     break;
-    }
-   } else
-@@ -653,9 +631,7 @@
-  dev_dbg(d, "tmp = 0x%lX\n", tmp);
-  spin_lock_irqsave(&event_lock, flags);
-  SET_PORT_BITS(TLCLK_REG0, 0xf7, 0);
-- udelay(2);
-  SET_PORT_BITS(TLCLK_REG0, 0xf7, 0x08);
-- udelay(2);
-  SET_PORT_BITS(TLCLK_REG0, 0xf7, 0);
-  spin_unlock_irqrestore(&event_lock, flags);
- 
-@@ -706,7 +682,7 @@
- 
- static struct attribute *tlclk_sysfs_entries[] = {
-  &dev_attr_current_ref.attr,
-- &dev_attr_interrupt_switch.attr,
-+ &dev_attr_telclock_version.attr,
-  &dev_attr_alarms.attr,
-  &dev_attr_enable_clk3a_output.attr,
-  &dev_attr_enable_clk3b_output.attr,
-@@ -714,7 +690,6 @@
-  &dev_attr_enable_clka1_output.attr,
-  &dev_attr_enable_clkb0_output.attr,
-  &dev_attr_enable_clka0_output.attr,
-- &dev_attr_test_mode.attr,
-  &dev_attr_select_amcb1_transmit_clock.attr,
-  &dev_attr_select_amcb2_transmit_clock.attr,
-  &dev_attr_select_redundant_clock.attr,
+Best regards,
 
-
-
+	Anton
 -- 
---mgross
-Intel Open Source Technology Center
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964861AbVKVJqQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751285AbVKVJmJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964861AbVKVJqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 04:46:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964859AbVKVJqQ
+	id S1751285AbVKVJmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 04:42:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbVKVJmJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 04:46:16 -0500
-Received: from nproxy.gmail.com ([64.233.182.200]:37642 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751298AbVKVJqO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 04:46:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Q9lLYeUPTb6WOTt1Jhc65b0q/4FIjwceykTe2Ym0+MIsuf0KBBIF7KDpGvwzKIkg9Cc0VEiuVpbNPn7fqieHH1yUVmhgypOZGPcNemwhHeaM1dvFThKzpCgnhBbO94UUk8KmnuudtWaslkVCrhDY6l1hK5J7TA+7TWJ0xh0iiiY=
-Message-ID: <4ad99e050511220146i2fd7d001va55a7ca9daa7188@mail.gmail.com>
-Date: Tue, 22 Nov 2005 10:46:13 +0100
-From: Lars Roland <lroland@gmail.com>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Subject: Re: Poor Software RAID-0 performance with 2.6.14.2
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051121204752.GK9488@csclub.uwaterloo.ca>
+	Tue, 22 Nov 2005 04:42:09 -0500
+Received: from mail.gmx.de ([213.165.64.20]:57563 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751285AbVKVJmI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 04:42:08 -0500
+X-Authenticated: #342784
+From: Jens-Michael Hoffmann <jensmh@gmx.de>
+To: Jody McIntyre <scjody@modernduck.com>
+Subject: Re: white space fixes wanted?
+Date: Tue, 22 Nov 2005 10:42:07 +0000
+User-Agent: KMail/1.8.3
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+References: <200511220024.11046.jensmh@gmx.de> <20051122012912.GA21199@kroah.com> <20051122043606.GU20781@conscoop.ottawa.on.ca>
+In-Reply-To: <20051122043606.GU20781@conscoop.ottawa.on.ca>
+Organization: Hoffmann Information Services GmbH
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <4ad99e050511211231o97d5d7fw59b44527dc25dcea@mail.gmail.com>
-	 <20051121204752.GK9488@csclub.uwaterloo.ca>
+Message-Id: <200511221042.10258.jensmh@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/21/05, Lennart Sorensen <lsorense@csclub.uwaterloo.ca> wrote:
-> > dkstorage01:~# hdparm -t /dev/md0
-> > /dev/md0:
-> >  Timing buffered disk reads:  182 MB in  3.01 seconds =  60.47 MB/sec
-> >
-> > dkstorage02:~# hdparm -t /dev/hdc1
-> > /dev/hdc1:
-> > Timing buffered disk reads:  184 MB in  3.02 seconds =  60.93 MB/sec
->
-> How about at least testing one of the drives involved in the raid,
-> although I assume they are identical in your case given the numbers.
+Jody McIntyre writes:
+> On Mon, Nov 21, 2005 at 05:29:12PM -0800, Greg KH wrote:
+> 
+> > > Should I send this patch to the mailing list?
+> > 
+> > How about to the ieee1394 developers?  They would be the best people to
+> > be able to accept this change.
+> 
+> I second that.  I'll gladly take code cleanup patches for ieee1394 -
+> it needs them :)
 
-There are four identical drives in the machines although I only stripe
-on two of them - I can assure you that I get the same numbers from all
-the drives - I should ofcause have put this info in the orig post.
+Great, I'll send the patches directly to you because they are quite large.
 
->
-> Did you test this with other kernel versions (older ones) to see if it
-> was better in the past?
-
-Also tried 2.4.27 and 2.4.30 - no difference there.
+Jens-Michael

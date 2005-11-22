@@ -1,29 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965186AbVKVVKO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965038AbVKVVSH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965186AbVKVVKO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 16:10:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965202AbVKVVKN
+	id S965038AbVKVVSH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 16:18:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965197AbVKVVHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 16:10:13 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:48031 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965200AbVKVVKJ (ORCPT
+	Tue, 22 Nov 2005 16:07:42 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:15518 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965188AbVKVVGz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 16:10:09 -0500
-Date: Tue, 22 Nov 2005 13:08:50 -0800
+	Tue, 22 Nov 2005 16:06:55 -0500
+Date: Tue, 22 Nov 2005 13:06:25 -0800
 From: Chris Wright <chrisw@osdl.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org, Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Jean Delvare <khali@linux-fr.org>, Yuan Mu <Ymu@winbond.com.tw>
-Subject: [patch 21/23] [PATCH] hwmon: Fix missing boundary check when setting W83627THF in0 limits
-Message-ID: <20051122210850.GV28140@shell0.pdx.osdl.net>
+       "J. Bruce Fields" <bfields@fieldses.org>,
+       Trond Myklebust <Trond.Myklebust@netapp.com>
+Subject: [patch 05/23] [PATCH] VFS: Fix memory leak with file leases
+Message-ID: <20051122210625.GF28140@shell0.pdx.osdl.net>
 References: <20051122205223.099537000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="hwmon-w83627hf-missing-in0-limit-check.patch"
+Content-Disposition: inline; filename="fix-memory-leak-with-file-leases.patch"
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -31,39 +32,34 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-Add SENSORS_LIMIT in store VCore limit functions. This fixes a potential
-u8 overflow on out-of-range user input.
+The patch
+http://linux.bkbits.net:8080/linux-2.6/diffs/fs/locks.c@1.70??nav=index.html
+introduced a pretty nasty memory leak in the lease code. When freeing
+the lease, the code in locks_delete_lock() will correctly clean up
+the fasync queue, but when we return to fcntl_setlease(), the freed
+fasync entry will be reinstated.
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+This patch ensures that we skip the call to fasync_helper() when we're
+freeing up the lease.
+
+Signed-off-by: J. Bruce Fields <bfields@fieldses.org>
+Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
 Signed-off-by: Chris Wright <chrisw@osdl.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/hwmon/w83627hf.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ fs/locks.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- linux-2.6.14.2.orig/drivers/hwmon/w83627hf.c
-+++ linux-2.6.14.2/drivers/hwmon/w83627hf.c
-@@ -454,7 +454,9 @@ static ssize_t store_regs_in_min0(struct
- 		(w83627thf == data->type || w83637hf == data->type))
+--- linux-2.6.14.2.orig/fs/locks.c
++++ linux-2.6.14.2/fs/locks.c
+@@ -1418,7 +1418,7 @@ int fcntl_setlease(unsigned int fd, stru
+ 	lock_kernel();
  
- 		/* use VRM9 calculation */
--		data->in_min[0] = (u8)(((val * 100) - 70000 + 244) / 488);
-+		data->in_min[0] =
-+			SENSORS_LIMIT(((val * 100) - 70000 + 244) / 488, 0,
-+					255);
- 	else
- 		/* use VRM8 (standard) calculation */
- 		data->in_min[0] = IN_TO_REG(val);
-@@ -479,7 +481,9 @@ static ssize_t store_regs_in_max0(struct
- 		(w83627thf == data->type || w83637hf == data->type))
- 		
- 		/* use VRM9 calculation */
--		data->in_max[0] = (u8)(((val * 100) - 70000 + 244) / 488);
-+		data->in_max[0] =
-+			SENSORS_LIMIT(((val * 100) - 70000 + 244) / 488, 0,
-+					255);
- 	else
- 		/* use VRM8 (standard) calculation */
- 		data->in_max[0] = IN_TO_REG(val);
+ 	error = __setlease(filp, arg, &flp);
+-	if (error)
++	if (error || arg == F_UNLCK)
+ 		goto out_unlock;
+ 
+ 	error = fasync_helper(fd, filp, 1, &flp->fl_fasync);
 
 --

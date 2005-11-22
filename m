@@ -1,54 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbVKVATM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbVKVATk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964789AbVKVATM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 19:19:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964781AbVKVATM
+	id S964790AbVKVATk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 19:19:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbVKVATk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 19:19:12 -0500
-Received: from pat.uio.no ([129.240.130.16]:17854 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S964789AbVKVATL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 19:19:11 -0500
-Subject: Re: infinite loop? with mmap, nfs, pwrite, O_DIRECT
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andrew Morton <akpm@osdl.org>
-Cc: theonetruekenny@yahoo.com, cel@citi.umich.edu,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20051121160913.6d59c9fa.akpm@osdl.org>
-References: <20051121213913.61220.qmail@web34115.mail.mud.yahoo.com>
-	 <1132612974.8011.12.camel@lade.trondhjem.org>
-	 <20051121153454.1907d92a.akpm@osdl.org>
-	 <1132617503.8011.35.camel@lade.trondhjem.org>
-	 <20051121160913.6d59c9fa.akpm@osdl.org>
-Content-Type: text/plain
-Date: Mon, 21 Nov 2005 19:18:50 -0500
-Message-Id: <1132618731.8011.46.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.713, required 12,
-	autolearn=disabled, AWL 1.10, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+	Mon, 21 Nov 2005 19:19:40 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:6305 "EHLO
+	pd3mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S964781AbVKVATi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 19:19:38 -0500
+Date: Mon, 21 Nov 2005 18:19:32 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: 2.6.14.2 detects only one processor (out of 2)
+In-reply-to: <5bsEh-4Sc-51@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <43826414.4060701@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <5bpni-8r0-5@gated-at.bofh.it> <5bsEh-4Sc-51@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-11-21 at 16:09 -0800, Andrew Morton wrote:
-> Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> >
-> > The only difference I can see between the two paths is the call to
-> >  unmap_mapping_range(). What effect would that have?
+Philippe Pegon wrote:
+> Hi,
 > 
-> It shoots down any mapped pagecache over the affected file region.  Because
-> the direct-io write is about to make that pagecache out-of-date.  If the
-> application tries to use that data again it'll get a major fault and will
-> re-read the file contents.
+> try with acpi enabled, it works for me. It's seem that recent kernel 
+> (since 2.6.12) need acpi for SMP.
 
-I assume then, that this couldn't be the cause of the
-invalidate_inode_pages() failing to complete? Unless there is some
-method to prevent applications from faulting in the page while we're
-inside generic_file_direct_IO(), then the same race would be able to
-occur there.
+It should not - if it does this is a bug, as SMP motherboards that do 
+not support ACPI will not work.
 
-Cheers,
-  Trond
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 

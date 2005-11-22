@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbVKVEV0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbVKVEXF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932190AbVKVEV0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 23:21:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbVKVEV0
+	id S932193AbVKVEXF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 23:23:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbVKVEXF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 23:21:26 -0500
-Received: from zproxy.gmail.com ([64.233.162.202]:51848 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932190AbVKVEVZ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 23:21:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gTiHZbkA8kbOptLSYrQhuSDk2j6ATMuLtfKXxk0sgxaYXt53hHdlD9Qbz/3kzpTEvRKjpe08ntMJYbndssnYcm0laUcBTTdroW2stUcDYuHVMIXiPBzu8Ig4CeQtHcc/zTndSCkctJhz1VGq197ve7TqWA0hzLzBpl/wlqTNkxc=
-Message-ID: <35fb2e590511212021j51dc8fd2ia949e3d8282d3cee@mail.gmail.com>
-Date: Tue, 22 Nov 2005 04:21:24 +0000
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: floppy regression from "[PATCH] fix floppy.c to store correct ..."
-Cc: Andrew Morton <akpm@osdl.org>, Cal Peake <cp@absolutedigital.net>,
-       linux-kernel@vger.kernel.org, jcm@jonmasters.org, viro@ftp.linux.org.uk,
-       hch@lst.de
-In-Reply-To: <Pine.LNX.4.64.0511211914470.13959@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 21 Nov 2005 23:23:05 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:50062 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S932193AbVKVEXE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 23:23:04 -0500
+Date: Tue, 22 Nov 2005 12:24:43 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: akpm@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] properly account readahead file major faults
+Message-ID: <20051122042443.GA4588@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>, akpm@osdl.org,
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org
+References: <20051121140038.GA27349@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.LNX.4.61.0511160034320.988@lancer.cnet.absolutedigital.net>
-	 <20051116005958.25adcd4a.akpm@osdl.org>
-	 <20051119034456.GA10526@apogee.jonmasters.org>
-	 <Pine.LNX.4.64.0511211914470.13959@g5.osdl.org>
+In-Reply-To: <20051121140038.GA27349@logos.cnet>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/22/05, Linus Torvalds <torvalds@osdl.org> wrote:
+Hi,
 
-> On Sat, 19 Nov 2005, Jon Masters wrote:
-> >
-> > I stuck a test in for first use and had floppy_release free up policy
-> > too. But there are a bunch of problems in the floppy driver I've noticed
-> > in going through it tonight (and there's only so much of that I can take
-> > at 03:43 on a Saturday morning). I'll hopefully followup again.
+On Mon, Nov 21, 2005 at 12:00:38PM -0200, Marcelo Tosatti wrote:
+> Hi,
+> 
+> The fault accounting of filemap_dopage() is currently unable to account
+> for readahead pages as major faults.
 
-> Can you do one that is against your previous patch that already got
-> merged through Andrew? And sign off on it?
+Sorry, I don't know much about the definition of major/minor page faults.
+So I googled one that explains the old behavior:
 
-Yeah, since I hate sleep. It's just test compiling, will mail in (my) morning.
+--> Page Faults <--
+These come in two varieties. Minor and Major faults. A Major fault results
+when an application tries to access a memory page that has been swapped out to
+disk. The page must be swapped back in. A Minor fault results when an
+application tries to access a memory page that is still in memory, but the
+physical location of which is not immediately known. The address must be
+looked up.
 
-Jon.
+With the current accounting logic:
+- major faults reflect the times one has to wait for real I/O.
+- the more success read-ahead, the less major faults.
+- anyway, major+minor faults remain the same for the same benchmark.
+
+With your patch:
+- major faults are expected to remain the same with whatever read-ahead.
+- but what's the new meaning of minor faults?
+
+Thanks,
+Wu

@@ -1,81 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbVKVJUv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbVKVJTn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964857AbVKVJUv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 04:20:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964859AbVKVJUv
+	id S1751282AbVKVJTn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 04:19:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbVKVJTn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 04:20:51 -0500
-Received: from mail.gmx.de ([213.165.64.20]:940 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964857AbVKVJUu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 04:20:50 -0500
-X-Authenticated: #428038
-Date: Tue, 22 Nov 2005 10:20:47 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: what is our answer to ZFS?
-Message-ID: <20051122092047.GD16295@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <11b141710511210144h666d2edfi@mail.gmail.com> <20051121124544.9e502404.diegocg@gmail.com> <9611fa230511210619l208b10a8w77aedaa249345448@mail.gmail.com> <200511211252.04217.rob@landley.net>
+	Tue, 22 Nov 2005 04:19:43 -0500
+Received: from p-mail1.rd.francetelecom.com ([195.101.245.15]:53522 "EHLO
+	p-mail1.rd.francetelecom.com") by vger.kernel.org with ESMTP
+	id S1751281AbVKVJTm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 04:19:42 -0500
+Message-ID: <4382E2A7.7080100@francetelecom.com>
+Date: Tue, 22 Nov 2005 10:19:35 +0100
+From: VALETTE Eric RD-MAPS-REN <eric2.valette@francetelecom.com>
+Reply-To: eric2.valette@francetelecom.com
+Organization: Frnace Telecom R&D
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+To: Steve French <smfrench@austin.rr.com>
+CC: linux-kernel@vger.kernel.org, torvalds@osdl.com
+Subject: Re: CIFS improvements/wider testing needed
+References: <4381EFF3.8000201@austin.rr.com> 	<4382032D.4080606@francetelecom.com> <43823BF0.5050408@austin.rr.com>
+In-Reply-To: <43823BF0.5050408@austin.rr.com>
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <200511211252.04217.rob@landley.net>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+X-OriginalArrivalTime: 22 Nov 2005 09:19:35.0576 (UTC) FILETIME=[DAFD9180:01C5EF45]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Nov 2005, Rob Landley wrote:
-
-> On Monday 21 November 2005 08:19, Tarkan Erimer wrote:
-> > On 11/21/05, Diego Calleja <diegocg@gmail.com> wrote:
-> > If It happenned, Sun or someone has port it to linux.
-> > We will need some VFS changes to handle 128 bit FS as "Jörn ENGEL"
-> > mentionned previous mail in this thread. Is there any plan or action
-> > to make VFS handle 128 bit File Sytems like ZFS or future 128 bit
-> > File Systems ? Any VFS people reply to this, please?
+Steve French wrote:
+> VALETTE Eric RD-MAPS-REN wrote:
 > 
-> I believe that on 64 bit platforms, Linux has a 64 bit clean VFS.  Python says 
-> 2**64 is 18446744073709551616, and that's roughly:
-> 18,446,744,073,709,551,616 bytes
-> 18,446,744,073,709 megs
+>>>> 1) save a new openoffice document twice, 2) create mail folders
+>>>> from inside thunderbird (local mailbox
+>>>>     
+>>>
+>>> shared
+>>>   
+>>>
+>>>> with windows),
+>>>>     
+>>>
+>>> You can avoid these by mounting with "nobrl" (no remote byte range
+>>> lock) mount option (smbfs does not send byte range locks so would not
+>>> run into this problem, but would run into others). These appear to be
+>>> byte range locking problems. The problem is that cifs has to map
+>>> advisory to mandatory locks which only works if the application is
+>>> reasonably well behaved (not even Samba has support for advisory
+>>> locks although they will come with the new Unix extensions). It may
+>>> be made worse by a bug in openoffice (some Linux apps such as
+>>> Evolution lock on the "wrong" file handle which does not fail in
+>>> posix, although is sloppy coding) but I have not confirmed the byte
+>>> range lock sequence which openoffice is trying as we did with
+>>> Evolution - I did confirm that nobrl (disabling the byte range locks
+>>> on the client) works. Note that this mount option, although not
+>>> listed as a bug fix in git per-se - was added to address the
+>>> evolution etc. locking bugs. There are quite a few of the cifs
+>>> changes that fall into that category.
+>>>   
+>>
+>>
+>> Well I would be surprised the "cat >> titi" command does any of this
+>> byte range lock. If the "create and later rewrite the same file"
+>> sequence fails, with a simple cat command (cat > titi ... ^D; cat >>
+>> titi), how can it works with complicated applications?
+>>
+>>  
+>>
+> The "cat >> titi" failure has nothing to do with the Evolution and
+> OpenOffice issues.  We have had multiple people reproduce the strange
+> Evolution behavior that was causing problems (months ago) and those can
+> be handled now.    Those applications do byte range locking in
+> counter-intuitive ways that are hard to map onto the network (and also
+> Evolution IIRC also uses "illegal" (to CIFS, but legal to POSIX)
+> characters in file names - which we also had to add a mount option for -
+> in order to allow remapping of those characters).   The cat failure that
+> you describe is likely due to 1) either the need for a full emulation of
+> Unix mode bits to Windows ACLs when umask is set to certain values or 2)
+> a strange combination of share permissions and ntfs acls on the server
+> side which allow create in the directory but not append on new file
+> objects.
 
-  18,446,744,073,710 Mbytes (round up)
+I'm affraid the OpenOffice issue is indeed caused by the same EACESS
+unless you prove me I'm wrong. Usually to create a presentation, I open
+an existing one (via CIFS), save it to a new name (on the server via
+CIFS) to avoid corrupting the old one (create a file), then modyfy it,
+then try to write it (do not manage to modify it). I made the "cat bug"
+just to strip the problem to the bare minimum.
 
-> 18,446,744,073 gigs
-> 18,446,744 terabytes
-> 18,446 ...  what are those, petabytes?
+> 
+>> Yes : the system hangs when shutting down as the result of the "umount
+>> -a"  with the last message being as described in bug N° 3237. I have to
+>> press power button for 5 seconds.
+>>
+>> NB : manually doing the umount does exactly the same things.
+>>
+>>  
+>>
+> This looks like a corrupt server frame - I will try to get change samba
+> to force such an illegal frame to test the changes, but it looks like
+> something we can work around with defensive code in the cifs client:
+>    1) by allowing a minimum sized response to have an illegal bcc (byte
+> area count) under this circumstance
+>    2) by making sure SMBLogoffX times out faster (since it is harmless
+> to do that in most cases - it is often followed by a tcp session close
+> which will implicitly do what SMBLogoffX does anyway)
 
-  18,447 Pbytes, right.
+This makes me *really* wonder how you test your CIFS implementation.  I
+would bet you use a Linux server with samba and not real Windows servers
+like Windows 2000 server or Windows 2003 server. I can perfectly
+understand that for development purpose because you can tarce the both
+side, then for validation I think using WindoWS NT (Ok Obsolete but
+still), Windows 2000 server or Windows 2003 server is mandatory.
 
-> 18 Really big lumps of data we won't be using for a while yet.
 
-18 Exabytes, indeeed.
-
-Sun decided not to think about sizing for a longer while, and looking at
-how long ufs has been around, Sun may have the better laugh in the end.
-
-> Sun is proposing it can predict what storage layout will be efficient for as 
-> yet unheard of quantities of data, with unknown access patterns, at least a 
-> couple decades from now.  It's also proposing that data compression and 
-> checksumming are the filesystem's job.  Hands up anybody who spots 
-> conflicting trends here already?  Who thinks the 128 bit requirement came 
-> from marketing rather than the engineers?
-
-Is that important? Who says Sun isn't going to put checksumming and
-compression hardware into its machines, and tell ZFS and their hardware
-drivers to use it? Keep ZFS tuned for new requirements as they emerge?
-
-AFAIK, no-one has suggested ZFS yet for floppies (including LS120, ZIP
-and that stuff - it was also a major hype, now with DVD-RAM, DVD+RW and
-DVD-RW few people talk about LS120 or ZIP any more).
-
-What if some breakthrough in storage gives us vastly larger (larger than
-predicted harddisk storage density increases) storage densities in 10
-years for the same price of a 200 or 300 GB disk drive now?
-
--- 
-Matthias Andree
+-- eric

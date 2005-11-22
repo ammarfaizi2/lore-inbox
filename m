@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964963AbVKVPk0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964944AbVKVPqq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964963AbVKVPk0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 10:40:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964964AbVKVPk0
+	id S964944AbVKVPqq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 10:46:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964965AbVKVPqq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 10:40:26 -0500
-Received: from cse-mail.unl.edu ([129.93.165.11]:58781 "EHLO cse-mail.unl.edu")
-	by vger.kernel.org with ESMTP id S964963AbVKVPkZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 10:40:25 -0500
-Date: Tue, 22 Nov 2005 09:39:34 -0600 (CST)
-From: Hui Cheng <hcheng@cse.unl.edu>
-To: Pavel Machek <pavel@suse.cz>
-cc: Alejandro Bonilla <abonilla@linuxwireless.org>,
-       <kernelnewbies@nl.linux.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: How to quickly detect the mode change of a hard disk?
-In-Reply-To: <20051119234450.GB1952@spitz.ucw.cz>
-Message-ID: <Pine.GSO.4.44.0511220934210.6696-100000@cse.unl.edu>
+	Tue, 22 Nov 2005 10:46:46 -0500
+Received: from gateway.argo.co.il ([194.90.79.130]:55824 "EHLO
+	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S964944AbVKVPqp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 10:46:45 -0500
+Message-ID: <43833D61.9050400@argo.co.il>
+Date: Tue, 22 Nov 2005 17:46:41 +0200
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (cse-mail.unl.edu [129.93.165.11]); Tue, 22 Nov 2005 09:39:47 -0600 (CST)
+To: Jon Smirl <jonsmirl@gmail.com>
+CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Airlie <airlied@gmail.com>,
+       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Small PCI core patch
+References: <20051121225303.GA19212@kroah.com>	 <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston>	 <21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com>	 <1132623268.20233.14.camel@localhost.localdomain>	 <1132626478.26560.104.camel@gaston> <9e4733910511211923r69cdb835pf272ac745ae24ed7@mail.gmail.com>
+In-Reply-To: <9e4733910511211923r69cdb835pf272ac745ae24ed7@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Nov 2005 15:46:43.0724 (UTC) FILETIME=[F00BACC0:01C5EF7B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jon Smirl wrote:
 
-
-On Sat, 19 Nov 2005, Pavel Machek wrote:
-Hi,
-
-> Hi!
+>1) Live in 1998. What happens in five years R200's are no longer
+>available, fallback to VGA?
 >
-> > > > > I am currently doing a kernel module involves detecting/changing
-> > > > > disk mode among STANDBY and ACTIVE/IDLE. I used ide_cmd_wait() to issue
-> > > > > commands like WIN_IDLEIMMEDIATELY and WIN_STANDBYNOW1. The problem is, a
-> > > > > drive in standby mode will automatically awake whenever a disk operation
-> > > > > is requested and I need to know the mode change as soon as possible. (So I
-> > > >
-> > > > AFAIK there's no nice way to get that info, but it is useful, so
-> > > > patch would be welcome.
-> > >
-> > > I would check the hdparm man page again. Still, it sounds interesting.
-> > >
-> > > Additionally, it could be cool if someone could finish up or make the option
-> > > for the HD freeze to use it with the HDAPS driver. ;-)
-> > >
-> > > .Alejandro
-> > >
-> >
-> > Thanks for reply :) What I did to handle this problem is a little stupid
-> > : Suppose the disk is now in a standby mode. In case that there is a
-> > request sent to the disk drive, a kernel thread is awake to detect/update
-> > the current disk power mode. The disk power mode is stored in the
-> > ide_drive_t structure and be protected by lock. It seems to work fine in
-> > my simple tests. But again, there should be better solutions.
+>2) Temporarily accept the ugly drivers. Let desktop development
+>continue. Work hard on getting the vendors to see the light and go
+>open source.
 >
-> Can we get the patch?
-> --
-
-Sure. I will make the patch and test it again. But it may take a while
-because I have an urgent task now...Thanks,
-
-Hui
-
+>3) Use Linux on the server and run Mac or Windows on your desktop.
+>
+>  
+>
+4) Write a translation layer (for xorg or the kernel) that can load 
+Windows drivers. Use binary translation for non-x86. Hope the APIs are 
+not patented.

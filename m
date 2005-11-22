@@ -1,71 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965136AbVKVTZl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965120AbVKVT3A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965136AbVKVTZl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 14:25:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965139AbVKVTZl
+	id S965120AbVKVT3A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 14:29:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965141AbVKVT3A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 14:25:41 -0500
-Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:39879 "EHLO
-	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S965136AbVKVTZk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 14:25:40 -0500
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Tue, 22 Nov 2005 19:25:20 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: "Theodore Ts'o" <tytso@mit.edu>
-cc: Chris Adams <cmadams@hiwaay.net>, linux-kernel@vger.kernel.org
-Subject: Re: what is our answer to ZFS?
-In-Reply-To: <20051122171847.GD31823@thunk.org>
-Message-ID: <Pine.LNX.4.64.0511221921530.7002@hermes-1.csi.cam.ac.uk>
-References: <fa.d8ojg69.1p5ovbb@ifi.uio.no> <20051122161712.GA942598@hiwaay.net>
- <Pine.LNX.4.64.0511221650360.2763@hermes-1.csi.cam.ac.uk>
- <20051122171847.GD31823@thunk.org>
+	Tue, 22 Nov 2005 14:29:00 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:18191 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S965120AbVKVT27 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 14:28:59 -0500
+Date: Tue, 22 Nov 2005 20:28:57 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Neil Brown <neilb@suse.de>
+Cc: Jon Smirl <jonsmirl@gmail.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Airlie <airlied@gmail.com>,
+       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Small PCI core patch
+Message-ID: <20051122192857.GB3963@stusta.de>
+References: <20051121225303.GA19212@kroah.com> <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston> <21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com> <1132623268.20233.14.camel@localhost.localdomain> <1132626478.26560.104.camel@gaston> <9e4733910511211923r69cdb835pf272ac745ae24ed7@mail.gmail.com> <17282.39560.978065.606788@cse.unsw.edu.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17282.39560.978065.606788@cse.unsw.edu.au>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Nov 2005, Theodore Ts'o wrote:
-> On Tue, Nov 22, 2005 at 04:55:08PM +0000, Anton Altaparmakov wrote:
-> > > That assumption is probably made because that's what POSIX and Single
-> > > Unix Specification define: "The st_ino and st_dev fields taken together
-> > > uniquely identify the file within the system."  Don't blame code that
-> > > follows standards for breaking.
+On Tue, Nov 22, 2005 at 03:11:52PM +1100, Neil Brown wrote:
+> On Monday November 21, jonsmirl@gmail.com wrote:
 > > 
-> > The standards are insufficient however.  For example dealing with named 
-> > streams or extended attributes if exposed as "normal files" would 
-> > naturally have the same st_ino (given they are the same inode as the 
-> > normal file data) and st_dev fields.
+> > 2) Temporarily accept the ugly drivers. Let desktop development
+> > continue. Work hard on getting the vendors to see the light and go
+> > open source.
 > 
-> Um, but that's why even Solaris's openat(2) proposal doesn't expose
-> streams or extended attributes as "normal files".  The answer is that
-> you can't just expose named streams or extended attributes as "normal
-> files" without screwing yourself.
+> I doubt they will see 'the light' for many years without dollar signs
+> attached.
+> 
+> A question worth asking is: Who needs whom?  Do we (FLOSS community)
+> need them (Graphics hardware manufactures) or do they need us?
+> Despite growth in Linux on Desktops, I think we need them a lot more
+> than they need us.
+>...
+> Who is going to pay these people to do this work?  If you agree with
+> the analysis of 'who needs whom', the logical answer is 'us'.
+> 
+> Maybe we need a small consortium of companies with vested interest in
+> OSS each ponying up half a million, and use this to employ two teams
+> of graphics experts, one of which works within NVidia, and one within
+> ATI.  I suspect the two companies could be convinced to take on some
+> free engineering support, if it was presented the right way.
+>...
 
-Reiser4 does I believe...
+There might be a different way that could work if _many_ Linux-related 
+companies participate:
 
-> Also, I haven't checked to see what Solaris does, but technically
-> their UFS implementation does actually use separate inodes for their
-> named streams, so stat(2) could return separate inode numbers for the
-> named streams.  (In fact, if you take a Solaris UFS filesystem with
-> extended attributs, and run it on a Solaris 8 fsck, the directory
-> containing named streams/extended attributes will show up in
-> lost+found.)
+Find a graphics card vendor who wants to offer a cheap graphics card 
+while offering full specs and write an open source driver for this card.
 
-I was not talking about Solaris/UFS.  NTFS has named streams and extended 
-attributes and both are stored as separate attribute records inside the 
-same inode as the data attribute.  (A bit simplified as multiple inodes 
-can be in use for one "file" when an inode's attributes become large than 
-an inode - in that case attributes are either moved whole to a new inode 
-and/or are chopped up in bits and each bit goes to a different inode.)
+Then start the PR campaign, e.g. press releases and free prominent 
+notices at the SuSE main page "SuSE recommends ...".
 
-Best regards,
+Yes, this would require a significant joint effort.
 
-	Anton
+But if successful, it might convince at least one of the two big 
+graphics cards vendors that there's an (although relatively small) part 
+of the market they are missing.
+
+> NeilBrown
+
+cu
+Adrian
+
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

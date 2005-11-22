@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbVKVFTN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbVKVFTn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932259AbVKVFTN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 00:19:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbVKVFTN
+	id S932272AbVKVFTn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 00:19:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbVKVFTk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 00:19:13 -0500
-Received: from atlrel6.hp.com ([156.153.255.205]:21724 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S932259AbVKVFTM (ORCPT
+	Tue, 22 Nov 2005 00:19:40 -0500
+Received: from atlrel9.hp.com ([156.153.255.214]:38080 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S932281AbVKVFTW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 00:19:12 -0500
+	Tue, 22 Nov 2005 00:19:22 -0500
 From: Matthew Wilcox <matthew@wil.cx>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Matthew Wilcox <matthew@wil.cx>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Jun Komuro <komurojun-mbn@nifty.com>
-Subject: [PATCH 3/5] Remove custom NO_IRQ definition
-Message-Id: <E1EeQYe-00055q-MM@localhost.localdomain>
-Date: Tue, 22 Nov 2005 00:19:08 -0500
+       linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [PATCH 4/5] Initialise pci_dev->irq correctly
+Message-Id: <E1EeQYg-00055v-SX@localhost.localdomain>
+Date: Tue, 22 Nov 2005 00:19:10 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pd6729.c had its own definition of NO_IRQ; remove it.
+If the Interrupt Pin is 0, initialise the device's irq to NO_IRQ instead of
+leaving it unset.
 
-Signed-off-by: Matthew Wilcox <matthew@wil.cx>
+Signed-off-by: Matthew Wlcox <matthew@wil.cx>
 
 ---
 
- drivers/pcmcia/pd6729.c |    4 ----
- 1 files changed, 0 insertions(+), 4 deletions(-)
+ drivers/pci/probe.c |    7 +++++--
+ 1 files changed, 5 insertions(+), 2 deletions(-)
 
-applies-to: 0c117e1538dfea89f05786a658b0eb4ee39cb147
-be537724d2b113c7b1e3634d074bb1a336446a32
-diff --git a/drivers/pcmcia/pd6729.c b/drivers/pcmcia/pd6729.c
-index 20642f0..63391cf 100644
---- a/drivers/pcmcia/pd6729.c
-+++ b/drivers/pcmcia/pd6729.c
-@@ -39,10 +39,6 @@ MODULE_AUTHOR("Jun Komuro <komurojun-mbn
-  */
- #define to_cycles(ns)	((ns)/120)
+applies-to: 3175f6d926ef8ff55ee1fd96364d5b3ed430fb38
+4ec4e15bcdd7401cf1fb19ef1cd4f64eb064a4c7
+diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+index fce2cb2..652095c 100644
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -571,9 +571,12 @@ static void pci_read_irq(struct pci_dev 
+ 	unsigned char irq;
  
--#ifndef NO_IRQ
--#define NO_IRQ	((unsigned int)(0))
--#endif
--
- /*
-  * PARAMETERS
-  *  irq_mode=n
+ 	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &irq);
+-	if (irq)
++	if (irq) {
+ 		pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &irq);
+-	dev->irq = irq;
++		dev->irq = irq;
++	} else {
++		dev->irq = NO_IRQ;
++	}
+ }
+ 
+ /**
 ---
 0.99.8.GIT

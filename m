@@ -1,42 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965158AbVKVVAd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965184AbVKVVGt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965158AbVKVVAd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 16:00:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965183AbVKVVAc
+	id S965184AbVKVVGt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 16:06:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965185AbVKVVGt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 16:00:32 -0500
-Received: from mail.kroah.org ([69.55.234.183]:17634 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965158AbVKVVAc (ORCPT
+	Tue, 22 Nov 2005 16:06:49 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:2718 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965184AbVKVVGs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 16:00:32 -0500
-Date: Tue, 22 Nov 2005 12:49:18 -0800
-From: Greg KH <greg@kroah.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Christmas list for the kernel
-Message-ID: <20051122204918.GA5299@kroah.com>
-References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com>
+	Tue, 22 Nov 2005 16:06:48 -0500
+Date: Tue, 22 Nov 2005 13:06:19 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, petero2@telia.com
+Subject: [patch 04/23] [PATCH] packet writing oops fix
+Message-ID: <20051122210619.GE28140@shell0.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+Content-Disposition: inline; filename="packet-writing-oops-fix.patch"
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 22, 2005 at 01:31:16PM -0500, Jon Smirl wrote:
-> 
-> 4) Merge klibc and fix up the driver system so that everything is
-> hotplugable. This means no more need to configure drivers in the
-> kernel, the right drivers will just load automatically.
+-stable review patch.  If anyone has any objections, please let us know.
+------------------
 
-What driver subsystem is not hotplugable and does not have automatically
-loaded modules today?
+There is an old bug in the pkt_count_states() function that causes stack
+corruption.  When compiling with gcc 3.x or 2.x it is harmless, but gcc 4
+allocates local variables differently, which makes the bug visible.
 
-There are a few issues around PnP devices that I know of, and PCMCIA
-needs some seriously love, but other than that I think we are well off.
-Or am I missing something big here?
+Signed-off-by: Peter Osterlund <petero2@telia.com>
+Cc: <stable@kernel.org>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Chris Wright <chrisw@osdl.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+---
+ drivers/block/pktcdvd.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-thanks,
+--- linux-2.6.14.2.orig/drivers/block/pktcdvd.c
++++ linux-2.6.14.2/drivers/block/pktcdvd.c
+@@ -1191,7 +1191,7 @@ static void pkt_count_states(struct pktc
+ 	struct packet_data *pkt;
+ 	int i;
+ 
+-	for (i = 0; i <= PACKET_NUM_STATES; i++)
++	for (i = 0; i < PACKET_NUM_STATES; i++)
+ 		states[i] = 0;
+ 
+ 	spin_lock(&pd->cdrw.active_list_lock);
 
-greg k-h
+--

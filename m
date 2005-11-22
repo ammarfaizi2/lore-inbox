@@ -1,61 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964912AbVKVKvd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964909AbVKVKzV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964912AbVKVKvd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 05:51:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964911AbVKVKvd
+	id S964909AbVKVKzV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 05:55:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbVKVKzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 05:51:33 -0500
-Received: from c3po.0xdef.net ([217.172.181.57]:145 "EHLO c3po.0xdef.net")
-	by vger.kernel.org with ESMTP id S964909AbVKVKvc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 05:51:32 -0500
-Date: Tue, 22 Nov 2005 11:51:31 +0100
-From: Hagen Paul Pfeifer <hpplinuxml@0xdef.net>
-To: linux-kernel@vger.kernel.org
-Cc: acme@mandriva.com, dccp@vger.kernel.org
-Subject: [PATCH] dccp sizeof correction
-Message-ID: <20051122105130.GA25078@0xdef.net>
-Mail-Followup-To: Hagen Paul Pfeifer <hpplinuxml@0xdef.net>,
-	linux-kernel@vger.kernel.org, acme@mandriva.com,
-	dccp@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-X-Key-Id: 98350C22
-X-Key-Fingerprint: 490F 557B 6C48 6D7E 5706 2EA2 4A22 8D45 9835 0C22
-X-GPG-Key: gpg --recv-keys --keyserver wwwkeys.eu.pgp.net 98350C22
-User-Agent: Mutt/1.5.9i
+	Tue, 22 Nov 2005 05:55:21 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:20900 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S964909AbVKVKzU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 05:55:20 -0500
+Message-ID: <4382F8DD.9090908@jp.fujitsu.com>
+Date: Tue, 22 Nov 2005 19:54:21 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: ja, en-us, en
+MIME-Version: 1.0
+To: Mel Gorman <mel@csn.ul.ie>
+CC: Andi Kleen <ak@suse.de>, Andy Whitcroft <apw@shadowen.org>,
+       linux-mm@kvack.org, mingo@elte.hu, lhms-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au
+Subject: Re: [PATCH 2/5] Light Fragmentation Avoidance V20: 002_usemap
+References: <20051115164946.21980.2026.sendpatchset@skynet.csn.ul.ie> <200511160036.54461.ak@suse.de> <Pine.LNX.4.58.0511160137540.8470@skynet> <200511160252.05494.ak@suse.de> <Pine.LNX.4.58.0511160200530.8470@skynet> <4382EF48.1050107@shadowen.org> <20051122102237.GK20775@brahms.suse.de> <Pine.LNX.4.58.0511221026200.31192@skynet>
+In-Reply-To: <Pine.LNX.4.58.0511221026200.31192@skynet>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mel Gorman wrote:
+>>#define PG_checked               8      /* kill me in 2.5.<early>. */
+>>
+>>?
+>>
+>>At least PG_uncached isn't used on many architectures too, so could
+>>be reused. I don't know why those that use it don't check VMAs instead.
+>>
+> 
+> 
+> PG_unchecked appears to be totally unused. It's only users are the macros
+> that manipulate the bit and mm/page_alloc.c . It appears it has been a
+> long time since it was used to it is a canditate for reuse.
+> 
 
-Setsockopt in DCCP make the assumption that sizeof(int) is the same as
-sizeof(u32), that isn't correct at all. ;)
+Just a notification..
+from 2.6.14
 
-best regards
+PageUncached      375 include/asm-ia64/uaccess.h 	if (PageUncached(page))
+PageUncached      393 include/asm-ia64/uaccess.h 	if (PageUncached(page))
 
-HGN
+This is used by /dev/mem
 
 
-Signed-off-by: Hagen Paul Pfeifer <hpplinuxml@0xdef.net>
+PageChecked       196 fs/afs/dir.c   		if (!PageChecked(page))
+PageChecked       169 fs/ext2/dir.c  		if (!PageChecked(page))
+PageChecked      1372 fs/ext3/inode.c 	if (!page_has_buffers(page) || PageChecked(page)) {
+PageChecked      1441 fs/ext3/inode.c 	WARN_ON(PageChecked(page));
+PageChecked      2350 fs/reiserfs/inode.c 	int checked = PageChecked(page);
+PageChecked      2853 fs/reiserfs/inode.c 	WARN_ON(PageChecked(page));
 
- net/dccp/proto.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+This is used by fs, now.
 
-applies-to: 69ebfee77c8a174c87ea8ed31e023c94b09a9d6e
-d24574ecf034d259882a6de16d27aff60c009c8d
-diff --git a/net/dccp/proto.c b/net/dccp/proto.c
-index a021c34..a1be808 100644
---- a/net/dccp/proto.c
-+++ b/net/dccp/proto.c
-@@ -256,7 +256,7 @@ int dccp_setsockopt(struct sock *sk, int
- 	if (level != SOL_DCCP)
- 		return ip_setsockopt(sk, level, optname, optval, optlen);
- 
--	if (optlen < sizeof(int))
-+	if (optlen < sizeof(u32))
- 		return -EINVAL;
- 
- 	if (get_user(val, (int __user *)optval))
----
-0.99.9g
+-- kame
+

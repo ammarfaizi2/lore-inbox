@@ -1,90 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbVKVFTN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbVKVFTN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932261AbVKVFTN (ORCPT <rfc822;willy@w.ods.org>);
+	id S932259AbVKVFTN (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 22 Nov 2005 00:19:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbVKVFTN
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbVKVFTN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 	Tue, 22 Nov 2005 00:19:13 -0500
-Received: from atlrel8.hp.com ([156.153.255.206]:52105 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S932261AbVKVFTM (ORCPT
+Received: from atlrel6.hp.com ([156.153.255.205]:21724 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S932259AbVKVFTM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 22 Nov 2005 00:19:12 -0500
 From: Matthew Wilcox <matthew@wil.cx>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Matthew Wilcox <matthew@wil.cx>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH 1/5] Don't overflow irq_desc array
-Message-Id: <E1EeQYa-00055j-93@localhost.localdomain>
-Date: Tue, 22 Nov 2005 00:19:04 -0500
+       linux-kernel@vger.kernel.org, Jun Komuro <komurojun-mbn@nifty.com>
+Subject: [PATCH 3/5] Remove custom NO_IRQ definition
+Message-Id: <E1EeQYe-00055q-MM@localhost.localdomain>
+Date: Tue, 22 Nov 2005 00:19:08 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Check the irq number is within bounds in the functions which weren't
-already checking.
+pd6729.c had its own definition of NO_IRQ; remove it.
 
 Signed-off-by: Matthew Wilcox <matthew@wil.cx>
-Acked-by: Ingo Molnar <mingo@elte.hu>
 
 ---
 
- kernel/irq/manage.c |   15 +++++++++++++++
- 1 files changed, 15 insertions(+), 0 deletions(-)
+ drivers/pcmcia/pd6729.c |    4 ----
+ 1 files changed, 0 insertions(+), 4 deletions(-)
 
-applies-to: bf816f7c7055127415fc3b718e260855df815d55
-ef8b1f22644fd4b6b74c41bffc80f517d5d6ac72
-diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
-index 3bd7226..81c49a4 100644
---- a/kernel/irq/manage.c
-+++ b/kernel/irq/manage.c
-@@ -36,6 +36,9 @@ void synchronize_irq(unsigned int irq)
- {
- 	struct irq_desc *desc = irq_desc + irq;
+applies-to: 0c117e1538dfea89f05786a658b0eb4ee39cb147
+be537724d2b113c7b1e3634d074bb1a336446a32
+diff --git a/drivers/pcmcia/pd6729.c b/drivers/pcmcia/pd6729.c
+index 20642f0..63391cf 100644
+--- a/drivers/pcmcia/pd6729.c
++++ b/drivers/pcmcia/pd6729.c
+@@ -39,10 +39,6 @@ MODULE_AUTHOR("Jun Komuro <komurojun-mbn
+  */
+ #define to_cycles(ns)	((ns)/120)
  
-+	if (irq >= NR_IRQS)
-+		return;
-+
- 	while (desc->status & IRQ_INPROGRESS)
- 		cpu_relax();
- }
-@@ -60,6 +63,9 @@ void disable_irq_nosync(unsigned int irq
- 	irq_desc_t *desc = irq_desc + irq;
- 	unsigned long flags;
- 
-+	if (irq >= NR_IRQS)
-+		return;
-+
- 	spin_lock_irqsave(&desc->lock, flags);
- 	if (!desc->depth++) {
- 		desc->status |= IRQ_DISABLED;
-@@ -86,6 +92,9 @@ void disable_irq(unsigned int irq)
- {
- 	irq_desc_t *desc = irq_desc + irq;
- 
-+	if (irq >= NR_IRQS)
-+		return;
-+
- 	disable_irq_nosync(irq);
- 	if (desc->action)
- 		synchronize_irq(irq);
-@@ -108,6 +117,9 @@ void enable_irq(unsigned int irq)
- 	irq_desc_t *desc = irq_desc + irq;
- 	unsigned long flags;
- 
-+	if (irq >= NR_IRQS)
-+		return;
-+
- 	spin_lock_irqsave(&desc->lock, flags);
- 	switch (desc->depth) {
- 	case 0:
-@@ -163,6 +175,9 @@ int setup_irq(unsigned int irq, struct i
- 	unsigned long flags;
- 	int shared = 0;
- 
-+	if (irq >= NR_IRQS)
-+		return -EINVAL;
-+
- 	if (desc->handler == &no_irq_type)
- 		return -ENOSYS;
- 	/*
+-#ifndef NO_IRQ
+-#define NO_IRQ	((unsigned int)(0))
+-#endif
+-
+ /*
+  * PARAMETERS
+  *  irq_mode=n
 ---
 0.99.8.GIT

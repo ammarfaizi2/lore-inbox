@@ -1,42 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbVKVPvs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964964AbVKVPxl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964969AbVKVPvs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 10:51:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964970AbVKVPvs
+	id S964964AbVKVPxl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 10:53:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964970AbVKVPxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 10:51:48 -0500
-Received: from havoc.gtf.org ([69.61.125.42]:14213 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S964969AbVKVPvr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 10:51:47 -0500
-Date: Tue, 22 Nov 2005 10:51:43 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Avi Kivity <avi@argo.co.il>
-Cc: Jon Smirl <jonsmirl@gmail.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Airlie <airlied@gmail.com>,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Small PCI core patch
-Message-ID: <20051122155143.GA30880@havoc.gtf.org>
-References: <20051121225303.GA19212@kroah.com> <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston> <21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com> <1132623268.20233.14.camel@localhost.localdomain> <1132626478.26560.104.camel@gaston> <9e4733910511211923r69cdb835pf272ac745ae24ed7@mail.gmail.com> <43833D61.9050400@argo.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43833D61.9050400@argo.co.il>
-User-Agent: Mutt/1.4.1i
+	Tue, 22 Nov 2005 10:53:40 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:22310 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP id S964964AbVKVPxk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 10:53:40 -0500
+Date: Tue, 22 Nov 2005 10:53:39 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+Subject: Re: How can I prevent MTD to access the end of a flash device ?
+In-reply-to: <cda58cb80511220658n671bc070v@mail.gmail.com>
+X-X-Sender: nico@localhost.localdomain
+To: Franck <vagabon.xyz@gmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Message-id: <Pine.LNX.4.64.0511221042560.6022@localhost.localdomain>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <cda58cb80511070248o6d7a18bex@mail.gmail.com>
+ <cda58cb80511220658n671bc070v@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 22, 2005 at 05:46:41PM +0200, Avi Kivity wrote:
-> 4) Write a translation layer (for xorg or the kernel) that can load 
-> Windows drivers. Use binary translation for non-x86. Hope the APIs are 
-> not patented.
+On Tue, 22 Nov 2005, Franck wrote:
 
-Give up all hope of ever diagnosing or fixing a crash.
+> Hi,
+> 
+> I have two questions that I can't answer by my own. I tried to look at
+> FAQ and documentation on MTD website but found no answer.
 
-Welcome to Windows instability, circa 1995.
+Please consider using the MTD mailing list next time (you certainly read 
+about it on the MTD web site).
 
-	Jeff
+> First question is about size of flash. I have a Intel strataflash
+> whose size is 32MB but because of a buggy platform hardware I can't
+> access to the last 64KB of the flash. How can I make MTD module aware
+> of this new size. The restricted map size is initialized by my driver
+> but it doesn't seem to be used by MTD.
+
+The easiest thing to do is to define MTD partitions, the last one being 
+the excluded flash area.
+
+> The second question is about the "cacheable" mapping field in map_info
+> structure. I looked at others drivers and this field seems to be
+> optional.
+
+It is.
+
+> Does this field, if set, improve flash access a lot ?
+
+Yes.  It was tested on ARM only though.  Some architectures like i386 
+for example might need special tricks to implement this.
+
+> Should I set up a cacheable mapping ?
+
+Consider the comment for the inval_cache method in 
+include/linux/mtd/map.h and look at lubbock-flash.c for example.
 
 
-
+Nicolas

@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964953AbVKVO5K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964956AbVKVO6J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964953AbVKVO5K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 09:57:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964955AbVKVO5K
+	id S964956AbVKVO6J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 09:58:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964958AbVKVO6J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 09:57:10 -0500
-Received: from thunk.org ([69.25.196.29]:43757 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S964953AbVKVO5J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 09:57:09 -0500
-Date: Tue, 22 Nov 2005 09:56:47 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Sun's ZFS and Linux
-Message-ID: <20051122145647.GC29179@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-References: <9611fa230511181538g3e8ec403uafa9ed32b560fb0c@mail.gmail.com> <20051119172337.GA24765@thunk.org> <438230B6.8070503@tmr.com>
+	Tue, 22 Nov 2005 09:58:09 -0500
+Received: from zproxy.gmail.com ([64.233.162.207]:23979 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964956AbVKVO6I convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 09:58:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=He3P3eZDcppwnnmY88bqJcwu6zhWt9bCrsiL3+51czVsoQTzIrJeQepSudEX8e9iIR/9bkCN7htp13F/++975+EokREl0DyWorvXFRHxAtRhnCI5ysqaOvYmKZq/ARWBhSvj3TlWBUSjpW2YqX4/vp8NEe2zJ+oPCdga7zu2CEQ=
+Message-ID: <cda58cb80511220658n671bc070v@mail.gmail.com>
+Date: Tue, 22 Nov 2005 15:58:07 +0100
+From: Franck <vagabon.xyz@gmail.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: How can I prevent MTD to access the end of a flash device ?
+In-Reply-To: <cda58cb80511070248o6d7a18bex@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <438230B6.8070503@tmr.com>
-User-Agent: Mutt/1.5.11
+References: <cda58cb80511070248o6d7a18bex@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 21, 2005 at 03:40:22PM -0500, Bill Davidsen wrote:
-> >That wouldn't be a "port", it would have to be a complete
-> >reimplementation from scratch.  And, of course, of further concern
-> >would be whether or not there are any patents that Sun may have filed
-> >covering ZFS.  If the patents have only been licensed for CDDL
-> >licensed code, then that won't help a GPL'ed covered reimplementation.
-> >
-> What a great chance to try out userfs.
+Hi,
 
-Just for yucks, people who are interested in doing might want to first
-implement ext2 in userspace --- this would be relatively easy, given
-that most of the code to do this is already in libext2fs, and
-interface it to userfs.  Next, benchmark ext2 in userspace using
-userfs, and compare it to ext2 running in the kernel using the
-identical kernel and hardware configuration, and report on the
-results.  Try doing this on both a uniprocessor system as well as a
-4-way SMP system, and let us know what you find.....  
+I have two questions that I can't answer by my own. I tried to look at
+FAQ and documentation on MTD website but found no answer.
 
-I think I know, but it would be a very interesting experiment, and
-would probably be a great paper to publish at some conference such as
-OLS, LCA, LK, etc., especially if were combined with suggestions about
-how to improve userfs's performance.
+First question is about size of flash. I have a Intel strataflash
+whose size is 32MB but because of a buggy platform hardware I can't
+access to the last 64KB of the flash. How can I make MTD module aware
+of this new size. The restricted map size is initialized by my driver
+but it doesn't seem to be used by MTD.
 
-						- Ted
+The second question is about the "cacheable" mapping field in map_info
+structure. I looked at others drivers and this field seems to be
+optional. Does this field, if set, improve flash access a lot ? Should
+I set up a cacheable mapping ?
+
+Thanks
+--
+               Franck

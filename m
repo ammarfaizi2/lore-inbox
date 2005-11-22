@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964970AbVKVP5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964971AbVKVP7N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964970AbVKVP5y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 10:57:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964971AbVKVP5y
+	id S964971AbVKVP7N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 10:59:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964972AbVKVP7N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 10:57:54 -0500
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:49661 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S964970AbVKVP5x
+	Tue, 22 Nov 2005 10:59:13 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:41954 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S964971AbVKVP7M
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 10:57:53 -0500
-Message-ID: <43834098.60400@tmr.com>
-Date: Tue, 22 Nov 2005 11:00:24 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: what is our answer to ZFS?
-References: <E1EeLp5-0002fZ-00@calista.inka.de> <43825168.6050404@wolfmountaingroup.com>
-In-Reply-To: <43825168.6050404@wolfmountaingroup.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 22 Nov 2005 10:59:12 -0500
+Subject: [patch] hdaps: missing an axis.
+From: Robert Love <rml@novell.com>
+To: greg@kroah.com
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Tue, 22 Nov 2005 10:57:21 -0500
+Message-Id: <1132675041.29496.2.camel@betsy.boston.ximian.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff V. Merkey wrote:
-> Bernd Eckenfels wrote:
-> 
->> In article <200511211252.04217.rob@landley.net> you wrote:
->>  
->>
->>> I believe that on 64 bit platforms, Linux has a 64 bit clean VFS.  
->>> Python says 2**64 is 18446744073709551616, and that's roughly:
->>> 18,446,744,073,709,551,616 bytes
->>> 18,446,744,073,709 megs
->>> 18,446,744,073 gigs
->>> 18,446,744 terabytes
->>> 18,446 ...  what are those, pedabytes (petabytes?)
->>> 18          zetabytes
->>>
-> There you go.  I deal with this a lot so, those are the names.
-> 
-> Linux is currently limited to 16 TB per VFS mount point, it's all mute, 
-> unless VFS gets fixed.
-> mmap won't go above this at present.
-> 
-What does "it's all mute" mean?
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Greg,
+
+Trivial patch to report both hdaps axises to the joystick device, not
+just the X axis.
+
+Patch originally by Eugeniy Meshcheryakov <eugen@univ.kiev.ua>.
+
+Signed-off-by: Robert Love <rml@novell.com>
+
+	Robert Love
+
+
+diff -urN a/drivers/hwmon/hdaps.c b/drivers/hwmon/hdaps.c
+--- a/drivers/hwmon/hdaps.c	Wed Nov 16 17:18:55 2005
++++ b/drivers/hwmon/hdaps.c	Tue Nov 22 14:24:25 2005
+@@ -570,7 +570,7 @@
+ 	hdaps_idev->evbit[0] = BIT(EV_ABS);
+ 	input_set_abs_params(hdaps_idev, ABS_X,
+ 			-256, 256, HDAPS_INPUT_FUZZ, HDAPS_INPUT_FLAT);
+-	input_set_abs_params(hdaps_idev, ABS_X,
++	input_set_abs_params(hdaps_idev, ABS_Y,
+ 			-256, 256, HDAPS_INPUT_FUZZ, HDAPS_INPUT_FLAT);
+ 
+ 	input_register_device(hdaps_idev);
+
+

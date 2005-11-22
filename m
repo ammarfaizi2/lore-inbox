@@ -1,165 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbVKVBLO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbVKVBNl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964812AbVKVBLO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 20:11:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964811AbVKVBLO
+	id S964813AbVKVBNl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 20:13:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964814AbVKVBNl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 20:11:14 -0500
-Received: from gw02.applegatebroadband.net ([207.55.227.2]:17908 "EHLO
-	data.mvista.com") by vger.kernel.org with ESMTP id S1751186AbVKVBLN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 20:11:13 -0500
-Message-ID: <43826FDC.8010401@mvista.com>
-Date: Mon, 21 Nov 2005 17:09:48 -0800
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: george@mvista.com
-CC: Oleg Nesterov <oleg@tv-sign.ru>, paulmck@us.ibm.com,
-       Roland McGrath <roland@redhat.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, dipankar@in.ibm.com, mingo@elte.hu,
-       suzannew@cs.pdx.edu
-Subject: Thread group exec race -> null pointer... HELP
-References: <20051105013650.GA17461@us.ibm.com> <436CDEAF.E236BC40@tv-sign.ru> <20051106010004.GB20178@us.ibm.com> <436E1401.920A83EE@tv-sign.ru> <437BC01D.60302@mvista.com>
-In-Reply-To: <437BC01D.60302@mvista.com>
-Content-Type: multipart/mixed;
- boundary="------------010603020903040402020701"
+	Mon, 21 Nov 2005 20:13:41 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:37314 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964813AbVKVBNk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 20:13:40 -0500
+Date: Tue, 22 Nov 2005 01:45:31 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Rob Landley <rob@landley.net>
+Cc: Tarkan Erimer <tarkane@gmail.com>, linux-kernel@vger.kernel.org,
+       Diego Calleja <diegocg@gmail.com>
+Subject: Re: what is our answer to ZFS?
+Message-ID: <20051122004531.GA15189@elf.ucw.cz>
+References: <11b141710511210144h666d2edfi@mail.gmail.com> <20051121124544.9e502404.diegocg@gmail.com> <9611fa230511210619l208b10a8w77aedaa249345448@mail.gmail.com> <200511211252.04217.rob@landley.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200511211252.04217.rob@landley.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010603020903040402020701
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi!
 
-George Anzinger wrote:
-> While rooting aroung in the signal code trying to understand how to
-> fix the SIG_IGN    ploy (set sig handler to SIG_IGN and flood system with
-> high speed repeating timers) I came across what, I think, is a problem
-> in sigaction() in that when processing a SIG_IGN request it flushes
-> signals from 1 to SIGRTMIN and leaves the rest.  
+> > If It happenned, Sun or someone has port it to linux.
+> > We will need some VFS changes to handle 128 bit FS as "Jörn ENGEL"
+> > mentionned previous mail in this thread. Is there any plan or action
+> > to make VFS handle 128 bit File Sytems like ZFS or future 128 bit
+> > File Systems ? Any VFS people reply to this, please?
+> 
+> I believe that on 64 bit platforms, Linux has a 64 bit clean VFS.  Python says 
+> 2**64 is 18446744073709551616, and that's roughly:
+> 18,446,744,073,709,551,616 bytes
+> 18,446,744,073,709 megs
+> 18,446,744,073 gigs
+> 18,446,744 terabytes
+> 18,446 ...  what are those, petabytes?
+> 18 Really big lumps of data we won't be using for a while yet.
+> 
+> And that's just 64 bits.  Keep in mind it took us around fifty years to burn 
+> through the _first_ thirty two (which makes sense, since Moore's Law says we 
+> need 1 more bit every 18 months).  We may go through it faster than we went 
+> through the first 32 bits, but it'll last us a couple decades at least.
+> 
+> Now I'm not saying we won't exhaust 64 bits eventually.  Back to chemistry, it 
+> takes 6.02*10^23 protons to weigh 1 gram, and that's just about 2^79, so it's 
+> feasible that someday we might be able to store more than 64 bits of data per 
+> gram, let alone in big room-sized clusters.   But it's not going to be for 
+> years and years, and that's a design problem for Sun.
+> 
+> Sun is proposing it can predict what storage layout will be efficient for as 
+> yet unheard of quantities of data, with unknown access patterns, at least a 
+> couple decades from now.  It's also proposing that data compression and 
+> checksumming are the filesystem's job.  Hands up anybody who spots 
+> conflicting trends here already?  Who thinks the 128 bit requirement came 
+> from marketing rather than the engineers?
 
-Still rooting around in the above.  The test program is attached.  It 
-creates and arms a repeating timer and then clones a thread which does 
-an exec() call.
+Actually, if you are storing information in single protons, I'd say
+you _need_ checksumming :-).
 
-If I run the test with top (only two programs running) I quickly get 
-an OOPS on trying to derefence a NULL pointer.  It is comming from a 
-call the posix timer code is making to deliver a timer.  Call is to 
-send_group_sigqueue() at ~445 in posix-timers.c.  The process being 
-passed in is DEAD with current->signal ==NULL, thus the OOPS.  In the 
-first instance of this, we see that the thread-group leader is dead 
-and the exec code at line ~718 is setting the old leaders group-leader 
-to him self.  The failure then happens when the IRQ release is done on 
-the write_unlock_irq() at ~732 thus allowing the timer interrupt.
+[I actually agree with Sun here, not trusting disk is good idea. At
+least you know kernel panic/oops/etc can't be caused by bit corruption on
+the disk.]
 
-Thinking that it makes no real sense to set the group leader to a dead 
-process, I did the following:
-
---- linux-2.6.15-rc.orig/fs/exec.c
-+++ linux-2.6.15-rc/fs/exec.c
-@@ -715,7 +715,7 @@ static inline int de_thread(struct task_
-  		current->parent = current->real_parent = leader->real_parent;
-  		leader->parent = leader->real_parent = child_reaper;
-  		current->group_leader = current;
--		leader->group_leader = leader;
-+		leader->group_leader = current;
-
-  		add_parent(current, current->parent);
-  		add_parent(leader, leader->parent);
-
-This also fails as there is still a window where the group leader is 
-dead with a null signal pointer, i.e. the interrupt happens (this time 
-on another cpu) before the above changed code is executed.
-
-It seems to me that the group leader needs to change prior to setting 
-the signal pointer to NULL, but I don't really know this code very well.
-
-Help !
+								Pavel
 -- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
-
---------------010603020903040402020701
-Content-Type: text/x-csrc;
- name="timer_kill.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="timer_kill.c"
-
-#include <errno.h>
-#include <stdio.h>
-#include <signal.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <pthread.h>
-#include <sys/wait.h>
-#include <time.h>
-
-void die(const char* msg)
-{
-	fprintf(stderr, "ERR!! %s: %s\n", msg, strerror(errno));
-	exit(-1);
-}
-
-char thread_stack[4096];
-
-int thread_func(void *arg)
-{
-	execl("/bin/true", NULL);
-	die("exec");
-	return 0;
-}
-
-void proc_func(void)
-{
-	int pid;
-
-	for (;;)
-		if ((pid = fork())) {
-			if (pid != waitpid(pid, NULL, 0))
-				die("wait4");
-		} else {
-			struct sigevent sigev = {};
-			struct itimerspec itsp = {};
-			timer_t tid;
-
-			sigev.sigev_signo = SIGRTMIN;
-			sigev.sigev_notify = SIGEV_SIGNAL;
-			if (timer_create(CLOCK_MONOTONIC, &sigev, &tid) == -1)
-				die("timer_create");
-
-			itsp.it_value.    tv_nsec = 1;
-			itsp.it_interval. tv_nsec = 1;
-			if (timer_settime(tid, 0, &itsp, NULL))
-				die("timer_settime");
-
-			if (clone(thread_func, thread_stack + 2048,
-					CLONE_THREAD|CLONE_SIGHAND|CLONE_VM|CLONE_FILES,
-					NULL) < 0)
-				die("clone");
-
-			pause();
-		}
-}
-
-int main(void)
-{
-	int pn;
-
-	signal(SIGRTMIN, SIG_IGN);
-
-	for (pn = 0; pn < 16; ++pn)
-		if (!fork())
-			proc_func();
-
-	pause();
-
-	return 0;
-}
-
---------------010603020903040402020701--
+Thanks, Sharp!

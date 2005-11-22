@@ -1,75 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965051AbVKVVcn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965056AbVKVVdc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965051AbVKVVcn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 16:32:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965057AbVKVVcn
+	id S965056AbVKVVdc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 16:33:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965063AbVKVVdc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 16:32:43 -0500
-Received: from silver.veritas.com ([143.127.12.111]:20544 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S965051AbVKVVcm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 16:32:42 -0500
-Date: Tue, 22 Nov 2005 21:32:42 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Michael Frank <mhf@berlios.de>
-cc: Dominik Brodowski <linux@dominikbrodowski.net>,
-       Benoit Boissinot <benoit.boissinot@ens-lyon.org>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, Michael Krufky <mkrufky@m1k.net>,
-       Andrew Morton <akpm@osdl.org>, Dave Airlie <airlied@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-rc1-mm2 0x414 Bad page states
-In-Reply-To: <20051122211625.165F114CB@hornet.berlios.de>
-Message-ID: <Pine.LNX.4.61.0511222124040.29784@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0511181906240.2853@goblin.wat.veritas.com>
- <20051122211625.165F114CB@hornet.berlios.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 22 Nov 2005 21:32:40.0843 (UTC) FILETIME=[4440ADB0:01C5EFAC]
+	Tue, 22 Nov 2005 16:33:32 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:62670 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S965056AbVKVVdb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 16:33:31 -0500
+Subject: What protection does sysfs_readdir have with SMP/Preemption?
+From: Steven Rostedt <rostedt@goodmis.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Greg KH <greg@kroah.com>
+Content-Type: text/plain
+Date: Tue, 22 Nov 2005 16:33:22 -0500
+Message-Id: <1132695202.13395.15.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Nov 2005, Michael Frank wrote:
-> 
-> I am getting this also with i810 drm in Vanilla 2.6.15-rc2 
-> upon exiting apps such as supertux.
+Hi,
 
-Aha, perhaps you're the one we've been waiting for.  I've suspected
-a DRM issue, but nobody has actually seen one until now, and I didn't
-want to put in a patch without live justification.
+I'm developing a custom kernel on top of Ingo's -rt patch. My kernel
+makes race conditions in the vanilla kernel show up very well :-)
 
-Would you please try the patch below, and let us know if it fixes your
-problem.  If so, I'll send it off to Andrew and Linus: the rest of the
-PageReserved fixes, including the sound driver Bad page state fixes,
-have gone into Linus' git tree today: perhaps this is the missing piece.
+I just hit a bug, actually a page fault in fs/sysfs/dir.c in
+sysfs_readdir:
 
-If this does not work for you, then presumably you'd be another sound
-driver sufferer?  and I should send you that patch (or you pick it up
-from yesterday's LKML).  But right now I'd selfishly like you to test
-just this DRM patch below.
 
-Thanks,
-Hugh
 
---- 2.6.15-rc2/drivers/char/drm/drm_memory.c	2005-11-20 19:43:39.000000000 +0000
-+++ linux/drivers/char/drm/drm_memory.c	2005-11-21 10:10:45.000000000 +0000
-@@ -95,7 +95,7 @@ unsigned long drm_alloc_pages(int order,
- 	unsigned long addr;
- 	unsigned int sz;
- 
--	address = __get_free_pages(GFP_KERNEL, order);
-+	address = __get_free_pages(GFP_KERNEL|__GFP_COMP, order);
- 	if (!address)
- 		return 0;
- 
---- 2.6.15-rc2/drivers/char/drm/drm_memory_debug.h	2005-11-20 19:43:39.000000000 +0000
-+++ linux/drivers/char/drm/drm_memory_debug.h	2005-11-21 10:11:04.000000000 +0000
-@@ -221,7 +221,7 @@ unsigned long DRM(alloc_pages) (int orde
- 	}
- 	spin_unlock(&DRM(mem_lock));
- 
--	address = __get_free_pages(GFP_KERNEL, order);
-+	address = __get_free_pages(GFP_KERNEL|__GFP_COMP, order);
- 	if (!address) {
- 		spin_lock(&DRM(mem_lock));
- 		++DRM(mem_stats)[area].fail_count;
+			for (p=q->next; p!= &parent_sd->s_children; p=p->next) {
+				struct sysfs_dirent *next;
+				const char * name;
+				int len;
+
+				next = list_entry(p, struct sysfs_dirent,
+						   s_sibling);
+				if (!next->s_element)
+					continue;
+
+				name = sysfs_get_name(next);
+				len = strlen(name);
+				if (next->s_dentry)
+					ino = next->s_dentry->d_inode->i_ino;
+
+^^^^
+This is where I had a bad pointer reference.
+
+				else
+					ino = iunique(sysfs_sb, 2);
+
+				if (filldir(dirent, name, len, filp->f_pos, ino,
+						 dt_type(next)) < 0)
+					return 0;
+
+
+Looking at this code, I don't see anything protecting the s_dentry. For
+example, couldn't the following happen:
+
+sysfs_create_dir is called, which calls create_dir.  Now we create a
+dentry with no d_inode. In sysfs_make_dirent which calls
+sysfs_new_dirent which adds to the parents s_children. Then
+sysfs_make_dirent sets s_dentry = dentry (the one that was just made
+with no d_inode assigned yet).  Then create_dir calls sysfs_create which
+finally assigns the d_inode.
+
+So, either there is some hidden protection and my modification to the
+kernel has caused this to bug, or we have just been lucky the whole time
+in the vanilla kernel.
+
+-- Steve
+
+

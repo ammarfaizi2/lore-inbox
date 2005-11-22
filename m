@@ -1,38 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965078AbVKVSUR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965083AbVKVSXd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965078AbVKVSUR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 13:20:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965083AbVKVSUQ
+	id S965083AbVKVSXd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 13:23:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965086AbVKVSXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 13:20:16 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:53920 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S965078AbVKVSUP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 13:20:15 -0500
-Date: Tue, 22 Nov 2005 11:20:14 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Woodhouse <dwmw2@infradead.org>,
-       Paul Mackerras <paulus@samba.org>, Ingo Molnar <mingo@elte.hu>,
-       David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>,
-       Ian Molton <spyro@f2s.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH 4/5] Centralise NO_IRQ definition
-Message-ID: <20051122182014.GO1598@parisc-linux.org>
-References: <20051121190632.GG1598@parisc-linux.org> <Pine.LNX.4.64.0511211124190.13959@g5.osdl.org> <20051121194348.GH1598@parisc-linux.org> <Pine.LNX.4.64.0511211150040.13959@g5.osdl.org> <20051121211544.GA4924@elte.hu> <17282.15177.804471.298409@cargo.ozlabs.ibm.com> <1132611631.11842.83.camel@localhost.localdomain> <1132657991.15117.76.camel@baythorne.infradead.org> <1132668939.20233.47.camel@localhost.localdomain> <Pine.LNX.4.64.0511220856470.13959@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0511220856470.13959@g5.osdl.org>
-User-Agent: Mutt/1.5.9i
+	Tue, 22 Nov 2005 13:23:33 -0500
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:55727 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S965083AbVKVSXc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 13:23:32 -0500
+Date: Tue, 22 Nov 2005 13:22:57 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Christopher Friesen <cfriesen@nortel.com>
+cc: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       "Paul E. McKenney" <paulmck@us.ibm.com>, "K.R. Foley" <kr@cybsft.com>,
+       Thomas Gleixner <tglx@linutronix.de>, pluto@agmk.net,
+       john cooper <john.cooper@timesys.com>,
+       Benedikt Spranger <bene@linutronix.de>,
+       Daniel Walker <dwalker@mvista.com>,
+       Tom Rini <trini@kernel.crashing.org>,
+       George Anzinger <george@mvista.com>
+Subject: Re: test time-warps [was: Re: 2.6.14-rt13]
+In-Reply-To: <43835D01.3020304@nortel.com>
+Message-ID: <Pine.LNX.4.58.0511221319560.16745@gandalf.stny.rr.com>
+References: <20051115090827.GA20411@elte.hu>  <1132608728.4805.20.camel@cmn3.stanford.edu>
+  <20051121221511.GA7255@elte.hu> <20051121221941.GA11102@elte.hu> 
+ <Pine.LNX.4.58.0511212012020.5461@gandalf.stny.rr.com>  <20051122111623.GA948@elte.hu>
+ <1132681766.21797.10.camel@cmn3.stanford.edu> <43835D01.3020304@nortel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 22, 2005 at 09:03:12AM -0800, Linus Torvalds wrote:
-> In short: NO_IRQ _is_ 0. Always has been. It's the only sane value. And 
-> btw, there is no need for that #define at all, exactly because the way you 
-> test for "is this no irq" is by doing "!dev->irq".
 
-Could you at least take the first patch that checks that we don't go
-outside the bounds of the irq_desc array?
+On Tue, 22 Nov 2005, Christopher Friesen wrote:
+
+> Fernando Lopez-Lezcano wrote:
+>
+> >>Basically if there is an observable and provable warp in the TSC output
+> >>then it must not be used for any purpose that is not strictly
+> >>per-CPU-ified (such as userspace threads bound to a single CPU, and the
+> >>TSC never used between threads).
+>
+> > Apparently that's the case.
+>
+> What about periodically re-syncing the TSCs on the cpus?  Are they
+> writeable?
+>
+
+I believe you can reset them to zero, but I don't think you can set them
+to anything else.  I had to do something similar a few years ago, and I
+don't have the specs in front of me, so this is coming straight from
+memory.
+
+Even if you could reset them, it would be very difficult to make all CPUs
+have the same counter. Not to mention that this would also screw up all
+timings elsewhere when the sync happens. Remember, this would have to work
+not just on 2 cpus, but 4, 8 and beyond.
+
+-- Steve
+

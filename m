@@ -1,62 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964869AbVKVCae@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964873AbVKVCcK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964869AbVKVCae (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 21:30:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964873AbVKVCae
+	id S964873AbVKVCcK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 21:32:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbVKVCcK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 21:30:34 -0500
-Received: from gate.crashing.org ([63.228.1.57]:25036 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S964869AbVKVCad (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 21:30:33 -0500
-Subject: Re: [RFC] Small PCI core patch
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Dave Airlie <airlied@gmail.com>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1132623268.20233.14.camel@localhost.localdomain>
-References: <20051121225303.GA19212@kroah.com>
-	 <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston>
-	 <21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com>
-	 <1132623268.20233.14.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 22 Nov 2005 13:27:57 +1100
-Message-Id: <1132626478.26560.104.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Mon, 21 Nov 2005 21:32:10 -0500
+Received: from mail04.syd.optusnet.com.au ([211.29.132.185]:54765 "EHLO
+	mail04.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S964873AbVKVCcJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 21:32:09 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Dave Jones <davej@redhat.com>
+Subject: Re: [patch 1/1] cpufreq_conservative/ondemand: invert meaning of 'ignore nice'
+Date: Tue, 22 Nov 2005 13:31:44 +1100
+User-Agent: KMail/1.8.2
+Cc: Ken Moffat <zarniwhoop@ntlworld.com>,
+       Alexander Clouter <alex@digriz.org.uk>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, blaisorblade@yahoo.it, davej@codemonkey.org.uk
+References: <20051121181722.GA2599@inskipp.digriz.org.uk> <Pine.LNX.4.63.0511220102330.18504@deepthought.mydomain> <20051122022215.GB1288@redhat.com>
+In-Reply-To: <20051122022215.GB1288@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511221331.45601.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-22 at 01:34 +0000, Alan Cox wrote:
-> On Maw, 2005-11-22 at 11:47 +1100, Dave Airlie wrote:
-> > And funny enough unlike SCSI adapters and things for large server
-> > installations, nobody seems to really care enough about graphics
-> > cards, I've heard horror stories about how little Linux companies
-> 
-> Its easy to see why
-> 
-> The graphics market between Nvidia and ATI is extreme rivalry
-> There have been some ugly patent lawsuits
-> Good software tricks can make the weaker hardware win
-> Its very hard to write
+On Tue, 22 Nov 2005 01:22 pm, Dave Jones wrote:
+> On Tue, Nov 22, 2005 at 01:21:18AM +0000, Ken Moffat wrote:
+>  > On Mon, 21 Nov 2005, Alexander Clouter wrote:
+>  > >The use of the 'ignore_nice' sysfs file is confusing to anyone using
+>  > > it. This
+>  > >removes the sysfs file 'ignore_nice' and in its place creates a
+>  > >'ignore_nice_load' entry which defaults to '1'; meaning nice'd
+>  > > processes are
+>  > >not counted towards the 'business' calculation.
+>  > >
+>  > >WARNING: this obvious breaks any userland tools that expected
+>  > > ignore_nice' to
+>  > >exist, to draw attention to this fact it was concluded on the mailing
+>  > > list that the entry should be removed altogether so the userland app
+>  > > breaks and so
+>  > >the author can build simple to detect workaround.  Having said that it
+>  > >seems
+>  > >currently very few tools even make use of this functionality; all I
+>  > > could find was a Gentoo Wiki entry.
+>  > >
+>  > >Signed-off-by: Alexander Clouter <alex-kernel@digriz.org.uk>
+>  >
+>  >  Great.  I get to rewrite my initscript for the ondemand governor to
+>  > test for yet another kernel version, and write a 0 to yet another sysfs
+>  > file, just so that any compile I start in an xterm on my desktop box can
+>  > make the processor work for its living.
+>  >
+>  >  Just what have you cpufreq guys got against nice'd processes ?  It's
+>  > enough to drive a man to powernowd ;)
+>
+> The opinion on this one started out with everyone saying "Yeah,
+> this is dumb, and should have changed". Now that the change appears
+> in a mergable patch, the opinion seems to have swung the other way.
+>
+> I'm seriously rethinking this change, as no matter what we do,
+> we're going to make some people unhappy, so changing the status quo
+> seems ultimately pointless.
 
-On the other hand, there is little justification not to open source at
-least the kernel & basic mode setting part. It's all plumbing and mode
-setting stuff, monitor detection, etc... it's not part of any of the big
-added value or IP stuff that can be found in the 3D engine.
+Eh? I thought he was agreeing with niced processes running full speed but that 
+he misunderstood that that was the new default. Oh well I should have just 
+shut up.
 
-I've talked to them several times about that, trying to advocate really
-only putting the GL -> engine command stream generation in a binary blob
-(in userland where it belongs) and have everything else open sourced,
-but they aren't interested. In many cases, the replies I get are along
-the lines of "why would we do that ? nVidia doesn't" or "why could we
-care", or "give us a business justification" (the later translates to:
-prove us that by doing so, we'll sell that many more million cards,
-which is obviously impossible) etc... They really doesn't give a shit
-about what we think, and will continue to do so until they get a bit fat
-lawsuite, that is my opinion at least.
-
-Ben.
-
-
+Con

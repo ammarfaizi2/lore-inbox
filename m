@@ -1,84 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965057AbVKVVlp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030181AbVKVVlF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965057AbVKVVlp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 16:41:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965063AbVKVVlp
+	id S1030181AbVKVVlF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 16:41:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965063AbVKVVlF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 16:41:45 -0500
-Received: from mail.kroah.org ([69.55.234.183]:6534 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965057AbVKVVlo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 16:41:44 -0500
-Date: Tue, 22 Nov 2005 13:39:47 -0800
-From: Greg KH <greg@kroah.com>
-To: Steven Rostedt <rostedt@goodmis.org>, Maneesh Soni <maneesh@in.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: What protection does sysfs_readdir have with SMP/Preemption?
-Message-ID: <20051122213947.GB8575@kroah.com>
-References: <1132695202.13395.15.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 22 Nov 2005 16:41:05 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:45588 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965057AbVKVVlD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 16:41:03 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XiHIg3/krDFjTP4EzzsJp8qDoAIfIZ/C97N9QrUt3KeAjQkgi/FNvLu+BWlf01Fr0MImZaPEH5wydoqVPQUfyzazkqk/NFW3SngHVlxQULZ5jj8t7nWexBjG/2MI6u3vzLLjvoXPHAOtlNG2oD3i6I9QZMCTupkRv26v+n2zjO4=
+Message-ID: <9e4733910511221341u695f6765k985ecf0c54daba49@mail.gmail.com>
+Date: Tue, 22 Nov 2005 16:41:02 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+To: Kasper Sandberg <lkml@metanurb.dk>
+Subject: Re: Christmas list for the kernel
+Cc: Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1132694935.10574.2.camel@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1132695202.13395.15.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com>
+	 <20051122204918.GA5299@kroah.com>
+	 <9e4733910511221313t4a1e3c67wc7b08160937eb5c5@mail.gmail.com>
+	 <1132694935.10574.2.camel@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 22, 2005 at 04:33:22PM -0500, Steven Rostedt wrote:
-> Hi,
-> 
-> I'm developing a custom kernel on top of Ingo's -rt patch. My kernel
-> makes race conditions in the vanilla kernel show up very well :-)
-> 
-> I just hit a bug, actually a page fault in fs/sysfs/dir.c in
-> sysfs_readdir:
-> 
-> 
-> 
-> 			for (p=q->next; p!= &parent_sd->s_children; p=p->next) {
-> 				struct sysfs_dirent *next;
-> 				const char * name;
-> 				int len;
-> 
-> 				next = list_entry(p, struct sysfs_dirent,
-> 						   s_sibling);
-> 				if (!next->s_element)
-> 					continue;
-> 
-> 				name = sysfs_get_name(next);
-> 				len = strlen(name);
-> 				if (next->s_dentry)
-> 					ino = next->s_dentry->d_inode->i_ino;
-> 
-> ^^^^
-> This is where I had a bad pointer reference.
-> 
-> 				else
-> 					ino = iunique(sysfs_sb, 2);
-> 
-> 				if (filldir(dirent, name, len, filp->f_pos, ino,
-> 						 dt_type(next)) < 0)
-> 					return 0;
-> 
-> 
-> Looking at this code, I don't see anything protecting the s_dentry. For
-> example, couldn't the following happen:
-> 
-> sysfs_create_dir is called, which calls create_dir.  Now we create a
-> dentry with no d_inode. In sysfs_make_dirent which calls
-> sysfs_new_dirent which adds to the parents s_children. Then
-> sysfs_make_dirent sets s_dentry = dentry (the one that was just made
-> with no d_inode assigned yet).  Then create_dir calls sysfs_create which
-> finally assigns the d_inode.
-> 
-> So, either there is some hidden protection and my modification to the
-> kernel has caused this to bug, or we have just been lucky the whole time
-> in the vanilla kernel.
+On 11/22/05, Kasper Sandberg <lkml@metanurb.dk> wrote:
+> > Currently you have to compile most of this stuff into the kernel.
+> forgive my ignorance, but whats stopping you from doing this now?
 
-I think we've been lucky :(
+It would be better if all of the legacy drivers could exist on
+initramfs and only be loaded if the actual hardware is present. With
+the current code someone like Redhat has to compile all of the legacy
+support into their distribution kernel. That code will be present even
+on new systems that don't have the hardware.
 
-Maneesh, any ideas?
+An example of this is that the serial driver is hard coded to report
+four legacy serial ports when my system physically only has two. I
+have to change a #define and recompile the kernel to change this.
 
-thanks,
+The goal should be able to build something like Knoppix without
+Knoppix needing any device probing scripts. Linux is 90% of the way
+there but not 100% yet.
 
-greg k-h
+X is also part of the problem. Even if the kernel nicely identifies
+all of the video hardware and input devices, X ignores this info and
+looks for everything again anyway. In a more friendly system X would
+use the info the kernel provides and automatically configure itself
+for the devices present or hotplugged. You could get rid of your
+xorg.cong file in this model.
+
+--
+Jon Smirl
+jonsmirl@gmail.com

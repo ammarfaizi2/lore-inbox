@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbVKXJOG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932574AbVKXJOX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751323AbVKXJOG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 04:14:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbVKXJOG
+	id S932574AbVKXJOX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 04:14:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932550AbVKXJOX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 04:14:06 -0500
-Received: from [85.8.13.51] ([85.8.13.51]:32928 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S1751323AbVKXJOD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 04:14:03 -0500
-Message-ID: <4385844C.5080707@drzeus.cx>
-Date: Thu, 24 Nov 2005 10:13:48 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mail/News 1.5 (X11/20051105)
+	Thu, 24 Nov 2005 04:14:23 -0500
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:36532 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S932528AbVKXJOV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 04:14:21 -0500
+Message-ID: <43833B7A.5020700@rtr.ca>
+Date: Tue, 22 Nov 2005 10:38:34 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-To: akpm@osdl.org, pavel@suse.cz
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [MMC] Add try_to_freeze to kauditd
-References: <20051107071300.7073.47106.stgit@poseidon.drzeus.cx>
-In-Reply-To: <20051107071300.7073.47106.stgit@poseidon.drzeus.cx>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Linux Kernel <linux-kernel@vger.kernel.org>,
+       IDE/ATA development list <linux-ide@vger.kernel.org>
+Subject: 2.6.15-rc2: hundreds of "make sure there is a disc" messages
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Ossman wrote:
-> kauditd was causing suspends to fail because it refused to freeze.
-> Adding a try_to_freeze() to its sleep loop solves the issue.
->
-> Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
-> Acked-by: Pavel Machek <pavel@suse.cz>
-> ---
->
->  kernel/audit.c |    4 +++-
->  1 files changed, 3 insertions(+), 1 deletions(-)
->
->   
+When playing a DVD movie (xine), I get hundreds of these
+messages from the kernel, flooding my syslogs:
 
-Did anyone actually pick this up? Its not in -mm or Linus' tree.
+sr0: CDROM not ready.  Make sure there is a disc in the drive.
+sr0: CDROM not ready.  Make sure there is a disc in the drive.
+sr0: CDROM not ready.  Make sure there is a disc in the drive.
+sr0: CDROM not ready.  Make sure there is a disc in the drive.
+sr0: CDROM not ready.  Make sure there is a disc in the drive.
+sr0: CDROM not ready.  Make sure there is a disc in the drive.
+sr0: CDROM not ready.  Make sure there is a disc in the drive.
+sr0: CDROM not ready.  Make sure there is a disc in the drive.
+sr0: CDROM not ready.  Make sure there is a disc in the drive.
 
-Rgds
-Pierre
+The kernel probably doesn't need to be issuing these,
+but rather it should leave it up to the application
+to report/log drive conditions like this.
 
+???

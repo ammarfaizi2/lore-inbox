@@ -1,53 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965111AbVKVTAx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965115AbVKVTED@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965111AbVKVTAx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 14:00:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965115AbVKVTAx
+	id S965115AbVKVTED (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 14:04:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965116AbVKVTED
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 14:00:53 -0500
-Received: from nm02mta.dion.ne.jp ([61.117.3.79]:40718 "HELO
-	nm02omta029.dion.ne.jp") by vger.kernel.org with SMTP
-	id S965111AbVKVTAw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 14:00:52 -0500
-Date: Wed, 23 Nov 2005 04:01:30 +0900
-From: Akira Tsukamoto <akira-t@s9.dion.ne.jp>
-To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Subject: Re: athlon x2 + 2.6.14 + SMP = fast clock
-Cc: cmulcahy@avesi.com, john stultz <johnstul@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200511211028.04431.arekm@pld-linux.org>
-References: <1132537722.9627.145.camel@harry> <200511211028.04431.arekm@pld-linux.org>
-Message-Id: <20051123040112.6853.AKIRA-T@s9.dion.ne.jp>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.21.04 [ja]
+	Tue, 22 Nov 2005 14:04:03 -0500
+Received: from baythorne.infradead.org ([81.187.2.161]:46240 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S965115AbVKVTEA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 14:04:00 -0500
+Subject: Re: [PATCH 4/5] Centralise NO_IRQ definition
+From: David Woodhouse <dwmw2@infradead.org>
+To: David Howells <dhowells@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Paul Mackerras <paulus@samba.org>, Ingo Molnar <mingo@elte.hu>,
+       Matthew Wilcox <matthew@wil.cx>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>,
+       Ian Molton <spyro@f2s.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+In-Reply-To: <9497.1132684676@warthog.cambridge.redhat.com>
+References: <Pine.LNX.4.64.0511220856470.13959@g5.osdl.org>
+	 <E1Ee0G0-0004CN-Az@localhost.localdomain>
+	 <24299.1132571556@warthog.cambridge.redhat.com>
+	 <20051121121454.GA1598@parisc-linux.org>
+	 <Pine.LNX.4.64.0511211047260.13959@g5.osdl.org>
+	 <20051121190632.GG1598@parisc-linux.org>
+	 <Pine.LNX.4.64.0511211124190.13959@g5.osdl.org>
+	 <20051121194348.GH1598@parisc-linux.org>
+	 <Pine.LNX.4.64.0511211150040.13959@g5.osdl.org>
+	 <20051121211544.GA4924@elte.hu>
+	 <17282.15177.804471.298409@cargo.ozlabs.ibm.com>
+	 <1132611631.11842.83.camel@localhost.localdomain>
+	 <1132657991.15117.76.camel@baythorne.infradead.org>
+	 <1132668939.20233.47.camel@localhost.localdomain>
+	 <9497.1132684676@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Date: Tue, 22 Nov 2005 19:03:33 +0000
+Message-Id: <1132686213.15117.135.camel@baythorne.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-11-22 at 18:37 +0000, David Howells wrote:
+> 
+>  (3) Having to translate a cookie for a specific IRQ means that the IRQ
+>      handling code will be slower and more complex, or is going to avoid the
+>      issue and be naughty and not deal with irq == NO_IRQ properly:
+> 
+>      The x86 PIC reports it as IRQ 0 having happened. In which case, by your
+>      argument, you _have_ to translate it: you're not allowed to pass NO_IRQ to
+>      setup_irq(), and you're not allowed to pass it to the interrupt handler -
+>      in this case timer_interrupt(). Doing otherwise is wrong, insane, etc...
 
-On Mon, 21 Nov 2005 10:28:03 +0100
-Arkadiusz Miskiewicz <arekm@pld-linux.org> mentioned:
-> 
-> I wonder is this is x86_64 only problem?
-> 
-> I'm having the same problem on dual xeon 1.8GHz i686 with HT enabled, kernel 
-> 2.6.14.2-4smp. Clock runs twice fast. Previously I was using 2.6.11 kernel 
-> with no such problem.
-
-My laptop, clock runs twice fast but has PentiumM, so it shouldn't be 
-x86_64 specific.
-
-
-> 
-> cmdline is: acpi=ht nmi_watchdog=1
-> 
-> Unfortunately I can't do any testing right now on this machine but I'll try 
-> acpi_skip_timer_override cmdline option as soon as I can.
-> 
-> > Chris
+This is true. If we're suddenly going to start pretending that IRQ 0
+isn't a valid interrupt merely on the basis that "x86 doesn't use it"¹,
+then we can't really go making an exception to allow us to use IRQ 0 on
+i386.
 
 -- 
-Akira Tsukamoto <akira-t@s9.dion.ne.jp> <>
-
+dwmw2
+¹ ...despite the fact that even that isn't true on legacy-free machines.
 

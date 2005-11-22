@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965071AbVKVWbS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030207AbVKVWhO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965071AbVKVWbS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 17:31:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965072AbVKVWbS
+	id S1030207AbVKVWhO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 17:37:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965079AbVKVWhO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 17:31:18 -0500
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:13768 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S965071AbVKVWbR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 17:31:17 -0500
-Message-ID: <43839C2E.3030904@t-online.de>
-Date: Tue, 22 Nov 2005 23:31:10 +0100
-From: Harald Dunkel <harald.dunkel@t-online.de>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Small PCI core patch
-References: <20051121225303.GA19212@kroah.com> <20051122175017.GA10783@kroah.com>
-In-Reply-To: <20051122175017.GA10783@kroah.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 22 Nov 2005 17:37:14 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:50075
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S965073AbVKVWg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 17:36:58 -0500
+Date: Tue, 22 Nov 2005 14:37:13 -0800 (PST)
+Message-Id: <20051122.143713.101129339.davem@davemloft.net>
+To: kaber@trash.net
+Cc: bunk@stusta.de, evil@g-house.de, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, zippel@linux-m68k.org
+Subject: Re: [2.6 patch] do not select NET_CLS
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <4381F2D2.5000605@trash.net>
+References: <20051116235813.GS5735@stusta.de>
+	<20051121155955.GW16060@stusta.de>
+	<4381F2D2.5000605@trash.net>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-ID: SaZPT4ZrreoREDRcEt1GBE3adsM91aAkzZq7R3772e2bbGVUVVQEkS
-X-TOI-MSGID: 5ab3bf99-e8c2-4f95-ad3e-f00a94090ced
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+From: Patrick McHardy <kaber@trash.net>
+Date: Mon, 21 Nov 2005 17:16:18 +0100
 
-Greg KH wrote:
+> Adrian Bunk wrote:
+> > This patch therefore changes NET_CLS back to the 2.6.14 status quo of 
+> > being an user-visible option.
 > 
-> This patch was to get people who are relying on binary drivers to think
-> about the risk they are taking when they do so.  It is not intended as
-> legal advice, but a thought exercise only.
-> 
+> I disagree with this patch. NET_CLS enables the infrastructure support
+> for classifiers. Users generally don't care about infrastructure but
+> directly usable things, so I'd prefer to have it automatically selected. 
+> And there are lots of other cases where enabling a module causes changes
+> in the kernel image. Some examples include some of the netfilter stuff,
+> the IPsec transforms, NET_CLS_ROUTE4, the ieee80211 stuff, and a lot
+> more.
 
-I would suggest to apply this patch.
+I agree with Patrick.
 
-I don't know ATI, but NVidia is running huge Linux clusters
-for verification. IMHO its really time for them to contribute
-back to the community. In the end it would be the benefit for
-all.
-
-
-Regards
-
-Harri
+Changing config options of any kind can result in the main kernel
+image needing to be rebuilt.  One thing we can do to prevent human
+mistakes, is to make the "make modules" pass do a quick "is vmlinux
+uptodate?" check, and if not print out an error message explaining the
+situation and aborting the "make modules" attempt.

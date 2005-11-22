@@ -1,47 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964987AbVKVQfb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964988AbVKVQiv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964987AbVKVQfb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 11:35:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964989AbVKVQfa
+	id S964988AbVKVQiv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 11:38:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964992AbVKVQiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 11:35:30 -0500
-Received: from gateway.argo.co.il ([194.90.79.130]:60689 "EHLO
-	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S964988AbVKVQfL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 11:35:11 -0500
-Message-ID: <438348BB.1050504@argo.co.il>
-Date: Tue, 22 Nov 2005 18:35:07 +0200
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Diego Calleja <diegocg@gmail.com>
-CC: jgarzik@pobox.com, jonsmirl@gmail.com, benh@kernel.crashing.org,
-       alan@lxorguk.ukuu.org.uk, airlied@gmail.com, greg@kroah.com,
-       linux-kernel@vger.kernel.org
+	Tue, 22 Nov 2005 11:38:50 -0500
+Received: from havoc.gtf.org ([69.61.125.42]:61830 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S964990AbVKVQit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 11:38:49 -0500
+Date: Tue, 22 Nov 2005 11:38:48 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Rob Landley <rob@landley.net>
+Cc: Denis Vlasenko <vda@ilport.com.ua>, Neil Brown <neilb@suse.de>,
+       Jon Smirl <jonsmirl@gmail.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Airlie <airlied@gmail.com>,
+       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
 Subject: Re: [RFC] Small PCI core patch
-References: <20051121225303.GA19212@kroah.com>	<20051121230136.GB19212@kroah.com>	<1132616132.26560.62.camel@gaston>	<21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com>	<1132623268.20233.14.camel@localhost.localdomain>	<1132626478.26560.104.camel@gaston>	<9e4733910511211923r69cdb835pf272ac745ae24ed7@mail.gmail.com>	<43833D61.9050400@argo.co.il>	<20051122155143.GA30880@havoc.gtf.org>	<43834400.3040506@argo.co.il> <20051122172650.72f454de.diegocg@gmail.com>
-In-Reply-To: <20051122172650.72f454de.diegocg@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Nov 2005 16:35:09.0711 (UTC) FILETIME=[B42619F0:01C5EF82]
+Message-ID: <20051122163848.GC32684@havoc.gtf.org>
+References: <20051121225303.GA19212@kroah.com> <200511221007.12833.vda@ilport.com.ua> <20051122143055.GC24997@havoc.gtf.org> <200511221033.50351.rob@landley.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200511221033.50351.rob@landley.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diego Calleja wrote:
+On Tue, Nov 22, 2005 at 10:33:48AM -0600, Rob Landley wrote:
+> On Tuesday 22 November 2005 08:30, Jeff Garzik wrote:
+> > On Tue, Nov 22, 2005 at 10:07:12AM +0200, Denis Vlasenko wrote:
+> > > Historically hackers were not too good at raising funds.
+> > >
+> > > Maybe we should use stuff which we are good at? Forcedeth
+> > > is a nice precedent. 2d and especially 3d engines
+> > > may be significantly harder to reverse engineer,
+> > > but people can scale rather nicely, as kernel development shows. ;)
+> > >
+> > > Then write specs from gained knowledge and put it on a web page.
+> >
+> > Yes, IMO this is the only realistic path, without cooperation from
+> > ATI/NVIDIA.
+> >
+> > This is why I dislike the ATI r300 rev-eng effort:  I cannot find any
+> > "Chinese wall":  one team rev-engs the hardware and writes a doc.
+> > Another team writes the drivers from the docs.
+> 
+> If they're reverse engineering the hardware, why would you need a chinese 
+> wall?  Compaq was turning x86 assembly code into x86 assembly code and had to 
+> prove that the new x86 code didn't infringe the copyright on the old x86 
+> code.  They weren't turning port I/O and DMA logs into C code...
 
->And no, windows drivers don't work well enought in windows
->(try enabling the /3GB switch in your box and check how many drivers
->break...)
->  
->
-I don't have a Windows box, but I'm quite sure Windows (without the more 
-esoteric switches) is quite stable, even in SMP. The '95 and NT 4.0 days 
-are gone. Give the drivers the environment they like (mangle the 
-addresses if necessary, single thread them, allow them larger stacks, 
-whatever it takes) and they will work well. Put them in userspace if 
-you're paranoid or isolate them using binary translation.
+Chinese wall is far more secure legally.
 
- From this discussion, it looks like the choices of the future are 
-Windows drivers or serial terminals. Excuse me now while I look for my 
-null-modem cable.
+Linux doesn't need more headaches from open legal questions.
+
+It worked for forcedeth, Broadcom wireless, and several other
+projects...  it results in a better driver, too.
+
+	Jeff
+
+
+

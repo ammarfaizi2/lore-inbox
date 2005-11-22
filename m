@@ -1,174 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964877AbVKVCoN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751270AbVKVCpZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964877AbVKVCoN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 21:44:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbVKVCoM
+	id S1751270AbVKVCpZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 21:45:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbVKVCpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 21:44:12 -0500
-Received: from zproxy.gmail.com ([64.233.162.206]:24208 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964877AbVKVCoL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 21:44:11 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=V/Q7/p5fWlgEfJdRyOwnUuOKHeZSLm2VDH7QOMB+tn1DVIrcsHNdEd4hTA+BOwYsmi5CbQ9FJPnhVq0/IGDqg3N4CvvX4gLUe5I4E1onV2TXEnsvCalMZtpdUwdYZ2vjeCGRzzKImbBby1VEFGrphfMf6xfvc/NDZKvHJAwb1zk=
-Date: Tue, 22 Nov 2005 11:44:01 +0900
-From: Tejun Heo <htejun@gmail.com>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: axboe@suse.de, jgarzik@pobox.com, James.Bottomley@steeleye.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH linux-2.6-block:post-2.6.15 08/10] blk: update IDE to use new blk_ordered
-Message-ID: <20051122024401.GB10213@htj.dyndns.org>
-References: <20051117153509.B89B4777@htj.dyndns.org> <20051117153509.061D8991@htj.dyndns.org> <58cb370e0511171211p60e7c248mda477015cf1bd7c5@mail.gmail.com> <437DEE35.9060901@gmail.com> <58cb370e0511180759u4cb50535gfd7b96100a0bd70f@mail.gmail.com>
-MIME-Version: 1.0
+	Mon, 21 Nov 2005 21:45:24 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:13494 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S1751270AbVKVCpW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 21:45:22 -0500
+Date: Mon, 21 Nov 2005 19:45:10 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Paul Mackerras <paulus@samba.org>, Ingo Molnar <mingo@elte.hu>,
+       David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>,
+       Ian Molton <spyro@f2s.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH 4/5] Centralise NO_IRQ definition
+Message-ID: <20051122024510.GI1598@parisc-linux.org>
+References: <24299.1132571556@warthog.cambridge.redhat.com> <20051121121454.GA1598@parisc-linux.org> <Pine.LNX.4.64.0511211047260.13959@g5.osdl.org> <20051121190632.GG1598@parisc-linux.org> <Pine.LNX.4.64.0511211124190.13959@g5.osdl.org> <20051121194348.GH1598@parisc-linux.org> <Pine.LNX.4.64.0511211150040.13959@g5.osdl.org> <20051121211544.GA4924@elte.hu> <17282.15177.804471.298409@cargo.ozlabs.ibm.com> <Pine.LNX.4.64.0511211339450.13959@g5.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <58cb370e0511180759u4cb50535gfd7b96100a0bd70f@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <Pine.LNX.4.64.0511211339450.13959@g5.osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 18, 2005 at 04:59:28PM +0100, Bartlomiej Zolnierkiewicz wrote:
-> Hi,
-> 
-> On 11/18/05, Tejun Heo <htejun@gmail.com> wrote:
-> > Hello, Bartlomiej.
-> >
-> > Bartlomiej Zolnierkiewicz wrote:
-> > > On 11/17/05, Tejun Heo <htejun@gmail.com> wrote:
-> > >
-> > > I fail to see how the partial completions (good + bad sectors)
-> > > are done in your new scheme, please explain.
-> > >
-> >
-> > It doesn't.  I've noted this way back when I posted this patchset the
-> > second time.
-> 
-> This should be noted in the patch description not in the announcement.
+On Mon, Nov 21, 2005 at 01:49:45PM -0800, Linus Torvalds wrote:
+> On all PC hardware, having a zero in the PCI irq register basically means 
+> that no irq is enabled. That's a _fact_. It's a fact however much you may 
+> not like it. It's how the hardware comes up, and it's how the BIOS leaves 
+> it. So "0" absolutely does mean "not allocated". 
 
-Will add it to patch description.
+Actually, no.  Here's my x86 laptop's config space ...
 
-> 
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=111795127124020&w=2
-> >
-> > Rationales
-> >
-> > * The actual barrier IO request is issued as a part of ordered sequence.
-> >   When any part of this sequence fails (any of leading flush, barrier IO
-> > or post flush), the whole sequence should be considered to have failed.
-> >
-> > e.g. if leading flush fails, there's no point in reporting partial or
-> > full success of barrier IO.  Ditto for tailing flush.  We can special
-> > case when only part of barrier IO fails and report partial barrier
-> > success, but 1. benefits are doubtful  2. even if it's implemented, it
-> > wouldn't work (see next rationale)
-> >
-> > * Barrier requests are not mergeable.  ie. Each barrier bio is turned
-> > into one barrier request and partially completing the request doesn't
-> > result in any successfully completed bio.
-> 
-> However your flush request can fail on the sector _completely_
-> unrelated to the barrier request so in this case old code worked
-> differently.  Anyway I'm fine with this change (previous logic was
-> too complicated).
+0000:02:06.2 System peripheral: Texas Instruments PCI1620 Firmware Loading Function (rev 01)
+        Subsystem: Hewlett-Packard Company: Unknown device 08b0
+        Flags: bus master, medium devsel, latency 64
+        I/O ports at 4000 [size=64]
+        Capabilities: [44] Power Management version 2
+00: 4c 10 01 82 07 01 10 02 01 00 80 08 08 40 00 00
+10: 01 40 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 3c 10 b0 08
+30: 00 00 00 00 44 00 00 00 00 00 00 00 ff 00 07 04
 
-Hmmm... Ordered sequence should fail even when flush request fails on
-a completely unrelated to the barrier request.  The barrier request
-must make sure that all requests issued prior to it have made to the
-physical medium successfully.
+Interrupt Pin is 0x3d and Interrupt Line is 0x3c.  As I explained earlier,
+Linux simply never reads Interrupt Line if Interrupt Pin is 0.
 
-Anyways, you're right in that it acts differently from the original
-code and it should be noted in the patch description.  I'll update the
-patch description.
 
-> 
-> > * SCSI doesn't handle partial completion of barrier IOs.
-> >
-> > >
-> > >>-
-> > >>-static int idedisk_prepare_flush(request_queue_t *q, struct request *rq)
-> > >>-{
-> > >>-       ide_drive_t *drive = q->queuedata;
-> > >>-
-> > >>-       if (!drive->wcache)
-> > >>-               return 0;
-> > >
-> > >
-> > > What does happen if somebody disables drive->wcache later?
-> > >
-> >
-> > Thanks for pointing out.  I've moved ordered configuration into
-> > write_cache such that ordered is reconfigured when write_cache changes.
-> > There can be in-flight barrier requests which are inconsistent with the
-> > newly updated setting, but 1. it's not too unfair to assume that user is
-> > responsible for that synchronization 2. the original implementation had
-> > the same issue 3. the consequence is not catastrophic.
-> 
-> The consequence could be increased number of bugreports about
-> failed IDE commands which wasn't the case with !drive->wcache check
-> in place - please leave as it was.
+Anyway, this doesn't matter too much.  I don't personally care about
+NO_IRQ being 0 or -1; that was something benh tried to make me care
+about ;-)
 
-Ordered requests are processed in the following order.
+So, how about this for a new patch series:
 
-1. barrier bio reaches blk queue
+ - Patch 1, same as this series (it just makes sense to bounds-check in
+   the irq management functions).
+ - Patch 2, add #ifndef NO_IRQ #define NO_IRQ 0 #endif to linux/hardirq.h
+ - Patch 3, set dev->irq to NO_IRQ in drivers/pci/probe.c
+ - Patch 4, remove custom definition of NO_IRQ from pd6729
+ - Patch 5, use NO_IRQ in serial_core
 
-2. barrier req queued in order
-
-3. when barrier req reaches the head of the request queue, it gets
-   interpreted into preflush-barrier-postflush requests sequence
-   and queued.  ->prepare_flush_fn is called in this step.
-
-4. When all three requests complete, the ordered sequence ends.
-
-Adding !drive->wcache test to idedisk_prepare_flush, which in turn
-requires adding ->prepare_flush_fn error handling to blk ordered
-handling, prevents flushes for barrier requests between step#1 and
-step#3.  We can still have flush reqeuests between #3 and #4 after
-wcache is turned off.
-
-Please also note that any of above happens only if a user turns off
-->wcache setting while a fs is actively performing a barrier.
-
-I'm not sure the benefit justifies added complexity.  Do you still
-think adding ->wcache test is necessary?
-
-> 
-> > >> static void ide_cacheflush_p(ide_drive_t *drive)
-> > >>@@ -1034,6 +993,8 @@ static int ide_disk_remove(struct device
-> > >>        struct ide_disk_obj *idkp = drive->driver_data;
-> > >>        struct gendisk *g = idkp->disk;
-> > >>
-> > >>+       blk_queue_ordered(drive->queue, QUEUE_ORDERED_NONE, NULL, 0);
-> > >>+
-> > >
-> > >
-> > > Shouldn't this be done in ide_disk_release()?
-> >
-> > Hmmm... The thing is that, AFAIK, requests are not supposed to be issued
-> > after ->remove is called (->remove is called only on module unload
-> > unless hardware is hot-unplugged and HL driver cannot be unloaded while
-> > it's still opened).  I think that's why both sd and ide-disk issue the
-> > last cache flush in ->remove callbacks but not in ->release.
-> 
-> Are you sure?  I think that only calling del_gendisk() assures you
-> that there won't be outstanding fs requests?
-> 
-> I have also noticed bug in ide_disk_remove() - ide_cacheflush_p()
-> should be called after del_gendisk() - I will fix it later.
-> 
-> BTW Nowadays you can dynamically dettach/attach driver from/to
-> device using sysfs interface.
-
-I agree that it should go into ->release, but I am still a bit scared
-about issuing commands in ->release (it might access some data
-structure which might be gone by then).  Also, the correct order seems
-to be 'turning off ordered' and then 'perform the last cache flush'.
-So, how about adding blk_queue_ordered right above the last
-ide_cacheflush_p() now and move both to ->release in a separate patch
-for both IDE and SCSI?
-
-Thanks.
-
--- 
-tejun
+I'll start work on that now, since that fixes the problems I care about
+and doesn't negatively affect people with problems I don't care about ;-)

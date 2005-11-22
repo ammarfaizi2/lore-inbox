@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751288AbVKVJp5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751298AbVKVJsp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751288AbVKVJp5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 04:45:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbVKVJp5
+	id S1751298AbVKVJsp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 04:48:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbVKVJsp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 04:45:57 -0500
-Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:7098 "EHLO
-	vger.utah-nac.org") by vger.kernel.org with ESMTP id S1751288AbVKVJp4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 04:45:56 -0500
-Message-ID: <4382E2BA.5030407@wolfmountaingroup.com>
-Date: Tue, 22 Nov 2005 02:19:54 -0700
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Tue, 22 Nov 2005 04:48:45 -0500
+Received: from smtp103.mail.sc5.yahoo.com ([66.163.169.222]:26797 "HELO
+	smtp103.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751298AbVKVJso (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 04:48:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=ZpCHAxEoO1dqlchNJBf3+8D/hIBP4j/1uyjaR0Y4EAXySFNZsbimX+zkNwzGP2RlGUefOrGfczrxvBJB/6ftQw6JvLtHIgmjKjHv+EDJvWeyBzg+bJ0S1p5Gz7bNzexrbrxFfhECOysWpC/C/FL8m/MM8x2C05R5GqwqdsDHw7A=  ;
+Message-ID: <4382F823.8010007@yahoo.com.au>
+Date: Tue, 22 Nov 2005 21:51:15 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Bernd Eckenfels <ecki@lina.inka.de>, linux-kernel@vger.kernel.org
-Subject: Re: what is our answer to ZFS?
-References: <E1EeLp5-0002fZ-00@calista.inka.de> <43825168.6050404@wolfmountaingroup.com> <20051122074553.GA20476@infradead.org>
-In-Reply-To: <20051122074553.GA20476@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [patch 0/12] mm: optimisations
+References: <20051121123906.14370.3039.sendpatchset@didi.local0.net> <20051122000620.4cad7ce6.akpm@osdl.org>
+In-Reply-To: <20051122000620.4cad7ce6.akpm@osdl.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
+Andrew Morton wrote:
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> 
+>>The following patchset against 2.6.15-rc2 contains optimisations to the
+>> mm subsystem, mainly the page allocator.
+> 
+> 
+> All look sane to me - I merged the ones which applied, randomly dropped the
+> rest
 
->On Mon, Nov 21, 2005 at 03:59:52PM -0700, Jeff V. Merkey wrote:
->  
->
->>Linux is currently limited to 16 TB per VFS mount point, it's all mute, 
->>unless VFS gets fixed.
->>mmap won't go above this at present.
->>    
->>
->
->You're thinking of 32bit architectures.  There is no such limit for
->64 bit architectures.  There are XFS volumes in the 100TB range in production
->use.
->
->
->  
->
-I have 128 TB volumes in production use on 32 bit processors.
+Thanks, I'll resynch the remaining patches and send them in a bit.
 
-Jeff
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

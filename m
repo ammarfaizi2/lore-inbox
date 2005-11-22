@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbVKVHyO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964802AbVKVIAq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932411AbVKVHyO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 02:54:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbVKVHyO
+	id S964802AbVKVIAq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 03:00:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964818AbVKVIAq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 02:54:14 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:1462 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932411AbVKVHyN (ORCPT
+	Tue, 22 Nov 2005 03:00:46 -0500
+Received: from gate.crashing.org ([63.228.1.57]:44238 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S964802AbVKVIAp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 02:54:13 -0500
-Date: Mon, 21 Nov 2005 23:54:05 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au
-Subject: Re: [patch 9/12] mm: page_state opt
-Message-Id: <20051121235405.2b6ce561.akpm@osdl.org>
-In-Reply-To: <20051121124235.14370.92215.sendpatchset@didi.local0.net>
-References: <20051121123906.14370.3039.sendpatchset@didi.local0.net>
-	<20051121124235.14370.92215.sendpatchset@didi.local0.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 22 Nov 2005 03:00:45 -0500
+Subject: Re: [PATCH 3/5] mm: powerpc ptlock comments
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0511220705110.22267@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0511212025220.19274@goblin.wat.veritas.com>
+	 <Pine.LNX.4.61.0511212033330.19274@goblin.wat.veritas.com>
+	 <17282.21410.203627.607569@cargo.ozlabs.ibm.com>
+	 <Pine.LNX.4.61.0511220705110.22267@goblin.wat.veritas.com>
+Content-Type: text/plain
+Date: Tue, 22 Nov 2005 18:57:51 +1100
+Message-Id: <1132646272.26560.224.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->
-> -#define mod_page_state_zone(zone, member, delta)				\
->  -	do {									\
->  -		unsigned offset;						\
->  -		if (is_highmem(zone))						\
->  -			offset = offsetof(struct page_state, member##_high);	\
->  -		else if (is_normal(zone))					\
->  -			offset = offsetof(struct page_state, member##_normal);	\
->  -		else								\
->  -			offset = offsetof(struct page_state, member##_dma);	\
->  -		__mod_page_state(offset, (delta));				\
->  -	} while (0)
+On Tue, 2005-11-22 at 07:12 +0000, Hugh Dickins wrote:
 
-I suppose this needs updating to know about the dma32 zone.
+> I'd appreciate something that updates the "because" part too, but don't
+> know the answer.  That other patch will need to come from your end - Ben?
+
+Hrm... same reason as __hash_page(), the code now locks the PTE using
+the _PAGE_BUSY bit. The last store does the update and unlock and
+doesn't need to be atomic. However, now that I look at it, it might need
+an lwsync. Paul ?
+
+Ben.
+
+

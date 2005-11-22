@@ -1,110 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030193AbVKVWEG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030195AbVKVWFX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030193AbVKVWEG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 17:04:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030195AbVKVWEF
+	id S1030195AbVKVWFX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 17:05:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbVKVWFX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 17:04:05 -0500
-Received: from qlink.QueensU.CA ([130.15.126.18]:56203 "EHLO qlink.queensu.ca")
-	by vger.kernel.org with ESMTP id S1030193AbVKVWEE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 17:04:04 -0500
-Message-ID: <43839590.5050409@groenstue.dk>
-Date: Tue, 22 Nov 2005 23:02:56 +0100
-From: Kristian Edlund <edlund@groenstue.dk>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Tue, 22 Nov 2005 17:05:23 -0500
+Received: from zproxy.gmail.com ([64.233.162.196]:44455 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030195AbVKVWFV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 17:05:21 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PwfetypZvd0xbtXgiJ6ujR9VxAcJyFpIP9/veNFiqCVKyfDzM7bcegwpJbgKyLatXA7mA5JjOOj3NaTuk3qImDWsKdR/dBkZ/uz+5mHBUknbAmxUne2aDp2XCwTnsrvJEwl58uOddJNRsF3Jol5EunRtuJ7i3DD80BZH6sySfM0=
+Message-ID: <cbec11ac0511221405s3e05b936ofc17952e29463545@mail.gmail.com>
+Date: Wed, 23 Nov 2005 11:05:20 +1300
+From: Ian McDonald <imcdnzl@gmail.com>
+To: Greg KH <greg@kroah.com>
+Subject: Re: 2.6.15-rc1-mm1
+Cc: Ed Tomlinson <tomlins@cam.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20051122205545.GB5396@kroah.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: Re: [PATCH] Typos in Documation/kbuild/modules.txt 2.6.15-rc2
-References: <43831836.3040505@groenstue.dk> <Pine.LNX.4.64.0511220855380.13959@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0511220855380.13959@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051117111807.6d4b0535.akpm@osdl.org>
+	 <200511182024.33858.tomlins@cam.org>
+	 <20051119012632.GA28458@kroah.com>
+	 <200511182224.10392.tomlins@cam.org>
+	 <20051121002623.GA11271@kroah.com>
+	 <cbec11ac0511221247k7b72eb4bmbcaa8c522bd8c005@mail.gmail.com>
+	 <20051122205545.GB5396@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-
->Seriously whitespace-damaged (lost spaces not just at the end of lines, 
->but at their beginning too - and wordwrap etc)
+On 11/23/05, Greg KH <greg@kroah.com> wrote:
+> On Wed, Nov 23, 2005 at 09:47:49AM +1300, Ian McDonald wrote:
+> > It is definitely not a kernel issue in my opinion.
 >
->		Linus
->  
+> Thank you for following up on this and letting us know.
 >
-I am truely sorry about my patch being broken by my mail program,
-I have tried to fix it now and is trying to resubmit the patch.
+> greg k-h
+>
+It is in debian bug system as bug 340202. I have just posted more
+information to it which should appear soon:
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=340202
 
-From: Kristian Edlund <edlund@groenstue.dk>
-
-I found a few typos, in Documentation/kbuild/modules.txt
-I also changes the $PWD to `pwd` for consistency throughout the document.
-
-Signed-off-by: Kristian Edlund <edlund@groenstue.dk>
-
----
-
---- modules.txt.orig
-+++ modules.txt
-@@ -38,8 +38,8 @@
- What is covered within this file is mainly information to authors
- of modules. The author of an external modules should supply
- a makefile that hides most of the complexity so one only has to type
--'make' to buld the module. A complete example will be present in
--chapter ¤. Creating a kbuild file for an external module".
-+'make' to build the module. A complete example will be present in
-+chapter 4. Creating a kbuild file for an external module".
- 
- 
- === 2. How to build external modules
-@@ -58,8 +58,8 @@
-     For the running kernel use:
-         make -C /lib/modules/`uname -r`/build M=`pwd`
- 
--    For the above command to succeed the kernel must have been built with
--    modules enabled.
-+    For the above command to succeed the kernel must have been
-+    built with modules enabled.
- 
-     To install the modules that were just built:
- 
-@@ -84,14 +84,15 @@
-         Same functionality as if no target was specified.
-         See description above.
- 
--    make -C $KDIR M=$PWD modules_install
-+    make -C $KDIR M=`pwd` modules_install
-         Install the external module(s).
-         Installation default is in /lib/modules/<kernel-version>/extra,
--        but may be prefixed with INSTALL_MOD_PATH - see separate chater.
-+        but may be prefixed with INSTALL_MOD_PATH - see
-+        separate chapter.
- 
--    make -C $KDIR M=$PWD clean
-+    make -C $KDIR M=`pwd` clean
-         Remove all generated files for the module - the kernel
--        source directory is not moddified.
-+        source directory is not modified.
- 
-     make -C $KDIR M=`pwd` help
-         help will list the available target when building external
-@@ -99,8 +100,6 @@
- 
- --- 2.3 Available options:
- 
--    $KDIR refer to path to kernel src
--
-     make -C $KDIR
-         Used to specify where to find the kernel source.
-         '$KDIR' represent the directory where the kernel source is.
-@@ -341,7 +340,7 @@
-         EXTRA_CFLAGS := -Iinclude
-         8123-y := 8123_if.o 8123_pci.o 8123_bin.o
- 
--    Note that in the assingment there is no space between -I and the path.
-+    Note that in the assignment there is no space between -I and the path.
-     This is a kbuild limitation and no space must be present.
- 
- 
-
+--
+Ian McDonald
+http://wand.net.nz/~iam4
+WAND Network Research Group
+University of Waikato
+New Zealand

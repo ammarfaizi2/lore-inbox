@@ -1,87 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965043AbVKVSCP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965044AbVKVSCR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965043AbVKVSCP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 13:02:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965046AbVKVSCP
+	id S965044AbVKVSCR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 13:02:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965045AbVKVSCR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 13:02:15 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5522 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S965043AbVKVSCD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 13:02:03 -0500
-Date: Tue, 22 Nov 2005 19:01:47 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Gerd Knorr <kraxel@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
-       Zachary Amsden <zach@vmware.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-Message-ID: <20051122180147.GA1748@elf.ucw.cz>
-References: <Pine.LNX.4.64.0511111218110.4627@g5.osdl.org> <20051113074241.GA29796@redhat.com> <Pine.LNX.4.64.0511131118020.3263@g5.osdl.org> <Pine.LNX.4.64.0511131210570.3263@g5.osdl.org> <4378A7F3.9070704@suse.de> <Pine.LNX.4.64.0511141118000.3263@g5.osdl.org> <4379ECC1.20005@suse.de> <437A0649.7010702@suse.de> <437B5A83.8090808@suse.de> <438359D7.7090308@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <438359D7.7090308@suse.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Tue, 22 Nov 2005 13:02:17 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:2983 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S965044AbVKVSCF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 13:02:05 -0500
+Message-ID: <43835D01.3020304@nortel.com>
+Date: Tue, 22 Nov 2005 12:01:37 -0600
+From: "Christopher Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+CC: Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>,
+       linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>,
+       "K.R. Foley" <kr@cybsft.com>, Thomas Gleixner <tglx@linutronix.de>,
+       pluto@agmk.net, john cooper <john.cooper@timesys.com>,
+       Benedikt Spranger <bene@linutronix.de>,
+       Daniel Walker <dwalker@mvista.com>,
+       Tom Rini <trini@kernel.crashing.org>,
+       George Anzinger <george@mvista.com>
+Subject: Re: test time-warps [was: Re: 2.6.14-rt13]
+References: <20051115090827.GA20411@elte.hu>	 <1132608728.4805.20.camel@cmn3.stanford.edu>	 <20051121221511.GA7255@elte.hu> <20051121221941.GA11102@elte.hu>	 <Pine.LNX.4.58.0511212012020.5461@gandalf.stny.rr.com>	 <20051122111623.GA948@elte.hu> <1132681766.21797.10.camel@cmn3.stanford.edu>
+In-Reply-To: <1132681766.21797.10.camel@cmn3.stanford.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Nov 2005 18:01:40.0657 (UTC) FILETIME=[CA319A10:01C5EF8E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Fernando Lopez-Lezcano wrote:
 
-> For testing & benchmarking purposes I've put also in two (temporary) 
-> sysrq's to switch between UP and SMP bits without booting/shutting down 
-> the second CPU.  That one breaks non-i386 builds which are trivially 
-> fixable by just dropping the drivers/char/sysrq.c changes ;)
+>>Basically if there is an observable and provable warp in the TSC output 
+>>then it must not be used for any purpose that is not strictly 
+>>per-CPU-ified (such as userspace threads bound to a single CPU, and the 
+>>TSC never used between threads).
 
-> +/* Replace instructions with better alternatives for this CPU type.
-> +
-> +   This runs before SMP is initialized to avoid SMP problems with
-> +   self modifying code. This implies that assymetric systems where
-> +   APs have less capabilities than the boot processor are not handled. 
-> +   Tough. Make sure you disable such features by hand. */ 
-> +void apply_alternatives(struct alt_instr *start, struct alt_instr *end,
-> +			__u8 *tstart, __u8 *tend)
-> +{ 
-> +        unsigned char **noptable = intel_nops;
-> +	struct alt_instr *a; 
+> Apparently that's the case.
 
-Some alignment problems here. (Maybe it is okay as a source).
+What about periodically re-syncing the TSCs on the cpus?  Are they 
+writeable?
 
-> +struct smp_alt_module {
-> +	/* what is this ??? */
+Chris
 
-:-))))))).
-
-> +	struct module    *mod;
-> +	char             *name;
-> +
-> +	/* our SMP alternatives table */
-> +	struct alt_instr *astart;
-> +	struct alt_instr *aend;
-> +
-> +	/* .text segment, needed to avoid patching init code ;) */
-> +	__u8             *tstart;
-> +	__u8             *tend;
-
-You should be able to use u8 here.
-
-> +		if (0 == strcmp(".text", secstrings + s->sh_name))
-> +			text = s;
-> +		if (0 == strcmp(".altinstructions", secstrings + s->sh_name))
-> +			alt = s;
-> +		if (0 == strcmp(".smp_altinstructions", secstrings + s->sh_name))
-> +			smpalt = s;
-
-Can we get if (!strcmp()) here?
-
-								Pavel
-
--- 
-Thanks, Sharp!

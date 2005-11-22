@@ -1,37 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965149AbVKVTpb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965151AbVKVTrP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965149AbVKVTpb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 14:45:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965151AbVKVTpb
+	id S965151AbVKVTrP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 14:47:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965152AbVKVTrO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 14:45:31 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:27341 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965149AbVKVTpb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 14:45:31 -0500
-Subject: Re: [RFC] Small PCI core patch
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <9e4733910511220854m2c5ffbe0t67a53f6bae89653@mail.gmail.com>
-References: <20051121225303.GA19212@kroah.com>
-	 <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston>
-	 <9e4733910511220854m2c5ffbe0t67a53f6bae89653@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 22 Nov 2005 20:17:56 +0000
-Message-Id: <1132690676.20233.72.camel@localhost.localdomain>
+	Tue, 22 Nov 2005 14:47:14 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:64945
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S965151AbVKVTq7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 14:46:59 -0500
+Date: Tue, 22 Nov 2005 11:46:57 -0800 (PST)
+Message-Id: <20051122.114657.40290870.davem@davemloft.net>
+To: joe.korty@ccur.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Network lockup under load
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20051122164502.GA12498@tsunami.ccur.com>
+References: <20051122164502.GA12498@tsunami.ccur.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-11-22 at 11:54 -0500, Jon Smirl wrote:
-> Removal of the 2D engines is a key vulnerability in the strategy of
-> only using 2D on Linux.
+From: Joe Korty <joe.korty@ccur.com>
+Date: Tue, 22 Nov 2005 11:45:02 -0500
 
-I must have missed something, there isn't such a strategy anywhere I
-know either in X or in the kernel. EXA in X is designed to make using
-the 3D engine to do the 2D rendering much easier.
+>  I traced (git bisect) a networking lockup
+
+If it's "networking" it should be posted to netdev@vger.kernel.org
+not linux-kernel. Thanks.
 

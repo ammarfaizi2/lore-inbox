@@ -1,67 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965168AbVKVUhi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965172AbVKVUiq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965168AbVKVUhi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 15:37:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965172AbVKVUhi
+	id S965172AbVKVUiq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 15:38:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965175AbVKVUip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 15:37:38 -0500
-Received: from zproxy.gmail.com ([64.233.162.205]:62237 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965168AbVKVUhh convert rfc822-to-8bit
+	Tue, 22 Nov 2005 15:38:45 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:19451 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S965172AbVKVUio
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 15:37:37 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QYRojV2hOijD3hFdUE6zfk3iyBgQ9DzEkpsX2GaU0yV9zqgfM7iJOQJITtBD/SMwGa4xdAvgVtahvtGENtenuFoHpu9+VUngzS5Rbd7yJgw8pH2fPYFBrk+61kIakdGUTXUVlHhv3/5OuaIQmaQ4k9uhC/nnCpPq+NPUXJRheCo=
-Message-ID: <d120d5000511221237v51347b8fpe6292514e4eeca25@mail.gmail.com>
-Date: Tue, 22 Nov 2005 15:37:36 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: Resume from swsusp stopped working with 2.6.14 and 2.6.15-rc1
-Cc: Bj?rn Mork <bmork@dod.no>, linux-kernel@vger.kernel.org
-In-Reply-To: <d120d5000511221108h4ada6012kbf0b9d5166381904@mail.gmail.com>
+	Tue, 22 Nov 2005 15:38:44 -0500
+Message-ID: <438381D4.5020904@mvista.com>
+Date: Tue, 22 Nov 2005 12:38:44 -0800
+From: David Singleton <dsingleton@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <87zmoa0yv5.fsf@obelix.mork.no>
-	 <d120d5000511181532g69107c76x56a269425056a700@mail.gmail.com>
-	 <20051119234850.GC1952@spitz.ucw.cz>
-	 <200511220026.55589.dtor_core@ameritech.net>
-	 <871x19giuw.fsf@obelix.mork.no> <20051122174643.GB1752@elf.ucw.cz>
-	 <d120d5000511221045x35cfb416q67c855414b896315@mail.gmail.com>
-	 <20051122185900.GD1748@elf.ucw.cz>
-	 <d120d5000511221108h4ada6012kbf0b9d5166381904@mail.gmail.com>
+To: robustmutexes@lists.osdl.org
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Robust Futex patches available
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/22/05, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> On 11/22/05, Pavel Machek <pavel@suse.cz> wrote:
-> > Hi!
-> >
-> > > > > If a clueless users voice counts for anything: I couldn't agree more.
-> > > > >
-> > > > > A failed resume is a near catastrophy if you use and trust swsusp. And
-> > > > > how could it ever be useful if you don't?
-> > > >
-> > > > Failed resume is only as bad as powerfail.
-> > >
-> > > So? I don't like powerfails either. Could you please answer this
-> > > question - what pros of having resume process time out do you
-> > > envision? What problems does it help to solve?
-> >
-> > No advantages, really.. except that it keeps suspend and resume paths
-> > similar, and keeps the code simple. I'll want to call this from
-> > userland and I'd hate to have two different calls or call with
-> > parameter.
-> >
->
-> Passing a parameter from userspace - is it so hard? Oh well, if you
-> prefer to leave this as a time bomb ready to explode - so be it.
->
 
-I think my words were a tad too strong. I apologize.
+    There are two new patches for Robust Futex support available at
 
---
-Dmitry
+    http://source.mvista.com/~dsingleton
+
+    patch-2.6.14-rt13-rf3 fixes two locking bugs which caused hangs and 
+deadlocks.
+
+    patch-2.6.14-rt13-rf4 adds support for pthread_mutexes 'malloc'ed on 
+the heap.
+
+    I'd also like some advice on the direction POSIX is heading with 
+respect to
+    robust pthread_mutexes and priority inheritance.
+
+    It appears there are some not used openposix tests that use 
+different flags for
+    defining robustness.      Here is a snip from the openposix robust 
+test's README:
+
+Robust Mutex Tests
+------------------------
+The tests are under <rtnptl-tests>/robust_test directory.
+
+rt-nptl supports 'robust' behavior, there will be two robust modes,
+one is PTHREAD_MUTEX_ROBUST_NP mode, the other is
+PTHREAD_MUTEX_ROBUST_SUN_NP mode. When the owner of a mutex dies in
+the first mode, the waiter will set the mutex to ENOTRECOVERABLE
+state, while in the second mode, the waiter needs to call
+pthread_mutex_setconsistency_np to change the state manually.
+
+Currently the PTHREAD_MUTEX_ROBUST_NP is providing
+the fucntionality described by the PTHREAD_MUTEX_ROBUST_SUN_NP.
+
+Any advice on which way we should go?   I feel we should follow
+POSIX and provide both methods and the new pthread_mutex_setconsistency_np
+function which provides the mutex recovery mechanism.
+
+David
+

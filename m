@@ -1,53 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbVKVKfy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964896AbVKVKhH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964903AbVKVKfy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 05:35:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964904AbVKVKfy
+	id S964896AbVKVKhH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 05:37:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964906AbVKVKhH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 05:35:54 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:51380 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S964903AbVKVKfx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 05:35:53 -0500
-Date: Tue, 22 Nov 2005 10:35:44 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Andi Kleen <ak@suse.de>
-Cc: Andy Whitcroft <apw@shadowen.org>, linux-mm@kvack.org, mingo@elte.hu,
-       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       nickpiggin@yahoo.com.au
-Subject: Re: [PATCH 2/5] Light Fragmentation Avoidance V20: 002_usemap
-In-Reply-To: <20051122102237.GK20775@brahms.suse.de>
-Message-ID: <Pine.LNX.4.58.0511221026200.31192@skynet>
-References: <20051115164946.21980.2026.sendpatchset@skynet.csn.ul.ie>
- <200511160036.54461.ak@suse.de> <Pine.LNX.4.58.0511160137540.8470@skynet>
- <200511160252.05494.ak@suse.de> <Pine.LNX.4.58.0511160200530.8470@skynet>
- <4382EF48.1050107@shadowen.org> <20051122102237.GK20775@brahms.suse.de>
+	Tue, 22 Nov 2005 05:37:07 -0500
+Received: from p-mail2.rd.francetelecom.com ([195.101.245.16]:33031 "EHLO
+	p-mail2.rd.francetelecom.com") by vger.kernel.org with ESMTP
+	id S964896AbVKVKhG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 05:37:06 -0500
+Message-ID: <4382F4C9.3020307@francetelecom.com>
+Date: Tue, 22 Nov 2005 11:36:57 +0100
+From: VALETTE Eric RD-MAPS-REN <eric2.valette@francetelecom.com>
+Reply-To: eric2.valette@francetelecom.com
+Organization: Frnace Telecom R&D
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Steve French <smfrench@austin.rr.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: CIFS improvements/wider testing needed
+References: <4381EFF3.8000201@austin.rr.com> 	<4382032D.4080606@francetelecom.com> <43823CB3.8090303@austin.rr.com>
+In-Reply-To: <43823CB3.8090303@austin.rr.com>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Nov 2005 10:36:57.0012 (UTC) FILETIME=[A9807F40:01C5EF50]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Nov 2005, Andi Kleen wrote:
+Steve French wrote:
+> VALETTE Eric RD-MAPS-REN wrote:
+> 
+>> Steve French wrote:
+>>  
+>>
+>>> Eric,
+>>>   
+>>
+>> Well I would be surprised the "cat >> titi" command does any of this
+>> byte range lock. If the "create and later rewrite the same file"
+>> sequence fails, with a simple cat command (cat > titi ... ^D; cat >>
+>> titi), how can it works with complicated applications?
+>>
+>>  
+>>
+> Make sure that you let me know if your cat example works when mounted
+> with the relatively new "noperm" mount option on the client.   At least
+> then we will know whether we are looking at a problem with access
+> control on the server (ntfs acls) or client (unix mode bits and the
+> .permission entry point)
 
-> > All of that said, I am not even sure we have a bit left in the page
-> > flags on smaller architectures :/.
->
-> How about
->
-> #define PG_checked               8      /* kill me in 2.5.<early>. */
->
-> ?
->
-> At least PG_uncached isn't used on many architectures too, so could
-> be reused. I don't know why those that use it don't check VMAs instead.
->
+The simple "cat > titi ..^D ; cat >> titi" case works when mounted with
+the noperm option.
 
-PG_unchecked appears to be totally unused. It's only users are the macros
-that manipulate the bit and mm/page_alloc.c . It appears it has been a
-long time since it was used to it is a canditate for reuse.
+BTW : the fstab content is now :
 
--- 
-Mel Gorman
-Part-time Phd Student                          Java Applications Developer
-University of Limerick                         IBM Dublin Software Lab
+\\r-canaris\ceva6380    /network/home cifs
+domain=FTRD,noperm,credentials=/home/ceva6380/.s
+ambaShareId 0 0
+
+and the .sambaShareId contains my windows domain (FTRD) login id (same
+as $USER value BTW) and the associated password and "umask" at shell
+prompts return 0022.
+
+Hope this helps.
+
+--eric

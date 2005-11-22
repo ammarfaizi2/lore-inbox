@@ -1,90 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965024AbVKVRYz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965025AbVKVR3H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965024AbVKVRYz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 12:24:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965025AbVKVRYz
+	id S965025AbVKVR3H (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 12:29:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965026AbVKVR3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 12:24:55 -0500
-Received: from p-mail1.rd.francetelecom.com ([195.101.245.15]:34573 "EHLO
-	p-mail1.rd.francetelecom.com") by vger.kernel.org with ESMTP
-	id S965024AbVKVRYy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 12:24:54 -0500
-Message-ID: <43835464.9040808@francetelecom.com>
-Date: Tue, 22 Nov 2005 18:24:52 +0100
-From: VALETTE Eric RD-MAPS-REN <eric2.valette@francetelecom.com>
-Reply-To: eric2.valette@francetelecom.com
-Organization: Frnace Telecom R&D
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Steve French <smfrench@austin.rr.com>
-CC: linux-kernel@vger.kernel.org, linux-cifs-client@lists.samba.org
-Subject: Re: CIFS improvements/wider testing needed
-References: <4381EFF3.8000201@austin.rr.com> 	<4382032D.4080606@francetelecom.com> <43823CB3.8090303@austin.rr.com> 	<438323AC.2090102@francetelecom.com> <43834994.10006@austin.rr.com>
-In-Reply-To: <43834994.10006@austin.rr.com>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Nov 2005 17:24:52.0430 (UTC) FILETIME=[A5FCE6E0:01C5EF89]
+	Tue, 22 Nov 2005 12:29:07 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:41636 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S965025AbVKVR3G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 12:29:06 -0500
+Date: Tue, 22 Nov 2005 12:26:23 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: rfc/rft: use r10 as current on x86-64
+Message-ID: <20051122172622.GI1127@kvack.org>
+References: <20051122165204.GG1127@kvack.org> <20051122171040.GY20775@brahms.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051122171040.GY20775@brahms.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve French wrote:
-> VALETTE Eric RD-MAPS-REN wrote:
+On Tue, Nov 22, 2005 at 06:10:42PM +0100, Andi Kleen wrote:
+> I think you could get most of the benefit by just dropping
+> the volatile and "memory" from read_pda(). With that gcc would
+> usually CSE current into a register and it would would work essentially
+> the same way with only minor more .text overhead, but r10 would be still
+> available.
 > 
->>Steve French wrote:
->>  
->>
->>>VALETTE Eric RD-MAPS-REN wrote:
->>>
->>>    
->>>
->>>>Steve French wrote:
->>>> 
->>>>
->>>>      
->>>>
->>>>>Eric,
->>>>>  
->>>>>        
->>>>>
->>>>Well I would be surprised the "cat >> titi" command does any of this
->>>>byte range lock. If the "create and later rewrite the same file"
->>>>sequence fails, with a simple cat command (cat > titi ... ^D; cat >>
->>>>titi), how can it works with complicated applications?
->>>>
->>>> 
->>>>
->>>>      
->>>>
->>>Make sure that you let me know if your cat example works when mounted
->>>with the relatively new "noperm" mount option on the client.   At least
->>>then we will know whether we are looking at a problem with access
->>>control on the server (ntfs acls) or client (unix mode bits and the
->>>.permission entry point)
->>>    
->>>
->>
->>Works with the "noperm" mount option.
->>
->>--eric
->>
->>  
->>
-> Could you run "stat titi" and/or "ls -l titi" between the
->     "cat > titi"
-> and the
->     "cat >> titi"
+> Unfortunately when that's done then the kernel doesn't boot.
+> It's probably something silly, but i never had time to track it down.
+> Might want to look into that?
 
-cat > toto
-toto
-8 r-ptxp-ceva6380:/network/home/test3->ls -l toto
--rw-r--r-- 1 root root 5 2005-11-22 17:50 toto
-9 r-ptxp-ceva6380:/network/home/test3->cat >>titi
-tata
-10 r-ptxp-ceva6380:/network/home/test3->ls -l toto
--rw-r--r-- 1 root root 5 2005-11-22 17:50 toto
+Without even fixing it, the difference in kernel code size is still 20K 
+less than what using a register does.  The benefit of using a register is
+that accessing a field in current can simply offset the register, compared 
+to the pda usage that requires loading current into a register before the 
+offset is performed.  Using 'size' on the resulting kernels shows:
 
-OK, I'm not root.root but why does my identity seem to change between
-the file creation and the file rewrite?
+   text    data     bss     dec     hex filename
+4132289  819632  317256 5269177  5066b9 vmlinux.orig
+4119951  819632  317256 5256839  503687 vmlinux.non-volatile
+4097300  819560  317256 5234116  4fddc4 vmlinux.r10
 
--- eric
+I think that using a register makes more sense given the benefits.
+
+		-ben
+-- 
+"Time is what keeps everything from happening all at once." -- John Wheeler
+Don't Email: <dont@kvack.org>.

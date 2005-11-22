@@ -1,56 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964974AbVKVQBZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964977AbVKVQPB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964974AbVKVQBZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 11:01:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964972AbVKVQBZ
+	id S964977AbVKVQPB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 11:15:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964976AbVKVQPB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 11:01:25 -0500
-Received: from usbb-lacimss2.unisys.com ([192.63.108.52]:19461 "EHLO
-	usbb-lacimss2.unisys.com") by vger.kernel.org with ESMTP
-	id S964974AbVKVQBZ convert rfc822-to-8bit (ORCPT
+	Tue, 22 Nov 2005 11:15:01 -0500
+Received: from fw5.argo.co.il ([194.90.79.130]:24593 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S964975AbVKVQPA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 11:01:25 -0500
-Content-class: urn:content-classes:message
+	Tue, 22 Nov 2005 11:15:00 -0500
+Message-ID: <43834400.3040506@argo.co.il>
+Date: Tue, 22 Nov 2005 18:14:56 +0200
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: [PATCH] pci hotplug: Fix cut/paste error
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Date: Tue, 22 Nov 2005 11:01:13 -0500
-Message-ID: <5E735516D527134997ABD465886BBDA61AC2FF@USTR-EXCH5.na.uis.unisys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] pci hotplug: Fix cut/paste error
-Thread-Index: AcXvffat5aawXJVtTBSv3ckPI6UiJA==
-From: "Jordan, William P" <William.Jordan@unisys.com>
-To: <gregkh@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 22 Nov 2005 16:01:14.0914 (UTC) FILETIME=[F750B820:01C5EF7D]
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Jon Smirl <jonsmirl@gmail.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Airlie <airlied@gmail.com>,
+       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Small PCI core patch
+References: <20051121225303.GA19212@kroah.com> <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston> <21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com> <1132623268.20233.14.camel@localhost.localdomain> <1132626478.26560.104.camel@gaston> <9e4733910511211923r69cdb835pf272ac745ae24ed7@mail.gmail.com> <43833D61.9050400@argo.co.il> <20051122155143.GA30880@havoc.gtf.org>
+In-Reply-To: <20051122155143.GA30880@havoc.gtf.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Nov 2005 16:14:58.0828 (UTC) FILETIME=[E26804C0:01C5EF7F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: William Jordan <william.jordan@unisys.com>
+Jeff Garzik wrote:
 
-Fixed code which checked the wrong PCI config register.
-Against linux-2.6.15-rc1
+>On Tue, Nov 22, 2005 at 05:46:41PM +0200, Avi Kivity wrote:
+>  
+>
+>>4) Write a translation layer (for xorg or the kernel) that can load 
+>>Windows drivers. Use binary translation for non-x86. Hope the APIs are 
+>>not patented.
+>>    
+>>
+>
+>Give up all hope of ever diagnosing or fixing a crash.
+>
+>Welcome to Windows instability, circa 1995.
+>
+>  
+>
+You exaggerate. Windows drivers work well enough in Windows (or so I 
+presume). One just has to implement the environment these drivers 
+expect, very carefully.
 
-Signed-off-by: William Jordan <william.jordan@unisys.com>
----
+For the untrusting, options do remain:
 
---- linux-2.6.15-rc1/drivers/pci/hotplug/ibmphp_pci.c.orig
-2005-11-22 10:14:30.000000000 -0500
-+++ linux-2.6.15-rc1/drivers/pci/hotplug/ibmphp_pci.c	2005-11-22
-10:15:05.000000000 -0500
-@@ -969,7 +969,7 @@ static int configure_bridge (struct pci_
- 			debug ("io 32\n");
- 			need_io_upper = TRUE;
- 		}
--		if ((io_base & PCI_PREF_RANGE_TYPE_MASK) ==
-PCI_PREF_RANGE_TYPE_64) {
-+		if ((pfmem_base & PCI_PREF_RANGE_TYPE_MASK) ==
-PCI_PREF_RANGE_TYPE_64) {
- 			debug ("pfmem 64\n");
- 			need_pfmem_upper = TRUE;
- 		}
+- run the driver in userspace (if it's a xorg driver, in a separate 
+process) so that all outputs can be validated
+- use binary translation even on x86 and validate all memory and I/O 
+accesses (like valgrind, but hopefully faster)
+
+It's still possible for the driver to dma stuff where it shouldn't. 
+Maybe IOMMU games (where available) can help. But I seriously doubt it 
+will be that bad.
 

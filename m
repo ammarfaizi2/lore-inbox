@@ -1,31 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965046AbVKVVQv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965058AbVKVVQE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965046AbVKVVQv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 16:16:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965223AbVKVVQK
+	id S965058AbVKVVQE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 16:16:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965199AbVKVVK2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 16:16:10 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:50591 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965202AbVKVVKP (ORCPT
+	Tue, 22 Nov 2005 16:10:28 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:48799 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965201AbVKVVKL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 16:10:15 -0500
-Date: Tue, 22 Nov 2005 13:08:38 -0800
+	Tue, 22 Nov 2005 16:10:11 -0500
+Date: Tue, 22 Nov 2005 13:08:32 -0800
 From: Chris Wright <chrisw@osdl.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Marcel Holtmann <marcel@holtmann.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       discuss@x86-64.org, Lukas Hejtmanek <xhejtman@mail.muni.cz>,
-       Shaohua Li <shaohua.li@intel.com>, ak@suse.de
-Subject: [patch 19/23] [PATCH] x86_64/i386: Compute correct MTRR mask on early Noconas
-Message-ID: <20051122210838.GT28140@shell0.pdx.osdl.net>
+       YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
+Subject: [patch 18/23] [PATCH] [IPV6]: Fix sending extension headers before and including routing header.
+Message-ID: <20051122210832.GS28140@shell0.pdx.osdl.net>
 References: <20051122205223.099537000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="4GB-memory-intel-dual-core.patch"
+Content-Disposition: inline; filename="fix-sending-extension-headers-before.patch"
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -33,56 +31,109 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-Force correct address space size for MTRR on some 64bit Intel Xeons
+Based on suggestion from Masahide Nakamura <nakam@linux-ipv6.org>.
 
-They report 40bit, but only have 36bits of physical address space.
-This caused problems with setting up the correct masks for MTRR,
-resulting in incorrect MTRRs.
-
-CPUID workaround for steppings 0F33h(supporting x86) and 0F34h(supporting x86
-and EM64T). Detail info can be found at:
-http://download.intel.com/design/Xeon/specupdt/30240216.pdf
-http://download.intel.com/design/Pentium4/specupdt/30235221.pdf
-
-Signed-off-by: Shaohua Li <shaohua.li@intel.com>
-Signed-off-by: Andi Kleen <ak@suse.de>
+Signed-off-by: YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
 Signed-off-by: Chris Wright <chrisw@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- arch/i386/kernel/cpu/mtrr/main.c |    8 ++++++++
- arch/x86_64/kernel/setup.c       |    5 +++++
- 2 files changed, 13 insertions(+)
+ include/net/ipv6.h       |    2 ++
+ net/ipv6/exthdrs.c       |   19 +++++++++++++++++++
+ net/ipv6/ip6_flowlabel.c |   16 ++++++----------
+ net/ipv6/raw.c           |    4 +++-
+ net/ipv6/udp.c           |    4 +++-
+ 5 files changed, 33 insertions(+), 12 deletions(-)
 
---- linux-2.6.14.2.orig/arch/i386/kernel/cpu/mtrr/main.c
-+++ linux-2.6.14.2/arch/i386/kernel/cpu/mtrr/main.c
-@@ -626,6 +626,14 @@ void __init mtrr_bp_init(void)
- 		if (cpuid_eax(0x80000000) >= 0x80000008) {
- 			u32 phys_addr;
- 			phys_addr = cpuid_eax(0x80000008) & 0xff;
-+			/* CPUID workaround for Intel 0F33/0F34 CPU */
-+			if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL &&
-+			    boot_cpu_data.x86 == 0xF &&
-+			    boot_cpu_data.x86_model == 0x3 &&
-+			    (boot_cpu_data.x86_mask == 0x3 ||
-+			     boot_cpu_data.x86_mask == 0x4))
-+				phys_addr = 36;
-+
- 			size_or_mask = ~((1 << (phys_addr - PAGE_SHIFT)) - 1);
- 			size_and_mask = ~size_or_mask & 0xfff00000;
- 		} else if (boot_cpu_data.x86_vendor == X86_VENDOR_CENTAUR &&
---- linux-2.6.14.2.orig/arch/x86_64/kernel/setup.c
-+++ linux-2.6.14.2/arch/x86_64/kernel/setup.c
-@@ -993,6 +993,11 @@ static void __cpuinit init_intel(struct 
- 		unsigned eax = cpuid_eax(0x80000008);
- 		c->x86_virt_bits = (eax >> 8) & 0xff;
- 		c->x86_phys_bits = eax & 0xff;
-+		/* CPUID workaround for Intel 0F34 CPU */
-+		if (c->x86_vendor == X86_VENDOR_INTEL &&
-+		    c->x86 == 0xF && c->x86_model == 0x3 &&
-+		    c->x86_mask == 0x4)
-+			c->x86_phys_bits = 36;
- 	}
+--- linux-2.6.14.2.orig/include/net/ipv6.h
++++ linux-2.6.14.2/include/net/ipv6.h
+@@ -237,6 +237,8 @@ extern struct ipv6_txoptions *	ipv6_rene
+ 						   int newtype,
+ 						   struct ipv6_opt_hdr __user *newopt,
+ 						   int newoptlen);
++struct ipv6_txoptions *ipv6_fixup_options(struct ipv6_txoptions *opt_space,
++					  struct ipv6_txoptions *opt);
  
- 	if (c->x86 == 15)
+ extern int ip6_frag_nqueues;
+ extern atomic_t ip6_frag_mem;
+--- linux-2.6.14.2.orig/net/ipv6/exthdrs.c
++++ linux-2.6.14.2/net/ipv6/exthdrs.c
+@@ -673,3 +673,22 @@ out:
+ 	return ERR_PTR(err);
+ }
+ 
++struct ipv6_txoptions *ipv6_fixup_options(struct ipv6_txoptions *opt_space,
++					  struct ipv6_txoptions *opt)
++{
++	/*
++	 * ignore the dest before srcrt unless srcrt is being included.
++	 * --yoshfuji
++	 */
++	if (opt && opt->dst0opt && !opt->srcrt) {
++		if (opt_space != opt) {
++			memcpy(opt_space, opt, sizeof(*opt_space));
++			opt = opt_space;
++		}
++		opt->opt_nflen -= ipv6_optlen(opt->dst0opt);
++		opt->dst0opt = NULL;
++	}
++
++	return opt;
++}
++
+--- linux-2.6.14.2.orig/net/ipv6/ip6_flowlabel.c
++++ linux-2.6.14.2/net/ipv6/ip6_flowlabel.c
+@@ -225,20 +225,16 @@ struct ipv6_txoptions *fl6_merge_options
+ 					 struct ip6_flowlabel * fl,
+ 					 struct ipv6_txoptions * fopt)
+ {
+-	struct ipv6_txoptions * fl_opt = fl ? fl->opt : NULL;
+-
+-	if (fopt == NULL || fopt->opt_flen == 0) {
+-		if (!fl_opt || !fl_opt->dst0opt || fl_opt->srcrt)
+-			return fl_opt;
+-	}
+-
++	struct ipv6_txoptions * fl_opt = fl->opt;
++
++	if (fopt == NULL || fopt->opt_flen == 0)
++		return fl_opt;
++
+ 	if (fl_opt != NULL) {
+ 		opt_space->hopopt = fl_opt->hopopt;
+-		opt_space->dst0opt = fl_opt->srcrt ? fl_opt->dst0opt : NULL;
++		opt_space->dst0opt = fl_opt->dst0opt;
+ 		opt_space->srcrt = fl_opt->srcrt;
+ 		opt_space->opt_nflen = fl_opt->opt_nflen;
+-		if (fl_opt->dst0opt && !fl_opt->srcrt)
+-			opt_space->opt_nflen -= ipv6_optlen(fl_opt->dst0opt);
+ 	} else {
+ 		if (fopt->opt_nflen == 0)
+ 			return fopt;
+--- linux-2.6.14.2.orig/net/ipv6/raw.c
++++ linux-2.6.14.2/net/ipv6/raw.c
+@@ -756,7 +756,9 @@ static int rawv6_sendmsg(struct kiocb *i
+ 	}
+ 	if (opt == NULL)
+ 		opt = np->opt;
+-	opt = fl6_merge_options(&opt_space, flowlabel, opt);
++	if (flowlabel)
++		opt = fl6_merge_options(&opt_space, flowlabel, opt);
++	opt = ipv6_fixup_options(&opt_space, opt);
+ 
+ 	fl.proto = proto;
+ 	rawv6_probe_proto_opt(&fl, msg);
+--- linux-2.6.14.2.orig/net/ipv6/udp.c
++++ linux-2.6.14.2/net/ipv6/udp.c
+@@ -778,7 +778,9 @@ do_udp_sendmsg:
+ 	}
+ 	if (opt == NULL)
+ 		opt = np->opt;
+-	opt = fl6_merge_options(&opt_space, flowlabel, opt);
++	if (flowlabel)
++		opt = fl6_merge_options(&opt_space, flowlabel, opt);
++	opt = ipv6_fixup_options(&opt_space, opt);
+ 
+ 	fl->proto = IPPROTO_UDP;
+ 	ipv6_addr_copy(&fl->fl6_dst, daddr);
 
 --

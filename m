@@ -1,40 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965086AbVKVS0X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965093AbVKVSb0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965086AbVKVS0X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 13:26:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965087AbVKVS0X
+	id S965093AbVKVSb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 13:31:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965096AbVKVSb0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 13:26:23 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:22462 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965086AbVKVS0W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 13:26:22 -0500
-Subject: Re: today's graphics (was Re: [RFC] Small PCI core patch)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Dave Airlie <airlied@gmail.com>, Greg KH <greg@kroah.com>,
+	Tue, 22 Nov 2005 13:31:26 -0500
+Received: from relay2.uni-heidelberg.de ([129.206.210.211]:395 "EHLO
+	relay2.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id S965093AbVKVSbY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 13:31:24 -0500
+Date: Tue, 22 Nov 2005 19:31:17 +0100 (CET)
+From: Bogdan Costescu <Bogdan.Costescu@iwr.uni-heidelberg.de>
+To: Bogdan Costescu <Bogdan.Costescu@iwr.uni-heidelberg.de>
+cc: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
        linux-kernel@vger.kernel.org
-In-Reply-To: <20051122142648.GB24997@havoc.gtf.org>
-References: <20051121225303.GA19212@kroah.com>
-	 <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston>
-	 <21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com>
-	 <1132623268.20233.14.camel@localhost.localdomain>
-	 <1132626478.26560.104.camel@gaston>
-	 <1132669546.20233.49.camel@localhost.localdomain>
-	 <20051122142648.GB24997@havoc.gtf.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 22 Nov 2005 18:58:44 +0000
-Message-Id: <1132685924.20233.53.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Subject: Re: [PATCH] Marvell SATA fixes v2
+In-Reply-To: <Pine.LNX.4.63.0511211311260.22263@dingo.iwr.uni-heidelberg.de>
+Message-ID: <Pine.LNX.4.63.0511221809430.24388@dingo.iwr.uni-heidelberg.de>
+References: <437D2DED.5030602@pobox.com>
+ <Pine.LNX.4.44.0511182241420.5095-100000@kenzo.iwr.uni-heidelberg.de>
+ <20051118215209.GA9425@havoc.gtf.org> <Pine.LNX.4.63.0511211311260.22263@dingo.iwr.uni-heidelberg.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-11-22 at 09:26 -0500, Jeff Garzik wrote:
-> I've proposed to Intel, and would like to talk to ATI/NVIDIA, about
-> seeing what can be done to standardize the REALLY DUMB components, like
-> the DMA interface to transfer code and data.
+On Mon, 21 Nov 2005, Bogdan Costescu wrote:
 
-You put it in the processor eventually. 
+> This was a SMP kernel running on an Intel PIV with HyperThreading 
+> and with 2 disks attached to the controller. I'll try to get this 
+> crash again with serial console...
+
+I seem to have some problems getting the serial console to work, but 
+in the mean time I have some more results, this time using a UP 
+kernel (again without MSI and libata DEBUG):
+
+1. several badblocks tests finished fine; the speed is also fine 
+(about 50Mbytes/s both read and write as reported by both iostat 
+during badblocks and bonnie++ on an ext2 FS).
+
+2. I know that we are not yet talking about hotplugging, but this 
+is what happens if you do it (unplug) :-)
+
+Badness in mv_channel_reset at /root/sata_mv/sata_mv.c:1701 (Not 
+tainted)
+  [<f8955282>] mv_channel_reset+0xe3/0xed [sata_mv]
+  [<f89552b0>] mv_stop_and_reset+0x24/0x2d [sata_mv]
+  [<f8954ae0>] mv_host_intr+0x13d/0x17c [sata_mv]
+  [<f8954b92>] mv_interrupt+0x73/0xeb [sata_mv]
+  [<c0141f0d>] handle_IRQ_event+0x2e/0x5a
+  [<c0141fb7>] __do_IRQ+0x7e/0xd7
+  [<c0104e7e>] do_IRQ+0x4a/0x82
+  =======================
+  [<c01038ca>] common_interrupt+0x1a/0x20
+  [<c023a35f>] acpi_safe_halt+0x22/0x2c
+  [<c023a472>] acpi_processor_idle+0x109/0x27a
+  [<c01010c1>] cpu_idle+0x40/0x58
+  [<c03f873f>] start_kernel+0x15b/0x1b2
+  [<c03f831d>] unknown_bootoption+0x0/0x1b6
+Badness in __msleep at /root/sata_mv/sata_mv.c:1721 (Not tainted)
+  [<f8955649>] __mv_phy_reset+0x390/0x405 [sata_mv]
+  [<c0111923>] delay_tsc+0xb/0x13
+  [<c01e7659>] __delay+0x9/0xa
+  [<f8954ae0>] mv_host_intr+0x13d/0x17c [sata_mv]
+  [<f8954b92>] mv_interrupt+0x73/0xeb [sata_mv]
+  [<c0141f0d>] handle_IRQ_event+0x2e/0x5a
+  [<c0141fb7>] __do_IRQ+0x7e/0xd7
+  [<c0104e7e>] do_IRQ+0x4a/0x82
+  =======================
+  [<c01038ca>] common_interrupt+0x1a/0x20
+  [<c023a35f>] acpi_safe_halt+0x22/0x2c
+  [<c023a472>] acpi_processor_idle+0x109/0x27a
+  [<c01010c1>] cpu_idle+0x40/0x58
+  [<c03f873f>] start_kernel+0x15b/0x1b2
+  [<c03f831d>] unknown_bootoption+0x0/0x1b6
+ata4: no device found (phy stat 00000000)
+
+The acpi_* stuff might be due to the fact that this interrupt is taken 
+over first by ACPI and later assigned also to sata_mv; this happens 
+only with the UP kernel, for the SMP kernel sata_mv did not share the 
+interrupt.
+
+-- 
+Bogdan Costescu
+
+IWR - Interdisziplinaeres Zentrum fuer Wissenschaftliches Rechnen
+Universitaet Heidelberg, INF 368, D-69120 Heidelberg, GERMANY
+Telephone: +49 6221 54 8869, Telefax: +49 6221 54 8868
+E-mail: Bogdan.Costescu@IWR.Uni-Heidelberg.De

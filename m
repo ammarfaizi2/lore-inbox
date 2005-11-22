@@ -1,74 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbVKVBNl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964815AbVKVBPi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964813AbVKVBNl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 20:13:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964814AbVKVBNl
+	id S964815AbVKVBPi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 20:15:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964816AbVKVBPi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 20:13:41 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:37314 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964813AbVKVBNk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 20:13:40 -0500
-Date: Tue, 22 Nov 2005 01:45:31 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Rob Landley <rob@landley.net>
-Cc: Tarkan Erimer <tarkane@gmail.com>, linux-kernel@vger.kernel.org,
-       Diego Calleja <diegocg@gmail.com>
-Subject: Re: what is our answer to ZFS?
-Message-ID: <20051122004531.GA15189@elf.ucw.cz>
-References: <11b141710511210144h666d2edfi@mail.gmail.com> <20051121124544.9e502404.diegocg@gmail.com> <9611fa230511210619l208b10a8w77aedaa249345448@mail.gmail.com> <200511211252.04217.rob@landley.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200511211252.04217.rob@landley.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Mon, 21 Nov 2005 20:15:38 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:37871 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S964815AbVKVBPh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 20:15:37 -0500
+Date: Mon, 21 Nov 2005 20:15:11 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>,
+       "K.R. Foley" <kr@cybsft.com>, Thomas Gleixner <tglx@linutronix.de>,
+       pluto@agmk.net, john cooper <john.cooper@timesys.com>,
+       Benedikt Spranger <bene@linutronix.de>,
+       Daniel Walker <dwalker@mvista.com>,
+       Tom Rini <trini@kernel.crashing.org>,
+       George Anzinger <george@mvista.com>
+Subject: Re: test time-warps [was: Re: 2.6.14-rt13]
+In-Reply-To: <20051121221941.GA11102@elte.hu>
+Message-ID: <Pine.LNX.4.58.0511212012020.5461@gandalf.stny.rr.com>
+References: <20051115090827.GA20411@elte.hu> <1132608728.4805.20.camel@cmn3.stanford.edu>
+ <20051121221511.GA7255@elte.hu> <20051121221941.GA11102@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > If It happenned, Sun or someone has port it to linux.
-> > We will need some VFS changes to handle 128 bit FS as "Jörn ENGEL"
-> > mentionned previous mail in this thread. Is there any plan or action
-> > to make VFS handle 128 bit File Sytems like ZFS or future 128 bit
-> > File Systems ? Any VFS people reply to this, please?
-> 
-> I believe that on 64 bit platforms, Linux has a 64 bit clean VFS.  Python says 
-> 2**64 is 18446744073709551616, and that's roughly:
-> 18,446,744,073,709,551,616 bytes
-> 18,446,744,073,709 megs
-> 18,446,744,073 gigs
-> 18,446,744 terabytes
-> 18,446 ...  what are those, petabytes?
-> 18 Really big lumps of data we won't be using for a while yet.
-> 
-> And that's just 64 bits.  Keep in mind it took us around fifty years to burn 
-> through the _first_ thirty two (which makes sense, since Moore's Law says we 
-> need 1 more bit every 18 months).  We may go through it faster than we went 
-> through the first 32 bits, but it'll last us a couple decades at least.
-> 
-> Now I'm not saying we won't exhaust 64 bits eventually.  Back to chemistry, it 
-> takes 6.02*10^23 protons to weigh 1 gram, and that's just about 2^79, so it's 
-> feasible that someday we might be able to store more than 64 bits of data per 
-> gram, let alone in big room-sized clusters.   But it's not going to be for 
-> years and years, and that's a design problem for Sun.
-> 
-> Sun is proposing it can predict what storage layout will be efficient for as 
-> yet unheard of quantities of data, with unknown access patterns, at least a 
-> couple decades from now.  It's also proposing that data compression and 
-> checksumming are the filesystem's job.  Hands up anybody who spots 
-> conflicting trends here already?  Who thinks the 128 bit requirement came 
-> from marketing rather than the engineers?
 
-Actually, if you are storing information in single protons, I'd say
-you _need_ checksumming :-).
+On Mon, 21 Nov 2005, Ingo Molnar wrote:
 
-[I actually agree with Sun here, not trusting disk is good idea. At
-least you know kernel panic/oops/etc can't be caused by bit corruption on
-the disk.]
+>
+> but in any case, -rt13 should be silent and there should be no time
+> warps. If there are any then those could cause the keyboard repeat
+> problems.
+>
 
-								Pavel
--- 
-Thanks, Sharp!
+Hi Ingo,
+
+I'm running -rt13 with the following command line:
+
+root=/dev/md0 ro console=ttyS0,115200 console=tty0 nmi_watchdog=2 lapic
+earlyprintk=ttyS0,115200 idle=poll
+
+I just got the following output:
+
+$ ./time-warp-test
+#CPUs: 2
+running 2 tasks to check for time-warps.
+warp ..        -5 cycles, ... 0000004fc2ab2b7f -> 0000004fc2ab2b7a ?
+warp ..       -12 cycles, ... 000000506d1d558c -> 000000506d1d5580 ?
+warp ..       -97 cycles, ... 000000536c8868d3 -> 000000536c886872 ?
+warp ..       -99 cycles, ... 00000059ae9d49a1 -> 00000059ae9d493e ?
+warp ..      -110 cycles, ... 00000059ed0f05d6 -> 00000059ed0f0568 ?
+warp ..      -118 cycles, ... 0000007392963142 -> 00000073929630cc ?
+warp ..      -122 cycles, ... 0000007d6a94bc76 -> 0000007d6a94bbfc ?
+warp ..      -346 cycles, ... 0000008acf28a18e -> 0000008acf28a034 ?
+warp ..      -390 cycles, ... 0000008b2fc61fef -> 0000008b2fc61e69 ?
+
+-- Steve
+
+

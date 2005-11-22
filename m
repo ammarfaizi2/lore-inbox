@@ -1,62 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbVKVDXZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbVKVDYA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750741AbVKVDXZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 22:23:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbVKVDXZ
+	id S1750750AbVKVDYA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 22:24:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbVKVDX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 22:23:25 -0500
-Received: from wproxy.gmail.com ([64.233.184.204]:29075 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750741AbVKVDXY convert rfc822-to-8bit
+	Mon, 21 Nov 2005 22:23:59 -0500
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:51909 "EHLO
+	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S1750750AbVKVDX7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 22:23:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pqowwwxvYel2hEHN2eaCXuUtaRKzon/hDumyF9RDvPbs8uCUW0b+Z+5QU9rC6ZhxS/b9UJubJH+4EMd6MyvCS4v6iffLfZhQbpumkiFp3ZDR1alVGwtCHR+DiW90znwWPmCNX7+sTkRL3Wex5wficW9NFZiEf501NyOml3F4vdU=
-Message-ID: <9e4733910511211923r69cdb835pf272ac745ae24ed7@mail.gmail.com>
-Date: Mon, 21 Nov 2005 22:23:21 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [RFC] Small PCI core patch
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Airlie <airlied@gmail.com>,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1132626478.26560.104.camel@gaston>
+	Mon, 21 Nov 2005 22:23:59 -0500
+Message-ID: <43829080.7040706@student.ltu.se>
+Date: Tue, 22 Nov 2005 04:29:04 +0100
+From: Richard Knutsson <ricknu-0@student.ltu.se>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051121225303.GA19212@kroah.com>
-	 <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston>
-	 <21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com>
-	 <1132623268.20233.14.camel@localhost.localdomain>
-	 <1132626478.26560.104.camel@gaston>
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm2] net: Fix compiler-error on atyfb_base.c when !CONFIG_PCI
+References: <20051122022652.6806.10075.sendpatchset@thinktank.campus.ltu.se>
+In-Reply-To: <20051122022652.6806.10075.sendpatchset@thinktank.campus.ltu.se>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/21/05, Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> which is obviously impossible) etc... They really doesn't give a shit
-> about what we think, and will continue to do so until they get a bit fat
-> lawsuit, that is my opinion at least.
+Richard Knutsson wrote:
 
-In the US you can't sue to force their hardware open until they are a
-proven monopoly. And as long as we have both Nvidia and ATI splitting
-the market we won't get a monopoly.
+>diff -Narup a/drivers/net/dgrs.c b/drivers/net/dgrs.c
+>  
+>
+Should of course be:
 
-So the choices are:
+diff -Narup a/drivers/video/aty/atyfb_base.c b/drivers/video/aty/atyfb_base.c
 
-1) Live in 1998. What happens in five years R200's are no longer
-available, fallback to VGA?
 
-2) Temporarily accept the ugly drivers. Let desktop development
-continue. Work hard on getting the vendors to see the light and go
-open source.
-
-3) Use Linux on the server and run Mac or Windows on your desktop.
-
-The choice's aren't exclusive, you can do all three if you want. The
-catch is the part about advancing the Linux desktop, that can't happen
-without access to current and new video hardware.
-
---
-Jon Smirl
-jonsmirl@gmail.com
+Lacy cut 'n' paste, sorry about that.
+Richard

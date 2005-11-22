@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964933AbVKVMvq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964934AbVKVMzF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964933AbVKVMvq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 07:51:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964934AbVKVMvq
+	id S964934AbVKVMzF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 07:55:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964937AbVKVMzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 07:51:46 -0500
-Received: from sipsolutions.net ([66.160.135.76]:61458 "EHLO sipsolutions.net")
-	by vger.kernel.org with ESMTP id S964933AbVKVMvq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 07:51:46 -0500
-Message-ID: <60396.131.234.108.27.1132663900.squirrel@secure.sipsolutions.net>
-In-Reply-To: <70210ED5-37CA-40BC-8293-FF1DAA3E8BD5@comcast.net>
-References: <111520052143.16540.437A5680000BE8A60000409C220076369200009A9B9CD3040A029D0A05@comcast.net>
-    <70210ED5-37CA-40BC-8293-FF1DAA3E8BD5@comcast.net>
-Date: Tue, 22 Nov 2005 13:51:40 +0100 (CET)
-Subject: Re: PowerBook5,8 - TrackPad update
-From: "Johannes Berg" <johannes@sipsolutions.net>
-To: "Parag Warudkar" <kernel-stuff@comcast.net>
-Cc: "Parag Warudkar" <kernel-stuff@comcast.net>,
-       debian-powerpc@lists.debian.org,
-       "linux-kernel" <linux-kernel@vger.kernel.org>, linuxppc-dev@ozlabs.org
-User-Agent: SquirrelMail/1.4.5
+	Tue, 22 Nov 2005 07:55:05 -0500
+Received: from silver.veritas.com ([143.127.12.111]:9345 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S964934AbVKVMzD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 07:55:03 -0500
+Date: Tue, 22 Nov 2005 12:55:02 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+cc: Wu Fengguang <wfg@mail.ustc.edu.cn>, akpm@osdl.org, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] properly account readahead file major faults
+In-Reply-To: <20051122062321.GA30413@logos.cnet>
+Message-ID: <Pine.LNX.4.61.0511221249470.24803@goblin.wat.veritas.com>
+References: <20051121140038.GA27349@logos.cnet> <20051122042443.GA4588@mail.ustc.edu.cn>
+ <20051122062321.GA30413@logos.cnet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 22 Nov 2005 12:54:59.0101 (UTC) FILETIME=[F202FCD0:01C5EF63]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Parag Warudkar wrote:
-> Ok, the format interpretation of the trackpad data is taking up more
-> of my time and brain than I was happy with! :)
+On Tue, 22 Nov 2005, Marcelo Tosatti wrote:
+> 
+> Pages which hit the first time in cache due to readahead _have_ caused
+> IO, and as such they should be counted as major faults.
 
-Thanks for sending the data to me, I'll take a look later.
+Have caused IO, or have benefitted from IO which was done earlier?
 
-I have doubts, however, about using the appletouch driver, if the format
-changed significantly then the code will be largely different.
+It sounds debatable, each will have their own idea of what's major.
 
-johannes
+Maybe PageUptodate at the time the entry is found in the page cache
+should come into it?  !PageUptodate implying that we'll be waiting
+for read to complete.
+
+Hugh

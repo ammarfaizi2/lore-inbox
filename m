@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbVKVHPZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbVKVH2v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932180AbVKVHPZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 02:15:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbVKVHPZ
+	id S932181AbVKVH2v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 02:28:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbVKVH2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 02:15:25 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:30685
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S932180AbVKVHPY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 02:15:24 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Bernd Eckenfels <ecki@lina.inka.de>
-Subject: Re: what is our answer to ZFS?
-Date: Tue, 22 Nov 2005 01:15:17 -0600
-User-Agent: KMail/1.8
+	Tue, 22 Nov 2005 02:28:51 -0500
+Received: from mail.kroah.org ([69.55.234.183]:15755 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932181AbVKVH2u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 02:28:50 -0500
+Date: Mon, 21 Nov 2005 23:28:30 -0800
+From: Greg KH <greg@kroah.com>
+To: gmishkin@bu.edu
 Cc: linux-kernel@vger.kernel.org
-References: <E1EeLp5-0002fZ-00@calista.inka.de>
-In-Reply-To: <E1EeLp5-0002fZ-00@calista.inka.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Subject: Re: 2.6.14.2 kernel oops, looks acpi-related
+Message-ID: <20051122072830.GB25419@kroah.com>
+References: <200511212050.10671.gmishkin@acs.bu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511220115.17450.rob@landley.net>
+In-Reply-To: <200511212050.10671.gmishkin@acs.bu.edu>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 21 November 2005 18:15, Bernd Eckenfels wrote:
-> In article <200511211252.04217.rob@landley.net> you wrote:
-> > I believe that on 64 bit platforms, Linux has a 64 bit clean VFS.  Python
-> > says 2**64 is 18446744073709551616, and that's roughly:
-> > 18,446,744,073,709,551,616 bytes
-> > 18,446,744,073,709 megs
-> > 18,446,744,073 gigs
-> > 18,446,744 terabytes
-> > 18,446 ...  what are those, petabytes?
-> > 18 Really big lumps of data we won't be using for a while yet.
->
-> The prolem is not about file size. It is about for example unique inode
-> numbers. If you have a file system which spans multiple volumnes and maybe
-> nodes, you need more unqiue methods of addressing the files and blocks.
+On Mon, Nov 21, 2005 at 08:50:03PM -0500, Geoff Mishkin wrote:
+> Unable to handle kernel paging request at virtual address 4b87ad6e
+>  printing eip:
+> c01f6b76
+> *pde = 00000000
+> Oops: 0000 [#1]
+> Modules linked in: uhci_hcd ehci_hcd vmnet parport_pc parport vmmon arc4 
+> ieee80211_crypt_wep ieee80211_crypt nfs lockd sunrpc cisco_ipsec ipt_state 
+> iptable_filter iptable_nat ip_nat ip_conntrack iptable_mangle ip_tables 
+> pcmcia yenta_socket rsrc_nonstatic pcmcia_core snd_pcm_oss snd_mixer_oss 
+> snd_seq_dummy snd_seq_oss snd_seq_midi_event snd_seq snd_seq_device 
+> snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd soundcore 
+> snd_page_alloc nls_iso8859_1 ntfs nls_base nvram usbhid usb_storage usbcore 
+> tun e1000 evdev fglrx intel_agp agpgart rtc speedstep_centrino freq_table 
+> ibm_acpi
+> CPU:    0
+> EIP:    0060:[<c01f6b76>]    Tainted: P   M  VLI
 
-18 quintillion inodes are enough to give every ipv4 address on the internet 4 
-billion unique inodes.  I take it this is not enough space for Sun to work 
-out a reasonable allocation strategy in?
+Unfortunatly you have loaded the vmware drivers into your kernel, so we
+really can't help out much here.  If you can duplicate this without
+those drivers loaded, please file a bug at bugzilla.kernel.org.
 
-Rob
+thanks,
 
-
+greg k-h

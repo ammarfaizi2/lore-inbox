@@ -1,44 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030242AbVKVXfU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030203AbVKVXoH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030242AbVKVXfU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 18:35:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030250AbVKVXfT
+	id S1030203AbVKVXoH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 18:44:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030257AbVKVXoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 18:35:19 -0500
-Received: from atlrel9.hp.com ([156.153.255.214]:22924 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S1030242AbVKVXfS (ORCPT
+	Tue, 22 Nov 2005 18:44:07 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:2176 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1030203AbVKVXoF convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 18:35:18 -0500
-Date: Tue, 22 Nov 2005 15:35:15 -0800
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Jani Monoses <jani.monoses@gmail.com>
-Subject: Re: BUG 2.6.14.2 : ACPI boot lockup
-Message-ID: <20051122233515.GA29974@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-User-Agent: Mutt/1.5.9i
-From: Jean Tourrilhes <jt@hpl.hp.com>
+	Tue, 22 Nov 2005 18:44:05 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH 5/5] Light fragmentation avoidance without usemap: 005_drainpercpu
+Date: Tue, 22 Nov 2005 15:43:33 -0800
+Message-ID: <01EF044AAEE12F4BAAD955CB75064943053DF65D@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 5/5] Light fragmentation avoidance without usemap: 005_drainpercpu
+Thread-Index: AcXvmb+XKrCqqaaLTIOVzLszpa61zgAI0Isg
+From: "Seth, Rohit" <rohit.seth@intel.com>
+To: "Mel Gorman" <mel@csn.ul.ie>, <linux-mm@kvack.org>
+Cc: <nickpiggin@yahoo.com.au>, <ak@suse.de>, <linux-kernel@vger.kernel.org>,
+       <lhms-devel@lists.sourceforge.net>, <mingo@elte.hu>
+X-OriginalArrivalTime: 22 Nov 2005 23:43:34.0892 (UTC) FILETIME=[8DA172C0:01C5EFBE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Tourrilhes wrote :
->	The pristine 2.6.14.2 kernel lockup at boot on my
-> laptop. Kernel 2.6.11 did boot properly, as far as I could see. Did
-> not try versions in between.
+From:  Mel Gorman Sent: Tuesday, November 22, 2005 11:18 AM
 
-	Adding the following options to the kernel command line
-(lilo.conf;grub/menu.lst) did workaround the issue :
---------------------------------
-pci=noacpi ec_burst=1
---------------------------------
-	I believe the second one is not needed.
+>Per-cpu pages can accidentally cause fragmentation because they are
+free, >but
+>pinned pages in an otherwise contiguous block.  When this patch is
+applied,
+>the per-cpu caches are drained after the direct-reclaim is entered if
+the
 
-	Have fun...
+I don't think this is the right place to drain the pcp.  Since direct
+reclaim is already done, so it is possible that allocator can service
+the request without draining the pcps. 
 
-	Jean
 
+>requested order is greater than 3. 
+
+Why this order limit.  Most of the previous failures seen (because of my
+
+earlier patches of bigger and more physical contiguous chunks for pcps) 
+were with order 1 allocation.
+
+>It simply reuses the code used by suspend
+>and hotplug and only is triggered when anti-defragmentation is enabled.
+>
+That code has issues with pre-emptible kernel.
+
+I will be shortly sending the patch to free pages from pcp when higher
+order
+allocation is not able to get serviced from global list.
+
+-rohi

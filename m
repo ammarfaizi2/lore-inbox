@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964954AbVKVOa6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964950AbVKVOgN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964954AbVKVOa6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 09:30:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbVKVOa6
+	id S964950AbVKVOgN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 09:36:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964952AbVKVOgM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 09:30:58 -0500
-Received: from havoc.gtf.org ([69.61.125.42]:14723 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S964950AbVKVOa5 (ORCPT
+	Tue, 22 Nov 2005 09:36:12 -0500
+Received: from havoc.gtf.org ([69.61.125.42]:21635 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S964950AbVKVOgL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 09:30:57 -0500
-Date: Tue, 22 Nov 2005 09:30:55 -0500
+	Tue, 22 Nov 2005 09:36:11 -0500
+Date: Tue, 22 Nov 2005 09:36:10 -0500
 From: Jeff Garzik <jgarzik@pobox.com>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: Neil Brown <neilb@suse.de>, Jon Smirl <jonsmirl@gmail.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Airlie <airlied@gmail.com>,
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
        Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
 Subject: Re: [RFC] Small PCI core patch
-Message-ID: <20051122143055.GC24997@havoc.gtf.org>
-References: <20051121225303.GA19212@kroah.com> <9e4733910511211923r69cdb835pf272ac745ae24ed7@mail.gmail.com> <17282.39560.978065.606788@cse.unsw.edu.au> <200511221007.12833.vda@ilport.com.ua>
+Message-ID: <20051122143610.GD24997@havoc.gtf.org>
+References: <20051121225303.GA19212@kroah.com> <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston> <1132638652.2789.4.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200511221007.12833.vda@ilport.com.ua>
+In-Reply-To: <1132638652.2789.4.camel@laptopd505.fenrus.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 22, 2005 at 10:07:12AM +0200, Denis Vlasenko wrote:
-> Historically hackers were not too good at raising funds.
-> 
-> Maybe we should use stuff which we are good at? Forcedeth
-> is a nice precedent. 2d and especially 3d engines
-> may be significantly harder to reverse engineer,
-> but people can scale rather nicely, as kernel development shows. ;)
-> 
-> Then write specs from gained knowledge and put it on a web page.
+On Tue, Nov 22, 2005 at 06:50:52AM +0100, Arjan van de Ven wrote:
+> [1] Both nvidia and ati have a way out: they can do the IP side
+> (translating 3D stuff into card specific commands) in userspace and just
+> pass the data to the hardware via a thin driver that just drives and
+> controls the hardware. Sure it may be 5% slower, but it's a lot cleaner
+> IP wise. X after all is MIT (bsd like without nasty clauses) licensed
+> and allows binary components.
 
-Yes, IMO this is the only realistic path, without cooperation from
-ATI/NVIDIA.
+100% agreed...  IMO this is the best way to get open source 3D stuff.
 
-This is why I dislike the ATI r300 rev-eng effort:  I cannot find any
-"Chinese wall":  one team rev-engs the hardware and writes a doc.
-Another team writes the drivers from the docs.
+One sticking point is validation:  ensuring userspace cannot cause
+invalid GPU microcode to be generated.  [I can just hear Al Viro
+swearing, just thinking about creating secure compilers...]
 
 	Jeff
 

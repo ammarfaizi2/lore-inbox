@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbVKVQZN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964979AbVKVQ1I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751316AbVKVQZN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 11:25:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbVKVQZM
+	id S964979AbVKVQ1I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 11:27:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbVKVQ1I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 11:25:12 -0500
-Received: from havoc.gtf.org ([69.61.125.42]:23686 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1751315AbVKVQZK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 11:25:10 -0500
-Date: Tue, 22 Nov 2005 11:25:06 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
+	Tue, 22 Nov 2005 11:27:08 -0500
+Received: from zproxy.gmail.com ([64.233.162.207]:19992 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964980AbVKVQ1E convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 11:27:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=bkp0/6k8RdsKHSkzxizZXaPaOk8iDzlmLpDACjpps/5968RmXwKXU0QImlfVZ8aa01zj7TpY+/hNcmf7rHKXz191w8w00G++e/8rLLfdqoYICwluQ7NPq/y86E2u7V44WzZKYneS0lORFdY+gqifUkK4py6iQkms1n7UL6quB9U=
+Date: Tue, 22 Nov 2005 17:26:50 +0100
+From: Diego Calleja <diegocg@gmail.com>
 To: Avi Kivity <avi@argo.co.il>
-Cc: Jon Smirl <jonsmirl@gmail.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Airlie <airlied@gmail.com>,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Cc: jgarzik@pobox.com, jonsmirl@gmail.com, benh@kernel.crashing.org,
+       alan@lxorguk.ukuu.org.uk, airlied@gmail.com, greg@kroah.com,
+       linux-kernel@vger.kernel.org
 Subject: Re: [RFC] Small PCI core patch
-Message-ID: <20051122162506.GA32684@havoc.gtf.org>
-References: <20051121225303.GA19212@kroah.com> <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston> <21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com> <1132623268.20233.14.camel@localhost.localdomain> <1132626478.26560.104.camel@gaston> <9e4733910511211923r69cdb835pf272ac745ae24ed7@mail.gmail.com> <43833D61.9050400@argo.co.il> <20051122155143.GA30880@havoc.gtf.org> <43834400.3040506@argo.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Message-Id: <20051122172650.72f454de.diegocg@gmail.com>
 In-Reply-To: <43834400.3040506@argo.co.il>
-User-Agent: Mutt/1.4.1i
+References: <20051121225303.GA19212@kroah.com>
+	<20051121230136.GB19212@kroah.com>
+	<1132616132.26560.62.camel@gaston>
+	<21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com>
+	<1132623268.20233.14.camel@localhost.localdomain>
+	<1132626478.26560.104.camel@gaston>
+	<9e4733910511211923r69cdb835pf272ac745ae24ed7@mail.gmail.com>
+	<43833D61.9050400@argo.co.il>
+	<20051122155143.GA30880@havoc.gtf.org>
+	<43834400.3040506@argo.co.il>
+X-Mailer: Sylpheed version 2.1.6 (GTK+ 2.8.3; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 22, 2005 at 06:14:56PM +0200, Avi Kivity wrote:
+El Tue, 22 Nov 2005 18:14:56 +0200,
+Avi Kivity <avi@argo.co.il> escribió:
+
 > You exaggerate. Windows drivers work well enough in Windows (or so I 
 > presume). One just has to implement the environment these drivers 
 > expect, very carefully.
 
-I exaggerate nothing -- we have real world experience with ndiswrapper
-and similar software, which is exactly the same model you proposed, is
-exactly the same model that has created all sorts of technical, legal,
-and political problems.
+If you're going to use binary drivers it'd be much better to implement
+a linux "driver compatibility layer" so at least you don't have to
+use crap from other systems
 
-Dumb with a capital 'D'.
-
-	Jeff
-
+And no, windows drivers don't work well enought in windows
+(try enabling the /3GB switch in your box and check how many drivers
+break...)

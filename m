@@ -1,151 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030191AbVKVV7u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbVKVWAg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030191AbVKVV7u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 16:59:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030190AbVKVV7u
+	id S1030190AbVKVWAg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 17:00:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030192AbVKVWAZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 16:59:50 -0500
-Received: from perninha.conectiva.com.br ([200.140.247.100]:44441 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S1030189AbVKVV7m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 16:59:42 -0500
-Date: Tue, 22 Nov 2005 19:59:47 -0200
-From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
-To: gregkh@suse.de
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       akpm@osdl.org, ehabkost@mandriva.com
-Subject: [PATCH 1/2] - usbserial: Adds missing parameters checks.
-Message-Id: <20051122195947.4d910ccd.lcapitulino@mandriva.com.br>
-Organization: Mandriva
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-conectiva-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Nov 2005 17:00:25 -0500
+Received: from gateway.argo.co.il ([194.90.79.130]:30984 "EHLO
+	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S1030190AbVKVWAI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 17:00:08 -0500
+Message-ID: <438394E1.8080505@argo.co.il>
+Date: Wed, 23 Nov 2005 00:00:01 +0200
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Diego Calleja <diegocg@gmail.com>
+CC: jgarzik@pobox.com, jonsmirl@gmail.com, benh@kernel.crashing.org,
+       alan@lxorguk.ukuu.org.uk, airlied@gmail.com, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Small PCI core patch
+References: <20051121225303.GA19212@kroah.com>	<20051121230136.GB19212@kroah.com>	<1132616132.26560.62.camel@gaston>	<21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com>	<1132623268.20233.14.camel@localhost.localdomain>	<1132626478.26560.104.camel@gaston>	<9e4733910511211923r69cdb835pf272ac745ae24ed7@mail.gmail.com>	<43833D61.9050400@argo.co.il>	<20051122155143.GA30880@havoc.gtf.org>	<43834400.3040506@argo.co.il>	<20051122172650.72f454de.diegocg@gmail.com>	<438348BB.1050504@argo.co.il>	<20051122204910.a4bd1d1e.diegocg@gmail.com>	<43837AD1.7060504@argo.co.il> <20051122214327.37b902e4.diegocg@gmail.com>
+In-Reply-To: <20051122214327.37b902e4.diegocg@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
+X-OriginalArrivalTime: 22 Nov 2005 22:00:05.0973 (UTC) FILETIME=[18D39850:01C5EFB0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Diego Calleja wrote:
 
- Checks if 'port' is NULL before using it in all tty operations, this
-can avoid NULL pointer dereferences.
+>El Tue, 22 Nov 2005 22:08:49 +0200,
+>Avi Kivity <avi@argo.co.il> escribió:
+>
+>  
+>
+>>None of the desktop Windows installations I'm aware of exhibit this. The 
+>>recent versions of Windows are fairly stable.
+>>    
+>>
+>
+>You don't seem to check frecuently windows help forums, where some people
+>speaks of nvidia as the number 1 "bluescreener"...
+>
+>Lots of windows drivers _are_ crappy. It's just a fact - some companies
+>hire the wrong people. Some companies (like nvidia) get money from being
+>fast, not from stability. This is a good example from a microsoft
+>programmer about how some companies cheat the WHQL certification to
+>get faster drivers...
+>http://blogs.msdn.com/oldnewthing/archive/2004/03/05/84469.aspx
+>
+>This one about silent install of drivers by "smart" installers is fun
+>too: http://blogs.msdn.com/oldnewthing/archive/2005/08/16/452141.aspx
+>
+>  
+>
+Awsome. Certainly a very strong point against Windows drivers.
 
-Signed-off-by: Luiz Capitulino <lcapitulino@mandriva.com.br>
+>  
+>
+>>Many people have hyperthreaded CPUs today.
+>>    
+>>
+>
+>Hypertreaded CPUs can't run the two virtual cpus at the same time,
+>  
+>
+Actually they are parallel at the instruction level. For the purpose of 
+SMP-safety they are the same as true SMP. They just have different 
+performance characterestics.
 
- drivers/usb/serial/usb-serial.c |   32 ++++++++++++++++++++++++++++++++
- 1 files changed, 32 insertions(+)
-
-diff --git a/drivers/usb/serial/usb-serial.c b/drivers/usb/serial/usb-serial.c
---- a/drivers/usb/serial/usb-serial.c
-+++ b/drivers/usb/serial/usb-serial.c
-@@ -188,6 +188,8 @@ static int serial_open (struct tty_struc
- 
- 	portNumber = tty->index - serial->minor;
- 	port = serial->port[portNumber];
-+	if (!port)
-+		return -ENODEV;
- 	 
- 	++port->open_count;
- 
-@@ -258,6 +260,9 @@ static int serial_write (struct tty_stru
- 	struct usb_serial_port *port = tty->driver_data;
- 	int retval = -EINVAL;
- 
-+	if (!port)
-+		goto exit;
-+
- 	dbg("%s - port %d, %d byte(s)", __FUNCTION__, port->number, count);
- 
- 	if (!port->open_count) {
-@@ -277,6 +282,9 @@ static int serial_write_room (struct tty
- 	struct usb_serial_port *port = tty->driver_data;
- 	int retval = -EINVAL;
- 
-+	if (!port)
-+		goto exit;
-+
- 	dbg("%s - port %d", __FUNCTION__, port->number);
- 
- 	if (!port->open_count) {
-@@ -296,6 +304,9 @@ static int serial_chars_in_buffer (struc
- 	struct usb_serial_port *port = tty->driver_data;
- 	int retval = -EINVAL;
- 
-+	if (!port)
-+		goto exit;
-+
- 	dbg("%s = port %d", __FUNCTION__, port->number);
- 
- 	if (!port->open_count) {
-@@ -314,6 +325,9 @@ static void serial_throttle (struct tty_
- {
- 	struct usb_serial_port *port = tty->driver_data;
- 
-+	if (!port)
-+		return;
-+
- 	dbg("%s - port %d", __FUNCTION__, port->number);
- 
- 	if (!port->open_count) {
-@@ -330,6 +344,9 @@ static void serial_unthrottle (struct tt
- {
- 	struct usb_serial_port *port = tty->driver_data;
- 
-+	if (!port)
-+		return;
-+
- 	dbg("%s - port %d", __FUNCTION__, port->number);
- 
- 	if (!port->open_count) {
-@@ -347,6 +364,9 @@ static int serial_ioctl (struct tty_stru
- 	struct usb_serial_port *port = tty->driver_data;
- 	int retval = -ENODEV;
- 
-+	if (!port)
-+		goto exit;
-+
- 	dbg("%s - port %d, cmd 0x%.4x", __FUNCTION__, port->number, cmd);
- 
- 	if (!port->open_count) {
-@@ -368,6 +388,9 @@ static void serial_set_termios (struct t
- {
- 	struct usb_serial_port *port = tty->driver_data;
- 
-+	if (!port)
-+		return;
-+
- 	dbg("%s - port %d", __FUNCTION__, port->number);
- 
- 	if (!port->open_count) {
-@@ -384,6 +407,9 @@ static void serial_break (struct tty_str
- {
- 	struct usb_serial_port *port = tty->driver_data;
- 
-+	if (!port)
-+		return;
-+
- 	dbg("%s - port %d", __FUNCTION__, port->number);
- 
- 	if (!port->open_count) {
-@@ -445,6 +471,9 @@ static int serial_tiocmget (struct tty_s
- {
- 	struct usb_serial_port *port = tty->driver_data;
- 
-+	if (!port)
-+		goto exit;
-+
- 	dbg("%s - port %d", __FUNCTION__, port->number);
- 
- 	if (!port->open_count) {
-@@ -464,6 +493,9 @@ static int serial_tiocmset (struct tty_s
- {
- 	struct usb_serial_port *port = tty->driver_data;
- 
-+	if (!port)
-+		goto exit;
-+
- 	dbg("%s - port %d", __FUNCTION__, port->number);
- 
- 	if (!port->open_count) {
-
+>>It works well on the server, where Linux has a large and rising market 
+>>    
+>>
+>
+>Linux didn't always have a large market share on servers. Again, history
+>has shown that the path taken by linux until now is succesful.
+>  
+>
+I hope you're right. But desktops are more complex, more varied, and 
+have much more, er, interesting, users.
 
 -- 
-Luiz Fernando N. Capitulino
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+

@@ -1,44 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965169AbVKVT5O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbVKVUBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965169AbVKVT5O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 14:57:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965164AbVKVT5O
+	id S964784AbVKVUBE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 15:01:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965124AbVKVUBE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 14:57:14 -0500
-Received: from wproxy.gmail.com ([64.233.184.207]:48022 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965165AbVKVT5I convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 14:57:08 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XgjY+MdFYVJhyiq0iBV4Rpbn8vGcNbYOwqiOe4qzwzP9vAMlRMY5UnokS0krXGwI8st+aHnHHetNFKrV2YpukAjkbCrFRS2WVapG4QI+IpOFQ957opeUx6P1PaKWS/C29ek38EdmAUF1V4gWvn+XRd81OFxA+wKL6ptdUxv7cCI=
-Message-ID: <9e4733910511221157k7daf5ec5vb7850e2e5e37f6ff@mail.gmail.com>
-Date: Tue, 22 Nov 2005 14:57:06 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-To: Christoph Hellwig <hch@infradead.org>, Jon Smirl <jonsmirl@gmail.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Christmas list for the kernel
-In-Reply-To: <20051122193145.GA3923@infradead.org>
+	Tue, 22 Nov 2005 15:01:04 -0500
+Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:31381 "EHLO
+	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S964784AbVKVUBC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 15:01:02 -0500
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Tue, 22 Nov 2005 20:00:58 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: "Theodore Ts'o" <tytso@mit.edu>
+cc: Chris Adams <cmadams@hiwaay.net>, linux-kernel@vger.kernel.org
+Subject: Re: what is our answer to ZFS?
+In-Reply-To: <20051122195201.GG31823@thunk.org>
+Message-ID: <Pine.LNX.4.64.0511221955130.7002@hermes-1.csi.cam.ac.uk>
+References: <fa.d8ojg69.1p5ovbb@ifi.uio.no> <20051122161712.GA942598@hiwaay.net>
+ <Pine.LNX.4.64.0511221650360.2763@hermes-1.csi.cam.ac.uk>
+ <20051122171847.GD31823@thunk.org> <Pine.LNX.4.64.0511221921530.7002@hermes-1.csi.cam.ac.uk>
+ <20051122195201.GG31823@thunk.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com>
-	 <20051122193145.GA3923@infradead.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/22/05, Christoph Hellwig <hch@infradead.org> wrote:
-> (5) a pony
->
-> (6) world peace
->
+On Tue, 22 Nov 2005, Theodore Ts'o wrote:
+> On Tue, Nov 22, 2005 at 07:25:20PM +0000, Anton Altaparmakov wrote:
+> > > > The standards are insufficient however.  For example dealing with named 
+> > > > streams or extended attributes if exposed as "normal files" would 
+> > > > naturally have the same st_ino (given they are the same inode as the 
+> > > > normal file data) and st_dev fields.
+> > > 
+> > > Um, but that's why even Solaris's openat(2) proposal doesn't expose
+> > > streams or extended attributes as "normal files".  The answer is that
+> > > you can't just expose named streams or extended attributes as "normal
+> > > files" without screwing yourself.
+> > 
+> > Reiser4 does I believe...
+> 
+> Reiser4 violates POSIX.  News at 11....
+> 
+> > I was not talking about Solaris/UFS.  NTFS has named streams and extended 
+> > attributes and both are stored as separate attribute records inside the 
+> > same inode as the data attribute.  (A bit simplified as multiple inodes 
+> > can be in use for one "file" when an inode's attributes become large than 
+> > an inode - in that case attributes are either moved whole to a new inode 
+> > and/or are chopped up in bits and each bit goes to a different inode.)
+> 
+> NTFS violates POSIX.  News at 11....
 
-How are you going to get the pony to compile on platforms?
+What is your point?  I personally couldn't care less about POSIX (or any 
+other simillarly old-fashioned standards for that matter).  What counts is 
+reality and having a working system that does what I want/need it to do.  
+If that means violating POSIX, so be it.  I am not going to burry my head 
+in the sand just because POSIX says "you can't do that".  Utilities can be 
+taught to work with the system instead of blindly following standards.  
 
-It may be Christmas 2008 before we the presents but it can't hurt to ask.
+And anyway the Linux kernel defies POSIX left, right, and centre so if you 
+care that much you ought to be off fixing all those violations...  (-;
 
---
-Jon Smirl
-jonsmirl@gmail.com
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

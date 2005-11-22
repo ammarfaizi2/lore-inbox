@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964978AbVKVQYs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbVKVQZN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964978AbVKVQYs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 11:24:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751315AbVKVQYs
+	id S1751316AbVKVQZN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 11:25:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbVKVQZM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 11:24:48 -0500
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:49186 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1751314AbVKVQYr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 11:24:47 -0500
-Message-ID: <438346E5.3010408@tmr.com>
-Date: Tue, 22 Nov 2005 11:27:17 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tarkan Erimer <tarkane@gmail.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: what is our answer to ZFS?
-References: <11b141710511210144h666d2edfi@mail.gmail.com>	 <20051121124544.9e502404.diegocg@gmail.com>	 <9611fa230511210619l208b10a8w77aedaa249345448@mail.gmail.com>	 <200511211252.04217.rob@landley.net>	 <20051122092047.GD16295@merlin.emma.line.org> <9611fa230511220200s36f8753fj4ebc4810db935301@mail.gmail.com>
-In-Reply-To: <9611fa230511220200s36f8753fj4ebc4810db935301@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Nov 2005 11:25:12 -0500
+Received: from havoc.gtf.org ([69.61.125.42]:23686 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1751315AbVKVQZK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 11:25:10 -0500
+Date: Tue, 22 Nov 2005 11:25:06 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Avi Kivity <avi@argo.co.il>
+Cc: Jon Smirl <jonsmirl@gmail.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Airlie <airlied@gmail.com>,
+       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Small PCI core patch
+Message-ID: <20051122162506.GA32684@havoc.gtf.org>
+References: <20051121225303.GA19212@kroah.com> <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston> <21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com> <1132623268.20233.14.camel@localhost.localdomain> <1132626478.26560.104.camel@gaston> <9e4733910511211923r69cdb835pf272ac745ae24ed7@mail.gmail.com> <43833D61.9050400@argo.co.il> <20051122155143.GA30880@havoc.gtf.org> <43834400.3040506@argo.co.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43834400.3040506@argo.co.il>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tarkan Erimer wrote:
-> On 11/22/05, Matthias Andree <matthias.andree@gmx.de> wrote:
-> 
->>What if some breakthrough in storage gives us vastly larger (larger than
->>predicted harddisk storage density increases) storage densities in 10
->>years for the same price of a 200 or 300 GB disk drive now?
-> 
-> 
-> If all the speculations are true for AtomChip Corp.'s
-> (http://www.atomchip.com) Optical Technology. We wil begin to use
-> really large RAMs and Storages very early than we expected.
-> Their prototypes already begin with 1 TB (both for RAM and Storage).
-> It's not hard to imagine, a few years later, we can use 100-200 and up
-> TB Storages and RAMs.
-> 
-Amazing technology, run XP on a 256 bit 6.8GHz protrietary quantum CPU, 
-by breaking the words into 64 bit pieces and passing them to XP via a 
-"RAM packet counter" device.
+On Tue, Nov 22, 2005 at 06:14:56PM +0200, Avi Kivity wrote:
+> You exaggerate. Windows drivers work well enough in Windows (or so I 
+> presume). One just has to implement the environment these drivers 
+> expect, very carefully.
 
-And they run four copies of XP at once, too, and you don't need to boot 
-them, they run instantly because... the web page says so?
+I exaggerate nothing -- we have real world experience with ndiswrapper
+and similar software, which is exactly the same model you proposed, is
+exactly the same model that has created all sorts of technical, legal,
+and political problems.
 
-I assume this is a joke, a scam would have prices ;-)
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Dumb with a capital 'D'.
+
+	Jeff
+

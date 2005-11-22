@@ -1,75 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964997AbVKVQrj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965001AbVKVQyN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964997AbVKVQrj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 11:47:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965000AbVKVQrj
+	id S965001AbVKVQyN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 11:54:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965003AbVKVQyN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 11:47:39 -0500
-Received: from p-mail1.rd.francetelecom.com ([195.101.245.15]:17167 "EHLO
-	p-mail1.rd.francetelecom.com") by vger.kernel.org with ESMTP
-	id S964997AbVKVQri (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 11:47:38 -0500
-Message-ID: <43834BA3.8090406@francetelecom.com>
-Date: Tue, 22 Nov 2005 17:47:31 +0100
-From: VALETTE Eric RD-MAPS-REN <eric2.valette@francetelecom.com>
-Reply-To: eric2.valette@francetelecom.com
-Organization: Frnace Telecom R&D
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Tue, 22 Nov 2005 11:54:13 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:2060 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965001AbVKVQyM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 11:54:12 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BtU5KCL3QIEf7dpiSy06D5LS2NgwOX85LFpjGELaBkkXBPAOML+4ut3VDUOAceo/iQkS7iCWHy0Wd6p4PnSahv0EAsNXAGvijOp6PzYT8llLkEL/JwwBNFL4he+FZjkhpR+gU9fch0crE1Nad2sfApCEFQ4hvmmuGcQ0sqHDVyM=
+Message-ID: <9e4733910511220854m2c5ffbe0t67a53f6bae89653@mail.gmail.com>
+Date: Tue, 22 Nov 2005 11:54:10 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [RFC] Small PCI core patch
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1132616132.26560.62.camel@gaston>
 MIME-Version: 1.0
-To: Steve French <smfrench@austin.rr.com>
-CC: linux-kernel@vger.kernel.org, torvalds@osdl.com
-Subject: Re: CIFS improvements/wider testing needed
-References: <4381EFF3.8000201@austin.rr.com> 	<4382032D.4080606@francetelecom.com> <43823BF0.5050408@austin.rr.com> 	<4382E2A7.7080100@francetelecom.com> <43834052.4090509@austin.rr.com>
-In-Reply-To: <43834052.4090509@austin.rr.com>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Nov 2005 16:47:31.0860 (UTC) FILETIME=[6E810D40:01C5EF84]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051121225303.GA19212@kroah.com>
+	 <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve French wrote:
+On 11/21/05, Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> For those who haven't noticed, the latest generation of ATI cards have a
+> new 2D engine that is completely different from the previous one and
+> totally undocumented. So far, they haven't showed any plans to provide
+> any kind of documentation for it, unlike what they did for previous
+> chipsets, not even 2D and not even under NDA. That means absolutely _0_
+> support for it in linux or X.org except maybe with some future version
+> of their binary blob, and _0_ support for it for any non-x86
+> architecture of course.
 
->>This makes me *really* wonder how you test your CIFS implementation.  I
->>would bet you use a Linux server with samba and not real Windows servers
->>like Windows 2000 server or Windows 2003 server. I can perfectly
->>understand that for development purpose because you can tarce the both
->>side, then for validation I think using WindoWS NT (Ok Obsolete but
->>still), Windows 2000 server or Windows 2003 server is mandatory.
+Are you sure it is a new 2D engine? ATI engineers have mentioned
+several times that they were looking at removing the 2D engine and
+going 3D only - using the 3D engine to draw the 2D data.
 
-> There are two big test events for CIFS each year (Connectathon and the
-> SNIA CIFS conference) in which all of the major CIFS vendors servers and
-> clients (including the Linux cifs client) are tested together.   These
-> two events has been the most helpful for me every year as they are for
-> many others on the Samba team (lots of Samba server progress also
-> happens in these two weeks).   That is the best opportunity (almost the
-> only good opportunity) for testing against EMC, NetApp, Adaptec/SNAP,
-> AIX FastConnect, and the other NAS vendors - and at each event a few
-> client bugs have been fixed or client workarounds for server bugs have
-> been added as a result of this testing.   For weekly testing there are
-> of course more test environments than mine, and I get feedback from
-> those testing against other server versions, but I have a small test
-> environment at home and also one at work (there are other unrelated test
-> groups that test the version of cifs and Samba before distro releases)
-> that I regularly test against.  It would be impossible for one person to
-> test against the breadth of servers out there so community testing,
-> especially against the less well known servers, is encouraged.  
+Removal of the 2D engines is a key vulnerability in the strategy of
+only using 2D on Linux.
 
-That is great that such "plug fest" exists and I agree with you that
-this is the only way to test compatibility to such scale.
-
-> In my test environment these are tested almost daily as target servers:
-> 
-> 1) Samba version 3 (current)
-> 2) Windows XP service pack 2
-
-
-Do you have collected any statistics on Windows server market share per
-windows version? I would bet 2000 Server is still mainstream with 2003
-slowly replacing NT4 in term of percentage now that support is stopped.
-
-Idealy, may I suggest that dayly testing platforms, should match this
-real life Winddows server platform distribution.
-
-
--- eric
+--
+Jon Smirl
+jonsmirl@gmail.com

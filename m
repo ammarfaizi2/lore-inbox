@@ -1,130 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965021AbVKVRU0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965028AbVKVRXm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965021AbVKVRU0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 12:20:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965022AbVKVRU0
+	id S965028AbVKVRXm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 12:23:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965026AbVKVRXm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 12:20:26 -0500
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:1229 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S965021AbVKVRUZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 12:20:25 -0500
-Date: Tue, 22 Nov 2005 18:20:27 +0100
-From: Luca <kronos@kronoz.cjb.net>
-To: linux-kernel@vger.kernel.org
-Cc: linux-xfs@oss.sgi.com
-Subject: Re: unable to use dpkg 2.6.15-rc2
-Message-ID: <20051122172027.GA11219@dreamland.darkstar.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051121100820.D6790390@wobbly.melbourne.sgi.com>
-User-Agent: Mutt/1.5.10i
+	Tue, 22 Nov 2005 12:23:42 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:31340 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S965023AbVKVRXl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 12:23:41 -0500
+Message-ID: <438354B4.10604@tmr.com>
+Date: Tue, 22 Nov 2005 12:26:12 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lars Roland <lroland@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux RAID M/L <linux-raid@vger.kernel.org>
+Subject: Re: Poor Software RAID-0 performance with 2.6.14.2
+References: <4ad99e050511211231o97d5d7fw59b44527dc25dcea@mail.gmail.com>
+In-Reply-To: <4ad99e050511211231o97d5d7fw59b44527dc25dcea@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(please CC me, I'm not subscribed)
-
-Nathan Scott <nathans@sgi.com> ha scritto:
->> It's reproducible in 2.6.15-rc1, 2.6.15-rc1-mm1, 2.6.15-rc1-mm2 and
->> 2.6.15-rc2.
->> 
->> It does not occur in 2.6.14.
->> 
->> Most easily triggered by "make clean" in the Linux source, for those of
->> you without access to dpkg. But both clean and dpkg will trigger it.
+Lars Roland wrote:
+> I have created a stripe across two 500Gb disks located on separate IDE
+> channels using:
 > 
-> So far I've not been able to reproduce this; I'm using "make clean"
-> and it works just fine for me (I'm using the current git tree).
+> mdadm -Cv /dev/md0 -c32 -n2 -l0 /dev/hdb /dev/hdd
+> 
+> the performance is awful on both kernel 2.6.12.5 and 2.6.14.2 (even
+> with hdparm and blockdev tuning), both bonnie++ and hdparm (included
+> below) shows a single disk operating faster than the stripe:
 
-Confirmed here with 2.6.15-rc1 an IDE disk. Kernel is UP with
-CONFIG_PREEMPT and 8KB stack. The following debug options are enabled:
+In looking at this I found something interesting, even though you 
+identified your problem before I was able to use the data for the 
+intended purpose. So other than suggesting that the stripe size is too 
+small, nothing on that, your hardware is the issue.
 
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_DEBUG_PREEMPT=y
-CONFIG_DEBUG_SPINLOCK=y
-CONFIG_DEBUG_SPINLOCK_SLEEP=y
-CONFIG_DEBUG_BUGVERBOSE=y
-CONFIG_FRAME_POINTER=y
-CONFIG_EARLY_PRINTK=y
-CONFIG_DEBUG_STACKOVERFLOW=y
+I have two ATA drives connected, and each has two partitions. The first 
+partition of each is mirrored for reliability with default 64k chunks, 
+and the second is striped, with 512k chunks (I write a lot of 100MB 
+files to this f/s).
 
-should I try and enable something else to gather more informations?
+Reading the individual devices with dd, I saw a transfer rate of about 
+60MB/s, while the striped md1 device gave just under 120MB/s. (60.3573 
+and 119.6458) actually. However, the mirrored md0 also gave just 60MB/s 
+read speed.
 
+One of the advantages of mirroring is that if there is heavy read load 
+when one drive is busy there is another copy of the data on the other 
+drive(s). But doing 1MB reads on the mirrored device did not show that 
+the kernel took advantage of this in any way. In fact, it looks as if 
+all the reads are going to the first device, even with multiple 
+processes running. Does the md code now set "write-mostly" by default 
+and only go to the redundant drives if the first fails?
 
-The first time the system hung during shutdown, with kernel stuck in
-pdflush (probably waked up by sync):
+I won't be able to do a lot of testing until Thursday, or perhaps 
+Wednesday night, but that is not as I expected and not what I want, I do 
+mirroring on web and news servers to spread the head motion, now I will 
+be looking at the stats to see if that's happening.
 
- pdflush       D E3A593A8     0 27641      6         27650  1233 (L-TLB)
- d6a099fc 00000001 00000003 e3a593a8 00000296 00000001 d6a099d8 c01174af
- 00000000 00000000 d0cb7570 0001226c 268d47fe 00001648 cc890590 cc8906b8
- 7fffffff eef27240 d6a09a68 d6a09a38 c030a734 efa70c00 d6a09a18 d6a09a1c
- Call Trace:
-  [<c030a734>] schedule_timeout+0x94/0xa0
-  [<f1a693ed>] xlog_grant_log_space+0x1dd/0x370 [xfs]
-  [<f1a66e57>] xfs_log_reserve+0x77/0xb0 [xfs]
-  [<f1a74b8c>] xfs_trans_reserve+0x7c/0x1a0 [xfs]
-  [<f1a6457c>] xfs_iomap_write_allocate+0x10c/0x4d0 [xfs]
-  [<f1a635de>] xfs_iomap+0x3be/0x470 [xfs]
-  [<f1a8abdc>] xfs_bmap+0x2c/0x40 [xfs]
-  [<f1a824ac>] xfs_map_blocks+0x3c/0x90 [xfs]
-  [<f1a83460>] xfs_page_state_convert+0x4e0/0x610 [xfs]
-  [<f1a83c1e>] linvfs_writepage+0x5e/0xf0 [xfs]
-  [<c0180782>] mpage_writepages+0x242/0x3d0
-  [<c01417da>] do_writepages+0x2a/0x30
-  [<c017ec50>] __sync_single_inode+0x70/0x200
-  [<c017eea4>] __writeback_single_inode+0xc4/0x1a0
-  [<c017f0e7>] sync_sb_inodes+0x167/0x2c0
-  [<c017f335>] writeback_inodes+0xf5/0x140
-  [<c01415d2>] wb_kupdate+0xb2/0x130
-  [<c0141f65>] __pdflush+0xd5/0x200
-  [<c01420b9>] pdflush+0x29/0x30
-  [<c012f735>] kthread+0x95/0xd0
-  [<c01013cd>] kernel_thread_helper+0x5/0x18
+I added the raid M/L to the addresses, since this is getting to be 
+general RAID question.
 
-The second time happened while I was doing a "rm -rf" of a kernel tree:
-
- rm            D E4913E38     0  2831   2825                     (NOTLB)
- e4cefdb0 00000001 00000003 e4913e38 00000296 00000003 e4cefd8c c01174af
- 00000000 00000000 e4b3e030 0005f191 cdb3c946 00000028 e4c98090 e4c981b8
- 7fffffff ef1069d8 e4cefe1c e4cefdec c030a734 eee2f800 e4cefdcc e4cefdd0
- Call Trace:
-  [<c030a734>] schedule_timeout+0x94/0xa0
-  [<f1a693ed>] xlog_grant_log_space+0x1dd/0x370 [xfs]
-  [<f1a66e57>] xfs_log_reserve+0x77/0xb0 [xfs]
-  [<f1a74b8c>] xfs_trans_reserve+0x7c/0x1a0 [xfs]
-  [<f1a7d2ad>] xfs_inactive+0x34d/0x4d0 [xfs]
-  [<f1a8b618>] linvfs_clear_inode+0x68/0x90 [xfs]
-  [<c01748a4>] clear_inode+0xf4/0x100
-  [<c01759fd>] generic_delete_inode+0xed/0x110
-  [<c0175bcf>] generic_drop_inode+0xf/0x20
-  [<c0175c36>] iput+0x56/0x80
-  [<c016b13c>] sys_unlink+0xcc/0x120
-  [<c01031c5>] syscall_call+0x7/0xb
-
-
-At the time of the rm -rf the partition was somewhat full:
-
-root@dreamland:~# df /usr
-Filesystem           1K-blocks      Used Available Use% Mounted on
-/dev/hda8             33996740  33549488    447252  99% /usr
-root@dreamland:~# df -i /usr
-Filesystem            Inodes   IUsed   IFree IUse% Mounted on
-/dev/hda8            1997584  148695 1848889    8% /usr
-
-The first time there was a lot more of free space though (a couple of
-GB).
-
-> From your earlier report with the stack traces included, it looks
-> like XFS is waiting for a log write to complete, but it never
-> does (which is not valid driver behaviour).  I'm using the sym53c8xx
-> driver in my testing BTW, which is different to you, so maybe see if
-> this still happens for you with different hardware?  (if you can).
-
-Here it happens with an IDE disk, connected to VT8233A southbridge.
-
-Luca
 -- 
-Home: http://kronoz.cjb.net
-Carpe diem, quam minimum credula postero. (Q. Horatius Flaccus)
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

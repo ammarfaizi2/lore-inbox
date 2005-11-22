@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030224AbVKVXCI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030232AbVKVXDB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030224AbVKVXCI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 18:02:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030228AbVKVXCH
+	id S1030232AbVKVXDB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 18:03:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbVKVXDA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 18:02:07 -0500
-Received: from gate.crashing.org ([63.228.1.57]:43222 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1030224AbVKVXB4 (ORCPT
+	Tue, 22 Nov 2005 18:03:00 -0500
+Received: from thunk.org ([69.25.196.29]:44168 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1030229AbVKVXC6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 18:01:56 -0500
-Subject: Re: [RFC] Small PCI core patch
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <9e4733910511220854m2c5ffbe0t67a53f6bae89653@mail.gmail.com>
-References: <20051121225303.GA19212@kroah.com>
-	 <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston>
-	 <9e4733910511220854m2c5ffbe0t67a53f6bae89653@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 23 Nov 2005 09:59:02 +1100
-Message-Id: <1132700342.26560.243.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Nov 2005 18:02:58 -0500
+Date: Tue, 22 Nov 2005 18:02:54 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: Chris Adams <cmadams@hiwaay.net>, linux-kernel@vger.kernel.org
+Subject: Re: what is our answer to ZFS?
+Message-ID: <20051122230254.GC4035@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Anton Altaparmakov <aia21@cam.ac.uk>,
+	Chris Adams <cmadams@hiwaay.net>, linux-kernel@vger.kernel.org
+References: <fa.d8ojg69.1p5ovbb@ifi.uio.no> <20051122161712.GA942598@hiwaay.net> <Pine.LNX.4.64.0511221650360.2763@hermes-1.csi.cam.ac.uk> <20051122171847.GD31823@thunk.org> <Pine.LNX.4.64.0511221921530.7002@hermes-1.csi.cam.ac.uk> <20051122195201.GG31823@thunk.org> <Pine.LNX.4.64.0511221955130.7002@hermes-1.csi.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0511221955130.7002@hermes-1.csi.cam.ac.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-22 at 11:54 -0500, Jon Smirl wrote:
-> On 11/21/05, Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> > For those who haven't noticed, the latest generation of ATI cards have a
-> > new 2D engine that is completely different from the previous one and
-> > totally undocumented. So far, they haven't showed any plans to provide
-> > any kind of documentation for it, unlike what they did for previous
-> > chipsets, not even 2D and not even under NDA. That means absolutely _0_
-> > support for it in linux or X.org except maybe with some future version
-> > of their binary blob, and _0_ support for it for any non-x86
-> > architecture of course.
+On Tue, Nov 22, 2005 at 08:00:58PM +0000, Anton Altaparmakov wrote:
 > 
-> Are you sure it is a new 2D engine? ATI engineers have mentioned
-> several times that they were looking at removing the 2D engine and
-> going 3D only - using the 3D engine to draw the 2D data.
+> What is your point?  I personally couldn't care less about POSIX (or any 
+> other simillarly old-fashioned standards for that matter).  What counts is 
+> reality and having a working system that does what I want/need it to do.  
+> If that means violating POSIX, so be it.  I am not going to burry my head 
+> in the sand just because POSIX says "you can't do that".  Utilities can be 
+> taught to work with the system instead of blindly following standards.  
 
-By new 2D engine, I meant the mode setting core.
+Finding all of the utilities and userspace applications that depend on
+some specific POSIX behavior is hard; and convincing them to change,
+instead of fixing the buggy OS, is even harder.  But that's OK, no one
+has to use your filesystem (or operating system) if doesn't conform to
+standards enough that your applications start breaking.
 
-> Removal of the 2D engines is a key vulnerability in the strategy of
-> only using 2D on Linux.
-> 
-> --
-> Jon Smirl
-> jonsmirl@gmail.com
+> And anyway the Linux kernel defies POSIX left, right, and centre so if you 
+> care that much you ought to be off fixing all those violations...  (-;
 
+Um, where?  Actually, we're pretty close, and we often spend quite a
+bit of time fixing places where we don't conform to the standards
+correctly.  Look at all of the work that's gone into the kernel to
+make Linux's threads support POSIX compliant, for example.  We did
+*not* tell everyone to go rewrite their applications to use
+LinuxThreads, even if certain aspects of Posix threads are a little
+brain-damaged.  
+
+					- Ted

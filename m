@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbVKVNEy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbVKVNH5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964865AbVKVNEy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 08:04:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964911AbVKVNEy
+	id S1750781AbVKVNH5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 08:07:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751299AbVKVNH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 08:04:54 -0500
-Received: from zproxy.gmail.com ([64.233.162.201]:52180 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964865AbVKVNEx convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 08:04:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=qEYWufTyaMEcFlJwVtjiS+XvrXNvMi0NvNWEcdRJsbnFZftRWn6omGjJL5qR9Dh1xdYk/VPSsHLj9cn+SA76Pofo3HMAM12BFUtCfITYrS/hrI6SrFCBnsGpQx1OsNd9QW6G2oxH/NvMthCsrk6E1R4wjdNrUceoD6vLmtBATio=
-Message-ID: <625fc13d0511220504h45ff660r1a5dd4e671881037@mail.gmail.com>
-Date: Tue, 22 Nov 2005 07:04:52 -0600
-From: Josh Boyer <jwboyer@gmail.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: [PATCH] Add more SCM trees to MAINTAINERS
-Cc: scjody@steamballoon.com, gregkh@suse.de, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-In-Reply-To: <200511212236.43551.dtor_core@ameritech.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 22 Nov 2005 08:07:57 -0500
+Received: from keetweej.xs4all.nl ([213.84.46.114]:21888 "EHLO
+	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
+	id S1750781AbVKVNH4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 08:07:56 -0500
+Date: Tue, 22 Nov 2005 14:07:54 +0100
+From: Folkert van Heusden <folkert@vanheusden.com>
+To: linux-kernel@vger.kernel.org
+Subject: capturing oopses
+Message-ID: <20051122130754.GL32512@vanheusden.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <625fc13d0511211911j10f8e87dha9be0b71a298c60d@mail.gmail.com>
-	 <200511212236.43551.dtor_core@ameritech.net>
+Organization: www.unixexpert.nl
+X-Chameleon-Return-To: folkert@vanheusden.com
+X-Xfmail-Return-To: folkert@vanheusden.com
+X-Phonenumber: +31-6-41278122
+X-URL: http://www.vanheusden.com/
+X-PGP-KeyID: 1F28D8AE
+X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
+X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
+Read-Receipt-To: <folkert@vanheusden.com>
+Reply-By: Tue Nov 22 11:39:23 CET 2005
+X-Message-Flag: MultiTail - tail on steroids
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/21/05, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> On Monday 21 November 2005 22:11, Josh Boyer wrote:
-> > IDE/ATAPI CDROM DRIVER
-> > @@ -1279,6 +1286,7 @@ P:Vojtech Pavlik
-> > M:vojtech@suse.cz
-> > L:linux-input@atrey.karlin.mff.cuni.cz
-> > L:linux-joystick@atrey.karlin.mff.cuni.cz
-> > +T:git kernel.org:/pub/scm/linux/kernel/git/dtor/input.git
-> > S:Maintained
->
-> This one is not really the official input tree as it is maintained by
-> myself, not Vojtech. He is currently publishes his quilt patchset
-> (a bit dated though) at:
->
->         http://www.ucw.cz/~vojtech/input/
+Hi,
 
-Thanks.  I've fixed it up in my git tree.
+My 2.6.14 system occasionally crashes; gives a kernel panic. Of course I
+would like to report it. Now the system locks up hard so I can't copy
+the stacktrace. The crash dump patches mentioned in oops-tracing.txt all
+don't work for 2.6.14 it seems. So: what should I do? Get my digicam and
+take a picture of the display?
 
-josh
+
+Folkert van Heusden
+
+-- 
+Try MultiTail! Multiple windows with logfiles, filtered with regular
+expressions, colored output, etc. etc. www.vanheusden.com/multitail/
+----------------------------------------------------------------------
+Get your PGP/GPG key signed at www.biglumber.com!
+----------------------------------------------------------------------
+Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com

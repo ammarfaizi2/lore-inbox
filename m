@@ -1,77 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbVKVFnD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750920AbVKVFvA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932332AbVKVFnD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 00:43:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbVKVFnD
+	id S1750920AbVKVFvA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 00:51:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbVKVFvA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 00:43:03 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:6615 "EHLO
-	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S932332AbVKVFnC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 00:43:02 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Bernd Petrovitsch <bernd@firmix.at>
-Subject: Re: what is our answer to ZFS?
-Date: Mon, 21 Nov 2005 23:42:47 -0600
-User-Agent: KMail/1.8
-Cc: Tarkan Erimer <tarkane@gmail.com>, linux-kernel@vger.kernel.org,
-       Diego Calleja <diegocg@gmail.com>
-References: <11b141710511210144h666d2edfi@mail.gmail.com> <200511211252.04217.rob@landley.net> <1132603369.3306.1.camel@gimli.at.home>
-In-Reply-To: <1132603369.3306.1.camel@gimli.at.home>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Tue, 22 Nov 2005 00:51:00 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:28613 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750918AbVKVFu7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 00:50:59 -0500
+Subject: Re: [RFC] Small PCI core patch
+From: Arjan van de Ven <arjan@infradead.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1132616132.26560.62.camel@gaston>
+References: <20051121225303.GA19212@kroah.com>
+	 <20051121230136.GB19212@kroah.com>  <1132616132.26560.62.camel@gaston>
+Content-Type: text/plain
+Date: Tue, 22 Nov 2005 06:50:52 +0100
+Message-Id: <1132638652.2789.4.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511212342.47379.rob@landley.net>
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 21 November 2005 14:02, Bernd Petrovitsch wrote:
-> On Mon, 2005-11-21 at 12:52 -0600, Rob Landley wrote:
-> [...]
->
-> > couple decades from now.  It's also proposing that data compression and
-> > checksumming are the filesystem's job.  Hands up anybody who spots
-> > conflicting trends here already?  Who thinks the 128 bit requirement came
-> > from marketing rather than the engineers?
->
-> Without compressing you probably need 256 bits.
+On Tue, 2005-11-22 at 10:35 +1100, Benjamin Herrenschmidt wrote:
+> On Mon, 2005-11-21 at 15:01 -0800, Greg KH wrote:
+> 
+> > If you, or your company is relying on closed source kernel modules, your
+> > days are numbered.  And what are you going to do, and how are you going
+> > to explain things to your bosses and your customers, if possibly,
+> > something like this patch were to be accepted?
+> 
+> I'm all about it, but good luck trying to convince ATI and/or nVidia ...
 
-I assume this is sarcasm.  Once again assuming you can someday manage to store 
-1 bit per electron, it would have a corresponding 2^256 protons*, which would 
-weigh (in grams):
+that doesn't mean they're allowed to not honor the GPL of course.
 
-> print 2**256/(6.02*(10**23))
-1.92345663185e+53
+Also it's almost the same argument as the ndiswrapper discussion: as
+long as there is an alternative some of these companies (prolly not
+ati/nvidia although: see [1]) will stay closed, but once there's no
+alternative they'll just open up.
 
-Google for the weight of the earth:
-http://www.ecology.com/earth-at-a-glance/earth-at-a-glance-feature/
-Earth's Weight (Mass): 5.972 sextillion (1,000 trillion) metric tons.
-Yeah, alright, mass...  So that's 5.972*10^18 metric tons, and a metric ton is 
-a million grams, so 5.972*10^24 grams...
+I can see the point of the argument that a change like this needs to be
+announced for say 6 months first in that feature-removal doc though.
 
-Google for the mass of the sun says that's 2*10^33 grams.  Still nowhere 
-close.
 
-Basically, as far as I can tell, any device capable of storing 2^256 bits 
-would collapse into a black hole under its own weight.
 
-By the way, 2^128/avogadro gives 5.65253101198e+14, or 565 million metric 
-tons.  For comparison, the empire state building: 
-http://www.newyorktransportation.com/info/empirefact2.html
-Is 365,000 tons.  (Probably not metric, but you get the idea.)  Assuming I 
-haven't screwed up the math, an object capable of storing anywhere near 2^128 
-bits (constructed as a single giant molecule) would probably be in the size 
-ballpark of new york, london, or tokyo.
+[1] Both nvidia and ati have a way out: they can do the IP side
+(translating 3D stuff into card specific commands) in userspace and just
+pass the data to the hardware via a thin driver that just drives and
+controls the hardware. Sure it may be 5% slower, but it's a lot cleaner
+IP wise. X after all is MIT (bsd like without nasty clauses) licensed
+and allows binary components.
 
-2^64 we may actually live to see the end of someday, but it's not guaranteed.  
-2^128 becoming relevant in our lifetimes is a touch unlikely.
 
-Rob
 
-* Yeah, I'm glossing over neutrons.  I'm also glossing over the possibility of 
-storing more than one bit per electron and other quauntum strangeness.  I 
-have no idea how you'd _build_ one of these suckers.  Nobody does yet.  
-They're working on it...

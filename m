@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030188AbVKVV7Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030191AbVKVV7u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030188AbVKVV7Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 16:59:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030189AbVKVV7Z
+	id S1030191AbVKVV7u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 16:59:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030190AbVKVV7u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 16:59:25 -0500
-Received: from perninha.conectiva.com.br ([200.140.247.100]:39577 "EHLO
+	Tue, 22 Nov 2005 16:59:50 -0500
+Received: from perninha.conectiva.com.br ([200.140.247.100]:44441 "EHLO
 	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S1030188AbVKVV7X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 16:59:23 -0500
-Date: Tue, 22 Nov 2005 19:59:26 -0200
+	id S1030189AbVKVV7m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 16:59:42 -0500
+Date: Tue, 22 Nov 2005 19:59:47 -0200
 From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
 To: gregkh@suse.de
 Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
        akpm@osdl.org, ehabkost@mandriva.com
-Subject: [PATCH 2/2] - usbserial: race-condition fix.
-Message-Id: <20051122195926.18c3221c.lcapitulino@mandriva.com.br>
+Subject: [PATCH 1/2] - usbserial: Adds missing parameters checks.
+Message-Id: <20051122195947.4d910ccd.lcapitulino@mandriva.com.br>
 Organization: Mandriva
 X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-conectiva-linux-gnu)
 Mime-Version: 1.0
@@ -25,107 +25,126 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
- Fixes open()/close() race-condition in the access of the port structure.
-
- When the race happens, the port in use becomes invalid, and the user must try
-to get the next free port (repluging the device, for example).
-
- Described in more detail in this thread:
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=113216151918308&w=2
+ Checks if 'port' is NULL before using it in all tty operations, this
+can avoid NULL pointer dereferences.
 
 Signed-off-by: Luiz Capitulino <lcapitulino@mandriva.com.br>
 
- drivers/usb/serial/usb-serial.c |   14 +++++++++++++-
- drivers/usb/serial/usb-serial.h |    2 ++
- 2 files changed, 15 insertions(+), 1 deletion(-)
+ drivers/usb/serial/usb-serial.c |   32 ++++++++++++++++++++++++++++++++
+ 1 files changed, 32 insertions(+)
 
-diff -Nparu -X /home/lcapitulino/kernels/dontdiff a/drivers/usb/serial/usb-serial.c a~/drivers/usb/serial/usb-serial.c
---- a/drivers/usb/serial/usb-serial.c	2005-11-22 10:50:33.000000000 -0200
-+++ a~/drivers/usb/serial/usb-serial.c	2005-11-22 11:31:46.000000000 -0200
-@@ -30,6 +30,7 @@
- #include <linux/list.h>
- #include <linux/smp_lock.h>
- #include <asm/uaccess.h>
-+#include <asm/semaphore.h>
- #include <linux/usb.h>
- #include "usb-serial.h"
- #include "pl2303.h"
-@@ -190,6 +191,9 @@ static int serial_open (struct tty_struc
+diff --git a/drivers/usb/serial/usb-serial.c b/drivers/usb/serial/usb-serial.c
+--- a/drivers/usb/serial/usb-serial.c
++++ b/drivers/usb/serial/usb-serial.c
+@@ -188,6 +188,8 @@ static int serial_open (struct tty_struc
+ 
+ 	portNumber = tty->index - serial->minor;
  	port = serial->port[portNumber];
- 	if (!port)
- 		return -ENODEV;
-+
-+	if (down_interruptible(&port->sem))
-+		return -ERESTARTSYS;
++	if (!port)
++		return -ENODEV;
  	 
  	++port->open_count;
  
-@@ -215,6 +219,7 @@ static int serial_open (struct tty_struc
- 			goto bailout_module_put;
- 	}
+@@ -258,6 +260,9 @@ static int serial_write (struct tty_stru
+ 	struct usb_serial_port *port = tty->driver_data;
+ 	int retval = -EINVAL;
  
-+	up(&port->sem);
- 	return 0;
++	if (!port)
++		goto exit;
++
+ 	dbg("%s - port %d, %d byte(s)", __FUNCTION__, port->number, count);
  
- bailout_module_put:
-@@ -222,6 +227,7 @@ bailout_module_put:
- bailout_kref_put:
- 	kref_put(&serial->kref, destroy_serial);
- 	port->open_count = 0;
-+	up(&port->sem);
- 	return retval;
- }
+ 	if (!port->open_count) {
+@@ -277,6 +282,9 @@ static int serial_write_room (struct tty
+ 	struct usb_serial_port *port = tty->driver_data;
+ 	int retval = -EINVAL;
  
-@@ -234,8 +240,10 @@ static void serial_close(struct tty_stru
- 
++	if (!port)
++		goto exit;
++
  	dbg("%s - port %d", __FUNCTION__, port->number);
  
-+	down(&port->sem);
+ 	if (!port->open_count) {
+@@ -296,6 +304,9 @@ static int serial_chars_in_buffer (struc
+ 	struct usb_serial_port *port = tty->driver_data;
+ 	int retval = -EINVAL;
+ 
++	if (!port)
++		goto exit;
 +
- 	if (port->open_count == 0)
--		return;
-+		goto out;
+ 	dbg("%s = port %d", __FUNCTION__, port->number);
  
- 	--port->open_count;
- 	if (port->open_count == 0) {
-@@ -253,6 +261,9 @@ static void serial_close(struct tty_stru
- 	}
+ 	if (!port->open_count) {
+@@ -314,6 +325,9 @@ static void serial_throttle (struct tty_
+ {
+ 	struct usb_serial_port *port = tty->driver_data;
  
- 	kref_put(&port->serial->kref, destroy_serial);
++	if (!port)
++		return;
 +
-+out:
-+	up(&port->sem);
- }
+ 	dbg("%s - port %d", __FUNCTION__, port->number);
  
- static int serial_write (struct tty_struct * tty, const unsigned char *buf, int count)
-@@ -774,6 +785,7 @@ int usb_serial_probe(struct usb_interfac
- 		port->number = i + serial->minor;
- 		port->serial = serial;
- 		spin_lock_init(&port->lock);
-+		sema_init(&port->sem, 1);
- 		INIT_WORK(&port->work, usb_serial_port_softint, port);
- 		serial->port[i] = port;
- 	}
-diff -Nparu -X /home/lcapitulino/kernels/dontdiff a/drivers/usb/serial/usb-serial.h a~/drivers/usb/serial/usb-serial.h
---- a/drivers/usb/serial/usb-serial.h	2005-11-22 10:50:42.000000000 -0200
-+++ a~/drivers/usb/serial/usb-serial.h	2005-11-22 11:31:46.000000000 -0200
-@@ -16,6 +16,7 @@
+ 	if (!port->open_count) {
+@@ -330,6 +344,9 @@ static void serial_unthrottle (struct tt
+ {
+ 	struct usb_serial_port *port = tty->driver_data;
  
- #include <linux/config.h>
- #include <linux/kref.h>
-+#include <asm/semaphore.h>
++	if (!port)
++		return;
++
+ 	dbg("%s - port %d", __FUNCTION__, port->number);
  
- #define SERIAL_TTY_MAJOR	188	/* Nice legal number now */
- #define SERIAL_TTY_MINORS	255	/* loads of devices :) */
-@@ -60,6 +61,7 @@ struct usb_serial_port {
- 	struct usb_serial *	serial;
- 	struct tty_struct *	tty;
- 	spinlock_t		lock;
-+	struct semaphore        sem;
- 	unsigned char		number;
+ 	if (!port->open_count) {
+@@ -347,6 +364,9 @@ static int serial_ioctl (struct tty_stru
+ 	struct usb_serial_port *port = tty->driver_data;
+ 	int retval = -ENODEV;
  
- 	unsigned char *		interrupt_in_buffer;
++	if (!port)
++		goto exit;
++
+ 	dbg("%s - port %d, cmd 0x%.4x", __FUNCTION__, port->number, cmd);
+ 
+ 	if (!port->open_count) {
+@@ -368,6 +388,9 @@ static void serial_set_termios (struct t
+ {
+ 	struct usb_serial_port *port = tty->driver_data;
+ 
++	if (!port)
++		return;
++
+ 	dbg("%s - port %d", __FUNCTION__, port->number);
+ 
+ 	if (!port->open_count) {
+@@ -384,6 +407,9 @@ static void serial_break (struct tty_str
+ {
+ 	struct usb_serial_port *port = tty->driver_data;
+ 
++	if (!port)
++		return;
++
+ 	dbg("%s - port %d", __FUNCTION__, port->number);
+ 
+ 	if (!port->open_count) {
+@@ -445,6 +471,9 @@ static int serial_tiocmget (struct tty_s
+ {
+ 	struct usb_serial_port *port = tty->driver_data;
+ 
++	if (!port)
++		goto exit;
++
+ 	dbg("%s - port %d", __FUNCTION__, port->number);
+ 
+ 	if (!port->open_count) {
+@@ -464,6 +493,9 @@ static int serial_tiocmset (struct tty_s
+ {
+ 	struct usb_serial_port *port = tty->driver_data;
+ 
++	if (!port)
++		goto exit;
++
+ 	dbg("%s - port %d", __FUNCTION__, port->number);
+ 
+ 	if (!port->open_count) {
 
 
 -- 

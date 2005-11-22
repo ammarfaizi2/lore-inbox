@@ -1,86 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbVKVGGt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbVKVGH2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932096AbVKVGGt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 01:06:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbVKVGGt
+	id S932125AbVKVGH2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 01:07:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbVKVGH2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 01:06:49 -0500
-Received: from web81904.mail.mud.yahoo.com ([68.142.207.183]:29785 "HELO
-	web81904.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932096AbVKVGGt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 01:06:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=sbcglobal.net;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=ZqjVuh11PDHJTHo216ILdrg9CM+XFc8cDuLQhZSCTnNTF/gStzZ4eOAHujBIQ3qSqbWkE/tl7z7cToDheNttHr2VeqzZ6oj90FeR79LGC9vCfb88VLphYySwuwf8N3tRX/iB3G+vd/lVAM7q2JrkPS6VYtWiskN/+pTcXARz9Qg=  ;
-Message-ID: <20051122060648.8827.qmail@web81904.mail.mud.yahoo.com>
-Date: Mon, 21 Nov 2005 22:06:48 -0800 (PST)
-From: Matthew Frost <artusemrys@sbcglobal.net>
-Subject: Re: [RFC] Documentation dir is a mess
-To: Marc Koschewski <marc@osknowledge.org>,
-       Steven Rostedt <rostedt@goodmis.org>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Xose Vazquez Perez <xose.vazquez@gmail.com>
-In-Reply-To: <20051121173404.GA7886@stiffy.osknowledge.org>
+	Tue, 22 Nov 2005 01:07:28 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:45214 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S932125AbVKVGH0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 01:07:26 -0500
+Message-ID: <4382B596.5080001@drzeus.cx>
+Date: Tue, 22 Nov 2005 07:07:18 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.7-2.1.fc4.nr (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Greg KH <gregkh@suse.de>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Secure Digital Host Controller PCI class
+References: <4381B364.2020808@drzeus.cx> <20051121214733.GA17793@suse.de>
+In-Reply-To: <20051121214733.GA17793@suse.de>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Marc Koschewski <marc@osknowledge.org> wrote:
+Greg KH wrote:
 
-> * Steven Rostedt <rostedt@goodmis.org> [2005-11-20 20:56:59 -0500]:
-> 
-> > On Sun, 2005-11-20 at 16:30 -0800, Greg KH wrote:
-> > > On Sun, Nov 20, 2005 at 01:19:09PM +0100, Xose Vazquez Perez wrote:
-> > > > hi,
-> > > > 
-> > > > _today_ Documentation/* is a mess of files. It would be good
-> > > > to have the _same_ tree as the code has:
-> > > 
-> > > Do you have a proposal as to what specific files in that directory
-> > > should go where?  Just basing it on the source tree will not get
-> > > you very far...
-> > 
-> > Actually I think it's a good start.  When I'm looking for
-> > documentation, I usually just do a grep -r on the Documentation
-> > directory hoping I get a correct hit and then manually look 
-> > through all the results I get. 
-> > It does get tedious, and I miss things all the time.
-> 
-> As you're just about to maybe make a decision on reorganisation: how
-> about a separation of user- and developer-relevant documentation? 
-> I mean, kernel boot parameters are relevant to a user whereas 
-> mm/* stuff is not.
+>On Mon, Nov 21, 2005 at 12:45:40PM +0100, Pierre Ossman wrote:
+>  
+>
+>>I'm working on a driver for the Secure Digital Host Controller
+>>interface. This is a generic interface, so it uses a PCI class for
+>>identification instead of vendor/device ids.
+>>
+>>The class ID used is 0805 and the programming interface (correct term?)
+>>indicates DMA capabilities. Greg, since you're the PCI maintainer,
+>>perhaps you have the possibility of checking this ID?
+>>    
+>>
+>
+>What do you mean "checking this ID"?  Checking it with what?
+>
+>  
+>
 
-There's a problem in the general conception that user/developer is a
-mutex.  The whole idea is that anyone may become a developer at will.  A
-division of Documentation/ to make an artificial distinction that the
-community doesn't necessarily believe in doesn't seem too useful.
+I figured you might have access to the official allocations from the PCI
+SIG.
 
-Now, I don't mean to suggest that you're wrong; I'm sure you have a valid
-point.  If I may rephrase, it sounds more like you're looking for
-"fingertip reference" versus "in-depth documentation".  The documents
-that exist may not conform themselves well to that sort of division,
-necessarily.  However, I'm sure that there exist fingertip references
-outside of Documentation/ and the kernel tree; many of them are for
-'newbies'.
+>>The standard also dictates a register at offset 0x40 in PCI space. This
+>>is a one byte register detailing the number of slots on the controller
+>>and the first BAR to use.
+>>    
+>>
+>
+>Do you have a pointer to the standard?
+>
+>  
+>
 
-Is this a useful interpretation?  Would an incorporation of this sort of
-functional division meet your request?  Does anyone have the time to
-devote to it?  Am I just reading out of the bit bucket?
+The SDHC standard itself is a well guarded secret. We're basing this
+work on the little information that is out there and reverse engineering
+the Windows driver. The PCI registers are described in a spec. by Texas
+Instruments though:
 
-Matt
+http://www-s.ti.com/sc/ds/pci6411.pdf
 
-> 
-> Marc
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+They only use three bits for each field (since their controller only has
+three slots), but the Windows driver reads four so that is what I've put
+in the patch.
+
+Rgds
+Pierre
 

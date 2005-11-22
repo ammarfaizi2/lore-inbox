@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965063AbVKVVq1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030187AbVKVV70@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965063AbVKVVq1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 16:46:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965064AbVKVVq1
+	id S1030187AbVKVV70 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 16:59:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030190AbVKVV70
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 16:46:27 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:22991 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S965063AbVKVVq0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 16:46:26 -0500
-Date: Wed, 23 Nov 2005 08:44:43 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Lawrence Walton <lawrence@the-penguin.otak.com>,
-       John Hawkes <hawkes@sgi.com>, Luca <kronos@kronoz.cjb.net>
-Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: unable to use dpkg 2.6.15-rc2
-Message-ID: <20051122214443.GA781@frodo>
-References: <20051121100820.D6790390@wobbly.melbourne.sgi.com> <20051122172027.GA11219@dreamland.darkstar.lan>
+	Tue, 22 Nov 2005 16:59:26 -0500
+Received: from perninha.conectiva.com.br ([200.140.247.100]:37529 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S1030187AbVKVV7W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 16:59:22 -0500
+Date: Tue, 22 Nov 2005 19:59:23 -0200
+From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
+To: gregkh@suse.de
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       akpm <akpm@osdl.org>, ehabkost@mandriva.com
+Subject: [PATCH 0/2] - usbserial: Adds missing checks and bug fix.
+Message-Id: <20051122195923.11daeedc.lcapitulino@mandriva.com.br>
+Organization: Mandriva
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-conectiva-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051122172027.GA11219@dreamland.darkstar.lan>
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 22, 2005 at 06:20:27PM +0100, Luca wrote:
-> (please CC me, I'm not subscribed)
-> 
-> Nathan Scott <nathans@sgi.com> ha scritto:
-> >> It's reproducible in 2.6.15-rc1, 2.6.15-rc1-mm1, 2.6.15-rc1-mm2 and
-> >> 2.6.15-rc2.
-> >> 
-> >> It does not occur in 2.6.14.
-> >> 
-> >> Most easily triggered by "make clean" in the Linux source, for those of
-> >> you without access to dpkg. But both clean and dpkg will trigger it.
-> > 
-> > So far I've not been able to reproduce this; I'm using "make clean"
-> > and it works just fine for me (I'm using the current git tree).
-> 
-> Confirmed here with 2.6.15-rc1 an IDE disk. Kernel is UP with
-> CONFIG_PREEMPT and 8KB stack. The following debug options are enabled:
-> 
 
-Keith Owens has managed to reproduce this locally, and has been
-working on tracking it back to a single change - so, we'll start
-trying to figure out whats gone wrong here shortly, and will get
-a fix merged as soon as we can.
+ Greg,
 
-Thanks for reporting the problem.
+ I'm sending two patches for the usbserial NULL pointer dereference we
+discussed last week:
 
-cheers.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=113216151918308&w=2
+
+ The first patch adds the missing checks you suggested we should use in
+usb-serial driver's entry points, to avoid NULL pointer dereferences.
+
+ The second one is the same I've sent before, except that now I'm using
+down() in serial_close() instead of down_interruptible() (as you also
+suggested). I didn't use down() in the first version because I don't
+wanted processes in a close() waiting for a open() too long. But
+Eduardo Habkost showed me it will not happen: the only possibility for a
+open() to sleep after the semaphore was acquired, is when 'open_count'
+equals 1, and there will be no close, since the port is being opened for the
+first time.
+
+ It's ok for a open() to wait a close().
+
+ Both patches were tested with a pl2303 device, running hundreds of my
+test-case and using minicom in parallel.
 
 -- 
-Nathan
+Luiz Fernando N. Capitulino

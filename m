@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751295AbVKVJob@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964861AbVKVJqQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751295AbVKVJob (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 04:44:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbVKVJob
+	id S964861AbVKVJqQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 04:46:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964859AbVKVJqQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 04:44:31 -0500
-Received: from mx2.suse.de ([195.135.220.15]:63912 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751288AbVKVJoa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 04:44:30 -0500
-Date: Tue, 22 Nov 2005 10:44:18 +0100
-From: Andi Kleen <ak@suse.de>
-To: yhlu <yhlu.kernel@gmail.com>
-Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org, linux-kernel@vger.kernel.org,
-       linuxbios@openbios.org
-Subject: Re: x86_64: apic id lift patch
-Message-ID: <20051122094417.GI20775@brahms.suse.de>
-References: <86802c440511211349t6a0a9d30i60e15fa23b86c49d@mail.gmail.com> <20051121220605.GD20775@brahms.suse.de> <86802c440511211417h737474fbt57946f4f2396b701@mail.gmail.com> <20051121222429.GE20775@brahms.suse.de> <86802c440511211431p57628e01o5c8030c4e09deaba@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 22 Nov 2005 04:46:16 -0500
+Received: from nproxy.gmail.com ([64.233.182.200]:37642 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751298AbVKVJqO convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 04:46:14 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Q9lLYeUPTb6WOTt1Jhc65b0q/4FIjwceykTe2Ym0+MIsuf0KBBIF7KDpGvwzKIkg9Cc0VEiuVpbNPn7fqieHH1yUVmhgypOZGPcNemwhHeaM1dvFThKzpCgnhBbO94UUk8KmnuudtWaslkVCrhDY6l1hK5J7TA+7TWJ0xh0iiiY=
+Message-ID: <4ad99e050511220146i2fd7d001va55a7ca9daa7188@mail.gmail.com>
+Date: Tue, 22 Nov 2005 10:46:13 +0100
+From: Lars Roland <lroland@gmail.com>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Subject: Re: Poor Software RAID-0 performance with 2.6.14.2
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051121204752.GK9488@csclub.uwaterloo.ca>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <86802c440511211431p57628e01o5c8030c4e09deaba@mail.gmail.com>
+References: <4ad99e050511211231o97d5d7fw59b44527dc25dcea@mail.gmail.com>
+	 <20051121204752.GK9488@csclub.uwaterloo.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 21, 2005 at 02:31:44PM -0800, yhlu wrote:
+On 11/21/05, Lennart Sorensen <lsorense@csclub.uwaterloo.ca> wrote:
+> > dkstorage01:~# hdparm -t /dev/md0
+> > /dev/md0:
+> >  Timing buffered disk reads:  182 MB in  3.01 seconds =  60.47 MB/sec
 > >
-> > max_cores should be 2 here.
-> No, For E0 single core, x86_max_cores will be 1, the initial apicid
-> can not be shifted to node id....
-> >
-> >
-> > Is there a good reason in the BIOS to not make it contiguous?
-> >
-> amd8111, if i lift the bsp apic id, the jiffies will not be moving....,
+> > dkstorage02:~# hdparm -t /dev/hdc1
+> > /dev/hdc1:
+> > Timing buffered disk reads:  184 MB in  3.02 seconds =  60.93 MB/sec
+>
+> How about at least testing one of the drives involved in the raid,
+> although I assume they are identical in your case given the numbers.
 
-It works for other BIOS, so something must be wrong in your setup.
-Better root cause that.
+There are four identical drives in the machines although I only stripe
+on two of them - I can assure you that I get the same numbers from all
+the drives - I should ofcause have put this info in the orig post.
 
--Andi
+>
+> Did you test this with other kernel versions (older ones) to see if it
+> was better in the past?
+
+Also tried 2.4.27 and 2.4.30 - no difference there.

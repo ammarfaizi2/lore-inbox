@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964977AbVKVQPB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964975AbVKVQPC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964977AbVKVQPB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 11:15:01 -0500
+	id S964975AbVKVQPC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 11:15:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964976AbVKVQPB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 	Tue, 22 Nov 2005 11:15:01 -0500
-Received: from fw5.argo.co.il ([194.90.79.130]:24593 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S964975AbVKVQPA (ORCPT
+Received: from xenotime.net ([66.160.160.81]:64911 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S964975AbVKVQPB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 11:15:00 -0500
-Message-ID: <43834400.3040506@argo.co.il>
-Date: Tue, 22 Nov 2005 18:14:56 +0200
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Tue, 22 Nov 2005 11:15:01 -0500
+Date: Tue, 22 Nov 2005 08:14:57 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Bill Davidsen <davidsen@tmr.com>
+cc: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: what is our answer to ZFS?
+In-Reply-To: <43834098.60400@tmr.com>
+Message-ID: <Pine.LNX.4.58.0511220814290.30423@shark.he.net>
+References: <E1EeLp5-0002fZ-00@calista.inka.de> <43825168.6050404@wolfmountaingroup.com>
+ <43834098.60400@tmr.com>
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Jon Smirl <jonsmirl@gmail.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Airlie <airlied@gmail.com>,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Small PCI core patch
-References: <20051121225303.GA19212@kroah.com> <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston> <21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com> <1132623268.20233.14.camel@localhost.localdomain> <1132626478.26560.104.camel@gaston> <9e4733910511211923r69cdb835pf272ac745ae24ed7@mail.gmail.com> <43833D61.9050400@argo.co.il> <20051122155143.GA30880@havoc.gtf.org>
-In-Reply-To: <20051122155143.GA30880@havoc.gtf.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Nov 2005 16:14:58.0828 (UTC) FILETIME=[E26804C0:01C5EF7F]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+On Tue, 22 Nov 2005, Bill Davidsen wrote:
 
->On Tue, Nov 22, 2005 at 05:46:41PM +0200, Avi Kivity wrote:
->  
->
->>4) Write a translation layer (for xorg or the kernel) that can load 
->>Windows drivers. Use binary translation for non-x86. Hope the APIs are 
->>not patented.
->>    
->>
->
->Give up all hope of ever diagnosing or fixing a crash.
->
->Welcome to Windows instability, circa 1995.
->
->  
->
-You exaggerate. Windows drivers work well enough in Windows (or so I 
-presume). One just has to implement the environment these drivers 
-expect, very carefully.
+> Jeff V. Merkey wrote:
+> > Bernd Eckenfels wrote:
+> >
+> >> In article <200511211252.04217.rob@landley.net> you wrote:
+> >>
+> >>
+> >>> I believe that on 64 bit platforms, Linux has a 64 bit clean VFS.
+> >>> Python says 2**64 is 18446744073709551616, and that's roughly:
+> >>> 18,446,744,073,709,551,616 bytes
+> >>> 18,446,744,073,709 megs
+> >>> 18,446,744,073 gigs
+> >>> 18,446,744 terabytes
+> >>> 18,446 ...  what are those, pedabytes (petabytes?)
+> >>> 18          zetabytes
+> >>>
+> > There you go.  I deal with this a lot so, those are the names.
+> >
+> > Linux is currently limited to 16 TB per VFS mount point, it's all mute,
+> > unless VFS gets fixed.
+> > mmap won't go above this at present.
+> >
+> What does "it's all mute" mean?
 
-For the untrusting, options do remain:
+It means "it's all moot."
 
-- run the driver in userspace (if it's a xorg driver, in a separate 
-process) so that all outputs can be validated
-- use binary translation even on x86 and validate all memory and I/O 
-accesses (like valgrind, but hopefully faster)
-
-It's still possible for the driver to dma stuff where it shouldn't. 
-Maybe IOMMU games (where available) can help. But I seriously doubt it 
-will be that bad.
-
+-- 
+~Randy

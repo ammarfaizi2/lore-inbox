@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbVKVHL5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbVKVHPZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932179AbVKVHL5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 02:11:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbVKVHL5
+	id S932180AbVKVHPZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 02:15:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbVKVHPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 02:11:57 -0500
-Received: from silver.veritas.com ([143.127.12.111]:10563 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S932179AbVKVHL4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 02:11:56 -0500
-Date: Tue, 22 Nov 2005 07:12:02 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Paul Mackerras <paulus@samba.org>
-cc: Andrew Morton <akpm@osdl.org>,
-       Ben Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/5] mm: powerpc ptlock comments
-In-Reply-To: <17282.21410.203627.607569@cargo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.61.0511220705110.22267@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0511212025220.19274@goblin.wat.veritas.com>
- <Pine.LNX.4.61.0511212033330.19274@goblin.wat.veritas.com>
- <17282.21410.203627.607569@cargo.ozlabs.ibm.com>
+	Tue, 22 Nov 2005 02:15:25 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:30685
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S932180AbVKVHPY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 02:15:24 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Bernd Eckenfels <ecki@lina.inka.de>
+Subject: Re: what is our answer to ZFS?
+Date: Tue, 22 Nov 2005 01:15:17 -0600
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+References: <E1EeLp5-0002fZ-00@calista.inka.de>
+In-Reply-To: <E1EeLp5-0002fZ-00@calista.inka.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 22 Nov 2005 07:11:56.0345 (UTC) FILETIME=[05BBAA90:01C5EF34]
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511220115.17450.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Nov 2005, Paul Mackerras wrote:
-> 
-> > Update comments (only) on page_table_lock and mmap_sem in arch/powerpc.
-> 
-> [snip]
-> 
-> >  	/*
-> > -	 * No need to use ldarx/stdcx here because all who
-> > -	 * might be updating the pte will hold the
-> > -	 * page_table_lock
-> > +	 * No need to use ldarx/stdcx here
-> >  	 */
-> 
-> If you're going to remove the because clause you might as well remove
-> the whole comment.  What you have left is either redundant or
-> mystifying (according to the depth of knowledge of the reader).  And
-> in fact I don't think I could now say why we don't need an atomic
-> update sequence there, so I would appreciate something that updates
-> the "because" part.
+On Monday 21 November 2005 18:15, Bernd Eckenfels wrote:
+> In article <200511211252.04217.rob@landley.net> you wrote:
+> > I believe that on 64 bit platforms, Linux has a 64 bit clean VFS.  Python
+> > says 2**64 is 18446744073709551616, and that's roughly:
+> > 18,446,744,073,709,551,616 bytes
+> > 18,446,744,073,709 megs
+> > 18,446,744,073 gigs
+> > 18,446,744 terabytes
+> > 18,446 ...  what are those, petabytes?
+> > 18 Really big lumps of data we won't be using for a while yet.
+>
+> The prolem is not about file size. It is about for example unique inode
+> numbers. If you have a file system which spans multiple volumnes and maybe
+> nodes, you need more unqiue methods of addressing the files and blocks.
 
-All I'm doing here is tidying up by removing the no-longer-appropriate
-reference to page_table_lock.  As my snipped patch comment said:
+18 quintillion inodes are enough to give every ipv4 address on the internet 4 
+billion unique inodes.  I take it this is not enough space for Sun to work 
+out a reasonable allocation strategy in?
 
-> Update comments (only) on page_table_lock and mmap_sem in arch/powerpc.
-> Removed the comment on page_table_lock from hash_huge_page: since it's
-> no longer taking page_table_lock itself, it's irrelevant whether others
-> are; but how it is safe (even against huge file truncation?) I can't say.
+Rob
 
-I'd appreciate something that updates the "because" part too, but don't
-know the answer.  That other patch will need to come from your end - Ben?
 
-Hugh

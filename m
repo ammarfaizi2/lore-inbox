@@ -1,52 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbVKVNnz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbVKVNrL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750822AbVKVNnz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 08:43:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbVKVNnz
+	id S964911AbVKVNrL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 08:47:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbVKVNrL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 08:43:55 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:56017 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750822AbVKVNny (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 08:43:54 -0500
-Subject: Re: [PATCH 4/5] Centralise NO_IRQ definition
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Paul Mackerras <paulus@samba.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>, Matthew Wilcox <matthew@wil.cx>,
-       David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>,
-       Ian Molton <spyro@f2s.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-In-Reply-To: <1132657991.15117.76.camel@baythorne.infradead.org>
-References: <E1Ee0G0-0004CN-Az@localhost.localdomain>
-	 <24299.1132571556@warthog.cambridge.redhat.com>
-	 <20051121121454.GA1598@parisc-linux.org>
-	 <Pine.LNX.4.64.0511211047260.13959@g5.osdl.org>
-	 <20051121190632.GG1598@parisc-linux.org>
-	 <Pine.LNX.4.64.0511211124190.13959@g5.osdl.org>
-	 <20051121194348.GH1598@parisc-linux.org>
-	 <Pine.LNX.4.64.0511211150040.13959@g5.osdl.org>
-	 <20051121211544.GA4924@elte.hu>
-	 <17282.15177.804471.298409@cargo.ozlabs.ibm.com>
-	 <1132611631.11842.83.camel@localhost.localdomain>
-	 <1132657991.15117.76.camel@baythorne.infradead.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 22 Nov 2005 14:15:39 +0000
-Message-Id: <1132668939.20233.47.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 22 Nov 2005 08:47:11 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:27802 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S964911AbVKVNrK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 08:47:10 -0500
+Date: Tue, 22 Nov 2005 08:46:55 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Paul Jackson <pj@sgi.com>
+cc: Matthew Frost <artusemrys@sbcglobal.net>, marc@osknowledge.org,
+       greg@kroah.com, linux-kernel@vger.kernel.org, rdunlap@xenotime.net,
+       xose.vazquez@gmail.com
+Subject: Re: [RFC] Documentation dir is a mess
+In-Reply-To: <20051122011845.32bab1d6.pj@sgi.com>
+Message-ID: <Pine.LNX.4.58.0511220839020.12166@gandalf.stny.rr.com>
+References: <20051121173404.GA7886@stiffy.osknowledge.org>
+ <20051122060648.8827.qmail@web81904.mail.mud.yahoo.com> <20051122011845.32bab1d6.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-11-22 at 11:13 +0000, David Woodhouse wrote:
-> Yes, there are drivers which are currently broken and assume irq 0 is
-> 'no irq'. They are broken. Let's just fix them and not continue the
-> brain-damage.
 
-0 in the Linux kernel has always meant 'no IRQ' and it makes it natural
-to express in C (and on some cpus more efficient too).
+On Tue, 22 Nov 2005, Paul Jackson wrote:
 
-What if my hardware has an IRQ -1 ;)
+> > The documents
+> > that exist may not conform themselves well to that sort of division,
+> > necessarily.
+>
+> Good point, not just for -that- sort of division, but perhaps for
+> any sort.
+>
+> I am skeptical that there is much value to be added to the current
+> hodge podge of documents in the Documentation directory by rearranging
+> them in some grand scheme.
+>
+> Certainly there is some value that can be subtracted -- just changing
+> it will result in some minor cost to each of us, adjusting to the
+> changes.  The greater the changes, the more aggressive the effort to
+> categorize it, the greater this distributed cost of change.
+>
+> Perhaps what we have is deeper than just improperly arranged Docs.
+> The content of the Docs may have too much variation in depth, topic,
+> breadth, organization, style and such to be well suited to a deep
+> structure.
+>
+> Maybe it looks disorganized because it is -- more than just skin deep.
+>
+
+Exactly why the documents _should_ be rearranged.  If you expect the
+contents of the documents to be cleaned up first, that wont happen. But if
+you make an hierarchy out of the current Document design (which there is
+some attempt to do so already there), then later changes can be to start
+breaking up the documents that have too much at every level into smaller
+versions where they belong.
+
+So the hierarchy can be like an outline. The first stab at this should
+just be to make the catagories that are needed, and still allow those
+catagories themselves be able to change.  Then, if necessary, modify the
+documents.
+
+This would need to be done in a step by step basis.  Although the first
+round can be the creation of the document directories with the attempt of
+placing every document in the toplevel Document directory into a lower
+directory.  Then we can slowly start fixing them one by one.
+
+Like I said, I would be willing to start reading each document and see
+where it might fit.  You may not agree with my decision, but then we can
+discuss it and find a proper fit.
+
+So the question remains, how does one start this?  Should someone just
+take a crack at it, submit it, and then let the games begin?
+
+-- Steve
 

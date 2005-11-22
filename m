@@ -1,31 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965065AbVKVWVv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965071AbVKVWbS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965065AbVKVWVv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 17:21:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965068AbVKVWVv
+	id S965071AbVKVWbS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 17:31:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965072AbVKVWbS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 17:21:51 -0500
-Received: from [67.137.28.188] ([67.137.28.188]:9865 "EHLO
-	master.soleranetworks.com") by vger.kernel.org with ESMTP
-	id S965065AbVKVWVv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 17:21:51 -0500
-Message-ID: <43838614.9080807@soleranetworks.com>
-Date: Tue, 22 Nov 2005 13:56:52 -0700
-From: "Jeff V. Merkey" <jmerkey@soleranetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+	Tue, 22 Nov 2005 17:31:18 -0500
+Received: from mailout07.sul.t-online.com ([194.25.134.83]:13768 "EHLO
+	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S965071AbVKVWbR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 17:31:17 -0500
+Message-ID: <43839C2E.3030904@t-online.de>
+Date: Tue, 22 Nov 2005 23:31:10 +0100
+From: Harald Dunkel <harald.dunkel@t-online.de>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: e1000 82571 Packet Splitting
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Small PCI core patch
+References: <20051121225303.GA19212@kroah.com> <20051122175017.GA10783@kroah.com>
+In-Reply-To: <20051122175017.GA10783@kroah.com>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-ID: SaZPT4ZrreoREDRcEt1GBE3adsM91aAkzZq7R3772e2bbGVUVVQEkS
+X-TOI-MSGID: 5ab3bf99-e8c2-4f95-ad3e-f00a94090ced
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Greg,
 
-I have noted that the e1000 driver is now supporting DMA splitting of 
-the packet header and payload into separate pages.  I also noticed
-that none of the config options enable it.  Is anyone using this feature 
-at present and has it even been tested on Linux? 
+Greg KH wrote:
+> 
+> This patch was to get people who are relying on binary drivers to think
+> about the risk they are taking when they do so.  It is not intended as
+> legal advice, but a thought exercise only.
+> 
 
-Jeff
+I would suggest to apply this patch.
+
+I don't know ATI, but NVidia is running huge Linux clusters
+for verification. IMHO its really time for them to contribute
+back to the community. In the end it would be the benefit for
+all.
+
+
+Regards
+
+Harri

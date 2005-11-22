@@ -1,55 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964819AbVKVBWK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964820AbVKVB0x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964819AbVKVBWK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 20:22:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964821AbVKVBWK
+	id S964820AbVKVB0x (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 20:26:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964821AbVKVB0x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 20:22:10 -0500
-Received: from mail.kroah.org ([69.55.234.183]:20445 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964819AbVKVBWI (ORCPT
+	Mon, 21 Nov 2005 20:26:53 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:49369 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964820AbVKVB0x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 20:22:08 -0500
-Date: Mon, 21 Nov 2005 17:21:49 -0800
-From: Greg KH <greg@kroah.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Small PCI core patch
-Message-ID: <20051122012149.GC21015@kroah.com>
-References: <20051121225303.GA19212@kroah.com> <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1132616132.26560.62.camel@gaston>
-User-Agent: Mutt/1.5.11
+	Mon, 21 Nov 2005 20:26:53 -0500
+Date: Mon, 21 Nov 2005 17:26:08 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Paul Mackerras <paulus@samba.org>
+cc: Ingo Molnar <mingo@elte.hu>, Matthew Wilcox <matthew@wil.cx>,
+       David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>,
+       Ian Molton <spyro@f2s.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH 4/5] Centralise NO_IRQ definition
+In-Reply-To: <17282.22077.670148.356981@cargo.ozlabs.ibm.com>
+Message-ID: <Pine.LNX.4.64.0511211717030.13959@g5.osdl.org>
+References: <E1Ee0G0-0004CN-Az@localhost.localdomain>
+ <24299.1132571556@warthog.cambridge.redhat.com> <20051121121454.GA1598@parisc-linux.org>
+ <Pine.LNX.4.64.0511211047260.13959@g5.osdl.org> <20051121190632.GG1598@parisc-linux.org>
+ <Pine.LNX.4.64.0511211124190.13959@g5.osdl.org> <20051121194348.GH1598@parisc-linux.org>
+ <Pine.LNX.4.64.0511211150040.13959@g5.osdl.org> <20051121211544.GA4924@elte.hu>
+ <17282.15177.804471.298409@cargo.ozlabs.ibm.com> <Pine.LNX.4.64.0511211339450.13959@g5.osdl.org>
+ <17282.22077.670148.356981@cargo.ozlabs.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 22, 2005 at 10:35:32AM +1100, Benjamin Herrenschmidt wrote:
-> On Mon, 2005-11-21 at 15:01 -0800, Greg KH wrote:
+
+
+On Tue, 22 Nov 2005, Paul Mackerras wrote:
 > 
-> > If you, or your company is relying on closed source kernel modules, your
-> > days are numbered.  And what are you going to do, and how are you going
-> > to explain things to your bosses and your customers, if possibly,
-> > something like this patch were to be accepted?
-> 
-> I'm all about it, but good luck trying to convince ATI and/or nVidia ...
+> First, are you talking about the interrupt pin register or the
+> interrupt line register?
 
-They are not the only ones doing closed source Linux drivers by far.
-They just seem to be the most "visible" these days.  It's the other
-companies, the ones that know better (or at least have legal departments
-that know better) that are doing this for various different/odd hardware
-pieces that are the most upsetting to me.
+Interrupt line. The interrupt pin is totally separate.
 
-And yes, I do understand the patent issue with the video players these
-days.  But what about the hardware OEM companies like IBM and HP that
-bundle those graphic adapters in their system, and go off and support
-and maintain the systems, running Linux, for big-named customers.
-That's a timebomb waiting to go off, as there is some real money behind
-those contracts.  They are the people in the position to change things
-today, yet they are not :(
+> Secondly, I would say that any driver that looks at either of those
+> registers is broken.  Drivers should be looking at dev->irq, which is
+> set up by platform code, and may be quite different from what is in
+> the interrupt line register.
 
-We are the people to change things for tomorrow, and we are...
+But that's part of the POINT, Paul.
 
-thanks,
+The platform code needs to set up something in dev->irq. And we have 
+_always_ had "dev->irq == 0" meaning "no irq".
 
-greg k-h
+So if PCI irq (the interrupt line register or whatever) 0 means something 
+for you on PPC, then BY DEFINITION you should not have translated it into 
+"dev->irq". But PPC did. Tough. Don't blame that mistake on me, or try to 
+force that mistake on other architectures.
+
+The fact that PPC screwed that up is a PPC problem, and it's a PPC problem 
+from the very beginning, because the "dev->irq" value doesn't have to 
+match the PCI irq at all.
+
+On sparc, for example, "dev->irq" used to be some random cookie, if I 
+remember correctly. But "0" still meant "unallocated".
+
+So face it. PPC screwed up, and if it had just followed what the 
+"dev->irq" meant on the regular x86 platforms, it wouldn't have needed 
+that NO_IRQ in the first place.
+
+The whole notion of needing "NO_IRQ" is broken. The way to test for not 
+having an irq is "!dev->irq". Any architecture that uses NO_IRQ is just a 
+bug waiting to happen, for any number of drivers. And for no good reason.
+
+		Linus

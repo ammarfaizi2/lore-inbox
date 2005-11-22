@@ -1,59 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbVKVIIn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964850AbVKVIQl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964890AbVKVIIn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 03:08:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964892AbVKVIIm
+	id S964850AbVKVIQl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 03:16:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964857AbVKVIQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 03:08:42 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:53946 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964890AbVKVIIm (ORCPT
+	Tue, 22 Nov 2005 03:16:41 -0500
+Received: from quechua.inka.de ([193.197.184.2]:28564 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S964850AbVKVIQk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 03:08:42 -0500
-Date: Tue, 22 Nov 2005 00:08:33 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch 9/12] mm: page_state opt
-Message-Id: <20051122000833.4463e108.akpm@osdl.org>
-In-Reply-To: <4382DF04.3000001@yahoo.com.au>
-References: <20051121123906.14370.3039.sendpatchset@didi.local0.net>
-	<20051121124235.14370.92215.sendpatchset@didi.local0.net>
-	<20051121235405.2b6ce561.akpm@osdl.org>
-	<4382DF04.3000001@yahoo.com.au>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Nov 2005 03:16:40 -0500
+From: Bernd Eckenfels <ecki@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: what is our answer to ZFS?
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <200511220115.17450.rob@landley.net>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
+Message-Id: <E1EeTKI-0004xu-00@calista.inka.de>
+Date: Tue, 22 Nov 2005 09:16:30 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->
-> Andrew Morton wrote:
-> > Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> > 
-> >>-#define mod_page_state_zone(zone, member, delta)				\
-> >> -	do {									\
-> >> -		unsigned offset;						\
-> >> -		if (is_highmem(zone))						\
-> >> -			offset = offsetof(struct page_state, member##_high);	\
-> >> -		else if (is_normal(zone))					\
-> >> -			offset = offsetof(struct page_state, member##_normal);	\
-> >> -		else								\
-> >> -			offset = offsetof(struct page_state, member##_dma);	\
-> >> -		__mod_page_state(offset, (delta));				\
-> >> -	} while (0)
-> > 
-> > 
-> > I suppose this needs updating to know about the dma32 zone.
-> > 
-> 
-> Ah I didn't realise DMA32 is in the tree now. I think you're right.
+In article <200511220115.17450.rob@landley.net> you wrote:
+> 18 quintillion inodes are enough to give every ipv4 address on the internet 4 
+> billion unique inodes.  I take it this is not enough space for Sun to work 
+> out a reasonable allocation strategy in?
 
-It means adding a new field to /proc/vmstat of course.  Presumably someone
-uses that file occasionally.
+Yes, I think thats why they did it. However with ipv6, it bevomes 1-inode/node.
 
-> I'll rebase this patchset when such an update is made. If you'd like
-> I could look at doing said DMA32 update for you?
-
-Sometime..
+Gruss
+Bernd

@@ -1,74 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbVKVIUK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751018AbVKVI0n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750732AbVKVIUK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 03:20:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbVKVIUJ
+	id S1751018AbVKVI0n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 03:26:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751034AbVKVI0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 03:20:09 -0500
-Received: from gate.perex.cz ([85.132.177.35]:10693 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S1750732AbVKVIUI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 03:20:08 -0500
-Date: Tue, 22 Nov 2005 09:20:05 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@tm8103-a.perex-int.cz
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Christian Parpart <trapni@gentoo.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: virtual OSS devices [for making selfish apps happy]
-In-Reply-To: <1132609221.29178.93.camel@mindpipe>
-Message-ID: <Pine.LNX.4.61.0511220913320.9659@tm8103-a.perex-int.cz>
-References: <200511212216.10837.trapni@gentoo.org> <1132609221.29178.93.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 22 Nov 2005 03:26:43 -0500
+Received: from embla.aitel.hist.no ([158.38.50.22]:35233 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750919AbVKVI0m
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 03:26:42 -0500
+Date: Tue, 22 Nov 2005 09:29:47 +0100
+To: Lars Roland <lroland@gmail.com>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Poor Software RAID-0 performance with 2.6.14.2
+Message-ID: <20051122082947.GA10890@aitel.hist.no>
+References: <4ad99e050511211231o97d5d7fw59b44527dc25dcea@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4ad99e050511211231o97d5d7fw59b44527dc25dcea@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Nov 2005, Lee Revell wrote:
-
-> On Mon, 2005-11-21 at 22:16 +0100, Christian Parpart wrote:
-> > Hi all,
-> > 
-> > I'm having some apps running on my desktop that all want
-> > exclusive access to my sound device just for playing audio
-> > (and a single app for capturing), namely:
-> > 
-> >  * TeamSpeak (VoIP team voice chat)
-> >  * Cedega (for playing some win32 games on my beloved box)
-> >  * KDE/arts (my desktop wants to play some sounds as well wtf)
-> > 
-> > While I could easily disable my desktop sounds, and yeah, forget about the 
-> > music, but I'd still like to be in TeamSpeak (talking to friends and alike) 
-> > while playing a game using cedega.
-> > 
-> > Unfortunately, *all* those stupid (2) apps want exclusive access to the OSS 
-> > layout of my ALSA drivers, though, there just came into my mind to buy a 
-> > second audio device and wear a second headset (a little one below/under my 
-> > big one). But I couldn't find it handy anyway :(
+On Mon, Nov 21, 2005 at 09:31:14PM +0100, Lars Roland wrote:
+> I have created a stripe across two 500Gb disks located on separate IDE
+> channels using:
 > 
-> This problem is (mostly) solved already.  You have to use aoss (alsa-lib
-> based OSS emulation) on top of dmix (software mixing for soundcards too
-> lame to do it in hardware).  With a recent ALSA dmix is already used by
-> default so the only change needed is to launch the OSS apps with the
-> aoss wrapper e.g. aoss ./foo-oss-app.  Since it's not completely
-> transparent this problem will have to be solved at the distro level, by
-> making sure all OSS apps are run with this wrapper.
+> mdadm -Cv /dev/md0 -c32 -n2 -l0 /dev/hdb /dev/hdd
 > 
-> This method should only be needed for closed source apps, an open source
-> app like artsd should be ported to use the ALSA API.
+> the performance is awful on both kernel 2.6.12.5 and 2.6.14.2 (even
+> with hdparm and blockdev tuning), both bonnie++ and hdparm (included
+> below) shows a single disk operating faster than the stripe:
+> 
+To rule out hardware problems (harware not as parallel as you might think):
 
-Also note that we have Open Sound System call redirector in our alsa-oss 
-package (see http://www.alsa-project.org for download). It's small library 
-which can redirects OSS calls to any dynamic library.
+Try running the performance test (bonnie++ or hdparm)
+on both /dev/hdb and /dev/hdd at the same time. 
 
-It would be nice to convert existing OSS apps to use this library. It 
-should be quite fast and easy. The only thing is to persuade sound
-developers to use this library instead the direct open/close/ioctl 
-OSS syscalls.
+Two hdparms on different disks should not take longer time than one,
+unless you have bad hardware.
 
-						Jaroslav
+One bonnie with size x MB takes y minutes to run.
+Two bonnies, each of size x/2 MB should take between
+y/2 an y minutes to run. If they need more, then something
+is wrong again, explaining bad RAID performance.
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SUSE Labs
+Helge Hafting
+
+

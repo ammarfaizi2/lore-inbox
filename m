@@ -1,32 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964850AbVKVIQl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbVKVIUK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964850AbVKVIQl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 03:16:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964857AbVKVIQl
+	id S1750732AbVKVIUK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 03:20:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbVKVIUJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 03:16:41 -0500
-Received: from quechua.inka.de ([193.197.184.2]:28564 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S964850AbVKVIQk (ORCPT
+	Tue, 22 Nov 2005 03:20:09 -0500
+Received: from gate.perex.cz ([85.132.177.35]:10693 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S1750732AbVKVIUI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 03:16:40 -0500
-From: Bernd Eckenfels <ecki@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: what is our answer to ZFS?
-Organization: Private Site running Debian GNU/Linux
-In-Reply-To: <200511220115.17450.rob@landley.net>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
-Message-Id: <E1EeTKI-0004xu-00@calista.inka.de>
-Date: Tue, 22 Nov 2005 09:16:30 +0100
+	Tue, 22 Nov 2005 03:20:08 -0500
+Date: Tue, 22 Nov 2005 09:20:05 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@tm8103-a.perex-int.cz
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Christian Parpart <trapni@gentoo.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: virtual OSS devices [for making selfish apps happy]
+In-Reply-To: <1132609221.29178.93.camel@mindpipe>
+Message-ID: <Pine.LNX.4.61.0511220913320.9659@tm8103-a.perex-int.cz>
+References: <200511212216.10837.trapni@gentoo.org> <1132609221.29178.93.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200511220115.17450.rob@landley.net> you wrote:
-> 18 quintillion inodes are enough to give every ipv4 address on the internet 4 
-> billion unique inodes.  I take it this is not enough space for Sun to work 
-> out a reasonable allocation strategy in?
+On Mon, 21 Nov 2005, Lee Revell wrote:
 
-Yes, I think thats why they did it. However with ipv6, it bevomes 1-inode/node.
+> On Mon, 2005-11-21 at 22:16 +0100, Christian Parpart wrote:
+> > Hi all,
+> > 
+> > I'm having some apps running on my desktop that all want
+> > exclusive access to my sound device just for playing audio
+> > (and a single app for capturing), namely:
+> > 
+> >  * TeamSpeak (VoIP team voice chat)
+> >  * Cedega (for playing some win32 games on my beloved box)
+> >  * KDE/arts (my desktop wants to play some sounds as well wtf)
+> > 
+> > While I could easily disable my desktop sounds, and yeah, forget about the 
+> > music, but I'd still like to be in TeamSpeak (talking to friends and alike) 
+> > while playing a game using cedega.
+> > 
+> > Unfortunately, *all* those stupid (2) apps want exclusive access to the OSS 
+> > layout of my ALSA drivers, though, there just came into my mind to buy a 
+> > second audio device and wear a second headset (a little one below/under my 
+> > big one). But I couldn't find it handy anyway :(
+> 
+> This problem is (mostly) solved already.  You have to use aoss (alsa-lib
+> based OSS emulation) on top of dmix (software mixing for soundcards too
+> lame to do it in hardware).  With a recent ALSA dmix is already used by
+> default so the only change needed is to launch the OSS apps with the
+> aoss wrapper e.g. aoss ./foo-oss-app.  Since it's not completely
+> transparent this problem will have to be solved at the distro level, by
+> making sure all OSS apps are run with this wrapper.
+> 
+> This method should only be needed for closed source apps, an open source
+> app like artsd should be ported to use the ALSA API.
 
-Gruss
-Bernd
+Also note that we have Open Sound System call redirector in our alsa-oss 
+package (see http://www.alsa-project.org for download). It's small library 
+which can redirects OSS calls to any dynamic library.
+
+It would be nice to convert existing OSS apps to use this library. It 
+should be quite fast and easy. The only thing is to persuade sound
+developers to use this library instead the direct open/close/ioctl 
+OSS syscalls.
+
+						Jaroslav
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

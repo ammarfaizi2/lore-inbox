@@ -1,365 +1,183 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964884AbVKVDMW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbVKVDLv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964884AbVKVDMW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 22:12:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964781AbVKVDMW
+	id S1751271AbVKVDLv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 22:11:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964781AbVKVDLv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 22:12:22 -0500
-Received: from cantor.suse.de ([195.135.220.2]:25274 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964884AbVKVDMV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 22:12:21 -0500
-From: Neil Brown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Tue, 22 Nov 2005 14:12:12 +1100
+	Mon, 21 Nov 2005 22:11:51 -0500
+Received: from zproxy.gmail.com ([64.233.162.207]:36848 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751271AbVKVDLu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 22:11:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=WUTYSil++IDJ0fF9CKrqJdIdnyePu5CFaVndOmHxrnXh6Jwwo2WW5H0PQOt5sn+7CFCTGVhVYZwSG1dE+d4d5Hs1z4l3RQrHksiVsSU8csFFl7SjaGOsXZeyhG21DxsqjXw4ATU+gWppeVrkwdgAVWYi87IFDe9MqvLelDZzZy8=
+Message-ID: <625fc13d0511211911j10f8e87dha9be0b71a298c60d@mail.gmail.com>
+Date: Mon, 21 Nov 2005 21:11:49 -0600
+From: Josh Boyer <jwboyer@gmail.com>
+To: scjody@steamballoon.com, gregkh@suse.de, torvalds@osdl.org, akpm@osdl.org
+Subject: [PATCH] Add more SCM trees to MAINTAINERS
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17282.35980.613583.592130@cse.unsw.edu.au>
-Cc: sander@humilis.net, linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-Subject: Re: Please help me understand ->writepage. Was Re: segfault mdadm
- --write-behind, 2.6.14-mm2  (was: Re: RAID1 ramdisk patch)
-In-Reply-To: message from Andrew Morton on Monday November 21
-References: <431B9558.1070900@baanhofman.nl>
-	<17179.40731.907114.194935@cse.unsw.edu.au>
-	<20051116133639.GA18274@favonius>
-	<20051116142000.5c63449f.akpm@osdl.org>
-	<17275.48113.533555.948181@cse.unsw.edu.au>
-	<20051117075041.GA5563@favonius>
-	<20051117101251.GA2883@favonius>
-	<20051117101511.GB2883@favonius>
-	<17282.21309.229128.930997@cse.unsw.edu.au>
-	<20051121155144.62bedaab.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday November 21, akpm@osdl.org wrote:
-> Neil Brown <neilb@suse.de> wrote:
-> >
-> > Help ???
-> 
-> Indeed.  tmpfs is crackpottery.
+Greg requested a patch to update MAINTAINERS with more SCM entries. 
+The patch below is what I've found so far.
 
-Ok, that explains a lot... :-)
+Also, you should be able to pull from:
 
-> > 
-> >  Any advice would be most welcome!
-> 
-> Skip the writepage if !mapping_cap_writeback_dirty(page->mapping), I guess.
-> Or, if appropriate, just sync the file.  Use filemap_fdatawrite() or even
-> refactor do_fsync() and use most of that.
+http://jdub.homelinux.org/pub/jwb-2.6.git
 
-Uhm, what would you think of testing mapping_cap_writeback_dirty in
-write_one_page??  If you don't like it, I can take it into write_page.
+unless I've totally screwed something up.  Which is entirely possible,
+since I'm pretty new to git itself.  I did test it locally though.
 
-> 
-> Also, write_page() doesn't need to run set_page_dirty(); ->commit_write()
-> will do that.
+josh
+---
 
-Ok.... but I think I'm dropping prepare_write / commit_write.
+Signed-off-by: Josh Boyer <jwboyer@gmail.com>
 
-> 
-> Several kmap()s in there which can become kmap_atomic().
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 1e84be3..92cf36c 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -227,6 +227,7 @@ AGPGART DRIVER
+ P:	Dave Jones
+ M:	davej@codemonkey.org.uk
+ W:	http://www.codemonkey.org.uk/projects/agp/
++T:	git kernel.org:/pub/scm/linux/kernel/git/davej/agpgart.git
+ S:	Maintained
 
-I've made them all kmap_atomic.
+ AHA152X SCSI DRIVER
+@@ -384,6 +385,7 @@ P:	David Woodhouse
+ M:	dwmw2@infradead.org
+ L:	linux-audit@redhat.com
+ W:	http://people.redhat.com/sgrubb/audit/
++T:	git kernel.org:/pub/scm/linux/kernel/git/dwmw2/audit-2.6.git
+ S:	Maintained
 
-> 
-> bitmap_init_from_disk() might be leaking bitmap->filemap on kmalloc-failed
-> error path.
+ AX.25 NETWORK LAYER
+@@ -432,6 +434,7 @@ L:	bluez-devel@lists.sf.net
+ W:	http://bluez.sf.net
+ W:	http://www.bluez.org
+ W:	http://www.holtmann.org/linux/bluetooth/
++T:	git kernel.org:/pub/scm/linux/kernel/git/holtmann/bluetooth-2.6.git
+ S:	Maintained
 
-It looks that way, but actually not.  bitmap_create requires that
-bitmap_destroy always be called afterwards, even on an error.  Not the
-best interface I'd agree...
+ BLUETOOTH RFCOMM LAYER
+@@ -547,6 +550,7 @@ P:	Steve French
+ M:	sfrench@samba.org
+ L:	samba-technical@lists.samba.org
+ W:	http://us1.samba.org/samba/Linux_CIFS_client.html
++T:	git kernel.org:/pub/scm/linux/kernel/git/sfrench/cifs-2.6.git
+ S:	Supported	
 
-> 
-> bitmap->filemap_attr can be allocated with kzalloc() now.
-Yes, thanks.
+ CIRRUS LOGIC GENERIC FBDEV DRIVER
+@@ -608,6 +612,7 @@ P:	Dave Jones
+ M:	davej@codemonkey.org.uk
+ L:	cpufreq@lists.linux.org.uk
+ W:	http://www.codemonkey.org.uk/projects/cpufreq/
++T:	git kernel.org/pub/scm/linux/kernel/davej/cpufreq.git
+ S:	Maintained
 
-So Sander, could you try this patch for main against reiser4?  It
-seems to work on ext3 and tmpfs and has some chance of not mucking up
-on reiser4.
+ CPUID/MSR DRIVER
+@@ -641,6 +646,7 @@ M:	herbert@gondor.apana.org.au
+ P:	David S. Miller
+ M:	davem@davemloft.net
+ L:	linux-crypto@vger.kernel.org
++T:	git kernel.org:/pub/scm/linux/kernel/git/herbert/crypto-2.6.git
+ S:	Maintained
 
-Thanks,
-NeilBrown
+ CYBERPRO FB DRIVER
+@@ -1185,6 +1191,7 @@ P:	Bartlomiej Zolnierkiewicz
+ M:	B.Zolnierkiewicz@elka.pw.edu.pl
+ L:	linux-kernel@vger.kernel.org
+ L:	linux-ide@vger.kernel.org
++T:	git kernel.org:/pub/scm/linux/kernel/git/bart/ide-2.6.git
+ S:	Maintained
 
+ IDE/ATAPI CDROM DRIVER
+@@ -1279,6 +1286,7 @@ P:	Vojtech Pavlik
+ M:	vojtech@suse.cz
+ L:	linux-input@atrey.karlin.mff.cuni.cz
+ L:	linux-joystick@atrey.karlin.mff.cuni.cz
++T:	git kernel.org:/pub/scm/linux/kernel/git/dtor/input.git
+ S:	Maintained
 
-===File /home/src/mm/.patches/applied/014MdBitmapFix========
-Status: devel
+ INOTIFY
+@@ -1392,6 +1400,7 @@ P:	Kai Germaschewski
+ M:	kai.germaschewski@gmx.de
+ L:	isdn4linux@listserv.isdn4linux.de
+ W:	http://www.isdn4linux.de
++T:	git kernel.org:/pub/scm/linux/kernel/kkeil/isdn-2.6.git
+ S:	Maintained
 
-Hopefully make md/bitmaps work on files other than ext3
+ ISDN SUBSYSTEM (Eicon active card driver)
+@@ -1420,6 +1429,7 @@ P:	Dave Kleikamp
+ M:	shaggy@austin.ibm.com
+ L:	jfs-discussion@lists.sourceforge.net
+ W:	http://jfs.sourceforge.net/
++T:	git kernel.org:/pub/scm/linux/kernel/git/shaggy/jfs-2.6.git
+ S:	Supported
 
+ KCONFIG
+@@ -1534,6 +1544,7 @@ P:	Paul Mackerras
+ M:	paulus@samba.org
+ W:	http://www.penguinppc.org/
+ L:	linuxppc-dev@ozlabs.org
++T:	git kernel.org:/pub/scm/linux/kernel/git/paulus/powerpc.git
+ S:	Supported
 
+ LINUX FOR POWER MACINTOSH
+@@ -1601,6 +1612,7 @@ P:	Chris Wright
+ M:	chrisw@osdl.org
+ L:	linux-security-module@wirex.com
+ W:	http://lsm.immunix.org
++T:	git kernel.org:/pub/scm/linux/kernel/git/chrisw/lsm-2.6.git
+ S:	Supported
 
-Signed-off-by: Neil Brown <neilb@suse.de>
+ LM83 HARDWARE MONITOR DRIVER
+@@ -1816,6 +1828,7 @@ M:	yoshfuji@linux-ipv6.org
+ P:	Patrick McHardy
+ M:	kaber@coreworks.de
+ L:	netdev@vger.kernel.org
++T:	git kernel.org:/pub/scm/linux/kernel/davem/net-2.6.git
+ S:	Maintained
 
-### Diffstat output
- ./drivers/md/bitmap.c |   64 +++++++++++++++++++-------------------------------
- ./mm/page-writeback.c |    4 +++
- 2 files changed, 29 insertions(+), 39 deletions(-)
+ IPVS
+@@ -1867,6 +1880,7 @@ M:	aia21@cantab.net
+ L:	linux-ntfs-dev@lists.sourceforge.net
+ L:	linux-kernel@vger.kernel.org
+ W:	http://linux-ntfs.sf.net/
++T:	git kernel.org:/pub/scm/linux/kernel/git/aia21/ntfs-2.6.git
+ S:	Maintained
 
-diff ./drivers/md/bitmap.c~current~ ./drivers/md/bitmap.c
---- ./drivers/md/bitmap.c~current~	2005-11-22 14:06:53.000000000 +1100
-+++ ./drivers/md/bitmap.c	2005-11-22 14:07:05.000000000 +1100
-@@ -310,7 +310,6 @@ static int write_sb_page(mddev_t *mddev,
-  */
- static int write_page(struct bitmap *bitmap, struct page *page, int wait)
- {
--	int ret = -ENOMEM;
- 
- 	if (bitmap->file == NULL)
- 		return write_sb_page(bitmap->mddev, bitmap->offset, page, wait);
-@@ -326,15 +325,6 @@ static int write_page(struct bitmap *bit
- 		}
- 	}
- 
--	ret = page->mapping->a_ops->prepare_write(bitmap->file, page, 0, PAGE_SIZE);
--	if (!ret)
--		ret = page->mapping->a_ops->commit_write(bitmap->file, page, 0,
--			PAGE_SIZE);
--	if (ret) {
--		unlock_page(page);
--		return ret;
--	}
--
- 	set_page_dirty(page); /* force it to be written out */
- 
- 	if (!wait) {
-@@ -406,11 +396,11 @@ int bitmap_update_sb(struct bitmap *bitm
- 		return 0;
- 	}
- 	spin_unlock_irqrestore(&bitmap->lock, flags);
--	sb = (bitmap_super_t *)kmap(bitmap->sb_page);
-+	sb = (bitmap_super_t *)kmap_atomic(bitmap->sb_page, KM_USER0);
- 	sb->events = cpu_to_le64(bitmap->mddev->events);
- 	if (!bitmap->mddev->degraded)
- 		sb->events_cleared = cpu_to_le64(bitmap->mddev->events);
--	kunmap(bitmap->sb_page);
-+	kunmap_atomic(bitmap->sb_page, KM_USER0);
- 	return write_page(bitmap, bitmap->sb_page, 1);
- }
- 
-@@ -421,7 +411,7 @@ void bitmap_print_sb(struct bitmap *bitm
- 
- 	if (!bitmap || !bitmap->sb_page)
- 		return;
--	sb = (bitmap_super_t *)kmap(bitmap->sb_page);
-+	sb = (bitmap_super_t *)kmap_atomic(bitmap->sb_page, KM_USER0);
- 	printk(KERN_DEBUG "%s: bitmap file superblock:\n", bmname(bitmap));
- 	printk(KERN_DEBUG "         magic: %08x\n", le32_to_cpu(sb->magic));
- 	printk(KERN_DEBUG "       version: %d\n", le32_to_cpu(sb->version));
-@@ -440,7 +430,7 @@ void bitmap_print_sb(struct bitmap *bitm
- 	printk(KERN_DEBUG "     sync size: %llu KB\n",
- 			(unsigned long long)le64_to_cpu(sb->sync_size)/2);
- 	printk(KERN_DEBUG "max write behind: %d\n", le32_to_cpu(sb->write_behind));
--	kunmap(bitmap->sb_page);
-+	kunmap_atomic(bitmap->sb_page, KM_USER0);
- }
- 
- /* read the superblock from the bitmap file and initialize some bitmap fields */
-@@ -466,7 +456,7 @@ static int bitmap_read_sb(struct bitmap 
- 		return err;
- 	}
- 
--	sb = (bitmap_super_t *)kmap(bitmap->sb_page);
-+	sb = (bitmap_super_t *)kmap_atomic(bitmap->sb_page, KM_USER0);
- 
- 	if (bytes_read < sizeof(*sb)) { /* short read */
- 		printk(KERN_INFO "%s: bitmap file superblock truncated\n",
-@@ -535,7 +525,7 @@ success:
- 		bitmap->events_cleared = bitmap->mddev->events;
- 	err = 0;
- out:
--	kunmap(bitmap->sb_page);
-+	kunmap_atomic(bitmap->sb_page, KM_USER0);
- 	if (err)
- 		bitmap_print_sb(bitmap);
- 	return err;
-@@ -560,7 +550,7 @@ static void bitmap_mask_state(struct bit
- 	}
- 	page_cache_get(bitmap->sb_page);
- 	spin_unlock_irqrestore(&bitmap->lock, flags);
--	sb = (bitmap_super_t *)kmap(bitmap->sb_page);
-+	sb = (bitmap_super_t *)kmap_atomic(bitmap->sb_page, KM_USER0);
- 	switch (op) {
- 		case MASK_SET: sb->state |= bits;
- 				break;
-@@ -568,7 +558,7 @@ static void bitmap_mask_state(struct bit
- 				break;
- 		default: BUG();
- 	}
--	kunmap(bitmap->sb_page);
-+	kunmap_atomic(bitmap->sb_page, KM_USER0);
- 	page_cache_release(bitmap->sb_page);
- }
- 
-@@ -621,8 +611,7 @@ static void bitmap_file_unmap(struct bit
- 	spin_unlock_irqrestore(&bitmap->lock, flags);
- 
- 	while (pages--)
--		if (map[pages]->index != 0) /* 0 is sb_page, release it below */
--			page_cache_release(map[pages]);
-+		page_cache_release(map[pages]);
- 	kfree(map);
- 	kfree(attr);
- 
-@@ -771,7 +760,7 @@ static void bitmap_file_set_bit(struct b
- 		set_bit(bit, kaddr);
- 	else
- 		ext2_set_bit(bit, kaddr);
--	kunmap_atomic(kaddr, KM_USER0);
-+	kunmap_atomic(page, KM_USER0);
- 	PRINTK("set file bit %lu page %lu\n", bit, page->index);
- 
- 	/* record page number so it gets flushed to disk when unplug occurs */
-@@ -854,6 +843,7 @@ static int bitmap_init_from_disk(struct 
- 	unsigned long bytes, offset, dummy;
- 	int outofdate;
- 	int ret = -ENOSPC;
-+	void *paddr;
- 
- 	chunks = bitmap->chunks;
- 	file = bitmap->file;
-@@ -887,12 +877,10 @@ static int bitmap_init_from_disk(struct 
- 	if (!bitmap->filemap)
- 		goto out;
- 
--	bitmap->filemap_attr = kmalloc(sizeof(long) * num_pages, GFP_KERNEL);
-+	bitmap->filemap_attr = kzalloc(sizeof(long) * num_pages, GFP_KERNEL);
- 	if (!bitmap->filemap_attr)
- 		goto out;
- 
--	memset(bitmap->filemap_attr, 0, sizeof(long) * num_pages);
--
- 	oldindex = ~0L;
- 
- 	for (i = 0; i < chunks; i++) {
-@@ -901,8 +889,6 @@ static int bitmap_init_from_disk(struct 
- 		bit = file_page_offset(i);
- 		if (index != oldindex) { /* this is a new page, read it in */
- 			/* unmap the old page, we're done with it */
--			if (oldpage != NULL)
--				kunmap(oldpage);
- 			if (index == 0) {
- 				/*
- 				 * if we're here then the superblock page
-@@ -910,6 +896,7 @@ static int bitmap_init_from_disk(struct 
- 				 * we've already read it in, so just use it
- 				 */
- 				page = bitmap->sb_page;
-+				page_cache_get(page);
- 				offset = sizeof(bitmap_super_t);
- 			} else if (file) {
- 				page = read_page(file, index, &dummy);
-@@ -925,18 +912,18 @@ static int bitmap_init_from_disk(struct 
- 
- 			oldindex = index;
- 			oldpage = page;
--			kmap(page);
- 
- 			if (outofdate) {
- 				/*
- 				 * if bitmap is out of date, dirty the
- 			 	 * whole page and write it out
- 				 */
--				memset(page_address(page) + offset, 0xff,
-+				paddr = kmap_atomic(page, KM_USER0);
-+				memset(paddr + offset, 0xff,
- 				       PAGE_SIZE - offset);
-+				kunmap_atomic(page, KM_USER0);
- 				ret = write_page(bitmap, page, 1);
- 				if (ret) {
--					kunmap(page);
- 					/* release, page not in filemap yet */
- 					page_cache_release(page);
- 					goto out;
-@@ -945,10 +932,12 @@ static int bitmap_init_from_disk(struct 
- 
- 			bitmap->filemap[bitmap->file_pages++] = page;
- 		}
-+		paddr = kmap_atomic(page, KM_USER0);
- 		if (bitmap->flags & BITMAP_HOSTENDIAN)
--			b = test_bit(bit, page_address(page));
-+			b = test_bit(bit, paddr);
- 		else
--			b = ext2_test_bit(bit, page_address(page));
-+			b = ext2_test_bit(bit, paddr);
-+		kunmap_atomic(page, KM_USER0);
- 		if (b) {
- 			/* if the disk bit is set, set the memory bit */
- 			bitmap_set_memory_bits(bitmap, i << CHUNK_BLOCK_SHIFT(bitmap),
-@@ -963,9 +952,6 @@ static int bitmap_init_from_disk(struct 
- 	ret = 0;
- 	bitmap_mask_state(bitmap, BITMAP_STALE, MASK_UNSET);
- 
--	if (page) /* unmap the last page */
--		kunmap(page);
--
- 	if (bit_cnt) { /* Kick recovery if any bits were set */
- 		set_bit(MD_RECOVERY_NEEDED, &bitmap->mddev->recovery);
- 		md_wakeup_thread(bitmap->mddev->thread);
-@@ -1021,6 +1007,7 @@ int bitmap_daemon_work(struct bitmap *bi
- 	int err = 0;
- 	int blocks;
- 	int attr;
-+	void *paddr;
- 
- 	if (bitmap == NULL)
- 		return 0;
-@@ -1077,14 +1064,12 @@ int bitmap_daemon_work(struct bitmap *bi
- 					set_page_attr(bitmap, lastpage, BITMAP_PAGE_NEEDWRITE);
- 					spin_unlock_irqrestore(&bitmap->lock, flags);
- 				}
--				kunmap(lastpage);
- 				page_cache_release(lastpage);
- 				if (err)
- 					bitmap_file_kick(bitmap);
- 			} else
- 				spin_unlock_irqrestore(&bitmap->lock, flags);
- 			lastpage = page;
--			kmap(page);
- /*
- 			printk("bitmap clean at page %lu\n", j);
- */
-@@ -1107,10 +1092,12 @@ int bitmap_daemon_work(struct bitmap *bi
- 						  -1);
- 
- 				/* clear the bit */
-+				paddr = kmap_atomic(page, KM_USER0);
- 				if (bitmap->flags & BITMAP_HOSTENDIAN)
--					clear_bit(file_page_offset(j), page_address(page));
-+					clear_bit(file_page_offset(j), paddr);
- 				else
--					ext2_clear_bit(file_page_offset(j), page_address(page));
-+					ext2_clear_bit(file_page_offset(j), paddr);
-+				kunmap_atomic(page, KM_USER0);
- 			}
- 		}
- 		spin_unlock_irqrestore(&bitmap->lock, flags);
-@@ -1118,7 +1105,6 @@ int bitmap_daemon_work(struct bitmap *bi
- 
- 	/* now sync the final page */
- 	if (lastpage != NULL) {
--		kunmap(lastpage);
- 		spin_lock_irqsave(&bitmap->lock, flags);
- 		if (get_page_attr(bitmap, lastpage) &BITMAP_PAGE_NEEDWRITE) {
- 			clear_page_attr(bitmap, lastpage, BITMAP_PAGE_NEEDWRITE);
+ NVIDIA (RIVA) FRAMEBUFFER DRIVER
+@@ -2390,6 +2404,7 @@ P:	Anton Blanchard
+ M:	anton@samba.org
+ L:	sparclinux@vger.kernel.org
+ L:	ultralinux@vger.kernel.org
++T:	git kernel.org:/pub/scm/linux/kernel/git/davem/sparc-2.6.git
+ S:	Maintained
 
-diff ./mm/page-writeback.c~current~ ./mm/page-writeback.c
---- ./mm/page-writeback.c~current~	2005-11-22 14:06:53.000000000 +1100
-+++ ./mm/page-writeback.c	2005-11-22 14:07:05.000000000 +1100
-@@ -583,6 +583,10 @@ int write_one_page(struct page *page, in
- 	};
- 
- 	BUG_ON(!PageLocked(page));
-+	if (!mapping_cap_writeback_dirty(mapping)) {
-+		unlock_page(page);
-+		return ret;
-+	}
- 
- 	if (wait)
- 		wait_on_page_writeback(page);
-============================================================
+ SHARP LH SUPPORT (LH7952X & LH7A40X)
+@@ -2528,6 +2543,7 @@ P:      Adrian Bunk
+ M:      trivial@kernel.org
+ L:      linux-kernel@vger.kernel.org
+ W:      http://www.kernel.org/pub/linux/kernel/people/bunk/trivial/
++T:      git kernel.org:/pub/scm/linux/kernel/git/bunk/trivial.git
+ S:      Maintained
+
+ TMS380 TOKEN-RING NETWORK DRIVER
+@@ -2861,6 +2877,7 @@ P:      Latchesar Ionkov
+ M:      lucho@ionkov.net
+ L:      v9fs-developer@lists.sourceforge.net
+ W:      http://v9fs.sf.net
++T:      git kernel.org:/pub/scm/linux/kernel/ericvh/v9fs-devel.git
+ S:      Maintained
+
+ VIDEO FOR LINUX

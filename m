@@ -1,37 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964948AbVKVOUM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964947AbVKVOU1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964948AbVKVOUM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 09:20:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbVKVOUL
+	id S964947AbVKVOU1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 09:20:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbVKVOU1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 09:20:11 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:27792 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S964948AbVKVOUK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 09:20:10 -0500
-Date: Tue, 22 Nov 2005 07:20:09 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Russell King <rmk@arm.linux.org.uk>, Ian Molton <spyro@f2s.com>,
-       David Howells <dhowells@redhat.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Paul Mackerras <paulus@samba.org>, Matthew Wilcox <matthew@wil.cx>
-Subject: Re: [PATCH 2/5] Ensure NO_IRQ is appropriately defined on all architectures
-Message-ID: <20051122142009.GL1598@parisc-linux.org>
-References: <E1EeQYc-00055n-Gc@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 22 Nov 2005 09:20:27 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:28896 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S964947AbVKVOUZ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 09:20:25 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Subject: Re: Compaq Presario "reboot" problems
+Date: Tue, 22 Nov 2005 16:19:25 +0200
+User-Agent: KMail/1.8.2
+Cc: "Stefan Seyfried" <seife@suse.de>,
+       "Linux kernel" <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.61.0511171314440.10063@chaos.analogic.com> <438218E6.4070604@suse.de> <Pine.LNX.4.61.0511220905410.11943@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0511220905410.11943@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <E1EeQYc-00055n-Gc@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200511221619.26127.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 22, 2005 at 12:19:06AM -0500, Matthew Wilcox wrote:
-> Add a default definition of NO_IRQ to <linux/hardirq.h> and make the
-> definition in <asm/hardirq.h> uniform across all architectures which
-> define it.
+On Tuesday 22 November 2005 16:09, linux-os (Dick Johnson) wrote:
+> Okay, the results are the same. The machine reboots. It doesn't
+> run the memory-test so it probably didn't cold-boot. It's hard to
+> tell with these lap-tops because the time in the BIOS is so
+> brief. Anyway, it reboots into Linux, but can't reboot into Windows
+> as before.
 
-I don't like this patch in the cold light of day, since I made the
-include mess worse than it already is.  Updated patch to follow.
+You may want to try to add triple-fault reset as suggested here
+(based on your own idea actually):
+
+> If it does not, try this reboot=tc - this is closely resembles
+> what you proposed in your mail (pseudo-patch):
+>
+> static int __init reboot_setup(char *str)
+> {
+>        while(1) {
+>                switch (*str) {
+> +               case 't': /* "triple fault" reboot */
+> +                       reboot_thru_bios = 2;
+> +                       break;
+>                case 'w': /* "warm" reboot (no memory testing etc) */
+>                        reboot_mode = 0x1234;
+>                        break;
+> ...
+> void machine_emergency_restart(void)
+> {
+> +       if (reboot_thru_bios == 2) {
+> +               *((unsigned short *)__va(0x472)) = reboot_mode;
+> +               load_idt(&no_idt);
+> +               __asm__ __volatile__("int3");
+> +     }
+>        if (!reboot_thru_bios) {
+>                if (efi_enabled) {
+>                        efi.reset_system(EFI_RESET_COLD, EFI_SUCCESS, 0, NULL);
+--
+vda

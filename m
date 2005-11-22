@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030195AbVKVWFX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030197AbVKVWH4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030195AbVKVWFX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 17:05:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbVKVWFX
+	id S1030197AbVKVWH4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 17:07:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030198AbVKVWH4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 17:05:23 -0500
-Received: from zproxy.gmail.com ([64.233.162.196]:44455 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030195AbVKVWFV convert rfc822-to-8bit
+	Tue, 22 Nov 2005 17:07:56 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:47402 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S1030197AbVKVWHz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 17:05:21 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PwfetypZvd0xbtXgiJ6ujR9VxAcJyFpIP9/veNFiqCVKyfDzM7bcegwpJbgKyLatXA7mA5JjOOj3NaTuk3qImDWsKdR/dBkZ/uz+5mHBUknbAmxUne2aDp2XCwTnsrvJEwl58uOddJNRsF3Jol5EunRtuJ7i3DD80BZH6sySfM0=
-Message-ID: <cbec11ac0511221405s3e05b936ofc17952e29463545@mail.gmail.com>
-Date: Wed, 23 Nov 2005 11:05:20 +1300
-From: Ian McDonald <imcdnzl@gmail.com>
-To: Greg KH <greg@kroah.com>
-Subject: Re: 2.6.15-rc1-mm1
-Cc: Ed Tomlinson <tomlins@cam.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20051122205545.GB5396@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 22 Nov 2005 17:07:55 -0500
+Date: Tue, 22 Nov 2005 23:08:09 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Kristian Edlund <edlund@groenstue.dk>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       trivial@rustcorp.com.au
+Subject: Re: [PATCH] Typos in Documation/kbuild/modules.txt 2.6.15-rc2
+Message-ID: <20051122220809.GC7576@mars.ravnborg.org>
+References: <43831836.3040505@groenstue.dk> <Pine.LNX.4.64.0511220855380.13959@g5.osdl.org> <43839590.5050409@groenstue.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20051117111807.6d4b0535.akpm@osdl.org>
-	 <200511182024.33858.tomlins@cam.org>
-	 <20051119012632.GA28458@kroah.com>
-	 <200511182224.10392.tomlins@cam.org>
-	 <20051121002623.GA11271@kroah.com>
-	 <cbec11ac0511221247k7b72eb4bmbcaa8c522bd8c005@mail.gmail.com>
-	 <20051122205545.GB5396@kroah.com>
+In-Reply-To: <43839590.5050409@groenstue.dk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/23/05, Greg KH <greg@kroah.com> wrote:
-> On Wed, Nov 23, 2005 at 09:47:49AM +1300, Ian McDonald wrote:
-> > It is definitely not a kernel issue in my opinion.
->
-> Thank you for following up on this and letting us know.
->
-> greg k-h
->
-It is in debian bug system as bug 340202. I have just posted more
-information to it which should appear soon:
-http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=340202
+On Tue, Nov 22, 2005 at 11:02:56PM +0100, Kristian Edlund wrote:
+> Linus Torvalds wrote:
+> 
+> >Seriously whitespace-damaged (lost spaces not just at the end of lines, 
+> >but at their beginning too - and wordwrap etc)
+> >
+> >		Linus
+> > 
+> >
+> I am truely sorry about my patch being broken by my mail program,
+> I have tried to fix it now and is trying to resubmit the patch.
 
---
-Ian McDonald
-http://wand.net.nz/~iam4
-WAND Network Research Group
-University of Waikato
-New Zealand
+I have a similar patch from Brian Strand in my pending queue, I just
+need a sign-off before I submit it. I fixes a few more spilling
+mistkates - dunno who has added them in the frist place??
+Care to wait two days before applying this one.
+
+	Sam

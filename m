@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964923AbVKVL41@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964926AbVKVL55@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964923AbVKVL41 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 06:56:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964925AbVKVL41
+	id S964926AbVKVL55 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 06:57:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964927AbVKVL55
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 06:56:27 -0500
-Received: from zproxy.gmail.com ([64.233.162.202]:65157 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964923AbVKVL40 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 06:56:26 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=mB+3DpGU2yzQsjD1t1KjH5HEznWnkLWmNMbQo+bngNQQNg8t67d3L37BAe3HW06Ne1E7mWDNd6p3xtukTrM8odtC6ZSYlfr2AYSH99MNQgfBq8n08OtWp+POkLh9tbNQoG96loGKuLFCifKiR6eC8RG9nokmjqJ0DSOIrsInguM=
-Message-ID: <35fb2e590511220356x75a951f1t8a36d0556a940751@mail.gmail.com>
-Date: Tue, 22 Nov 2005 11:56:25 +0000
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: floppy regression from "[PATCH] fix floppy.c to store correct ..."
-Cc: cp@absolutedigital.net, linux-kernel@vger.kernel.org, jcm@jonmasters.org,
-       torvalds@osdl.org, viro@ftp.linux.org.uk, hch@lst.de
-In-Reply-To: <20051121233131.793f0d04.akpm@osdl.org>
+	Tue, 22 Nov 2005 06:57:57 -0500
+Received: from mx02.stofanet.dk ([212.10.10.12]:29618 "EHLO mx02.stofanet.dk")
+	by vger.kernel.org with ESMTP id S964926AbVKVL55 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 06:57:57 -0500
+Message-ID: <4383078A.5010204@stud.feec.vutbr.cz>
+Date: Tue, 22 Nov 2005 12:56:58 +0100
+From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.61.0511160034320.988@lancer.cnet.absolutedigital.net>
-	 <20051116005958.25adcd4a.akpm@osdl.org>
-	 <20051119034456.GA10526@apogee.jonmasters.org>
-	 <20051121233131.793f0d04.akpm@osdl.org>
+To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ioscheduler and 2.6 kernels
+References: <20051122115225.GA2529@mail.muni.cz>
+In-Reply-To: <20051122115225.GA2529@mail.muni.cz>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/22/05, Andrew Morton <akpm@osdl.org> wrote:
+Lukas Hejtmanek wrote:
+> Hello,
+> 
+> I have a question about ioschedulers in current 2.6 kernels. Is there an option
+> to build iorequest queues per process? I would like to have the queue for each
+> process and pick up request in round robin manner, which results in more
+> interactive environment. 
 
-> That still does the wrong thing.  Put in a write-protected floppy, try to
-> write to it and it says -EROFS.  Then pop the WP switch and try to
-> write to it again and it wrongly claims EPERM.  A second attempt to
-> write will succeed.
+Isn't this exactly what the CFQ scheduler does?
+Michal
 
-The problem is that we need to wait until the floppy driver next
-checks the read status on the drive. I think to get it completely
-right will take moving bits of the floppy driver around, unless I'm
-being stupid. I'm planning to do that too though.
 
-Jon.

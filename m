@@ -1,33 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964823AbVKVB2g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbVKVB33@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964823AbVKVB2g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 20:28:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964824AbVKVB2g
+	id S964825AbVKVB33 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 20:29:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964828AbVKVB33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 20:28:36 -0500
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:19867 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S964823AbVKVB2f
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 20:28:35 -0500
-X-ORBL: [70.132.51.62]
-Date: Mon, 21 Nov 2005 17:28:27 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Small PCI core patch
-Message-ID: <20051122012826.GA32361@taniwha.stupidest.org>
-References: <20051121225303.GA19212@kroah.com> <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston>
-MIME-Version: 1.0
+	Mon, 21 Nov 2005 20:29:29 -0500
+Received: from mail.kroah.org ([69.55.234.183]:23520 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964826AbVKVB32 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 20:29:28 -0500
+Date: Mon, 21 Nov 2005 17:29:12 -0800
+From: Greg KH <greg@kroah.com>
+To: Jens-Michael Hoffmann <jensmh@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: white space fixes wanted?
+Message-ID: <20051122012912.GA21199@kroah.com>
+References: <200511220024.11046.jensmh@gmx.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1132616132.26560.62.camel@gaston>
+In-Reply-To: <200511220024.11046.jensmh@gmx.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 22, 2005 at 10:35:32AM +1100, Benjamin Herrenschmidt wrote:
+On Tue, Nov 22, 2005 at 12:24:08AM +0000, Jens-Michael Hoffmann wrote:
+> When looking in drivers/ieee1394/pcilynx.c, I noticed that there are a lot of spaces instead of tabs.
+> I prepared a patch to fix that.
+> 
+> file size of pcilynx.c before: 53775 bytes
+> file size after:                         42870 bytes
+> 
+> patch size is 85356 bytes.
+> 
+> Should I send this patch to the mailing list?
 
-> I'm all about it, but good luck trying to convince ATI and/or
-> nVidia...
+How about to the ieee1394 developers?  They would be the best people to
+be able to accept this change.
 
-if the wrapper is marked GPL then it will still work (whether it makes
-sense or is legal to do so i have no idea)
+thanks,
+
+greg k-h

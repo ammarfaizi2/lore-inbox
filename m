@@ -1,68 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965055AbVKVV3G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965051AbVKVVcn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965055AbVKVV3G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 16:29:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965051AbVKVV3F
+	id S965051AbVKVVcn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 16:32:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965057AbVKVVcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 16:29:05 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:595 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S965055AbVKVV3B
+	Tue, 22 Nov 2005 16:32:43 -0500
+Received: from silver.veritas.com ([143.127.12.111]:20544 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S965051AbVKVVcm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 16:29:01 -0500
-Subject: Re: Christmas list for the kernel
-From: Kasper Sandberg <lkml@metanurb.dk>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <9e4733910511221313t4a1e3c67wc7b08160937eb5c5@mail.gmail.com>
-References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com>
-	 <20051122204918.GA5299@kroah.com>
-	 <9e4733910511221313t4a1e3c67wc7b08160937eb5c5@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 22 Nov 2005 22:28:55 +0100
-Message-Id: <1132694935.10574.2.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Nov 2005 16:32:42 -0500
+Date: Tue, 22 Nov 2005 21:32:42 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Michael Frank <mhf@berlios.de>
+cc: Dominik Brodowski <linux@dominikbrodowski.net>,
+       Benoit Boissinot <benoit.boissinot@ens-lyon.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, Michael Krufky <mkrufky@m1k.net>,
+       Andrew Morton <akpm@osdl.org>, Dave Airlie <airlied@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rc1-mm2 0x414 Bad page states
+In-Reply-To: <20051122211625.165F114CB@hornet.berlios.de>
+Message-ID: <Pine.LNX.4.61.0511222124040.29784@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0511181906240.2853@goblin.wat.veritas.com>
+ <20051122211625.165F114CB@hornet.berlios.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 22 Nov 2005 21:32:40.0843 (UTC) FILETIME=[4440ADB0:01C5EFAC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-22 at 16:13 -0500, Jon Smirl wrote:
-> On 11/22/05, Greg KH <greg@kroah.com> wrote:
-> > On Tue, Nov 22, 2005 at 01:31:16PM -0500, Jon Smirl wrote:
-> > >
-> > > 4) Merge klibc and fix up the driver system so that everything is
-> > > hotplugable. This means no more need to configure drivers in the
-> > > kernel, the right drivers will just load automatically.
-> >
-> > What driver subsystem is not hotplugable and does not have automatically
-> > loaded modules today?
+On Tue, 22 Nov 2005, Michael Frank wrote:
 > 
-> All of the legacy stuff - VGA, Vesafb, PS2, serial, parallel,
-> joystick, floppy, gameport, etc. Those drivers could be in initramfs
-> and only load if the hardware is found. Most of these legacy devices
-> have poor sysfs support too. Also, it's not just x86 legacy device all
-> of the platforms have them.
-> 
-> Currently you have to compile most of this stuff into the kernel.
-forgive my ignorance, but whats stopping you from doing this now?
-> 
-> > There are a few issues around PnP devices that I know of, and PCMCIA
-> > needs some seriously love, but other than that I think we are well off.
-> > Or am I missing something big here?
-> >
-> > thanks,
-> >
-> > greg k-h
-> >
-> 
-> 
-> --
-> Jon Smirl
-> jonsmirl@gmail.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> I am getting this also with i810 drm in Vanilla 2.6.15-rc2 
+> upon exiting apps such as supertux.
 
+Aha, perhaps you're the one we've been waiting for.  I've suspected
+a DRM issue, but nobody has actually seen one until now, and I didn't
+want to put in a patch without live justification.
+
+Would you please try the patch below, and let us know if it fixes your
+problem.  If so, I'll send it off to Andrew and Linus: the rest of the
+PageReserved fixes, including the sound driver Bad page state fixes,
+have gone into Linus' git tree today: perhaps this is the missing piece.
+
+If this does not work for you, then presumably you'd be another sound
+driver sufferer?  and I should send you that patch (or you pick it up
+from yesterday's LKML).  But right now I'd selfishly like you to test
+just this DRM patch below.
+
+Thanks,
+Hugh
+
+--- 2.6.15-rc2/drivers/char/drm/drm_memory.c	2005-11-20 19:43:39.000000000 +0000
++++ linux/drivers/char/drm/drm_memory.c	2005-11-21 10:10:45.000000000 +0000
+@@ -95,7 +95,7 @@ unsigned long drm_alloc_pages(int order,
+ 	unsigned long addr;
+ 	unsigned int sz;
+ 
+-	address = __get_free_pages(GFP_KERNEL, order);
++	address = __get_free_pages(GFP_KERNEL|__GFP_COMP, order);
+ 	if (!address)
+ 		return 0;
+ 
+--- 2.6.15-rc2/drivers/char/drm/drm_memory_debug.h	2005-11-20 19:43:39.000000000 +0000
++++ linux/drivers/char/drm/drm_memory_debug.h	2005-11-21 10:11:04.000000000 +0000
+@@ -221,7 +221,7 @@ unsigned long DRM(alloc_pages) (int orde
+ 	}
+ 	spin_unlock(&DRM(mem_lock));
+ 
+-	address = __get_free_pages(GFP_KERNEL, order);
++	address = __get_free_pages(GFP_KERNEL|__GFP_COMP, order);
+ 	if (!address) {
+ 		spin_lock(&DRM(mem_lock));
+ 		++DRM(mem_stats)[area].fail_count;

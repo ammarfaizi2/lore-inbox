@@ -1,39 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964788AbVKVAPu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbVKVATM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964788AbVKVAPu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 19:15:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964789AbVKVAPu
+	id S964789AbVKVATM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 19:19:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964781AbVKVATM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 19:15:50 -0500
-Received: from quechua.inka.de ([193.197.184.2]:18411 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S964788AbVKVAPt (ORCPT
+	Mon, 21 Nov 2005 19:19:12 -0500
+Received: from pat.uio.no ([129.240.130.16]:17854 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S964789AbVKVATL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 19:15:49 -0500
-From: Bernd Eckenfels <ecki@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: what is our answer to ZFS?
-Organization: Private Site running Debian GNU/Linux
-In-Reply-To: <200511211252.04217.rob@landley.net>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
-Message-Id: <E1EeLp5-0002fZ-00@calista.inka.de>
-Date: Tue, 22 Nov 2005 01:15:47 +0100
+	Mon, 21 Nov 2005 19:19:11 -0500
+Subject: Re: infinite loop? with mmap, nfs, pwrite, O_DIRECT
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Andrew Morton <akpm@osdl.org>
+Cc: theonetruekenny@yahoo.com, cel@citi.umich.edu,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20051121160913.6d59c9fa.akpm@osdl.org>
+References: <20051121213913.61220.qmail@web34115.mail.mud.yahoo.com>
+	 <1132612974.8011.12.camel@lade.trondhjem.org>
+	 <20051121153454.1907d92a.akpm@osdl.org>
+	 <1132617503.8011.35.camel@lade.trondhjem.org>
+	 <20051121160913.6d59c9fa.akpm@osdl.org>
+Content-Type: text/plain
+Date: Mon, 21 Nov 2005 19:18:50 -0500
+Message-Id: <1132618731.8011.46.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.713, required 12,
+	autolearn=disabled, AWL 1.10, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200511211252.04217.rob@landley.net> you wrote:
-> I believe that on 64 bit platforms, Linux has a 64 bit clean VFS.  Python says 
-> 2**64 is 18446744073709551616, and that's roughly:
-> 18,446,744,073,709,551,616 bytes
-> 18,446,744,073,709 megs
-> 18,446,744,073 gigs
-> 18,446,744 terabytes
-> 18,446 ...  what are those, petabytes?
-> 18 Really big lumps of data we won't be using for a while yet.
+On Mon, 2005-11-21 at 16:09 -0800, Andrew Morton wrote:
+> Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+> >
+> > The only difference I can see between the two paths is the call to
+> >  unmap_mapping_range(). What effect would that have?
+> 
+> It shoots down any mapped pagecache over the affected file region.  Because
+> the direct-io write is about to make that pagecache out-of-date.  If the
+> application tries to use that data again it'll get a major fault and will
+> re-read the file contents.
 
-The prolem is not about file size. It is about for example unique inode
-numbers. If you have a file system which spans multiple volumnes and maybe
-nodes, you need more unqiue methods of addressing the files and blocks.
+I assume then, that this couldn't be the cause of the
+invalidate_inode_pages() failing to complete? Unless there is some
+method to prevent applications from faulting in the page while we're
+inside generic_file_direct_IO(), then the same race would be able to
+occur there.
 
-Gruss
-Bernd
+Cheers,
+  Trond
+

@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965013AbVKVRKs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965017AbVKVRRL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965013AbVKVRKs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 12:10:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965016AbVKVRKs
+	id S965017AbVKVRRL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 12:17:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965019AbVKVRRL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 12:10:48 -0500
-Received: from ns2.suse.de ([195.135.220.15]:27095 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965013AbVKVRKr (ORCPT
+	Tue, 22 Nov 2005 12:17:11 -0500
+Received: from pm-mx6.mgn.net ([195.46.220.208]:55709 "EHLO pm-mx6.mx.noos.fr")
+	by vger.kernel.org with ESMTP id S965017AbVKVRRK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 12:10:47 -0500
-Date: Tue, 22 Nov 2005 18:10:42 +0100
-From: Andi Kleen <ak@suse.de>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: rfc/rft: use r10 as current on x86-64
-Message-ID: <20051122171040.GY20775@brahms.suse.de>
-References: <20051122165204.GG1127@kvack.org>
-Mime-Version: 1.0
+	Tue, 22 Nov 2005 12:17:10 -0500
+From: Damien Wyart <damien.wyart@gmail.com>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VESA fb console in 2.6.15
+References: <20051121215531.GA3429@localhost.localdomain>
+	<43826648.9030606@gmail.com>
+Date: Tue, 22 Nov 2005 18:17:08 +0100
+In-Reply-To: <43826648.9030606@gmail.com> (Antonino A. Daplas's message of
+	"Tue, 22 Nov 2005 08:28:56 +0800")
+Message-ID: <87oe4c7gbv.fsf@brouette.noos.fr>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/22.0.50
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051122165204.GG1127@kvack.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 22, 2005 at 11:52:04AM -0500, Benjamin LaHaise wrote:
-> Hello Andi et al,
-> 
-> The patch below converts x86-64 to use r10 as the current pointer instead 
-> of gs:pcurrent.  This results in a ~34KB savings in the code segment of 
-> the kernel.  I've tested this with running a few regular applications, 
-> plus a few 32 bit binaries.  If this patch is interesting, it probably 
-> makes sense to merge the thread info structure into the task_struct so 
-> that the assembly bits for syscall entry can be cleaned up.  Comments?
+> > I've noticed in several versions of 2.6.15 that VESA fb console
+> > seems completely broken : it draws screen in several very slow
+> > steps, making the whole display almos unusable. And it crashes
+> > *very* often, for example when switching to X. The computer is
+> > complety locked, and doesn't even respond to SysRQ.
 
-I think you could get most of the benefit by just dropping
-the volatile and "memory" from read_pda(). With that gcc would
-usually CSE current into a register and it would would work essentially
-the same way with only minor more .text overhead, but r10 would be still
-available.
+> > I use vga=0x31B as boot param.
 
-Unfortunately when that's done then the kernel doesn't boot.
-It's probably something silly, but i never had time to track it down.
-Might want to look into that?
+* "Antonino A. Daplas" <adaplas@gmail.com> [051122 01:28]:
 
-Looking at your patch it might be enough to make sure all users
-of current after the changes in __switch_to you did use some 
-other way to access it (there is unfortunately no way I know
-of to make gcc flush all CSEd items without addings barriers
-in the original get_current function)
+> Try booting with:
+> vga=0x31b video=vesafb:mtrr:3
 
--Andi
+Thanks, this works fine with this param and also without any video=
+param. I had a default video=vesafb:mtrr:2 in my grub conf file because
+of mtrr problems a few kernel versions earlier (had been discussed
+extensively on this list). This setting doesn't work well in 2.6.15.
+
+-- 
+Damien

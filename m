@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750970AbVKVDnx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750958AbVKVDrI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750970AbVKVDnx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 22:43:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750973AbVKVDnx
+	id S1750958AbVKVDrI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 22:47:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750962AbVKVDrI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 22:43:53 -0500
-Received: from smtp111.sbc.mail.re2.yahoo.com ([68.142.229.94]:15476 "HELO
-	smtp111.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1750960AbVKVDnw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 22:43:52 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Marc Koschewski <marc@osknowledge.org>
-Subject: Re: 2.6.15-rc1-mm2 unsusable on DELL Inspiron 8200, 2.6.15-rc1 works fine
-Date: Mon, 21 Nov 2005 22:43:50 -0500
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org
-References: <20051118182910.GJ6640@stiffy.osknowledge.org> <200511182207.19984.dtor_core@ameritech.net> <20051120171409.GA7285@stiffy.osknowledge.org>
-In-Reply-To: <20051120171409.GA7285@stiffy.osknowledge.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 21 Nov 2005 22:47:08 -0500
+Received: from gate.crashing.org ([63.228.1.57]:62156 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750958AbVKVDrH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 22:47:07 -0500
+Subject: Re: [RFC] Small PCI core patch
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Airlie <airlied@gmail.com>,
+       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <9e4733910511211923r69cdb835pf272ac745ae24ed7@mail.gmail.com>
+References: <20051121225303.GA19212@kroah.com>
+	 <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston>
+	 <21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com>
+	 <1132623268.20233.14.camel@localhost.localdomain>
+	 <1132626478.26560.104.camel@gaston>
+	 <9e4733910511211923r69cdb835pf272ac745ae24ed7@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 22 Nov 2005 14:44:27 +1100
+Message-Id: <1132631067.26560.123.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511212243.50707.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 20 November 2005 12:14, Marc Koschewski wrote:
-> * Dmitry Torokhov <dtor_core@ameritech.net> [2005-11-18 22:07:19 -0500]:
+On Mon, 2005-11-21 at 22:23 -0500, Jon Smirl wrote:
+> On 11/21/05, Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> > which is obviously impossible) etc... They really doesn't give a shit
+> > about what we think, and will continue to do so until they get a bit fat
+> > lawsuit, that is my opinion at least.
 > 
-> > On Friday 18 November 2005 13:29, Marc Koschewski wrote:
-> > > Nov 18 12:58:37 stiffy kernel: psmouse.c: Wheel Mouse at isa0060/serio1/input0 lost synchronization, throwing 1 bytes away.
-> > > 
-> > > SOME STUFF MISSING? HUH?
-> > > 
-> > > Nov 18 13:03:14 stiffy kernel: psmouse.c: resync failed, issuing reconnect request
-> > > 
-> > 
-> > Hm, this worries me a bit... Could you please try appying the patch
-> > below to plain 2.6.15-rc1 and see if mouse starts misbehaving again?
+> In the US you can't sue to force their hardware open until they are a
+> proven monopoly. And as long as we have both Nvidia and ATI splitting
+> the market we won't get a monopoly.
+
+No but you can sue for GPL breakage if their blob is considered as a
+derivative work or that sort of thing.
+
+> So the choices are:
 > 
-> Dmitry,
-> 
-> I applied the 5 patches to a plain 2.6.15-rc1. The mouse was well as if it was
-> in an unpatched kernel. The problem just occured in 2.6.15-rc1-mmX.
-> Plain 2.6.15-rc1 was fine before as well. So: actually no change.
-> 
-> Need any more info?
+> 1) Live in 1998. What happens in five years R200's are no longer
+> available, fallback to VGA?
 >
+> 2) Temporarily accept the ugly drivers. Let desktop development
+> continue. Work hard on getting the vendors to see the light and go
+> open source.
 
-Marc,
+Won't happen without some incentive. Besides, I can't accept the ugly
+driver for the very simple reason that they only exist for x86 and I
+have no such thing ...
 
-Thank you for testing the patch. It proves that your mouse troubles
-were not caused by the patch I made so I am very happy. "No change"
-is the result I wanted to hear ;)
+Your other points are totally irrelevant.
 
--- 
-Dmitry
+Ben.
+
+

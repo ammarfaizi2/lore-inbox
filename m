@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965209AbVKVVLU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965198AbVKVVML@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965209AbVKVVLU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 16:11:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965142AbVKVVKv
+	id S965198AbVKVVML (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 16:12:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965214AbVKVVLV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 16:10:51 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:51359 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965204AbVKVVKQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 16:10:16 -0500
-Date: Tue, 22 Nov 2005 13:08:21 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
-Subject: [patch 16/23] [PATCH] [IPV6]: Fix memory management error during setting up new advapi sockopts.
-Message-ID: <20051122210821.GQ28140@shell0.pdx.osdl.net>
-References: <20051122205223.099537000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="fix-memory-management-error-during.patch"
-User-Agent: Mutt/1.5.6i
+	Tue, 22 Nov 2005 16:11:21 -0500
+Received: from quark.didntduck.org ([69.55.226.66]:10414 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP id S965204AbVKVVLS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 16:11:18 -0500
+Message-ID: <438389EF.6080405@didntduck.org>
+Date: Tue, 22 Nov 2005 16:13:19 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mail/News 1.5 (X11/20051105)
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Jon Smirl <jonsmirl@gmail.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Small PCI core patch
+References: <20051121225303.GA19212@kroah.com>	 <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston>	 <9e4733910511220854m2c5ffbe0t67a53f6bae89653@mail.gmail.com> <1132690676.20233.72.camel@localhost.localdomain>
+In-Reply-To: <1132690676.20233.72.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any objections, please let us know.
-------------------
+Alan Cox wrote:
+> On Maw, 2005-11-22 at 11:54 -0500, Jon Smirl wrote:
+>> Removal of the 2D engines is a key vulnerability in the strategy of
+>> only using 2D on Linux.
+> 
+> I must have missed something, there isn't such a strategy anywhere I
+> know either in X or in the kernel. EXA in X is designed to make using
+> the 3D engine to do the 2D rendering much easier.
 
----
- net/ipv6/exthdrs.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
---- linux-2.6.14.2.orig/net/ipv6/exthdrs.c
-+++ linux-2.6.14.2/net/ipv6/exthdrs.c
-@@ -628,6 +628,7 @@ ipv6_renew_options(struct sock *sk, stru
- 	if (!tot_len)
- 		return NULL;
- 
-+	tot_len += sizeof(*opt2);
- 	opt2 = sock_kmalloc(sk, tot_len, GFP_ATOMIC);
- 	if (!opt2)
- 		return ERR_PTR(-ENOBUFS);
-@@ -668,7 +669,7 @@ ipv6_renew_options(struct sock *sk, stru
- 
- 	return opt2;
- out:
--	sock_kfree_s(sk, p, tot_len);
-+	sock_kfree_s(sk, opt2, opt2->tot_len);
- 	return ERR_PTR(err);
- }
- 
+What he means is the process of begging the vendors for specs for just 
+the 2D hardware engine won't work when a seperate 2D engine doesn't 
+exist anymore.
 
 --
+				Brian Gerst

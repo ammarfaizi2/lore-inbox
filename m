@@ -1,232 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965130AbVKVTSB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965133AbVKVTTn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965130AbVKVTSB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 14:18:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965134AbVKVTRz
+	id S965133AbVKVTTn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 14:19:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965131AbVKVTTn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 14:17:55 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:40168 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S965129AbVKVTR3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 14:17:29 -0500
-From: Mel Gorman <mel@csn.ul.ie>
-To: linux-mm@kvack.org
-Cc: Mel Gorman <mel@csn.ul.ie>, nickpiggin@yahoo.com.au, ak@suse.de,
-       linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net,
-       mingo@elte.hu
-Message-Id: <20051122191725.21757.68325.sendpatchset@skynet.csn.ul.ie>
-In-Reply-To: <20051122191710.21757.67440.sendpatchset@skynet.csn.ul.ie>
-References: <20051122191710.21757.67440.sendpatchset@skynet.csn.ul.ie>
-Subject: [PATCH 3/5] Light fragmentation avoidance without usemap: 003_percpu
-Date: Tue, 22 Nov 2005 19:17:28 +0000 (GMT)
+	Tue, 22 Nov 2005 14:19:43 -0500
+Received: from silver.veritas.com ([143.127.12.111]:45348 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S965133AbVKVTTl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 14:19:41 -0500
+Date: Tue, 22 Nov 2005 19:19:38 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 12/12] mm: rmap opt
+In-Reply-To: <20051121124421.14370.52413.sendpatchset@didi.local0.net>
+Message-ID: <Pine.LNX.4.61.0511221853500.28318@goblin.wat.veritas.com>
+References: <20051121123906.14370.3039.sendpatchset@didi.local0.net>
+ <20051121124421.14370.52413.sendpatchset@didi.local0.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 22 Nov 2005 19:19:37.0392 (UTC) FILETIME=[ADBEBB00:01C5EF99]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The freelists for each allocation type can slowly become corrupted due to
-the per-cpu list. Consider what happens when the following happens
+On Mon, 21 Nov 2005, Nick Piggin wrote:
 
-1. A 2^(MAX_ORDER-1) list is reserved for __GFP_EASYRCLM pages
-2. An order-0 page is allocated from the newly reserved block
-3. The page is freed and placed on the per-cpu list
-4. alloc_page() is called with GFP_KERNEL as the gfp_mask
-5. The per-cpu list is used to satisfy the allocation
+> Optimise rmap functions by minimising atomic operations when
+> we know there will be no concurrent modifications.
 
-This results in a kernel page is in the middle of a RCLM_EASY region. This
-means that over long periods of the time, the anti-fragmentation scheme
-slowly degrades to the standard allocator.
+It's not quite right yet.  A few minor points first:
 
-This patch divides the per-cpu lists into RCLM_TYPES number of lists.
+You ought to convert the page_add_anon_rmap in fs/exec.c to
+page_add_new_anon_rmap: that won't give a huge leap in performance,
+but it will save someone coming along later and wondering why that
+particular one isn't "new_".
 
-Signed-off-by: Mel Gorman <mel@csn.ul.ie>
-Signed-off-by: Joel Schopp <jschopp@austin.ibm.com>
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.15-rc1-mm2-002_fragcore/include/linux/mmzone.h linux-2.6.15-rc1-mm2-003_percpu/include/linux/mmzone.h
---- linux-2.6.15-rc1-mm2-002_fragcore/include/linux/mmzone.h	2005-11-22 16:50:09.000000000 +0000
-+++ linux-2.6.15-rc1-mm2-003_percpu/include/linux/mmzone.h	2005-11-22 16:52:10.000000000 +0000
-@@ -26,6 +26,8 @@
- #define RCLM_EASY   1
- #define RCLM_TYPES  2
- 
-+#define for_each_rclmtype(type) \
-+	for (type = 0; type < RCLM_TYPES; type++)
- #define for_each_rclmtype_order(type, order) \
- 	for (order = 0; order < MAX_ORDER; order++) \
- 		for (type = 0; type < RCLM_TYPES; type++)
-@@ -53,11 +55,11 @@ struct zone_padding {
- #endif
- 
- struct per_cpu_pages {
--	int count;		/* number of pages in the list */
-+	int count[RCLM_TYPES];	/* Number of pages on the lists */
- 	int low;		/* low watermark, refill needed */
- 	int high;		/* high watermark, emptying needed */
- 	int batch;		/* chunk size for buddy add/remove */
--	struct list_head list;	/* the list of pages */
-+	struct list_head list[RCLM_TYPES]; /* the lists of pages */
- };
- 
- struct per_cpu_pageset {
-@@ -72,6 +74,11 @@ struct per_cpu_pageset {
- #endif
- } ____cacheline_aligned_in_smp;
- 
-+static inline int pcp_count(struct per_cpu_pages *pcp)
-+{
-+	return pcp->count[RCLM_NORCLM] + pcp->count[RCLM_EASY];
-+}
-+
- #ifdef CONFIG_NUMA
- #define zone_pcp(__z, __cpu) ((__z)->pageset[(__cpu)])
- #else
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.15-rc1-mm2-002_fragcore/mm/page_alloc.c linux-2.6.15-rc1-mm2-003_percpu/mm/page_alloc.c
---- linux-2.6.15-rc1-mm2-002_fragcore/mm/page_alloc.c	2005-11-22 16:50:09.000000000 +0000
-+++ linux-2.6.15-rc1-mm2-003_percpu/mm/page_alloc.c	2005-11-22 16:52:10.000000000 +0000
-@@ -637,7 +637,7 @@ static int rmqueue_bulk(struct zone *zon
- void drain_remote_pages(void)
- {
- 	struct zone *zone;
--	int i;
-+	int i, pindex;
- 	unsigned long flags;
- 
- 	local_irq_save(flags);
-@@ -653,9 +653,16 @@ void drain_remote_pages(void)
- 			struct per_cpu_pages *pcp;
- 
- 			pcp = &pset->pcp[i];
--			if (pcp->count)
--				pcp->count -= free_pages_bulk(zone, pcp->count,
--						&pcp->list, 0);
-+			for_each_rclmtype(pindex) {
-+				if (!pcp->count[pindex])
-+					continue;
-+
-+				/* Try remove all pages from the pcpu list */
-+				pcp->count[pindex] -=
-+					free_pages_bulk(zone,
-+						pcp->count[pindex],
-+						&pcp->list[pindex], 0);
-+			}
- 		}
- 	}
- 	local_irq_restore(flags);
-@@ -666,7 +673,7 @@ void drain_remote_pages(void)
- static void __drain_pages(unsigned int cpu)
- {
- 	struct zone *zone;
--	int i;
-+	int i, pindex;
- 
- 	for_each_zone(zone) {
- 		struct per_cpu_pageset *pset;
-@@ -676,8 +683,16 @@ static void __drain_pages(unsigned int c
- 			struct per_cpu_pages *pcp;
- 
- 			pcp = &pset->pcp[i];
--			pcp->count -= free_pages_bulk(zone, pcp->count,
--						&pcp->list, 0);
-+			for_each_rclmtype(pindex) {
-+				if (!pcp->count[pindex])
-+					continue;
-+
-+				/* Try remove all pages from the pcpu list */
-+				pcp->count[pindex] -=
-+					free_pages_bulk(zone,
-+						pcp->count[pindex],
-+						&pcp->list[pindex], 0);
-+			}
- 		}
- 	}
- }
-@@ -758,6 +773,7 @@ static void FASTCALL(free_hot_cold_page(
- static void fastcall free_hot_cold_page(struct page *page, int cold)
- {
- 	struct zone *zone = page_zone(page);
-+	int pindex = get_pageblock_type(page);
- 	struct per_cpu_pages *pcp;
- 	unsigned long flags;
- 
-@@ -773,10 +789,11 @@ static void fastcall free_hot_cold_page(
- 
- 	pcp = &zone_pcp(zone, get_cpu())->pcp[cold];
- 	local_irq_save(flags);
--	list_add(&page->lru, &pcp->list);
--	pcp->count++;
--	if (pcp->count >= pcp->high)
--		pcp->count -= free_pages_bulk(zone, pcp->batch, &pcp->list, 0);
-+	list_add(&page->lru, &pcp->list[pindex]);
-+	pcp->count[pindex]++;
-+	if (pcp->count[pindex] >= pcp->high)
-+		pcp->count[pindex] -= free_pages_bulk(zone, pcp->batch,
-+				&pcp->list[pindex], 0);
- 	local_irq_restore(flags);
- 	put_cpu();
- }
-@@ -820,14 +837,16 @@ again:
- 		page = NULL;
- 		pcp = &zone_pcp(zone, get_cpu())->pcp[cold];
- 		local_irq_save(flags);
--		if (pcp->count <= pcp->low)
--			pcp->count += rmqueue_bulk(zone, 0,
--						pcp->batch, &pcp->list,
-+		if (pcp->count[alloctype] <= pcp->low)
-+			pcp->count[alloctype] += rmqueue_bulk(zone, 0,
-+						pcp->batch,
-+						&pcp->list[alloctype],
- 						alloctype);
--		if (pcp->count) {
--			page = list_entry(pcp->list.next, struct page, lru);
-+		if (pcp->count[alloctype]) {
-+			page = list_entry(pcp->list[alloctype].next,
-+					struct page, lru);
- 			list_del(&page->lru);
--			pcp->count--;
-+			pcp->count[alloctype]--;
- 		}
- 		local_irq_restore(flags);
- 		put_cpu();
-@@ -1478,7 +1497,7 @@ void show_free_areas(void)
- 					pageset->pcp[temperature].low,
- 					pageset->pcp[temperature].high,
- 					pageset->pcp[temperature].batch,
--					pageset->pcp[temperature].count);
-+					pcp_count(&pageset->pcp[temperature]));
- 		}
- 	}
- 
-@@ -1920,18 +1939,23 @@ inline void setup_pageset(struct per_cpu
- 	memset(p, 0, sizeof(*p));
- 
- 	pcp = &p->pcp[0];		/* hot */
--	pcp->count = 0;
-+	pcp->count[RCLM_NORCLM] = 0;
-+	pcp->count[RCLM_EASY] = 0;
- 	pcp->low = 0;
- 	pcp->high = 6 * batch;
- 	pcp->batch = max(1UL, 1 * batch);
--	INIT_LIST_HEAD(&pcp->list);
-+	INIT_LIST_HEAD(&pcp->list[RCLM_NORCLM]);
-+	INIT_LIST_HEAD(&pcp->list[RCLM_EASY]);
- 
- 	pcp = &p->pcp[1];		/* cold*/
--	pcp->count = 0;
-+
-+	pcp->count[RCLM_NORCLM] = 0;
-+	pcp->count[RCLM_EASY] = 0;
- 	pcp->low = 0;
- 	pcp->high = 2 * batch;
- 	pcp->batch = max(1UL, batch/2);
--	INIT_LIST_HEAD(&pcp->list);
-+	INIT_LIST_HEAD(&pcp->list[RCLM_NORCLM]);
-+	INIT_LIST_HEAD(&pcp->list[RCLM_EASY]);
- }
- 
- #ifdef CONFIG_NUMA
-@@ -2328,7 +2352,7 @@ static int zoneinfo_show(struct seq_file
- 					   "\n              high:  %i"
- 					   "\n              batch: %i",
- 					   i, j,
--					   pageset->pcp[j].count,
-+					   pcp_count(&pageset->pcp[j]),
- 					   pageset->pcp[j].low,
- 					   pageset->pcp[j].high,
- 					   pageset->pcp[j].batch);
+The mod to page-flags.h at the end: nowhere is __SetPageReferenced
+used, just cut the page-flags.h change out of your patch.
+
+Perhaps that was at one time a half-way house to removing the
+SetPageReferenced from do_anonymous_page: I support you in that
+removal (I've several times argued that if it's needed there, then
+it's also needed in several other like places which lack it; and I
+think you concluded that it's just not needed); but you ought at least
+to confess to that in the change comments, if it's not a separate patch.
+
+I've spent longest staring at page_remove_rmap.  Here's how it looks:
+
+void page_remove_rmap(struct page *page)
+{
+	int fast = (page_mapcount(page) == 1) &
+			PageAnon(page) & (!PageSwapCache(page));
+
+	/* fast page may become SwapCache here, but nothing new will map it. */
+	if (fast)
+		reset_page_mapcount(page);
+	else if (atomic_add_negative(-1, &page->_mapcount))
+		BUG_ON(page_mapcount(page) < 0);
+		if (page_test_and_clear_dirty(page))
+			set_page_dirty(page);
+	else
+		return; /* non zero mapcount */
+/* [comment snipped for these purposes] */
+	__dec_page_state(nr_mapped);
+}
+
+Well, C doesn't yet allow indentation to take the place of braces:
+I think you'll find your /proc/meminfo Mapped goes up and up, since
+only on s390 will page_test_and_clear_dirty ever say yes.
+
+That "fast" condition.  I believe it's right, and I can see that in the
+common case it will avoid the atomic -1.  Yet it seems so desperate, and
+is just begging for a hole to be found in the logic (I thought I'd found
+one, but was forgetting I'd rearranged do_swap_page to remove from swap
+cache when full _after_ its page_add_anon_rmap).
+
+It also made me wonder whether barriers are needed between the different
+tests: somehow I think not, but can't put into words how I think it is
+protected.  Were the "&"s instead of "&&"s a significant part of the
+optimization, or an accident?
+
+The page_remove_rmap part is rather ugly, but if going to those lengths
+to avoid the atomic -1 is really a win on the majority of machines we
+need to be fastest on (is that the case?), then okay.
+
+Hugh

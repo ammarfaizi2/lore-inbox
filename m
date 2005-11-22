@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964964AbVKVPxl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964970AbVKVP5y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964964AbVKVPxl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 10:53:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964970AbVKVPxk
+	id S964970AbVKVP5y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 10:57:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964971AbVKVP5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 10:53:40 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:22310 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP id S964964AbVKVPxk
+	Tue, 22 Nov 2005 10:57:54 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:49661 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S964970AbVKVP5x
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 10:53:40 -0500
-Date: Tue, 22 Nov 2005 10:53:39 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: How can I prevent MTD to access the end of a flash device ?
-In-reply-to: <cda58cb80511220658n671bc070v@mail.gmail.com>
-X-X-Sender: nico@localhost.localdomain
-To: Franck <vagabon.xyz@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.64.0511221042560.6022@localhost.localdomain>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <cda58cb80511070248o6d7a18bex@mail.gmail.com>
- <cda58cb80511220658n671bc070v@mail.gmail.com>
+	Tue, 22 Nov 2005 10:57:53 -0500
+Message-ID: <43834098.60400@tmr.com>
+Date: Tue, 22 Nov 2005 11:00:24 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: what is our answer to ZFS?
+References: <E1EeLp5-0002fZ-00@calista.inka.de> <43825168.6050404@wolfmountaingroup.com>
+In-Reply-To: <43825168.6050404@wolfmountaingroup.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Nov 2005, Franck wrote:
-
-> Hi,
+Jeff V. Merkey wrote:
+> Bernd Eckenfels wrote:
 > 
-> I have two questions that I can't answer by my own. I tried to look at
-> FAQ and documentation on MTD website but found no answer.
+>> In article <200511211252.04217.rob@landley.net> you wrote:
+>>  
+>>
+>>> I believe that on 64 bit platforms, Linux has a 64 bit clean VFS.  
+>>> Python says 2**64 is 18446744073709551616, and that's roughly:
+>>> 18,446,744,073,709,551,616 bytes
+>>> 18,446,744,073,709 megs
+>>> 18,446,744,073 gigs
+>>> 18,446,744 terabytes
+>>> 18,446 ...  what are those, pedabytes (petabytes?)
+>>> 18          zetabytes
+>>>
+> There you go.  I deal with this a lot so, those are the names.
+> 
+> Linux is currently limited to 16 TB per VFS mount point, it's all mute, 
+> unless VFS gets fixed.
+> mmap won't go above this at present.
+> 
+What does "it's all mute" mean?
 
-Please consider using the MTD mailing list next time (you certainly read 
-about it on the MTD web site).
-
-> First question is about size of flash. I have a Intel strataflash
-> whose size is 32MB but because of a buggy platform hardware I can't
-> access to the last 64KB of the flash. How can I make MTD module aware
-> of this new size. The restricted map size is initialized by my driver
-> but it doesn't seem to be used by MTD.
-
-The easiest thing to do is to define MTD partitions, the last one being 
-the excluded flash area.
-
-> The second question is about the "cacheable" mapping field in map_info
-> structure. I looked at others drivers and this field seems to be
-> optional.
-
-It is.
-
-> Does this field, if set, improve flash access a lot ?
-
-Yes.  It was tested on ARM only though.  Some architectures like i386 
-for example might need special tricks to implement this.
-
-> Should I set up a cacheable mapping ?
-
-Consider the comment for the inval_cache method in 
-include/linux/mtd/map.h and look at lubbock-flash.c for example.
-
-
-Nicolas
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

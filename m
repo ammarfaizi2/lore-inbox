@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964942AbVKVOE3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbVKVOIh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964942AbVKVOE3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 09:04:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964943AbVKVOE3
+	id S1751310AbVKVOIh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 09:08:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbVKVOIh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 09:04:29 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:30673 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S964942AbVKVOE3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 09:04:29 -0500
-Date: Tue, 22 Nov 2005 07:04:25 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: David Woodhouse <dwmw2@infradead.org>, Paul Mackerras <paulus@samba.org>,
-       Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
-       David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>,
-       Ian Molton <spyro@f2s.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH 4/5] Centralise NO_IRQ definition
-Message-ID: <20051122140425.GK1598@parisc-linux.org>
-References: <Pine.LNX.4.64.0511211047260.13959@g5.osdl.org> <20051121190632.GG1598@parisc-linux.org> <Pine.LNX.4.64.0511211124190.13959@g5.osdl.org> <20051121194348.GH1598@parisc-linux.org> <Pine.LNX.4.64.0511211150040.13959@g5.osdl.org> <20051121211544.GA4924@elte.hu> <17282.15177.804471.298409@cargo.ozlabs.ibm.com> <1132611631.11842.83.camel@localhost.localdomain> <1132657991.15117.76.camel@baythorne.infradead.org> <1132668939.20233.47.camel@localhost.localdomain>
+	Tue, 22 Nov 2005 09:08:37 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:57260 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S1751310AbVKVOIh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 09:08:37 -0500
+Date: Tue, 22 Nov 2005 15:08:33 +0100
+From: bert hubert <bert.hubert@netherlabs.nl>
+To: Folkert van Heusden <folkert@vanheusden.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: capturing oopses
+Message-ID: <20051122140833.GA29822@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
+	Folkert van Heusden <folkert@vanheusden.com>,
+	linux-kernel@vger.kernel.org
+References: <20051122130754.GL32512@vanheusden.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1132668939.20233.47.camel@localhost.localdomain>
+In-Reply-To: <20051122130754.GL32512@vanheusden.com>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 22, 2005 at 02:15:39PM +0000, Alan Cox wrote:
-> On Maw, 2005-11-22 at 11:13 +0000, David Woodhouse wrote:
-> > Yes, there are drivers which are currently broken and assume irq 0 is
-> > 'no irq'. They are broken. Let's just fix them and not continue the
-> > brain-damage.
-> 
-> 0 in the Linux kernel has always meant 'no IRQ' and it makes it natural
-> to express in C (and on some cpus more efficient too).
-> 
-> What if my hardware has an IRQ -1 ;)
+On Tue, Nov 22, 2005 at 02:07:54PM +0100, Folkert van Heusden wrote:
+> My 2.6.14 system occasionally crashes; gives a kernel panic. Of course I
+> would like to report it. Now the system locks up hard so I can't copy
+> the stacktrace. The crash dump patches mentioned in oops-tracing.txt all
+> don't work for 2.6.14 it seems. So: what should I do? Get my digicam and
+> take a picture of the display?
 
-Then it falls off the bottom of the irq_desc array.  Already tried that,
-hence patch 1/5.
+Try the serial port- you can get a copy of the console on ttyS0.
 
-That was a great one to debug, btw.  "The machine hangs when I select
-processor type PA8000 but works with processor type PA7200".  Why?
-synchronize_irq() spins waiting for a bit to become clear ... for some
-reason that bit was always set with PA8000 and always clear with PA7200.
-http://lists.parisc-linux.org/pipermail/parisc-linux/2005-October/027485.html
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

@@ -1,70 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030189AbVKVWAX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030193AbVKVWEG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030189AbVKVWAX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 17:00:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030192AbVKVWAW
+	id S1030193AbVKVWEG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 17:04:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030195AbVKVWEF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 17:00:22 -0500
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:1507 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1030189AbVKVWAI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 17:00:08 -0500
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Tue, 22 Nov 2005 22:00:02 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Jon Smirl <jonsmirl@gmail.com>
-cc: Kasper Sandberg <lkml@metanurb.dk>, Greg KH <greg@kroah.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Christmas list for the kernel
-In-Reply-To: <9e4733910511221341u695f6765k985ecf0c54daba49@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0511222158360.7002@hermes-1.csi.cam.ac.uk>
-References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com> 
- <20051122204918.GA5299@kroah.com>  <9e4733910511221313t4a1e3c67wc7b08160937eb5c5@mail.gmail.com>
-  <1132694935.10574.2.camel@localhost> <9e4733910511221341u695f6765k985ecf0c54daba49@mail.gmail.com>
+	Tue, 22 Nov 2005 17:04:05 -0500
+Received: from qlink.QueensU.CA ([130.15.126.18]:56203 "EHLO qlink.queensu.ca")
+	by vger.kernel.org with ESMTP id S1030193AbVKVWEE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 17:04:04 -0500
+Message-ID: <43839590.5050409@groenstue.dk>
+Date: Tue, 22 Nov 2005 23:02:56 +0100
+From: Kristian Edlund <edlund@groenstue.dk>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@osdl.org>
+CC: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: Re: [PATCH] Typos in Documation/kbuild/modules.txt 2.6.15-rc2
+References: <43831836.3040505@groenstue.dk> <Pine.LNX.4.64.0511220855380.13959@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0511220855380.13959@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Nov 2005, Jon Smirl wrote:
-> On 11/22/05, Kasper Sandberg <lkml@metanurb.dk> wrote:
-> > > Currently you have to compile most of this stuff into the kernel.
-> > forgive my ignorance, but whats stopping you from doing this now?
-> 
-> It would be better if all of the legacy drivers could exist on
-> initramfs and only be loaded if the actual hardware is present. With
-> the current code someone like Redhat has to compile all of the legacy
-> support into their distribution kernel. That code will be present even
-> on new systems that don't have the hardware.
-> 
-> An example of this is that the serial driver is hard coded to report
-> four legacy serial ports when my system physically only has two. I
-> have to change a #define and recompile the kernel to change this.
-> 
-> The goal should be able to build something like Knoppix without
-> Knoppix needing any device probing scripts. Linux is 90% of the way
-> there but not 100% yet.
-> 
-> X is also part of the problem. Even if the kernel nicely identifies
-> all of the video hardware and input devices, X ignores this info and
-> looks for everything again anyway. In a more friendly system X would
-> use the info the kernel provides and automatically configure itself
-> for the devices present or hotplugged. You could get rid of your
-> xorg.cong file in this model.
+Linus Torvalds wrote:
 
-Note quite.  You would still need it (or other means) to configure for 
-example what screen resolutions and what modes to allow and things like 
-that.  Also which devices are core pointer/keyboard and which extra and 
-also some devices are supported in userspace and not in the kernel for 
-which you need to configure them there.
+>Seriously whitespace-damaged (lost spaces not just at the end of lines, 
+>but at their beginning too - and wordwrap etc)
+>
+>		Linus
+>  
+>
+I am truely sorry about my patch being broken by my mail program,
+I have tried to fix it now and is trying to resubmit the patch.
 
-Best regards,
+From: Kristian Edlund <edlund@groenstue.dk>
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+I found a few typos, in Documentation/kbuild/modules.txt
+I also changes the $PWD to `pwd` for consistency throughout the document.
+
+Signed-off-by: Kristian Edlund <edlund@groenstue.dk>
+
+---
+
+--- modules.txt.orig
++++ modules.txt
+@@ -38,8 +38,8 @@
+ What is covered within this file is mainly information to authors
+ of modules. The author of an external modules should supply
+ a makefile that hides most of the complexity so one only has to type
+-'make' to buld the module. A complete example will be present in
+-chapter ¤. Creating a kbuild file for an external module".
++'make' to build the module. A complete example will be present in
++chapter 4. Creating a kbuild file for an external module".
+ 
+ 
+ === 2. How to build external modules
+@@ -58,8 +58,8 @@
+     For the running kernel use:
+         make -C /lib/modules/`uname -r`/build M=`pwd`
+ 
+-    For the above command to succeed the kernel must have been built with
+-    modules enabled.
++    For the above command to succeed the kernel must have been
++    built with modules enabled.
+ 
+     To install the modules that were just built:
+ 
+@@ -84,14 +84,15 @@
+         Same functionality as if no target was specified.
+         See description above.
+ 
+-    make -C $KDIR M=$PWD modules_install
++    make -C $KDIR M=`pwd` modules_install
+         Install the external module(s).
+         Installation default is in /lib/modules/<kernel-version>/extra,
+-        but may be prefixed with INSTALL_MOD_PATH - see separate chater.
++        but may be prefixed with INSTALL_MOD_PATH - see
++        separate chapter.
+ 
+-    make -C $KDIR M=$PWD clean
++    make -C $KDIR M=`pwd` clean
+         Remove all generated files for the module - the kernel
+-        source directory is not moddified.
++        source directory is not modified.
+ 
+     make -C $KDIR M=`pwd` help
+         help will list the available target when building external
+@@ -99,8 +100,6 @@
+ 
+ --- 2.3 Available options:
+ 
+-    $KDIR refer to path to kernel src
+-
+     make -C $KDIR
+         Used to specify where to find the kernel source.
+         '$KDIR' represent the directory where the kernel source is.
+@@ -341,7 +340,7 @@
+         EXTRA_CFLAGS := -Iinclude
+         8123-y := 8123_if.o 8123_pci.o 8123_bin.o
+ 
+-    Note that in the assingment there is no space between -I and the path.
++    Note that in the assignment there is no space between -I and the path.
+     This is a kbuild limitation and no space must be present.
+ 
+ 
+

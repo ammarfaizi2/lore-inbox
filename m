@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965083AbVKVSXd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965088AbVKVSXe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965083AbVKVSXd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 13:23:33 -0500
+	id S965088AbVKVSXe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 13:23:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965086AbVKVSXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 	Tue, 22 Nov 2005 13:23:33 -0500
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:55727 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S965083AbVKVSXc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+Received: from stat9.steeleye.com ([209.192.50.41]:23681 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S965085AbVKVSXc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 22 Nov 2005 13:23:32 -0500
-Date: Tue, 22 Nov 2005 13:22:57 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Christopher Friesen <cfriesen@nortel.com>
-cc: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, "K.R. Foley" <kr@cybsft.com>,
-       Thomas Gleixner <tglx@linutronix.de>, pluto@agmk.net,
-       john cooper <john.cooper@timesys.com>,
-       Benedikt Spranger <bene@linutronix.de>,
-       Daniel Walker <dwalker@mvista.com>,
-       Tom Rini <trini@kernel.crashing.org>,
-       George Anzinger <george@mvista.com>
-Subject: Re: test time-warps [was: Re: 2.6.14-rt13]
-In-Reply-To: <43835D01.3020304@nortel.com>
-Message-ID: <Pine.LNX.4.58.0511221319560.16745@gandalf.stny.rr.com>
-References: <20051115090827.GA20411@elte.hu>  <1132608728.4805.20.camel@cmn3.stanford.edu>
-  <20051121221511.GA7255@elte.hu> <20051121221941.GA11102@elte.hu> 
- <Pine.LNX.4.58.0511212012020.5461@gandalf.stny.rr.com>  <20051122111623.GA948@elte.hu>
- <1132681766.21797.10.camel@cmn3.stanford.edu> <43835D01.3020304@nortel.com>
+Message-ID: <43836214.4010200@steeleye.com>
+Date: Tue, 22 Nov 2005 13:23:16 -0500
+From: Paul Clements <paul.clements@steeleye.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Bill Davidsen <davidsen@tmr.com>
+CC: Lars Roland <lroland@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux RAID M/L <linux-raid@vger.kernel.org>
+Subject: Re: Poor Software RAID-0 performance with 2.6.14.2
+References: <4ad99e050511211231o97d5d7fw59b44527dc25dcea@mail.gmail.com> <438354B4.10604@tmr.com>
+In-Reply-To: <438354B4.10604@tmr.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bill Davidsen wrote:
 
-On Tue, 22 Nov 2005, Christopher Friesen wrote:
+> One of the advantages of mirroring is that if there is heavy read load 
+> when one drive is busy there is another copy of the data on the other 
+> drive(s). But doing 1MB reads on the mirrored device did not show that 
+> the kernel took advantage of this in any way. In fact, it looks as if 
+> all the reads are going to the first device, even with multiple 
+> processes running. Does the md code now set "write-mostly" by default 
+> and only go to the redundant drives if the first fails?
 
-> Fernando Lopez-Lezcano wrote:
->
-> >>Basically if there is an observable and provable warp in the TSC output
-> >>then it must not be used for any purpose that is not strictly
-> >>per-CPU-ified (such as userspace threads bound to a single CPU, and the
-> >>TSC never used between threads).
->
-> > Apparently that's the case.
->
-> What about periodically re-syncing the TSCs on the cpus?  Are they
-> writeable?
->
+No, it doesn't use write-mostly by default. The way raid1 read balancing 
+works (in recent kernels) is this:
 
-I believe you can reset them to zero, but I don't think you can set them
-to anything else.  I had to do something similar a few years ago, and I
-don't have the specs in front of me, so this is coming straight from
-memory.
+- sequential reads continue to go to the first disk
 
-Even if you could reset them, it would be very difficult to make all CPUs
-have the same counter. Not to mention that this would also screw up all
-timings elsewhere when the sync happens. Remember, this would have to work
-not just on 2 cpus, but 4, 8 and beyond.
+- for non-sequential reads, the code tries to pick the disk whose head 
+is "closest" to the sector that needs to be read
 
--- Steve
+So even if the reads aren't exactly sequential, you probably still end 
+up reading from the first disk most of the time. I imagine with a more 
+random read pattern you'd see the second disk getting used.
 
+--
+Paul

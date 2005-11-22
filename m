@@ -1,86 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbVKVWAg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030189AbVKVWAX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030190AbVKVWAg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 17:00:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030192AbVKVWAZ
+	id S1030189AbVKVWAX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 17:00:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030192AbVKVWAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 17:00:25 -0500
-Received: from gateway.argo.co.il ([194.90.79.130]:30984 "EHLO
-	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S1030190AbVKVWAI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 17:00:22 -0500
+Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:1507 "EHLO
+	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1030189AbVKVWAI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 22 Nov 2005 17:00:08 -0500
-Message-ID: <438394E1.8080505@argo.co.il>
-Date: Wed, 23 Nov 2005 00:00:01 +0200
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Tue, 22 Nov 2005 22:00:02 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Jon Smirl <jonsmirl@gmail.com>
+cc: Kasper Sandberg <lkml@metanurb.dk>, Greg KH <greg@kroah.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Christmas list for the kernel
+In-Reply-To: <9e4733910511221341u695f6765k985ecf0c54daba49@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0511222158360.7002@hermes-1.csi.cam.ac.uk>
+References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com> 
+ <20051122204918.GA5299@kroah.com>  <9e4733910511221313t4a1e3c67wc7b08160937eb5c5@mail.gmail.com>
+  <1132694935.10574.2.camel@localhost> <9e4733910511221341u695f6765k985ecf0c54daba49@mail.gmail.com>
 MIME-Version: 1.0
-To: Diego Calleja <diegocg@gmail.com>
-CC: jgarzik@pobox.com, jonsmirl@gmail.com, benh@kernel.crashing.org,
-       alan@lxorguk.ukuu.org.uk, airlied@gmail.com, greg@kroah.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Small PCI core patch
-References: <20051121225303.GA19212@kroah.com>	<20051121230136.GB19212@kroah.com>	<1132616132.26560.62.camel@gaston>	<21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com>	<1132623268.20233.14.camel@localhost.localdomain>	<1132626478.26560.104.camel@gaston>	<9e4733910511211923r69cdb835pf272ac745ae24ed7@mail.gmail.com>	<43833D61.9050400@argo.co.il>	<20051122155143.GA30880@havoc.gtf.org>	<43834400.3040506@argo.co.il>	<20051122172650.72f454de.diegocg@gmail.com>	<438348BB.1050504@argo.co.il>	<20051122204910.a4bd1d1e.diegocg@gmail.com>	<43837AD1.7060504@argo.co.il> <20051122214327.37b902e4.diegocg@gmail.com>
-In-Reply-To: <20051122214327.37b902e4.diegocg@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
-X-OriginalArrivalTime: 22 Nov 2005 22:00:05.0973 (UTC) FILETIME=[18D39850:01C5EFB0]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diego Calleja wrote:
+On Tue, 22 Nov 2005, Jon Smirl wrote:
+> On 11/22/05, Kasper Sandberg <lkml@metanurb.dk> wrote:
+> > > Currently you have to compile most of this stuff into the kernel.
+> > forgive my ignorance, but whats stopping you from doing this now?
+> 
+> It would be better if all of the legacy drivers could exist on
+> initramfs and only be loaded if the actual hardware is present. With
+> the current code someone like Redhat has to compile all of the legacy
+> support into their distribution kernel. That code will be present even
+> on new systems that don't have the hardware.
+> 
+> An example of this is that the serial driver is hard coded to report
+> four legacy serial ports when my system physically only has two. I
+> have to change a #define and recompile the kernel to change this.
+> 
+> The goal should be able to build something like Knoppix without
+> Knoppix needing any device probing scripts. Linux is 90% of the way
+> there but not 100% yet.
+> 
+> X is also part of the problem. Even if the kernel nicely identifies
+> all of the video hardware and input devices, X ignores this info and
+> looks for everything again anyway. In a more friendly system X would
+> use the info the kernel provides and automatically configure itself
+> for the devices present or hotplugged. You could get rid of your
+> xorg.cong file in this model.
 
->El Tue, 22 Nov 2005 22:08:49 +0200,
->Avi Kivity <avi@argo.co.il> escribió:
->
->  
->
->>None of the desktop Windows installations I'm aware of exhibit this. The 
->>recent versions of Windows are fairly stable.
->>    
->>
->
->You don't seem to check frecuently windows help forums, where some people
->speaks of nvidia as the number 1 "bluescreener"...
->
->Lots of windows drivers _are_ crappy. It's just a fact - some companies
->hire the wrong people. Some companies (like nvidia) get money from being
->fast, not from stability. This is a good example from a microsoft
->programmer about how some companies cheat the WHQL certification to
->get faster drivers...
->http://blogs.msdn.com/oldnewthing/archive/2004/03/05/84469.aspx
->
->This one about silent install of drivers by "smart" installers is fun
->too: http://blogs.msdn.com/oldnewthing/archive/2005/08/16/452141.aspx
->
->  
->
-Awsome. Certainly a very strong point against Windows drivers.
+Note quite.  You would still need it (or other means) to configure for 
+example what screen resolutions and what modes to allow and things like 
+that.  Also which devices are core pointer/keyboard and which extra and 
+also some devices are supported in userspace and not in the kernel for 
+which you need to configure them there.
 
->  
->
->>Many people have hyperthreaded CPUs today.
->>    
->>
->
->Hypertreaded CPUs can't run the two virtual cpus at the same time,
->  
->
-Actually they are parallel at the instruction level. For the purpose of 
-SMP-safety they are the same as true SMP. They just have different 
-performance characterestics.
+Best regards,
 
->>It works well on the server, where Linux has a large and rising market 
->>    
->>
->
->Linux didn't always have a large market share on servers. Again, history
->has shown that the path taken by linux until now is succesful.
->  
->
-I hope you're right. But desktops are more complex, more varied, and 
-have much more, er, interesting, users.
-
+	Anton
 -- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
-
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

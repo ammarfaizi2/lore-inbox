@@ -1,51 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965147AbVKVTjI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965148AbVKVTja@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965147AbVKVTjI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 14:39:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965148AbVKVTjI
+	id S965148AbVKVTja (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 14:39:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965146AbVKVTja
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 14:39:08 -0500
-Received: from gateway.argo.co.il ([194.90.79.130]:262 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S965147AbVKVTjG (ORCPT
+	Tue, 22 Nov 2005 14:39:30 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:57805 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965148AbVKVTj2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 14:39:06 -0500
-Message-ID: <438373D6.9020902@argo.co.il>
-Date: Tue, 22 Nov 2005 21:39:02 +0200
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Brian Gerst <bgerst@didntduck.org>
-CC: Jeff Garzik <jgarzik@pobox.com>, Jon Smirl <jonsmirl@gmail.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Airlie <airlied@gmail.com>,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Small PCI core patch
-References: <1132616132.26560.62.camel@gaston> <21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com> <1132623268.20233.14.camel@localhost.localdomain> <1132626478.26560.104.camel@gaston> <9e4733910511211923r69cdb835pf272ac745ae24ed7@mail.gmail.com> <43833D61.9050400@argo.co.il> <20051122155143.GA30880@havoc.gtf.org> <43834400.3040506@argo.co.il> <20051122162506.GA32684@havoc.gtf.org> <438349F4.2080405@argo.co.il> <20051122165638.GE32684@havoc.gtf.org> <43835772.9070204@didntduck.org>
-In-Reply-To: <43835772.9070204@didntduck.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Nov 2005 19:39:05.0107 (UTC) FILETIME=[65C1E630:01C5EF9C]
+	Tue, 22 Nov 2005 14:39:28 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <Pine.LNX.4.64.0511221044340.13959@g5.osdl.org> 
+References: <Pine.LNX.4.64.0511221044340.13959@g5.osdl.org>  <Pine.LNX.4.64.0511220856470.13959@g5.osdl.org> <E1Ee0G0-0004CN-Az@localhost.localdomain> <24299.1132571556@warthog.cambridge.redhat.com> <20051121121454.GA1598@parisc-linux.org> <Pine.LNX.4.64.0511211047260.13959@g5.osdl.org> <20051121190632.GG1598@parisc-linux.org> <Pine.LNX.4.64.0511211124190.13959@g5.osdl.org> <20051121194348.GH1598@parisc-linux.org> <Pine.LNX.4.64.0511211150040.13959@g5.osdl.org> <20051121211544.GA4924@elte.hu> <17282.15177.804471.298409@cargo.ozlabs.ibm.com> <1132611631.11842.83.camel@localhost.localdomain> <1132657991.15117.76.camel@baythorne.infradead.org> <1132668939.20233.47.camel@localhost.localdomain> <9497.1132684676@warthog.cambridge.redhat.com> 
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Paul Mackerras <paulus@samba.org>, Ingo Molnar <mingo@elte.hu>,
+       Matthew Wilcox <matthew@wil.cx>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>,
+       Ian Molton <spyro@f2s.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH 4/5] Centralise NO_IRQ definition 
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Tue, 22 Nov 2005 19:38:50 +0000
+Message-ID: <10979.1132688330@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brian Gerst wrote:
+Linus Torvalds <torvalds@osdl.org> wrote:
 
-> The biggest problem with VIA (and Intel) is that they are only 
-> available as integrated video on the motherboard.  I can't just walk 
-> to the store and pick one up off the shelf.  I have yet to see any 
-> AMD64 motherboards with these chipsets either.
+> bad hw docs if you have any at all
 
-Actually I have a via/amd board:
+The same could be said of Linux. The docs there could be a *lot* better.
 
-00:00.1 Host bridge: VIA Technologies, Inc. K8M800 Host Bridge
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8237 PCI bridge 
-[K8T800/K8T890 South]
-01:00.0 VGA compatible controller: VIA Technologies, Inc. S3 Unichrome 
-Pro VGA Adapter (rev 01)
+I wonder... might it be worth creating a Wiki or something on kernel.org in
+which kernel docs can be maintained?
 
-Works well on FC4 with an Ubuntu driver.
-
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
-
+David

@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964968AbVKVPta@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbVKVPvs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964968AbVKVPta (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 10:49:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964969AbVKVPta
+	id S964969AbVKVPvs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 10:51:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964970AbVKVPvs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 10:49:30 -0500
-Received: from rzcomm22.rz.tu-bs.de ([134.169.9.68]:35041 "EHLO
-	rzcomm22.rz.tu-bs.de") by vger.kernel.org with ESMTP
-	id S964968AbVKVPt3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 10:49:29 -0500
-Message-ID: <43833D5A.60003@ppp0.net>
-Date: Tue, 22 Nov 2005 16:46:34 +0100
-From: Jan Dittmer <jdittmer@ppp0.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tarkan Erimer <tarkane@gmail.com>
-CC: linux-kernel@vger.kernel.org, matthias.andree@gmx.de
-Subject: Re: what is our answer to ZFS?
-References: <11b141710511210144h666d2edfi@mail.gmail.com>	 <20051121124544.9e502404.diegocg@gmail.com>	 <9611fa230511210619l208b10a8w77aedaa249345448@mail.gmail.com>	 <200511211252.04217.rob@landley.net>	 <20051122092047.GD16295@merlin.emma.line.org> <9611fa230511220200s36f8753fj4ebc4810db935301@mail.gmail.com>
-In-Reply-To: <9611fa230511220200s36f8753fj4ebc4810db935301@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0, __STOCK_PHRASE_1 0, __USER_AGENT 0'
+	Tue, 22 Nov 2005 10:51:48 -0500
+Received: from havoc.gtf.org ([69.61.125.42]:14213 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S964969AbVKVPvr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 10:51:47 -0500
+Date: Tue, 22 Nov 2005 10:51:43 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Avi Kivity <avi@argo.co.il>
+Cc: Jon Smirl <jonsmirl@gmail.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Airlie <airlied@gmail.com>,
+       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Small PCI core patch
+Message-ID: <20051122155143.GA30880@havoc.gtf.org>
+References: <20051121225303.GA19212@kroah.com> <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston> <21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com> <1132623268.20233.14.camel@localhost.localdomain> <1132626478.26560.104.camel@gaston> <9e4733910511211923r69cdb835pf272ac745ae24ed7@mail.gmail.com> <43833D61.9050400@argo.co.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43833D61.9050400@argo.co.il>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tarkan Erimer wrote:
-> On 11/22/05, Matthias Andree <matthias.andree@gmx.de> wrote:
-> 
->>What if some breakthrough in storage gives us vastly larger (larger than
->>predicted harddisk storage density increases) storage densities in 10
->>years for the same price of a 200 or 300 GB disk drive now?
-> 
-> 
-> If all the speculations are true for AtomChip Corp.'s
-> (http://www.atomchip.com) Optical Technology. We wil begin to use
-> really large RAMs and Storages very early than we expected.
-> Their prototypes already begin with 1 TB (both for RAM and Storage).
-> It's not hard to imagine, a few years later, we can use 100-200 and up
-> TB Storages and RAMs.
+On Tue, Nov 22, 2005 at 05:46:41PM +0200, Avi Kivity wrote:
+> 4) Write a translation layer (for xorg or the kernel) that can load 
+> Windows drivers. Use binary translation for non-x86. Hope the APIs are 
+> not patented.
 
-http://www.portablegadgets.net/article/59/atomchip-is-a-hoax
+Give up all hope of ever diagnosing or fixing a crash.
 
-Jan
+Welcome to Windows instability, circa 1995.
+
+	Jeff
+
+
+

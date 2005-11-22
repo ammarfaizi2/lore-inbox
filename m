@@ -1,61 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbVKVAh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbVKVArX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964803AbVKVAh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 19:37:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbVKVAh2
+	id S964806AbVKVArX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 19:47:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964808AbVKVArX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 19:37:28 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:27075 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S964803AbVKVAh1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 19:37:27 -0500
-Subject: Re: [PATCH] Sharp power management: split into sharpsl-dependend
-	and generic parts
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>
-In-Reply-To: <20051121224706.GA12906@elf.ucw.cz>
-References: <20051121224706.GA12906@elf.ucw.cz>
-Content-Type: text/plain
-Date: Tue, 22 Nov 2005 00:37:02 +0000
-Message-Id: <1132619822.7632.70.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Nov 2005 19:47:23 -0500
+Received: from xproxy.gmail.com ([66.249.82.194]:39753 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964806AbVKVArW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 19:47:22 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Ha4WcWa62cnx7sZW5GoxO/htIQliaTsC3gkZ+15Uup3+FLihSLA8xPzf2QKwuaR+h4ukfjy9/Lz1watRp4oMl2IEYutr0AQiRoL9qDKuQdLv+QYZpJJDcVpMPx0IPNe96d6h21S3WdsaGXJ7021IIoCU7c6fmFxHT4ynnrERVoA=
+Message-ID: <21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com>
+Date: Tue, 22 Nov 2005 11:47:21 +1100
+From: Dave Airlie <airlied@gmail.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [RFC] Small PCI core patch
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1132616132.26560.62.camel@gaston>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051121225303.GA19212@kroah.com>
+	 <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-11-21 at 23:47 +0100, Pavel Machek wrote:
-> Hi!
-> 
-> This splits sharpsl_pm.c into sharpsl_pm.c and
-> sharp_pm.c. sharpsl_pm.c contains stuff that is shared between spitz
-> and corgi, sharp_pm.c contains more widely usable code. I'd like
-> something like this to be eventually merged... [Of course, I'll
-> cleanup #ifdef COLLIE's, I did not realize some were still pending.]
-> 
-> Comments?
+> I'm all about it, but good luck trying to convince ATI and/or nVidia ...
+>
+> For those who haven't noticed, the latest generation of ATI cards have a
+> new 2D engine that is completely different from the previous one and
+> totally undocumented. So far, they haven't showed any plans to provide
+> any kind of documentation for it, unlike what they did for previous
+> chipsets, not even 2D and not even under NDA. That means absolutely _0_
+> support for it in linux or X.org except maybe with some future version
+> of their binary blob, and _0_ support for it for any non-x86
+> architecture of course.
+>
+> At least nVidia still sort-of maintains the obfuscated but working &
+> opensource basic 2D driver ...
+>
+> On the graphics front, things are actually getting _worse_ everyday.
+>
 
-The patch makes it very difficult to see what you've changed. The other
-ifdef COLLIEs look fairly straight forward to clean up and once that's
-done I'm ok with the principle of it.
+And funny enough unlike SCSI adapters and things for large server
+installations, nobody seems to really care enough about graphics
+cards, I've heard horror stories about how little Linux companies
+actually care about open source graphics, I suppose they have to
+follow the profit but still you'd like to think they effect of all
+this "open source drivers, get them in the kernel" work that is being
+done would at some point spill over ....
 
-I don't think the filenames are quite right as collie is still a Sharp
-SL series device. How about leaving the common code in sharpsl_pm.c and
-adding sharpsl_pm_pxa.c for the corgi/spitz common code? That should
-make the diffs easier to read. Eventually, sharpsl_pm.c should probably
-end up in arm/common but for now, I'd like to see easy to read diffs.
+When someone gets up of their arse and sues nvidia or ATI and wins,
+then feel free to change these exports, otherwise your view on who is
+right has as much legal value as their view, whether we like it or
+not..
 
-Thinking further about the structure, I have another idea which might be
-worth thinking about. If the common sharpsl_pm code was moved to
-arm/common, the files mach-sa1100/sharpsl_pm.c and mach-pxa/sharpsl_pm.c
-could provide the mach dependent functions Only one of the two would
-ever get compiled into a kernel so the files can provide the same
-function namespace and avoid any ugly ifdefs or tables of function
-pointers.
-
-Out of interest, does the code work on collie yet?
-
-Richard
-
+Dave.

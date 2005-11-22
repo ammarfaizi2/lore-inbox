@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965062AbVKVVT5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964906AbVKVV2o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965062AbVKVVT5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 16:19:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965068AbVKVVT4
+	id S964906AbVKVV2o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 16:28:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965051AbVKVV2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 16:19:56 -0500
-Received: from tayrelbas04.tay.hp.com ([161.114.80.247]:32648 "EHLO
-	tayrelbas04.tay.hp.com") by vger.kernel.org with ESMTP
-	id S965053AbVKVVTy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 16:19:54 -0500
-Date: Tue, 22 Nov 2005 13:19:47 -0800
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Rajesh Shah <rajesh.shah@intel.com>
-Subject: Re: BUG 2.6.14.2 : ACPI boot lockup
-Message-ID: <20051122211947.GA29622@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 22 Nov 2005 16:28:44 -0500
+Received: from wproxy.gmail.com ([64.233.184.205]:16798 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964906AbVKVV2n convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 16:28:43 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=b946ftUq8pq2uxGdH8JyrZrwTtZeVCXjmNTuoS7bETpgDNs7Q0weor4Ry4lfGN+IXXeJhyLk1L848hw6w5Dffg7BEOCUKT70hPd9tmkj4ZZvq8WS2yt2bg6jvii42QrHhT4tUF/JAvElCK9xgrv+LJPmdTkhOTMSZ6y16esjUdM=
+Message-ID: <d120d5000511221328l15925cd4o5429a92bec29c494@mail.gmail.com>
+Date: Tue, 22 Nov 2005 16:28:42 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Greg KH <greg@kroah.com>
+Subject: Re: Christmas list for the kernel
+Cc: Jon Smirl <jonsmirl@gmail.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051122204918.GA5299@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-User-Agent: Mutt/1.5.9i
-From: Jean Tourrilhes <jt@hpl.hp.com>
+References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com>
+	 <20051122204918.GA5299@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi Rajesh,
+On 11/22/05, Greg KH <greg@kroah.com> wrote:
+> On Tue, Nov 22, 2005 at 01:31:16PM -0500, Jon Smirl wrote:
+> >
+> > 4) Merge klibc and fix up the driver system so that everything is
+> > hotplugable. This means no more need to configure drivers in the
+> > kernel, the right drivers will just load automatically.
+>
+> What driver subsystem is not hotplugable and does not have automatically
+> loaded modules today?
+>
 
-	I have some ACPI trouble, and one of your checkin may be
-related to it. Would you mind checking the following LKML thread ?
-	http://marc.theaimsgroup.com/?t=113268687800002&r=1&w=2
+Input core does not have modalias and needs a special handler to load
+interfaces (mousedev, joydev, tsedv, evdev). But input_id is _huge_
+and I am not sure that using modalias is a good idea here.
 
-	Thanks in advance...
-
-	Jean
-
+--
+Dmitry

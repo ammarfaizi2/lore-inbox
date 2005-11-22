@@ -1,56 +1,365 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964883AbVKVDBO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964884AbVKVDMW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964883AbVKVDBO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 22:01:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbVKVDBO
+	id S964884AbVKVDMW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 22:12:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964781AbVKVDMW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 22:01:14 -0500
-Received: from wproxy.gmail.com ([64.233.184.198]:2234 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964883AbVKVDBN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 22:01:13 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KJSGjkARVeJxRT49X521fe1/5kfKO2Rg6KYEwr4RdTXZnGiUMMES5+ybHC22IyexNVWabGUVW17+2u+ne8Ekg61QQudRI6rbmlc1exfgi0glp08dbij4Fwf+UtcHMusmt478SqksjKkLQTyXhiIb9Z/heDKVK6VxJY4Hd6kdfeE=
-Message-ID: <9e4733910511211901s6785788dh37177b684ab1418f@mail.gmail.com>
-Date: Mon, 21 Nov 2005 22:01:13 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [RFC] Small PCI core patch
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Airlie <airlied@gmail.com>,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1132626973.26560.114.camel@gaston>
+	Mon, 21 Nov 2005 22:12:22 -0500
+Received: from cantor.suse.de ([195.135.220.2]:25274 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964884AbVKVDMV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 22:12:21 -0500
+From: Neil Brown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Tue, 22 Nov 2005 14:12:12 +1100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051121225303.GA19212@kroah.com>
-	 <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston>
-	 <21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com>
-	 <1132623268.20233.14.camel@localhost.localdomain>
-	 <9e4733910511211820x3539213arfe20f3939a375b51@mail.gmail.com>
-	 <1132626973.26560.114.camel@gaston>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17282.35980.613583.592130@cse.unsw.edu.au>
+Cc: sander@humilis.net, linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+Subject: Re: Please help me understand ->writepage. Was Re: segfault mdadm
+ --write-behind, 2.6.14-mm2  (was: Re: RAID1 ramdisk patch)
+In-Reply-To: message from Andrew Morton on Monday November 21
+References: <431B9558.1070900@baanhofman.nl>
+	<17179.40731.907114.194935@cse.unsw.edu.au>
+	<20051116133639.GA18274@favonius>
+	<20051116142000.5c63449f.akpm@osdl.org>
+	<17275.48113.533555.948181@cse.unsw.edu.au>
+	<20051117075041.GA5563@favonius>
+	<20051117101251.GA2883@favonius>
+	<20051117101511.GB2883@favonius>
+	<17282.21309.229128.930997@cse.unsw.edu.au>
+	<20051121155144.62bedaab.akpm@osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/21/05, Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> But the real reasons are elsewhere anyway. They don't wnat to opensource
-> because they don't want to open the gazillion security holes in their
-> stuff (afaik, the binary drivers make absolutely no verification of the
-> command streams passed from userland, you can make the card do whatever
-> you want from any user context, including arbitrary DMA to/from system
-> memory), the various comments & workarounds for HW bugs that aren't
-> supposed to exist and might make some customers want to throw the cards
-> back at them, the disgusting pile of smelly windows-originated library
-> they link in and wrap all over the place to make linux look like NT,
-> etc...
+On Monday November 21, akpm@osdl.org wrote:
+> Neil Brown <neilb@suse.de> wrote:
+> >
+> > Help ???
+> 
+> Indeed.  tmpfs is crackpottery.
 
-Build some root exploits using their drivers and start sending them to
-LKML. The resulting bad PR should fix their security holes quick
-enough. Who knows, maybe the heat will be hot enough for them to go
-open source.
+Ok, that explains a lot... :-)
 
---
-Jon Smirl
-jonsmirl@gmail.com
+> > 
+> >  Any advice would be most welcome!
+> 
+> Skip the writepage if !mapping_cap_writeback_dirty(page->mapping), I guess.
+> Or, if appropriate, just sync the file.  Use filemap_fdatawrite() or even
+> refactor do_fsync() and use most of that.
+
+Uhm, what would you think of testing mapping_cap_writeback_dirty in
+write_one_page??  If you don't like it, I can take it into write_page.
+
+> 
+> Also, write_page() doesn't need to run set_page_dirty(); ->commit_write()
+> will do that.
+
+Ok.... but I think I'm dropping prepare_write / commit_write.
+
+> 
+> Several kmap()s in there which can become kmap_atomic().
+
+I've made them all kmap_atomic.
+
+> 
+> bitmap_init_from_disk() might be leaking bitmap->filemap on kmalloc-failed
+> error path.
+
+It looks that way, but actually not.  bitmap_create requires that
+bitmap_destroy always be called afterwards, even on an error.  Not the
+best interface I'd agree...
+
+> 
+> bitmap->filemap_attr can be allocated with kzalloc() now.
+Yes, thanks.
+
+So Sander, could you try this patch for main against reiser4?  It
+seems to work on ext3 and tmpfs and has some chance of not mucking up
+on reiser4.
+
+Thanks,
+NeilBrown
+
+
+===File /home/src/mm/.patches/applied/014MdBitmapFix========
+Status: devel
+
+Hopefully make md/bitmaps work on files other than ext3
+
+
+
+Signed-off-by: Neil Brown <neilb@suse.de>
+
+### Diffstat output
+ ./drivers/md/bitmap.c |   64 +++++++++++++++++++-------------------------------
+ ./mm/page-writeback.c |    4 +++
+ 2 files changed, 29 insertions(+), 39 deletions(-)
+
+diff ./drivers/md/bitmap.c~current~ ./drivers/md/bitmap.c
+--- ./drivers/md/bitmap.c~current~	2005-11-22 14:06:53.000000000 +1100
++++ ./drivers/md/bitmap.c	2005-11-22 14:07:05.000000000 +1100
+@@ -310,7 +310,6 @@ static int write_sb_page(mddev_t *mddev,
+  */
+ static int write_page(struct bitmap *bitmap, struct page *page, int wait)
+ {
+-	int ret = -ENOMEM;
+ 
+ 	if (bitmap->file == NULL)
+ 		return write_sb_page(bitmap->mddev, bitmap->offset, page, wait);
+@@ -326,15 +325,6 @@ static int write_page(struct bitmap *bit
+ 		}
+ 	}
+ 
+-	ret = page->mapping->a_ops->prepare_write(bitmap->file, page, 0, PAGE_SIZE);
+-	if (!ret)
+-		ret = page->mapping->a_ops->commit_write(bitmap->file, page, 0,
+-			PAGE_SIZE);
+-	if (ret) {
+-		unlock_page(page);
+-		return ret;
+-	}
+-
+ 	set_page_dirty(page); /* force it to be written out */
+ 
+ 	if (!wait) {
+@@ -406,11 +396,11 @@ int bitmap_update_sb(struct bitmap *bitm
+ 		return 0;
+ 	}
+ 	spin_unlock_irqrestore(&bitmap->lock, flags);
+-	sb = (bitmap_super_t *)kmap(bitmap->sb_page);
++	sb = (bitmap_super_t *)kmap_atomic(bitmap->sb_page, KM_USER0);
+ 	sb->events = cpu_to_le64(bitmap->mddev->events);
+ 	if (!bitmap->mddev->degraded)
+ 		sb->events_cleared = cpu_to_le64(bitmap->mddev->events);
+-	kunmap(bitmap->sb_page);
++	kunmap_atomic(bitmap->sb_page, KM_USER0);
+ 	return write_page(bitmap, bitmap->sb_page, 1);
+ }
+ 
+@@ -421,7 +411,7 @@ void bitmap_print_sb(struct bitmap *bitm
+ 
+ 	if (!bitmap || !bitmap->sb_page)
+ 		return;
+-	sb = (bitmap_super_t *)kmap(bitmap->sb_page);
++	sb = (bitmap_super_t *)kmap_atomic(bitmap->sb_page, KM_USER0);
+ 	printk(KERN_DEBUG "%s: bitmap file superblock:\n", bmname(bitmap));
+ 	printk(KERN_DEBUG "         magic: %08x\n", le32_to_cpu(sb->magic));
+ 	printk(KERN_DEBUG "       version: %d\n", le32_to_cpu(sb->version));
+@@ -440,7 +430,7 @@ void bitmap_print_sb(struct bitmap *bitm
+ 	printk(KERN_DEBUG "     sync size: %llu KB\n",
+ 			(unsigned long long)le64_to_cpu(sb->sync_size)/2);
+ 	printk(KERN_DEBUG "max write behind: %d\n", le32_to_cpu(sb->write_behind));
+-	kunmap(bitmap->sb_page);
++	kunmap_atomic(bitmap->sb_page, KM_USER0);
+ }
+ 
+ /* read the superblock from the bitmap file and initialize some bitmap fields */
+@@ -466,7 +456,7 @@ static int bitmap_read_sb(struct bitmap 
+ 		return err;
+ 	}
+ 
+-	sb = (bitmap_super_t *)kmap(bitmap->sb_page);
++	sb = (bitmap_super_t *)kmap_atomic(bitmap->sb_page, KM_USER0);
+ 
+ 	if (bytes_read < sizeof(*sb)) { /* short read */
+ 		printk(KERN_INFO "%s: bitmap file superblock truncated\n",
+@@ -535,7 +525,7 @@ success:
+ 		bitmap->events_cleared = bitmap->mddev->events;
+ 	err = 0;
+ out:
+-	kunmap(bitmap->sb_page);
++	kunmap_atomic(bitmap->sb_page, KM_USER0);
+ 	if (err)
+ 		bitmap_print_sb(bitmap);
+ 	return err;
+@@ -560,7 +550,7 @@ static void bitmap_mask_state(struct bit
+ 	}
+ 	page_cache_get(bitmap->sb_page);
+ 	spin_unlock_irqrestore(&bitmap->lock, flags);
+-	sb = (bitmap_super_t *)kmap(bitmap->sb_page);
++	sb = (bitmap_super_t *)kmap_atomic(bitmap->sb_page, KM_USER0);
+ 	switch (op) {
+ 		case MASK_SET: sb->state |= bits;
+ 				break;
+@@ -568,7 +558,7 @@ static void bitmap_mask_state(struct bit
+ 				break;
+ 		default: BUG();
+ 	}
+-	kunmap(bitmap->sb_page);
++	kunmap_atomic(bitmap->sb_page, KM_USER0);
+ 	page_cache_release(bitmap->sb_page);
+ }
+ 
+@@ -621,8 +611,7 @@ static void bitmap_file_unmap(struct bit
+ 	spin_unlock_irqrestore(&bitmap->lock, flags);
+ 
+ 	while (pages--)
+-		if (map[pages]->index != 0) /* 0 is sb_page, release it below */
+-			page_cache_release(map[pages]);
++		page_cache_release(map[pages]);
+ 	kfree(map);
+ 	kfree(attr);
+ 
+@@ -771,7 +760,7 @@ static void bitmap_file_set_bit(struct b
+ 		set_bit(bit, kaddr);
+ 	else
+ 		ext2_set_bit(bit, kaddr);
+-	kunmap_atomic(kaddr, KM_USER0);
++	kunmap_atomic(page, KM_USER0);
+ 	PRINTK("set file bit %lu page %lu\n", bit, page->index);
+ 
+ 	/* record page number so it gets flushed to disk when unplug occurs */
+@@ -854,6 +843,7 @@ static int bitmap_init_from_disk(struct 
+ 	unsigned long bytes, offset, dummy;
+ 	int outofdate;
+ 	int ret = -ENOSPC;
++	void *paddr;
+ 
+ 	chunks = bitmap->chunks;
+ 	file = bitmap->file;
+@@ -887,12 +877,10 @@ static int bitmap_init_from_disk(struct 
+ 	if (!bitmap->filemap)
+ 		goto out;
+ 
+-	bitmap->filemap_attr = kmalloc(sizeof(long) * num_pages, GFP_KERNEL);
++	bitmap->filemap_attr = kzalloc(sizeof(long) * num_pages, GFP_KERNEL);
+ 	if (!bitmap->filemap_attr)
+ 		goto out;
+ 
+-	memset(bitmap->filemap_attr, 0, sizeof(long) * num_pages);
+-
+ 	oldindex = ~0L;
+ 
+ 	for (i = 0; i < chunks; i++) {
+@@ -901,8 +889,6 @@ static int bitmap_init_from_disk(struct 
+ 		bit = file_page_offset(i);
+ 		if (index != oldindex) { /* this is a new page, read it in */
+ 			/* unmap the old page, we're done with it */
+-			if (oldpage != NULL)
+-				kunmap(oldpage);
+ 			if (index == 0) {
+ 				/*
+ 				 * if we're here then the superblock page
+@@ -910,6 +896,7 @@ static int bitmap_init_from_disk(struct 
+ 				 * we've already read it in, so just use it
+ 				 */
+ 				page = bitmap->sb_page;
++				page_cache_get(page);
+ 				offset = sizeof(bitmap_super_t);
+ 			} else if (file) {
+ 				page = read_page(file, index, &dummy);
+@@ -925,18 +912,18 @@ static int bitmap_init_from_disk(struct 
+ 
+ 			oldindex = index;
+ 			oldpage = page;
+-			kmap(page);
+ 
+ 			if (outofdate) {
+ 				/*
+ 				 * if bitmap is out of date, dirty the
+ 			 	 * whole page and write it out
+ 				 */
+-				memset(page_address(page) + offset, 0xff,
++				paddr = kmap_atomic(page, KM_USER0);
++				memset(paddr + offset, 0xff,
+ 				       PAGE_SIZE - offset);
++				kunmap_atomic(page, KM_USER0);
+ 				ret = write_page(bitmap, page, 1);
+ 				if (ret) {
+-					kunmap(page);
+ 					/* release, page not in filemap yet */
+ 					page_cache_release(page);
+ 					goto out;
+@@ -945,10 +932,12 @@ static int bitmap_init_from_disk(struct 
+ 
+ 			bitmap->filemap[bitmap->file_pages++] = page;
+ 		}
++		paddr = kmap_atomic(page, KM_USER0);
+ 		if (bitmap->flags & BITMAP_HOSTENDIAN)
+-			b = test_bit(bit, page_address(page));
++			b = test_bit(bit, paddr);
+ 		else
+-			b = ext2_test_bit(bit, page_address(page));
++			b = ext2_test_bit(bit, paddr);
++		kunmap_atomic(page, KM_USER0);
+ 		if (b) {
+ 			/* if the disk bit is set, set the memory bit */
+ 			bitmap_set_memory_bits(bitmap, i << CHUNK_BLOCK_SHIFT(bitmap),
+@@ -963,9 +952,6 @@ static int bitmap_init_from_disk(struct 
+ 	ret = 0;
+ 	bitmap_mask_state(bitmap, BITMAP_STALE, MASK_UNSET);
+ 
+-	if (page) /* unmap the last page */
+-		kunmap(page);
+-
+ 	if (bit_cnt) { /* Kick recovery if any bits were set */
+ 		set_bit(MD_RECOVERY_NEEDED, &bitmap->mddev->recovery);
+ 		md_wakeup_thread(bitmap->mddev->thread);
+@@ -1021,6 +1007,7 @@ int bitmap_daemon_work(struct bitmap *bi
+ 	int err = 0;
+ 	int blocks;
+ 	int attr;
++	void *paddr;
+ 
+ 	if (bitmap == NULL)
+ 		return 0;
+@@ -1077,14 +1064,12 @@ int bitmap_daemon_work(struct bitmap *bi
+ 					set_page_attr(bitmap, lastpage, BITMAP_PAGE_NEEDWRITE);
+ 					spin_unlock_irqrestore(&bitmap->lock, flags);
+ 				}
+-				kunmap(lastpage);
+ 				page_cache_release(lastpage);
+ 				if (err)
+ 					bitmap_file_kick(bitmap);
+ 			} else
+ 				spin_unlock_irqrestore(&bitmap->lock, flags);
+ 			lastpage = page;
+-			kmap(page);
+ /*
+ 			printk("bitmap clean at page %lu\n", j);
+ */
+@@ -1107,10 +1092,12 @@ int bitmap_daemon_work(struct bitmap *bi
+ 						  -1);
+ 
+ 				/* clear the bit */
++				paddr = kmap_atomic(page, KM_USER0);
+ 				if (bitmap->flags & BITMAP_HOSTENDIAN)
+-					clear_bit(file_page_offset(j), page_address(page));
++					clear_bit(file_page_offset(j), paddr);
+ 				else
+-					ext2_clear_bit(file_page_offset(j), page_address(page));
++					ext2_clear_bit(file_page_offset(j), paddr);
++				kunmap_atomic(page, KM_USER0);
+ 			}
+ 		}
+ 		spin_unlock_irqrestore(&bitmap->lock, flags);
+@@ -1118,7 +1105,6 @@ int bitmap_daemon_work(struct bitmap *bi
+ 
+ 	/* now sync the final page */
+ 	if (lastpage != NULL) {
+-		kunmap(lastpage);
+ 		spin_lock_irqsave(&bitmap->lock, flags);
+ 		if (get_page_attr(bitmap, lastpage) &BITMAP_PAGE_NEEDWRITE) {
+ 			clear_page_attr(bitmap, lastpage, BITMAP_PAGE_NEEDWRITE);
+
+diff ./mm/page-writeback.c~current~ ./mm/page-writeback.c
+--- ./mm/page-writeback.c~current~	2005-11-22 14:06:53.000000000 +1100
++++ ./mm/page-writeback.c	2005-11-22 14:07:05.000000000 +1100
+@@ -583,6 +583,10 @@ int write_one_page(struct page *page, in
+ 	};
+ 
+ 	BUG_ON(!PageLocked(page));
++	if (!mapping_cap_writeback_dirty(mapping)) {
++		unlock_page(page);
++		return ret;
++	}
+ 
+ 	if (wait)
+ 		wait_on_page_writeback(page);
+============================================================

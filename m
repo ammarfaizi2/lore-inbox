@@ -1,45 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030197AbVKVWH4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030198AbVKVWOj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030197AbVKVWH4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 17:07:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030198AbVKVWH4
+	id S1030198AbVKVWOj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 17:14:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030199AbVKVWOj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 17:07:56 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:47402 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S1030197AbVKVWHz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 17:07:55 -0500
-Date: Tue, 22 Nov 2005 23:08:09 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Kristian Edlund <edlund@groenstue.dk>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       trivial@rustcorp.com.au
-Subject: Re: [PATCH] Typos in Documation/kbuild/modules.txt 2.6.15-rc2
-Message-ID: <20051122220809.GC7576@mars.ravnborg.org>
-References: <43831836.3040505@groenstue.dk> <Pine.LNX.4.64.0511220855380.13959@g5.osdl.org> <43839590.5050409@groenstue.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 22 Nov 2005 17:14:39 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:25296 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S1030198AbVKVWOi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 17:14:38 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Resume from swsusp stopped working with 2.6.14 and 2.6.15-rc1
+Date: Tue, 22 Nov 2005 23:15:30 +0100
+User-Agent: KMail/1.8.3
+Cc: Pavel Machek <pavel@suse.cz>, Dmitry Torokhov <dtor_core@ameritech.net>,
+       Bj?rn Mork <bjorn@mork.no>
+References: <87zmoa0yv5.fsf@obelix.mork.no> <200511220026.55589.dtor_core@ameritech.net> <20051122184739.GB1748@elf.ucw.cz>
+In-Reply-To: <20051122184739.GB1748@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <43839590.5050409@groenstue.dk>
-User-Agent: Mutt/1.5.11
+Message-Id: <200511222315.31033.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 22, 2005 at 11:02:56PM +0100, Kristian Edlund wrote:
-> Linus Torvalds wrote:
-> 
-> >Seriously whitespace-damaged (lost spaces not just at the end of lines, 
-> >but at their beginning too - and wordwrap etc)
-> >
-> >		Linus
+Hi,
+
+On Tuesday, 22 of November 2005 19:47, Pavel Machek wrote:
+> > > > > > >> Bjorn, does it help if you change TIMEOUT in kernel/power/process.c to 30 * HZ?
+> > > > > > >
+> > > > > > > Funny, I thought that 6 seconds is way too much. Bjorn, please let us
+> > > > > > > know if 30 seconds timeout helps.
+> > > > > >
+> > > > > > It does.
+> > > > >
+> > > > > Ouch, yes, that's clear. It is stopping tasks during *resume*... So I
+> > > > > guess it gets wrong timing by design. Question is what to do with
+> > > > > that. Could we make keyboard driver pause the boot until it is done
+> > > > > resetting hardware? Or we can increase the timeout... would 10 seconds
+> > > > > be enough?
+> > > > 
+> > > > Well, I think 10 seconds when suspending is a nice and resonable
+> > > > number. For resume though I think we should wait much longer, maybe
+> > > > even indefinitely - the only thing that timeout achieves is makes
+> > > > people fsck because the system can't recover from that state.
+> > > 
+> > > I see your point, but it does not seem we need that changes this far. Your
+> > > patch is better, because we *could* hit that during suspend, just after 
+> > > keyboard hotplug... right? And it will make resume faster for affected people.
 > > 
-> >
-> I am truely sorry about my patch being broken by my mail program,
-> I have tried to fix it now and is trying to resubmit the patch.
+> > I disagree here. While my patch is a right thing to do (and as you
+> > know is already merged in mainline) it is not "better". Swsusp should
+> > not rely on the other subsystems being "nice" to it. Even with my
+> > patch there still could be moments when some thread is not suspended
+> > in 6 seconds when resuming causing unneeded resume failure and
+> > subsequent fsck. 
+> > 
+> > Please consider merging the patch below.
+> 
+> Well, I do not think this problem will surface again. It is first
+> failure in pretty long time. If it happens again, I'll take your
+> patch.
 
-I have a similar patch from Brian Strand in my pending queue, I just
-need a sign-off before I submit it. I fixes a few more spilling
-mistkates - dunno who has added them in the frist place??
-Care to wait two days before applying this one.
+If so, could you please make it printk() a message after the timeout has
+passed?  This way the user will know what's going on at least.
 
-	Sam
+Greetings,
+Rafael

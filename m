@@ -1,80 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965018AbVKVRLS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965013AbVKVRKs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965018AbVKVRLS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 12:11:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbVKVRLS
+	id S965013AbVKVRKs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 12:10:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965016AbVKVRKs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 12:11:18 -0500
-Received: from gateway.argo.co.il ([194.90.79.130]:38674 "EHLO
-	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S965016AbVKVRLQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 12:11:16 -0500
-Message-ID: <43835131.5070608@argo.co.il>
-Date: Tue, 22 Nov 2005 19:11:13 +0200
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Jon Smirl <jonsmirl@gmail.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Airlie <airlied@gmail.com>,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Small PCI core patch
-References: <1132616132.26560.62.camel@gaston> <21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com> <1132623268.20233.14.camel@localhost.localdomain> <1132626478.26560.104.camel@gaston> <9e4733910511211923r69cdb835pf272ac745ae24ed7@mail.gmail.com> <43833D61.9050400@argo.co.il> <20051122155143.GA30880@havoc.gtf.org> <43834400.3040506@argo.co.il> <20051122162506.GA32684@havoc.gtf.org> <438349F4.2080405@argo.co.il> <20051122165638.GE32684@havoc.gtf.org>
-In-Reply-To: <20051122165638.GE32684@havoc.gtf.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Nov 2005 17:11:15.0209 (UTC) FILETIME=[BEE2DF90:01C5EF87]
+	Tue, 22 Nov 2005 12:10:48 -0500
+Received: from ns2.suse.de ([195.135.220.15]:27095 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965013AbVKVRKr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 12:10:47 -0500
+Date: Tue, 22 Nov 2005 18:10:42 +0100
+From: Andi Kleen <ak@suse.de>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: rfc/rft: use r10 as current on x86-64
+Message-ID: <20051122171040.GY20775@brahms.suse.de>
+References: <20051122165204.GG1127@kvack.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051122165204.GG1127@kvack.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+On Tue, Nov 22, 2005 at 11:52:04AM -0500, Benjamin LaHaise wrote:
+> Hello Andi et al,
+> 
+> The patch below converts x86-64 to use r10 as the current pointer instead 
+> of gs:pcurrent.  This results in a ~34KB savings in the code segment of 
+> the kernel.  I've tested this with running a few regular applications, 
+> plus a few 32 bit binaries.  If this patch is interesting, it probably 
+> makes sense to merge the thread info structure into the task_struct so 
+> that the assembly bits for syscall entry can be cleaned up.  Comments?
 
->  
->
->>However the situation with video drivers is already bad, and 
->>deteriorating. I had to hunt on the Internet to get my recent (FC4) 
->>distro to support my low-end embedded video (via). In the future it 
->>looks like even that won't work.
->>    
->>
->
->VIA is working with open source community.  They are small enough
->(comparatively) that they need every advantage.  VIA is one of the
->positive examples.
->
->  
->
-I'm aware of that. But look at the trouble we have even with the 
-cooperative vendors. I'm sure they had a Windows driver from day zero.
+I think you could get most of the benefit by just dropping
+the volatile and "memory" from read_pda(). With that gcc would
+usually CSE current into a register and it would would work essentially
+the same way with only minor more .text overhead, but r10 would be still
+available.
 
->  
->
->>>Dumb with a capital 'D'.
->>>
->>>
->>>      
->>>
->>I hope you have a better solution.
->>    
->>
->
->Almost all of the solutions listed in this thread are better:
->Chinese wall rev-eng,
->
-As others pointed out, rev-eng of programmable 3D hardware will be 
-difficult. There will be a perpetual (and long) lag between the 
-introduction of hardware and Linux support. The effort has to repeat for 
-new revisions of the hardware. And a rev-eng driver can still not be 
-trusted: who knows whether the register you just wrote into doesn't have 
-some subtle side-effect.
+Unfortunately when that's done then the kernel doesn't boot.
+It's probably something silly, but i never had time to track it down.
+Might want to look into that?
 
-> funding, ...
->  
->
-I want some too.
+Looking at your patch it might be enough to make sure all users
+of current after the changes in __switch_to you did use some 
+other way to access it (there is unfortunately no way I know
+of to make gcc flush all CSEd items without addings barriers
+in the original get_current function)
 
-
-I don't think Windows drivers are the best, or even a good solution. But 
-that may be the only realistic one. And I believe quite doable.
+-Andi

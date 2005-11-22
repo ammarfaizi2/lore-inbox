@@ -1,65 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964988AbVKVQiv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964989AbVKVQij@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964988AbVKVQiv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 11:38:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964992AbVKVQiu
+	id S964989AbVKVQij (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 11:38:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964990AbVKVQij
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 11:38:50 -0500
-Received: from havoc.gtf.org ([69.61.125.42]:61830 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S964990AbVKVQit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 11:38:49 -0500
-Date: Tue, 22 Nov 2005 11:38:48 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Rob Landley <rob@landley.net>
-Cc: Denis Vlasenko <vda@ilport.com.ua>, Neil Brown <neilb@suse.de>,
-       Jon Smirl <jonsmirl@gmail.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Airlie <airlied@gmail.com>,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Small PCI core patch
-Message-ID: <20051122163848.GC32684@havoc.gtf.org>
-References: <20051121225303.GA19212@kroah.com> <200511221007.12833.vda@ilport.com.ua> <20051122143055.GC24997@havoc.gtf.org> <200511221033.50351.rob@landley.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 22 Nov 2005 11:38:39 -0500
+Received: from nproxy.gmail.com ([64.233.182.192]:12985 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964989AbVKVQii convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 11:38:38 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NHPEgpr0vm25pUta0LVpzuJNXMU9lBCL+i28oX0+gG7IFwAu711F/NT618E56+0J2M2NEwcMLgGFdoMyWcCnXjG0O58mwIGfbez/BxA9qVUxRc3i+QDulLO00Eg313GUee02DS7lgcbu0Y3rDh36Ymf7Lc/bZtjy2wLsOoLvutM=
+Message-ID: <45391f280511220838k27c14a76q@mail.gmail.com>
+Date: Tue, 22 Nov 2005 16:38:37 +0000
+From: Steve Flynn <anothermindbomb@gmail.com>
+Subject: Re: what is our answer to ZFS?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0511220814290.30423@shark.he.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <200511221033.50351.rob@landley.net>
-User-Agent: Mutt/1.4.1i
+References: <E1EeLp5-0002fZ-00@calista.inka.de>
+	 <43825168.6050404@wolfmountaingroup.com> <43834098.60400@tmr.com>
+	 <Pine.LNX.4.58.0511220814290.30423@shark.he.net>
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 22, 2005 at 10:33:48AM -0600, Rob Landley wrote:
-> On Tuesday 22 November 2005 08:30, Jeff Garzik wrote:
-> > On Tue, Nov 22, 2005 at 10:07:12AM +0200, Denis Vlasenko wrote:
-> > > Historically hackers were not too good at raising funds.
+On 22/11/05, Randy.Dunlap <rdunlap@xenotime.net> wrote:
+> On Tue, 22 Nov 2005, Bill Davidsen wrote:
+> > Jeff V. Merkey wrote:
+> > > Bernd Eckenfels wrote:
+> > > Linux is currently limited to 16 TB per VFS mount point, it's all mute,
+> > > unless VFS gets fixed.
+> > > mmap won't go above this at present.
 > > >
-> > > Maybe we should use stuff which we are good at? Forcedeth
-> > > is a nice precedent. 2d and especially 3d engines
-> > > may be significantly harder to reverse engineer,
-> > > but people can scale rather nicely, as kernel development shows. ;)
-> > >
-> > > Then write specs from gained knowledge and put it on a web page.
-> >
-> > Yes, IMO this is the only realistic path, without cooperation from
-> > ATI/NVIDIA.
-> >
-> > This is why I dislike the ATI r300 rev-eng effort:  I cannot find any
-> > "Chinese wall":  one team rev-engs the hardware and writes a doc.
-> > Another team writes the drivers from the docs.
-> 
-> If they're reverse engineering the hardware, why would you need a chinese 
-> wall?  Compaq was turning x86 assembly code into x86 assembly code and had to 
-> prove that the new x86 code didn't infringe the copyright on the old x86 
-> code.  They weren't turning port I/O and DMA logs into C code...
+> > What does "it's all mute" mean?
+>
+> It means "it's all moot."
 
-Chinese wall is far more secure legally.
+On the contrary, "all mute" is correct - indicating that it doesn't
+really matter. All moot means it's open to debate, which is the
+opposite of what Bernd meant.
 
-Linux doesn't need more headaches from open legal questions.
-
-It worked for forcedeth, Broadcom wireless, and several other
-projects...  it results in a better driver, too.
-
-	Jeff
-
-
-
+I'll get back to lurking and being boggled by the stuff on the AtomChip website.
+--
+Steve
+Despair - It's always darkest just before it goes pitch black...

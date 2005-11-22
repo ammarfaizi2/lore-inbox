@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964916AbVKVLRa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964920AbVKVLTy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964916AbVKVLRa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 06:17:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964920AbVKVLRa
+	id S964920AbVKVLTy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 06:19:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964923AbVKVLTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 06:17:30 -0500
-Received: from mail.fh-wedel.de ([213.39.232.198]:17128 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S964916AbVKVLR3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 06:17:29 -0500
-Date: Tue, 22 Nov 2005 12:17:19 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: jdow <jdow@earthlink.net>
-Cc: Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: what is our answer to ZFS?
-Message-ID: <20051122111719.GB14269@wohnheim.fh-wedel.de>
-References: <11b141710511210144h666d2edfi@mail.gmail.com> <20051121095915.83230.qmail@web36406.mail.mud.yahoo.com> <20051121101959.GB13927@wohnheim.fh-wedel.de> <20051121114654.GA25180@merlin.emma.line.org> <1132574831.15938.14.camel@localhost> <20051121131832.GB26068@merlin.emma.line.org> <008801c5eedc$f7277060$1225a8c0@kittycat>
+	Tue, 22 Nov 2005 06:19:54 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:20414 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964920AbVKVLTx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 06:19:53 -0500
+Date: Tue, 22 Nov 2005 12:19:43 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Cc: linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>,
+       "K.R. Foley" <kr@cybsft.com>, Steven Rostedt <rostedt@goodmis.org>,
+       Thomas Gleixner <tglx@linutronix.de>, pluto@agmk.net,
+       john cooper <john.cooper@timesys.com>,
+       Benedikt Spranger <bene@linutronix.de>,
+       Daniel Walker <dwalker@mvista.com>,
+       Tom Rini <trini@kernel.crashing.org>,
+       George Anzinger <george@mvista.com>
+Subject: Re: 2.6.14-rt13
+Message-ID: <20051122111943.GB948@elte.hu>
+References: <20051115090827.GA20411@elte.hu> <1132608728.4805.20.camel@cmn3.stanford.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <008801c5eedc$f7277060$1225a8c0@kittycat>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1132608728.4805.20.camel@cmn3.stanford.edu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.4
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.4 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	1.4 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 November 2005 12:48:44 -0800, jdow wrote:
->
-> that was seldom if ever used by real people. I am not sure how I would
-> apply a checksum to each block of a file and still maintain reasonable
-> access speeds. It would be entertaining to see what the ZFS file system
-> does in this regard so that it doesn't slow down to essentially single
-> block per transaction disk reads or huge RAM buffer areas such as had
-> to be used with OFS.
 
-Design should be just as ZFS alledgedly does it.  Store the checksum
-near the indirect block pointers.  Seeks for checksums basically don't
-exist, as you need to seek for the indirect block pointers anyway.
-Only drawback is the effective growth of the area for the
-pointers+checksum blocks, which has a small impact on your caches.
+* Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
 
-Jörn
+> I just had a short burst of key repeats and saw one random screen 
+> blank. Right now everything seems normal but I was not allucinating 
+> :-)
 
--- 
-Courage is not the absence of fear, but rather the judgement that
-something else is more important than fear.
--- Ambrose Redmoon
+btw., today i have experienced a 'key repeat' event with the stock FC4 
+SMP kernel too, on an X2 athlon. That kernel didnt have idle=poll 
+specified, so gettimeofday() could time-warp in substantial ways.
+
+so i'd say the 'key repeat' problem is almost certainly caused by TSC 
+"time warps" on X2's.
+
+	Ingo

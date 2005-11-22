@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964959AbVKVPgs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964963AbVKVPk0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964959AbVKVPgs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 10:36:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964963AbVKVPgs
+	id S964963AbVKVPk0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 10:40:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964964AbVKVPk0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 10:36:48 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:51149 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S964959AbVKVPgr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 10:36:47 -0500
-Date: Tue, 22 Nov 2005 10:36:46 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Gustavo Guillermo =?iso-8859-1?Q?P=E9rez?= 
-	<gustavo@compunauta.com>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] Re: /dev/sr0 not ready, but working
-In-Reply-To: <20051121232531.GA24565@havoc.gtf.org>
-Message-ID: <Pine.LNX.4.44L0.0511221034110.4786-100000@iolanthe.rowland.org>
+	Tue, 22 Nov 2005 10:40:26 -0500
+Received: from cse-mail.unl.edu ([129.93.165.11]:58781 "EHLO cse-mail.unl.edu")
+	by vger.kernel.org with ESMTP id S964963AbVKVPkZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 10:40:25 -0500
+Date: Tue, 22 Nov 2005 09:39:34 -0600 (CST)
+From: Hui Cheng <hcheng@cse.unl.edu>
+To: Pavel Machek <pavel@suse.cz>
+cc: Alejandro Bonilla <abonilla@linuxwireless.org>,
+       <kernelnewbies@nl.linux.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: How to quickly detect the mode change of a hard disk?
+In-Reply-To: <20051119234450.GB1952@spitz.ucw.cz>
+Message-ID: <Pine.GSO.4.44.0511220934210.6696-100000@cse.unl.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (cse-mail.unl.edu [129.93.165.11]); Tue, 22 Nov 2005 09:39:47 -0600 (CST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Nov 2005, Jeff Garzik wrote:
 
-> On Mon, Nov 21, 2005 at 04:00:51PM -0600, Gustavo Guillermo Pérez wrote:
-> > When I use my external case as Firewire or USB 2.0 I got the error on the 
-> > kernel syslog:
-> > sr 0:0:0:0: Device not ready.
-> > last message repeated 187 times
-> > 
-> > Same using amdtp FireWire Driver and usb-storage driver.
-> > 
-> > but the drive keeps writing and the media finish and close as espected on the 
-> > 95% of times, the other 5% :(.
-> 
-> This happens on my S/ATAPI box too...	
 
-What is an S/ATAPI box?
+On Sat, 19 Nov 2005, Pavel Machek wrote:
+Hi,
 
-Would either of you like to tell us when these messages come up?  What are 
-you doing with the drive?  Does it happen only when the drive is writing?  
-What about when the drive is reading?  Does anything else of interest 
-appear in the system log?
+> Hi!
+>
+> > > > > I am currently doing a kernel module involves detecting/changing
+> > > > > disk mode among STANDBY and ACTIVE/IDLE. I used ide_cmd_wait() to issue
+> > > > > commands like WIN_IDLEIMMEDIATELY and WIN_STANDBYNOW1. The problem is, a
+> > > > > drive in standby mode will automatically awake whenever a disk operation
+> > > > > is requested and I need to know the mode change as soon as possible. (So I
+> > > >
+> > > > AFAIK there's no nice way to get that info, but it is useful, so
+> > > > patch would be welcome.
+> > >
+> > > I would check the hdparm man page again. Still, it sounds interesting.
+> > >
+> > > Additionally, it could be cool if someone could finish up or make the option
+> > > for the HD freeze to use it with the HDAPS driver. ;-)
+> > >
+> > > .Alejandro
+> > >
+> >
+> > Thanks for reply :) What I did to handle this problem is a little stupid
+> > : Suppose the disk is now in a standby mode. In case that there is a
+> > request sent to the disk drive, a kernel thread is awake to detect/update
+> > the current disk power mode. The disk power mode is stored in the
+> > ide_drive_t structure and be protected by lock. It seems to work fine in
+> > my simple tests. But again, there should be better solutions.
+>
+> Can we get the patch?
+> --
 
-Alan Stern
+Sure. I will make the patch and test it again. But it may take a while
+because I have an urgent task now...Thanks,
+
+Hui
 

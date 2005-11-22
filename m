@@ -1,43 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964802AbVKVIAq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbVKVIBf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964802AbVKVIAq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 03:00:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964818AbVKVIAq
+	id S964818AbVKVIBf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 03:01:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964841AbVKVIBf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 03:00:46 -0500
-Received: from gate.crashing.org ([63.228.1.57]:44238 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S964802AbVKVIAp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 03:00:45 -0500
-Subject: Re: [PATCH 3/5] mm: powerpc ptlock comments
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0511220705110.22267@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0511212025220.19274@goblin.wat.veritas.com>
-	 <Pine.LNX.4.61.0511212033330.19274@goblin.wat.veritas.com>
-	 <17282.21410.203627.607569@cargo.ozlabs.ibm.com>
-	 <Pine.LNX.4.61.0511220705110.22267@goblin.wat.veritas.com>
-Content-Type: text/plain
-Date: Tue, 22 Nov 2005 18:57:51 +1100
-Message-Id: <1132646272.26560.224.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Tue, 22 Nov 2005 03:01:35 -0500
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:29276 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S964818AbVKVIBe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 03:01:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=eU11bF/QzhFFcxng8GPW/WE8NV8aHf98ZqA6zWm6zzMBMHQnjeRuzNL6glj9kUb4D1bbujNEhYIvQnPBAidduhjZKnOeA4sMLODaf6ISoAun9MZp0xZi78j2BtJg4L0HmPjUK82c7dITcHJVSgNkTFlzGYO6EeVBhMJHRGEraeo=  ;
+Message-ID: <4382DF04.3000001@yahoo.com.au>
+Date: Tue, 22 Nov 2005 20:04:04 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [patch 9/12] mm: page_state opt
+References: <20051121123906.14370.3039.sendpatchset@didi.local0.net>	<20051121124235.14370.92215.sendpatchset@didi.local0.net> <20051121235405.2b6ce561.akpm@osdl.org>
+In-Reply-To: <20051121235405.2b6ce561.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-22 at 07:12 +0000, Hugh Dickins wrote:
+Andrew Morton wrote:
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> 
+>>-#define mod_page_state_zone(zone, member, delta)				\
+>> -	do {									\
+>> -		unsigned offset;						\
+>> -		if (is_highmem(zone))						\
+>> -			offset = offsetof(struct page_state, member##_high);	\
+>> -		else if (is_normal(zone))					\
+>> -			offset = offsetof(struct page_state, member##_normal);	\
+>> -		else								\
+>> -			offset = offsetof(struct page_state, member##_dma);	\
+>> -		__mod_page_state(offset, (delta));				\
+>> -	} while (0)
+> 
+> 
+> I suppose this needs updating to know about the dma32 zone.
+> 
 
-> I'd appreciate something that updates the "because" part too, but don't
-> know the answer.  That other patch will need to come from your end - Ben?
+Ah I didn't realise DMA32 is in the tree now. I think you're right.
 
-Hrm... same reason as __hash_page(), the code now locks the PTE using
-the _PAGE_BUSY bit. The last store does the update and unlock and
-doesn't need to be atomic. However, now that I look at it, it might need
-an lwsync. Paul ?
+I'll rebase this patchset when such an update is made. If you'd like
+I could look at doing said DMA32 update for you?
 
-Ben.
+-- 
+SUSE Labs, Novell Inc.
 
-
+Send instant messages to your online friends http://au.messenger.yahoo.com 

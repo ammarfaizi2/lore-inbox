@@ -1,52 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbVKVBCT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbVKVBEx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750763AbVKVBCT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 20:02:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751077AbVKVBCT
+	id S1751077AbVKVBEx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 20:04:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbVKVBEx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 20:02:19 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:4527 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1750763AbVKVBCT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 20:02:19 -0500
-Subject: Re: [RFC] Small PCI core patch
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dave Airlie <airlied@gmail.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com>
-References: <20051121225303.GA19212@kroah.com>
-	 <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston>
-	 <21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 22 Nov 2005 01:34:27 +0000
-Message-Id: <1132623268.20233.14.camel@localhost.localdomain>
+	Mon, 21 Nov 2005 20:04:53 -0500
+Received: from fmr21.intel.com ([143.183.121.13]:31952 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1751077AbVKVBEx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 20:04:53 -0500
+Date: Mon, 21 Nov 2005 17:04:11 -0800
+From: Ashok Raj <ashok.raj@intel.com>
+To: linux-kernel@vger.kernel.org
+Cc: ashok.raj@intel.com, akpm@osdl.org, ak@muc.de, gregkh@suse.de,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Subject: Re: [patch 2/2] Convert bigsmp to use flat physical mode
+Message-ID: <20051121170411.A15347@unix-os.sc.intel.com>
+References: <20051122000204.890352000@araj-sfield-2>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20051122000204.890352000@araj-sfield-2>; from ashok.raj@intel.com on Mon, Nov 21, 2005 at 03:39:16PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-11-22 at 11:47 +1100, Dave Airlie wrote:
-> And funny enough unlike SCSI adapters and things for large server
-> installations, nobody seems to really care enough about graphics
-> cards, I've heard horror stories about how little Linux companies
+On Mon, Nov 21, 2005 at 03:39:16PM -0800, Ashok Raj wrote:
+> 
+>    -       if ((num_processors > 8) &&
+>    -           APIC_XAPIC(ver) &&
+>    -           (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL))
+>    +       if (APIC_XAPIC(ver) &&
+>    +               (CPU_HOTPLUG_ENABLED ||
+>    +               ((num_processors > 8) &&
+>    +                                      (boot_cpu_data.x86_vendor    ==
+>    X86_VENDOR_INTEL))))
+>                    def_to_bigsmp = 1;
 
-Its easy to see why
+Noticed that Andi send one more patch do enable bigsmp for AMD (i386), and the 
+APIC_XAPIC() check was not properly placed to factor this in. This updated
+patch should work for AMD as well, and switch to bigsmp when we have hotplug 
+enabled.
 
-The graphics market between Nvidia and ATI is extreme rivalry
-There have been some ugly patent lawsuits
-Good software tricks can make the weaker hardware win
-Its very hard to write
-
-So there are real secrets left in the market. Designing a SCSI
-controller isn't exactly a McJob but its commodity.
+-- 
+Cheers,
+Ashok Raj
+- Open Source Technology Center
 
 
-Nvidia are at least trying to do what they can within what for them is
-not a very easy set of market conditions for open sourcing. ATI were
-doing very nice things until they won the Xbox 360 contract. An
-observation that perhaps would not go amiss reaching the US legal
-watchdogs.
+If we are using hotplug enabled kernel, then make bigsmp the default mode.
 
-Alan
+
+Signed-off-by: Ashok Raj <ashok.raj@intel.com>
+Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+-------------------------------------------------------
+ arch/i386/kernel/mpparse.c |   25 ++++++++++++++++++-------
+ 1 files changed, 18 insertions(+), 7 deletions(-)
+
+Index: linux-2.6.15-rc1-mm2/arch/i386/kernel/mpparse.c
+===================================================================
+--- linux-2.6.15-rc1-mm2.orig/arch/i386/kernel/mpparse.c
++++ linux-2.6.15-rc1-mm2/arch/i386/kernel/mpparse.c
+@@ -38,6 +38,12 @@
+ int smp_found_config;
+ unsigned int __initdata maxcpus = NR_CPUS;
+ 
++#ifdef CONFIG_HOTPLUG_CPU
++#define CPU_HOTPLUG_ENABLED	(1)
++#else
++#define CPU_HOTPLUG_ENABLED	(0)
++#endif
++
+ /*
+  * Various Linux-internal data structures created from the
+  * MP-table.
+@@ -219,13 +225,18 @@ static void __devinit MP_processor_info 
+ 	cpu_set(num_processors, cpu_possible_map);
+ 	num_processors++;
+ 
+-	if ((num_processors > 8) &&
+-	    APIC_XAPIC(ver) &&
+-	    (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL))
+-		def_to_bigsmp = 1;
+-	else
+-		def_to_bigsmp = 0;
+-
++	if (CPU_HOTPLUG_ENABLED || (num_processors > 8)) {
++		switch (boot_cpu_data.x86_vendor) {
++			case X86_VENDOR_INTEL:
++				if (!APIC_XAPIC(ver)) {
++					def_to_bigsmp = 0;
++					break;
++				}
++				/* If P4 and above fall through */
++			case X86_VENDOR_AMD:
++				def_to_bigsmp = 1;
++		}
++	}
+ 	bios_cpu_apicid[num_processors - 1] = m->mpc_apicid;
+ }
+ 

@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965154AbVKVTvz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965159AbVKVTwJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965154AbVKVTvz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 14:51:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965157AbVKVTvy
+	id S965159AbVKVTwJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 14:52:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965158AbVKVTwI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 14:51:54 -0500
-Received: from gold.veritas.com ([143.127.12.110]:19267 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S965154AbVKVTvy (ORCPT
+	Tue, 22 Nov 2005 14:52:08 -0500
+Received: from thunk.org ([69.25.196.29]:24965 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S965157AbVKVTwH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 14:51:54 -0500
-Date: Tue, 22 Nov 2005 19:51:56 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
-cc: Dominik Brodowski <linux@dominikbrodowski.net>,
-       linux-kernel@vger.kernel.org, npiggin@suse.de
-Subject: Re: PageReserved removal woes: vbetool, suspend-to-ram breakage
-In-Reply-To: <E1EedI9-0005O6-00@chiark.greenend.org.uk>
-Message-ID: <Pine.LNX.4.61.0511221947230.28813@goblin.wat.veritas.com>
-References: <20051111103808.GA22057@isilmar.linta.de> <E1EedI9-0005O6-00@chiark.greenend.org.uk>
+	Tue, 22 Nov 2005 14:52:07 -0500
+Date: Tue, 22 Nov 2005 14:52:01 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: Chris Adams <cmadams@hiwaay.net>, linux-kernel@vger.kernel.org
+Subject: Re: what is our answer to ZFS?
+Message-ID: <20051122195201.GG31823@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Anton Altaparmakov <aia21@cam.ac.uk>,
+	Chris Adams <cmadams@hiwaay.net>, linux-kernel@vger.kernel.org
+References: <fa.d8ojg69.1p5ovbb@ifi.uio.no> <20051122161712.GA942598@hiwaay.net> <Pine.LNX.4.64.0511221650360.2763@hermes-1.csi.cam.ac.uk> <20051122171847.GD31823@thunk.org> <Pine.LNX.4.64.0511221921530.7002@hermes-1.csi.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 22 Nov 2005 19:51:53.0686 (UTC) FILETIME=[2FDDBF60:01C5EF9E]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0511221921530.7002@hermes-1.csi.cam.ac.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Nov 2005, Matthew Garrett wrote:
-> Dominik Brodowski <linux@dominikbrodowski.net> wrote:
+On Tue, Nov 22, 2005 at 07:25:20PM +0000, Anton Altaparmakov wrote:
+> > > The standards are insufficient however.  For example dealing with named 
+> > > streams or extended attributes if exposed as "normal files" would 
+> > > naturally have the same st_ino (given they are the same inode as the 
+> > > normal file data) and st_dev fields.
+> > 
+> > Um, but that's why even Solaris's openat(2) proposal doesn't expose
+> > streams or extended attributes as "normal files".  The answer is that
+> > you can't just expose named streams or extended attributes as "normal
+> > files" without screwing yourself.
 > 
-> > Just wanted to let you know that the warning introduced in
-> > [PATCH] core remove PageReserved
-> 
-> It's not much of a warning, it seems to stop vbetool from working (which
-> may explain a few complaints about ACPI suspend being broken in 2.6.15 -
-> it's not, but vbetool is...)
-> 
-> vbetool (well, strictly it's LRMI, but...) needs to access real-mode
-> memory. On the other hand, it's probably a bad idea to let it actually
-> scribble over RAM that the kernel may be using. So
-> MAP_PRIVATE|PROT_WRITE seems to be the correct thing to do. This
-> certainly /seemed/ to work in older kernels, but doesn't any more. What
-> should I be doing instead?
-> 
-> (I'm also not quite sure why the error claims that it's deprecated,
-> whereas in fact it doesn't actually work at all. Breaking userspace
-> without warning isn't terribly nice)
+> Reiser4 does I believe...
 
-Sorry about that, we really didn't expect that it was being used.
-And sorry I didn't get the fixes ready in time for 2.6.15-rc2.
-But they've gone into Linus' git tree a couple of hours ago.
-Please let me know if tomorrow's 2.6.15-rc2-git3 does not work for you.
+Reiser4 violates POSIX.  News at 11....
 
-Hugh
+> I was not talking about Solaris/UFS.  NTFS has named streams and extended 
+> attributes and both are stored as separate attribute records inside the 
+> same inode as the data attribute.  (A bit simplified as multiple inodes 
+> can be in use for one "file" when an inode's attributes become large than 
+> an inode - in that case attributes are either moved whole to a new inode 
+> and/or are chopped up in bits and each bit goes to a different inode.)
+
+NTFS violates POSIX.  News at 11....
+
+							- Ted

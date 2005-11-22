@@ -1,44 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbVKVCVs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbVKVCWq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964872AbVKVCVs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Nov 2005 21:21:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964868AbVKVCVs
+	id S964867AbVKVCWq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Nov 2005 21:22:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbVKVCWq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Nov 2005 21:21:48 -0500
-Received: from gepetto.dc.ltu.se ([130.240.42.40]:17092 "EHLO
-	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S964867AbVKVCVr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Nov 2005 21:21:47 -0500
-Date: Tue, 22 Nov 2005 03:21:42 +0100 (MET)
-From: Richard Knutsson <ricknu-0@student.ltu.se>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Richard Knutsson <ricknu-0@student.ltu.se>
-Message-Id: <20051122022652.6806.10075.sendpatchset@thinktank.campus.ltu.se>
-Subject: [PATCH -mm2] net: Fix compiler-error on atyfb_base.c when !CONFIG_PCI
+	Mon, 21 Nov 2005 21:22:46 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:32217 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964867AbVKVCWp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Nov 2005 21:22:45 -0500
+Date: Mon, 21 Nov 2005 21:22:15 -0500
+From: Dave Jones <davej@redhat.com>
+To: Ken Moffat <zarniwhoop@ntlworld.com>
+Cc: Alexander Clouter <alex@digriz.org.uk>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, blaisorblade@yahoo.it, davej@codemonkey.org.uk
+Subject: Re: [patch 1/1] cpufreq_conservative/ondemand: invert meaning of 'ignore nice'
+Message-ID: <20051122022215.GB1288@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Ken Moffat <zarniwhoop@ntlworld.com>,
+	Alexander Clouter <alex@digriz.org.uk>,
+	linux-kernel@vger.kernel.org, akpm@osdl.org, blaisorblade@yahoo.it,
+	davej@codemonkey.org.uk
+References: <20051121181722.GA2599@inskipp.digriz.org.uk> <Pine.LNX.4.63.0511220102330.18504@deepthought.mydomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.63.0511220102330.18504@deepthought.mydomain>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Richard Knutsson <ricknu-0@student.ltu.se>
+On Tue, Nov 22, 2005 at 01:21:18AM +0000, Ken Moffat wrote:
+ > On Mon, 21 Nov 2005, Alexander Clouter wrote:
+ > 
+ > >The use of the 'ignore_nice' sysfs file is confusing to anyone using it. 
+ > >This
+ > >removes the sysfs file 'ignore_nice' and in its place creates a
+ > >'ignore_nice_load' entry which defaults to '1'; meaning nice'd processes 
+ > >are
+ > >not counted towards the 'business' calculation.
+ > >
+ > >WARNING: this obvious breaks any userland tools that expected ignore_nice' 
+ > >to
+ > >exist, to draw attention to this fact it was concluded on the mailing list
+ > >that the entry should be removed altogether so the userland app breaks and 
+ > >so
+ > >the author can build simple to detect workaround.  Having said that it 
+ > >seems
+ > >currently very few tools even make use of this functionality; all I could
+ > >find was a Gentoo Wiki entry.
+ > >
+ > >Signed-off-by: Alexander Clouter <alex-kernel@digriz.org.uk>
+ > >
+ > 
+ >  Great.  I get to rewrite my initscript for the ondemand governor to 
+ > test for yet another kernel version, and write a 0 to yet another sysfs 
+ > file, just so that any compile I start in an xterm on my desktop box can 
+ > make the processor work for its living.
+ > 
+ >  Just what have you cpufreq guys got against nice'd processes ?  It's 
+ > enough to drive a man to powernowd ;)
 
-Fix compiler-error on atyfb_base.c when CONFIG_PCI not set.
+The opinion on this one started out with everyone saying "Yeah,
+this is dumb, and should have changed". Now that the change appears
+in a mergable patch, the opinion seems to have swung the other way.
 
-Signed-off-by: Richard Knutsson <ricknu-0@student.ltu.se>
+I'm seriously rethinking this change, as no matter what we do,
+we're going to make some people unhappy, so changing the status quo
+seems ultimately pointless.
 
----
-
- atyfb_base.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
-
-diff -Narup a/drivers/net/dgrs.c b/drivers/net/dgrs.c
---- a/drivers/video/aty/atyfb_base.c	2005-11-22 01:41:54.000000000 +0100
-+++ b/drivers/video/aty/atyfb_base.c	2005-11-22 01:42:15.000000000 +0100
-@@ -3606,7 +3606,8 @@ static struct pci_driver atyfb_driver = 
- 	.resume		= atyfb_pci_resume,
- #endif /* CONFIG_PM */
- };
--
-+#else
-+static struct pci_driver atyfb_driver = {};
- #endif /* CONFIG_PCI */
- 
- #ifndef MODULE
+		Dave

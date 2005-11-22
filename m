@@ -1,90 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965093AbVKVSb0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965092AbVKVSbR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965093AbVKVSb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 13:31:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965096AbVKVSb0
+	id S965092AbVKVSbR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 13:31:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965094AbVKVSbR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 13:31:26 -0500
-Received: from relay2.uni-heidelberg.de ([129.206.210.211]:395 "EHLO
-	relay2.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id S965093AbVKVSbY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 13:31:24 -0500
-Date: Tue, 22 Nov 2005 19:31:17 +0100 (CET)
-From: Bogdan Costescu <Bogdan.Costescu@iwr.uni-heidelberg.de>
-To: Bogdan Costescu <Bogdan.Costescu@iwr.uni-heidelberg.de>
-cc: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Marvell SATA fixes v2
-In-Reply-To: <Pine.LNX.4.63.0511211311260.22263@dingo.iwr.uni-heidelberg.de>
-Message-ID: <Pine.LNX.4.63.0511221809430.24388@dingo.iwr.uni-heidelberg.de>
-References: <437D2DED.5030602@pobox.com>
- <Pine.LNX.4.44.0511182241420.5095-100000@kenzo.iwr.uni-heidelberg.de>
- <20051118215209.GA9425@havoc.gtf.org> <Pine.LNX.4.63.0511211311260.22263@dingo.iwr.uni-heidelberg.de>
+	Tue, 22 Nov 2005 13:31:17 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:19786 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965092AbVKVSbR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 13:31:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=IByHkvb09vAwnTMw6ba+xzJ23OAAEhgWkcWcha1PCXE3qZpkdZCkFhsB4YBD3vXj2y22xMqsxKLmhtqZoopj9DDbtdQolMp7XHR2uQeFAz8FE9VoR2Pk/EBfTxiARNQ9Rd1etsEV87ICLWvFki4P0oJxXAyTy3Ocdk8pEEy7XBE=
+Message-ID: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com>
+Date: Tue, 22 Nov 2005 13:31:16 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Christmas list for the kernel
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Nov 2005, Bogdan Costescu wrote:
+There have been recent comments about the pace of kernel development
+slowing. What are the major areas that still need major work? When the
+thread slows down maybe Linus will tell us what the top ten items
+really are.
 
-> This was a SMP kernel running on an Intel PIV with HyperThreading 
-> and with 2 disks attached to the controller. I'll try to get this 
-> crash again with serial console...
+To get things started here's a few that I would add:
 
-I seem to have some problems getting the serial console to work, but 
-in the mean time I have some more results, this time using a UP 
-kernel (again without MSI and libata DEBUG):
+1) graphics, it is a total mess.
 
-1. several badblocks tests finished fine; the speed is also fine 
-(about 50Mbytes/s both read and write as reported by both iostat 
-during badblocks and bonnie++ on an ext2 FS).
+2) get Xen merged, virtualization will be key on the server.
+Hotplugable CPUs and memory are tied up in this one.
 
-2. I know that we are not yet talking about hotplugging, but this 
-is what happens if you do it (unplug) :-)
+3) Reiser4 merge, Rieser4 itself is not important, it's the new
+concepts about file systems that Reiser4 brings to the kernel that are
+important. Get the issues around the VFS layer sorted out so that this
+can happen. We need some forward evolution in file system concepts.
 
-Badness in mv_channel_reset at /root/sata_mv/sata_mv.c:1701 (Not 
-tainted)
-  [<f8955282>] mv_channel_reset+0xe3/0xed [sata_mv]
-  [<f89552b0>] mv_stop_and_reset+0x24/0x2d [sata_mv]
-  [<f8954ae0>] mv_host_intr+0x13d/0x17c [sata_mv]
-  [<f8954b92>] mv_interrupt+0x73/0xeb [sata_mv]
-  [<c0141f0d>] handle_IRQ_event+0x2e/0x5a
-  [<c0141fb7>] __do_IRQ+0x7e/0xd7
-  [<c0104e7e>] do_IRQ+0x4a/0x82
-  =======================
-  [<c01038ca>] common_interrupt+0x1a/0x20
-  [<c023a35f>] acpi_safe_halt+0x22/0x2c
-  [<c023a472>] acpi_processor_idle+0x109/0x27a
-  [<c01010c1>] cpu_idle+0x40/0x58
-  [<c03f873f>] start_kernel+0x15b/0x1b2
-  [<c03f831d>] unknown_bootoption+0x0/0x1b6
-Badness in __msleep at /root/sata_mv/sata_mv.c:1721 (Not tainted)
-  [<f8955649>] __mv_phy_reset+0x390/0x405 [sata_mv]
-  [<c0111923>] delay_tsc+0xb/0x13
-  [<c01e7659>] __delay+0x9/0xa
-  [<f8954ae0>] mv_host_intr+0x13d/0x17c [sata_mv]
-  [<f8954b92>] mv_interrupt+0x73/0xeb [sata_mv]
-  [<c0141f0d>] handle_IRQ_event+0x2e/0x5a
-  [<c0141fb7>] __do_IRQ+0x7e/0xd7
-  [<c0104e7e>] do_IRQ+0x4a/0x82
-  =======================
-  [<c01038ca>] common_interrupt+0x1a/0x20
-  [<c023a35f>] acpi_safe_halt+0x22/0x2c
-  [<c023a472>] acpi_processor_idle+0x109/0x27a
-  [<c01010c1>] cpu_idle+0x40/0x58
-  [<c03f873f>] start_kernel+0x15b/0x1b2
-  [<c03f831d>] unknown_bootoption+0x0/0x1b6
-ata4: no device found (phy stat 00000000)
+4) Merge klibc and fix up the driver system so that everything is
+hotplugable. This means no more need to configure drivers in the
+kernel, the right drivers will just load automatically.
 
-The acpi_* stuff might be due to the fact that this interrupt is taken 
-over first by ACPI and later assigned also to sata_mv; this happens 
-only with the UP kernel, for the SMP kernel sata_mv did not share the 
-interrupt.
-
--- 
-Bogdan Costescu
-
-IWR - Interdisziplinaeres Zentrum fuer Wissenschaftliches Rechnen
-Universitaet Heidelberg, INF 368, D-69120 Heidelberg, GERMANY
-Telephone: +49 6221 54 8869, Telefax: +49 6221 54 8868
-E-mail: Bogdan.Costescu@IWR.Uni-Heidelberg.De
+--
+Jon Smirl
+jonsmirl@gmail.com

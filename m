@@ -1,70 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbVKWP3K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbVKWPbL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751029AbVKWP3K (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 10:29:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751030AbVKWP3J
+	id S1751009AbVKWPbL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 10:31:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751031AbVKWPbL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 10:29:09 -0500
-Received: from ns2.suse.de ([195.135.220.15]:25314 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751021AbVKWP3G (ORCPT
+	Wed, 23 Nov 2005 10:31:11 -0500
+Received: from zeus1.kernel.org ([204.152.191.4]:59795 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751009AbVKWPbK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 10:29:06 -0500
-Message-ID: <43848ABE.7000502@suse.de>
-Date: Wed, 23 Nov 2005 16:29:02 +0100
-From: Gerd Knorr <kraxel@suse.de>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
-       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com>	<20051111103605.GC27805@elf.ucw.cz> <4374F2D5.7010106@vmware.com>	<Pine.LNX.4.64.0511111147390.4627@g5.osdl.org>	<4374FB89.6000304@vmware.com>	<Pine.LNX.4.64.0511111218110.4627@g5.osdl.org>	<20051113074241.GA29796@redhat.com>	<Pine.LNX.4.64.0511131118020.3263@g5.osdl.org>	<Pine.LNX.4.64.0511131210570.3263@g5.osdl.org>	<4378A7F3.9070704@suse.de>	<Pine.LNX.4.64.0511141118000.3263@g5.osdl.org>	<4379ECC1.20005@suse.de> <437A0649.7010702@suse.de>	<437B5A83.8090808@suse.de> <438359D7.7090308@suse.de> <p7364qjjhqx.fsf@verdi.suse.de>
-In-Reply-To: <p7364qjjhqx.fsf@verdi.suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Nov 2005 10:31:10 -0500
+Date: Wed, 23 Nov 2005 15:25:59 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Greg KH <greg@kroah.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Christmas list for the kernel
+Message-ID: <20051123152558.GB15449@flint.arm.linux.org.uk>
+Mail-Followup-To: Jon Smirl <jonsmirl@gmail.com>,
+	Vojtech Pavlik <vojtech@suse.cz>, Greg KH <greg@kroah.com>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com> <20051122204918.GA5299@kroah.com> <9e4733910511221313t4a1e3c67wc7b08160937eb5c5@mail.gmail.com> <20051123121726.GA7328@ucw.cz> <9e4733910511230643j64922738p709fecd6c86b4a95@mail.gmail.com> <20051123150349.GA15449@flint.arm.linux.org.uk> <9e4733910511230719h67fa96bdxdeb654aa12f18e67@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9e4733910511230719h67fa96bdxdeb654aa12f18e67@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> Gerd Knorr <kraxel@suse.de> writes:
+On Wed, Nov 23, 2005 at 10:19:19AM -0500, Jon Smirl wrote:
+> On 11/23/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> > On Wed, Nov 23, 2005 at 09:43:58AM -0500, Jon Smirl wrote:
+> > > My system has:
+> > > 2 serial
+> > >
+> > > In /sys/bus/platform/devices I see this:
+> > > serial8250
+> > > shouldn't there be entries for all of the legacy devices?
+> > >
+> > > In /dev
+> > > ttyS0
+> > > ttyS1
+> > > ttyS2
+> > > ttyS3
+> >
+> > You're basically confused about serial ports.  The kernel serial devices
+> > whether or not hardware is found, to allow programs such as setserial to
+> > function.
+> >
+> > If you disagree with that, there'll be an equal number of people who
+> > have serial cards that need setserial who will in turn disagree with
+> > you.
 > 
->> Modules are supported now, fully modularized distro kernel works fine
->> with it.  If you have a kernel with HOTPLUG_CPU compiled you can
->> shutdown the second CPU of your dual-processor system via sysfs (echo
->> 0 > /sys/devices/system/cpu/cpu1/online) and watch the kernel switch
->> over to UP code without lock-prefixed instructions and simplified
->> spinlocks, then power up the second CPU again (echo 1 > /sys/...) and
->> watch it patching back in the SMP locking.
+> This is confusing...
 > 
-> This looks like total overkill to me. Who needs to optimize
-> CPU hotplug this way? If you really need this just do it 
-> at boot time with the existing mechanisms.
+> Serial: 8250/16550 driver $Revision: 1.90 $ 4 ports, IRQ sharing disabled
+> serial8250: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+> serial8250: ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+> serial8250: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+> serial8250: ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
 
-Sure, for real hardware doing that at boot time is be perfectly fine. 
-In a virtual environment it's very useful to be able to plug in one more 
-virtual CPU on demand without rebooting though.  The patch isn't very 
-useful alone, it's more one step on the road of getting the xen bits 
-merged mainline.
+Yes it is, but it's down to the way folk want things to operate.  The
+first two come from the legacy table in include/asm-*/serial.h.  The
+second two come from something-that-I-have-no-clue-about but is probably
+ACPI related.  Dunno.  We're back to the far-too-many-complex-ways-to-
+initialise-serial problem again that I've given up really caring how
+many lines of serial printk junk folk end up with.  I can't fight it
+all.
 
->> +	/* Paranoia */
->> +	asm volatile ("jmp 1f\n1:");
->> +	mb();
-> 
-> That would be totally obsolete 386 era paranoia. If anything then use 
-> a CLFLUSH (but not available on all x86s) 
-
-Ok, dropped.  I've just copyed that from the original, pretty ugly xen 
-patch.
-
-cheers,
-
-   Gerd
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

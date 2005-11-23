@@ -1,77 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbVKWXUP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932384AbVKWXUa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932356AbVKWXUP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 18:20:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbVKWXUO
+	id S932384AbVKWXUa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 18:20:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932575AbVKWXUa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 18:20:14 -0500
-Received: from fmr24.intel.com ([143.183.121.16]:41153 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932356AbVKWXUM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 18:20:12 -0500
-Subject: Re: [PATCH]: Free pages from local pcp lists under tight memory
-	conditions
-From: Rohit Seth <rohit.seth@intel.com>
-To: Andrew Morton <akpm@osdl.org>, Mel Gorman <mel@csn.ul.ie>
-Cc: torvalds@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Christoph Lameter <christoph@lameter.com>
-In-Reply-To: <Pine.LNX.4.58.0511231754020.7045@skynet>
-References: <20051122161000.A22430@unix-os.sc.intel.com>
-	 <20051122213612.4adef5d0.akpm@osdl.org>
-	 <1132768482.25086.16.camel@akash.sc.intel.com>
-	 <Pine.LNX.4.58.0511231754020.7045@skynet>
-Content-Type: text/plain
-Organization: Intel 
-Date: Wed, 23 Nov 2005 15:26:22 -0800
-Message-Id: <1132788382.25086.109.camel@akash.sc.intel.com>
+	Wed, 23 Nov 2005 18:20:30 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:12960
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932384AbVKWXU3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 18:20:29 -0500
+Date: Wed, 23 Nov 2005 15:20:31 -0800 (PST)
+Message-Id: <20051123.152031.02282381.davem@davemloft.net>
+To: torvalds@osdl.org
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk,
+       ak@muc.de
+Subject: Re: [NET]: Shut up warnings in net/core/flow.c
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.64.0511230849380.13959@g5.osdl.org>
+References: <20051123002134.287ff226.akpm@osdl.org>
+	<20051123.005530.17893365.davem@davemloft.net>
+	<Pine.LNX.4.64.0511230849380.13959@g5.osdl.org>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Nov 2005 23:19:24.0406 (UTC) FILETIME=[577C9960:01C5F084]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Linus Torvalds <torvalds@osdl.org>
+Date: Wed, 23 Nov 2005 08:54:46 -0800 (PST)
 
-On Wed, 23 Nov 2005, Rohit Seth wrote:
+> The way to handle it is to do
 > 
-> > On Tue, 2005-11-22 at 21:36 -0800, Andrew Morton wrote:
-
-> > > We need to verify that this patch actually does something useful.
-> > >
-> > >
-> > I'm working on this.  Will let you know later today if I can come with
-> > some workload easily hitting this additional logic.
-> >
+> 	static inline int maybe_ignored(int arg, ...)
+> 	{
+> 		return arg;
+> 	}
 > 
+> 	#define smp_call_function(func,info,retry,wait) \
+> 		maybe_ignored(0, info, retry, wait)
+> 
+> which is a very useful way to say: we don't care about "func", but we want 
+> to avoid unused warnings for "info", "retry" and "wait", and we want to 
+> return 0 regardless and compile it all away.
+> 
+> If somebody tests this, puts the "maybe_ignored()" function in some nice 
+> generic header file, I'll apply it.
 
-I'm able to trigger the reduce_cpu_pcp (I'll change its name in next
-update patch) logic after direct reclaim using a small test case hogging
-memory and a bash loop spawning another process 1 at a time using very
-little memory.
+I quickly hacked this up and did a UP test build (patch at the end),
+but there is another consequence to consider.
 
-I added a single printk after the direct reclaim where we reduce the per
-cpu pagelist (in my patch) just to get the order and how many iterations
-do we need to service the request.  order is always 1 (coming from
-alloc_thread_info for 8K stack size).
+With this, we have to either:
 
-This is on i386 with 8K stack size.
+1) Mark all IPI functions with ifdef CONFIG_SMP, or
+2) Mark them with __attribute__((__unused__))) which is what
+   the net/core/flow.c case does
 
-if (order > 0)  {
-       int i = 0;
-       while (reduce_cpu_pcp()) {
-            i++;
-            page = get_page_from_freelist(gfp_mask, order, zonelist,
-alloc_flags);
-            if (page) {
-                printk("Got page %d order iteration %d", order, i);
-                goto got_pg;
-            }
-       }
-}
+Because if we just leave the static IPI functions there without the
+CONFIG_SMP ifdef and without the unused attribute, this new
+smp_call_function() will generate an unused static function warning.
 
-And got about 30 of those in couple of hours:
+What we could do is hide that detail behind some kind of
+"DEFINE_IPI_FUNC()" macro, and put the gore into a header file.
 
-[17179885.360000] Got page 1 order iteration 1
+I'm sure there are other clean ways of handling it.
 
-
-
+diff --git a/include/linux/kernel.h b/include/linux/kernel.h
+index b1e407a..1876d3c 100644
+--- a/include/linux/kernel.h
++++ b/include/linux/kernel.h
+@@ -286,6 +286,11 @@ extern void dump_stack(void);
+ 	1; \
+ })
+ 
++static inline int maybe_ignored(int arg, ...)
++{
++	return arg;
++}
++
+ #endif /* __KERNEL__ */
+ 
+ #define SI_LOAD_SHIFT	16
+diff --git a/include/linux/smp.h b/include/linux/smp.h
+index 9dfa3ee..2a513fe 100644
+--- a/include/linux/smp.h
++++ b/include/linux/smp.h
+@@ -94,7 +94,8 @@ void smp_prepare_boot_cpu(void);
+  */
+ #define raw_smp_processor_id()			0
+ #define hard_smp_processor_id()			0
+-#define smp_call_function(func,info,retry,wait)	({ 0; })
++#define smp_call_function(func,info,retry,wait)	\
++	maybe_ignored(0, info, retry, wait)
+ #define on_each_cpu(func,info,retry,wait)	({ func(info); 0; })
+ static inline void smp_send_reschedule(int cpu) { }
+ #define num_booting_cpus()			1

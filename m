@@ -1,97 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030510AbVKWXlI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030525AbVKWXmI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030510AbVKWXlI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 18:41:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030513AbVKWXlH
+	id S1030525AbVKWXmI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 18:42:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030509AbVKWXlQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 18:41:07 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:42880 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030510AbVKWXkv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 18:40:51 -0500
-Subject: [PATCH 6/7]: Do not register from callout
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-       stern@rowland.harvard.edu, Douglas_Warzecha@dell.com,
-       Abhay_Salunke@dell.com
-Content-Type: text/plain
-Organization: IBM
-Date: Wed, 23 Nov 2005 15:40:49 -0800
-Message-Id: <1132789249.9460.23.camel@linuxchandra>
+	Wed, 23 Nov 2005 18:41:16 -0500
+Received: from mail02.syd.optusnet.com.au ([211.29.132.183]:16266 "EHLO
+	mail02.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1030505AbVKWXkl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 18:40:41 -0500
+References: <200511232333.jANNX9g23967@unix-os.sc.intel.com> <cone.1132788946.360368.25446.501@kolivas.org> <200511232338.54794.s0348365@sms.ed.ac.uk>
+Message-ID: <cone.1132789223.709733.25446.501@kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: Kenneth W <kenneth.w.chen@intel.com>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kernel BUG at mm/rmap.c:491
+Date: Thu, 24 Nov 2005 10:40:23 +1100
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed;
+    boundary="=_mimegpg-kolivas.org-25446-1132789223-0004";
+    micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dcdbas re-registers itself from within the callout. This is incorrect in
-two respects:
+This is a MIME GnuPG-signed message.  If you see this text, it means that
+your E-mail or Usenet software does not support MIME signed messages.
 
-        1. Callout should not register/unregister.
-        2. It re-registers while the block is still in the list, which
-           would corrupt the list.
+--=_mimegpg-kolivas.org-25446-1132789223-0004
+Content-Type: text/plain; format=flowed; charset="US-ASCII"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-This patch fixes the problem by registering the callout to be the last one
-to be called when the event happens.
+Alistair John Strachan writes:
 
-Signed-off-by:  Chandra Seetharaman <sekharan@us.ibm.com>
-Signed-off-by:  Alan Stern <stern@rowland.harvard.edu>
-acked-by: Abhay_Salunke@dell.com
------
- drivers/firmware/dcdbas.c |   19 ++++---------------
- 1 files changed, 4 insertions(+), 15 deletions(-)
+> On Wednesday 23 November 2005 23:35, Con Kolivas wrote:
+>> Chen, Kenneth W writes:
+>> > Con Kolivas wrote on Wednesday, November 23, 2005 3:24 PM
+>> >
+>> >> Chen, Kenneth W writes:
+>> >> > Has people seen this BUG_ON before?  On 2.6.15-rc2, x86-64.
+>> >> >
+>> >> > Pid: 16500, comm: cc1 Tainted: G    B 2.6.15-rc2 #3
+>> >> >
+>> >> > Pid: 16651, comm: sh Tainted: G    B 2.6.15-rc2 #3
+>> >>
+>> >>                        ^^^^^^^^^^
+>> >>
+>> >> Please try to reproduce it without proprietary binary modules linked in.
+>> >
+>> > ???, I'm not using any modules at all.
+>> >
+>> > [albat]$ /sbin/lsmod
+>> > Module                  Size  Used by
+>> > [albat]$
+>> >
+>> >
+>> > Also, isn't it 'P' indicate proprietary module, not 'G'?
+>> > line 159: kernel/panic.c:
+>> >
+>> >         snprintf(buf, sizeof(buf), "Tainted: %c%c%c%c%c%c",
+>> >                 tainted & TAINT_PROPRIETARY_MODULE ? 'P' : 'G',
+>>
+>> Sorry it's not proprietary module indeed. But what is tainting it?
+> 
+> Probably a prior oops or some other marked error condition.
 
-Index: l2615-rc1-notifiers/drivers/firmware/dcdbas.c
-===================================================================
---- l2615-rc1-notifiers.orig/drivers/firmware/dcdbas.c
-+++ l2615-rc1-notifiers/drivers/firmware/dcdbas.c
-@@ -483,26 +483,15 @@ static void dcdbas_host_control(void)
- static int dcdbas_reboot_notify(struct notifier_block *nb, unsigned long code,
- 				void *unused)
- {
--	static unsigned int notify_cnt = 0;
--
- 	switch (code) {
- 	case SYS_DOWN:
- 	case SYS_HALT:
- 	case SYS_POWER_OFF:
- 		if (host_control_on_shutdown) {
- 			/* firmware is going to perform host control action */
--			if (++notify_cnt == 2) {
--				printk(KERN_WARNING
--				       "Please wait for shutdown "
--				       "action to complete...\n");
--				dcdbas_host_control();
--			}
--			/*
--			 * register again and initiate the host control
--			 * action on the second notification to allow
--			 * everyone that registered to be notified
--			 */
--			register_reboot_notifier(nb);
-+			printk(KERN_WARNING "Please wait for shutdown "
-+			       "action to complete...\n");
-+			dcdbas_host_control();
- 		}
- 		break;
- 	}
-@@ -513,7 +502,7 @@ static int dcdbas_reboot_notify(struct n
- static struct notifier_block dcdbas_reboot_nb = {
- 	.notifier_call = dcdbas_reboot_notify,
- 	.next = NULL,
--	.priority = 0
-+	.priority = INT_MIN
- };
- 
- static DCDBAS_BIN_ATTR_RW(smi_data);
+My humble apologies! Force of habit when seeing tainted message which 
+comes up so often :(
 
--- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
+Con
 
 
+--=_mimegpg-kolivas.org-25446-1132789223-0004
+Content-Type: application/pgp-signature
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBDhP3nZUg7+tp6mRURAkSUAJ432H6r09YpcXziYYOirBoafLg7hgCeM5q5
+EHnhkNtU/5g945HWQ5hCNUI=
+=4ynq
+-----END PGP SIGNATURE-----
+
+--=_mimegpg-kolivas.org-25446-1132789223-0004--

@@ -1,76 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030343AbVKWG46@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030340AbVKWG7k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030343AbVKWG46 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 01:56:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030342AbVKWG45
+	id S1030340AbVKWG7k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 01:59:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030342AbVKWG7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 01:56:57 -0500
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:39879 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S1030343AbVKWG45 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 01:56:57 -0500
-In-Reply-To: <20051117154925.GA26032@flint.arm.linux.org.uk>
-References: <Pine.LNX.4.44.0511151727170.32393-100000@gate.crashing.org> <20051116064123.GA31824@kroah.com> <18C975E2-BA90-4595-8C50-63E5CFB9C0A1@kernel.crashing.org> <20051117154925.GA26032@flint.arm.linux.org.uk>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <322E3172-BDF9-40BC-A5EC-444C8C33C450@kernel.crashing.org>
-Cc: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: overlapping resources for platform devices?
-Date: Wed, 23 Nov 2005 00:57:40 -0600
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-X-Mailer: Apple Mail (2.746.2)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Wed, 23 Nov 2005 01:59:40 -0500
+Received: from ganesha.gnumonks.org ([213.95.27.120]:32128 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S1030340AbVKWG7j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 01:59:39 -0500
+Date: Wed, 23 Nov 2005 07:59:21 +0100
+From: Harald Welte <laforge@netfilter.org>
+To: Krzysztof Oledzki <ole@ans.pl>
+Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
+       stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: Re: [patch 13/23] [PATCH] [NETFILTER] ctnetlink: Fix oops when no ICMP ID info in message
+Message-ID: <20051123065921.GK31478@sunbeam.de.gnumonks.org>
+References: <20051122205223.099537000@localhost.localdomain> <20051122210804.GN28140@shell0.pdx.osdl.net> <Pine.LNX.4.64.0511230023310.15479@bizon.gios.gov.pl>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="1HiqrRAOzahhT936"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0511230023310.15479@bizon.gios.gov.pl>
+User-Agent: mutt-ng devel-20050619 (Debian)
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Nov 17, 2005, at 9:49 AM, Russell King wrote:
+--1HiqrRAOzahhT936
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> On Thu, Nov 17, 2005 at 09:36:38AM -0600, Kumar Gala wrote:
->>
->> On Nov 16, 2005, at 12:41 AM, Greg KH wrote:
->>
->>> On Tue, Nov 15, 2005 at 05:31:57PM -0600, Kumar Gala wrote:
->>>> Guys,
->>>>
->>>> I was wondering if there was any issue in changing
->>>> platform_device_add to
->>>> use insert_resource instead of request_resource.  The reason for  
->>>> this
->>>> change is to handle several cases where we have device registers  
->>>> that
->>>> overlap that two different drivers are handling.
->>>>
->>>> The biggest case of this is with ethernet on a number of PowerPC
->>>> based
->>>> systems where a subset of the ethernet controllers registers are
->>>> used for
->>>> MDIO/PHY bus control.  We currently hack around the limitation by
->>>> having
->>>> the MDIO/PHY bus not actually register an memory resource region.
->>>>
->>>> If the following looks good I'll send a more formal patch.
->>>
->>> Looks good to me, but Russell knows this code much better than I.
->>>
->>> thanks,
->>>
->>> greg k-h
->>
->> Russell, any issues?
->
-> Haven't managed to look at this yet - busy catching up after illness.
+On Wed, Nov 23, 2005 at 12:31:55AM +0100, Krzysztof Oledzki wrote:
+> On Tue, 22 Nov 2005, Chris Wright wrote:
+>=20
+> >-stable review patch.  If anyone has any objections, please let us know.
+>=20
+> It seems we have two different patches here.
 
-Any update?
+yes, it seems like two independent patches slipped into the one patch
+that was submitted.  I detected that error for mainline, but forgot that
+the same patch was submitted for stable.
 
-- kumar
+So the first part (as pointed out by Krzyzstof) is not a bugfix, but a
+cosmetic fix. =20
+
+I therefore request reverting this patch '13', and instead applying the ver=
+sion
+below, the one that contains only the real fix (as indicated in the
+changelog)
+
+Sorry once again.
+
+[NETFILTER] ctnetlink: Fix oops when no ICMP ID info in message
+
+This patch fixes an userspace triggered oops. If there is no ICMP_ID
+info the reference to attr will be NULL.
+
+Signed-off-by: Krzysztof Piotr Oledzki <ole@ans.pl>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Harald Welte <laforge@netfilter.org>
+
+---
+commit 922474105255d7791128688c8e60bb27a8eadf1d
+tree b072448bfe0b79058b03ed798a1145ad1a7c6397
+parent 723cb15b48e5510094296a9fc240d69a3acae95c
+author Krzysztof Piotr Oledzki <ole@ans.pl> Tue, 15 Nov 2005 12:16:43 +0100
+committer Harald Welte <laforge@netfilter.org> Tue, 15 Nov 2005 12:16:43 +0=
+100
+
+ net/ipv4/netfilter/ip_conntrack_proto_icmp.c |   13 +++++++------
+ 1 files changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/net/ipv4/netfilter/ip_conntrack_proto_icmp.c b/net/ipv4/netfil=
+ter/ip_conntrack_proto_icmp.c
+--- a/net/ipv4/netfilter/ip_conntrack_proto_icmp.c
++++ b/net/ipv4/netfilter/ip_conntrack_proto_icmp.c
+@@ -296,7 +296,8 @@ static int icmp_nfattr_to_tuple(struct n
+ 				struct ip_conntrack_tuple *tuple)
+ {
+ 	if (!tb[CTA_PROTO_ICMP_TYPE-1]
+-	    || !tb[CTA_PROTO_ICMP_CODE-1])
++	    || !tb[CTA_PROTO_ICMP_CODE-1]
++	    || !tb[CTA_PROTO_ICMP_ID-1])
+ 		return -1;
+=20
+ 	tuple->dst.u.icmp.type =3D=20
+--=20
+- Harald Welte <laforge@netfilter.org>                 http://netfilter.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+  "Fragmentation is like classful addressing -- an interesting early
+   architectural error that shows how much experimentation was going
+   on while IP was being designed."                    -- Paul Vixie
+
+--1HiqrRAOzahhT936
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDhBNJXaXGVTD0i/8RAvwTAJ93GLbS0G8QoufVPqjicbU2sSkeVgCfaz3D
+d4qmI2EpYvGTS14j2eUxIBc=
+=V5RR
+-----END PGP SIGNATURE-----
+
+--1HiqrRAOzahhT936--

@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030180AbVKWFOI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030186AbVKWFQr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030180AbVKWFOI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 00:14:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030186AbVKWFOI
+	id S1030186AbVKWFQr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 00:16:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030311AbVKWFQq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 00:14:08 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:16341 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1030180AbVKWFOH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 00:14:07 -0500
-Date: Wed, 23 Nov 2005 06:13:58 +0100
-From: Jan Kasprzak <kas@fi.muni.cz>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14 kswapd eating too much CPU
-Message-ID: <20051123051358.GB7573@fi.muni.cz>
-References: <20051122125959.GR16080@fi.muni.cz> <20051122163550.160e4395.akpm@osdl.org> <20051123010122.GA7573@fi.muni.cz> <4383D1CC.4050407@yahoo.com.au>
+	Wed, 23 Nov 2005 00:16:46 -0500
+Received: from gate.crashing.org ([63.228.1.57]:49881 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1030186AbVKWFQq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 00:16:46 -0500
+Subject: Re: [PATCH] Fix USB suspend/resume crasher
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: ncunningham@cyclades.com
+Cc: David Brownell <david-b@pacbell.net>, Paul Mackerras <paulus@samba.org>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Alan Stern <stern@rowland.harvard.edu>
+In-Reply-To: <1132715647.4707.8.camel@localhost>
+References: <1132715288.26560.262.camel@gaston>
+	 <1132715647.4707.8.camel@localhost>
+Content-Type: text/plain
+Date: Wed, 23 Nov 2005 16:13:16 +1100
+Message-Id: <1132722797.26560.279.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4383D1CC.4050407@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: kas@fi.muni.cz
-X-Muni-Virus-Test: Clean
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-: Can't see anything yet. Sysrq-M would be good. cat /proc/zoneinfo gets you
-: most of the way there though.
-: 
-: A couple of samples would be handy, especially from /proc/vmstat.
-: 
-: cat /proc/vmstat > vmstat.out ; sleep 10 ; cat /proc/vmstat >> vmstat.out
-: 
-: The same for /proc/zoneinfo would be a good idea as well.
 
-	I will send it tomorrow - I will try to boot 2.6.15-rc2
-to see if the problem is still there.
+> Sounds great. Maybe I'll finally be able to change my first question to
+> people with suspend problems from: "Do you have USB built as modules and
+> unloaded while suspending."
 
-: Also - when you say "too much cpu time", what does this mean? Does
-: performance noticably drop compared with 2.6.13 performing the same cron
-: job? Because kswapd is supposed to unburden other processes from page
-: reclaim work, so if it is working *properly*, then the more CPU it uses
-: the better.
+Heh, I don't know :) I haven't done anything to UHCI at this point, and
+there are still other possible issues.
 
-	As you can see from the graphs at
-http://www.linux.cz/stats/mrtg-rrd/cpu.html
-- the total CPU usage in the new kernel/with more memory is significantly
-higher. I have not measured the time of the cron job itself, just the total
-system utilization.
+For example, we should probably do the "handoff" trick on resume as well
+as on boot. In fact, I suspect that most PCI quirks should be re-run on
+resume, with IRQs off if possible, so that stuffs can be put back into
+some sane state when coming back from the BIOS before they get a chance
+to spam the kernel with bogus IRQs left enabled by that same BIOS (does
+this happen ?) or other niceties of that sort... I don't have any of
+these problems on powermacs, but x86 might not be yet at the end of the
+tunnel...
 
--Yenya
+Ben.
 
--- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/    Journal: http://www.fi.muni.cz/~kas/blog/ |
-> Specs are a basis for _talking_about_ things. But they are _not_ a basis <
-> for implementing software.                              --Linus Torvalds <
+

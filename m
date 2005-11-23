@@ -1,61 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030295AbVKWBJo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030297AbVKWBOr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030295AbVKWBJo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 20:09:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030297AbVKWBJo
+	id S1030297AbVKWBOr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 20:14:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030298AbVKWBOr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 20:09:44 -0500
-Received: from wproxy.gmail.com ([64.233.184.206]:35784 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030295AbVKWBJn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 20:09:43 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=lhrkOT/en+csYA6Nk+vqAmrykqVoJ6WN9xjlxpVq+Hf8m9DV7TZ2hi+d2Fqb+Ulu61iSIUgnz4nncnMDE3QVKXlb+GXngAvqKxyOIL1VUZ/W9stVBPGyMP8yqS9MzD59yha/MraxGmEOcWQizYbNjR5aUFElhC0/aj68mpJ+0y8=
-Message-ID: <9e4733910511221709t546089d1id76357256079d8f9@mail.gmail.com>
-Date: Tue, 22 Nov 2005 20:09:42 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: Christmas list for the kernel
-Cc: s0348365@sms.ed.ac.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <20051122164353.4177c59a.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com>
-	 <200511221839.24202.s0348365@sms.ed.ac.uk>
-	 <9e4733910511221110j47e8ddcs1c9936db1eb5f0b4@mail.gmail.com>
-	 <20051122164353.4177c59a.akpm@osdl.org>
+	Tue, 22 Nov 2005 20:14:47 -0500
+Received: from zlynx.org ([199.45.143.209]:46349 "EHLO 199.45.143.209")
+	by vger.kernel.org with ESMTP id S1030297AbVKWBOr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 20:14:47 -0500
+Subject: Re: Linux 2.6.15-rc2
+From: Zan Lynx <zlynx@acm.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>, ak@muc.de,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0511221642310.13959@g5.osdl.org>
+References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org>
+	 <43829ED2.3050003@mnsu.edu> <20051122150002.26adf913.akpm@osdl.org>
+	 <Pine.LNX.4.64.0511221642310.13959@g5.osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-cQlYw6SZge4pxldu71Kv"
+Date: Tue, 22 Nov 2005 18:14:02 -0700
+Message-Id: <1132708443.9905.13.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/22/05, Andrew Morton <akpm@osdl.org> wrote:
-> Jon Smirl <jonsmirl@gmail.com> wrote:
-> >
-> > On 11/22/05, Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-> > > On Tuesday 22 November 2005 18:31, Jon Smirl wrote:
-> > > > There have been recent comments about the pace of kernel development
-> > > > slowing.
+
+--=-cQlYw6SZge4pxldu71Kv
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, 2005-11-22 at 16:50 -0800, Linus Torvalds wrote:
+>=20
+> On Tue, 22 Nov 2005, Andrew Morton wrote:
+>=20
+> > Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu> wrote:
 > > >
-> > > I doubt the diffstat from the last 6 kernel releases will tell this story.
-> >
-> > Andrew Morton said it: "He suggested this may indicate that the kernel
-> > is nearing completion. "Famous last words, but the actual patch volume
-> > _has_ to drop off one day," said Morton. "We have to finish this thing
-> > one day."
-> >
-> > http://news.zdnet.co.uk/software/linuxunix/0,39020390,39221942,00.htm
-> >
->
-> I was wrong, as usual.  The trend at http://www.zip.com.au/~akpm/x.jpg is,
-> I think, being maintained.
+> > >                 from fs/compat_ioctl.c:52,
+> > >                  from arch/x86_64/ia32/ia32_ioctl.c:14:
+> > > include/linux/ext3_fs.h: In function 'ext3_raw_inode':
+> > > include/linux/ext3_fs.h:696: error: dereferencing pointer to incomple=
+te type
+> >=20
+> > This might help?
+>=20
+> Why does it happen at all, though? And why aren't more people reporting=20
+> this? Something strange going on.
 
-I wonder what that would look like if you pull Adrian Bunk's changes
-out. He is generating thousands of lines of patches (they're good
-patches but they don't add features).
+I get exactly the same build error on my AMD64 system.  I didn't report
+it because I figured that someone else had already seen it.
+--=20
+Zan Lynx <zlynx@acm.org>
 
---
-Jon Smirl
-jonsmirl@gmail.com
+--=-cQlYw6SZge4pxldu71Kv
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBDg8JaG8fHaOLTWwgRAiEyAJ45yP4956p4/ciz4GqId4wuiOlMDgCgiey1
+Di8gYWOd4dWQ82ZZiryciwk=
+=qC70
+-----END PGP SIGNATURE-----
+
+--=-cQlYw6SZge4pxldu71Kv--
+

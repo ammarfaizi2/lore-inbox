@@ -1,90 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbVKWMw0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbVKWMxZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbVKWMw0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 07:52:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbVKWMwZ
+	id S1750754AbVKWMxZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 07:53:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750759AbVKWMxY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 07:52:25 -0500
-Received: from mailgate.tebibyte.org ([83.104.187.130]:21764 "EHLO
-	doc.tebibyte.org") by vger.kernel.org with ESMTP id S1750747AbVKWMwZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 07:52:25 -0500
-Message-ID: <438465CC.6070904@tebibyte.org>
-Date: Wed, 23 Nov 2005 12:51:24 +0000
-From: Chris Ross <lak1646@tebibyte.org>
-Organization: At home (Guildford, UK)
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: pt-br, pt
-MIME-Version: 1.0
-To: Chris Ross <lak1646@tebibyte.org>
-Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>,
-       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
-       Greg Ungerer <gerg@snapgear.com>
-Subject: Re: Kernel panic reading bad disk sector
-References: <4381DA23.10201@tebibyte.org> <4382B815.5000701@snapgear.com>	<43836758.6050001@tebibyte.org> <4383C205.7020608@snapgear.com>	<43843594.9050009@tebibyte.org>	<20051123095640.GA5022@flint.arm.linux.org.uk> <438443E8.5040602@tebibyte.org>
-In-Reply-To: <438443E8.5040602@tebibyte.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Nov 2005 07:53:24 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:5329 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750754AbVKWMxY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 07:53:24 -0500
+Date: Wed, 23 Nov 2005 18:20:45 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Greg KH <greg@kroah.com>, Steven Rostedt <rostedt@goodmis.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: What protection does sysfs_readdir have with SMP/Preemption?
+Message-ID: <20051123125045.GC22714@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <1132695202.13395.15.camel@localhost.localdomain> <20051122213947.GB8575@kroah.com> <20051123045049.GA22714@in.ibm.com> <20051123081845.GA32021@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051123081845.GA32021@elte.hu>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Chris Ross escreveu:
-> Russell King - ARM Linux escreveu:
->> On Wed, Nov 23, 2005 at 09:25:40AM +0000, Chris Ross wrote:
->>> Greg Ungerer escreveu:
->>>> Chris Ross wrote:
->>>>
->>>>> According System.map it is in the function ide_dma_timeout_retry.
->>>>
->>>> Ok, that is good information. I would try and figure out which
->>>> line of code in there is dereferencing a NULL pointer.
->>>
->>> It would seem to be this line
->>>
->>>     rq->errors = 0;
+On Wed, Nov 23, 2005 at 09:18:45AM +0100, Ingo Molnar wrote:
 > 
-> because rq is set to NULL by earlier the line
+> * Maneesh Soni <maneesh@in.ibm.com> wrote:
 > 
->     ret = DRIVER(drive)->error(drive, "dma timeout retry",
->                 hwif->INB(IDE_STATUS_REG));
+> > But the bad pointer reference seen in sysfs_readdir() has to be 
+> > debugged. Assumption here is that if there is a dentry attached to 
+> > s_dirent, there has to be a inode associated becuase negative dentries 
+> > are not created in sysfs. Is it possible to get some more information 
+> > about the recreation scenario. Could you enable DEBUG printks for 
+> > lib/kobject.c and drivers/base/class.c to see the events happening.
+> 
+> on a related note - i've been carrying the patch below in -rt for 2 
+> months (i.e. Steven's kernel has it too), as a workaround against the 
+> crash described below.
 
-Which looks like the the correct thing to do. In idedisk_error once the 
-threshold for the maximum number of retries has been reached the request 
-is ended because it cannot be serviced
+[ replied in the separate thread ]
 
-	if (rq->errors >= ERROR_MAX)
-		DRIVER(drive)->end_request(drive, 0);
+> so it appears that the -rt kernel is triggering some genuine sysfs race.  
+> [note that it only happens on an SMP kernel, booting an UP kernel or 
+> with maxcpus=1 makes the bug go away.] I have done full kobject 
+> debugging but no conclusive results. Also, that particular crash happens 
+> earliest with PAGEALLOC enabled. [i have packed up the email discussion 
+> related to that crash, and i'm sending it to Maneesh separately.  
+> Maneesh, any ideas or suggestions?]
+ 
+Still waiting for that mail to show up. Looks like this discussion is not
+on lkml.
 
-in idedisk_end_request the request is explicitly set to NULL because it 
-is now ended, in the code block...
+The kdobject or driver core debugging messages can possibly narrow the problem
+down to some particular sysfs user like some driver or module and throw some
+light on how the sysfs calls are being made.
 
-	if (!end_that_request_first(rq, uptodate, drive->name)) {
-		add_blkdev_randomness(MAJOR(rq->rq_dev));
-		blkdev_dequeue_request(rq);
-		HWGROUP(drive)->rq = NULL;
-		end_that_request_last(rq);
-		ret = 0;
-	}
+> note that Steven has a dual-core Athlon64 X2 system. Steven, do you get 
+> the crash even with maxcpus=1?
+> 
+> 	Ingo
+> 
 
-Which means that ide_dma_timeout_retry should take account of the fact 
-that the request might no longer be valid before using it.
-
-In other words it should be...
-
-	/* Check whether the request ended early due to disk errors */
-	if( rq ) {
-		rq->errors = 0;
-		rq->sector = rq->bh->b_rsector;
-		rq->current_nr_sectors = rq->bh->b_size >> 9;
-		rq->hard_cur_sectors = rq->current_nr_sectors;
-		rq->buffer = rq->bh->b_data;
-	}
-
-
-If anyone has a better solution I would be glad to hear it. Failing that 
-I'll submit this in normal kernel patch format as soon as I've worked 
-out how...
-
-Regards,
-Chris R.
+-- 
+Maneesh Soni
+Linux Technology Center, 
+IBM India Software Labs,
+Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-25044990

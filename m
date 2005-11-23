@@ -1,70 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030299AbVKWBRa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030307AbVKWBYV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030299AbVKWBRa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 20:17:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030300AbVKWBR3
+	id S1030307AbVKWBYV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 20:24:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030306AbVKWBYV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 20:17:29 -0500
-Received: from smtp015.mail.yahoo.com ([216.136.173.59]:20078 "HELO
-	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1030299AbVKWBR3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 20:17:29 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=cOEEO4sdEe3+V7U2C0ger0twMVqrHaBl91NKRt3+A8dNxavVBqsNTuwFSOSnP8/LDDAA095Pwh/Lu2VG/uY4RgFQmU1Cbvdr/ehMaJs18DcKpvZ7NdGscOJ611Mfo2wnnx7C4b5K+jHjpc6ujry97rUqDfj3L86uUrtixkxzSr0=  ;
-Message-ID: <4383D1CC.4050407@yahoo.com.au>
-Date: Wed, 23 Nov 2005 13:19:56 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Tue, 22 Nov 2005 20:24:21 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:11027 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030304AbVKWBYT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 20:24:19 -0500
+Date: Wed, 23 Nov 2005 02:24:18 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "Lever, Charles" <Charles.Lever@netapp.com>
+Cc: David Miller <davem@davemloft.net>, neilb@cse.unsw.edu.au,
+       trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org,
+       nfs@lists.sourceforge.net, netdev@vger.kernel.org
+Subject: [2.6 patch] net/sunrpc/xdr.c: remove xdr_decode_string()
+Message-ID: <20051123012418.GI3963@stusta.de>
+References: <044B81DE141D7443BCE91E8F44B3C1E288E4FC@exsvl02.hq.netapp.com>
 MIME-Version: 1.0
-To: Jan Kasprzak <kas@fi.muni.cz>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14 kswapd eating too much CPU
-References: <20051122125959.GR16080@fi.muni.cz> <20051122163550.160e4395.akpm@osdl.org> <20051123010122.GA7573@fi.muni.cz>
-In-Reply-To: <20051123010122.GA7573@fi.muni.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <044B81DE141D7443BCE91E8F44B3C1E288E4FC@exsvl02.hq.netapp.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Kasprzak wrote:
-> Andrew Morton wrote:
-> : Jan Kasprzak <kas@fi.muni.cz> wrote:
-> : >
-> : > I have noticed that on my system kswapd eats too much CPU time every two
-> : > hours or so. This started when I upgraded this server to 2.6.14.2 (was 2.6.13.2
-> : > before), and added another 4 GB of memory (to the total of 8GB).
-> : 
-> : Next time it happens, please gather some memory info (while it's happening):
-> : 
-> : 	cat /proc/meminfo
-> 
-[snip]
+On Thu, Oct 06, 2005 at 07:13:14AM -0700, Lever, Charles wrote:
 
-> 	Hope this helps,
-> 
+> actually, can we hold off on this change?  the RPC transport switch will
+> eventually need most of those EXPORT_SYMBOLs.
 
-Can't see anything yet. Sysrq-M would be good. cat /proc/zoneinfo gets you
-most of the way there though.
+Am I right to assume this will happen in the foreseeable future?
 
-A couple of samples would be handy, especially from /proc/vmstat.
+> the only harmless change i see below is removing xdr_decode_string(). 
 
-cat /proc/vmstat > vmstat.out ; sleep 10 ; cat /proc/vmstat >> vmstat.out
+Patch below.
 
-The same for /proc/zoneinfo would be a good idea as well.
+cu
+Adrian
 
-Also - when you say "too much cpu time", what does this mean? Does
-performance noticably drop compared with 2.6.13 performing the same cron
-job? Because kswapd is supposed to unburden other processes from page
-reclaim work, so if it is working *properly*, then the more CPU it uses
-the better.
 
-Thanks,
-Nick
+<--  snip  -->
 
--- 
-SUSE Labs, Novell Inc.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+This patch removes ths unused function xdr_decode_string().
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+ include/linux/sunrpc/xdr.h |    1 -
+ net/sunrpc/sunrpc_syms.c   |    1 -
+ net/sunrpc/xdr.c           |   21 ---------------------
+ 3 files changed, 23 deletions(-)
+
+--- linux-2.6.15-rc1-mm2-full/include/linux/sunrpc/xdr.h.old	2005-11-23 02:03:01.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/include/linux/sunrpc/xdr.h	2005-11-23 02:03:08.000000000 +0100
+@@ -91,7 +91,6 @@
+ u32 *	xdr_encode_opaque_fixed(u32 *p, const void *ptr, unsigned int len);
+ u32 *	xdr_encode_opaque(u32 *p, const void *ptr, unsigned int len);
+ u32 *	xdr_encode_string(u32 *p, const char *s);
+-u32 *	xdr_decode_string(u32 *p, char **sp, int *lenp, int maxlen);
+ u32 *	xdr_decode_string_inplace(u32 *p, char **sp, int *lenp, int maxlen);
+ u32 *	xdr_encode_netobj(u32 *p, const struct xdr_netobj *);
+ u32 *	xdr_decode_netobj(u32 *p, struct xdr_netobj *);
+--- linux-2.6.15-rc1-mm2-full/net/sunrpc/xdr.c.old	2005-11-23 02:03:17.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/net/sunrpc/xdr.c	2005-11-23 02:03:27.000000000 +0100
+@@ -93,27 +93,6 @@
+ }
+ 
+ u32 *
+-xdr_decode_string(u32 *p, char **sp, int *lenp, int maxlen)
+-{
+-	unsigned int	len;
+-	char		*string;
+-
+-	if ((len = ntohl(*p++)) > maxlen)
+-		return NULL;
+-	if (lenp)
+-		*lenp = len;
+-	if ((len % 4) != 0) {
+-		string = (char *) p;
+-	} else {
+-		string = (char *) (p - 1);
+-		memmove(string, p, len);
+-	}
+-	string[len] = '\0';
+-	*sp = string;
+-	return p + XDR_QUADLEN(len);
+-}
+-
+-u32 *
+ xdr_decode_string_inplace(u32 *p, char **sp, int *lenp, int maxlen)
+ {
+ 	unsigned int	len;
+--- linux-2.6.15-rc1-mm2-full/net/sunrpc/sunrpc_syms.c.old	2005-11-23 02:03:35.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/net/sunrpc/sunrpc_syms.c	2005-11-23 02:03:38.000000000 +0100
+@@ -120,7 +120,6 @@
+ 
+ /* Generic XDR */
+ EXPORT_SYMBOL(xdr_encode_string);
+-EXPORT_SYMBOL(xdr_decode_string);
+ EXPORT_SYMBOL(xdr_decode_string_inplace);
+ EXPORT_SYMBOL(xdr_decode_netobj);
+ EXPORT_SYMBOL(xdr_encode_netobj);
+

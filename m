@@ -1,69 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932571AbVKWWN5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932578AbVKWWOU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932571AbVKWWN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 17:13:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932576AbVKWWN5
+	id S932578AbVKWWOU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 17:14:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932577AbVKWWOT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 17:13:57 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:26013 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932571AbVKWWN4 (ORCPT
+	Wed, 23 Nov 2005 17:14:19 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:41347 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932576AbVKWWOR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 17:13:56 -0500
-Date: Wed, 23 Nov 2005 14:13:16 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Andi Kleen <ak@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
-       Gerd Knorr <kraxel@suse.de>, Dave Jones <davej@redhat.com>,
-       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-In-Reply-To: <1132783540.13095.23.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0511231411220.13959@g5.osdl.org>
-References: <437B5A83.8090808@suse.de> <438359D7.7090308@suse.de> 
- <p7364qjjhqx.fsf@verdi.suse.de>  <1132764133.7268.51.camel@localhost.localdomain>
-  <20051123163906.GF20775@brahms.suse.de>  <1132766489.7268.71.camel@localhost.localdomain>
-  <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org>  <4384AECC.1030403@zytor.com>
-  <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org>  <1132782245.13095.4.camel@localhost.localdomain>
-  <20051123211353.GR20775@brahms.suse.de> <1132783540.13095.23.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 23 Nov 2005 17:14:17 -0500
+Date: Wed, 23 Nov 2005 23:12:05 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Christoph Hellwig <hch@infradead.org>, Jon Smirl <jonsmirl@gmail.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Christmas list for the kernel
+Message-ID: <20051123221205.GA24220@elf.ucw.cz>
+References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com> <20051122193145.GA3923@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051122193145.GA3923@infradead.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
+> (5) a pony
 
-On Wed, 23 Nov 2005, Alan Cox wrote:
->
-> On Mer, 2005-11-23 at 22:13 +0100, Andi Kleen wrote:
-> > The idea was to turn LOCK on only if the process has any
-> > shared writable mapping and num_online_cpus() > 0.
-> 
-> That makes a lot of sense, and if we hit hardware that does funky stuff
-> then the driver can set a 'vma needs lock' bit for the same effect.
-> 
-> > Might be a bit costly to rewrite all the page tables for that case
-> > just to change the PAT index.  A bit is nicer for that.
-> 
-> CPU insert/remove is performed how many times a second ? Or for that
-> matter why not just reload the PAT register and keep the index the
-> same ?
+Be carefull what you ask for. Pony is rather easy to get (not as easy
+as a small cat, but...) and requires quite a lot of maintanence. Ouch
+and it eats lots of energy even in sleep mode, and you'd better keep it
+far away from computers.
 
-It's not about CPU insert/remove.
+> (6) world peace
 
-It's about a single-threaded process becoming multi-threaded, ie a simple 
-"clone()" operation (or doing a shared mmap).
+Thats easy to do, too. Unfortunately it would probably mean "lets go
+back to bacterias"
 
-So it needs to be _fast_. 
-
-I would strongly argue that it's not a TLB/PAT operation at all. It has 
-nothing to do with the address of the operation. It's a global bit, and 
-it's in the cr3 just because that's what gets reloaded on task switching. 
-But it could be in the CS register too, for all I care..
-
-		Linus
+								Pavel
+-- 
+http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

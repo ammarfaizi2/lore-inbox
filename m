@@ -1,48 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030462AbVKWWxq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932595AbVKWWxd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030462AbVKWWxq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 17:53:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030454AbVKWWxq
+	id S932595AbVKWWxd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 17:53:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932599AbVKWWxc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 17:53:46 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:65189 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1030459AbVKWWxo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 17:53:44 -0500
-Message-ID: <4384F2BF.8050401@zytor.com>
-Date: Wed, 23 Nov 2005 14:52:47 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Gerd Knorr <kraxel@suse.de>, Dave Jones <davej@redhat.com>,
-       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-References: <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051123214344.GU20775@brahms.suse.de> <Pine.LNX.4.64.0511231413530.13959@g5.osdl.org> <20051123222212.GV20775@brahms.suse.de> <4384EC68.1060302@zytor.com> <20051123223253.GX20775@brahms.suse.de> <4384EEE9.3080809@zytor.com> <20051123224009.GY20775@brahms.suse.de>
-In-Reply-To: <20051123224009.GY20775@brahms.suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Nov 2005 17:53:32 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19731 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932595AbVKWWx3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 17:53:29 -0500
+Date: Wed, 23 Nov 2005 22:53:19 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: jgarzik@pobox.com, bunk@stusta.de, saw@saw.sw.com.sg,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] remove drivers/net/eepro100.c
+Message-ID: <20051123225319.GP15449@flint.arm.linux.org.uk>
+Mail-Followup-To: "David S. Miller" <davem@davemloft.net>,
+	jgarzik@pobox.com, bunk@stusta.de, saw@saw.sw.com.sg,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+References: <20051118090158.GA11621@flint.arm.linux.org.uk> <437DFD6C.1020106@pobox.com> <20051123221547.GM15449@flint.arm.linux.org.uk> <20051123.143946.41188551.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051123.143946.41188551.davem@davemloft.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
->>Uhm... maybe we think of it differently, but typically I consider the 
->>host rings (which is what I talked about above) as orthogonal to the 
->>guest ring.  To the host, the guest is just a process in ring 3.
+On Wed, Nov 23, 2005 at 02:39:46PM -0800, David S. Miller wrote:
+> From: Russell King <rmk+lkml@arm.linux.org.uk>
+> Date: Wed, 23 Nov 2005 22:15:48 +0000
 > 
-> I don't think your thoughts match the terminology as used by Intel/AMD/Xen
-> at least.
+> > I leave it up to you how to proceed.  Effectively I'm now completely
+> > out of the loop on this with no hardware to worry about.  Sorry.
+> > 
+> > Finally, please don't assign any blame for this in my direction; I
+> > reported it and I kept bugging people about it, and in spite of my
+> > best efforts there was very little which was forthcoming.  Obviously
+> > that wasn't enough.
+> 
+> I think you're being unreasonable.
 
-Perhaps not.  The Intel terminology seems really confused, especially.
+I think you're being unreasonable telling me that I'm being unreasonable.
 
-	-hpa
+> They've worked on a fix for the problem, and now you're unable to test
+> the fix, and you're angry at them because they took so long to code up
+> the fix.
+> 
+> If you're overextended and have too much work to do and that's
+> stressing you out, that doesn't give you permission to take it
+> out on other people.
 
+No.  It's quite simple.
+
+I've worked on trying to replicate the problem today.  Tomorrow I'm
+out at a meeting and since I'm no longer working on the problematical
+hardware, it is being returned.
+
+That means there's about 15 minutes left before I go to sleep before
+having to be up early tomorrow to go on a 2 hour journey to attend a
+meeting.  What do you want me to do with those 15 minutes?  Perform a
+miracle maybe?
+
+David, I ask you to retract your unreasonable mail.  I'm being quite
+calm here.  I'm just pointing out the facts that as of *now* I'm no
+longer in a position to test.
+
+I was rather hoping that being crystal clear about the reasons about
+_why_ I'm no longer able to continue participating in his problem
+that I would be seen not to be unreasonable.
+
+I guess I'm just cursed.
+
+Sorry.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

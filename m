@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030448AbVKWWjE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030449AbVKWWkO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030448AbVKWWjE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 17:39:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030437AbVKWWfI
+	id S1030449AbVKWWkO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 17:40:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030444AbVKWWkN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 17:35:08 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:63762 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030436AbVKWWe5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 17:34:57 -0500
-Date: Wed, 23 Nov 2005 23:34:56 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: rolandd@cisco.com, mshefty@ichips.intel.com, halr@voltaire.com,
-       openib-general@openib.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/infiniband/core/mad.c: fix a NULL pointer dereference
-Message-ID: <20051123223456.GD3963@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Wed, 23 Nov 2005 17:40:13 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:6813
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1030441AbVKWWkK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 17:40:10 -0500
+Date: Wed, 23 Nov 2005 14:39:46 -0800 (PST)
+Message-Id: <20051123.143946.41188551.davem@davemloft.net>
+To: rmk+lkml@arm.linux.org.uk
+Cc: jgarzik@pobox.com, bunk@stusta.de, saw@saw.sw.com.sg,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] remove drivers/net/eepro100.c
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20051123221547.GM15449@flint.arm.linux.org.uk>
+References: <20051118090158.GA11621@flint.arm.linux.org.uk>
+	<437DFD6C.1020106@pobox.com>
+	<20051123221547.GM15449@flint.arm.linux.org.uk>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Coverity checker spotted this obvious NULL pointer dereference 
-caused by a wrong order of the cleanups.
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+Date: Wed, 23 Nov 2005 22:15:48 +0000
 
+> I leave it up to you how to proceed.  Effectively I'm now completely
+> out of the loop on this with no hardware to worry about.  Sorry.
+> 
+> Finally, please don't assign any blame for this in my direction; I
+> reported it and I kept bugging people about it, and in spite of my
+> best efforts there was very little which was forthcoming.  Obviously
+> that wasn't enough.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+I think you're being unreasonable.
 
----
+They've worked on a fix for the problem, and now you're unable to test
+the fix, and you're angry at them because they took so long to code up
+the fix.
 
-This patch was already sent on:
-- 21 Nov 2005
-
---- linux-2.6.15-rc1-mm2-full/drivers/infiniband/core/mad.c.old	2005-11-20 22:04:36.000000000 +0100
-+++ linux-2.6.15-rc1-mm2-full/drivers/infiniband/core/mad.c	2005-11-20 22:05:17.000000000 +0100
-@@ -355,9 +355,9 @@
- 	spin_unlock_irqrestore(&port_priv->reg_lock, flags);
- 	kfree(reg_req);
- error3:
--	kfree(mad_agent_priv);
--error2:
- 	ib_dereg_mr(mad_agent_priv->agent.mr);
-+error2:
-+	kfree(mad_agent_priv);
- error1:
- 	return ret;
- }
-
+If you're overextended and have too much work to do and that's
+stressing you out, that doesn't give you permission to take it
+out on other people.

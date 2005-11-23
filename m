@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030395AbVKWKwN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030396AbVKWKz1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030395AbVKWKwN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 05:52:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030396AbVKWKwN
+	id S1030396AbVKWKz1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 05:55:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030398AbVKWKz1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 05:52:13 -0500
-Received: from smtpout8.uol.com.br ([200.221.4.199]:43414 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S1030395AbVKWKwA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 05:52:00 -0500
-Date: Wed, 23 Nov 2005 08:51:50 -0200
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Avi Kivity <avi@argo.co.il>, Jon Smirl <jonsmirl@gmail.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Airlie <airlied@gmail.com>,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Small PCI core patch
-Message-ID: <20051123105149.GA12400@ime.usp.br>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Avi Kivity <avi@argo.co.il>, Jon Smirl <jonsmirl@gmail.com>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Dave Airlie <airlied@gmail.com>, Greg KH <greg@kroah.com>,
-	linux-kernel@vger.kernel.org
-References: <21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com> <1132623268.20233.14.camel@localhost.localdomain> <1132626478.26560.104.camel@gaston> <9e4733910511211923r69cdb835pf272ac745ae24ed7@mail.gmail.com> <43833D61.9050400@argo.co.il> <20051122155143.GA30880@havoc.gtf.org> <43834400.3040506@argo.co.il> <20051122162506.GA32684@havoc.gtf.org> <438349F4.2080405@argo.co.il> <20051122165638.GE32684@havoc.gtf.org>
+	Wed, 23 Nov 2005 05:55:27 -0500
+Received: from keetweej.xs4all.nl ([213.84.46.114]:7644 "EHLO
+	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
+	id S1030396AbVKWKz0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 05:55:26 -0500
+Date: Wed, 23 Nov 2005 11:55:24 +0100
+From: Folkert van Heusden <folkert@vanheusden.com>
+To: bert hubert <bert.hubert@netherlabs.nl>, linux-kernel@vger.kernel.org
+Subject: Re: capturing oopses
+Message-ID: <20051123105524.GV11178@vanheusden.com>
+References: <20051122130754.GL32512@vanheusden.com>
+	<20051122140833.GA29822@outpost.ds9a.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20051122165638.GE32684@havoc.gtf.org>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20051122140833.GA29822@outpost.ds9a.nl>
+Organization: www.unixexpert.nl
+X-Chameleon-Return-To: folkert@vanheusden.com
+X-Xfmail-Return-To: folkert@vanheusden.com
+X-Phonenumber: +31-6-41278122
+X-URL: http://www.vanheusden.com/
+X-PGP-KeyID: 1F28D8AE
+X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
+X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
+Read-Receipt-To: <folkert@vanheusden.com>
+Reply-By: Wed Nov 23 18:41:04 CET 2005
+X-Message-Flag: PGP key-id: 0x1f28d8ae - consider encrypting your e-mail to me
+	with PGP!
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 22 2005, Jeff Garzik wrote:
-> VIA is working with open source community.  They are small enough
-> (comparatively) that they need every advantage.  VIA is one of the
-> positive examples.
+> > My 2.6.14 system occasionally crashes; gives a kernel panic. Of course I
+> > would like to report it. Now the system locks up hard so I can't copy
+> > the stacktrace. The crash dump patches mentioned in oops-tracing.txt all
+> > don't work for 2.6.14 it seems. So: what should I do? Get my digicam and
+> > take a picture of the display?
+> Try the serial port- you can get a copy of the console on ttyS0.
 
-Ok, so, really who exactly is open-source friendly enough for me to
-recommend some hardware for some friends (these friends don't play
-games---they are more interested in proving theorems and getting their
-papers accepted by journals)?
-
-VIA? SiS? What manufacturers are really getting along with Open Source
-drivers (even if their products are not for "3l33t" users/gamers)?
-
-I'm often asked this and until some time ago, I used to give the answer
-that Matrox was collaborating, but it seems that Matrox is out of the
-game now... :-(
+No serial ports free unfortunately.
 
 
-Regars, Rogério.
+Folkert van Heusden
 
 -- 
-Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
-Homepage of the algorithms package : http://algorithms.berlios.de
-Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/
+Try MultiTail! Multiple windows with logfiles, filtered with regular
+expressions, colored output, etc. etc. www.vanheusden.com/multitail/
+----------------------------------------------------------------------
+Get your PGP/GPG key signed at www.biglumber.com!
+----------------------------------------------------------------------
+Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com

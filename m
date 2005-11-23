@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751210AbVKWQZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbVKWQZn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751210AbVKWQZK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 11:25:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbVKWQZJ
+	id S1751229AbVKWQZn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 11:25:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbVKWQZm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 11:25:09 -0500
-Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:485 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S1751210AbVKWQZH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 11:25:07 -0500
-From: Nikita Danilov <nikita@clusterfs.com>
+	Wed, 23 Nov 2005 11:25:42 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:48397 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751208AbVKWQZk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 11:25:40 -0500
+Date: Wed, 23 Nov 2005 17:25:28 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "Lever, Charles" <Charles.Lever@netapp.com>
+Cc: David Miller <davem@davemloft.net>, neilb@cse.unsw.edu.au,
+       trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org,
+       nfs@lists.sourceforge.net, netdev@vger.kernel.org
+Subject: Re: [2.6 patch] net/sunrpc/xdr.c: remove xdr_decode_string()
+Message-ID: <20051123162528.GL3963@stusta.de>
+References: <044B81DE141D7443BCE91E8F44B3C1E2013327DF@exsvl02.hq.netapp.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17284.38866.189529.510004@gargle.gargle.HOWL>
-Date: Wed, 23 Nov 2005 19:24:50 +0300
-To: moreau francis <francis_moreau2000@yahoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Use enum to declare errno values
-In-Reply-To: <20051123160542.71232.qmail@web25812.mail.ukl.yahoo.com>
-References: <17284.37107.573883.328659@gargle.gargle.HOWL>
-	<20051123160542.71232.qmail@web25812.mail.ukl.yahoo.com>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+Content-Disposition: inline
+In-Reply-To: <044B81DE141D7443BCE91E8F44B3C1E2013327DF@exsvl02.hq.netapp.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-moreau francis writes:
- > 
+On Wed, Nov 23, 2005 at 04:31:14AM -0800, Lever, Charles wrote:
+> > On Thu, Oct 06, 2005 at 07:13:14AM -0700, Lever, Charles wrote:
+> > 
+> > > actually, can we hold off on this change?  the RPC 
+> > transport switch will
+> > > eventually need most of those EXPORT_SYMBOLs.
+> > 
+> > Am I right to assume this will happen in the foreseeable future?
+> 
+> the first portion of the transport switch is in 2.6.15-rcX.  at this
+> point i'm expecting the EXPORT_SYMBOL changes to go in 2.6.17 or later.
 
-[...]
+OK.
 
- > hmm, are you sure that debuggers will tell you that foo returns
- > LEFT/RIGHT but not any integer value ?
+> so i don't remember why you are removing xdr_decode_string.  are we sure
+> that no-one will need this functionality in the future?  it is harmless
+> to remove today, but i wonder if someone is just going to add it back
+> sometime.
 
-No. This is not about debugging, this is about typing.
+It's unused and you said:
+  the only harmless change i see below is removing xdr_decode_string().
 
- > 
- > I just give a try and unfortunately you seem to be wrong here:
+cu
+Adrian
 
-I am not, as I never claimed this. :-)
+-- 
 
- > 
- > """"
- > (gdb) s
- > foo (x=1) at enum_test.c:8
- > 8               if (x & 0x1)
- > (gdb) finish
- > Run till exit from #0  foo (x=1) at enum_test.c:8
- > 0x0804837c in main (argc=1, argv=0xbfe14dc4) at enum_test.c:17
- > 17              return foo(1);
- > Value returned is $1 = 0
- > (gdb)
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-(gdb) p (enum side)$1
-$2 = LEFT
-
-(This works when debugging information about enum was stored in ELF
-object.)
-
-Nikita.

@@ -1,54 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbVKWTqa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbVKWTui@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932249AbVKWTqa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 14:46:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbVKWTq3
+	id S932257AbVKWTui (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 14:50:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbVKWTui
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 14:46:29 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:47830 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932249AbVKWTq3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 14:46:29 -0500
-Subject: Re: [BUG 2579] linux 2.6.* sound problems
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ard van Breemen <ard@kwaak.net>
-Cc: Patrizio Bassi <patrizio.bassi@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051123162216.GG1700@kwaak.net>
-References: <53L1x-6dC-13@gated-at.bofh.it> <53LkE-6QU-5@gated-at.bofh.it>
-	 <53LkW-6QU-49@gated-at.bofh.it> <53LEq-7gr-7@gated-at.bofh.it>
-	 <43667406.9070104@gmail.com> <4366A49F.3000101@rainbow-software.org>
-	 <43673B6F.5030909@gmail.com>  <20051123162216.GG1700@kwaak.net>
-Content-Type: text/plain
-Date: Wed, 23 Nov 2005 14:46:18 -0500
-Message-Id: <1132775178.10453.14.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Nov 2005 14:50:38 -0500
+Received: from webbox4.loswebos.de ([213.187.93.205]:57025 "EHLO
+	webbox4.loswebos.de") by vger.kernel.org with ESMTP id S932257AbVKWTuh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 14:50:37 -0500
+Date: Wed, 23 Nov 2005 20:50:54 +0100
+From: Marc Koschewski <marc@osknowledge.org>
+To: Ian McDonald <imcdnzl@gmail.com>
+Cc: Marc Koschewski <marc@osknowledge.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rc2-mm1
+Message-ID: <20051123195052.GA7446@stiffy.osknowledge.org>
+References: <20051123033550.00d6a6e8.akpm@osdl.org> <20051123175045.GA6760@stiffy.osknowledge.org> <cbec11ac0511231133m63bec4ddi455fa769dd22906b@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cbec11ac0511231133m63bec4ddi455fa769dd22906b@mail.gmail.com>
+X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
+X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
+X-Operating-System: Linux stiffy 2.6.15-rc2-marc
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-23 at 17:22 +0100, Ard van Breemen wrote:
-> On Tue, Nov 01, 2005 at 10:54:55AM +0100, Patrizio Bassi wrote:
-> > i played a bit with bios, but no luck.
-> > considering that in my windows copy i have no problems, i'm sure it's
-> > linux 2.6
-> > 
-> > update: can't use linux 2.4, i have nptl only and acpi problems too.
-> > i'll play with timers and latency
-> One more suggestion:
-> try running distributed-net or something else that uses 100% cpu.
-> I also have "bad sound" from on-board audio (hp nx9110 notebook
-> and some elcheap asus motherboard). Usually it is a bad or cheap
-> motherboard design.
-> If using your CPU 100% fixes or mostly diminishes your audio
-> distortion, you can be 100% sure that the audio part has a very
-> bad design (no separate voltage controllers or good power supply
-> filters, and no separate power supply circuit, and of course a
-> good deal of crosstalk between analog lines and "digital" lines).
+* Ian McDonald <imcdnzl@gmail.com> [2005-11-24 08:33:36 +1300]:
+
+> On 11/24/05, Marc Koschewski <marc@osknowledge.org> wrote:
+> > Just booted into 2.6.15-rc2-mm1. The 'mouse problem' (as reported earlier) still
+> > persists, moreover, some stuff's now really not gonna work anymore. I logged in
+> > via gdm once and rebooted.
+> >
+> > Ragards,
+> >         Marc
+> >
 > 
+> Mouse problem is userspace. See bug 340202 on the Debian site.
+> 
+> Ian
 
-Please try to isolate whether the PCI latency timer change OR the change
-from HZ=250 to HZ=100 fixed the problem.
+===
+Package: udev
+Version: 0.074-3
+Severity: critical
+Justification: breaks the whole system
 
-Lee
+
+When running Linux 2.6.15-rc1+, the new nested class devices used by the
+input class prevent /dev/input/ from being created, rendering X
+unusable.
+===
+
+The problem over here exists _only_ in the -mm series, not plain 2.6.15-rc1
+or 2.6.15-rc2. What's up then!? I use udev 0.74-3 as well. Mysterious...
+
+marc@stiffy:~$ uname -a
+Linux stiffy 2.6.15-rc2-marc #1 PREEMPT Sun Nov 20 22:09:22 CET 2005 i686 GNU/Linux
+marc@stiffy:~$
+
+Regards,
+	Marc
 

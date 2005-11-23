@@ -1,80 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbVKWUFi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbVKWUNw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932283AbVKWUFi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 15:05:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbVKWUFi
+	id S932285AbVKWUNw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 15:13:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbVKWUNw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 15:05:38 -0500
-Received: from wproxy.gmail.com ([64.233.184.205]:51113 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932283AbVKWUFh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 15:05:37 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=EPFkk9lpmD5+l7J0oRd6A7c7kbm6/nJc9xJZ08OFKef0R+JUY51Qpvfpq92SSFAlqxDmLmk+4T08H2Y7fs1gWNpqdvp6z42mtwDDDoxAijyzh0RZQ2bnaplfUKA3wNWollFtVnyueh05jMDs+D0ZTCxXv/az5eDNBoD3QBrMcBg=
-Message-ID: <4384CB8B.6040409@gmail.com>
-Date: Wed, 23 Nov 2005 21:05:31 +0100
-From: Patrizio Bassi <patrizio.bassi@gmail.com>
-Reply-To: patrizio.bassi@gmail.com
-Organization: patrizio.bassi@gmail.com
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051027)
-X-Accept-Language: it, it-it, en-us, en
+	Wed, 23 Nov 2005 15:13:52 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:29143 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S932285AbVKWUNv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 15:13:51 -0500
+Date: Wed, 23 Nov 2005 20:13:38 +0000
+From: Alexander Clouter <alex@digriz.org.uk>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Cc: blaisorblade@yahoo.it, davej@codemonkey.org.uk, davej@redhat.com
+Subject: [patch 1/1 FINAL] cpufreq_conservative/ondemand: invert meaning of 'ignore nice'
+Message-ID: <20051123201338.GA4257@inskipp.digriz.org.uk>
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Ard van Breemen <ard@kwaak.net>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG 2579] linux 2.6.* sound problems
-References: <53L1x-6dC-13@gated-at.bofh.it> <53LkE-6QU-5@gated-at.bofh.it>	 <53LkW-6QU-49@gated-at.bofh.it> <53LEq-7gr-7@gated-at.bofh.it>	 <43667406.9070104@gmail.com> <4366A49F.3000101@rainbow-software.org>	 <43673B6F.5030909@gmail.com>  <20051123162216.GG1700@kwaak.net> <1132775178.10453.14.camel@mindpipe>
-In-Reply-To: <1132775178.10453.14.camel@mindpipe>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="MGYHOYXEY6WxJCY8"
+Content-Disposition: inline
+Organization: diGriz
+X-URL: http://www.digriz.org.uk/
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell ha scritto:
 
->On Wed, 2005-11-23 at 17:22 +0100, Ard van Breemen wrote:
->  
->
->>On Tue, Nov 01, 2005 at 10:54:55AM +0100, Patrizio Bassi wrote:
->>    
->>
->>>i played a bit with bios, but no luck.
->>>considering that in my windows copy i have no problems, i'm sure it's
->>>linux 2.6
->>>
->>>update: can't use linux 2.4, i have nptl only and acpi problems too.
->>>i'll play with timers and latency
->>>      
->>>
->>One more suggestion:
->>try running distributed-net or something else that uses 100% cpu.
->>I also have "bad sound" from on-board audio (hp nx9110 notebook
->>and some elcheap asus motherboard). Usually it is a bad or cheap
->>motherboard design.
->>If using your CPU 100% fixes or mostly diminishes your audio
->>distortion, you can be 100% sure that the audio part has a very
->>bad design (no separate voltage controllers or good power supply
->>filters, and no separate power supply circuit, and of course a
->>good deal of crosstalk between analog lines and "digital" lines).
->>
->>    
->>
->
->Please try to isolate whether the PCI latency timer change OR the change
->from HZ=250 to HZ=100 fixed the problem.
->
->Lee
->
->
->  
->
-it seems both.
-now i'm using 1000hz with 0x40 latency.
-i still get some noises but lower than before (lat = 0x20).
+--MGYHOYXEY6WxJCY8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-however i saw you marked it closed as hardware problem, i'm sure it isn't.
+The *real* and hopefully final release of this.  Noticed a bug that actually 
+inversed the behaviour of what it was ment to do; hence why this patch is 
+bigger.
 
-it' a linux 2.6 problem for me, as 2.4 and windows works perfectly. stop :)
-a windows copy, running under vmware on linux 2.6, seems to work good too.
+Also fixed the compiling bug that made it obviously I slacked on the testing.  
+:-/ This code I have tested and it behaves as expected.  Ready for
+submission as given below.
+----------------------
+
+The use of the 'ignore_nice' sysfs file is confusing to anyone using it.
+This removes the sysfs file 'ignore_nice' and in its place creates a
+'ignore_nice_load' entry that defaults to '0'; meaning nice'd processes
+_are_ counted towards the 'business' calculation.
+
+WARNING: this obvious breaks any userland tools that expected ignore_nice'
+to exist, to draw attention to this fact it was concluded on the mailing
+list that the entry should be removed altogether so the userland app breaks
+and so the author can build simple to detect workaround.  Having said that
+it seems currently very few tools even make use of this functionality; all
+I could find was a Gentoo Wiki entry. 
+
+Signed-off-by: Alexander Clouter <alex-kernel@digriz.org.uk>
+
+--MGYHOYXEY6WxJCY8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="01_inverse_ignore_nice_flag.diff"
+
+diff -u linux-2.6.14.orig/drivers/cpufreq/cpufreq_conservative.c linux-2.6.14/drivers/cpufreq/cpufreq_conservative.c
+--- linux-2.6.14.orig/drivers/cpufreq/cpufreq_conservative.c	2005-10-28 01:02:08.000000000 +0100
++++ linux-2.6.14/drivers/cpufreq/cpufreq_conservative.c	2005-11-23 20:01:00.061526250 +0000
+@@ -93,7 +93,7 @@
+ {
+ 	return	kstat_cpu(cpu).cpustat.idle +
+ 		kstat_cpu(cpu).cpustat.iowait +
+-		( !dbs_tuners_ins.ignore_nice ? 
++		( dbs_tuners_ins.ignore_nice ? 
+ 		  kstat_cpu(cpu).cpustat.nice :
+ 		  0);
+ }
+@@ -127,7 +127,7 @@
+ show_one(sampling_down_factor, sampling_down_factor);
+ show_one(up_threshold, up_threshold);
+ show_one(down_threshold, down_threshold);
+-show_one(ignore_nice, ignore_nice);
++show_one(ignore_nice_load, ignore_nice);
+ show_one(freq_step, freq_step);
+ 
+ static ssize_t store_sampling_down_factor(struct cpufreq_policy *unused, 
+@@ -207,7 +207,7 @@
+ 	return count;
+ }
+ 
+-static ssize_t store_ignore_nice(struct cpufreq_policy *policy,
++static ssize_t store_ignore_nice_load(struct cpufreq_policy *policy,
+ 		const char *buf, size_t count)
+ {
+ 	unsigned int input;
+@@ -272,7 +272,7 @@
+ define_one_rw(sampling_down_factor);
+ define_one_rw(up_threshold);
+ define_one_rw(down_threshold);
+-define_one_rw(ignore_nice);
++define_one_rw(ignore_nice_load);
+ define_one_rw(freq_step);
+ 
+ static struct attribute * dbs_attributes[] = {
+@@ -282,7 +282,7 @@
+ 	&sampling_down_factor.attr,
+ 	&up_threshold.attr,
+ 	&down_threshold.attr,
+-	&ignore_nice.attr,
++	&ignore_nice_load.attr,
+ 	&freq_step.attr,
+ 	NULL
+ };
+diff -u linux-2.6.14.orig/drivers/cpufreq/cpufreq_ondemand.c linux-2.6.14/drivers/cpufreq/cpufreq_ondemand.c
+--- linux-2.6.14.orig/drivers/cpufreq/cpufreq_ondemand.c	2005-10-28 01:02:08.000000000 +0100
++++ linux-2.6.14/drivers/cpufreq/cpufreq_ondemand.c	2005-11-23 20:01:08.230036750 +0000
+@@ -86,7 +86,7 @@
+ {
+ 	return	kstat_cpu(cpu).cpustat.idle +
+ 		kstat_cpu(cpu).cpustat.iowait +
+-		( !dbs_tuners_ins.ignore_nice ? 
++		( dbs_tuners_ins.ignore_nice ? 
+ 		  kstat_cpu(cpu).cpustat.nice :
+ 		  0);
+ }
+@@ -119,7 +119,7 @@
+ show_one(sampling_rate, sampling_rate);
+ show_one(sampling_down_factor, sampling_down_factor);
+ show_one(up_threshold, up_threshold);
+-show_one(ignore_nice, ignore_nice);
++show_one(ignore_nice_load, ignore_nice);
+ 
+ static ssize_t store_sampling_down_factor(struct cpufreq_policy *unused, 
+ 		const char *buf, size_t count)
+@@ -179,7 +179,7 @@
+ 	return count;
+ }
+ 
+-static ssize_t store_ignore_nice(struct cpufreq_policy *policy,
++static ssize_t store_ignore_nice_load(struct cpufreq_policy *policy,
+ 		const char *buf, size_t count)
+ {
+ 	unsigned int input;
+@@ -220,7 +220,7 @@
+ define_one_rw(sampling_rate);
+ define_one_rw(sampling_down_factor);
+ define_one_rw(up_threshold);
+-define_one_rw(ignore_nice);
++define_one_rw(ignore_nice_load);
+ 
+ static struct attribute * dbs_attributes[] = {
+ 	&sampling_rate_max.attr,
+@@ -228,7 +228,7 @@
+ 	&sampling_rate.attr,
+ 	&sampling_down_factor.attr,
+ 	&up_threshold.attr,
+-	&ignore_nice.attr,
++	&ignore_nice_load.attr,
+ 	NULL
+ };
+ 
+
+--MGYHOYXEY6WxJCY8--

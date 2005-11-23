@@ -1,91 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030357AbVKWIHk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030360AbVKWIV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030357AbVKWIHk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 03:07:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030358AbVKWIHj
+	id S1030360AbVKWIV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 03:21:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030361AbVKWIV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 03:07:39 -0500
-Received: from ozlabs.org ([203.10.76.45]:9699 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1030357AbVKWIHi (ORCPT
+	Wed, 23 Nov 2005 03:21:56 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:36786 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030360AbVKWIVz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 03:07:38 -0500
-Date: Wed, 23 Nov 2005 19:07:20 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: powerpc: Fix for hugepage areas straddling 4GB boundary
-Message-ID: <20051123080720.GB26596@localhost.localdomain>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Linus Torvalds <torvalds@osdl.org>, linuxppc64-dev@ozlabs.org,
-	linux-kernel@vger.kernel.org
+	Wed, 23 Nov 2005 03:21:55 -0500
+Date: Wed, 23 Nov 2005 00:21:34 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Russell King <rmk@arm.linux.org.uk>,
+       "David S. Miller" <davem@davemloft.net>,
+       Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@muc.de>
+Subject: Re: [NET]: Shut up warnings in net/core/flow.c
+Message-Id: <20051123002134.287ff226.akpm@osdl.org>
+In-Reply-To: <200511230159.jAN1xeMl003154@hera.kernel.org>
+References: <200511230159.jAN1xeMl003154@hera.kernel.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew/Linus, please apply,
+Linux Kernel Mailing List <linux-kernel@vger.kernel.org> wrote:
+>
+> tree e7ba0f1bc8764c36859e2cfa9421bb1d86f2e7f4
+> parent b3a5225f31180322fd7d692fd4cf786702826b94
+> author Russell King <rmk+kernel@arm.linux.org.uk> Wed, 23 Nov 2005 06:38:04 -0800
+> committer David S. Miller <davem@davemloft.net> Wed, 23 Nov 2005 06:38:04 -0800
+> 
+> [NET]: Shut up warnings in net/core/flow.c
+> 
+> Not really a network problem, more a !SMP issue.
+> 
+> net/core/flow.c:295: warning: statement with no effect
+> 
+> flow.c:295:        smp_call_function(flow_cache_flush_per_cpu, &info, 1, 0);
+> 
+> Fix this by converting the macro to an inline function, which
+> also increases the typechecking for !SMP builds.
 
-Commit 7d24f0b8a53261709938ffabe3e00f88f6498df9 fixed bugs in the
-ppc64 SLB miss handler with respect to hugepage handling, and in the
-process tweaked the semantics of the hugepage address masks in
-mm_context_t.  Unfortunately, it left out a couple of necessary
-changes to go with that change.  First, the in_hugepage_area() macro
-was not updated to match, second prepare_hugepage_range() was not
-updated to correctly handle hugepages regions which straddled the 4GB
-point.
+Nope, this will break !CONFIG_SMP builds.  Quite a few places in the kernel
+do not implement the ipi handler if !CONFIG_SMP.
 
-The latter appears only to cause process-hangs when attempting to map
-such a region, but the former can cause oopses if a get_user_pages()
-is triggered at the wrong point.  This patch addresses both bugs.
+diff -puN include/linux/smp.h~smp_call_function-must-be-a-macro include/linux/smp.h
+--- devel/include/linux/smp.h~smp_call_function-must-be-a-macro	2005-11-23 00:14:19.000000000 -0800
++++ devel-akpm/include/linux/smp.h	2005-11-23 00:20:54.000000000 -0800
+@@ -94,13 +94,7 @@ void smp_prepare_boot_cpu(void);
+  */
+ #define raw_smp_processor_id()			0
+ #define hard_smp_processor_id()			0
+-
+-static inline int smp_call_function(void (*func) (void *info), void *info,
+-				    int retry, int wait)
+-{
+-	return 0;
+-}
+-
++#define smp_call_function(func,info,retry,wait)	({ 0; })
+ #define on_each_cpu(func,info,retry,wait)	({ func(info); 0; })
+ static inline void smp_send_reschedule(int cpu) { }
+ #define num_booting_cpus()			1
+diff -puN net/core/flow.c~smp_call_function-must-be-a-macro net/core/flow.c
+--- devel/net/core/flow.c~smp_call_function-must-be-a-macro	2005-11-23 00:17:40.000000000 -0800
++++ devel-akpm/net/core/flow.c	2005-11-23 00:17:47.000000000 -0800
+@@ -292,7 +292,7 @@ void flow_cache_flush(void)
+ 	init_completion(&info.completion);
+ 
+ 	local_bh_disable();
+-	smp_call_function(flow_cache_flush_per_cpu, &info, 1, 0);
++	(void)smp_call_function(flow_cache_flush_per_cpu, &info, 1, 0);
+ 	flow_cache_flush_tasklet((unsigned long)&info);
+ 	local_bh_enable();
+ 
+_
 
-Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
-
-Index: working-2.6/arch/powerpc/mm/hugetlbpage.c
-===================================================================
---- working-2.6.orig/arch/powerpc/mm/hugetlbpage.c	2005-11-23 18:56:43.000000000 +1100
-+++ working-2.6/arch/powerpc/mm/hugetlbpage.c	2005-11-23 18:57:43.000000000 +1100
-@@ -287,15 +287,15 @@
- 
- int prepare_hugepage_range(unsigned long addr, unsigned long len)
- {
--	int err;
-+	int err = 0;
- 
- 	if ( (addr+len) < addr )
- 		return -EINVAL;
- 
--	if ((addr + len) < 0x100000000UL)
-+	if (addr < 0x100000000UL)
- 		err = open_low_hpage_areas(current->mm,
- 					  LOW_ESID_MASK(addr, len));
--	else
-+	if ((addr + len) >= 0x100000000UL)
- 		err = open_high_hpage_areas(current->mm,
- 					    HTLB_AREA_MASK(addr, len));
- 	if (err) {
-Index: working-2.6/include/asm-powerpc/page_64.h
-===================================================================
---- working-2.6.orig/include/asm-powerpc/page_64.h	2005-11-23 18:56:43.000000000 +1100
-+++ working-2.6/include/asm-powerpc/page_64.h	2005-11-23 18:57:05.000000000 +1100
-@@ -135,9 +135,9 @@
- 
- #define in_hugepage_area(context, addr) \
- 	(cpu_has_feature(CPU_FTR_16M_PAGE) && \
--	 ( ((1 << GET_HTLB_AREA(addr)) & (context).high_htlb_areas) || \
--	   ( ((addr) < 0x100000000L) && \
--	     ((1 << GET_ESID(addr)) & (context).low_htlb_areas) ) ) )
-+	 ( ( (addr) >= 0x100000000UL) \
-+	   ? ((1 << GET_HTLB_AREA(addr)) & (context).high_htlb_areas) \
-+	   : ((1 << GET_ESID(addr)) & (context).low_htlb_areas) ) )
- 
- #else /* !CONFIG_HUGETLB_PAGE */
- 
-
-
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/~dgibson

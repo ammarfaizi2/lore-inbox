@@ -1,53 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965077AbVKWBnL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965194AbVKWBv7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965077AbVKWBnL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 20:43:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965079AbVKWBnL
+	id S965194AbVKWBv7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 20:51:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965199AbVKWBv7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 20:43:11 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:56032 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965077AbVKWBnJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 20:43:09 -0500
-Date: Tue, 22 Nov 2005 17:43:03 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andi Kleen <ak@muc.de>
-cc: Andrew Morton <akpm@osdl.org>, jeffrey.hundstad@mnsu.edu,
+	Tue, 22 Nov 2005 20:51:59 -0500
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:39634 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S965194AbVKWBv7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 20:51:59 -0500
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Greg KH <greg@kroah.com>, david.fox@linspire.com,
        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.15-rc2
-In-Reply-To: <20051123013244.GA3585@muc.de>
-Message-ID: <Pine.LNX.4.64.0511221739380.13959@g5.osdl.org>
-References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org> <43829ED2.3050003@mnsu.edu>
- <20051122150002.26adf913.akpm@osdl.org> <Pine.LNX.4.64.0511221642310.13959@g5.osdl.org>
- <20051122170507.37ebbc0c.akpm@osdl.org> <20051123013244.GA3585@muc.de>
+Subject: Re: 2.6.15-rc2 pci_ids.h cleanup is a pain
+Date: Wed, 23 Nov 2005 12:51:45 +1100
+Organization: http://bugsplatter.mine.nu/
+Reply-To: gcoady@gmail.com
+Message-ID: <41i7o11nbvrfrd8n2ev6kf11qjfjbil3jr@4ax.com>
+References: <438249CB.8050200@linspire.com> <20051121224438.GA18966@kroah.com> <20051122162558.702fae4a.akpm@osdl.org>
+In-Reply-To: <20051122162558.702fae4a.akpm@osdl.org>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andrew, Greg,
+
+On Tue, 22 Nov 2005 16:25:58 -0800, Andrew Morton <akpm@osdl.org> wrote:
+
+>Greg KH <greg@kroah.com> wrote:
+>>
+>> On Mon, Nov 21, 2005 at 02:27:23PM -0800, David Fox wrote:
+>> > I'm sure I'm not the only person that applies patches to the kernel that 
+>> > use some of the 500 plus PCI IDS eliminated from pci_ids.h by rc2.  I 
+>> > would like to see the PCI ids that were removed simply because the don't 
+>> > occur in the main kernel source restored.  Is there a rationale for 
+>> > removing them that I'm not aware of?
+>> 
+>> They were not being used.  Why would you want them in there?
+>
+>Because they contained useful information which had been accumulated by
+>many people over a long period of time.
+>
+>Throwing that information away seemed rather pointless, especially as the
+>cost of retaining it was so low.
+
+There's an out-of-tree reference, the pci.ids website, that carries 
+this information, do we need the reference info in the kernel as well?  
+
+So far two people raised an objection, the other wants to maintain 
+an out-of-tree driver, D. Fox didn't say why he needs the symbols.
+
+There's some other cleanups to be done yet, as >100 files define 
+own PCI_* symbols instead of referencing the header...
 
 
-On Tue, 23 Nov 2005, Andi Kleen wrote:
-> 
-> > 
-> > No trivial fix was apparent - perhaps we should disable the compat wrappers
-> > if CONFIG_EXT3=n and/or CONFIG_JBD=n.
-> 
-> That's already done for a lot of other wrappers, so would be fine too
+Would you prefer to revert the patches or rather me put the removed 
+symbols back again via a new patch series?
 
-That may be the right thing, but looking at compat-ioctl.c I don't see 
-anything that really depends on ext3, it just wants to have the data 
-structure definitions in _case_ ext3 migth be enabled. Or did I miss 
-anything?
-
-In general, I don't like code that depends on a module having been marked 
-as a module. What if you compile the kernel and then decide later that you 
-need the jbd/ext3 modules, so you compile and install those on an already 
-running kernel? 
-
-So almost all "#ifdef CONFIG_xyzzy_MODULE" usages tend to be fundamentally 
-buggy: they expect all modules to come pre-configured, which may be ok for 
-a distro kernel, but it's a bit against the whole point of being a module, 
-isn't it?
-
-		Linus
+Cheers,
+Grant.

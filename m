@@ -1,67 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932572AbVKWWIc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932573AbVKWWJu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932572AbVKWWIc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 17:08:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932574AbVKWWIc
+	id S932573AbVKWWJu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 17:09:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932575AbVKWWJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 17:08:32 -0500
-Received: from digitalimplant.org ([64.62.235.95]:51124 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S932570AbVKWWIb
+	Wed, 23 Nov 2005 17:09:49 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:35530 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S932573AbVKWWJs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 17:08:31 -0500
-Date: Wed, 23 Nov 2005 14:08:24 -0800 (PST)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: Adrian Bunk <bunk@stusta.de>
-cc: linux-kernel@vger.kernel.org, "" <linux-sound@vger.kernel.org>,
-       "" <linux-pm@lists.osdl.org>, "" <akpm@osdl.org>
-Subject: Re: [Patch 0/6] Remove Deprecated PM Interface from Obsolete Sound
- Drivers
-In-Reply-To: <20051123205710.GW3963@stusta.de>
-Message-ID: <Pine.LNX.4.50.0511231406340.16769-100000@monsoon.he.net>
-References: <Pine.LNX.4.50.0511231114340.14446-100000@monsoon.he.net>
- <20051123205710.GW3963@stusta.de>
+	Wed, 23 Nov 2005 17:09:48 -0500
+Message-ID: <4384E880.4060305@zytor.com>
+Date: Wed, 23 Nov 2005 14:09:04 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Daniel Jacobowitz <dan@debian.org>
+CC: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andi Kleen <ak@suse.de>, Gerd Knorr <kraxel@suse.de>,
+       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
+       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] SMP alternatives
+References: <1132764133.7268.51.camel@localhost.localdomain> <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051123214835.GA24044@nevyn.them.org> <4384E4F7.9060806@zytor.com> <20051123220324.GA24517@nevyn.them.org>
+In-Reply-To: <20051123220324.GA24517@nevyn.them.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel Jacobowitz wrote:
+> 
+> Please explain what problem you see.  If you use mmap to manually load
+> libpthread.so, and patch up its relocations without going to ld.so,
+> obviously you get to keep both pieces.  Or are you talking about
+> synchronizing access to shared mmaped buffers?
+> 
 
-On Wed, 23 Nov 2005, Adrian Bunk wrote:
+Yes.  Any shared mmaps may require working lock.
 
-> On Wed, Nov 23, 2005 at 12:23:25PM -0800, Patrick Mochel wrote:
-> >
-> > Hi there.
->
-> Hi Patrick,
->
-> > This is a series of 6 patches that remove the old, deprecated power
-> > management interface from a variety of old OSS drivers, most of them
-> > marked OBSOLETE and scheduled for removal in January 2006.
-> >
-> > These patches facilitate the removal of the ancient PM interface by
-> > reducing the number of in-kernel users to 3:
-> >
-> > 	drivers/net/3c509.c
-> > 	drivers/net/irda/ali-ircc.c
-> > 	drivers/serial/68328serial.c
-> >...
-> > Does any one have any objections to these patches?
->
-> I'd say the obsolete OSS drivers are the least problem, it would be more
-> interesting to get the code fixed that will still be present two months
-> from now.
-
-I completely agree. I just wanted to start some place easy. :)
-
-> Looking at the current state of 2.6.15, I doubt your patches would make
-> it into Linus' tree earlier than the complete removal of the drivers.
-
-That's a good point. I'll not worry about pushing the patches that affect
-these to-be-removed drivers.
-
-Thanks,
-
-
-	Patrick
-
+	-hpa

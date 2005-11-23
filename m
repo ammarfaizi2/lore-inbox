@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbVKWSRN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbVKWSSd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932078AbVKWSRN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 13:17:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbVKWSRN
+	id S932132AbVKWSSd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 13:18:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbVKWSSc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 13:17:13 -0500
-Received: from khepri.openbios.org ([80.190.231.112]:6319 "EHLO
-	khepri.openbios.org") by vger.kernel.org with ESMTP id S932078AbVKWSRL
+	Wed, 23 Nov 2005 13:18:32 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:42967 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932132AbVKWSSb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 13:17:11 -0500
-Date: Wed, 23 Nov 2005 19:17:08 +0100
-From: Stefan Reinauer <stepan@openbios.org>
-To: Andi Kleen <ak@suse.de>
-Cc: yhlu <yinghailu@gmail.com>, discuss@x86-64.org, linuxbios@openbios.org,
-       linux-kernel@vger.kernel.org, yhlu <yhlu.kernel@gmail.com>
-Subject: Re: [LinuxBIOS] x86_64: apic id lift patch
-Message-ID: <20051123181708.GB27398@openbios.org>
-References: <86802c440511211349t6a0a9d30i60e15fa23b86c49d@mail.gmail.com> <20051121220605.GD20775@brahms.suse.de> <43849FA5.4020201@lanl.gov> <2ea3fae10511230919l4d9829d8j3ce5d820b74074d1@mail.gmail.com> <20051123173636.GL20775@brahms.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051123173636.GL20775@brahms.suse.de>
-X-Operating-System: Linux 2.6.14-20051104171614-smp on an x86_64
-User-Agent: Mutt/1.5.9i
-X-Duff: Orig. Duff, Duff Lite, Duff Dry, Duff Dark,
-	Raspberry Duff, Lady Duff, Red Duff, Tartar Control Duff
+	Wed, 23 Nov 2005 13:18:31 -0500
+Date: Wed, 23 Nov 2005 13:18:30 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Bob Copeland <me@bobcopeland.com>
+cc: linux-kernel@vger.kernel.org, <usb-storage@lists.one-eyed-alien.net>
+Subject: Re: [usb-storage] Re: [PATCH] usb-storage: Add support for Rio Karma
+In-Reply-To: <20051123113342.GA5815@hash.localnet>
+Message-ID: <Pine.LNX.4.44L0.0511231316410.12957-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andi Kleen <ak@suse.de> [051123 18:36]:
-> You probably don't need most of it. Just a basic SRAT table (no AML methods)
-> and enough to keep the ACPI interpreter from aborting early.
-> 
-> Or alternatively just fix the bug that caused you to go with discontig
-> APICs in the first place.
- 
-Andi,
+On Wed, 23 Nov 2005, Bob Copeland wrote:
 
-I really like your insisting way, but what we tried to express is that
-there is hardware that just forces you to have discontiguous APIC ids,
-so either you disable parts of the hardware or you are forced to do
-nasty things.
+> --- a/drivers/usb/storage/unusual_devs.h
+> +++ b/drivers/usb/storage/unusual_devs.h
+> @@ -145,6 +145,13 @@ UNUSUAL_DEV(  0x0451, 0x5416, 0x0100, 0x
+>  		US_SC_DEVICE, US_PR_BULK, NULL,
+>  		US_FL_NEED_OVERRIDE ),
+>  
+> +#ifdef CONFIG_USB_STORAGE_KARMA
+> +UNUSUAL_DEV(  0x045a, 0x5210, 0x0101, 0x0101,
+> +		"Rio",
+> +		"Rio Karma",
+> +		US_SC_SCSI, US_PR_BULK, rio_karma_init, US_FL_FIX_INQUIRY),
 
-Wrt the ACPI tables a good rule of thumb is that if you start to have
-some of them you have to have them all. For example if you have a logical
-subset of them and try to cover the rest with PIRQ or MPTABLE you will
-fail because Linux moans about incorrect tables without even looking at
-them. And no, there is no reason for not reading a HPET table when
-there's no MADT available. And no, I'm not going to send a fix since I'm
-really not motivated to dig into that code any minute more than
-absolutely necessary.
+Are you sure you need US_SC_SCSI and US_PR_BULK?  Wouldn't US_SC_DEVICE 
+and US_PR_DEVICE be sufficient?
 
-I agree that there's a reason that the Linux ACPI code is as it is, but 
-in fact as it is a reaction to zillions of buggy bioses it is not always
-the best solution to have clean firmware not working with it "fixed" to
-behave like the others out there. 
+And do you really need US_FL_FIX_INQUIRY?  Hardly any devices do (maybe 
+none).
 
-Stefan
-
+Alan Stern
 

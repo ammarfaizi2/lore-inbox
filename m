@@ -1,19 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030331AbVKWWXy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbVKWW0Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030331AbVKWWXy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 17:23:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030334AbVKWWXs
+	id S932288AbVKWW0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 17:26:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932588AbVKWW0Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 17:23:48 -0500
-Received: from ns1.suse.de ([195.135.220.2]:12701 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030331AbVKWWXI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 17:23:08 -0500
-Date: Wed, 23 Nov 2005 23:23:06 +0100
-From: Andi Kleen <ak@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@osdl.org>, "H. Peter Anvin" <hpa@zytor.com>,
+	Wed, 23 Nov 2005 17:26:24 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:57299 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S932288AbVKWW0X
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 17:26:23 -0500
+Message-ID: <4384EC68.1060302@zytor.com>
+Date: Wed, 23 Nov 2005 14:25:44 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Gerd Knorr <kraxel@suse.de>, Dave Jones <davej@redhat.com>,
        Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
        Andrew Morton <akpm@osdl.org>,
@@ -24,21 +27,38 @@ Cc: Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
        "Eric W. Biederman" <ebiederm@xmission.com>,
        Ingo Molnar <mingo@elte.hu>
 Subject: Re: [patch] SMP alternatives
-Message-ID: <20051123222306.GW20775@brahms.suse.de>
-References: <p7364qjjhqx.fsf@verdi.suse.de> <1132764133.7268.51.camel@localhost.localdomain> <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <20051123211353.GR20775@brahms.suse.de> <4384E333.8030901@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4384E333.8030901@pobox.com>
+References: <1132764133.7268.51.camel@localhost.localdomain> <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051123214344.GU20775@brahms.suse.de> <Pine.LNX.4.64.0511231413530.13959@g5.osdl.org> <20051123222212.GV20775@brahms.suse.de>
+In-Reply-To: <20051123222212.GV20775@brahms.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 04:46:27PM -0500, Jeff Garzik wrote:
-> Andi Kleen wrote:
-> >The idea was to turn LOCK on only if the process has any
-> >shared writable mapping and num_online_cpus() > 0.
+Andi Kleen wrote:
+> On Wed, Nov 23, 2005 at 02:15:24PM -0800, Linus Torvalds wrote:
 > 
-> Yep.  Though I presume you mean "> 1".
+>>
+>>On Wed, 23 Nov 2005, Andi Kleen wrote:
+>>
+>>>>THAT is what I'd like to have CPU support for. Not for UP (it's going 
+>>>>away), and not for the kernel (it's never single-threaded).
+>>>
+>>>There is one reasonly interesting special case that will probably stay
+>>>around: single CPU guest in a virtualized environment.
+>>
+>>.. and then the _virtualizer_ should just set the bit. 
+> 
+> That wouldn't work if it's limited limited to ring 3.
+> 
+> Also currently at least the Xen the driver interfaces seem to 
+> rely on lock, but perhaps that can be changed.
+> 
 
-Yeah, > 1 of course.
--Andi
+Well, with VTX or Pacifica virtualization is in ring 3.  The fact that 
+Xen isn't is a workaround for current hardware, so when we're talking 
+about new hardware it's pointless.
+
+What you really want is one bit for kernel mode (cpl 0-2) and one for 
+user mode (cpl 3).
+
+	-hpa

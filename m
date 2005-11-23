@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030274AbVKWAff@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030276AbVKWAhY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030274AbVKWAff (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 19:35:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030276AbVKWAff
+	id S1030276AbVKWAhY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 19:37:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030277AbVKWAhY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 19:35:35 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:46033 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030274AbVKWAfe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 19:35:34 -0500
-Date: Tue, 22 Nov 2005 16:35:50 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jan Kasprzak <kas@fi.muni.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14 kswapd eating too much CPU
-Message-Id: <20051122163550.160e4395.akpm@osdl.org>
-In-Reply-To: <20051122125959.GR16080@fi.muni.cz>
-References: <20051122125959.GR16080@fi.muni.cz>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 22 Nov 2005 19:37:24 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:9865 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP
+	id S1030276AbVKWAhX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 19:37:23 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: Christmas list for the kernel
+Date: Wed, 23 Nov 2005 00:37:27 +0000
+User-Agent: KMail/1.9
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>,
+       lkml <linux-kernel@vger.kernel.org>
+References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com> <1132702505.20233.88.camel@localhost.localdomain> <9e4733910511221558o4eb493cdhfef81e632c5306e7@mail.gmail.com>
+In-Reply-To: <9e4733910511221558o4eb493cdhfef81e632c5306e7@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511230037.27997.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Kasprzak <kas@fi.muni.cz> wrote:
+On Tuesday 22 November 2005 23:58, Jon Smirl wrote:
+> On 11/22/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > On Maw, 2005-11-22 at 16:13 -0500, Jon Smirl wrote:
+> > > All of the legacy stuff - VGA, Vesafb, PS2, serial, parallel,
+> >
+> > PCI Parallel and serial hotplug
+> > PS2 hotplugs if you've got hotpluggable PS2 - I've even used this
+> > Most Joysticks hotplug
+> > Gameports mostly hotplug
+> > VESAfb is by definition not hotplug capable
+> > VGA hotplug we don't do but you can load the module.
 >
-> I have noticed that on my system kswapd eats too much CPU time every two
-> hours or so. This started when I upgraded this server to 2.6.14.2 (was 2.6.13.2
-> before), and added another 4 GB of memory (to the total of 8GB).
+> The devices that plug into the ports hotplug, but the existence of the
+> ports themselves does not autodetect/hotplug at boot time.
 
-Next time it happens, please gather some memory info (while it's happening):
+I think this is referred to as "cold plug".
 
-	cat /proc/meminfo
-	cat /proc/vmstat
-	cat /proc/slabinfo
-	dmesg -c > /dev/null
-	echo m > /proc/sysrq-trigger
-	dmesg
+-- 
+Cheers,
+Alistair.
 
-Thanks.
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

@@ -1,43 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030314AbVKWFqN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030321AbVKWF51@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030314AbVKWFqN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 00:46:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030317AbVKWFqM
+	id S1030321AbVKWF51 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 00:57:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030319AbVKWF51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 00:46:12 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:63896 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030314AbVKWFqK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 00:46:10 -0500
-Date: Tue, 22 Nov 2005 21:45:50 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: s0348365@sms.ed.ac.uk, linux-kernel@vger.kernel.org
-Subject: Re: Christmas list for the kernel
-Message-Id: <20051122214550.3d4a3ea5.akpm@osdl.org>
-In-Reply-To: <9e4733910511222118t67ed3f03qcd1a44037605d5dd@mail.gmail.com>
-References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com>
-	<200511221839.24202.s0348365@sms.ed.ac.uk>
-	<9e4733910511221110j47e8ddcs1c9936db1eb5f0b4@mail.gmail.com>
-	<20051122164353.4177c59a.akpm@osdl.org>
-	<9e4733910511221709t546089d1id76357256079d8f9@mail.gmail.com>
-	<20051122180006.52d0a6bb.akpm@osdl.org>
-	<9e4733910511222118t67ed3f03qcd1a44037605d5dd@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 23 Nov 2005 00:57:27 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:807 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S1030317AbVKWF50
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 00:57:26 -0500
+Date: Wed, 23 Nov 2005 06:57:35 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: kaber@trash.net, bunk@stusta.de, evil@g-house.de,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       zippel@linux-m68k.org
+Subject: Re: [2.6 patch] do not select NET_CLS
+Message-ID: <20051123055735.GC7579@mars.ravnborg.org>
+References: <4381F2D2.5000605@trash.net> <20051122.143713.101129339.davem@davemloft.net> <20051122224914.GA17575@mars.ravnborg.org> <20051122.150041.90521592.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051122.150041.90521592.davem@davemloft.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl <jonsmirl@gmail.com> wrote:
->
-> Can you do a magic incantation and tell us who the top top twenty
->  contributors are?
+On Tue, Nov 22, 2005 at 03:00:41PM -0800, David S. Miller wrote:
+> From: Sam Ravnborg <sam@ravnborg.org>
+> Date: Tue, 22 Nov 2005 23:49:14 +0100
+> 
+> > On Tue, Nov 22, 2005 at 02:37:13PM -0800, David S. Miller wrote:
+> > > 
+> > > One thing we can do to prevent human
+> > > mistakes, is to make the "make modules" pass do a quick "is vmlinux
+> > > uptodate?" check, and if not print out an error message explaining the
+> > > situation and aborting the "make modules" attempt.
+> > 
+> > I do not quite follow you here.
+> 
+> If the user tries to do a "make modules" without first rebuilding
+> their kernel image, then the make will fail if the dependencies
+> are not satisfied for the main kernel image and it is thus not
+> up to date.
 
-That's rather non-trivial.
+OK - so a simple 'make -q vmlinux' check, except that the way we utilise
+make will let it fail at first build command.
+That will obscufate things even more in kbuild - but I will give it a
+try sometime. It will be easy to cover 95% but to reach 100%
+predictability will be though.
+- file dependencies is easy
+- command line changes is relatively easy
+- but the various scripts and user commands will be tricky..
 
-One has to identify the squillion BK-era patches which are marked From:me
-and look into the changelog to see if there's another ^From: in there,
-indicating that they were really from someone else.  Probably using the
-final From: would work for those.
+Not on the top of the TODO list though.
+
+	Sam

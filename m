@@ -1,68 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbVKWT7S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbVKWUE0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932131AbVKWT7S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 14:59:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932274AbVKWT7S
+	id S932282AbVKWUE0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 15:04:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbVKWUE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 14:59:18 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:44009 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932131AbVKWT7R (ORCPT
+	Wed, 23 Nov 2005 15:04:26 -0500
+Received: from mail.kroah.org ([69.55.234.183]:62429 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932282AbVKWUEZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 14:59:17 -0500
-Date: Wed, 23 Nov 2005 11:55:45 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Rohit Seth <rohit.seth@intel.com>
-Cc: clameter@engr.sgi.com, torvalds@osdl.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: Free pages from local pcp lists under tight memory
- conditions
-Message-Id: <20051123115545.69087adf.akpm@osdl.org>
-In-Reply-To: <1132775194.25086.54.camel@akash.sc.intel.com>
-References: <20051122161000.A22430@unix-os.sc.intel.com>
-	<Pine.LNX.4.62.0511231128090.22710@schroedinger.engr.sgi.com>
-	<1132775194.25086.54.camel@akash.sc.intel.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 23 Nov 2005 15:04:25 -0500
+Date: Wed, 23 Nov 2005 12:03:34 -0800
+From: Greg KH <gregkh@suse.de>
+To: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
+Cc: Eduardo Pereira Habkost <ehabkost@mandriva.com>,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       akpm@osdl.org
+Subject: Re: [PATCH 2/2] - usbserial: race-condition fix.
+Message-ID: <20051123200334.GC29181@suse.de>
+References: <20051122195926.18c3221c.lcapitulino@mandriva.com.br> <20051122221353.GA10311@suse.de> <20051123093655.5555f23e.lcapitulino@mandriva.com.br> <20051123115633.GS14440@duckman.conectiva> <20051123100708.6319df27.lcapitulino@mandriva.com.br>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051123100708.6319df27.lcapitulino@mandriva.com.br>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rohit Seth <rohit.seth@intel.com> wrote:
->
-> On Wed, 2005-11-23 at 11:30 -0800, Christoph Lameter wrote:
-> > On Tue, 22 Nov 2005, Rohit Seth wrote:
-> > 
-> > > [PATCH]: This patch free pages (pcp->batch from each list at a time) from
-> > > local pcp lists when a higher order allocation request is not able to 
-> > > get serviced from global free_list.
-> > 
-> > Ummm.. One controversial idea: How about removing the complete pcp 
-> > subsystem? Last time we disabled pcps we saw that the effect 
-> > that it had was within noise ratio on AIM7. The lru lock taken without 
-> > pcp is in the local zone and thus rarely contended.
+On Wed, Nov 23, 2005 at 10:07:08AM -0200, Luiz Fernando Capitulino wrote:
+>  Since the spinlock seems to be only used to protect 'write_urb_busy', I agree
+> with those changes.
 > 
-> Oh please stop.
-> 
-> This per_cpu_pagelist is one great logic that has got added in
-> allocator.  Besides providing pages without the need to acquire the zone
-> lock, it is one single main reason the coloring effect is drastically
-> reduced in 2.6 (over 2.4) based kernels.
-> 
+>  Greg, do you? If so, I suggested we should add the semaphore first, because
+> it is a bug fix.
 
-hm.  Before it was merged in 2.5.x, the feature was very marginal from a
-performance POV in my testing on 4-way.
+Yes, I agree.
 
-I was able to demonstrate a large (~60%?) speedup in one microbenckmark
-which consisted of four processes writing 16k to a file and truncating it
-back to zero again.  That gain came from the cache warmth effect, which is
-the other benefit which these cpu-local pages are supposed to provide.
+>  I can do the 'write_urb_busy' type replace next week (yes, I will replace all
+> the drivers).
 
-I don't think Martin was able to demonstrate much benefit from the lock
-contention reduction on 16-way NUMAQ either.
+Ok, that sounds fine.
 
-So I dithered for months and it was a marginal merge, so it's appropriate
-to justify the continued presence of the code.
+thanks,
 
-We didn't measure for any coloring effects though.  In fact, I didn't know
-that this feature actually provided any benefit in that area.  
+greg k-h

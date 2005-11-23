@@ -1,166 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbVKWUYX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbVKWUYL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932289AbVKWUYX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 15:24:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbVKWUYU
+	id S932342AbVKWUYL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 15:24:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932321AbVKWUYK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 15:24:20 -0500
-Received: from digitalimplant.org ([64.62.235.95]:62345 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S932289AbVKWUXk
+	Wed, 23 Nov 2005 15:24:10 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:12496 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S932334AbVKWUYB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 15:23:40 -0500
-Date: Wed, 23 Nov 2005 12:23:30 -0800 (PST)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: linux-kernel@vger.kernel.org, "" <linux-pm@lists.osdl.org>,
-       "" <linux-sound@vger.kernel.org>
-cc: akpm@osdl.org
-Subject: [Patch 2/6] [OSS] Remove deprecated PM interface from cs4281 driver.
-Message-ID: <Pine.LNX.4.50.0511231218220.16769-100000@monsoon.he.net>
+	Wed, 23 Nov 2005 15:24:01 -0500
+Message-ID: <4384CFD9.1010106@fr.ibm.com>
+Date: Wed, 23 Nov 2005 21:23:53 +0100
+From: Greg <gkurz@fr.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Daniel Jacobowitz <dan@debian.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: sigsuspend() and ptrace()
+References: <436B228D.2000309@fr.ibm.com> <20051119042240.GA31395@nevyn.them.org>
+In-Reply-To: <20051119042240.GA31395@nevyn.them.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel Jacobowitz wrote:
+> On Fri, Nov 04, 2005 at 09:57:49AM +0100, Greg wrote:
+> 
+>>Hi,
+>>
+>>My program uses gdb to attach to a process and make it execute a specific
+>>function thanks to the gdb 'call' command. This works quite well unless the
+>>attached process is sleeping in sigsuspend(). I peeked into the kernel sources
+>>and saw that the typical sigsuspend() implementation is like this :
+>>
+>>while (1) {
+>>	schedule();
+>>	if (do_signal())
+>>		return -EINTR;
+>>}
+>>
+>>When using ptrace attach, the target process receives a SIGSTOP but there
+>>isn't *of course* any handler to SIGSTOP. And no way for the process to return
+>>to userland... is it implemented that way on purpose ? How can I make suspending
+>>processes do some *alternative* work with gdb ?
+> 
+> 
+> Sorry, I'm a bit behind on lkml.
+> 
 
-diff-tree aa92446260fcefe1a74c849e55f19d219f78f563 (from ce8c2299f594d1d1c115b629e541208919be9b3f)
-Author: Patrick Mochel <mochel@linux.intel.com>
-Date:   Wed Nov 23 11:49:00 2005 -0800
+No problem. Everything's fine.
 
-    [OSS] Remove deprecated PM interface from cs4281 driver.
+> What's _supposed_ to happen is that sigsuspend should be interrupted by
+> the SIGSTOP even though there is no handler.  SIGSTOP can't be blocked.
+> 
 
-    This change removes the old, deprecated interface from the
-    cs4281 driver, including the pm_{,un}register() calls, the
-    local storage of the pmdev object and the reference to the
-    old header files. This change is done to assist in eradicating
-    the users of the legacy interface so as to help facilitate
-    the removal of the interface itself.
+>From a POSIX user perspective, what's expected is that sigsuspend() shouldn't
+be interrupted by uncatchable signal SIGSTOP. But let's forget SIGSTOP because
+it's only used as a way to interrupt tasks when one is ptracing. My real
+concern lies elsewhere.
 
-    Note that this driver has been obsoleted by an ALSA equivalent.
+First, suspending processes receiving a SIGSTOP because of ptrace_attach() go to
+sleep in ptrace_stop() instead of being strictly stopped. Right ?
 
-    Note that this driver has hooks for PCI power management,
-    but does not implement the ->suspend()/->resume() methods.
+Step 1: the process was just attached by gdb
 
-    Signed-off-by: Patrick Mochel <mochel@linux.intel.com>
+sigsuspend    t 00000000  1692  3584   3588          3590       (NOTLB)
+f5de6eac 00000082 78af9163 00000000 00000000 00000000 f5ea34d0 fffcf000
+       c1f15f20 f77059c4 c201dd60 00000000 00002d21 73e83c3e 00000239 c0316a60
+       f7656b30 f7656c9c 00000000 00000002 f5de6000 00000013 00000013 f5de6000
+Call Trace:
+ [<c012baff>] ptrace_stop+0xa0/0xee
+ [<c012bf2d>] get_signal_to_deliver+0x142/0x3e4
+ [<c0105c22>] do_signal+0x55/0xd9
+ [<c011caf1>] finish_task_switch+0x30/0x66
+ [<c02c76a0>] schedule+0x844/0x87a
+ [<c0105126>] sys_rt_sigsuspend+0xf8/0x108
+ [<c02c9413>] syscall_call+0x7/0xb
 
-:040000 040000 90c9c18df1a44670e4d5c9777ba3abde96ffb73d a8246728e19c02094c7d8150836f7c0f7b9a1d02 M	sound
+When the attached process resumes execution in ptrace_stop() because the tracer
+ask for it with ptrace(PTRACE_CONT), I see no way for her to go back to user
+space. The process will loop directly back into schedule().
 
-diffstat:
+Step 2: the command 'call my_function()' is invoked in gdb
 
- sound/oss/cs4281/cs4281m.c     |   21 +--------------------
- sound/oss/cs4281/cs4281pm-24.c |   39 ---------------------------------------
- 2 files changed, 1 insertion(+), 59 deletions(-)
+sigsuspend    S 0000000A  1692  3584   3588                     (NOTLB)
+f5de6f9c 00000082 f7763438 0000000a 00000246 00000000 bff4095c 00000000
+       f5de6f68 00000000 c201dd60 00000000 00002395 8ceccd36 0000025b c0316a60
+       f7656b30 f7656c9c 00000000 00000002 f5de6000 f5de6fac bff40b60 f5de6000
+Call Trace:
+ [<c010511b>] sys_rt_sigsuspend+0xed/0x108
+ [<c02c9413>] syscall_call+0x7/0xb
 
----
+=> the process resumed sigsuspend() instead of executing my_function() in user
+   space, as other programs do. Is this behaviour consistent ?
 
-aa92446260fcefe1a74c849e55f19d219f78f563
-diff --git a/sound/oss/cs4281/cs4281m.c b/sound/oss/cs4281/cs4281m.c
-index adc6896..46dd41d 100644
---- a/sound/oss/cs4281/cs4281m.c
-+++ b/sound/oss/cs4281/cs4281m.c
-@@ -298,7 +298,6 @@ struct cs4281_state {
- 	struct cs4281_pipeline pl[CS4281_NUMBER_OF_PIPELINES];
- };
+I would see something like this to work:
 
--#include <linux/pm_legacy.h>
- #include "cs4281pm-24.c"
+while (1) {
+	schedule();
+	if (do_signal())
+		return -EINTR;
+	if (some_condition)
+		return some_return_value;
+}
 
- #if CSDEBUG
-@@ -4256,9 +4255,6 @@ static void __devinit cs4281_InitPM(stru
- static int __devinit cs4281_probe(struct pci_dev *pcidev,
- 				  const struct pci_device_id *pciid)
- {
--#ifndef NOT_CS4281_PM
--	struct pm_dev *pmdev;
--#endif
- 	struct cs4281_state *s;
- 	dma_addr_t dma_mask;
- 	mm_segment_t fs;
-@@ -4374,19 +4370,7 @@ static int __devinit cs4281_probe(struct
- 	}
- #ifndef NOT_CS4281_PM
- 	cs4281_InitPM(s);
--	pmdev = cs_pm_register(PM_PCI_DEV, PM_PCI_ID(pcidev), cs4281_pm_callback);
--	if (pmdev)
--	{
--		CS_DBGOUT(CS_INIT | CS_PM, 4, printk(KERN_INFO
--			 "cs4281: probe() pm_register() succeeded (%p).\n", pmdev));
--		pmdev->data = s;
--	}
--	else
--	{
--		CS_DBGOUT(CS_INIT | CS_PM | CS_ERROR, 0, printk(KERN_INFO
--			 "cs4281: probe() pm_register() failed (%p).\n", pmdev));
--		s->pm.flags |= CS4281_PM_NOT_REGISTERED;
--	}
-+	s->pm.flags |= CS4281_PM_NOT_REGISTERED;
- #endif
+but I don't have any idea on what could be the condition and the return value.
 
- 	pci_set_master(pcidev);	// enable bus mastering
-@@ -4487,9 +4471,6 @@ static int __init cs4281_init_module(voi
- static void __exit cs4281_cleanup_module(void)
- {
- 	pci_unregister_driver(&cs4281_pci_driver);
--#ifndef NOT_CS4281_PM
--	cs_pm_unregister_all(cs4281_pm_callback);
--#endif
- 	CS_DBGOUT(CS_INIT | CS_FUNCTION, 2,
- 		  printk(KERN_INFO "cs4281: cleanup_cs4281() finished\n"));
- }
-diff --git a/sound/oss/cs4281/cs4281pm-24.c b/sound/oss/cs4281/cs4281pm-24.c
-index d2a453a..90cbd76 100644
---- a/sound/oss/cs4281/cs4281pm-24.c
-+++ b/sound/oss/cs4281/cs4281pm-24.c
-@@ -27,9 +27,6 @@
- #ifndef NOT_CS4281_PM
- #include <linux/pm.h>
+> You didn't say what kernel version or architecture you were having
+> trouble with; which is it?  It looks right in current 2.6 for i386 and
+> ppc, which were the only ones I checked.
+> 
 
--#define cs_pm_register(a, b, c) pm_register((a), (b), (c));
--#define cs_pm_unregister_all(a) pm_unregister_all((a));
--
- static int cs4281_suspend(struct cs4281_state *s);
- static int cs4281_resume(struct cs4281_state *s);
- /*
-@@ -41,42 +38,6 @@ static int cs4281_resume(struct cs4281_s
- #define CS4281_SUSPEND_TBL cs4281_suspend_null
- #define CS4281_RESUME_TBL cs4281_resume_null
+I didn't mention any version or arch since it seems to be the *standard*
+design for sigsuspend() and rt_sigsuspend() on i386, x86_64 and s390 since
+2.4.
 
--static int cs4281_pm_callback(struct pm_dev *dev, pm_request_t rqst, void *data)
--{
--	struct cs4281_state *state;
--
--	CS_DBGOUT(CS_PM, 2, printk(KERN_INFO
--		"cs4281: cs4281_pm_callback dev=%p rqst=0x%x state=%p\n",
--			dev,(unsigned)rqst,data));
--	state = (struct cs4281_state *) dev->data;
--	if (state) {
--		switch(rqst) {
--			case PM_SUSPEND:
--				CS_DBGOUT(CS_PM, 2, printk(KERN_INFO
--					"cs4281: PM suspend request\n"));
--				if(cs4281_suspend(state))
--				{
--				    CS_DBGOUT(CS_ERROR, 2, printk(KERN_INFO
--					"cs4281: PM suspend request refused\n"));
--					return 1;
--				}
--				break;
--			case PM_RESUME:
--				CS_DBGOUT(CS_PM, 2, printk(KERN_INFO
--					"cs4281: PM resume request\n"));
--				if(cs4281_resume(state))
--				{
--				    CS_DBGOUT(CS_ERROR, 2, printk(KERN_INFO
--					"cs4281: PM resume request refused\n"));
--					return 1;
--				}
--				break;
--		}
--	}
--
--	return 0;
--}
--
- #else /* CS4281_PM */
- #define CS4281_SUSPEND_TBL cs4281_suspend_null
- #define CS4281_RESUME_TBL cs4281_resume_null
+Thanks.
+
+-G-

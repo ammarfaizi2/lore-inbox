@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030467AbVKWW4G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030473AbVKWW4z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030467AbVKWW4G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 17:56:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030459AbVKWW4G
+	id S1030473AbVKWW4z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 17:56:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030469AbVKWW4y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 17:56:06 -0500
-Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:46512 "EHLO
-	orac.home") by vger.kernel.org with ESMTP id S1030467AbVKWW4E (ORCPT
+	Wed, 23 Nov 2005 17:56:54 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:45702 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030471AbVKWW4w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 17:56:04 -0500
-From: Andrew Walrond <andrew@walrond.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Dual opteron various segfaults with 2.6.14.2 and earlier kernels
-Date: Wed, 23 Nov 2005 22:55:57 +0000
-User-Agent: KMail/1.8.2
-References: <200511231537.49320.cova@ferrara.linux.it>
-In-Reply-To: <200511231537.49320.cova@ferrara.linux.it>
+	Wed, 23 Nov 2005 17:56:52 -0500
+Message-ID: <4384F3AD.4080105@pobox.com>
+Date: Wed, 23 Nov 2005 17:56:45 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-6"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Andrew Grover <andrew.grover@intel.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, john.ronciak@intel.com,
+       christopher.leech@intel.com
+Subject: Re: [RFC] [PATCH 0/3] ioat: DMA engine support
+References: <Pine.LNX.4.44.0511231143380.32487-100000@isotope.jf.intel.com>	 <4384E7F2.2030508@pobox.com> <1132786445.13095.32.camel@localhost.localdomain>
+In-Reply-To: <1132786445.13095.32.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511232255.57716.andrew@walrond.org>
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Alan Cox wrote: >>Additionally, current IOAT is
+	memory->memory. I would love to be able >>to convince Intel to add
+	transforms and checksums, > > > Not just transforms but also masks and
+	maybe even merges and textures > would be rather handy 8) [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 November 2005 14:37, Fabio Coatti wrote:
-> Hi all,
-> I'm seeing several segfaults on a couple of HP DL585 Dual Opterons, 8Gb ram
-> each.
->
-> The segfaults are like this:
-> factorial[17031]: segfault at 0000000000020f31 rip 00000000004035ae rsp
-> 00007fffffe287e0 error 4
-> factorial[17034]: segfault at 0000000000020f31 rip 00000000004035ae rsp
-> 00007fffffc6f450 error 4
-> factorial[17038]: segfault at 0000000000020f31 rip 00000000004035ae rsp
-> 00007fffffdbd060 error 4
-> factorial[17044]: segfault at 0000000000020f31 rip 00000000004035ae rsp
-> 00007fffffb48fa0 error 4
-> factorial[17046]: segfault at 0000000000020f31 rip 00000000004035ae rsp
-> 00007fffffc2a7f0 error 4
-> ld[3997]: segfault at 0000000000000020 rip 00002aaaaad1a525 rsp
-> 00007fffffa8e960 error 4
-> ld[4234]: segfault at 0000000000000020 rip 00002aaaaad1a525 rsp
-> 00007fffffc3a1e0 error 4
->
-> This is only an example; often during some "make", also sed segfaults (!).
-> I've seen this with 2.6.12, 2.6.13.4, 2.6.14.2
->
+Alan Cox wrote:
+>>Additionally, current IOAT is memory->memory.  I would love to be able 
+>>to convince Intel to add transforms and checksums, 
+> 
+> 
+> Not just transforms but also masks and maybe even merges and textures
+> would be rather handy 8)
 
-The symtoms look just like the TLB flush filter errata which affected SMP 
-x86_64 kernels upto (at least) 2.6.13.4. IIRC it was fixed for 2.6.14 (at 
-least I stopped using the patch after 2.6.13.4).
 
-Are you sure you saw this with 2.6.14+ ?
+Ah yes:  I totally forgot to mention XOR.
 
-Andrew Walrond
+Software RAID would love that.
+
+	Jeff
+
+

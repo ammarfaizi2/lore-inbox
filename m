@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030426AbVKWWdE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030428AbVKWWel@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030426AbVKWWdE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 17:33:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030428AbVKWWdC
+	id S1030428AbVKWWel (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 17:34:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030432AbVKWWek
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 17:33:02 -0500
-Received: from mail.suse.de ([195.135.220.2]:16031 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030426AbVKWWdA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 17:33:00 -0500
-Date: Wed, 23 Nov 2005 23:32:53 +0100
-From: Andi Kleen <ak@suse.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Gerd Knorr <kraxel@suse.de>,
-       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-Message-ID: <20051123223253.GX20775@brahms.suse.de>
-References: <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051123214344.GU20775@brahms.suse.de> <Pine.LNX.4.64.0511231413530.13959@g5.osdl.org> <20051123222212.GV20775@brahms.suse.de> <4384EC68.1060302@zytor.com>
-Mime-Version: 1.0
+	Wed, 23 Nov 2005 17:34:40 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:58642 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030428AbVKWWek (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 17:34:40 -0500
+Date: Wed, 23 Nov 2005 23:34:38 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] add -Werror-implicit-function-declaration to CFLAGS
+Message-ID: <20051123223438.GY3963@stusta.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4384EC68.1060302@zytor.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Well, with VTX or Pacifica virtualization is in ring 3.  The fact that 
+Currently, using an undeclared function gives a compile warning, but it 
+can lead to a nasty runtime error if the prototype of the function is 
+different from what gcc guessed.
 
-Not it's not. The whole point is that there is no "ring compression" 
-The guest has all its normal rings, just the hypervisor has additional
-"negative" rings.
+With -Werror-implicit-function-declaration, we are getting an immediate 
+compile error instead.
 
-In the current Xen x86-64 para virtualization setup the guest kernel
-is in ring 3, but I hope VT/P. will do away with that because it
-causes lots of issues.
+There will be some compile errors in cases where compilation previously
+worked because the undefined function wasn't called due to gcc dead code
+elimination, but in these cases a proper fix doesnt harm.
 
-> What you really want is one bit for kernel mode (cpl 0-2) and one for 
-> user mode (cpl 3).
 
-Yes.
+This patch also removes some unneeded spaces between two tabs in the 
+following line and a now no longer required
+-Werror-implicit-function-declaration from
+drivers/input/joystick/iforce/Makefile.
 
--Andi
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.13-rc3-mm3-full/Makefile.old	2005-07-30 13:55:32.000000000 +0200
++++ linux-2.6.13-rc3-mm3-full/Makefile	2005-07-30 13:55:56.000000000 +0200
+@@ -351,7 +351,8 @@
+ CPPFLAGS        := -D__KERNEL__ $(LINUXINCLUDE)
+ 
+ CFLAGS 		:= -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
+-	  	   -fno-strict-aliasing -fno-common \
++		   -Werror-implicit-function-declaration \
++		   -fno-strict-aliasing -fno-common \
+ 		   -ffreestanding
+ AFLAGS		:= -D__ASSEMBLY__
+ 
+
+--- linux-2.6.15-rc2-mm1-full/drivers/input/joystick/iforce/Makefile.old	2005-11-23 14:22:11.000000000 +0100
++++ linux-2.6.15-rc2-mm1-full/drivers/input/joystick/iforce/Makefile	2005-11-23 14:22:17.000000000 +0100
+@@ -17,4 +17,3 @@
+ 	iforce-objs += iforce-usb.o
+ endif
+ 
+-EXTRA_CFLAGS = -Werror-implicit-function-declaration

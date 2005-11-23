@@ -1,70 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbVKWU1I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbVKWU3J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932344AbVKWU1I (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 15:27:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbVKWU06
+	id S932365AbVKWU3J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 15:29:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbVKWU2g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 15:26:58 -0500
-Received: from fmr19.intel.com ([134.134.136.18]:36799 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932344AbVKWU03 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 15:26:29 -0500
-Date: Wed, 23 Nov 2005 12:26:28 -0800 (PST)
-From: Andrew Grover <andrew.grover@intel.com>
-X-X-Sender: agrover@isotope.jf.intel.com
-To: netdev@vger.kernel.org, <linux-kernel@vger.kernel.org>
-cc: john.ronciak@intel.com, <christopher.leech@intel.com>
-Subject: [RFC] [PATCH 0/3] ioat: DMA engine support
-Message-ID: <Pine.LNX.4.44.0511231143380.32487-100000@isotope.jf.intel.com>
-ReplyTo: "Andrew Grover" <andrew.grover@intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 23 Nov 2005 15:28:36 -0500
+Received: from pilet.ens-lyon.fr ([140.77.167.16]:5101 "EHLO pilet.ens-lyon.fr")
+	by vger.kernel.org with ESMTP id S932365AbVKWU23 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 15:28:29 -0500
+Date: Wed, 23 Nov 2005 21:25:27 +0100
+From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rc2-mm1
+Message-ID: <20051123202527.GA1162@ens-lyon.fr>
+References: <20051123033550.00d6a6e8.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051123033550.00d6a6e8.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 23, 2005 at 03:35:50AM -0800, Andrew Morton wrote:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc2/2.6.15-rc2-mm1/
+> 
+> (temp copy at http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.15-rc2-mm1.gz)
+> 
+> - Added git-sym2.patch to the -mm lineup: updates to the sym2 scsi driver
+>   (Matthew Wilcox).  
+> 
+> - The JSM tty driver still doesn't compile.
+> 
+> - The git-powerpc tree is included now.
+> 
+I have undefined symbols (since rc1-mm1 i think):
+net/ipv4/netfilter/ip_conntrack_netlink.c: In function 'ctnetlink_dump_table':
+net/ipv4/netfilter/ip_conntrack_netlink.c:409: warning: implicit declaration of function 'local_bh_disable'
+net/ipv4/netfilter/ip_conntrack_netlink.c:427: warning: implicit declaration of function 'local_bh_enable'
 
-As presented in our talk at this year's OLS, the Bensley platform, which 
-will be out in early 2006, will have an asyncronous DMA engine. It can be 
-used to offload copies from the CPU, such as the kernel copies of received 
-packets into the user buffer.
+I don't know if this is the best fix: since there are circular
+dependencies, linux/interrupt.h cannot be included in
+linux/spinlock_api_up.h so i thought the best i could do was to directly
+include it in the C file.
 
-The code consists of the following sections:
-1) The HW driver for the DMA engine device
-2) The DMA subsystem, which abstracts the HW details from users of the 
-async DMA
-3) Modifications to net/ to make use of the DMA engine for receive copy 
-offload:
-    3a) Code to register the net stack as a "DMA client"
-    3b) Code to pin and unpin pages associated with a user buffer
-    3c) Code to initiate async DMA transactions in the net receive path
+Signed-off-by: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
 
-Today we are releasing 2, 3a, and 3b, as well as "testclient", a throwaway
-driver we wrote to demonstrate the DMA subsystem API. We will be releasing
-3c shortly. We will be releasing 1 (the HW driver) when the platform ships
-early next year. Until then, the code doesn't really *do* anything, but we
-wanted to release what we could right away, and start getting some 
-feedback.
-
-Against 2.6.14:
-patch 1: DMA engine
-patch 2: iovec pin/unpin code; register net as a DMA client
-patch 3: testclient
-
-overall diffstat information:
- drivers/Kconfig           |    2 
- drivers/Makefile          |    1 
- drivers/dma/Kconfig       |   40 ++
- drivers/dma/Makefile      |    5 
- drivers/dma/cb_list.h     |   12 
- drivers/dma/dmaengine.c   |  394 ++++++++++++++++++++++++
- drivers/dma/testclient.c  |  132 ++++++++
- include/linux/dmaengine.h |  268 ++++++++++++++++
- net/core/Makefile         |    3 
- net/core/dev.c            |   78 ++++
- net/core/user_dma.c       |  422 ++++++++++++++++++++++++++
- 11 files changed, 1356 insertions(+), 1 deletion(-)
-
-Regards -- Andy and Chris
-
-
-
+--- net/ipv4/netfilter/ip_conntrack_netlink.c.orig	2005-11-23 21:05:37.000000000 +0100
++++ net/ipv4/netfilter/ip_conntrack_netlink.c	2005-11-23 21:02:23.000000000 +0100
+@@ -27,6 +27,7 @@
+ #include <linux/errno.h>
+ #include <linux/netlink.h>
+ #include <linux/spinlock.h>
++#include <linux/interrupt.h>
+ #include <linux/notifier.h>
+ 
+ #include <linux/netfilter.h>

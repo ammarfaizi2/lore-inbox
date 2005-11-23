@@ -1,413 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030376AbVKWI7A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030374AbVKWJBJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030376AbVKWI7A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 03:59:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030377AbVKWI7A
+	id S1030374AbVKWJBJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 04:01:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030377AbVKWJBJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 03:59:00 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:30180
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1030376AbVKWI7A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 03:59:00 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: [PATCH] make miniconfig (take 2)
-Date: Wed, 23 Nov 2005 02:58:33 -0600
-User-Agent: KMail/1.8
-Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
-       Sam Ravnborg <sam@ravnborg.org>
-References: <200511170629.42389.rob@landley.net> <200511212314.41605.rob@landley.net> <20051122225428.GJ1748@elf.ucw.cz>
-In-Reply-To: <20051122225428.GJ1748@elf.ucw.cz>
+	Wed, 23 Nov 2005 04:01:09 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:63153 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030374AbVKWJBH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 04:01:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=m6XTpGCxS7gNf+WwC+coRHMIwVOipG50z2Sl2r/MRpA8xhl8sJ8isFA65jFYhEOikAfffAOshFkCOyxsxUl8ZBIIAG+oA/cfmGun7P6C+Z6UrnGmv5ERTZFXxzgwSmm0Puqoi1tGM1DaaydFYOWo8qeHH/x2SONGswtTXDtkQN8=
+Message-ID: <43842FC9.3050202@gmail.com>
+Date: Wed, 23 Nov 2005 18:00:57 +0900
+From: Tejun <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_58ChD+0HfFUpAMW"
-Message-Id: <200511230258.33901.rob@landley.net>
+To: Jens Axboe <axboe@suse.de>
+CC: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, jgarzik@pobox.com,
+       James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH linux-2.6-block:post-2.6.15 08/10] blk: update IDE to
+ use new blk_ordered
+References: <20051117153509.B89B4777@htj.dyndns.org> <20051117153509.061D8991@htj.dyndns.org> <58cb370e0511171211p60e7c248mda477015cf1bd7c5@mail.gmail.com> <437DEE35.9060901@gmail.com> <58cb370e0511180759u4cb50535gfd7b96100a0bd70f@mail.gmail.com> <20051122024401.GB10213@htj.dyndns.org> <58cb370e0511220036r6e61b509i3bc1f7ce90178b1d@mail.gmail.com> <20051123072332.GA6653@htj.dyndns.org> <58cb370e0511230040k6bc53862xac35979eaf1f0634@mail.gmail.com> <20051123084655.GV15804@suse.de>
+In-Reply-To: <20051123084655.GV15804@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_58ChD+0HfFUpAMW
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Jens Axboe wrote:
+> On Wed, Nov 23 2005, Bartlomiej Zolnierkiewicz wrote:
+> 
+>>On 11/23/05, Tejun Heo <htejun@gmail.com> wrote:
+>>
+>>>On Tue, Nov 22, 2005 at 09:36:09AM +0100, Bartlomiej Zolnierkiewicz wrote:
+>>>[--snip--]
+>>>
+>>>>>Ordered requests are processed in the following order.
+>>>>>
+>>>>>1. barrier bio reaches blk queue
+>>>>>
+>>>>>2. barrier req queued in order
+>>>>>
+>>>>>3. when barrier req reaches the head of the request queue, it gets
+>>>>>   interpreted into preflush-barrier-postflush requests sequence
+>>>>>   and queued.  ->prepare_flush_fn is called in this step.
+>>>>>
+>>>>>4. When all three requests complete, the ordered sequence ends.
+>>>>>
+>>>>>Adding !drive->wcache test to idedisk_prepare_flush, which in turn
+>>>>>requires adding ->prepare_flush_fn error handling to blk ordered
+>>>>>handling, prevents flushes for barrier requests between step#1 and
+>>>>
+>>>>Why for !drive->wcache flush can't be consider as successful
+>>>>like it was before these changes...
+>>>>
+>>>>
+>>>>>step#3.  We can still have flush reqeuests between #3 and #4 after
+>>>>>wcache is turned off.
+>>>>
+>>>>ditto
+>>>>
+>>>
+>>>I think we have two alternatives here - both have some problems.
+>>>
+>>>1. make ->prepare_flush_fn return some code to tell blk layer skip
+>>>   the flush as the original code did.
+>>>
+>>>This is what you're proposing, I guess.  The reason why I'm reluctant
+>>>to take this approach is that there still remains window of error
+>>>between #3 and #4.  The flush requests could already be prepared and
+>>>in the queue when ->wcache is turned off.  AFAICS, the original code
+>>>had the same problem, although the window was narrower.
+>>>
+>>>2. complete flush commands successfully in execute_drive_cmd() if wcache
+>>>   is not enabled.
+>>>
+>>>This approach fixes all cases but the implementation would be a bit
+>>>hackish.  execute_drive_cmd() will have to look at the command and
+>>>ide_disk->wcache to determine if a special command should be completed
+>>>successfully without actually executing it.  Maybe we can add a
+>>>per-HL-driver callback for that.
+>>>
+>>>Bartlomiej, I'm not really sure about both of above approaches.  My
+>>>humble opinion is that benefits brought by both of above aren't worth
+>>>the added complexity.  The worst can happen is a few IDE command
+>>>failures caused by executing flush command on a wcache disabled drive.
+>>>And that would happen only when the user turns off wcache while
+>>>barrier sequence is *in progress*.
+>>>
+>>>Hmmm... What do you think?  It's your call.  I'll do what you choose.
+>>
+>>Hmm... both solutions sucks.  After second thought I agree with you
+>>w.r.t to original changes (just remember to document them in the patch
+>>description).
+> 
 
-On Tuesday 22 November 2005 16:54, Pavel Machek wrote:
-> Sorry, I did not have time to look what's wrong with miniconfig, yet.
+Yeap, both suck.  Glad to hear that.  :-)
 
-I just tried again and it applied to -git2 cleanly.  Possibly it was 
-whitespace damaged?  (I have to jump through hoops to prevent kmail from 
-doing stupid things to inline attachments...)
+> 
+> Me too. Plus on most drives a flush cache command on a drive with write
+> back caching disabled will succeed, not fail. t13 is about to mandate
+> that behaviour as well, and honestly I think this is the logical way to
+> implement it in a drive (the flush just becomes a noop).
+> 
+> So Tejun, where do we stand with this patch series? Any changes over
+> what you posted last week? I'd like to get this merged in the block
+> tree, get it in -mm and merged for 2.6.16 if things work out.
+> 
 
-Here it is as an attachment.  Let me know if this applies cleanly for you...
+Hi, Bartlomiej.  Hi, Jens.
 
-Rob
+Currently, there are only two more things to do before getting this 
+thing into the -mm tree.
 
---Boundary-00=_58ChD+0HfFUpAMW
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="miniconfig2.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="miniconfig2.patch"
+1. Adjusting this patch (update-ide) after merging Bartlomiej's 
+del_gendisk() fix patch.
 
-diff -ru linux-2.6.15-rc2.old/Documentation/00-INDEX linux-2.6.15-rc2/Docum=
-entation/00-INDEX
-=2D-- linux-2.6.15-rc2.old/Documentation/00-INDEX	2005-11-21 09:28:04.00000=
-0000 -0600
-+++ linux-2.6.15-rc2/Documentation/00-INDEX	2005-11-21 09:46:35.514090656 -=
-0600
-@@ -174,6 +174,8 @@
- 	- info on boot arguments for the multiple devices driver.
- memory.txt
- 	- info on typical Linux memory problems.
-+miniconfig.txt
-+	- How to use miniature human-editable configuration files.
- mips/
- 	- directory with info about Linux on MIPS architecture.
- mono.txt
-diff -ru linux-2.6.15-rc2.old/Documentation/miniconfig.txt linux-2.6.15-rc2=
-/Documentation/miniconfig.txt
-=2D-- linux-2.6.15-rc2.old/Documentation/miniconfig.txt	2005-11-21 09:36:38=
-=2E000000000 -0600
-+++ linux-2.6.15-rc2/Documentation/miniconfig.txt	2005-11-21 09:45:23.56102=
-9184 -0600
-@@ -0,0 +1,105 @@
-+Miniconfig documentation
-+November 21, 2005
-+Rob Landley <rob@landley.net>
-+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-+
-+What is a miniconfig?
-+---------------------
-+
-+A new feature introduced in 2.6.15 lets you use miniature configuration fi=
-les,
-+listing just the symbols you want to enable and letting the configurator
-+enable any dependencies needed to give you a valid configuration.
-+
-+To use it, create a mini.config file in whatever directory your .config fi=
-le
-+would normally live in, and run "make miniconfig".  (You can specify a
-+different file with the argument "KCONFIG_ALLCONFIG=3D/path/to/mini.config=
-".)
-+
-+Advantages of miniconfig:
-+-------------------------
-+
-+Miniconfigs have several advantages over conventional configuration files:
-+
-+=C2=A0* They're more portable between versions. =C2=A0A miniconfig from li=
-nux 2.6.15 will
-+=C2=A0 =C2=A0probably build an equivalent 2.6.16 kernel.
-+
-+=C2=A0* It's easy to see exactly what features have been specified.
-+
-+=C2=A0* Miniconfigs are human editable, human readable, and provide inform=
-ative
-+   error messages identifying any unrecognized (typoed) symbols.
-+
-+Creating a mini.config by hand:
-+-------------------------------
-+
-+Run "make allnoconfig", and create an empty mini.config file.  Then go thr=
-ough
-+"make menuconfig" enabling the features you want.  For each feature you en=
-able,
-+look at the help entry (at the top of which is the symbol name for this
-+feature), and add a line to mini.config setting that symbol to the appropr=
-iate
-+value, such as:
-+
-+CONFIG_THINGY=3Dy
-+
-+Creating a mini.config from a full .config file:
-+------------------------------------------------
-+
-+Run scripts/miniconfig.sh to automatically create a mini.conf from a full
-+.config file.
-+
-+The script works via the simple expedient of trying to remove each line fr=
-om
-+.config and keeping only the lines which make a difference in the .config
-+generated by "make miniconfig". =C2=A0(This means it runs "make miniconfig=
-" about
-+1300 times, which is very very slow, so it displays a progress indicator.)
-+
-+To use the script, go into the kernel source directory, create your .confi=
-g=20
-+file (via menuconfig or however), rename that .config file to another name
-+(like "myconfig"), then run:
-+
-+scripts/miniconfig.sh myconfig
-+
-+When the script finishes, you should have a mini.config file containing
-+the minimal set of lines necessary to specify that configuration via
-+"make miniconfig".
-+
-+Real-world example:
-+-------------------
-+
-+Here's the mini.config I use to build User Mode Linux:
-+
-+CONFIG_MODE_SKAS=3Dy
-+CONFIG_BINFMT_ELF=3Dy
-+CONFIG_HOSTFS=3Dy
-+CONFIG_SYSCTL=3Dy
-+CONFIG_STDERR_CONSOLE=3Dy
-+CONFIG_UNIX98_PTYS=3Dy
-+CONFIG_BLK_DEV_LOOP=3Dy
-+CONFIG_BLK_DEV_UBD=3Dy
-+CONFIG_TMPFS=3Dy
-+CONFIG_SWAP=3Dy
-+CONFIG_LBD=3Dy
-+CONFIG_EXT2_FS=3Dy
-+CONFIG_PROC_FS=3Dy
-+
-+And here's how I build and test it (as a normal user, not as root):
-+
-+# Configure, building in an external directory and using a mini.config fil=
-e in
-+# my home directory.
-+
-+make KCONFIG_ALLCONFIG=3D~/uml-config ARCH=3Dum O=3D../linux-umlbuild mini=
-config
-+
-+# change to build directory and build User Mode Linux
-+
-+cd ../linux-umlbuild
-+make ARCH=3Dum
-+
-+# Test run
-+
-+./linux rootfstype=3Dhostfs rw init=3D/bin/sh
-+$ whoami
-+$ mount -t proc /proc /proc
-+$ cat /proc/cpuinfo
-+$ halt -f
-+
-+# And if I want to regenerate the mini.config from the .config, I do this.
-+# Note the syntax for specifying a different architecture:
-+
-+cp .config myconfig
-+ARCH=3Dum scripts/miniconfig.sh myconfig
-diff -ru linux-2.6.15-rc2.old/scripts/kconfig/conf.c linux-2.6.15-rc2/scrip=
-ts/kconfig/conf.c
-=2D-- linux-2.6.15-rc2.old/scripts/kconfig/conf.c	2005-11-21 09:28:22.00000=
-0000 -0600
-+++ linux-2.6.15-rc2/scripts/kconfig/conf.c	2005-11-21 09:23:02.000000000 -=
-0600
-@@ -24,7 +24,8 @@
- 	set_yes,
- 	set_mod,
- 	set_no,
-=2D	set_random
-+	set_random,
-+	set_mini
- } input_mode =3D ask_all;
- char *defconfig_file;
-=20
-@@ -86,6 +87,7 @@
- 	case set_mod:
- 	case set_yes:
- 	case set_random:
-+	case set_mini:
- 		if (sym_has_value(sym)) {
- 			printf("%s\n", def);
- 			return;
-@@ -143,6 +145,7 @@
- 			}
- 		}
- 	case set_no:
-+	case set_mini:
- 		if (sym_tristate_within_range(sym, no)) {
- 			line[0] =3D 'n';
- 			line[1] =3D '\n';
-@@ -376,6 +379,7 @@
- 		case set_yes:
- 		case set_mod:
- 		case set_no:
-+		case set_mini:
- 			cnt =3D def;
- 			printf("%d\n", cnt);
- 			break;
-@@ -492,7 +496,7 @@
-=20
- int main(int ac, char **av)
- {
-=2D	int i =3D 1;
-+	int i =3D 1, minifail =3D 0;
- 	const char *name;
- 	struct stat tmpstat;
-=20
-@@ -530,6 +534,9 @@
- 			input_mode =3D set_random;
- 			srandom(time(NULL));
- 			break;
-+		case 'M':
-+			input_mode =3D set_mini;
-+			break;
- 		case 'h':
- 		case '?':
- 			printf("%s [-o|-s] config\n", av[0]);
-@@ -571,22 +578,32 @@
- 	case set_mod:
- 	case set_yes:
- 	case set_random:
-+	case set_mini:
- 		name =3D getenv("KCONFIG_ALLCONFIG");
-=2D		if (name && !stat(name, &tmpstat)) {
-=2D			conf_read_simple(name);
-=2D			break;
-+		if (name) {
-+			if(!stat(name, &tmpstat)) {
-+				conf_read_simple(name);
-+				break;
-+			} else minifail++;
- 		}
- 		switch (input_mode) {
- 		case set_no:	 name =3D "allno.config"; break;
- 		case set_mod:	 name =3D "allmod.config"; break;
- 		case set_yes:	 name =3D "allyes.config"; break;
- 		case set_random: name =3D "allrandom.config"; break;
-+		case set_mini:	 name =3D "mini.config"; break;
- 		default: break;
- 		}
- 		if (!stat(name, &tmpstat))
- 			conf_read_simple(name);
- 		else if (!stat("all.config", &tmpstat))
- 			conf_read_simple("all.config");
-+		else minifail++;
-+
-+		if ( input_mode =3D=3D set_mini && (minifail || conf_warnings)) {
-+			fprintf(stderr, _("** Error parsing mini.config\n\n"));
-+			return 1;
-+		}
- 		break;
- 	default:
- 		break;
-diff -ru linux-2.6.15-rc2.old/scripts/kconfig/confdata.c linux-2.6.15-rc2/s=
-cripts/kconfig/confdata.c
-=2D-- linux-2.6.15-rc2.old/scripts/kconfig/confdata.c	2005-11-21 09:28:22.0=
-00000000 -0600
-+++ linux-2.6.15-rc2/scripts/kconfig/confdata.c	2005-11-21 09:21:50.0000000=
-00 -0600
-@@ -18,7 +18,8 @@
- 	__attribute__ ((format (printf, 1, 2)));
-=20
- static const char *conf_filename;
-=2Dstatic int conf_lineno, conf_warnings, conf_unsaved;
-+static int conf_lineno, conf_unsaved;
-+int conf_warnings;
-=20
- const char conf_def_filename[] =3D ".config";
-=20
-diff -ru linux-2.6.15-rc2.old/scripts/kconfig/lkc.h linux-2.6.15-rc2/script=
-s/kconfig/lkc.h
-=2D-- linux-2.6.15-rc2.old/scripts/kconfig/lkc.h	2005-11-21 09:28:22.000000=
-000 -0600
-+++ linux-2.6.15-rc2/scripts/kconfig/lkc.h	2005-11-21 09:21:50.000000000 -0=
-600
-@@ -61,6 +61,7 @@
-=20
- /* confdata.c */
- extern const char conf_def_filename[];
-+extern int conf_warnings;
-=20
- char *conf_get_default_confname(void);
-=20
-diff -ru linux-2.6.15-rc2.old/scripts/kconfig/Makefile linux-2.6.15-rc2/scr=
-ipts/kconfig/Makefile
-=2D-- linux-2.6.15-rc2.old/scripts/kconfig/Makefile	2005-11-21 09:28:22.000=
-000000 -0600
-+++ linux-2.6.15-rc2/scripts/kconfig/Makefile	2005-11-21 09:21:50.000000000=
- -0600
-@@ -42,7 +42,7 @@
- 	$(Q)rm -f arch/um/Kconfig_arch
- 	$(Q)rm -f scripts/kconfig/linux_*.pot scripts/kconfig/config.pot
-=20
-=2D.PHONY: randconfig allyesconfig allnoconfig allmodconfig defconfig
-+.PHONY: randconfig allyesconfig allnoconfig allmodconfig defconfig minicon=
-fig
-=20
- randconfig: $(obj)/conf
- 	$< -r arch/$(ARCH)/Kconfig
-@@ -67,6 +67,9 @@
- %_defconfig: $(obj)/conf
- 	$(Q)$< -D arch/$(ARCH)/configs/$@ arch/$(ARCH)/Kconfig
-=20
-+miniconfig: $(obj)/conf
-+	@ $< -M arch/$(ARCH)/Kconfig > /dev/null
-+
- # Help text used by make help
- help:
- 	@echo  '  config	  - Update current config utilising a line-oriented prog=
-ram'
-@@ -79,6 +82,7 @@
- 	@echo  '  allmodconfig	  - New config selecting modules when possible'
- 	@echo  '  allyesconfig	  - New config where all options are accepted with=
- yes'
- 	@echo  '  allnoconfig	  - New minimal config'
-+	@echo  '  miniconfig	  - New config generated from mini.config
-=20
- # =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
- # Shared Makefile for the various kconfig executables:
-diff -ru linux-2.6.15-rc2.old/scripts/miniconfig.sh linux-2.6.15-rc2/script=
-s/miniconfig.sh
-=2D-- linux-2.6.15-rc2.old/scripts/miniconfig.sh	2005-11-21 09:36:44.000000=
-000 -0600
-+++ linux-2.6.15-rc2/scripts/miniconfig.sh	2005-11-21 09:21:50.000000000 -0=
-600
-@@ -0,0 +1,46 @@
-+#!/bin/sh
-+
-+# miniconfig.sh copyright 2005 by Rob Landley <rob@landley.net>
-+# Licensed under the GNU General Public License version 2.
-+
-+if [ $# -ne 1 ] || [ ! -f "$1" ]
-+then
-+  echo "Usage: miniconfig.sh configfile"=20
-+  exit 1
-+fi
-+
-+if [ "$1" =3D=3D ".config" ]
-+then
-+  echo "It overwrites .config, rename it and try again."
-+  exit 1
-+fi
-+
-+cp $1 mini.config
-+echo "Calculating mini.config..."
-+
-+LENGTH=3D`cat $1 | wc -l`
-+
-+# Loop through all lines in the file=20
-+I=3D1
-+while true
-+do
-+  if [ $I -gt $LENGTH ]
-+  then
-+    exit
-+  fi
-+  sed -n "${I}!p" mini.config > .config.test
-+  # Do a config with this file
-+  make allnoconfig KCONFIG_ALLCONFIG=3D.config.test > /dev/null
-+
-+  # Compare.  The date changes so expect a small difference each time.
-+  D=3D`diff .config $1 | wc -l`
-+  if [ $D -eq 4 ]
-+  then
-+    mv .config.test mini.config
-+    LENGTH=3D$[$LENGTH-1]
-+  else
-+    I=3D$[$I + 1]
-+  fi
-+  echo -n -e $I/$LENGTH lines `cat mini.config | wc -c` bytes "\r"
-+done
-+echo
+2. Update ide-fua patch as discussed and get it reviewed by Bartlomiej.
 
---Boundary-00=_58ChD+0HfFUpAMW--
+Other than above two, I think we're ready.  I'll post update ide-fua 
+patch later today.
+
+Thanks.
+
+-- 
+tejun

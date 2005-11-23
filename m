@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030393AbVKWKtb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030397AbVKWKwN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030393AbVKWKtb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 05:49:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030395AbVKWKtb
+	id S1030397AbVKWKwN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 05:52:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030396AbVKWKwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 05:49:31 -0500
-Received: from mailgate.tebibyte.org ([83.104.187.130]:20740 "EHLO
-	doc.tebibyte.org") by vger.kernel.org with ESMTP id S1030393AbVKWKta
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 05:49:30 -0500
-Message-ID: <4384490D.7020409@tebibyte.org>
-Date: Wed, 23 Nov 2005 10:48:45 +0000
-From: Chris Ross <lak1646@tebibyte.org>
-Organization: At home (Guildford, UK)
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: pt-br, pt
+	Wed, 23 Nov 2005 05:52:13 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:29398 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S1030397AbVKWKwH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 05:52:07 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Resume from swsusp stopped working with 2.6.14 and 2.6.15-rc1
+Date: Wed, 23 Nov 2005 11:53:00 +0100
+User-Agent: KMail/1.8.3
+References: <87zmoa0yv5.fsf@obelix.mork.no> <200511222315.31033.rjw@sisk.pl> <20051122225120.GI1748@elf.ucw.cz>
+In-Reply-To: <20051122225120.GI1748@elf.ucw.cz>
 MIME-Version: 1.0
-To: Chris Ross <lak1646@tebibyte.org>
-Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>,
-       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Kernel panic reading bad disk sector
-References: <4381DA23.10201@tebibyte.org> <4382B815.5000701@snapgear.com>	<43836758.6050001@tebibyte.org> <4383C205.7020608@snapgear.com>	<43843594.9050009@tebibyte.org>	<20051123095640.GA5022@flint.arm.linux.org.uk> <438443E8.5040602@tebibyte.org>
-In-Reply-To: <438443E8.5040602@tebibyte.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511231153.01017.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+On Tuesday, 22 of November 2005 23:51, Pavel Machek wrote:
+> > > Well, I do not think this problem will surface again. It is first
+> > > failure in pretty long time. If it happens again, I'll take your
+> > > patch.
+> > 
+> > If so, could you please make it printk() a message after the timeout has
+> > passed?  This way the user will know what's going on at least.
+> 
+> We do have messages there, they even tell you name of process that was
+> not stopped. That's enough to debug failure quickly.
 
-Chris Ross escreveu:
-> For those just tuning in this is about an ARM system with a Promise 
-> 20275 IDE controller which suffers a kernel panic when attempting to 
-> read from a bad sector on the disk.
+The problem is that currently the messages are only printed after the timeout,
+so if you puch the timeout to infinity, they won't get printed at all.
 
-And the vital piece of information I missed - on kernels 2.4.31-uc0 and 
-2.4.27-uc1 at least. At this stage it's believed to be from upstream - 
-i.e. it's probably also in vanilla 2.4.32 although I haven't tested that.
-
-Regards,
-Chris R.
+Greetings,
+Rafael

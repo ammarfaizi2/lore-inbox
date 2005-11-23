@@ -1,87 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbVKWTj2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbVKWTkx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932242AbVKWTj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 14:39:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbVKWTj2
+	id S932239AbVKWTkx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 14:40:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbVKWTkw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 14:39:28 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:56036 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932242AbVKWTj1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 14:39:27 -0500
-Date: Wed, 23 Nov 2005 11:38:54 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Marc Koschewski <marc@osknowledge.org>
-Cc: linux-kernel@vger.kernel.org, Harald Welte <laforge@netfilter.org>,
-       netdev@vger.kernel.org
-Subject: Re: 2.6.15-rc2-mm1
-Message-Id: <20051123113854.07fca702.akpm@osdl.org>
-In-Reply-To: <20051123175045.GA6760@stiffy.osknowledge.org>
-References: <20051123033550.00d6a6e8.akpm@osdl.org>
-	<20051123175045.GA6760@stiffy.osknowledge.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 23 Nov 2005 14:40:52 -0500
+Received: from fmr24.intel.com ([143.183.121.16]:49568 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932239AbVKWTkw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 14:40:52 -0500
+Subject: Re: [PATCH]: Free pages from local pcp lists under tight memory
+	conditions
+From: Rohit Seth <rohit.seth@intel.com>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: akpm@osdl.org, torvalds@osdl.org, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.62.0511231128090.22710@schroedinger.engr.sgi.com>
+References: <20051122161000.A22430@unix-os.sc.intel.com>
+	 <Pine.LNX.4.62.0511231128090.22710@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Organization: Intel 
+Date: Wed, 23 Nov 2005 11:46:34 -0800
+Message-Id: <1132775194.25086.54.camel@akash.sc.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 Nov 2005 19:39:36.0483 (UTC) FILETIME=[A2DF3F30:01C5F065]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Koschewski <marc@osknowledge.org> wrote:
->
-> * Andrew Morton <akpm@osdl.org> [2005-11-23 03:35:50 -0800]:
+On Wed, 2005-11-23 at 11:30 -0800, Christoph Lameter wrote:
+> On Tue, 22 Nov 2005, Rohit Seth wrote:
 > 
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc2/2.6.15-rc2-mm1/
-> > 
-> > (temp copy at http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.15-rc2-mm1.gz)
-> > 
-> > - Added git-sym2.patch to the -mm lineup: updates to the sym2 scsi driver
-> >   (Matthew Wilcox).  
-> > 
-> > - The JSM tty driver still doesn't compile.
-> > 
-> > - The git-powerpc tree is included now.
+> > [PATCH]: This patch free pages (pcp->batch from each list at a time) from
+> > local pcp lists when a higher order allocation request is not able to 
+> > get serviced from global free_list.
 > 
-> Just booted into 2.6.15-rc2-mm1. The 'mouse problem' (as reported earlier) still
-> persists,
+> Ummm.. One controversial idea: How about removing the complete pcp 
+> subsystem? Last time we disabled pcps we saw that the effect 
+> that it had was within noise ratio on AIM7. The lru lock taken without 
+> pcp is in the local zone and thus rarely contended.
 
-You'l probably need to re-report the mouse problem if the previous report
-didn't get any action.
+Oh please stop.
 
-> moreover, some stuff's now really not gonna work anymore. I logged in
-> via gdm once and rebooted. 
+This per_cpu_pagelist is one great logic that has got added in
+allocator.  Besides providing pages without the need to acquire the zone
+lock, it is one single main reason the coloring effect is drastically
+reduced in 2.6 (over 2.4) based kernels.
 
-Yes, netfilter broke.
+-rohit
 
-> ...
-> Nov 23 18:34:01 stiffy kernel: 0.0: ttyS3 at I/O 0xe108 (irq = 3) is a 8250
-> Nov 23 18:34:01 stiffy kernel: ip_conntrack version 2.4 (4095 buckets, 32760 max) - 212 bytes per conntrack
-> Nov 23 18:34:01 stiffy kernel: ip_tables: (C) 2000-2002 Netfilter core team
-> Nov 23 18:34:01 stiffy kernel:  [schedule+1453/1679] schedule+0x5ad/0x68f
-> Nov 23 18:34:01 stiffy kernel:  [__wake_up_common+60/94] __wake_up_common+0x3c/0x5e
-> Nov 23 18:34:01 stiffy kernel:  [wait_for_completion+134/242] wait_for_completion+0x86/0xf2
-> Nov 23 18:34:01 stiffy kernel:  [default_wake_function+0/18] default_wake_function+0x0/0x12
-> Nov 23 18:34:01 stiffy kernel:  [call_usermodehelper_keys+175/186] call_usermodehelper_keys+0xaf/0xba
-> Nov 23 18:34:01 stiffy kernel:  [__call_usermodehelper+0/110] __call_usermodehelper+0x0/0x6e
-> Nov 23 18:34:01 stiffy kernel:  [request_module+175/240] request_module+0xaf/0xf0
-> Nov 23 18:34:01 stiffy kernel:  [buffered_rmqueue+241/514] buffered_rmqueue+0xf1/0x202
-> Nov 23 18:34:01 stiffy kernel:  [get_page_from_freelist+136/162] get_page_from_freelist+0x88/0xa2
-> Nov 23 18:34:01 stiffy kernel:  [pg0+553595222/1069659136] translate_table+0x95f/0xbcb [ip_tables]
-> Nov 23 18:34:01 stiffy kernel:  [map_vm_area+109/149] map_vm_area+0x6d/0x95
-> Nov 23 18:34:01 stiffy kernel:  [__vmalloc_area_node+246/362] __vmalloc_area_node+0xf6/0x16a
-> Nov 23 18:34:01 stiffy kernel:  [__vmalloc_node+79/110] __vmalloc_node+0x4f/0x6e
-> Nov 23 18:34:01 stiffy kernel:  [__vmalloc+39/43] __vmalloc+0x27/0x2b
-> Nov 23 18:34:01 stiffy kernel:  [pg0+553597367/1069659136] do_replace+0x145/0x6d6 [ip_tables]
-> Nov 23 18:34:03 stiffy kernel:  [pg0+553596209/1069659136] copy_entries_to_user+0xaf/0x1e3 [ip_tables]
-> Nov 23 18:34:04 stiffy kernel:  [pg0+553599347/1069659136] do_ipt_set_ctl+0x1e/0x62 [ip_tables]
-> Nov 23 18:34:04 stiffy kernel:  [nf_sockopt+198/277] nf_sockopt+0xc6/0x115
-> Nov 23 18:34:04 stiffy kernel:  [nf_setsockopt+55/59] nf_setsockopt+0x37/0x3b
-> Nov 23 18:34:04 stiffy kernel:  [ip_setsockopt+219/3448] ip_setsockopt+0xdb/0xd78
-> Nov 23 18:34:04 stiffy kernel:  [nf_sockopt+136/277] nf_sockopt+0x88/0x115
-> Nov 23 18:34:04 stiffy kernel:  [nf_getsockopt+55/59] nf_getsockopt+0x37/0x3b
-> Nov 23 18:34:04 stiffy kernel:  [ip_getsockopt+254/1764] ip_getsockopt+0xfe/0x6e4
-> Nov 23 18:34:04 stiffy kernel:  [prio_tree_remove+150/191] prio_tree_remove+0x96/0xbf
-> Nov 23 18:34:04 stiffy kernel:  [free_pgtables+59/167] free_pgtables+0x3b/0xa7
-> Nov 23 18:34:04 stiffy kernel:  [buffered_rmqueue+241/514] buffered_rmqueue+0xf1/0x202
-> Nov 23 18:34:04 stiffy kernel:  [get_page_from_freelist+136/162] get_page_from_freelist+0x88/0xa2
-> ...

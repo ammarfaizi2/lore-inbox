@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932303AbVKWUQ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbVKWUWS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932303AbVKWUQ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 15:16:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932299AbVKWUQ1
+	id S932301AbVKWUWS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 15:22:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbVKWUWS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 15:16:27 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:12220 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S932292AbVKWUQ0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 15:16:26 -0500
-Subject: Re: [PATCH] split sharpsl_pm.c into generic and corgi/spitz
-	specific parts
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>
-In-Reply-To: <20051123194927.GA22375@elf.ucw.cz>
-References: <20051123130350.GA23090@elf.ucw.cz>
-	 <1132754229.8016.55.camel@localhost.localdomain>
-	 <20051123194927.GA22375@elf.ucw.cz>
+	Wed, 23 Nov 2005 15:22:18 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:26603 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932301AbVKWUWR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 15:22:17 -0500
+Subject: Re: [BUG 2579] linux 2.6.* sound problems
+From: Lee Revell <rlrevell@joe-job.com>
+To: patrizio.bassi@gmail.com
+Cc: Ard van Breemen <ard@kwaak.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <4384CB8B.6040409@gmail.com>
+References: <53L1x-6dC-13@gated-at.bofh.it> <53LkE-6QU-5@gated-at.bofh.it>
+	 <53LkW-6QU-49@gated-at.bofh.it> <53LEq-7gr-7@gated-at.bofh.it>
+	 <43667406.9070104@gmail.com> <4366A49F.3000101@rainbow-software.org>
+	 <43673B6F.5030909@gmail.com>  <20051123162216.GG1700@kwaak.net>
+	 <1132775178.10453.14.camel@mindpipe>  <4384CB8B.6040409@gmail.com>
 Content-Type: text/plain
-Date: Wed, 23 Nov 2005 20:16:05 +0000
-Message-Id: <1132776965.8016.87.camel@localhost.localdomain>
+Date: Wed, 23 Nov 2005 15:22:08 -0500
+Message-Id: <1132777329.10453.21.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-23 at 20:49 +0100, Pavel Machek wrote:
-> > 1. We probably shouldn't (can't?) make changes like this in -rc
-> > kernels 
+On Wed, 2005-11-23 at 21:05 +0100, Patrizio Bassi wrote:
+> it seems both.
+> now i'm using 1000hz with 0x40 latency.
+> i still get some noises but lower than before (lat = 0x20).
 > 
-> No, it does not really belong in -rc. I was hoping you would merge it
-> in your tree so I do not have big patch here and could keep only
-> collie changes...
-
-Right, I misunderstood that. I'll happily maintain an in progress
-version of that split-up patch in the Zaurus tree.
-
-> > I have a proposal for how we proceed with this:
-> > 
-> > After 2.6.15 is released, I envisage a patch which splits the common
-> > sections of sharpsl_pm.c into arm/common and arm/mach-pxa/sharpsl.h into
-> > include/arm/hardware/sharpsl_pm.h. I'm happy to generate that patch if
-> > necessary and pass it to Russell. I'll try and create a patch to show
-> > the structure I'm aiming for in the next couple of days but at the
-> > moment we don't know exactly which code is common and I'd prefer to try
-> > and do the split in one go. 
+> however i saw you marked it closed as hardware problem, i'm sure it
+> isn't.
 > 
-> Ok, works for me. So I'll now concentrate on getting collie working
-> and leave infrastructure to you...
+> it' a linux 2.6 problem for me, as 2.4 and windows works perfectly.
+> stop :)
+> a windows copy, running under vmware on linux 2.6, seems to work good
+> too.
+> 
 
-Sounds good to me.
+If the noise is caused by higher HZ settings then that is a hardware
+problem.  Windows and Linux 2.4 use a lower HZ setting than Linux 2.6.
 
-Richard
-
-
-
+Lee
 

@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbVKWUZI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbVKWUZF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932319AbVKWUZI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 15:25:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbVKWUZH
+	id S932348AbVKWUZF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 15:25:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbVKWUZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 15:25:07 -0500
-Received: from mailwasher.lanl.gov ([192.65.95.54]:22191 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S932323AbVKWUZC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 15:25:02 -0500
-Message-ID: <4384CFCD.9010304@lanl.gov>
-Date: Wed, 23 Nov 2005 13:23:41 -0700
-From: Ronald G Minnich <rminnich@lanl.gov>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: yhlu <yinghailu@gmail.com>
-CC: Andi Kleen <ak@suse.de>, discuss@x86-64.org, linuxbios@openbios.org,
-       yhlu <yhlu.kernel@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [LinuxBIOS] x86_64: apic id lift patch
-References: <86802c440511211349t6a0a9d30i60e15fa23b86c49d@mail.gmail.com>	 <20051121220605.GD20775@brahms.suse.de> <43849FA5.4020201@lanl.gov> <2ea3fae10511230919l4d9829d8j3ce5d820b74074d1@mail.gmail.com>
-In-Reply-To: <2ea3fae10511230919l4d9829d8j3ce5d820b74074d1@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-PMX-Version: 4.7.1.128075
+	Wed, 23 Nov 2005 15:25:04 -0500
+Received: from tirith.ics.muni.cz ([147.251.4.36]:6817 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S932310AbVKWUYq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 15:24:46 -0500
+Date: Wed, 23 Nov 2005 21:24:38 +0100
+From: Jan Kasprzak <kas@fi.muni.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14 kswapd eating too much CPU
+Message-ID: <20051123202438.GE28142@fi.muni.cz>
+References: <20051122125959.GR16080@fi.muni.cz> <20051122163550.160e4395.akpm@osdl.org> <20051123010122.GA7573@fi.muni.cz> <4383D1CC.4050407@yahoo.com.au> <20051123051358.GB7573@fi.muni.cz> <20051123131417.GH24091@fi.muni.cz> <20051123110241.528a0b37.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051123110241.528a0b37.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: kas@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-yhlu wrote:
-> sth about SRAT in LinuxBIOS,  I have put SRAT dynamically support in 
-> LinuxBIOS, but the whole acpi support still need dsdt, current we only 
-> have dsdt for AMD chipset in LB. And we can not have the access the dsdt 
-> asl from Nvidia chipset yet...
+Andrew Morton wrote:
+: Jan Kasprzak <kas@fi.muni.cz> wrote:
+: >
+: > 	I am at 2.6.15-rc2 now, the problem is still there.
+: >  Currently according to top(1), kswapd1 eats >98% CPU for 50 minutes now
+: >  and counting.
+: 
+: When it's doing this, could you do sysrq-p a few times?  The output of that
+: should tell us where the CPU is executing.
 
-yeah, this is the great thing about ACPI, it has put us into a whole new 
-  era of copyrighted stuff. ACPI tables describe hardware, and are 
-copyright bios vendors. The question of which ACPI bits we can use in 
-linuxbios is unresolved. AMD has committed to open-source ACPI tables, 
-but ... what about companies like nvidia? unknown. And, to add to the 
-fun, the mainboard vendors don't own their own ACPI tables -- the BIOS 
-vendors do. So the mainboard vendor has their hardware design encoded 
-into ACPI tables, which are copyright the bios vendor, not the mainboard 
-vendor.
+	Hmm, it does not show anything but the header. Should I enable
+something special in the kernel?
 
-ACPI is a looming problem for all the open-source bios efforts out there.
+# dmesg -c >/dev/null; echo -n p >/proc/sysrq-trigger ; sleep 5; dmesg
+SysRq : Show Regs
+# 
 
-I don't much like ACPI. It's just another mechanism for hiding 
-information and limiting its distribution.
+-Yenya
 
-ron
+-- 
+| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+| http://www.fi.muni.cz/~kas/    Journal: http://www.fi.muni.cz/~kas/blog/ |
+> Specs are a basis for _talking_about_ things. But they are _not_ a basis <
+> for implementing software.                              --Linus Torvalds <

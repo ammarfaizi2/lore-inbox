@@ -1,37 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932555AbVKWVv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932549AbVKWVzA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932555AbVKWVv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 16:51:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932549AbVKWVv0
+	id S932549AbVKWVzA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 16:55:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbVKWVzA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 16:51:26 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:1476
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932555AbVKWVvZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 16:51:25 -0500
-Date: Wed, 23 Nov 2005 13:51:27 -0800 (PST)
-Message-Id: <20051123.135127.127223754.davem@davemloft.net>
-To: andrew.grover@intel.com
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       john.ronciak@intel.com, christopher.leech@intel.com
-Subject: Re: [RFC] [PATCH 1/3] ioat: DMA subsystem
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.44.0511231207410.32487-100000@isotope.jf.intel.com>
-References: <Pine.LNX.4.44.0511231207410.32487-100000@isotope.jf.intel.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Wed, 23 Nov 2005 16:55:00 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:23191 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S932549AbVKWVy7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 16:54:59 -0500
+Message-ID: <4384E4F7.9060806@zytor.com>
+Date: Wed, 23 Nov 2005 13:53:59 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Daniel Jacobowitz <dan@debian.org>
+CC: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andi Kleen <ak@suse.de>, Gerd Knorr <kraxel@suse.de>,
+       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
+       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] SMP alternatives
+References: <438359D7.7090308@suse.de> <p7364qjjhqx.fsf@verdi.suse.de> <1132764133.7268.51.camel@localhost.localdomain> <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051123214835.GA24044@nevyn.them.org>
+In-Reply-To: <20051123214835.GA24044@nevyn.them.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel Jacobowitz wrote:
+> 
+> I don't think I see the point.  This would let you optimize for the
+> "multi-threaded, but hasn't created any threads yet" or even
+> "multi-threaded, but not right now" cases.  But those really aren't the
+> interesting case to optimize for - that's the equivalent of supporting
+> CPU hotplug.
+> 
+> The interesting case is when you know at static link time that the
+> library is single-threaded, or even at dynamic link time.  And it's
+> easy enough at both of those times to handle this.  In many cases glibc
+> doesn't, because it's valid to dlopen libpthread.so, but that could be
+> accomodated - a simple matter of software.
+> 
 
-Please provide a complete and detailed changelog message for each
-patch and an introductory email explaining the top-level purpose of
-these changes.
+No, you can never know that unless you can't call mmap().
 
-Yes, I personally know what these changes are all about, but not
-everyone does.
-
-Sending a bunch of non-descript patches to the list is always a very
-bad idea, and will result in little, if any, patch review.
+	-hpa

@@ -1,29 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965070AbVKWLVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030390AbVKWL3x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965070AbVKWLVE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 06:21:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965124AbVKWLVE
+	id S1030390AbVKWL3x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 06:29:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965201AbVKWL3x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 06:21:04 -0500
-Received: from ns.chorazin.net ([217.199.165.63]:53900 "EHLO ns.chorazin.net")
-	by vger.kernel.org with ESMTP id S965070AbVKWLVB (ORCPT
+	Wed, 23 Nov 2005 06:29:53 -0500
+Received: from zeus1.kernel.org ([204.152.191.4]:27855 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S965124AbVKWL3w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 06:21:01 -0500
-X-ClientAddr: 127.0.0.1
-Date: Wed, 23 Nov 2005 11:23:38 GMT
-Message-Id: <200511231123.jANBNcOl025071@chorazin.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: {Virus?} MESSAGE COULD NOT BE DELIVERED
-References: <E1EesA0-0005Ql-7J@relay-1.mail.demon.net>
-In-Reply-To: <E1EesA0-0005Ql-7J@relay-1.mail.demon.net>
-X-Loop: newaddress
-From: bouncer@chorazin.org.uk
-X-Chorazin-MailScanner: Found to be clean
+	Wed, 23 Nov 2005 06:29:52 -0500
+Date: Wed, 23 Nov 2005 03:29:27 -0800
+From: msypdjangkc1001janghyosupmssonjinamsypdjangs80msy26coolmanssjcjswo4567msy-80jangkc1001cjsussmssonjina@yahoo.com
+Message-Id: <200511231129.jANBTRhG028247@zeus1.kernel.org>
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Due to the amount of spam being received by allocate@riscos.com 
-I have blocked this address. Please re-send your email to
-riscosallocations@riscos.com.
-
---Alan

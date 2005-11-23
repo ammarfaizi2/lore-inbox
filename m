@@ -1,39 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbVKWUjZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932408AbVKWUvI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932401AbVKWUjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 15:39:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932383AbVKWUjY
+	id S932408AbVKWUvI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 15:51:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbVKWUvI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 15:39:24 -0500
-Received: from bellona.cnchost.com ([207.155.248.226]:11174 "EHLO
-	bellona.cnchost.com") by vger.kernel.org with ESMTP id S932401AbVKWUjW convert rfc822-to-8bit
+	Wed, 23 Nov 2005 15:51:08 -0500
+Received: from kirby.webscope.com ([204.141.84.57]:42381 "EHLO
+	kirby.webscope.com") by vger.kernel.org with ESMTP id S932353AbVKWUvF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 15:39:22 -0500
-Message-ID: <200511232039.PAA03184@bellona.cnchost.com>
-From: Rick Niles <niles@rickniles.com>
-To: <linux-kernel@vger.kernel.org>
-Reply-To: Rick Niles <niles@rickniles.com>
-Subject: Sub jiffy delay?
-Date: Wed, 23 Nov 2005 15:39:17 -0500 (EST)
+	Wed, 23 Nov 2005 15:51:05 -0500
+Message-ID: <4384D5DB.3040209@m1k.net>
+Date: Wed, 23 Nov 2005 15:49:31 -0500
+From: Michael Krufky <mkrufky@m1k.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+To: Adrian Bunk <bunk@stusta.de>
+CC: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
+       Johannes Stezenbach <js@linuxtv.org>, Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: Linux 2.6.15-rc2
+References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org> <200511202049.30952.gene.heskett@verizon.net> <4383CC4E.40206@m1k.net> <200511222336.48506.gene.heskett@verizon.net> <20051123174237.GO3963@stusta.de> <4384C059.3070003@m1k.net> <20051123203856.GU3963@stusta.de>
+In-Reply-To: <20051123203856.GU3963@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I need to service a piece of hardware about every 400-500
-microseconds, but I really don't want to change the value of HZ, which
-in my version of the 2.6 kernel is 1000.  The hardware doesn't have an
-interrupt so the nasty hack I've been doing is to service the hardware
-repeatedly in a loop for about 600 microseconds by watching the
-do_gettimeofday(), set a timer for the next jiffy and repeat.  This leaves less than 400 microseconds / millisecond for the kernel and anything else on the system to run.
+Adrian Bunk wrote:
 
-Obviously, this sucks, but it does work. I am working with the
-hardware guy to add an interrupt to the hardware.  However, I don't
-want every user of the hardware without the interrupt to have to
-rebuild the kernel with a different value of HZ.  So does anyone have
-any better ideas on what I can do?
+>On Wed, Nov 23, 2005 at 02:17:45PM -0500, Michael Krufky wrote:
+>  
+>
+>>Adrian Bunk wrote:
+>>
+>>>On Tue, Nov 22, 2005 at 11:36:48PM -0500, Gene Heskett wrote:
+>>>
+>>>>...
+>>>>Well, I just went thru it again, and turned off everything but the
+>>>>cx8800 and ORv51132 stuffs, and now I get this at the and of the
+>>>>'makeit' script I use here:
+>>>>
+>>>>WARNING:
+>>>>/lib/modules/2.6.15-rc2/kernel/drivers/media/video/cx88/cx88-dvb.ko
+>>>>needs unknown symbol mt352_attach
+>>>>WARNING:
+>>>>/lib/modules/2.6.15-rc2/kernel/drivers/media/video/cx88/cx88-dvb.ko
+>>>>needs unknown symbol nxt200x_attach
+>>>>WARNING:
+>>>>/lib/modules/2.6.15-rc2/kernel/drivers/media/video/cx88/cx88-dvb.ko
+>>>>needs unknown symbol mt352_write
+>>>>WARNING:
+>>>>/lib/modules/2.6.15-rc2/kernel/drivers/media/video/cx88/cx88-dvb.ko
+>>>>needs unknown symbol lgdt330x_attach
+>>>>WARNING:
+>>>>/lib/modules/2.6.15-rc2/kernel/drivers/media/video/cx88/cx88-dvb.ko
+>>>>needs unknown symbol cx22702_attach
+>>>>...
+>>>>
+>>>Nice catch and thanks for your report.
+>>>
+>>>The bug is obvious. A possible patch is below (and at least 
+>>>drivers/media/video/saa7134/Makefile contains the same bug),
+>>>but I'd really prfer getting rid of the -DHAVE_* stuff in the
+>>>Makefiles and using Kconfig variables instead.
+>>>
+>>We need to keep the -DHAVE_FOO stuff there, in order to satisfy the 
+>>following requirements:
+>>
+>>1) To allow the option of only selecting those frontends required by 
+>>specific dvb hardware, without forcing all modules to be loaded... This 
+>>feature is optional, and I implemented it in response to the demand from 
+>>some hybrid v4l/dvb device users, (and myself)  Why force a driver to 
+>>load every frontend module if it isnt required by the hardware? -- 
+>>apparantly the implementation was less than perfect.  I had originally 
+>>intended for this to live in -mm for a bit, but when the merge window 
+>>came around, Mauro had sent it upstream before I had the chance to 
+>>create alternate patches for linus' tree.
+>>
+>>2) (more importantly) To allow v4l-kernel cvs to retain backwards 
+>>compatability with older kernels..
+>>
+>>I had originally tried to rename these to use the Kconfig variables, but 
+>>LKML people asked for it to be changed back.
+>>
+>>Please do not remove this feature -- if it is broken, then we should try 
+>>to fix it, rather than remove it.  If the specific frontend selection 
+>>isn't working, then I guess we can revert back to the old behavior where 
+>>every frontend is forced, but I would rather not.
+>>    
+>>
+>I do not yet know how to fix it, but configurations like 
+>CONFIG_VIDEO_CX88_DVB=y, CONFIG_DVB_CX22702=m are currently compile 
+>errors.
+>  
+>
+AHA!  I have not tested this with cx88-dvb compiled into the kernel (y) 
+-- I have only tested as a module (m) ..... Looks like I have a lot of 
+testing to do before the end of this week.
 
-Thanks,
-Rick Niles.
+Adrian, does it work if you select CONFIG_VIDEO_CX88_DVB_ALL_FRONTENDS 
+??  Selecting this option is, in effect, exactly equal to the old 
+behavior of forcing support for every single frontend supported by 
+cx88-dvb to be built.
+
+Looks like the problem is the following:
+If cx88-dvb is selected (y), then then the frontends should also be 
+selected (y) ... but instead, they are being selected (m)
+
+Meanwhile, if cx88-dvb is selected (m) then everything is fine, since 
+the frontends are also selected(m) ...
+
+Is my assessment correct?
+
+-Michael Krufky

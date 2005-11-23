@@ -1,38 +1,413 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030372AbVKWIzc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030376AbVKWI7A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030372AbVKWIzc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 03:55:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030373AbVKWIzc
+	id S1030376AbVKWI7A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 03:59:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030377AbVKWI7A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 03:55:32 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:17364
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1030372AbVKWIzc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 03:55:32 -0500
-Date: Wed, 23 Nov 2005 00:55:30 -0800 (PST)
-Message-Id: <20051123.005530.17893365.davem@davemloft.net>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk, torvalds@osdl.org,
-       ak@muc.de
-Subject: Re: [NET]: Shut up warnings in net/core/flow.c
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20051123002134.287ff226.akpm@osdl.org>
-References: <200511230159.jAN1xeMl003154@hera.kernel.org>
-	<20051123002134.287ff226.akpm@osdl.org>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Nov 2005 03:59:00 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:30180
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1030376AbVKWI7A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 03:59:00 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: [PATCH] make miniconfig (take 2)
+Date: Wed, 23 Nov 2005 02:58:33 -0600
+User-Agent: KMail/1.8
+Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
+       Sam Ravnborg <sam@ravnborg.org>
+References: <200511170629.42389.rob@landley.net> <200511212314.41605.rob@landley.net> <20051122225428.GJ1748@elf.ucw.cz>
+In-Reply-To: <20051122225428.GJ1748@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_58ChD+0HfFUpAMW"
+Message-Id: <200511230258.33901.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@osdl.org>
-Date: Wed, 23 Nov 2005 00:21:34 -0800
+--Boundary-00=_58ChD+0HfFUpAMW
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> Nope, this will break !CONFIG_SMP builds.  Quite a few places in the
-> kernel do not implement the ipi handler if !CONFIG_SMP.
+On Tuesday 22 November 2005 16:54, Pavel Machek wrote:
+> Sorry, I did not have time to look what's wrong with miniconfig, yet.
 
-Ho hum, nothing is ever easy eh? :-) I think your patch is fine for
-now, but in the long term the !CONFIG_SMP ifdefs for those ipi
-handlers should probably just get removed.  If GCC can't optimize
-those things away, I'd be really surprised.
+I just tried again and it applied to -git2 cleanly.  Possibly it was 
+whitespace damaged?  (I have to jump through hoops to prevent kmail from 
+doing stupid things to inline attachments...)
+
+Here it is as an attachment.  Let me know if this applies cleanly for you...
+
+Rob
+
+--Boundary-00=_58ChD+0HfFUpAMW
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="miniconfig2.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="miniconfig2.patch"
+
+diff -ru linux-2.6.15-rc2.old/Documentation/00-INDEX linux-2.6.15-rc2/Docum=
+entation/00-INDEX
+=2D-- linux-2.6.15-rc2.old/Documentation/00-INDEX	2005-11-21 09:28:04.00000=
+0000 -0600
++++ linux-2.6.15-rc2/Documentation/00-INDEX	2005-11-21 09:46:35.514090656 -=
+0600
+@@ -174,6 +174,8 @@
+ 	- info on boot arguments for the multiple devices driver.
+ memory.txt
+ 	- info on typical Linux memory problems.
++miniconfig.txt
++	- How to use miniature human-editable configuration files.
+ mips/
+ 	- directory with info about Linux on MIPS architecture.
+ mono.txt
+diff -ru linux-2.6.15-rc2.old/Documentation/miniconfig.txt linux-2.6.15-rc2=
+/Documentation/miniconfig.txt
+=2D-- linux-2.6.15-rc2.old/Documentation/miniconfig.txt	2005-11-21 09:36:38=
+=2E000000000 -0600
++++ linux-2.6.15-rc2/Documentation/miniconfig.txt	2005-11-21 09:45:23.56102=
+9184 -0600
+@@ -0,0 +1,105 @@
++Miniconfig documentation
++November 21, 2005
++Rob Landley <rob@landley.net>
++=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
++
++What is a miniconfig?
++---------------------
++
++A new feature introduced in 2.6.15 lets you use miniature configuration fi=
+les,
++listing just the symbols you want to enable and letting the configurator
++enable any dependencies needed to give you a valid configuration.
++
++To use it, create a mini.config file in whatever directory your .config fi=
+le
++would normally live in, and run "make miniconfig".  (You can specify a
++different file with the argument "KCONFIG_ALLCONFIG=3D/path/to/mini.config=
+".)
++
++Advantages of miniconfig:
++-------------------------
++
++Miniconfigs have several advantages over conventional configuration files:
++
++=C2=A0* They're more portable between versions. =C2=A0A miniconfig from li=
+nux 2.6.15 will
++=C2=A0 =C2=A0probably build an equivalent 2.6.16 kernel.
++
++=C2=A0* It's easy to see exactly what features have been specified.
++
++=C2=A0* Miniconfigs are human editable, human readable, and provide inform=
+ative
++   error messages identifying any unrecognized (typoed) symbols.
++
++Creating a mini.config by hand:
++-------------------------------
++
++Run "make allnoconfig", and create an empty mini.config file.  Then go thr=
+ough
++"make menuconfig" enabling the features you want.  For each feature you en=
+able,
++look at the help entry (at the top of which is the symbol name for this
++feature), and add a line to mini.config setting that symbol to the appropr=
+iate
++value, such as:
++
++CONFIG_THINGY=3Dy
++
++Creating a mini.config from a full .config file:
++------------------------------------------------
++
++Run scripts/miniconfig.sh to automatically create a mini.conf from a full
++.config file.
++
++The script works via the simple expedient of trying to remove each line fr=
+om
++.config and keeping only the lines which make a difference in the .config
++generated by "make miniconfig". =C2=A0(This means it runs "make miniconfig=
+" about
++1300 times, which is very very slow, so it displays a progress indicator.)
++
++To use the script, go into the kernel source directory, create your .confi=
+g=20
++file (via menuconfig or however), rename that .config file to another name
++(like "myconfig"), then run:
++
++scripts/miniconfig.sh myconfig
++
++When the script finishes, you should have a mini.config file containing
++the minimal set of lines necessary to specify that configuration via
++"make miniconfig".
++
++Real-world example:
++-------------------
++
++Here's the mini.config I use to build User Mode Linux:
++
++CONFIG_MODE_SKAS=3Dy
++CONFIG_BINFMT_ELF=3Dy
++CONFIG_HOSTFS=3Dy
++CONFIG_SYSCTL=3Dy
++CONFIG_STDERR_CONSOLE=3Dy
++CONFIG_UNIX98_PTYS=3Dy
++CONFIG_BLK_DEV_LOOP=3Dy
++CONFIG_BLK_DEV_UBD=3Dy
++CONFIG_TMPFS=3Dy
++CONFIG_SWAP=3Dy
++CONFIG_LBD=3Dy
++CONFIG_EXT2_FS=3Dy
++CONFIG_PROC_FS=3Dy
++
++And here's how I build and test it (as a normal user, not as root):
++
++# Configure, building in an external directory and using a mini.config fil=
+e in
++# my home directory.
++
++make KCONFIG_ALLCONFIG=3D~/uml-config ARCH=3Dum O=3D../linux-umlbuild mini=
+config
++
++# change to build directory and build User Mode Linux
++
++cd ../linux-umlbuild
++make ARCH=3Dum
++
++# Test run
++
++./linux rootfstype=3Dhostfs rw init=3D/bin/sh
++$ whoami
++$ mount -t proc /proc /proc
++$ cat /proc/cpuinfo
++$ halt -f
++
++# And if I want to regenerate the mini.config from the .config, I do this.
++# Note the syntax for specifying a different architecture:
++
++cp .config myconfig
++ARCH=3Dum scripts/miniconfig.sh myconfig
+diff -ru linux-2.6.15-rc2.old/scripts/kconfig/conf.c linux-2.6.15-rc2/scrip=
+ts/kconfig/conf.c
+=2D-- linux-2.6.15-rc2.old/scripts/kconfig/conf.c	2005-11-21 09:28:22.00000=
+0000 -0600
++++ linux-2.6.15-rc2/scripts/kconfig/conf.c	2005-11-21 09:23:02.000000000 -=
+0600
+@@ -24,7 +24,8 @@
+ 	set_yes,
+ 	set_mod,
+ 	set_no,
+=2D	set_random
++	set_random,
++	set_mini
+ } input_mode =3D ask_all;
+ char *defconfig_file;
+=20
+@@ -86,6 +87,7 @@
+ 	case set_mod:
+ 	case set_yes:
+ 	case set_random:
++	case set_mini:
+ 		if (sym_has_value(sym)) {
+ 			printf("%s\n", def);
+ 			return;
+@@ -143,6 +145,7 @@
+ 			}
+ 		}
+ 	case set_no:
++	case set_mini:
+ 		if (sym_tristate_within_range(sym, no)) {
+ 			line[0] =3D 'n';
+ 			line[1] =3D '\n';
+@@ -376,6 +379,7 @@
+ 		case set_yes:
+ 		case set_mod:
+ 		case set_no:
++		case set_mini:
+ 			cnt =3D def;
+ 			printf("%d\n", cnt);
+ 			break;
+@@ -492,7 +496,7 @@
+=20
+ int main(int ac, char **av)
+ {
+=2D	int i =3D 1;
++	int i =3D 1, minifail =3D 0;
+ 	const char *name;
+ 	struct stat tmpstat;
+=20
+@@ -530,6 +534,9 @@
+ 			input_mode =3D set_random;
+ 			srandom(time(NULL));
+ 			break;
++		case 'M':
++			input_mode =3D set_mini;
++			break;
+ 		case 'h':
+ 		case '?':
+ 			printf("%s [-o|-s] config\n", av[0]);
+@@ -571,22 +578,32 @@
+ 	case set_mod:
+ 	case set_yes:
+ 	case set_random:
++	case set_mini:
+ 		name =3D getenv("KCONFIG_ALLCONFIG");
+=2D		if (name && !stat(name, &tmpstat)) {
+=2D			conf_read_simple(name);
+=2D			break;
++		if (name) {
++			if(!stat(name, &tmpstat)) {
++				conf_read_simple(name);
++				break;
++			} else minifail++;
+ 		}
+ 		switch (input_mode) {
+ 		case set_no:	 name =3D "allno.config"; break;
+ 		case set_mod:	 name =3D "allmod.config"; break;
+ 		case set_yes:	 name =3D "allyes.config"; break;
+ 		case set_random: name =3D "allrandom.config"; break;
++		case set_mini:	 name =3D "mini.config"; break;
+ 		default: break;
+ 		}
+ 		if (!stat(name, &tmpstat))
+ 			conf_read_simple(name);
+ 		else if (!stat("all.config", &tmpstat))
+ 			conf_read_simple("all.config");
++		else minifail++;
++
++		if ( input_mode =3D=3D set_mini && (minifail || conf_warnings)) {
++			fprintf(stderr, _("** Error parsing mini.config\n\n"));
++			return 1;
++		}
+ 		break;
+ 	default:
+ 		break;
+diff -ru linux-2.6.15-rc2.old/scripts/kconfig/confdata.c linux-2.6.15-rc2/s=
+cripts/kconfig/confdata.c
+=2D-- linux-2.6.15-rc2.old/scripts/kconfig/confdata.c	2005-11-21 09:28:22.0=
+00000000 -0600
++++ linux-2.6.15-rc2/scripts/kconfig/confdata.c	2005-11-21 09:21:50.0000000=
+00 -0600
+@@ -18,7 +18,8 @@
+ 	__attribute__ ((format (printf, 1, 2)));
+=20
+ static const char *conf_filename;
+=2Dstatic int conf_lineno, conf_warnings, conf_unsaved;
++static int conf_lineno, conf_unsaved;
++int conf_warnings;
+=20
+ const char conf_def_filename[] =3D ".config";
+=20
+diff -ru linux-2.6.15-rc2.old/scripts/kconfig/lkc.h linux-2.6.15-rc2/script=
+s/kconfig/lkc.h
+=2D-- linux-2.6.15-rc2.old/scripts/kconfig/lkc.h	2005-11-21 09:28:22.000000=
+000 -0600
++++ linux-2.6.15-rc2/scripts/kconfig/lkc.h	2005-11-21 09:21:50.000000000 -0=
+600
+@@ -61,6 +61,7 @@
+=20
+ /* confdata.c */
+ extern const char conf_def_filename[];
++extern int conf_warnings;
+=20
+ char *conf_get_default_confname(void);
+=20
+diff -ru linux-2.6.15-rc2.old/scripts/kconfig/Makefile linux-2.6.15-rc2/scr=
+ipts/kconfig/Makefile
+=2D-- linux-2.6.15-rc2.old/scripts/kconfig/Makefile	2005-11-21 09:28:22.000=
+000000 -0600
++++ linux-2.6.15-rc2/scripts/kconfig/Makefile	2005-11-21 09:21:50.000000000=
+ -0600
+@@ -42,7 +42,7 @@
+ 	$(Q)rm -f arch/um/Kconfig_arch
+ 	$(Q)rm -f scripts/kconfig/linux_*.pot scripts/kconfig/config.pot
+=20
+=2D.PHONY: randconfig allyesconfig allnoconfig allmodconfig defconfig
++.PHONY: randconfig allyesconfig allnoconfig allmodconfig defconfig minicon=
+fig
+=20
+ randconfig: $(obj)/conf
+ 	$< -r arch/$(ARCH)/Kconfig
+@@ -67,6 +67,9 @@
+ %_defconfig: $(obj)/conf
+ 	$(Q)$< -D arch/$(ARCH)/configs/$@ arch/$(ARCH)/Kconfig
+=20
++miniconfig: $(obj)/conf
++	@ $< -M arch/$(ARCH)/Kconfig > /dev/null
++
+ # Help text used by make help
+ help:
+ 	@echo  '  config	  - Update current config utilising a line-oriented prog=
+ram'
+@@ -79,6 +82,7 @@
+ 	@echo  '  allmodconfig	  - New config selecting modules when possible'
+ 	@echo  '  allyesconfig	  - New config where all options are accepted with=
+ yes'
+ 	@echo  '  allnoconfig	  - New minimal config'
++	@echo  '  miniconfig	  - New config generated from mini.config
+=20
+ # =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+ # Shared Makefile for the various kconfig executables:
+diff -ru linux-2.6.15-rc2.old/scripts/miniconfig.sh linux-2.6.15-rc2/script=
+s/miniconfig.sh
+=2D-- linux-2.6.15-rc2.old/scripts/miniconfig.sh	2005-11-21 09:36:44.000000=
+000 -0600
++++ linux-2.6.15-rc2/scripts/miniconfig.sh	2005-11-21 09:21:50.000000000 -0=
+600
+@@ -0,0 +1,46 @@
++#!/bin/sh
++
++# miniconfig.sh copyright 2005 by Rob Landley <rob@landley.net>
++# Licensed under the GNU General Public License version 2.
++
++if [ $# -ne 1 ] || [ ! -f "$1" ]
++then
++  echo "Usage: miniconfig.sh configfile"=20
++  exit 1
++fi
++
++if [ "$1" =3D=3D ".config" ]
++then
++  echo "It overwrites .config, rename it and try again."
++  exit 1
++fi
++
++cp $1 mini.config
++echo "Calculating mini.config..."
++
++LENGTH=3D`cat $1 | wc -l`
++
++# Loop through all lines in the file=20
++I=3D1
++while true
++do
++  if [ $I -gt $LENGTH ]
++  then
++    exit
++  fi
++  sed -n "${I}!p" mini.config > .config.test
++  # Do a config with this file
++  make allnoconfig KCONFIG_ALLCONFIG=3D.config.test > /dev/null
++
++  # Compare.  The date changes so expect a small difference each time.
++  D=3D`diff .config $1 | wc -l`
++  if [ $D -eq 4 ]
++  then
++    mv .config.test mini.config
++    LENGTH=3D$[$LENGTH-1]
++  else
++    I=3D$[$I + 1]
++  fi
++  echo -n -e $I/$LENGTH lines `cat mini.config | wc -c` bytes "\r"
++done
++echo
+
+--Boundary-00=_58ChD+0HfFUpAMW--

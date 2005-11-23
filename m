@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030443AbVKWWiB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030435AbVKWWjA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030443AbVKWWiB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 17:38:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030435AbVKWWhS
+	id S1030435AbVKWWjA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 17:39:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030448AbVKWWhO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 17:37:18 -0500
-Received: from vms048pub.verizon.net ([206.46.252.48]:46388 "EHLO
-	vms048pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1030443AbVKWWg7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 17:36:59 -0500
-Date: Wed, 23 Nov 2005 17:36:58 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Linux 2.6.15-rc2
-In-reply-to: <Pine.LNX.4.61.0511232122300.13837@goblin.wat.veritas.com>
-To: linux-kernel@vger.kernel.org
-Cc: Hugh Dickins <hugh@veritas.com>, Michael Krufky <mkrufky@linuxtv.org>,
-       Adrian Bunk <bunk@stusta.de>, Johannes Stezenbach <js@linuxtv.org>,
-       Sam Ravnborg <sam@ravnborg.org>, Kirk Lapray <kirk.lapray@gmail.com>
-Message-id: <200511231736.58204.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org>
- <4384D0EC.5050709@linuxtv.org>
- <Pine.LNX.4.61.0511232122300.13837@goblin.wat.veritas.com>
-User-Agent: KMail/1.7
+	Wed, 23 Nov 2005 17:37:14 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:20663 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1030444AbVKWWhI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 17:37:08 -0500
+Message-ID: <4384EEE9.3080809@zytor.com>
+Date: Wed, 23 Nov 2005 14:36:25 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Gerd Knorr <kraxel@suse.de>, Dave Jones <davej@redhat.com>,
+       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] SMP alternatives
+References: <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051123214344.GU20775@brahms.suse.de> <Pine.LNX.4.64.0511231413530.13959@g5.osdl.org> <20051123222212.GV20775@brahms.suse.de> <4384EC68.1060302@zytor.com> <20051123223253.GX20775@brahms.suse.de>
+In-Reply-To: <20051123223253.GX20775@brahms.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 November 2005 16:26, Hugh Dickins wrote:
->On Wed, 23 Nov 2005, Michael Krufky wrote:
->> > > First off, Gene, I am still under the impression that both v4l
->> > > and dvb subsystems are broken under 2.6.15 due to the memory
->> > > bugs... I don't know if Hugh Dickins fixed those yet or not.
->
->They should be fixed in today's 2.6.15-rc2-git3
->(aside from a couple of patches to drivers/char/drm coming later).
->If you still have problems you think I'm responsible for, let me know.
->
->Hugh
+Andi Kleen wrote:
+>>Well, with VTX or Pacifica virtualization is in ring 3.  The fact that 
+> 
+> Not it's not. The whole point is that there is no "ring compression" 
+> The guest has all its normal rings, just the hypervisor has additional
+> "negative" rings.
+> 
 
-I'm not familiar enough with git yet to try that without some hand
-holding :(
+Uhm... maybe we think of it differently, but typically I consider the 
+host rings (which is what I talked about above) as orthogonal to the 
+guest ring.  To the host, the guest is just a process in ring 3.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.36% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
-
+	-hpa

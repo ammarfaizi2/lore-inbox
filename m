@@ -1,55 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbVKWRkb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbVKWRmk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751278AbVKWRkb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 12:40:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751292AbVKWRkb
+	id S932067AbVKWRmk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 12:42:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751292AbVKWRmk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 12:40:31 -0500
-Received: from zproxy.gmail.com ([64.233.162.196]:7131 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751278AbVKWRka convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 12:40:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=UGc9vxuHgP5u0+UCNbQioPpU/zBxNY4OgY0hBhDbhOmPuzSDyLbmNizKANYfFHsDRAU85d/NRcU2nZiimgWZ0JuiO3XhY5ZlAW0y4t+ZDo2JBcAg6zDPQwY0ZyGbM4ETEG9o0gYlnTOuuc9hB+sacQdcRO301n980M7ADX8Vr7A=
-Message-ID: <2ea3fae10511230940t1f6a1757lf885a2559be6f0dc@mail.gmail.com>
-Date: Wed, 23 Nov 2005 09:40:28 -0800
-From: yhlu <yinghailu@gmail.com>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [LinuxBIOS] x86_64: apic id lift patch
-Cc: Ronald G Minnich <rminnich@lanl.gov>, discuss@x86-64.org,
-       linuxbios@openbios.org, yhlu <yhlu.kernel@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20051123173636.GL20775@brahms.suse.de>
+	Wed, 23 Nov 2005 12:42:40 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:63758 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751289AbVKWRmj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 12:42:39 -0500
+Date: Wed, 23 Nov 2005 18:42:37 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org, Michael Krufky <mkrufky@m1k.net>,
+       Johannes Stezenbach <js@linuxtv.org>
+Subject: Re: Linux 2.6.15-rc2
+Message-ID: <20051123174237.GO3963@stusta.de>
+References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org> <200511202049.30952.gene.heskett@verizon.net> <4383CC4E.40206@m1k.net> <200511222336.48506.gene.heskett@verizon.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <86802c440511211349t6a0a9d30i60e15fa23b86c49d@mail.gmail.com>
-	 <20051121220605.GD20775@brahms.suse.de> <43849FA5.4020201@lanl.gov>
-	 <2ea3fae10511230919l4d9829d8j3ce5d820b74074d1@mail.gmail.com>
-	 <20051123173636.GL20775@brahms.suse.de>
+In-Reply-To: <200511222336.48506.gene.heskett@verizon.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-is there any way to make the kernel use apci but still use pci irq
-routing from mptable?
+On Tue, Nov 22, 2005 at 11:36:48PM -0500, Gene Heskett wrote:
+>...
+> Well, I just went thru it again, and turned off everything but the
+> cx8800 and ORv51132 stuffs, and now I get this at the and of the
+> 'makeit' script I use here:
+> 
+> WARNING:
+> /lib/modules/2.6.15-rc2/kernel/drivers/media/video/cx88/cx88-dvb.ko
+> needs unknown symbol mt352_attach
+> WARNING:
+> /lib/modules/2.6.15-rc2/kernel/drivers/media/video/cx88/cx88-dvb.ko
+> needs unknown symbol nxt200x_attach
+> WARNING:
+> /lib/modules/2.6.15-rc2/kernel/drivers/media/video/cx88/cx88-dvb.ko
+> needs unknown symbol mt352_write
+> WARNING:
+> /lib/modules/2.6.15-rc2/kernel/drivers/media/video/cx88/cx88-dvb.ko
+> needs unknown symbol lgdt330x_attach
+> WARNING:
+> /lib/modules/2.6.15-rc2/kernel/drivers/media/video/cx88/cx88-dvb.ko
+> needs unknown symbol cx22702_attach
+>...
 
-YH
+Nice catch and thanks for your report.
 
-On 11/23/05, Andi Kleen <ak@suse.de> wrote:
-> On Wed, Nov 23, 2005 at 09:19:59AM -0800, yhlu wrote:
-> > sth about SRAT in LinuxBIOS,  I have put SRAT dynamically support in
-> > LinuxBIOS, but the whole acpi support still need dsdt, current we only have
-> > dsdt for AMD chipset in LB. And we can not have the access the dsdt asl from
-> > Nvidia chipset yet...
->
-> You probably don't need most of it. Just a basic SRAT table (no AML methods)
-> and enough to keep the ACPI interpreter from aborting early.
->
-> Or alternatively just fix the bug that caused you to go with discontig
-> APICs in the first place.
->
-> -Andi
->
+The bug is obvious. A possible patch is below (and at least 
+drivers/media/video/saa7134/Makefile contains the same bug),
+but I'd really prfer getting rid of the -DHAVE_* stuff in the
+Makefiles and using Kconfig variables instead.
+
+Would such a patch be accepted?
+
+> Cheers, Gene
+
+cu
+Adrian
+
+BTW: Please don't strip the Cc whenreplying to linux-kernel.
+
+
+
+--- linux-2.6.15-rc2/drivers/media/video/cx88/Makefile.old	2005-11-23 18:34:07.000000000 +0100
++++ linux-2.6.15-rc2/drivers/media/video/cx88/Makefile	2005-11-23 18:34:18.000000000 +0100
+@@ -9,21 +9,21 @@
+ EXTRA_CFLAGS += -I$(src)/..
+ EXTRA_CFLAGS += -I$(srctree)/drivers/media/dvb/dvb-core
+ EXTRA_CFLAGS += -I$(srctree)/drivers/media/dvb/frontends
+-ifneq ($(CONFIG_VIDEO_BUF_DVB),n)
++ifneq ($(CONFIG_VIDEO_BUF_DVB),)
+  EXTRA_CFLAGS += -DHAVE_VIDEO_BUF_DVB=1
+ endif
+-ifneq ($(CONFIG_DVB_CX22702),n)
++ifneq ($(CONFIG_DVB_CX22702),)
+  EXTRA_CFLAGS += -DHAVE_CX22702=1
+ endif
+-ifneq ($(CONFIG_DVB_OR51132),n)
++ifneq ($(CONFIG_DVB_OR51132),)
+  EXTRA_CFLAGS += -DHAVE_OR51132=1
+ endif
+-ifneq ($(CONFIG_DVB_LGDT330X),n)
++ifneq ($(CONFIG_DVB_LGDT330X),)
+  EXTRA_CFLAGS += -DHAVE_LGDT330X=1
+ endif
+-ifneq ($(CONFIG_DVB_MT352),n)
++ifneq ($(CONFIG_DVB_MT352),)
+  EXTRA_CFLAGS += -DHAVE_MT352=1
+ endif
+-ifneq ($(CONFIG_DVB_NXT200X),n)
++ifneq ($(CONFIG_DVB_NXT200X),)
+  EXTRA_CFLAGS += -DHAVE_NXT200X=1
+ endif

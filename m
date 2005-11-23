@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932586AbVKWWWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932590AbVKWWWV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932586AbVKWWWX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 17:22:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932589AbVKWWWX
+	id S932590AbVKWWWV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 17:22:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932589AbVKWWWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 17:22:23 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:27094 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932588AbVKWWWT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 17:22:19 -0500
-Subject: Re: [PATCH]: Free pages from local pcp lists under tight memory
-	conditions
-From: Rohit Seth <rohit.seth@intel.com>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.62.0511231325150.23433@schroedinger.engr.sgi.com>
-References: <20051122161000.A22430@unix-os.sc.intel.com>
-	 <Pine.LNX.4.62.0511231128090.22710@schroedinger.engr.sgi.com>
-	 <1132775194.25086.54.camel@akash.sc.intel.com>
-	 <20051123115545.69087adf.akpm@osdl.org>
-	 <1132779605.25086.69.camel@akash.sc.intel.com>
-	 <Pine.LNX.4.62.0511231325150.23433@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Organization: Intel 
-Date: Wed, 23 Nov 2005 14:29:03 -0800
-Message-Id: <1132784943.25086.87.camel@akash.sc.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Nov 2005 22:22:05.0150 (UTC) FILETIME=[5587C7E0:01C5F07C]
+	Wed, 23 Nov 2005 17:22:20 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:35231 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932586AbVKWWWS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 17:22:18 -0500
+Date: Wed, 23 Nov 2005 14:21:53 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: Daniel Jacobowitz <dan@debian.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andi Kleen <ak@suse.de>, Gerd Knorr <kraxel@suse.de>,
+       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
+       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] SMP alternatives
+In-Reply-To: <4384E880.4060305@zytor.com>
+Message-ID: <Pine.LNX.4.64.0511231419310.13959@g5.osdl.org>
+References: <1132764133.7268.51.camel@localhost.localdomain>
+ <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain>
+ <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com>
+ <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain>
+ <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051123214835.GA24044@nevyn.them.org>
+ <4384E4F7.9060806@zytor.com> <20051123220324.GA24517@nevyn.them.org>
+ <4384E880.4060305@zytor.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-23 at 13:25 -0800, Christoph Lameter wrote:
-> On Wed, 23 Nov 2005, Rohit Seth wrote:
-> 
-> > I thought Nick et.al came up with some of the constant values like batch
-> > size to tackle the page coloring issue specifically.  In any case, I
-> > think one of the key difference between 2.4 and 2.6 allocators is the
-> > pcp list.  And even with the minuscule batch and high watermarks this is
-> > helping ordinary benchmarks (by reducing the variation from run to run).
-> 
-> Could you share some benchmark results?
-> 
 
-Some components of cpu2k on 2.4 base kernels show in access of 40-50%
-variation from run to run.  The same variations came down to about 10%
-for 2.6 based kernels.   
 
--rohit
+On Wed, 23 Nov 2005, H. Peter Anvin wrote:
+> 
+> Yes.  Any shared mmaps may require working lock.
 
+Not "any". Only writable shared mmap. Which is actually the rare case.
+
+Even then, we might want to have such processes have a way to say "I don't 
+do futexes in this mmap" or similar. Quite often, writable shared mmaps 
+aren't interested in locked cycles - they are there to just write things 
+to disk, and all the serialization is done in the kernel when the user 
+does a "munmap()" or a "msync()".
+
+		Linus

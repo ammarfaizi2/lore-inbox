@@ -1,107 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbVKWSCe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbVKWSCW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932085AbVKWSCe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 13:02:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbVKWSCe
+	id S932121AbVKWSCW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 13:02:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbVKWSCU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 13:02:34 -0500
-Received: from zproxy.gmail.com ([64.233.162.206]:15156 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932123AbVKWSCc convert rfc822-to-8bit
+	Wed, 23 Nov 2005 13:02:20 -0500
+Received: from xproxy.gmail.com ([66.249.82.194]:10811 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932123AbVKWSBw convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 13:02:32 -0500
+	Wed, 23 Nov 2005 13:01:52 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=cIXjUhRAMsps3sMvCfeJiyFqlcs/annFp8IAI3ISYSOFrXAcJWsYYZKTkJ76MrEnLQCL3XZ8B6TjiSu+bog7OcnJ23rULSJ22UsIapk0nNzE87RVXIKs8yMvQhWtXxwJI/v7Y/YcCCgyhoPPxWHFYAsp8GxAgFu161OkecUfxxg=
-Message-ID: <35fb2e590511231002q65b12280t2e1b8b65e72e7aba@mail.gmail.com>
-Date: Wed, 23 Nov 2005 18:02:31 +0000
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: 7eggert@gmx.de
-Subject: Re: floppy regression from "[PATCH] fix floppy.c to store correct ..."
-Cc: Andrew Morton <akpm@osdl.org>, cp@absolutedigital.net,
-       linux-kernel@vger.kernel.org, jcm@jonmasters.org, torvalds@osdl.org,
-       viro@ftp.linux.org.uk, hch@lst.de
-In-Reply-To: <E1Eeyae-00012o-CV@be1.lrz>
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=e3WV7gI89zFkHFZYpcGZ8oNO/W6SZYKiuMn+2Qb5ZTeUYqyLGG2DLSMEi0SLtX0CutHtbIvLKRmuFv6Z9+oi2Dm8PXSg/aqeZKQ0bYZ24hD1vDFnCzGesFmDadOYVDU5aamBkLzEOYeH8CYmm+zQ5ZJMGfMKSe8Zg3VepY4zLd8=
+Message-ID: <2ea3fae10511231001r47fcfa64r8afa8bd5552479d0@mail.gmail.com>
+Date: Wed, 23 Nov 2005 10:01:51 -0800
+From: yhlu <yinghailu@gmail.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [LinuxBIOS] x86_64: apic id lift patch
+Cc: Ronald G Minnich <rminnich@lanl.gov>, discuss@x86-64.org,
+       linuxbios@openbios.org, linux-kernel@vger.kernel.org,
+       yhlu <yhlu.kernel@gmail.com>
+In-Reply-To: <20051123175042.GM20775@brahms.suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <59olg-7rC-3@gated-at.bofh.it> <59rsT-3Co-27@gated-at.bofh.it>
-	 <5arTK-5Wu-1@gated-at.bofh.it> <5bAW4-8wm-19@gated-at.bofh.it>
-	 <5bEYO-6oH-15@gated-at.bofh.it> <5bOEG-5jk-19@gated-at.bofh.it>
-	 <5bUK2-61i-5@gated-at.bofh.it> <E1Eeyae-00012o-CV@be1.lrz>
+References: <86802c440511211349t6a0a9d30i60e15fa23b86c49d@mail.gmail.com>
+	 <20051121220605.GD20775@brahms.suse.de> <43849FA5.4020201@lanl.gov>
+	 <20051123173504.GK20775@brahms.suse.de>
+	 <2ea3fae10511230943y5f697eb8sdbf891497fa8b88f@mail.gmail.com>
+	 <20051123175042.GM20775@brahms.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/23/05, Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org> wrote:
-> Jon Masters <jonmasters@gmail.com> wrote:
-> > On 11/22/05, Andrew Morton <akpm@osdl.org> wrote:
->
-> >> In the meanwhile I think we should revert back to the 2.6.14 version of
-> >> floppy.c - the present problem is probably worse than the one which it
-> >> kinda-fixes.
-> >
-> > Ok, as you please. It's probably going to take something much more
-> > ugly to make this work with things as they stand - I'll get something
-> > out at the weekend.
->
-> I think it should be a general solution to flipped CP switches on floppies
-> and USB sticks as well as network block devices on a fs that got remounted
-> ro or hdparm -W.
+NB_CFG bit 54 for E0 stepping later can be set.
 
-Yes. We talked about this before and I even started proposing ideas,
-but nobody was interested in more disruptive changes to the block
-layer - I'm quite happy to do it.
+When it is set
+the initial apic id will be
+node0/core0 : 0
+node0/core1 : 1
+node1/core0 : 2
+node1/core1 : 3
 
-> The device needs a WP status that gets updated on open or mount (must
-> complete before open()/mount() completes),
+So you can shift the initial apic id to the node id, but the problem
+is you need to have right cores_vir,  because for single you need to
+use 2 to shift instead of 1 the core num that you read from msr.
 
-Yes. In fact I thought about the floppy case some more yesterday and
-realised that we can have it do the expensive check only in the case
-that we want to open to write, read paths are then still cheap but we
-check the media in the write case - this isn't as generic as I want.
-It seems to me that this is a whole class of problem that needs a
-higher solution and I did propose a callback approach so we can tell
-Linux that the media WP state changed.
+For LinuxBIOS, we go further, that we use NB_CFG bit 54 directly,
+instead of check cpu version, because only E0 later can be set.
 
-> on failed write()s iff the write failed because of write protection error and whenever
-> checking is cheap.
+please check the code in LinuxBIOS that we are using to get node id...
 
-Which is basically what I said before. But then, I also sent a patch
-to rename policy sanely and would like to introduce wrapper macros for
-all of this too.
+YH
 
-> If the check can't be done sanely on open() calls (as in the case of NBD),
-> asume it to be RW enabled unless we know otherwise (e.g. the user told us).
+static inline unsigned int read_nb_cfg_54(void)
+{
+        msr_t msr;
+        msr = rdmsr(NB_CFG_MSR);
+        return ( ( msr.hi >> (54-32)) & 1);
+}
 
-No. That's dangerous and gets us back into the same position. We want
-to do the checks according to what kind of open we are trying to do,
-in the worse case. Still, we need to handle non-blocking open but
-that's the user's problem - they asked for it.
+struct node_core_id {
+        unsigned nodeid;
+        unsigned coreid;
+};
 
-> (re)mounts should allways enforce the check as long as it's possible.
-> The filesystems will need to get updated to use this status as well and
-> remount themselves ro (or do a panic/reboot, if desired).
+static inline unsigned get_initial_apicid(void)
+{
+        return ((cpuid_ebx(1) >> 24) & 0xf);
+}
 
-As viro said, just randomly changing the media status isn't easy. But
-in the case that we changed the media to RO then the higher layers
-aren't going to be able to write anyway so we /should/ do an remount
-ro anyway. The whole problem comes because Linux blindly relies on the
-read/write state of the block device and not of the underlying media.
+static inline struct node_core_id get_node_core_id(unsigned nb_cfg_54)
+{
+        struct node_core_id id;
+        //    get the apicid via cpuid(1) ebx[27:24]
+        if( nb_cfg_54) {
+                //   when NB_CFG[54] is set, nodid = ebx[27:25],
+coreid = ebx[24]
+                id.coreid = (cpuid_ebx(1) >> 24) & 0xf;
+                id.nodeid = (id.coreid>>1);
+                id.coreid &= 1;
+        }
+        else
+        {
+                // when NB_CFG[54] is clear, nodeid = ebx[26:24],
+coreid = ebx[27]
+                id.nodeid = (cpuid_ebx(1) >> 24) & 0xf;
+                id.coreid = (id.nodeid>>3);
+                id.nodeid &= 7;
+        }
+        return id;
+}
 
-> This will still misbehave, but I think it will misbehave in a sane way. You
-> may get a rw mount on ro devices in corner cases, but you can't keep it.
+static inline unsigned get_core_num(void)
+{
+        return (cpuid_ecx(0x80000008) & 0xff);
+}
 
-Yes, but right not it still fails "silently" and possibly results in
-data loss. The way to fix this is to have a nice shiney way to inform
-Linux of this.
+static inline struct node_core_id get_node_core_id_x(void) {
 
-Ok. I'm too busy to spend much time during the week on this right now
-but I will set aside some time over the weekend to split out what I
-proposed before and send a few patches which implement what we've been
-talking about.
-
-Cheers,
-
-Jon.
+        return get_node_core_id( read_nb_cfg_54() ); // for pre_e0()
+nb_cfg_54 always be 0
+}

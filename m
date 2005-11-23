@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751256AbVKWRYf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751262AbVKWRa3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751256AbVKWRYf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 12:24:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbVKWRYf
+	id S1751262AbVKWRa3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 12:30:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbVKWRa2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 12:24:35 -0500
-Received: from webbox4.loswebos.de ([213.187.93.205]:52906 "EHLO
-	webbox4.loswebos.de") by vger.kernel.org with ESMTP
-	id S1751256AbVKWRYe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 12:24:34 -0500
-Date: Wed, 23 Nov 2005 18:24:50 +0100
-From: Marc Koschewski <marc@osknowledge.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Marc Koschewski <marc@osknowledge.org>, Vojtech Pavlik <vojtech@suse.cz>,
-       Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>,
-       rmk+lkml@arm.linux.org.uk
+	Wed, 23 Nov 2005 12:30:28 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:45070 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751262AbVKWRa2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 12:30:28 -0500
+Date: Wed, 23 Nov 2005 17:30:20 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Christmas list for the kernel
-Message-ID: <20051123172449.GF6970@stiffy.osknowledge.org>
-References: <9e4733910511230643j64922738p709fecd6c86b4a95@mail.gmail.com> <20051123150349.GA15449@flint.arm.linux.org.uk> <9e4733910511230712y2b394851rc17fa71c6f9c6ecf@mail.gmail.com> <20051123155650.GB6970@stiffy.osknowledge.org> <20051123160520.GH15449@flint.arm.linux.org.uk> <9e4733910511230837v1519d3b3t28176b1fd6017ffc@mail.gmail.com> <20051123164907.GA2981@ucw.cz> <9e4733910511230859y3879e65fp927a7aa4d71d8fee@mail.gmail.com> <20051123170508.GE6970@stiffy.osknowledge.org> <9e4733910511230913y7fe5f9cfw99bfbb077ea9c87a@mail.gmail.com>
-MIME-Version: 1.0
+Message-ID: <20051123173020.GL15449@flint.arm.linux.org.uk>
+Mail-Followup-To: Gene Heskett <gene.heskett@verizon.net>,
+	linux-kernel@vger.kernel.org
+References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com> <9e4733910511221341u695f6765k985ecf0c54daba49@mail.gmail.com> <20051123144437.GB7328@ucw.cz> <200511231221.27781.gene.heskett@verizon.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9e4733910511230913y7fe5f9cfw99bfbb077ea9c87a@mail.gmail.com>
-X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
-X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
-X-Operating-System: Linux stiffy 2.6.15-rc2-marc
-User-Agent: Mutt/1.5.11
+In-Reply-To: <200511231221.27781.gene.heskett@verizon.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jon Smirl <jonsmirl@gmail.com> [2005-11-23 12:13:06 -0500]:
-
-> On 11/23/05, Marc Koschewski <marc@osknowledge.org> wrote:
-> > * Jon Smirl <jonsmirl@gmail.com> [2005-11-23 11:59:27 -0500]:
-> > > Another would be to have a little user space daemon that listened to
-> > > the pty creation, and then mknod the tty nodes as need and pipe the
-> > > data through. That would be a first step to moving to a user space
-> > > console implementation.
-> >
-> > Shouldn't this be udev then? I hear people scream when 'some deamon'
-> > created a device in /dev. Was it udev? Was is 'ttydevd'? Even
-> > 'ondemanddevd'?
+On Wed, Nov 23, 2005 at 12:21:27PM -0500, Gene Heskett wrote:
+> serio: i8042 AUX port at 0x60,0x64 irq 12
+> serio: i8042 KBD port at 0x60,0x64 irq 1
+> Serial: 8250/16550 driver $Revision: 1.90 $ 2 ports, IRQ sharing enabled
+> ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+> ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+> ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+> ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+> ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+> ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
 > 
-> udev listens to /sys/class for it's indications on when to create a node.
-> 
-> The tty daemon would need to listen for pty creation to tell it when
-> to create a node. Then after it creates the node it needs to maintain
-> a pipe between the pty and tty. This is a lot different than what udev
-> does.
+> I had posted about this before, but it was apparently lost in the lists
+> general noise.   I do use both ports here, and they are working, so I
+> hadn't pursued it further.
 
-I didn't mean to _say_ that it's the same. I just meant to _ask_ how you
-are going to tell the users which daemon created what devices in /dev. I
-would rather do the 'udev appoach' then (extend it in other words) so
-that there's just one daemon that creates device nodes.
+So has the answer.  I've answered this twice today, and several times
+in bugzilla.  It's one reason why these lines are now prefixed with
+"serial8250" - that being the struct device to which they end up being
+associated with.  (defaulting to "serial8250" for power management
+purposes if no other exists.)
 
-Marc
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

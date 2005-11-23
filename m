@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932578AbVKWWOU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbVKWWPv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932578AbVKWWOU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 17:14:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932577AbVKWWOT
+	id S932274AbVKWWPv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 17:15:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932576AbVKWWPv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 17:14:19 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:41347 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932576AbVKWWOR (ORCPT
+	Wed, 23 Nov 2005 17:15:51 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:57501 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932274AbVKWWPu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 17:14:17 -0500
-Date: Wed, 23 Nov 2005 23:12:05 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Christoph Hellwig <hch@infradead.org>, Jon Smirl <jonsmirl@gmail.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Christmas list for the kernel
-Message-ID: <20051123221205.GA24220@elf.ucw.cz>
-References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com> <20051122193145.GA3923@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051122193145.GA3923@infradead.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Wed, 23 Nov 2005 17:15:50 -0500
+Date: Wed, 23 Nov 2005 14:15:24 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andi Kleen <ak@suse.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
+       Gerd Knorr <kraxel@suse.de>, Dave Jones <davej@redhat.com>,
+       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] SMP alternatives
+In-Reply-To: <20051123214344.GU20775@brahms.suse.de>
+Message-ID: <Pine.LNX.4.64.0511231413530.13959@g5.osdl.org>
+References: <438359D7.7090308@suse.de> <p7364qjjhqx.fsf@verdi.suse.de>
+ <1132764133.7268.51.camel@localhost.localdomain> <20051123163906.GF20775@brahms.suse.de>
+ <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org>
+ <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org>
+ <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org>
+ <20051123214344.GU20775@brahms.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> (5) a pony
 
-Be carefull what you ask for. Pony is rather easy to get (not as easy
-as a small cat, but...) and requires quite a lot of maintanence. Ouch
-and it eats lots of energy even in sleep mode, and you'd better keep it
-far away from computers.
+On Wed, 23 Nov 2005, Andi Kleen wrote:
+>
+> > THAT is what I'd like to have CPU support for. Not for UP (it's going 
+> > away), and not for the kernel (it's never single-threaded).
+> 
+> There is one reasonly interesting special case that will probably stay
+> around: single CPU guest in a virtualized environment.
 
-> (6) world peace
+.. and then the _virtualizer_ should just set the bit. 
 
-Thats easy to do, too. Unfortunately it would probably mean "lets go
-back to bacterias"
+However, quite frankly, virtualization is overhyped, in my opinion. And if 
+it forces people to run UP because of performance issues, it's simply not 
+acceptable for a lot of loads.
 
-								Pavel
--- 
-http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+It's cool technology and all, but realistically..
+
+		Linus

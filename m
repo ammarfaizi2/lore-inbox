@@ -1,69 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932521AbVKWEvk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932524AbVKWExY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932521AbVKWEvk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 23:51:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932522AbVKWEvk
+	id S932524AbVKWExY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 23:53:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932525AbVKWExY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 23:51:40 -0500
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:22975 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S932521AbVKWEvj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 23:51:39 -0500
-Subject: Re: [PATCH] Fix USB suspend/resume crasher
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: David Brownell <david-b@pacbell.net>, Paul Mackerras <paulus@samba.org>,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Alan Stern <stern@rowland.harvard.edu>
-In-Reply-To: <1132715288.26560.262.camel@gaston>
-References: <1132715288.26560.262.camel@gaston>
-Content-Type: text/plain
-Organization: Cyclades
-Message-Id: <1132715647.4707.8.camel@localhost>
+	Tue, 22 Nov 2005 23:53:24 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:49861 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932524AbVKWExX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 23:53:23 -0500
+Date: Wed, 23 Nov 2005 10:20:49 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: What protection does sysfs_readdir have with SMP/Preemption?
+Message-ID: <20051123045049.GA22714@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <1132695202.13395.15.camel@localhost.localdomain> <20051122213947.GB8575@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 23 Nov 2005 14:14:07 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051122213947.GB8575@kroah.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Wed, 2005-11-23 at 14:08, Benjamin Herrenschmidt wrote:
-> This is my latest patch against current linus -git, it closes the IRQ
-> race and makes various other OHCI & EHCI code path safer vs.
-> suspend/resume. I've been able to (finally !) successfully suspend and
-> resume various Mac models, with or without USB mouse plugged, or
-> plugging while asleep, or unplugging while asleep etc... all without a
-> crash. There are still some races here or there in the USB code, but at
-> least the main cause of crash is now fixes by this patch (access to a
-> controller that has been suspended, due to either shared interrupts or
-> other code path).
+On Tue, Nov 22, 2005 at 01:39:47PM -0800, Greg KH wrote:
+> On Tue, Nov 22, 2005 at 04:33:22PM -0500, Steven Rostedt wrote:
+> > Hi,
+> > 
+> > I'm developing a custom kernel on top of Ingo's -rt patch. My kernel
+> > makes race conditions in the vanilla kernel show up very well :-)
+> > 
+> > I just hit a bug, actually a page fault in fs/sysfs/dir.c in
+> > sysfs_readdir:
+> > 
+> > 
+> > 
+> > 			for (p=q->next; p!= &parent_sd->s_children; p=p->next) {
+> > 				struct sysfs_dirent *next;
+> > 				const char * name;
+> > 				int len;
+> > 
+> > 				next = list_entry(p, struct sysfs_dirent,
+> > 						   s_sibling);
+> > 				if (!next->s_element)
+> > 					continue;
+> > 
+> > 				name = sysfs_get_name(next);
+> > 				len = strlen(name);
+> > 				if (next->s_dentry)
+> > 					ino = next->s_dentry->d_inode->i_ino;
+> > 
+> > ^^^^
+> > This is where I had a bad pointer reference.
+> > 
+> > 				else
+> > 					ino = iunique(sysfs_sb, 2);
+> > 
+> > 				if (filldir(dirent, name, len, filp->f_pos, ino,
+> > 						 dt_type(next)) < 0)
+> > 					return 0;
+> > 
+> > 
+> > Looking at this code, I don't see anything protecting the s_dentry. For
+> > example, couldn't the following happen:
+> > 
+> > sysfs_create_dir is called, which calls create_dir.  Now we create a
+> > dentry with no d_inode. In sysfs_make_dirent which calls
+> > sysfs_new_dirent which adds to the parents s_children. Then
+> > sysfs_make_dirent sets s_dentry = dentry (the one that was just made
+> > with no d_inode assigned yet).  Then create_dir calls sysfs_create which
+> > finally assigns the d_inode.
+> > 
+> > So, either there is some hidden protection and my modification to the
+> > kernel has caused this to bug, or we have just been lucky the whole time
+> > in the vanilla kernel.
 > 
-> I haven't fixed UHCI as I don't have any HW to test, though I hope I
-> haven't broken it neither. Alan, I would appreciate if you could have a
-> look.
+> I think we've been lucky :(
 > 
-> This patch applies on top of the patch that moves the PowerMac specific
-> code out of ohci-pci.c to hcd-pci.c where it belongs. This patch isn't
-> upstream yet for reasons I don't fully understand (why does USB stuffs
-> has such a high latency for going upstream ?), I'm sending it as a reply
-> to this email for completeness.
+> Maneesh, any ideas?
 > 
-> Without this patch, you cannot reliably sleep/wakeup any recent Mac, and
-> I suspect PCs have some more sneaky issues too (they don't frankly crash
-> with machine checks because x86 tend to silently swallow PCI errors but
-> that won't last afaik, at least PCI Express will blow up in those
-> situations, but the USB code may still misbehave).
 
-Sounds great. Maybe I'll finally be able to change my first question to
-people with suspend problems from: "Do you have USB built as modules and
-unloaded while suspending."
+The dir operation sysfs_readdir() is called under directory inode's i_sem
+taken in vfs_readdir() and create_dir() also takes parent directory inode's 
+i_sem. So in this case I think following are the relevant steps happening
+which look safe to me.
 
-Regards,
+cpu 0
+vfs_readdir()
+  down(dir inode i_sem)
+    sysfs_readdir(dir)
+      parse through dir->s_dirent s_children list
+  up(dir inode i_sem)
+   
 
-Nigel
+cpu 1
+sysfs_create_dir()
+  create_dir()
+   down(parent dir inode i_sem)
+   lookup_one_len (allocates & makes the new directory dentry visible)
+   sysfs_make_diret()
+     sysfs_new_dirent()
+       attach the new directory s_dirent to parent's s_children list)
+   up(parent dir inode i_sem)
 
+
+Basically, sysfs_readdir for a directory is protected against any 
+addition/deletion in the directory by directory inode's i_sem.
+
+But the bad pointer reference seen in sysfs_readdir() has to be debugged.
+Assumption here is that if there is a dentry attached to s_dirent, there
+has to be a inode associated becuase negative dentries are not created
+in sysfs. Is it possible to get some more information about the recreation
+scenario. Could you enable DEBUG printks for lib/kobject.c and 
+drivers/base/class.c to see the events happening.
+
+
+Thanks
+Maneesh
+   
+-- 
+Maneesh Soni
+Linux Technology Center, 
+IBM India Software Labs,
+Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-25044990

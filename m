@@ -1,54 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932392AbVKWUf4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbVKWUgf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932392AbVKWUf4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 15:35:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbVKWUfv
+	id S932435AbVKWUgf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 15:36:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932535AbVKWUgd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 15:35:51 -0500
-Received: from ns.suse.de ([195.135.220.2]:30863 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932392AbVKWUe5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 15:34:57 -0500
-Date: Wed, 23 Nov 2005 21:34:56 +0100
-From: Andi Kleen <ak@suse.de>
-To: Ronald G Minnich <rminnich@lanl.gov>
-Cc: yhlu <yinghailu@gmail.com>, Andi Kleen <ak@suse.de>, discuss@x86-64.org,
-       linuxbios@openbios.org, yhlu <yhlu.kernel@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: [LinuxBIOS] x86_64: apic id lift patch
-Message-ID: <20051123203456.GQ20775@brahms.suse.de>
-References: <86802c440511211349t6a0a9d30i60e15fa23b86c49d@mail.gmail.com> <20051121220605.GD20775@brahms.suse.de> <43849FA5.4020201@lanl.gov> <2ea3fae10511230919l4d9829d8j3ce5d820b74074d1@mail.gmail.com> <4384CFCD.9010304@lanl.gov>
+	Wed, 23 Nov 2005 15:36:33 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:4480 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932435AbVKWUgH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 15:36:07 -0500
+Subject: Re: PROBLEM: No initialization of sound card
+From: Lee Revell <rlrevell@joe-job.com>
+To: Pelle =?ISO-8859-1?Q?Lundstr=F6m?= <lunper@gmail.com>
+Cc: David Wragg <david@wragg.org>, linux-kernel@vger.kernel.org,
+       ALSA user list <alsa-user@lists.sourceforge.net>
+In-Reply-To: <b1952ae90511231230j1121e7a0v501cf135761e154a@mail.gmail.com>
+References: <m3veyxo8jb.fsf@dwragg.oilspace.com>
+	 <1131841275.15223.17.camel@mindpipe>
+	 <b1952ae90511231230j1121e7a0v501cf135761e154a@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Wed, 23 Nov 2005 15:34:42 -0500
+Message-Id: <1132778083.10453.24.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4384CFCD.9010304@lanl.gov>
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 01:23:41PM -0700, Ronald G Minnich wrote:
-> yeah, this is the great thing about ACPI, it has put us into a whole new 
->  era of copyrighted stuff. ACPI tables describe hardware, and are 
-> copyright bios vendors. The question of which ACPI bits we can use in 
-> linuxbios is unresolved. AMD has committed to open-source ACPI tables, 
-> but ... what about companies like nvidia? unknown. And, to add to the 
-> fun, the mainboard vendors don't own their own ACPI tables -- the BIOS 
-> vendors do. So the mainboard vendor has their hardware design encoded 
-> into ACPI tables, which are copyright the bios vendor, not the mainboard 
-> vendor.
+On Wed, 2005-11-23 at 21:30 +0100, Pelle Lundström wrote:
+> When running the commands "lsmod | grep ^snd | cut -d\  -f1 | xargs
+> rmmod" and then "modprobe snd_es18xx" then I get errors.
+> 
+> The dmesg output is:
+> : Unknown symbol snd_info_register
 
-I don't think it's as bad as you describe. Once you have a free reference
-DSL it shouldn't be very difficult to vary it for specific
-platforms. I guess that is what the proprietary BIOS writers are doing too. 
+This usually means your ALSA modules were not compiled against the right
+kernel version.  Or some of the old modules failed to unload and you're
+now trying to load a mix of old and new modules.
 
-Some systems have very complex ACPI tables, but for others they 
-can be quite simple and a lot of the complexity can be just ignored.
+Lee
 
-I suppose you could even write a generic translator from mptables to ACPI 
-tables (although I suspect more and more setups cannot be described
-in the old tables) 
-
-BTW there are other reasons now to support ACPI, like the MCFG tables
-that are needed for extended config space accesses (necessary
-e.g. for PCI Express error handling) or the HPET table for the HPET timer.
-
--Andi

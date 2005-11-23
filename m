@@ -1,42 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbVKWWuP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932593AbVKWWuN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932299AbVKWWuP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 17:50:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932594AbVKWWuP
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 17:50:15 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:34008 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932299AbVKWWuN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S932593AbVKWWuN (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 23 Nov 2005 17:50:13 -0500
-Date: Wed, 23 Nov 2005 23:48:03 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: rfc/rft: use r10 as current on x86-64
-Message-ID: <20051123224803.GE24220@elf.ucw.cz>
-References: <20051122165204.GG1127@kvack.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051122165204.GG1127@kvack.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932594AbVKWWuN
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 23 Nov 2005 17:50:13 -0500
+Received: from xenotime.net ([66.160.160.81]:27358 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932593AbVKWWuK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 17:50:10 -0500
+Date: Wed, 23 Nov 2005 14:50:05 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Adrian Bunk <bunk@stusta.de>
+cc: zippel@linux-m68k.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] fs/hfsplus/: move the hfsplus_inode_check() prototype
+ to hfsplus_fs.h
+In-Reply-To: <20051123223508.GG3963@stusta.de>
+Message-ID: <Pine.LNX.4.58.0511231449120.20189@shark.he.net>
+References: <20051123223508.GG3963@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 23 Nov 2005, Adrian Bunk wrote:
 
-> The patch below converts x86-64 to use r10 as the current pointer instead 
-> of gs:pcurrent.  This results in a ~34KB savings in the code segment of 
-> the kernel.  I've tested this with running a few regular applications, 
-> plus a few 32 bit binaries.  If this patch is interesting, it probably 
-> makes sense to merge the thread info structure into the task_struct so 
-> that the assembly bits for syscall entry can be cleaned up.  Comments?
+> Function prototypes belong into header files.
 
-34KB smaller is nice, but is not it also 30% slower? Plus some inline
-assembly *will* have %r10 hardcoded, no? I'd be afraid around crypto
-code, for example.
-								Pavel
+I'd like to see someone fix kernel/power/disk.c also....
+
 -- 
-Thanks, Sharp!
+~Randy

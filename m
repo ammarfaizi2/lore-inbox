@@ -1,41 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932560AbVKWWCI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932563AbVKWWCj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932560AbVKWWCI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 17:02:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbVKWWCI
+	id S932563AbVKWWCj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 17:02:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932565AbVKWWCj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 17:02:08 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:21191 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S932560AbVKWWCA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 17:02:00 -0500
-Date: Wed, 23 Nov 2005 14:01:47 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: Rohit Seth <rohit.seth@intel.com>, torvalds@osdl.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: Free pages from local pcp lists under tight memory
- conditions
-In-Reply-To: <20051123115545.69087adf.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.62.0511231356200.23615@schroedinger.engr.sgi.com>
-References: <20051122161000.A22430@unix-os.sc.intel.com>
- <Pine.LNX.4.62.0511231128090.22710@schroedinger.engr.sgi.com>
- <1132775194.25086.54.camel@akash.sc.intel.com> <20051123115545.69087adf.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 23 Nov 2005 17:02:39 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:65433
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932563AbVKWWCi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 17:02:38 -0500
+Date: Wed, 23 Nov 2005 14:02:40 -0800 (PST)
+Message-Id: <20051123.140240.109592494.davem@davemloft.net>
+To: arjan@infradead.org
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk,
+       torvalds@osdl.org, ak@muc.de
+Subject: Re: [NET]: Shut up warnings in net/core/flow.c
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <1132781300.2795.74.camel@laptopd505.fenrus.org>
+References: <1132737084.2795.20.camel@laptopd505.fenrus.org>
+	<20051123.132440.71355611.davem@davemloft.net>
+	<1132781300.2795.74.camel@laptopd505.fenrus.org>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Nov 2005, Andrew Morton wrote:
+From: Arjan van de Ven <arjan@infradead.org>
+Date: Wed, 23 Nov 2005 22:28:19 +0100
 
-> I was able to demonstrate a large (~60%?) speedup in one microbenckmark
-> which consisted of four processes writing 16k to a file and truncating it
-> back to zero again.  That gain came from the cache warmth effect, which is
-> the other benefit which these cpu-local pages are supposed to provide.
+> I'm no gcc expert but afaik this really needs unit-at-a-time. (someone
+> who knows more about gcc please correct me if I'm wrong).
 
-Maybe we can cut the pcp logic back to only put cache warm pages into a
-single per_cpu pcp list for the local processor that contains node local 
-pages? Return all remote pages and cold pages directly to the buddy lists.
-
-That way we can remove the logic to flush remote pages and remove those 
-pcp lists for remote nodes that are mostly empty anyways.
+Yes, it has to parse the whole file before it can determine
+entirely that the static function is indeed not referenced.

@@ -1,37 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbVKWTKS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932236AbVKWTNG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932224AbVKWTKS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 14:10:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbVKWTKR
+	id S932236AbVKWTNG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 14:13:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbVKWTND
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 14:10:17 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:25052 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932224AbVKWTKO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 14:10:14 -0500
-Date: Wed, 23 Nov 2005 11:09:38 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Howells <dhowells@redhat.com>
-cc: akpm@osdl.org, dalomar@serrasold.com, linux-kernel@vger.kernel.org,
-       uclinux-dev@uclinux.org
-Subject: Re: [PATCH 1/3] NOMMU: Provide shared-writable mmap support on ramfs
-In-Reply-To: <dhowells1132772387@warthog.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.64.0511231109040.13959@g5.osdl.org>
-References: <dhowells1132772387@warthog.cambridge.redhat.com>
+	Wed, 23 Nov 2005 14:13:03 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:43946 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S932232AbVKWTM5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 14:12:57 -0500
+Message-ID: <4384BF01.4020605@zytor.com>
+Date: Wed, 23 Nov 2005 11:12:01 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
+       Gerd Knorr <kraxel@suse.de>, Dave Jones <davej@redhat.com>,
+       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] SMP alternatives
+References: <Pine.LNX.4.64.0511131118020.3263@g5.osdl.org>  <Pine.LNX.4.64.0511131210570.3263@g5.osdl.org> <4378A7F3.9070704@suse.de>  <Pine.LNX.4.64.0511141118000.3263@g5.osdl.org> <4379ECC1.20005@suse.de>  <437A0649.7010702@suse.de> <437B5A83.8090808@suse.de>  <438359D7.7090308@suse.de> <p7364qjjhqx.fsf@verdi.suse.de>  <1132764133.7268.51.camel@localhost.localdomain>  <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 23 Nov 2005, David Howells wrote:
+Linus Torvalds wrote:
 > 
->  (3) Not permitting a file to be shrunk if it would truncate any shared
->      mappings (private mappings are copied).
+> Of course, if it's in one of the low 12 bits of %cr3, there would have to 
+> be a "enable this bit" in %cr4 or something. Historically, you could write 
+> any crap in the low bits, I think.
+> 
 
-Why?
+No, most of them are RAZ, but there are at least a couple of bits which 
+have effect (e.g. caching of the page tables.)
 
-Truncate is _supposed_ to get rid of any shared mmap stuff. 
+However, with PAE there aren't really a whole lot of unused bits in CR3.
 
-		Linus
+	-hpa

@@ -1,57 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030396AbVKWKz1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030401AbVKWLHn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030396AbVKWKz1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 05:55:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030398AbVKWKz1
+	id S1030401AbVKWLHn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 06:07:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030402AbVKWLHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 05:55:27 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:7644 "EHLO
-	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
-	id S1030396AbVKWKz0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 05:55:26 -0500
-Date: Wed, 23 Nov 2005 11:55:24 +0100
-From: Folkert van Heusden <folkert@vanheusden.com>
-To: bert hubert <bert.hubert@netherlabs.nl>, linux-kernel@vger.kernel.org
-Subject: Re: capturing oopses
-Message-ID: <20051123105524.GV11178@vanheusden.com>
-References: <20051122130754.GL32512@vanheusden.com>
-	<20051122140833.GA29822@outpost.ds9a.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 23 Nov 2005 06:07:43 -0500
+Received: from xproxy.gmail.com ([66.249.82.194]:42257 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030401AbVKWLHm convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 06:07:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iPlBa1gSn3BYw3g0SlFSLiVONG0zyc4xgpUx3aI1rjCMruY7UUxT7CeUlgzXkkvXt2L94bQTrA1eTH4zGV/Waspl19KOC1qemcY68o6XpWGDZwTkkZlEZBUZBzVqMLT7tFx89Db9iPne6UFl1OKMEWCM913NZRzhs/P3RxiTvJ8=
+Message-ID: <21d7e9970511230307l1fcfc182w7ec82a76243a9a0c@mail.gmail.com>
+Date: Wed, 23 Nov 2005 22:07:42 +1100
+From: Dave Airlie <airlied@gmail.com>
+To: Michael Frank <mhf@berlios.de>
+Subject: Re: 2.6.15-rc1-mm2 0x414 Bad page states
+Cc: Hugh Dickins <hugh@veritas.com>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Benoit Boissinot <benoit.boissinot@ens-lyon.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, Michael Krufky <mkrufky@m1k.net>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051122231603.2209814DA@hornet.berlios.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051122140833.GA29822@outpost.ds9a.nl>
-Organization: www.unixexpert.nl
-X-Chameleon-Return-To: folkert@vanheusden.com
-X-Xfmail-Return-To: folkert@vanheusden.com
-X-Phonenumber: +31-6-41278122
-X-URL: http://www.vanheusden.com/
-X-PGP-KeyID: 1F28D8AE
-X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
-X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
-Read-Receipt-To: <folkert@vanheusden.com>
-Reply-By: Wed Nov 23 18:41:04 CET 2005
-X-Message-Flag: PGP key-id: 0x1f28d8ae - consider encrypting your e-mail to me
-	with PGP!
-User-Agent: Mutt/1.5.10i
+References: <Pine.LNX.4.61.0511181906240.2853@goblin.wat.veritas.com>
+	 <20051122211625.165F114CB@hornet.berlios.de>
+	 <Pine.LNX.4.61.0511222124040.29784@goblin.wat.veritas.com>
+	 <20051122231603.2209814DA@hornet.berlios.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > My 2.6.14 system occasionally crashes; gives a kernel panic. Of course I
-> > would like to report it. Now the system locks up hard so I can't copy
-> > the stacktrace. The crash dump patches mentioned in oops-tracing.txt all
-> > don't work for 2.6.14 it seems. So: what should I do? Get my digicam and
-> > take a picture of the display?
-> Try the serial port- you can get a copy of the console on ttyS0.
+On 11/23/05, Michael Frank <mhf@berlios.de> wrote:
+> On Tuesday 22 November 2005 22:32, Hugh Dickins wrote:
+> > On Tue, 22 Nov 2005, Michael Frank wrote:
+> > > I am getting this also with i810 drm in Vanilla
+> > > 2.6.15-rc2 upon exiting apps such as supertux.
+> >
+> > Aha, perhaps you're the one we've been waiting for.  I've
+> > suspected a DRM issue, but nobody has actually seen one
+> > until now, and I didn't want to put in a patch without
+> > live justification.
+> >
+> > Would you please try the patch below, and let us know if
+> > it fixes your problem.  If so, I'll send it off to Andrew
+> > and Linus: the rest of the PageReserved fixes, including
+> > the sound driver Bad page state fixes, have gone into
+> > Linus' git tree today: perhaps this is the missing piece.
+> >
+> > If this does not work for you, then presumably you'd be
+> > another sound driver sufferer?  and I should send you
+> > that patch (or you pick it up from yesterday's LKML).
+> > But right now I'd selfishly like you to test just this
+> > DRM patch below.
+> >
+> > Thanks,
+> > Hugh
+>
+> Your patch fixed the DRM issue.
+>
+> I also applied the patch (below) posted by you earlier to fix sound issues.
+>
 
-No serial ports free unfortunately.
+I'm at a bit of a loss how this can fix the i810 driver, but maybe I'm
+missing something, I'm having a look at the drm_pci_alloc code that
+calls pci_alloc_consistent, it may have an issue also (Hugh??)
 
+I've queued up the patch for Linus, along with a couple of other bugfixes...
 
-Folkert van Heusden
-
--- 
-Try MultiTail! Multiple windows with logfiles, filtered with regular
-expressions, colored output, etc. etc. www.vanheusden.com/multitail/
-----------------------------------------------------------------------
-Get your PGP/GPG key signed at www.biglumber.com!
-----------------------------------------------------------------------
-Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com
+Dave.

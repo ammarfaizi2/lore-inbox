@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751236AbVKWQdT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbVKWQdk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751236AbVKWQdT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 11:33:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbVKWQdS
+	id S1751207AbVKWQdk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 11:33:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbVKWQdj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 11:33:18 -0500
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:29396 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1751236AbVKWQdQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 11:33:16 -0500
-Message-ID: <438494F6.8060502@tmr.com>
-Date: Wed, 23 Nov 2005 11:12:38 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: s0348365@sms.ed.ac.uk, linux-kernel@vger.kernel.org
+	Wed, 23 Nov 2005 11:33:39 -0500
+Received: from styx.suse.cz ([82.119.242.94]:27584 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1751207AbVKWQdi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 11:33:38 -0500
+Date: Wed, 23 Nov 2005 17:33:37 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Marc Koschewski <marc@osknowledge.org>, Jon Smirl <jonsmirl@gmail.com>,
+       Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
 Subject: Re: Christmas list for the kernel
-References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com>	<200511221839.24202.s0348365@sms.ed.ac.uk>	<9e4733910511221110j47e8ddcs1c9936db1eb5f0b4@mail.gmail.com> <20051122164353.4177c59a.akpm@osdl.org>
-In-Reply-To: <20051122164353.4177c59a.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20051123163337.GB2434@ucw.cz>
+References: <20051122204918.GA5299@kroah.com> <9e4733910511221313t4a1e3c67wc7b08160937eb5c5@mail.gmail.com> <20051123121726.GA7328@ucw.cz> <9e4733910511230643j64922738p709fecd6c86b4a95@mail.gmail.com> <20051123150349.GA15449@flint.arm.linux.org.uk> <9e4733910511230719h67fa96bdxdeb654aa12f18e67@mail.gmail.com> <20051123160231.GC6970@stiffy.osknowledge.org> <20051123161637.GI15449@flint.arm.linux.org.uk> <20051123162337.GA2434@ucw.cz> <20051123162728.GJ15449@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051123162728.GJ15449@flint.arm.linux.org.uk>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Jon Smirl <jonsmirl@gmail.com> wrote:
+On Wed, Nov 23, 2005 at 04:27:28PM +0000, Russell King wrote:
+> On Wed, Nov 23, 2005 at 05:23:37PM +0100, Vojtech Pavlik wrote:
+> > On Wed, Nov 23, 2005 at 04:16:37PM +0000, Russell King wrote:
+> > > It means that we spun in the serial interrupt for more than 256 times
+> > > and reached the limit on the amount of work we were prepared to do.
+> > > Any idea what you were doing when these happened?
+> >  
+> > Because ACPI was right and the second serial port isn't there?
 > 
->>On 11/22/05, Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
->>
->>>On Tuesday 22 November 2005 18:31, Jon Smirl wrote:
->>>
->>>>There have been recent comments about the pace of kernel development
->>>>slowing.
->>>
->>>I doubt the diffstat from the last 6 kernel releases will tell this story.
->>
->>Andrew Morton said it: "He suggested this may indicate that the kernel
->>is nearing completion. "Famous last words, but the actual patch volume
->>_has_ to drop off one day," said Morton. "We have to finish this thing
->>one day."
->>
->>http://news.zdnet.co.uk/software/linuxunix/0,39020390,39221942,00.htm
->>
+> Well, it certainly looked like a serial port when it was probed - to the
+> extent that even loopback mode worked.  Hence I'd be very surprised if
+> it wasn't there.
 > 
-> 
-> I was wrong, as usual.  The trend at http://www.zip.com.au/~akpm/x.jpg is,
-> I think, being maintained.
+> It's the same test that's being applied as has been for the last 14
+> years to detect if a port is present or not.  Maybe Ted T'so would
+> be aware if it can optimistically discover ports?
+ 
+If the loopback check is still enabled - then no, I've seen the probe
+code and that chance is next to zero, unless the i/o space is aliasing
+to a real port.
 
-Ah, but the percentage of lines is dropping as the kernel gets more 
-bloated^H^H^H^H^H^H^featureful.
-
-BTW: what is the baseline day zero code here? 2.6.0?
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
-
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,67 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbVKWUex@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbVKWUex@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932381AbVKWUex (ORCPT <rfc822;willy@w.ods.org>);
+	id S932364AbVKWUex (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 23 Nov 2005 15:34:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbVKWUcx
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbVKWUew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 15:32:53 -0500
-Received: from www.paintingsonsilence.com ([192.136.111.56]:1942 "EHLO
-	mises.celestial.com") by vger.kernel.org with ESMTP id S932364AbVKWUaI
+	Wed, 23 Nov 2005 15:34:52 -0500
+Received: from webbox4.loswebos.de ([213.187.93.205]:18888 "EHLO
+	webbox4.loswebos.de") by vger.kernel.org with ESMTP id S932381AbVKWUeg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 15:30:08 -0500
-From: Douglas J Hunley <doug@hunley.homeip.net>
-To: linux-kernel@vger.kernel.org
-Subject: stupid question about netlink and 2.6.14 and latest udev
-Date: Wed, 23 Nov 2005 15:29:28 -0500
-User-Agent: KMail/1.8.3
-X-Face: -Zh%*dD|fT[a]YH:6KQ&FF3Q|I@=?utf-8?q?g4JVj-bo=5E=5EV=3B=235-6e0NIry=26/v=6058=3BL+w=3Ac9+=5CgJ=27TL=5B?=
- =?utf-8?q?=0A=09=7EO=7Dc6=7Dc?=,!8tEb%oT1XDn+`3HU>*&s{tLo69vAo0sLuFf8$34|WAM!+vo/[~+%JudP?K6,
- =?utf-8?q?4=0A=09=26K=7D=3D=7EjI62=5DJ7pa1E=25=7E1PrWhOxaofcEJ=7BvyC=3D2f?=
- =?utf-8?q?4SPK7dlyp?=,m>;]@%x#N&q0)$:|qW&
+	Wed, 23 Nov 2005 15:34:36 -0500
+Date: Wed, 23 Nov 2005 21:23:10 +0100
+From: Marc Koschewski <marc@osknowledge.org>
+To: Greg KH <greg@kroah.com>
+Cc: Marc Koschewski <marc@osknowledge.org>, Ian McDonald <imcdnzl@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rc2-mm1
+Message-ID: <20051123202308.GC7446@stiffy.osknowledge.org>
+References: <20051123033550.00d6a6e8.akpm@osdl.org> <20051123175045.GA6760@stiffy.osknowledge.org> <cbec11ac0511231133m63bec4ddi455fa769dd22906b@mail.gmail.com> <20051123195052.GA7446@stiffy.osknowledge.org> <20051123201238.GC29402@kroah.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1341212.ulfdUpSRBU";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200511231529.55683.doug@hunley.homeip.net>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.1 (doug.hunley.homeip.net [0.0.0.0]); Wed, 23 Nov 2005 15:30:00 -0500 (EST)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051123201238.GC29402@kroah.com>
+X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
+X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
+X-Operating-System: Linux stiffy 2.6.15-rc2-marc
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1341212.ulfdUpSRBU
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+* Greg KH <greg@kroah.com> [2005-11-23 12:12:38 -0800]:
 
-Latest udev says that it requires netlink support in the kernel, however I=
-=20
-can't find any concrete info on how to enable netlink in 2.6.14+ .. a grep =
-of=20
-NETLINK in .config doesn't find anything. I saw an option that made referen=
-ce=20
-to netlink, but it didn't actually state that it was enabling netlink. What=
-'s=20
-the magic config option? Or how does one check if a running kernel has=20
-netlink support functional?
-thanks!
-=2D-=20
-Douglas J Hunley (doug at hunley.homeip.net) - Linux User #174778
+> On Wed, Nov 23, 2005 at 08:50:54PM +0100, Marc Koschewski wrote:
+> > * Ian McDonald <imcdnzl@gmail.com> [2005-11-24 08:33:36 +1300]:
+> > 
+> > > On 11/24/05, Marc Koschewski <marc@osknowledge.org> wrote:
+> > > > Just booted into 2.6.15-rc2-mm1. The 'mouse problem' (as reported earlier) still
+> > > > persists, moreover, some stuff's now really not gonna work anymore. I logged in
+> > > > via gdm once and rebooted.
+> > > >
+> > > > Ragards,
+> > > >         Marc
+> > > >
+> > > 
+> > > Mouse problem is userspace. See bug 340202 on the Debian site.
+> > > 
+> > > Ian
+> > 
+> > ===
+> > Package: udev
+> > Version: 0.074-3
+> > Severity: critical
+> > Justification: breaks the whole system
+> > 
+> > 
+> > When running Linux 2.6.15-rc1+, the new nested class devices used by the
+> > input class prevent /dev/input/ from being created, rendering X
+> > unusable.
+> > ===
+> > 
+> > The problem over here exists _only_ in the -mm series, not plain 2.6.15-rc1
+> > or 2.6.15-rc2. What's up then!? I use udev 0.74-3 as well. Mysterious...
+> 
+> It's a userspace issue as to how udev is creating the initial device
+> nodes in Debian.
+> 
+> Odd that this only shows up in the -mm releases, as it should also show
+> up for you in the -rc1 and -rc2 kernels.
 
-I'm not worried. If there's something bad out there we'll find, you'll slay=
-,=20
-we'll party!
-
---nextPart1341212.ulfdUpSRBU
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBDhNFDsYn2tNI6QcgRApCnAJ0eMxUHWphVqpmy1Z2dvLgVzXt5yACgn5BU
-n+ptUOMmJOpTTcYsXf8ldYk=
-=CiW+
------END PGP SIGNATURE-----
-
---nextPart1341212.ulfdUpSRBU--
+I'm impressed ... :/

@@ -1,130 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932524AbVKWExY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030199AbVKWFCS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932524AbVKWExY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 23:53:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932525AbVKWExY
+	id S1030199AbVKWFCS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 00:02:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030313AbVKWFCS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 23:53:24 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:49861 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932524AbVKWExX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 23:53:23 -0500
-Date: Wed, 23 Nov 2005 10:20:49 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: What protection does sysfs_readdir have with SMP/Preemption?
-Message-ID: <20051123045049.GA22714@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <1132695202.13395.15.camel@localhost.localdomain> <20051122213947.GB8575@kroah.com>
+	Wed, 23 Nov 2005 00:02:18 -0500
+Received: from zlynx.org ([199.45.143.209]:47885 "EHLO 199.45.143.209")
+	by vger.kernel.org with ESMTP id S1030199AbVKWFCO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 00:02:14 -0500
+Subject: Re: Linux 2.6.15-rc2
+From: Zan Lynx <zlynx@acm.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, jeffrey.hundstad@mnsu.edu, ak@muc.de,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0511221735400.13959@g5.osdl.org>
+References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org>
+	 <43829ED2.3050003@mnsu.edu> <20051122150002.26adf913.akpm@osdl.org>
+	 <Pine.LNX.4.64.0511221642310.13959@g5.osdl.org>
+	 <20051122170507.37ebbc0c.akpm@osdl.org>
+	 <Pine.LNX.4.64.0511221735400.13959@g5.osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-0E5phJvoDLelRgSWMXLB"
+Date: Tue, 22 Nov 2005 22:01:37 -0700
+Message-Id: <1132722097.9906.1.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051122213947.GB8575@kroah.com>
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.4.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 22, 2005 at 01:39:47PM -0800, Greg KH wrote:
-> On Tue, Nov 22, 2005 at 04:33:22PM -0500, Steven Rostedt wrote:
-> > Hi,
-> > 
-> > I'm developing a custom kernel on top of Ingo's -rt patch. My kernel
-> > makes race conditions in the vanilla kernel show up very well :-)
-> > 
-> > I just hit a bug, actually a page fault in fs/sysfs/dir.c in
-> > sysfs_readdir:
-> > 
-> > 
-> > 
-> > 			for (p=q->next; p!= &parent_sd->s_children; p=p->next) {
-> > 				struct sysfs_dirent *next;
-> > 				const char * name;
-> > 				int len;
-> > 
-> > 				next = list_entry(p, struct sysfs_dirent,
-> > 						   s_sibling);
-> > 				if (!next->s_element)
-> > 					continue;
-> > 
-> > 				name = sysfs_get_name(next);
-> > 				len = strlen(name);
-> > 				if (next->s_dentry)
-> > 					ino = next->s_dentry->d_inode->i_ino;
-> > 
-> > ^^^^
-> > This is where I had a bad pointer reference.
-> > 
-> > 				else
-> > 					ino = iunique(sysfs_sb, 2);
-> > 
-> > 				if (filldir(dirent, name, len, filp->f_pos, ino,
-> > 						 dt_type(next)) < 0)
-> > 					return 0;
-> > 
-> > 
-> > Looking at this code, I don't see anything protecting the s_dentry. For
-> > example, couldn't the following happen:
-> > 
-> > sysfs_create_dir is called, which calls create_dir.  Now we create a
-> > dentry with no d_inode. In sysfs_make_dirent which calls
-> > sysfs_new_dirent which adds to the parents s_children. Then
-> > sysfs_make_dirent sets s_dentry = dentry (the one that was just made
-> > with no d_inode assigned yet).  Then create_dir calls sysfs_create which
-> > finally assigns the d_inode.
-> > 
-> > So, either there is some hidden protection and my modification to the
-> > kernel has caused this to bug, or we have just been lucky the whole time
-> > in the vanilla kernel.
-> 
-> I think we've been lucky :(
-> 
-> Maneesh, any ideas?
-> 
 
-The dir operation sysfs_readdir() is called under directory inode's i_sem
-taken in vfs_readdir() and create_dir() also takes parent directory inode's 
-i_sem. So in this case I think following are the relevant steps happening
-which look safe to me.
+--=-0E5phJvoDLelRgSWMXLB
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-cpu 0
-vfs_readdir()
-  down(dir inode i_sem)
-    sysfs_readdir(dir)
-      parse through dir->s_dirent s_children list
-  up(dir inode i_sem)
-   
+On Tue, 2005-11-22 at 17:39 -0800, Linus Torvalds wrote:
+>=20
+> On Tue, 22 Nov 2005, Andrew Morton wrote:
+> > >=20
+> > > Why does it happen at all, though?
+> >=20
+> > davem recently merged a patch which adds ext3 ioctls to fs/compat_ioctl=
+.c.=20
+> > That required inclusion of ext3 and jbd header files.  Those files expl=
+ode
+> > unpleasantly when CONFIG_JBD=3Dn.
+>=20
+> Oh. How about just making jbd.h do the rigt thing, and not care about the=
+=20
+> configuration?
+>=20
+> If we include jbd.h, we want the jbd data structures. There's never any=20
+> reason to care whether jbd is enabled or not afaik.
+>=20
+> Ie maybe just something like this?
+>=20
+> (Untested, obviously. I'm just assuming that anything that actually=20
+> _needs_ the jbd functionality should have made sure that jdb is enabled.)
+>=20
+> Zan, Jeffrey?
+[snip patch]
 
-cpu 1
-sysfs_create_dir()
-  create_dir()
-   down(parent dir inode i_sem)
-   lookup_one_len (allocates & makes the new directory dentry visible)
-   sysfs_make_diret()
-     sysfs_new_dirent()
-       attach the new directory s_dirent to parent's s_children list)
-   up(parent dir inode i_sem)
+Yes, that also works for me.  It compiled and is running just fine.
+--=20
+Zan Lynx <zlynx@acm.org>
 
+--=-0E5phJvoDLelRgSWMXLB
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Basically, sysfs_readdir for a directory is protected against any 
-addition/deletion in the directory by directory inode's i_sem.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-But the bad pointer reference seen in sysfs_readdir() has to be debugged.
-Assumption here is that if there is a dentry attached to s_dirent, there
-has to be a inode associated becuase negative dentries are not created
-in sysfs. Is it possible to get some more information about the recreation
-scenario. Could you enable DEBUG printks for lib/kobject.c and 
-drivers/base/class.c to see the events happening.
+iD8DBQBDg/exG8fHaOLTWwgRAjf2AKCEteNXw2hlHc/okJJzmjWA+Ki/7gCgm8xW
+uB0zgf0FbiWpE3PxIGn33Ik=
+=RcRs
+-----END PGP SIGNATURE-----
 
+--=-0E5phJvoDLelRgSWMXLB--
 
-Thanks
-Maneesh
-   
--- 
-Maneesh Soni
-Linux Technology Center, 
-IBM India Software Labs,
-Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-25044990

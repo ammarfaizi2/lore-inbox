@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751259AbVKWRWk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751256AbVKWRYf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751259AbVKWRWk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 12:22:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbVKWRWk
+	id S1751256AbVKWRYf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 12:24:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbVKWRYf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 12:22:40 -0500
-Received: from mail.kroah.org ([69.55.234.183]:35214 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751259AbVKWRWj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 12:22:39 -0500
-Date: Wed, 23 Nov 2005 09:10:41 -0800
-From: Greg KH <greg@kroah.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: David Brownell <david-b@pacbell.net>, Paul Mackerras <paulus@samba.org>,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH] Fix USB suspend/resume crasher
-Message-ID: <20051123171041.GC26149@kroah.com>
-References: <1132715288.26560.262.camel@gaston>
-Mime-Version: 1.0
+	Wed, 23 Nov 2005 12:24:35 -0500
+Received: from webbox4.loswebos.de ([213.187.93.205]:52906 "EHLO
+	webbox4.loswebos.de") by vger.kernel.org with ESMTP
+	id S1751256AbVKWRYe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 12:24:34 -0500
+Date: Wed, 23 Nov 2005 18:24:50 +0100
+From: Marc Koschewski <marc@osknowledge.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Marc Koschewski <marc@osknowledge.org>, Vojtech Pavlik <vojtech@suse.cz>,
+       Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>,
+       rmk+lkml@arm.linux.org.uk
+Subject: Re: Christmas list for the kernel
+Message-ID: <20051123172449.GF6970@stiffy.osknowledge.org>
+References: <9e4733910511230643j64922738p709fecd6c86b4a95@mail.gmail.com> <20051123150349.GA15449@flint.arm.linux.org.uk> <9e4733910511230712y2b394851rc17fa71c6f9c6ecf@mail.gmail.com> <20051123155650.GB6970@stiffy.osknowledge.org> <20051123160520.GH15449@flint.arm.linux.org.uk> <9e4733910511230837v1519d3b3t28176b1fd6017ffc@mail.gmail.com> <20051123164907.GA2981@ucw.cz> <9e4733910511230859y3879e65fp927a7aa4d71d8fee@mail.gmail.com> <20051123170508.GE6970@stiffy.osknowledge.org> <9e4733910511230913y7fe5f9cfw99bfbb077ea9c87a@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1132715288.26560.262.camel@gaston>
+In-Reply-To: <9e4733910511230913y7fe5f9cfw99bfbb077ea9c87a@mail.gmail.com>
+X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
+X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
+X-Operating-System: Linux stiffy 2.6.15-rc2-marc
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 02:08:07PM +1100, Benjamin Herrenschmidt wrote:
-> This patch applies on top of the patch that moves the PowerMac specific
-> code out of ohci-pci.c to hcd-pci.c where it belongs. This patch isn't
-> upstream yet for reasons I don't fully understand (why does USB stuffs
-> has such a high latency for going upstream ?), I'm sending it as a reply
-> to this email for completeness.
+* Jon Smirl <jonsmirl@gmail.com> [2005-11-23 12:13:06 -0500]:
 
-Sorry, I hadn't seen it, otherwise I would have sent it on.
+> On 11/23/05, Marc Koschewski <marc@osknowledge.org> wrote:
+> > * Jon Smirl <jonsmirl@gmail.com> [2005-11-23 11:59:27 -0500]:
+> > > Another would be to have a little user space daemon that listened to
+> > > the pty creation, and then mknod the tty nodes as need and pipe the
+> > > data through. That would be a first step to moving to a user space
+> > > console implementation.
+> >
+> > Shouldn't this be udev then? I hear people scream when 'some deamon'
+> > created a device in /dev. Was it udev? Was is 'ttydevd'? Even
+> > 'ondemanddevd'?
+> 
+> udev listens to /sys/class for it's indications on when to create a node.
+> 
+> The tty daemon would need to listen for pty creation to tell it when
+> to create a node. Then after it creates the node it needs to maintain
+> a pipe between the pty and tty. This is a lot different than what udev
+> does.
 
-David, are you ok with the patch Ben sent on as a followup?
+I didn't mean to _say_ that it's the same. I just meant to _ask_ how you
+are going to tell the users which daemon created what devices in /dev. I
+would rather do the 'udev appoach' then (extend it in other words) so
+that there's just one daemon that creates device nodes.
 
-thanks,
-
-greg k-h
+Marc

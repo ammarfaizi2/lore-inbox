@@ -1,50 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbVKWSWV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbVKWSZp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932149AbVKWSWV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 13:22:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbVKWSWV
+	id S932147AbVKWSZp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 13:25:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbVKWSZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 13:22:21 -0500
-Received: from zproxy.gmail.com ([64.233.162.198]:10792 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932149AbVKWSWT convert rfc822-to-8bit
+	Wed, 23 Nov 2005 13:25:45 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:53059 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S932147AbVKWSZo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 13:22:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=IshiHl59/+CcgLQx4aHzbTTyS0Z9z0uKMdjnGy9AEOC1/bZdWlhdoAWzsEMnbl0X0Jn6KaIFQWBTQNoCZzTJSnTouIwkNlVnHhuiSRXkNR8tptZn3oWVV2Gv2j6wAnNvTVCFzgxU2sk4lOGpsJmYT/MZQP6AQZuJ172deWG//KE=
-Message-ID: <2ea3fae10511231022g3a690870qf4564b085c24cb20@mail.gmail.com>
-Date: Wed, 23 Nov 2005 10:22:18 -0800
-From: yhlu <yinghailu@gmail.com>
-To: Stefan Reinauer <stepan@openbios.org>
-Subject: Re: [LinuxBIOS] x86_64: apic id lift patch
-Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org, linuxbios@openbios.org,
-       yhlu <yhlu.kernel@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051123181804.GC27398@openbios.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 23 Nov 2005 13:25:44 -0500
+Date: Wed, 23 Nov 2005 19:26:09 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
+       Michael Krufky <mkrufky@m1k.net>, Johannes Stezenbach <js@linuxtv.org>
+Subject: Re: Linux 2.6.15-rc2
+Message-ID: <20051123182609.GA8336@mars.ravnborg.org>
+References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org> <200511202049.30952.gene.heskett@verizon.net> <4383CC4E.40206@m1k.net> <200511222336.48506.gene.heskett@verizon.net> <20051123174237.GO3963@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <86802c440511211349t6a0a9d30i60e15fa23b86c49d@mail.gmail.com>
-	 <20051121220605.GD20775@brahms.suse.de> <43849FA5.4020201@lanl.gov>
-	 <2ea3fae10511230919l4d9829d8j3ce5d820b74074d1@mail.gmail.com>
-	 <20051123173636.GL20775@brahms.suse.de>
-	 <2ea3fae10511230940t1f6a1757lf885a2559be6f0dc@mail.gmail.com>
-	 <20051123181804.GC27398@openbios.org>
+In-Reply-To: <20051123174237.GO3963@stusta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-only RSDT+SRAT?, I will try it....
+On Wed, Nov 23, 2005 at 06:42:37PM +0100, Adrian Bunk wrote:
+>  EXTRA_CFLAGS += -I$(src)/..
+Wonder if this compiles with O=...
 
-YH
+> -ifneq ($(CONFIG_VIDEO_BUF_DVB),n)
+> +ifneq ($(CONFIG_VIDEO_BUF_DVB),)
+>   EXTRA_CFLAGS += -DHAVE_VIDEO_BUF_DVB=1
+>  endif
+> -ifneq ($(CONFIG_DVB_CX22702),n)
+> +ifneq ($(CONFIG_DVB_CX22702),)
+>   EXTRA_CFLAGS += -DHAVE_CX22702=1
+>  endif
+> -ifneq ($(CONFIG_DVB_OR51132),n)
+> +ifneq ($(CONFIG_DVB_OR51132),)
+>   EXTRA_CFLAGS += -DHAVE_OR51132=1
+>  endif
+> -ifneq ($(CONFIG_DVB_LGDT330X),n)
+> +ifneq ($(CONFIG_DVB_LGDT330X),)
+>   EXTRA_CFLAGS += -DHAVE_LGDT330X=1
+>  endif
+> -ifneq ($(CONFIG_DVB_MT352),n)
+> +ifneq ($(CONFIG_DVB_MT352),)
+>   EXTRA_CFLAGS += -DHAVE_MT352=1
+>  endif
+> -ifneq ($(CONFIG_DVB_NXT200X),n)
+> +ifneq ($(CONFIG_DVB_NXT200X),)
+>   EXTRA_CFLAGS += -DHAVE_NXT200X=1
+>  endif
+> -
 
-On 11/23/05, Stefan Reinauer <stepan@openbios.org> wrote:
-> * yhlu <yinghailu@gmail.com> [051123 18:40]:
-> > is there any way to make the kernel use apci but still use pci irq
-> > routing from mptable?
->
-> Yes, don't provide any of MADT, DSDT, FADT.
->
->    Stefan
->
->
+If we stick with HAVE_XXX then please use following style:
+
+extra-cflags-$(CONFIG_VIDEO_BUF_DVB) += -DHAVE_VIDEO_BUF_DVB=1
+extra-cflags-$(CONFIG_DVB_CX22702)   += -DHAVE_CX22702=1
+extra-cflags-$(CONFIG_DVB_OR51132)   += -DHAVE_OR51132=1
+extra-cflags-$(CONFIG_DVB_LGDT330X)  += -DHAVE_LGDT330X=1
+extra-cflags-$(CONFIG_DVB_MT352)     += -DHAVE_MT352=1
+extra-cflags-$(CONFIG_DVB_NXT200X)   += -DHAVE_NXT200X=1
+
+EXTRA_CFLAGS += $(extra-cflags-y) $(extra-cflags-m)
+
+	Sam

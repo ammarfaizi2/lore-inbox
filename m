@@ -1,50 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbVKWMDN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbVKWMHG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750729AbVKWMDN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 07:03:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbVKWMDN
+	id S1750734AbVKWMHG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 07:07:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbVKWMHG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 07:03:13 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:24714
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1750729AbVKWMDL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 07:03:11 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Neil Brown <neilb@suse.de>
-Subject: Re: pivot_root broken in 2.6.15-rc1-mm2
-Date: Wed, 23 Nov 2005 06:02:52 -0600
-User-Agent: KMail/1.8
-Cc: Al Viro <viro@ftp.linux.org.uk>, linux-kernel@vger.kernel.org
-References: <17283.52960.913712.454816@cse.unsw.edu.au> <20051123021545.GP27946@ftp.linux.org.uk> <17283.56197.347658.787608@cse.unsw.edu.au>
-In-Reply-To: <17283.56197.347658.787608@cse.unsw.edu.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 23 Nov 2005 07:07:06 -0500
+Received: from perninha.conectiva.com.br ([200.140.247.100]:48769 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S1750734AbVKWMHD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 07:07:03 -0500
+Date: Wed, 23 Nov 2005 10:07:08 -0200
+From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
+To: Eduardo Pereira Habkost <ehabkost@mandriva.com>
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net, akpm@osdl.org
+Subject: Re: [PATCH 2/2] - usbserial: race-condition fix.
+Message-Id: <20051123100708.6319df27.lcapitulino@mandriva.com.br>
+In-Reply-To: <20051123115633.GS14440@duckman.conectiva>
+References: <20051122195926.18c3221c.lcapitulino@mandriva.com.br>
+	<20051122221353.GA10311@suse.de>
+	<20051123093655.5555f23e.lcapitulino@mandriva.com.br>
+	<20051123115633.GS14440@duckman.conectiva>
+Organization: Mandriva
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-conectiva-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511230602.53960.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 22 November 2005 21:01, Neil Brown wrote:
-> Ah, OK.
-> It's just that pivot_root works in this context in 2.6.11.9, so I
-> figured it was a breakage.
+On Wed, 23 Nov 2005 09:56:33 -0200
+Eduardo Pereira Habkost <ehabkost@mandriva.com> wrote:
 
-And if you then umount the ramfs you just pivoted, the kernel locks hard.
+| On Wed, Nov 23, 2005 at 09:36:55AM -0200, Luiz Fernando Capitulino wrote:
+| > On Tue, 22 Nov 2005 14:13:53 -0800
+| > Greg KH <gregkh@suse.de> wrote:
+| > 
+| > | On Tue, Nov 22, 2005 at 07:59:26PM -0200, Luiz Fernando Capitulino wrote:
+| > | > @@ -60,6 +61,7 @@ struct usb_serial_port {
+| > | >  	struct usb_serial *	serial;
+| > | >  	struct tty_struct *	tty;
+| > | >  	spinlock_t		lock;
+| > | > +	struct semaphore        sem;
+| > | 
+| > | You forgot to document what this semaphore is used for.
+| > 
+| >  Okay.
+| > 
+| > | Hm, can we just use the spinlock already present in the port structure
+| > | for this?  Well, drop the spinlock and use the semaphore?  Yeah, that
+| > | means grabbing a semaphore for ever write for some devices, but USB data
+| > | rates are slow enough it wouldn't matter :)
+| > 
+| >  As far as I read the code, I found that spinlock is only used by the
+| > generic driver, in the
+| > drivers/usb/serial/generic.c:usb_serial_generic_write() function.
+| > 
+| >  Can we drop the spinlock there and use our new semaphore? Or should we
+| > create a new spinlock just to use there?
+| 
+| The spin_lock is used only to protect write_urb_busy. An atomic_t seem
+| to be more appropriate for it. If we do that, I guess we can remove the
+| (then unused) spinlock.
 
-That was a bug.
+ Ok, but, hmm.. I found the spinklock is actually used by other drivers too.
 
-What you're looking for is switch_root, which has variants buried in klib, or 
-in the current CVS version of busybox, or glued into Red Hat's weird little 
-multi-function ramdisk shell, and probably a few other places by now.
+ I didn't catch this before because I wasn't compiling then. Sorry, my fault.
 
-Rather than unmounting rootfs, it deletes everything out of it to free up the 
-space.  (It basically does the functional equivalent of "find / -xdev | xargs 
-rm -rf", overmounts the old root with the new root, does a chroot, and execs 
-the new init out of the new root.  Actually getting it right's a bit tricky, 
-of course.  I still need to test the busybox version a whole lot more.  It's 
-on my to-do list...)
+| So we have three proposed changes:
+| 
+| - Add semaphore to serialize close()/open() (properly documented)
+| - Replace write_urb_busy with an atomic_t
+| - Remove the spinlock
 
-Rob
+ Since the spinlock seems to be only used to protect 'write_urb_busy', I agree
+with those changes.
+
+ Greg, do you? If so, I suggested we should add the semaphore first, because
+it is a bug fix.
+
+ I can do the 'write_urb_busy' type replace next week (yes, I will replace all
+the drivers).
+
+-- 
+Luiz Fernando N. Capitulino

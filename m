@@ -1,100 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932568AbVKWWHz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932572AbVKWWIc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932568AbVKWWHz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 17:07:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932570AbVKWWHz
+	id S932572AbVKWWIc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 17:08:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932574AbVKWWIc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 17:07:55 -0500
-Received: from odyssey.analogic.com ([204.178.40.5]:45577 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S932568AbVKWWHy convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 17:07:54 -0500
+	Wed, 23 Nov 2005 17:08:32 -0500
+Received: from digitalimplant.org ([64.62.235.95]:51124 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S932570AbVKWWIb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 17:08:31 -0500
+Date: Wed, 23 Nov 2005 14:08:24 -0800 (PST)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: Adrian Bunk <bunk@stusta.de>
+cc: linux-kernel@vger.kernel.org, "" <linux-sound@vger.kernel.org>,
+       "" <linux-pm@lists.osdl.org>, "" <akpm@osdl.org>
+Subject: Re: [Patch 0/6] Remove Deprecated PM Interface from Obsolete Sound
+ Drivers
+In-Reply-To: <20051123205710.GW3963@stusta.de>
+Message-ID: <Pine.LNX.4.50.0511231406340.16769-100000@monsoon.he.net>
+References: <Pine.LNX.4.50.0511231114340.14446-100000@monsoon.he.net>
+ <20051123205710.GW3963@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <200511232039.PAA03184@bellona.cnchost.com>
-X-OriginalArrivalTime: 23 Nov 2005 22:07:52.0451 (UTC) FILETIME=[59483D30:01C5F07A]
-Content-class: urn:content-classes:message
-Subject: Re: Sub jiffy delay?
-Date: Wed, 23 Nov 2005 17:07:51 -0500
-Message-ID: <Pine.LNX.4.61.0511231646100.20759@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Sub jiffy delay?
-Thread-Index: AcXwellPk61/EGMYQIKUtdiLXEfWyg==
-References: <200511232039.PAA03184@bellona.cnchost.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Rick Niles" <niles@rickniles.com>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 23 Nov 2005, Rick Niles wrote:
+On Wed, 23 Nov 2005, Adrian Bunk wrote:
 
-> I need to service a piece of hardware about every 400-500
-> microseconds, but I really don't want to change the value of HZ, which
-> in my version of the 2.6 kernel is 1000.  The hardware doesn't have an
-> interrupt so the nasty hack I've been doing is to service the hardware
-> repeatedly in a loop for about 600 microseconds by watching the
-> do_gettimeofday(), set a timer for the next jiffy and repeat.  This leaves less than 400 microseconds / millisecond for the kernel and anything else on the system to run.
+> On Wed, Nov 23, 2005 at 12:23:25PM -0800, Patrick Mochel wrote:
+> >
+> > Hi there.
 >
-> Obviously, this sucks, but it does work. I am working with the
-> hardware guy to add an interrupt to the hardware.  However, I don't
-> want every user of the hardware without the interrupt to have to
-> rebuild the kernel with a different value of HZ.  So does anyone have
-> any better ideas on what I can do?
+> Hi Patrick,
 >
-> Thanks,
-> Rick Niles.
+> > This is a series of 6 patches that remove the old, deprecated power
+> > management interface from a variety of old OSS drivers, most of them
+> > marked OBSOLETE and scheduled for removal in January 2006.
+> >
+> > These patches facilitate the removal of the ancient PM interface by
+> > reducing the number of in-kernel users to 3:
+> >
+> > 	drivers/net/3c509.c
+> > 	drivers/net/irda/ali-ircc.c
+> > 	drivers/serial/68328serial.c
+> >...
+> > Does any one have any objections to these patches?
+>
+> I'd say the obsolete OSS drivers are the least problem, it would be more
+> interesting to get the code fixed that will still be present two months
+> from now.
 
-Use the RTC if you have an ix86-type machine. It interrupts on
-IRQ8 and works fine. It can be programmed at 2048, 1020, 512, etc.,
-ticks/per second. I have used it to create a precision state-machine
-for handling a 24-bit ADC where it is important to grab stuff at
-at repeatable times so that IIR filtering works.... basically:
+I completely agree. I just wanted to start some place easy. :)
 
- 	interrupt
- 	switch(state++)
-         {
-         case 0:
-             set_mux();
-             break;
-         case 1:
-             settle();
-             break;
-         case 2:
-             convert();
-             break;
-         case 3:
-            settle();
-             break;
-         case 4:
-             get_result()
-             do_iir_filter()
-             state = 0;
-             break;
-         }
+> Looking at the current state of 2.6.15, I doubt your patches would make
+> it into Linus' tree earlier than the complete removal of the drivers.
 
-Note that there is a global spin_lock called 'rtc_lock' that you should
-use to prevent anybody from mucking with the chip behind your back.
+That's a good point. I'll not worry about pushing the patches that affect
+these to-be-removed drivers.
 
-Since you need to sample your hardware at fixed intervals, the RTC
-interrupt is ideal. Just remember to put everything back when you
-unload your module! Also, leave the index register (0x70) at 0 before
-you release the spin-lock. That keeps a power-failure from trashing
-the contents of CMOS (it could only trash seconds).
+Thanks,
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.55 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+	Patrick
 
-Thank you.

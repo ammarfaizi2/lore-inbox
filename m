@@ -1,67 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbVKWQFa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbVKWQF5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751185AbVKWQFa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 11:05:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbVKWQFa
+	id S1751201AbVKWQF5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 11:05:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbVKWQFq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 11:05:30 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:48913 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751185AbVKWQF3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 11:05:29 -0500
-Date: Wed, 23 Nov 2005 16:05:20 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Marc Koschewski <marc@osknowledge.org>
-Cc: Jon Smirl <jonsmirl@gmail.com>, Vojtech Pavlik <vojtech@suse.cz>,
-       Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Christmas list for the kernel
-Message-ID: <20051123160520.GH15449@flint.arm.linux.org.uk>
-Mail-Followup-To: Marc Koschewski <marc@osknowledge.org>,
-	Jon Smirl <jonsmirl@gmail.com>, Vojtech Pavlik <vojtech@suse.cz>,
-	Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
-References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com> <20051122204918.GA5299@kroah.com> <9e4733910511221313t4a1e3c67wc7b08160937eb5c5@mail.gmail.com> <20051123121726.GA7328@ucw.cz> <9e4733910511230643j64922738p709fecd6c86b4a95@mail.gmail.com> <20051123150349.GA15449@flint.arm.linux.org.uk> <9e4733910511230712y2b394851rc17fa71c6f9c6ecf@mail.gmail.com> <20051123155650.GB6970@stiffy.osknowledge.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051123155650.GB6970@stiffy.osknowledge.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 23 Nov 2005 11:05:46 -0500
+Received: from web25812.mail.ukl.yahoo.com ([217.146.176.245]:24451 "HELO
+	web25812.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1751201AbVKWQFo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 11:05:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=K1qbN0E5NALnoyS+83EYmh7lxbe8u9IYmfcNzsu/5WqfiayQX/9AoEeVlB/VKTQSgKc/+7Y3EDsYPQNhhCS4knMOQP3eik8ZcQpZmwfAs4g2TkoVFUmvEzPAdl+UCWHP3U64MCzYXu7mvhXPcJXNbEspQg8Z/zfgSJ3ZMwgDijU=  ;
+Message-ID: <20051123160542.71232.qmail@web25812.mail.ukl.yahoo.com>
+Date: Wed, 23 Nov 2005 17:05:42 +0100 (CET)
+From: moreau francis <francis_moreau2000@yahoo.fr>
+Subject: Re: Use enum to declare errno values
+To: Nikita Danilov <nikita@clusterfs.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <17284.37107.573883.328659@gargle.gargle.HOWL>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 04:56:50PM +0100, Marc Koschewski wrote:
-> * Jon Smirl <jonsmirl@gmail.com> [2005-11-23 10:12:58 -0500]:
+
+--- Nikita Danilov <nikita@clusterfs.com> a écrit :
 > 
-> > On 11/23/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> > > > Plus I have 64 tty devices. Couldn't the tty devices be created
-> > > > dynamically as they are consumed? Same for the loop and ram devices?
-> > >
-> > > You do realise that the dynamic device creation for those 64 console
-> > > devices is done via the console device being _opened_ by userspace?
-> > >
-> > > Hence, if the device doesn't exist in userspace, it can't be created
-> > > for userspace to open it to create the device via udev.  Have you
-> > > noticed a catch-22 with that statement?
-> > 
-> > Couldn't we create tty0-3 and then when one of those gets opened,
-> > create tty4, and so on? Then there would always be two or three more
-> > tty devices than there are open tty devices.
-> > 
+> No it shouldn't. Following is a perfectly legal thing to do in C:
 > 
-> How does that work when you ie. have tty0, tty1, tty2, tty3 per default,
-> open tty4, tty5, tty6 and the close tty4? And what if you then open
-> another? Will it be tty4 oder tty7? If so, what if the maximum numer is
-> reached even if only 3 ttys are left open?
+> enum side {
+>         LEFT,
+>         RIGHT
+> };
+> 
+> int foo(int x)
+> {
+>         if (x & 0x1)
+>                 return LEFT;
+>         else
+>                 return RIGHT;
+> }
+> 
+> This is not C++ fortunately.
+> 
+> Nikita.
+> 
 
-And what if you want consoles on 1-6 and syslog messages on tty12?
+hmm, are you sure that debuggers will tell you that foo returns LEFT/RIGHT but
+not any integer value ?
 
-Also, remember that when init starts the gettys on tty1-N, they're
-started in parallel, so you will end up with the gettys opening those
-in a random order.
+I just give a try and unfortunately you seem to be wrong here:
 
-Therefore, you can not infer that if tty1 has been opened, tty2 will
-be next, followed by tty3 and then tty4, etc.
+""""
+(gdb) s
+foo (x=1) at enum_test.c:8
+8               if (x & 0x1)
+(gdb) finish
+Run till exit from #0  foo (x=1) at enum_test.c:8
+0x0804837c in main (argc=1, argv=0xbfe14dc4) at enum_test.c:17
+17              return foo(1);
+Value returned is $1 = 0
+(gdb)
+""""
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+But we needn't change all function prototypes that return an errno value in one
+shot because as you said we can mix enum and int.
+
+Thanks
+
+
+
+
+
+	
+
+	
+		
+___________________________________________________________________________ 
+Appel audio GRATUIT partout dans le monde avec le nouveau Yahoo! Messenger 
+Téléchargez cette version sur http://fr.messenger.yahoo.com

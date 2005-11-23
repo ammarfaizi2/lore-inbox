@@ -1,54 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbVKWRQt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbVKWRVs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751255AbVKWRQt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 12:16:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbVKWRQt
+	id S1750988AbVKWRVs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 12:21:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbVKWRVr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 12:16:49 -0500
-Received: from styx.suse.cz ([82.119.242.94]:37835 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1751255AbVKWRQs (ORCPT
+	Wed, 23 Nov 2005 12:21:47 -0500
+Received: from vms040pub.verizon.net ([206.46.252.40]:20089 "EHLO
+	vms040pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1750988AbVKWRVr convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 12:16:48 -0500
-Date: Wed, 23 Nov 2005 18:16:47 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Marc Koschewski <marc@osknowledge.org>, Greg KH <greg@kroah.com>,
-       lkml <linux-kernel@vger.kernel.org>, rmk+lkml@arm.linux.org.uk
+	Wed, 23 Nov 2005 12:21:47 -0500
+Date: Wed, 23 Nov 2005 12:21:27 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
 Subject: Re: Christmas list for the kernel
-Message-ID: <20051123171647.GA3666@ucw.cz>
-References: <9e4733910511230643j64922738p709fecd6c86b4a95@mail.gmail.com> <20051123150349.GA15449@flint.arm.linux.org.uk> <9e4733910511230712y2b394851rc17fa71c6f9c6ecf@mail.gmail.com> <20051123155650.GB6970@stiffy.osknowledge.org> <20051123160520.GH15449@flint.arm.linux.org.uk> <9e4733910511230837v1519d3b3t28176b1fd6017ffc@mail.gmail.com> <20051123164907.GA2981@ucw.cz> <9e4733910511230859y3879e65fp927a7aa4d71d8fee@mail.gmail.com> <20051123170508.GE6970@stiffy.osknowledge.org> <9e4733910511230913y7fe5f9cfw99bfbb077ea9c87a@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9e4733910511230913y7fe5f9cfw99bfbb077ea9c87a@mail.gmail.com>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.6i
+In-reply-to: <20051123144437.GB7328@ucw.cz>
+To: linux-kernel@vger.kernel.org
+Message-id: <200511231221.27781.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 8BIT
+Content-disposition: inline
+References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com>
+ <9e4733910511221341u695f6765k985ecf0c54daba49@mail.gmail.com>
+ <20051123144437.GB7328@ucw.cz>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 12:13:06PM -0500, Jon Smirl wrote:
+On Wednesday 23 November 2005 09:44, Vojtech Pavlik wrote:
+>On Tue, Nov 22, 2005 at 04:41:02PM -0500, Jon Smirl wrote:
+>> On 11/22/05, Kasper Sandberg <lkml@metanurb.dk> wrote:
+>> > > Currently you have to compile most of this stuff into the kernel.
+>> >
+>> > forgive my ignorance, but whats stopping you from doing this now?
+>>
+>> It would be better if all of the legacy drivers could exist on
+>> initramfs and only be loaded if the actual hardware is present. With
+>> the current code someone like Redhat has to compile all of the legacy
+>> support into their distribution kernel. That code will be present
+>> even on new systems that don't have the hardware.
+>>
+>> An example of this is that the serial driver is hard coded to report
+>> four legacy serial ports when my system physically only has two. I
+>> have to change a #define and recompile the kernel to change this.
+>
+>Interesting. Something goes wrong on your system - I have only a single
+>serial port on my machine and it's correctly identified by PnP, with no
+>other ports showing up.
 
-> On 11/23/05, Marc Koschewski <marc@osknowledge.org> wrote:
-> > * Jon Smirl <jonsmirl@gmail.com> [2005-11-23 11:59:27 -0500]:
-> > > Another would be to have a little user space daemon that listened to
-> > > the pty creation, and then mknod the tty nodes as need and pipe the
-> > > data through. That would be a first step to moving to a user space
-> > > console implementation.
-> >
-> > Shouldn't this be udev then? I hear people scream when 'some deamon'
-> > created a device in /dev. Was it udev? Was is 'ttydevd'? Even
-> > 'ondemanddevd'?
-> 
-> udev listens to /sys/class for it's indications on when to create a node.
-> 
-> The tty daemon would need to listen for pty creation to tell it when
-> to create a node. Then after it creates the node it needs to maintain
-> a pipe between the pty and tty. This is a lot different than what udev
-> does.
- 
-Except for that it wouldn't work for a reason I've described earlier, it
-could well be launched from udev.
+Now that you mention it:
+
+In my case, I've been getting 6 serial ports reported at boot time
+for most of the 2.6.x kernel series.  They are just repeats of ttyS0 and
+ttyS1, including the ttyS0/1 designation.
+
+>From my last dmesg while booting 2.6.14.2:
+
+serio: i8042 AUX port at 0x60,0x64 irq 12
+serio: i8042 KBD port at 0x60,0x64 irq 1
+Serial: 8250/16550 driver $Revision: 1.90 $ 2 ports, IRQ sharing enabled
+ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+
+I had posted about this before, but it was apparently lost in the lists
+general noise.   I do use both ports here, and they are working, so I
+hadn't pursued it further.
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.36% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+

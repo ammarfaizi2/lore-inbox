@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030551AbVKWX5M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030523AbVKWX6G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030551AbVKWX5M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 18:57:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030522AbVKWXrU
+	id S1030523AbVKWX6G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 18:58:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030545AbVKWX5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 18:47:20 -0500
-Received: from mail.kroah.org ([69.55.234.183]:46018 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751344AbVKWXqm (ORCPT
+	Wed, 23 Nov 2005 18:57:50 -0500
+Received: from mx2.suse.de ([195.135.220.15]:19374 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030522AbVKWX5h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 18:46:42 -0500
-Date: Wed, 23 Nov 2005 15:43:35 -0800
-From: Greg Kroah-Hartman <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: [patch 00/22] PCI, USB and hwmon patches for 2.6.15-rc2-git
-Message-ID: <20051123234335.GA527@kroah.com>
+	Wed, 23 Nov 2005 18:57:37 -0500
+Date: Thu, 24 Nov 2005 00:57:28 +0100
+From: Andi Kleen <ak@suse.de>
+To: Chandra Seetharaman <sekharan@us.ibm.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net, kaos@sgi.com
+Subject: Re: [Lse-tech] [PATCH 4/7]: changes notifier head of diechains and add notify_chain_unregister
+Message-ID: <20051123235728.GB31722@brahms.suse.de>
+References: <1132789192.9460.20.camel@linuxchandra>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <1132789192.9460.20.camel@linuxchandra>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are a few PCI, USB, hwmon, and documentation patches against your
-latest git tree, they have all been in the past few -mm releases just
-fine.
+> Index: l2615-rc1-notifiers/include/asm-x86_64/kdebug.h
+> ===================================================================
+> --- l2615-rc1-notifiers.orig/include/asm-x86_64/kdebug.h
+> +++ l2615-rc1-notifiers/include/asm-x86_64/kdebug.h
+> @@ -5,21 +5,20 @@
+>  
+>  struct pt_regs;
+>  
+> -struct die_args { 
+> +struct die_args {
 
-The big changes in here are some ehci and ohci fixes to handle suspend
-better (there is still one more pending patch to get it all working
-completely, but that needs more testing before I send it to you.)
+etc. lots more occurrences.
 
-thanks,
+Can you please repost the patch without arbitary white space changes
+everywhere?  They make it hard to review what you actually changed.
 
-greg k-h
-
- MAINTAINERS                        |   26 +
- arch/i386/pci/common.c             |    6 
- arch/i386/pci/direct.c             |    4 
- arch/i386/pci/i386.c               |    9 
- drivers/base/bus.c                 |   21 -
- drivers/base/dd.c                  |   10 
- drivers/hwmon/hdaps.c              |    4 
- drivers/hwmon/it87.c               |    9 
- drivers/hwmon/lm78.c               |    4 
- drivers/hwmon/w83627hf.c           |   10 
- drivers/pci/hotplug/pciehp.h       |    1 
- drivers/pci/hotplug/pciehp_ctrl.c  |   15 -
- drivers/pci/hotplug/pciehp_hpc.c   |   12 
- drivers/pci/pci-acpi.c             |    3 
- drivers/usb/core/hcd-pci.c         |   38 ++
- drivers/usb/core/hub.c             |    3 
- drivers/usb/host/ehci-hcd.c        |  158 +++++------
- drivers/usb/host/ehci-hub.c        |    7 
- drivers/usb/host/ehci-pci.c        |  515 +++++++++++++++++--------------------
- drivers/usb/host/ohci-pci.c        |   53 +--
- drivers/usb/media/sn9c102_core.c   |    4 
- drivers/usb/serial/ftdi_sio.c      |    2 
- drivers/usb/serial/ftdi_sio.h      |    9 
- drivers/usb/serial/ipw.c           |    2 
- drivers/usb/storage/unusual_devs.h |   11 
- include/linux/usb.h                |    3 
- 26 files changed, 494 insertions(+), 445 deletions(-)
-
+-Andi

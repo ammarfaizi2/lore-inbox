@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030329AbVKWGgr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030320AbVKWGm0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030329AbVKWGgr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 01:36:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030365AbVKWGgr
+	id S1030320AbVKWGm0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 01:42:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030334AbVKWGm0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 01:36:47 -0500
-Received: from graphe.net ([209.204.138.32]:35712 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S1030329AbVKWGgr (ORCPT
+	Wed, 23 Nov 2005 01:42:26 -0500
+Received: from graphe.net ([209.204.138.32]:52910 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S1030320AbVKWGmZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 01:36:47 -0500
-Date: Tue, 22 Nov 2005 22:36:41 -0800 (PST)
+	Wed, 23 Nov 2005 01:42:25 -0500
+Date: Tue, 22 Nov 2005 22:42:23 -0800 (PST)
 From: Christoph Lameter <christoph@lameter.com>
 X-X-Sender: christoph@graphe.net
 To: Andrew Morton <akpm@osdl.org>
@@ -18,7 +18,7 @@ cc: Rohit Seth <rohit.seth@intel.com>, torvalds@osdl.org, linux-mm@kvack.org,
 Subject: Re: [PATCH]: Free pages from local pcp lists under tight memory
  conditions
 In-Reply-To: <20051122213612.4adef5d0.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.62.0511222231070.2084@graphe.net>
+Message-ID: <Pine.LNX.4.62.0511222238530.2084@graphe.net>
 References: <20051122161000.A22430@unix-os.sc.intel.com>
  <20051122213612.4adef5d0.akpm@osdl.org>
 MIME-Version: 1.0
@@ -29,22 +29,15 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Tue, 22 Nov 2005, Andrew Morton wrote:
 
-> > [PATCH]: This patch free pages (pcp->batch from each list at a time) from
-> > local pcp lists when a higher order allocation request is not able to 
-> > get serviced from global free_list.
-> > 
-> > This should help fix some of the earlier failures seen with order 1 allocations.
-> > 
-> > I will send separate patches for:
-> > 
-> > 1- Reducing the remote cpus pcp
+> +extern int drain_local_pages(void);
 
-That is already partially done by drain_remote_pages(). However, that 
-draining is specific to this processors remote pagesets in remote 
-zones.
+drain_cpu_pcps?
 
-> This significantly duplicates the existing drain_local_pages().
+The naming scheme is a bit confusing right now. We drain the pcp 
+structures not pages so maybe switch to pcp and then name each function so 
+that the function can be distinguishes clearlyu?
 
-We need to extract __drain_pcp from all these functions and clearly 
-document how they differ. Seth probably needs to call __drain_pages for 
-each processor.
+> +static int drain_all_local_pages(void)
+
+drain_all_pcps?
+

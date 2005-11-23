@@ -1,54 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030328AbVKWG1F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030332AbVKWGc1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030328AbVKWG1F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 01:27:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030329AbVKWG1F
+	id S1030332AbVKWGc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 01:32:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030329AbVKWGc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 01:27:05 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:7046 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030328AbVKWG1C (ORCPT
+	Wed, 23 Nov 2005 01:32:27 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:64133 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1030332AbVKWGc0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 01:27:02 -0500
-Date: Wed, 23 Nov 2005 01:26:45 -0500
-From: Dave Jones <davej@redhat.com>
-To: Harald Dunkel <harald.dunkel@t-online.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Small PCI core patch
-Message-ID: <20051123062645.GB1481@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Harald Dunkel <harald.dunkel@t-online.de>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>,
-	linux-kernel@vger.kernel.org
-References: <20051121225303.GA19212@kroah.com> <20051122175017.GA10783@kroah.com> <43839C2E.3030904@t-online.de> <1132702803.20233.95.camel@localhost.localdomain> <438406EA.1050705@t-online.de>
+	Wed, 23 Nov 2005 01:32:26 -0500
+Date: Wed, 23 Nov 2005 09:28:28 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org,
+       GregKH <greg@kroah.com>
+Subject: Re: [2.6 patch] drivers/w1/: misc cleanups
+Message-ID: <20051123062828.GA30196@2ka.mipt.ru>
+References: <20051123005015.GG3963@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <438406EA.1050705@t-online.de>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20051123005015.GG3963@stusta.de>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 23 Nov 2005 09:28:29 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 07:06:34AM +0100, Harald Dunkel wrote:
+On Wed, Nov 23, 2005 at 01:50:15AM +0100, Adrian Bunk (bunk@stusta.de) wrote:
+> This patch contains the following cleanups:
+> - make needlessly global code static
+> - declarations for global code belong into header files
+> - w1.c: #if 0 the unused struct w1_slave_device
+> 
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
  
- > Talking about the other side: Some months ago NVidia dropped
- > support for some old (3 yrs, AFAIR) graphics cards in their
- > proprietary driver. They could have considered to release the
- > sources for this "old stuff" instead.
+Ack.
 
-The age of the code/hardware is irrelevant. The big problem
-these folks have is the fear that they're infringing on the
-other guys patents.
+Thank you, Adrian.
+ 
+> ---
+> 
+>  drivers/w1/w1.c        |    6 ++++--
+>  drivers/w1/w1.h        |   10 ++++++++++
+>  drivers/w1/w1_family.c |    2 +-
+>  drivers/w1/w1_int.c    |   13 ++-----------
+>  drivers/w1/w1_io.c     |    2 +-
+>  5 files changed, 18 insertions(+), 15 deletions(-)
+> 
+> --- linux-2.6.15-rc1-mm2-full/drivers/w1/w1.h.old	2005-11-22 22:16:06.000000000 +0100
+> +++ linux-2.6.15-rc1-mm2-full/drivers/w1/w1.h	2005-11-22 22:31:28.000000000 +0100
+> @@ -203,6 +203,16 @@
+>  	return container_of(dev, struct w1_master, dev);
+>  }
+>  
+> +extern int w1_max_slave_count;
+> +extern int w1_max_slave_ttl;
+> +extern spinlock_t w1_mlock;
+> +extern struct list_head w1_masters;
+> +extern struct device_driver w1_master_driver;
+> +extern struct device w1_master_device;
+> +
+> +int w1_process(void *data);
+> +void w1_reconnect_slaves(struct w1_family *f);
+> +
+>  #endif /* __KERNEL__ */
+>  
+>  #endif /* __W1_H */
+> --- linux-2.6.15-rc1-mm2-full/drivers/w1/w1.c.old	2005-11-22 22:13:54.000000000 +0100
+> +++ linux-2.6.15-rc1-mm2-full/drivers/w1/w1.c	2005-11-22 22:31:54.000000000 +0100
+> @@ -164,11 +164,12 @@
+>  	.release = &w1_master_release
+>  };
+>  
+> -struct device_driver w1_slave_driver = {
+> +static struct device_driver w1_slave_driver = {
+>  	.name = "w1_slave_driver",
+>  	.bus = &w1_bus_type,
+>  };
+>  
+> +#if 0
+>  struct device w1_slave_device = {
+>  	.parent = NULL,
+>  	.bus = &w1_bus_type,
+> @@ -176,6 +177,7 @@
+>  	.driver = &w1_slave_driver,
+>  	.release = &w1_slave_release
+>  };
+> +#endif  /*  0  */
+>  
+>  static ssize_t w1_master_attribute_show_name(struct device *dev, struct device_attribute *attr, char *buf)
+>  {
+> @@ -355,7 +357,7 @@
+>  	return sysfs_create_group(&master->dev.kobj, &w1_master_defattr_group);
+>  }
+>  
+> -void w1_destroy_master_attributes(struct w1_master *master)
+> +static void w1_destroy_master_attributes(struct w1_master *master)
+>  {
+>  	sysfs_remove_group(&master->dev.kobj, &w1_master_defattr_group);
+>  }
+> --- linux-2.6.15-rc1-mm2-full/drivers/w1/w1_family.c.old	2005-11-22 22:19:20.000000000 +0100
+> +++ linux-2.6.15-rc1-mm2-full/drivers/w1/w1_family.c	2005-11-22 22:25:18.000000000 +0100
+> @@ -25,10 +25,10 @@
+>  #include <linux/delay.h>
+>  
+>  #include "w1_family.h"
+> +#include "w1.h"
+>  
+>  DEFINE_SPINLOCK(w1_flock);
+>  static LIST_HEAD(w1_families);
+> -extern void w1_reconnect_slaves(struct w1_family *f);
+>  
+>  int w1_register_family(struct w1_family *newf)
+>  {
+> --- linux-2.6.15-rc1-mm2-full/drivers/w1/w1_int.c.old	2005-11-22 22:20:46.000000000 +0100
+> +++ linux-2.6.15-rc1-mm2-full/drivers/w1/w1_int.c	2005-11-22 22:33:02.000000000 +0100
+> @@ -26,19 +26,10 @@
+>  #include "w1.h"
+>  #include "w1_log.h"
+>  #include "w1_netlink.h"
+> +#include "w1_int.h"
+>  
+>  static u32 w1_ids = 1;
+>  
+> -extern struct device_driver w1_master_driver;
+> -extern struct bus_type w1_bus_type;
+> -extern struct device w1_master_device;
+> -extern int w1_max_slave_count;
+> -extern int w1_max_slave_ttl;
+> -extern struct list_head w1_masters;
+> -extern spinlock_t w1_mlock;
+> -
+> -extern int w1_process(void *);
+> -
+>  static struct w1_master * w1_alloc_dev(u32 id, int slave_count, int slave_ttl,
+>  				       struct device_driver *driver,
+>  				       struct device *device)
+> @@ -103,7 +94,7 @@
+>  	return dev;
+>  }
+>  
+> -void w1_free_dev(struct w1_master *dev)
+> +static void w1_free_dev(struct w1_master *dev)
+>  {
+>  	device_unregister(&dev->dev);
+>  }
+> --- linux-2.6.15-rc1-mm2-full/drivers/w1/w1_io.c.old	2005-11-22 22:29:01.000000000 +0100
+> +++ linux-2.6.15-rc1-mm2-full/drivers/w1/w1_io.c	2005-11-22 22:29:10.000000000 +0100
+> @@ -28,7 +28,7 @@
+>  #include "w1_log.h"
+>  #include "w1_io.h"
+>  
+> -int w1_delay_parm = 1;
+> +static int w1_delay_parm = 1;
+>  module_param_named(delay_coef, w1_delay_parm, int, 0);
+>  
+>  static u8 w1_crc8_table[] = {
 
-They have relatively little to gain from such a goodwill gesture,
-and a hell of a lot to lose. iirc, 3dfx disappeared overnight due to
-legal battles that went..
-
-"You lose, pay us lots of money, or let us buy you out and own your IP."
-
-Even non-competitive vendors like Matrox have now gone binary-only,
-likely due to the same concerns (It for sure isn't to hide some
-super secret performance edge).
-
-		Dave
-
+-- 
+	Evgeniy Polyakov

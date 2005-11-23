@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbVKWTkx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbVKWTmF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932239AbVKWTkx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 14:40:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbVKWTkw
+	id S932243AbVKWTmF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 14:42:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbVKWTmF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 14:40:52 -0500
-Received: from fmr24.intel.com ([143.183.121.16]:49568 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932239AbVKWTkw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 14:40:52 -0500
-Subject: Re: [PATCH]: Free pages from local pcp lists under tight memory
-	conditions
-From: Rohit Seth <rohit.seth@intel.com>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: akpm@osdl.org, torvalds@osdl.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.62.0511231128090.22710@schroedinger.engr.sgi.com>
-References: <20051122161000.A22430@unix-os.sc.intel.com>
-	 <Pine.LNX.4.62.0511231128090.22710@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Organization: Intel 
-Date: Wed, 23 Nov 2005 11:46:34 -0800
-Message-Id: <1132775194.25086.54.camel@akash.sc.intel.com>
+	Wed, 23 Nov 2005 14:42:05 -0500
+Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:36530 "EHLO
+	vger.utah-nac.org") by vger.kernel.org with ESMTP id S932243AbVKWTmC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 14:42:02 -0500
+Date: Wed, 23 Nov 2005 12:30:33 -0700
+From: jmerkey@ns1.utah-nac.org
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andi Kleen <ak@suse.de>, Gerd Knorr <kraxel@suse.de>,
+       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
+       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] SMP alternatives
+Message-ID: <20051123193033.GA19557@ns1.utah-nac.org>
+References: <437B5A83.8090808@suse.de> <438359D7.7090308@suse.de> <p7364qjjhqx.fsf@verdi.suse.de> <1132764133.7268.51.camel@localhost.localdomain> <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <4384BF01.4020605@zytor.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Nov 2005 19:39:36.0483 (UTC) FILETIME=[A2DF3F30:01C5F065]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4384BF01.4020605@zytor.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-23 at 11:30 -0800, Christoph Lameter wrote:
-> On Tue, 22 Nov 2005, Rohit Seth wrote:
+On Wed, Nov 23, 2005 at 11:12:01AM -0800, H. Peter Anvin wrote:
+> Linus Torvalds wrote:
+> >
+> >Of course, if it's in one of the low 12 bits of %cr3, there would have to 
+> >be a "enable this bit" in %cr4 or something. Historically, you could write 
+> >any crap in the low bits, I think.
+> >
 > 
-> > [PATCH]: This patch free pages (pcp->batch from each list at a time) from
-> > local pcp lists when a higher order allocation request is not able to 
-> > get serviced from global free_list.
+> No, most of them are RAZ, but there are at least a couple of bits which 
+> have effect (e.g. caching of the page tables.)
 > 
-> Ummm.. One controversial idea: How about removing the complete pcp 
-> subsystem? Last time we disabled pcps we saw that the effect 
-> that it had was within noise ratio on AIM7. The lru lock taken without 
-> pcp is in the local zone and thus rarely contended.
+> However, with PAE there aren't really a whole lot of unused bits in CR3.
+> 
+> 	-hpa
+> -
 
-Oh please stop.
+Changing CR3 will break compatibility with Windows and interfere with Intel's Bread and Butter gravy Train with M$.  CR4 was created to deal with some of the
+legacy issues with backward compatiblity with OS's that read CR3.  Messing with CR3 will break Windows.
 
-This per_cpu_pagelist is one great logic that has got added in
-allocator.  Besides providing pages without the need to acquire the zone
-lock, it is one single main reason the coloring effect is drastically
-reduced in 2.6 (over 2.4) based kernels.
+They won't do anything that will upset the apple cart with M$.  I dealt with
+Intel folks for years when Linux was unknown.  They look and act like boy scouts-- don't be fooled -- they're totally an M$ shop, always have been, always will be.  Linux was and is an intresting brain fart on their radar.  Their interests in it are solely based on their internal "Rabbits and Dogs" Andy Grove mentality.  They say there are rabbits and dogs.  Rabbits run out front, dogs chase the rabbits.  Intel does business with rabbits.  Linux is a dog -- it chases after innovators and replicates their work.  The fact it's free is the basis of their interest.
 
--rohit
+Those interests do not extend to anything that interferes with their M$ relationship.  Push for CR4, they might agree, but be assured your request will pass Balmers desk before it gets approved.
 
+J

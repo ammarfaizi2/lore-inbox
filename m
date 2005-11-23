@@ -1,82 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932564AbVKWWDc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932565AbVKWWGr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932564AbVKWWDc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 17:03:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932567AbVKWWDc
+	id S932565AbVKWWGr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 17:06:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932567AbVKWWGr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 17:03:32 -0500
-Received: from nevyn.them.org ([66.93.172.17]:5805 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S932564AbVKWWDb (ORCPT
+	Wed, 23 Nov 2005 17:06:47 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:9350 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932565AbVKWWGq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 17:03:31 -0500
-Date: Wed, 23 Nov 2005 17:03:24 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andi Kleen <ak@suse.de>, Gerd Knorr <kraxel@suse.de>,
-       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-Message-ID: <20051123220324.GA24517@nevyn.them.org>
-Mail-Followup-To: "H. Peter Anvin" <hpa@zytor.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
-	Gerd Knorr <kraxel@suse.de>, Dave Jones <davej@redhat.com>,
-	Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Pratap Subrahmanyam <pratap@vmware.com>,
-	Christopher Li <chrisl@vmware.com>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	Ingo Molnar <mingo@elte.hu>
-References: <1132764133.7268.51.camel@localhost.localdomain> <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051123214835.GA24044@nevyn.them.org> <4384E4F7.9060806@zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4384E4F7.9060806@zytor.com>
-User-Agent: Mutt/1.5.8i
+	Wed, 23 Nov 2005 17:06:46 -0500
+Message-ID: <4384E7F2.2030508@pobox.com>
+Date: Wed, 23 Nov 2005 17:06:42 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Grover <andrew.grover@intel.com>
+CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       john.ronciak@intel.com, christopher.leech@intel.com
+Subject: Re: [RFC] [PATCH 0/3] ioat: DMA engine support
+References: <Pine.LNX.4.44.0511231143380.32487-100000@isotope.jf.intel.com>
+In-Reply-To: <Pine.LNX.4.44.0511231143380.32487-100000@isotope.jf.intel.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Andrew Grover wrote: > As presented in our talk at this
+	year's OLS, the Bensley platform, which > will be out in early 2006,
+	will have an asyncronous DMA engine. It can be > used to offload copies
+	from the CPU, such as the kernel copies of received > packets into the
+	user buffer. [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 01:53:59PM -0800, H. Peter Anvin wrote:
-> Daniel Jacobowitz wrote:
-> >
-> >I don't think I see the point.  This would let you optimize for the
-> >"multi-threaded, but hasn't created any threads yet" or even
-> >"multi-threaded, but not right now" cases.  But those really aren't the
-> >interesting case to optimize for - that's the equivalent of supporting
-> >CPU hotplug.
-> >
-> >The interesting case is when you know at static link time that the
-> >library is single-threaded, or even at dynamic link time.  And it's
-> >easy enough at both of those times to handle this.  In many cases glibc
-> >doesn't, because it's valid to dlopen libpthread.so, but that could be
-> >accomodated - a simple matter of software.
-> >
-> 
-> No, you can never know that unless you can't call mmap().
+Andrew Grover wrote:
+> As presented in our talk at this year's OLS, the Bensley platform, which 
+> will be out in early 2006, will have an asyncronous DMA engine. It can be 
+> used to offload copies from the CPU, such as the kernel copies of received 
+> packets into the user buffer.
 
-Please explain what problem you see.  If you use mmap to manually load
-libpthread.so, and patch up its relocations without going to ld.so,
-obviously you get to keep both pieces.  Or are you talking about
-synchronizing access to shared mmaped buffers?
+IOAT is super-neat stuff.
 
-This is different from what Linus was talking about precisely because
-we can do it imperatively ("I know this program is single-threaded and
-I'm telling you so" instead of "Hmm, this program hasn't called clone
-yet").
+In addition to helping speed up network RX, I would like to see how 
+possible it is to experiment with IOAT uses outside of networking. 
+Sample ideas:  VM page pre-zeroing.  ATA PIO data xfers (async copy to 
+static buffer, to dramatically shorten length of kmap+irqsave time). 
+Extremely large memcpy() calls.
 
-It's not as technologically slick but I'd need a lot of convincing to
-believe it wasn't just as useful; and it has the benefit of not
-requiring new silicon.
+Additionally, current IOAT is memory->memory.  I would love to be able 
+to convince Intel to add transforms and checksums, to enable offload of 
+memory->transform->memory and memory->checksum->result operations like 
+sha-{1,256} hashing[1], crc32*, aes crypto, and other highly common 
+operations.  All of that could be made async.
 
--- 
-Daniel Jacobowitz
-CodeSourcery, LLC
+	Jeff
+
+
+

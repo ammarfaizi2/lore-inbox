@@ -1,83 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbVKWOQB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbVKWOT7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750813AbVKWOQB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 09:16:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbVKWOQB
+	id S1750791AbVKWOT7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 09:19:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750815AbVKWOT7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 09:16:01 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:60562 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750813AbVKWOQA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 09:16:00 -0500
-Subject: Re: What protection does sysfs_readdir have with SMP/Preemption?
-From: Steven Rostedt <rostedt@goodmis.org>
-To: maneesh@in.ibm.com
-Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <20051123135847.GF22714@in.ibm.com>
-References: <1132695202.13395.15.camel@localhost.localdomain>
-	 <20051122213947.GB8575@kroah.com> <20051123045049.GA22714@in.ibm.com>
-	 <Pine.LNX.4.58.0511230748000.23751@gandalf.stny.rr.com>
-	 <20051123135847.GF22714@in.ibm.com>
-Content-Type: text/plain
-Date: Wed, 23 Nov 2005 09:15:44 -0500
-Message-Id: <1132755344.13395.32.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Nov 2005 09:19:59 -0500
+Received: from spirit.analogic.com ([204.178.40.4]:26887 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP
+	id S1750791AbVKWOT6 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 09:19:58 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <20051123132443.32793.qmail@web25813.mail.ukl.yahoo.com>
+X-OriginalArrivalTime: 23 Nov 2005 14:19:50.0729 (UTC) FILETIME=[F7458390:01C5F038]
+Content-class: urn:content-classes:message
+Subject: Re: Use enum to declare errno values
+Date: Wed, 23 Nov 2005 09:19:50 -0500
+Message-ID: <Pine.LNX.4.61.0511230908320.17975@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Use enum to declare errno values
+Thread-Index: AcXwOPdpm3jw4hbLTcaPfQ5D4zlAyw==
+References: <20051123132443.32793.qmail@web25813.mail.ukl.yahoo.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "moreau francis" <francis_moreau2000@yahoo.fr>
+Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-23 at 19:28 +0530, Maneesh Soni wrote:
 
-> 
-> hmm looks like we got some situation which is not desirable and could lead
-> to bogus sysfs_dirent in the parent list. It may not be the exact problem
-> in this case though, but needs fixing IMO.
-> 
-> After sysfs_make_dirent(), the ref count for sysfs dirent will be 2.
-> (one from allocation, and after linking the new dentry to it). On
-> error from sysfs_create(), we do sysfs_put() once, decrementing the
-> ref count to 1. And again when the new dentry for which we couldn't
-> allocate the d_inode, is d_drop()'ed. In sysfs_d_iput() we again
-> sysfs_put(), and decrement the sysfs dirent's ref count to 0, which will
-> be the final sysfs_put(), and it will free the sysfs_dirent but never
-> unlinks it from the parent list. So, parent list could still will having
-> links to the freed sysfs_dirent in its s_children list.
-> 
-> so basically list_del_init(&sd->s_sibling) should be done in error path
-> in create_dir().
-> 
-> Could you also put the appended patch in your trial runs..
-> 
+On Wed, 23 Nov 2005, moreau francis wrote:
 
-I'm already playing around with this. You might want this patch instead.
-I noticed that if sysfs_make_dirent fails to allocate the sd, then a
-null will be passed to sysfs_put.
+> Hi,
+>
+> I'm just wondering why not declaring errno values using enumaration ?
+> It is just more convenient when debuging the kernel.
+>
+> Thanks
 
-But this is not the end of the problems.  I'll follow up on that comment
-right after this.
+There is an attempt to keep kernel errno values similar to
+user-mode errno values. This simplifies the user-kernel
+interface where the kernel will return -ERRNO and the user-mode
+code negates it and puts it into the user errno then sets the
+return value to -1 (a Unix convention).
 
--- Steve
+The user-mode errno's therefore must correspond. You can't
+expect the 'C' runtime libraries to be rebuilt and/or all the
+programs recompiled just because the kernel got changed so
+the errno's are hard-coded. 0 will always mean "no error" and
+1 will always be EPERM, etc. There are error-codes that are
+the same number also, EWOULDBLOCK and EAGAIN are examples.
 
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-
-Index: linux-2.6.15-rc2-git2/fs/sysfs/dir.c
-===================================================================
---- linux-2.6.15-rc2-git2.orig/fs/sysfs/dir.c	2005-11-23 08:40:33.000000000 -0500
-+++ linux-2.6.15-rc2-git2/fs/sysfs/dir.c	2005-11-23 08:52:57.000000000 -0500
-@@ -112,7 +112,11 @@
- 			}
- 		}
- 		if (error && (error != -EEXIST)) {
--			sysfs_put((*d)->d_fsdata);
-+			struct sysfs_dirent *sd = (*d)->d_fsdata;
-+			if (sd) {
-+ 				list_del_init(&sd->s_sibling);
-+				sysfs_put(sd);
-+			}
- 			d_drop(*d);
- 		}
- 		dput(*d);
+So, you can't just auto-enumerate. If auto-enumeration isn't
+possible, then you might just as well use #define, which is
+what is done.
 
 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13.4 on an i686 machine (5589.55 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+.
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

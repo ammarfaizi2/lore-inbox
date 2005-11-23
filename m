@@ -1,56 +1,164 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030380AbVKWJLa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932518AbVKWJdT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030380AbVKWJLa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 04:11:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030381AbVKWJLa
+	id S932518AbVKWJdT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 04:33:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932522AbVKWJdT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 04:11:30 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:22494 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030380AbVKWJL3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 04:11:29 -0500
-Subject: Re: [NET]: Shut up warnings in net/core/flow.c
-From: Arjan van de Ven <arjan@infradead.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk,
-       torvalds@osdl.org, ak@muc.de
-In-Reply-To: <20051123.005530.17893365.davem@davemloft.net>
-References: <200511230159.jAN1xeMl003154@hera.kernel.org>
-	 <20051123002134.287ff226.akpm@osdl.org>
-	 <20051123.005530.17893365.davem@davemloft.net>
-Content-Type: text/plain
-Date: Wed, 23 Nov 2005 10:11:24 +0100
-Message-Id: <1132737084.2795.20.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 23 Nov 2005 04:33:19 -0500
+Received: from rtsoft2.corbina.net ([85.21.88.2]:54180 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S932518AbVKWJdS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 04:33:18 -0500
+Message-ID: <43843768.1050405@ru.mvista.com>
+Date: Wed, 23 Nov 2005 12:33:28 +0300
+From: Vitaly Wool <vwool@ru.mvista.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Brownell <david-b@pacbell.net>
+CC: Mark Underwood <basicmark@yahoo.com>,
+       dmitry pervushin <dpervushin@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>, osdl.org@ascent.mvista.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       spi-devel-general@lists.sourceforge.net
+Subject: Re: [spi-devel-general] Re: SPI
+References: <20051122191104.48403.qmail@web36907.mail.mud.yahoo.com> <200511221233.16634.david-b@pacbell.net>
+In-Reply-To: <200511221233.16634.david-b@pacbell.net>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-23 at 00:55 -0800, David S. Miller wrote:
-> From: Andrew Morton <akpm@osdl.org>
-> Date: Wed, 23 Nov 2005 00:21:34 -0800
-> 
-> > Nope, this will break !CONFIG_SMP builds.  Quite a few places in the
-> > kernel do not implement the ipi handler if !CONFIG_SMP.
-> 
-> Ho hum, nothing is ever easy eh? :-) I think your patch is fine for
-> now, but in the long term the !CONFIG_SMP ifdefs for those ipi
-> handlers should probably just get removed.  If GCC can't optimize
-> those things away, I'd be really surprised.
+David Brownell wrote:
 
-it can.. but only if we start using -ffunction-sections in the CFLAGS
-(or make all of these functions static I suppose and reenable
--funit-at-a-time, which can be done for gcc 4.x only)
+>By the way Vitaly ... I'm still not getting responses directly from you.
+>
+>Are you pruning me off CC lists, or is there something between us that's
+>filtering out posts?  It's certainly hard to respond to comments of yours
+>when I can only find them by going through some list archive I wouldn't
+>normally read...
+>  
+>
+No, definitely I'm not. I'm just responding with "Reply All" button in 
+my Thunderbird, if you wanna know the details.
+And I'm quite surprised to hear about the kind of problems you have as 
+you're the only one who's having them.
 
+>>>>So for example one way you know that (c) is well met is that it's the same
+>>>>approach used in USB (both host and peripheral/gadget sides); that's been
+>>>>working well for quite a few years now.  (Despite comments from Dmitry
+>>>>and Vitaly to the contrary.)
+>>>> 
+>>>>
+>>>>        
+>>>>
+>>>Lemme point you out that if somehting is "working" on a limited number 
+>>>of platforms within the limited number of use cases, that's not 
+>>>necessarily a correct implementation.
+>>>      
+>>>
+>>No, but it's a good indication :).
+>>    
+>>
+>
+>And I'm not sure what a "limited number of platforms" etc is supposed
+>to suggest.  In terms of platforms supporting USB on Linux, there are
+>surely more of them than there are for PCI ... since every PCI platform
+>can support USB, and many non-PCI platforms do also.  A better word
+>for that DMA support would seem to be "extensive", not "limited".
+>
+>In fact, the support for non-PCI platforms was one of the things that
+>led to the last DMA-related reworks for USB.  The PCI calls wouldn't
+>work (of course), but USB needs things like DMA-coherent buffers (for
+>transfer and queue head descriptors, used by most controllers) as well
+>as bus-neutral DMA operations.  And it even works for things like
+>scatterlist merging through IOMMU mappings ... that wide portability
+>is **very much** a good indication that (c) is a non-issue with the
+>framework I've assembled.
+>
+>
+>Vitaly, you're really going to have to come up with some facts if you
+>keep claiming the SPI framework I've posted doesn't support DMA.
+>(I'm not going to let you pull a SCO on us here.)  For that matter,
+>you might want to consider the fact that Stephen's pxa2xx_spi
+>driver disproves your arguments (it includes DMA support).
+>  
+>
+Again, a single working driver cannot disapprove anything.
+Evidently enough for anyone more or less familiar with logic, if one 
+claims that something is working, he should prove it's working 
+everywhere not somewhere; on the other hand, to disapprove this 
+statement it's enough to give one example.
+
+However, your latest core should be working on the problematic target as 
+opposed to the previous one. I didn't try that but I think it'll work.
+The thing is that what we do in the core to provide DMA capabilities 
+should be implemented in controller driver in your case.
+I can agree that it might be considered an addition to the core and not 
+directly included in it, but leaving rather standard operations to the 
+controller driver degrades the added value of the core.
+
+>
+>  
+>
+>>>>>>- (A) has some assumptions on buffers that are passed down to spi
+>>>>>> functions.
+>>>>>>            
+>>>>>>
+>>>>Make that "requirements"; FWIW they're the same ones that apply to all
+>>>>other kernel driver frameworks I've seen:  that buffers be DMA-safe.
+>>>>It would not be helpful (IMO) to define different rules; that's also
+>>>>called the "Principle of Least Astonishment".  :)
+>>>>        
+>>>>
+>>>Yeah within this requirement it's correct. But that requirement may 
+>>>really make the SPI controller driver a lot more complex if
+>>>- it has to send something received from the userland
+>>>      
+>>>
+>
+>Controller drivers don't deal with userland addresses.  That's the
+>responsibility of the layers on top ... e.g. the filesystem or driver
+>code that accepts them.  Most just copy to/from userspace, but some
+>pay the costs to support direct I/O.
+>  
+>
+Oh no, you've got me wrong. I was tryng to say that an upper level 
+driver which copies the data from the userspace should be copying it to 
+GFP_DMA buffer, otherwise it won't work or will force the controller 
+driver to allocate/copy.
+And putting a requirement on the upper level driver to always do GFP_DMA 
+kmalloc's might put too high restrictions on the memory usage.
+Basically the upper level driver shouldn't give a damn whether the 
+buffers should be DMA-able or not since it might be used on different 
+platforms w/ and w/o DMA capabilities. Thus, it's going to be either a 
+requirement for the upper level drivers that implies the SPI core not 
+being transparent to the upper level, or a requirement for each 
+controller driver that might be handling this situation to implement the 
+same thing we did in the core. Neither of these seems reasonable to me.
+
+>
+>  
+>
+>>>- it needs to timely send some credentials (what is the case for the 
+>>>WLAN driver, for instance).
+>>>      
+>>>
+>
+>Again, not the responsibility of the lowest level driver.   A WLAN driver
+>layered on top could, of course.  That's the way such things are done in
+>other driver stacks.
+>
+>Are you seriously suggesting that an SPI controller driver should have any
+>clue whatever about credentials??   Which of the dozens of schemes should
+>become that "special", then ... and why??
+>
+>  
+>
+I'm afraid that you were not reading my response attentively. 
+Credentials are stored in a staic-allocated buffer in the upper level 
+driver. Then they are passed down to the SPI core which will fail to 
+send the buffer containing the credentials if it's not copied to DMAable 
+memory somewhere in between.
+
+Vitaly

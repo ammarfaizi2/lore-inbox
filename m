@@ -1,167 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbVKWOBM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbVKWOBX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750804AbVKWOBM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 09:01:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbVKWOBM
+	id S1750805AbVKWOBX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 09:01:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbVKWOBX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 09:01:12 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:55203 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750804AbVKWOBK (ORCPT
+	Wed, 23 Nov 2005 09:01:23 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:59347 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750805AbVKWOBW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 09:01:10 -0500
-Date: Wed, 23 Nov 2005 19:34:26 +0530
-From: Rachita Kothiyal <rachita@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: vgoyal@in.ibm.com, ebiederm@xmission.com, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [Fastboot] Re: [PATCH 9/10] kdump: read previous kernel's memory
-Message-ID: <20051123140426.GA30814@in.ibm.com>
-Reply-To: rachita@in.ibm.com
-References: <20051117131825.GE3981@in.ibm.com> <20051117132004.GF3981@in.ibm.com> <20051117132138.GG3981@in.ibm.com> <20051117132315.GH3981@in.ibm.com> <20051117132437.GI3981@in.ibm.com> <20051117132557.GJ3981@in.ibm.com> <20051117132659.GK3981@in.ibm.com> <20051117132850.GL3981@in.ibm.com> <20051117132944.GM3981@in.ibm.com> <20051117142023.43764d8b.akpm@osdl.org>
+	Wed, 23 Nov 2005 09:01:22 -0500
+Date: Wed, 23 Nov 2005 19:28:47 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: What protection does sysfs_readdir have with SMP/Preemption?
+Message-ID: <20051123135847.GF22714@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <1132695202.13395.15.camel@localhost.localdomain> <20051122213947.GB8575@kroah.com> <20051123045049.GA22714@in.ibm.com> <Pine.LNX.4.58.0511230748000.23751@gandalf.stny.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051117142023.43764d8b.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <Pine.LNX.4.58.0511230748000.23751@gandalf.stny.rr.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 17, 2005 at 02:20:23PM -0800, Andrew Morton wrote:
-> Vivek Goyal <vgoyal@in.ibm.com> wrote:
-> >
-> > +ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
-> > +                               size_t csize, unsigned long offset, int userbuf)
-> > +{
-> > +	void  *vaddr;
-> > +
-> > +	if (!csize)
-> > +		return 0;
-> > +
-> > +	vaddr = kmap_atomic_pfn(pfn, KM_PTE0);
-> > +
-> > +	if (userbuf) {
-> > +		if (copy_to_user(buf, (vaddr + offset), csize)) {
-> > +			kunmap_atomic(vaddr, KM_PTE0);
-> > +			return -EFAULT;
+On Wed, Nov 23, 2005 at 07:56:39AM -0500, Steven Rostedt wrote:
+[..]
 > 
-> The copy_*_user() inside kmap_atomic() is problematic.
+> The bug that I've been fighting in my own kernel is a memory leak. So I
+> started looking into this at what would happen in verious places if an
+> allocation didn't work.
 > 
-> On some configs (eg, x86, highmem) the process is running atomically, hence
-> the copy_*_user() will *refuse* to fault in the user's page if it's not
-> present.  Because pagefaulting involves doing things which sleep.
+> In create_dir:
 > 
-> So
+> 		error = sysfs_make_dirent(p->d_fsdata, *d, k, mode, SYSFS_DIR);
+> // Above is where the entry is added to the parent link list.
 > 
-> a) This code will generate might_sleep() warnings at runtime and
+> 		if (!error) {
+> 			error = sysfs_create(*d, mode, init_dir);
+> // If sysfs_create fails to allocate an inode, when below
+> // does the element get removed from the parent?
+> 			if (!error) {
+> 				p->d_inode->i_nlink++;
+> 				(*d)->d_op = &sysfs_dentry_ops;
+> 				d_rehash(*d);
+> 			}
+> 		}
+> 		if (error && (error != -EEXIST)) {
+> 			sysfs_put((*d)->d_fsdata);
+> // sysfs_put only seems to handle the kobject portion
 > 
-> b) It'll return -EFAULT for user pages which haven't been faulted in yet.
+> 			d_drop(*d);
+> // d_drop handles the unhash
+> 		}
+> 		dput(*d);
 > 
+> So I'm not sure an error from sysfs_create will remove the object from the
+> link list.  In fact, it might be worst since now there's an object on the
+> link list that may no long even be an object.
 > 
-> We do all sorts of gruesome tricks in mm/filemap.c to get around all this. 
-> I don't think your code is as performance-sensitive, so a suitable fix
-> might be to double-copy the data.  Make sure that the same physical page is
-> used as a bounce page for each copy (ie: get the caller to pass it in) and
-> that page will be cache-hot and the performance should be acceptable.
+> I'll test this by forcing a failure at sysfs_create.
 > 
-> If it really is performance-sensitive then you'll need to play filemap.c
-> games.  It'd be better to use a sleeping kmap instead, if poss.  That's
-> kmap().
-> 
-> Please send an incremental patch when it's sorted.  
 
-Hi Andrew
+hmm looks like we got some situation which is not desirable and could lead
+to bogus sysfs_dirent in the parent list. It may not be the exact problem
+in this case though, but needs fixing IMO.
 
-Sending along the incremental patch as suggested.
+After sysfs_make_dirent(), the ref count for sysfs dirent will be 2.
+(one from allocation, and after linking the new dentry to it). On
+error from sysfs_create(), we do sysfs_put() once, decrementing the
+ref count to 1. And again when the new dentry for which we couldn't
+allocate the d_inode, is d_drop()'ed. In sysfs_d_iput() we again
+sysfs_put(), and decrement the sysfs dirent's ref count to 0, which will
+be the final sysfs_put(), and it will free the sysfs_dirent but never
+unlinks it from the parent list. So, parent list could still will having
+links to the freed sysfs_dirent in its s_children list.
 
-In this patch, a global buffer page is introduced, where the page
-from the previous kernel's memory is copied, before copying it
-out to a user buffer. This will take care of the issue of
-copy_to_user() page faulting in an atomic context.
+so basically list_del_init(&sd->s_sibling) should be done in error path
+in create_dir().
 
-This patch has been generated against 2.6.15-rc2-mm1.
-Kindly review.
+Could you also put the appended patch in your trial runs..
+
 
 Thanks
-Rachita
+Maneesh
 
 
 
- o This patch allocates a page to copy the previous kernel's memory
-   before we copy it onto a user buffer using copy_to_user(), thereby
-   taking care of the scenario of a possible page fault in an atomic
-   context.
 
 
+o Following patch corrects the buggy create_dir() error path. This bug could
+  end up in having a bogus sysfs_dirent in the parent list. Now the newly 
+  allocated and linked sysfs_dirent is also un-linked in case of error 
+  resulting from sysfs_create()
 
-Signed-off-by: Rachita Kothiyal <rachita@in.ibm.com>
+o Many thanks to Steven Rostedt and Ingo Molnar for pointing this out.
+
+Signed-off-by: Maneesh Soni <maneesh@in.ibm.com>
 ---
 
- arch/i386/kernel/crash_dump.c |   39 +++++++++++++++++++++++++++++++++------
- 1 files changed, 33 insertions(+), 6 deletions(-)
+ linux-2.6.15-rc2-mm1-maneesh/fs/sysfs/dir.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletion(-)
 
-diff -puN arch/i386/kernel/crash_dump.c~double_copy_read_oldmem arch/i386/kernel/crash_dump.c
---- linux-2.6.15-rc2-mm1/arch/i386/kernel/crash_dump.c~double_copy_read_oldmem	2005-11-23 17:50:07.258543864 +0530
-+++ linux-2.6.15-rc2-mm1-rachita/arch/i386/kernel/crash_dump.c	2005-11-23 17:50:36.779056064 +0530
-@@ -11,6 +11,8 @@
- 
- #include <asm/uaccess.h>
- 
-+static void *kdump_buf_page;
-+
- /**
-  * copy_oldmem_page - copy one page from "oldmem"
-  * @pfn: page frame number to be copied
-@@ -23,6 +25,10 @@
-  *
-  * Copy a page from "oldmem". For this page, there is no pte mapped
-  * in the current kernel. We stitch up a pte, similar to kmap_atomic.
-+ *
-+ * Calling copy_to_user() in atomic context is not desirable. Hence first
-+ * copying the data to a pre-allocated kernel page and then copying to user
-+ * space in non-atomic context.
-  */
- ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
-                                size_t csize, unsigned long offset, int userbuf)
-@@ -34,14 +40,35 @@ ssize_t copy_oldmem_page(unsigned long p
- 
- 	vaddr = kmap_atomic_pfn(pfn, KM_PTE0);
- 
--	if (userbuf) {
--		if (copy_to_user(buf, (vaddr + offset), csize)) {
--			kunmap_atomic(vaddr, KM_PTE0);
-+	if (!userbuf) {
-+		memcpy(buf, (vaddr + offset), csize);
-+		kunmap_atomic(vaddr, KM_PTE0);
-+	} else {
-+		if (!kdump_buf_page) {
-+			printk(KERN_WARNING "Kdump: Kdump buffer page not"
-+				" allocated\n");
- 			return -EFAULT;
+diff -puN fs/sysfs/dir.c~fix-create_dir-error-path fs/sysfs/dir.c
+--- linux-2.6.15-rc2-mm1/fs/sysfs/dir.c~fix-create_dir-error-path	2005-11-23 18:59:36.072449992 +0530
++++ linux-2.6.15-rc2-mm1-maneesh/fs/sysfs/dir.c	2005-11-23 19:07:53.475833184 +0530
+@@ -112,7 +112,9 @@ static int create_dir(struct kobject * k
+ 			}
  		}
--	} else
--	memcpy(buf, (vaddr + offset), csize);
-+		copy_page(kdump_buf_page, vaddr);
-+		kunmap_atomic(vaddr, KM_PTE0);
-+		if (copy_to_user(buf, (kdump_buf_page + offset), csize))
-+			return -EFAULT;
-+	}
- 
--	kunmap_atomic(vaddr, KM_PTE0);
- 	return csize;
- }
-+
-+static int __init kdump_buf_page_init(void)
-+{
-+	int ret = 0;
-+
-+	kdump_buf_page = kmalloc(PAGE_SIZE, GFP_KERNEL);
-+	if (!kdump_buf_page) {
-+		printk(KERN_WARNING "Kdump: Failed to allocate kdump buffer"
-+			 " page\n");
-+		ret = -ENOMEM;
-+	}
-+
-+	return ret;
-+}
-+arch_initcall(kdump_buf_page_init);
+ 		if (error && (error != -EEXIST)) {
+-			sysfs_put((*d)->d_fsdata);
++			struct sysfs_dirent *sd = (*d)->d_fsdata;
++			list_del_init(&sd->s_sibling);
++			sysfs_put(sd);
+ 			d_drop(*d);
+ 		}
+ 		dput(*d);
 _
+
+
+-- 
+Maneesh Soni
+Linux Technology Center, 
+IBM India Software Labs,
+Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-25044990

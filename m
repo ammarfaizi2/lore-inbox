@@ -1,101 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932505AbVKWEFR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932503AbVKWEIQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932505AbVKWEFR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 23:05:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932506AbVKWEFR
+	id S932503AbVKWEIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 23:08:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932506AbVKWEIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 23:05:17 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:7863 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S932505AbVKWEFP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 23:05:15 -0500
-Date: Wed, 23 Nov 2005 12:06:19 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: vm-kswapd-incmin.patch problem
-Message-ID: <20051123040619.GA4386@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
-References: <20051122074818.GA3801@mail.ustc.edu.cn>
+	Tue, 22 Nov 2005 23:08:16 -0500
+Received: from mail.deathmatch.net ([216.200.85.210]:59025 "EHLO
+	mail.deathmatch.net") by vger.kernel.org with ESMTP id S932503AbVKWEIQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 23:08:16 -0500
+Date: Tue, 22 Nov 2005 23:07:52 -0500
+From: Bob Copeland <me@bobcopeland.com>
+To: linux-kernel@vger.kernel.org, usb-storage@lists.one-eyed-alien.net,
+       mdharm-usb@one-eyed-alien.net
+Subject: [PATCH] usb-storage: Add support for Rio Karma
+Message-ID: <20051123040752.GA5595@hash.localnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051122074818.GA3801@mail.ustc.edu.cn>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nick,
+Add support for the Rio Karma portable digital audio player to usb-storage.
 
-On Tue, Nov 22, 2005 at 03:48:18PM +0800, Wu Fengguang wrote:
-> Hi, your vm-kswapd-incmin.patch looks nice, and I'd like to base my age
-> balancing patch upon it. But while trying it, I ran into a problem.
-> 
-> $ cp bigfile /dev/null
-> $ free -m    
->              total       used       free     shared    buffers     cached
-> Mem:           501        495          6          0          2        321
-> -/+ buffers/cache:        171        330
-> Swap:          127          2        125
-> $ sleep 10
-> $ free -m    
->              total       used       free     shared    buffers     cached
-> Mem:           501        244        257          0          4         66
-> -/+ buffers/cache:        173        328
-> Swap:          127          2        125
-> 
-> In a short time, the bigfile was totally evicted from page cache?
-> 
-> Before/after the huge free pages:
-> 
-> $ cat /proc/sys/fs/dentry-state
-> 3393    28      45      0       0       0
-> $ cat /proc/sys/fs/dentry-state
-> 3626    260     45      0       0       0
-> 
-> 
-> linux-2.6.15-rc1-mm2 without the patch seems ok.
-> Any suggestions? Thanks.
+Signed-off-by: Bob Copeland <me@bobcopeland.com>
 
-Maybe I found the answer to it :)
+---
 
-I listed the dentry-state in several other normal machines, they all have
-more than 10k unused dentries:
+This is the first in a pair of patches to add the Rio Karma as a mass
+storage device.  This patch exposes the player as a block device when
+connected to USB, and the next patch, "Read Rio Karma boot sector," also
+properly exposes the partitions.  This is useful as-is to users for purposes
+of back-up/restore or blanking the disk on the unit, e.g. with dd.
 
-        54215   42155   45      0       0       0
-        91704   81376   45      0       0       0
-        96304   88832   45      0       0       0
-        30057   26999   45      0       0       0
+A filesystem driver for the Optimized MPEG File System, used by both Rio Karma
+and ReplayTV, is in an embryonic stage at http://bobcopeland.com/karma/.
 
-Then I disabled the shrinker by:
-        echo 0 > /proc/sys/vm/vfs_cache_pressure
+ drivers/usb/storage/rio_karma.c |  104 +++++++++++++++++++++++++++++++++++++++
+ drivers/usb/storage/rio_karma.h |    9 +++
+ 2 files changed, 113 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/usb/storage/rio_karma.c
+ create mode 100644 drivers/usb/storage/rio_karma.h
 
-That increased the number from
-        3393    28      45      0       0       0
-to
-        6247    2672    45      0       0       0
-And there is no sudden huge increases of free pages any more.
-
-Maybe your patch is shrinking the slabs much more, though I cannot confirm this
-from the source code. But one thing I'm sure is that there should be a lower
-bound for the unused dentries, either absolutely or relatively, something like
-this:
-
---- linux-2.6.15-rc1-mm2.orig/fs/dcache.c
-+++ linux-2.6.15-rc1-mm2/fs/dcache.c
-@@ -860,7 +860,7 @@ static int shrink_dcache_memory(int nr, 
- 			return -1;
- 		prune_dcache(nr);
- 	}
--	return (dentry_stat.nr_unused / 100) * sysctl_vfs_cache_pressure;
-+	return (dentry_stat.nr_unused / 1000) * 10 * sysctl_vfs_cache_pressure;
- }
- 
- /**
-
-
-The original 100 is way too small. It should be much more than the SHRINK_BATCH(128).
-
-Thanks,
-Wu
+applies-to: 3c36672829527bef6951ca2f1eae7da4285fee31
+ece6a8eb17d1b6464349ab2b025fdb8bc76e00da
+diff --git a/drivers/usb/storage/rio_karma.c b/drivers/usb/storage/rio_karma.c
+new file mode 100644
+index 0000000..ea1be9a
+--- /dev/null
++++ b/drivers/usb/storage/rio_karma.c
+@@ -0,0 +1,104 @@
++/* USB driver for DNNA Rio Karma 
++ *
++ * (C) 2005 Bob Copeland (me@bobcopeland.com)
++ *
++ * The Karma is a mass storage device, although it requires some 
++ * initialization code to get in that mode.  
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation; either version 2, or (at your option) any
++ * later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program; if not, write to the Free Software Foundation, Inc.,
++ * 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ */
++
++#include <linux/delay.h>
++#include <linux/string.h>
++#include <linux/jiffies.h>
++#include "rio_karma.h"
++#include "usb.h"
++#include "transport.h"
++#include "debug.h"
++
++#define RIO_MSC 0x08
++#define RIOP_INIT "RIOP\x00\x01\x08\x00"
++#define CMD_LEN 40
++#define RECV_LEN 0x200
++
++/* Initialize the Karma and get it into mass storage mode.  
++ * 
++ * The initialization begins by sending 40 bytes starting
++ * RIOP\x00\x01\x08\x00, which the device will ack with a 512-byte
++ * packet with the high four bits set and everything else null.
++ *
++ * Next, we send RIOP\x80\x00\x08\x00.  Each time, a 512 byte response
++ * must be read, but we must loop until byte 5 in the response is 0x08,
++ * indicating success. 
++ */
++int rio_karma_init(struct us_data *us) 
++{
++	int result, partial;
++	char *recv;
++	static char init_cmd[] = RIOP_INIT;
++	unsigned long timeout;
++
++	// us->iobuf is big enough to hold cmd but not receive
++	if (!(recv = kmalloc(RECV_LEN, GFP_KERNEL | __GFP_DMA)))
++		goto die_nomem;
++
++	US_DEBUGP("Initializing Karma...\n");
++
++	memcpy(us->iobuf, init_cmd, sizeof(init_cmd));
++	memset(&us->iobuf[sizeof(init_cmd)], 0, CMD_LEN - sizeof(init_cmd));
++
++	result = usb_stor_bulk_transfer_buf(us, us->send_bulk_pipe, 
++		us->iobuf, CMD_LEN, &partial);
++	if (result != USB_STOR_XFER_GOOD)
++		goto die;
++
++	result = usb_stor_bulk_transfer_buf(us, us->recv_bulk_pipe, 
++		recv, RECV_LEN, &partial);
++	if (result != USB_STOR_XFER_GOOD)
++		goto die;
++
++	us->iobuf[4] = 0x80;
++	us->iobuf[5] = 0;
++	timeout = jiffies + msecs_to_jiffies(3000); 
++	for (;;) {
++		US_DEBUGP("Sending init command\n");
++		result = usb_stor_bulk_transfer_buf(us, us->send_bulk_pipe, 
++			us->iobuf, CMD_LEN, &partial);
++		if (result != USB_STOR_XFER_GOOD)
++			goto die;
++
++		result = usb_stor_bulk_transfer_buf(us, us->recv_bulk_pipe, 
++			recv, RECV_LEN, &partial);
++		if (result != USB_STOR_XFER_GOOD)
++			goto die;
++		
++		if (recv[5] == RIO_MSC) 
++			break;
++		if (time_after(jiffies, timeout))
++			goto die;
++		msleep(10);
++	}
++	US_DEBUGP("Karma initialized.\n");
++	kfree(recv);
++	return 0;
++
++die:
++	kfree(recv);
++die_nomem:
++	US_DEBUGP("Could not initialize karma.\n");
++	return USB_STOR_TRANSPORT_FAILED;
++}
++
+diff --git a/drivers/usb/storage/rio_karma.h b/drivers/usb/storage/rio_karma.h
+new file mode 100644
+index 0000000..99b44fd
+--- /dev/null
++++ b/drivers/usb/storage/rio_karma.h
+@@ -0,0 +1,9 @@
++#ifndef _RIO_KARMA_H
++#define _RIO_KARMA_H
++
++#include <linux/config.h>
++#include "usb.h"
++
++int rio_karma_init(struct us_data *);
++
++#endif
+---
+0.99.9i
+-- 
+Bob Copeland %% www.bobcopeland.com 

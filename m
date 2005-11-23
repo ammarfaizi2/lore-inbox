@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbVKWRhs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbVKWRkb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751277AbVKWRhs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 12:37:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbVKWRhs
+	id S1751278AbVKWRkb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 12:40:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751292AbVKWRkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 12:37:48 -0500
-Received: from mail-in-07.arcor-online.net ([151.189.21.47]:31155 "EHLO
-	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1751277AbVKWRhr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 12:37:47 -0500
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-Subject: Re: floppy regression from "[PATCH] fix floppy.c to store correct ..."
-To: jonathan@jonmasters.org, Andrew Morton <akpm@osdl.org>,
-       cp@absolutedigital.net, linux-kernel@vger.kernel.org,
-       jcm@jonmasters.org, torvalds@osdl.org, viro@ftp.linux.org.uk,
-       hch@lst.de
-Reply-To: 7eggert@gmx.de
-Date: Wed, 23 Nov 2005 18:39:27 +0100
-References: <59olg-7rC-3@gated-at.bofh.it> <59rsT-3Co-27@gated-at.bofh.it> <5arTK-5Wu-1@gated-at.bofh.it> <5bAW4-8wm-19@gated-at.bofh.it> <5bEYO-6oH-15@gated-at.bofh.it> <5bOEG-5jk-19@gated-at.bofh.it> <5bUK2-61i-5@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Wed, 23 Nov 2005 12:40:31 -0500
+Received: from zproxy.gmail.com ([64.233.162.196]:7131 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751278AbVKWRka convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 12:40:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=UGc9vxuHgP5u0+UCNbQioPpU/zBxNY4OgY0hBhDbhOmPuzSDyLbmNizKANYfFHsDRAU85d/NRcU2nZiimgWZ0JuiO3XhY5ZlAW0y4t+ZDo2JBcAg6zDPQwY0ZyGbM4ETEG9o0gYlnTOuuc9hB+sacQdcRO301n980M7ADX8Vr7A=
+Message-ID: <2ea3fae10511230940t1f6a1757lf885a2559be6f0dc@mail.gmail.com>
+Date: Wed, 23 Nov 2005 09:40:28 -0800
+From: yhlu <yinghailu@gmail.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [LinuxBIOS] x86_64: apic id lift patch
+Cc: Ronald G Minnich <rminnich@lanl.gov>, discuss@x86-64.org,
+       linuxbios@openbios.org, yhlu <yhlu.kernel@gmail.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20051123173636.GL20775@brahms.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1Eeyae-00012o-CV@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <86802c440511211349t6a0a9d30i60e15fa23b86c49d@mail.gmail.com>
+	 <20051121220605.GD20775@brahms.suse.de> <43849FA5.4020201@lanl.gov>
+	 <2ea3fae10511230919l4d9829d8j3ce5d820b74074d1@mail.gmail.com>
+	 <20051123173636.GL20775@brahms.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Masters <jonmasters@gmail.com> wrote:
-> On 11/22/05, Andrew Morton <akpm@osdl.org> wrote:
+is there any way to make the kernel use apci but still use pci irq
+routing from mptable?
 
->> In the meanwhile I think we should revert back to the 2.6.14 version of
->> floppy.c - the present problem is probably worse than the one which it
->> kinda-fixes.
-> 
-> Ok, as you please. It's probably going to take something much more
-> ugly to make this work with things as they stand - I'll get something
-> out at the weekend.
+YH
 
-I think it should be a general solution to flipped CP switches on floppies
-and USB sticks as well as network block devices on a fs that got remounted
-ro or hdparm -W.
-
-The device needs a WP status that gets updated on open or mount (must
-complete before open()/mount() completes), on failed write()s iff the write
-failed because of write protection error and whenever checking is cheap.
-If the check can't be done sanely on open() calls (as in the case of NBD),
-asume it to be RW enabled unless we know otherwise (e.g. the user told us).
-(re)mounts should allways enforce the check as long as it's possible.
-The filesystems will need to get updated to use this status as well and
-remount themselves ro (or do a panic/reboot, if desired).
-
-This will still misbehave, but I think it will misbehave in a sane way. You
-may get a rw mount on ro devices in corner cases, but you can't keep it. If
-you erroneously got your device ro, you can update the status by remounting,
-so you won't get stuck with a busy ro filesystem. "true>/dev/node" will
-update the state, too, but I doubt it's usefullness unless the application
-using the device is designed to take use of this feature.
-
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+On 11/23/05, Andi Kleen <ak@suse.de> wrote:
+> On Wed, Nov 23, 2005 at 09:19:59AM -0800, yhlu wrote:
+> > sth about SRAT in LinuxBIOS,  I have put SRAT dynamically support in
+> > LinuxBIOS, but the whole acpi support still need dsdt, current we only have
+> > dsdt for AMD chipset in LB. And we can not have the access the dsdt asl from
+> > Nvidia chipset yet...
+>
+> You probably don't need most of it. Just a basic SRAT table (no AML methods)
+> and enough to keep the ACPI interpreter from aborting early.
+>
+> Or alternatively just fix the bug that caused you to go with discontig
+> APICs in the first place.
+>
+> -Andi
+>

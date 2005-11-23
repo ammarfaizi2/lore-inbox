@@ -1,51 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbVKWQwg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbVKWQzO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932079AbVKWQwg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 11:52:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbVKWQwg
+	id S932086AbVKWQzO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 11:55:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932089AbVKWQzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 11:52:36 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:6032 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932079AbVKWQwf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 11:52:35 -0500
-Message-ID: <43849E1C.3030102@zytor.com>
-Date: Wed, 23 Nov 2005 08:51:40 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Wed, 23 Nov 2005 11:55:13 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:54454 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932086AbVKWQzL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 11:55:11 -0500
+Date: Wed, 23 Nov 2005 08:54:46 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "David S. Miller" <davem@davemloft.net>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk,
+       ak@muc.de
+Subject: Re: [NET]: Shut up warnings in net/core/flow.c
+In-Reply-To: <20051123.005530.17893365.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.64.0511230849380.13959@g5.osdl.org>
+References: <200511230159.jAN1xeMl003154@hera.kernel.org>
+ <20051123002134.287ff226.akpm@osdl.org> <20051123.005530.17893365.davem@davemloft.net>
 MIME-Version: 1.0
-To: Gerd Knorr <kraxel@suse.de>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
-       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com>	 <20051111103605.GC27805@elf.ucw.cz> <4374F2D5.7010106@vmware.com>	 <Pine.LNX.4.64.0511111147390.4627@g5.osdl.org>	 <4374FB89.6000304@vmware.com>	 <Pine.LNX.4.64.0511111218110.4627@g5.osdl.org>	 <20051113074241.GA29796@redhat.com>	 <Pine.LNX.4.64.0511131118020.3263@g5.osdl.org>	 <Pine.LNX.4.64.0511131210570.3263@g5.osdl.org> <4378A7F3.9070704@suse.de>	 <Pine.LNX.4.64.0511141118000.3263@g5.osdl.org> <4379ECC1.20005@suse.de>	 <437A0649.7010702@suse.de> <437B5A83.8090808@suse.de>	 <438359D7.7090308@suse.de>  <p7364qjjhqx.fsf@verdi.suse.de> <1132764133.7268.51.camel@localhost.localdomain> <43849C23.3040001@suse.de>
-In-Reply-To: <43849C23.3040001@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerd Knorr wrote:
-> 
-> Patching in/out SMP-locking with more than one active CPU would be a 
-> pretty silly idea in the first place ;)
-> 
 
-No, doing this crap with CPU hotplug is a silly idea.  Patching on a 
-real UP system, and then throwing out the tables, makes sense.  Keeping 
-two sets of tables for a minimal performance improvement in a very rare 
-configuration (CPU hotplug is the exception, not the rule) is just plain 
-stupid.  You probably lose as much performance from the memory hogged up 
-in the tables as you gain from it, and on every system where you have 
-the tables at all you take the hit.
 
-	-hpa
+On Wed, 23 Nov 2005, David S. Miller wrote:
+>
+> From: Andrew Morton <akpm@osdl.org>
+> Date: Wed, 23 Nov 2005 00:21:34 -0800
+> 
+> > Nope, this will break !CONFIG_SMP builds.  Quite a few places in the
+> > kernel do not implement the ipi handler if !CONFIG_SMP.
+> 
+> Ho hum, nothing is ever easy eh? :-) I think your patch is fine for
+> now, but in the long term the !CONFIG_SMP ifdefs for those ipi
+> handlers should probably just get removed.  If GCC can't optimize
+> those things away, I'd be really surprised.
+
+I just reverted the whole commit.
+
+We've had this exact thing before, and it's easy enough to handle, but you 
+have to do it right.
+
+The way to handle it is to do
+
+	static inline int maybe_ignored(int arg, ...)
+	{
+		return arg;
+	}
+
+	#define smp_call_function(func,info,retry,wait) \
+		maybe_ignored(0, info, retry, wait)
+
+which is a very useful way to say: we don't care about "func", but we want 
+to avoid unused warnings for "info", "retry" and "wait", and we want to 
+return 0 regardless and compile it all away.
+
+If somebody tests this, puts the "maybe_ignored()" function in some nice 
+generic header file, I'll apply it.
+
+I _refuse_ to apply the patch from Andrew that adds "(void)" to shut up 
+the compiler. That's a piece of crap, and we should never do things like 
+that. Bad C style.
+
+		Linus

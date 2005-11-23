@@ -1,611 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbVKWPA3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750928AbVKWPD5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750892AbVKWPA3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 10:00:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750900AbVKWPA2
+	id S1750928AbVKWPD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 10:03:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750903AbVKWPD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 10:00:28 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:37767 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750885AbVKWPA1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 10:00:27 -0500
-Subject: [PATCH] tpm: add bios measurement log
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: Stefan Berger <stefanb@us.ibm.com>, Reiner Sailer <sailer@us.ibm.com>,
-       Seiji Munetoh <MUNETOH@jp.ibm.com>, Emily Ratliff <emilyr@us.ibm.com>,
-       Tom Lendacky <toml@us.ibm.com>, akpm@osdl.org
-Content-Type: text/plain
-Date: Wed, 23 Nov 2005 09:00:50 -0600
-Message-Id: <1132758050.6677.7.camel@localhost.localdomain>
+	Wed, 23 Nov 2005 10:03:57 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30216 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750839AbVKWPD4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 10:03:56 -0500
+Date: Wed, 23 Nov 2005 15:03:50 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Greg KH <greg@kroah.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Christmas list for the kernel
+Message-ID: <20051123150349.GA15449@flint.arm.linux.org.uk>
+Mail-Followup-To: Jon Smirl <jonsmirl@gmail.com>,
+	Vojtech Pavlik <vojtech@suse.cz>, Greg KH <greg@kroah.com>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com> <20051122204918.GA5299@kroah.com> <9e4733910511221313t4a1e3c67wc7b08160937eb5c5@mail.gmail.com> <20051123121726.GA7328@ucw.cz> <9e4733910511230643j64922738p709fecd6c86b4a95@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9e4733910511230643j64922738p709fecd6c86b4a95@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-According to the TCG specifications measurements or hashes of the BIOS
-code and data are extended into TPM PCRS and a log is kept in an ACPI
-table of these extensions for later validation if desired.  This patch
-exports the values in the ACPI table through a security-fs seq_file.
+On Wed, Nov 23, 2005 at 09:43:58AM -0500, Jon Smirl wrote:
+> My system has:
+> 2 serial
+> 
+> In /sys/bus/platform/devices I see this:
+> serial8250
+> shouldn't there be entries for all of the legacy devices?
+> 
+> In /dev
+> ttyS0
+> ttyS1
+> ttyS2
+> ttyS3
 
-Signed-off-by: Seiji Munetoh <munetoh@jp.ibm.com>
-Signed-off-by: Stefan Berger <stefanb@us.ibm.com>
-Signed-off-by: Reiner Sailer <sailer
-Signed-off-by: Kylene Hall <kjhall@us.ibm.com> 
+You're basically confused about serial ports.  The kernel serial devices
+whether or not hardware is found, to allow programs such as setserial to
+function.
 
----
-diff -uprbBN --exclude='*.o' --exclude='*.ko' --exclude='*.orig' --exclude='*.rej' --exclude='.*' --exclude='*~' --exclude='tpm_logical*' --exclude=Kconfig linux-2.6.15-rc2/drivers/char/tpm/Makefile linux-2.6.15-rc1/drivers/char/tpm/Makefile
---- linux-2.6.15-rc2/drivers/char/tpm/Makefile	2005-11-19 21:25:03.000000000 -0600
-+++ linux-2.6.15-rc1/drivers/char/tpm/Makefile	2005-11-21 10:45:36.000000000 -0600
-@@ -2,6 +2,9 @@
- # Makefile for the kernel tpm device drivers.
- #
- obj-$(CONFIG_TCG_TPM) += tpm.o
-+ifdef CONFIG_ACPI
-+	obj-$(CONFIG_TCG_TPM) += tpm_bios.o
-+endif
- obj-$(CONFIG_TCG_NSC) += tpm_nsc.o
- obj-$(CONFIG_TCG_ATMEL) += tpm_atmel.o
- obj-$(CONFIG_TCG_INFINEON) += tpm_infineon.o
-diff -uprbBN --exclude='*.o' --exclude='*.ko' --exclude='*.orig' --exclude='*.rej' --exclude='.*' --exclude='*~' --exclude='tpm_logical*' --exclude=Kconfig linux-2.6.15-rc2/drivers/char/tpm/tpm_bios.c linux-2.6.15-rc1/drivers/char/tpm/tpm_bios.c
-diff -uprbBN --exclude='*.o' --exclude='*.ko' --exclude='*.orig' --exclude='*.rej' --exclude='.*' --exclude='*~' --exclude='tpm_logical*' --exclude=Kconfig linux-2.6.15-rc2/drivers/char/tpm/tpm.c linux-2.6.15-rc1/drivers/char/tpm/tpm.c
---- linux-2.6.15-rc2/drivers/char/tpm/tpm.c	2005-11-19 21:25:03.000000000 -0600
-+++ linux-2.6.15-rc1/drivers/char/tpm/tpm.c	2005-11-21 16:57:45.000000000 -0600
-@@ -466,6 +556,7 @@ void tpm_remove_hardware(struct device *
- 	kfree(chip->vendor->miscdev.name);
- 
- 	sysfs_remove_group(&dev->kobj, chip->vendor->attr_group);
-+	tpm_bios_log_teardown(chip->bios_dir);
- 
- 	dev_mask[chip->dev_num / TPM_NUM_MASK_ENTRIES ] &=
- 		~(1 << (chip->dev_num % TPM_NUM_MASK_ENTRIES));
-@@ -593,6 +684,8 @@ dev_num_search_complete:
- 
- 	sysfs_create_group(&dev->kobj, chip->vendor->attr_group);
- 
-+	chip->bios_dir = tpm_bios_log_setup(devname);
-+
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(tpm_register_hardware);
-diff -uprbBN --exclude='*.o' --exclude='*.ko' --exclude='*.orig' --exclude='*.rej' --exclude='.*' --exclude='*~' --exclude='tpm_logical*' --exclude=Kconfig linux-2.6.15-rc2/drivers/char/tpm/tpm.h linux-2.6.15-rc1/drivers/char/tpm/tpm.h
---- linux-2.6.15-rc2/drivers/char/tpm/tpm.h	2005-11-19 21:25:03.000000000 -0600
-+++ linux-2.6.15-rc1/drivers/char/tpm/tpm.h	2005-11-22 10:40:16.000000000 -0600
-@@ -82,6 +85,8 @@ struct tpm_chip {
- 
- 	struct tpm_vendor_specific *vendor;
- 
-+	struct dentry **bios_dir;
-+
- 	struct list_head list;
- };
- 
-@@ -107,3 +112,16 @@ extern ssize_t tpm_read(struct file *, c
- extern void tpm_remove_hardware(struct device *);
- extern int tpm_pm_suspend(struct device *, pm_message_t);
- extern int tpm_pm_resume(struct device *);
-+
-+#ifdef CONFIG_ACPI
-+extern struct dentry**  tpm_bios_log_setup(char*);
-+extern void tpm_bios_log_teardown(struct dentry**);
-+#else
-+static inline struct dentry* tpm_bios_log_setup(char* name)
-+{
-+	return NULL;
-+}
-+static inline void tpm_bios_log_teardown(struct dentry** dir)
-+{
-+}
-+#endif
---- linux-2.6.15-rc2/drivers/char/tpm/tpm_bios.c	1969-12-31 18:00:00.000000000 -0600
-+++ linux-2.6.15-rc1/drivers/char/tpm/tpm_bios.c	2005-11-22 13:50:27.000000000 -0600
-@@ -0,0 +1,504 @@
-+/*
-+ * Copyright (C) 2005 IBM Corporation
-+ *
-+ * Authors:
-+ *	Seiji Munetoh <munetoh@jp.ibm.com>
-+ *	Stefan Berger <stefanb@us.ibm.com>
-+ *	Reiner Sailer <sailer@watson.ibm.com>
-+ *	Kylene Hall <kjhall@us.ibm.com>
-+ *
-+ * Access to the eventlog extended by the TCG BIOS of PC platform
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+ *
-+ */
-+
-+#include <linux/seq_file.h>
-+#include <linux/fs.h>
-+#include <linux/security.h>
-+#include <acpi/acpi.h>
-+#include <acpi/actypes.h>
-+#include <acpi/actbl.h>
-+#include "tpm.h"
-+
-+#define TCG_EVENT_NAME_LEN_MAX	255
-+#define MAX_TEXT_EVENT        1000	/* Max event string length */
-+#define ACPI_TCPA_SIG  "TCPA"	/* 0x41504354 /'TCPA' */
-+
-+struct acpi_tcpa {
-+	struct acpi_table_header hdr;
-+	u16 reserved;
-+	u32 log_max_len __attribute__ ((packed));
-+	u32 log_start_addr __attribute__ ((packed));
-+};
-+
-+struct tcpa_event {
-+	u32 pcr_index;
-+	u32 event_type;
-+	u8 pcr_value[20];	/* SHA1 */
-+	u32 event_size;
-+	u8 event_data[0];
-+};
-+
-+enum tcpa_event_types {
-+	PREBOOT = 0,
-+	POST_CODE,
-+	UNUSED,
-+	NO_ACTION,
-+	SEPARATOR,
-+	ACTION,
-+	EVENT_TAG,
-+	SCRTM_CONTENTS,
-+	SCRTM_VERSION,
-+	CPU_MICROCODE,
-+	PLATFORM_CONFIG_FLAGS,
-+	TABLE_OF_DEVICES,
-+	COMPACT_HASH,
-+	IPL,
-+	IPL_PARTITION_DATA,
-+	NONHOST_CODE,
-+	NONHOST_CONFIG,
-+	NONHOST_INFO,
-+};
-+
-+static const char* tcpa_event_type_strings[] = {
-+	"PREBOOT",
-+	"POST CODE",
-+	"",
-+	"NO ACTION",
-+	"SEPARATOR",
-+	"ACTION",
-+	"EVENT TAG",
-+	"S-CRTM Contents",
-+	"S-CRTM Version",
-+	"CPU Microcode",
-+	"Platform Config Flags",
-+	"Table of Devices",
-+	"Compact Hash",
-+	"IPL",
-+	"IPL Partition Data",
-+	"Non-Host Code",
-+	"Non-Host Config",
-+	"Non-Host Info"
-+};
-+
-+enum tcpa_pc_event_ids {
-+	SMBIOS = 1,
-+	BIS_CERT,
-+	POST_BIOS_ROM,
-+	ESCD,
-+	CMOS,
-+	NVRAM,
-+	OPTION_ROM_EXEC,
-+	OPTION_ROM_CONFIG,
-+	OPTION_ROM_MICROCODE,
-+	S_CRTM_VERSION,
-+	S_CRTM_CONTENTS,
-+	POST_CONTENTS,
-+};
-+
-+static const char* tcpa_pc_event_id_strings[] = {
-+	""
-+	"SMBIOS",
-+	"BIS Certificate",
-+	"POST BIOS ",
-+	"ESCD ",
-+	"CMOS",
-+	"NVRAM",
-+	"Option ROM",
-+	"Option ROM config",
-+	"Option ROM microcode",
-+	"S-CRTM Version",
-+	"S-CRTM Contents",
-+	"S-CRTM POST Contents"
-+	 
-+};	
-+
-+/* (Binary) bios measurement buffer */
-+static void *tcg_eventlog;
-+static void *tcg_eventlog_addr_limit;	/* MAX */
-+
-+/* returns pointer to start of pos. entry of tcg log */
-+static void *tpm_bios_measurements_start(struct seq_file *m, loff_t * pos)
-+{
-+	loff_t i;
-+	void *addr = tcg_eventlog;
-+	struct tcpa_event *event;
-+
-+	/* read over *pos measurements */
-+	for (i = 0; i < *pos; i++) {
-+		event = (struct tcpa_event *) addr;
-+
-+		if ((addr + sizeof(struct tcpa_event)) <
-+		    tcg_eventlog_addr_limit) {
-+			if (event->event_type == 0 && event->event_size == 0)
-+				return NULL;
-+			addr +=
-+			    sizeof(struct tcpa_event) + event->event_size;
-+		}
-+	}
-+
-+	/* now check if current entry is valid */
-+	if ((addr + sizeof(struct tcpa_event)) >= tcg_eventlog_addr_limit)
-+		return NULL;
-+
-+	event = (struct tcpa_event *) addr;
-+
-+	if ((event->event_type == 0 && event->event_size == 0) ||
-+	    ((addr + sizeof(struct tcpa_event) + event->event_size) >=
-+	     tcg_eventlog_addr_limit))
-+		return NULL;
-+
-+	return addr;
-+}
-+
-+static void *tpm_bios_measurements_next(struct seq_file *m, void *v,
-+					loff_t * pos)
-+{
-+	struct tcpa_event *event = (struct tcpa_event *) v;
-+
-+	v += sizeof(struct tcpa_event) + event->event_size;
-+
-+	/* now check if current entry is valid */
-+	if ((v + sizeof(struct tcpa_event)) >= tcg_eventlog_addr_limit)
-+		return NULL;
-+
-+	event = (struct tcpa_event *) v;
-+
-+	if (event->event_type == 0 && event->event_size == 0)
-+		return NULL;
-+
-+	if ((event->event_type == 0 && event->event_size == 0) ||
-+	    ((v + sizeof(struct tcpa_event) + event->event_size) >=
-+	     tcg_eventlog_addr_limit))
-+		return NULL;
-+
-+	(*pos)++;
-+	return v;
-+}
-+
-+static void tpm_bios_measurements_stop(struct seq_file *m, void *v)
-+{
-+}
-+
-+static int get_event_name(char* dest, struct tcpa_event *event, unsigned char* event_entry )
-+{
-+	const char *name = "";
-+	char data[40] = "";
-+	int i, n_len = 0, d_len = 0;
-+	u32 event_id, event_data_size;
-+
-+	switch(event->event_type) {
-+	case PREBOOT:
-+	case POST_CODE:
-+	case UNUSED:
-+	case NO_ACTION:
-+	case SCRTM_CONTENTS:
-+	case SCRTM_VERSION:
-+	case CPU_MICROCODE:
-+	case PLATFORM_CONFIG_FLAGS:
-+	case TABLE_OF_DEVICES:
-+	case COMPACT_HASH:
-+	case IPL:
-+	case IPL_PARTITION_DATA:
-+	case NONHOST_CODE:
-+	case NONHOST_CONFIG:
-+	case NONHOST_INFO:
-+		name = tcpa_event_type_strings[event->event_type];
-+		n_len = strlen(name);
-+		break;
-+	case SEPARATOR:
-+	case ACTION:
-+		if (MAX_TEXT_EVENT > event->event_size) {
-+			name = event_entry;
-+			n_len = event->event_size;
-+		}
-+		break;
-+	case EVENT_TAG:
-+		event_id = be32_to_cpu(event_entry);
-+		event_data_size = be32_to_cpu(&event_entry[4]);
-+
-+		/* ToDo Row data -> Base64 */
-+
-+		switch (event_id) {
-+		case SMBIOS:
-+		case BIS_CERT:
-+		case CMOS:
-+		case NVRAM:
-+		case OPTION_ROM_EXEC:
-+		case OPTION_ROM_CONFIG:
-+		case OPTION_ROM_MICROCODE:
-+		case S_CRTM_VERSION:
-+		case S_CRTM_CONTENTS:
-+		case POST_CONTENTS:
-+			name = tcpa_pc_event_id_strings[event_id];
-+			n_len = strlen(name);
-+			break;
-+		case POST_BIOS_ROM:
-+		case ESCD:
-+			name = tcpa_pc_event_id_strings[event_id];
-+			n_len = strlen(name);
-+			for (i = 0; i < 20; i++)
-+				d_len += sprintf(data, "%02x", event_entry[8 + i]);
-+			break;
-+		default:
-+			break;
-+		}
-+	default:
-+		break;
-+	}
-+
-+	return snprintf( dest, MAX_TEXT_EVENT, "[%.*s%.*s]", n_len, name, d_len, data ); 
-+
-+}
-+
-+static int tpm_binary_bios_measurements_show(struct seq_file *m, void *v)
-+{
-+
-+	char *eventname;
-+	char data[4];
-+	u32 help;
-+	int i, len;
-+	struct tcpa_event *event = (struct tcpa_event *) v;
-+	unsigned char *event_entry =
-+	    (unsigned char *) (v + sizeof(struct tcpa_event));
-+
-+	eventname = kmalloc(MAX_TEXT_EVENT, GFP_KERNEL);
-+	if (!eventname) {
-+		printk(KERN_ERR "%s: ERROR - No Memory for event name\n ",
-+		       __func__);
-+		return -EFAULT;
-+	}
-+
-+	/* 1st: PCR used is in little-endian format (4 bytes) */
-+	help = le32_to_cpu(event->pcr_index);
-+	memcpy(data, &help, 4);
-+	for (i = 0; i < 4; i++)
-+		seq_putc(m, data[i]);
-+
-+	/* 2nd: SHA1 (20 bytes) */
-+	for (i = 0; i < 20; i++)
-+		seq_putc(m, event->pcr_value[i]);
-+
-+	/* 3rd: event type identifier (4 bytes) */
-+	help = le32_to_cpu(event->event_type);
-+	memcpy(data, &help, 4);
-+	for (i = 0; i < 4; i++)
-+		seq_putc(m, data[i]);
-+
-+	len = 0;
-+
-+	len += get_event_name(eventname, event, event_entry); 
-+
-+	/* 4th:  filename <= 255 + \'0' delimiter */
-+	if (len > TCG_EVENT_NAME_LEN_MAX)
-+		len = TCG_EVENT_NAME_LEN_MAX;
-+
-+	for (i = 0; i < len; i++)
-+		seq_putc(m, eventname[i]);
-+
-+	/* 5th: delimiter */
-+	seq_putc(m, '\0');
-+
-+	return 0;
-+}
-+
-+static int tpm_bios_measurements_release(struct inode *inode,
-+					 struct file *file)
-+{
-+	if (tcg_eventlog) {
-+		kfree(tcg_eventlog);
-+		tcg_eventlog = NULL;
-+	}
-+	return seq_release(inode, file);
-+}
-+
-+static int tpm_ascii_bios_measurements_show(struct seq_file *m, void *v)
-+{
-+	int len = 0;
-+	int i;
-+	char *eventname;
-+
-+	struct tcpa_event *event = (struct tcpa_event *) v;
-+	unsigned char *event_entry =
-+	    (unsigned char *) (v + sizeof(struct tcpa_event));
-+
-+	eventname = kmalloc(MAX_TEXT_EVENT, GFP_KERNEL);
-+	if (!eventname) {
-+		printk(KERN_ERR "%s: ERROR - No Memory for event name\n ",
-+		       __func__);
-+		return -EFAULT;
-+	}
-+
-+	seq_printf(m, "%2d ", event->pcr_index);
-+
-+	/* 2nd: SHA1 */
-+	for (i = 0; i < 20; i++)
-+		seq_printf(m, "%02x", event->pcr_value[i]);
-+
-+	/* 3rd: event type identifier */
-+	seq_printf(m, " %02x", event->event_type);
-+
-+	len += get_event_name(eventname, event, event_entry); 
-+
-+	/* 4th: eventname <= max + \'0' delimiter */
-+	seq_printf(m, " %s\n", eventname);
-+
-+	return 0;
-+}
-+
-+static struct seq_operations tpm_ascii_b_measurments_seqops = {
-+	.start = tpm_bios_measurements_start,
-+	.next = tpm_bios_measurements_next,
-+	.stop = tpm_bios_measurements_stop,
-+	.show = tpm_ascii_bios_measurements_show
-+};
-+
-+static struct seq_operations tpm_binary_b_measurments_seqops = {
-+	.start = tpm_bios_measurements_start,
-+	.next = tpm_bios_measurements_next,
-+	.stop = tpm_bios_measurements_stop,
-+	.show = tpm_binary_bios_measurements_show
-+};
-+
-+/* read binary bios log */
-+static int read_log(void)
-+{
-+	struct acpi_tcpa *buff;
-+	acpi_status status;
-+	void *virt;
-+
-+	if (tcg_eventlog != NULL) {
-+		printk(KERN_ERR
-+		       "%s: ERROR - Eventlog already initialized\n",
-+		       __func__);
-+		return -EFAULT;
-+	}
-+
-+	/* Find TCPA entry in RSDT (ACPI_LOGICAL_ADDRESSING) */
-+	status = acpi_get_firmware_table(ACPI_TCPA_SIG, 1,
-+					 ACPI_LOGICAL_ADDRESSING,
-+					 (struct acpi_table_header **)
-+					 &buff);
-+
-+	if (ACPI_FAILURE(status)) {
-+		printk(KERN_ERR "%s: ERROR - Could not get TCPA table\n",
-+		       __func__);
-+		return -EIO;
-+	}
-+
-+	if (buff->log_max_len == 0) {
-+		printk(KERN_ERR "%s: ERROR - TCPA log area empty\n",
-+		       __func__);
-+		return -EIO;
-+	}
-+
-+	/* malloc EventLog space */
-+	tcg_eventlog = kmalloc(buff->log_max_len, GFP_KERNEL);
-+	if (!tcg_eventlog) {
-+		printk
-+		    ("%s: ERROR - Not enough  Memory for BIOS measurements\n",
-+		     __func__);
-+		return -EFAULT;
-+	}
-+
-+	tcg_eventlog_addr_limit = tcg_eventlog + buff->log_max_len;
-+
-+	acpi_os_map_memory(buff->log_start_addr, buff->log_max_len, &virt);
-+
-+	memcpy((void *) tcg_eventlog, virt, buff->log_max_len);
-+
-+	acpi_os_unmap_memory(virt, buff->log_max_len);
-+	return 0;
-+}
-+
-+static int tpm_ascii_bios_measurements_open(struct inode *inode,
-+					    struct file *file)
-+{
-+	int err;
-+
-+	if ((err = read_log()))
-+		return err;
-+
-+	/* now register seq file */
-+	return seq_open(file, &tpm_ascii_b_measurments_seqops);
-+}
-+
-+struct file_operations tpm_ascii_bios_measurements_ops = {
-+	.open = tpm_ascii_bios_measurements_open,
-+	.read = seq_read,
-+	.llseek = seq_lseek,
-+	.release = tpm_bios_measurements_release,
-+};
-+
-+static int tpm_binary_bios_measurements_open(struct inode *inode,
-+					     struct file *file)
-+{
-+	int err;
-+
-+	if ((err = read_log()))
-+		return err;
-+
-+	/* now register seq file */
-+	return seq_open(file, &tpm_binary_b_measurments_seqops);
-+}
-+
-+struct file_operations tpm_binary_bios_measurements_ops = {
-+	.open = tpm_binary_bios_measurements_open,
-+	.read = seq_read,
-+	.llseek = seq_lseek,
-+	.release = tpm_bios_measurements_release,
-+};
-+
-+struct dentry **tpm_bios_log_setup(char *name)
-+{
-+	struct dentry **ret = NULL, *tpm_dir, *bin_file, *ascii_file;
-+
-+	tpm_dir = securityfs_create_dir(name, NULL);
-+	if (!tpm_dir)
-+		goto out;
-+
-+	bin_file =
-+	    securityfs_create_file("binary_bios_measurements",
-+				   S_IRUSR | S_IRGRP, tpm_dir, NULL,
-+				   &tpm_binary_bios_measurements_ops);
-+	if (!bin_file)
-+		goto out_tpm;
-+
-+	ascii_file =
-+	    securityfs_create_file("ascii_bios_measurements",
-+				   S_IRUSR | S_IRGRP, tpm_dir, NULL,
-+				   &tpm_ascii_bios_measurements_ops);
-+	if (!ascii_file)
-+		goto out_bin;
-+
-+	ret = kmalloc(3 * sizeof(struct dentry *), GFP_KERNEL);
-+	if (!ret)
-+		goto out_ascii;
-+
-+	ret[0] = ascii_file;
-+	ret[1] = bin_file;
-+	ret[2] = tpm_dir;
-+
-+	return ret;
-+
-+out_ascii:
-+	securityfs_remove(ascii_file);
-+out_bin:
-+	securityfs_remove(bin_file);
-+out_tpm:
-+	securityfs_remove(tpm_dir);
-+out:
-+	return NULL;
-+}
-+
-+void tpm_bios_log_teardown(struct dentry **lst)
-+{
-+	int i;
-+
-+	for (i = 0; i < 3; i++)
-+		securityfs_remove(lst[i]);
-+}
+If you disagree with that, there'll be an equal number of people who
+have serial cards that need setserial who will in turn disagree with
+you.
 
+> Plus I have 64 tty devices. Couldn't the tty devices be created
+> dynamically as they are consumed? Same for the loop and ram devices?
 
+You do realise that the dynamic device creation for those 64 console
+devices is done via the console device being _opened_ by userspace?
 
+Hence, if the device doesn't exist in userspace, it can't be created
+for userspace to open it to create the device via udev.  Have you
+noticed a catch-22 with that statement?
 
+Note that with tty devices, the tty layer has to be told the number
+of devices you want to support when you first register your driver.
+You're fixed to that maximum number from that point on, until you
+unregister *all* your ports and driver.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

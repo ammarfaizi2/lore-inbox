@@ -1,69 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932514AbVKWEjF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932515AbVKWEmP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932514AbVKWEjF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 23:39:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbVKWEjF
+	id S932515AbVKWEmP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 23:42:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbVKWEmP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 23:39:05 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:62348 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932514AbVKWEjD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 23:39:03 -0500
-Date: Tue, 22 Nov 2005 20:38:47 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ashok Raj <ashok.raj@intel.com>
-Cc: linux-kernel@vger.kernel.org, ashok.raj@intel.com, ak@muc.de,
-       gregkh@suse.de, venkatesh.pallipadi@intel.com
-Subject: Re: [patch 2/2] Convert bigsmp to use flat physical mode
-Message-Id: <20051122203847.7d01f4c5.akpm@osdl.org>
-In-Reply-To: <20051121170411.A15347@unix-os.sc.intel.com>
-References: <20051122000204.890352000@araj-sfield-2>
-	<20051121170411.A15347@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Nov 2005 23:42:15 -0500
+Received: from vms042pub.verizon.net ([206.46.252.42]:32081 "EHLO
+	vms042pub.verizon.net") by vger.kernel.org with ESMTP
+	id S932515AbVKWEmO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 23:42:14 -0500
+Date: Tue, 22 Nov 2005 23:42:12 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: Linux 2.6.15-rc2
+In-reply-to: <Pine.LNX.4.64.0511221642310.13959@g5.osdl.org>
+To: linux-kernel@vger.kernel.org
+Message-id: <200511222342.13047.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org>
+ <20051122150002.26adf913.akpm@osdl.org>
+ <Pine.LNX.4.64.0511221642310.13959@g5.osdl.org>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ashok Raj <ashok.raj@intel.com> wrote:
+On Tuesday 22 November 2005 19:50, Linus Torvalds wrote:
+>On Tue, 22 Nov 2005, Andrew Morton wrote:
+>> Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu> wrote:
+>> >                 from fs/compat_ioctl.c:52,
+>> >                  from arch/x86_64/ia32/ia32_ioctl.c:14:
+>> > include/linux/ext3_fs.h: In function 'ext3_raw_inode':
+>> > include/linux/ext3_fs.h:696: error: dereferencing pointer to
+>> > incomplete type
+>>
+>> This might help?
 >
-> @@ -219,13 +225,18 @@ static void __devinit MP_processor_info 
->   	cpu_set(num_processors, cpu_possible_map);
->   	num_processors++;
->   
->  -	if ((num_processors > 8) &&
->  -	    APIC_XAPIC(ver) &&
->  -	    (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL))
->  -		def_to_bigsmp = 1;
->  -	else
->  -		def_to_bigsmp = 0;
->  -
->  +	if (CPU_HOTPLUG_ENABLED || (num_processors > 8)) {
->  +		switch (boot_cpu_data.x86_vendor) {
->  +			case X86_VENDOR_INTEL:
->  +				if (!APIC_XAPIC(ver)) {
->  +					def_to_bigsmp = 0;
->  +					break;
->  +				}
->  +				/* If P4 and above fall through */
->  +			case X86_VENDOR_AMD:
->  +				def_to_bigsmp = 1;
->  +		}
->  +	}
->   	bios_cpu_apicid[num_processors - 1] = m->mpc_apicid;
+>Why does it happen at all, though? And why aren't more people reporting
+>this? Something strange going on.
 
-The code you're patching here is changed:
+What would I have to turn on to get that one built?  Its not building at
+all with my current .config.
 
-	if ((num_processors > 8) &&
-	    ((APIC_XAPIC(ver) &&
-	     (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL)) ||
-	     (boot_cpu_data.x86_vendor == X86_VENDOR_AMD)))
-		def_to_bigsmp = 1;
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.36% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
 
-But the fixup was obvious.
-
-While I was there I unindented the body of the switch statement by one tab
-stop, as we usually do.
-
-Please avoid sending multiple patches with the same Subject:, thanks.

@@ -1,42 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbVKWSjs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbVKWSnR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932160AbVKWSjs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 13:39:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbVKWSjs
+	id S932162AbVKWSnR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 13:43:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbVKWSnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 13:39:48 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:2266 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S932160AbVKWSjr (ORCPT
+	Wed, 23 Nov 2005 13:43:17 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:38357 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932162AbVKWSnQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 13:39:47 -0500
-Date: Wed, 23 Nov 2005 19:39:26 +0100
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Bob Copeland <me@bobcopeland.com>, usb-storage@lists.one-eyed-alien.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [usb-storage] Re: [PATCH] usb-storage: Add support for Rio Karma
-Message-ID: <20051123183924.GA1016@apps.cwi.nl>
-References: <20051123113342.GA5815@hash.localnet> <Pine.LNX.4.44L0.0511231316410.12957-100000@iolanthe.rowland.org>
+	Wed, 23 Nov 2005 13:43:16 -0500
+Date: Wed, 23 Nov 2005 10:43:02 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: + dont-include-schedh-from-moduleh.patch added to -mm tree
+Message-Id: <20051123104302.6669df5e.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.63.0511231328020.27662@gockel.physik3.uni-rostock.de>
+References: <200511050726.jA57QPs7009905@shell0.pdx.osdl.net>
+	<Pine.LNX.4.63.0511231328020.27662@gockel.physik3.uni-rostock.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0511231316410.12957-100000@iolanthe.rowland.org>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 01:18:30PM -0500, Alan Stern wrote:
+Tim Schmielau <tim@physik3.uni-rostock.de> wrote:
+>
+> Andrew, what are your plans for these patches?
 
-> And do you really need US_FL_FIX_INQUIRY?  Hardly any devices do (maybe 
-> none).
+Slam it in after 2.6.15, put fingers in ears?
 
-This one does:
+>  Shall I send an updated dont-include-schedh-from-moduleh.patch whose 
+>  changelog reflects the current state of testing?
 
-/* aeb */
-UNUSUAL_DEV( 0x090c, 0x1132, 0x0000, 0xffff,
-                "Feiya",
-                "5-in-1 Card Reader",
-                US_SC_DEVICE, US_PR_DEVICE, NULL,
-                US_FL_FIX_CAPACITY ),
-
-Andries
+You can send a new changelog if you like, but I'd prefer not to do a
+wholesale replacement of a tested patch.

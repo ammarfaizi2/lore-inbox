@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbVKWMbb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbVKWMf0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750743AbVKWMbb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 07:31:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbVKWMbb
+	id S1750742AbVKWMf0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 07:35:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbVKWMf0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 07:31:31 -0500
-Received: from smtp-out2.blueyonder.co.uk ([195.188.213.5]:26673 "EHLO
-	smtp-out2.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S1750743AbVKWMba (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 07:31:30 -0500
-Message-ID: <4384611D.5020808@blueyonder.co.uk>
-Date: Wed, 23 Nov 2005 12:31:25 +0000
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-Reply-To: sboyce@blueyonder.co.uk
-Organization: blueyonder.co.uk
-User-Agent: Thunderbird 1.5 (X11/20051025)
+	Wed, 23 Nov 2005 07:35:26 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:28158 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750742AbVKWMf0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 07:35:26 -0500
+Date: Wed, 23 Nov 2005 07:35:04 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: Maneesh Soni <maneesh@in.ibm.com>, Greg KH <greg@kroah.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: What protection does sysfs_readdir have with SMP/Preemption?
+In-Reply-To: <20051123081845.GA32021@elte.hu>
+Message-ID: <Pine.LNX.4.58.0511230727330.23751@gandalf.stny.rr.com>
+References: <1132695202.13395.15.camel@localhost.localdomain>
+ <20051122213947.GB8575@kroah.com> <20051123045049.GA22714@in.ibm.com>
+ <20051123081845.GA32021@elte.hu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-git latest build broken on UP x86-64
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 8bit
-X-OriginalArrivalTime: 23 Nov 2005 12:32:21.0382 (UTC) FILETIME=[F3294260:01C5F029]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
- > Works for me with -git2 and defconfig changed to UP. config please 
-and last changeset.
- >
- > -Andi
 
-SuSE 10.0 x86_64 UP 2.6.15-rc2-git3. As previously posted, with -git2 a 
-successful build depended on ext3 being configured, but this error was 
-not seen.
-   CC      arch/x86_64/kernel/../../i386/kernel/cpu/mtrr/main.o
-arch/x86_64/kernel/../../i386/kernel/cpu/mtrr/main.c: In function 
-‘set_mtrr’:
-arch/x86_64/kernel/../../i386/kernel/cpu/mtrr/main.c:225: error: 
-‘ipi_handler’ undeclared (first use in this function)
-arch/x86_64/kernel/../../i386/kernel/cpu/mtrr/main.c:225: error: (Each 
-undeclared identifier is reported only once
-arch/x86_64/kernel/../../i386/kernel/cpu/mtrr/main.c:225: error: for 
-each function it appears in.)
-make[2]: *** [arch/x86_64/kernel/../../i386/kernel/cpu/mtrr/main.o] Error 1
-make[1]: *** [arch/x86_64/kernel/../../i386/kernel/cpu/mtrr] Error 2
-make: *** [arch/x86_64/kernel] Error 2
-Regards
-Sid.
--- 
-Sid Boyce ... Hamradio License G3VBV, Licensed Private Pilot
-Retired IBM/Amdahl Mainframes and Sun/Fujitsu Servers Tech Support 
-Specialist, Cricket Coach
-Microsoft Windows Free Zone - Linux used for all Computing Tasks
+On Wed, 23 Nov 2005, Ingo Molnar wrote:
+
+>
+> note that Steven has a dual-core Athlon64 X2 system. Steven, do you get
+> the crash even with maxcpus=1?
+>
+
+Actually Ingo,  this happened on my UP test machine, a 368MHz Pentium.
+
+But unfortunately, it so far only happened once, and I've been trying to
+recreate it, with no success.  The test that crashed it was running 10
+tasks that would read the entire filesystem. I was debugging another bug
+(something specific to my kernel, or maybe -rt) when I hit this bug.
+Looking at it, it seemed to not be related to the changes I made.  Perhaps
+it could be related to your changes?
+
+-- Steve
+
+PS. I only got my AMD64 x2 to debug your kernel ;-)  I have no requirement
+to have my kernel run on it.  I just needed a faster machine, also to move
+off my SMP box to make that a test box too. Since I saw lots of people
+having problems with -rt and AMD64 I chose to get that one.
+

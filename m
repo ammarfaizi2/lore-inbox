@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932416AbVKWVHn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbVKWVMN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932416AbVKWVHn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 16:07:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbVKWVHn
+	id S932446AbVKWVMN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 16:12:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbVKWVMN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 16:07:43 -0500
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:54490 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S932416AbVKWVHn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 16:07:43 -0500
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Bill Davidsen <davidsen@tmr.com>, Ashutosh Naik <ashutosh.lkml@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Over-riding symbols in the Kernel causes Kernel Panic
-Date: Thu, 24 Nov 2005 08:07:34 +1100
-Organization: http://bugsplatter.mine.nu/
-Reply-To: gcoady@gmail.com
-Message-ID: <9em9o1d5fao3b1dc6dql7idgkrhsbaru77@4ax.com>
-References: <c216304e0511230610x2b983e59h42c10517acd59e63@mail.gmail.com> <4384AAED.3070804@tmr.com> <9a8748490511231004l36edcf57mf0fb63c4a9e17f49@mail.gmail.com>
-In-Reply-To: <9a8748490511231004l36edcf57mf0fb63c4a9e17f49@mail.gmail.com>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 23 Nov 2005 16:12:13 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:2250 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932446AbVKWVMB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 16:12:01 -0500
+Subject: Re: [patch] SMP alternatives
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Andi Kleen <ak@suse.de>,
+       Gerd Knorr <kraxel@suse.de>, Dave Jones <davej@redhat.com>,
+       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org>
+References: <Pine.LNX.4.64.0511131118020.3263@g5.osdl.org>
+	 <Pine.LNX.4.64.0511131210570.3263@g5.osdl.org> <4378A7F3.9070704@suse.de>
+	 <Pine.LNX.4.64.0511141118000.3263@g5.osdl.org> <4379ECC1.20005@suse.de>
+	 <437A0649.7010702@suse.de> <437B5A83.8090808@suse.de>
+	 <438359D7.7090308@suse.de> <p7364qjjhqx.fsf@verdi.suse.de>
+	 <1132764133.7268.51.camel@localhost.localdomain>
+	 <20051123163906.GF20775@brahms.suse.de>
+	 <1132766489.7268.71.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org>
+	 <4384AECC.1030403@zytor.com>
+	 <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Wed, 23 Nov 2005 21:44:05 +0000
+Message-Id: <1132782245.13095.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Nov 2005 19:04:41 +0100, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+On Mer, 2005-11-23 at 10:42 -0800, Linus Torvalds wrote:
+> Of course, if it's in one of the low 12 bits of %cr3, there would have to 
+> be a "enable this bit" in %cr4 or something. Historically, you could write 
+> any crap in the low bits, I think.
 
->On 11/23/05, Bill Davidsen <davidsen@tmr.com> wrote:
->> Ashutosh Naik wrote:
->> > Hi,
->> >
->> > I made e1000 ( or for that matter anything) a part of the 2.6.15-rc1
->> > kernel and booted the kernel. Next I compiled e1000 as a module (
->> > e1000.ko ), and tried to insmod it into the kernel( which already had
->> > e1000 a compiled as a part of the kernel). I observed that
->> > /proc/kallsyms contained two copies of all the symbols exported by
->> > e1000, and I also got a Kernel Panic on the way.
->> >
->> > Is this behaviour natural and desirable ?
->>
->> No, trying to insert a module into a kernel built with the functionality
->> compiled in is a vile perverted act, and probably illegal in Republican
->> states! ;-)
->>
->> The other day I mentioned that reiser4 will find bugs because people
->> will do bizarre things with it when it is more widely used. I think you
->> have hit a "no one would ever do that" bug in the module loader, and
->> demonstrated my point in the process.
->>
->> The panic isn't desirable, but I'm not sure what "correct behaviour"
->> would be, I can't imagine that this is intended to work. The issues of
->> removing such a module gracefully are significant.
->
->Wouldn't the desired behaviour be that when the kernel attempts to
->load a module it checks if it is already present build-in and if so
->simply refuse to load it at all?
+There is a much much better way to do it than just user space and
+without hitting cr3/cr4 - put "lock works" in the PAT and while we'll
+have to add PAT support which we need to do anyway we would get a world
+where on uniprocessor lock prefix only works on addresse targets we want
+it to - ie pci_alloc_consistent() pages.
 
-But that sounds just too easy to implement, what's the catch?  :o)
--- 
-Grant.
+Alan
+

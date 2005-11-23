@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030491AbVKWXL1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030494AbVKWXMK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030491AbVKWXL1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 18:11:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030490AbVKWXL0
+	id S1030494AbVKWXMK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 18:12:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030482AbVKWXMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 18:11:26 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:46762 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030491AbVKWXLZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 18:11:25 -0500
-Date: Wed, 23 Nov 2005 15:10:39 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andi Kleen <ak@suse.de>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
-       Gerd Knorr <kraxel@suse.de>, Dave Jones <davej@redhat.com>,
-       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
+	Wed, 23 Nov 2005 18:12:09 -0500
+Received: from zproxy.gmail.com ([64.233.162.207]:1162 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030493AbVKWXMG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 18:12:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lmjTk9xeSfQ3dTbAA5kPW8FycEz3V4uhfYMm6TirerfOqNZpkzorWEmDqO2zjzRW/FMhmVUcusjPIEm5bnqB7YHdP0Btc5K/M18vNTRz+DkMNzvkQLBLG+Kv3pcpOIjnJacyOjCY6PO1UppYCejBVuuSZ30PROQS6gdeMkDq4hM=
+Message-ID: <d120d5000511231512n686b8918v65b209863c93cc2a@mail.gmail.com>
+Date: Wed, 23 Nov 2005 18:12:05 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [git pull 09/14] Uinput: add UI_SET_SWBIT ioctl
+Cc: Linus Torvalds <torvalds@osdl.org>, Vojtech Pavlik <vojtech@suse.cz>,
        Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-In-Reply-To: <20051123222212.GV20775@brahms.suse.de>
-Message-ID: <Pine.LNX.4.64.0511231509550.13959@g5.osdl.org>
-References: <1132764133.7268.51.camel@localhost.localdomain>
- <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain>
- <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com>
- <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain>
- <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051123214344.GU20775@brahms.suse.de>
- <Pine.LNX.4.64.0511231413530.13959@g5.osdl.org> <20051123222212.GV20775@brahms.suse.de>
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1132786887.26560.341.camel@gaston>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051120063611.269343000.dtor_core@ameritech.net>
+	 <20051120064420.389911000.dtor_core@ameritech.net>
+	 <1132786887.26560.341.camel@gaston>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 11/23/05, Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> Oh,and ... ARGH !
+>
+> So you pass that nice structure
+>
+> struct input_event {
+>        struct timeval time;
+>        __u16 type;
+>        __u16 code;
+>        __s32 value;
+> };
+>
+> to userland via read() ... cool, a structure that is not compatible
+> between 32 and 64 bits passed around via a read call. that will be fun
+> to fix.
+>
 
+It would need the same treatment as evdev got. Entire uinput is not
+32/64 bit friendly (hostorically). However, it should be used by an
+userspace "driver", not an ordinary program, so we probably shoudl
+just require using native-sized binary with uinput.
 
-On Wed, 23 Nov 2005, Andi Kleen wrote:
-> 
-> I don't think it'll force them to that, it will just be a common
-> use case. e.g. you start a separate VM to run your firewall in.
-> Do you really need it multithreaded? 
-
-The question is: do you need a virtualized environment for it.
-
-And the answer is: no.
-
-I realize that you can make up an infinite number of things you _can_ use 
-virtualization for. That doesn't mean that people _will_.
-
-		Linus
+--
+Dmitry

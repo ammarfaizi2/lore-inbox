@@ -1,39 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbVKWP0i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751010AbVKWP2s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751012AbVKWP0i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 10:26:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751010AbVKWP0i
+	id S1751010AbVKWP2s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 10:28:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751009AbVKWP2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 10:26:38 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:35743 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1750999AbVKWP0h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 10:26:37 -0500
-Date: Wed, 23 Nov 2005 16:27:38 +0100
-From: Martin Mares <mj@ucw.cz>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Jon Smirl <jonsmirl@gmail.com>, Greg KH <greg@kroah.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Christmas list for the kernel
-Message-ID: <20051123152738.GA30117@atrey.karlin.mff.cuni.cz>
-References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com> <20051122204918.GA5299@kroah.com> <9e4733910511221313t4a1e3c67wc7b08160937eb5c5@mail.gmail.com> <20051123121726.GA7328@ucw.cz>
-Mime-Version: 1.0
+	Wed, 23 Nov 2005 10:28:48 -0500
+Received: from moraine.clusterfs.com ([66.96.26.190]:46302 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S1751000AbVKWP2s (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Wed, 23 Nov 2005 10:28:48 -0500
+From: Nikita Danilov <nikita@clusterfs.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051123121726.GA7328@ucw.cz>
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17284.35254.577998.442784@gargle.gargle.HOWL>
+Date: Wed, 23 Nov 2005 18:24:38 +0300
+To: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+Cc: Andrew Morton <AKPM@Osdl.ORG>
+Subject: [PATCH]: find_lock_page(): call __lock_page() directly.
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello,
 
-> VESAfb can't ever be autoloaded.
+as find_lock_page() already checks with TestSetPageLocked() that page is
+locked, there is no need to call lock_page() that will try-lock page
+again (chances of page being unlocked in between are small). Call
+__lock_page() directly, this saves one atomic operation.
 
-Really?  Wouldn't be possible to detect the video mode number passed to
-video.S during boot and if it's a graphics mode, load VESAfb?
+Also, mark truncate-while-slept path as unlikely while we are here.
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-Wanted: Schroedinger Cat. Dead or Alive.
+Andrew, please apply.
+
+Nikita.
+
+Signed-off-by: Nikita Danilov <danilov@gmail.com>
+
+
+ mm/filemap.c |   13 +++++++------
+ 1 files changed, 7 insertions(+), 6 deletions(-)
+
+diff -puN mm/filemap.c~find_lock_page-use-__lock_page mm/filemap.c
+--- git-linux/mm/filemap.c~find_lock_page-use-__lock_page	2005-11-20 16:33:58.000000000 +0300
++++ git-linux-nikita/mm/filemap.c	2005-11-20 16:41:46.000000000 +0300
+@@ -555,11 +555,12 @@ repeat:
+ 		page_cache_get(page);
+ 		if (TestSetPageLocked(page)) {
+ 			read_unlock_irq(&mapping->tree_lock);
+-			lock_page(page);
++			__lock_page(page);
+ 			read_lock_irq(&mapping->tree_lock);
+ 
+ 			/* Has the page been truncated while we slept? */
+-			if (page->mapping != mapping || page->index != offset) {
++			if (unlikely(page->mapping != mapping ||
++				     page->index != offset)) {
+ 				unlock_page(page);
+ 				page_cache_release(page);
+ 				goto repeat;
+_

@@ -1,37 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030490AbVKWXMI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030492AbVKWXNY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030490AbVKWXMI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 18:12:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030494AbVKWXMH
+	id S1030492AbVKWXNY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 18:13:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030493AbVKWXNY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 18:12:07 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:52906 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030482AbVKWXL4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 18:11:56 -0500
-Date: Wed, 23 Nov 2005 15:09:05 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] add -Werror-implicit-function-declaration to CFLAGS
-Message-Id: <20051123150905.6c7a952d.akpm@osdl.org>
-In-Reply-To: <20051123223438.GY3963@stusta.de>
-References: <20051123223438.GY3963@stusta.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
+	Wed, 23 Nov 2005 18:13:24 -0500
+Received: from xproxy.gmail.com ([66.249.82.193]:54623 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030492AbVKWXNX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 18:13:23 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=mJPcRAk3vJ06dVp3fVABwwlqULntOceUJC9pfWO0nTYs6PuDYcHYWgLV4w4FP7MpMmMZVhR+0MECnnzshUWZoJEh1dZqY8cB6IIMOZvIHb39/bqS1fTJiUal+CUeXQXFXaO1raH4cHjv+3UWZ6yGj2L2zbrdIYKWMh0ABFYI0hM=
+Message-ID: <d120d5000511231513j72d1f401r82db8f8ff9845533@mail.gmail.com>
+Date: Wed, 23 Nov 2005 18:13:22 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [git pull 09/14] Uinput: add UI_SET_SWBIT ioctl
+Cc: Linus Torvalds <torvalds@osdl.org>, Vojtech Pavlik <vojtech@suse.cz>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1132787202.26560.343.camel@gaston>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051120063611.269343000.dtor_core@ameritech.net>
+	 <20051120064420.389911000.dtor_core@ameritech.net>
+	 <1132786436.26560.339.camel@gaston>
+	 <1132787202.26560.343.camel@gaston>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> wrote:
+On 11/23/05, Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> On Thu, 2005-11-24 at 09:54 +1100, Benjamin Herrenschmidt wrote:
+> > On Sun, 2005-11-20 at 01:36 -0500, Dmitry Torokhov wrote:
+> > > plain text document attachment (uinput-add-sw-ioctl.patch)
+> > > Input: uinput - add UI_SET_SWBIT ioctl
+> > >
+> > > Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> >
+> > All these new ioctl's and no compat layer for 32 bits apps on 64 bits
+> > kernels ...
+> >
+> > I'll send a patch later today for the current ones, but please, do it
+> > from day #1 next time :)
 >
-> Currently, using an undeclared function gives a compile warning, but it 
-> can lead to a nasty runtime error if the prototype of the function is 
-> different from what gcc guessed.
-> 
-> With -Werror-implicit-function-declaration, we are getting an immediate 
-> compile error instead.
+> Ok, forget my promise, I won't do a compat layer for it today. Way too
+> much crap in there, read's of structs made of other structs & unions
+> etc... all of this would need compat versions etc... no time for that.
+>
+> Couldn't you have designed that properly in the first place ?
+>
 
-Where "we" == "me".  This patch means I get to fix all the errors which I
-encounter.  No fair.  This should be the last patch, not the first.
+I couldn't event design it improperly ;)
+
+--
+Dmitry

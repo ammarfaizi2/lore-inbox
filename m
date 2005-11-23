@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030470AbVKWW5s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030477AbVKWW5S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030470AbVKWW5s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 17:57:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030459AbVKWW5s
+	id S1030477AbVKWW5S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 17:57:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030476AbVKWW5R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 17:57:48 -0500
-Received: from gate.crashing.org ([63.228.1.57]:2788 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1030469AbVKWW5p (ORCPT
+	Wed, 23 Nov 2005 17:57:17 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:15064 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1030459AbVKWW5O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 17:57:45 -0500
-Subject: Re: [git pull 09/14] Uinput: add UI_SET_SWBIT ioctl
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Linus Torvalds <torvalds@osdl.org>, Vojtech Pavlik <vojtech@suse.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051120064420.389911000.dtor_core@ameritech.net>
-References: <20051120063611.269343000.dtor_core@ameritech.net>
-	 <20051120064420.389911000.dtor_core@ameritech.net>
-Content-Type: text/plain
-Date: Thu, 24 Nov 2005 09:53:56 +1100
-Message-Id: <1132786436.26560.339.camel@gaston>
+	Wed, 23 Nov 2005 17:57:14 -0500
+Date: Wed, 23 Nov 2005 17:54:30 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: rfc/rft: use r10 as current on x86-64
+Message-ID: <20051123225430.GB14246@kvack.org>
+References: <20051122165204.GG1127@kvack.org> <20051123224803.GE24220@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051123224803.GE24220@elf.ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-11-20 at 01:36 -0500, Dmitry Torokhov wrote:
-> plain text document attachment (uinput-add-sw-ioctl.patch)
-> Input: uinput - add UI_SET_SWBIT ioctl
-> 
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+On Wed, Nov 23, 2005 at 11:48:03PM +0100, Pavel Machek wrote:
+> 34KB smaller is nice, but is not it also 30% slower? Plus some inline
+> assembly *will* have %r10 hardcoded, no? I'd be afraid around crypto
+> code, for example.
 
-All these new ioctl's and no compat layer for 32 bits apps on 64 bits
-kernels ...
+It's not slower in any of the tests I've run.  The crypto code needs a 
+tweak (the next version I send out will have that fix), and I'm still 
+working on getting thread_info to be relative to current, which should 
+save a bit more code.  The assembly I've looked at tends to be better 
+as gcc can access various fields by directly offseting current instead 
+of the inline asm load then store that is otherwise needed.
 
-I'll send a patch later today for the current ones, but please, do it
-from day #1 next time :)
-
-Ben.
-
-
+		-ben
+-- 
+"Time is what keeps everything from happening all at once." -- John Wheeler
+Don't Email: <dont@kvack.org>.

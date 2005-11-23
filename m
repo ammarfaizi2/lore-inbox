@@ -1,63 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030422AbVKWWXB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030423AbVKWWXp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030422AbVKWWXB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 17:23:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030334AbVKWWXA
+	id S1030423AbVKWWXp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 17:23:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030424AbVKWWXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 17:23:00 -0500
-Received: from mx2.suse.de ([195.135.220.15]:51106 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964782AbVKWWWZ (ORCPT
+	Wed, 23 Nov 2005 17:23:45 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:12934 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1030334AbVKWWXY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 17:22:25 -0500
-Date: Wed, 23 Nov 2005 23:22:13 +0100
-From: Andi Kleen <ak@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "H. Peter Anvin" <hpa@zytor.com>, Gerd Knorr <kraxel@suse.de>,
-       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-Message-ID: <20051123222212.GV20775@brahms.suse.de>
-References: <1132764133.7268.51.camel@localhost.localdomain> <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051123214344.GU20775@brahms.suse.de> <Pine.LNX.4.64.0511231413530.13959@g5.osdl.org>
+	Wed, 23 Nov 2005 17:23:24 -0500
+Date: Wed, 23 Nov 2005 23:23:15 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Christmas list for the kernel
+Message-ID: <20051123222315.GC24220@elf.ucw.cz>
+References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0511231413530.13959@g5.osdl.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 02:15:24PM -0800, Linus Torvalds wrote:
+On Út 22-11-05 13:31:16, Jon Smirl wrote:
+> There have been recent comments about the pace of kernel development
+> slowing. What are the major areas that still need major work? When the
+> thread slows down maybe Linus will tell us what the top ten items
+> really are.
 > 
+> To get things started here's a few that I would add:
 > 
-> On Wed, 23 Nov 2005, Andi Kleen wrote:
-> >
-> > > THAT is what I'd like to have CPU support for. Not for UP (it's going 
-> > > away), and not for the kernel (it's never single-threaded).
-> > 
-> > There is one reasonly interesting special case that will probably stay
-> > around: single CPU guest in a virtualized environment.
+> 1) graphics, it is a total mess.
 > 
-> .. and then the _virtualizer_ should just set the bit. 
+> 2) get Xen merged, virtualization will be key on the server.
+> Hotplugable CPUs and memory are tied up in this one.
+> 
+> 3) Reiser4 merge, Rieser4 itself is not important, it's the new
+> concepts about file systems that Reiser4 brings to the kernel that are
+> important. Get the issues around the VFS layer sorted out so that this
+> can happen. We need some forward evolution in file system concepts.
+> 
+> 4) Merge klibc and fix up the driver system so that everything is
+> hotplugable. This means no more need to configure drivers in the
+> kernel, the right drivers will just load automatically.
 
-That wouldn't work if it's limited limited to ring 3.
+5) Runtime power management
 
-Also currently at least the Xen the driver interfaces seem to 
-rely on lock, but perhaps that can be changed.
+its just not there, or alternatively give me
 
+6) E=mc^2 battery from the recent supercomputer thread
 
-> However, quite frankly, virtualization is overhyped, in my opinion. And if 
-> it forces people to run UP because of performance issues, it's simply not 
-> acceptable for a lot of loads.
+, which nicely solves 
 
-I don't think it'll force them to that, it will just be a common
-use case. e.g. you start a separate VM to run your firewall in.
-Do you really need it multithreaded? 
+7) word domination, 
 
--Andi
+too.
 
+								Pavel
+-- 
+Thanks, Sharp!

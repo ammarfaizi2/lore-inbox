@@ -1,162 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030332AbVKWGc1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030329AbVKWGgr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030332AbVKWGc1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 01:32:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030329AbVKWGc1
+	id S1030329AbVKWGgr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 01:36:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030365AbVKWGgr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 01:32:27 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:64133 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1030332AbVKWGc0 (ORCPT
+	Wed, 23 Nov 2005 01:36:47 -0500
+Received: from graphe.net ([209.204.138.32]:35712 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S1030329AbVKWGgr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 01:32:26 -0500
-Date: Wed, 23 Nov 2005 09:28:28 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org,
-       GregKH <greg@kroah.com>
-Subject: Re: [2.6 patch] drivers/w1/: misc cleanups
-Message-ID: <20051123062828.GA30196@2ka.mipt.ru>
-References: <20051123005015.GG3963@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051123005015.GG3963@stusta.de>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 23 Nov 2005 09:28:29 +0300 (MSK)
+	Wed, 23 Nov 2005 01:36:47 -0500
+Date: Tue, 22 Nov 2005 22:36:41 -0800 (PST)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Andrew Morton <akpm@osdl.org>
+cc: Rohit Seth <rohit.seth@intel.com>, torvalds@osdl.org, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: Free pages from local pcp lists under tight memory
+ conditions
+In-Reply-To: <20051122213612.4adef5d0.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.62.0511222231070.2084@graphe.net>
+References: <20051122161000.A22430@unix-os.sc.intel.com>
+ <20051122213612.4adef5d0.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 01:50:15AM +0100, Adrian Bunk (bunk@stusta.de) wrote:
-> This patch contains the following cleanups:
-> - make needlessly global code static
-> - declarations for global code belong into header files
-> - w1.c: #if 0 the unused struct w1_slave_device
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
- 
-Ack.
+On Tue, 22 Nov 2005, Andrew Morton wrote:
 
-Thank you, Adrian.
- 
-> ---
-> 
->  drivers/w1/w1.c        |    6 ++++--
->  drivers/w1/w1.h        |   10 ++++++++++
->  drivers/w1/w1_family.c |    2 +-
->  drivers/w1/w1_int.c    |   13 ++-----------
->  drivers/w1/w1_io.c     |    2 +-
->  5 files changed, 18 insertions(+), 15 deletions(-)
-> 
-> --- linux-2.6.15-rc1-mm2-full/drivers/w1/w1.h.old	2005-11-22 22:16:06.000000000 +0100
-> +++ linux-2.6.15-rc1-mm2-full/drivers/w1/w1.h	2005-11-22 22:31:28.000000000 +0100
-> @@ -203,6 +203,16 @@
->  	return container_of(dev, struct w1_master, dev);
->  }
->  
-> +extern int w1_max_slave_count;
-> +extern int w1_max_slave_ttl;
-> +extern spinlock_t w1_mlock;
-> +extern struct list_head w1_masters;
-> +extern struct device_driver w1_master_driver;
-> +extern struct device w1_master_device;
-> +
-> +int w1_process(void *data);
-> +void w1_reconnect_slaves(struct w1_family *f);
-> +
->  #endif /* __KERNEL__ */
->  
->  #endif /* __W1_H */
-> --- linux-2.6.15-rc1-mm2-full/drivers/w1/w1.c.old	2005-11-22 22:13:54.000000000 +0100
-> +++ linux-2.6.15-rc1-mm2-full/drivers/w1/w1.c	2005-11-22 22:31:54.000000000 +0100
-> @@ -164,11 +164,12 @@
->  	.release = &w1_master_release
->  };
->  
-> -struct device_driver w1_slave_driver = {
-> +static struct device_driver w1_slave_driver = {
->  	.name = "w1_slave_driver",
->  	.bus = &w1_bus_type,
->  };
->  
-> +#if 0
->  struct device w1_slave_device = {
->  	.parent = NULL,
->  	.bus = &w1_bus_type,
-> @@ -176,6 +177,7 @@
->  	.driver = &w1_slave_driver,
->  	.release = &w1_slave_release
->  };
-> +#endif  /*  0  */
->  
->  static ssize_t w1_master_attribute_show_name(struct device *dev, struct device_attribute *attr, char *buf)
->  {
-> @@ -355,7 +357,7 @@
->  	return sysfs_create_group(&master->dev.kobj, &w1_master_defattr_group);
->  }
->  
-> -void w1_destroy_master_attributes(struct w1_master *master)
-> +static void w1_destroy_master_attributes(struct w1_master *master)
->  {
->  	sysfs_remove_group(&master->dev.kobj, &w1_master_defattr_group);
->  }
-> --- linux-2.6.15-rc1-mm2-full/drivers/w1/w1_family.c.old	2005-11-22 22:19:20.000000000 +0100
-> +++ linux-2.6.15-rc1-mm2-full/drivers/w1/w1_family.c	2005-11-22 22:25:18.000000000 +0100
-> @@ -25,10 +25,10 @@
->  #include <linux/delay.h>
->  
->  #include "w1_family.h"
-> +#include "w1.h"
->  
->  DEFINE_SPINLOCK(w1_flock);
->  static LIST_HEAD(w1_families);
-> -extern void w1_reconnect_slaves(struct w1_family *f);
->  
->  int w1_register_family(struct w1_family *newf)
->  {
-> --- linux-2.6.15-rc1-mm2-full/drivers/w1/w1_int.c.old	2005-11-22 22:20:46.000000000 +0100
-> +++ linux-2.6.15-rc1-mm2-full/drivers/w1/w1_int.c	2005-11-22 22:33:02.000000000 +0100
-> @@ -26,19 +26,10 @@
->  #include "w1.h"
->  #include "w1_log.h"
->  #include "w1_netlink.h"
-> +#include "w1_int.h"
->  
->  static u32 w1_ids = 1;
->  
-> -extern struct device_driver w1_master_driver;
-> -extern struct bus_type w1_bus_type;
-> -extern struct device w1_master_device;
-> -extern int w1_max_slave_count;
-> -extern int w1_max_slave_ttl;
-> -extern struct list_head w1_masters;
-> -extern spinlock_t w1_mlock;
-> -
-> -extern int w1_process(void *);
-> -
->  static struct w1_master * w1_alloc_dev(u32 id, int slave_count, int slave_ttl,
->  				       struct device_driver *driver,
->  				       struct device *device)
-> @@ -103,7 +94,7 @@
->  	return dev;
->  }
->  
-> -void w1_free_dev(struct w1_master *dev)
-> +static void w1_free_dev(struct w1_master *dev)
->  {
->  	device_unregister(&dev->dev);
->  }
-> --- linux-2.6.15-rc1-mm2-full/drivers/w1/w1_io.c.old	2005-11-22 22:29:01.000000000 +0100
-> +++ linux-2.6.15-rc1-mm2-full/drivers/w1/w1_io.c	2005-11-22 22:29:10.000000000 +0100
-> @@ -28,7 +28,7 @@
->  #include "w1_log.h"
->  #include "w1_io.h"
->  
-> -int w1_delay_parm = 1;
-> +static int w1_delay_parm = 1;
->  module_param_named(delay_coef, w1_delay_parm, int, 0);
->  
->  static u8 w1_crc8_table[] = {
+> > [PATCH]: This patch free pages (pcp->batch from each list at a time) from
+> > local pcp lists when a higher order allocation request is not able to 
+> > get serviced from global free_list.
+> > 
+> > This should help fix some of the earlier failures seen with order 1 allocations.
+> > 
+> > I will send separate patches for:
+> > 
+> > 1- Reducing the remote cpus pcp
 
--- 
-	Evgeniy Polyakov
+That is already partially done by drain_remote_pages(). However, that 
+draining is specific to this processors remote pagesets in remote 
+zones.
+
+> This significantly duplicates the existing drain_local_pages().
+
+We need to extract __drain_pcp from all these functions and clearly 
+document how they differ. Seth probably needs to call __drain_pages for 
+each processor.

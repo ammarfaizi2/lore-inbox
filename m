@@ -1,63 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750852AbVKWOok@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbVKWOv1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750852AbVKWOok (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 09:44:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750858AbVKWOok
+	id S1750868AbVKWOv1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 09:51:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750874AbVKWOv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 09:44:40 -0500
-Received: from styx.suse.cz ([82.119.242.94]:46761 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1750852AbVKWOoj (ORCPT
+	Wed, 23 Nov 2005 09:51:27 -0500
+Received: from ns2.suse.de ([195.135.220.15]:32734 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750862AbVKWOv0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 09:44:39 -0500
-Date: Wed, 23 Nov 2005 15:44:37 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Kasper Sandberg <lkml@metanurb.dk>, Greg KH <greg@kroah.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Christmas list for the kernel
-Message-ID: <20051123144437.GB7328@ucw.cz>
-References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com> <20051122204918.GA5299@kroah.com> <9e4733910511221313t4a1e3c67wc7b08160937eb5c5@mail.gmail.com> <1132694935.10574.2.camel@localhost> <9e4733910511221341u695f6765k985ecf0c54daba49@mail.gmail.com>
-Mime-Version: 1.0
+	Wed, 23 Nov 2005 09:51:26 -0500
+To: Gerd Knorr <kraxel@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
+       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] SMP alternatives
+References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com>
+	<20051111103605.GC27805@elf.ucw.cz> <4374F2D5.7010106@vmware.com>
+	<Pine.LNX.4.64.0511111147390.4627@g5.osdl.org>
+	<4374FB89.6000304@vmware.com>
+	<Pine.LNX.4.64.0511111218110.4627@g5.osdl.org>
+	<20051113074241.GA29796@redhat.com>
+	<Pine.LNX.4.64.0511131118020.3263@g5.osdl.org>
+	<Pine.LNX.4.64.0511131210570.3263@g5.osdl.org>
+	<4378A7F3.9070704@suse.de>
+	<Pine.LNX.4.64.0511141118000.3263@g5.osdl.org>
+	<4379ECC1.20005@suse.de> <437A0649.7010702@suse.de>
+	<437B5A83.8090808@suse.de> <438359D7.7090308@suse.de>
+From: Andi Kleen <ak@suse.de>
+Date: 23 Nov 2005 12:17:58 -0700
+In-Reply-To: <438359D7.7090308@suse.de>
+Message-ID: <p7364qjjhqx.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9e4733910511221341u695f6765k985ecf0c54daba49@mail.gmail.com>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 22, 2005 at 04:41:02PM -0500, Jon Smirl wrote:
-> On 11/22/05, Kasper Sandberg <lkml@metanurb.dk> wrote:
-> > > Currently you have to compile most of this stuff into the kernel.
-> > forgive my ignorance, but whats stopping you from doing this now?
-> 
-> It would be better if all of the legacy drivers could exist on
-> initramfs and only be loaded if the actual hardware is present. With
-> the current code someone like Redhat has to compile all of the legacy
-> support into their distribution kernel. That code will be present even
-> on new systems that don't have the hardware.
-> 
-> An example of this is that the serial driver is hard coded to report
-> four legacy serial ports when my system physically only has two. I
-> have to change a #define and recompile the kernel to change this.
+Gerd Knorr <kraxel@suse.de> writes:
 
-Interesting. Something goes wrong on your system - I have only a single
-serial port on my machine and it's correctly identified by PnP, with no
-other ports showing up.
-
-> The goal should be able to build something like Knoppix without
-> Knoppix needing any device probing scripts. Linux is 90% of the way
-> there but not 100% yet.
+> Now, some days hacking & debugging and kernel crashing later I have
+> something more than just proof-of-concept ;)
 > 
-> X is also part of the problem. Even if the kernel nicely identifies
-> all of the video hardware and input devices, X ignores this info and
-> looks for everything again anyway. In a more friendly system X would
-> use the info the kernel provides and automatically configure itself
-> for the devices present or hotplugged. You could get rid of your
-> xorg.cong file in this model.
- 
-There is always the hope. :)
+> Modules are supported now, fully modularized distro kernel works fine
+> with it.  If you have a kernel with HOTPLUG_CPU compiled you can
+> shutdown the second CPU of your dual-processor system via sysfs (echo
+> 0 > /sys/devices/system/cpu/cpu1/online) and watch the kernel switch
+> over to UP code without lock-prefixed instructions and simplified
+> spinlocks, then power up the second CPU again (echo 1 > /sys/...) and
+> watch it patching back in the SMP locking.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+This looks like total overkill to me. Who needs to optimize
+CPU hotplug this way? If you really need this just do it 
+at boot time with the existing mechanisms. This would keep
+it much simpler and simplicity is very important with 
+such code because otherwise the testing of all the corner 
+cases will kill you.
+
+BTW the existing mechanism already works fine for modules too.
+
+> +	/* Paranoia */
+> +	asm volatile ("jmp 1f\n1:");
+> +	mb();
+
+That would be totally obsolete 386 era paranoia. If anything then use 
+a CLFLUSH (but not available on all x86s) 
+
+-Andi
+

@@ -1,105 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751292AbVKWRsi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbVKWRt7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751292AbVKWRsi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 12:48:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbVKWRsi
+	id S932110AbVKWRt7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 12:49:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbVKWRt7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 12:48:38 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:41406 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751292AbVKWRsh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 12:48:37 -0500
-Subject: Re: [PATCH]: Free pages from local pcp lists under tight memory
-	conditions
-From: Rohit Seth <rohit.seth@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Christoph Lameter <christoph@lameter.com>
-In-Reply-To: <20051122213612.4adef5d0.akpm@osdl.org>
-References: <20051122161000.A22430@unix-os.sc.intel.com>
-	 <20051122213612.4adef5d0.akpm@osdl.org>
-Content-Type: text/plain
-Organization: Intel 
-Date: Wed, 23 Nov 2005 09:54:42 -0800
-Message-Id: <1132768482.25086.16.camel@akash.sc.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Wed, 23 Nov 2005 12:49:59 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:60217 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932110AbVKWRt6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 12:49:58 -0500
+Message-ID: <4384AAED.3070804@tmr.com>
+Date: Wed, 23 Nov 2005 12:46:21 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ashutosh Naik <ashutosh.lkml@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Over-riding symbols in the Kernel causes Kernel Panic
+References: <c216304e0511230610x2b983e59h42c10517acd59e63@mail.gmail.com>
+In-Reply-To: <c216304e0511230610x2b983e59h42c10517acd59e63@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Nov 2005 17:47:49.0108 (UTC) FILETIME=[04F70B40:01C5F056]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-22 at 21:36 -0800, Andrew Morton wrote:
-> Rohit Seth <rohit.seth@intel.com> wrote:
-> >
-> > Andrew, Linus,
-> > 
-> > [PATCH]: This patch free pages (pcp->batch from each list at a time) from
-> > local pcp lists when a higher order allocation request is not able to 
-> > get serviced from global free_list.
-> > 
-> > This should help fix some of the earlier failures seen with order 1 allocations.
-> > 
-> > I will send separate patches for:
-> > 
-> > 1- Reducing the remote cpus pcp
-> > 2- Clean up page_alloc.c for CONFIG_HOTPLUG_CPU to use this code appropiately
-> > 
-> > +static int
-> > +reduce_cpu_pcp(void )
-> >
-> This significantly duplicates the existing drain_local_pages().
-
-Yes.  The main change in this new function is I'm only freeing batch
-number of pages from each pcp rather than draining out all of them (even
-under a little memory pressure).  IMO, we should be more opportunistic
-here in alloc_pages in moving pages back to global page pool list.
-Thoughts?
-
-As said earlier, I will be cleaning up the existing drain_local_pages in
-next follow up patch.
-
+Ashutosh Naik wrote:
+> Hi,
 > 
-> >  
-> > +	if (order > 0) 
-> > +		while (reduce_cpu_pcp()) {
-> > +			if (get_page_from_freelist(gfp_mask, order, zonelist, alloc_flags))
+> I made e1000 ( or for that matter anything) a part of the 2.6.15-rc1
+> kernel and booted the kernel. Next I compiled e1000 as a module (
+> e1000.ko ), and tried to insmod it into the kernel( which already had
+> e1000 a compiled as a part of the kernel). I observed that
+> /proc/kallsyms contained two copies of all the symbols exported by
+> e1000, and I also got a Kernel Panic on the way.
 > 
-> This forgot to assign to local variable `page'!  It'll return NULL and will
-> leak memory.
-> 
-My bad.  Will fix it.
+> Is this behaviour natural and desirable ?
 
-> The `while' loop worries me for some reason, so I wimped out and just tried
-> the remote drain once.
-> 
-Even after direct reclaim it probably does make sense to see how
-minimally we can service a higher order request.
+No, trying to insert a module into a kernel built with the functionality 
+compiled in is a vile perverted act, and probably illegal in Republican 
+states! ;-)
 
-> > +				goto got_pg;
-> > +		}
-> > +	/* FIXME: Add the support for reducing/draining the remote pcps.
-> 
-> This is easy enough to do.
-> 
+The other day I mentioned that reiser4 will find bugs because people 
+will do bizarre things with it when it is more widely used. I think you 
+have hit a "no one would ever do that" bug in the module loader, and 
+demonstrated my point in the process.
 
-The couple of options that I wanted to think little more were (before
-attempting to do this part):
-
-1- Whether use the IPI to get the remote CPUs to free pages from pcp or
-do it lazily (using work_pending or such).  As at this point in
-execution we can definitely afford to get scheduled out.
-
-2- Do we drain the whole pcp on remote processors or again follow the
-stepped approach (but may be with a steeper slope).
-
-
-> We need to verify that this patch actually does something useful.
-> 
-> 
-I'm working on this.  Will let you know later today if I can come with
-some workload easily hitting this additional logic.
-
-Thanks,
--rohit
+The panic isn't desirable, but I'm not sure what "correct behaviour" 
+would be, I can't imagine that this is intended to work. The issues of 
+removing such a module gracefully are significant.
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me
 

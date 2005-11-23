@@ -1,97 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbVKWUeG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbVKWUf5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932403AbVKWUeG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 15:34:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbVKWUc4
+	id S932395AbVKWUf5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 15:35:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbVKWUfs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 15:32:56 -0500
-Received: from fmr19.intel.com ([134.134.136.18]:45762 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932381AbVKWUci convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 15:32:38 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Re: [PATCH] PATA support for Intel ICH7 (intel 945G chipset)
-Date: Wed, 23 Nov 2005 12:31:48 -0800
-Message-ID: <26CEE2C804D7BE47BC4686CDE863D0F50574A62D@orsmsx410>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] PATA support for Intel ICH7 (intel 945G chipset)
-Thread-Index: AcXwbHhZaFbcRXdNTeSCzJBuid/GtgAAGkKA
-From: "Gaston, Jason D" <jason.d.gaston@intel.com>
-To: <jan@panoch.net>
-Cc: <linux-kernel@vger.kernel.org>, <linux-ide@vger.kernel.org>
-X-OriginalArrivalTime: 23 Nov 2005 20:31:49.0894 (UTC) FILETIME=[EE87D260:01C5F06C]
+	Wed, 23 Nov 2005 15:35:48 -0500
+Received: from tirith.ics.muni.cz ([147.251.4.36]:40632 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S932395AbVKWUfC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 15:35:02 -0500
+Date: Wed, 23 Nov 2005 21:34:48 +0100
+From: Jan Kasprzak <kas@fi.muni.cz>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14 kswapd eating too much CPU
+Message-ID: <20051123203448.GF28142@fi.muni.cz>
+References: <20051122125959.GR16080@fi.muni.cz> <20051122163550.160e4395.akpm@osdl.org> <20051123010122.GA7573@fi.muni.cz> <4383D1CC.4050407@yahoo.com.au> <20051123051358.GB7573@fi.muni.cz> <20051123131417.GH24091@fi.muni.cz> <20051123110241.528a0b37.akpm@osdl.org> <20051123202438.GE28142@fi.muni.cz> <9a8748490511231232y2112475bwb19aa73dfa38d916@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9a8748490511231232y2112475bwb19aa73dfa38d916@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: kas@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan,
+Jesper Juhl wrote:
+: On 11/23/05, Jan Kasprzak <kas@fi.muni.cz> wrote:
+: >
+: >         Hmm, it does not show anything but the header. Should I enable
+: > something special in the kernel?
+: >
+: 
+: CONFIG_MAGIC_SYSRQ=y
+: (it's in 'Kernel hacking')
+: 
+	I of course have this:
 
-DeviceID 0x27c0 is the ICH7 SATA controller DID.  It should not be added
-to the PATA IDE piix driver.  It is already supported in the SATA
-ata_piix driver.  If you are not seeing the PATA controller DID 0x27df,
-then your BIOS is most likely set to combined mode.  Change your BIOS to
-SATA enhanced mode.  If your BIOS does not support enhanced mode,
-contact your motherboard manufacturer.
+# zgrep -i SYSRQ /proc/config.gz
+CONFIG_MAGIC_SYSRQ=y
+#
 
-Thanks,
+otherwise I would not have /proc/sysrq-trigger file at all, and I would not
+be able to post the sysrq-m outputs like I did earlier today.
 
-Jason
+-Yenya
 
-
-Jan Panoch wrote:
-> Hi,
-> 
-> This patch adds additional Intel ICH7 DID's for Intel chipset 945G to
-> the piix driver.
-> I need to add PATA support for new intel 945G chipset on Asus
-> motherboard P5LD2-VM.
-> If acceptable, please apply.
-> 
-> --- piix.c.orig 2005-11-23 11:46:12.000000000 +0100
-> +++ piix.c      2005-11-23 11:13:02.000000000 +0100
-> @@ -134,6 +134,7 @@
->                 case PCI_DEVICE_ID_INTEL_ESB_2:
->                 case PCI_DEVICE_ID_INTEL_ICH6_19:
->                 case PCI_DEVICE_ID_INTEL_ICH7_21:
-> +               case PCI_DEVICE_ID_INTEL_ICH7_2:
->                 case PCI_DEVICE_ID_INTEL_ESB2_18:
->                         mode = 3;
->                         break;
-> @@ -448,6 +449,7 @@
->                 case PCI_DEVICE_ID_INTEL_ESB_2:
->                 case PCI_DEVICE_ID_INTEL_ICH6_19:
->                 case PCI_DEVICE_ID_INTEL_ICH7_21:
-> +               case PCI_DEVICE_ID_INTEL_ICH7_2:
->                 case PCI_DEVICE_ID_INTEL_ESB2_18:
->                 {
->                         unsigned int extra = 0;
-> @@ -575,6 +577,7 @@
->         /* 21 */ DECLARE_PIIX_DEV("ICH7"),
->         /* 22 */ DECLARE_PIIX_DEV("ICH4"),
->         /* 23 */ DECLARE_PIIX_DEV("ESB2"),
-> +       /* 24 */ DECLARE_PIIX_DEV("ICH7"),
->  };
-> 
->  /**
-> @@ -651,6 +654,7 @@
->         { PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH7_21,
-PCI_ANY_ID,
-> PCI_ANY_ID, 0, 0, 21},
->         { PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801DB_1,
-> PCI_ANY_ID, PCI_ANY_ID, 0, 0, 22},
->         { PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ESB2_18,
-PCI_ANY_ID,
-> PCI_ANY_ID, 0, 0, 23},
-> +       { PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH7_2, PCI_ANY_ID,
-> PCI_ANY_ID, 0, 0, 24},
->         { 0, },
->  };
->  MODULE_DEVICE_TABLE(pci, piix_pci_tbl);
-> 
-
+-- 
+| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+| http://www.fi.muni.cz/~kas/    Journal: http://www.fi.muni.cz/~kas/blog/ |
+> Specs are a basis for _talking_about_ things. But they are _not_ a basis <
+> for implementing software.                              --Linus Torvalds <

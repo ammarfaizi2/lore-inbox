@@ -1,64 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965210AbVKWWW7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030424AbVKWWYW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965210AbVKWWW7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 17:22:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965212AbVKWWW7
+	id S1030424AbVKWWYW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 17:24:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030425AbVKWWYV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 17:22:59 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:54956 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S965211AbVKWWWw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 17:22:52 -0500
-Message-ID: <4384EB98.5050408@zytor.com>
-Date: Wed, 23 Nov 2005 14:22:16 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>,
-       Gerd Knorr <kraxel@suse.de>, Dave Jones <davej@redhat.com>,
-       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-References: <Pine.LNX.4.64.0511131118020.3263@g5.osdl.org>	 <Pine.LNX.4.64.0511131210570.3263@g5.osdl.org> <4378A7F3.9070704@suse.de>	 <Pine.LNX.4.64.0511141118000.3263@g5.osdl.org> <4379ECC1.20005@suse.de>	 <437A0649.7010702@suse.de> <437B5A83.8090808@suse.de>	 <438359D7.7090308@suse.de> <p7364qjjhqx.fsf@verdi.suse.de>	 <1132764133.7268.51.camel@localhost.localdomain>	 <20051123163906.GF20775@brahms.suse.de>	 <1132766489.7268.71.camel@localhost.localdomain>	 <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org>	 <4384AECC.1030403@zytor.com>	 <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org>	 <1132782245.13095.4.camel@localhost.localdomain>	 <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <1132786222.13095.28.camel@localhost.localdomain>
-In-Reply-To: <1132786222.13095.28.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Nov 2005 17:24:21 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:4624 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1030424AbVKWWYS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 17:24:18 -0500
+Date: Wed, 23 Nov 2005 22:24:10 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>, Adrian Bunk <bunk@stusta.de>,
+       saw@saw.sw.com.sg, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: [RFC: 2.6 patch] remove drivers/net/eepro100.c
+Message-ID: <20051123222410.GN15449@flint.arm.linux.org.uk>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Adrian Bunk <bunk@stusta.de>, saw@saw.sw.com.sg,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+	"David S. Miller" <davem@davemloft.net>
+References: <20051118033302.GO11494@stusta.de> <20051118090158.GA11621@flint.arm.linux.org.uk> <437DFD6C.1020106@pobox.com> <20051123221547.GM15449@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051123221547.GM15449@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Mer, 2005-11-23 at 13:36 -0800, Linus Torvalds wrote:
+On Wed, Nov 23, 2005 at 10:15:48PM +0000, Russell King wrote:
+> On Fri, Nov 18, 2005 at 11:12:28AM -0500, Jeff Garzik wrote:
+> > Russell King wrote:
+> > >On Fri, Nov 18, 2005 at 04:33:02AM +0100, Adrian Bunk wrote:
+> > >
+> > >>This patch removes the obsolete drivers/net/eepro100.c driver.
+> > >>
+> > >>Is there any reason why it should be kept?
+> > >
+> > >
+> > >Tt's the only driver which works correctly on ARM CPUs.  e100 is
+> > >basically buggy.  This has been discussed here on lkml and more
+> > >recently on linux-netdev.  If anyone has any further questions
+> > >please read the archives of those two lists.
+> > 
+> > After reading the archives, one discovers the current status is:
+> > 
+> > 	waiting on ARM folks to test e100
+> > 
+> > Latest reference is public message-id <4371A373.6000308@pobox.com>, 
+> > which was CC'd to you.
+> > 
+> > There is a patch in netdev-2.6.git#e100-sbit and in Andrew's -mm tree 
+> > that should solve the ARM problems, and finally allow us to kill 
+> > eepro100.  But it's waiting for feedback...
 > 
->>>have to add PAT support which we need to do anyway we would get a world
->>>where on uniprocessor lock prefix only works on addresse targets we want
->>>it to - ie pci_alloc_consistent() pages.
->>
->>No. That would be wrong.
->>
->>The thing is, "lock" is useless EVEN ON SMP in user space 99% of the time.
-> 
-> 
-> Now I see what you are aiming at, yes that makes vast amounts of sense
-> and since AMD have the "no lock effect" bit for general case maybe they
-> can
-> 
+> Well, I've run 2.6.15-rc2 on what I think was the ARM platform which
+> exhibited the problem, but it doesn't show up.  However, that's
+> meaningless as it has been literally _years_ (4 or more) since the
+> problem was reported.  It's rather unsurprising that I can't reproduce
+> it - I don't even know if I'm using the right processor module!
 
-What it really comes down to (virtualization or not!) is whether or not 
-the OS can guarantee that nothing else is messing with memory at the 
-same time.
+Additionally, looking back at my 30th June 2004 message, I don't
+think I've even managed sufficient testing to make any claim of
+working-ness or non-working-ness against either driver.
 
-This is potentially different from process to process (because of page 
-table differences) and from kernel to user space (because of the User 
-bit in the page tables.)
+The test was merely a "did it successfully BOOTP" because I can't
+get it to mount and run /sbin/init from the jffs2 rootfs which
+2.5.70 was perfectly happy to earlier today.  However, the
+failure point seemed to be when NFS tried to use the card.
 
-	-hpa
+Whether that means I was or was not using BOOTP back in 2004...
+your guess is as good as mine.
 
+Anyway, that's the end of the issue as far as I'm concerned.
 
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

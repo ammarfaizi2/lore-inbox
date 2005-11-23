@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932525AbVKWVYl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932520AbVKWVZW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932525AbVKWVYl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 16:24:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932520AbVKWVYl
+	id S932520AbVKWVZW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 16:25:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932531AbVKWVZV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 16:24:41 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:22165
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932525AbVKWVYk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 16:24:40 -0500
-Date: Wed, 23 Nov 2005 13:24:40 -0800 (PST)
-Message-Id: <20051123.132440.71355611.davem@davemloft.net>
-To: arjan@infradead.org
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk,
-       torvalds@osdl.org, ak@muc.de
-Subject: Re: [NET]: Shut up warnings in net/core/flow.c
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <1132737084.2795.20.camel@laptopd505.fenrus.org>
-References: <20051123002134.287ff226.akpm@osdl.org>
-	<20051123.005530.17893365.davem@davemloft.net>
-	<1132737084.2795.20.camel@laptopd505.fenrus.org>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Wed, 23 Nov 2005 16:25:21 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:60804 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S932520AbVKWVZU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 16:25:20 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Duncan Sands <duncan.sands@free.fr>
+Subject: speedtch driver, 2.6.14.2
+Date: Wed, 23 Nov 2005 21:25:25 +0000
+User-Agent: KMail/1.9
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511232125.25254.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Arjan van de Ven <arjan@infradead.org>
-Date: Wed, 23 Nov 2005 10:11:24 +0100
+Hi Duncan,
 
-> it can.. but only if we start using -ffunction-sections in the CFLAGS
-> (or make all of these functions static I suppose and reenable
-> -funit-at-a-time, which can be done for gcc 4.x only)
+I recently switched from the userspace speedtouch driver to the in-kernel one. 
+However, on my rev 4.0 Speedtouch 330, I periodically get the message:
 
-I actually just scanned the tree, and outside of files that
-only get built on CONFIG_SMP (namely, arch/${ARCH}/kernel/smp{,boot}.c)
-the IPI functions were %99 marked static already and the remaining
-%1 should be marked static.  The cases in that %1 group are:
+ATM dev 0: error -110 fetching device status
 
-arch/mips/sibyte/sb1250/prom.c:prom_cpu0_exit()
-arch/powerpc/kernel/machine_kexec_64.c:kexec_smp_down()
+I suspect the source of this "error" is the warning message from speedtch:435:
 
-And as stated, those two can just be marked static right now.
+	ret = speedtch_read_status(instance);
+	if (ret < 0) {
+		atm_warn(usbatm, "error %d fetching device status\n", ret);
+		instance->poll_delay = min(2 * instance->poll_delay, MAX_POLL_DELAY);
+		return;
+	}
 
-So we could very easily remove the CONFIG_SMP ifdefs, but the
--funit-at-a-time requirement to get gcc to not emit unused static
-functions is very unfortunate.
+Tell me if I'm wrong, but I suspect speedtch_check_status() is called 
+periodically to check line status. It may be the case that my modem does not 
+like having its status read when it is sending/receiving data (which it is 
+constantly doing).
 
-Even tricks like marking the IPI function "inline" don't work since
-we're taking the address of the function.
+Unfortunately the message eventually fills the dmesg ring buffer. My current 
+workaround is to remove the atm_warn() call; everything works fine, but I'm 
+concerned that the modem will not automatically reconnect if the connection 
+drops as a result of the failure from speedtch_read_status().
+
+Any suggestions for debugging this further? From a quick google I've noticed a 
+recent Fedora bugzilla entry mentioning this same problem.
+
+-- 
+Cheers,
+Alistair.
+
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

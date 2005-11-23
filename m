@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbVKWXfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbVKWXf5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751320AbVKWXfL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 18:35:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbVKWXfK
+	id S1751317AbVKWXf5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 18:35:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbVKWXf5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 18:35:10 -0500
-Received: from mail.metronet.co.uk ([213.162.97.75]:6583 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP
-	id S1751317AbVKWXfJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 18:35:09 -0500
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Con Kolivas <con@kolivas.org>
+	Wed, 23 Nov 2005 18:35:57 -0500
+Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:10881 "EHLO
+	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751317AbVKWXfz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 18:35:55 -0500
+References: <200511232333.jANNX9g23967@unix-os.sc.intel.com>
+Message-ID: <cone.1132788946.360368.25446.501@kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
+To: =?ISO-8859-1?B?Q2hlbiw=?= Kenneth W <kenneth.w.chen@intel.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
 Subject: Re: Kernel BUG at mm/rmap.c:491
-Date: Wed, 23 Nov 2005 23:35:15 +0000
-User-Agent: KMail/1.9
-Cc: Kenneth W <kenneth.w.chen@intel.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-References: <200511232256.jANMuGg20547@unix-os.sc.intel.com> <cone.1132788250.534735.25446.501@kolivas.org>
-In-Reply-To: <cone.1132788250.534735.25446.501@kolivas.org>
-MIME-Version: 1.0
+Date: Thu, 24 Nov 2005 10:35:46 +1100
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="US-ASCII"
 Content-Disposition: inline
-Message-Id: <200511232335.15050.s0348365@sms.ed.ac.uk>
-Content-Type: text/plain;
-  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 November 2005 23:24, Con Kolivas wrote:
-> Chen, Kenneth W writes:
-> > Has people seen this BUG_ON before?  On 2.6.15-rc2, x86-64.
-> >
-> > Pid: 16500, comm: cc1 Tainted: G    B 2.6.15-rc2 #3
-> >
-> > Pid: 16651, comm: sh Tainted: G    B 2.6.15-rc2 #3
->
->                        ^^^^^^^^^^
->
-> Please try to reproduce it without proprietary binary modules linked in.
+Chen, Kenneth W writes:
 
-AFAIK "G" means all loaded modules are GPL, P is for proprietary modules.
+> Con Kolivas wrote on Wednesday, November 23, 2005 3:24 PM
+>> Chen, Kenneth W writes:
+>> 
+>> > Has people seen this BUG_ON before?  On 2.6.15-rc2, x86-64.
+>> > 
+>> > Pid: 16500, comm: cc1 Tainted: G    B 2.6.15-rc2 #3
+>> > 
+>> > Pid: 16651, comm: sh Tainted: G    B 2.6.15-rc2 #3
+>> 
+>>                        ^^^^^^^^^^
+>> 
+>> Please try to reproduce it without proprietary binary modules linked in.
+> 
+> 
+> ???, I'm not using any modules at all.
+> 
+> [albat]$ /sbin/lsmod
+> Module                  Size  Used by
+> [albat]$ 
+> 
+> 
+> Also, isn't it 'P' indicate proprietary module, not 'G'?
+> line 159: kernel/panic.c:
+> 
+>         snprintf(buf, sizeof(buf), "Tainted: %c%c%c%c%c%c",
+>                 tainted & TAINT_PROPRIETARY_MODULE ? 'P' : 'G',
 
-FWIW, I reported a similarly located BUG() in this file (line 487 in 2.6.14) a 
-couple of weeks ago. I believe there is a problem lurking somewhere.
+Sorry it's not proprietary module indeed. But what is tainting it?
 
--- 
-Cheers,
-Alistair.
+Con
 
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.

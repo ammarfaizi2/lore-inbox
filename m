@@ -1,69 +1,167 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbVKWN5b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbVKWOBM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750803AbVKWN5b (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 08:57:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750804AbVKWN5b
+	id S1750804AbVKWOBM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 09:01:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbVKWOBM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 08:57:31 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:63117 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1750803AbVKWN5a (ORCPT
+	Wed, 23 Nov 2005 09:01:12 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:55203 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750804AbVKWOBK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 08:57:30 -0500
-Subject: Re: [PATCH] split sharpsl_pm.c into generic and corgi/spitz
-	specific parts
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>
-In-Reply-To: <20051123130350.GA23090@elf.ucw.cz>
-References: <20051123130350.GA23090@elf.ucw.cz>
-Content-Type: text/plain
-Date: Wed, 23 Nov 2005 13:57:09 +0000
-Message-Id: <1132754229.8016.55.camel@localhost.localdomain>
+	Wed, 23 Nov 2005 09:01:10 -0500
+Date: Wed, 23 Nov 2005 19:34:26 +0530
+From: Rachita Kothiyal <rachita@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: vgoyal@in.ibm.com, ebiederm@xmission.com, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: [Fastboot] Re: [PATCH 9/10] kdump: read previous kernel's memory
+Message-ID: <20051123140426.GA30814@in.ibm.com>
+Reply-To: rachita@in.ibm.com
+References: <20051117131825.GE3981@in.ibm.com> <20051117132004.GF3981@in.ibm.com> <20051117132138.GG3981@in.ibm.com> <20051117132315.GH3981@in.ibm.com> <20051117132437.GI3981@in.ibm.com> <20051117132557.GJ3981@in.ibm.com> <20051117132659.GK3981@in.ibm.com> <20051117132850.GL3981@in.ibm.com> <20051117132944.GM3981@in.ibm.com> <20051117142023.43764d8b.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051117142023.43764d8b.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-23 at 14:03 +0100, Pavel Machek wrote:
-> This splits sharpsl_pm.c into sharpsl_pm.c (generic code) and
-> sharpsl_pm_pxa.c (spitz/corgi specific code). sharpsl_pm.c code should
-> be reusable by collie.
+On Thu, Nov 17, 2005 at 02:20:23PM -0800, Andrew Morton wrote:
+> Vivek Goyal <vgoyal@in.ibm.com> wrote:
+> >
+> > +ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
+> > +                               size_t csize, unsigned long offset, int userbuf)
+> > +{
+> > +	void  *vaddr;
+> > +
+> > +	if (!csize)
+> > +		return 0;
+> > +
+> > +	vaddr = kmap_atomic_pfn(pfn, KM_PTE0);
+> > +
+> > +	if (userbuf) {
+> > +		if (copy_to_user(buf, (vaddr + offset), csize)) {
+> > +			kunmap_atomic(vaddr, KM_PTE0);
+> > +			return -EFAULT;
 > 
-> I'd like to see it applied...
+> The copy_*_user() inside kmap_atomic() is problematic.
+> 
+> On some configs (eg, x86, highmem) the process is running atomically, hence
+> the copy_*_user() will *refuse* to fault in the user's page if it's not
+> present.  Because pagefaulting involves doing things which sleep.
+> 
+> So
+> 
+> a) This code will generate might_sleep() warnings at runtime and
+> 
+> b) It'll return -EFAULT for user pages which haven't been faulted in yet.
+> 
+> 
+> We do all sorts of gruesome tricks in mm/filemap.c to get around all this. 
+> I don't think your code is as performance-sensitive, so a suitable fix
+> might be to double-copy the data.  Make sure that the same physical page is
+> used as a bounce page for each copy (ie: get the caller to pass it in) and
+> that page will be cache-hot and the performance should be acceptable.
+> 
+> If it really is performance-sensitive then you'll need to play filemap.c
+> games.  It'd be better to use a sleeping kmap instead, if poss.  That's
+> kmap().
+> 
+> Please send an incremental patch when it's sorted.  
 
-This diff looks much neater than the last one and I agree with the
-principle of it. I don't think its the right time to apply it for two
-reasons:
+Hi Andrew
 
-1. We probably shouldn't (can't?) make changes like this in -rc kernels 
-2. I would like to see some signs that battery measurement, charging and
-suspend/resume are all working on collie before we start applying
-patches to support it. Only once that's happened do we know how much
-common code we have and what changes are needed. Currently you only
-appear to have covered battery measurement?
+Sending along the incremental patch as suggested.
 
-I have a proposal for how we proceed with this:
+In this patch, a global buffer page is introduced, where the page
+from the previous kernel's memory is copied, before copying it
+out to a user buffer. This will take care of the issue of
+copy_to_user() page faulting in an atomic context.
 
-After 2.6.15 is released, I envisage a patch which splits the common
-sections of sharpsl_pm.c into arm/common and arm/mach-pxa/sharpsl.h into
-include/arm/hardware/sharpsl_pm.h. I'm happy to generate that patch if
-necessary and pass it to Russell. I'll try and create a patch to show
-the structure I'm aiming for in the next couple of days but at the
-moment we don't know exactly which code is common and I'd prefer to try
-and do the split in one go. 
+This patch has been generated against 2.6.15-rc2-mm1.
+Kindly review.
 
-In the meantime, creating the diffs like the last one show where the
-split needs to be and converting those diffs to the final file locations
-should be straightforward.
+Thanks
+Rachita
 
-Waiting for 2.6.15 should also give you some time to get the collie
-charging and suspend/resume code developed/tested and then point 2 above
-will no longer apply. 
 
-I did note your patch adds a copyright header to a file you're mostly
-deleting code from?
 
-Richard
+ o This patch allocates a page to copy the previous kernel's memory
+   before we copy it onto a user buffer using copy_to_user(), thereby
+   taking care of the scenario of a possible page fault in an atomic
+   context.
 
+
+
+Signed-off-by: Rachita Kothiyal <rachita@in.ibm.com>
+---
+
+ arch/i386/kernel/crash_dump.c |   39 +++++++++++++++++++++++++++++++++------
+ 1 files changed, 33 insertions(+), 6 deletions(-)
+
+diff -puN arch/i386/kernel/crash_dump.c~double_copy_read_oldmem arch/i386/kernel/crash_dump.c
+--- linux-2.6.15-rc2-mm1/arch/i386/kernel/crash_dump.c~double_copy_read_oldmem	2005-11-23 17:50:07.258543864 +0530
++++ linux-2.6.15-rc2-mm1-rachita/arch/i386/kernel/crash_dump.c	2005-11-23 17:50:36.779056064 +0530
+@@ -11,6 +11,8 @@
+ 
+ #include <asm/uaccess.h>
+ 
++static void *kdump_buf_page;
++
+ /**
+  * copy_oldmem_page - copy one page from "oldmem"
+  * @pfn: page frame number to be copied
+@@ -23,6 +25,10 @@
+  *
+  * Copy a page from "oldmem". For this page, there is no pte mapped
+  * in the current kernel. We stitch up a pte, similar to kmap_atomic.
++ *
++ * Calling copy_to_user() in atomic context is not desirable. Hence first
++ * copying the data to a pre-allocated kernel page and then copying to user
++ * space in non-atomic context.
+  */
+ ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
+                                size_t csize, unsigned long offset, int userbuf)
+@@ -34,14 +40,35 @@ ssize_t copy_oldmem_page(unsigned long p
+ 
+ 	vaddr = kmap_atomic_pfn(pfn, KM_PTE0);
+ 
+-	if (userbuf) {
+-		if (copy_to_user(buf, (vaddr + offset), csize)) {
+-			kunmap_atomic(vaddr, KM_PTE0);
++	if (!userbuf) {
++		memcpy(buf, (vaddr + offset), csize);
++		kunmap_atomic(vaddr, KM_PTE0);
++	} else {
++		if (!kdump_buf_page) {
++			printk(KERN_WARNING "Kdump: Kdump buffer page not"
++				" allocated\n");
+ 			return -EFAULT;
+ 		}
+-	} else
+-	memcpy(buf, (vaddr + offset), csize);
++		copy_page(kdump_buf_page, vaddr);
++		kunmap_atomic(vaddr, KM_PTE0);
++		if (copy_to_user(buf, (kdump_buf_page + offset), csize))
++			return -EFAULT;
++	}
+ 
+-	kunmap_atomic(vaddr, KM_PTE0);
+ 	return csize;
+ }
++
++static int __init kdump_buf_page_init(void)
++{
++	int ret = 0;
++
++	kdump_buf_page = kmalloc(PAGE_SIZE, GFP_KERNEL);
++	if (!kdump_buf_page) {
++		printk(KERN_WARNING "Kdump: Failed to allocate kdump buffer"
++			 " page\n");
++		ret = -ENOMEM;
++	}
++
++	return ret;
++}
++arch_initcall(kdump_buf_page_init);
+_

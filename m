@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932587AbVKWWVv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932586AbVKWWWX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932587AbVKWWVv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 17:21:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932585AbVKWWVv
+	id S932586AbVKWWWX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 17:22:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932589AbVKWWWX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 17:21:51 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:35008 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932586AbVKWWVu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 17:21:50 -0500
-Subject: Re: [RFC] [PATCH 0/3] ioat: DMA engine support
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andrew Grover <andrew.grover@intel.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, john.ronciak@intel.com,
-       christopher.leech@intel.com
-In-Reply-To: <4384E7F2.2030508@pobox.com>
-References: <Pine.LNX.4.44.0511231143380.32487-100000@isotope.jf.intel.com>
-	 <4384E7F2.2030508@pobox.com>
+	Wed, 23 Nov 2005 17:22:23 -0500
+Received: from fmr21.intel.com ([143.183.121.13]:27094 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932588AbVKWWWT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 17:22:19 -0500
+Subject: Re: [PATCH]: Free pages from local pcp lists under tight memory
+	conditions
+From: Rohit Seth <rohit.seth@intel.com>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.62.0511231325150.23433@schroedinger.engr.sgi.com>
+References: <20051122161000.A22430@unix-os.sc.intel.com>
+	 <Pine.LNX.4.62.0511231128090.22710@schroedinger.engr.sgi.com>
+	 <1132775194.25086.54.camel@akash.sc.intel.com>
+	 <20051123115545.69087adf.akpm@osdl.org>
+	 <1132779605.25086.69.camel@akash.sc.intel.com>
+	 <Pine.LNX.4.62.0511231325150.23433@schroedinger.engr.sgi.com>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 23 Nov 2005 22:54:04 +0000
-Message-Id: <1132786445.13095.32.camel@localhost.localdomain>
+Organization: Intel 
+Date: Wed, 23 Nov 2005 14:29:03 -0800
+Message-Id: <1132784943.25086.87.camel@akash.sc.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 Nov 2005 22:22:05.0150 (UTC) FILETIME=[5587C7E0:01C5F07C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-11-23 at 17:06 -0500, Jeff Garzik wrote:
-> Sample ideas:  VM page pre-zeroing.  ATA PIO data xfers (async copy to 
-> static buffer, to dramatically shorten length of kmap+irqsave time). 
-> Extremely large memcpy() calls.
+On Wed, 2005-11-23 at 13:25 -0800, Christoph Lameter wrote:
+> On Wed, 23 Nov 2005, Rohit Seth wrote:
+> 
+> > I thought Nick et.al came up with some of the constant values like batch
+> > size to tackle the page coloring issue specifically.  In any case, I
+> > think one of the key difference between 2.4 and 2.6 allocators is the
+> > pcp list.  And even with the minuscule batch and high watermarks this is
+> > helping ordinary benchmarks (by reducing the variation from run to run).
+> 
+> Could you share some benchmark results?
+> 
 
-ATA PIO copies are 512 bytes of memory per sector and that is usually
-already in cache and on cache line boundaries. You won't even be able to
-measure it done by the CPU. I can't see the I/O engine sync cost being
-worth it.
+Some components of cpu2k on 2.4 base kernels show in access of 40-50%
+variation from run to run.  The same variations came down to about 10%
+for 2.6 based kernels.   
 
-Might just about help large transfers I guess but you don't do
-multisector which is the only case you'd get perhaps 8K an I/O.
-
-> Additionally, current IOAT is memory->memory.  I would love to be able 
-> to convince Intel to add transforms and checksums, 
-
-Not just transforms but also masks and maybe even merges and textures
-would be rather handy 8)
+-rohit
 

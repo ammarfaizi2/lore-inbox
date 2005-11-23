@@ -1,84 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbVKWQF5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbVKWQKb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751201AbVKWQF5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 11:05:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbVKWQFq
+	id S1751204AbVKWQKb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 11:10:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbVKWQKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 11:05:46 -0500
-Received: from web25812.mail.ukl.yahoo.com ([217.146.176.245]:24451 "HELO
-	web25812.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1751201AbVKWQFo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 11:05:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=K1qbN0E5NALnoyS+83EYmh7lxbe8u9IYmfcNzsu/5WqfiayQX/9AoEeVlB/VKTQSgKc/+7Y3EDsYPQNhhCS4knMOQP3eik8ZcQpZmwfAs4g2TkoVFUmvEzPAdl+UCWHP3U64MCzYXu7mvhXPcJXNbEspQg8Z/zfgSJ3ZMwgDijU=  ;
-Message-ID: <20051123160542.71232.qmail@web25812.mail.ukl.yahoo.com>
-Date: Wed, 23 Nov 2005 17:05:42 +0100 (CET)
-From: moreau francis <francis_moreau2000@yahoo.fr>
-Subject: Re: Use enum to declare errno values
-To: Nikita Danilov <nikita@clusterfs.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <17284.37107.573883.328659@gargle.gargle.HOWL>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 23 Nov 2005 11:10:31 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:48546 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751204AbVKWQKa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 11:10:30 -0500
+Subject: Re: [patch] SMP alternatives
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andi Kleen <ak@suse.de>
+Cc: Gerd Knorr <kraxel@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
+       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <p7364qjjhqx.fsf@verdi.suse.de>
+References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com>
+	 <20051111103605.GC27805@elf.ucw.cz> <4374F2D5.7010106@vmware.com>
+	 <Pine.LNX.4.64.0511111147390.4627@g5.osdl.org>
+	 <4374FB89.6000304@vmware.com>
+	 <Pine.LNX.4.64.0511111218110.4627@g5.osdl.org>
+	 <20051113074241.GA29796@redhat.com>
+	 <Pine.LNX.4.64.0511131118020.3263@g5.osdl.org>
+	 <Pine.LNX.4.64.0511131210570.3263@g5.osdl.org> <4378A7F3.9070704@suse.de>
+	 <Pine.LNX.4.64.0511141118000.3263@g5.osdl.org> <4379ECC1.20005@suse.de>
+	 <437A0649.7010702@suse.de> <437B5A83.8090808@suse.de>
+	 <438359D7.7090308@suse.de>  <p7364qjjhqx.fsf@verdi.suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 23 Nov 2005 16:42:13 +0000
+Message-Id: <1132764133.7268.51.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---- Nikita Danilov <nikita@clusterfs.com> a écrit :
+On Mer, 2005-11-23 at 12:17 -0700, Andi Kleen wrote:
+> > +	/* Paranoia */
+> > +	asm volatile ("jmp 1f\n1:");
+> > +	mb();
 > 
-> No it shouldn't. Following is a perfectly legal thing to do in C:
-> 
-> enum side {
->         LEFT,
->         RIGHT
-> };
-> 
-> int foo(int x)
-> {
->         if (x & 0x1)
->                 return LEFT;
->         else
->                 return RIGHT;
-> }
-> 
-> This is not C++ fortunately.
-> 
-> Nikita.
-> 
+> That would be totally obsolete 386 era paranoia. If anything then use 
+> a CLFLUSH (but not available on all x86s) 
 
-hmm, are you sure that debuggers will tell you that foo returns LEFT/RIGHT but
-not any integer value ?
+If you are patching code another x86 CPU is running you must halt the
+other processors and ensure it executes a serialzing instruction before
+it enters any patched code. 
 
-I just give a try and unfortunately you seem to be wrong here:
+How many kilobytes of tables do you add to the kernel to do this
+pointless stunt btw ?
 
-""""
-(gdb) s
-foo (x=1) at enum_test.c:8
-8               if (x & 0x1)
-(gdb) finish
-Run till exit from #0  foo (x=1) at enum_test.c:8
-0x0804837c in main (argc=1, argv=0xbfe14dc4) at enum_test.c:17
-17              return foo(1);
-Value returned is $1 = 0
-(gdb)
-""""
+Alan "CPU errata are fun" Cox
 
-But we needn't change all function prototypes that return an errno value in one
-shot because as you said we can mix enum and int.
-
-Thanks
-
-
-
-
-
-	
-
-	
-		
-___________________________________________________________________________ 
-Appel audio GRATUIT partout dans le monde avec le nouveau Yahoo! Messenger 
-Téléchargez cette version sur http://fr.messenger.yahoo.com

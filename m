@@ -1,46 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbVKWMn2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750752AbVKWMs0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750751AbVKWMn2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 07:43:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbVKWMn2
+	id S1750752AbVKWMs0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 07:48:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbVKWMs0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 07:43:28 -0500
-Received: from [139.30.44.16] ([139.30.44.16]:13159 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S1750751AbVKWMn1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 07:43:27 -0500
-Date: Wed, 23 Nov 2005 13:41:35 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: akpm@osdl.org
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: + dont-include-schedh-from-moduleh.patch added to -mm tree
-In-Reply-To: <200511050726.jA57QPs7009905@shell0.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.63.0511231328020.27662@gockel.physik3.uni-rostock.de>
-References: <200511050726.jA57QPs7009905@shell0.pdx.osdl.net>
+	Wed, 23 Nov 2005 07:48:26 -0500
+Received: from headoffice-fe1.getonit.net.au ([202.47.114.19]:51070 "EHLO
+	tsvexchange.getonit.net.au") by vger.kernel.org with ESMTP
+	id S1750752AbVKWMsZ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 07:48:25 -0500
+Subject: Kernel oops v2.4.31 in e1000 network card driver.
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Date: Wed, 23 Nov 2005 22:48:07 +1000
+Content-class: urn:content-classes:message
+Message-ID: <C67FBCB411B4024382B11B96D68E49E4079568@server.local.GetOffice>
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Kernel oops v2.4.31 in e1000 network card driver.
+Thread-Index: AcXwLCctHQNGj04wRESICHjFnwchmg==
+From: "Tim Warnock" <timoid@getonit.net.au>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Things seem to converge in Linus' tree now.
+Any assistance to what this means?
 
-I've rerun my ctags+grep based analysis for all architecures on 
-2.6.15-rc1-git6 and 2.6.5-rc2 with the following patches from -mm applied:
-  fix-missing-includes-for-2614-git11.patch
-  fix-missing-includes-for-2615-rc1.patch
-  dont-include-schedh-from-moduleh.patch
-I also compile-tested these trees on alpha, arm, i386, ia64, mips, powerpc,  
-ppc64, and x86_64 and checked that make -i outputs the same diagnostic 
-messages (modulo line number and include order changes) for allnoconfig, 
-defconfig, and allmodconfig, whether or not 
-dont-include-schedh-from-moduleh.patch was applied to the tree.
+Nov 23 21:09:40 garnet kernel: NETDEV WATCHDOG: eth2: transmit timed out
+Nov 23 21:09:40 garnet kernel: Unable to handle kernel paging request at
+virtual address 0003066e
+Nov 23 21:09:40 garnet kernel:  printing eip:
+Nov 23 21:09:40 garnet kernel: c025feb2
+Nov 23 21:09:40 garnet kernel: *pde = 00000000
+Nov 23 21:09:40 garnet kernel: Oops: 0000
+Nov 23 21:09:40 garnet kernel: CPU:    0
+Nov 23 21:09:40 garnet kernel: EIP:    0010:[skb_drop_fraglist+34/80]
+Not tainted
+Nov 23 21:09:40 garnet kernel: EFLAGS: 00010206
+Nov 23 21:09:40 garnet kernel: eax: 00030600   ebx: 000305fa   ecx:
+e905a880   edx: 000305fa
+Nov 23 21:09:40 garnet kernel: esi: dd6b4680   edi: dd6b46e0   ebp:
+00000bb8   esp: f7edfefc
+Nov 23 21:09:40 garnet kernel: ds: 0018   es: 0018   ss: 0018
+Nov 23 21:09:40 garnet kernel: Process keventd (pid: 2,
+stackpage=f7edf000)
+Nov 23 21:09:40 garnet kernel: Stack: c1c15900 f8a76bb8 c025ff79
+dd6b4680 f8a76bb8 dd6b4680 c025ffc7 dd6b4680
+Nov 23 21:09:40 garnet kernel:        d8515180 f8a76bb8 f7e4ca88
+c026012e dd6b4680 c01e3cd8 f8a76000 c01e3e22
+Nov 23 21:09:40 garnet kernel:        dd6b4680 00000096 f7e4c980
+f7e4c980 f7e4c800 f7ede000 c01e2eac f7e4c980
+Nov 23 21:09:40 garnet kernel: Call Trace:    [skb_release_data+105/160]
+[kfree_skbmem+23/128] [__kfree_skb+254/352]
+[e1000_clean_tx_ring+472/592] [e1000_clean_rx_ring+82/30
+4]
+Nov 23 21:09:40 garnet kernel:   [e1000_down+204/304]
+[e1000_tx_timeout_task+22/48] [__run_task_queue+106/128]
+[context_thread+478/496] [context_thread+0/496] [_stext+0/96]
+Nov 23 21:09:40 garnet kernel:   [arch_kernel_thread+46/64]
+[context_thread+0/496]
+Nov 23 21:09:40 garnet kernel:
+Nov 23 21:09:40 garnet kernel: Code: 8b 42 74 8b 1b 48 75 15 f0 83 44 24
+00 00 89 14 24 e8 68 01
 
-None of this brought up any problems.
-So from my point of view these patches are okay to go into mainline now.
+Kernel vanilla v2.4.31 debian stable.
+Network cards are intel e1000's
 
-Andrew, what are your plans for these patches?
-Shall I send an updated dont-include-schedh-from-moduleh.patch whose 
-changelog reflects the current state of testing?
+Im not on the list so can I please be CC'd
 
-Thanks,
-Tim
+Thanks
+Tim Warnock
+
+ISP Technical Manager
+GetOnIt! Nationwide Internet.
+1300 88 00 97
+timoid (at) getonit.net.au

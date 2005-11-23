@@ -1,61 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030492AbVKWXNY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbVKWXUP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030492AbVKWXNY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 18:13:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030493AbVKWXNY
+	id S932356AbVKWXUP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 18:20:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbVKWXUO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 18:13:24 -0500
-Received: from xproxy.gmail.com ([66.249.82.193]:54623 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030492AbVKWXNX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 18:13:23 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=mJPcRAk3vJ06dVp3fVABwwlqULntOceUJC9pfWO0nTYs6PuDYcHYWgLV4w4FP7MpMmMZVhR+0MECnnzshUWZoJEh1dZqY8cB6IIMOZvIHb39/bqS1fTJiUal+CUeXQXFXaO1raH4cHjv+3UWZ6yGj2L2zbrdIYKWMh0ABFYI0hM=
-Message-ID: <d120d5000511231513j72d1f401r82db8f8ff9845533@mail.gmail.com>
-Date: Wed, 23 Nov 2005 18:13:22 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [git pull 09/14] Uinput: add UI_SET_SWBIT ioctl
-Cc: Linus Torvalds <torvalds@osdl.org>, Vojtech Pavlik <vojtech@suse.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1132787202.26560.343.camel@gaston>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051120063611.269343000.dtor_core@ameritech.net>
-	 <20051120064420.389911000.dtor_core@ameritech.net>
-	 <1132786436.26560.339.camel@gaston>
-	 <1132787202.26560.343.camel@gaston>
+	Wed, 23 Nov 2005 18:20:14 -0500
+Received: from fmr24.intel.com ([143.183.121.16]:41153 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932356AbVKWXUM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 18:20:12 -0500
+Subject: Re: [PATCH]: Free pages from local pcp lists under tight memory
+	conditions
+From: Rohit Seth <rohit.seth@intel.com>
+To: Andrew Morton <akpm@osdl.org>, Mel Gorman <mel@csn.ul.ie>
+Cc: torvalds@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       Christoph Lameter <christoph@lameter.com>
+In-Reply-To: <Pine.LNX.4.58.0511231754020.7045@skynet>
+References: <20051122161000.A22430@unix-os.sc.intel.com>
+	 <20051122213612.4adef5d0.akpm@osdl.org>
+	 <1132768482.25086.16.camel@akash.sc.intel.com>
+	 <Pine.LNX.4.58.0511231754020.7045@skynet>
+Content-Type: text/plain
+Organization: Intel 
+Date: Wed, 23 Nov 2005 15:26:22 -0800
+Message-Id: <1132788382.25086.109.camel@akash.sc.intel.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 Nov 2005 23:19:24.0406 (UTC) FILETIME=[577C9960:01C5F084]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/23/05, Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> On Thu, 2005-11-24 at 09:54 +1100, Benjamin Herrenschmidt wrote:
-> > On Sun, 2005-11-20 at 01:36 -0500, Dmitry Torokhov wrote:
-> > > plain text document attachment (uinput-add-sw-ioctl.patch)
-> > > Input: uinput - add UI_SET_SWBIT ioctl
+
+On Wed, 23 Nov 2005, Rohit Seth wrote:
+> 
+> > On Tue, 2005-11-22 at 21:36 -0800, Andrew Morton wrote:
+
+> > > We need to verify that this patch actually does something useful.
 > > >
-> > > Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> > >
+> > I'm working on this.  Will let you know later today if I can come with
+> > some workload easily hitting this additional logic.
 > >
-> > All these new ioctl's and no compat layer for 32 bits apps on 64 bits
-> > kernels ...
-> >
-> > I'll send a patch later today for the current ones, but please, do it
-> > from day #1 next time :)
->
-> Ok, forget my promise, I won't do a compat layer for it today. Way too
-> much crap in there, read's of structs made of other structs & unions
-> etc... all of this would need compat versions etc... no time for that.
->
-> Couldn't you have designed that properly in the first place ?
->
+> 
 
-I couldn't event design it improperly ;)
+I'm able to trigger the reduce_cpu_pcp (I'll change its name in next
+update patch) logic after direct reclaim using a small test case hogging
+memory and a bash loop spawning another process 1 at a time using very
+little memory.
 
---
-Dmitry
+I added a single printk after the direct reclaim where we reduce the per
+cpu pagelist (in my patch) just to get the order and how many iterations
+do we need to service the request.  order is always 1 (coming from
+alloc_thread_info for 8K stack size).
+
+This is on i386 with 8K stack size.
+
+if (order > 0)  {
+       int i = 0;
+       while (reduce_cpu_pcp()) {
+            i++;
+            page = get_page_from_freelist(gfp_mask, order, zonelist,
+alloc_flags);
+            if (page) {
+                printk("Got page %d order iteration %d", order, i);
+                goto got_pg;
+            }
+       }
+}
+
+And got about 30 of those in couple of hours:
+
+[17179885.360000] Got page 1 order iteration 1
+
+
+

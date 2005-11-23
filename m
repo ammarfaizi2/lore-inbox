@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbVKWMxZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbVKWMzE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbVKWMxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 07:53:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750759AbVKWMxY
+	id S1750759AbVKWMzE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 07:55:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750762AbVKWMzD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 07:53:24 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:5329 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750754AbVKWMxY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 07:53:24 -0500
-Date: Wed, 23 Nov 2005 18:20:45 +0530
+	Wed, 23 Nov 2005 07:55:03 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:18355 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750759AbVKWMzB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 07:55:01 -0500
+Date: Wed, 23 Nov 2005 18:22:13 +0530
 From: Maneesh Soni <maneesh@in.ibm.com>
 To: Ingo Molnar <mingo@elte.hu>
 Cc: Greg KH <greg@kroah.com>, Steven Rostedt <rostedt@goodmis.org>,
        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: What protection does sysfs_readdir have with SMP/Preemption?
-Message-ID: <20051123125045.GC22714@in.ibm.com>
+Subject: [OOPS] sysfs_hash_and_remove (was Re: What protection ....)
+Message-ID: <20051123125212.GD22714@in.ibm.com>
 Reply-To: maneesh@in.ibm.com
 References: <1132695202.13395.15.camel@localhost.localdomain> <20051122213947.GB8575@kroah.com> <20051123045049.GA22714@in.ibm.com> <20051123081845.GA32021@elte.hu>
 Mime-Version: 1.0
@@ -28,41 +28,35 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Wed, Nov 23, 2005 at 09:18:45AM +0100, Ingo Molnar wrote:
 > 
-> * Maneesh Soni <maneesh@in.ibm.com> wrote:
-> 
-> > But the bad pointer reference seen in sysfs_readdir() has to be 
-> > debugged. Assumption here is that if there is a dentry attached to 
-> > s_dirent, there has to be a inode associated becuase negative dentries 
-> > are not created in sysfs. Is it possible to get some more information 
-> > about the recreation scenario. Could you enable DEBUG printks for 
-> > lib/kobject.c and drivers/base/class.c to see the events happening.
-> 
+[..]
 > on a related note - i've been carrying the patch below in -rt for 2 
 > months (i.e. Steven's kernel has it too), as a workaround against the 
 > crash described below.
-
-[ replied in the separate thread ]
-
-> so it appears that the -rt kernel is triggering some genuine sysfs race.  
-> [note that it only happens on an SMP kernel, booting an UP kernel or 
-> with maxcpus=1 makes the bug go away.] I have done full kobject 
-> debugging but no conclusive results. Also, that particular crash happens 
-> earliest with PAGEALLOC enabled. [i have packed up the email discussion 
-> related to that crash, and i'm sending it to Maneesh separately.  
-> Maneesh, any ideas or suggestions?]
- 
-Still waiting for that mail to show up. Looks like this discussion is not
-on lkml.
-
-The kdobject or driver core debugging messages can possibly narrow the problem
-down to some particular sysfs user like some driver or module and throw some
-light on how the sysfs calls are being made.
-
-> note that Steven has a dual-core Athlon64 X2 system. Steven, do you get 
-> the crash even with maxcpus=1?
 > 
-> 	Ingo
+[..]
+
+> i'm occasionally getting the crash below on a PREEMPT_RT kernel. Might 
+> be a PREEMPT_RT bug, or might be some sysfs race only visible under 
+> PREEMPT_RT. Any ideas? The crash is at:
 > 
+> (gdb) list *0xc01a2095
+> 0xc01a2095 is in sysfs_hash_and_remove (fs/sysfs/inode.c:229).
+> 224     }
+> 225
+> 226     void sysfs_hash_and_remove(struct dentry * dir, const char * name)
+> 227     {
+> 228             struct sysfs_dirent * sd;
+> 229             struct sysfs_dirent * parent_sd = dir->d_fsdata;
+> 230
+> 231             if (dir->d_inode == NULL)
+> 232                     /* no inode means this hasn't been made visible yet */
+> 233                     return;
+> (gdb)
+> 
+Looks like here it is crashing due to bogus dentry pointer in the kobject 
+kobj->dentry. Could be some stale pointer? 
+
+Just got the mbox.. will go thru it more closely..
 
 -- 
 Maneesh Soni

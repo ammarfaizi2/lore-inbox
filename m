@@ -1,119 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030375AbVKWKL7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030385AbVKWKMi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030375AbVKWKL7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 05:11:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030384AbVKWKL7
+	id S1030385AbVKWKMi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 05:12:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030384AbVKWKMh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 05:11:59 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:23757
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1030375AbVKWKL6
+	Wed, 23 Nov 2005 05:12:37 -0500
+Received: from canardo.mork.no ([148.122.252.1]:9606 "EHLO canardo.mork.no")
+	by vger.kernel.org with ESMTP id S1030385AbVKWKMg convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 05:11:58 -0500
-Subject: [PATCH -mm2] ktimers rounding fix
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: linutronix
-Date: Wed, 23 Nov 2005 11:17:04 +0100
-Message-Id: <1132741024.32542.121.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Nov 2005 05:12:36 -0500
+From: =?iso-8859-1?Q?Bj=F8rn_Mork?= <bmork@dod.no>
+To: Pavel Machek <pavel@suse.cz>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org,
+       Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: Resume from swsusp stopped working with 2.6.14 and 2.6.15-rc1
+Organization: DoD
+References: <87zmoa0yv5.fsf@obelix.mork.no>
+	<200511220026.55589.dtor_core@ameritech.net>
+	<20051122184739.GB1748@elf.ucw.cz> <200511222315.31033.rjw@sisk.pl>
+	<20051122225120.GI1748@elf.ucw.cz>
+Date: Wed, 23 Nov 2005 11:09:15 +0100
+In-Reply-To: <20051122225120.GI1748@elf.ucw.cz> (Pavel Machek's message of
+	"Tue, 22 Nov 2005 23:51:20 +0100")
+Message-ID: <87hda3d6b8.fsf@obelix.mork.no>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The rounding for the 64bit scalar representation was taking only
-the lower 32bit into account, which is wrong because 2^32 is not a
-multiple of 10. The patch implements seperate ktime_modulo 
-macros / functions for the hybrid and the scalar representation of
-ktime_t.
+Pavel Machek <pavel@suse.cz> writes:
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+>> > Well, I do not think this problem will surface again. It is first
+>> > failure in pretty long time. If it happens again, I'll take your
+>> > patch.
+>> 
+>> If so, could you please make it printk() a message after the timeout has
+>> passed?  This way the user will know what's going on at least.
+>
+> We do have messages there, they even tell you name of process that was
+> not stopped. That's enough to debug failure quickly.
 
-Index: linux-2.6.15-rc1-mm2/include/linux/ktime.h
-===================================================================
---- linux-2.6.15-rc1-mm2.orig/include/linux/ktime.h
-+++ linux-2.6.15-rc1-mm2/include/linux/ktime.h
-@@ -133,6 +133,14 @@ typedef s64 ktime_t;
- /* Convert ktime_t to nanoseconds - NOP in the scalar storage format: */
- #define ktime_to_ns(kt)			(kt)
- 
-+#if (BITS_PER_LONG == 64)
-+/*
-+ * Calc ktime_t modulo div.
-+ * div is less than NSEC_PER_SEC and (NSEC_PER_SEC % div) = 0 !
-+ */
-+#define ktime_modulo(kt, div)		(unsigned long)(kt % div)
-+#endif
-+
- #else
- 
- /*
-@@ -341,6 +349,12 @@ static inline u64 ktime_to_ns(ktime_t kt
- 	return (u64) kt.tv.sec * NSEC_PER_SEC + kt.tv.nsec;
- }
- 
-+/*
-+ * Calc ktime_t modulo div.
-+ * div is less than NSEC_PER_SEC and (NSEC_PER_SEC % div) = 0 !
-+ */
-+#define ktime_modulo(kt, div)		((unsigned long)kt.tv.nsec % div)
-+
- #endif
- 
- /*
-Index: linux-2.6.15-rc1-mm2/kernel/ktimers.c
-===================================================================
---- linux-2.6.15-rc1-mm2.orig/kernel/ktimers.c
-+++ linux-2.6.15-rc1-mm2/kernel/ktimers.c
-@@ -243,8 +243,9 @@ lock_ktimer_base(struct ktimer *timer, u
-  * Functions for the union type storage format of ktime_t which are
-  * too large for inlining:
-  */
--#if (BITS_PER_LONG < 64) && !defined(CONFIG_KTIME_SCALAR)
-+#if (BITS_PER_LONG < 64)
- 
-+#ifndef CONFIG_KTIME_SCALAR
- /**
-  * ktime_add_ns - Add a scalar nanoseconds value to a ktime_t variable
-  *
-@@ -267,6 +268,25 @@ ktime_t ktime_add_ns(ktime_t kt, u64 nse
- 
- 	return ktime_add(kt, tmp);
- }
-+
-+#else
-+
-+/**
-+ * ktime_modulo - Calc ktime_t modulo div
-+ *
-+ * @kt:		dividend
-+ * @div:	divisor
-+ *
-+ * Return ktime_t modulo div.
-+ *
-+ * div is less than NSEC_PER_SEC and (NSEC_PER_SEC % div) = 0 !
-+ */
-+static unsigned long ktime_modulo(ktime_t kt, unsigned long div)
-+{
-+	return do_div(kt, div);
-+}
-+
-+#endif
- #endif
- 
- /*
-@@ -394,8 +414,7 @@ static int enqueue_ktimer(struct ktimer 
- 	if (mode & KTIMER_ROUND) {
- 		unsigned long rem;
- 
--		rem = ((unsigned long)ktime_get_low(timer->expires)) %
--			base->resolution;
-+		rem = ktime_modulo(timer->expires, base->resolution);
- 		if (rem)
- 			timer->expires = ktime_add_ns(timer->expires,
- 						      base->resolution - rem);
+I don't think so.  The example said
+
+ "Strange, kseriod not stopped"
+
+This names a process that admittedly took a long time to stop, but not
+the real *cause* of the failure.  There was nothing wrong with kseriod.
+
+FWIW, debugging this was way out of my league.  I might have had a
+better chance if it mentioned a short, fixed timeout.  I also noticed
+that it wasn't very obvious to you either at first.  The first thought
+was a failing serio driver, although that admittedly might be because
+I mislead you in my attempt to pinpoint the failure.
+
+But my first post in this thread *did* include the printk() you
+mention above, so it should have been possible to debug it quickly...
 
 
+Bjørn

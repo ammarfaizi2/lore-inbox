@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030406AbVKWLoc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbVKWLxJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030406AbVKWLoc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 06:44:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030407AbVKWLoc
+	id S1750735AbVKWLxJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 06:53:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbVKWLxJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 06:44:32 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:36025
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1030406AbVKWLoc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 06:44:32 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Neil Brown <neilb@suse.de>
-Subject: Re: pivot_root broken in 2.6.15-rc1-mm2
-Date: Wed, 23 Nov 2005 05:43:24 -0600
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, Al Viro <viro@ftp.linux.org.uk>
-References: <17283.52960.913712.454816@cse.unsw.edu.au>
-In-Reply-To: <17283.52960.913712.454816@cse.unsw.edu.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Nov 2005 06:53:09 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11277 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750735AbVKWLxI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 06:53:08 -0500
+Date: Wed, 23 Nov 2005 11:52:59 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Kumar Gala <galak@kernel.crashing.org>
+Cc: Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: overlapping resources for platform devices?
+Message-ID: <20051123115259.GA9560@flint.arm.linux.org.uk>
+Mail-Followup-To: Kumar Gala <galak@kernel.crashing.org>,
+	Greg KH <greg@kroah.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0511151727170.32393-100000@gate.crashing.org> <20051116064123.GA31824@kroah.com> <18C975E2-BA90-4595-8C50-63E5CFB9C0A1@kernel.crashing.org> <20051117154925.GA26032@flint.arm.linux.org.uk> <322E3172-BDF9-40BC-A5EC-444C8C33C450@kernel.crashing.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511230543.24353.rob@landley.net>
+In-Reply-To: <322E3172-BDF9-40BC-A5EC-444C8C33C450@kernel.crashing.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 22 November 2005 20:07, Neil Brown wrote:
-> Pivot_root seems to be broken in 2.6.15-rc1-mm2.
->
-> I havea initramfs filesystem, mount a ext3 filesystem (which has /mnt)
-> at '/root' and
->
->   cd /root
->   pivot . mnt
->
-> and it says -EINVAL.
+On Wed, Nov 23, 2005 at 12:57:40AM -0600, Kumar Gala wrote:
+> Any update?
 
-You can't pivot_root initramfs because initramfs is rootfs.
+It should be okay, but I'll step back from saying "safe" because
+I don't particularly like the insert_resource() concept.
 
-I wrote Documentation/filesystems/ramfs-rootfs-initramfs.txt just for this 
-occasion. :)
-
-Rob
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

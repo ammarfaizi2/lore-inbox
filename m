@@ -1,71 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbVKWPzy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbVKWP4Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750760AbVKWPzy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 10:55:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbVKWPzy
+	id S1751145AbVKWP4Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 10:56:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbVKWP4Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 10:55:54 -0500
-Received: from moraine.clusterfs.com ([66.96.26.190]:35554 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S1750760AbVKWPzx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 10:55:53 -0500
-From: Nikita Danilov <nikita@clusterfs.com>
+	Wed, 23 Nov 2005 10:56:24 -0500
+Received: from mailgate.tebibyte.org ([83.104.187.130]:23556 "EHLO
+	doc.tebibyte.org") by vger.kernel.org with ESMTP id S1751145AbVKWP4X
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 10:56:23 -0500
+Message-ID: <43849110.2070806@tebibyte.org>
+Date: Wed, 23 Nov 2005 15:56:00 +0000
+From: Chris Ross <lak1646@tebibyte.org>
+Organization: At home (Guildford, UK)
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: pt-br, pt
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andre Hedrick <andre@linux-ide.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Greg Ungerer <gerg@snapgear.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-arm-kernel@lists.arm.linux.org.uk,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: [PATCH] 2.4.32 Don't panic on IDE DMA errors
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17284.37107.573883.328659@gargle.gargle.HOWL>
-Date: Wed, 23 Nov 2005 18:55:31 +0300
-To: moreau francis <francis_moreau2000@yahoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Use enum to declare errno values
-Newsgroups: gmane.linux.kernel
-In-Reply-To: <20051123154423.32867.qmail@web25802.mail.ukl.yahoo.com>
-References: <1132758910.7268.32.camel@localhost.localdomain>
-	<20051123154423.32867.qmail@web25802.mail.ukl.yahoo.com>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-moreau francis writes:
+Kernel 2.4.32 and earlier can panic when trying to read a corrupted 
+sector from an IDE disk.
 
-[...]
+The function ide_dma_timeout_retry can end a request early by calling 
+idedisk_error, but then goes on to use the request anyway causing a 
+kernel panic due to a null pointer exception. This patch fixes that.
 
- > 
- > I guess we won't use enumeration because it needs to many changes...Each
- > function that returns a errno value should have their prototype changed like
- > this:
- > 
- >     int foo(void)
- >     {
- >             int retval;
- >             [...]
- >             return retval;
- >     }
- > 
- > should be changed into
- > 
- >     enum errnoval foo(void)
- >     {
- >             enum errnoval retval;
- >             [...]
- >             return retval;
- >     }
+Regards,
+Chris R.
 
-No it shouldn't. Following is a perfectly legal thing to do in C:
 
-enum side {
-        LEFT,
-        RIGHT
-};
+diff -urN -X dontdiff linux-2.4.32/drivers/ide/ide-io.c 
+patched-linux-2.4.32/drivers/ide/ide-io.c
+--- linux-2.4.32/drivers/ide/ide-io.c	2003-11-28 18:26:20.000000000 +0000
++++ patched-linux-2.4.32/drivers/ide/ide-io.c	2005-11-23 
+12:33:37.000000000 +0000
+@@ -899,11 +899,13 @@
+  	rq = HWGROUP(drive)->rq;
+  	HWGROUP(drive)->rq = NULL;
 
-int foo(int x)
-{
-        if (x & 0x1)
-                return LEFT;
-        else
-                return RIGHT;
-}
+-	rq->errors = 0;
+-	rq->sector = rq->bh->b_rsector;
+-	rq->current_nr_sectors = rq->bh->b_size >> 9;
+-	rq->hard_cur_sectors = rq->current_nr_sectors;
+-	rq->buffer = rq->bh->b_data;
++	if (rq) {
++		rq->errors = 0;
++		rq->sector = rq->bh->b_rsector;
++		rq->current_nr_sectors = rq->bh->b_size >> 9;
++		rq->hard_cur_sectors = rq->current_nr_sectors;
++		rq->buffer = rq->bh->b_data;
++	}
 
-This is not C++ fortunately.
-
-Nikita.
+  	return ret;
+  }

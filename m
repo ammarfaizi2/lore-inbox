@@ -1,59 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750965AbVKWPMR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750963AbVKWPMw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750965AbVKWPMR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 10:12:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750963AbVKWPMR
+	id S1750963AbVKWPMw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 10:12:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750966AbVKWPMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 10:12:17 -0500
-Received: from darwin.snarc.org ([81.56.210.228]:17133 "EHLO darwin.snarc.org")
-	by vger.kernel.org with ESMTP id S1750945AbVKWPMQ (ORCPT
+	Wed, 23 Nov 2005 10:12:51 -0500
+Received: from motgate8.mot.com ([129.188.136.8]:25340 "EHLO motgate8.mot.com")
+	by vger.kernel.org with ESMTP id S1750947AbVKWPMu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 10:12:16 -0500
-Date: Wed, 23 Nov 2005 16:12:14 +0100
-From: Vincent Hanquez <vincent.hanquez@cl.cam.ac.uk>
-To: Gerd Knorr <kraxel@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
-       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-Message-ID: <20051123151214.GA4230@snarc.org>
-References: <Pine.LNX.4.64.0511111218110.4627@g5.osdl.org> <20051113074241.GA29796@redhat.com> <Pine.LNX.4.64.0511131118020.3263@g5.osdl.org> <Pine.LNX.4.64.0511131210570.3263@g5.osdl.org> <4378A7F3.9070704@suse.de> <Pine.LNX.4.64.0511141118000.3263@g5.osdl.org> <4379ECC1.20005@suse.de> <437A0649.7010702@suse.de> <437B5A83.8090808@suse.de> <438359D7.7090308@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <438359D7.7090308@suse.de>
-X-Warning: Email may contain unsmilyfied humor and/or satire.
-User-Agent: Mutt/1.5.9i
+	Wed, 23 Nov 2005 10:12:50 -0500
+Message-ID: <EFB813091B18D511BD3600508B644F82168262F0@tx14exm06.ftw.mot.com>
+From: Hiatt Gary-E3486C <E3486C@motorola.com>
+To: linux-kernel@vger.kernel.org
+Subject: Scratch install of Red Hat Linux 7.3 on a Dell Poweredge 1850
+Date: Wed, 23 Nov 2005 09:12:44 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 22, 2005 at 06:48:07PM +0100, Gerd Knorr wrote:
-> +	smp = kmalloc(sizeof(*smp), GFP_KERNEL);
-> +	if (NULL == smp)
-> +		return; /* we'll run the (safe but slow) SMP code then ... */
-> +
-> +	memset(smp,0,sizeof(*smp));
+I need some help with finding out what I might be over looking trying to
+load Red Hat Linux 7.3 on a Dell Poweredge 1850. It has a 2.80 GHz
+Processor, a 300GB Seagate Cheetah HD, and 8192MB of ECC DDR2 memory. Since
+there is no current Operating System loaded on it I allow the Linux software
+to reformat the Hard Drive. After loading disks one and 2 if I chose the
+Graphical login option the load will freeze after initializing the USB
+ports. If I select the text mode I boot to a Grub prompt and if I give the
+command to boot it says that I do not have a kernel loaded.
 
-what about using kzalloc ?
+I do not have a lot of experience with Linux so I am most likely over
+looking the obvious. If more information on the options selected for the
+load is needed or if better details are needed please ask and I will get it
+to you.
 
-> +	if (ALT_UP == smp_alt_state)
-> +		goto out;
-
-any chance to write it smp_alt_state == ALT_UP ?
-
-IMHO, this way of writting equal condition is backward (like giving
-answer before asking the question). I do know of the (pseudo-)benefit
-to write it this way, but that's not worth it.
-
-Plus, nowadays, gcc warns you about simple equal in if.
-
-Cheers,
--- 
-Vincent Hanquez
+Thank You
+Gary Hiatt

@@ -1,81 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750752AbVKWMs0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbVKWMw0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750752AbVKWMs0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 07:48:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbVKWMs0
+	id S1750747AbVKWMw0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 07:52:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbVKWMwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 07:48:26 -0500
-Received: from headoffice-fe1.getonit.net.au ([202.47.114.19]:51070 "EHLO
-	tsvexchange.getonit.net.au") by vger.kernel.org with ESMTP
-	id S1750752AbVKWMsZ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 07:48:25 -0500
-Subject: Kernel oops v2.4.31 in e1000 network card driver.
+	Wed, 23 Nov 2005 07:52:25 -0500
+Received: from mailgate.tebibyte.org ([83.104.187.130]:21764 "EHLO
+	doc.tebibyte.org") by vger.kernel.org with ESMTP id S1750747AbVKWMwZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 07:52:25 -0500
+Message-ID: <438465CC.6070904@tebibyte.org>
+Date: Wed, 23 Nov 2005 12:51:24 +0000
+From: Chris Ross <lak1646@tebibyte.org>
+Organization: At home (Guildford, UK)
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: pt-br, pt
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Date: Wed, 23 Nov 2005 22:48:07 +1000
-Content-class: urn:content-classes:message
-Message-ID: <C67FBCB411B4024382B11B96D68E49E4079568@server.local.GetOffice>
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Kernel oops v2.4.31 in e1000 network card driver.
-Thread-Index: AcXwLCctHQNGj04wRESICHjFnwchmg==
-From: "Tim Warnock" <timoid@getonit.net.au>
-To: <linux-kernel@vger.kernel.org>
+To: Chris Ross <lak1646@tebibyte.org>
+Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>,
+       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
+       Greg Ungerer <gerg@snapgear.com>
+Subject: Re: Kernel panic reading bad disk sector
+References: <4381DA23.10201@tebibyte.org> <4382B815.5000701@snapgear.com>	<43836758.6050001@tebibyte.org> <4383C205.7020608@snapgear.com>	<43843594.9050009@tebibyte.org>	<20051123095640.GA5022@flint.arm.linux.org.uk> <438443E8.5040602@tebibyte.org>
+In-Reply-To: <438443E8.5040602@tebibyte.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Any assistance to what this means?
 
-Nov 23 21:09:40 garnet kernel: NETDEV WATCHDOG: eth2: transmit timed out
-Nov 23 21:09:40 garnet kernel: Unable to handle kernel paging request at
-virtual address 0003066e
-Nov 23 21:09:40 garnet kernel:  printing eip:
-Nov 23 21:09:40 garnet kernel: c025feb2
-Nov 23 21:09:40 garnet kernel: *pde = 00000000
-Nov 23 21:09:40 garnet kernel: Oops: 0000
-Nov 23 21:09:40 garnet kernel: CPU:    0
-Nov 23 21:09:40 garnet kernel: EIP:    0010:[skb_drop_fraglist+34/80]
-Not tainted
-Nov 23 21:09:40 garnet kernel: EFLAGS: 00010206
-Nov 23 21:09:40 garnet kernel: eax: 00030600   ebx: 000305fa   ecx:
-e905a880   edx: 000305fa
-Nov 23 21:09:40 garnet kernel: esi: dd6b4680   edi: dd6b46e0   ebp:
-00000bb8   esp: f7edfefc
-Nov 23 21:09:40 garnet kernel: ds: 0018   es: 0018   ss: 0018
-Nov 23 21:09:40 garnet kernel: Process keventd (pid: 2,
-stackpage=f7edf000)
-Nov 23 21:09:40 garnet kernel: Stack: c1c15900 f8a76bb8 c025ff79
-dd6b4680 f8a76bb8 dd6b4680 c025ffc7 dd6b4680
-Nov 23 21:09:40 garnet kernel:        d8515180 f8a76bb8 f7e4ca88
-c026012e dd6b4680 c01e3cd8 f8a76000 c01e3e22
-Nov 23 21:09:40 garnet kernel:        dd6b4680 00000096 f7e4c980
-f7e4c980 f7e4c800 f7ede000 c01e2eac f7e4c980
-Nov 23 21:09:40 garnet kernel: Call Trace:    [skb_release_data+105/160]
-[kfree_skbmem+23/128] [__kfree_skb+254/352]
-[e1000_clean_tx_ring+472/592] [e1000_clean_rx_ring+82/30
-4]
-Nov 23 21:09:40 garnet kernel:   [e1000_down+204/304]
-[e1000_tx_timeout_task+22/48] [__run_task_queue+106/128]
-[context_thread+478/496] [context_thread+0/496] [_stext+0/96]
-Nov 23 21:09:40 garnet kernel:   [arch_kernel_thread+46/64]
-[context_thread+0/496]
-Nov 23 21:09:40 garnet kernel:
-Nov 23 21:09:40 garnet kernel: Code: 8b 42 74 8b 1b 48 75 15 f0 83 44 24
-00 00 89 14 24 e8 68 01
+Chris Ross escreveu:
+> Russell King - ARM Linux escreveu:
+>> On Wed, Nov 23, 2005 at 09:25:40AM +0000, Chris Ross wrote:
+>>> Greg Ungerer escreveu:
+>>>> Chris Ross wrote:
+>>>>
+>>>>> According System.map it is in the function ide_dma_timeout_retry.
+>>>>
+>>>> Ok, that is good information. I would try and figure out which
+>>>> line of code in there is dereferencing a NULL pointer.
+>>>
+>>> It would seem to be this line
+>>>
+>>>     rq->errors = 0;
+> 
+> because rq is set to NULL by earlier the line
+> 
+>     ret = DRIVER(drive)->error(drive, "dma timeout retry",
+>                 hwif->INB(IDE_STATUS_REG));
 
-Kernel vanilla v2.4.31 debian stable.
-Network cards are intel e1000's
+Which looks like the the correct thing to do. In idedisk_error once the 
+threshold for the maximum number of retries has been reached the request 
+is ended because it cannot be serviced
 
-Im not on the list so can I please be CC'd
+	if (rq->errors >= ERROR_MAX)
+		DRIVER(drive)->end_request(drive, 0);
 
-Thanks
-Tim Warnock
+in idedisk_end_request the request is explicitly set to NULL because it 
+is now ended, in the code block...
 
-ISP Technical Manager
-GetOnIt! Nationwide Internet.
-1300 88 00 97
-timoid (at) getonit.net.au
+	if (!end_that_request_first(rq, uptodate, drive->name)) {
+		add_blkdev_randomness(MAJOR(rq->rq_dev));
+		blkdev_dequeue_request(rq);
+		HWGROUP(drive)->rq = NULL;
+		end_that_request_last(rq);
+		ret = 0;
+	}
+
+Which means that ide_dma_timeout_retry should take account of the fact 
+that the request might no longer be valid before using it.
+
+In other words it should be...
+
+	/* Check whether the request ended early due to disk errors */
+	if( rq ) {
+		rq->errors = 0;
+		rq->sector = rq->bh->b_rsector;
+		rq->current_nr_sectors = rq->bh->b_size >> 9;
+		rq->hard_cur_sectors = rq->current_nr_sectors;
+		rq->buffer = rq->bh->b_data;
+	}
+
+
+If anyone has a better solution I would be glad to hear it. Failing that 
+I'll submit this in normal kernel patch format as soon as I've worked 
+out how...
+
+Regards,
+Chris R.

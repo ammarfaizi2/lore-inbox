@@ -1,91 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030377AbVKWJER@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030379AbVKWJJS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030377AbVKWJER (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 04:04:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030379AbVKWJER
+	id S1030379AbVKWJJS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 04:09:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030381AbVKWJJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 04:04:17 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:9224 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S1030377AbVKWJEO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 04:04:14 -0500
-Subject: Re: Linux 2.6.15-rc2
-From: Kasper Sandberg <lkml@metanurb.dk>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200511211852.36458.gene.heskett@verizon.net>
-References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org>
-	 <200511201858.32171.gene.heskett@verizon.net>
-	 <1132607845.15938.30.camel@localhost>
-	 <200511211852.36458.gene.heskett@verizon.net>
-Content-Type: text/plain
-Date: Wed, 23 Nov 2005 10:04:06 +0100
-Message-Id: <1132736646.10574.4.camel@localhost>
+	Wed, 23 Nov 2005 04:09:17 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:45579 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1030379AbVKWJJQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 04:09:16 -0500
+Date: Wed, 23 Nov 2005 09:09:06 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Kasper Sandberg <lkml@metanurb.dk>,
+       Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Christmas list for the kernel
+Message-ID: <20051123090905.GA2867@flint.arm.linux.org.uk>
+Mail-Followup-To: Jon Smirl <jonsmirl@gmail.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Kasper Sandberg <lkml@metanurb.dk>, Greg KH <greg@kroah.com>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com> <20051122204918.GA5299@kroah.com> <9e4733910511221313t4a1e3c67wc7b08160937eb5c5@mail.gmail.com> <1132694935.10574.2.camel@localhost> <9e4733910511221341u695f6765k985ecf0c54daba49@mail.gmail.com> <1132702614.20233.91.camel@localhost.localdomain> <9e4733910511221556n1fe390e5qcd778f39aa75695d@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9e4733910511221556n1fe390e5qcd778f39aa75695d@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-11-21 at 18:52 -0500, Gene Heskett wrote:
-> On Monday 21 November 2005 16:17, Kasper Sandberg wrote:
-> >On Sun, 2005-11-20 at 18:58 -0500, Gene Heskett wrote:
-> >> On Sunday 20 November 2005 17:36, Kasper Sandberg wrote:
-> >> >On Sun, 2005-11-20 at 00:18 -0500, Gene Heskett wrote:
-> >> >> On Saturday 19 November 2005 22:40, Linus Torvalds wrote:
-> >> >> >There it is (or will soon be - the tar-ball and patches are still
-> >> >> >uploading, and mirroring can obviously take some time after
-> >> >> > that).
-> >> >>
-> >> >> First breakage report, tvtime, blue screen no audio.  Trying
-> >> >> slightly different .config for next build.  My tuner (OR51132)
-> >> >> seems to be permanently selected in an xconfig screen.  Dunno if
-> >> >> thats good or bad ATM.
-> >> >
-> >> >if it needs to be loaded with a parameter you will need to build it
-> >> > as a module.. my saa7134 chip needs card=9.
-> >>
-> >> Its never needed an argument before.
-i do not know, but it was the only changeset in that file from a kernel
-where it worked, and to 2.6.15-rc1 where it did not work (video, i just
-got no images.)
-
-the v4l developers are working on it, i just thought this might help.
-
+On Tue, Nov 22, 2005 at 06:56:30PM -0500, Jon Smirl wrote:
+> On 11/22/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > On Maw, 2005-11-22 at 16:41 -0500, Jon Smirl wrote:
+> > > An example of this is that the serial driver is hard coded to report
+> > > four legacy serial ports when my system physically only has two. I
+> > > have to change a #define and recompile the kernel to change this.
 > >
-> >then you have a good card, mine is a cheap cheap cheap one which
-> >apparently doesent have the nessecary embedded info to do proper
-> >autodetection, so i gotta manually specify which card i have.
+> > It does an autodetect sequence to find the ports. If it reports ttyS0-S3
+> > your system probably has them, they may just not be wired to external
+> > ports and that is kinda tricky to autodetect
 > 
-> Its a pcHDTV-3000
-> 
-> >> >i am experiencing same problems with saa7134, no video, however i do
-> >> > get audio.
-> >>
-> >> I wasn't, total digital gibberish on screen.
-> >>
-> >> A full powerdown reboot to 2.6.14.2 fixed it.
-> >>
-> >> >this is a way to (incorrectly according to v4l devs) "fix" it:
-> >> >drivers/media/video/video-buf.c
-> >> >change line 1233 to this:
-> >> >        vma->vm_flags |= VM_DONTEXPAND;
-> 
-> And this will actually do what?  Elaborate please.
-> 
-> I think my problem is that somehow, the dvb stuff now has a dependency
-> on the nxt200x thing, whatever it is, as if I force a kernel build
-> without it, then I get depmod problems at the end of the build telling
-> me:
-> 
-> WARNING:/lib/modules/2.6.15-rc2/kernel/drivers/media/video/cx88/cx88-dvb
-> .ko needs unknown symbol nxt200x_attach.
-> 
-> This was never a requirement up thru 2.6.14.2, and I didn't try 15-rc1
-> as the -rc1's are usually a disaster of some kind, and this is also my
-> main box.  I don't need a filesystem muckup again.
-> 
-> So whatever did that seems in error to me, and should be backed out in
-> favor of some other method to bring in the nxt200x bearing cards.
-> 
+> The ports really aren't there. If we had a driver for the LPC chip it
+> would see that the chip only implemented two ports.  On modern
+> hardware a driver for LPC/super IO chips might be enough to do all of
+> the needed legacy detection.
 
+If the serial driver detects a port at a particular address, the
+hardware or something which behaves very much like a serial port
+is there.
+
+However, as far as I recall, you've never reported this as a problem.
+Care to put something in bugzilla or start a new thread?  Starting
+with the entire kernel messages with the DEBUG_AUTOCONF stuff enabled
+in the 8250 driver would probably be good.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

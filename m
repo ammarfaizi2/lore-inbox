@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbVKWPsy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbVKWPt0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751066AbVKWPsy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 10:48:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751071AbVKWPsy
+	id S1751091AbVKWPt0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 10:49:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751113AbVKWPt0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 10:48:54 -0500
-Received: from [195.110.122.101] ([195.110.122.101]:19104 "EHLO
-	cadalboia.ferrara.linux.it") by vger.kernel.org with ESMTP
-	id S1751066AbVKWPsx convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 10:48:53 -0500
-From: Fabio Coatti <cova@ferrara.linux.it>
-Organization: FerraraLUG
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: Dual opteron various segfaults with 2.6.14.2 and earlier kernels
-Date: Wed, 23 Nov 2005 16:49:43 +0100
-User-Agent: KMail/1.9
-Cc: LKML <linux-kernel@vger.kernel.org>
-References: <200511231537.49320.cova@ferrara.linux.it> <1132756861.2795.49.camel@laptopd505.fenrus.org>
-In-Reply-To: <1132756861.2795.49.camel@laptopd505.fenrus.org>
+	Wed, 23 Nov 2005 10:49:26 -0500
+Received: from mxsf03.cluster1.charter.net ([209.225.28.203]:21177 "EHLO
+	mxsf03.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S1751109AbVKWPtZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 10:49:25 -0500
+X-IronPort-AV: i="3.97,364,1125892800"; 
+   d="scan'208"; a="526970247:sNHT22724440"
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200511231649.44482.cova@ferrara.linux.it>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17284.36727.292359.580832@smtp.charter.net>
+Date: Wed, 23 Nov 2005 10:49:11 -0500
+From: "John Stoffel" <john@stoffel.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Greg KH <greg@kroah.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Christmas list for the kernel
+In-Reply-To: <9e4733910511230643j64922738p709fecd6c86b4a95@mail.gmail.com>
+References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com>
+	<20051122204918.GA5299@kroah.com>
+	<9e4733910511221313t4a1e3c67wc7b08160937eb5c5@mail.gmail.com>
+	<20051123121726.GA7328@ucw.cz>
+	<9e4733910511230643j64922738p709fecd6c86b4a95@mail.gmail.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alle 15:41, mercoledì 23 novembre 2005, Arjan van de Ven ha scritto:
-> On Wed, 2005-11-23 at 15:37 +0100, Fabio Coatti wrote:
-> > Hi all,
-> > I'm seeing several segfaults on a couple of HP DL585 Dual Opterons, 8Gb
-> > ram each.
->
-> are you using the gentoo buildstuff for this? eg libjail or whatever
-> it's called?
+>>>>> "Jon" == Jon Smirl <jonsmirl@gmail.com> writes:
 
- ldd /usr/bin/sed
-        libc.so.6 => /lib/libc.so.6 (0x00002aaaaabc1000)
-        /lib64/ld-linux-x86-64.so.2 (0x00002aaaaaaab000)
+Jon> My system has:
+Jon> 2 serial
+Jon> 1 parallel
+Jon> 1 floppy
+Jon> 1 gameport
+Jon> 1 joystick
+Jon> 2 PS/2
+Jon> 2 VGA
+Jon> 1 HPET
+Jon> 1 RTC
 
-The kernel is compiled in usual way, with vanilla sources, no distro patches.
+Can you post the dmesg output of your bootup?  I'm sure that's going
+to help the most for people to see what's going on here.  Also the
+output of 'lspic -vvv' will also be useful.  
 
+Don't expect me to be able to help much, I'm clueless at the low
+level.  *grin*
 
-
--- 
-Fabio "Cova" Coatti    http://members.ferrara.linux.it/cova     
-Ferrara Linux Users Group           http://ferrara.linux.it
-GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
-Old SysOps never die... they simply forget their password.
+John

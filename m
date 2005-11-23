@@ -1,66 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030296AbVKWBHR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030295AbVKWBJo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030296AbVKWBHR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 20:07:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030297AbVKWBHR
+	id S1030295AbVKWBJo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 20:09:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030297AbVKWBJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 20:07:17 -0500
-Received: from smtp012.mail.yahoo.com ([216.136.173.32]:14468 "HELO
-	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1030296AbVKWBHP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 20:07:15 -0500
+	Tue, 22 Nov 2005 20:09:44 -0500
+Received: from wproxy.gmail.com ([64.233.184.206]:35784 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030295AbVKWBJn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 20:09:43 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=FEDy7LqoMtVqQMrKJ96gf+EJJZ7ycT/rs7qyufJLYYK8U6iH/v7LHEcXXVamLn7MsS1GRfaVIlFhsOV9qWJQzlxewoLXTRehVl9lx78JU188S99xER8tsQO1Ih/DsAlDvUwCC9XyAwiAIkFdvGxdO0J5qEHvr8o+/Vtl86/E2eI=  ;
-Message-ID: <4383CF6C.4060001@yahoo.com.au>
-Date: Wed, 23 Nov 2005 13:09:48 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lhrkOT/en+csYA6Nk+vqAmrykqVoJ6WN9xjlxpVq+Hf8m9DV7TZ2hi+d2Fqb+Ulu61iSIUgnz4nncnMDE3QVKXlb+GXngAvqKxyOIL1VUZ/W9stVBPGyMP8yqS9MzD59yha/MraxGmEOcWQizYbNjR5aUFElhC0/aj68mpJ+0y8=
+Message-ID: <9e4733910511221709t546089d1id76357256079d8f9@mail.gmail.com>
+Date: Tue, 22 Nov 2005 20:09:42 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: Christmas list for the kernel
+Cc: s0348365@sms.ed.ac.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <20051122164353.4177c59a.akpm@osdl.org>
 MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [patch 6/12] mm: remove bad_range
-References: <20051121123906.14370.3039.sendpatchset@didi.local0.net>	 <20051121124126.14370.50844.sendpatchset@didi.local0.net> <1132662725.6696.45.camel@localhost>
-In-Reply-To: <1132662725.6696.45.camel@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com>
+	 <200511221839.24202.s0348365@sms.ed.ac.uk>
+	 <9e4733910511221110j47e8ddcs1c9936db1eb5f0b4@mail.gmail.com>
+	 <20051122164353.4177c59a.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
+On 11/22/05, Andrew Morton <akpm@osdl.org> wrote:
+> Jon Smirl <jonsmirl@gmail.com> wrote:
+> >
+> > On 11/22/05, Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+> > > On Tuesday 22 November 2005 18:31, Jon Smirl wrote:
+> > > > There have been recent comments about the pace of kernel development
+> > > > slowing.
+> > >
+> > > I doubt the diffstat from the last 6 kernel releases will tell this story.
+> >
+> > Andrew Morton said it: "He suggested this may indicate that the kernel
+> > is nearing completion. "Famous last words, but the actual patch volume
+> > _has_ to drop off one day," said Morton. "We have to finish this thing
+> > one day."
+> >
+> > http://news.zdnet.co.uk/software/linuxunix/0,39020390,39221942,00.htm
+> >
+>
+> I was wrong, as usual.  The trend at http://www.zip.com.au/~akpm/x.jpg is,
+> I think, being maintained.
 
-> 
-> I seem to also remember a case with this bad_range() check was useful
-> for zones that don't have their boundaries aligned on a MAX_ORDER
-> boundary.  Would this change break such a zone?  Do we care?
-> 
+I wonder what that would look like if you pull Adrian Bunk's changes
+out. He is generating thousands of lines of patches (they're good
+patches but they don't add features).
 
-Hmm, I guess that would be covered by the:
-
-         if (page_to_pfn(page) >= zone->zone_start_pfn + zone->spanned_pages)
-                 return 1;
-         if (page_to_pfn(page) < zone->zone_start_pfn)
-                 return 1;
-
-checks in bad_range. ISTR some "warning: zone not aligned, kernel
-*will* crash" message got printed in that case. I always thought
-that zones were supposed to be MAX_ORDER aligned, but I can see how
-that restriction might be relaxed with these checks in place.
-
-This commit introduced the change:
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/old-2.6-bkcvs.git;a=commitdiff;h=d60c9dbc4589766ef5fe88f082052ccd4ecaea59
-
-I think this basically says that architectures who care need to define
-CONFIG_HOLES_IN_ZONE and handle this in pfn_valid.
-
-Unless this is a very common requirement and such a solution would have
-too much performance cost? Anyone?
-
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+--
+Jon Smirl
+jonsmirl@gmail.com

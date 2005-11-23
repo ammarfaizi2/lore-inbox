@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030381AbVKWJLk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030380AbVKWJLa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030381AbVKWJLk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 04:11:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030382AbVKWJLk
+	id S1030380AbVKWJLa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 04:11:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030381AbVKWJLa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 04:11:40 -0500
-Received: from nproxy.gmail.com ([64.233.182.207]:18891 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030381AbVKWJLi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 04:11:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RXCsgBFRNJAmOPu0MEWkcaARJMogiUwfuoXjwMMeYli23jgiqpkcowvWt5najr+V2EcIw8s5dgOYmM81N+CdbyYXOWaZLeAdjL+XYh6pCJAzrpAsCHR6HKcFFGd2XJ8Fcjv5juc5InRQwPifQCli6XIrDLCdRU4DeMVdxXDdTr0=
-Message-ID: <58cb370e0511230105u430740a7ue0f945570972e1c5@mail.gmail.com>
-Date: Wed, 23 Nov 2005 10:05:18 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Tejun <htejun@gmail.com>
-Subject: Re: [PATCH linux-2.6-block:post-2.6.15 08/10] blk: update IDE to use new blk_ordered
-Cc: Jens Axboe <axboe@suse.de>, jgarzik@pobox.com,
-       James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
-In-Reply-To: <43842FC9.3050202@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051117153509.B89B4777@htj.dyndns.org>
-	 <58cb370e0511171211p60e7c248mda477015cf1bd7c5@mail.gmail.com>
-	 <437DEE35.9060901@gmail.com>
-	 <58cb370e0511180759u4cb50535gfd7b96100a0bd70f@mail.gmail.com>
-	 <20051122024401.GB10213@htj.dyndns.org>
-	 <58cb370e0511220036r6e61b509i3bc1f7ce90178b1d@mail.gmail.com>
-	 <20051123072332.GA6653@htj.dyndns.org>
-	 <58cb370e0511230040k6bc53862xac35979eaf1f0634@mail.gmail.com>
-	 <20051123084655.GV15804@suse.de> <43842FC9.3050202@gmail.com>
+	Wed, 23 Nov 2005 04:11:30 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:22494 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030380AbVKWJL3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 04:11:29 -0500
+Subject: Re: [NET]: Shut up warnings in net/core/flow.c
+From: Arjan van de Ven <arjan@infradead.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk,
+       torvalds@osdl.org, ak@muc.de
+In-Reply-To: <20051123.005530.17893365.davem@davemloft.net>
+References: <200511230159.jAN1xeMl003154@hera.kernel.org>
+	 <20051123002134.287ff226.akpm@osdl.org>
+	 <20051123.005530.17893365.davem@davemloft.net>
+Content-Type: text/plain
+Date: Wed, 23 Nov 2005 10:11:24 +0100
+Message-Id: <1132737084.2795.20.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/23/05, Tejun <htejun@gmail.com> wrote:
+On Wed, 2005-11-23 at 00:55 -0800, David S. Miller wrote:
+> From: Andrew Morton <akpm@osdl.org>
+> Date: Wed, 23 Nov 2005 00:21:34 -0800
+> 
+> > Nope, this will break !CONFIG_SMP builds.  Quite a few places in the
+> > kernel do not implement the ipi handler if !CONFIG_SMP.
+> 
+> Ho hum, nothing is ever easy eh? :-) I think your patch is fine for
+> now, but in the long term the !CONFIG_SMP ifdefs for those ipi
+> handlers should probably just get removed.  If GCC can't optimize
+> those things away, I'd be really surprised.
 
-<...>
+it can.. but only if we start using -ffunction-sections in the CFLAGS
+(or make all of these functions static I suppose and reenable
+-funit-at-a-time, which can be done for gcc 4.x only)
 
-> Hi, Bartlomiej.  Hi, Jens.
->
-> Currently, there are only two more things to do before getting this
-> thing into the -mm tree.
->
-> 1. Adjusting this patch (update-ide) after merging Bartlomiej's
-> del_gendisk() fix patch.
-
-This should be in the mainline today/tomorrow as it is obviously correct
-and I need to push another IDE update anyway (new HW support).
-
-> 2. Update ide-fua patch as discussed and get it reviewed by Bartlomiej.
->
-> Other than above two, I think we're ready.  I'll post update ide-fua
-> patch later today.
->
-> Thanks.
->
-> --
-> tejun

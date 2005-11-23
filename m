@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbVKWXcW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932601AbVKWXdW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751321AbVKWXcW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 18:32:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbVKWXcW
+	id S932601AbVKWXdW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 18:33:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbVKWXdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 18:32:22 -0500
-Received: from gate.crashing.org ([63.228.1.57]:29668 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751319AbVKWXcV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 18:32:21 -0500
-Subject: Re: [git pull 09/14] Uinput: add UI_SET_SWBIT ioctl
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: dtor_core@ameritech.net
-Cc: Linus Torvalds <torvalds@osdl.org>, Vojtech Pavlik <vojtech@suse.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <d120d5000511231512n686b8918v65b209863c93cc2a@mail.gmail.com>
-References: <20051120063611.269343000.dtor_core@ameritech.net>
-	 <20051120064420.389911000.dtor_core@ameritech.net>
-	 <1132786887.26560.341.camel@gaston>
-	 <d120d5000511231512n686b8918v65b209863c93cc2a@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 24 Nov 2005 10:28:33 +1100
-Message-Id: <1132788513.26560.348.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Wed, 23 Nov 2005 18:33:22 -0500
+Received: from fmr22.intel.com ([143.183.121.14]:41678 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1751317AbVKWXdU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 18:33:20 -0500
+Message-Id: <200511232333.jANNX9g23967@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Con Kolivas'" <con@kolivas.org>
+Cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: Kernel BUG at mm/rmap.c:491
+Date: Wed, 23 Nov 2005 15:33:09 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcXwhQTupApK1pNZQiKuiYrFOHIVswAABsYA
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+In-Reply-To: <cone.1132788250.534735.25446.501@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > to userland via read() ... cool, a structure that is not compatible
-> > between 32 and 64 bits passed around via a read call. that will be fun
-> > to fix.
-> >
+Con Kolivas wrote on Wednesday, November 23, 2005 3:24 PM
+> Chen, Kenneth W writes:
 > 
-> It would need the same treatment as evdev got. Entire uinput is not
-> 32/64 bit friendly (hostorically). However, it should be used by an
-> userspace "driver", not an ordinary program, so we probably shoudl
-> just require using native-sized binary with uinput.
+> > Has people seen this BUG_ON before?  On 2.6.15-rc2, x86-64.
+> > 
+> > Pid: 16500, comm: cc1 Tainted: G    B 2.6.15-rc2 #3
+> > 
+> > Pid: 16651, comm: sh Tainted: G    B 2.6.15-rc2 #3
+> 
+>                        ^^^^^^^^^^
+> 
+> Please try to reproduce it without proprietary binary modules linked in.
 
-Not realistic. Some distros still don't have 64 bits userland ...
 
-Ben.
+???, I'm not using any modules at all.
 
+[albat]$ /sbin/lsmod
+Module                  Size  Used by
+[albat]$ 
+
+
+Also, isn't it 'P' indicate proprietary module, not 'G'?
+line 159: kernel/panic.c:
+
+        snprintf(buf, sizeof(buf), "Tainted: %c%c%c%c%c%c",
+                tainted & TAINT_PROPRIETARY_MODULE ? 'P' : 'G',
+
+- Ken
 

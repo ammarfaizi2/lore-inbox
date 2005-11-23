@@ -1,84 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030284AbVKWAoJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030279AbVKWAno@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030284AbVKWAoJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 19:44:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030283AbVKWAoJ
+	id S1030279AbVKWAno (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 19:43:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030283AbVKWAnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 19:44:09 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:64018 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030285AbVKWAoH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 19:44:07 -0500
-Date: Wed, 23 Nov 2005 01:44:06 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: perex@suse.cz
-Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] sound/: possible cleanups
-Message-ID: <20051123004406.GF3963@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Tue, 22 Nov 2005 19:43:43 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:17363 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030279AbVKWAnn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 19:43:43 -0500
+Date: Tue, 22 Nov 2005 16:43:53 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: s0348365@sms.ed.ac.uk, linux-kernel@vger.kernel.org
+Subject: Re: Christmas list for the kernel
+Message-Id: <20051122164353.4177c59a.akpm@osdl.org>
+In-Reply-To: <9e4733910511221110j47e8ddcs1c9936db1eb5f0b4@mail.gmail.com>
+References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com>
+	<200511221839.24202.s0348365@sms.ed.ac.uk>
+	<9e4733910511221110j47e8ddcs1c9936db1eb5f0b4@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- core/init.c: make the needlessly global snd_generic_device_release()
-  static
-- pci/hda/hda_proc.c should #include "hda_local.h" for including the
-  prototype of it's global function snd_hda_codec_proc_new()
-- core/rawmidi.c: make the needlessly global and EXPORT_SYMBOL'ed
-  function snd_rawmidi_info() static
+Jon Smirl <jonsmirl@gmail.com> wrote:
+>
+> On 11/22/05, Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+> > On Tuesday 22 November 2005 18:31, Jon Smirl wrote:
+> > > There have been recent comments about the pace of kernel development
+> > > slowing.
+> >
+> > I doubt the diffstat from the last 6 kernel releases will tell this story.
+> 
+> Andrew Morton said it: "He suggested this may indicate that the kernel
+> is nearing completion. "Famous last words, but the actual patch volume
+> _has_ to drop off one day," said Morton. "We have to finish this thing
+> one day."
+> 
+> http://news.zdnet.co.uk/software/linuxunix/0,39020390,39221942,00.htm
+> 
 
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
- sound/core/init.c        |    2 +-
- sound/core/rawmidi.c     |    4 ++--
- sound/pci/hda/hda_proc.c |    1 +
- 3 files changed, 4 insertions(+), 3 deletions(-)
-
---- linux-2.6.15-rc1-mm2-full/sound/core/rawmidi.c.old	2005-11-22 22:37:15.000000000 +0100
-+++ linux-2.6.15-rc1-mm2-full/sound/core/rawmidi.c	2005-11-22 22:37:45.000000000 +0100
-@@ -528,7 +528,8 @@
- 	return err;
- }
- 
--int snd_rawmidi_info(snd_rawmidi_substream_t *substream, snd_rawmidi_info_t *info)
-+static int snd_rawmidi_info(snd_rawmidi_substream_t *substream,
-+			    snd_rawmidi_info_t *info)
- {
- 	snd_rawmidi_t *rmidi;
- 	
-@@ -1672,7 +1673,6 @@
- EXPORT_SYMBOL(snd_rawmidi_transmit);
- EXPORT_SYMBOL(snd_rawmidi_new);
- EXPORT_SYMBOL(snd_rawmidi_set_ops);
--EXPORT_SYMBOL(snd_rawmidi_info);
- EXPORT_SYMBOL(snd_rawmidi_info_select);
- EXPORT_SYMBOL(snd_rawmidi_kernel_open);
- EXPORT_SYMBOL(snd_rawmidi_kernel_release);
---- linux-2.6.15-rc1-mm2-full/sound/core/init.c.old	2005-11-22 22:38:41.000000000 +0100
-+++ linux-2.6.15-rc1-mm2-full/sound/core/init.c	2005-11-22 22:39:09.000000000 +0100
-@@ -694,7 +694,7 @@
- 	},
- };
- 
--void snd_generic_device_release(struct device *dev)
-+static void snd_generic_device_release(struct device *dev)
- {
- }
- 
---- linux-2.6.15-rc1-mm2-full/sound/pci/hda/hda_proc.c.old	2005-11-22 22:41:36.000000000 +0100
-+++ linux-2.6.15-rc1-mm2-full/sound/pci/hda/hda_proc.c	2005-11-22 22:41:48.000000000 +0100
-@@ -26,6 +26,7 @@
- #include <linux/pci.h>
- #include <sound/core.h>
- #include "hda_codec.h"
-+#include "hda_local.h"
- 
- static const char *get_wid_type_name(unsigned int wid_value)
- {
-
+I was wrong, as usual.  The trend at http://www.zip.com.au/~akpm/x.jpg is,
+I think, being maintained.

@@ -1,116 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030350AbVKWIdR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030356AbVKWIcW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030350AbVKWIdR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 03:33:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030361AbVKWIdR
+	id S1030356AbVKWIcW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 03:32:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030365AbVKWIcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 03:33:17 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:32162 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1030350AbVKWIdQ (ORCPT
+	Wed, 23 Nov 2005 03:32:22 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:60576 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030356AbVKWIcE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 03:33:16 -0500
-Date: Wed, 23 Nov 2005 08:33:04 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Rohit Seth <rohit.seth@intel.com>
-Cc: linux-mm@kvack.org, nickpiggin@yahoo.com.au, ak@suse.de,
-       linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net,
-       mingo@elte.hu
-Subject: RE: [PATCH 5/5] Light fragmentation avoidance without usemap:
- 005_drainpercpu
-In-Reply-To: <1132708940.12204.12.camel@akash.sc.intel.com>
-Message-ID: <Pine.LNX.4.58.0511230827100.17121@skynet>
-References: <01EF044AAEE12F4BAAD955CB75064943053DF65D@scsmsx401.amr.corp.intel.com>
-  <Pine.LNX.4.58.0511230009330.31913@skynet> <1132708940.12204.12.camel@akash.sc.intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 23 Nov 2005 03:32:04 -0500
+Date: Wed, 23 Nov 2005 09:32:03 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Darren Hart <dvhltc@us.ibm.com>
+Cc: "lkml, " <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.14-rt13 / minimum gcc  version
+Message-ID: <20051123083203.GA32386@elte.hu>
+References: <4383A790.1090208@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4383A790.1090208@us.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Nov 2005, Rohit Seth wrote:
 
-> On Wed, 2005-11-23 at 00:17 +0000, Mel Gorman wrote:
-> > On Tue, 22 Nov 2005, Seth, Rohit wrote:
-> >
-> > >
-> > >
-> > > >requested order is greater than 3.
-> > >
-> > > Why this order limit.  Most of the previous failures seen (because of my
-> > > earlier patches of bigger and more physical contiguous chunks for pcps)
-> > > were with order 1 allocation.
-> > >
-> >
-> > The order 3 is because of this block;
-> >
-> >         if (!(gfp_mask & __GFP_NORETRY)) {
-> >                 if ((order <= 3) || (gfp_mask & __GFP_REPEAT))
-> >                         do_retry = 1;
-> >                 if (gfp_mask & __GFP_NOFAIL)
-> >                         do_retry = 1;
-> >         }
-> >
-> > If it's less than 3, we are retrying anyway and it's something we are
->
-> You are retrying (for 0<order<=3) but without draining the pcps (in your
-> patch).
->
-> > > That code has issues with pre-emptible kernel.
-> > >
-> >
-> > ok... why? I thought that we could only be preempted when we were about to
-> > take a spinlock but I have an imperfect understanding of preempt and
-> > things change quickly. The path the drain_all_local_pages() enters
-> > disables the local IRQs before calling __drain_pages() and when
-> > smp_drain_local_pages()  is called, the local IRQs are disabled again
-> > before releasing pages. Where can we get preempted?
-> >
->
-> Basically the get_cpu(), put_cpu() needs to cover the whole scope of
-> smp_processor_id usage.  (When you enable CONFIG_DEBUG_PREEMPT the
-> kernel will barf if preempt is enabled while calling smp_processor_id).
->
-> If the interrupts are disabled all the way through then you wouldn't be
-> preempted though.  But get/put_cpu is the right mechanism to ensure
-> smp_processor_id and its derived value is used on same processor.
->
+* Darren Hart <dvhltc@us.ibm.com> wrote:
 
-That can be easily enough fixed.
+> rt13 makes use of the gcc extension:
+> 	int __builtin_types_compatible_p (type1, type2)
+> which from what I can tell was first introduced to gcc in version 3.1.1
+> 	http://gcc.gnu.org/onlinedocs/gcc-3.1.1/gcc/Other-Builtins.html
+> 
+> In any case, I am unable to compile rt13 with gcc-2.95.  I have tried 
+> various -std args as well, but the compiler dies on 
+> __builtin_types_compatible_p.
+> 
+> 1) Is it acceptable to require >= gcc-3.1.1 to compile a Linux kernel?
+> 
+> 2) Would a patch/work-around for gcc-2.95 compatibility be accepted if 
+> I provide one?  (assuming it is a sane implementation of course :-)
 
-> > > I will be shortly sending the patch to free pages from pcp when higher
-> > > order allocation is not able to get serviced from global list.
-> > >
-> >
-> > If that works, this part of the patch can be dropped. The intention is to
-> > "drain the per-cpu lists by some mechanism". I am not too particular about
-> > how it happens. Right now, the per-cpu caches make a massive difference on
-> > my 4-way machine at least on whether a large number of contiguous blocks
-> > can be allocated or not.
-> >
->
-> Please let me know if you see any issues with the patch that I sent out
-> a bit earlier.
->
+sure, i'll accept any sane patch. (quirky ones are OK too, as long as 
+the effects are localized into an include file or so.)
 
-I don't have access to my test environment for the rest of the week so I
-can't actually try them out.
+but the type comparison feature is really essential to PREEMPT_RT. So 
+unless gcc 2.95 has a comparable feature, i doubt it's doable.  
 
-However, reading through the patches, they appear to duplicate a
-significant amount of the existing drain_local_pages() functions and they
-only drain the pages on the currently running CPU. On a system with a
-number of CPUs, you will only be improving your chances slightly.
+background: PREEMPT_RT relies on being able to implement build-time, 
+"lock type dependent" function calls. I.e. 'down()' done on a semaphore 
+will be built with a different function call than down() done on a 
+compat semaphore. Or spin_lock() done on a raw spinlock leads to a 
+different function call than spin_lock() done on a 'normal' spinlock.  
+This solution implements a feature in C that is normally only found in 
+object-oriented languages. It is an essential trick, as it reduces the 
+size and impact of the -rt tree very significantly.
 
-I think you would get more of what you need with this patch if;
+A completely type-unsafe (i.e. void * APIs with some runtime checking) 
+solution is not acceptable - nor are separate per-type API namespaces.  
+(such as compat_down(), etc.)
 
-1. Removed the compile time dependency on CONFIG_PM||CONFIG_HOTPLUG
-2. Rechecked the usage of smp_processor_id() (although I don't think it's
-    wrong because it's only called with local IRQs disabled)
-3. Draining the CPUs after direct reclaim and the allocation still failing
-
-This patch does everything you need including the draining of remove
-per-cpus.
-
--- 
-Mel Gorman
-Part-time Phd Student                          Java Applications Developer
-University of Limerick                         IBM Dublin Software Lab
+	Ingo

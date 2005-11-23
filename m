@@ -1,108 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030508AbVKWXoI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030511AbVKWXmK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030508AbVKWXoI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 18:44:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030515AbVKWXnn
+	id S1030511AbVKWXmK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 18:42:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030513AbVKWXlK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 18:43:43 -0500
-Received: from nevyn.them.org ([66.93.172.17]:62118 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S1030516AbVKWXnG (ORCPT
+	Wed, 23 Nov 2005 18:41:10 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:14256 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030511AbVKWXks (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 18:43:06 -0500
-Date: Wed, 23 Nov 2005 18:42:56 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
-       Andi Kleen <ak@suse.de>, Gerd Knorr <kraxel@suse.de>,
-       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+	Wed, 23 Nov 2005 18:40:48 -0500
+Date: Wed, 23 Nov 2005 15:40:18 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: "H. Peter Anvin" <hpa@zytor.com>, Daniel Jacobowitz <dan@debian.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
+       Gerd Knorr <kraxel@suse.de>, Dave Jones <davej@redhat.com>,
+       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
+       Christopher Li <chrisl@vmware.com>, Ingo Molnar <mingo@elte.hu>
 Subject: Re: [patch] SMP alternatives
-Message-ID: <20051123234256.GA27337@nevyn.them.org>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	"H. Peter Anvin" <hpa@zytor.com>, Andi Kleen <ak@suse.de>,
-	Gerd Knorr <kraxel@suse.de>, Dave Jones <davej@redhat.com>,
-	Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Pratap Subrahmanyam <pratap@vmware.com>,
-	Christopher Li <chrisl@vmware.com>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	Ingo Molnar <mingo@elte.hu>
-References: <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051123214835.GA24044@nevyn.them.org> <Pine.LNX.4.64.0511231416490.13959@g5.osdl.org> <20051123222056.GA25078@nevyn.them.org> <Pine.LNX.4.64.0511231502250.13959@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0511231502250.13959@g5.osdl.org>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <m1br0bhrk1.fsf@ebiederm.dsl.xmission.com>
+Message-ID: <Pine.LNX.4.64.0511231534110.13959@g5.osdl.org>
+References: <1132764133.7268.51.camel@localhost.localdomain>
+ <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain>
+ <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com>
+ <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain>
+ <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051123214835.GA24044@nevyn.them.org>
+ <4384E4F7.9060806@zytor.com> <20051123220324.GA24517@nevyn.them.org>
+ <4384E880.4060305@zytor.com> <Pine.LNX.4.64.0511231419310.13959@g5.osdl.org>
+ <m1br0bhrk1.fsf@ebiederm.dsl.xmission.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 03:08:59PM -0800, Linus Torvalds wrote:
+
+
+On Wed, 23 Nov 2005, Eric W. Biederman wrote:
 > 
-> 
-> On Wed, 23 Nov 2005, Daniel Jacobowitz wrote:
-> > 
-> > Why should we use a silicon based solution for this, when I posit that
-> > there are simpler and equally effective userspace solutions?
-> 
-> Name them.
-> 
-> In user space, doing things like clever run-time linking things is 
-> actually horribly bad. It causes COW faults at startup, and/or makes the 
-> compiler have to do indirections unnecessarily.  Both of which actually 
-> make caches less effective, because now processes that really effectively 
-> do have exactly the same contents have them in different pages.
+> In fact for being explict we already have PROT_SEM on some architectures
+> to report if we are going to use atomic operations, in the mmap.  For
+> x86 we would probably need to introduce a PROT_NOSEM but it is sounds
+> fairly straight forward to implement.
 
-Those are the wrong ways of doing this in userspace.  There are right
-ways.  For instance, tag the binary at link time "single-threaded". 
-Use dynamic linking and the existing hwcap mechanism to select
-single-threaded libraries instead of the default ones.  Your
-single-threaded applications will no longer mmap the same copy of glibc
-as your multi-threaded applications; this does make caching mildly less
-effective but only if you have a single-threaded app and a
-multi-threaded one fighting for CPU time.
+PROT_SEM was a mistake, I feel. It's way too easy to get it wrong. You 
+have most architectures and environments that don't need it, and as a 
+result, applications simply won't have it in their sources.
 
-> The other alternative (which apparently glibc actually does use) is to 
-> dynamically branch over the lock prefixes, which actually works better: 
-> it's more work dynamically, but it's much cheaper from a startup 
-> standpoint and there's no memory duplication, so while it is the "stupid" 
-> approach, it's actually better than the clever one.
+I suspect that with MAP_SHARED + PROT_WRITE being pretty uncommon anyway, 
+we can probably find trivial patterns in the kernel. Like only one process 
+holding that file open - which is what you get with things that use mmap() 
+to write a new file (I think "ld" used to have a config option to write 
+files that way, for example).
 
-Glibc does not do this to the best of my knowledge.  It does select
-different code paths in various places based on the presence of
-multiple threads, but that's for cancellation, not for locking.
+And if we end up sometimes giving "lock" meaning even when it's not 
+needed, tough. The point of the simple hack is very much a "get 90% of the 
+advantage for very little effort". 
 
-> The third alternative is to know at link-time that the process never does 
-> anything threaded, but that needs more developer attention and 
-> non-standard setups, and you _will_ get it wrong (some library will create 
-> some thread without the developer even realizing).
+Regardless, even if we get a flag like that (and the Intel people didn't 
+seem to dismiss the idea), it's likely a more than a few years down the 
+line. So it's not like this is a pressing concern ;)
 
-This is also a trivially solvable problem in userspace; you make the
-dynamic linker enforce consistency of the tags.
-
-> I'm sure you can make up alternatives every time you hit one _particular_ 
-> library, but that just doesn't scale in the real world.
-
-The number of userspace libraries that use atomic operations is, in
-practice, quite small.
-
-> In contrast, the simple silicon support scales wonderfully well. Suddenly 
-> libraries can be thread-safe _and_ efficient on UP too. You get to eat 
-> your cake and have it too.
-
-By buying new hardware and only caring about people using the magic
-architecture.  No thanks.
-
-Maybe I'll implement this some weekend.
-
--- 
-Daniel Jacobowitz
-CodeSourcery, LLC
+		Linus

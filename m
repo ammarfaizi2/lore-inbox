@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030455AbVKWWpk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030461AbVKWWqz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030455AbVKWWpk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 17:45:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030453AbVKWWpk
+	id S1030461AbVKWWqz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 17:46:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030460AbVKWWqz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 17:45:40 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:29830 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030452AbVKWWpj (ORCPT
+	Wed, 23 Nov 2005 17:46:55 -0500
+Received: from xenotime.net ([66.160.160.81]:17370 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1030454AbVKWWqw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 17:45:39 -0500
-Message-ID: <4384F110.4060908@pobox.com>
-Date: Wed, 23 Nov 2005 17:45:36 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Wed, 23 Nov 2005 17:46:52 -0500
+Date: Wed, 23 Nov 2005 14:46:51 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Adrian Bunk <bunk@stusta.de>
+cc: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [-mm patch] init/main.c: dummy mark_rodata_ro() should be static
+In-Reply-To: <20051123223505.GF3963@stusta.de>
+Message-ID: <Pine.LNX.4.58.0511231443420.20189@shark.he.net>
+References: <20051123033550.00d6a6e8.akpm@osdl.org> <20051123223505.GF3963@stusta.de>
 MIME-Version: 1.0
-To: Andrew Grover <andrew.grover@intel.com>
-CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       john.ronciak@intel.com, christopher.leech@intel.com
-Subject: Re: [RFC] [PATCH 0/3] ioat: DMA engine support
-References: <Pine.LNX.4.44.0511231143380.32487-100000@isotope.jf.intel.com>
-In-Reply-To: <Pine.LNX.4.44.0511231143380.32487-100000@isotope.jf.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Andrew Grover wrote: > As presented in our talk at this
-	year's OLS, the Bensley platform, which > will be out in early 2006,
-	will have an asyncronous DMA engine. It can be > used to offload copies
-	from the CPU, such as the kernel copies of received > packets into the
-	user buffer. [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Grover wrote:
-> As presented in our talk at this year's OLS, the Bensley platform, which 
-> will be out in early 2006, will have an asyncronous DMA engine. It can be 
-> used to offload copies from the CPU, such as the kernel copies of received 
-> packets into the user buffer.
+On Wed, 23 Nov 2005, Adrian Bunk wrote:
 
-More than a one-paragraph description would be nice...  URLs to OLS and 
-IDF presentations, other info?
+> Every inline dummy function should be static.
 
-	Jeff
+Please explain why it matters in this case.
 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>
+> --- linux-2.6.15-rc2-mm1-full/init/main.c.old	2005-11-23 16:50:45.000000000 +0100
+> +++ linux-2.6.15-rc2-mm1-full/init/main.c	2005-11-23 16:50:55.000000000 +0100
+> @@ -101,7 +101,7 @@
+>  static inline void acpi_early_init(void) { }
+>  #endif
+>  #ifndef CONFIG_DEBUG_RODATA
+> -inline void mark_rodata_ro(void) { }
+> +static inline void mark_rodata_ro(void) { }
+>  #endif
+>
+>  #ifdef CONFIG_TC
 
-
+-- 
+~Randy

@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932589AbVKWWbN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030427AbVKWWb7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932589AbVKWWbN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 17:31:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932591AbVKWWbN
+	id S1030427AbVKWWb7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 17:31:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030426AbVKWWb7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 17:31:13 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:12297 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932589AbVKWWbH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 17:31:07 -0500
-Date: Wed, 23 Nov 2005 22:30:57 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Kumar Gala <galak@gate.crashing.org>
-Cc: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: overlapping resources for platform devices?
-Message-ID: <20051123223057.GO15449@flint.arm.linux.org.uk>
-Mail-Followup-To: Kumar Gala <galak@gate.crashing.org>,
-	Greg KH <greg@kroah.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20051123115259.GA9560@flint.arm.linux.org.uk> <Pine.LNX.4.44.0511231245350.4255-100000@gate.crashing.org>
+	Wed, 23 Nov 2005 17:31:59 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:9608 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1030427AbVKWWb6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 17:31:58 -0500
+Date: Wed, 23 Nov 2005 23:30:06 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@osdl.org>, "H. Peter Anvin" <hpa@zytor.com>,
+       Gerd Knorr <kraxel@suse.de>, Dave Jones <davej@redhat.com>,
+       Zachary Amsden <zach@vmware.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] SMP alternatives
+Message-ID: <20051123223006.GD24220@elf.ucw.cz>
+References: <p7364qjjhqx.fsf@verdi.suse.de> <1132764133.7268.51.camel@localhost.localdomain> <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <20051123211353.GR20775@brahms.suse.de> <4384E333.8030901@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0511231245350.4255-100000@gate.crashing.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <4384E333.8030901@pobox.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 12:48:55PM -0600, Kumar Gala wrote:
-> On Wed, 23 Nov 2005, Russell King wrote:
+Hi!
+
+
+> >The idea was to turn LOCK on only if the process has any
+> >shared writable mapping and num_online_cpus() > 0.
 > 
-> > On Wed, Nov 23, 2005 at 12:57:40AM -0600, Kumar Gala wrote:
-> > > Any update?
-> > 
-> > It should be okay, but I'll step back from saying "safe" because
-> > I don't particularly like the insert_resource() concept.
+> Yep.  Though I presume you mean "> 1".
 > 
-> Ok. Not sure how to take that.  Would you prefer we work around this some 
-> other way? or your willing to take a patch but just hesitant about it 
-> breaking something?
+> One hopes that num_online_cpus() never reaches zero during runtime ;-)
 
-PCI survived this change, so I've no doubt that platform devices will
-survive.  I just don't like it on a personal level because I worry
-about the possibility of inappropriately inserting a resource above
-some other resource.
+Actually num_online_cpus() is very usefull -- suspend to RAM ;-))))).
 
-Theoretically, if you have two platform devices which are mutually
-exclusive, but use exactly the same resource range, with the existing
-system only one will succeed.  My understanding of insert_resource
-indicates that both will succeed, and you'll end up with one below
-the other.
-
-That's not too much of a problem as long as the drivers also request
-the resources before using them.
-
-But that's theory.  I don't know of any situation today where this
-is presently true, or would be.
-
-In the end, we can't have your behaviour without also having the
-_possibility_ of this problem.  So let's have your behaviour as
-it fixes a real problem you're seeing.
-
+								Pavel
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Thanks, Sharp!

@@ -1,61 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030403AbVKWLgv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030405AbVKWLiu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030403AbVKWLgv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 06:36:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030406AbVKWLgv
+	id S1030405AbVKWLiu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 06:38:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030406AbVKWLiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 06:36:51 -0500
-Received: from perninha.conectiva.com.br ([200.140.247.100]:61623 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S1030403AbVKWLgu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 06:36:50 -0500
-Date: Wed, 23 Nov 2005 09:36:55 -0200
-From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
-To: Greg KH <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       akpm@osdl.org, ehabkost@mandriva.com
-Subject: Re: [PATCH 2/2] - usbserial: race-condition fix.
-Message-Id: <20051123093655.5555f23e.lcapitulino@mandriva.com.br>
-In-Reply-To: <20051122221353.GA10311@suse.de>
-References: <20051122195926.18c3221c.lcapitulino@mandriva.com.br>
-	<20051122221353.GA10311@suse.de>
-Organization: Mandriva
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-conectiva-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Nov 2005 06:38:50 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:58805 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S1030405AbVKWLit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 06:38:49 -0500
+Date: Wed, 23 Nov 2005 11:38:33 +0000 (GMT)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [git pull] drm fixes tree
+Message-ID: <Pine.LNX.4.58.0511231134500.9749@skynet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Nov 2005 14:13:53 -0800
-Greg KH <gregkh@suse.de> wrote:
 
-| On Tue, Nov 22, 2005 at 07:59:26PM -0200, Luiz Fernando Capitulino wrote:
-| > @@ -60,6 +61,7 @@ struct usb_serial_port {
-| >  	struct usb_serial *	serial;
-| >  	struct tty_struct *	tty;
-| >  	spinlock_t		lock;
-| > +	struct semaphore        sem;
-| 
-| You forgot to document what this semaphore is used for.
+Hi Linus/Andrew,
 
- Okay.
+	Can you pull the 'drm-linus' branch from
 
-| Hm, can we just use the spinlock already present in the port structure
-| for this?  Well, drop the spinlock and use the semaphore?  Yeah, that
-| means grabbing a semaphore for ever write for some devices, but USB data
-| rates are slow enough it wouldn't matter :)
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/airlied/drm-2.6.git
 
- As far as I read the code, I found that spinlock is only used by the
-generic driver, in the
-drivers/usb/serial/generic.c:usb_serial_generic_write() function.
+It contains three minor fixes as shown below...
 
- Can we drop the spinlock there and use our new semaphore? Or should we
-create a new spinlock just to use there?
+Dave.
 
- I ask it because the semaphore will be used to serialize open()/close()
-operations in the usb-serial driver, is a bit weird to use the same
-semaphore in a write() function of other driver.
+commit 7655f493b74f3048c02458bc32cd0b144f7b394f
+Author: Dave Airlie <airlied@starflyer.(none)>
+Date:   Wed Nov 23 22:12:59 2005 +1100
 
--- 
-Luiz Fernando N. Capitulino
+    drm: move is_pci to the end of the structure
+
+    We memset the structure across opens except for the flags. The correct
+    fix is more intrusive but this should fix a problem with bad iounmaps
+    seen on AGP radeons acting like PCI ones.
+
+    Signed-off-by: Dave Airlie <airlied@linux.ie>
+
+commit c41f47121d8bf44b886ef2039779dab8c1e3a25f
+Author: Dave Airlie <airlied@starflyer.(none)>
+Date:   Wed Nov 23 22:09:13 2005 +1100
+
+    drm: add __GFP_COMP to the drm_alloc_pages
+
+    The DRM only uses drm_alloc_pages for non-SG PCI cards using DRM.
+
+    Signed-off-by: Hugh Dickins <hugh@veritas.com>
+    Signed-off-by: Dave Airlie <airlied@linux.ie>
+
+commit bd07ed2b4d7071716c09895e19849e8b04991656
+Author: Dave Airlie <airlied@starflyer.(none)>
+Date:   Wed Nov 23 21:45:43 2005 +1100
+
+    I think that if a PCI bus is a root bus, attached to a host bridge not a
+    PCI->PCI bridge, then bus->self is allowed to be NULL. Certainly that's
+    the case on my Pegasos, and it makes the MGA DRM driver oops...
+
+    Signed-off-by: David Woodhouse <dwmw2@infradead.org>
+    Signed-off-by: Dave Airlie <airlied@linux.ie>
+
+diff --git a/drivers/char/drm/drm_memory.c b/drivers/char/drm/drm_memory.c
+--- a/drivers/char/drm/drm_memory.c
++++ b/drivers/char/drm/drm_memory.c
+@@ -95,7 +95,7 @@ unsigned long drm_alloc_pages(int order,
+ 	unsigned long addr;
+ 	unsigned int sz;
+
+-	address = __get_free_pages(GFP_KERNEL, order);
++	address = __get_free_pages(GFP_KERNEL|__GFP_COMP, order);
+ 	if (!address)
+ 		return 0;
+
+diff --git a/drivers/char/drm/drm_memory_debug.h b/drivers/char/drm/drm_memory_debug.h
+--- a/drivers/char/drm/drm_memory_debug.h
++++ b/drivers/char/drm/drm_memory_debug.h
+@@ -221,7 +221,7 @@ unsigned long DRM(alloc_pages) (int orde
+ 	}
+ 	spin_unlock(&DRM(mem_lock));
+
+-	address = __get_free_pages(GFP_KERNEL, order);
++	address = __get_free_pages(GFP_KERNEL|__GFP_COMP, order);
+ 	if (!address) {
+ 		spin_lock(&DRM(mem_lock));
+ 		++DRM(mem_stats)[area].fail_count;
+diff --git a/drivers/char/drm/mga_drv.c b/drivers/char/drm/mga_drv.c
+--- a/drivers/char/drm/mga_drv.c
++++ b/drivers/char/drm/mga_drv.c
+@@ -161,7 +161,7 @@ static int mga_driver_device_is_agp(drm_
+ 	 * device.
+ 	 */
+
+-	if ((pdev->device == 0x0525)
++	if ((pdev->device == 0x0525) && pdev->bus->self
+ 	    && (pdev->bus->self->vendor == 0x3388)
+ 	    && (pdev->bus->self->device == 0x0021)) {
+ 		return 0;
+diff --git a/drivers/char/drm/radeon_drv.h b/drivers/char/drm/radeon_drv.h
+--- a/drivers/char/drm/radeon_drv.h
++++ b/drivers/char/drm/radeon_drv.h
+@@ -214,8 +214,6 @@ typedef struct drm_radeon_private {
+
+ 	int microcode_version;
+
+-	int is_pci;
+-
+ 	struct {
+ 		u32 boxes;
+ 		int freelist_timeouts;
+@@ -275,6 +273,7 @@ typedef struct drm_radeon_private {
+
+ 	/* starting from here on, data is preserved accross an open */
+ 	uint32_t flags;		/* see radeon_chip_flags */
++	int is_pci;
+ } drm_radeon_private_t;
+
+ typedef struct drm_radeon_buf_priv {

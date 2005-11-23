@@ -1,65 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932544AbVKWVhX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932545AbVKWVjb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932544AbVKWVhX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 16:37:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbVKWVhX
+	id S932545AbVKWVjb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 16:39:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932546AbVKWVjb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 16:37:23 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:46790 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932545AbVKWVhN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 16:37:13 -0500
-Subject: Re: [patch] SMP alternatives
-From: Arjan van de Ven <arjan@infradead.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       "H. Peter Anvin" <hpa@zytor.com>, Gerd Knorr <kraxel@suse.de>,
-       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1132783540.13095.23.camel@localhost.localdomain>
-References: <437B5A83.8090808@suse.de> <438359D7.7090308@suse.de>
-	 <p7364qjjhqx.fsf@verdi.suse.de>
-	 <1132764133.7268.51.camel@localhost.localdomain>
-	 <20051123163906.GF20775@brahms.suse.de>
-	 <1132766489.7268.71.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org>
-	 <4384AECC.1030403@zytor.com>
-	 <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org>
-	 <1132782245.13095.4.camel@localhost.localdomain>
-	 <20051123211353.GR20775@brahms.suse.de>
-	 <1132783540.13095.23.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 23 Nov 2005 22:36:35 +0100
-Message-Id: <1132781796.2795.76.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 23 Nov 2005 16:39:31 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:58245 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932545AbVKWVj3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 16:39:29 -0500
+Message-ID: <4384E184.3040304@pobox.com>
+Date: Wed, 23 Nov 2005 16:39:16 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bogdan Costescu <Bogdan.Costescu@iwr.uni-heidelberg.de>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Marvell SATA fixes v2
+References: <437D2DED.5030602@pobox.com> <Pine.LNX.4.44.0511182241420.5095-100000@kenzo.iwr.uni-heidelberg.de> <20051118215209.GA9425@havoc.gtf.org> <Pine.LNX.4.63.0511211311260.22263@dingo.iwr.uni-heidelberg.de>
+In-Reply-To: <Pine.LNX.4.63.0511211311260.22263@dingo.iwr.uni-heidelberg.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Bogdan Costescu wrote: > On Fri, 18 Nov 2005, Jeff
+	Garzik wrote: > >> Yes, for both 50xx and 60xx, I had to turn off MSI
+	in order to get >> sata_mv to work... > > > With MSI and libata DEBUG
+	turned off I had a crash - solid one, SysRQ > doesn't work. I have
+	forgotten to set console to serial port when > booting this kernel, so
+	what follows is what I had on the screen, > hopefully without any typos
+	(and without the initial addresses): [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
 	pts rule name              description
 	---- ---------------------- --------------------------------------------------
 	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bogdan Costescu wrote:
+> On Fri, 18 Nov 2005, Jeff Garzik wrote:
+> 
+>> Yes, for both 50xx and 60xx, I had to turn off MSI in order to get
+>> sata_mv to work...
+> 
+> 
+> With MSI and libata DEBUG turned off I had a crash - solid one, SysRQ 
+> doesn't work. I have forgotten to set console to serial port when 
+> booting this kernel, so what follows is what I had on the screen, 
+> hopefully without any typos (and without the initial addresses):
 
-> CPU insert/remove is performed how many times a second ? Or for that
-> matter why not just reload the PAT register and keep the index the
-> same ?
+I wonder if the global reset disables MSI...  may be a driver bug.
 
-you also want this for single threaded apps, so that the glibc locking
-stuff can not do lock for single-threaded apps and non-shared memory
+You could play around with moving the pci_enable_msi until after the 
+global reset...
+
+	Jeff
+
 
 

@@ -1,85 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbVKWSDJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbVKWSDm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932124AbVKWSDJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 13:03:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbVKWSDI
+	id S932133AbVKWSDm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 13:03:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbVKWSDm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 13:03:08 -0500
-Received: from usbb-lacimss2.unisys.com ([192.63.108.52]:59917 "EHLO
-	usbb-lacimss2.unisys.com") by vger.kernel.org with ESMTP
-	id S932124AbVKWSDD convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 13:03:03 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Wed, 23 Nov 2005 13:03:42 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:54702 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S932133AbVKWSDk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 13:03:40 -0500
+Message-ID: <4384AECC.1030403@zytor.com>
+Date: Wed, 23 Nov 2005 10:02:52 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: [PATCH] 2.6.14.2  Support for 1K I/O space granularity on the Intel P64H2
-Date: Wed, 23 Nov 2005 13:02:52 -0500
-Message-ID: <94C8C9E8B25F564F95185BDA64AB05F6028E115E@USTR-EXCH5.na.uis.unisys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] 2.6.14.2  Support for 1K I/O space granularity on the Intel P64H2
-Thread-Index: AcXwWB+eWy2v83aySICvcdIoPbE3rQ==
-From: "Yeisley, Dan P." <dan.yeisley@unisys.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <gregkh@suse.de>
-X-OriginalArrivalTime: 23 Nov 2005 18:02:53.0781 (UTC) FILETIME=[20313050:01C5F058]
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
+       Gerd Knorr <kraxel@suse.de>, Dave Jones <davej@redhat.com>,
+       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] SMP alternatives
+References: <Pine.LNX.4.64.0511131118020.3263@g5.osdl.org>  <Pine.LNX.4.64.0511131210570.3263@g5.osdl.org> <4378A7F3.9070704@suse.de>  <Pine.LNX.4.64.0511141118000.3263@g5.osdl.org> <4379ECC1.20005@suse.de>  <437A0649.7010702@suse.de> <437B5A83.8090808@suse.de>  <438359D7.7090308@suse.de> <p7364qjjhqx.fsf@verdi.suse.de>  <1132764133.7268.51.camel@localhost.localdomain>  <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Intel P64H2 PCI bridge has the ability to allocate I/O space with
-1KB granularity.  I've written a patch against 2.6.14.2 to take
-advantage of this option.  I've tested it on the latest Unisys
-ES7000-600.  
+Linus Torvalds wrote:
+> What I suggested to Intel at the Developer Days is to have a MSR (or, 
+> better yet, a bit in the page table pointer %cr0) that disables "lock" in 
+> _user_ space. Ie a lock would be a no-op when in CPL3, and only with 
+> certain processes.
 
-Any comments?
+You mean %cr3, right?
 
---Dan 
-
-
-
-diff -Naur linux-2.6.14.2/drivers/pci/probe.c
-linux-2.6.14.2-en1k/drivers/pci/probe.c
---- linux-2.6.14.2/drivers/pci/probe.c	2005-11-11 00:33:12.000000000
--0500
-+++ linux-2.6.14.2-en1k/drivers/pci/probe.c	2005-11-21
-08:52:01.000000000 -0500
-@@ -251,8 +251,8 @@
- 	res = child->resource[0];
- 	pci_read_config_byte(dev, PCI_IO_BASE, &io_base_lo);
- 	pci_read_config_byte(dev, PCI_IO_LIMIT, &io_limit_lo);
--	base = (io_base_lo & PCI_IO_RANGE_MASK) << 8;
--	limit = (io_limit_lo & PCI_IO_RANGE_MASK) << 8;
-+	base = (io_base_lo & (PCI_IO_RANGE_MASK | 0x0c) ) << 8;
-+	limit = (io_limit_lo & (PCI_IO_RANGE_MASK | 0x0c) ) << 8;
- 
- 	if ((io_base_lo & PCI_IO_RANGE_TYPE_MASK) ==
-PCI_IO_RANGE_TYPE_32) {
- 		u16 io_base_hi, io_limit_hi;
-@@ -266,6 +266,19 @@
- 		res->flags = (io_base_lo & PCI_IO_RANGE_TYPE_MASK) |
-IORESOURCE_IO;
- 		res->start = base;
- 		res->end = limit + 0xfff;
-+
-+                /*
-+                ** See if the 1k granularity option is enabled on the
-Intel P64H2
-+                */
-+                if (dev->vendor == PCI_VENDOR_ID_INTEL && dev->device
-== 0x1460) {
-+                        u16 en1k;
-+                        pci_read_config_word(dev, 0x40, &en1k);
-+
-+                        if(en1k & 0x200) {
-+                                res->end = limit + 0x3ff;
-+                                printk(KERN_INFO "PCI: Enable I/O Space
-to 1 KB Granularity\n");
-+                        }
-+                }
- 	}
- 
- 	res = child->resource[1];
+	-hpa

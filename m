@@ -1,155 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbVKWRq7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751292AbVKWRsi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932107AbVKWRq7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 12:46:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbVKWRq6
+	id S1751292AbVKWRsi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 12:48:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbVKWRsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 12:46:58 -0500
-Received: from perninha.conectiva.com.br ([200.140.247.100]:3012 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S1751292AbVKWRq6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 12:46:58 -0500
-Date: Wed, 23 Nov 2005 15:46:50 -0200
-From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
-To: Greg KH <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       akpm@osdl.org, ehabkost@mandriva.com
-Subject: [RESEND 2/2] - usbserial: race-condition fix.
-Message-Id: <20051123154650.5659b7fc.lcapitulino@mandriva.com.br>
-In-Reply-To: <20051122221353.GA10311@suse.de>
-References: <20051122195926.18c3221c.lcapitulino@mandriva.com.br>
-	<20051122221353.GA10311@suse.de>
-Organization: Mandriva
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-conectiva-linux-gnu)
+	Wed, 23 Nov 2005 12:48:38 -0500
+Received: from fmr22.intel.com ([143.183.121.14]:41406 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1751292AbVKWRsh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 12:48:37 -0500
+Subject: Re: [PATCH]: Free pages from local pcp lists under tight memory
+	conditions
+From: Rohit Seth <rohit.seth@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       Christoph Lameter <christoph@lameter.com>
+In-Reply-To: <20051122213612.4adef5d0.akpm@osdl.org>
+References: <20051122161000.A22430@unix-os.sc.intel.com>
+	 <20051122213612.4adef5d0.akpm@osdl.org>
+Content-Type: text/plain
+Organization: Intel 
+Date: Wed, 23 Nov 2005 09:54:42 -0800
+Message-Id: <1132768482.25086.16.camel@akash.sc.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 Nov 2005 17:47:49.0108 (UTC) FILETIME=[04F70B40:01C5F056]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Nov 2005 14:13:53 -0800
-Greg KH <gregkh@suse.de> wrote:
+On Tue, 2005-11-22 at 21:36 -0800, Andrew Morton wrote:
+> Rohit Seth <rohit.seth@intel.com> wrote:
+> >
+> > Andrew, Linus,
+> > 
+> > [PATCH]: This patch free pages (pcp->batch from each list at a time) from
+> > local pcp lists when a higher order allocation request is not able to 
+> > get serviced from global free_list.
+> > 
+> > This should help fix some of the earlier failures seen with order 1 allocations.
+> > 
+> > I will send separate patches for:
+> > 
+> > 1- Reducing the remote cpus pcp
+> > 2- Clean up page_alloc.c for CONFIG_HOTPLUG_CPU to use this code appropiately
+> > 
+> > +static int
+> > +reduce_cpu_pcp(void )
+> >
+> This significantly duplicates the existing drain_local_pages().
 
-| On Tue, Nov 22, 2005 at 07:59:26PM -0200, Luiz Fernando Capitulino wrote:
-| > @@ -60,6 +61,7 @@ struct usb_serial_port {
-| >  	struct usb_serial *	serial;
-| >  	struct tty_struct *	tty;
-| >  	spinlock_t		lock;
-| > +	struct semaphore        sem;
-| 
-| You forgot to document what this semaphore is used for.
+Yes.  The main change in this new function is I'm only freeing batch
+number of pages from each pcp rather than draining out all of them (even
+under a little memory pressure).  IMO, we should be more opportunistic
+here in alloc_pages in moving pages back to global page pool list.
+Thoughts?
 
- Here goes the second patch again, with the documentation now.
+As said earlier, I will be cleaning up the existing drain_local_pages in
+next follow up patch.
 
- As I said before, would be good to apply these two patches now, and I
-can cleanup the spinlock usage until next week.
+> 
+> >  
+> > +	if (order > 0) 
+> > +		while (reduce_cpu_pcp()) {
+> > +			if (get_page_from_freelist(gfp_mask, order, zonelist, alloc_flags))
+> 
+> This forgot to assign to local variable `page'!  It'll return NULL and will
+> leak memory.
+> 
+My bad.  Will fix it.
 
+> The `while' loop worries me for some reason, so I wimped out and just tried
+> the remote drain once.
+> 
+Even after direct reclaim it probably does make sense to see how
+minimally we can service a higher order request.
 
- Fixes a race-condition in the access of the port structure, described
-in detail at: http://marc.theaimsgroup.com/?l=linux-kernel&m=113216151918308&w=2
+> > +				goto got_pg;
+> > +		}
+> > +	/* FIXME: Add the support for reducing/draining the remote pcps.
+> 
+> This is easy enough to do.
+> 
 
-Signed-off-by: Luiz Capitulino <lcapitulino@mandriva.com.br>
+The couple of options that I wanted to think little more were (before
+attempting to do this part):
 
- drivers/usb/serial/usb-serial.c |   14 +++++++++++++-
- drivers/usb/serial/usb-serial.h |    4 ++++
- 2 files changed, 17 insertions(+), 1 deletion(-)
+1- Whether use the IPI to get the remote CPUs to free pages from pcp or
+do it lazily (using work_pending or such).  As at this point in
+execution we can definitely afford to get scheduled out.
 
-diff -Nparu -X /home/lcapitulino/kernels/dontdiff a/drivers/usb/serial/usb-serial.c a~/drivers/usb/serial/usb-serial.c
---- a/drivers/usb/serial/usb-serial.c	2005-11-23 15:30:20.000000000 -0200
-+++ a~/drivers/usb/serial/usb-serial.c	2005-11-23 15:23:19.000000000 -0200
-@@ -30,6 +30,7 @@
- #include <linux/list.h>
- #include <linux/smp_lock.h>
- #include <asm/uaccess.h>
-+#include <asm/semaphore.h>
- #include <linux/usb.h>
- #include "usb-serial.h"
- #include "pl2303.h"
-@@ -190,6 +191,9 @@ static int serial_open (struct tty_struc
- 	port = serial->port[portNumber];
- 	if (!port)
- 		return -ENODEV;
-+
-+	if (down_interruptible(&port->sem))
-+		return -ERESTARTSYS;
- 	 
- 	++port->open_count;
- 
-@@ -215,6 +219,7 @@ static int serial_open (struct tty_struc
- 			goto bailout_module_put;
- 	}
- 
-+	up(&port->sem);
- 	return 0;
- 
- bailout_module_put:
-@@ -222,6 +227,7 @@ bailout_module_put:
- bailout_kref_put:
- 	kref_put(&serial->kref, destroy_serial);
- 	port->open_count = 0;
-+	up(&port->sem);
- 	return retval;
- }
- 
-@@ -234,8 +240,10 @@ static void serial_close(struct tty_stru
- 
- 	dbg("%s - port %d", __FUNCTION__, port->number);
- 
-+	down(&port->sem);
-+
- 	if (port->open_count == 0)
--		return;
-+		goto out;
- 
- 	--port->open_count;
- 	if (port->open_count == 0) {
-@@ -253,6 +261,9 @@ static void serial_close(struct tty_stru
- 	}
- 
- 	kref_put(&port->serial->kref, destroy_serial);
-+
-+out:
-+	up(&port->sem);
- }
- 
- static int serial_write (struct tty_struct * tty, const unsigned char *buf, int count)
-@@ -774,6 +785,7 @@ int usb_serial_probe(struct usb_interfac
- 		port->number = i + serial->minor;
- 		port->serial = serial;
- 		spin_lock_init(&port->lock);
-+		sema_init(&port->sem, 1);
- 		INIT_WORK(&port->work, usb_serial_port_softint, port);
- 		serial->port[i] = port;
- 	}
-diff -Nparu -X /home/lcapitulino/kernels/dontdiff a/drivers/usb/serial/usb-serial.h a~/drivers/usb/serial/usb-serial.h
---- a/drivers/usb/serial/usb-serial.h	2005-11-23 15:30:20.000000000 -0200
-+++ a~/drivers/usb/serial/usb-serial.h	2005-11-23 15:23:59.000000000 -0200
-@@ -16,6 +16,7 @@
- 
- #include <linux/config.h>
- #include <linux/kref.h>
-+#include <asm/semaphore.h>
- 
- #define SERIAL_TTY_MAJOR	188	/* Nice legal number now */
- #define SERIAL_TTY_MINORS	255	/* loads of devices :) */
-@@ -30,6 +31,8 @@
-  * @serial: pointer back to the struct usb_serial owner of this port.
-  * @tty: pointer to the corresponding tty for this port.
-  * @lock: spinlock to grab when updating portions of this structure.
-+ * @sem: semaphore used to synchronize serial_open() and serial_close()
-+ *	access for this port.
-  * @number: the number of the port (the minor number).
-  * @interrupt_in_buffer: pointer to the interrupt in buffer for this port.
-  * @interrupt_in_urb: pointer to the interrupt in struct urb for this port.
-@@ -60,6 +63,7 @@ struct usb_serial_port {
- 	struct usb_serial *	serial;
- 	struct tty_struct *	tty;
- 	spinlock_t		lock;
-+	struct semaphore        sem;
- 	unsigned char		number;
- 
- 	unsigned char *		interrupt_in_buffer;
+2- Do we drain the whole pcp on remote processors or again follow the
+stepped approach (but may be with a steeper slope).
 
 
--- 
-Luiz Fernando N. Capitulino
+> We need to verify that this patch actually does something useful.
+> 
+> 
+I'm working on this.  Will let you know later today if I can come with
+some workload easily hitting this additional logic.
+
+Thanks,
+-rohit
+

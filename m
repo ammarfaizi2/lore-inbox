@@ -1,61 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932547AbVKWVlG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932552AbVKWVl3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932547AbVKWVlG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 16:41:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932551AbVKWVlF
+	id S932552AbVKWVl3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 16:41:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932549AbVKWVl3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 16:41:05 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:62597 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932547AbVKWVlB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 16:41:01 -0500
-Message-ID: <4384E1E9.2070309@pobox.com>
-Date: Wed, 23 Nov 2005 16:40:57 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Wed, 23 Nov 2005 16:41:29 -0500
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:42900 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S932551AbVKWVl1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 16:41:27 -0500
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: Dave Jones <davej@redhat.com>
+Cc: gcoady@gmail.com, Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       david.fox@linspire.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rc2 pci_ids.h cleanup is a pain
+Date: Thu, 24 Nov 2005 08:41:12 +1100
+Organization: http://bugsplatter.mine.nu/
+Reply-To: gcoady@gmail.com
+Message-ID: <ppn9o111e7dbghgjn4luruvggke8r3k8u7@4ax.com>
+References: <438249CB.8050200@linspire.com> <20051121224438.GA18966@kroah.com> <20051122162558.702fae4a.akpm@osdl.org> <41i7o11nbvrfrd8n2ev6kf11qjfjbil3jr@4ax.com> <20051123041917.GA27358@redhat.com>
+In-Reply-To: <20051123041917.GA27358@redhat.com>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-To: Roland Dreier <rolandd@cisco.com>
-CC: Bogdan Costescu <Bogdan.Costescu@iwr.uni-heidelberg.de>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Marvell SATA fixes v2
-References: <437D2DED.5030602@pobox.com>	<Pine.LNX.4.44.0511182241420.5095-100000@kenzo.iwr.uni-heidelberg.de>	<20051118215209.GA9425@havoc.gtf.org> <52veyp39hs.fsf@cisco.com>
-In-Reply-To: <52veyp39hs.fsf@cisco.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Roland Dreier wrote: > Jeff> Yes, for both 50xx and
-	60xx, I had to turn off MSI in order > Jeff> to get sata_mv to work...
-	> > Sounds like MSI is broken in the Marvell chip. This is exactly the
-	No, it could be any one of [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier wrote:
->     Jeff> Yes, for both 50xx and 60xx, I had to turn off MSI in order
->     Jeff> to get sata_mv to work...
-> 
-> Sounds like MSI is broken in the Marvell chip.  This is exactly the
+On Tue, 22 Nov 2005 23:19:17 -0500, Dave Jones <davej@redhat.com> wrote:
 
-No, it could be any one of
+>On Wed, Nov 23, 2005 at 12:51:45PM +1100, Grant Coady wrote:
+> > Hi Andrew, Greg,
+> > 
+> > On Tue, 22 Nov 2005 16:25:58 -0800, Andrew Morton <akpm@osdl.org> wrote:
+> > 
+> > >Greg KH <greg@kroah.com> wrote:
+> > >>
+> > >> On Mon, Nov 21, 2005 at 02:27:23PM -0800, David Fox wrote:
+> > >> > I'm sure I'm not the only person that applies patches to the kernel that 
+> > >> > use some of the 500 plus PCI IDS eliminated from pci_ids.h by rc2.  I 
+> > >> > would like to see the PCI ids that were removed simply because the don't 
+> > >> > occur in the main kernel source restored.  Is there a rationale for 
+> > >> > removing them that I'm not aware of?
+> > >> 
+> > >> They were not being used.  Why would you want them in there?
+> > >
+> > >Because they contained useful information which had been accumulated by
+> > >many people over a long period of time.
+> > >
+> > >Throwing that information away seemed rather pointless, especially as the
+> > >cost of retaining it was so low.
+> > 
+> > There's an out-of-tree reference, the pci.ids website, that carries 
+> > this information, do we need the reference info in the kernel as well?  
+> > 
+> > So far two people raised an objection, the other wants to maintain 
+> > an out-of-tree driver, D. Fox didn't say why he needs the symbols.
+>
+>Three. I already mentioned we broke the compilation of the
+>advansys driver because of this.
 
-* broken Marvell chip
-* broken system
-* driver bug
+Nope, advansys.* don't appear to use PCI_*  Defines its own ASC_PCI* 
+instead?
 
-It hasn't been narrowed down yet.
+Checked:  linux-2.6.13.4, linux-2.6.15-rc2
 
-	Jeff
-
-
-
+Grant.

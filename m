@@ -1,293 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030499AbVKWXiS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030501AbVKWXh4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030499AbVKWXiS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 18:38:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030502AbVKWXiS
+	id S1030501AbVKWXh4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 18:37:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030500AbVKWXh4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 18:38:18 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:39585 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030499AbVKWXiP
+	Wed, 23 Nov 2005 18:37:56 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:13711 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030504AbVKWXhy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 18:38:15 -0500
-Subject: [PATCH 1/7]: Interface change to the notifier chain mechanism -
-	basic fix
+	Wed, 23 Nov 2005 18:37:54 -0500
+Subject: [PATCH 0/7]: Fix for unsafe notifier chain
 From: Chandra Seetharaman <sekharan@us.ibm.com>
 Reply-To: sekharan@us.ibm.com
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-       Alan Stern <stern@rowland.harvard.edu>, paulmck@us.ibm.com,
-       kaos@sgi.com
+       paulmck@us.ibm.com, kaos@sgi.com, greg@kroah.com,
+       Douglas_Warzecha@dell.com, Abhay_Salunke@dell.com,
+       achim_leubner@adaptec.com, dmp@davidmpye.dyndns.org
 Content-Type: text/plain
 Organization: IBM
-Date: Wed, 23 Nov 2005 15:38:11 -0800
-Message-Id: <1132789091.9460.18.camel@linuxchandra>
+Date: Wed, 23 Nov 2005 15:37:51 -0800
+Message-Id: <1132789071.9460.16.camel@linuxchandra>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This has the core interface change and the fix for the original problem.
-It is same as what I posted last Friday, plus the changes suggested by
-Paul McKenney.
+Andrew,
 
-Signed-off-by:  Chandra Seetharaman <sekharan@us.ibm.com>
-Signed-off-by:  Alan Stern <stern@rowland.harvard.edu>
------
+I posted this set of patch to lkml last Friday as an RFC. Can you
+consider these for -mm inclusion.
 
- include/linux/notifier.h |   69 ++++++++++++++++++++++++++++++++--
- kernel/sys.c             |   93 ++++++++++++++++++++++++++++-------------------
- 2 files changed, 121 insertions(+), 41 deletions(-)
+These patches apply on 2.6.15-rc2.
 
-Index: l2615-rc1-notifiers/include/linux/notifier.h
-===================================================================
---- l2615-rc1-notifiers.orig/include/linux/notifier.h
-+++ l2615-rc1-notifiers/include/linux/notifier.h
-@@ -10,25 +10,84 @@
- #ifndef _LINUX_NOTIFIER_H
- #define _LINUX_NOTIFIER_H
- #include <linux/errno.h>
-+#include <linux/rwsem.h>
-+
-+/*
-+ * Notifier chains are of two types:
-+ *	Atomic notifier chains: Chain callbacks run in interrupt/atomic
-+ *		context. Callouts are not allowed to block.
-+ *	Blocking notifier chains: Chain callback run in process context.
-+ *		Callouts are allowed to block.
-+ *
-+ * Type of a chain is defined in its head.
-+ *
-+ * notifier_chain_register() and notifier_chain_unregister() should be
-+ * called only from process context.
-+ *
-+ * notifier_chain_unregister() _should not_ be called from the
-+ * corresponding call chain.
-+ *
-+ */
-+enum notifier_type {
-+	ATOMIC_NOTIFIER,
-+	BLOCKING_NOTIFIER,
-+};
- 
- struct notifier_block
- {
--	int (*notifier_call)(struct notifier_block *self, unsigned long, void *);
-+	int (*notifier_call)(struct notifier_block *, unsigned long, void *);
- 	struct notifier_block *next;
- 	int priority;
- };
- 
-+struct notifier_head {
-+	enum notifier_type type;
-+	struct rw_semaphore rwsem;
-+	struct notifier_block *head;
-+};
-+
-+#define NOTIFIER_HEAD_INIT(name, head_type) {		\
-+	.type = head_type,				\
-+	.rwsem = __RWSEM_INITIALIZER((name).rwsem),	\
-+	.head = NULL }
-+
-+#define NOTIFIER_HEAD(name, head_type) \
-+	struct notifier_head name = NOTIFIER_HEAD_INIT(name, head_type)
-+
-+#define INIT_NOTIFIER_HEAD(name, head_type) do {		\
-+	(name)->type = head_type;			\
-+	init_rwsem(&(name)->rwsem);			\
-+	(name)->head = NULL;				\
-+} while (0)
-+
-+#define ATOMIC_NOTIFIER_HEAD_INIT(name) \
-+		NOTIFIER_HEAD_INIT(name, ATOMIC_NOTIFIER)
-+#define ATOMIC_NOTIFIER_HEAD(name) \
-+		NOTIFIER_HEAD(name, ATOMIC_NOTIFIER)
-+#define ATOMIC_INIT_NOTIFIER_HEAD(name) \
-+		INIT_NOTIFIER_HEAD(name, ATOMIC_NOTIFIER)
-+
-+#define BLOCKING_NOTIFIER_HEAD_INIT(name) \
-+		NOTIFIER_HEAD_INIT(name, BLOCKING_NOTIFIER)
-+#define BLOCKING_NOTIFIER_HEAD(name) \
-+		NOTIFIER_HEAD(name, BLOCKING_NOTIFIER)
-+#define BLOCKING_INIT_NOTIFIER_HEAD(name) \
-+		INIT_NOTIFIER_HEAD(name, BLOCKING_NOTIFIER)
- 
- #ifdef __KERNEL__
- 
--extern int notifier_chain_register(struct notifier_block **list, struct notifier_block *n);
--extern int notifier_chain_unregister(struct notifier_block **nl, struct notifier_block *n);
--extern int notifier_call_chain(struct notifier_block **n, unsigned long val, void *v);
-+extern int notifier_chain_register(struct notifier_head *,
-+					struct notifier_block *);
-+extern int notifier_chain_unregister(struct notifier_head *,
-+					struct notifier_block *);
-+extern int notifier_call_chain(struct notifier_head *,
-+					unsigned long val, void *v);
- 
- #define NOTIFY_DONE		0x0000		/* Don't care */
- #define NOTIFY_OK		0x0001		/* Suits me */
- #define NOTIFY_STOP_MASK	0x8000		/* Don't call further */
--#define NOTIFY_BAD		(NOTIFY_STOP_MASK|0x0002)	/* Bad/Veto action	*/
-+#define NOTIFY_BAD		(NOTIFY_STOP_MASK|0x0002)
-+						/* Bad/Veto action */
- /*
-  * Clean way to return from the notifier and stop further calls.
-  */
-Index: l2615-rc1-notifiers/kernel/sys.c
-===================================================================
---- l2615-rc1-notifiers.orig/kernel/sys.c
-+++ l2615-rc1-notifiers/kernel/sys.c
-@@ -94,30 +94,32 @@ int cad_pid = 1;
-  */
- 
- static struct notifier_block *reboot_notifier_list;
--static DEFINE_RWLOCK(notifier_lock);
- 
- /**
-  *	notifier_chain_register	- Add notifier to a notifier chain
-- *	@list: Pointer to root list pointer
-+ *	@nh: Pointer to head of the notifier chain
-  *	@n: New entry in notifier chain
-  *
-  *	Adds a notifier to a notifier chain.
-+ *	Must be called from process context.
-  *
-  *	Currently always returns zero.
-  */
-  
--int notifier_chain_register(struct notifier_block **list, struct notifier_block *n)
-+int notifier_chain_register(struct notifier_head *nh, struct notifier_block *n)
- {
--	write_lock(&notifier_lock);
--	while(*list)
--	{
--		if(n->priority > (*list)->priority)
-+	struct notifier_block **nl;
-+
-+	down_write(&nh->rwsem);
-+	nl = &nh->head;
-+	while ((*nl) != NULL) {
-+		if (n->priority > (*nl)->priority)
- 			break;
--		list= &((*list)->next);
-+		nl = &((*nl)->next);
- 	}
--	n->next = *list;
--	*list=n;
--	write_unlock(&notifier_lock);
-+	n->next = *nl;
-+	rcu_assign_pointer(*nl, n);
-+	up_write(&nh->rwsem);
- 	return 0;
- }
- 
-@@ -125,28 +127,32 @@ EXPORT_SYMBOL(notifier_chain_register);
- 
- /**
-  *	notifier_chain_unregister - Remove notifier from a notifier chain
-- *	@nl: Pointer to root list pointer
-+ *	@nh: Pointer to head of the notifier chain
-  *	@n: New entry in notifier chain
-  *
-  *	Removes a notifier from a notifier chain.
-+ *	Must be called from process context.
-  *
-  *	Returns zero on success, or %-ENOENT on failure.
-  */
-- 
--int notifier_chain_unregister(struct notifier_block **nl, struct notifier_block *n)
-+int notifier_chain_unregister(struct notifier_head *nh,
-+					struct notifier_block *n)
- {
--	write_lock(&notifier_lock);
--	while((*nl)!=NULL)
--	{
--		if((*nl)==n)
--		{
--			*nl=n->next;
--			write_unlock(&notifier_lock);
-+	struct notifier_block **nl;
-+
-+	down_write(&nh->rwsem);
-+	nl = &nh->head;
-+	while ((*nl) != NULL) {
-+		if ((*nl) == n) {
-+			rcu_assign_pointer(*nl, n->next);
-+			up_write(&nh->rwsem);
-+			if (nh->type == ATOMIC_NOTIFIER)
-+				synchronize_rcu();
- 			return 0;
- 		}
--		nl=&((*nl)->next);
-+		nl = &((*nl)->next);
- 	}
--	write_unlock(&notifier_lock);
-+	up_write(&nh->rwsem);
- 	return -ENOENT;
- }
- 
-@@ -154,12 +160,18 @@ EXPORT_SYMBOL(notifier_chain_unregister)
- 
- /**
-  *	notifier_call_chain - Call functions in a notifier chain
-- *	@n: Pointer to root pointer of notifier chain
-+ *	@nh: Pointer to the head of notifier chain
-  *	@val: Value passed unmodified to notifier function
-  *	@v: Pointer passed unmodified to notifier function
-  *
-  *	Calls each function in a notifier chain in turn.
-  *
-+ *	If @nh points to an %ATOMIC_NOTIFIER_HEAD then this routine may
-+ *	be called in any context, as it will not sleep.
-+ *
-+ *	If @nh points to a %BLOCKING_NOTIFIER_HEAD then this routine may
-+ *	be called only in process context.
-+ *
-  *	If the return value of the notifier can be and'd
-  *	with %NOTIFY_STOP_MASK, then notifier_call_chain
-  *	will return immediately, with the return value of
-@@ -168,20 +180,29 @@ EXPORT_SYMBOL(notifier_chain_unregister)
-  *	of the last notifier function called.
-  */
-  
--int notifier_call_chain(struct notifier_block **n, unsigned long val, void *v)
-+int notifier_call_chain(struct notifier_head *nh, unsigned long val, void *v)
- {
--	int ret=NOTIFY_DONE;
--	struct notifier_block *nb = *n;
-+	int ret = NOTIFY_DONE;
-+	struct notifier_block *nb;
- 
--	while(nb)
--	{
--		ret=nb->notifier_call(nb,val,v);
--		if(ret&NOTIFY_STOP_MASK)
--		{
--			return ret;
--		}
--		nb=nb->next;
--	}
-+	if (!nh->head)
-+		return ret;
-+	if (nh->type == ATOMIC_NOTIFIER)
-+		rcu_read_lock();
-+	else
-+		down_read(&nh->rwsem);
-+	nb = rcu_dereference(nh->head);
-+	while (nb) {
-+		ret = nb->notifier_call(nb, val, v);
-+		if ((ret & NOTIFY_STOP_MASK) == NOTIFY_STOP_MASK)
-+			goto done;
-+		nb = rcu_dereference(nb->next);
-+	}
-+done:
-+	if (nh->type == ATOMIC_NOTIFIER)
-+		rcu_read_unlock();
-+	else
-+		up_read(&nh->rwsem);
- 	return ret;
- }
- 
+Thanks,
+
+chandra
+
+Here are the details:
+In 2.6.14, notifier chains are unsafe. notifier_call_chain() walks through
+the list of a call chain without any protection.
+
+Alan Stern <stern@rowland.harvard.edu> brought the issue and suggested a fix
+in lkml on Oct 24 2005:
+	http://marc.theaimsgroup.com/?l=linux-kernel&m=113018709002036&w=2
+
+There was a lot of discussion on that thread regarding the issue, and
+following were the conclusions about the requirements of the notifier
+call mechanism:
+
+	- The chain list has to be protected in all the places where the
+	  list is accessed.
+	- We need a new notifier_head data structure to encompass the head 
+	  of the notifier chain and a semaphore that protects the list.
+	- There should be two types of call chains: one that is called in 
+	  a process context and another that is called in atomic/interrupt
+	  context.
+	- No lock should be acquired in notifier_call_chain() for an
+	  atomic-type chain.
+	- notifier_chain_register() and notifier_chain_unregister() should
+	  be called only from process context.
+	- notifier_chain_unregister() should _not_ be called from a
+	  callout routine.
+
+I posted an RFC that meets the above listed requirements last Friday:
+	- http://marc.theaimsgroup.com/?l=linux-kernel&m=113175279131346&w=2
+	
+Paul McKenney provided some suggestions w.r.t RCU usage. This patchset fixes
+the issues he raised.  Keith Owens posted some changes to the diechain for
+various architectures; his changes are included here.
+
+This is posted as an RFC as we want to get a green signal from the owners of
+the files that our classification of chains as ATOMIC or BLOCKING is ok.
+Please comment.
+
+This patchset has 7 patches:
+
+1 of 7: Changes the definition of the heads. Same as what was posted last
+	Friday with changes w.r.t Paul's comments.
+2 of 7:	Changes that affected only the notifier_head definition.
+3 of 7: Changes in which we removed some protection (it's no longer needed
+	as the basic infrastructure itself provides the protection).
+4 of 7: changes for diechain for different architectures.
+5 of 7: changes removing calls to notifier_unregister in the callout.
+6 of 7: changes to dcdbas.c (requires special handling).
+7 of 7: changes to make usb_notify to use the notify chain infrastructure
+	instead of its own.
+
+----------------------------------------
+
+Here are the list of chains and their classification:
+
+BLOCKING:
++++++++++
+arch/powerpc/platforms/pseries/reconfig.c:	pSeries_reconfig_chain
+arch/s390/kernel/process.c:		idle_chain
+drivers/base/memory.c:			memory_chain
+drivers/cpufreq/cpufreq.c:		cpufreq_policy_notifier_list
+drivers/cpufreq/cpufreq.c:		cpufreq_transition_notifier_list
+drivers/macintosh/adb.c:		adb_client_list
+drivers/macintosh/via-pmu.c:		sleep_notifier_list
+drivers/macintosh/via-pmu68k.c:		sleep_notifier_list
+drivers/macintosh/windfarm_core.c:	wf_client_list
+drivers/usb/core/notify.c:		usb_notifier_list
+drivers/video/fbmem.c:			fb_notifier_list
+kernel/cpu.c:				cpu_chain
+kernel/module.c:			module_notify_list
+kernel/profile.c:			munmap_notifier
+kernel/profile.c:			task_exit_notifier
+kernel/sys.c:				reboot_notifier_list
+net/core/dev.c:				netdev_chain
+net/decnet/dn_dev.c:			dnaddr_chain
+net/ipv4/devinet.c:			inetaddr_chain
+
+ATOMIC:
++++++++
+arch/i386/kernel/traps.c:		i386die_chain
+arch/ia64/kernel/traps.c:		ia64die_chain
+arch/powerpc/kernel/traps.c:		powerpc_die_chain
+arch/sparc64/kernel/traps.c:		sparc64die_chain
+arch/x86_64/kernel/traps.c:		die_chain
+drivers/char/ipmi/ipmi_si_intf.c:	xaction_notifier_list
+kernel/panic.c:				panic_notifier_list
+kernel/profile.c:			task_free_notifier
+net/bluetooth/hci_core.c:		hci_notifier
+net/ipv4/netfilter/ip_conntrack_core.c:	ip_conntrack_chain
+net/ipv4/netfilter/ip_conntrack_core.c:	ip_conntrack_expect_chain
+net/ipv6/addrconf.c:			inet6addr_chain
+net/netfilter/nf_conntrack_core.c:	nf_conntrack_chain
+nen/netfilter/nf_conntrack_core.c:	nf_conntrack_expect_chain
+net/netlink/af_netlink.c:		netlink_chain
+
 
 -- 
 

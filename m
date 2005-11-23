@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbVKWQzO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbVKWQ4L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932086AbVKWQzO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 11:55:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932089AbVKWQzN
+	id S932094AbVKWQ4L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 11:56:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932093AbVKWQ4L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 11:55:13 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:54454 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932086AbVKWQzL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 11:55:11 -0500
-Date: Wed, 23 Nov 2005 08:54:46 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "David S. Miller" <davem@davemloft.net>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk,
-       ak@muc.de
-Subject: Re: [NET]: Shut up warnings in net/core/flow.c
-In-Reply-To: <20051123.005530.17893365.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.64.0511230849380.13959@g5.osdl.org>
-References: <200511230159.jAN1xeMl003154@hera.kernel.org>
- <20051123002134.287ff226.akpm@osdl.org> <20051123.005530.17893365.davem@davemloft.net>
+	Wed, 23 Nov 2005 11:56:11 -0500
+Received: from moraine.clusterfs.com ([66.96.26.190]:36841 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S932094AbVKWQ4J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 11:56:09 -0500
+From: Nikita Danilov <nikita@clusterfs.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17284.40630.135499.33136@gargle.gargle.HOWL>
+Date: Wed, 23 Nov 2005 19:54:14 +0300
+To: moreau francis <francis_moreau2000@yahoo.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Use enum to declare errno values
+In-Reply-To: <20051123164215.12647.qmail@web25813.mail.ukl.yahoo.com>
+References: <17284.38866.189529.510004@gargle.gargle.HOWL>
+	<20051123164215.12647.qmail@web25813.mail.ukl.yahoo.com>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+moreau francis writes:
+ > 
 
+[...]
 
-On Wed, 23 Nov 2005, David S. Miller wrote:
->
-> From: Andrew Morton <akpm@osdl.org>
-> Date: Wed, 23 Nov 2005 00:21:34 -0800
-> 
-> > Nope, this will break !CONFIG_SMP builds.  Quite a few places in the
-> > kernel do not implement the ipi handler if !CONFIG_SMP.
-> 
-> Ho hum, nothing is ever easy eh? :-) I think your patch is fine for
-> now, but in the long term the !CONFIG_SMP ifdefs for those ipi
-> handlers should probably just get removed.  If GCC can't optimize
-> those things away, I'd be really surprised.
+ > int foo(void)
+ > {
+ >         int tmp;
+ > 
+ >         tmp = bar();
+ >         [...]
+ >         return tmp;
+ > }
+ > 
+ > How do you know if tmp store an errno value ? You have to look into bar and  so
 
-I just reverted the whole commit.
+Of course you should. How to debug anything without knowing what called
+function is doing? This is kernel programming after all. Which, by the
+way, means that debugging convenience is not at all important.
 
-We've had this exact thing before, and it's easy enough to handle, but you 
-have to do it right.
+ > on...By using "enum errnoval", gdb can directly tell you that a variable stores
+ > an errno value.
+ > 
+ > Thanks
 
-The way to handle it is to do
-
-	static inline int maybe_ignored(int arg, ...)
-	{
-		return arg;
-	}
-
-	#define smp_call_function(func,info,retry,wait) \
-		maybe_ignored(0, info, retry, wait)
-
-which is a very useful way to say: we don't care about "func", but we want 
-to avoid unused warnings for "info", "retry" and "wait", and we want to 
-return 0 regardless and compile it all away.
-
-If somebody tests this, puts the "maybe_ignored()" function in some nice 
-generic header file, I'll apply it.
-
-I _refuse_ to apply the patch from Andrew that adds "(void)" to shut up 
-the compiler. That's a piece of crap, and we should never do things like 
-that. Bad C style.
-
-		Linus
+Nikita.

@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965208AbVKWCIj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbVKWCMp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965208AbVKWCIj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 21:08:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965210AbVKWCIj
+	id S932231AbVKWCMp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 21:12:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbVKWCMp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 21:08:39 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:28645 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965208AbVKWCIi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 21:08:38 -0500
-Date: Tue, 22 Nov 2005 18:08:17 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: jeffrey.hundstad@mnsu.edu, zlynx@acm.org, ak@muc.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.15-rc2
-Message-Id: <20051122180817.465d465c.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0511221735400.13959@g5.osdl.org>
-References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org>
-	<43829ED2.3050003@mnsu.edu>
-	<20051122150002.26adf913.akpm@osdl.org>
-	<Pine.LNX.4.64.0511221642310.13959@g5.osdl.org>
-	<20051122170507.37ebbc0c.akpm@osdl.org>
-	<Pine.LNX.4.64.0511221735400.13959@g5.osdl.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 22 Nov 2005 21:12:45 -0500
+Received: from fmr24.intel.com ([143.183.121.16]:8868 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932231AbVKWCMo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 21:12:44 -0500
+Date: Tue, 22 Nov 2005 18:12:43 -0800
+From: Rajesh Shah <rajesh.shah@intel.com>
+To: Jean Tourrilhes <jt@hpl.hp.com>
+Cc: Rajesh Shah <rajesh.shah@intel.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: BUG 2.6.14.2 : ACPI boot lockup
+Message-ID: <20051122181242.A5214@unix-os.sc.intel.com>
+Reply-To: Rajesh Shah <rajesh.shah@intel.com>
+References: <20051122211947.GA29622@bougret.hpl.hp.com> <20051122165429.A30362@unix-os.sc.intel.com> <20051123020609.GA30491@bougret.hpl.hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20051123020609.GA30491@bougret.hpl.hp.com>; from jt@hpl.hp.com on Tue, Nov 22, 2005 at 06:06:09PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
->
-> On Tue, 22 Nov 2005, Andrew Morton wrote:
-> > > 
-> > > Why does it happen at all, though?
-> > 
-> > davem recently merged a patch which adds ext3 ioctls to fs/compat_ioctl.c. 
-> > That required inclusion of ext3 and jbd header files.  Those files explode
-> > unpleasantly when CONFIG_JBD=n.
+On Tue, Nov 22, 2005 at 06:06:09PM -0800, Jean Tourrilhes wrote:
 > 
-> Oh. How about just making jbd.h do the rigt thing, and not care about the 
-> configuration?
+> 	This patch does not look right to me, but I must admit I have
+> no clue about what the code is doing. Can you confirm you want me to
+> try this ?
 > 
-> If we include jbd.h, we want the jbd data structures. There's never any 
-> reason to care whether jbd is enabled or not afaik.
+Yes, please try this since this is known to fix at least a couple
+of other machines (see 
+https://bugzilla.novell.com/show_bug.cgi?id=116763)
 
-Yes, that would be the right thing to do.
+The original acpi code ignored errors related to matching an
+acpi device to an acpi driver. I changed that behavior to flag
+an error, and this was wrong. An acpi device listed in the
+namespace should not be required to have a driver for it to
+be added to the acpi list.
 
-> ...
-> -#if defined(__KERNEL__) && !(defined(CONFIG_JBD) || defined(CONFIG_JBD_MODULE))
-> -
-> -#define J_ASSERT(expr)			do {} while (0)
-> -#define J_ASSERT_BH(bh, expr)		do {} while (0)
-> -#define buffer_jbd(bh)			0
-> -#define journal_buffer_journal_lru(bh)	0
-> -
-> -#endif	/* defined(__KERNEL__) && !defined(CONFIG_JBD) */
-
-I guess the core kernel once needed these, but it doesn't (and shouldn't) now.
+thanks,
+Rajesh

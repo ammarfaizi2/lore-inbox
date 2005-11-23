@@ -1,67 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbVKWUNT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbVKWUPm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932279AbVKWUNT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 15:13:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbVKWUNT
+	id S932290AbVKWUPm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 15:15:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932292AbVKWUPm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 15:13:19 -0500
-Received: from mail.kroah.org ([69.55.234.183]:13026 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932279AbVKWUNS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 15:13:18 -0500
-Date: Wed, 23 Nov 2005 12:12:38 -0800
-From: Greg KH <greg@kroah.com>
-To: Marc Koschewski <marc@osknowledge.org>
-Cc: Ian McDonald <imcdnzl@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-rc2-mm1
-Message-ID: <20051123201238.GC29402@kroah.com>
-References: <20051123033550.00d6a6e8.akpm@osdl.org> <20051123175045.GA6760@stiffy.osknowledge.org> <cbec11ac0511231133m63bec4ddi455fa769dd22906b@mail.gmail.com> <20051123195052.GA7446@stiffy.osknowledge.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051123195052.GA7446@stiffy.osknowledge.org>
-User-Agent: Mutt/1.5.11
+	Wed, 23 Nov 2005 15:15:42 -0500
+Received: from vms042pub.verizon.net ([206.46.252.42]:33887 "EHLO
+	vms042pub.verizon.net") by vger.kernel.org with ESMTP
+	id S932290AbVKWUPl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 15:15:41 -0500
+Date: Wed, 23 Nov 2005 15:14:16 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: Linux 2.6.15-rc2
+In-reply-to: <4384C909.4040107@m1k.net>
+To: linux-kernel@vger.kernel.org, mkrufky@m1k.net
+Cc: Adrian Bunk <bunk@stusta.de>, Johannes Stezenbach <js@linuxtv.org>,
+       Sam Ravnborg <sam@ravnborg.org>, Kirk Lapray <kirk.lapray@gmail.com>
+Message-id: <200511231514.17157.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org>
+ <200511231436.54136.gene.heskett@verizon.net> <4384C909.4040107@m1k.net>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 08:50:54PM +0100, Marc Koschewski wrote:
-> * Ian McDonald <imcdnzl@gmail.com> [2005-11-24 08:33:36 +1300]:
-> 
-> > On 11/24/05, Marc Koschewski <marc@osknowledge.org> wrote:
-> > > Just booted into 2.6.15-rc2-mm1. The 'mouse problem' (as reported earlier) still
-> > > persists, moreover, some stuff's now really not gonna work anymore. I logged in
-> > > via gdm once and rebooted.
-> > >
-> > > Ragards,
-> > >         Marc
-> > >
-> > 
-> > Mouse problem is userspace. See bug 340202 on the Debian site.
-> > 
-> > Ian
-> 
-> ===
-> Package: udev
-> Version: 0.074-3
-> Severity: critical
-> Justification: breaks the whole system
-> 
-> 
-> When running Linux 2.6.15-rc1+, the new nested class devices used by the
-> input class prevent /dev/input/ from being created, rendering X
-> unusable.
-> ===
-> 
-> The problem over here exists _only_ in the -mm series, not plain 2.6.15-rc1
-> or 2.6.15-rc2. What's up then!? I use udev 0.74-3 as well. Mysterious...
+On Wednesday 23 November 2005 14:54, Michael Krufky wrote:
+>Gene Heskett wrote:
+>>On Wednesday 23 November 2005 14:17, Michael Krufky wrote:
+>>
+>>[...]
+>>
+>>>f it fixes Gene's problem (a quick glance at his emails suggests that
+>>>it does) then:
+>>
+>>Read further Michael, it still takes a _cold_ reboot to 2.6.14.2 to
+>> fix it.
+>
+>I'm sorry -- I should have been clearer... It fixes the following error
+>message, correct?
+>
+>Gene Heskett wrote:
+>> WARNING:/lib/modules/2.6.15-rc2/kernel/drivers/media/video/cx88/cx88-
+>>dvb .ko needs unknown symbol nxt200x_attach.
+>
+>About the cold reboot needed for 2.6.14.2, well, that is completely
+>unrelated...
+>
+>First, does the patch fix the unknown symbol error?  If so, then the
+>patch is correct.
 
-It's a userspace issue as to how udev is creating the initial device
-nodes in Debian.
+Yes, it fixes that just fine.
+>
+>Moving on........
+>
+>Kirk Lapray wrote both OR51132 and NXT200X frontend modules (cc added)
+> ...
+>
+>First off, Gene, I am still under the impression that both v4l and dvb
+>subsystems are broken under 2.6.15 due to the memory bugs... I don't
+>know if Hugh Dickins fixed those yet or not.
 
-Odd that this only shows up in the -mm releases, as it should also show
-up for you in the -rc1 and -rc2 kernels.
+Neither do I.  But as a tv engineer with 50+ years of experience, the
+general appearance is if the antenna cable has been disconnected and
+held about 2" away from the f-59 connector when a hot reboot is done. 
+The audio in both cases sounds like its a station 300 miles away when
+the atmospherics are behaving themselves.
+>
+>Please try to build merged v4l+dvb cvs trees against your 2.6.14.2
+>kernel, and tell me if you are having the same problems.  If you are
+>indeed having the same problem, then it confirms that something in the
+>nxt200x module is causing problems in the OR51132 module.
 
-thanks,
+And how & where do I obtain that?
 
-greg k-h
+>Kirk, are you able to use both modules together using both pcHDTV and
+>ATI HDTV Wonder PCI cx88 boards simultaneously without causing any
+>conflicts?
+>
+>Once again, Gene, please follow the tree-merge instructions located at:
+>
+>http://linuxtv.org/v4lwiki/index.php/How_to_build_from_CVS
+
+I'll give this a shot and advise on the results.
+
+>Please let me know if the problem persists.  If the problem is gone,
+>then nxt200x is a red herring.
+>
+>Regards,
+>
+>Michael Krufky
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.36% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+

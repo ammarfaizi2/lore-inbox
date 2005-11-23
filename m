@@ -1,63 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbVKWQnh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbVKWQtK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932077AbVKWQnh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 11:43:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbVKWQnh
+	id S932071AbVKWQtK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 11:49:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbVKWQtK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 11:43:37 -0500
-Received: from mx2.suse.de ([195.135.220.15]:22252 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932077AbVKWQnf (ORCPT
+	Wed, 23 Nov 2005 11:49:10 -0500
+Received: from styx.suse.cz ([82.119.242.94]:40900 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S932071AbVKWQtI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 11:43:35 -0500
-Message-ID: <43849C23.3040001@suse.de>
-Date: Wed, 23 Nov 2005 17:43:15 +0100
-From: Gerd Knorr <kraxel@suse.de>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com>	 <20051111103605.GC27805@elf.ucw.cz> <4374F2D5.7010106@vmware.com>	 <Pine.LNX.4.64.0511111147390.4627@g5.osdl.org>	 <4374FB89.6000304@vmware.com>	 <Pine.LNX.4.64.0511111218110.4627@g5.osdl.org>	 <20051113074241.GA29796@redhat.com>	 <Pine.LNX.4.64.0511131118020.3263@g5.osdl.org>	 <Pine.LNX.4.64.0511131210570.3263@g5.osdl.org> <4378A7F3.9070704@suse.de>	 <Pine.LNX.4.64.0511141118000.3263@g5.osdl.org> <4379ECC1.20005@suse.de>	 <437A0649.7010702@suse.de> <437B5A83.8090808@suse.de>	 <438359D7.7090308@suse.de>  <p7364qjjhqx.fsf@verdi.suse.de> <1132764133.7268.51.camel@localhost.localdomain>
-In-Reply-To: <1132764133.7268.51.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Nov 2005 11:49:08 -0500
+Date: Wed, 23 Nov 2005 17:49:07 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Marc Koschewski <marc@osknowledge.org>, Greg KH <greg@kroah.com>,
+       lkml <linux-kernel@vger.kernel.org>, rmk+lkml@arm.linux.org.uk
+Subject: Re: Christmas list for the kernel
+Message-ID: <20051123164907.GA2981@ucw.cz>
+References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com> <20051122204918.GA5299@kroah.com> <9e4733910511221313t4a1e3c67wc7b08160937eb5c5@mail.gmail.com> <20051123121726.GA7328@ucw.cz> <9e4733910511230643j64922738p709fecd6c86b4a95@mail.gmail.com> <20051123150349.GA15449@flint.arm.linux.org.uk> <9e4733910511230712y2b394851rc17fa71c6f9c6ecf@mail.gmail.com> <20051123155650.GB6970@stiffy.osknowledge.org> <20051123160520.GH15449@flint.arm.linux.org.uk> <9e4733910511230837v1519d3b3t28176b1fd6017ffc@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9e4733910511230837v1519d3b3t28176b1fd6017ffc@mail.gmail.com>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Mer, 2005-11-23 at 12:17 -0700, Andi Kleen wrote:
->>> +	/* Paranoia */
->>> +	asm volatile ("jmp 1f\n1:");
->>> +	mb();
->> That would be totally obsolete 386 era paranoia. If anything then use 
->> a CLFLUSH (but not available on all x86s) 
+On Wed, Nov 23, 2005 at 11:37:23AM -0500, Jon Smirl wrote:
+
+> Before everyone gets excited, I realize that all of this has
+> historical implications. But that doesn't mean we can't discuss
+> possible future alternative solutions.
 > 
-> If you are patching code another x86 CPU is running you must halt the
-> other processors and ensure it executes a serialzing instruction before
-> it enters any patched code. 
+> Thinking about this for a while it seems to me that the problem is
+> that the various apps (init, syslog) etc should not have a tty name as
+> part of their command line parameters. Instead these apps could use
+> ptys instead. Ptys would solve all of the race problems too.
+> 
+> Is there any good reason (other than history) for using a device node
+> name (tty0, etc) instead of some other naming scheme if names are
+> needed at all?
+> 
+> If init, syslog, etc can be converted to ptys, do we need ttys? Xterms
+> use ptys I don't notice that they aren't connect to a fix tty name.
+> The virtual consoles would still be 0,1,2 but do they have to be
+> hooked to tty0, 1, 2 instead of a pty?
+ 
+The basic difference between a pty and tty is that a pty connects to a
+program (that created it by opening the ptmx node, for example xterm or
+ssh) on the other end, while a tty connects to the kernel doing all the
+character drawing in the framebuffer.
 
-Patching in/out SMP-locking with more than one active CPU would be a 
-pretty silly idea in the first place ;)
+You can't easily use one instead of the other, they're very different
+beasts.
 
-> How many kilobytes of tables do you add to the kernel to do this
-> pointless stunt btw ?
+Of course, a way to use a pty would be to have the console
+implementation in userspace.
 
-  16 .smp_altinstructions 0000ae0b  c03b4000  003b4000  002b4000  2**2
-                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  17 .smp_altinstr_replacement 00000f6e  c03bee0b  003bee0b  002bee0b  2**0
-                   CONTENTS, ALLOC, LOAD, CODE
+The fact that no program is on the other end of a tty is also the reason
+why they cannot be created dynamically like ptys, there is noone to open
+a "ttmx" to create the ttys.
 
-cheers,
+Hence, the device nodes are pre-created by the kernel, while the real
+devices are only created on open.
 
-   Gerd
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

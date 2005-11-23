@@ -1,18 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbVKWTmF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbVKWTnJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932243AbVKWTmF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 14:42:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbVKWTmF
+	id S932248AbVKWTnJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 14:43:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbVKWTnJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 14:42:05 -0500
-Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:36530 "EHLO
-	vger.utah-nac.org") by vger.kernel.org with ESMTP id S932243AbVKWTmC
+	Wed, 23 Nov 2005 14:43:09 -0500
+Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:38578 "EHLO
+	vger.utah-nac.org") by vger.kernel.org with ESMTP id S932248AbVKWTnH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 14:42:02 -0500
-Date: Wed, 23 Nov 2005 12:30:33 -0700
+	Wed, 23 Nov 2005 14:43:07 -0500
+Date: Wed, 23 Nov 2005 12:31:44 -0700
 From: jmerkey@ns1.utah-nac.org
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
+       "H. Peter Anvin" <hpa@zytor.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Andi Kleen <ak@suse.de>, Gerd Knorr <kraxel@suse.de>,
        Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
        Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
@@ -23,38 +24,44 @@ Cc: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
        "Eric W. Biederman" <ebiederm@xmission.com>,
        Ingo Molnar <mingo@elte.hu>
 Subject: Re: [patch] SMP alternatives
-Message-ID: <20051123193033.GA19557@ns1.utah-nac.org>
-References: <437B5A83.8090808@suse.de> <438359D7.7090308@suse.de> <p7364qjjhqx.fsf@verdi.suse.de> <1132764133.7268.51.camel@localhost.localdomain> <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <4384BF01.4020605@zytor.com>
+Message-ID: <20051123193144.GB19557@ns1.utah-nac.org>
+References: <438359D7.7090308@suse.de> <p7364qjjhqx.fsf@verdi.suse.de> <1132764133.7268.51.camel@localhost.localdomain> <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <4384A63E.6030706@wolfmountaingroup.com> <Pine.LNX.4.64.0511231059450.13959@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4384BF01.4020605@zytor.com>
+In-Reply-To: <Pine.LNX.4.64.0511231059450.13959@g5.osdl.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 11:12:01AM -0800, H. Peter Anvin wrote:
-> Linus Torvalds wrote:
+On Wed, Nov 23, 2005 at 11:03:15AM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Wed, 23 Nov 2005, Jeff V. Merkey wrote:
 > >
-> >Of course, if it's in one of the low 12 bits of %cr3, there would have to 
-> >be a "enable this bit" in %cr4 or something. Historically, you could write 
-> >any crap in the low bits, I think.
-> >
+> > The lock prefix '0F' is used for a lot of opcodes other than "lock". Go check
+> > the instruction set reference.
 > 
-> No, most of them are RAZ, but there are at least a couple of bits which 
-> have effect (e.g. caching of the page tables.)
+> No it's not.
 > 
-> However, with PAE there aren't really a whole lot of unused bits in CR3.
+> 0F is indeed the two-byte prefix. But lock is F0, and it's unique.
 > 
-> 	-hpa
-> -
+> Sometimes Intel re-uses the prefixes for other things eg "rep nop", but I 
+> don't think that has ever happened for the lock prefix. 
+> 
+> Besides, the instructions look very different internally in the CPU after 
+> decoding, and anyway you'd not want to ignore the lock prefix _early_ at 
+> decode time anyway (many instructions turn into illegal instructions with 
+> a lock prefix, as do reg-reg modrm bytes). So you'd dismiss the lock 
+> prefix not at a byte level, but at a minimum just after the decode stage.
+> 
+> 		Linus
 
-Changing CR3 will break compatibility with Windows and interfere with Intel's Bread and Butter gravy Train with M$.  CR4 was created to deal with some of the
-legacy issues with backward compatiblity with OS's that read CR3.  Messing with CR3 will break Windows.
-
-They won't do anything that will upset the apple cart with M$.  I dealt with
-Intel folks for years when Linux was unknown.  They look and act like boy scouts-- don't be fooled -- they're totally an M$ shop, always have been, always will be.  Linux was and is an intresting brain fart on their radar.  Their interests in it are solely based on their internal "Rabbits and Dogs" Andy Grove mentality.  They say there are rabbits and dogs.  Rabbits run out front, dogs chase the rabbits.  Intel does business with rabbits.  Linux is a dog -- it chases after innovators and replicates their work.  The fact it's free is the basis of their interest.
-
-Those interests do not extend to anything that interferes with their M$ relationship.  Push for CR4, they might agree, but be assured your request will pass Balmers desk before it gets approved.
+I always get numbers and words transposed.  Thanks for the correction. 
 
 J
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

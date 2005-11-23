@@ -1,94 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbVKWUxY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbVKWU5N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932353AbVKWUxY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 15:53:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbVKWUxY
+	id S932422AbVKWU5N (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 15:57:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbVKWU5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 15:53:24 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:41688 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932353AbVKWUxW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 15:53:22 -0500
-Subject: Re: [PATCH]: Free pages from local pcp lists under tight memory
-	conditions
-From: Rohit Seth <rohit.seth@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: clameter@engr.sgi.com, torvalds@osdl.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20051123115545.69087adf.akpm@osdl.org>
-References: <20051122161000.A22430@unix-os.sc.intel.com>
-	 <Pine.LNX.4.62.0511231128090.22710@schroedinger.engr.sgi.com>
-	 <1132775194.25086.54.camel@akash.sc.intel.com>
-	 <20051123115545.69087adf.akpm@osdl.org>
-Content-Type: text/plain
-Organization: Intel 
-Date: Wed, 23 Nov 2005 13:00:05 -0800
-Message-Id: <1132779605.25086.69.camel@akash.sc.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Nov 2005 20:53:06.0938 (UTC) FILETIME=[E7B545A0:01C5F06F]
+	Wed, 23 Nov 2005 15:57:13 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:35601 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932421AbVKWU5L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 15:57:11 -0500
+Date: Wed, 23 Nov 2005 21:57:10 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: linux-kernel@vger.kernel.org, linux-sound@vger.kernel.org,
+       linux-pm@lists.osdl.org, akpm@osdl.org
+Subject: Re: [Patch 0/6] Remove Deprecated PM Interface from Obsolete Sound Drivers
+Message-ID: <20051123205710.GW3963@stusta.de>
+References: <Pine.LNX.4.50.0511231114340.14446-100000@monsoon.he.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50.0511231114340.14446-100000@monsoon.he.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-23 at 11:55 -0800, Andrew Morton wrote:
-> Rohit Seth <rohit.seth@intel.com> wrote:
-> >
-> > On Wed, 2005-11-23 at 11:30 -0800, Christoph Lameter wrote:
-> > > On Tue, 22 Nov 2005, Rohit Seth wrote:
-> > > 
-> > > > [PATCH]: This patch free pages (pcp->batch from each list at a time) from
-> > > > local pcp lists when a higher order allocation request is not able to 
-> > > > get serviced from global free_list.
-> > > 
-> > > Ummm.. One controversial idea: How about removing the complete pcp 
-> > > subsystem? Last time we disabled pcps we saw that the effect 
-> > > that it had was within noise ratio on AIM7. The lru lock taken without 
-> > > pcp is in the local zone and thus rarely contended.
-> > 
-> > Oh please stop.
-> > 
-> > This per_cpu_pagelist is one great logic that has got added in
-> > allocator.  Besides providing pages without the need to acquire the zone
-> > lock, it is one single main reason the coloring effect is drastically
-> > reduced in 2.6 (over 2.4) based kernels.
-> > 
+On Wed, Nov 23, 2005 at 12:23:25PM -0800, Patrick Mochel wrote:
 > 
-> hm.  Before it was merged in 2.5.x, the feature was very marginal from a
-> performance POV in my testing on 4-way.
+> Hi there.
+
+Hi Patrick,
+
+> This is a series of 6 patches that remove the old, deprecated power
+> management interface from a variety of old OSS drivers, most of them
+> marked OBSOLETE and scheduled for removal in January 2006.
 > 
-
-One less lock to worry about in the page allocation should help
-somewhere I would assume.
-
-> I was able to demonstrate a large (~60%?) speedup in one microbenckmark
-> which consisted of four processes writing 16k to a file and truncating it
-> back to zero again.  That gain came from the cache warmth effect, which is
-> the other benefit which these cpu-local pages are supposed to provide.
+> These patches facilitate the removal of the ancient PM interface by
+> reducing the number of in-kernel users to 3:
 > 
+> 	drivers/net/3c509.c
+> 	drivers/net/irda/ali-ircc.c
+> 	drivers/serial/68328serial.c
+>...
+> Does any one have any objections to these patches?
 
-That is right.
+I'd say the obsolete OSS drivers are the least problem, it would be more  
+interesting to get the code fixed that will still be present two months  
+from now.
 
-> I don't think Martin was able to demonstrate much benefit from the lock
-> contention reduction on 16-way NUMAQ either.
+Looking at the current state of 2.6.15, I doubt your patches would make 
+it into Linus' tree earlier than the complete removal of the drivers.
+
+> Thanks,
 > 
-> So I dithered for months and it was a marginal merge, so it's appropriate
-> to justify the continued presence of the code.
-> 
+> 	Pat
+>...
 
-May be the limits on the number of pages hanging on the per_cpu_pagelist
-was (or even now is) too small (for them to give any meaningful gain).
-May be we should have more physical contiguity in each of these pcps to
-give better cache spread.  
+cu
+Adrian
 
-> We didn't measure for any coloring effects though.  In fact, I didn't know
-> that this feature actually provided any benefit in that area.  
+-- 
 
-I thought Nick et.al came up with some of the constant values like batch
-size to tackle the page coloring issue specifically.  In any case, I
-think one of the key difference between 2.4 and 2.6 allocators is the
-pcp list.  And even with the minuscule batch and high watermarks this is
-helping ordinary benchmarks (by reducing the variation from run to run).
-
--rohit 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,189 +1,510 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbVKWTAN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbVKWTAQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932195AbVKWTAN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 14:00:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbVKWTAN
+	id S932203AbVKWTAQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 14:00:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbVKWTAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 14:00:13 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:57808 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932195AbVKWTAL (ORCPT
+	Wed, 23 Nov 2005 14:00:15 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:58064 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932184AbVKWTAL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 23 Nov 2005 14:00:11 -0500
-Date: Wed, 23 Nov 2005 18:59:48 GMT
-Message-Id: <200511231859.jANIxmgQ032276@warthog.cambridge.redhat.com>
+Date: Wed, 23 Nov 2005 18:59:47 GMT
 From: David Howells <dhowells@redhat.com>
 To: torvalds@osdl.org, akpm@osdl.org, dalomar@serrasold.com
 Cc: linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
 Fcc: outgoing
-Subject: [PATCH 2/3] NOMMU: Make SYSV IPC SHM use ramfs facilities on NOMMU
-In-Reply-To: <dhowells1132772387@warthog.cambridge.redhat.com>
-References: <dhowells1132772387@warthog.cambridge.redhat.com>
+Subject: [PATCH 1/3] NOMMU: Provide shared-writable mmap support on ramfs
+Message-Id: <dhowells1132772387@warthog.cambridge.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The attached patch makes the SYSV IPC shared memory facilities use the new
-ramfs facilities on a no-MMU kernel.
+The attached patch makes ramfs support shared-writable mmaps by:
 
-The following changes are made:
+ (1) Attempting to perform a contiguous block allocation to the requested size
+     when truncate attempts to increase the file from zero size, such as
+     happens when:
 
- (1) There are now shmem_mmap() and shmem_get_unmapped_area() functions to
-     allow the IPC SHM facilities to commune with the tiny-shmem and shmem
-     code.
+	fd = shm_open("/file/on/ramfs", ...):
+	ftruncate(fd, size_requested);
+	addr = mmap(NULL, subsize, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_SHARED,
+		    fd, offset);
 
- (2) ramfs files now need resizing using do_truncate() rather than by modifying
-     the inode size directly (see shmem_file_setup()). This causes ramfs to
-     attempt to bind a block of pages of sufficient size to the inode.
+ (2) Permitting any shared-writable mapping over any contiguous set of extant
+     pages. get_unmapped_area() will return the address into the actual ramfs
+     pages. The mapping may start anywhere and be of any size, but may not go
+     over the end of file. Multiple mappings may overlap in any way.
 
- (3) CONFIG_SYSVIPC is no longer contingent on CONFIG_MMU.
+ (3) Not permitting a file to be shrunk if it would truncate any shared
+     mappings (private mappings are copied).
+
+Thus this patch provides support for POSIX shared memory on NOMMU kernels, with
+certain limitations such as there being a large enough block of pages available
+to support the allocation and it only working on directly mappable filesystems.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
-warthog>diffstat -p1 shmem-nommu-2615rc2.diff
- include/linux/mm.h |    9 +++++++++
- init/Kconfig       |    1 -
- ipc/shm.c          |   18 +++++++++++++-----
- mm/nommu.c         |    6 ++++++
- mm/shmem.c         |    2 +-
- mm/tiny-shmem.c    |   29 ++++++++++++++++++++++++++++-
- 6 files changed, 57 insertions(+), 8 deletions(-)
+warthog>diffstat -p1 shmem-ramfs-2615rc2.diff
+ fs/ramfs/Makefile     |    4 
+ fs/ramfs/file-mmu.c   |   57 +++++++++
+ fs/ramfs/file-nommu.c |  294 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ fs/ramfs/inode.c      |   22 ---
+ fs/ramfs/internal.h   |   15 ++
+ include/linux/ramfs.h |   10 +
+ 6 files changed, 380 insertions(+), 22 deletions(-)
 
-diff -uNrp linux-2.6.15-rc2-frv/include/linux/mm.h linux-2.6.15-rc2-frv-shmem/include/linux/mm.h
---- linux-2.6.15-rc2-frv/include/linux/mm.h	2005-11-23 13:29:08.000000000 +0000
-+++ linux-2.6.15-rc2-frv-shmem/include/linux/mm.h	2005-11-23 16:46:59.000000000 +0000
-@@ -656,9 +656,18 @@ int shmem_lock(struct file *file, int lo
- #define shmem_get_policy(a, b)	(NULL)
- #endif
- struct file *shmem_file_setup(char *name, loff_t size, unsigned long flags);
-+extern int shmem_mmap(struct file *file, struct vm_area_struct *vma);
- 
- int shmem_zero_setup(struct vm_area_struct *);
- 
-+#ifndef CONFIG_MMU
-+extern unsigned long shmem_get_unmapped_area(struct file *file,
-+					     unsigned long addr,
-+					     unsigned long len,
-+					     unsigned long pgoff,
-+					     unsigned long flags);
-+#endif
+diff -uNrp linux-2.6.15-rc2-frv/fs/ramfs/file-mmu.c linux-2.6.15-rc2-frv-shmem/fs/ramfs/file-mmu.c
+--- linux-2.6.15-rc2-frv/fs/ramfs/file-mmu.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.15-rc2-frv-shmem/fs/ramfs/file-mmu.c	2005-11-23 16:00:57.000000000 +0000
+@@ -0,0 +1,57 @@
++/* file-mmu.c: ramfs MMU-based file operations
++ *
++ * Resizable simple ram filesystem for Linux.
++ *
++ * Copyright (C) 2000 Linus Torvalds.
++ *               2000 Transmeta Corp.
++ *
++ * Usage limits added by David Gibson, Linuxcare Australia.
++ * This file is released under the GPL.
++ */
 +
- static inline int can_do_mlock(void)
- {
- 	if (capable(CAP_IPC_LOCK))
-diff -uNrp linux-2.6.15-rc2-frv/init/Kconfig linux-2.6.15-rc2-frv-shmem/init/Kconfig
---- linux-2.6.15-rc2-frv/init/Kconfig	2005-11-23 12:09:23.000000000 +0000
-+++ linux-2.6.15-rc2-frv-shmem/init/Kconfig	2005-11-23 16:00:57.000000000 +0000
-@@ -105,7 +105,6 @@ config SWAP
- 
- config SYSVIPC
- 	bool "System V IPC"
--	depends on MMU
- 	---help---
- 	  Inter Process Communication is a suite of library functions and
- 	  system calls which let processes (running programs) synchronize and
-diff -uNrp linux-2.6.15-rc2-frv/ipc/shm.c linux-2.6.15-rc2-frv-shmem/ipc/shm.c
---- linux-2.6.15-rc2-frv/ipc/shm.c	2005-11-23 12:09:23.000000000 +0000
-+++ linux-2.6.15-rc2-frv-shmem/ipc/shm.c	2005-11-23 16:45:44.000000000 +0000
-@@ -157,14 +157,22 @@ static void shm_close (struct vm_area_st
- 
- static int shm_mmap(struct file * file, struct vm_area_struct * vma)
- {
--	file_accessed(file);
--	vma->vm_ops = &shm_vm_ops;
--	shm_inc(file->f_dentry->d_inode->i_ino);
--	return 0;
++/*
++ * NOTE! This filesystem is probably most useful
++ * not as a real filesystem, but as an example of
++ * how virtual filesystems can be written.
++ *
++ * It doesn't get much simpler than this. Consider
++ * that this file implements the full semantics of
++ * a POSIX-compliant read-write filesystem.
++ *
++ * Note in particular how the filesystem does not
++ * need to implement any data structures of its own
++ * to keep track of the virtual data: using the VFS
++ * caches is sufficient.
++ */
++
++#include <linux/module.h>
++#include <linux/fs.h>
++#include <linux/pagemap.h>
++#include <linux/highmem.h>
++#include <linux/init.h>
++#include <linux/string.h>
++#include <linux/smp_lock.h>
++#include <linux/backing-dev.h>
++#include <linux/ramfs.h>
++
++#include <asm/uaccess.h>
++#include "internal.h"
++
++struct address_space_operations ramfs_aops = {
++	.readpage	= simple_readpage,
++	.prepare_write	= simple_prepare_write,
++	.commit_write	= simple_commit_write
++};
++
++struct file_operations ramfs_file_operations = {
++	.read		= generic_file_read,
++	.write		= generic_file_write,
++	.mmap		= generic_file_mmap,
++	.fsync		= simple_sync_file,
++	.sendfile	= generic_file_sendfile,
++	.llseek		= generic_file_llseek,
++};
++
++struct inode_operations ramfs_file_inode_operations = {
++	.getattr	= simple_getattr,
++};
+diff -uNrp linux-2.6.15-rc2-frv/fs/ramfs/file-nommu.c linux-2.6.15-rc2-frv-shmem/fs/ramfs/file-nommu.c
+--- linux-2.6.15-rc2-frv/fs/ramfs/file-nommu.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.15-rc2-frv-shmem/fs/ramfs/file-nommu.c	2005-11-23 16:24:36.000000000 +0000
+@@ -0,0 +1,294 @@
++/* file-nommu.c: no-MMU version of ramfs
++ *
++ * Copyright (C) 2005 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version
++ * 2 of the License, or (at your option) any later version.
++ */
++
++#include <linux/module.h>
++#include <linux/fs.h>
++#include <linux/pagemap.h>
++#include <linux/highmem.h>
++#include <linux/init.h>
++#include <linux/string.h>
++#include <linux/smp_lock.h>
++#include <linux/backing-dev.h>
++#include <linux/ramfs.h>
++#include <linux/quotaops.h>
++#include <linux/pagevec.h>
++#include <linux/mman.h>
++
++#include <asm/uaccess.h>
++#include "internal.h"
++
++static int ramfs_nommu_setattr(struct dentry *, struct iattr *);
++
++struct address_space_operations ramfs_aops = {
++	.readpage		= simple_readpage,
++	.prepare_write		= simple_prepare_write,
++	.commit_write		= simple_commit_write
++};
++
++struct file_operations ramfs_file_operations = {
++	.mmap			= ramfs_nommu_mmap,
++	.get_unmapped_area	= ramfs_nommu_get_unmapped_area,
++	.read			= generic_file_read,
++	.write			= generic_file_write,
++	.fsync			= simple_sync_file,
++	.sendfile		= generic_file_sendfile,
++	.llseek			= generic_file_llseek,
++};
++
++struct inode_operations ramfs_file_inode_operations = {
++	.setattr		= ramfs_nommu_setattr,
++	.getattr		= simple_getattr,
++};
++
++/*****************************************************************************/
++/*
++ * add a contiguous set of pages into a ramfs inode when it's truncated from
++ * size 0 on the assumption that it's going to be used for an mmap of shared
++ * memory
++ */
++static int ramfs_nommu_expand_for_mapping(struct inode *inode, size_t newsize)
++{
++	struct pagevec lru_pvec;
++	unsigned long npages, xpages, loop, limit;
++	struct page *pages;
++	unsigned order;
++	void *data;
 +	int ret;
 +
-+	ret = shmem_mmap(file, vma);
-+	if (ret == 0) {
-+		vma->vm_ops = &shm_vm_ops;
-+		shm_inc(file->f_dentry->d_inode->i_ino);
++	/* make various checks */
++	order = get_order(newsize);
++	if (unlikely(order >= MAX_ORDER))
++		goto too_big;
++
++	limit = current->signal->rlim[RLIMIT_FSIZE].rlim_cur;
++	if (limit != RLIM_INFINITY && newsize > limit)
++		goto fsize_exceeded;
++
++	if (newsize > inode->i_sb->s_maxbytes)
++		goto too_big;
++
++	i_size_write(inode, newsize);
++
++	/* allocate enough contiguous pages to be able to satisfy the
++	 * request */
++	pages = alloc_pages(mapping_gfp_mask(inode->i_mapping), order);
++	if (!pages)
++		return -ENOMEM;
++
++	/* split the high-order page into an array of single pages */
++	xpages = 1UL << order;
++	npages = (newsize + PAGE_SIZE - 1) >> PAGE_SHIFT;
++
++	for (loop = 0; loop < npages; loop++)
++		set_page_count(pages + loop, 1);
++
++	/* trim off any pages we don't actually require */
++	for (loop = npages; loop < xpages; loop++)
++		__free_page(pages + loop);
++
++	/* clear the memory we allocated */
++	newsize = PAGE_SIZE * npages;
++	data = page_address(pages);
++	memset(data, 0, newsize);
++
++	/* attach all the pages to the inode's address space */
++	pagevec_init(&lru_pvec, 0);
++	for (loop = 0; loop < npages; loop++) {
++		struct page *page = pages + loop;
++
++		ret = add_to_page_cache(page, inode->i_mapping, loop, GFP_KERNEL);
++		if (ret < 0)
++			goto add_error;
++
++		if (!pagevec_add(&lru_pvec, page))
++			__pagevec_lru_add(&lru_pvec);
++
++		unlock_page(page);
++	}
++
++	pagevec_lru_add(&lru_pvec);
++	return 0;
++
++ fsize_exceeded:
++	send_sig(SIGXFSZ, current, 0);
++ too_big:
++	return -EFBIG;
++
++ add_error:
++	page_cache_release(pages + loop);
++	for (loop++; loop < npages; loop++)
++		__free_page(pages + loop);
++	return ret;
++}
++
++/*****************************************************************************/
++/*
++ * check that file shrinkage doesn't leave any VMAs dangling in midair
++ */
++static int ramfs_nommu_check_mappings(struct inode *inode,
++				      size_t newsize, size_t size)
++{
++	struct vm_area_struct *vma;
++	struct prio_tree_iter iter;
++
++	/* search for VMAs that fall within the dead zone */
++	vma_prio_tree_foreach(vma, &iter, &inode->i_mapping->i_mmap,
++			      newsize >> PAGE_SHIFT,
++			      (size + PAGE_SIZE - 1) >> PAGE_SHIFT
++			      ) {
++		/* found one - only interested if it's shared out of the page
++		 * cache */
++		if (vma->vm_flags & VM_SHARED)
++			return -ETXTBSY; /* not quite true, but near enough */
++	}
++
++	return 0;
++}
++
++/*****************************************************************************/
++/*
++ *
++ */
++static int ramfs_nommu_resize(struct inode *inode, loff_t newsize, loff_t size)
++{
++	int ret;
++
++	/* assume a truncate from zero size is going to be for the purposes of
++	 * shared mmap */
++	if (size == 0) {
++		if (unlikely(newsize >> 32))
++			return -EFBIG;
++
++		return ramfs_nommu_expand_for_mapping(inode, newsize);
++	}
++
++	/* check that a decrease in size doesn't cut off any shared mappings */
++	if (newsize < size) {
++		ret = ramfs_nommu_check_mappings(inode, newsize, size);
++		if (ret < 0)
++			return ret;
++	}
++
++	ret = vmtruncate(inode, size);
++
++	return ret;
++}
++
++/*****************************************************************************/
++/*
++ * handle a change of attributes
++ * - we're specifically interested in a change of size
++ */
++static int ramfs_nommu_setattr(struct dentry *dentry, struct iattr *ia)
++{
++	struct inode *inode = dentry->d_inode;
++	unsigned int old_ia_valid = ia->ia_valid;
++	int ret = 0;
++
++	/* by providing our own setattr() method, we skip this quotaism */
++	if ((old_ia_valid & ATTR_UID && ia->ia_uid != inode->i_uid) ||
++	    (old_ia_valid & ATTR_GID && ia->ia_gid != inode->i_gid))
++		ret = DQUOT_TRANSFER(inode, ia) ? -EDQUOT : 0;
++
++	/* pick out size-changing events */
++	if (ia->ia_valid & ATTR_SIZE) {
++		loff_t size = i_size_read(inode);
++		if (ia->ia_size != size) {
++			ret = ramfs_nommu_resize(inode, ia->ia_size, size);
++			if (ret < 0 || ia->ia_valid == ATTR_SIZE)
++				goto out;
++		} else {
++			/* we skipped the truncate but must still update
++			 * timestamps
++			 */
++			ia->ia_valid |= ATTR_MTIME|ATTR_CTIME;
++		}
++	}
++
++	ret = inode_setattr(inode, ia);
++ out:
++	ia->ia_valid = old_ia_valid;
++	return ret;
++}
++
++/*****************************************************************************/
++/*
++ * try to determine where a shared mapping can be made
++ * - we require that:
++ *   - the pages to be mapped must exist
++ *   - the pages be physically contiguous in sequence
++ */
++unsigned long ramfs_nommu_get_unmapped_area(struct file *file,
++					    unsigned long addr, unsigned long len,
++					    unsigned long pgoff, unsigned long flags)
++{
++	unsigned long maxpages, lpages, nr, loop, ret;
++	struct inode *inode = file->f_dentry->d_inode;
++	struct page **pages = NULL, **ptr, *page;
++	loff_t isize;
++
++	if (!(flags & MAP_SHARED))
++		return addr;
++
++	/* the mapping mustn't extend beyond the EOF */
++	lpages = (len + PAGE_SIZE - 1) >> PAGE_SHIFT;
++	isize = i_size_read(inode);
++
++	ret = -EINVAL;
++	maxpages = (isize + PAGE_SIZE - 1) >> PAGE_SHIFT;
++	if (pgoff >= maxpages)
++		goto out;
++
++	if (maxpages - pgoff < lpages)
++		goto out;
++
++	/* gang-find the pages */
++	ret = -ENOMEM;
++	pages = kmalloc(lpages * sizeof(struct page *), GFP_KERNEL);
++	if (!pages)
++		goto out;
++
++	memset(pages, 0, lpages * sizeof(struct page *));
++
++	nr = find_get_pages(inode->i_mapping, pgoff, lpages, pages);
++	if (nr != lpages)
++		goto out; /* leave if some pages were missing */
++
++	/* check the pages for physical adjacency */
++	ptr = pages;
++	page = *ptr++;
++	page++;
++	for (loop = lpages; loop > 1; loop--)
++		if (*ptr++ != page++)
++			goto out;
++
++	/* okay - all conditions fulfilled */
++	ret = (unsigned long) page_address(pages[0]);
++
++ out:
++	if (pages) {
++		ptr = pages;
++		for (loop = lpages; loop > 0; loop--)
++			put_page(*ptr++);
++		kfree(pages);
 +	}
 +
 +	return ret;
- }
- 
- static struct file_operations shm_file_operations = {
--	.mmap	= shm_mmap
-+	.mmap	= shm_mmap,
-+#ifndef CONFIG_MMU
-+	.get_unmapped_area = shmem_get_unmapped_area,
-+#endif
- };
- 
- static struct vm_operations_struct shm_vm_ops = {
-diff -uNrp linux-2.6.15-rc2-frv/mm/nommu.c linux-2.6.15-rc2-frv-shmem/mm/nommu.c
---- linux-2.6.15-rc2-frv/mm/nommu.c	2005-11-23 12:09:24.000000000 +0000
-+++ linux-2.6.15-rc2-frv-shmem/mm/nommu.c	2005-11-23 16:00:57.000000000 +0000
-@@ -1177,3 +1177,9 @@ int in_gate_area_no_task(unsigned long a
- {
- 	return 0;
- }
-+
-+struct page * filemap_nopage(struct vm_area_struct * area, unsigned long address, int *type)
-+{
-+	BUG();
-+	return NULL;
 +}
-diff -uNrp linux-2.6.15-rc2-frv/mm/shmem.c linux-2.6.15-rc2-frv-shmem/mm/shmem.c
---- linux-2.6.15-rc2-frv/mm/shmem.c	2005-11-23 12:09:24.000000000 +0000
-+++ linux-2.6.15-rc2-frv-shmem/mm/shmem.c	2005-11-23 16:00:57.000000000 +0000
-@@ -1255,7 +1255,7 @@ out_nomem:
- 	return retval;
- }
- 
--static int shmem_mmap(struct file *file, struct vm_area_struct *vma)
-+int shmem_mmap(struct file *file, struct vm_area_struct *vma)
- {
- 	file_accessed(file);
- 	vma->vm_ops = &shmem_vm_ops;
-diff -uNrp linux-2.6.15-rc2-frv/mm/tiny-shmem.c linux-2.6.15-rc2-frv-shmem/mm/tiny-shmem.c
---- linux-2.6.15-rc2-frv/mm/tiny-shmem.c	2005-11-23 12:09:24.000000000 +0000
-+++ linux-2.6.15-rc2-frv-shmem/mm/tiny-shmem.c	2005-11-23 16:46:15.000000000 +0000
-@@ -81,13 +81,19 @@ struct file *shmem_file_setup(char *name
- 		goto close_file;
- 
- 	d_instantiate(dentry, inode);
--	inode->i_size = size;
- 	inode->i_nlink = 0;	/* It is unlinked */
 +
- 	file->f_vfsmnt = mntget(shm_mnt);
- 	file->f_dentry = dentry;
- 	file->f_mapping = inode->i_mapping;
- 	file->f_op = &ramfs_file_operations;
- 	file->f_mode = FMODE_WRITE | FMODE_READ;
-+
-+	/* notify everyone as to the change of file size */
-+	error = do_truncate(dentry, size, file);
-+	if (error < 0)
-+		goto close_file;
-+
- 	return file;
- 
- close_file:
-@@ -123,3 +129,24 @@ int shmem_unuse(swp_entry_t entry, struc
- {
- 	return 0;
- }
-+
-+int shmem_mmap(struct file *file, struct vm_area_struct *vma)
++/*****************************************************************************/
++/*
++ * set up a mapping
++ */
++int ramfs_nommu_mmap(struct file *file, struct vm_area_struct *vma)
 +{
-+	file_accessed(file);
-+#ifndef CONFIG_MMU
-+	return ramfs_nommu_mmap(file, vma);
-+#else
 +	return 0;
-+#endif
 +}
+diff -uNrp linux-2.6.15-rc2-frv/fs/ramfs/inode.c linux-2.6.15-rc2-frv-shmem/fs/ramfs/inode.c
+--- linux-2.6.15-rc2-frv/fs/ramfs/inode.c	2005-06-22 13:52:17.000000000 +0100
++++ linux-2.6.15-rc2-frv-shmem/fs/ramfs/inode.c	2005-11-23 16:00:57.000000000 +0000
+@@ -34,13 +34,12 @@
+ #include <linux/ramfs.h>
+ 
+ #include <asm/uaccess.h>
++#include "internal.h"
+ 
+ /* some random number */
+ #define RAMFS_MAGIC	0x858458f6
+ 
+ static struct super_operations ramfs_ops;
+-static struct address_space_operations ramfs_aops;
+-static struct inode_operations ramfs_file_inode_operations;
+ static struct inode_operations ramfs_dir_inode_operations;
+ 
+ static struct backing_dev_info ramfs_backing_dev_info = {
+@@ -142,25 +141,6 @@ static int ramfs_symlink(struct inode * 
+ 	return error;
+ }
+ 
+-static struct address_space_operations ramfs_aops = {
+-	.readpage	= simple_readpage,
+-	.prepare_write	= simple_prepare_write,
+-	.commit_write	= simple_commit_write
+-};
+-
+-struct file_operations ramfs_file_operations = {
+-	.read		= generic_file_read,
+-	.write		= generic_file_write,
+-	.mmap		= generic_file_mmap,
+-	.fsync		= simple_sync_file,
+-	.sendfile	= generic_file_sendfile,
+-	.llseek		= generic_file_llseek,
+-};
+-
+-static struct inode_operations ramfs_file_inode_operations = {
+-	.getattr	= simple_getattr,
+-};
+-
+ static struct inode_operations ramfs_dir_inode_operations = {
+ 	.create		= ramfs_create,
+ 	.lookup		= simple_lookup,
+diff -uNrp linux-2.6.15-rc2-frv/fs/ramfs/internal.h linux-2.6.15-rc2-frv-shmem/fs/ramfs/internal.h
+--- linux-2.6.15-rc2-frv/fs/ramfs/internal.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.15-rc2-frv-shmem/fs/ramfs/internal.h	2005-11-23 16:25:37.000000000 +0000
+@@ -0,0 +1,15 @@
++/* internal.h: ramfs internal definitions
++ *
++ * Copyright (C) 2005 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version
++ * 2 of the License, or (at your option) any later version.
++ */
 +
++
++extern struct address_space_operations ramfs_aops;
++extern struct file_operations ramfs_file_operations;
++extern struct inode_operations ramfs_file_inode_operations;
+diff -uNrp linux-2.6.15-rc2-frv/fs/ramfs/Makefile linux-2.6.15-rc2-frv-shmem/fs/ramfs/Makefile
+--- linux-2.6.15-rc2-frv/fs/ramfs/Makefile	2004-06-18 13:41:28.000000000 +0100
++++ linux-2.6.15-rc2-frv-shmem/fs/ramfs/Makefile	2005-11-23 16:00:57.000000000 +0000
+@@ -4,4 +4,6 @@
+ 
+ obj-$(CONFIG_RAMFS) += ramfs.o
+ 
+-ramfs-objs := inode.o
++file-mmu-y := file-nommu.o
++file-mmu-$(CONFIG_MMU) := file-mmu.o
++ramfs-objs += inode.o $(file-mmu-y)
+diff -uNrp linux-2.6.15-rc2-frv/include/linux/ramfs.h linux-2.6.15-rc2-frv-shmem/include/linux/ramfs.h
+--- linux-2.6.15-rc2-frv/include/linux/ramfs.h	2004-10-19 10:42:17.000000000 +0100
++++ linux-2.6.15-rc2-frv-shmem/include/linux/ramfs.h	2005-11-23 16:00:57.000000000 +0000
+@@ -5,6 +5,16 @@ struct inode *ramfs_get_inode(struct sup
+ struct super_block *ramfs_get_sb(struct file_system_type *fs_type,
+ 	 int flags, const char *dev_name, void *data);
+ 
 +#ifndef CONFIG_MMU
-+unsigned long shmem_get_unmapped_area(struct file *file,
-+				      unsigned long addr,
-+				      unsigned long len,
-+				      unsigned long pgoff,
-+				      unsigned long flags)
-+{
-+	return ramfs_nommu_get_unmapped_area(file, addr, len, pgoff, flags);
-+}
++extern unsigned long ramfs_nommu_get_unmapped_area(struct file *file,
++						   unsigned long addr,
++						   unsigned long len,
++						   unsigned long pgoff,
++						   unsigned long flags);
++
++extern int ramfs_nommu_mmap(struct file *file, struct vm_area_struct *vma);
 +#endif
++
+ extern struct file_operations ramfs_file_operations;
+ extern struct vm_operations_struct generic_file_vm_ops;
+ 

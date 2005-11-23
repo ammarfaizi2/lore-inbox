@@ -1,84 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbVKWQYQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751026AbVKWQXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751162AbVKWQYQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 11:24:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbVKWQYP
+	id S1751026AbVKWQXk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 11:23:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbVKWQXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 11:24:15 -0500
-Received: from nproxy.gmail.com ([64.233.182.202]:61901 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751162AbVKWQYO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 11:24:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=OecWWXj1Rq8n2lx9p96Ygsqll2ahs0q5Djoywt2dvtlmZloxrs9juCSY6I2kJw9t7w2F3q8cp2c5z3W9kB8xUvyH+9Uk3Xu+W3xPxI39R75A1Cy01tqeegJ6HCHYGhCLvAbh4ejIOblR3gZJgbnmIwnBMMJOlu9AKvf4G/Tiu7Q=
-Message-ID: <58cb370e0511230824j2585d755vdd9b6b780ed0fed3@mail.gmail.com>
-Date: Wed, 23 Nov 2005 17:24:12 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Jens Axboe <axboe@suse.de>
-Subject: [Q] is queue->hardsect_size respected?
-Cc: LKML Mailinglist <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 23 Nov 2005 11:23:40 -0500
+Received: from styx.suse.cz ([82.119.242.94]:20926 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1751026AbVKWQXj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 11:23:39 -0500
+Date: Wed, 23 Nov 2005 17:23:37 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Marc Koschewski <marc@osknowledge.org>, Jon Smirl <jonsmirl@gmail.com>,
+       Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Christmas list for the kernel
+Message-ID: <20051123162337.GA2434@ucw.cz>
+References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com> <20051122204918.GA5299@kroah.com> <9e4733910511221313t4a1e3c67wc7b08160937eb5c5@mail.gmail.com> <20051123121726.GA7328@ucw.cz> <9e4733910511230643j64922738p709fecd6c86b4a95@mail.gmail.com> <20051123150349.GA15449@flint.arm.linux.org.uk> <9e4733910511230719h67fa96bdxdeb654aa12f18e67@mail.gmail.com> <20051123160231.GC6970@stiffy.osknowledge.org> <20051123161637.GI15449@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20051123161637.GI15449@flint.arm.linux.org.uk>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Nov 23, 2005 at 04:16:37PM +0000, Russell King wrote:
+> On Wed, Nov 23, 2005 at 05:02:33PM +0100, Marc Koschewski wrote:
+> > Mine looks like this.
+> > 
+> > * Why is the seconf line for ttyS1 missing (as you have one above)?
+> 
+> Probably because whatever-added-ttyS0 didn't add ttyS1 as well.  As
+> I've said, due to the complex initialisation of serial (and the fact
+> I don't see this) I can't provide a more useful answer.
+> 
+> At a guess, the "whatever-added-ttyS0" could be ACPI.  ACPI doesn't
+> have the notion of devices, so any ACPI ports would appear as legacy
+> devices.  Hence, ttyS0 may have been provided by both the legacy table
+> and maybe ACPI, whereas ttyS1 seems to only be provided by the legacy
+> table.
+> 
+> Maybe that indicates your ACPI is buggy.  I don't know.  I know nothing
+> about ACPI.
+> 
+> > * What does these 'too much work' messages mean? Must have been come
+> >   in lately...
+> 
+> It means that we spun in the serial interrupt for more than 256 times
+> and reached the limit on the amount of work we were prepared to do.
+> Any idea what you were doing when these happened?
+ 
+Because ACPI was right and the second serial port isn't there?
 
-I'm hacking on ide-cd.c and I've noticed that some old code
-(PIO handing for read fs requests) still supports unaligned access:
-
-static ide_startstop_t cdrom_start_read_continuation (ide_drive_t *drive)
-{
-	struct request *rq = HWGROUP(drive)->rq;
-	unsigned short sectors_per_frame;
-	int nskip;
-
-	sectors_per_frame = queue_hardsect_size(drive->queue) >> SECTOR_BITS;
-
-	/* If the requested sector doesn't start on a cdrom block boundary,
-	   we must adjust the start of the transfer so that it does,
-	   and remember to skip the first few sectors.
-	   If the CURRENT_NR_SECTORS field is larger than the size
-	   of the buffer, it will mean that we're to skip a number
-	   of sectors equal to the amount by which CURRENT_NR_SECTORS
-	   is larger than the buffer size. */
-	nskip = rq->sector & (sectors_per_frame - 1);
-	if (nskip > 0) {
-		/* Sanity check... */
-		if (rq->current_nr_sectors != bio_cur_sectors(rq->bio) &&
-			(rq->sector & (sectors_per_frame - 1))) {
-			printk(KERN_ERR "%s: cdrom_start_read_continuation: buffer botch (%u)\n",
-				drive->name, rq->current_nr_sectors);
-			cdrom_end_request(drive, 0);
-			return ide_stopped;
-		}
-		rq->current_nr_sectors += nskip;
-	}
-...
-
-static ide_startstop_t cdrom_read_intr (ide_drive_t *drive)
-...
-	/* First, figure out if we need to bit-bucket
-	   any of the leading sectors. */
-	nskip = min_t(int, rq->current_nr_sectors - bio_cur_sectors(rq->bio),
-sectors_to_transfer);
-
-	while (nskip > 0) {
-		/* We need to throw away a sector. */
-		static char dum[SECTOR_SIZE];
-		HWIF(drive)->atapi_input_bytes(drive, dum, sizeof (dum));
-
-		--rq->current_nr_sectors;
-		--nskip;
-		--sectors_to_transfer;
-	}
-...
-
-is this still a case in 2.6 or can I safely remove it?
-
-Cheers,
-Bartlomiej
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

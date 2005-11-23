@@ -1,81 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932595AbVKWWxd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030466AbVKWWyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932595AbVKWWxd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 17:53:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932599AbVKWWxc
+	id S1030466AbVKWWyM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 17:54:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030459AbVKWWyL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 17:53:32 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19731 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932595AbVKWWx3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 17:53:29 -0500
-Date: Wed, 23 Nov 2005 22:53:19 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: jgarzik@pobox.com, bunk@stusta.de, saw@saw.sw.com.sg,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] remove drivers/net/eepro100.c
-Message-ID: <20051123225319.GP15449@flint.arm.linux.org.uk>
-Mail-Followup-To: "David S. Miller" <davem@davemloft.net>,
-	jgarzik@pobox.com, bunk@stusta.de, saw@saw.sw.com.sg,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-References: <20051118090158.GA11621@flint.arm.linux.org.uk> <437DFD6C.1020106@pobox.com> <20051123221547.GM15449@flint.arm.linux.org.uk> <20051123.143946.41188551.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051123.143946.41188551.davem@davemloft.net>
-User-Agent: Mutt/1.4.1i
+	Wed, 23 Nov 2005 17:54:11 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:37510 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030454AbVKWWyC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 17:54:02 -0500
+Message-ID: <4384F307.6040904@pobox.com>
+Date: Wed, 23 Nov 2005 17:53:59 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Grover <andrew.grover@intel.com>
+CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       john.ronciak@intel.com, christopher.leech@intel.com
+Subject: Re: [RFC] [PATCH 0/3] ioat: DMA engine support
+References: <Pine.LNX.4.44.0511231143380.32487-100000@isotope.jf.intel.com>
+In-Reply-To: <Pine.LNX.4.44.0511231143380.32487-100000@isotope.jf.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Andrew Grover wrote: > overall diffstat information: >
+	drivers/Kconfig | 2 > drivers/Makefile | 1 > drivers/dma/Kconfig | 40
+	++ > drivers/dma/Makefile | 5 > drivers/dma/cb_list.h | 12 >
+	drivers/dma/dmaengine.c | 394 ++++++++++++++++++++++++ >
+	drivers/dma/testclient.c | 132 ++++++++ > include/linux/dmaengine.h |
+	268 ++++++++++++++++ > net/core/Makefile | 3 > net/core/dev.c | 78 ++++
+	> net/core/user_dma.c | 422 ++++++++++++++++++++++++++ > 11 files
+	changed, 1356 insertions(+), 1 deletion(-) [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 02:39:46PM -0800, David S. Miller wrote:
-> From: Russell King <rmk+lkml@arm.linux.org.uk>
-> Date: Wed, 23 Nov 2005 22:15:48 +0000
-> 
-> > I leave it up to you how to proceed.  Effectively I'm now completely
-> > out of the loop on this with no hardware to worry about.  Sorry.
-> > 
-> > Finally, please don't assign any blame for this in my direction; I
-> > reported it and I kept bugging people about it, and in spite of my
-> > best efforts there was very little which was forthcoming.  Obviously
-> > that wasn't enough.
-> 
-> I think you're being unreasonable.
+Andrew Grover wrote:
+> overall diffstat information:
+>  drivers/Kconfig           |    2 
+>  drivers/Makefile          |    1 
+>  drivers/dma/Kconfig       |   40 ++
+>  drivers/dma/Makefile      |    5 
+>  drivers/dma/cb_list.h     |   12 
+>  drivers/dma/dmaengine.c   |  394 ++++++++++++++++++++++++
+>  drivers/dma/testclient.c  |  132 ++++++++
+>  include/linux/dmaengine.h |  268 ++++++++++++++++
+>  net/core/Makefile         |    3 
+>  net/core/dev.c            |   78 ++++
+>  net/core/user_dma.c       |  422 ++++++++++++++++++++++++++
+>  11 files changed, 1356 insertions(+), 1 deletion(-)
 
-I think you're being unreasonable telling me that I'm being unreasonable.
 
-> They've worked on a fix for the problem, and now you're unable to test
-> the fix, and you're angry at them because they took so long to code up
-> the fix.
-> 
-> If you're overextended and have too much work to do and that's
-> stressing you out, that doesn't give you permission to take it
-> out on other people.
+overall, there was a distinction lack of any useful 
+description/documentation, over and above the code itself.
 
-No.  It's quite simple.
+	Jeff
 
-I've worked on trying to replicate the problem today.  Tomorrow I'm
-out at a meeting and since I'm no longer working on the problematical
-hardware, it is being returned.
 
-That means there's about 15 minutes left before I go to sleep before
-having to be up early tomorrow to go on a 2 hour journey to attend a
-meeting.  What do you want me to do with those 15 minutes?  Perform a
-miracle maybe?
-
-David, I ask you to retract your unreasonable mail.  I'm being quite
-calm here.  I'm just pointing out the facts that as of *now* I'm no
-longer in a position to test.
-
-I was rather hoping that being crystal clear about the reasons about
-_why_ I'm no longer able to continue participating in his problem
-that I would be seen not to be unreasonable.
-
-I guess I'm just cursed.
-
-Sorry.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

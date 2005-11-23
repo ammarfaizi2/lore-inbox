@@ -1,63 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932541AbVKWVeH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932540AbVKWVgx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932541AbVKWVeH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 16:34:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932539AbVKWVeG
+	id S932540AbVKWVgx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 16:36:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932542AbVKWVgx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 16:34:06 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:38825 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932541AbVKWVeE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 16:34:04 -0500
-Subject: Re: [PATCH]: Free pages from local pcp lists under tight memory
-	conditions
-From: Rohit Seth <rohit.seth@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: clameter@engr.sgi.com, torvalds@osdl.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20051123132647.257710b9.akpm@osdl.org>
-References: <20051122161000.A22430@unix-os.sc.intel.com>
-	 <Pine.LNX.4.62.0511231128090.22710@schroedinger.engr.sgi.com>
-	 <1132775194.25086.54.camel@akash.sc.intel.com>
-	 <20051123115545.69087adf.akpm@osdl.org>
-	 <1132779605.25086.69.camel@akash.sc.intel.com>
-	 <20051123132647.257710b9.akpm@osdl.org>
-Content-Type: text/plain
-Organization: Intel 
-Date: Wed, 23 Nov 2005 13:40:48 -0800
-Message-Id: <1132782048.25086.76.camel@akash.sc.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Nov 2005 21:33:50.0172 (UTC) FILETIME=[97FD31C0:01C5F075]
+	Wed, 23 Nov 2005 16:36:53 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:28052 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932540AbVKWVgw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 16:36:52 -0500
+Date: Wed, 23 Nov 2005 13:36:08 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "H. Peter Anvin" <hpa@zytor.com>, Andi Kleen <ak@suse.de>,
+       Gerd Knorr <kraxel@suse.de>, Dave Jones <davej@redhat.com>,
+       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] SMP alternatives
+In-Reply-To: <1132782245.13095.4.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org>
+References: <Pine.LNX.4.64.0511131118020.3263@g5.osdl.org> 
+ <Pine.LNX.4.64.0511131210570.3263@g5.osdl.org> <4378A7F3.9070704@suse.de> 
+ <Pine.LNX.4.64.0511141118000.3263@g5.osdl.org> <4379ECC1.20005@suse.de> 
+ <437A0649.7010702@suse.de> <437B5A83.8090808@suse.de>  <438359D7.7090308@suse.de>
+ <p7364qjjhqx.fsf@verdi.suse.de>  <1132764133.7268.51.camel@localhost.localdomain>
+  <20051123163906.GF20775@brahms.suse.de>  <1132766489.7268.71.camel@localhost.localdomain>
+  <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org>  <4384AECC.1030403@zytor.com>
+  <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-23 at 13:26 -0800, Andrew Morton wrote:
-> Rohit Seth <rohit.seth@intel.com> wrote:
-> >
-> > > I don't think Martin was able to demonstrate much benefit from the lock
-> > > contention reduction on 16-way NUMAQ either.
-> > > 
-> > > So I dithered for months and it was a marginal merge, so it's appropriate
-> > > to justify the continued presence of the code.
-> > > 
-> > 
-> > May be the limits on the number of pages hanging on the per_cpu_pagelist
-> > was (or even now is) too small (for them to give any meaningful gain).
-> > May be we should have more physical contiguity in each of these pcps to
-> > give better cache spread.  
+
+
+On Wed, 23 Nov 2005, Alan Cox wrote:
 > 
-> Could be.  The initial settings were pretty arbitrary - I assumed that
-> someone would get in and tune them up, but nothing much happened.  Perhaps
-> we should expose the thresholds in /proc/sys/vm so they're easier to play
-> with.
+> There is a much much better way to do it than just user space and
+> without hitting cr3/cr4 - put "lock works" in the PAT and while we'll
+> have to add PAT support which we need to do anyway we would get a world
+> where on uniprocessor lock prefix only works on addresse targets we want
+> it to - ie pci_alloc_consistent() pages.
 
-Most certainly.  If I had a patch ready...I would have given you one
-right away :-)  Though I will work on it...
+No. That would be wrong.
 
-It surely is unfortunate that we have not digged deeper into this area
-(in terms of optimizations)....  
+The thing is, "lock" is useless EVEN ON SMP in user space 99% of the time.
 
--rohit
+Think of all the thread locking in libc - where 99% of all processes are 
+single-threaded, and it does nothing but slow things down.
 
+Actual UP machines are going to go away - even ARM is going SMP, and in 
+the PC space, we'll have multi-core laptops probably being the rule rather 
+than the exception in a couple of years. So the kernel will need "lock" in 
+the forseeable future, and optimizing for UP is a lost game.
+
+But optimizing for a single _thread_ is not a lost game. I don't believe 
+that threaded applications are necessarily going to take over all that 
+much in a lot of areas. Sure, we'll have more threaded apps too, but we'll 
+continue to have tons more of performance-critical non-threaded things 
+like compilers etc.
+
+And _that_ is worth optimizing for. General libraries that have to be able 
+to handle the threaded case dynamically, but that are often run with no 
+shared memory anywhere.
+
+THAT is what I'd like to have CPU support for. Not for UP (it's going 
+away), and not for the kernel (it's never single-threaded).
+
+			Linus

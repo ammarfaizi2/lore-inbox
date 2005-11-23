@@ -1,55 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbVKWQur@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbVKWQuk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932092AbVKWQur (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 11:50:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932093AbVKWQur
+	id S932088AbVKWQuk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 11:50:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932079AbVKWQuk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 11:50:47 -0500
-Received: from Mail.MNSU.EDU ([134.29.1.12]:28830 "EHLO mail.mnsu.edu")
-	by vger.kernel.org with ESMTP id S932092AbVKWQuq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 11:50:46 -0500
-Message-ID: <43849D79.5040507@mnsu.edu>
-Date: Wed, 23 Nov 2005 10:48:57 -0600
-From: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Wed, 23 Nov 2005 11:50:40 -0500
+Received: from wproxy.gmail.com ([64.233.184.195]:45672 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932088AbVKWQuj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 11:50:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iHZd0cnbxweA7a68Q9dUrZ0AGD5jbBcyZYtrm4RY8Cm22Wxijvinogjw6aECDkElcnyhDjwxF8BgNq8v58Q3LZOPMgisnwubbQ44Uczv1SMQ+1nS9kZqzYr3uZKXmKwpnjyDJtQrbogd73+iV6V+6Tw7P3LQq6577njKLqmmYic=
+Message-ID: <9e4733910511230850m29f2d358wfb887f604d7beb48@mail.gmail.com>
+Date: Wed, 23 Nov 2005 11:50:33 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: Christmas list for the kernel
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Vojtech Pavlik <vojtech@suse.cz>,
+       Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <438499A9.1040409@tmr.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, Zan Lynx <zlynx@acm.org>, ak@muc.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       xfs-masters@oss.sgi.com, nathans@sgi.com
-Subject: Re: Linux 2.6.15-rc2
-References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org> <43829ED2.3050003@mnsu.edu> <20051122150002.26adf913.akpm@osdl.org> <Pine.LNX.4.64.0511221642310.13959@g5.osdl.org> <20051122170507.37ebbc0c.akpm@osdl.org> <Pine.LNX.4.64.0511221735400.13959@g5.osdl.org> <4383E4F6.8000202@mnsu.edu> <Pine.LNX.4.64.0511221944120.13959@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0511221944120.13959@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com>
+	 <20051122204918.GA5299@kroah.com>
+	 <9e4733910511221313t4a1e3c67wc7b08160937eb5c5@mail.gmail.com>
+	 <20051123121726.GA7328@ucw.cz>
+	 <9e4733910511230643j64922738p709fecd6c86b4a95@mail.gmail.com>
+	 <20051123150349.GA15449@flint.arm.linux.org.uk>
+	 <438499A9.1040409@tmr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On 11/23/05, Bill Davidsen <davidsen@tmr.com> wrote:
+> Russell King wrote:
+> > On Wed, Nov 23, 2005 at 09:43:58AM -0500, Jon Smirl wrote:
+>
+> >>Plus I have 64 tty devices. Couldn't the tty devices be created
+> >>dynamically as they are consumed? Same for the loop and ram devices?
+> >
+> >
+> > You do realise that the dynamic device creation for those 64 console
+> > devices is done via the console device being _opened_ by userspace?
+> >
+> Which userspace program is opening 64 console devices? Surely it could
+> be taught to use a smaller number. If you mean that open the console
+> once creates all those devices, I think that's exactly what Jon was
+> suggesting is not desirable (I agree).
 
->>BTW: Since I have your ear, this same version DOES seem to have some
->>other bug as well.  I did a "make distclean" and the "rm -f" of all he
->>object files hung forever in "D" state.  I'm using XFS on IDE disks. 
->>I'm using the same config as was posted before.  I didn't get anything
->>in an log files that would indicate a problem.  Has this been reported? 
->>If not, what can I do to make a meaningful report?
->>    
->>
->
->I don't recognize those symptoms, so more info would be nice.
->
->For example, it would be good to know where the threads are that are 
->waiting uninterruptibly. You should be able to get that info with Sysrq 
->'T' (or with the old "ctrl + ScrollLock" thing).
->
->That should tell us if they're hung on a semaphore or waiting for disk IO 
->to complete or what...
->
-It has been pointed out to me that the XFS team does know about this and 
-is looking into it.  The thread is "unable to use dpkg 2.6.15-rc2".
+I believe the 64 console devices is comming from this define in tty.h
+#define MAX_NR_CONSOLES 63
 
--- 
-Jeffrey Hundstad
+>
+> --
+>     -bill davidsen (davidsen@tmr.com)
+> "The secret to procrastination is to put things off until the
+>   last possible moment - but no longer"  -me
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
+
+--
+Jon Smirl
+jonsmirl@gmail.com

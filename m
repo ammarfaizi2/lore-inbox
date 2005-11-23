@@ -1,88 +1,319 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030525AbVKWXmI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030521AbVKWXmH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030525AbVKWXmI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 18:42:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030509AbVKWXlQ
+	id S1030521AbVKWXmH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 18:42:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030514AbVKWXlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 18:41:16 -0500
-Received: from mail02.syd.optusnet.com.au ([211.29.132.183]:16266 "EHLO
-	mail02.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1030505AbVKWXkl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 18:41:13 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:1499 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030509AbVKWXkl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 23 Nov 2005 18:40:41 -0500
-References: <200511232333.jANNX9g23967@unix-os.sc.intel.com> <cone.1132788946.360368.25446.501@kolivas.org> <200511232338.54794.s0348365@sms.ed.ac.uk>
-Message-ID: <cone.1132789223.709733.25446.501@kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: Kenneth W <kenneth.w.chen@intel.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Kernel BUG at mm/rmap.c:491
-Date: Thu, 24 Nov 2005 10:40:23 +1100
+Subject: [PATCH 3/7]: notifier_head changes with removal of reducdant
+	protection
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+       stern@rowland.harvard.edu
+Content-Type: text/plain
+Organization: IBM
+Date: Wed, 23 Nov 2005 15:40:39 -0800
+Message-Id: <1132789239.9460.22.camel@linuxchandra>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-    boundary="=_mimegpg-kolivas.org-25446-1132789223-0004";
-    micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME GnuPG-signed message.  If you see this text, it means that
-your E-mail or Usenet software does not support MIME signed messages.
+This patch includes changes to notifier chain head definitions and removal
+of additional protection that is no longer needed.
 
---=_mimegpg-kolivas.org-25446-1132789223-0004
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Signed-off-by:  Chandra Seetharaman <sekharan@us.ibm.com>
+Signed-off-by:  Alan Stern <stern@rowland.harvard.edu>
+-----
 
-Alistair John Strachan writes:
+ drivers/cpufreq/cpufreq.c |   19 +++----------------
+ kernel/cpu.c              |   12 ++----------
+ kernel/module.c           |   17 +++--------------
+ kernel/profile.c          |   35 +++++------------------------------
+ 4 files changed, 13 insertions(+), 70 deletions(-)
 
-> On Wednesday 23 November 2005 23:35, Con Kolivas wrote:
->> Chen, Kenneth W writes:
->> > Con Kolivas wrote on Wednesday, November 23, 2005 3:24 PM
->> >
->> >> Chen, Kenneth W writes:
->> >> > Has people seen this BUG_ON before?  On 2.6.15-rc2, x86-64.
->> >> >
->> >> > Pid: 16500, comm: cc1 Tainted: G    B 2.6.15-rc2 #3
->> >> >
->> >> > Pid: 16651, comm: sh Tainted: G    B 2.6.15-rc2 #3
->> >>
->> >>                        ^^^^^^^^^^
->> >>
->> >> Please try to reproduce it without proprietary binary modules linked in.
->> >
->> > ???, I'm not using any modules at all.
->> >
->> > [albat]$ /sbin/lsmod
->> > Module                  Size  Used by
->> > [albat]$
->> >
->> >
->> > Also, isn't it 'P' indicate proprietary module, not 'G'?
->> > line 159: kernel/panic.c:
->> >
->> >         snprintf(buf, sizeof(buf), "Tainted: %c%c%c%c%c%c",
->> >                 tainted & TAINT_PROPRIETARY_MODULE ? 'P' : 'G',
->>
->> Sorry it's not proprietary module indeed. But what is tainting it?
-> 
-> Probably a prior oops or some other marked error condition.
+Index: l2615-rc1-notifiers/drivers/cpufreq/cpufreq.c
+===================================================================
+--- l2615-rc1-notifiers.orig/drivers/cpufreq/cpufreq.c
++++ l2615-rc1-notifiers/drivers/cpufreq/cpufreq.c
+@@ -50,9 +50,8 @@ static inline void adjust_jiffies(unsign
+  * changes to devices when the CPU clock speed changes.
+  * The mutex locks both lists.
+  */
+-static struct notifier_block    *cpufreq_policy_notifier_list;
+-static struct notifier_block    *cpufreq_transition_notifier_list;
+-static DECLARE_RWSEM		(cpufreq_notifier_rwsem);
++static BLOCKING_NOTIFIER_HEAD(cpufreq_policy_notifier_list);
++static BLOCKING_NOTIFIER_HEAD(cpufreq_transition_notifier_list);
+ 
+ 
+ static LIST_HEAD(cpufreq_governor_list);
+@@ -241,7 +240,6 @@ void cpufreq_notify_transition(struct cp
+ 	freqs->flags = cpufreq_driver->flags;
+ 	dprintk("notification %u of frequency transition to %u kHz\n", state, freqs->new);
+ 
+-	down_read(&cpufreq_notifier_rwsem);
+ 	switch (state) {
+ 	case CPUFREQ_PRECHANGE:
+ 		/* detect if the driver reported a value as "old frequency" which
+@@ -269,7 +267,6 @@ void cpufreq_notify_transition(struct cp
+ 			cpufreq_cpu_data[freqs->cpu]->cur = freqs->new;
+ 		break;
+ 	}
+-	up_read(&cpufreq_notifier_rwsem);
+ }
+ EXPORT_SYMBOL_GPL(cpufreq_notify_transition);
+ 
+@@ -1052,7 +1049,6 @@ int cpufreq_register_notifier(struct not
+ {
+ 	int ret;
+ 
+-	down_write(&cpufreq_notifier_rwsem);
+ 	switch (list) {
+ 	case CPUFREQ_TRANSITION_NOTIFIER:
+ 		ret = notifier_chain_register(&cpufreq_transition_notifier_list, nb);
+@@ -1063,7 +1059,6 @@ int cpufreq_register_notifier(struct not
+ 	default:
+ 		ret = -EINVAL;
+ 	}
+-	up_write(&cpufreq_notifier_rwsem);
+ 
+ 	return ret;
+ }
+@@ -1084,7 +1079,6 @@ int cpufreq_unregister_notifier(struct n
+ {
+ 	int ret;
+ 
+-	down_write(&cpufreq_notifier_rwsem);
+ 	switch (list) {
+ 	case CPUFREQ_TRANSITION_NOTIFIER:
+ 		ret = notifier_chain_unregister(&cpufreq_transition_notifier_list, nb);
+@@ -1095,7 +1089,6 @@ int cpufreq_unregister_notifier(struct n
+ 	default:
+ 		ret = -EINVAL;
+ 	}
+-	up_write(&cpufreq_notifier_rwsem);
+ 
+ 	return ret;
+ }
+@@ -1281,8 +1274,6 @@ static int __cpufreq_set_policy(struct c
+ 	if (ret)
+ 		goto error_out;
+ 
+-	down_read(&cpufreq_notifier_rwsem);
+-
+ 	/* adjust if necessary - all reasons */
+ 	notifier_call_chain(&cpufreq_policy_notifier_list, CPUFREQ_ADJUST,
+ 			    policy);
+@@ -1294,17 +1285,13 @@ static int __cpufreq_set_policy(struct c
+ 	/* verify the cpu speed can be set within this limit,
+ 	   which might be different to the first one */
+ 	ret = cpufreq_driver->verify(policy);
+-	if (ret) {
+-		up_read(&cpufreq_notifier_rwsem);
++	if (ret)
+ 		goto error_out;
+-	}
+ 
+ 	/* notification of the new policy */
+ 	notifier_call_chain(&cpufreq_policy_notifier_list, CPUFREQ_NOTIFY,
+ 			    policy);
+ 
+-	up_read(&cpufreq_notifier_rwsem);
+-
+ 	data->min    = policy->min;
+ 	data->max    = policy->max;
+ 
+Index: l2615-rc1-notifiers/kernel/cpu.c
+===================================================================
+--- l2615-rc1-notifiers.orig/kernel/cpu.c
++++ l2615-rc1-notifiers/kernel/cpu.c
+@@ -19,7 +19,7 @@
+ DECLARE_MUTEX(cpucontrol);
+ EXPORT_SYMBOL_GPL(cpucontrol);
+ 
+-static struct notifier_block *cpu_chain;
++static BLOCKING_NOTIFIER_HEAD(cpu_chain);
+ 
+ /*
+  * Used to check by callers if they need to acquire the cpucontrol
+@@ -42,21 +42,13 @@ EXPORT_SYMBOL_GPL(current_in_cpu_hotplug
+ /* Need to know about CPUs going up/down? */
+ int register_cpu_notifier(struct notifier_block *nb)
+ {
+-	int ret;
+-
+-	if ((ret = down_interruptible(&cpucontrol)) != 0)
+-		return ret;
+-	ret = notifier_chain_register(&cpu_chain, nb);
+-	up(&cpucontrol);
+-	return ret;
++	return notifier_chain_register(&cpu_chain, nb);
+ }
+ EXPORT_SYMBOL(register_cpu_notifier);
+ 
+ void unregister_cpu_notifier(struct notifier_block *nb)
+ {
+-	down(&cpucontrol);
+ 	notifier_chain_unregister(&cpu_chain, nb);
+-	up(&cpucontrol);
+ }
+ EXPORT_SYMBOL(unregister_cpu_notifier);
+ 
+Index: l2615-rc1-notifiers/kernel/module.c
+===================================================================
+--- l2615-rc1-notifiers.orig/kernel/module.c
++++ l2615-rc1-notifiers/kernel/module.c
+@@ -62,26 +62,17 @@ static DEFINE_SPINLOCK(modlist_lock);
+ static DECLARE_MUTEX(module_mutex);
+ static LIST_HEAD(modules);
+ 
+-static DECLARE_MUTEX(notify_mutex);
+-static struct notifier_block * module_notify_list;
++static BLOCKING_NOTIFIER_HEAD(module_notify_list);
+ 
+ int register_module_notifier(struct notifier_block * nb)
+ {
+-	int err;
+-	down(&notify_mutex);
+-	err = notifier_chain_register(&module_notify_list, nb);
+-	up(&notify_mutex);
+-	return err;
++	return notifier_chain_register(&module_notify_list, nb);
+ }
+ EXPORT_SYMBOL(register_module_notifier);
+ 
+ int unregister_module_notifier(struct notifier_block * nb)
+ {
+-	int err;
+-	down(&notify_mutex);
+-	err = notifier_chain_unregister(&module_notify_list, nb);
+-	up(&notify_mutex);
+-	return err;
++	return notifier_chain_unregister(&module_notify_list, nb);
+ }
+ EXPORT_SYMBOL(unregister_module_notifier);
+ 
+@@ -1905,9 +1896,7 @@ sys_init_module(void __user *umod,
+ 	/* Drop lock so they can recurse */
+ 	up(&module_mutex);
+ 
+-	down(&notify_mutex);
+ 	notifier_call_chain(&module_notify_list, MODULE_STATE_COMING, mod);
+-	up(&notify_mutex);
+ 
+ 	/* Start the module */
+ 	if (mod->init != NULL)
+Index: l2615-rc1-notifiers/kernel/profile.c
+===================================================================
+--- l2615-rc1-notifiers.orig/kernel/profile.c
++++ l2615-rc1-notifiers/kernel/profile.c
+@@ -86,61 +86,41 @@ void __init profile_init(void)
+  
+ #ifdef CONFIG_PROFILING
+  
+-static DECLARE_RWSEM(profile_rwsem);
+-static DEFINE_RWLOCK(handoff_lock);
+-static struct notifier_block * task_exit_notifier;
+-static struct notifier_block * task_free_notifier;
+-static struct notifier_block * munmap_notifier;
++static BLOCKING_NOTIFIER_HEAD(task_exit_notifier);
++static ATOMIC_NOTIFIER_HEAD(task_free_notifier);
++static BLOCKING_NOTIFIER_HEAD(munmap_notifier);
+  
+ void profile_task_exit(struct task_struct * task)
+ {
+-	down_read(&profile_rwsem);
+ 	notifier_call_chain(&task_exit_notifier, 0, task);
+-	up_read(&profile_rwsem);
+ }
+  
+ int profile_handoff_task(struct task_struct * task)
+ {
+ 	int ret;
+-	read_lock(&handoff_lock);
+ 	ret = notifier_call_chain(&task_free_notifier, 0, task);
+-	read_unlock(&handoff_lock);
+ 	return (ret == NOTIFY_OK) ? 1 : 0;
+ }
+ 
+ void profile_munmap(unsigned long addr)
+ {
+-	down_read(&profile_rwsem);
+ 	notifier_call_chain(&munmap_notifier, 0, (void *)addr);
+-	up_read(&profile_rwsem);
+ }
+ 
+ int task_handoff_register(struct notifier_block * n)
+ {
+-	int err = -EINVAL;
+-
+-	write_lock(&handoff_lock);
+-	err = notifier_chain_register(&task_free_notifier, n);
+-	write_unlock(&handoff_lock);
+-	return err;
++	return notifier_chain_register(&task_free_notifier, n);
+ }
+ 
+ int task_handoff_unregister(struct notifier_block * n)
+ {
+-	int err = -EINVAL;
+-
+-	write_lock(&handoff_lock);
+-	err = notifier_chain_unregister(&task_free_notifier, n);
+-	write_unlock(&handoff_lock);
+-	return err;
++	return notifier_chain_unregister(&task_free_notifier, n);
+ }
+ 
+ int profile_event_register(enum profile_type type, struct notifier_block * n)
+ {
+ 	int err = -EINVAL;
+  
+-	down_write(&profile_rwsem);
+- 
+ 	switch (type) {
+ 		case PROFILE_TASK_EXIT:
+ 			err = notifier_chain_register(&task_exit_notifier, n);
+@@ -150,8 +130,6 @@ int profile_event_register(enum profile_
+ 			break;
+ 	}
+  
+-	up_write(&profile_rwsem);
+- 
+ 	return err;
+ }
+ 
+@@ -160,8 +138,6 @@ int profile_event_unregister(enum profil
+ {
+ 	int err = -EINVAL;
+  
+-	down_write(&profile_rwsem);
+- 
+ 	switch (type) {
+ 		case PROFILE_TASK_EXIT:
+ 			err = notifier_chain_unregister(&task_exit_notifier, n);
+@@ -171,7 +147,6 @@ int profile_event_unregister(enum profil
+ 			break;
+ 	}
+ 
+-	up_write(&profile_rwsem);
+ 	return err;
+ }
+ 
 
-My humble apologies! Force of habit when seeing tainted message which 
-comes up so often :(
+-- 
 
-Con
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
 
 
---=_mimegpg-kolivas.org-25446-1132789223-0004
-Content-Type: application/pgp-signature
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBDhP3nZUg7+tp6mRURAkSUAJ432H6r09YpcXziYYOirBoafLg7hgCeM5q5
-EHnhkNtU/5g945HWQ5hCNUI=
-=4ynq
------END PGP SIGNATURE-----
-
---=_mimegpg-kolivas.org-25446-1132789223-0004--

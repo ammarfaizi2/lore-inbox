@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbVKWMf0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbVKWMn2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750742AbVKWMf0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 07:35:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbVKWMf0
+	id S1750751AbVKWMn2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 07:43:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbVKWMn2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 07:35:26 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:28158 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750742AbVKWMf0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 07:35:26 -0500
-Date: Wed, 23 Nov 2005 07:35:04 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: Maneesh Soni <maneesh@in.ibm.com>, Greg KH <greg@kroah.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: What protection does sysfs_readdir have with SMP/Preemption?
-In-Reply-To: <20051123081845.GA32021@elte.hu>
-Message-ID: <Pine.LNX.4.58.0511230727330.23751@gandalf.stny.rr.com>
-References: <1132695202.13395.15.camel@localhost.localdomain>
- <20051122213947.GB8575@kroah.com> <20051123045049.GA22714@in.ibm.com>
- <20051123081845.GA32021@elte.hu>
+	Wed, 23 Nov 2005 07:43:28 -0500
+Received: from [139.30.44.16] ([139.30.44.16]:13159 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S1750751AbVKWMn1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 07:43:27 -0500
+Date: Wed, 23 Nov 2005 13:41:35 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: akpm@osdl.org
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: + dont-include-schedh-from-moduleh.patch added to -mm tree
+In-Reply-To: <200511050726.jA57QPs7009905@shell0.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.63.0511231328020.27662@gockel.physik3.uni-rostock.de>
+References: <200511050726.jA57QPs7009905@shell0.pdx.osdl.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Things seem to converge in Linus' tree now.
 
-On Wed, 23 Nov 2005, Ingo Molnar wrote:
+I've rerun my ctags+grep based analysis for all architecures on 
+2.6.15-rc1-git6 and 2.6.5-rc2 with the following patches from -mm applied:
+  fix-missing-includes-for-2614-git11.patch
+  fix-missing-includes-for-2615-rc1.patch
+  dont-include-schedh-from-moduleh.patch
+I also compile-tested these trees on alpha, arm, i386, ia64, mips, powerpc,  
+ppc64, and x86_64 and checked that make -i outputs the same diagnostic 
+messages (modulo line number and include order changes) for allnoconfig, 
+defconfig, and allmodconfig, whether or not 
+dont-include-schedh-from-moduleh.patch was applied to the tree.
 
->
-> note that Steven has a dual-core Athlon64 X2 system. Steven, do you get
-> the crash even with maxcpus=1?
->
+None of this brought up any problems.
+So from my point of view these patches are okay to go into mainline now.
 
-Actually Ingo,  this happened on my UP test machine, a 368MHz Pentium.
+Andrew, what are your plans for these patches?
+Shall I send an updated dont-include-schedh-from-moduleh.patch whose 
+changelog reflects the current state of testing?
 
-But unfortunately, it so far only happened once, and I've been trying to
-recreate it, with no success.  The test that crashed it was running 10
-tasks that would read the entire filesystem. I was debugging another bug
-(something specific to my kernel, or maybe -rt) when I hit this bug.
-Looking at it, it seemed to not be related to the changes I made.  Perhaps
-it could be related to your changes?
-
--- Steve
-
-PS. I only got my AMD64 x2 to debug your kernel ;-)  I have no requirement
-to have my kernel run on it.  I just needed a faster machine, also to move
-off my SMP box to make that a test box too. Since I saw lots of people
-having problems with -rt and AMD64 I chose to get that one.
-
+Thanks,
+Tim

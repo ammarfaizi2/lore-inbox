@@ -1,114 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750903AbVKWPJ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750965AbVKWPMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750903AbVKWPJ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 10:09:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750944AbVKWPJ5
+	id S1750965AbVKWPMR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 10:12:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750963AbVKWPMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 10:09:57 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:12957 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750903AbVKWPJe (ORCPT
+	Wed, 23 Nov 2005 10:12:17 -0500
+Received: from darwin.snarc.org ([81.56.210.228]:17133 "EHLO darwin.snarc.org")
+	by vger.kernel.org with ESMTP id S1750945AbVKWPMQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 10:09:34 -0500
-Date: Wed, 23 Nov 2005 15:09:14 GMT
-Message-Id: <200511231509.jANF9EwM000983@warthog.cambridge.redhat.com>
-From: David Howells <dhowells@redhat.com>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
-Fcc: outgoing
-Subject: [PATCH 3/3] FRV: Make futex code compilable on nommu
-In-Reply-To: <dhowells1132758553@warthog.cambridge.redhat.com>
-References: <dhowells1132758553@warthog.cambridge.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+	Wed, 23 Nov 2005 10:12:16 -0500
+Date: Wed, 23 Nov 2005 16:12:14 +0100
+From: Vincent Hanquez <vincent.hanquez@cl.cam.ac.uk>
+To: Gerd Knorr <kraxel@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
+       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] SMP alternatives
+Message-ID: <20051123151214.GA4230@snarc.org>
+References: <Pine.LNX.4.64.0511111218110.4627@g5.osdl.org> <20051113074241.GA29796@redhat.com> <Pine.LNX.4.64.0511131118020.3263@g5.osdl.org> <Pine.LNX.4.64.0511131210570.3263@g5.osdl.org> <4378A7F3.9070704@suse.de> <Pine.LNX.4.64.0511141118000.3263@g5.osdl.org> <4379ECC1.20005@suse.de> <437A0649.7010702@suse.de> <437B5A83.8090808@suse.de> <438359D7.7090308@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <438359D7.7090308@suse.de>
+X-Warning: Email may contain unsmilyfied humor and/or satire.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The attached patch makes the futex code compilable on nommu by making the
-attempt to handle page faults conditional on CONFIG_MMU. If this is not
-enabled, then we can assume that EFAULT returned from futex_atomic_op_inuser()
-is not recoverable, and that the address lies outside of valid memory.
+On Tue, Nov 22, 2005 at 06:48:07PM +0100, Gerd Knorr wrote:
+> +	smp = kmalloc(sizeof(*smp), GFP_KERNEL);
+> +	if (NULL == smp)
+> +		return; /* we'll run the (safe but slow) SMP code then ... */
+> +
+> +	memset(smp,0,sizeof(*smp));
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
-warthog>diffstat -p1 frv-futex-2615rc2.diff
- include/linux/mm.h |    3 +++
- kernel/futex.c     |   18 +++++++++++++++++-
- 2 files changed, 20 insertions(+), 1 deletion(-)
+what about using kzalloc ?
 
-diff -uNrp /warthog/kernels/linux-2.6.15-rc2/include/linux/mm.h linux-2.6.15-rc2-frv/include/linux/mm.h
---- /warthog/kernels/linux-2.6.15-rc2/include/linux/mm.h	2005-11-23 12:09:22.000000000 +0000
-+++ linux-2.6.15-rc2-frv/include/linux/mm.h	2005-11-23 13:29:08.000000000 +0000
-@@ -708,12 +708,15 @@ static inline void unmap_shared_mapping_
- extern int vmtruncate(struct inode * inode, loff_t offset);
- extern int install_page(struct mm_struct *mm, struct vm_area_struct *vma, unsigned long addr, struct page *page, pgprot_t prot);
- extern int install_file_pte(struct mm_struct *mm, struct vm_area_struct *vma, unsigned long addr, unsigned long pgoff, pgprot_t prot);
-+
-+#ifdef CONFIG_MMU
- extern int __handle_mm_fault(struct mm_struct *mm,struct vm_area_struct *vma, unsigned long address, int write_access);
- 
- static inline int handle_mm_fault(struct mm_struct *mm, struct vm_area_struct *vma, unsigned long address, int write_access)
- {
- 	return __handle_mm_fault(mm, vma, address, write_access) & (~VM_FAULT_WRITE);
- }
-+#endif
- 
- extern int make_pages_present(unsigned long addr, unsigned long end);
- extern int access_process_vm(struct task_struct *tsk, unsigned long addr, void *buf, int len, int write);
-diff -uNrp /warthog/kernels/linux-2.6.15-rc2/kernel/futex.c linux-2.6.15-rc2-frv/kernel/futex.c
---- /warthog/kernels/linux-2.6.15-rc2/kernel/futex.c	2005-11-23 12:09:23.000000000 +0000
-+++ linux-2.6.15-rc2-frv/kernel/futex.c	2005-11-23 13:41:33.000000000 +0000
-@@ -335,9 +335,14 @@ static int futex_wake_op(unsigned long u
- 	struct futex_hash_bucket *bh1, *bh2;
- 	struct list_head *head;
- 	struct futex_q *this, *next;
--	int ret, op_ret, attempt = 0;
-+	int ret, op_ret;
-+#ifdef CONFIG_MMU
-+	int attempt = 0;
-+#endif
- 
-+#ifdef CONFIG_MMU
- retryfull:
-+#endif
- 	down_read(&current->mm->mmap_sem);
- 
- 	ret = get_futex_key(uaddr1, &key1);
-@@ -350,7 +355,9 @@ retryfull:
- 	bh1 = hash_futex(&key1);
- 	bh2 = hash_futex(&key2);
- 
-+#ifdef CONFIG_MMU
- retry:
-+#endif
- 	if (bh1 < bh2)
- 		spin_lock(&bh1->lock);
- 	spin_lock(&bh2->lock);
-@@ -359,12 +366,15 @@ retry:
- 
- 	op_ret = futex_atomic_op_inuser(op, (int __user *)uaddr2);
- 	if (unlikely(op_ret < 0)) {
-+#ifdef CONFIG_MMU
- 		int dummy;
-+#endif
- 
- 		spin_unlock(&bh1->lock);
- 		if (bh1 != bh2)
- 			spin_unlock(&bh2->lock);
- 
-+#ifdef CONFIG_MMU
- 		if (unlikely(op_ret != -EFAULT)) {
- 			ret = op_ret;
- 			goto out;
-@@ -408,6 +418,12 @@ retry:
- 			return ret;
- 
- 		goto retryfull;
-+
-+#else
-+		/* we don't get EFAULT from MMU faults if we don't have an MMU,
-+		 * but we might get them from range checking */
-+		goto out;
-+#endif
- 	}
- 
- 	head = &bh1->chain;
+> +	if (ALT_UP == smp_alt_state)
+> +		goto out;
+
+any chance to write it smp_alt_state == ALT_UP ?
+
+IMHO, this way of writting equal condition is backward (like giving
+answer before asking the question). I do know of the (pseudo-)benefit
+to write it this way, but that's not worth it.
+
+Plus, nowadays, gcc warns you about simple equal in if.
+
+Cheers,
+-- 
+Vincent Hanquez

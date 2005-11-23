@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030235AbVKWAcw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030274AbVKWAff@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030235AbVKWAcw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 19:32:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030274AbVKWAcw
+	id S1030274AbVKWAff (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 19:35:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030276AbVKWAff
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 19:32:52 -0500
-Received: from xproxy.gmail.com ([66.249.82.197]:5847 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030235AbVKWAcv (ORCPT
+	Tue, 22 Nov 2005 19:35:35 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:46033 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030274AbVKWAfe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 19:32:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=uLQNShM2qnOx2CarS5E84dqBwHWVGn5+xgAMCQbUnhBNXfiYUZG10rwOh32ujpxa9AlpwpeBv+88kD/NMAgEHx4pWhKmvyD4rxxRN3M1cbua21E9DxFlWXjFW1wOUA4D/ROXmxvStL+U6RhwWPX7vJhV3JuimbKTYV61DJti6AE=
-Message-ID: <4383B880.80301@gmail.com>
-Date: Wed, 23 Nov 2005 08:32:00 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051025)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Damien Wyart <damien.wyart@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: VESA fb console in 2.6.15
-References: <20051121215531.GA3429@localhost.localdomain>	<43826648.9030606@gmail.com>	<87oe4c7gbv.fsf@brouette.noos.fr> <20051122162226.41305851.akpm@osdl.org>
-In-Reply-To: <20051122162226.41305851.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 22 Nov 2005 19:35:34 -0500
+Date: Tue, 22 Nov 2005 16:35:50 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jan Kasprzak <kas@fi.muni.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14 kswapd eating too much CPU
+Message-Id: <20051122163550.160e4395.akpm@osdl.org>
+In-Reply-To: <20051122125959.GR16080@fi.muni.cz>
+References: <20051122125959.GR16080@fi.muni.cz>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Damien Wyart <damien.wyart@gmail.com> wrote:
->>>> I've noticed in several versions of 2.6.15 that VESA fb console
->>>> seems completely broken : it draws screen in several very slow
->>>> steps, making the whole display almos unusable. And it crashes
->>>> *very* often, for example when switching to X. The computer is
->>>> complety locked, and doesn't even respond to SysRQ.
->>>> I use vga=0x31B as boot param.
->> * "Antonino A. Daplas" <adaplas@gmail.com> [051122 01:28]:
->>
->>> Try booting with:
->>> vga=0x31b video=vesafb:mtrr:3
->> Thanks, this works fine with this param and also without any video=
->> param. I had a default video=vesafb:mtrr:2 in my grub conf file because
->> of mtrr problems a few kernel versions earlier (had been discussed
->> extensively on this list). This setting doesn't work well in 2.6.15.
->>
-> 
-> Does 2.6.15-rc? work OK without any special boot options? (We want it to..)
-> 
+Jan Kasprzak <kas@fi.muni.cz> wrote:
+>
+> I have noticed that on my system kswapd eats too much CPU time every two
+> hours or so. This started when I upgraded this server to 2.6.14.2 (was 2.6.13.2
+> before), and added another 4 GB of memory (to the total of 8GB).
 
->From what I understand, before this, he needs video=vesafb:mtrr:2. (Because
-his machine defaults to write-back mtrr instead of write-combining). Now it
-works without any special boot options because I made vesafb default to
-nomtrr because of problems like this and conflicts with X/DRI.
+Next time it happens, please gather some memory info (while it's happening):
 
-Tony 
+	cat /proc/meminfo
+	cat /proc/vmstat
+	cat /proc/slabinfo
+	dmesg -c > /dev/null
+	echo m > /proc/sysrq-trigger
+	dmesg
 
+Thanks.

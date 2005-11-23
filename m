@@ -1,118 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030340AbVKWG7k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030342AbVKWHOE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030340AbVKWG7k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 01:59:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030342AbVKWG7k
+	id S1030342AbVKWHOE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 02:14:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030344AbVKWHOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 01:59:40 -0500
-Received: from ganesha.gnumonks.org ([213.95.27.120]:32128 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S1030340AbVKWG7j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 01:59:39 -0500
-Date: Wed, 23 Nov 2005 07:59:21 +0100
-From: Harald Welte <laforge@netfilter.org>
-To: Krzysztof Oledzki <ole@ans.pl>
-Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
-       stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: Re: [patch 13/23] [PATCH] [NETFILTER] ctnetlink: Fix oops when no ICMP ID info in message
-Message-ID: <20051123065921.GK31478@sunbeam.de.gnumonks.org>
-References: <20051122205223.099537000@localhost.localdomain> <20051122210804.GN28140@shell0.pdx.osdl.net> <Pine.LNX.4.64.0511230023310.15479@bizon.gios.gov.pl>
+	Wed, 23 Nov 2005 02:14:04 -0500
+Received: from gate.crashing.org ([63.228.1.57]:47322 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1030342AbVKWHOB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 02:14:01 -0500
+Subject: Early boot issues (WAS: Christmas list for the kernel)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Greg KH <greg@kroah.com>
+Cc: Andrew Morton <akpm@osdl.org>, Jon Smirl <jonsmirl@gmail.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051122204918.GA5299@kroah.com>
+References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com>
+	 <20051122204918.GA5299@kroah.com>
+Content-Type: text/plain
+Date: Wed, 23 Nov 2005 18:10:35 +1100
+Message-Id: <1132729836.26560.318.camel@gaston>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1HiqrRAOzahhT936"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0511230023310.15479@bizon.gios.gov.pl>
-User-Agent: mutt-ng devel-20050619 (Debian)
-X-Spam-Score: 0.0 (/)
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-11-22 at 12:49 -0800, Greg KH wrote:
+> On Tue, Nov 22, 2005 at 01:31:16PM -0500, Jon Smirl wrote:
+> > 
+> > 4) Merge klibc and fix up the driver system so that everything is
+> > hotplugable. This means no more need to configure drivers in the
+> > kernel, the right drivers will just load automatically.
+> 
+> What driver subsystem is not hotplugable and does not have automatically
+> loaded modules today?
+> 
+> There are a few issues around PnP devices that I know of, and PCMCIA
+> needs some seriously love, but other than that I think we are well off.
+> Or am I missing something big here?
 
---1HiqrRAOzahhT936
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Well, there is at least one big problem :) We tend to call hotplug for
+new devices way too early during boot, before it's even sane to try to
+run userland. For example, we may well try to run it before we
+created /dev/null or /dev/zero ... In some cases (PCI on various
+platforms typically), devices are instanciated, then all sorts of
+necessary fixups are applied, and it's assumed no driver will kick in
+before those fixups are finished, etc...
 
-On Wed, Nov 23, 2005 at 12:31:55AM +0100, Krzysztof Oledzki wrote:
-> On Tue, 22 Nov 2005, Chris Wright wrote:
->=20
-> >-stable review patch.  If anyone has any objections, please let us know.
->=20
-> It seems we have two different patches here.
+I think it is be rather very unsafe to have /sbin/hotplug be called
+before the system finishes with all initcalls...
 
-yes, it seems like two independent patches slipped into the one patch
-that was submitted.  I detected that error for mainline, but forgot that
-the same patch was submitted for stable.
+There is a very similar problem lurking around the corner with
+suspend/resume. Since during a machine suspend cycles, from the moment
+we start suspending devices to the moment we have finished waking them
+all up, any try to run userland things is doomed. The disk may be spun
+down & locked, all other processes frozen, etc....
 
-So the first part (as pointed out by Krzyzstof) is not a bugfix, but a
-cosmetic fix. =20
+This is actually a real life problem with drivers using the
+request_firmware interface nowadays: Some of them call it on resume, but
+heh, it's too early, your disk may not be resumed yet ! Some of them
+call it at more "normal" times, but in general, drivers have no way to
+knwo that a machine suspend/resume cycle is in progress (the disk may
+have been suspended already but the that other driver suspend not called
+yet).
 
-I therefore request reverting this patch '13', and instead applying the ver=
-sion
-below, the one that contains only the real fix (as indicated in the
-changelog)
+In fact, there is even a problem with GFP_KERNEL allocations :) In fact,
+as soon as the suspend process is started, all allocations should be
+silently turned into GFP_NOIO at the very least ...
 
-Sorry once again.
+Ben.
 
-[NETFILTER] ctnetlink: Fix oops when no ICMP ID info in message
 
-This patch fixes an userspace triggered oops. If there is no ICMP_ID
-info the reference to attr will be NULL.
 
-Signed-off-by: Krzysztof Piotr Oledzki <ole@ans.pl>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Harald Welte <laforge@netfilter.org>
-
----
-commit 922474105255d7791128688c8e60bb27a8eadf1d
-tree b072448bfe0b79058b03ed798a1145ad1a7c6397
-parent 723cb15b48e5510094296a9fc240d69a3acae95c
-author Krzysztof Piotr Oledzki <ole@ans.pl> Tue, 15 Nov 2005 12:16:43 +0100
-committer Harald Welte <laforge@netfilter.org> Tue, 15 Nov 2005 12:16:43 +0=
-100
-
- net/ipv4/netfilter/ip_conntrack_proto_icmp.c |   13 +++++++------
- 1 files changed, 7 insertions(+), 6 deletions(-)
-
-diff --git a/net/ipv4/netfilter/ip_conntrack_proto_icmp.c b/net/ipv4/netfil=
-ter/ip_conntrack_proto_icmp.c
---- a/net/ipv4/netfilter/ip_conntrack_proto_icmp.c
-+++ b/net/ipv4/netfilter/ip_conntrack_proto_icmp.c
-@@ -296,7 +296,8 @@ static int icmp_nfattr_to_tuple(struct n
- 				struct ip_conntrack_tuple *tuple)
- {
- 	if (!tb[CTA_PROTO_ICMP_TYPE-1]
--	    || !tb[CTA_PROTO_ICMP_CODE-1])
-+	    || !tb[CTA_PROTO_ICMP_CODE-1]
-+	    || !tb[CTA_PROTO_ICMP_ID-1])
- 		return -1;
-=20
- 	tuple->dst.u.icmp.type =3D=20
---=20
-- Harald Welte <laforge@netfilter.org>                 http://netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
-
---1HiqrRAOzahhT936
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDhBNJXaXGVTD0i/8RAvwTAJ93GLbS0G8QoufVPqjicbU2sSkeVgCfaz3D
-d4qmI2EpYvGTS14j2eUxIBc=
-=V5RR
------END PGP SIGNATURE-----
-
---1HiqrRAOzahhT936--

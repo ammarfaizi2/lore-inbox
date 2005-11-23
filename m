@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030279AbVKWAno@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030285AbVKWAvK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030279AbVKWAno (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 19:43:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030283AbVKWAnn
+	id S1030285AbVKWAvK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 19:51:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030286AbVKWAvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 19:43:43 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:17363 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030279AbVKWAnn (ORCPT
+	Tue, 22 Nov 2005 19:51:09 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:29140 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030285AbVKWAvI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 19:43:43 -0500
-Date: Tue, 22 Nov 2005 16:43:53 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: s0348365@sms.ed.ac.uk, linux-kernel@vger.kernel.org
-Subject: Re: Christmas list for the kernel
-Message-Id: <20051122164353.4177c59a.akpm@osdl.org>
-In-Reply-To: <9e4733910511221110j47e8ddcs1c9936db1eb5f0b4@mail.gmail.com>
-References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com>
-	<200511221839.24202.s0348365@sms.ed.ac.uk>
-	<9e4733910511221110j47e8ddcs1c9936db1eb5f0b4@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Nov 2005 19:51:08 -0500
+Date: Tue, 22 Nov 2005 16:50:58 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>, ak@muc.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.15-rc2
+In-Reply-To: <20051122150002.26adf913.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0511221642310.13959@g5.osdl.org>
+References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org> <43829ED2.3050003@mnsu.edu>
+ <20051122150002.26adf913.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl <jonsmirl@gmail.com> wrote:
->
-> On 11/22/05, Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-> > On Tuesday 22 November 2005 18:31, Jon Smirl wrote:
-> > > There have been recent comments about the pace of kernel development
-> > > slowing.
-> >
-> > I doubt the diffstat from the last 6 kernel releases will tell this story.
-> 
-> Andrew Morton said it: "He suggested this may indicate that the kernel
-> is nearing completion. "Famous last words, but the actual patch volume
-> _has_ to drop off one day," said Morton. "We have to finish this thing
-> one day."
-> 
-> http://news.zdnet.co.uk/software/linuxunix/0,39020390,39221942,00.htm
-> 
 
-I was wrong, as usual.  The trend at http://www.zip.com.au/~akpm/x.jpg is,
-I think, being maintained.
+
+On Tue, 22 Nov 2005, Andrew Morton wrote:
+
+> Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu> wrote:
+> >
+> >                 from fs/compat_ioctl.c:52,
+> >                  from arch/x86_64/ia32/ia32_ioctl.c:14:
+> > include/linux/ext3_fs.h: In function 'ext3_raw_inode':
+> > include/linux/ext3_fs.h:696: error: dereferencing pointer to incomplete type
+> 
+> This might help?
+
+Why does it happen at all, though? And why aren't more people reporting 
+this? Something strange going on.
+
+		Linus

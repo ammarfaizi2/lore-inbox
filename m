@@ -1,76 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbVKWOv1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbVKWOxz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750868AbVKWOv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 09:51:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750874AbVKWOv1
+	id S1750877AbVKWOxz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 09:53:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750878AbVKWOxy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 09:51:27 -0500
-Received: from ns2.suse.de ([195.135.220.15]:32734 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750862AbVKWOv0 (ORCPT
+	Wed, 23 Nov 2005 09:53:54 -0500
+Received: from ns.suse.de ([195.135.220.2]:52684 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750875AbVKWOxy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 09:51:26 -0500
-To: Gerd Knorr <kraxel@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
-       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-References: <200511100032.jAA0WgUq027712@zach-dev.vmware.com>
-	<20051111103605.GC27805@elf.ucw.cz> <4374F2D5.7010106@vmware.com>
-	<Pine.LNX.4.64.0511111147390.4627@g5.osdl.org>
-	<4374FB89.6000304@vmware.com>
-	<Pine.LNX.4.64.0511111218110.4627@g5.osdl.org>
-	<20051113074241.GA29796@redhat.com>
-	<Pine.LNX.4.64.0511131118020.3263@g5.osdl.org>
-	<Pine.LNX.4.64.0511131210570.3263@g5.osdl.org>
-	<4378A7F3.9070704@suse.de>
-	<Pine.LNX.4.64.0511141118000.3263@g5.osdl.org>
-	<4379ECC1.20005@suse.de> <437A0649.7010702@suse.de>
-	<437B5A83.8090808@suse.de> <438359D7.7090308@suse.de>
+	Wed, 23 Nov 2005 09:53:54 -0500
+To: Chris Adams <cmadams@hiwaay.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Generation numbers in stat was Re: what is slashdot's answer to ZFS?
+References: <fa.d8ojg69.1p5ovbb@ifi.uio.no>
+	<20051122161712.GA942598@hiwaay.net>
+	<1132690779.20233.74.camel@localhost.localdomain>
+	<20051122195652.GB660478@hiwaay.net>
 From: Andi Kleen <ak@suse.de>
-Date: 23 Nov 2005 12:17:58 -0700
-In-Reply-To: <438359D7.7090308@suse.de>
-Message-ID: <p7364qjjhqx.fsf@verdi.suse.de>
+Date: 23 Nov 2005 12:20:35 -0700
+In-Reply-To: <20051122195652.GB660478@hiwaay.net>
+Message-ID: <p731x17jhmk.fsf_-_@verdi.suse.de>
 User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerd Knorr <kraxel@suse.de> writes:
-
-> Now, some days hacking & debugging and kernel crashing later I have
-> something more than just proof-of-concept ;)
+Chris Adams <cmadams@hiwaay.net> writes:
 > 
-> Modules are supported now, fully modularized distro kernel works fine
-> with it.  If you have a kernel with HOTPLUG_CPU compiled you can
-> shutdown the second CPU of your dual-processor system via sysfs (echo
-> 0 > /sys/devices/system/cpu/cpu1/online) and watch the kernel switch
-> over to UP code without lock-prefixed instructions and simplified
-> spinlocks, then power up the second CPU again (echo 1 > /sys/...) and
-> watch it patching back in the SMP locking.
+>   [Tru64 UNIX]  However, in the rare case when a user application has been
+>   deleting open files, and a file serial number is reused, a third structure
+>   member in <sys/stat.h>, the file generation number, is needed to uniquely
+>   identify a file. This member, st_gen, is used in addition to st_ino and
+>   st_dev.
 
-This looks like total overkill to me. Who needs to optimize
-CPU hotplug this way? If you really need this just do it 
-at boot time with the existing mechanisms. This would keep
-it much simpler and simplicity is very important with 
-such code because otherwise the testing of all the corner 
-cases will kill you.
-
-BTW the existing mechanism already works fine for modules too.
-
-> +	/* Paranoia */
-> +	asm volatile ("jmp 1f\n1:");
-> +	mb();
-
-That would be totally obsolete 386 era paranoia. If anything then use 
-a CLFLUSH (but not available on all x86s) 
+Sounds like a cool idea. Many fs already maintain this information
+in the kernel. We still had some unused pad space in the struct stat
+so it could be implemented without any compatibility issues 
+(e.g. in place of __pad0). On old kernels it would be always 0.
 
 -Andi
-

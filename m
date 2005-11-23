@@ -1,62 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030312AbVKWCAV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbVKWCER@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030312AbVKWCAV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 21:00:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965206AbVKWCAV
+	id S964807AbVKWCER (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 21:04:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965197AbVKWCER
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 21:00:21 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:41699 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965197AbVKWCAU (ORCPT
+	Tue, 22 Nov 2005 21:04:17 -0500
+Received: from [210.76.114.22] ([210.76.114.22]:56224 "EHLO ccoss.com.cn")
+	by vger.kernel.org with ESMTP id S964807AbVKWCEQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 21:00:20 -0500
-Date: Tue, 22 Nov 2005 18:00:06 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: s0348365@sms.ed.ac.uk, linux-kernel@vger.kernel.org
-Subject: Re: Christmas list for the kernel
-Message-Id: <20051122180006.52d0a6bb.akpm@osdl.org>
-In-Reply-To: <9e4733910511221709t546089d1id76357256079d8f9@mail.gmail.com>
-References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com>
-	<200511221839.24202.s0348365@sms.ed.ac.uk>
-	<9e4733910511221110j47e8ddcs1c9936db1eb5f0b4@mail.gmail.com>
-	<20051122164353.4177c59a.akpm@osdl.org>
-	<9e4733910511221709t546089d1id76357256079d8f9@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 22 Nov 2005 21:04:16 -0500
+Message-ID: <4383CE48.60007@ccoss.com.cn>
+Date: Wed, 23 Nov 2005 10:04:56 +0800
+From: liyu <liyu@ccoss.com.cn>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [Question] I doublt on spin_lock again.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl <jonsmirl@gmail.com> wrote:
->
-> On 11/22/05, Andrew Morton <akpm@osdl.org> wrote:
-> > Jon Smirl <jonsmirl@gmail.com> wrote:
-> > >
-> > > On 11/22/05, Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-> > > > On Tuesday 22 November 2005 18:31, Jon Smirl wrote:
-> > > > > There have been recent comments about the pace of kernel development
-> > > > > slowing.
-> > > >
-> > > > I doubt the diffstat from the last 6 kernel releases will tell this story.
-> > >
-> > > Andrew Morton said it: "He suggested this may indicate that the kernel
-> > > is nearing completion. "Famous last words, but the actual patch volume
-> > > _has_ to drop off one day," said Morton. "We have to finish this thing
-> > > one day."
-> > >
-> > > http://news.zdnet.co.uk/software/linuxunix/0,39020390,39221942,00.htm
-> > >
-> >
-> > I was wrong, as usual.  The trend at http://www.zip.com.au/~akpm/x.jpg is,
-> > I think, being maintained.
-> 
-> I wonder what that would look like if you pull Adrian Bunk's changes
-> out. He is generating thousands of lines of patches (they're good
-> patches but they don't add features).
-> 
+Hi, All.
 
-grep '^[+-]' $(grep -rl '^From:.*Bunk' patches) | wc -l
-  59298
+    I come here again.
 
-59k out of 7M lines changed.
+    I have two questions on spin_lock. these are:
+
+    1. I found these use spin_lock(&rq->lock) in set_user_nice(), but 
+not disable interrput ( e.g.  when sys_nice() call it ),  if the one 
+timer interrput come before we unlock the spin_lock, Shall
+we dead lock here?  Since the scheduler_tick() may try to hold the same 
+lock.
+
+    2. I also found some function name in its definition have some 
+postfix, I show here two classical examples:
+
+static void double_rq_lock(runqueue_t *rq1, runqueue_t *rq2)
+    __acquires(rq1->lock)
+    __acquires(rq2->lock)
+{ ... }
+
+static void double_rq_unlock(runqueue_t *rq1, runqueue_t *rq2)
+    __releases(rq1->lock)
+    __releases(rq2->lock)
+{ ... }
+
+    In the related header files, they are defined as two preprocess 
+macroes, are follow:
+
+# define __acquires(x)    __attribute__((context(0,1)))
+# define __releases(x)    __attribute__((context(1,0)))
+# define __acquire(x)    __context__(1)
+# define __release(x)    __context__(-1)
+
+
+    I guess they are some extensions of gcc for C language, but I did 
+not  found any information in GCC manual.
+
+    Would you like reply these questions? Thank advanced.
+
+-liyu
+
+
+
+
+
+
+
+
+

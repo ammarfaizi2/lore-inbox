@@ -1,101 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030368AbVKWIpx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030370AbVKWIr5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030368AbVKWIpx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 03:45:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030370AbVKWIpx
+	id S1030370AbVKWIr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 03:47:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030372AbVKWIr4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 03:45:53 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:57705 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1030368AbVKWIpw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 03:45:52 -0500
-Date: Wed, 23 Nov 2005 09:46:56 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Tejun Heo <htejun@gmail.com>, jgarzik@pobox.com,
-       James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH linux-2.6-block:post-2.6.15 08/10] blk: update IDE to use new blk_ordered
-Message-ID: <20051123084655.GV15804@suse.de>
-References: <20051117153509.B89B4777@htj.dyndns.org> <20051117153509.061D8991@htj.dyndns.org> <58cb370e0511171211p60e7c248mda477015cf1bd7c5@mail.gmail.com> <437DEE35.9060901@gmail.com> <58cb370e0511180759u4cb50535gfd7b96100a0bd70f@mail.gmail.com> <20051122024401.GB10213@htj.dyndns.org> <58cb370e0511220036r6e61b509i3bc1f7ce90178b1d@mail.gmail.com> <20051123072332.GA6653@htj.dyndns.org> <58cb370e0511230040k6bc53862xac35979eaf1f0634@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 23 Nov 2005 03:47:56 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:10207 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S1030370AbVKWIrz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 03:47:55 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: Christmas list for the kernel
+Date: Wed, 23 Nov 2005 10:47:20 +0200
+User-Agent: KMail/1.8.2
+Cc: Kasper Sandberg <lkml@metanurb.dk>, Greg KH <greg@kroah.com>,
+       lkml <linux-kernel@vger.kernel.org>
+References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com> <1132694935.10574.2.camel@localhost> <9e4733910511221341u695f6765k985ecf0c54daba49@mail.gmail.com>
+In-Reply-To: <9e4733910511221341u695f6765k985ecf0c54daba49@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <58cb370e0511230040k6bc53862xac35979eaf1f0634@mail.gmail.com>
+Message-Id: <200511231047.20250.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23 2005, Bartlomiej Zolnierkiewicz wrote:
-> On 11/23/05, Tejun Heo <htejun@gmail.com> wrote:
-> > On Tue, Nov 22, 2005 at 09:36:09AM +0100, Bartlomiej Zolnierkiewicz wrote:
-> > [--snip--]
-> > > >
-> > > > Ordered requests are processed in the following order.
-> > > >
-> > > > 1. barrier bio reaches blk queue
-> > > >
-> > > > 2. barrier req queued in order
-> > > >
-> > > > 3. when barrier req reaches the head of the request queue, it gets
-> > > >    interpreted into preflush-barrier-postflush requests sequence
-> > > >    and queued.  ->prepare_flush_fn is called in this step.
-> > > >
-> > > > 4. When all three requests complete, the ordered sequence ends.
-> > > >
-> > > > Adding !drive->wcache test to idedisk_prepare_flush, which in turn
-> > > > requires adding ->prepare_flush_fn error handling to blk ordered
-> > > > handling, prevents flushes for barrier requests between step#1 and
-> > >
-> > > Why for !drive->wcache flush can't be consider as successful
-> > > like it was before these changes...
-> > >
-> > > > step#3.  We can still have flush reqeuests between #3 and #4 after
-> > > > wcache is turned off.
-> > >
-> > > ditto
-> > >
-> >
-> > I think we have two alternatives here - both have some problems.
-> >
-> > 1. make ->prepare_flush_fn return some code to tell blk layer skip
-> >    the flush as the original code did.
-> >
-> > This is what you're proposing, I guess.  The reason why I'm reluctant
-> > to take this approach is that there still remains window of error
-> > between #3 and #4.  The flush requests could already be prepared and
-> > in the queue when ->wcache is turned off.  AFAICS, the original code
-> > had the same problem, although the window was narrower.
-> >
-> > 2. complete flush commands successfully in execute_drive_cmd() if wcache
-> >    is not enabled.
-> >
-> > This approach fixes all cases but the implementation would be a bit
-> > hackish.  execute_drive_cmd() will have to look at the command and
-> > ide_disk->wcache to determine if a special command should be completed
-> > successfully without actually executing it.  Maybe we can add a
-> > per-HL-driver callback for that.
-> >
-> > Bartlomiej, I'm not really sure about both of above approaches.  My
-> > humble opinion is that benefits brought by both of above aren't worth
-> > the added complexity.  The worst can happen is a few IDE command
-> > failures caused by executing flush command on a wcache disabled drive.
-> > And that would happen only when the user turns off wcache while
-> > barrier sequence is *in progress*.
-> >
-> > Hmmm... What do you think?  It's your call.  I'll do what you choose.
+On Tuesday 22 November 2005 23:41, Jon Smirl wrote:
+> On 11/22/05, Kasper Sandberg <lkml@metanurb.dk> wrote:
+> > > Currently you have to compile most of this stuff into the kernel.
+> > forgive my ignorance, but whats stopping you from doing this now?
 > 
-> Hmm... both solutions sucks.  After second thought I agree with you
-> w.r.t to original changes (just remember to document them in the patch
-> description).
+> It would be better if all of the legacy drivers could exist on
+> initramfs and only be loaded if the actual hardware is present. With
+> the current code someone like Redhat has to compile all of the legacy
+> support into their distribution kernel. That code will be present even
+> on new systems that don't have the hardware.
+> 
+> An example of this is that the serial driver is hard coded to report
+> four legacy serial ports when my system physically only has two. I
+> have to change a #define and recompile the kernel to change this.
 
-Me too. Plus on most drives a flush cache command on a drive with write
-back caching disabled will succeed, not fail. t13 is about to mandate
-that behaviour as well, and honestly I think this is the logical way to
-implement it in a drive (the flush just becomes a noop).
+> The goal should be able to build something like Knoppix without
+> Knoppix needing any device probing scripts. Linux is 90% of the way
+> there but not 100% yet.
+ 
+It's not such a pressing need IMO. This stuff works, doesn't
+need a lot of maintenance, is not too big code size wise, so why
+should it be converted ASAP?
 
-So Tejun, where do we stand with this patch series? Any changes over
-what you posted last week? I'd like to get this merged in the block
-tree, get it in -mm and merged for 2.6.16 if things work out.
+As discussed on "PCI core patch" thread, getting specs from
+hardware vendors for new stuff is getting harder. When one suddenly
+discovers than [s]he cannot run X on shiny new notebook -
+_this_ is a serious problem.
 
--- 
-Jens Axboe
-
+> X is also part of the problem. Even if the kernel nicely identifies
+> all of the video hardware and input devices, X ignores this info and
+> looks for everything again anyway. In a more friendly system X would
+> use the info the kernel provides and automatically configure itself
+> for the devices present or hotplugged. You could get rid of your
+> xorg.cong file in this model.
+--
+vda

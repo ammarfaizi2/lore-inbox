@@ -1,73 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbVKWCER@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965197AbVKWCGP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964807AbVKWCER (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Nov 2005 21:04:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965197AbVKWCER
+	id S965197AbVKWCGP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Nov 2005 21:06:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965206AbVKWCGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Nov 2005 21:04:17 -0500
-Received: from [210.76.114.22] ([210.76.114.22]:56224 "EHLO ccoss.com.cn")
-	by vger.kernel.org with ESMTP id S964807AbVKWCEQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Nov 2005 21:04:16 -0500
-Message-ID: <4383CE48.60007@ccoss.com.cn>
-Date: Wed, 23 Nov 2005 10:04:56 +0800
-From: liyu <liyu@ccoss.com.cn>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [Question] I doublt on spin_lock again.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Nov 2005 21:06:15 -0500
+Received: from tayrelbas01.tay.hp.com ([161.114.80.244]:46998 "EHLO
+	tayrelbas01.tay.hp.com") by vger.kernel.org with ESMTP
+	id S965197AbVKWCGO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Nov 2005 21:06:14 -0500
+Date: Tue, 22 Nov 2005 18:06:09 -0800
+To: Rajesh Shah <rajesh.shah@intel.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: BUG 2.6.14.2 : ACPI boot lockup
+Message-ID: <20051123020609.GA30491@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20051122211947.GA29622@bougret.hpl.hp.com> <20051122165429.A30362@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051122165429.A30362@unix-os.sc.intel.com>
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+User-Agent: Mutt/1.5.9i
+From: Jean Tourrilhes <jt@hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, All.
+On Tue, Nov 22, 2005 at 04:54:29PM -0800, Rajesh Shah wrote:
+> On Tue, Nov 22, 2005 at 01:19:47PM -0800, Jean Tourrilhes wrote:
+> > 	Hi Rajesh,
+> > 
+> > 	I have some ACPI trouble, and one of your checkin may be
+> > related to it. Would you mind checking the following LKML thread ?
+> > 	http://marc.theaimsgroup.com/?t=113268687800002&r=1&w=2
+> > 
+> Thanks for pointing me here, I wasn't reading this thread...
 
-    I come here again.
+	Yeah, I know, I don't follow LKML either.
+	Note that pci=noacpi did fix my issues. I guess I have a buggy
+ACPI :-(
 
-    I have two questions on spin_lock. these are:
+> Does this patch help?
 
-    1. I found these use spin_lock(&rq->lock) in set_user_nice(), but 
-not disable interrput ( e.g.  when sys_nice() call it ),  if the one 
-timer interrput come before we unlock the spin_lock, Shall
-we dead lock here?  Since the scheduler_tick() may try to hold the same 
-lock.
+	This patch does not look right to me, but I must admit I have
+no clue about what the code is doing. Can you confirm you want me to
+try this ?
 
-    2. I also found some function name in its definition have some 
-postfix, I show here two classical examples:
+> thanks,
+> Rajesh
 
-static void double_rq_lock(runqueue_t *rq1, runqueue_t *rq2)
-    __acquires(rq1->lock)
-    __acquires(rq2->lock)
-{ ... }
+	Have fun...
 
-static void double_rq_unlock(runqueue_t *rq1, runqueue_t *rq2)
-    __releases(rq1->lock)
-    __releases(rq2->lock)
-{ ... }
+	Jean
 
-    In the related header files, they are defined as two preprocess 
-macroes, are follow:
-
-# define __acquires(x)    __attribute__((context(0,1)))
-# define __releases(x)    __attribute__((context(1,0)))
-# define __acquire(x)    __context__(1)
-# define __release(x)    __context__(-1)
-
-
-    I guess they are some extensions of gcc for C language, but I did 
-not  found any information in GCC manual.
-
-    Would you like reply these questions? Thank advanced.
-
--liyu
-
-
-
-
-
-
-
-
-
+>  drivers/acpi/scan.c |    2 +-
+>  1 files changed, 1 insertion(+), 1 deletion(-)
+> 
+> Index: linux-2.6.14-vanilla/drivers/acpi/scan.c
+> ===================================================================
+> --- linux-2.6.14-vanilla.orig/drivers/acpi/scan.c
+> +++ linux-2.6.14-vanilla/drivers/acpi/scan.c
+> @@ -1111,7 +1111,7 @@ acpi_add_single_object(struct acpi_devic
+>  	 *
+>  	 * TBD: Assumes LDM provides driver hot-plug capability.
+>  	 */
+> -	result = acpi_bus_find_driver(device);
+> +	acpi_bus_find_driver(device);
+>  
+>        end:
+>  	if (!result)

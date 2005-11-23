@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751135AbVKWP5H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbVKWQAu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751135AbVKWP5H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 10:57:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbVKWP5G
+	id S1750837AbVKWQAu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 11:00:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbVKWQAu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 10:57:06 -0500
-Received: from webbox4.loswebos.de ([213.187.93.205]:45722 "EHLO
-	webbox4.loswebos.de") by vger.kernel.org with ESMTP
-	id S1751135AbVKWP4e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 10:56:34 -0500
-Date: Wed, 23 Nov 2005 16:56:50 +0100
-From: Marc Koschewski <marc@osknowledge.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Greg KH <greg@kroah.com>,
-       lkml <linux-kernel@vger.kernel.org>
+	Wed, 23 Nov 2005 11:00:50 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:28431 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750837AbVKWQAt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 11:00:49 -0500
+Date: Wed, 23 Nov 2005 15:29:50 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: Jon Smirl <jonsmirl@gmail.com>, Vojtech Pavlik <vojtech@suse.cz>,
+       Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
 Subject: Re: Christmas list for the kernel
-Message-ID: <20051123155650.GB6970@stiffy.osknowledge.org>
-References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com> <20051122204918.GA5299@kroah.com> <9e4733910511221313t4a1e3c67wc7b08160937eb5c5@mail.gmail.com> <20051123121726.GA7328@ucw.cz> <9e4733910511230643j64922738p709fecd6c86b4a95@mail.gmail.com> <20051123150349.GA15449@flint.arm.linux.org.uk> <9e4733910511230712y2b394851rc17fa71c6f9c6ecf@mail.gmail.com>
-MIME-Version: 1.0
+Message-ID: <20051123152950.GC15449@flint.arm.linux.org.uk>
+Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
+	Jon Smirl <jonsmirl@gmail.com>, Vojtech Pavlik <vojtech@suse.cz>,
+	Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
+References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com> <20051122204918.GA5299@kroah.com> <9e4733910511221313t4a1e3c67wc7b08160937eb5c5@mail.gmail.com> <20051123121726.GA7328@ucw.cz> <9e4733910511230643j64922738p709fecd6c86b4a95@mail.gmail.com> <20051123150349.GA15449@flint.arm.linux.org.uk> <438488A0.8050104@drzeus.cx>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9e4733910511230712y2b394851rc17fa71c6f9c6ecf@mail.gmail.com>
-X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
-X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
-X-Operating-System: Linux stiffy 2.6.15-rc2-marc
-User-Agent: Mutt/1.5.11
+In-Reply-To: <438488A0.8050104@drzeus.cx>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jon Smirl <jonsmirl@gmail.com> [2005-11-23 10:12:58 -0500]:
+On Wed, Nov 23, 2005 at 04:20:00PM +0100, Pierre Ossman wrote:
+> But if no hardware is connected to those devices, then where does the 
+> driver route the setserial stuff?
 
-> On 11/23/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> > > Plus I have 64 tty devices. Couldn't the tty devices be created
-> > > dynamically as they are consumed? Same for the loop and ram devices?
-> >
-> > You do realise that the dynamic device creation for those 64 console
-> > devices is done via the console device being _opened_ by userspace?
-> >
-> > Hence, if the device doesn't exist in userspace, it can't be created
-> > for userspace to open it to create the device via udev.  Have you
-> > noticed a catch-22 with that statement?
-> 
-> Couldn't we create tty0-3 and then when one of those gets opened,
-> create tty4, and so on? Then there would always be two or three more
-> tty devices than there are open tty devices.
-> 
+setserial /dev/ttyS2 port 0x200 irq 5 autoconfig
 
-How does that work when you ie. have tty0, tty1, tty2, tty3 per default,
-open tty4, tty5, tty6 and the close tty4? And what if you then open
-another? Will it be tty4 oder tty7? If so, what if the maximum numer is
-reached even if only 3 ttys are left open?
+and you might then end up with another serial port detected.  If
+/dev/ttyS2 and above do not exist, you can't do that.  That would
+in turn effectively prevent folk with some serial cards using them
+with Linux without editing and rebuilding their kernel.
+
+As for the rest of the "setserial stuff" it gets recorded against
+the port and remembered for when the hardware turns up, which it
+may do if it's your PCMCIA modem card.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

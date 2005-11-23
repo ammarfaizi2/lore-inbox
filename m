@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751028AbVKWPhF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751050AbVKWPjg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751028AbVKWPhF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 10:37:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751032AbVKWPhF
+	id S1751050AbVKWPjg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 10:39:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751049AbVKWPjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 10:37:05 -0500
-Received: from zeus1.kernel.org ([204.152.191.4]:46798 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751028AbVKWPhC (ORCPT
+	Wed, 23 Nov 2005 10:39:36 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:17312 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S1751032AbVKWPjg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 10:37:02 -0500
-Date: Wed, 23 Nov 2005 15:36:55 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Greg KH <greg@kroah.com>,
+	Wed, 23 Nov 2005 10:39:36 -0500
+Message-ID: <43848D37.4080007@drzeus.cx>
+Date: Wed, 23 Nov 2005 16:39:35 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mail/News 1.5 (X11/20051105)
+MIME-Version: 1.0
+To: Pierre Ossman <drzeus-list@drzeus.cx>, Jon Smirl <jonsmirl@gmail.com>,
+       Vojtech Pavlik <vojtech@suse.cz>, Greg KH <greg@kroah.com>,
        lkml <linux-kernel@vger.kernel.org>
 Subject: Re: Christmas list for the kernel
-Message-ID: <20051123153655.GD15449@flint.arm.linux.org.uk>
-Mail-Followup-To: Jon Smirl <jonsmirl@gmail.com>,
-	Vojtech Pavlik <vojtech@suse.cz>, Greg KH <greg@kroah.com>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com> <20051122204918.GA5299@kroah.com> <9e4733910511221313t4a1e3c67wc7b08160937eb5c5@mail.gmail.com> <20051123121726.GA7328@ucw.cz> <9e4733910511230643j64922738p709fecd6c86b4a95@mail.gmail.com> <20051123150349.GA15449@flint.arm.linux.org.uk> <9e4733910511230719h67fa96bdxdeb654aa12f18e67@mail.gmail.com> <20051123152558.GB15449@flint.arm.linux.org.uk> <9e4733910511230731p12d7c712pe20e89886832c95f@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9e4733910511230731p12d7c712pe20e89886832c95f@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com> <20051122204918.GA5299@kroah.com> <9e4733910511221313t4a1e3c67wc7b08160937eb5c5@mail.gmail.com> <20051123121726.GA7328@ucw.cz> <9e4733910511230643j64922738p709fecd6c86b4a95@mail.gmail.com> <20051123150349.GA15449@flint.arm.linux.org.uk> <438488A0.8050104@drzeus.cx> <20051123152950.GC15449@flint.arm.linux.org.uk>
+In-Reply-To: <20051123152950.GC15449@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 10:31:15AM -0500, Jon Smirl wrote:
-> On 11/23/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> > > This is confusing...
-> > >
-> > > Serial: 8250/16550 driver $Revision: 1.90 $ 4 ports, IRQ sharing disabled
-> > > serial8250: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-> > > serial8250: ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
-> > > serial8250: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-> > > serial8250: ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
-> 
-> Could this be the source of the four port versus the two port
-> confusion in the higher layers? It says 4 ports and list four ports,
-> but two are duplicates.
+Russell King wrote:
+> On Wed, Nov 23, 2005 at 04:20:00PM +0100, Pierre Ossman wrote:
+>   
+>> But if no hardware is connected to those devices, then where does the 
+>> driver route the setserial stuff?
+>>     
+>
+> setserial /dev/ttyS2 port 0x200 irq 5 autoconfig
+>
+> and you might then end up with another serial port detected.  If
+> /dev/ttyS2 and above do not exist, you can't do that.  That would
+> in turn effectively prevent folk with some serial cards using them
+> with Linux without editing and rebuilding their kernel.
+>
+>   
 
-Only if something's parsing the kernel messages.
+Ah. But why is this not done through module parameters? That would be 
+more consistent with how you specify resources for other drivers.
 
-The "4 ports" is about the _maximum_ number of ports that the driver
-will support, and it will therefore create tty devices for ttyS0 to
-ttyS3 regardless of whether the hardware exists.
+> As for the rest of the "setserial stuff" it gets recorded against
+> the port and remembered for when the hardware turns up, which it
+> may do if it's your PCMCIA modem card.
+>
+>   
 
-To see why this is done, read my previous mails in this thread.
+This could be a bit more questionable. Setting the initial state of 
+hardware is better done (IMHO) by reacting to some hotplug event. E.g. 
+fedora uses an 'install' line in modprobe.conf to restore mixer state 
+for sound cards.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Rgds
+Pierre
+

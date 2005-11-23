@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030446AbVKWWhO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030443AbVKWWiB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030446AbVKWWhO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 17:37:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030432AbVKWWfN
+	id S1030443AbVKWWiB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 17:38:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030435AbVKWWhS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 17:35:13 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:787 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030439AbVKWWfG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 17:35:06 -0500
-Date: Wed, 23 Nov 2005 23:35:05 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: [-mm patch] init/main.c: dummy mark_rodata_ro() should be static
-Message-ID: <20051123223505.GF3963@stusta.de>
-References: <20051123033550.00d6a6e8.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051123033550.00d6a6e8.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+	Wed, 23 Nov 2005 17:37:18 -0500
+Received: from vms048pub.verizon.net ([206.46.252.48]:46388 "EHLO
+	vms048pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1030443AbVKWWg7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 17:36:59 -0500
+Date: Wed, 23 Nov 2005 17:36:58 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: Linux 2.6.15-rc2
+In-reply-to: <Pine.LNX.4.61.0511232122300.13837@goblin.wat.veritas.com>
+To: linux-kernel@vger.kernel.org
+Cc: Hugh Dickins <hugh@veritas.com>, Michael Krufky <mkrufky@linuxtv.org>,
+       Adrian Bunk <bunk@stusta.de>, Johannes Stezenbach <js@linuxtv.org>,
+       Sam Ravnborg <sam@ravnborg.org>, Kirk Lapray <kirk.lapray@gmail.com>
+Message-id: <200511231736.58204.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org>
+ <4384D0EC.5050709@linuxtv.org>
+ <Pine.LNX.4.61.0511232122300.13837@goblin.wat.veritas.com>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Every inline dummy function should be static.
+On Wednesday 23 November 2005 16:26, Hugh Dickins wrote:
+>On Wed, 23 Nov 2005, Michael Krufky wrote:
+>> > > First off, Gene, I am still under the impression that both v4l
+>> > > and dvb subsystems are broken under 2.6.15 due to the memory
+>> > > bugs... I don't know if Hugh Dickins fixed those yet or not.
+>
+>They should be fixed in today's 2.6.15-rc2-git3
+>(aside from a couple of patches to drivers/char/drm coming later).
+>If you still have problems you think I'm responsible for, let me know.
+>
+>Hugh
 
+I'm not familiar enough with git yet to try that without some hand
+holding :(
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.15-rc2-mm1-full/init/main.c.old	2005-11-23 16:50:45.000000000 +0100
-+++ linux-2.6.15-rc2-mm1-full/init/main.c	2005-11-23 16:50:55.000000000 +0100
-@@ -101,7 +101,7 @@
- static inline void acpi_early_init(void) { }
- #endif
- #ifndef CONFIG_DEBUG_RODATA
--inline void mark_rodata_ro(void) { }
-+static inline void mark_rodata_ro(void) { }
- #endif
- 
- #ifdef CONFIG_TC
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.36% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
 

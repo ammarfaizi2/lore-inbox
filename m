@@ -1,58 +1,171 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030321AbVKWF51@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030319AbVKWF6x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030321AbVKWF51 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 00:57:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030319AbVKWF51
+	id S1030319AbVKWF6x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 00:58:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030320AbVKWF6x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 00:57:27 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:807 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S1030317AbVKWF50
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 00:57:26 -0500
-Date: Wed, 23 Nov 2005 06:57:35 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: kaber@trash.net, bunk@stusta.de, evil@g-house.de,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       zippel@linux-m68k.org
-Subject: Re: [2.6 patch] do not select NET_CLS
-Message-ID: <20051123055735.GC7579@mars.ravnborg.org>
-References: <4381F2D2.5000605@trash.net> <20051122.143713.101129339.davem@davemloft.net> <20051122224914.GA17575@mars.ravnborg.org> <20051122.150041.90521592.davem@davemloft.net>
+	Wed, 23 Nov 2005 00:58:53 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:29338 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030319AbVKWF6w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 00:58:52 -0500
+Date: Tue, 22 Nov 2005 21:58:38 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: rohit.seth@intel.com, torvalds@osdl.org, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, christoph@lameter.com
+Subject: Re: [PATCH]: Free pages from local pcp lists under tight memory
+ conditions
+Message-Id: <20051122215838.2abfdbd4.akpm@osdl.org>
+In-Reply-To: <20051122213612.4adef5d0.akpm@osdl.org>
+References: <20051122161000.A22430@unix-os.sc.intel.com>
+	<20051122213612.4adef5d0.akpm@osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051122.150041.90521592.davem@davemloft.net>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 22, 2005 at 03:00:41PM -0800, David S. Miller wrote:
-> From: Sam Ravnborg <sam@ravnborg.org>
-> Date: Tue, 22 Nov 2005 23:49:14 +0100
-> 
-> > On Tue, Nov 22, 2005 at 02:37:13PM -0800, David S. Miller wrote:
-> > > 
-> > > One thing we can do to prevent human
-> > > mistakes, is to make the "make modules" pass do a quick "is vmlinux
-> > > uptodate?" check, and if not print out an error message explaining the
-> > > situation and aborting the "make modules" attempt.
-> > 
-> > I do not quite follow you here.
-> 
-> If the user tries to do a "make modules" without first rebuilding
-> their kernel image, then the make will fail if the dependencies
-> are not satisfied for the main kernel image and it is thus not
-> up to date.
+Andrew Morton <akpm@osdl.org> wrote:
+>
+> The `while' loop worries me for some reason, so I wimped out and just tried
+>  the remote drain once.
 
-OK - so a simple 'make -q vmlinux' check, except that the way we utilise
-make will let it fail at first build command.
-That will obscufate things even more in kbuild - but I will give it a
-try sometime. It will be easy to cover 95% but to reach 100%
-predictability will be though.
-- file dependencies is easy
-- command line changes is relatively easy
-- but the various scripts and user commands will be tricky..
+Even the `goto restart' which is in this patch worries me from a livelock
+POV.  Perhaps we should only ever run drain_all_local_pages() once per
+__alloc_pages() invokation.
 
-Not on the top of the TODO list though.
+And perhaps we should run drain_all_local_pages() for GFP_ATOMIC or
+PF_MEMALLOC attempts too.
 
-	Sam
+
+--- devel/include/linux/gfp.h~mm-free-pages-from-local-pcp-lists-under-tight-memory-conditions	2005-11-22 21:47:33.000000000 -0800
++++ devel-akpm/include/linux/gfp.h	2005-11-22 21:57:22.000000000 -0800
+@@ -109,6 +109,8 @@ static inline struct page *alloc_pages_n
+ 		NODE_DATA(nid)->node_zonelists + gfp_zone(gfp_mask));
+ }
+ 
++extern void drain_local_pages(void);
++
+ #ifdef CONFIG_NUMA
+ extern struct page *alloc_pages_current(gfp_t gfp_mask, unsigned order);
+ 
+diff -puN include/linux/suspend.h~mm-free-pages-from-local-pcp-lists-under-tight-memory-conditions include/linux/suspend.h
+--- devel/include/linux/suspend.h~mm-free-pages-from-local-pcp-lists-under-tight-memory-conditions	2005-11-22 21:47:33.000000000 -0800
++++ devel-akpm/include/linux/suspend.h	2005-11-22 21:47:33.000000000 -0800
+@@ -40,7 +40,6 @@ extern dev_t swsusp_resume_device;
+ extern int shrink_mem(void);
+ 
+ /* mm/page_alloc.c */
+-extern void drain_local_pages(void);
+ extern void mark_free_pages(struct zone *zone);
+ 
+ #ifdef CONFIG_PM
+diff -puN mm/page_alloc.c~mm-free-pages-from-local-pcp-lists-under-tight-memory-conditions mm/page_alloc.c
+--- devel/mm/page_alloc.c~mm-free-pages-from-local-pcp-lists-under-tight-memory-conditions	2005-11-22 21:47:33.000000000 -0800
++++ devel-akpm/mm/page_alloc.c	2005-11-22 21:58:01.000000000 -0800
+@@ -578,32 +578,65 @@ void drain_remote_pages(void)
+ }
+ #endif
+ 
+-#if defined(CONFIG_PM) || defined(CONFIG_HOTPLUG_CPU)
+-static void __drain_pages(unsigned int cpu)
++/*
++ * Drain any cpu-local pages into the buddy lists.  Must be called under
++ * local_irq_disable().
++ */
++static int __drain_pages(unsigned int cpu)
+ {
+-	unsigned long flags;
+ 	struct zone *zone;
+-	int i;
++	int ret = 0;
+ 
+ 	for_each_zone(zone) {
+ 		struct per_cpu_pageset *pset;
++		int i;
+ 
+ 		pset = zone_pcp(zone, cpu);
+ 		for (i = 0; i < ARRAY_SIZE(pset->pcp); i++) {
+ 			struct per_cpu_pages *pcp;
+ 
+ 			pcp = &pset->pcp[i];
+-			local_irq_save(flags);
++			if (!pcp->count)
++				continue;
+ 			pcp->count -= free_pages_bulk(zone, pcp->count,
+ 						&pcp->list, 0);
+-			local_irq_restore(flags);
++			ret++;
+ 		}
+ 	}
++	return ret;
+ }
+-#endif /* CONFIG_PM || CONFIG_HOTPLUG_CPU */
+ 
+-#ifdef CONFIG_PM
++/*
++ * Spill all of this CPU's per-cpu pages back into the buddy allocator.
++ */
++void drain_local_pages(void)
++{
++	unsigned long flags;
++
++	local_irq_save(flags);
++	__drain_pages(smp_processor_id());
++	local_irq_restore(flags);
++}
+ 
++static void drainer(void *p)
++{
++	drain_local_pages();
++}
++
++/*
++ * Drain the per-cpu pages on all CPUs.  If called from interrupt context we
++ * can only drain the local CPU's pages, since cross-CPU calls are deadlocky
++ * from interrupt context.
++ */
++static void drain_all_local_pages(void)
++{
++	if (in_interrupt())
++		drain_local_pages();
++	else
++		on_each_cpu(drainer, NULL, 0, 1);
++}
++
++#ifdef CONFIG_PM
+ void mark_free_pages(struct zone *zone)
+ {
+ 	unsigned long zone_pfn, flags;
+@@ -629,17 +662,6 @@ void mark_free_pages(struct zone *zone)
+ 	spin_unlock_irqrestore(&zone->lock, flags);
+ }
+ 
+-/*
+- * Spill all of this CPU's per-cpu pages back into the buddy allocator.
+- */
+-void drain_local_pages(void)
+-{
+-	unsigned long flags;
+-
+-	local_irq_save(flags);	
+-	__drain_pages(smp_processor_id());
+-	local_irq_restore(flags);	
+-}
+ #endif /* CONFIG_PM */
+ 
+ static void zone_statistics(struct zonelist *zonelist, struct zone *z)
+@@ -889,6 +911,10 @@ restart:
+ 	if (gfp_mask & __GFP_HIGH)
+ 		alloc_flags |= ALLOC_DIP_LESS;
+ 
++	if (order > 0 || (!wait && (gfp_mask & __GFP_HIGH)) ||
++			(p->flags & PF_MEMALLOC))
++		drain_all_local_pages();
++
+ 	page = get_page_from_freelist(gfp_mask, order, zonelist, alloc_flags);
+ 	if (page)
+ 		goto got_pg;
+_
+

@@ -1,60 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751050AbVKWPjg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751061AbVKWPoa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751050AbVKWPjg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 10:39:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751049AbVKWPjg
+	id S1751061AbVKWPoa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 10:44:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751062AbVKWPoa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 10:39:36 -0500
-Received: from [85.8.13.51] ([85.8.13.51]:17312 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S1751032AbVKWPjg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 10:39:36 -0500
-Message-ID: <43848D37.4080007@drzeus.cx>
-Date: Wed, 23 Nov 2005 16:39:35 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mail/News 1.5 (X11/20051105)
+	Wed, 23 Nov 2005 10:44:30 -0500
+Received: from web25802.mail.ukl.yahoo.com ([217.12.10.187]:65419 "HELO
+	web25802.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1751053AbVKWPoa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 10:44:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=3Kl+w61iGloBEs3IiqUL1BwgNGtpY2bTk+9qnOUqL6TPwVaLHIcu/oS0OmGO7gwxu6hKvYUsOfXITQraZ9zUmT0chTtpeAezGcl6EkHbAifIW5DQ2oCGKDs97ZObDyTWHRD54aAaVcORaxg34SZKz+0f2cMXyXJlk4+9IO/DO+Q=  ;
+Message-ID: <20051123154423.32867.qmail@web25802.mail.ukl.yahoo.com>
+Date: Wed, 23 Nov 2005 16:44:23 +0100 (CET)
+From: moreau francis <francis_moreau2000@yahoo.fr>
+Subject: Re: Use enum to declare errno values
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Denis Vlasenko <vda@ilport.com.ua>
+Cc: moreau francis <francis_moreau2000@yahoo.fr>, linux-kernel@vger.kernel.org
+In-Reply-To: <1132758910.7268.32.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Pierre Ossman <drzeus-list@drzeus.cx>, Jon Smirl <jonsmirl@gmail.com>,
-       Vojtech Pavlik <vojtech@suse.cz>, Greg KH <greg@kroah.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Christmas list for the kernel
-References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com> <20051122204918.GA5299@kroah.com> <9e4733910511221313t4a1e3c67wc7b08160937eb5c5@mail.gmail.com> <20051123121726.GA7328@ucw.cz> <9e4733910511230643j64922738p709fecd6c86b4a95@mail.gmail.com> <20051123150349.GA15449@flint.arm.linux.org.uk> <438488A0.8050104@drzeus.cx> <20051123152950.GC15449@flint.arm.linux.org.uk>
-In-Reply-To: <20051123152950.GC15449@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Wed, Nov 23, 2005 at 04:20:00PM +0100, Pierre Ossman wrote:
->   
->> But if no hardware is connected to those devices, then where does the 
->> driver route the setserial stuff?
->>     
->
-> setserial /dev/ttyS2 port 0x200 irq 5 autoconfig
->
-> and you might then end up with another serial port detected.  If
-> /dev/ttyS2 and above do not exist, you can't do that.  That would
-> in turn effectively prevent folk with some serial cards using them
-> with Linux without editing and rebuilding their kernel.
->
->   
 
-Ah. But why is this not done through module parameters? That would be 
-more consistent with how you specify resources for other drivers.
+--- Alan Cox <alan@lxorguk.ukuu.org.uk> a écrit :
 
-> As for the rest of the "setserial stuff" it gets recorded against
-> the port and remembered for when the hardware turns up, which it
-> may do if it's your PCMCIA modem card.
->
->   
+> On Mer, 2005-11-23 at 16:31 +0200, Denis Vlasenko wrote:
+> > Enums are really nice substitute for integer constants instead of #defines.
+> > Enums obey scope rules, #defines do not.
+> > 
+> > However enums are not widely used because of
+> > 1. tradition and style
+> > 2. awkward syntax required:   enum { ABC = 123 };
+> 
+> The SATA layer uses enum for constants and while it was a bit of change
+> in style when I met it, it does seem to work just as well
+> 
+> 
 
-This could be a bit more questionable. Setting the initial state of 
-hardware is better done (IMHO) by reacting to some hotplug event. E.g. 
-fedora uses an 'install' line in modprobe.conf to restore mixer state 
-for sound cards.
+I guess we won't use enumeration because it needs to many changes...Each
+function that returns a errno value should have their prototype changed like
+this:
 
-Rgds
-Pierre
+    int foo(void)
+    {
+            int retval;
+            [...]
+            return retval;
+    }
 
+should be changed into
+
+    enum errnoval foo(void)
+    {
+            enum errnoval retval;
+            [...]
+            return retval;
+    }
+
+
+Thanks
+
+
+	
+	
+		
+___________________________________________________________________________
+Appel audio GRATUIT partout dans le monde avec le nouveau Yahoo! Messenger 
+Téléchargez cette version sur http://fr.messenger.yahoo.com

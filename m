@@ -1,49 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbVKWQAu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbVKWQB0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750837AbVKWQAu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 11:00:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbVKWQAu
+	id S1751173AbVKWQB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 11:01:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbVKWQB0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 11:00:50 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:28431 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750837AbVKWQAt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 11:00:49 -0500
-Date: Wed, 23 Nov 2005 15:29:50 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: Jon Smirl <jonsmirl@gmail.com>, Vojtech Pavlik <vojtech@suse.cz>,
-       Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Christmas list for the kernel
-Message-ID: <20051123152950.GC15449@flint.arm.linux.org.uk>
-Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
-	Jon Smirl <jonsmirl@gmail.com>, Vojtech Pavlik <vojtech@suse.cz>,
-	Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
-References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com> <20051122204918.GA5299@kroah.com> <9e4733910511221313t4a1e3c67wc7b08160937eb5c5@mail.gmail.com> <20051123121726.GA7328@ucw.cz> <9e4733910511230643j64922738p709fecd6c86b4a95@mail.gmail.com> <20051123150349.GA15449@flint.arm.linux.org.uk> <438488A0.8050104@drzeus.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <438488A0.8050104@drzeus.cx>
-User-Agent: Mutt/1.4.1i
+	Wed, 23 Nov 2005 11:01:26 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:41905 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751173AbVKWQBY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 11:01:24 -0500
+Date: Wed, 23 Nov 2005 11:01:23 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Chandra Seetharaman <sekharan@us.ibm.com>
+cc: Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Optimizing notifier_call_chain
+In-Reply-To: <1132716475.27586.7.camel@linuxchandra>
+Message-ID: <Pine.LNX.4.44L0.0511231057430.4477-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 04:20:00PM +0100, Pierre Ossman wrote:
-> But if no hardware is connected to those devices, then where does the 
-> driver route the setserial stuff?
+On Tue, 22 Nov 2005, Chandra Seetharaman wrote:
 
-setserial /dev/ttyS2 port 0x200 irq 5 autoconfig
+> Hello,
+> 
+> While making the notifier chain safe, i found room for some optimization.
+> Please comment on if it is worth pursuing.
+> 
+> notifier_call_chain() calls registered callouts for _all_ events. But, many
+> of the callouts handle only few events.
+> 
+> If we change notifier_call_chain() to call the callout only on registered
+> events, we can avoid few function overhead.
+> 
+> Currently, events is of free format, we have to make it bit per event.
+> Among the existing users, ia64die_chain uses the highest number(25) of 
+> events. i think 64 bit event would suffice.
+> 
+> simplified logic:
+> 	notifier_call_chain(event) 
+> 	{
+> 		if ((head->event & event) != 0)
+> 			return;
+> 		for_each_callout {
+> 			if ((notifier_block->event & event) != 0)
+> 				notifier_block->call(event);
+> 		}
+> 	}
 
-and you might then end up with another serial port detected.  If
-/dev/ttyS2 and above do not exist, you can't do that.  That would
-in turn effectively prevent folk with some serial cards using them
-with Linux without editing and rebuilding their kernel.
+You would need to mask against (1ull << event), not against event.  
+tset_bit() might work better.
 
-As for the rest of the "setserial stuff" it gets recorded against
-the port and remembered for when the hardware turns up, which it
-may do if it's your PCMCIA modem card.
+Do you really want to do this?  It will mean changing every single 
+notifier_block definition in the kernel, in addition to all the the 
+notifier_heads.  That's an awful lot of work for a relatively small gain.  
+I believe that notifier_call_chain does not run very often, but I don't 
+have any actual figures.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Alan Stern
+

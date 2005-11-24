@@ -1,36 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932602AbVKXACS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932592AbVKXADz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932602AbVKXACS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 19:02:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932621AbVKXACS
+	id S932592AbVKXADz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 19:03:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932599AbVKXADz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 19:02:18 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:17846 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932592AbVKXACJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 19:02:09 -0500
-Date: Wed, 23 Nov 2005 16:01:36 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Greg Kroah-Hartman <gregkh@suse.de>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [patch 00/22] PCI, USB and hwmon patches for 2.6.15-rc2-git
-In-Reply-To: <20051123234335.GA527@kroah.com>
-Message-ID: <Pine.LNX.4.64.0511231600090.13959@g5.osdl.org>
-References: <20051123234335.GA527@kroah.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 23 Nov 2005 19:03:55 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:9777
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S932592AbVKXADy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 19:03:54 -0500
+Date: Thu, 24 Nov 2005 01:03:51 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Fabio Coatti <cova@ferrara.linux.it>
+Cc: Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
+Subject: Re: Dual opteron various segfaults with 2.6.14.2 and earlier kernels
+Message-ID: <20051124000351.GT18321@opteron.random>
+References: <200511231537.49320.cova@ferrara.linux.it> <200511232255.57716.andrew@walrond.org> <200511240026.42212.cova@ferrara.linux.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200511240026.42212.cova@ferrara.linux.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Fabio,
 
+On Thu, Nov 24, 2005 at 12:26:41AM +0100, Fabio Coatti wrote:
+> yes, uname says  2.6.14.2; on a second identical machine, I've just seen this:
+> 
+> 
+> factorial[2352]: segfault at 0000000000020f31 rip 00000000004035ae rsp 
+> 00007fffffbfaf60 error 4
+> factorial[2354]: segfault at 0000000000020f31 rip 00000000004035ae rsp 
+> 00007fffffe3fc70 error 4
+> factorial[2361]: segfault at 0000000000020f31 rip 00000000004035ae rsp 
+> 00007fffffb07c50 error 4
+> factorial[2358]: segfault at 0000000000020f31 rip 00000000004035ae rsp 
+> 00007fffffb07c50 error 4
+> factorial[2363]: segfault at 0000000000020f31 rip 00000000004035ae rsp 
+> 00007fffffe6d270 error 4
+> 
+> the kernel and HW are the same.
 
-On Wed, 23 Nov 2005, Greg Kroah-Hartman wrote:
->
-> Here are a few PCI, USB, hwmon, and documentation patches against your
-> latest git tree, they have all been in the past few -mm releases just
-> fine.
+Error 4 means a read in userland on a not mapped area.
 
-Is there any reason you don't use git to sync up?
+The above isn't necessairly a kernel or hardware problem, it looks like
+an userland bug if it segfaults at such a low address (20f31). Nothig is
+mapped below "0x400000" exactly to catch these kind of bugs. 
 
-		Linus
+You should debug the program and check what's the code at address
+0x4035ae? You can check it with gdb or objdump -d. Probably there's a
+64bit bug in the program that doesn't trigger on x86 32bit (or you may
+not be noticing the segfault on 32bits because it wouldn't be logged in
+the syslog).
+
+Hope this helps ;)

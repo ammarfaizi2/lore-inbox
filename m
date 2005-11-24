@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbVKXPDh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbVKXPEl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751363AbVKXPDh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 10:03:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbVKXPDh
+	id S1751364AbVKXPEl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 10:04:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbVKXPEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 10:03:37 -0500
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:32133 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S1751363AbVKXPDg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 10:03:36 -0500
-Message-ID: <4385D63C.50009@rtr.ca>
-Date: Thu, 24 Nov 2005 10:03:24 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       =?ISO-8859-1?Q?Gustavo_Guil?= =?ISO-8859-1?Q?lermo_P=E9rez?= 
-	<gustavo@compunauta.com>,
-       linux-usb-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] Re: /dev/sr0 not ready, but working
-References: <200511221143.00970.gustavo@compunauta.com> <Pine.LNX.4.44L0.0511221349360.21136-100000@iolanthe.rowland.org> <20051122190005.GC6592@havoc.gtf.org>
-In-Reply-To: <20051122190005.GC6592@havoc.gtf.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Nov 2005 10:04:40 -0500
+Received: from havoc.gtf.org ([69.61.125.42]:7859 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1751364AbVKXPEj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 10:04:39 -0500
+Date: Thu, 24 Nov 2005 10:04:33 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Ingo Oeser <netdev@axxeo.de>
+Cc: Andrew Grover <andrew.grover@intel.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, john.ronciak@intel.com,
+       christopher.leech@intel.com
+Subject: Re: [RFC] [PATCH 1/3] ioat: DMA subsystem
+Message-ID: <20051124150433.GA3590@havoc.gtf.org>
+References: <Pine.LNX.4.44.0511231207410.32487-100000@isotope.jf.intel.com> <4384F0C4.1090209@pobox.com> <200511241600.50046.netdev@axxeo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200511241600.50046.netdev@axxeo.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> On Tue, Nov 22, 2005 at 01:56:39PM -0500, Alan Stern wrote:
-..
->>Or maybe not...  Maybe the drive _does_ send those "not ready" messages 
->>and the IDE driver ignores them instead of printing them in the system 
->>log.  Or perhaps those messages are sent by the bus interface controller 
->>and not by the drive itself.  I just don't know.
+On Thu, Nov 24, 2005 at 04:00:50PM +0100, Ingo Oeser wrote:
+> Hi,
 > 
+> Jeff Garzik wrote:
+> > explanation of this function would be nice.  remember to answer "how?" 
+> > and "why?", not "what?".
 > 
-> The difference is between ide-cd.c and sr.c, most likely.
+> Wasn't it the other way around?
+> Citing linux/Documentation/CodingStyle, section 7 "Comments":
+> 
+> "Generally, you want your comments to tell WHAT your code does, not HOW."
+> 
+> HOW and WHY should be obvious by the source code, unless
+> the sources are a mess.
 
-Agreed.  I get hundreds and hundreds of these when simply playing a DVD:
+Yes, good point, thanks for the correction.
 
-sr0: CDROM not ready.  Make sure there is a disc in the drive.
+	Jeff
 
-Nothing really wrong here, other than that the kernel is flooding
-my syslogs with messages that could really be left to the userspace
-application to decide about.
 
-Cheers
+

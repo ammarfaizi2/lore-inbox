@@ -1,108 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030584AbVKXCfP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbVKXDCx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030584AbVKXCfP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 21:35:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030585AbVKXCfO
+	id S932396AbVKXDCx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 22:02:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932617AbVKXDCx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 21:35:14 -0500
-Received: from ozlabs.org ([203.10.76.45]:4311 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1030584AbVKXCfN (ORCPT
+	Wed, 23 Nov 2005 22:02:53 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:52359 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S932396AbVKXDCx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 21:35:13 -0500
-Date: Thu, 24 Nov 2005 13:34:56 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: powerpc: More hugepage boundary case fixes
-Message-ID: <20051124023456.GA3024@localhost.localdomain>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Linus Torvalds <torvalds@osdl.org>, linuxppc64-dev@ozlabs.org,
-	linux-kernel@vger.kernel.org
+	Wed, 23 Nov 2005 22:02:53 -0500
+Date: Wed, 23 Nov 2005 19:02:37 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Rohit Seth <rohit.seth@intel.com>
+Cc: akpm@osdl.org, clameter@engr.sgi.com, torvalds@osdl.org,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org, steiner@sgi.com,
+       nickpiggin@yahoo.com.au
+Subject: Re: [PATCH]: Free pages from local pcp lists under tight memory
+ conditions
+Message-Id: <20051123190237.3ba62bf0.pj@sgi.com>
+In-Reply-To: <1132779605.25086.69.camel@akash.sc.intel.com>
+References: <20051122161000.A22430@unix-os.sc.intel.com>
+	<Pine.LNX.4.62.0511231128090.22710@schroedinger.engr.sgi.com>
+	<1132775194.25086.54.camel@akash.sc.intel.com>
+	<20051123115545.69087adf.akpm@osdl.org>
+	<1132779605.25086.69.camel@akash.sc.intel.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please apply,
+Rohit wrote:
+> I thought Nick et.al came up with some of the constant values like batch
+> size to tackle the page coloring issue specifically. 
 
-Blah.  The patch [0] I recently sent fixing errors with
-in_hugepage_area() and prepare_hugepage_range() for powerpc itself has
-an off-by-one bug.  Furthermore, the related functions
-touches_hugepage_*_range() and within_hugepage_*_range() are also
-buggy.  Some of the bugs, like those addressed in [0] originated with
-commit 7d24f0b8a53261709938ffabe3e00f88f6498df9 where we tweaked the
-semantics of where hugepages are allowed.  Other bugs have been there
-essentially forever, and are due to the undefined behaviour of '<<'
-with shift counts greater than the type width (LOW_ESID_MASK could
-return non-zero for high ranges with the right congruences).
+I think this came about on a linux-ia64 thread started by Jack Steiner:
 
-The good news is that I now have a testsuite which should pick up
-things like this if they creep in again.
+  http://www.gelato.unsw.edu.au/archives/linux-ia64/0504/13668.html
+  Subject: per_cpu_pagesets degrades MPI performance
+  From: Jack Steiner <steiner_at_sgi.com>
+  Date: 2005-04-05 05:28:27
 
-[0] "powerpc-fix-for-hugepage-areas-straddling-4gb-boundary" in -mm
+Jack reported that per_cpu_pagesets were degrading some MPI benchmarks due
+to adverse page coloring.  Nick responded, recommending a non-power of two
+batch size.  Jack found that this helped nicely.  This thread trails off,
+but seems to be the origins of the 2**n-1 batch size in:
 
-Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+	mm/page_alloc.c:zone_batchsize()
+	 * Clamp the batch to a 2^n - 1 value. Having a power ...
+        batch = (1 << fls(batch + batch/2)) - 1;
 
-Index: working-2.6/include/asm-powerpc/page_64.h
-===================================================================
---- working-2.6.orig/include/asm-powerpc/page_64.h	2005-11-24 11:15:38.000000000 +1100
-+++ working-2.6/include/asm-powerpc/page_64.h	2005-11-24 13:09:28.000000000 +1100
-@@ -103,8 +103,9 @@ extern unsigned int HPAGE_SHIFT;
- #define HTLB_AREA_SIZE		(1UL << HTLB_AREA_SHIFT)
- #define GET_HTLB_AREA(x)	((x) >> HTLB_AREA_SHIFT)
- 
--#define LOW_ESID_MASK(addr, len)    (((1U << (GET_ESID(addr+len-1)+1)) \
--		                      - (1U << GET_ESID(addr))) & 0xffff)
-+#define LOW_ESID_MASK(addr, len)    \
-+	(((1U << (GET_ESID(min((addr)+(len)-1, 0x100000000UL))+1)) \
-+	  - (1U << GET_ESID(min((addr), 0x100000000UL)))) & 0xffff)
- #define HTLB_AREA_MASK(addr, len)   (((1U << (GET_HTLB_AREA(addr+len-1)+1)) \
- 		                      - (1U << GET_HTLB_AREA(addr))) & 0xffff)
- 
-@@ -113,17 +114,21 @@ extern unsigned int HPAGE_SHIFT;
- #define ARCH_HAS_SETCLEAR_HUGE_PTE
- 
- #define touches_hugepage_low_range(mm, addr, len) \
--	(LOW_ESID_MASK((addr), (len)) & (mm)->context.low_htlb_areas)
-+	(((addr) < 0x100000000UL) \
-+	 && (LOW_ESID_MASK((addr), (len)) & (mm)->context.low_htlb_areas))
- #define touches_hugepage_high_range(mm, addr, len) \
--	(HTLB_AREA_MASK((addr), (len)) & (mm)->context.high_htlb_areas)
-+	((((addr) + (len)) > 0x100000000UL) \
-+	  && (HTLB_AREA_MASK((addr), (len)) & (mm)->context.high_htlb_areas))
- 
- #define __within_hugepage_low_range(addr, len, segmask) \
--	((LOW_ESID_MASK((addr), (len)) | (segmask)) == (segmask))
-+	( (((addr)+(len)) <= 0x100000000UL) \
-+	  && ((LOW_ESID_MASK((addr), (len)) | (segmask)) == (segmask)))
- #define within_hugepage_low_range(addr, len) \
- 	__within_hugepage_low_range((addr), (len), \
- 				    current->mm->context.low_htlb_areas)
- #define __within_hugepage_high_range(addr, len, zonemask) \
--	((HTLB_AREA_MASK((addr), (len)) | (zonemask)) == (zonemask))
-+	( ((addr) >= 0x100000000UL) \
-+	  && ((HTLB_AREA_MASK((addr), (len)) | (zonemask)) == (zonemask)))
- #define within_hugepage_high_range(addr, len) \
- 	__within_hugepage_high_range((addr), (len), \
- 				    current->mm->context.high_htlb_areas)
-Index: working-2.6/arch/powerpc/mm/hugetlbpage.c
-===================================================================
---- working-2.6.orig/arch/powerpc/mm/hugetlbpage.c	2005-11-24 11:15:38.000000000 +1100
-+++ working-2.6/arch/powerpc/mm/hugetlbpage.c	2005-11-24 13:18:41.000000000 +1100
-@@ -295,7 +295,7 @@ int prepare_hugepage_range(unsigned long
- 	if (addr < 0x100000000UL)
- 		err = open_low_hpage_areas(current->mm,
- 					  LOW_ESID_MASK(addr, len));
--	if ((addr + len) >= 0x100000000UL)
-+	if ((addr + len) > 0x100000000UL)
- 		err = open_high_hpage_areas(current->mm,
- 					    HTLB_AREA_MASK(addr, len));
- 	if (err) {
+I don't see here evidence that "per_cpu_pagelist is ... one single main
+reason the coloring effect is drastically reduced in 2.6 (over 2.4)
+based kernels."  Rather in this case anyway a batch size not a power of
+two was apparently needed to keep per_cpu_pagesets from hurting
+performance due to page coloring affects on some workloads.
 
 -- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/~dgibson
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

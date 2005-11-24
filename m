@@ -1,41 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932455AbVKXRPc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbVKXRV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932455AbVKXRPc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 12:15:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbVKXRPc
+	id S932454AbVKXRV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 12:21:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbVKXRV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 12:15:32 -0500
-Received: from main.gmane.org ([80.91.229.2]:30096 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932340AbVKXRPc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 12:15:32 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ben Pfaff <blp@cs.stanford.edu>
-Subject: Re: Use enum to declare errno values
-Date: Thu, 24 Nov 2005 09:11:38 -0800
-Message-ID: <87veyi6kdx.fsf@benpfaff.org>
-References: <20051123132443.32793.qmail@web25813.mail.ukl.yahoo.com>
-Reply-To: blp@cs.stanford.edu
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: c-24-7-50-224.hsd1.ca.comcast.net
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-Cancel-Lock: sha1:xdOWIYODsK7a1Q7K7hQm78XPKMg=
+	Thu, 24 Nov 2005 12:21:56 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:31968 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S932454AbVKXRV4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 12:21:56 -0500
+Message-ID: <4385F6A8.60808@t-online.de>
+Date: Thu, 24 Nov 2005 18:21:44 +0100
+From: Knut Petersen <Knut_Petersen@t-online.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.7) Gecko/20050414
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: nathan.cline@gmail.com
+CC: linux-fbdev-devel@lists.sourceforge.net,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       "Antonino A. Daplas" <adaplas@gmail.com>
+Subject: Patch to framebuffer
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ID: XNBHw0ZHwemzz4C-P0GpMHNts7rNftidnND8cA9psLhNAAXThivpEn@t-dialin.net
+X-TOI-MSGID: 48b1e2c5-df64-4ddb-ac32-56b9c69d4a52
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-moreau francis <francis_moreau2000@yahoo.fr> writes:
+Hi Nathan,
 
-> I'm just wondering why not declaring errno values using enumaration ? It is 
-> just more convenient when debuging the kernel.
+Updating only one framebuffer console at a time is a real feature for me,
+it allows a really quick developement cycle:
 
-The C standard says that errno values are macros that expand to
-integer constant expressions.  This is important for userspace,
-if not for the kernel.
--- 
-"Then, I came to my senses, and slunk away, hoping no one overheard my
- thinking."
---Steve McAndrewSmith in the Monastery
+            compile vesafb into the kernel, cyblafb as a module
+            start with vesafb
+loop:    load cyblafb
+            switch to cyblafb, test it
+            correct bugs, compile new cyblafb module
+            switch to vesafb
+            unload vesafb
+            goto loop
+           
+Although both vesafb and cyblafb control the same hardware, this is
+possible because of the "feature" you want to remove.
 
+On the other hand I do understand that your patch is valuable, if I had
+two monitors attached I certainly would like to be able to use both at the
+same time.
+
+I believe that you should introduce your code either as a compile time
+option or even better it should be possible to disable it via sysfs:
+
+     /sys/class/graphics/fb?/update_mode
+
+0 could be the default and would activate your new code
+1 would restore the old "one active" mode.
+
+Please  consider my arguments and join us at
+
+linux-fbdev-devel@lists.sourceforge.net
+
+cu,
+ Knut

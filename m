@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbVKXSDJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932640AbVKXSGQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932194AbVKXSDJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 13:03:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932638AbVKXSDJ
+	id S932640AbVKXSGQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 13:06:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932641AbVKXSGQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 13:03:09 -0500
-Received: from fsmlabs.com ([168.103.115.128]:16097 "EHLO spamalot.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S932194AbVKXSDH (ORCPT
+	Thu, 24 Nov 2005 13:06:16 -0500
+Received: from hermes.domdv.de ([193.102.202.1]:16399 "EHLO hermes.domdv.de")
+	by vger.kernel.org with ESMTP id S932640AbVKXSGQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 13:03:07 -0500
-X-ASG-Debug-ID: 1132855385-21710-6-0
-X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
-Date: Thu, 24 Nov 2005 10:08:42 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Lee Revell <rlrevell@joe-job.com>
-cc: Dave Jones <davej@redhat.com>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Con Kolivas <con@kolivas.org>, Kenneth W <kenneth.w.chen@intel.com>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-X-ASG-Orig-Subj: Re: Kernel BUG at mm/rmap.c:491
-Subject: Re: Kernel BUG at mm/rmap.c:491
-In-Reply-To: <1132810499.1921.93.camel@mindpipe>
-Message-ID: <Pine.LNX.4.61.0511241005180.16752@montezuma.fsmlabs.com>
-References: <200511232256.jANMuGg20547@unix-os.sc.intel.com> 
- <cone.1132788250.534735.25446.501@kolivas.org>  <200511232335.15050.s0348365@sms.ed.ac.uk>
-  <20051124044009.GE30849@redhat.com> <1132810499.1921.93.camel@mindpipe>
+	Thu, 24 Nov 2005 13:06:16 -0500
+Message-ID: <43860117.3030609@domdv.de>
+Date: Thu, 24 Nov 2005 19:06:15 +0100
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051004)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.5549
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
+To: Denis Vlasenko <vda@ilport.com.ua>
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] tiny improvement to x86_64 asm aes encryption
+References: <200511241242.35294.vda@ilport.com.ua>
+In-Reply-To: <200511241242.35294.vda@ilport.com.ua>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Nov 2005, Lee Revell wrote:
+Denis Vlasenko wrote:
+[snip]
+> #define encrypt_round1(TAB,OFFSET) \
+>         round(TAB,OFFSET,R1,R2,R3,R4,R5,R6,R7,R10,R5,R6,R3,R4)
+>                          ^^^^^                    ^^^^^
+> #define encrypt_round2(TAB,OFFSET) \
+>         round(TAB,OFFSET,R5,R6,R3,R4,R1,R2,R7,R10,R1,R2,R3,R4)
+>                          ^^^^^                    ^^^^^
 
-> On Wed, 2005-11-23 at 23:40 -0500, Dave Jones wrote:
-> > The 'G' seems to confuse a hell of a lot of people.
-> > (I've been asked about it when people got machine checks a lot over
-> >  the last few months).
-> > 
-> > Would anyone object to changing it to conform to the style of
-> > the other taint flags ? Ie, change it to ' ' ? 
-> 
-> While you're at it why not print a big loud warning that says not to
-> post the Oops to LKML, and instructing the user to reproduce with a
-
-I don't think wasting precious screen real estate on warnings is a good 
-idea. The oops may also be of use, there have been occassions where the 
-only oops output had a proprietary bit set. The person handling the bug 
-report should be the one making the decision as to whether to repost a new 
-oops.
+Won't work. You don't have "%sh", "%sl", "dh" (*) and "%dl" (*) as
+registers.
+(*) from %edi
+-- 
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de

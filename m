@@ -1,58 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030582AbVKXCLb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932615AbVKXCNE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030582AbVKXCLb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 21:11:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932614AbVKXCLa
+	id S932615AbVKXCNE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 21:13:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932616AbVKXCNE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 21:11:30 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:27322 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932615AbVKXCLa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 21:11:30 -0500
-Subject: Re: [RFC] Small PCI core patch
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Neil Brown <neilb@suse.de>,
-       Jon Smirl <jonsmirl@gmail.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Airlie <airlied@gmail.com>,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <9a8748490511230746y762a3455y381f46b61c0b9913@mail.gmail.com>
-References: <20051121225303.GA19212@kroah.com>
-	 <20051121230136.GB19212@kroah.com> <1132616132.26560.62.camel@gaston>
-	 <21d7e9970511211647r4df761a2l287715368bf89eb6@mail.gmail.com>
-	 <1132623268.20233.14.camel@localhost.localdomain>
-	 <1132626478.26560.104.camel@gaston>
-	 <9e4733910511211923r69cdb835pf272ac745ae24ed7@mail.gmail.com>
-	 <17282.39560.978065.606788@cse.unsw.edu.au>
-	 <20051122192857.GB3963@stusta.de>
-	 <9a8748490511230746y762a3455y381f46b61c0b9913@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 23 Nov 2005 21:11:18 -0500
-Message-Id: <1132798278.1921.18.camel@mindpipe>
+	Wed, 23 Nov 2005 21:13:04 -0500
+Received: from xenotime.net ([66.160.160.81]:61084 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932614AbVKXCNB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 21:13:01 -0500
+Date: Wed, 23 Nov 2005 18:13:32 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: davem@davemloft.net, kaber@trash.net, bunk@stusta.de, evil@g-house.de,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       zippel@linux-m68k.org
+Subject: Re: [2.6 patch] do not select NET_CLS
+Message-Id: <20051123181332.0f86bfdb.rdunlap@xenotime.net>
+In-Reply-To: <20051123055735.GC7579@mars.ravnborg.org>
+References: <4381F2D2.5000605@trash.net>
+	<20051122.143713.101129339.davem@davemloft.net>
+	<20051122224914.GA17575@mars.ravnborg.org>
+	<20051122.150041.90521592.davem@davemloft.net>
+	<20051123055735.GC7579@mars.ravnborg.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-23 at 16:46 +0100, Jesper Juhl wrote:
-> Or throw resources behind the OpenGraphics project (
-> http://www.opengraphics.org/ ). Help them out with the hardware specs,
-> help out with the code. Then when the hardware finally arrives, help
-> out by buying and using that hardware.
-> That'll give you a fully Open Source supported graphics card. 
+On Wed, 23 Nov 2005 06:57:35 +0100 Sam Ravnborg wrote:
 
-Wow, this project has been making amazing progress.  They may have a
-working device by the end of THIS year, and they seem to have buyers
-lining up to throw money at them when the card is ready.  Even if gamer
-one does not buy it they appear to have a viable market in the academic
-and research communities.  Plus high end content work, simulation, etc.
-This is shaping up to be a real open source success story.
+> On Tue, Nov 22, 2005 at 03:00:41PM -0800, David S. Miller wrote:
+> > From: Sam Ravnborg <sam@ravnborg.org>
+> > Date: Tue, 22 Nov 2005 23:49:14 +0100
+> > 
+> > > On Tue, Nov 22, 2005 at 02:37:13PM -0800, David S. Miller wrote:
+> > > > 
+> > > > One thing we can do to prevent human
+> > > > mistakes, is to make the "make modules" pass do a quick "is vmlinux
+> > > > uptodate?" check, and if not print out an error message explaining the
+> > > > situation and aborting the "make modules" attempt.
+> > > 
+> > > I do not quite follow you here.
+> > 
+> > If the user tries to do a "make modules" without first rebuilding
+> > their kernel image, then the make will fail if the dependencies
+> > are not satisfied for the main kernel image and it is thus not
+> > up to date.
+> 
+> OK - so a simple 'make -q vmlinux' check, except that the way we utilise
+> make will let it fail at first build command.
+> That will obscufate things even more in kbuild - but I will give it a
+> try sometime. It will be easy to cover 95% but to reach 100%
+> predictability will be though.
+> - file dependencies is easy
+> - command line changes is relatively easy
+> - but the various scripts and user commands will be tricky..
+> 
+> Not on the top of the TODO list though.
 
-Check out this progress report from 6 weeks ago:
+So -q means "quick" ?
 
-http://kerneltrap.org/node/5743
+I wouldn't mind seeing a -quiet (even less quiet than V=0),
+not even printing the CC, AS, LD, etc. commands -- just let the
+tools print errors & warnings.  I always redirect output to a
+disk file and filter it for errors and warnings anyway, so I
+want hold my breath for this, but ISTM that V=0 could be even
+quieter than it is right now.
 
-Lee
-
+---
+~Randy

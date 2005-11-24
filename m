@@ -1,61 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbVKXNHM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750871AbVKXNIM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750811AbVKXNHM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 08:07:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750856AbVKXNHM
+	id S1750871AbVKXNIM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 08:08:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750857AbVKXNIL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 08:07:12 -0500
-Received: from linux-server1.op5.se ([193.201.96.2]:31383 "EHLO
-	smtp-gw1.op5.se") by vger.kernel.org with ESMTP id S1750811AbVKXNHK
+	Thu, 24 Nov 2005 08:08:11 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:40110 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S1750798AbVKXNIK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 08:07:10 -0500
-Message-ID: <4385BAFC.7070906@op5.se>
-Date: Thu, 24 Nov 2005 14:07:08 +0100
-From: Andreas Ericsson <ae@op5.se>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc3 (X11/20050929)
-X-Accept-Language: en-us, en
+	Thu, 24 Nov 2005 08:08:10 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH] i386 aes asm typo fix
+Date: Thu, 24 Nov 2005 15:07:01 +0200
+User-Agent: KMail/1.8.2
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Junio C Hamano <junkio@cox.net>,
-       git@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.15-rc2
-References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org> <200511240737.59153.tomlins@cam.org>
-In-Reply-To: <200511240737.59153.tomlins@cam.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_1rbhDQJ8AsQF5Kr"
+Message-Id: <200511241507.01668.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Tomlinson wrote:
-> Something strange here.   After a cg-update, I had no tag for rc2.   Checking
-> showed no problems so I used cg-clone to get another copy of the repository.
-> Still no rc2.
-> 
-> ed@grover:/usr/src/2.6$ cg-version
-> cogito-0.16rc2 (73874dddeec2d0a8e5cd343eec762d98314def63)
-> ed@grover:/usr/src/2.6$ git --version
-> git version 0.99.9.GIT
-> 
-> cg-clone http://www.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git 2.6
-> 
+--Boundary-00=_1rbhDQJ8AsQF5Kr
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-This happened a while ago to someone else too. Apparently the http 
-transport needs serverside help (git-update-server-info or some such 
-must be run on the remote side).
+* fix typo (128 -> 192,256 bits)
+* nano-optimization (copied from x86_86)
 
-Unless you're restricted by firewalls and other you could try
+Run tested.
+--
+vda
 
-git clone 
-git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git 2.6
+--Boundary-00=_1rbhDQJ8AsQF5Kr
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="aes-i586-asm.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="aes-i586-asm.patch"
 
-which works flawlessly for me although it takes quite some time to 
-transfer all the data.
+* fix typo (128 -> 192,256 bits)
+* nano-optimization (taken from x86_86)
 
-Linus, HPA: Are the packs cached on kernel.org? It seems to be at least 
-a minute before the transfers start.
+Run tested:
 
--- 
-Andreas Ericsson                   andreas.ericsson@op5.se
-OP5 AB                             www.op5.se
-Tel: +46 8-230225                  Fax: +46 8-230231
+2005-11-24_12:51:47.65292 kern.info: testing tnepres ECB decryption across pages (chunking)
+2005-11-24_12:51:47.65295 kern.info:
+2005-11-24_12:51:47.65298 kern.info: testing aes ECB encryption
+2005-11-24_12:51:47.91579 kern.info: test 1 (128 bit key):
+2005-11-24_12:51:47.91599 kern.info: 69c4e0d86a7b0430d8cdb78070b4c55a
+2005-11-24_12:51:47.91602 kern.info: pass
+2005-11-24_12:51:47.91605 kern.info: test 2 (192 bit key):
+2005-11-24_12:51:47.91608 kern.info: dda97ca4864cdfe06eaf70a0ec0d7191
+2005-11-24_12:51:47.91611 kern.info: pass
+2005-11-24_12:51:47.91613 kern.info: test 3 (256 bit key):
+2005-11-24_12:51:47.91616 kern.info: 8ea2b7ca516745bfeafc49904b496089
+2005-11-24_12:51:47.91620 kern.info: pass
+2005-11-24_12:51:47.91622 kern.info:
+2005-11-24_12:51:47.91625 kern.info: testing aes ECB encryption across pages (chunking)
+2005-11-24_12:51:47.91629 kern.info:
+2005-11-24_12:51:47.91631 kern.info: testing aes ECB decryption
+2005-11-24_12:51:47.91634 kern.info: test 1 (128 bit key):
+2005-11-24_12:51:47.91637 kern.info: 00112233445566778899aabbccddeeff
+2005-11-24_12:51:47.91640 kern.info: pass
+2005-11-24_12:51:47.91643 kern.info: test 2 (192 bit key):
+2005-11-24_12:51:47.91646 kern.info: 00112233445566778899aabbccddeeff
+2005-11-24_12:51:47.91649 kern.info: pass
+2005-11-24_12:51:47.91652 kern.info: test 3 (256 bit key):
+2005-11-24_12:51:47.91655 kern.info: 00112233445566778899aabbccddeeff
+2005-11-24_12:51:47.91658 kern.info: pass
+2005-11-24_12:51:47.91660 kern.info:
+2005-11-24_12:51:47.91663 kern.info: testing aes ECB decryption across pages (chunking)
+2005-11-24_12:51:47.91667 kern.info:
+2005-11-24_12:51:47.91669 kern.info: testing cast5 ECB encryption
+
+--- linux-2.6.14.org/arch/i386/crypto/aes-i586-asm.S.org	Mon Aug 29 02:41:01 2005
++++ linux-2.6.14.org/arch/i386/crypto/aes-i586-asm.S	Thu Nov 24 12:44:52 2005
+@@ -255,18 +255,17 @@ aes_enc_blk:
+ 	xor     8(%ebp),%r4
+ 	xor     12(%ebp),%r5
+ 
+-	sub     $8,%esp           // space for register saves on stack
+-	add     $16,%ebp          // increment to next round key
+-	sub     $10,%r3          
+-	je      4f              // 10 rounds for 128-bit key
+-	add     $32,%ebp
+-	sub     $2,%r3
+-	je      3f              // 12 rounds for 128-bit key
+-	add     $32,%ebp
++	sub     $8,%esp		// space for register saves on stack
++	add     $16,%ebp	// increment to next round key
++	cmp     $12,%r3
++	jb      4f		// 10 rounds for 128-bit key
++	lea     32(%ebp),%ebp
++	je      3f		// 12 rounds for 192-bit key
++	lea     32(%ebp),%ebp
+ 
+-2:	fwd_rnd1( -64(%ebp) ,ft_tab)	// 14 rounds for 128-bit key
++2:	fwd_rnd1( -64(%ebp) ,ft_tab)	// 14 rounds for 256-bit key
+ 	fwd_rnd2( -48(%ebp) ,ft_tab)
+-3:	fwd_rnd1( -32(%ebp) ,ft_tab)	// 12 rounds for 128-bit key
++3:	fwd_rnd1( -32(%ebp) ,ft_tab)	// 12 rounds for 192-bit key
+ 	fwd_rnd2( -16(%ebp) ,ft_tab)
+ 4:	fwd_rnd1(    (%ebp) ,ft_tab)	// 10 rounds for 128-bit key
+ 	fwd_rnd2( +16(%ebp) ,ft_tab)
+@@ -334,18 +333,17 @@ aes_dec_blk:
+ 	xor     8(%ebp),%r4
+ 	xor     12(%ebp),%r5
+ 
+-	sub     $8,%esp         // space for register saves on stack
+-	sub     $16,%ebp        // increment to next round key
+-	sub     $10,%r3          
+-	je      4f              // 10 rounds for 128-bit key
+-	sub     $32,%ebp
+-	sub     $2,%r3
+-	je      3f              // 12 rounds for 128-bit key
+-	sub     $32,%ebp
++	sub     $8,%esp		// space for register saves on stack
++	sub     $16,%ebp	// increment to next round key
++	cmp     $12,%r3
++	jb      4f		// 10 rounds for 128-bit key
++	lea     -32(%ebp),%ebp
++	je      3f		// 12 rounds for 192-bit key
++	lea     -32(%ebp),%ebp
+ 
+-2:	inv_rnd1( +64(%ebp), it_tab)	// 14 rounds for 128-bit key
++2:	inv_rnd1( +64(%ebp), it_tab)	// 14 rounds for 256-bit key
+ 	inv_rnd2( +48(%ebp), it_tab)
+-3:	inv_rnd1( +32(%ebp), it_tab)	// 12 rounds for 128-bit key
++3:	inv_rnd1( +32(%ebp), it_tab)	// 12 rounds for 192-bit key
+ 	inv_rnd2( +16(%ebp), it_tab)
+ 4:	inv_rnd1(    (%ebp), it_tab)	// 10 rounds for 128-bit key
+ 	inv_rnd2( -16(%ebp), it_tab)
+
+--Boundary-00=_1rbhDQJ8AsQF5Kr--

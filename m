@@ -1,54 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbVKXVtO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161050AbVKXV6c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932349AbVKXVtO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 16:49:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932663AbVKXVtO
+	id S1161050AbVKXV6c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 16:58:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161051AbVKXV6b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 16:49:14 -0500
-Received: from zeus1.kernel.org ([204.152.191.4]:30595 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S932349AbVKXVtO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 16:49:14 -0500
-From: Nick Warne <nick@linicks.net>
-To: linux-kernel@vger.kernel.org
-Subject: [OT] 1500 days uptime.
-Date: Thu, 24 Nov 2005 21:47:45 +0000
-User-Agent: KMail/1.8.1
+	Thu, 24 Nov 2005 16:58:31 -0500
+Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:20186 "EHLO
+	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
+	id S1161050AbVKXV6b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 16:58:31 -0500
+Date: Thu, 24 Nov 2005 22:58:06 +0100
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: swsusp resume from dm-crypt over lvm?
+Message-ID: <20051124215806.GA8086@hardeman.nu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-Message-Id: <200511242147.45248.nick@linicks.net>
+User-Agent: Mutt/1.5.11
+X-SA-Score: -2.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Using the ability to echo the major:minor to /sys/power/resume from an 
+initramfs script I am able to resume from a lvm partition.
 
-BrrrrrrrrrrrrBrrrr
+However, this doesn't seem to work if the swap partition is encrypted 
+and setup using cryptsetup (dm-crypt over an lvm partition that is).
 
-That was me blowing my own trumpet again :-)
+Is this supposed to work or is it not feasible?
 
-Re:
-http://www.ussg.iu.edu/hypermail/linux/kernel/0407.1/0651.html
+Re,
+David
 
-Now just hit 1500 days:
-
--
-[nick@486Linux nick]$ last -xf /var/run/utmp runlevel
-runlevel (to lvl 3)                    Sun Oct 14 16:07 - 21:41 (1502+06:34)
-
-utmp begins Sun Oct 14 16:07:40 2001
--
-
-Utterly remarkable - the box gets no maintenance at all.
-
-I would love to know how much data it has delivered, but alas, in 2001 I 
-wasn't up-to-speed with that sort of thing :-)
-
-Nick
--- 
-"Person who say it cannot be done should not interrupt person doing it."
--Chinese Proverb
-My quake2 project:
-http://sourceforge.net/projects/quake2plus/
+Please CC any replies...

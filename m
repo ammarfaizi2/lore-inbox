@@ -1,79 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030608AbVKXFlu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161008AbVKXFoe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030608AbVKXFlu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 00:41:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030610AbVKXFlu
+	id S1161008AbVKXFoe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 00:44:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161009AbVKXFoe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 00:41:50 -0500
-Received: from ns.suse.de ([195.135.220.2]:49606 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030608AbVKXFlt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 00:41:49 -0500
-From: Neil Brown <neilb@suse.de>
-To: sander@humilis.net
-Date: Thu, 24 Nov 2005 16:41:42 +1100
-MIME-Version: 1.0
+	Thu, 24 Nov 2005 00:44:34 -0500
+Received: from cavan.codon.org.uk ([217.147.92.49]:43151 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S1161008AbVKXFod (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 00:44:33 -0500
+Date: Thu, 24 Nov 2005 05:44:31 +0000
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Disable APIC pin 1 on dodgy ATI chipsets
+Message-ID: <20051124054430.GC28070@srcf.ucam.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17285.21142.558651.239828@cse.unsw.edu.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       reiserfs-dev@namesys.com
-Subject: Re: Please help me understand reiser4_writepage. Was Re: segfault mdadm --write-behind, 2.6.14-mm2  (was: Re: RAID1 ramdisk patch)
-In-Reply-To: message from Sander on Tuesday November 22
-References: <17179.40731.907114.194935@cse.unsw.edu.au>
-	<20051116133639.GA18274@favonius>
-	<20051116142000.5c63449f.akpm@osdl.org>
-	<17275.48113.533555.948181@cse.unsw.edu.au>
-	<20051117075041.GA5563@favonius>
-	<20051117101251.GA2883@favonius>
-	<20051117101511.GB2883@favonius>
-	<17282.21309.229128.930997@cse.unsw.edu.au>
-	<20051121155144.62bedaab.akpm@osdl.org>
-	<17282.35980.613583.592130@cse.unsw.edu.au>
-	<20051122103428.GA12072@favonius>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday November 22, sander@humilis.net wrote:
-> 
-> It doesn't crash or segfault anymore. It works with the bitmap file on
-> tmpfs, but not yet on reiser4.
-> 
-> This is kernel 2.6.15-rc1-mm2 with your (Neil Brown's) patch.
-> 
-...
-> [42949655.680000] md1: bitmap initialized from disk: read 0/4 pages, set 0 bits, status: 1
-....
+ATI's AMD64 chipsets appear to have the interesting "feature" that every 
+timer tick causes an interrupt from both the APIC and the legacy PIC. 
+The following patch checks if the northbridge matches the affected 
+chipsets, and if so disables APIC pin 1. As an added bonus, it skips the 
+acpi timer override since I haven't found one of these machines where 
+it's needed and it's actively harmful on at least some of them. We've 
+been shipping this patch in Ubuntu with no reported issues.
 
-Ok, this is interesting... 'status: 1'.
-That should be either 0 or a negative errno.
+This is kernel bugzilla number 3927.
 
-That is printed in bitmap_init_from_disk in drivers/md/bitmap.c
+Signed-off-by: Matthew Garrett <mjg59@srcf.ucam.og>
 
-'ret' can only be '1' if that value is returned from 'write_page'
-write_page (same file) can only return '1' if that is returned by
-write_one_page (mm/page-writeback.c).
-write_one_page can only return '1' from a_ops->writepage, which is
-presumably
-  reiser4_writepage in fs/reiser4/page_cache.c
+--- io_apic.c.orig	2005-09-20 21:43:42.000000000 +0100
++++ a/arch/x86_64/kernel/io_apic.c	2005-09-20 22:33:42.000000000 +0100
+@@ -45,6 +45,7 @@
+ int sis_apic_bug; /* not actually supported, dummy for compile */
+ 
+ static int no_timer_check;
++static int disable_timer_pin_1;
+ 
+ static DEFINE_SPINLOCK(ioapic_lock);
+ 
+@@ -258,18 +259,24 @@ void __init check_ioapic(void) 
+ 			for (func = 0; func < 8; func++) { 
+ 				u32 class;
+ 				u32 vendor;
++				u16 product;
+ 				u8 type;
+ 				class = read_pci_config(num,slot,func,
+ 							PCI_CLASS_REVISION);
++
+ 				if (class == 0xffffffff)
+ 					break; 
+ 
+-		       		if ((class >> 16) != PCI_CLASS_BRIDGE_PCI)
++		       		if ((class >> 16) != PCI_CLASS_BRIDGE_PCI && 
++				    (class >> 16) != PCI_CLASS_BRIDGE_HOST)
+ 					continue; 
+ 
+ 				vendor = read_pci_config(num, slot, func, 
+ 							 PCI_VENDOR_ID);
+ 				vendor &= 0xffff;
++				
++				product = read_pci_config_16(num, slot, func,
++							  PCI_DEVICE_ID);
+ 				switch (vendor) { 
+ 				case PCI_VENDOR_ID_VIA:
+ #ifdef CONFIG_GART_IOMMU
+@@ -292,8 +299,18 @@ void __init check_ioapic(void) 
+ #endif
+ 					/* RED-PEN skip them on mptables too? */
+ 					return;
+-				} 
+ 
++				case PCI_VENDOR_ID_ATI:
++					if (product==0x5950 || product==0x5951) {
++						printk(KERN_INFO "ATI board detected - disabling APIC pin 1\n");
++#ifdef CONFIG_ACPI
++						/* This seems to be wrong, too */
++						acpi_skip_timer_override = 1;
++#endif
++						disable_timer_pin_1 = 1;
++					}
++					return;
++				}
+ 				/* No multi-function device? */
+ 				type = read_pci_config_byte(num,slot,func,
+ 							    PCI_HEADER_TYPE);
 
-This will only return an unchecked value from write_page_by_ent (if
-REISER4_USE_ENTD is defined) or emergency_flush.
-emergency_flush is in fs/reiser4/emergency_flush.c and it does indeed
-return 1 in some circumstances, though I don't really know what
-circumstances.
-
-So there may well be something that md/bitmap is doing wrongly, but
-reiser4_writepage should not be returning 1 in any case.
-
-Could someone on reiserfs-dev help me understand when
-reiser4_writepage returns '1' and what I might be doing to trigger
-that?
-
-Thanks,
-NeilBrown
-
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

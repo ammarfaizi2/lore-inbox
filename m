@@ -1,83 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbVKXSsg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751385AbVKXStG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751382AbVKXSsg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 13:48:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbVKXSsf
+	id S1751385AbVKXStG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 13:49:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbVKXStG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 13:48:35 -0500
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:660 "EHLO pilet.ens-lyon.fr")
-	by vger.kernel.org with ESMTP id S1751382AbVKXSse (ORCPT
+	Thu, 24 Nov 2005 13:49:06 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:25739 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751385AbVKXStE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 13:48:34 -0500
-Message-ID: <43860AEC.10200@ens-lyon.fr>
-Date: Thu, 24 Nov 2005 19:48:12 +0100
-From: Alexandre Buisse <alexandre.buisse@ens-lyon.fr>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051106)
-X-Accept-Language: en-us, en
+	Thu, 24 Nov 2005 13:49:04 -0500
+Date: Thu, 24 Nov 2005 10:48:59 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: linux@horizon.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] SMP alternatives
+In-Reply-To: <20051124174843.30544.qmail@science.horizon.com>
+Message-ID: <Pine.LNX.4.64.0511241045200.13959@g5.osdl.org>
+References: <20051124174843.30544.qmail@science.horizon.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-rc2-mm1
-References: <20051123033550.00d6a6e8.akpm@osdl.org>
-In-Reply-To: <20051123033550.00d6a6e8.akpm@osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------000003040703000303000400"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000003040703000303000400
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 
-Andrew Morton wrote:
 
->ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc2/2.6.15-rc2-mm1/
+On Thu, 24 Nov 2005, linux@horizon.com wrote:
 >
->
->  
->
-Hi Andrew,
+> > I suspect that with MAP_SHARED + PROT_WRITE being pretty uncommon anyway, 
+> > we can probably find trivial patterns in the kernel. Like only one process 
+> > holding that file open - which is what you get with things that use mmap() 
+> > to write a new file (I think "ld" used to have a config option to write 
+> > files that way, for example).
+> 
+> Just a bit of practical experience: I use mmap() to write data a LOT,
+> because msync(MS_ASYNC) is the most portable way to do an async write.
 
-I had this compilation error :
+Sure. But I suspect that nobody else has that file open when you do so?
 
+In other words, even your usage is something where the OS could tell that 
+you don't actually need atomic operations. It certainly gets slightly more 
+complicated (we'd need to trigger some special stuff if another process 
+does an mmap on it), but it's not conceptually very difficult to just 
+notice automatically and do the right thing(tm).
 
-  LD      .tmp_vmlinux1
-drivers/built-in.o: In function `do_uevent':
-lockspace.c:(.text+0x148ae7): undefined reference to `kobject_hotplug'
-lockspace.c:(.text+0x148b9e): undefined reference to `kobject_hotplug'
+Now, if two programs are using mmap() to write to the same file at the 
+same time, then the kernel can't tell any more. But in that case, you 
+probably _do_ want atomic ops to be guaranteed, so not disabling them is 
+the right thing to do there.
 
-DLM was still using kobject_hotplug, which seems to have been removed in
--mm. Brice kindly indicated me how to fix this, in exchange for half a
-signed-off, so please see the attached patch. I grep'd the whole source
-and did not find any other reference to kobject_hotplug.
-
-Regards,
-Alexandre
-
-Signed-off-by: Alexandre Buisse <alexandre.buisse@ens-lyon.fr>
-Signed-off-by: Brice Goglin <brice.goglin@ens-lyon.org>
-
---------------000003040703000303000400
-Content-Type: text/x-patch;
- name="dlm-kobject_hotplug.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="dlm-kobject_hotplug.patch"
-
---- drivers/dlm/lockspace.c.old	2005-11-24 19:32:11.000000000 +0100
-+++ drivers/dlm/lockspace.c	2005-11-24 19:39:59.000000000 +0100
-@@ -157,9 +157,9 @@
- 	int error;
- 
- 	if (in)
--		kobject_hotplug(&ls->ls_kobj, KOBJ_ONLINE);
-+		kobject_uevent(&ls->ls_kobj, KOBJ_ONLINE);
- 	else
--		kobject_hotplug(&ls->ls_kobj, KOBJ_OFFLINE);
-+		kobject_uevent(&ls->ls_kobj, KOBJ_OFFLINE);
- 
- 	error = wait_event_interruptible(ls->ls_uevent_wait,
- 			test_and_clear_bit(LSFL_UEVENT_WAIT, &ls->ls_flags));
-
---------------000003040703000303000400--
+			Linus

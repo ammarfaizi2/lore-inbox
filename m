@@ -1,64 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbVKXNcO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750916AbVKXNbs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750929AbVKXNcO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 08:32:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750949AbVKXNcN
+	id S1750916AbVKXNbs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 08:31:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750929AbVKXNbs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 08:32:13 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:21733 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750929AbVKXNb6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 08:31:58 -0500
-To: Andi Kleen <ak@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Gerd Knorr <kraxel@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
-       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-References: <4379ECC1.20005@suse.de> <437A0649.7010702@suse.de>
-	<437B5A83.8090808@suse.de> <438359D7.7090308@suse.de>
-	<p7364qjjhqx.fsf@verdi.suse.de>
-	<1132764133.7268.51.camel@localhost.localdomain>
-	<20051123163906.GF20775@brahms.suse.de>
-	<1132766489.7268.71.camel@localhost.localdomain>
-	<20051123165923.GJ20775@brahms.suse.de>
-	<1132783243.13095.17.camel@localhost.localdomain>
-	<20051124131310.GE20775@brahms.suse.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Thu, 24 Nov 2005 06:30:08 -0700
-In-Reply-To: <20051124131310.GE20775@brahms.suse.de> (Andi Kleen's message
- of "Thu, 24 Nov 2005 14:13:10 +0100")
-Message-ID: <m1zmnugom7.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 24 Nov 2005 08:31:48 -0500
+Received: from matrix.drigon.com ([205.177.72.21]:50398 "EHLO
+	matrix.drigon.com") by vger.kernel.org with ESMTP id S1750908AbVKXNbr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 08:31:47 -0500
+Date: Thu, 24 Nov 2005 05:30:29 -0800
+From: Chris Humbert <mahadri-kernel@drigon.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, Jes Sorensen <jes@trained-monkey.org>
+Subject: [PATCH] fix broken lib/genalloc.c
+Message-ID: <20051124133029.GA21470@matrix.drigon.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Mailer: Mutt http://www.mutt.org/
+X-Uptime: 27 days
+X-Accept-Language: en, ja
+X-Editor: Vim 6.2 http://www.vim.org/
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+genalloc improperly stores the size of freed chunks, allocates
+overlapping memory regions, and oopses after its in-band data is
+overwritten.  Jes Sorensen's original patch to LKML used:
 
->> 2. Uncached mappings are unworkable for this because we must never have
->> a page mapped with conflicting cache types - thats ugly, and plain
->> horrific on SMP.
->
-> For kernel mapping change_page_attr() takes care of it,
-> and for user space memory following all mappings is the only
-> reliable way to find out which process needs to be killed
-> anyways - and when you do that you can as well unmap
-> or just kill.
+> +	s = (1 << ALLOC_MIN_SHIFT);
+> +	while (size > s) {
+> +		s <<= 1;
+> +		i++;
+> +	}
 
-I think I see the source of the confusion.  Scrubbing is the
-process of taking data that is correctable and writing it back to
-memory so that if a second correctable error occurs the net is still
-corrected.
+After Andrew Morton suggested roundup_pow_of_two(), Jes changed
+it to:
 
-Directed killing of processes is something that must be done
-inside a synchronous exception (like a machine check) because otherwise
-it is so racy you don't know who has seen the bad data.  
+> +	size = max(size, 1 << ALLOC_MIN_SHIFT);
+> +	s = roundup_pow_of_two(size);
 
-Eric
+but this does not set 'i'.  I have verified that genalloc with
+the attached patch works correctly.
+
+Chris Humbert
+
+
+
+[PATCH] fix broken lib/genalloc.c
+
+genalloc improperly stores the sizes of freed chunks, allocates
+overlapping memory regions, and oopses after its in-band data is
+overwritten.
+
+Signed-off-by: Chris Humbert <mahadri-kernel@drigon.com>
+
+diff --git a/lib/genalloc.c b/lib/genalloc.c
+--- a/lib/genalloc.c
++++ b/lib/genalloc.c
+@@ -95,12 +95,10 @@ unsigned long gen_pool_alloc(struct gen_
+ 	if (size > max_chunk_size)
+ 		return 0;
+ 
+-	i = 0;
+-
+ 	size = max(size, 1 << ALLOC_MIN_SHIFT);
+-	s = roundup_pow_of_two(size);
+-
+-	j = i;
++	i = fls(size - 1);
++	s = 1 << i;
++	j = i -= ALLOC_MIN_SHIFT;
+ 
+ 	spin_lock_irqsave(&poolp->lock, flags);
+ 	while (!h[j].next) {
+@@ -153,10 +151,10 @@ void gen_pool_free(struct gen_pool *pool
+ 	if (size > max_chunk_size)
+ 		return;
+ 
+-	i = 0;
+-
+ 	size = max(size, 1 << ALLOC_MIN_SHIFT);
+-	s = roundup_pow_of_two(size);
++	i = fls(size - 1);
++	s = 1 << i;
++	i -= ALLOC_MIN_SHIFT;
+ 
+ 	a = ptr;
+ 

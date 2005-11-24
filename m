@@ -1,72 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161049AbVKXUt2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbVKXUsx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161049AbVKXUt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 15:49:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161047AbVKXUt2
+	id S932330AbVKXUsx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 15:48:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932655AbVKXUsx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 15:49:28 -0500
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:225 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S1161046AbVKXUt1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 15:49:27 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH] Fix USB suspend/resume crasher
-Date: Thu, 24 Nov 2005 21:50:22 +0100
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org, David Brownell <david-b@pacbell.net>,
-       Paul Mackerras <paulus@samba.org>,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Alan Stern <stern@rowland.harvard.edu>
-References: <1132715288.26560.262.camel@gaston> <200511240122.46125.rjw@sisk.pl> <1132795396.26560.382.camel@gaston>
-In-Reply-To: <1132795396.26560.382.camel@gaston>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Nov 2005 15:48:53 -0500
+Received: from ganesha.gnumonks.org ([213.95.27.120]:24727 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S932330AbVKXUsw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 15:48:52 -0500
+Date: Thu, 24 Nov 2005 21:48:50 +0100
+From: Harald Welte <laforge@gnumonks.org>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] kill_proc_info_as_uid: don't use hardcoded constants
+Message-ID: <20051124204850.GC31478@sunbeam.de.gnumonks.org>
+References: <43847B85.4B97A782@tv-sign.ru>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="GjURNDUNzbeh/2H4"
 Content-Disposition: inline
-Message-Id: <200511242150.23205.rjw@sisk.pl>
+In-Reply-To: <43847B85.4B97A782@tv-sign.ru>
+User-Agent: mutt-ng devel-20050619 (Debian)
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 24 of November 2005 02:23, Benjamin Herrenschmidt wrote:
-> 
-> > Unfortunately with this patch the EHCI controller in my box (Asus L5D,
-> > x86-64 kernel) does not resume from suspend.  Appended is the relevant
-> > snippet from the serial console log (EHCI is the only device using IRQ #5).
-> 
-> Hrm... let me see... You are getting an interrupt for EHCI after it has
-> been resumed, so it should work.
-> 
->  /me double-checks the patch
-> 
-> > ehci_hcd 0000:00:02.2: lost power, restarting
-> 
-> Hrm... I can't find that line in the code...
-> 
->  /me rechecks with david's other patches
-> 
-> Ah ... I see it. There might have been some screwup between david's
-> patch and mine.
-> 
-> Make sure that 
-> 
->        set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
-> 
-> Is still done before anything else in ehci_pci_resume().
 
-Well, it's there (actually the problem occurs in vanilla 2.6.15-rc2-mm1 that
-contains the patch).  Do you mean it should go before the
+--GjURNDUNzbeh/2H4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-if (readl(&ehci->regs->configured_flag) != FLAG_CF)
-		goto restart;
+On Wed, Nov 23, 2005 at 05:24:05PM +0300, Oleg Nesterov wrote:
+> Use symbolic names instead of hardcoded constants.
 
-thing?
+I'm more than happy with that.  Seems like the original code in
+check_kill_permission() was changed in a similar way after I made that
+_as_uid() function.
 
-> It may be worth following it with a memory barrier actually... just in case
-> (due to the absence of locks in that area).
+I don't think that I am a person with any say in the signal.c code,but
+in case of doubt:
 
-wmb()?
+Acked-by: Harald Welte <laforge@gnumonks.org>
 
-Rafael
+> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+>=20
+> --- 2.6.15-rc2/kernel/signal.c~1_KUID	2005-11-22 19:35:52.000000000 +0300
+> +++ 2.6.15-rc2/kernel/signal.c	2005-11-23 19:17:35.000000000 +0300
+> @@ -1163,8 +1163,7 @@ int kill_proc_info_as_uid(int sig, struc
+>  		ret =3D -ESRCH;
+>  		goto out_unlock;
+>  	}
+> -	if ((!info || ((unsigned long)info !=3D 1 &&
+> -			(unsigned long)info !=3D 2 && SI_FROMUSER(info)))
+> +	if ((info =3D=3D SEND_SIG_NOINFO || (!is_si_special(info) && SI_FROMUSE=
+R(info)))
+>  	    && (euid !=3D p->suid) && (euid !=3D p->uid)
+>  	    && (uid !=3D p->suid) && (uid !=3D p->uid)) {
+>  		ret =3D -EPERM;
+
+--=20
+- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+"Privacy in residential applications is a desirable marketing option."
+                                                  (ETSI EN 300 175-7 Ch. A6)
+
+--GjURNDUNzbeh/2H4
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDhicyXaXGVTD0i/8RAnByAKCYHwRI/DRTRHqme/zJ6nC5QvMrnQCfakjh
+GRqx6zZ0hoRLgZ6n8W0SwG0=
+=yYVg
+-----END PGP SIGNATURE-----
+
+--GjURNDUNzbeh/2H4--

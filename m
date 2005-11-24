@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030578AbVKXH5H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161044AbVKXIEf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030578AbVKXH5H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 02:57:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030571AbVKXH5G
+	id S1161044AbVKXIEf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 03:04:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161048AbVKXIEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 02:57:06 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:54231 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030573AbVKXH5E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 02:57:04 -0500
-Subject: Re: [-mm patch] dummy mark_rodata_ro() should be static
-From: Arjan van de Ven <arjan@infradead.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <20051124051405.GO3963@stusta.de>
-References: <20051123033550.00d6a6e8.akpm@osdl.org>
-	 <20051123223505.GF3963@stusta.de>  <20051124051405.GO3963@stusta.de>
-Content-Type: text/plain
-Date: Thu, 24 Nov 2005 08:56:59 +0100
-Message-Id: <1132819019.2832.23.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 24 Nov 2005 03:04:35 -0500
+Received: from silver.veritas.com ([143.127.12.111]:44330 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1161044AbVKXIEf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 03:04:35 -0500
+Date: Thu, 24 Nov 2005 08:04:39 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: Kernel BUG at mm/rmap.c:491
+In-Reply-To: <200511232256.jANMuGg20547@unix-os.sc.intel.com>
+Message-ID: <Pine.LNX.4.61.0511240754190.5688@goblin.wat.veritas.com>
+References: <200511232256.jANMuGg20547@unix-os.sc.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 24 Nov 2005 08:04:28.0961 (UTC) FILETIME=[B1AA3110:01C5F0CD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-11-24 at 06:14 +0100, Adrian Bunk wrote:
-> On Wed, Nov 23, 2005 at 11:35:05PM +0100, Adrian Bunk wrote:
+On Wed, 23 Nov 2005, Chen, Kenneth W wrote:
+> Has people seen this BUG_ON before?  On 2.6.15-rc2, x86-64.
 > 
-> > Every inline dummy function should be static.
-> >...
-> 
-> Sorry, the patch was incomplete.
+> Bad page state at free_hot_cold_page (in process 'sh', page ffff81000482dde8)
+> flags:0x8000000000000000 mapping:0000000000000000 mapcount:1 count:0
+> Bad page state at free_hot_cold_page (in process 'sh', page ffff8100049d0f78)
+> flags:0x8000000000000000 mapping:0000000000000000 mapcount:1 count:0
+> Bad page state at free_hot_cold_page (in process 'sh', page ffff8100049d0f40)
+> flags:0x8000000000000004 mapping:0000000000000000 mapcount:1 count:0
+> Kernel BUG at mm/swap.c:218
+> Kernel BUG at mm/rmap.c:491
 
-ok I was trying to avoid the ifdefs... if you add the ifdefs you might
-as well put the dummy in the header too in a #else clause.
+Neither mm/rmap.c (page_remove_rmap) nor mm/swap.c (put_page_testzero)
+BUG is interesting in this case, they're just side-effects of trying to
+recover from the preceding "Bad page state"s.
 
+Which are interesting.  Not at all the same case as the many recently
+reported while we were fixing up PageReserved removal cases; though
+yours will probably be related.
 
+It could conceivably be an effect of a DRM pci_alloc_consistent issue
+which Dave Airlie spotted yesterday; but not a typical case of it,
+and I'm probably only thinking of that one because it's uppermost.
+
+Please send your .config (I hope it's tailored somewhat to your machine,
+rather than an allyesconfig or the like?) and bootup dmesg, in case they
+help to narrow the search.  You were just running straight 2.6.15-rc2,
+no additional patches?  Doing anything interesting just before this
+happened?
+
+Thanks,
+Hugh

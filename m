@@ -1,252 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161012AbVKXGIY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161011AbVKXGO7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161012AbVKXGIY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 01:08:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161013AbVKXGIX
+	id S1161011AbVKXGO7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 01:14:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161014AbVKXGO7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 01:08:23 -0500
-Received: from xproxy.gmail.com ([66.249.82.206]:4978 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161012AbVKXGIX (ORCPT
+	Thu, 24 Nov 2005 01:14:59 -0500
+Received: from www.tuxrocks.com ([64.62.190.123]:17677 "EHLO tuxrocks.com")
+	by vger.kernel.org with ESMTP id S1161011AbVKXGO6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 01:08:23 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type;
-        b=GOkUQUR/X7Fb4aiCGaS45pgjoCWCEVDsB2pclkCoe9qezsLLdyHu93iNnwuBN0TP7mww5SsFREEeOukAKHfoLeTVpe6Vdqu4C2EbcAF2F3XKDxyRw7jVrOyEcjlLpWrtgMWlhJYE+Mm5O41z9Kvt0hognq37J0tpSQnPKJyFO8k=
-Message-ID: <656113ee0511232208n6948c364ke6103b3ef0a54f@mail.gmail.com>
-Date: Wed, 23 Nov 2005 22:08:22 -0800
-From: Nathan Cline <nathan.cline@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Patch to framebuffer
+	Thu, 24 Nov 2005 01:14:58 -0500
+Message-ID: <43855A50.80808@tuxrocks.com>
+Date: Wed, 23 Nov 2005 23:14:40 -0700
+From: Frank Sorenson <frank@tuxrocks.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_10076_8767321.1132812502629"
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+CC: Andrew Morton <akpm@osdl.org>, Marc Koschewski <marc@osknowledge.org>,
+       linux-kernel@vger.kernel.org, Harald Welte <laforge@netfilter.org>,
+       netdev@vger.kernel.org
+Subject: Re: Mouse issues in -mm
+References: <20051123033550.00d6a6e8.akpm@osdl.org> <20051123113854.07fca702.akpm@osdl.org> <4385202E.70404@tuxrocks.com> <200511232226.44459.dtor_core@ameritech.net>
+In-Reply-To: <200511232226.44459.dtor_core@ameritech.net>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_10076_8767321.1132812502629
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hello, this is my first time posting to this list so please forgive me
-if I'm violating protocol in some way. :)  I've written a patch to the
-framebuffer code to modify its behavior a bit. I am running on a
-dual-headed system and I noticed when I was working in one console on
-one monitor, the console on the other monitor was "frozen", not
-updating itself. After some digging through the code I realized this
-is because the two framebuffer drivers share the same framebuffer code
-which stores a single pointer to the "current" virtual console. If a
-VC is not current it is considered invisible and is not updated. So I
-patched the code to store a pointer for each framebuffer to the
-"foreground" VC on each one. It seems to work well but I'd like to get
-others' input as this is my first time writing any kernel code, and to
-be honest there is so much code it's difficult to get a clear picture
-in my head of how the whole system works.
-I've attached the patches to this message, a small one to
-drivers/video/console/fbcon.h, and a larger one to fbcon.c. I would
-appreciate it if some of you guys could look over this code and look
-for any obvious errors, or better yet, hopefully someone else has a
-multihead system they can try it on. The patches are against the
-latest GIT source tree (torvalds, main branch, 2.6.15rc2) as of last
-night.
-Any replies to this message should be CC'ed directly to my e-mail
-account (nathan dot cline .. gmail dot com) as I am not currently
-subscribed to this list. I look forward to getting this patch of high
-enough quality to submit to Linus. Thanks!
+Dmitry Torokhov wrote:
+> What kind of touchpad do you have? Could you post your
+> /pros/bus/input/devices please?
 
-------=_Part_10076_8767321.1132812502629
-Content-Type: text/plain; name=fbcon.c.patch; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="fbcon.c.patch"
+AlpsPS/2 ALPS GlidePoint
 
---- fbcon.c	2005-11-23 23:49:10.000000000 -0600
-+++ fbcon.c.mine	2005-11-23 23:12:16.000000000 -0600
-@@ -390,12 +390,15 @@
- 	int mode;
- 
- 	if (ops->currcon != -1)
--		vc = vc_cons[ops->currcon].d;
-+		vc = ops->currcon_ptr; 
- 
--	if (!vc || !CON_IS_VISIBLE(vc) ||
-+	if (!vc)
-+		return;
-+
-+	if (!CON_IS_VISIBLE(vc) ||
- 	    fbcon_is_inactive(vc, info) ||
-  	    registered_fb[con2fb_map[vc->vc_num]] != info ||
--	    vc_cons[ops->currcon].d->vc_deccm != 1)
-+	    vc->vc_deccm != 1)
- 		return;
- 	acquire_console_sem();
- 	p = &fb_display[vc->vc_num];
-@@ -753,6 +756,7 @@
- 	struct fbcon_ops *ops = info->fbcon_par;
- 
- 	ops->currcon = fg_console;
-+	ops->currcon_ptr = vc_cons[fg_console].d;
- 
- 	if (info->fbops->fb_set_par && !(ops->flags & FBCON_FLAGS_INIT))
- 		info->fbops->fb_set_par(info);
-@@ -766,7 +770,7 @@
- 		fbcon_preset_disp(info, &info->var, unit);
- 
- 	if (show_logo) {
--		struct vc_data *fg_vc = vc_cons[fg_console].d;
-+		struct vc_data *fg_vc = ops->currcon_ptr;
- 		struct fb_info *fg_info =
- 			registered_fb[con2fb_map[fg_console]];
- 
-@@ -775,7 +779,7 @@
- 				   fg_vc->vc_rows);
- 	}
- 
--	update_screen(vc_cons[fg_console].d);
-+	update_screen(ops->currcon_ptr);
- }
- 
- /**
-@@ -929,6 +933,7 @@
- 
- 	memset(ops, 0, sizeof(struct fbcon_ops));
- 	ops->currcon = -1;
-+	ops->currcon_ptr = NULL;
- 	ops->graphics = 1;
- 	ops->cur_rotate = -1;
- 	info->fbcon_par = ops;
-@@ -1055,6 +1060,15 @@
- 	    return;
- 
- 	cap = info->flags;
-+	ops = info->fbcon_par;
-+
-+	if (ops->currcon == -1)
-+	{
-+		ops->currcon = vc->vc_num;
-+		ops->currcon_ptr = vc;
-+	}
-+
-+	vc->vc_display_fg = &(ops->currcon_ptr);
- 
- 	if (vc != svc || logo_shown == FBCON_LOGO_DONTSHOW ||
- 	    (info->fix.type == FB_TYPE_TEXT))
-@@ -1091,7 +1105,6 @@
- 	if (!*vc->vc_uni_pagedir_loc)
- 		con_copy_unimap(vc, svc);
- 
--	ops = info->fbcon_par;
- 	p->con_rotate = rotate;
- 	set_blitting_type(vc, info, NULL);
- 
-@@ -1296,6 +1309,8 @@
- 	struct fbcon_ops *ops = info->fbcon_par;
- 	int rows, cols, charcnt = 256;
- 
-+	vc->vc_display_fg = &(ops->currcon_ptr);
-+	
- 	if (var_to_display(p, var, info))
- 		return;
- 	t = &fb_display[svc->vc_num];
-@@ -2048,7 +2063,7 @@
- 	struct fbcon_ops *ops;
- 	struct display *p = &fb_display[vc->vc_num];
- 	struct fb_var_screeninfo var;
--	int i, prev_console;
-+	int prev_console;
- 
- 	info = registered_fb[con2fb_map[vc->vc_num]];
- 	ops = info->fbcon_par;
-@@ -2073,21 +2088,10 @@
- 	prev_console = ops->currcon;
- 	if (prev_console != -1)
- 		old_info = registered_fb[con2fb_map[prev_console]];
--	/*
--	 * FIXME: If we have multiple fbdev's loaded, we need to
--	 * update all info->currcon.  Perhaps, we can place this
--	 * in a centralized structure, but this might break some
--	 * drivers.
--	 *
--	 * info->currcon = vc->vc_num;
--	 */
--	for (i = 0; i < FB_MAX; i++) {
--		if (registered_fb[i] != NULL && registered_fb[i]->fbcon_par) {
--			struct fbcon_ops *o = registered_fb[i]->fbcon_par;
- 
--			o->currcon = vc->vc_num;
--		}
--	}
-+	ops->currcon = vc->vc_num;
-+	ops->currcon_ptr = vc;
-+	
- 	memset(&var, 0, sizeof(struct fb_var_screeninfo));
- 	display_to_var(&var, p);
- 	var.activate = FB_ACTIVATE_NOW;
-@@ -2103,13 +2107,6 @@
- 	fb_set_var(info, &var);
- 	ops->var = info->var;
- 
--	if (old_info != NULL && old_info != info) {
--		if (info->fbops->fb_set_par)
--			info->fbops->fb_set_par(info);
--		fbcon_del_cursor_timer(old_info);
--		fbcon_add_cursor_timer(info);
--	}
--
- 	set_blitting_type(vc, info, p);
- 	ops->cursor_reset = 1;
- 
-@@ -2691,7 +2688,7 @@
- 
- 	if (!ops || ops->currcon < 0)
- 		return;
--	vc = vc_cons[ops->currcon].d;
-+	vc = ops->currcon_ptr;
- 
- 	/* Clear cursor, restore saved data */
- 	fbcon_cursor(vc, CM_ERASE);
-@@ -2704,7 +2701,7 @@
- 
- 	if (!ops || ops->currcon < 0)
- 		return;
--	vc = vc_cons[ops->currcon].d;
-+	vc = ops->currcon_ptr; 
- 
- 	update_screen(vc);
- }
-@@ -2718,7 +2715,7 @@
- 
- 	if (!ops || ops->currcon < 0)
- 		return;
--	vc = vc_cons[ops->currcon].d;
-+	vc = ops->currcon_ptr; 
- 	if (vc->vc_mode != KD_TEXT ||
- 	    registered_fb[con2fb_map[ops->currcon]] != info)
- 		return;
-@@ -2841,7 +2838,7 @@
- 	if (!ops || ops->currcon < 0)
- 		return;
- 
--	vc = vc_cons[ops->currcon].d;
-+	vc = ops->currcon_ptr; 
- 	if (vc->vc_mode != KD_TEXT ||
- 			registered_fb[con2fb_map[ops->currcon]] != info)
- 		return;
+/proc/bus/input/devices:
+I: Bus=0010 Vendor=001f Product=0001 Version=0100
+N: Name="PC Speaker"
+P: Phys=isa0061/input0
+S: Sysfs=/class/input/input0
+H: Handlers=kbd event0
+B: EV=40001
+B: SND=46
 
-------=_Part_10076_8767321.1132812502629
-Content-Type: text/plain; name=fbcon.h.patch; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="fbcon.h.patch"
+I: Bus=0011 Vendor=0001 Product=0001 Version=ab41
+N: Name="AT Translated Set 2 keyboard"
+P: Phys=isa0060/serio0/input0
+S: Sysfs=/class/input/input1
+H: Handlers=kbd event1
+B: EV=120013
+B: KEY=4 2000000 3802078 f840d001 f2ffffdf ffefffff ffffffff fffffffe
+B: MSC=10
+B: LED=7
 
---- fbcon.h	2005-11-23 23:49:10.000000000 -0600
-+++ fbcon.h.mine	2005-11-23 23:46:07.000000000 -0600
-@@ -73,6 +73,7 @@
- 	struct fb_cursor cursor_state;
- 	struct display *p;
-         int    currcon;	                /* Current VC. */
-+	struct vc_data *currcon_ptr;
- 	int    cursor_flash;
- 	int    cursor_reset;
- 	int    blank_state;
+I: Bus=0011 Vendor=0002 Product=0008 Version=0000
+N: Name="PS/2 Mouse"
+P: Phys=isa0060/serio1/input1
+S: Sysfs=/class/input/input2
+H: Handlers=mouse0 event2
+B: EV=7
+B: KEY=70000 0 0 0 0 0 0 0 0
+B: REL=3
 
-------=_Part_10076_8767321.1132812502629--
+I: Bus=0011 Vendor=0002 Product=0008 Version=7321
+N: Name="AlpsPS/2 ALPS GlidePoint"
+P: Phys=isa0060/serio1/input0
+S: Sysfs=/class/input/input3
+H: Handlers=mouse1 event3
+B: EV=f
+B: KEY=420 0 70000 0 0 0 0 0 0 0 0
+B: REL=3
+B: ABS=1000003
+
+
+Note: I believe this issue may also be related to the mouse protocol
+extension.  I typically run with 'psmouse.proto=exps' on the kernel
+command line, and the psmouse resync patch seems to break tapping in
+that mode.  However, booting without proto=exps seems to continue to
+work, even with the resync patch (though the touchpad is unusably
+sensitive--hence the use of exps in the first place).
+
+Thanks,
+
+Frank
+- --
+Frank Sorenson - KD7TZK
+Systems Manager, Computer Science Department
+Brigham Young University
+frank@tuxrocks.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFDhVpQaI0dwg4A47wRAgxMAKCgcX59rpVR2umCUz4IBNls8L+8EQCfQprd
+4v8Qxv3890dRIus0ptIyGxs=
+=AJGF
+-----END PGP SIGNATURE-----

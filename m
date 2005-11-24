@@ -1,65 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbVKXKyH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030371AbVKXLAb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751360AbVKXKyH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 05:54:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbVKXKyH
+	id S1030371AbVKXLAb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 06:00:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbVKXLAa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 05:54:07 -0500
-Received: from styx.suse.cz ([82.119.242.94]:56512 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1751360AbVKXKyG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 05:54:06 -0500
-Date: Thu, 24 Nov 2005 11:53:52 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Vishal Linux <vishal.linux@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How to get SDA/SCL bit position in the control word register of the video card?
-Message-ID: <20051124105352.GA31195@midnight.suse.cz>
-References: <e3e24c6a0511240245i1d395ae6g4d768a75a602d6ce@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 24 Nov 2005 06:00:30 -0500
+Received: from zproxy.gmail.com ([64.233.162.199]:1808 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751361AbVKXLAa convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 06:00:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ZZIinFDfOrjmNAVdRKZbg0YaNVeo7IzeCi2FNu/0pFBGcoXsLAc9gl/0qKgWA0moFzn6emI1F9jLHWJpZxf2idpFw3OoVpmGh64jcxQGI3rVhQ9MQ+cNt036+lZll0jeT7g9NtcSCB46kCwqMwmtDmOu6g79xJB+jIZLdc0xtas=
+Message-ID: <9929d2390511240300t4d5e7d5dhb1a716b5505ee422@mail.gmail.com>
+Date: Thu, 24 Nov 2005 03:00:28 -0800
+From: Jeff Kirsher <tarbal@gmail.com>
+To: Hiatt Gary-E3486C <E3486C@motorola.com>
+Subject: Re: Scratch install of Red Hat Linux 7.3 on a Dell Poweredge 1850
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <EFB813091B18D511BD3600508B644F82168263C0@tx14exm06.ftw.mot.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <e3e24c6a0511240245i1d395ae6g4d768a75a602d6ce@mail.gmail.com>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.10i
+References: <EFB813091B18D511BD3600508B644F82168263C0@tx14exm06.ftw.mot.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 24, 2005 at 10:45:14AM +0000, Vishal Linux wrote:
-> Hello,
-> 
-> 
-> I am trying to communicate to the monitor eeprom to get the monitor
-> capabilities and for that i need to have SDA/SCL bit positions in the
-> control word register of the video card (to read and wrtie data using
-> i2c protocol).
-> 
-> Different video card vendors have different offsets for the control
-> word register and different bit positions for SDA/SCL.
-> 
-> I tried to use linux kernel API char* get_EDID_from_BIOS(void*) and
-> then using kgdb to debug the kernel module (that i wrote) to get the
-> same  but failed to find the way to get the above.
-> 
-> I do have the offset of the control word register and Masking Value of
-> Intel and Matrox card but i would like NOT to hardcode the masking
-> value and the offset in my code. This will lead me to modify  my code
-> for the different cards.
-> 
-> Is there any way to get the control word register's address (and then
-> SDA/SCL bit position) on the linux operating system. Is this
-> information available to linux kernel ?
-> 
-> FYI : Masking Value that i am referring to is the value that has to be
-> ANDed to the DATA(bit - 0/1) before writing it to Control word
-> register so that the right bit can be written on to the SDA/SCL lines.
-> 
-> Any pointers to this or your guidance would be highly appreciated.
- 
-No, it's not possible. That's why Linux has to resort to using the BIOS
-for this - only the specific BIOS knows how the manufacturer wired the
-card.
+On 11/23/05, Hiatt Gary-E3486C <E3486C@motorola.com> wrote:
+> I agree with you but we are going to load Ubiquity software on this server
+> and they approve only the Red Hat Linux 7.3 load. I will write them and see
+> if we might use a newer load.
+>
+> Thank You
+> Gary Hiatt
+>
+> Subject: Re: Scratch install of Red Hat Linux 7.3 on a Dell Poweredge 1850
+>
+> On Mer, 2005-11-23 at 09:12 -0600, Hiatt Gary-E3486C wrote:
+> > I need some help with finding out what I might be over looking trying to
+> > load Red Hat Linux 7.3
+>
+> Thats the first thing to change. Red Hat 7.3 is very very old. Linux,
+> installers and the rest have come on a long way since then. Its a bit
+> like "I'm having trouble installing Windows 95 on my new machine".
+>
+> Red Hat Linux itself has turned into Fedora Core (end user), and Red Hat
+> Enterprise Linux (packaged with support).
+>
+> Alan
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+While I agree with Alan and Jeff's response about using a newer
+kernel, I do have some suggestions.  I personally had similar
+experience when installing on newer Dell servers and found the issue
+to be the LSI drivers.  While installation found the hard drive and
+completed installation, I found that I needed to load the latest LSI
+drivers during the install to get the system to boot correctly.  I
+checked the Dell site and they do provide drivers for Red Hat 7.3, so
+I would try loading the appropriate drivers for your system.
+
+--
+Cheers,
+Jeff

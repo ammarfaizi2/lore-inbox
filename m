@@ -1,71 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbVKWXrW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751340AbVKWX4M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751322AbVKWXrW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 18:47:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbVKWXqu
+	id S1751340AbVKWX4M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 18:56:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbVKWXz5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 18:46:50 -0500
-Received: from mail.kroah.org ([69.55.234.183]:27074 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751332AbVKWXqc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 18:46:32 -0500
-Date: Wed, 23 Nov 2005 15:45:23 -0800
-From: Greg Kroah-Hartman <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       abbotti@mev.co.uk
-Subject: [patch 15/22] USB: ftdi_sio: new IDs for KOBIL devices
-Message-ID: <20051123234523.GP527@kroah.com>
-References: <20051123225156.624397000@press.kroah.org>
+	Wed, 23 Nov 2005 18:55:57 -0500
+Received: from fmr16.intel.com ([192.55.52.70]:52613 "EHLO
+	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1030524AbVKWXrW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 18:47:22 -0500
+Subject: [PATCH] disable LAPIC completely for offline CPU
+From: Shaohua Li <shaohua.li@intel.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       "Raj, Ashok" <ashok.raj@intel.com>, akpm <akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 23 Nov 2005 23:07:58 -0800
+Message-Id: <1132816078.9686.12.camel@linux.site>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="usb-ftdi_sio-new-ids-for-kobil-devices.patch"
-In-Reply-To: <20051123234335.GA527@kroah.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ian Abbott <abbotti@mev.co.uk>
+Disabling LAPIC timer isn't sufficient. In some situations, such as we
+enabled NMI watchdog, there is still unexpected interrupt (such as NMI)
+invoked in offline CPU. This also avoids offline CPU receives spurious
+interrupt and anything similar.
 
-This patch adds two new devices to the ftdi_sio driver's device ID
-table.  The device IDs were supplied by Stefan Nies of KOBIL Systems for
-two of their devices using the FTDI chip.
-
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
-
+Signed-off-by: Shaohua Li <shaohua.li@intel.com>
 ---
- drivers/usb/serial/ftdi_sio.c |    2 ++
- drivers/usb/serial/ftdi_sio.h |    7 +++++++
- 2 files changed, 9 insertions(+)
 
---- usb-2.6.orig/drivers/usb/serial/ftdi_sio.c
-+++ usb-2.6/drivers/usb/serial/ftdi_sio.c
-@@ -475,6 +475,8 @@ static struct usb_device_id id_table_com
- 	{ USB_DEVICE(FTDI_VID, FTDI_ARTEMIS_PID) },
- 	{ USB_DEVICE(FTDI_VID, FTDI_ATIK_ATK16_PID) },
- 	{ USB_DEVICE(FTDI_VID, FTDI_ATIK_ATK16HR_PID) },
-+	{ USB_DEVICE(KOBIL_VID, KOBIL_CONV_B1_PID) },
-+	{ USB_DEVICE(KOBIL_VID, KOBIL_CONV_KAAN_PID) },
- 	{ },					/* Optional parameter entry */
- 	{ }					/* Terminating entry */
- };
---- usb-2.6.orig/drivers/usb/serial/ftdi_sio.h
-+++ usb-2.6/drivers/usb/serial/ftdi_sio.h
-@@ -128,6 +128,13 @@
- #define SEALEVEL_2803_8_PID	0X2883 	/* SeaLINK+8 (2803) Port 8 */
+ linux-2.6.14-root/arch/i386/kernel/smpboot.c   |    3 +--
+ linux-2.6.14-root/arch/x86_64/kernel/smpboot.c |    2 +-
+ 2 files changed, 2 insertions(+), 3 deletions(-)
+
+diff -puN arch/x86_64/kernel/smpboot.c~cpuhp-disable-lapic arch/x86_64/kernel/smpboot.c
+--- linux-2.6.14/arch/x86_64/kernel/smpboot.c~cpuhp-disable-lapic	2005-11-23 19:27:36.000000000 -0800
++++ linux-2.6.14-root/arch/x86_64/kernel/smpboot.c	2005-11-23 19:28:27.000000000 -0800
+@@ -1181,7 +1181,7 @@ int __cpu_disable(void)
+ 	if (cpu == 0)
+ 		return -EBUSY;
  
- /*
-+ * The following are the values for two KOBIL chipcard terminals.
-+ */
-+#define KOBIL_VID		0x0d46	/* KOBIL Vendor ID */
-+#define KOBIL_CONV_B1_PID	0x2020	/* KOBIL Konverter for B1 */
-+#define KOBIL_CONV_KAAN_PID	0x2021	/* KOBIL_Konverter for KAAN */
-+
-+/*
-  * DSS-20 Sync Station for Sony Ericsson P800
-  */
-  
+-	disable_APIC_timer();
++	disable_local_APIC();
+ 
+ 	/*
+ 	 * HACK:
+diff -puN arch/i386/kernel/smpboot.c~cpuhp-disable-lapic arch/i386/kernel/smpboot.c
+--- linux-2.6.14/arch/i386/kernel/smpboot.c~cpuhp-disable-lapic	2005-11-23 19:28:38.000000000 -0800
++++ linux-2.6.14-root/arch/i386/kernel/smpboot.c	2005-11-23 19:30:05.000000000 -0800
+@@ -1338,8 +1338,7 @@ int __cpu_disable(void)
+ 	if (cpu == 0)
+ 		return -EBUSY;
+ 
+-	/* We enable the timer again on the exit path of the death loop */
+-	disable_APIC_timer();
++	disable_local_APIC();
+ 	/* Allow any queued timer interrupts to get serviced */
+ 	local_irq_enable();
+ 	mdelay(1);
+_
 
---
+

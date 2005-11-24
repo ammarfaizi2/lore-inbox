@@ -1,80 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030544AbVKXC3H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030584AbVKXCfP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030544AbVKXC3H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 21:29:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030585AbVKXC3H
+	id S1030584AbVKXCfP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 21:35:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030585AbVKXCfO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 21:29:07 -0500
-Received: from aeimail.aei.ca ([206.123.6.84]:52215 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S1030544AbVKXC3G (ORCPT
+	Wed, 23 Nov 2005 21:35:14 -0500
+Received: from ozlabs.org ([203.10.76.45]:4311 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1030584AbVKXCfN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 21:29:06 -0500
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Marc Koschewski <marc@osknowledge.org>
-Subject: Re: psmouse unusable in -mm series (was: 2.6.15-rc1-mm2 unsusable on DELL Inspiron 8200, 2.6.15-rc1 works fine)
-Date: Wed, 23 Nov 2005 21:29:35 -0500
-User-Agent: KMail/1.8.2
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
-       340202@bugs.debian.org
-References: <20051118182910.GJ6640@stiffy.osknowledge.org> <200511212243.50707.dtor_core@ameritech.net> <20051123195700.GB7446@stiffy.osknowledge.org>
-In-Reply-To: <20051123195700.GB7446@stiffy.osknowledge.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Nov 2005 21:35:13 -0500
+Date: Thu, 24 Nov 2005 13:34:56 +1100
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: powerpc: More hugepage boundary case fixes
+Message-ID: <20051124023456.GA3024@localhost.localdomain>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Linus Torvalds <torvalds@osdl.org>, linuxppc64-dev@ozlabs.org,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511232129.35796.tomlins@cam.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 November 2005 14:57, Marc Koschewski wrote:
-> * Dmitry Torokhov <dtor_core@ameritech.net> [2005-11-21 22:43:50 -0500]:
-> 
-> > On Sunday 20 November 2005 12:14, Marc Koschewski wrote:
-> > > * Dmitry Torokhov <dtor_core@ameritech.net> [2005-11-18 22:07:19 -0500]:
-> > > 
-> > > > On Friday 18 November 2005 13:29, Marc Koschewski wrote:
-> > > > > Nov 18 12:58:37 stiffy kernel: psmouse.c: Wheel Mouse at isa0060/serio1/input0 lost synchronization, throwing 1 bytes away.
-> > > > > 
-> > > > > SOME STUFF MISSING? HUH?
-> > > > > 
-> > > > > Nov 18 13:03:14 stiffy kernel: psmouse.c: resync failed, issuing reconnect request
-> > > > > 
-> > > > 
-> > > > Hm, this worries me a bit... Could you please try appying the patch
-> > > > below to plain 2.6.15-rc1 and see if mouse starts misbehaving again?
-> > > 
-> > > Dmitry,
-> > > 
-> > > I applied the 5 patches to a plain 2.6.15-rc1. The mouse was well as if it was
-> > > in an unpatched kernel. The problem just occured in 2.6.15-rc1-mmX.
-> > > Plain 2.6.15-rc1 was fine before as well. So: actually no change.
-> > > 
-> > > Need any more info?
-> > >
-> > 
-> > Marc,
-> > 
-> > Thank you for testing the patch. It proves that your mouse troubles
-> > were not caused by the patch I made so I am very happy. "No change"
-> > is the result I wanted to hear ;)
-> > 
-> 
-> Dmitry,
-> 
-> there's a bug report filed against Debian's udev. You can read it here:
-> 
-> 	http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=340202
-> 
-> The bug report, however, states that the problem is caused by udev under
-> all variants of kernel 2.6.15. I'm writing this mail while running
-> 2.6.15-rc1 and the mouse definitely works. Do you have any other hint?
-> Seems to me like the bug report is only half the truth... 
+Please apply,
 
-Marc,
+Blah.  The patch [0] I recently sent fixing errors with
+in_hugepage_area() and prepare_hugepage_range() for powerpc itself has
+an off-by-one bug.  Furthermore, the related functions
+touches_hugepage_*_range() and within_hugepage_*_range() are also
+buggy.  Some of the bugs, like those addressed in [0] originated with
+commit 7d24f0b8a53261709938ffabe3e00f88f6498df9 where we tweaked the
+semantics of where hugepages are allowed.  Other bugs have been there
+essentially forever, and are due to the undefined behaviour of '<<'
+with shift counts greater than the type width (LOW_ESID_MASK could
+return non-zero for high ranges with the right congruences).
 
-Are you, by some slim chance, manually loading mousedev ( via /etc/modules) or
-an init script?  If so your mouse will work.
+The good news is that I now have a testsuite which should pick up
+things like this if they creep in again.
 
-Ed Tomlinson 
+[0] "powerpc-fix-for-hugepage-areas-straddling-4gb-boundary" in -mm
+
+Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+
+Index: working-2.6/include/asm-powerpc/page_64.h
+===================================================================
+--- working-2.6.orig/include/asm-powerpc/page_64.h	2005-11-24 11:15:38.000000000 +1100
++++ working-2.6/include/asm-powerpc/page_64.h	2005-11-24 13:09:28.000000000 +1100
+@@ -103,8 +103,9 @@ extern unsigned int HPAGE_SHIFT;
+ #define HTLB_AREA_SIZE		(1UL << HTLB_AREA_SHIFT)
+ #define GET_HTLB_AREA(x)	((x) >> HTLB_AREA_SHIFT)
+ 
+-#define LOW_ESID_MASK(addr, len)    (((1U << (GET_ESID(addr+len-1)+1)) \
+-		                      - (1U << GET_ESID(addr))) & 0xffff)
++#define LOW_ESID_MASK(addr, len)    \
++	(((1U << (GET_ESID(min((addr)+(len)-1, 0x100000000UL))+1)) \
++	  - (1U << GET_ESID(min((addr), 0x100000000UL)))) & 0xffff)
+ #define HTLB_AREA_MASK(addr, len)   (((1U << (GET_HTLB_AREA(addr+len-1)+1)) \
+ 		                      - (1U << GET_HTLB_AREA(addr))) & 0xffff)
+ 
+@@ -113,17 +114,21 @@ extern unsigned int HPAGE_SHIFT;
+ #define ARCH_HAS_SETCLEAR_HUGE_PTE
+ 
+ #define touches_hugepage_low_range(mm, addr, len) \
+-	(LOW_ESID_MASK((addr), (len)) & (mm)->context.low_htlb_areas)
++	(((addr) < 0x100000000UL) \
++	 && (LOW_ESID_MASK((addr), (len)) & (mm)->context.low_htlb_areas))
+ #define touches_hugepage_high_range(mm, addr, len) \
+-	(HTLB_AREA_MASK((addr), (len)) & (mm)->context.high_htlb_areas)
++	((((addr) + (len)) > 0x100000000UL) \
++	  && (HTLB_AREA_MASK((addr), (len)) & (mm)->context.high_htlb_areas))
+ 
+ #define __within_hugepage_low_range(addr, len, segmask) \
+-	((LOW_ESID_MASK((addr), (len)) | (segmask)) == (segmask))
++	( (((addr)+(len)) <= 0x100000000UL) \
++	  && ((LOW_ESID_MASK((addr), (len)) | (segmask)) == (segmask)))
+ #define within_hugepage_low_range(addr, len) \
+ 	__within_hugepage_low_range((addr), (len), \
+ 				    current->mm->context.low_htlb_areas)
+ #define __within_hugepage_high_range(addr, len, zonemask) \
+-	((HTLB_AREA_MASK((addr), (len)) | (zonemask)) == (zonemask))
++	( ((addr) >= 0x100000000UL) \
++	  && ((HTLB_AREA_MASK((addr), (len)) | (zonemask)) == (zonemask)))
+ #define within_hugepage_high_range(addr, len) \
+ 	__within_hugepage_high_range((addr), (len), \
+ 				    current->mm->context.high_htlb_areas)
+Index: working-2.6/arch/powerpc/mm/hugetlbpage.c
+===================================================================
+--- working-2.6.orig/arch/powerpc/mm/hugetlbpage.c	2005-11-24 11:15:38.000000000 +1100
++++ working-2.6/arch/powerpc/mm/hugetlbpage.c	2005-11-24 13:18:41.000000000 +1100
+@@ -295,7 +295,7 @@ int prepare_hugepage_range(unsigned long
+ 	if (addr < 0x100000000UL)
+ 		err = open_low_hpage_areas(current->mm,
+ 					  LOW_ESID_MASK(addr, len));
+-	if ((addr + len) >= 0x100000000UL)
++	if ((addr + len) > 0x100000000UL)
+ 		err = open_high_hpage_areas(current->mm,
+ 					    HTLB_AREA_MASK(addr, len));
+ 	if (err) {
+
+-- 
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson

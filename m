@@ -1,71 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030371AbVKXLAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161025AbVKXLES@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030371AbVKXLAb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 06:00:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbVKXLAa
+	id S1161025AbVKXLES (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 06:04:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161028AbVKXLES
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 06:00:30 -0500
-Received: from zproxy.gmail.com ([64.233.162.199]:1808 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751361AbVKXLAa convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 06:00:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ZZIinFDfOrjmNAVdRKZbg0YaNVeo7IzeCi2FNu/0pFBGcoXsLAc9gl/0qKgWA0moFzn6emI1F9jLHWJpZxf2idpFw3OoVpmGh64jcxQGI3rVhQ9MQ+cNt036+lZll0jeT7g9NtcSCB46kCwqMwmtDmOu6g79xJB+jIZLdc0xtas=
-Message-ID: <9929d2390511240300t4d5e7d5dhb1a716b5505ee422@mail.gmail.com>
-Date: Thu, 24 Nov 2005 03:00:28 -0800
-From: Jeff Kirsher <tarbal@gmail.com>
-To: Hiatt Gary-E3486C <E3486C@motorola.com>
-Subject: Re: Scratch install of Red Hat Linux 7.3 on a Dell Poweredge 1850
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <EFB813091B18D511BD3600508B644F82168263C0@tx14exm06.ftw.mot.com>
+	Thu, 24 Nov 2005 06:04:18 -0500
+Received: from webbox4.loswebos.de ([213.187.93.205]:58589 "EHLO
+	webbox4.loswebos.de") by vger.kernel.org with ESMTP
+	id S1161025AbVKXLES (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 06:04:18 -0500
+Date: Thu, 24 Nov 2005 12:04:37 +0100
+From: Marc Koschewski <marc@osknowledge.org>
+To: Chris Boot <bootc@bootc.net>
+Cc: Marc Koschewski <marc@osknowledge.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.15-rc2-mm1 problems
+Message-ID: <20051124110435.GA13110@stiffy.osknowledge.org>
+References: <3F1A9A2D-4726-42E9-A971-68F2B2782900@bootc.net> <20051124104538.GB6788@stiffy.osknowledge.org> <43859B03.5000302@bootc.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <EFB813091B18D511BD3600508B644F82168263C0@tx14exm06.ftw.mot.com>
+In-Reply-To: <43859B03.5000302@bootc.net>
+X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
+X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
+X-Operating-System: Linux stiffy 2.6.15-rc2-marc
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/23/05, Hiatt Gary-E3486C <E3486C@motorola.com> wrote:
-> I agree with you but we are going to load Ubiquity software on this server
-> and they approve only the Red Hat Linux 7.3 load. I will write them and see
-> if we might use a newer load.
->
-> Thank You
-> Gary Hiatt
->
-> Subject: Re: Scratch install of Red Hat Linux 7.3 on a Dell Poweredge 1850
->
-> On Mer, 2005-11-23 at 09:12 -0600, Hiatt Gary-E3486C wrote:
-> > I need some help with finding out what I might be over looking trying to
-> > load Red Hat Linux 7.3
->
-> Thats the first thing to change. Red Hat 7.3 is very very old. Linux,
-> installers and the rest have come on a long way since then. Its a bit
-> like "I'm having trouble installing Windows 95 on my new machine".
->
-> Red Hat Linux itself has turned into Fedora Core (end user), and Red Hat
-> Enterprise Linux (packaged with support).
->
-> Alan
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+* Chris Boot <bootc@bootc.net> [2005-11-24 10:50:43 +0000]:
 
-While I agree with Alan and Jeff's response about using a newer
-kernel, I do have some suggestions.  I personally had similar
-experience when installing on newer Dell servers and found the issue
-to be the LSI drivers.  While installation found the hard drive and
-completed installation, I found that I needed to load the latest LSI
-drivers during the install to get the system to boot correctly.  I
-checked the Dell site and they do provide drivers for Red Hat 7.3, so
-I would try loading the appropriate drivers for your system.
+> Marc Koschewski wrote:
+> >* Chris Boot <bootc@bootc.net> [2005-11-23 23:45:49 +0000]:
+> >
+> >
+> >>On another note, I can't get the binary nVidia drivers to work, they  
+> >>complain about the following unresolved symbols:
+> >>
+> >>[4294682.396000] nvidia: module license 'NVIDIA' taints kernel.
+> >>[4294682.396000] nvidia: Unknown symbol pci_enable_device
+> >>[4294682.396000] nvidia: Unknown symbol pci_dev_put
+> >>[4294682.396000] nvidia: Unknown symbol pci_get_device
+> >>[4294682.396000] nvidia: Unknown symbol __pci_register_driver
+> >>[4294682.396000] nvidia: Unknown symbol pci_bus_write_config_byte
+> >>[4294682.396000] nvidia: Unknown symbol pci_unregister_driver
+> >>[4294682.396000] nvidia: Unknown symbol pci_bus_read_config_dword
+> >>[4294682.396000] nvidia: Unknown symbol pci_bus_read_config_word
+> >>[4294682.396000] nvidia: Unknown symbol pci_bus_write_config_dword
+> >>[4294682.397000] nvidia: Unknown symbol pci_set_master
+> >>[4294682.397000] nvidia: Unknown symbol pci_bus_write_config_word
+> >>[4294682.397000] nvidia: Unknown symbol pci_get_class
+> >>[4294682.397000] nvidia: Unknown symbol pci_disable_device
+> >>[4294682.397000] nvidia: Unknown symbol pci_bus_read_config_byte
+> >>
+> >
+> >
+> >http://www.nvnews.net/vbulletin/forumdisplay.php?s=&forumid=14
+> 
+> Hi there,
+> 
+> Thanks for that link, although I'm not sure exactly what you're pointing 
+> me at. I discovered last night (too late for me to post to LKML) that it 
+> was caused by a funny patch by Greg KH to mark most of the PCI symbols 
+> as EXPORT_SYMBOL_GPL. Once backed out it works fine. Go figure.
+> 
 
---
-Cheers,
-Jeff
+The nvidia module's problem should probably dicussed somewhere else as well
+as should any out-of-kernel-tree module's probs. You won't get much
+attention here ...
+
+Marc

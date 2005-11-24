@@ -1,101 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030532AbVKXA1j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030526AbVKXA2P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030532AbVKXA1j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 19:27:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030544AbVKXA1i
+	id S1030526AbVKXA2P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 19:28:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030544AbVKXA2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 19:27:38 -0500
-Received: from [67.137.28.188] ([67.137.28.188]:7818 "EHLO
-	master.soleranetworks.com") by vger.kernel.org with ESMTP
-	id S1030532AbVKXA1h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 19:27:37 -0500
-Message-ID: <4384F50D.6030804@wolfmountaingroup.com>
-Date: Wed, 23 Nov 2005 16:02:37 -0700
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Daniel Jacobowitz <dan@debian.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "H. Peter Anvin" <hpa@zytor.com>, Andi Kleen <ak@suse.de>,
-       Gerd Knorr <kraxel@suse.de>, Dave Jones <davej@redhat.com>,
-       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-References: <1132764133.7268.51.camel@localhost.localdomain> <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051123214835.GA24044@nevyn.them.org> <Pine.LNX.4.64.0511231416490.13959@g5.osdl.org> <20051123222056.GA25078@nevyn.them.org> <Pine.LNX.4.64.0511231502250.13959@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0511231502250.13959@g5.osdl.org>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+	Wed, 23 Nov 2005 19:28:14 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:1467 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030526AbVKXA2L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 19:28:11 -0500
+Date: Wed, 23 Nov 2005 16:27:55 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rc2-mm1
+Message-Id: <20051123162755.68b663d7.akpm@osdl.org>
+In-Reply-To: <20051124012027.228d5e2f@werewolf.auna.net>
+References: <20051123033550.00d6a6e8.akpm@osdl.org>
+	<20051124012027.228d5e2f@werewolf.auna.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+"J.A. Magallon" <jamagallon@able.es> wrote:
+>
+> On Wed, 23 Nov 2005 03:35:50 -0800, Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc2/2.6.15-rc2-mm1/
+> > 
+> > (temp copy at http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.15-rc2-mm1.gz)
+> > 
+> > - Added git-sym2.patch to the -mm lineup: updates to the sym2 scsi driver
+> >   (Matthew Wilcox).  
+> > 
+> > - The JSM tty driver still doesn't compile.
+> > 
+> > - The git-powerpc tree is included now.
+> > 
+> 
+> Bad news :(.
+> It hangs when trying to start cups.
+> My initscripts just say "Loading USB printer module" and hang there.
+> No sysrq-t, no sysrq-b.
+> I suppose it tries to load usblp.
 
->On Wed, 23 Nov 2005, Daniel Jacobowitz wrote:
->  
->
->>Why should we use a silicon based solution for this, when I posit that
->>there are simpler and equally effective userspace solutions?
->>    
->>
->
->Name them.
->
->In user space, doing things like clever run-time linking things is 
->actually horribly bad. It causes COW faults at startup, and/or makes the 
->compiler have to do indirections unnecessarily.  Both of which actually 
->make caches less effective, because now processes that really effectively 
->do have exactly the same contents have them in different pages.
->
->The other alternative (which apparently glibc actually does use) is to 
->dynamically branch over the lock prefixes, which actually works better: 
->it's more work dynamically, but it's much cheaper from a startup 
->standpoint and there's no memory duplication, so while it is the "stupid" 
->approach, it's actually better than the clever one.
->  
->
+You could try disabling cups and then run `modprobe usblp' when the system
+is fully booted.  Make sure that sysrq-t is generating stuff before doing
+so.
 
-Using self modifying code stubs will work, and Intel's architecture will 
-support it. This would be
-faster than waiting 2-3 years for Intel to spin a processor rev. NetWare 
-did something similair with
-global branch tables for memory protection.
+> Any idea about the patch to blame ?
 
-
-J
-
-
->The third alternative is to know at link-time that the process never does 
->anything threaded, but that needs more developer attention and 
->non-standard setups, and you _will_ get it wrong (some library will create 
->some thread without the developer even realizing). It also has the 
->duplicated library overhead (but at least now the duplication is just 
->twice, not "each process duplicates its own private pointer")
->
->In short, there simply isn't any good alternatives. The end result is that 
->thread-safe libraries are always in practice thread-safe even on UP, even 
->though that serializes the CPU altogether unnecessarily.
->
->I'm sure you can make up alternatives every time you hit one _particular_ 
->library, but that just doesn't scale in the real world.
->
->In contrast, the simple silicon support scales wonderfully well. Suddenly 
->libraries can be thread-safe _and_ efficient on UP too. You get to eat 
->your cake and have it too.
->
->		Linus
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-
+Not at this stage.

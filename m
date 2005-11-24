@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932640AbVKXSGQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbVKXSYv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932640AbVKXSGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 13:06:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932641AbVKXSGQ
+	id S932068AbVKXSYv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 13:24:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbVKXSYv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 13:06:16 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:16399 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S932640AbVKXSGQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 13:06:16 -0500
-Message-ID: <43860117.3030609@domdv.de>
-Date: Thu, 24 Nov 2005 19:06:15 +0100
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051004)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Denis Vlasenko <vda@ilport.com.ua>
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] tiny improvement to x86_64 asm aes encryption
-References: <200511241242.35294.vda@ilport.com.ua>
-In-Reply-To: <200511241242.35294.vda@ilport.com.ua>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Nov 2005 13:24:51 -0500
+Received: from science.horizon.com ([192.35.100.1]:11320 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S932068AbVKXSYv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 13:24:51 -0500
+Date: 24 Nov 2005 13:24:50 -0500
+Message-ID: <20051124182450.3921.qmail@science.horizon.com>
+From: colin@horizon.com
+To: ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [patch] SMP alternatives
+Cc: linux@horizon.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko wrote:
-[snip]
-> #define encrypt_round1(TAB,OFFSET) \
->         round(TAB,OFFSET,R1,R2,R3,R4,R5,R6,R7,R10,R5,R6,R3,R4)
->                          ^^^^^                    ^^^^^
-> #define encrypt_round2(TAB,OFFSET) \
->         round(TAB,OFFSET,R5,R6,R3,R4,R1,R2,R7,R10,R1,R2,R3,R4)
->                          ^^^^^                    ^^^^^
+> For user space the primary trigger event would be "has any shared
+> writable mappings or multiple threads". Even on a real MP systems it's 
+> perfectly ok to run a program with no writable shared mappings with LOCK off.
+                       ^ single-threaded
 
-Won't work. You don't have "%sh", "%sl", "dh" (*) and "%dl" (*) as
-registers.
-(*) from %edi
--- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+> Depending on the workload this transistion could happen quite often.
+> Especially there is a worst case of an application allocating a few
+> GB of memory and then starting a new thread.
+
+One more thing, that may be to cute to be practical, but is worth mentioning:
+shared address space or shared mappings only require LOCK if the memory
+is ACTIVELY shared, i.e. used by DMA or by another task that is running
+right now.
+
+If you have a process with a helper thread that's asleep 99% of the time,
+the savings of running with LOCK off might be worth the occasional
+IPI to enable it on the main thread on the rare occasions that the
+helper wakes up on a different processor.
+
+For example, imagine a threaded async DNS resolver that tracks
+TTL and times out cache entries.
+
+If you have heavier-weight mutual exclusion, you don't need LOCK.

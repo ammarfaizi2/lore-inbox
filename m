@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161071AbVKXXfe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161072AbVKXXig@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161071AbVKXXfe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 18:35:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161072AbVKXXfd
+	id S1161072AbVKXXig (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 18:38:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161073AbVKXXig
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 18:35:33 -0500
-Received: from ns1.suse.de ([195.135.220.2]:48333 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1161071AbVKXXfd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 18:35:33 -0500
-Date: Fri, 25 Nov 2005 00:35:12 +0100
-From: Andi Kleen <ak@suse.de>
-To: thockin@hockin.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Gerd Knorr <kraxel@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-Message-ID: <20051124233511.GX20775@brahms.suse.de>
-References: <1132842847.13095.105.camel@localhost.localdomain> <20051124142200.GH20775@brahms.suse.de> <1132845324.13095.112.camel@localhost.localdomain> <20051124145518.GI20775@brahms.suse.de> <m1psoqgk18.fsf@ebiederm.dsl.xmission.com> <20051124153635.GJ20775@brahms.suse.de> <20051124191207.GB2468@hockin.org> <20051124191445.GR20775@brahms.suse.de> <1132873934.13095.138.camel@localhost.localdomain> <20051124224825.GA20892@hockin.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 24 Nov 2005 18:38:36 -0500
+Received: from wproxy.gmail.com ([64.233.184.200]:39980 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161072AbVKXXif convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 18:38:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=MkUFmeMuGJjWWTXTxgpCGpi5d5fi7wrSvDPTJQmyXFlKEVrYuyJegbjZPd+LzseNKO4Mx5qVw4kwvtgjLW3PmSoB/eHUpHJWufD9uMIQ1ujvf6iJS4w4Bxqk2OLgOFKiOoMDB8dVxf9zRT42RAGp5Q6Wvs+plxW5hqznQduFRoU=
+Message-ID: <5a4c581d0511241538s496adee9s249cd038501545c9@mail.gmail.com>
+Date: Fri, 25 Nov 2005 00:38:32 +0100
+From: Alessandro Suardi <alessandro.suardi@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: ipw2200 in 2.6.15-rc2-git4 warns about improper NETDEV_TX_BUSY retcode
+Cc: netdev@oss.sgi.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051124224825.GA20892@hockin.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 24, 2005 at 02:48:25PM -0800, thockin@hockin.org wrote:
-> On Thu, Nov 24, 2005 at 11:12:14PM +0000, Alan Cox wrote:
-> > On Iau, 2005-11-24 at 20:14 +0100, Andi Kleen wrote:
-> > > I proposed something like that - best with an ASCII string
-> > > ("First DIMM on the top left corner") But getting such stuff into BIOS 
-> > > is difficult and long winded.
-> > 
-> > Propose it the desktop management people and get it into the DMI
-> > standard. They already have entries for each memory slot, they already
-> > have entries for descriptive strings for connectors. In fact you may
-> > well be able to 'bend' the spec enough to do it as is.
-> 
-> There are enough fields that maybe one of them is loose enough to mean
-> this.  It doesn't help us convince mobo vendors to support it, though.
+Dell Latitude D610, FC4 base distro, kernel is:
 
-With arbitary desktop/laptop/etc. vendors it's pretty hopeless I agree.
-But I suspect there is a chance at least on the server side. There
-is only a limited number of companies working on server BIOSes 
-for their boards and they tend to be more receptive to Linux's need
-because it's now a significant part of their market.
+[asuardi@sandman ~]$ cat /proc/version
+Linux version 2.6.15-rc2-git4 (asuardi@sandman) (gcc version 4.0.1
+20050727 (Red Hat 4.0.1-5)) #2 Fri Nov 25 00:15:46 CET 2005
 
-And it's clearly an obviously useful "RAS feature" which is
-fully buzzword compatible and everything.
+Onboard wireless card as detected by kernel is:
+ipw2200: Intel(R) PRO/Wireless 2200/2915 Network Driver, git-1.0.8
 
-IMHO it's time that Linux gets more proactive regarding talking
-to BIOS vendors. Perhaps a generic "BIOS writers guide for Linux"
-would be a good thing.  I have at least one other extension I would like
-BIOS vendors to support. Just would need to come up with a writeup
-for a clearly defined specification.
+ and I placed the 2.4 firmware from sourceforge.net in /lib/firmware.
 
--Andi
+ifup eth1 yields this message:
+
+eth1: NETDEV_TX_BUSY returned; driver should report queue full via
+ieee_device->is_queue_full.
+
+
+I'm connected to my wireless DSL router while typing this mail
+ so it obviously isn't fatal...
+
+
+Thanks,
+
+--alessandro
+
+ "So much can happen by accident
+  No rhyme, no reason - no one's innocent"
+
+   (Steve Wynn - "Under The Weather")

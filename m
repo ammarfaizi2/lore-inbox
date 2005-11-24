@@ -1,76 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030572AbVKXBCi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932609AbVKXBbN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030572AbVKXBCi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 20:02:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030574AbVKXBCh
+	id S932609AbVKXBbN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 20:31:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932610AbVKXBbM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 20:02:37 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:23943 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030572AbVKXBCg (ORCPT
+	Wed, 23 Nov 2005 20:31:12 -0500
+Received: from main.gmane.org ([80.91.229.2]:58309 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932609AbVKXBbL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 20:02:36 -0500
-Message-ID: <43851116.9060103@pobox.com>
-Date: Wed, 23 Nov 2005 20:02:14 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Daniel Jacobowitz <dan@debian.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "H. Peter Anvin" <hpa@zytor.com>, Andi Kleen <ak@suse.de>,
-       Gerd Knorr <kraxel@suse.de>, Dave Jones <davej@redhat.com>,
-       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-References: <1132764133.7268.51.camel@localhost.localdomain> <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051123214835.GA24044@nevyn.them.org> <Pine.LNX.4.64.0511231416490.13959@g5.osdl.org> <20051123222056.GA25078@nevyn.them.org> <Pine.LNX.4.64.0511231502250.13959@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0511231502250.13959@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Linus Torvalds wrote: > The third alternative is to
-	know at link-time that the process never does > anything threaded, but
-	that needs more developer attention and > non-standard setups, and you
-	_will_ get it wrong (some library will create > some thread without the
-	developer even realizing). It also has the > duplicated library
-	overhead (but at least now the duplication is just > twice, not "each
-	process duplicates its own private pointer") [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+	Wed, 23 Nov 2005 20:31:11 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Michael Renner <michael.renner@geizhals.at>
+Subject: faulty oom-killer on amd64?
+Date: Thu, 24 Nov 2005 01:26:57 +0000 (UTC)
+Message-ID: <loom.20051124T013917-518@post.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 85.124.86.88 (Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.12) Gecko/20050915 Firefox/1.0.7)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> The third alternative is to know at link-time that the process never does 
-> anything threaded, but that needs more developer attention and 
-> non-standard setups, and you _will_ get it wrong (some library will create 
-> some thread without the developer even realizing). It also has the 
-> duplicated library overhead (but at least now the duplication is just 
-> twice, not "each process duplicates its own private pointer")
+Hi,
 
-Small data point:  In a lot of gcc-related build processes, the 
-configure/makefile junk passes '-pthread' to the compiler/linker.
+I'm seeing lack of OOM killing on two of our amd64/x86_64 servers. One is a
+single core quad opteron with 32 gb ram, the other one a 8 processor dual core
+opteron with 64 gb ram. We've got a perl script (which forks itself a few times)
+which tends to eat up a lot of ram, eventually reaching the systems limits. I
+bandaided the problem in the meanwhile with ulimits (while we try to figure out
+why perl is misbehaving in the first place) but the kernel should also behave
+properly when it's allocateable memory gets stretched thin.
 
-So a lot of programs in Linux distros are already built this way.  The 
-bigger problem is with libraries, which cannot know ahead of time 
-whether the app is threaded or not, and therefore must assume threaded.
+On the four processor machine this usually ended up in the box freezing up more
+or less (userland stalled, sysrq keys working though. I usually did a sync and
+then rebooted, sending terms/kills to all processes worked rarely). A log of
+such an event can be seen at http://phpfi.com/88425.
 
-A few libs do things like glibc, others (like GLib) have an explicit 
-mylib_thread_init() called at program startup.
+On the 16 processor machine I get CPU lockups with identical traces which can be
+seen at http://666kb.com/i/10yov42ydfdog.jpg and
+http://666kb.com/i/10yom358azw8w.jpg (this was tested with 2.6.14 and 2.6.15-rc2
+respectively).
 
-	Jeff
+http://phpfi.com/88428 is the .config of the 16 processor machine and
+http://phpfi.com/88429 of the 4 processor one.
+
+Any ideas?
+
+-- 
+
+best regards,
+ Michael Renner - Network services
+
+Preisvergleich Internet Services AG
+Obere Donaustraße 63/2, A-1020 Wien
+Tel: +43 1 5811609 80
+Fax: +43 1 5811609 55
 
 

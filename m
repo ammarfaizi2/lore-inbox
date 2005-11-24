@@ -1,89 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751351AbVKXJFR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750917AbVKXJIX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751351AbVKXJFR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 04:05:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750917AbVKXJFR
+	id S1750917AbVKXJIX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 04:08:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbVKXJIX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 04:05:17 -0500
-Received: from ganesha.gnumonks.org ([213.95.27.120]:42882 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S1750768AbVKXJFP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 04:05:15 -0500
-Date: Thu, 24 Nov 2005 10:04:58 +0100
-From: Harald Welte <laforge@netfilter.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: 2.6.15-rc2-mm1
-Message-ID: <20051124090457.GB31478@sunbeam.de.gnumonks.org>
-References: <20051123033550.00d6a6e8.akpm@osdl.org> <6bffcb0e0511230615y7531e268n@mail.gmail.com> <20051123112218.73f68926.akpm@osdl.org>
+	Thu, 24 Nov 2005 04:08:23 -0500
+Received: from sccrmhc11.comcast.net ([63.240.77.81]:36232 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1750917AbVKXJIW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 04:08:22 -0500
+Message-Id: <6.2.3.4.0.20051124015842.03fa7b08@no.incoming.mail>
+X-Mailer: QUALCOMM Windows Eudora Version 6.2.3.4
+Date: Thu, 24 Nov 2005 02:07:43 -0700
+To: Hiatt Gary-E3486C <E3486C@motorola.com>
+From: Jeff Woods <Kazrak+kernel@cesmail.net>
+Subject: Re: Scratch install of Red Hat Linux 7.3 on a Dell Poweredge
+  1850
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <EFB813091B18D511BD3600508B644F82168262F0@tx14exm06.ftw.mot
+ .com>
+References: <EFB813091B18D511BD3600508B644F82168262F0@tx14exm06.ftw.mot.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="rnlqu3Le5Ibonik3"
-Content-Disposition: inline
-In-Reply-To: <20051123112218.73f68926.akpm@osdl.org>
-User-Agent: mutt-ng devel-20050619 (Debian)
-X-Spam-Score: 0.0 (/)
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 09:12 -0600 11/23/2005, Hiatt Gary-E3486C wrote:
+>I need some help with finding out what I might be over looking 
+>trying to load Red Hat Linux 7.3
 
---rnlqu3Le5Ibonik3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Which looks to me like it was released 2002-04-19 which is now more 
+than 2.5 years old. That's a lot in dog-years!
 
-On Wed, Nov 23, 2005 at 11:22:18AM -0800, Andrew Morton wrote:
-> Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> >
-> >  Debug: sleeping function called from invalid context at
-> >  include/asm/semaphore.h:123
-> >  in_atomic():1, irqs_disabled():0
-> >   [<c0103be6>] dump_stack+0x17/0x19
-> >   [<c011a0c3>] __might_sleep+0x9c/0xae
-> >   [<fd9a090d>] translate_table+0x147/0xc14 [ip_tables]
-> >   [<fd9a2b2a>] ipt_register_table+0x93/0x20d [ip_tables]
-> >   [<f98fe027>] init+0x27/0x9e [iptable_filter]
-> >   [<c01376d0>] sys_init_module+0xd7/0x26c
-> >   [<c0102cc7>] sysenter_past_esp+0x54/0x75
-> >  ---------------------------
-> >  | preempt count: 00000001 ]
-> >  | 1 level deep critical section nesting:
-> >  ----------------------------------------
-> >  .. [<fd9a2aca>] .... ipt_register_table+0x33/0x20d [ip_tables]
-> >  .....[<f98fe027>] ..   ( <=3D init+0x27/0x9e [iptable_filter])
-> >=20
->=20
-> ipt_register_table() does get_cpu() then calls translate_table(), and
-> somewhere under translate_table() we do something which sleeps, only I'm =
-not
-> sure what it is - netfilter likes to hide things in unexpected places.
+>on a Dell Poweredge 1850. It has a 2.80 GHz Processor, a 300GB 
+>Seagate Cheetah HD, and 8192MB of ECC DDR2 memory.
 
-I'll investigate this.  the get_cpu() scheme was introduced as a fix for
-a different (less serious) problem. =20
+Some of the technology in a Dell 1850 didn't exist in April 2002. Try 
+installing a current Linux kernel system.
 
-You'll get a reply until later today.
+The current, most direct logical descendant of Red Hat 7.3 is 
+probably Fedora Core 4, although you may prefer RHEL or some other 
+distribution for a server like the 1850.
 
---=20
-- Harald Welte <laforge@netfilter.org>                 http://netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
+--
+Jeff Woods <kazrak+kernel@cesmail.net> 
 
---rnlqu3Le5Ibonik3
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDhYI5XaXGVTD0i/8RAr57AJwMnfyvTxDyiQc1FV2KjYMX5ce8zACgn5X9
-/bPL939wCbi1T0zeZ6UKhsI=
-=p8cd
------END PGP SIGNATURE-----
-
---rnlqu3Le5Ibonik3--

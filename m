@@ -1,83 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932605AbVKXAhg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932606AbVKXAny@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932605AbVKXAhg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 19:37:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932606AbVKXAhg
+	id S932606AbVKXAny (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 19:43:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932607AbVKXAnx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 19:37:36 -0500
-Received: from vms048pub.verizon.net ([206.46.252.48]:35438 "EHLO
-	vms048pub.verizon.net") by vger.kernel.org with ESMTP
-	id S932605AbVKXAhf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 19:37:35 -0500
-Date: Wed, 23 Nov 2005 19:37:33 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Linux 2.6.15-rc2
-In-reply-to: <Pine.LNX.4.61.0511232338100.4550@goblin.wat.veritas.com>
-To: linux-kernel@vger.kernel.org
-Cc: Hugh Dickins <hugh@veritas.com>, Michael Krufky <mkrufky@linuxtv.org>,
-       Adrian Bunk <bunk@stusta.de>, Johannes Stezenbach <js@linuxtv.org>,
-       Sam Ravnborg <sam@ravnborg.org>, Kirk Lapray <kirk.lapray@gmail.com>
-Message-id: <200511231937.34206.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org>
- <200511231736.58204.gene.heskett@verizon.net>
- <Pine.LNX.4.61.0511232338100.4550@goblin.wat.veritas.com>
-User-Agent: KMail/1.7
+	Wed, 23 Nov 2005 19:43:53 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:34032 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S932606AbVKXAnx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 19:43:53 -0500
+In-Reply-To: <a36005b50511221740i6a80d59ay3983067e756cb5f6@mail.gmail.com>
+References: <438381D4.5020904@mvista.com> <a36005b50511221740i6a80d59ay3983067e756cb5f6@mail.gmail.com>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <61D3D308-5C83-11DA-9F3D-000A959BB91E@mvista.com>
+Content-Transfer-Encoding: 7bit
+Cc: robustmutexes@lists.osdl.org, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+From: david singleton <dsingleton@mvista.com>
+Subject: Re: Robust Futex patches available
+Date: Wed, 23 Nov 2005 16:43:51 -0800
+To: Ulrich Drepper <drepper@gmail.com>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 November 2005 18:40, Hugh Dickins wrote:
->On Wed, 23 Nov 2005, Gene Heskett wrote:
->> On Wednesday 23 November 2005 16:26, Hugh Dickins wrote:
->> >They should be fixed in today's 2.6.15-rc2-git3
->> >(aside from a couple of patches to drivers/char/drm coming later).
->> >If you still have problems you think I'm responsible for, let me
->> > know.
+
+On Nov 22, 2005, at 5:40 PM, Ulrich Drepper wrote:
+
+> On 11/22/05, David Singleton <dsingleton@mvista.com> wrote:
+>>     I'd also like some advice on the direction POSIX is heading with
+>> respect to
+>>     robust pthread_mutexes and priority inheritance.
+>
+> Robust mutexes are not in POSIX nor have they been proposed for
+> inclusion in the next revision.  If a sane semantics can be determined
+> I might submit it for inclusion.
+>
+> As for priority inheritance, there is nothing to add, the feature is
+> fully described.
+>
+>
+>> rt-nptl supports 'robust' behavior, there will be two robust modes,
+>> one is PTHREAD_MUTEX_ROBUST_NP mode, the other is
+>> PTHREAD_MUTEX_ROBUST_SUN_NP mode. When the owner of a mutex dies in
+>> the first mode, the waiter will set the mutex to ENOTRECOVERABLE
+>> state, while in the second mode, the waiter needs to call
+>> pthread_mutex_setconsistency_np to change the state manually.
 >>
->> I'm not familiar enough with git yet to try that without some hand
->> holding :(
+>> Currently the PTHREAD_MUTEX_ROBUST_NP is providing
+>> the fucntionality described by the PTHREAD_MUTEX_ROBUST_SUN_NP.
 >
->No git familiarity needed:
->http://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots/
->contains the daily patches against recent -rcs
+> This description makes no sense.  ENOTRECOVERABLE is the error code
+> used if, surprise, the data/mutex cannot be recovered.  I.e., it is
+> *not* consistent.  It is identical to calling pthread_mutex_unlock on
+> a mutex which was locked when pthread_mutex_lock returned EDEADOWNER.
+> All waiters are woken and subsequent locking attempts will fail in
+> this case with ENOTRECOVERABLE.
 >
->Hugh
+> So, if PTHREAD_MUTEX_ROBUST_NP really causes ENOTRECOVERABLE to be
+> returned then this form is useless as it is trivially achieved with
+> the PTHREAD_MUTEX_ROBUST_SUN_NP form.  Plus: not defining it means
+> less confusion since the semantics doesn't differ from Solaris (and
+> there would be a bigger change to get the change added to POSIX).
 
-Unforch, using a 2.6.14 base, applying 2.6.15-rc2 followed by
-2.6.15-rc2-git3 blows up about 24 seconds into my makeit script:
+Great, thanks for the help in understanding this.  The ENOTRECOVERABLE 
+made
+no sense to me either.
 
-  CC      arch/i386/kernel/cpu/mtrr/main.o
-arch/i386/kernel/cpu/mtrr/main.c: In function `set_mtrr':
-arch/i386/kernel/cpu/mtrr/main.c:225: error: `ipi_handler' undeclared
-(first use in this function)
-arch/i386/kernel/cpu/mtrr/main.c:225: error: (Each undeclared identifier
-is reported only once
-arch/i386/kernel/cpu/mtrr/main.c:225: error: for each function it
-appears in.)
-make[3]: *** [arch/i386/kernel/cpu/mtrr/main.o] Error 1
-make[2]: *** [arch/i386/kernel/cpu/mtrr] Error 2
-make[1]: *** [arch/i386/kernel/cpu] Error 2
-make: *** [arch/i386/kernel] Error 2
+I'll keep things the way they are.  The code returns -EOWNERDIED to the 
+waiter/
+new lock owner and the owner can recover the mutex, if they so choose.
 
-??
+>
+>
+> I cannot really comment much on the kernel side.  For my taste the
+> robust futex functionality is impacting the far more commen code path
+> too much.  I would like to see much of the added code moved completely
+> out of the fast path.  Robust mutexes are slow, this won't make it
+> worse.
+>
 
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+Yes, even in the kernel I'd like to see the performance penalty for 
+robustness
+be an option that the user can select if they want the trade off of
+robustness for a slower exit path.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.36% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+>
+> The userlevel part is completely unacceptable.  It's broken and what
+> is there in code has the same problem as the kernel code: it punishes
+> code which does not require this new feature.  I don't worry about
+> this part, though, since I would write this part myself in any case
+> once there is an agreed upon kernel part.
+>
+>
+> Having this said, I certainly would like to get the robust futex part
+> in.  But not the priority handling part.  The two are completely
+> independent in principal.  I don't agree at all with the current
+> implementation of the priority inheritance.
+
+I agree, the PI and Robustness are two logically separate functions and
+could easily be separated out.  I'll start on that now.
+
+>
+> So, if you split out the robust futex still, eliminate all the support
+> added for priority inheritance, you get my full support for adding the
+> code to mainline.
+
+Excellent!  I hope to have some patches for you in a while.
+
+David
 

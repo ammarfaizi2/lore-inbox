@@ -1,50 +1,264 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030627AbVKXIt7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161055AbVKXIuO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030627AbVKXIt7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 03:49:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030630AbVKXIt7
+	id S1161055AbVKXIuO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 03:50:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161058AbVKXIuN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 03:49:59 -0500
-Received: from webbox4.loswebos.de ([213.187.93.205]:5825 "EHLO
-	webbox4.loswebos.de") by vger.kernel.org with ESMTP
-	id S1030629AbVKXIt6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 03:49:58 -0500
-Date: Thu, 24 Nov 2005 09:50:18 +0100
-From: Marc Koschewski <marc@osknowledge.org>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Marc Koschewski <marc@osknowledge.org>, linux-kernel@vger.kernel.org
-Subject: Re: Entering BIOS on DELL mobiles - does the kernel prohibit?
-Message-ID: <20051124085018.GB7799@stiffy.osknowledge.org>
-References: <20051123155319.GA6970@stiffy.osknowledge.org> <200511232057.44022.dtor_core@ameritech.net>
+	Thu, 24 Nov 2005 03:50:13 -0500
+Received: from xproxy.gmail.com ([66.249.82.207]:61770 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161055AbVKXIuL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 03:50:11 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=OR0d7t3AsedDV6C/5Ri2KkiMKyWtUCUWibhynFiT8kY5hnrIYR5M9oXVQlPbi1rgSvm/YwEKcZ/fiZqIsPAnOruoSWQaAoliLDcrkj7A1SHpuZF6W5WLPbHXpwluN3Uu39LIgSSI3MkkV9uIi7O/unkRQBcfOddBHdLE/YpnbI0=
+Message-ID: <43857E8B.4090004@gmail.com>
+Date: Thu, 24 Nov 2005 16:49:15 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051025)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200511232057.44022.dtor_core@ameritech.net>
-X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
-X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
-X-Operating-System: Linux stiffy 2.6.15-rc2-marc
-User-Agent: Mutt/1.5.11
+To: Nathan Cline <nathan.cline@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Patch to framebuffer
+References: <656113ee0511232208n6948c364ke6103b3ef0a54f@mail.gmail.com>
+In-Reply-To: <656113ee0511232208n6948c364ke6103b3ef0a54f@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Dmitry Torokhov <dtor_core@ameritech.net> [2005-11-23 20:57:43 -0500]:
+Nathan Cline wrote:
+> --- fbcon.c	2005-11-23 23:49:10.000000000 -0600
+> +++ fbcon.c.mine	2005-11-23 23:12:16.000000000 -0600
+> @@ -390,12 +390,15 @@
+>  	int mode;
+>  
+>  	if (ops->currcon != -1)
+> -		vc = vc_cons[ops->currcon].d;
+> +		vc = ops->currcon_ptr; 
 
-> On Wednesday 23 November 2005 10:53, Marc Koschewski wrote:
-> > Hi all,
-> > 
-> > first of all, if someone could point me to some information on that
-> > topic, I would be glad. I didn't find anything on Google.
-> > 
-> > The 'problem' is: I remember being able to enter the DELL Inspiron BIOS
-> > from a running X session (or console) some (long) time ago. I just noticed,
-> > it no longer works. Does the kernel somehow prohibit to enter the BIOS
-> > or does the laptop itself stop from doing so (maybe due to a BIOS update).
-> >
+As mentioned in the other thread, you don't need ops->currcon_ptr.
+vc_cons[ops->currcon].d should give you the same results.
+
+>  
+> -	if (!vc || !CON_IS_VISIBLE(vc) ||
+> +	if (!vc)
+> +		return;
+> +
+> +	if (!CON_IS_VISIBLE(vc) ||
+>  	    fbcon_is_inactive(vc, info) ||
+>   	    registered_fb[con2fb_map[vc->vc_num]] != info ||
+> -	    vc_cons[ops->currcon].d->vc_deccm != 1)
+> +	    vc->vc_deccm != 1)
+>  		return;
+>  	acquire_console_sem();
+>  	p = &fb_display[vc->vc_num];
+> @@ -753,6 +756,7 @@
+>  	struct fbcon_ops *ops = info->fbcon_par;
+>  
+>  	ops->currcon = fg_console;
+> +	ops->currcon_ptr = vc_cons[fg_console].d;
+
+no need
+
+>  
+>  	if (info->fbops->fb_set_par && !(ops->flags & FBCON_FLAGS_INIT))
+>  		info->fbops->fb_set_par(info);
+> @@ -766,7 +770,7 @@
+>  		fbcon_preset_disp(info, &info->var, unit);
+>  
+>  	if (show_logo) {
+> -		struct vc_data *fg_vc = vc_cons[fg_console].d;
+> +		struct vc_data *fg_vc = ops->currcon_ptr;
+
+or *fg_vc = vc_cons[ops->currcon].d
+
+>  		struct fb_info *fg_info =
+>  			registered_fb[con2fb_map[fg_console]];
+>  
+> @@ -775,7 +779,7 @@
+>  				   fg_vc->vc_rows);
+>  	}
+>  
+> -	update_screen(vc_cons[fg_console].d);
+> +	update_screen(ops->currcon_ptr);
+
+similarly, update_screen(vc_cons[ops->currcon].d);
+
+>  }
+>  
+>  /**
+> @@ -929,6 +933,7 @@
+>  
+>  	memset(ops, 0, sizeof(struct fbcon_ops));
+>  	ops->currcon = -1;
+> +	ops->currcon_ptr = NULL;
+
+no need.
+
+>  	ops->graphics = 1;
+>  	ops->cur_rotate = -1;
+>  	info->fbcon_par = ops;
+> @@ -1055,6 +1060,15 @@
+>  	    return;
+>  
+>  	cap = info->flags;
+> +	ops = info->fbcon_par;
+> +
+> +	if (ops->currcon == -1)
+> +	{
+> +		ops->currcon = vc->vc_num;
+> +		ops->currcon_ptr = vc;
+
+no need for the last line.
+
+> +	}
+> +
+> +	vc->vc_display_fg = &(ops->currcon_ptr);
+>  
+>  	if (vc != svc || logo_shown == FBCON_LOGO_DONTSHOW ||
+>  	    (info->fix.type == FB_TYPE_TEXT))
+> @@ -1091,7 +1105,6 @@
+>  	if (!*vc->vc_uni_pagedir_loc)
+>  		con_copy_unimap(vc, svc);
+>  
+> -	ops = info->fbcon_par;
+>  	p->con_rotate = rotate;
+>  	set_blitting_type(vc, info, NULL);
+>  
+> @@ -1296,6 +1309,8 @@
+>  	struct fbcon_ops *ops = info->fbcon_par;
+>  	int rows, cols, charcnt = 256;
+>  
+> +	vc->vc_display_fg = &(ops->currcon_ptr);
+> +	
+
+or vc->vc_display_fg = &vc_cons[ops->currcon].d;
+
+>  	if (var_to_display(p, var, info))
+>  		return;
+>  	t = &fb_display[svc->vc_num];
+> @@ -2048,7 +2063,7 @@
+>  	struct fbcon_ops *ops;
+>  	struct display *p = &fb_display[vc->vc_num];
+>  	struct fb_var_screeninfo var;
+> -	int i, prev_console;
+> +	int prev_console;
+>  
+>  	info = registered_fb[con2fb_map[vc->vc_num]];
+>  	ops = info->fbcon_par;
+> @@ -2073,21 +2088,10 @@
+>  	prev_console = ops->currcon;
+>  	if (prev_console != -1)
+>  		old_info = registered_fb[con2fb_map[prev_console]];
+> -	/*
+> -	 * FIXME: If we have multiple fbdev's loaded, we need to
+> -	 * update all info->currcon.  Perhaps, we can place this
+> -	 * in a centralized structure, but this might break some
+> -	 * drivers.
+> -	 *
+> -	 * info->currcon = vc->vc_num;
+> -	 */
+> -	for (i = 0; i < FB_MAX; i++) {
+> -		if (registered_fb[i] != NULL && registered_fb[i]->fbcon_par) {
+> -			struct fbcon_ops *o = registered_fb[i]->fbcon_par;
+>  
+> -			o->currcon = vc->vc_num;
+> -		}
+> -	}
+
+This hunk is the actual culprit why fbcon is behaving like it is :-)
+
+> +	ops->currcon = vc->vc_num;
+> +	ops->currcon_ptr = vc;
+> +	
+>  	memset(&var, 0, sizeof(struct fb_var_screeninfo));
+>  	display_to_var(&var, p);
+>  	var.activate = FB_ACTIVATE_NOW;
+> @@ -2103,13 +2107,6 @@
+>  	fb_set_var(info, &var);
+>  	ops->var = info->var;
+>  
+> -	if (old_info != NULL && old_info != info) {
+> -		if (info->fbops->fb_set_par)
+> -			info->fbops->fb_set_par(info);
+
+Don't remove the above hunk.  It's possible to have multiple fb_info's
+(ie vga16fb, vesafb, xxxfb) driving the same hardware.  This gives
+the driver a chance to initialize the hardware when it's their turn
+to take over.
+ 
+> -		fbcon_del_cursor_timer(old_info);
+> -		fbcon_add_cursor_timer(info);
+> -	}
+> -
+
+The above is safe to remove.
+
+>  	set_blitting_type(vc, info, p);
+>  	ops->cursor_reset = 1;
+>  
+> @@ -2691,7 +2688,7 @@
+>  
+>  	if (!ops || ops->currcon < 0)
+>  		return;
+> -	vc = vc_cons[ops->currcon].d;
+> +	vc = ops->currcon_ptr;
+
+Again, equivalent.
+
+>  
+>  	/* Clear cursor, restore saved data */
+>  	fbcon_cursor(vc, CM_ERASE);
+> @@ -2704,7 +2701,7 @@
+>  
+>  	if (!ops || ops->currcon < 0)
+>  		return;
+> -	vc = vc_cons[ops->currcon].d;
+> +	vc = ops->currcon_ptr; 
+
+equivalent
+
+>  
+>  	update_screen(vc);
+>  }
+> @@ -2718,7 +2715,7 @@
+>  
+>  	if (!ops || ops->currcon < 0)
+>  		return;
+> -	vc = vc_cons[ops->currcon].d;
+> +	vc = ops->currcon_ptr; 
+
+equivalent
+
+>  	if (vc->vc_mode != KD_TEXT ||
+>  	    registered_fb[con2fb_map[ops->currcon]] != info)
+>  		return;
+> @@ -2841,7 +2838,7 @@
+>  	if (!ops || ops->currcon < 0)
+>  		return;
+>  
+> -	vc = vc_cons[ops->currcon].d;
+> +	vc = ops->currcon_ptr; 
+
+equivalent
+
+>  	if (vc->vc_mode != KD_TEXT ||
+>  			registered_fb[con2fb_map[ops->currcon]] != info)
+>  		return;
 > 
-> It is only pssible with APM. ACPI "kills" it.
+> 
+> ------------------------------------------------------------------------
+> 
+> --- fbcon.h	2005-11-23 23:49:10.000000000 -0600
+> +++ fbcon.h.mine	2005-11-23 23:46:07.000000000 -0600
+> @@ -73,6 +73,7 @@
+>  	struct fb_cursor cursor_state;
+>  	struct display *p;
+>          int    currcon;	                /* Current VC. */
+> +	struct vc_data *currcon_ptr;
 
-Oh! I didn't know. Is there any good reason to do so? I mean, any device
-change (ie. serial port re-configuration) is just valid from next reboot, thus
-not affecting the running kernel. Am I missing something?
+No need for currcon_ptr.
 
-Marc
+Tony

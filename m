@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbVKXOwl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbVKXOzV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751246AbVKXOwl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 09:52:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbVKXOwl
+	id S1751257AbVKXOzV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 09:55:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751260AbVKXOzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 09:52:41 -0500
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:49819 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751246AbVKXOwk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 09:52:40 -0500
-Date: Thu, 24 Nov 2005 15:51:32 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, mochel@digitalimplant.org, linux-kernel@vger.kernel.org
-Subject: [patch] broken kref-counting in find functions.
-Message-ID: <20051124145132.GA5057@skybase.boeblingen.de.ibm.com>
-MIME-Version: 1.0
+	Thu, 24 Nov 2005 09:55:21 -0500
+Received: from ns1.suse.de ([195.135.220.2]:26261 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751257AbVKXOzU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 09:55:20 -0500
+Date: Thu, 24 Nov 2005 15:55:18 +0100
+From: Andi Kleen <ak@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andi Kleen <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       Gerd Knorr <kraxel@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
+       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] SMP alternatives
+Message-ID: <20051124145518.GI20775@brahms.suse.de>
+References: <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <20051123165923.GJ20775@brahms.suse.de> <1132783243.13095.17.camel@localhost.localdomain> <20051124131310.GE20775@brahms.suse.de> <m1zmnugom7.fsf@ebiederm.dsl.xmission.com> <20051124133907.GG20775@brahms.suse.de> <1132842847.13095.105.camel@localhost.localdomain> <20051124142200.GH20775@brahms.suse.de> <1132845324.13095.112.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <1132845324.13095.112.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Frank Pavlic <pavlic@de.ibm.com>
+On Thu, Nov 24, 2005 at 03:15:24PM +0000, Alan Cox wrote:
+> On Iau, 2005-11-24 at 15:22 +0100, Andi Kleen wrote:
+> > What do you need a special driver for if the northbridge just
+> > can do the scrubbing by itself?
+> 
+> You need a driver to collect and report all the ECC single bit errors to
+> the user so that they can decide if they have problem hardware.
 
-[patch] broken kref-counting in find functions.
+Assuming the errors are logged to the standard machine check
+architecture that's already done by mce.c. K8 does that definitely.
 
-The klist reference counting in the find functions that use
-klist_iter_init_node is broken. If the function (for example
-driver_find_device) is called with a NULL start object then
-everything is fine, the first call to next_device()/klist_next
-increases the ref-count of the first node on the list and does
-nothing for the start object which is NULL.
-If they are called with a valid start object then klist_next
-will decrement the ref-count for the start object but nobody
-has incremented it. Logical place to fix this would be
-klist_iter_init_node because the function puts a reference
-of the object into the klist_iter struct.
+Take a look at mcelog at some point.
+Your distro probably already sets it up by default to log to
+/var/log/mcelog
 
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Frank Pavlic <pavlic@de.ibm.com>
+> 
+> EDAC is more than one thing
+> 	- Control response to a fatal error
+> 	- Report non-fatal events for analysis/user decision making
 
----
+x86-64 mce.c does all that There was even a port to i386 around at some point.
 
-diff -urpN linux-2.6/lib/klist.c linux-2.6-patched/lib/klist.c
---- linux-2.6/lib/klist.c	2005-10-28 02:02:08.000000000 +0200
-+++ linux-2.6-patched/lib/klist.c	2005-11-23 18:33:34.000000000 +0100
-@@ -199,6 +199,8 @@ void klist_iter_init_node(struct klist *
- 	i->i_klist = k;
- 	i->i_head = &k->k_list;
- 	i->i_cur = n;
-+	if (n)
-+		kref_get(&n->n_ref);
- }
- 
- EXPORT_SYMBOL_GPL(klist_iter_init_node);
+-Andi

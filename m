@@ -1,63 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932621AbVKXDUE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932620AbVKXDYI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932621AbVKXDUE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 22:20:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932622AbVKXDUE
+	id S932620AbVKXDYI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 22:24:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932622AbVKXDYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 22:20:04 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:60838
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S932621AbVKXDUB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 22:20:01 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH] make miniconfig (take 2)
-Date: Wed, 23 Nov 2005 21:19:46 -0600
-User-Agent: KMail/1.8
-Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
-       Sam Ravnborg <sam@ravnborg.org>
-References: <200511170629.42389.rob@landley.net> <200511230258.33901.rob@landley.net> <20051123132106.GC23159@elf.ucw.cz>
-In-Reply-To: <20051123132106.GC23159@elf.ucw.cz>
+	Wed, 23 Nov 2005 22:24:07 -0500
+Received: from urtax.ms.mff.cuni.cz ([195.113.20.127]:13486 "EHLO
+	urtax.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S932620AbVKXDYG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 22:24:06 -0500
+Date: Thu, 24 Nov 2005 04:23:59 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+X-X-Sender: mikulas@urtax.ms.mff.cuni.cz
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>, "H. Peter Anvin" <hpa@zytor.com>,
+       Andi Kleen <ak@suse.de>, Gerd Knorr <kraxel@suse.de>,
+       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
+       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] SMP alternatives
+In-Reply-To: <1132782245.13095.4.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.62.0511240418140.21316@artax.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.64.0511131118020.3263@g5.osdl.org> 
+ <Pine.LNX.4.64.0511131210570.3263@g5.osdl.org> <4378A7F3.9070704@suse.de> 
+ <Pine.LNX.4.64.0511141118000.3263@g5.osdl.org> <4379ECC1.20005@suse.de> 
+ <437A0649.7010702@suse.de> <437B5A83.8090808@suse.de>  <438359D7.7090308@suse.de>
+ <p7364qjjhqx.fsf@verdi.suse.de>  <1132764133.7268.51.camel@localhost.localdomain>
+  <20051123163906.GF20775@brahms.suse.de>  <1132766489.7268.71.camel@localhost.localdomain>
+  <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org>  <4384AECC.1030403@zytor.com>
+  <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511232119.46383.rob@landley.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 November 2005 07:21, Pavel Machek wrote:
-> Hi!
->
-> > > Sorry, I did not have time to look what's wrong with miniconfig, yet.
-> >
-> > I just tried again and it applied to -git2 cleanly.  Possibly it was
-> > whitespace damaged?  (I have to jump through hoops to prevent kmail from
-> > doing stupid things to inline attachments...)
-> >
-> > Here it is as an attachment.  Let me know if this applies cleanly
-> > for you...
->
-> Ok, this one applied okay for me. It still does not seem to work:
->
-> pavel@amd:/data/l/linux$ scripts/miniconfig.sh config.ok
-> Calculating mini.config...
-> pavel@amd:/data/l/linux$ cat mini.config
-> CONFIG_PM=y
-> pavel@amd:/data/l/linux$
->
-> ...and yes, my config is definitely more complex than that, I
-> handselected only relevant PCI cards, for example.
->        Pavel
 
-Odd.
 
-The way the script works is it repeatedly calls "make miniconfig" to see if 
-removing each line makes a difference.  Judging by the output, it thinks none 
-of the lines it removed made any difference.
+On Wed, 23 Nov 2005, Alan Cox wrote:
 
-Could you send me the .config you tried to shrink down?
+> On Mer, 2005-11-23 at 10:42 -0800, Linus Torvalds wrote:
+>> Of course, if it's in one of the low 12 bits of %cr3, there would have to
+>> be a "enable this bit" in %cr4 or something. Historically, you could write
+>> any crap in the low bits, I think.
+>
+> There is a much much better way to do it than just user space and
+> without hitting cr3/cr4 - put "lock works" in the PAT and while we'll
+> have to add PAT support which we need to do anyway we would get a world
+> where on uniprocessor lock prefix only works on addresse targets we want
+> it to - ie pci_alloc_consistent() pages.
 
-Rob
+Given the CPU architecture it is unimplementable. Intructions are split
+into microinstuctions and they are executed out of order. PAT is looked up
+when LOAD microinstruction is executed. Imagine this
+
+MOV EDX, [address1]
+LOCK ADD [address2], EDX
+
+that is translated to
+
+LOAD EDX, [address1]
+LOAD TMP1, [address2]
+ADD TMP1, EDX
+STORE [address2], TMP1
+
+... now LOAD finds LOCK attribute in PAT --- so it locks the bus, however
+EDX is still not loaded. Now LOAD EDX can't execute because the bus is
+locked and ADD and STORE can't execute because they're waiting for LOAD
+EDX. Deadlock.
+
+Locks are so slow not because they are locks (if the target is in L1
+cache, they operate only on cache and don't go to bus at all), but because
+they need to flush completely microinstruction pool to avoid problems like
+this. Of course Intel won't waste silicon in the execution engine for
+instructions that execute so rarely, so they microcode them instead. So
+lock detection is done at the decoder.
+
+Mikulas
+
+> Alan
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

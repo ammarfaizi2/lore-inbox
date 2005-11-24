@@ -1,93 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030481AbVKXEIt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030591AbVKXERi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030481AbVKXEIt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 23:08:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030591AbVKXEIt
+	id S1030591AbVKXERi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 23:17:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030593AbVKXERh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 23:08:49 -0500
-Received: from carbon.nocdirect.com ([69.73.156.63]:50818 "EHLO
-	carbon.nocdirect.com") by vger.kernel.org with ESMTP
-	id S1030481AbVKXEIt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 23:08:49 -0500
-Message-ID: <43853CC0.10203@ipom.com>
-Date: Wed, 23 Nov 2005 20:08:32 -0800
-From: Phil Dibowitz <phil@ipom.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Wed, 23 Nov 2005 23:17:37 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:24986
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1030591AbVKXERh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 23:17:37 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: Christmas list for the kernel
+Date: Wed, 23 Nov 2005 22:17:24 -0600
+User-Agent: KMail/1.8
+Cc: Jon Smirl <jonsmirl@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com> <4383979F.6070608@tmr.com>
+In-Reply-To: <4383979F.6070608@tmr.com>
 MIME-Version: 1.0
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-CC: Alan Stern <stern@rowland.harvard.edu>,
-       usb-storage@lists.one-eyed-alien.net, Bob Copeland <me@bobcopeland.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [usb-storage] Re: [PATCH] usb-storage: Add support for Rio Karma
-References: <20051123113342.GA5815@hash.localnet>	<Pine.LNX.4.44L0.0511231316410.12957-100000@iolanthe.rowland.org> <20051123183924.GA1016@apps.cwi.nl>
-In-Reply-To: <20051123183924.GA1016@apps.cwi.nl>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig96760C6FFDEC53C2DE2BE66C"
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - carbon.nocdirect.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - ipom.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511232217.25198.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig96760C6FFDEC53C2DE2BE66C
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Tuesday 22 November 2005 16:11, Bill Davidsen wrote:
+> Serious question, when/if xen is in the kernel, is there a reason for
+> UML? If so, why would I use UML instead of xen, and where?
 
-Andries Brouwer wrote:
-> On Wed, Nov 23, 2005 at 01:18:30PM -0500, Alan Stern wrote:
-> 
-> 
->>And do you really need US_FL_FIX_INQUIRY?  Hardly any devices do (maybe 
->>none).
-> 
-> 
-> This one does:
-> 
-> /* aeb */
-> UNUSUAL_DEV( 0x090c, 0x1132, 0x0000, 0xffff,
->                 "Feiya",
->                 "5-in-1 Card Reader",
->                 US_SC_DEVICE, US_PR_DEVICE, NULL,
->                 US_FL_FIX_CAPACITY ),
+Xen requires support in the host kernel.  UML (skas0 mode) does not.
 
-Can you be more specific? Matthew added some code (specifically a delay)
-which should have taken care of most if not all of these a few kernel
-versions ago (.12-ish?)...
+I have a build system that uses UML as a better fakeroot.  I can't use qemu 
+for this because I want to boot borrowing the hosts's filesystem (so the 
+build doesn't need a huge binary blob of precompiled stuff to start 
+doing ./configure;make;make install with...  At that point I might as well 
+just distribute the final binaries and be done with it).
 
-Are you saying this device still doesn't work for you using the above
-entry in a recent kernel?
+I don't want the thing to require root access, yet the build needs to drop a 
+symlink into /, wants to mknod, chown, chroot, and perform --bind and --move 
+mounts.
 
--- 
-Phil Dibowitz                             phil@ipom.com
-Freeware and Technical Pages              Insanity Palace of Metallica
-http://www.phildev.net/                   http://www.ipom.com/
+Fakeroot wouldn't be sufficient because there's no guarantee the host system 
+is running a 2.6 kernel (no --bind or --move mounts) and worse, I'm building 
+uClibc against the most recent Mazur headers I can find which means the 
+resulting uClibc may not run on an older kernel (even running against a 
+sufficiently old 2.6 kernel means segfaults due to missing features the new 
+headers describe).
 
-"Be who you are and say what you feel, because those who mind don't
-matter and those who matter don't mind."
- - Dr. Suess
+I find UML a very convenient way to get a virtual environment borrowing 
+resources from the host without having to set up the host.  This means I can 
+deploy it to relatively unknown systems, without requiring somebody with root 
+access on those systems to replace the kernel and reboot, which generally 
+isn't an option.
 
-
---------------enig96760C6FFDEC53C2DE2BE66C
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFDhTzAN5XoxaHnMrsRAm2rAJ9jW5nXBTqQEaPE/I/njlQbn0+DzQCgpAAF
-NmuN9NwhUvlCHEO3S0FWL6I=
-=RNOm
------END PGP SIGNATURE-----
-
---------------enig96760C6FFDEC53C2DE2BE66C--
+Rob

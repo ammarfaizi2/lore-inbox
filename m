@@ -1,55 +1,183 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbVKXKf0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161060AbVKXKna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751347AbVKXKf0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 05:35:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161005AbVKXKf0
+	id S1161060AbVKXKna (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 05:43:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161059AbVKXKna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 05:35:26 -0500
-Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:20697 "EHLO
-	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
-	id S1750994AbVKXKfZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 05:35:25 -0500
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Adrian Bunk <bunk@stusta.de>, saw@saw.sw.com.sg,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [RFC: 2.6 patch] remove drivers/net/eepro100.c
-References: <20051118033302.GO11494@stusta.de>
-	<20051118090158.GA11621@flint.arm.linux.org.uk>
-	<437DFD6C.1020106@pobox.com>
-	<20051123221547.GM15449@flint.arm.linux.org.uk>
-	<20051123222410.GN15449@flint.arm.linux.org.uk>
-From: Catalin Marinas <catalin.marinas@arm.com>
-Date: Thu, 24 Nov 2005 10:30:40 +0000
-In-Reply-To: <20051123222410.GN15449@flint.arm.linux.org.uk> (Russell King's
- message of "Wed, 23 Nov 2005 22:24:10 +0000")
-Message-ID: <tnxd5kqcp7z.fsf@arm.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Thu, 24 Nov 2005 05:43:30 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:654 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S1030371AbVKXKn3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 05:43:29 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Andreas Steinmetz <ast@domdv.de>
+Subject: [PATCH] tiny improvement to x86_64 asm aes encryption
+Date: Thu, 24 Nov 2005 12:42:35 +0200
+User-Agent: KMail/1.8.2
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 24 Nov 2005 10:30:42.0338 (UTC) FILETIME=[1F014820:01C5F0E2]
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_bkZhDiQget9BBBG"
+Message-Id: <200511241242.35294.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> On Wed, Nov 23, 2005 at 10:15:48PM +0000, Russell King wrote:
->> Well, I've run 2.6.15-rc2 on what I think was the ARM platform which
->> exhibited the problem, but it doesn't show up.
->
-> The test was merely a "did it successfully BOOTP" because I can't
-> get it to mount and run /sbin/init from the jffs2 rootfs which
-> 2.5.70 was perfectly happy to earlier today.  However, the
-> failure point seemed to be when NFS tried to use the card.
+--Boundary-00=_bkZhDiQget9BBBG
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-If you you are referring to the ARM Integrator/AP platform, I tested
-it earlier this year, with a 2.6.12 kernel, and the e100.c driver
-seemed to be OK with an NFS-mounted root filesystem and the IP address
-got via kernel DHCP. I had problems getting the eepro100.c driver to
-work though, but I didn't dig any further since e100.c seemed OK.
+Basically, when de do:
 
-I'll give it another try early next week with 2.6.15-rc2 and let you
-know whether I see any problems.
+        encrypt_round(aes_ft_tab,-96)
+        encrypt_round(aes_ft_tab,-80)
 
--- 
-Catalin
+first encrypt_round produces results in R5,R6,R3,R4,
+and then moves R5->R1, R6->R2 for use in second one:
 
+#define encrypt_round(TAB,OFFSET) \
+        round(TAB,OFFSET,R1,R2,R3,R4,R5,R6,R7,R10,R5,R6,R3,R4) \
+        move_regs(R1,R2,R5,R6)
+
+
+But since we _always_ call them in pairs, we can just
+swap arguments in second one, eliminating move_regs!
+
+
+#define encrypt_round1(TAB,OFFSET) \
+        round(TAB,OFFSET,R1,R2,R3,R4,R5,R6,R7,R10,R5,R6,R3,R4)
+                         ^^^^^                    ^^^^^
+#define encrypt_round2(TAB,OFFSET) \
+        round(TAB,OFFSET,R5,R6,R3,R4,R1,R2,R7,R10,R1,R2,R3,R4)
+                         ^^^^^                    ^^^^^
+...
+        encrypt_round1(aes_ft_tab,-96)
+        encrypt_round2(aes_ft_tab,-80)
+
+"encrypt_final" and "return" macros are changed accordingly.
+
+Of course same thing is done on decrypt path.
+
+Patch is not tested.
+--
+vda
+
+--Boundary-00=_bkZhDiQget9BBBG
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="z.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="z.diff"
+
+--- aes-x86_64-asm.S.org	Mon Aug 29 02:41:01 2005
++++ aes-x86_64-asm.S	Thu Nov 24 12:34:35 2005
+@@ -124,63 +124,63 @@
+ 	xorl	TAB+1024(,r1,4),r3 ## E;\
+ 	xorl	TAB(,r2,4),r4 ## E;
+ 
+-#define move_regs(r1,r2,r3,r4) \
+-	movl	r3 ## E,r1 ## E;	\
+-	movl	r4 ## E,r2 ## E;
+-
+ #define entry(FUNC,BASE,B128,B192) \
+ 	prologue(FUNC,BASE,B128,B192,R2,R8,R7,R9,R1,R3,R4,R6,R10,R5,R11)
+ 
+-#define return epilogue(R8,R2,R9,R7,R5,R6,R3,R4,R11)
+-
+-#define encrypt_round(TAB,OFFSET) \
+-	round(TAB,OFFSET,R1,R2,R3,R4,R5,R6,R7,R10,R5,R6,R3,R4) \
+-	move_regs(R1,R2,R5,R6)
++#define return epilogue(R8,R6,R9,R7,R1,R2,R3,R4,R11)
+ 
+-#define encrypt_final(TAB,OFFSET) \
++#define encrypt_round1(TAB,OFFSET) \
+ 	round(TAB,OFFSET,R1,R2,R3,R4,R5,R6,R7,R10,R5,R6,R3,R4)
+ 
+-#define decrypt_round(TAB,OFFSET) \
+-	round(TAB,OFFSET,R2,R1,R4,R3,R6,R5,R7,R10,R5,R6,R3,R4) \
+-	move_regs(R1,R2,R5,R6)
++#define encrypt_round2(TAB,OFFSET) \
++	round(TAB,OFFSET,R5,R6,R3,R4,R1,R2,R7,R10,R1,R2,R3,R4)
++
++#define encrypt_final2(TAB,OFFSET) \
++	round(TAB,OFFSET,R5,R6,R3,R4,R1,R2,R7,R10,R1,R2,R3,R4)
+ 
+-#define decrypt_final(TAB,OFFSET) \
++#define decrypt_round1(TAB,OFFSET) \
+ 	round(TAB,OFFSET,R2,R1,R4,R3,R6,R5,R7,R10,R5,R6,R3,R4)
+ 
++#define decrypt_round2(TAB,OFFSET) \
++	round(TAB,OFFSET,R6,R5,R4,R3,R2,R1,R7,R10,R1,R2,R3,R4)
++
++#define decrypt_final2(TAB,OFFSET) \
++	round(TAB,OFFSET,R6,R5,R4,R3,R2,R1,R7,R10,R1,R2,R3,R4)
++
+ /* void aes_encrypt(void *ctx, u8 *out, const u8 *in) */
+ 
+ 	entry(aes_encrypt,0,enc128,enc192)
+-	encrypt_round(aes_ft_tab,-96)
+-	encrypt_round(aes_ft_tab,-80)
+-enc192:	encrypt_round(aes_ft_tab,-64)
+-	encrypt_round(aes_ft_tab,-48)
+-enc128:	encrypt_round(aes_ft_tab,-32)
+-	encrypt_round(aes_ft_tab,-16)
+-	encrypt_round(aes_ft_tab,  0)
+-	encrypt_round(aes_ft_tab, 16)
+-	encrypt_round(aes_ft_tab, 32)
+-	encrypt_round(aes_ft_tab, 48)
+-	encrypt_round(aes_ft_tab, 64)
+-	encrypt_round(aes_ft_tab, 80)
+-	encrypt_round(aes_ft_tab, 96)
+-	encrypt_final(aes_fl_tab,112)
++	encrypt_round1(aes_ft_tab,-96)
++	encrypt_round2(aes_ft_tab,-80)
++enc192:	encrypt_round1(aes_ft_tab,-64)
++	encrypt_round2(aes_ft_tab,-48)
++enc128:	encrypt_round1(aes_ft_tab,-32)
++	encrypt_round2(aes_ft_tab,-16)
++	encrypt_round1(aes_ft_tab,  0)
++	encrypt_round2(aes_ft_tab, 16)
++	encrypt_round1(aes_ft_tab, 32)
++	encrypt_round2(aes_ft_tab, 48)
++	encrypt_round1(aes_ft_tab, 64)
++	encrypt_round2(aes_ft_tab, 80)
++	encrypt_round1(aes_ft_tab, 96)
++	encrypt_final2(aes_fl_tab,112)
+ 	return
+ 
+ /* void aes_decrypt(void *ctx, u8 *out, const u8 *in) */
+ 
+ 	entry(aes_decrypt,240,dec128,dec192)
+-	decrypt_round(aes_it_tab,-96)
+-	decrypt_round(aes_it_tab,-80)
+-dec192:	decrypt_round(aes_it_tab,-64)
+-	decrypt_round(aes_it_tab,-48)
+-dec128:	decrypt_round(aes_it_tab,-32)
+-	decrypt_round(aes_it_tab,-16)
+-	decrypt_round(aes_it_tab,  0)
+-	decrypt_round(aes_it_tab, 16)
+-	decrypt_round(aes_it_tab, 32)
+-	decrypt_round(aes_it_tab, 48)
+-	decrypt_round(aes_it_tab, 64)
+-	decrypt_round(aes_it_tab, 80)
+-	decrypt_round(aes_it_tab, 96)
+-	decrypt_final(aes_il_tab,112)
++	decrypt_round1(aes_it_tab,-96)
++	decrypt_round2(aes_it_tab,-80)
++dec192:	decrypt_round1(aes_it_tab,-64)
++	decrypt_round2(aes_it_tab,-48)
++dec128:	decrypt_round1(aes_it_tab,-32)
++	decrypt_round2(aes_it_tab,-16)
++	decrypt_round1(aes_it_tab,  0)
++	decrypt_round2(aes_it_tab, 16)
++	decrypt_round1(aes_it_tab, 32)
++	decrypt_round2(aes_it_tab, 48)
++	decrypt_round1(aes_it_tab, 64)
++	decrypt_round2(aes_it_tab, 80)
++	decrypt_round1(aes_it_tab, 96)
++	decrypt_final2(aes_il_tab,112)
+ 	return
+
+--Boundary-00=_bkZhDiQget9BBBG--

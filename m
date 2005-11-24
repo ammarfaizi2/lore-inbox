@@ -1,60 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbVKXPHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbVKXPJb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932095AbVKXPHw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 10:07:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbVKXPHw
+	id S1751365AbVKXPJb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 10:09:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751368AbVKXPJb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 10:07:52 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:31366 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751312AbVKXPHv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 10:07:51 -0500
-Date: Thu, 24 Nov 2005 16:07:31 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, "K.R. Foley" <kr@cybsft.com>,
-       Thomas Gleixner <tglx@linutronix.de>, pluto@agmk.net,
-       john cooper <john.cooper@timesys.com>,
-       Benedikt Spranger <bene@linutronix.de>,
-       Daniel Walker <dwalker@mvista.com>,
-       Tom Rini <trini@kernel.crashing.org>,
-       George Anzinger <george@mvista.com>
-Subject: Re: 2.6.14-rt13
-Message-ID: <20051124150731.GD2717@elte.hu>
-References: <20051115090827.GA20411@elte.hu> <1132336954.20672.11.camel@cmn3.stanford.edu> <1132350882.6874.23.camel@mindpipe> <1132351533.4735.37.camel@cmn3.stanford.edu> <20051118220755.GA3029@elte.hu> <1132353689.4735.43.camel@cmn3.stanford.edu> <1132367947.5706.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1132367947.5706.11.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -1.4
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-1.4 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	1.4 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Thu, 24 Nov 2005 10:09:31 -0500
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:38555 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S1751365AbVKXPJa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 10:09:30 -0500
+Message-ID: <4385D79E.5060107@rtr.ca>
+Date: Thu, 24 Nov 2005 10:09:18 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Daniel Drake <dsd@gentoo.org>
+Cc: Jan Panoch <jan@panoch.net>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: [PATCH] PATA support for Intel ICH7 (intel 945G chipset) - 2.6.14.2
+References: <4383DC5E.3050601@panoch.net> <438453C9.4050200@gentoo.org>
+In-Reply-To: <438453C9.4050200@gentoo.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel Drake wrote:
+>
+> Documentation/SubmittingPatches). I don't think it will be accepted 
+> because this hardware is already supported by the ata_piix libata driver.
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+That is not a valid reason to reject -- libata is still considered
+very experimental for ATAPI devices, which are not enabled by default.
 
-> OK, I used this as an exercise to learn how kobject and sysfs work 
-> (I've been putting this off for too long). So if this isn't exactly 
-> proper, let me know :-)
-> 
-> Ingo, This could be a temporary patch until we come up with a better 
-> solution.  This adds /sys/kernel/idle/idle_poll, which if idle=poll is 
-> _not_ set, it still lets you switch the machine to idle=poll on the 
-> fly, as well as turn it off. If you have idle=poll, this doesn't even 
-> show up.
+Jeff has said that he prefers (at present) for people with ATAPI drives
+to use the IDE layer rather than libata, where possible.
 
-ok, i've applied this one too. Could you also submit it upstream (and 
-implement it for x86)? It makes sense to enable/disable the 
-polling-based idle routine runtime.
+That will change soon, but it's still the case for now.
 
-	Ingo
+Cheers

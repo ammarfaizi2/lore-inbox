@@ -1,42 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbVKXPh4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbVKXPxv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932140AbVKXPh4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 10:37:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbVKXPh4
+	id S932171AbVKXPxv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 10:53:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbVKXPxu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 10:37:56 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:35728 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932158AbVKXPhz (ORCPT
+	Thu, 24 Nov 2005 10:53:50 -0500
+Received: from xs4all.vs19.net ([213.84.236.198]:18045 "EHLO dipsaus.vs19.net")
+	by vger.kernel.org with ESMTP id S932171AbVKXPxu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 10:37:55 -0500
-Date: Thu, 24 Nov 2005 16:37:53 +0100
-From: Andi Kleen <ak@suse.de>
-To: Avi Kivity <avi@argo.co.il>
-Cc: Andi Kleen <ak@suse.de>, Benjamin LaHaise <bcrl@kvack.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Andrew Grover <andrew.grover@intel.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, john.ronciak@intel.com,
-       christopher.leech@intel.com
-Subject: Re: [RFC] [PATCH 0/3] ioat: DMA engine support
-Message-ID: <20051124153753.GK20775@brahms.suse.de>
-References: <Pine.LNX.4.44.0511231143380.32487-100000@isotope.jf.intel.com> <4384E7F2.2030508@pobox.com> <20051123223007.GA5921@wotan.suse.de> <20051124001700.GC14246@kvack.org> <20051124065037.GZ20775@brahms.suse.de> <4385DB32.7010605@argo.co.il> <20051124152924.GB5921@wotan.suse.de> <4385DDBE.3040208@argo.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 24 Nov 2005 10:53:50 -0500
+Date: Thu, 24 Nov 2005 16:53:36 +0100
+From: Jasper Spaans <jasper@vs19.net>
+To: linux-kernel@vger.kernel.org, Antonino Daplas <adaplas@pol.net>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] fbcon: fix obvious bug in fbcon logo rotation code
+Message-ID: <20051124155336.GA7119@spaans.vs19.net>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="VbJkn9YxBvnuCH5J"
 Content-Disposition: inline
-In-Reply-To: <4385DDBE.3040208@argo.co.il>
+X-Copyright: Copyright 2005 Jasper Spaans, unauthorised distribution prohibited
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >Just pointing out that it's not clear it will always be a big help.
-> >
-> > 
-> >
-> Agree it should default to in-cache.
 
-This would mean no DMA engine by default.
+--VbJkn9YxBvnuCH5J
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Clearly there needs to be some heuristic to decide by default. We'll see how 
-effective it will be in the end.
+=46rom: Jasper Spaans <jasper@vs19.net>
 
--Andi
+This code fixes a tiny problem with the recent fbcon rotation changes:
+fb_prepare_logo doesn't check the return value of fb_find_logo and that
+causes a crash for my while booting.
 
+Obvious & working & tested fix is here.
+
+Signed-off-by: Jasper Spaans <jasper@vs19.net>
+---
+
+ drivers/video/fbmem.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletions(-)
+
+applies-to: 109d99a52b1533358445233dd16a5dfadcb618ce
+d506fa9f5957183d7e05576620bc7470b1bc1b67
+diff --git a/drivers/video/fbmem.c b/drivers/video/fbmem.c
+index 7a2a8fa..b876dbb 100644
+--- a/drivers/video/fbmem.c
++++ b/drivers/video/fbmem.c
+@@ -451,13 +451,17 @@ int fb_prepare_logo(struct fb_info *info
+=20
+ 	/* Return if no suitable logo was found */
+ 	fb_logo.logo =3D fb_find_logo(depth);
++
++	if (!fb_logo.logo) {
++		return 0;
++	}
+ =09
+ 	if (rotate =3D=3D FB_ROTATE_UR || rotate =3D=3D FB_ROTATE_UD)
+ 		yres =3D info->var.yres;
+ 	else
+ 		yres =3D info->var.xres;
+=20
+-	if (fb_logo.logo && fb_logo.logo->height > yres) {
++	if (fb_logo.logo->height > yres) {
+ 		fb_logo.logo =3D NULL;
+ 		return 0;
+ 	}
+---
+0.99.9.GIT
+
+--=20
+Jasper Spaans                                       http://jsp.vs19.net/
+ 16:52:44 up 10508 days,  8:39, 0 users, load average: 5.10 4.67 5.21
+
+           emacs... car rater vi, c'est un droit inali=E9nable
+--VbJkn9YxBvnuCH5J
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDheIAN+t4ZIsVDPgRAoOAAKCMPy2+lsGL/ocfKNKrR7WUGmsT4ACdEbfV
+y6NrK2LBL8jMvHBNaBiW1L8=
+=aQ+6
+-----END PGP SIGNATURE-----
+
+--VbJkn9YxBvnuCH5J--

@@ -1,61 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161023AbVKXGup@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161027AbVKXG5N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161023AbVKXGup (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 01:50:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161022AbVKXGup
+	id S1161027AbVKXG5N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 01:57:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161025AbVKXG5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 01:50:45 -0500
-Received: from mx2.suse.de ([195.135.220.15]:37582 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1161019AbVKXGuo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 01:50:44 -0500
-Date: Thu, 24 Nov 2005 07:50:37 +0100
-From: Andi Kleen <ak@suse.de>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: Andi Kleen <ak@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
-       Andrew Grover <andrew.grover@intel.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, john.ronciak@intel.com,
-       christopher.leech@intel.com
-Subject: Re: [RFC] [PATCH 0/3] ioat: DMA engine support
-Message-ID: <20051124065037.GZ20775@brahms.suse.de>
-References: <Pine.LNX.4.44.0511231143380.32487-100000@isotope.jf.intel.com> <4384E7F2.2030508@pobox.com> <20051123223007.GA5921@wotan.suse.de> <20051124001700.GC14246@kvack.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 24 Nov 2005 01:57:13 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:12002 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP
+	id S1161024AbVKXG5K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 01:57:10 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Dave Jones <davej@redhat.com>
+Subject: Re: Kernel BUG at mm/rmap.c:491
+Date: Thu, 24 Nov 2005 06:57:11 +0000
+User-Agent: KMail/1.9
+Cc: Con Kolivas <con@kolivas.org>, Kenneth W <kenneth.w.chen@intel.com>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+References: <200511232256.jANMuGg20547@unix-os.sc.intel.com> <200511232335.15050.s0348365@sms.ed.ac.uk> <20051124044009.GE30849@redhat.com>
+In-Reply-To: <20051124044009.GE30849@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051124001700.GC14246@kvack.org>
+Message-Id: <200511240657.11480.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 07:17:01PM -0500, Benjamin LaHaise wrote:
-> On Wed, Nov 23, 2005 at 11:30:08PM +0100, Andi Kleen wrote:
-> > The main problem I see is that it'll likely only pay off when you can keep 
-> > the queue of copies long (to amortize the cost of 
-> > talking to an external chip). At least for the standard recvmsg 
-> > skb->user space, user space-> skb cases these queues are 
-> > likely short in most cases. That's because most applications
-> > do relatively small recvmsg or sendmsgs. 
-> 
-> Don't forget that there are benefits of not polluting the cache with the 
-> traffic for the incoming skbs.
+On Thursday 24 November 2005 04:40, Dave Jones wrote:
+> On Wed, Nov 23, 2005 at 11:35:15PM +0000, Alistair John Strachan wrote:
+>  > On Wednesday 23 November 2005 23:24, Con Kolivas wrote:
+>  > > Chen, Kenneth W writes:
+>  > > > Has people seen this BUG_ON before?  On 2.6.15-rc2, x86-64.
+>  > > >
+>  > > > Pid: 16500, comm: cc1 Tainted: G    B 2.6.15-rc2 #3
+>  > > >
+>  > > > Pid: 16651, comm: sh Tainted: G    B 2.6.15-rc2 #3
+>  > >
+>  > >                        ^^^^^^^^^^
+>  > >
+>  > > Please try to reproduce it without proprietary binary modules linked
+>  > > in.
+>  >
+>  > AFAIK "G" means all loaded modules are GPL, P is for proprietary
+>  > modules.
+>
+> The 'G' seems to confuse a hell of a lot of people.
+> (I've been asked about it when people got machine checks a lot over
+>  the last few months).
+>
+> Would anyone object to changing it to conform to the style of
+> the other taint flags ? Ie, change it to ' ' ?
 
-Is that a general benefit outside benchmarks? I would expect
-most real programs to actually do something with the data
-- and that usually involves needing it in cache.
+I don't understand the reasons for making the tainted string all the same 
+length anyway. Why not just remove all the extra spaces?
 
-> > But it's not clear it's a good idea: a lot of these applications prefer to 
-> > have the target in cache. And IOAT will force it out of cache.
-> 
-> In the I/O AT case it might make sense to do a few prefetch()es of the 
-> userland data on the return-to-userspace code path.  
+Unless you know what you're looking for, I can assure you that:
 
-Some prefetches for user space might be a good idea yes
+Tainted: G    B SOMEOTHERTEXT
 
-> Similarly, we should 
-> make sure that network drivers prefetch the header at the earliest possible 
-> time, too.
+Is not intuitively readable (which text does B belong to?).
 
-It's done kind of already but tricky to get right because
-the prefetch distances upto use are not really long enough
+Tainted:    B SOMEOTHERTEXT
 
+Is better, but still not very good. Why not drop the spaces?
 
--Andi
+3rd party parsing purposes?
+
+-- 
+Cheers,
+Alistair.
+
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

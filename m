@@ -1,75 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751369AbVKXPPl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbVKXPWg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751369AbVKXPPl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 10:15:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbVKXPPl
+	id S932074AbVKXPWg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 10:22:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbVKXPWg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 10:15:41 -0500
-Received: from vms042pub.verizon.net ([206.46.252.42]:41274 "EHLO
-	vms042pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751369AbVKXPPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 10:15:40 -0500
-Date: Thu, 24 Nov 2005 10:15:38 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Linux 2.6.15-rc2
-In-reply-to: <Pine.LNX.4.61.0511240741020.5619@goblin.wat.veritas.com>
-To: linux-kernel@vger.kernel.org
-Message-id: <200511241015.38616.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org>
- <200511231937.34206.gene.heskett@verizon.net>
- <Pine.LNX.4.61.0511240741020.5619@goblin.wat.veritas.com>
-User-Agent: KMail/1.7
+	Thu, 24 Nov 2005 10:22:36 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:58014 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751370AbVKXPWf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 10:22:35 -0500
+Subject: Re: 2.6.14-rt13
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
+       "Paul E. McKenney" <paulmck@us.ibm.com>, "K.R. Foley" <kr@cybsft.com>,
+       Thomas Gleixner <tglx@linutronix.de>, pluto@agmk.net,
+       john cooper <john.cooper@timesys.com>,
+       Benedikt Spranger <bene@linutronix.de>,
+       Daniel Walker <dwalker@mvista.com>,
+       Tom Rini <trini@kernel.crashing.org>,
+       George Anzinger <george@mvista.com>
+In-Reply-To: <20051124150731.GD2717@elte.hu>
+References: <20051115090827.GA20411@elte.hu>
+	 <1132336954.20672.11.camel@cmn3.stanford.edu>
+	 <1132350882.6874.23.camel@mindpipe>
+	 <1132351533.4735.37.camel@cmn3.stanford.edu>
+	 <20051118220755.GA3029@elte.hu>
+	 <1132353689.4735.43.camel@cmn3.stanford.edu>
+	 <1132367947.5706.11.camel@localhost.localdomain>
+	 <20051124150731.GD2717@elte.hu>
+Content-Type: text/plain
+Date: Thu, 24 Nov 2005 10:21:50 -0500
+Message-Id: <1132845710.6694.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 24 November 2005 02:45, Hugh Dickins wrote:
->On Wed, 23 Nov 2005, Gene Heskett wrote:
->> On Wednesday 23 November 2005 18:40, Hugh Dickins wrote:
-[snip previouus blowup]
->That's one of the things fixed by Andrew's patch below
->(though Linus fixed it differently in the end).
->Or you could just wait for 2.6.15-rc2-git4, should be along soon.
->
->Hugh
+On Thu, 2005-11-24 at 16:07 +0100, Ingo Molnar wrote:
+> * Steven Rostedt <rostedt@goodmis.org> wrote:
+> 
+> > OK, I used this as an exercise to learn how kobject and sysfs work 
+> > (I've been putting this off for too long). So if this isn't exactly 
+> > proper, let me know :-)
+> > 
+> > Ingo, This could be a temporary patch until we come up with a better 
+> > solution.  This adds /sys/kernel/idle/idle_poll, which if idle=poll is 
+> > _not_ set, it still lets you switch the machine to idle=poll on the 
+> > fly, as well as turn it off. If you have idle=poll, this doesn't even 
+> > show up.
+> 
+> ok, i've applied this one too. Could you also submit it upstream (and 
+> implement it for x86)? It makes sense to enable/disable the 
+> polling-based idle routine runtime.
 
-Got it, building src tree now, config'd & building.
+OK, it'll have to wait till tomorrow.  As you probably know, it is
+Thanksgiving here in the US. And my wife would kill me if I work
+today ;-)
 
-And, I unchecked everything but what I need to run this card (I think,
-whatdoIknow) and got this at depmod time:
-WARNING:
-/lib/modules/2.6.15-rc2-git4/kernel/drivers/media/video/cx88/cx88-dvb.ko
-needs unknown symbol mt352_attach
-WARNING:
-/lib/modules/2.6.15-rc2-git4/kernel/drivers/media/video/cx88/cx88-dvb.ko
-needs unknown symbol nxt200x_attach
-WARNING:
-/lib/modules/2.6.15-rc2-git4/kernel/drivers/media/video/cx88/cx88-dvb.ko
-needs unknown symbol mt352_write
-WARNING:
-/lib/modules/2.6.15-rc2-git4/kernel/drivers/media/video/cx88/cx88-dvb.ko
-needs unknown symbol lgdt330x_attach
-WARNING:
-/lib/modules/2.6.15-rc2-git4/kernel/drivers/media/video/cx88/cx88-dvb.ko
-needs unknown symbol cx22702_attach
-
-Maybe somebody can take the time to tell me what I do need to run a
-pcHDTV-3000 in both ntsc and atsc modes using this newer code?
-I was under the impression I needed the cx88 stuffs, ORV51132 (for
-atsc) and nxt2002(for ntsc), but now we have lots of other dependencies
-out the wazoo.  Please clarify.
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.36% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+-- Steve
 
 

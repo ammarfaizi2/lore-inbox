@@ -1,84 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161046AbVKXVNU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbVKXVT3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161046AbVKXVNU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 16:13:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161047AbVKXVNU
+	id S932300AbVKXVT3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 16:19:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932656AbVKXVT3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 16:13:20 -0500
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:8929 "EHLO
+	Thu, 24 Nov 2005 16:19:29 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:12001 "EHLO
 	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S1161046AbVKXVNT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 16:13:19 -0500
+	id S932300AbVKXVT2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 16:19:28 -0500
 From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH] Fix USB suspend/resume crasher
-Date: Thu, 24 Nov 2005 22:14:15 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Re: psmouse unusable in -mm series (was: 2.6.15-rc1-mm2 unsusable on DELL Inspiron 8200, 2.6.15-rc1 works fine)
+Date: Thu, 24 Nov 2005 22:20:25 +0100
 User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org, David Brownell <david-b@pacbell.net>,
-       Paul Mackerras <paulus@samba.org>,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Alan Stern <stern@rowland.harvard.edu>
-References: <1132715288.26560.262.camel@gaston> <200511242150.23205.rjw@sisk.pl> <1132866088.26560.455.camel@gaston>
-In-Reply-To: <1132866088.26560.455.camel@gaston>
+Cc: Marc Koschewski <marc@osknowledge.org>, Ed Tomlinson <tomlins@cam.org>,
+       Dmitry Torokhov <dtor_core@ameritech.net>
+References: <20051118182910.GJ6640@stiffy.osknowledge.org> <20051124124444.GA23667@stiffy.osknowledge.org> <200511242124.00127.rjw@sisk.pl>
+In-Reply-To: <200511242124.00127.rjw@sisk.pl>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200511242214.16365.rjw@sisk.pl>
+Message-Id: <200511242220.25702.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 24 of November 2005 22:01, Benjamin Herrenschmidt wrote:
-> 
-> > 
-> > Well, it's there (actually the problem occurs in vanilla 2.6.15-rc2-mm1 that
-> > contains the patch).  Do you mean it should go before the
-> > 
-> > if (readl(&ehci->regs->configured_flag) != FLAG_CF)
-> > 		goto restart;
-> > 
-> > thing?
-> 
-> Yes.
-> 
-> > > It may be worth following it with a memory barrier actually... just in case
-> > > (due to the absence of locks in that area).
-> > 
-> > wmb()?
-> 
-> Yup.
-> 
-> I wrote that patch against a tree that had different things in that
-> function, Greg merged it by hand but he got that little bit wrong
-> unfortunately. I'll send a new patch later today.
+Update:
 
-Thanks.
+On Thursday, 24 of November 2005 21:23, Rafael J. Wysocki wrote:
+> On Thursday, 24 of November 2005 13:44, Marc Koschewski wrote:
+> }-- snip --{
+> > > It looks like you are seeing a different bug.  The one opened for debian user space
+> > > covers mousedev not being loaded if the kernel is 2.6.15, which leads to no /dev/input
+> > > 
+> > 
+> > That's what I think, thus the report on LKLM. But noone but me seems to
+> > be trapped into it until... :/
+> 
+> FWIW, my touchpad doesn't work with -rc2-mm1 too (usually I use a USB mouse,
+> so I didn't notice before).  Here's what dmesg says about it:
+> 
+> Synaptics Touchpad, model: 1, fw: 5.9, id: 0x926eb1, caps: 0x804719/0x0
+> input: SynPS/2 Synaptics TouchPad as /class/input/input2
+> 
+> The box is an Asus L5D (x86-64).
 
-FWIW, does the appended change look reasonable to you?  (It apparently
-helps. ;-))
+Actually, it works on the console (ie with gpm), but X is unable to use it,
+apparently.  However it used to be, at least on 2.6.14-git9 (this is the latest
+non-mm kernel I've been able to test quickly on this box).
+
+Marc, does your touchpad work with gpm?
 
 Rafael
-
-
-Index: linux-2.6.15-rc2-mm1/drivers/usb/host/ehci-pci.c
-===================================================================
---- linux-2.6.15-rc2-mm1.orig/drivers/usb/host/ehci-pci.c	2005-11-24 21:42:34.000000000 +0100
-+++ linux-2.6.15-rc2-mm1/drivers/usb/host/ehci-pci.c	2005-11-24 21:50:38.000000000 +0100
-@@ -281,12 +281,13 @@
- 	if (time_before(jiffies, ehci->next_statechange))
- 		msleep(100);
- 
-+	set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
-+	wmb();
-+
- 	/* If CF is clear, we lost PCI Vaux power and need to restart.  */
- 	if (readl(&ehci->regs->configured_flag) != FLAG_CF)
- 		goto restart;
- 
--	set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
--
- 	/* If any port is suspended (or owned by the companion),
- 	 * we know we can/must resume the HC (and mustn't reset it).
- 	 * We just defer that to the root hub code.

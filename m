@@ -1,42 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbVKXPJb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751368AbVKXPKy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751365AbVKXPJb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 10:09:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751368AbVKXPJb
+	id S1751368AbVKXPKy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 10:10:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbVKXPKy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 10:09:31 -0500
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:38555 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S1751365AbVKXPJa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 10:09:30 -0500
-Message-ID: <4385D79E.5060107@rtr.ca>
-Date: Thu, 24 Nov 2005 10:09:18 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
-X-Accept-Language: en, en-us
+	Thu, 24 Nov 2005 10:10:54 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:33254 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932112AbVKXPKx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 10:10:53 -0500
+To: Andi Kleen <ak@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Gerd Knorr <kraxel@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
+       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] SMP alternatives
+References: <20051123163906.GF20775@brahms.suse.de>
+	<1132766489.7268.71.camel@localhost.localdomain>
+	<20051123165923.GJ20775@brahms.suse.de>
+	<1132783243.13095.17.camel@localhost.localdomain>
+	<20051124131310.GE20775@brahms.suse.de>
+	<m1zmnugom7.fsf@ebiederm.dsl.xmission.com>
+	<20051124133907.GG20775@brahms.suse.de>
+	<1132842847.13095.105.camel@localhost.localdomain>
+	<20051124142200.GH20775@brahms.suse.de>
+	<1132845324.13095.112.camel@localhost.localdomain>
+	<20051124145518.GI20775@brahms.suse.de>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Thu, 24 Nov 2005 08:09:07 -0700
+In-Reply-To: <20051124145518.GI20775@brahms.suse.de> (Andi Kleen's message
+ of "Thu, 24 Nov 2005 15:55:18 +0100")
+Message-ID: <m1psoqgk18.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Daniel Drake <dsd@gentoo.org>
-Cc: Jan Panoch <jan@panoch.net>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: [PATCH] PATA support for Intel ICH7 (intel 945G chipset) - 2.6.14.2
-References: <4383DC5E.3050601@panoch.net> <438453C9.4050200@gentoo.org>
-In-Reply-To: <438453C9.4050200@gentoo.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Drake wrote:
+Andi Kleen <ak@suse.de> writes:
+
+> On Thu, Nov 24, 2005 at 03:15:24PM +0000, Alan Cox wrote:
+>> On Iau, 2005-11-24 at 15:22 +0100, Andi Kleen wrote:
+>> > What do you need a special driver for if the northbridge just
+>> > can do the scrubbing by itself?
+>> 
+>> You need a driver to collect and report all the ECC single bit errors to
+>> the user so that they can decide if they have problem hardware.
 >
-> Documentation/SubmittingPatches). I don't think it will be accepted 
-> because this hardware is already supported by the ata_piix libata driver.
+> Assuming the errors are logged to the standard machine check
+> architecture that's already done by mce.c. K8 does that definitely.
+>
+> Take a look at mcelog at some point.
+> Your distro probably already sets it up by default to log to
+> /var/log/mcelog
+>
+>> 
+>> EDAC is more than one thing
+>> 	- Control response to a fatal error
+>> 	- Report non-fatal events for analysis/user decision making
+>
+> x86-64 mce.c does all that There was even a port to i386 around at some point.
 
-That is not a valid reason to reject -- libata is still considered
-very experimental for ATAPI devices, which are not enabled by default.
+Right on the k8 memory controller there is a lot of overlap,
+with what has already been implemented.  For all other x86 memory
+controllers the code is filling a large void.  The current k8
+code has been delayed for this reason.
 
-Jeff has said that he prefers (at present) for people with ATAPI drives
-to use the IDE layer rather than libata, where possible.
+Where the EDAC code goes beyond the current k8 facilities is the
+decode to the dimm level so that the bad memory stick can be
+easily identified.
 
-That will change soon, but it's still the case for now.
+One of the goals of the EDAC code is to work towards a unified
+kernel architecture for this kind error reporting.  Currently every
+architecture (if the error are reported at all) handles this
+differently which makes it very hard to do something sane is
+user space.
 
-Cheers
+Eric
+

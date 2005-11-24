@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751385AbVKXStG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbVKXTBQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751385AbVKXStG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 13:49:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbVKXStG
+	id S1751384AbVKXTBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 14:01:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbVKXTBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 13:49:06 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:25739 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751385AbVKXStE (ORCPT
+	Thu, 24 Nov 2005 14:01:15 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:5043 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751384AbVKXTBP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 13:49:04 -0500
-Date: Thu, 24 Nov 2005 10:48:59 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: linux@horizon.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] SMP alternatives
-In-Reply-To: <20051124174843.30544.qmail@science.horizon.com>
-Message-ID: <Pine.LNX.4.64.0511241045200.13959@g5.osdl.org>
-References: <20051124174843.30544.qmail@science.horizon.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 24 Nov 2005 14:01:15 -0500
+Date: Thu, 24 Nov 2005 13:59:39 -0500
+From: Dave Jones <davej@redhat.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Hugh Dickins <hugh@veritas.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Con Kolivas <con@kolivas.org>, Kenneth W <kenneth.w.chen@intel.com>,
+       Keith Owens <kaos@sgi.com>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kernel BUG at mm/rmap.c:491
+Message-ID: <20051124185939.GD4638@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Lee Revell <rlrevell@joe-job.com>, Hugh Dickins <hugh@veritas.com>,
+	Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+	Con Kolivas <con@kolivas.org>, Kenneth W <kenneth.w.chen@intel.com>,
+	Keith Owens <kaos@sgi.com>, linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org
+References: <200511232256.jANMuGg20547@unix-os.sc.intel.com> <cone.1132788250.534735.25446.501@kolivas.org> <200511232335.15050.s0348365@sms.ed.ac.uk> <20051124044009.GE30849@redhat.com> <Pine.LNX.4.61.0511240747590.5688@goblin.wat.veritas.com> <1132831993.3473.20.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1132831993.3473.20.camel@mindpipe>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Nov 24, 2005 at 06:33:12AM -0500, Lee Revell wrote:
+ > On Thu, 2005-11-24 at 07:50 +0000, Hugh Dickins wrote:
+ > > But I've CC'ed Keith,
+ > > we sometimes find the kernel does things so to suit ksymoops. 
+ > 
+ > Um, unless someone has been merging Documentation patches without
+ > reading them, ksymoops shouldn't be used with 2.6 anyway.
 
+It is occasionally still useful for decoding Code: lines back
+to assembly.
 
-On Thu, 24 Nov 2005, linux@horizon.com wrote:
->
-> > I suspect that with MAP_SHARED + PROT_WRITE being pretty uncommon anyway, 
-> > we can probably find trivial patterns in the kernel. Like only one process 
-> > holding that file open - which is what you get with things that use mmap() 
-> > to write a new file (I think "ld" used to have a config option to write 
-> > files that way, for example).
-> 
-> Just a bit of practical experience: I use mmap() to write data a LOT,
-> because msync(MS_ASYNC) is the most portable way to do an async write.
+		Dave
 
-Sure. But I suspect that nobody else has that file open when you do so?
-
-In other words, even your usage is something where the OS could tell that 
-you don't actually need atomic operations. It certainly gets slightly more 
-complicated (we'd need to trigger some special stuff if another process 
-does an mmap on it), but it's not conceptually very difficult to just 
-notice automatically and do the right thing(tm).
-
-Now, if two programs are using mmap() to write to the same file at the 
-same time, then the kernel can't tell any more. But in that case, you 
-probably _do_ want atomic ops to be guaranteed, so not disabling them is 
-the right thing to do there.
-
-			Linus

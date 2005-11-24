@@ -1,63 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030538AbVKXATm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030530AbVKXAUA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030538AbVKXATm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 19:19:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030536AbVKXATl
+	id S1030530AbVKXAUA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 19:20:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030544AbVKXAT7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 19:19:41 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:13024 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S1030524AbVKXATk (ORCPT
+	Wed, 23 Nov 2005 19:19:59 -0500
+Received: from smtp06.auna.com ([62.81.186.16]:43719 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id S1030530AbVKXAT5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 19:19:40 -0500
-Date: Wed, 23 Nov 2005 19:17:01 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Grover <andrew.grover@intel.com>,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       john.ronciak@intel.com, christopher.leech@intel.com
-Subject: Re: [RFC] [PATCH 0/3] ioat: DMA engine support
-Message-ID: <20051124001700.GC14246@kvack.org>
-References: <Pine.LNX.4.44.0511231143380.32487-100000@isotope.jf.intel.com> <4384E7F2.2030508@pobox.com> <20051123223007.GA5921@wotan.suse.de>
+	Wed, 23 Nov 2005 19:19:57 -0500
+Date: Thu, 24 Nov 2005 01:20:27 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Andrew Morton <akpm@osdl.org>,
+       "Linux-Kernel, " <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.15-rc2-mm1
+Message-ID: <20051124012027.228d5e2f@werewolf.auna.net>
+In-Reply-To: <20051123033550.00d6a6e8.akpm@osdl.org>
+References: <20051123033550.00d6a6e8.akpm@osdl.org>
+X-Mailer: Sylpheed-Claws 1.9.100cvs29 (GTK+ 2.8.7; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051123223007.GA5921@wotan.suse.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/signed; boundary=Sig_lLmiyfHb0UdCswMQpZgeacI;
+ protocol="application/pgp-signature"; micalg=PGP-SHA1
+X-Auth-Info: Auth:LOGIN IP:[83.138.218.105] Login:jamagallon@able.es Fecha:Thu, 24 Nov 2005 01:19:55 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 11:30:08PM +0100, Andi Kleen wrote:
-> The main problem I see is that it'll likely only pay off when you can keep 
-> the queue of copies long (to amortize the cost of 
-> talking to an external chip). At least for the standard recvmsg 
-> skb->user space, user space-> skb cases these queues are 
-> likely short in most cases. That's because most applications
-> do relatively small recvmsg or sendmsgs. 
+--Sig_lLmiyfHb0UdCswMQpZgeacI
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Don't forget that there are benefits of not polluting the cache with the 
-traffic for the incoming skbs.
+On Wed, 23 Nov 2005 03:35:50 -0800, Andrew Morton <akpm@osdl.org> wrote:
 
-> Longer term the right way to handle this would be likely to use
-> POSIX AIO on sockets. With that interface it would be easier
-> to keep long queues of data in flight, which would be best for
-> the DMA engine.
+>=20
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc2/=
+2.6.15-rc2-mm1/
+>=20
+> (temp copy at http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.15-rc2-=
+mm1.gz)
+>=20
+> - Added git-sym2.patch to the -mm lineup: updates to the sym2 scsi driver
+>   (Matthew Wilcox). =20
+>=20
+> - The JSM tty driver still doesn't compile.
+>=20
+> - The git-powerpc tree is included now.
+>=20
 
-Yes, that's something I'd like to try soon.
+Bad news :(.
+It hangs when trying to start cups.
+My initscripts just say "Loading USB printer module" and hang there.
+No sysrq-t, no sysrq-b.
+I suppose it tries to load usblp.
 
-> But it's not clear it's a good idea: a lot of these applications prefer to 
-> have the target in cache. And IOAT will force it out of cache.
+Any idea about the patch to blame ?
 
-In the I/O AT case it might make sense to do a few prefetch()es of the 
-userland data on the return-to-userspace code path.  Similarly, we should 
-make sure that network drivers prefetch the header at the earliest possible 
-time, too.
+TIA
 
-> I remember the registers in the Amiga Blitter for this and I'm
-> still scared... Maybe it's better to keep it simple.
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like se=
+x:
+werewolf!able!es                         \         It's better when it's fr=
+ee
+Mandriva Linux release 2006.1 (Cooker) for i586
+Linux 2.6.14-jam3 (gcc 4.0.2 (4.0.2-1mdk for Mandriva Linux release 2006.1))
 
-*grin*  but you could use it for such cool tasks as MFM en/decoding! =-)
+--Sig_lLmiyfHb0UdCswMQpZgeacI
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Disposition: attachment; filename=signature.asc
 
-		-ben
--- 
-"Time is what keeps everything from happening all at once." -- John Wheeler
-Don't Email: <dont@kvack.org>.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDhQdLRlIHNEGnKMMRAgb3AJ9MApsef/V8+i8tvIPDfU8d4wg/pgCgr3nq
+RwTAZ6l0MFFSl/CHb+o+oYs=
+=LuzB
+-----END PGP SIGNATURE-----
+
+--Sig_lLmiyfHb0UdCswMQpZgeacI--

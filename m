@@ -1,91 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932617AbVKXDJn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030447AbVKXDQc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932617AbVKXDJn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 22:09:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932618AbVKXDJn
+	id S1030447AbVKXDQc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 22:16:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932620AbVKXDQc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 22:09:43 -0500
-Received: from gate.crashing.org ([63.228.1.57]:26598 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932617AbVKXDJm (ORCPT
+	Wed, 23 Nov 2005 22:16:32 -0500
+Received: from ozlabs.org ([203.10.76.45]:19672 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932619AbVKXDQb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 22:09:42 -0500
-Subject: Re: Console rotation problems
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: adaplas@gmail.com
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1132796831.26560.392.camel@gaston>
-References: <1132793150.26560.357.camel@gaston>
-	 <1132793556.26560.361.camel@gaston>  <1132796831.26560.392.camel@gaston>
-Content-Type: text/plain
-Date: Thu, 24 Nov 2005 14:05:42 +1100
-Message-Id: <1132801542.26560.402.camel@gaston>
+	Wed, 23 Nov 2005 22:16:31 -0500
+Date: Thu, 24 Nov 2005 14:16:15 +1100
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: powerpc: Make hugepage mappings resepect hint addresses
+Message-ID: <20051124031615.GB3024@localhost.localdomain>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, linuxppc64-dev@ozlabs.org,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove bogus usage of test/set_bit() from fbcon rotation code and just
-manipulate the bits directly. This fixes an oops on powerpc among others
-and should be faster. Seems to work fine on the G5 here.
+Andrew, please apply.
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
----
+Currently, the powerpc version of hugetlb_get_unmapped_area() entirely
+ignores the hint address.  The only way to get a hugepage mapping at a
+specified address is with MAP_FIXED, in which case there's no way
+(short of parsing /proc/self/maps) for userspace to tell if it will
+clobber an existing mapping.  This is inconvenient, so the patch below
+makes hugepage mappings use the given hint address if possible.
 
-And here is the fix. Tony, did I miss something ?
+Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
 
-Index: linux-serialfix/drivers/video/console/fbcon_rotate.h
+Index: working-2.6/arch/powerpc/mm/hugetlbpage.c
 ===================================================================
---- linux-serialfix.orig/drivers/video/console/fbcon_rotate.h	2005-11-23 11:07:23.000000000 +1100
-+++ linux-serialfix/drivers/video/console/fbcon_rotate.h	2005-11-24 14:02:22.000000000 +1100
-@@ -21,21 +21,13 @@
-         (s == SCROLL_REDRAW || s == SCROLL_MOVE || !(i)->fix.xpanstep) ? \
-         (i)->var.xres : (i)->var.xres_virtual; })
- 
--/*
-- * The bitmap is always big endian
-- */
--#if defined(__LITTLE_ENDIAN)
--#define FBCON_BIT(b) (7 - (b))
--#else
--#define FBCON_BIT(b) (b)
--#endif
- 
- static inline int pattern_test_bit(u32 x, u32 y, u32 pitch, const char *pat)
- {
- 	u32 tmp = (y * pitch) + x, index = tmp / 8,  bit = tmp % 8;
- 
- 	pat +=index;
--	return (test_bit(FBCON_BIT(bit), (void *)pat));
-+	return (*pat) & (0x80 >> bit);
+--- working-2.6.orig/arch/powerpc/mm/hugetlbpage.c	2005-11-24 13:38:12.000000000 +1100
++++ working-2.6/arch/powerpc/mm/hugetlbpage.c	2005-11-24 14:09:42.000000000 +1100
+@@ -524,6 +524,17 @@ fail:
+ 	return addr;
  }
  
- static inline void pattern_set_bit(u32 x, u32 y, u32 pitch, char *pat)
-@@ -43,7 +35,8 @@ static inline void pattern_set_bit(u32 x
- 	u32 tmp = (y * pitch) + x, index = tmp / 8, bit = tmp % 8;
- 
- 	pat += index;
--	set_bit(FBCON_BIT(bit), (void *)pat);
++static int htlb_check_hinted_area(unsigned long addr, unsigned long len)
++{
++	struct vm_area_struct *vma;
 +
-+	(*pat) |= 0x80 >> bit;
- }
++	vma = find_vma(current->mm, addr);
++	if (!vma || ((addr + len) <= vma->vm_start))
++		return 0;
++
++	return -ENOMEM;
++}
++
+ static unsigned long htlb_get_low_area(unsigned long len, u16 segmask)
+ {
+ 	unsigned long addr = 0;
+@@ -584,6 +595,7 @@ unsigned long hugetlb_get_unmapped_area(
+ {
+ 	int lastshift;
+ 	u16 areamask, curareas;
++	struct vm_area_struct *vma;
  
- static inline void rotate_ud(const char *in, char *out, u32 width, u32 height)
-Index: linux-serialfix/drivers/video/console/fbcon_ccw.c
-===================================================================
---- linux-serialfix.orig/drivers/video/console/fbcon_ccw.c	2005-11-15 11:54:14.000000000 +1100
-+++ linux-serialfix/drivers/video/console/fbcon_ccw.c	2005-11-24 14:03:48.000000000 +1100
-@@ -34,7 +34,7 @@ static inline void ccw_update_attr(u8 *d
- 		msk <<= (8 - mod);
+ 	if (HPAGE_SHIFT == 0)
+ 		return -EINVAL;
+@@ -593,15 +605,28 @@ unsigned long hugetlb_get_unmapped_area(
+ 	if (!cpu_has_feature(CPU_FTR_16M_PAGE))
+ 		return -EINVAL;
  
- 	if (offset > mod)
--		set_bit(FBCON_BIT(7), (void *)&msk1);
-+		msk1 |= 0x01;
++	/* Paranoia, caller should have dealt with this */
++	BUG_ON((addr + len)  < addr);
++
+ 	if (test_thread_flag(TIF_32BIT)) {
++		/* Paranoia, caller should have dealt with this */
++		BUG_ON((addr + len) > 0x100000000UL);
++
+ 		curareas = current->mm->context.low_htlb_areas;
  
- 	for (i = 0; i < vc->vc_font.width; i++) {
- 		for (j = 0; j < width; j++) {
+-		/* First see if we can do the mapping in the existing
+-		 * low areas */
++		/* First see if we can use the hint address */
++		if (addr && (htlb_check_hinted_area(addr, len) == 0)) {
++			areamask = LOW_ESID_MASK(addr, len);
++			if (open_low_hpage_areas(current->mm, areamask) == 0)
++				return addr;
++		}
++
++		/* Next see if we can map in the existing low areas */
+ 		addr = htlb_get_low_area(len, curareas);
+ 		if (addr != -ENOMEM)
+ 			return addr;
+ 
++		/* Finally go looking for areas to open */
+ 		lastshift = 0;
+ 		for (areamask = LOW_ESID_MASK(0x100000000UL-len, len);
+ 		     ! lastshift; areamask >>=1) {
+@@ -616,12 +641,22 @@ unsigned long hugetlb_get_unmapped_area(
+ 	} else {
+ 		curareas = current->mm->context.high_htlb_areas;
+ 
+-		/* First see if we can do the mapping in the existing
+-		 * high areas */
++		/* First see if we can use the hint address */
++		/* We discourage 64-bit processes from doing hugepage
++		 * mappings below 4GB (must use MAP_FIXED) */
++		if ((addr >= 0x100000000UL)
++		    && (htlb_check_hinted_area(addr, len) == 0)) {
++			areamask = HTLB_AREA_MASK(addr, len);
++			if (open_high_hpage_areas(current->mm, areamask) == 0)
++				return addr;
++		}
++
++		/* Next see if we can map in the existing high areas */
+ 		addr = htlb_get_high_area(len, curareas);
+ 		if (addr != -ENOMEM)
+ 			return addr;
+ 
++		/* Finally go looking for areas to open */
+ 		lastshift = 0;
+ 		for (areamask = HTLB_AREA_MASK(TASK_SIZE_USER64-len, len);
+ 		     ! lastshift; areamask >>=1) {
 
-
+-- 
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson

@@ -1,142 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161004AbVKXFj4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161006AbVKXFkF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161004AbVKXFj4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 00:39:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030608AbVKXFj4
+	id S1161006AbVKXFkF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 00:40:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030609AbVKXFkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 00:39:56 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:15371 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1030607AbVKXFjz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 00:39:55 -0500
-Date: Thu, 24 Nov 2005 06:39:52 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Andreas Haumer <andreas@xss.co.at>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.31 + aic79xx] SCSI error: Infinite interrupt loop, INTSTAT = 0
-Message-ID: <20051124053952.GI11266@alpha.home.local>
-References: <43838ECC.5060204@xss.co.at>
+	Thu, 24 Nov 2005 00:40:05 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:2661 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S1030608AbVKXFkC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 00:40:02 -0500
+Date: Thu, 24 Nov 2005 06:40:02 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: davem@davemloft.net, kaber@trash.net, bunk@stusta.de, evil@g-house.de,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       zippel@linux-m68k.org
+Subject: Re: [2.6 patch] do not select NET_CLS
+Message-ID: <20051124054001.GB7618@mars.ravnborg.org>
+References: <4381F2D2.5000605@trash.net> <20051122.143713.101129339.davem@davemloft.net> <20051122224914.GA17575@mars.ravnborg.org> <20051122.150041.90521592.davem@davemloft.net> <20051123055735.GC7579@mars.ravnborg.org> <20051123181332.0f86bfdb.rdunlap@xenotime.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43838ECC.5060204@xss.co.at>
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <20051123181332.0f86bfdb.rdunlap@xenotime.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andreas,
-
-On Tue, Nov 22, 2005 at 10:34:04PM +0100, Andreas Haumer wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Wed, Nov 23, 2005 at 06:13:32PM -0800, Randy.Dunlap wrote:
 > 
-> Hi!
-> 
-> I'm in the process of setting up a new fileserver and
-> have some troubles with an Adaptec ASC-29320ALP U320
-> SCSI card and an external Infortrend EonStor RAID!
-> 
-> This is a Tyan TA26 barebone system (dual opteron CPU,
-> 4GB RAM) with two on-board AIC-7902B SCSI controllers
-> (Tyan Thunder K8SD Pro motherboard) for internal system disks
-> (SW-RAID1) and two additional Adaptec 29320ALP U320 cards
-> for externally connected RAID (Infortrend EonStor A16U-G2421
-> RAID subsystem) and backup hardware.
-> 
-> I'm running linux-2.4.31 in 32 bit mode.
+> So -q means "quick" ?
+>From make help:
+-q, --question Run no commands; exit status says if up to date
 
-just for the record, I've checked 2.4.32 and the driver is exactly the
-same as in 2.4.31.
+> I wouldn't mind seeing a -quiet (even less quiet than V=0),
+> not even printing the CC, AS, LD, etc. commands -- just let the
+> tools print errors & warnings.  I always redirect output to a
+> disk file and filter it for errors and warnings anyway, so I
+> want hold my breath for this, but ISTM that V=0 could be even
+> quieter than it is right now.
 
-> root@setup:~ {521} $ lspci
-(...)
-> 01:03.0 SCSI storage controller: Adaptec ASC-29320ALP U320 (rev 10)
-> 01:04.0 SCSI storage controller: Adaptec ASC-29320ALP U320 (rev 10)
-> 02:06.0 SCSI storage controller: Adaptec AIC-7902B U320 (rev 10)
-> 02:06.1 SCSI storage controller: Adaptec AIC-7902B U320 (rev 10)
-(...)
+make -s shuld give you this. I've not used it for long though...
 
-I've never tried an adaptec U320 yet, only a few 29160 in various servers.
-
-(...) 
-> Today I tried to integrate the external EonStor RAID and first
-> it seemd to work fine, too. The system did find the devices
-> and I could create a new volume group with several logical
-> volumes out of them.
-> 
-> But as soon as I try to create a filesystem on the new logical
-> volumes or do some other work with the devices, the SCSI driver
-> goes berserk:
-
-So could we say when you have very low traffic (device identification,
-write a few sectors to create the volume), everything's OK, and when
-you write larger amounts of data, the problem strikes ?
-
-It may be possible that you have a termination and/or cable problem
-and that the driver does not correctly recover from such a condition.
-
-> [...]
-> 
-> And so on, until the external SCSI devices become unusable.
-> The system is still running on the internally connected
-> SCSI drives, though.
-> 
-> I found some messages reporting similar problems on this
-> list, a few weeks ago (beginning of October 2005). There
-> was also a patch for the aic79xx driver mentioned, but I
-> haven't found any report about it since then, so I don't
-> know the status of the patch (it was for the 2.6 kernel,
-> anyway, as far as I remember)
-
-would you please send a link to this patch, or even the
-whole thread if there were responses ?
-
-> What can I do to make the external RAID usable?
-> Dump the Adaptec cards and replace them with something better?
-
-I've heard several people tell me that they have no problem with LSI
-logic cards, but as I don't have problems either with AIC79xx, I don't
-know how that should be interpreted.
-
-> Patch the driver?
-
-There is a large patch from the driver's author on his site. In fact,
-it's not really a patch, it's the whole driver directory. I've used
-it for a long time now (a few years) in my kernels without any problem.
-You may want to try it :
-
-  http://people.freebsd.org/~gibbs/linux/
-
-You can also get it as a patch from my tree :
-
-  http://w.ods.org/kernel/2.4-wt/2.4.31-wt1/patches-2.4.31-wt1/pool/aic79xx-20040522-linux-2.4.30-pre3.rediff
-
-> Any help is appreciated!
-
-good luck !
-
-Regards,
-Willy
- 
-> Thanks!
-> 
-> - - andreas
-> 
-> - --
-> Andreas Haumer                     | mailto:andreas@xss.co.at
-> *x Software + Systeme              | http://www.xss.co.at/
-> Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
-> A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.2 (GNU/Linux)
-> Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-> 
-> iD8DBQFDg47JxJmyeGcXPhERAmHJAKDDneUcGWBG/DO6BmErT+EFm3WDUgCfYrW7
-> jjGW+en9tiILjo5XhcFa5Cc=
-> =GR+f
-> -----END PGP SIGNATURE-----
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+	Sam

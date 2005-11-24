@@ -1,71 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbVKXCHK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750959AbVKXCGz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751231AbVKXCHK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 21:07:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbVKXCHK
+	id S1750959AbVKXCGz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 21:06:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751014AbVKXCGz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 21:07:10 -0500
-Received: from nevyn.them.org ([66.93.172.17]:65259 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S1751231AbVKXCG6 (ORCPT
+	Wed, 23 Nov 2005 21:06:55 -0500
+Received: from www.tuxrocks.com ([64.62.190.123]:24069 "EHLO tuxrocks.com")
+	by vger.kernel.org with ESMTP id S1750959AbVKXCGy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 21:06:58 -0500
-Date: Wed, 23 Nov 2005 21:06:46 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
-       Andi Kleen <ak@suse.de>, Gerd Knorr <kraxel@suse.de>,
-       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-Message-ID: <20051124020646.GA30379@nevyn.them.org>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	"H. Peter Anvin" <hpa@zytor.com>, Andi Kleen <ak@suse.de>,
-	Gerd Knorr <kraxel@suse.de>, Dave Jones <davej@redhat.com>,
-	Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Pratap Subrahmanyam <pratap@vmware.com>,
-	Christopher Li <chrisl@vmware.com>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	Ingo Molnar <mingo@elte.hu>
-References: <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051123214835.GA24044@nevyn.them.org> <Pine.LNX.4.64.0511231416490.13959@g5.osdl.org> <20051123222056.GA25078@nevyn.them.org> <Pine.LNX.4.64.0511231502250.13959@g5.osdl.org> <20051123234256.GA27337@nevyn.them.org> <Pine.LNX.4.64.0511231551470.13959@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0511231551470.13959@g5.osdl.org>
-User-Agent: Mutt/1.5.8i
+	Wed, 23 Nov 2005 21:06:54 -0500
+Message-ID: <4385202E.70404@tuxrocks.com>
+Date: Wed, 23 Nov 2005 19:06:38 -0700
+From: Frank Sorenson <frank@tuxrocks.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Marc Koschewski <marc@osknowledge.org>, linux-kernel@vger.kernel.org,
+       Harald Welte <laforge@netfilter.org>, netdev@vger.kernel.org
+Subject: Mouse issues in -mm
+References: <20051123033550.00d6a6e8.akpm@osdl.org>	<20051123175045.GA6760@stiffy.osknowledge.org> <20051123113854.07fca702.akpm@osdl.org>
+In-Reply-To: <20051123113854.07fca702.akpm@osdl.org>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 03:59:52PM -0800, Linus Torvalds wrote:
-> On Wed, 23 Nov 2005, Daniel Jacobowitz wrote:
-> > 
-> > Those are the wrong ways of doing this in userspace.  There are right
-> > ways.  For instance, tag the binary at link time "single-threaded". 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Andrew Morton wrote:
+> Marc Koschewski <marc@osknowledge.org> wrote:
+>>Just booted into 2.6.15-rc2-mm1. The 'mouse problem' (as reported earlier) still
+>>persists,
 > 
-> And I mentioned exactly this. It's my third alternative.
-> 
-> And it doesn't work well, exactly because developers don't know if the 
-> libraries they use are always single-threaded etc. More importantly, it 
-> just doesn't happen that much. People do "make ; make install". Hopefully 
-> from pretty standard sources. Having to tweak things so that a project 
-> compiles with a magic flag on a particular distribution is simply not done 
-> very much.
+> You'l probably need to re-report the mouse problem if the previous report
+> didn't get any action.
 
-But distributors (Debian included) do this all the time :-)
+I'm not certain whether this is the same 'mouse problem', but I'll
+report the mouse problems I've been seeing.  In the past several -mm
+kernels, my touchpad has initially worked at boot, but 'tapping' has
+stopped working at some point later (with no obvious kernel messages).
 
-I'd even volunteer to get it done and pushed out and in use, if I was
-as convinced of the benefits.  For most applications, though, I'm still
-sceptical.
+I've experienced this problem at least with 2.6.15-rc1-mm2 and
+2.6.15-rc2-mm1, and reverting
+input-attempt-to-re-synchronize-mouse-every-5-seconds.patch gives a
+kernel without the touchpad problems.
 
--- 
-Daniel Jacobowitz
-CodeSourcery, LLC
+Thanks,
+
+Frank
+- --
+Frank Sorenson - KD7TZK
+Systems Manager, Computer Science Department
+Brigham Young University
+frank@tuxrocks.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFDhSAuaI0dwg4A47wRAvzYAJ94ifBDBTm7MfVsbTOZE8QG3NjZUwCggHv0
+SQvehLxz6pLHs+5J+jTeaKU=
+=Pkg2
+-----END PGP SIGNATURE-----

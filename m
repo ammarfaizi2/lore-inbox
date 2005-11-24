@@ -1,68 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751023AbVKXOLg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbVKXOWS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751023AbVKXOLg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 09:11:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbVKXOLg
+	id S1751159AbVKXOWS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 09:22:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbVKXOWS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 09:11:36 -0500
-Received: from mail.tataelxsi.co.in ([203.200.1.48]:61229 "EHLO
-	mail.tataelxsi.co.in") by vger.kernel.org with ESMTP
-	id S1751023AbVKXOLg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 09:11:36 -0500
-Message-ID: <4385CA66.8060709@tataelxsi.co.in>
-Date: Thu, 24 Nov 2005 19:42:54 +0530
-From: Satyaki Mukherjee <satyaki@tataelxsi.co.in>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: PROBLEM: Compiling Linux kernel 2.6.13.2 for Xtensa
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Mirapoint-Sig: mail.tataelxsi.co.in
+	Thu, 24 Nov 2005 09:22:18 -0500
+Received: from ns1.suse.de ([195.135.220.2]:29073 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751159AbVKXOWO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 09:22:14 -0500
+Date: Thu, 24 Nov 2005 15:22:01 +0100
+From: Andi Kleen <ak@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andi Kleen <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       Gerd Knorr <kraxel@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
+       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] SMP alternatives
+Message-ID: <20051124142200.GH20775@brahms.suse.de>
+References: <p7364qjjhqx.fsf@verdi.suse.de> <1132764133.7268.51.camel@localhost.localdomain> <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <20051123165923.GJ20775@brahms.suse.de> <1132783243.13095.17.camel@localhost.localdomain> <20051124131310.GE20775@brahms.suse.de> <m1zmnugom7.fsf@ebiederm.dsl.xmission.com> <20051124133907.GG20775@brahms.suse.de> <1132842847.13095.105.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1132842847.13095.105.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Nov 24, 2005 at 02:34:07PM +0000, Alan Cox wrote:
+> On Iau, 2005-11-24 at 14:39 +0100, Andi Kleen wrote:
+> > That's supposed to be done by hardware, no? 
+> 
+> Varies immensely by system. Where there is a hardware scrubber and it is
+> enabled it will be used. Once nice thing about K8 is the mem controller
+> is in the CPU so they all use the same driver (not yet merged)
 
-I am facing problems while compiling the Linux kernel(version 2.6.13.2) 
-for XTENSA. I am using xtensa-elf- toolchain of following versions -
-binutils - 2.12.1
-gcc - 3.0.4
-The toolchain was built from the sources as per the instruction given 
-with the patches that came along with XTENSA configuration
-The configuration used for kernel compilation is --- 
-arch/xtensa/configs/iss_defconfig.
+What do you need a special driver for if the northbridge just
+can do the scrubbing by itself?
 
-The compilation seems to go fine except towards the end where I get the 
-following error during linking ---
+> > If you try to do it this way then the code will become such
+> > a mess if not impossible to write that your changes to merge them
+> > and get it right are very slim. The only sane way to do all the locking etc. 
+> > is to hand over the handling to a thread. While that make the window
+> > of misusing the data wider it's the only sane alternative vs not
+> > doing it at all.
+> 
+> Its utterly hideous because the usual 'ECC error' reporting technique
+> for an uncorrectable error is an NMI. Locks could be in any state at
 
-  LD      init/built-in.o
-    LD      .tmp_vmlinux1
-    arch/xtensa/kernel/built-in.o: In function `__down':
-    arch/xtensa/kernel/built-in.o(.sched.text+0x11):dangerous 
-relocation: l32r: literal placed after use: .sched.text.literal
-    arch/xtensa/kernel/built-in.o(.sched.text+0x23):dangerous 
-relocation: l32r: literal placed after use: .sched.text.literal
-    arch/xtensa/kernel/built-in.o(.sched.text+0x5b):dangerous 
-relocation: l32r: literal placed after use: .sched.text.literal
-    arch/xtensa/kernel/built-in.o: In function `__down_interruptible':
-    arch/xtensa/kernel/built-in.o(.sched.text+0x71):dangerous 
-relocation: l32r: literal placed after use: .sched.text.literal
-    arch/xtensa/kernel/built-in.o(.sched.text+0x89):dangerous 
-relocation: l32r: literal placed after use: .sched.text.literal
-    arch/xtensa/kernel/built-in.o(.sched.text+0xf3):dangerous 
-relocation: l32r: literal placed after use: .sched.text.literal
-    kernel/built-in.o: In function `schedule':
-    kernel/built-in.o(.sched.text+0x1f):dangerous relocation: l32r: 
-literal placed after use: .sched.text.literal
-    kernel/built-in.o(.sched.text+0x31):dangerous relocation: l32r: 
-literal placed after use: .sched.text.literal
-....... many more such messages follow
+On the modern systems I'm familiar with it's an machine check (although
+not necessarily a recoverable one and there might be other bad
+side effects) 
 
-Would be greatful if somebody could provide information in this regard
+> this point and even the registers needing to be accessed are across PCI
+> and we could be half way through a PCI configuration cycle.
+> 
+> The -mm EDAC code works on the basic assumption that unrecovered ECC is
+> a system halter although that is configurable.
 
-Regards
-Satyaki Mukherjee
+I don't know what you could do over the default code for K8 at least.
+And on modern Intel server chipsets I would expect it also to not
+be needed.
 
-The information contained in this electronic message and any attachments to this message are intended for the exclusive use of the addressee(s)and may contain confidential or privileged information. If you are not the intended recipient, please notify the sender or administrator@tataelxsi.co.in
+-Andi
+

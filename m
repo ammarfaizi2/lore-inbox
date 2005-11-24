@@ -1,60 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030591AbVKXERi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030593AbVKXESn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030591AbVKXERi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 23:17:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030593AbVKXERh
+	id S1030593AbVKXESn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 23:18:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030595AbVKXESn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 23:17:37 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:24986
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1030591AbVKXERh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 23:17:37 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Bill Davidsen <davidsen@tmr.com>
-Subject: Re: Christmas list for the kernel
-Date: Wed, 23 Nov 2005 22:17:24 -0600
-User-Agent: KMail/1.8
-Cc: Jon Smirl <jonsmirl@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <9e4733910511221031o44dd90caq2b24fbac1a1bae7b@mail.gmail.com> <4383979F.6070608@tmr.com>
-In-Reply-To: <4383979F.6070608@tmr.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Nov 2005 23:18:43 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:4052 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030593AbVKXESm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 23:18:42 -0500
+Date: Thu, 24 Nov 2005 09:46:08 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: What protection does sysfs_readdir have with SMP/Preemption?
+Message-ID: <20051124041608.GA16502@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <1132695202.13395.15.camel@localhost.localdomain> <20051122213947.GB8575@kroah.com> <20051123045049.GA22714@in.ibm.com> <Pine.LNX.4.58.0511230748000.23751@gandalf.stny.rr.com> <20051123135847.GF22714@in.ibm.com> <1132755344.13395.32.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511232217.25198.rob@landley.net>
+In-Reply-To: <1132755344.13395.32.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 22 November 2005 16:11, Bill Davidsen wrote:
-> Serious question, when/if xen is in the kernel, is there a reason for
-> UML? If so, why would I use UML instead of xen, and where?
+On Wed, Nov 23, 2005 at 09:15:44AM -0500, Steven Rostedt wrote:
+> On Wed, 2005-11-23 at 19:28 +0530, Maneesh Soni wrote:
+> 
+> > 
+> > hmm looks like we got some situation which is not desirable and could lead
+> > to bogus sysfs_dirent in the parent list. It may not be the exact problem
+> > in this case though, but needs fixing IMO.
+> > 
+> > After sysfs_make_dirent(), the ref count for sysfs dirent will be 2.
+> > (one from allocation, and after linking the new dentry to it). On
+> > error from sysfs_create(), we do sysfs_put() once, decrementing the
+> > ref count to 1. And again when the new dentry for which we couldn't
+> > allocate the d_inode, is d_drop()'ed. In sysfs_d_iput() we again
+> > sysfs_put(), and decrement the sysfs dirent's ref count to 0, which will
+> > be the final sysfs_put(), and it will free the sysfs_dirent but never
+> > unlinks it from the parent list. So, parent list could still will having
+> > links to the freed sysfs_dirent in its s_children list.
+> > 
+> > so basically list_del_init(&sd->s_sibling) should be done in error path
+> > in create_dir().
+> > 
+> > Could you also put the appended patch in your trial runs..
+> > 
+> 
+> I'm already playing around with this. You might want this patch instead.
+> I noticed that if sysfs_make_dirent fails to allocate the sd, then a
+> null will be passed to sysfs_put.
+> 
+> But this is not the end of the problems.  I'll follow up on that comment
+> right after this.
+> 
+> -- Steve
+> 
+> Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+> 
+> Index: linux-2.6.15-rc2-git2/fs/sysfs/dir.c
+> ===================================================================
+> --- linux-2.6.15-rc2-git2.orig/fs/sysfs/dir.c	2005-11-23 08:40:33.000000000 -0500
+> +++ linux-2.6.15-rc2-git2/fs/sysfs/dir.c	2005-11-23 08:52:57.000000000 -0500
+> @@ -112,7 +112,11 @@
+>  			}
+>  		}
+>  		if (error && (error != -EEXIST)) {
+> -			sysfs_put((*d)->d_fsdata);
+> +			struct sysfs_dirent *sd = (*d)->d_fsdata;
+> +			if (sd) {
+> + 				list_del_init(&sd->s_sibling);
+> +				sysfs_put(sd);
+> +			}
+>  			d_drop(*d);
+>  		}
+>  		dput(*d);
+> 
+> 
 
-Xen requires support in the host kernel.  UML (skas0 mode) does not.
+Agreed. This makes more sense.
 
-I have a build system that uses UML as a better fakeroot.  I can't use qemu 
-for this because I want to boot borrowing the hosts's filesystem (so the 
-build doesn't need a huge binary blob of precompiled stuff to start 
-doing ./configure;make;make install with...  At that point I might as well 
-just distribute the final binaries and be done with it).
 
-I don't want the thing to require root access, yet the build needs to drop a 
-symlink into /, wants to mknod, chown, chroot, and perform --bind and --move 
-mounts.
+Thanks
+Maneesh
 
-Fakeroot wouldn't be sufficient because there's no guarantee the host system 
-is running a 2.6 kernel (no --bind or --move mounts) and worse, I'm building 
-uClibc against the most recent Mazur headers I can find which means the 
-resulting uClibc may not run on an older kernel (even running against a 
-sufficiently old 2.6 kernel means segfaults due to missing features the new 
-headers describe).
 
-I find UML a very convenient way to get a virtual environment borrowing 
-resources from the host without having to set up the host.  This means I can 
-deploy it to relatively unknown systems, without requiring somebody with root 
-access on those systems to replace the kernel and reboot, which generally 
-isn't an option.
-
-Rob
+-- 
+Maneesh Soni
+Linux Technology Center, 
+IBM India Software Labs,
+Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-25044990

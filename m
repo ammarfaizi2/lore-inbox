@@ -1,109 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbVKXMo1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbVKXMnk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750730AbVKXMo1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 07:44:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbVKXMo1
+	id S1750714AbVKXMnk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 07:43:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbVKXMnk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 07:44:27 -0500
-Received: from webbox4.loswebos.de ([213.187.93.205]:54672 "EHLO
-	webbox4.loswebos.de") by vger.kernel.org with ESMTP
-	id S1750778AbVKXMo0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 07:44:26 -0500
-Date: Thu, 24 Nov 2005 13:44:44 +0100
-From: Marc Koschewski <marc@osknowledge.org>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: Marc Koschewski <marc@osknowledge.org>,
-       Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
-Subject: Re: psmouse unusable in -mm series (was: 2.6.15-rc1-mm2 unsusable on DELL Inspiron 8200, 2.6.15-rc1 works fine)
-Message-ID: <20051124124444.GA23667@stiffy.osknowledge.org>
-References: <20051118182910.GJ6640@stiffy.osknowledge.org> <200511232129.35796.tomlins@cam.org> <20051124084120.GA7799@stiffy.osknowledge.org> <200511240717.11752.tomlins@cam.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200511240717.11752.tomlins@cam.org>
-X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
-X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
-X-Operating-System: Linux stiffy 2.6.15-rc2-marc
-User-Agent: Mutt/1.5.11
+	Thu, 24 Nov 2005 07:43:40 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:19421 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1750714AbVKXMnj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 07:43:39 -0500
+Date: Thu, 24 Nov 2005 04:43:13 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Marcel Zalmanovici <MARCEL@il.ibm.com>
+Cc: kernel@kolivas.org, linux-kernel@vger.kernel.org, mulix@mulix.org
+Subject: Re: Inconsistent timing results of multithreaded program on an SMP
+ machine.
+Message-Id: <20051124044313.6259092d.pj@sgi.com>
+In-Reply-To: <OF7B1C41C0.7F24B72C-ONC22570C3.003663BE-C22570C3.0036F687@il.ibm.com>
+References: <200511242041.00586.kernel@kolivas.org>
+	<OF7B1C41C0.7F24B72C-ONC22570C3.003663BE-C22570C3.0036F687@il.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ed Tomlinson <tomlins@cam.org> [2005-11-24 07:17:10 -0500]:
+Marcel,
 
-> On Thursday 24 November 2005 03:41, Marc Koschewski wrote:
-> > * Ed Tomlinson <tomlins@cam.org> [2005-11-23 21:29:35 -0500]:
-> > 
-> > > On Wednesday 23 November 2005 14:57, Marc Koschewski wrote:
-> > > > * Dmitry Torokhov <dtor_core@ameritech.net> [2005-11-21 22:43:50 -0500]:
-> > > > 
-> > > > > On Sunday 20 November 2005 12:14, Marc Koschewski wrote:
-> > > > > > * Dmitry Torokhov <dtor_core@ameritech.net> [2005-11-18 22:07:19 -0500]:
-> > > > > > 
-> > > > > > > On Friday 18 November 2005 13:29, Marc Koschewski wrote:
-> > > > > > > > Nov 18 12:58:37 stiffy kernel: psmouse.c: Wheel Mouse at isa0060/serio1/input0 lost synchronization, throwing 1 bytes away.
-> > > > > > > > 
-> > > > > > > > SOME STUFF MISSING? HUH?
-> > > > > > > > 
-> > > > > > > > Nov 18 13:03:14 stiffy kernel: psmouse.c: resync failed, issuing reconnect request
-> > > > > > > > 
-> > > > > > > 
-> > > > > > > Hm, this worries me a bit... Could you please try appying the patch
-> > > > > > > below to plain 2.6.15-rc1 and see if mouse starts misbehaving again?
-> > > > > > 
-> > > > > > Dmitry,
-> > > > > > 
-> > > > > > I applied the 5 patches to a plain 2.6.15-rc1. The mouse was well as if it was
-> > > > > > in an unpatched kernel. The problem just occured in 2.6.15-rc1-mmX.
-> > > > > > Plain 2.6.15-rc1 was fine before as well. So: actually no change.
-> > > > > > 
-> > > > > > Need any more info?
-> > > > > >
-> > > > > 
-> > > > > Marc,
-> > > > > 
-> > > > > Thank you for testing the patch. It proves that your mouse troubles
-> > > > > were not caused by the patch I made so I am very happy. "No change"
-> > > > > is the result I wanted to hear ;)
-> > > > > 
-> > > > 
-> > > > Dmitry,
-> > > > 
-> > > > there's a bug report filed against Debian's udev. You can read it here:
-> > > > 
-> > > > 	http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=340202
-> > > > 
-> > > > The bug report, however, states that the problem is caused by udev under
-> > > > all variants of kernel 2.6.15. I'm writing this mail while running
-> > > > 2.6.15-rc1 and the mouse definitely works. Do you have any other hint?
-> > > > Seems to me like the bug report is only half the truth... 
-> > > 
-> > > Marc,
-> > > 
-> > > Are you, by some slim chance, manually loading mousedev ( via /etc/modules) or
-> > > an init script?  If so your mouse will work.
-> > > 
-> > 
-> > Hi Ed,
-> > 
-> > yes, I do load mousedev as well as psmouse in /etc/modules due to udev
-> > no longer loading it. my problem, however, is _not_ that teh module
-> > doesn't get loaded. It's the mouse pointer jumping all over the screen.
-> > After some time (inactivity?) it calms down and is usable. Then, after
-> > some minutes it again jumps wild all over the place, seems to click
-> > stuff on it's own, and again calms down, ...
-> > 
-> > This problem shouldn't be udev related.
-> > 
-> > One note: the pointer seems to be in love with the corners of the
-> > screen. It always goes there when it goes wild... ;)
-> 
-> Marc,
-> 
-> It looks like you are seeing a different bug.  The one opened for debian user space
-> covers mousedev not being loaded if the kernel is 2.6.15, which leads to no /dev/input
-> 
+I condensed the results you attached to another reply earlier
+today on this query into a little table, showing for each of
+8 threads, in order, which of the two CPUs 0 or 1 they finished
+on, and the real (elapsed) time:
 
-That's what I think, thus the report on LKLM. But noone but me seems to
-be trapped into it until... :/
+    0 0 0 1 0 1 0 0 14.49
+    1 1 0 0 1 1 1 1 15.18
+    0 1 0 1 0 0 1 1 14.64
+    1 1 0 0 0 1 0 0 14.65
+    0 0 0 1 1 1 1 1 14.61
+    1 1 0 0 1 1 1 1 18.89
+    0 1 0 0 1 1 0 1 14.62
+    1 1 0 1 0 0 1 1 14.51
+    0 0 1 1 0 0 0 1 14.54
+    0 1 0 1 1 1 1 1 14.73
+    0 1 0 1 0 1 1 1 14.78
+    0 1 1 1 0 0 0 1 18.90
+    0 0 0 1 1 1 0 1 14.57
+    1 1 0 1 0 1 0 0 17.07
+    0 1 1 1 0 1 1 1 14.56
+    0 1 0 0 1 1 0 0 14.49
+    0 1 1 1 0 1 0 0 17.80
+    0 1 0 1 1 1 1 1 14.62
+    0 1 0 1 0 1 0 0 19.55
+    0 1 0 1 0 0 1 1 19.57
 
-Marc
+I notice that the deviation of the faster runs is very low,
+with the best 13 of 20 runs all finishing in times between
+14.49 and 14.78 seconds, but the slower runs have a higher
+deviation, with the worst 7 of 20 runs finishing in times
+between 15.18 and 19.57 seconds, a wider range of times.
+
+That is, the best 13 runs differ in time by only 0.29 secs,
+but the worst 7 runs differ in time by 4.39 seconds, a much
+wider range.
+
+I agree with you that I don't see a pattern in which CPU
+the threads finished on or any relation between that and
+the real times.
+
+However this skewed distribution of times does suggest that
+something is intruding - something that only happens perhaps
+a third of the time is running or making things worse.
+
+What I might suggest next is that you look for nice ways
+that fit on a page or less and condense out all nonessential
+detail to present these timing results.  People have a
+tendency to dump a big attachment of raw output data onto
+email lists, which almost no one ever reads closely,
+especially if it is in some homebrew format perculiar to
+that particular inquiry.  Time spent cleaning up the show
+of data is often well spent, because then others might
+actually look at the data and recognize a pattern that
+they have something useful to say about.
+
+Then after you have it collapsed to a nice table format,
+go even the next step and describe in words any patterns
+that are apparent, which will catch another chunk of
+potential readers, who will skim over a data table without
+really thinking.  Then fine tune that wording, until it
+would be understood by someone, the first time they heard
+it, standing at the coffee urn, discussing sports.  Often
+times, by the time you get that far, you will have an
+'aha' moment, leading to further experiments and insights,
+before you even get a chance to ask someone else.
+
+Question - how do you know its the multithreading that
+is causing the variance?  Try this with single threads,
+just one per cpu, with or without hyperthread perhaps.
+Never assume that you know the cause of something until
+you have bracketed the tests with demonstrations that
+all else being equal (or as close as can be) just adding
+or removing the one suspect element causes the observed
+affect to come and go.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

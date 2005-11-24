@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161032AbVKXLXn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932629AbVKXLls@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161032AbVKXLXn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 06:23:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161033AbVKXLXn
+	id S932629AbVKXLls (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 06:41:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932630AbVKXLls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 06:23:43 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:50627 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S1161032AbVKXLXn (ORCPT
+	Thu, 24 Nov 2005 06:41:48 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:178 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932629AbVKXLlr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 06:23:43 -0500
-Date: Thu, 24 Nov 2005 12:23:31 +0100
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: Phil Dibowitz <phil@ipom.com>
-Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       usb-storage@lists.one-eyed-alien.net, Bob Copeland <me@bobcopeland.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [usb-storage] Re: [PATCH] usb-storage: Add support for Rio Karma
-Message-ID: <20051124112331.GA3891@apps.cwi.nl>
-References: <20051123113342.GA5815@hash.localnet> <Pine.LNX.4.44L0.0511231316410.12957-100000@iolanthe.rowland.org> <20051123183924.GA1016@apps.cwi.nl> <43853CC0.10203@ipom.com>
+	Thu, 24 Nov 2005 06:41:47 -0500
+Date: Thu, 24 Nov 2005 12:41:36 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [MMC] Add try_to_freeze to kauditd
+Message-ID: <20051124114136.GA25197@elf.ucw.cz>
+References: <20051107071300.7073.47106.stgit@poseidon.drzeus.cx> <4385844C.5080707@drzeus.cx>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43853CC0.10203@ipom.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <4385844C.5080707@drzeus.cx>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 08:08:32PM -0800, Phil Dibowitz wrote:
+Hi!
 
-> > UNUSUAL_DEV( 0x090c, 0x1132, 0x0000, 0xffff,
-> >                 "Feiya",
-> >                 "5-in-1 Card Reader",
-> >                 US_SC_DEVICE, US_PR_DEVICE, NULL,
-> >                 US_FL_FIX_CAPACITY ),
+> >kauditd was causing suspends to fail because it refused to freeze.
+> >Adding a try_to_freeze() to its sleep loop solves the issue.
+> >
+> >Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
+> >Acked-by: Pavel Machek <pavel@suse.cz>
+> >---
+> >
+> > kernel/audit.c |    4 +++-
+> > 1 files changed, 3 insertions(+), 1 deletions(-)
+> >
+> >  
 > 
-> Can you be more specific? Matthew added some code (specifically a delay)
-> which should have taken care of most if not all of these a few kernel
-> versions ago (.12-ish?)...
+> Did anyone actually pick this up? Its not in -mm or Linus' tree.
 
-I don't understand how adding a delay can influence the fact that
-it returns the wrong capacity.
+Not me... I do not think it needs to go through my trees, should be
+simple enough to go to -mm directly.
+								Pavel
+-- 
+Thanks, Sharp!

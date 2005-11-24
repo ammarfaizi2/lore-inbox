@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbVKXQ1M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932359AbVKXQ1x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932385AbVKXQ1M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 11:27:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932359AbVKXQ0d
+	id S932359AbVKXQ1x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 11:27:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932327AbVKXQ1W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 11:26:33 -0500
-Received: from zproxy.gmail.com ([64.233.162.197]:43115 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751379AbVKXQ0N (ORCPT
+	Thu, 24 Nov 2005 11:27:22 -0500
+Received: from zproxy.gmail.com ([64.233.162.197]:53347 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932255AbVKXQ02 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 11:26:13 -0500
+	Thu, 24 Nov 2005 11:26:28 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
-        b=PuFbRRCOFhclt5NU7wA7DBQoLvI0cC3Yz9zN7biYKNbUkWVbDzF2O5BaDFFOM46VgGUEg8mNLQ/B/aTB24TgGVMEQvTM92qeeH42Vos7tvuBKcNIJw8ditkOttWlljaYX/MuqwaUZnxaV8osRjIaLDexH8u7UQZ6uS3HmPkCeSM=
+        b=T+k4kpYpHvDmmEh68xpdAtG0zw710Db+V3lyflKb+MdCCopwOUSg5/dWD1Vv2jwSFV1MOjlHSqRoFNJpXdhSObmDW6xk6VfZdNROSfmUgLWK3Ayd9xIwu+WAXH/Kej0VYI1k1kTyWGqQXjWASfB45rQXKzSbpwf2T0EdCKr0PRs=
 From: Tejun Heo <htejun@gmail.com>
 To: axboe@suse.de, jgarzik@pobox.com, James.Bottomley@steeleye.com,
        bzolnier@gmail.com
@@ -21,259 +21,234 @@ User-Agent: lksp 0.3
 Content-Type: text/plain; charset=US-ASCII
 References: <20051124162449.209CADD5@htj.dyndns.org>
 In-Reply-To: <20051124162449.209CADD5@htj.dyndns.org>
-Subject: Re: [PATCH linux-2.6-block:post-2.6.15 04/11] blk: update SCSI to use new blk_ordered
-Message-ID: <20051124162449.135E8B2A@htj.dyndns.org>
-Date: Fri, 25 Nov 2005 01:26:01 +0900 (KST)
+Subject: Re: [PATCH linux-2.6-block:post-2.6.15 08/11] blk: update IDE to use new blk_ordered
+Message-ID: <20051124162449.DB507E8E@htj.dyndns.org>
+Date: Fri, 25 Nov 2005 01:26:21 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-04_blk_scsi-update-ordered.patch
+08_blk_ide-update-ordered.patch
 
-	All ordered request related stuff delegated to HLD.  Midlayer
-        now doens't deal with ordered setting or prepare_flush
-        callback.  sd.c updated to deal with blk_queue_ordered
-        setting.  Currently, ordered tag isn't used as SCSI midlayer
-        cannot guarantee request ordering.
+	Update IDE to use new blk_ordered.  This change makes the
+	following behavior changes.
+
+	* Partial completion of the barrier request is handled as
+          failure of the whole ordered sequence.  No more partial
+          completion for barrier requests.
+
+	* Any failure of pre or post flush request results in failure
+	  of the whole ordered sequence.
+
+	So, successfully completed ordered sequence guarantees that
+	all requests prior to the barrier made to physical medium and,
+	then, the while barrier request made to the physical medium.
 
 Signed-off-by: Tejun Heo <htejun@gmail.com>
 
- drivers/scsi/hosts.c       |    9 ------
- drivers/scsi/scsi_lib.c    |   46 -----------------------------------
- drivers/scsi/sd.c          |   58 +++++++++++++++------------------------------
- include/scsi/scsi_driver.h |    1 
- include/scsi/scsi_host.h   |    1 
- 5 files changed, 20 insertions(+), 95 deletions(-)
+ ide-disk.c |  137 +++++++++++++++++++++++--------------------------------------
+ ide-io.c   |    5 --
+ 2 files changed, 54 insertions(+), 88 deletions(-)
 
-Index: work/drivers/scsi/hosts.c
+Index: work/drivers/ide/ide-disk.c
 ===================================================================
---- work.orig/drivers/scsi/hosts.c	2005-11-25 00:51:38.000000000 +0900
-+++ work/drivers/scsi/hosts.c	2005-11-25 00:52:02.000000000 +0900
-@@ -347,17 +347,8 @@ struct Scsi_Host *scsi_host_alloc(struct
- 	shost->cmd_per_lun = sht->cmd_per_lun;
- 	shost->unchecked_isa_dma = sht->unchecked_isa_dma;
- 	shost->use_clustering = sht->use_clustering;
--	shost->ordered_flush = sht->ordered_flush;
- 	shost->ordered_tag = sht->ordered_tag;
+--- work.orig/drivers/ide/ide-disk.c	2005-11-25 00:51:37.000000000 +0900
++++ work/drivers/ide/ide-disk.c	2005-11-25 00:52:03.000000000 +0900
+@@ -681,50 +681,9 @@ static ide_proc_entry_t idedisk_proc[] =
  
--	/*
--	 * hosts/devices that do queueing must support ordered tags
--	 */
--	if (shost->can_queue > 1 && shost->ordered_flush) {
--		printk(KERN_ERR "scsi: ordered flushes don't support queueing\n");
--		shost->ordered_flush = 0;
--	}
--
- 	if (sht->max_host_blocked)
- 		shost->max_host_blocked = sht->max_host_blocked;
- 	else
-Index: work/drivers/scsi/scsi_lib.c
-===================================================================
---- work.orig/drivers/scsi/scsi_lib.c	2005-11-25 00:52:01.000000000 +0900
-+++ work/drivers/scsi/scsi_lib.c	2005-11-25 00:52:02.000000000 +0900
-@@ -765,9 +765,6 @@ void scsi_io_completion(struct scsi_cmnd
- 	int sense_valid = 0;
- 	int sense_deferred = 0;
+ #endif	/* CONFIG_PROC_FS */
  
--	if (blk_complete_barrier_rq(q, req, good_bytes >> 9))
--		return;
--
- 	/*
- 	 * Free up any indirection buffers we allocated for DMA purposes. 
- 	 * For the case of a READ, we need to copy the data out of the
-@@ -1031,38 +1028,6 @@ static int scsi_init_io(struct scsi_cmnd
- 	return BLKPREP_KILL;
- }
- 
--static int scsi_prepare_flush_fn(request_queue_t *q, struct request *rq)
--{
--	struct scsi_device *sdev = q->queuedata;
--	struct scsi_driver *drv;
--
--	if (sdev->sdev_state == SDEV_RUNNING) {
--		drv = *(struct scsi_driver **) rq->rq_disk->private_data;
--
--		if (drv->prepare_flush)
--			return drv->prepare_flush(q, rq);
--	}
--
--	return 0;
--}
--
--static void scsi_end_flush_fn(request_queue_t *q, struct request *rq)
--{
--	struct scsi_device *sdev = q->queuedata;
--	struct request *flush_rq = rq->end_io_data;
--	struct scsi_driver *drv;
--
--	if (flush_rq->errors) {
--		printk("scsi: barrier error, disabling flush support\n");
--		blk_queue_ordered(q, QUEUE_ORDERED_NONE);
--	}
--
--	if (sdev->sdev_state == SDEV_RUNNING) {
--		drv = *(struct scsi_driver **) rq->rq_disk->private_data;
--		drv->end_flush(q, rq);
--	}
--}
--
- static int scsi_issue_flush_fn(request_queue_t *q, struct gendisk *disk,
- 			       sector_t *error_sector)
+-static void idedisk_end_flush(request_queue_t *q, struct request *flush_rq)
++static void idedisk_prepare_flush(request_queue_t *q, struct request *rq)
  {
-@@ -1520,17 +1485,6 @@ struct request_queue *scsi_alloc_queue(s
- 	blk_queue_segment_boundary(q, shost->dma_boundary);
- 	blk_queue_issue_flush_fn(q, scsi_issue_flush_fn);
- 
--	/*
--	 * ordered tags are superior to flush ordering
--	 */
--	if (shost->ordered_tag)
--		blk_queue_ordered(q, QUEUE_ORDERED_TAG);
--	else if (shost->ordered_flush) {
--		blk_queue_ordered(q, QUEUE_ORDERED_FLUSH);
--		q->prepare_flush_fn = scsi_prepare_flush_fn;
--		q->end_flush_fn = scsi_end_flush_fn;
--	}
--
- 	if (!shost->use_clustering)
- 		clear_bit(QUEUE_FLAG_CLUSTER, &q->queue_flags);
- 	return q;
-Index: work/drivers/scsi/sd.c
-===================================================================
---- work.orig/drivers/scsi/sd.c	2005-11-25 00:52:01.000000000 +0900
-+++ work/drivers/scsi/sd.c	2005-11-25 00:52:02.000000000 +0900
-@@ -121,8 +121,7 @@ static void sd_shutdown(struct device *d
- static void sd_rescan(struct device *);
- static int sd_init_command(struct scsi_cmnd *);
- static int sd_issue_flush(struct device *, sector_t *);
--static void sd_end_flush(request_queue_t *, struct request *);
--static int sd_prepare_flush(request_queue_t *, struct request *);
-+static void sd_prepare_flush(request_queue_t *, struct request *);
- static void sd_read_capacity(struct scsi_disk *sdkp, char *diskname,
- 			     unsigned char *buffer);
- 
-@@ -137,8 +136,6 @@ static struct scsi_driver sd_template = 
- 	.rescan			= sd_rescan,
- 	.init_command		= sd_init_command,
- 	.issue_flush		= sd_issue_flush,
--	.prepare_flush		= sd_prepare_flush,
--	.end_flush		= sd_end_flush,
- };
- 
- /*
-@@ -743,42 +740,13 @@ static int sd_issue_flush(struct device 
- 	return ret;
- }
- 
--static void sd_end_flush(request_queue_t *q, struct request *flush_rq)
-+static void sd_prepare_flush(request_queue_t *q, struct request *rq)
- {
+ 	ide_drive_t *drive = q->queuedata;
 -	struct request *rq = flush_rq->end_io_data;
--	struct scsi_cmnd *cmd = rq->special;
--	unsigned int bytes = rq->hard_nr_sectors << 9;
+-	int good_sectors = rq->hard_nr_sectors;
+-	int bad_sectors;
+-	sector_t sector;
 -
--	if (!flush_rq->errors) {
--		spin_unlock(q->queue_lock);
--		scsi_io_completion(cmd, bytes, 0);
--		spin_lock(q->queue_lock);
--	} else if (blk_barrier_postflush(rq)) {
--		spin_unlock(q->queue_lock);
--		scsi_io_completion(cmd, 0, bytes);
--		spin_lock(q->queue_lock);
--	} else {
--		/*
--		 * force journal abort of barriers
--		 */
--		end_that_request_first(rq, -EOPNOTSUPP, rq->hard_nr_sectors);
--		end_that_request_last(rq, -EOPNOTSUPP);
+-	if (flush_rq->errors & ABRT_ERR) {
+-		printk(KERN_ERR "%s: barrier support doesn't work\n", drive->name);
+-		blk_queue_ordered(drive->queue, QUEUE_ORDERED_NONE);
+-		blk_queue_issue_flush_fn(drive->queue, NULL);
+-		good_sectors = 0;
+-	} else if (flush_rq->errors) {
+-		good_sectors = 0;
+-		if (blk_barrier_preflush(rq)) {
+-			sector = ide_get_error_location(drive,flush_rq->buffer);
+-			if ((sector >= rq->hard_sector) &&
+-			    (sector < rq->hard_sector + rq->hard_nr_sectors))
+-				good_sectors = sector - rq->hard_sector;
+-		}
 -	}
+-
+-	if (flush_rq->errors)
+-		printk(KERN_ERR "%s: failed barrier write: "
+-				"sector=%Lx(good=%d/bad=%d)\n",
+-				drive->name, (unsigned long long)rq->sector,
+-				good_sectors,
+-				(int) (rq->hard_nr_sectors-good_sectors));
+-
+-	bad_sectors = rq->hard_nr_sectors - good_sectors;
+-
+-	if (good_sectors)
+-		__ide_end_request(drive, rq, 1, good_sectors);
+-	if (bad_sectors)
+-		__ide_end_request(drive, rq, 0, bad_sectors);
 -}
 -
--static int sd_prepare_flush(request_queue_t *q, struct request *rq)
+-static int idedisk_prepare_flush(request_queue_t *q, struct request *rq)
 -{
--	struct scsi_device *sdev = q->queuedata;
--	struct scsi_disk *sdkp = dev_get_drvdata(&sdev->sdev_gendev);
+-	ide_drive_t *drive = q->queuedata;
 -
--	if (!sdkp || !sdkp->WCE)
+-	if (!drive->wcache)
 -		return 0;
--
+ 
  	memset(rq->cmd, 0, sizeof(rq->cmd));
--	rq->flags |= REQ_BLOCK_PC | REQ_SOFTBARRIER;
-+	rq->flags |= REQ_BLOCK_PC;
- 	rq->timeout = SD_TIMEOUT;
- 	rq->cmd[0] = SYNCHRONIZE_CACHE;
+ 
+@@ -735,9 +694,8 @@ static int idedisk_prepare_flush(request
+ 		rq->cmd[0] = WIN_FLUSH_CACHE;
+ 
+ 
+-	rq->flags |= REQ_DRIVE_TASK | REQ_SOFTBARRIER;
++	rq->flags |= REQ_DRIVE_TASK;
+ 	rq->buffer = rq->cmd;
 -	return 1;
-+	rq->cmd_len = 10;
  }
  
- static void sd_rescan(struct device *dev)
-@@ -1476,6 +1444,7 @@ static int sd_revalidate_disk(struct gen
- 	struct scsi_disk *sdkp = scsi_disk(disk);
- 	struct scsi_device *sdp = sdkp->device;
- 	unsigned char *buffer;
-+	unsigned ordered;
+ static int idedisk_issue_flush(request_queue_t *q, struct gendisk *disk,
+@@ -794,27 +752,64 @@ static int set_nowerr(ide_drive_t *drive
+ 	return 0;
+ }
  
- 	SCSI_LOG_HLQUEUE(3, printk("sd_revalidate_disk: disk=%s\n", disk->disk_name));
- 
-@@ -1514,7 +1483,20 @@ static int sd_revalidate_disk(struct gen
- 						   buffer);
- 		sd_read_cache_type(sdkp, disk->disk_name, buffer);
- 	}
--		
++static void update_ordered(ide_drive_t *drive)
++{
++	struct hd_driveid *id = drive->id;
++	unsigned ordered = QUEUE_ORDERED_NONE;
++	prepare_flush_fn *prep_fn = NULL;
++	issue_flush_fn *issue_fn = NULL;
 +
-+	/*
-+	 * We now have all cache related info, determine how we deal
-+	 * with ordered requests.  Note that as the current SCSI
-+	 * dispatch function can alter request order, we cannot use
-+	 * QUEUE_ORDERED_TAG_* even when ordered tag is supported.
-+	 */
-+	if (sdkp->WCE)
-+		ordered = QUEUE_ORDERED_DRAIN_FLUSH;
-+	else
++	if (drive->wcache) {
++		unsigned long long capacity;
++		int barrier;
++		/*
++		 * We must avoid issuing commands a drive does not
++		 * understand or we may crash it. We check flush cache
++		 * is supported. We also check we have the LBA48 flush
++		 * cache if the drive capacity is too large. By this
++		 * time we have trimmed the drive capacity if LBA48 is
++		 * not available so we don't need to recheck that.
++		 */
++		capacity = idedisk_capacity(drive);
++		barrier = ide_id_has_flush_cache(id) &&
++			(drive->addressing == 0 || capacity <= (1ULL << 28) ||
++			 ide_id_has_flush_cache_ext(id));
++
++		printk(KERN_INFO "%s: cache flushes %ssupported\n",
++		       drive->name, barrier ? "" : "not");
++
++		if (barrier) {
++			ordered = QUEUE_ORDERED_DRAIN_FLUSH;
++			prep_fn = idedisk_prepare_flush;
++			issue_fn = idedisk_issue_flush;
++		}
++	} else
 +		ordered = QUEUE_ORDERED_DRAIN;
 +
-+	blk_queue_ordered(sdkp->disk->queue, ordered, sd_prepare_flush);
++	blk_queue_ordered(drive->queue, ordered, prep_fn);
++	blk_queue_issue_flush_fn(drive->queue, issue_fn);
++}
 +
- 	set_capacity(disk, sdkp->capacity);
- 	kfree(buffer);
+ static int write_cache(ide_drive_t *drive, int arg)
+ {
+ 	ide_task_t args;
+-	int err;
+-
+-	if (!ide_id_has_flush_cache(drive->id))
+-		return 1;
++	int err = 1;
  
-@@ -1614,6 +1596,7 @@ static int sd_probe(struct device *dev)
- 	strcpy(gd->devfs_name, sdp->devfs_name);
+-	memset(&args, 0, sizeof(ide_task_t));
+-	args.tfRegister[IDE_FEATURE_OFFSET]	= (arg) ?
++	if (ide_id_has_flush_cache(drive->id)) {
++		memset(&args, 0, sizeof(ide_task_t));
++		args.tfRegister[IDE_FEATURE_OFFSET]	= (arg) ?
+ 			SETFEATURES_EN_WCACHE : SETFEATURES_DIS_WCACHE;
+-	args.tfRegister[IDE_COMMAND_OFFSET]	= WIN_SETFEATURES;
+-	args.command_type			= IDE_DRIVE_TASK_NO_DATA;
+-	args.handler				= &task_no_data_intr;
++		args.tfRegister[IDE_COMMAND_OFFSET]	= WIN_SETFEATURES;
++		args.command_type		= IDE_DRIVE_TASK_NO_DATA;
++		args.handler			= &task_no_data_intr;
++		err = ide_raw_taskfile(drive, &args, NULL);
++		if (err == 0)
++			drive->wcache = arg;
++	}
  
- 	gd->private_data = &sdkp->driver;
-+	gd->queue = sdkp->device->request_queue;
+-	err = ide_raw_taskfile(drive, &args, NULL);
+-	if (err)
+-		return err;
++	update_ordered(drive);
  
- 	sd_revalidate_disk(gd);
+-	drive->wcache = arg;
+-	return 0;
++	return err;
+ }
  
-@@ -1621,7 +1604,6 @@ static int sd_probe(struct device *dev)
- 	gd->flags = GENHD_FL_DRIVERFS;
- 	if (sdp->removable)
- 		gd->flags |= GENHD_FL_REMOVABLE;
--	gd->queue = sdkp->device->request_queue;
+ static int do_idedisk_flushcache (ide_drive_t *drive)
+@@ -888,7 +883,6 @@ static void idedisk_setup (ide_drive_t *
+ {
+ 	struct hd_driveid *id = drive->id;
+ 	unsigned long long capacity;
+-	int barrier;
  
- 	dev_set_drvdata(dev, sdkp);
- 	add_disk(gd);
-Index: work/include/scsi/scsi_driver.h
+ 	idedisk_add_settings(drive);
+ 
+@@ -992,31 +986,6 @@ static void idedisk_setup (ide_drive_t *
+ 		drive->wcache = 1;
+ 
+ 	write_cache(drive, 1);
+-
+-	/*
+-	 * We must avoid issuing commands a drive does not understand
+-	 * or we may crash it. We check flush cache is supported. We also
+-	 * check we have the LBA48 flush cache if the drive capacity is
+-	 * too large. By this time we have trimmed the drive capacity if
+-	 * LBA48 is not available so we don't need to recheck that.
+-	 */
+-	barrier = 0;
+-	if (ide_id_has_flush_cache(id))
+-		barrier = 1;
+-	if (drive->addressing == 1) {
+-		/* Can't issue the correct flush ? */
+-		if (capacity > (1ULL << 28) && !ide_id_has_flush_cache_ext(id))
+-			barrier = 0;
+-	}
+-
+-	printk(KERN_INFO "%s: cache flushes %ssupported\n",
+-		drive->name, barrier ? "" : "not ");
+-	if (barrier) {
+-		blk_queue_ordered(drive->queue, QUEUE_ORDERED_FLUSH);
+-		drive->queue->prepare_flush_fn = idedisk_prepare_flush;
+-		drive->queue->end_flush_fn = idedisk_end_flush;
+-		blk_queue_issue_flush_fn(drive->queue, idedisk_issue_flush);
+-	}
+ }
+ 
+ static void ide_cacheflush_p(ide_drive_t *drive)
+Index: work/drivers/ide/ide-io.c
 ===================================================================
---- work.orig/include/scsi/scsi_driver.h	2005-11-25 00:51:38.000000000 +0900
-+++ work/include/scsi/scsi_driver.h	2005-11-25 00:52:02.000000000 +0900
-@@ -15,7 +15,6 @@ struct scsi_driver {
- 	void (*rescan)(struct device *);
- 	int (*issue_flush)(struct device *, sector_t *);
- 	int (*prepare_flush)(struct request_queue *, struct request *);
--	void (*end_flush)(struct request_queue *, struct request *);
- };
- #define to_scsi_driver(drv) \
- 	container_of((drv), struct scsi_driver, gendrv)
-Index: work/include/scsi/scsi_host.h
-===================================================================
---- work.orig/include/scsi/scsi_host.h	2005-11-25 00:51:38.000000000 +0900
-+++ work/include/scsi/scsi_host.h	2005-11-25 00:52:02.000000000 +0900
-@@ -392,7 +392,6 @@ struct scsi_host_template {
- 	/*
- 	 * ordered write support
- 	 */
--	unsigned ordered_flush:1;
- 	unsigned ordered_tag:1;
+--- work.orig/drivers/ide/ide-io.c	2005-11-25 00:52:01.000000000 +0900
++++ work/drivers/ide/ide-io.c	2005-11-25 00:52:03.000000000 +0900
+@@ -119,10 +119,7 @@ int ide_end_request (ide_drive_t *drive,
+ 	if (!nr_sectors)
+ 		nr_sectors = rq->hard_cur_sectors;
  
- 	/*
+-	if (blk_complete_barrier_rq_locked(drive->queue, rq, nr_sectors))
+-		ret = rq->nr_sectors != 0;
+-	else
+-		ret = __ide_end_request(drive, rq, uptodate, nr_sectors);
++	ret = __ide_end_request(drive, rq, uptodate, nr_sectors);
+ 
+ 	spin_unlock_irqrestore(&ide_lock, flags);
+ 	return ret;
 

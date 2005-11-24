@@ -1,69 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161002AbVKXF3i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161004AbVKXFj4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161002AbVKXF3i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 00:29:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030608AbVKXF3i
+	id S1161004AbVKXFj4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 00:39:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030608AbVKXFj4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 00:29:38 -0500
-Received: from mx1.suse.de ([195.135.220.2]:1478 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030607AbVKXF3h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 00:29:37 -0500
-From: Neil Brown <neilb@suse.de>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Date: Thu, 24 Nov 2005 16:29:28 +1100
-MIME-Version: 1.0
+	Thu, 24 Nov 2005 00:39:56 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:15371 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1030607AbVKXFjz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 00:39:55 -0500
+Date: Thu, 24 Nov 2005 06:39:52 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Andreas Haumer <andreas@xss.co.at>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.4.31 + aic79xx] SCSI error: Infinite interrupt loop, INTSTAT = 0
+Message-ID: <20051124053952.GI11266@alpha.home.local>
+References: <43838ECC.5060204@xss.co.at>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17285.20408.500921.973650@cse.unsw.edu.au>
-Cc: Andrew Morton <akpm@osdl.org>, sander@humilis.net,
-       linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-Subject: Re: Please help me understand ->writepage. Was Re: segfault mdadm
- --write-behind, 2.6.14-mm2  (was: Re: RAID1 ramdisk patch)
-In-Reply-To: message from Anton Altaparmakov on Tuesday November 22
-References: <431B9558.1070900@baanhofman.nl>
-	<17179.40731.907114.194935@cse.unsw.edu.au>
-	<20051116133639.GA18274@favonius>
-	<20051116142000.5c63449f.akpm@osdl.org>
-	<17275.48113.533555.948181@cse.unsw.edu.au>
-	<20051117075041.GA5563@favonius>
-	<20051117101251.GA2883@favonius>
-	<20051117101511.GB2883@favonius>
-	<17282.21309.229128.930997@cse.unsw.edu.au>
-	<20051121155144.62bedaab.akpm@osdl.org>
-	<17282.35980.613583.592130@cse.unsw.edu.au>
-	<Pine.LNX.4.64.0511221153430.2763@hermes-1.csi.cam.ac.uk>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <43838ECC.5060204@xss.co.at>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday November 22, aia21@cam.ac.uk wrote:
-> On Tue, 22 Nov 2005, Neil Brown wrote:
-> > I've made them all kmap_atomic.
-> 
-> Except you did it wrong...  See below...
-> 
-> > -	kunmap(bitmap->sb_page);
-> > +	kunmap_atomic(bitmap->sb_page, KM_USER0);
-> 
-> You need to pass in the address not the page, i.e.:
-> 
+Hello Andreas,
 
-How.. umm... intuitive :-(
-Thanks, I'll fix that.
-
+On Tue, Nov 22, 2005 at 10:34:04PM +0100, Andreas Haumer wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> Hope this helps.
+> Hi!
 > 
+> I'm in the process of setting up a new fileserver and
+> have some troubles with an Adaptec ASC-29320ALP U320
+> SCSI card and an external Infortrend EonStor RAID!
+> 
+> This is a Tyan TA26 barebone system (dual opteron CPU,
+> 4GB RAM) with two on-board AIC-7902B SCSI controllers
+> (Tyan Thunder K8SD Pro motherboard) for internal system disks
+> (SW-RAID1) and two additional Adaptec 29320ALP U320 cards
+> for externally connected RAID (Infortrend EonStor A16U-G2421
+> RAID subsystem) and backup hardware.
+> 
+> I'm running linux-2.4.31 in 32 bit mode.
 
-It does.  I really appreciate getting feedback on my code.... I've
-sometimes tempted to slip in a few bugs so that when people point them
-out to me I know they have read the rest of the code and that
-increases my confidence in it (I haven't actually done this... yet).
+just for the record, I've checked 2.4.32 and the driver is exactly the
+same as in 2.4.31.
 
-:-)
+> root@setup:~ {521} $ lspci
+(...)
+> 01:03.0 SCSI storage controller: Adaptec ASC-29320ALP U320 (rev 10)
+> 01:04.0 SCSI storage controller: Adaptec ASC-29320ALP U320 (rev 10)
+> 02:06.0 SCSI storage controller: Adaptec AIC-7902B U320 (rev 10)
+> 02:06.1 SCSI storage controller: Adaptec AIC-7902B U320 (rev 10)
+(...)
 
-NeilBrown
+I've never tried an adaptec U320 yet, only a few 29160 in various servers.
+
+(...) 
+> Today I tried to integrate the external EonStor RAID and first
+> it seemd to work fine, too. The system did find the devices
+> and I could create a new volume group with several logical
+> volumes out of them.
+> 
+> But as soon as I try to create a filesystem on the new logical
+> volumes or do some other work with the devices, the SCSI driver
+> goes berserk:
+
+So could we say when you have very low traffic (device identification,
+write a few sectors to create the volume), everything's OK, and when
+you write larger amounts of data, the problem strikes ?
+
+It may be possible that you have a termination and/or cable problem
+and that the driver does not correctly recover from such a condition.
+
+> [...]
+> 
+> And so on, until the external SCSI devices become unusable.
+> The system is still running on the internally connected
+> SCSI drives, though.
+> 
+> I found some messages reporting similar problems on this
+> list, a few weeks ago (beginning of October 2005). There
+> was also a patch for the aic79xx driver mentioned, but I
+> haven't found any report about it since then, so I don't
+> know the status of the patch (it was for the 2.6 kernel,
+> anyway, as far as I remember)
+
+would you please send a link to this patch, or even the
+whole thread if there were responses ?
+
+> What can I do to make the external RAID usable?
+> Dump the Adaptec cards and replace them with something better?
+
+I've heard several people tell me that they have no problem with LSI
+logic cards, but as I don't have problems either with AIC79xx, I don't
+know how that should be interpreted.
+
+> Patch the driver?
+
+There is a large patch from the driver's author on his site. In fact,
+it's not really a patch, it's the whole driver directory. I've used
+it for a long time now (a few years) in my kernels without any problem.
+You may want to try it :
+
+  http://people.freebsd.org/~gibbs/linux/
+
+You can also get it as a patch from my tree :
+
+  http://w.ods.org/kernel/2.4-wt/2.4.31-wt1/patches-2.4.31-wt1/pool/aic79xx-20040522-linux-2.4.30-pre3.rediff
+
+> Any help is appreciated!
+
+good luck !
+
+Regards,
+Willy
+ 
+> Thanks!
+> 
+> - - andreas
+> 
+> - --
+> Andreas Haumer                     | mailto:andreas@xss.co.at
+> *x Software + Systeme              | http://www.xss.co.at/
+> Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
+> A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.4.2 (GNU/Linux)
+> Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+> 
+> iD8DBQFDg47JxJmyeGcXPhERAmHJAKDDneUcGWBG/DO6BmErT+EFm3WDUgCfYrW7
+> jjGW+en9tiILjo5XhcFa5Cc=
+> =GR+f
+> -----END PGP SIGNATURE-----
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

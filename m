@@ -1,69 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932632AbVKXRsc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932637AbVKXRsz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932632AbVKXRsc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 12:48:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbVKXRsc
+	id S932637AbVKXRsz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 12:48:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbVKXRsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 12:48:32 -0500
-Received: from nm02mta.dion.ne.jp ([61.117.3.75]:44557 "HELO
-	nm02omta026.dion.ne.jp") by vger.kernel.org with SMTP
-	id S932432AbVKXRsc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 12:48:32 -0500
-Date: Fri, 25 Nov 2005 02:49:19 +0900
-From: Akira Tsukamoto <akira-t@s9.dion.ne.jp>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] fix to clock running too fast
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20051124144613.GC1060@elte.hu>
-References: <20051123035256.684C.AKIRA-T@s9.dion.ne.jp> <20051124144613.GC1060@elte.hu>
-Message-Id: <20051125024530.88F8.AKIRA-T@s9.dion.ne.jp>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.21.04 [ja]
+	Thu, 24 Nov 2005 12:48:55 -0500
+Received: from science.horizon.com ([192.35.100.1]:39242 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S932432AbVKXRsy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 12:48:54 -0500
+Date: 24 Nov 2005 12:48:43 -0500
+Message-ID: <20051124174843.30544.qmail@science.horizon.com>
+From: linux@horizon.com
+To: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [patch] SMP alternatives
+Cc: linux@horizon.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I suspect that with MAP_SHARED + PROT_WRITE being pretty uncommon anyway, 
+> we can probably find trivial patterns in the kernel. Like only one process 
+> holding that file open - which is what you get with things that use mmap() 
+> to write a new file (I think "ld" used to have a config option to write 
+> files that way, for example).
 
-Ingo Molnar <mingo@elte.hu> mentioned:
-> 
-> * Akira Tsukamoto <akira-t@s9.dion.ne.jp> wrote:
-> 
-> > This one line patch adds upper bound testing inside timer_irq_works() 
-> > when evaluating whether irq timer works or not on boot up.
-> > 
-> > It fix the machines having problem with clock running too fast.
-> > 
-> > What this patch do is, if  timer interrupts running too fast through 
-> > IO-APIC IRQ then false back to i8259A IRQ.
-> 
-> thanks - looks good to me.
-> 
-> Acked-by: Ingo Molnar <mingo@elte.hu>
-> 
-> 	Ingo
+Just a bit of practical experience: I use mmap() to write data a LOT,
+because msync(MS_ASYNC) is the most portable way to do an async write.
 
-Thanks,
-I regenerated my patch to the latest kernel.
+There are two applications.  First, helping the OS not fill up with
+dirty pages.  It's basically a way of saying "this page is not going to
+be dirtied again for a long time".
 
-Signed-off-by: Akira Tsukamoto <akira-t@s9.dion.ne.jp>
+Secondly, to reduce the latency of synchronous writes.  If I need to
+log operations durably, it helps to
 
---- linux-2.6.15-rc2-atiix/arch/i386/kernel/io_apic.c.orig	2005-11-20 12:25:03.000000000 +0900
-+++ linux-2.6.15-rc2-atiix/arch/i386/kernel/io_apic.c	2005-11-25 02:43:40.000000000 +0900
-@@ -1877,7 +1877,7 @@ static int __init timer_irq_works(void)
- 	 * might have cached one ExtINT interrupt.  Finally, at
- 	 * least one tick may be lost due to delays.
- 	 */
--	if (jiffies - t1 > 4)
-+	if (jiffies - t1 > 4 && jiffies - t1 < 16)
- 		return 1;
- 
- 	return 0;
+1) fill the log pages, using MS_ASYNC as soon as the page is full
+2) when committing a batch, use MS_SYNC to force data to disk
+3) report batch successfully committed to stable storage
 
-
-
-
--- 
-Akira Tsukamoto <akira-t@s9.dion.ne.jp> <>
-
-
+The aio_ routines are less widely supported some implementations have
+very high overhead.  They would allow me to keep working while a commit
+is in progress, but the above is simple and reduces the burstiness of
+I/O considerably.

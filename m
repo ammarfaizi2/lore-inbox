@@ -1,64 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbVKXDCx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932617AbVKXDJn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932396AbVKXDCx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 22:02:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932617AbVKXDCx
+	id S932617AbVKXDJn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 22:09:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932618AbVKXDJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 22:02:53 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:52359 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S932396AbVKXDCx (ORCPT
+	Wed, 23 Nov 2005 22:09:43 -0500
+Received: from gate.crashing.org ([63.228.1.57]:26598 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932617AbVKXDJm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 22:02:53 -0500
-Date: Wed, 23 Nov 2005 19:02:37 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Rohit Seth <rohit.seth@intel.com>
-Cc: akpm@osdl.org, clameter@engr.sgi.com, torvalds@osdl.org,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org, steiner@sgi.com,
-       nickpiggin@yahoo.com.au
-Subject: Re: [PATCH]: Free pages from local pcp lists under tight memory
- conditions
-Message-Id: <20051123190237.3ba62bf0.pj@sgi.com>
-In-Reply-To: <1132779605.25086.69.camel@akash.sc.intel.com>
-References: <20051122161000.A22430@unix-os.sc.intel.com>
-	<Pine.LNX.4.62.0511231128090.22710@schroedinger.engr.sgi.com>
-	<1132775194.25086.54.camel@akash.sc.intel.com>
-	<20051123115545.69087adf.akpm@osdl.org>
-	<1132779605.25086.69.camel@akash.sc.intel.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Wed, 23 Nov 2005 22:09:42 -0500
+Subject: Re: Console rotation problems
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: adaplas@gmail.com
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1132796831.26560.392.camel@gaston>
+References: <1132793150.26560.357.camel@gaston>
+	 <1132793556.26560.361.camel@gaston>  <1132796831.26560.392.camel@gaston>
+Content-Type: text/plain
+Date: Thu, 24 Nov 2005 14:05:42 +1100
+Message-Id: <1132801542.26560.402.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rohit wrote:
-> I thought Nick et.al came up with some of the constant values like batch
-> size to tackle the page coloring issue specifically. 
+Remove bogus usage of test/set_bit() from fbcon rotation code and just
+manipulate the bits directly. This fixes an oops on powerpc among others
+and should be faster. Seems to work fine on the G5 here.
 
-I think this came about on a linux-ia64 thread started by Jack Steiner:
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+---
 
-  http://www.gelato.unsw.edu.au/archives/linux-ia64/0504/13668.html
-  Subject: per_cpu_pagesets degrades MPI performance
-  From: Jack Steiner <steiner_at_sgi.com>
-  Date: 2005-04-05 05:28:27
+And here is the fix. Tony, did I miss something ?
 
-Jack reported that per_cpu_pagesets were degrading some MPI benchmarks due
-to adverse page coloring.  Nick responded, recommending a non-power of two
-batch size.  Jack found that this helped nicely.  This thread trails off,
-but seems to be the origins of the 2**n-1 batch size in:
+Index: linux-serialfix/drivers/video/console/fbcon_rotate.h
+===================================================================
+--- linux-serialfix.orig/drivers/video/console/fbcon_rotate.h	2005-11-23 11:07:23.000000000 +1100
++++ linux-serialfix/drivers/video/console/fbcon_rotate.h	2005-11-24 14:02:22.000000000 +1100
+@@ -21,21 +21,13 @@
+         (s == SCROLL_REDRAW || s == SCROLL_MOVE || !(i)->fix.xpanstep) ? \
+         (i)->var.xres : (i)->var.xres_virtual; })
+ 
+-/*
+- * The bitmap is always big endian
+- */
+-#if defined(__LITTLE_ENDIAN)
+-#define FBCON_BIT(b) (7 - (b))
+-#else
+-#define FBCON_BIT(b) (b)
+-#endif
+ 
+ static inline int pattern_test_bit(u32 x, u32 y, u32 pitch, const char *pat)
+ {
+ 	u32 tmp = (y * pitch) + x, index = tmp / 8,  bit = tmp % 8;
+ 
+ 	pat +=index;
+-	return (test_bit(FBCON_BIT(bit), (void *)pat));
++	return (*pat) & (0x80 >> bit);
+ }
+ 
+ static inline void pattern_set_bit(u32 x, u32 y, u32 pitch, char *pat)
+@@ -43,7 +35,8 @@ static inline void pattern_set_bit(u32 x
+ 	u32 tmp = (y * pitch) + x, index = tmp / 8, bit = tmp % 8;
+ 
+ 	pat += index;
+-	set_bit(FBCON_BIT(bit), (void *)pat);
++
++	(*pat) |= 0x80 >> bit;
+ }
+ 
+ static inline void rotate_ud(const char *in, char *out, u32 width, u32 height)
+Index: linux-serialfix/drivers/video/console/fbcon_ccw.c
+===================================================================
+--- linux-serialfix.orig/drivers/video/console/fbcon_ccw.c	2005-11-15 11:54:14.000000000 +1100
++++ linux-serialfix/drivers/video/console/fbcon_ccw.c	2005-11-24 14:03:48.000000000 +1100
+@@ -34,7 +34,7 @@ static inline void ccw_update_attr(u8 *d
+ 		msk <<= (8 - mod);
+ 
+ 	if (offset > mod)
+-		set_bit(FBCON_BIT(7), (void *)&msk1);
++		msk1 |= 0x01;
+ 
+ 	for (i = 0; i < vc->vc_font.width; i++) {
+ 		for (j = 0; j < width; j++) {
 
-	mm/page_alloc.c:zone_batchsize()
-	 * Clamp the batch to a 2^n - 1 value. Having a power ...
-        batch = (1 << fls(batch + batch/2)) - 1;
 
-I don't see here evidence that "per_cpu_pagelist is ... one single main
-reason the coloring effect is drastically reduced in 2.6 (over 2.4)
-based kernels."  Rather in this case anyway a batch size not a power of
-two was apparently needed to keep per_cpu_pagesets from hurting
-performance due to page coloring affects on some workloads.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

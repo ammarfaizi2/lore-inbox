@@ -1,93 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbVKXUCk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbVKXUOP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751395AbVKXUCk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 15:02:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbVKXUCk
+	id S1751396AbVKXUOP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 15:14:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbVKXUOP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 15:02:40 -0500
-Received: from www.swissdisk.com ([216.144.233.50]:32671 "EHLO
-	swissweb.swissdisk.com") by vger.kernel.org with ESMTP
-	id S1751395AbVKXUCk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 15:02:40 -0500
-Date: Thu, 24 Nov 2005 10:54:19 -0800
-From: Ben Collins <bcollins@debian.org>
-To: linux-kernel@vger.kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 2.6.15-rc2] Fxi hardcoded cpu=0 in workqueue for per_cpu_ptr() calls
-Message-ID: <20051124185419.GC20937@swissdisk.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Thu, 24 Nov 2005 15:14:15 -0500
+Received: from outbound01.telus.net ([199.185.220.220]:56462 "EHLO
+	priv-edtnes56.telusplanet.net") by vger.kernel.org with ESMTP
+	id S1751396AbVKXUOP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 15:14:15 -0500
+Message-ID: <43862036.4060706@telusplanet.net>
+Date: Thu, 24 Nov 2005 13:19:02 -0700
+From: Bob Gill <gillb4@telusplanet.net>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hugh Dickins <hugh@veritas.com>
+CC: Linux kernel Mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.15-rc2-git3 build fails at mtrr/ipi_handler undeclared
+References: <43856925.1020704@telusplanet.net> <Pine.LNX.4.61.0511240751280.5688@goblin.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.61.0511240751280.5688@goblin.wat.veritas.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tracked this down on an Ultra Enterprise 3000. It's a 6-way machine. Odd
-thing about this machine (and it's good for finding bugs like this) is
-that the CPU id's are not 0 based. For instance, on my machine the CPU's
-are 6/7/10/11/14/15.
+Hugh Dickins wrote:
 
-This caused some NULL pointer dereference in kernel/workqueue.c because
-for single_threaded workqueue's, it hardcoded the cpu to 0.
-
-I changed the 0's to any_online_cpu(cpu_online_mask), which cpumask.h
-claims is "First cpu in mask". So this fits the same usage.
-
-
-diff --git a/include/linux/percpu.h b/include/linux/percpu.h
-diff --git a/kernel/workqueue.c b/kernel/workqueue.c
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -102,7 +102,7 @@ int fastcall queue_work(struct workqueue
- 
- 	if (!test_and_set_bit(0, &work->pending)) {
- 		if (unlikely(is_single_threaded(wq)))
--			cpu = 0;
-+			cpu = any_online_cpu(cpu_online_map);
- 		BUG_ON(!list_empty(&work->entry));
- 		__queue_work(per_cpu_ptr(wq->cpu_wq, cpu), work);
- 		ret = 1;
-@@ -118,7 +118,7 @@ static void delayed_work_timer_fn(unsign
- 	int cpu = smp_processor_id();
- 
- 	if (unlikely(is_single_threaded(wq)))
--		cpu = 0;
-+		cpu = any_online_cpu(cpu_online_map);
- 
- 	__queue_work(per_cpu_ptr(wq->cpu_wq, cpu), work);
- }
-@@ -266,8 +266,8 @@ void fastcall flush_workqueue(struct wor
- 	might_sleep();
- 
- 	if (is_single_threaded(wq)) {
--		/* Always use cpu 0's area. */
--		flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, 0));
-+		/* Always use first cpu's area. */
-+		flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, any_online_cpu(cpu_online_map)));
- 	} else {
- 		int cpu;
- 
-@@ -325,7 +325,7 @@ struct workqueue_struct *__create_workqu
- 	lock_cpu_hotplug();
- 	if (singlethread) {
- 		INIT_LIST_HEAD(&wq->list);
--		p = create_workqueue_thread(wq, 0);
-+		p = create_workqueue_thread(wq, any_online_cpu(cpu_online_map));
- 		if (!p)
- 			destroy = 1;
- 		else
-@@ -379,7 +379,7 @@ void destroy_workqueue(struct workqueue_
- 	/* We don't need the distraction of CPUs appearing and vanishing. */
- 	lock_cpu_hotplug();
- 	if (is_single_threaded(wq))
--		cleanup_workqueue_thread(wq, 0);
-+		cleanup_workqueue_thread(wq, any_online_cpu(cpu_online_map));
- 	else {
- 		for_each_online_cpu(cpu)
- 			cleanup_workqueue_thread(wq, cpu);
-
--- 
-Ubuntu     - http://www.ubuntu.com/
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-SwissDisk  - http://www.swissdisk.com/
+>
+>That's one of the things fixed by Andrew's patch below
+>(though Linus fixed it differently in the end).
+>Or you could just wait for 2.6.15-rc2-git4, should be along soon.
+>
+>Hugh
+>
+>diff -puN include/linux/smp.h~smp_call_function-must-be-a-macro include/linux/smp.h
+>--- devel/include/linux/smp.h~smp_call_function-must-be-a-macro	2005-11-23 00:14:19.000000000 -0800
+>+++ devel-akpm/include/linux/smp.h	2005-11-23 00:20:54.000000000 -0800
+>@@ -94,13 +94,7 @@ void smp_prepare_boot_cpu(void);
+>  */
+> #define raw_smp_processor_id()			0
+> #define hard_smp_processor_id()			0
+>-
+>-static inline int smp_call_function(void (*func) (void *info), void *info,
+>-				    int retry, int wait)
+>-{
+>-	return 0;
+>-}
+>-
+>+#define smp_call_function(func,info,retry,wait)	({ 0; })
+> #define on_each_cpu(func,info,retry,wait)	({ func(info); 0; })
+> static inline void smp_send_reschedule(int cpu) { }
+> #define num_booting_cpus()			1
+>diff -puN net/core/flow.c~smp_call_function-must-be-a-macro net/core/flow.c
+>--- devel/net/core/flow.c~smp_call_function-must-be-a-macro	2005-11-23 00:17:40.000000000 -0800
+>+++ devel-akpm/net/core/flow.c	2005-11-23 00:17:47.000000000 -0800
+>@@ -292,7 +292,7 @@ void flow_cache_flush(void)
+> 	init_completion(&info.completion);
+> 
+> 	local_bh_disable();
+>-	smp_call_function(flow_cache_flush_per_cpu, &info, 1, 0);
+>+	(void)smp_call_function(flow_cache_flush_per_cpu, &info, 1, 0);
+> 	flow_cache_flush_tasklet((unsigned long)&info);
+> 	local_bh_enable();
+> 
+>
+>  
+>
+Done!  Thanks for your reply.  I built 2.6.15-rc2-git4 and its running 
+it as I type this.  Linus' final looks very much like the patch above, 
+except for the void typecast in smp_call_funciton.
+Thanks again,
+Bob

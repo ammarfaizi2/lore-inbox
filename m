@@ -1,76 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbVKXPcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbVKXPfa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932151AbVKXPcM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 10:32:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932141AbVKXPcL
+	id S932141AbVKXPfa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 10:35:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbVKXPf3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 10:32:11 -0500
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:62348 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S932151AbVKXPcA convert rfc822-to-8bit (ORCPT
+	Thu, 24 Nov 2005 10:35:29 -0500
+Received: from fw5.argo.co.il ([194.90.79.130]:6419 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S932141AbVKXPf3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 10:32:00 -0500
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: dri-devel@lists.sourceforge.net
-Subject: Re: 2.6.14-rt4: via DRM errors
-Date: Thu, 24 Nov 2005 07:31:55 -0800
-User-Agent: KMail/1.8.92
-Cc: Thomas =?iso-8859-1?q?Hellstr=F6m?= <unichrome@shipmail.org>,
-       "Lee Revell" <rlrevell@joe-job.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-References: <1132807985.1921.82.camel@mindpipe> <1132829378.3473.11.camel@mindpipe>  <19379.192.138.116.230.1132836621.squirrel@192.138.116.230>
-In-Reply-To: <19379.192.138.116.230.1132836621.squirrel@192.138.116.230>
+	Thu, 24 Nov 2005 10:35:29 -0500
+Message-ID: <4385DDBE.3040208@argo.co.il>
+Date: Thu, 24 Nov 2005 17:35:26 +0200
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200511240731.56147.jbarnes@virtuousgeek.org>
+To: Andi Kleen <ak@suse.de>
+CC: Benjamin LaHaise <bcrl@kvack.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Grover <andrew.grover@intel.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, john.ronciak@intel.com,
+       christopher.leech@intel.com
+Subject: Re: [RFC] [PATCH 0/3] ioat: DMA engine support
+References: <Pine.LNX.4.44.0511231143380.32487-100000@isotope.jf.intel.com> <4384E7F2.2030508@pobox.com> <20051123223007.GA5921@wotan.suse.de> <20051124001700.GC14246@kvack.org> <20051124065037.GZ20775@brahms.suse.de> <4385DB32.7010605@argo.co.il> <20051124152924.GB5921@wotan.suse.de>
+In-Reply-To: <20051124152924.GB5921@wotan.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Nov 2005 15:35:27.0597 (UTC) FILETIME=[B1DE61D0:01C5F10C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, November 24, 2005 4:50 am, Thomas Hellström wrote:
-> There is some info in the old precision insight documentation about
-> the DRI infrastructure, (can't seem to find a link right now) But
-> generally there is only one global lock and something called the
-> drawable spinlock that is apparently not used anymore. The global
-> lock is similar to a futex, with the exception that the kernel is
-> called both to resolve contention and whenever a new context is about
-> to take the lock, so that optional context switching can take place,
-> and also if the client requests that some special action should take
-> place after locking is done, like wait for dma ready or quiescent.
-> The lock should be taken before writing to the hardware or before
-> submitting DMA commands. If you want to be _sure_ that noone else
-> uses the hardware (like you want to  read a particular register or
-> something), you have to take the lock and wait for DMA quiescent. For
-> example, if you want to make sure the video scaler is idle so you can
-> write to it, you first take the lock so that noone else writes to it
-> or to the DMA queue, then you wait for the DMA queue to be empty or
-> make sure there are no pending commands for the scaler, then you wait
-> for the scaler to become idle.
+Andi Kleen wrote:
+
+>>>      
+>>>
+>>As an example, an NFS server reads some data pages using iSCSI and sends 
+>>them using NFS/TCP (or vice versa).
+>>    
+>>
 >
-> The lock value is easily manipulated from user space and resides in
-> one of the shared memory areas. I guess this means that with the
-> current drm security policy it should be regarded as an advisory lock
-> between drm clients.
+>For TX this can be done zero copy using a sendfile like setup.
+>  
+>
+Yes, or with aio send for anonymous memory.
 
-This is a nice little writeup, maybe it could go into the kernel's 
-Documentation/ directory?  It would be nice to document how the lock 
-and signal handling interact as well.
+>For RX it may help - but my point was that most applications
+>are not structured in this simple way.
+>
+>  
+>
+Agreed. But those that do care, care very much. The data mover 
+applications, simply because they don't touch the data, expect very high 
+bandwidth.
 
-> At one point I was about to implement a scheme for via with a number
-> of similar locks, one for each independent function on the video
-> chip, Like 2D, 3D, Mpeg decoder, Video scaler 1 and 2, so that they
-> didn't have to wait for  eachother. The global lock would then only
-> be taken to make sure that no drawables were touched by the X server
-> or other clients while the lock was held, which would be compatible
-> with how the X server works today. Never got around to do that,
-> however, but the mpeg decoders have a futex scheme to prevent clients
-> stepping on eachother. With that it is possible to have multiple
-> clients use the same hw decoder.
+>>As long as they can be turned off. Not all usespace applications want to 
+>>touch the data immediately.
+>>    
+>>
+>
+>Perhaps.  And lots of others might. Of course the simple
+>network benchmarks don't so the number on them look good.
+>
+>  
+>
+There are very real non-benchmark applications that want this.
 
-Sounds interesting, but that would be card specific, right?  I mean, on 
-some cards the 2d and 3d locks would have to be the same because of 
-shared state or whatever, for example.
+>Just pointing out that it's not clear it will always be a big help.
+>
+>  
+>
+Agree it should default to in-cache.
 
-Jesse

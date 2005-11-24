@@ -1,145 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030516AbVKXAIM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030522AbVKXANJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030516AbVKXAIM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 19:08:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932604AbVKXAIL
+	id S1030522AbVKXANJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 19:13:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030524AbVKXANI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 19:08:11 -0500
-Received: from mail.kroah.org ([69.55.234.183]:5324 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932599AbVKXAIJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 19:08:09 -0500
-Date: Wed, 23 Nov 2005 16:07:54 -0800
-From: Greg KH <greg@kroah.com>
-To: Andrew Grover <andrew.grover@intel.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       john.ronciak@intel.com, christopher.leech@intel.com
-Subject: Re: [RFC] [PATCH 1/3] ioat: DMA subsystem
-Message-ID: <20051124000754.GA1059@kroah.com>
-References: <Pine.LNX.4.44.0511231207410.32487-100000@isotope.jf.intel.com>
-Mime-Version: 1.0
+	Wed, 23 Nov 2005 19:13:08 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:38916 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030522AbVKXANG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 19:13:06 -0500
+Date: Thu, 24 Nov 2005 01:13:05 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] add -Werror-implicit-function-declaration to CFLAGS
+Message-ID: <20051124001305.GM3963@stusta.de>
+References: <20051123223438.GY3963@stusta.de> <20051123150905.6c7a952d.akpm@osdl.org> <20051123233853.GL3963@stusta.de> <20051123155035.2494a746.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0511231207410.32487-100000@isotope.jf.intel.com>
+In-Reply-To: <20051123155035.2494a746.akpm@osdl.org>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 12:26:42PM -0800, Andrew Grover wrote:
-> +static void
-> +dma_class_release(struct class_device *cd)
-> +{
-> +	/* do something */
-> +}
+On Wed, Nov 23, 2005 at 03:50:35PM -0800, Andrew Morton wrote:
+> Adrian Bunk <bunk@stusta.de> wrote:
+> >
+> > On Wed, Nov 23, 2005 at 03:09:05PM -0800, Andrew Morton wrote:
+> > > Adrian Bunk <bunk@stusta.de> wrote:
+> > > >
+> > > > Currently, using an undeclared function gives a compile warning, but it 
+> > > > can lead to a nasty runtime error if the prototype of the function is 
+> > > > different from what gcc guessed.
+> > > > 
+> > > > With -Werror-implicit-function-declaration, we are getting an immediate 
+> > > > compile error instead.
+> > > 
+> > > Where "we" == "me".  This patch means I get to fix all the errors which I
+> > > encounter.  No fair.  This should be the last patch, not the first.
+> > 
+> > Is it my fault that you applied neither Al Viro's patches to remove the 
+> > usages of the ISA legacy functions
+> 
+> Never saw them.
 
-Well, then actually do something here.  Don't try to trick the kernel to
-not complain about the lack of a release function by giving it an empty
-function.  This is wrong.
+It's the patch series starting with
+  http://www.ussg.iu.edu/hypermail/linux/kernel/0511.1/2685.html
 
-> +static struct class dma_devclass = {
-> +	.name		= "dma",
-> +	.release	= dma_class_release,
-> +	.class_dev_attrs = dma_class_attrs,
-> +};
+> > nor my patch to mark 
+> > virt_to_bus/bus_to_virt as __deprecated on i386?
+> 
+> That won't make powerpc compile.
 
-Why not just use class_device_create() and friends, instead of building
-your own class this way?  It will take care of your "look at the lack of
-my release function" issues, and make things easier to handle.
+Judging from the feedback when I sent this patch first, there are people 
+who might notice and actually fix these issues.
 
-> +EXPORT_SYMBOL(dma_async_client_register);
-> +EXPORT_SYMBOL(dma_async_client_unregister);
-> +EXPORT_SYMBOL(dma_async_client_chan_request);
-> +EXPORT_SYMBOL(dma_async_memcpy_buf_to_buf);
-> +EXPORT_SYMBOL(dma_async_memcpy_buf_to_pg);
-> +EXPORT_SYMBOL(dma_async_memcpy_pg_to_pg);
-> +EXPORT_SYMBOL(dma_async_memcpy_complete);
-> +EXPORT_SYMBOL(dma_async_memcpy_issue_pending);
-> +EXPORT_SYMBOL(dma_async_device_register);
-> +EXPORT_SYMBOL(dma_async_device_unregister);
-> +EXPORT_SYMBOL(dma_async_wait_for_completion);
-> +EXPORT_PER_CPU_SYMBOL(kick_dma_poll);
+> Plus there are various other unfixed functions around the tree with various
+> .configs.
 
-EXPORT_SYMBOL_GPL() perhaps?
+And it's my job to fix every single such bug before you'd accept 
+-Werror-implicit-function-declaration in the CFLAGS?
 
-> +/**
-> + * enum dma_event_t - resource PNP/power managment events
-> + * @DMA_RESOURCE_SUSPEND: DMA device going into low power state
-> + * @DMA_RESOURCE_RESUME: DMA device returning to full power
-> + * @DMA_RESOURCE_ADDED: DMA device added to the system
-> + * @DMA_RESOURCE_REMOVED: DMA device removed from the system
-> + */
-> +enum dma_event_t {
-> +	DMA_RESOURCE_SUSPEND,
-> +	DMA_RESOURCE_RESUME,
-> +	DMA_RESOURCE_ADDED,
-> +	DMA_RESOURCE_REMOVED,
-> +};
+Yes, these are bugs.
+And yes, they do already generate warnings.
 
-Why "_t" for an enum?
+> It took about four releases to teach people that the jsm driver won't
+> compile.  I don't want to go adding things to -mm which break it in this
+> way - that causes us to lose testers.
 
-> +/**
-> + * struct dma_device - info on the entity supplying DMA services
-> + * @chancnt: how many DMA channels are supported
-> + * @channels: the list of struct dma_chan
-> + * @global_node: list_head for global dma_device_list
-> + * Other func ptrs: used to make use of this device's capabilities
-> + */
-> +struct dma_device {
-> +
-> +	unsigned int chancnt;
-> +	struct list_head channels;
-> +	struct list_head global_node;
-> +
-> +	int dev_id;
-> +	/*struct class_device class_dev;*/
+-Werror-implicit-function-declaration helps us to avoid a class of 
+hard to find _runtime_ errors.
 
-Commented out?
+I'm already sending patches to fix all the warnings with 
+-Wmissing-prototypes (which is roughly spoken the other side of the 
+implicit-function-declaration issue) at least on i386 before I'm 
+proposing to add this flag to the global CFLAGS, and while doing this 
+I've already found and fixed three _runtime_ errors.
 
-> +	int (*device_alloc_chan_resources)(struct dma_chan *chan);
-> +	void (*device_free_chan_resources)(struct dma_chan *chan);
-> +	dma_cookie_t (*device_memcpy_buf_to_buf)(struct dma_chan *chan, void *dest,
-> +		void *src, size_t len);
-> +	dma_cookie_t (*device_memcpy_buf_to_pg)(struct dma_chan *chan, struct page *page,
-> +		unsigned int offset, void *kdata, size_t len);
-> +	dma_cookie_t (*device_memcpy_pg_to_pg)(struct dma_chan *chan, struct page *dest_pg,
-> +		unsigned int dest_off, struct page *src_pg, unsigned int src_off,
-> +		size_t len);
-> +	void (*device_arm_interrupt)(struct dma_chan *chan);
-> +	enum dma_status_t (*device_memcpy_complete)(struct dma_chan *chan, dma_cookie_t cookie, dma_cookie_t *last, dma_cookie_t *used);
-> +	void (*device_memcpy_issue_pending)(struct dma_chan *chan);
-> +};
-> +
-> +/* --- public DMA engine API --- */
-> +
-> +struct dma_client *
-> +dma_async_client_register(dma_event_callback event_callback);
-> +
-> +void
-> +dma_async_client_unregister(struct dma_client *client);
-> +
-> +void
-> +dma_async_client_chan_request(struct dma_client *client, unsigned int number);
+But judging from your comments you might then reject 
+-Wmissing-prototypes because it causes warnings on other 
+architectures...
 
-Put return types on the same line as the function please.
+IMHO reducing the number of hard to find runtime errors is more 
+important than to get allmodconfig compiling in every -mm 
+on all architectures.
 
-> +dma_cookie_t
-> +dma_async_memcpy_buf_to_buf(
-> +	struct dma_chan *chan,
-> +	void *dest,
-> +	void *src,
-> +	size_t len);
+> The patch is a good one, but it should come last.
 
-Ick, don't duplicate the acpi coding style here please :)
+Instead of telling me that I have to fix compile breakages with all 
+possible .config's on all architectures before you would accept my 
+patch, couldn't you be honest and simply tell me to fuck off?
 
-> +static inline enum dma_status_t
-> +dma_async_is_complete(
-> +	dma_cookie_t cookie,
-> +	dma_cookie_t last_complete,
-> +	dma_cookie_t last_used) {
-> +	
+cu
+Adrian
 
-Trailing space :(
+-- 
 
-thanks,
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-greg k-h

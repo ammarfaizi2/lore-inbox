@@ -1,52 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030602AbVKXFVO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161002AbVKXF3i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030602AbVKXFVO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 00:21:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030605AbVKXFVO
+	id S1161002AbVKXF3i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 00:29:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030608AbVKXF3i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 00:21:14 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:41382 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S1030602AbVKXFVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 00:21:14 -0500
-Date: Thu, 24 Nov 2005 05:21:07 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Reboot through the BIOS on newer HP laptops
-Message-ID: <20051124052107.GA28070@srcf.ucam.org>
-Mime-Version: 1.0
+	Thu, 24 Nov 2005 00:29:38 -0500
+Received: from mx1.suse.de ([195.135.220.2]:1478 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030607AbVKXF3h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 00:29:37 -0500
+From: Neil Brown <neilb@suse.de>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Date: Thu, 24 Nov 2005 16:29:28 +1100
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+Content-Transfer-Encoding: 7bit
+Message-ID: <17285.20408.500921.973650@cse.unsw.edu.au>
+Cc: Andrew Morton <akpm@osdl.org>, sander@humilis.net,
+       linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+Subject: Re: Please help me understand ->writepage. Was Re: segfault mdadm
+ --write-behind, 2.6.14-mm2  (was: Re: RAID1 ramdisk patch)
+In-Reply-To: message from Anton Altaparmakov on Tuesday November 22
+References: <431B9558.1070900@baanhofman.nl>
+	<17179.40731.907114.194935@cse.unsw.edu.au>
+	<20051116133639.GA18274@favonius>
+	<20051116142000.5c63449f.akpm@osdl.org>
+	<17275.48113.533555.948181@cse.unsw.edu.au>
+	<20051117075041.GA5563@favonius>
+	<20051117101251.GA2883@favonius>
+	<20051117101511.GB2883@favonius>
+	<17282.21309.229128.930997@cse.unsw.edu.au>
+	<20051121155144.62bedaab.akpm@osdl.org>
+	<17282.35980.613583.592130@cse.unsw.edu.au>
+	<Pine.LNX.4.64.0511221153430.2763@hermes-1.csi.cam.ac.uk>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Newer HP laptops (nc4200, nc6xxx, nc8xxx) hang on reboot with a standard 
-configuration. Passing reboot=b makes them work. This patch adds a DMI 
-quirk that defaults them to this mode, and doesn't appear to have any 
-adverse affects on older HPs.
+On Tuesday November 22, aia21@cam.ac.uk wrote:
+> On Tue, 22 Nov 2005, Neil Brown wrote:
+> > I've made them all kmap_atomic.
+> 
+> Except you did it wrong...  See below...
+> 
+> > -	kunmap(bitmap->sb_page);
+> > +	kunmap_atomic(bitmap->sb_page, KM_USER0);
+> 
+> You need to pass in the address not the page, i.e.:
+> 
 
-Signed-off-by: Matthew Garrett <mjg59@srcf.ucam.org>
+How.. umm... intuitive :-(
+Thanks, I'll fix that.
 
---- a/arch/i386/kernel/reboot.c.orig	2005-09-20 18:54:50.000000000 +0100
-+++ a/arch/i386/kernel/reboot.c	2005-09-20 18:58:11.000000000 +0100
-@@ -135,6 +135,14 @@
- 			DMI_MATCH(DMI_PRODUCT_NAME, "PowerEdge 2400"),
- 		},
- 	},
-+	{       /* HP laptops have weird reboot issues */
-+	        .callback = set_bios_reboot,
-+		.ident = "HP Laptop",
-+		.matches = {
-+		        DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "HP Compaq"),
-+		},
-+	},
- 	{ }
- };
+> 
+> Hope this helps.
+> 
 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+It does.  I really appreciate getting feedback on my code.... I've
+sometimes tempted to slip in a few bugs so that when people point them
+out to me I know they have read the rest of the code and that
+increases my confidence in it (I haven't actually done this... yet).
+
+:-)
+
+NeilBrown

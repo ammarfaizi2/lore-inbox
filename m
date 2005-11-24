@@ -1,78 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161010AbVKXFyS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030609AbVKXGAf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161010AbVKXFyS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 00:54:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161012AbVKXFyS
+	id S1030609AbVKXGAf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 01:00:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030610AbVKXGAe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 00:54:18 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:18645
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1161010AbVKXFyR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 00:54:17 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Neil Brown <neilb@suse.de>
-Subject: Re: [PATCH] pivot_root broken in 2.6.15-rc1-mm2
-Date: Wed, 23 Nov 2005 23:54:00 -0600
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, Al Viro <viro@ftp.linux.org.uk>
-References: <17283.52960.913712.454816@cse.unsw.edu.au> <200511230543.24353.rob@landley.net> <17285.19207.788744.48747@cse.unsw.edu.au>
-In-Reply-To: <17285.19207.788744.48747@cse.unsw.edu.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Nov 2005 01:00:34 -0500
+Received: from cavan.codon.org.uk ([217.147.92.49]:36817 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S1030609AbVKXGAe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 01:00:34 -0500
+Date: Thu, 24 Nov 2005 06:00:30 +0000
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: davej@codemonkey.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Add basic PM support for Nvidia and ATI AGP bridges
+Message-ID: <20051124060030.GF28070@srcf.ucam.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511232354.00843.rob@landley.net>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 November 2005 23:09, Neil Brown wrote:
-> On Wednesday November 23, rob@landley.net wrote:
-> > On Tuesday 22 November 2005 20:07, Neil Brown wrote:
-> > > Pivot_root seems to be broken in 2.6.15-rc1-mm2.
-> > >
-> > > I havea initramfs filesystem, mount a ext3 filesystem (which has /mnt)
-> > > at '/root' and
-> > >
-> > >   cd /root
-> > >   pivot . mnt
-> > >
-> > > and it says -EINVAL.
-> >
-> > You can't pivot_root initramfs because initramfs is rootfs.
-> >
-> > I wrote Documentation/filesystems/ramfs-rootfs-initramfs.txt just for
-> > this occasion. :)
->
-> Unfortunately, 'man pivot_root' nor 'use the source, Luke' contain
-> pointers to this particular useful document.  They both list assorted
-> restrictions on pivot_root, but not this one.
->
-> How about the following?
->
-> Thanks,
-> NeilBrown
->
-> Signed-off-by: Neil Brown <neilb@suse.de>
-Signed-off-by: Rob Landley <rob@landley.net>
+I retrieved these from the swsusp2 patchset, but they seem to be 
+independently useful. As a result, I'm not sure who the original author 
+is - however, they seem to be pretty obvious.
 
-> ### Diffstat output
->  ./fs/namespace.c |    4 ++++
->  1 file changed, 4 insertions(+)
->
-> diff ./fs/namespace.c~current~ ./fs/namespace.c
-> --- ./fs/namespace.c~current~ 2005-11-23 14:24:59.000000000 +1100
-> +++ ./fs/namespace.c 2005-11-24 16:07:01.000000000 +1100
-> @@ -1526,6 +1526,10 @@ static void chroot_fs_refs(struct nameid
->   * pointed to by put_old must yield the same directory as new_root. No
-> other * file system may be mounted on put_old. After all, new_root is a
-> mountpoint. *
-> + * Also, the current root cannot be on the 'rootfs' (initial ramfs)
-> filesystem. + * See Documentation/filesystems/ramfs-rootfs-initramfs.txt
-> for alternatives + * in this situation.
-> + *
->   * Notes:
->   *  - we don't move root/cwd if they are not at the root (reason: if
-> something *    cared enough to change them, it's probably wrong to force
-> them elsewhere)
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Description: Add suspend/resume support to ATI and Nvidia AGP bridges
+## DP: Patch author: Unknown
+## DP: Upstream status: Not submitted
+
+. $(dirname $0)/DPATCH
+
+@DPATCH@
+diff -ruNp 210-agp-resume-support.patch-old/drivers/char/agp/ati-agp.c 210-agp-resume-support.patch-new/drivers/char/agp/ati-agp.c
+--- 210-agp-resume-support.patch-old/drivers/char/agp/ati-agp.c	2005-06-20 11:46:51.000000000 +1000
++++ 210-agp-resume-support.patch-new/drivers/char/agp/ati-agp.c	2005-07-04 23:14:18.000000000 +1000
+@@ -507,6 +507,33 @@ static void __devexit agp_ati_remove(str
+ 	agp_put_bridge(bridge);
+ }
+ 
++#ifdef CONFIG_PM
++
++static int agp_ati_suspend(struct pci_dev *pdev, pm_message_t state)
++{
++	pci_save_state (pdev);
++	pci_set_power_state (pdev, 3);
++
++	return 0;
++}
++
++static int agp_ati_resume(struct pci_dev *pdev)
++{
++	struct agp_bridge_data *bridge = pci_get_drvdata(pdev);
++
++	/* set power state 0 and restore PCI space */
++	pci_set_power_state (pdev, 0);
++	pci_restore_state(pdev);
++
++	/* reconfigure AGP hardware again */
++	if (bridge->driver == &ati_generic_bridge)
++		return ati_configure();
++
++	return 0;
++}
++
++#endif /* CONFIG_PM */
++
+ static struct pci_device_id agp_ati_pci_table[] = {
+ 	{
+ 	.class		= (PCI_CLASS_BRIDGE_HOST << 8),
+@@ -526,6 +553,10 @@ static struct pci_driver agp_ati_pci_dri
+ 	.id_table	= agp_ati_pci_table,
+ 	.probe		= agp_ati_probe,
+ 	.remove		= agp_ati_remove,
++#ifdef CONFIG_PM
++	.suspend	= agp_ati_suspend,
++	.resume		= agp_ati_resume,
++#endif
+ };
+ 
+ static int __init agp_ati_init(void)
+diff -ruNp 210-agp-resume-support.patch-old/drivers/char/agp/nvidia-agp.c 210-agp-resume-support.patch-new/drivers/char/agp/nvidia-agp.c
+--- 210-agp-resume-support.patch-old/drivers/char/agp/nvidia-agp.c	2005-06-20 11:46:51.000000000 +1000
++++ 210-agp-resume-support.patch-new/drivers/char/agp/nvidia-agp.c	2005-07-04 23:14:18.000000000 +1000
+@@ -397,11 +397,40 @@ static struct pci_device_id agp_nvidia_p
+ 
+ MODULE_DEVICE_TABLE(pci, agp_nvidia_pci_table);
+ 
++#ifdef CONFIG_PM
++static int agp_nvidia_suspend(struct pci_dev *pdev, pm_message_t state)
++{
++	pci_save_state (pdev);
++	pci_set_power_state (pdev, 3);
++
++	return 0;
++}
++
++static int agp_nvidia_resume(struct pci_dev *pdev)
++{
++	struct agp_bridge_data *bridge = pci_get_drvdata(pdev);
++
++	/* set power state 0 and restore PCI space */
++	pci_set_power_state (pdev, 0);
++	pci_restore_state(pdev);
++
++	/* reconfigure AGP hardware again */
++	if (bridge->driver == &nvidia_driver)
++		nvidia_configure();
++
++	return 0;
++}
++#endif
++
+ static struct pci_driver agp_nvidia_pci_driver = {
+ 	.name		= "agpgart-nvidia",
+ 	.id_table	= agp_nvidia_pci_table,
+ 	.probe		= agp_nvidia_probe,
+ 	.remove		= agp_nvidia_remove,
++#ifdef CONFIG_PM
++	.suspend	= agp_nvidia_suspend,
++	.resume		= agp_nvidia_resume,
++#endif
+ };
+ 
+ static int __init agp_nvidia_init(void)
+
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

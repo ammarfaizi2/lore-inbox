@@ -1,103 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030347AbVKXMQi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161033AbVKXMVg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030347AbVKXMQi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 07:16:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030383AbVKXMQi
+	id S1161033AbVKXMVg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 07:21:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030392AbVKXMVg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 07:16:38 -0500
-Received: from aeimail.aei.ca ([206.123.6.84]:61939 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S1030347AbVKXMQh (ORCPT
+	Thu, 24 Nov 2005 07:21:36 -0500
+Received: from zproxy.gmail.com ([64.233.162.192]:21649 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030383AbVKXMVf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 07:16:37 -0500
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Marc Koschewski <marc@osknowledge.org>
-Subject: Re: psmouse unusable in -mm series (was: 2.6.15-rc1-mm2 unsusable on DELL Inspiron 8200, 2.6.15-rc1 works fine)
-Date: Thu, 24 Nov 2005 07:17:10 -0500
-User-Agent: KMail/1.8.2
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
-       340202@bugs.debian.org
-References: <20051118182910.GJ6640@stiffy.osknowledge.org> <200511232129.35796.tomlins@cam.org> <20051124084120.GA7799@stiffy.osknowledge.org>
-In-Reply-To: <20051124084120.GA7799@stiffy.osknowledge.org>
+	Thu, 24 Nov 2005 07:21:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=ZKDR5QFJEVI5Rhtnoogp6a/f8L150Ka+iSoNx+mn8YiZ1jFck8sBafFxjuLVmgHDeZCnHEyCcBFFaSPQjI7F2u9MmKRHnf5jl+N67wh878mQXTqtBCMIaqCWbqp5stAvpes/XeLodwmMzrY3RiV9jreTARELwOjxkIzHK/wtm94=
+Message-ID: <4385B047.8020707@gmail.com>
+Date: Thu, 24 Nov 2005 21:21:27 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+CC: axboe@suse.de, jgarzik@pobox.com, James.Bottomley@steeleye.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH linux-2.6-block:post-2.6.15 09/10] blk: add FUA support
+ to IDE
+References: <20051117153509.B89B4777@htj.dyndns.org>	 <20051117153509.5A77ED53@htj.dyndns.org>	 <58cb370e0511171239i16e0aaffr237ef7af68ece946@mail.gmail.com>	 <437DF271.6050702@gmail.com> <58cb370e0511180817p48602e3ap6d3ef49b842e8a00@mail.gmail.com> <4385AAFB.5070605@gmail.com>
+In-Reply-To: <4385AAFB.5070605@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511240717.11752.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 24 November 2005 03:41, Marc Koschewski wrote:
-> * Ed Tomlinson <tomlins@cam.org> [2005-11-23 21:29:35 -0500]:
-> 
-> > On Wednesday 23 November 2005 14:57, Marc Koschewski wrote:
-> > > * Dmitry Torokhov <dtor_core@ameritech.net> [2005-11-21 22:43:50 -0500]:
-> > > 
-> > > > On Sunday 20 November 2005 12:14, Marc Koschewski wrote:
-> > > > > * Dmitry Torokhov <dtor_core@ameritech.net> [2005-11-18 22:07:19 -0500]:
-> > > > > 
-> > > > > > On Friday 18 November 2005 13:29, Marc Koschewski wrote:
-> > > > > > > Nov 18 12:58:37 stiffy kernel: psmouse.c: Wheel Mouse at isa0060/serio1/input0 lost synchronization, throwing 1 bytes away.
-> > > > > > > 
-> > > > > > > SOME STUFF MISSING? HUH?
-> > > > > > > 
-> > > > > > > Nov 18 13:03:14 stiffy kernel: psmouse.c: resync failed, issuing reconnect request
-> > > > > > > 
-> > > > > > 
-> > > > > > Hm, this worries me a bit... Could you please try appying the patch
-> > > > > > below to plain 2.6.15-rc1 and see if mouse starts misbehaving again?
-> > > > > 
-> > > > > Dmitry,
-> > > > > 
-> > > > > I applied the 5 patches to a plain 2.6.15-rc1. The mouse was well as if it was
-> > > > > in an unpatched kernel. The problem just occured in 2.6.15-rc1-mmX.
-> > > > > Plain 2.6.15-rc1 was fine before as well. So: actually no change.
-> > > > > 
-> > > > > Need any more info?
-> > > > >
-> > > > 
-> > > > Marc,
-> > > > 
-> > > > Thank you for testing the patch. It proves that your mouse troubles
-> > > > were not caused by the patch I made so I am very happy. "No change"
-> > > > is the result I wanted to hear ;)
-> > > > 
-> > > 
-> > > Dmitry,
-> > > 
-> > > there's a bug report filed against Debian's udev. You can read it here:
-> > > 
-> > > 	http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=340202
-> > > 
-> > > The bug report, however, states that the problem is caused by udev under
-> > > all variants of kernel 2.6.15. I'm writing this mail while running
-> > > 2.6.15-rc1 and the mouse definitely works. Do you have any other hint?
-> > > Seems to me like the bug report is only half the truth... 
-> > 
-> > Marc,
-> > 
-> > Are you, by some slim chance, manually loading mousedev ( via /etc/modules) or
-> > an init script?  If so your mouse will work.
-> > 
-> 
-> Hi Ed,
-> 
-> yes, I do load mousedev as well as psmouse in /etc/modules due to udev
-> no longer loading it. my problem, however, is _not_ that teh module
-> doesn't get loaded. It's the mouse pointer jumping all over the screen.
-> After some time (inactivity?) it calms down and is usable. Then, after
-> some minutes it again jumps wild all over the place, seems to click
-> stuff on it's own, and again calms down, ...
-> 
-> This problem shouldn't be udev related.
-> 
-> One note: the pointer seems to be in love with the corners of the
-> screen. It always goes there when it goes wild... ;)
 
-Marc,
+Oops, I was delusional again.
 
-It looks like you are seeing a different bug.  The one opened for debian user space
-covers mousedev not being loaded if the kernel is 2.6.15, which leads to no /dev/input
+Tejun Heo wrote:
+> 
+> Well, this one is quite a pain in the ass.
+> 
+> I'm not very fond of ->rq_select_barrier() approach for the following 
+> reasons.
+> 
+> * That removes possibility of correct synchronization.  With 
+> blk_queue_ordered() approach, we can later add 
+> blk_queue_[un]lock_ordered() to achieve correct synchronization if that 
+> becomes necessary, but with ->rq_select_barrier() approach, the 
+> low-level driver ends up having less control over what's gonna happen when.
 
-Ed Tomlinson
+Of course, we can do the same lock/unlock dance with 
+->rq_select_barrier() approach.  I wasn't thinking straight.  Forget 
+this rationale.
+
+> 
+> * Changing ordered mode is not supposed to be a frequent operation and 
+> the blk_queue_ordered() interface makes that explicit.
+> 
+> So, I added ide_driver_t->protocol_changed() callback which gets called 
+> whenever dma/multimode changes occur.  Unfortunately, dma/multmode 
+> changes can be committed with or without context, and with or without 
+> queue lock.  As blk_queue_ordered uses the queue lock for 
+> synchronization, this becomes issue.
+> 
+> I tried to distinguish places where the changes occur while queue lock 
+> is held from the other.  Not only was it highly error-prone, it couldn't 
+> be done without modifying/auditing all low-level drivers as some drivers 
+> (cs5520) use the same function which touches dma setting 
+> (cs5520_tune_chipset) from both ->speedproc (called with queuelock) and 
+> ->ide_dma_check (called without queuelock).
+> 
+> One alternative I'm thinking of is using a workqueue to call 
+> blk_queue_ordered, such that we don't have to guess whether or not we're 
+> called with queuelock held.  Unfortunately, this will give us a small 
+> window where wrong barrier requests can hit the drive.
+
+One thing I wanna add here is that using ->rq_select_barrier() would 
+have similar race window.  The race windows is just hidden there in the 
+request queue.
+
+> 
+> Bartlomiej, any ideas?
+> 
+> Jens, as this one seems to need some time to settle, I'm gonna post 
+> updated patchset for post-2.6.15 without ide-fua patch, so that the 
+> other stuff can be pushed into -mm.  I think we can live without ide-fua 
+> for a while.  :-)
+> 
+> Thanks.
+> 
+
+
+-- 
+tejun

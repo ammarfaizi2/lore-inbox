@@ -1,110 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbVKXMnk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbVKXMuY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbVKXMnk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 07:43:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbVKXMnk
+	id S1750713AbVKXMuY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 07:50:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbVKXMuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 07:43:40 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:19421 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1750714AbVKXMnj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 07:43:39 -0500
-Date: Thu, 24 Nov 2005 04:43:13 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Marcel Zalmanovici <MARCEL@il.ibm.com>
-Cc: kernel@kolivas.org, linux-kernel@vger.kernel.org, mulix@mulix.org
-Subject: Re: Inconsistent timing results of multithreaded program on an SMP
- machine.
-Message-Id: <20051124044313.6259092d.pj@sgi.com>
-In-Reply-To: <OF7B1C41C0.7F24B72C-ONC22570C3.003663BE-C22570C3.0036F687@il.ibm.com>
-References: <200511242041.00586.kernel@kolivas.org>
-	<OF7B1C41C0.7F24B72C-ONC22570C3.003663BE-C22570C3.0036F687@il.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Nov 2005 07:50:24 -0500
+Received: from 1-1-8-31a.gmt.gbg.bostream.se ([82.182.75.118]:500 "EHLO
+	mail.shipmail.org") by vger.kernel.org with ESMTP id S1750713AbVKXMuX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 07:50:23 -0500
+Message-ID: <19379.192.138.116.230.1132836621.squirrel@192.138.116.230>
+In-Reply-To: <1132829378.3473.11.camel@mindpipe>
+References: <1132807985.1921.82.camel@mindpipe>	   
+ <8964.192.138.116.230.1132825958.squirrel@192.138.116.230>   
+ <1132829378.3473.11.camel@mindpipe>
+Date: Thu, 24 Nov 2005 13:50:21 +0100 (CET)
+Subject: Re: 2.6.14-rt4: via DRM errors
+From: Thomas =?iso-8859-1?Q?Hellstr=F6m?= <unichrome@shipmail.org>
+To: "Lee Revell" <rlrevell@joe-job.com>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "dri-devel@lists.sourceforge.net" <dri-devel@lists.sourceforge.net>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: text/plain;charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+Importance: Normal
+X-BitDefender-Spam: No (0)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcel,
+> On Thu, 2005-11-24 at 10:52 +0100, Thomas Hellström wrote:
+>> I made a fix to the locking code in main drm a couple of months ago.
+>>
+>> The X server tries to get the DRM_QUIESCENT lock, but when the wait
+>> was interrupted by a signal (like when you move a window around), the
+>> locking function returned without error. This made the X server
+>> release other clients' locks.
+>>
+>> This does affect all drivers with a quiescent() function. Not only
+>> via.
+>>
+>> But it looks like this fix never made it into the kernel source?
+>
+> Thanks.
+>
+> BTW can you point me to a good explanation of DRM locking?  There's so
+> much indirection in the DRM code I can't even tell whether there's one
+> DRM lock or several, what kind of lock it is or what it's protecting
+> (beyond "access to the hardware").  Is it just an advisory lock used by
+> DRM clients to keep from stepping on each other?  It doesn't seem
+> related to spinlocks or mutexes or any of the other types of lock in the
+> kernel.
+>
+> Lee
 
-I condensed the results you attached to another reply earlier
-today on this query into a little table, showing for each of
-8 threads, in order, which of the two CPUs 0 or 1 they finished
-on, and the real (elapsed) time:
+There is some info in the old precision insight documentation about the
+DRI infrastructure, (can't seem to find a link right now) But generally
+there is only one global lock and something called the drawable spinlock
+that is apparently not used anymore. The global lock is similar to a
+futex, with the exception that the kernel is called both to resolve
+contention and whenever a new context is about to take the lock, so that
+optional context switching can take place, and also if the client requests
+that some special action should take place after locking is done, like
+wait for dma ready or quiescent. The lock should be taken before writing
+to the hardware or before submitting DMA commands. If you want to be
+_sure_ that noone else uses the hardware (like you want to  read a
+particular register or something), you have to take the lock and wait for
+DMA quiescent. For example, if you want to make sure the video scaler is
+idle so you can write to it, you first take the lock so that noone else
+writes to it or to the DMA queue, then you wait for the DMA queue to be
+empty or make sure there are no pending commands for the scaler, then you
+wait for the scaler to become idle.
 
-    0 0 0 1 0 1 0 0 14.49
-    1 1 0 0 1 1 1 1 15.18
-    0 1 0 1 0 0 1 1 14.64
-    1 1 0 0 0 1 0 0 14.65
-    0 0 0 1 1 1 1 1 14.61
-    1 1 0 0 1 1 1 1 18.89
-    0 1 0 0 1 1 0 1 14.62
-    1 1 0 1 0 0 1 1 14.51
-    0 0 1 1 0 0 0 1 14.54
-    0 1 0 1 1 1 1 1 14.73
-    0 1 0 1 0 1 1 1 14.78
-    0 1 1 1 0 0 0 1 18.90
-    0 0 0 1 1 1 0 1 14.57
-    1 1 0 1 0 1 0 0 17.07
-    0 1 1 1 0 1 1 1 14.56
-    0 1 0 0 1 1 0 0 14.49
-    0 1 1 1 0 1 0 0 17.80
-    0 1 0 1 1 1 1 1 14.62
-    0 1 0 1 0 1 0 0 19.55
-    0 1 0 1 0 0 1 1 19.57
+The lock value is easily manipulated from user space and resides in one of
+the shared memory areas. I guess this means that with the current drm
+security policy it should be regarded as an advisory lock between drm
+clients.
 
-I notice that the deviation of the faster runs is very low,
-with the best 13 of 20 runs all finishing in times between
-14.49 and 14.78 seconds, but the slower runs have a higher
-deviation, with the worst 7 of 20 runs finishing in times
-between 15.18 and 19.57 seconds, a wider range of times.
+At one point I was about to implement a scheme for via with a number of
+similar locks, one for each independent function on the video chip, Like
+2D, 3D, Mpeg decoder, Video scaler 1 and 2, so that they didn't have to
+wait for  eachother. The global lock would then only be taken to make sure
+that no drawables were touched by the X server or other clients while the
+lock was held, which would be compatible with how the X server works
+today. Never got around to do that, however, but the mpeg decoders have a
+futex scheme to prevent clients stepping on eachother. With that it is
+possible to have multiple clients use the same hw decoder.
 
-That is, the best 13 runs differ in time by only 0.29 secs,
-but the worst 7 runs differ in time by 4.39 seconds, a much
-wider range.
+/Thomas
 
-I agree with you that I don't see a pattern in which CPU
-the threads finished on or any relation between that and
-the real times.
+>
+>
+>
+>
 
-However this skewed distribution of times does suggest that
-something is intruding - something that only happens perhaps
-a third of the time is running or making things worse.
 
-What I might suggest next is that you look for nice ways
-that fit on a page or less and condense out all nonessential
-detail to present these timing results.  People have a
-tendency to dump a big attachment of raw output data onto
-email lists, which almost no one ever reads closely,
-especially if it is in some homebrew format perculiar to
-that particular inquiry.  Time spent cleaning up the show
-of data is often well spent, because then others might
-actually look at the data and recognize a pattern that
-they have something useful to say about.
-
-Then after you have it collapsed to a nice table format,
-go even the next step and describe in words any patterns
-that are apparent, which will catch another chunk of
-potential readers, who will skim over a data table without
-really thinking.  Then fine tune that wording, until it
-would be understood by someone, the first time they heard
-it, standing at the coffee urn, discussing sports.  Often
-times, by the time you get that far, you will have an
-'aha' moment, leading to further experiments and insights,
-before you even get a chance to ask someone else.
-
-Question - how do you know its the multithreading that
-is causing the variance?  Try this with single threads,
-just one per cpu, with or without hyperthread perhaps.
-Never assume that you know the cause of something until
-you have bracketed the tests with demonstrations that
-all else being equal (or as close as can be) just adding
-or removing the one suspect element causes the observed
-affect to come and go.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

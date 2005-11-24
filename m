@@ -1,74 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932639AbVKXR7S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbVKXSDJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932639AbVKXR7S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 12:59:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161037AbVKXR7S
+	id S932194AbVKXSDJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 13:03:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932638AbVKXSDJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 12:59:18 -0500
-Received: from nm02mta.dion.ne.jp ([61.117.3.75]:12305 "HELO
-	nm02omta026.dion.ne.jp") by vger.kernel.org with SMTP
-	id S932639AbVKXR7R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 12:59:17 -0500
-Date: Fri, 25 Nov 2005 03:00:05 +0900
-From: Akira Tsukamoto <akira-t@s9.dion.ne.jp>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: [PATCH 2.4] fix for clock running too fast
-Cc: linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-In-Reply-To: <20051124144613.GC1060@elte.hu>
-References: <20051123035256.684C.AKIRA-T@s9.dion.ne.jp> <20051124144613.GC1060@elte.hu>
-Message-Id: <20051125025617.88FE.AKIRA-T@s9.dion.ne.jp>
+	Thu, 24 Nov 2005 13:03:09 -0500
+Received: from fsmlabs.com ([168.103.115.128]:16097 "EHLO spamalot.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S932194AbVKXSDH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 13:03:07 -0500
+X-ASG-Debug-ID: 1132855385-21710-6-0
+X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
+Date: Thu, 24 Nov 2005 10:08:42 -0800 (PST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Lee Revell <rlrevell@joe-job.com>
+cc: Dave Jones <davej@redhat.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Con Kolivas <con@kolivas.org>, Kenneth W <kenneth.w.chen@intel.com>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+X-ASG-Orig-Subj: Re: Kernel BUG at mm/rmap.c:491
+Subject: Re: Kernel BUG at mm/rmap.c:491
+In-Reply-To: <1132810499.1921.93.camel@mindpipe>
+Message-ID: <Pine.LNX.4.61.0511241005180.16752@montezuma.fsmlabs.com>
+References: <200511232256.jANMuGg20547@unix-os.sc.intel.com> 
+ <cone.1132788250.534735.25446.501@kolivas.org>  <200511232335.15050.s0348365@sms.ed.ac.uk>
+  <20051124044009.GE30849@redhat.com> <1132810499.1921.93.camel@mindpipe>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.21.04 [ja]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.5549
+	Rule breakdown below pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 24 Nov 2005, Lee Revell wrote:
 
-Ingo Molnar <mingo@elte.hu> mentioned:
-> 
-> * Akira Tsukamoto <akira-t@s9.dion.ne.jp> wrote:
-> 
-> > This one line patch adds upper bound testing inside timer_irq_works() 
-> > when evaluating whether irq timer works or not on boot up.
+> On Wed, 2005-11-23 at 23:40 -0500, Dave Jones wrote:
+> > The 'G' seems to confuse a hell of a lot of people.
+> > (I've been asked about it when people got machine checks a lot over
+> >  the last few months).
 > > 
-> > It fix the machines having problem with clock running too fast.
-> > 
-> > What this patch do is, if  timer interrupts running too fast through 
-> > IO-APIC IRQ then false back to i8259A IRQ.
+> > Would anyone object to changing it to conform to the style of
+> > the other taint flags ? Ie, change it to ' ' ? 
 > 
-> thanks - looks good to me.
-> 
-> Acked-by: Ingo Molnar <mingo@elte.hu>
-> 
-> 	Ingo
+> While you're at it why not print a big loud warning that says not to
+> post the Oops to LKML, and instructing the user to reproduce with a
 
-This patch is against kernel 2.4.
-
-Signed-off-by: Akira Tsukamoto <akira-t@s9.dion.ne.jp>
-
---- linux-2.4.32-atifix/arch/i386/kernel/io_apic.c.orig	2004-11-17 20:54:21.000000000 +0900
-+++ linux-2.4.32-atifix/arch/i386/kernel/io_apic.c	2005-11-25 02:27:32.000000000 +0900
-@@ -1194,7 +1194,7 @@ static int __init timer_irq_works(void)
- 	 * might have cached one ExtINT interrupt.  Finally, at
- 	 * least one tick may be lost due to delays.
- 	 */
--	if (jiffies - t1 > 4)
-+	if (jiffies - t1 > 4 && jiffies - t1 < 16)
- 		return 1;
- 
- 	return 0;
-
-
-
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-Akira Tsukamoto <akira-t@s9.dion.ne.jp> <>
-
-
+I don't think wasting precious screen real estate on warnings is a good 
+idea. The oops may also be of use, there have been occassions where the 
+only oops output had a proprietary bit set. The person handling the bug 
+report should be the one making the decision as to whether to repost a new 
+oops.

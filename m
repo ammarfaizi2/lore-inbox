@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932601AbVKWXdW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932600AbVKWXdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932601AbVKWXdW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 18:33:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbVKWXdW
+	id S932600AbVKWXdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 18:33:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbVKWXdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 18:33:22 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:41678 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751317AbVKWXdU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 18:33:20 -0500
-Message-Id: <200511232333.jANNX9g23967@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Con Kolivas'" <con@kolivas.org>
-Cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: Kernel BUG at mm/rmap.c:491
-Date: Wed, 23 Nov 2005 15:33:09 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Wed, 23 Nov 2005 18:33:09 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:44753 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751317AbVKWXdH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 18:33:07 -0500
+Subject: Re: [RFC] [PATCH 0/3] ioat: DMA engine support
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andi Kleen <ak@suse.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Grover <andrew.grover@intel.com>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       john.ronciak@intel.com, christopher.leech@intel.com
+In-Reply-To: <20051123223007.GA5921@wotan.suse.de>
+References: <Pine.LNX.4.44.0511231143380.32487-100000@isotope.jf.intel.com>
+	 <4384E7F2.2030508@pobox.com>  <20051123223007.GA5921@wotan.suse.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcXwhQTupApK1pNZQiKuiYrFOHIVswAABsYA
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-In-Reply-To: <cone.1132788250.534735.25446.501@kolivas.org>
+Date: Thu, 24 Nov 2005 00:05:40 +0000
+Message-Id: <1132790740.13095.53.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote on Wednesday, November 23, 2005 3:24 PM
-> Chen, Kenneth W writes:
+On Mer, 2005-11-23 at 23:30 +0100, Andi Kleen wrote:
+> Another proposal was swiotlb.
+
+I was hoping Intel might have rediscovered the IOMMU by then and be back
+on feature parity with the VAX 11/750 
 > 
-> > Has people seen this BUG_ON before?  On 2.6.15-rc2, x86-64.
-> > 
-> > Pid: 16500, comm: cc1 Tainted: G    B 2.6.15-rc2 #3
-> > 
-> > Pid: 16651, comm: sh Tainted: G    B 2.6.15-rc2 #3
-> 
->                        ^^^^^^^^^^
-> 
-> Please try to reproduce it without proprietary binary modules linked in.
+> But it's not clear it's a good idea: a lot of these applications prefer to 
+> have the target in cache. And IOAT will force it out of cache.
 
+This is true for some cases but not all for iotlb
 
-???, I'm not using any modules at all.
+CPU generated data going out that won't be rewritten immediately should
+be a cheap path not needing the cache. Incoming data would invalidate
+the cache anyway if it arrives by DMA so the ioat would move it
+asynchronously of the CPU without cache harm
 
-[albat]$ /sbin/lsmod
-Module                  Size  Used by
-[albat]$ 
+Might also be interesting to use one half of a hypedthread CPU as a
+copier using the streaming instructions, might be better than turning it
+off to improve performance ?
 
-
-Also, isn't it 'P' indicate proprietary module, not 'G'?
-line 159: kernel/panic.c:
-
-        snprintf(buf, sizeof(buf), "Tainted: %c%c%c%c%c%c",
-                tainted & TAINT_PROPRIETARY_MODULE ? 'P' : 'G',
-
-- Ken
+Alan
 

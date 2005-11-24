@@ -1,51 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030553AbVKXA6R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030572AbVKXBCi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030553AbVKXA6R (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 19:58:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030554AbVKXA6R
+	id S1030572AbVKXBCi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 20:02:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030574AbVKXBCh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 19:58:17 -0500
-Received: from mail.kroah.org ([69.55.234.183]:41949 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1030553AbVKXA6P (ORCPT
+	Wed, 23 Nov 2005 20:02:37 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:23943 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030572AbVKXBCg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 19:58:15 -0500
-Date: Wed, 23 Nov 2005 16:57:56 -0800
-From: Greg KH <greg@kroah.com>
+	Wed, 23 Nov 2005 20:02:36 -0500
+Message-ID: <43851116.9060103@pobox.com>
+Date: Wed, 23 Nov 2005 20:02:14 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [patch 00/22] PCI, USB and hwmon patches for 2.6.15-rc2-git
-Message-ID: <20051124005756.GA1716@kroah.com>
-References: <20051123234335.GA527@kroah.com> <Pine.LNX.4.64.0511231600090.13959@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0511231600090.13959@g5.osdl.org>
-User-Agent: Mutt/1.5.11
+CC: Daniel Jacobowitz <dan@debian.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "H. Peter Anvin" <hpa@zytor.com>, Andi Kleen <ak@suse.de>,
+       Gerd Knorr <kraxel@suse.de>, Dave Jones <davej@redhat.com>,
+       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] SMP alternatives
+References: <1132764133.7268.51.camel@localhost.localdomain> <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051123214835.GA24044@nevyn.them.org> <Pine.LNX.4.64.0511231416490.13959@g5.osdl.org> <20051123222056.GA25078@nevyn.them.org> <Pine.LNX.4.64.0511231502250.13959@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0511231502250.13959@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Linus Torvalds wrote: > The third alternative is to
+	know at link-time that the process never does > anything threaded, but
+	that needs more developer attention and > non-standard setups, and you
+	_will_ get it wrong (some library will create > some thread without the
+	developer even realizing). It also has the > duplicated library
+	overhead (but at least now the duplication is just > twice, not "each
+	process duplicates its own private pointer") [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 04:01:36PM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Wed, 23 Nov 2005, Greg Kroah-Hartman wrote:
-> >
-> > Here are a few PCI, USB, hwmon, and documentation patches against your
-> > latest git tree, they have all been in the past few -mm releases just
-> > fine.
-> 
-> Is there any reason you don't use git to sync up?
+Linus Torvalds wrote:
+> The third alternative is to know at link-time that the process never does 
+> anything threaded, but that needs more developer attention and 
+> non-standard setups, and you _will_ get it wrong (some library will create 
+> some thread without the developer even realizing). It also has the 
+> duplicated library overhead (but at least now the duplication is just 
+> twice, not "each process duplicates its own private pointer")
 
-I did use git to make sure these patches all applied cleanly to your
-latest tree.
+Small data point:  In a lot of gcc-related build processes, the 
+configure/makefile junk passes '-pthread' to the compiler/linker.
 
-I wasn't using git to send stuff to you after -rc1, as it makes me make
-extra sure the stuff is really needed.  Just a hold-over from when I
-thought we weren't supposed to use git to send stuff to you after -rc1.
+So a lot of programs in Linux distros are already built this way.  The 
+bigger problem is with libraries, which cannot know ahead of time 
+whether the app is threaded or not, and therefore must assume threaded.
 
-If it's easier for you, I can use git to send you these, and future
-patches.
+A few libs do things like glibc, others (like GLib) have an explicit 
+mylib_thread_init() called at program startup.
 
-thanks,
+	Jeff
 
-greg k-h
+

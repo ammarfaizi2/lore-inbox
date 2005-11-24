@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751328AbVKXEkb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbVKXElr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751328AbVKXEkb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 23:40:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbVKXEkb
+	id S1751334AbVKXElr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 23:41:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbVKXElq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 23:40:31 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:11697 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751328AbVKXEka (ORCPT
+	Wed, 23 Nov 2005 23:41:46 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:51613 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751334AbVKXElp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 23:40:30 -0500
-Date: Wed, 23 Nov 2005 23:40:10 -0500
-From: Dave Jones <davej@redhat.com>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: Con Kolivas <con@kolivas.org>, Kenneth W <kenneth.w.chen@intel.com>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: Kernel BUG at mm/rmap.c:491
-Message-ID: <20051124044009.GE30849@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-	Con Kolivas <con@kolivas.org>, Kenneth W <kenneth.w.chen@intel.com>,
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org
-References: <200511232256.jANMuGg20547@unix-os.sc.intel.com> <cone.1132788250.534735.25446.501@kolivas.org> <200511232335.15050.s0348365@sms.ed.ac.uk>
+	Wed, 23 Nov 2005 23:41:45 -0500
+Date: Wed, 23 Nov 2005 20:40:12 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org, hugh@veritas.com, mkrufky@linuxtv.org,
+       bunk@stusta.de, js@linuxtv.org, sam@ravnborg.org, kirk.lapray@gmail.com
+Subject: Re: Linux 2.6.15-rc2
+Message-Id: <20051123204012.2b6457a9.pj@sgi.com>
+In-Reply-To: <200511231736.58204.gene.heskett@verizon.net>
+References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org>
+	<4384D0EC.5050709@linuxtv.org>
+	<Pine.LNX.4.61.0511232122300.13837@goblin.wat.veritas.com>
+	<200511231736.58204.gene.heskett@verizon.net>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200511232335.15050.s0348365@sms.ed.ac.uk>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 11:35:15PM +0000, Alistair John Strachan wrote:
- > On Wednesday 23 November 2005 23:24, Con Kolivas wrote:
- > > Chen, Kenneth W writes:
- > > > Has people seen this BUG_ON before?  On 2.6.15-rc2, x86-64.
- > > >
- > > > Pid: 16500, comm: cc1 Tainted: G    B 2.6.15-rc2 #3
- > > >
- > > > Pid: 16651, comm: sh Tainted: G    B 2.6.15-rc2 #3
- > >
- > >                        ^^^^^^^^^^
- > >
- > > Please try to reproduce it without proprietary binary modules linked in.
- > 
- > AFAIK "G" means all loaded modules are GPL, P is for proprietary modules.
+Gene wrote:
+> I'm not familiar enough with git yet to try that without some hand
+> holding :(
 
+Git's bisect was announced in Linus's post:
 
-The 'G' seems to confuse a hell of a lot of people.
-(I've been asked about it when people got machine checks a lot over
- the last few months).
+  http://lkml.org/lkml/2005/7/30/106
 
-Would anyone object to changing it to conform to the style of
-the other taint flags ? Ie, change it to ' ' ?
+Matt Mackall's mercurial (http://www.selenic.com/mercurial/) has a bisect
+as well:
 
-		Dave
+  http://www.selenic.com/pipermail/mercurial/2005-September/004697.html
 
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

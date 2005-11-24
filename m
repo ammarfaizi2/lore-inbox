@@ -1,68 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932584AbVKXCBj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbVKXCHK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932584AbVKXCBj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 21:01:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932614AbVKXCBj
+	id S1751231AbVKXCHK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 21:07:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbVKXCHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 21:01:39 -0500
-Received: from smtp105.sbc.mail.re2.yahoo.com ([68.142.229.100]:41039 "HELO
-	smtp105.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932584AbVKXCBi convert rfc822-to-8bit (ORCPT
+	Wed, 23 Nov 2005 21:07:10 -0500
+Received: from nevyn.them.org ([66.93.172.17]:65259 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S1751231AbVKXCG6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 21:01:38 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH 2.6.14.2] Updated itmtouch kernel usb input driver (1/1)
-Date: Wed, 23 Nov 2005 21:01:33 -0500
-User-Agent: KMail/1.8.3
-Cc: Hans-Christian Egtvedt <hc@mivu.no>, LKML <linux-kernel@vger.kernel.org>,
-       linux-input@atrey.karlin.mff.cuni.cz
-References: <1132764764.6394.14.camel@charlie.egtvedt.no> <20051123165813.GA3201@ucw.cz>
-In-Reply-To: <20051123165813.GA3201@ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Wed, 23 Nov 2005 21:06:58 -0500
+Date: Wed, 23 Nov 2005 21:06:46 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
+       Andi Kleen <ak@suse.de>, Gerd Knorr <kraxel@suse.de>,
+       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
+       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] SMP alternatives
+Message-ID: <20051124020646.GA30379@nevyn.them.org>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	"H. Peter Anvin" <hpa@zytor.com>, Andi Kleen <ak@suse.de>,
+	Gerd Knorr <kraxel@suse.de>, Dave Jones <davej@redhat.com>,
+	Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Pratap Subrahmanyam <pratap@vmware.com>,
+	Christopher Li <chrisl@vmware.com>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	Ingo Molnar <mingo@elte.hu>
+References: <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051123214835.GA24044@nevyn.them.org> <Pine.LNX.4.64.0511231416490.13959@g5.osdl.org> <20051123222056.GA25078@nevyn.them.org> <Pine.LNX.4.64.0511231502250.13959@g5.osdl.org> <20051123234256.GA27337@nevyn.them.org> <Pine.LNX.4.64.0511231551470.13959@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511232101.33783.dtor_core@ameritech.net>
+In-Reply-To: <Pine.LNX.4.64.0511231551470.13959@g5.osdl.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 November 2005 11:58, Vojtech Pavlik wrote:
-> >  static int itmtouch_open(struct input_dev *input)
-> >  {
-> >       struct itmtouch_dev *itmtouch = input->private;
-> >  
-> > +     if (itmtouch->users++)
-> > +             return 0;
-> > +
+On Wed, Nov 23, 2005 at 03:59:52PM -0800, Linus Torvalds wrote:
+> On Wed, 23 Nov 2005, Daniel Jacobowitz wrote:
+> > 
+> > Those are the wrong ways of doing this in userspace.  There are right
+> > ways.  For instance, tag the binary at link time "single-threaded". 
+> 
+> And I mentioned exactly this. It's my third alternative.
+> 
+> And it doesn't work well, exactly because developers don't know if the 
+> libraries they use are always single-threaded etc. More importantly, it 
+> just doesn't happen that much. People do "make ; make install". Hopefully 
+> from pretty standard sources. Having to tweak things so that a project 
+> compiles with a magic flag on a particular distribution is simply not done 
+> very much.
 
-Why are you adding this? input_open/close are serialized and called
-only once when needed.
+But distributors (Debian included) do this all the time :-)
 
-> >       itmtouch->readurb->dev = itmtouch->usbdev;
-> >  
-> >       if (usb_submit_urb(itmtouch->readurb, GFP_KERNEL))
-> > +     {
-> > +             itmtouch->users--;
-> >               return -EIO;
-> > +     }
-> >  
-
-Brace should go on the same line with "if".
-
-> > -     usb_to_input_id(udev, &itmtouch->inputdev.id);
-> > +     itmtouch->inputdev.id.bustype = BUS_USB;
-> > +     itmtouch->inputdev.id.vendor = udev->descriptor.idVendor;
-> > +     itmtouch->inputdev.id.product = udev->descriptor.idProduct;
-> > +     itmtouch->inputdev.id.version = udev->descriptor.bcdDevice;
-> >       itmtouch->inputdev.dev = &intf->dev;
-
-Why are you replacing perfectly good code with incorrect one (endianess
-issues)?
-
-Plus you need to convert it to dynamic input_dev allocation for newer
-kernels. 
+I'd even volunteer to get it done and pushed out and in use, if I was
+as convinced of the benefits.  For most applications, though, I'm still
+sceptical.
 
 -- 
-Dmitry
+Daniel Jacobowitz
+CodeSourcery, LLC

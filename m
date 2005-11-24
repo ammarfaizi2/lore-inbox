@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751040AbVKXOBs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbVKXOIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751040AbVKXOBs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 09:01:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751023AbVKXOBs
+	id S1750756AbVKXOIx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 09:08:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbVKXOIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 09:01:48 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:14559 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1751040AbVKXOBq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 09:01:46 -0500
-Subject: Re: [patch] SMP alternatives
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andi Kleen <ak@suse.de>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Gerd Knorr <kraxel@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
-       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <20051124133907.GG20775@brahms.suse.de>
-References: <437B5A83.8090808@suse.de> <438359D7.7090308@suse.de>
-	 <p7364qjjhqx.fsf@verdi.suse.de>
-	 <1132764133.7268.51.camel@localhost.localdomain>
-	 <20051123163906.GF20775@brahms.suse.de>
-	 <1132766489.7268.71.camel@localhost.localdomain>
-	 <20051123165923.GJ20775@brahms.suse.de>
-	 <1132783243.13095.17.camel@localhost.localdomain>
-	 <20051124131310.GE20775@brahms.suse.de>
-	 <m1zmnugom7.fsf@ebiederm.dsl.xmission.com>
-	 <20051124133907.GG20775@brahms.suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 24 Nov 2005 14:34:07 +0000
-Message-Id: <1132842847.13095.105.camel@localhost.localdomain>
+	Thu, 24 Nov 2005 09:08:53 -0500
+Received: from pne-smtpout1-sn2.hy.skanova.net ([81.228.8.83]:52938 "EHLO
+	pne-smtpout1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S1750756AbVKXOIw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 09:08:52 -0500
+Date: Thu, 24 Nov 2005 15:08:25 +0100
+From: Daniel Nilsson <daniel.n.nilsson@home.se>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Markus.Lidel@shadowconnect.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Performance degradation when using partitions
+Message-ID: <20051124140825.GA15298@oden.homeip.net>
+References: <20051109182300.GA27452@oden.homeip.net> <43833DD9.2060108@tmr.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <43833DD9.2060108@tmr.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-11-24 at 14:39 +0100, Andi Kleen wrote:
-> That's supposed to be done by hardware, no? 
+On Tue, Nov 22, 2005 at 10:48:41AM -0500, Bill Davidsen wrote:
+> Daniel Nilsson wrote:
+> >While setting up a software RAID-5 array I started looking into the
+> >performance aspect of using partioned drives versus the whole disks
+> >for a RAID-5 array. I have an Adaptec 2400a controller which through
+> >the I2O kernel driver gives me access to 4x 250GB disks (JBOD mode).
+> 
+> Did you get an answer on this? And does it happen if you use the drives 
+> directly, /dev/hdN or /dev/sdN instead of using I2O? I didn't see an 
+> obvious speed penalty in raw access of drives vs. partitions, but I 
+> lacked the hardware to really match your setup, particularly the I2O use 
+> vs. direct access to /dev/sd[ef].
 
-Varies immensely by system. Where there is a hardware scrubber and it is
-enabled it will be used. Once nice thing about K8 is the mem controller
-is in the CPU so they all use the same driver (not yet merged)
+Bill,
 
-> If you try to do it this way then the code will become such
-> a mess if not impossible to write that your changes to merge them
-> and get it right are very slim. The only sane way to do all the locking etc. 
-> is to hand over the handling to a thread. While that make the window
-> of misusing the data wider it's the only sane alternative vs not
-> doing it at all.
+No, I didn't get an answer on this. I've done some more experiments
+with the drives, but since they are connected to an Adaptec 2400A RAID
+controller (in JBOD mode) I need to go through some I2O driver in or
+to see the drives at all. So I never have direct access to these
+drives as /dev/hdN or /dev/sdN. There are however two different
+drivers available for this RAID controller, one is the standard I2O
+driver and the other one is the Adaptec dpt_i2o driver.
 
-Its utterly hideous because the usual 'ECC error' reporting technique
-for an uncorrectable error is an NMI. Locks could be in any state at
-this point and even the registers needing to be accessed are across PCI
-and we could be half way through a PCI configuration cycle.
+The results are the same though whether I use the Linux I2O driver or
+the Adaptec dpt_i2o, the software raid array is rebuilding at roughly
+half the speed when the drives are partioned. I don't know what other
+data to provide in ordet to get any further in the testing.
 
-The -mm EDAC code works on the basic assumption that unrecovered ECC is
-a system halter although that is configurable.
-
+Thanks
+Daniel

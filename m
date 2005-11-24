@@ -1,86 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751359AbVKXKvp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbVKXKyH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751359AbVKXKvp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 05:51:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbVKXKvp
+	id S1751360AbVKXKyH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 05:54:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbVKXKyH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 05:51:45 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:9137 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1751359AbVKXKvo (ORCPT
+	Thu, 24 Nov 2005 05:54:07 -0500
+Received: from styx.suse.cz ([82.119.242.94]:56512 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1751360AbVKXKyG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 05:51:44 -0500
-Date: Thu, 24 Nov 2005 10:51:39 +0000 (GMT)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [git tree] drm locking fix
-Message-ID: <Pine.LNX.4.58.0511241049210.14276@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 24 Nov 2005 05:54:06 -0500
+Date: Thu, 24 Nov 2005 11:53:52 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Vishal Linux <vishal.linux@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: How to get SDA/SCL bit position in the control word register of the video card?
+Message-ID: <20051124105352.GA31195@midnight.suse.cz>
+References: <e3e24c6a0511240245i1d395ae6g4d768a75a602d6ce@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e3e24c6a0511240245i1d395ae6g4d768a75a602d6ce@mail.gmail.com>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Nov 24, 2005 at 10:45:14AM +0000, Vishal Linux wrote:
+> Hello,
+> 
+> 
+> I am trying to communicate to the monitor eeprom to get the monitor
+> capabilities and for that i need to have SDA/SCL bit positions in the
+> control word register of the video card (to read and wrtie data using
+> i2c protocol).
+> 
+> Different video card vendors have different offsets for the control
+> word register and different bit positions for SDA/SCL.
+> 
+> I tried to use linux kernel API char* get_EDID_from_BIOS(void*) and
+> then using kgdb to debug the kernel module (that i wrote) to get the
+> same  but failed to find the way to get the above.
+> 
+> I do have the offset of the control word register and Masking Value of
+> Intel and Matrox card but i would like NOT to hardcode the masking
+> value and the offset in my code. This will lead me to modify  my code
+> for the different cards.
+> 
+> Is there any way to get the control word register's address (and then
+> SDA/SCL bit position) on the linux operating system. Is this
+> information available to linux kernel ?
+> 
+> FYI : Masking Value that i am referring to is the value that has to be
+> ANDed to the DATA(bit - 0/1) before writing it to Control word
+> register so that the right bit can be written on to the SDA/SCL lines.
+> 
+> Any pointers to this or your guidance would be highly appreciated.
+ 
+No, it's not possible. That's why Linux has to resort to using the BIOS
+for this - only the specific BIOS knows how the manufacturer wired the
+card.
 
-Hi Linus,
-	Lee Revell reported a problem with the via driver, this patch to
-fix it is from DRM CVS.. can you pull the drm-linus branch from:
-
-rsync://rsync.kernel.org/pub/scm/linux/kernel/git/airlied/drm-2.6.git
-
-diff-tree cf65f1623dd005ddfb1cbba20af3423a6c638dbe (from 33bc227e4e48ddadcf2eacb381c19df338f0a6c8)
-Author: Dave Airlie <airlied@starflyer.(none)>
-Date:   Thu Nov 24 21:41:14 2005 +1100
-
-    drm: fix quiescent locking
-
-    A fix for a locking bug which is triggered when a client tries to lock with
-    flag DMA_QUIESCENT (typically the X server), but gets interrupted by a signal.
-    The locking IOCTL should then return an error, but if DMA_QUIESCENT succeeds
-    it returns 0, and the client falsely thinks it has the lock. In addition
-    The client waits for DMA_QUISCENT and possibly DMA_READY without having the lock.
-
-    From: Thomas Hellstrom
-    Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-:100644 100644 b276ae8a6633bb836cd96ed3cd927ca3504efce0 b48a595d54eca0e9c13b0cb269b88fba6dc49f56 M	drivers/char/drm/drm_lock.c
-diff --git a/drivers/char/drm/drm_lock.c b/drivers/char/drm/drm_lock.c
---- a/drivers/char/drm/drm_lock.c
-+++ b/drivers/char/drm/drm_lock.c
-@@ -104,6 +104,10 @@ int drm_lock(struct inode *inode, struct
- 	__set_current_state(TASK_RUNNING);
- 	remove_wait_queue(&dev->lock.lock_queue, &entry);
-
-+	DRM_DEBUG("%d %s\n", lock.context, ret ? "interrupted" : "has lock");
-+	if (ret)
-+		return ret;
-+
- 	sigemptyset(&dev->sigmask);
- 	sigaddset(&dev->sigmask, SIGSTOP);
- 	sigaddset(&dev->sigmask, SIGTSTP);
-@@ -116,8 +120,12 @@ int drm_lock(struct inode *inode, struct
- 	if (dev->driver->dma_ready && (lock.flags & _DRM_LOCK_READY))
- 		dev->driver->dma_ready(dev);
-
--	if (dev->driver->dma_quiescent && (lock.flags & _DRM_LOCK_QUIESCENT))
--		return dev->driver->dma_quiescent(dev);
-+	if (dev->driver->dma_quiescent && (lock.flags & _DRM_LOCK_QUIESCENT)) {
-+		if (dev->driver->dma_quiescent(dev)) {
-+			DRM_DEBUG("%d waiting for DMA quiescent\n", lock.context);
-+			return DRM_ERR(EBUSY);
-+		}
-+	}
-
- 	/* dev->driver->kernel_context_switch isn't used by any of the x86
- 	 *  drivers but is used by the Sparc driver.
-@@ -128,9 +136,7 @@ int drm_lock(struct inode *inode, struct
- 		dev->driver->kernel_context_switch(dev, dev->last_context,
- 						   lock.context);
- 	}
--	DRM_DEBUG("%d %s\n", lock.context, ret ? "interrupted" : "has lock");
--
--	return ret;
-+	return 0;
- }
-
- /**
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,47 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161043AbVKXU1N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751400AbVKXU1O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161043AbVKXU1N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 15:27:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbVKXU1N
+	id S1751400AbVKXU1O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 15:27:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751399AbVKXU1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 	Thu, 24 Nov 2005 15:27:13 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:5570 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751399AbVKXU04 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 15:26:56 -0500
-Date: Fri, 25 Nov 2005 02:02:50 +0530
-From: Dinakar Guniguntala <dino@in.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: david singleton <dsingleton@mvista.com>,
-       "David F. Carlson" <dave@chronolytics.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PI BUG with -rt13
-Message-ID: <20051124203250.GA9086@in.ibm.com>
-Reply-To: dino@in.ibm.com
-References: <20051118092909.GC4858@elte.hu> <20051118132137.GA5639@in.ibm.com> <20051118132715.GA3314@elte.hu> <8311ADE9-5855-11DA-BBAB-000A959BB91E@mvista.com> <20051118174454.GA2793@elte.hu> <43822480.6080301@mvista.com> <20051121212653.GA6143@elte.hu> <EDDB1894-5AFB-11DA-A840-000A959BB91E@mvista.com> <20051124145734.GA2717@elte.hu> <20051124202637.GB9098@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051124202637.GB9098@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:38787 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S1751401AbVKXU1F
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 15:27:05 -0500
+Message-ID: <43862215.9030007@rtr.ca>
+Date: Thu, 24 Nov 2005 15:27:01 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6.15-rc2] b44: missing netif_wake_queue() in b44_open()
+References: <438617DE.5000700@rtr.ca> <Pine.LNX.4.64.0511241146560.13959@g5.osdl.org> <43861E6F.9090604@pobox.com>
+In-Reply-To: <43861E6F.9090604@pobox.com>
+Content-Type: multipart/mixed;
+ boundary="------------060207050001060704040005"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 25, 2005 at 01:56:37AM +0530, Dinakar Guniguntala wrote:
-> On Thu, Nov 24, 2005 at 03:57:34PM +0100, Ingo Molnar wrote:
-> > 
-> > * david singleton <dsingleton@mvista.com> wrote:
-> > 
-> > > Sure.  Attached is the locking fix patch. [...]
-> > 
-> > thanks, applied - it should show up in -rt15.
-> > 
+This is a multi-part message in MIME format.
+--------------060207050001060704040005
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Jeff Garzik wrote:
+> Nope.   There's no need to wake the queue.
 > 
-> I just noticed with the above fix, Paul's testcase completely
-> hangs up and when killed I hit the BUG mentioned below.
-> Till -rt13, this testcase just ran to completion
+> 1) Use netif_start_queue() rather than netif_wake_queue(), in b44_open()
+> 
+> 2) OTOH, netif_wake_queue() appears to be missing from the end of 
+> b44_resume(), which has highly similar code.
 
-Forgot to mention that I notice the same failure with -rt15 as well
+Ah. Thanks, Jeff!
+I guess the e100.c driver was a bad example to copy here.
 
-	-Dinakar
+Fixed, tested, still works fine.
+Patch now updated.
 
+>>> This patch fixes a problem plaguing Dell notebooks with
+>>> built-in b44 ethernet:  The driver refuses to transmit packets
+>>> of any kind until after the first 5-second tx_timeout occurs.
+>>> This bug causes DHCP negotiation to fail (timeout) during
+>>> installation of Ubuntu Linux.
+>>>
+>>> One-liner fix.  Please review (and apply if you like it).
+
+Signed-off-by:  Mark Lord <lkml@rtr.ca>
+
+
+--- linux-2.6.15-rc2/drivers/net/b44.c  2005-11-19 22:25:03.000000000 -0500
++++ linux/drivers/net/b44.c     2005-11-24 15:20:47.000000000 -0500
+@@ -1417,6 +1417,7 @@
+         add_timer(&bp->timer);
+
+         b44_enable_ints(bp);
++       netif_start_queue(dev); /* prevent the initial tx_timeout() we otherwise see */
+  out:
+         return err;
+  }
+@@ -2113,6 +2114,7 @@
+         add_timer(&bp->timer);
+
+         b44_enable_ints(bp);
++       netif_wake_queue(dev);
+         return 0;
+  }
+
+--------------060207050001060704040005
+Content-Type: text/x-patch;
+ name="b44_fix2.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="b44_fix2.patch"
+
+--- linux-2.6.15-rc2/drivers/net/b44.c	2005-11-19 22:25:03.000000000 -0500
++++ linux/drivers/net/b44.c	2005-11-24 15:20:47.000000000 -0500
+@@ -1417,6 +1417,7 @@
+ 	add_timer(&bp->timer);
+ 
+ 	b44_enable_ints(bp);
++	netif_start_queue(dev);	/* prevent the initial tx_timeout() we otherwise see */
+ out:
+ 	return err;
+ }
+@@ -2113,6 +2114,7 @@
+ 	add_timer(&bp->timer);
+ 
+ 	b44_enable_ints(bp);
++	netif_wake_queue(dev);
+ 	return 0;
+ }
+ 
+
+--------------060207050001060704040005--

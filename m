@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbVKXPWg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751374AbVKXPYi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932074AbVKXPWg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 10:22:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbVKXPWg
+	id S1751374AbVKXPYi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 10:24:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751373AbVKXPYh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 10:22:36 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:58014 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751370AbVKXPWf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 10:22:35 -0500
-Subject: Re: 2.6.14-rt13
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, "K.R. Foley" <kr@cybsft.com>,
-       Thomas Gleixner <tglx@linutronix.de>, pluto@agmk.net,
-       john cooper <john.cooper@timesys.com>,
-       Benedikt Spranger <bene@linutronix.de>,
-       Daniel Walker <dwalker@mvista.com>,
-       Tom Rini <trini@kernel.crashing.org>,
-       George Anzinger <george@mvista.com>
-In-Reply-To: <20051124150731.GD2717@elte.hu>
-References: <20051115090827.GA20411@elte.hu>
-	 <1132336954.20672.11.camel@cmn3.stanford.edu>
-	 <1132350882.6874.23.camel@mindpipe>
-	 <1132351533.4735.37.camel@cmn3.stanford.edu>
-	 <20051118220755.GA3029@elte.hu>
-	 <1132353689.4735.43.camel@cmn3.stanford.edu>
-	 <1132367947.5706.11.camel@localhost.localdomain>
-	 <20051124150731.GD2717@elte.hu>
-Content-Type: text/plain
-Date: Thu, 24 Nov 2005 10:21:50 -0500
-Message-Id: <1132845710.6694.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Thu, 24 Nov 2005 10:24:37 -0500
+Received: from fw5.argo.co.il ([194.90.79.130]:43794 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S1751371AbVKXPYh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 10:24:37 -0500
+Message-ID: <4385DB32.7010605@argo.co.il>
+Date: Thu, 24 Nov 2005 17:24:34 +0200
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Benjamin LaHaise <bcrl@kvack.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Grover <andrew.grover@intel.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, john.ronciak@intel.com,
+       christopher.leech@intel.com
+Subject: Re: [RFC] [PATCH 0/3] ioat: DMA engine support
+References: <Pine.LNX.4.44.0511231143380.32487-100000@isotope.jf.intel.com> <4384E7F2.2030508@pobox.com> <20051123223007.GA5921@wotan.suse.de> <20051124001700.GC14246@kvack.org> <20051124065037.GZ20775@brahms.suse.de>
+In-Reply-To: <20051124065037.GZ20775@brahms.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Nov 2005 15:24:34.0905 (UTC) FILETIME=[2CD57C90:01C5F10B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-11-24 at 16:07 +0100, Ingo Molnar wrote:
-> * Steven Rostedt <rostedt@goodmis.org> wrote:
-> 
-> > OK, I used this as an exercise to learn how kobject and sysfs work 
-> > (I've been putting this off for too long). So if this isn't exactly 
-> > proper, let me know :-)
-> > 
-> > Ingo, This could be a temporary patch until we come up with a better 
-> > solution.  This adds /sys/kernel/idle/idle_poll, which if idle=poll is 
-> > _not_ set, it still lets you switch the machine to idle=poll on the 
-> > fly, as well as turn it off. If you have idle=poll, this doesn't even 
-> > show up.
-> 
-> ok, i've applied this one too. Could you also submit it upstream (and 
-> implement it for x86)? It makes sense to enable/disable the 
-> polling-based idle routine runtime.
+Andi Kleen wrote:
 
-OK, it'll have to wait till tomorrow.  As you probably know, it is
-Thanksgiving here in the US. And my wife would kill me if I work
-today ;-)
+>>Don't forget that there are benefits of not polluting the cache with the 
+>>traffic for the incoming skbs.
+>>    
+>>
+>
+>Is that a general benefit outside benchmarks? I would expect
+>most real programs to actually do something with the data
+>- and that usually involves needing it in cache.
+>
+>  
+>
+As an example, an NFS server reads some data pages using iSCSI and sends 
+them using NFS/TCP (or vice versa).
 
--- Steve
+>>In the I/O AT case it might make sense to do a few prefetch()es of the 
+>>userland data on the return-to-userspace code path.  
+>>    
+>>
+>
+>Some prefetches for user space might be a good idea yes
+>
+>  
+>
+As long as they can be turned off. Not all usespace applications want to 
+touch the data immediately.
+
 
 

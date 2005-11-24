@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161024AbVKXKok@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030363AbVKXKpV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161024AbVKXKok (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 05:44:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030371AbVKXKok
+	id S1030363AbVKXKpV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 05:45:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030371AbVKXKpV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 05:44:40 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:30128 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1030363AbVKXKoj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 05:44:39 -0500
-Date: Thu, 24 Nov 2005 10:44:26 +0000 (GMT)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Thomas =?iso-8859-1?Q?Hellstr=F6m?= <unichrome@shipmail.org>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Dave Airlie <airlied@gmail.com>,
-       "dri-devel@lists.sourceforge.net" <dri-devel@lists.sourceforge.net>
-Subject: Re: 2.6.14-rt4: via DRM errors
-In-Reply-To: <8964.192.138.116.230.1132825958.squirrel@192.138.116.230>
-Message-ID: <Pine.LNX.4.58.0511241018050.14276@skynet>
-References: <1132807985.1921.82.camel@mindpipe>
- <8964.192.138.116.230.1132825958.squirrel@192.138.116.230>
+	Thu, 24 Nov 2005 05:45:21 -0500
+Received: from webbox4.loswebos.de ([213.187.93.205]:1242 "EHLO
+	webbox4.loswebos.de") by vger.kernel.org with ESMTP
+	id S1030363AbVKXKpT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 05:45:19 -0500
+Date: Thu, 24 Nov 2005 11:45:38 +0100
+From: Marc Koschewski <marc@osknowledge.org>
+To: Chris Boot <bootc@bootc.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.15-rc2-mm1 problems
+Message-ID: <20051124104538.GB6788@stiffy.osknowledge.org>
+References: <3F1A9A2D-4726-42E9-A971-68F2B2782900@bootc.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F1A9A2D-4726-42E9-A971-68F2B2782900@bootc.net>
+X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
+X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
+X-Operating-System: Linux stiffy 2.6.15-rc2-marc
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> I made a fix to the locking code in main drm a couple of months ago.
->
-> The X server tries to get the DRM_QUIESCENT lock, but when the wait was
-> interrupted by a signal (like when you move a window around), the locking
-> function returned without error. This made the X server release other
-> clients' locks.
->
-> This does affect all drivers with a quiescent() function. Not only via.
->
-> But it looks like this fix never made it into the kernel source?
-> Dave?
+* Chris Boot <bootc@bootc.net> [2005-11-23 23:45:49 +0000]:
 
-oops... on its way now ..
+> On another note, I can't get the binary nVidia drivers to work, they  
+> complain about the following unresolved symbols:
+> 
+> [4294682.396000] nvidia: module license 'NVIDIA' taints kernel.
+> [4294682.396000] nvidia: Unknown symbol pci_enable_device
+> [4294682.396000] nvidia: Unknown symbol pci_dev_put
+> [4294682.396000] nvidia: Unknown symbol pci_get_device
+> [4294682.396000] nvidia: Unknown symbol __pci_register_driver
+> [4294682.396000] nvidia: Unknown symbol pci_bus_write_config_byte
+> [4294682.396000] nvidia: Unknown symbol pci_unregister_driver
+> [4294682.396000] nvidia: Unknown symbol pci_bus_read_config_dword
+> [4294682.396000] nvidia: Unknown symbol pci_bus_read_config_word
+> [4294682.396000] nvidia: Unknown symbol pci_bus_write_config_dword
+> [4294682.397000] nvidia: Unknown symbol pci_set_master
+> [4294682.397000] nvidia: Unknown symbol pci_bus_write_config_word
+> [4294682.397000] nvidia: Unknown symbol pci_get_class
+> [4294682.397000] nvidia: Unknown symbol pci_disable_device
+> [4294682.397000] nvidia: Unknown symbol pci_bus_read_config_byte
+> 
 
-Dave.
-
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-Linux kernel - DRI, VAX / pam_smb / ILUG
-
+http://www.nvnews.net/vbulletin/forumdisplay.php?s=&forumid=14

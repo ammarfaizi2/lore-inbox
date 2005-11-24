@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbVKXPA6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbVKXPCX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbVKXPA6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 10:00:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932074AbVKXPA6
+	id S1751283AbVKXPCX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 10:02:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbVKXPCX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 10:00:58 -0500
-Received: from relay.axxeo.de ([213.239.199.237]:19355 "EHLO relay.axxeo.de")
-	by vger.kernel.org with ESMTP id S1751312AbVKXPA5 (ORCPT
+	Thu, 24 Nov 2005 10:02:23 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:33480 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751283AbVKXPCW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 10:00:57 -0500
-From: Ingo Oeser <netdev@axxeo.de>
-Organization: Axxeo GmbH
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [RFC] [PATCH 1/3] ioat: DMA subsystem
-Date: Thu, 24 Nov 2005 16:00:50 +0100
-User-Agent: KMail/1.7.2
-Cc: Andrew Grover <andrew.grover@intel.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, john.ronciak@intel.com,
-       christopher.leech@intel.com
-References: <Pine.LNX.4.44.0511231207410.32487-100000@isotope.jf.intel.com> <4384F0C4.1090209@pobox.com>
-In-Reply-To: <4384F0C4.1090209@pobox.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Nov 2005 10:02:22 -0500
+Date: Thu, 24 Nov 2005 16:02:28 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch -rt] add EXPORT_PER_CPU_LOCKED_SYMBOL to asm-x86_64/percpu.h
+Message-ID: <20051124150228.GB2717@elte.hu>
+References: <1132236358.11652.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511241600.50046.netdev@axxeo.de>
+In-Reply-To: <1132236358.11652.3.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.4
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.4 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	1.4 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Jeff Garzik wrote:
-> explanation of this function would be nice.  remember to answer "how?" 
-> and "why?", not "what?".
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-Wasn't it the other way around?
-Citing linux/Documentation/CodingStyle, section 7 "Comments":
+> Hi Ingo,
+> 
+> I was getting some module dependency problems until I found that the 
+> source of these problems was that there was no 
+> EXPORT_PER_CPU_LOCKED_SYMBOL in the asm-x86_64.
+> 
+> Here's the patch:
 
-"Generally, you want your comments to tell WHAT your code does, not HOW."
+thanks, applied.
 
-HOW and WHY should be obvious by the source code, unless
-the sources are a mess.
-
-
-Regards
-
-Ingo Oeser
-
+	Ingo

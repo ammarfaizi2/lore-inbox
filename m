@@ -1,50 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030619AbVKXIcs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750924AbVKXIlE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030619AbVKXIcs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 03:32:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161055AbVKXIcs
+	id S1750924AbVKXIlE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 03:41:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030620AbVKXIlE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 03:32:48 -0500
-Received: from zproxy.gmail.com ([64.233.162.201]:46149 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030625AbVKXIcS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 03:32:18 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Yd7+PRhBfyGW1OzyxxEfzu8kqXwLlesvTC9i05hlIqE/Kvv3x/qewL90OarS36lT/Ry7r3ZbXNqmGfgREq5hI3HYWV/TFVCrrev28sTCfaGdna4V6/3yzVGEL0yGP6kBLXos4AP1CNqBx59CQ7bTtiuh2iN5/O3Bp6f2B/fmJz4=
-Message-ID: <cda58cb80511240032q7e4fbc67l@mail.gmail.com>
-Date: Thu, 24 Nov 2005 09:32:17 +0100
-From: Franck <vagabon.xyz@gmail.com>
-To: Nicolas Pitre <nico@cam.org>
-Subject: Re: How can I prevent MTD to access the end of a flash device ?
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0511221042560.6022@localhost.localdomain>
+	Thu, 24 Nov 2005 03:41:04 -0500
+Received: from webbox4.loswebos.de ([213.187.93.205]:4031 "EHLO
+	webbox4.loswebos.de") by vger.kernel.org with ESMTP
+	id S1750924AbVKXIlC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 03:41:02 -0500
+Date: Thu, 24 Nov 2005 09:41:21 +0100
+From: Marc Koschewski <marc@osknowledge.org>
+To: Ed Tomlinson <tomlins@cam.org>
+Cc: Marc Koschewski <marc@osknowledge.org>,
+       Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
+       340202@bugs.debian.org
+Subject: Re: psmouse unusable in -mm series (was: 2.6.15-rc1-mm2 unsusable on DELL Inspiron 8200, 2.6.15-rc1 works fine)
+Message-ID: <20051124084120.GA7799@stiffy.osknowledge.org>
+References: <20051118182910.GJ6640@stiffy.osknowledge.org> <200511212243.50707.dtor_core@ameritech.net> <20051123195700.GB7446@stiffy.osknowledge.org> <200511232129.35796.tomlins@cam.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <cda58cb80511070248o6d7a18bex@mail.gmail.com>
-	 <cda58cb80511220658n671bc070v@mail.gmail.com>
-	 <Pine.LNX.4.64.0511221042560.6022@localhost.localdomain>
+In-Reply-To: <200511232129.35796.tomlins@cam.org>
+X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
+X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
+X-Operating-System: Linux stiffy 2.6.15-rc2-marc
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+* Ed Tomlinson <tomlins@cam.org> [2005-11-23 21:29:35 -0500]:
 
-2005/11/22, Nicolas Pitre <nico@cam.org>:
-> Please consider using the MTD mailing list next time (you certainly read
-> about it on the MTD web site).
->
+> On Wednesday 23 November 2005 14:57, Marc Koschewski wrote:
+> > * Dmitry Torokhov <dtor_core@ameritech.net> [2005-11-21 22:43:50 -0500]:
+> > 
+> > > On Sunday 20 November 2005 12:14, Marc Koschewski wrote:
+> > > > * Dmitry Torokhov <dtor_core@ameritech.net> [2005-11-18 22:07:19 -0500]:
+> > > > 
+> > > > > On Friday 18 November 2005 13:29, Marc Koschewski wrote:
+> > > > > > Nov 18 12:58:37 stiffy kernel: psmouse.c: Wheel Mouse at isa0060/serio1/input0 lost synchronization, throwing 1 bytes away.
+> > > > > > 
+> > > > > > SOME STUFF MISSING? HUH?
+> > > > > > 
+> > > > > > Nov 18 13:03:14 stiffy kernel: psmouse.c: resync failed, issuing reconnect request
+> > > > > > 
+> > > > > 
+> > > > > Hm, this worries me a bit... Could you please try appying the patch
+> > > > > below to plain 2.6.15-rc1 and see if mouse starts misbehaving again?
+> > > > 
+> > > > Dmitry,
+> > > > 
+> > > > I applied the 5 patches to a plain 2.6.15-rc1. The mouse was well as if it was
+> > > > in an unpatched kernel. The problem just occured in 2.6.15-rc1-mmX.
+> > > > Plain 2.6.15-rc1 was fine before as well. So: actually no change.
+> > > > 
+> > > > Need any more info?
+> > > >
+> > > 
+> > > Marc,
+> > > 
+> > > Thank you for testing the patch. It proves that your mouse troubles
+> > > were not caused by the patch I made so I am very happy. "No change"
+> > > is the result I wanted to hear ;)
+> > > 
+> > 
+> > Dmitry,
+> > 
+> > there's a bug report filed against Debian's udev. You can read it here:
+> > 
+> > 	http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=340202
+> > 
+> > The bug report, however, states that the problem is caused by udev under
+> > all variants of kernel 2.6.15. I'm writing this mail while running
+> > 2.6.15-rc1 and the mouse definitely works. Do you have any other hint?
+> > Seems to me like the bug report is only half the truth... 
+> 
+> Marc,
+> 
+> Are you, by some slim chance, manually loading mousedev ( via /etc/modules) or
+> an init script?  If so your mouse will work.
+> 
 
-I did....
+Hi Ed,
 
-> Yes.  It was tested on ARM only though.  Some architectures like i386
-> for example might need special tricks to implement this.
->
+yes, I do load mousedev as well as psmouse in /etc/modules due to udev
+no longer loading it. my problem, however, is _not_ that teh module
+doesn't get loaded. It's the mouse pointer jumping all over the screen.
+After some time (inactivity?) it calms down and is usable. Then, after
+some minutes it again jumps wild all over the place, seems to click
+stuff on it's own, and again calms down, ...
 
-do you know why ? What was the gain on ARM ?
+This problem shouldn't be udev related.
 
-Thanks
---
-               Franck
+One note: the pointer seems to be in love with the corners of the
+screen. It always goes there when it goes wild... ;)
+
+Marc

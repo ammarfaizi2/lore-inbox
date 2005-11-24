@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbVKXOzV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbVKXO5d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751257AbVKXOzV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 09:55:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751260AbVKXOzV
+	id S1751260AbVKXO5d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 09:57:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbVKXO5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 09:55:21 -0500
-Received: from ns1.suse.de ([195.135.220.2]:26261 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751257AbVKXOzU (ORCPT
+	Thu, 24 Nov 2005 09:57:33 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:9154 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751260AbVKXO5c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 09:55:20 -0500
-Date: Thu, 24 Nov 2005 15:55:18 +0100
-From: Andi Kleen <ak@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andi Kleen <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       Gerd Knorr <kraxel@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-Message-ID: <20051124145518.GI20775@brahms.suse.de>
-References: <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <20051123165923.GJ20775@brahms.suse.de> <1132783243.13095.17.camel@localhost.localdomain> <20051124131310.GE20775@brahms.suse.de> <m1zmnugom7.fsf@ebiederm.dsl.xmission.com> <20051124133907.GG20775@brahms.suse.de> <1132842847.13095.105.camel@localhost.localdomain> <20051124142200.GH20775@brahms.suse.de> <1132845324.13095.112.camel@localhost.localdomain>
+	Thu, 24 Nov 2005 09:57:32 -0500
+Date: Thu, 24 Nov 2005 15:57:34 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: david singleton <dsingleton@mvista.com>
+Cc: "David F. Carlson" <dave@chronolytics.com>,
+       Dinakar Guniguntala <dino@in.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: PI BUG with -rt13
+Message-ID: <20051124145734.GA2717@elte.hu>
+References: <20051117161817.GA3935@in.ibm.com> <437D0C59.1060607@mvista.com> <20051118092909.GC4858@elte.hu> <20051118132137.GA5639@in.ibm.com> <20051118132715.GA3314@elte.hu> <8311ADE9-5855-11DA-BBAB-000A959BB91E@mvista.com> <20051118174454.GA2793@elte.hu> <43822480.6080301@mvista.com> <20051121212653.GA6143@elte.hu> <EDDB1894-5AFB-11DA-A840-000A959BB91E@mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1132845324.13095.112.camel@localhost.localdomain>
+In-Reply-To: <EDDB1894-5AFB-11DA-A840-000A959BB91E@mvista.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.4
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.4 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	1.4 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 24, 2005 at 03:15:24PM +0000, Alan Cox wrote:
-> On Iau, 2005-11-24 at 15:22 +0100, Andi Kleen wrote:
-> > What do you need a special driver for if the northbridge just
-> > can do the scrubbing by itself?
-> 
-> You need a driver to collect and report all the ECC single bit errors to
-> the user so that they can decide if they have problem hardware.
 
-Assuming the errors are logged to the standard machine check
-architecture that's already done by mce.c. K8 does that definitely.
+* david singleton <dsingleton@mvista.com> wrote:
 
-Take a look at mcelog at some point.
-Your distro probably already sets it up by default to log to
-/var/log/mcelog
+> Sure.  Attached is the locking fix patch. [...]
 
-> 
-> EDAC is more than one thing
-> 	- Control response to a fatal error
-> 	- Report non-fatal events for analysis/user decision making
+thanks, applied - it should show up in -rt15.
 
-x86-64 mce.c does all that There was even a port to i386 around at some point.
-
--Andi
+	Ingo

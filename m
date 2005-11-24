@@ -1,92 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932620AbVKXDYI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932591AbVKXD0w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932620AbVKXDYI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 22:24:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932622AbVKXDYH
+	id S932591AbVKXD0w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 22:26:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932619AbVKXD0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 22:24:07 -0500
-Received: from urtax.ms.mff.cuni.cz ([195.113.20.127]:13486 "EHLO
-	urtax.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S932620AbVKXDYG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 22:24:06 -0500
-Date: Thu, 24 Nov 2005 04:23:59 +0100 (CET)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-X-X-Sender: mikulas@urtax.ms.mff.cuni.cz
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       Andi Kleen <ak@suse.de>, Gerd Knorr <kraxel@suse.de>,
-       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-In-Reply-To: <1132782245.13095.4.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.62.0511240418140.21316@artax.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.64.0511131118020.3263@g5.osdl.org> 
- <Pine.LNX.4.64.0511131210570.3263@g5.osdl.org> <4378A7F3.9070704@suse.de> 
- <Pine.LNX.4.64.0511141118000.3263@g5.osdl.org> <4379ECC1.20005@suse.de> 
- <437A0649.7010702@suse.de> <437B5A83.8090808@suse.de>  <438359D7.7090308@suse.de>
- <p7364qjjhqx.fsf@verdi.suse.de>  <1132764133.7268.51.camel@localhost.localdomain>
-  <20051123163906.GF20775@brahms.suse.de>  <1132766489.7268.71.camel@localhost.localdomain>
-  <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org>  <4384AECC.1030403@zytor.com>
-  <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain>
+	Wed, 23 Nov 2005 22:26:52 -0500
+Received: from smtp101.sbc.mail.re2.yahoo.com ([68.142.229.104]:39256 "HELO
+	smtp101.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S932591AbVKXD0v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 22:26:51 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Frank Sorenson <frank@tuxrocks.com>
+Subject: Re: Mouse issues in -mm
+Date: Wed, 23 Nov 2005 22:26:43 -0500
+User-Agent: KMail/1.8.3
+Cc: Andrew Morton <akpm@osdl.org>, Marc Koschewski <marc@osknowledge.org>,
+       linux-kernel@vger.kernel.org, Harald Welte <laforge@netfilter.org>,
+       netdev@vger.kernel.org
+References: <20051123033550.00d6a6e8.akpm@osdl.org> <20051123113854.07fca702.akpm@osdl.org> <4385202E.70404@tuxrocks.com>
+In-Reply-To: <4385202E.70404@tuxrocks.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511232226.44459.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 23 Nov 2005, Alan Cox wrote:
-
-> On Mer, 2005-11-23 at 10:42 -0800, Linus Torvalds wrote:
->> Of course, if it's in one of the low 12 bits of %cr3, there would have to
->> be a "enable this bit" in %cr4 or something. Historically, you could write
->> any crap in the low bits, I think.
+On Wednesday 23 November 2005 21:06, Frank Sorenson wrote:
+> Andrew Morton wrote:
+> > Marc Koschewski <marc@osknowledge.org> wrote:
+> >>Just booted into 2.6.15-rc2-mm1. The 'mouse problem' (as reported earlier) still
+> >>persists,
+> >
+> > You'l probably need to re-report the mouse problem if the previous report
+> > didn't get any action.
+> 
+> I'm not certain whether this is the same 'mouse problem', but I'll
+> report the mouse problems I've been seeing.  In the past several -mm
+> kernels, my touchpad has initially worked at boot, but 'tapping' has
+> stopped working at some point later (with no obvious kernel messages).
+> 
+> I've experienced this problem at least with 2.6.15-rc1-mm2 and
+> 2.6.15-rc2-mm1, and reverting
+> input-attempt-to-re-synchronize-mouse-every-5-seconds.patch gives a
+> kernel without the touchpad problems.
 >
-> There is a much much better way to do it than just user space and
-> without hitting cr3/cr4 - put "lock works" in the PAT and while we'll
-> have to add PAT support which we need to do anyway we would get a world
-> where on uniprocessor lock prefix only works on addresse targets we want
-> it to - ie pci_alloc_consistent() pages.
 
-Given the CPU architecture it is unimplementable. Intructions are split
-into microinstuctions and they are executed out of order. PAT is looked up
-when LOAD microinstruction is executed. Imagine this
+What kind of touchpad do you have? Could you post your
+/pros/bus/input/devices please?
 
-MOV EDX, [address1]
-LOCK ADD [address2], EDX
-
-that is translated to
-
-LOAD EDX, [address1]
-LOAD TMP1, [address2]
-ADD TMP1, EDX
-STORE [address2], TMP1
-
-... now LOAD finds LOCK attribute in PAT --- so it locks the bus, however
-EDX is still not loaded. Now LOAD EDX can't execute because the bus is
-locked and ADD and STORE can't execute because they're waiting for LOAD
-EDX. Deadlock.
-
-Locks are so slow not because they are locks (if the target is in L1
-cache, they operate only on cache and don't go to bus at all), but because
-they need to flush completely microinstruction pool to avoid problems like
-this. Of course Intel won't waste silicon in the execution engine for
-instructions that execute so rarely, so they microcode them instead. So
-lock detection is done at the decoder.
-
-Mikulas
-
-> Alan
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+-- 
+Dmitry

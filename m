@@ -1,72 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932517AbVKXR2O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbVKXReF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932517AbVKXR2O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 12:28:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbVKXR2O
+	id S932222AbVKXReF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 12:34:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbVKXReE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 12:28:14 -0500
-Received: from mx1.rowland.org ([192.131.102.7]:34823 "HELO mx1.rowland.org")
-	by vger.kernel.org with SMTP id S932432AbVKXR2N (ORCPT
+	Thu, 24 Nov 2005 12:34:04 -0500
+Received: from main.gmane.org ([80.91.229.2]:23718 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932222AbVKXReD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 12:28:13 -0500
-Date: Thu, 24 Nov 2005 12:28:09 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Mark Lord <lkml@rtr.ca>
-cc: Jeff Garzik <jgarzik@pobox.com>,
-       =?ISO-8859-1?Q?Gustavo_Guil?= =?ISO-8859-1?Q?lermo_P=E9rez?= 
-	<gustavo@compunauta.com>,
-       <linux-usb-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] Re: /dev/sr0 not ready, but working
-In-Reply-To: <4385D63C.50009@rtr.ca>
-Message-ID: <Pine.LNX.4.44L0.0511241225360.8378-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 24 Nov 2005 12:34:03 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Michael Renner <michael.renner@geizhals.at>
+Subject: Re: faulty oom-killer on amd64?
+Date: Thu, 24 Nov 2005 17:27:59 +0000 (UTC)
+Message-ID: <loom.20051124T182006-575@post.gmane.org>
+References: <loom.20051124T013917-518@post.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 213.229.14.38 (Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.12) Gecko/20050915 Firefox/1.0.7)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Nov 2005, Mark Lord wrote:
+Michael Renner <michael.renner <at> geizhals.at> writes:
 
-> Jeff Garzik wrote:
+> On the 16 processor machine I get CPU lockups with identical traces which can
+> be seen at http://666kb.com/i/10yov42ydfdog.jpg and
+> http://666kb.com/i/10yom358azw8w.jpg (this was tested with 2.6.14 and
+> 2.6.15-rc2 respectively).
 
-> > The difference is between ide-cd.c and sr.c, most likely.
-> 
-> Agreed.  I get hundreds and hundreds of these when simply playing a DVD:
-> 
-> sr0: CDROM not ready.  Make sure there is a disc in the drive.
-> 
-> Nothing really wrong here, other than that the kernel is flooding
-> my syslogs with messages that could really be left to the userspace
-> application to decide about.
+Ok, retried this with burnMMX on the "large" box, apparently the killer works in
+some cases. (It killed the offending burnMMX processes after stalling for a
+minute or two, but I guess I can't blame the scheduler when it hast to handle
+more than 1000 running processes).
 
-If any of you is interested in pursuing this, try out this patch.  It will 
-tell what the offending command is and how it is getting submitted.  Once 
-that is known, the generic cdrom layer or the sr driver can be changed to 
-suppress these warnings.
+Still, the situation isn't favorable with the other workloads which lead to 
+lockups.
 
-Alan Stern
-
-
-
---- a/drivers/scsi/sr_ioctl.c	Mon Oct 31 10:12:20 2005
-+++ b/drivers/scsi/sr_ioctl.c	Thu Nov 24 12:24:59 2005
-@@ -139,8 +139,15 @@
- 					break;
- 				}
- 			}
--			if (!cgc->quiet)
--				printk(KERN_INFO "%s: CDROM not ready.  Make sure there is a disc in the drive.\n", cd->cdi.name);
-+			if (!cgc->quiet) {
-+				static int cnt = 0;
-+				if (cnt < 8) {
-+					++cnt;
-+					printk(KERN_INFO "%s: CDROM not ready.  Make sure there is a disc in the drive.\n", cd->cdi.name);
-+					printk("cmd[0] = %d\n", cgc->cmd[0]);
-+					dump_stack();
-+				}
-+			}
- #ifdef DEBUG
- 			scsi_print_sense_hdr("sr", &sshdr);
- #endif
+best regards,
+Michael Renner
 

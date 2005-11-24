@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbVKXJnx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751346AbVKXJoQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751341AbVKXJnx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 04:43:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbVKXJnw
+	id S1751346AbVKXJoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 04:44:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbVKXJoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 04:43:52 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:39633 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S1751341AbVKXJnw (ORCPT
+	Thu, 24 Nov 2005 04:44:16 -0500
+Received: from denise.shiny.it ([194.20.232.1]:64901 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id S1751346AbVKXJoO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 04:43:52 -0500
-Date: Thu, 24 Nov 2005 10:43:20 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] Re: Console rotation problems
-In-Reply-To: <43855DBA.1050302@gmail.com>
-Message-ID: <Pine.LNX.4.62.0511241042360.6400@numbat.sonytel.be>
-References: <1132793150.26560.357.camel@gaston>  <1132793556.26560.361.camel@gaston>
- <1132796831.26560.392.camel@gaston> <1132801542.26560.402.camel@gaston>
- <43855DBA.1050302@gmail.com>
+	Thu, 24 Nov 2005 04:44:14 -0500
+Message-ID: <XFMail.20051124104334.pochini@shiny.it>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <200511231631.12365.vda@ilport.com.ua>
+Date: Thu, 24 Nov 2005 10:43:34 +0100 (CET)
+From: Giuliano Pochini <pochini@shiny.it>
+To: Denis Vlasenko <vda@ilport.com.ua>
+Subject: Re: Use enum to declare errno values
+Cc: linux-kernel@vger.kernel.org, moreau francis <francis_moreau2000@yahoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Nov 2005, Antonino A. Daplas wrote:
-> Benjamin Herrenschmidt wrote:
-> > Remove bogus usage of test/set_bit() from fbcon rotation code and just
-> > manipulate the bits directly. This fixes an oops on powerpc among others
-> > and should be faster. Seems to work fine on the G5 here.
+
+On 23-Nov-2005 Denis Vlasenko wrote:
+> On Wednesday 23 November 2005 15:24, moreau francis wrote:
+>> Hi,
+>>  
+>> I'm just wondering why not declaring errno values using enumaration ? It is 
+>> just more convenient when debuging the kernel.
 > 
-> Thanks, I reached a point when my head became muddled with bit 
-> manipulations, so I used arch-specific bitops but complete forgot
-> that they were atomic :-)
+> Enums are really nice substitute for integer constants instead of #defines.
+> Enums obey scope rules, #defines do not.
+> 
+> However enums are not widely used because of
+> 1. tradition and style
+> 2. awkward syntax required:   enum { ABC = 123 };
 
-I haven't really looked at the rotation code, but I guess it can be optimized a
-lot by using similar techniques like c2p (chunky-to-planar) conversions.
+The value of an enum constant must be representable as an int. This
+is not always the case, expecially with hardware constants and bit
+masks, which may require an unsigned int.
 
-Gr{oetje,eeting}s,
-
-						Geert
 
 --
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Giuliano.

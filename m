@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161044AbVKXIEf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161048AbVKXIHg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161044AbVKXIEf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 03:04:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161048AbVKXIEf
+	id S1161048AbVKXIHg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 03:07:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161054AbVKXIHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 03:04:35 -0500
-Received: from silver.veritas.com ([143.127.12.111]:44330 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1161044AbVKXIEf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 03:04:35 -0500
-Date: Thu, 24 Nov 2005 08:04:39 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: Kernel BUG at mm/rmap.c:491
-In-Reply-To: <200511232256.jANMuGg20547@unix-os.sc.intel.com>
-Message-ID: <Pine.LNX.4.61.0511240754190.5688@goblin.wat.veritas.com>
-References: <200511232256.jANMuGg20547@unix-os.sc.intel.com>
+	Thu, 24 Nov 2005 03:07:36 -0500
+Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:24211 "EHLO
+	orac.home") by vger.kernel.org with ESMTP id S1161048AbVKXIHf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 03:07:35 -0500
+From: Andrew Walrond <andrew@walrond.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Dual opteron various segfaults with 2.6.14.2 and earlier kernels
+Date: Thu, 24 Nov 2005 08:07:28 +0000
+User-Agent: KMail/1.8.2
+References: <200511231537.49320.cova@ferrara.linux.it> <200511240026.42212.cova@ferrara.linux.it> <20051124000351.GT18321@opteron.random>
+In-Reply-To: <20051124000351.GT18321@opteron.random>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 24 Nov 2005 08:04:28.0961 (UTC) FILETIME=[B1AA3110:01C5F0CD]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511240807.28861.andrew@walrond.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Nov 2005, Chen, Kenneth W wrote:
-> Has people seen this BUG_ON before?  On 2.6.15-rc2, x86-64.
-> 
-> Bad page state at free_hot_cold_page (in process 'sh', page ffff81000482dde8)
-> flags:0x8000000000000000 mapping:0000000000000000 mapcount:1 count:0
-> Bad page state at free_hot_cold_page (in process 'sh', page ffff8100049d0f78)
-> flags:0x8000000000000000 mapping:0000000000000000 mapcount:1 count:0
-> Bad page state at free_hot_cold_page (in process 'sh', page ffff8100049d0f40)
-> flags:0x8000000000000004 mapping:0000000000000000 mapcount:1 count:0
-> Kernel BUG at mm/swap.c:218
-> Kernel BUG at mm/rmap.c:491
+On Thursday 24 November 2005 00:03, Andrea Arcangeli wrote:
+> Hello Fabio,
+>
+> On Thu, Nov 24, 2005 at 12:26:41AM +0100, Fabio Coatti wrote:
+> > yes, uname says  2.6.14.2; on a second identical machine, I've just seen
+> > this:
+> >
+> >
+> > factorial[2352]: segfault at 0000000000020f31 rip 00000000004035ae rsp
+> > 00007fffffbfaf60 error 4
+> > factorial[2354]: segfault at 0000000000020f31 rip 00000000004035ae rsp
+> > 00007fffffe3fc70 error 4
+> > factorial[2361]: segfault at 0000000000020f31 rip 00000000004035ae rsp
+> > 00007fffffb07c50 error 4
+> > factorial[2358]: segfault at 0000000000020f31 rip 00000000004035ae rsp
+> > 00007fffffb07c50 error 4
+> > factorial[2363]: segfault at 0000000000020f31 rip 00000000004035ae rsp
+> > 00007fffffe6d270 error 4
+> >
+> > the kernel and HW are the same.
+>
+> Error 4 means a read in userland on a not mapped area.
+>
+> The above isn't necessairly a kernel or hardware problem, it looks like
+> an userland bug if it segfaults at such a low address (20f31). Nothig is
+> mapped below "0x400000" exactly to catch these kind of bugs.
 
-Neither mm/rmap.c (page_remove_rmap) nor mm/swap.c (put_page_testzero)
-BUG is interesting in this case, they're just side-effects of trying to
-recover from the preceding "Bad page state"s.
+Which makes sense; the sed failures seen during 'make' runs were probably a 
+result of the TLB flush filter errata on kernels prior to 2.6.14 , whereas 
+the above is a userland bug which occurs with all kernels.
 
-Which are interesting.  Not at all the same case as the many recently
-reported while we were fixing up PageReserved removal cases; though
-yours will probably be related.
-
-It could conceivably be an effect of a DRM pci_alloc_consistent issue
-which Dave Airlie spotted yesterday; but not a typical case of it,
-and I'm probably only thinking of that one because it's uppermost.
-
-Please send your .config (I hope it's tailored somewhat to your machine,
-rather than an allyesconfig or the like?) and bootup dmesg, in case they
-help to narrow the search.  You were just running straight 2.6.15-rc2,
-no additional patches?  Doing anything interesting just before this
-happened?
-
-Thanks,
-Hugh
+Andrew Walrond

@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbVKXO7l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbVKXPA6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751296AbVKXO7l (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 09:59:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbVKXO7l
+	id S932081AbVKXPA6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 10:00:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932074AbVKXPA6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 09:59:41 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:61913
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1751266AbVKXO7k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 09:59:40 -0500
-Subject: [PATCH -mm] timespec: normalize off by one errors
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Andrew Morton <akpm@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: linutronix
-Date: Thu, 24 Nov 2005 16:04:52 +0100
-Message-Id: <1132844692.32542.203.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Thu, 24 Nov 2005 10:00:58 -0500
+Received: from relay.axxeo.de ([213.239.199.237]:19355 "EHLO relay.axxeo.de")
+	by vger.kernel.org with ESMTP id S1751312AbVKXPA5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 10:00:57 -0500
+From: Ingo Oeser <netdev@axxeo.de>
+Organization: Axxeo GmbH
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [RFC] [PATCH 1/3] ioat: DMA subsystem
+Date: Thu, 24 Nov 2005 16:00:50 +0100
+User-Agent: KMail/1.7.2
+Cc: Andrew Grover <andrew.grover@intel.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, john.ronciak@intel.com,
+       christopher.leech@intel.com
+References: <Pine.LNX.4.44.0511231207410.32487-100000@isotope.jf.intel.com> <4384F0C4.1090209@pobox.com>
+In-Reply-To: <4384F0C4.1090209@pobox.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511241600.50046.netdev@axxeo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus tree has a fix for set_normalized_timespec (commit
-3f39894d1b5c253b10fcb8fbbbcf65a330f6cdc7)
+Hi,
 
-[PATCH] timespec: normalize off by one errors
+Jeff Garzik wrote:
+> explanation of this function would be nice.  remember to answer "how?" 
+> and "why?", not "what?".
 
-It would appear that the timespec normalize code has an off by one error.
-Found in three places.  Thanks to Ben for spotting.
-Signed-off-by: George Anzinger<george@mvista.com>
+Wasn't it the other way around?
+Citing linux/Documentation/CodingStyle, section 7 "Comments":
+
+"Generally, you want your comments to tell WHAT your code does, not HOW."
+
+HOW and WHY should be obvious by the source code, unless
+the sources are a mess.
 
 
-It got lost in -mm due to the deinlining of set_normalized_timespec
+Regards
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-
-
-Index: linux-2.6.15-rc2-mm1/kernel/time.c
-===================================================================
---- linux-2.6.15-rc2-mm1.orig/kernel/time.c
-+++ linux-2.6.15-rc2-mm1/kernel/time.c
-@@ -611,7 +611,7 @@ EXPORT_SYMBOL(mktime);
-  */
- void set_normalized_timespec (struct timespec *ts, time_t sec, long nsec)
- {
--	while (nsec > NSEC_PER_SEC) {
-+	while (nsec >= NSEC_PER_SEC) {
- 		nsec -= NSEC_PER_SEC;
- 		++sec;
- 	}
-
+Ingo Oeser
 

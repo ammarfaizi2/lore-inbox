@@ -1,60 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030622AbVKXIVM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030626AbVKXIXH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030622AbVKXIVM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 03:21:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030624AbVKXIVL
+	id S1030626AbVKXIXH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 03:23:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030623AbVKXIXH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 03:21:11 -0500
-Received: from agmk.net ([217.73.31.34]:5646 "EHLO mail.agmk.net")
-	by vger.kernel.org with ESMTP id S1030622AbVKXIVK (ORCPT
+	Thu, 24 Nov 2005 03:23:07 -0500
+Received: from smtp1-g19.free.fr ([212.27.42.27]:32469 "EHLO smtp1-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1030625AbVKXIXG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 03:21:10 -0500
-From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@agmk.net>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6.14.2/sparc64] build report / undefined symbols.
-Date: Thu, 24 Nov 2005 09:20:58 +0100
+	Thu, 24 Nov 2005 03:23:06 -0500
+From: Duncan Sands <duncan.sands@free.fr>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Subject: Re: speedtch driver, 2.6.14.2
+Date: Thu, 24 Nov 2005 09:22:59 +0100
 User-Agent: KMail/1.8.3
-References: <20051123223443.GZ3963@stusta.de>
-In-Reply-To: <20051123223443.GZ3963@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+References: <200511232125.25254.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200511232125.25254.s0348365@sms.ed.ac.uk>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200511240920.59182.pluto@agmk.net>
+Message-Id: <200511240923.01185.duncan.sands@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Alistair,
 
-I've noticed several broken modules on sparc64 modular build:
+> I recently switched from the userspace speedtouch driver to the in-kernel one. 
+> However, on my rev 4.0 Speedtouch 330, I periodically get the message:
+> 
+> ATM dev 0: error -110 fetching device status
 
-"bus_to_virt_not_defined_use_pci_map" [drivers/atm/zatm.ko] undefined!
-"virt_to_bus_not_defined_use_pci_map" [drivers/atm/zatm.ko] undefined!
-"bus_to_virt_not_defined_use_pci_map" [drivers/atm/horizon.ko] undefined!
-"virt_to_bus_not_defined_use_pci_map" [drivers/atm/firestream.ko] undefined!
-"bus_to_virt_not_defined_use_pci_map" [drivers/atm/firestream.ko] undefined!
-"virt_to_bus_not_defined_use_pci_map" [drivers/atm/ambassador.ko] undefined!
-"bus_to_virt_not_defined_use_pci_map" [drivers/atm/ambassador.ko] undefined!
-"bus_to_virt_not_defined_use_pci_map" [drivers/media/video/zr36067.ko]undefined!
-"virt_to_bus_not_defined_use_pci_map" [drivers/media/video/zr36067.ko]undefined!
-"virt_to_bus_not_defined_use_pci_map" [drivers/media/video/stradis.ko]undefined!
-"bus_to_virt_not_defined_use_pci_map" [drivers/scsi/tmscsim.ko] undefined!
+-110 means that it timed out.
 
-"isa_memset_io" [drivers/net/hp100.ko] undefined!
-"isa_memcpy_toio" [drivers/net/hp100.ko] undefined!
-"isa_readl" [drivers/net/hp100.ko] undefined!
-"isa_memcpy_fromio" [drivers/net/hp100.ko] undefined!
+> I suspect the source of this "error" is the warning message from speedtch:435:
+> 
+> 	ret = speedtch_read_status(instance);
+> 	if (ret < 0) {
+> 		atm_warn(usbatm, "error %d fetching device status\n", ret);
+> 		instance->poll_delay = min(2 * instance->poll_delay, MAX_POLL_DELAY);
+> 		return;
+> 	}
+> 
+> Tell me if I'm wrong, but I suspect speedtch_check_status() is called 
+> periodically to check line status. It may be the case that my modem does not 
+> like having its status read when it is sending/receiving data (which it is 
+> constantly doing).
 
-"sbus_build_irq" [drivers/serial/sunzilog.ko] undefined!
-"build_irq" [drivers/serial/sunzilog.ko] undefined!
-"apply_central_ranges" [drivers/serial/sunzilog.ko] undefined!
-"apply_fhc_ranges" [drivers/serial/sunzilog.ko] undefined!
-"prom_halt" [drivers/serial/sunzilog.ko] undefined!
-"prom_printf" [drivers/serial/sunzilog.ko] undefined!
-"central_bus" [drivers/serial/sunzilog.ko] undefined!
+Well, I have the same modem, and mine doesn't seem to mind!  So something is
+strange.
 
-BR,
+> Unfortunately the message eventually fills the dmesg ring buffer. My current 
+> workaround is to remove the atm_warn() call; everything works fine, but I'm 
+> concerned that the modem will not automatically reconnect if the connection 
+> drops as a result of the failure from speedtch_read_status().
 
--- 
-to_be || !to_be == 1, to_be | ~to_be == -1
+You can test it by unplugging the phone line, then replugging it.
+
+> Any suggestions for debugging this further? From a quick google I've noticed a 
+> recent Fedora bugzilla entry mentioning this same problem.
+
+I'll think about it.
+
+All the best,
+
+Duncan.

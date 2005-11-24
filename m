@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbVKXTuF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161030AbVKXTxM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750767AbVKXTuF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 14:50:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751392AbVKXTuE
+	id S1161030AbVKXTxM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 14:53:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbVKXTxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 14:50:04 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:55245 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750767AbVKXTuB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 14:50:01 -0500
-Date: Fri, 25 Nov 2005 01:26:01 +0530
-From: Dinakar Guniguntala <dino@in.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: More PI issues with -rt
-Message-ID: <20051124195601.GA9098@in.ibm.com>
-Reply-To: dino@in.ibm.com
+	Thu, 24 Nov 2005 14:53:11 -0500
+Received: from 193.37.26.69.virtela.com ([69.26.37.193]:44275 "EHLO
+	teapot.corp.reactrix.com") by vger.kernel.org with ESMTP
+	id S1750745AbVKXTxJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 14:53:09 -0500
+Date: Thu, 24 Nov 2005 11:52:56 -0800
+From: Nick Hengeveld <nickh@reactrix.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ed Tomlinson <tomlins@cam.org>, Junio C Hamano <junkio@cox.net>,
+       git@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.15-rc2
+Message-ID: <20051124195256.GR3968@reactrix.com>
+References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org> <200511240737.59153.tomlins@cam.org> <Pine.LNX.4.64.0511241020050.13959@g5.osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="cWoXeonUoKmBZSoM"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0511241020050.13959@g5.osdl.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Nov 24, 2005 at 10:37:15AM -0800, Linus Torvalds wrote:
 
---cWoXeonUoKmBZSoM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> I just repacked and updated it now, so how http should work too, although 
+> inefficiently (because it will get a whole new pack - just one of the 
+> disadvantages of the non-native protocols).
 
-Hi,
+There's room to improve on that particular inefficiency.  The http
+commit walker could use Range: headers to fetch loose objects directly
+from inside a pack if it didn't make sense to fetch the entire pack.
+For this to work, pack fetches would need to be deferred until the
+entire tree had been walked, and the commit walker could decide whether
+to fetch the pack or loose objects based on the percentage of packed
+objects it needed to fetch.  It would also need to fetch all
+tag/commit/tree objects using ranges to be able to fully walk the tree.
 
-I found that PI boosted SCHED_OTHER tasks behave like they have
-SCHED_FIFO policy, while PI boosted SCHED_RR tasks continue to
-behave like they have SCHED_RR policy. This didn't seem right
-
-Does something like the following patch make sense?
-
-	-Dinakar
-
-
-
---cWoXeonUoKmBZSoM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="pi-fix.patch"
-
-Index: linux-2.6.14/kernel/sched.c
-===================================================================
---- linux-2.6.14.orig/kernel/sched.c	2005-11-25 01:24:06.000000000 +0530
-+++ linux-2.6.14/kernel/sched.c	2005-11-25 01:24:26.000000000 +0530
-@@ -2986,8 +2986,9 @@
- 		 * On PREEMPT_RT, boosted tasks will also get into this
- 		 * branch and wont get their timeslice decreased until
- 		 * they have done their work.
-+		 * Boosted SCHED_OTHER tasks round-robin as well
- 		 */
--		if ((p->policy == SCHED_RR) && !--p->time_slice) {
-+		if ((p->policy != SCHED_FIFO) && !--p->time_slice) {
- 			p->time_slice = task_timeslice(p);
- 			p->first_time_slice = 0;
- 			set_tsk_need_resched(p);
-
---cWoXeonUoKmBZSoM--
+-- 
+For a successful technology, reality must take precedence over public
+relations, for nature cannot be fooled.

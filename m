@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932671AbVKXWrH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932672AbVKXW6U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932671AbVKXWrH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 17:47:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbVKXWrH
+	id S932672AbVKXW6U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 17:58:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932675AbVKXW6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 17:47:07 -0500
-Received: from teetot.devrandom.net ([66.35.250.243]:21147 "EHLO
-	teetot.devrandom.net") by vger.kernel.org with ESMTP
-	id S932671AbVKXWqy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 17:46:54 -0500
-Date: Thu, 24 Nov 2005 14:48:25 -0800
-From: thockin@hockin.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andi Kleen <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       Gerd Knorr <kraxel@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-Message-ID: <20051124224825.GA20892@hockin.org>
-References: <20051124133907.GG20775@brahms.suse.de> <1132842847.13095.105.camel@localhost.localdomain> <20051124142200.GH20775@brahms.suse.de> <1132845324.13095.112.camel@localhost.localdomain> <20051124145518.GI20775@brahms.suse.de> <m1psoqgk18.fsf@ebiederm.dsl.xmission.com> <20051124153635.GJ20775@brahms.suse.de> <20051124191207.GB2468@hockin.org> <20051124191445.GR20775@brahms.suse.de> <1132873934.13095.138.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 24 Nov 2005 17:58:20 -0500
+Received: from mail.linicks.net ([217.204.244.146]:18857 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S932672AbVKXW6T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 17:58:19 -0500
+From: Nick Warne <nick@linicks.net>
+To: Ian McDonald <iam@st-andrews.ac.uk>
+Subject: Re: [OT] 1500 days uptime.
+Date: Thu, 24 Nov 2005 22:58:15 +0000
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org
+References: <200511242147.45248.nick@linicks.net> <200511242235.23724.nick@linicks.net> <438641F8.4030709@st-andrews.ac.uk>
+In-Reply-To: <438641F8.4030709@st-andrews.ac.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1132873934.13095.138.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200511242258.15953.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 24, 2005 at 11:12:14PM +0000, Alan Cox wrote:
-> On Iau, 2005-11-24 at 20:14 +0100, Andi Kleen wrote:
-> > I proposed something like that - best with an ASCII string
-> > ("First DIMM on the top left corner") But getting such stuff into BIOS 
-> > is difficult and long winded.
-> 
-> Propose it the desktop management people and get it into the DMI
-> standard. They already have entries for each memory slot, they already
-> have entries for descriptive strings for connectors. In fact you may
-> well be able to 'bend' the spec enough to do it as is.
+On Thursday 24 November 2005 22:43, Ian McDonald wrote:
+>
+> Talking of things wrapping, I see the load average counter rolls over at
+> 1024. Any hints on getting real load averages when they're above 1024?
+>
+> --
+> ian
 
-There are enough fields that maybe one of them is loose enough to mean
-this.  It doesn't help us convince mobo vendors to support it, though.
+1024 load averages? I have never seen anything above 1.5 on any box I run?  
+You sure?
+
+Nick
+-- 
+"Person who say it cannot be done should not interrupt person doing it."
+-Chinese Proverb
+My quake2 project:
+http://sourceforge.net/projects/quake2plus/

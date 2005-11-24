@@ -1,43 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbVKXPL4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751369AbVKXPPl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932112AbVKXPL4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 10:11:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbVKXPL4
+	id S1751369AbVKXPPl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 10:15:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbVKXPPl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 10:11:56 -0500
-Received: from goliath.cnchost.com ([207.155.252.47]:7358 "EHLO
-	goliath.cnchost.com") by vger.kernel.org with ESMTP
-	id S1751312AbVKXPLz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 10:11:55 -0500
-Message-ID: <4385D839.7000005@rickniles.com>
-Date: Thu, 24 Nov 2005 10:11:53 -0500
-From: Rick Niles <niles@rickniles.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Thu, 24 Nov 2005 10:15:41 -0500
+Received: from vms042pub.verizon.net ([206.46.252.42]:41274 "EHLO
+	vms042pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1751369AbVKXPPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 10:15:40 -0500
+Date: Thu, 24 Nov 2005 10:15:38 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: Linux 2.6.15-rc2
+In-reply-to: <Pine.LNX.4.61.0511240741020.5619@goblin.wat.veritas.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Sub jiffy delay?
-References: <200511232039.PAA03184@bellona.cnchost.com> <Pine.LNX.4.61.0511231646100.20759@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0511231646100.20759@chaos.analogic.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-id: <200511241015.38616.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org>
+ <200511231937.34206.gene.heskett@verizon.net>
+ <Pine.LNX.4.61.0511240741020.5619@goblin.wat.veritas.com>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, I think the best answer for a distribution kernel without making a 
-any patches or rebuilding anything is to use the "register_rtc()" hook 
-in the rtc driver.   I tried it and it works really well.  This way my 
-device driver can drop into a Fedora system without the user having to 
-rebuild anything  (other than my driver).
+On Thursday 24 November 2005 02:45, Hugh Dickins wrote:
+>On Wed, 23 Nov 2005, Gene Heskett wrote:
+>> On Wednesday 23 November 2005 18:40, Hugh Dickins wrote:
+[snip previouus blowup]
+>That's one of the things fixed by Andrew's patch below
+>(though Linus fixed it differently in the end).
+>Or you could just wait for 2.6.15-rc2-git4, should be along soon.
+>
+>Hugh
 
- If I want to get fancy I could check to see if IRQ 8 is taken and use 
-it directly if it's not, i.e. the RTC driver isn't loaded. If IRQ 8 is 
-taken, check for the RTC driver and then use that via register_rtc().  
-In the unlikely event that IRQ 8 is taken and it's not by the RTC 
-driver, then I guess the user's out of luck.
+Got it, building src tree now, config'd & building.
 
-Thanks for all the suggestions, they've all been good, but I'm trying 
-avoid steep requirements on usage of this driver. 
+And, I unchecked everything but what I need to run this card (I think,
+whatdoIknow) and got this at depmod time:
+WARNING:
+/lib/modules/2.6.15-rc2-git4/kernel/drivers/media/video/cx88/cx88-dvb.ko
+needs unknown symbol mt352_attach
+WARNING:
+/lib/modules/2.6.15-rc2-git4/kernel/drivers/media/video/cx88/cx88-dvb.ko
+needs unknown symbol nxt200x_attach
+WARNING:
+/lib/modules/2.6.15-rc2-git4/kernel/drivers/media/video/cx88/cx88-dvb.ko
+needs unknown symbol mt352_write
+WARNING:
+/lib/modules/2.6.15-rc2-git4/kernel/drivers/media/video/cx88/cx88-dvb.ko
+needs unknown symbol lgdt330x_attach
+WARNING:
+/lib/modules/2.6.15-rc2-git4/kernel/drivers/media/video/cx88/cx88-dvb.ko
+needs unknown symbol cx22702_attach
 
-Rick Niles.
+Maybe somebody can take the time to tell me what I do need to run a
+pcHDTV-3000 in both ntsc and atsc modes using this newer code?
+I was under the impression I needed the cx88 stuffs, ORV51132 (for
+atsc) and nxt2002(for ntsc), but now we have lots of other dependencies
+out the wazoo.  Please clarify.
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.36% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+
 

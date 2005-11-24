@@ -1,50 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030540AbVKXFyy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161010AbVKXFyS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030540AbVKXFyy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 00:54:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030611AbVKXFyy
+	id S1161010AbVKXFyS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 00:54:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161012AbVKXFyS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 00:54:54 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:16259 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S1030610AbVKXFyx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 00:54:53 -0500
-Date: Thu, 24 Nov 2005 05:54:49 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: alsa-devel@alsa-project.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Add extra IDs for headphone autosense
-Message-ID: <20051124055449.GE28070@srcf.ucam.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 24 Nov 2005 00:54:18 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:18645
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1161010AbVKXFyR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 00:54:17 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Neil Brown <neilb@suse.de>
+Subject: Re: [PATCH] pivot_root broken in 2.6.15-rc1-mm2
+Date: Wed, 23 Nov 2005 23:54:00 -0600
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org, Al Viro <viro@ftp.linux.org.uk>
+References: <17283.52960.913712.454816@cse.unsw.edu.au> <200511230543.24353.rob@landley.net> <17285.19207.788744.48747@cse.unsw.edu.au>
+In-Reply-To: <17285.19207.788744.48747@cse.unsw.edu.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+Message-Id: <200511232354.00843.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch adds some extra IDs for the list of hardware which 
-should have headphone line sense enabled by default.
+On Wednesday 23 November 2005 23:09, Neil Brown wrote:
+> On Wednesday November 23, rob@landley.net wrote:
+> > On Tuesday 22 November 2005 20:07, Neil Brown wrote:
+> > > Pivot_root seems to be broken in 2.6.15-rc1-mm2.
+> > >
+> > > I havea initramfs filesystem, mount a ext3 filesystem (which has /mnt)
+> > > at '/root' and
+> > >
+> > >   cd /root
+> > >   pivot . mnt
+> > >
+> > > and it says -EINVAL.
+> >
+> > You can't pivot_root initramfs because initramfs is rootfs.
+> >
+> > I wrote Documentation/filesystems/ramfs-rootfs-initramfs.txt just for
+> > this occasion. :)
+>
+> Unfortunately, 'man pivot_root' nor 'use the source, Luke' contain
+> pointers to this particular useful document.  They both list assorted
+> restrictions on pivot_root, but not this one.
+>
+> How about the following?
+>
+> Thanks,
+> NeilBrown
+>
+> Signed-off-by: Neil Brown <neilb@suse.de>
+Signed-off-by: Rob Landley <rob@landley.net>
 
-Signed-off-by: Matthew Garrett <mjg59@srcf.ucam.org>
-
---- sound/pci/ac97/ac97_patch.c.orig	2005-11-24 05:51:52 +0000
-+++ sound/pci/ac97/ac97_patch.c	2005-11-24 05:52:41 +0000
-@@ -1639,8 +1639,12 @@ static void check_ad1981_hp_jack_sense(a
- {
- 	u32 subid = ((u32)ac97->subsystem_vendor << 16) | ac97->subsystem_device;
- 	switch (subid) {
-+	case 0x0e11005a: /* HP nc4000/4010 */
- 	case 0x103c0890: /* HP nc6000 */
-+	case 0x103c0938: /* HP nc4220 */
- 	case 0x103c099c: /* HP nx6110 */
-+	case 0x103c0944: /* HP nc6220 */
-+	case 0x103c0934: /* HP nc8220 */
- 	case 0x103c006d: /* HP nx9105 */
- 	case 0x17340088: /* FSC Scenic-W */
- 		/* enable headphone jack sense */
-
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+> ### Diffstat output
+>  ./fs/namespace.c |    4 ++++
+>  1 file changed, 4 insertions(+)
+>
+> diff ./fs/namespace.c~current~ ./fs/namespace.c
+> --- ./fs/namespace.c~current~ 2005-11-23 14:24:59.000000000 +1100
+> +++ ./fs/namespace.c 2005-11-24 16:07:01.000000000 +1100
+> @@ -1526,6 +1526,10 @@ static void chroot_fs_refs(struct nameid
+>   * pointed to by put_old must yield the same directory as new_root. No
+> other * file system may be mounted on put_old. After all, new_root is a
+> mountpoint. *
+> + * Also, the current root cannot be on the 'rootfs' (initial ramfs)
+> filesystem. + * See Documentation/filesystems/ramfs-rootfs-initramfs.txt
+> for alternatives + * in this situation.
+> + *
+>   * Notes:
+>   *  - we don't move root/cwd if they are not at the root (reason: if
+> something *    cared enough to change them, it's probably wrong to force
+> them elsewhere)

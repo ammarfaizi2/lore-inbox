@@ -1,71 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbVKXQl4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbVKXQqz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932362AbVKXQl4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 11:41:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbVKXQlz
+	id S932390AbVKXQqz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 11:46:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbVKXQqz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 11:41:55 -0500
-Received: from mail.deathmatch.net ([216.200.85.210]:14533 "EHLO
-	mail.deathmatch.net") by vger.kernel.org with ESMTP id S932362AbVKXQlz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 11:41:55 -0500
-From: "Bob Copeland" <me@bobcopeland.com>
-To: Alan Stern <stern@rowland.harvard.edu>, Bob Copeland <me@bobcopeland.com>,
-       linux-kernel@vger.kernel.org, <usb-storage@lists.one-eyed-alien.net>
-CC: phil@ipom.com, Andries.Brouwer@cwi.nl
-Subject: Re: [usb-storage] Re: [PATCH] usb-storage: Add support for Rio Karma
-X-Mailer: NeoMail 1.27
-X-IPAddress: 209.86.141.27
+	Thu, 24 Nov 2005 11:46:55 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:60299 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932390AbVKXQqy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 11:46:54 -0500
+Message-ID: <4385EE73.1020709@pobox.com>
+Date: Thu, 24 Nov 2005 11:46:43 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-Id: <E1EfKA6-00029s-00@hash.localnet>
-Date: Thu, 24 Nov 2005 11:41:30 -0500
+To: Mark Lord <lkml@rtr.ca>
+CC: Daniel Drake <dsd@gentoo.org>, Jan Panoch <jan@panoch.net>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: [PATCH] PATA support for Intel ICH7 (intel 945G chipset) - 2.6.14.2
+References: <4383DC5E.3050601@panoch.net> <438453C9.4050200@gentoo.org> <4385D79E.5060107@rtr.ca>
+In-Reply-To: <4385D79E.5060107@rtr.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Mark Lord wrote: > Daniel Drake wrote: > >> >>
+	Documentation/SubmittingPatches). I don't think it will be accepted >>
+	because this hardware is already supported by the ata_piix libata
+	driver. > > > That is not a valid reason to reject -- libata is still
+	considered > very experimental for ATAPI devices, which are not enabled
+	by default. > > Jeff has said that he prefers (at present) for people
+	with ATAPI drives > to use the IDE layer rather than libata, where
+	possible. [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 23 Nov 2005, Bob Copeland wrote:
-> > +#ifdef CONFIG_USB_STORAGE_KARMA
-> > +UNUSUAL_DEV(  0x045a, 0x5210, 0x0101, 0x0101,
-> > +		"Rio",
-> > +		"Rio Karma",
-> > +		US_SC_SCSI, US_PR_BULK, rio_karma_init, US_FL_FIX_INQUIRY),
+Mark Lord wrote:
+> Daniel Drake wrote:
 > 
-> Are you sure you need US_SC_SCSI and US_PR_BULK?  Wouldn't US_SC_DEVICE 
-> and US_PR_DEVICE be sufficient?
+>>
+>> Documentation/SubmittingPatches). I don't think it will be accepted 
+>> because this hardware is already supported by the ata_piix libata driver.
 > 
-> And do you really need US_FL_FIX_INQUIRY?  Hardly any devices do (maybe 
-> none).
+> 
+> That is not a valid reason to reject -- libata is still considered
+> very experimental for ATAPI devices, which are not enabled by default.
+> 
+> Jeff has said that he prefers (at present) for people with ATAPI drives
+> to use the IDE layer rather than libata, where possible.
 
-Alan, 
+PATA ATAPI, not all ATAPI...
 
-Thanks again for your comments.
+	Jeff
 
-The Karma does some rather broken things.  If you look at the dump below you'll
-see that a lot of fields are just zeroed out, such as the serial number.  There
-are obviously wrong things, e.g. the device class and protocols are zero,  but
-the interface class is also zero, which is reserved according to the spec.  The
-protocol is interpreted as CBI but there are actually no control or interrupt
-endpoints.  Thus US_PR_BULK... and maybe US_SC_SCSI, I'll check that.
 
-I set US_FL_FIX_INQUIRY because I have noticed that, on occasion, the unit
-would report itself as being either the USB controller or the disk drive
-contained within, so instead of "Rio" it says "HitachiXYZ" or "Cypress," and
-the device acts funny.  I can only reproduce this rarely on the device, but I
-assumed that this flag would help.
 
-T:  Bus=04 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  8 Spd=480 MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=045a ProdID=5210 Rev= 1.01
-S:  Manufacturer=Rio
-S:  Product=Rio Karma
-S:  SerialNumber=0000000000000000
-C:* #Ifs= 1 Cfg#= 1 Atr=c0 MxPwr=  0mA
-I:  If#= 0 Alt= 0 #EPs= 2 Cls=00(>ifc ) Sub=00 Prot=00 Driver=usb-storage
-E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-I freely admit ignorance on many of the fine points on scsi/usb so please
-enlighten me as necessary.
-
--- 
-Bob Copeland %% www.bobcopeland.com

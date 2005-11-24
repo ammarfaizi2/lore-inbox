@@ -1,35 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbVKXOBq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751040AbVKXOBs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751039AbVKXOBq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 09:01:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751043AbVKXOBq
+	id S1751040AbVKXOBs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 09:01:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751023AbVKXOBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 24 Nov 2005 09:01:48 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:14559 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1751040AbVKXOBq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 24 Nov 2005 09:01:46 -0500
-Received: from nproxy.gmail.com ([64.233.182.199]:44611 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751023AbVKXOBp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 09:01:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=j01Lnb2pGyG/haH+qtloOzGtz7wKv4r4o4OubuYpNbead++t5R9GPEPc0OyUZLWQfJZNQZREHD2f0XvzDWpy3LXnys+2+3UGdvPKupClyvl0hHisLHPpdK1gyT3iJxqNhpoUCD9DhK4YHgiXqaMLJ/C6cl4tQW+IFe12DuVVCQw=
-Message-ID: <6c18a4f0511240601i5860f724rff4db0c1b1fdca1e@mail.gmail.com>
-Date: Thu, 24 Nov 2005 15:01:43 +0100
-From: Bernd Bartmann <bernd.bartmann@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: S.M.A.R.T. command passthru to Firewire devices
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Subject: Re: [patch] SMP alternatives
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andi Kleen <ak@suse.de>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Gerd Knorr <kraxel@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
+       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <20051124133907.GG20775@brahms.suse.de>
+References: <437B5A83.8090808@suse.de> <438359D7.7090308@suse.de>
+	 <p7364qjjhqx.fsf@verdi.suse.de>
+	 <1132764133.7268.51.camel@localhost.localdomain>
+	 <20051123163906.GF20775@brahms.suse.de>
+	 <1132766489.7268.71.camel@localhost.localdomain>
+	 <20051123165923.GJ20775@brahms.suse.de>
+	 <1132783243.13095.17.camel@localhost.localdomain>
+	 <20051124131310.GE20775@brahms.suse.de>
+	 <m1zmnugom7.fsf@ebiederm.dsl.xmission.com>
+	 <20051124133907.GG20775@brahms.suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 24 Nov 2005 14:34:07 +0000
+Message-Id: <1132842847.13095.105.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I try to run "smartctl -a /dev/sdb" it tells me that "Device does
-not support SMART". /dev/sdb is a normal hdd in an external firewire
-enclosure. To me this looks like the firewire SCSI layer does not
-support the passthru of the S.M.A.R.T. commands. Or is there any other
-way to query the S.M.A.R.T. status of an hdd attached via Firewire?
+On Iau, 2005-11-24 at 14:39 +0100, Andi Kleen wrote:
+> That's supposed to be done by hardware, no? 
 
-Thanks,
-Bernd.
+Varies immensely by system. Where there is a hardware scrubber and it is
+enabled it will be used. Once nice thing about K8 is the mem controller
+is in the CPU so they all use the same driver (not yet merged)
+
+> If you try to do it this way then the code will become such
+> a mess if not impossible to write that your changes to merge them
+> and get it right are very slim. The only sane way to do all the locking etc. 
+> is to hand over the handling to a thread. While that make the window
+> of misusing the data wider it's the only sane alternative vs not
+> doing it at all.
+
+Its utterly hideous because the usual 'ECC error' reporting technique
+for an uncorrectable error is an NMI. Locks could be in any state at
+this point and even the registers needing to be accessed are across PCI
+and we could be half way through a PCI configuration cycle.
+
+The -mm EDAC code works on the basic assumption that unrecovered ECC is
+a system halter although that is configurable.
+

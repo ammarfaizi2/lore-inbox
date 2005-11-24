@@ -1,103 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751400AbVKXU1O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932652AbVKXU2e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751400AbVKXU1O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 15:27:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751399AbVKXU1N
+	id S932652AbVKXU2e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 15:28:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932655AbVKXU2e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 15:27:13 -0500
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:38787 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S1751401AbVKXU1F
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 15:27:05 -0500
-Message-ID: <43862215.9030007@rtr.ca>
-Date: Thu, 24 Nov 2005 15:27:01 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
-X-Accept-Language: en, en-us
+	Thu, 24 Nov 2005 15:28:34 -0500
+Received: from gold.veritas.com ([143.127.12.110]:50203 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S932652AbVKXU2d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 15:28:33 -0500
+Date: Thu, 24 Nov 2005 20:28:35 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Matt Mackall <mpm@selenic.com>, akpm@osdl.org, manfred@colorfullife.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: + shut-up-warnings-in-ipc-shmc.patch added to -mm tree
+In-Reply-To: <20051124174622.GC18971@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.61.0511242012380.9406@goblin.wat.veritas.com>
+References: <200511230413.jAN4DboR013036@shell0.pdx.osdl.net>
+ <Pine.LNX.4.61.0511241235450.3504@goblin.wat.veritas.com>
+ <20051124160012.GQ31287@waste.org> <20051124174622.GC18971@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.15-rc2] b44: missing netif_wake_queue() in b44_open()
-References: <438617DE.5000700@rtr.ca> <Pine.LNX.4.64.0511241146560.13959@g5.osdl.org> <43861E6F.9090604@pobox.com>
-In-Reply-To: <43861E6F.9090604@pobox.com>
-Content-Type: multipart/mixed;
- boundary="------------060207050001060704040005"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 24 Nov 2005 20:28:26.0381 (UTC) FILETIME=[9FA3F3D0:01C5F135]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060207050001060704040005
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Jeff Garzik wrote:
-> Nope.   There's no need to wake the queue.
+On Thu, 24 Nov 2005, Russell King wrote:
+> On Thu, Nov 24, 2005 at 08:00:12AM -0800, Matt Mackall wrote:
 > 
-> 1) Use netif_start_queue() rather than netif_wake_queue(), in b44_open()
+> It seems that ({0;}) is used when something is expected to return zero.
+> However, if it is used in a void context, gcc 4 generates an annoying
+> warning.
+
+Annoying indeed.
+
+> > mm.h:
+> > #define shm_lock(a, b) empty_int()
+> > 
+> > The typechecking is nice in theory, but in practice I don't think it
+> > really makes a difference for stubbing things out.
+
+I'm with Matt on the typechecking here, and at first liked his proposal;
+but then dreaded a long line of empty_int_0(), empty_long_minus1(), ...
+I suppose we could pass the return value as argument, but I rather lose
+interest...
+
+> Depends if you end up with "blah is unused" warnings instead.  It's
+> all round _far_ safer to use the inline function method from that
+> point of view.
 > 
-> 2) OTOH, netif_wake_queue() appears to be missing from the end of 
-> b44_resume(), which has highly similar code.
+> Not that I particularly care, I just wanted to squash some of the
+> rediculous number of warnings in the kernel and decided to hit the
+> easy ones.  However, they're turning out to be real pigs instead. 8(
 
-Ah. Thanks, Jeff!
-I guess the e100.c driver was a bad example to copy here.
+I have nothing constructive suggest, and withdraw my objection to your
+patch; though I do hope someone else comes up with a brilliant idea.
+Or, does the next version of gcc decide it was all a wrong turning?
 
-Fixed, tested, still works fine.
-Patch now updated.
-
->>> This patch fixes a problem plaguing Dell notebooks with
->>> built-in b44 ethernet:  The driver refuses to transmit packets
->>> of any kind until after the first 5-second tx_timeout occurs.
->>> This bug causes DHCP negotiation to fail (timeout) during
->>> installation of Ubuntu Linux.
->>>
->>> One-liner fix.  Please review (and apply if you like it).
-
-Signed-off-by:  Mark Lord <lkml@rtr.ca>
-
-
---- linux-2.6.15-rc2/drivers/net/b44.c  2005-11-19 22:25:03.000000000 -0500
-+++ linux/drivers/net/b44.c     2005-11-24 15:20:47.000000000 -0500
-@@ -1417,6 +1417,7 @@
-         add_timer(&bp->timer);
-
-         b44_enable_ints(bp);
-+       netif_start_queue(dev); /* prevent the initial tx_timeout() we otherwise see */
-  out:
-         return err;
-  }
-@@ -2113,6 +2114,7 @@
-         add_timer(&bp->timer);
-
-         b44_enable_ints(bp);
-+       netif_wake_queue(dev);
-         return 0;
-  }
-
---------------060207050001060704040005
-Content-Type: text/x-patch;
- name="b44_fix2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="b44_fix2.patch"
-
---- linux-2.6.15-rc2/drivers/net/b44.c	2005-11-19 22:25:03.000000000 -0500
-+++ linux/drivers/net/b44.c	2005-11-24 15:20:47.000000000 -0500
-@@ -1417,6 +1417,7 @@
- 	add_timer(&bp->timer);
- 
- 	b44_enable_ints(bp);
-+	netif_start_queue(dev);	/* prevent the initial tx_timeout() we otherwise see */
- out:
- 	return err;
- }
-@@ -2113,6 +2114,7 @@
- 	add_timer(&bp->timer);
- 
- 	b44_enable_ints(bp);
-+	netif_wake_queue(dev);
- 	return 0;
- }
- 
-
---------------060207050001060704040005--
+Hugh

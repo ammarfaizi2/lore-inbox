@@ -1,50 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030547AbVKXAtj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030549AbVKXAuu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030547AbVKXAtj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Nov 2005 19:49:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932607AbVKXAtj
+	id S1030549AbVKXAuu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Nov 2005 19:50:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030550AbVKXAuu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Nov 2005 19:49:39 -0500
-Received: from gate.crashing.org ([63.228.1.57]:25573 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932535AbVKXAtj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Nov 2005 19:49:39 -0500
-Subject: Console rotation problems
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: adaplas@gmail.com
-Cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Thu, 24 Nov 2005 11:45:50 +1100
-Message-Id: <1132793150.26560.357.camel@gaston>
+	Wed, 23 Nov 2005 19:50:50 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:28331
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1030548AbVKXAut (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Nov 2005 19:50:49 -0500
+Date: Wed, 23 Nov 2005 16:50:37 -0800 (PST)
+Message-Id: <20051123.165037.130468768.davem@davemloft.net>
+To: bcrl@kvack.org
+Cc: ak@suse.de, jgarzik@pobox.com, andrew.grover@intel.com,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       john.ronciak@intel.com, christopher.leech@intel.com
+Subject: Re: [RFC] [PATCH 0/3] ioat: DMA engine support
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20051124001700.GC14246@kvack.org>
+References: <4384E7F2.2030508@pobox.com>
+	<20051123223007.GA5921@wotan.suse.de>
+	<20051124001700.GC14246@kvack.org>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Antonio !
+From: Benjamin LaHaise <bcrl@kvack.org>
+Date: Wed, 23 Nov 2005 19:17:01 -0500
 
-I decided to give a quick test to console rotation on my g5 (radeonfb)
-and couldn't get it to work.
+> Similarly, we should make sure that network drivers prefetch the
+> header at the earliest possible time, too.
 
-When I tried echo'ing something in con_rotate, something very strange
-happened:
-
-pogo:/sys/class/graphics/fb0# echo "1" >con_rotate
-benh@pogo:~$
-
-As you can see, it looks like I pressed ctrl-D (which I didn't do) and
-thus exited my shell session. Thus my shell session got killed some way.
-Verified it twice. Also the console stopped displaying anything (that
-is,whatever was displayed was still there but the cursor didn't blink
-anymore and no new stuff got displayed). 
-
-When I then tried to echo "0" back there, it just hung in the kernel
-(probably on a semaphore, I could still use the box for a little while
-before it completely locked up).
-
-Ben.
-
-
+Several do already, thankfully :)  At last check skge, tg3, chelsio,
+and ixgb do the necessary prefetching on receive.

@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932625AbVKXJlS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbVKXJnx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932625AbVKXJlS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 04:41:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932629AbVKXJlS
+	id S1751341AbVKXJnx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 04:43:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbVKXJnw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 04:41:18 -0500
-Received: from mail21.syd.optusnet.com.au ([211.29.133.158]:49827 "EHLO
-	mail21.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932625AbVKXJlR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 04:41:17 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Marcel Zalmanovici <MARCEL@il.ibm.com>
-Subject: Re: Inconsistent timing results of multithreaded program on an SMP machine.
-Date: Thu, 24 Nov 2005 20:40:59 +1100
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org, Muli Ben-Yehuda <mulix@mulix.org>
-References: <OF507D27BA.6B51F19A-ONC22570C3.002E62D2-C22570C3.002F0C99@il.ibm.com>
-In-Reply-To: <OF507D27BA.6B51F19A-ONC22570C3.002E62D2-C22570C3.002F0C99@il.ibm.com>
+	Thu, 24 Nov 2005 04:43:52 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:39633 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S1751341AbVKXJnw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 04:43:52 -0500
+Date: Thu, 24 Nov 2005 10:43:20 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Re: Console rotation problems
+In-Reply-To: <43855DBA.1050302@gmail.com>
+Message-ID: <Pine.LNX.4.62.0511241042360.6400@numbat.sonytel.be>
+References: <1132793150.26560.357.camel@gaston>  <1132793556.26560.361.camel@gaston>
+ <1132796831.26560.392.camel@gaston> <1132801542.26560.402.camel@gaston>
+ <43855DBA.1050302@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511242041.00586.kernel@kolivas.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Nov 2005 19:33, Marcel Zalmanovici wrote:
-> Hi Con,
->
-> I've tried the pthread_join theory.
-> pthread_join completes very fast, no evidence on it being the perpetrator
-> here.
->
-> I've ran your ps -... idea in a different term window every ms while the
-> test was running. It created a large file so I won't mail it to you, but
-> both me and Muli observed that once the thread ends it quickly disappears
-> from the ps list.
->
-> I've also ran Muli's idea and added gettimeofday calls.
-> Here's the altered code and output:
->
-> (See attached file: idle.log)(See attached file: sched_test.c)
->
-> As you can see, if a thread already finished pthread_join returns in a
-> split second.
->
-> Any other ideas are welcome :-)
+On Thu, 24 Nov 2005, Antonino A. Daplas wrote:
+> Benjamin Herrenschmidt wrote:
+> > Remove bogus usage of test/set_bit() from fbcon rotation code and just
+> > manipulate the bits directly. This fixes an oops on powerpc among others
+> > and should be faster. Seems to work fine on the G5 here.
+> 
+> Thanks, I reached a point when my head became muddled with bit 
+> manipulations, so I used arch-specific bitops but complete forgot
+> that they were atomic :-)
 
-Profile the actual application?
+I haven't really looked at the rotation code, but I guess it can be optimized a
+lot by using similar techniques like c2p (chunky-to-planar) conversions.
 
-> P.S. - I agree that Lotus isn't ideal for this kind of conversations, but
-> that's what IBM is using.
+Gr{oetje,eeting}s,
 
-It was tongue in cheek ;) Well that should still not stop you from replying 
-below the original thread.
+						Geert
 
-Cheers,
-Con
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

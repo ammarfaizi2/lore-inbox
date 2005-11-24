@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030554AbVKXH3K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030558AbVKXHb1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030554AbVKXH3K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 02:29:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030556AbVKXH3J
+	id S1030558AbVKXHb1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 02:31:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030557AbVKXHb1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 02:29:09 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:44987 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S1030554AbVKXH3I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 02:29:08 -0500
-Date: Thu, 24 Nov 2005 07:29:03 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Reboot through the BIOS on newer HP laptops
-Message-ID: <20051124072903.GA28327@srcf.ucam.org>
-References: <20051124052107.GA28070@srcf.ucam.org> <200511240726.16669.s0348365@sms.ed.ac.uk>
+	Thu, 24 Nov 2005 02:31:27 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:56488 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1030558AbVKXHb0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 02:31:26 -0500
+Date: Wed, 23 Nov 2005 23:30:16 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Denis Vlasenko <vda@ilport.com.ua>
+Cc: linux-os@analogic.com, francis_moreau2000@yahoo.fr,
+       linux-kernel@vger.kernel.org
+Subject: Re: Use enum to declare errno values
+Message-Id: <20051123233016.4a6522cf.pj@sgi.com>
+In-Reply-To: <200511240919.52650.vda@ilport.com.ua>
+References: <20051123132443.32793.qmail@web25813.mail.ukl.yahoo.com>
+	<200511231624.49208.vda@ilport.com.ua>
+	<Pine.LNX.4.61.0511230958550.18085@chaos.analogic.com>
+	<200511240919.52650.vda@ilport.com.ua>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200511240726.16669.s0348365@sms.ed.ac.uk>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 24, 2005 at 07:26:16AM +0000, Alistair John Strachan wrote:
-> On Thursday 24 November 2005 05:21, Matthew Garrett wrote:
-> > Newer HP laptops (nc4200, nc6xxx, nc8xxx) hang on reboot with a standard
-> > configuration. Passing reboot=b makes them work. This patch adds a DMI
-> > quirk that defaults them to this mode, and doesn't appear to have any
-> > adverse affects on older HPs.
-> 
-> Might be better to specify machines that actually have this issue. My NC6000 
-> does not have any reboot issues with current or prior kernels, and such a 
-> change risks regressing that.
-
-This works fine with the NC6000, and every other HP-Compaq I've been 
-able to test it on (which is quite a few). The alternative is really 
-quite a long list.
+If errno's were an enum type, what would be the type
+of the return value of a variety of kernel routines
+that now return an int, returning negative errno's on
+error and zero or positive values on success?
 
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

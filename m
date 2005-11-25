@@ -1,114 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932448AbVKYNmg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932673AbVKYNuX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932448AbVKYNmg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 08:42:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932673AbVKYNmg
+	id S932673AbVKYNuX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 08:50:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932678AbVKYNuX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 08:42:36 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:17843 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S932448AbVKYNmf
+	Fri, 25 Nov 2005 08:50:23 -0500
+Received: from webbox4.loswebos.de ([213.187.93.205]:38076 "EHLO
+	webbox4.loswebos.de") by vger.kernel.org with ESMTP id S932673AbVKYNuX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 08:42:35 -0500
-Date: Fri, 25 Nov 2005 14:42:26 +0100
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-To: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: [BUG linux-2.6.15-rc] process events connector - soft lockup
- detected
-Message-ID: <20051125144226.37778246@frecb000711.frec.bull.fr>
-Organization: BULL SA.
-X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 25/11/2005 14:41:56,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 25/11/2005 14:41:58,
-	Serialize complete at 25/11/2005 14:41:58
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 25 Nov 2005 08:50:23 -0500
+Date: Fri, 25 Nov 2005 14:50:30 +0100
+From: Marc Koschewski <marc@osknowledge.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org,
+       Marc Koschewski <marc@osknowledge.org>, Ed Tomlinson <tomlins@cam.org>,
+       Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: psmouse unusable in -mm series (was: 2.6.15-rc1-mm2 unsusable on DELL Inspiron 8200, 2.6.15-rc1 works fine)
+Message-ID: <20051125135030.GB6728@stiffy.osknowledge.org>
+References: <20051118182910.GJ6640@stiffy.osknowledge.org> <20051124124444.GA23667@stiffy.osknowledge.org> <200511242124.00127.rjw@sisk.pl> <200511242220.25702.rjw@sisk.pl> <20051125082253.GA13959@ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051125082253.GA13959@ucw.cz>
+X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
+X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
+X-Operating-System: Linux stiffy 2.6.15-rc2-marc
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+* Vojtech Pavlik <vojtech@suse.cz> [2005-11-25 09:22:53 +0100]:
 
-  I compiled a kernel 2.6.15-rc1 and a 2.6.15-rc2 with Process Events
-Connector enabled. The machine has two processors. When I use the
-process events connector, a soft lockup is detected (for both releases):
+> On Thu, Nov 24, 2005 at 10:20:25PM +0100, Rafael J. Wysocki wrote:
+> > Update:
+> > 
+> > On Thursday, 24 of November 2005 21:23, Rafael J. Wysocki wrote:
+> > > On Thursday, 24 of November 2005 13:44, Marc Koschewski wrote:
+> > > }-- snip --{
+> > > > > It looks like you are seeing a different bug.  The one opened for debian user space
+> > > > > covers mousedev not being loaded if the kernel is 2.6.15, which leads to no /dev/input
+> > > > > 
+> > > > 
+> > > > That's what I think, thus the report on LKLM. But noone but me seems to
+> > > > be trapped into it until... :/
+> > > 
+> > > FWIW, my touchpad doesn't work with -rc2-mm1 too (usually I use a USB mouse,
+> > > so I didn't notice before).  Here's what dmesg says about it:
+> > > 
+> > > Synaptics Touchpad, model: 1, fw: 5.9, id: 0x926eb1, caps: 0x804719/0x0
+> > > input: SynPS/2 Synaptics TouchPad as /class/input/input2
+> > > 
+> > > The box is an Asus L5D (x86-64).
+> > 
+> > Actually, it works on the console (ie with gpm), but X is unable to use it,
+> > apparently.  However it used to be, at least on 2.6.14-git9 (this is the latest
+> > non-mm kernel I've been able to test quickly on this box).
+> > 
+> > Marc, does your touchpad work with gpm?
+>  
+> What's in your relevant xorg.conf sections?
 
----------B<---------------------------------------
-Pid: 2770, comm:                   sh
-EIP: 0060:[<c039ae28>] CPU: 1
-EIP is at __read_lock_failed+0x8/0x14
- EFLAGS: 00000297    Not tainted  (2.6.15-rc2)
-EAX: c046fc00 EBX: f5946000 ECX: f5947f7c EDX: 00000286
-ESI: 00000000 EDI: ffffffff EBP: f5946000 DS: 007b ES: 007b
-CR0: 8005003b CR2: 080e173c CR3: 358a0000 CR4: 000006d0
- [<c039c566>] _read_lock+0xb/0xc
- [<c011e7ee>] do_wait+0x9d/0x40c
- [<c0116fd0>] default_wake_function+0x0/0x12
- [<c0116fd0>] default_wake_function+0x0/0x12
- [<c011ec32>] sys_wait4+0x43/0x45
- [<c0102e39>] syscall_call+0x7/0xb
-BUG: soft lockup detected on CPU#1!
+Section "InputDevice"
+	Identifier	"id_mouse"
+	Driver		"mouse"
+	Option		"CorePointer"
+	Option		"Device"		"/dev/input/mice"
+	Option		"Protocol"		"ImPS/2"
+	Option		"ZAxisMapping"		"4 5"
+EndSection
 
-Pid: 2770, comm:                   sh
-EIP: 0060:[<c039ae28>] CPU: 1
-EIP is at __read_lock_failed+0x8/0x14
- EFLAGS: 00000297    Not tainted  (2.6.15-rc2)
-EAX: c046fc00 EBX: f5946000 ECX: f5947f7c EDX: 00000286
-ESI: 00000000 EDI: ffffffff EBP: f5946000 DS: 007b ES: 007b
-CR0: 8005003b CR2: 080e173c CR3: 358a0000 CR4: 000006d0
- [<c039c566>] _read_lock+0xb/0xc
- [<c011e7ee>] do_wait+0x9d/0x40c
- [<c0116fd0>] default_wake_function+0x0/0x12
- [<c0116fd0>] default_wake_function+0x0/0x12
- [<c011ec32>] sys_wait4+0x43/0x45
- [<c0102e39>] syscall_call+0x7/0xb
-BUG: soft lockup detected on CPU#1!
+Section "ServerLayout"
+	Identifier	"home"
+	Screen 0	"id_screen_lcd" 0 0
+	InputDevice	"id_mouse"		"CorePointer"
+	InputDevice	"id_keyboard"		"CoreKeyboard"
+	#Option		"Xinerama"		"on"
+	Option		"Xinerama"		"off"
+EndSection
 
-Pid: 2770, comm:                   sh
-EIP: 0060:[<c039ae28>] CPU: 1
-EIP is at __read_lock_failed+0x8/0x14
- EFLAGS: 00000297    Not tainted  (2.6.15-rc2)
-EAX: c046fc00 EBX: f5946000 ECX: f5947f7c EDX: 00000286
-ESI: 00000000 EDI: ffffffff EBP: f5946000 DS: 007b ES: 007b
-CR0: 8005003b CR2: 080e173c CR3: 358a0000 CR4: 000006d0
- [<c039c566>] _read_lock+0xb/0xc
- [<c011e7ee>] do_wait+0x9d/0x40c
- [<c0116fd0>] default_wake_function+0x0/0x12
- [<c0116fd0>] default_wake_function+0x0/0x12
- [<c011ec32>] sys_wait4+0x43/0x45
- [<c0102e39>] syscall_call+0x7/0xb
-BUG: soft lockup detected on CPU#1!
+Section "ServerFlags"
+	Option		"AllowMouseOpenFail"	"true"
+	Option		"DontZap"		"true"
+	Option		"DontVTSwitch"		"false"
+	Option		"DefaultServerLayout"	"home"
+EndSection
 
-Pid: 2770, comm:                   sh
-EIP: 0060:[<c039ae25>] CPU: 1
-EIP is at __read_lock_failed+0x5/0x14
- EFLAGS: 00000297    Not tainted  (2.6.15-rc2)
-EAX: c046fc00 EBX: f5946000 ECX: f5947f7c EDX: 00000286
-ESI: 00000000 EDI: ffffffff EBP: f5946000 DS: 007b ES: 007b
-CR0: 8005003b CR2: 080e173c CR3: 358a0000 CR4: 000006d0
- [<c039c566>] _read_lock+0xb/0xc
- [<c011e7ee>] do_wait+0x9d/0x40c
- [<c0116fd0>] default_wake_function+0x0/0x12
- [<c0116fd0>] default_wake_function+0x0/0x12
- [<c011ec32>] sys_wait4+0x43/0x45
- [<c0102e39>] syscall_call+0x7/0xb
-
-.... etc, etc where EIP is sometimes equal to 0060:[<c039ae25>] CPU: 1
-and sometimes equal to 0060:[<c039ae28>] CPU: 1
----------------------------------------------------
-
-  I think that the problem is in kernel/fork.c. The function
-proc_fork_connector(p) is called inside a
-write_lock_irq(&tasklist_lock). The
-cn_netlink_send(msg,CN_IDX_PROC,GFP_KERNEL) is called by the
-proc_fork_connector(). Thus, the alloc_skb(size,GFP_KERNEL) is called
-within a write_lock_irq(&tasklist_lock)... is it the problem? 
-
-  If I replace GFP_KERNEL by GFP_ATOMIC the soft lockup disappear (but I
-don't know if this solution is right...)
-
-
-Best regards,
-
-Guillaume 

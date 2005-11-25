@@ -1,67 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932692AbVKYPDi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932688AbVKYPCe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932692AbVKYPDi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 10:03:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932693AbVKYPDi
+	id S932688AbVKYPCe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 10:02:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932689AbVKYPCe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 10:03:38 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:26010 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932692AbVKYPDh (ORCPT
+	Fri, 25 Nov 2005 10:02:34 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:46493 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932688AbVKYPCd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 10:03:37 -0500
-Message-ID: <43873940.71D85208@tv-sign.ru>
-Date: Fri, 25 Nov 2005 19:18:08 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Fri, 25 Nov 2005 10:02:33 -0500
+Date: Fri, 25 Nov 2005 16:02:26 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Rob Landley <rob@landley.net>
+cc: linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [PATCH] make miniconfig (take 2)
+In-Reply-To: <200511250218.56755.rob@landley.net>
+Message-ID: <Pine.LNX.4.61.0511251337240.1609@scrub.home>
+References: <200511170629.42389.rob@landley.net> <200511241145.24037.rob@landley.net>
+ <Pine.LNX.4.61.0511250022330.1609@scrub.home> <200511250218.56755.rob@landley.net>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 1/2] v2 PF_DEAD: cleanup usage
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-schedule() checks PF_DEAD on every context switch, and sets ->state = EXIT_DEAD
-to ensure that exited task will be deactivated.
+Hi,
 
-It is possible to set new ->state value in do_exit(), along with PF_DEAD flag,
-and remove the check from schedule()'s hot path.
+On Fri, 25 Nov 2005, Rob Landley wrote:
 
-To avoid mixing ->state/->exit_state values, this patch adds new TASK_DEAD state.
+> > I don't really disagree, a proper implementation of the concept would also
+> > be technically quite different.
+> 
+> But would the user interface?
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+It would be a bit different from what you propose.
 
---- 2.6.15-rc2/include/linux/sched.h~1_CLEAN	2005-11-25 20:58:09.000000000 +0300
-+++ 2.6.15-rc2/include/linux/sched.h	2005-11-25 21:02:22.000000000 +0300
-@@ -127,6 +127,7 @@ extern unsigned long nr_iowait(void);
- #define EXIT_DEAD		32
- /* in tsk->state again */
- #define TASK_NONINTERACTIVE	64
-+#define TASK_DEAD		128
- 
- #define __set_task_state(tsk, state_value)		\
- 	do { (tsk)->state = (state_value); } while (0)
---- 2.6.15-rc2/kernel/exit.c~1_CLEAN	2005-11-25 20:58:14.000000000 +0300
-+++ 2.6.15-rc2/kernel/exit.c	2005-11-25 21:04:26.000000000 +0300
-@@ -875,6 +875,7 @@ fastcall NORET_TYPE void do_exit(long co
- 	preempt_disable();
- 	BUG_ON(tsk->flags & PF_DEAD);
- 	tsk->flags |= PF_DEAD;
-+	tsk->state = TASK_DEAD;
- 
- 	schedule();
- 	BUG();
---- 2.6.15-rc2/kernel/sched.c~1_CLEAN	2005-11-25 20:58:14.000000000 +0300
-+++ 2.6.15-rc2/kernel/sched.c	2005-11-25 21:04:48.000000000 +0300
-@@ -3000,9 +3000,6 @@ need_resched_nonpreemptible:
- 
- 	spin_lock_irq(&rq->lock);
- 
--	if (unlikely(prev->flags & PF_DEAD))
--		prev->state = EXIT_DEAD;
--
- 	switch_count = &prev->nivcsw;
- 	if (prev->state && !(preempt_count() & PREEMPT_ACTIVE)) {
- 		switch_count = &prev->nvcsw;
+> Uh-huh.  So doing this requires a complete rewrite of kconfig.  And how long 
+> is this rewrite expected to take?  (Will it be in python and called CML2?)
+
+Rob, if you want me to just ignore you, then please continue like this.
+
+> Meanwhile, I have a small patch that provides this (from a user perspective) 
+> now.  Working today.
+
+The point is that it's close enough to allnoconfig, so that it's IMO not 
+worth it. I'm trying to explain, what would be needed to do it properly, 
+but either I failed to make myself understandable or you're not listening.
+
+> > > However, you seem to be forgetting that .config is read by the kernel
+> > > build infrastructure.  The tools are generating what _used_ to be a human
+> > > editable file.
+> >
+> > Oh, really?
+> 
+> This is a slightly vague.  Is this "Oh, really?" arguing that it didn't used 
+> to be a human readable format?
+
+At this point I was just wondering, whether you realize that I wrote the 
+new kconfig stuff.
+
+> > > I don't personally _care_ about the other config targets.
+> >
+> > Well, that's the problem, I do care about them.
+> 
+> I think you're too focused on the implementation to see the users.  What I'm 
+> trying to document is miniconfig, and as such any kallsyms target allnoconfig 
+> is not _useful_.
+
+I'm actually quite interested in the needs of the users, but OTOH users 
+have to realize that they are not always _exactly_ get what they want. 
+Users often have very specific wishes and I try to provide a generic 
+framework, which not only solves specific problems but also a broad range 
+of problems, which often means to compromise as user needs can be very 
+contradictory.
+
+> > I want to keep it working without obfuscating it with thousands little
+> > features, so we have to figure out how to integrate it properly into the big
+> > picture. 
+> 
+> Do you have a suggestion that does not involve a complete rewrite of kbuild 
+> over the next year or more?  I just posted one, and I've just started work on 
+> another.
+> 
+> I'm still not entirely certain you understand what I'm trying to accomplish, 
+> and I'm sorry I can't make you understand why I need this.  I'm not convinced 
+> that your "new config format" will be at all useful.
+
+I think I understand you quite well. Again, the basic functionality you 
+want is already provided by allnoconfig and the advanced features need a 
+bit more work than the few hacks you added to conf.c.
+I like the idea of a minimum config, which e.g. users can send to 
+developers or they can use for upgrading kernels, but this has to work not
+just for you, but also for the majority of users and this requires a 
+better specification of how this feature should work in various 
+situations.
+
+bye, Roman

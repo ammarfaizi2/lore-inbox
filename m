@@ -1,61 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbVKYIWz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbVKYITO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbVKYIWz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 03:22:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbVKYIWz
+	id S1750707AbVKYITO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 03:19:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbVKYITO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 03:22:55 -0500
-Received: from styx.suse.cz ([82.119.242.94]:11748 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1750746AbVKYIWy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 03:22:54 -0500
-Date: Fri, 25 Nov 2005 09:22:53 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-kernel@vger.kernel.org, Marc Koschewski <marc@osknowledge.org>,
-       Ed Tomlinson <tomlins@cam.org>,
-       Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: psmouse unusable in -mm series (was: 2.6.15-rc1-mm2 unsusable on DELL Inspiron 8200, 2.6.15-rc1 works fine)
-Message-ID: <20051125082253.GA13959@ucw.cz>
-References: <20051118182910.GJ6640@stiffy.osknowledge.org> <20051124124444.GA23667@stiffy.osknowledge.org> <200511242124.00127.rjw@sisk.pl> <200511242220.25702.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 25 Nov 2005 03:19:14 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:49051
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1750707AbVKYITN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Nov 2005 03:19:13 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: [PATCH] make miniconfig (take 2)
+Date: Fri, 25 Nov 2005 02:18:54 -0600
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>
+References: <200511170629.42389.rob@landley.net> <200511241145.24037.rob@landley.net> <Pine.LNX.4.61.0511250022330.1609@scrub.home>
+In-Reply-To: <Pine.LNX.4.61.0511250022330.1609@scrub.home>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200511242220.25702.rjw@sisk.pl>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.6i
+Message-Id: <200511250218.56755.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 24, 2005 at 10:20:25PM +0100, Rafael J. Wysocki wrote:
-> Update:
-> 
-> On Thursday, 24 of November 2005 21:23, Rafael J. Wysocki wrote:
-> > On Thursday, 24 of November 2005 13:44, Marc Koschewski wrote:
-> > }-- snip --{
-> > > > It looks like you are seeing a different bug.  The one opened for debian user space
-> > > > covers mousedev not being loaded if the kernel is 2.6.15, which leads to no /dev/input
-> > > > 
-> > > 
-> > > That's what I think, thus the report on LKLM. But noone but me seems to
-> > > be trapped into it until... :/
-> > 
-> > FWIW, my touchpad doesn't work with -rc2-mm1 too (usually I use a USB mouse,
-> > so I didn't notice before).  Here's what dmesg says about it:
-> > 
-> > Synaptics Touchpad, model: 1, fw: 5.9, id: 0x926eb1, caps: 0x804719/0x0
-> > input: SynPS/2 Synaptics TouchPad as /class/input/input2
-> > 
-> > The box is an Asus L5D (x86-64).
-> 
-> Actually, it works on the console (ie with gpm), but X is unable to use it,
-> apparently.  However it used to be, at least on 2.6.14-git9 (this is the latest
-> non-mm kernel I've been able to test quickly on this box).
-> 
-> Marc, does your touchpad work with gpm?
- 
-What's in your relevant xorg.conf sections?
+On Thursday 24 November 2005 19:48, Roman Zippel wrote:
+> Hi,
+>
+> On Thu, 24 Nov 2005, Rob Landley wrote:
+> > > On Mon, 21 Nov 2005, Rob Landley wrote:
+> > > > Add "make miniconfig", plus documentation, plus the script that
+> > > > creates a minimal mini.config from a normal .config file.
+> > >
+> > > The difference between miniconfig and allnoconfig is IMO too small to
+> > > be really worth it right now.
+> >
+> > I disagree, fairly strongly.  The technical difference may be small, but
+> > the conceptual difference is huge.
+>
+> I don't really disagree, a proper implementation of the concept would also
+> be technically quite different.
 
+But would the user interface?
+
+> Hacking it into conf.c is the wrong to go (or to even start).
+
+Hang on, you want a new user interface that does _not_ modify conf.c?
+
+I can do that.  One ./configure wrapper script coming up...
+
+> > So it would be different from the format of the busybox .config file, the
+> > uClibc .config file, or anybody else out there who's adopted the kernel's
+> > format over the past decade-plus?
+>
+> Did I say it would go away? No.
+> It actually makes quite some sense to separate the .config used by kbuild
+> from the config used by kconfig.
+> .config isn't always correctly reread after a manual edit. The syntax
+> rules needed by kbuild are more strict than needed for kconfig. The "is
+> not set" syntax is not exactly user friendly and all the derived symbols
+> aren't needed by kconfig.
+
+Uh-huh.  So doing this requires a complete rewrite of kconfig.  And how long 
+is this rewrite expected to take?  (Will it be in python and called CML2?)
+
+Meanwhile, I have a small patch that provides this (from a user perspective) 
+now.  Working today.  And I can also do a wrapper script so that Linux uses 
+approximately the same ./configure; make; make install semantics as 95% of 
+the other projects out there.
+
+The fact that my patch works today is not an excuse for a complete rewrite of 
+kconfig.  If you want to rewrite kconfig from scratch, fine.  But what I'm 
+trying to do is not a reason for it.
+
+> My current plan is to somewhere create a copy of .config replacing
+> the include/config/MARKER mechanism, which then is also used by kbuild.
+
+So you have to modify not just kconfig but kbuild also for your plan.  What 
+are the advantages of doing this again?
+
+> In a second step it then would be simple to allow an alternative name
+> or even formats for the primary config file.
+
+How far will they be allowed to diverge?  Will the use the same symbol names, 
+or will there be some kind of translation table?
+
+> > However, you seem to be forgetting that .config is read by the kernel
+> > build infrastructure.  The tools are generating what _used_ to be a human
+> > editable file.
+>
+> Oh, really?
+
+This is a slightly vague.  Is this "Oh, really?" arguing that it didn't used 
+to be a human readable format?
+
+> > So how would you make use of this new minimized version, then?  If
+> > somebody file attached one in a linux kernel message and a developer
+> > wanted to debug their issue?
+>
+> $ cp ... linux/config
+> $ make
+>
+> > I don't personally _care_ about the other config targets.
+>
+> Well, that's the problem, I do care about them.
+
+I think you're too focused on the implementation to see the users.  What I'm 
+trying to document is miniconfig, and as such any kallsyms target allnoconfig 
+is not _useful_.
+
+> I want to keep it working without obfuscating it with thousands little
+> features, so we have to figure out how to integrate it properly into the big
+> picture. 
+
+Do you have a suggestion that does not involve a complete rewrite of kbuild 
+over the next year or more?  I just posted one, and I've just started work on 
+another.
+
+I'm still not entirely certain you understand what I'm trying to accomplish, 
+and I'm sorry I can't make you understand why I need this.  I'm not convinced 
+that your "new config format" will be at all useful.
+
+But oh well.  If you prefer I treat kbuild's user interface as something 
+broken to be worked around with a wrapper script, I'm fine with that.  You're 
+right, I don't really need to touch the implementation of kconfig.  Thanks 
+for pointing that out.
+
+> bye, Roman
+
+Rob
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Steve Ballmer: Innovation!  Inigo Montoya: You keep using that word.
+I do not think it means what you think it means.

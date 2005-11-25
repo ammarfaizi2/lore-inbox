@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161100AbVKYPbs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161105AbVKYPco@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161100AbVKYPbs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 10:31:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161109AbVKYPbr
+	id S1161105AbVKYPco (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 10:32:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161109AbVKYPco
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 10:31:47 -0500
-Received: from gw1.cosmosbay.com ([62.23.185.226]:10709 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S1161100AbVKYPbr
+	Fri, 25 Nov 2005 10:32:44 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:44818 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1161105AbVKYPcn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 10:31:47 -0500
-Message-ID: <43872E5A.3030103@cosmosbay.com>
-Date: Fri, 25 Nov 2005 16:31:38 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
+	Fri, 25 Nov 2005 10:32:43 -0500
+To: Rob Landley <rob@landley.net>
+Cc: Neil Brown <neilb@suse.de>, Al Viro <viro@ftp.linux.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: pivot_root broken in 2.6.15-rc1-mm2
+References: <17283.52960.913712.454816@cse.unsw.edu.au>
+	<200511230602.53960.rob@landley.net>
+	<87psopkkqm.fsf@amaterasu.srvr.nix>
+	<200511250716.29127.rob@landley.net>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: resistance is futile; you will be assimilated and byte-compiled.
+Date: Fri, 25 Nov 2005 15:32:25 +0000
+In-Reply-To: <200511250716.29127.rob@landley.net> (Rob Landley's message of
+ "Fri, 25 Nov 2005 07:16:28 -0600")
+Message-ID: <87oe48kak6.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-To: Eric Dumazet <dada1@cosmosbay.com>
-CC: Wu Fengguang <wfg@mail.ustc.edu.cn>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 10/19] readahead: state based method
-References: <20051125151210.993109000@localhost.localdomain> <20051125151550.440541000@localhost.localdomain> <43872BF2.3030407@cosmosbay.com>
-In-Reply-To: <43872BF2.3030407@cosmosbay.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Fri, 25 Nov 2005 16:31:36 +0100 (CET)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Dumazet a écrit :
+On Fri, 25 Nov 2005, Rob Landley prattled cheerily:
+> (Another is that calling chroot and such after deleting their binaries out of 
+> initramfs but before the paths are adjusted so that the ones in the new root 
+> can find their shared libraries is a bit of a headache.  It's a lot easier to 
+> just have it all in one binary that's already loaded everything it needs and 
+> frees its memory on exec.)
 
-> Hum... This sizeof(struct file) increase seems quite large...
-> 
-> Have you ever considered to change struct file so that file_ra_state is 
-> not embedded, but dynamically allocated (or other strategy) for regular 
-> files ?
-> 
-> I mean, sockets, pipes cannot readahead... And some machines use far 
-> more sockets than regular files.
-> 
-> I wrote such a patch in the past I could resend...
+Oh yes, agreed 100%: this is one of those rare places where doing shell-like
+stuff in a tiny dedicated binary really does make sense.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=112435605407020&w=2
+-- 
+`Y'know, London's nice at this time of year. If you like your cities
+ freezing cold and full of surly gits.' --- David Damerell
 

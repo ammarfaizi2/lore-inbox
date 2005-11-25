@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932698AbVKYPYy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161081AbVKYP3f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932698AbVKYPYy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 10:24:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932702AbVKYPYy
+	id S1161081AbVKYP3f (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 10:29:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161100AbVKYP3f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 10:24:54 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:53661 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932698AbVKYPYx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 10:24:53 -0500
-Date: Fri, 25 Nov 2005 16:24:45 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: David Woodhouse <dwmw2@infradead.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: Kill -ERESTART_RESTARTBLOCK.
-In-Reply-To: <1132919594.4044.41.camel@baythorne.infradead.org>
-Message-ID: <Pine.LNX.4.61.0511251602460.1609@scrub.home>
-References: <1132859323.11921.110.camel@baythorne.infradead.org> 
- <Pine.LNX.4.61.0511250110470.1610@scrub.home> <1132919594.4044.41.camel@baythorne.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 25 Nov 2005 10:29:35 -0500
+Received: from eurocopter-av-smtp1.gmessaging.net ([194.51.201.42]:57522 "EHLO
+	eurocopter-av-smtp1.gmessaging.net") by vger.kernel.org with ESMTP
+	id S1161081AbVKYP3e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Nov 2005 10:29:34 -0500
+Date: Fri, 25 Nov 2005 16:27:08 +0100
+From: "Schultheiss, Christoph" <Christoph.Schultheiss@eurocopter.com>
+Subject: AW: duration of udelay differs with activated realtime-preempt patch?
+To: Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>
+Cc: john stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org
+Message-id: <B7DA45CF87D412408436D5ECAAB9B90F6E7A22@sma2906.cr.eurocopter.corp>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-class: urn:content-classes:message
+Thread-topic: duration of udelay differs with activated realtime-preempt patch?
+Thread-index: AcXxx9l3sE4eff9FRc23NuWjK+NFxAACgKIQ
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+X-OriginalArrivalTime: 25 Nov 2005 15:27:09.0939 (UTC)
+ FILETIME=[B3A78C30:01C5F1D4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> > > after measuring the duration of the function udelay (with
+oscilloscope
+> > > at parallel port), I figured out that udelay (5usec) with
+activated
+> > > realtime- preempt patch lasts a little bit longer. Without the
+patch the
+> > > time is exact.
+> > > All kernel debug switches are turned off at compile time.
+> > > Can anyone suggest why this happens?
+> > 
+> > Well, the -rt patch, has changed the udelay function.  BTW, you are 
+> > using the constant udelay, right?  Maybe an example of the code you 
+> > used to test might be useful.
+> > 
+> > Ingo or John?
+>
+> yes, i found this problem too, a week ago or so. It's due to the GTOD 
+> changes to i386's __delay() function. Does it still occur with -rt15 
+> [which has the -B11 GTOD patchset] ?
 
-On Fri, 25 Nov 2005, David Woodhouse wrote:
+I've done the first measurements only with rt5 and rt13. 
+Now with rt15 it looks fine (nice 5usec!)
 
-> > Instead of messing with the signal delivery it may be better to slightly 
-> > change the restart logic. Instead of calling a separate function, we could 
-> > call the original function with all the arguments, which would reduce the 
-> > state required to be saved.
->  < ... >
-> > AFAICT only the timeout argument needs to saved over a restart, the rest 
-> > can be reinitialized from the original arguments.
-> 
-> Yeah, that might be nice -- but if the argument registers are
-> call-clobbered, then those original arguments don't actually exist
-> anywhere any more, except in the syscall function which got interrupted.
+fine patch, thanks!
 
-The arguments have to be saved somewhere, otherwise ERESTARTNOHAND 
-wouldn't work, so my basic idea would be to change ERESTART_RESTARTBLOCK 
-into ERESTARTNOHAND + some extra state.
-
-> One simpler option which _might_ work for pselect(), ppoll() and
-> sigsuspend() is a TIF_RESTORE_SIGMASK flag which restores the original
-> signal mask on the way back to userspace but _after_ calling do_signal()
-> with the temporary mask.
-
-Now I see the problem with the signal mask and I agree, this would be a 
-simpler and IMO preferable approach.
-
-bye, Roman
+christoph

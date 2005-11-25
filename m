@@ -1,85 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161120AbVKYPoj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161115AbVKYPn2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161120AbVKYPoj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 10:44:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161121AbVKYPoj
+	id S1161115AbVKYPn2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 10:43:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161120AbVKYPn2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 10:44:39 -0500
-Received: from viruswall.astrium.eads.net ([194.203.13.70]:21516 "EHLO
-	viruswall.astrium.eads.net") by vger.kernel.org with ESMTP
-	id S1161120AbVKYPoi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 10:44:38 -0500
-Message-ID: <C2D16922D674664C9CCA61127AC9B77B03E105@auk52177.ukr.astrium.corp>
-From: "SMALL, Timothy" <timothy.small@astrium.eads.net>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: RE: Assorted bugs in the PIIX drivers
-Date: Fri, 25 Nov 2005 15:44:22 -0000
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain
+	Fri, 25 Nov 2005 10:43:28 -0500
+Received: from xproxy.gmail.com ([66.249.82.206]:16432 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161115AbVKYPn2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Nov 2005 10:43:28 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=tRQU3SoJy8BGwhO3/s9STEv99oQAPMmhqNPF1PoSX7LTHSUuFQsVDZCZ+YkCGOsjgcEeSRWbDkClZoL7xcYu/x7J0slQxlMWQK7Pp359FIAhqLYqOu6EHXctnfmwyNpEZoN9xgmVTdInjuFtKgCwyko5hBJEzAi6MdGdNy6+Qw0=
+Date: Fri, 25 Nov 2005 16:43:17 +0100
+From: Diego Calleja <diegocg@gmail.com>
+To: Wu Fengguang <wfg@mail.ustc.edu.cn>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 00/19] Adaptive read-ahead V8
+Message-Id: <20051125164317.c42c0639.diegocg@gmail.com>
+In-Reply-To: <20051125151210.993109000@localhost.localdomain>
+References: <20051125151210.993109000@localhost.localdomain>
+X-Mailer: Sylpheed version 2.1.6 (GTK+ 2.8.3; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+El Fri, 25 Nov 2005 23:12:10 +0800,
+Wu Fengguang <wfg@mail.ustc.edu.cn> escribió:
 
-This looks like the MPIIX datasheet:
-
-http://www.mit.edu/afs/sipb/contrib/doc/specs/unfiled/i82371MX.pdf
-
-Also, may or may not want to bother with looking at supporting another chip
-- the never-actually-released-by-Intel i82600 integrated single chip
-north/south bridge.  This chipset design (can you still call it a chipset if
-it only has one chip?) is licensed from Intel, and sold by Radisys.  The
-docs are here:
-
-http://www.radisys.com/service_support/tech_solutions/techsupportlib_detail.
-cfm?ProductID=1262
-
-I have it working fine with the ide/pci driver in PIO, and UDMA, but not
-MDMA modes, but haven't had a chance to revisit it, but it is on my TODO
-list...
-
-Tim.
+> Overview
+> ========
+> 
+> The current read-ahead logic uses an inflexible algorithm with 128KB
+> VM_MAX_READAHEAD. Less memory leads to thrashing, more memory helps no
+> throughput. The new logic is simply safer and faster. It makes sure
+> every single read-ahead request is safe for the current load. Memory
+> tight systems are expected to benefit a lot: no thrashing any more.
+> It can also help boost I/O throughput for large memory systems, for
+> VM_MAX_READAHEAD now defaults to 1MB. The value is no longer tightly
+> coupled with the thrashing problem, and therefore constrainted by it.
 
 
-> -----Original Message-----
-> From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk] 
-> Sent: Friday, November 25, 2005 2:43 PM
-> To: linux-ide@vger.kernel.org; linux-kernel@vger.kernel.org
-> Subject: Assorted bugs in the PIIX drivers
-> 
-> 
-> I finally got all the documents rounded up to try and redo 
-> Jgarzik's PIIX driver a bit more completely (I'm short MPIIX 
-> if anyone has it ?)
-> 
-> I then started reading the docs and the code and noticing a 
-> couple of problems
-> 
-> 1.	We set IE1 on PIO0-2 which the docs say is for PIO3+
-> 
-> 2.	The ata_piix one (but not the ide/pci one) have shifts 
-> wrong so that
-> the secondary slave timings are half loaded into the primary slave
-> 
-> 
-> I'm also not clear if the "no MWDMA0" list has been updated 
-> correctly for the newer chipsets.
-> 
-> I've yet to review the DMA programming, just the PIO so far.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-ide" in the body of a message to 
-> majordomo@vger.kernel.org More majordomo info at  
-> http://vger.kernel.org/majordomo-info.html
-> 
-
-This email is for the intended addressee only.
-If you have received it in error then you must not use, retain, disseminate or otherwise deal with it.
-Please notify the sender by return email.
-The views of the author may not necessarily constitute the views of EADS Astrium Limited.
-Nothing in this email shall bind EADS Astrium Limited in any contract or obligation.
-
-EADS Astrium Limited, Registered in England and Wales No. 2449259
-Registered Office: Gunnels Wood Road, Stevenage, Hertfordshire, SG1 2AS, England
+Recently, a openoffice hacker wrote in his blog that the kernel was
+culprit of applications not starting as fast as in other systems.
+Most of the reasons he gave were wrong, but there was a interesting
+one: When you start your system, you've lots of free memory. Since
+you have lots of memory, he said it was reasonable to expect that
+kernel would readahead *heavily* everything it can to fill that
+memory as soon as possible (hoping that what you readahead'ed was
+part of the kde/gnome/openoffice libraries etc) and go back to the
+normal behaviour when your free memory is used by caches etc.
+"Teorically" it looks like a nice heuristic for desktops. Does
+adaptative readahead does something like this?

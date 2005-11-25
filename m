@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161096AbVKYCu0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbVKYD2m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161096AbVKYCu0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 21:50:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161095AbVKYCu0
+	id S1751178AbVKYD2m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 22:28:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbVKYD2m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 21:50:26 -0500
-Received: from aeimail.aei.ca ([206.123.6.84]:16082 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S1161068AbVKYCuZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 21:50:25 -0500
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Nick Hengeveld <nickh@reactrix.com>
-Subject: Re: Linux 2.6.15-rc2
-Date: Thu, 24 Nov 2005 21:50:59 -0500
-User-Agent: KMail/1.8.2
-Cc: Linus Torvalds <torvalds@osdl.org>, Junio C Hamano <junkio@cox.net>,
-       git@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org> <Pine.LNX.4.64.0511241020050.13959@g5.osdl.org> <20051124195256.GR3968@reactrix.com>
-In-Reply-To: <20051124195256.GR3968@reactrix.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 24 Nov 2005 22:28:42 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:43446 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751178AbVKYD2l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 22:28:41 -0500
+Subject: Re: ipw2200 in 2.6.15-rc2-git4 warns about improper NETDEV_TX_BUSY
+	retcode
+From: Zhu Yi <yi.zhu@intel.com>
+To: Alessandro Suardi <alessandro.suardi@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com
+In-Reply-To: <5a4c581d0511241538s496adee9s249cd038501545c9@mail.gmail.com>
+References: <5a4c581d0511241538s496adee9s249cd038501545c9@mail.gmail.com>
+Content-Type: text/plain
+Organization: Intel Corp.
+Date: Fri, 25 Nov 2005 11:23:32 +0800
+Message-Id: <1132889013.24413.5.camel@debian.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511242151.00162.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 24 November 2005 14:52, Nick Hengeveld wrote:
-> On Thu, Nov 24, 2005 at 10:37:15AM -0800, Linus Torvalds wrote:
+On Fri, 2005-11-25 at 00:38 +0100, Alessandro Suardi wrote:
+> Dell Latitude D610, FC4 base distro, kernel is:
 > 
-> > I just repacked and updated it now, so how http should work too, although 
-> > inefficiently (because it will get a whole new pack - just one of the 
-> > disadvantages of the non-native protocols).
+> [asuardi@sandman ~]$ cat /proc/version
+> Linux version 2.6.15-rc2-git4 (asuardi@sandman) (gcc version 4.0.1
+> 20050727 (Red Hat 4.0.1-5)) #2 Fri Nov 25 00:15:46 CET 2005
 > 
-> There's room to improve on that particular inefficiency.  The http
-> commit walker could use Range: headers to fetch loose objects directly
-> from inside a pack if it didn't make sense to fetch the entire pack.
-> For this to work, pack fetches would need to be deferred until the
-> entire tree had been walked, and the commit walker could decide whether
-> to fetch the pack or loose objects based on the percentage of packed
-> objects it needed to fetch.  It would also need to fetch all
-> tag/commit/tree objects using ranges to be able to fully walk the tree.
+> Onboard wireless card as detected by kernel is:
+> ipw2200: Intel(R) PRO/Wireless 2200/2915 Network Driver, git-1.0.8
+> 
+>  and I placed the 2.4 firmware from sourceforge.net in /lib/firmware.
+> 
+> ifup eth1 yields this message:
+> 
+> eth1: NETDEV_TX_BUSY returned; driver should report queue full via
+> ieee_device->is_queue_full.
 
-Alternately, when creating a new archive the client could ask the server
-what protocols are active.  It could then use the best one for the clone and
-update the .git/origin files with the optimal one for incremental pulls.
+Please use the patch here. It will be push to upstream very soon.
+http://bughost.org/bugzilla/show_bug.cgi?id=808
 
-Thoughts?
-Ed Tomlinson
+Thanks,
+-yi
+

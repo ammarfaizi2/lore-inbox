@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751481AbVKYVCH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbVKYVMo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751481AbVKYVCH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 16:02:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751483AbVKYVCH
+	id S932065AbVKYVMo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 16:12:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbVKYVMo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 16:02:07 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:13704 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751481AbVKYVCF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 16:02:05 -0500
-Date: Fri, 25 Nov 2005 22:01:56 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: davej@codemonkey.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add basic PM support for Nvidia and ATI AGP bridges
-Message-ID: <20051125210156.GA2272@elf.ucw.cz>
-References: <20051124060030.GF28070@srcf.ucam.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 25 Nov 2005 16:12:44 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:20652
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1750828AbVKYVMo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Nov 2005 16:12:44 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: [PATCH] make miniconfig (take 2)
+Date: Fri, 25 Nov 2005 15:12:20 -0600
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>
+References: <200511170629.42389.rob@landley.net> <200511241145.24037.rob@landley.net> <Pine.LNX.4.61.0511250022330.1609@scrub.home>
+In-Reply-To: <Pine.LNX.4.61.0511250022330.1609@scrub.home>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051124060030.GF28070@srcf.ucam.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Message-Id: <200511251512.20330.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thursday 24 November 2005 19:48, Roman Zippel wrote:
+> Hi,
+>
+> On Thu, 24 Nov 2005, Rob Landley wrote:
+> > > On Mon, 21 Nov 2005, Rob Landley wrote:
+> > > > Add "make miniconfig", plus documentation, plus the script that
+> > > > creates a minimal mini.config from a normal .config file.
+> > >
+> > > The difference between miniconfig and allnoconfig is IMO too small to
+> > > be really worth it right now.
+> >
+> > I disagree, fairly strongly.  The technical difference may be small, but
+> > the conceptual difference is huge.
+>
+> I don't really disagree, a proper implementation of the concept would also
+> be technically quite different. Hacking it into conf.c is the wrong to go
+> (or to even start).
 
-> I retrieved these from the swsusp2 patchset, but they seem to be 
-> independently useful. As a result, I'm not sure who the original author 
-> is - however, they seem to be pretty obvious.
-> 
-> ## All lines beginning with `## DP:' are a description of the patch.
-> ## DP: Description: Add suspend/resume support to ATI and Nvidia AGP bridges
-> ## DP: Patch author: Unknown
-> ## DP: Upstream status: Not submitted
-> 
-> . $(dirname $0)/DPATCH
+Hang on, I misread that last time.  You _don't_ disagree.
 
-> @@ -507,6 +507,33 @@ static void __devexit agp_ati_remove(str
->  	agp_put_bridge(bridge);
->  }
->  
-> +#ifdef CONFIG_PM
-> +
-> +static int agp_ati_suspend(struct pci_dev *pdev, pm_message_t state)
-> +{
-> +	pci_save_state (pdev);
-> +	pci_set_power_state (pdev, 3);
+Sorry about that.
 
-PCI_D3hot, please.
+Ok, what's the best thing I can do to help get this implemented, working 
+_with_ you rather than against?
 
-> +static int agp_ati_resume(struct pci_dev *pdev)
-> +{
-> +	struct agp_bridge_data *bridge = pci_get_drvdata(pdev);
-> +
-> +	/* set power state 0 and restore PCI space */
-> +	pci_set_power_state (pdev, 0);
-
-PCI_D0... ....and same in other two functions. Otherwise it looks ok.
-
-								Pavel
+Rob
 -- 
-Thanks, Sharp!
+Steve Ballmer: Innovation!  Inigo Montoya: You keep using that word.
+I do not think it means what you think it means.

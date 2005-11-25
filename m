@@ -1,272 +1,395 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161091AbVKYPHc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161112AbVKYPIR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161091AbVKYPHc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 10:07:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932702AbVKYPHb
+	id S1161112AbVKYPIR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 10:08:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161108AbVKYPH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 10:07:31 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:19437 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S932708AbVKYPHU (ORCPT
+	Fri, 25 Nov 2005 10:07:57 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:17280 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S932698AbVKYPHv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 10:07:20 -0500
-Message-Id: <20051125151534.922163000@localhost.localdomain>
+	Fri, 25 Nov 2005 10:07:51 -0500
+Message-Id: <20051125151606.005059000@localhost.localdomain>
 References: <20051125151210.993109000@localhost.localdomain>
-Date: Fri, 25 Nov 2005 23:12:19 +0800
+Date: Fri, 25 Nov 2005 23:12:21 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 09/19] readahead: parameters
-Content-Disposition: inline; filename=readahead-parameters.patch
+Subject: [PATCH 11/19] readahead: context based method
+Content-Disposition: inline; filename=readahead-method-context.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- new entry in /proc/sys/vm/readahead_ratio with default value of 50;
-- new entry in /proc/sys/vm/readahead_hit_rate with default value of 2;
-- new entry in /proc/sys/vm/readahead_live_chunk with default value of 2M;
-- limit mmap read-around size to 256kb;
-- dynamic minimal/initial read-ahead size.
+This is the slow code path.
 
-readahead_ratio is divided into several ranges:
+No valid state info is available, so the page cache is queried to abtain the
+required position/timing infomation.
 
-	condition			action
-===================================================================
-readahead_ratio == 0		disable read-ahead
-readahead_ratio < 9		select old read-ahead logic
-readahead_ratio >= 9		select new read-ahead logic
-readahead_ratio >= 80		enable live pages protection
+Major steps:
+        - look back/forward to find the ra_index;
+        - look back to estimate a thrashing safe ra_size;
+        - assemble the next read-ahead request in file_ra_state;
+        - submit it.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- Documentation/sysctl/vm.txt |   51 ++++++++++++++++++++++++++++++++++++++++++++
- include/linux/mm.h          |    5 +++-
- include/linux/sysctl.h      |    3 ++
- kernel/sysctl.c             |   34 +++++++++++++++++++++++++++++
- mm/filemap.c                |    7 ++++++
- mm/readahead.c              |   39 +++++++++++++++++++++++++++++++++
- 6 files changed, 138 insertions(+), 1 deletion(-)
+ mm/readahead.c |  345 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 345 insertions(+)
 
---- linux-2.6.15-rc2-mm1.orig/Documentation/sysctl/vm.txt
-+++ linux-2.6.15-rc2-mm1/Documentation/sysctl/vm.txt
-@@ -27,6 +27,9 @@ Currently, these files are in /proc/sys/
- - laptop_mode
- - block_dump
- - swap_prefetch
-+- readahead_ratio
-+- readahead_hit_rate
-+- readahead_live_chunk
- 
- ==============================================================
- 
-@@ -114,3 +117,51 @@ except when laptop_mode is enabled and t
- Setting it to 0 disables prefetching entirely.
- 
- The default value is dependant on ramsize.
-+
-+==============================================================
-+
-+readahead_ratio
-+
-+This limits read-ahead size to percent of the thrashing-threshold.
-+The thrashing-threshold is dynamicly estimated according to the
-+_history_ read speed and system load, and used to limit the
-+_future_ read-ahead request size.
-+
-+Set it to a low value if you have not enough memory to counteract
-+the I/O load fluctuations. But if there's plenty of memory, set it
-+to a larger value might help increase read speed. Also note that a
-+value >= 80 activates mandatory thrashing protection(see
-+readahead_live_chunk).
-+
-+The default value is 50.
-+
-+==============================================================
-+
-+readahead_hit_rate
-+
-+This is the max allowed value of (read-ahead-pages : accessed-pages).
-+If the previous read-ahead request has bad hit rate, kernel will be
-+very conservative to issue the next read-ahead.
-+
-+A large value helps speedup some sparse access patterns, at the cost
-+of more memory consumption. It is recommended to keep the value below
-+(max-readahead-pages / 8).
-+
-+The default value is 2.
-+
-+==============================================================
-+
-+readahead_live_chunk
-+
-+In a file server, there are typically one or more sequential
-+readers working on a file. The kernel can detect most live
-+chunks(a sequence of pages to be accessed by an active reader),
-+and save them for their imminent readers. This is called
-+mandatory thrashing protection, and is only in effect when
-+(readahead_ratio >= 80).
-+
-+This parameter controls the max allowed chunk size, i.e. the max
-+number of pages pinned for an active reader.
-+
-+The default value is 2MB size of pages. That is 512 on most archs.
-+Increase it if you have enough memory.
---- linux-2.6.15-rc2-mm1.orig/include/linux/mm.h
-+++ linux-2.6.15-rc2-mm1/include/linux/mm.h
-@@ -968,11 +968,14 @@ extern int filemap_populate(struct vm_ar
- int write_one_page(struct page *page, int wait);
- 
- /* readahead.c */
--#define VM_MAX_READAHEAD	128	/* kbytes */
-+#define VM_MAX_READAHEAD	1024	/* kbytes */
- #define VM_MIN_READAHEAD	16	/* kbytes (includes current page) */
- #define VM_MAX_CACHE_HIT    	256	/* max pages in a row in cache before
- 					 * turning readahead off */
- 
-+/* turn on read-ahead thrashing protection if (readahead_ratio >= ##) */
-+#define VM_READAHEAD_PROTECT_RATIO	80
-+
- int do_page_cache_readahead(struct address_space *mapping, struct file *filp,
- 			pgoff_t offset, unsigned long nr_to_read);
- int force_page_cache_readahead(struct address_space *mapping, struct file *filp,
---- linux-2.6.15-rc2-mm1.orig/include/linux/sysctl.h
-+++ linux-2.6.15-rc2-mm1/include/linux/sysctl.h
-@@ -182,6 +182,9 @@ enum
- 	VM_LEGACY_VA_LAYOUT=27, /* legacy/compatibility virtual address space layout */
- 	VM_SWAP_TOKEN_TIMEOUT=28, /* default time for token time out */
- 	VM_SWAP_PREFETCH=29,	/* int: amount to swap prefetch */
-+	VM_READAHEAD_RATIO=30, /* percent of read-ahead size to thrashing-threshold */
-+	VM_READAHEAD_HIT_RATE=31, /* one accessed page legitimizes so many read-ahead pages */
-+	VM_READAHEAD_LIVE_CHUNK=32, /* pin no more than that many pages for a live reader */
- };
- 
- 
---- linux-2.6.15-rc2-mm1.orig/kernel/sysctl.c
-+++ linux-2.6.15-rc2-mm1/kernel/sysctl.c
-@@ -68,6 +68,9 @@ extern int min_free_kbytes;
- extern int printk_ratelimit_jiffies;
- extern int printk_ratelimit_burst;
- extern int pid_max_min, pid_max_max;
-+extern int readahead_ratio;
-+extern int readahead_hit_rate;
-+extern int readahead_live_chunk;
- 
- #if defined(CONFIG_X86_LOCAL_APIC) && defined(CONFIG_X86)
- int unknown_nmi_panic;
-@@ -668,6 +671,7 @@ static ctl_table kern_table[] = {
- /* Constants for minimum and maximum testing in vm_table.
-    We use these as one-element integer vectors. */
- static int zero;
-+static int one = 1;
- static int one_hundred = 100;
- 
- 
-@@ -867,6 +871,36 @@ static ctl_table vm_table[] = {
- 	},
- #endif
- #endif
-+	{
-+		.ctl_name	= VM_READAHEAD_RATIO,
-+		.procname	= "readahead_ratio",
-+		.data		= &readahead_ratio,
-+		.maxlen		= sizeof(readahead_ratio),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+		.strategy	= &sysctl_intvec,
-+		.extra1		= &zero,
-+	},
-+	{
-+		.ctl_name	= VM_READAHEAD_HIT_RATE,
-+		.procname	= "readahead_hit_rate",
-+		.data		= &readahead_hit_rate,
-+		.maxlen		= sizeof(readahead_hit_rate),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+		.strategy	= &sysctl_intvec,
-+		.extra1		= &one,
-+	},
-+	{
-+		.ctl_name	= VM_READAHEAD_LIVE_CHUNK,
-+		.procname	= "readahead_live_chunk",
-+		.data		= &readahead_live_chunk,
-+		.maxlen		= sizeof(readahead_live_chunk),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+		.strategy	= &sysctl_intvec,
-+		.extra1		= &zero,
-+	},
- 	{ .ctl_name = 0 }
- };
- 
---- linux-2.6.15-rc2-mm1.orig/mm/filemap.c
-+++ linux-2.6.15-rc2-mm1/mm/filemap.c
-@@ -1336,6 +1336,13 @@ retry_find:
- 		if (ra_pages) {
- 			pgoff_t start = 0;
- 
-+			/*
-+			 * Max read-around should be much smaller than
-+			 * max read-ahead.
-+			 * How about adding a tunable parameter for this?
-+			 */
-+			if (ra_pages > 64)
-+				ra_pages = 64;
- 			if (pgoff > ra_pages / 2)
- 				start = pgoff - ra_pages / 2;
- 			do_page_cache_readahead(mapping, file, start, ra_pages);
 --- linux-2.6.15-rc2-mm1.orig/mm/readahead.c
 +++ linux-2.6.15-rc2-mm1/mm/readahead.c
-@@ -20,6 +20,24 @@
- #define MAX_RA_PAGES	KB(VM_MAX_READAHEAD)
- #define MIN_RA_PAGES	KB(VM_MIN_READAHEAD)
- 
-+/* In laptop mode, poll delayed look-ahead on every ## pages read. */
-+#define LAPTOP_POLL_INTERVAL 16
-+
-+/* Set look-ahead size to 1/# of the thrashing-threshold. */
-+#define LOOKAHEAD_RATIO 8
-+
-+/* Set read-ahead size to ##% of the thrashing-threshold. */
-+int readahead_ratio = 50;
-+EXPORT_SYMBOL(readahead_ratio);
-+
-+/* Readahead as long as cache hit ratio keeps above 1/##. */
-+int readahead_hit_rate = 2;
-+EXPORT_SYMBOL(readahead_hit_rate);
-+
-+/* Scan backward ## pages to find a live reader. */
-+int readahead_live_chunk = 2 * MAX_RA_PAGES;
-+EXPORT_SYMBOL(readahead_live_chunk);
-+
- /* Detailed classification of read-ahead behaviors. */
- #define RA_CLASS_SHIFT 3
- #define RA_CLASS_MASK  ((1 << RA_CLASS_SHIFT) - 1)
-@@ -789,6 +807,27 @@ out:
+@@ -1160,6 +1160,351 @@ state_based_readahead(struct address_spa
+ 	return ra_dispatch(ra, mapping, filp);
  }
  
- /*
-+ * ra_size is mainly determined by:
-+ * 1. sequential-start: min(MIN_RA_PAGES + (pages>>14), KB(128))
-+ * 2. sequential-max:	min(ra->ra_pages, 0xFFFF)
-+ * 3. sequential:	(thrashing-threshold) * readahead_ratio / 100
++/*
++ * Page cache context based estimation of read-ahead/look-ahead size/index.
 + *
-+ * Table of concrete numbers for 4KB page size:
-+ *  (inactive + free) (in MB):    4   8   16   32   64  128  256  512 1024
-+ *    initial ra_size (in KB):   16  16   16   16   20   24   32   48   64
++ * The logic first looks around to find the start point of next read-ahead,
++ * and then, if necessary, looks backward in the inactive_list to get an
++ * estimation of the thrashing-threshold.
++ *
++ * The estimation theory can be illustrated with figure:
++ *
++ *   chunk A           chunk B                      chunk C                 head
++ *
++ *   l01 l11           l12   l21                    l22
++ *| |-->|-->|       |------>|-->|                |------>|
++ *| +-------+       +-----------+                +-------------+               |
++ *| |   #   |       |       #   |                |       #     |               |
++ *| +-------+       +-----------+                +-------------+               |
++ *| |<==============|<===========================|<============================|
++ *        L0                     L1                            L2
++ *
++ * Let f(l) = L be a map from
++ * 	l: the number of pages read by the stream
++ * to
++ * 	L: the number of pages pushed into inactive_list in the mean time
++ * then
++ * 	f(l01) <= L0
++ * 	f(l11 + l12) = L1
++ * 	f(l21 + l22) = L2
++ * 	...
++ * 	f(l01 + l11 + ...) <= Sum(L0 + L1 + ...)
++ *			   <= Length(inactive_list) = f(thrashing-threshold)
++ *
++ * So the count of countinuous history pages left in the inactive_list is always
++ * a lower estimation of the true thrashing-threshold.
 + */
-+static inline void get_readahead_bounds(struct file_ra_state *ra,
-+					unsigned long *ra_min,
-+					unsigned long *ra_max)
-+{
-+	unsigned long pages;
 +
-+	pages = node_free_and_cold_pages();
-+	*ra_max = min(min(pages/2, 0xFFFFUL), ra->ra_pages);
-+	*ra_min = min(min(MIN_RA_PAGES + (pages>>14), KB(128)), *ra_max/2);
++/*
++ * STATUS   REFERENCE COUNT      TYPE
++ *  A__                   0      not in inactive list
++ *  ___                   0      fresh
++ *  __R       PAGE_REFCNT_1      stale
++ *  _a_       PAGE_REFCNT_2      disturbed once
++ *  _aR       PAGE_REFCNT_3      disturbed twice
++ *
++ *  A/a/R: Active / aCTIVATE / Referenced
++ */
++static inline unsigned long cold_page_refcnt(struct page *page)
++{
++	if (!page || PageActive(page))
++		return 0;
++
++	return page_refcnt(page);
++}
++
++static inline char page_refcnt_symbol(struct page *page)
++{
++	if (!page)
++		return 'X';
++	if (PageActive(page))
++		return 'A';
++	switch (page_refcnt(page)) {
++		case 0:
++			return '_';
++		case PAGE_REFCNT_1:
++			return '-';
++		case PAGE_REFCNT_2:
++			return '=';
++		case PAGE_REFCNT_3:
++			return '#';
++	}
++	return '?';
 +}
 +
 +/*
-  * This is the entry point of the adaptive read-ahead logic.
-  *
-  * It is only called on two conditions:
++ * Count/estimate cache hits in range [first_index, last_index].
++ * The estimation is simple and optimistic.
++ */
++static int count_cache_hit(struct address_space *mapping,
++				pgoff_t first_index, pgoff_t last_index)
++{
++	struct page *page;
++	int size = last_index - first_index + 1;
++	int count = 0;
++	int i;
++
++	read_lock_irq(&mapping->tree_lock);
++
++	/*
++	 * The first page may well is chunk head and has been accessed,
++	 * so it is index 0 that makes the estimation optimistic. This
++	 * behavior guarantees a readahead when (size < ra_max) and
++	 * (readahead_hit_rate >= 16).
++	 */
++	for (i = 0; i < 16;) {
++		page = __find_page(mapping, first_index +
++						size * ((i++ * 29) & 15) / 16);
++		if (cold_page_refcnt(page) >= PAGE_REFCNT_1 && ++count >= 2)
++			break;
++	}
++
++	read_unlock_irq(&mapping->tree_lock);
++
++	return size * count / i;
++}
++
++/*
++ * Look back and check history pages to estimate thrashing-threshold.
++ */
++static int query_page_cache(struct address_space *mapping,
++			struct file_ra_state *ra,
++			unsigned long *remain, pgoff_t offset,
++			unsigned long ra_min, unsigned long ra_max)
++{
++	int count;
++	pgoff_t index;
++	unsigned long nr_lookback;
++	struct radix_tree_cache cache;
++
++	/*
++	 * Scan backward and check the near @ra_max pages.
++	 * The count here determines ra_size.
++	 */
++	read_lock_irq(&mapping->tree_lock);
++	index = radix_tree_lookup_head(&mapping->page_tree, offset, ra_max);
++	read_unlock_irq(&mapping->tree_lock);
++#ifdef DEBUG_READAHEAD_RADIXTREE
++	if (index <= offset) {
++		WARN_ON(!find_page(mapping, index));
++		if (index + ra_max > offset)
++			WARN_ON(find_page(mapping, index - 1));
++	} else {
++		BUG_ON(index > offset + 1);
++		WARN_ON(find_page(mapping, offset));
++	}
++#endif
++
++	*remain = offset - index + 1;
++
++	if (unlikely(*remain <= ra_min))
++		return ra_min;
++
++	if (!index)
++		return *remain;
++
++	if (offset + 1 == ra->readahead_index && ra_cache_hit_ok(ra))
++		count = *remain;
++	else if (count_cache_hit(mapping, index, offset) *
++						readahead_hit_rate >= *remain)
++		count = *remain;
++	else
++		return ra_min;
++
++	if (count < ra_max)
++		goto out;
++
++	/*
++	 * Check the far pages coarsely.
++	 * The big count here helps increase la_size.
++	 */
++	nr_lookback = ra_max * (LOOKAHEAD_RATIO + 1) *
++						100 / (readahead_ratio + 1);
++	if (nr_lookback > offset)
++		nr_lookback = offset;
++
++	radix_tree_cache_init(&cache);
++	read_lock_irq(&mapping->tree_lock);
++	for (count += ra_max; count < nr_lookback; count += ra_max) {
++		struct radix_tree_node *node;
++		node = radix_tree_cache_lookup_node(&mapping->page_tree,
++						&cache, offset - count, 1);
++		if (!node)
++			break;
++#ifdef DEBUG_READAHEAD_RADIXTREE
++		if (node != radix_tree_lookup_node(&mapping->page_tree,
++							offset - count, 1)) {
++			read_unlock_irq(&mapping->tree_lock);
++			printk(KERN_ERR "check radix_tree_cache_lookup_node!\n");
++			return 1;
++		}
++#endif
++	}
++	read_unlock_irq(&mapping->tree_lock);
++
++	/*
++	 *  For sequential read that extends from index 0, the counted value
++	 *  may well be far under the true threshold, so return it unmodified
++	 *  for further process in adjust_rala_accelerated().
++	 */
++	if (count >= offset)
++		return offset + 1;
++
++out:
++	count = count * readahead_ratio / 100;
++	return count;
++}
++
++/*
++ * Scan backward in the file for the first non-present page.
++ */
++static inline pgoff_t first_absent_page_bw(struct address_space *mapping,
++					pgoff_t index, unsigned long max_scan)
++{
++	struct radix_tree_cache cache;
++	struct page *page;
++	pgoff_t origin;
++
++	origin = index;
++	if (max_scan > index)
++		max_scan = index;
++
++	radix_tree_cache_init(&cache);
++	read_lock_irq(&mapping->tree_lock);
++	for (; origin - index <= max_scan;) {
++		page = radix_tree_cache_lookup(&mapping->page_tree,
++							&cache, --index);
++		if (page) {
++			index++;
++			break;
++		}
++	}
++	read_unlock_irq(&mapping->tree_lock);
++
++	return index;
++}
++
++/*
++ * Scan forward in the file for the first non-present page.
++ */
++static inline pgoff_t first_absent_page(struct address_space *mapping,
++					pgoff_t index, unsigned long max_scan)
++{
++	pgoff_t ra_index;
++
++	read_lock_irq(&mapping->tree_lock);
++	ra_index = radix_tree_lookup_tail(&mapping->page_tree,
++					index + 1, max_scan);
++	read_unlock_irq(&mapping->tree_lock);
++
++#ifdef DEBUG_READAHEAD_RADIXTREE
++	BUG_ON(ra_index <= index);
++	if (index + max_scan > index) {
++		if (ra_index <= index + max_scan)
++			WARN_ON(find_page(mapping, ra_index));
++		WARN_ON(!find_page(mapping, ra_index - 1));
++	}
++#endif
++
++	if (ra_index <= index + max_scan)
++		return ra_index;
++	else
++		return 0;
++}
++
++/*
++ * Determine the request parameters for context based read-ahead that extends
++ * from start of file.
++ *
++ * The major weakness of stateless method is perhaps the slow grow up speed of
++ * ra_size. The logic tries to make up for this in the important case of
++ * sequential reads that extend from start of file. In this case, the ra_size
++ * is not choosed to make the whole next chunk safe(as in normal ones). Only
++ * half of which is safe. The added 'unsafe' half is the look-ahead part. It
++ * is expected to be safeguarded by rescue_pages() when the previous chunks are
++ * lost.
++ */
++static inline int adjust_rala_accelerated(unsigned long ra_max,
++				unsigned long *ra_size, unsigned long *la_size)
++{
++	pgoff_t index = *ra_size;
++
++	*ra_size -= min(*ra_size, *la_size);
++	*ra_size = *ra_size * readahead_ratio / 100;
++	*la_size = index * readahead_ratio / 100;
++	*ra_size += *la_size;
++
++	if (*ra_size > ra_max)
++		*ra_size = ra_max;
++	if (*la_size > *ra_size)
++		*la_size = *ra_size;
++
++	return 1;
++}
++
++/*
++ * Main function for page context based read-ahead.
++ */
++static inline int
++try_context_based_readahead(struct address_space *mapping,
++			struct file_ra_state *ra,
++			struct page *prev_page, struct page *page,
++			pgoff_t index, unsigned long ra_size,
++			unsigned long ra_min, unsigned long ra_max)
++{
++	pgoff_t ra_index;
++	unsigned long la_size;
++	unsigned long remain_pages;
++
++	/* Where to start read-ahead?
++	 * NFSv3 daemons may process adjecent requests in parallel,
++	 * leading to many locally disordered, globally sequential reads.
++	 * So do not require nearby history pages to be present or accessed.
++	 */
++	if (page) {
++		ra_index = first_absent_page(mapping, index, ra_max * 5 / 4);
++		if (unlikely(!ra_index))
++			return -1;
++	} else if (!prev_page) {
++		ra_index = first_absent_page_bw(mapping, index,
++						readahead_hit_rate + ra_min);
++		if (index - ra_index > readahead_hit_rate + ra_min)
++			return 0;
++		ra_min += 2 * (index - ra_index);
++		index = ra_index;
++	} else {
++		ra_index = index;
++		if (ra_has_index(ra, index))
++			ra_account(ra, RA_EVENT_READAHEAD_MUTILATE,
++						ra->readahead_index - index);
++	}
++
++	ra_size = query_page_cache(mapping, ra, &remain_pages,
++						index - 1, ra_min, ra_max);
++
++	la_size = ra_index - index;
++	if (readahead_ratio < VM_READAHEAD_PROTECT_RATIO &&
++			remain_pages <= la_size && la_size > 1) {
++		rescue_pages(page, la_size);
++		return -1;
++	}
++
++	if (ra_size == index) {
++		if (!adjust_rala_accelerated(ra_max, &ra_size, &la_size))
++			return -1;
++		set_ra_class(ra, RA_CLASS_CONTEXT_ACCELERATED);
++	} else {
++		if (!adjust_rala(ra_max, &ra_size, &la_size))
++			return -1;
++		set_ra_class(ra, RA_CLASS_CONTEXT);
++	}
++
++	ra_state_init(ra, index, ra_index);
++	ra_state_update(ra, ra_size, la_size);
++
++	return 1;
++}
++
+ 
+ /*
+  * ra_size is mainly determined by:
 
 --

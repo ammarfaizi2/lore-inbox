@@ -1,181 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422632AbVKYQrZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932703AbVKYRhk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422632AbVKYQrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 11:47:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161127AbVKYQrZ
+	id S932703AbVKYRhk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 12:37:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932705AbVKYRhk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 11:47:25 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:59035
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1161126AbVKYQrY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 11:47:24 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [PATCH] make miniconfig (take 2)
-Date: Fri, 25 Nov 2005 10:47:09 -0600
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>
-References: <200511170629.42389.rob@landley.net> <200511250218.56755.rob@landley.net> <Pine.LNX.4.61.0511251337240.1609@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0511251337240.1609@scrub.home>
+	Fri, 25 Nov 2005 12:37:40 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:11669 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932703AbVKYRhj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Nov 2005 12:37:39 -0500
+Date: Fri, 25 Nov 2005 09:33:13 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Chris Wedgwood <cw@f00f.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
+       Andi Kleen <ak@suse.de>, Gerd Knorr <kraxel@suse.de>,
+       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
+       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] SMP alternatives
+In-Reply-To: <20051125073854.GA16771@taniwha.stupidest.org>
+Message-ID: <Pine.LNX.4.64.0511250918410.13959@g5.osdl.org>
+References: <438359D7.7090308@suse.de> <p7364qjjhqx.fsf@verdi.suse.de>
+ <1132764133.7268.51.camel@localhost.localdomain> <20051123163906.GF20775@brahms.suse.de>
+ <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org>
+ <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org>
+ <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org>
+ <20051125073854.GA16771@taniwha.stupidest.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511251047.09185.rob@landley.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 25 November 2005 09:02, Roman Zippel wrote:
-> Hi,
->
-> On Fri, 25 Nov 2005, Rob Landley wrote:
-> > > I don't really disagree, a proper implementation of the concept would
-> > > also be technically quite different.
-> >
-> > But would the user interface?
->
-> It would be a bit different from what you propose.
 
-You mean that what I've been happily using for eight months.
 
-What would the different interface be, and what would the advantage be?  (Are 
-you proposing a different file format?)
+On Thu, 24 Nov 2005, Chris Wedgwood wrote:
+> 
+> CPUs in embedded the space could outnumber desktops & servers greatly
+> (cell phones, access pointers, routers, media players, etc).  Most of
+> these will be UP for some time.
 
-> > Uh-huh.  So doing this requires a complete rewrite of kconfig.  And how
-> > long is this rewrite expected to take?  (Will it be in python and called
-> > CML2?)
->
-> Rob, if you want me to just ignore you, then please continue like this.
+That's not entirely clear either.
 
-You've already made up your mind about the patch, based entirely on opinion 
-rather than technical arguments.  I'm not convinced you've even read my list 
-of reasons for the patch.  (You certainly haven't responded to any of the 
-actual reasons, such as failure to find the config file being grounds for a 
-build break with miniconfig but not for allnoconfig.  You're already ignoring 
-that.)
+There are definite advantages to SMP even in the embedded space - or, to 
+put it more strongly: _especially_ in the embedded space.
 
-If you'd like to ignore the rest, I'm not sure what real difference it would 
-make.
+Not only does power usage go up cubically with frequency (which means that 
+two cores are a lot more efficient than one at double the frequency), but 
+embedded space also often has some clear separation between tasks that 
+-can- be threaded (and often part of is has real-time characteristics, so 
+getting a core of its own can be a good thing). Often more so than in the 
+desktop space.
 
-> > Meanwhile, I have a small patch that provides this (from a user
-> > perspective) now.  Working today.
->
-> The point is that it's close enough to allnoconfig, so that it's IMO not
-> worth it.
+Now, obviously, in the "4- or 8-bit microcontroller" kind of embedded 
+space, SMP isn't going to be a big issue. But anything that already uses 
+an ARM, MIPS or a PowerPC-like chip, going SMP is not at all ridiculous. 
+That includes things like cellphones, where one core might be for 
+communication functions, and one for smartphones. 
 
-So far, this statement of pure opinion is the sum total of your technical 
-arguments.
+None of the cellphone manufacturers seem to be in the least interested in 
+doing a "phone only" solution. They can already do that cheaply, they 
+can't make much money off it, and they are all interested in features. And 
+it really _is_ more power-efficient to have, say, a dual-core 200MHz chip 
+than it is to have a single-core 300MHz one.
 
-I've been working around kconfig for most of a year to do this functionality, 
-until your recent changes broke what I'd been doing.  Your recent changes 
-replaced the way I've been doing it with a new way of doing it, but I don't 
-believe you had what I've been doing all along in mind when you did them.  
-You primarily seem to have been interested in offloading decisions like 
-allyesconfig not enabling broken drivers not expected to compile.  The fact 
-that it's useful to me seems entirely accidental.
+Now, sometimes those SMP systems will actually be used as "tightly coupled 
+UP", where one of the CPU's is just basically a DSP. And from a power 
+efficiency standpoint, having specialized hardware (and thus _A_MP rather 
+than SMP) is obviously better, but in complex tasks - and communication 
+tends to be that - general-purpose is often desirable enough that people 
+will take the inefficiencies of a GP CPU over a fixed-function specialized 
+DSP-kind of environment.
 
-Are you saying you had something like miniconfig in mind when you made these 
-changes?  If so, why was there no documentation?  Why was there no way to 
-make a mini.config from a normal config?  Why was the user interface wrong in 
-several different obvious ways that were easy to fix?  (You've already 
-admitted that the stdout output is useless, and O= should take the config 
-from the target directory.)
+But SMP is absolutely _not_ unusual in embedded. It's been there for years 
+already, and it's clearly moving downwards there too.
 
-I was cheerfully using this functionality for eight months before you added 
-allno.config, and what you did is closer but not a perfect fit for for what 
-I've been doing.
-
-> I'm trying to explain, what would be needed to do it properly, 
-
-What exactly does the patch I posted do wrong?  (Other than the makemini.sh 
-being a hack, but it's a hack to replace a complete absence of this feature.)
-
-You seem to be simultaneously arguing that allnoconfig by itself is so good 
-that it needs no change (despite there being no way at all to automatically 
-create a miniconfig from a big .config), and that supporting miniconfig is an 
-excuse for such an extensive rewrite that not just kconfig but kbuild must be 
-adjusted to compensate.
-
-Pick one.
-
-> but either I failed to make myself understandable or you're not listening.
-
-I feel _exactly_ the same way about you.
-
-> > > > However, you seem to be forgetting that .config is read by the kernel
-> > > > build infrastructure.  The tools are generating what _used_ to be a
-> > > > human editable file.
-> > >
-> > > Oh, really?
-> >
-> > This is a slightly vague.  Is this "Oh, really?" arguing that it didn't
-> > used to be a human readable format?
->
-> At this point I was just wondering, whether you realize that I wrote the
-> new kconfig stuff.
-
-Why do you think I cc'd you?
-
-> > > > I don't personally _care_ about the other config targets.
-> > >
-> > > Well, that's the problem, I do care about them.
-> >
-> > I think you're too focused on the implementation to see the users.  What
-> > I'm trying to document is miniconfig, and as such any kallsyms target
-> > allnoconfig is not _useful_.
->
-> I'm actually quite interested in the needs of the users, but OTOH users
-> have to realize that they are not always _exactly_ get what they want.
-> Users often have very specific wishes and I try to provide a generic
-> framework, which not only solves specific problems but also a broad range
-> of problems, which often means to compromise as user needs can be very
-> contradictory.
-
-I'm trying to see how this applies.  Really I am...
-
-> > > I want to keep it working without obfuscating it with thousands little
-> > > features, so we have to figure out how to integrate it properly into
-> > > the big picture.
-> >
-> > Do you have a suggestion that does not involve a complete rewrite of
-> > kbuild over the next year or more?  I just posted one, and I've just
-> > started work on another.
-> >
-> > I'm still not entirely certain you understand what I'm trying to
-> > accomplish, and I'm sorry I can't make you understand why I need this. 
-> > I'm not convinced that your "new config format" will be at all useful.
->
-> I think I understand you quite well. Again, the basic functionality you
-> want is already provided by allnoconfig
-
-It was previously provided by
-make allnoconfig && cat mini.config >> .config && yes "" | make oldconfig
-Although that admittedly wasn't reliable because oldconfig is based on 
-defconfig rather than allnoconfig, but yes "n" could go into an endless loop 
-because oldconfig stupidly re-queries for numeric constants indefinitely.
-
-> and the advanced features need a 
-> bit more work than the few hacks you added to conf.c.
-
-Why?  What advanced features?
-
-> I like the idea of a minimum config, which e.g. users can send to
-> developers or they can use for upgrading kernels, but this has to work not
-> just for you, but also for the majority of users and this requires a
-> better specification of how this feature should work in various
-> situations.
-
-If I wanted it to work just for me, would I have bothered writing up 
-documentation first thing?  Would I have bothered posting the patch here at 
-all?
-
-What situations does the patch I posted previously not work in?
-
-> bye, Roman
-
-Rob
--- 
-Steve Ballmer: Innovation!  Inigo Montoya: You keep using that word.
-I do not think it means what you think it means.
+			Linus

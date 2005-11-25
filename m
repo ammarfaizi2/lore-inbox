@@ -1,99 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932689AbVKYPDI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161102AbVKYPEV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932689AbVKYPDI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 10:03:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932693AbVKYPDI
+	id S1161102AbVKYPEV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 10:04:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161104AbVKYPEV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 10:03:08 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:21146 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932689AbVKYPDG (ORCPT
+	Fri, 25 Nov 2005 10:04:21 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:43937 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1161102AbVKYPET (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 10:03:06 -0500
-Message-ID: <4387391D.9DDAA718@tv-sign.ru>
-Date: Fri, 25 Nov 2005 19:17:33 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2/2] PF_DEAD: kill it
-References: <4385E402.3F0FFE07@tv-sign.ru> <20051125052337.GC22230@elte.hu>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Nov 2005 10:04:19 -0500
+Date: Fri, 25 Nov 2005 16:03:48 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: George Anzinger <george@mvista.com>
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, paulmck@us.ibm.com,
+       Roland McGrath <roland@redhat.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, dipankar@in.ibm.com, suzannew@cs.pdx.edu
+Subject: Re: Thread group exec race -> null pointer... HELP
+Message-ID: <20051125150348.GA14919@elte.hu>
+References: <20051105013650.GA17461@us.ibm.com> <436CDEAF.E236BC40@tv-sign.ru> <20051106010004.GB20178@us.ibm.com> <436E1401.920A83EE@tv-sign.ru> <437BC01D.60302@mvista.com> <43826FDC.8010401@mvista.com> <43832F1D.F56D1C00@tv-sign.ru> <4384D17C.4040902@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4384D17C.4040902@mvista.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
->
-> > Perhaps it makes sense to add new TASK_DEAD flag to use it instead of
-> > EXIT_DEAD, while the latter should live only in ->exit_state.
->
-> yes, i'd suggest a followup patch to keep the two flag spaces totally
-> disjunct - at least for testing in -mm. This area of code (when it was
 
-Here it is.
+* George Anzinger <george@mvista.com> wrote:
 
-I am also resending these 2 cleanups with EXIT_STATE changed to TASK_STATE.
+> >This patch:
+> >
+> >	http://marc.theaimsgroup.com/?l=linux-kernel&m=113138286512847
+> >
+> >was intended to fix exactly this problem (and the same test program was
+> >used to exploit the race and test the fix).
+> >
+> >So, it does not help? I can't reproduce the problem.
+> 
+> Yes, it does fix it.  Somehow I missed the posting of that patch.
 
-Andrew, please take these new ones unless you or Ingo have any objections.
+fyi, i've included the patch in -rt15.
 
-Oleg.
-
-
---- 2.6.15-rc2/include/linux/sched.h~3_RENAME	2005-11-25 21:54:07.000000000 +0300
-+++ 2.6.15-rc2/include/linux/sched.h	2005-11-25 21:56:36.000000000 +0300
-@@ -127,6 +127,7 @@ extern unsigned long nr_iowait(void);
- #define EXIT_DEAD		32
- /* in tsk->state again */
- #define TASK_NONINTERACTIVE	64
-+#define TASK_DEAD		128
- 
- #define __set_task_state(tsk, state_value)		\
- 	do { (tsk)->state = (state_value); } while (0)
---- 2.6.15-rc2/kernel/exit.c~3_RENAME	2005-11-25 21:54:07.000000000 +0300
-+++ 2.6.15-rc2/kernel/exit.c	2005-11-25 21:56:36.000000000 +0300
-@@ -871,9 +871,9 @@ fastcall NORET_TYPE void do_exit(long co
- 	tsk->mempolicy = NULL;
- #endif
- 
--	/* ->state == EXIT_DEAD causes final put_task_struct after we schedule. */
-+	/* ->state == TASK_DEAD causes final put_task_struct after we schedule. */
- 	preempt_disable();
--	tsk->state = EXIT_DEAD;
-+	tsk->state = TASK_DEAD;
- 
- 	schedule();
- 	BUG();
---- 2.6.15-rc2/kernel/sched.c~3_RENAME	2005-11-25 21:54:07.000000000 +0300
-+++ 2.6.15-rc2/kernel/sched.c	2005-11-25 21:56:36.000000000 +0300
-@@ -1630,7 +1630,7 @@ static inline void finish_task_switch(ru
- 	 * be dropped twice.
- 	 *		Manfred Spraul <manfred@colorfullife.com>
- 	 */
--	task_dead = (prev->state == EXIT_DEAD);
-+	task_dead = (prev->state == TASK_DEAD);
- 	finish_arch_switch(prev);
- 	finish_lock_switch(rq, prev);
- 	if (mm)
-@@ -4711,7 +4711,7 @@ static void migrate_dead(unsigned int de
- 	BUG_ON(tsk->exit_state != EXIT_ZOMBIE && tsk->exit_state != EXIT_DEAD);
- 
- 	/* Cannot have done final schedule yet: would have vanished. */
--	BUG_ON(tsk->state == EXIT_DEAD);
-+	BUG_ON(tsk->state == TASK_DEAD);
- 
- 	get_task_struct(tsk);
- 
---- 2.6.15-rc2/mm/oom_kill.c~3_RENAME	2005-11-25 21:54:07.000000000 +0300
-+++ 2.6.15-rc2/mm/oom_kill.c	2005-11-25 21:56:36.000000000 +0300
-@@ -163,7 +163,7 @@ static struct task_struct * select_bad_p
- 		 */
- 		releasing = test_tsk_thread_flag(p, TIF_MEMDIE) ||
- 						p->flags & PF_EXITING;
--		if (releasing && (p->state != EXIT_DEAD))
-+		if (releasing && (p->state != TASK_DEAD))
- 			return ERR_PTR(-1UL);
- 		if (p->flags & PF_SWAPOFF)
- 			return p;
+	Ingo

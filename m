@@ -1,105 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751406AbVKYFJN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbVKYFMX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751406AbVKYFJN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 00:09:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbVKYFJN
+	id S1751408AbVKYFMX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 00:12:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbVKYFMX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 00:09:13 -0500
-Received: from magic.adaptec.com ([216.52.22.17]:20610 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S1751406AbVKYFJM (ORCPT
+	Fri, 25 Nov 2005 00:12:23 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:53718 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751408AbVKYFMW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 00:09:12 -0500
-Date: Fri, 25 Nov 2005 10:45:56 +0530 (IST)
-From: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>
-X-X-Sender: tomar@localhost.localdomain
-Reply-To: "Tomar, Nagendra" <nagendra_tomar@adaptec.com>
-To: linux-kernel@vger.kernel.org
-cc: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: Why does insmod _not_ check for symbol redefinition ??
-In-Reply-To: <c216304e0511242042h30fccd74ic2b1d5b237e2afc0@mail.gmail.com>
-Message-ID: <Pine.LNX.4.44.0511251029150.18002-100000@localhost.localdomain>
-Organization: Adaptec
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 25 Nov 2005 05:09:09.0920 (UTC) FILETIME=[5E3DAA00:01C5F17E]
+	Fri, 25 Nov 2005 00:12:22 -0500
+Date: Fri, 25 Nov 2005 06:12:32 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 1/2] PF_DEAD: cleanup usage
+Message-ID: <20051125051232.GB22230@elte.hu>
+References: <4385E3FF.C99DBCF5@tv-sign.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4385E3FF.C99DBCF5@tv-sign.ru>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Did'nt get any response to this one, so sending it again.
 
-Can any of the module subsystem authors tell, why they have decided to 
-allow loading a kernel module having an EXPORTed symbol with the same name 
-as an EXPORTed  symbol in kernel proper. The safest thing would be to 
-disallow  module loading in this case, giving a "Symbol redefinition" 
-error.
-	Allowing the module load will lead to overriding kernel functions
-which will affect modules loaded in future, that reference those 
-functions. Overall, it can have bad effects of varying severity.
+* Oleg Nesterov <oleg@tv-sign.ru> wrote:
 
-Thanx,
-Tomar
+> schedule() checks PF_DEAD on every context switch, and sets ->state = 
+> EXIT_DEAD to ensure that exited task will be deactivated.
+> 
+> I think it is better to set EXIT_DEAD in do_exit(), along with PF_DEAD 
+> flag.
 
-> 
-> All,
->      Let me start by saying that, if we have compiled functionality
-> X as a built-in part of kernel, and then if we try to load X compiled
-> as a module, we get _bad_ results, varying from weird behaviour to
-> upfront crashes.
->         The question is : Why does insmod not check for redefinition
-> of symbols and hence disallow module loading in such cases ?
-> 
-> For the records, the kernel version I'm using is some flavour of
-> 2.6.9.
-> 
->         I understand that this is a very basic thing and the kernel
-> module subsystem authors would have thought about it and if it behaves
-> this way, it would more likely be a feature. I am keenly interested
-> in knowing the rationale behind it.
-> 
->         On my setup, SCSI midlayer was compiled as part of kernel proper
-> and then the initrd tried to load scsi_mod.ko as a module also (which was
-> present in initrd as I accidently used a wrong initrd). I would expect
-> this to result in insmod failure due to redefinition of various
-> functions already exported by the SCSI mid-layer (which is part of
-> kernel proper).
->         What actually happened is that the scsi_mod.ko module got loaded
-> and its init_module() function was called, which apart from lot of other
-> things, called kmem_cache_create() to create a slab cache. Since the slab
-> cache with the same name was already present (the first one was created
-> when the SCSI midlayer init function was called as part of kernel proper
-> initialization), this triggered a BUG.
->        When I checked for the exported SCSI midlayer symbols in
-> /proc/kallsyms I saw duplicate symbols for all the SCSI midlayer symbols,
-> one in the kernel text segment 0xcXXXXXXX and the other in the module
-> text segment (this one was 0xeXXXXXXX).
->         I tried this with other components (ext3, jbd, e1000 etc) and the
-> results were the same; the module gets loaded on top of the builtin
-> functionality resulting in multiple definitions of the EXPORTed symbols.
-> I've tried the same thing on 2.4.20 kernel with _same_ results.
-> Since we see the same behaviour with different kernels, it is not specific
-> to a particular kernel.
-> 
-> 
-> Thanx,
-> Tomar
-> 
-> 
-> 
-> 
-> -- "Theory is when you know something, but it doesn't work.
->     Practice is when something works, but you don't know why.
->     Programmers combine theory and practice: Nothing works
->     and they don't know why ..."
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+nice idea - your patch looks good to me.
 
--- "Theory is when you know something, but it doesn't work.
-    Practice is when something works, but you don't know why.
-    Programmers combine theory and practice: Nothing works 
-    and they don't know why ..."
+> It is safe to do without task_rq() locking, because concurrent 
+> try_to_wake_up() can't change task's ->state: the 'state' argument of 
+> try_to_wake_up() can't have EXIT_DEAD bit. And in case when 
+> try_to_wake_up() sees stale value of ->state == TASK_RUNNING it will 
+> do nothing.
 
+we should really not be getting concurrent wakeups in this situation 
+anyway - and you are right that even if we got, it should have no effect 
+neither in the EXIT_DEAD nor in the TASK_RUNNING case.
+
+Acked-by: Ingo Molnar <mingo@elte.hu>
+
+	Ingo

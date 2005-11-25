@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751474AbVKYUUp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751477AbVKYU1m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751474AbVKYUUp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 15:20:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751476AbVKYUUp
+	id S1751477AbVKYU1m (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 15:27:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbVKYU1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 15:20:45 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:50091 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751474AbVKYUUp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 15:20:45 -0500
-Message-ID: <43877086.4010909@zytor.com>
-Date: Fri, 25 Nov 2005 12:13:58 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
+	Fri, 25 Nov 2005 15:27:42 -0500
+Received: from wproxy.gmail.com ([64.233.184.197]:58356 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751477AbVKYU1l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Nov 2005 15:27:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=teoy2FQXwFzBP+reyMKT/PsHwokJ6pRmE0y8XzRdi+8mQVrikIzViBjtWv3sXoSgOO3wcQIQaBjB7HkVi6X6tVnjtipGhW4f67oelOvN3JsxL6Q1kb9U+S4F7Lsu9gRuOzW2vzW2asvv9PiQ0sIPucEaphzuaNxytX14/DWurtk=
+Message-ID: <438773B7.4020206@gmail.com>
+Date: Fri, 25 Nov 2005 21:27:35 +0100
+From: Xose Vazquez Perez <xose.vazquez@gmail.com>
 User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-CC: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andi Kleen <ak@suse.de>, Gerd Knorr <kraxel@suse.de>,
-       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-References: <438359D7.7090308@suse.de> <p7364qjjhqx.fsf@verdi.suse.de> <1132764133.7268.51.camel@localhost.localdomain> <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051125073854.GA16771@taniwha.stupidest.org>
-In-Reply-To: <20051125073854.GA16771@taniwha.stupidest.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Rob Landley <rob@landley.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Documentation dir is a mess
+References: <438069BD.6000401@gmail.com> <200511211028.28944.rob@landley.net>
+In-Reply-To: <200511211028.28944.rob@landley.net>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
-> On Wed, Nov 23, 2005 at 01:36:08PM -0800, Linus Torvalds wrote:
-> 
->>Actual UP machines are going to go away - even ARM is going SMP, and
->>in the PC space, we'll have multi-core laptops probably being the
->>rule rather than the exception in a couple of years.
-> 
-> CPUs in embedded the space could outnumber desktops & servers greatly
-> (cell phones, access pointers, routers, media players, etc).  Most of
-> these will be UP for some time.
+Rob Landley wrote:
 
-It's unlikely, though, that you'd have a need to run an SMP-compiled 
-kernel on these devices.
+> Perhaps you're looking for "make htmldocs"?
 
-	-hpa
+No.
+
+> Where would you put Documentation/unicode.txt in your proposed layout?  Or 
+> Documentation/filesystems/proc.txt?
+
+If there is not a new good place, let it be. We need to be good, not perfect.
+
+
+Maybe this idea would be the next entry in the "Christmas list for the kernel"
+after:
+
+(5) a pony
+
+(6) world peace
+
+;-)
+
+-- 
+Romanes eunt domus

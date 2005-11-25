@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751041AbVKYSBe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbVKYS5k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751041AbVKYSBe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 13:01:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbVKYSBe
+	id S1750712AbVKYS5k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 13:57:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbVKYS5k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 13:01:34 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:15768 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751041AbVKYSBd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 13:01:33 -0500
-Date: Fri, 25 Nov 2005 10:01:25 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 1/2] PF_DEAD: cleanup usage
-In-Reply-To: <20051125051232.GB22230@elte.hu>
-Message-ID: <Pine.LNX.4.64.0511250950450.13959@g5.osdl.org>
-References: <4385E3FF.C99DBCF5@tv-sign.ru> <20051125051232.GB22230@elte.hu>
+	Fri, 25 Nov 2005 13:57:40 -0500
+Received: from ns.km0613.keymachine.de ([62.141.48.135]:23728 "EHLO
+	km0613.keymachine.de") by vger.kernel.org with ESMTP
+	id S1750712AbVKYS5j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Nov 2005 13:57:39 -0500
+Message-ID: <43875E90.4080901@hartl-it.de>
+Date: Fri, 25 Nov 2005 19:57:20 +0100
+From: Manuel Hartl <mhartl@hartl-it.de>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051016)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Arjan van de Ven <arjan@infradead.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: USB module crash
+References: <4386C2DA.6070002@hartl-it.de> <1132905483.7068.25.camel@laptopd505.fenrus.org>
+In-Reply-To: <1132905483.7068.25.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 25 Nov 2005, Ingo Molnar wrote:
-> > 
-> > I think it is better to set EXIT_DEAD in do_exit(), along with PF_DEAD 
-> > flag.
+hi
 > 
-> nice idea - your patch looks good to me.
+>>fcdslusb2
+> 
+> where is that module from? I can't find it in the kernel source....
 
-I'm not entirely convinced.
+it isnt. it is from AVM.
 
-The thing is, We used to have DEAD in the task state flags, ie TASK_ZOMBIE 
-was it. 
 
-We started using PF_DEAD in 2003 with this commit message:
+ftp://ftp.avm.de/cardware/fritzcrd.dsl_usb/linux/suse.93/
+(despite its name, it is usable for other distributions, too)
 
-Author: Linus Torvalds <torvalds@home.osdl.org>  2003-10-26 03:16:23
+if its a very bad idea to ask for help for modules, that are not part of 
+the kernel source, please tell me at least, what kind of error that is 
+(if someone can...)
 
-    Add a sticky "PF_DEAD" task flag to keep track of dead processes.
-    
-    Use this to simplify 'finish_task_switch', but perhaps more
-    importantly we can use this to track down why some processes
-    seem to sometimes not die properly even after having been
-    marked as ZOMBIE. The "task->state" flags are too fluid to 
-    allow that well.
+is it the modules fault? is it acpi related? ....
 
-ie the PF_DEAD flag was never really about is _needing_ it: it was all 
-about being able to safely check it _without_ having to rely on 
-task->state.
+greets,
+	manuel.
 
-So putting it back into task->state is not wrong per se, but it kind of 
-misses the point of why it was somewhere else in the first place (or 
-rather, why it was there in the _second_ place, since it was in 
-task->state in the first place and got moved out of there).
 
-			Linus

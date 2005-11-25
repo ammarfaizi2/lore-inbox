@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932657AbVKYPVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932698AbVKYPYy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932657AbVKYPVk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 10:21:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932693AbVKYPVk
+	id S932698AbVKYPYy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 10:24:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932702AbVKYPYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 10:21:40 -0500
-Received: from gw1.cosmosbay.com ([62.23.185.226]:61659 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S932657AbVKYPVj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 10:21:39 -0500
-Message-ID: <43872BF2.3030407@cosmosbay.com>
-Date: Fri, 25 Nov 2005 16:21:22 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
+	Fri, 25 Nov 2005 10:24:54 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:53661 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932698AbVKYPYx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Nov 2005 10:24:53 -0500
+Date: Fri, 25 Nov 2005 16:24:45 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: David Woodhouse <dwmw2@infradead.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC: Kill -ERESTART_RESTARTBLOCK.
+In-Reply-To: <1132919594.4044.41.camel@baythorne.infradead.org>
+Message-ID: <Pine.LNX.4.61.0511251602460.1609@scrub.home>
+References: <1132859323.11921.110.camel@baythorne.infradead.org> 
+ <Pine.LNX.4.61.0511250110470.1610@scrub.home> <1132919594.4044.41.camel@baythorne.infradead.org>
 MIME-Version: 1.0
-To: Wu Fengguang <wfg@mail.ustc.edu.cn>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 10/19] readahead: state based method
-References: <20051125151210.993109000@localhost.localdomain> <20051125151550.440541000@localhost.localdomain>
-In-Reply-To: <20051125151550.440541000@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Fri, 25 Nov 2005 16:21:21 +0100 (CET)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wu Fengguang a écrit :
+Hi,
 
->  include/linux/fs.h |    8 +
+On Fri, 25 Nov 2005, David Woodhouse wrote:
+
+> > Instead of messing with the signal delivery it may be better to slightly 
+> > change the restart logic. Instead of calling a separate function, we could 
+> > call the original function with all the arguments, which would reduce the 
+> > state required to be saved.
+>  < ... >
+> > AFAICT only the timeout argument needs to saved over a restart, the rest 
+> > can be reinitialized from the original arguments.
 > 
-> --- linux-2.6.15-rc2-mm1.orig/include/linux/fs.h
-> +++ linux-2.6.15-rc2-mm1/include/linux/fs.h
-> @@ -604,13 +604,19 @@ struct file_ra_state {
->  	unsigned long start;		/* Current window */
->  	unsigned long size;
->  	unsigned long flags;		/* ra flags RA_FLAG_xxx*/
-> -	unsigned long cache_hit;	/* cache hit count*/
-> +	uint64_t      cache_hit;	/* cache hit count*/
->  	unsigned long prev_page;	/* Cache last read() position */
->  	unsigned long ahead_start;	/* Ahead window */
->  	unsigned long ahead_size;
->  	unsigned long ra_pages;		/* Maximum readahead window */
->  	unsigned long mmap_hit;		/* Cache hit stat for mmap accesses */
->  	unsigned long mmap_miss;	/* Cache miss stat for mmap accesses */
-> +
-> +	unsigned long age;
-> +	pgoff_t la_index;
-> +	pgoff_t ra_index;
-> +	pgoff_t lookahead_index;
-> +	pgoff_t readahead_index;
->  };
+> Yeah, that might be nice -- but if the argument registers are
+> call-clobbered, then those original arguments don't actually exist
+> anywhere any more, except in the syscall function which got interrupted.
 
-Hum... This sizeof(struct file) increase seems quite large...
+The arguments have to be saved somewhere, otherwise ERESTARTNOHAND 
+wouldn't work, so my basic idea would be to change ERESTART_RESTARTBLOCK 
+into ERESTARTNOHAND + some extra state.
 
-Have you ever considered to change struct file so that file_ra_state is not 
-embedded, but dynamically allocated (or other strategy) for regular files ?
+> One simpler option which _might_ work for pselect(), ppoll() and
+> sigsuspend() is a TIF_RESTORE_SIGMASK flag which restores the original
+> signal mask on the way back to userspace but _after_ calling do_signal()
+> with the temporary mask.
 
-I mean, sockets, pipes cannot readahead... And some machines use far more 
-sockets than regular files.
+Now I see the problem with the signal mask and I agree, this would be a 
+simpler and IMO preferable approach.
 
-I wrote such a patch in the past I could resend...
-
-Eric
+bye, Roman

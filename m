@@ -1,85 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751469AbVKYTsb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751470AbVKYTx6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751469AbVKYTsb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 14:48:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751470AbVKYTsa
+	id S1751470AbVKYTx6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 14:53:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751472AbVKYTx6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 14:48:30 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:33191 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751469AbVKYTsa (ORCPT
+	Fri, 25 Nov 2005 14:53:58 -0500
+Received: from zproxy.gmail.com ([64.233.162.195]:8064 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751470AbVKYTx6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 14:48:30 -0500
-Date: Fri, 25 Nov 2005 11:47:41 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-Cc: linux-kernel@vger.kernel.org, Matt Helsley <matthltc@us.ibm.com>
-Subject: Re: [BUG linux-2.6.15-rc] process events connector - soft lockup
- detected
-Message-Id: <20051125114741.6549ef3a.akpm@osdl.org>
-In-Reply-To: <20051125144226.37778246@frecb000711.frec.bull.fr>
-References: <20051125144226.37778246@frecb000711.frec.bull.fr>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 25 Nov 2005 14:53:58 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=UE2xlk45OBk6rU4kZfVsZLOGdIQs+1M+iN8OXZHDzoRWni1InXSOMkfmHgRR7JLZ0ejuhf4dS4h+3vMoVLivEuwgTbrnm2xk0ZL0Ji+z8XKUewBJEXIs/EFk0WJedqR1eEhs/Kj8hq+IXNE20Emmh3GqQs4bptlIxoUwtt5RGNc=
+Message-ID: <43876BCF.4030508@gmail.com>
+Date: Fri, 25 Nov 2005 20:53:51 +0100
+From: Xose Vazquez Perez <xose.vazquez@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
+Subject: [RFC PATCH] was Re: [RFC] Documentation dir is a mess
+References: <438069BD.6000401@gmail.com> <20051121003033.GA11302@kroah.com>
+In-Reply-To: <20051121003033.GA11302@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guillaume Thouvenin <guillaume.thouvenin@bull.net> wrote:
->
-> Hello,
-> 
->   I compiled a kernel 2.6.15-rc1 and a 2.6.15-rc2 with Process Events
-> Connector enabled. The machine has two processors. When I use the
-> process events connector, a soft lockup is detected (for both releases):
-> 
-> ---------B<---------------------------------------
-> Pid: 2770, comm:                   sh
-> EIP: 0060:[<c039ae28>] CPU: 1
-> EIP is at __read_lock_failed+0x8/0x14
->  EFLAGS: 00000297    Not tainted  (2.6.15-rc2)
-> EAX: c046fc00 EBX: f5946000 ECX: f5947f7c EDX: 00000286
-> ESI: 00000000 EDI: ffffffff EBP: f5946000 DS: 007b ES: 007b
-> CR0: 8005003b CR2: 080e173c CR3: 358a0000 CR4: 000006d0
->  [<c039c566>] _read_lock+0xb/0xc
->  [<c011e7ee>] do_wait+0x9d/0x40c
->  [<c0116fd0>] default_wake_function+0x0/0x12
->  [<c0116fd0>] default_wake_function+0x0/0x12
->  [<c011ec32>] sys_wait4+0x43/0x45
->  [<c0102e39>] syscall_call+0x7/0xb
-> BUG: soft lockup detected on CPU#1!
-> 
-> ...
->
->   I think that the problem is in kernel/fork.c. The function
-> proc_fork_connector(p) is called inside a
-> write_lock_irq(&tasklist_lock). The
-> cn_netlink_send(msg,CN_IDX_PROC,GFP_KERNEL) is called by the
-> proc_fork_connector(). Thus, the alloc_skb(size,GFP_KERNEL) is called
-> within a write_lock_irq(&tasklist_lock)... is it the problem? 
-> 
->   If I replace GFP_KERNEL by GFP_ATOMIC the soft lockup disappear (but I
-> don't know if this solution is right...)
+Greg KH wrote:
 
-Gad, how ddd that get in there?
+> On Sun, Nov 20, 2005 at 01:19:09PM +0100, Xose Vazquez Perez wrote:
 
---- devel/kernel/fork.c~forkc-proc_fork_connector-called-under-write_lock	2005-11-25 11:46:36.000000000 -0800
-+++ devel-akpm/kernel/fork.c	2005-11-25 11:46:36.000000000 -0800
-@@ -1135,13 +1135,13 @@ static task_t *copy_process(unsigned lon
- 			__get_cpu_var(process_counts)++;
- 	}
- 
--	proc_fork_connector(p);
- 	if (!current->signal->tty && p->signal->tty)
- 		p->signal->tty = NULL;
- 
- 	nr_threads++;
- 	total_forks++;
- 	write_unlock_irq(&tasklist_lock);
-+	proc_fork_connector(p);
- 	retval = 0;
- 
- fork_out:
-_
+>>_today_ Documentation/* is a mess of files. It would be good
+>>to have the _same_ tree as the code has:
+
+> Do you have a proposal as to what specific files in that directory
+> should go where?  Just basing it on the source tree will not get you
+> very far...
+
+well, more or less the same but not _exactly_ the same ;-)
+
+I already have a big patch against 2.6.15-rc2-git5:
+
+[ http://perso.wanadoo.es/xose_vp/documentation_cleanup_01.diff.bz2 ]
+
+main features:
+- move all drivers_info into 'drivers'
+- move all arch_info into 'arch'
+- move all drivers_info from 'net' to 'drivers/net'
+
+TODO:
+- clean up the 'Documentation' root dir a bit more (easy)
+- remove (easy) or update all INDEX files (tedious)
+- move all info/text files from source code to 'Documentation' dir (tedious)
+- verify all files are in the correct place (tedious)
+
+enough for now.
 
 
+-thanks-
+
+-- 
+Romanes eunt domus

@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932724AbVKZFOr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422640AbVKZFmQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932724AbVKZFOr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Nov 2005 00:14:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932725AbVKZFOq
+	id S1422640AbVKZFmQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Nov 2005 00:42:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932726AbVKZFmQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Nov 2005 00:14:46 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:2696 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932724AbVKZFOq (ORCPT
+	Sat, 26 Nov 2005 00:42:16 -0500
+Received: from mail.kroah.org ([69.55.234.183]:32235 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932725AbVKZFmQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Nov 2005 00:14:46 -0500
-Date: Fri, 25 Nov 2005 21:14:54 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Wu Fengguang <wfg@mail.ustc.edu.cn>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, mingo@elte.hu, levon@movementarian.org
-Subject: Re: BUG: spinlock recursion on 2.6.14-mm2 when oprofiling
-Message-ID: <20051126051454.GA3104@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20051118152101.GA4690@mail.ustc.edu.cn> <20051125220117.GA1836@us.ibm.com> <20051125232829.GA2405@us.ibm.com> <20051126033955.GC7226@mail.ustc.edu.cn>
+	Sat, 26 Nov 2005 00:42:16 -0500
+Date: Fri, 25 Nov 2005 15:34:52 -0800
+From: Greg KH <greg@kroah.com>
+To: Manuel Hartl <mhartl@hartl-it.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB module crash
+Message-ID: <20051125233452.GA28617@kroah.com>
+References: <4386C2DA.6070002@hartl-it.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051126033955.GC7226@mail.ustc.edu.cn>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <4386C2DA.6070002@hartl-it.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 26, 2005 at 11:39:55AM +0800, Wu Fengguang wrote:
-> On Fri, Nov 25, 2005 at 03:28:29PM -0800, Paul E. McKenney wrote:
-> > And here is an alternative patch that assumes that the answer to both
-> > questions above is "no".  It is shorter, though mostly due to use of
-> > the list_splice_init() and list_for_each_entry_safe() primitives.
+On Fri, Nov 25, 2005 at 08:52:58AM +0100, Manuel Hartl wrote:
+> hi list,
 > 
-> Ok, I'll try it. But it may take time.
+> last night (i think again) usb module(s) crashed. the running usb 
+> devices are a avm fritz usb dsl 2 and a usb mouse. i do not think this 
+> is avm related (cdslusb2 module), maybe an acpi/power management error?
 > 
-> Currently I'm running oprofile on linux-2.6.15-rc2-mm1. It seems the bug is not
-> quite reproducible. I'll report again if there are any new findings.
+> please loook at the included stack trace.
+> can someone tell me (by looking at the trace), what could be the problem 
+> here?
+> 
+> hardware:
+> asus a8v deluxe (via k8t800 chipset) / socket 939 / amd64 3000+
+> cool and quiet was active in bios, but no module was loaded 
+> (powernow_k8), acpi/apic is enabled.
+> 
+> 
+> 
+> Nov 25 02:26:40 media kernel:  [<c029b1ec>] kref_get+0x3c/0x40
 
-Yep, the bug is indeed non-deterministic.  For it to happen, softirq
-must interrupt a "task_mortuary" critical section, and that softirq
-must execute a task-struct RCU callback.
+Are you _sure_ this is an oops, and not just a kernel warning?
 
-						Thanx, Paul
+Can you provide the whole message that the kernel spit out?
+
+And if this is not for a driver that is in the kernel tree, it's a bit
+hard for us to help you out here, try asking the authors of the driver
+itself, as that is the code that is causing problems here.
+
+good luck,
+
+greg k-h

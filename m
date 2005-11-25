@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161093AbVKYChe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161096AbVKYCu0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161093AbVKYChe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 21:37:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161094AbVKYChe
+	id S1161096AbVKYCu0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 21:50:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161095AbVKYCu0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 21:37:34 -0500
-Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:28688 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1161093AbVKYChd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 21:37:33 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: bcollins@debian.org (Ben Collins)
-Subject: Re: [PATCH 2.6.15-rc2] Fxi hardcoded cpu=0 in workqueue for per_cpu_ptr() calls
-Cc: linux-kernel@vger.kernel.org, davem@davemloft.net, rusty@rustcorp.com.au
-Organization: Core
-In-Reply-To: <20051124185419.GC20937@swissdisk.com>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1EfTSr-0004DU-00@gondolin.me.apana.org.au>
-Date: Fri, 25 Nov 2005 13:37:29 +1100
+	Thu, 24 Nov 2005 21:50:26 -0500
+Received: from aeimail.aei.ca ([206.123.6.84]:16082 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S1161068AbVKYCuZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 21:50:25 -0500
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Nick Hengeveld <nickh@reactrix.com>
+Subject: Re: Linux 2.6.15-rc2
+Date: Thu, 24 Nov 2005 21:50:59 -0500
+User-Agent: KMail/1.8.2
+Cc: Linus Torvalds <torvalds@osdl.org>, Junio C Hamano <junkio@cox.net>,
+       git@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.64.0511191934210.8552@g5.osdl.org> <Pine.LNX.4.64.0511241020050.13959@g5.osdl.org> <20051124195256.GR3968@reactrix.com>
+In-Reply-To: <20051124195256.GR3968@reactrix.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511242151.00162.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Collins <bcollins@debian.org> wrote:
-> Tracked this down on an Ultra Enterprise 3000. It's a 6-way machine. Odd
-> thing about this machine (and it's good for finding bugs like this) is
-> that the CPU id's are not 0 based. For instance, on my machine the CPU's
-> are 6/7/10/11/14/15.
+On Thursday 24 November 2005 14:52, Nick Hengeveld wrote:
+> On Thu, Nov 24, 2005 at 10:37:15AM -0800, Linus Torvalds wrote:
+> 
+> > I just repacked and updated it now, so how http should work too, although 
+> > inefficiently (because it will get a whole new pack - just one of the 
+> > disadvantages of the non-native protocols).
+> 
+> There's room to improve on that particular inefficiency.  The http
+> commit walker could use Range: headers to fetch loose objects directly
+> from inside a pack if it didn't make sense to fetch the entire pack.
+> For this to work, pack fetches would need to be deferred until the
+> entire tree had been walked, and the commit walker could decide whether
+> to fetch the pack or loose objects based on the percentage of packed
+> objects it needed to fetch.  It would also need to fetch all
+> tag/commit/tree objects using ranges to be able to fully walk the tree.
 
-Good catch.
- 
-> I changed the 0's to any_online_cpu(cpu_online_mask), which cpumask.h
-> claims is "First cpu in mask". So this fits the same usage.
+Alternately, when creating a new archive the client could ask the server
+what protocols are active.  It could then use the best one for the clone and
+update the .git/origin files with the optimal one for incremental pulls.
 
-any_online_cpu(cpu_online_mask) is a bit of a tautology.  How about
-first_cpu(cpu_online_mask)? In fact, I'd prefer a new macro altogether
-which you can then define to zero on UP.
-
-This patch raises an interesting question actually.  What happens
-when the CPU that's designated to run single-threaded wq's gets
-removed?
-
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Thoughts?
+Ed Tomlinson

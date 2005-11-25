@@ -1,64 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbVKYBIl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932680AbVKYBOx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932318AbVKYBIl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 20:08:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932679AbVKYBIl
+	id S932680AbVKYBOx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 20:14:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932681AbVKYBOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 20:08:41 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:6552 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932318AbVKYBIl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 20:08:41 -0500
-Date: Fri, 25 Nov 2005 02:08:35 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: David Woodhouse <dwmw2@infradead.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: Kill -ERESTART_RESTARTBLOCK.
-In-Reply-To: <1132859323.11921.110.camel@baythorne.infradead.org>
-Message-ID: <Pine.LNX.4.61.0511250110470.1610@scrub.home>
-References: <1132859323.11921.110.camel@baythorne.infradead.org>
+	Thu, 24 Nov 2005 20:14:53 -0500
+Received: from adelphi.physics.adelaide.edu.au ([129.127.102.1]:28558 "EHLO
+	adelphi.physics.adelaide.edu.au") by vger.kernel.org with ESMTP
+	id S932680AbVKYBOw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 20:14:52 -0500
+From: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
+Message-Id: <200511250115.jAP1FoL4032027@auster.physics.adelaide.edu.au>
+Subject: 2.6.14-rt13: high res timer problem?
+To: linux-kernel@vger.kernel.org
+Date: Fri, 25 Nov 2005 11:45:50 +1030 (CST)
+Cc: jwoithe@physics.adelaide.edu.au (Jonathan Woithe)
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi guys
 
-On Thu, 24 Nov 2005, David Woodhouse wrote:
+I noticed an odd problem with 2.6.14-rt13 this past week.  If the new-ish
+high resolution timer is enabled (not HPET), sleeps take far too long.
+For example, "sleep 1" from bash actually delays 38 seconds, not 1 second
+as expected.  I've also noticed that the clock on the computer seems to
+run slow, but I haven't looked into that in any detail yet.
 
-> I'm looking at implementing ppoll() and pselect(), and the existing
-> restartblock stuff isn't sufficient for that -- we don't get to store
-> enough args, and although it could possibly be expanded, I just don't
-> much like restarting syscalls that way.
+At the present moment I am running Ingo's rt13 patch with 2.6.14.  I have
+not yet had a chance to test an unpatched 2.6.14 - I will try to get to
+that soon.  I've also got 2.6.14-rt15 now and I'll test that too.
 
-What arguments do you need to store?
-Instead of messing with the signal delivery it may be better to slightly 
-change the restart logic. Instead of calling a separate function, we could 
-call the original function with all the arguments, which would reduce the 
-state required to be saved.
-In the case of nanosleep this could look like this:
+This is on a Centrino laptop with an i915 chipset.  I can confirm that the
+effect persists irrespective of whether any or all of the APIC options are
+selected.  The presence or absence of various timer-related options
+(ktimers, HPET, PM timer) also don't appear to make any difference.
 
-sys_nanosleep()
-{
-	...
-	if (restart_block) {
-		expire = restart_block->arg0;
-	} else {
-		if (copy_from_user(&t, rqtp, sizeof(t)))
-		...
-	}
-	expire = schedule_timeout_interruptible(expire);
-	if (expire) {
-		...
-		restart_block->arg0 = expire;
-		ret = -ERESTART_RESTARTBLOCK;
-	}
-}
+Please CC replies to me to ensure I see them.  Thanks.
 
-AFAICT only the timeout argument needs to saved over a restart, the rest 
-can be reinitialized from the original arguments.
-The main problem would be to prevent an incorrect restart, e.g. if the 
-debugger pokes around in the registers.
-
-bye, Roman
+Regards
+  jonathan

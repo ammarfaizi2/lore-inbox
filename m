@@ -1,62 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751443AbVKYK7W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751448AbVKYLMO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751443AbVKYK7W (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 05:59:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbVKYK7W
+	id S1751448AbVKYLMO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 06:12:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751449AbVKYLMN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 05:59:22 -0500
-Received: from zproxy.gmail.com ([64.233.162.195]:41614 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751443AbVKYK7V convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 05:59:21 -0500
+	Fri, 25 Nov 2005 06:12:13 -0500
+Received: from wproxy.gmail.com ([64.233.184.192]:45640 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751448AbVKYLMM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Nov 2005 06:12:12 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=m9WdixAt0EXn2e/gGv2cbYMvs/RXuqEoM7kao20Hq9i2Cuyh5BjtzrNFWyezo4x6294Zq5MZvPQi5blDCTNisIEqoe5CcooWlNDnJpwUyOJrgLAdKP8rxUEzfuQLxYe0jzAYgjkgswLWjmRY1Rejc2VS1kSmTYQ18AnWi20qRls=
-Message-ID: <5a4c581d0511250259i3e412c92i57a0bfe82144c81a@mail.gmail.com>
-Date: Fri, 25 Nov 2005 11:59:20 +0100
-From: Alessandro Suardi <alessandro.suardi@gmail.com>
-To: Zhu Yi <yi.zhu@intel.com>
-Subject: Re: ipw2200 in 2.6.15-rc2-git4 warns about improper NETDEV_TX_BUSY retcode
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com
-In-Reply-To: <1132889013.24413.5.camel@debian.sh.intel.com>
+        h=received:message-id:date:from:to:subject:mime-version:content-type;
+        b=qyMUhxdGhaZo5WGsVcbJQTbbxBuN/lkyFvaEqYL2+/HwDqN8LIljH0oEXFJZtbumDwZGT+JTgoIDPXSFB058/lczvV1dvpmMOrCuh86wz/LQOgUz8xkIKNEAVAX/V8G4FRhTKpGhL4zvRGn+b1q3z1pOsWgqDq+V/Vt0Vk16XV0=
+Message-ID: <9611fa230511250312i55d0b872x82b8c33b4d2973e4@mail.gmail.com>
+Date: Fri, 25 Nov 2005 11:12:11 +0000
+From: Tarkan Erimer <tarkane@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG]: Software compiling occasionlly hangs under 2.6.15-rc1/rc2 and 2.6.15-rc1-mm2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <5a4c581d0511241538s496adee9s249cd038501545c9@mail.gmail.com>
-	 <1132889013.24413.5.camel@debian.sh.intel.com>
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_3437_32612634.1132917131088"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/25/05, Zhu Yi <yi.zhu@intel.com> wrote:
-> On Fri, 2005-11-25 at 00:38 +0100, Alessandro Suardi wrote:
-> > Dell Latitude D610, FC4 base distro, kernel is:
-> >
-> > [asuardi@sandman ~]$ cat /proc/version
-> > Linux version 2.6.15-rc2-git4 (asuardi@sandman) (gcc version 4.0.1
-> > 20050727 (Red Hat 4.0.1-5)) #2 Fri Nov 25 00:15:46 CET 2005
-> >
-> > Onboard wireless card as detected by kernel is:
-> > ipw2200: Intel(R) PRO/Wireless 2200/2915 Network Driver, git-1.0.8
-> >
-> >  and I placed the 2.4 firmware from sourceforge.net in /lib/firmware.
-> >
-> > ifup eth1 yields this message:
-> >
-> > eth1: NETDEV_TX_BUSY returned; driver should report queue full via
-> > ieee_device->is_queue_full.
->
-> Please use the patch here. It will be push to upstream very soon.
-> http://bughost.org/bugzilla/show_bug.cgi?id=808
+------=_Part_3437_32612634.1132917131088
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-The offsets of the patch are off by several hundred lines,
- however the patch itself works fine. Thanks !
+Hi,
 
---alessandro
+I'm having some strange software/package compile problem under Gentoo
+and kernels with 2.6.15-rc1/rc2 and 2.6.15-rc1-mm2. When I
+install/update a package via emerge, I got occasional hangs at compile
+time. When this happenned, system continues to work. No error
+messages, no interruption. Just the compile process hangs. Killing
+this hanged process is impossible. Immediately, it becomes Zombie
+process. Also, Reboot and poweroff hangs, too. Just hard
+reboot/poweroff solves it. I've never had this problem under 2.6.14
+and downwards.
+My ver_linux is attached.
 
- "So much can happen by accident
-  No rhyme, no reason - no one's innocent"
+PS: I found a way to reproduce this; installing/updating "man-pages"
+package under Gentoo always hangs.
 
-   (Steve Wynn - "Under The Weather")
+
+Regards.
+
+------=_Part_3437_32612634.1132917131088
+Content-Type: application/octet-stream; name=ver_linux.out
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="ver_linux.out"
+
+Linux hightemple 2.6.14 #1 Fri Oct 28 23:02:31 Local time zone must be set--see zic manu i686 Intel(R) Pentium(R) M processor 1400MHz GenuineIntel GNU/Linux
+
+Gnu C                  3.4.4
+Gnu make               3.80
+binutils               2.16.1
+util-linux             2.12r
+mount                  2.12r
+module-init-tools      3.2-pre7
+e2fsprogs              1.38
+reiserfsprogs          3.6.19
+reiser4progs           line
+xfsprogs               2.6.36
+pcmcia-cs              3.2.8
+quota-tools            3.13.
+Linux C Library        2.3.5
+Dynamic linker (ldd)   2.3.5
+Procps                 3.2.5
+Net-tools              1.60
+Kbd                    1.12
+Sh-utils               5.3.0
+udev                   073
+Modules Loaded         arc4 pcmcia yenta_socket rsrc_nonstatic pcmcia_core rfcomm l2cap snd_pcm_oss snd_mixer_oss snd_seq_dummy snd_seq_oss snd_seq_midi_event snd_seq snd_seq_device snd_intel8x0m snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd soundcore snd_page_alloc ntfs ieee80211_crypt_tkip ieee80211_crypt_ccmp usbhid ieee80211_crypt_wep ipw2100 ieee80211 ieee80211_crypt firmware_class e100 mii bluetooth uhci_hcd ehci_hcd ohci_hcd usb_storage usbcore scsi_mod as_iosched agpgart 
+
+------=_Part_3437_32612634.1132917131088--

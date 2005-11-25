@@ -1,69 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751451AbVKYLV0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbVKYLxL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751451AbVKYLV0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 06:21:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751453AbVKYLV0
+	id S1751017AbVKYLxL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 06:53:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751454AbVKYLxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 06:21:26 -0500
-Received: from fw.archivum.info ([213.41.184.212]:38799 "EHLO
-	smtp.trashmail.net") by vger.kernel.org with ESMTP id S1751451AbVKYLVZ
+	Fri, 25 Nov 2005 06:53:11 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:23558 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1751017AbVKYLxK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 06:21:25 -0500
-Date: Fri, 25 Nov 2005 12:21:18 +0100
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] Announcing NOOFS 0.8 Release Candidate
-Message-ID: <20051125112118.GA18692@archivum.info>
-Mime-Version: 1.0
+	Fri, 25 Nov 2005 06:53:10 -0500
+To: Rob Landley <rob@landley.net>
+Cc: Neil Brown <neilb@suse.de>, Al Viro <viro@ftp.linux.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: pivot_root broken in 2.6.15-rc1-mm2
+References: <17283.52960.913712.454816@cse.unsw.edu.au>
+	<20051123021545.GP27946@ftp.linux.org.uk>
+	<17283.56197.347658.787608@cse.unsw.edu.au>
+	<200511230602.53960.rob@landley.net>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: it's not slow --- it's stately.
+Date: Fri, 25 Nov 2005 11:52:33 +0000
+In-Reply-To: <200511230602.53960.rob@landley.net> (Rob Landley's message of
+ "23 Nov 2005 12:03:42 -0000")
+Message-ID: <87psopkkqm.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-From: mailarch@archivum.info
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The NOOFS development team is proud to announce its new release version 0.8
-of its new network file system.
+On 23 Nov 2005, Rob Landley gibbered uncontrollably:
+> Rather than unmounting rootfs, it deletes everything out of it to free up the 
+> space.  (It basically does the functional equivalent of "find / -xdev | xargs 
+> rm -rf"
 
-The project is developed within the framework of an end of studies
-project in EPITECH. The major goal of this project is to provide a
-file system storing its data in an SQL relational database (MySQL,
-PostgreSQL, Oracle...). NOOFS is an experimental project which gives
-solution to the problems and limitations of the current file system.
+Er, find / -xdev | xargs rm -f, I hope.
 
-In this direction NOOFS allows:
-
-* Sharing data through the network
-* Advanced security management
-* Quick search thanks to database engine
-* Extended information on the file system elements
-* Virtual Directories Management: folder with dynamic contents
-* Native data integrity management
-
-
-Changes since version 0.7:
-
-- New FUSE client with enhanced cache support (FUSE >= 2.4.0)
-  We recommend to try this new client instead of using the classic kernel
-  driver for the moment.
-
-- PostgreSQL 8.0 driver fixed
-
-- Major improvements of MySQL 4.1 driver
-
-- New support of MySQL 5.0
-
-- Major bug fixes in the kernel FS driver for kernel 2.6.x.x
-
-- libxml2 removed: NOOFS no more use the libxml2 to have less packages
-  dependencies
-
-- Major bug and security fixes for the whole project
-
-
-If you are interessted, download the latest source code of NOOFS at:
-http://www.noofs.org/
+(rm won't respect the -xdev you gave to find, and, well, if your new root is
+mounted at all, you're dead :) )
 
 -- 
-Best regards,
-the NOOFS development team.
-E-Mail: contact@noofs.org
+`Y'know, London's nice at this time of year. If you like your cities
+ freezing cold and full of surly gits.' --- David Damerell
+

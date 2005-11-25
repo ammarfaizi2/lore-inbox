@@ -1,44 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750859AbVKYHjk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751417AbVKYHxL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750859AbVKYHjk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 02:39:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbVKYHjk
+	id S1751417AbVKYHxL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 02:53:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbVKYHxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 02:39:40 -0500
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:20374 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP
-	id S1750859AbVKYHjj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 02:39:39 -0500
-X-ORBL: [70.132.51.62]
-Date: Thu, 24 Nov 2005 23:38:54 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
-       Andi Kleen <ak@suse.de>, Gerd Knorr <kraxel@suse.de>,
-       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-Message-ID: <20051125073854.GA16771@taniwha.stupidest.org>
-References: <438359D7.7090308@suse.de> <p7364qjjhqx.fsf@verdi.suse.de> <1132764133.7268.51.camel@localhost.localdomain> <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org>
+	Fri, 25 Nov 2005 02:53:11 -0500
+Received: from ns.km0613.keymachine.de ([62.141.48.135]:25002 "EHLO
+	km0613.keymachine.de") by vger.kernel.org with ESMTP
+	id S1751414AbVKYHxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Nov 2005 02:53:10 -0500
+Message-ID: <4386C2DA.6070002@hartl-it.de>
+Date: Fri, 25 Nov 2005 08:52:58 +0100
+From: Manuel Hartl <mhartl@hartl-it.de>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051016)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org>
+To: linux-kernel@vger.kernel.org
+Subject: USB module crash
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 01:36:08PM -0800, Linus Torvalds wrote:
+hi list,
 
-> Actual UP machines are going to go away - even ARM is going SMP, and
-> in the PC space, we'll have multi-core laptops probably being the
-> rule rather than the exception in a couple of years.
+last night (i think again) usb module(s) crashed. the running usb 
+devices are a avm fritz usb dsl 2 and a usb mouse. i do not think this 
+is avm related (cdslusb2 module), maybe an acpi/power management error?
 
-CPUs in embedded the space could outnumber desktops & servers greatly
-(cell phones, access pointers, routers, media players, etc).  Most of
-these will be UP for some time.
+please loook at the included stack trace.
+can someone tell me (by looking at the trace), what could be the problem 
+here?
+
+hardware:
+asus a8v deluxe (via k8t800 chipset) / socket 939 / amd64 3000+
+cool and quiet was active in bios, but no module was loaded 
+(powernow_k8), acpi/apic is enabled.
+
+
+
+Nov 25 02:26:40 media kernel:  [<c029b1ec>] kref_get+0x3c/0x40
+Nov 25 02:26:40 media kernel:  [<f89a2f9c>] usb_get_urb+0xc/0x10 [usbcore]
+Nov 25 02:26:40 media kernel:  [<f89a212a>] hcd_submit_urb+0xda/0x1f0 
+[usbcore]
+Nov 25 02:26:40 media kernel:  [<f89a31b6>] usb_submit_urb+0x216/0x3e0 
+[usbcore]
+Nov 25 02:26:40 media kernel:  [<f89a31b6>] usb_submit_urb+0x216/0x3e0 
+[usbcore]
+Nov 25 02:26:40 media kernel:  [<fa59e2cb>] LeaveCritical+0xb/0x10 
+[fcdslusb2]
+Nov 25 02:26:40 media kernel:  [<fa60943e>] usb_write+0xee/0xf0 [fcdslusb2]
+Nov 25 02:26:40 media kernel:  [<fa609494>] usb_read+0x54/0xa0 [fcdslusb2]
+Nov 25 02:26:40 media kernel:  [<fa6095c1>] os_usb_submit_tx+0x61/0x80 
+[fcdslusb2]
+Nov 25 02:26:40 media kernel:  [<fa609d65>] OSHWTxBuffer+0x65/0x80 
+[fcdslusb2]
+Nov 25 02:26:40 media kernel:  [<fa5e7e00>] Block_TxHandler+0x0/0x10 
+[fcdslusb2]
+Nov 25 02:26:40 media kernel:  [<fa5e7e71>] Block_TxSend+0x21/0x70 
+[fcdslusb2]
+Nov 25 02:26:40 media kernel:  [<fa5e84cc>] Block_RxHandler+0x42c/0x500 
+[fcdslusb2]
+Nov 25 02:26:40 media kernel:  [<fa609110>] rx_handler+0xc0/0xd0 [fcdslusb2]
+Nov 25 02:26:40 media kernel:  [<c011b72a>] tasklet_action+0x3a/0x60
+Nov 25 02:26:40 media kernel:  [<c011b492>] __do_softirq+0x42/0x90
+Nov 25 02:26:40 media kernel:  [<c011b506>] do_softirq+0x26/0x30
+Nov 25 02:26:40 media kernel:  [<c0104a2e>] do_IRQ+0x1e/0x30
+Nov 25 02:26:40 media kernel:  [<c0103516>] common_interrupt+0x1a/0x20
+Nov 25 02:26:40 media kernel:  [<c02e1bf3>] acpi_processor_idle+0x0/0x27f
+Nov 25 02:26:40 media kernel:  [<c02e1cf4>] acpi_processor_idle+0x101/0x27f
+Nov 25 02:26:40 media kernel:  [<c0100ca2>] cpu_idle+0x42/0x60
+Nov 25 02:26:40 media kernel:  [<c04a281f>] start_kernel+0x16f/0x1b0
+Nov 25 02:26:40 media kernel:  [<c04a2380>] unknown_bootoption+0x0/0x1d0
+
+
+greetings,
+	manuel.

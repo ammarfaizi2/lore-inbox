@@ -1,55 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932691AbVKYNzf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161087AbVKYOKd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932691AbVKYNzf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 08:55:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932693AbVKYNzf
+	id S1161087AbVKYOKd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 09:10:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161091AbVKYOKd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 08:55:35 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:16071 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932691AbVKYNze (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 08:55:34 -0500
-Date: Fri, 25 Nov 2005 14:55:33 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: "Schultheiss, Christoph" <Christoph.Schultheiss@eurocopter.com>,
-       john stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: duration of udelay differs with activated realtime-preempt patch?
-Message-ID: <20051125135533.GA12823@elte.hu>
-References: <B7DA45CF87D412408436D5ECAAB9B90F6E7A06@sma2906.cr.eurocopter.corp> <1132925285.6694.9.camel@localhost.localdomain>
+	Fri, 25 Nov 2005 09:10:33 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:12504 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1161087AbVKYOKc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Nov 2005 09:10:32 -0500
+Subject: Assorted bugs in the PIIX drivers
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 25 Nov 2005 14:43:28 +0000
+Message-Id: <1132929808.3298.18.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1132925285.6694.9.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I finally got all the documents rounded up to try and redo Jgarzik's
+PIIX driver a bit more completely (I'm short MPIIX if anyone has it ?)
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+I then started reading the docs and the code and noticing a couple of
+problems
 
-> > after measuring the duration of the function udelay (with oscilloscope
-> > at parallel port), I figured out that udelay (5usec) with activated
-> > realtime- preempt patch lasts a little bit longer. Without the patch the
-> > time is exact.
-> > All kernel debug switches are turned off at compile time.
-> > Can anyone suggest why this happens?
-> 
-> Well, the -rt patch, has changed the udelay function.  BTW, you are 
-> using the constant udelay, right?  Maybe an example of the code you 
-> used to test might be useful.
-> 
-> Ingo or John?
+1.	We set IE1 on PIO0-2 which the docs say is for PIO3+
 
-yes, i found this problem too, a week ago or so. It's due to the GTOD 
-changes to i386's __delay() function. Does it still occur with -rt15 
-[which has the -B11 GTOD patchset] ?
+2.	The ata_piix one (but not the ide/pci one) have shifts wrong so that
+the secondary slave timings are half loaded into the primary slave
 
-	Ingo
+
+I'm also not clear if the "no MWDMA0" list has been updated correctly
+for the newer chipsets.
+
+I've yet to review the DMA programming, just the PIO so far.
+

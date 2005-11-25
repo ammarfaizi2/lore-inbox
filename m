@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751485AbVKYWUc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751486AbVKYW1c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751485AbVKYWUc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 17:20:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751486AbVKYWUc
+	id S1751486AbVKYW1c (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 17:27:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751488AbVKYW1c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 17:20:32 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:22248
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1751485AbVKYWUb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 17:20:31 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH] make miniconfig (take 2)
-Date: Fri, 25 Nov 2005 16:20:12 -0600
-User-Agent: KMail/1.8
-Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
-       Sam Ravnborg <sam@ravnborg.org>
-References: <200511170629.42389.rob@landley.net> <200511251545.32343.rob@landley.net> <20051125220934.GA2268@elf.ucw.cz>
-In-Reply-To: <20051125220934.GA2268@elf.ucw.cz>
+	Fri, 25 Nov 2005 17:27:32 -0500
+Received: from smtp111.sbc.mail.re2.yahoo.com ([68.142.229.94]:21102 "HELO
+	smtp111.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1751486AbVKYW1b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Nov 2005 17:27:31 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Marc Koschewski <marc@osknowledge.org>
+Subject: Re: Mouse issues in -mm
+Date: Fri, 25 Nov 2005 17:27:24 -0500
+User-Agent: KMail/1.8.3
+Cc: Frank Sorenson <frank@tuxrocks.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Harald Welte <laforge@netfilter.org>
+References: <20051123033550.00d6a6e8.akpm@osdl.org> <200511232226.44459.dtor_core@ameritech.net> <20051124094019.GA6788@stiffy.osknowledge.org>
+In-Reply-To: <20051124094019.GA6788@stiffy.osknowledge.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200511251620.12996.rob@landley.net>
+Message-Id: <200511251727.24630.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 25 November 2005 16:09, Pavel Machek wrote:
-> Ouch, I guess I killed my .config :-(. It seems that interrupted
-> miniconfig.sh leaves .config in close to empty state...
+On Thursday 24 November 2005 04:40, Marc Koschewski wrote:
+> I don't know why my touchpad is not listed. I have one and it perfectly
+> works with X (same pointer as the mouse which is a Microsoft USB Wheel Mouse'
+> attached to PS/2 using an appropriate adapter.
+>
 
-That's why it insists you rename it in order to run it.
+[I dropped netdev list from CC...] 
 
-I intend to fix that somewhat in a newer version of the sucker by having the 
-script intercept signals and restore .config on the way out, but it can't be 
-fully reliable (not against kill -9) because kconfig overwrites .config and 
-the script is repeatedly running allnoconfig.  (I can probably bypass the 
-makefile and feed it some strange command line argument, but what Kconfig to 
-run it on gets us into architecture dependence issues the make file handles 
-for us...)
-
-> I'm not sure what I did wrong last time, it worked this time. My
-> miniconfig is 6K instead of 46K, good. Still its quite long. Thanks!
-
-You mentioned you set a lot of options. :)
-
-I agree scripts/miniconfig.sh is clumsy.  I'm thinking about improvements 
-(both to how it works and to the user interface), but I need to catch up on 
-some other stuff first...
-
->        Pavel
-
-Rob
+You have a Dell Inspiron, right? On Inspirons (and Latitudes) mouse
+connected to external PS/2 port completely shadoes touchpad making
+it invisible to the kernel.
 -- 
-Steve Ballmer: Innovation!  Inigo Montoya: You keep using that word.
-I do not think it means what you think it means.
+Dmitry

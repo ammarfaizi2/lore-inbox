@@ -1,37 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751424AbVKYKLc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751427AbVKYK11@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751424AbVKYKLc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 05:11:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbVKYKLc
+	id S1751427AbVKYK11 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 05:27:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751435AbVKYK10
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 05:11:32 -0500
-Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:9057 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S1751424AbVKYKLc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 05:11:32 -0500
-Date: Fri, 25 Nov 2005 11:09:24 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Nick Warne <nick@linicks.net>
-cc: Ian McDonald <iam@st-andrews.ac.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] 1500 days uptime.
-In-Reply-To: <200511242258.15953.nick@linicks.net>
-Message-ID: <Pine.LNX.4.63.0511251106170.6764@gockel.physik3.uni-rostock.de>
-References: <200511242147.45248.nick@linicks.net> <200511242235.23724.nick@linicks.net>
- <438641F8.4030709@st-andrews.ac.uk> <200511242258.15953.nick@linicks.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 25 Nov 2005 05:27:26 -0500
+Received: from eurocopter-av-smtp1.gmessaging.net ([194.51.201.42]:25588 "EHLO
+	eurocopter-av-smtp1.gmessaging.net") by vger.kernel.org with ESMTP
+	id S1751427AbVKYK10 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Nov 2005 05:27:26 -0500
+Date: Fri, 25 Nov 2005 11:26:19 +0100
+From: "Schultheiss, Christoph" <Christoph.Schultheiss@eurocopter.com>
+Subject: duration of udelay differs with activated realtime-preempt patch?
+To: linux-kernel@vger.kernel.org
+Message-id: <B7DA45CF87D412408436D5ECAAB9B90F6E7A06@sma2906.cr.eurocopter.corp>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-class: urn:content-classes:message
+Thread-topic: duration of udelay differs with activated realtime-preempt patch?
+Thread-index: AcXxqqz1TfzKAUS9S++geYkGQ06R2g==
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+X-OriginalArrivalTime: 25 Nov 2005 10:26:19.0705 (UTC)
+ FILETIME=[ACE06A90:01C5F1AA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Nov 2005, Nick Warne wrote:
-> On Thursday 24 November 2005 22:43, Ian McDonald wrote:
-> >
-> > Talking of things wrapping, I see the load average counter rolls over at
-> > 1024. Any hints on getting real load averages when they're above 1024?
+kernel: 2.6.14 with and without the realtime-preempt patch
 
-You need to change LOAD_FREQ, FSHIFT, and EXP_1, EXP_5, EXP_15 in
-<linux/sched.h>.
+hi list,
 
-  http://sosdg.org/~coywolf/lxr/source/include/linux/sched.h?v=2.6.14#L69
+after measuring the duration of the function udelay (with oscilloscope
+at parallel port), I figured out that udelay (5usec) with activated
+realtime- preempt patch lasts a little bit longer. Without the patch the
+time is exact.
+All kernel debug switches are turned off at compile time.
+Can anyone suggest why this happens?
 
-Tim
+christoph

@@ -1,41 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932686AbVKYNVv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbVKYNRE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932686AbVKYNVv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 08:21:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932687AbVKYNVv
+	id S932316AbVKYNRE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 08:17:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbVKYNRE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 08:21:51 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:53408 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932686AbVKYNVu
+	Fri, 25 Nov 2005 08:17:04 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:174 "EHLO
+	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S932316AbVKYNRC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 08:21:50 -0500
-Subject: Re: [RFC] Small PCI core patch
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Robert Hancock <hancockr@shaw.ca>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <43868DCC.9090101@shaw.ca>
-References: <5bsXq-5uy-3@gated-at.bofh.it> <5bsXq-5uy-1@gated-at.bofh.it>
-	 <5btqF-66n-41@gated-at.bofh.it> <5bzmg-66b-1@gated-at.bofh.it>
-	 <5bHtG-228-23@gated-at.bofh.it>  <43868DCC.9090101@shaw.ca>
-Content-Type: text/plain
+	Fri, 25 Nov 2005 08:17:02 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Nix <nix@esperi.org.uk>
+Subject: Re: pivot_root broken in 2.6.15-rc1-mm2
+Date: Fri, 25 Nov 2005 07:16:28 -0600
+User-Agent: KMail/1.8
+Cc: Neil Brown <neilb@suse.de>, Al Viro <viro@ftp.linux.org.uk>,
+       linux-kernel@vger.kernel.org
+References: <17283.52960.913712.454816@cse.unsw.edu.au> <200511230602.53960.rob@landley.net> <87psopkkqm.fsf@amaterasu.srvr.nix>
+In-Reply-To: <87psopkkqm.fsf@amaterasu.srvr.nix>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Fri, 25 Nov 2005 13:54:37 +0000
-Message-Id: <1132926878.3298.10.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Disposition: inline
+Message-Id: <200511250716.29127.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-11-24 at 22:06 -0600, Robert Hancock wrote:
-> I suspect the amount of data going through is large enough that this 
-> wouldn't really be practical. I think you'd have to deal with the code 
-> generating GPU instructions having to be trusted and have the device 
-> interface require root privileges..
+On Friday 25 November 2005 05:52, Nix wrote:
+> On 23 Nov 2005, Rob Landley gibbered uncontrollably:
+> > Rather than unmounting rootfs, it deletes everything out of it to free up
+> > the space.  (It basically does the functional equivalent of "find / -xdev
+> > | xargs rm -rf"
+>
+> Er, find / -xdev | xargs rm -f, I hope.
 
-You may wish to compare your suspicion with the DRI driver for via GPUs
-which does exactly this without problem. The majority of video traffic
-is not GPU instructions but textures which go via a different route.
-Also the GPU streams are generally very clean to parse.
+Yeah. :)
 
-Alan
+> (rm won't respect the -xdev you gave to find, and, well, if your new root
+> is mounted at all, you're dead :) )
 
+It's C code, not shell, so that was off the top of my head. :)
+
+And that, in fact, is one of the big reasons that there's a utility for it: 
+not accidentally deleting anything out of your root partition is kind of 
+important.
+
+(Another is that calling chroot and such after deleting their binaries out of 
+initramfs but before the paths are adjusted so that the ones in the new root 
+can find their shared libraries is a bit of a headache.  It's a lot easier to 
+just have it all in one binary that's already loaded everything it needs and 
+frees its memory on exec.)
+
+Rob
+-- 
+Steve Ballmer: Innovation!  Inigo Montoya: You keep using that word.
+I do not think it means what you think it means.

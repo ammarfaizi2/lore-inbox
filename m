@@ -1,101 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932707AbVKYW6N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbVKYW75@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932707AbVKYW6N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 17:58:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932708AbVKYW6N
+	id S932264AbVKYW75 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 17:59:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932706AbVKYW75
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 17:58:13 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:22463 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932707AbVKYW6M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 17:58:12 -0500
-Subject: Re: [PATCH -rt] convert compat sem in block device sx8
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>, Daniel Walker <dwalker@mvista.com>,
-       Aleksey Makarov <amakarov@dev.rtsoft.ru>
-In-Reply-To: <1132959025.24417.30.camel@localhost.localdomain>
-References: <438709F5.1050801@dev.rtsoft.ru>
-	 <1132929218.11915.2.camel@localhost.localdomain>
-	 <1132959025.24417.30.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 25 Nov 2005 17:57:55 -0500
-Message-Id: <1132959475.24417.38.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Nov 2005 17:59:57 -0500
+Received: from mail-in-07.arcor-online.net ([151.189.21.47]:10657 "EHLO
+	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
+	id S932264AbVKYW74 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Nov 2005 17:59:56 -0500
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: defective RAM: corrupted ext3 FS. How to identify corrupted files/directories?
+To: jerome lacoste <jerome.lacoste@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Reply-To: 7eggert@gmx.de
+Date: Fri, 25 Nov 2005 23:49:43 +0100
+References: <5cJ9S-44L-3@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1EfmO0-0000rX-KE@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-11-25 at 17:50 -0500, Steven Rostedt wrote:
-> Ingo,
+jerome lacoste <jerome.lacoste@gmail.com> wrote:
+
+> My RAM died, and it corrupted my file system. It seems like this
+> machine just wants to die... [1]
 > 
-> I decided to add a few more conversions to the list :-)
+> After removing the faulty RAM, I can boot. I made extensive memtest86+ tests.
+> I now have my home partition mounted as read-only because of said corruption.
 > 
-> Here's sx8. Unfortunately, I was only able to test compiling it, since I
-> don't have the hardware. Hence, I'm not sending this to mainline unless
-> someone can test it on yours. (your patch is the new -mm ;-)
+> I see a bunch of "ext3_readdir: directory xxxx contains a hole at
+> offset xxxxx"  when I try to access some parts of my disk.
 > 
+> I postponed fscking the FS until I have identified the faulty data.
+> 
+> I was thinking of doing a rsync --dry-run against a known working
+> backup and check the logs. Any better idea? Is there a way to convert
+> the directory IDs into file paths?
+> 
+> I have around 500 000 files on that partition. It takes time checking them
+> all.
 
-Ack!  I sent this after making a small change and never refreshing
-quilt.  So this would not even compile!
-
-Here's the fixed patch:
-
--- Steve
-
-Index: linux-2.6.14-rt15/drivers/block/sx8.c
-===================================================================
---- linux-2.6.14-rt15.orig/drivers/block/sx8.c	2005-11-25 10:14:09.000000000 -0500
-+++ linux-2.6.14-rt15/drivers/block/sx8.c	2005-11-25 17:39:12.000000000 -0500
-@@ -27,6 +27,7 @@
- #include <linux/time.h>
- #include <linux/hdreg.h>
- #include <linux/dma-mapping.h>
-+#include <linux/completion.h>
- #include <asm/io.h>
- #include <asm/semaphore.h>
- #include <asm/uaccess.h>
-@@ -280,10 +281,7 @@
- 
- 	struct work_struct		fsm_task;
- 
--	/*
--	 * PREEMPT_RT: should be converted to completions.
--	 */
--	struct compat_semaphore		probe_sem;
-+	struct completion		probe_comp;
- };
- 
- struct carm_response {
-@@ -1345,7 +1343,7 @@
- 	}
- 
- 	case HST_PROBE_FINISHED:
--		up(&host->probe_sem);
-+		complete(&host->probe_comp);
- 		break;
- 
- 	case HST_ERROR:
-@@ -1621,7 +1619,7 @@
- 	host->flags = pci_dac ? FL_DAC : 0;
- 	spin_lock_init(&host->lock);
- 	INIT_WORK(&host->fsm_task, carm_fsm_task, host);
--	init_MUTEX_LOCKED(&host->probe_sem);
-+	init_completion(&host->probe_comp);
- 
- 	for (i = 0; i < ARRAY_SIZE(host->req); i++)
- 		host->req[i].tag = i;
-@@ -1690,8 +1688,8 @@
- 	if (rc)
- 		goto err_out_free_irq;
- 
--	DPRINTK("waiting for probe_sem\n");
--	down(&host->probe_sem);
-+	DPRINTK("waiting for probe_comp\n");
-+	wait_for_completion(&host->probe_comp);
- 
- 	printk(KERN_INFO "%s: pci %s, ports %d, io %lx, irq %u, major %d\n",
- 	       host->name, pci_name(pdev), (int) CARM_MAX_PORTS,
-
-
+1) Use the backup to get a base on a completely seperate HDD.
+1a) Feel glad about having a backup.
+2) Find new and changed files on the corrupted disk.
+3) For each of the files found, inspect it's contents and copy it over
+   if it's non-corrupted. You can't automatically find corrupted files
+   unless you know otherwise.
+4) mkfs
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

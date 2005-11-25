@@ -1,89 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751461AbVKYTbu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751462AbVKYTdb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751461AbVKYTbu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 14:31:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbVKYTbu
+	id S1751462AbVKYTdb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 14:33:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751465AbVKYTda
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 14:31:50 -0500
-Received: from smtp-105-friday.noc.nerim.net ([62.4.17.105]:29456 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1751461AbVKYTbt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 14:31:49 -0500
-Date: Fri, 25 Nov 2005 20:33:00 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Vishal Linux <vishal.linux@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: How to get SDA/SCL bit position in the control word register of
- the video card?
-Message-Id: <20051125203300.0899e9b7.khali@linux-fr.org>
-In-Reply-To: <e3e24c6a0511240245i1d395ae6g4d768a75a602d6ce@mail.gmail.com>
-References: <e3e24c6a0511240245i1d395ae6g4d768a75a602d6ce@mail.gmail.com>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 25 Nov 2005 14:33:30 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:61583 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751462AbVKYTd2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Nov 2005 14:33:28 -0500
+Subject: Re: 2.6.14-rt4: via DRM errors
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Jesse Barnes <jbarnes@virtuousgeek.org>,
+       dri-devel@lists.sourceforge.net,
+       Thomas =?ISO-8859-1?Q?Hellstr=F6m?= <unichrome@shipmail.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1132946629.20390.51.camel@mindpipe>
+References: <1132807985.1921.82.camel@mindpipe>
+	 <1132829378.3473.11.camel@mindpipe>
+	 <19379.192.138.116.230.1132836621.squirrel@192.138.116.230>
+	 <200511240731.56147.jbarnes@virtuousgeek.org>
+	 <1132945536.20390.39.camel@mindpipe>
+	 <1132946020.8990.7.camel@laptopd505.fenrus.org>
+	 <1132946629.20390.51.camel@mindpipe>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Fri, 25 Nov 2005 20:06:12 +0000
+Message-Id: <1132949172.7987.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Vishal,
-
-First of all, I would suggest that you post using your real name.
-Pretending that you are Linux on your own will not make you popular.
-
-> I am trying to communicate to the monitor eeprom to get the monitor
-> capabilities and for that i need to have SDA/SCL bit positions in the
-> control word register of the video card (to read and wrtie data using
-> i2c protocol).
+On Gwe, 2005-11-25 at 14:23 -0500, Lee Revell wrote:
+> On Fri, 2005-11-25 at 20:13 +0100, Arjan van de Ven wrote:
+> > of course sometimes having less but more coarse locks is actually
+> > faster. Taking/dropping a lock is not free. far from it. 
 > 
-> Different video card vendors have different offsets for the control
-> word register and different bit positions for SDA/SCL.
+> True but couldn't it be a problem for devices like unichrome where you
+> have 3D and MPEG acceleration and they have to play nice?  It just seems
+> like there may have been an implicit assumption that devices only
+> support one type of hardware acceleration.
 
-True, this is actually totally hardware-dependant.
+Not really. The DRI locking is what the driver makes of it. Generally
+GPUs are internally very coarse grained and don't like doing different
+jobs at the same time anyway.
 
-> I tried to use linux kernel API char* get_EDID_from_BIOS(void*) and
-> then using kgdb to debug the kernel module (that i wrote) to get the
-> same  but failed to find the way to get the above.
+The nearest thing I think to look at it as would be futex locks, and DRI
+could probably use futex locks with some glue for the X authentication
+side of things. However futex locks are not in FreeBSD and may never be
+(IBM patent questions for non-GPL), and DRI predates futexes by a large
+margin.
 
-I couldn't find any function by that name in the Linux kernel source
-tree. What are you talking about?
-
-> I do have the offset of the control word register and Masking Value of
-> Intel and Matrox card but i would like NOT to hardcode the masking
-> value and the offset in my code. This will lead me to modify  my code
-> for the different cards.
->
-> Is there any way to get the control word register's address (and then
-> SDA/SCL bit position) on the linux operating system. Is this
-> information available to linux kernel ?
-
-Support for different hardware belong to different drivers. If you are
-trying to put support for many incompatible chips in a single driver,
-you're doing something wrong.
-
-Anyway, we already have DDC (I2C) support for almost all graphics
-adapters in Linux. In most cases, the support is part of the
-framebuffer driver (radeonfb, i2c-matroxfb, i810fb, savagefb,
-nvidiafb.) We also have some legacy standalone drivers (i2c-810,
-i2c-prosavage, i2c-savage4, i2c-voodoo3) which should be obsoleted over
-time.
-
-So, although you didn't clearly say what you really were trying to do,
-it's almost certainly wrong. Don't go reinventing the wheel, use
-existing drivers. Once you have loaded the proper driver for your
-hardware, you can load the eeprom module to get access to the EDID
-data. There is an helper script, named ddcmon [1], in the lm_sensors
-package, which will decode the EDID data in a human-readable format.
-
-You may also want to take a look at an older program called read-edid
-[2], which does actually attempt to use the BIOS to retrieve the EDID,
-with varying success, then decodes it in a form suitable for X
-configuration files. This can be used in combination with another
-script from the lm_sensors package, decode-edid.pl [3], to get the same
-output from the i2c adapter and eeprom modules instead of BIOS.
-
-[1] http://www2.lm-sensors.nu/~lm78/cvs/lm_sensors2/prog/eeprom/ddcmon
-[2] http://john.fremlin.de/programs/linux/read-edid/
-[3] http://www2.lm-sensors.nu/~lm78/cvs/lm_sensors2/prog/eeprom/decode-edid.pl
-
--- 
-Jean Delvare

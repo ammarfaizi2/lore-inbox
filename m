@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161081AbVKYP3f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161100AbVKYPbs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161081AbVKYP3f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 10:29:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161100AbVKYP3f
+	id S1161100AbVKYPbs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 10:31:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161109AbVKYPbr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 10:29:35 -0500
-Received: from eurocopter-av-smtp1.gmessaging.net ([194.51.201.42]:57522 "EHLO
-	eurocopter-av-smtp1.gmessaging.net") by vger.kernel.org with ESMTP
-	id S1161081AbVKYP3e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 10:29:34 -0500
-Date: Fri, 25 Nov 2005 16:27:08 +0100
-From: "Schultheiss, Christoph" <Christoph.Schultheiss@eurocopter.com>
-Subject: AW: duration of udelay differs with activated realtime-preempt patch?
-To: Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>
-Cc: john stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org
-Message-id: <B7DA45CF87D412408436D5ECAAB9B90F6E7A22@sma2906.cr.eurocopter.corp>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-class: urn:content-classes:message
-Thread-topic: duration of udelay differs with activated realtime-preempt patch?
-Thread-index: AcXxx9l3sE4eff9FRc23NuWjK+NFxAACgKIQ
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-X-OriginalArrivalTime: 25 Nov 2005 15:27:09.0939 (UTC)
- FILETIME=[B3A78C30:01C5F1D4]
+	Fri, 25 Nov 2005 10:31:47 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:10709 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S1161100AbVKYPbr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Nov 2005 10:31:47 -0500
+Message-ID: <43872E5A.3030103@cosmosbay.com>
+Date: Fri, 25 Nov 2005 16:31:38 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Eric Dumazet <dada1@cosmosbay.com>
+CC: Wu Fengguang <wfg@mail.ustc.edu.cn>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 10/19] readahead: state based method
+References: <20051125151210.993109000@localhost.localdomain> <20051125151550.440541000@localhost.localdomain> <43872BF2.3030407@cosmosbay.com>
+In-Reply-To: <43872BF2.3030407@cosmosbay.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Fri, 25 Nov 2005 16:31:36 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > after measuring the duration of the function udelay (with
-oscilloscope
-> > > at parallel port), I figured out that udelay (5usec) with
-activated
-> > > realtime- preempt patch lasts a little bit longer. Without the
-patch the
-> > > time is exact.
-> > > All kernel debug switches are turned off at compile time.
-> > > Can anyone suggest why this happens?
-> > 
-> > Well, the -rt patch, has changed the udelay function.  BTW, you are 
-> > using the constant udelay, right?  Maybe an example of the code you 
-> > used to test might be useful.
-> > 
-> > Ingo or John?
->
-> yes, i found this problem too, a week ago or so. It's due to the GTOD 
-> changes to i386's __delay() function. Does it still occur with -rt15 
-> [which has the -B11 GTOD patchset] ?
+Eric Dumazet a écrit :
 
-I've done the first measurements only with rt5 and rt13. 
-Now with rt15 it looks fine (nice 5usec!)
+> Hum... This sizeof(struct file) increase seems quite large...
+> 
+> Have you ever considered to change struct file so that file_ra_state is 
+> not embedded, but dynamically allocated (or other strategy) for regular 
+> files ?
+> 
+> I mean, sockets, pipes cannot readahead... And some machines use far 
+> more sockets than regular files.
+> 
+> I wrote such a patch in the past I could resend...
 
-fine patch, thanks!
+http://marc.theaimsgroup.com/?l=linux-kernel&m=112435605407020&w=2
 
-christoph

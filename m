@@ -1,182 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161107AbVKYPFs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161103AbVKYPFH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161107AbVKYPFs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 10:05:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932694AbVKYPFs
+	id S1161103AbVKYPFH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 10:05:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932694AbVKYPFG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 10:05:48 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:54761 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1161105AbVKYPFc (ORCPT
+	Fri, 25 Nov 2005 10:05:06 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:22248 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S932699AbVKYPFD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 10:05:32 -0500
-Message-Id: <20051125151347.016081000@localhost.localdomain>
-References: <20051125151210.993109000@localhost.localdomain>
-Date: Fri, 25 Nov 2005 23:12:12 +0800
+	Fri, 25 Nov 2005 10:05:03 -0500
+Message-Id: <20051125151210.993109000@localhost.localdomain>
+Date: Fri, 25 Nov 2005 23:12:10 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <npiggin@suse.de>,
-       Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 02/19] vm: kswapd incmin
-Content-Disposition: inline; filename=vm-kswapd-incmin.patch
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 00/19] Adaptive read-ahead V8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Explicitly teach kswapd about the incremental min logic instead of just scanning
-all zones under the first low zone. This should keep more even pressure applied
-on the zones.
+Changelog
+=========
 
-Signed-off-by: Nick Piggin <npiggin@suse.de>
-Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
----
+V8  2005-11-25
+
+- balance zone aging only in page relaim paths and do it right
+- do the aging of slabs in the same way as zones
+- add debug code to dump the detailed page reclaim steps
+- undo exposing of struct radix_tree_node and uninline related functions
+- work better with nfsd
+- generalize accelerated context based read-ahead
+- account smooth read-ahead aging based on page referenced/activate bits
+- avoid divide error in compute_thrashing_threshold()
+- more low lantency efforts
+- update some comments
+- rebase debug actions on debugfs entries instead of magic readahead_ratio values
+
+V7  2005-11-09
+
+- new tunable parameters: readahead_hit_rate/readahead_live_chunk
+- support sparse sequential accesses
+- delay look-ahead if drive is spinned down in laptop mode
+- disable look-ahead for loopback file
+- make mandatory thrashing protection more simple and robust
+- attempt to improve responsiveness on large read-ahead size
+
+V6  2005-11-01
+
+- cancel look-ahead in laptop mode
+- increase read-ahead limit to 0xFFFF pages
+
+V5  2005-10-28
+
+- rewrite context based method to make it clean and robust
+- improved accuracy of stateful thrashing threshold estimation
+- make page aging equal to the number of code pages scanned
+- sort out the thrashing protection logic
+- enhanced debug/accounting facilities
+
+V4  2005-10-15
+
+- detect and save live chunks on page reclaim
+- support database workload
+- support reading backward
+- radix tree lookup look-aside cache
+
+V3  2005-10-06
+
+- major code reorganization and documention
+- stateful estimation of thrashing-threshold
+- context method with accelerated grow up phase
+- adaptive look-ahead
+- early detection and rescue of pages in danger
+- statitics data collection
+- synchronized page aging between zones
+
+V2  2005-09-15
+
+- delayed page activation
+- look-ahead: towards pipelined read-ahead
+
+V1  2005-09-13
+
+Initial release which features:
+        o stateless (for now)
+        o adapts to available memory / read speed
+        o free of thrashing (in theory)
+
+And handles:
+        o large number of slow streams (FTP server)
+	o open/read/close access patterns (NFS server)
+        o multiple interleaved, sequential streams in one file
+	  (multithread / multimedia / database)
 
 
-This patch is taken unchanged from Nick Piggin's work.
+Overview
+========
 
- mm/vmscan.c |  105 ++++++++++++++++++++----------------------------------------
- 1 files changed, 35 insertions(+), 70 deletions(-)
+The current read-ahead logic uses an inflexible algorithm with 128KB
+VM_MAX_READAHEAD. Less memory leads to thrashing, more memory helps no
+throughput. The new logic is simply safer and faster. It makes sure
+every single read-ahead request is safe for the current load. Memory
+tight systems are expected to benefit a lot: no thrashing any more.
+It can also help boost I/O throughput for large memory systems, for
+VM_MAX_READAHEAD now defaults to 1MB. The value is no longer tightly
+coupled with the thrashing problem, and therefore constrainted by it.
 
---- linux-2.6.15-rc2-mm1.orig/mm/vmscan.c
-+++ linux-2.6.15-rc2-mm1/mm/vmscan.c
-@@ -1314,97 +1314,63 @@ loop_again:
- 	}
- 
- 	for (priority = DEF_PRIORITY; priority >= 0; priority--) {
--		int end_zone = 0;	/* Inclusive.  0 = ZONE_DMA */
- 		unsigned long lru_pages = 0;
-+		int first_low_zone = 0;
- 
- 		all_zones_ok = 1;
-+		sc.nr_scanned = 0;
-+		sc.nr_reclaimed = 0;
-+		sc.priority = priority;
-+		sc.swap_cluster_max = nr_pages ? nr_pages : SWAP_CLUSTER_MAX;
- 
--		if (nr_pages == 0) {
--			/*
--			 * Scan in the highmem->dma direction for the highest
--			 * zone which needs scanning
--			 */
--			for (i = pgdat->nr_zones - 1; i >= 0; i--) {
--				struct zone *zone = pgdat->node_zones + i;
-+		/* Scan in the highmem->dma direction */
-+		for (i = pgdat->nr_zones - 1; i >= 0; i--) {
-+			struct zone *zone = pgdat->node_zones + i;
- 
--				if (!populated_zone(zone))
--					continue;
-+			if (!populated_zone(zone))
-+				continue;
- 
--				if (zone->all_unreclaimable &&
--						priority != DEF_PRIORITY)
-+			if (nr_pages == 0) {	/* Not software suspend */
-+				if (zone_watermark_ok(zone, order,
-+					zone->pages_high, first_low_zone, 0))
- 					continue;
- 
--				if (!zone_watermark_ok(zone, order,
--						zone->pages_high, 0, 0)) {
--					end_zone = i;
--					goto scan;
--				}
-+				all_zones_ok = 0;
-+				if (first_low_zone < i)
-+					first_low_zone = i;
- 			}
--			goto out;
--		} else {
--			end_zone = pgdat->nr_zones - 1;
--		}
--scan:
--		for (i = 0; i <= end_zone; i++) {
--			struct zone *zone = pgdat->node_zones + i;
--
--			lru_pages += zone->nr_active + zone->nr_inactive;
--		}
--
--		/*
--		 * Now scan the zone in the dma->highmem direction, stopping
--		 * at the last zone which needs scanning.
--		 *
--		 * We do this because the page allocator works in the opposite
--		 * direction.  This prevents the page allocator from allocating
--		 * pages behind kswapd's direction of progress, which would
--		 * cause too much scanning of the lower zones.
--		 */
--		for (i = 0; i <= end_zone; i++) {
--			struct zone *zone = pgdat->node_zones + i;
--			int nr_slab;
--
--			if (!populated_zone(zone))
--				continue;
- 
- 			if (zone->all_unreclaimable && priority != DEF_PRIORITY)
- 				continue;
- 
--			if (nr_pages == 0) {	/* Not software suspend */
--				if (!zone_watermark_ok(zone, order,
--						zone->pages_high, end_zone, 0))
--					all_zones_ok = 0;
--			}
- 			zone->temp_priority = priority;
- 			if (zone->prev_priority > priority)
- 				zone->prev_priority = priority;
--			sc.nr_scanned = 0;
--			sc.nr_reclaimed = 0;
--			sc.priority = priority;
--			sc.swap_cluster_max = nr_pages? nr_pages : SWAP_CLUSTER_MAX;
-+			lru_pages += zone->nr_active + zone->nr_inactive;
-+
- 			atomic_inc(&zone->reclaim_in_progress);
- 			shrink_zone(zone, &sc);
- 			atomic_dec(&zone->reclaim_in_progress);
--			reclaim_state->reclaimed_slab = 0;
--			nr_slab = shrink_slab(sc.nr_scanned, GFP_KERNEL,
--						lru_pages);
--			sc.nr_reclaimed += reclaim_state->reclaimed_slab;
--			total_reclaimed += sc.nr_reclaimed;
--			total_scanned += sc.nr_scanned;
--			if (zone->all_unreclaimable)
--				continue;
--			if (nr_slab == 0 && zone->pages_scanned >=
-+
-+			if (zone->pages_scanned >=
- 				    (zone->nr_active + zone->nr_inactive) * 4)
- 				zone->all_unreclaimable = 1;
--			/*
--			 * If we've done a decent amount of scanning and
--			 * the reclaim ratio is low, start doing writepage
--			 * even in laptop mode
--			 */
--			if (total_scanned > SWAP_CLUSTER_MAX * 2 &&
--			    total_scanned > total_reclaimed+total_reclaimed/2)
--				sc.may_writepage = 1;
- 		}
-+		reclaim_state->reclaimed_slab = 0;
-+		shrink_slab(sc.nr_scanned, GFP_KERNEL, lru_pages);
-+		sc.nr_reclaimed += reclaim_state->reclaimed_slab;
-+		total_reclaimed += sc.nr_reclaimed;
-+		total_scanned += sc.nr_scanned;
-+
-+		/*
-+		 * If we've done a decent amount of scanning and
-+		 * the reclaim ratio is low, start doing writepage
-+		 * even in laptop mode
-+		 */
-+		if (total_scanned > SWAP_CLUSTER_MAX * 2 &&
-+		    total_scanned > total_reclaimed+total_reclaimed/2)
-+			sc.may_writepage = 1;
-+
- 		if (nr_pages && to_free > total_reclaimed)
- 			continue;	/* swsusp: need to do more work */
- 		if (all_zones_ok)
-@@ -1425,7 +1391,6 @@ scan:
- 		if ((total_reclaimed >= SWAP_CLUSTER_MAX) && (!nr_pages))
- 			break;
- 	}
--out:
- 	for (i = 0; i < pgdat->nr_zones; i++) {
- 		struct zone *zone = pgdat->node_zones + i;
- 
-
+Thanks,
+Wu Fengguang
 --
+Dept. Automation                University of Science and Technology of China

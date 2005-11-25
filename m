@@ -1,86 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932445AbVKYWyA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932707AbVKYW6N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932445AbVKYWyA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 17:54:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932705AbVKYWyA
+	id S932707AbVKYW6N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 17:58:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932708AbVKYW6N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 17:54:00 -0500
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:13499 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932445AbVKYWx7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 17:53:59 -0500
-Subject: [PATCH -rt] convert watchdog cpu5wdt from compat_sem to completion.
+	Fri, 25 Nov 2005 17:58:13 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:22463 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932707AbVKYW6M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Nov 2005 17:58:12 -0500
+Subject: Re: [PATCH -rt] convert compat sem in block device sx8
 From: Steven Rostedt <rostedt@goodmis.org>
 To: Ingo Molnar <mingo@elte.hu>
 Cc: LKML <linux-kernel@vger.kernel.org>, Daniel Walker <dwalker@mvista.com>,
        Aleksey Makarov <amakarov@dev.rtsoft.ru>
-In-Reply-To: <1132929218.11915.2.camel@localhost.localdomain>
+In-Reply-To: <1132959025.24417.30.camel@localhost.localdomain>
 References: <438709F5.1050801@dev.rtsoft.ru>
 	 <1132929218.11915.2.camel@localhost.localdomain>
+	 <1132959025.24417.30.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Fri, 25 Nov 2005 17:53:49 -0500
-Message-Id: <1132959229.24417.35.camel@localhost.localdomain>
+Date: Fri, 25 Nov 2005 17:57:55 -0500
+Message-Id: <1132959475.24417.38.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK Ingo,
+On Fri, 2005-11-25 at 17:50 -0500, Steven Rostedt wrote:
+> Ingo,
+> 
+> I decided to add a few more conversions to the list :-)
+> 
+> Here's sx8. Unfortunately, I was only able to test compiling it, since I
+> don't have the hardware. Hence, I'm not sending this to mainline unless
+> someone can test it on yours. (your patch is the new -mm ;-)
+> 
 
-This one is the last.  Of the compat_semaphores in drivers that I looked
-at, these were the trivial ones.  The other ones I would not touch
-unless I had hardware to test with, or the time to look deeper into it.
+Ack!  I sent this after making a small change and never refreshing
+quilt.  So this would not even compile!
+
+Here's the fixed patch:
 
 -- Steve
 
-Index: linux-2.6.14-rt15/drivers/char/watchdog/cpu5wdt.c
+Index: linux-2.6.14-rt15/drivers/block/sx8.c
 ===================================================================
---- linux-2.6.14-rt15.orig/drivers/char/watchdog/cpu5wdt.c	2005-11-25 10:14:09.000000000 -0500
-+++ linux-2.6.14-rt15/drivers/char/watchdog/cpu5wdt.c	2005-11-25 16:57:31.000000000 -0500
-@@ -28,6 +28,7 @@
- #include <linux/init.h>
- #include <linux/ioport.h>
- #include <linux/timer.h>
+--- linux-2.6.14-rt15.orig/drivers/block/sx8.c	2005-11-25 10:14:09.000000000 -0500
++++ linux-2.6.14-rt15/drivers/block/sx8.c	2005-11-25 17:39:12.000000000 -0500
+@@ -27,6 +27,7 @@
+ #include <linux/time.h>
+ #include <linux/hdreg.h>
+ #include <linux/dma-mapping.h>
 +#include <linux/completion.h>
  #include <asm/io.h>
+ #include <asm/semaphore.h>
  #include <asm/uaccess.h>
+@@ -280,10 +281,7 @@
  
-@@ -56,7 +57,7 @@
- /* some device data */
+ 	struct work_struct		fsm_task;
  
- static struct {
--	struct compat_semaphore stop;
-+	struct completion stop;
- 	volatile int running;
- 	struct timer_list timer;
- 	volatile int queue;
-@@ -84,7 +85,7 @@
- 	}
- 	else {
- 		/* ticks doesn't matter anyway */
--		up(&cpu5wdt_device.stop);
-+		complete(&cpu5wdt_device.stop);
+-	/*
+-	 * PREEMPT_RT: should be converted to completions.
+-	 */
+-	struct compat_semaphore		probe_sem;
++	struct completion		probe_comp;
+ };
+ 
+ struct carm_response {
+@@ -1345,7 +1343,7 @@
  	}
  
- }
-@@ -238,7 +239,7 @@
- 	if ( !val )
- 		printk(KERN_INFO PFX "sorry, was my fault\n");
+ 	case HST_PROBE_FINISHED:
+-		up(&host->probe_sem);
++		complete(&host->probe_comp);
+ 		break;
  
--	init_MUTEX_LOCKED(&cpu5wdt_device.stop);
-+	init_completion(&cpu5wdt_device.stop);
- 	cpu5wdt_device.queue = 0;
+ 	case HST_ERROR:
+@@ -1621,7 +1619,7 @@
+ 	host->flags = pci_dac ? FL_DAC : 0;
+ 	spin_lock_init(&host->lock);
+ 	INIT_WORK(&host->fsm_task, carm_fsm_task, host);
+-	init_MUTEX_LOCKED(&host->probe_sem);
++	init_completion(&host->probe_comp);
  
- 	clear_bit(0, &cpu5wdt_device.inuse);
-@@ -268,7 +269,7 @@
- {
- 	if ( cpu5wdt_device.queue ) {
- 		cpu5wdt_device.queue = 0;
--		down(&cpu5wdt_device.stop);
-+		wait_for_completion(&cpu5wdt_device.stop);
- 	}
+ 	for (i = 0; i < ARRAY_SIZE(host->req); i++)
+ 		host->req[i].tag = i;
+@@ -1690,8 +1688,8 @@
+ 	if (rc)
+ 		goto err_out_free_irq;
  
- 	misc_deregister(&cpu5wdt_misc);
+-	DPRINTK("waiting for probe_sem\n");
+-	down(&host->probe_sem);
++	DPRINTK("waiting for probe_comp\n");
++	wait_for_completion(&host->probe_comp);
+ 
+ 	printk(KERN_INFO "%s: pci %s, ports %d, io %lx, irq %u, major %d\n",
+ 	       host->name, pci_name(pdev), (int) CARM_MAX_PORTS,
 
 

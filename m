@@ -1,267 +1,320 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932697AbVKYPGT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932699AbVKYPHy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932697AbVKYPGT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 10:06:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932694AbVKYPGT
+	id S932699AbVKYPHy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 10:07:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932695AbVKYPGw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 10:06:19 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:5867 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1161108AbVKYPGE (ORCPT
+	Fri, 25 Nov 2005 10:06:52 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:5612 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S932698AbVKYPGt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 10:06:04 -0500
-Message-Id: <20051125151417.771819000@localhost.localdomain>
+	Fri, 25 Nov 2005 10:06:49 -0500
+Message-Id: <20051125151504.038114000@localhost.localdomain>
 References: <20051125151210.993109000@localhost.localdomain>
-Date: Fri, 25 Nov 2005 23:12:14 +0800
+Date: Fri, 25 Nov 2005 23:12:17 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 04/19] mm: debug page reclaim
-Content-Disposition: inline; filename=mm-debug-page-reclaim.patch
+Subject: [PATCH 07/19] readahead: some preparation
+Content-Disposition: inline; filename=readahead-prepare.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Show the detailed steps of early/direct/kswapd page reclaim.
-
-To enable the printk traces:
-# echo y > /debug/debug_page_reclaim
-
-Sample lines:
-
-reclaim zone2 from kswapd for watermark, prio 12, scan-reclaimed 33-31, age 1248, hot+cold+free pages 92563+25703+860
-reclaim zone2 from kswapd for watermark, prio 11, scan-reclaimed 33-32, age 1253, hot+cold+free pages 92547+25688+892
-reclaim zone2 from kswapd for watermark, prio 12, scan-reclaimed 33-32, age 1258, hot+cold+free pages 92547+25656+924
-reclaim zone2 from kswapd for watermark, prio 12, scan-reclaimed 33-29, age 1262, hot+cold+free pages 92532+25639+924
-reclaim zone2 from kswapd for watermark, prio 11, scan-reclaimed 33-28, age 1269, hot+cold+free pages 92531+25611+956
-reclaim zone2 from kswapd for watermark, prio 12, scan-reclaimed 33-31, age 1274, hot+cold+free pages 92535+25579+988
-reclaim zone2 from kswapd for watermark, prio 11, scan-reclaimed 33-29, age 1278, hot+cold+free pages 92518+25565+1020
-reclaim zone2 from kswapd for watermark, prio 12, scan-reclaimed 33-29, age 1282, hot+cold+free pages 92507+25547+1052
-reclaim zone2 from kswapd for aging, prio 11, scan-reclaimed 33-27, age 1287, hot+cold+free pages 92506+25519+1084
-reclaim zone2 from direct for aging, prio 12, scan-reclaimed 33-29, age 1292, hot+cold+free pages 92505+25494+1116
-reclaim zone2 from direct for aging, prio 11, scan-reclaimed 33-32, age 1297, hot+cold+free pages 92506+25464+1148
-reclaim zone2 from kswapd for watermark, prio 12, scan-reclaimed 33-32, age 1302, hot+cold+free pages 92506+25746+860
-reclaim zone2 from kswapd for watermark, prio 12, scan-reclaimed 33-32, age 1307, hot+cold+free pages 92488+25732+892
-reclaim zone2 from kswapd for watermark, prio 12, scan-reclaimed 33-32, age 1312, hot+cold+free pages 92488+25700+924
-reclaim zone2 from kswapd for watermark, prio 12, scan-reclaimed 33-32, age 1316, hot+cold+free pages 92481+25675+956
-reclaim zone2 from kswapd for watermark, prio 12, scan-reclaimed 33-32, age 1322, hot+cold+free pages 92481+25643+988
-reclaim zone2 from kswapd for watermark, prio 12, scan-reclaimed 33-32, age 1326, hot+cold+free pages 92474+25618+1020
-reclaim zone2 from kswapd for watermark, prio 12, scan-reclaimed 33-32, age 1331, hot+cold+free pages 92474+25586+1052
-reclaim zone2 from kswapd for aging, prio 12, scan-reclaimed 33-32, age 1336, hot+cold+free pages 92474+25554+1084
-reclaim zone2 from direct for aging, prio 12, scan-reclaimed 33-32, age 1341, hot+cold+free pages 92474+25522+1116
-reclaim zone2 from direct for aging, prio 12, scan-reclaimed 33-32, age 1347, hot+cold+free pages 92470+25744+892
-reclaim zone2 from kswapd for watermark, prio 12, scan-reclaimed 33-32, age 1352, hot+cold+free pages 92463+25712+924
-reclaim zone2 from kswapd for watermark, prio 12, scan-reclaimed 33-25, age 1357, hot+cold+free pages 92462+25681+956
+Some random changes that do not fit in elsewhere.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
+ include/linux/mm.h |    7 +
+ mm/readahead.c     |  193 ++++++++++++++++++++++++++++++++++++++++++++++++++---
+ 2 files changed, 191 insertions(+), 9 deletions(-)
 
- mm/vmscan.c |   90 ++++++++++++++++++++++++++++++++++++++++++++++++++----------
- 1 files changed, 75 insertions(+), 15 deletions(-)
-
---- linux-2.6.15-rc2-mm1.orig/mm/vmscan.c
-+++ linux-2.6.15-rc2-mm1/mm/vmscan.c
-@@ -38,6 +38,7 @@
- #include <asm/div64.h>
+--- linux-2.6.15-rc2-mm1.orig/include/linux/mm.h
++++ linux-2.6.15-rc2-mm1/include/linux/mm.h
+@@ -986,6 +986,13 @@ void handle_ra_miss(struct address_space
+ 		    struct file_ra_state *ra, pgoff_t offset);
+ unsigned long max_sane_readahead(unsigned long nr);
  
- #include <linux/swapops.h>
-+#include <linux/debugfs.h>
- 
- /* possible outcome of pageout() */
- typedef enum {
-@@ -72,10 +73,7 @@ struct scan_control {
- 	/* This context's GFP mask */
- 	gfp_t gfp_mask;
- 
--	int may_writepage;
--
--	/* Can pages be swapped as part of reclaim? */
--	int may_swap;
-+	unsigned long flags;
- 
- 	/* This context's SWAP_CLUSTER_MAX. If freeing memory for
- 	 * suspend, we effectively ignore SWAP_CLUSTER_MAX.
-@@ -84,6 +82,59 @@ struct scan_control {
- 	int swap_cluster_max;
- };
- 
-+#define SC_RECLAIM_FROM_KSWAPD		0x01
-+#define SC_RECLAIM_FROM_DIRECT		0x02
-+#define SC_RECLAIM_FROM_EARLY		0x04
-+#define SC_RECLAIM_FOR_WATERMARK	0x10
-+#define SC_RECLAIM_FOR_AGING		0x20
-+#define SC_RECLAIM_MASK			0xFF
-+
-+#define SC_MAY_WRITEPAGE		0x100
-+#define SC_MAY_SWAP			0x200	/* Can pages be swapped as part of reclaim? */
-+
 +#ifdef CONFIG_DEBUG_FS
-+static u32 debug_page_reclaim;
-+
-+static inline void debug_reclaim(struct scan_control *sc, unsigned long flags)
-+{
-+	sc->flags = (sc->flags & ~SC_RECLAIM_MASK) | flags;
-+}
-+
-+static inline void debug_reclaim_report(struct scan_control *sc, struct zone *z)
-+{
-+	if (!debug_page_reclaim)
-+		return;
-+
-+	printk(KERN_DEBUG "reclaim zone%d from %s for %s, "
-+			"prio %d, scan-reclaimed %lu-%lu, age %lu, "
-+			"hot+cold+free pages %lu+%lu+%lu\n",
-+			zone_idx(z),
-+			(sc->flags & SC_RECLAIM_FROM_KSWAPD) ? "kswapd" :
-+			((sc->flags & SC_RECLAIM_FROM_DIRECT) ? "direct" :
-+								"early"),
-+			(sc->flags & SC_RECLAIM_FOR_AGING) ?
-+							"aging" : "watermark",
-+			sc->priority, sc->nr_scanned, sc->nr_reclaimed,
-+			z->page_age, z->nr_active, z->nr_inactive, z->free_pages);
-+}
-+
-+static inline void debug_reclaim_init(void)
-+{
-+	debugfs_create_bool("debug_page_reclaim", 0644, NULL,
-+							&debug_page_reclaim);
-+}
++extern u32 readahead_debug_level;
++#define READAHEAD_DEBUG_LEVEL(n)	(readahead_debug_level >= n)
 +#else
-+static inline void debug_reclaim(struct scan_control *sc, int flags)
-+{
-+}
-+static inline void debug_reclaim_report(struct scan_control *sc, struct zone *z)
-+{
-+}
-+static inline void debug_reclaim_init(void)
-+{
-+}
++#define READAHEAD_DEBUG_LEVEL(n)	(0)
 +#endif
 +
- #define lru_to_page(_head) (list_entry((_head)->prev, struct page, lru))
+ /* Do stack extension */
+ extern int expand_stack(struct vm_area_struct *vma, unsigned long address);
+ #ifdef CONFIG_IA64
+--- linux-2.6.15-rc2-mm1.orig/mm/readahead.c
++++ linux-2.6.15-rc2-mm1/mm/readahead.c
+@@ -15,13 +15,58 @@
+ #include <linux/backing-dev.h>
+ #include <linux/pagevec.h>
  
- #ifdef ARCH_HAS_PREFETCH
-@@ -499,7 +550,7 @@ static int shrink_list(struct list_head 
- 		 * Try to allocate it some swap space here.
- 		 */
- 		if (PageAnon(page) && !PageSwapCache(page)) {
--			if (!sc->may_swap)
-+			if (!(sc->flags & SC_MAY_SWAP))
- 				goto keep_locked;
- 			if (!add_to_swap(page, GFP_ATOMIC))
- 				goto activate_locked;
-@@ -530,7 +581,7 @@ static int shrink_list(struct list_head 
- 				goto keep_locked;
- 			if (!may_enter_fs)
- 				goto keep_locked;
--			if (laptop_mode && !sc->may_writepage)
-+			if (laptop_mode && !(sc->flags & SC_MAY_WRITEPAGE))
- 				goto keep_locked;
- 
- 			/* Page is dirty, try to write it out here */
-@@ -939,6 +990,7 @@ static void shrink_cache(struct zone *zo
- 			mod_page_state(kswapd_steal, nr_freed);
- 		mod_page_state_zone(zone, pgsteal, nr_freed);
- 		sc->nr_to_reclaim -= nr_freed;
-+		debug_reclaim_report(sc, zone);
- 
- 		spin_lock_irq(&zone->lru_lock);
- 		/*
-@@ -1216,11 +1268,14 @@ shrink_caches(struct zone **zones, struc
- 			continue;
- 		}
- 
-+		debug_reclaim(sc, SC_RECLAIM_FROM_DIRECT);
- 		shrink_zone(zone, sc);
- 	}
- 
--	if (z)
-+	if (z) {
-+		debug_reclaim(sc, SC_RECLAIM_FROM_DIRECT|SC_RECLAIM_FOR_AGING);
- 		shrink_zone(z, sc);
-+	}
++/* The default max/min read-ahead pages. */
++#define KB(size)	(((size)*1024 + PAGE_CACHE_SIZE-1) / PAGE_CACHE_SIZE)
++#define MAX_RA_PAGES	KB(VM_MAX_READAHEAD)
++#define MIN_RA_PAGES	KB(VM_MIN_READAHEAD)
++
++#define next_page(pg) (list_entry((pg)->lru.prev, struct page, lru))
++#define prev_page(pg) (list_entry((pg)->lru.next, struct page, lru))
++
++#define dprintk(args...) \
++	do { if (READAHEAD_DEBUG_LEVEL(1)) printk(KERN_DEBUG args); } while(0)
++#define ddprintk(args...) \
++	do { if (READAHEAD_DEBUG_LEVEL(2)) printk(KERN_DEBUG args); } while(0)
++
++/*
++ * Debug facilities.
++ */
++#ifdef CONFIG_DEBUG_FS
++#define DEBUG_READAHEAD
++#endif
++
++#ifdef DEBUG_READAHEAD
++#include <linux/jiffies.h>
++#include <linux/debugfs.h>
++#include <linux/seq_file.h>
++#include <linux/init.h>
++
++u32 readahead_debug_level = 0;
++
++static int __init readahead_init(void)
++{
++	struct dentry *root;
++
++	root = debugfs_create_dir("readahead", NULL);
++
++	debugfs_create_u32("debug_level", 0644, root, &readahead_debug_level);
++
++	return 0;
++}
++
++module_init(readahead_init)
++#else /* !DEBUG_READAHEAD */
++
++#endif /* DEBUG_READAHEAD */
++
++
+ void default_unplug_io_fn(struct backing_dev_info *bdi, struct page *page)
+ {
  }
-  
- /*
-@@ -1248,8 +1303,7 @@ int try_to_free_pages(struct zone **zone
- 	delay_prefetch();
+ EXPORT_SYMBOL(default_unplug_io_fn);
  
- 	sc.gfp_mask = gfp_mask;
--	sc.may_writepage = 0;
--	sc.may_swap = 1;
-+	sc.flags = SC_MAY_SWAP;
+ struct backing_dev_info default_backing_dev_info = {
+-	.ra_pages	= (VM_MAX_READAHEAD * 1024) / PAGE_CACHE_SIZE,
++	.ra_pages	= MAX_RA_PAGES,
+ 	.state		= 0,
+ 	.capabilities	= BDI_CAP_MAP_COPY,
+ 	.unplug_io_fn	= default_unplug_io_fn,
+@@ -50,7 +95,7 @@ static inline unsigned long get_max_read
  
- 	inc_page_state(allocstall);
- 
-@@ -1290,7 +1344,7 @@ int try_to_free_pages(struct zone **zone
- 		 */
- 		if (total_scanned > sc.swap_cluster_max + sc.swap_cluster_max/2) {
- 			wakeup_pdflush(laptop_mode ? 0 : total_scanned);
--			sc.may_writepage = 1;
-+			sc.flags |= SC_MAY_WRITEPAGE;
- 		}
- 
- 		/* Take a nap, wait for some writeback to complete */
-@@ -1365,8 +1419,7 @@ loop_again:
- 	total_scanned = 0;
- 	total_reclaimed = 0;
- 	sc.gfp_mask = GFP_KERNEL;
--	sc.may_writepage = 0;
--	sc.may_swap = 1;
-+	sc.flags = SC_MAY_SWAP;
- 	sc.nr_mapped = read_page_state(nr_mapped);
- 
- 	inc_page_state(pageoutrun);
-@@ -1395,10 +1448,16 @@ loop_again:
- 				if (!zone_watermark_ok(zone, order,
- 							zone->pages_high,
- 							0, 0)) {
-+					debug_reclaim(&sc,
-+							SC_RECLAIM_FROM_KSWAPD|
-+							SC_RECLAIM_FOR_WATERMARK);
- 					all_zones_ok = 0;
- 				} else if (zone == youngest_zone &&
- 						pages_more_aged(oldest_zone,
- 								youngest_zone)) {
-+					debug_reclaim(&sc,
-+							SC_RECLAIM_FROM_KSWAPD|
-+							SC_RECLAIM_FOR_AGING);
- 					/* if (priority > DEF_PRIORITY - 2) */
- 						/* all_zones_ok = 0; */
- 				} else
-@@ -1433,7 +1492,7 @@ loop_again:
- 		 */
- 		if (total_scanned > SWAP_CLUSTER_MAX * 2 &&
- 		    total_scanned > total_reclaimed+total_reclaimed/2)
--			sc.may_writepage = 1;
-+			sc.flags |= SC_MAY_WRITEPAGE;
- 
- 		if (nr_pages && to_free > total_reclaimed)
- 			continue;	/* swsusp: need to do more work */
-@@ -1623,6 +1682,7 @@ static int __init kswapd_init(void)
- 		= find_task_by_pid(kernel_thread(kswapd, pgdat, CLONE_KERNEL));
- 	total_memory = nr_free_pagecache_pages();
- 	hotcpu_notifier(cpu_callback, 0);
-+	debug_reclaim_init();
- 	return 0;
+ static inline unsigned long get_min_readahead(struct file_ra_state *ra)
+ {
+-	return (VM_MIN_READAHEAD * 1024) / PAGE_CACHE_SIZE;
++	return MIN_RA_PAGES;
  }
  
-@@ -1645,8 +1705,7 @@ int zone_reclaim(struct zone *zone, gfp_
- 		return 0;
- 
- 	sc.gfp_mask = gfp_mask;
--	sc.may_writepage = 0;
--	sc.may_swap = 0;
-+	sc.flags = 0;
- 	sc.nr_mapped = read_page_state(nr_mapped);
- 	sc.nr_scanned = 0;
- 	sc.nr_reclaimed = 0;
-@@ -1662,6 +1721,7 @@ int zone_reclaim(struct zone *zone, gfp_
- 	if (atomic_read(&zone->reclaim_in_progress) > 0)
+ static inline void ra_off(struct file_ra_state *ra)
+@@ -258,10 +303,11 @@ out:
+  */
+ static int
+ __do_page_cache_readahead(struct address_space *mapping, struct file *filp,
+-			pgoff_t offset, unsigned long nr_to_read)
++			pgoff_t offset, unsigned long nr_to_read,
++			unsigned long lookahead_size)
+ {
+ 	struct inode *inode = mapping->host;
+-	struct page *page;
++	struct page *page = NULL;
+ 	unsigned long end_index;	/* The last page we want to read */
+ 	LIST_HEAD(page_pool);
+ 	int page_idx;
+@@ -271,7 +317,7 @@ __do_page_cache_readahead(struct address
+ 	if (isize == 0)
  		goto out;
  
-+	debug_reclaim(&sc, SC_RECLAIM_FROM_EARLY);
- 	shrink_zone(zone, &sc);
- 	total_reclaimed = sc.nr_reclaimed;
+- 	end_index = ((isize - 1) >> PAGE_CACHE_SHIFT);
++	end_index = ((isize - 1) >> PAGE_CACHE_SHIFT);
  
+ 	/*
+ 	 * Preallocate as many pages as we will need.
+@@ -284,8 +330,14 @@ __do_page_cache_readahead(struct address
+ 			break;
+ 
+ 		page = radix_tree_lookup(&mapping->page_tree, page_offset);
+-		if (page)
++		if (page) {
++#ifdef READAHEAD_STREAMING
++			if (prefer_adaptive_readahead() &&
++				page_idx == nr_to_read - lookahead_size)
++				SetPageReadahead(page);
++#endif
+ 			continue;
++		}
+ 
+ 		read_unlock_irq(&mapping->tree_lock);
+ 		page = page_cache_alloc_cold(mapping);
+@@ -294,6 +346,9 @@ __do_page_cache_readahead(struct address
+ 			break;
+ 		page->index = page_offset;
+ 		list_add(&page->lru, &page_pool);
++		if (prefer_adaptive_readahead() &&
++				page_idx == nr_to_read - lookahead_size)
++			SetPageReadahead(page);
+ 		ret++;
+ 	}
+ 	read_unlock_irq(&mapping->tree_lock);
+@@ -330,7 +385,7 @@ int force_page_cache_readahead(struct ad
+ 		if (this_chunk > nr_to_read)
+ 			this_chunk = nr_to_read;
+ 		err = __do_page_cache_readahead(mapping, filp,
+-						offset, this_chunk);
++						offset, this_chunk, 0);
+ 		if (err < 0) {
+ 			ret = err;
+ 			break;
+@@ -377,7 +432,7 @@ int do_page_cache_readahead(struct addre
+ 	if (bdi_read_congested(mapping->backing_dev_info))
+ 		return -1;
+ 
+-	return __do_page_cache_readahead(mapping, filp, offset, nr_to_read);
++	return __do_page_cache_readahead(mapping, filp, offset, nr_to_read, 0);
+ }
+ 
+ /*
+@@ -397,7 +452,10 @@ blockable_page_cache_readahead(struct ad
+ 	if (!block && bdi_read_congested(mapping->backing_dev_info))
+ 		return 0;
+ 
+-	actual = __do_page_cache_readahead(mapping, filp, offset, nr_to_read);
++	actual = __do_page_cache_readahead(mapping, filp, offset, nr_to_read, 0);
++
++	dprintk("blockable-readahead(ino=%lu, ra=%lu+%lu) = %d\n",
++			mapping->host->i_ino, offset, nr_to_read, actual);
+ 
+ 	return check_ra_success(ra, nr_to_read, actual);
+ }
+@@ -575,3 +633,120 @@ unsigned long max_sane_readahead(unsigne
+ 	__get_zone_counts(&active, &inactive, &free, NODE_DATA(numa_node_id()));
+ 	return min(nr, (inactive + free) / 2);
+ }
++
++/*
++ * Adaptive read-ahead.
++ *
++ * Good read patterns are compact both in space and time. The read-ahead logic
++ * tries to grant larger read-ahead size to better readers under the constraint
++ * of system memory and load pressures.
++ *
++ * It employs two methods to estimate the max thrashing safe read-ahead size:
++ *   1. state based   - the default one
++ *   2. context based - the fail safe one
++ * The integration of the dual methods has the merit of being agile and robust.
++ * It makes the overall design clean: special cases are handled in general by
++ * the stateless method, leaving the stateful one simple and fast.
++ *
++ * To improve throughput and decrease read delay, the logic 'looks ahead'.
++ * In most read-ahead chunks, one page will be selected and tagged with
++ * PG_readahead. Later when the page with PG_readahead is read, the logic
++ * will be notified to submit the next read-ahead chunk in advance.
++ *
++ *                 a read-ahead chunk
++ *    +-----------------------------------------+
++ *    |       # PG_readahead                    |
++ *    +-----------------------------------------+
++ *            ^ When this page is read, notify me for the next read-ahead.
++ *
++ *
++ * Here are some variable names used frequently:
++ *
++ *                                   |<------- la_size ------>|
++ *                  +-----------------------------------------+
++ *                  |                #                        |
++ *                  +-----------------------------------------+
++ *      ra_index -->|<---------------- ra_size -------------->|
++ *
++ */
++
++/*
++ * The nature of read-ahead allows most tests to fail or even be wrong.
++ * Here we just do not bother to call get_page(), it's meaningless anyway.
++ */
++static inline struct page *__find_page(struct address_space *mapping,
++							pgoff_t offset)
++{
++	return radix_tree_lookup(&mapping->page_tree, offset);
++}
++
++static inline struct page *find_page(struct address_space *mapping,
++							pgoff_t offset)
++{
++	struct page *page;
++
++	read_lock_irq(&mapping->tree_lock);
++	page = __find_page(mapping, offset);
++	read_unlock_irq(&mapping->tree_lock);
++#ifdef DEBUG_READAHEAD_RADIXTREE
++	if (page)
++		BUG_ON(page->index != offset);
++#endif
++	return page;
++}
++
++/*
++ * Move pages in danger (of thrashing) to the head of inactive_list.
++ * Not expected to happen frequently.
++ */
++static int rescue_pages(struct page *page, pgoff_t nr_pages)
++{
++	unsigned long pgrescue;
++	pgoff_t index;
++	struct address_space *mapping;
++	struct zone *zone;
++
++	BUG_ON(!nr_pages || !page);
++	pgrescue = 0;
++	index = page_index(page);
++	mapping = page_mapping(page);
++
++	dprintk("rescue_pages(ino=%lu, index=%lu nr=%lu)\n",
++			mapping->host->i_ino, index, nr_pages);
++
++	for(;;) {
++		zone = page_zone(page);
++		spin_lock_irq(&zone->lru_lock);
++
++		if (!PageLRU(page))
++			goto out_unlock;
++
++		while (page_mapping(page) == mapping &&
++				page_index(page) == index) {
++			struct page *the_page = page;
++			page = next_page(page);
++			if (!PageActive(the_page) &&
++					!PageActivate(the_page) &&
++					!PageLocked(the_page) &&
++					page_count(the_page) == 1) {
++				list_move(&the_page->lru, &zone->inactive_list);
++				pgrescue++;
++			}
++			index++;
++			if (!--nr_pages)
++				goto out_unlock;
++		}
++
++		spin_unlock_irq(&zone->lru_lock);
++
++		page = find_page(mapping, index);
++		if (!page)
++			goto out;
++	}
++out_unlock:
++	spin_unlock_irq(&zone->lru_lock);
++out:
++	ra_account(0, RA_EVENT_READAHEAD_RESCUE, pgrescue);
++
++	return nr_pages ? index : 0;
++}
 
 --

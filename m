@@ -1,46 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932682AbVKYFED@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751406AbVKYFJN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932682AbVKYFED (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 00:04:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932683AbVKYFED
+	id S1751406AbVKYFJN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 00:09:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbVKYFJN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 00:04:03 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:40388 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932682AbVKYFEB (ORCPT
+	Fri, 25 Nov 2005 00:09:13 -0500
+Received: from magic.adaptec.com ([216.52.22.17]:20610 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1751406AbVKYFJM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 00:04:01 -0500
-Date: Fri, 25 Nov 2005 06:04:02 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Dinakar Guniguntala <dino@in.ibm.com>
-Cc: david singleton <dsingleton@mvista.com>,
-       "David F. Carlson" <dave@chronolytics.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PI BUG with -rt13
-Message-ID: <20051125050402.GA22230@elte.hu>
-References: <20051118092909.GC4858@elte.hu> <20051118132137.GA5639@in.ibm.com> <20051118132715.GA3314@elte.hu> <8311ADE9-5855-11DA-BBAB-000A959BB91E@mvista.com> <20051118174454.GA2793@elte.hu> <43822480.6080301@mvista.com> <20051121212653.GA6143@elte.hu> <EDDB1894-5AFB-11DA-A840-000A959BB91E@mvista.com> <20051124145734.GA2717@elte.hu> <20051124202637.GB9098@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051124202637.GB9098@in.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 25 Nov 2005 00:09:12 -0500
+Date: Fri, 25 Nov 2005 10:45:56 +0530 (IST)
+From: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>
+X-X-Sender: tomar@localhost.localdomain
+Reply-To: "Tomar, Nagendra" <nagendra_tomar@adaptec.com>
+To: linux-kernel@vger.kernel.org
+cc: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: Why does insmod _not_ check for symbol redefinition ??
+In-Reply-To: <c216304e0511242042h30fccd74ic2b1d5b237e2afc0@mail.gmail.com>
+Message-ID: <Pine.LNX.4.44.0511251029150.18002-100000@localhost.localdomain>
+Organization: Adaptec
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 25 Nov 2005 05:09:09.0920 (UTC) FILETIME=[5E3DAA00:01C5F17E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Did'nt get any response to this one, so sending it again.
 
-* Dinakar Guniguntala <dino@in.ibm.com> wrote:
+Can any of the module subsystem authors tell, why they have decided to 
+allow loading a kernel module having an EXPORTed symbol with the same name 
+as an EXPORTed  symbol in kernel proper. The safest thing would be to 
+disallow  module loading in this case, giving a "Symbol redefinition" 
+error.
+	Allowing the module load will lead to overriding kernel functions
+which will affect modules loaded in future, that reference those 
+functions. Overall, it can have bad effects of varying severity.
 
-> I just noticed with the above fix, Paul's testcase completely hangs up 
-> and when killed I hit the BUG mentioned below. Till -rt13, this 
-> testcase just ran to completion
+Thanx,
+Tomar
 
-does it still hang if you disable CONFIG_PARANOID_GENERIC_TIME in your 
-.config?
+> 
+> All,
+>      Let me start by saying that, if we have compiled functionality
+> X as a built-in part of kernel, and then if we try to load X compiled
+> as a module, we get _bad_ results, varying from weird behaviour to
+> upfront crashes.
+>         The question is : Why does insmod not check for redefinition
+> of symbols and hence disallow module loading in such cases ?
+> 
+> For the records, the kernel version I'm using is some flavour of
+> 2.6.9.
+> 
+>         I understand that this is a very basic thing and the kernel
+> module subsystem authors would have thought about it and if it behaves
+> this way, it would more likely be a feature. I am keenly interested
+> in knowing the rationale behind it.
+> 
+>         On my setup, SCSI midlayer was compiled as part of kernel proper
+> and then the initrd tried to load scsi_mod.ko as a module also (which was
+> present in initrd as I accidently used a wrong initrd). I would expect
+> this to result in insmod failure due to redefinition of various
+> functions already exported by the SCSI mid-layer (which is part of
+> kernel proper).
+>         What actually happened is that the scsi_mod.ko module got loaded
+> and its init_module() function was called, which apart from lot of other
+> things, called kmem_cache_create() to create a slab cache. Since the slab
+> cache with the same name was already present (the first one was created
+> when the SCSI midlayer init function was called as part of kernel proper
+> initialization), this triggered a BUG.
+>        When I checked for the exported SCSI midlayer symbols in
+> /proc/kallsyms I saw duplicate symbols for all the SCSI midlayer symbols,
+> one in the kernel text segment 0xcXXXXXXX and the other in the module
+> text segment (this one was 0xeXXXXXXX).
+>         I tried this with other components (ext3, jbd, e1000 etc) and the
+> results were the same; the module gets loaded on top of the builtin
+> functionality resulting in multiple definitions of the EXPORTed symbols.
+> I've tried the same thing on 2.4.20 kernel with _same_ results.
+> Since we see the same behaviour with different kernels, it is not specific
+> to a particular kernel.
+> 
+> 
+> Thanx,
+> Tomar
+> 
+> 
+> 
+> 
+> -- "Theory is when you know something, but it doesn't work.
+>     Practice is when something works, but you don't know why.
+>     Programmers combine theory and practice: Nothing works
+>     and they don't know why ..."
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-	Ingo
+-- "Theory is when you know something, but it doesn't work.
+    Practice is when something works, but you don't know why.
+    Programmers combine theory and practice: Nothing works 
+    and they don't know why ..."
+

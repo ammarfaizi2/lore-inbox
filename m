@@ -1,125 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161098AbVKYEcX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbVKYE4J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161098AbVKYEcX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Nov 2005 23:32:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161099AbVKYEcX
+	id S1750961AbVKYE4J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Nov 2005 23:56:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161094AbVKYE4J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Nov 2005 23:32:23 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:60300 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1161098AbVKYEcX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Nov 2005 23:32:23 -0500
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
-From: Keith Owens <kaos@sgi.com>
-To: Andi Kleen <ak@suse.de>
-cc: Chandra Seetharaman <sekharan@us.ibm.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] [PATCH 4/7]: changes notifier head of diechains and add notify_chain_unregister 
-In-reply-to: Your message of "Thu, 24 Nov 2005 00:57:28 BST."
-             <20051123235728.GB31722@brahms.suse.de> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 25 Nov 2005 15:31:51 +1100
-Message-ID: <7306.1132893111@kao2.melbourne.sgi.com>
+	Thu, 24 Nov 2005 23:56:09 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:3580 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S1750961AbVKYE4I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Nov 2005 23:56:08 -0500
+In-Reply-To: <20051124203250.GA9086@in.ibm.com>
+References: <20051118092909.GC4858@elte.hu> <20051118132137.GA5639@in.ibm.com> <20051118132715.GA3314@elte.hu> <8311ADE9-5855-11DA-BBAB-000A959BB91E@mvista.com> <20051118174454.GA2793@elte.hu> <43822480.6080301@mvista.com> <20051121212653.GA6143@elte.hu> <EDDB1894-5AFB-11DA-A840-000A959BB91E@mvista.com> <20051124145734.GA2717@elte.hu> <20051124202637.GB9098@in.ibm.com> <20051124203250.GA9086@in.ibm.com>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <C9607B8E-5D6F-11DA-90F9-000A959BB91E@mvista.com>
+Content-Transfer-Encoding: 7bit
+Cc: "David F. Carlson" <dave@chronolytics.com>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+From: david singleton <dsingleton@mvista.com>
+Subject: Re: PI BUG with -rt13
+Date: Thu, 24 Nov 2005 20:56:06 -0800
+To: dino@in.ibm.com
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Nov 2005 00:57:28 +0100, 
-Andi Kleen <ak@suse.de> wrote:
->> Index: l2615-rc1-notifiers/include/asm-x86_64/kdebug.h
->> ===================================================================
->> --- l2615-rc1-notifiers.orig/include/asm-x86_64/kdebug.h
->> +++ l2615-rc1-notifiers/include/asm-x86_64/kdebug.h
->> @@ -5,21 +5,20 @@
->>  
->>  struct pt_regs;
->>  
->> -struct die_args { 
->> +struct die_args {
+
+On Nov 24, 2005, at 12:32 PM, Dinakar Guniguntala wrote:
+
+> On Fri, Nov 25, 2005 at 01:56:37AM +0530, Dinakar Guniguntala wrote:
+>> On Thu, Nov 24, 2005 at 03:57:34PM +0100, Ingo Molnar wrote:
+>>>
+>>> * david singleton <dsingleton@mvista.com> wrote:
+>>>
+>>>> Sure.  Attached is the locking fix patch. [...]
+>>>
+>>> thanks, applied - it should show up in -rt15.
+>>>
+>>
+>> I just noticed with the above fix, Paul's testcase completely
+>> hangs up and when killed I hit the BUG mentioned below.
+>> Till -rt13, this testcase just ran to completion
 >
->etc. lots more occurrences.
+> Forgot to mention that I notice the same failure with -rt15 as well
+
+Good news and bad news.
+
+Good news.  This test doesn't exercise the robust futex code.
+
+Pthread mutexes that want priority queuing, priority inheritance and/or 
+robustness
+must have either  the robust (PTHREAD_MUTEX_ROBUST_NP) attribute set
+and/or the PTHREAD_PRIO_INHERIT attribute set at mutex creation time.
+
+e.g.
+pthread_mutexattr_setrobust_np (&mutex_attr, PTHREAD_MUTEX_ROBUST_NP);
+
+pthread_mutexattr_setprotocol(&state->mutex_attr, PTHREAD_PRIO_INHERIT);
+
+pthread_mutexes that don't have either of  these attributes set on the 
+pthread_mutex
+will exercise the original futex code.
+
+Now a question before the bad news,    Are you in the OOM path when you
+think the system is hung?  What does 'top' say about freemem and 
+available
+and used swap space?
+
+If you are not in the OOM path then the bad news is this looks like an 
+SMP timer
+problem.
+
+David
+
 >
->Can you please repost the patch without arbitary white space changes
->everywhere?
-
-Not everywhere, only include/asm-x86_64/kdebug.h has trailing white
-space and there was not enough white space changes to justify splitting
-its change into two patches.  But since you insist ...
-
-White space changes first.
-
-Index: linux/include/asm-x86_64/kdebug.h
-===================================================================
---- linux.orig/include/asm-x86_64/kdebug.h	2005-11-25 15:29:33.303590496 +1100
-+++ linux/include/asm-x86_64/kdebug.h	2005-11-25 15:29:51.278657263 +1100
-@@ -5,13 +5,13 @@
- 
- struct pt_regs;
- 
--struct die_args { 
-+struct die_args {
- 	struct pt_regs *regs;
- 	const char *str;
--	long err; 
-+	long err;
- 	int trapnr;
- 	int signr;
--}; 
-+};
- 
- /* Note - you should never unregister because that can race with NMIs.
-    If you really want to do it first unregister - then synchronize_sched - then free.
-@@ -19,7 +19,7 @@ struct die_args { 
- int register_die_notifier(struct notifier_block *nb);
- extern struct notifier_block *die_chain;
- /* Grossly misnamed. */
--enum die_val { 
-+enum die_val {
- 	DIE_OOPS = 1,
- 	DIE_INT3,
- 	DIE_DEBUG,
-@@ -33,13 +33,13 @@ enum die_val { 
- 	DIE_CALL,
- 	DIE_NMI_IPI,
- 	DIE_PAGE_FAULT,
--}; 
--	
-+};
-+
- static inline int notify_die(enum die_val val,char *str,struct pt_regs *regs,long err,int trap, int sig)
--{ 
--	struct die_args args = { .regs=regs, .str=str, .err=err, .trapnr=trap,.signr=sig }; 
--	return notifier_call_chain(&die_chain, val, &args); 
--} 
-+{
-+	struct die_args args = { .regs=regs, .str=str, .err=err, .trapnr=trap,.signr=sig };
-+	return notifier_call_chain(&die_chain, val, &args);
-+}
- 
- extern int printk_address(unsigned long address);
- extern void die(const char *,struct pt_regs *,long);
-
-This is what is really changed in include/asm-x86_64/kdebug.h, the same
-basic change as in i386.
-
-Index: linux/include/asm-x86_64/kdebug.h
-===================================================================
---- linux.orig/include/asm-x86_64/kdebug.h	2005-10-28 10:02:08.000000000 +1000
-+++ linux/include/asm-x86_64/kdebug.h	2005-11-25 15:20:16.553007734 +1100
-@@ -13,11 +13,10 @@ struct die_args {
- 	int signr;
- };
- 
--/* Note - you should never unregister because that can race with NMIs.
--   If you really want to do it first unregister - then synchronize_sched - then free.
--  */
--int register_die_notifier(struct notifier_block *nb);
--extern struct notifier_block *die_chain;
-+extern int register_die_notifier(struct notifier_block *);
-+extern int unregister_die_notifier(struct notifier_block *);
-+extern struct notifier_head die_chain;
-+
- /* Grossly misnamed. */
- enum die_val {
- 	DIE_OOPS = 1,
+> 	-Dinakar
+>
 

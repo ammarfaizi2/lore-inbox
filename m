@@ -1,51 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751425AbVKYJ1k@vger.kernel.org>
-Date: Fri, 25 Nov 2005 10:29:00 +0100 (CET)
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751424AbVKYKLc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751425AbVKYJ1k (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 04:27:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751431AbVKYJ1j
+	id S1751424AbVKYKLc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 05:11:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbVKYKLc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 04:27:39 -0500
-Received: from dsl-201-137-230-30.prod-infinitum.com.mx ([201.137.230.30]:34575
-	"HELO dsl-201-137-230-30.prod-infinitum.com.mx") by vger.kernel.org
-	with SMTP id S1751420AbVKYJ1i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 04:27:38 -0500
-Message-ID: <940179x9km2l$78f0x9e0$0769o5b5@pampa>
-From: "Mrs Shauna Schaefer" <gfgwi@cox.net>
-To: majordomo@vger.kernel.org
-Cc: linux-x25@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-tape@vger.kernel.org
-Subject: Take twice as long to eat half as much
+	Fri, 25 Nov 2005 05:11:32 -0500
+Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:9057 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S1751424AbVKYKLc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Nov 2005 05:11:32 -0500
+Date: Fri, 25 Nov 2005 11:09:24 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Nick Warne <nick@linicks.net>
+cc: Ian McDonald <iam@st-andrews.ac.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] 1500 days uptime.
+In-Reply-To: <200511242258.15953.nick@linicks.net>
+Message-ID: <Pine.LNX.4.63.0511251106170.6764@gockel.physik3.uni-rostock.de>
+References: <200511242147.45248.nick@linicks.net> <200511242235.23724.nick@linicks.net>
+ <438641F8.4030709@st-andrews.ac.uk> <200511242258.15953.nick@linicks.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2576
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2593
-X-PGP: 3nLgZopcwwoxnKzmDkW4Hm8oUK3kZCDNRN45AihQksXiJZ1c==
-X-UIDL: SS3Rr91v2lIDDeGZg59!
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have received your request for information on natural 
-suppressants to help l0se weight.Our company Nutritionist's
-Susan Miers & Mary-Anne McWhirter have found a solution for 
-your weight problem.
+On Thu, 24 Nov 2005, Nick Warne wrote:
+> On Thursday 24 November 2005 22:43, Ian McDonald wrote:
+> >
+> > Talking of things wrapping, I see the load average counter rolls over at
+> > 1024. Any hints on getting real load averages when they're above 1024?
 
-Solution:
+You need to change LOAD_FREQ, FSHIFT, and EXP_1, EXP_5, EXP_15 in
+<linux/sched.h>.
 
-Susan & Mary-Anne reccommend a 2-4 month supply of MS-HOODIA©.
-Most of our clients have L0ST anywhere from 10-30 Ibs within 
-2-3 weeks.
+  http://sosdg.org/~coywolf/lxr/source/include/linux/sched.h?v=2.6.14#L69
 
-Recommended Supplier:
-
-http://advicefound.com
-
-*This recommendation is not available in retail stores until 
-February 28th, 2006. This is one website that carries the product. 
+Tim

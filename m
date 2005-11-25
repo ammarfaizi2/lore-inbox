@@ -1,41 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbVKYTFy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751060AbVKYTIG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750744AbVKYTFy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 14:05:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbVKYTFx
+	id S1751060AbVKYTIG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 14:08:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbVKYTIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 14:05:53 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:15277 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750744AbVKYTFx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 14:05:53 -0500
-Subject: Re: 2.6.14-rt4: via DRM errors
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jesse Barnes <jbarnes@virtuousgeek.org>
-Cc: dri-devel@lists.sourceforge.net,
-       Thomas =?ISO-8859-1?Q?Hellstr=F6m?= <unichrome@shipmail.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200511240731.56147.jbarnes@virtuousgeek.org>
-References: <1132807985.1921.82.camel@mindpipe>
-	 <1132829378.3473.11.camel@mindpipe>
-	 <19379.192.138.116.230.1132836621.squirrel@192.138.116.230>
-	 <200511240731.56147.jbarnes@virtuousgeek.org>
-Content-Type: text/plain
-Date: Fri, 25 Nov 2005 14:05:35 -0500
-Message-Id: <1132945536.20390.39.camel@mindpipe>
+	Fri, 25 Nov 2005 14:08:06 -0500
+Received: from tux06.ltc.ic.unicamp.br ([143.106.24.50]:15749 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S1750765AbVKYTIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Nov 2005 14:08:05 -0500
+Date: Fri, 25 Nov 2005 17:10:56 -0200
+To: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, adilger@clusterfs.com, akpm@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk
+Subject: [PATCH] ext3: Wrong return value for EXT3_IOC_GROUP_ADD  
+Message-ID: <20051125191056.GB19410@br.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="AhhlLboLdkugWU4S"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
+From: glommer@br.ibm.com (Glauber de Oliveira Costa)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-11-24 at 07:31 -0800, Jesse Barnes wrote:
-> Sounds interesting, but that would be card specific, right?  I mean,
-> on some cards the 2d and 3d locks would have to be the same because of
-> shared state or whatever, for example. 
 
-Not especially, that's how most Linux drivers work.  The locking in the
-DRM seems unusually coarse grained.
+--AhhlLboLdkugWU4S
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Lee
+This patch corrects the return value for the EXT3_IOC_GROUP_ADD in case
+it fails due to the presence of multiple resizers at the filesystem. 
 
+The problem is a little bit more serious than a wrong return value in 
+this case, since the clause err=0 in the exit_journal path will lead to
+a call to update_backups which in turns causes a NULL pointer
+dereference.
+
+Signed-off-by: Glauber de Oliveira Costa <glommer@br.ibm.com> 
+
+
+
+
+--AhhlLboLdkugWU4S
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch-resize-return-value
+
+--- linux-2.6.14.2-orig/fs/ext3/resize.c	2005-11-25 15:47:41.000000000 +0000
++++ linux-2.6.14.2-orig/fs/ext3/resize-ret.c	2005-11-25 15:49:20.000000000 +0000
+@@ -757,6 +757,7 @@ int ext3_group_add(struct super_block *s
+ 	if (input->group != EXT3_SB(sb)->s_groups_count) {
+ 		ext3_warning(sb, __FUNCTION__,
+ 			     "multiple resizers run on filesystem!\n");
++		err = -EBUSY;
+ 		goto exit_journal;
+ 	}
+ 
+
+--AhhlLboLdkugWU4S--

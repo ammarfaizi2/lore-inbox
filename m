@@ -1,116 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422637AbVKZFC4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932724AbVKZFOr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422637AbVKZFC4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Nov 2005 00:02:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422640AbVKZFCz
+	id S932724AbVKZFOr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Nov 2005 00:14:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932725AbVKZFOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Nov 2005 00:02:55 -0500
-Received: from rtlab.med.cornell.edu ([140.251.128.175]:35025 "EHLO
-	openlab.rtlab.org") by vger.kernel.org with ESMTP id S1422637AbVKZFCz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Nov 2005 00:02:55 -0500
-Date: Sat, 26 Nov 2005 00:02:46 -0500 (EST)
-From: "Calin A. Culianu" <calin@ajvar.org>
-X-X-Sender: calin@rtlab.med.cornell.edu
-To: ajoshi@shell.unixbox.com, akpm@osdl.org, adaplas@pol.net,
-       linux-kernel@vger.kernel.org
-Cc: linux-nvidia@lists.surfsouth.com, Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] nvidiafb support for 6600 and 6200
-Message-ID: <Pine.LNX.4.64.0511252358390.25302@rtlab.med.cornell.edu>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-74666112-485324628-1132981193=:25302"
-Content-ID: <Pine.LNX.4.64.0511260000050.25302@rtlab.med.cornell.edu>
+	Sat, 26 Nov 2005 00:14:46 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:2696 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932724AbVKZFOq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Nov 2005 00:14:46 -0500
+Date: Fri, 25 Nov 2005 21:14:54 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Wu Fengguang <wfg@mail.ustc.edu.cn>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, mingo@elte.hu, levon@movementarian.org
+Subject: Re: BUG: spinlock recursion on 2.6.14-mm2 when oprofiling
+Message-ID: <20051126051454.GA3104@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20051118152101.GA4690@mail.ustc.edu.cn> <20051125220117.GA1836@us.ibm.com> <20051125232829.GA2405@us.ibm.com> <20051126033955.GC7226@mail.ustc.edu.cn>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051126033955.GC7226@mail.ustc.edu.cn>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Sat, Nov 26, 2005 at 11:39:55AM +0800, Wu Fengguang wrote:
+> On Fri, Nov 25, 2005 at 03:28:29PM -0800, Paul E. McKenney wrote:
+> > And here is an alternative patch that assumes that the answer to both
+> > questions above is "no".  It is shorter, though mostly due to use of
+> > the list_splice_init() and list_for_each_entry_safe() primitives.
+> 
+> Ok, I'll try it. But it may take time.
+> 
+> Currently I'm running oprofile on linux-2.6.15-rc2-mm1. It seems the bug is not
+> quite reproducible. I'll report again if there are any new findings.
 
----74666112-485324628-1132981193=:25302
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; FORMAT=flowed
-Content-ID: <Pine.LNX.4.64.0511260000051.25302@rtlab.med.cornell.edu>
+Yep, the bug is indeed non-deterministic.  For it to happen, softirq
+must interrupt a "task_mortuary" critical section, and that softirq
+must execute a task-struct RCU callback.
 
-Hi,
-
-This patch can be applied against 2.6.15-rc1 to add support to the 
-nvidiafb driver for a few obscure (yet on-the-market) nvidia 
-boards/chipsets, including various versions of the Geforce 6600 and 6200.
-
-This patch has been tested and allows the above-mentioned boards to get 
-framebuffer console support.
-
-Thanks!
-
--Calin
-
----74666112-485324628-1132981193=:25302
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME=nvidiafb-6600-support.patch
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.64.0511252359530.25302@rtlab.med.cornell.edu>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME=nvidiafb-6600-support.patch
-
-ZGlmZiAtdXJOIGxpbnV4LTIuNi9kcml2ZXJzL3ZpZGVvL252aWRpYS9udl9o
-dy5jIGxpbnV4LTIuNi1zdHUvZHJpdmVycy92aWRlby9udmkgZGlhL252X2h3
-LmMNCi0tLSBsaW51eC0yLjYvZHJpdmVycy92aWRlby9udmlkaWEvbnZfaHcu
-YyAgICAgIDIwMDUtMTAtMjggMDE6MDI6MDguMDAwMDAwMDAwICswIDEwMA0K
-KysrIGxpbnV4LTIuNi1zdHUvZHJpdmVycy92aWRlby9udmlkaWEvbnZfaHcu
-YyAgMjAwNS0xMS0yMiAxMjoxNDozMC4wMDAwMDAwMDAgKzAgMDAwDQpAQCAt
-MTIzMSw2ICsxMjMxLDcgQEANCiAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMHgwNjA4KSB8IDB4MDAx
-MDAwMDApOw0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgIGJyZWFrOw0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBj
-YXNlIDB4MDE0MDoNCisgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-Y2FzZSAweDAwRjA6DQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgTlZfV1IzMihwYXItPlBHUkFQSCwgMHgwODI4LA0KICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMHgw
-MDcyY2I3Nyk7DQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgTlZfV1IzMihwYXItPlBHUkFQSCwgMHgwODJDLA0KZGlmZiAtdXJO
-IGxpbnV4LTIuNi9kcml2ZXJzL3ZpZGVvL252aWRpYS9udmlkaWEuYyBsaW51
-eC0yLjYtc3R1L2RyaXZlcnMvdmlkZW8vbnYgaWRpYS9udmlkaWEuYw0KLS0t
-IGxpbnV4LTIuNi9kcml2ZXJzL3ZpZGVvL252aWRpYS9udmlkaWEuYyAgICAg
-MjAwNS0xMS0yMiAxMjoxMjowMi4wMDAwMDAwMDAgKzAgMDAwDQorKysgbGlu
-dXgtMi42LXN0dS9kcml2ZXJzL3ZpZGVvL252aWRpYS9udmlkaWEuYyAyMDA1
-LTExLTIyIDEyOjExOjU2LjAwMDAwMDAwMCArMCAwMDANCkBAIC0yODQsNiAr
-Mjg0LDE0IEBADQogICAgICAgICBQQ0lfQU5ZX0lELCBQQ0lfQU5ZX0lELCAw
-LCAwLCAwfSwNCiAgICAgICAge1BDSV9WRU5ET1JfSURfTlZJRElBLCBQQ0lf
-REVWSUNFX0lEX05WSURJQV9HRUZPUkNFXzYyMDAsDQogICAgICAgICBQQ0lf
-QU5ZX0lELCBQQ0lfQU5ZX0lELCAwLCAwLCAwfSwNCisgICAgICAge1BDSV9W
-RU5ET1JfSURfTlZJRElBLCBQQ0lfREVWSUNFX0lEX05WSURJQV9HRUZPUkNF
-XzY4MDBfQUxUMSwNCisgICAgICAgIFBDSV9BTllfSUQsIFBDSV9BTllfSUQs
-IDAsIDAsIDB9LA0KKyAgICAgICB7UENJX1ZFTkRPUl9JRF9OVklESUEsIFBD
-SV9ERVZJQ0VfSURfTlZJRElBX0dFRk9SQ0VfNjYwMF9BTFQxLA0KKyAgICAg
-ICAgUENJX0FOWV9JRCwgUENJX0FOWV9JRCwgMCwgMCwgMH0sDQorICAgICAg
-IHtQQ0lfVkVORE9SX0lEX05WSURJQSwgUENJX0RFVklDRV9JRF9OVklESUFf
-R0VGT1JDRV82NjAwX0FMVDIsDQorICAgICAgICBQQ0lfQU5ZX0lELCBQQ0lf
-QU5ZX0lELCAwLCAwLCAwfSwNCisgICAgICAge1BDSV9WRU5ET1JfSURfTlZJ
-RElBLCBQQ0lfREVWSUNFX0lEX05WSURJQV9HRUZPUkNFXzYyMDBfQUxUMSwN
-CisgICAgICAgIFBDSV9BTllfSUQsIFBDSV9BTllfSUQsIDAsIDAsIDB9LA0K
-ICAgICAgICB7UENJX1ZFTkRPUl9JRF9OVklESUEsIDB4MDI1MiwNCiAgICAg
-ICAgIFBDSV9BTllfSUQsIFBDSV9BTllfSUQsIDAsIDAsIDB9LA0KICAgICAg
-ICB7UENJX1ZFTkRPUl9JRF9OVklESUEsIDB4MDMxMywNCkBAIC0xNDc2LDYg
-KzE0ODQsNyBAQA0KICAgICAgICAgICAgICAgIGJyZWFrOw0KICAgICAgICBj
-YXNlIDB4MDA0MDoNCiAgICAgICAgY2FzZSAweDAwQzA6DQorICAgICAgIGNh
-c2UgMHgwMEYwOg0KICAgICAgICBjYXNlIDB4MDEyMDoNCiAgICAgICAgY2Fz
-ZSAweDAxMzA6DQogICAgICAgIGNhc2UgMHgwMTQwOg0KZGlmZiAtdXJOIGxp
-bnV4LTIuNi9pbmNsdWRlL2xpbnV4L3BjaV9pZHMuaCBsaW51eC0yLjYtc3R1
-L2luY2x1ZGUvbGludXgvcGNpX2lkcy4gaA0KLS0tIGxpbnV4LTIuNi9pbmNs
-dWRlL2xpbnV4L3BjaV9pZHMuaCAgIDIwMDUtMTEtMjIgMTI6MTI6MDMuMDAw
-MDAwMDAwICswMDAwDQorKysgbGludXgtMi42LXN0dS9pbmNsdWRlL2xpbnV4
-L3BjaV9pZHMuaCAgICAgICAyMDA1LTExLTIyIDEyOjExOjU2LjAwMDAwMDAw
-MCArMCAwMDANCkBAIC0xMDI1LDYgKzEwMjUsMTAgQEANCiAjZGVmaW5lIFBD
-SV9ERVZJQ0VfSURfTlZJRElBX05WRU5FVF82ICAgICAgICAgIDB4MDBlNg0K
-ICNkZWZpbmUgUENJX0RFVklDRV9JRF9OVklESUFfQ0s4U19BVURJTyAgICAg
-ICAgICAgICAgICAweDAwZWENCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfTlZJ
-RElBX05GT1JDRTNTX1NBVEEyICAgIDB4MDBlZQ0KKyNkZWZpbmUgUENJX0RF
-VklDRV9JRF9OVklESUFfR0VGT1JDRV82ODAwX0FMVDEgMHgwMGYwDQorI2Rl
-ZmluZSBQQ0lfREVWSUNFX0lEX05WSURJQV9HRUZPUkNFXzY2MDBfQUxUMSAw
-eDAwZjENCisjZGVmaW5lIFBDSV9ERVZJQ0VfSURfTlZJRElBX0dFRk9SQ0Vf
-NjYwMF9BTFQyIDB4MDBmMg0KKyNkZWZpbmUgUENJX0RFVklDRV9JRF9OVklE
-SUFfR0VGT1JDRV82MjAwX0FMVDEgMHgwMGYzDQogI2RlZmluZSBQQ0lfREVW
-SUNFX0lEX05WSURJQV9HRUZPUkNFX1NEUiAgICAgICAweDAxMDANCiAjZGVm
-aW5lIFBDSV9ERVZJQ0VfSURfTlZJRElBX0dFRk9SQ0VfRERSICAgICAgIDB4
-MDEwMQ0KICNkZWZpbmUgUENJX0RFVklDRV9JRF9OVklESUFfUVVBRFJPICAg
-ICAgICAgICAgMHgwMTAzDQoNCg0K
-
----74666112-485324628-1132981193=:25302--
+						Thanx, Paul

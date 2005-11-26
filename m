@@ -1,133 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422636AbVKZEEh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932719AbVKZEMz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422636AbVKZEEh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 23:04:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932718AbVKZEEg
+	id S932719AbVKZEMz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 23:12:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932720AbVKZEMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 23:04:36 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:39346 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932715AbVKZEEg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 23:04:36 -0500
-Date: Fri, 25 Nov 2005 20:04:26 -0800 (PST)
-From: Paul Jackson <pj@sgi.com>
-To: akpm@osdl.org, Greg Kroah-Hartman <gregkh@suse.de>,
-       linux-kernel@vger.kernel.org
-Cc: Paul Jackson <pj@sgi.com>
-Message-Id: <20051126040426.26945.12817.sendpatchset@jackhammer.engr.sgi.com>
-Subject: [PATCH] driver kill hotplug word from sn and others fix
+	Fri, 25 Nov 2005 23:12:55 -0500
+Received: from zproxy.gmail.com ([64.233.162.207]:59636 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932719AbVKZEMy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Nov 2005 23:12:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=CQVYLHJK2fIrmywBberMUUfOHO6JyQ0SF6tOuF0LMaH7WLt0S7f4YbbEIzELgjeRsj43eSGic88U5N3yU9KId6b9X4h6LvDD0ePXY+SonqYBaO10hQDyYnG4fN8yq+f6TeqgaXNfaQXIy4hpkjlFPFo87de7nLbZMQSjZOcMZTs=
+Message-ID: <e3e24c6a0511252012v52a26698ua1d8b73eda2133fb@mail.gmail.com>
+Date: Sat, 26 Nov 2005 09:42:54 +0530
+From: Vishal Linux <vishal.linux@gmail.com>
+To: Jean Delvare <khali@linux-fr.org>
+Subject: Re: How to get SDA/SCL bit position in the control word register of the video card?
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051125203300.0899e9b7.khali@linux-fr.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <e3e24c6a0511240245i1d395ae6g4d768a75a602d6ce@mail.gmail.com>
+	 <20051125203300.0899e9b7.khali@linux-fr.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The first of these changes s/hotplug/uevent/ was needed to
-compile sn2_defconfig (ia64/sn).  The other three files
-changed are blind changes of all remaining bus_type.hotplug
-references I could find to bus_type.uevent.
+On 11/26/05, Jean Delvare <khali@linux-fr.org> wrote:
+> Hi Vishal,
+Hello Mr. Delvare,
 
-This patch attempts to finish similar changes made in the
-gregkh-driver-kill-hotplug-word-from-driver-core Nov 22 patch.
+>
+> First of all, I would suggest that you post using your real name.
+> Pretending that you are Linux on your own will not make you popular
 
-Signed-off-by: Paul Jackson <pj@sgi.com>
+This was funny and what is also sometimes considered as ASSUMING something
+and JUMPING to conclusion and JUDGING people without knowing them.
 
----
+My actual name is Vishal Soni and my email address for personal
+communication is
+vishal.soni.1@gmail.com
 
- arch/arm/common/amba.c      |    6 +++---
- arch/ia64/sn/kernel/tiocx.c |    4 ++--
- drivers/s390/cio/ccwgroup.c |    4 ++--
- drivers/s390/cio/device.c   |    4 ++--
- 4 files changed, 9 insertions(+), 9 deletions(-)
+I created email address vishal.linux so that i can dedicate one email
+address to the mailing lists for my linux interest and the hundred of
+mails, which keeps coming to the mailing list does not block my
+personal mails.
 
---- 2.6.15-rc2-mm1.orig/arch/ia64/sn/kernel/tiocx.c	2005-11-25 17:09:59.175019269 -0800
-+++ 2.6.15-rc2-mm1/arch/ia64/sn/kernel/tiocx.c	2005-11-25 18:09:19.834295281 -0800
-@@ -65,7 +65,7 @@ static int tiocx_match(struct device *de
- 
- }
- 
--static int tiocx_hotplug(struct device *dev, char **envp, int num_envp,
-+static int tiocx_uevent(struct device *dev, char **envp, int num_envp,
- 			 char *buffer, int buffer_size)
- {
- 	return -ENODEV;
-@@ -79,7 +79,7 @@ static void tiocx_bus_release(struct dev
- struct bus_type tiocx_bus_type = {
- 	.name = "tiocx",
- 	.match = tiocx_match,
--	.hotplug = tiocx_hotplug,
-+	.uevent = tiocx_uevent,
- };
- 
- /**
---- 2.6.15-rc2-mm1.orig/arch/arm/common/amba.c	2005-11-25 17:09:12.046571395 -0800
-+++ 2.6.15-rc2-mm1/arch/arm/common/amba.c	2005-11-25 18:48:25.476165433 -0800
-@@ -45,7 +45,7 @@ static int amba_match(struct device *dev
- }
- 
- #ifdef CONFIG_HOTPLUG
--static int amba_hotplug(struct device *dev, char **envp, int nr_env, char *buf, int bufsz)
-+static int amba_uevent(struct device *dev, char **envp, int nr_env, char *buf, int bufsz)
- {
- 	struct amba_device *pcdev = to_amba_device(dev);
- 
-@@ -58,7 +58,7 @@ static int amba_hotplug(struct device *d
- 	return 0;
- }
- #else
--#define amba_hotplug NULL
-+#define amba_uevent NULL
- #endif
- 
- static int amba_suspend(struct device *dev, pm_message_t state)
-@@ -88,7 +88,7 @@ static int amba_resume(struct device *de
- static struct bus_type amba_bustype = {
- 	.name		= "amba",
- 	.match		= amba_match,
--	.hotplug	= amba_hotplug,
-+	.uevent		= amba_uevent,
- 	.suspend	= amba_suspend,
- 	.resume		= amba_resume,
- };
---- 2.6.15-rc2-mm1.orig/drivers/s390/cio/ccwgroup.c	2005-11-25 17:22:09.111753515 -0800
-+++ 2.6.15-rc2-mm1/drivers/s390/cio/ccwgroup.c	2005-11-25 18:47:47.084142033 -0800
-@@ -45,7 +45,7 @@ ccwgroup_bus_match (struct device * dev,
- 	return 0;
- }
- static int
--ccwgroup_hotplug (struct device *dev, char **envp, int num_envp, char *buffer,
-+ccwgroup_uevent (struct device *dev, char **envp, int num_envp, char *buffer,
- 		  int buffer_size)
- {
- 	/* TODO */
-@@ -55,7 +55,7 @@ ccwgroup_hotplug (struct device *dev, ch
- static struct bus_type ccwgroup_bus_type = {
- 	.name    = "ccwgroup",
- 	.match   = ccwgroup_bus_match,
--	.hotplug = ccwgroup_hotplug,
-+	.uevent = ccwgroup_uevent,
- };
- 
- static inline void
---- 2.6.15-rc2-mm1.orig/drivers/s390/cio/device.c	2005-11-25 17:22:09.112730088 -0800
-+++ 2.6.15-rc2-mm1/drivers/s390/cio/device.c	2005-11-25 19:21:23.574390939 -0800
-@@ -59,7 +59,7 @@ ccw_bus_match (struct device * dev, stru
-  * Heavily modeled on pci and usb hotplug.
-  */
- static int
--ccw_hotplug (struct device *dev, char **envp, int num_envp,
-+ccw_uevent (struct device *dev, char **envp, int num_envp,
- 	     char *buffer, int buffer_size)
- {
- 	struct ccw_device *cdev = to_ccwdev(dev);
-@@ -110,7 +110,7 @@ ccw_hotplug (struct device *dev, char **
- struct bus_type ccw_bus_type = {
- 	.name  = "ccw",
- 	.match = &ccw_bus_match,
--	.hotplug = &ccw_hotplug,
-+	.uevent = &ccw_uevent,
- };
- 
- static int io_subchannel_probe (struct device *);
+You wrote.........
+" Pretending that you are Linux on your own will not make you popular"
+I don't really give damn to the popularity. I am just another open
+source community fan, who is trying to learn about linux and enjoy it.
+And open source community dudes are no fools that they wud be getting
+this kind of weird feeling and wud make any X,Y,Z........ The LINUX
+owner :).
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+This also reminds me about the real meaning of assume,
+ (ASSuME) "Making Ass out of You and Me."
+
+So please don't judge the people without knowing them. Every one's way
+of thinking and doing things is different.
+
+>
+> > I am trying to communicate to the monitor eeprom to get the monitor
+> > capabilities and for that i need to have SDA/SCL bit positions in the
+
+>
+> > I tried to use linux kernel API char* get_EDID_from_BIOS(void*) and
+> > then using kgdb to debug the kernel module (that i wrote) to get the
+> > same  but failed to find the way to get the above.
+>
+> I couldn't find any function by that name in the Linux kernel source
+> tree. What are you talking about?
+/usr/src/linux-2.6.x/include/video/edid.h
+
+
+
+
+>
+> > I do have the offset of the control word register and Masking Value of
+> > Intel and Matrox card but i would like NOT to hardcode the masking
+> > value and the offset in my code. This will lead me to modify  my code
+> > for the different cards.
+> >
+> > Is there any way to get the control word register's address (and then
+> > SDA/SCL bit position) on the linux operating system. Is this
+> > information available to linux kernel ?
+>
+> Support for different hardware belong to different drivers. If you are
+> trying to put support for many incompatible chips in a single driver,
+Yeah this is not to be done..........
+
+> you're doing something wrong.
+As i said........ in the subject i was trying to .........
+to get SDA/SCL bit position in the control word register of the video card?
+
+so that i can communicate to the monitor......... without hardcoding
+the offset of control word register in my code for every different
+card.
+
+
+> You may also want to take a look at an older program called read-edid
+> [2], which does actually attempt to use the BIOS to retrieve the EDID,
+> with varying success, then decodes it in a form suitable for X
+> configuration files. This can be used in combination with another
+> script from the lm_sensors package, decode-edid.pl [3], to get the same
+> output from the i2c adapter and eeprom modules instead of BIOS.
+>
+> [1] http://www2.lm-sensors.nu/~lm78/cvs/lm_sensors2/prog/eeprom/ddcmon
+> [2] http://john.fremlin.de/programs/linux/read-edid/
+> [3] http://www2.lm-sensors.nu/~lm78/cvs/lm_sensors2/prog/eeprom/decode-edid.pl
+Yes i am studying the code.......of read-edid .
+Thankyou for your time.
+
+Vishal.
+
+>
+> --
+> Jean Delvare
+>

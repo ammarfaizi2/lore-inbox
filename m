@@ -1,80 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422634AbVKZCeu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932643AbVKZDBJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422634AbVKZCeu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 21:34:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422635AbVKZCet
+	id S932643AbVKZDBJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 22:01:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932683AbVKZDBJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 21:34:49 -0500
-Received: from eastrmmtao02.cox.net ([68.230.240.37]:23205 "EHLO
-	eastrmmtao02.cox.net") by vger.kernel.org with ESMTP
-	id S1422634AbVKZCet (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 21:34:49 -0500
-In-Reply-To: <200511251620.12996.rob@landley.net>
-References: <200511170629.42389.rob@landley.net> <200511251545.32343.rob@landley.net> <20051125220934.GA2268@elf.ucw.cz> <200511251620.12996.rob@landley.net>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <4F23F6A0-EC33-43E0-B0D2-BCBFF25E5777@mac.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Roman Zippel <zippel@linux-m68k.org>,
-       linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [PATCH] make miniconfig (take 2)
-Date: Fri, 25 Nov 2005 21:34:46 -0500
-To: Rob Landley <rob@landley.net>
-X-Mailer: Apple Mail (2.734)
+	Fri, 25 Nov 2005 22:01:09 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:33995 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S932643AbVKZDBI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Nov 2005 22:01:08 -0500
+Date: Sat, 26 Nov 2005 11:09:38 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 10/19] readahead: state based method
+Message-ID: <20051126030938.GA6237@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
+	Eric Dumazet <dada1@cosmosbay.com>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>
+References: <20051125151210.993109000@localhost.localdomain> <20051125151550.440541000@localhost.localdomain> <43872BF2.3030407@cosmosbay.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=gbk
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <43872BF2.3030407@cosmosbay.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 25, 2005, at 17:20:12, Rob Landley wrote:
+On Fri, Nov 25, 2005 at 04:21:22PM +0100, Eric Dumazet wrote:
+> Wu Fengguang a ¨¦crit :
+> 
+> > include/linux/fs.h |    8 +
+> >
+> >--- linux-2.6.15-rc2-mm1.orig/include/linux/fs.h
+> >+++ linux-2.6.15-rc2-mm1/include/linux/fs.h
+> >@@ -604,13 +604,19 @@ struct file_ra_state {
+> > 	unsigned long start;		/* Current window */
+> > 	unsigned long size;
+> > 	unsigned long flags;		/* ra flags RA_FLAG_xxx*/
+> >-	unsigned long cache_hit;	/* cache hit count*/
+> >+	uint64_t      cache_hit;	/* cache hit count*/
+> > 	unsigned long prev_page;	/* Cache last read() position */
+> > 	unsigned long ahead_start;	/* Ahead window */
+> > 	unsigned long ahead_size;
+> > 	unsigned long ra_pages;		/* Maximum readahead window */
+> > 	unsigned long mmap_hit;		/* Cache hit stat for mmap accesses 
+> > 	*/
+> > 	unsigned long mmap_miss;	/* Cache miss stat for mmap accesses 
+> > 	*/
+> >+
+> >+	unsigned long age;
+> >+	pgoff_t la_index;
+> >+	pgoff_t ra_index;
+> >+	pgoff_t lookahead_index;
+> >+	pgoff_t readahead_index;
+> > };
+> 
+> Hum... This sizeof(struct file) increase seems quite large...
 
-> On Friday 25 November 2005 16:09, Pavel Machek wrote:
->
->> Ouch, I guess I killed my .config :-(. It seems that interrupted
->> miniconfig.sh leaves .config in close to empty state...
->>
->
-> That's why it insists you rename it in order to run it.
->
-> I intend to fix that somewhat in a newer version of the sucker by  
-> having the script intercept signals and restore .config on the way  
-> out, but it can't be fully reliable (not against kill -9) because  
-> kconfig overwrites .config and the script is repeatedly running  
-> allnoconfig.  (I can probably bypass the makefile and feed it some  
-> strange command line argument, but what Kconfig to run it on gets  
-> us into architecture dependence issues the make file handles for  
-> us...)
->
+Thanks.
+I'm not sure if the two read-ahead logics should coexist in long term.
+If so, the file_ra_state can be changed as follows to save memory:
 
-I got interested so I started writing a Perl-based replacement that  
-actually reads the source config into program memory and writes  
-copies out of that RAM each time.  I ran into a problem (although I  
-can't reproduce it anymore) where the resultant configs had identical  
-options but slightly altered whitespace or ordering, which naturally  
-broke the diff method that miniconfig.sh used.
+struct file_ra_state {
+        union { 
+                struct {
+                        unsigned long start;            /* Current window */
+                        unsigned long size;
+                        unsigned long ahead_start;      /* Ahead window */
+                        unsigned long ahead_size;
+                };
+                struct {
+                        unsigned long mmap_hit;         /* Cache hit stat for mmap accesses */
+                        unsigned long mmap_miss;        /* Cache miss stat for mmap accesses */
+                };      
+                struct {
+                        unsigned long age;
+                        pgoff_t la_index;
+                        pgoff_t ra_index;
+                        pgoff_t lookahead_index;
+                        pgoff_t readahead_index;
+                };
+        };
+        uint64_t      cache_hit;        /* cache hit count*/
+        unsigned long flags;            /* ra flags RA_FLAG_xxx*/
+        unsigned long prev_page;        /* Cache last read() position */
+        unsigned long ra_pages;         /* Maximum readahead window */
+};
 
+The mmap_hit/mmap_miss should be only used in mmap read-around logic.
 
->> I'm not sure what I did wrong last time, it worked this time. My
->> miniconfig is 6K instead of 46K, good. Still its quite long. Thanks!
->>
->
-> You mentioned you set a lot of options. :)
->
-> I agree scripts/miniconfig.sh is clumsy.  I'm thinking about  
-> improvements (both to how it works and to the user interface), but  
-> I need to catch up on some other stuff first...
->
+> Have you ever considered to change struct file so that file_ra_state is not 
+> embedded, but dynamically allocated (or other strategy) for regular files ?
+> 
+> I mean, sockets, pipes cannot readahead... And some machines use far more 
+> sockets than regular files.
+> 
+> I wrote such a patch in the past I could resend...
 
-I have a bit of time to tinker.  I'll send you my perl version once I  
-get it working and test it out a bit.  It shouldn't be too hard to  
-add the ability to use .config and rewrite that when exiting.
+Yes, I noticed it, and think it generally a good idea. The only problem is that
+I'm afraid the patch might make the file_ra_state tightly coupled with file. See
+this comment:
 
-One other minor nit:  If you pass a config file from a previous  
-version to miniconfig.sh, it will return the full config file because  
-nothing makes it match the original.  Theoretically it should  
-probably allnoconfig with the full config first and use that for the  
-rest, before removing lines.
+ * Note that @filp is purely used for passing on to the ->readpage[s]()
+ * handler: it may refer to a different file from @mapping (so we may not use
+ * @filp->f_mapping or @filp->f_dentry->d_inode here).
+ * Also, @ra may not be equal to &@filp->f_ra.
 
-Cheers,
-Kyle Moffett
+And this patch:
 
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc2/2.6.15-rc2-mm1/broken-out/ext3_readdir-use-generic-readahead.patch
+  Linus points out that ext3_readdir's readahead only cuts in when
+  ext3_readdir() is operating at the very start of the directory.  So for large
+  directories we end up performing no readahead at all and we suck.
+  
+  So take it all out and use the core VM's page_cache_readahead().  This means
+  that ext3 directory reads will use all of readahead's dynamic sizing goop.
+  
+  Note that we're using the diretory's filp->f_ra to hold the readahead state,
+  but readahead is actually being performed against the underlying blockdev's
+  address_space.  Fortunately the readahead code is all set up to handle this.
 
+Regards,
+Wu

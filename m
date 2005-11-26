@@ -1,82 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbVKZTgU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbVKZTeF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750703AbVKZTgU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Nov 2005 14:36:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbVKZTgU
+	id S1750723AbVKZTeF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Nov 2005 14:34:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbVKZTeE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Nov 2005 14:36:20 -0500
-Received: from psmtp02.wxs.nl ([195.121.247.11]:18907 "EHLO psmtp02.wxs.nl")
-	by vger.kernel.org with ESMTP id S1750703AbVKZTgT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Nov 2005 14:36:19 -0500
-Date: Sat, 26 Nov 2005 20:36:28 +0100
-From: Stef van der Made <svdmade@planet.nl>
-Subject: make oldconfig issues since 2.15-rc1-mm1
-In-reply-to: <20051126192436.GC17663@elf.ucw.cz>
-To: linux-kernel@vger.kernel.org
-Message-id: <4388B93C.3070109@planet.nl>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7BIT
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8b) Gecko/20050217
-References: <20051103221402.GA28206@elf.ucw.cz>
- <1131057308.8523.92.camel@localhost.localdomain>
- <20051106204506.GH29901@elf.ucw.cz> <436F2BB2.3040008@cantab.net>
- <1131360232.8375.50.camel@localhost.localdomain>
- <20051126192436.GC17663@elf.ucw.cz>
+	Sat, 26 Nov 2005 14:34:04 -0500
+Received: from herkules.vianova.fi ([194.100.28.129]:54426 "HELO
+	mail.vianova.fi") by vger.kernel.org with SMTP id S1750723AbVKZTeE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Nov 2005 14:34:04 -0500
+Date: Sat, 26 Nov 2005 21:33:58 +0200
+From: Ville Herva <vherva@vianova.fi>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Folkert van Heusden <folkert@vanheusden.com>, linux-kernel@vger.kernel.org
+Subject: Re: capturing oopses
+Message-ID: <20051126193358.GF22255@vianova.fi>
+Reply-To: vherva@vianova.fi
+References: <20051122130754.GL32512@vanheusden.com> <20051126155656.GA3988@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051126155656.GA3988@stusta.de>
+X-Operating-System: Linux herkules.vianova.fi 2.4.32-rc1
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Nov 26, 2005 at 04:56:56PM +0100, you [Adrian Bunk] wrote:
+> On Tue, Nov 22, 2005 at 02:07:54PM +0100, Folkert van Heusden wrote:
+> 
+> > Hi,
+> 
+> Hi Folkert,
+> 
+> > My 2.6.14 system occasionally crashes; gives a kernel panic. Of course I
+> > would like to report it. Now the system locks up hard so I can't copy
+> > the stacktrace. The crash dump patches mentioned in oops-tracing.txt all
+> > don't work for 2.6.14 it seems. So: what should I do? Get my digicam and
+> > take a picture of the display?
+> 
+> yes, digicams have become a common tool for reporting Oops'es.
 
-Gentleman,
+Speaking of which, does anybody know a feasible (as in "not too much harder
+than manually typing it in manually") way to OCR characters from vga text
+mode screen captures - or even digican shots? 
 
-Since the release of kernel 2.15-rc1-mm1 I can't compile the kernel 
-anymore due to this issue while doing an make oldconfig.
+The vga text mode captures are from a remote administration interface (such
+as HP RILOE or vmware gsx console) so they are pixel perfect and OCR should
+be doable. The digican shots on the other hand... Well at least it would
+have hack value :).
 
-When running make oldconfig I get this output:\
+(My personal opinion is that Linus' unwillingness to include anything like
+kmsgdump (http://www.xenotime.net/linux/kmsgdump/) is somewhat unfortunate.)
 
-  HOSTCC  scripts/kconfig/zconf.tab.o
-scripts/kconfig/zconf.tab.c: In function 'conf_parse':
-scripts/kconfig/zconf.tab.c:1939: error: 'SYMBOL_CHECK_DONE' undeclared 
-(first use in this function)
-scripts/kconfig/zconf.tab.c:1939: error: (Each undeclared identifier is 
-reported only once
-scripts/kconfig/zconf.tab.c:1939: error: for each function it appears in.)
-make[1]: *** [scripts/kconfig/zconf.tab.o] Error 1
 
-When trying to compile the kernel using make but a non update .config 
-file I get this output which might be related to the previous issue:
+-- v -- 
 
-bash-2.05b$ make
-  CHK     include/linux/version.h
-  CHK     include/linux/compile.h
-  CHK     usr/initramfs_list
-  CC      arch/i386/kernel/apm.o
-In file included from include/linux/mm.h:4,
-                 from include/linux/poll.h:11,
-                 from arch/i386/kernel/apm.c:207:
-include/linux/sched.h:256:16: warning: "CONFIG_SPLIT_PTLOCK_CPUS" is not 
-defined
-In file included from include/linux/poll.h:11,
-                 from arch/i386/kernel/apm.c:207:
-include/linux/mm.h:236:16: warning: "CONFIG_SPLIT_PTLOCK_CPUS" is not 
-defined
-include/linux/mm.h:828:16: warning: "CONFIG_SPLIT_PTLOCK_CPUS" is not 
-defined
-arch/i386/kernel/apm.c: In function 'apm_init':
-arch/i386/kernel/apm.c:2293: error: 'pm_active' undeclared (first use in 
-this function)
-arch/i386/kernel/apm.c:2293: error: (Each undeclared identifier is 
-reported only once
-arch/i386/kernel/apm.c:2293: error: for each function it appears in.)
-arch/i386/kernel/apm.c: In function 'apm_exit':
-arch/i386/kernel/apm.c:2384: error: 'pm_active' undeclared (first use in 
-this function)
-make[1]: *** [arch/i386/kernel/apm.o] Error 1
-
-I'm using gcc-4.0.2, and glibc-2.3.3
-
-Thanks in advance for your help.
-
-Stef
+v@iki.fi
 

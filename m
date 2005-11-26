@@ -1,360 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbVKZUrj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbVKZUvm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750740AbVKZUrj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Nov 2005 15:47:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbVKZUrj
+	id S1750743AbVKZUvm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Nov 2005 15:51:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbVKZUvm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Nov 2005 15:47:39 -0500
-Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:48522 "EHLO
-	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP
-	id S1750740AbVKZUri (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Nov 2005 15:47:38 -0500
-Date: Sat, 26 Nov 2005 21:47:36 +0100 (CET)
-From: Martin Drab <drab@kepler.fjfi.cvut.cz>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: mm or AGP related problems on x86_64 2.6.15-rc2-git4 
-Message-ID: <Pine.LNX.4.60.0511262112350.29408@kepler.fjfi.cvut.cz>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="546507526-1067974039-1133038056=:29408"
+	Sat, 26 Nov 2005 15:51:42 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:19698 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S1750743AbVKZUvl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Nov 2005 15:51:41 -0500
+In-Reply-To: <20051126133137.GA9722@elte.hu>
+References: <2F3CDB0C-5E50-11DA-8242-000A959BB91E@mvista.com> <20051126133137.GA9722@elte.hu>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <7169751C-5EBE-11DA-9812-000A959BB91E@mvista.com>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org, robustmutexes@lists.osdl.org
+From: david singleton <dsingleton@mvista.com>
+Subject: Re: robust futex heap support patch
+Date: Sat, 26 Nov 2005 12:51:40 -0800
+To: Ingo Molnar <mingo@elte.hu>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
 
---546507526-1067974039-1133038056=:29408
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+On Nov 26, 2005, at 5:31 AM, Ingo Molnar wrote:
 
-Hi,
+>
+> * david singleton <dsingleton@mvista.com> wrote:
+>
+>> There is a new patch, patch-2.6.14-rt15-rf1, that adds support for
+>> robust and priority inheriting pthread_mutexes on the 'heap'.
+>
+> we need to go a bit slower. For now i had to remove robust-futexes from
+> the -rt17 release because they broke normal (non-robust) futex support
+> in -rt15. A simple mozilla startup would hang... Please send fixes
+> against -rt16 and i'll try to re-add the robust futexes patch later on.
+> You can find -rt16 at:
 
-there is a problem with crashing latest fglrx64 (8.19.10) on 
-2.6.15-rc2-git4 and later kernels. I think 2.6.15-rc2 was also crashing. 
-However 2.6.15-rc1 does not crash. Now, I know this probably isn't a 
-problem on the kernel side, but on the fglrx (ATI's proprietary driver) 
-side and so this isnt the right place to report.
+whoops, sorry.
 
-But, I'm reporting here in a hope that perhaps someone can tell me from 
-a brief look at the attached crash logs where the problem may be, or what 
-was has recently changed that could be the cause of the crash. So that 
-perhaps I may try to fix it in the fglrx.
+Here's he piece that broke regular futexes.  Futex wake doesn't
+need to check to see if the robust list is null or not.
 
-My guess is it is something related to either mm or AGP (or both). And it 
-may also be x86_64 architecture related, since I have no similar problems 
-on x86 with nVidia drivers (OK, I cannot test the x86 fglrx, due to the 
-lack of hardware).
+Index: linux-2.6.14/kernel/futex.c
+===================================================================
+--- linux-2.6.14.orig/kernel/futex.c
++++ linux-2.6.14/kernel/futex.c
+@@ -323,10 +323,6 @@ static int futex_wake(unsigned long uadd
+         ret = get_futex_key(uaddr, &key, &head, &sem);
+         if (unlikely(ret != 0))
+                 goto out;
+-       if (head == NULL) {
+-               ret = -EINVAL;
+-               goto out;
+-       }
 
-There are two crash logs attached. One is fglrxagp.log which is what 
-happens when the fglrx's internal AGP is used (kernel's agpgart is used, 
-but should be interfaced with the fglrx's internal AGP support). The 
-second log is kernelagp.log which is what happens when the kernel's 
-amd64-agp is used with the agpgart.
+         bh = hash_futex(&key);
+         spin_lock(&bh->lock);
 
-Both variants crash, however when using the fglrx's internal AGP support, 
-the graphics doesn't even initialize and it ends up with just a blank 
-screen (comp doesn't freeze however), but the comp is externally 
-accessible over the net, even though any attempt to soft reboot it fails 
-(hard reboot is necessary).
 
-When the kernel's an64-agp is in use, the crash and unability to reboot 
-still remains, but at least the graphics seems to work OK (even though 
-the first crash is allready there), until you want to turn it off (kill 
-the X server). Then another big crash happens which again causes the black 
-screen and the same state as described in the paragraph above.
+Let me get the build fixed and add a new test for myself.  I'll start  
+running
+this on my desktop to do builds, run mozilla and firefox, and generally
+do all my normal work.
 
-I would wellcome any hint or suggestion.
+David
+>
+>   
+> http://people.redhat.com/mingo/realtime-preempt/older/patch-2.6.14- 
+> rt16
+>
+>> The previous patches only supported either file based pthread_mutexes
+>> or mmapped anonymous memory based pthread_mutexes.  This patch allows
+>> pthread_mutexes to be 'malloc'ed while using the
+>> PTHREAD_MUTEX_ROBUST_NP attribute or PTHREAD_PRIO_INHERIT attribute.
+>>
+>> The patch can be found at:
+>>
+>> http://source.mvista.com/~dsingleton
+>
+> this patch looks much cleaner than the earlier one, but there's one  
+> more
+> step to go: now that we've got the futex_head in every vma, why not  
+> hang
+> all robust futexes to the vma, and thus get rid of ->robust_list and
+> ->robust_sem from struct address_space?
+>
+> 	Ingo
 
-Thank you,
-Martin
---546507526-1067974039-1133038056=:29408
-Content-Type: APPLICATION/octet-stream; name="fglrxagp.log"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.60.0511262147360.29408@kepler.fjfi.cvut.cz>
-Content-Description: fglrx's internal AGP support used
-Content-Disposition: attachment; filename="fglrxagp.log"
-
-WyAgMTUwLjcwNzcxNF0gTGludXggYWdwZ2FydCBpbnRlcmZhY2UgdjAuMTAx
-IChjKSBEYXZlIEpvbmVzClsgIDE1MC43MTAxODBdIGZnbHJ4OiBtb2R1bGUg
-bGljZW5zZSAnUHJvcHJpZXRhcnkuIChDKSAyMDAyIC0gQVRJIFRlY2hub2xv
-Z2llcywgU3Rhcm5iZXJnLCBHRVJNQU5ZJyB0YWludHMga2VybmVsLgpbICAx
-NTAuNzEyMTU1XSBbZmdscnhdIE1heGltdW0gbWFpbiBtZW1vcnkgdG8gdXNl
-IGZvciBsb2NrZWQgZG1hIGJ1ZmZlcnM6IDQyNyBNQnl0ZXMuClsgIDE1MC43
-MTIzMTddIEdTSSAyMiBzaGFyaW5nIHZlY3RvciAweEQ5IGFuZCBJUlEgMjIK
-WyAgMTUwLjcxMjM3MV0gQUNQSTogUENJIEludGVycnVwdCAwMDAwOjAxOjAw
-LjBbQV0gLT4gR1NJIDE2IChsZXZlbCwgbG93KSAtPiBJUlEgMjE3ClsgIDE1
-MC43MTI0MjldIFtmZ2xyeF0gbW9kdWxlIGxvYWRlZCAtIGZnbHJ4IDguMTku
-MTAgW05vdiAgOSAyMDA1XSBvbiBtaW5vciAwClsgIDE1MS45NjgxNzRdIEZp
-cmUgR0wgYnVpbHQtaW4gQUdQLXN1cHBvcnQKWyAgMTUxLjk2ODE4Ml0gQmFz
-ZWQgb24gYWdwZ2FydCBpbnRlcmZhY2UgdjAuOTkgKGMpIEplZmYgSGFydG1h
-bm4KWyAgMTUxLjk2ODE4NV0gYWdwZ2FydDogTWF4aW11bSBtYWluIG1lbW9y
-eSB0byB1c2UgZm9yIGFncCBtZW1vcnk6IDQzOE0KWyAgMTUxLjk2ODIxNV0g
-Z2VuZXJhbCBwcm90ZWN0aW9uIGZhdWx0OiAwMDAwIFsxXSBQUkVFTVBUClsg
-IDE1MS45NjgyMTldIENQVSAwClsgIDE1MS45NjgyMjFdIE1vZHVsZXMgbGlu
-a2VkIGluOiBmZ2xyeCBhZ3BnYXJ0IGlwdjYgY3B1ZnJlcV9vbmRlbWFuZCBj
-cHVmcmVxX2NvbnNlcnZhdGl2ZSBjcHVmcmVxX3Bvd2Vyc2F2ZSBwb3dlcm5v
-d19rOCBmcmVxX3RhYmxlIG5mc2QgZXhwb3J0ZnMgbG9ja2QgbmZzX2FjbCBz
-dW5ycGMgYXV0b2ZzNCByYXcgc25kX3NlcV9kdW1teSBzbmRfc2VxX29zcyBz
-bmRfc2VxX21pZGlfZXZlbnQgc25kX3NlcSBzbmRfcGNtX29zcyBzbmRfbWl4
-ZXJfb3NzIHNuZF92aWE4Mnh4IHNuZF9hYzk3X2NvZGVjIHNuZF9hYzk3X2J1
-cyBzbmRfcGNtIHNuZF90aW1lciBzbmRfcGFnZV9hbGxvYyBzbmRfbXB1NDAx
-X3VhcnQgc25kX3Jhd21pZGkgc25kX3NlcV9kZXZpY2Ugc25kIHNvdW5kY29y
-ZSBwYXJwb3J0X3BjIGxwIHBhcnBvcnQgaXB0X1JFSkVDVCBpcHRfTE9HIGV0
-aDEzOTQgaXB0X3N0YXRlIGlwdF9wa3R0eXBlIGlwdF9DT05OTUFSSyBpcHRf
-TUFSSyBpcHRfY29ubm1hcmsgaXB0X293bmVyIGlwdF9yZWNlbnQgaXB0X2lw
-cmFuZ2UgaXB0X3BoeXNkZXYgaXB0X211bHRpcG9ydCBpcHRfY29ubnRyYWNr
-IGlwdGFibGVfbWFuZ2xlIGlwX25hdF9pcmMgaXBfbmF0X3RmdHAgaXBfbmF0
-X2Z0cCBpcHRhYmxlX25hdCBpcF9uYXQgaXBfY29ubnRyYWNrX2lyYyBpcF9j
-b25udHJhY2tfdGZ0cCBpcF9jb25udHJhY2tfZnRwIGlwX2Nvbm50cmFjayBu
-Zm5ldGxpbmsgaXB0YWJsZV9maWx0ZXIgaXBfdGFibGVzIHRnMyBhZl9wYWNr
-ZXQgZmxvcHB5IHBjbWNpYSBmaXJtd2FyZV9jbGFzcyB5ZW50YV9zb2NrZXQg
-cnNyY19ub25zdGF0aWMgcGNtY2lhX2NvcmUgZW1pc2UgaWRlX2NkIGxvb3Ag
-bmxzX3V0ZjggbnRmcyBldmRldiBudnJhbSBkbV9tb2QgdXNibW91c2UgdXNi
-aGlkIHZpZGVvIHRoZXJtYWwgcHJvY2Vzc29yIGZhbiBjb250YWluZXIgYnV0
-dG9uIGJhdHRlcnkgYWMgam95ZGV2IGVoY2lfaGNkIHVoY2lfaGNkIHVzYmNv
-cmUgZXh0MyBqYmQgc2RfbW9kIHNicDIgc2NzaV9tb2Qgb2hjaTEzOTQgaWVl
-ZTEzOTQKWyAgMTUxLjk2ODI3NF0gUGlkOiA2NTM5LCBjb21tOiBYIFRhaW50
-ZWQ6IFAgICAgICAyLjYuMTUtcmMyLWdpdDYgIzIKWyAgMTUxLjk2ODI3OF0g
-UklQOiAwMDEwOls8ZmZmZmZmZmY4MDFmMmMzZD5dIDxmZmZmZmZmZjgwMWYy
-YzNkPntwY2lfYnVzX3JlYWRfY29uZmlnX3dvcmQrNzd9ClsgIDE1MS45Njgy
-ODhdIFJTUDogMDAxODpmZmZmODEwMDE2YWU3ZDM4ICBFRkxBR1M6IDAwMjEw
-MDEzClsgIDE1MS45NjgyOTJdIFJBWDogZmZmZjgxMDAxNmFlN2ZkOCBSQlg6
-IDAwMDAwMDAwMDAyMDAyNDYgUkNYOiBmZmZmODEwMDE2YWU3ZDllClsgIDE1
-MS45NjgyOTVdIFJEWDogMDAwMDAwMDAwMDAwMDAwNiBSU0k6IDAwMDAwMDAw
-YzAwMDFmZDIgUkRJOiAwMDAwMDAwMDAwMDAwMDAxClsgIDE1MS45NjgyOTld
-IFJCUDogMDAwMDAwMDAwMDAwMDAwNiBSMDg6IDAwMDAwMDAwMDAwMDAwMDUg
-UjA5OiBmZmZmZmZmZmZmZmZmZmZhClsgIDE1MS45NjgzMDJdIFIxMDogMDAw
-MDAwMDAwMDAwMDAwMCBSMTE6IDAwMDAwMDAwZmZmZmZmZmYgUjEyOiBmMDAw
-ZTk4N2YwMDBmZWE1ClsgIDE1MS45NjgzMDZdIFIxMzogMDAwMDAwMDBjMDAw
-MWZkMiBSMTQ6IGZmZmY4MTAwMTZhZTdkOWUgUjE1OiAwMDAwMDAwMDAwMDAw
-MDg3ClsgIDE1MS45NjgzMTBdIEZTOiAgMDAwMDJhYWFhYjM3NTZlMCgwMDAw
-KSBHUzpmZmZmZmZmZjgwNDUwODAwKDAwMDApIGtubEdTOjAwMDAwMDAwNTU2
-Y2M2YzAKWyAgMTUxLjk2ODMxNF0gQ1M6ICAwMDEwIERTOiAwMDAwIEVTOiAw
-MDAwIENSMDogMDAwMDAwMDA4MDA1MDAzYgpbICAxNTEuOTY4MzE3XSBDUjI6
-IDAwMDAyYWFhYWM0YTRjOTAgQ1IzOiAwMDAwMDAwMDE2YTkzMDAwIENSNDog
-MDAwMDAwMDAwMDAwMDZlMApbICAxNTEuOTY4MzIxXSBQcm9jZXNzIFggKHBp
-ZDogNjUzOSwgdGhyZWFkaW5mbyBmZmZmODEwMDE2YWU2MDAwLCB0YXNrIGZm
-ZmY4MTAwMTczZmI1MzApClsgIDE1MS45NjgzMjRdIFN0YWNrOiAwMDAwMDAw
-MDAwMDAwMDAwIGZmZmZmZmZmODAxNTg4ZWUgMDAwMDAwMDAwMDc1MDAwMCAw
-MDAwMDAwMDAwMDAwMDM5ClsgIDE1MS45NjgzMjldICAgICAgICAwMDAwMDAw
-MGMwMDAxZmQyIGYwMDBlOTg3ZjAwMGZlYTUgMDAwMDAwMDAwMDAwMDAwMiBm
-ZmZmODEwMDE3ZTMxODgwClsgIDE1MS45NjgzMzVdICAgICAgICBmZmZmZmZm
-Zjg4NDAxOGU4IGZmZmZmZmZmODAxZjUyYzEKWyAgMTUxLjk2ODMzOV0gQ2Fs
-bCBUcmFjZTo8ZmZmZmZmZmY4MDE1ODhlZT57ZmluZF9nZXRfcGFnZSs3OH0g
-PGZmZmZmZmZmODAxZjUyYzE+e19fcGNpX2J1c19maW5kX2NhcCs0OX0KWyAg
-MTUxLjk2ODM1OF0gICAgICAgIDxmZmZmZmZmZjg4M2MzNDJkPns6Zmdscng6
-X19mZ2xfYWdwX2luaXQrMzE5N30gPGZmZmZmZmZmODgzZDVkYTA+ezpmZ2xy
-eDpmaXJlZ2xfaW5pdF9hcGVydHVyZSsxNjB9ClsgIDE1MS45Njg0MDNdICAg
-ICAgICA8ZmZmZmZmZmY4ODNjOWE0Mz57OmZnbHJ4Ol9fa2VfYWdwX2F2YWls
-YWJsZSsyOTF9IDxmZmZmZmZmZjg4M2UyZWZjPns6Zmdscng6ZHJtX2FncF9p
-bml0KzkyfQpbICAxNTEuOTY4NDQxXSAgICAgICAgPGZmZmZmZmZmODgzZTMz
-ZTQ+ezpmZ2xyeDpfZmlyZWdsX2FncF9hY3F1aXJlKzExNn0gPGZmZmZmZmZm
-ODgzZTMwZWI+ezpmZ2xyeDpmaXJlZ2xfYWdwX2FjcXVpcmUrMTA3fQpbICAx
-NTEuOTY4NDc2XSAgICAgICAgPGZmZmZmZmZmODgzZTMwODA+ezpmZ2xyeDpm
-aXJlZ2xfYWdwX2FjcXVpcmUrMH0gPGZmZmZmZmZmODgzZDA5ZTY+ezpmZ2xy
-eDpmaXJlZ2xfaW9jdGwrNDM4fQpbICAxNTEuOTY4NTA5XSAgICAgICAgPGZm
-ZmZmZmZmODAxOGVhOTk+e2RvX2lvY3RsKzEwNX0gPGZmZmZmZmZmODAxOGVk
-ODA+e3Zmc19pb2N0bCs2ODh9ClsgIDE1MS45Njg1MjZdICAgICAgICA8ZmZm
-ZmZmZmY4MDE4ZWUwOT57c3lzX2lvY3RsKzczfSA8ZmZmZmZmZmY4MDEwZjRk
-NT57ZXJyb3JfZXhpdCswfQpbICAxNTEuOTY4NTM5XSAgICAgICAgPGZmZmZm
-ZmZmODAxMGViN2E+e3N5c3RlbV9jYWxsKzEyNn0KWyAgMTUxLjk2ODU1N10K
-WyAgMTUxLjk2ODU1OF0gQ29kZTogNDkgOGIgODQgMjQgODAgMDAgMDAgMDAg
-NGMgOGQgNDQgMjQgMTQgYjkgMDIgMDAgMDAgMDAgODkgZWEKWyAgMTUxLjk2
-ODU3MF0gUklQIDxmZmZmZmZmZjgwMWYyYzNkPntwY2lfYnVzX3JlYWRfY29u
-ZmlnX3dvcmQrNzd9IFJTUCA8ZmZmZjgxMDAxNmFlN2QzOD4KWyAgMTUxLjk2
-ODU3Nl0gIDw2Pm5vdGU6IFhbNjUzOV0gZXhpdGVkIHdpdGggcHJlZW1wdF9j
-b3VudCAxClsgIDE1MS45Njg5OTldIHNjaGVkdWxpbmcgd2hpbGUgYXRvbWlj
-OiBYLzB4MDAwMDAwMDEvNjUzOQpbICAxNTEuOTY5MDAyXQpbICAxNTEuOTY5
-MDAzXSBDYWxsIFRyYWNlOjxmZmZmZmZmZjgwMmZlMjRhPntzY2hlZHVsZSsx
-MjJ9IDxmZmZmZmZmZjgwMjQwZTQxPnt2dF9jb25zb2xlX3ByaW50KzE0NX0K
-WyAgMTUxLjk2OTAxOF0gICAgICAgIDxmZmZmZmZmZjgwMmZmZGU1PntfX2Rv
-d24rMzI1fSA8ZmZmZmZmZmY4MDEyZTEzMD57ZGVmYXVsdF93YWtlX2Z1bmN0
-aW9uKzB9ClsgIDE1MS45NjkwMzhdICAgICAgICA8ZmZmZmZmZmY4MDE1ZDU4
-ZD57ZnJlZV9ob3RfY29sZF9wYWdlKzI2OX0gPGZmZmZmZmZmODAyZmZiMzA+
-e19fZG93bl9mYWlsZWQrNTN9ClsgIDE1MS45NjkwNTFdICAgICAgICA8ZmZm
-ZmZmZmY4MDE1ZTg3MD57X19zZXRfcGFnZV9kaXJ0eV9ub2J1ZmZlcnMrMH0g
-PGZmZmZmZmZmODgzY2M3ZmE+ezpmZ2xyeDoudGV4dC5sb2NrLmZpcmVnbF9w
-dWJsaWMrMjV9ClsgIDE1MS45NjkwNzhdICAgICAgICA8ZmZmZmZmZmY4ODNl
-MTM5Nz57OmZnbHJ4OmZpcmVnbF9maW5kX21hcCsxODN9IDxmZmZmZmZmZjg4
-M2NmN2EwPns6Zmdscng6ZHJtX3ZtX2Nsb3NlKzI4OH0KWyAgMTUxLjk2OTEx
-NF0gICAgICAgIDxmZmZmZmZmZjgwMTZiNmVjPntyZW1vdmVfdm1hKzQ0fSA8
-ZmZmZmZmZmY4MDE2ZDI3ZD57ZXhpdF9tbWFwKzIyMX0KWyAgMTUxLjk2OTEy
-N10gICAgICAgIDxmZmZmZmZmZjgwMTJmNGQwPnttbXB1dCs0OH0gPGZmZmZm
-ZmZmODAxMzRlOTM+e2RvX2V4aXQrNTYzfQpbICAxNTEuOTY5MTM5XSAgICAg
-ICAgPGZmZmZmZmZmODAyNDJiNmM+e2RvX3VuYmxhbmtfc2NyZWVuKzEwOH0g
-PGZmZmZmZmZmODAxMTAzYjE+e2RpZSs4MX0KWyAgMTUxLjk2OTE1NV0gICAg
-ICAgIDxmZmZmZmZmZjgwMzAwNDZlPntkb19nZW5lcmFsX3Byb3RlY3Rpb24r
-MjcwfSA8ZmZmZmZmZmY4MDEwZjRkNT57ZXJyb3JfZXhpdCswfQpbICAxNTEu
-OTY5MTcxXSAgICAgICAgPGZmZmZmZmZmODAxZjJjM2Q+e3BjaV9idXNfcmVh
-ZF9jb25maWdfd29yZCs3N30gPGZmZmZmZmZmODAxZjJjM2Q+e3BjaV9idXNf
-cmVhZF9jb25maWdfd29yZCs3N30KWyAgMTUxLjk2OTE5MV0gICAgICAgIDxm
-ZmZmZmZmZjgwMTU4OGVlPntmaW5kX2dldF9wYWdlKzc4fSA8ZmZmZmZmZmY4
-MDFmNTJjMT57X19wY2lfYnVzX2ZpbmRfY2FwKzQ5fQpbICAxNTEuOTY5MjA0
-XSAgICAgICAgPGZmZmZmZmZmODgzYzM0MmQ+ezpmZ2xyeDpfX2ZnbF9hZ3Bf
-aW5pdCszMTk3fSA8ZmZmZmZmZmY4ODNkNWRhMD57OmZnbHJ4OmZpcmVnbF9p
-bml0X2FwZXJ0dXJlKzE2MH0KWyAgMTUxLjk2OTIzOV0gICAgICAgIDxmZmZm
-ZmZmZjg4M2M5YTQzPns6Zmdscng6X19rZV9hZ3BfYXZhaWxhYmxlKzI5MX0g
-PGZmZmZmZmZmODgzZTJlZmM+ezpmZ2xyeDpkcm1fYWdwX2luaXQrOTJ9Clsg
-IDE1MS45NjkyNzZdICAgICAgICA8ZmZmZmZmZmY4ODNlMzNlND57OmZnbHJ4
-Ol9maXJlZ2xfYWdwX2FjcXVpcmUrMTE2fSA8ZmZmZmZmZmY4ODNlMzBlYj57
-OmZnbHJ4OmZpcmVnbF9hZ3BfYWNxdWlyZSsxMDd9ClsgIDE1MS45NjkzMTFd
-ICAgICAgICA8ZmZmZmZmZmY4ODNlMzA4MD57OmZnbHJ4OmZpcmVnbF9hZ3Bf
-YWNxdWlyZSswfSA8ZmZmZmZmZmY4ODNkMDllNj57OmZnbHJ4OmZpcmVnbF9p
-b2N0bCs0Mzh9ClsgIDE1MS45NjkzNDRdICAgICAgICA8ZmZmZmZmZmY4MDE4
-ZWE5OT57ZG9faW9jdGwrMTA1fSA8ZmZmZmZmZmY4MDE4ZWQ4MD57dmZzX2lv
-Y3RsKzY4OH0KWyAgMTUxLjk2OTM2MV0gICAgICAgIDxmZmZmZmZmZjgwMThl
-ZTA5PntzeXNfaW9jdGwrNzN9IDxmZmZmZmZmZjgwMTBmNGQ1PntlcnJvcl9l
-eGl0KzB9ClsgIDE1MS45NjkzNzNdICAgICAgICA8ZmZmZmZmZmY4MDEwZWI3
-YT57c3lzdGVtX2NhbGwrMTI2fQpbICAxNTkuMzUxNTYwXSBldGgwOiBubyBJ
-UHY2IHJvdXRlcnMgcHJlc2VudAo=
-
---546507526-1067974039-1133038056=:29408
-Content-Type: APPLICATION/octet-stream; name="kernelagp.log"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.60.0511262147361.29408@kepler.fjfi.cvut.cz>
-Content-Description: kernel's amd64-agp used
-Content-Disposition: attachment; filename="kernelagp.log"
-
-WyAxMzQxLjAyNjk4MF0gTGludXggYWdwZ2FydCBpbnRlcmZhY2UgdjAuMTAx
-IChjKSBEYXZlIEpvbmVzClsgMTM0MS4wMzc3MjNdIGFncGdhcnQ6IERldGVj
-dGVkIEFHUCBicmlkZ2UgMApbIDEzNDEuMDQ5OTU1XSBhZ3BnYXJ0OiBBR1Ag
-YXBlcnR1cmUgaXMgMjU2TSBAIDB4ZTAwMDAwMDAKWyAxMzUyLjMyNjA5MV0g
-TkVUOiBSZWdpc3RlcmVkIHByb3RvY29sIGZhbWlseSAxMApbIDEzNTIuMzI2
-MTk3XSBEaXNhYmxlZCBQcml2YWN5IEV4dGVuc2lvbnMgb24gZGV2aWNlIGZm
-ZmZmZmZmODAzODY3MDAobG8pClsgMTM1Mi4zMjYzMzFdIElQdjYgb3ZlciBJ
-UHY0IHR1bm5lbGluZyBkcml2ZXIKWyAxMzUzLjY2OTY4MV0gZmdscng6IG1v
-ZHVsZSBsaWNlbnNlICdQcm9wcmlldGFyeS4gKEMpIDIwMDIgLSBBVEkgVGVj
-aG5vbG9naWVzLCBTdGFybmJlcmcsIEdFUk1BTlknIHRhaW50cyBrZXJuZWwu
-ClsgMTM1My42NzE3MTZdIFtmZ2xyeF0gTWF4aW11bSBtYWluIG1lbW9yeSB0
-byB1c2UgZm9yIGxvY2tlZCBkbWEgYnVmZmVyczogNDI3IE1CeXRlcy4KWyAx
-MzUzLjY3MTg0NV0gR1NJIDIyIHNoYXJpbmcgdmVjdG9yIDB4RDkgYW5kIElS
-USAyMgpbIDEzNTMuNjcxODg5XSBBQ1BJOiBQQ0kgSW50ZXJydXB0IDAwMDA6
-MDE6MDAuMFtBXSAtPiBHU0kgMTYgKGxldmVsLCBsb3cpIC0+IElSUSAyMTcK
-WyAxMzUzLjY3MTk0OV0gW2ZnbHJ4XSBtb2R1bGUgbG9hZGVkIC0gZmdscngg
-OC4xOS4xMCBbTm92ICA5IDIwMDVdIG9uIG1pbm9yIDAKWyAxMzU0LjkxOTM4
-NV0gW2ZnbHJ4XSBJbnRlcm5hbCBBR1Agc3VwcG9ydCByZXF1ZXN0ZWQsIGJ1
-dCBrZXJuZWwgQUdQIHN1cHBvcnQgYWN0aXZlLgpbIDEzNTQuOTE5MzkzXSBb
-ZmdscnhdIEhhdmUgdG8gdXNlIGtlcm5lbCBBR1Agc3VwcG9ydCB0byBhdm9p
-ZCBjb25mbGljdHMuClsgMTM1NC45MTkzOTddIFtmZ2xyeF0gS2VybmVsIEFH
-UCBzdXBwb3J0IGRvZXNuJ3QgcHJvdmlkZSBhZ3Bsb2NrIGZ1bmN0aW9uYWxp
-dHkuClsgMTM1NC45MTk0MDJdIFtmZ2xyeF0gQUdQIGRldGVjdGVkLCBBZ3BT
-dGF0ZSAgID0gMHgxZjAwMGExYiAoaGFyZHdhcmUgY2FwcyBvZiBjaGlwc2V0
-KQpbIDEzNTQuOTE5NjUzXSBhZ3BnYXJ0OiBGb3VuZCBhbiBBR1AgMy41IGNv
-bXBsaWFudCBkZXZpY2UgYXQgMDAwMDowMDowMC4wLgpbIDEzNTQuOTE5Njcw
-XSBhZ3BnYXJ0OiBQdXR0aW5nIEFHUCBWMyBkZXZpY2UgYXQgMDAwMDowMDow
-MC4wIGludG8gOHggbW9kZQpbIDEzNTQuOTE5NzI2XSBhZ3BnYXJ0OiBQdXR0
-aW5nIEFHUCBWMyBkZXZpY2UgYXQgMDAwMDowMTowMC4wIGludG8gOHggbW9k
-ZQpbIDEzNTQuOTE5NzMzXSBbZmdscnhdIEFHUCBlbmFibGVkLCAgQWdwQ29t
-bWFuZCA9IDB4MWYwMDAzMTIgKHNlbGVjdGVkIGNhcHMpClsgMTM1NC45MjEy
-MTRdIEJhZCBwYWdlIHN0YXRlIGF0IGZyZWVfaG90X2NvbGRfcGFnZSAoaW4g
-cHJvY2VzcyAnWCcsIHBhZ2UgZmZmZjgxMDAwMTU0Mjk5MCkKWyAxMzU0Ljky
-MTIyMV0gZmxhZ3M6MHg0MDAwMDAwMDAwMDAwNDE0IG1hcHBpbmc6MDAwMDAw
-MDAwMDAwMDAwMCBtYXBjb3VudDowIGNvdW50OjAKWyAxMzU0LjkyMTIyNF0g
-QmFja3RyYWNlOgpbIDEzNTQuOTIxMjI2XQpbIDEzNTQuOTIxMjI3XSBDYWxs
-IFRyYWNlOjxmZmZmZmZmZjgwMTVkMTExPntiYWRfcGFnZSsxMTN9IDxmZmZm
-ZmZmZjgwMTVkNGY3PntmcmVlX2hvdF9jb2xkX3BhZ2UrMTE5fQpbIDEzNTQu
-OTIxMjU1XSAgICAgICAgPGZmZmZmZmZmODAxNjg2ZmI+e3VubWFwX3ZtYXMr
-MTIxMX0gPGZmZmZmZmZmODAxNmJhYjc+e3VubWFwX3JlZ2lvbisxODN9Clsg
-MTM1NC45MjEyODNdICAgICAgICA8ZmZmZmZmZmY4MDE2YzY4OD57ZG9fbXVu
-bWFwKzU2OH0gPGZmZmZmZmZmODAyZmZhMTU+e19fZG93bl93cml0ZSs1M30K
-WyAxMzU0LjkyMTMwMF0gICAgICAgIDxmZmZmZmZmZjgwMTZjNzhkPntzeXNf
-bXVubWFwKzc3fSA8ZmZmZmZmZmY4MDEwZWI3YT57c3lzdGVtX2NhbGwrMTI2
-fQpbIDEzNTQuOTIxMzE1XQpbIDEzNTQuOTIxMzQ0XSBUcnlpbmcgdG8gZml4
-IGl0IHVwLCBidXQgYSByZWJvb3QgaXMgbmVlZGVkClsgMTM1NC45MjQ1NjRd
-IFtmZ2xyeF0gZnJlZSAgQUdQID0gMjU2MTI2OTc2ClsgMTM1NC45MjQ1Njdd
-IFtmZ2xyeF0gbWF4ICAgQUdQID0gMjU2MTI2OTc2ClsgMTM1NC45MjQ1NzBd
-IFtmZ2xyeF0gZnJlZSAgTEZCID0gNDA5NDc3MTIKWyAxMzU0LjkyNDU3Ml0g
-W2ZnbHJ4XSBtYXggICBMRkIgPSA0MDk0NzcxMgpbIDEzNTQuOTI0NTc0XSBb
-ZmdscnhdIGZyZWUgIEludiA9IDAKWyAxMzU0LjkyNDU3Nl0gW2ZnbHJ4XSBt
-YXggICBJbnYgPSAwClsgMTM1NC45MjQ1NzhdIFtmZ2xyeF0gdG90YWwgSW52
-ID0gMApbIDEzNTQuOTI0NTc5XSBbZmdscnhdIHRvdGFsIFRJTSA9IDAKWyAx
-MzU0LjkyNDU4MV0gW2ZnbHJ4XSB0b3RhbCBGQiAgPSAwClsgMTM1NC45MjQ1
-ODNdIFtmZ2xyeF0gdG90YWwgQUdQID0gNjU1MzYKWyAxMzYyLjIxODM1OV0g
-ZXRoMDogbm8gSVB2NiByb3V0ZXJzIHByZXNlbnQKWyAxMzY1LjQ0MzM4NF0g
-LS0tLS0tLS0tLS0gW2N1dCBoZXJlIF0gLS0tLS0tLS0tIFtwbGVhc2UgYml0
-ZSBoZXJlIF0gLS0tLS0tLS0tClsgMTM2NS40NDMzODldIEtlcm5lbCBCVUcg
-YXQgbW0vc3dhcC5jOjQ5ClsgMTM2NS40NDMzOTJdIGludmFsaWQgb3BlcmFu
-ZDogMDAwMCBbMV0gUFJFRU1QVApbIDEzNjUuNDQzMzk2XSBDUFUgMApbIDEz
-NjUuNDQzMzk4XSBNb2R1bGVzIGxpbmtlZCBpbjogZmdscnggaXB2NiBhbWQ2
-NF9hZ3AgYWdwZ2FydCBjcHVmcmVxX29uZGVtYW5kIGNwdWZyZXFfY29uc2Vy
-dmF0aXZlIGNwdWZyZXFfcG93ZXJzYXZlIHBvd2Vybm93X2s4IGZyZXFfdGFi
-bGUgbmZzZCBleHBvcnRmcyBsb2NrZCBuZnNfYWNsIHN1bnJwYyBhdXRvZnM0
-IHJhdyBzbmRfc2VxX2R1bW15IHNuZF9zZXFfb3NzIHNuZF9zZXFfbWlkaV9l
-dmVudCBzbmRfc2VxIHNuZF9wY21fb3NzIHNuZF9taXhlcl9vc3Mgc25kX3Zp
-YTgyeHggc25kX2FjOTdfY29kZWMgc25kX2FjOTdfYnVzIHNuZF9wY20gc25k
-X3RpbWVyIHNuZF9wYWdlX2FsbG9jIHNuZF9tcHU0MDFfdWFydCBzbmRfcmF3
-bWlkaSBzbmRfc2VxX2RldmljZSBzbmQgc291bmRjb3JlIHBhcnBvcnRfcGMg
-bHAgcGFycG9ydCBpcHRfUkVKRUNUIGlwdF9MT0cgZXRoMTM5NCBpcHRfc3Rh
-dGUgaXB0X3BrdHR5cGUgaXB0X0NPTk5NQVJLIGlwdF9NQVJLIGlwdF9jb25u
-bWFyayBpcHRfb3duZXIgaXB0X3JlY2VudCBpcHRfaXByYW5nZSBpcHRfcGh5
-c2RldiBpcHRfbXVsdGlwb3J0IGlwdF9jb25udHJhY2sgaXB0YWJsZV9tYW5n
-bGUgaXBfbmF0X2lyYyBpcF9uYXRfdGZ0cCBpcF9uYXRfZnRwIGlwdGFibGVf
-bmF0IGlwX25hdCBpcF9jb25udHJhY2tfaXJjIGlwX2Nvbm50cmFja190ZnRw
-IGlwX2Nvbm50cmFja19mdHAgaXBfY29ubnRyYWNrIG5mbmV0bGluayBpcHRh
-YmxlX2ZpbHRlciBpcF90YWJsZXMgdGczIGFmX3BhY2tldCBmbG9wcHkgcGNt
-Y2lhIGZpcm13YXJlX2NsYXNzIHllbnRhX3NvY2tldCByc3JjX25vbnN0YXRp
-YyBwY21jaWFfY29yZSBlbWlzZSBpZGVfY2QgbG9vcCBubHNfdXRmOCBudGZz
-IGV2ZGV2IG52cmFtIGRtX21vZCB2aWRlbyB0aGVybWFsIHByb2Nlc3NvciB1
-c2Jtb3VzZSB1c2JoaWQgZmFuIGNvbnRhaW5lciBidXR0b24gYmF0dGVyeSBh
-YyBqb3lkZXYgZWhjaV9oY2QgdWhjaV9oY2QgdXNiY29yZSBleHQzIGpiZCBz
-ZF9tb2Qgc2JwMiBzY3NpX21vZCBvaGNpMTM5NCBpZWVlMTM5NApbIDEzNjUu
-NDQzNDU3XSBQaWQ6IDYyMDksIGNvbW06IFggVGFpbnRlZDogUCAgIE1CIDIu
-Ni4xNS1yYzItZ2l0NiAjMgpbIDEzNjUuNDQzNDYwXSBSSVA6IDAwMTA6Wzxm
-ZmZmZmZmZjgwMTYzM2Y1Pl0gPGZmZmZmZmZmODAxNjMzZjU+e3B1dF9wYWdl
-Kzg1fQpbIDEzNjUuNDQzNDcxXSBSU1A6IDAwMTg6ZmZmZjgxMDAxOGYzOWRj
-MCAgRUZMQUdTOiAwMDIxMDI1NgpbIDEzNjUuNDQzNDc1XSBSQVg6IDAwMDAw
-MDAwMDAwMDAwMDAgUkJYOiBmZmZmODEwMDE4MDlhNjI4IFJDWDogZmZmZmZm
-ZmY4MDNmZDI4MApbIDEzNjUuNDQzNDgwXSBSRFg6IGZmZmY4MTAwMDE1NDI5
-OTAgUlNJOiBmZmZmZmZmZmZmZmZmZmZmIFJESTogZmZmZjgxMDAwMTU0Mjk5
-MApbIDEzNjUuNDQzNDg0XSBSQlA6IGZmZmY4MTAwMDE1NDI5OTAgUjA4OiBm
-ZmZmODEwMDE4ZjM5ZWIwIFIwOTogMDAwMDAwMDAwMDAwMDAwMApbIDEzNjUu
-NDQzNDg3XSBSMTA6IDAwMDAwMDAwMDAwMDAwMDAgUjExOiAwMDAwMDAwMDAw
-MjAzMjA2IFIxMjogMDAwMDJhYWFhZDJjNjAwMApbIDEzNjUuNDQzNDkxXSBS
-MTM6IDAwMDAyYWFhYWQyYzUwMDAgUjE0OiAwMDAwMDAwMDAwMDAwMDIwIFIx
-NTogMDAwMDAwMDAwMDAwNzAwMApbIDEzNjUuNDQzNDk1XSBGUzogIDAwMDAy
-YWFhYWIzNzViMDAoMDAwMCkgR1M6ZmZmZmZmZmY4MDQ1MDgwMCgwMDAwKSBr
-bmxHUzowMDAwMDAwMDU1NmNjNmMwClsgMTM2NS40NDM0OTldIENTOiAgMDAx
-MCBEUzogMDAwMCBFUzogMDAwMCBDUjA6IDAwMDAwMDAwODAwNTAwMzMKWyAx
-MzY1LjQ0MzUwMl0gQ1IyOiAwMDAwMmFhYWFkMmMyODc4IENSMzogMDAwMDAw
-MDAxOGUyZDAwMCBDUjQ6IDAwMDAwMDAwMDAwMDA2ZTAKWyAxMzY1LjQ0MzUw
-Nl0gUHJvY2VzcyBYIChwaWQ6IDYyMDksIHRocmVhZGluZm8gZmZmZjgxMDAx
-OGYzODAwMCwgdGFzayBmZmZmODEwMDE5MTc2NzUwKQpbIDEzNjUuNDQzNTA5
-XSBTdGFjazogZmZmZmZmZmY4MDE2ODZmYiAwMDAwMDAwMDAwMDAwMDAwIGZm
-ZmY4MTAwMThmMzllYjAgMDAwMDJhYWFhZDJjNjAwMApbIDEzNjUuNDQzNTE2
-XSAgICAgICAgMDAwMDJhYWFhZDJjNTAwMCBmZmZmODEwMDE4YWIwODE4IGZm
-ZmY4MTAwMThmMzllYjggMDAwMDAwMDAwMDAwMDAwMApbIDEzNjUuNDQzNTIy
-XSAgICAgICAgMDAwMDAwMDBhZDY4MjAwMCBmZmZmODEwMDE4ZTJkMmE4Clsg
-MTM2NS40NDM1MjZdIENhbGwgVHJhY2U6PGZmZmZmZmZmODAxNjg2ZmI+e3Vu
-bWFwX3ZtYXMrMTIxMX0gPGZmZmZmZmZmODAxNmJhYjc+e3VubWFwX3JlZ2lv
-bisxODN9ClsgMTM2NS40NDM1NTZdICAgICAgICA8ZmZmZmZmZmY4MDE2YzY4
-OD57ZG9fbXVubWFwKzU2OH0gPGZmZmZmZmZmODAyZmZhMTU+e19fZG93bl93
-cml0ZSs1M30KWyAxMzY1LjQ0MzU3Ml0gICAgICAgIDxmZmZmZmZmZjgwMTZj
-NzhkPntzeXNfbXVubWFwKzc3fSA8ZmZmZmZmZmY4MDEwZWI3YT57c3lzdGVt
-X2NhbGwrMTI2fQpbIDEzNjUuNDQzNTg4XQpbIDEzNjUuNDQzNTk5XQpbIDEz
-NjUuNDQzNjAwXSBDb2RlOiAwZiAwYiA2OCBkNCBiMCAzMiA4MCBjMiAzMSAw
-MCA5MCA4MyA0NyAwOCBmZiAwZiA5OCBjMCA4NCBjMApbIDEzNjUuNDQzNjEz
-XSBSSVAgPGZmZmZmZmZmODAxNjMzZjU+e3B1dF9wYWdlKzg1fSBSU1AgPGZm
-ZmY4MTAwMThmMzlkYzA+ClsgMTM2NS40NDM2MTldICA8Nj5ub3RlOiBYWzYy
-MDldIGV4aXRlZCB3aXRoIHByZWVtcHRfY291bnQgMgpbIDEzNjUuNDQzNjM2
-XSBzY2hlZHVsaW5nIHdoaWxlIGF0b21pYzogWC8weDAwMDAwMDAyLzYyMDkK
-WyAxMzY1LjQ0MzYzOF0KWyAxMzY1LjQ0MzYzOV0gQ2FsbCBUcmFjZTo8ZmZm
-ZmZmZmY4MDJmZTI0YT57c2NoZWR1bGUrMTIyfSA8ZmZmZmZmZmY4MDJmZjli
-NT57X19kb3duX3JlYWQrMTk3fQpbIDEzNjUuNDQzNjU4XSAgICAgICAgPGZm
-ZmZmZmZmODAxMzM2Yjk+e2V4aXRfbW0rNTd9IDxmZmZmZmZmZjgwMTM0ZTkz
-Pntkb19leGl0KzU2M30KWyAxMzY1LjQ0MzY3M10gICAgICAgIDxmZmZmZmZm
-ZjgwMTBmYmU3Pntvb3BzX2VuZCsyM30gPGZmZmZmZmZmODAxMTAzYjE+e2Rp
-ZSs4MX0KWyAxMzY1LjQ0MzY4OV0gICAgICAgIDxmZmZmZmZmZjgwMTEwOWQz
-Pntkb19pbnZhbGlkX29wKzE2M30gPGZmZmZmZmZmODAxNjMzZjU+e3B1dF9w
-YWdlKzg1fQpbIDEzNjUuNDQzNzAyXSAgICAgICAgPGZmZmZmZmZmODAyMzJl
-MGM+e3R0eV9sZGlzY19kZXJlZisxMjR9IDxmZmZmZmZmZjgwMjMyODFiPnt0
-dHlfbGRpc2NfdHJ5KzU5fQpbIDEzNjUuNDQzNzE0XSAgICAgICAgPGZmZmZm
-ZmZmODAyM2IyMjA+e3Z0X2lvY3RsKzgwfSA8ZmZmZmZmZmY4MDIzMjgxYj57
-dHR5X2xkaXNjX3RyeSs1OX0KWyAxMzY1LjQ0MzcyNF0gICAgICAgIDxmZmZm
-ZmZmZjgwMTBmNGQ1PntlcnJvcl9leGl0KzB9IDxmZmZmZmZmZjgwMTYzM2Y1
-PntwdXRfcGFnZSs4NX0KWyAxMzY1LjQ0Mzc0OF0gICAgICAgIDxmZmZmZmZm
-ZjgwMTY4NmZiPnt1bm1hcF92bWFzKzEyMTF9IDxmZmZmZmZmZjgwMTZiYWI3
-Pnt1bm1hcF9yZWdpb24rMTgzfQpbIDEzNjUuNDQzNzc2XSAgICAgICAgPGZm
-ZmZmZmZmODAxNmM2ODg+e2RvX211bm1hcCs1Njh9IDxmZmZmZmZmZjgwMmZm
-YTE1PntfX2Rvd25fd3JpdGUrNTN9ClsgMTM2NS40NDM3OTFdICAgICAgICA8
-ZmZmZmZmZmY4MDE2Yzc4ZD57c3lzX211bm1hcCs3N30gPGZmZmZmZmZmODAx
-MGViN2E+e3N5c3RlbV9jYWxsKzEyNn0KWyAxMzY1LjQ0MzgwN10K
-
---546507526-1067974039-1133038056=:29408--

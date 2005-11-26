@@ -1,74 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbVKZTlZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbVKZUII@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750720AbVKZTlZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Nov 2005 14:41:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbVKZTlZ
+	id S1750727AbVKZUII (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Nov 2005 15:08:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbVKZUII
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Nov 2005 14:41:25 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:36585
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1750720AbVKZTlY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Nov 2005 14:41:24 -0500
-Subject: Re: 2.6.14-rt15: cannot build with !PREEMPT_RT
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       david singleton <dsingleton@mvista.com>
-In-Reply-To: <1133031912.5904.12.camel@mindpipe>
-References: <1132987928.4896.1.camel@mindpipe>
-	 <20051126122332.GA3712@elte.hu>  <1133031912.5904.12.camel@mindpipe>
-Content-Type: text/plain
-Organization: linutronix
-Date: Sat, 26 Nov 2005 20:46:46 +0100
-Message-Id: <1133034406.32542.308.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Sat, 26 Nov 2005 15:08:08 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:25739 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750727AbVKZUIG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Nov 2005 15:08:06 -0500
+Date: Sat, 26 Nov 2005 21:08:07 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: mousedev parametes not visible in /sys
+Message-ID: <Pine.LNX.4.61.0511262102390.17231@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-11-26 at 14:05 -0500, Lee Revell wrote:
-
-> -rt19 seems to work except that asm/io_apic.h fails to include 
-> asm/apicdef.h so MAX_IO_APICS is undefined.
-
-The patch below fixes the Makefile x86_64 clutter and the io_apic
-compile problem
-
-	tglx
+Hello,
 
 
-Index: linux-2.6.14-rt/Makefile
-===================================================================
---- linux-2.6.14-rt.orig/Makefile
-+++ linux-2.6.14-rt/Makefile
-@@ -189,8 +189,8 @@ SUBARCH := $(shell uname -m | sed -e s/i
- # Default value for CROSS_COMPILE is not to prefix executables
- # Note: Some architectures assign CROSS_COMPILE in their arch/*/Makefile
- 
--ARCH = x86_64
--CROSS_COMPILE = x86_64-linux-
-+ARCH		?= $(SUBARCH)
-+CROSS_COMPILE	?=
- 
- # Architecture as present in compile.h
- UTS_MACHINE := $(ARCH)
-Index: linux-2.6.14-rt/arch/i386/kernel/i8253.c
-===================================================================
---- linux-2.6.14-rt.orig/arch/i386/kernel/i8253.c
-+++ linux-2.6.14-rt/arch/i386/kernel/i8253.c
-@@ -10,10 +10,10 @@
- #include <linux/init.h>
- #include <linux/mca.h>
- 
-+#include <asm/smp.h>
- #include <asm/io_apic.h>
- #include <asm/delay.h>
- #include <asm/i8253.h>
--#include <asm/smp.h>
- #include <asm/io.h>
- 
- #include "io_ports.h"
+linux-2.6.13/drivers/input/mousedev.c has some module_params, but they do 
+not show up in /sys, i.e. there is no /sys/modules/mousedev directory at 
+all. Even though it is a compiled-in 'module', I do know that even 
+compiled-ins can get a directory under /sys/modules/, as is the case with 
+a module_param in e.g. drivers/char/vt.c which shows as /sys/modules/vt.
+
+Can anybody confirm this or know what's wrong?
 
 
+
+Jan Engelhardt
+-- 

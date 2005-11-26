@@ -1,59 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422639AbVKZEwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422637AbVKZFC4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422639AbVKZEwW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 23:52:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422640AbVKZEwW
+	id S1422637AbVKZFC4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Nov 2005 00:02:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422640AbVKZFCz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 23:52:22 -0500
-Received: from zeus1.kernel.org ([204.152.191.4]:3712 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1422639AbVKZEwV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 23:52:21 -0500
-Date: Fri, 25 Nov 2005 20:51:54 -0800 (PST)
-From: Paul Jackson <pj@sgi.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Cc: Simon Derr <Simon.Derr@bull.net>, guillaume.thouvenin@bull.net,
-       Paul Jackson <pj@sgi.com>, matthltc@us.ibm.com
-Message-Id: <20051126045154.28188.49905.sendpatchset@jackhammer.engr.sgi.com>
-Subject: [PATCH] cpuset fork locking fix
+	Sat, 26 Nov 2005 00:02:55 -0500
+Received: from rtlab.med.cornell.edu ([140.251.128.175]:35025 "EHLO
+	openlab.rtlab.org") by vger.kernel.org with ESMTP id S1422637AbVKZFCz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Nov 2005 00:02:55 -0500
+Date: Sat, 26 Nov 2005 00:02:46 -0500 (EST)
+From: "Calin A. Culianu" <calin@ajvar.org>
+X-X-Sender: calin@rtlab.med.cornell.edu
+To: ajoshi@shell.unixbox.com, akpm@osdl.org, adaplas@pol.net,
+       linux-kernel@vger.kernel.org
+Cc: linux-nvidia@lists.surfsouth.com, Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] nvidiafb support for 6600 and 6200
+Message-ID: <Pine.LNX.4.64.0511252358390.25302@rtlab.med.cornell.edu>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-74666112-485324628-1132981193=:25302"
+Content-ID: <Pine.LNX.4.64.0511260000050.25302@rtlab.med.cornell.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Move the cpuset_fork() call below the write_unlock_irq call
-in kernel/fork.c copy_process().
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Since the cpuset-dual-semaphore-locking-overhaul.patch, the
-cpuset_fork() routine acquires task_lock(), so cannot be called
-while holding the tasklist_lock for write.
+---74666112-485324628-1132981193=:25302
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; FORMAT=flowed
+Content-ID: <Pine.LNX.4.64.0511260000051.25302@rtlab.med.cornell.edu>
 
-Signed-off-by: Paul Jackson <pj@sgi.com>
+Hi,
 
----
+This patch can be applied against 2.6.15-rc1 to add support to the 
+nvidiafb driver for a few obscure (yet on-the-market) nvidia 
+boards/chipsets, including various versions of the Geforce 6600 and 6200.
 
- kernel/fork.c |    3 +--
- 1 files changed, 1 insertion(+), 2 deletions(-)
+This patch has been tested and allows the above-mentioned boards to get 
+framebuffer console support.
 
---- 2.6.15-rc2-mm1.orig/kernel/fork.c	2005-11-25 17:22:23.853126623 -0800
-+++ 2.6.15-rc2-mm1/kernel/fork.c	2005-11-25 17:26:44.713419159 -0800
-@@ -1131,8 +1131,6 @@ static task_t *copy_process(unsigned lon
- 	if (unlikely(p->ptrace & PT_PTRACED))
- 		__ptrace_link(p, current->parent);
- 
--	cpuset_fork(p);
--
- 	attach_pid(p, PIDTYPE_PID, p->pid);
- 	attach_pid(p, PIDTYPE_TGID, p->tgid);
- 	if (thread_group_leader(p)) {
-@@ -1149,6 +1147,7 @@ static task_t *copy_process(unsigned lon
- 	nr_threads++;
- 	total_forks++;
- 	write_unlock_irq(&tasklist_lock);
-+	cpuset_fork(p);
- 	retval = 0;
- 
- fork_out:
+Thanks!
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+-Calin
+
+---74666112-485324628-1132981193=:25302
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME=nvidiafb-6600-support.patch
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.64.0511252359530.25302@rtlab.med.cornell.edu>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME=nvidiafb-6600-support.patch
+
+ZGlmZiAtdXJOIGxpbnV4LTIuNi9kcml2ZXJzL3ZpZGVvL252aWRpYS9udl9o
+dy5jIGxpbnV4LTIuNi1zdHUvZHJpdmVycy92aWRlby9udmkgZGlhL252X2h3
+LmMNCi0tLSBsaW51eC0yLjYvZHJpdmVycy92aWRlby9udmlkaWEvbnZfaHcu
+YyAgICAgIDIwMDUtMTAtMjggMDE6MDI6MDguMDAwMDAwMDAwICswIDEwMA0K
+KysrIGxpbnV4LTIuNi1zdHUvZHJpdmVycy92aWRlby9udmlkaWEvbnZfaHcu
+YyAgMjAwNS0xMS0yMiAxMjoxNDozMC4wMDAwMDAwMDAgKzAgMDAwDQpAQCAt
+MTIzMSw2ICsxMjMxLDcgQEANCiAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMHgwNjA4KSB8IDB4MDAx
+MDAwMDApOw0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgIGJyZWFrOw0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBj
+YXNlIDB4MDE0MDoNCisgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+Y2FzZSAweDAwRjA6DQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgTlZfV1IzMihwYXItPlBHUkFQSCwgMHgwODI4LA0KICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMHgw
+MDcyY2I3Nyk7DQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgTlZfV1IzMihwYXItPlBHUkFQSCwgMHgwODJDLA0KZGlmZiAtdXJO
+IGxpbnV4LTIuNi9kcml2ZXJzL3ZpZGVvL252aWRpYS9udmlkaWEuYyBsaW51
+eC0yLjYtc3R1L2RyaXZlcnMvdmlkZW8vbnYgaWRpYS9udmlkaWEuYw0KLS0t
+IGxpbnV4LTIuNi9kcml2ZXJzL3ZpZGVvL252aWRpYS9udmlkaWEuYyAgICAg
+MjAwNS0xMS0yMiAxMjoxMjowMi4wMDAwMDAwMDAgKzAgMDAwDQorKysgbGlu
+dXgtMi42LXN0dS9kcml2ZXJzL3ZpZGVvL252aWRpYS9udmlkaWEuYyAyMDA1
+LTExLTIyIDEyOjExOjU2LjAwMDAwMDAwMCArMCAwMDANCkBAIC0yODQsNiAr
+Mjg0LDE0IEBADQogICAgICAgICBQQ0lfQU5ZX0lELCBQQ0lfQU5ZX0lELCAw
+LCAwLCAwfSwNCiAgICAgICAge1BDSV9WRU5ET1JfSURfTlZJRElBLCBQQ0lf
+REVWSUNFX0lEX05WSURJQV9HRUZPUkNFXzYyMDAsDQogICAgICAgICBQQ0lf
+QU5ZX0lELCBQQ0lfQU5ZX0lELCAwLCAwLCAwfSwNCisgICAgICAge1BDSV9W
+RU5ET1JfSURfTlZJRElBLCBQQ0lfREVWSUNFX0lEX05WSURJQV9HRUZPUkNF
+XzY4MDBfQUxUMSwNCisgICAgICAgIFBDSV9BTllfSUQsIFBDSV9BTllfSUQs
+IDAsIDAsIDB9LA0KKyAgICAgICB7UENJX1ZFTkRPUl9JRF9OVklESUEsIFBD
+SV9ERVZJQ0VfSURfTlZJRElBX0dFRk9SQ0VfNjYwMF9BTFQxLA0KKyAgICAg
+ICAgUENJX0FOWV9JRCwgUENJX0FOWV9JRCwgMCwgMCwgMH0sDQorICAgICAg
+IHtQQ0lfVkVORE9SX0lEX05WSURJQSwgUENJX0RFVklDRV9JRF9OVklESUFf
+R0VGT1JDRV82NjAwX0FMVDIsDQorICAgICAgICBQQ0lfQU5ZX0lELCBQQ0lf
+QU5ZX0lELCAwLCAwLCAwfSwNCisgICAgICAge1BDSV9WRU5ET1JfSURfTlZJ
+RElBLCBQQ0lfREVWSUNFX0lEX05WSURJQV9HRUZPUkNFXzYyMDBfQUxUMSwN
+CisgICAgICAgIFBDSV9BTllfSUQsIFBDSV9BTllfSUQsIDAsIDAsIDB9LA0K
+ICAgICAgICB7UENJX1ZFTkRPUl9JRF9OVklESUEsIDB4MDI1MiwNCiAgICAg
+ICAgIFBDSV9BTllfSUQsIFBDSV9BTllfSUQsIDAsIDAsIDB9LA0KICAgICAg
+ICB7UENJX1ZFTkRPUl9JRF9OVklESUEsIDB4MDMxMywNCkBAIC0xNDc2LDYg
+KzE0ODQsNyBAQA0KICAgICAgICAgICAgICAgIGJyZWFrOw0KICAgICAgICBj
+YXNlIDB4MDA0MDoNCiAgICAgICAgY2FzZSAweDAwQzA6DQorICAgICAgIGNh
+c2UgMHgwMEYwOg0KICAgICAgICBjYXNlIDB4MDEyMDoNCiAgICAgICAgY2Fz
+ZSAweDAxMzA6DQogICAgICAgIGNhc2UgMHgwMTQwOg0KZGlmZiAtdXJOIGxp
+bnV4LTIuNi9pbmNsdWRlL2xpbnV4L3BjaV9pZHMuaCBsaW51eC0yLjYtc3R1
+L2luY2x1ZGUvbGludXgvcGNpX2lkcy4gaA0KLS0tIGxpbnV4LTIuNi9pbmNs
+dWRlL2xpbnV4L3BjaV9pZHMuaCAgIDIwMDUtMTEtMjIgMTI6MTI6MDMuMDAw
+MDAwMDAwICswMDAwDQorKysgbGludXgtMi42LXN0dS9pbmNsdWRlL2xpbnV4
+L3BjaV9pZHMuaCAgICAgICAyMDA1LTExLTIyIDEyOjExOjU2LjAwMDAwMDAw
+MCArMCAwMDANCkBAIC0xMDI1LDYgKzEwMjUsMTAgQEANCiAjZGVmaW5lIFBD
+SV9ERVZJQ0VfSURfTlZJRElBX05WRU5FVF82ICAgICAgICAgIDB4MDBlNg0K
+ICNkZWZpbmUgUENJX0RFVklDRV9JRF9OVklESUFfQ0s4U19BVURJTyAgICAg
+ICAgICAgICAgICAweDAwZWENCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfTlZJ
+RElBX05GT1JDRTNTX1NBVEEyICAgIDB4MDBlZQ0KKyNkZWZpbmUgUENJX0RF
+VklDRV9JRF9OVklESUFfR0VGT1JDRV82ODAwX0FMVDEgMHgwMGYwDQorI2Rl
+ZmluZSBQQ0lfREVWSUNFX0lEX05WSURJQV9HRUZPUkNFXzY2MDBfQUxUMSAw
+eDAwZjENCisjZGVmaW5lIFBDSV9ERVZJQ0VfSURfTlZJRElBX0dFRk9SQ0Vf
+NjYwMF9BTFQyIDB4MDBmMg0KKyNkZWZpbmUgUENJX0RFVklDRV9JRF9OVklE
+SUFfR0VGT1JDRV82MjAwX0FMVDEgMHgwMGYzDQogI2RlZmluZSBQQ0lfREVW
+SUNFX0lEX05WSURJQV9HRUZPUkNFX1NEUiAgICAgICAweDAxMDANCiAjZGVm
+aW5lIFBDSV9ERVZJQ0VfSURfTlZJRElBX0dFRk9SQ0VfRERSICAgICAgIDB4
+MDEwMQ0KICNkZWZpbmUgUENJX0RFVklDRV9JRF9OVklESUFfUVVBRFJPICAg
+ICAgICAgICAgMHgwMTAzDQoNCg0K
+
+---74666112-485324628-1132981193=:25302--

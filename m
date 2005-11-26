@@ -1,64 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbVKZTZ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbVKZTgU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750721AbVKZTZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Nov 2005 14:25:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbVKZTZ5
+	id S1750703AbVKZTgU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Nov 2005 14:36:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbVKZTgU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Nov 2005 14:25:57 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:20155 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750721AbVKZTZ4 (ORCPT
+	Sat, 26 Nov 2005 14:36:20 -0500
+Received: from psmtp02.wxs.nl ([195.121.247.11]:18907 "EHLO psmtp02.wxs.nl")
+	by vger.kernel.org with ESMTP id S1750703AbVKZTgT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Nov 2005 14:25:56 -0500
-Date: Sat, 26 Nov 2005 20:24:37 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: David Vrabel <dvrabel@cantab.net>, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>, dkrivoschokov@dev.rtsoft.ru
-Subject: Re: pxa27x_udc -- support for usb gadget for pxa27x?
-Message-ID: <20051126192436.GC17663@elf.ucw.cz>
-References: <20051103221402.GA28206@elf.ucw.cz> <1131057308.8523.92.camel@localhost.localdomain> <20051106204506.GH29901@elf.ucw.cz> <436F2BB2.3040008@cantab.net> <1131360232.8375.50.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1131360232.8375.50.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Sat, 26 Nov 2005 14:36:19 -0500
+Date: Sat, 26 Nov 2005 20:36:28 +0100
+From: Stef van der Made <svdmade@planet.nl>
+Subject: make oldconfig issues since 2.15-rc1-mm1
+In-reply-to: <20051126192436.GC17663@elf.ucw.cz>
+To: linux-kernel@vger.kernel.org
+Message-id: <4388B93C.3070109@planet.nl>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7BIT
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8b) Gecko/20050217
+References: <20051103221402.GA28206@elf.ucw.cz>
+ <1131057308.8523.92.camel@localhost.localdomain>
+ <20051106204506.GH29901@elf.ucw.cz> <436F2BB2.3040008@cantab.net>
+ <1131360232.8375.50.camel@localhost.localdomain>
+ <20051126192436.GC17663@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > Pavel Machek wrote:
-> > > 
-> > > ...for the spitz. Do you think I can just copy this one? ...eh, no,
-> > > will not fly, there's no SPITZ_GPIO_USB_PULLUP.
-> > 
-> > There are internal pull-ups (and pull-downs) perhaps you can use those?
-> > 
-> > Hmmm. Though the C5 stepping might be different -- best to check the
-> > "specification update".
-> 
-> I can confirm that you'll need to use the internal pxa27x pullups
-> for
+Gentleman,
 
-How can I use pxa27x pullups?
+Since the release of kernel 2.15-rc1-mm1 I can't compile the kernel 
+anymore due to this issue while doing an make oldconfig.
 
-> this. You'll probably also need to make sure GPIO 35 is low to ensure
-> the usb Vcc line isn't powered (as it would be in usb host mode.
+When running make oldconfig I get this output:\
 
-Are you sure? spitz_ohci_init() seems to play with GPIO 37.
+  HOSTCC  scripts/kconfig/zconf.tab.o
+scripts/kconfig/zconf.tab.c: In function 'conf_parse':
+scripts/kconfig/zconf.tab.c:1939: error: 'SYMBOL_CHECK_DONE' undeclared 
+(first use in this function)
+scripts/kconfig/zconf.tab.c:1939: error: (Each undeclared identifier is 
+reported only once
+scripts/kconfig/zconf.tab.c:1939: error: for each function it appears in.)
+make[1]: *** [scripts/kconfig/zconf.tab.o] Error 1
 
-(Perhaps spitz_ohci_init should disable the other GPIO?)
+When trying to compile the kernel using make but a non update .config 
+file I get this output which might be related to the previous issue:
 
-> Ultimately, it would be nice to have the Zaurus detect whether a usb
-> host or client was present (using gpio 41 maybe?) and then activate the
-> host (ohci) or client (pxa27x_udc) driver as appropriate.
+bash-2.05b$ make
+  CHK     include/linux/version.h
+  CHK     include/linux/compile.h
+  CHK     usr/initramfs_list
+  CC      arch/i386/kernel/apm.o
+In file included from include/linux/mm.h:4,
+                 from include/linux/poll.h:11,
+                 from arch/i386/kernel/apm.c:207:
+include/linux/sched.h:256:16: warning: "CONFIG_SPLIT_PTLOCK_CPUS" is not 
+defined
+In file included from include/linux/poll.h:11,
+                 from arch/i386/kernel/apm.c:207:
+include/linux/mm.h:236:16: warning: "CONFIG_SPLIT_PTLOCK_CPUS" is not 
+defined
+include/linux/mm.h:828:16: warning: "CONFIG_SPLIT_PTLOCK_CPUS" is not 
+defined
+arch/i386/kernel/apm.c: In function 'apm_init':
+arch/i386/kernel/apm.c:2293: error: 'pm_active' undeclared (first use in 
+this function)
+arch/i386/kernel/apm.c:2293: error: (Each undeclared identifier is 
+reported only once
+arch/i386/kernel/apm.c:2293: error: for each function it appears in.)
+arch/i386/kernel/apm.c: In function 'apm_exit':
+arch/i386/kernel/apm.c:2384: error: 'pm_active' undeclared (first use in 
+this function)
+make[1]: *** [arch/i386/kernel/apm.o] Error 1
 
-Unfortunately, that would make ohci unfunctional for me. I have normal
-usb device cable, connected to "USB gender changer" -- basically two
-female connectors -- so that I can plug USB network card into that.
+I'm using gcc-4.0.2, and glibc-2.3.3
 
-								Pavel
+Thanks in advance for your help.
 
--- 
-Thanks, Sharp!
+Stef
+

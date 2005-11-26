@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422663AbVKZQvQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbVKZR2A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422663AbVKZQvQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Nov 2005 11:51:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422665AbVKZQvQ
+	id S1750885AbVKZR2A (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Nov 2005 12:28:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750854AbVKZR2A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Nov 2005 11:51:16 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:30203 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1422663AbVKZQvP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Nov 2005 11:51:15 -0500
-Date: Sat, 26 Nov 2005 11:50:45 -0500
-From: Latchesar Ionkov <lucho@ionkov.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] v9fs: fix memory leak in v9fs dentry code
-Message-ID: <20051126165045.GA27111@ionkov.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 26 Nov 2005 12:28:00 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:52456 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S1750828AbVKZR2A convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Nov 2005 12:28:00 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: psmouse unusable in -mm series (was: 2.6.15-rc1-mm2 unsusable on DELL Inspiron 8200, 2.6.15-rc1 works fine)
+Date: Sat, 26 Nov 2005 18:28:58 +0100
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org, Marc Koschewski <marc@osknowledge.org>,
+       Ed Tomlinson <tomlins@cam.org>
+References: <20051118182910.GJ6640@stiffy.osknowledge.org> <200511252254.53128.dtor_core@ameritech.net> <200511252350.28129.dtor_core@ameritech.net>
+In-Reply-To: <200511252350.28129.dtor_core@ameritech.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200511261828.58875.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Assign the appropriate dentry operations to the dentry. Fixes memory leak.
+On Saturday, 26 of November 2005 05:50, Dmitry Torokhov wrote:
+> On Friday 25 November 2005 22:54, Dmitry Torokhov wrote:
+> > > Actually, it works on the console (ie with gpm), but X is unable to use it,
+> > > apparently.  However it used to be, at least on 2.6.14-git9 (this is the latest
+> > > non-mm kernel I've been able to test quickly on this box).
+> > >
+> > 
+> > Rafael,
+> > 
+> > does reverting the following patch makes touchpad work?
+> 
+> Or, try dropping this patch on top of -mm.
 
-Signed-off-by: Latchesar Ionkov <lucho@ionkov.net>
+That helps (additionally I've dropped "const" from the header of
+evdev_event_to_user, to avoid warnings).
 
----
-commit 1a6e02daf77d610278380537ff3f5687a205dac8
-tree 3b53740d44c07d4c8db4e0a0df11794697ab9549
-parent 2d0ebb36038c0626cde662a3b06da9787cfb68c3
-author Latchesar Ionkov <lucho@ionkov.net> Sat, 26 Nov 2005 10:39:47 -0500
-committer Latchesar Ionkov <lucho@ionkov.net> Sat, 26 Nov 2005 10:39:47 -0500
-
- fs/9p/vfs_inode.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
-
-diff --git a/fs/9p/vfs_inode.c b/fs/9p/vfs_inode.c
---- a/fs/9p/vfs_inode.c
-+++ b/fs/9p/vfs_inode.c
-@@ -427,6 +427,8 @@ v9fs_create(struct inode *dir,
- 
- 	v9fs_mistat2inode(fcall->params.rstat.stat, file_inode, sb);
- 	kfree(fcall);
-+	fcall = NULL;
-+	file_dentry->d_op = &v9fs_dentry_operations;
- 	d_instantiate(file_dentry, file_inode);
- 
- 	if (perm & V9FS_DMDIR) {
+Thanks,
+Rafael

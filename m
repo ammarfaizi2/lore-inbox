@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932266AbVKZQ2f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422663AbVKZQvQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932266AbVKZQ2f (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Nov 2005 11:28:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbVKZQ2f
+	id S1422663AbVKZQvQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Nov 2005 11:51:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422665AbVKZQvQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Nov 2005 11:28:35 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:7555 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932266AbVKZQ2e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Nov 2005 11:28:34 -0500
-Subject: Re: system freezes
-From: Arjan van de Ven <arjan@infradead.org>
-To: Duane Evenson <duane-maillists@shaw.ca>
+	Sat, 26 Nov 2005 11:51:16 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:30203 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1422663AbVKZQvP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Nov 2005 11:51:15 -0500
+Date: Sat, 26 Nov 2005 11:50:45 -0500
+From: Latchesar Ionkov <lucho@ionkov.net>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43888813.1030402@shaw.ca>
-References: <43888813.1030402@shaw.ca>
-Content-Type: text/plain
-Date: Sat, 26 Nov 2005 17:28:20 +0100
-Message-Id: <1133022500.2831.76.camel@laptopd505.fenrus.org>
+Subject: [PATCH] v9fs: fix memory leak in v9fs dentry code
+Message-ID: <20051126165045.GA27111@ionkov.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-11-26 at 09:06 -0700, Duane Evenson wrote:
-> My system keeps freezing. This has been an issue since I moved to 2.6.x.
-> I've tried various 2.6 kernels and various rebuilds.
+Assign the appropriate dentry operations to the dentry. Fixes memory leak.
 
-well better try without the binary only nvidia driver if you want most
-people to even look further.
+Signed-off-by: Latchesar Ionkov <lucho@ionkov.net>
 
+---
+commit 1a6e02daf77d610278380537ff3f5687a205dac8
+tree 3b53740d44c07d4c8db4e0a0df11794697ab9549
+parent 2d0ebb36038c0626cde662a3b06da9787cfb68c3
+author Latchesar Ionkov <lucho@ionkov.net> Sat, 26 Nov 2005 10:39:47 -0500
+committer Latchesar Ionkov <lucho@ionkov.net> Sat, 26 Nov 2005 10:39:47 -0500
+
+ fs/9p/vfs_inode.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/fs/9p/vfs_inode.c b/fs/9p/vfs_inode.c
+--- a/fs/9p/vfs_inode.c
++++ b/fs/9p/vfs_inode.c
+@@ -427,6 +427,8 @@ v9fs_create(struct inode *dir,
+ 
+ 	v9fs_mistat2inode(fcall->params.rstat.stat, file_inode, sb);
+ 	kfree(fcall);
++	fcall = NULL;
++	file_dentry->d_op = &v9fs_dentry_operations;
+ 	d_instantiate(file_dentry, file_inode);
+ 
+ 	if (perm & V9FS_DMDIR) {

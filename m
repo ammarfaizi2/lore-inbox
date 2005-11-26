@@ -1,86 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbVKZKfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbVKZKhx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750810AbVKZKfL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Nov 2005 05:35:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbVKZKfL
+	id S1750775AbVKZKhx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Nov 2005 05:37:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbVKZKhx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Nov 2005 05:35:11 -0500
-Received: from smtp-106-saturday.noc.nerim.net ([62.4.17.106]:42507 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1750810AbVKZKfJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Nov 2005 05:35:09 -0500
-Date: Sat, 26 Nov 2005 11:36:33 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Vishal Soni <vishal.linux@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: How to get SDA/SCL bit position in the control word register of
- the video card?
-Message-Id: <20051126113633.4f2fb35a.khali@linux-fr.org>
-In-Reply-To: <e3e24c6a0511252012v52a26698ua1d8b73eda2133fb@mail.gmail.com>
-References: <e3e24c6a0511240245i1d395ae6g4d768a75a602d6ce@mail.gmail.com>
-	<20051125203300.0899e9b7.khali@linux-fr.org>
-	<e3e24c6a0511252012v52a26698ua1d8b73eda2133fb@mail.gmail.com>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 26 Nov 2005 05:37:53 -0500
+Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:63156 "HELO
+	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1750775AbVKZKhx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Nov 2005 05:37:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.de;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=LlHhGcOxL/b+JacZANnkrB2XZlaoKhPtw0yZMTeQ8nw9oDavrP2Ih1qq4eKBX8YKhiKiYjl6IUao/UOhEtro52m71rLDjvp/6rRCJT+k3J3ljq+oITwwN84F4OPWUvAYrjHbw3NenZ03AqmRJSDOKDWFrbScQc5gBYW4npzU3rI=  ;
+From: Karsten Wiese <annabellesgarden@yahoo.de>
+To: mingo@elte.hu
+Subject: 2.6.14-rt15 @x86_64UP: "sem_post: Invalid argument"
+Date: Sat, 26 Nov 2005 11:40:47 +0100
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511261140.47931.annabellesgarden@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Vishal,
+I get loads of those messages since switching from rt12 to rt15.
+no other known change.
 
-> On 11/26/05, Jean Delvare wrote:
-> > First of all, I would suggest that you post using your real name.
-> > Pretending that you are Linux on your own will not make you popular
-> 
-> This was funny and what is also sometimes considered as ASSUMING something
-> and JUMPING to conclusion and JUDGING people without knowing them.
+They happen during startup and when I trigger
+i.e. an ardour build like this:
+	$ scons
 
-Calm down please.
+a typical strace excerpt:
+----
+futex(0x5012a0, FUTEX_WAKE, 1)          = -1 EINVAL (Invalid argument)
+write(2, "sem_post: Invalid argument\n", 27) = 27
+----
 
-I did not assume anything. You posted as "Vishal Linux", this is a
-hard fact. I also did not judge you in any way. I merely *suggested* a
-change, in your own interest.
+Other futex() calls like
+----
+futex(0x3b384030c8, FUTEX_WAKE, 2147483647) = 0
+----
+succeed.
+  
+This happens on fc4.
+Maybe caused by a recent change from a semaphore to completion?
 
-The way people on this list perceive you will decide whether they are
-going help you or not. Naming yourself "Vishal Linux" suggests that you
-are the only person on Earth with first name "Vishal" who is entitled
-to be related with the Linux kernel in any way. We expect more humility
-from newcomers.
+      Karsten
 
-Additionnally, it's much easier to deal with the real names. There are
-litterally thousands people posting to the LKML every year, having to
-deal with nicknames or first names only makes it very hard to remember
-who is who.
+	
 
-> I created email address vishal.linux so that i can dedicate one email
-> address to the mailing lists for my linux interest and the hundred of
-> mails, which keeps coming to the mailing list does not block my
-> personal mails.
-
-This is a technical detail. You can still post as "Vishal Soni" using
-this second email address. I invite you do to so.
-
-Now, feel free to ignore my suggestion. Just like I'll feel free to
-ignore any further post from "Vishal Linux", especially if said post
-includes slang, random insults, and abuses ellipsis.
-
-> > > I tried to use linux kernel API char* get_EDID_from_BIOS(void*) and
-> > > then using kgdb to debug the kernel module (that i wrote) to get the
-> > > same  but failed to find the way to get the above.
-> >
-> > I couldn't find any function by that name in the Linux kernel source
-> > tree. What are you talking about?
->
-> /usr/src/linux-2.6.x/include/video/edid.h
-
-There is no function by that name in that file, neither in Linus'
-latest kernel, nor in Andrew Morton's one. Whatever you are talking
-about does not seem to exist.
-
-> Thankyou for your time.
-
-You're welcome.
-
--- 
-Jean Delvare
+	
+		
+___________________________________________________________ 
+Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de

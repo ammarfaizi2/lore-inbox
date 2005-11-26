@@ -1,56 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932713AbVKZDwE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422636AbVKZEEh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932713AbVKZDwE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 22:52:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932718AbVKZDwE
+	id S1422636AbVKZEEh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 23:04:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932718AbVKZEEg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 22:52:04 -0500
-Received: from smtp110.sbc.mail.re2.yahoo.com ([68.142.229.95]:33976 "HELO
-	smtp110.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932713AbVKZDwC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 22:52:02 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Marc Koschewski <marc@osknowledge.org>
-Subject: Re: Entering BIOS on DELL mobiles - does the kernel prohibit?
-Date: Fri, 25 Nov 2005 22:51:57 -0500
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org
-References: <20051123155319.GA6970@stiffy.osknowledge.org> <200511232057.44022.dtor_core@ameritech.net> <20051124085018.GB7799@stiffy.osknowledge.org>
-In-Reply-To: <20051124085018.GB7799@stiffy.osknowledge.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511252251.58027.dtor_core@ameritech.net>
+	Fri, 25 Nov 2005 23:04:36 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:39346 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932715AbVKZEEg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Nov 2005 23:04:36 -0500
+Date: Fri, 25 Nov 2005 20:04:26 -0800 (PST)
+From: Paul Jackson <pj@sgi.com>
+To: akpm@osdl.org, Greg Kroah-Hartman <gregkh@suse.de>,
+       linux-kernel@vger.kernel.org
+Cc: Paul Jackson <pj@sgi.com>
+Message-Id: <20051126040426.26945.12817.sendpatchset@jackhammer.engr.sgi.com>
+Subject: [PATCH] driver kill hotplug word from sn and others fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 24 November 2005 03:50, Marc Koschewski wrote:
-> * Dmitry Torokhov <dtor_core@ameritech.net> [2005-11-23 20:57:43 -0500]:
-> 
-> > On Wednesday 23 November 2005 10:53, Marc Koschewski wrote:
-> > > Hi all,
-> > > 
-> > > first of all, if someone could point me to some information on that
-> > > topic, I would be glad. I didn't find anything on Google.
-> > > 
-> > > The 'problem' is: I remember being able to enter the DELL Inspiron BIOS
-> > > from a running X session (or console) some (long) time ago. I just noticed,
-> > > it no longer works. Does the kernel somehow prohibit to enter the BIOS
-> > > or does the laptop itself stop from doing so (maybe due to a BIOS update).
-> > >
-> > 
-> > It is only pssible with APM. ACPI "kills" it.
-> 
-> Oh! I didn't know. Is there any good reason to do so? I mean, any device
-> change (ie. serial port re-configuration) is just valid from next reboot, thus
-> not affecting the running kernel. Am I missing something?
->
+The first of these changes s/hotplug/uevent/ was needed to
+compile sn2_defconfig (ia64/sn).  The other three files
+changed are blind changes of all remaining bus_type.hotplug
+references I could find to bus_type.uevent.
 
-ACPI takes control over entire box, from that point on you can't enter
-pretty much any BIOS code. FWIW one ACPI is active it does not work in
-Windows either.
+This patch attempts to finish similar changes made in the
+gregkh-driver-kill-hotplug-word-from-driver-core Nov 22 patch.
+
+Signed-off-by: Paul Jackson <pj@sgi.com>
+
+---
+
+ arch/arm/common/amba.c      |    6 +++---
+ arch/ia64/sn/kernel/tiocx.c |    4 ++--
+ drivers/s390/cio/ccwgroup.c |    4 ++--
+ drivers/s390/cio/device.c   |    4 ++--
+ 4 files changed, 9 insertions(+), 9 deletions(-)
+
+--- 2.6.15-rc2-mm1.orig/arch/ia64/sn/kernel/tiocx.c	2005-11-25 17:09:59.175019269 -0800
++++ 2.6.15-rc2-mm1/arch/ia64/sn/kernel/tiocx.c	2005-11-25 18:09:19.834295281 -0800
+@@ -65,7 +65,7 @@ static int tiocx_match(struct device *de
+ 
+ }
+ 
+-static int tiocx_hotplug(struct device *dev, char **envp, int num_envp,
++static int tiocx_uevent(struct device *dev, char **envp, int num_envp,
+ 			 char *buffer, int buffer_size)
+ {
+ 	return -ENODEV;
+@@ -79,7 +79,7 @@ static void tiocx_bus_release(struct dev
+ struct bus_type tiocx_bus_type = {
+ 	.name = "tiocx",
+ 	.match = tiocx_match,
+-	.hotplug = tiocx_hotplug,
++	.uevent = tiocx_uevent,
+ };
+ 
+ /**
+--- 2.6.15-rc2-mm1.orig/arch/arm/common/amba.c	2005-11-25 17:09:12.046571395 -0800
++++ 2.6.15-rc2-mm1/arch/arm/common/amba.c	2005-11-25 18:48:25.476165433 -0800
+@@ -45,7 +45,7 @@ static int amba_match(struct device *dev
+ }
+ 
+ #ifdef CONFIG_HOTPLUG
+-static int amba_hotplug(struct device *dev, char **envp, int nr_env, char *buf, int bufsz)
++static int amba_uevent(struct device *dev, char **envp, int nr_env, char *buf, int bufsz)
+ {
+ 	struct amba_device *pcdev = to_amba_device(dev);
+ 
+@@ -58,7 +58,7 @@ static int amba_hotplug(struct device *d
+ 	return 0;
+ }
+ #else
+-#define amba_hotplug NULL
++#define amba_uevent NULL
+ #endif
+ 
+ static int amba_suspend(struct device *dev, pm_message_t state)
+@@ -88,7 +88,7 @@ static int amba_resume(struct device *de
+ static struct bus_type amba_bustype = {
+ 	.name		= "amba",
+ 	.match		= amba_match,
+-	.hotplug	= amba_hotplug,
++	.uevent		= amba_uevent,
+ 	.suspend	= amba_suspend,
+ 	.resume		= amba_resume,
+ };
+--- 2.6.15-rc2-mm1.orig/drivers/s390/cio/ccwgroup.c	2005-11-25 17:22:09.111753515 -0800
++++ 2.6.15-rc2-mm1/drivers/s390/cio/ccwgroup.c	2005-11-25 18:47:47.084142033 -0800
+@@ -45,7 +45,7 @@ ccwgroup_bus_match (struct device * dev,
+ 	return 0;
+ }
+ static int
+-ccwgroup_hotplug (struct device *dev, char **envp, int num_envp, char *buffer,
++ccwgroup_uevent (struct device *dev, char **envp, int num_envp, char *buffer,
+ 		  int buffer_size)
+ {
+ 	/* TODO */
+@@ -55,7 +55,7 @@ ccwgroup_hotplug (struct device *dev, ch
+ static struct bus_type ccwgroup_bus_type = {
+ 	.name    = "ccwgroup",
+ 	.match   = ccwgroup_bus_match,
+-	.hotplug = ccwgroup_hotplug,
++	.uevent = ccwgroup_uevent,
+ };
+ 
+ static inline void
+--- 2.6.15-rc2-mm1.orig/drivers/s390/cio/device.c	2005-11-25 17:22:09.112730088 -0800
++++ 2.6.15-rc2-mm1/drivers/s390/cio/device.c	2005-11-25 19:21:23.574390939 -0800
+@@ -59,7 +59,7 @@ ccw_bus_match (struct device * dev, stru
+  * Heavily modeled on pci and usb hotplug.
+  */
+ static int
+-ccw_hotplug (struct device *dev, char **envp, int num_envp,
++ccw_uevent (struct device *dev, char **envp, int num_envp,
+ 	     char *buffer, int buffer_size)
+ {
+ 	struct ccw_device *cdev = to_ccwdev(dev);
+@@ -110,7 +110,7 @@ ccw_hotplug (struct device *dev, char **
+ struct bus_type ccw_bus_type = {
+ 	.name  = "ccw",
+ 	.match = &ccw_bus_match,
+-	.hotplug = &ccw_hotplug,
++	.uevent = &ccw_uevent,
+ };
+ 
+ static int io_subchannel_probe (struct device *);
 
 -- 
-Dmitry
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

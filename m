@@ -1,74 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422633AbVKZPVJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbVKZPjC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422633AbVKZPVJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Nov 2005 10:21:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422652AbVKZPVJ
+	id S932254AbVKZPjC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Nov 2005 10:39:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964793AbVKZPjB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Nov 2005 10:21:09 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:10653 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1422633AbVKZPVI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Nov 2005 10:21:08 -0500
-Date: Sat, 26 Nov 2005 16:21:15 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: john stultz <johnstul@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Darren Hart <dvhltc@us.ibm.com>,
-       Nishanth Aravamudan <nacc@us.ibm.com>,
-       Frank Sorenson <frank@tuxrocks.com>,
-       George Anzinger <george@mvista.com>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [patch] warn-on-once.patch
-Message-ID: <20051126152115.GA15686@elte.hu>
-References: <20051122013515.18537.76463.sendpatchset@cog.beaverton.ibm.com> <20051122013522.18537.97944.sendpatchset@cog.beaverton.ibm.com> <20051126145216.GB12999@elte.hu> <20051126151734.GA15240@elte.hu>
+	Sat, 26 Nov 2005 10:39:01 -0500
+Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:10756 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S932254AbVKZPjA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Nov 2005 10:39:00 -0500
+Date: Sat, 26 Nov 2005 16:40:25 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Paused I/O versus regular I/O
+Message-Id: <20051126164025.66aae4f4.khali@linux-fr.org>
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051126151734.GA15240@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+Could anyone tell me what the difference is between "paused" I/O
+(inb_p, oub_p and friends) and regular I/O (inb, oub and friends)? I
+understand that the former includes some delays here and there, but how
+do I know when to use the paused variant, and when the non-paused
+variant is OK?
 
-> > - introduce WARN_ON_ONCE(cond)
-> 
-> replacement patch below - fixed bug found by Thomas Gleixner. (I've 
-> updated the gtod-B11-cleanup.tar.gz patchqueue with both this fix and 
-> the x64 fix.)
+The driver I am currently working on involves combined I/O access on
+the Super-I/O ports (0x2e and 0x2f being the address and data ports,
+respectively) and chip-specific combined I/O access (typically 0x295 and
+0x296 being the address and data ports, respectively). I am using
+regular (non-paused) I/O and it seems to work well, but I was wondering
+if maybe combined I/O (when you write to a port to select an internal
+address, then read the data from another port) was supposed to be done
+using paused I/O.
 
-replacement of the replacement (fix trailing semicolon).
+Can anyone clarify the situation? I couldn't find any documentation
+explaining *when* paused I/O must be used.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
- include/asm-generic/bug.h |   10 ++++++++++
- 1 files changed, 10 insertions(+)
-
-Index: linux/include/asm-generic/bug.h
-===================================================================
---- linux.orig/include/asm-generic/bug.h
-+++ linux/include/asm-generic/bug.h
-@@ -39,4 +39,14 @@
- #endif
- #endif
- 
-+#define WARN_ON_ONCE(condition)		\
-+do {					\
-+	static int warn_once = 1;	\
-+					\
-+	if (warn_once && (condition)) {	\
-+		warn_once = 0;		\
-+		WARN_ON(1);		\
-+	}				\
-+} while (0)
-+
- #endif
+Thanks,
+-- 
+Jean Delvare

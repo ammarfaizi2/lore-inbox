@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932684AbVKZDMy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932704AbVKZDZa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932684AbVKZDMy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 22:12:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932704AbVKZDMy
+	id S932704AbVKZDZa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 22:25:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932713AbVKZDZa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 22:12:54 -0500
-Received: from webbox4.loswebos.de ([213.187.93.205]:17585 "EHLO
-	webbox4.loswebos.de") by vger.kernel.org with ESMTP id S932684AbVKZDMy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 22:12:54 -0500
-Date: Sat, 26 Nov 2005 03:52:50 +0100
-From: Marc Koschewski <marc@osknowledge.org>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Marc Koschewski <marc@osknowledge.org>,
-       Frank Sorenson <frank@tuxrocks.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Harald Welte <laforge@netfilter.org>
-Subject: Re: Mouse issues in -mm
-Message-ID: <20051126025250.GA7000@stiffy.osknowledge.org>
-References: <20051123033550.00d6a6e8.akpm@osdl.org> <200511232226.44459.dtor_core@ameritech.net> <20051124094019.GA6788@stiffy.osknowledge.org> <200511251727.24630.dtor_core@ameritech.net>
+	Fri, 25 Nov 2005 22:25:30 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:63620 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S932704AbVKZDZ3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Nov 2005 22:25:29 -0500
+Date: Sat, 26 Nov 2005 11:33:32 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Bart Samwel <bart@samwel.tk>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 16/19] readahead: laptop mode support
+Message-ID: <20051126033332.GB7226@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
+	Bart Samwel <bart@samwel.tk>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>
+References: <20051125151210.993109000@localhost.localdomain> <20051125151723.001129000@localhost.localdomain> <43873681.6030609@samwel.tk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200511251727.24630.dtor_core@ameritech.net>
-X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
-X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
-X-Operating-System: Linux stiffy 2.6.15-rc2-marc
+In-Reply-To: <43873681.6030609@samwel.tk>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Dmitry Torokhov <dtor_core@ameritech.net> [2005-11-25 17:27:24 -0500]:
+On Fri, Nov 25, 2005 at 05:06:25PM +0100, Bart Samwel wrote:
+> Wu Fengguang wrote:
+> >When the laptop drive is spinned down, defer look-ahead to spin up time.
+> 
+> Just a n00b question: isn't readahead something that happens at read 
+> time at the block device level? And doesn't the fact that you're reading 
+> something imply that the drive is spun up? Or can readahead be triggered 
+> by reading from cache?
 
-> On Thursday 24 November 2005 04:40, Marc Koschewski wrote:
-> > I don't know why my touchpad is not listed. I have one and it perfectly
-> > works with X (same pointer as the mouse which is a Microsoft USB Wheel Mouse'
-> > attached to PS/2 using an appropriate adapter.
+Yes, both the old and new read-ahead logic issue read-ahead requests before
+the pages are immediately needed. It is called look-ahead in the new logic,
+which achieves I/O pipelining, and helps hide the I/O latency.
+
+> >For crazy laptop users who prefer aggressive read-ahead, here is the way:
 > >
+> ># echo 1000 > /proc/sys/vm/readahead_ratio
+> ># blockdev --setra 524280 /dev/hda      # this is the max possible value
 > 
-> [I dropped netdev list from CC...] 
-> 
-> You have a Dell Inspiron, right? On Inspirons (and Latitudes) mouse
-> connected to external PS/2 port completely shadoes touchpad making
-> it invisible to the kernel.
+> These amounts of readahead are absolutely useless though. I've done 
+> measurements about a year ago, that show that at a spindown time of two 
+> minutes you've basically achieved all the power savings you can get. 
+> More than 10 minutes of spindown is absolutely useless unless you have a 
+> desktop drive, because those don't normally support more than 50,000 
+> spinup cycles. The only apps I can think of that work on this amount of 
+> data in such a short period of time are all apps where you shouldn't be 
+> concerned about power drawn by the hard drive. :)
 
-I knew that. But just forgot. ;) However, that was not the prob I had. Was just
-wondering why it didn't show up in dmesg. I'll try to figure out, what made the
-mouse go crazy in -mm series. 
+Thanks, I have read about the paper, quite informative :)
 
-Marc
+It's just that some one suggested about the feature, and it's just a matter of
+lifting some limit values in the code - so I did it :)
+
+Regards,
+Wu

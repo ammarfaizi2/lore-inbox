@@ -1,36 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbVKZUII@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbVKZUCF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750727AbVKZUII (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Nov 2005 15:08:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbVKZUII
+	id S1750726AbVKZUCF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Nov 2005 15:02:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbVKZUCF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Nov 2005 15:08:08 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:25739 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750727AbVKZUIG (ORCPT
+	Sat, 26 Nov 2005 15:02:05 -0500
+Received: from main.gmane.org ([80.91.229.2]:10478 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750726AbVKZUCE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Nov 2005 15:08:06 -0500
-Date: Sat, 26 Nov 2005 21:08:07 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: mousedev parametes not visible in /sys
-Message-ID: <Pine.LNX.4.61.0511262102390.17231@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 26 Nov 2005 15:02:04 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Matthijs Melchior <mmelchior@xs4all.nl>
+Subject: Re: Ordered Sorted List
+Date: Sat, 26 Nov 2005 12:03:14 +0100
+Message-ID: <dm9fdj$esk$1@sea.gmane.org>
+References: <1131.62.1.12.53.1133000719.squirrel@webmail.wired-net.gr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: zwaan.xs4all.nl
+User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
+X-Accept-Language: en-us, en
+In-Reply-To: <1131.62.1.12.53.1133000719.squirrel@webmail.wired-net.gr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Nanakos Chrysostomos wrote:
+> Hi ,all.Can someone please explain this source code with an example???
+.....
+> void slistInsert(slist *sp,int t)
+> {
+>         ListNode *n=(ListNode *)malloc(sizeof(ListNode));
+>         if(n == NULL)
+>         {
+>                 printf("Out of memory\n");
+>                 exit(1);
+>         }
+>         n->data = t;
+>         while(*sp!=NULL && (*sp)->data < t)
+>         {
+>         	sp = &((*sp)->next);   // Why we do this here,i miss this point
 
+This is done to move to the next item in the list.
+The expression is complicated because 'sp' is a pointer to a pointer to
+a structure.
 
-linux-2.6.13/drivers/input/mousedev.c has some module_params, but they do 
-not show up in /sys, i.e. there is no /sys/modules/mousedev directory at 
-all. Even though it is a compiled-in 'module', I do know that even 
-compiled-ins can get a directory under /sys/modules/, as is the case with 
-a module_param in e.g. drivers/char/vt.c which shows as /sys/modules/vt.
+>         }
+>         n->next = *sp;
+>         *sp = n;
+> 
+> }
+> 
+.....
 
-Can anybody confirm this or know what's wrong?
-
-
-
-Jan Engelhardt
 -- 
+Matthijs Melchior.
+

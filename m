@@ -1,60 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbVKZTeF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbVKZTlZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750723AbVKZTeF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Nov 2005 14:34:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbVKZTeE
+	id S1750720AbVKZTlZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Nov 2005 14:41:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbVKZTlZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Nov 2005 14:34:04 -0500
-Received: from herkules.vianova.fi ([194.100.28.129]:54426 "HELO
-	mail.vianova.fi") by vger.kernel.org with SMTP id S1750723AbVKZTeE
+	Sat, 26 Nov 2005 14:41:25 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:36585
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1750720AbVKZTlY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Nov 2005 14:34:04 -0500
-Date: Sat, 26 Nov 2005 21:33:58 +0200
-From: Ville Herva <vherva@vianova.fi>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Folkert van Heusden <folkert@vanheusden.com>, linux-kernel@vger.kernel.org
-Subject: Re: capturing oopses
-Message-ID: <20051126193358.GF22255@vianova.fi>
-Reply-To: vherva@vianova.fi
-References: <20051122130754.GL32512@vanheusden.com> <20051126155656.GA3988@stusta.de>
+	Sat, 26 Nov 2005 14:41:24 -0500
+Subject: Re: 2.6.14-rt15: cannot build with !PREEMPT_RT
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       david singleton <dsingleton@mvista.com>
+In-Reply-To: <1133031912.5904.12.camel@mindpipe>
+References: <1132987928.4896.1.camel@mindpipe>
+	 <20051126122332.GA3712@elte.hu>  <1133031912.5904.12.camel@mindpipe>
+Content-Type: text/plain
+Organization: linutronix
+Date: Sat, 26 Nov 2005 20:46:46 +0100
+Message-Id: <1133034406.32542.308.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051126155656.GA3988@stusta.de>
-X-Operating-System: Linux herkules.vianova.fi 2.4.32-rc1
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 26, 2005 at 04:56:56PM +0100, you [Adrian Bunk] wrote:
-> On Tue, Nov 22, 2005 at 02:07:54PM +0100, Folkert van Heusden wrote:
-> 
-> > Hi,
-> 
-> Hi Folkert,
-> 
-> > My 2.6.14 system occasionally crashes; gives a kernel panic. Of course I
-> > would like to report it. Now the system locks up hard so I can't copy
-> > the stacktrace. The crash dump patches mentioned in oops-tracing.txt all
-> > don't work for 2.6.14 it seems. So: what should I do? Get my digicam and
-> > take a picture of the display?
-> 
-> yes, digicams have become a common tool for reporting Oops'es.
+On Sat, 2005-11-26 at 14:05 -0500, Lee Revell wrote:
 
-Speaking of which, does anybody know a feasible (as in "not too much harder
-than manually typing it in manually") way to OCR characters from vga text
-mode screen captures - or even digican shots? 
+> -rt19 seems to work except that asm/io_apic.h fails to include 
+> asm/apicdef.h so MAX_IO_APICS is undefined.
 
-The vga text mode captures are from a remote administration interface (such
-as HP RILOE or vmware gsx console) so they are pixel perfect and OCR should
-be doable. The digican shots on the other hand... Well at least it would
-have hack value :).
+The patch below fixes the Makefile x86_64 clutter and the io_apic
+compile problem
 
-(My personal opinion is that Linus' unwillingness to include anything like
-kmsgdump (http://www.xenotime.net/linux/kmsgdump/) is somewhat unfortunate.)
+	tglx
 
 
--- v -- 
+Index: linux-2.6.14-rt/Makefile
+===================================================================
+--- linux-2.6.14-rt.orig/Makefile
++++ linux-2.6.14-rt/Makefile
+@@ -189,8 +189,8 @@ SUBARCH := $(shell uname -m | sed -e s/i
+ # Default value for CROSS_COMPILE is not to prefix executables
+ # Note: Some architectures assign CROSS_COMPILE in their arch/*/Makefile
+ 
+-ARCH = x86_64
+-CROSS_COMPILE = x86_64-linux-
++ARCH		?= $(SUBARCH)
++CROSS_COMPILE	?=
+ 
+ # Architecture as present in compile.h
+ UTS_MACHINE := $(ARCH)
+Index: linux-2.6.14-rt/arch/i386/kernel/i8253.c
+===================================================================
+--- linux-2.6.14-rt.orig/arch/i386/kernel/i8253.c
++++ linux-2.6.14-rt/arch/i386/kernel/i8253.c
+@@ -10,10 +10,10 @@
+ #include <linux/init.h>
+ #include <linux/mca.h>
+ 
++#include <asm/smp.h>
+ #include <asm/io_apic.h>
+ #include <asm/delay.h>
+ #include <asm/i8253.h>
+-#include <asm/smp.h>
+ #include <asm/io.h>
+ 
+ #include "io_ports.h"
 
-v@iki.fi
 

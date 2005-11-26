@@ -1,101 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbVKYX2W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbVKZALL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932291AbVKYX2W (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Nov 2005 18:28:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932706AbVKYX2W
+	id S1750765AbVKZALL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Nov 2005 19:11:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751037AbVKZALK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 18:28:22 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:19608 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932291AbVKYX2V (ORCPT
+	Fri, 25 Nov 2005 19:11:10 -0500
+Received: from gold.veritas.com ([143.127.12.110]:38474 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1750765AbVKZALK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 18:28:21 -0500
-Date: Fri, 25 Nov 2005 15:28:29 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Wu Fengguang <wfg@mail.ustc.edu.cn>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Cc: mingo@elte.hu, levon@movementarian.org
-Subject: Re: BUG: spinlock recursion on 2.6.14-mm2 when oprofiling
-Message-ID: <20051125232829.GA2405@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20051118152101.GA4690@mail.ustc.edu.cn> <20051125220117.GA1836@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051125220117.GA1836@us.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 25 Nov 2005 19:11:10 -0500
+Date: Sat, 26 Nov 2005 00:11:10 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: root <root@txiringo.dyndns.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: your mail
+In-Reply-To: <20051125220620.968F72404DC7@txiringo>
+Message-ID: <Pine.LNX.4.61.0511260009080.13981@goblin.wat.veritas.com>
+References: <20051125220620.968F72404DC7@txiringo>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 26 Nov 2005 00:11:05.0600 (UTC) FILETIME=[E4C4C000:01C5F21D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 25, 2005 at 02:01:17PM -0800, Paul E. McKenney wrote:
-> One concern on the attached patch is the possible effect on latency.
-> 
-> John, any reason why the dead_tasks list cannot be spliced onto a
-> local list, then freed outside of the task_mortuary lock?  Any reason
-> why the dying_tasks list cannot be spliced onto the dead_tasks list
-> (an O(1) operation)?
+On Fri, 25 Nov 2005, root wrote:
 
-And here is an alternative patch that assumes that the answer to both
-questions above is "no".  It is shorter, though mostly due to use of
-the list_splice_init() and list_for_each_entry_safe() primitives.
+> Nov 25 21:59:24 txiringo kernel: [17182458.504000] program ddcprobe
+> is using MAP_PRIVATE, PROT_WRITE mmap of VM_RESERVED memory, which
+> is deprecated. Please report this to linux-kernel@vger.kernel.org
 
+Thanks for the report: now fixed, please upgrade to 2.6.15-rc2-git3 or later.
 
-						Thanx, Paul
-
-Signed-off-by: <paulmck@us.ibm.com>
-
- buffer_sync.c |   28 +++++++++++++---------------
- 1 files changed, 13 insertions(+), 15 deletions(-)
-
-diff -urpNa -X dontdiff linux-2.6.14-mm2/drivers/oprofile/buffer_sync.c linux-2.6.14-mm2-fixmortuary/drivers/oprofile/buffer_sync.c
---- linux-2.6.14-mm2/drivers/oprofile/buffer_sync.c	2005-10-27 17:02:08.000000000 -0700
-+++ linux-2.6.14-mm2-fixmortuary/drivers/oprofile/buffer_sync.c	2005-11-25 14:51:26.000000000 -0800
-@@ -46,10 +46,11 @@ static void process_task_mortuary(void);
-  */
- static int task_free_notify(struct notifier_block * self, unsigned long val, void * data)
- {
-+	unsigned long flags;
- 	struct task_struct * task = data;
--	spin_lock(&task_mortuary);
-+	spin_lock_irqsave(&task_mortuary, flags);
- 	list_add(&task->tasks, &dying_tasks);
--	spin_unlock(&task_mortuary);
-+	spin_unlock_irqrestore(&task_mortuary, flags);
- 	return NOTIFY_OK;
- }
- 
-@@ -431,25 +432,22 @@ static void increment_tail(struct oprofi
-  */
- static void process_task_mortuary(void)
- {
--	struct list_head * pos;
--	struct list_head * pos2;
-+	unsigned long flags;
-+	LIST_HEAD(local_dead_tasks);
- 	struct task_struct * task;
-+	struct task_struct * ttask;
- 
--	spin_lock(&task_mortuary);
-+	spin_lock_irqsave(&task_mortuary, flags);
- 
--	list_for_each_safe(pos, pos2, &dead_tasks) {
--		task = list_entry(pos, struct task_struct, tasks);
--		list_del(&task->tasks);
--		free_task(task);
--	}
-+	list_splice_init(&dead_tasks, &local_dead_tasks);
-+	list_splice_init(&dying_tasks, &dead_tasks);
- 
--	list_for_each_safe(pos, pos2, &dying_tasks) {
--		task = list_entry(pos, struct task_struct, tasks);
-+	spin_unlock_irqrestore(&task_mortuary, flags);
-+
-+	list_for_each_entry_safe(task, ttask, &local_dead_tasks, tasks) {
- 		list_del(&task->tasks);
--		list_add_tail(&task->tasks, &dead_tasks);
-+		free_task(task);
- 	}
--
--	spin_unlock(&task_mortuary);
- }
- 
- 
+Hugh

@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422644AbVKZG0u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422647AbVKZGeN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422644AbVKZG0u (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Nov 2005 01:26:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422645AbVKZG0u
+	id S1422647AbVKZGeN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Nov 2005 01:34:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422648AbVKZGeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Nov 2005 01:26:50 -0500
-Received: from xproxy.gmail.com ([66.249.82.192]:9343 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1422644AbVKZG0t (ORCPT
+	Sat, 26 Nov 2005 01:34:13 -0500
+Received: from zproxy.gmail.com ([64.233.162.196]:5237 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1422647AbVKZGeN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Nov 2005 01:26:49 -0500
+	Sat, 26 Nov 2005 01:34:13 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=L/d5MNstQ0TNUXcOEJEBnLrn4IuR/wrx7EWZrCqNu/xktEGvnyIvP6ubxyx6+ytFpnSvEVGW0T+Ksq7B/tjA4BwN8mVhdiM777hMhEIHpsD/30tR2LiOaG0wYTe8slpuS6dDtXtWYocdvECaocYX3UC0BqaPgjA1q/pOULoOvm0=
-Message-ID: <4387FFFD.2000109@gmail.com>
-Date: Sat, 26 Nov 2005 14:26:05 +0800
+        b=eb9l1OlrCINdeaUSufB7ngfEl89ByZP6601EKBwMOe8Ug4+zlAvYkvhKkfhygB601VaMDeBbBKk7dRs8HL5r4Jgww/UseYs2FW31ZiVJf3f0F1eDvDgRWvIFD1vtJ7xdR1yvbGqhwOaeN4a88ZotNynET++SLDo/Dd8sZo6nPQM=
+Message-ID: <438801B8.2030405@gmail.com>
+Date: Sat, 26 Nov 2005 14:33:28 +0800
 From: "Antonino A. Daplas" <adaplas@gmail.com>
 User-Agent: Thunderbird 1.5 (X11/20051025)
 MIME-Version: 1.0
-To: "Calin A. Culianu" <calin@ajvar.org>
-CC: ajoshi@shell.unixbox.com, akpm@osdl.org, adaplas@pol.net,
-       linux-kernel@vger.kernel.org, linux-nvidia@lists.surfsouth.com,
-       Linus Torvalds <torvalds@osdl.org>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+CC: "Calin A. Culianu" <calin@ajvar.org>, ajoshi@shell.unixbox.com,
+       akpm@osdl.org, adaplas@pol.net, linux-kernel@vger.kernel.org,
+       linux-nvidia@lists.surfsouth.com, Linus Torvalds <torvalds@osdl.org>
 Subject: Re: [PATCH] nvidiafb support for 6600 and 6200
-References: <Pine.LNX.4.64.0511252358390.25302@rtlab.med.cornell.edu>
-In-Reply-To: <Pine.LNX.4.64.0511252358390.25302@rtlab.med.cornell.edu>
+References: <Pine.LNX.4.64.0511252358390.25302@rtlab.med.cornell.edu> <4387FFFD.2000109@gmail.com>
+In-Reply-To: <4387FFFD.2000109@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Calin A. Culianu wrote:
-> Hi,
+Antonino A. Daplas wrote:
+> Calin A. Culianu wrote:
+>> Hi,
+>>
+>> This patch can be applied against 2.6.15-rc1 to add support to the
+>> nvidiafb driver for a few obscure (yet on-the-market) nvidia
+>> boards/chipsets, including various versions of the Geforce 6600 and 6200.
+>>
+>> This patch has been tested and allows the above-mentioned boards to get
+>> framebuffer console support.
+>>
 > 
-> This patch can be applied against 2.6.15-rc1 to add support to the
-> nvidiafb driver for a few obscure (yet on-the-market) nvidia
-> boards/chipsets, including various versions of the Geforce 6600 and 6200.
+> Is this a pci-e card?  With a pci-e card, the actual chipset type is located
+> in one of the registers (instead of deriving it from the pci device id) and
+> will resolve into one of the supported architectures, usually an NV_ARCH_40.
 > 
-> This patch has been tested and allows the above-mentioned boards to get
-> framebuffer console support.
+> Can you try this patch instead? And send me your dmesg whether it works or
+> not.
 > 
 
-Is this a pci-e card?  With a pci-e card, the actual chipset type is located
-in one of the registers (instead of deriving it from the pci device id) and
-will resolve into one of the supported architectures, usually an NV_ARCH_40.
-
-Can you try this patch instead? And send me your dmesg whether it works or
-not.
-
-Thanks.
+Uhh, disregard the previous patch, try this one.
 
 Tony
 
@@ -224,7 +226,7 @@ index 1f06a9f..1330021 100644
  		break;
  	default:
 diff --git a/drivers/video/nvidia/nvidia.c b/drivers/video/nvidia/nvidia.c
-index 961007d..2d9152d 100644
+index 961007d..19ab162 100644
 --- a/drivers/video/nvidia/nvidia.c
 +++ b/drivers/video/nvidia/nvidia.c
 @@ -1448,11 +1448,34 @@ static int __devinit nvidia_set_fbinfo(s
@@ -273,7 +275,7 @@ index 961007d..2d9152d 100644
  		arch = NV_ARCH_40;
  		break;
  	case 0x0020:		/* TNT, TNT2 */
-@@ -1533,9 +1558,6 @@ static int __devinit nvidiafb_probe(stru
+@@ -1533,16 +1558,8 @@ static int __devinit nvidiafb_probe(stru
  		goto err_out_request;
  	}
  
@@ -282,17 +284,30 @@ index 961007d..2d9152d 100644
 -	par->Chipset = (pd->vendor << 16) | pd->device;
  	printk(KERN_INFO PFX "nVidia device/chipset %X\n", par->Chipset);
  
- 	if (par->Architecture == 0) {
-@@ -1570,6 +1592,8 @@ static int __devinit nvidiafb_probe(stru
+-	if (par->Architecture == 0) {
+-		printk(KERN_ERR PFX "unknown NV_ARCH\n");
+-		goto err_out_free_base0;
+-	}
+-
+ 	sprintf(nvidiafb_fix.id, "NV%x", (pd->device & 0x0ff0) >> 4);
+ 
+ 	par->FlatPanel = flatpanel;
+@@ -1570,6 +1587,14 @@ static int __devinit nvidiafb_probe(stru
  		goto err_out_free_base0;
  	}
  
 +	par->Chipset = nvidia_get_chipset(info);
 +	par->Architecture = nvidia_get_arch(info);
++
++	if (par->Architecture == 0) {
++		printk(KERN_ERR PFX "unknown NV_ARCH\n");
++		goto err_out_arch;
++	}
++
  	NVCommonSetup(info);
  
  	par->FbAddress = nvidiafb_fix.smem_start;
-@@ -1581,10 +1605,15 @@ static int __devinit nvidiafb_probe(stru
+@@ -1581,10 +1606,15 @@ static int __devinit nvidiafb_probe(stru
  	if (par->FbMapSize > 64 * 1024 * 1024)
  		par->FbMapSize = 64 * 1024 * 1024;
  
@@ -309,3 +324,33 @@ index 961007d..2d9152d 100644
  	info->screen_base = ioremap(nvidiafb_fix.smem_start, par->FbMapSize);
  	info->screen_size = par->FbUsableSize;
  	nvidiafb_fix.smem_len = par->RamAmountKBytes * 1024;
+@@ -1640,21 +1670,22 @@ static int __devinit nvidiafb_probe(stru
+ 	NVTRACE_LEAVE();
+ 	return 0;
+ 
+-      err_out_iounmap_fb:
++err_out_iounmap_fb:
+ 	iounmap(info->screen_base);
+-      err_out_free_base1:
++err_out_free_base1:
+ 	fb_destroy_modedb(info->monspecs.modedb);
+ 	nvidia_delete_i2c_busses(par);
++err_out_arch:
+ 	iounmap(par->REGS);
+-      err_out_free_base0:
++err_out_free_base0:
+ 	pci_release_regions(pd);
+-      err_out_request:
++err_out_request:
+ 	pci_disable_device(pd);
+-      err_out_enable:
++err_out_enable:
+ 	kfree(info->pixmap.addr);
+-      err_out_kfree:
++err_out_kfree:
+ 	framebuffer_release(info);
+-      err_out:
++err_out:
+ 	return -ENODEV;
+ }
+ 

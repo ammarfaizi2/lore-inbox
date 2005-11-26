@@ -1,61 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422628AbVKZPEK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbVKZPL0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422628AbVKZPEK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Nov 2005 10:04:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422633AbVKZPEK
+	id S932250AbVKZPL0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Nov 2005 10:11:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbVKZPL0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Nov 2005 10:04:10 -0500
-Received: from mx02.stofanet.dk ([212.10.10.12]:55452 "EHLO mx02.stofanet.dk")
-	by vger.kernel.org with ESMTP id S1422628AbVKZPEJ (ORCPT
+	Sat, 26 Nov 2005 10:11:26 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:30164 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932250AbVKZPLZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Nov 2005 10:04:09 -0500
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] warn-on-once.patch
-Date: Sat, 26 Nov 2005 16:03:37 +0100
-User-Agent: KMail/1.8.3
-Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       Darren Hart <dvhltc@us.ibm.com>, Nishanth Aravamudan <nacc@us.ibm.com>,
+	Sat, 26 Nov 2005 10:11:25 -0500
+Date: Sat, 26 Nov 2005 16:11:14 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Darren Hart <dvhltc@us.ibm.com>,
+       Nishanth Aravamudan <nacc@us.ibm.com>,
        Frank Sorenson <frank@tuxrocks.com>,
        George Anzinger <george@mvista.com>,
        Roman Zippel <zippel@linux-m68k.org>,
        Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
        Thomas Gleixner <tglx@linutronix.de>
-References: <20051122013515.18537.76463.sendpatchset@cog.beaverton.ibm.com> <20051122013522.18537.97944.sendpatchset@cog.beaverton.ibm.com> <20051126145216.GB12999@elte.hu>
-In-Reply-To: <20051126145216.GB12999@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 11/13] Time: x86-64 Conversion to Generic Timekeeping
+Message-ID: <20051126151114.GA14570@elte.hu>
+References: <20051122013515.18537.76463.sendpatchset@cog.beaverton.ibm.com> <20051122013628.18537.58457.sendpatchset@cog.beaverton.ibm.com> <20051126145528.GJ12999@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511261603.38661.xschmi00@stud.feec.vutbr.cz>
+In-Reply-To: <20051126145528.GJ12999@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.5
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.5 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	1.3 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat 26. of November 2005 15:52 Ingo Molnar wrote:
-> - introduce WARN_ON_ONCE(cond)
-> [...]
-> +#define WARN_ON_ONCE(condition)		\
-> +do {					\
-> +	static int warn_once = 1;	\
-> +					\
-> +	if (condition) {		\
-> +		warn_once = 0;		\
-> +		WARN_ON(1);		\
-> +	}				\
-> +} while (0);
-> +
->  #endif
 
-That can't be right. The variable warn_once is only written to. Should the 
-condition be: if (condition && warn_once)  ?
-Or even better with inverted logic (so that the variable is initialized to 0):
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-static int warned_once;
-if (condition && !warned_once) {
-	warned_once = 1;
-	WARN_ON(1);
-}
+> - clean up timeofday-arch-x86-64-part1.patch
 
+the addon patch below is needed as well, to get x64 build and boot.
 
-Michal
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+ arch/x86_64/kernel/time.c |   12 ++++++++++++
+ 1 files changed, 12 insertions(+)
+
+Index: linux/arch/x86_64/kernel/time.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/time.c
++++ linux/arch/x86_64/kernel/time.c
+@@ -1134,6 +1134,18 @@ static cycle_t read_tsc_c3(void)
+ 
+ #endif /* CONFIG_PARANOID_GENERIC_TIME */
+ 
++static struct clocksource clocksource_tsc = {
++	.name			= "tsc",
++	.rating			= 300,
++	.read			= read_tsc,
++	.vread			= vread_tsc,
++	.mask			= (cycle_t)-1,
++	.mult			= 0, /* to be set */
++	.shift			= 22,
++	.update_callback	= tsc_update_callback,
++	.is_continuous		= 1,
++};
++
+ static int tsc_update_callback(void)
+ {
+ 	int change = 0;

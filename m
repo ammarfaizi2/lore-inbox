@@ -1,86 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751002AbVK0LsV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751006AbVK0Lza@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751002AbVK0LsV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 06:48:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751004AbVK0LsV
+	id S1751006AbVK0Lza (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 06:55:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751007AbVK0Lza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 06:48:21 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:34211 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1751002AbVK0LsU (ORCPT
+	Sun, 27 Nov 2005 06:55:30 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:3236 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751003AbVK0Lz3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 06:48:20 -0500
-Message-ID: <4389AE80.3ED0CA59@tv-sign.ru>
-Date: Sun, 27 Nov 2005 16:02:56 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	Sun, 27 Nov 2005 06:55:29 -0500
+Date: Sun, 27 Nov 2005 12:55:36 +0100
+From: Ingo Molnar <mingo@elte.hu>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Roland McGrath <roland@redhat.com>
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
 Subject: Re: [PATCH 1/2] PF_DEAD: cleanup usage
-References: <4385E3FF.C99DBCF5@tv-sign.ru> <20051125051232.GB22230@elte.hu>
-	  <Pine.LNX.4.64.0511250950450.13959@g5.osdl.org> <43883D01.8CCB31A6@tv-sign.ru>
-	 <Pine.LNX.4.64.0511260949030.13959@g5.osdl.org> <4388B5AA.34CE5294@tv-sign.ru> <Pine.LNX.4.64.0511261023500.13959@g5.osdl.org>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+Message-ID: <20051127115536.GA22229@elte.hu>
+References: <4385E3FF.C99DBCF5@tv-sign.ru> <20051125051232.GB22230@elte.hu> <Pine.LNX.4.64.0511250950450.13959@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0511250950450.13959@g5.osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.5
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.5 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	1.3 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+
+* Linus Torvalds <torvalds@osdl.org> wrote:
+
+> > > I think it is better to set EXIT_DEAD in do_exit(), along with PF_DEAD 
+> > > flag.
+> > 
+> > nice idea - your patch looks good to me.
 > 
-> HOWEVER. I just noticed something strange. EXIT_DEAD should be in
-> "task->exit_state", not in "task->state". So there's something strange
-> going on in that neck of the woods _anyway_. That whole
->
-> 	...
->         if (unlikely(prev->flags & PF_DEAD))
->                 prev->state = EXIT_DEAD;
-> 	...
->
-> in kernel/sched.c seems totally bogus.
+> I'm not entirely convinced.
+> 
+> The thing is, We used to have DEAD in the task state flags, ie 
+> TASK_ZOMBIE was it.
+> 
+> We started using PF_DEAD in 2003 with this commit message:
+> 
+> Author: Linus Torvalds <torvalds@home.osdl.org>  2003-10-26 03:16:23
+> 
+>     Add a sticky "PF_DEAD" task flag to keep track of dead processes.
+>     
+>     Use this to simplify 'finish_task_switch', but perhaps more
+>     importantly we can use this to track down why some processes
+>     seem to sometimes not die properly even after having been
+>     marked as ZOMBIE. The "task->state" flags are too fluid to 
+>     allow that well.
+> 
+> ie the PF_DEAD flag was never really about is _needing_ it: it was all 
+> about being able to safely check it _without_ having to rely on 
+> task->state.
 
-We can use any random value instead of EXIT_DEAD (except RUNNING,INTERRUPTIBLE,
-and UNINTERRUPTIBLE). The only reason for changing the state's value is this
-check below:
+but this was in times when we did alot of nontrivial operations after we 
+marked a task "dead". Today we do this:
 
-	if (->state && !PREEMPT_ACTIVE) {
-		...
-		deactivate_task();
-	}
+        /* PF_DEAD causes final put_task_struct after we schedule. */
+        preempt_disable();
+        BUG_ON(tsk->flags & PF_DEAD);
+        tsk->flags |= PF_DEAD;
 
-This state is invisible to proc/array.c because yes, we already have something
-in ->exit_state.
+        schedule();
+        BUG();
 
-We can add new TASK_DEAD or something for that. Or we can do:
+(i introduced the above changes to make more of the exit path 
+preemptable.)
 
--	if (prev->state && !(preempt_count() & PREEMPT_ACTIVE)) {
-+	// PF_DEAD means that preemption was disabled
-+	if (PF_DEAD || (prev->state && !(preempt_count() & PREEMPT_ACTIVE))) {
+PF_DEAD has zero relevance by today, and Oleg's patches are perfectly 
+correct and dont add the kind of risk that they'd have meant in 2003.
 
-but this is so ugly.
+> So putting it back into task->state is not wrong per se, but it kind 
+> of misses the point of why it was somewhere else in the first place 
+> (or rather, why it was there in the _second_ place, since it was in 
+> task->state in the first place and got moved out of there).
 
-> I think we should remove that thing entirely, since it's actually a total
-> no-op, apart from doing something that is actively wrong. The "exit_state"
-> flag should already _be_ EXIT_DEAD, no?
+yeah, PF_DEAD had its purpose back when we first marked a task dead, 
+then we did the release_task(). We used to have problems with 
+proc_pid_flush() which could sleep, which would lose the TASK_ZOMBIE or 
+TASK_DEAD flag and we'd come back from the 'final' schedule().
 
-No, it could be EXIT_ZOMBIE if the task was not auto-reaped. So the task
-should be deactivated when ->exit_state != 0. But see below.
+today that's impossible, due to the code above - we only mark it PF_DEAD 
+straight before going into the final schedule().
 
-> And now that "exit_state" is already separate from "state", the reason for
-> PF_DEAD really is gone, and it could be replaced with a
->
-> 	tsk->exit_state & EXIT_DEAD
->
-> test instead.
-
-No, I don't think this is right. After exit_notify() sets ->exit_state this
-process is still valid from the scheduler POV, it may be preempted, may sleep.
-
-So I beleive we really need to do something special when exiting process does
-it's last context switch from do_exit(). If the process enters schedule() in
-TASK_RUNNUNG, we should pass the hint to scheduler - PF_DEAD. Or we can change
-the ->state before calling schedule().
-
-Oleg.
+	Ingo

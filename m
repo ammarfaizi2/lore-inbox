@@ -1,72 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbVK0QLY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbVK0QUw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751091AbVK0QLY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 11:11:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbVK0QLY
+	id S1751100AbVK0QUw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 11:20:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbVK0QUw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 11:11:24 -0500
-Received: from quark.didntduck.org ([69.55.226.66]:25553 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id S1751091AbVK0QLX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 11:11:23 -0500
-Message-ID: <4389DB56.5060207@didntduck.org>
-Date: Sun, 27 Nov 2005 11:14:14 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mail/News 1.5 (X11/20051105)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Use KERNELRELEASE
-Content-Type: multipart/mixed;
- boundary="------------050306010500090009070907"
+	Sun, 27 Nov 2005 11:20:52 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:3341 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1751100AbVK0QUv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 11:20:51 -0500
+Date: Sun, 27 Nov 2005 17:20:48 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: James Courtier-Dutton <James@superbug.demon.co.uk>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Alternatives to serial console for oops.
+Message-ID: <20051127162048.GP11266@alpha.home.local>
+References: <4389D63B.4000702@superbug.demon.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4389D63B.4000702@superbug.demon.co.uk>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050306010500090009070907
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi,
 
-Clean up two more open-coded uses of KERNELRELEASE.
+On Sun, Nov 27, 2005 at 03:52:27PM +0000, James Courtier-Dutton wrote:
+> Hi,
+> 
+> I wish to view the oops that are normally output on the serial port of 
+> the PC. The problem I have, is that my PC does not have a serial port.
+> Are there any alternatives for getting that vital oops from the kernel 
+> just as it crashes apart from the serial console.
+> Could I get it to use some other interface? e.g. Network interface.
+> Parallel port is also not an option.
 
-Signed-off-by: Brian Gerst <bgerst@didntduck.org>
+The netconsole patch should let you send it over a network interface,
+but I've not used it much so I won't be able to help. kmsgdump will
+let you write it on a floppy disk, but I bet that you don't have any
+if you don't have any serial nor parallel ports.
 
---------------050306010500090009070907
-Content-Type: text/plain;
- name="kernelrelease"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="kernelrelease"
+VMWare may help if you are mainly trying to debug a kernel and not
+using it for production.
 
-diff --git a/arch/frv/boot/Makefile b/arch/frv/boot/Makefile
-index d75e0d7..5dfc93f 100644
---- a/arch/frv/boot/Makefile
-+++ b/arch/frv/boot/Makefile
-@@ -57,10 +57,10 @@ initrd:
- # installation
- #
- install: $(CONFIGURE) Image
--	sh ./install.sh $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION) Image $(TOPDIR)/System.map "$(INSTALL_PATH)"
-+	sh ./install.sh $(KERNELRELEASE) Image $(TOPDIR)/System.map "$(INSTALL_PATH)"
- 
- zinstall: $(CONFIGURE) zImage
--	sh ./install.sh $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION) zImage $(TOPDIR)/System.map "$(INSTALL_PATH)"
-+	sh ./install.sh $(KERNELRELEASE) zImage $(TOPDIR)/System.map "$(INSTALL_PATH)"
- 
- #
- # miscellany
-diff --git a/scripts/package/buildtar b/scripts/package/buildtar
-index d8fffe6..8f709ab 100644
---- a/scripts/package/buildtar
-+++ b/scripts/package/buildtar
-@@ -15,7 +15,7 @@ set -e
- #
- # Some variables and settings used throughout the script
- #
--version="${VERSION}.${PATCHLEVEL}.${SUBLEVEL}${EXTRAVERSION}${EXTRANAME}"
-+version="${KERNELRELEASE}${EXTRANAME}"
- tmpdir="${objtree}/tar-install"
- tarball="${objtree}/linux-${version}.tar"
- 
+Regards,
+Willy
 
---------------050306010500090009070907--

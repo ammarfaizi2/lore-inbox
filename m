@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbVK0NoL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750925AbVK0N3K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751049AbVK0NoL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 08:44:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751050AbVK0NoL
+	id S1750925AbVK0N3K (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 08:29:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751047AbVK0N3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 08:44:11 -0500
-Received: from hellhawk.shadowen.org ([80.68.90.175]:49422 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S1751047AbVK0NoK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 08:44:10 -0500
-Message-ID: <4389B80C.8040405@shadowen.org>
-Date: Sun, 27 Nov 2005 13:43:40 +0000
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kyle Moffett <mrmacman_g4@mac.com>
-CC: LKML Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Anton Blanchard <anton@samba.org>
-Subject: Re: [2.6.15-rc2-mm1] Disabled flatmem on ppc32? (ARCH=powerpc)
-References: <44E57FC6-A500-42B7-86F9-F1F4E72734EC@mac.com>
-In-Reply-To: <44E57FC6-A500-42B7-86F9-F1F4E72734EC@mac.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sun, 27 Nov 2005 08:29:10 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:54962 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750925AbVK0N3J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 08:29:09 -0500
+Date: Sun, 27 Nov 2005 13:50:33 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: =?iso-8859-1?Q?Ren=E9?= Rebe <rene@exactcode.de>
+Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: [PATCH] x86_64: Test patch for ATI/Nvidia timer problems
+Message-ID: <20051127125032.GA1641@elf.ucw.cz>
+References: <20051126142030.GA26449@wotan.suse.de> <200511271014.53217.rene@exactcode.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200511271014.53217.rene@exactcode.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle Moffett wrote:
-> There is a Kconfig problem for ppc32 in the latest -mm kernel.  It 
-> seems that somehow the Kconfig logic for selecting memory models  under
-> ARCH=powerpc doesn't quite get it right for standard flatmem  ppc32
-> systems.  When I look at the memory model selection, I only see 
-> sparsemem, whereas on a normal -rc2 kernel, I can see both flatmem  and
-> sparsemem.  This somehow triggers a #error where the number of  reserved
-> bits is less than the number necessary for the sparsemem  layout
-> (because we're on a 32-bit arch without the address space for  sparsemem?).
+Hi!
 
-I suspect we have neglected to add back the default for FLATMEM on 32
-bit when we allowed FLATMEM to be disabled for 64 bit.  Will go and look
-at it.  Thanks for the report.
+> On Saturday 26 November 2005 15:20, Andi Kleen wrote:
+> > Everybody who saw timing problems with ATI IXP based boards with x86-64
+> > or some Nvidia NForce4 boards please test this patch. Please send
+> > success/failure to me.
+> 
+> I try to give your patch a try on the ATI based MSI Megabook S270, today - 
+> however even with the workaround of "noapic" I had timer drift on resuem from 
+> ram if the cpu was scaled to a lower frequency when it was suspended.
+> 
+> The k8 cpufreq code failed to assert the current frequency and thus assumed a 
+> wrong one:
+> 
+> Restarting tasks...<3>powernow-k8: ignoring illegal change in lo freq table-0 
+> to 0x0
+> powernow-k8: transition frequency failed
+>  done
+> 
+> Also my ACPI table only has two frequency entries, 800000 and 1600000 MHz - I 
+> wonder if one could rework the powernow-k8 driver to interpolate values in 
+> between to get smoother adaption of the frequency?
 
--apw
+Unfortunately, hardware can not go to anything between.
+								Pavel
+-- 
+Thanks, Sharp!

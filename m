@@ -1,43 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750891AbVK0GJo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750882AbVK0GLc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750891AbVK0GJo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 01:09:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750892AbVK0GJo
+	id S1750882AbVK0GLc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 01:11:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750894AbVK0GLb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 01:09:44 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:46860 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1750890AbVK0GJn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 01:09:43 -0500
-Date: Sun, 27 Nov 2005 07:09:38 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: David Brown <dmlb2000@gmail.com>
-Cc: Nish Aravamudan <nish.aravamudan@gmail.com>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: linux-2.6.14.tar.bz2 permissions
-Message-ID: <20051127060937.GN11266@alpha.home.local>
-References: <9c21eeae0511261352u33e32343wf50062ba3038ef06@mail.gmail.com> <200511270138.25769.s0348365@sms.ed.ac.uk> <29495f1d0511261746y12a0c356ueb3d5bb08aa6f6a@mail.gmail.com> <200511270151.21632.s0348365@sms.ed.ac.uk> <9c21eeae0511261756r65d0f4b7l96b0e1089c4c62bc@mail.gmail.com> <29495f1d0511261827s7984bea8l92149b8a3091e6d8@mail.gmail.com> <9c21eeae0511261838ncec563v1739a1230347365b@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9c21eeae0511261838ncec563v1739a1230347365b@mail.gmail.com>
-User-Agent: Mutt/1.5.10i
+	Sun, 27 Nov 2005 01:11:31 -0500
+Received: from vms048pub.verizon.net ([206.46.252.48]:24234 "EHLO
+	vms048pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1750882AbVK0GLb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 01:11:31 -0500
+Date: Sun, 27 Nov 2005 01:11:29 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: PC speaker beeping on high CPU loads on an nForce2
+In-reply-to: <Pine.LNX.4.60.0511270409430.30055@kepler.fjfi.cvut.cz>
+To: linux-kernel@vger.kernel.org
+Cc: Martin Drab <drab@kepler.fjfi.cvut.cz>
+Message-id: <200511270111.29831.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <Pine.LNX.4.60.0511270409430.30055@kepler.fjfi.cvut.cz>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 26, 2005 at 06:38:22PM -0800, David Brown wrote:
-> > Uh, untarring is the operation that needs to be non-root. So just have
-> > a build user or some other non-root user do the untarring and building
-> > (which is recommended by most anyways, IIRC). Then, as root (or via
-> > sudo) make modules_install install.
-> 
-> This isn't an excuse to have unsecure permissions when extracting as
-> root though.
+On Saturday 26 November 2005 22:23, Martin Drab wrote:
+>Hi,
+>
+>on an nForce2 system (GigaByte 7NNXP) when the CPU is under heavy load
+>(like during kernel compilation for instance, or any compilation of any
+>bigger project, for that matter), I hear some beeps comming out of the
+> PC speaker. It's like few short beeps per second for a while, then
+> silence for few seconds, then a beep here and there, and again, and so
+> on. It is quite strange. It happens ever since I remember (I mean in
+> kernel versions of course, I have the board for about 1.5 years). I've
+> just been kind of ignoring it until now. Does anybody else happen to
+> see the same symptoms? What could be the cause of this. Is it
+> something about timing? But how come the PC speaker gets kiced in,
+> while it's not being used at all (well, at least not intentionally)
+> for anything. Perhaps something is writing some ports it is not
+> supposed to?
+>
+>Martin
 
-It certainly is not an excuse, but at least it my explain why nobody
-noticed it before you :-)
+Usually, thats a sign of cpu overheating.  At 18 months, if the cpu
+fan/heat sink hasn't been blown out by an air hose, its so packed full
+of dust bunnies that no amount of rpms can force any air thru the cpu's 
+heat
+sink fins.
 
-Regards,
-Willy
+If its been doing it for a while, I expect the grease between the
+bottom of the heat sink and the top pf the cpu has also dried out and
+is no longer as effective at moving the heat from the cpu into the
+heat sink itself.  So its probably a good idea to do a shut down,
+remove the heat sink/fan combo, clean it all up and put a dab of new
+grease under the heat sink before ytou clip it back on.  I'm partial
+to a fancy bit of stuff called artic silver, which when fresh, is
+pretty darned good at moving the heat.
+
+If you aren't comfortable doing all that, find someone who is.
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.36% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
 

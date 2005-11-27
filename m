@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750925AbVK0N3K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbVK0NjT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750925AbVK0N3K (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 08:29:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751047AbVK0N3K
+	id S1751045AbVK0NjT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 08:39:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751046AbVK0NjT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 08:29:10 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:54962 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750925AbVK0N3J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 08:29:09 -0500
-Date: Sun, 27 Nov 2005 13:50:33 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: =?iso-8859-1?Q?Ren=E9?= Rebe <rene@exactcode.de>
-Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: [PATCH] x86_64: Test patch for ATI/Nvidia timer problems
-Message-ID: <20051127125032.GA1641@elf.ucw.cz>
-References: <20051126142030.GA26449@wotan.suse.de> <200511271014.53217.rene@exactcode.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200511271014.53217.rene@exactcode.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Sun, 27 Nov 2005 08:39:19 -0500
+Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:57738 "EHLO
+	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP
+	id S1750971AbVK0NjS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 08:39:18 -0500
+Date: Sun, 27 Nov 2005 14:39:17 +0100 (CET)
+From: Martin Drab <drab@kepler.fjfi.cvut.cz>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PC speaker beeping on high CPU loads on an nForce2
+In-Reply-To: <43892897.9020900@vc.cvut.cz>
+Message-ID: <Pine.LNX.4.60.0511271436150.23991@kepler.fjfi.cvut.cz>
+References: <Pine.LNX.4.60.0511270409430.30055@kepler.fjfi.cvut.cz>
+ <43892897.9020900@vc.cvut.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, 27 Nov 2005, Petr Vandrovec wrote:
 
-> On Saturday 26 November 2005 15:20, Andi Kleen wrote:
-> > Everybody who saw timing problems with ATI IXP based boards with x86-64
-> > or some Nvidia NForce4 boards please test this patch. Please send
-> > success/failure to me.
+> Martin Drab wrote:
+>
+> > on an nForce2 system (GigaByte 7NNXP) when the CPU is under heavy load (like
+> > during kernel compilation for instance, or any compilation of any bigger
+> > project, for that matter), I hear some beeps comming out of the PC speaker.
+> > It's like few short beeps per second for a while, then silence for few
+> > seconds, then a beep here and there, and again, and so on. It is quite
+> > strange. It happens ever since I remember (I mean in kernel versions of
+> > course, I have the board for about 1.5 years). I've just been kind of
+> > ignoring it until now. Does anybody else happen to see the same symptoms?
+> > What could be the cause of this. Is it something about timing? But how come
+> > the PC speaker gets kiced in, while it's not being used at all (well, at
+> > least not intentionally) for anything. Perhaps something is writing some
+> > ports it is not supposed to?
 > 
-> I try to give your patch a try on the ATI based MSI Megabook S270, today - 
-> however even with the workaround of "noapic" I had timer drift on resuem from 
-> ram if the cpu was scaled to a lower frequency when it was suspended.
+> Nope.  Your system is overheating, and on-board temperature sensors are
+> complaining.  Probably you should find whether lm-sensors have drivers for
+> chips your motherboard has, and look at sensors output in that case...
 > 
-> The k8 cpufreq code failed to assert the current frequency and thus assumed a 
-> wrong one:
-> 
-> Restarting tasks...<3>powernow-k8: ignoring illegal change in lo freq table-0 
-> to 0x0
-> powernow-k8: transition frequency failed
->  done
-> 
-> Also my ACPI table only has two frequency entries, 800000 and 1600000 MHz - I 
-> wonder if one could rework the powernow-k8 driver to interpolate values in 
-> between to get smoother adaption of the frequency?
+> Maybe ACPI could report thermal zone as well, try looking at
+> /proc/acpi/thermal_zone/* tree.
 
-Unfortunately, hardware can not go to anything between.
-								Pavel
--- 
-Thanks, Sharp!
+Ah, that didn't occur to me. You are right. I'm about to install a new 
+water cooling, so I hope that would help.
+
+Sorry for bothering,
+Martin

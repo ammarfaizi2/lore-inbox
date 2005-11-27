@@ -1,48 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbVK0Ojj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751084AbVK0OpE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751082AbVK0Ojj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 09:39:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751084AbVK0Ojj
+	id S1751084AbVK0OpE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 09:45:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbVK0OpE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 09:39:39 -0500
-Received: from eastrmmtao06.cox.net ([68.230.240.33]:25343 "EHLO
-	eastrmmtao06.cox.net") by vger.kernel.org with ESMTP
-	id S1751082AbVK0Ojj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 09:39:39 -0500
-In-Reply-To: <20051127105700.GO11266@alpha.home.local>
-References: <9c21eeae0511261352u33e32343wf50062ba3038ef06@mail.gmail.com> <200511270138.25769.s0348365@sms.ed.ac.uk> <29495f1d0511261746y12a0c356ueb3d5bb08aa6f6a@mail.gmail.com> <200511270151.21632.s0348365@sms.ed.ac.uk> <9c21eeae0511261756r65d0f4b7l96b0e1089c4c62bc@mail.gmail.com> <29495f1d0511261827s7984bea8l92149b8a3091e6d8@mail.gmail.com> <9c21eeae0511261838ncec563v1739a1230347365b@mail.gmail.com> <20051127060937.GN11266@alpha.home.local> <9c21eeae0511270122h38cfb4a4y5d242347cbf9a21e@mail.gmail.com> <20051127105700.GO11266@alpha.home.local>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <B6DD0BF3-A19D-4E14-A634-B8A1C8FAAC5F@mac.com>
-Cc: David Brown <dmlb2000@gmail.com>,
-       Nish Aravamudan <nish.aravamudan@gmail.com>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+	Sun, 27 Nov 2005 09:45:04 -0500
+Received: from herkules.vianova.fi ([194.100.28.129]:63408 "HELO
+	mail.vianova.fi") by vger.kernel.org with SMTP id S1751084AbVK0OpC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 09:45:02 -0500
+Date: Sun, 27 Nov 2005 16:44:57 +0200
+From: Ville Herva <vherva@vianova.fi>
+To: Sander <sander@humilis.net>
+Cc: 7eggert@gmx.de, Adrian Bunk <bunk@stusta.de>,
+       Folkert van Heusden <folkert@vanheusden.com>,
        linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: linux-2.6.14.tar.bz2 permissions
-Date: Sun, 27 Nov 2005 09:39:37 -0500
-To: Willy Tarreau <willy@w.ods.org>
-X-Mailer: Apple Mail (2.734)
+Subject: Re: capturing oopses
+Message-ID: <20051127144457.GB6966@vianova.fi>
+Reply-To: vherva@vianova.fi
+References: <5bG4q-8ks-17@gated-at.bofh.it> <5daDm-1Cg-15@gated-at.bofh.it> <5de3Z-6CJ-13@gated-at.bofh.it> <E1EgB4G-00013Z-9E@be1.lrz> <20051127121604.GA6966@vianova.fi> <20051127135541.GA5928@favonius>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051127135541.GA5928@favonius>
+X-Operating-System: Linux herkules.vianova.fi 2.4.32-rc1
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 27, 2005, at 05:57:00, Willy Tarreau wrote:
-> On Sun, Nov 27, 2005 at 01:22:26AM -0800, David Brown wrote:
->> I agree compiling the kernel as a non-root user is perfered but  
->> sometimes it doesn't happen that way...
->
-> Sudo generally helps here. It's even easy to put $SUDO in front of  
-> sensible commands in build scripts and have SUDO=${SUDO-sudo} at  
-> the beginning of the script.
+On Sun, Nov 27, 2005 at 02:55:41PM +0100, you [Sander] wrote:
+> 
+> Maybe 'gorc' can help you. I don't have an url, but it is package 'gorc'
+> in Debian.
+> 
+> I had little success with a digicam photo of lightgray text on
+> not-quite-white paper, even after trying to improve things with gimp,
+> but it might work if you have the oops on screen.
 
-Even nicer:  On Debian there's a "make-kpkg" command for building or  
-cross-compiling a kernel source tree and creating a debian package  
-from the result, and it can use "fakeroot" for all of the  
-intermediate steps.  As a result, I can build a complete kernel  
-package with "make-kpkg --rootcmd=fakeroot [...]" as an ordinary  
-user, and then later install it as root with only one command: "dpkg - 
-i linux-image-2.6.15-rc2_2.6.15-rc2-1_powerpc.deb".
+Seems promising, but the results are not that great. See
 
-Cheers,
-Kyle Moffett
+http://v.iki.fi/~vherva/tmp/shot.png 
+and
+http://v.iki.fi/~vherva/tmp/shot.txt
+
+the gray level setting didn't help much.
+ 
+> Then again, if you have it on screen, you might as well put it on the
+> web.
+
+Sometimes you need to ksymoops the dump (for older kernels) or paste some
+parts to some program.
+
+In theory, converting a vga text screen capture shouldn't be hard, but in
+practise... Well, it's much more beneficial to me to learn to type
+passably...
+
+
+-- v -- 
+
+v@iki.fi
+

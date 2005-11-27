@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbVK0AjJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbVK0BED@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750794AbVK0AjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Nov 2005 19:39:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbVK0AjJ
+	id S1750803AbVK0BED (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Nov 2005 20:04:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750804AbVK0BEB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Nov 2005 19:39:09 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:17636 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750797AbVK0AjI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Nov 2005 19:39:08 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=j/MbGpZQ74VLs8EYYhF2H3xyboMpNT+sz6dLXF+wc9rMZCnlv0S3VctFhTTM18iwbcmAk4O1Uy/ktwvSYmJEgqK06dFykdfeJP3sNqILwIbmRkq6rCKJit0GujXbn1XiHfpn9/AQMixaryLiuCaa3WlZ8oDq6Lcqw3j5j874kUk=
-Message-ID: <afd776760511261639k5ce77a97yfb744d3dc72a54ca@mail.gmail.com>
-Date: Sat, 26 Nov 2005 18:39:07 -0600
-From: Mohamed El Dawy <msdawy@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Reading another process memory?
+	Sat, 26 Nov 2005 20:04:01 -0500
+Received: from mail-in-07.arcor-online.net ([151.189.21.47]:55693 "EHLO
+	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1750803AbVK0BEA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Nov 2005 20:04:00 -0500
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: Paused I/O versus regular I/O
+To: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>
+Reply-To: 7eggert@gmx.de
+Date: Sun, 27 Nov 2005 01:52:49 +0100
+References: <5dato-1qR-9@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1EgAmg-00012X-4S@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
- How are you? I hope you are fine.
+Jean Delvare <khali@linux-fr.org> wrote:
 
-I am trying to write  a function that involves reading other processes
-memory.
-Here is what I can do
+> Could anyone tell me what the difference is between "paused" I/O
+> (inb_p, oub_p and friends) and regular I/O (inb, oub and friends)? I
+> understand that the former includes some delays here and there, but how
+> do I know when to use the paused variant, and when the non-paused
+> variant is OK?
 
-1. traverse the linked list of running processes searching for the
-required pid
-2. Follow the "mm" pointer to get the mm_struct
-3. Traverse the "mmap" linked list in that mm_struct to get a list of
-all ranges of addresses
-3b. And read the "pgd" field too in the mm_sturct which contains the
-page directory
+AFAIK, some old hardware needs it. The original ISA bus speed was 4.77 MHz,
+and AT changed it to 8 MHz. Some chips needed extra delays to compensate,
+and those chips stayed around for a long time.
 
-Now, I have the page directory, and some logical addresses. Now comes
-the tricky part, how can I actually read the memory? I am not really
-sure how to read an address given a page directory and a logical
-address. Do I need to translate it myself? Are there any functions to
-do the job for me?
-
-Thanks a lot in advacne
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

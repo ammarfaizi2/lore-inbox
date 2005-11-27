@@ -1,225 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750852AbVK0GhE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750918AbVK0HZO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750852AbVK0GhE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 01:37:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750892AbVK0GhE
+	id S1750918AbVK0HZO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 02:25:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750920AbVK0HZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 01:37:04 -0500
-Received: from quark.didntduck.org ([69.55.226.66]:42199 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id S1750852AbVK0GhD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 01:37:03 -0500
-Message-ID: <438954BE.4020206@didntduck.org>
-Date: Sun, 27 Nov 2005 01:39:58 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mail/News 1.5 (X11/20051105)
+	Sun, 27 Nov 2005 02:25:14 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:13447 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750918AbVK0HZM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 02:25:12 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=liBpkmao3UhcyVCo/tFJwBlcRKZvBT8lMicdMYnyPhiRchMq47+juyeyNWGss2kXn3roraADbO3dOiJZrKRGxJ27GUcBK0V7xrs0Gs9fGkQU5JGgePYDivwchMGpU93BaZtkvqVdhoUa8XhIpubZa+zInhrn8VL34xa1vQHxkjQ=
+Message-ID: <a44ae5cd0511262325p43ba1fcbxfea0ac698824403d@mail.gmail.com>
+Date: Sat, 26 Nov 2005 23:25:11 -0800
+From: Miles Lane <miles.lane@gmail.com>
+To: LKML <linux-kernel@vger.kernel.org>,
+       "James P. Ketrenos" <ipw2100-admin@linux.intel.com>
+Subject: 2.6.15-rc2-git6 + ipw2200 1.0.8 -- Slab corruption
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Remove checkconfig.pl
-Content-Type: multipart/mixed;
- boundary="------------040002010505090607070005"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040002010505090607070005
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-checkconfig.pl is no longer needed now that autoconf.h is automatically
-included.  Remove it and all references to it.
-
-Signed-off-by: Brian Gerst <bgerst@didntduck.org>
-
---------------040002010505090607070005
-Content-Type: text/plain;
- name="Remove-checkconfig.pl.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="Remove-checkconfig.pl.txt"
-
-Subject: [PATCH] Remove checkconfig.pl
-
-checkconfig.pl is no longer needed now that autoconf.h is automatically
-included.  Remove it and all references to it.
-
-Signed-off-by: Brian Gerst <bgerst@didntduck.org>
-
----
-
- Documentation/smart-config.txt          |    4 --
- drivers/video/matrox/matroxfb_DAC1064.c |    1 
- drivers/video/matrox/matroxfb_DAC1064.h |    1 
- drivers/video/matrox/matroxfb_Ti3026.c  |    1 
- drivers/video/matrox/matroxfb_Ti3026.h  |    1 
- drivers/video/matrox/matroxfb_base.c    |    1 
- drivers/video/matrox/matroxfb_misc.c    |    1 
- scripts/checkconfig.pl                  |   65 -------------------------------
- 8 files changed, 0 insertions(+), 75 deletions(-)
- delete mode 100755 scripts/checkconfig.pl
-
-applies-to: 1f3b06d516dac26c976cedfc59cd48781b96f86d
-15b81f6223f594021a77f20b7144539984e92cdb
-diff --git a/Documentation/smart-config.txt b/Documentation/smart-config.txt
-index c9bed4c..8467447 100644
---- a/Documentation/smart-config.txt
-+++ b/Documentation/smart-config.txt
-@@ -56,10 +56,6 @@ Here is the solution:
-     writing one file per option.  It updates only the files for options
-     that have changed.
- 
--    mkdep.c no longer generates warning messages for missing or unneeded
--    <linux/config.h> lines.  The new top-level target 'make checkconfig'
--    checks for these problems.
--
- Flag Dependencies
- 
-     Martin Von Loewis contributed another feature to this patch:
-diff --git a/drivers/video/matrox/matroxfb_DAC1064.c b/drivers/video/matrox/matroxfb_DAC1064.c
-index 0fbd9b5..a456e67 100644
---- a/drivers/video/matrox/matroxfb_DAC1064.c
-+++ b/drivers/video/matrox/matroxfb_DAC1064.c
-@@ -12,7 +12,6 @@
-  *
-  */
- 
--/* make checkconfig does not walk through include tree :-( */
- #include <linux/config.h>
- 
- #include "matroxfb_DAC1064.h"
-diff --git a/drivers/video/matrox/matroxfb_DAC1064.h b/drivers/video/matrox/matroxfb_DAC1064.h
-index a6a4701..2e7238a 100644
---- a/drivers/video/matrox/matroxfb_DAC1064.h
-+++ b/drivers/video/matrox/matroxfb_DAC1064.h
-@@ -1,7 +1,6 @@
- #ifndef __MATROXFB_DAC1064_H__
- #define __MATROXFB_DAC1064_H__
- 
--/* make checkconfig does not walk through include tree */
- #include <linux/config.h>
- 
- #include "matroxfb_base.h"
-diff --git a/drivers/video/matrox/matroxfb_Ti3026.c b/drivers/video/matrox/matroxfb_Ti3026.c
-index 537ade5..23ebad0 100644
---- a/drivers/video/matrox/matroxfb_Ti3026.c
-+++ b/drivers/video/matrox/matroxfb_Ti3026.c
-@@ -78,7 +78,6 @@
-  *
-  */
- 
--/* make checkconfig does not verify included files... */
- #include <linux/config.h>
- 
- #include "matroxfb_Ti3026.h"
-diff --git a/drivers/video/matrox/matroxfb_Ti3026.h b/drivers/video/matrox/matroxfb_Ti3026.h
-index 541933d..536e5f6 100644
---- a/drivers/video/matrox/matroxfb_Ti3026.h
-+++ b/drivers/video/matrox/matroxfb_Ti3026.h
-@@ -1,7 +1,6 @@
- #ifndef __MATROXFB_TI3026_H__
- #define __MATROXFB_TI3026_H__
- 
--/* make checkconfig does not walk through whole include tree */
- #include <linux/config.h>
- 
- #include "matroxfb_base.h"
-diff --git a/drivers/video/matrox/matroxfb_base.c b/drivers/video/matrox/matroxfb_base.c
-index 1e74f4c..1be8e30 100644
---- a/drivers/video/matrox/matroxfb_base.c
-+++ b/drivers/video/matrox/matroxfb_base.c
-@@ -99,7 +99,6 @@
-  *
-  */
- 
--/* make checkconfig does not check included files... */
- #include <linux/config.h>
- #include <linux/version.h>
- 
-diff --git a/drivers/video/matrox/matroxfb_misc.c b/drivers/video/matrox/matroxfb_misc.c
-index d9d3e9f..57aae12 100644
---- a/drivers/video/matrox/matroxfb_misc.c
-+++ b/drivers/video/matrox/matroxfb_misc.c
-@@ -84,7 +84,6 @@
-  *
-  */
- 
--/* make checkconfig does not check includes for this... */
- #include <linux/config.h>
- 
- #include "matroxfb_misc.h"
-diff --git a/scripts/checkconfig.pl b/scripts/checkconfig.pl
-deleted file mode 100755
-index ca1f231..0000000
---- a/scripts/checkconfig.pl
-+++ /dev/null
-@@ -1,65 +0,0 @@
--#! /usr/bin/perl
--#
--# checkconfig: find uses of CONFIG_* names without matching definitions.
--# Copyright abandoned, 1998, Michael Elizabeth Chastain <mailto:mec@shout.net>.
--
--use integer;
--
--$| = 1;
--
--foreach $file (@ARGV)
--{
--    # Open this file.
--    open(FILE, $file) || die "Can't open $file: $!\n";
--
--    # Initialize variables.
--    my $fInComment   = 0;
--    my $fInString    = 0;
--    my $fUseConfig   = 0;
--    my $iLinuxConfig = 0;
--    my %configList   = ();
--
--    LINE: while ( <FILE> )
--    {
--	# Strip comments.
--	$fInComment && (s+^.*?\*/+ +o ? ($fInComment = 0) : next);
--	m+/\*+o && (s+/\*.*?\*/+ +go, (s+/\*.*$+ +o && ($fInComment = 1)));
--
--	# Pick up definitions.
--	if ( m/^\s*#/o )
--	{
--	    $iLinuxConfig      = $. if m/^\s*#\s*include\s*"linux\/config\.h"/o;
--	    $configList{uc $1} = 1  if m/^\s*#\s*include\s*"config\/(\S*)\.h"/o;
--	}
--
--	# Strip strings.
--	$fInString && (s+^.*?"+ +o ? ($fInString = 0) : next);
--	m+"+o && (s+".*?"+ +go, (s+".*$+ +o && ($fInString = 1)));
--
--	# Pick up definitions.
--	if ( m/^\s*#/o )
--	{
--	    $iLinuxConfig      = $. if m/^\s*#\s*include\s*<linux\/config\.h>/o;
--	    $configList{uc $1} = 1  if m/^\s*#\s*include\s*<config\/(\S*)\.h>/o;
--	    $configList{$1}    = 1  if m/^\s*#\s*define\s+CONFIG_(\w*)/o;
--	    $configList{$1}    = 1  if m/^\s*#\s*undef\s+CONFIG_(\w*)/o;
--	}
--
--	# Look for usages.
--	next unless m/CONFIG_/o;
--	WORD: while ( m/\bCONFIG_(\w+)/og )
--	{
--	    $fUseConfig = 1;
--	    last LINE if $iLinuxConfig;
--	    next WORD if exists $configList{$1};
--	    print "$file: $.: need CONFIG_$1.\n";
--	    $configList{$1} = 0;
--	}
--    }
--
--    # Report superfluous includes.
--    if ( $iLinuxConfig && ! $fUseConfig )
--	{ print "$file: $iLinuxConfig: linux/config.h not needed.\n"; }
--
--    close(FILE);
--}
----
-0.99.9.GIT
-
---------------040002010505090607070005--
+[4295910.815000] ipw2200: Firmware error detected.  Restarting.
+[4295910.815000] ipw2200: Sysfs 'error' log captured.
+[4295938.038000] Slab corruption: start=ed68ebf8, len=2048
+[4295938.038000] Redzone: 0x5a2cf071/0x3c07fbbe.
+[4295938.038000] Last user: [<52065000>](0x52065000)
+[4295938.038000] 760: 8c 00 00 00 76 fb 07 3c 92 03 00 00 88 00 00 00
+[4295938.039000] 770: 7f fb 07 3c 01 00 00 00 8a 00 00 00 82 fb 07 3c
+[4295938.039000] 780: 9c 02 00 00 8a 00 00 00 88 fb 07 3c 01 02 00 00
+[4295938.039000] 790: 54 00 00 00 8c fb 07 3c 77 01 00 00 51 00 00 00
+[4295938.039000] 7a0: 98 fb 07 3c 07 00 00 00 52 00 00 00 9b fb 07 3c
+[4295938.039000] 7b0: 05 00 00 00 53 00 00 00 9e fb 07 3c 05 00 00 00
+[4295938.039000] Prev obj: start=ed68e3ec, len=2048
+[4295938.039000] Redzone: 0x170fc2a5/0x170fc2a5.
+[4295938.039000] Last user:
+[<f92a40a6>](ipw_alloc_error_log+0x114/0x208 [ipw2200])
+[4295938.039000] 000: 9f 65 0e 00 e0 00 00 80 46 03 00 00 05 00 00 00
+[4295938.039000] 010: 80 00 00 00 08 e4 68 ed 58 f3 68 ed 06 00 00 00
+[4295938.039000] Next obj: start=ed68f404, len=2048
+[4295938.039000] Redzone: 0x8b/0x170fc2a5.
+[4295938.039000] Last user: [<c02835ae>](tty_write+0xf6/0x21e)
+[4295938.039000] 000: c3 fb 07 3c 62 00 00 00 20 00 00 00 06 fc 07 3c
+[4295938.039000] 010: 08 00 00 00 23 00 00 00 11 fc 07 3c 06 00 00 00
+[4295938.039000] slab error in cache_alloc_debugcheck_after(): cache
+`size-2048': double free, or memory outside object was overwritten
+[4295938.039000]  [<c0103f06>] dump_stack+0x1e/0x20
+[4295938.039000]  [<c014bc9d>] __slab_error+0x2f/0x31
+[4295938.039000]  [<c014df78>] cache_alloc_debugcheck_after+0xe2/0x159
+[4295938.039000]  [<c014e432>] __kmalloc+0xae/0xfe
+[4295938.039000]  [<c030385c>] __alloc_skb+0x52/0x153
+[4295938.039000]  [<c03022e5>] sock_alloc_send_pskb+0xfb/0x229
+[4295938.039000]  [<c0302441>] sock_alloc_send_skb+0x2e/0x30
+[4295938.039000]  [<c03649ef>] unix_stream_sendmsg+0x1ed/0x3e0
+[4295938.039000]  [<c02ff0dc>] sock_aio_write+0xeb/0x12a
+[4295938.039000]  [<c0164421>] do_sync_write+0xae/0xfd
+[4295938.039000]  [<c0164604>] vfs_write+0x194/0x19b
+[4295938.039000]  [<c01646c0>] sys_write+0x47/0x6e
+[4295938.039000]  [<c010304b>] sysenter_past_esp+0x54/0x75
+[4295938.039000] ed68ebf4: redzone 1: 0x5a2cf071, redzone 2: 0x3c07fbbe.

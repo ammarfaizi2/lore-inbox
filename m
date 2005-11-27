@@ -1,48 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbVK0F5j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbVK0Fz3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750877AbVK0F5j (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 00:57:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750880AbVK0F5j
+	id S1750851AbVK0Fz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 00:55:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750877AbVK0Fz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 00:57:39 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:44812 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1750877AbVK0F5i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 00:57:38 -0500
-Date: Sun, 27 Nov 2005 06:57:25 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Michael Frank <mhf@users.berlios.de>
-Cc: David Brown <dmlb2000@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: linux-2.6.14.tar.bz2 permissions
-Message-ID: <20051127055725.GL11266@alpha.home.local>
-References: <9c21eeae0511261352u33e32343wf50062ba3038ef06@mail.gmail.com> <20051126223921.E7EF31AC3@hornet.berlios.de> <9c21eeae0511261441j7e4cc7c7ya99daaf1e437cb2a@mail.gmail.com> <20051126225656.04D3D1AC3@hornet.berlios.de>
+	Sun, 27 Nov 2005 00:55:29 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:64736 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750849AbVK0Fz2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 00:55:28 -0500
+Date: Sat, 26 Nov 2005 21:55:09 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linuxram@us.ibm.com, viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 2/2] shared mounts: save mount flag space
+Message-Id: <20051126215509.073cb957.akpm@osdl.org>
+In-Reply-To: <E1EfK2o-0001AK-00@dorka.pomaz.szeredi.hu>
+References: <E1EfJfC-00016e-00@dorka.pomaz.szeredi.hu>
+	<E1EfJnm-00017H-00@dorka.pomaz.szeredi.hu>
+	<E1EfK2o-0001AK-00@dorka.pomaz.szeredi.hu>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051126225656.04D3D1AC3@hornet.berlios.de>
-User-Agent: Mutt/1.5.10i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 26, 2005 at 11:53:23PM +0100, Michael Frank wrote:
-> charset="iso-8859-1"
-> Content-Transfer-Encoding: 7bit
-> Content-Disposition: inline
-> On Saturday 26 November 2005 23:41, David Brown wrote:
-> > > Check your umask and set it to 022 ;)
-> >
-> > it is, still comes up world read/write.
+Miklos Szeredi <miklos@szeredi.hu> wrote:
+>
+> Remaining mount flags are becoming scarce (just 11 bits)
+> and shared mount code uses 4 though one would suffice.
 > 
-> Sorry for my sleepy advise.
-> 
-> sudo umask 022
- ^^^^^^^^^^^^^^^
+> I think this should go into 2.6.15, fixing it later would be breaking
+> userspace ABI.
 
-This one is not going to be useful, because it will only set the umask
-for the shell launched by sudo.
+These seem sane objectives.
 
-> sudo tar jxf linux-2.6.14.1.tar.bz2 --no-same-permissions
+> -static int do_change_type(struct nameidata *nd, int flag)
+> +static int do_change_type(struct nameidata *nd, int recurse, char *name)
+>  {
+>  	struct vfsmount *m, *mnt = nd->mnt;
+> -	int recurse = flag & MS_REC;
+> -	int type = flag & ~MS_REC;
+> +	enum propagation_type type;
+>  
+>  	if (nd->dentry != nd->mnt->mnt_root)
+>  		return -EINVAL;
+>  
+> +	if (!name)
+> +		return -EINVAL;
+> +
+> +	if (strcmp(name, "unbindable") == 0)
+> +		type = PT_UNBINDABLE;
+> +	else if (strcmp(name, "private") == 0)
+> +		type = PT_PRIVATE;
+> +	else if (strcmp(name, "slave") == 0)
+> +		type = PT_SLAVE;
+> +	else if (strcmp(name, "shared") == 0)
+> +		type = PT_SHARED;
+> +	else
+> +		return -EINVAL;
+> +
+>  	down_write(&namespace_sem);
+>  	spin_lock(&vfsmount_lock);
+>  	for (m = mnt; m; m = (recurse ? next_mnt(m, mnt) : NULL))
+> @@ -1302,8 +1315,8 @@ long do_mount(char *dev_name, char *dir_
+>  				    data_page);
+>  	else if (flags & MS_BIND)
+>  		retval = do_loopback(&nd, dev_name, flags & MS_REC);
+> -	else if (flags & (MS_SHARED | MS_PRIVATE | MS_SLAVE | MS_UNBINDABLE))
+> -		retval = do_change_type(&nd, flags);
+> +	else if (flags & MS_PROPAGATION)
+> +		retval = do_change_type(&nd, flags & MS_REC, data_page);
+>  	else if (flags & MS_MOVE)
+>  		retval = do_move_mount(&nd, dev_name);
+>  	else
 
-Regards,
-Willy
+But I don't know how much trauma this would cause.  Hasn't util-linux
+already been patched with the new mount flags?
 
+If it has, and if it uses the same names for these options, the patched
+mount(8) just won't work.
+
+The proposed new mount options should be documented somewhere.
+
+Anyway, I'll let Ram&Al decide on this proposal.

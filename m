@@ -1,83 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbVK0WGH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751158AbVK0WGq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751133AbVK0WGH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 17:06:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbVK0WGH
+	id S1751158AbVK0WGq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 17:06:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbVK0WGq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 17:06:07 -0500
-Received: from mx1.rowland.org ([192.131.102.7]:58641 "HELO mx1.rowland.org")
-	by vger.kernel.org with SMTP id S1751133AbVK0WGG (ORCPT
+	Sun, 27 Nov 2005 17:06:46 -0500
+Received: from mx.meyering.net ([82.230.74.64]:16789 "EHLO mx.meyering.net")
+	by vger.kernel.org with ESMTP id S1751158AbVK0WGp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 17:06:06 -0500
-Date: Sun, 27 Nov 2005 17:06:04 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Michael Buesch <mbuesch@freenet.de>, David Brownell <david-b@pacbell.net>,
-       Greg KH <greg@kroah.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: Latest GIT: USB ehci_hcd broken (spinlock corruption)
-In-Reply-To: <1133126726.7768.127.camel@gaston>
-Message-ID: <Pine.LNX.4.44L0.0511271654280.16475-100000@netrider.rowland.org>
+	Sun, 27 Nov 2005 17:06:45 -0500
+From: Jim Meyering <jim@meyering.net>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, bug-coreutils@gnu.org
+Subject: another reason to add openat in the kernel: efficiency
+In-Reply-To: <E1EZx6Q-0002zw-00@dorka.pomaz.szeredi.hu>
+Date: Sun, 27 Nov 2005 23:06:38 +0100
+Message-ID: <87acfpn3td.fsf@rho.meyering.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Nov 2005, Benjamin Herrenschmidt wrote:
+Miklos Szeredi wrote:
+> What's wrong with using '/proc/self/fd/N' to implement [openat et al]?
 
-> On Sun, 2005-11-27 at 12:34 +0100, Michael Buesch wrote:
-> > Hi,
-> > 
-> > Latest GIT code oopses in the USB driver with a spinlock corruption:
-> 
-> (backtrace below)
-> 
-> Looks bad. I went through the code, and I discovered that indeed,
-> usb_add_hcd() calls driver->reset() before anything else, that is,
-> before giving the low level driver a chance to initialize it's local
-> data structure, including the spinlock. On EHCI, at least, reset will
-> dive deep into the guts of the driver tying among others to acquire the
-> lock.
-> 
-> That is very bad. It's yet another example of broken "mid-layer" design.
-> I can't say enough how bad this whole mid-layer hcd stuff is but you
-> guys don't beleive it.
+It's great that we can emulate openat and related fd-relative
+functions using /proc/self/fd/N/FILE, but that is markedly less
+efficient than a native implementation.
 
-Stop complaining.  We've known about this bug for over a month.  
-It's even mentioned in the OSDL bugzilla:
-<http://bugzilla.kernel.org/show_bug.cgi?id=5433>, comment #2.  The only
-question is why Dave hasn't fixed it yet...
+Here's some real data for comparison.
+The problem: remove a just-created hierarchy named
+/t/z/z/.../z (1,000,000 levels deep) residing on a tmpfs file system.
 
-> So what you should do to fix the immediate problem is to have a separate
-> "init" callback to the low level driver to initialize it's private data
-> structure before anything else is called. A kind of "constructor". Call
-> that from usb_add_hcd() before you call reset().
+Using GNU rm -rf (from coreutils-5.93[1]), that takes about 14s wall clock
+time on an otherwise idle system running 2.6.14.  The 5.93 implementation
+uses open, fchdir, fstat, opendir/readdir, unlink, etc. to do its job:
+i.e., no openat-related functions.
 
-I suggested back in October that the "reset" method should be renamed 
-"init".  It only gets called once, during device initialization, so the 
-"reset" name is a misnomer.  It should do an initialize _and_ a reset.
+Compare that with GNU rm from the latest CVS sources[2], now f?chdir-free,
+using /proc-based openat emulation (including emulation of fdopendir[3],
+fstatat, and unlinkat).  Here, the time required about 35 seconds:
+more than double.  Even after rewriting the emulation code not to use
+snprintf, the resulting times were still about 30s.
 
-> In the long run, the whole hcd layer junk should probably be flipped
-> upside down though. It's the low level driver that should be in control,
-> and the hcd layer should act as a "library" used by the hcd driver,
-> instead of the opposite.
-> 
-> That is, the HCD driver gets probed, gets control first, calls something
-> to allocate the hcd data structure, gets a chance to initialize it, then
-> calls usb_add_hcd() etc... 
-> 
-> The whole thing is done backward currently.
+Contrast that with Solaris 9 (with kernel-provided openat, fstatat,
+fdopendir, etc.), where the openat-based implementation takes
+20% *less* time than the 5.93 implementation.
 
-Nonsense.  It's done just as you described.  You just have to think of the 
-reset method as an initialization method.
+Sure, there may well be other factors that explain some of the difference,
+but it'd be nice to avoid the added time and space(stack) overhead of
+encoding and decoding each /proc-relative file name.  Of course,
+syscall-based interfaces also have the advantage of working even if
+/proc is not accessible.
 
-For now, you can workaround the bug by adding:
 
-	spin_lock_init(&ehci_lock);
+Jim
 
-as the first line of drivers/usb/host/ehci-pci.c:ehci_pci_reset().
-
-Alan Stern
-
+[1] ftp://ftp.gnu.org/gnu/coreutils/coreutils-5.93.tar.bz2
+[2] http://savannah.gnu.org/projects/coreutils/
+[3] It's a shame to have to emulate fdopendir via `opendir ("/proc/...',
+but that's only temporary, while we wait for glibc-with-fdopendir
+to become more mainstream.

@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbVK0XJ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbVK0XOd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751166AbVK0XJ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 18:09:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVK0XJ4
+	id S1751124AbVK0XOd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 18:14:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbVK0XOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 18:09:56 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:6553 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751166AbVK0XJz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 18:09:55 -0500
-Message-ID: <438A3CA6.9050102@pobox.com>
-Date: Sun, 27 Nov 2005 18:09:26 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Sun, 27 Nov 2005 18:14:33 -0500
+Received: from mail23.syd.optusnet.com.au ([211.29.133.164]:28872 "EHLO
+	mail23.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751124AbVK0XOd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 18:14:33 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: ck@vds.kolivas.org
+Subject: Re: [ck] 2.6.15-rc2-ck2 with adaptive readahead: processes stuck in D state
+Date: Mon, 28 Nov 2005 10:14:13 +1100
+User-Agent: KMail/1.8.3
+Cc: Frederik <freggy@gmail.com>, linux-kernel@vger.kernel.org,
+       Wu Fengguang <wfg@mail.ustc.edu.cn>
+References: <28d495d10511271151lcac4998w292dff6e677130bc@mail.gmail.com>
+In-Reply-To: <28d495d10511271151lcac4998w292dff6e677130bc@mail.gmail.com>
 MIME-Version: 1.0
-To: Martin Waitz <tali@admingilde.org>
-CC: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] DocBook: add .gitignore file
-References: <20051127124713.GA15536@admingilde.org>
-In-Reply-To: <20051127124713.GA15536@admingilde.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Martin Waitz wrote: > when ignoring all DocBook output
-	files git-status output becomes meaningful > again. > > Signed-off-by:
-	Martin Waitz <tali@admingilde.org> ACK. BTW you should CC akpm@osdl.org
-	to make sure the patch doesn't get lost... [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+Content-Disposition: inline
+Message-Id: <200511281014.13780.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Waitz wrote:
-> when ignoring all DocBook output files git-status output becomes meaningful
-> again.
-> 
-> Signed-off-by: Martin Waitz <tali@admingilde.org>
+On Mon, 28 Nov 2005 06:51, Frederik wrote:
+> Today I compiled 2.6.15-rc2-ck2 kernel with adaptive readahead patch
+> v.8. The system is running Mandriva Cooker. With this kernel, it
+> occured two times to me, that urpmi --auto-select starts hanging, and
+> ps shows several processes stuck in D state (such as ldconfig).
+>
+> I am using XFS for all file systems, I'm wondering if it is related to
+> this, because I see several XFS methods mentioned in the trace.
+>
+> I have put dmesg, config and the trace online on
+> http://users.telenet.be/fhimpe/kernelbug/
 
-ACK.  BTW you should CC akpm@osdl.org to make sure the patch doesn't get 
-lost...
+I've cc'ed Wu on this reply. I should have made it clear that was the only way 
+adaptive readahead feedback would be helpful.
 
-	Jeff
-
-
-
+Cheers,
+Con

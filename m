@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750839AbVK0TLj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750960AbVK0TLz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750839AbVK0TLj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 14:11:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbVK0TLj
+	id S1750960AbVK0TLz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 14:11:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750848AbVK0TLz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 14:11:39 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:43201 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750839AbVK0TLi (ORCPT
+	Sun, 27 Nov 2005 14:11:55 -0500
+Received: from hera.kernel.org ([140.211.167.34]:52616 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1750834AbVK0TLx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 14:11:38 -0500
-Date: Sun, 27 Nov 2005 11:10:29 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Martin Drab <drab@kepler.fjfi.cvut.cz>
-Cc: gene.heskett@verizon.net, linux-kernel@vger.kernel.org
-Subject: Re: PC speaker beeping on high CPU loads on an nForce2
-Message-Id: <20051127111029.0d6ef37f.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.60.0511271839480.24919@kepler.fjfi.cvut.cz>
-References: <Pine.LNX.4.60.0511270409430.30055@kepler.fjfi.cvut.cz>
-	<200511270111.29831.gene.heskett@verizon.net>
-	<Pine.LNX.4.60.0511271839480.24919@kepler.fjfi.cvut.cz>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Sun, 27 Nov 2005 14:11:53 -0500
+Date: Sun, 27 Nov 2005 11:28:25 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       markus.lidel@shadowconnect.com, James.Bottomley@SteelEye.com,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Mark Salyzyn <mark_salyzyn@adaptec.com>
+Subject: Re: [patch] drivers/scsi/dpt_i2o.c: fix a NULL pointer dereference
+Message-ID: <20051127132825.GB21383@logos.cnet>
+References: <20051126233637.GC3988@stusta.de> <20051127124738.GC13581@logos.cnet> <20051127185252.GG3988@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051127185252.GG3988@stusta.de>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With that many fans, make sure you have good airflow,
-with all the fans pushing the air the same way.
+On Sun, Nov 27, 2005 at 07:52:52PM +0100, Adrian Bunk wrote:
+> On Sun, Nov 27, 2005 at 10:47:38AM -0200, Marcelo Tosatti wrote:
+> > On Sun, Nov 27, 2005 at 12:36:37AM +0100, Adrian Bunk wrote:
+> > > The Coverity checker spotted this obvious NULL pointer dereference.
+> > 
+> > Hi Adrian,
+> 
+> Hi Marcelo,
+> 
+> > Could you explain why you remove the adpt_post_wait_lock acquision? 
+> > 
+> > And if it does not belong there, why don't you remove it instead of
+> > commeting out?
+> >...
+> 
+> my patch does remove the following not required line:
+> 
+> > > -	p2 = NULL;
+> 
+> It does not touch the following line that was already commented out:
+> 
+> > >  //	spin_lock_irqsave(&adpt_post_wait_lock, flags);
+> >...
 
-Good airflow is like good rush hour traffic on the
-freeway - steady, consistent, minimal causes of
-turbulence, wide lanes, no bottlenecks, ...
+Doh. I should _read_ the patch. 
 
-Cooling your Computer
-http://www.atruereview.com/Articles/compcool.php
-
-THE HEATSINK GUIDE: Case Cooling
-http://www.heatsink-guide.com/content.php?content=case.shtml
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

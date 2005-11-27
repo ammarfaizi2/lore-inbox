@@ -1,69 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbVK0OfG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbVK0Ojj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751080AbVK0OfG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 09:35:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751081AbVK0OfG
+	id S1751082AbVK0Ojj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 09:39:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751084AbVK0Ojj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 09:35:06 -0500
-Received: from mail.yosifov.net ([193.200.14.114]:26589 "EHLO home.yosifov.net")
-	by vger.kernel.org with ESMTP id S1751080AbVK0OfE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 09:35:04 -0500
-Subject: Re: PC speaker beeping on high CPU loads on an nForce2
-From: Ivan Yosifov <ivan@yosifov.net>
-Reply-To: ivan@yosifov.net
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org, Martin Drab <drab@kepler.fjfi.cvut.cz>
-In-Reply-To: <200511270111.29831.gene.heskett@verizon.net>
-References: <Pine.LNX.4.60.0511270409430.30055@kepler.fjfi.cvut.cz>
-	 <200511270111.29831.gene.heskett@verizon.net>
-Content-Type: text/plain
-Date: Sun, 27 Nov 2005 16:34:26 +0200
-Message-Id: <1133102066.2769.3.camel@home.yosifov.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Sun, 27 Nov 2005 09:39:39 -0500
+Received: from eastrmmtao06.cox.net ([68.230.240.33]:25343 "EHLO
+	eastrmmtao06.cox.net") by vger.kernel.org with ESMTP
+	id S1751082AbVK0Ojj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 09:39:39 -0500
+In-Reply-To: <20051127105700.GO11266@alpha.home.local>
+References: <9c21eeae0511261352u33e32343wf50062ba3038ef06@mail.gmail.com> <200511270138.25769.s0348365@sms.ed.ac.uk> <29495f1d0511261746y12a0c356ueb3d5bb08aa6f6a@mail.gmail.com> <200511270151.21632.s0348365@sms.ed.ac.uk> <9c21eeae0511261756r65d0f4b7l96b0e1089c4c62bc@mail.gmail.com> <29495f1d0511261827s7984bea8l92149b8a3091e6d8@mail.gmail.com> <9c21eeae0511261838ncec563v1739a1230347365b@mail.gmail.com> <20051127060937.GN11266@alpha.home.local> <9c21eeae0511270122h38cfb4a4y5d242347cbf9a21e@mail.gmail.com> <20051127105700.GO11266@alpha.home.local>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <B6DD0BF3-A19D-4E14-A634-B8A1C8FAAC5F@mac.com>
+Cc: David Brown <dmlb2000@gmail.com>,
+       Nish Aravamudan <nish.aravamudan@gmail.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: linux-2.6.14.tar.bz2 permissions
+Date: Sun, 27 Nov 2005 09:39:37 -0500
+To: Willy Tarreau <willy@w.ods.org>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-11-27 at 01:11 -0500, Gene Heskett wrote:
-> On Saturday 26 November 2005 22:23, Martin Drab wrote:
-> >Hi,
-> >
-> >on an nForce2 system (GigaByte 7NNXP) when the CPU is under heavy load
-> >(like during kernel compilation for instance, or any compilation of any
-> >bigger project, for that matter), I hear some beeps comming out of the
-> > PC speaker. It's like few short beeps per second for a while, then
-> > silence for few seconds, then a beep here and there, and again, and so
-> > on. It is quite strange. It happens ever since I remember (I mean in
-> > kernel versions of course, I have the board for about 1.5 years). I've
-> > just been kind of ignoring it until now. Does anybody else happen to
-> > see the same symptoms? What could be the cause of this. Is it
-> > something about timing? But how come the PC speaker gets kiced in,
-> > while it's not being used at all (well, at least not intentionally)
-> > for anything. Perhaps something is writing some ports it is not
-> > supposed to?
-> >
-> >Martin
-> 
-> Usually, thats a sign of cpu overheating.  At 18 months, if the cpu
-> fan/heat sink hasn't been blown out by an air hose, its so packed full
-> of dust bunnies that no amount of rpms can force any air thru the cpu's 
-> heat
-> sink fins.
+On Nov 27, 2005, at 05:57:00, Willy Tarreau wrote:
+> On Sun, Nov 27, 2005 at 01:22:26AM -0800, David Brown wrote:
+>> I agree compiling the kernel as a non-root user is perfered but  
+>> sometimes it doesn't happen that way...
+>
+> Sudo generally helps here. It's even easy to put $SUDO in front of  
+> sensible commands in build scripts and have SUDO=${SUDO-sudo} at  
+> the beginning of the script.
 
-Gee ! The timeframe is just 3 months here... :-/
+Even nicer:  On Debian there's a "make-kpkg" command for building or  
+cross-compiling a kernel source tree and creating a debian package  
+from the result, and it can use "fakeroot" for all of the  
+intermediate steps.  As a result, I can build a complete kernel  
+package with "make-kpkg --rootcmd=fakeroot [...]" as an ordinary  
+user, and then later install it as root with only one command: "dpkg - 
+i linux-image-2.6.15-rc2_2.6.15-rc2-1_powerpc.deb".
 
-> 
-> If its been doing it for a while, I expect the grease between the
-> bottom of the heat sink and the top pf the cpu has also dried out and
-> is no longer as effective at moving the heat from the cpu into the
-> heat sink itself.  So its probably a good idea to do a shut down,
-> remove the heat sink/fan combo, clean it all up and put a dab of new
-> grease under the heat sink before ytou clip it back on.  I'm partial
-> to a fancy bit of stuff called artic silver, which when fresh, is
-> pretty darned good at moving the heat.
-> 
-> If you aren't comfortable doing all that, find someone who is.
-> 
-
+Cheers,
+Kyle Moffett

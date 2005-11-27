@@ -1,67 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751021AbVK0MrR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbVK0NoL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751021AbVK0MrR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 07:47:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751022AbVK0MrR
+	id S1751049AbVK0NoL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 08:44:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751050AbVK0NoL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 07:47:17 -0500
-Received: from admingilde.org ([213.95.32.146]:49063 "EHLO mail.admingilde.org")
-	by vger.kernel.org with ESMTP id S1751000AbVK0MrQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 07:47:16 -0500
-Date: Sun, 27 Nov 2005 13:47:13 +0100
-From: Martin Waitz <tali@admingilde.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] DocBook: add .gitignore file
-Message-ID: <20051127124713.GA15536@admingilde.org>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
-User-Agent: Mutt/1.5.9i
+	Sun, 27 Nov 2005 08:44:11 -0500
+Received: from hellhawk.shadowen.org ([80.68.90.175]:49422 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S1751047AbVK0NoK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 08:44:10 -0500
+Message-ID: <4389B80C.8040405@shadowen.org>
+Date: Sun, 27 Nov 2005 13:43:40 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kyle Moffett <mrmacman_g4@mac.com>
+CC: LKML Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Anton Blanchard <anton@samba.org>
+Subject: Re: [2.6.15-rc2-mm1] Disabled flatmem on ppc32? (ARCH=powerpc)
+References: <44E57FC6-A500-42B7-86F9-F1F4E72734EC@mac.com>
+In-Reply-To: <44E57FC6-A500-42B7-86F9-F1F4E72734EC@mac.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-when ignoring all DocBook output files git-status output becomes meaningful
-again.
+Kyle Moffett wrote:
+> There is a Kconfig problem for ppc32 in the latest -mm kernel.  It 
+> seems that somehow the Kconfig logic for selecting memory models  under
+> ARCH=powerpc doesn't quite get it right for standard flatmem  ppc32
+> systems.  When I look at the memory model selection, I only see 
+> sparsemem, whereas on a normal -rc2 kernel, I can see both flatmem  and
+> sparsemem.  This somehow triggers a #error where the number of  reserved
+> bits is less than the number necessary for the sparsemem  layout
+> (because we're on a 32-bit arch without the address space for  sparsemem?).
 
-Signed-off-by: Martin Waitz <tali@admingilde.org>
+I suspect we have neglected to add back the default for FLATMEM on 32
+bit when we allowed FLATMEM to be disabled for 64 bit.  Will go and look
+at it.  Thanks for the report.
 
----
-
- Documentation/DocBook/.gitignore |    6 ++++++
- 1 files changed, 6 insertions(+), 0 deletions(-)
- create mode 100644 Documentation/DocBook/.gitignore
-
-applies-to: e0ad781a5c7718bb40f0b0f4cd47ada937f21d7b
-ca0e12ae5dd452d8c8e2282844bc6e65bc5cbc1d
-diff --git a/Documentation/DocBook/.gitignore b/Documentation/DocBook/.gitignore
-new file mode 100644
-index 0000000..c102c02
---- /dev/null
-+++ b/Documentation/DocBook/.gitignore
-@@ -0,0 +1,6 @@
-+*.xml
-+*.ps
-+*.pdf
-+*.html
-+*.9.gz
-+*.9
----
-0.99.9.GIT
-
--- 
-Martin Waitz
+-apw

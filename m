@@ -1,39 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbVK0JfF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750969AbVK0KAS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750899AbVK0JfF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 04:35:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750945AbVK0JfE
+	id S1750969AbVK0KAS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 05:00:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750973AbVK0KAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 04:35:04 -0500
-Received: from adsl-80.mirage.euroweb.hu ([193.226.228.80]:54025 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1750899AbVK0JfD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 04:35:03 -0500
-To: viro@ftp.linux.org.uk
-CC: akpm@osdl.org, linuxram@us.ibm.com, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-In-reply-to: <20051127063216.GC27946@ftp.linux.org.uk> (message from Al Viro
-	on Sun, 27 Nov 2005 06:32:16 +0000)
-Subject: Re: [PATCH 2/2] shared mounts: save mount flag space
-References: <E1EfJfC-00016e-00@dorka.pomaz.szeredi.hu> <E1EfJnm-00017H-00@dorka.pomaz.szeredi.hu> <E1EfK2o-0001AK-00@dorka.pomaz.szeredi.hu> <20051126215509.073cb957.akpm@osdl.org> <20051127063216.GC27946@ftp.linux.org.uk>
-Message-Id: <E1EgIvH-0001eN-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Sun, 27 Nov 2005 10:34:15 +0100
+	Sun, 27 Nov 2005 05:00:18 -0500
+Received: from fsmlabs.com ([168.103.115.128]:15516 "EHLO spamalot.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S1750969AbVK0KAR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 05:00:17 -0500
+X-ASG-Debug-ID: 1133085614-4704-18-0
+X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
+Date: Sun, 27 Nov 2005 02:05:58 -0800 (PST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: "Raj, Ashok" <ashok.raj@intel.com>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>
+X-ASG-Orig-Subj: [PATCH] i386/x86_64: Remove preempt disable calls in lowlevel IPI
+ calls
+Subject: [PATCH] i386/x86_64: Remove preempt disable calls in lowlevel IPI
+ calls
+Message-ID: <Pine.LNX.4.61.0511270015260.20046@montezuma.fsmlabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.5613
+	Rule breakdown below pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Anyway, I'll let Ram&Al decide on this proposal.
-> 
-> It's
-> 	a) palliative
-> 	b) ugly
-> 
-> Let's face it, mount(2) ABI is getting past its shelf life already.
-> We'll need saner replacement (not mixing action with the flags and
-> being really typed) anyway,
+I noticed that some lowlevel send_IPI_mask helpers had a hotplug/preempt 
+race whereupon the cpu_online_map was read before disabling preemption;
 
-Could you please ellaborate a bit more?
+...
+cpumask_t mask = cpu_online_map;
+int cpu = get_cpu();
+cpu_clear(cpu, mask);
+...
 
-Are you thinking of a separate syscall for each action?
+But then i realised that there is no need for these lowlevel functions to 
+be going through all this trouble when all the callers are already made 
+hotplug/preempt safe.
 
-Miklos
+Signed-off-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+
+ arch/x86_64/kernel/genapic_cluster.c     |    5 +----
+ arch/x86_64/kernel/genapic_flat.c        |   10 ++++------
+ include/asm-i386/mach-default/mach_ipi.h |    4 +---
+ 3 files changed, 6 insertions(+), 13 deletions(-)
+
+diff -r 2c0d5afbfb94 arch/x86_64/kernel/genapic_cluster.c
+--- a/arch/x86_64/kernel/genapic_cluster.c	Fri Nov 25 17:42:19 2005
++++ b/arch/x86_64/kernel/genapic_cluster.c	Sun Nov 27 00:10:53 2005
+@@ -72,14 +72,11 @@
+ static void cluster_send_IPI_allbutself(int vector)
+ {
+ 	cpumask_t mask = cpu_online_map;
+-	int me = get_cpu(); /* Ensure we are not preempted when we clear */
+ 
+-	cpu_clear(me, mask);
++	cpu_clear(smp_processor_id(), mask);
+ 
+ 	if (!cpus_empty(mask))
+ 		cluster_send_IPI_mask(mask, vector);
+-
+-	put_cpu();
+ }
+ 
+ static void cluster_send_IPI_all(int vector)
+diff -r 2c0d5afbfb94 arch/x86_64/kernel/genapic_flat.c
+--- a/arch/x86_64/kernel/genapic_flat.c	Fri Nov 25 17:42:19 2005
++++ b/arch/x86_64/kernel/genapic_flat.c	Sun Nov 27 00:10:53 2005
+@@ -83,12 +83,11 @@
+ 		__send_IPI_shortcut(APIC_DEST_ALLBUT, vector,APIC_DEST_LOGICAL);
+ #else
+ 	cpumask_t allbutme = cpu_online_map;
+-	int me = get_cpu(); /* Ensure we are not preempted when we clear */
+-	cpu_clear(me, allbutme);
++
++	cpu_clear(smp_processor_id(), allbutme);
+ 
+ 	if (!cpus_empty(allbutme))
+ 		flat_send_IPI_mask(allbutme, vector);
+-	put_cpu();
+ #endif
+ }
+ 
+@@ -149,10 +148,9 @@
+ static void physflat_send_IPI_allbutself(int vector)
+ {
+ 	cpumask_t allbutme = cpu_online_map;
+-	int me = get_cpu();
+-	cpu_clear(me, allbutme);
++
++	cpu_clear(smp_processor_id(), allbutme);
+ 	physflat_send_IPI_mask(allbutme, vector);
+-	put_cpu();
+ }
+ 
+ static void physflat_send_IPI_all(int vector)
+diff -r 2c0d5afbfb94 include/asm-i386/mach-default/mach_ipi.h
+--- a/include/asm-i386/mach-default/mach_ipi.h	Fri Nov 25 17:42:19 2005
++++ b/include/asm-i386/mach-default/mach_ipi.h	Sun Nov 27 00:10:53 2005
+@@ -15,11 +15,9 @@
+ {
+ 	if (no_broadcast) {
+ 		cpumask_t mask = cpu_online_map;
+-		int this_cpu = get_cpu();
+ 
+-		cpu_clear(this_cpu, mask);
++		cpu_clear(smp_processor_id(), mask);
+ 		send_IPI_mask(mask, vector);
+-		put_cpu();
+ 	} else
+ 		__send_IPI_shortcut(APIC_DEST_ALLBUT, vector);
+ }

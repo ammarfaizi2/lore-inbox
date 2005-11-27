@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750956AbVK0JUX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750962AbVK0JW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750956AbVK0JUX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 04:20:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750957AbVK0JUX
+	id S1750962AbVK0JW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 04:22:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750963AbVK0JW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 04:20:23 -0500
-Received: from smtp104.rog.mail.re2.yahoo.com ([206.190.36.82]:20058 "HELO
-	smtp104.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1750952AbVK0JUW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 04:20:22 -0500
+	Sun, 27 Nov 2005 04:22:28 -0500
+Received: from xproxy.gmail.com ([66.249.82.203]:30645 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750959AbVK0JW1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 04:22:27 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=rogers.com;
-  h=Received:From:Organization:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=xQe6Iq9qFyJacHKNg2xJPH0BTdU0UPyv+iGfDfYQu0PixXYRpSMikaiisPBr8vdKHHBm/jN6fWRGN9+bUurg6UCPwsrkxZc/navBklps0fOdKYOPHNvyaFiEUFzE9/QoRGWjg/cKcwPIL5Z/NDyc+d72xGKl40SWGmrIAisWCkI=  ;
-From: Shawn Starr <shawn.starr@rogers.com>
-Organization: sh0n.net
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Bogus MCE upon resumption of system? - Resolved
-Date: Sun, 27 Nov 2005 04:20:11 -0500
-User-Agent: KMail/1.9
-Cc: linux-kernel@vger.kernel.org
-References: <200410101932.12431.shawn.starr@rogers.com> <20041020154854.GF26439@elf.ucw.cz> <200410201520.46957.shawn.starr@rogers.com>
-In-Reply-To: <200410201520.46957.shawn.starr@rogers.com>
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Kgw19BUaoUC2LBahsV3FgYE971aSIUW6EdtMhk3HMpuUihXnC3u+goKAv7sxYHHgnTU8ZxW3DL/ToOmubxwcY5yEpIGeoXO9Qt1KRKUZj9pZ4Eks5VGpqJhbBxNOqNrEliaOjmvjgGVuqwOopYwe5hgLtkTIHhVWLHK0MNUg6fk=
+Message-ID: <9c21eeae0511270122h38cfb4a4y5d242347cbf9a21e@mail.gmail.com>
+Date: Sun, 27 Nov 2005 01:22:26 -0800
+From: David Brown <dmlb2000@gmail.com>
+To: Willy Tarreau <willy@w.ods.org>
+Subject: Re: linux-2.6.14.tar.bz2 permissions
+Cc: Nish Aravamudan <nish.aravamudan@gmail.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20051127060937.GN11266@alpha.home.local>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200511270420.11479.shawn.starr@rogers.com>
+References: <9c21eeae0511261352u33e32343wf50062ba3038ef06@mail.gmail.com>
+	 <200511270138.25769.s0348365@sms.ed.ac.uk>
+	 <29495f1d0511261746y12a0c356ueb3d5bb08aa6f6a@mail.gmail.com>
+	 <200511270151.21632.s0348365@sms.ed.ac.uk>
+	 <9c21eeae0511261756r65d0f4b7l96b0e1089c4c62bc@mail.gmail.com>
+	 <29495f1d0511261827s7984bea8l92149b8a3091e6d8@mail.gmail.com>
+	 <9c21eeae0511261838ncec563v1739a1230347365b@mail.gmail.com>
+	 <20051127060937.GN11266@alpha.home.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As of 2.6.15-rc2 (or eariler .15 snapshot) The kernel now enables MCE checking 
-on resumption from suspend from disk thus there is no more bogus MCEs.
+> It certainly is not an excuse, but at least it my explain why nobody
+> noticed it before you :-)
 
--snip-
-[4358769.531000] [nosave pfn 0x3c4]<7>[nosave pfn 0x3c5]<6>[4358769.531000] 
-Intel machine check architecture supported.
-[4358769.531000] Intel machine check reporting enabled on CPU#0.
-[4358769.531000] swsusp: Restoring Highmem
+Thanks for the info and suggestions ;)
+I trust Linus enough to compile a kernel as root... but maybe that's just me ;)
+(or maybe I trust that I can fix anything that can fsck up my system
+even with root perms ;))
 
-Thanks, 
+I agree compiling the kernel as a non-root user is perfered but
+sometimes it doesn't happen that way...
 
-Shawn.
-
-On Wednesday 20 October 2004 15:20, Shawn Starr wrote:
-> Suspend to RAM,  haven't gotten around to rebuilding kernel with USB not
-> compiled in.
->
-> Can anyone verify this is a bogus MCE? it occurs only after resuming from
-> suspend from RAM.
->
-> Shawn.
->
-> On October 20, 2004 11:48, Pavel Machek wrote:
-> > Ahoj!
-> >
-> > > MCE: The hardware reports a non fatal, correctable incident occurred on
-> > > CPU 0. Bank 1: f200000000000105
-> > >
-> > > Of note, when resume I see this MCE, though i suspect it is bogus upon
-> > > resume.
-> >
-> > You did not tell me if it was suspend-to-disk or -to-RAM. Also you'd
-> > better mail lkml... I know a little about MCEs.
-> >
-> >         Pavel
+- David Brown

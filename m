@@ -1,67 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbVK0A1s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbVK0AjJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750796AbVK0A1s (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Nov 2005 19:27:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750797AbVK0A1s
+	id S1750794AbVK0AjJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Nov 2005 19:39:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbVK0AjJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Nov 2005 19:27:48 -0500
-Received: from gate.crashing.org ([63.228.1.57]:14480 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750796AbVK0A1r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Nov 2005 19:27:47 -0500
-Subject: uart_match_port() question
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Sun, 27 Nov 2005 11:21:46 +1100
-Message-Id: <1133050906.7768.66.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Sat, 26 Nov 2005 19:39:09 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:17636 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750797AbVK0AjI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Nov 2005 19:39:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=j/MbGpZQ74VLs8EYYhF2H3xyboMpNT+sz6dLXF+wc9rMZCnlv0S3VctFhTTM18iwbcmAk4O1Uy/ktwvSYmJEgqK06dFykdfeJP3sNqILwIbmRkq6rCKJit0GujXbn1XiHfpn9/AQMixaryLiuCaa3WlZ8oDq6Lcqw3j5j874kUk=
+Message-ID: <afd776760511261639k5ce77a97yfb744d3dc72a54ca@mail.gmail.com>
+Date: Sat, 26 Nov 2005 18:39:07 -0600
+From: Mohamed El Dawy <msdawy@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Reading another process memory?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Russel, would you accept a patch like that:
+Hi,
+ How are you? I hope you are fine.
 
-Index: linux-work/drivers/serial/serial_core.c
-===================================================================
---- linux-work.orig/drivers/serial/serial_core.c	2005-11-14 20:32:16.000000000 +1100
-+++ linux-work/drivers/serial/serial_core.c	2005-11-27 11:13:54.000000000 +1100
-@@ -2307,7 +2307,8 @@
- 		return (port1->iobase == port2->iobase) &&
- 		       (port1->hub6   == port2->hub6);
- 	case UPIO_MEM:
--		return (port1->membase == port2->membase);
-+		return (port1->membase == port2->membase) ||
-+			(port1->mapbase && port1->mapbase == port2->mapbase);
- 	}
- 	return 0;
- }
+I am trying to write  a function that involves reading other processes
+memory.
+Here is what I can do
 
-The reason is a bit complicated, but basically, we have some arch code
-that builds a list of available serial ports very early and registers that
-as a platform device. It also detects which one is the default firmware port
-and what speed it's been configured for and builds a proper config line to
-pass to add_preferred_console() so we get the default serial console setup
-properly automatically.
+1. traverse the linked list of running processes searching for the
+required pid
+2. Follow the "mm" pointer to get the mm_struct
+3. Traverse the "mmap" linked list in that mm_struct to get a list of
+all ranges of addresses
+3b. And read the "pgd" field too in the mm_sturct which contains the
+page directory
 
-This list includes however ports that are on PCI devices on some recent
-machines. Thus, we need to make sure that, when 8250_pci.c kicks in, it
-property detects that those platform ports are the same it's discovered
-and thus properly re-uses the same port & minor. However, while that works
-for PIO ports, it doesn't for MMIO since membase is obtained from ioremap,
-and thus will be different between the port registered at boot and the
-value passed by the PCI code. Only mapbase will be the same.
+Now, I have the page directory, and some logical addresses. Now comes
+the tricky part, how can I actually read the memory? I am not really
+sure how to read an address given a page directory and a logical
+address. Do I need to translate it myself? Are there any functions to
+do the job for me?
 
-If we just skipped PCI devices in our early discovery code (thus letting
-8250_pci.c alone discover them), we would be unable to use them for very
-early console output, and we would be unable to "know" what their minor number
-will be, and thus build an appropriate argument string for add_preferred_console(),
-which means we would be unable to have the console automatically pick the port
-that we set by the firmware and at the right speed, which basically means
-console not working for users. 
-
-Cheers,
-Ben.
-
+Thanks a lot in advacne

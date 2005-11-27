@@ -1,41 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbVK0W6e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbVK0XJ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751165AbVK0W6e (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 17:58:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbVK0W6d
+	id S1751166AbVK0XJ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 18:09:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVK0XJ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 17:58:33 -0500
-Received: from khc.piap.pl ([195.187.100.11]:38404 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S1751165AbVK0W6d (ORCPT
+	Sun, 27 Nov 2005 18:09:56 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:6553 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751166AbVK0XJz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 17:58:33 -0500
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: Duncan Sands <duncan.sands@free.fr>, linux-kernel@vger.kernel.org
-Subject: Re: speedtch driver, 2.6.14.2
-References: <200511232125.25254.s0348365@sms.ed.ac.uk>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Sun, 27 Nov 2005 23:58:25 +0100
-In-Reply-To: <200511232125.25254.s0348365@sms.ed.ac.uk> (Alistair John
- Strachan's message of "Wed, 23 Nov 2005 21:25:25 +0000")
-Message-ID: <m3mzjp3dgu.fsf@defiant.localdomain>
+	Sun, 27 Nov 2005 18:09:55 -0500
+Message-ID: <438A3CA6.9050102@pobox.com>
+Date: Sun, 27 Nov 2005 18:09:26 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+To: Martin Waitz <tali@admingilde.org>
+CC: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] DocBook: add .gitignore file
+References: <20051127124713.GA15536@admingilde.org>
+In-Reply-To: <20051127124713.GA15536@admingilde.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Martin Waitz wrote: > when ignoring all DocBook output
+	files git-status output becomes meaningful > again. > > Signed-off-by:
+	Martin Waitz <tali@admingilde.org> ACK. BTW you should CC akpm@osdl.org
+	to make sure the patch doesn't get lost... [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alistair John Strachan <s0348365@sms.ed.ac.uk> writes:
+Martin Waitz wrote:
+> when ignoring all DocBook output files git-status output becomes meaningful
+> again.
+> 
+> Signed-off-by: Martin Waitz <tali@admingilde.org>
 
-> However, on my rev 4.0 Speedtouch 330, I periodically get the message:
->
-> ATM dev 0: error -110 fetching device status
+ACK.  BTW you should CC akpm@osdl.org to make sure the patch doesn't get 
+lost...
 
-Same here.
+	Jeff
 
-defiant:~$ dmesg | grep 'ATM dev 0: error -110 fetching device status' | wc -l
-55
-defiant:~$ uptime
- 23:55:40 up 15 days, 23:34,  6 users,  load average: 0.05, 0.06, 0.06
 
-It works fine, though.
--- 
-Krzysztof Halasa
+

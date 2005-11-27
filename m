@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751063AbVK0OON@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751068AbVK0OP3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751063AbVK0OON (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 09:14:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbVK0OON
+	id S1751068AbVK0OP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 09:15:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751069AbVK0OP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 09:14:13 -0500
-Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:28809 "HELO
-	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1751063AbVK0OON (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 09:14:13 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.de;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=QW64tw2JYw/hfUugIQi4kkhk1GZnlslmK59g6fp3kX3jKa55pS3trV1lPWdw0DI/Oz2tSZBqEWfpdZ0bOLJ/hnGy/+8tW5rvDycXrHU/H09bjaAqplAAmBYdB9xOOPpCodqRJ0R/dQ79eETGIlmS651tAtlQPdFwVbbKksvZ3ys=  ;
-From: Karsten Wiese <annabellesgarden@yahoo.de>
-To: mingo@elte.hu
-Subject: Re: 2.6.14-rt15 @x86_64UP: "sem_post: Invalid argument"
-Date: Sun, 27 Nov 2005 15:17:18 +0100
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <200511261140.47931.annabellesgarden@yahoo.de>
-In-Reply-To: <200511261140.47931.annabellesgarden@yahoo.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 27 Nov 2005 09:15:28 -0500
+Received: from hera.kernel.org ([140.211.167.34]:9956 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1751065AbVK0OP2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 09:15:28 -0500
+Date: Sun, 27 Nov 2005 06:35:15 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Vasily Averin <vvs@sw.ru>
+Cc: linux-kernel@vger.kernel.org, Konstantin Khorenko <khorenko@sw.ru>,
+       netdev@oss.sgi.com, Daniele Venzano <venza@brownhat.org>
+Subject: Re: [PATCH 2.4] sis900: come alive after temporary memory shortage
+Message-ID: <20051127083515.GA20701@logos.cnet>
+References: <438829AF.8060101@sw.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511271517.18931.annabellesgarden@yahoo.de>
+In-Reply-To: <438829AF.8060101@sw.ru>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Samstag, 26. November 2005 11:40 schrieb Karsten Wiese:
-> I get loads of those messages since switching from rt12 to rt15.
+On Sat, Nov 26, 2005 at 12:23:59PM +0300, Vasily Averin wrote:
+> Hello Marcelo,
+> 
+> I would like to inform you that unfortunately the committed patch is wrong
+> http://www.kernel.org/git/?p=linux/kernel/git/marcelo/linux-2.4.git;a=commit;h=ecf3337f76eaa94c5a771308d184dc248b74b725
+> 
+> +	int rx_work_limit =
+> +		(sis_priv->dirty_rx - sis_priv->cur_rx) % NUM_RX_DESC;
+> 
+> when dirty_rx = cur_rx it computes limit=0, but should be NUM_RX_DESC
+> 
+> Could you please drop the wrong patch and use a new one based on the version
+> approved by Daniele Venzano and Jeff Garzik
+> http://www.kernel.org/git/?p=linux/kernel/git/jgarzik/netdev-2.6.git;a=commitdiff_plain;h=7380a78a973a8109c13cb0e47617c456b6f6e1f5;hp=b2795f596932286ef12dc08857960d654f577405
 
-fixed in rt20.
 
-I've got an "io_apic cached" patch for x86_64 here,
-that ticks since weeks on my UP. Interisting?
-
-   danke,
-   Karsten
-
-	
-
-	
-		
-___________________________________________________________ 
-Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de
+Will do - thanks Vasily.

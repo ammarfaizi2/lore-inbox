@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751010AbVK0MQJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751026AbVK0M27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751010AbVK0MQJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 07:16:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751012AbVK0MQI
+	id S1751026AbVK0M27 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 07:28:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751027AbVK0M27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 07:16:08 -0500
-Received: from herkules.vianova.fi ([194.100.28.129]:2222 "HELO
-	mail.vianova.fi") by vger.kernel.org with SMTP id S1751010AbVK0MQI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 07:16:08 -0500
-Date: Sun, 27 Nov 2005 14:16:04 +0200
-From: Ville Herva <vherva@vianova.fi>
-To: 7eggert@gmx.de
-Cc: Adrian Bunk <bunk@stusta.de>, Folkert van Heusden <folkert@vanheusden.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: capturing oopses
-Message-ID: <20051127121604.GA6966@vianova.fi>
-Reply-To: vherva@vianova.fi
-References: <5bG4q-8ks-17@gated-at.bofh.it> <5daDm-1Cg-15@gated-at.bofh.it> <5de3Z-6CJ-13@gated-at.bofh.it> <E1EgB4G-00013Z-9E@be1.lrz>
+	Sun, 27 Nov 2005 07:28:59 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:57021 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751020AbVK0M27 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 07:28:59 -0500
+Date: Sun, 27 Nov 2005 13:28:14 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, wfg@mail.ustc.edu.cn,
+       levon@movementarian.org
+Subject: Re: [PATCH] Make RCU task_struct safe for oprofile
+Message-ID: <20051127122814.GA22692@elte.hu>
+References: <20051126210726.GA5277@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1EgB4G-00013Z-9E@be1.lrz>
-X-Operating-System: Linux herkules.vianova.fi 2.4.32-rc1
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <20051126210726.GA5277@us.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 27, 2005 at 02:10:59AM +0100, you [Bodo Eggert] wrote:
+
+* Paul E. McKenney <paulmck@us.ibm.com> wrote:
+
+> Hello!
 > 
-> If it's a 640 pixel width image and you've got the right font loaded, the
-> VGA function 0x08 will get you the character at the current cursor position.
-> It's also used by PRTSCR, so pressing it in a DOS viewer may dump the text
-> to LPT1. If you redirected it to a serial console, you might also catch it.
-> (I never tried).
+> Applying RCU to the task structure broke oprofile, because 
+> free_task_notify() can now be called from softirq.  This means that 
+> the task_mortuary lock must be acquired with irq disabled in order to 
+> avoid intermittent self-deadlock.  Since irq is now disabled, the 
+> critical section within process_task_mortuary() has been restructured 
+> to be O(1) in order to maximize scalability and minimize realtime 
+> latency degradation.
+> 
+> Kudos to Wu Fengguang for finding this problem!
 
-I meant that I have the image as a PNG (whatever), captured from the display
-of the remote control program (HP RILOE, VMWare GSX Console, VNC, whatever).
-I'm aware that the VGA display memory holds the characters (in addition to
-pixels) in text mode, but the actual machine may be dead at this point - OS
-crash, hw failure, whatever. The oops output is on the screen - just not in
-palatible text format.
+thanks, i applied this to the -rt tree.
 
-
--- v -- 
-
-v@iki.fi
-
+	Ingo

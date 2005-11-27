@@ -1,81 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751075AbVK0O3J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbVK0Oci@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751075AbVK0O3J (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 09:29:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751077AbVK0O3J
+	id S1751077AbVK0Oci (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 09:32:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751078AbVK0Oci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 09:29:09 -0500
-Received: from web.dragon.cz ([213.168.176.4]:43484 "EHLO web.dragon.cz")
-	by vger.kernel.org with ESMTP id S1751075AbVK0O3I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 09:29:08 -0500
-Message-ID: <4389C2B1.5020001@inv.cz>
-Date: Sun, 27 Nov 2005 15:29:05 +0100
-From: Martin Volf <mv@inv.cz>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051014)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: e1000, 2.6.1[34] - WOL not working
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 27 Nov 2005 09:32:38 -0500
+Received: from eastrmmtao06.cox.net ([68.230.240.33]:46586 "EHLO
+	eastrmmtao06.cox.net") by vger.kernel.org with ESMTP
+	id S1751077AbVK0Och (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 09:32:37 -0500
+In-Reply-To: <4389B80C.8040405@shadowen.org>
+References: <44E57FC6-A500-42B7-86F9-F1F4E72734EC@mac.com> <4389B80C.8040405@shadowen.org>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <23E90BC5-8F56-4DC3-BD4C-61B661FE1475@mac.com>
+Cc: LKML Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Anton Blanchard <anton@samba.org>
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [2.6.15-rc2-mm1] Disabled flatmem on ppc32? (ARCH=powerpc)
+Date: Sun, 27 Nov 2005 09:32:35 -0500
+To: Andy Whitcroft <apw@shadowen.org>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Nov 27, 2005, at 08:43:40, Andy Whitcroft wrote:
 
-with 2.6.13 and 2.6.14, after I shutdown the computer I can't wake it up with 
-the "MagicPacket" over the network. With 2.6.12 and 2.6.12.x it is working.
+> Kyle Moffett wrote:
+>
+>
+>> There is a Kconfig problem for ppc32 in the latest -mm kernel.  It  
+>> seems that somehow the Kconfig logic for selecting memory models   
+>> under ARCH=powerpc doesn't quite get it right for standard  
+>> flatmem  ppc32 systems.  When I look at the memory model  
+>> selection, I only see sparsemem, whereas on a normal -rc2 kernel,  
+>> I can see both flatmem and sparsemem.  This somehow triggers a  
+>> #error where the number of reserved bits is less than the number  
+>> necessary for the sparsemem layout (because we're on a 32-bit arch  
+>> without the address space for  sparsemem?).
+>>
+>
+> I suspect we have neglected to add back the default for FLATMEM on  
+> 32 bit when we allowed FLATMEM to be disabled for 64 bit.  Will go  
+> and look at it.  Thanks for the report.
+>
 
-Steps to reproduce:
-Boot 2.6.14, "ethtool -s eth0 wol g", press the power button, acpid runs 
-"/sbin/init 0", the computer poweroffs, the link LED on the switch goes off 
-and WOL is not working. With 2.6.12 the link remains on and WOL is working.
+When you get it figured out, could you CC the patch to me?  I'd like  
+to do some testing -mm1 and this is a bit of a showstopper :-D.  Thanks!
 
-More mystery:
-When I pull out the power cord for a while after the shutdown from 2.6.14, the 
-link LED on the switch goes on and WOL is working. So it looks like 2.6.13 and 
-.14 is in fact disabling the WOL.
+Cheers,
+Kyle Moffett
 
-Distribution: Gentoo
-
-Hardware Environment:
-CPU P4 with HT, MB Asus P4C800-E Deluxe (Intel 875P chipset) with onboard 
-e1000 (Intel 82547EI) connected to a 10/100 switch
-
-Software Environment:
-latest BIOS
-SMP kernel, more info: http://columbia.dragon.cz/~volf/wol_problem/
-ver_linux says:
-Gnu C                  3.3.6
-Gnu make               3.80
-binutils               2.15.92.0.2
-util-linux             2.12r
-mount                  2.12r
-module-init-tools      3.0
-e2fsprogs              1.38
-reiserfsprogs          3.6.19
-reiser4progs           line
-nfs-utils              1.0.6
-Linux C Library        2.3.5
-Dynamic linker (ldd)   2.3.5
-Procps                 3.2.5
-Net-tools              1.60
-Kbd                    1.12
-Sh-utils               5.2.1
-udev                   070
-Modules Loaded         radeon intel_agp drm agpgart nfsd exportfs lockd sunrpc 
-microcode w83627hf i2c_sensor i2c_isa i2c_i801 e1000 snd_pcm_oss snd_mixer_oss 
-snd_seq_dummy snd_seq_oss snd_seq_midi_event snd_seq snd_seq_device snd_bt87x 
-snd_intel8x0 snd_ac97_codec snd_pcm snd_timer snd soundcore snd_page_alloc 
-usblp sata_promise libata scsi_mod uhci_hcd ehci_hcd usbcore loop tuner 
-tvaudio bttv video_buf firmware_class i2c_algo_bit v4l2_common btcx_risc 
-tveeprom i2c_core videodev ide_cd cdrom
-
-
-Contents of some /proc files, output of lspci -vvvx and the .config are here:
-http://columbia.dragon.cz/~volf/wol_problem/
-
--- 
-Martin Volf
 

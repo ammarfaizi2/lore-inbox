@@ -1,70 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbVK0Vm0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbVK0Vsm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751098AbVK0Vm0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 16:42:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbVK0Vm0
+	id S1751168AbVK0Vsm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 16:48:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbVK0Vsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 16:42:26 -0500
-Received: from hera.kernel.org ([140.211.167.34]:661 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1751098AbVK0VmZ (ORCPT
+	Sun, 27 Nov 2005 16:48:41 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:32974 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S1751163AbVK0Vsl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 16:42:25 -0500
-Date: Sun, 27 Nov 2005 14:02:07 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Jan Kasprzak <kas@fi.muni.cz>
-Cc: Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au,
-       linux-kernel@vger.kernel.org, Bharata B Rao <bharata@in.ibm.com>
-Subject: Re: 2.6.14 kswapd eating too much CPU
-Message-ID: <20051127160207.GE21383@logos.cnet>
-References: <20051123010122.GA7573@fi.muni.cz> <4383D1CC.4050407@yahoo.com.au> <20051123051358.GB7573@fi.muni.cz> <20051123131417.GH24091@fi.muni.cz> <20051123110241.528a0b37.akpm@osdl.org> <20051123202438.GE28142@fi.muni.cz> <20051123123531.470fc804.akpm@osdl.org> <20051124083141.GJ28142@fi.muni.cz> <20051127084231.GC20701@logos.cnet> <20051127203924.GE27805@fi.muni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051127203924.GE27805@fi.muni.cz>
-User-Agent: Mutt/1.5.5.1i
+	Sun, 27 Nov 2005 16:48:41 -0500
+Date: Sun, 27 Nov 2005 22:48:39 +0100 (MET)
+From: <Andries.Brouwer@cwi.nl>
+Message-Id: <200511272148.jARLmdn08633@apps.cwi.nl>
+To: linux-kernel@vger.kernel.org
+Subject: user mounting
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jan,
 
-> 	The task that probably triggers this problem is a cron job
-> doing full-text indexing of mailing list archive, so it accesses lots
-> of small files, and then recreates the inverted index, which is one big
-> file. So maybe inode cache shrinking or something may be the problem there.
-> However, the cron job does an incremental reindexing only, so I think it
-> reads less than 100 files per each run.
-> : 
-> : Maybe you should also try profile/oprofile during the kswapd peeks?
-> : 
-> 	Do you have any details on it? I can of course RTFdocs of oprofile,
-> but should I try to catch something special?
+Many distributions are willing to let a user mount her own
+floppy or CDROM or memory stick, where it is not intended
+that a user can crash the system or subvert security.
 
-It does seem to scan SLABs intensively:
+However, at present an fstab line with "auto" for filesystem type,
+allows the user to come with her own maliciously constructed
+filesystem, and crash the system - there are many filesystem
+types, and the more obscure ones among them are full of bugs.
 
-pgscan_kswapd_high 0
-pgscan_kswapd_normal 940269891
-pgscan_kswapd_dma 0
-pgscan_direct_high 0
-pgscan_direct_normal 13837131
-pgscan_direct_dma 0
-pginodesteal 11216563
-slabs_scanned 160160350534400
-kswapd_steal 909876526
-kswapd_inodesteal 305039060
-pageoutrun 30139677
-allocstall 4067783
+Less obscure filesystem types still allow an easy denial of service -
+for example, if the kernel does a printk() for every filesystem error,
+one can keep syslog busy for hours or days, where very little else
+happens.
 
-If you take the amont of scanned slabs and divide by the sum of
-direct/kswapd pagescans:
+The ext2 filesystem allows one to specify what happens upon error,
+for example "panic on error". Now mounting a corrupt ext2 filesystem image
+with this bit set causes the kernel to panic voluntarily.
 
-160160350534400 / (940269891+13837131) = 167864
+I mentioned such things some time ago to a few people, but they
+did not seem impressed.
 
-Which means that for each page scanned about 168000 slab entries are
-scanned. Does not look very good.
+Still, I think we should try to design a better behaviour.
 
-Other than the profiling can you please also try Bharata's
-shrinkable slab cache statistics patch?
+Part of my proposal for a solution lives in kernel space.
+Introduce a mount flag "user mounted". When it is set,
+the kernel will not do a printk() for this filesystem,
+and certainly will not panic.
 
-http://lkml.org/lkml/2005/10/26/1
+On the user space side of things, distributions using "auto" today
+might consider changing that into explicit comma-separated lists
+of alternatives, so that adding new untested filesystems to the kernel
+does not increase the risk of running that kernel.
 
-
+Andries

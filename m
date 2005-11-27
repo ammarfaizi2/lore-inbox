@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbVK0OL5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751063AbVK0OON@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751067AbVK0OL5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 09:11:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751068AbVK0OL5
+	id S1751063AbVK0OON (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 09:14:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbVK0OON
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 09:11:57 -0500
-Received: from mail.suse.de ([195.135.220.2]:57034 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751066AbVK0OL4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 09:11:56 -0500
-Date: Sun, 27 Nov 2005 15:11:55 +0100
-From: Andi Kleen <ak@suse.de>
-To: Ren? Rebe <rene@exactcode.de>
-Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: [PATCH] x86_64: Test patch for ATI/Nvidia timer problems
-Message-ID: <20051127141155.GI20775@brahms.suse.de>
-References: <20051126142030.GA26449@wotan.suse.de> <200511271014.53217.rene@exactcode.de> <20051127135325.GG20775@brahms.suse.de> <200511271502.18782.rene@exactcode.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 27 Nov 2005 09:14:13 -0500
+Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:28809 "HELO
+	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1751063AbVK0OON (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 09:14:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.de;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=QW64tw2JYw/hfUugIQi4kkhk1GZnlslmK59g6fp3kX3jKa55pS3trV1lPWdw0DI/Oz2tSZBqEWfpdZ0bOLJ/hnGy/+8tW5rvDycXrHU/H09bjaAqplAAmBYdB9xOOPpCodqRJ0R/dQ79eETGIlmS651tAtlQPdFwVbbKksvZ3ys=  ;
+From: Karsten Wiese <annabellesgarden@yahoo.de>
+To: mingo@elte.hu
+Subject: Re: 2.6.14-rt15 @x86_64UP: "sem_post: Invalid argument"
+Date: Sun, 27 Nov 2005 15:17:18 +0100
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <200511261140.47931.annabellesgarden@yahoo.de>
+In-Reply-To: <200511261140.47931.annabellesgarden@yahoo.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200511271502.18782.rene@exactcode.de>
+Message-Id: <200511271517.18931.annabellesgarden@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 27, 2005 at 03:02:13PM +0100, Ren? Rebe wrote:
-> Hi,
-> 
-> On Sunday 27 November 2005 14:53, Andi Kleen wrote:
-> > On Sun, Nov 27, 2005 at 10:14:53AM +0100, Ren? Rebe wrote:
-> > > Hi,
-> > > 
-> > > On Saturday 26 November 2005 15:20, Andi Kleen wrote:
-> > > > Everybody who saw timing problems with ATI IXP based boards with x86-64
-> > > > or some Nvidia NForce4 boards please test this patch. Please send
-> > > > success/failure to me.
-> > > 
-> > > I try to give your patch a try on the ATI based MSI Megabook S270, today - 
-> > > however even with the workaround of "noapic" I had timer drift on resuem from 
-> > > ram if the cpu was scaled to a lower frequency when it was suspended.
-> > 
-> > But it worked properly before suspend/resume without noapic? 
-> 
-> Without noapic the timer has about the 2x speed compared to real-time. I
-> only used the machien with noapic since otherwise it is barely useful.
+Am Samstag, 26. November 2005 11:40 schrieb Karsten Wiese:
+> I get loads of those messages since switching from rt12 to rt15.
 
-It has that still with the patch applied? The patch was supposed
-to fix that at least part of that problem on ATI systems
-(there seems to be also a timer miscalibration problem on some other
-laptops) 
+fixed in rt20.
 
--Andi
+I've got an "io_apic cached" patch for x86_64 here,
+that ticks since weeks on my UP. Interisting?
+
+   danke,
+   Karsten
+
+	
+
+	
+		
+___________________________________________________________ 
+Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de

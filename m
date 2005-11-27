@@ -1,44 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751068AbVK0OP3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751072AbVK0OP4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751068AbVK0OP3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 09:15:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751069AbVK0OP2
+	id S1751072AbVK0OP4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 09:15:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751069AbVK0OP4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 09:15:28 -0500
-Received: from hera.kernel.org ([140.211.167.34]:9956 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1751065AbVK0OP2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 09:15:28 -0500
-Date: Sun, 27 Nov 2005 06:35:15 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Vasily Averin <vvs@sw.ru>
-Cc: linux-kernel@vger.kernel.org, Konstantin Khorenko <khorenko@sw.ru>,
-       netdev@oss.sgi.com, Daniele Venzano <venza@brownhat.org>
-Subject: Re: [PATCH 2.4] sis900: come alive after temporary memory shortage
-Message-ID: <20051127083515.GA20701@logos.cnet>
-References: <438829AF.8060101@sw.ru>
-Mime-Version: 1.0
+	Sun, 27 Nov 2005 09:15:56 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38817 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751070AbVK0OPz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 09:15:55 -0500
+To: Andi Kleen <ak@suse.de>
+Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, "Raj, Ashok" <ashok.raj@intel.com>,
+       Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [PATCH] i386/x86_64: Don't IPI to offline cpus on shutdown
+References: <Pine.LNX.4.61.0511270115020.20046@montezuma.fsmlabs.com>
+	<20051127135833.GH20775@brahms.suse.de>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Sun, 27 Nov 2005 07:14:16 -0700
+In-Reply-To: <20051127135833.GH20775@brahms.suse.de> (Andi Kleen's message
+ of "Sun, 27 Nov 2005 14:58:33 +0100")
+Message-ID: <m1wtiufa9z.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <438829AF.8060101@sw.ru>
-User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 26, 2005 at 12:23:59PM +0300, Vasily Averin wrote:
-> Hello Marcelo,
-> 
-> I would like to inform you that unfortunately the committed patch is wrong
-> http://www.kernel.org/git/?p=linux/kernel/git/marcelo/linux-2.4.git;a=commit;h=ecf3337f76eaa94c5a771308d184dc248b74b725
-> 
-> +	int rx_work_limit =
-> +		(sis_priv->dirty_rx - sis_priv->cur_rx) % NUM_RX_DESC;
-> 
-> when dirty_rx = cur_rx it computes limit=0, but should be NUM_RX_DESC
-> 
-> Could you please drop the wrong patch and use a new one based on the version
-> approved by Daniele Venzano and Jeff Garzik
-> http://www.kernel.org/git/?p=linux/kernel/git/jgarzik/netdev-2.6.git;a=commitdiff_plain;h=7380a78a973a8109c13cb0e47617c456b6f6e1f5;hp=b2795f596932286ef12dc08857960d654f577405
+Andi Kleen <ak@suse.de> writes:
 
+> On Sun, Nov 27, 2005 at 02:05:45AM -0800, Zwane Mwaikambo wrote:
+>> http://bugzilla.kernel.org/show_bug.cgi?id=5203
+>> 
+>> There is a small race during SMP shutdown between the processor issuing 
+>> the shutdown and the other processors clearing themselves off the 
+>> cpu_online_map as they do this without using the normal cpu offline 
+>> synchronisation. To avoid this we should wait for all the other processors 
+>> to clear their corresponding bits and then proceed. This way we can safely 
+>> make the cpu_online test in smp_send_reschedule, it's safe during normal 
+>> runtime as smp_send_reschedule is called with a lock held / preemption 
+>> disabled.
+>
+> Looking at the backtrace in the bug - how can sys_reboot call do_exit???
+> I would say the problem is in whatever causes that. It shouldn't 
+> do that. sys_reboot shouldn't schedule, it's that simple.
+> Your patch is just papering over that real bug.
 
-Will do - thanks Vasily.
+sys_reboot in the case of halt (after everything else is done)
+has directly called do_exit for years.
+
+There are some very subtle interactions there.  The one
+I always remember (having found it the hard way) is that
+interrupts must be left on so ctrl-alt-del still works.
+
+This do_exit may be something similar, although I can't
+think of how it could be useful.
+
+Eric

@@ -1,72 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750941AbVK0JQd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750956AbVK0JUX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750941AbVK0JQd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 04:16:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbVK0JQd
+	id S1750956AbVK0JUX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 04:20:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750957AbVK0JUX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 04:16:33 -0500
-Received: from mx02.qsc.de ([213.148.130.14]:53439 "EHLO mx02.qsc.de")
-	by vger.kernel.org with ESMTP id S1750940AbVK0JQc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 04:16:32 -0500
-From: =?iso-8859-1?q?Ren=E9_Rebe?= <rene@exactcode.de>
-Organization: ExactCode
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] x86_64: Test patch for ATI/Nvidia timer problems
-Date: Sun, 27 Nov 2005 10:14:53 +0100
-User-Agent: KMail/1.8.3
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
-References: <20051126142030.GA26449@wotan.suse.de>
-In-Reply-To: <20051126142030.GA26449@wotan.suse.de>
+	Sun, 27 Nov 2005 04:20:23 -0500
+Received: from smtp104.rog.mail.re2.yahoo.com ([206.190.36.82]:20058 "HELO
+	smtp104.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1750952AbVK0JUW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 04:20:22 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=rogers.com;
+  h=Received:From:Organization:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=xQe6Iq9qFyJacHKNg2xJPH0BTdU0UPyv+iGfDfYQu0PixXYRpSMikaiisPBr8vdKHHBm/jN6fWRGN9+bUurg6UCPwsrkxZc/navBklps0fOdKYOPHNvyaFiEUFzE9/QoRGWjg/cKcwPIL5Z/NDyc+d72xGKl40SWGmrIAisWCkI=  ;
+From: Shawn Starr <shawn.starr@rogers.com>
+Organization: sh0n.net
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: Bogus MCE upon resumption of system? - Resolved
+Date: Sun, 27 Nov 2005 04:20:11 -0500
+User-Agent: KMail/1.9
+Cc: linux-kernel@vger.kernel.org
+References: <200410101932.12431.shawn.starr@rogers.com> <20041020154854.GF26439@elf.ucw.cz> <200410201520.46957.shawn.starr@rogers.com>
+In-Reply-To: <200410201520.46957.shawn.starr@rogers.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200511271014.53217.rene@exactcode.de>
-X-Spam-Score: -1.4 (-)
-X-Spam-Report: Spam detection software, running on the system "grum.localhost", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Hi, On Saturday 26 November 2005 15:20, Andi Kleen
-	wrote: > Everybody who saw timing problems with ATI IXP based boards
-	with x86-64 > or some Nvidia NForce4 boards please test this patch.
-	Please send > success/failure to me. [...] 
-	Content analysis details:   (-1.4 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
+Message-Id: <200511270420.11479.shawn.starr@rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+As of 2.6.15-rc2 (or eariler .15 snapshot) The kernel now enables MCE checking 
+on resumption from suspend from disk thus there is no more bogus MCEs.
 
-On Saturday 26 November 2005 15:20, Andi Kleen wrote:
-> Everybody who saw timing problems with ATI IXP based boards with x86-64
-> or some Nvidia NForce4 boards please test this patch. Please send
-> success/failure to me.
+-snip-
+[4358769.531000] [nosave pfn 0x3c4]<7>[nosave pfn 0x3c5]<6>[4358769.531000] 
+Intel machine check architecture supported.
+[4358769.531000] Intel machine check reporting enabled on CPU#0.
+[4358769.531000] swsusp: Restoring Highmem
 
-I try to give your patch a try on the ATI based MSI Megabook S270, today - 
-however even with the workaround of "noapic" I had timer drift on resuem from 
-ram if the cpu was scaled to a lower frequency when it was suspended.
+Thanks, 
 
-The k8 cpufreq code failed to assert the current frequency and thus assumed a 
-wrong one:
+Shawn.
 
-Restarting tasks...<3>powernow-k8: ignoring illegal change in lo freq table-0 
-to 0x0
-powernow-k8: transition frequency failed
- done
-
-Also my ACPI table only has two frequency entries, 800000 and 1600000 MHz - I 
-wonder if one could rework the powernow-k8 driver to interpolate values in 
-between to get smoother adaption of the frequency?
-
-Yours,
-
--- 
-René Rebe - Rubensstr. 64 - 12157 Berlin (Europe / Germany)
-            http://www.exactcode.de | http://www.t2-project.org
-            +49 (0)30  255 897 45
+On Wednesday 20 October 2004 15:20, Shawn Starr wrote:
+> Suspend to RAM,  haven't gotten around to rebuilding kernel with USB not
+> compiled in.
+>
+> Can anyone verify this is a bogus MCE? it occurs only after resuming from
+> suspend from RAM.
+>
+> Shawn.
+>
+> On October 20, 2004 11:48, Pavel Machek wrote:
+> > Ahoj!
+> >
+> > > MCE: The hardware reports a non fatal, correctable incident occurred on
+> > > CPU 0. Bank 1: f200000000000105
+> > >
+> > > Of note, when resume I see this MCE, though i suspect it is bogus upon
+> > > resume.
+> >
+> > You did not tell me if it was suspend-to-disk or -to-RAM. Also you'd
+> > better mail lkml... I know a little about MCEs.
+> >
+> >         Pavel

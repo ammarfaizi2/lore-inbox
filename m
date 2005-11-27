@@ -1,48 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751116AbVK0RJQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbVK0ROE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751116AbVK0RJQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 12:09:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbVK0RJQ
+	id S1751120AbVK0ROE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 12:14:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbVK0ROE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 12:09:16 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:31588 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751116AbVK0RJP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 12:09:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ZBaAbyHTxpNKSi0HqA9OmADHXkqqDMIx4Sw6DPH8/JCl6mzFoa/lCJTMb/s6VDA/0I+WLhs5ffAtQ22cMWokCIePYAucQWO3ooLQk6EYIyBHLotUqlq1rYQnSMMPWmEPWs4VoRArTr9K6oxxl2NJvtquXxVItNk8ReUWbT9fXxU=
-Message-ID: <9a8748490511270909o3e0fdd6erdd17d0b6dbd2c36a@mail.gmail.com>
-Date: Sun, 27 Nov 2005 18:09:14 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: James Courtier-Dutton <James@superbug.demon.co.uk>
-Subject: Re: Alternatives to serial console for oops.
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4389D63B.4000702@superbug.demon.co.uk>
+	Sun, 27 Nov 2005 12:14:04 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:12162 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751117AbVK0ROC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 12:14:02 -0500
+Message-ID: <4389E99A.8020204@sw.ru>
+Date: Sun, 27 Nov 2005 20:15:06 +0300
+From: Vasily Averin <vvs@sw.ru>
+Organization: SW-soft
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20050921
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4389D63B.4000702@superbug.demon.co.uk>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Stanislav Protassov <st@sw.com.sg>
+Subject: [SCSI] aic7xxx: reset handler selects a wrong command
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------050405020905090502040004"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/27/05, James Courtier-Dutton <James@superbug.demon.co.uk> wrote:
-> Hi,
->
-> I wish to view the oops that are normally output on the serial port of
-> the PC. The problem I have, is that my PC does not have a serial port.
-> Are there any alternatives for getting that vital oops from the kernel
-> just as it crashes apart from the serial console.
-> Could I get it to use some other interface? e.g. Network interface.
-> Parallel port is also not an option.
->
-Netconsole (Documentation/networking/netconsole.txt)
-Digital camera to take a photo of the screen.
-Pen & paper to manually write down the Oops.
+This is a multi-part message in MIME format.
+--------------050405020905090502040004
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Hello Justin
+
+To transport scsi reset command to device aic7xxx reset handler looks at the
+driver's pending_list and searches any proper command. However the search
+condition has been inverted: ahc_match_scb() returns TRUE if a matched command
+is found.
+As a result the reset on required devices did not turn out well, a correctly
+working neighbour device may be surprised by the reset. aic7xxx reset handler
+reports about the success, but really the original situation is not corrected yet.
+
+The problem has been found first on 2.4 kernels but still it is present in
+latest 2.6 drivers too.
+
+Marcelo, you can use this patch for 2.4 kernel tree.
+
+Thank you,
+        Vasily Averin
+SWSoft Linux Kernel Team
+
+[SCSI] aic7xxx: reset handler selects a wrong command
+
+To transport scsi reset command to device aic7xxx reset handler looks at the
+driver's pending_list and searches any proper command. However the search
+condition has been inverted: ahc_match_scb() returns TRUE if a matched command
+is found.
+As a result the reset on required devices did not turn out well, a correctly
+working neighbour device may be surprised by the reset. aic7xxx reset handler
+reports about the success, but really the original situation is not corrected yet.
+
+Signed-off-by: Vasily Averin <vvs@sw.ru>
+---
+
+--------------050405020905090502040004
+Content-Type: text/plain;
+ name="diff-drv-aic7xxx-20051127"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff-drv-aic7xxx-20051127"
+
+--- a/drivers/scsi/aic7xxx/aic7xxx_osm.c	2005-11-27 18:05:03.000000000 +0300
++++ b/drivers/scsi/aic7xxx/aic7xxx_osm.c	2005-11-27 18:06:36.000000000 +0300
+@@ -2169,7 +2169,7 @@ ahc_linux_queue_recovery_cmd(struct scsi
+ 		  	if (ahc_match_scb(ahc, pending_scb, scmd_id(cmd),
+ 					  scmd_channel(cmd) + 'A',
+ 					  CAM_LUN_WILDCARD,
+-					  SCB_LIST_NULL, ROLE_INITIATOR) == 0)
++					  SCB_LIST_NULL, ROLE_INITIATOR))
+ 				break;
+ 		}
+ 	}
+
+--------------050405020905090502040004--

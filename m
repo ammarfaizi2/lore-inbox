@@ -1,60 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751008AbVK0L6Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751013AbVK0MSb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751008AbVK0L6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 06:58:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751009AbVK0L6Z
+	id S1751013AbVK0MSb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 07:18:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751014AbVK0MSb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 06:58:25 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:57058 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751007AbVK0L6Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 06:58:24 -0500
-Subject: Re: [BUG]: Software compiling occasionlly hangs under
-	2.6.15-rc1/rc2 and 2.6.15-rc1-mm2
-From: Arjan van de Ven <arjan@infradead.org>
-To: Tarkan Erimer <tarkane@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <9611fa230511270317led5b915h7daae3ef1287f86d@mail.gmail.com>
-References: <9611fa230511250312i55d0b872x82b8c33b4d2973e4@mail.gmail.com>
-	 <1132917564.7068.41.camel@laptopd505.fenrus.org>
-	 <9611fa230511270317led5b915h7daae3ef1287f86d@mail.gmail.com>
-Content-Type: text/plain
-Date: Sun, 27 Nov 2005 12:58:21 +0100
-Message-Id: <1133092701.2853.0.camel@laptopd505.fenrus.org>
+	Sun, 27 Nov 2005 07:18:31 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:17314 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751012AbVK0MSb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 07:18:31 -0500
+Date: Sun, 27 Nov 2005 13:18:35 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Oleg Nesterov <oleg@tv-sign.ru>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Roland McGrath <roland@redhat.com>
+Subject: Re: [PATCH 1/2] PF_DEAD: cleanup usage
+Message-ID: <20051127121835.GB22229@elte.hu>
+References: <4385E3FF.C99DBCF5@tv-sign.ru> <20051125051232.GB22230@elte.hu> <Pine.LNX.4.64.0511250950450.13959@g5.osdl.org> <43883D01.8CCB31A6@tv-sign.ru> <Pine.LNX.4.64.0511260949030.13959@g5.osdl.org> <4388B5AA.34CE5294@tv-sign.ru> <Pine.LNX.4.64.0511261023500.13959@g5.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0511261023500.13959@g5.osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.5
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.5 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	1.3 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-11-27 at 11:17 +0000, Tarkan Erimer wrote:
-> On 11/25/05, Arjan van de Ven <arjan@infradead.org> wrote:
-> > what is probably needed to diagnose this is that you do a
-> >
-> > echo "t" > /proc/sysrq-trigger
-> >
-> > and then find the process that hangs in that... and send it to this
-> > list.
+
+* Linus Torvalds <torvalds@osdl.org> wrote:
+
+> Well, in all fairness, it's entirely possible (nay, likely) that 
+> PF_DEAD just isn't relevant the way it used to be.
+
+yes, that's the case. I do believe we should go with Oleg's original 
+patches.
+
+> Looking at the history, the immediate reason for PF_DEAD was (I think) 
+> that we had a race where we would first mark the task as a ZOMBIE, and 
+> then if it was self-reaping, we'd mark it dead in release_task(). But 
+> we dropped the tasklist_lock in between, which meant that the real 
+> parent could come in and reap it just before it reaped itself, and all 
+> hell would break lose.
+
+yeah. Another problem was if we accidentally scheduled somewhere after 
+the task was marked TASK_DEAD. (That used to be caught by another 
+PF_DEAD check before the final schedule()).
+
+all this stuff got changed as part of the PREEMPT_VOLUNTARY changes, and 
+now we exit in a much more robust way.
+
+> HOWEVER. I just noticed something strange. EXIT_DEAD should be in 
+> "task->exit_state", not in "task->state". So there's something strange 
+> going on in that neck of the woods _anyway_. That whole
 > 
-> Previously; In 2.6.15-rc2 kernel debug is not enabled. I enabled
-> kernel debug and tried software compiling to reproduce the problem.
-> But this time, I got hard system lock ups instead of previous process
-> hangs. I attached my log file. Hope this helps to diagnose this
-> proble
+> 	...
+>         if (unlikely(prev->flags & PF_DEAD))
+>                 prev->state = EXIT_DEAD;
+> 	...
+> 
+> in kernel/sched.c seems totally bogus.
 
-which process again was hanging?
+no, it's not bogus. PF_DEAD is basically just a fancy, persistent flag 
+for "mark the task state as EXIT_DEAD atomically before the final 
+schedule". The TASK_DEAD flag is still necessary so that we dont stay on 
+the runqueue. [we could use TASK_UNINTERRUPTIBLE - it should just not be 
+TASK_RUNNING or TASK_INTERRUPTIBLE.]
 
-(and maybe also post an lsmod output just to get an idea of which
-modules/drivers are in play)
+in any case, i agree with Oleg's patches: with the current code it's 
+unnecessary to signal towards schedule() to turn the PF_DEAD flag into 
+EXIT_DEAD - we can do it right where we set PF_DEAD: immediately before 
+calling the final schedule(). PF_DEAD is a relic from the days when the 
+exit path was structured differently.
 
+	Ingo

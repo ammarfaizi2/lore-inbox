@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751078AbVK0O7i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbVK0PL6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751078AbVK0O7i (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 09:59:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbVK0O7i
+	id S1751088AbVK0PL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 10:11:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbVK0PL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 09:59:38 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:27558 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751078AbVK0O7i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 09:59:38 -0500
-Date: Sun, 27 Nov 2005 15:59:47 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Karsten Wiese <annabellesgarden@yahoo.de>
+	Sun, 27 Nov 2005 10:11:58 -0500
+Received: from cavan.codon.org.uk ([217.147.92.49]:56752 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S1751088AbVK0PL5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 10:11:57 -0500
+Date: Sun, 27 Nov 2005 11:56:53 +0000
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rt15 @x86_64UP: "sem_post: Invalid argument"
-Message-ID: <20051127145947.GA28922@elte.hu>
-References: <200511261140.47931.annabellesgarden@yahoo.de> <200511271517.18931.annabellesgarden@yahoo.de>
+Subject: Re: [PATCH] Reboot through the BIOS on newer HP laptops
+Message-ID: <20051127115653.GA7126@srcf.ucam.org>
+References: <20051124052107.GA28070@srcf.ucam.org> <20051126203326.07b09394.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200511271517.18931.annabellesgarden@yahoo.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20051126203326.07b09394.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Nov 26, 2005 at 08:33:26PM -0800, Andrew Morton wrote:
 
-* Karsten Wiese <annabellesgarden@yahoo.de> wrote:
+> But your patch will do this for all HP laptops, will it not?  Worrisome. 
+> Is it not possible to identify particular models?
 
-> Am Samstag, 26. November 2005 11:40 schrieb Karsten Wiese:
-> > I get loads of those messages since switching from rt12 to rt15.
-> 
-> fixed in rt20.
+Yes, but there seems to be an awfully large number of affected models 
+(at least the nc4200, tc4200, nx6110, nc6120, nc6220, nc6230, nc8220, 
+nc8230 and nw8240) and HP and myself couldn't figure out /why/ they 
+won't reboot in the normal way, so there's a fairly good chance that the 
+next generation of them will have the same problem.
 
-great.
-
-> I've got an "io_apic cached" patch for x86_64 here, that ticks since 
-> weeks on my UP. Interesting?
-
-yeah, please send it, i'll add it to -rt.
-
-	Ingo
+It's actually a bit odd. If I write some userspace code to prod the 
+keyboard controller in the same way as the kernel reboot code does, the 
+system reboots. If the kernel does it, it freezes at the point where it 
+pokes the keyboard controller. 
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

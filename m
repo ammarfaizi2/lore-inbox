@@ -1,51 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbVK0Dbh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbVK0EFW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750832AbVK0Dbh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Nov 2005 22:31:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbVK0Dbh
+	id S1750836AbVK0EFW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Nov 2005 23:05:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbVK0EFW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Nov 2005 22:31:37 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:53666 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S1750832AbVK0Dbg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Nov 2005 22:31:36 -0500
-Message-ID: <43892897.9020900@vc.cvut.cz>
-Date: Sun, 27 Nov 2005 04:31:35 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686 (x86_64); en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: cs, en
+	Sat, 26 Nov 2005 23:05:22 -0500
+Received: from wproxy.gmail.com ([64.233.184.195]:21718 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750836AbVK0EFW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Nov 2005 23:05:22 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=pr3+UlzIM+0rmH8/S6hUEr4sjgk6qw2UdG/ocI00on1o3zztDbvBdmLjulwyphVqkkeuA2v6102ejKqgopmky0R34gPj7c11LH5V63QPYtGc3ROHVFMZWY5WRlHCucKrTlGS0ezxTCWXTD+OehTr8PjbbkN8RxO2WrqND6aH4EM=
+Message-ID: <afd776760511262005t25dc8beam1a2f5318943ebc68@mail.gmail.com>
+Date: Sat, 26 Nov 2005 22:05:21 -0600
+From: Mohamed El Dawy <msdawy@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Acessing page contents given page pointer?
 MIME-Version: 1.0
-To: Martin Drab <drab@kepler.fjfi.cvut.cz>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PC speaker beeping on high CPU loads on an nForce2
-References: <Pine.LNX.4.60.0511270409430.30055@kepler.fjfi.cvut.cz>
-In-Reply-To: <Pine.LNX.4.60.0511270409430.30055@kepler.fjfi.cvut.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Drab wrote:
-> Hi,
-> 
-> on an nForce2 system (GigaByte 7NNXP) when the CPU is under heavy load 
-> (like during kernel compilation for instance, or any compilation of any 
-> bigger project, for that matter), I hear some beeps comming out of the PC 
-> speaker. It's like few short beeps per second for a while, then silence 
-> for few seconds, then a beep here and there, and again, and so on. It is 
-> quite strange. It happens ever since I remember (I mean in kernel 
-> versions of course, I have the board for about 1.5 years). I've just been 
-> kind of ignoring it until now. Does anybody else happen to see the same 
-> symptoms? What could be the cause of this. Is it something about timing? 
-> But how come the PC speaker gets kiced in, while it's not being used at 
-> all (well, at least not intentionally) for anything. Perhaps something is 
-> writing some ports it is not supposed to?
+Hi,
+ Thanks a lot for the reply to my previous problem. Sincerely appreciated.
 
-Nope.  Your system is overheating, and on-board temperature sensors are 
-complaining.  Probably you should find whether lm-sensors have drivers for chips 
-your motherboard has, and look at sensors output in that case...
+Now, here is another quickie. I am running inside the kernel. I have a
+"page" pointer. I am trying to access the page contents. How can I do
+it if the page is not really in my address space? (e.g. I got the page
+pointer using the function __follow_page() ).
 
-Maybe ACPI could report thermal zone as well, try looking at 
-/proc/acpi/thermal_zone/* tree.
-								Petr
-
+Thanks a lot for all the help. Sincerely appreciated.

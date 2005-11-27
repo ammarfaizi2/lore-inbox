@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750862AbVK0Edf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbVK0F5j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750862AbVK0Edf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Nov 2005 23:33:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750855AbVK0Ede
+	id S1750877AbVK0F5j (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 00:57:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750880AbVK0F5j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Nov 2005 23:33:34 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:20954 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750861AbVK0Ede (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Nov 2005 23:33:34 -0500
-Date: Sat, 26 Nov 2005 20:33:26 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Reboot through the BIOS on newer HP laptops
-Message-Id: <20051126203326.07b09394.akpm@osdl.org>
-In-Reply-To: <20051124052107.GA28070@srcf.ucam.org>
-References: <20051124052107.GA28070@srcf.ucam.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 27 Nov 2005 00:57:39 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:44812 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1750877AbVK0F5i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 00:57:38 -0500
+Date: Sun, 27 Nov 2005 06:57:25 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Michael Frank <mhf@users.berlios.de>
+Cc: David Brown <dmlb2000@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: linux-2.6.14.tar.bz2 permissions
+Message-ID: <20051127055725.GL11266@alpha.home.local>
+References: <9c21eeae0511261352u33e32343wf50062ba3038ef06@mail.gmail.com> <20051126223921.E7EF31AC3@hornet.berlios.de> <9c21eeae0511261441j7e4cc7c7ya99daaf1e437cb2a@mail.gmail.com> <20051126225656.04D3D1AC3@hornet.berlios.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051126225656.04D3D1AC3@hornet.berlios.de>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Garrett <mjg59@srcf.ucam.org> wrote:
->
-> Newer HP laptops (nc4200, nc6xxx, nc8xxx) hang on reboot with a standard 
-> configuration. Passing reboot=b makes them work. This patch adds a DMI 
-> quirk that defaults them to this mode, and doesn't appear to have any 
-> adverse affects on older HPs.
+On Sat, Nov 26, 2005 at 11:53:23PM +0100, Michael Frank wrote:
+> charset="iso-8859-1"
+> Content-Transfer-Encoding: 7bit
+> Content-Disposition: inline
+> On Saturday 26 November 2005 23:41, David Brown wrote:
+> > > Check your umask and set it to 022 ;)
+> >
+> > it is, still comes up world read/write.
 > 
-> Signed-off-by: Matthew Garrett <mjg59@srcf.ucam.org>
+> Sorry for my sleepy advise.
 > 
-> --- a/arch/i386/kernel/reboot.c.orig	2005-09-20 18:54:50.000000000 +0100
-> +++ a/arch/i386/kernel/reboot.c	2005-09-20 18:58:11.000000000 +0100
-> @@ -135,6 +135,14 @@
->  			DMI_MATCH(DMI_PRODUCT_NAME, "PowerEdge 2400"),
->  		},
->  	},
-> +	{       /* HP laptops have weird reboot issues */
-> +	        .callback = set_bios_reboot,
-> +		.ident = "HP Laptop",
-> +		.matches = {
-> +		        DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "HP Compaq"),
-> +		},
-> +	},
->  	{ }
->  };
+> sudo umask 022
+ ^^^^^^^^^^^^^^^
 
-This seems rather generic.  I recently added one entry:
+This one is not going to be useful, because it will only set the umask
+for the shell launched by sudo.
 
-	{	/* Handle problems with rebooting on HP nc6120 */
-		.callback = set_bios_reboot,
-		.ident = "HP Compaq nc6120",
-		.matches = {
-			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
-			DMI_MATCH(DMI_PRODUCT_NAME, "HP Compaq nc6120"),
-		},
-	},
+> sudo tar jxf linux-2.6.14.1.tar.bz2 --no-same-permissions
 
-But your patch will do this for all HP laptops, will it not?  Worrisome. 
-Is it not possible to identify particular models?
+Regards,
+Willy
+

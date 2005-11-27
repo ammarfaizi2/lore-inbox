@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbVK0P5h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbVK0P7S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751099AbVK0P5h (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 10:57:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbVK0P5h
+	id S1751096AbVK0P7S (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 10:59:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbVK0P7S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 10:57:37 -0500
-Received: from ns.tasking.nl ([195.193.207.2]:18393 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id S1751099AbVK0P5g (ORCPT
+	Sun, 27 Nov 2005 10:59:18 -0500
+Received: from mail.ocs.com.au ([202.147.117.210]:46534 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S1751096AbVK0P7R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 10:57:36 -0500
-To: linux-kernel@vger.kernel.org
+	Sun, 27 Nov 2005 10:59:17 -0500
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
+From: Keith Owens <kaos@sgi.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, sekharan@us.ibm.com,
+       linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+       paulmck@us.ibm.com, greg@kroah.com, Douglas_Warzecha@dell.com,
+       Abhay_Salunke@dell.com, achim_leubner@adaptec.com,
+       dmp@davidmpye.dyndns.org
+Subject: Re: [Lse-tech] Re: [PATCH 0/7]: Fix for unsafe notifier chain 
+In-reply-to: Your message of "Sun, 27 Nov 2005 14:47:36 BST."
+             <20051127134735.GK31722@brahms.suse.de> 
 Mime-Version: 1.0
-X-Newsreader: knews 1.0b.1
-Reply-To: dick.streefland@xs4all.nl (Dick Streefland)
-Organization: none
-X-Face: "`*@3nW;mP[=Z(!`?W;}cn~3M5O_/vMjX&Pe!o7y?xi@;wnA&Tvx&kjv'N\P&&5Xqf{2CaT 9HXfUFg}Y/TT^?G1j26Qr[TZY%v-1A<3?zpTYD5E759Q?lEoR*U1oj[.9\yg_o.~O.$wj:t(B+Q_?D XX57?U,#b,iM$[zX'I(!'VCQM)N)x~knSj>M*@l}y9(tK\rYwdv%~+&*jV"epphm>|q~?ys:g:K#R" 2PuAzy-N9cKM<Ml/%yPQxpq"Ttm{GzBn-*:;619QM2HLuRX4]~361+,[uFp6f"JF5R`y
-From: spam@streefland.xs4all.nl (Dick Streefland)
-Subject: ppdev interface for USB to parallel port adapter?
 Content-Type: text/plain; charset=us-ascii
-NNTP-Posting-Host: 172.17.1.66
-Message-ID: <254.4389d740.5e12d@altium.nl>
-Date: Sun, 27 Nov 2005 15:56:48 -0000
+Date: Mon, 28 Nov 2005 02:59:05 +1100
+Message-ID: <22267.1133107145@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an AVR microcontroller programmer that connects to the parallel
-port. It is controlled by a programm called avrdude that uses the
-ppdev programming interface on /dev/parport* to manipulate the
-parallel port I/O signals.
+On Sun, 27 Nov 2005 14:47:36 +0100, 
+Andi Kleen <ak@suse.de> wrote:
+>akpm wrote
+>>   - Introduce a new notifier API which is wholly unlocked
+>
+>The old notifiers were already wholly unlocked. So it wouldn't 
+>even need any changes. Just additional locks everywhere.
 
-On my legacy-free laptop, I use an external USB-BAY that provides a
-serial and parallel port. However, this parallel port is controlled by
-the usblp driver, and cannot be accesed via ppdev. I checked the usblp
-driver to see if parport support could be added, but I'm not sure.
-It isn't clear to me whether the USB protocol provides enough
-functionality to implement the ppdev ioctl's. Can anyone shed some
-light on this?
+Wrong.  The existing implementation is racy as hell.  There is NO
+locking on the existing chains, these patches make the notifier chains
+race free.
 
-BTW, lsusb reports for this device:
-
-Bus 001 Device 005: ID 0711:0300 Magic Control Technology Corp. BAY-3U1S1P Parallel Port
-
-and the kernel reports:
-
-Nov 27 16:48:24 zaphod kernel: usb 1-1.5: new full speed USB device using uhci_hcd and address 9
-Nov 27 16:48:25 zaphod kernel: drivers/usb/class/usblp.c: usblp0: USB Bidirectional printer dev 9 if 0 alt 1 proto 2 vid 0x0711 pid 0x0300
-
--- 
-Dick Streefland                    ////               De Bilt
-dick.streefland@xs4all.nl         (@ @)       The Netherlands
-------------------------------oOO--(_)--OOo------------------
+Some of the notifier callbacks are used in weird contexts, including
+NMI, so the only option for those chains is RCU.  Obviously those
+callbacks cannot sleep.  Other chains are used in more normal context
+_AND_ the callbacks want to sleep, so those chains need to use sleeping
+locks.
 

@@ -1,81 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbVK0SaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751135AbVK0SdZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751132AbVK0SaF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 13:30:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbVK0SaF
+	id S1751135AbVK0SdZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 13:33:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751136AbVK0SdZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 13:30:05 -0500
-Received: from hobbit.corpit.ru ([81.13.94.6]:22870 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S1751132AbVK0SaC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 13:30:02 -0500
-Message-ID: <4389FB44.1080007@tls.msk.ru>
-Date: Sun, 27 Nov 2005 21:30:28 +0300
-From: Michael Tokarev <mjt@tls.msk.ru>
-Organization: Telecom Service, JSC
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jesper Juhl <jesper.juhl@gmail.com>
-CC: James Courtier-Dutton <James@superbug.demon.co.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Alternatives to serial console for oops.
-References: <4389D63B.4000702@superbug.demon.co.uk> <9a8748490511270909o3e0fdd6erdd17d0b6dbd2c36a@mail.gmail.com>
-In-Reply-To: <9a8748490511270909o3e0fdd6erdd17d0b6dbd2c36a@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 27 Nov 2005 13:33:25 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:8973 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1751135AbVK0SdY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 13:33:24 -0500
+Date: Sun, 27 Nov 2005 19:33:13 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Martin Drab <drab@kepler.fjfi.cvut.cz>
+Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
+Subject: Re: PC speaker beeping on high CPU loads on an nForce2
+Message-ID: <20051127183313.GQ11266@alpha.home.local>
+References: <Pine.LNX.4.60.0511270409430.30055@kepler.fjfi.cvut.cz> <200511270111.29831.gene.heskett@verizon.net> <Pine.LNX.4.60.0511271839480.24919@kepler.fjfi.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.60.0511271839480.24919@kepler.fjfi.cvut.cz>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
-> On 11/27/05, James Courtier-Dutton <James@superbug.demon.co.uk> wrote:
+On Sun, Nov 27, 2005 at 06:56:23PM +0100, Martin Drab wrote:
+> On Sun, 27 Nov 2005, Gene Heskett wrote:
 > 
->>Hi,
->>
->>I wish to view the oops that are normally output on the serial port of
->>the PC. The problem I have, is that my PC does not have a serial port.
->>Are there any alternatives for getting that vital oops from the kernel
->>just as it crashes apart from the serial console.
->>Could I get it to use some other interface? e.g. Network interface.
->>Parallel port is also not an option.
+> > On Saturday 26 November 2005 22:23, Martin Drab wrote:
+> > >Hi,
+> > >
+> > >on an nForce2 system (GigaByte 7NNXP) when the CPU is under heavy load
+> > >(like during kernel compilation for instance, or any compilation of any
+> > >bigger project, for that matter), I hear some beeps comming out of the
+> > > PC speaker. It's like few short beeps per second for a while, then
+> > > silence for few seconds, then a beep here and there, and again, and so
+> > > on. It is quite strange. It happens ever since I remember (I mean in
+> > > kernel versions of course, I have the board for about 1.5 years). I've
+> > > just been kind of ignoring it until now. Does anybody else happen to
+> > > see the same symptoms? What could be the cause of this. Is it
+> > > something about timing? But how come the PC speaker gets kiced in,
+> > > while it's not being used at all (well, at least not intentionally)
+> > > for anything. Perhaps something is writing some ports it is not
+> > > supposed to?
+> > >
+> > >Martin
+> > 
+> > Usually, thats a sign of cpu overheating.  At 18 months, if the cpu
+> > fan/heat sink hasn't been blown out by an air hose, its so packed full
+> > of dust bunnies that no amount of rpms can force any air thru the cpu's 
+> > heat sink fins.
 > 
-> Netconsole (Documentation/networking/netconsole.txt)
+> No, it isn't a problem of dust or grease. It is a problem of a case full 
+> of devices and bad airflow within it. (There's 6 HDDs, 8 PCI cards, an 
+> AthlonXP 3200+ with massive Zalman CNPS6000-Cu on top of it and 10 fans 
+> that are doing all they can running at maximum (with the noise of a 
+> medium vacuum cleaner ;), trying to cool it all, but it just isn't 
+> enough.) So I'll try to solve it by a water cooling.
 
-I wasn't able to capture an OOPS using netconsole from my
-arm-based firewall box -- the output comes too fast and receiving
-end only captures some random parts of the OOPS.  I doubt the
-receiving box is too slow (2.4GHz Pentium-IV, Intel GigE ethernet),
-so it must be the sending end which is trying to generate packets
-faster than it's own NIC can transmit them... or something else.
+Should be cheaper to buy a bigger case with a *real airflow path, and
+remove some of those fans. It's non-sense to put 10 fans in a mono-proc
+system ! even with 6 disks (probably even IDE disks).
 
-Even "normal" serial console does not work here for this device:
-serial port on the box has no flow control, and at 9600 it still
-loses some parts of the OOPS, or especially a sysrq-t output
-(which is much larger than a typical OOPS).
+BTW, if you have the case FAN orthogonal to the CPU's and close to it,
+you'd better stop it as ot will prevent part of the airflow from entering
+the CPU's fan. It's amazing to see the number of boxes with a case FAN
+which increases the CPU temperature by 5 degrees once it spins up ! I
+too had one which made my dual athlon regularly crash, and it's OK now
+that I have unplugged it. I noticed it first because the rear CPU was
+5 degrees hotter than the front one.
 
-> Digital camera to take a photo of the screen.
+> I just didn't connect these sounds with the MB alarm. (Even though I know 
+> that there is this kind of feature.)
 
-Not all systems has a screen (my router certainly does not).
-Also, even for "usual" PC, amount of information in an OOPS
-is larger than a screen, so most important part of the OOPS
-(several lines on the top) is lost.
+If your system is stable, you can also disable the alarm. It's very
+conservative and will beep for nearly nothing. My dual athlon runs
+up to 92 degrees celcius on summer without crashing. The highest alarm
+threshold was something like 60 degrees...
 
-> Pen & paper to manually write down the Oops.
+> However thanks for the advises anyway,
+> Martin
 
-The same problem as above with a camera.
+Regards,
+Willy
 
-This stuff worked perfectly in 2.4 kernel, where it was possible
-to use keyboard to scroll to the beginning of an OOPS - only
-half a screen and we're here (well, sometimes it is larger,
-but Shift-PgUp still worked).  Now, when keyboard does not work
-anymore, it's not possible.  As is not possible to reboot the
-system using "Three Finger Solution" (Ctrl-Alt-Del) -- some modern
-systems does not have "Reset" button, so in order to reboot after
-an OOPS, one have to power-cycle the box...
-
-It'd be really nice to have keyboard back in "OOPS mode", as 2.4
-had...
-
-Oh well.
-
-/mjt

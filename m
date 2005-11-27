@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751014AbVK0TyN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbVK0T5d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751014AbVK0TyN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 14:54:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751001AbVK0TyN
+	id S1751032AbVK0T5d (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 14:57:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751034AbVK0T5c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 14:54:13 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:33705 "HELO
+	Sun, 27 Nov 2005 14:57:32 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:4522 "HELO
 	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750834AbVK0TyM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 14:54:12 -0500
-Subject: Re: [PATCH 00/19] Adaptive read-ahead V8
+	id S1751030AbVK0T5b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 14:57:31 -0500
+Subject: Re: 2.6.14-rt15: cannot build with !PREEMPT_RT
 From: Lee Revell <rlrevell@joe-job.com>
-To: Mark van der Made <streamlife@gmail.com>
-Cc: Diego Calleja <diegocg@gmail.com>, Wu Fengguang <wfg@mail.ustc.edu.cn>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <fb1c016d0511261503w534d2dc2k9a350fc9bca844d6@mail.gmail.com>
-References: <20051125151210.993109000@localhost.localdomain>
-	 <20051125164317.c42c0639.diegocg@gmail.com>
-	 <1132947083.20390.53.camel@mindpipe>
-	 <fb1c016d0511261503w534d2dc2k9a350fc9bca844d6@mail.gmail.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Thomas Gleixner <tglx@linutronix.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       david singleton <dsingleton@mvista.com>
+In-Reply-To: <20051127123052.GA22807@elte.hu>
+References: <1132987928.4896.1.camel@mindpipe>
+	 <20051126122332.GA3712@elte.hu> <1133031912.5904.12.camel@mindpipe>
+	 <1133034406.32542.308.camel@tglx.tec.linutronix.de>
+	 <20051127123052.GA22807@elte.hu>
 Content-Type: text/plain
-Date: Sun, 27 Nov 2005 14:54:00 -0500
-Message-Id: <1133121240.19202.10.camel@mindpipe>
+Date: Sun, 27 Nov 2005 14:57:22 -0500
+Message-Id: <1133121442.19202.13.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-11-27 at 00:03 +0100, Mark van der Made wrote:
-> On 11/25/05, Lee Revell <rlrevell@joe-job.com> wrote:
-> > On Fri, 2005-11-25 at 16:43 +0100, Diego Calleja wrote:
-> > > Recently, a openoffice hacker wrote in his blog that the kernel was
-> > > culprit of applications not starting as fast as in other systems.
-> >
-> > Useless without a link ;-)
-> >
-> I think Diego refers to Michael Meeks blog:
-> http://www.gnome.org/~michael/activity.html#2005-11-04
-> Michael Meek also speaks about kernel issues in an interview in Linux
-> Format 72 (nov 2005).
+On Sun, 2005-11-27 at 13:30 +0100, Ingo Molnar wrote:
+> * Thomas Gleixner <tglx@linutronix.de> wrote:
 > 
+> > On Sat, 2005-11-26 at 14:05 -0500, Lee Revell wrote:
+> > 
+> > > -rt19 seems to work except that asm/io_apic.h fails to include 
+> > > asm/apicdef.h so MAX_IO_APICS is undefined.
+> > 
+> > The patch below fixes the Makefile x86_64 clutter and the io_apic 
+> > compile problem
+> 
+> thanks, applied.
 
-This link tells a much more interesting story:
+-rt19 still does not boot for me with PREEMPT_DESKTOP and the latency
+debugging options enabled (same .config I sent previously).  I get
+endless screenfuls of "=============" on boot.  grep shows that these
+most likely come from kernel/rt.c.
 
-http://www.gnome.org/~lcolitti/gnome-startup/analysis/
-
-Seems like most of the problems are in userspace at the application
-level.
-
-Maybe the excessive seeking when loading libraries could be solved by
-physically rearranging the libraries on disk so that the "hot paths"
-don't induce as many seeks.
+rlrevell@mindpipe:~$ grep -rI "=====================" linux-2.6.14-rt19/kernel/
+linux-2.6.14-rt19/kernel/rt.c:    printk("=============================================\n\n");
+linux-2.6.14-rt19/kernel/rt.c:            printk("\n==========================================\n");
+linux-2.6.14-rt19/kernel/rt.c:            printk("\n===========================================\n");
+linux-2.6.14-rt19/kernel/rt.c:            printk("\n============================================\n");
 
 Lee
 

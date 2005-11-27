@@ -1,95 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751006AbVK0Lza@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751008AbVK0L6Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751006AbVK0Lza (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 06:55:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751007AbVK0Lza
+	id S1751008AbVK0L6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 06:58:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751009AbVK0L6Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 06:55:30 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:3236 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751003AbVK0Lz3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 06:55:29 -0500
-Date: Sun, 27 Nov 2005 12:55:36 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 1/2] PF_DEAD: cleanup usage
-Message-ID: <20051127115536.GA22229@elte.hu>
-References: <4385E3FF.C99DBCF5@tv-sign.ru> <20051125051232.GB22230@elte.hu> <Pine.LNX.4.64.0511250950450.13959@g5.osdl.org>
+	Sun, 27 Nov 2005 06:58:25 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:57058 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751007AbVK0L6Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 06:58:24 -0500
+Subject: Re: [BUG]: Software compiling occasionlly hangs under
+	2.6.15-rc1/rc2 and 2.6.15-rc1-mm2
+From: Arjan van de Ven <arjan@infradead.org>
+To: Tarkan Erimer <tarkane@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <9611fa230511270317led5b915h7daae3ef1287f86d@mail.gmail.com>
+References: <9611fa230511250312i55d0b872x82b8c33b4d2973e4@mail.gmail.com>
+	 <1132917564.7068.41.camel@laptopd505.fenrus.org>
+	 <9611fa230511270317led5b915h7daae3ef1287f86d@mail.gmail.com>
+Content-Type: text/plain
+Date: Sun, 27 Nov 2005 12:58:21 +0100
+Message-Id: <1133092701.2853.0.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0511250950450.13959@g5.osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -1.5
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-1.5 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	1.3 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Linus Torvalds <torvalds@osdl.org> wrote:
-
-> > > I think it is better to set EXIT_DEAD in do_exit(), along with PF_DEAD 
-> > > flag.
-> > 
-> > nice idea - your patch looks good to me.
+On Sun, 2005-11-27 at 11:17 +0000, Tarkan Erimer wrote:
+> On 11/25/05, Arjan van de Ven <arjan@infradead.org> wrote:
+> > what is probably needed to diagnose this is that you do a
+> >
+> > echo "t" > /proc/sysrq-trigger
+> >
+> > and then find the process that hangs in that... and send it to this
+> > list.
 > 
-> I'm not entirely convinced.
-> 
-> The thing is, We used to have DEAD in the task state flags, ie 
-> TASK_ZOMBIE was it.
-> 
-> We started using PF_DEAD in 2003 with this commit message:
-> 
-> Author: Linus Torvalds <torvalds@home.osdl.org>  2003-10-26 03:16:23
-> 
->     Add a sticky "PF_DEAD" task flag to keep track of dead processes.
->     
->     Use this to simplify 'finish_task_switch', but perhaps more
->     importantly we can use this to track down why some processes
->     seem to sometimes not die properly even after having been
->     marked as ZOMBIE. The "task->state" flags are too fluid to 
->     allow that well.
-> 
-> ie the PF_DEAD flag was never really about is _needing_ it: it was all 
-> about being able to safely check it _without_ having to rely on 
-> task->state.
+> Previously; In 2.6.15-rc2 kernel debug is not enabled. I enabled
+> kernel debug and tried software compiling to reproduce the problem.
+> But this time, I got hard system lock ups instead of previous process
+> hangs. I attached my log file. Hope this helps to diagnose this
+> proble
 
-but this was in times when we did alot of nontrivial operations after we 
-marked a task "dead". Today we do this:
+which process again was hanging?
 
-        /* PF_DEAD causes final put_task_struct after we schedule. */
-        preempt_disable();
-        BUG_ON(tsk->flags & PF_DEAD);
-        tsk->flags |= PF_DEAD;
+(and maybe also post an lsmod output just to get an idea of which
+modules/drivers are in play)
 
-        schedule();
-        BUG();
-
-(i introduced the above changes to make more of the exit path 
-preemptable.)
-
-PF_DEAD has zero relevance by today, and Oleg's patches are perfectly 
-correct and dont add the kind of risk that they'd have meant in 2003.
-
-> So putting it back into task->state is not wrong per se, but it kind 
-> of misses the point of why it was somewhere else in the first place 
-> (or rather, why it was there in the _second_ place, since it was in 
-> task->state in the first place and got moved out of there).
-
-yeah, PF_DEAD had its purpose back when we first marked a task dead, 
-then we did the release_task(). We used to have problems with 
-proc_pid_flush() which could sleep, which would lose the TASK_ZOMBIE or 
-TASK_DEAD flag and we'd come back from the 'final' schedule().
-
-today that's impossible, due to the code above - we only mark it PF_DEAD 
-straight before going into the final schedule().
-
-	Ingo

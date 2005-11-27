@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750978AbVK0O45@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751078AbVK0O7i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750978AbVK0O45 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 09:56:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751078AbVK0O45
+	id S1751078AbVK0O7i (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 09:59:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbVK0O7i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 09:56:57 -0500
-Received: from herkules.vianova.fi ([194.100.28.129]:14513 "HELO
-	mail.vianova.fi") by vger.kernel.org with SMTP id S1750978AbVK0O45
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 09:56:57 -0500
-Date: Sun, 27 Nov 2005 16:56:52 +0200
-From: Ville Herva <vherva@vianova.fi>
-To: Sander <sander@humilis.net>
-Cc: 7eggert@gmx.de, Adrian Bunk <bunk@stusta.de>,
-       Folkert van Heusden <folkert@vanheusden.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: capturing oopses
-Message-ID: <20051127145652.GF16678@vianova.fi>
-Reply-To: vherva@vianova.fi
-References: <5bG4q-8ks-17@gated-at.bofh.it> <5daDm-1Cg-15@gated-at.bofh.it> <5de3Z-6CJ-13@gated-at.bofh.it> <E1EgB4G-00013Z-9E@be1.lrz> <20051127121604.GA6966@vianova.fi> <20051127135541.GA5928@favonius> <20051127144457.GB6966@vianova.fi>
+	Sun, 27 Nov 2005 09:59:38 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:27558 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751078AbVK0O7i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 09:59:38 -0500
+Date: Sun, 27 Nov 2005 15:59:47 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Karsten Wiese <annabellesgarden@yahoo.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rt15 @x86_64UP: "sem_post: Invalid argument"
+Message-ID: <20051127145947.GA28922@elte.hu>
+References: <200511261140.47931.annabellesgarden@yahoo.de> <200511271517.18931.annabellesgarden@yahoo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051127144457.GB6966@vianova.fi>
-X-Operating-System: Linux herkules.vianova.fi 2.4.32-rc1
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <200511271517.18931.annabellesgarden@yahoo.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 27, 2005 at 04:44:57PM +0200, you [Ville Herva] wrote:
-> On Sun, Nov 27, 2005 at 02:55:41PM +0100, you [Sander] wrote:
-> > 
-> > Maybe 'gorc' can help you. I don't have an url, but it is package 'gorc'
-> > in Debian.
-> > 
-> > I had little success with a digicam photo of lightgray text on
-> > not-quite-white paper, even after trying to improve things with gimp,
-> > but it might work if you have the oops on screen.
+
+* Karsten Wiese <annabellesgarden@yahoo.de> wrote:
+
+> Am Samstag, 26. November 2005 11:40 schrieb Karsten Wiese:
+> > I get loads of those messages since switching from rt12 to rt15.
 > 
-> Seems promising, but the results are not that great. See
-> 
-> http://v.iki.fi/~vherva/tmp/shot.png 
-> and
-> http://v.iki.fi/~vherva/tmp/shot.txt
-> 
-> the gray level setting didn't help much.
+> fixed in rt20.
 
-Ok, if I invert the image (black on white), I get
-  http://v.iki.fi/~vherva/tmp/shot2.txt
-which is fairly usable.
+great.
 
+> I've got an "io_apic cached" patch for x86_64 here, that ticks since 
+> weeks on my UP. Interesting?
 
--- v -- 
+yeah, please send it, i'll add it to -rt.
 
-v@iki.fi
-
+	Ingo

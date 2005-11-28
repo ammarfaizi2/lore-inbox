@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbVK1Sa5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbVK1Sih@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932148AbVK1Sa5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 13:30:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbVK1Sa5
+	id S932130AbVK1Sih (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 13:38:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932167AbVK1Sih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 13:30:57 -0500
-Received: from teetot.devrandom.net ([66.35.250.243]:45781 "EHLO
-	teetot.devrandom.net") by vger.kernel.org with ESMTP
-	id S932148AbVK1Sa4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 13:30:56 -0500
-Date: Mon, 28 Nov 2005 10:35:17 -0800
-From: thockin@hockin.org
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
-       john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RT] read_tsc: ACK! TSC went backward! Unsynced TSCs?
-Message-ID: <20051128183517.GA4549@hockin.org>
-References: <1133179554.11491.3.camel@localhost.localdomain> <20051128173040.GA32547@hockin.org> <1133199568.7416.31.camel@mindpipe>
+	Mon, 28 Nov 2005 13:38:37 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:37841 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S932130AbVK1Sig (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 13:38:36 -0500
+Subject: Re: [patch] drivers/scsi/dpt_i2o.c: fix a NULL pointer dereference
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       markus.lidel@shadowconnect.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Mark Salyzyn <mark_salyzyn@adaptec.com>
+In-Reply-To: <20051126233637.GC3988@stusta.de>
+References: <20051126233637.GC3988@stusta.de>
+Content-Type: text/plain
+Date: Mon, 28 Nov 2005 12:37:11 -0600
+Message-Id: <1133203032.3325.46.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1133199568.7416.31.camel@mindpipe>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 28, 2005 at 12:39:28PM -0500, Lee Revell wrote:
-> On Mon, 2005-11-28 at 09:30 -0800, thockin@hockin.org wrote:
-> > The kernel's use of TSC is wholly incorrect.  TSCs can ramp up and
-> > down and *do* vary between nodes as well as between cores within a
-> > node.  You really can not compare TSCs between cpu cores at all, as is
-> > (and the kernel assumes 1 global TSC in at least a few places). 
-> 
-> That's one way to look at it; another is that the AMD dual cores have a
-> broken TSC implementation.  The kernel's use of the TSC was never a
-> problem in the past...
+On Sun, 2005-11-27 at 00:36 +0100, Adrian Bunk wrote:
+> The Coverity checker spotted this obvious NULL pointer dereference.
 
-Sure.  But the OS can be fixed, the chips can not.  That said, I'd like to
-see a spec that says TSCs are a) synced, b) linear.  If such a beast
-exists, then we can all mock AMD publicly.  If not, we should hush up and
-fix the parts that can be fixed.
+It's a bit late for this one, since Linus already put it in, but for
+future reference, could you please try to use proper descriptions.  This
+isn't an "obvious NULL pointer dereference", it's actually a use after
+free of a data structure.
+
+Thanks,
+
+James
+
+

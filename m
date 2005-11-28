@@ -1,64 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbVK1LA5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbVK1La3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932071AbVK1LA5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 06:00:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932072AbVK1LA5
+	id S1751117AbVK1La3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 06:30:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbVK1La2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 06:00:57 -0500
-Received: from wproxy.gmail.com ([64.233.184.206]:49819 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932071AbVK1LA4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 06:00:56 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JDAh6N1Nojn/+EKyIdatrbs6JHwnzEAiDeYqbNFKfDb7+rDlF3lD09uTU+ssqQt37wHdmvbVFeo6LgSZgsjDUCgYswfIBA7ioXo+G6StLTPepNwkiVfsllLn/vpkCEVyVcOv3MBAEtU9IGIeiBNqy4xNze3rmObC7Ww/YalHrik=
-Message-ID: <6880bed30511280300g6aa05e64of3e5444d117401fb@mail.gmail.com>
-Date: Mon, 28 Nov 2005 12:00:56 +0100
-From: Bas Westerbaan <bas.westerbaan@gmail.com>
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-Subject: Re: user mounting
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.63.0511272306270.19403@gockel.physik3.uni-rostock.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 28 Nov 2005 06:30:28 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:5898 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751117AbVK1La2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 06:30:28 -0500
+Date: Mon, 28 Nov 2005 11:30:20 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: uart_match_port() question
+Message-ID: <20051128113020.GA30298@flint.arm.linux.org.uk>
+Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <1133050906.7768.66.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200511272148.jARLmdn08633@apps.cwi.nl>
-	 <Pine.LNX.4.63.0511272306270.19403@gockel.physik3.uni-rostock.de>
+In-Reply-To: <1133050906.7768.66.camel@gaston>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can't rate limit a panic.
+On Sun, Nov 27, 2005 at 11:21:46AM +1100, Benjamin Herrenschmidt wrote:
+> Hi Russel, would you accept a patch like that:
 
-It would be better to fix the filesytem bugs instead of adding
-security measures preventing crashing filesystems to crash the rest of
-the kernel.
+s/l,/l&/
 
-And to catch every possible crash of filesystem code would be a lot
-more work than fixing the filesystems themselves AFAIK.
+> Index: linux-work/drivers/serial/serial_core.c
+> ===================================================================
+> --- linux-work.orig/drivers/serial/serial_core.c	2005-11-14 20:32:16.000000000 +1100
+> +++ linux-work/drivers/serial/serial_core.c	2005-11-27 11:13:54.000000000 +1100
+> @@ -2307,7 +2307,8 @@
+>  		return (port1->iobase == port2->iobase) &&
+>  		       (port1->hub6   == port2->hub6);
+>  	case UPIO_MEM:
+> -		return (port1->membase == port2->membase);
+> +		return (port1->membase == port2->membase) ||
+> +			(port1->mapbase && port1->mapbase == port2->mapbase);
+>  	}
+>  	return 0;
+>  }
 
-Regards,
+I don't think so.  (see below)
 
-Bas
+> The reason is a bit complicated, but basically, we have some arch code
+> that builds a list of available serial ports very early and registers that
+> as a platform device. It also detects which one is the default firmware port
+> and what speed it's been configured for and builds a proper config line to
+> pass to add_preferred_console() so we get the default serial console setup
+> properly automatically.
+> 
+> This list includes however ports that are on PCI devices on some recent
+> machines. Thus, we need to make sure that, when 8250_pci.c kicks in, it
+> property detects that those platform ports are the same it's discovered
+> and thus properly re-uses the same port & minor. However, while that works
+> for PIO ports, it doesn't for MMIO since membase is obtained from ioremap,
+> and thus will be different between the port registered at boot and the
+> value passed by the PCI code. Only mapbase will be the same.
+> 
+> If we just skipped PCI devices in our early discovery code (thus letting
+> 8250_pci.c alone discover them), we would be unable to use them for very
+> early console output, and we would be unable to "know" what their minor number
+> will be, and thus build an appropriate argument string for add_preferred_console(),
+> which means we would be unable to have the console automatically pick the port
+> that we set by the firmware and at the right speed, which basically means
+> console not working for users. 
 
-On 11/27/05, Tim Schmielau <tim@physik3.uni-rostock.de> wrote:
-> On Sun, 27 Nov 2005, Andries.Brouwer@cwi.nl wrote:
->
-> > Part of my proposal for a solution lives in kernel space.
-> > Introduce a mount flag "user mounted". When it is set,
-> > the kernel will not do a printk() for this filesystem,
->
-> Rate limiting seems like a better solution to me.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Looking at this deeper, I think we should _only_ use mapbase in this
+case.  membase is really a indeterminant cookie which bears no real
+relationship to whether two ports are identical - in fact, if we are
+going to compare two of these cookies, I think arch code should be
+involved.
 
+So how about:
 
---
-Bas Westerbaan
-http://blog.w-nz.com/
-GPG Public Keys: http://w-nz.com/keys/bas.westerbaan.asc
+-             return (port1->membase == port2->membase);
++             return (port1->mapbase == port2->mapbase);
+
+?
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

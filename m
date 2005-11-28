@@ -1,116 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbVK1Gwt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbVK1HPz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932101AbVK1Gwt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 01:52:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbVK1Gwt
+	id S932110AbVK1HPz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 02:15:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbVK1HPz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 01:52:49 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:20619 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932101AbVK1Gwt (ORCPT
+	Mon, 28 Nov 2005 02:15:55 -0500
+Received: from hummeroutlaws.com ([12.161.0.3]:33553 "EHLO atpro.com")
+	by vger.kernel.org with ESMTP id S932110AbVK1HPy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 01:52:49 -0500
-Date: Mon, 28 Nov 2005 01:52:33 -0500
-From: Dave Jones <davej@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: arjan@infradead.org, akpm@osdl.org, Stuart_Hayes@Dell.com
-Subject: change page attr fix.
-Message-ID: <20051128065233.GA23531@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	linux-kernel@vger.kernel.org, arjan@infradead.org, akpm@osdl.org,
-	Stuart_Hayes@Dell.com
-Mime-Version: 1.0
+	Mon, 28 Nov 2005 02:15:54 -0500
+From: "Jim Crilly" <jim@why.dont.jablowme.net>
+Date: Mon, 28 Nov 2005 02:15:35 -0500
+To: Patrick McFarland <diablod3@gmail.com>
+Cc: Mark Knecht <markknecht@gmail.com>, gcoady@gmail.com,
+       Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+Subject: Re: umount
+Message-ID: <20051128071535.GB3638@voodoo>
+Mail-Followup-To: Patrick McFarland <diablod3@gmail.com>,
+	Mark Knecht <markknecht@gmail.com>, gcoady@gmail.com,
+	Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+References: <200511272154.jARLsBb11446@apps.cwi.nl> <jdkko1hs90ffvqru9v354vrubggcdrnhhj@4ax.com> <5bdc1c8b0511271742y75306962h67193b8a0191841d@mail.gmail.com> <200511272101.07771.diablod3@gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <200511272101.07771.diablod3@gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The 'make rodata read-only' patch in -mm exposes a latent bug
-in the 32-bit change_page_attr() function, which causes
-certain CPUs (Those with NX basically) to reboot instantly
-after pages are marked read-only.
+On 11/27/05 09:01:07PM -0500, Patrick McFarland wrote:
+> On Sunday 27 November 2005 20:42, Mark Knecht wrote:
+> > On 11/27/05, Grant Coady <grant_lkml@dodo.com.au> wrote:
+> > > It leaves me with a little distrust of linux' handling of non-locked
+> > > removable media (as opposed to lockable media like a zipdisk or cdrom).
+> > >
+> > > Grant.
+> >
+> > Under Windows, if a 1394 drive is unplugged without unmounting, it you
+> > get a pop up dialog on screen telling you that data may be lost, etc.
+> > while under any of the main environments I've tried under Linux
+> > (Gnome, KDE, fluxbox) there are no such messages to the user. I have
+> > not investigated log files very deeply, other than to say that dmesg
+> > will show the drive going away but doesn't say it was a problem.
+> >
+> > I realize it's probably 100x more difficult to do this under Linux, at
+> > least at the gui level, but I agree with your main point that my trust
+> > factor is just a bit lower here.
+> 
+> No, WIndows says that because it is unable to mount a partition as sync, 
+> unlike Linux. Linux Desktop Environments simply don't tell the user because 
+> no data is lost if they unplug the media.
 
-The same bug got fixed a while back on x86-64, but never got
-propagated to i386.
+Both of those statements are not true. At least in XP removable media is
+mounted sync by default, you have to go into the device manager and toggle
+a radio button to "optimize for performance" before it'll do async writes.
+I think the setting was the opposite in Win2K but I can't say for sure.
 
-Stuart Hayes from Dell also picked up on this last June,
-but it never got fixed, as the only thing affected by it
-aparently was the nvidia driver.
+And even with sync writes it's possible to unplug the drive before the
+write completes and if the drive is powered by USB there's no way to know
+just how much data made it to disk. Ideally the kernel would emit some
+message so that HAL or something can catch it and popup a message or
+something.
 
-Blatantly stealing description from his post..
+> 
+> -- 
+> Patrick "Diablo-D3" McFarland || diablod3@gmail.com
+> "Computer games don't affect kids; I mean if Pac-Man affected us as kids,
+> we'd all be running around in darkened rooms, munching magic pills and
+> listening to repetitive electronic music." -- Kristian Wilson, Nintendo,
+> Inc, 1989
+>
 
-"It doesn't appear to be fixed (in the i386 arch).  The
- change_page_attr()/split_large_page() code will still still set all the
- 4K PTEs to PAGE_KERNEL (setting the _PAGE_NX bit) when a large page
- needs to be split.
-
- This wouldn't be a problem for the bulk of the kernel memory, but there
- are pages in the lower 4MB of memory that's free, and are part of large
- executable pages that also contain kernel code.  If change_page_attr()
- is called on these, it will set the _PAGE_NX bit on the whole 2MB region
- that was covered by the large page, causing a large chunk of kernel code
- to be non-executable."
-
-Signed-off-by: Arjan van de Ven <arjan@infradead.org>
-Signed-off-by: Dave Jones <davej@redhat.com>
-
---- linux-2.6/arch/i386/mm/pageattr.c.nopatch	2005-10-04 10:33:12.000000000 -0500
-+++ linux-2.6/arch/i386/mm/pageattr.c	2005-10-04 10:33:33.000000000 -0500
-@@ -31,7 +31,8 @@ pte_t *lookup_address(unsigned long addr
-         return pte_offset_kernel(pmd, address);
- } 
- 
--static struct page *split_large_page(unsigned long address, pgprot_t prot)
-+static struct page *split_large_page(unsigned long address, pgprot_t prot,
-+					pgprot_t ref_prot)
- { 
- 	int i; 
- 	unsigned long addr;
-@@ -54,7 +54,7 @@ static struct page *split_large_page(uns
- 	pbase = (pte_t *)page_address(base);
- 	for (i = 0; i < PTRS_PER_PTE; i++, addr += PAGE_SIZE) {
-                set_pte(&pbase[i], pfn_pte(addr >> PAGE_SHIFT,
--                                          addr == address ? prot : PAGE_KERNEL));
-+                                          addr == address ? prot : ref_prot));
- 	}
- 	return base;
- } 
-@@ -98,11 +98,17 @@ static void set_pmd_pte(pte_t *kpte, uns
-  */
- static inline void revert_page(struct page *kpte_page, unsigned long address)
- {
-+	pgprot_t ref_prot;
-+
-+	ref_prot =
-+	((address & LARGE_PAGE_MASK) < (unsigned long)&_etext)
-+		? PAGE_KERNEL_LARGE_EXEC : PAGE_KERNEL_LARGE;
-+
- 	pte_t *linear = (pte_t *) 
- 		pmd_offset(pud_offset(pgd_offset_k(address), address), address);
- 	set_pmd_pte(linear,  address,
- 		    pfn_pte((__pa(address) & LARGE_PAGE_MASK) >> PAGE_SHIFT,
--			    PAGE_KERNEL_LARGE));
-+			    ref_prot));
- }
- 
- static int
-@@ -121,10 +128,16 @@ __change_page_attr(struct page *page, pg
- 		if ((pte_val(*kpte) & _PAGE_PSE) == 0) { 
- 			set_pte_atomic(kpte, mk_pte(page, prot)); 
- 		} else {
--			struct page *split = split_large_page(address, prot); 
-+			pgprot_t ref_prot;
-+			struct page *split;
-+	
-+			ref_prot =
-+			((address & LARGE_PAGE_MASK) < (unsigned long)&_etext)
-+				? PAGE_KERNEL_EXEC : PAGE_KERNEL;
-+			split = split_large_page(address, prot, ref_prot); 
- 			if (!split)
- 				return -ENOMEM;
--			set_pmd_pte(kpte,address,mk_pte(split, PAGE_KERNEL));
-+			set_pmd_pte(kpte,address,mk_pte(split, ref_prot));
- 			kpte_page = split;
- 		}	
- 		get_page(kpte_page);
-
+Jim.

@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbVK1XaG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbVK1Xct@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932284AbVK1XaG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 18:30:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbVK1XaG
+	id S932288AbVK1Xct (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 18:32:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbVK1Xct
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 18:30:06 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:7443 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932284AbVK1XaF
+	Mon, 28 Nov 2005 18:32:49 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:41678 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S932282AbVK1Xcs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 18:30:05 -0500
-Message-ID: <438B92FB.4060805@vmware.com>
-Date: Mon, 28 Nov 2005 15:30:03 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+	Mon, 28 Nov 2005 18:32:48 -0500
+Message-ID: <438B9372.2080309@zytor.com>
+Date: Mon, 28 Nov 2005 15:32:02 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
+To: Zachary Amsden <zach@vmware.com>
+CC: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
        Bill Davidsen <davidsen@tmr.com>, Linus Torvalds <torvalds@osdl.org>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
        Gerd Knorr <kraxel@suse.de>, Dave Jones <davej@redhat.com>,
@@ -28,36 +28,27 @@ Cc: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
        "Eric W. Biederman" <ebiederm@xmission.com>,
        Ingo Molnar <mingo@elte.hu>
 Subject: Re: [patch] SMP alternatives
-References: <1132764133.7268.51.camel@localhost.localdomain> <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051123214835.GA24044@nevyn.them.org> <Pine.LNX.4.64.0511231416490.13959@g5.osdl.org> <20051123222056.GA25078@nevyn.them.org> <Pine.LNX.4.64.0511231502250.13959@g5.osdl.org> <438B600C.1050604@tmr.com> <438B827A.2090609@wolfmountaingroup.com> <438B8BF8.4020604@vmware.com> <438B8DC6.8070006@zytor.com>
-In-Reply-To: <438B8DC6.8070006@zytor.com>
+References: <1132764133.7268.51.camel@localhost.localdomain> <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051123214835.GA24044@nevyn.them.org> <Pine.LNX.4.64.0511231416490.13959@g5.osdl.org> <20051123222056.GA25078@nevyn.them.org> <Pine.LNX.4.64.0511231502250.13959@g5.osdl.org> <438B600C.1050604@tmr.com> <438B827A.2090609@wolfmountaingroup.com> <438B8BF8.4020604@vmware.com> <438B8DC6.8070006@zytor.com> <438B92FB.4060805@vmware.com>
+In-Reply-To: <438B92FB.4060805@vmware.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Nov 2005 23:30:03.0061 (UTC) FILETIME=[A8385E50:01C5F473]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
+Zachary Amsden wrote:
+> 
+> I spoke silicon too heavy handedly.  The complexity of the issue 
+> disappears if you take an exception, but rewinding state prior to the 
+> exception and reissuing is going to be less efficient than getting it 
+> right the first time, which is something software can always guarantee.  
+> You need to add more hardware for prediction to get it right all the 
+> time, and it is not clear the cost of that hardware is justified when 
+> software can always do the right thing.
+> 
 
-> Zachary Amsden wrote:
->
->>
->> You need a way to type the lock semantics by memory region, and a 
->> working hardware solution can not perform as well as a careful 
->> software solution.  As was pointed out earlier, you can't use memory 
->> type attributes to infer lock semantics, you must assume them in the 
->> decoder or implement complex deadlock detection and recovery in silicon.
->>
->
-> Sure you can.  You just have to be prepared to take a microop 
-> exception if you speculate incorrectly.
+Taking exceptions is fine as long as you don't do it too often.  I'm 
+starting to suspect that the only way to do this right all the time is 
+to have this be part of the page attributes, since it's region-specific.
 
+	-hpa
 
-I spoke silicon too heavy handedly.  The complexity of the issue 
-disappears if you take an exception, but rewinding state prior to the 
-exception and reissuing is going to be less efficient than getting it 
-right the first time, which is something software can always guarantee.  
-You need to add more hardware for prediction to get it right all the 
-time, and it is not clear the cost of that hardware is justified when 
-software can always do the right thing.
-
-Zach

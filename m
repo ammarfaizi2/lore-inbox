@@ -1,42 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbVK1WoL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbVK1WqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932267AbVK1WoL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 17:44:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbVK1WoL
+	id S932272AbVK1WqH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 17:46:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbVK1WqH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 17:44:11 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:28388 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932267AbVK1WoK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 17:44:10 -0500
-Date: Tue, 29 Nov 2005 09:43:57 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Christoph Hellwig <hch@lst.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: [PATCH] remove broken direct I/O size ioctl
-Message-ID: <20051129094357.G7047179@wobbly.melbourne.sgi.com>
-References: <20051128222501.GA7238@lst.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20051128222501.GA7238@lst.de>; from hch@lst.de on Mon, Nov 28, 2005 at 11:25:01PM +0100
+	Mon, 28 Nov 2005 17:46:07 -0500
+Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:16512 "EHLO
+	vger.utah-nac.org") by vger.kernel.org with ESMTP id S932272AbVK1WqF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 17:46:05 -0500
+Message-ID: <438B827A.2090609@wolfmountaingroup.com>
+Date: Mon, 28 Nov 2005 15:19:38 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "H. Peter Anvin" <hpa@zytor.com>, Andi Kleen <ak@suse.de>,
+       Gerd Knorr <kraxel@suse.de>, Dave Jones <davej@redhat.com>,
+       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] SMP alternatives
+References: <1132764133.7268.51.camel@localhost.localdomain> <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051123214835.GA24044@nevyn.them.org> <Pine.LNX.4.64.0511231416490.13959@g5.osdl.org> <20051123222056.GA25078@nevyn.them.org> <Pine.LNX.4.64.0511231502250.13959@g5.osdl.org> <438B600C.1050604@tmr.com>
+In-Reply-To: <438B600C.1050604@tmr.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 28, 2005 at 11:25:01PM +0100, Christoph Hellwig wrote:
-> This ioctl tries to second guess direct I/O parameters which aren't
-> a filesystem drivers business and shouldn't be exposed as an ioctl
-> to start with.
+Bill Davidsen wrote:
 
-Unfortunately there are some applications that will now start
-to see errors from this ioctl if we go this route - whereas
-before they would've been "functional", now they will break.
-So, I think we need a different solution here.  Yes, I agree
-its a stupid call to have on Linux, but here we are, and apps
-ported straight from IRIX have been made to use this.
+> Linus Torvalds wrote:
+>
+>>
+>> On Wed, 23 Nov 2005, Daniel Jacobowitz wrote:
+>>
+>>> Why should we use a silicon based solution for this, when I posit that
+>>> there are simpler and equally effective userspace solutions?
+>>
+>>
+>>
+>> Name them.
+>>
+>> In user space, doing things like clever run-time linking things is 
+>> actually horribly bad. It causes COW faults at startup, and/or makes 
+>> the compiler have to do indirections unnecessarily. Both of which 
+>> actually make caches less effective, because now processes that 
+>> really effectively do have exactly the same contents have them in 
+>> different pages.
+>>
+>> The other alternative (which apparently glibc actually does use) is 
+>> to dynamically branch over the lock prefixes, which actually works 
+>> better: it's more work dynamically, but it's much cheaper from a 
+>> startup standpoint and there's no memory duplication, so while it is 
+>> the "stupid" approach, it's actually better than the clever one.
+>>
+>> The third alternative is to know at link-time that the process never 
+>> does anything threaded, but that needs more developer attention and 
+>> non-standard setups, and you _will_ get it wrong (some library will 
+>> create some thread without the developer even realizing). It also has 
+>> the duplicated library overhead (but at least now the duplication is 
+>> just twice, not "each process duplicates its own private pointer")
+>>
+>> In short, there simply isn't any good alternatives. The end result is 
+>> that thread-safe libraries are always in practice thread-safe even on 
+>> UP, even though that serializes the CPU altogether unnecessarily.
+>>
+>> I'm sure you can make up alternatives every time you hit one 
+>> _particular_ library, but that just doesn't scale in the real world.
+>>
+>> In contrast, the simple silicon support scales wonderfully well. 
+>> Suddenly libraries can be thread-safe _and_ efficient on UP too. You 
+>> get to eat your cake and have it too.
+>
+>
+> I believe that a hardware solution would also accomodate the case 
+> where a program runs unthreaded for most of the processing, and only 
+> starts threads to do the final stage "report generation" tasks, where 
+> that makes sense. I don't believe that it helps in the case where init 
+> uses threads and then reverts to a single thread for the balance of 
+> the task. I can't think of anything which does that, so it's probably 
+> a non-critical corner case, or something the thread library could 
+> correct.
+>
+>
+In 2-3 years we might actually see the hardware solution, maybee .... I 
+am skeptical Intel will move quickly on it. A software solution will get 
+out faster.
 
-cheers.
-
--- 
-Nathan
+Jeff

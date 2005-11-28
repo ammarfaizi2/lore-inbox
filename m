@@ -1,81 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbVK1MqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbVK1MyL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932076AbVK1MqI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 07:46:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbVK1MqI
+	id S932075AbVK1MyL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 07:54:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbVK1MyL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 07:46:08 -0500
-Received: from moraine.clusterfs.com ([66.96.26.190]:62166 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S932076AbVK1MqH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 07:46:07 -0500
-From: Nikita Danilov <nikita@clusterfs.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17290.64538.843580.695349@gargle.gargle.HOWL>
-Date: Mon, 28 Nov 2005 15:46:18 +0300
-To: Juergen Quade <quade@hsnr.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What's wrong with this really simple function?
-Newsgroups: gmane.linux.kernel
-In-Reply-To: <20051128075505.GA7945@hsnr.de>
-References: <afd776760511271057l5e3c4e3fq14b0b9ba4cdc7c9a@mail.gmail.com>
-	<20051128075505.GA7945@hsnr.de>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+	Mon, 28 Nov 2005 07:54:11 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:32744 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S932075AbVK1MyK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 07:54:10 -0500
+Date: Mon, 28 Nov 2005 13:53:51 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: what is our answer to ZFS?
+Message-ID: <20051128125351.GE30589@marowsky-bree.de>
+References: <11b141710511210144h666d2edfi@mail.gmail.com> <20051121095915.83230.qmail@web36406.mail.mud.yahoo.com> <20051121101959.GB13927@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20051121101959.GB13927@wohnheim.fh-wedel.de>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Juergen Quade writes:
- > On Sun, Nov 27, 2005 at 12:57:47PM -0600, Mohamed El Dawy wrote:
- > > Hi,
- > >  I have created this 5-liner system call, which basically opens a
- > > file, write "Hello World" to it, and then returns. That's all.
- > > 
- > > Now, when I actually call it, it creates the file successfully but
- > > writes nothing to it. The file is created and is only zero bytes. So,
- > > either write didn't write, or close didn't close. Any help would be
- > > greatly appreciated.
- > > ...
- > 
- > The following (module-) code will create and write a file from
- > inside a kernel. Ok -- you know -- you should not use it
- > without really good reasons ...
- > 
- >           Juergen.
- > 
- > #include <linux/module.h>
- > #include <linux/moduleparam.h>
- > #include <linux/fs.h>
- > #include <asm/uaccess.h>
- > 
- > static char filename[255];
- > module_param_string( filename, filename, sizeof(filename), 666 );
- > struct file *log_file;
- > 
- > static int __init mod_init(void)
- > {
- > 	mm_segment_t oldfs;
- > 
- > 	if( filename[0]=='\0' )
- > 		strncpy( filename, "/tmp/kernel_file", sizeof(filename) );
- > 	printk("opening filename: %s\n", filename);
- > 	log_file = filp_open( filename, O_WRONLY | O_CREAT, 0644 );
- > 	printk("log_file: %p\n", log_file );
- > 	if( IS_ERR( log_file ) )
- > 		return -EIO;
+On 2005-11-21T11:19:59, Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
 
-This code is trivially exploitable: /tmp is usually a world-writable
-directory, and everybody can do
+> o Merge of LVM and filesystem layer
+>   Not done.  This has some advantages, but also more complexity than
+>   seperate LVM and filesystem layers.  Might be considers "not worth
+>   it" for some years.
 
-$ ln -s /etc/shadow /tmp/kernel_file
+This is one of the cooler ideas IMHO. In effect, LVM is just a special
+case filesystem - huge blocksizes, few files, mostly no directories,
+exports block instead of character/streams "files".
 
-or even
+Why do we need to implement a clustered LVM as well as a clustered
+filesystem? Because we can't re-use across this boundary and not stack
+"real" filesystems, so we need a pseudo-layer we call volume management.
+And then, if by accident we need a block device from a filesystem again,
+we get to use loop devices. Does that make sense? Not really.
 
-$ ln /etc/shadow /tmp/kernel_file
+(Same as the distinction between character and block devices in the
+kernel.)
 
-provided that /tmp and /etc are on the same file system.
+Look at how people want to use Xen: host the images on OCFS2/GFS backing
+stores. In effect, this uses the CFS as a cluster enabled volume
+manager.
 
-Please do not use it.
+If they'd be better integrated (ie: be able to stack filesystems), we
+could snapshot/RAID single files (or ultimately, even directories trees)
+just like today we can snapshot whole block devices.
 
-Nikita.
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+High Availability & Clustering
+SUSE Labs, Research and Development
+SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
+"Ignorance more frequently begets confidence than does knowledge"
+

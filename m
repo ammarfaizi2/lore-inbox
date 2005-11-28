@@ -1,42 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbVK1WRg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbVK1WVD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751278AbVK1WRg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 17:17:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbVK1WRg
+	id S932238AbVK1WVD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 17:21:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbVK1WVD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 17:17:36 -0500
-Received: from gate.crashing.org ([63.228.1.57]:30114 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751278AbVK1WRf (ORCPT
+	Mon, 28 Nov 2005 17:21:03 -0500
+Received: from zproxy.gmail.com ([64.233.162.205]:56514 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932238AbVK1WVB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 17:17:35 -0500
-Subject: Re: [PATCH] serial: Fix matching of MMIO ports
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051128221229.GF14557@flint.arm.linux.org.uk>
-References: <1133212269.7768.220.camel@gaston>
-	 <20051128221229.GF14557@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Date: Tue, 29 Nov 2005 09:11:36 +1100
-Message-Id: <1133215896.7768.225.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Mon, 28 Nov 2005 17:21:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=mdgzf9IyNXba6Lsu3vJHvFdwgsp4p2YPv/GRpYYtJScyzqDTjVhCDvYBDX7qjDiL6t9ltIbK6x8ey+Ij7dNOXhrBT1saVc0RzXgi/tq2PiZjCzP6qKLFBALEAQ5k+BAYmqMo9nOCXhQb/uelMcgfogrtJoyDx79nnxrMChPK/CQ=
+Message-ID: <438B82A4.4030107@gmail.com>
+Date: Tue, 29 Nov 2005 06:20:20 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051025)
+MIME-Version: 1.0
+To: Marc Koschewski <marc@osknowledge.org>
+CC: "Calin A. Culianu" <calin@ajvar.org>, akpm@osdl.org, adaplas@pol.net,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: nvidia fb flicker
+References: <Pine.LNX.4.64.0511252358390.25302@rtlab.med.cornell.edu> <20051128103554.GA7071@stiffy.osknowledge.org> <438AF8A2.6030403@gmail.com> <20051128132035.GA7265@stiffy.osknowledge.org> <438B0D89.1080400@gmail.com> <20051128212418.GA7185@stiffy.osknowledge.org>
+In-Reply-To: <20051128212418.GA7185@stiffy.osknowledge.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-11-28 at 22:12 +0000, Russell King wrote:
-> On Tue, Nov 29, 2005 at 08:11:08AM +1100, Benjamin Herrenschmidt wrote:
-> > The function uart_match_port() incorrectly compares the ioremap'd
-> > virtual addresses of ports instead of the physical address to find
-> > duplicate ports for MMIO based UARTs. This fixes it.
+Marc Koschewski wrote:
+> * Antonino A. Daplas <adaplas@gmail.com> [2005-11-28 22:00:41 +0800]:
 > 
-> I'd like this to go in -mm for a bit before we put it into mainline,
-> just in case there's any undesirable side effects.
+>> Marc Koschewski wrote:
+>>> * Antonino A. Daplas <adaplas@gmail.com> [2005-11-28 20:31:30 +0800]:
+>>>
+>>>> Marc Koschewski wrote:
+>>>>> * Calin A. Culianu <calin@ajvar.org> [2005-11-26 00:02:46 -0500]:
+>>>>>
+>>>
+>> Try again with CONFIG_FB_NVIDIA_I2C = n in your kernel config.
+>>
+>> Tony
+> 
+> Tony,
+> 	it works. Could you explain me, what the difference is? :/
+> 
 
-Fine with me.
+The problem is nvidiafb trusts the EDID block as gospel truth :-)
 
-Ben.
+You happen to have an EDID block which left the most important fields
+blank -- the hsync and vsync range.  So the EDID parser extrapolated
+the ranges, but since the block has only a single mode entry, 1600x1200@60,
+what you get is this:
+
+Nov 28 14:02:32 stiffy kernel: Extrapolated
+Nov 28 14:02:32 stiffy kernel:            H: 75-75KHz V: 60-60Hz DCLK: 162MHz
+
+Since the min and max value of the sync timings are equal, nvidiafb has
+no room left to verify the timings, and will _always_ reject any timings even
+if they are valid.
+
+So, try this patch, we make nvidiafb less restrictive by ignoring the
+hsync and vsync ranges if the min and max values are equal. This should
+make your hardware display properly even if CONFIG_FB_NVIDIA_I2c = y.
+
+Tony
 
 
+diff --git a/drivers/video/nvidia/nvidia.c b/drivers/video/nvidia/nvidia.c
+index 961007d..ff28610 100644
+--- a/drivers/video/nvidia/nvidia.c
++++ b/drivers/video/nvidia/nvidia.c
+@@ -1239,7 +1239,9 @@ static int nvidiafb_check_var(struct fb_
+ 		}
+ 	}
+ 
+-	if (!mode_valid && info->monspecs.modedb_len)
++	if (!mode_valid && info->monspecs.modedb_len &&
++	    !(info->monspecs.hfmin == info->monspecs.hfmax &&
++	      info->monspecs.vfmin == info->monspecs.vfmax))
+ 		return -EINVAL;
+ 
+ 	if (par->fpWidth && par->fpHeight && (par->fpWidth < var->xres ||
+ 

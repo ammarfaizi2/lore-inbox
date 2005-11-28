@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbVK1INM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbVK1I3y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932123AbVK1INM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 03:13:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932124AbVK1INM
+	id S932125AbVK1I3y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 03:29:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbVK1I3y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 03:13:12 -0500
-Received: from dslsmtp.struer.net ([62.242.36.21]:52494 "EHLO
-	dslsmtp.struer.net") by vger.kernel.org with ESMTP id S932123AbVK1INL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 03:13:11 -0500
-Message-ID: <55061.194.237.142.10.1133165587.squirrel@194.237.142.10>
-In-Reply-To: <200511280557.jAS5v9TM016882@shell0.pdx.osdl.net>
-References: <200511280557.jAS5v9TM016882@shell0.pdx.osdl.net>
-Date: Mon, 28 Nov 2005 09:13:07 +0100 (CET)
-Subject: Re: + use-kernelrelease.patch added to -mm tree
-From: "Sam Ravnborg" <sam@ravnborg.org>
-To: linux-kernel@vger.kernel.org
-Cc: bgerst@didntduck.org, sam@ravnborg.org, mm-commits@vger.kernel.org
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
+	Mon, 28 Nov 2005 03:29:54 -0500
+Received: from smtp3-g19.free.fr ([212.27.42.29]:15507 "EHLO smtp3-g19.free.fr")
+	by vger.kernel.org with ESMTP id S932125AbVK1I3x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 03:29:53 -0500
+From: Duncan Sands <duncan.sands@free.fr>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Subject: Re: speedtch driver, 2.6.14.2
+Date: Mon, 28 Nov 2005 09:29:56 +0100
+User-Agent: KMail/1.8.3
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       linux-kernel@vger.kernel.org
+References: <200511232125.25254.s0348365@sms.ed.ac.uk> <m3mzjp3dgu.fsf@defiant.localdomain>
+In-Reply-To: <m3mzjp3dgu.fsf@defiant.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511280929.56230.duncan.sands@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> The patch titled
->
->      Use KERNELRELEASE
->
-> has been added to the -mm tree.  Its filename is
->
->      use-kernelrelease.patch
->
->
-> From: Brian Gerst <bgerst@didntduck.org>
->
-> Clean up two more open-coded uses of KERNELRELEASE.
->
-> Signed-off-by: Brian Gerst <bgerst@didntduck.org>
-> Cc: Sam Ravnborg <sam@ravnborg.org>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
+On Sunday 27 November 2005 23:58, Krzysztof Halasa wrote:
+> Alistair John Strachan <s0348365@sms.ed.ac.uk> writes:
+> 
+> > However, on my rev 4.0 Speedtouch 330, I periodically get the message:
+> >
+> > ATM dev 0: error -110 fetching device status
+> 
+> Same here.
+> 
+> defiant:~$ dmesg | grep 'ATM dev 0: error -110 fetching device status' | wc -l
+> 55
+> defiant:~$ uptime
+>  23:55:40 up 15 days, 23:34,  6 users,  load average: 0.05, 0.06, 0.06
+> 
+> It works fine, though.
 
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
+If you unplug the phone line and plug it back in again, does the line
+resynchronize?  Does the driver detect that the line is back up?
 
-   Sam
+Thanks,
 
+D.

@@ -1,89 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbVK1XBk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750884AbVK1XAj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932286AbVK1XBk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 18:01:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbVK1XBk
+	id S1750884AbVK1XAj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 18:00:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbVK1XAj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 18:01:40 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:26082 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932286AbVK1XBj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 18:01:39 -0500
-Date: Mon, 28 Nov 2005 15:01:22 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-cc: Marc Koschewski <marc@osknowledge.org>,
-       "Calin A. Culianu" <calin@ajvar.org>, akpm@osdl.org, adaplas@pol.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: nvidia fb flicker
-In-Reply-To: <438B82A4.4030107@gmail.com>
-Message-ID: <Pine.LNX.4.64.0511281450260.3263@g5.osdl.org>
-References: <Pine.LNX.4.64.0511252358390.25302@rtlab.med.cornell.edu>
- <20051128103554.GA7071@stiffy.osknowledge.org> <438AF8A2.6030403@gmail.com>
- <20051128132035.GA7265@stiffy.osknowledge.org> <438B0D89.1080400@gmail.com>
- <20051128212418.GA7185@stiffy.osknowledge.org> <438B82A4.4030107@gmail.com>
+	Mon, 28 Nov 2005 18:00:39 -0500
+Received: from imf16aec.mail.bellsouth.net ([205.152.59.64]:56967 "EHLO
+	imf16aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S1750884AbVK1XAi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 18:00:38 -0500
+Message-ID: <438B8861.1050408@jtholmes.com>
+Date: Mon, 28 Nov 2005 17:44:49 -0500
+From: jt <jt@jtholmes.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: psmouse.c  in Kernel fails but succeeds  as Module
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Was using 2.6.11.4 and the GlidePoint worked there just fine
+
+In 2.6.14.2 the Alps GlidePoint Mouse stopped being detected when
+I compile Kernel with
+
+CONFIG_MOUSE_PS2=y
+
+After boot up
+
+cat of /proc/bus/input/devices  displays:
+
+I: Bus=0010 Vendor=001f Product=0001 Version=0100
+N: Name="PC Speaker"
+P: Phys=isa0061/input0
+H: Handlers=kbd event0
+B: EV=40001
+B: SND=6
+
+I: Bus=0011 Vendor=0001 Product=0001 Version=abba
+N: Name="AT Translated Set 2 keyboard"
+P: Phys=isa0060/serio0/input0
+H: Handlers=kbd event1
+B: EV=120013
+B: KEY=4 2000000 3802078 f840d001 f2ffffdf ffefffff ffffffff fffffffe
+B: MSC=10
+B: LED=7
+
+I: Bus=0003 Vendor=045e Product=0040 Version=0300
+N: Name="Microsoft Microsoft 3-Button Mouse with IntelliEye(TM)"
+P: Phys=usb-0000:00:13.0-1/input0
+H: Handlers=mouse0 event2
+B: EV=7
+B: KEY=70000 0 0 0 0 0 0 0 0
+B: REL=103
 
 
-On Tue, 29 Nov 2005, Antonino A. Daplas wrote:
-> 
-> Nov 28 14:02:32 stiffy kernel: Extrapolated
-> Nov 28 14:02:32 stiffy kernel:            H: 75-75KHz V: 60-60Hz DCLK: 162MHz
-> 
-> Since the min and max value of the sync timings are equal, nvidiafb has
-> no room left to verify the timings, and will _always_ reject any timings even
-> if they are valid.
-> 
-> So, try this patch, we make nvidiafb less restrictive by ignoring the
-> hsync and vsync ranges if the min and max values are equal. This should
-> make your hardware display properly even if CONFIG_FB_NVIDIA_I2c = y.
 
-Tony,
+However, when  I compile Kernel with
 
- may I suggestinstead making the verifier allow a small error?
+CONFIG_MOUSE_PS2=m
 
-I don't find it at all unlikely that some EDID blocks might say that only 
-a 60Hz refresh rate is allowed. A lot of LCD's are literally specced for 
-that (just read their manuals), even though they often in practice allow 
-other frequencies (often _wildly_ different - most modern LCD's are 
-perfectly happy to sync up with almost anything).
+and after boot up execute
+modprobe psmouse
+manually
 
-And if a monitor says that it wants a vertical frequency of 60Hz, a mode 
-that has a frequency of 59 should certainly be accepted.
+the Alps GlidePoint is detected thus
 
-So it sounds like something has marked a perfectly valid mode as invalid, 
-just because it's not _exactly_ at the frequency.
+I: Bus=0010 Vendor=001f Product=0001 Version=0100
+N: Name="PC Speaker"
+P: Phys=isa0061/input0
+H: Handlers=kbd event0
+B: EV=40001
+B: SND=6
 
-So how about allowing a small error in the frequencies in 
-fb_validate_mode()? And make sure to try to round the divisions to 
-nearest, not down. Something like the appended (totally untested)..
+I: Bus=0011 Vendor=0001 Product=0001 Version=abba
+N: Name="AT Translated Set 2 keyboard"
+P: Phys=isa0060/serio0/input0
+H: Handlers=kbd event1
+B: EV=120013
+B: KEY=4 2000000 3802078 f840d001 f2ffffdf ffefffff ffffffff fffffffe
+B: MSC=10
+B: LED=7
 
-		Linus
+I: Bus=0003 Vendor=045e Product=0040 Version=0300
+N: Name="Microsoft Microsoft 3-Button Mouse with IntelliEye(TM)"
+P: Phys=usb-0000:00:13.0-1/input0
+H: Handlers=mouse0 event2
+B: EV=7
+B: KEY=70000 0 0 0 0 0 0 0 0
+B: REL=103
 
-----
-diff --git a/drivers/video/fbmon.c b/drivers/video/fbmon.c
-index fc7965b..15b0e7e 100644
---- a/drivers/video/fbmon.c
-+++ b/drivers/video/fbmon.c
-@@ -1261,10 +1261,15 @@ int fb_validate_mode(const struct fb_var
- 	if (var->vmode & FB_VMODE_DOUBLE)
- 		vtotal *= 2;
- 
--	hfreq = pixclock/htotal;
-+	hfreq = (pixclock + htotal/2) / htotal;
- 	hfreq = (hfreq + 500) / 1000 * 1000;
- 
--	vfreq = hfreq/vtotal;
-+	vfreq = (hfreq + vtotal/2) / vtotal;
-+
-+	/* Allow a 3% error */
-+	vfmin -= vfmin >> 5; vfmax += vfmax >> 5;
-+	hfmin -= hfmin >> 5; hfmax += hfmax >> 5;
-+	
- 
- 	return (vfreq < vfmin || vfreq > vfmax || 
- 		hfreq < hfmin || hfreq > hfmax ||
+I: Bus=0011 Vendor=0002 Product=0008 Version=0000
+N: Name="PS/2 Mouse"
+P: Phys=isa0060/serio1/input1
+H: Handlers=mouse1 event3
+B: EV=7
+B: KEY=70000 0 0 0 0 0 0 0 0
+B: REL=3
+
+I: Bus=0011 Vendor=0002 Product=0008 Version=7321
+N: Name="AlpsPS/2 ALPS GlidePoint"
+P: Phys=isa0060/serio1/input0
+H: Handlers=mouse2 event4
+B: EV=f
+B: KEY=420 0 70000 0 0 0 0 0 0 0 0
+B: REL=3
+B: ABS=1000003
+
+and GlidePoint Works fine in Console Mode and X etc.
+
+I have my work around for the problem, but wondered if
+someone like Dimitry T. would like me to perform a little
+debugging and send them the output so others wont have
+to face this problem.
+
+Yes, the 2.6.11.4 had
+CONFIG_MOUSE_PS2=y
+
+I dont take the kernel message feed so please reply to me
+and I will keep a lookout in  LMKL
+
+thanks
+jt
+
+
+
+
+
+
+

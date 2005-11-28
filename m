@@ -1,77 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbVK1Lmq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751259AbVK1LoJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751254AbVK1Lmq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 06:42:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbVK1Lmq
+	id S1751259AbVK1LoJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 06:44:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbVK1LoJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 06:42:46 -0500
-Received: from gate.crashing.org ([63.228.1.57]:11164 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751254AbVK1Lmp (ORCPT
+	Mon, 28 Nov 2005 06:44:09 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:57486 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751259AbVK1LoI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 06:42:45 -0500
-Subject: Re: uart_match_port() question
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051128113020.GA30298@flint.arm.linux.org.uk>
-References: <1133050906.7768.66.camel@gaston>
-	 <20051128113020.GA30298@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Date: Mon, 28 Nov 2005 22:36:14 +1100
-Message-Id: <1133177775.7768.187.camel@gaston>
+	Mon, 28 Nov 2005 06:44:08 -0500
+Date: Mon, 28 Nov 2005 12:44:30 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       david singleton <dsingleton@mvista.com>
+Subject: Re: 2.6.14-rt15: cannot build with !PREEMPT_RT
+Message-ID: <20051128114429.GA2868@elte.hu>
+References: <1132987928.4896.1.camel@mindpipe> <20051126122332.GA3712@elte.hu> <1133031912.5904.12.camel@mindpipe> <1133034406.32542.308.camel@tglx.tec.linutronix.de> <20051127123052.GA22807@elte.hu> <1133121442.19202.13.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1133121442.19202.13.camel@mindpipe>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-11-28 at 11:30 +0000, Russell King wrote:
-> On Sun, Nov 27, 2005 at 11:21:46AM +1100, Benjamin Herrenschmidt wrote:
-> > Hi Russel, would you accept a patch like that:
 
-My deepest appologies ! :)
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-> s/l,/l&/
-> 
-> > Index: linux-work/drivers/serial/serial_core.c
-> > ===================================================================
-> > --- linux-work.orig/drivers/serial/serial_core.c	2005-11-14 20:32:16.000000000 +1100
-> > +++ linux-work/drivers/serial/serial_core.c	2005-11-27 11:13:54.000000000 +1100
-> > @@ -2307,7 +2307,8 @@
-> >  		return (port1->iobase == port2->iobase) &&
-> >  		       (port1->hub6   == port2->hub6);
-> >  	case UPIO_MEM:
-> > -		return (port1->membase == port2->membase);
-> > +		return (port1->membase == port2->membase) ||
-> > +			(port1->mapbase && port1->mapbase == port2->mapbase);
-> >  	}
-> >  	return 0;
-> >  }
-> 
-> I don't think so.  (see below)
+> -rt19 still does not boot for me with PREEMPT_DESKTOP and the latency 
+> debugging options enabled (same .config I sent previously).  I get 
+> endless screenfuls of "=============" on boot.  grep shows that these 
+> most likely come from kernel/rt.c.
 
-Heh, Ok.
+yeah - i can reproduce it with your .config. It goes away if i go from 
+PREEMPT_DESKTOP to PREEMPT_RT. Investigating.
 
-> Looking at this deeper, I think we should _only_ use mapbase in this
-> case
-
-Totally agreed.
-
-> .  membase is really a indeterminant cookie which bears no real
-> relationship to whether two ports are identical - in fact, if we are
-> going to compare two of these cookies, I think arch code should be
-> involved.
-> 
-> So how about:
-> 
-> -             return (port1->membase == port2->membase);
-> +             return (port1->mapbase == port2->mapbase);
-
-Yup, indeed. I did it the above way in case you had good reasons of
-comparing membase too, but indeed, comparing mapbase only makes the most
-sense.
-
-I'll send a proper patch tomorrow.
-
-Ben.
-
+	Ingo

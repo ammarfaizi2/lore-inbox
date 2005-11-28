@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbVK1UGQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbVK1UFK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932226AbVK1UGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 15:06:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbVK1UGQ
+	id S932225AbVK1UFK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 15:05:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbVK1UFK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 15:06:16 -0500
-Received: from main.gmane.org ([80.91.229.2]:30653 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932226AbVK1UGP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 15:06:15 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: nvidia fb flicker
-Date: Mon, 28 Nov 2005 20:57:57 +0100
-Message-ID: <1drow6iat7zy8.2rt89nl7eodg.dlg@40tude.net>
-References: <Pine.LNX.4.64.0511252358390.25302@rtlab.med.cornell.edu> <20051128103554.GA7071@stiffy.osknowledge.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Mon, 28 Nov 2005 15:05:10 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:48650 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932225AbVK1UFI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 15:05:08 -0500
+Message-ID: <438B62F3.4070801@vmware.com>
+Date: Mon, 28 Nov 2005 12:05:07 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "H. Peter Anvin" <hpa@zytor.com>, Andi Kleen <ak@suse.de>,
+       Gerd Knorr <kraxel@suse.de>, Dave Jones <davej@redhat.com>,
+       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] SMP alternatives
+References: <1132764133.7268.51.camel@localhost.localdomain> <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051123214835.GA24044@nevyn.them.org> <Pine.LNX.4.64.0511231416490.13959@g5.osdl.org> <20051123222056.GA25078@nevyn.them.org> <Pine.LNX.4.64.0511231502250.13959@g5.osdl.org> <438B600C.1050604@tmr.com>
+In-Reply-To: <438B600C.1050604@tmr.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: adsl-ull-207-209.42-151.net24.it
-User-Agent: 40tude_Dialog/2.0.15.1
+X-OriginalArrivalTime: 28 Nov 2005 20:05:06.0875 (UTC) FILETIME=[071F48B0:01C5F457]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Nov 2005 11:35:54 +0100, Marc Koschewski wrote:
+Bill Davidsen wrote:
 
-> * Calin A. Culianu <calin@ajvar.org> [2005-11-26 00:02:46 -0500]:
-> 
->> [12 quoted lines suppressed]
-> 
-> Hi all,
-> 
-> yesterday I compiled a 2.6.15-rc2 on one of my Inspirons (NVIDIA GeForce2 Go)
-> with nvidiafb. I just changed the fb to some 1600x1200 mode and thus seems to
-> work (the source states GeForce2 Go is supported and known). However, the
-> letters seems to 'flicker' in some way. Uhm, it's not really flickering, it's
-> more like the sinle dots a letter is made of seem to randomly turn on an off. I
-> one takes a closer look it seems like the whole screen is 'fluent' or something.
-> Does anybody know how to handle that? I didn't specify a video mode, but
-> 'video=vesafb:mtrr:3'. 
+> Linus Torvalds wrote:
+>
+>>
+>> In contrast, the simple silicon support scales wonderfully well. 
+>> Suddenly libraries can be thread-safe _and_ efficient on UP too. You 
+>> get to eat your cake and have it too.
+>
+>
+> I believe that a hardware solution would also accomodate the case 
+> where a program runs unthreaded for most of the processing, and only 
+> starts threads to do the final stage "report generation" tasks, where 
+> that makes sense. I don't believe that it helps in the case where init 
+> uses threads and then reverts to a single thread for the balance of 
+> the task. I can't think of anything which does that, so it's probably 
+> a non-critical corner case, or something the thread library could 
+> correct.
 
-Let me guess ... you have a Dell Inspiron 8200 or some such? You must
-compile nvidiafb without support for DDC.
 
-(Antonio, any news on disabling DDC from the command line? like a
-noddc option or some such?)
+Startup routine of a scientific app calls a multithreaded "fetch work" 
+routine, then crunches the data using a single thread.  This could even 
+happen somewhere inside a library, so the application itself is unaware 
+that threads were ever invoked.  This is not a far-fetched case.
 
--- 
-Giuseppe "Oblomov" Bilotta
+You really need per-address object notions of "threadedness" when 
+talking about shared memory, since you may need shared memory to be 
+atomic, but operate on the heap in single threaded fashion.
 
-Hic manebimus optime
-
+Zach

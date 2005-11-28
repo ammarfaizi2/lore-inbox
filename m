@@ -1,20 +1,29 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751490AbVKYW21@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751246AbVK2F57@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751490AbVKYW21 (ORCPT <rfc822;akpm@zip.com.au>);
-	Fri, 25 Nov 2005 17:28:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751488AbVKYW21
+	id S1751246AbVK2F57 (ORCPT <rfc822;akpm@zip.com.au>);
+	Tue, 29 Nov 2005 00:57:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751260AbVK2F57
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Nov 2005 17:28:27 -0500
-Received: from [84.77.46.133] ([84.77.46.133]:56513 "EHLO txiringo")
-	by vger.kernel.org with ESMTP id S1751491AbVKYW20 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Nov 2005 17:28:26 -0500
-To: linux-kernel@vger.kernel.org
-Message-Id: <20051125220620.968F72404DC7@txiringo>
-Date: Fri, 25 Nov 2005 23:06:20 +0100 (CET)
-From: root@txiringo.dyndns.org (root)
+	Tue, 29 Nov 2005 00:57:59 -0500
+Received: from mail.streamray.com ([64.156.213.211]:47373 "EHLO
+	mail.streamray.com") by vger.kernel.org with ESMTP id S1751246AbVK2F56
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 00:57:58 -0500
+Date: Mon, 28 Nov 2005 21:57:57 
+Message-Id: <10511282157.AA7918119@mail.streamray.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+From: "Tracey E" <tracey@mail.streamray.com>
+Reply-To: <tracey@mail.streamray.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Automated Response:
+X-Mailer: <SMTP32 v8.12>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nov 25 21:59:24 txiringo kernel: [17182458.504000] program ddcprobe is using MAP_PRIVATE, PROT_WRITE mmap of VM_RESERVED memory, which is deprecated. Please report this to linux-kernel@vger.kernel.org
+Automated Response:
 
+This mailbox has been closed. Due to the large amounts of unsolicited mail.
+If you need to contact Tracey, please email her @  models@streamray.com.
+
+Thank you.

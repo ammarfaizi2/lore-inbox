@@ -1,72 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbVK1NRK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbVK1NUZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932080AbVK1NRK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 08:17:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932091AbVK1NRK
+	id S932093AbVK1NUZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 08:20:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbVK1NUZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 08:17:10 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:57476 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S932080AbVK1NRJ
+	Mon, 28 Nov 2005 08:20:25 -0500
+Received: from webbox4.loswebos.de ([213.187.93.205]:8335 "EHLO
+	webbox4.loswebos.de") by vger.kernel.org with ESMTP id S932093AbVK1NUZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 08:17:09 -0500
-Date: Mon, 28 Nov 2005 14:16:48 +0100
-From: Jan Kasprzak <kas@fi.muni.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, nickpiggin@yahoo.com.au,
-       linux-kernel@vger.kernel.org, bharata@in.ibm.com
-Subject: Re: 2.6.14 kswapd eating too much CPU
-Message-ID: <20051128131648.GG19307@fi.muni.cz>
-References: <20051123051358.GB7573@fi.muni.cz> <20051123131417.GH24091@fi.muni.cz> <20051123110241.528a0b37.akpm@osdl.org> <20051123202438.GE28142@fi.muni.cz> <20051123123531.470fc804.akpm@osdl.org> <20051124083141.GJ28142@fi.muni.cz> <20051127084231.GC20701@logos.cnet> <20051127203924.GE27805@fi.muni.cz> <20051127160207.GE21383@logos.cnet> <20051127152108.11f58f9c.akpm@osdl.org>
-Mime-Version: 1.0
+	Mon, 28 Nov 2005 08:20:25 -0500
+Date: Mon, 28 Nov 2005 14:20:35 +0100
+From: Marc Koschewski <marc@osknowledge.org>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Cc: Marc Koschewski <marc@osknowledge.org>,
+       "Calin A. Culianu" <calin@ajvar.org>, akpm@osdl.org, adaplas@pol.net,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: nvidia fb flicker
+Message-ID: <20051128132035.GA7265@stiffy.osknowledge.org>
+References: <Pine.LNX.4.64.0511252358390.25302@rtlab.med.cornell.edu> <20051128103554.GA7071@stiffy.osknowledge.org> <438AF8A2.6030403@gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051127152108.11f58f9c.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: kas@fi.muni.cz
-X-Muni-Virus-Test: Clean
+In-Reply-To: <438AF8A2.6030403@gmail.com>
+X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
+X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
+X-Operating-System: Linux stiffy 2.6.15-rc1-marc
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-: Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
-: >
-: > It does seem to scan SLABs intensively:
-: >
-: It might be worth trying the below.  Mainly for the debugging check.
-: 
-	I have compiled a new kernel - 2.6.15-rc2 with the patch you
-recommended and with the slab statistics patch Marcelo mentioned.
-I have add the oprofile support, but apart from that it is the same
-kernel. It seems that the kswapd system time peaks has disappeared,
-or at least they are much lower - kswapd0 has eaten ~3 minutes from
-11 hours of uptime (in one of my previous mails I found that it used
-to be 117 minutes after ~10 hours of uptime). On my MRTG graphs
-at http://www.linux.cz/stats/mrtg-rrd/cpu.html some _small_ peaks
-can be seen at 15 minutes after every odd-numbered hour. I have booted
-this kernel around 2am local time.
+* Antonino A. Daplas <adaplas@gmail.com> [2005-11-28 20:31:30 +0800]:
 
-	I have no unusual error messages in dmesg output, so this must
-be this part of the patch:
+> Marc Koschewski wrote:
+> > * Calin A. Culianu <calin@ajvar.org> [2005-11-26 00:02:46 -0500]:
+> > 
+> >> Hi,
+> >>
+> >> This patch can be applied against 2.6.15-rc1 to add support to the 
+> >> nvidiafb driver for a few obscure (yet on-the-market) nvidia 
+> >> boards/chipsets, including various versions of the Geforce 6600 and 6200.
+> >>
+> >> This patch has been tested and allows the above-mentioned boards to get 
+> >> framebuffer console support.
+> >>
+> >> Thanks!
+> >>
+> >> -Calin
+> > 
+> > Hi all,
+> > 
+> > yesterday I compiled a 2.6.15-rc2 on one of my Inspirons (NVIDIA GeForce2 Go)
+> > with nvidiafb. I just changed the fb to some 1600x1200 mode and thus seems to
+> > work (the source states GeForce2 Go is supported and known). However, the
+> > letters seems to 'flicker' in some way. Uhm, it's not really flickering, it's
+> > more like the sinle dots a letter is made of seem to randomly turn on an off. I
+> 
+> Can you try booting with video=nvidiafb:1600x1200MR@60?
+> 
+> If that still does not work, can you open drivers/video/fbmon.c then change
+> the line #undef DEBUG to #define DEBUG, recompile, reboot and post your
+> dmesg?
+> 
+> > one takes a closer look it seems like the whole screen is 'fluent' or something.
+> > Does anybody know how to handle that? I didn't specify a video mode, but
+> > 'video=vesafb:mtrr:3'. 
+> > 
+> 
+> No, remove any vga= and video=vesafb: strings in your boot options.
 
-: +		/*
-: +		 * Avoid risking looping forever due to too large nr value:
-: +		 * never try to free more than twice the estimate number of
-: +		 * freeable entries.
-: +		 */
-: +		if (shrinker->nr > max_pass * 2)
-: +			shrinker->nr = max_pass * 2;
+So, I just booted with the parameter given by you (and without vga= as usual), as
+well as without any parameter. No change though.
 
-	The shrinker statistics displayed in /proc/slabinfo are
-# egrep '^(inode|dentry)_cache' /proc/slabinfo
-inode_cache         1338   1380    600    6    1 : tunables   54   27    8 : slabdata    230    230      0 : shrinker stat 261765504 16831100
-dentry_cache       40195  49130    224   17    1 : tunables  120   60    8 : slabdata   2890   2890    204 : shrinker stat 57946368 28877600
+Here's my relevant messages stuff with DEBUG enabled:
 
--Yenya
+Nov 28 14:02:31 stiffy kernel: nvidiafb: nVidia device/chipset 10DE0112
+Nov 28 14:02:31 stiffy kernel: nvidiafb: EDID found from BUS2
+Nov 28 14:02:31 stiffy kernel: ========================================
+Nov 28 14:02:31 stiffy kernel: Display Information (EDID)
+Nov 28 14:02:31 stiffy kernel: ========================================
+Nov 28 14:02:31 stiffy kernel:    EDID Version 1.3
+Nov 28 14:02:31 stiffy kernel:    Manufacturer: SHP
+Nov 28 14:02:31 stiffy kernel:    Model: 138e
+Nov 28 14:02:31 stiffy kernel:    Serial#: 0
+Nov 28 14:02:31 stiffy kernel:    Year: 1990 Week 0
+Nov 28 14:02:31 stiffy kernel:    Display Characteristics:
+Nov 28 14:02:32 stiffy kernel:       Monitor Operating Limits:    Detailed Timings
+Nov 28 14:02:32 stiffy kernel:       160 MHz 1600 1664 1856 2112 1200 1201 1204 1250 -HSync -VSync
+Nov 28 14:02:32 stiffy kernel: 
+Nov 28 14:02:32 stiffy kernel:    Supported VESA Modes
+Nov 28 14:02:32 stiffy kernel:       Manufacturer's mask: 0
+Nov 28 14:02:32 stiffy kernel:    Standard Timings
+Nov 28 14:02:32 stiffy kernel:       1600x1200@60Hz
+Nov 28 14:02:32 stiffy kernel: Extrapolated
+Nov 28 14:02:32 stiffy kernel:            H: 75-75KHz V: 60-60Hz DCLK: 162MHz
+Nov 28 14:02:32 stiffy kernel:       Digital Display Input
 
--- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/    Journal: http://www.fi.muni.cz/~kas/blog/ |
-> Specs are a basis for _talking_about_ things. But they are _not_ a basis <
-> for implementing software.                              --Linus Torvalds <
+Marc

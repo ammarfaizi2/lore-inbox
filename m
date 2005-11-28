@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbVK1E7b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbVK1FBQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751232AbVK1E7b (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 23:59:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751233AbVK1E7b
+	id S1751233AbVK1FBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 00:01:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751235AbVK1FBQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 23:59:31 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:1719 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751232AbVK1E7a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 23:59:30 -0500
-Date: Mon, 28 Nov 2005 05:59:22 +0100
-From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: paulmck@us.ibm.com, greg@kroah.com, kaos@sgi.com, ak@suse.de,
-       sekharan@us.ibm.com, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net, Douglas_Warzecha@dell.com,
-       Abhay_Salunke@dell.com, achim_leubner@adaptec.com,
-       dmp@davidmpye.dyndns.org
-Subject: Re: [Lse-tech] Re: [PATCH 0/7]: Fix for unsafe notifier chain
-Message-ID: <20051128045922.GK20775@brahms.suse.de>
-References: <20051127172725.GJ20775@brahms.suse.de> <24158.1133113176@ocs3.ocs.com.au> <20051127115640.3073f8e3.akpm@osdl.org> <20051127220329.GA17786@kroah.com> <20051128024301.GA8651@us.ibm.com> <20051127205745.78b565ec.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051127205745.78b565ec.akpm@osdl.org>
+	Mon, 28 Nov 2005 00:01:16 -0500
+Received: from mtiwmhc13.worldnet.att.net ([204.127.131.117]:26104 "EHLO
+	mtiwmhc13.worldnet.att.net") by vger.kernel.org with ESMTP
+	id S1751233AbVK1FBQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 00:01:16 -0500
+Message-ID: <438A8F0F.2080205@lwfinger.net>
+Date: Sun, 27 Nov 2005 23:01:03 -0600
+From: Larry Finger <Larry.Finger@lwfinger.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: thockin@hockin.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: What are the general causes of frozen system?
+References: <43891D97.4000404@lwfinger.net> <20051127025221.GA30646@hockin.org> <43892281.8000601@lwfinger.net> <20051127031115.GA31651@hockin.org>
+In-Reply-To: <20051127031115.GA31651@hockin.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 27, 2005 at 08:57:45PM -0800, Andrew Morton wrote:
-> "Paul E. McKenney" <paulmck@us.ibm.com> wrote:
-> >
-> > Any options I missed?
+thockin@hockin.org wrote:
+> On Sat, Nov 26, 2005 at 09:05:37PM -0600, Larry Finger wrote:
 > 
-> Stop using the notifier chains from NMI context - it's too hard.  Use a
-> fixed-size array in the NMI code instead.
+>>>Look for lock-related deadlocks.  Try turning on the nmi watchdog
+>>
+>>Thanks for the quick response. Unfortunately, adding either 
+>>nmi_watchdog=1 or 2 makes my machine lockup in booting - just after ACPI 
+>>is initialized.
+> 
+> 
+> Try with acpi=off, too?
+> 
 
-Or just don't unregister. That is what I did for the debug notifiers.
-
--Andi
+It turned out that an 'lacpi' was causing the boot lockup. I tried all 
+combinations of acpi on/off and nmi_watchdog 1/2 without any success. 
+The NMI count in /proc/interrupts remains stuck at 0.

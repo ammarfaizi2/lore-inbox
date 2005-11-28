@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751304AbVK1RET@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbVK1RGp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751304AbVK1RET (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 12:04:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751305AbVK1RET
+	id S932122AbVK1RGp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 12:06:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbVK1RGp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 12:04:19 -0500
-Received: from dtp.xs4all.nl ([80.126.206.180]:55118 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S1751304AbVK1RES (ORCPT
+	Mon, 28 Nov 2005 12:06:45 -0500
+Received: from pat.uio.no ([129.240.130.16]:54765 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1751305AbVK1RGo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 12:04:18 -0500
-Date: Mon, 28 Nov 2005 18:04:15 +0100
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: jbglaw@lug-owl.de, akpm@osdl.org, torvalds@osdl.org
-Subject: [PATCH 2.6.15-rc2-git6] Fix tar-pkg target
-Message-ID: <20051128170414.GA10601@harddisk-recovery.nl>
+	Mon, 28 Nov 2005 12:06:44 -0500
+Subject: Re: inode_change_ok
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Steve French <smfrench@austin.rr.com>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <438B42F3.1040006@austin.rr.com>
+References: <438B42F3.1040006@austin.rr.com>
+Content-Type: text/plain
+Date: Mon, 28 Nov 2005 12:06:27 -0500
+Message-Id: <1133197587.27574.19.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.04, required 12,
+	autolearn=disabled, AWL 1.77, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 2005-11-28 at 11:48 -0600, Steve French wrote:
+> Why are there no calls to inode_change_ok in nfs (on the client), but 
+> there are in most other filesytsems?   Seems like there are some cases 
+> in nfs in which a local permission check is done via  a call to 
+> nfs_permission which calls generic_permission ... if that is the case 
+> why not do a call to inode_change_ok in similar cases?
 
-The various tar-pkg Makefile targets forget to apply the
-CONFIG_LOCALVERSION_AUTO to the vminux and System.map files because the
-script (scripts/package/buildtar) doesn't know about it. This can be
-fixed by computing the correct "version" variable, but it's better to
-use the one computed by Kbuild itself, just like the like the
-"builddeb" and "mkspec" scripts do.
+Under the NFS model, the server manages the permissions, not the client.
 
-Without this patch, "make tar-pkg" would generate a file
-linux-2.6.15-rc2.tar containing vmlinuz-2.6.15-rc2. With this patch, it
-generates linux-2.6.15-rc2-g458af543.tar containing
-vmlinuz-2.6.15-rc2-g458af543.
+The purpose of inode_change_ok() is to perform a load of local checks
+which are simply alien to that model: 
 
+ a) your capabilities don't mean anything to the server. Its decision to
+grant the ability to change owner of a file is based on your
+credentials, not your capabilities.
 
-Erik
+ b) Even the uid/gid checks don't take into account the fact that the
+server may be mapping you into different users/groups (c.f. root
+squashing etc.).
 
-Signed-off-by: Erik Mouw <erik@harddisk-recovery.com>
+All, in all, a call to inode_change_ok() would at best be redundant, and
+at worst, be plain incorrect.
 
-diff --git a/scripts/package/buildtar b/scripts/package/buildtar
-index d8fffe6..4c1b706 100644
---- a/scripts/package/buildtar
-+++ b/scripts/package/buildtar
-@@ -15,7 +15,7 @@ set -e
- #
- # Some variables and settings used throughout the script
- #
--version="${VERSION}.${PATCHLEVEL}.${SUBLEVEL}${EXTRAVERSION}${EXTRANAME}"
-+version="${KERNELRELEASE}"
- tmpdir="${objtree}/tar-install"
- tarball="${objtree}/linux-${version}.tar"
- 
+Cheers,
+  Trond
+

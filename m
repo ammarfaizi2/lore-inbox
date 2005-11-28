@@ -1,104 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbVK1X4s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbVK1X7h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932289AbVK1X4s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 18:56:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbVK1X4s
+	id S932244AbVK1X7h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 18:59:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbVK1X7h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 18:56:48 -0500
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:61875 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S932289AbVK1X4r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 18:56:47 -0500
-Subject: [git patch review 2/2] IB/umad: fix RMPP handling
-From: Roland Dreier <rolandd@cisco.com>
-Date: Mon, 28 Nov 2005 23:56:40 +0000
-To: linux-kernel@vger.kernel.org, openib-general@openib.org
-X-Mailer: IB-patch-reviewer
-Content-Transfer-Encoding: 8bit
-Message-ID: <1133222200079-c74b250d96363b53@cisco.com>
-In-Reply-To: <1133222200079-44d9989c7d031b8b@cisco.com>
-X-OriginalArrivalTime: 28 Nov 2005 23:56:40.0533 (UTC) FILETIME=[60634050:01C5F477]
+	Mon, 28 Nov 2005 18:59:37 -0500
+Received: from xproxy.gmail.com ([66.249.82.202]:29744 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932244AbVK1X7g convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 18:59:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=T+l4b3TmS16FnyNrC2OrbJ0YECQGycLlbpDjuSoRB1/bdfIGopWWZbFf/gt5BvGXzlU70j/289puT85CyK7Iv2zlxkU7E9A485k4gJvLdeOWFYPceO9tcs51oGhxqIOf9kdJxMX1MRBG5UN8IBIN7xvjYUn4IxF6SrtlxQccpLA=
+Message-ID: <d120d5000511281559r6c6ed9edgc17e3a64453bf75d@mail.gmail.com>
+Date: Mon, 28 Nov 2005 18:59:35 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: jt <jt@jtholmes.com>
+Subject: Re: psmouse.c in Kernel fails but succeeds as Module
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <438B8861.1050408@jtholmes.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <438B8861.1050408@jtholmes.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ib_umad_write in user_mad.c is looking at rmpp_hdr field in MAD before
-checking that the MAD actually has the RMPP header.  So for a MAD
-without RMPP header it looks like we are actually checking a bit
-inside M_Key, or something.
+On 11/28/05, jt <jt@jtholmes.com> wrote:
+>
+> However, when  I compile Kernel with
+>
+> CONFIG_MOUSE_PS2=m
+>
+...
+>
+> the Alps GlidePoint is detected thus
+>
+>
+> I: Bus=0011 Vendor=0002 Product=0008 Version=0000
+> N: Name="PS/2 Mouse"
+> P: Phys=isa0060/serio1/input1
+> H: Handlers=mouse1 event3
+> B: EV=7
+> B: KEY=70000 0 0 0 0 0 0 0 0
+> B: REL=3
+>
+> I: Bus=0011 Vendor=0002 Product=0008 Version=7321
+> N: Name="AlpsPS/2 ALPS GlidePoint"
+> P: Phys=isa0060/serio1/input0
+> H: Handlers=mouse2 event4
+> B: EV=f
+> B: KEY=420 0 70000 0 0 0 0 0 0 0 0
+> B: REL=3
+> B: ABS=1000003
+>
+> and GlidePoint Works fine in Console Mode and X etc.
+>
 
-Signed-off-by: Jack Morgenstein <jackm@mellanox.co.il>
-Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
-Signed-off-by: Roland Dreier <rolandd@cisco.com>
+This is most likely USB legacy emulation screws up touchpad detection.
+If you boot with "usb-handoff" on the kernel command line it shoudl
+detect ALPS even if psmouse is built-in and not a module.
 
----
+One of these days we will turn it on by default...
 
- drivers/infiniband/core/user_mad.c |   41 +++++++++++++++++++-----------------
- 1 files changed, 22 insertions(+), 19 deletions(-)
+> I have my work around for the problem, but wondered if
+> someone like Dimitry T. would like me to perform a little
+> debugging and send them the output so others wont have
+> to face this problem.
+>
 
-applies-to: 918111360e352d128126bb338227ec4fb6e8afbc
-bf6d9e23a36c8a01bf6fbb945387d8ca3870ff71
-diff --git a/drivers/infiniband/core/user_mad.c b/drivers/infiniband/core/user_mad.c
-index e73f81c..eb7f525 100644
---- a/drivers/infiniband/core/user_mad.c
-+++ b/drivers/infiniband/core/user_mad.c
-@@ -310,7 +310,7 @@ static ssize_t ib_umad_write(struct file
- 	u8 method;
- 	__be64 *tid;
- 	int ret, length, hdr_len, copy_offset;
--	int rmpp_active = 0;
-+	int rmpp_active, has_rmpp_header;
- 
- 	if (count < sizeof (struct ib_user_mad) + IB_MGMT_RMPP_HDR)
- 		return -EINVAL;
-@@ -360,28 +360,31 @@ static ssize_t ib_umad_write(struct file
- 	}
- 
- 	rmpp_mad = (struct ib_rmpp_mad *) packet->mad.data;
--	if (ib_get_rmpp_flags(&rmpp_mad->rmpp_hdr) & IB_MGMT_RMPP_FLAG_ACTIVE) {
--		/* RMPP active */
--		if (!agent->rmpp_version) {
--			ret = -EINVAL;
--			goto err_ah;
--		}
--
--		/* Validate that the management class can support RMPP */
--		if (rmpp_mad->mad_hdr.mgmt_class == IB_MGMT_CLASS_SUBN_ADM) {
--			hdr_len = IB_MGMT_SA_HDR;
--		} else if ((rmpp_mad->mad_hdr.mgmt_class >= IB_MGMT_CLASS_VENDOR_RANGE2_START) &&
--			    (rmpp_mad->mad_hdr.mgmt_class <= IB_MGMT_CLASS_VENDOR_RANGE2_END)) {
--				hdr_len = IB_MGMT_VENDOR_HDR;
--		} else {
--			ret = -EINVAL;
--			goto err_ah;
--		}
--		rmpp_active = 1;
-+	if (rmpp_mad->mad_hdr.mgmt_class == IB_MGMT_CLASS_SUBN_ADM) {
-+		hdr_len = IB_MGMT_SA_HDR;
- 		copy_offset = IB_MGMT_RMPP_HDR;
-+		has_rmpp_header = 1;
-+	} else if (rmpp_mad->mad_hdr.mgmt_class >= IB_MGMT_CLASS_VENDOR_RANGE2_START &&
-+		   rmpp_mad->mad_hdr.mgmt_class <= IB_MGMT_CLASS_VENDOR_RANGE2_END) {
-+			hdr_len = IB_MGMT_VENDOR_HDR;
-+			copy_offset = IB_MGMT_RMPP_HDR;
-+			has_rmpp_header = 1;
- 	} else {
- 		hdr_len = IB_MGMT_MAD_HDR;
- 		copy_offset = IB_MGMT_MAD_HDR;
-+		has_rmpp_header = 0;
-+	}
-+
-+	if (has_rmpp_header)
-+		rmpp_active = ib_get_rmpp_flags(&rmpp_mad->rmpp_hdr) &
-+			      IB_MGMT_RMPP_FLAG_ACTIVE;
-+	else
-+		rmpp_active = 0;
-+
-+	/* Validate that the management class can support RMPP */
-+	if (rmpp_active && !agent->rmpp_version) {
-+		ret = -EINVAL;
-+		goto err_ah;
- 	}
- 
- 	packet->msg = ib_create_send_mad(agent,
----
-0.99.9k
+Would be easier if you CC me if you want me to see your message faster ;)
+
+--
+Dmitry

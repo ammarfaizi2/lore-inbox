@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbVK2Oj2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbVK2OpY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751357AbVK2Oj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 09:39:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbVK2Oj2
+	id S1751360AbVK2OpY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 09:45:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbVK2OpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 09:39:28 -0500
-Received: from nproxy.gmail.com ([64.233.182.202]:11365 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751357AbVK2Oj2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 09:39:28 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WUmy6EzVcZ0NIlGeqezvBOMP29YYdBrhA38Yyl2EvTwA0Tsi0hmASWRRNYa2+VCKJMozpFWVaIQtcUJLIoone+viv2eqbI5hmLepn1Th14XnnoRSjLI3QVjc8qKgcu3PX682iYqZHMErpc7lOal6hpQQZs1UvwKTxOZbUUBVuhc=
-Message-ID: <121a28810511290639g79617c85h@mail.gmail.com>
-Date: Tue, 29 Nov 2005 15:39:26 +0100
-From: Grzegorz Nosek <grzegorz.nosek@gmail.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH] race condition in procfs
-Cc: vserver@list.linux-vserver.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1133274524.6328.56.camel@localhost.localdomain>
+	Tue, 29 Nov 2005 09:45:24 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:53371 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1751360AbVK2OpY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 09:45:24 -0500
+Message-ID: <438B70AA.7090805@tmr.com>
+Date: Mon, 28 Nov 2005 16:03:38 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <121a28810511282317j47a90f6t@mail.gmail.com>
-	 <20051129000916.6306da8b.akpm@osdl.org>
-	 <121a28810511290038h37067fecx@mail.gmail.com>
-	 <121a28810511290525m1bdf12e0n@mail.gmail.com>
-	 <121a28810511290604m68c56398t@mail.gmail.com>
-	 <1133274524.6328.56.camel@localhost.localdomain>
+To: Luke-Jr <luke-jr@utopios.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ide-cd doesn't replace ide-scsi?
+References: <200511281218.17141.luke-jr@utopios.org>
+In-Reply-To: <200511281218.17141.luke-jr@utopios.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2005/11/29, Steven Rostedt <rostedt@goodmis.org>:
-> Have you seen this crash the vanilla kernel?  What exactly are you doing
-> to see the crash? If you have a script or something, could you post it.
-> I could spend some time helping you debug it too on one of my SMP boxes.
->
+Luke-Jr wrote:
+> Note: results are with 2.6.13 (-gentoo-r4 + supermount) and 2.6.14 (-gentoo)
+> I've been struggling with burning DVD+R DL discs and upgrading the firmware on 
+> my DVD burner, and just today decided to rmmod ide-cd and try using ide-scsi. 
+> Turns out it works... so is ide-cd *supposed* to handle cases other than 
+> simple reading and burning or is this a bug? If not a bug, should ide-scsi 
+> really be marked as deprecated?
+> Also, two bugs with ide-scsi:
+> 1. On loading the module, it detects and allocates 6 SCSI devices for a single 
+> DVD burner (Toshiba ODD-DVD SD-R5272); kernel log for this event attached
+> 2. On attempted unloading of the module, rmmod says 'Killed' and the module 
+> stays put, corrupt. There was some kind of error in dmesg, but it appears to 
+> have avoided syslog-- If I see it again, I'll save it.
 
-I'm not really using vanilla 2.6 kernels and my setup would be quite
-hard to run on a vanilla kernel.
+I think you may have the probe-all-LUNs set, and a CD burner which 
+responds to more than one. That's one possible cause for this.
 
-The reproduceability of this bug varies. Sometimes it'll go for a few
-days without happening, sometimes it's a matter of a few minutes. I'm
-beginning to feel it's a vserver issue after all, somehow related to
-pid virtualisation (it maps some vxi->vx_initpid to 1).
+Unfortunately using ide-cd still doesn't have the code set to allow all 
+burning features to work if you are not root. Even if you have 
+read+write there's one command you need to do multi-session which is 
+only allowed to root. Works fine for single sessions, I guess that's all 
+someone uses.
 
-Thus I cannot provide a simple script to trigger the bug (I wish I
-could) but often doing a -j8 kernel compile in a vserver is enough.
+Haven't tried unloading the module, so I have no advice on that other 
+than "don't do that."
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me
+

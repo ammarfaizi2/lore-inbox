@@ -1,40 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbVK1RwA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbVK1RvE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932144AbVK1RwA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 12:52:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbVK1RwA
+	id S932138AbVK1RvE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 12:51:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbVK1RvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 12:52:00 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:21948 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932144AbVK1Rv6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 12:51:58 -0500
-Subject: Re: [RT] read_tsc: ACK! TSC went backward! Unsynced TSCs?
-From: Lee Revell <rlrevell@joe-job.com>
-To: thockin@hockin.org
-Cc: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
-       john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051128173040.GA32547@hockin.org>
-References: <1133179554.11491.3.camel@localhost.localdomain>
-	 <20051128173040.GA32547@hockin.org>
-Content-Type: text/plain
-Date: Mon, 28 Nov 2005 12:39:28 -0500
-Message-Id: <1133199568.7416.31.camel@mindpipe>
+	Mon, 28 Nov 2005 12:51:04 -0500
+Received: from hera.kernel.org ([140.211.167.34]:21993 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S932138AbVK1RvD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 12:51:03 -0500
+Date: Mon, 28 Nov 2005 10:06:02 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Chris Ross <lak1646@tebibyte.org>
+Cc: Andre Hedrick <andre@linux-ide.org>, Greg Ungerer <gerg@snapgear.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-arm-kernel@lists.arm.linux.org.uk,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [PATCH] 2.4.32 Don't panic on IDE DMA errors
+Message-ID: <20051128120602.GA24532@logos.cnet>
+References: <43849110.2070806@tebibyte.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43849110.2070806@tebibyte.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-11-28 at 09:30 -0800, thockin@hockin.org wrote:
-> The kernel's use of TSC is wholly incorrect.  TSCs can ramp up and
-> down and *do* vary between nodes as well as between cores within a
-> node.  You really can not compare TSCs between cpu cores at all, as is
-> (and the kernel assumes 1 global TSC in at least a few places). 
 
-That's one way to look at it; another is that the AMD dual cores have a
-broken TSC implementation.  The kernel's use of the TSC was never a
-problem in the past...
+Applied, thanks Chris.
 
-Lee
-
+On Wed, Nov 23, 2005 at 03:56:00PM +0000, Chris Ross wrote:
+> Kernel 2.4.32 and earlier can panic when trying to read a corrupted 
+> sector from an IDE disk.
+> 
+> The function ide_dma_timeout_retry can end a request early by calling 
+> idedisk_error, but then goes on to use the request anyway causing a 
+> kernel panic due to a null pointer exception. This patch fixes that.
+> 
+> Regards,
+> Chris R.
+> 
+> 
+> diff -urN -X dontdiff linux-2.4.32/drivers/ide/ide-io.c 
+> patched-linux-2.4.32/drivers/ide/ide-io.c
+> --- linux-2.4.32/drivers/ide/ide-io.c	2003-11-28 18:26:20.000000000 +0000
+> +++ patched-linux-2.4.32/drivers/ide/ide-io.c	2005-11-23 
+> 12:33:37.000000000 +0000
+> @@ -899,11 +899,13 @@
+>  	rq = HWGROUP(drive)->rq;
+>  	HWGROUP(drive)->rq = NULL;
+> 
+> -	rq->errors = 0;
+> -	rq->sector = rq->bh->b_rsector;
+> -	rq->current_nr_sectors = rq->bh->b_size >> 9;
+> -	rq->hard_cur_sectors = rq->current_nr_sectors;
+> -	rq->buffer = rq->bh->b_data;
+> +	if (rq) {
+> +		rq->errors = 0;
+> +		rq->sector = rq->bh->b_rsector;
+> +		rq->current_nr_sectors = rq->bh->b_size >> 9;
+> +		rq->hard_cur_sectors = rq->current_nr_sectors;
+> +		rq->buffer = rq->bh->b_data;
+> +	}
+> 
+>  	return ret;
+>  }

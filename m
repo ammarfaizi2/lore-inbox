@@ -1,58 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbVK1QTw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbVK1QVO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751249AbVK1QTw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 11:19:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbVK1QTw
+	id S1751267AbVK1QVO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 11:21:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbVK1QVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 11:19:52 -0500
-Received: from gate.crashing.org ([63.228.1.57]:16286 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751249AbVK1QTw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 11:19:52 -0500
-Date: Mon, 28 Nov 2005 10:15:39 -0600 (CST)
-From: Kumar Gala <galak@gate.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Russell King <rmk+lkml@arm.linux.org.uk>, Greg KH <greg@kroah.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: [DRIVER MODEL] Allow overlapping resources for platform devices
-Message-ID: <Pine.LNX.4.44.0511281015060.25081-100000@gate.crashing.org>
+	Mon, 28 Nov 2005 11:21:14 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:22709 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751267AbVK1QVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 11:21:14 -0500
+From: mgross <mgross@linux.intel.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Subject: Re: capturing oopses
+Date: Mon, 28 Nov 2005 08:20:02 -0800
+User-Agent: KMail/1.7.1
+Cc: vherva@vianova.fi, bunk@stusta.de, folkert@vanheusden.com,
+       linux-kernel@vger.kernel.org
+References: <20051122130754.GL32512@vanheusden.com> <20051126193358.GF22255@vianova.fi> <20051127204132.2b0d7406.rdunlap@xenotime.net>
+In-Reply-To: <20051127204132.2b0d7406.rdunlap@xenotime.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511280820.02473.mgross@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are cases in which a device's memory mapped registers overlap
-with another device's memory mapped registers.  On several PowerPC
-devices this occurs for the MDIO bus, whose registers tended to overlap
-with one of the ethernet controllers.
+On Sunday 27 November 2005 20:41, Randy.Dunlap wrote:
+> On Sat, 26 Nov 2005 21:33:58 +0200 Ville Herva wrote:
+> > On Sat, Nov 26, 2005 at 04:56:56PM +0100, you [Adrian Bunk] wrote:
+> > > On Tue, Nov 22, 2005 at 02:07:54PM +0100, Folkert van Heusden wrote:
+> > > > Hi,
+> > >
+> > > Hi Folkert,
+> > >
+> > > > My 2.6.14 system occasionally crashes; gives a kernel panic. Of
+> > > > course I would like to report it. Now the system locks up hard so I
+> > > > can't copy the stacktrace. The crash dump patches mentioned in
+> > > > oops-tracing.txt all don't work for 2.6.14 it seems. So: what should
+> > > > I do? Get my digicam and take a picture of the display?
+> > >
+> > > yes, digicams have become a common tool for reporting Oops'es.
+> >
+> > Speaking of which, does anybody know a feasible (as in "not too much
+> > harder than manually typing it in manually") way to OCR characters from
+> > vga text mode screen captures - or even digican shots?
+> >
+> > The vga text mode captures are from a remote administration interface
+> > (such as HP RILOE or vmware gsx console) so they are pixel perfect and
+> > OCR should be doable. The digican shots on the other hand... Well at
+> > least it would have hack value :).
+> >
+> > (My personal opinion is that Linus' unwillingness to include anything
+> > like kmsgdump (http://www.xenotime.net/linux/kmsgdump/) is somewhat
+> > unfortunate.)
+>
+> BTW, status of that:  it needs a little work to be more reliable.
+> (It hangs sometimes when switching from protected to real mode.)
+> I'm hoping that some of the APIC/IOAPIC/PIC patches that are being
+> done for kdump will also help kmsgdump.  I'll be working more on it
+> in the next few weeks/months.
+>
+> so yes, when it's working, it's very useful IMO.
+>
 
-By switching from request_resource to insert_resource we can register
-the MDIO bus as a proper platform device and not hack around how we
-handle its memory mapped registers.
+You know some platforms that perserve the memory above some addresses across 
+warm boots.  For such platforms, one could reserve a buffer in that area can 
+copy the sys log buffer to it on panic along with a bit pattern that could be 
+searched for upon the next boot.
 
-Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+Additionally some platforms have flash parts that could be used as a 
+persistant store for such data in the same manner.  I've done this on an 
+XScale platform using an ancient (2.4.10) kernel.  I've always thought it 
+would be a handy thing for the newer kernels for PC's, if we could come up 
+with a semi-platform independent way of identifying a few pages that would 
+survive a warm boot.
 
----
-commit 32fa7cc4cb3ef6aed2d4ef06befa6686f6b7568a
-tree 6f932a12c9663a9fc4705f31039c52159f14c59e
-parent a20eafe40e6ae9d3db96918c9512c577b9a5814c
-author Kumar Gala <galak@kernel.crashing.org> Mon, 28 Nov 2005 10:14:09 -0600
-committer Kumar Gala <galak@kernel.crashing.org> Mon, 28 Nov 2005 10:14:09 -0600
-
- drivers/base/platform.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-index 8827daf..1091af1 100644
---- a/drivers/base/platform.c
-+++ b/drivers/base/platform.c
-@@ -257,7 +257,7 @@ int platform_device_add(struct platform_
- 				p = &ioport_resource;
- 		}
- 
--		if (p && request_resource(p, r)) {
-+		if (p && insert_resource(p, r)) {
- 			printk(KERN_ERR
- 			       "%s: failed to claim resource %d\n",
- 			       pdev->dev.bus_id, i);
-
+--mgross

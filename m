@@ -1,107 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751263AbVK1MOv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751256AbVK1MSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751263AbVK1MOv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 07:14:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbVK1MOu
+	id S1751256AbVK1MSO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 07:18:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbVK1MSO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 07:14:50 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:55763 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751255AbVK1MOu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 07:14:50 -0500
-Subject: Re: [PATCH 2/2] shared mounts: save mount flag space
-From: Ram Pai <linuxram@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, Al Viro <viro@ftp.linux.org.uk>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <20051126215509.073cb957.akpm@osdl.org>
-References: <E1EfJfC-00016e-00@dorka.pomaz.szeredi.hu>
-	 <E1EfJnm-00017H-00@dorka.pomaz.szeredi.hu>
-	 <E1EfK2o-0001AK-00@dorka.pomaz.szeredi.hu>
-	 <20051126215509.073cb957.akpm@osdl.org>
-Content-Type: text/plain
-Organization: IBM 
-Message-Id: <1133180090.3811.95.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 28 Nov 2005 04:14:50 -0800
+	Mon, 28 Nov 2005 07:18:14 -0500
+Received: from CPE-24-31-244-49.kc.res.rr.com ([24.31.244.49]:15807 "EHLO
+	tsurukikun.utopios.org") by vger.kernel.org with ESMTP
+	id S1751256AbVK1MSO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 07:18:14 -0500
+From: Luke-Jr <luke-jr@utopios.org>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: ide-cd doesn't replace ide-scsi?
+Date: Mon, 28 Nov 2005 12:18:11 +0000
+User-Agent: KMail/1.9
+Public-GPG-Key: 0xD53E9583
+Public-GPG-Key-URI: http://dashjr.org/~luke-jr/myself/Luke-Jr.pgp
+IM-Address: luke-jr@jabber.org
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart8228205.pfpLSzteVH";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200511281218.17141.luke-jr@utopios.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-11-26 at 21:55, Andrew Morton wrote:
-> Miklos Szeredi <miklos@szeredi.hu> wrote:
-> >
-> > Remaining mount flags are becoming scarce (just 11 bits)
-> > and shared mount code uses 4 though one would suffice.
-> > 
-> > I think this should go into 2.6.15, fixing it later would be breaking
-> > userspace ABI.
-> 
-> These seem sane objectives.
-> 
-> > -static int do_change_type(struct nameidata *nd, int flag)
-> > +static int do_change_type(struct nameidata *nd, int recurse, char *name)
-> >  {
-> >  	struct vfsmount *m, *mnt = nd->mnt;
-> > -	int recurse = flag & MS_REC;
-> > -	int type = flag & ~MS_REC;
-> > +	enum propagation_type type;
-> >  
-> >  	if (nd->dentry != nd->mnt->mnt_root)
-> >  		return -EINVAL;
-> >  
-> > +	if (!name)
-> > +		return -EINVAL;
-> > +
-> > +	if (strcmp(name, "unbindable") == 0)
-> > +		type = PT_UNBINDABLE;
-> > +	else if (strcmp(name, "private") == 0)
-> > +		type = PT_PRIVATE;
-> > +	else if (strcmp(name, "slave") == 0)
-> > +		type = PT_SLAVE;
-> > +	else if (strcmp(name, "shared") == 0)
-> > +		type = PT_SHARED;
-> > +	else
-> > +		return -EINVAL;
-> > +
-> >  	down_write(&namespace_sem);
-> >  	spin_lock(&vfsmount_lock);
-> >  	for (m = mnt; m; m = (recurse ? next_mnt(m, mnt) : NULL))
-> > @@ -1302,8 +1315,8 @@ long do_mount(char *dev_name, char *dir_
-> >  				    data_page);
-> >  	else if (flags & MS_BIND)
-> >  		retval = do_loopback(&nd, dev_name, flags & MS_REC);
-> > -	else if (flags & (MS_SHARED | MS_PRIVATE | MS_SLAVE | MS_UNBINDABLE))
-> > -		retval = do_change_type(&nd, flags);
-> > +	else if (flags & MS_PROPAGATION)
-> > +		retval = do_change_type(&nd, flags & MS_REC, data_page);
-> >  	else if (flags & MS_MOVE)
-> >  		retval = do_move_mount(&nd, dev_name);
-> >  	else
-> 
-> But I don't know how much trauma this would cause.  Hasn't util-linux
-> already been patched with the new mount flags?
+--nextPart8228205.pfpLSzteVH
+Content-Type: multipart/mixed;
+  boundary="Boundary-01=_FWviDlh+ekQyv8v"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Andrew,
-    No. The new mount flags have not yet been picked up by 
-    util-linux AFAIK.
+--Boundary-01=_FWviDlh+ekQyv8v
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-    and again with shared subtree semantics mount/umount command
-    can no way handle all the implicit mounts/unmounts that take
-    place without its knowledge.  Dependence on /etc/mnttab is already
-    broken with namespaces. Shared-subtree adds some more misery.
+Note: results are with 2.6.13 (-gentoo-r4 + supermount) and 2.6.14 (-gentoo)
+I've been struggling with burning DVD+R DL discs and upgrading the firmware=
+ on=20
+my DVD burner, and just today decided to rmmod ide-cd and try using ide-scs=
+i.=20
+Turns out it works... so is ide-cd *supposed* to handle cases other than=20
+simple reading and burning or is this a bug? If not a bug, should ide-scsi=
+=20
+really be marked as deprecated?
+Also, two bugs with ide-scsi:
+1. On loading the module, it detects and allocates 6 SCSI devices for a sin=
+gle=20
+DVD burner (Toshiba ODD-DVD SD-R5272); kernel log for this event attached
+2. On attempted unloading of the module, rmmod says 'Killed' and the module=
+=20
+stays put, corrupt. There was some kind of error in dmesg, but it appears t=
+o=20
+have avoided syslog-- If I see it again, I'll save it.
+=2D-=20
+Luke-Jr
+Developer, Utopios
+http://utopios.org/
 
-I will work on that once I am back from vacation, 
-RP
+--Boundary-01=_FWviDlh+ekQyv8v
+Content-Type: text/plain;
+  charset="us-ascii";
+  name="ide-scsi.manyburners.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="ide-scsi.manyburners.txt"
 
+Nov 28 04:13:14 [kernel] ide-scsi is deprecated for cd burning! Use ide-cd and give dev=/dev/hdX as device
+Nov 28 04:13:14 [kernel] scsi2 : SCSI host adapter emulation for IDE ATAPI devices
+Nov 28 04:13:15 [kernel] sr0: scsi3-mmc drive: 40x/40x writer cd/rw xa/form2 cdda tray
+Nov 28 04:13:15 [kernel] Attached scsi CD-ROM sr0 at scsi2, channel 0, id 0, lun 0
+Nov 28 04:13:15 [kernel] sr1: scsi3-mmc drive: 40x/40x writer cd/rw xa/form2 cdda tray
+Nov 28 04:13:15 [kernel] Attached scsi CD-ROM sr1 at scsi2, channel 0, id 0, lun 1
+Nov 28 04:13:15 [kernel] sr2: scsi3-mmc drive: 40x/40x writer cd/rw xa/form2 cdda tray
+Nov 28 04:13:15 [kernel] Attached scsi CD-ROM sr2 at scsi2, channel 0, id 0, lun 2
+Nov 28 04:13:15 [kernel] sr3: scsi3-mmc drive: 40x/40x writer cd/rw xa/form2 cdda tray
+Nov 28 04:13:15 [kernel] Attached scsi CD-ROM sr3 at scsi2, channel 0, id 0, lun 3
+Nov 28 04:13:15 [kernel] sr4: scsi3-mmc drive: 40x/40x writer cd/rw xa/form2 cdda tray
+Nov 28 04:13:15 [kernel] Attached scsi CD-ROM sr4 at scsi2, channel 0, id 0, lun 4
+Nov 28 04:13:15 [kernel] sr5: scsi3-mmc drive: 40x/40x writer cd/rw xa/form2 cdda tray
+Nov 28 04:13:15 [kernel] Attached scsi CD-ROM sr5 at scsi2, channel 0, id 0, lun 5
+Nov 28 04:13:15 [kernel] sr6: scsi3-mmc drive: 40x/40x writer cd/rw xa/form2 cdda tray
+Nov 28 04:13:15 [kernel] Attached scsi CD-ROM sr6 at scsi2, channel 0, id 0, lun 6
+Nov 28 04:13:15 [kernel] sr7: scsi3-mmc drive: 62x/62x writer cd/rw xa/form2 cdda tray
+Nov 28 04:13:15 [kernel] Attached scsi CD-ROM sr7 at scsi3, channel 0, id 0, lun 0
+--Boundary-01=_FWviDlh+ekQyv8v--
 
+--nextPart8228205.pfpLSzteVH
+Content-Type: application/pgp-signature
 
-> 
-> If it has, and if it uses the same names for these options, the patched
-> mount(8) just won't work.
-> 
-> The proposed new mount options should be documented somewhere.
-> 
-> Anyway, I'll let Ram&Al decide on this proposal.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
+iD8DBQBDivWJZl/BHdU+lYMRAsqbAJ4mfu9F1Whk6HAOPY3jLnfHGs2sswCfbmYa
+CnHRthWyl+jJ2Kjjo8kW1jw=
+=7CFg
+-----END PGP SIGNATURE-----
+
+--nextPart8228205.pfpLSzteVH--

@@ -1,47 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751269AbVK1M15@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbVK1McP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751269AbVK1M15 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 07:27:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751270AbVK1M15
+	id S932072AbVK1McP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 07:32:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932073AbVK1McP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 07:27:57 -0500
-Received: from mailgate-out2.mysql.com ([213.136.52.68]:24755 "EHLO
-	mailgate.mysql.com") by vger.kernel.org with ESMTP id S1751269AbVK1M15
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 07:27:57 -0500
-Message-ID: <438AF860.7050905@mysql.com>
-Date: Mon, 28 Nov 2005 13:30:24 +0100
-From: Jonas Oreland <jonas@mysql.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.11) Gecko/20050915
-X-Accept-Language: en-us, en
+	Mon, 28 Nov 2005 07:32:15 -0500
+Received: from zproxy.gmail.com ([64.233.162.200]:35342 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932072AbVK1McP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 07:32:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=mJVEFIaju07FYDYmlSs+pa8T6GkjuiW49AtZQnnMEEyOpEqzJZ87gAkfNS6QUSbOMTtvVF4QLiJmvIEQi5bmdPrAfj+8HDKr0Sf/A06RFT+BUvhxPOML5VgojzItAP0f7bCsxPnyxsv1IBfL8CQkIqgkzCgHfQhrAwa8yPKKURA=
+Message-ID: <438AF8A2.6030403@gmail.com>
+Date: Mon, 28 Nov 2005 20:31:30 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051025)
 MIME-Version: 1.0
-To: Steven Rostedt <rostedt@goodmis.org>
-CC: Ingo Molnar <mingo@elte.hu>, john stultz <johnstul@us.ibm.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RT] read_tsc: ACK! TSC went backward! Unsynced TSCs?
-References: <1133179554.11491.3.camel@localhost.localdomain>
-In-Reply-To: <1133179554.11491.3.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii
+To: Marc Koschewski <marc@osknowledge.org>
+CC: "Calin A. Culianu" <calin@ajvar.org>, akpm@osdl.org, adaplas@pol.net,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: nvidia fb flicker
+References: <Pine.LNX.4.64.0511252358390.25302@rtlab.med.cornell.edu> <20051128103554.GA7071@stiffy.osknowledge.org>
+In-Reply-To: <20051128103554.GA7071@stiffy.osknowledge.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt wrote:
-> Hi Ingo,
+Marc Koschewski wrote:
+> * Calin A. Culianu <calin@ajvar.org> [2005-11-26 00:02:46 -0500]:
 > 
-> With -rt20 on the AMD64 x2, I'm getting a crap load of these:
+>> Hi,
+>>
+>> This patch can be applied against 2.6.15-rc1 to add support to the 
+>> nvidiafb driver for a few obscure (yet on-the-market) nvidia 
+>> boards/chipsets, including various versions of the Geforce 6600 and 6200.
+>>
+>> This patch has been tested and allows the above-mentioned boards to get 
+>> framebuffer console support.
+>>
+>> Thanks!
+>>
+>> -Calin
 > 
-> read_tsc: ACK! TSC went backward! Unsynced TSCs?
+> Hi all,
 > 
-> So bad that the system wont even boot (at least I won't wait long enough
-> to let it finish).
+> yesterday I compiled a 2.6.15-rc2 on one of my Inspirons (NVIDIA GeForce2 Go)
+> with nvidiafb. I just changed the fb to some 1600x1200 mode and thus seems to
+> work (the source states GeForce2 Go is supported and known). However, the
+> letters seems to 'flicker' in some way. Uhm, it's not really flickering, it's
+> more like the sinle dots a letter is made of seem to randomly turn on an off. I
+
+Can you try booting with video=nvidiafb:1600x1200MR@60?
+
+If that still does not work, can you open drivers/video/fbmon.c then change
+the line #undef DEBUG to #define DEBUG, recompile, reboot and post your
+dmesg?
+
+> one takes a closer look it seems like the whole screen is 'fluent' or something.
+> Does anybody know how to handle that? I didn't specify a video mode, but
+> 'video=vesafb:mtrr:3'. 
 > 
-> config at: http://www.kihontech.com/tests/rt/config
 
-Check this: http://bugzilla.kernel.org/show_bug.cgi?id=5105
+No, remove any vga= and video=vesafb: strings in your boot options.
 
-Booting with idle=poll, fixes that.
-
-Hope it help
-
-/Jonas
+Tony

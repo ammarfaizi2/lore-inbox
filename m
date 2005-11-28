@@ -1,89 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbVK1Tus@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbVK1TuX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932216AbVK1Tus (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 14:50:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbVK1Tus
+	id S932213AbVK1TuX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 14:50:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbVK1TuX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 14:50:48 -0500
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:2506 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932217AbVK1Tur
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 14:50:47 -0500
-Message-ID: <438B600C.1050604@tmr.com>
-Date: Mon, 28 Nov 2005 14:52:44 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
-       Andi Kleen <ak@suse.de>, Gerd Knorr <kraxel@suse.de>,
-       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-References: <1132764133.7268.51.camel@localhost.localdomain> <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051123214835.GA24044@nevyn.them.org> <Pine.LNX.4.64.0511231416490.13959@g5.osdl.org> <20051123222056.GA25078@nevyn.them.org> <Pine.LNX.4.64.0511231502250.13959@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0511231502250.13959@g5.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Nov 2005 14:50:23 -0500
+Received: from adsl-80.mirage.euroweb.hu ([193.226.228.80]:18437 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S932213AbVK1TuW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 14:50:22 -0500
+To: akpm@osdl.org
+CC: linux-kernel@vger.kernel.org
+In-reply-to: <E1Egozl-0006uy-00@dorka.pomaz.szeredi.hu> (message from Miklos
+	Szeredi on Mon, 28 Nov 2005 20:49:01 +0100)
+Subject: [PATCH 6/7] fuse: add frsize to statfs reply
+References: <E1EgosN-0006s3-00@dorka.pomaz.szeredi.hu> <E1EgouE-0006sp-00@dorka.pomaz.szeredi.hu> <E1EgowL-0006tN-00@dorka.pomaz.szeredi.hu> <E1EgoxK-0006tk-00@dorka.pomaz.szeredi.hu> <E1EgoyM-0006uH-00@dorka.pomaz.szeredi.hu> <E1Egozl-0006uy-00@dorka.pomaz.szeredi.hu>
+Message-Id: <E1Egp0p-0006vL-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Mon, 28 Nov 2005 20:50:07 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Wed, 23 Nov 2005, Daniel Jacobowitz wrote:
-> 
->>Why should we use a silicon based solution for this, when I posit that
->>there are simpler and equally effective userspace solutions?
-> 
-> 
-> Name them.
-> 
-> In user space, doing things like clever run-time linking things is 
-> actually horribly bad. It causes COW faults at startup, and/or makes the 
-> compiler have to do indirections unnecessarily.  Both of which actually 
-> make caches less effective, because now processes that really effectively 
-> do have exactly the same contents have them in different pages.
-> 
-> The other alternative (which apparently glibc actually does use) is to 
-> dynamically branch over the lock prefixes, which actually works better: 
-> it's more work dynamically, but it's much cheaper from a startup 
-> standpoint and there's no memory duplication, so while it is the "stupid" 
-> approach, it's actually better than the clever one.
-> 
-> The third alternative is to know at link-time that the process never does 
-> anything threaded, but that needs more developer attention and 
-> non-standard setups, and you _will_ get it wrong (some library will create 
-> some thread without the developer even realizing). It also has the 
-> duplicated library overhead (but at least now the duplication is just 
-> twice, not "each process duplicates its own private pointer")
-> 
-> In short, there simply isn't any good alternatives. The end result is that 
-> thread-safe libraries are always in practice thread-safe even on UP, even 
-> though that serializes the CPU altogether unnecessarily.
-> 
-> I'm sure you can make up alternatives every time you hit one _particular_ 
-> library, but that just doesn't scale in the real world.
-> 
-> In contrast, the simple silicon support scales wonderfully well. Suddenly 
-> libraries can be thread-safe _and_ efficient on UP too. You get to eat 
-> your cake and have it too.
+Add 'frsize' member to the statfs reply.
 
-I believe that a hardware solution would also accomodate the case where 
-a program runs unthreaded for most of the processing, and only starts 
-threads to do the final stage "report generation" tasks, where that 
-makes sense. I don't believe that it helps in the case where init uses 
-threads and then reverts to a single thread for the balance of the task. 
-I can't think of anything which does that, so it's probably a 
-non-critical corner case, or something the thread library could correct.
+I'm not sure if sending f_fsid will ever be needed, but just in case
+leave some space at the end of the structure, so less compatibility
+mess would be required.
 
+Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+---
+Index: linux/fs/fuse/inode.c
+===================================================================
+--- linux.orig/fs/fuse/inode.c	2005-11-28 14:01:07.000000000 +0100
++++ linux/fs/fuse/inode.c	2005-11-28 16:45:12.000000000 +0100
+@@ -218,6 +218,7 @@ static void convert_fuse_statfs(struct k
+ {
+ 	stbuf->f_type    = FUSE_SUPER_MAGIC;
+ 	stbuf->f_bsize   = attr->bsize;
++	stbuf->f_frsize  = attr->frsize;
+ 	stbuf->f_blocks  = attr->blocks;
+ 	stbuf->f_bfree   = attr->bfree;
+ 	stbuf->f_bavail  = attr->bavail;
+@@ -238,10 +239,12 @@ static int fuse_statfs(struct super_bloc
+ 	if (!req)
+ 		return -EINTR;
+ 
++	memset(&outarg, 0, sizeof(outarg));
+ 	req->in.numargs = 0;
+ 	req->in.h.opcode = FUSE_STATFS;
+ 	req->out.numargs = 1;
+-	req->out.args[0].size = sizeof(outarg);
++	req->out.args[0].size =
++		fc->minor < 4 ? FUSE_COMPAT_STATFS_SIZE : sizeof(outarg);
+ 	req->out.args[0].value = &outarg;
+ 	request_send(fc, req);
+ 	err = req->out.h.error;
+Index: linux/include/linux/fuse.h
+===================================================================
+--- linux.orig/include/linux/fuse.h	2005-11-28 14:02:09.000000000 +0100
++++ linux/include/linux/fuse.h	2005-11-28 15:25:14.000000000 +0100
+@@ -53,6 +53,9 @@ struct fuse_kstatfs {
+ 	__u64	ffree;
+ 	__u32	bsize;
+ 	__u32	namelen;
++	__u32	frsize;
++	__u32	padding;
++	__u32	spare[6];
+ };
+ 
+ #define FATTR_MODE	(1 << 0)
+@@ -213,6 +216,8 @@ struct fuse_write_out {
+ 	__u32	padding;
+ };
+ 
++#define FUSE_COMPAT_STATFS_SIZE 48
++
+ struct fuse_statfs_out {
+ 	struct fuse_kstatfs st;
+ };

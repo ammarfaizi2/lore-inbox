@@ -1,48 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbVK1VFw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbVK1VHU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751305AbVK1VFw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 16:05:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbVK1VFw
+	id S1751306AbVK1VHU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 16:07:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbVK1VHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 16:05:52 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:46607 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751305AbVK1VFv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 16:05:51 -0500
-Date: Mon, 28 Nov 2005 21:05:44 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Kumar Gala <galak@gate.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org, afleming@gate.crashing.org
-Subject: Re: [DRIVER MODEL] Allow overlapping resources for platform devices
-Message-ID: <20051128210544.GE14557@flint.arm.linux.org.uk>
-Mail-Followup-To: Kumar Gala <galak@gate.crashing.org>,
-	Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-	linux-kernel@vger.kernel.org, afleming@gate.crashing.org
-References: <20051128180555.GB14557@flint.arm.linux.org.uk> <Pine.LNX.4.44.0511281236250.27530-100000@gate.crashing.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0511281236250.27530-100000@gate.crashing.org>
-User-Agent: Mutt/1.4.1i
+	Mon, 28 Nov 2005 16:07:20 -0500
+Received: from adsl-80.mirage.euroweb.hu ([193.226.228.80]:63498 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S1751306AbVK1VHR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 16:07:17 -0500
+To: akpm@osdl.org
+CC: linux-kernel@vger.kernel.org
+In-reply-to: <20051128124007.1feb4473.akpm@osdl.org> (message from Andrew
+	Morton on Mon, 28 Nov 2005 12:40:07 -0800)
+Subject: Re: [PATCH 7/7] fuse: support caching negative dentries
+References: <E1EgosN-0006s3-00@dorka.pomaz.szeredi.hu>
+	<E1EgouE-0006sp-00@dorka.pomaz.szeredi.hu>
+	<E1EgowL-0006tN-00@dorka.pomaz.szeredi.hu>
+	<E1EgoxK-0006tk-00@dorka.pomaz.szeredi.hu>
+	<E1EgoyM-0006uH-00@dorka.pomaz.szeredi.hu>
+	<E1Egozl-0006uy-00@dorka.pomaz.szeredi.hu>
+	<E1Egp0p-0006vL-00@dorka.pomaz.szeredi.hu>
+	<E1Egp20-0006vv-00@dorka.pomaz.szeredi.hu> <20051128124007.1feb4473.akpm@osdl.org>
+Message-Id: <E1EgqD6-0007Cf-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Mon, 28 Nov 2005 22:06:52 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 28, 2005 at 12:40:25PM -0600, Kumar Gala wrote:
-> Well the MDIO device actually is conceptually separate from the ethernet 
-> controller that shares register space with it.  For example, we may have a 
-> processor with 4 ethernet controllers on it.  We use the register set in 
-> controller 1 to get to the MDIO "device" for all four controllers.
+> >
+> > +void fuse_invalidate_attr(struct inode *inode)
+> >  +{
+> >  +	get_fuse_inode(inode)->i_time = jiffies - 1;
+> >  +}
+> >  +
+> >  +static void fuse_invalidate_entry_cache(struct dentry *entry)
+> >  +{
+> >  +	entry->d_time = jiffies - 1;
+> >  +}
+> >  +
 > 
-> Hopefully, Andy can provide further details about order issues and how the 
-> current PHY layer interacts with the ethernet controller.
-> 
-> However, the issue still exists that the MDIO devices registers live 
-> inside another devices register space.
+> I'd normally have a little whine about lack of comments here - pity the
+> poor programmer who is trying to work out why on earth that code is doing
+> that.
 
-Thanks for clearing that up - I see why you need this now.
+Well, I thought it was evident, but it seems not.  I'll add some
+comments.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+> But fuse is pretty much a comment-free zone anyway.
+
+I think most of FUSE is really-really obvious.  The most complex parts
+are in the device handling, which is now quite well commented (thanks
+to your earlier whining :).
+
+> Please don't go near any buses.
+
+Don't worry, I usually go by tram.
+
+Miklos

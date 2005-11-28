@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbVK1UdX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932228AbVK1UkU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932240AbVK1UdX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 15:33:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbVK1UdX
+	id S932228AbVK1UkU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 15:40:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbVK1UkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 15:33:23 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:10216 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S932240AbVK1UdX (ORCPT
+	Mon, 28 Nov 2005 15:40:20 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:32693 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932228AbVK1UkS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 15:33:23 -0500
-Date: Mon, 28 Nov 2005 21:33:07 +0100
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-Subject: Re: s_maxbytes on isofs for 2.4
-Message-ID: <20051128203307.GB17879@apps.cwi.nl>
-References: <200511272123.jARLNeA03057@apps.cwi.nl> <20051128134643.GB25081@logos.cnet>
+	Mon, 28 Nov 2005 15:40:18 -0500
+Date: Mon, 28 Nov 2005 12:40:07 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 7/7] fuse: support caching negative dentries
+Message-Id: <20051128124007.1feb4473.akpm@osdl.org>
+In-Reply-To: <E1Egp20-0006vv-00@dorka.pomaz.szeredi.hu>
+References: <E1EgosN-0006s3-00@dorka.pomaz.szeredi.hu>
+	<E1EgouE-0006sp-00@dorka.pomaz.szeredi.hu>
+	<E1EgowL-0006tN-00@dorka.pomaz.szeredi.hu>
+	<E1EgoxK-0006tk-00@dorka.pomaz.szeredi.hu>
+	<E1EgoyM-0006uH-00@dorka.pomaz.szeredi.hu>
+	<E1Egozl-0006uy-00@dorka.pomaz.szeredi.hu>
+	<E1Egp0p-0006vL-00@dorka.pomaz.szeredi.hu>
+	<E1Egp20-0006vv-00@dorka.pomaz.szeredi.hu>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051128134643.GB25081@logos.cnet>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 28, 2005 at 11:46:43AM -0200, Marcelo Tosatti wrote:
+Miklos Szeredi <miklos@szeredi.hu> wrote:
+>
+> +void fuse_invalidate_attr(struct inode *inode)
+>  +{
+>  +	get_fuse_inode(inode)->i_time = jiffies - 1;
+>  +}
+>  +
+>  +static void fuse_invalidate_entry_cache(struct dentry *entry)
+>  +{
+>  +	entry->d_time = jiffies - 1;
+>  +}
+>  +
 
-> > I got a problem report on the handling of large (2.4GB) files
-> > with isofs, where 2.6 was fine and 2.4 failed. Replied
-> > 
-> > >I suspect that the difference between 2.4 and 2.6 is the assignment
-> > >       s->s_maxbytes = 0xffffffff;
-> > >in isofs/inode.c. Could you try to add that after
-> > >       s->s_magic = ISOFS_SUPER_MAGIC;
-> > >in the 2.4 source?
-> > 
-> > and got the confirmation that that solves the problems.
-> > Maybe one should consider adding this in 2.4.
-> 
-> I can't spot any issues with files upto 4GB.
-> Who was the reporter?
+I'd normally have a little whine about lack of comments here - pity the
+poor programmer who is trying to work out why on earth that code is doing
+that.
 
-Giulio Orsero <giulioo \x40 pobox \x2e com>
+But fuse is pretty much a comment-free zone anyway.  Please don't go near
+any buses.  

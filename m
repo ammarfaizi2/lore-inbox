@@ -1,174 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750792AbVK1CnG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750902AbVK1C7W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750792AbVK1CnG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 21:43:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbVK1CnG
+	id S1750902AbVK1C7W (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 21:59:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750909AbVK1C7W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 21:43:06 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:42160 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750792AbVK1CnE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 21:43:04 -0500
-Date: Sun, 27 Nov 2005 18:43:01 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: Andrew Morton <akpm@osdl.org>, Keith Owens <kaos@sgi.com>, ak@suse.de,
-       sekharan@us.ibm.com, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net, Douglas_Warzecha@dell.com,
-       Abhay_Salunke@dell.com, achim_leubner@adaptec.com,
-       dmp@davidmpye.dyndns.org
-Subject: Re: [Lse-tech] Re: [PATCH 0/7]: Fix for unsafe notifier chain
-Message-ID: <20051128024301.GA8651@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20051127172725.GJ20775@brahms.suse.de> <24158.1133113176@ocs3.ocs.com.au> <20051127115640.3073f8e3.akpm@osdl.org> <20051127220329.GA17786@kroah.com>
+	Sun, 27 Nov 2005 21:59:22 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:13721 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750847AbVK1C7W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Nov 2005 21:59:22 -0500
+Subject: Re: 2.6.15-rc2-git6 + ipw2200 1.0.8 -- Slab corruption
+From: Zhu Yi <yi.zhu@intel.com>
+To: Miles Lane <miles.lane@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       "James P. Ketrenos" <ipw2100-admin@linux.intel.com>
+In-Reply-To: <a44ae5cd0511262325p43ba1fcbxfea0ac698824403d@mail.gmail.com>
+References: <a44ae5cd0511262325p43ba1fcbxfea0ac698824403d@mail.gmail.com>
+Content-Type: text/plain
+Organization: Intel Corp.
+Date: Mon, 28 Nov 2005 10:44:15 +0800
+Message-Id: <1133145856.11161.18.camel@debian.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051127220329.GA17786@kroah.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 27, 2005 at 02:03:29PM -0800, Greg KH wrote:
-> On Sun, Nov 27, 2005 at 11:56:40AM -0800, Andrew Morton wrote:
-> > We're saying that kernel/sys.c:notifier_lock should be removed and that all
-> > callers of notifier_chain_register(), notifier_chain_unregister() and
-> > notifier_call_chain() should be changed to define and use their own lock.
-> > 
-> > So the _callers_ get to decide whether they're going to use down(),
-> > spin_lock(), down_read(), read_lock(), preempt_disable(), local_irq_disable()
-> > or whatever.
-> 
-> I completely agree.  I just watched in mute horror as Chandra and Alan
-> spun off into the rcu blackhole trying to create one-size-fits-all
-> notifiers.
+On Sat, 2005-11-26 at 23:25 -0800, Miles Lane wrote:
+> [4295910.815000] ipw2200: Firmware error detected.  Restarting.
+> [4295910.815000] ipw2200: Sysfs 'error' log captured.
+> [4295938.038000] Slab corruption: start=ed68ebf8, len=2048
+> [4295938.038000] Redzone: 0x5a2cf071/0x3c07fbbe.
+> [4295938.038000] Last user: [<52065000>](0x52065000)
+> [4295938.038000] 760: 8c 00 00 00 76 fb 07 3c 92 03 00 00 88 00 00 00
+> [4295938.039000] 770: 7f fb 07 3c 01 00 00 00 8a 00 00 00 82 fb 07 3c
+> [4295938.039000] 780: 9c 02 00 00 8a 00 00 00 88 fb 07 3c 01 02 00 00
+> [4295938.039000] 790: 54 00 00 00 8c fb 07 3c 77 01 00 00 51 00 00 00
+> [4295938.039000] 7a0: 98 fb 07 3c 07 00 00 00 52 00 00 00 9b fb 07 3c
+> [4295938.039000] 7b0: 05 00 00 00 53 00 00 00 9e fb 07 3c 05 00 00 00
+> [4295938.039000] Prev obj: start=ed68e3ec, len=2048
+> [4295938.039000] Redzone: 0x170fc2a5/0x170fc2a5.
+> [4295938.039000] Last user:
+> [<f92a40a6>](ipw_alloc_error_log+0x114/0x208 [ipw2200])
+> [4295938.039000] 000: 9f 65 0e 00 e0 00 00 80 46 03 00 00 05 00 00 00
+> [4295938.039000] 010: 80 00 00 00 08 e4 68 ed 58 f3 68 ed 06 00 00 00
+> [4295938.039000] Next obj: start=ed68f404, len=2048
+> [4295938.039000] Redzone: 0x8b/0x170fc2a5.
+> [4295938.039000] Last user: [<c02835ae>](tty_write+0xf6/0x21e)
+> [4295938.039000] 000: c3 fb 07 3c 62 00 00 00 20 00 00 00 06 fc 07 3c
+> [4295938.039000] 010: 08 00 00 00 23 00 00 00 11 fc 07 3c 06 00 00 00
+> [4295938.039000] slab error in cache_alloc_debugcheck_after(): cache
+> `size-2048': double free, or memory outside object was overwritten
+> [4295938.039000]  [<c0103f06>] dump_stack+0x1e/0x20
+> [4295938.039000]  [<c014bc9d>] __slab_error+0x2f/0x31
+> [4295938.039000]  [<c014df78>] cache_alloc_debugcheck_after+0xe2/0x159
+> [4295938.039000]  [<c014e432>] __kmalloc+0xae/0xfe
+> [4295938.039000]  [<c030385c>] __alloc_skb+0x52/0x153
+> [4295938.039000]  [<c03022e5>] sock_alloc_send_pskb+0xfb/0x229
+> [4295938.039000]  [<c0302441>] sock_alloc_send_skb+0x2e/0x30
+> [4295938.039000]  [<c03649ef>] unix_stream_sendmsg+0x1ed/0x3e0
+> [4295938.039000]  [<c02ff0dc>] sock_aio_write+0xeb/0x12a
+> [4295938.039000]  [<c0164421>] do_sync_write+0xae/0xfd
+> [4295938.039000]  [<c0164604>] vfs_write+0x194/0x19b
+> [4295938.039000]  [<c01646c0>] sys_write+0x47/0x6e
+> [4295938.039000]  [<c010304b>] sysenter_past_esp+0x54/0x75
+> [4295938.039000] ed68ebf4: redzone 1: 0x5a2cf071, redzone 2: 0x3c07fbbe.
 
-RCU as blackhole?  I am impressed -- even -I- don't find RCU to have the
-same limiting-case attraction that a black hole does.  ;-)
+It has been fixed in the ipw2200 driver comes with 2.6.15-rc2. If you
+use 1.0.8 driver, you need to apply this patch.
+http://bughost.org/bugzilla/show_bug.cgi?id=821
 
-(My apologies, Greg, but you did leave yourself open for this!)
+Thanks,
+-yi
 
-> Making the user do the locking it needs to do is simple and sane.
-> 
-> And the reason USB's notifiers are implemented correctly, is they don't
-> use the notifier core, but rather, reimplemented their own, due to the
-> locking mess.
-
-The locking mess is due to the fact that the notifier chain itself
-must be protected by something or another, right?  Here are the options
-I have come across:
-
-1.	The notifier chain is guarded by a separate notifier-chain lock.
-	We then have the following deadlock situation:
-
-	o	The subsystem requesting the notifier likely has
-		to hold one of its own locks when registering and
-		unregistering, which means that the notifier lock
-		must be subordinate to the subsystem lock.
-
-	o	But when invoking the notifiers, the notifier lock
-		must be held while walking the chain.  Since the
-		subsystem being notified likely has to acquire one
-		of its own locks, the subsystem lock must be subordinate
-		to the notifier lock.
-
-	There are a number of ways of breaking this deadlock, some of
-	which are listed below.  Note that this deadlock situation can
-	arise both for spinlocks and for sleeplocks.
-
-	I believe that this deadlock situation is the core reason why
-	notifier locking is so difficult to get right.
-
-	Even ignoring the deadlock, this does not work for NMIs.
-
-2.	Each element of the notifier chain is guarded by reference
-	counts, and the chain itself is guarded by a lock.  Each
-	element of the chain holds a reference to the next element
-	in the chain, and new elements are always added to the end
-	of the chain.  The traversal code looks something like the
-	following:
-
-	spin_lock(&chain_lock);
-	p = head;
-	atomic_inc(&p->refcnt);
-	while (p != NULL) {
-		spin_unlock(&chain_lock);
-		p->func(p->arg);
-		spin_lock(&chain_lock);
-		q = p->next;
-		atomic_inc(&q->refcnt);
-		if (atomic_dec_and_test(&p->refcnt)) {
-			kfree(p);
-		}
-		p = q;
-	}
-	spin_unlock(&chain_lock);
-
-	Note that all actual deletion is done under chain_lock.
-
-	This works (I think...), and the subsystem code can use a
-	single lock that the notifier lock (chain_lock in this case)
-	is subordinate to.  But the notifier traversal loop is quite
-	heavyweight.  And it cannot be invoked from NMI handlers without
-	risk of self-deadlock.
-
-3.	Like #1, but require that the subsystem have at least two locks,
-	one of which is subordinate to the notifier lock (and is acquired
-	from the notifier callback function), and the other of which is
-	superior to the notifier lock, and is held when registering and
-	deregistering callbacks.  This can work, but could significantly
-	complicate the subsystem locking, and also will require that some
-	operations acquire two locks instead of just one, since one must
-	hold both to exclude both notifications and register/unregister
-	operations.
-
-	This approach also fails to handle notifications from NMIs.
-
-4.	"Just say no" to a separate notifier-chain lock, and guard
-	the hole thing with whatever mechanism the subsystem
-	deems appropriate.  This can be made to work with NMI-based
-	notification, since such subsystems can use RCU or whatever
-	other lock-free mechanism they desire.
-
-	I believe that Greg took this "just say no" approach in USB,
-	but could easily be missing something.
-
-	This works with minimal added complexity to the subsystem,
-	but requires that each subsystem have its own notifier
-	chain, since it does not make sense to have a single chain
-	guarded by multiple locks.  But it means that notifier
-	code must be replicated in a number of subsystems, which
-	seems sub-optimal.
-
-	This might be the best we can do, but in the interest of
-	completeness...
-
-5.	Use RCU to traverse the notifier chain and use simple locking
-	to guard updates, similar to Alan's and Chandra's patch.
-	This avoids the deadlock, and handles NMIs nicely, but does
-	not tolerate synchronous notification callbacks that sleep.
-	(Cases that can tolerate asynchronous notification can make use
-	of workqueues or similar mechanisms to defer the sleeping code
-	so that it is not executed in the scope of the rcu_read_lock()
-	protecting the notifier-chain traversal.)
-
-6.	Have separate mechanisms for the non-sleeping and the synchronous
-	sleeping cases.  For example, #5 for non-sleeping and either #2,
-	#3, or #4 for the synchronous sleeping case.
-
-	This works in all cases, and achieves a high degree of code
-	commonality, but does require two separate APIs.
-
-7.	Use wait-free synchronization everywhere.  This has some issues
-	with complexity, last I checked.
-
-8.	Come up with a safe and sane RCU implementation that tolerates
-	general blocking in read-side critical sections.  Note that
-	although some realtime implementations of RCU do tolerate
-	blocking, they do so only in the special case that priority
-	inheritance applies to.  Might happen,
-	but I would not recommend holding your breath.
-
-Any options I missed?
-
-							Thanx, Paul

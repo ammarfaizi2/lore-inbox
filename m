@@ -1,74 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbVK1HPz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbVK1HzJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932110AbVK1HPz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 02:15:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbVK1HPz
+	id S932118AbVK1HzJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 02:55:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbVK1HzJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 02:15:55 -0500
-Received: from hummeroutlaws.com ([12.161.0.3]:33553 "EHLO atpro.com")
-	by vger.kernel.org with ESMTP id S932110AbVK1HPy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 02:15:54 -0500
-From: "Jim Crilly" <jim@why.dont.jablowme.net>
-Date: Mon, 28 Nov 2005 02:15:35 -0500
-To: Patrick McFarland <diablod3@gmail.com>
-Cc: Mark Knecht <markknecht@gmail.com>, gcoady@gmail.com,
-       Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-Subject: Re: umount
-Message-ID: <20051128071535.GB3638@voodoo>
-Mail-Followup-To: Patrick McFarland <diablod3@gmail.com>,
-	Mark Knecht <markknecht@gmail.com>, gcoady@gmail.com,
-	Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-References: <200511272154.jARLsBb11446@apps.cwi.nl> <jdkko1hs90ffvqru9v354vrubggcdrnhhj@4ax.com> <5bdc1c8b0511271742y75306962h67193b8a0191841d@mail.gmail.com> <200511272101.07771.diablod3@gmail.com>
-MIME-Version: 1.0
+	Mon, 28 Nov 2005 02:55:09 -0500
+Received: from moutng.kundenserver.de ([212.227.126.171]:24315 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932118AbVK1HzH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 02:55:07 -0500
+Date: Mon, 28 Nov 2005 08:55:05 +0100
+From: Juergen Quade <quade@hsnr.de>
+To: Mohamed El Dawy <msdawy@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: What's wrong with this really simple function?
+Message-ID: <20051128075505.GA7945@hsnr.de>
+References: <afd776760511271057l5e3c4e3fq14b0b9ba4cdc7c9a@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200511272101.07771.diablod3@gmail.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <afd776760511271057l5e3c4e3fq14b0b9ba4cdc7c9a@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:62881f34614f951289f18c8df869d6ac
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/27/05 09:01:07PM -0500, Patrick McFarland wrote:
-> On Sunday 27 November 2005 20:42, Mark Knecht wrote:
-> > On 11/27/05, Grant Coady <grant_lkml@dodo.com.au> wrote:
-> > > It leaves me with a little distrust of linux' handling of non-locked
-> > > removable media (as opposed to lockable media like a zipdisk or cdrom).
-> > >
-> > > Grant.
-> >
-> > Under Windows, if a 1394 drive is unplugged without unmounting, it you
-> > get a pop up dialog on screen telling you that data may be lost, etc.
-> > while under any of the main environments I've tried under Linux
-> > (Gnome, KDE, fluxbox) there are no such messages to the user. I have
-> > not investigated log files very deeply, other than to say that dmesg
-> > will show the drive going away but doesn't say it was a problem.
-> >
-> > I realize it's probably 100x more difficult to do this under Linux, at
-> > least at the gui level, but I agree with your main point that my trust
-> > factor is just a bit lower here.
+On Sun, Nov 27, 2005 at 12:57:47PM -0600, Mohamed El Dawy wrote:
+> Hi,
+>  I have created this 5-liner system call, which basically opens a
+> file, write "Hello World" to it, and then returns. That's all.
 > 
-> No, WIndows says that because it is unable to mount a partition as sync, 
-> unlike Linux. Linux Desktop Environments simply don't tell the user because 
-> no data is lost if they unplug the media.
+> Now, when I actually call it, it creates the file successfully but
+> writes nothing to it. The file is created and is only zero bytes. So,
+> either write didn't write, or close didn't close. Any help would be
+> greatly appreciated.
+> ...
 
-Both of those statements are not true. At least in XP removable media is
-mounted sync by default, you have to go into the device manager and toggle
-a radio button to "optimize for performance" before it'll do async writes.
-I think the setting was the opposite in Win2K but I can't say for sure.
+The following (module-) code will create and write a file from
+inside a kernel. Ok -- you know -- you should not use it
+without really good reasons ...
 
-And even with sync writes it's possible to unplug the drive before the
-write completes and if the drive is powered by USB there's no way to know
-just how much data made it to disk. Ideally the kernel would emit some
-message so that HAL or something can catch it and popup a message or
-something.
+          Juergen.
 
-> 
-> -- 
-> Patrick "Diablo-D3" McFarland || diablod3@gmail.com
-> "Computer games don't affect kids; I mean if Pac-Man affected us as kids,
-> we'd all be running around in darkened rooms, munching magic pills and
-> listening to repetitive electronic music." -- Kristian Wilson, Nintendo,
-> Inc, 1989
->
+#include <linux/module.h>
+#include <linux/moduleparam.h>
+#include <linux/fs.h>
+#include <asm/uaccess.h>
 
-Jim.
+static char filename[255];
+module_param_string( filename, filename, sizeof(filename), 666 );
+struct file *log_file;
+
+static int __init mod_init(void)
+{
+	mm_segment_t oldfs;
+
+	if( filename[0]=='\0' )
+		strncpy( filename, "/tmp/kernel_file", sizeof(filename) );
+	printk("opening filename: %s\n", filename);
+	log_file = filp_open( filename, O_WRONLY | O_CREAT, 0644 );
+	printk("log_file: %p\n", log_file );
+	if( IS_ERR( log_file ) )
+		return -EIO;
+
+	oldfs = get_fs();
+	set_fs( KERNEL_DS );
+	vfs_write( log_file, "hallo\n", 6, &log_file->f_pos );
+	set_fs( oldfs );
+	filp_close( log_file, NULL );
+	return 0;
+}
+
+static void __exit mod_exit(void)
+{
+}
+module_init( mod_init );
+module_exit( mod_exit );
+MODULE_LICENSE("GPL");
+/* vim:set ts=4 sw=4 ic aw: */

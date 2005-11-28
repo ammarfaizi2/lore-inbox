@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751274AbVK1R0R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbVK1Rk1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751274AbVK1R0R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 12:26:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbVK1R0R
+	id S932135AbVK1Rk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 12:40:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbVK1Rk1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 12:26:17 -0500
-Received: from teetot.devrandom.net ([66.35.250.243]:5543 "EHLO
-	teetot.devrandom.net") by vger.kernel.org with ESMTP
-	id S1750719AbVK1R0Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 12:26:16 -0500
-Date: Mon, 28 Nov 2005 09:30:40 -0800
-From: thockin@hockin.org
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@elte.hu>, john stultz <johnstul@us.ibm.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RT] read_tsc: ACK! TSC went backward! Unsynced TSCs?
-Message-ID: <20051128173040.GA32547@hockin.org>
-References: <1133179554.11491.3.camel@localhost.localdomain>
+	Mon, 28 Nov 2005 12:40:27 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:5804 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751262AbVK1Rk0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 12:40:26 -0500
+Date: Mon, 28 Nov 2005 23:12:03 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Allow lockless traversal of notifier lists
+Message-ID: <20051128174203.GB4359@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20051128133757.GQ20775@brahms.suse.de> <20051128160129.GA8478@in.ibm.com> <20051128160547.GA20775@brahms.suse.de> <20051128161747.GA4359@in.ibm.com> <20051128162709.GC20775@brahms.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1133179554.11491.3.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20051128162709.GC20775@brahms.suse.de>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 28, 2005 at 07:05:54AM -0500, Steven Rostedt wrote:
-> With -rt20 on the AMD64 x2, I'm getting a crap load of these:
+On Mon, Nov 28, 2005 at 05:27:09PM +0100, Andi Kleen wrote:
+> On Mon, Nov 28, 2005 at 09:47:47PM +0530, Dipankar Sarma wrote:
+> > On Mon, Nov 28, 2005 at 05:05:47PM +0100, Andi Kleen wrote:
+> > >   *
+> > >   *	Returns zero on success, or %-ENOENT on failure.
+> > >   */
+> > > @@ -175,6 +181,7 @@
+> > >  
+> > 
+> > There should be an smp_read_barrier_depends() here for the first
+> > dereferencing of the notifier block head, I think.
 > 
-> read_tsc: ACK! TSC went backward! Unsynced TSCs?
+> Why? The one at the top of the block should be enough, shouldn' it?
 > 
-> So bad that the system wont even boot (at least I won't wait long enough
-> to let it finish).
 
-The kernel's use of TSC is wholly incorrect.  TSCs can ramp up and down
-and *do* vary between nodes as well as between cores within a node.  You
-really can not compare TSCs between cpu cores at all, as is (and the
-kernel assumes 1 global TSC in at least a few places).
+Don't we insert at the front of the list ? Shouldn't the read-side
+on alpha see the contents of the new notifier block before it sees
+the pointer to the first notifier block in the list head ?
 
-If you have any sort of power-management enabled on a k8 (including 'hlt'
-C1 state), you *will* get hosed.
-
-We got into a situation where 1 CPU had somehow lagged behind the other
-because it was idle for a while.  Suddenly gettimeofday() was only giving
-me HZ granularity.  Successive reads would get the exact same timeval, as
-much as 1 ms later.
-
-What happened was the last_tsc was set to the higher-TSC CPU.  The
-gettimeofday code for TSC was running on the lower-TSC CPU.  The code
-recognized that current tsc < last tsc and set current = last.  As long as
-I was running on the laggy CPU, time stood still for bursts. Then if I
-bounced CPUs it would shoot forward.
-
-Switching to HPET for timing made it all go away, but (at least as of
-2.6.11) it was horribly broken.
-
-Tim
+Thanks
+Dipankar

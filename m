@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbVK1FFS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751238AbVK1FOH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750763AbVK1FFS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 00:05:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbVK1FFS
+	id S1751238AbVK1FOH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 00:14:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbVK1FOH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 00:05:18 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:47834 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750763AbVK1FFQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 00:05:16 -0500
-Date: Sun, 27 Nov 2005 21:05:22 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, greg@kroah.com, kaos@sgi.com,
-       sekharan@us.ibm.com, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net, Douglas_Warzecha@dell.com,
-       Abhay_Salunke@dell.com, achim_leubner@adaptec.com,
-       dmp@davidmpye.dyndns.org
-Subject: Re: [Lse-tech] Re: [PATCH 0/7]: Fix for unsafe notifier chain
-Message-ID: <20051128050522.GD8651@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20051127172725.GJ20775@brahms.suse.de> <24158.1133113176@ocs3.ocs.com.au> <20051127115640.3073f8e3.akpm@osdl.org> <20051127220329.GA17786@kroah.com> <20051128024301.GA8651@us.ibm.com> <20051127205745.78b565ec.akpm@osdl.org> <20051128045922.GK20775@brahms.suse.de>
+	Mon, 28 Nov 2005 00:14:07 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:19169 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751238AbVK1FOG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 00:14:06 -0500
+Date: Mon, 28 Nov 2005 10:41:25 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Folkert van Heusden <folkert@vanheusden.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: capturing oopses
+Message-ID: <20051128051124.GA3849@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <20051122130754.GL32512@vanheusden.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051128045922.GK20775@brahms.suse.de>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20051122130754.GL32512@vanheusden.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 28, 2005 at 05:59:22AM +0100, Andi Kleen wrote:
-> On Sun, Nov 27, 2005 at 08:57:45PM -0800, Andrew Morton wrote:
-> > "Paul E. McKenney" <paulmck@us.ibm.com> wrote:
-> > >
-> > > Any options I missed?
-> > 
-> > Stop using the notifier chains from NMI context - it's too hard.  Use a
-> > fixed-size array in the NMI code instead.
-> 
-> Or just don't unregister. That is what I did for the debug notifiers.
+On Tue, Nov 22, 2005 at 02:07:54PM +0100, Folkert van Heusden wrote:
 
-So the thought is to replicate the notifier code in all non-NMI subsystems
-that require it?
+> the stacktrace. The crash dump patches mentioned in oops-tracing.txt all
+> don't work for 2.6.14 it seems. So: what should I do? Get my digicam and
 
-							Thanx, Paul
+could you try kdump (Documentation/kdump/kdump.txt) to capture the crash 
+dump. It is part of mainline kernel atleast for i386 architecture. It 
+should work for 2.6.14 also.
+
+Thanks
+Maneesh
+
+-- 
+Maneesh Soni
+Linux Technology Center, 
+IBM India Software Labs,
+Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-25044990

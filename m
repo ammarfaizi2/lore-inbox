@@ -1,72 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbVK1X1p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbVK1XaG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932281AbVK1X1p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 18:27:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbVK1X1p
+	id S932284AbVK1XaG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 18:30:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbVK1XaG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 18:27:45 -0500
-Received: from fmr13.intel.com ([192.55.52.67]:15320 "EHLO
-	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
-	id S932281AbVK1X1o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 18:27:44 -0500
-Subject: trival patch: disable interrupt in play_dead
-From: Shaohua Li <shaohua.li@intel.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: "Raj, Ashok" <ashok.raj@intel.com>, akpm <akpm@osdl.org>, ak <ak@muc.de>
-Content-Type: text/plain
-Date: Mon, 28 Nov 2005 22:48:16 -0800
-Message-Id: <1133246896.8076.4.camel@linux.site>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Mon, 28 Nov 2005 18:30:06 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:7443 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932284AbVK1XaF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 18:30:05 -0500
+Message-ID: <438B92FB.4060805@vmware.com>
+Date: Mon, 28 Nov 2005 15:30:03 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
+       Bill Davidsen <davidsen@tmr.com>, Linus Torvalds <torvalds@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
+       Gerd Knorr <kraxel@suse.de>, Dave Jones <davej@redhat.com>,
+       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] SMP alternatives
+References: <1132764133.7268.51.camel@localhost.localdomain> <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051123214835.GA24044@nevyn.them.org> <Pine.LNX.4.64.0511231416490.13959@g5.osdl.org> <20051123222056.GA25078@nevyn.them.org> <Pine.LNX.4.64.0511231502250.13959@g5.osdl.org> <438B600C.1050604@tmr.com> <438B827A.2090609@wolfmountaingroup.com> <438B8BF8.4020604@vmware.com> <438B8DC6.8070006@zytor.com>
+In-Reply-To: <438B8DC6.8070006@zytor.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 Nov 2005 23:30:03.0061 (UTC) FILETIME=[A8385E50:01C5F473]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+H. Peter Anvin wrote:
 
-It's physical CPU hotplug now, so disable interrupt in play_dead.
-
-Signed-off-by: Shaohua Li <shaohua.li@intel.com>
----
-
- linux-2.6.14-root/arch/x86_64/kernel/process.c |    5 +++--
- linux-2.6.14-root/include/asm-x86_64/system.h  |    2 ++
- 2 files changed, 5 insertions(+), 2 deletions(-)
-
-diff -puN arch/x86_64/kernel/process.c~cpuhp-disable-interrupt arch/x86_64/kernel/process.c
---- linux-2.6.14/arch/x86_64/kernel/process.c~cpuhp-disable-interrupt	2005-11-28 22:20:28.000000000 -0800
-+++ linux-2.6.14-root/arch/x86_64/kernel/process.c	2005-11-28 22:20:28.000000000 -0800
-@@ -157,7 +157,7 @@ EXPORT_SYMBOL_GPL(cpu_idle_wait);
- DECLARE_PER_CPU(int, cpu_state);
- 
- #include <asm/nmi.h>
--/* We don't actually take CPU down, just spin without interrupts. */
-+/* We halt the CPU with physical CPU hotplug */
- static inline void play_dead(void)
- {
- 	idle_task_exit();
-@@ -166,8 +166,9 @@ static inline void play_dead(void)
- 	/* Ack it */
- 	__get_cpu_var(cpu_state) = CPU_DEAD;
- 
-+	local_irq_disable();
- 	while (1)
--		safe_halt();
-+		halt();
- }
- #else
- static inline void play_dead(void)
-diff -puN include/asm-x86_64/system.h~cpuhp-disable-interrupt include/asm-x86_64/system.h
---- linux-2.6.14/include/asm-x86_64/system.h~cpuhp-disable-interrupt	2005-11-28 22:20:28.000000000 -0800
-+++ linux-2.6.14-root/include/asm-x86_64/system.h	2005-11-28 22:20:28.000000000 -0800
-@@ -315,6 +315,8 @@ static inline unsigned long __cmpxchg(vo
- #define local_irq_enable()	__asm__ __volatile__("sti": : :"memory")
- /* used in the idle loop; sti takes one instruction cycle to complete */
- #define safe_halt()		__asm__ __volatile__("sti; hlt": : :"memory")
-+/* used when interrupts are already enabled or to shutdown the processor */
-+#define halt()			__asm__ __volatile__("hlt": : :"memory")
- 
- #define irqs_disabled()			\
- ({					\
-_
+> Zachary Amsden wrote:
+>
+>>
+>> You need a way to type the lock semantics by memory region, and a 
+>> working hardware solution can not perform as well as a careful 
+>> software solution.  As was pointed out earlier, you can't use memory 
+>> type attributes to infer lock semantics, you must assume them in the 
+>> decoder or implement complex deadlock detection and recovery in silicon.
+>>
+>
+> Sure you can.  You just have to be prepared to take a microop 
+> exception if you speculate incorrectly.
 
 
+I spoke silicon too heavy handedly.  The complexity of the issue 
+disappears if you take an exception, but rewinding state prior to the 
+exception and reissuing is going to be less efficient than getting it 
+right the first time, which is something software can always guarantee.  
+You need to add more hardware for prediction to get it right all the 
+time, and it is not clear the cost of that hardware is justified when 
+software can always do the right thing.
+
+Zach

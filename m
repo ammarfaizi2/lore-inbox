@@ -1,34 +1,50 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750901AbVK0GeY (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sun, 27 Nov 2005 01:34:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750905AbVK0GeX
+	id S1751247AbVK1Hcq (ORCPT <rfc822;ralf@linux-mips.org>);
+	Mon, 28 Nov 2005 02:32:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbVK1Hcq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 01:34:23 -0500
-Received: from 9.Red-83-50-23.dynamicIP.rima-tde.net ([83.50.23.9]:58635 "HELO
-	9.Red-83-50-23.dynamicIP.rima-tde.net") by vger.kernel.org with SMTP
-	id S1750900AbVK0GeX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 01:34:23 -0500
-Date: Sun, 27 Nov 2005 01:39:27 -0500
-From: Dean Collins <petergvyt@brittsabroad.co.uk>
-Reply-To: Dean Collins <petergvyt@brittsabroad.co.uk>
-Message-ID: <200703530060.270184295831@brittsabroad.co.uk>
-To: <linux-kernel@vger.kernel.org>
-Subject: College Guy Show His Dick
+	Mon, 28 Nov 2005 02:32:46 -0500
+Received: from cable66-96.anadolu.kablonet.com.tr ([195.174.66.96]:35601 "EHLO
+	gmx.net") by vger.kernel.org with ESMTP id S1751247AbVK1Hcq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 02:32:46 -0500
+Message-ID: <20051128093256.482CA427A090F8BA@gmx.net>
+From: BiriniBul@gmx.net
+To: linux-kernel@vger.kernel.org
+Subject: Yepyeni_arkadasliklar_icin:)
+Date: 28 Nov 2005 09:32:56 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750901AbVK0GeY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751247AbVK1Hcq@vger.kernel.org>
+
+http://www.birinibul.com/?up=3D213  =20
+=20
+Birinibul.com nedir?
+    =C7al=FD=FEan, kariyerine =F6nem veren ve i=FE hayat=FDn=FDn zorluk=
+lar=FD ile=20
+u=F0ra=FE=FDrken bir sevgiliye zaman ay=FDramayan, yeti=FEkin kad=FDnla=
+r=FD ve erkekleri=20
+bulu=FEturmak i=E7in kurulmu=FE bir sitedir.
+    Birinibul.com'da, e=F0iliminize ve isteklerinize uygun =FCyeleri ar=
+ay=FDp=20
+bulabilir ve onlar ile mesajla=FEabilirsiniz.  =DCye olma s=FDras=FDnda=
+,=20
+ad=FDn=FDz, adresiniz, telefonunuz gibi size =F6zel hi=E7bir bilgiyi ve=
+rmeniz=20
+gerekmiyor. Sadece =F6zelliklerinizi ve arad=FD=F0=FDn=FDz =F6zellikler=
+i girerek 1=20
+dakika i=E7inde siz de bize kat=FDlabilirsiniz.=20
+=20
+http://www.birinibul.com/?up=3D213
 
 
 
-The nearest way to glory is to strive to be what you wish to be thought to be.
-
-http://basonixerae.org/main/
-
-Ambition should be made of sterner stuff.
-A life is like a tree -- if you don't make it straight when its young and green, you'll never do it when it's old and dry.There are four things every person has more of than they know sins, debt, years, and foes.
-
-
-
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

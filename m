@@ -1,38 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbVK1MGM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbVK1MHU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751250AbVK1MGM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 07:06:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbVK1MGL
+	id S1751252AbVK1MHU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 07:07:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbVK1MHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 07:06:11 -0500
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:44736 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751250AbVK1MGK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 07:06:10 -0500
-Subject: [RT] read_tsc: ACK! TSC went backward! Unsynced TSCs?
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Mon, 28 Nov 2005 07:05:54 -0500
-Message-Id: <1133179554.11491.3.camel@localhost.localdomain>
+	Mon, 28 Nov 2005 07:07:20 -0500
+Received: from ns2.suse.de ([195.135.220.15]:34701 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751252AbVK1MHT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 07:07:19 -0500
+Date: Mon, 28 Nov 2005 13:07:11 +0100
+From: Andi Kleen <ak@suse.de>
+To: Keith Owens <kaos@sgi.com>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>, paulmck@us.ibm.com,
+       greg@kroah.com, sekharan@us.ibm.com, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net, Douglas_Warzecha@dell.com,
+       Abhay_Salunke@dell.com, achim_leubner@adaptec.com,
+       dmp@davidmpye.dyndns.org
+Subject: Re: [Lse-tech] Re: [PATCH 0/7]: Fix for unsafe notifier chain
+Message-ID: <20051128120711.GP20775@brahms.suse.de>
+References: <20051128045922.GK20775@brahms.suse.de> <4544.1133166696@ocs3.ocs.com.au>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4544.1133166696@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+On Mon, Nov 28, 2005 at 07:31:36PM +1100, Keith Owens wrote:
+> On Mon, 28 Nov 2005 05:59:22 +0100, 
+> Andi Kleen <ak@suse.de> wrote:
+> >On Sun, Nov 27, 2005 at 08:57:45PM -0800, Andrew Morton wrote:
+> >> "Paul E. McKenney" <paulmck@us.ibm.com> wrote:
+> >> >
+> >> > Any options I missed?
+> >> 
+> >> Stop using the notifier chains from NMI context - it's too hard.  Use a
+> >> fixed-size array in the NMI code instead.
+> >
+> >Or just don't unregister. That is what I did for the debug notifiers.
+> 
+> Unregister is not the only problem.  Chain traversal races with
+> register as well.
 
-With -rt20 on the AMD64 x2, I'm getting a crap load of these:
+Either it follows the old next or the new next. Both are valid.
+The only problem is that there isn't a write barrier between
 
-read_tsc: ACK! TSC went backward! Unsynced TSCs?
+ n->next = *list;
+ *list=n;
 
-So bad that the system wont even boot (at least I won't wait long enough
-to let it finish).
+in notifier_chain_register, which might hit on non i386 architectures. 
 
-config at: http://www.kihontech.com/tests/rt/config
-
--- Steve
-
-
+-Andi

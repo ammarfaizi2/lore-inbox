@@ -1,98 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbVK1WqH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbVK1Wsu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932272AbVK1WqH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 17:46:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbVK1WqH
+	id S932273AbVK1Wsu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 17:48:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932274AbVK1Wsu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 17:46:07 -0500
-Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:16512 "EHLO
-	vger.utah-nac.org") by vger.kernel.org with ESMTP id S932272AbVK1WqF
+	Mon, 28 Nov 2005 17:48:50 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:23256 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932273AbVK1Wst
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 17:46:05 -0500
-Message-ID: <438B827A.2090609@wolfmountaingroup.com>
-Date: Mon, 28 Nov 2005 15:19:38 -0700
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+	Mon, 28 Nov 2005 17:48:49 -0500
+Message-ID: <438B89EE.9080707@tmr.com>
+Date: Mon, 28 Nov 2005 17:51:26 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "H. Peter Anvin" <hpa@zytor.com>, Andi Kleen <ak@suse.de>,
-       Gerd Knorr <kraxel@suse.de>, Dave Jones <davej@redhat.com>,
-       Zachary Amsden <zach@vmware.com>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-References: <1132764133.7268.51.camel@localhost.localdomain> <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051123214835.GA24044@nevyn.them.org> <Pine.LNX.4.64.0511231416490.13959@g5.osdl.org> <20051123222056.GA25078@nevyn.them.org> <Pine.LNX.4.64.0511231502250.13959@g5.osdl.org> <438B600C.1050604@tmr.com>
-In-Reply-To: <438B600C.1050604@tmr.com>
+To: Nick Warne <nick@linicks.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] 1500 days uptime.
+References: <200511242147.45248.nick@linicks.net>
+In-Reply-To: <200511242147.45248.nick@linicks.net>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
+Nick Warne wrote:
+> Hi all,
+> 
+> BrrrrrrrrrrrrBrrrr
+> 
+> That was me blowing my own trumpet again :-)
+> 
+> Re:
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0407.1/0651.html
+> 
+> Now just hit 1500 days:
+> 
+> -
+> [nick@486Linux nick]$ last -xf /var/run/utmp runlevel
+> runlevel (to lvl 3)                    Sun Oct 14 16:07 - 21:41 (1502+06:34)
+> 
+> utmp begins Sun Oct 14 16:07:40 2001
+> -
+> 
+> Utterly remarkable - the box gets no maintenance at all.
 
-> Linus Torvalds wrote:
->
->>
->> On Wed, 23 Nov 2005, Daniel Jacobowitz wrote:
->>
->>> Why should we use a silicon based solution for this, when I posit that
->>> there are simpler and equally effective userspace solutions?
->>
->>
->>
->> Name them.
->>
->> In user space, doing things like clever run-time linking things is 
->> actually horribly bad. It causes COW faults at startup, and/or makes 
->> the compiler have to do indirections unnecessarily. Both of which 
->> actually make caches less effective, because now processes that 
->> really effectively do have exactly the same contents have them in 
->> different pages.
->>
->> The other alternative (which apparently glibc actually does use) is 
->> to dynamically branch over the lock prefixes, which actually works 
->> better: it's more work dynamically, but it's much cheaper from a 
->> startup standpoint and there's no memory duplication, so while it is 
->> the "stupid" approach, it's actually better than the clever one.
->>
->> The third alternative is to know at link-time that the process never 
->> does anything threaded, but that needs more developer attention and 
->> non-standard setups, and you _will_ get it wrong (some library will 
->> create some thread without the developer even realizing). It also has 
->> the duplicated library overhead (but at least now the duplication is 
->> just twice, not "each process duplicates its own private pointer")
->>
->> In short, there simply isn't any good alternatives. The end result is 
->> that thread-safe libraries are always in practice thread-safe even on 
->> UP, even though that serializes the CPU altogether unnecessarily.
->>
->> I'm sure you can make up alternatives every time you hit one 
->> _particular_ library, but that just doesn't scale in the real world.
->>
->> In contrast, the simple silicon support scales wonderfully well. 
->> Suddenly libraries can be thread-safe _and_ efficient on UP too. You 
->> get to eat your cake and have it too.
->
->
-> I believe that a hardware solution would also accomodate the case 
-> where a program runs unthreaded for most of the processing, and only 
-> starts threads to do the final stage "report generation" tasks, where 
-> that makes sense. I don't believe that it helps in the case where init 
-> uses threads and then reverts to a single thread for the balance of 
-> the task. I can't think of anything which does that, so it's probably 
-> a non-critical corner case, or something the thread library could 
-> correct.
->
->
-In 2-3 years we might actually see the hardware solution, maybee .... I 
-am skeptical Intel will move quickly on it. A software solution will get 
-out faster.
+But it clearly gets a very reliable flavor of electricity...
+> 
+> I would love to know how much data it has delivered, but alas, in 2001 I 
+> wasn't up-to-speed with that sort of thing :-)
 
-Jeff
+We got one to 1460 or so, then got BSOD on the controller which switches 
+from the UPS to the diesel when they get up to speed, dropped power on 
+the whole data center (at work).
+
+I ran one at home from the night 1.2.13 was released (or two days after 
+when a patch came out) until the afternoon before Y2K, when I decided I 
+didn't want to have that system to check at midnight. It was an 8MB 
+386SX-16 named "glacial" for its performance rather than because it was 
+cool ;-) But it did DNS nicely, which was all I could ask.
+
+I think you have the record, though.
+> 
+> Nick
+
+
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

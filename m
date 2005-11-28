@@ -1,44 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751209AbVK1IcE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751258AbVK1IyN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751209AbVK1IcE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 03:32:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751243AbVK1IcE
+	id S1751258AbVK1IyN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 03:54:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbVK1IyN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 03:32:04 -0500
-Received: from mail.ocs.com.au ([202.147.117.210]:51907 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S1751209AbVK1IcD (ORCPT
+	Mon, 28 Nov 2005 03:54:13 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:16549 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S1751258AbVK1IyM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 03:32:03 -0500
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
-From: Keith Owens <kaos@sgi.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, paulmck@us.ibm.com, greg@kroah.com,
-       sekharan@us.ibm.com, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net, Douglas_Warzecha@dell.com,
-       Abhay_Salunke@dell.com, achim_leubner@adaptec.com,
-       dmp@davidmpye.dyndns.org
-Subject: Re: [Lse-tech] Re: [PATCH 0/7]: Fix for unsafe notifier chain 
-In-reply-to: Your message of "Mon, 28 Nov 2005 05:59:22 BST."
-             <20051128045922.GK20775@brahms.suse.de> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 28 Nov 2005 19:31:36 +1100
-Message-ID: <4544.1133166696@ocs3.ocs.com.au>
+	Mon, 28 Nov 2005 03:54:12 -0500
+From: Pierre Ossman <drzeus@drzeus.cx>
+Subject: [PATCH] [MMC] Fix protocol errors
+Date: Mon, 28 Nov 2005 09:54:04 +0100
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>
+To: rmk+lkml@arm.linux.org.uk
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <20051128085404.4852.40271.stgit@poseidon.drzeus.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Nov 2005 05:59:22 +0100, 
-Andi Kleen <ak@suse.de> wrote:
->On Sun, Nov 27, 2005 at 08:57:45PM -0800, Andrew Morton wrote:
->> "Paul E. McKenney" <paulmck@us.ibm.com> wrote:
->> >
->> > Any options I missed?
->> 
->> Stop using the notifier chains from NMI context - it's too hard.  Use a
->> fixed-size array in the NMI code instead.
->
->Or just don't unregister. That is what I did for the debug notifiers.
+A review against MMC/SD specifications found some errors in the current
+implementation.
 
-Unregister is not the only problem.  Chain traversal races with
-register as well.
+Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
+---
+
+ drivers/mmc/mmc.c            |    2 +-
+ include/linux/mmc/protocol.h |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/mmc/mmc.c b/drivers/mmc/mmc.c
+index fa6835f..8c47100 100644
+--- a/drivers/mmc/mmc.c
++++ b/drivers/mmc/mmc.c
+@@ -816,7 +816,7 @@ static void mmc_discover_cards(struct mm
+ 
+ 			cmd.opcode = SD_SEND_RELATIVE_ADDR;
+ 			cmd.arg = 0;
+-			cmd.flags = MMC_RSP_R1;
++			cmd.flags = MMC_RSP_R6;
+ 
+ 			err = mmc_wait_for_cmd(host, &cmd, CMD_RETRIES);
+ 			if (err != MMC_ERR_NONE)
+diff --git a/include/linux/mmc/protocol.h b/include/linux/mmc/protocol.h
+index 06355fa..c359a8e 100644
+--- a/include/linux/mmc/protocol.h
++++ b/include/linux/mmc/protocol.h
+@@ -63,7 +63,7 @@
+   /* class 5 */
+ #define MMC_ERASE_GROUP_START    35   /* ac   [31:0] data addr   R1  */
+ #define MMC_ERASE_GROUP_END      36   /* ac   [31:0] data addr   R1  */
+-#define MMC_ERASE                37   /* ac                      R1b */
++#define MMC_ERASE                38   /* ac                      R1b */
+ 
+   /* class 9 */
+ #define MMC_FAST_IO              39   /* ac   <Complex>          R4  */
+@@ -74,7 +74,7 @@
+ 
+   /* class 8 */
+ #define MMC_APP_CMD              55   /* ac   [31:16] RCA        R1  */
+-#define MMC_GEN_CMD              56   /* adtc [0] RD/WR          R1b */
++#define MMC_GEN_CMD              56   /* adtc [0] RD/WR          R1  */
+ 
+ /* SD commands                           type  argument     response */
+   /* class 8 */
 

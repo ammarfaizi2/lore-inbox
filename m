@@ -1,88 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbVK1Nqn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbVK1NyI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932100AbVK1Nqn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 08:46:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932103AbVK1Nqn
+	id S932104AbVK1NyI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 08:54:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbVK1NyH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 08:46:43 -0500
-Received: from hera.kernel.org ([140.211.167.34]:2771 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932100AbVK1Nqn (ORCPT
+	Mon, 28 Nov 2005 08:54:07 -0500
+Received: from attila.bofh.it ([213.92.8.2]:37836 "EHLO attila.bofh.it")
+	by vger.kernel.org with ESMTP id S932104AbVK1NyG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 08:46:43 -0500
-Date: Mon, 28 Nov 2005 06:04:46 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Jan Kasprzak <kas@fi.muni.cz>
-Cc: Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au,
-       linux-kernel@vger.kernel.org, bharata@in.ibm.com
-Subject: Re: 2.6.14 kswapd eating too much CPU
-Message-ID: <20051128080446.GA23516@logos.cnet>
-References: <20051123131417.GH24091@fi.muni.cz> <20051123110241.528a0b37.akpm@osdl.org> <20051123202438.GE28142@fi.muni.cz> <20051123123531.470fc804.akpm@osdl.org> <20051124083141.GJ28142@fi.muni.cz> <20051127084231.GC20701@logos.cnet> <20051127203924.GE27805@fi.muni.cz> <20051127160207.GE21383@logos.cnet> <20051127152108.11f58f9c.akpm@osdl.org> <20051128131648.GG19307@fi.muni.cz>
-Mime-Version: 1.0
+	Mon, 28 Nov 2005 08:54:06 -0500
+Date: Mon, 28 Nov 2005 14:52:54 +0100
+To: linux-kernel@vger.kernel.org
+Cc: video4linux-list@redhat.com
+Subject: saa7134 broken in 2.6.15-rc2
+Message-ID: <20051128135254.GA4218@wonderland.linux.it>
+Reply-To: linux-kernel@vger.kernel.org, video4linux-list@redhat.com,
+       md@linux.it
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051128131648.GG19307@fi.muni.cz>
-User-Agent: Mutt/1.5.5.1i
+User-Agent: Mutt/1.5.11
+From: md@linux.it (Marco d'Itri)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[I am not subscribed anymore to the v4l list, please Cc me.]
 
-On Mon, Nov 28, 2005 at 02:16:48PM +0100, Jan Kasprzak wrote:
-> Andrew Morton wrote:
-> : Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
-> : >
-> : > It does seem to scan SLABs intensively:
-> : >
-> : It might be worth trying the below.  Mainly for the debugging check.
-> : 
-> 	I have compiled a new kernel - 2.6.15-rc2 with the patch you
-> recommended and with the slab statistics patch Marcelo mentioned.
-> I have add the oprofile support, but apart from that it is the same
-> kernel. It seems that the kswapd system time peaks has disappeared,
-> or at least they are much lower - kswapd0 has eaten ~3 minutes from
-> 11 hours of uptime (in one of my previous mails I found that it used
-> to be 117 minutes after ~10 hours of uptime). On my MRTG graphs
-> at http://www.linux.cz/stats/mrtg-rrd/cpu.html some _small_ peaks
-> can be seen at 15 minutes after every odd-numbered hour. I have booted
-> this kernel around 2am local time.
-> 
-> 	I have no unusual error messages in dmesg output, so this must
-> be this part of the patch:
-> 
-> : +		/*
-> : +		 * Avoid risking looping forever due to too large nr value:
-> : +		 * never try to free more than twice the estimate number of
-> : +		 * freeable entries.
-> : +		 */
-> : +		if (shrinker->nr > max_pass * 2)
-> : +			shrinker->nr = max_pass * 2;
+If I remove the card=2 parameter then it loads without errors (but
+obviously it will not work).
 
-Yep, great.
+Nov 28 14:34:52 wonderland kernel: saa7130/34: v4l2 driver version 0.2.14 loaded
+Nov 28 14:34:52 wonderland kernel: ACPI: PCI Interrupt 0000:00:0a.0[A] -> GSI 16 (level, low) -> IRQ 20
+Nov 28 14:34:52 wonderland kernel: saa7134[0]: found at 0000:00:0a.0, rev: 1, irq: 20, latency: 32, mmio: 0xd6000000
+Nov 28 14:34:52 wonderland kernel: saa7134[0]: subsystem: 1131:0000, board: LifeView FlyVIDEO3000 [card=2,insmod option]
+Nov 28 14:34:52 wonderland kernel: saa7134[0]: board init: gpio is 31000
+Nov 28 14:34:52 wonderland kernel: saa7134[0]: there are different flyvideo cards with different tuners
+Nov 28 14:34:52 wonderland kernel: saa7134[0]: out there, you might have to use the tuner=<nr> insmod
+Nov 28 14:34:52 wonderland kernel: saa7134[0]: option to override the default value.
+Nov 28 14:34:52 wonderland kernel: Unable to handle kernel NULL pointer dereference at virtual address 000006d0
+Nov 28 14:34:52 wonderland kernel:  printing eip:
+Nov 28 14:34:52 wonderland kernel: c0259b1b
+Nov 28 14:34:52 wonderland kernel: *pde = 00000000
+Nov 28 14:34:52 wonderland kernel: Oops: 0000 [#1]
+Nov 28 14:34:52 wonderland kernel: Modules linked in: saa7134 radeon drm binfmt_misc af_packet lp nfsd exportfs lockd ipt_MASQUERADE sunrpc iptable_nat ip_nat ip_conntrack nfnetlink ipt_REJECT ipt_multiport iptable_filter ip_tables pppoatm ppp_generic slhc cxacru firmware_class usbatm atm it87 hwmon_vid hwmon i2c_dev i2c_isa usbhid snd_seq_midi snd_seq_midi_event snd_seq snd_via82xx snd_ac97_codec snd_ac97_bus snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd_page_alloc snd_mpu401_uart snd_rawmidi psmouse snd_seq_device serio_raw parport_pc parport 8250_pnp 8250 snd serial_core soundcore video_buf v4l2_common v4l1_compat ir_kbd_i2c ir_common videodev i2c_viapro evdev i2c_core skge crc32 ehci_hcd uhci_hcd sata_via libata usbcore ide_cd scsi_mod via_agp agpgart cdrom
+Nov 28 14:34:52 wonderland kernel: CPU:    0
+Nov 28 14:34:52 wonderland kernel: EIP:    0060:[<c0259b1b>]    Not tainted VLI
+Nov 28 14:34:52 wonderland kernel: EFLAGS: 00010296   (2.6.15-rc2) 
+Nov 28 14:34:52 wonderland kernel: EIP is at input_register_device+0xb/0x190
+Nov 28 14:34:52 wonderland kernel: eax: 00000000   ebx: d0954a38   ecx: 00000000   edx: cc76d800
+Nov 28 14:34:52 wonderland kernel: esi: 00000000   edi: ce872000   ebp: cc57ddec   esp: cc57ddd8
+Nov 28 14:34:52 wonderland kernel: ds: 007b   es: 007b   ss: 0068
+Nov 28 14:34:52 wonderland kernel: Process modprobe (pid: 5554, threadinfo=cc57c000 task=d37af540)
+Nov 28 14:34:52 wonderland kernel: Stack: e0c540c0 00000200 d0954a38 d0954a38 d0954800 cc57de28 e0c431c5 00000000 
+Nov 28 14:34:52 wonderland kernel:        d0954804 00000063 e0c540c0 d0954a18 cc76d800 e0c540c0 0ec00000 00040000 
+Nov 28 14:34:52 wonderland kernel:        00000000 ce872000 dff0c000 000001e0 cc57de3c e0c3a448 ce872000 e0c448ae 
+Nov 28 14:34:52 wonderland kernel: Call Trace:
+Nov 28 14:34:52 wonderland kernel:  [<c01039ec>] show_stack+0x9c/0xe0
+Nov 28 14:34:52 wonderland kernel:  [<c0103baf>] show_registers+0x15f/0x1f0
+Nov 28 14:34:52 wonderland kernel:  [<c0103dad>] die+0xcd/0x150
+Nov 28 14:34:52 wonderland kernel:  [<c030cd59>] do_page_fault+0x209/0x67b
+Nov 28 14:34:52 wonderland kernel:  [<c010369f>] error_code+0x4f/0x54
+Nov 28 14:34:52 wonderland kernel:  [<e0c431c5>] saa7134_input_init1+0x1d5/0x420 [saa7134]
+Nov 28 14:34:52 wonderland kernel:  [<e0c3a448>] saa7134_hwinit1+0x98/0x110 [saa7134]
+Nov 28 14:34:52 wonderland kernel:  [<e0c3ab35>] saa7134_initdev+0x2f5/0x7d0 [saa7134]
+Nov 28 14:34:52 wonderland kernel:  [<c01ddd89>] pci_call_probe+0x19/0x20
+Nov 28 14:34:52 wonderland kernel:  [<c01ddde1>] __pci_device_probe+0x51/0x60
+Nov 28 14:34:52 wonderland kernel:  [<c01dde1f>] pci_device_probe+0x2f/0x50
+Nov 28 14:34:52 wonderland kernel:  [<c02424f1>] driver_probe_device+0x41/0xc0
+Nov 28 14:34:52 wonderland kernel:  [<c024265f>] __driver_attach+0x4f/0x60
+Nov 28 14:34:52 wonderland kernel:  [<c0241a84>] bus_for_each_dev+0x54/0x80
+Nov 28 14:34:52 wonderland kernel:  [<c0242698>] driver_attach+0x28/0x30
+Nov 28 14:34:52 wonderland kernel:  [<c0241f6d>] bus_add_driver+0x7d/0xe0
+Nov 28 14:34:52 wonderland kernel:  [<c0242abd>] driver_register+0x3d/0x50
+Nov 28 14:34:52 wonderland kernel:  [<c01de0a2>] __pci_register_driver+0x72/0x90
+Nov 28 14:34:52 wonderland kernel:  [<e0c3b322>] saa7134_init+0x52/0x60 [saa7134]
+Nov 28 14:34:52 wonderland kernel:  [<c0130fed>] sys_init_module+0xcd/0x1c0
+Nov 28 14:34:52 wonderland kernel:  [<c0102c09>] syscall_call+0x7/0xb
+Nov 28 14:34:52 wonderland kernel: Code: 44 24 04 a8 13 37 c0 e8 24 15 f3 ff 83 c4 10 5b 5e 5f c9 c3 8d b6 00 00 00 00 8d bf 00 00 00 00 55 89 e5 56 53 83 ec 0c 8b 75 08 <8b> 96 d0 06 00 00 85 d2 0f 84 4e 01 00 00 8d 86 3c 06 00 00 c7 
 
-> 
-> 	The shrinker statistics displayed in /proc/slabinfo are
-> # egrep '^(inode|dentry)_cache' /proc/slabinfo
-> inode_cache         1338   1380    600    6    1 : tunables   54   27    8 : slabdata    230    230      0 : shrinker stat 261765504 16831100
-> dentry_cache       40195  49130    224   17    1 : tunables  120   60    8 : slabdata   2890   2890    204 : shrinker stat 57946368 28877600
-
-Interesting, the success/attempt reclaim ratio for the dentry cache is
-about 1/2 (pretty good), while the inode cache ratio is 1/15 (not so good).
-
-I wonder why prune_icache() does not move inodes with positive i_count
-to inode_inuse list, letting iput() take care of moving to unused
-once the count reaches zero.
-
-                inode = list_entry(inode_unused.prev, struct inode, i_list);
-                if (inode->i_state || atomic_read(&inode->i_count)) {
-                        list_move(&inode->i_list, &inode_unused);
-                        continue;
-                }
-
-Couldnt it be 
-			list_move(&inode->i_list, &inode_inuse);
-
-?
-
-
-
-
-
+-- 
+ciao,
+Marco

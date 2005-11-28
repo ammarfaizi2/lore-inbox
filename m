@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbVK1AZ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751194AbVK1AgN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751203AbVK1AZ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Nov 2005 19:25:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbVK1AZ2
+	id S1751194AbVK1AgN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Nov 2005 19:36:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbVK1AgM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Nov 2005 19:25:28 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:9420 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751203AbVK1AZ1 (ORCPT
+	Sun, 27 Nov 2005 19:36:12 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:59314 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S1751194AbVK1AgM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Nov 2005 19:25:27 -0500
-Date: Mon, 28 Nov 2005 11:23:50 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Lawrence Walton <lawrence@the-penguin.otak.com>,
-       John Hawkes <hawkes@sgi.com>, Luca <kronos@kronoz.cjb.net>
-Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: unable to use dpkg 2.6.15-rc2
-Message-ID: <20051128002350.GC841@frodo>
-References: <20051121100820.D6790390@wobbly.melbourne.sgi.com> <20051122172027.GA11219@dreamland.darkstar.lan> <20051122214443.GA781@frodo>
-Mime-Version: 1.0
+	Sun, 27 Nov 2005 19:36:12 -0500
+Date: Mon, 28 Nov 2005 08:52:08 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: ck@vds.kolivas.org
+Cc: Con Kolivas <kernel@kolivas.org>, Frederik <freggy@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ck] 2.6.15-rc2-ck2 with adaptive readahead: processes stuck in D state
+Message-ID: <20051128005208.GB4022@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>, ck@vds.kolivas.org,
+	Con Kolivas <kernel@kolivas.org>, Frederik <freggy@gmail.com>,
+	linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051122214443.GA781@frodo>
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <200511281014.13780.kernel@kolivas.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 08:44:43AM +1100, Nathan Scott wrote:
-> On Tue, Nov 22, 2005 at 06:20:27PM +0100, Luca wrote:
-> > (please CC me, I'm not subscribed)
-> > 
-> > Nathan Scott <nathans@sgi.com> ha scritto:
-> > >> It's reproducible in 2.6.15-rc1, 2.6.15-rc1-mm1, 2.6.15-rc1-mm2 and
-> > >> 2.6.15-rc2.
-> > >> 
-> > >> It does not occur in 2.6.14.
-> > >> 
-> > >> Most easily triggered by "make clean" in the Linux source, for those of
-> > >> you without access to dpkg. But both clean and dpkg will trigger it.
-> > > 
-> > > So far I've not been able to reproduce this; I'm using "make clean"
-> > > and it works just fine for me (I'm using the current git tree).
-> > 
-> > Confirmed here with 2.6.15-rc1 an IDE disk. Kernel is UP with
-> > CONFIG_PREEMPT and 8KB stack. The following debug options are enabled:
-> > 
-> 
-> Keith Owens has managed to reproduce this locally, and has been
-> working on tracking it back to a single change - so, we'll start
-> trying to figure out whats gone wrong here shortly, and will get
-> a fix merged as soon as we can.
+Maybe it's this patch that solved the problem:
 
-FYI - this problem is now fixed in Linus' current git tree.
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=551c81e2d32c5867fb592091365d8c37e1509dce
+[XFS] Resolve the xlog_grant_log_space hang, revert inline to macro.
+
+Cheers,
+Wu
+
+----- Forwarded message from Nathan Scott <nathans@sgi.com> -----
+
+Subject: Re: processes stuck in D state
+From: Nathan Scott <nathans@sgi.com>
+To: Wu Fengguang <wfg@mail.ustc.edu.cn>
+Cc: linux-xfs@oss.sgi.com
+User-Agent: Mutt/1.2.5i
+Date: Mon, 28 Nov 2005 11:23:45 +1100
+
+On Mon, Nov 28, 2005 at 08:36:25AM +0800, Wu Fengguang wrote:
+> Hello,
+> 
+> In the kernel 2.6.15-rc2-ck2 with adaptive readahead patch, some processes are
+> stuck in D state. Since the last functions of the two D process happened to be
+> the same set of XFS functions, I resend the bug report here. The original report
+> can be found in the -ck kernel mailing list:
+> http://bhhdoa.org.au/pipermail/ck/2005-November/004839.html
+
+This is now fixed in Linus' git tree.
 
 cheers.
 
 -- 
 Nathan
+
+----- End forwarded message -----

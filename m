@@ -1,69 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751087AbVK1JoL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750927AbVK1JxD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751087AbVK1JoL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 04:44:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750927AbVK1JoL
+	id S1750927AbVK1JxD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 04:53:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbVK1JxD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 04:44:11 -0500
-Received: from mail.atmel.fr ([81.80.104.162]:10709 "EHLO atmel-es2.atmel.fr")
-	by vger.kernel.org with ESMTP id S1750754AbVK1JoK (ORCPT
+	Mon, 28 Nov 2005 04:53:03 -0500
+Received: from schokokeks.org ([193.201.54.11]:59348 "EHLO schokokeks.org")
+	by vger.kernel.org with ESMTP id S1750927AbVK1JxB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 04:44:10 -0500
-Message-ID: <438AD130.8080402@rfo.atmel.com>
-Date: Mon, 28 Nov 2005 10:43:12 +0100
-From: Nicolas Diremdjian <nicolas.diremdjian@rfo.atmel.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
+	Mon, 28 Nov 2005 04:53:01 -0500
+From: "Hanno =?utf-8?q?B=C3=B6ck?=" <mail@hboeck.de>
 To: linux-kernel@vger.kernel.org
-Subject: LANANA Device list
-Content-Type: text/plain;
-	charset=ISO-8859-1;
-	format=flowed
+Subject: Patch to fix asus_acpi on Samsung P30/P35
+Date: Mon, 28 Nov 2005 10:52:49 +0100
+User-Agent: KMail/1.8.3
+Cc: torvalds@osdl.org, acpi-devel@lists.sourceforge.net
+MIME-Version: 1.0
+Message-Id: <200511281052.51775.mail@hboeck.de>
+Content-Type: multipart/signed;
+  boundary="nextPart1651059.8ZZAXQe3Gb";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-X-ESAFE-STATUS: Mail clean
-X-ESAFE-DETAILS: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+--nextPart1651059.8ZZAXQe3Gb
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I have been advised by Russell King on arm linux mailing list to ask my 
-question here.
+=46or a while now asus_acpi is broken on samsung laptops (causes oopses on=
+=20
+module loading and kernel panic if compiled into the kernel).
 
-I've been trying to contact device@lanana.org to get some minors and dev 
-name
-attribuated more than a week ago now. I think I stricly followed the 
-email format requested
-by LANANA folks (Torben Mathiasen is all alone to maintain the list, 
-right ?).
+The attached Patch (by Christian Aichinger, so credits to him) fixes this.=
+=20
+Please apply this before 2.6.15.
 
-I understand that the process could take a while but as I do not get any 
-answer at all
-(even an automatic one) I was wondering whether LANANA is still active 
-or not ?
-Maybe my request was simply rejected ?
-
-I would apreciate being taught how to get minors and dev names 
-attribuated in the case
-of LANANA is not active anymore.
-
-I have seen in the LKML FAQ that Documentation/devices.txt is maintained by
-H.Peter Anvin. Is  this FAQ  still  up-to-date  ? Or is there something 
-I am missing ?
-
-Thanks !
-
--- 
-------------------------------------------
-Nicolas DIREMDJIAN
-AT91 & ARM-based Products
-Application Software Engineer 
- 
-ATMEL Rousset- Zone Industrielle 
-Fab 7 - 13106 ROUSSET Cedex - FRANCE
-Fax: 33-(0)4-42-53-60-01
-E-mail:  nicolas.diremdjian@rfo.atmel.com
--------------------------------------------
+Patch:
 
 
+diff --git a/drivers/acpi/asus_acpi.c b/drivers/acpi/asus_acpi.c
+=2D-- a/drivers/acpi/asus_acpi.c
++++ b/drivers/acpi/asus_acpi.c
+@@ -1006,6 +1006,24 @@ static int __init asus_hotk_get_info(voi
+ 	}
+=20
+ 	model =3D (union acpi_object *)buffer.pointer;
++
++	/* INIT on Samsung's P35 returns an integer, possible return
++	 * values are tested below */
++	if (model->type =3D=3D ACPI_TYPE_INTEGER) {
++		if (model->integer.value =3D=3D -1 ||
++			model->integer.value =3D=3D 0x58 ||
++			model->integer.value =3D=3D 0x38) {
++			hotk->model =3D P30;
++			printk(KERN_NOTICE
++				       "  Samsung P35 detected, supported\n");
++			goto out_known;
++		} else {
++			printk(KERN_WARNING=20
++				"  unknown integer returned by INIT\n");
++			goto out_unknown;
++		}
++	}
++
+ 	if (model->type =3D=3D ACPI_TYPE_STRING) {
+ 		printk(KERN_NOTICE "  %s model detected, ",
+ 		       model->string.pointer);
+@@ -1057,9 +1075,7 @@ static int __init asus_hotk_get_info(voi
+ 		hotk->model =3D L5x;
+=20
+ 	if (hotk->model =3D=3D END_MODEL) {
+=2D		printk("unsupported, trying default values, supply the "
+=2D		       "developers with your DSDT\n");
+=2D		hotk->model =3D M2E;
++		goto out_unknown;
+ 	} else {
+ 		printk("supported\n");
+ 	}
+@@ -1088,6 +1104,15 @@ static int __init asus_hotk_get_info(voi
+ 	acpi_os_free(model);
+=20
+ 	return AE_OK;
++
++out_unknown:
++	printk(KERN_WARNING "  unsupported, trying default values, "
++			"supply the developers with your DSDT\n");
++	hotk->model =3D M2E;
++out_known:
++	hotk->methods =3D &model_conf[hotk->model];
++	acpi_os_free(model);
++	return AE_OK;
+ }
+=20
+ static int __init asus_hotk_check(void)
+
+--nextPart1651059.8ZZAXQe3Gb
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDitNzr2QksT29OyARAsSfAJ93wwbxn1vLMHxqLrKA69HWXsAxbwCffynF
+9KC9IjGNLJjk0blW4lhEtKc=
+=xvld
+-----END PGP SIGNATURE-----
+
+--nextPart1651059.8ZZAXQe3Gb--

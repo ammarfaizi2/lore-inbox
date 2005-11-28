@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbVK2OpY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbVK2Opd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751360AbVK2OpY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 09:45:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbVK2OpY
+	id S1751363AbVK2Opd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 09:45:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbVK2Opd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 09:45:24 -0500
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:53371 "EHLO
+	Tue, 29 Nov 2005 09:45:33 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:15484 "EHLO
 	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1751360AbVK2OpY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 09:45:24 -0500
-Message-ID: <438B70AA.7090805@tmr.com>
-Date: Mon, 28 Nov 2005 16:03:38 -0500
+	id S1751363AbVK2Opc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 09:45:32 -0500
+Message-ID: <438B906E.7070600@tmr.com>
+Date: Mon, 28 Nov 2005 18:19:10 -0500
 From: Bill Davidsen <davidsen@tmr.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Luke-Jr <luke-jr@utopios.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ide-cd doesn't replace ide-scsi?
-References: <200511281218.17141.luke-jr@utopios.org>
-In-Reply-To: <200511281218.17141.luke-jr@utopios.org>
+To: Giuliano Pochini <pochini@shiny.it>
+CC: linux-kernel@vger.kernel.org, moreau francis <francis_moreau2000@yahoo.fr>
+Subject: Re: Use enum to declare errno values
+References: <200511231631.12365.vda@ilport.com.ua> <XFMail.20051124104334.pochini@shiny.it>
+In-Reply-To: <XFMail.20051124104334.pochini@shiny.it>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luke-Jr wrote:
-> Note: results are with 2.6.13 (-gentoo-r4 + supermount) and 2.6.14 (-gentoo)
-> I've been struggling with burning DVD+R DL discs and upgrading the firmware on 
-> my DVD burner, and just today decided to rmmod ide-cd and try using ide-scsi. 
-> Turns out it works... so is ide-cd *supposed* to handle cases other than 
-> simple reading and burning or is this a bug? If not a bug, should ide-scsi 
-> really be marked as deprecated?
-> Also, two bugs with ide-scsi:
-> 1. On loading the module, it detects and allocates 6 SCSI devices for a single 
-> DVD burner (Toshiba ODD-DVD SD-R5272); kernel log for this event attached
-> 2. On attempted unloading of the module, rmmod says 'Killed' and the module 
-> stays put, corrupt. There was some kind of error in dmesg, but it appears to 
-> have avoided syslog-- If I see it again, I'll save it.
+Giuliano Pochini wrote:
+> On 23-Nov-2005 Denis Vlasenko wrote:
+> 
+>>On Wednesday 23 November 2005 15:24, moreau francis wrote:
+>>
+>>>Hi,
+>>> 
+>>>I'm just wondering why not declaring errno values using enumaration ? It is 
+>>>just more convenient when debuging the kernel.
+>>
+>>Enums are really nice substitute for integer constants instead of #defines.
+>>Enums obey scope rules, #defines do not.
+>>
+>>However enums are not widely used because of
+>>1. tradition and style
+>>2. awkward syntax required:   enum { ABC = 123 };
+> 
+> 
+> The value of an enum constant must be representable as an int. This
+> is not always the case, expecially with hardware constants and bit
+> masks, which may require an unsigned int.
 
-I think you may have the probe-all-LUNs set, and a CD burner which 
-responds to more than one. That's one possible cause for this.
+Could you provide an example of where the ERRNO is not an integer? It 
+doesn't take on bit values, nor can I spot a plcae where the value is so 
+large it would overflow if signed.
 
-Unfortunately using ide-cd still doesn't have the code set to allow all 
-burning features to work if you are not root. Even if you have 
-read+write there's one command you need to do multi-session which is 
-only allowed to root. Works fine for single sessions, I guess that's all 
-someone uses.
-
-Haven't tried unloading the module, so I have no advice on that other 
-than "don't do that."
+See errno.h for a starting point. I do think error_t is a good idea, 
+although I doubt there's an example of a type mismatch going uncaught 
+without it.
 -- 
     -bill davidsen (davidsen@tmr.com)
 "The secret to procrastination is to put things off until the

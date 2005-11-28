@@ -1,80 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbVK1QVO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbVK1Q1N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751267AbVK1QVO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 11:21:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbVK1QVO
+	id S932089AbVK1Q1N (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 11:27:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbVK1Q1M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 11:21:14 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:22709 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751267AbVK1QVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 11:21:14 -0500
-From: mgross <mgross@linux.intel.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: capturing oopses
-Date: Mon, 28 Nov 2005 08:20:02 -0800
-User-Agent: KMail/1.7.1
-Cc: vherva@vianova.fi, bunk@stusta.de, folkert@vanheusden.com,
-       linux-kernel@vger.kernel.org
-References: <20051122130754.GL32512@vanheusden.com> <20051126193358.GF22255@vianova.fi> <20051127204132.2b0d7406.rdunlap@xenotime.net>
-In-Reply-To: <20051127204132.2b0d7406.rdunlap@xenotime.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Nov 2005 11:27:12 -0500
+Received: from ns2.suse.de ([195.135.220.15]:10449 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751280AbVK1Q1M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 11:27:12 -0500
+Date: Mon, 28 Nov 2005 17:27:09 +0100
+From: Andi Kleen <ak@suse.de>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Allow lockless traversal of notifier lists
+Message-ID: <20051128162709.GC20775@brahms.suse.de>
+References: <20051128133757.GQ20775@brahms.suse.de> <20051128160129.GA8478@in.ibm.com> <20051128160547.GA20775@brahms.suse.de> <20051128161747.GA4359@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511280820.02473.mgross@linux.intel.com>
+In-Reply-To: <20051128161747.GA4359@in.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 27 November 2005 20:41, Randy.Dunlap wrote:
-> On Sat, 26 Nov 2005 21:33:58 +0200 Ville Herva wrote:
-> > On Sat, Nov 26, 2005 at 04:56:56PM +0100, you [Adrian Bunk] wrote:
-> > > On Tue, Nov 22, 2005 at 02:07:54PM +0100, Folkert van Heusden wrote:
-> > > > Hi,
-> > >
-> > > Hi Folkert,
-> > >
-> > > > My 2.6.14 system occasionally crashes; gives a kernel panic. Of
-> > > > course I would like to report it. Now the system locks up hard so I
-> > > > can't copy the stacktrace. The crash dump patches mentioned in
-> > > > oops-tracing.txt all don't work for 2.6.14 it seems. So: what should
-> > > > I do? Get my digicam and take a picture of the display?
-> > >
-> > > yes, digicams have become a common tool for reporting Oops'es.
-> >
-> > Speaking of which, does anybody know a feasible (as in "not too much
-> > harder than manually typing it in manually") way to OCR characters from
-> > vga text mode screen captures - or even digican shots?
-> >
-> > The vga text mode captures are from a remote administration interface
-> > (such as HP RILOE or vmware gsx console) so they are pixel perfect and
-> > OCR should be doable. The digican shots on the other hand... Well at
-> > least it would have hack value :).
-> >
-> > (My personal opinion is that Linus' unwillingness to include anything
-> > like kmsgdump (http://www.xenotime.net/linux/kmsgdump/) is somewhat
-> > unfortunate.)
->
-> BTW, status of that:  it needs a little work to be more reliable.
-> (It hangs sometimes when switching from protected to real mode.)
-> I'm hoping that some of the APIC/IOAPIC/PIC patches that are being
-> done for kdump will also help kmsgdump.  I'll be working more on it
-> in the next few weeks/months.
->
-> so yes, when it's working, it's very useful IMO.
->
+On Mon, Nov 28, 2005 at 09:47:47PM +0530, Dipankar Sarma wrote:
+> On Mon, Nov 28, 2005 at 05:05:47PM +0100, Andi Kleen wrote:
+> >   *
+> >   *	Returns zero on success, or %-ENOENT on failure.
+> >   */
+> > @@ -175,6 +181,7 @@
+> >  
+> 
+> There should be an smp_read_barrier_depends() here for the first
+> dereferencing of the notifier block head, I think.
 
-You know some platforms that perserve the memory above some addresses across 
-warm boots.  For such platforms, one could reserve a buffer in that area can 
-copy the sys log buffer to it on panic along with a bit pattern that could be 
-searched for upon the next boot.
+Why? The one at the top of the block should be enough, shouldn' it?
 
-Additionally some platforms have flash parts that could be used as a 
-persistant store for such data in the same manner.  I've done this on an 
-XScale platform using an ancient (2.4.10) kernel.  I've always thought it 
-would be a handy thing for the newer kernels for PC's, if we could come up 
-with a semi-platform independent way of identifying a few pages that would 
-survive a warm boot.
+-Andi
 
---mgross
+
+> 
+> >  	while(nb)
+> >  	{
+> > +		smp_read_barrier_depends();
+> >  		ret=nb->notifier_call(nb,val,v);
+> >  		if(ret&NOTIFY_STOP_MASK)
+> >  		{
+> 
+> Thanks
+> Dipankar

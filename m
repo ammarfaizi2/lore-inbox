@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbVK1Kfp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbVK1LA5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751161AbVK1Kfp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 05:35:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbVK1Kfp
+	id S932071AbVK1LA5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 06:00:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932072AbVK1LA5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 05:35:45 -0500
-Received: from webbox4.loswebos.de ([213.187.93.205]:63193 "EHLO
-	webbox4.loswebos.de") by vger.kernel.org with ESMTP
-	id S1751161AbVK1Kfp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 05:35:45 -0500
-Date: Mon, 28 Nov 2005 11:35:54 +0100
-From: Marc Koschewski <marc@osknowledge.org>
-To: "Calin A. Culianu" <calin@ajvar.org>
-Cc: ajoshi@shell.unixbox.com, akpm@osdl.org, adaplas@pol.net,
-       linux-kernel@vger.kernel.org, linux-nvidia@lists.surfsouth.com,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: nvidia fb flicker (was: Re: [PATCH] nvidiafb support for 6600 and 6200)
-Message-ID: <20051128103554.GA7071@stiffy.osknowledge.org>
-References: <Pine.LNX.4.64.0511252358390.25302@rtlab.med.cornell.edu>
+	Mon, 28 Nov 2005 06:00:57 -0500
+Received: from wproxy.gmail.com ([64.233.184.206]:49819 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932071AbVK1LA4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 06:00:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JDAh6N1Nojn/+EKyIdatrbs6JHwnzEAiDeYqbNFKfDb7+rDlF3lD09uTU+ssqQt37wHdmvbVFeo6LgSZgsjDUCgYswfIBA7ioXo+G6StLTPepNwkiVfsllLn/vpkCEVyVcOv3MBAEtU9IGIeiBNqy4xNze3rmObC7Ww/YalHrik=
+Message-ID: <6880bed30511280300g6aa05e64of3e5444d117401fb@mail.gmail.com>
+Date: Mon, 28 Nov 2005 12:00:56 +0100
+From: Bas Westerbaan <bas.westerbaan@gmail.com>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Subject: Re: user mounting
+Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.63.0511272306270.19403@gockel.physik3.uni-rostock.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0511252358390.25302@rtlab.med.cornell.edu>
-X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
-X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
-X-Operating-System: Linux stiffy 2.6.15-rc1-marc
-User-Agent: Mutt/1.5.11
+References: <200511272148.jARLmdn08633@apps.cwi.nl>
+	 <Pine.LNX.4.63.0511272306270.19403@gockel.physik3.uni-rostock.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Calin A. Culianu <calin@ajvar.org> [2005-11-26 00:02:46 -0500]:
+You can't rate limit a panic.
 
-> Hi,
-> 
-> This patch can be applied against 2.6.15-rc1 to add support to the 
-> nvidiafb driver for a few obscure (yet on-the-market) nvidia 
-> boards/chipsets, including various versions of the Geforce 6600 and 6200.
-> 
-> This patch has been tested and allows the above-mentioned boards to get 
-> framebuffer console support.
-> 
-> Thanks!
-> 
-> -Calin
+It would be better to fix the filesytem bugs instead of adding
+security measures preventing crashing filesystems to crash the rest of
+the kernel.
 
-Hi all,
-
-yesterday I compiled a 2.6.15-rc2 on one of my Inspirons (NVIDIA GeForce2 Go)
-with nvidiafb. I just changed the fb to some 1600x1200 mode and thus seems to
-work (the source states GeForce2 Go is supported and known). However, the
-letters seems to 'flicker' in some way. Uhm, it's not really flickering, it's
-more like the sinle dots a letter is made of seem to randomly turn on an off. I
-one takes a closer look it seems like the whole screen is 'fluent' or something.
-Does anybody know how to handle that? I didn't specify a video mode, but
-'video=vesafb:mtrr:3'. 
+And to catch every possible crash of filesystem code would be a lot
+more work than fixing the filesystems themselves AFAIK.
 
 Regards,
-	Marc
+
+Bas
+
+On 11/27/05, Tim Schmielau <tim@physik3.uni-rostock.de> wrote:
+> On Sun, 27 Nov 2005, Andries.Brouwer@cwi.nl wrote:
+>
+> > Part of my proposal for a solution lives in kernel space.
+> > Introduce a mount flag "user mounted". When it is set,
+> > the kernel will not do a printk() for this filesystem,
+>
+> Rate limiting seems like a better solution to me.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+
+--
+Bas Westerbaan
+http://blog.w-nz.com/
+GPG Public Keys: http://w-nz.com/keys/bas.westerbaan.asc

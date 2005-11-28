@@ -1,170 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbVK1Tvs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbVK1TzL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932217AbVK1Tvs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 14:51:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbVK1Tvs
+	id S932220AbVK1TzL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 14:55:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbVK1TzL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 14:51:48 -0500
-Received: from adsl-80.mirage.euroweb.hu ([193.226.228.80]:5393 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S932217AbVK1Tvr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 14:51:47 -0500
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org
-In-reply-to: <E1Egp0p-0006vL-00@dorka.pomaz.szeredi.hu> (message from Miklos
-	Szeredi on Mon, 28 Nov 2005 20:50:07 +0100)
-Subject: [PATCH 7/7] fuse: support caching negative dentries
-References: <E1EgosN-0006s3-00@dorka.pomaz.szeredi.hu> <E1EgouE-0006sp-00@dorka.pomaz.szeredi.hu> <E1EgowL-0006tN-00@dorka.pomaz.szeredi.hu> <E1EgoxK-0006tk-00@dorka.pomaz.szeredi.hu> <E1EgoyM-0006uH-00@dorka.pomaz.szeredi.hu> <E1Egozl-0006uy-00@dorka.pomaz.szeredi.hu> <E1Egp0p-0006vL-00@dorka.pomaz.szeredi.hu>
-Message-Id: <E1Egp20-0006vv-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Mon, 28 Nov 2005 20:51:20 +0100
+	Mon, 28 Nov 2005 14:55:11 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:40873 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932220AbVK1TzJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 14:55:09 -0500
+Date: Mon, 28 Nov 2005 11:55:03 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Keith Owens <kaos@sgi.com>, Andrew Morton <akpm@osdl.org>, greg@kroah.com,
+       sekharan@us.ibm.com, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net, Douglas_Warzecha@dell.com,
+       Abhay_Salunke@dell.com, achim_leubner@adaptec.com,
+       dmp@davidmpye.dyndns.org
+Subject: Re: [Lse-tech] Re: [PATCH 0/7]: Fix for unsafe notifier chain
+Message-ID: <20051128195503.GC11000@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20051128045922.GK20775@brahms.suse.de> <4544.1133166696@ocs3.ocs.com.au> <20051128120711.GP20775@brahms.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051128120711.GP20775@brahms.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add support for caching negative dentries.
+On Mon, Nov 28, 2005 at 01:07:11PM +0100, Andi Kleen wrote:
+> On Mon, Nov 28, 2005 at 07:31:36PM +1100, Keith Owens wrote:
+> > On Mon, 28 Nov 2005 05:59:22 +0100, 
+> > Andi Kleen <ak@suse.de> wrote:
+> > >On Sun, Nov 27, 2005 at 08:57:45PM -0800, Andrew Morton wrote:
+> > >> "Paul E. McKenney" <paulmck@us.ibm.com> wrote:
+> > >> >
+> > >> > Any options I missed?
+> > >> 
+> > >> Stop using the notifier chains from NMI context - it's too hard.  Use a
+> > >> fixed-size array in the NMI code instead.
+> > >
+> > >Or just don't unregister. That is what I did for the debug notifiers.
+> > 
+> > Unregister is not the only problem.  Chain traversal races with
+> > register as well.
+> 
+> Either it follows the old next or the new next. Both are valid.
+> The only problem is that there isn't a write barrier between
+> 
+>  n->next = *list;
+>  *list=n;
+> 
+> in notifier_chain_register, which might hit on non i386 architectures. 
 
-Up till now, ->d_revalidate() always forced a new lookup on these.
-Now let the lookup method return a zero node ID (not used for anything
-else) meaning a negative entry, but with a positive cache timeout.
-The old way of signaling negative entry (replying ENOENT) still works.
+Coding as follows:
 
-Userspace should check the ABI minor version to see whether sending a
-zero ID is allowed by the kernel or not.
+	n->next = *list;
+	rcu_assign_pointer(*list, n);
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+will provide memory barriers as needed, even if you are never removing
+elements.
 
----
-Index: linux/fs/fuse/dir.c
-===================================================================
---- linux.orig/fs/fuse/dir.c	2005-11-28 17:55:27.000000000 +0100
-+++ linux/fs/fuse/dir.c	2005-11-28 18:07:23.000000000 +0100
-@@ -23,9 +23,26 @@ static inline unsigned long time_to_jiff
- 
- static void fuse_change_timeout(struct dentry *entry, struct fuse_entry_out *o)
- {
--	struct fuse_inode *fi = get_fuse_inode(entry->d_inode);
- 	entry->d_time = time_to_jiffies(o->entry_valid, o->entry_valid_nsec);
--	fi->i_time = time_to_jiffies(o->attr_valid, o->attr_valid_nsec);
-+	if (entry->d_inode)
-+		get_fuse_inode(entry->d_inode)->i_time =
-+			time_to_jiffies(o->attr_valid, o->attr_valid_nsec);
-+}
-+
-+void fuse_invalidate_attr(struct inode *inode)
-+{
-+	get_fuse_inode(inode)->i_time = jiffies - 1;
-+}
-+
-+static void fuse_invalidate_entry_cache(struct dentry *entry)
-+{
-+	entry->d_time = jiffies - 1;
-+}
-+
-+static void fuse_invalidate_entry(struct dentry *entry)
-+{
-+	d_invalidate(entry);
-+	fuse_invalidate_entry_cache(entry);
- }
- 
- static void fuse_lookup_init(struct fuse_req *req, struct inode *dir,
-@@ -45,15 +62,22 @@ static void fuse_lookup_init(struct fuse
- 
- static int fuse_dentry_revalidate(struct dentry *entry, struct nameidata *nd)
- {
--	if (!entry->d_inode || is_bad_inode(entry->d_inode))
-+	struct inode *inode = entry->d_inode;
-+
-+	if (inode && is_bad_inode(inode))
- 		return 0;
- 	else if (time_after(jiffies, entry->d_time)) {
- 		int err;
- 		struct fuse_entry_out outarg;
--		struct inode *inode = entry->d_inode;
--		struct fuse_inode *fi = get_fuse_inode(inode);
--		struct fuse_conn *fc = get_fuse_conn(inode);
--		struct fuse_req *req = fuse_get_request(fc);
-+		struct fuse_conn *fc;
-+		struct fuse_req *req;
-+
-+		fuse_invalidate_entry_cache(entry);
-+		if (!inode)
-+			return 0;
-+
-+		fc = get_fuse_conn(inode);
-+		req = fuse_get_request(fc);
- 		if (!req)
- 			return 0;
- 
-@@ -61,6 +85,7 @@ static int fuse_dentry_revalidate(struct
- 		request_send(fc, req);
- 		err = req->out.h.error;
- 		if (!err) {
-+			struct fuse_inode *fi = get_fuse_inode(inode);
- 			if (outarg.nodeid != get_node_id(inode)) {
- 				fuse_send_forget(fc, req, outarg.nodeid, 1);
- 				return 0;
-@@ -118,9 +143,9 @@ static struct dentry *fuse_lookup(struct
- 	fuse_lookup_init(req, dir, entry, &outarg);
- 	request_send(fc, req);
- 	err = req->out.h.error;
--	if (!err && invalid_nodeid(outarg.nodeid))
-+	if (!err && outarg.nodeid && invalid_nodeid(outarg.nodeid))
- 		err = -EIO;
--	if (!err) {
-+	if (!err && outarg.nodeid) {
- 		inode = fuse_iget(dir->i_sb, outarg.nodeid, outarg.generation,
- 				  &outarg.attr);
- 		if (!inode) {
-@@ -138,22 +163,13 @@ static struct dentry *fuse_lookup(struct
- 	}
- 	d_add(entry, inode);
- 	entry->d_op = &fuse_dentry_operations;
--	if (inode)
-+	if (!err)
- 		fuse_change_timeout(entry, &outarg);
-+	else
-+		fuse_invalidate_entry_cache(entry);
- 	return NULL;
- }
- 
--void fuse_invalidate_attr(struct inode *inode)
--{
--	get_fuse_inode(inode)->i_time = jiffies - 1;
--}
--
--static void fuse_invalidate_entry(struct dentry *entry)
--{
--	d_invalidate(entry);
--	entry->d_time = jiffies - 1;
--}
--
- static int fuse_create_open(struct inode *dir, struct dentry *entry, int mode,
- 			    struct nameidata *nd)
- {
-@@ -387,6 +403,7 @@ static int fuse_unlink(struct inode *dir
- 		inode->i_nlink = 0;
- 		fuse_invalidate_attr(inode);
- 		fuse_invalidate_attr(dir);
-+		fuse_invalidate_entry_cache(entry);
- 	} else if (err == -EINTR)
- 		fuse_invalidate_entry(entry);
- 	return err;
-@@ -412,6 +429,7 @@ static int fuse_rmdir(struct inode *dir,
- 	if (!err) {
- 		entry->d_inode->i_nlink = 0;
- 		fuse_invalidate_attr(dir);
-+		fuse_invalidate_entry_cache(entry);
- 	} else if (err == -EINTR)
- 		fuse_invalidate_entry(entry);
- 	return err;
-@@ -447,6 +465,10 @@ static int fuse_rename(struct inode *old
- 		fuse_invalidate_attr(olddir);
- 		if (olddir != newdir)
- 			fuse_invalidate_attr(newdir);
-+
-+		/* newent will end up negative */
-+		if (newent->d_inode)
-+			fuse_invalidate_entry_cache(newent);
- 	} else if (err == -EINTR) {
- 		/* If request was interrupted, DEITY only knows if the
- 		   rename actually took place.  If the invalidation
+						Thanx, Paul

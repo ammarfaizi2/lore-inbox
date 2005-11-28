@@ -1,151 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbVK1VQN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbVK1VYv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932103AbVK1VQN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 16:16:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbVK1VQN
+	id S1751322AbVK1VYv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 16:24:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbVK1VYv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 16:16:13 -0500
-Received: from perninha.conectiva.com.br ([200.140.247.100]:15280 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S932103AbVK1VQL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 16:16:11 -0500
-Date: Mon, 28 Nov 2005 19:16:05 -0200
-From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
-To: gregkh@suse.de
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       akpm <akpm@osdl.org>, ehabkost@mandriva.com
-Subject: [RESEND 1/2] - usbserial: Adds missing checks and bug fix.
-Message-Id: <20051128191605.096bb777.lcapitulino@mandriva.com.br>
-Organization: Mandriva
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i586-mandriva-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Nov 2005 16:24:51 -0500
+Received: from zeus1.kernel.org ([204.152.191.4]:22169 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751319AbVK1VYv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 16:24:51 -0500
+Message-Id: <200511282124.jASLOhwA005896@zeus1.kernel.org>
+From: SIMON <mujara@walla.com>
+To: linux-kernel@vger.kernel.org
+Reply-To: mujara@simon.com
+Subject: HELP MY CHARITY EFFORT
+Date: Mon, 28 Nov 2005 22:24:50 +0100
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="50bfeaf1-cadd-442b-a022-4b1bd97c0c54"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
- Checks if 'port' is NULL before using it in all tty operations, this
-can avoid NULL pointer dereferences.
+This is a multi-part message in MIME format
+--50bfeaf1-cadd-442b-a022-4b1bd97c0c54
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Luiz Capitulino <lcapitulino@mandriva.com.br>
+Dear Son of God,
+My name is  Mr Mujara Simon ,an old time businessman from Mauritius . I would =
+like to share my pain with you . I have been diagnosed with cancer of the =
+brain.I have tried all my best with all the money i have to treat it , but to =
+no avail. It has defiled all forms of medical treatment, it is getting worse =
+day by day
 
- drivers/usb/serial/usb-serial.c |   32 ++++++++++++++++++++++++++++++++
- 1 files changed, 32 insertions(+)
+I have given enough of my wealth to my family members,and i do not trust =
+their competent to help me distribute the rest of my welth to charity which =
+happens to be my last wish, so i decided to contact you. I have about  =
+US$2,000,000,00 ( Two million Dollars ) which i depostied with a security =
+bank so long ago in Spain that only my lawyer knows about and 
+none of my family members know about it. I wish you as a child of God to help =
+me collect this deposit and dispatched it to charity organizations.
 
-diff --git a/drivers/usb/serial/usb-serial.c b/drivers/usb/serial/usb-serial.c
---- a/drivers/usb/serial/usb-serial.c
-+++ b/drivers/usb/serial/usb-serial.c
-@@ -188,6 +188,8 @@ static int serial_open (struct tty_struc
+Also i have decided that you should take  15%  from the fund for yourself for =
+any expenses incured  during this endeavour.
+.
+Contact me: mujara@walla.com  ,  mujarasimon@latinmail.com
+                                            
+May the lord be with you.
  
- 	portNumber = tty->index - serial->minor;
- 	port = serial->port[portNumber];
-+	if (!port)
-+		return -ENODEV;
- 	 
- 	++port->open_count;
- 
-@@ -258,6 +260,9 @@ static int serial_write (struct tty_stru
- 	struct usb_serial_port *port = tty->driver_data;
- 	int retval = -EINVAL;
- 
-+	if (!port)
-+		goto exit;
-+
- 	dbg("%s - port %d, %d byte(s)", __FUNCTION__, port->number, count);
- 
- 	if (!port->open_count) {
-@@ -277,6 +282,9 @@ static int serial_write_room (struct tty
- 	struct usb_serial_port *port = tty->driver_data;
- 	int retval = -EINVAL;
- 
-+	if (!port)
-+		goto exit;
-+
- 	dbg("%s - port %d", __FUNCTION__, port->number);
- 
- 	if (!port->open_count) {
-@@ -296,6 +304,9 @@ static int serial_chars_in_buffer (struc
- 	struct usb_serial_port *port = tty->driver_data;
- 	int retval = -EINVAL;
- 
-+	if (!port)
-+		goto exit;
-+
- 	dbg("%s = port %d", __FUNCTION__, port->number);
- 
- 	if (!port->open_count) {
-@@ -314,6 +325,9 @@ static void serial_throttle (struct tty_
- {
- 	struct usb_serial_port *port = tty->driver_data;
- 
-+	if (!port)
-+		return;
-+
- 	dbg("%s - port %d", __FUNCTION__, port->number);
- 
- 	if (!port->open_count) {
-@@ -330,6 +344,9 @@ static void serial_unthrottle (struct tt
- {
- 	struct usb_serial_port *port = tty->driver_data;
- 
-+	if (!port)
-+		return;
-+
- 	dbg("%s - port %d", __FUNCTION__, port->number);
- 
- 	if (!port->open_count) {
-@@ -347,6 +364,9 @@ static int serial_ioctl (struct tty_stru
- 	struct usb_serial_port *port = tty->driver_data;
- 	int retval = -ENODEV;
- 
-+	if (!port)
-+		goto exit;
-+
- 	dbg("%s - port %d, cmd 0x%.4x", __FUNCTION__, port->number, cmd);
- 
- 	if (!port->open_count) {
-@@ -368,6 +388,9 @@ static void serial_set_termios (struct t
- {
- 	struct usb_serial_port *port = tty->driver_data;
- 
-+	if (!port)
-+		return;
-+
- 	dbg("%s - port %d", __FUNCTION__, port->number);
- 
- 	if (!port->open_count) {
-@@ -384,6 +407,9 @@ static void serial_break (struct tty_str
- {
- 	struct usb_serial_port *port = tty->driver_data;
- 
-+	if (!port)
-+		return;
-+
- 	dbg("%s - port %d", __FUNCTION__, port->number);
- 
- 	if (!port->open_count) {
-@@ -445,6 +471,9 @@ static int serial_tiocmget (struct tty_s
- {
- 	struct usb_serial_port *port = tty->driver_data;
- 
-+	if (!port)
-+		goto exit;
-+
- 	dbg("%s - port %d", __FUNCTION__, port->number);
- 
- 	if (!port->open_count) {
-@@ -464,6 +493,9 @@ static int serial_tiocmset (struct tty_s
- {
- 	struct usb_serial_port *port = tty->driver_data;
- 
-+	if (!port)
-+		goto exit;
-+
- 	dbg("%s - port %d", __FUNCTION__, port->number);
- 
- 	if (!port->open_count) {
+Mr Mujara Simon
+                                       
+--50bfeaf1-cadd-442b-a022-4b1bd97c0c54--
 
-
--- 
-Luiz Fernando N. Capitulino

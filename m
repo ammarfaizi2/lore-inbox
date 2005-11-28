@@ -1,75 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbVK1OBg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbVK1OBu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932107AbVK1OBg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 09:01:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbVK1OBg
+	id S932113AbVK1OBu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 09:01:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbVK1OBu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 09:01:36 -0500
-Received: from zproxy.gmail.com ([64.233.162.206]:52625 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751262AbVK1OBg (ORCPT
+	Mon, 28 Nov 2005 09:01:50 -0500
+Received: from smtp3-g19.free.fr ([212.27.42.29]:21150 "EHLO smtp3-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1751253AbVK1OBt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 09:01:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=VvGnSq2qEIw0bYEJDSNJIw18k53YBCcMJJMZdXPDiaWmJDuiVcIk3qo1XmevzN93j6+hPF7DM8UrQzKFafiOoq94UL7mZUs+nYVM4gv3NZSxNdEFNjujrmGFrvWCb+7K7ultQniupRYZuNwZvif2u+eFJx06ubGOBo1rCSAzVz8=
-Message-ID: <438B0D89.1080400@gmail.com>
-Date: Mon, 28 Nov 2005 22:00:41 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051025)
+	Mon, 28 Nov 2005 09:01:49 -0500
+From: Duncan Sands <duncan.sands@math.u-psud.fr>
+To: linux-kernel@vger.kernel.org, video4linux-list@redhat.com, md@linux.it
+Subject: Re: saa7134 broken in 2.6.15-rc2
+Date: Mon, 28 Nov 2005 15:01:32 +0100
+User-Agent: KMail/1.8.3
+References: <20051128135254.GA4218@wonderland.linux.it>
+In-Reply-To: <20051128135254.GA4218@wonderland.linux.it>
 MIME-Version: 1.0
-To: Marc Koschewski <marc@osknowledge.org>
-CC: "Calin A. Culianu" <calin@ajvar.org>, akpm@osdl.org, adaplas@pol.net,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: nvidia fb flicker
-References: <Pine.LNX.4.64.0511252358390.25302@rtlab.med.cornell.edu> <20051128103554.GA7071@stiffy.osknowledge.org> <438AF8A2.6030403@gmail.com> <20051128132035.GA7265@stiffy.osknowledge.org>
-In-Reply-To: <20051128132035.GA7265@stiffy.osknowledge.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511281501.32949.duncan.sands@math.u-psud.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Koschewski wrote:
-> * Antonino A. Daplas <adaplas@gmail.com> [2005-11-28 20:31:30 +0800]:
-> 
->> Marc Koschewski wrote:
->>> * Calin A. Culianu <calin@ajvar.org> [2005-11-26 00:02:46 -0500]:
->>>
->>>> Hi,
->>>>
->>>> This patch can be applied against 2.6.15-rc1 to add support to the 
->>>> nvidiafb driver for a few obscure (yet on-the-market) nvidia 
->>>> boards/chipsets, including various versions of the Geforce 6600 and 6200.
->>>>
->>>> This patch has been tested and allows the above-mentioned boards to get 
->>>> framebuffer console support.
->>>>
->>>> Thanks!
->>>>
->>>> -Calin
->>> Hi all,
->>>
->>> yesterday I compiled a 2.6.15-rc2 on one of my Inspirons (NVIDIA GeForce2 Go)
->>> with nvidiafb. I just changed the fb to some 1600x1200 mode and thus seems to
->>> work (the source states GeForce2 Go is supported and known). However, the
->>> letters seems to 'flicker' in some way. Uhm, it's not really flickering, it's
->>> more like the sinle dots a letter is made of seem to randomly turn on an off. I
->> Can you try booting with video=nvidiafb:1600x1200MR@60?
->>
->> If that still does not work, can you open drivers/video/fbmon.c then change
->> the line #undef DEBUG to #define DEBUG, recompile, reboot and post your
->> dmesg?
->>
->>> one takes a closer look it seems like the whole screen is 'fluent' or something.
->>> Does anybody know how to handle that? I didn't specify a video mode, but
->>> 'video=vesafb:mtrr:3'. 
->>>
->> No, remove any vga= and video=vesafb: strings in your boot options.
-> 
-> So, I just booted with the parameter given by you (and without vga= as usual), as
-> well as without any parameter. No change though.
-> 
+There seems to be something rotten in v4l land; here's one I got with 2.6.15-rc1-git1
+(I get this one a lot, but I've seen all kinds of other oopsen with recent
+kernels - memory corruption? - perhaps DMA is still writing to freed memory?).
 
-Try again with CONFIG_FB_NVIDIA_I2C = n in your kernel config.
+Ciao,
 
-Tony
+Duncan.
+
+[4294993.999000] Unable to handle kernel paging request at virtual address cf81f000
+[4294994.024000]  printing eip:
+[4294994.033000] e0b6f738
+[4294994.041000] *pde = 0003e067
+[4294994.051000] *pte = 0f81f000
+[4294994.060000] Oops: 0002 [#1]
+[4294994.060000] DEBUG_PAGEALLOC
+[4294994.060000] Modules linked in: af_packet md5 ipv6 usblp radeon drm tun video thermal processor fan button ipt_TOS ipt_MASQUERADE ipt_REJECT ipt_LOG ipt_state ipt_pkttype ipt_owner ipt_iprange ipt_multiport ipt_conntrack iptable_mangle ip_nat_irc ip_nat_tftp ip_nat_ftp iptable_nat ip_nat ip_conntrack_irc ip_conntrack_tftp ip_conntrack_ftp ip_conntrack iptable_filter ip_tables generic i2c_viapro uhci_hcd usbcore snd_bt87x tuner tvaudio bttv video_buf firmware_class i2c_algo_bit v4l2_common btcx_risc tveeprom i2c_core videodev snd_cs46xx snd_rawmidi snd_seq_device snd_ac97_codec snd_ac97_bus snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd soundcore snd_page_alloc via_agp agpgart nls_cp437 ntfs ide_cd cdrom mousedev psmouse unix
+[4294994.060000] CPU:    0
+[4294994.060000] EIP:    0060:[<e0b6f738>]    Not tainted VLI
+[4294994.060000] EFLAGS: 00210202   (2.6.15-rc1-git1)
+[4294994.060000] EIP is at bttv_risc_packed+0x168/0x190 [bttv]
+[4294994.060000] eax: 14000008   ebx: 00000408   ecx: cf81f000   edx: d17f5800
+[4294994.060000] esi: 00000008   edi: d17f5800   ebp: d184ce6c   esp: d184ce54
+[4294994.060000] ds: 007b   es: 007b   ss: 0068
+[4294994.060000] Process xawtv (pid: 7506, threadinfo=d184c000 task=d5ba6ab0)
+[4294994.060000] Stack: d059cfbc e0b83560 000000ff 000d8000 00000c00 d059cef8 d184ced4 e0b70fca
+[4294994.060000]        00000c00 00000c00 00000c00 00000120 00000008 000001b1 d059cf1c d059cf1c
+[4294994.060000]        c1753bf8 d184ceb4 e0b83560 aeaf0000 00000000 d059cef8 e0b72598 000d8000
+[4294994.060000] Call Trace:
+[4294994.060000]  [<c01039a7>] show_stack+0x97/0xd0
+[4294994.060000]  [<c0103b55>] show_registers+0x155/0x1f0
+[4294994.060000]  [<c0103d72>] die+0xe2/0x170
+[4294994.060000]  [<c02c08cc>] do_page_fault+0x1ec/0x648
+[4294994.060000]  [<c0103643>] error_code+0x4f/0x54
+[4294994.060000]  [<e0b70fca>] bttv_buffer_risc+0x61a/0x640 [bttv]
+[4294994.060000]  [<e0b667bb>] bttv_prepare_buffer+0xab/0x1a0 [bttv]
+[4294994.060000]  [<e0b66958>] buffer_prepare+0x38/0x40 [bttv]
+[4294994.060000]  [<e0a2a3cd>] videobuf_read_zerocopy+0x5d/0x100 [video_buf]
+[4294994.060000]  [<e0a2a622>] videobuf_read_one+0x1b2/0x210 [video_buf]
+[4294994.060000]  [<e0b69575>] bttv_read+0x115/0x120 [bttv]
+[4294994.060000]  [<c0155923>] vfs_read+0x93/0x150
+[4294994.060000]  [<c0155c8d>] sys_read+0x3d/0x70
+[4294994.060000]  [<c0102b2f>] sysenter_past_esp+0x54/0x75
+[4294994.060000] Code: 8d 5f 2c 0d 00 00 00 10 89 01 8b 42 08 89 41 04 2b 72 0c 83 c1 08 8b 03 83 c2 10 83 c3 10 39 c6 77 e1 89 f0 89 d7 0d 00 00 00 14 <89> 01 8b 42 08 89 41 04 83 c1 08 89 f0 e9 5f ff ff ff 0f 0b 6b
+[4294994.060000]  <4>mtrr: 0xc0000000,0x10000000 overlaps existing 0xc0000000,0x8000000

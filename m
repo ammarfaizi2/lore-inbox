@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbVK1T26@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbVK1Tf5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932202AbVK1T26 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 14:28:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbVK1T26
+	id S932207AbVK1Tf5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 14:35:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbVK1Tf5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 14:28:58 -0500
-Received: from hera.kernel.org ([140.211.167.34]:36743 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932202AbVK1T25 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 14:28:57 -0500
-Date: Mon, 28 Nov 2005 11:46:43 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Andries.Brouwer@cwi.nl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: s_maxbytes on isofs for 2.4
-Message-ID: <20051128134643.GB25081@logos.cnet>
-References: <200511272123.jARLNeA03057@apps.cwi.nl>
+	Mon, 28 Nov 2005 14:35:57 -0500
+Received: from herkules.vianova.fi ([194.100.28.129]:10210 "HELO
+	mail.vianova.fi") by vger.kernel.org with SMTP id S932204AbVK1Tf4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 14:35:56 -0500
+Date: Mon, 28 Nov 2005 21:35:51 +0200
+From: Ville Herva <vherva@vianova.fi>
+To: mgross <mgross@linux.intel.com>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, bunk@stusta.de,
+       folkert@vanheusden.com, linux-kernel@vger.kernel.org
+Subject: Re: capturing oopses
+Message-ID: <20051128193551.GG6966@vianova.fi>
+Reply-To: vherva@vianova.fi
+References: <20051122130754.GL32512@vanheusden.com> <20051126193358.GF22255@vianova.fi> <20051127204132.2b0d7406.rdunlap@xenotime.net> <200511280820.02473.mgross@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200511272123.jARLNeA03057@apps.cwi.nl>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <200511280820.02473.mgross@linux.intel.com>
+X-Operating-System: Linux herkules.vianova.fi 2.4.32-rc1
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andries,
-
-On Sun, Nov 27, 2005 at 10:23:40PM +0100, Andries.Brouwer@cwi.nl wrote:
-> I got a problem report on the handling of large (2.4GB) files
-> with isofs, where 2.6 was fine and 2.4 failed. Replied
+On Mon, Nov 28, 2005 at 08:20:02AM -0800, you [mgross] wrote:
 > 
-> >I suspect that the difference between 2.4 and 2.6 is the assignment
-> >       s->s_maxbytes = 0xffffffff;
-> >in isofs/inode.c. Could you try to add that after
-> >       s->s_magic = ISOFS_SUPER_MAGIC;
-> >in the 2.4 source?
-> 
-> and got the confirmation that that solves the problems.
-> Maybe one should consider adding this in 2.4.
-> No, I have not audited the source. If in fact there is
-> a reason why files this size are not handled correctly,
-> there should probably be an assignment with the largest
-> value that is handled correctly, together with a comment.
+> You know some platforms that perserve the memory above some addresses across 
+> warm boots.  For such platforms, one could reserve a buffer in that area can 
+> copy the sys log buffer to it on panic along with a bit pattern that could be 
+> searched for upon the next boot.
 
-My knowledge is quite limited, but I can't spot any issues with 
-files upto 4GB. Who was the reporter?
+I think there was a patch to do this a couple of years ago. 
+ 
+The only references I can find now are:
 
-Yes, suppose we could include it if there is interest to confirm safety.
+http://groups.google.com/groups?q=%22Utility+module+to+capture+OOPS+output+over+reboot%22&hl=en&selm=fa.fbd0l7v.14hau3n%40ifi.uio.no&rnum=1)
+http://marc.theaimsgroup.com/?l=linux-kernel&m=93077831203565&w=2
+
+
+-- v -- 
+
+v@iki.fi
 

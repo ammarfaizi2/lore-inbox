@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbVK1Od1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbVK1POO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751268AbVK1Od1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 09:33:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751270AbVK1Od1
+	id S1751079AbVK1POO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 10:14:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbVK1POO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 09:33:27 -0500
-Received: from m10s25.vlinux.de ([83.151.28.59]:55447 "EHLO m10s25")
-	by vger.kernel.org with ESMTP id S1751268AbVK1Od1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 09:33:27 -0500
-Subject: [PATCH] nfsroot.c, kernel 2.6.14.3, do not silently stop parsing
-	on an unknown option
-From: "=?ISO-8859-1?Q?J=F6rn?= Dreyer" <j.dreyer@butonic.de>
-Reply-To: j.dreyer@butonic.de
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-ZjBrRlujGVnQSw6r3dOO"
-Date: Mon, 28 Nov 2005 15:32:04 +0100
-Message-Id: <1133188324.9663.28.camel@localhost>
+	Mon, 28 Nov 2005 10:14:14 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:31904 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751079AbVK1POO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 10:14:14 -0500
+Subject: Re: 2.6.14-rt15: cannot build with !PREEMPT_RT
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Thomas Gleixner <tglx@linutronix.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       david singleton <dsingleton@mvista.com>
+In-Reply-To: <20051128114852.GA3391@elte.hu>
+References: <1132987928.4896.1.camel@mindpipe>
+	 <20051126122332.GA3712@elte.hu> <1133031912.5904.12.camel@mindpipe>
+	 <1133034406.32542.308.camel@tglx.tec.linutronix.de>
+	 <20051127123052.GA22807@elte.hu> <1133141224.4909.1.camel@mindpipe>
+	 <20051128114852.GA3391@elte.hu>
+Content-Type: text/plain
+Date: Mon, 28 Nov 2005 09:56:29 -0500
+Message-Id: <1133189789.5228.7.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2005-11-28 at 12:48 +0100, Ingo Molnar wrote:
+> which was the last -rt kernel that worked fine for you in 
+> PREEMPT_DESKTOP mode?
 
---=-ZjBrRlujGVnQSw6r3dOO
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+It has been a long time, possibly months - I've mostly been using
+PREEMPT_RT.  But now I am working on a soft RT project that for various
+reasons would like to use the mainline kernel, and I've found it still
+has some scheduling bumps up to 5-7ms and am trying to identify the
+problem.
 
-Hello,
+Would you like me to do a binary search?
 
-
-I think it would be helpful if the kernel did not silently stop parsing
-nfs options, but instead warned about any he does not recognize. The
-attached patch adds one printk to do just that.
-It took me a couple of hours to find my configuration mistake - it is a
-trivial patch, nevertheless, I would like to see the patch included to
-save others the time ...
-
-Sincerely
-
-Jörn Dreyer
-
-
---=-ZjBrRlujGVnQSw6r3dOO
-Content-Disposition: attachment; filename=nfswarning.patch
-Content-Type: text/x-patch; name=nfswarning.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
---- linux-2.6.14.3/fs/nfs/nfsroot.c     2005-11-24 23:10:21.000000000 +0100
-+++ linux/fs/nfs/nfsroot.c      2005-11-28 14:50:59.223111632 +0100
-@@ -276,6 +277,7 @@
-                                nfs_data.flags |= NFS_MOUNT_NOACL;
-                                break;
-                        default :
-+                               printk(KERN_WARNING "Root-NFS: unknown option: %s\n", p);
-                                return 0;
-                }
-        }
-
---=-ZjBrRlujGVnQSw6r3dOO--
+Lee
 

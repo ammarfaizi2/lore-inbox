@@ -1,87 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbVK1UXO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932236AbVK1Udy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932219AbVK1UXO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 15:23:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932232AbVK1UXO
+	id S932236AbVK1Udy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 15:33:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbVK1Udx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 15:23:14 -0500
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:37380 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932219AbVK1UXN
+	Mon, 28 Nov 2005 15:33:53 -0500
+Received: from zproxy.gmail.com ([64.233.162.205]:6167 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932236AbVK1Udw convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 15:23:13 -0500
-Message-ID: <438B679F.5050207@tmr.com>
-Date: Mon, 28 Nov 2005 15:25:03 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
+	Mon, 28 Nov 2005 15:33:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=En3BxFw4jIaP89nXAv/RxEcx/xMpQR5DMy5FHTjIy4aRa+sXhlC1SG8cuv3tz6wInQ8SRd3kkIXzu5+XdOnqtQP6P9gpJ7BzLEX7kOzM9VRmm5W3P8IeY8rDTJUrpwM1zFISvwRpuYAZ6M53OTJ2BdI6EoQLr/mb1V/MHBK/REU=
+Message-ID: <35fb2e590511281233r49668895hc3295fce4cfe891b@mail.gmail.com>
+Date: Mon, 28 Nov 2005 20:33:52 +0000
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: floppy regression from "[PATCH] fix floppy.c to store correct ..."
+Cc: Andrew Morton <akpm@osdl.org>, cp@absolutedigital.net,
+       linux-kernel@vger.kernel.org, jcm@jonmasters.org, torvalds@osdl.org,
+       viro@ftp.linux.org.uk, hch@lst.de
+In-Reply-To: <438B4E85.2060801@tmr.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
-       Andi Kleen <ak@suse.de>, Gerd Knorr <kraxel@suse.de>,
-       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-References: <438359D7.7090308@suse.de> <p7364qjjhqx.fsf@verdi.suse.de> <1132764133.7268.51.camel@localhost.localdomain> <20051123163906.GF20775@brahms.suse.de> <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051125073854.GA16771@taniwha.stupidest.org> <Pine.LNX.4.64.0511250918410.13959@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0511250918410.13959@g5.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.61.0511160034320.988@lancer.cnet.absolutedigital.net>
+	 <20051116005958.25adcd4a.akpm@osdl.org>
+	 <20051119034456.GA10526@apogee.jonmasters.org>
+	 <20051121233131.793f0d04.akpm@osdl.org>
+	 <35fb2e590511220356x75a951f1t8a36d0556a940751@mail.gmail.com>
+	 <20051122141628.41f3134f.akpm@osdl.org> <438B4E85.2060801@tmr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Thu, 24 Nov 2005, Chris Wedgwood wrote:
-> 
->>CPUs in embedded the space could outnumber desktops & servers greatly
->>(cell phones, access pointers, routers, media players, etc).  Most of
->>these will be UP for some time.
-> 
-> 
-> That's not entirely clear either.
-> 
-> There are definite advantages to SMP even in the embedded space - or, to 
-> put it more strongly: _especially_ in the embedded space.
-> 
-I would argue that there is no "the embedded space," but rather a set of 
-embedded spaces with various needs. Having worked doing industrial 
-control for three years and lunched with IC folks another decade, I'm 
-fairly sure that consumer goods are very different from real industrial 
-control, a realtime items (multimedia) are different than phones and 
-PDAs. Until the phone gets "swear at it" slow, features like voice 
-recognition are more important than doing voice to number lookup in 20ms 
-instead of 400ms. Cost and battery life matter a lot too, while the 
-media and IC markets are already attached to expensive stuff, so the 
-computer is is smaller fraction of the cost.
+On 11/28/05, Bill Davidsen <davidsen@tmr.com> wrote:
 
-> None of the cellphone manufacturers seem to be in the least interested in 
-> doing a "phone only" solution. They can already do that cheaply, they 
-> can't make much money off it, and they are all interested in features. And 
-> it really _is_ more power-efficient to have, say, a dual-core 200MHz chip 
-> than it is to have a single-core 300MHz one.
-> 
-> Now, sometimes those SMP systems will actually be used as "tightly coupled 
-> UP", where one of the CPU's is just basically a DSP. And from a power 
-> efficiency standpoint, having specialized hardware (and thus _A_MP rather 
-> than SMP) is obviously better, but in complex tasks - and communication 
-> tends to be that - general-purpose is often desirable enough that people 
-> will take the inefficiencies of a GP CPU over a fixed-function specialized 
-> DSP-kind of environment.
-> 
-> But SMP is absolutely _not_ unusual in embedded. It's been there for years 
-> already, and it's clearly moving downwards there too.
+> I think that's best, because there are few people (relatively) using
+> floppy, and those who are probably are used to old behaviour.
 
-Absolutely true, but that dual core 200 MHz chip probably draws more 
-power than a 200 MHz uni, etc. So there will probably be uni 
-applications for the forseeable future, any benefit in uni performance 
-will be useful.
+The point of the thread is more that this exposes behaviour which
+might be present in other drivers too - assuming the block device
+state matches the underlying media.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+I was out of commission over the weekend after too much pumpkin pie,
+but I'll sort this out this week and send out some patches.
+
+Jon.

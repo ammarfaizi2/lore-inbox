@@ -1,74 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751328AbVK2GzP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbVK2HCq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751328AbVK2GzP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 01:55:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbVK2GzP
+	id S1751312AbVK2HCq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 02:02:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751329AbVK2HCp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 01:55:15 -0500
-Received: from smtp015.mail.yahoo.com ([216.136.173.59]:42842 "HELO
-	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1751328AbVK2GzO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 01:55:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=r8fxECqZVO/sQJBNnqzYLtQ/JNmdJNwycEmbnnpowtZgV8dLBdoF5E1aGcz2zSVcz6KLiYnNOQ2QLI3cA5WqONa4WyaMuMchLkYGSJPMVmupP/SIDUJkp25fEQVvCakyL27Z3Py426rvXMIDl7ldVdOllcooowG0xFUspowvWL4=  ;
-Message-ID: <438BFB44.2080208@yahoo.com.au>
-Date: Tue, 29 Nov 2005 17:55:00 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Andrew Morton <akpm@osdl.org>, Steven Rostedt <rostedt@goodmis.org>,
-       acpi-devel@lists.sourceforge.net, len.brown@intel.com,
-       nando@ccrma.Stanford.EDU, rlrevell@joe-job.com,
-       linux-kernel@vger.kernel.org, paulmck@us.ibm.com, kr@cybsft.com,
-       tglx@linutronix.de, pluto@agmk.net, john.cooper@timesys.com,
-       bene@linutronix.de, dwalker@mvista.com, trini@kernel.crashing.org,
-       george@mvista.com
-Subject: Re: [RFC][PATCH] Runtime switching of the idle function [take 2]
-References: <20051118220755.GA3029@elte.hu> <1132353689.4735.43.camel@cmn3.stanford.edu> <1132367947.5706.11.camel@localhost.localdomain> <20051124150731.GD2717@elte.hu> <1132952191.24417.14.camel@localhost.localdomain> <20051126130548.GA6503@elte.hu> <1133232503.6328.18.camel@localhost.localdomain> <20051128190253.1b7068d6.akpm@osdl.org> <1133235740.6328.27.camel@localhost.localdomain> <20051128200108.068b2dcd.akpm@osdl.org> <20051129064420.GA15374@elte.hu>
-In-Reply-To: <20051129064420.GA15374@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 29 Nov 2005 02:02:45 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:41361
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751312AbVK2HCp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 02:02:45 -0500
+Date: Mon, 28 Nov 2005 23:02:24 -0800 (PST)
+Message-Id: <20051128.230224.36483799.davem@davemloft.net>
+To: kjak@users.sourceforge.net, kjak@ispwest.com
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] Resetting packet statistics
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <d0d8bf3880744a79a8a5c26c8459e9ac.kjak@ispwest.com>
+References: <d0d8bf3880744a79a8a5c26c8459e9ac.kjak@ispwest.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Andrew Morton <akpm@osdl.org> wrote:
-> 
-> 
->>>The way to solve this was to set
->>> idle=poll.  The original patch I sent was to allow the user to change to
->>> idle=poll dynamically.  This way they could switch to the poll_idle and
->>> run there tests (requiring tsc not to drift) and then switch back to the
->>> default idle to save on electricity.
->>
->>Use gettimeofday()?
->>
->>If it's just for some sort of instrumentation, run NR_CPUS instances 
->>of a niced-down busyloop, pin each one to a different CPU?  That way 
->>the idle function doesn't get called at all..
-> 
-> 
-> idle=poll is also frequently done for performance reasons [it reduces 
-> idle wakeup latency by 10 usecs] - while it could be turned off if the 
-> system has been idle for some time. E.g. cpufreqd could sample idle time 
-> and turn on/off idle=poll. High-performance setups could enable it all 
-> the time.
-> 
-> as long as it can be done with zero-cost, i dont see why Steven's patch 
-> wouldnt be a plus for us. It's a performance thing, and having runtime 
-> switches for seemless performance features cannot be bad.
-> 
+From: "Kris Katterjohn" <kjak@ispwest.com>
+Date: Mon, 28 Nov 2005 22:28:18 -0800
 
-Why not just slightly cleanup and extend (eg. to ACPI) the
-hlt_counter thingy that many architectures already have?
+> From: David S. Miller
+> Sent: 11/28/2005 10:12:38 PM
+> > You can't change existing behavior in order to get the new behavior
+> > you want.  Some applications might be depending upon what happens
+> > currently.
+> 
+> Is there a way to work around this?
 
-Nick
+Why not create a new call that doesn't reset the statistic,
+and change your application to invoke it instead of the call
+which exists?
 
--- 
-SUSE Labs, Novell Inc.
+That's one backwards compatible way to fix things like this.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Or, you can create a new call that says "from now on, do not
+reset statistics on calls using this socket."  That's another
+clean, and backwards compatible way, to deal with this
+kind of issue.

@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbVK2Sxi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbVK2TAw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932347AbVK2Sxi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 13:53:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbVK2Sxi
+	id S932350AbVK2TAw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 14:00:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbVK2TAw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 13:53:38 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:54033 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932347AbVK2Sxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 13:53:37 -0500
-Date: Tue, 29 Nov 2005 19:53:36 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Cc: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>, linux-scsi@vger.kernel.org,
-       James.Bottomley@SteelEye.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] dpt_i2o fix for deadlock condition
-Message-ID: <20051129185336.GJ31395@stusta.de>
-References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01E3DD6C@otce2k03.adaptec.com> <20051129180437.GB3803@csclub.uwaterloo.ca>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051129180437.GB3803@csclub.uwaterloo.ca>
-User-Agent: Mutt/1.5.11
+	Tue, 29 Nov 2005 14:00:52 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:59853 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932350AbVK2TAv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 14:00:51 -0500
+Date: Tue, 29 Nov 2005 12:02:12 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: linux-kernel@vger.kernel.org, ambx1@neo.rr.com, tiwai@suse.de
+Subject: Re: [Fwd: [PATCH] [PNP][RFC] Suspend support for PNP bus.]
+Message-Id: <20051129120212.3e679296.akpm@osdl.org>
+In-Reply-To: <438CA2D9.8030304@drzeus.cx>
+References: <436B2819.4090909@drzeus.cx>
+	<20051129113210.3d95d71f.akpm@osdl.org>
+	<438CA2D9.8030304@drzeus.cx>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 29, 2005 at 01:04:37PM -0500, Lennart Sorensen wrote:
-> On Tue, Nov 29, 2005 at 11:51:25AM -0500, Salyzyn, Mark wrote:
-> > Miquel van Smoorenburg <miquels@cistron.nl> forwarded me this fix to
-> > resolve a deadlock condition that occurs due to the API change in
-> > 2.6.13+ kernels dropping the host locking when entering the error
-> > handling. They all end up calling adpt_i2o_post_wait(), which if you
-> > call it unlocked, might return with host_lock locked anyway and that
-> > causes a deadlock.
-> > 
-> > Signed-off-by: Mark Salyzyn <aacraid@adaptec.com>
-> > 
-> >  drivers/scsi/dpt_i2o.c |    25 ++++++++++++++++++++-----
-> >  1 file changed, 20 insertions(+), 5 deletions(-)
-> > 
-> > Patch attached to email due to Outlook corrupting content when inlined.
+Pierre Ossman <drzeus-list@drzeus.cx> wrote:
+>
+> Andrew Morton wrote:
 > 
-> There must still be a way to tell outlook to make the type something
-> useful, rather than application/octet-stream.  maybe if the extension
-> was .patch.txt it would do something smarter.
+> >Pierre Ossman <drzeus-list@drzeus.cx> wrote:
+> >  
+> >
+> >>Add support for suspending devices connected to the PNP bus. New
+> >>callbacks are added for the drivers and the PNP hardware layer is
+> >>told to disable the device during the suspend.
+> >>    
+> >>
+> >
+> >The ALSA guys have gone off and implemented their own version of this, and
+> >it's a bit different.   I'll need to drop this patch now.
+> >
+> >Please review http://www.zip.com.au/~akpm/linux/patches/stuff/git-alsa.patch, sort
+> >things out?
+> >  
+> >
+> 
+> That things is huge! Do the ALSA guys perhaps have a patch with just the
+> PnP bit in it?
+> 
 
-Patches in Attachments aren't nice, but better than corrupted patches.
-
-It's unfortunate, but bitching on the people who are somehow forced to 
-use crappy email clients is IMHO not a good idea.
-
-> Len Sorensen
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/perex/alsa-current.git;a=commitdiff;h=5353d906effe648dd20899fe61ecb6982ad93cdd
 

@@ -1,39 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbVK2GDk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbVK2GF3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751301AbVK2GDk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 01:03:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751315AbVK2GDk
+	id S1751283AbVK2GF3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 01:05:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbVK2GF3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 01:03:40 -0500
-Received: from holomorphy.com ([66.93.40.71]:3011 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S1751301AbVK2GDj (ORCPT
+	Tue, 29 Nov 2005 01:05:29 -0500
+Received: from mail.kroah.org ([69.55.234.183]:385 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751283AbVK2GF3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 01:03:39 -0500
-Date: Mon, 28 Nov 2005 22:03:05 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: David Gibson <david@gibson.dropbear.id.au>
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Fix crash when ptrace poking hugepage areas
-Message-ID: <20051129060305.GC2240@holomorphy.com>
-References: <20051129050628.GB12498@localhost.localdomain> <20051128211807.66817481.akpm@osdl.org> <20051129054136.GA16852@localhost.localdomain>
+	Tue, 29 Nov 2005 01:05:29 -0500
+Date: Mon, 28 Nov 2005 21:44:11 -0800
+From: Greg KH <greg@kroah.com>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Patrick Mochel <mochel@digitalimplant.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Updates to sysfs_create_subdir()
+Message-ID: <20051129054411.GB11013@kroah.com>
+References: <Pine.LNX.4.50.0511231336261.16769-100000@monsoon.he.net> <20051128204950.GC17740@kroah.com> <37362F2B-D74A-4A40-905B-B25264B6C4AB@mac.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051129054136.GA16852@localhost.localdomain>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <37362F2B-D74A-4A40-905B-B25264B6C4AB@mac.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 29, 2005 at 04:41:36PM +1100, David Gibson wrote:
-> This patch fixes the bug by only calling set_page_dirty() from
-> access_process_vm() if the page is not a compound page.  We already
-> use a similar fix in bio_set_pages_dirty() for the case of direct io
-> to hugepages.
-> Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+On Mon, Nov 28, 2005 at 08:10:36PM -0500, Kyle Moffett wrote:
+> On Nov 28, 2005, at 15:49, Greg KH wrote:
+> >On Wed, Nov 23, 2005 at 01:56:29PM -0800, Patrick Mochel wrote:
+> >>The patch below addresses this issue by parsing the subdirectory  
+> >>name and creating any parent directories delineated by a '/'.
+> >
+> >Generally I never liked parsing stuff like this in the kernel (proc  
+> >and devfs both do this).  That being said, I do see the need to  
+> >make subdirs like this easier.
+> >
+> >But what about cleanups?  If I create an attribute group "foo/baz/ 
+> >x/" and then remove it, will the subdirectories get cleaned up  
+> >too?  What about if I had created a group "foo/baz/y/" after the  
+> >"x" one?  Or just "foo/baz"?
+> 
+> If the kernel gets this, then udev needs to allow attributes with  
+> more generic paths too.  It would be nice if I could use this [Pulled  
+> from the sample udev output halfway down this page: http:// 
+> www.reactivated.net/writing_udev_rules.html#identify-sysfs].
+> 
+> BUS="scsi", SYSFS{../../../manufacturer}="Tekom Technologies, Inc",  
+> NAME="my_camera"
 
-Acked-by: William Irwin <wli@holomorphy.com>
+Why can't you do this today?  Have you tried it?
 
+thanks,
 
--- wli
+greg k-h

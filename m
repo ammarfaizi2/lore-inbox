@@ -1,59 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbVK2GRH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751327AbVK2GXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751320AbVK2GRH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 01:17:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbVK2GRH
+	id S1751327AbVK2GXg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 01:23:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbVK2GXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 01:17:07 -0500
-Received: from rwcrmhc14.comcast.net ([216.148.227.154]:53438 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1751320AbVK2GRG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 01:17:06 -0500
-Mime-Version: 1.0 (Apple Message framework v746.2)
+	Tue, 29 Nov 2005 01:23:35 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:21980 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751327AbVK2GXf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 01:23:35 -0500
+Subject: Re: 2.6.14-rt15: cannot build with !PREEMPT_RT
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Thomas Gleixner <tglx@linutronix.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       david singleton <dsingleton@mvista.com>
+In-Reply-To: <1133217651.4678.2.camel@mindpipe>
+References: <1132987928.4896.1.camel@mindpipe>
+	 <20051126122332.GA3712@elte.hu> <1133031912.5904.12.camel@mindpipe>
+	 <1133034406.32542.308.camel@tglx.tec.linutronix.de>
+	 <20051127123052.GA22807@elte.hu> <1133141224.4909.1.camel@mindpipe>
+	 <20051128114852.GA3391@elte.hu> <1133189789.5228.7.camel@mindpipe>
+	 <20051128160052.GA29540@elte.hu>  <1133217651.4678.2.camel@mindpipe>
+Content-Type: text/plain
+Date: Mon, 28 Nov 2005 21:08:23 -0500
+Message-Id: <1133230103.5640.0.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-Message-Id: <49AF82E8-C8DA-458C-B66E-187DC1650AC8@comcast.net>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-To: linux-kernel <linux-kernel@vger.kernel.org>
-From: Parag Warudkar <kernel-stuff@comcast.net>
-Subject: Re: PowerBook5,8 - TrackPad update
-Date: Tue, 29 Nov 2005 01:17:04 -0500
-X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 28, 2005, at 7:06 PM, Michael Hanselmann wrote:
+On Mon, 2005-11-28 at 17:40 -0500, Lee Revell wrote:
+> 2.6.11-RT-V0.7.40-04 works
 
-> The product ID I have, 0x0215, was in none of the
-> available drivers and the data format is somewhat different
+and 2.6.12-RT-V0.7.51-28 does not.
 
-Hi Michael
+Lee
 
-Is yours the 15" model or the 17"? Mine is 15" and the product id is  
-0x0214.
-
-> You find my hacked version attached -- be aware that in its current  
-> form
-> it will not work with any touchpad except 0x0215.
-
-I haven't looked at your changes completely yet but are you saying it  
-works? Meaning mouse
-moves properly?
-
-Also I find it strange that your model requires 80 bytes ATP_DATASIZE  
-- mine isn't happy
-at all with anything less than 256. The less number of sensors you  
-defined is again a puzzle.
-
-> As far as I see it, all methods can be built into one driver. Is there
-> already someone working on combining them?
-
-If the format of the data is same (which looks like it is with your  
-model) then yes, but in my case
-the data arrives is 64 byte blocks - there are 4 of them in one  
-transfer, each a reading on it's own.
-
-Hmm. More confusion.
-
-Thanks
-
-Parag

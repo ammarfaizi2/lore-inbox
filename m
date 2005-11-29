@@ -1,83 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbVK2W1R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964795AbVK2Wdl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964791AbVK2W1R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 17:27:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbVK2W1R
+	id S964795AbVK2Wdl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 17:33:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbVK2Wdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 17:27:17 -0500
-Received: from mail.linicks.net ([217.204.244.146]:40661 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S964791AbVK2W1Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 17:27:16 -0500
-From: Nick Warne <nick@linicks.net>
-To: Wakko Warner <wakko@animx.eu.org>
-Subject: Re: [OT] 1500 days uptime.
-Date: Tue, 29 Nov 2005 22:26:49 +0000
-User-Agent: KMail/1.8.1
-Cc: Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200511242147.45248.nick@linicks.net> <438B89EE.9080707@tmr.com> <20051129003159.GA4643@animx.eu.org>
-In-Reply-To: <20051129003159.GA4643@animx.eu.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 29 Nov 2005 17:33:41 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:63223 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S964795AbVK2Wdl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 17:33:41 -0500
+Subject: Re: [Perfctr-devel] Re: Enabling RDPMC in user space by default
+From: Nicholas Miell <nmiell@comcast.net>
+To: Andi Kleen <ak@suse.de>
+Cc: Stephane Eranian <eranian@hpl.hp.com>,
+       Ray Bryant <raybry@mpdtxmail.amd.com>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org, perfctr-devel@lists.sourceforge.net
+In-Reply-To: <20051129215207.GR19515@wotan.suse.de>
+References: <20051129151515.GG19515@wotan.suse.de>
+	 <200511291056.32455.raybry@mpdtxmail.amd.com>
+	 <20051129180903.GB6611@frankl.hpl.hp.com>
+	 <20051129181344.GN19515@wotan.suse.de> <1133300591.3271.1.camel@entropy>
+	 <20051129215207.GR19515@wotan.suse.de>
+Content-Type: text/plain
+Date: Tue, 29 Nov 2005 14:33:35 -0800
+Message-Id: <1133303615.3271.12.camel@entropy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4.njm.1) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511292226.49873.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 November 2005 00:31, Wakko Warner wrote:
-> Bill Davidsen wrote:
-> > Nick Warne wrote:
-> > >Hi all,
-> > >
-> > >BrrrrrrrrrrrrBrrrr
-> > >
-> > >That was me blowing my own trumpet again :-)
-> > >
-> > >Re:
-> > >http://www.ussg.iu.edu/hypermail/linux/kernel/0407.1/0651.html
-> > >
-> > >Now just hit 1500 days:
-> > >
-> > >-
-> > >[nick@486Linux nick]$ last -xf /var/run/utmp runlevel
-> > >runlevel (to lvl 3)                    Sun Oct 14 16:07 - 21:41
-> > >(1502+06:34)
-> > >
-> > >utmp begins Sun Oct 14 16:07:40 2001
-> > >-
-> > >
-> > >Utterly remarkable - the box gets no maintenance at all.
-> >
-> > But it clearly gets a very reliable flavor of electricity...
-> >
-> > >I would love to know how much data it has delivered, but alas, in 2001 I
-> > >wasn't up-to-speed with that sort of thing :-)
-> >
-> > We got one to 1460 or so, then got BSOD on the controller which switches
-> > from the UPS to the diesel when they get up to speed, dropped power on
-> > the whole data center (at work).
-> >
-> > I think you have the record, though.
->
-> I'm not sure about that one. =)
+On Tue, 2005-11-29 at 22:52 +0100, Andi Kleen wrote:
+> On Tue, Nov 29, 2005 at 01:43:11PM -0800, Nicholas Miell wrote:
+> > On Tue, 2005-11-29 at 19:13 +0100, Andi Kleen wrote:
+> > > > Where did you see that PMC0 (PERSEL0/PERFCTR0) can only be programmed
+> > > > to count cpu cycles (i.e. cpu_clk_unhalted)? As far as I can tell from
+> > > > the documentation, the 4 counters are symetrical and can measure
+> > > > any event that the processor offers.
+> > > 
+> > > Linux NMI watchdog does that.
+> > > 
+> > > All other perfctr users are supposed to keep their fingers away 
+> > > from the watchdog (it looks like oprofile doesn't but not for much
+> > > longer ...) 
+> > 
+> > Why? Hardcoding PMC 0 to be a cycle counter seems to be a waste of a
+> > perfectly usable performance counter. What if I want to profile four
+> > things, none of them requiring a cycle count?
+> 
+> You won't then anymore. Providing a full replacement for RDTSC is 
+> more important.
+> 
 
-No, I wasn't even thinking that - just reporting what a wonderful job it all 
-is - and yes, power supply here in Pompey UK is good (but we do pay thru' the 
-nose for everything in the UK).  The last time I _did_ reboot that machine 
-was when my kettle lead shorted out and blew the fuses to my flats 240v 
-supply ring main.
+I think you really need to come up with a better justification than "I
+think this will be useful" for a permanent user-space ABI change.
 
-According to the Linux counter site, there are more higher (my machine is 3rd 
-in the list):
+What problem are you trying to solve, why is that a problem, how does
+making PMC0 always be a cycle counter solve that, what makes you think
+that future CPUs will have the same type of cycle counter that behaves
+the same way as the current cycle counters, etc.
 
-http://counter.li.org/reports/uptimestats.php
+AFAICT, the problem you're trying to solve is two-fold:
 
-Nick
+a) RDTSC is serializing and RDPMC isn't.
+
+Which is nicely solved by RDTSCP.
+
+and
+b) RDTSC isn't well defined.
+
+Well, RDPMC isn't defined at all. You're assuming that future processor
+revisions will have the same or substantially similar PerfCtrs as
+current processors, and nothing guarantees that at all.
+
 -- 
-"Person who say it cannot be done should not interrupt person doing it."
--Chinese Proverb
-My quake2 project:
-http://sourceforge.net/projects/quake2plus/
+Nicholas Miell <nmiell@comcast.net>
+

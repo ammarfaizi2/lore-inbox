@@ -1,82 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbVK2QHq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbVK2QJs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751392AbVK2QHq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 11:07:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbVK2QHq
+	id S1751393AbVK2QJs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 11:09:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751394AbVK2QJs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 11:07:46 -0500
-Received: from amdext4.amd.com ([163.181.251.6]:43210 "EHLO amdext4.amd.com")
-	by vger.kernel.org with ESMTP id S1751392AbVK2QHp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 11:07:45 -0500
-X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
-From: "Ray Bryant" <raybry@mpdtxmail.amd.com>
-To: "Andi Kleen" <ak@suse.de>
-Subject: Re: Enabling RDPMC in user space by default
-Date: Tue, 29 Nov 2005 10:56:31 -0600
-User-Agent: KMail/1.8
-cc: discuss@x86-64.org, linux-kernel@vger.kernel.org,
-       perfctr-devel@lists.sourceforge.net
-References: <20051129151515.GG19515@wotan.suse.de>
-In-Reply-To: <20051129151515.GG19515@wotan.suse.de>
-MIME-Version: 1.0
-Message-ID: <200511291056.32455.raybry@mpdtxmail.amd.com>
-X-OriginalArrivalTime: 29 Nov 2005 16:07:20.0859 (UTC)
- FILETIME=[FA53BEB0:01C5F4FE]
-X-WSS-ID: 6F92A3321BO230751-02-01
-Content-Type: text/plain;
- charset=iso-8859-1
+	Tue, 29 Nov 2005 11:09:48 -0500
+Received: from baythorne.infradead.org ([81.187.2.161]:42216 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S1751393AbVK2QJr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 11:09:47 -0500
+Subject: Re: [PATCH] 3/3 Generic sys_rt_sigsuspend
+From: David Woodhouse <dwmw2@infradead.org>
+To: Daniel Jacobowitz <dan@debian.org>
+Cc: Mika =?ISO-8859-1?Q?Penttil=E4?= <mika.penttila@kolumbus.fi>,
+       linux-kernel@vger.kernel.org, drepper@redhat.com,
+       linuxppc-dev@ozlabs.org, akpm@osdl.org
+In-Reply-To: <20051129155346.GA25431@nevyn.them.org>
+References: <1133225007.31573.86.camel@baythorne.infradead.org>
+	 <1133225852.31573.115.camel@baythorne.infradead.org>
+	 <438BE48B.9060908@kolumbus.fi>
+	 <1133260923.31573.131.camel@baythorne.infradead.org>
+	 <20051129155346.GA25431@nevyn.them.org>
+Content-Type: text/plain
+Date: Tue, 29 Nov 2005 16:09:38 +0000
+Message-Id: <1133280578.31573.183.camel@baythorne.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 November 2005 09:15, Andi Kleen wrote:
-> Hallo,
->
-> I'm considering to enable CR4.PCE by default on x86-64/i386. Currently it's
-> 0 which means RDPMC doesn't work. On x86-64 PMC 0 is always programmed to
-> be a cycle counter, so it would be useful to be able to access
-> this for measuring instructions. That's especially useful because RDTSC
-> does not necessarily count cycles in the current P state (already
-> the case on Intel CPUs and AMD's future direction seems to also
-> to decouple it from cycles) Drawback is that it stops during idle, but
-> that shouldn't be a big issue for normal measuring. It's not useful
-> as a real timer anyways.
->
-> On Pentium 4 it also has the advantage that unlike RDTSC it's not
-> serializing so should be much faster.
->
-> The kernel change would be to always set CR4.PCE to allow RDPMC
-> in ring 3.
->
+On Tue, 2005-11-29 at 10:53 -0500, Daniel Jacobowitz wrote:
+> And, crazy coincidence, I think this will fix the recently reported
+> ptrace attach bug.  Right now if you ptrace a process stuck in
+> sigsuspend, you can't easily force it to return to userspace.
+> I'll test that if these patches are merged.
 
-You might also ping Stephane Eranian and the folks that are working on 
-defining a common performance measurement interface in the kernel
-over on  perfctr-devel@lists.sourceforge.net and see what they think.
-I'll cc them on this reply.
+That seems to be true. What I get with my patches is...
 
-> It would be actually a good idea to disable RDTSC in ring 3 too
-> (because user space usually doesn't have enough information to make
-> good use of it and gets it wrong), but I fear that will break
-> too many applications right now.
->
+# strace -p `pidof sigsusptest`
+Process 1954 attached - interrupt to quit
+rt_sigsuspend([])                       = ? ERESTARTNOHAND (To be restarted)
+--- SIGALRM (Alarm clock) @ 0 (0) ---
+sigreturn()                             = ? (mask now [])
+fstat64(1, {st_mode=S_IFCHR|0620, st_rdev=makedev(4, 64), ...}) = 0
+ioctl(1, TCGETS, {B115200 opost isig icanon echo ...}) = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x3001f000
+write(1, "r is -1\n", 8)                = 8
+munmap(0x3001f000, 4096)                = 0
+exit_group(8)                           = ?
+Process 1954 detached
 
-FWIW, I agree here.   We lock down the power state and still use RDTSC for 
-some timing things.
+... whereas without them I get not only a failure to attach, until
+there's a signal, but an unexplained SIGSEGV too...
 
-> Any comments on this?
->
-> -Andi
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+# strace -p `pidof sigsusptest`
+Process 3105 attached - interrupt to quit
+--- SIGALRM (Alarm clock) @ 0 (0) ---
+rt_sigsuspend([])                       = 14
+rt_sigsuspend([] <unfinished ...>
+--- SIGSEGV (Segmentation fault) @ 0 (0) ---
+Process 3105 detached
 
 -- 
-Ray Bryant
-AMD Performance Labs                   Austin, Tx
-512-602-0038 (o)                 512-507-7807 (c)
+dwmw2
+
 

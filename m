@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbVK2UbQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbVK2UgQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932387AbVK2UbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 15:31:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbVK2UbQ
+	id S932391AbVK2UgQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 15:36:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbVK2UgQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 15:31:16 -0500
-Received: from solarneutrino.net ([66.199.224.43]:59652 "EHLO
-	tau.solarneutrino.net") by vger.kernel.org with ESMTP
-	id S932382AbVK2UbP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 15:31:15 -0500
-Date: Tue, 29 Nov 2005 15:31:12 -0500
-To: Kai Makisara <Kai.Makisara@kolumbus.fi>
-Cc: Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, ryan@tau.solarneutrino.net
-Subject: Re: Fw: crash on x86_64 - mm related?
-Message-ID: <20051129203112.GD6326@tau.solarneutrino.net>
-References: <20051129092432.0f5742f0.akpm@osdl.org> <Pine.LNX.4.63.0511292147120.5739@kai.makisara.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0511292147120.5739@kai.makisara.local>
-User-Agent: Mutt/1.5.9i
-From: Ryan Richter <ryan@tau.solarneutrino.net>
+	Tue, 29 Nov 2005 15:36:16 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:23200 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S932392AbVK2UgO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 15:36:14 -0500
+Date: Tue, 29 Nov 2005 21:36:13 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] hpfs: Whitespace and Codingstyle cleanup for dir.c
+In-Reply-To: <1133294620.20315.9.camel@localhost>
+Message-ID: <Pine.LNX.4.62.0511292131460.2031@artax.karlin.mff.cuni.cz>
+References: <200510121326.52216.jesper.juhl@gmail.com> 
+ <Pine.LNX.4.62.0510121327580.28884@artax.karlin.mff.cuni.cz> 
+ <9a8748490511290717o4d4caa8fi47b9103d0f5ea80b@mail.gmail.com>
+ <1133294620.20315.9.camel@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 29, 2005 at 10:04:39PM +0200, Kai Makisara wrote:
-> I looked at the driver and it seems that there is a bug: st_write calls 
-> release_buffering at the end even when it has started an asynchronous 
-> write. This means that it releases the mapping while it is being used!
-> (I wonder why this has not been noticed earlier.)
-> 
-> The patch below (against 2.6.15-rc2) should fix this bug and some others 
-> related to buffering. It is based on the patch "[PATCH] SCSI tape direct 
-> i/o fixes" I sent to linux-scsi on Nov 21. The patch restores setting 
-> pages dirty after reading and clears number of s/g segments when the 
-> pointers are not valid any more.
-> 
-> The patch has been lightly tested with AMD64.
+Hi
 
-This applies cleanly to 2.6.14.2, do you forsee any problems using it
-with that kernel?  I'd like to not change too many things at once.
+> Hi,
+>
+> On Tue, 2005-11-29 at 16:17 +0100, Jesper Juhl wrote:
+>> Well, as Pekka Enberg also pointed out, Documentation/CodingStyle says
+>> that's not the prefered way. But, it's your code, so if you don't like
+>> the cleanups don't apply them.
+>> i still think the patch is a good idea and makes the file more
+>> readable though.
 
-If it should be OK, I'll boot this tonight or tomorrow - the backups run
-every other night, so it won't get any testing until tomorrow night.
+I think: if you are going to hack the hpfs code and coding style patches 
+will improve your experience, apply them and push them into mainstream 
+kernel. Otherwise don't --- they wouldn't help anybody and they would make 
+patch merging between 2.0, 2.2, 2.4 and 2.6 version of this driver (yes 
+--- I keep all these synchronised) harder.
 
-Thanks a lot,
--ryan
+Mikulas
+
+> I also think the patches are a good idea but it is up to the maintainer,
+> of course.
+>
+> 				Pekka
+>

@@ -1,211 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932333AbVK2C12@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbVK2C03@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932333AbVK2C12 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 21:27:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932334AbVK2C12
+	id S932294AbVK2C03 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 21:26:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbVK2C03
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 21:27:28 -0500
-Received: from vms044pub.verizon.net ([206.46.252.44]:36958 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S932333AbVK2C11 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 21:27:27 -0500
-Date: Mon, 28 Nov 2005 21:25:52 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: cx88 totally fried in 2.6.15-rcX -was- Re: HD3000 - no NTSC via
- tuner
-In-reply-to: <438BAC38.3070505@m1k.net>
-To: linux-kernel@vger.kernel.org
-Cc: Michael Krufky <mkrufky@m1k.net>,
-       Linux and Kernel Video <video4linux-list@redhat.com>,
-       Don Koch <aardvark@krl.com>, Perry Gilfillan <perrye@linuxmail.org>
-Message-id: <200511282125.52997.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <200511282205.jASM5YUI018061@p-chan.krl.com>
- <200511281835.56805.gene.heskett@verizon.net> <438BAC38.3070505@m1k.net>
-User-Agent: KMail/1.7
+	Mon, 28 Nov 2005 21:26:29 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:21478
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S932294AbVK2C03 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 21:26:29 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: [PATCH] make miniconfig (take 2)
+Date: Mon, 28 Nov 2005 20:26:09 -0600
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>
+References: <200511170629.42389.rob@landley.net> <200511271859.20735.rob@landley.net> <Pine.LNX.4.61.0511290139150.1609@scrub.home>
+In-Reply-To: <Pine.LNX.4.61.0511290139150.1609@scrub.home>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511282026.09511.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 28 November 2005 20:17, Michael Krufky wrote:
->Gene Heskett wrote:
->>On Monday 28 November 2005 18:01, Michael Krufky wrote:
->>>Perry Gilfillan wrote:
->>>>>Don Koch wrote:
->>>>>>(Followup to posting on pcHDTV forum.)
->>>>>>
->>>>>>I recentely purchased a pcHDTV HD3000 card.  Initially I was
->>>>>> having problems with NTSC reception in general (via tuner,
->>>>>> composite or svideo input), part of which was a problem with the
->>>>>> version of linux I was using.  Currently running
->>>>>>2.6.15-rc2-g458af543.
->>>>>>
->>>>>>Symptoms:
->>>>>>- ATSC OTA, svideo and composite work.  NTSC tuner does not (tried
->>>>>>both OTA and cable).
->>>>>>- Xawtv segfaults unless given a specific device (/dev/video0) and
->>>>>>then doesn't show anything in any mode including composite and
->>>>>>svideo.  This may just be an xawtv problem.
->>>>>>- Using tvtime works for composite and svideo, but the tuner
->>>>>>doesn't work in either broadcast or cable settings.  Disabling
->>>>>>signal detection shows the same "image" for any channel.
->>>>>>
->>>>>>All the appropriate modules seem to be in place.
->>>>
->>>>I can report some similar troubles.  It has worked with vanilla
->>>>kernel up to 2.6.13 on x86 up untill two weeks ago, when I moved the
->>>>card to an amd64 system.
->>>>
->>>>I'm currently running gentoo-sources-2.6.13 on amd64.  I have not
->>>>tried the newly merged tree with this kernel.
->>>>
->>>>However with gentoo-sources-2.6.14-r2 I tried the newly merged tree,
->>>>and do not get NTSC reception.  I have not tried the drivers as
->>>>released with 2.6.14 yet, so I'll follow up later on that.
->>>>
->>>>I'm also having some issues with the VIA Unichrome drivers with
->>>>2.6.14, so I may not be able to get far enough to really see whats
->>>>happening.
->>>
->>>I know that this board uses a Thomson DDT 7610 tuner.  I have a
->>>FusionHDTV3 Gold-T card that uses Thomson DDT 7611 tuner.  I've seen
->>> a copy of the datasheet -- both tuners are the same.
->>>
->>>Now, here's my story:  My card was working fine for a good long time,
->>>but ever since about 2 months ago, the analog tuner no longer works.
->>>ONLY the ATSC digital tuner is working.  The tuner does NOT include a
->>>tda9887, AFAIK, and I have also tested in windows.  Regardless of
->>>whether I am using Linux or Windows, I can only view an ATSC digital
->>>stream, NTSC analog no longer works at all.  Both used to work in
->>> both OS's.
->>>
->>>AFAIK, this is a physical hardware problem, and has nothing to do
->>> with any bad coding.  For the life of me, I cannot figure out what
->>> went wrong.
->>>
->>>-Mike
->>>
->>>Maybe Herman, or someone else, might be able to tell us what factors
->>>can burn out a hybrid tuner's analog capabilities, and leave digital
->>>tuning capabilities intact.
->>>
->>>Maybe the Thomson DDT 761x tuners are faulty?
->>>
->>>Can anybody enlighten us?
->>
->>Well, based on the note about -rc2-git6 having the v4l stuff reverted,
->>I just built it.  Same song, same verse.  The tuner acts as if the
->>antenna has been disconnected and held a fraction of an inch away. 
->> The video is all digital noise (in VSB), and the audio has a fraction
->> of a word now and then, buried in white noise.  As my dish receiver
->> has about a 65,000 u-volt output, I find that sort of signal loss
->> almost unbelievable.
->>
->>It still takes a cold reboot back to 2.6.14.3 or I think any earlier
->>kernel (that worked ok) in order to restore the cards normal
->> operation, I'm watching cnn on it right now after having done so.
->>
->>So to me, there is little difference between git3 and git6.  Neither
->>works, failing in the same manner exactly, and matching the
->> performance of 15-rc2 as issued.  I didn't build -rc1, so I can't say
->> exactly where the hose got cut.
->>
->>I'd suggest just blowing the v4l directory in the -rc2 kernel away,
->> and replacing it with that from 2.6.14.3 just to get back to a
->> working sitiuation that you can then start from scratch on.  But
->> whatdoIknow? :)Gene Heskett <gene.heskett@verizon.net>
+On Monday 28 November 2005 19:00, Roman Zippel wrote:
+
+> > > I think it can even be done in a single pass over all the symbols,
+> > > where boolean/tristate symbols are checked if they are already at the
+> > > minimum value and string/hex/int values are compared with their default
+> > > values.
+> >
+> > Minimum value?
 >
->EEK!  This is not the problem that I'm having at all.....  Then again,
-> I have a different board.
+> This is actually documented. :)
+> n - 0, m - 1, y - 2
+
+I understand that bit, but the problem with the single pass you suggested is 
+that symbols can be set by dependencies (like the one afflicting CONFIG_PM), 
+and those are neither off nor at their default, yet they're not actually 
+required.
+
+So a third criteria would be that this symbol's value is occluded by some 
+other symbol.  (And "occluded" could either be "in a menu that's not open" or 
+"set by somebody else's dependency".)
+
+This starts sounding like a directed graph, and I am _not_ familiar enough 
+with the kconfig structure to try to work it out yet.
+
+I think, however, that "at default" (for allnoconfig's default, anyway) or 
+"set by a dependency from another symbol" are the only two instances where we 
+don't care about this value because it can be regenerated.  There's a corner 
+case where the directed graph has cycles in it (two things that each switch 
+the other on if they're enabled), but A) this is probably illegal already, B) 
+we don't care which one we skip as long as there's no _redundant_ 
+information.  Just be consistent (keep the first one).
+
+How far off am I?
+
+> > > Next step could be to add a variation of allnoconfig with better error
+> > > checking (e.g. checking that all requested symbols have been set),
+> >
+> > Um, I thought my patch did that.  If any unrecognized symbols were
+> > encountered, my miniconfig patch would report it and exit with an error
+> > by the simple expedient of making the warning count a global and checking
+> > it afterwards.  (I did a sort of -Werror for kconfig.)  If it attempts to
+> > set an unrecognized symbol, it would already generate a warning, and if
+> > the warning count is nonzero it bails out with an error at the end. 
+> > Seemed to work quite well, for me anyway...
+> >
+> > What cases would that not catch?
 >
->Gene, telling someone to revert all the v4l changes in 2.6.15 doesn't
->help us to fix the actual problem at all, nor will it help them use
->their hardware.
+> Symbols can be hidden by new dependencies.
+
+Something gets enabled that then disables other things?  Hmmm...
+
+I've been thinking of things in terms of visibility.  The menu this symbol 
+lives in either is or isn't open, and I can't set the symbol unless its menu 
+is open.  If two different symbols control visibility for the same menu, it's 
+still really that the menu has one guard symbol and that dependencies of 
+other things are messing with that guard symbol.  I think.
+
+The way I've been thinking about miniconfigs is that each symbol in a 
+miniconfig is an action changing the default state.  When you read in a 
+miniconfig, you start with all symbols at default allnoconfig values, and 
+then make this list of changes to that state (in order) letting the 
+dependencies do their thing with each change.  (This maps to what a user 
+would do in menuconfig, selecting X, Y, and Z in this order.  I could write 
+it down on a piece of paper for the user, so why can't the machine do it for 
+me?)
+
+So really a miniconfig can't specify an inconsistent state, it can only be 
+redundant.  (It can switch on things that later get switched off again by 
+dependencies on later symbols.)  And all that means is the miniconfig is 
+longer than it needs to be, which could easily be the case if a human made it 
+by hand.  Perhaps some kind of warning would be a good idea ("symbol 
+CONFIG_BLAH reverted by CONFIG_BLAH"), if it was easy to implement (perhaps 
+by tagging the "manually" selected symbols, ones which the miniconfig had 
+already explicitly specified a value for).  But not a show-stopper to me.
+
+> > Good point, but the existing format is 90% of the gain for 10% of the
+> > effort. Going from .config to miniconfig for my laptop's kernel, for
+> > example, goes from 1370 lines to 138 lines, almost exactly a 10x
+> > reduction.  And that can be done (admittedly badly) today, with the patch
+> > I posted.
+> >
+> > Dropping that 138 down to 120, or even to 100, is a polishing step in
+> > comparison.  Do you think there are another 30 lines that could be
+> > trimmed out of that 138?  (Attached.)
 >
->Gene, I believe that I asked you to install the cvs modules against
->2.6.14, and you told me that doing that works. 
+> Yes, some symbols are hidden behind a lot of dependencies, if a user wants
+> to enable a new option, he only adds one new option and kconfig can try to
+> figure out the missing options.
 
-No, I never did get it to work Michael, and I believe I said so, mainly
-because it wouldn't even compile.  ISTR I sent a message with the
-compiler exit messages at the time.
+You mean enabling a symbol in a closed menu would open the menu (but leave 
+everything else in it disabled, rather than at default values)?  So 
+miniconfig wouldn't have to specify guard symbols at all anymore?
 
-Now I'd be willing to try it again, but I'd need exactly the proceedure
-as it would apply to a working 2.6.14.x kernel.  I don't think I did it
-right the last time.  My script, fwiw, renames one generation back so
-that a bad kernel can be reverted easily by renameing the vmlinuz and
-/lib/modules/version-number trees.  Its kind of a swiss army knife in
-that I comment/uncomment stuff in the buildit (thats another script I
-use to apply then patches etc), but the makeit script only needs the
-version number updated to match the Makefile and from there its a 'time
-./makeit' till I'm done editing grub.conf & ready to reboot.  I've taken
-note that the recent makefiles apparently does its own depmod operation
-when doing the modules_install but haven't taken my command out of it
-yet so that gets done twice..
+That would be nice.  I suspect there are guard symbols that are also 
+functional (CONFIG_SCSI comes to mind), so the rule would have to be 
+something like guard symbols are only discardable when something in the menu 
+they protect _is_ specified.
 
-> The code in cvs
-> contains all the patches that we have sent to 2.6.15 and THEN some. 
-> Can you please confirm that installing the cvs modules from v4l-dvb
-> cvs (v4l and dvb have merged cvs repo's) against 2.6.14 is NOT
-> broken??  This would rule out any possibility of the v4l changes in
-> 2.6.15 being the cause of your problems.
+However, that could go in as a future enhancement, because it falls under 
+"specifying redundant symbols".  A miniconfig that did switch on the menus 
+(which would then be selected by a later dependency anyway, once the config 
+reading logic was upgraded) would still work in to configure a newer kernel 
+with a smarter configurator, wouldn't it?
 
-See above.
+> bye, Roman
 
->It is WELL established that there are memory errors in 2.6.15 
-> (although I thought they were all fixed -- guess not).  I understand
-> that you are using some MakeIt script to build your kernel -- have you
-> tried the standard method?
-
-My script does it essentially the same as one would do it by hand.  The
-exception being that I understand the Makefile now has an install target
-for the kernel, but my script does the copying rather than calling that,
-and *I* do the grub.conf editing.
-
->[...a few minutes go by...]
->
->OKAY, I concur -- When I did my testing for 2.6.15-rc2-git6, that was
->with my saa7134-based card, using nxt200x ... success!
->
->However, when I tried using my FusionHDTV3 Gold-T (cx88 card using
->lgdt3302), neither analog nor digital works in 2.6.15-rc2-git6....
->Under 2.6.13 (and 2.6.14, i think), however, digital DOES work.  Analog
->still doesnt work, but i believe that my hardware is damaged.
-
-He should do a full shutdown and cold boot to a kernel he knows works,
-and I expect the analog will work again.  Warm reboots DO NOT DO IT!
-
->SO, looks like we have a regression somewhere in the kernel that breaks
->the cx88 driver :-(
->
->I don't even know where to begin.
->
->
->...One idea... We also know that upstream changes created some compile
->warnings in tuner-core...  Hans has fixed that in cvs -- maybe Hans'
->patch in v4l-dvb cvs could fix it?  Gene, try installing v4l-dvb cvs
->against 2.6.15-rc2-git6 (or later) and see if that might fix NTSC.
->Somehow, I doubt it -- but it is certainly worth a try.
-
-Like I said, complete instructions please so that we are on the same
-page.  I still have the rc2-git6 tree that didn't work, so as my script
-does a make clean, it should be easy enough to do with the right
-instructions.  Like what dir in the kernel tree am I supposed to be in
-when I issue the cvs checkout command etc.
-
->Regards,
->
->Michael Krufky
-
+Rob
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.36% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
-
+Steve Ballmer: Innovation!  Inigo Montoya: You keep using that word.
+I do not think it means what you think it means.

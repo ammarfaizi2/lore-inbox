@@ -1,94 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964796AbVK2XBq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbVK2XCm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964796AbVK2XBq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 18:01:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964800AbVK2XBq
+	id S964800AbVK2XCm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 18:02:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964802AbVK2XCl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 18:01:46 -0500
-Received: from kirby.webscope.com ([204.141.84.57]:20919 "EHLO
-	kirby.webscope.com") by vger.kernel.org with ESMTP id S964796AbVK2XBp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 18:01:45 -0500
-Message-ID: <438CDDBC.1070704@m1k.net>
-Date: Tue, 29 Nov 2005 18:01:16 -0500
-From: Michael Krufky <mkrufky@m1k.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kirk Lapray <kirk.lapray@gmail.com>
-CC: Gene Heskett <gene.heskett@verizon.net>, video4linux-list@redhat.com,
-       CityK <CityK@rogers.com>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Perry Gilfillan <perrye@linuxmail.org>, Don Koch <aardvark@krl.com>
-Subject: Re: Gene's pcHDTV 3000 analog problem
-References: <200511282205.jASM5YUI018061@p-chan.krl.com>	 <200511291335.18431.gene.heskett@verizon.net>	 <438CA1E3.7010101@m1k.net>	 <200511291546.27365.gene.heskett@verizon.net> <438CC83E.50100@m1k.net> <c35b44d70511291435i5f07bc88g429276ef659c28c5@mail.gmail.com>
-In-Reply-To: <c35b44d70511291435i5f07bc88g429276ef659c28c5@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 29 Nov 2005 18:02:41 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:27119 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S964800AbVK2XCl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 18:02:41 -0500
+Subject: Re: [Perfctr-devel] Re: Enabling RDPMC in user space by default
+From: Nicholas Miell <nmiell@comcast.net>
+To: Andi Kleen <ak@suse.de>
+Cc: Stephane Eranian <eranian@hpl.hp.com>,
+       Ray Bryant <raybry@mpdtxmail.amd.com>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org, perfctr-devel@lists.sourceforge.net
+In-Reply-To: <20051129224346.GS19515@wotan.suse.de>
+References: <20051129151515.GG19515@wotan.suse.de>
+	 <200511291056.32455.raybry@mpdtxmail.amd.com>
+	 <20051129180903.GB6611@frankl.hpl.hp.com>
+	 <20051129181344.GN19515@wotan.suse.de> <1133300591.3271.1.camel@entropy>
+	 <20051129215207.GR19515@wotan.suse.de> <1133303615.3271.12.camel@entropy>
+	 <20051129224346.GS19515@wotan.suse.de>
+Content-Type: text/plain
+Date: Tue, 29 Nov 2005 15:02:18 -0800
+Message-Id: <1133305338.3271.30.camel@entropy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4.njm.1) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirk Lapray wrote:
+On Tue, 2005-11-29 at 23:43 +0100, Andi Kleen wrote:
+> > I think you really need to come up with a better justification than "I
+> > think this will be useful" for a permanent user-space ABI change.
+> 
+> There's no user space ABI change involved, at least not from
+> the kernel side. Hardware is breaking some assumptions people
+> made though (they actually never worked fully, but these days they
+> break more clearly) and this is a best effort to adapt.
 
-> I only run the cards in digital mode.  I have no need to tune to any 
-> analog channels with them.  When I was working on nxt200x I was able 
-> to tune both analog and digital channels on the HDTV Wonder, but I 
-> have never tried to tune to any analog channels using the HD3000.  
-> This was using kernel 2.6.13 and the cvs v4l and dvb trees.
->
-> I am not sure when I will have some time to test 2.6.15-rc3, but if I 
-> get some time I will try analog support on this and my current setup.
->
-> Kirk
->
-Kirk-
+Yes there is, you're allowing userspace usage of RDPMC and you're
+guaranteeing that PMC0 will always be a cycle counter. The RDPMC usage
+is benign (assuming you make a note somewhere that future versions of
+Linux might disable both RDPMC and RDTSC(P) to prevent timing-channel
+attacks), but that "PMC0 is a cycle counter" guarantee will probably
+come back to haunt you.
 
-Please test your cards in analog mode, or I fear that we may have to 
-cause NXT200X to depend on BROKEN.
+> To give an bad analogy RDTSC usage in the last years is
+> like explicit spinning wait loops for delays in the earlier
+> times. They tended to work on some subset of computers,
+> but were always bad and caused problems and people eventually learned
+> it was better to use operating system services for this.
 
-Here's why....
+And you are now suggesting people should use RDPMC instead of OS
+services?
 
-A few months ago, as we added the nxt200x module to cvs, I told you that 
-with nxt200x loaded into memory, I had some extra devices showing up on 
-my i2c bus.  At the time, I was using another cx88 card, and it did not 
-use the nxt200x module itself, although it loads up into memory 
-automatically by the cx88-dvb module.
+> The kernel will probably not disable RDTSC outright,
+> but will make it clear in documentation that it's a bad
+> idea to use directly and laugh at everybody who runs
+> into problems with it.
+> 
+> oprofile usage might change slightly though, although only
+> for a small subset of its users. There can't be very many
+> of them using multiple performance counters anyways because
+> at least in the last 0.9 release I tried it didn't even work.
+> 
+> > What problem are you trying to solve, why is that a problem, how does
+> > making PMC0 always be a cycle counter solve that, what makes you think
+> 
+> Read the original messages in the thread. They explain it all.
+> 
+> > that future CPUs will have the same type of cycle counter that behaves
+> > the same way as the current cycle counters, etc.
+> > 
+> > AFAICT, the problem you're trying to solve is two-fold:
+> > 
+> > a) RDTSC is serializing and RDPMC isn't.
+> > 
+> > Which is nicely solved by RDTSCP.
+> 
+> No, you got that totally wrong. Please read the RDTSCP specification again.
 
-You told me that there was some code in nxt200x module that somehow 
-opens up a channel to hidden i2c devices.  Why would this code affect my 
-system if my device is not using the nxt200x module?
+Whoops, thanks.
 
-Is there code being run at nxt200x module load that is causing this 
-BEFORE cx88-dvb calls nxt200x_attach() ?
+> > and
+> > b) RDTSC isn't well defined.
+> 
+> It's well defined - but in a way that makes it useless for cycle
+> measurements these days.
+> 
+> > 
+> > Well, RDPMC isn't defined at all. You're assuming that future processor
+> > revisions will have the same or substantially similar PerfCtrs as
+> > current processors, and nothing guarantees that at all.
+> 
+> Point, but i guess it is reasonable to assume that future x85 CPUs
+> will have cycle counter perfctrs.  I cannot imagine anybody dropping
+> such a basic facility.
 
-It seems that Gene, Perry and Don are having problems with their analog 
-tuners (they each have pcHDTV 3000) ever since nxt200x got added.
+I don't think that's a reasonable assumption at all.
 
-Gene, Perry and Don - What happens if you have the cx88 module loaded, 
-but you do NOT load up cx88-dvb (nxt200x will not be loaded) ... Does 
-the problem persist?
+The definition of all these performance events for the Opteron is hidden
+away in a very terse chart in the BIOS/Kernel manual.
 
-You do not need cx88-dvb to view analog television.
+That chart contains incompatible variations for pre-B, B, and C revision
+processors and (among other strange things) includes instructions for
+the monitoring of segment register loads to the HS register.
 
-Kirk, we need a control group!  Please test analog on both boards.
+Everything is telling me that this is not something AMD intends to keep
+stable and it isn't even something they're interested in documenting
+very well at all.
 
-Kirk, there is a thread on the v4l/dvb mailing lists right now about an 
-i2c gate dealing with Hauppauge cards and cx22702 frontend.  What Steve 
-Toth has described about this 'i2c gate' is starting to sound similar to 
-what you mentioned about making hidden i2c devices visible.
+My problem with this is basically that you are abusing something not
+intended as a RDTSC-like interface to replace RDTSC, you're using a
+scarce resource that could probably be put to better use to do it,
+there's no guarantee that this abuse will continue to work in future
+processor revisions, and this is a userspace-visible ABI change that
+will have to be maintained indefinitely.
 
-I'm getting the feeling that nxt200x is indeed the problem.
-
-Gene, Perry and Don .... Another thing you can try -- Once again, 
-install v4l-dvb cvs on top of your running kernel, but this time, before 
-compiling, edit v4l-dvb/v4l/Makefile , and remove the line:
-
- EXTRA_CFLAGS += -DHAVE_NXT200X=1
-
-... This line appears twice, you only need to remove the top one, as it 
-pertains to the cx88 card, although it is safe to remove both for the 
-purposes of this test.
-
-If this fixes your problem, then we know that nxt200x is the cause.
-
--Mike
+-- 
+Nicholas Miell <nmiell@comcast.net>
 

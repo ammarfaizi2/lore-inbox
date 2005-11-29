@@ -1,41 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751390AbVK2XUB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbVK2X3o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751390AbVK2XUB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 18:20:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbVK2XUB
+	id S1751106AbVK2X3o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 18:29:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbVK2X3o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 18:20:01 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:37300 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751390AbVK2XUA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 18:20:00 -0500
-Subject: Re: 2.6.14-rt15: cannot build with !PREEMPT_RT
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       david singleton <dsingleton@mvista.com>
-In-Reply-To: <20051129093231.GA5028@elte.hu>
-References: <1133031912.5904.12.camel@mindpipe>
-	 <1133034406.32542.308.camel@tglx.tec.linutronix.de>
-	 <20051127123052.GA22807@elte.hu> <1133141224.4909.1.camel@mindpipe>
-	 <20051128114852.GA3391@elte.hu> <1133189789.5228.7.camel@mindpipe>
-	 <20051128160052.GA29540@elte.hu> <1133217651.4678.2.camel@mindpipe>
-	 <1133230103.5640.0.camel@mindpipe> <20051129072922.GA21696@elte.hu>
-	 <20051129093231.GA5028@elte.hu>
+	Tue, 29 Nov 2005 18:29:44 -0500
+Received: from rwcrmhc11.comcast.net ([216.148.227.151]:44975 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1751106AbVK2X3n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 18:29:43 -0500
+Subject: Re: [Perfctr-devel] Re: Enabling RDPMC in user space by default
+From: Nicholas Miell <nmiell@comcast.net>
+To: Andi Kleen <ak@suse.de>
+Cc: Stephane Eranian <eranian@hpl.hp.com>,
+       Ray Bryant <raybry@mpdtxmail.amd.com>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org, perfctr-devel@lists.sourceforge.net
+In-Reply-To: <20051129231750.GU19515@wotan.suse.de>
+References: <20051129151515.GG19515@wotan.suse.de>
+	 <200511291056.32455.raybry@mpdtxmail.amd.com>
+	 <20051129180903.GB6611@frankl.hpl.hp.com>
+	 <20051129181344.GN19515@wotan.suse.de> <1133300591.3271.1.camel@entropy>
+	 <20051129215207.GR19515@wotan.suse.de> <1133303615.3271.12.camel@entropy>
+	 <20051129224346.GS19515@wotan.suse.de> <1133305338.3271.30.camel@entropy>
+	 <20051129231750.GU19515@wotan.suse.de>
 Content-Type: text/plain
-Date: Tue, 29 Nov 2005 18:19:41 -0500
-Message-Id: <1133306382.4627.22.camel@mindpipe>
+Date: Tue, 29 Nov 2005 15:29:26 -0800
+Message-Id: <1133306966.3271.36.camel@entropy>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4.njm.1) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-29 at 10:32 +0100, Ingo Molnar wrote:
-> I've released -rt21 with these fixes, does it work better for you?
+On Wed, 2005-11-30 at 00:17 +0100, Andi Kleen wrote:
+> On Tue, Nov 29, 2005 at 03:02:18PM -0800, Nicholas Miell wrote:
+> > On Tue, 2005-11-29 at 23:43 +0100, Andi Kleen wrote:
+> > > To give an bad analogy RDTSC usage in the last years is
+> > > like explicit spinning wait loops for delays in the earlier
+> > > times. They tended to work on some subset of computers,
+> > > but were always bad and caused problems and people eventually learned
+> > > it was better to use operating system services for this.
+> > 
+> > And you are now suggesting people should use RDPMC instead of OS
+> > services?
+> 
+> For any kind of timers they should use the OS service 
+> (gettimeofday/clock_gettime). The OS will go to extraordinary
+> means to make it as fast as possible, but when it's slow
+> then because it's not possible to do it faster accurately
+> (that's the case right now modulo one possible optimization)
+> 
+> For cycle counting where they previously used RDTSC they should
+> use RDPMC 0 now.
 
-Thanks, this works perfectly.
+Well, if that's all you want them to use RDPMC 0 for, why not just make
+PMCs programmable from userspace?
 
-Lee
+> > That chart contains incompatible variations for pre-B, B, and C revision
+> > processors and (among other strange things) includes instructions for
+> > the monitoring of segment register loads to the HS register.
+> > 
+> > Everything is telling me that this is not something AMD intends to keep
+> > stable and it isn't even something they're interested in documenting
+> > very well at all.
+> 
+> There are obscure performance counters and then there are basic
+> fundamental performance counters. That particular counter hasn't
+> changed since the K7 days (and K6 didn't have performance counters) 
+
+Sounds like the gamblers fallacy to me, but I'll take your word for it
+for now.
+
+-- 
+Nicholas Miell <nmiell@comcast.net>
 

@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750942AbVK2J3T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750955AbVK2Jas@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750942AbVK2J3T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 04:29:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750946AbVK2J3T
+	id S1750955AbVK2Jas (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 04:30:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750961AbVK2Jas
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 04:29:19 -0500
-Received: from ihug-mail.icp-qv1-irony1.iinet.net.au ([203.59.1.195]:5416 "EHLO
-	mail-ihug.icp-qv1-irony1.iinet.net.au") by vger.kernel.org with ESMTP
-	id S1750929AbVK2J3S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 04:29:18 -0500
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-Message-ID: <438C1F68.4070707@eyal.emu.id.au>
-Date: Tue, 29 Nov 2005 20:29:12 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
+	Tue, 29 Nov 2005 04:30:48 -0500
+Received: from cantor.suse.de ([195.135.220.2]:50157 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750951AbVK2Jar (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 04:30:47 -0500
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: what is our answer to ZFS?
+References: <11b141710511210144h666d2edfi@mail.gmail.com>
+	<20051121095915.83230.qmail@web36406.mail.mud.yahoo.com>
+	<20051121101959.GB13927@wohnheim.fh-wedel.de>
+	<20051128125351.GE30589@marowsky-bree.de>
+	<20051129050439.GB22879@thunk.org>
+From: Andi Kleen <ak@suse.de>
+Date: 29 Nov 2005 06:58:55 -0700
+In-Reply-To: <20051129050439.GB22879@thunk.org>
+Message-ID: <p73zmnnh7xc.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.15-rc3 - VIDEO_BT848_DVB config
-References: <Pine.LNX.4.64.0511282006370.3177@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0511282006370.3177@g5.osdl.org>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> I just pushed 2.6.15-rc3 out there, and here are both the shortlog and 
-> diffstats appended.
+Theodore Ts'o <tytso@mit.edu> writes:
 
-A config issue? It says 'choose M' which is not offered. Maybe it is just
-an option for the bt8xx driver, which itself can be built as a module
-(CONFIG_VIDEO_BT848)?
+> On Mon, Nov 28, 2005 at 01:53:51PM +0100, Lars Marowsky-Bree wrote:
+> > On 2005-11-21T11:19:59, J?rn Engel <joern@wohnheim.fh-wedel.de> wrote:
+> > 
+> > > o Merge of LVM and filesystem layer
+> > >   Not done.  This has some advantages, but also more complexity than
+> > >   seperate LVM and filesystem layers.  Might be considers "not worth
+> > >   it" for some years.
+> > 
+> > This is one of the cooler ideas IMHO. In effect, LVM is just a special
+> > case filesystem - huge blocksizes, few files, mostly no directories,
+> > exports block instead of character/streams "files".
+> 
+> This isn't actually a new idea, BTW.  Digital's advfs had storage
+> pools and the ability to have a single advfs filesystem spam multiple
+> filesystems, and to have multiple adv filesystems using storage pool,
+> something like ten years ago.
 
+The old JFS code base had something similar before it got ported
+to Linux (I believe it came from OS/2). But it was removed.
+And miguel did a prototype of it with ext2 at some point long ago.
 
-  DVB/ATSC Support for bt878 based TV cards (VIDEO_BT848_DVB) [N/y/?] (NEW) ?
+But to me it's unclear it's a really good idea. Having at least the option
+to control where physical storage is placed is nice, especially 
+if you cannot mirror everything (ZFS seems to assume everything is mirrored)
+And separate devices and LVM make that easier.
 
-This adds support for DVB/ATSC cards based on the BT878 chip.
-
-To compile this driver as a module, choose M here: the
-module will be called dvb-bt8xx.
-
--- 
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
-	attach .zip as .dat
+-Andi

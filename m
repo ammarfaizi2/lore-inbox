@@ -1,98 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbVK2Qv2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbVK2Qww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932171AbVK2Qv2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 11:51:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbVK2Qv2
+	id S932186AbVK2Qww (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 11:52:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbVK2Qww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 11:51:28 -0500
-Received: from magic.adaptec.com ([216.52.22.17]:14234 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S932168AbVK2Qv1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 11:51:27 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
+	Tue, 29 Nov 2005 11:52:52 -0500
+Received: from silver.veritas.com ([143.127.12.111]:58986 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S932186AbVK2Qwv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 11:52:51 -0500
+Date: Tue, 29 Nov 2005 16:53:02 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 1/4] pfnmap: fix 2.6.15-rc3 driver breakage
+Message-ID: <Pine.LNX.4.61.0511291650400.5527@goblin.wat.veritas.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C5F505.225E8498"
-Subject: [2.6 patch] dpt_i2o fix for deadlock condition
-Date: Tue, 29 Nov 2005 11:51:25 -0500
-Message-ID: <547AF3BD0F3F0B4CBDC379BAC7E4189F01E3DD6C@otce2k03.adaptec.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: [2.6 patch] dpt_i2o fix for deadlock condition
-Thread-Index: AcXy4kNaWepK0VBZRr6U/J1NGyiC0QCIbFww
-From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-To: <linux-scsi@vger.kernel.org>
-Cc: <James.Bottomley@SteelEye.com>, <linux-kernel@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 29 Nov 2005 16:52:51.0428 (UTC) FILETIME=[55DF8240:01C5F505]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+I've not tested any of them, but believe 2.6.15-rc3 will suffer from
+premature freeing of pages in the case of the following drivers:
 
-------_=_NextPart_001_01C5F505.225E8498
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+arch/ia64/kernel/perfmon.c
+drivers/char/ftape/lowlevel/ftape-ctl.c
+drivers/media/video/cpia.c
+drivers/media/video/em28xx/em28xx-video.c
+drivers/media/video/meye.c
+drivers/media/video/planb.c
+drivers/media/video/vino.c
+drivers/media/video/zoran_driver.c
+drivers/media/video/zr36120.c
+drivers/usb/class/audio.c
+drivers/usb/media/ov511.c
+drivers/usb/media/pwc/pwc-if.c
+drivers/usb/media/se401.c
+drivers/usb/media/sn9c102_core.c
+drivers/usb/media/stv680.c
+drivers/usb/media/usbvideo.c
+drivers/usb/media/vicam.c
+drivers/usb/media/w9968cf.c
+drivers/video/gbefb.c
+drivers/video/sbuslib.c
+net/packet/af_packet.c
 
-Miquel van Smoorenburg <miquels@cistron.nl> forwarded me this fix to
-resolve a deadlock condition that occurs due to the API change in
-2.6.13+ kernels dropping the host locking when entering the error
-handling. They all end up calling adpt_i2o_post_wait(), which if you
-call it unlocked, might return with host_lock locked anyway and that
-causes a deadlock.
+About twenty drivers fill in their mmap vma by applying remap_pfn_range
+repeatedly, many of them using vmalloc_to_pfn: vm_pgoff will match only
+the last range or page mapped in, and the others will be considered
+normal by vm_normal_page - thus although they were not counted in by
+remap_pfn_range, they will be counted out by zap_pte_range, so freed
+well before the driver has finished with them (and frees them again).
 
-Signed-off-by: Mark Salyzyn <aacraid@adaptec.com>
+A temporary hack (checking for PageAnon and ZERO_PAGE) sure to disgust
+Linus, but keep those drivers safe until the proper solution arrives.
 
- drivers/scsi/dpt_i2o.c |    25 ++++++++++++++++++++-----
- 1 file changed, 20 insertions(+), 5 deletions(-)
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+---
 
-Patch attached to email due to Outlook corrupting content when inlined.
+ mm/memory.c |   15 ++++++++++++++-
+ 1 files changed, 14 insertions(+), 1 deletion(-)
 
-Sincerely -- Mark Salyzyn
-
-------_=_NextPart_001_01C5F505.225E8498
-Content-Type: application/octet-stream;
-	name="dpt_i2o.deadlock.patch"
-Content-Transfer-Encoding: base64
-Content-Description: dpt_i2o.deadlock.patch
-Content-Disposition: attachment;
-	filename="dpt_i2o.deadlock.patch"
-
-LS0tIGEvZHJpdmVycy9zY3NpL2RwdF9pMm8uYwkyMDA1LTExLTI5IDEwOjM0OjU1LjEwNjA5MDE2
-MCAtMDUwMAorKysgYi9kcml2ZXJzL3Njc2kvZHB0X2kyby5jCTIwMDUtMTEtMjkgMTE6NDE6MzYu
-OTI0NDY2MDIyIC0wNTAwCkBAIC02NjAsNyArNjYwLDEyIEBACiAJbXNnWzJdID0gMDsKIAltc2db
-M109IDA7IAogCW1zZ1s0XSA9ICh1MzIpY21kOwotCWlmKCAocmNvZGUgPSBhZHB0X2kyb19wb3N0
-X3dhaXQocEhiYSwgbXNnLCBzaXplb2YobXNnKSwgRk9SRVZFUikpICE9IDApeworCWlmIChwSGJh
-LT5ob3N0KQorCQlzcGluX2xvY2tfaXJxKHBIYmEtPmhvc3QtPmhvc3RfbG9jayk7CisJcmNvZGUg
-PSBhZHB0X2kyb19wb3N0X3dhaXQocEhiYSwgbXNnLCBzaXplb2YobXNnKSwgRk9SRVZFUik7CisJ
-aWYgKHBIYmEtPmhvc3QpCisJCXNwaW5fdW5sb2NrX2lycShwSGJhLT5ob3N0LT5ob3N0X2xvY2sp
-OworCWlmIChyY29kZSAhPSAwKSB7CiAJCWlmKHJjb2RlID09IC1FT1BOT1RTVVBQICl7CiAJCQlw
-cmludGsoS0VSTl9JTkZPIiVzOiBBYm9ydCBjbWQgbm90IHN1cHBvcnRlZFxuIixwSGJhLT5uYW1l
-KTsKIAkJCXJldHVybiBGQUlMRUQ7CkBAIC02OTcsMTAgKzcwMiwxNSBAQAogCW1zZ1syXSA9IDA7
-CiAJbXNnWzNdID0gMDsKIAorCWlmIChwSGJhLT5ob3N0KQorCQlzcGluX2xvY2tfaXJxKHBIYmEt
-Pmhvc3QtPmhvc3RfbG9jayk7CiAJb2xkX3N0YXRlID0gZC0+c3RhdGU7CiAJZC0+c3RhdGUgfD0g
-RFBUSV9ERVZfUkVTRVQ7Ci0JaWYoIChyY29kZSA9IGFkcHRfaTJvX3Bvc3Rfd2FpdChwSGJhLCBt
-c2csc2l6ZW9mKG1zZyksIEZPUkVWRVIpKSApewotCQlkLT5zdGF0ZSA9IG9sZF9zdGF0ZTsKKwly
-Y29kZSA9IGFkcHRfaTJvX3Bvc3Rfd2FpdChwSGJhLCBtc2csc2l6ZW9mKG1zZyksIEZPUkVWRVIp
-OworCWQtPnN0YXRlID0gb2xkX3N0YXRlOworCWlmIChwSGJhLT5ob3N0KQorCQlzcGluX3VubG9j
-a19pcnEocEhiYS0+aG9zdC0+aG9zdF9sb2NrKTsKKwlpZiAocmNvZGUgIT0gMCkgewogCQlpZihy
-Y29kZSA9PSAtRU9QTk9UU1VQUCApewogCQkJcHJpbnRrKEtFUk5fSU5GTyIlczogRGV2aWNlIHJl
-c2V0IG5vdCBzdXBwb3J0ZWRcbiIscEhiYS0+bmFtZSk7CiAJCQlyZXR1cm4gRkFJTEVEOwpAQCAt
-NzA4LDcgKzcxOCw2IEBACiAJCXByaW50ayhLRVJOX0lORk8iJXM6IERldmljZSByZXNldCBmYWls
-ZWRcbiIscEhiYS0+bmFtZSk7CiAJCXJldHVybiBGQUlMRUQ7CiAJfSBlbHNlIHsKLQkJZC0+c3Rh
-dGUgPSBvbGRfc3RhdGU7CiAJCXByaW50ayhLRVJOX0lORk8iJXM6IERldmljZSByZXNldCBzdWNj
-ZXNzZnVsXG4iLHBIYmEtPm5hbWUpOwogCQlyZXR1cm4gU1VDQ0VTUzsKIAl9CkBAIC03MjEsNiAr
-NzMwLDcgQEAKIHsKIAlhZHB0X2hiYSogcEhiYTsKIAl1MzIgbXNnWzRdOworCXUzMiByY29kZTsK
-IAogCXBIYmEgPSAoYWRwdF9oYmEqKWNtZC0+ZGV2aWNlLT5ob3N0LT5ob3N0ZGF0YVswXTsKIAlt
-ZW1zZXQobXNnLCAwLCBzaXplb2YobXNnKSk7CkBAIC03MjksNyArNzM5LDEyIEBACiAJbXNnWzFd
-ID0gKEkyT19IQkFfQlVTX1JFU0VUPDwyNHxIT1NUX1RJRDw8MTJ8cEhiYS0+Y2hhbm5lbFtjbWQt
-PmRldmljZS0+Y2hhbm5lbF0udGlkKTsKIAltc2dbMl0gPSAwOwogCW1zZ1szXSA9IDA7Ci0JaWYo
-YWRwdF9pMm9fcG9zdF93YWl0KHBIYmEsIG1zZyxzaXplb2YobXNnKSwgRk9SRVZFUikgKXsKKwlp
-ZiAocEhiYS0+aG9zdCkKKwkJc3Bpbl9sb2NrX2lycShwSGJhLT5ob3N0LT5ob3N0X2xvY2spOwor
-CXJjb2RlID0gYWRwdF9pMm9fcG9zdF93YWl0KHBIYmEsIG1zZyxzaXplb2YobXNnKSwgRk9SRVZF
-Uik7CisJaWYgKHBIYmEtPmhvc3QpCisJCXNwaW5fdW5sb2NrX2lycShwSGJhLT5ob3N0LT5ob3N0
-X2xvY2spOworCWlmIChyY29kZSAhPSAwKSB7CiAJCXByaW50ayhLRVJOX1dBUk5JTkciJXM6IEJ1
-cyByZXNldCBmYWlsZWQuXG4iLHBIYmEtPm5hbWUpOwogCQlyZXR1cm4gRkFJTEVEOwogCX0gZWxz
-ZSB7Cg==
-
-------_=_NextPart_001_01C5F505.225E8498--
+--- 2.6.15-rc3/mm/memory.c	2005-11-29 08:40:07.000000000 +0000
++++ linux/mm/memory.c	2005-11-29 15:59:34.000000000 +0000
+@@ -372,6 +372,7 @@ void print_bad_pte(struct vm_area_struct
+ struct page *vm_normal_page(struct vm_area_struct *vma, unsigned long addr, pte_t pte)
+ {
+ 	unsigned long pfn = pte_pfn(pte);
++	struct page *page;
+ 
+ 	if (vma->vm_flags & VM_PFNMAP) {
+ 		unsigned long off = (addr - vma->vm_start) >> PAGE_SHIFT;
+@@ -399,7 +400,19 @@ struct page *vm_normal_page(struct vm_ar
+ 	 * The PAGE_ZERO() pages and various VDSO mappings can
+ 	 * cause them to exist.
+ 	 */
+-	return pfn_to_page(pfn);
++	page = pfn_to_page(pfn);
++
++	/*
++	 * Temporary hack to avoid driver breakage.
++	 * About twenty drivers fill in their mmap vma by applying
++	 * remap_pfn_range repeatedly: vm_pgoff will match only the
++	 * last range mapped; so also check if page is COWed or ZERO.
++	 */
++	if ((vma->vm_flags & VM_PFNMAP) &&
++	    !PageAnon(page) && page != ZERO_PAGE(addr))
++		return NULL;
++
++	return page;
+ }
+ 
+ /*

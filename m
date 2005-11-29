@@ -1,42 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbVK2LOJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbVK2LYQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751242AbVK2LOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 06:14:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbVK2LOJ
+	id S1751039AbVK2LYQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 06:24:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751343AbVK2LYQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 06:14:09 -0500
-Received: from smtp4-g19.free.fr ([212.27.42.30]:52973 "EHLO smtp4-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1751242AbVK2LOI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 06:14:08 -0500
-From: Duncan Sands <duncan.sands@free.fr>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Subject: Re: speedtch driver, 2.6.14.2
-Date: Tue, 29 Nov 2005 12:14:07 +0100
-User-Agent: KMail/1.9
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       linux-kernel@vger.kernel.org
-References: <200511232125.25254.s0348365@sms.ed.ac.uk> <200511281234.45023.duncan.sands@free.fr> <m3sltgu1wn.fsf@defiant.localdomain>
-In-Reply-To: <m3sltgu1wn.fsf@defiant.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Nov 2005 06:24:16 -0500
+Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:14857 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751039AbVK2LYP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 06:24:15 -0500
+Date: Tue, 29 Nov 2005 22:24:11 +1100
+To: Denis Vlasenko <vda@ilport.com.ua>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] i386 aes asm typo fix
+Message-ID: <20051129112411.GA20131@gondor.apana.org.au>
+References: <200511241507.01668.vda@ilport.com.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511291214.08104.duncan.sands@free.fr>
+In-Reply-To: <200511241507.01668.vda@ilport.com.ua>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Krzysztof, the firmware seems fine.
+On Thu, Nov 24, 2005 at 03:07:01PM +0200, Denis Vlasenko wrote:
+> * fix typo (128 -> 192,256 bits)
+> * nano-optimization (copied from x86_86)
+> 
+> Run tested.
 
-> 17:03:15 ATM dev 0: speedtch_check_status entered
-> 17:03:17 usb 1-1: events/0 timed out on ep0in len=0/4
-> 17:03:17 ATM dev 0: speedtch_read_status: MSG D failed
-> 17:03:17 ATM dev 0: error -110 fetching device status
-
-Is it always MSG D that fails?  Is failure of this message
-correlated with anything else, eg: heavy network use?
-
-Thanks,
-
-Duncan.
+Patch looks good.  I've applied it to cryptodev.  Thanks Denis.
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

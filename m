@@ -1,63 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbVK2QWh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbVK2QZR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751395AbVK2QWh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 11:22:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbVK2QWg
+	id S932082AbVK2QZR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 11:25:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbVK2QZQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 11:22:36 -0500
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:15499 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S1751395AbVK2QWg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 11:22:36 -0500
-Date: Tue, 29 Nov 2005 17:21:06 +0100
-From: Luca <kronos@kronoz.cjb.net>
-To: Nathan Scott <nathans@sgi.com>
-Cc: John Hawkes <hawkes@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-xfs@oss.sgi.com
-Subject: Re: unable to use dpkg 2.6.15-rc2
-Message-ID: <20051129162106.GA5002@dreamland.darkstar.lan>
-References: <20051121100820.D6790390@wobbly.melbourne.sgi.com> <20051122172027.GA11219@dreamland.darkstar.lan> <20051122214443.GA781@frodo> <20051128002350.GC841@frodo>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051128002350.GC841@frodo>
-User-Agent: Mutt/1.5.10i
+	Tue, 29 Nov 2005 11:25:16 -0500
+Received: from kirby.webscope.com ([204.141.84.57]:60849 "EHLO
+	kirby.webscope.com") by vger.kernel.org with ESMTP id S932082AbVK2QZP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 11:25:15 -0500
+Message-ID: <438C80DD.7050809@m1k.net>
+Date: Tue, 29 Nov 2005 11:25:01 -0500
+From: Michael Krufky <mkrufky@m1k.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.15-rc3
+References: <Pine.LNX.4.64.0511282006370.3177@g5.osdl.org> <438C0124.3030700@m1k.net> <Pine.LNX.4.64.0511290808510.3177@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0511290808510.3177@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il Mon, Nov 28, 2005 at 11:23:50AM +1100, Nathan Scott ha scritto: 
-> On Wed, Nov 23, 2005 at 08:44:43AM +1100, Nathan Scott wrote:
-> > On Tue, Nov 22, 2005 at 06:20:27PM +0100, Luca wrote:
-> > > (please CC me, I'm not subscribed)
-> > > 
-> > > Nathan Scott <nathans@sgi.com> ha scritto:
-> > > >> It's reproducible in 2.6.15-rc1, 2.6.15-rc1-mm1, 2.6.15-rc1-mm2 and
-> > > >> 2.6.15-rc2.
-> > > >> 
-> > > >> It does not occur in 2.6.14.
-> > > >> 
-> > > >> Most easily triggered by "make clean" in the Linux source, for those of
-> > > >> you without access to dpkg. But both clean and dpkg will trigger it.
-> > > > 
-> > > > So far I've not been able to reproduce this; I'm using "make clean"
-> > > > and it works just fine for me (I'm using the current git tree).
-> > > 
-> > > Confirmed here with 2.6.15-rc1 an IDE disk. Kernel is UP with
-> > > CONFIG_PREEMPT and 8KB stack. The following debug options are enabled:
-> > > 
-> > 
-> > Keith Owens has managed to reproduce this locally, and has been
-> > working on tracking it back to a single change - so, we'll start
-> > trying to figure out whats gone wrong here shortly, and will get
-> > a fix merged as soon as we can.
-> 
-> FYI - this problem is now fixed in Linus' current git tree.
+Linus Torvalds wrote:
 
-Great, I'll give it a try ASAP. BTW why using a macro instead of an
-inline function makes any difference? I don't understand...
+>On Tue, 29 Nov 2005, Michael Krufky wrote:
+>  
+>
+>>Those memory problems affecting v4l/dvb seem to be fixed (for me) , and
+>>everything seems to work, but I got this oops on bootup.  This is the first
+>>2.6.15-rcX kernel that I've installed on this particular box.  2.6.14 worked
+>>fine.
+>>    
+>>
+>Ok, Nick's obviously correct patch fixed that, but now I wonder what the 
+>_heck_ your bootup process does:
+>
+>>Process gdb (pid: 5628, threadinfo=f488e000 task=f7239a30)
+>>    
+>>
+>what kind of _strange_ boot process has gdb in it? 
+>
+>Morbidly curious,
+>
+>		Linus
+>  
+>
+Linus-
 
-Luca
--- 
-Home: http://kronoz.cjb.net
-"Su cio` di cui non si puo` parlare e` bene tacere".
- Ludwig Wittgenstein
+Good point... I don't know what is going on there.  That box is running 
+a newly-installed debian sarge, with it's default startup scripts.  I 
+have done nothing to that system besides kernel testing and v4l / dvb 
+testing and development.
+
+The oops was showing up immediately before xorg opens with it's 
+user-login box...
+
+In other words, the OOPS is the last thing to show on the screen in text 
+mode, before the console switches into X, using debian sarge's default 
+bootup process.
+
+I have no idea why gdb is running.... hmm... Anyhow, I'm away from that 
+machine right now, and it is powered off, so I can't look directly at 
+the startup scripts right now.  Would you like me to send more info 
+later on when I get home?  If so, what would you like to see?
+
+Cheers,
+
+Michael Krufky

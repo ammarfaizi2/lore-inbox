@@ -1,50 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbVK2XHY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964804AbVK2XIS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964803AbVK2XHY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 18:07:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbVK2XHY
+	id S964804AbVK2XIS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 18:08:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbVK2XIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 18:07:24 -0500
-Received: from ozlabs.org ([203.10.76.45]:2794 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S964803AbVK2XHX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 18:07:23 -0500
-Date: Wed, 30 Nov 2005 10:07:04 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Andi Kleen <ak@suse.de>
-Cc: Nicholas Miell <nmiell@comcast.net>, Stephane Eranian <eranian@hpl.hp.com>,
-       Ray Bryant <raybry@mpdtxmail.amd.com>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org, perfctr-devel@lists.sourceforge.net
-Subject: Re: [Perfctr-devel] Re: Enabling RDPMC in user space by default
-Message-ID: <20051129230704.GA9659@localhost.localdomain>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Andi Kleen <ak@suse.de>, Nicholas Miell <nmiell@comcast.net>,
-	Stephane Eranian <eranian@hpl.hp.com>,
-	Ray Bryant <raybry@mpdtxmail.amd.com>, discuss@x86-64.org,
-	linux-kernel@vger.kernel.org, perfctr-devel@lists.sourceforge.net
-References: <20051129151515.GG19515@wotan.suse.de> <200511291056.32455.raybry@mpdtxmail.amd.com> <20051129180903.GB6611@frankl.hpl.hp.com> <20051129181344.GN19515@wotan.suse.de> <1133300591.3271.1.camel@entropy> <20051129215207.GR19515@wotan.suse.de> <1133303615.3271.12.camel@entropy> <20051129224346.GS19515@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051129224346.GS19515@wotan.suse.de>
-User-Agent: Mutt/1.5.9i
+	Tue, 29 Nov 2005 18:08:18 -0500
+Received: from smtpauth01.mail.atl.earthlink.net ([209.86.89.61]:50602 "EHLO
+	smtpauth01.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
+	id S964804AbVK2XIR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 18:08:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=dk20050327; d=earthlink.net;
+  b=coUVdks+MoYMELkRtkX3LNYxytvZQXOZkQ1gbuaQeHuUvtKVgSfZwDL3LYAfFwp4;
+  h=Received:Message-ID:From:To:Cc:References:Subject:Date:MIME-Version:Content-Type:Content-Transfer-Encoding:X-Priority:X-MSMail-Priority:X-Mailer:X-MimeOLE:X-ELNK-Trace:X-Originating-IP;
+Message-ID: <036c01c5f539$c54bd730$1225a8c0@kittycat>
+From: "jdow" <jdow@earthlink.net>
+To: "Nick Warne" <nick@linicks.net>, "Wakko Warner" <wakko@animx.eu.org>
+Cc: "Bill Davidsen" <davidsen@tmr.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+References: <200511242147.45248.nick@linicks.net> <438B89EE.9080707@tmr.com> <20051129003159.GA4643@animx.eu.org> <200511292226.49873.nick@linicks.net>
+Subject: Re: [OT] 1500 days uptime.
+Date: Tue, 29 Nov 2005 15:08:10 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2670
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+X-ELNK-Trace: bb89ecdb26a8f9f24d2b10475b5711201c517f81bd741014e289860ee379f3869360953d103349af350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 71.116.179.184
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 29, 2005 at 11:43:47PM +0100, Andi Kleen wrote:
-> > Well, RDPMC isn't defined at all. You're assuming that future processor
-> > revisions will have the same or substantially similar PerfCtrs as
-> > current processors, and nothing guarantees that at all.
+From: "Nick Warne" <nick@linicks.net>
+
+> On Tuesday 29 November 2005 00:31, Wakko Warner wrote:
+>> Bill Davidsen wrote:
+>> > Nick Warne wrote:
+>> > >Hi all,
+>> > >
+>> > >BrrrrrrrrrrrrBrrrr
+>> > >
+>> > >That was me blowing my own trumpet again :-)
+>> > >
+>> > >Re:
+>> > >http://www.ussg.iu.edu/hypermail/linux/kernel/0407.1/0651.html
+>> > >
+>> > >Now just hit 1500 days:
+>> > >
+>> > >-
+>> > >[nick@486Linux nick]$ last -xf /var/run/utmp runlevel
+>> > >runlevel (to lvl 3)                    Sun Oct 14 16:07 - 21:41
+>> > >(1502+06:34)
+>> > >
+>> > >utmp begins Sun Oct 14 16:07:40 2001
+>> > >-
+>> > >
+>> > >Utterly remarkable - the box gets no maintenance at all.
+>> >
+>> > But it clearly gets a very reliable flavor of electricity...
+>> >
+>> > >I would love to know how much data it has delivered, but alas, in 2001 I
+>> > >wasn't up-to-speed with that sort of thing :-)
+>> >
+>> > We got one to 1460 or so, then got BSOD on the controller which switches
+>> > from the UPS to the diesel when they get up to speed, dropped power on
+>> > the whole data center (at work).
+>> >
+>> > I think you have the record, though.
+>>
+>> I'm not sure about that one. =)
 > 
-> Point, but i guess it is reasonable to assume that future x85 CPUs
-> will have cycle counter perfctrs.  I cannot imagine anybody dropping
-> such a basic facility.
+> No, I wasn't even thinking that - just reporting what a wonderful job it all 
+> is - and yes, power supply here in Pompey UK is good (but we do pay thru' the 
+> nose for everything in the UK).  The last time I _did_ reboot that machine 
+> was when my kettle lead shorted out and blew the fuses to my flats 240v 
+> supply ring main.
+> 
+> According to the Linux counter site, there are more higher (my machine is 3rd 
+> in the list):
+> 
+> http://counter.li.org/reports/uptimestats.php
 
-It need not necessarily remain configurable to be in PMC 0 however.
-Nor do the the PMC MSRs have to remain fixed..
+There is an interesting point here that is worth noting. I don't think I
+would BEGIN to try this with a 2.6 based kernel. And I am not sure it is
+doable yet with a 2.4 kernel if the machine is to be exposed to the wild.
 
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/~dgibson
+{o.o}    Joanne Dow
+

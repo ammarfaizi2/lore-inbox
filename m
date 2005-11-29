@@ -1,94 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751368AbVK2Ozd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751369AbVK2O6Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751368AbVK2Ozd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 09:55:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbVK2Ozd
+	id S1751369AbVK2O6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 09:58:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbVK2O6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 09:55:33 -0500
-Received: from wproxy.gmail.com ([64.233.184.204]:57207 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751368AbVK2Ozc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 09:55:32 -0500
+	Tue, 29 Nov 2005 09:58:24 -0500
+Received: from nproxy.gmail.com ([64.233.182.203]:9651 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751369AbVK2O6X convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 09:58:23 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=kPyGt/h0lXWL7gYDxa+97QG1whD5EaOgSmUpnvJU0l0XtUADxprUHW6IRD5VkODysg5xlvI0tY+LyO+FMutIVOV7kbLW5L4XqxMyB6Z9aHlmocrbtgv5PKmBpNd4eJfh3SPxJLNuuuDCs8pGKmW7VSiwFI4CWAcafhHC6xCilfo=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] touch softlockup watchdog in ide_wait_not_busy
-Date: Tue, 29 Nov 2005 15:55:26 +0100
-User-Agent: KMail/1.8.92
-Cc: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       "Alexander V. Inyukhin" <shurick@sectorb.msk.ru>,
-       Jesper Juhl <jesper.juhl@gmail.com>
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MvnzCScgNfCGaUt+AEy5Hsqgv/RiUE+FU2RtPmBLMRgSoXl7LtK9Gpm9XDDTycBj7J0Xpwm4Yx14Xr4dHY5ty1E6nApsSiXpc7BodHJowEsnUd0epp+gzO2Ep2g3Q+DcTsyjffMD5qRUqBIkRI9nKAItAQEiQV6biZSIWs7VuyU=
+Message-ID: <58cb370e0511290658m682ae978hea2100f57252a928@mail.gmail.com>
+Date: Tue, 29 Nov 2005 15:58:22 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: ide-cd doesn't replace ide-scsi?
+Cc: Luke-Jr <luke-jr@utopios.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <438B70AA.7090805@tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200511291555.27202.jesper.juhl@gmail.com>
+References: <200511281218.17141.luke-jr@utopios.org> <438B70AA.7090805@tmr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 11/28/05, Bill Davidsen <davidsen@tmr.com> wrote:
+> Luke-Jr wrote:
+> > Note: results are with 2.6.13 (-gentoo-r4 + supermount) and 2.6.14 (-gentoo)
+> > I've been struggling with burning DVD+R DL discs and upgrading the firmware on
+> > my DVD burner, and just today decided to rmmod ide-cd and try using ide-scsi.
+> > Turns out it works... so is ide-cd *supposed* to handle cases other than
+> > simple reading and burning or is this a bug? If not a bug, should ide-scsi
+> > really be marked as deprecated?
+> > Also, two bugs with ide-scsi:
+> > 1. On loading the module, it detects and allocates 6 SCSI devices for a single
+> > DVD burner (Toshiba ODD-DVD SD-R5272); kernel log for this event attached
+> > 2. On attempted unloading of the module, rmmod says 'Killed' and the module
+> > stays put, corrupt. There was some kind of error in dmesg, but it appears to
+> > have avoided syslog-- If I see it again, I'll save it.
+>
+> I think you may have the probe-all-LUNs set, and a CD burner which
+> responds to more than one. That's one possible cause for this.
 
-This is a resend of a patch I proposed in the 
-"[BUG] 2.6.15-rc1, soft lockup detected while probing IDE devices on AMD7441"
-thread.
-I recieved no ACK/NACK or other feedback on the patch, so I'm resending it in
-the hope of getting some comments :)
+That may be it.
 
+> Unfortunately using ide-cd still doesn't have the code set to allow all
+> burning features to work if you are not root. Even if you have
+> read+write there's one command you need to do multi-session which is
+> only allowed to root. Works fine for single sessions, I guess that's all
+> someone uses.
 
-From: Jesper Juhl <jesper.juhl@gmail.com>
+Interesting because both drivers ide-cd and sr+ide-scsi use exactly
+the same code (block/scsi_ioctl.c) to verify which commands don't
+need root privileges.  Care to give details?
 
-Make sure we touch the softlockup watchdog in 
-ide_wait_not_busy() since it may cause the watchdog to trigger, but
-there's really no point in that since the loop will eventually return, and
-triggering the watchdog won't do us any good anyway.
+> Haven't tried unloading the module, so I have no advice on that other
+> than "don't do that."
 
-The  if (!(timeout % 128))  bit is a guess that since 
-touch_softlockup_watchdog() is a per_cpu thing it will be cheaper to do the
-modulo calculation than calling the function every time through the loop,
-especially as the nr of CPU's go up. But it's purely a guess, so I may very 
-well be wrong - also, 128 is an arbitrarily chosen value, it's just a nice 
-number that'll give us <10 function calls pr second.
+Known problem with ide-scsi, reference counting for "virtual" SCSI host
+is missing (it was always buggy but was exposed in 2.6.x something by
+sr.c changes).
 
-Since I have no IDE devices in my box I'm unable to test this beyond making
-sure it compiles without warnings or errors (which it does).
-
-Let me know what you think.
-
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
-
- drivers/ide/ide-iops.c |    8 ++++++++
- 1 files changed, 8 insertions(+)
-
-diff -up linux-2.6.15-rc3-orig/drivers/ide/ide-iops.c linux-2.6.15-rc3/drivers/ide/ide-iops.c
---- linux-2.6.15-rc3-orig/drivers/ide/ide-iops.c	2005-11-29 15:30:32.000000000 +0100
-+++ linux-2.6.15-rc3/drivers/ide/ide-iops.c	2005-11-29 15:44:23.000000000 +0100
-@@ -24,6 +24,7 @@
- #include <linux/hdreg.h>
- #include <linux/ide.h>
- #include <linux/bitops.h>
-+#include <linux/sched.h>
- 
- #include <asm/byteorder.h>
- #include <asm/irq.h>
-@@ -1243,6 +1244,13 @@ int ide_wait_not_busy(ide_hwif_t *hwif, 
- 		 */
- 		if (stat == 0xff)
- 			return -ENODEV;
-+
-+		/* 
-+		 * We risk triggering the soft lockup detector, but we don't
-+		 * want that, so better poke it a bit once in a while.
-+		 */
-+		if (!(timeout % 128))
-+			touch_softlockup_watchdog();
- 	}
- 	return -EBUSY;
- }
-
-
+Bartlomiej

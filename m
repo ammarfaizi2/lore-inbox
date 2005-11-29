@@ -1,71 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbVK2V5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932433AbVK2V5r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932439AbVK2V5t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 16:57:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbVK2V5t
+	id S932433AbVK2V5r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 16:57:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932439AbVK2V5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 16:57:49 -0500
-Received: from wproxy.gmail.com ([64.233.184.201]:4628 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932439AbVK2V5s convert rfc822-to-8bit
+	Tue, 29 Nov 2005 16:57:47 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:54734 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932433AbVK2V5q
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 16:57:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=BqXcwoDmVAK8zOjOofP0cFUARtYxUOc841lTzXOv2pe1xF0xeNbetGrHziPNpgS+DYURk1QRS5O1T0pM3zHKUd8I+7XfKLTTZ8a1XdvHYXGqlj1DFOYwr3tTohU7ZsR63InsAl+zXqHZglKh1QLw6tf15BTqEpe7WuAezJmGgTg=
-Message-ID: <9611fa230511291357g3aa964adj6918fea50f5ee66e@mail.gmail.com>
-Date: Tue, 29 Nov 2005 21:57:47 +0000
-From: Tarkan Erimer <tarkane@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [BUG]: Software compiling occasionlly hangs under 2.6.15-rc1/rc2 and 2.6.15-rc1-mm2
-Cc: arjan@infradead.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20051127165733.643d5444.akpm@osdl.org>
+	Tue, 29 Nov 2005 16:57:46 -0500
+Message-ID: <438CCF65.4060506@tmr.com>
+Date: Tue, 29 Nov 2005 17:00:05 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9611fa230511250312i55d0b872x82b8c33b4d2973e4@mail.gmail.com>
-	 <1132917564.7068.41.camel@laptopd505.fenrus.org>
-	 <9611fa230511270317led5b915h7daae3ef1287f86d@mail.gmail.com>
-	 <1133092701.2853.0.camel@laptopd505.fenrus.org>
-	 <9611fa230511271108m46389ee6w7ec6b5b40b1e23dd@mail.gmail.com>
-	 <20051127165733.643d5444.akpm@osdl.org>
+To: jonathan@jonmasters.org
+CC: Andrew Morton <akpm@osdl.org>, cp@absolutedigital.net,
+       linux-kernel@vger.kernel.org, jcm@jonmasters.org, viro@ftp.linux.org.uk,
+       hch@lst.de
+Subject: Re: floppy regression from "[PATCH] fix floppy.c to store correct
+ ..."
+References: <Pine.LNX.4.61.0511160034320.988@lancer.cnet.absolutedigital.net>	 <20051116005958.25adcd4a.akpm@osdl.org>	 <20051119034456.GA10526@apogee.jonmasters.org>	 <20051121233131.793f0d04.akpm@osdl.org>	 <35fb2e590511220356x75a951f1t8a36d0556a940751@mail.gmail.com>	 <20051122141628.41f3134f.akpm@osdl.org> <438B4E85.2060801@tmr.com> <35fb2e590511281233r49668895hc3295fce4cfe891b@mail.gmail.com>
+In-Reply-To: <35fb2e590511281233r49668895hc3295fce4cfe891b@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/28/05, Andrew Morton <akpm@osdl.org> wrote:
-> XFS went nuts.  Please test the latest git snapshot which has fixes for
-> this.
+Jon Masters wrote:
+> On 11/28/05, Bill Davidsen <davidsen@tmr.com> wrote:
+> 
+> 
+>>I think that's best, because there are few people (relatively) using
+>>floppy, and those who are probably are used to old behaviour.
+> 
+> 
+> The point of the thread is more that this exposes behaviour which
+> might be present in other drivers too - assuming the block device
+> state matches the underlying media.
 
-I tried 2.6.15-rc2-git6 and just released 2.6.15-rc3. Result is same.
-I still got occasional hangs. When I check my syslog, I found no error
-messages. But notice, XFS related errors have gone.  I paste last few
-lines of my syslog.
+You missed my point... Andrew suggested that since the new behaviour is
+not fully functional that a revert was in order until a new version is
+available. I agreed, because the old broken behaviour is at least
+expected, while waiting for the floppy driver to check is not, and old
+problems are less likely to cause a problem until a fixed fix is in place.
 
-----syslog ----
-Nov 29 23:22:43 hightemple kernel: [  518.648894] NTFS-fs warning
-(device hda1): ntfs_filldir(): Skipping unrepresentable inode 0x516d.
-Nov 29 23:22:54 hightemple kernel: [  529.059660] printk: 36 messages
-suppressed.
-Nov 29 23:22:54 hightemple kernel: [  529.059669] NTFS-fs error
-(device hda1): ntfs_ucstonls(): Unicode name contains characters that
-cannot be converted to character set iso8859-1.  You might want to try
-to use the mount option nls=utf8.
-Nov 29 23:22:54 hightemple kernel: [  529.059676] NTFS-fs warning
-(device hda1): ntfs_filldir(): Skipping unrepresentable inode 0x57db.
-Nov 29 23:23:57 hightemple gconfd (root-11625): starting (version
-2.12.1), pid 11625 user 'root'
-Nov 29 23:23:57 hightemple gconfd (root-11625): Resolved address
-"xml:readonly:/etc/gconf/gconf.xml.mandatory" to a read-only
-configuration source at position 0
-Nov 29 23:23:57 hightemple gconfd (root-11625): Resolved address
-"xml:readwrite:/root/.gconf" to a writable configuration source at
-position 1
-Nov 29 23:23:57 hightemple gconfd (root-11625): Resolved address
-"xml:readonly:/etc/gconf/gconf.xml.defaults" to a read-only
-configuration source at position 2
-Nov 29 23:41:57 hightemple syslogd 1.4.1: restart.
-----syslog----
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me
 
-
-Regards

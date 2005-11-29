@@ -1,56 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751340AbVK2Max@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbVK2Mq7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751340AbVK2Max (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 07:30:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751343AbVK2Max
+	id S1751348AbVK2Mq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 07:46:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbVK2Mq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 07:30:53 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:22797 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751340AbVK2Max (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 07:30:53 -0500
-Date: Tue, 29 Nov 2005 13:30:52 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Roland Dreier <rolandd@cisco.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       mshefty@ichips.intel.com, halr@voltaire.com, openib-general@openib.org,
+	Tue, 29 Nov 2005 07:46:58 -0500
+Received: from khc.piap.pl ([195.187.100.11]:2308 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1751348AbVK2Mq6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 07:46:58 -0500
+To: Duncan Sands <duncan.sands@free.fr>
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
        linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/infiniband/core/mad.c: fix a NULL pointer dereference
-Message-ID: <20051129123052.GF31395@stusta.de>
-References: <20051126233736.GE3988@stusta.de> <52irud4pki.fsf@cisco.com> <20051128002523.GA31395@stusta.de> <52psok1wne.fsf@cisco.com>
+Subject: Re: speedtch driver, 2.6.14.2
+References: <200511232125.25254.s0348365@sms.ed.ac.uk>
+	<200511281234.45023.duncan.sands@free.fr>
+	<m3sltgu1wn.fsf@defiant.localdomain>
+	<200511291214.08104.duncan.sands@free.fr>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Tue, 29 Nov 2005 13:46:53 +0100
+In-Reply-To: <200511291214.08104.duncan.sands@free.fr> (Duncan Sands's
+ message of "Tue, 29 Nov 2005 12:14:07 +0100")
+Message-ID: <m3sltf1v0i.fsf@defiant.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <52psok1wne.fsf@cisco.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 28, 2005 at 09:59:17AM -0800, Roland Dreier wrote:
->     Adrian> Can you Cc me when forwarding it to Linus?
-> 
-> Looks like it went into Linus's tree directly from you (which is fine).
+Hi,
 
-It went through Andrew.
+Duncan Sands <duncan.sands@free.fr> writes:
 
->     Adrian> After it's in Linus' tree, Greg will accept it for the
->     Adrian> 2.6.14 stable tree.
-> 
-> Is this really important enough for the stable tree?
+>> 17:03:15 ATM dev 0: speedtch_check_status entered
+>> 17:03:17 usb 1-1: events/0 timed out on ep0in len=0/4
+>> 17:03:17 ATM dev 0: speedtch_read_status: MSG D failed
+>> 17:03:17 ATM dev 0: error -110 fetching device status
+>
+> Is it always MSG D that fails?
 
-You said it fixed a crash for you.
+I think so. Since yesterday I have 7 identical MSG D faults and nothing
+else.
 
-Besides this, it's a small and easy to verify change.
+>  Is failure of this message
+> correlated with anything else, eg: heavy network use?
 
->  - R.
+I don't think so. The ADSL was mostly idle last 24 hrs. Only inbound SMTP
+mail and the Windows viruses etc. trying to attack something.
 
-cu
-Adrian
+I can perform a test with inactive PPP (=no any flow) but I think it will
+show up the same.
 
+BTW: it's an old notebook PC, i440BX (PIIX4) based:
+
+00:00.0 Host bridge: Intel 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 03)
+00:01.0 PCI bridge: Intel 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 03)
+00:07.0 ISA bridge: Intel 82371AB/EB/MB PIIX4 ISA (rev 02)
+00:07.1 IDE interface: Intel 82371AB/EB/MB PIIX4 IDE (rev 01)
+00:07.2 USB Controller: Intel 82371AB/EB/MB PIIX4 USB (rev 01)
+00:07.3 Bridge: Intel 82371AB/EB/MB PIIX4 ACPI (rev 03)
+00:0a.0 CardBus bridge: Texas Instruments PCI1225 (rev 01)
+00:0a.1 CardBus bridge: Texas Instruments PCI1225 (rev 01)
+00:0d.0 ESS Technology ES1983S Maestro-3i PCI Audio Accelerator
+00:0d.1 ESS Technology ES1983S Maestro-3i PCI Modem Accelerator
+01:00.0 VGA: Silicon Motion, Inc. SM720 Lynx3DM (rev b1)
+02:00.0 Ethernet: DECchip 21142/43 (rev 41)
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Krzysztof Halasa

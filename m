@@ -1,92 +1,229 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750904AbVK2IYn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750924AbVK2Iid@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750904AbVK2IYn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 03:24:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750908AbVK2IYn
+	id S1750924AbVK2Iid (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 03:38:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750929AbVK2Iid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 03:24:43 -0500
-Received: from hulk.hostingexpert.com ([69.57.134.39]:61356 "EHLO
-	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S1750896AbVK2IYm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 03:24:42 -0500
-Message-ID: <438C1080.3070705@m1k.net>
-Date: Tue, 29 Nov 2005 03:25:36 -0500
-From: Michael Krufky <mkrufky@m1k.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Tue, 29 Nov 2005 03:38:33 -0500
+Received: from nproxy.gmail.com ([64.233.182.195]:1016 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750897AbVK2Iid (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 03:38:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=A/Ic5nnB2vcbAV9ex4AfcPD8Li9p6X98eyh0Zh37uOLSLs1j0O8d7xXKtiMfqfbkSrjFLtdVFz2M4CcsbBTwA/GBu3Tpw4GCmuvAYd3fXKymnRCvaGa2VDKMa4N5tDnaopI9zAFSXOnjn6Uzoo9OJYzxAxplT9t2RPf5PXYhmSM=
+Message-ID: <121a28810511290038h37067fecx@mail.gmail.com>
+Date: Tue, 29 Nov 2005 09:38:29 +0100
+From: Grzegorz Nosek <grzegorz.nosek@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] race condition in procfs
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051129000916.6306da8b.akpm@osdl.org>
 MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.15-rc3
-References: <Pine.LNX.4.64.0511282006370.3177@g5.osdl.org> <438C0124.3030700@m1k.net> <438C0695.2050808@yahoo.com.au>
-In-Reply-To: <438C0695.2050808@yahoo.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_9541_6748570.1133253509231"
+References: <121a28810511282317j47a90f6t@mail.gmail.com>
+	 <20051129000916.6306da8b.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
+------=_Part_9541_6748570.1133253509231
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> Michael Krufky wrote:
+2005/11/29, Andrew Morton <akpm@osdl.org>:
+> > I found a race condition in procfs on SMP systems. The result is an
+> > oops in processes like pidof. Apparently ->proc_read() gets passed a
+> > potentially NULL pointer.
 >
->> Unable to handle kernel NULL pointer dereference at virtual address 
->
->> EFLAGS: 00010202   (2.6.15-rc3) EIP is at vm_normal_page+0x17/0x60
->
->> Process gdb (pid: 5628, threadinfo=f488e000 task=f7239a30)
->
->> [<c014a8f5>] get_user_pages+0x29f/0x309
->
-> The clues point to the following patch. Can you give it a test
-> please?
->
-> Thanks,
-> Nick
+> Do you know what the race is?
 
-Nick-
+Apparently it's a race between deleting a process and accessing its
+/proc/pid entries. It came out in pidof while it was accessing
+/proc/pid/stat (fs/proc/array.c:do_task_stat crashed on first
+instruction - it was an inline function accessing task->state,
+get_task_state IIRC). oops (with vserver history data - I'm using a
+patch mentioned below) is attached.
 
-Thank you, this patch fixed the oops, and it also fixed another bug that 
-I didnt yet report:
-
-2.6.15-rc3 would hang when rebooting, just after it says, "Sending all 
-processes the TERM signal...."
-
-Your patch below fixes this as well.  I've noticed that akpm has already 
-applied this to his tree.  :-D
-
-Cheers,
-
-Michael Krufky
-
->vm_normal_page can be called with a NULL vma. This can be replaced with
->gate_vma, and no problem because none of the gate vmas use VM_PFNMAP
->(if they did they would need to set vm_pgoff).
 >
->Signed-off-by: Nick Piggin <npiggin@suse.de>
+> How does one reproduce it?
+
+I managed to reproduce it (although not reliably) during high CPU load
+and I/O (parallel kernel compiles) on SMP systems with the vserver
+patch (http://linux-vserver.org, the exact patch is
+http://vserver.13thfloor.at/Experimental/patch-2.6.14.2-vs2.1.0-rc8.diff),
+but the vserver maintainer pointed out that it probably is a mainline
+issue. We're not using 2.6 systems too much except for the vserver
+test beds so I cannot tell if it happens on vanilla kernels.
+
 >
->Index: linux-2.6/mm/memory.c
->===================================================================
->--- linux-2.6.orig/mm/memory.c
->+++ linux-2.6/mm/memory.c
->@@ -988,7 +988,8 @@ int get_user_pages(struct task_struct *t
-> 				return i ? : -EFAULT;
-> 			}
-> 			if (pages) {
->-				struct page *page = vm_normal_page(vma, start, *pte);
->+				struct page *page;
->+				page = vm_normal_page(gate_vma, start, *pte);
-> 				pages[i] = page;
-> 				if (page)
-> 					get_page(page);
->  
+> > The following micro-patch seems to fix it.
+>
+> It might be right, or it might be a workaround..
 >
 
+I'm not a kernel guru so it's just my proposal. Can it break anything?
+An alternative _might_ be somewhat coarser task_struct locking
+(do_task_stat grabs a spinlock but then it's already too late).
+However, if no "right" solution appears, I'll keep using my two-liner
+because it seems to help, at least in my setup.
+
+Best regards,
+ Grzegorz Nosek
+
+------=_Part_9541_6748570.1133253509231
+Content-Type: application/octet-stream; name="oops.s35"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="oops.s35"
+
+Tm92IDI3IDAwOjE1OjI2IHMzNSBbNDMyODE1NzQuMjQwMDAwXSBVbmFibGUgdG8gaGFuZGxlIGtl
+cm5lbCBOVUxMIHBvaW50ZXIgZGVyZWZlcmVuY2UKTm92IDI3IDAwOjE1OjI2IHMzNSBhdCB2aXJ0
+dWFsIGFkZHJlc3MgMDAwMDAwMDAgCk5vdiAyNyAwMDoxNToyNiBzMzUgWzQzMjgxNTc0LjI0MDAw
+MF0gIHByaW50aW5nIGVpcDogCk5vdiAyNyAwMDoxNToyNiBzMzUgWzQzMjgxNTc0LjI0MDAwMF0g
+YTAxYjUwZWIgCk5vdiAyNyAwMDoxNToyNiBzMzUgWzQzMjgxNTc0LjI0MDAwMF0gKnBkZSA9IDAw
+MDAwMDAwIApOb3YgMjcgMDA6MTU6MjYgczM1IFs0MzI4MTU3NC4yNDAwMDBdIE9vcHM6IDAwMDAg
+WyMxXSAKTm92IDI3IDAwOjE1OjI2IHMzNSBbNDMyODE1NzQuMjQwMDAwXSBTTVAgCk5vdiAyNyAw
+MDoxNToyNiBzMzUgIApOb3YgMjcgMDA6MTU6MjYgczM1IFs0MzI4MTU3NC4yNDAwMDBdIE1vZHVs
+ZXMgbGlua2VkIGluOgpOb3YgMjcgMDA6MTU6MjYgczM1IGlwdF9vd25lcgpOb3YgMjcgMDA6MTU6
+MjYgczM1IGlwdF9zdGF0ZQpOb3YgMjcgMDA6MTU6MjYgczM1IGlwdGFibGVfZmlsdGVyCk5vdiAy
+NyAwMDoxNToyNiBzMzUgbmV0Y29uc29sZQpOb3YgMjcgMDA6MTU6MjYgczM1IHVoY2lfaGNkCk5v
+diAyNyAwMDoxNToyNiBzMzUgb2hjaV9oY2QKTm92IDI3IDAwOjE1OjI2IHMzNSBlaGNpX2hjZApO
+b3YgMjcgMDA6MTU6MjYgczM1IHVzYmNvcmUKTm92IDI3IDAwOjE1OjI2IHMzNSBpcF9jb25udHJh
+Y2tfZnRwCk5vdiAyNyAwMDoxNToyNiBzMzUgaXBfY29ubnRyYWNrCk5vdiAyNyAwMDoxNToyNiBz
+MzUgZm9yY2VkZXRoCk5vdiAyNyAwMDoxNToyNiBzMzUgIApOb3YgMjcgMDA6MTU6MjYgczM1IFs0
+MzI4MTU3NC4yNDAwMDBdIENQVTogICAgMSAKTm92IDI3IDAwOjE1OjI2IHMzNSBbNDMyODE1NzQu
+MjQwMDAwXSBFSVA6ICAgIDAwNjA6WzxhMDFiNTBlYj5dICAgIE5vdCB0YWludGVkIFZMSSAKTm92
+IDI3IDAwOjE1OjI2IHMzNSBbNDMyODE1NzQuMjQwMDAwXSBFRkxBR1M6IDAwMDEwMjU3ICAgKDIu
+Ni4xNC4yYW1kNjRzbXAuMTcpICAKTm92IDI3IDAwOjE1OjI2IHMzNSBbNDMyODE1NzQuMjQwMDAw
+XSBFSVAgaXMgYXQgZG9fdGFza19zdGF0KzB4OGIvMHg4OTAgCk5vdiAyNyAwMDoxNToyNiBzMzUg
+WzQzMjgxNTc0LjI0MDAwMF0gZWF4OiAwMDAwMDAwMCAgIGVieDogMDAwMDAwMDAgICBlY3g6IGEw
+NjAxNzAwICAgZWR4OiBjODA0YWQ0OCAKTm92IDI3IDAwOjE1OjI2IHMzNSBbNDMyODE1NzQuMjQw
+MDAwXSBlc2k6IGIzZmJlMDAwICAgZWRpOiBmNjY2YWE3MCAgIGVicDogZDdlNjVmMjAgICBlc3A6
+IGQ3ZTY1ZGEwIApOb3YgMjcgMDA6MTU6MjYgczM1IFs0MzI4MTU3NC4yNDAwMDBdIGRzOiAwMDdi
+ICAgZXM6IDAwN2IgICBzczogMDA2OCAKTm92IDI3IDAwOjE1OjI2IHMzNSBbNDMyODE1NzQuMjQw
+MDAwXSBQcm9jZXNzIHBpZG9mIChwaWQ6IDQ3MjMsIHRocmVhZGluZm89ZDdlNjQwMDAgdGFzaz1l
+MjRlNzU1MCkKTm92IDI3IDAwOjE1OjI2IHMzNSAgCk5vdiAyNyAwMDoxNToyNiBzMzUgWzQzMjgx
+NTc0LjI0MDAwMF0gU3RhY2s6IApOb3YgMjcgMDA6MTU6MjYgczM1IGEwMWIxZTJlIApOb3YgMjcg
+MDA6MTU6MjYgczM1IGY2NjZhYTcwIApOb3YgMjcgMDA6MTU6MjYgczM1IGQ3ZTY1ZjI4IApOb3Yg
+MjcgMDA6MTU6MjYgczM1IGE4Y2FiMTFjIApOb3YgMjcgMDA6MTU6MjYgczM1IGQ3ZTY1ZTI0IApO
+b3YgMjcgMDA6MTU6MjYgczM1IGQ3ZTY1ZGU4IApOb3YgMjcgMDA6MTU6MjYgczM1IGEwMTg0OTM0
+IApOb3YgMjcgMDA6MTU6MjYgczM1IGQ3ZTY1ZTI0IApOb3YgMjcgMDA6MTU6MjYgczM1ICAKTm92
+IDI3IDAwOjE1OjI2IHMzNSBbNDMyODE1NzQuMjQwMDAwXSAgICAgICAgCk5vdiAyNyAwMDoxNToy
+NiBzMzUgYThjYWI1NDQgCk5vdiAyNyAwMDoxNToyNiBzMzUgZDdlNjVkZTggCk5vdiAyNyAwMDox
+NToyNiBzMzUgYTAxOTA5MGQgCk5vdiAyNyAwMDoxNToyNiBzMzUgYThjYWI1NDQgCk5vdiAyNyAw
+MDoxNToyNiBzMzUgYTA3MjBhMDAgCk5vdiAyNyAwMDoxNToyNiBzMzUgZDdlNjVkZjggCk5vdiAy
+NyAwMDoxNToyNiBzMzUgYTIyMjcxNDAgCk5vdiAyNyAwMDoxNToyNiBzMzUgMDAwMDAwMDAgCk5v
+diAyNyAwMDoxNToyNiBzMzUgIApOb3YgMjcgMDA6MTU6MjYgczM1IFs0MzI4MTU3NC4yNDAwMDBd
+ICAgICAgICAKTm92IDI3IDAwOjE1OjI2IHMzNSAwMDAwMDAwMCAKTm92IDI3IDAwOjE1OjI2IHMz
+NSBkN2U2NWUyYyAKTm92IDI3IDAwOjE1OjI2IHMzNSBkN2U2NWU0OCAKTm92IDI3IDAwOjE1OjI2
+IHMzNSBhMDE4NTY2NCAKTm92IDI3IDAwOjE1OjI2IHMzNSBhOGNhYjU0NCAKTm92IDI3IDAwOjE1
+OjI2IHMzNSBkN2U2NWUyYyAKTm92IDI3IDAwOjE1OjI2IHMzNSBkN2U2NWUyNCAKTm92IDI3IDAw
+OjE1OjI2IHMzNSBjOTRmZjAwYiAKTm92IDI3IDAwOjE1OjI2IHMzNSAgCk5vdiAyNyAwMDoxNToy
+NiBzMzUgWzQzMjgxNTc0LjI0MDAwMF0gQ2FsbCBUcmFjZTogCk5vdiAyNyAwMDoxNToyNiBzMzUg
+WzQzMjgxNTc0LjI0MDAwMF0gIFs8YTAxMDNlOWY+XSAKTm92IDI3IDAwOjE1OjI2IHMzNSBzaG93
+X3N0YWNrKzB4N2YvMHhhMApOb3YgMjcgMDA6MTU6MjYgczM1ICAKTm92IDI3IDAwOjE1OjI2IHMz
+NSBbNDMyODE1NzQuMjQwMDAwXSAgWzxhMDEwNDAzZD5dIApOb3YgMjcgMDA6MTU6MjYgczM1IHNo
+b3dfcmVnaXN0ZXJzKzB4MTVkLzB4MWQwCk5vdiAyNyAwMDoxNToyNiBzMzUgIApOb3YgMjcgMDA6
+MTU6MjYgczM1IFs0MzI4MTU3NC4yNDAwMDBdICBbPGEwMTA0MjUyPl0gCk5vdiAyNyAwMDoxNToy
+NiBzMzUgZGllKzB4MTEyLzB4MWMwCk5vdiAyNyAwMDoxNToyNiBzMzUgIApOb3YgMjcgMDA6MTU6
+MjYgczM1IFs0MzI4MTU3NC4yNDAwMDBdICBbPGEwNTVjMmI5Pl0gCk5vdiAyNyAwMDoxNToyNiBz
+MzUgZG9fcGFnZV9mYXVsdCsweDNkOS8weDY1MApOb3YgMjcgMDA6MTU6MjYgczM1ICAKTm92IDI3
+IDAwOjE1OjI2IHMzNSBbNDMyODE1NzQuMjQwMDAwXSAgWzxhMDEwM2I1Mz5dIApOb3YgMjcgMDA6
+MTU6MjYgczM1IGVycm9yX2NvZGUrMHg0Zi8weDU0Ck5vdiAyNyAwMDoxNToyNiBzMzUgIApOb3Yg
+MjcgMDA6MTU6MjYgczM1IFs0MzI4MTU3NC4yNDAwMDBdICBbPGEwMWI1OTQwPl0gCk5vdiAyNyAw
+MDoxNToyNiBzMzUgcHJvY190Z2lkX3N0YXQrMHgyMC8weDMwCk5vdiAyNyAwMDoxNToyNiBzMzUg
+IApOb3YgMjcgMDA6MTU6MjYgczM1IFs0MzI4MTU3NC4yNDAwMDBdICBbPGEwMWIwZjc1Pl0gCk5v
+diAyNyAwMDoxNToyNiBzMzUgcHJvY19pbmZvX3JlYWQrMHg1NS8weGEwCk5vdiAyNyAwMDoxNToy
+NiBzMzUgIApOb3YgMjcgMDA6MTU6MjYgczM1IFs0MzI4MTU3NC4yNDAwMDBdICBbPGEwMTc0ZDY4
+Pl0gCk5vdiAyNyAwMDoxNToyNiBzMzUgdmZzX3JlYWQrMHgxOTgvMHgxYTAKTm92IDI3IDAwOjE1
+OjI2IHMzNSAgCk5vdiAyNyAwMDoxNToyNiBzMzUgWzQzMjgxNTc0LjI0MDAwMF0gIFs8YTAxNzUw
+NmI+XSAKTm92IDI3IDAwOjE1OjI2IHMzNSBzeXNfcmVhZCsweDRiLzB4ODAKTm92IDI3IDAwOjE1
+OjI2IHMzNSAgCk5vdiAyNyAwMDoxNToyNiBzMzUgWzQzMjgxNTc0LjI0MDAwMF0gIFs8YTAxMDMw
+MmQ+XSAKTm92IDI3IDAwOjE1OjI2IHMzNSBzeXNjYWxsX2NhbGwrMHg3LzB4YgpOb3YgMjcgMDA6
+MTU6MjYgczM1ICAKTm92IDI3IDAwOjE1OjI2IHMzNSBbNDMyODE1NzQuMjQwMDAwXSBDb2RlOiAK
+Tm92IDI3IDAwOjE1OjI2IHMzNSAwMCAKTm92IDI3IDAwOjE1OjI2IHMzNSAwMCAKTm92IDI3IDAw
+OjE1OjI2IHMzNSAwMCAKTm92IDI3IDAwOjE1OjI2IHMzNSAwMCAKTm92IDI3IDAwOjE1OjI2IHMz
+NSBjNyAKTm92IDI3IDAwOjE1OjI2IHMzNSA4NSAKTm92IDI3IDAwOjE1OjI2IHMzNSA2YyAKTm92
+IDI3IDAwOjE1OjI2IHMzNSBmZiAKTm92IDI3IDAwOjE1OjI2IHMzNSBmZiAKTm92IDI3IDAwOjE1
+OjI2IHMzNSBmZiAKTm92IDI3IDAwOjE1OjI2IHMzNSAwMCAKTm92IDI3IDAwOjE1OjI2IHMzNSAw
+MCAKTm92IDI3IDAwOjE1OjI2IHMzNSAwMCAKTm92IDI3IDAwOjE1OjI2IHMzNSAwMCAKTm92IDI3
+IDAwOjE1OjI2IHMzNSA4YiAKTm92IDI3IDAwOjE1OjI2IHMzNSAwNyAKTm92IDI3IDAwOjE1OjI2
+IHMzNSA4YiAKTm92IDI3IDAwOjE1OjI2IHMzNSA5ZiAKTm92IDI3IDAwOjE1OjI2IHMzNSA4NCAK
+Tm92IDI3IDAwOjE1OjI2IHMzNSAwMCAKTm92IDI3IDAwOjE1OjI2IHMzNSAwMCAKTm92IDI3IDAw
+OjE1OjI2IHMzNSAwMCAKTm92IDI3IDAwOjE1OjI2IHMzNSAyNSAKTm92IDI3IDAwOjE1OjI2IHMz
+NSA4ZiAKTm92IDI3IDAwOjE1OjI2IHMzNSAwMCAKTm92IDI3IDAwOjE1OjI2IHMzNSAwMCAKTm92
+IDI3IDAwOjE1OjI2IHMzNSAwMCAKTm92IDI3IDAwOjE1OjI2IHMzNSA4MyAKTm92IDI3IDAwOjE1
+OjI2IHMzNSBlMyAKTm92IDI3IDAwOjE1OjI2IHMzNSAzMCAKTm92IDI3IDAwOjE1OjI2IHMzNSAw
+OSAKTm92IDI3IDAwOjE1OjI2IHMzNSBkOCAKTm92IDI3IDAwOjE1OjI2IHMzNSBlYiAKTm92IDI3
+IDAwOjE1OjI2IHMzNSAwNSAKTm92IDI3IDAwOjE1OjI2IHMzNSA4MyAKTm92IDI3IDAwOjE1OjI2
+IHMzNSBjMSAKTm92IDI3IDAwOjE1OjI2IHMzNSAwNCAKTm92IDI3IDAwOjE1OjI2IHMzNSBkMSAK
+Tm92IDI3IDAwOjE1OjI2IHMzNSBlOCAKTm92IDI3IDAwOjE1OjI2IHMzNSA3NSAKTm92IDI3IDAw
+OjE1OjI2IHMzNSBmOSAKTm92IDI3IDAwOjE1OjI2IHMzNSA4YiAKTm92IDI3IDAwOjE1OjI2IHMz
+NSAwMSAKTm92IDI3IDAwOjE1OjI2IHMzNSB1bnBhcnNlYWJsZSBsb2cgbWVzc2FnZTogIjwwZj4g
+IgpOb3YgMjcgMDA6MTU6MjYgczM1IGI2IApOb3YgMjcgMDA6MTU6MjYgczM1IDAwIApOb3YgMjcg
+MDA6MTU6MjYgczM1IGM3IApOb3YgMjcgMDA6MTU6MjYgczM1IDQ1IApOb3YgMjcgMDA6MTU6MjYg
+czM1IGM4IApOb3YgMjcgMDA6MTU6MjYgczM1IDAwIApOb3YgMjcgMDA6MTU6MjYgczM1IDAwIApO
+b3YgMjcgMDA6MTU6MjYgczM1IDAwIApOb3YgMjcgMDA6MTU6MjYgczM1IDAwIApOb3YgMjcgMDA6
+MTU6MjYgczM1IGM3IApOb3YgMjcgMDA6MTU6MjYgczM1IDQ1IApOb3YgMjcgMDA6MTU6MjYgczM1
+IGNjIApOb3YgMjcgMDA6MTU6MjYgczM1IDAwIApOb3YgMjcgMDA6MTU6MjYgczM1IDAwIApOb3Yg
+MjcgMDA6MTU6MjYgczM1IDAwIApOb3YgMjcgMDA6MTU6MjYgczM1IDAwIApOb3YgMjcgMDA6MTU6
+MjYgczM1IGM3IApOb3YgMjcgMDA6MTU6MjYgczM1IDQ1IApOb3YgMjcgMDA6MTU6MjYgczM1IGQw
+IApOb3YgMjcgMDA6MTU6MjYgczM1IDAwIApOb3YgMjcgMDA6MTU6MjYgczM1ICAKTm92IDI3IDAw
+OjE1OjI2IHMzNSBbNDMyODE1NzQuMjQwMDAwXSBIaXN0b3J5OglTRVE6ICAzZGRjYTE0CU5SX0NQ
+VVM6IDggCk5vdiAyNyAwMDoxNToyNiBzMzUgWzQzMjgxNTc0LjI0MDAwMF0gKCNjOWFlLCowKTph
+MDRkNTQ2ZSBzZXRfdnhfaW5mbyBmNmU0ODAwMFsjODMwLDE5MC43MV0gQGY0ZmNmNGU4IApOb3Yg
+MjcgMDA6MTU6MjYgczM1IFs0MzI4MTU3NC4yNDAwMDBdICgjYzk2NCwqMSk6YTAxM2FjODIgcmVs
+ZWFzZV92eF9pbmZvIGY2ZTQ4MDAwWyM4MzAsMTkwLjc0XSBAYzVjZGIwMzAgCk5vdiAyNyAwMDox
+NToyNiBzMzUgWzQzMjgxNTc0LjI0MDAwMF0gKCNjYTEzLCowKTphMDRkNDBiMiBjbHJfdnhfaW5m
+byBmNmU0ODAwMFsjODMwLDE4OC43MV0gQGRiNzM4MDY4IApOb3YgMjcgMDA6MTU6MjYgczM1IFs0
+MzI4MTU3NC4yNDAwMDBdICgjY2ExNCwqMSk6YTAxMDQxNDAgb29wcyAgCk5vdiAyNyAwMDoxNToy
+NiBzMzUgWzQzMjgxNTc0LjI0MDAwMF0gKCNjYTEyLCowKTphMDRkNDBiMiBjbHJfdnhfaW5mbyBm
+NmU0ODAwMFsjODMwLDE4OS43MV0gQGRiNzM5YjY4IApOb3YgMjcgMDA6MTU6MjYgczM1IFs0MzI4
+MTU3NC4yNDAwMDBdICgjY2EwZiwqMSk6YTAxMWM1N2MgY2xyX3Z4X2luZm8gZjZlMWUwMDBbIzgz
+MSwxNTEuMzldIEBmNmYxYmFkMCAKTm92IDI3IDAwOjE1OjI2IHMzNSBbNDMyODE1NzQuMjQwMDAw
+XSAoI2NhMTEsKjApOmEwNGQ0MGIyIGNscl92eF9pbmZvIGY2ZTQ4MDAwWyM4MzAsMTkwLjcxXSBA
+YWQzYTE2ZTggCk5vdiAyNyAwMDoxNToyNiBzMzUgWzQzMjgxNTc0LjI0MDAwMF0gKCNjYTBlLCox
+KTphMDExYzQ1YyBzZXRfdnhfaW5mbyBmNmUxZTAwMFsjODMxLDE1MC4zOV0gQGY2ZjFhMjEwIApO
+b3YgMjcgMDA6MTU6MjYgczM1IFs0MzI4MTU3NC4yNDAwMDBdICgjY2ExMCwqMCk6YTA0ZDQwYjIg
+Y2xyX3Z4X2luZm8gZjZlNDgwMDBbIzgzMCwxOTEuNzFdIEBlZDFhN2I2OCAKTm92IDI3IDAwOjE1
+OjI2IHMzNSBbNDMyODE1NzQuMjQwMDAwXSAoI2NhMGQsKjEpOmEwNGQ0MGIyIGNscl92eF9pbmZv
+IGY2ZTQ4MDAwWyM4MzAsMTkyLjcxXSBAYjZiOThhZTggCk5vdiAyNyAwMDoxNToyNiBzMzUgWzQz
+MjgxNTc0LjI0MDAwMF0gKCNjYTAzLCowKTphMDRkNDU1NiBzZXRfdnhfaW5mbyBmNmU0ODAwMFsj
+ODMwLDE5MC43MV0gQGJhMzg5MjY4IApOb3YgMjcgMDA6MTU6MjYgczM1IFs0MzI4MTU3NC4yNDAw
+MDBdICgjY2EwYywqMSk6YTAxMWRkYWMgY2xhaW1fdnhfaW5mbyBmNmUxZTAwMFsjODMxLDE1MC4z
+OF0gQGUyNGU3NTUwIApOb3YgMjcgMDA6MTU6MjYgczM1IFs0MzI4MTU3NC4yNDAwMDBdICgjY2Ew
+MiwqMCk6YTA0ZDQwYjIgY2xyX3Z4X2luZm8gZjZlNDgwMDBbIzgzMCwxOTEuNzFdIEBiNmI5OGQ2
+OCAKTm92IDI3IDAwOjE1OjI2IHMzNSBbNDMyODE1NzQuMjQwMDAwXSAoI2NhMGIsKjEpOmEwMTFj
+NDVjIHNldF92eF9pbmZvIGY2ZTFlMDAwWyM4MzEsMTQ5LjM4XSBAZjZmMWJhZDAgCk5vdiAyNyAw
+MDoxNToyNiBzMzUgWzQzMjgxNTc0LjI0MDAwMF0gKCNjYTAxLCowKTphMDRkNTQ2ZSBzZXRfdnhf
+aW5mbyBmNmU0ODAwMFsjODMwLDE5MC43MV0gQGI2Yjk4ZDY4IApOb3YgMjcgMDA6MTU6MjYgczM1
+IFs0MzI4MTU3NC4yNDAwMDBdICgjY2EwYSwqMSk6YTAxMWQzOGMgaW5pdF92eF9pbmZvIGY2ZTFl
+MDAwWyM4MzEsMTQ4LjM4XSBAZTI0ZTc5ZjggCk5vdiAyNyAwMDoxNToyNiBzMzUgWzQzMjgxNTc0
+LjI0MDAwMF0gKCNjYTAwLCowKTphMDRkNDBiMiBjbHJfdnhfaW5mbyBmNmU0ODAwMFsjODMwLDE5
+MS43MV0gQGY0ZmNmNGU4IApOb3YgMjcgMDA6MTU6MjYgczM1IFs0MzI4MTU3NC4yNDAwMDBdICgj
+Y2EwOSwqMSk6YTAxMWJmMTAgY2xyX3Z4X2luZm8gZjZlMWUwMDBbIzgzMSwxNDkuMzhdIEBlMjRl
+NzlmOCAKTm92IDI3IDAwOjE1OjI2IHMzNSBbNDMyODE1NzQuMjQwMDAwXSAoI2M5ZmYsKjApOmEw
+NGQ0MGIyIGNscl92eF9pbmZvIGY2ZTQ4MDAwWyM4MzAsMTkyLjcxXSBAZjU2YmJkZTggCk5vdiAy
+NyAwMDoxNToyNiBzMzUgWzQzMjgxNTc0LjI0MDAwMF0gKCNjYTA4LCoxKTphMDRkNTQ2ZSBzZXRf
+dnhfaW5mbyBmNmU0ODAwMFsjODMwLDE5MS43MV0gQGI2Yjk4YWU4IApOb3YgMjcgMDA6MTU6MjYg
+czM1IFs0MzI4MTU3NC4yNDAwMDBdICgjYzlmZSwqMCk6YTA0ZDU0NmUgc2V0X3Z4X2luZm8gZjZl
+NDgwMDBbIzgzMCwxOTEuNzFdIEBmNTZiYmRlOCAKTm92IDI3IDAwOjE1OjI2IHMzNSBbNDMyODE1
+NzQuMjQwMDAwXSAoI2NhMDcsKjEpOmEwNGQ0MGIyIGNscl92eF9pbmZvIGY2ZTQ4MDAwWyM4MzAs
+MTkyLjcxXSBAY2JlYzUwNjggCk5vdiAyNyAwMDoxNToyNiBzMzUgWzQzMjgxNTc0LjI0MDAwMF0g
+KCNjOWZkLCowKTphMDRkNTQ2ZSBzZXRfdnhfaW5mbyBmNmU0ODAwMFsjODMwLDE5MC43MV0gQGY0
+ZmNmNGU4IApOb3YgMjcgMDA6MTU6MjYgczM1IFs0MzI4MTU3NC4yNDAwMDBdICgjY2EwNiwqMSk6
+YTA0ZDQwYjIgY2xyX3Z4X2luZm8gZjZlNDgwMDBbIzgzMCwxOTMuNzFdIEBjYmVjNWJhOCAKTm92
+IDI3IDAwOjE1OjI2IHMzNSBbNDMyODE1NzQuMjQwMDAwXSAoI2M5ZmMsKjApOmEwNGQ0NTU2IHNl
+dF92eF9pbmZvIGY2ZTQ4MDAwWyM4MzAsMTg5LjcxXSBAYWQzYTE2ZTggCk5vdiAyNyAwMDoxNToy
+NiBzMzUgWzQzMjgxNTc0LjI0MDAwMF0gKCNjYTA1LCoxKTphMDRkNTQ2ZSBzZXRfdnhfaW5mbyBm
+NmU0ODAwMFsjODMwLDE5Mi43MV0gQGNiZWM1YmE4IApOb3YgMjcgMDA6MTU6MjYgczM1IFs0MzI4
+MTU3NC4yNDAwMDBdICgjYzlmYiwqMCk6YTA0ZDQwYjIgY2xyX3Z4X2luZm8gZjZlNDgwMDBbIzgz
+MCwxOTAuNzFdIEBhZDNhMTZlOCAKTm92IDI3IDAwOjE1OjI2IHMzNSBbNDMyODE1NzQuMjQwMDAw
+XSAoI2NhMDQsKjEpOmEwNGQ1NDZlIHNldF92eF9pbmZvIGY2ZTQ4MDAwWyM4MzAsMTkxLjcxXSBA
+Y2JlYzUwNjggCk5vdiAyNyAwMDoxNToyNiBzMzUgWzQzMjgxNTc0LjI0MDAwMF0gKCNjOWY3LCow
+KTphMDExYzU3YyBjbHJfdnhfaW5mbyBmNmUxZTAwMFsjODMxLDE0OC4zN10gQGY2ZjFhNzkwIApO
+b3YgMjcgMDA6MTU6MjYgczM1IFs0MzI4MTU3NC4yNDAwMDBdICgjYzlmYSwqMSk6YTAxMWRkYWMg
+Y2xhaW1fdnhfaW5mbyBmNmUxZTAwMFsjODMxLDE0OS4zN10gQGU0ODU2NTUwIAo=
+------=_Part_9541_6748570.1133253509231--

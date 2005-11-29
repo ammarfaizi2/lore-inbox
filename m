@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbVK2HMW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbVK2HRY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751335AbVK2HMW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 02:12:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751339AbVK2HMW
+	id S1751339AbVK2HRY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 02:17:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbVK2HRY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 02:12:22 -0500
-Received: from hulk.hostingexpert.com ([69.57.134.39]:29306 "EHLO
-	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S1751335AbVK2HMW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 02:12:22 -0500
-Message-ID: <438BFF8C.7090505@m1k.net>
-Date: Tue, 29 Nov 2005 02:13:16 -0500
-From: Michael Krufky <mkrufky@m1k.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Tue, 29 Nov 2005 02:17:24 -0500
+Received: from nproxy.gmail.com ([64.233.182.202]:11463 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751339AbVK2HRY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 02:17:24 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Pc/I3KIiLe2CoLQZbTU06aJxx6OhjH4BkVBtJrlne87trs8UgHU1z3CE9mGdH/2BzVSGiUHPjifrf8a3UR1dN4FXETthKMmLv2559MlKQBaPJTdy3RP7l6W2TVVc8Qs9h+ZHfTvNJDswuVw3UxPuFU2//ih1rK8d6fNh7XXlp9k=
+Message-ID: <121a28810511282317j47a90f6t@mail.gmail.com>
+Date: Tue, 29 Nov 2005 08:17:22 +0100
+From: Grzegorz Nosek <grzegorz.nosek@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] race condition in procfs
 MIME-Version: 1.0
-To: Gene Heskett <gene.heskett@verizon.net>
-CC: Linux and Kernel Video <video4linux-list@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: cx88 totally fried in 2.6.15-rcX -was- Re: HD3000 - no NTSC via
- tuner
-References: <200511282205.jASM5YUI018061@p-chan.krl.com>	<438BCCF9.1000606@m1k.net> <438BCE5F.7070108@m1k.net> <200511282340.46506.gene.heskett@verizon.net> <438BDF72.1000704@m1k.net>
-In-Reply-To: <438BDF72.1000704@m1k.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Krufky wrote:
+Hello,
 
-> Anyway, after 2.6.15-rc3 propogates and I get it installed, I'll let 
-> you know how my testing goes.  Would you do the same?
+I found a race condition in procfs on SMP systems. The result is an
+oops in processes like pidof. Apparently ->proc_read() gets passed a
+potentially NULL pointer. The following micro-patch seems to fix it.
 
-My FusionHDTV5 Gold card works fine under 2.6.15-rc3 ... Hopefully yours 
-does too.
+Best regards,
+ Grzegorz Nosek
 
-/me crosses fingers
+--- linux-2.6/fs/proc/base.c.orig 2005-11-25 00:07:43.000000000 +0100
++++ linux-2.6/fs/proc/base.c      2005-11-28 11:44:11.000000000 +0100
+@@ -718,6 +718,9 @@
+       ssize_t length;
+       struct task_struct *task = proc_task(inode);
 
--Mike
++       if (!task)
++               return -ENOENT;
++
+       if (count > PROC_BLOCK_SIZE)
+               count = PROC_BLOCK_SIZE;
+       if (!(page = __get_free_page(GFP_KERNEL)))

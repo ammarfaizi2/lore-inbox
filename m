@@ -1,59 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbVK2GzZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751328AbVK2GzP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751331AbVK2GzZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 01:55:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbVK2GzZ
+	id S1751328AbVK2GzP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 01:55:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbVK2GzP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 01:55:25 -0500
-Received: from mail.kroah.org ([69.55.234.183]:48536 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751331AbVK2GzY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 01:55:24 -0500
-Date: Mon, 28 Nov 2005 22:55:12 -0800
-From: Greg KH <greg@kroah.com>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Patrick Mochel <mochel@digitalimplant.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Updates to sysfs_create_subdir()
-Message-ID: <20051129065512.GA4945@kroah.com>
-References: <Pine.LNX.4.50.0511231336261.16769-100000@monsoon.he.net> <20051128204950.GC17740@kroah.com> <37362F2B-D74A-4A40-905B-B25264B6C4AB@mac.com> <20051129054411.GB11013@kroah.com> <B43BE39F-16A2-4BFE-A6AA-0F4439780F1C@mac.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <B43BE39F-16A2-4BFE-A6AA-0F4439780F1C@mac.com>
-User-Agent: Mutt/1.5.11
+	Tue, 29 Nov 2005 01:55:15 -0500
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:42842 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1751328AbVK2GzO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 01:55:14 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=r8fxECqZVO/sQJBNnqzYLtQ/JNmdJNwycEmbnnpowtZgV8dLBdoF5E1aGcz2zSVcz6KLiYnNOQ2QLI3cA5WqONa4WyaMuMchLkYGSJPMVmupP/SIDUJkp25fEQVvCakyL27Z3Py426rvXMIDl7ldVdOllcooowG0xFUspowvWL4=  ;
+Message-ID: <438BFB44.2080208@yahoo.com.au>
+Date: Tue, 29 Nov 2005 17:55:00 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Andrew Morton <akpm@osdl.org>, Steven Rostedt <rostedt@goodmis.org>,
+       acpi-devel@lists.sourceforge.net, len.brown@intel.com,
+       nando@ccrma.Stanford.EDU, rlrevell@joe-job.com,
+       linux-kernel@vger.kernel.org, paulmck@us.ibm.com, kr@cybsft.com,
+       tglx@linutronix.de, pluto@agmk.net, john.cooper@timesys.com,
+       bene@linutronix.de, dwalker@mvista.com, trini@kernel.crashing.org,
+       george@mvista.com
+Subject: Re: [RFC][PATCH] Runtime switching of the idle function [take 2]
+References: <20051118220755.GA3029@elte.hu> <1132353689.4735.43.camel@cmn3.stanford.edu> <1132367947.5706.11.camel@localhost.localdomain> <20051124150731.GD2717@elte.hu> <1132952191.24417.14.camel@localhost.localdomain> <20051126130548.GA6503@elte.hu> <1133232503.6328.18.camel@localhost.localdomain> <20051128190253.1b7068d6.akpm@osdl.org> <1133235740.6328.27.camel@localhost.localdomain> <20051128200108.068b2dcd.akpm@osdl.org> <20051129064420.GA15374@elte.hu>
+In-Reply-To: <20051129064420.GA15374@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 29, 2005 at 01:41:01AM -0500, Kyle Moffett wrote:
-> On Nov 29, 2005, at 00:44, Greg KH wrote:
-> >On Mon, Nov 28, 2005 at 08:10:36PM -0500, Kyle Moffett wrote:
-> >>If the kernel gets this, then udev needs to allow attributes with  
-> >>more generic paths too.  It would be nice if I could use this  
-> >>[Pulled from the sample udev output halfway down this page: http:// 
-> >>www.reactivated.net/writing_udev_rules.html#identify-sysfs].
-> >>
-> >>BUS="scsi", SYSFS{../../../manufacturer}="Tekom Technologies,  
-> >>Inc", NAME="my_camera"
-> >
-> >Why can't you do this today?  Have you tried it?
+Ingo Molnar wrote:
+> * Andrew Morton <akpm@osdl.org> wrote:
 > 
-> Hmm, no, I don't suppose I have.  I guess I was taking the udev docs  
-> and other similar pages at their word that you couldn't match things  
-> in multiple subdirs.  *tries*  Interesting; it appears to work, but  
-> it would be nice if it was documented somewhere; this is _really_  
-> handy for certain devices with partial or missing udev support.
+> 
+>>>The way to solve this was to set
+>>> idle=poll.  The original patch I sent was to allow the user to change to
+>>> idle=poll dynamically.  This way they could switch to the poll_idle and
+>>> run there tests (requiring tsc not to drift) and then switch back to the
+>>> default idle to save on electricity.
+>>
+>>Use gettimeofday()?
+>>
+>>If it's just for some sort of instrumentation, run NR_CPUS instances 
+>>of a niced-down busyloop, pin each one to a different CPU?  That way 
+>>the idle function doesn't get called at all..
+> 
+> 
+> idle=poll is also frequently done for performance reasons [it reduces 
+> idle wakeup latency by 10 usecs] - while it could be turned off if the 
+> system has been idle for some time. E.g. cpufreqd could sample idle time 
+> and turn on/off idle=poll. High-performance setups could enable it all 
+> the time.
+> 
+> as long as it can be done with zero-cost, i dont see why Steven's patch 
+> wouldnt be a plus for us. It's a performance thing, and having runtime 
+> switches for seemless performance features cannot be bad.
+> 
 
-Patches for documentation is always gladly accepted :)
+Why not just slightly cleanup and extend (eg. to ACPI) the
+hlt_counter thingy that many architectures already have?
 
-> I do have one question, though.  Is there any way to access the  
-> "DEVICE" or "SUBSYSTEM" values of those parent sysfs nodes?  I can  
-> see that those are symlinks in sysfs to other sysfs dirs, so there's  
-> no real way to match them with SYSFS{*},
+Nick
 
-As they are symlinks, you might just be able to follow them as part of
-the path.  But odds are, something in libsysfs would prevent that from
-working that way...
+-- 
+SUSE Labs, Novell Inc.
 
-thanks,
-
-greg k-h
+Send instant messages to your online friends http://au.messenger.yahoo.com 

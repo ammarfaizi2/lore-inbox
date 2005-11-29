@@ -1,99 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932383AbVK2U3W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbVK2U3G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932383AbVK2U3W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 15:29:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbVK2U3W
+	id S932385AbVK2U3G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 15:29:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbVK2U3G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 15:29:22 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:1668 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932383AbVK2U3V (ORCPT
+	Tue, 29 Nov 2005 15:29:06 -0500
+Received: from zproxy.gmail.com ([64.233.162.197]:45896 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932381AbVK2U3E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 15:29:21 -0500
-Date: Tue, 29 Nov 2005 13:30:42 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Erik Mouw <erik@harddisk-recovery.com>
-Cc: linux-kernel@vger.kernel.org, jbglaw@lug-owl.de, torvalds@osdl.org
-Subject: Re: [PATCH 2.6.15-rc2-git6] Fix tar-pkg target
-Message-Id: <20051129133042.6d344110.akpm@osdl.org>
-In-Reply-To: <20051128170414.GA10601@harddisk-recovery.nl>
-References: <20051128170414.GA10601@harddisk-recovery.nl>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 29 Nov 2005 15:29:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:reply-to:x-priority:message-id:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=CwslQx9zwgfZymwrDu/JqAUK4CiXvIdXHiU+4x7KY5fQII7IOJqNL7GI5axqi4eLntAg0Mq2f21KL+UU/2rCqIZUzytH4LS7Tqnj3TTUmuGWpDTGrWtY01M/qcek8cGDsiZwPIMexTbLy+sE8GjncDqNaStj6VVE4oFKOT962XI=
+Date: Tue, 29 Nov 2005 21:28:51 +0100
+From: Mateusz Berezecki <mateuszb@gmail.com>
+Reply-To: Mateusz Berezecki <mateuszb@gmail.com>
+X-Priority: 3 (Normal)
+Message-ID: <745843498.20051129212851@gmail.com>
+To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       <kernel-mentors@selenic.com>
+Subject: NIC irq nobody cared ? virtual to  physical  and DMA questions
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Mouw <erik@harddisk-recovery.com> wrote:
->
-> The various tar-pkg Makefile targets forget to apply the
-> CONFIG_LOCALVERSION_AUTO to the vminux and System.map files because the
-> script (scripts/package/buildtar) doesn't know about it. This can be
-> fixed by computing the correct "version" variable, but it's better to
-> use the one computed by Kbuild itself, just like the like the
-> "builddeb" and "mkspec" scripts do.
-> 
-> Without this patch, "make tar-pkg" would generate a file
-> linux-2.6.15-rc2.tar containing vmlinuz-2.6.15-rc2. With this patch, it
-> generates linux-2.6.15-rc2-g458af543.tar containing
-> vmlinuz-2.6.15-rc2-g458af543.
-> 
-> ...
-> --- a/scripts/package/buildtar
-> +++ b/scripts/package/buildtar
-> @@ -15,7 +15,7 @@ set -e
->  #
->  # Some variables and settings used throughout the script
->  #
-> -version="${VERSION}.${PATCHLEVEL}.${SUBLEVEL}${EXTRAVERSION}${EXTRANAME}"
-> +version="${KERNELRELEASE}"
+Hello List,
 
+This time the questions are different.
 
-I already have the below queued up, which is a bit different.  Does it work
-OK?
+Given the following output could anyone please tell me what is wrong ?
+In explicit what does that mysterious "nobody cared" message mean?
+And another stupid question: should DMA for a network card be enabled before or maybe
+_after_ interrupts get enabled? And... how to convert virtual address
+to physical one?
 
+Nov 29 21:25:47 debian kernel: atheros: receive init routine called
+Nov 29 21:25:47 debian kernel: atheros: physical address of RX head is 00000000
+Nov 29 21:25:47 debian kernel: atheros: enabling DMA receive. this can crash things supposedly.
+Nov 29 21:25:47 debian kernel: irq 11: nobody cared (try booting with the "irqpoll" option)
+Nov 29 21:25:47 debian kernel:  [dump_stack+23/32] dump_stack+0x17/0x20
+Nov 29 21:25:47 debian kernel:  [__report_bad_irq+39/144] __report_bad_irq+0x27/0x90
+Nov 29 21:25:47 debian kernel:  [note_interrupt+114/192] note_interrupt+0x72/0xc0
+Nov 29 21:25:47 debian kernel:  [__do_IRQ+200/224] __do_IRQ+0xc8/0xe0
+Nov 29 21:25:47 debian kernel:  [do_IRQ+80/128] do_IRQ+0x50/0x80
+Nov 29 21:25:47 debian kernel:  =======================
+Nov 29 21:25:47 debian kernel:  [common_interrupt+26/32] common_interrupt+0x1a/0x20
+Nov 29 21:25:47 debian kernel:  [do_softirq+115/128] do_softirq+0x73/0x80
+Nov 29 21:25:47 debian kernel:  =======================
+Nov 29 21:25:47 debian kernel:  [irq_exit+67/80] irq_exit+0x43/0x50
+Nov 29 21:25:47 debian kernel:  [do_IRQ+87/128] do_IRQ+0x57/0x80
+Nov 29 21:25:47 debian kernel:  [common_interrupt+26/32] common_interrupt+0x1a/0x20
+Nov 29 21:25:47 debian kernel:  [pg0+260065664/1065075712] ath_init+0x30/0x80 [atheros]
+Nov 29 21:25:47 debian kernel:  [dev_open+70/144] dev_open+0x46/0x90
+Nov 29 21:25:47 debian kernel:  [dev_change_flags+83/288] dev_change_flags+0x53/0x120
+Nov 29 21:25:47 debian kernel:  [devinet_ioctl+1437/1472] devinet_ioctl+0x59d/0x5c0
+Nov 29 21:25:47 debian kernel:  [inet_ioctl+166/208] inet_ioctl+0xa6/0xd0
+Nov 29 21:25:47 debian kernel:  [sock_ioctl+248/592] sock_ioctl+0xf8/0x250
+Nov 29 21:25:47 debian kernel:  [do_ioctl+40/144] do_ioctl+0x28/0x90
+Nov 29 21:25:47 debian kernel:  [vfs_ioctl+87/496] vfs_ioctl+0x57/0x1f0
+Nov 29 21:25:47 debian kernel:  [sys_ioctl+57/96] sys_ioctl+0x39/0x60
+Nov 29 21:25:47 debian kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+Nov 29 21:25:47 debian kernel: handlers:
+Nov 29 21:25:47 debian kernel: [usb_hcd_irq+0/80] (usb_hcd_irq+0x0/0x50)
+Nov 29 21:25:47 debian last message repeated 3 times
+Nov 29 21:25:47 debian kernel: [yenta_interrupt+0/192] (yenta_interrupt+0x0/0xc0)
+Nov 29 21:25:47 debian kernel: [pg0+260075488/1065075712] (ath_intr+0x0/0x150 [atheros])
+Nov 29 21:25:47 debian kernel: Disabling IRQ #11
+Nov 29 21:25:47 debian kernel: atheros: interrupts enabled
+Nov 29 21:25:47 debian kernel: atheros: device up and running
 
-
-From: Brian Gerst <bgerst@didntduck.org>
-
-Clean up two more open-coded uses of KERNELRELEASE.
-
-Signed-off-by: Brian Gerst <bgerst@didntduck.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- arch/frv/boot/Makefile   |    4 ++--
- scripts/package/buildtar |    2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
-
-diff -puN arch/frv/boot/Makefile~use-kernelrelease arch/frv/boot/Makefile
---- devel/arch/frv/boot/Makefile~use-kernelrelease	2005-11-27 21:56:54.000000000 -0800
-+++ devel-akpm/arch/frv/boot/Makefile	2005-11-27 21:56:54.000000000 -0800
-@@ -57,10 +57,10 @@ initrd:
- # installation
- #
- install: $(CONFIGURE) Image
--	sh ./install.sh $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION) Image $(TOPDIR)/System.map "$(INSTALL_PATH)"
-+	sh ./install.sh $(KERNELRELEASE) Image $(TOPDIR)/System.map "$(INSTALL_PATH)"
- 
- zinstall: $(CONFIGURE) zImage
--	sh ./install.sh $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION) zImage $(TOPDIR)/System.map "$(INSTALL_PATH)"
-+	sh ./install.sh $(KERNELRELEASE) zImage $(TOPDIR)/System.map "$(INSTALL_PATH)"
- 
- #
- # miscellany
-diff -puN scripts/package/buildtar~use-kernelrelease scripts/package/buildtar
---- devel/scripts/package/buildtar~use-kernelrelease	2005-11-27 21:56:54.000000000 -0800
-+++ devel-akpm/scripts/package/buildtar	2005-11-27 21:56:54.000000000 -0800
-@@ -15,7 +15,7 @@ set -e
- #
- # Some variables and settings used throughout the script
- #
--version="${VERSION}.${PATCHLEVEL}.${SUBLEVEL}${EXTRAVERSION}${EXTRANAME}"
-+version="${KERNELRELEASE}${EXTRANAME}"
- tmpdir="${objtree}/tar-install"
- tarball="${objtree}/linux-${version}.tar"
- 
-_
+-- 
+kind regards,
+ Mateusz Berezecki
 

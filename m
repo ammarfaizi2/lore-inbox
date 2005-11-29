@@ -1,105 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751352AbVK2NGp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751356AbVK2N1o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751352AbVK2NGp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 08:06:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbVK2NGp
+	id S1751356AbVK2N1o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 08:27:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751355AbVK2N1o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 08:06:45 -0500
-Received: from hulk.hostingexpert.com ([69.57.134.39]:6329 "EHLO
-	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S1751352AbVK2NGp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 08:06:45 -0500
-Message-ID: <438C528C.4070304@m1k.net>
-Date: Tue, 29 Nov 2005 08:07:24 -0500
-From: Michael Krufky <mkrufky@m1k.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-CC: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Linux 2.6.15-rc3 - VIDEO_BT848_DVB config
-References: <Pine.LNX.4.64.0511282006370.3177@g5.osdl.org> <438C1F68.4070707@eyal.emu.id.au>
-In-Reply-To: <438C1F68.4070707@eyal.emu.id.au>
-Content-Type: multipart/mixed;
- boundary="------------000001060805090100060601"
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Tue, 29 Nov 2005 08:27:44 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:14985 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751356AbVK2N1n
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 08:27:43 -0500
+Date: Tue, 29 Nov 2005 18:57:30 +0530
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Fernando Luis Vazquez Cao <fernando@intellilink.co.jp>,
+       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] Re: [PATCH & RFC] kdump and stack overflows
+Message-ID: <20051129132730.GA3803@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <1133183463.2327.96.camel@localhost.localdomain> <m1lkz8gad7.fsf@ebiederm.dsl.xmission.com> <1133200815.2425.98.camel@localhost.localdomain> <m1hd9wfwxi.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1hd9wfwxi.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000001060805090100060601
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, Nov 28, 2005 at 11:29:29AM -0700, Eric W. Biederman wrote:
+> Fernando Luis Vazquez Cao <fernando@intellilink.co.jp> writes:
+> 
+> > On Mon, 2005-11-28 at 06:39 -0700, Eric W. Biederman wrote: 
+> >> Fernando Luis Vazquez Cao <fernando@intellilink.co.jp> writes:
+> 
+> > Regarding the stack overflow audit of the nmi path, we have the problem
+> > that both nmi_enter and nmi_exit in do_nmi (see code below) make heavy
+> > use of "current" indirectly (specially through the kernel preemption
+> > code).
+> 
+> Ok.  I wonder if it would be saner to simply replace the nmi trap
+> handler on the crash dump path?
+> 
 
-Eyal Lebedinsky wrote:
+Sounds interesting.
 
->Linus Torvalds wrote:
->  
->
->>I just pushed 2.6.15-rc3 out there, and here are both the shortlog and 
->>diffstats appended.
->>    
->>
->A config issue? It says 'choose M' which is not offered. Maybe it is just
->an option for the bt8xx driver, which itself can be built as a module
->(CONFIG_VIDEO_BT848)?
->
->
->  DVB/ATSC Support for bt878 based TV cards (VIDEO_BT848_DVB) [N/y/?] (NEW) ?
->
->This adds support for DVB/ATSC cards based on the BT878 chip.
->
->To compile this driver as a module, choose M here: the
->module will be called dvb-bt8xx.
->
-No -- It's a typo.  CONFIG_VIDEO_BT848_DVB is just an option to 
-CONFIG_VIDEO_BT848.  It is a boolean option, and when chosen, Kconfig 
-SELECT's CONFIG_DVB_BT8XX, and that's the actual menu item that builds 
-the module.
+> >> I believe we have a separate interrupt stack that
+> >> should help but..
+> > Yes, when using 4K stacks we have a separate interrupt stack that should
+> > help, but I am afraid that crash dumping is about being paranoid.
+> 
+> Oh I agree.  If we had a private 4K stack for the nmi handler we
+> would not need to worry about overflow in that case. 
 
-The option is set as bool, so that if it's dependencies are set as 
-modules, dvb-bt8xx will also build as a module.  If, however, the 
-dependencies are set to build in-kernel, then dvb-bt8xx will do so as well.
+Having private 4K stack makes sense as crash_nmi_callback() itself
+requires quite some space on stack. If one has enabled CONFIG_4KSTACKS,
+then we use separate interrupt stack and we are probably safe from stack
+overflows but otherwise we need it. 
 
-Consider this menu item a symbolic link to CONFIG_DVB_BT8XX -- it was 
-the only way to add this as a submenu option to VIDEO_BT848, without 
-removing the reference in the DVB submenu.
+> (baring
+> nmi happening during nmis)  Hmm.  Is there anything to keep
+> us doing something bad in that case?
+> 
+> I guess as long as we don't clear the high bit of port 0x70 we
+> should be reasonably safe from the nmi firing multiple times.
 
-Anyhow, this patch removes the incorrect info:
+Are you referring to port 0x23 for IMCR register.
 
-Signed-off-by: Michael Krufky <mkrufky@m1k.net>
-
-
---------------000001060805090100060601
-Content-Type: text/x-patch;
- name="fix-kconfig-typo.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="fix-kconfig-typo.patch"
-
- drivers/media/video/Kconfig |    3 ---
- 1 file changed, 3 deletions(-)
-
---- linux-2.6.15-rc3.orig/drivers/media/video/Kconfig	2005-11-29 01:21:42.000000000 -0500
-+++ linux-2.6.15-rc3/drivers/media/video/Kconfig	2005-11-29 08:01:39.000000000 -0500
-@@ -32,9 +32,6 @@
- 	---help---
- 	  This adds support for DVB/ATSC cards based on the BT878 chip.
- 
--	  To compile this driver as a module, choose M here: the
--	  module will be called dvb-bt8xx.
--
- config VIDEO_SAA6588
- 	tristate "SAA6588 Radio Chip RDS decoder support on BT848 cards"
- 	depends on VIDEO_DEV && I2C && VIDEO_BT848
-
---------------000001060805090100060601--
+Thanks
+Vivek

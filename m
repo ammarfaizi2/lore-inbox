@@ -1,213 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbVK2VSS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbVK2V0t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932415AbVK2VSS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 16:18:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932417AbVK2VSS
+	id S932405AbVK2V0t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 16:26:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbVK2V0t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 16:18:18 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:11459 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932413AbVK2VSR (ORCPT
+	Tue, 29 Nov 2005 16:26:49 -0500
+Received: from pat.uio.no ([129.240.130.16]:50822 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932405AbVK2V0s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 16:18:17 -0500
-Date: Tue, 29 Nov 2005 21:18:00 GMT
-From: David Howells <dhowells@redhat.com>
-To: torvalds@osdl.org, akpm@osdl.org, dalomar@serrasold.com
-Cc: linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
-Fcc: outgoing
-Subject: [PATCH 1/2] FRV: Fix FRV signal handling
-Message-Id: <dhowells1133299080@warthog.cambridge.redhat.com>
-MIME-Version: 1.0
+	Tue, 29 Nov 2005 16:26:48 -0500
+Subject: Re: NFS oops on 2.6.14.2
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Ryan Richter <ryan@tau.solarneutrino.net>
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20051129200013.GB6326@tau.solarneutrino.net>
+References: <20051129200013.GB6326@tau.solarneutrino.net>
 Content-Type: text/plain
+Date: Tue, 29 Nov 2005 16:26:37 -0500
+Message-Id: <1133299597.17363.2.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.825, required 12,
+	autolearn=disabled, AWL 1.18, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The attached patch makes FRV signal handling work properly:
+On Tue, 2005-11-29 at 15:00 -0500, Ryan Richter wrote:
+> I got an oops on two NFS clients after upgrading to 2.6.14.2.
+> 
+> Here's one:
+> 
+> Unable to handle kernel NULL pointer dereference at 0000000000000018 RIP:
+> <ffffffff801dbd9e>{nlmclnt_mark_reclaim+62}
+> PGD 7bdd4067 PUD 7bdd5067 PMD 0
+> Oops: 0000 [1]
+> CPU 0
+> Modules linked in:
+> Pid: 1317, comm: lockd Not tainted 2.6.14.2 #2
+> RIP: 0010:[<ffffffff801dbd9e>] <ffffffff801dbd9e>{nlmclnt_mark_reclaim+62}
+> RSP: 0018:ffff81007dfade70  EFLAGS: 00010246
+> RAX: 0000000000000000 RBX: ffff81007ad80b00 RCX: ffff81007e22d858
+> RDX: ffff81007e22d8f0 RSI: ffff81007e22d8e8 RDI: ffff81007ad80b00
+> RBP: ffff81007ec18800 R08: 00000000fffffffa R09: 0000000000000001
+> R10: 00000000ffffffff R11: 0000000000000000 R12: 0000000000000000
+> R13: 0000000000000000 R14: ffffffff803ec420 R15: ffff81007df61014
+> FS:  00002aaaab00c4a0(0000) GS:ffffffff804b6800(0000) knlGS:00000000555e68a0
+> CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+> CR2: 0000000000000018 CR3: 000000007c8fc000 CR4: 00000000000006e0
+> Process lockd (pid: 1317, threadinfo ffff81007dfac000, task ffff81007eea61c0)
+> Stack: ffffffff801dbe6b ffff81007ad80b00 ffffffff801e3d8c 3256cc84d4030002
+>        0000000000000000 ffff81007df4ec68 ffff81007df4ec00 ffffffff803ed4a0
+>        ffff81007df4eca0 ffff81007df4ec68
+> Call Trace:<ffffffff801dbe6b>{nlmclnt_recovery+139} <ffffffff801e3d8c>{nlm4svc_proc_sm_notify+188}
+>        <ffffffff8034c5a4>{svc_process+884} <ffffffff8012ab40>{default_wake_function+0}
+>        <ffffffff801dde00>{lockd+352} <ffffffff801ddca0>{lockd+0}
+>        <ffffffff8010e352>{child_rip+8} <ffffffff801ddca0>{lockd+0}
+>        <ffffffff801ddca0>{lockd+0} <ffffffff8010e34a>{child_rip+0}
+> 
+> 
+> Code: 48 39 78 18 75 1c 8b 86 8c 00 00 00 a8 01 74 12 83 c8 02 89
+> RIP <ffffffff801dbd9e>{nlmclnt_mark_reclaim+62} RSP <ffff81007dfade70>
+> CR2: 0000000000000018
+>  <4>do_vfs_lock: VFS is out of sync with lock manager!
+> do_vfs_lock: VFS is out of sync with lock manager!
+> 
+> 
+> And another (different machine, but essentially identical to the one that
+> produced the previous):
+> 
+> Unable to handle kernel NULL pointer dereference at 0000000000000018 RIP:
+> <ffffffff801dbd9e>{nlmclnt_mark_reclaim+62}
+> PGD 7bdd1067 PUD 7bdd2067 PMD 0
+> Oops: 0000 [1]
+> CPU 0
+> Modules linked in:
+> Pid: 1317, comm: lockd Not tainted 2.6.14.2 #2
+> RIP: 0010:[<ffffffff801dbd9e>] <ffffffff801dbd9e>{nlmclnt_mark_reclaim+62}
+> RSP: 0018:ffff81007dfade70  EFLAGS: 00010246
+> RAX: 0000000000000000 RBX: ffff810079254d40 RCX: ffff81007e227858
+> RDX: ffff81007e2278f0 RSI: ffff81007e2278e8 RDI: ffff810079254d40
+> RBP: ffff81007ec0de00 R08: 00000000fffffffa R09: 0000000000000001
+> R10: 00000000ffffffff R11: 0000000000000000 R12: 0000000000000000
+> R13: 0000000000000000 R14: ffffffff803ec420 R15: ffff81007df3d014
+> FS:  00002aaaab00c4a0(0000) GS:ffffffff804b6800(0000) knlGS:0000000055efbd20
+> CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+> CR2: 0000000000000018 CR3: 000000007d30f000 CR4: 00000000000006e0
+> Process lockd (pid: 1317, threadinfo ffff81007dfac000, task ffff81007eea61c0)
+> Stack: ffffffff801dbe6b ffff810079254d40 ffffffff801e3d8c 3256cc84d4030002
+>        0000000000000000 ffff81007df39c68 ffff81007df39c00 ffffffff803ed4a0
+>        ffff81007df39ca0 ffff81007df39c68
+> Call Trace:<ffffffff801dbe6b>{nlmclnt_recovery+139} <ffffffff801e3d8c>{nlm4svc_proc_sm_notify+188}
+>        <ffffffff8034c5a4>{svc_process+884} <ffffffff8012ab40>{default_wake_function+0}
+>        <ffffffff801dde00>{lockd+352} <ffffffff801ddca0>{lockd+0}
+>        <ffffffff8010e352>{child_rip+8} <ffffffff801ddca0>{lockd+0}
+>        <ffffffff801ddca0>{lockd+0} <ffffffff8010e34a>{child_rip+0}
+> 
+> 
+> Code: 48 39 78 18 75 1c 8b 86 8c 00 00 00 a8 01 74 12 83 c8 02 89
+> RIP <ffffffff801dbd9e>{nlmclnt_mark_reclaim+62} RSP <ffff81007dfade70>
+> CR2: 0000000000000018
 
- (1) After do_notify_resume() has been called, the work flags must be checked
-     again (there may be another signal to deliver or the process might require
-     rescheduling for instance).
+Both presumably following a server reboot?
 
- (2) After the signal frame is set up on the userspace stack, ptrace() should
-     be given an opportunity to single-step into the signal handler.
+Do you have any sure-fire way to reproduce it?
 
- (3) The error state from setting up a signal frame should be passed back up
-     the call chain.
+> These machines have an NFS-mounted root, but this is mounted nolock so I'm
+> assuming that's unrelated.  The other NFS mounts have options like:
+> 
+> rw,nosuid,nodev,v3,rsize=8192,wsize=8192,hard,intr,udp,lock
+> 
+> I've also been seeing lots of the "do_vfs_lock: VFS is out of sync with lock
+> manager!", but that has been happening at least since 2.6.13.
 
- (4) The segfault handler shouldn't be preemptively reset in the arch if we
-     fail to deliver a SEGV signal: force_sig() will take care of that.
+That is usually the result of doing kill -9/kill -TERM/kill -INT on a
+process that was in the act of grabbing a lock.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
-warthog>diffstat -p1 frv-signal-2615rc2.diff
- arch/frv/kernel/entry.S  |    2 -
- arch/frv/kernel/signal.c |   73 ++++++++++++++++++++++++++++-------------------
- 2 files changed, 46 insertions(+), 29 deletions(-)
+Cheers,
+  Trond
 
-diff -uNrp linux-2.6.15-rc2-frv-shmem/arch/frv/kernel/entry.S linux-2.6.15-rc2-frv-signal/arch/frv/kernel/entry.S
---- linux-2.6.15-rc2-frv-shmem/arch/frv/kernel/entry.S	2005-03-02 12:07:44.000000000 +0000
-+++ linux-2.6.15-rc2-frv-signal/arch/frv/kernel/entry.S	2005-11-29 16:01:40.000000000 +0000
-@@ -1076,7 +1076,7 @@ __entry_work_notifysig:
- 	LEDS		0x6410
- 	ori.p		gr4,#0,gr8
- 	call		do_notify_resume
--	bra		__entry_return_direct
-+	bra		__entry_resume_userspace
- 
- 	# perform syscall entry tracing
- __syscall_trace_entry:
-diff -uNrp linux-2.6.15-rc2-frv-shmem/arch/frv/kernel/signal.c linux-2.6.15-rc2-frv-signal/arch/frv/kernel/signal.c
---- linux-2.6.15-rc2-frv-shmem/arch/frv/kernel/signal.c	2005-11-01 13:18:57.000000000 +0000
-+++ linux-2.6.15-rc2-frv-signal/arch/frv/kernel/signal.c	2005-11-29 16:41:11.000000000 +0000
-@@ -297,7 +297,8 @@ static inline void __user *get_sigframe(
- /*
-  *
-  */
--static void setup_frame(int sig, struct k_sigaction *ka, sigset_t *set, struct pt_regs * regs)
-+static int setup_frame(int sig, struct k_sigaction *ka, sigset_t *set,
-+		       struct pt_regs *regs)
- {
- 	struct sigframe __user *frame;
- 	int rsig;
-@@ -362,26 +363,30 @@ static void setup_frame(int sig, struct 
- 
- 	set_fs(USER_DS);
- 
-+	/* the tracer may want to single-step inside the handler */
-+	if (test_thread_flag(TIF_SINGLESTEP))
-+		ptrace_notify(SIGTRAP);
-+
- #if DEBUG_SIG
- 	printk("SIG deliver %d (%s:%d): sp=%p pc=%lx ra=%p\n",
--		sig, current->comm, current->pid, frame, regs->pc, frame->pretcode);
-+	       sig, current->comm, current->pid, frame, regs->pc,
-+	       frame->pretcode);
- #endif
- 
--	return;
-+	return 1;
- 
- give_sigsegv:
--	if (sig == SIGSEGV)
--		ka->sa.sa_handler = SIG_DFL;
--
- 	force_sig(SIGSEGV, current);
-+	return 0;
-+
- } /* end setup_frame() */
- 
- /*****************************************************************************/
- /*
-  *
-  */
--static void setup_rt_frame(int sig, struct k_sigaction *ka, siginfo_t *info,
--			   sigset_t *set, struct pt_regs * regs)
-+static int setup_rt_frame(int sig, struct k_sigaction *ka, siginfo_t *info,
-+			  sigset_t *set, struct pt_regs * regs)
- {
- 	struct rt_sigframe __user *frame;
- 	int rsig;
-@@ -457,17 +462,21 @@ static void setup_rt_frame(int sig, stru
- 
- 	set_fs(USER_DS);
- 
-+	/* the tracer may want to single-step inside the handler */
-+	if (test_thread_flag(TIF_SINGLESTEP))
-+		ptrace_notify(SIGTRAP);
-+
- #if DEBUG_SIG
- 	printk("SIG deliver %d (%s:%d): sp=%p pc=%lx ra=%p\n",
--		sig, current->comm, current->pid, frame, regs->pc, frame->pretcode);
-+		sig, current->comm, current->pid, frame, regs->pc,
-+	       frame->pretcode);
- #endif
- 
--	return;
-+	return 1;
- 
- give_sigsegv:
--	if (sig == SIGSEGV)
--		ka->sa.sa_handler = SIG_DFL;
- 	force_sig(SIGSEGV, current);
-+	return 0;
- 
- } /* end setup_rt_frame() */
- 
-@@ -475,10 +484,12 @@ give_sigsegv:
- /*
-  * OK, we're invoking a handler
-  */
--static void handle_signal(unsigned long sig, siginfo_t *info,
--			  struct k_sigaction *ka, sigset_t *oldset,
--			  struct pt_regs *regs)
-+static int handle_signal(unsigned long sig, siginfo_t *info,
-+			 struct k_sigaction *ka, sigset_t *oldset,
-+			 struct pt_regs *regs)
- {
-+	int ret;
-+
- 	/* Are we from a system call? */
- 	if (in_syscall(regs)) {
- 		/* If so, check system call restarting.. */
-@@ -493,6 +504,7 @@ static void handle_signal(unsigned long 
- 				regs->gr8 = -EINTR;
- 				break;
- 			}
-+
- 			/* fallthrough */
- 		case -ERESTARTNOINTR:
- 			regs->gr8 = regs->orig_gr8;
-@@ -502,16 +514,22 @@ static void handle_signal(unsigned long 
- 
- 	/* Set up the stack frame */
- 	if (ka->sa.sa_flags & SA_SIGINFO)
--		setup_rt_frame(sig, ka, info, oldset, regs);
-+		ret = setup_rt_frame(sig, ka, info, oldset, regs);
- 	else
--		setup_frame(sig, ka, oldset, regs);
-+		ret = setup_frame(sig, ka, oldset, regs);
-+
-+	if (ret) {
-+		spin_lock_irq(&current->sighand->siglock);
-+		sigorsets(&current->blocked, &current->blocked,
-+			  &ka->sa.sa_mask);
-+		if (!(ka->sa.sa_flags & SA_NODEFER))
-+			sigaddset(&current->blocked, sig);
-+		recalc_sigpending();
-+		spin_unlock_irq(&current->sighand->siglock);
-+	}
-+
-+	return ret;
- 
--	spin_lock_irq(&current->sighand->siglock);
--	sigorsets(&current->blocked, &current->blocked, &ka->sa.sa_mask);
--	if (!(ka->sa.sa_flags & SA_NODEFER))
--		sigaddset(&current->blocked, sig);
--	recalc_sigpending();
--	spin_unlock_irq(&current->sighand->siglock);
- } /* end handle_signal() */
- 
- /*****************************************************************************/
-@@ -542,12 +560,10 @@ int do_signal(struct pt_regs *regs, sigs
- 		oldset = &current->blocked;
- 
- 	signr = get_signal_to_deliver(&info, &ka, regs, NULL);
--	if (signr > 0) {
--		handle_signal(signr, &info, &ka, oldset, regs);
--		return 1;
--	}
-+	if (signr > 0)
-+		return handle_signal(signr, &info, &ka, oldset, regs);
- 
-- no_signal:
-+no_signal:
- 	/* Did we come from a system call? */
- 	if (regs->syscallno >= 0) {
- 		/* Restart the system call - no handlers present */
-@@ -565,6 +581,7 @@ int do_signal(struct pt_regs *regs, sigs
- 	}
- 
- 	return 0;
-+
- } /* end do_signal() */
- 
- /*****************************************************************************/

@@ -1,61 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbVK2QFD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751391AbVK2QGb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751387AbVK2QFD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 11:05:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbVK2QFB
+	id S1751391AbVK2QGb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 11:06:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751392AbVK2QGb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 11:05:01 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:55538 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S1751387AbVK2QFA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 11:05:00 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17292.31749.278879.822369@alkaid.it.uu.se>
-Date: Tue, 29 Nov 2005 17:04:21 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Andi Kleen <ak@suse.de>
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: Enabling RDPMC in user space by default
-In-Reply-To: <20051129151515.GG19515@wotan.suse.de>
-References: <20051129151515.GG19515@wotan.suse.de>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+	Tue, 29 Nov 2005 11:06:31 -0500
+Received: from vms040pub.verizon.net ([206.46.252.40]:64578 "EHLO
+	vms040pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1751391AbVK2QGa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 11:06:30 -0500
+Date: Tue, 29 Nov 2005 11:06:17 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: cx88 totally fried in 2.6.15-rcX -was- Re: HD3000 - no NTSC via
+ tuner
+In-reply-to: <438C7942.5080509@m1k.net>
+To: linux-kernel@vger.kernel.org, mkrufky@m1k.net
+Cc: Linux and Kernel Video <video4linux-list@redhat.com>
+Message-id: <200511291106.17571.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <200511282205.jASM5YUI018061@p-chan.krl.com>
+ <200511291011.20688.gene.heskett@verizon.net> <438C7942.5080509@m1k.net>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen writes:
- > Hallo,
- > 
- > I'm considering to enable CR4.PCE by default on x86-64/i386. Currently it's 0
- > which means RDPMC doesn't work. On x86-64 PMC 0 is always programmed
- > to be a cycle counter, so it would be useful to be able to access
- > this for measuring instructions. That's especially useful because RDTSC 
- > does not necessarily count cycles in the current P state (already
- > the case on Intel CPUs and AMD's future direction seems to also
- > to decouple it from cycles) Drawback is that it stops during idle, but 
- > that shouldn't be a big issue for normal measuring. It's not useful
- > as a real timer anyways.
- > 
- > On Pentium 4 it also has the advantage that unlike RDTSC it's not
- > serializing so should be much faster.
- > 
- > The kernel change would be to always set CR4.PCE to allow RDPMC
- > in ring 3. 
- > 
- > It would be actually a good idea to disable RDTSC in ring 3 too
- > (because user space usually doesn't have enough information to make
- > good use of it and gets it wrong), but I fear that will break 
- > too many applications right now.
+On Tuesday 29 November 2005 10:52, Michael Krufky wrote:
+>Gene Heskett wrote:
+>>>I should also add this is with 2.6.14.2 and todays v4l-dvb CVS.
+>>
+>>And I should add that 2.6.14, any version without the cvs update,
+>> works perfectly in ntsc here. I have to atsc signals available.
+>
+>Gene,
+>
+>Would you mind trying to install the cvs modules on top of 2.6.14,
+> using the instructions that I gave you last night?  This will confirm
+> once and for all whether your problems are due to a v4l regression, or
+> an upstream regression in 2.6.15.
+>
+>Thanks,
 
-PMC0 stops being a cycle counter as soon as any real driver
-(not the NMI watchdog) takes over the hardware, such as oprofile,
-perfmon2, or perfctr. So user-space cannot rely on the semantics
-of PMC0. I have no objection to globally enabling CR4.PCE.
+Yes, I can do that. I can also confirm that its still borked in -rc3.
 
-Disabling user-space RDTSC (setting CR4.TSD) seems evil and pointless.
-At least some users of it (the perfctr library and I hope eventually
-also perfmon2) do use it in an SMP-safe manner (through special
-user/kernel protocols).
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.36% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
 
-/Mikael

@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbVK2U7D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932404AbVK2VQF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932406AbVK2U7D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 15:59:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbVK2U7C
+	id S932404AbVK2VQF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 16:16:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbVK2VQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 15:59:02 -0500
-Received: from solarneutrino.net ([66.199.224.43]:60932 "EHLO
-	tau.solarneutrino.net") by vger.kernel.org with ESMTP
-	id S932403AbVK2U7A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 15:59:00 -0500
-Date: Tue, 29 Nov 2005 15:58:56 -0500
-To: Kai Makisara <Kai.Makisara@kolumbus.fi>
-Cc: Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, ryan@tau.solarneutrino.net
-Subject: Re: Fw: crash on x86_64 - mm related?
-Message-ID: <20051129205856.GE6326@tau.solarneutrino.net>
-References: <20051129092432.0f5742f0.akpm@osdl.org> <Pine.LNX.4.63.0511292147120.5739@kai.makisara.local> <20051129203112.GD6326@tau.solarneutrino.net> <Pine.LNX.4.63.0511292239070.5739@kai.makisara.local>
+	Tue, 29 Nov 2005 16:16:05 -0500
+Received: from gate.crashing.org ([63.228.1.57]:32942 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932404AbVK2VQE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 16:16:04 -0500
+Subject: Re: [PATCH][RFC][2.6.15-rc3] snd_powermac: Add ID for Spring 2005
+	17" Powerbook
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: linux-kernel@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+In-Reply-To: <E066EDFE-FA32-4600-A1EC-721055EFA829@mac.com>
+References: <E066EDFE-FA32-4600-A1EC-721055EFA829@mac.com>
+Content-Type: text/plain
+Date: Wed, 30 Nov 2005 08:09:53 +1100
+Message-Id: <1133298593.16726.9.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0511292239070.5739@kai.makisara.local>
-User-Agent: Mutt/1.5.9i
-From: Ryan Richter <ryan@tau.solarneutrino.net>
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 29, 2005 at 10:48:22PM +0200, Kai Makisara wrote:
-> On Tue, 29 Nov 2005, Ryan Richter wrote:
-> > This applies cleanly to 2.6.14.2, do you forsee any problems using it
-> > with that kernel?  I'd like to not change too many things at once.
-> > 
-> No, I don't see any potential problems applying this patch to 2.6.14.2. 
-> There is nothing specific to 2.6.15-rc2.
+On Tue, 2005-11-29 at 14:02 -0500, Kyle Moffett wrote:
+> The audio chip in my Spring 2005 17" PowerBook was incorrectly  
+> recognized as an AWACS chip.  This adds the chip ID to the  
+> snd_powermac driver such that it is recognized as a Toonie (I don't  
+> know if that's correct, but it's the only one that makes it work at  
+> all). and sorts the ID lists numerically.  NOTE:  This chip is only  
+> minimally supported at this point; it has system beep support and  
+> very low volume speaker output, and that's about it.
 > 
-> If someone sees that there is something wrong, please yell. The 
-> main purpose of the patch is not to call release_buffering() at the end of 
-> st_write() when starting asynchronous write and call it in 
-> write_behind_check() instead.
+> Signed-off-by: Kyle Moffett <mrmacman_g4@mac.com>
 
-OK, thanks.  I think I'll go ahead and advance to 2.6.14.3 since that
-should theoretically not cause any problems.
+It's a different chip but heh, Toonie might work very basically (Toonie
+is basically a non-configurable codec).
 
-One question: do you think the oopses that happened later that actually
-crashed the box were from damage caused by this bug or is that a
-different problem?
+Anyway, what is needed is a rewrite of that driver from scratch with a
+more flexible architecture to deal with the multiple codecs & busses.
 
-> > If it should be OK, I'll boot this tonight or tomorrow - the backups run
-> > every other night, so it won't get any testing until tomorrow night.
-> > 
-> > Thanks a lot,
-> > -ryan
-> > 
-> Thanks for reporting the problem and thanks in advance for testing.
+Ben.
 
-Sure thing,
--ryan
+

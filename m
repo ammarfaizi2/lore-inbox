@@ -1,69 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932393AbVK2UyA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932384AbVK2Uxz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932393AbVK2UyA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 15:54:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbVK2UyA
+	id S932384AbVK2Uxz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 15:53:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbVK2Uxz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 15:54:00 -0500
-Received: from www.swissdisk.com ([216.144.233.50]:32682 "EHLO
-	swissweb.swissdisk.com") by vger.kernel.org with ESMTP
-	id S932393AbVK2Ux7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 15:53:59 -0500
-Date: Tue, 29 Nov 2005 11:45:26 -0800
-From: Ben Collins <bcollins@debian.org>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH 2.6.15-rc3] Fix missing pfn variables caused by vm changes
-Message-ID: <20051129194526.GF6288@swissdisk.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 29 Nov 2005 15:53:55 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:51381
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S932384AbVK2Uxy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 15:53:54 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Nix <nix@esperi.org.uk>
+Subject: Re: Question: madvise(DONT_SYNC)
+Date: Tue, 29 Nov 2005 14:06:17 -0600
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+References: <200511271925.09565.rob@landley.net> <87y837s8hn.fsf@amaterasu.srvr.nix>
+In-Reply-To: <87y837s8hn.fsf@amaterasu.srvr.nix>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+Message-Id: <200511291406.18138.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I image this showed up because of "unused var..." when the changes
-occured, because flush_cache_page() is a noop in most places. This showed
-up for me on parisc however, where flush_cache_page() is a real function.
+On Tuesday 29 November 2005 10:51, Nix wrote:
+> On 28 Nov 2005, Rob Landley whispered secretively:
+> > I can change the default to /dev/pts (which is tmpfs with the sticky bit
+> > on Fedora Core 4, Ubuntu, and Gentoo.
+>
+> Um, you mean /dev/shm, right?
 
-diff --git a/mm/memory.c b/mm/memory.c
-index 6c1eac9..74839b3 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -1345,7 +1345,7 @@ static int do_wp_page(struct mm_struct *
- 		int reuse = can_share_swap_page(old_page);
- 		unlock_page(old_page);
- 		if (reuse) {
--			flush_cache_page(vma, address, pfn);
-+			flush_cache_page(vma, address, pte_pfn(orig_pte));
- 			entry = pte_mkyoung(orig_pte);
- 			entry = maybe_mkwrite(pte_mkdirty(entry), vma);
- 			ptep_set_access_flags(vma, address, page_table, entry, 1);
-@@ -1389,7 +1389,7 @@ gotten:
- 			}
- 		} else
- 			inc_mm_counter(mm, anon_rss);
--		flush_cache_page(vma, address, pfn);
-+		flush_cache_page(vma, address, pte_pfn(orig_pte));
- 		entry = mk_pte(new_page, vma->vm_page_prot);
- 		entry = maybe_mkwrite(pte_mkdirty(entry), vma);
- 		ptep_establish(vma, address, page_table, entry);
-diff --git a/mm/rmap.c b/mm/rmap.c
-index 491ac35..f853c6d 100644
---- a/mm/rmap.c
-+++ b/mm/rmap.c
-@@ -641,7 +641,7 @@ static void try_to_unmap_cluster(unsigne
- 			continue;
- 
- 		/* Nuke the page table entry. */
--		flush_cache_page(vma, address, pfn);
-+		flush_cache_page(vma, address, pte_pfn(*pte));
- 		pteval = ptep_clear_flush(vma, address, pte);
- 
- 		/* If nonlinear, store the file page offset in the pte. */
+Yes. :)
 
+> >                                     But which has nothing mounted on it
+> > and isn't even world writable on the only x86-64 system I currently have
+> > access
+>
+> Well, shm_open() and friends just won't work on that system (the /dev/shm
+> path is hardwired into glibc; I guess the PLD people might have hacked
+> glibc to change that path, but that seems peculiar).
+>
+> Distro bug.
+
+Yup.  I agree that's a distro bug.  (Or possibly the one system I have access 
+to is uniquely broken.)
+
+Rob
 -- 
-Ubuntu     - http://www.ubuntu.com/
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-SwissDisk  - http://www.swissdisk.com/
+Steve Ballmer: Innovation!  Inigo Montoya: You keep using that word.
+I do not think it means what you think it means.

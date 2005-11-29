@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbVK2BLW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbVK2BQl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932310AbVK2BLW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 20:11:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbVK2BLW
+	id S932307AbVK2BQl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 20:16:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbVK2BQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 20:11:22 -0500
-Received: from smtpout.mac.com ([17.250.248.85]:31946 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932310AbVK2BLW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 20:11:22 -0500
-In-Reply-To: <20051128204950.GC17740@kroah.com>
-References: <Pine.LNX.4.50.0511231336261.16769-100000@monsoon.he.net> <20051128204950.GC17740@kroah.com>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <37362F2B-D74A-4A40-905B-B25264B6C4AB@mac.com>
-Cc: Patrick Mochel <mochel@digitalimplant.org>, linux-kernel@vger.kernel.org
+	Mon, 28 Nov 2005 20:16:41 -0500
+Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:24274 "EHLO
+	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S932307AbVK2BQk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 20:16:40 -0500
+Message-ID: <438BB944.3060506@austin.rr.com>
+Date: Mon, 28 Nov 2005 20:13:24 -0600
+From: Steve French <smfrench@austin.rr.com>
+User-Agent: Mozilla Thunderbird  (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: umount
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [RFC] Updates to sysfs_create_subdir()
-Date: Mon, 28 Nov 2005 20:10:36 -0500
-To: Greg KH <greg@kroah.com>
-X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 28, 2005, at 15:49, Greg KH wrote:
-> On Wed, Nov 23, 2005 at 01:56:29PM -0800, Patrick Mochel wrote:
->> The patch below addresses this issue by parsing the subdirectory  
->> name and creating any parent directories delineated by a '/'.
->
-> Generally I never liked parsing stuff like this in the kernel (proc  
-> and devfs both do this).  That being said, I do see the need to  
-> make subdirs like this easier.
->
-> But what about cleanups?  If I create an attribute group "foo/baz/ 
-> x/" and then remove it, will the subdirectories get cleaned up  
-> too?  What about if I had created a group "foo/baz/y/" after the  
-> "x" one?  Or just "foo/baz"?
+> >>>> drive is unplugged without unmounting, it you
+> >>>> get a pop up dialog on screen telling you that data may be lost, etc.
+> >>>> while under any of the main environments I've tried under Linux
+> >>>> (Gnome, KDE, fluxbox) there are no such messages to the user. 
 
-If the kernel gets this, then udev needs to allow attributes with  
-more generic paths too.  It would be nice if I could use this [Pulled  
-from the sample udev output halfway down this page: http:// 
-www.reactivated.net/writing_udev_rules.html#identify-sysfs].
+I get somewhat similar feedback from users who would like to see more informative 
+user notification when other types of "removeable media" e.g a network mount
+are temporarily or permanently unavailable.   An interesting example which can be
+quite damaging is the case of password expiration when a user is mounted from
+two systems ... if the session to the server ever drops from the other machine the reconnection
+retries on machine one (with the bad password) silently cause the account to be locked on the server
+if the user changed his password from the second machine.   There is no particularly good way to
+tell the user "your password is expired or changed and I can't reconnect you to the server to 
+write out this file until you tell me what the right password is" without some integration 
+with the desktop.
 
-BUS="scsi", SYSFS{../../../manufacturer}="Tekom Technologies, Inc",  
-NAME="my_camera"
-
-Frequently the attributes one wants to filter by are spread out  
-through the tree, especially when they've been subdivided for clarity  
-as people seem to want to do.
-
-Cheers,
-Kyle Moffett
-
---
-I lost interest in "blade servers" when I found they didn't throw  
-knives at people who weren't supposed to be in your machine room.
-   -- Anthony de Boer
-
+Obviously MacOS, OS/2, Windows etc. had a head start on this kind of usability, but it would
+be nice to talk with the KDE or Gnome people about what their needs are in this area - 
+another example which comes up from time to time is that KDE and Gnome have no way on Linux
+to detect or represent an "offline" file (ie a file which is on some HSM, such as a slow tape) 
+that looks different from other files when browsing around in the standard file managers 
+(this would be easy enough to do by query xattrs as XFS and JFS apparently stored information along
+these lines in xattrs at one point).  These kinds of files show up with a different icon in 
+other desktops and it is important for some types of users to be able to tell which files or directories
+are "slow" to retrieve (offline).
 

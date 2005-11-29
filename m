@@ -1,57 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751024AbVK2JiV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbVK2Jvl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751024AbVK2JiV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 04:38:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751039AbVK2JiV
+	id S1751085AbVK2Jvl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 04:51:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751043AbVK2Jvl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 04:38:21 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:61651 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751023AbVK2JiV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 04:38:21 -0500
-To: thockin@hockin.org
-Cc: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
-       john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RT] read_tsc: ACK! TSC went backward! Unsynced TSCs?
-References: <1133179554.11491.3.camel@localhost.localdomain>
-	<20051128173040.GA32547@hockin.org>
-	<1133199568.7416.31.camel@mindpipe> <20051128183517.GA4549@hockin.org>
-From: Andi Kleen <ak@suse.de>
-Date: 29 Nov 2005 07:06:24 -0700
-In-Reply-To: <20051128183517.GA4549@hockin.org>
-Message-ID: <p73r78zh7kv.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Tue, 29 Nov 2005 04:51:41 -0500
+Received: from shoshil.marvell.com ([199.203.130.250]:61057 "EHLO
+	il.marvell.com") by vger.kernel.org with ESMTP id S1751040AbVK2Jvk convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 04:51:40 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: ocf-linux-20051110 - Asynchronous Crypto support for linux
+Date: Tue, 29 Nov 2005 11:51:18 +0200
+Message-ID: <B9FFC3F97441D04093A504CEA31B7C4168581E@msilexch01.marvell.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: ocf-linux-20051110 - Asynchronous Crypto support for linux
+Thread-Index: AcXl9AY+aoogr3WTSH6VbHxVRX7wDgO1Hh8w
+From: "Ronen Shitrit" <rshitrit@marvell.com>
+To: "David McCullough" <davidm@snapgear.com>, <linux-crypto@vger.kernel.org>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-thockin@hockin.org writes:
+Hi
 
-> On Mon, Nov 28, 2005 at 12:39:28PM -0500, Lee Revell wrote:
-> > On Mon, 2005-11-28 at 09:30 -0800, thockin@hockin.org wrote:
-> > > The kernel's use of TSC is wholly incorrect.  TSCs can ramp up and
-> > > down and *do* vary between nodes as well as between cores within a
-> > > node.  You really can not compare TSCs between cpu cores at all, as is
-> > > (and the kernel assumes 1 global TSC in at least a few places). 
-> > 
-> > That's one way to look at it; another is that the AMD dual cores have a
-> > broken TSC implementation.  The kernel's use of the TSC was never a
-> > problem in the past...
-> 
-> Sure.  But the OS can be fixed, the chips can not.  That said, I'd like to
-> see a spec that says TSCs are a) synced, b) linear.
+I want to use the OCF OpenSwan KLIPS,
+I can see that the openswan patch is very big,
+What exactly does this patch support:
+ Which encryption Alg does it support??
+ Which Authentication Alg does it support??
+ I saw that part of the patch is for the kernel and part for the user??
+ Is there any readme describing this patch??
+ 
 
-They have specs that say they're not. Intel has specs that say that they
-are on newer systems, but at least one chipset breaks it.
+Is there any working going on, for porting the OCF to the kernel IPsec??
 
-Linear they are never because there are MSRs to change them.
+Regards
+Ronen Shitrit
 
-But I'm surprised you're saying 2.6.11 broke. At least 2.6.11 64bit should
-have always used HPET in this case. I only broke it around 2.6.13
-where I added an overeager optimization for single socket DC on my side based
-on a misunderstanding. Earlier and later kernels should have been ok.
 
-32bit might have been different.
+-----Original Message-----
+From: linux-crypto-owner@vger.kernel.org
+[mailto:linux-crypto-owner@vger.kernel.org] On Behalf Of David
+McCullough
+Sent: Thursday, November 10, 2005 2:37 PM
+To: linux-crypto@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: ocf-linux-20051110 - Asynchronous Crypto support for linux
 
--Andi
+
+Hi all,
+
+A new release of the ocf-linux package is up:
+
+	http://ocf-linux.sourceforge.net/
+
+Mostly Openswan updates/cleanups and fixes in this release.
+
+* Patch for the latest OpenSwan to utilise OCF for full IPSEC
+  ESP and AH processing.
+* Well tested on 2.4.31 and 2.6.14 with OpenSwan.
+* Simple single patch to add OCF to 2.4 or 2.6 kernels.
+* Fixed broken openssl speed test (Ronen Shitrit)
+
+Cheers,
+Davidm
+
+-- 
+David McCullough, davidm@cyberguard.com.au, Custom Embedded Solutions +
+Security
+Ph:+61 734352815 Fx:+61 738913630 http://www.uCdot.org
+http://www.cyberguard.com
+-
+To unsubscribe from this list: send the line "unsubscribe linux-crypto"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,84 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbVK2Jvl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751042AbVK2K0o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751085AbVK2Jvl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 04:51:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751043AbVK2Jvl
+	id S1751042AbVK2K0o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 05:26:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751060AbVK2K0o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 04:51:41 -0500
-Received: from shoshil.marvell.com ([199.203.130.250]:61057 "EHLO
-	il.marvell.com") by vger.kernel.org with ESMTP id S1751040AbVK2Jvk convert rfc822-to-8bit
+	Tue, 29 Nov 2005 05:26:44 -0500
+Received: from 213-229-38-66.static.adsl-line.inode.at ([213.229.38.66]:11745
+	"HELO mail.falke.at") by vger.kernel.org with SMTP id S1750946AbVK2K0o
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 04:51:40 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 29 Nov 2005 05:26:44 -0500
+Message-ID: <438C2C7C.1020004@winischhofer.net>
+Date: Tue, 29 Nov 2005 11:25:00 +0100
+From: Thomas Winischhofer <thomas@winischhofer.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: ocf-linux-20051110 - Asynchronous Crypto support for linux
-Date: Tue, 29 Nov 2005 11:51:18 +0200
-Message-ID: <B9FFC3F97441D04093A504CEA31B7C4168581E@msilexch01.marvell.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ocf-linux-20051110 - Asynchronous Crypto support for linux
-Thread-Index: AcXl9AY+aoogr3WTSH6VbHxVRX7wDgO1Hh8w
-From: "Ronen Shitrit" <rshitrit@marvell.com>
-To: "David McCullough" <davidm@snapgear.com>, <linux-crypto@vger.kernel.org>
-Cc: <linux-kernel@vger.kernel.org>
+To: Greg KH <greg@kroah.com>
+CC: Adrian Bunk <bunk@stusta.de>, gregkh@suse.de,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/usb/misc/sisusbvga/sisusb.c: remove dead
+ code
+References: <20051120232239.GI16060@stusta.de> <20051123190237.GA28080@kroah.com> <20051123203150.GT3963@stusta.de> <20051128205220.GE17740@kroah.com>
+In-Reply-To: <20051128205220.GE17740@kroah.com>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I want to use the OCF OpenSwan KLIPS,
-I can see that the openswan patch is very big,
-What exactly does this patch support:
- Which encryption Alg does it support??
- Which Authentication Alg does it support??
- I saw that part of the patch is for the kernel and part for the user??
- Is there any readme describing this patch??
- 
-
-Is there any working going on, for porting the OCF to the kernel IPsec??
-
-Regards
-Ronen Shitrit
-
-
------Original Message-----
-From: linux-crypto-owner@vger.kernel.org
-[mailto:linux-crypto-owner@vger.kernel.org] On Behalf Of David
-McCullough
-Sent: Thursday, November 10, 2005 2:37 PM
-To: linux-crypto@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: ocf-linux-20051110 - Asynchronous Crypto support for linux
+Greg KH wrote:
+> On Wed, Nov 23, 2005 at 09:31:50PM +0100, Adrian Bunk wrote:
+> 
+>>On Wed, Nov 23, 2005 at 11:02:37AM -0800, Greg KH wrote:
+>>
+>>>On Mon, Nov 21, 2005 at 12:22:39AM +0100, Adrian Bunk wrote:
+>>>
+>>>>The Coverity checker found this obviously dead code.
+>>>
+>>>I think the checker is wrong, this does not look correct to me.
+>>
+>>Why?
+>>
+>>Due to the while(length), length can't be 0 at the switch.
+> 
+> 
+> Doh, ok, nevermind.  Care to resend this?
 
 
-Hi all,
+Took me also a few seconds to realize that the tool is correct. Nice stuff.
 
-A new release of the ocf-linux package is up:
+Thomas
 
-	http://ocf-linux.sourceforge.net/
+- --
+Thomas Winischhofer
+Vienna/Austria
+thomas AT winischhofer DOT net	       *** http://www.winischhofer.net
 
-Mostly Openswan updates/cleanups and fixes in this release.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-* Patch for the latest OpenSwan to utilise OCF for full IPSEC
-  ESP and AH processing.
-* Well tested on 2.4.31 and 2.6.14 with OpenSwan.
-* Simple single patch to add OCF to 2.4 or 2.6 kernels.
-* Fixed broken openssl speed test (Ronen Shitrit)
-
-Cheers,
-Davidm
-
--- 
-David McCullough, davidm@cyberguard.com.au, Custom Embedded Solutions +
-Security
-Ph:+61 734352815 Fx:+61 738913630 http://www.uCdot.org
-http://www.cyberguard.com
--
-To unsubscribe from this list: send the line "unsubscribe linux-crypto"
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+iD8DBQFDjCx8zydIRAktyUcRAi8NAKCA96Bt9ibOIRGQWhSUy6qnd5QxYwCeLtHE
+VvGqTMgnn476dnm/PYKBSM8=
+=3eHZ
+-----END PGP SIGNATURE-----

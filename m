@@ -1,54 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbVK2UvO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932393AbVK2UyA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932400AbVK2UvO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 15:51:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbVK2UvN
+	id S932393AbVK2UyA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 15:54:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbVK2UyA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 15:51:13 -0500
-Received: from cantor.suse.de ([195.135.220.2]:55936 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932400AbVK2UvN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 15:51:13 -0500
-Date: Tue, 29 Nov 2005 21:51:09 +0100
-From: Andi Kleen <ak@suse.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Andi Kleen <ak@suse.de>, "Brown, Len" <len.brown@intel.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Steven Rostedt <rostedt@goodmis.org>, Andrew Morton <akpm@osdl.org>,
-       acpi-devel@lists.sourceforge.net, nando@ccrma.Stanford.EDU,
-       linux-kernel@vger.kernel.org, paulmck@us.ibm.com, kr@cybsft.com,
-       tglx@linutronix.de, pluto@agmk.net, john.cooper@timesys.com,
-       bene@linutronix.de, dwalker@mvista.com, trini@kernel.crashing.org,
-       george@mvista.com
-Subject: Re: [RFC][PATCH] Runtime switching of the idle function [take 2]
-Message-ID: <20051129205108.GQ19515@wotan.suse.de>
-References: <F7DC2337C7631D4386A2DF6E8FB22B3005456F00@hdsmsx401.amr.corp.intel.com> <20051129195336.GP19515@wotan.suse.de> <1133296540.4627.7.camel@mindpipe>
+	Tue, 29 Nov 2005 15:54:00 -0500
+Received: from www.swissdisk.com ([216.144.233.50]:32682 "EHLO
+	swissweb.swissdisk.com") by vger.kernel.org with ESMTP
+	id S932393AbVK2Ux7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 15:53:59 -0500
+Date: Tue, 29 Nov 2005 11:45:26 -0800
+From: Ben Collins <bcollins@debian.org>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH 2.6.15-rc3] Fix missing pfn variables caused by vm changes
+Message-ID: <20051129194526.GF6288@swissdisk.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1133296540.4627.7.camel@mindpipe>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 29, 2005 at 03:35:39PM -0500, Lee Revell wrote:
-> On Tue, 2005-11-29 at 20:53 +0100, Andi Kleen wrote:
-> > We're mostly addressing it - there are problems left, but
-> > overall it's looking good. The remaining problem is 
-> > an education issue of users to not use RDTSC directly, 
-> > but use gettimeofday/clock_gettime 
-> 
-> No the issue is to make gettimeofday fast enough that the people who
-> currently have to use the TSC can use it.  Right now it's 1500-3000 nsec
-> or so, Vojtech mentioned that he has a patch that could reduce that to
+I image this showed up because of "unused var..." when the changes
+occured, because flush_cache_page() is a noop in most places. This showed
+up for me on parisc however, where flush_cache_page() is a real function.
 
-It's only that slow if the hardware can't do better.
+diff --git a/mm/memory.c b/mm/memory.c
+index 6c1eac9..74839b3 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -1345,7 +1345,7 @@ static int do_wp_page(struct mm_struct *
+ 		int reuse = can_share_swap_page(old_page);
+ 		unlock_page(old_page);
+ 		if (reuse) {
+-			flush_cache_page(vma, address, pfn);
++			flush_cache_page(vma, address, pte_pfn(orig_pte));
+ 			entry = pte_mkyoung(orig_pte);
+ 			entry = maybe_mkwrite(pte_mkdirty(entry), vma);
+ 			ptep_set_access_flags(vma, address, page_table, entry, 1);
+@@ -1389,7 +1389,7 @@ gotten:
+ 			}
+ 		} else
+ 			inc_mm_counter(mm, anon_rss);
+-		flush_cache_page(vma, address, pfn);
++		flush_cache_page(vma, address, pte_pfn(orig_pte));
+ 		entry = mk_pte(new_page, vma->vm_page_prot);
+ 		entry = maybe_mkwrite(pte_mkdirty(entry), vma);
+ 		ptep_establish(vma, address, page_table, entry);
+diff --git a/mm/rmap.c b/mm/rmap.c
+index 491ac35..f853c6d 100644
+--- a/mm/rmap.c
++++ b/mm/rmap.c
+@@ -641,7 +641,7 @@ static void try_to_unmap_cluster(unsigne
+ 			continue;
+ 
+ 		/* Nuke the page table entry. */
+-		flush_cache_page(vma, address, pfn);
++		flush_cache_page(vma, address, pte_pfn(*pte));
+ 		pteval = ptep_clear_flush(vma, address, pte);
+ 
+ 		/* If nonlinear, store the file page offset in the pte. */
 
-And the kernel makes it only slow when using RDTSC directly
-is unsafe - so if you use it directly thinking the kernel cheats
-you for your cycles you're just shoting yourself in the own foot.
-
-> 150-300 nsec.
-
-If you have capable hardware it can already do much better.
-
--Andi
+-- 
+Ubuntu     - http://www.ubuntu.com/
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+SwissDisk  - http://www.swissdisk.com/

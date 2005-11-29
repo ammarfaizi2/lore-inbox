@@ -1,84 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbVK2Oue@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751368AbVK2Ozd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751361AbVK2Oue (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 09:50:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbVK2Oue
+	id S1751368AbVK2Ozd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 09:55:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbVK2Ozd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 09:50:34 -0500
-Received: from mx1.suse.de ([195.135.220.2]:26538 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751361AbVK2Oud (ORCPT
+	Tue, 29 Nov 2005 09:55:33 -0500
+Received: from wproxy.gmail.com ([64.233.184.204]:57207 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751368AbVK2Ozc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 09:50:33 -0500
-Date: Tue, 29 Nov 2005 15:50:22 +0100
-From: Andi Kleen <ak@suse.de>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
-       acpi-devel@lists.sourceforge.net, len.brown@intel.com,
-       nando@ccrma.Stanford.EDU, rlrevell@joe-job.com,
-       linux-kernel@vger.kernel.org, paulmck@us.ibm.com, kr@cybsft.com,
-       tglx@linutronix.de, pluto@agmk.net, john.cooper@timesys.com,
-       bene@linutronix.de, dwalker@mvista.com, trini@kernel.crashing.org,
-       george@mvista.com, akpm@osdl.org
-Subject: Re: [RFC][PATCH] Runtime switching of the idle function [take 2]
-Message-ID: <20051129145022.GE19515@wotan.suse.de>
-References: <20051124150731.GD2717@elte.hu> <1132952191.24417.14.camel@localhost.localdomain> <20051126130548.GA6503@elte.hu> <1133232503.6328.18.camel@localhost.localdomain> <20051128190253.1b7068d6.akpm@osdl.org> <1133235740.6328.27.camel@localhost.localdomain> <20051128200108.068b2dcd.akpm@osdl.org> <20051129064420.GA15374@elte.hu> <p73mzjngwim.fsf@verdi.suse.de> <1133273971.6328.49.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 29 Nov 2005 09:55:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=kPyGt/h0lXWL7gYDxa+97QG1whD5EaOgSmUpnvJU0l0XtUADxprUHW6IRD5VkODysg5xlvI0tY+LyO+FMutIVOV7kbLW5L4XqxMyB6Z9aHlmocrbtgv5PKmBpNd4eJfh3SPxJLNuuuDCs8pGKmW7VSiwFI4CWAcafhHC6xCilfo=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] touch softlockup watchdog in ide_wait_not_busy
+Date: Tue, 29 Nov 2005 15:55:26 +0100
+User-Agent: KMail/1.8.92
+Cc: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       "Alexander V. Inyukhin" <shurick@sectorb.msk.ru>,
+       Jesper Juhl <jesper.juhl@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1133273971.6328.49.camel@localhost.localdomain>
+Message-Id: <200511291555.27202.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 29, 2005 at 09:19:31AM -0500, Steven Rostedt wrote:
-> > And in practice the CPU will run so hot that only benchmarkers like it.
-> 
-> Why would it run hot?  What's the difference between polling and doing
-> other things.  How many transistors does it take to poll?
+Hi,
 
-It will prevent the CPU from going into sleep states and essentially
-keep most of it enabled.  
+This is a resend of a patch I proposed in the 
+"[BUG] 2.6.15-rc1, soft lockup detected while probing IDE devices on AMD7441"
+thread.
+I recieved no ACK/NACK or other feedback on the patch, so I'm resending it in
+the hope of getting some comments :)
 
-> 
-> > 
-> > I think switching idle is the wrong way to do. We should rather
-> > fix the various problems.
-> > 
-> > For fixing the TSC issue it is 100% the wrong approach Imho.
-> 
-> I would only say 80% the wrong approach, but that's me ;-)
-> 
-> > Basically software has to live with TSCs being unsynchronized
-> > and gettimeofday should do the right thing (and if not it should be fixed)
-> 
-> I guess the biggest complaint most have is that the rdtsc _is_ the
-> fastest way to read a clock.  If it isn't reliable, then what good is
 
-It's the fastest way to read something which needs quite complex
-knowledge to turn into a reliable clock value. In general only
-the kernel has this knowledge. 
+From: Jesper Juhl <jesper.juhl@gmail.com>
 
-And gettimeofday is optimized to give you the fatest reliable
-clock. 
+Make sure we touch the softlockup watchdog in 
+ide_wait_not_busy() since it may cause the watchdog to trigger, but
+there's really no point in that since the loop will eventually return, and
+triggering the watchdog won't do us any good anyway.
 
-> it?  It's unfortunate that Intel didn't solidify the clock usage. Yes,
-> use HPET, or something else, but those are slower, and may not be on all
-> systems.  Every system that I owned had a tsc but for critical systems
-> it isn't up to par (what a shame).
+The  if (!(timeout % 128))  bit is a guess that since 
+touch_softlockup_watchdog() is a per_cpu thing it will be cheaper to do the
+modulo calculation than calling the function every time through the loop,
+especially as the nr of CPU's go up. But it's purely a guess, so I may very 
+well be wrong - also, 128 is an arbitrarily chosen value, it's just a nice 
+number that'll give us <10 function calls pr second.
 
-Just use gettimeofday. It shields you from all that and when
-the hardware supports it is quite fast too.
+Since I have no IDE devices in my box I'm unable to test this beyond making
+sure it compiles without warnings or errors (which it does).
 
-> > > system has been idle for some time. E.g. cpufreqd could sample idle time 
-> > > and turn on/off idle=poll. High-performance setups could enable it all 
-> > > the time.
-> > 
-> > And upgrade their server air condition or issue additional ear protection
-> > to the desktop user? Most likely you will just drive the CPUs into
-> > thermal throttle at some point with that, not get more performance anyways.
-> 
-> Again, what would make it so hot?  It is a waste of CPU cycles, and does
-> waste energy that way, but does it really heat up the CPU that much?
+Let me know what you think.
 
-Yes it does.
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
 
--Andi
+ drivers/ide/ide-iops.c |    8 ++++++++
+ 1 files changed, 8 insertions(+)
+
+diff -up linux-2.6.15-rc3-orig/drivers/ide/ide-iops.c linux-2.6.15-rc3/drivers/ide/ide-iops.c
+--- linux-2.6.15-rc3-orig/drivers/ide/ide-iops.c	2005-11-29 15:30:32.000000000 +0100
++++ linux-2.6.15-rc3/drivers/ide/ide-iops.c	2005-11-29 15:44:23.000000000 +0100
+@@ -24,6 +24,7 @@
+ #include <linux/hdreg.h>
+ #include <linux/ide.h>
+ #include <linux/bitops.h>
++#include <linux/sched.h>
+ 
+ #include <asm/byteorder.h>
+ #include <asm/irq.h>
+@@ -1243,6 +1244,13 @@ int ide_wait_not_busy(ide_hwif_t *hwif, 
+ 		 */
+ 		if (stat == 0xff)
+ 			return -ENODEV;
++
++		/* 
++		 * We risk triggering the soft lockup detector, but we don't
++		 * want that, so better poke it a bit once in a while.
++		 */
++		if (!(timeout % 128))
++			touch_softlockup_watchdog();
+ 	}
+ 	return -EBUSY;
+ }
+
+

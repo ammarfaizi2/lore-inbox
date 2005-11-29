@@ -1,49 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbVK2QDI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbVK2QFD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751386AbVK2QDI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 11:03:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751387AbVK2QDI
+	id S1751387AbVK2QFD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 11:05:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbVK2QFB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 11:03:08 -0500
-Received: from bee.hiwaay.net ([216.180.54.11]:6257 "EHLO bee.hiwaay.net")
-	by vger.kernel.org with ESMTP id S1751386AbVK2QDH (ORCPT
+	Tue, 29 Nov 2005 11:05:01 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:55538 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S1751387AbVK2QFA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 11:03:07 -0500
-Date: Tue, 29 Nov 2005 10:03:02 -0600
-From: Chris Adams <cmadams@hiwaay.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: what is our answer to ZFS?
-Message-ID: <20051129160302.GA1105271@hiwaay.net>
-References: <fa.gcocno9.1lgcbap@ifi.uio.no>
-Mime-Version: 1.0
+	Tue, 29 Nov 2005 11:05:00 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051129050439.GB22879@thunk.org>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17292.31749.278879.822369@alkaid.it.uu.se>
+Date: Tue, 29 Nov 2005 17:04:21 +0100
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Andi Kleen <ak@suse.de>
+Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: Enabling RDPMC in user space by default
+In-Reply-To: <20051129151515.GG19515@wotan.suse.de>
+References: <20051129151515.GG19515@wotan.suse.de>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Once upon a time, Theodore Ts'o <tytso@mit.edu> said:
->This isn't actually a new idea, BTW.  Digital's advfs had storage
->pools and the ability to have a single advfs filesystem spam multiple
->filesystems, and to have multiple adv filesystems using storage pool,
->something like ten years ago.
+Andi Kleen writes:
+ > Hallo,
+ > 
+ > I'm considering to enable CR4.PCE by default on x86-64/i386. Currently it's 0
+ > which means RDPMC doesn't work. On x86-64 PMC 0 is always programmed
+ > to be a cycle counter, so it would be useful to be able to access
+ > this for measuring instructions. That's especially useful because RDTSC 
+ > does not necessarily count cycles in the current P state (already
+ > the case on Intel CPUs and AMD's future direction seems to also
+ > to decouple it from cycles) Drawback is that it stops during idle, but 
+ > that shouldn't be a big issue for normal measuring. It's not useful
+ > as a real timer anyways.
+ > 
+ > On Pentium 4 it also has the advantage that unlike RDTSC it's not
+ > serializing so should be much faster.
+ > 
+ > The kernel change would be to always set CR4.PCE to allow RDPMC
+ > in ring 3. 
+ > 
+ > It would be actually a good idea to disable RDTSC in ring 3 too
+ > (because user space usually doesn't have enough information to make
+ > good use of it and gets it wrong), but I fear that will break 
+ > too many applications right now.
 
-A really nice feature of AdvFS is fileset-level snapshots.  For my Alpha
-servers, I don't have to allocate disk space to snapshot storage; the
-fileset uses free space within the fileset for changes while a snapshot
-is active.  For my Linux servers using LVM, I have to leave a chunk of
-space free in the volume group, make sure it is big enough, make sure
-only one snapshot exists at a time (or make sure there's enough free
-space for multiple snapshots), etc.
+PMC0 stops being a cycle counter as soon as any real driver
+(not the NMI watchdog) takes over the hardware, such as oprofile,
+perfmon2, or perfctr. So user-space cannot rely on the semantics
+of PMC0. I have no objection to globally enabling CR4.PCE.
 
-AdvFS is also fully integrated with TruCluster; when I started
-clustering, I didn't have to change anything for most of my storage.
+Disabling user-space RDTSC (setting CR4.TSD) seems evil and pointless.
+At least some users of it (the perfctr library and I hope eventually
+also perfmon2) do use it in an SMP-safe manner (through special
+user/kernel protocols).
 
-I will miss AdvFS when we turn off our Alphas for the last time (which
-won't be far off I guess; final order date for an HP Alpha system is
-less than a year away now).
--- 
-Chris Adams <cmadams@hiwaay.net>
-Systems and Network Administrator - HiWAAY Internet Services
-I don't speak for anybody but myself - that's enough trouble.
+/Mikael

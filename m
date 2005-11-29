@@ -1,69 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751356AbVK2N1o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751354AbVK2NZP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751356AbVK2N1o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 08:27:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751355AbVK2N1o
+	id S1751354AbVK2NZP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 08:25:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751355AbVK2NZP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 08:27:44 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:14985 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751356AbVK2N1n
+	Tue, 29 Nov 2005 08:25:15 -0500
+Received: from nproxy.gmail.com ([64.233.182.194]:22223 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751354AbVK2NZO convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 08:27:43 -0500
-Date: Tue, 29 Nov 2005 18:57:30 +0530
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Fernando Luis Vazquez Cao <fernando@intellilink.co.jp>,
-       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] Re: [PATCH & RFC] kdump and stack overflows
-Message-ID: <20051129132730.GA3803@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <1133183463.2327.96.camel@localhost.localdomain> <m1lkz8gad7.fsf@ebiederm.dsl.xmission.com> <1133200815.2425.98.camel@localhost.localdomain> <m1hd9wfwxi.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 29 Nov 2005 08:25:14 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=QTFI76rAkZfr8l9W3Em09z8oQPX9aairniyD9SnbJI0irj0Ye46PZ0jt8+kcFgHSKCo3LGy60CwW6ws0KFVvV6HVCVPq57OYjery46VK1oHz9De3wWD4ATDtJSLVFayFUC0xCrUpYQnGIUGSL5LZR7dZtaH7ZuqmHzb24+9EPBk=
+Message-ID: <121a28810511290525m1bdf12e0n@mail.gmail.com>
+Date: Tue, 29 Nov 2005 14:25:12 +0100
+From: Grzegorz Nosek <grzegorz.nosek@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] race condition in procfs
+Cc: linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org
+In-Reply-To: <121a28810511290038h37067fecx@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <m1hd9wfwxi.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.2.1i
+References: <121a28810511282317j47a90f6t@mail.gmail.com>
+	 <20051129000916.6306da8b.akpm@osdl.org>
+	 <121a28810511290038h37067fecx@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 28, 2005 at 11:29:29AM -0700, Eric W. Biederman wrote:
-> Fernando Luis Vazquez Cao <fernando@intellilink.co.jp> writes:
-> 
-> > On Mon, 2005-11-28 at 06:39 -0700, Eric W. Biederman wrote: 
-> >> Fernando Luis Vazquez Cao <fernando@intellilink.co.jp> writes:
-> 
-> > Regarding the stack overflow audit of the nmi path, we have the problem
-> > that both nmi_enter and nmi_exit in do_nmi (see code below) make heavy
-> > use of "current" indirectly (specially through the kernel preemption
-> > code).
-> 
-> Ok.  I wonder if it would be saner to simply replace the nmi trap
-> handler on the crash dump path?
-> 
+> >
+> > Do you know what the race is?
+>
+> Apparently it's a race between deleting a process and accessing its
+> /proc/pid entries. It came out in pidof while it was accessing
+> /proc/pid/stat (fs/proc/array.c:do_task_stat crashed on first
+> instruction - it was an inline function accessing task->state,
+> get_task_state IIRC). oops (with vserver history data - I'm using a
+> patch mentioned below) is attached.
+>
+> >
+> > How does one reproduce it?
+>
+> I managed to reproduce it (although not reliably) during high CPU load
+> and I/O (parallel kernel compiles) on SMP systems with the vserver
+> patch (http://linux-vserver.org, the exact patch is
+> http://vserver.13thfloor.at/Experimental/patch-2.6.14.2-vs2.1.0-rc8.diff),
+> but the vserver maintainer pointed out that it probably is a mainline
+> issue. We're not using 2.6 systems too much except for the vserver
+> test beds so I cannot tell if it happens on vanilla kernels.
+>
+> >
+> > > The following micro-patch seems to fix it.
+> >
+> > It might be right, or it might be a workaround..
+> >
+>
+> I'm not a kernel guru so it's just my proposal. Can it break anything?
+> An alternative _might_ be somewhat coarser task_struct locking
+> (do_task_stat grabs a spinlock but then it's already too late).
+> However, if no "right" solution appears, I'll keep using my two-liner
+> because it seems to help, at least in my setup.
+>
 
-Sounds interesting.
+Oh well, I got another oops in the very same place with the patch
+applied. So now I surrounded the check with
+read_[un]lock(&tasklist_lock) and added a check to do_task_stat (both
+now have a printk). If it builds, boots and doesn't crash, I'll post
+the patch.
 
-> >> I believe we have a separate interrupt stack that
-> >> should help but..
-> > Yes, when using 4K stacks we have a separate interrupt stack that should
-> > help, but I am afraid that crash dumping is about being paranoid.
-> 
-> Oh I agree.  If we had a private 4K stack for the nmi handler we
-> would not need to worry about overflow in that case. 
-
-Having private 4K stack makes sense as crash_nmi_callback() itself
-requires quite some space on stack. If one has enabled CONFIG_4KSTACKS,
-then we use separate interrupt stack and we are probably safe from stack
-overflows but otherwise we need it. 
-
-> (baring
-> nmi happening during nmis)  Hmm.  Is there anything to keep
-> us doing something bad in that case?
-> 
-> I guess as long as we don't clear the high bit of port 0x70 we
-> should be reasonably safe from the nmi firing multiple times.
-
-Are you referring to port 0x23 for IMCR register.
-
-Thanks
-Vivek
+Best regards,
+ Grzegorz Nosek

@@ -1,92 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbVK2Txv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbVK2T7q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932366AbVK2Txv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 14:53:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbVK2Txv
+	id S932361AbVK2T7q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 14:59:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbVK2T7q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 14:53:51 -0500
-Received: from mx2.suse.de ([195.135.220.15]:14268 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932366AbVK2Txu (ORCPT
+	Tue, 29 Nov 2005 14:59:46 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:40419 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932361AbVK2T7q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 14:53:50 -0500
-Date: Tue, 29 Nov 2005 20:53:37 +0100
-From: Andi Kleen <ak@suse.de>
-To: "Brown, Len" <len.brown@intel.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Steven Rostedt <rostedt@goodmis.org>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, acpi-devel@lists.sourceforge.net,
-       nando@ccrma.Stanford.EDU, rlrevell@joe-job.com,
-       linux-kernel@vger.kernel.org, paulmck@us.ibm.com, kr@cybsft.com,
-       tglx@linutronix.de, pluto@agmk.net, john.cooper@timesys.com,
-       bene@linutronix.de, dwalker@mvista.com, trini@kernel.crashing.org,
-       george@mvista.com
-Subject: Re: [RFC][PATCH] Runtime switching of the idle function [take 2]
-Message-ID: <20051129195336.GP19515@wotan.suse.de>
-References: <F7DC2337C7631D4386A2DF6E8FB22B3005456F00@hdsmsx401.amr.corp.intel.com>
+	Tue, 29 Nov 2005 14:59:46 -0500
+Date: Tue, 29 Nov 2005 13:01:04 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: tiwai@suse.de, linux-kernel@vger.kernel.org, ambx1@neo.rr.com
+Subject: Re: [Fwd: [PATCH] [PNP][RFC] Suspend support for PNP bus.]
+Message-Id: <20051129130104.0b0fd77b.akpm@osdl.org>
+In-Reply-To: <438CB0D8.90607@drzeus.cx>
+References: <436B2819.4090909@drzeus.cx>
+	<20051129113210.3d95d71f.akpm@osdl.org>
+	<438CA2D9.8030304@drzeus.cx>
+	<20051129120212.3e679296.akpm@osdl.org>
+	<438CB0D8.90607@drzeus.cx>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B3005456F00@hdsmsx401.amr.corp.intel.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 29, 2005 at 02:37:53PM -0500, Brown, Len wrote:
-> idle=poll is a really bad way to go from a power perspective.
-> While it is diminishing returns to get into deeper C-states,
-> getting into at least C1 (HALT or MONITOR/MWAIT) is very important
-> on many processors.
+Pierre Ossman <drzeus-list@drzeus.cx> wrote:
+>
+> >http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/perex/alsa-current.git;a=commitdiff;h=5353d906effe648dd20899fe61ecb6982ad93cdd
+> >
+> >  
+> >
 > 
-> Note that if the issue at hand is the TSC stopping in deep
-> ACPI C-states, that there is a flag already available to limit
-> how deep the C-states go.  eg.
+> That patch is a bit dumber than mine. It doesn't do anything but call
+> the driver supplied suspend/resume function, i.e. no PnP handling during
+> suspend. It does handle cards though, something my patch doesn't do.
+> Perhaps a combination of the two is acceptable to the ALSA crowd?
 
-No i think they tried to work around the fact that
-it's not synchronized on AMD systems - in particular
-it drifts slightly even on single socket dual core
-A64 X2s and disabling C1 works around that.
+Send an update agaisnt next -mm if you like.  We can feed that in through
+the alsa tree too.  It's not really appropriate to be updating the pnp
+system via the alsa tree, but as long as it's all in one place, it works.
 
-But idle=poll is too big an hammer for this. Vojtech
-is working on a solution anyways that should address this
-better.
-
-
-> processor.max_cstate=2 will disable C3, C4 etc
-> You can do this at run-time by writing to
-> /sys/module/processor/parameters/max_cstate
-
-In this case it's already C1 that's the problem,
-so that won't help them.
-
-> I agree with Andi that we have some work to do to address
-> the issue directly, which is that the TSC is not reliable
-> under all conditions on all processors.  I think we need
-
-We're mostly addressing it - there are problems left, but
-overall it's looking good. The remaining problem is 
-an education issue of users to not use RDTSC directly, 
-but use gettimeofday/clock_gettime
-
-One remaining use is measurements, but for that it is
-already dubious (e.g. due to ticking at a possible
-different frequency than the CPU). For that I want
-to establish the RDPMC 0 convention.
-
-Probably need better documentation for all of this though...
-
-> some modes for TSC to detect and handle the cases where it either
-> stops in C3 or changes speeds, vs the systems where it actually
-> works the way we want it to -- constant rate that never stops.
->  
-> >Why not just slightly cleanup and extend (eg. to ACPI) the
-> >hlt_counter thingy that many architectures already have?
-> 
-> Hmmm, I see the floppy driver invoking hlt_counter,
-> but it isn't clear what the general semantics and general
-> users are supposd to be.  Can you clue me in?
-
-It's an ancient hack for an ancient machine chipset bug, but AFAIK 
-not used/needed on anything modern. 
-
-Should probably remove it from x86-64 too.
-
--Andi

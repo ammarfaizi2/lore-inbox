@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbVK2OqG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbVK2Ot4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751367AbVK2OqG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 09:46:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbVK2OqF
+	id S1751365AbVK2Ot4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 09:49:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbVK2Ot4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 09:46:05 -0500
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:60028 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1751369AbVK2OqC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 09:46:02 -0500
-Message-ID: <438B616B.6070101@tmr.com>
-Date: Mon, 28 Nov 2005 14:58:35 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
+	Tue, 29 Nov 2005 09:49:56 -0500
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:40649 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751365AbVK2Otz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 09:49:55 -0500
+Date: Tue, 29 Nov 2005 09:49:44 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Grzegorz Nosek <grzegorz.nosek@gmail.com>
+cc: vserver@list.linux-vserver.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] race condition in procfs
+In-Reply-To: <121a28810511290639g79617c85h@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0511290945380.7838@gandalf.stny.rr.com>
+References: <121a28810511282317j47a90f6t@mail.gmail.com> 
+ <20051129000916.6306da8b.akpm@osdl.org>  <121a28810511290038h37067fecx@mail.gmail.com>
+  <121a28810511290525m1bdf12e0n@mail.gmail.com>  <121a28810511290604m68c56398t@mail.gmail.com>
+  <1133274524.6328.56.camel@localhost.localdomain> <121a28810511290639g79617c85h@mail.gmail.com>
 MIME-Version: 1.0
-To: Daniel Jacobowitz <dan@debian.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
-       Andi Kleen <ak@suse.de>, Gerd Knorr <kraxel@suse.de>,
-       Dave Jones <davej@redhat.com>, Zachary Amsden <zach@vmware.com>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] SMP alternatives
-References: <1132766489.7268.71.camel@localhost.localdomain> <Pine.LNX.4.64.0511230858180.13959@g5.osdl.org> <4384AECC.1030403@zytor.com> <Pine.LNX.4.64.0511231031350.13959@g5.osdl.org> <1132782245.13095.4.camel@localhost.localdomain> <Pine.LNX.4.64.0511231331040.13959@g5.osdl.org> <20051123214835.GA24044@nevyn.them.org> <Pine.LNX.4.64.0511231416490.13959@g5.osdl.org> <20051123222056.GA25078@nevyn.them.org> <Pine.LNX.4.64.0511231502250.13959@g5.osdl.org> <20051123234256.GA27337@nevyn.them.org>
-In-Reply-To: <20051123234256.GA27337@nevyn.them.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Jacobowitz wrote:
-> On Wed, Nov 23, 2005 at 03:08:59PM -0800, Linus Torvalds wrote:
 
->>In contrast, the simple silicon support scales wonderfully well. Suddenly 
->>libraries can be thread-safe _and_ efficient on UP too. You get to eat 
->>your cake and have it too.
-> 
-> 
-> By buying new hardware and only caring about people using the magic
-> architecture.  No thanks.
+On Tue, 29 Nov 2005, Grzegorz Nosek wrote:
 
-That is the problem, waiting for Intel to do hardware magic, or even to 
-decide IF they do it. Like assuming that everyone has SMP because a few 
-percent of the users have dual core chips. The majority of the markey 
-will have SMP someday, but ignoring the current status isn't realistic.
-> 
-> Maybe I'll implement this some weekend.
+>
+> I'm not really using vanilla 2.6 kernels and my setup would be quite
+> hard to run on a vanilla kernel.
+>
+> The reproduceability of this bug varies. Sometimes it'll go for a few
+> days without happening, sometimes it's a matter of a few minutes. I'm
+> beginning to feel it's a vserver issue after all, somehow related to
+> pid virtualisation (it maps some vxi->vx_initpid to 1).
+>
+> Thus I cannot provide a simple script to trigger the bug (I wish I
+> could) but often doing a -j8 kernel compile in a vserver is enough.
+>
 
-Love to see it, I'm only semi-convinced it can be done in a way which 
-actually produces significant benefits.
-> 
+What you are showing, would probably show up by others if this were a
+vanilla kernel issue.  I don't have an 8 way machine, just 2 way, but the
+vanilla kernel is being used on many 8 ways out there, so I think you are
+right that this _is_ a vserver issue.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Unless, of course, that the vserver is producing an obscure race in the
+vanilla kernel that normal operations would seldom have.  Just like the
+PREEMPT_RT patch has discovered many race conditions that were in the
+vanilla kernel but were not often a problem.
+
+-- Steve
 

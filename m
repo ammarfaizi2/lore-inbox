@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751388AbVK2PxO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751385AbVK2Pxx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751388AbVK2PxO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 10:53:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbVK2PxO
+	id S1751385AbVK2Pxx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 10:53:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751387AbVK2Pxx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 10:53:14 -0500
-Received: from kirby.webscope.com ([204.141.84.57]:30377 "EHLO
-	kirby.webscope.com") by vger.kernel.org with ESMTP id S1751388AbVK2PxO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 10:53:14 -0500
-Message-ID: <438C7942.5080509@m1k.net>
-Date: Tue, 29 Nov 2005 10:52:34 -0500
-From: Michael Krufky <mkrufky@m1k.net>
-Reply-To: mkrufky@m1k.net
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux and Kernel Video <video4linux-list@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: cx88 totally fried in 2.6.15-rcX -was- Re: HD3000 - no NTSC via
- tuner
-References: <200511282205.jASM5YUI018061@p-chan.krl.com>	<200511282340.46506.gene.heskett@verizon.net>	<438BDF72.1000704@m1k.net> <200511291011.20688.gene.heskett@verizon.net>
-In-Reply-To: <200511291011.20688.gene.heskett@verizon.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Nov 2005 10:53:53 -0500
+Received: from nevyn.them.org ([66.93.172.17]:37609 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S1751385AbVK2Pxw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 10:53:52 -0500
+Date: Tue, 29 Nov 2005 10:53:46 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Mika =?iso-8859-1?Q?Penttil=E4?= <mika.penttila@kolumbus.fi>,
+       linux-kernel@vger.kernel.org, drepper@redhat.com,
+       linuxppc-dev@ozlabs.org, akpm@osdl.org
+Subject: Re: [PATCH] 3/3 Generic sys_rt_sigsuspend
+Message-ID: <20051129155346.GA25431@nevyn.them.org>
+Mail-Followup-To: David Woodhouse <dwmw2@infradead.org>,
+	Mika =?iso-8859-1?Q?Penttil=E4?= <mika.penttila@kolumbus.fi>,
+	linux-kernel@vger.kernel.org, drepper@redhat.com,
+	linuxppc-dev@ozlabs.org, akpm@osdl.org
+References: <1133225007.31573.86.camel@baythorne.infradead.org> <1133225852.31573.115.camel@baythorne.infradead.org> <438BE48B.9060908@kolumbus.fi> <1133260923.31573.131.camel@baythorne.infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1133260923.31573.131.camel@baythorne.infradead.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gene Heskett wrote:
+On Tue, Nov 29, 2005 at 10:42:03AM +0000, David Woodhouse wrote:
+> I believe not. The previous versions would loop until do_signal()
+> returned non-zero; i.e. until a signal was actually delivered.
+> By returning -ERESTARTNOHAND we achieve the same effect. If there's a
+> signal delivered, that gets magically converted to -EINTR, but if
+> there's no signal delivered, the syscall gets restarted.
 
->>I should also add this is with 2.6.14.2 and todays v4l-dvb CVS.
->>    
->>
->And I should add that 2.6.14, any version without the cvs update, works
->perfectly in ntsc here. I have to atsc signals available.
->
-Gene,
-
-Would you mind trying to install the cvs modules on top of 2.6.14, using 
-the instructions that I gave you last night?  This will confirm once and 
-for all whether your problems are due to a v4l regression, or an 
-upstream regression in 2.6.15.
-
-Thanks,
+And, crazy coincidence, I think this will fix the recently reported
+ptrace attach bug.  Right now if you ptrace a process stuck in
+sigsuspend, you can't easily force it to return to userspace.
+I'll test that if these patches are merged.
 
 -- 
-Michael Krufky
-
-
+Daniel Jacobowitz
+CodeSourcery, LLC

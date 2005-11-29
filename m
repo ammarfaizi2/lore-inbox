@@ -1,46 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbVK2Ufs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbVK2UgM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932381AbVK2Ufs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 15:35:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbVK2Ufs
+	id S932390AbVK2UgM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 15:36:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbVK2UgM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 15:35:48 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:14751 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932381AbVK2Ufr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 15:35:47 -0500
-Subject: Re: [RFC][PATCH] Runtime switching of the idle function [take 2]
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andi Kleen <ak@suse.de>
-Cc: "Brown, Len" <len.brown@intel.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>,
-       Andrew Morton <akpm@osdl.org>, acpi-devel@lists.sourceforge.net,
-       nando@ccrma.Stanford.EDU, linux-kernel@vger.kernel.org,
-       paulmck@us.ibm.com, kr@cybsft.com, tglx@linutronix.de, pluto@agmk.net,
-       john.cooper@timesys.com, bene@linutronix.de, dwalker@mvista.com,
-       trini@kernel.crashing.org, george@mvista.com
-In-Reply-To: <20051129195336.GP19515@wotan.suse.de>
-References: <F7DC2337C7631D4386A2DF6E8FB22B3005456F00@hdsmsx401.amr.corp.intel.com>
-	 <20051129195336.GP19515@wotan.suse.de>
-Content-Type: text/plain
-Date: Tue, 29 Nov 2005 15:35:39 -0500
-Message-Id: <1133296540.4627.7.camel@mindpipe>
+	Tue, 29 Nov 2005 15:36:12 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:8055 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S932390AbVK2UgK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 15:36:10 -0500
+Date: Tue, 29 Nov 2005 21:36:22 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Erik Mouw <erik@harddisk-recovery.com>, linux-kernel@vger.kernel.org,
+       jbglaw@lug-owl.de, torvalds@osdl.org
+Subject: Re: [PATCH 2.6.15-rc2-git6] Fix tar-pkg target
+Message-ID: <20051129203622.GA17053@mars.ravnborg.org>
+References: <20051128170414.GA10601@harddisk-recovery.nl> <20051129133042.6d344110.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051129133042.6d344110.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-29 at 20:53 +0100, Andi Kleen wrote:
-> We're mostly addressing it - there are problems left, but
-> overall it's looking good. The remaining problem is 
-> an education issue of users to not use RDTSC directly, 
-> but use gettimeofday/clock_gettime 
+> 
+> 
+> I already have the below queued up, which is a bit different.  Does it work
+> OK?
 
-No the issue is to make gettimeofday fast enough that the people who
-currently have to use the TSC can use it.  Right now it's 1500-3000 nsec
-or so, Vojtech mentioned that he has a patch that could reduce that to
-150-300 nsec.
+Brian's version preserve EXTRANAME, but I have not seen it
+used/documented anywhere?
 
-Lee
-
+	Sam

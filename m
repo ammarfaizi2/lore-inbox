@@ -1,84 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbVK2Wnu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbVK2Ws0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964776AbVK2Wnu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 17:43:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbVK2Wnt
+	id S932446AbVK2Ws0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 17:48:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbVK2Ws0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 17:43:49 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:37074 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932444AbVK2Wnt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 17:43:49 -0500
-Date: Tue, 29 Nov 2005 23:43:47 +0100
-From: Andi Kleen <ak@suse.de>
-To: Nicholas Miell <nmiell@comcast.net>
-Cc: Andi Kleen <ak@suse.de>, Stephane Eranian <eranian@hpl.hp.com>,
-       Ray Bryant <raybry@mpdtxmail.amd.com>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org, perfctr-devel@lists.sourceforge.net
-Subject: Re: [Perfctr-devel] Re: Enabling RDPMC in user space by default
-Message-ID: <20051129224346.GS19515@wotan.suse.de>
-References: <20051129151515.GG19515@wotan.suse.de> <200511291056.32455.raybry@mpdtxmail.amd.com> <20051129180903.GB6611@frankl.hpl.hp.com> <20051129181344.GN19515@wotan.suse.de> <1133300591.3271.1.camel@entropy> <20051129215207.GR19515@wotan.suse.de> <1133303615.3271.12.camel@entropy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 29 Nov 2005 17:48:26 -0500
+Received: from mail.linicks.net ([217.204.244.146]:59589 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S932446AbVK2WsZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 17:48:25 -0500
+From: Nick Warne <nick@linicks.net>
+To: Wakko Warner <wakko@animx.eu.org>
+Subject: Re: [OT] 1500 days uptime.
+Date: Tue, 29 Nov 2005 22:48:12 +0000
+User-Agent: KMail/1.8.1
+Cc: Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200511242147.45248.nick@linicks.net> <200511292226.49873.nick@linicks.net> <20051129230233.GA8127@animx.eu.org>
+In-Reply-To: <20051129230233.GA8127@animx.eu.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1133303615.3271.12.camel@entropy>
+Message-Id: <200511292248.12387.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think you really need to come up with a better justification than "I
-> think this will be useful" for a permanent user-space ABI change.
+On Tuesday 29 November 2005 23:02, Wakko Warner wrote:
+> Nick Warne wrote:
 
-There's no user space ABI change involved, at least not from
-the kernel side. Hardware is breaking some assumptions people
-made though (they actually never worked fully, but these days they
-break more clearly) and this is a best effort to adapt.
+> > http://counter.li.org/reports/uptimestats.php
+>
+> I tried to run their scripts on my system, but being as old as it was
+> (debian hamm I believe), I think I had problems.  Either that or it was
+> before they knew about the "last -x ..." thing.
 
-To give an bad analogy RDTSC usage in the last years is
-like explicit spinning wait loops for delays in the earlier
-times. They tended to work on some subset of computers,
-but were always bad and caused problems and people eventually learned
-it was better to use operating system services for this.
+I submitted the 'last -x' patch to them - I think it is in the beta scripts 
+now.  I run the 'last -x..' version on the 486 and my gentoo box as I had to 
+test it all worked ;-)  I dunno how the other boxes do it > 493 (or whatever 
+it is)
 
-The kernel will probably not disable RDTSC outright,
-but will make it clear in documentation that it's a bad
-idea to use directly and laugh at everybody who runs
-into problems with it.
+> I just looked,  Dang, I could have had the record by over 100 days.  Oh
+> well, maybe my alpha might:
+>  18:03:07 up 902 days,  1:12,  6 users,  load average: 0.00, 0.00, 0.00
+> Linux narf 2.4.18 #2 Tue Jun 4 18:32:32 EDT 2002 alpha GNU/Linux
+>
+> 64-bit arch is nice!
 
-oprofile usage might change slightly though, although only
-for a small subset of its users. There can't be very many
-of them using multiple performance counters anyways because
-at least in the last 0.9 release I tried it didn't even work.
+It's a good site, with a lot of work...  been there a long time too.  Some of 
+them kernels I never heard off though.
 
-> What problem are you trying to solve, why is that a problem, how does
-> making PMC0 always be a cycle counter solve that, what makes you think
-
-Read the original messages in the thread. They explain it all.
-
-> that future CPUs will have the same type of cycle counter that behaves
-> the same way as the current cycle counters, etc.
-> 
-> AFAICT, the problem you're trying to solve is two-fold:
-> 
-> a) RDTSC is serializing and RDPMC isn't.
-> 
-> Which is nicely solved by RDTSCP.
-
-No, you got that totally wrong. Please read the RDTSCP specification again.
-
-> and
-> b) RDTSC isn't well defined.
-
-It's well defined - but in a way that makes it useless for cycle
-measurements these days.
-
-> 
-> Well, RDPMC isn't defined at all. You're assuming that future processor
-> revisions will have the same or substantially similar PerfCtrs as
-> current processors, and nothing guarantees that at all.
-
-Point, but i guess it is reasonable to assume that future x85 CPUs
-will have cycle counter perfctrs.  I cannot imagine anybody dropping
-such a basic facility.
-
--Andi
-
+Nick
+-- 
+"Person who say it cannot be done should not interrupt person doing it."
+-Chinese Proverb
+My quake2 project:
+http://sourceforge.net/projects/quake2plus/

@@ -1,111 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbVK2Vy2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbVK2V5t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932429AbVK2Vy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 16:54:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbVK2Vy2
+	id S932439AbVK2V5t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 16:57:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbVK2V5t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 16:54:28 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:37039 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932429AbVK2Vy1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 16:54:27 -0500
-Message-ID: <438CCE0D.7090304@pobox.com>
-Date: Tue, 29 Nov 2005 16:54:21 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Tue, 29 Nov 2005 16:57:49 -0500
+Received: from wproxy.gmail.com ([64.233.184.201]:4628 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932439AbVK2V5s convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 16:57:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BqXcwoDmVAK8zOjOofP0cFUARtYxUOc841lTzXOv2pe1xF0xeNbetGrHziPNpgS+DYURk1QRS5O1T0pM3zHKUd8I+7XfKLTTZ8a1XdvHYXGqlj1DFOYwr3tTohU7ZsR63InsAl+zXqHZglKh1QLw6tf15BTqEpe7WuAezJmGgTg=
+Message-ID: <9611fa230511291357g3aa964adj6918fea50f5ee66e@mail.gmail.com>
+Date: Tue, 29 Nov 2005 21:57:47 +0000
+From: Tarkan Erimer <tarkane@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [BUG]: Software compiling occasionlly hangs under 2.6.15-rc1/rc2 and 2.6.15-rc1-mm2
+Cc: arjan@infradead.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20051127165733.643d5444.akpm@osdl.org>
 MIME-Version: 1.0
-To: Jesse Barnes <jbarnes@virtuousgeek.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add boot option to control Intel combined mode behavior
- (to allow DMA in combined mode configs!)
-References: <200511282306.38515.jbarnes@virtuousgeek.org>
-In-Reply-To: <200511282306.38515.jbarnes@virtuousgeek.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Jesse Barnes wrote: > Combined mode sucks. Especially
-	when both libata and the legacy IDE > drivers try to drive ports on the
-	same device, since that makes DMA > rather difficult. > > This patch
-	addresses the problem by allowing the user to control which > driver
-	binds to the ports in a combined mode configuration. In many > cases,
-	they'll probably want the libata driver to control both ports > since
-	it can use DMA for talking with ATAPI devices (when >
-	libata.atapi_enabled=1 of course). It also allows the user to get old >
-	school behavior by letting the legacy IDE driver bind to both ports. >
-	But neither is forced, the patch doesn't change current behavior unless
-	> one of intel_combined_mode=ide or intel_combined_mode=libata is
-	passed > on the boot line. Either of those options may require you to
-	access > your devices via different device nodes (/dev/hd* in the ide
-	case > and /dev/sd* in the libata case), though of course if you have
-	udev > installed nicely you may not notice anything. :) > > Let me know
-	if the documentation is too cryptic, I'd be happy to expand > on it if
-	necessary. I think most users will want to boot with >
-	'intel_combined_mode=libata' and add 'options libata atapi_enabled=1' >
-	to their modules.conf to get good DVD playing and disk behavior >
-	(haven't tested CD or DVD writing though). > >
-	Documentation/kernel-parameters.txt | 7 +++++++ > drivers/pci/quirks.c
-	| 30 ++++++++++++++++++++++++++++ > > I'd much rather things behave
-	sanely by default (i.e. DMA for devices on > both ports), but
-	apparently that's difficult given the various chip > bugs and hardware
-	configs out there (not to mention that people's > drives may suddenly
-	change from /dev/hdc to /dev/sdb), so this boot > option may be the
-	correct long term fix. > > Signed-off-by: Jesse Barnes
-	<jbarnes@virtuousgeek.org> [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <9611fa230511250312i55d0b872x82b8c33b4d2973e4@mail.gmail.com>
+	 <1132917564.7068.41.camel@laptopd505.fenrus.org>
+	 <9611fa230511270317led5b915h7daae3ef1287f86d@mail.gmail.com>
+	 <1133092701.2853.0.camel@laptopd505.fenrus.org>
+	 <9611fa230511271108m46389ee6w7ec6b5b40b1e23dd@mail.gmail.com>
+	 <20051127165733.643d5444.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes wrote:
-> Combined mode sucks.  Especially when both libata and the legacy IDE 
-> drivers try to drive ports on the same device, since that makes DMA 
-> rather difficult.
-> 
-> This patch addresses the problem by allowing the user to control which 
-> driver binds to the ports in a combined mode configuration.  In many 
-> cases, they'll probably want the libata driver to control both ports 
-> since it can use DMA for talking with ATAPI devices (when 
-> libata.atapi_enabled=1 of course).  It also allows the user to get old 
-> school behavior by letting the legacy IDE driver bind to both ports.  
-> But neither is forced, the patch doesn't change current behavior unless 
-> one of intel_combined_mode=ide or intel_combined_mode=libata is passed 
-> on the boot line.  Either of those options may require you to access 
-> your devices via different device nodes (/dev/hd* in the ide case 
-> and /dev/sd* in the libata case), though of course if you have udev 
-> installed nicely you may not notice anything. :)
-> 
-> Let me know if the documentation is too cryptic, I'd be happy to expand 
-> on it if necessary.  I think most users will want to boot with 
-> 'intel_combined_mode=libata' and add 'options libata atapi_enabled=1' 
-> to their modules.conf to get good DVD playing and disk behavior 
-> (haven't tested CD or DVD writing though).
-> 
->  Documentation/kernel-parameters.txt |    7 +++++++
->  drivers/pci/quirks.c                |   30 ++++++++++++++++++++++++++++
-> 
-> I'd much rather things behave sanely by default (i.e. DMA for devices on 
-> both ports), but apparently that's difficult given the various chip 
-> bugs and hardware configs out there (not to mention that people's 
-> drives may suddenly change from /dev/hdc to /dev/sdb), so this boot 
-> option may be the correct long term fix.
-> 
-> Signed-off-by: Jesse Barnes <jbarnes@virtuousgeek.org>
+On 11/28/05, Andrew Morton <akpm@osdl.org> wrote:
+> XFS went nuts.  Please test the latest git snapshot which has fixes for
+> this.
 
-Seems like it should work.  I presume you tested this?
+I tried 2.6.15-rc2-git6 and just released 2.6.15-rc3. Result is same.
+I still got occasional hangs. When I check my syslog, I found no error
+messages. But notice, XFS related errors have gone.  I paste last few
+lines of my syslog.
 
-Remove the 'intel_' prefix from the kernel parameter, since this concept 
-applies to other controllers as well.  Otherwise, seems OK.
-
-	Jeff
+----syslog ----
+Nov 29 23:22:43 hightemple kernel: [  518.648894] NTFS-fs warning
+(device hda1): ntfs_filldir(): Skipping unrepresentable inode 0x516d.
+Nov 29 23:22:54 hightemple kernel: [  529.059660] printk: 36 messages
+suppressed.
+Nov 29 23:22:54 hightemple kernel: [  529.059669] NTFS-fs error
+(device hda1): ntfs_ucstonls(): Unicode name contains characters that
+cannot be converted to character set iso8859-1.  You might want to try
+to use the mount option nls=utf8.
+Nov 29 23:22:54 hightemple kernel: [  529.059676] NTFS-fs warning
+(device hda1): ntfs_filldir(): Skipping unrepresentable inode 0x57db.
+Nov 29 23:23:57 hightemple gconfd (root-11625): starting (version
+2.12.1), pid 11625 user 'root'
+Nov 29 23:23:57 hightemple gconfd (root-11625): Resolved address
+"xml:readonly:/etc/gconf/gconf.xml.mandatory" to a read-only
+configuration source at position 0
+Nov 29 23:23:57 hightemple gconfd (root-11625): Resolved address
+"xml:readwrite:/root/.gconf" to a writable configuration source at
+position 1
+Nov 29 23:23:57 hightemple gconfd (root-11625): Resolved address
+"xml:readonly:/etc/gconf/gconf.xml.defaults" to a read-only
+configuration source at position 2
+Nov 29 23:41:57 hightemple syslogd 1.4.1: restart.
+----syslog----
 
 
-
+Regards

@@ -1,85 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbVK2Bew@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbVK2Bev@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932323AbVK2Bew (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 20:34:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbVK2Beq
+	id S932315AbVK2Bev (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 20:34:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbVK2Ber
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 20:34:46 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:17086 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932324AbVK2Beo (ORCPT
+	Mon, 28 Nov 2005 20:34:47 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:16830 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932315AbVK2Bee (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 20:34:44 -0500
-Date: Tue, 29 Nov 2005 02:34:44 +0100 (CET)
+	Mon, 28 Nov 2005 20:34:34 -0500
+Date: Tue, 29 Nov 2005 02:34:34 +0100 (CET)
 From: Roman Zippel <zippel@linux-m68k.org>
 X-X-Sender: roman@scrub.home
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 5/9] remove relative timer from abs_list
-Message-ID: <Pine.LNX.4.61.0511290234370.2782@scrub.home>
+Subject: [PATCH 4/9] posix timer overrun handling
+Message-ID: <Pine.LNX.4.61.0511290234280.2779@scrub.home>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-When an absolute timer expires, it becomes a relative timer, so remove it from
-the abs_list.  The TIMER_ABSTIME flag for timer_settime() changes the
-interpretation of the it_value member, but it_interval is always a relative
-value and clock_settime() only affects absolute time services.
+This slightly changes the overrun handling. Instead of initially initializing
+setting the overrun count to -1 it's set to 0 now and the extra overrun is
+removed at timer restart time.
+
+This has the two advantages, that the return value of timer_getoverrun()
+doesn't overlap with the error values and si_overrun and it_overrun_last are
+changed at the same time (and could be merged later).
 
 Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 
 ---
 
- kernel/posix-timers.c |   27 +++++++++++++--------------
- 1 file changed, 13 insertions(+), 14 deletions(-)
+ kernel/posix-timers.c |   11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
 Index: linux-2.6-mm/kernel/posix-timers.c
 ===================================================================
---- linux-2.6-mm.orig/kernel/posix-timers.c	2005-11-28 22:31:06.000000000 +0100
-+++ linux-2.6-mm/kernel/posix-timers.c	2005-11-28 22:31:08.000000000 +0100
-@@ -466,7 +466,7 @@ static int posix_timer_fn(struct ptimer 
- 	unsigned long seq;
- 	struct timespec delta, new_wall_to;
- 	u64 exp = 0;
--	int do_notify = 1, do_restart = 0;
-+	int do_restart = 0;
- 
- 	spin_lock_irqsave(&timr->it_lock, flags);
- 	if (!list_empty(&timr->it.real.abs_timer_entry)) {
-@@ -491,24 +491,23 @@ static int posix_timer_fn(struct ptimer 
- 				   &exp);
- 			timr->it.real.wall_to_prev = new_wall_to;
- 			timr->it.real.timer.expires += exp;
--			do_notify = 0;
-+			spin_unlock(&abs_list.lock);
- 			do_restart = 1;
-+			goto exit;
- 		}
-+		list_del_init(&timr->it.real.abs_timer_entry);
- 		spin_unlock(&abs_list.lock);
--
+--- linux-2.6-mm.orig/kernel/posix-timers.c	2005-11-28 22:31:03.000000000 +0100
++++ linux-2.6-mm/kernel/posix-timers.c	2005-11-28 22:31:06.000000000 +0100
+@@ -371,8 +371,7 @@ static int schedule_next_timer(struct k_
+ 	} else {
+ 		posix_bump_timer(timr, now);
  	}
--	if (do_notify)  {
--		if (!timr->it.real.incr)
--			remove_from_abslist(timr);
--		if (!timr->it_requeue_pending) {
--			if (!posix_timer_event(timr, 1))
--				timr->it_requeue_pending = 1;
--			do_restart = schedule_next_timer(timr);
--		} else {
--			timr->it_requeue_pending = 2;
--			timr->it_overrun++;
--		}
-+
-+	if (!timr->it_requeue_pending) {
-+		if (!posix_timer_event(timr, 1))
-+			timr->it_requeue_pending = 1;
-+		do_restart = schedule_next_timer(timr);
-+	} else {
-+		timr->it_requeue_pending = 2;
-+		timr->it_overrun++;
- 	}
-+exit:
- 	unlock_timer(timr, flags); /* hold thru abs lock to keep irq off */
+-	timr->it_overrun_last = timr->it_overrun;
+-	timr->it_overrun = -1;
++	timr->it_overrun--;
+ 	return 1;
+ }
  
- 	return do_restart;
+@@ -401,14 +400,16 @@ void do_schedule_next_timer(struct sigin
+ 		if (timr->it_requeue_pending != info->si_sys_private)
+ 			goto exit;
+ 		posix_cpu_timer_schedule(timr);
++		info->si_overrun = timr->it_overrun_last;
+ 	} else {
+ 		BUG_ON(!timr->it_requeue_pending);
+ 		if (timr->it_requeue_pending > 1 &&
+ 		    schedule_next_timer(timr))
+ 			ptimer_start(&timr->it.real.timer);
+ 		timr->it_requeue_pending = 0;
++		info->si_overrun = timr->it_overrun_last = timr->it_overrun;
++		timr->it_overrun = 0;
+ 	}
+-	info->si_overrun = timr->it_overrun_last;
+ exit:
+ 	unlock_timer(timr, flags);
+ }
+@@ -621,7 +622,6 @@ sys_timer_create(clockid_t which_clock,
+ 	it_id_set = IT_ID_SET;
+ 	new_timer->it_id = (timer_t) new_timer_id;
+ 	new_timer->it_clock = which_clock;
+-	new_timer->it_overrun = -1;
+ 	error = CLOCK_DISPATCH(which_clock, timer_create, (new_timer));
+ 	if (error)
+ 		goto out;
+@@ -974,8 +974,7 @@ common_timer_set(struct k_itimer *timr, 
+ 
+ 	if (timr->it_requeue_pending)
+ 		timr->it_requeue_pending = 1;
+-	timr->it_overrun_last = 0;
+-	timr->it_overrun = -1;
++	timr->it_overrun = 0;
+ 	/*
+ 	 *switch off the timer when it_value is zero
+ 	 */

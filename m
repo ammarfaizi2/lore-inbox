@@ -1,77 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751402AbVK2XoA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751403AbVK2XqV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751402AbVK2XoA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 18:44:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbVK2XoA
+	id S1751403AbVK2XqV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 18:46:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbVK2XqV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 18:44:00 -0500
-Received: from krl.krl.com ([192.147.32.3]:37850 "EHLO krl.krl.com")
-	by vger.kernel.org with ESMTP id S1751402AbVK2Xn7 (ORCPT
+	Tue, 29 Nov 2005 18:46:21 -0500
+Received: from ns2.suse.de ([195.135.220.15]:63447 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751403AbVK2XqU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 18:43:59 -0500
-Date: Tue, 29 Nov 2005 18:43:21 -0500
-Message-Id: <200511292343.jATNhLD3007404@p-chan.krl.com>
-From: Don Koch <aardvark@krl.com>
-To: Michael Krufky <mkrufky@m1k.net>
-Cc: kirk.lapray@gmail.com, gene.heskett@verizon.net,
-       video4linux-list@redhat.com, CityK@rogers.com,
-       linux-kernel@vger.kernel.org, perrye@linuxmail.org
-Subject: Re: Gene's pcHDTV 3000 analog problem
-In-Reply-To: <438CDDBC.1070704@m1k.net>
-References: <200511282205.jASM5YUI018061@p-chan.krl.com>
-	<200511291335.18431.gene.heskett@verizon.net>
-	<438CA1E3.7010101@m1k.net>
-	<200511291546.27365.gene.heskett@verizon.net>
-	<438CC83E.50100@m1k.net>
-	<c35b44d70511291435i5f07bc88g429276ef659c28c5@mail.gmail.com>
-	<438CDDBC.1070704@m1k.net>
-Organization: KRL
-X-Mailer: Sylpheed version 2.1.6 (GTK+ 2.4.14; i686-pc-linux-gnu)
+	Tue, 29 Nov 2005 18:46:20 -0500
+Date: Wed, 30 Nov 2005 00:46:17 +0100
+From: Andi Kleen <ak@suse.de>
+To: Bernd Schmidt <bernds_cb1@t-online.de>
+Cc: Andi Kleen <ak@suse.de>, Nicholas Miell <nmiell@comcast.net>,
+       Stephane Eranian <eranian@hpl.hp.com>,
+       Ray Bryant <raybry@mpdtxmail.amd.com>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org, perfctr-devel@lists.sourceforge.net
+Subject: Re: [discuss] Re: [Perfctr-devel] Re: Enabling RDPMC in user space by default
+Message-ID: <20051129234617.GY19515@wotan.suse.de>
+References: <20051129151515.GG19515@wotan.suse.de> <200511291056.32455.raybry@mpdtxmail.amd.com> <20051129180903.GB6611@frankl.hpl.hp.com> <20051129181344.GN19515@wotan.suse.de> <1133300591.3271.1.camel@entropy> <20051129215207.GR19515@wotan.suse.de> <1133303615.3271.12.camel@entropy> <20051129224346.GS19515@wotan.suse.de> <438CE416.3060707@t-online.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <438CE416.3060707@t-online.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Nov 2005 18:01:16 -0500
-Michael Krufky wrote:
+> I happen to have an old program which uses RDTSC frequently for timing 
+> purposes.  That seemed like a good idea at the time, but I guess it 
+> should be updated.  The question is, what replacement is there?  I don't 
+> want to have to use a syscall every 50 instructions or so.  Feel free to 
+> laugh, but suggesting a workable replacement might be more helpful.
 
+Well, you're asking me to write all the points from the documentation
+in advance. Not tonight (or look up the full thread in the l-k archives,
+I think I covered most) 
 
-> It seems that Gene, Perry and Don are having problems with their analog 
-> tuners (they each have pcHDTV 3000) ever since nxt200x got added.
-> 
-> Gene, Perry and Don - What happens if you have the cx88 module loaded, 
-> but you do NOT load up cx88-dvb (nxt200x will not be loaded) ... Does 
-> the problem persist?
-> 
-> You do not need cx88-dvb to view analog television.
+But right now gettimeofday or clock_gettime(CLOCK_MONOTONIC) is
+probably your best option. It tries to be reasonable fast depending 
+on hardware capabilities (and when you measure on P4 
+even basic RDTSC is quite slow). At least on x86-64 gettimeofday
+isn't a real system call, but actually often stays in ring 3.
 
-Same thing.
+If you want to measure instructions in cycles in the future you can probably 
+use RDPMC 0, but that's not implemented yet. It won't be a replacement
+for a timer for other purposes.
 
-> Kirk, we need a control group!  Please test analog on both boards.
-> 
-> Kirk, there is a thread on the v4l/dvb mailing lists right now about an 
-> i2c gate dealing with Hauppauge cards and cx22702 frontend.  What Steve 
-> Toth has described about this 'i2c gate' is starting to sound similar to 
-> what you mentioned about making hidden i2c devices visible.
-> 
-> I'm getting the feeling that nxt200x is indeed the problem.
-> 
-> Gene, Perry and Don .... Another thing you can try -- Once again, 
-> install v4l-dvb cvs on top of your running kernel, but this time, before 
-> compiling, edit v4l-dvb/v4l/Makefile , and remove the line:
-> 
->  EXTRA_CFLAGS += -DHAVE_NXT200X=1
->
-> ... This line appears twice, you only need to remove the top one, as it 
-> pertains to the cx88 card, although it is safe to remove both for the 
-> purposes of this test.
-> 
-> If this fixes your problem, then we know that nxt200x is the cause.
-
-Working on this build, now.
-
-> -Mike
-> 
-
--d
+-Andi

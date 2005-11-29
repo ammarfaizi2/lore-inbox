@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbVK2G2W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751262AbVK2G2q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751257AbVK2G2W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 01:28:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbVK2G2W
+	id S1751262AbVK2G2q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 01:28:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbVK2G2q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 01:28:22 -0500
-Received: from smtp.ispwest.com ([216.52.245.18]:10764 "EHLO
-	ispwest-email1.mdeinc.com") by vger.kernel.org with ESMTP
-	id S1751257AbVK2G2V convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 01:28:21 -0500
-X-Modus-BlackList: 216.52.245.25=OK;kjak@ispwest.com=OK
-X-Modus-Trusted: 216.52.245.25=YES
-Message-ID: <d0d8bf3880744a79a8a5c26c8459e9ac.kjak@ispwest.com>
-X-EM-APIVersion: 2, 0, 1, 0
-X-Priority: 3 (Normal)
-Reply-To: "Kris Katterjohn" <kjak@users.sourceforge.net>
-From: "Kris Katterjohn" <kjak@ispwest.com>
-To: linux-kernel@vger.kernel.org
-CC: torvalds@osdl.org
-Subject: Re: [PATCH] Resetting packet statistics
-Date: Mon, 28 Nov 2005 22:28:18 -0800
+	Tue, 29 Nov 2005 01:28:46 -0500
+Received: from smtp104.sbc.mail.mud.yahoo.com ([68.142.198.203]:21157 "HELO
+	smtp104.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751262AbVK2G2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 01:28:45 -0500
+From: David Brownell <david-b@pacbell.net>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: Latest GIT: USB ehci_hcd broken (spinlock corruption)
+Date: Mon, 28 Nov 2005 22:28:37 -0800
+User-Agent: KMail/1.7.1
+Cc: benh@kernel.crashing.org, mbuesch@freenet.de, stern@rowland.harvard.edu,
+       greg@kroah.com, linux-kernel@vger.kernel.org
+References: <200511271234.27708.mbuesch@freenet.de> <200511280840.39002.david-b@pacbell.net> <20051128140704.6a3539f2.akpm@osdl.org>
+In-Reply-To: <20051128140704.6a3539f2.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511282228.37203.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David S. Miller
-Sent: 11/28/2005 10:12:38 PM
-> You can't change existing behavior in order to get the new behavior
-> you want.  Some applications might be depending upon what happens
-> currently.
+On Monday 28 November 2005 2:07 pm, Andrew Morton wrote:
+> David Brownell <david-b@pacbell.net> wrote:
+> >
+> > Rename the EHCI "reset" routine so it better matches what it does (setup);
+> >  and move the one-time data structure setup earlier, before doing anything
+> >  that implicitly relies on it having been completed already.
+> > 
+> >  --- g26.orig/drivers/usb/host/ehci-pci.c	2005-11-12 10:38:26.000000000 -0800
+> >  +++ g26/drivers/usb/host/ehci-pci.c	2005-11-28 08:22:59.000000000 -0800
+> 
+> This fixes the hang on my test box.  I don't know if USB still works though..
 
-Is there a way to work around this? It seems to me this is a better way of doing it
-because it doesn't require extra variables on the user's end and the stats are only
-changed if you explicitly ask for it. Do you agree with that?
+Worked for me ... this should get merged to Linus' tree ASAP.  (Whoops, this
+fix missed RC3.)
 
-Kris
-
+- Dave

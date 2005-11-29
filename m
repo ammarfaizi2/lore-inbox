@@ -1,122 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbVK2D4F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbVK2ECK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750705AbVK2D4F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 22:56:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750712AbVK2D4F
+	id S1750707AbVK2ECK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 23:02:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750712AbVK2ECK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 22:56:05 -0500
-Received: from pop.ispwest.com ([216.52.245.18]:11780 "EHLO
-	ispwest-email1.mdeinc.com") by vger.kernel.org with ESMTP
-	id S1750705AbVK2D4E convert rfc822-to-8bit (ORCPT
+	Mon, 28 Nov 2005 23:02:10 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:30897 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750707AbVK2ECI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 22:56:04 -0500
-X-Modus-BlackList: 216.52.245.25=OK;kjak@ispwest.com=OK
-X-Modus-Trusted: 216.52.245.25=YES
-Message-ID: <9188864830a243e8a5ed8ce75d1b098f.kjak@ispwest.com>
-X-EM-APIVersion: 2, 0, 1, 0
-X-Priority: 3 (Normal)
-Reply-To: "Kris Katterjohn" <kjak@users.sourceforge.net>
-From: "Kris Katterjohn" <kjak@ispwest.com>
-To: linux-kernel@vger.kernel.org
-CC: torvalds@osdl.org
-Subject: [PATCH] Resetting packet statistics
-Date: Mon, 28 Nov 2005 19:55:52 -0800
-MIME-Version: 1.0
+	Mon, 28 Nov 2005 23:02:08 -0500
+Date: Mon, 28 Nov 2005 20:01:08 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: mingo@elte.hu, acpi-devel@lists.sourceforge.net, len.brown@intel.com,
+       nando@ccrma.Stanford.EDU, rlrevell@joe-job.com,
+       linux-kernel@vger.kernel.org, paulmck@us.ibm.com, kr@cybsft.com,
+       tglx@linutronix.de, pluto@agmk.net, john.cooper@timesys.com,
+       bene@linutronix.de, dwalker@mvista.com, trini@kernel.crashing.org,
+       george@mvista.com
+Subject: Re: [RFC][PATCH] Runtime switching of the idle function [take 2]
+Message-Id: <20051128200108.068b2dcd.akpm@osdl.org>
+In-Reply-To: <1133235740.6328.27.camel@localhost.localdomain>
+References: <20051115090827.GA20411@elte.hu>
+	<1132336954.20672.11.camel@cmn3.stanford.edu>
+	<1132350882.6874.23.camel@mindpipe>
+	<1132351533.4735.37.camel@cmn3.stanford.edu>
+	<20051118220755.GA3029@elte.hu>
+	<1132353689.4735.43.camel@cmn3.stanford.edu>
+	<1132367947.5706.11.camel@localhost.localdomain>
+	<20051124150731.GD2717@elte.hu>
+	<1132952191.24417.14.camel@localhost.localdomain>
+	<20051126130548.GA6503@elte.hu>
+	<1133232503.6328.18.camel@localhost.localdomain>
+	<20051128190253.1b7068d6.akpm@osdl.org>
+	<1133235740.6328.27.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These patches keep getsockopt(PACKET_STATISTICS) from resetting the packet
-stats to zero and it creates PACKET_RESET_STATISTICS, which is used with
-setsockopt(), to zero the packet stats.
+Steven Rostedt <rostedt@goodmis.org> wrote:
+>
+> On Mon, 2005-11-28 at 19:02 -0800, Andrew Morton wrote:
+>  > Steven Rostedt <rostedt@goodmis.org> wrote:
+>  > >
+>  > > This patch creates a directory in /sys/kernel called idle.
+>  > >
+>  > 
+>  > At no point do you appear to explain _why_ the kernel needs this feature?
+> 
+>  Sorry about that.  This originally came up when we had problems with the
+>  AMD64 x2 in the -rt patch.  It was noted that the TSCs would get very
+>  far out of sync and cause problems.
 
-Signed-off by: Kris Katterjohn <kjak@users.sourceforge.net>
-
----
-
-Before I start: This is a diff from 2.6.14 and I am not subscribed so please CC
-me on any replies.
-
-
-I doubt I'm the only one who's a little annoyed that we have to keep track of the
-packet count in userland after getsockopt(PACKET_STATISTICS). I did a little
-searching but didn't find a patch similar to this so I'm not sure if I'm the only
-one who thinks this is a generally Good Thing or not.
-
-The ways these affect programs:
-
-1) Programs can set the packet count to zero at anytime without having to make a
-struct tpacket_stats just to reset it with getsockopt()
-
-2) Programs don't need extra variables to hold packet counts (think libpcap),
-they just call getsockopt(PACKET_STATISTICS) multiple times for updated stats.
+Unsynced TSCs are rare, but they happen.  I guess even if we were to resync
+them, these measurements would screw up.
 
 
-NOTE:
-The second patch adds PACKET_RESET_STATISTICS to include/linux/if_packet.h, but I
-don't know if it's okay to #define it as "7" since that was PACKET_COPY_THRESH's
-value. I did it so that the two PACKET*STATISTICS macros would be next to each
-other. I checked the glibc header netpacket/packet.h and it doesn't even define
-PACKET_COPY_THRESH so it shouldn't cause any problems (that I can see).
+> The way to solve this was to set
+>  idle=poll.  The original patch I sent was to allow the user to change to
+>  idle=poll dynamically.  This way they could switch to the poll_idle and
+>  run there tests (requiring tsc not to drift) and then switch back to the
+>  default idle to save on electricity.
 
+Use gettimeofday()?
 
-Thanks!
-
----
-
---- x/net/packet/af_packet.c	2005-10-27 19:02:08.000000000 -0500
-+++ y/net/packet/af_packet.c	2005-11-28 21:49:37.000000000 -0600
-@@ -41,6 +41,9 @@
-  *					will simply extend the hardware address
-  *					byte arrays at the end of sockaddr_ll 
-  *					and packet_mreq.
-+ *		Kris Katterjohn :	Added PACKET_RESET_STATISTICS setsockopt
-+ *					option.	PACKET_STATISTICS no longer sets
-+ *					stats to zero. 2005-11-28
-  *
-  *		This program is free software; you can redistribute it and/or
-  *		modify it under the terms of the GNU General Public License
-@@ -1352,6 +1355,17 @@ packet_setsockopt(struct socket *sock, i
- 		return ret;
- 	}
- #endif
-+
-+	case PACKET_RESET_STATISTICS:
-+	{
-+		struct packet_sock *po = pkt_sk(sk);
-+
-+		spin_lock_bh(&sk->sk_receive_queue.lock);
-+		memset(&po->stats, 0, sizeof(po->stats));
-+		spin_unlock_bh(&sk->sk_receive_queue.lock);
-+		return 0;
-+	}
-+
- #ifdef CONFIG_PACKET_MMAP
- 	case PACKET_RX_RING:
- 	{
-@@ -1406,7 +1420,6 @@ static int packet_getsockopt(struct sock
- 			len = sizeof(struct tpacket_stats);
- 		spin_lock_bh(&sk->sk_receive_queue.lock);
- 		st = po->stats;
--		memset(&po->stats, 0, sizeof(st));
- 		spin_unlock_bh(&sk->sk_receive_queue.lock);
- 		st.tp_packets += st.tp_drops;
-
-
- 
---- x/include/linux/if_packet.h	2005-10-27 19:02:08.000000000 -0500
-+++ y/include/linux/if_packet.h	2005-11-28 21:49:37.000000000 -0600
-@@ -38,7 +38,8 @@ struct sockaddr_ll
- /* Value 4 is still used by obsolete turbo-packet. */
- #define PACKET_RX_RING			5
- #define PACKET_STATISTICS		6
--#define PACKET_COPY_THRESH		7
-+#define PACKET_RESET_STATISTICS		7
-+#define PACKET_COPY_THRESH		8
- 
- struct tpacket_stats
- {
-
-
+If it's just for some sort of instrumentation, run NR_CPUS instances of a
+niced-down busyloop, pin each one to a different CPU?  That way the idle
+function doesn't get called at all..
 

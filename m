@@ -1,60 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751404AbVK2Xwn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751406AbVK2XxI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751404AbVK2Xwn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 18:52:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751406AbVK2Xwn
+	id S1751406AbVK2XxI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 18:53:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbVK2XxI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 18:52:43 -0500
-Received: from krl.krl.com ([192.147.32.3]:57245 "EHLO krl.krl.com")
-	by vger.kernel.org with ESMTP id S1751404AbVK2Xwm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 18:52:42 -0500
-Date: Tue, 29 Nov 2005 18:52:30 -0500
-Message-Id: <200511292352.jATNqUiu004910@p-chan.krl.com>
-From: Don Koch <aardvark@krl.com>
-To: Michael Krufky <mkrufky@m1k.net>
-Cc: kirk.lapray@gmail.com, gene.heskett@verizon.net,
-       video4linux-list@redhat.com, CityK@rogers.com,
-       linux-kernel@vger.kernel.org, perrye@linuxmail.org
-Subject: Re: Gene's pcHDTV 3000 analog problem
-In-Reply-To: <438CDDBC.1070704@m1k.net>
-References: <200511282205.jASM5YUI018061@p-chan.krl.com>
-	<200511291335.18431.gene.heskett@verizon.net>
-	<438CA1E3.7010101@m1k.net>
-	<200511291546.27365.gene.heskett@verizon.net>
-	<438CC83E.50100@m1k.net>
-	<c35b44d70511291435i5f07bc88g429276ef659c28c5@mail.gmail.com>
-	<438CDDBC.1070704@m1k.net>
-Organization: KRL
-X-Mailer: Sylpheed version 2.1.6 (GTK+ 2.4.14; i686-pc-linux-gnu)
+	Tue, 29 Nov 2005 18:53:08 -0500
+Received: from van-1-67.lab.dnainternet.fi ([62.78.96.67]:52132 "EHLO
+	mail.zmailer.org") by vger.kernel.org with ESMTP id S1751406AbVK2XxG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 18:53:06 -0500
+Date: Wed, 30 Nov 2005 01:53:04 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
+Subject: Re: x86-64 2.6.15-rc2-git5 fails to boot with 4GB memory
+Message-ID: <20051129235304.GB5706@mea-ext.zmailer.org>
+References: <20051129033102.GA5706@mea-ext.zmailer.org> <p73veybh7tj.fsf@verdi.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73veybh7tj.fsf@verdi.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Nov 2005 18:01:16 -0500
-Michael Krufky wrote:
+On Tue, Nov 29, 2005 at 07:01:12AM -0700, Andi Kleen wrote:
+> Matti Aarnio <matti.aarnio@zmailer.org> writes:
+> 
+> > With 2 GB in place, the kernel boots just fine, but with
+> > 4 GB, it reports:
+> 
+> Works for me on several machines.
+> 
+> I even have a fix for the Asus wrong MCFG problem now that
+> broke the IOMMU on these boards (workaround is pci=nommconf) 
+> 
+> > 
+> >  kernel direct mapping tables upto ffff 8101 5000 000 @ 8000-f000
+> >  PANIC: early exception rip  ffff ffff 8016 f002 error 0 cr2 4230
+> >  PANIC: early exception rip  ffff ffff 8011 d1fe error 0 cr2 ffff ffff f5ff d023
+> > 
+> > and some other lines, which I didn't jot down on paper...
+> 
+> Can you please look up the RIP values in your System.map? 
+> 
+> > These were copied from some Fedora Core development kernel version
+> > after 2.6.15-rc1 (last working one) in a box with 4 GB memory.
+> 
+> Please try vanilla 2.6.15rc2 as a reference at least.
+
+Tried.  Crashes with 4 GB memory present in the box.
+Boots and runs nicely with 2 GB memory populated in.
+
+After adding  -g  to  *CFLAGS of top-level  Makefile, and
+trying to determine WHERE those PANICs happened in rc2:
+
+(gdb) list *0xffffffff80163a43
+0xffffffff80163a43 is in memmap_init_zone (mm/page_alloc.c:1687).
+1682            for (pfn = start_pfn; pfn < end_pfn; pfn++, page++) {
+1683                    if (!early_pfn_valid(pfn))
+1684                            continue;
+1685                    if (!early_pfn_in_nid(pfn, nid))
+1686                            continue;
+1687                    page = pfn_to_page(pfn);
+1688                    set_page_links(page, zone, nid, pfn);
+1689                    set_page_count(page, 1);
+1690                    reset_page_mapcount(page);
+1691                    SetPageReserved(page);
+
+(gdb) list *0xffffffff801196fa
+0xffffffff801196fa is in safe_smp_processor_id (include/asm/smp.h:77).
+72      #define raw_smp_processor_id() read_pda(cpunumber)
+73
+74      static inline int hard_smp_processor_id(void)
+75      {
+76              /* we don't want to mark this access volatile - bad code generation */
+77              return GET_APIC_ID(*(unsigned int *)(APIC_BASE+APIC_ID));
+78      }
+79
+80      extern int safe_smp_processor_id(void);
+81      extern int __cpu_disable(void);
 
 
-> 
-> Gene, Perry and Don .... Another thing you can try -- Once again, 
-> install v4l-dvb cvs on top of your running kernel, but this time, before 
-> compiling, edit v4l-dvb/v4l/Makefile , and remove the line:
-> 
->  EXTRA_CFLAGS += -DHAVE_NXT200X=1
-> 
-> ... This line appears twice, you only need to remove the top one, as it 
-> pertains to the cx88 card, although it is safe to remove both for the 
-> purposes of this test.
-> 
-> If this fixes your problem, then we know that nxt200x is the cause.
-> 
-> -Mike
-> 
+Not that those explain all that much...
 
-No difference.
 
-Back to looking at the code...
+> -Andi
 
--d
+/Matti Aarnio

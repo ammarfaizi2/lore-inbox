@@ -1,46 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbVK2T7q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbVK2UBO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932361AbVK2T7q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 14:59:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbVK2T7q
+	id S932370AbVK2UBO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 15:01:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbVK2UBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 14:59:46 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:40419 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932361AbVK2T7q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 14:59:46 -0500
-Date: Tue, 29 Nov 2005 13:01:04 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: tiwai@suse.de, linux-kernel@vger.kernel.org, ambx1@neo.rr.com
-Subject: Re: [Fwd: [PATCH] [PNP][RFC] Suspend support for PNP bus.]
-Message-Id: <20051129130104.0b0fd77b.akpm@osdl.org>
-In-Reply-To: <438CB0D8.90607@drzeus.cx>
-References: <436B2819.4090909@drzeus.cx>
-	<20051129113210.3d95d71f.akpm@osdl.org>
-	<438CA2D9.8030304@drzeus.cx>
-	<20051129120212.3e679296.akpm@osdl.org>
-	<438CB0D8.90607@drzeus.cx>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
+	Tue, 29 Nov 2005 15:01:13 -0500
+Received: from smtpout.mac.com ([17.250.248.45]:38865 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932370AbVK2UBM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 15:01:12 -0500
+X-PGP-Universal: processed;
+	by AlPB on Tue, 29 Nov 2005 14:01:11 -0600
+Date: Tue, 29 Nov 2005 14:01:02 -0600
+From: Mark Rustad <MRustad@mac.com>
+Subject: [PATCH 2.6.15-rc3] pci: restore 2 missing pci ids
+To: linux-kernel@vger.kernel.org
+X-Priority: 3
+Message-ID: <r02010500-1043-DE5DF2F5611211DAB2B70011248907EC@[10.64.61.10]>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Mailsmith 2.1.5 (Blindsider)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Ossman <drzeus-list@drzeus.cx> wrote:
->
-> >http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/perex/alsa-current.git;a=commitdiff;h=5353d906effe648dd20899fe61ecb6982ad93cdd
-> >
-> >  
-> >
-> 
-> That patch is a bit dumber than mine. It doesn't do anything but call
-> the driver supplied suspend/resume function, i.e. no PnP handling during
-> suspend. It does handle cards though, something my patch doesn't do.
-> Perhaps a combination of the two is acceptable to the ALSA crowd?
+Somewhere between 2.6.14 and 2.6.15-rc3, some PCI ids were apparently removed.
+The ecc.c module, which is not a part of the kernel.org tree, but included in
+some distributions, fails to compile.
 
-Send an update agaisnt next -mm if you like.  We can feed that in through
-the alsa tree too.  It's not really appropriate to be updating the pnp
-system via the alsa tree, but as long as it's all in one place, it works.
+<soapbox>
+I don't understand why valid PCI ids were removed. It seems to me that other
+projects underway -such as EDAC - are just going to have to add these and
+probably more of them back when they are merged. It seems really shortsighted
+and foolish to remove valid PCI id information even if the current kernel
+source happens to not reference it. The information has intrinsic value and
+avoids having different names being associated with the same ids over time
+by avoiding removing and adding PCI ids.
+</soapbox>
 
+I have included a patch below that fixes my immediate problem, but I think
+I would prefer reverting the patch that removed them in the first place. Yes,
+I know there is a whitespace error in this patch, but that is what is in the
+file in -rc3 and I didn't want to turn this into a whitespace-correction patch.
+
+
+Restore 2 PCI ids needed for ECC monitoring.
+
+Signed-off-by: Mark Rustad <mrustad@mac.com>
+---
+
+--- linux-2.6.15-rc3/include/linux/pci_ids.h
++++ new/include/linux/pci_ids.h
+@@ -2015,6 +2015,7 @@
+ #define PCI_DEVICE_ID_INTEL_82801EB_5  0x24d5
+ #define PCI_DEVICE_ID_INTEL_82801EB_6  0x24d6
+ #define PCI_DEVICE_ID_INTEL_82801EB_11 0x24db
++#define PCI_DEVICE_ID_INTEL_82801EB_13 0x24dd
+ #define PCI_DEVICE_ID_INTEL_ESB_1      0x25a1
+ #define PCI_DEVICE_ID_INTEL_ESB_2      0x25a2
+ #define PCI_DEVICE_ID_INTEL_ESB_4      0x25a4
+@@ -2097,6 +2097,7 @@
+ #define PCI_DEVICE_ID_INTEL_82443GX_2  0x71a2
+ #define PCI_DEVICE_ID_INTEL_82372FB_1  0x7601
+ #define PCI_DEVICE_ID_INTEL_82454GX    0x84c4
++#define PCI_DEVICE_ID_INTEL_82450GX    0x84c5
+ #define PCI_DEVICE_ID_INTEL_82451NX    0x84ca
+ #define PCI_DEVICE_ID_INTEL_82454NX     0x84cb
+ #define PCI_DEVICE_ID_INTEL_84460GX    0x84ea
+-- 
+Mark Rustad, mrustad@mac.com

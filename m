@@ -1,38 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbVK2GNB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbVK2GRH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751317AbVK2GNB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 01:13:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbVK2GNB
+	id S1751320AbVK2GRH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 01:17:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbVK2GRH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 01:13:01 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:17861
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751317AbVK2GNA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 01:13:00 -0500
-Date: Mon, 28 Nov 2005 22:12:38 -0800 (PST)
-Message-Id: <20051128.221238.09510598.davem@davemloft.net>
-To: kjak@users.sourceforge.net, kjak@ispwest.com
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] Resetting packet statistics
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <9188864830a243e8a5ed8ce75d1b098f.kjak@ispwest.com>
-References: <9188864830a243e8a5ed8ce75d1b098f.kjak@ispwest.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Tue, 29 Nov 2005 01:17:07 -0500
+Received: from rwcrmhc14.comcast.net ([216.148.227.154]:53438 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1751320AbVK2GRG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 01:17:06 -0500
+Mime-Version: 1.0 (Apple Message framework v746.2)
 Content-Transfer-Encoding: 7bit
+Message-Id: <49AF82E8-C8DA-458C-B66E-187DC1650AC8@comcast.net>
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+To: linux-kernel <linux-kernel@vger.kernel.org>
+From: Parag Warudkar <kernel-stuff@comcast.net>
+Subject: Re: PowerBook5,8 - TrackPad update
+Date: Tue, 29 Nov 2005 01:17:04 -0500
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Kris Katterjohn" <kjak@ispwest.com>
-Date: Mon, 28 Nov 2005 19:55:52 -0800
+On Nov 28, 2005, at 7:06 PM, Michael Hanselmann wrote:
 
-> These patches keep getsockopt(PACKET_STATISTICS) from resetting the packet
-> stats to zero and it creates PACKET_RESET_STATISTICS, which is used with
-> setsockopt(), to zero the packet stats.
-> 
-> Signed-off by: Kris Katterjohn <kjak@users.sourceforge.net>
+> The product ID I have, 0x0215, was in none of the
+> available drivers and the data format is somewhat different
 
-You can't change existing behavior in order to get the new behavior
-you want.  Some applications might be depending upon what happens
-currently.
+Hi Michael
+
+Is yours the 15" model or the 17"? Mine is 15" and the product id is  
+0x0214.
+
+> You find my hacked version attached -- be aware that in its current  
+> form
+> it will not work with any touchpad except 0x0215.
+
+I haven't looked at your changes completely yet but are you saying it  
+works? Meaning mouse
+moves properly?
+
+Also I find it strange that your model requires 80 bytes ATP_DATASIZE  
+- mine isn't happy
+at all with anything less than 256. The less number of sensors you  
+defined is again a puzzle.
+
+> As far as I see it, all methods can be built into one driver. Is there
+> already someone working on combining them?
+
+If the format of the data is same (which looks like it is with your  
+model) then yes, but in my case
+the data arrives is 64 byte blocks - there are 4 of them in one  
+transfer, each a reading on it's own.
+
+Hmm. More confusion.
+
+Thanks
+
+Parag

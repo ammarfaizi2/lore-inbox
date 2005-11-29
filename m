@@ -1,78 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964795AbVK2Wdl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932427AbVK2WlK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964795AbVK2Wdl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 17:33:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbVK2Wdl
+	id S932427AbVK2WlK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 17:41:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbVK2WlJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 17:33:41 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:63223 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S964795AbVK2Wdl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 17:33:41 -0500
-Subject: Re: [Perfctr-devel] Re: Enabling RDPMC in user space by default
-From: Nicholas Miell <nmiell@comcast.net>
-To: Andi Kleen <ak@suse.de>
-Cc: Stephane Eranian <eranian@hpl.hp.com>,
-       Ray Bryant <raybry@mpdtxmail.amd.com>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org, perfctr-devel@lists.sourceforge.net
-In-Reply-To: <20051129215207.GR19515@wotan.suse.de>
-References: <20051129151515.GG19515@wotan.suse.de>
-	 <200511291056.32455.raybry@mpdtxmail.amd.com>
-	 <20051129180903.GB6611@frankl.hpl.hp.com>
-	 <20051129181344.GN19515@wotan.suse.de> <1133300591.3271.1.camel@entropy>
-	 <20051129215207.GR19515@wotan.suse.de>
-Content-Type: text/plain
-Date: Tue, 29 Nov 2005 14:33:35 -0800
-Message-Id: <1133303615.3271.12.camel@entropy>
+	Tue, 29 Nov 2005 17:41:09 -0500
+Received: from animx.eu.org ([216.98.75.249]:57799 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S932427AbVK2WlI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 17:41:08 -0500
+Date: Tue, 29 Nov 2005 18:02:33 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: Nick Warne <nick@linicks.net>
+Cc: Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] 1500 days uptime.
+Message-ID: <20051129230233.GA8127@animx.eu.org>
+Mail-Followup-To: Nick Warne <nick@linicks.net>,
+	Bill Davidsen <davidsen@tmr.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200511242147.45248.nick@linicks.net> <438B89EE.9080707@tmr.com> <20051129003159.GA4643@animx.eu.org> <200511292226.49873.nick@linicks.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4.njm.1) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200511292226.49873.nick@linicks.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-29 at 22:52 +0100, Andi Kleen wrote:
-> On Tue, Nov 29, 2005 at 01:43:11PM -0800, Nicholas Miell wrote:
-> > On Tue, 2005-11-29 at 19:13 +0100, Andi Kleen wrote:
-> > > > Where did you see that PMC0 (PERSEL0/PERFCTR0) can only be programmed
-> > > > to count cpu cycles (i.e. cpu_clk_unhalted)? As far as I can tell from
-> > > > the documentation, the 4 counters are symetrical and can measure
-> > > > any event that the processor offers.
-> > > 
-> > > Linux NMI watchdog does that.
-> > > 
-> > > All other perfctr users are supposed to keep their fingers away 
-> > > from the watchdog (it looks like oprofile doesn't but not for much
-> > > longer ...) 
-> > 
-> > Why? Hardcoding PMC 0 to be a cycle counter seems to be a waste of a
-> > perfectly usable performance counter. What if I want to profile four
-> > things, none of them requiring a cycle count?
+Nick Warne wrote:
+> No, I wasn't even thinking that - just reporting what a wonderful job it all 
+> is - and yes, power supply here in Pompey UK is good (but we do pay thru' the 
+> nose for everything in the UK).  The last time I _did_ reboot that machine 
+> was when my kettle lead shorted out and blew the fuses to my flats 240v 
+> supply ring main.
 > 
-> You won't then anymore. Providing a full replacement for RDTSC is 
-> more important.
+> According to the Linux counter site, there are more higher (my machine is 3rd 
+> in the list):
 > 
+> http://counter.li.org/reports/uptimestats.php
 
-I think you really need to come up with a better justification than "I
-think this will be useful" for a permanent user-space ABI change.
+I tried to run their scripts on my system, but being as old as it was
+(debian hamm I believe), I think I had problems.  Either that or it was
+before they knew about the "last -x ..." thing.
 
-What problem are you trying to solve, why is that a problem, how does
-making PMC0 always be a cycle counter solve that, what makes you think
-that future CPUs will have the same type of cycle counter that behaves
-the same way as the current cycle counters, etc.
+I just looked,  Dang, I could have had the record by over 100 days.  Oh
+well, maybe my alpha might:
+ 18:03:07 up 902 days,  1:12,  6 users,  load average: 0.00, 0.00, 0.00
+Linux narf 2.4.18 #2 Tue Jun 4 18:32:32 EDT 2002 alpha GNU/Linux
 
-AFAICT, the problem you're trying to solve is two-fold:
-
-a) RDTSC is serializing and RDPMC isn't.
-
-Which is nicely solved by RDTSCP.
-
-and
-b) RDTSC isn't well defined.
-
-Well, RDPMC isn't defined at all. You're assuming that future processor
-revisions will have the same or substantially similar PerfCtrs as
-current processors, and nothing guarantees that at all.
+64-bit arch is nice!
 
 -- 
-Nicholas Miell <nmiell@comcast.net>
-
+ Lab tests show that use of micro$oft causes cancer in lab animals
+ Got Gas???

@@ -1,121 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbVK2V0t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbVK2VaH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932405AbVK2V0t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 16:26:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbVK2V0t
+	id S932375AbVK2VaH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 16:30:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932418AbVK2VaH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 16:26:49 -0500
-Received: from pat.uio.no ([129.240.130.16]:50822 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932405AbVK2V0s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 16:26:48 -0500
-Subject: Re: NFS oops on 2.6.14.2
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Ryan Richter <ryan@tau.solarneutrino.net>
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20051129200013.GB6326@tau.solarneutrino.net>
-References: <20051129200013.GB6326@tau.solarneutrino.net>
-Content-Type: text/plain
-Date: Tue, 29 Nov 2005 16:26:37 -0500
-Message-Id: <1133299597.17363.2.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Tue, 29 Nov 2005 16:30:07 -0500
+Received: from kirby.webscope.com ([204.141.84.57]:31650 "EHLO
+	kirby.webscope.com") by vger.kernel.org with ESMTP id S932375AbVK2VaF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 16:30:05 -0500
+Message-ID: <438CC83E.50100@m1k.net>
+Date: Tue, 29 Nov 2005 16:29:34 -0500
+From: Michael Krufky <mkrufky@m1k.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Gene Heskett <gene.heskett@verizon.net>
+CC: video4linux-list@redhat.com, CityK <CityK@rogers.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Perry Gilfillan <perrye@linuxmail.org>, Don Koch <aardvark@krl.com>,
+       Kirk Lapray <kirk.lapray@gmail.com>
+Subject: Re: Gene's pcHDTV 3000 analog problem
+References: <200511282205.jASM5YUI018061@p-chan.krl.com> <200511291335.18431.gene.heskett@verizon.net> <438CA1E3.7010101@m1k.net> <200511291546.27365.gene.heskett@verizon.net>
+In-Reply-To: <200511291546.27365.gene.heskett@verizon.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.825, required 12,
-	autolearn=disabled, AWL 1.18, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-29 at 15:00 -0500, Ryan Richter wrote:
-> I got an oops on two NFS clients after upgrading to 2.6.14.2.
-> 
-> Here's one:
-> 
-> Unable to handle kernel NULL pointer dereference at 0000000000000018 RIP:
-> <ffffffff801dbd9e>{nlmclnt_mark_reclaim+62}
-> PGD 7bdd4067 PUD 7bdd5067 PMD 0
-> Oops: 0000 [1]
-> CPU 0
-> Modules linked in:
-> Pid: 1317, comm: lockd Not tainted 2.6.14.2 #2
-> RIP: 0010:[<ffffffff801dbd9e>] <ffffffff801dbd9e>{nlmclnt_mark_reclaim+62}
-> RSP: 0018:ffff81007dfade70  EFLAGS: 00010246
-> RAX: 0000000000000000 RBX: ffff81007ad80b00 RCX: ffff81007e22d858
-> RDX: ffff81007e22d8f0 RSI: ffff81007e22d8e8 RDI: ffff81007ad80b00
-> RBP: ffff81007ec18800 R08: 00000000fffffffa R09: 0000000000000001
-> R10: 00000000ffffffff R11: 0000000000000000 R12: 0000000000000000
-> R13: 0000000000000000 R14: ffffffff803ec420 R15: ffff81007df61014
-> FS:  00002aaaab00c4a0(0000) GS:ffffffff804b6800(0000) knlGS:00000000555e68a0
-> CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-> CR2: 0000000000000018 CR3: 000000007c8fc000 CR4: 00000000000006e0
-> Process lockd (pid: 1317, threadinfo ffff81007dfac000, task ffff81007eea61c0)
-> Stack: ffffffff801dbe6b ffff81007ad80b00 ffffffff801e3d8c 3256cc84d4030002
->        0000000000000000 ffff81007df4ec68 ffff81007df4ec00 ffffffff803ed4a0
->        ffff81007df4eca0 ffff81007df4ec68
-> Call Trace:<ffffffff801dbe6b>{nlmclnt_recovery+139} <ffffffff801e3d8c>{nlm4svc_proc_sm_notify+188}
->        <ffffffff8034c5a4>{svc_process+884} <ffffffff8012ab40>{default_wake_function+0}
->        <ffffffff801dde00>{lockd+352} <ffffffff801ddca0>{lockd+0}
->        <ffffffff8010e352>{child_rip+8} <ffffffff801ddca0>{lockd+0}
->        <ffffffff801ddca0>{lockd+0} <ffffffff8010e34a>{child_rip+0}
-> 
-> 
-> Code: 48 39 78 18 75 1c 8b 86 8c 00 00 00 a8 01 74 12 83 c8 02 89
-> RIP <ffffffff801dbd9e>{nlmclnt_mark_reclaim+62} RSP <ffff81007dfade70>
-> CR2: 0000000000000018
->  <4>do_vfs_lock: VFS is out of sync with lock manager!
-> do_vfs_lock: VFS is out of sync with lock manager!
-> 
-> 
-> And another (different machine, but essentially identical to the one that
-> produced the previous):
-> 
-> Unable to handle kernel NULL pointer dereference at 0000000000000018 RIP:
-> <ffffffff801dbd9e>{nlmclnt_mark_reclaim+62}
-> PGD 7bdd1067 PUD 7bdd2067 PMD 0
-> Oops: 0000 [1]
-> CPU 0
-> Modules linked in:
-> Pid: 1317, comm: lockd Not tainted 2.6.14.2 #2
-> RIP: 0010:[<ffffffff801dbd9e>] <ffffffff801dbd9e>{nlmclnt_mark_reclaim+62}
-> RSP: 0018:ffff81007dfade70  EFLAGS: 00010246
-> RAX: 0000000000000000 RBX: ffff810079254d40 RCX: ffff81007e227858
-> RDX: ffff81007e2278f0 RSI: ffff81007e2278e8 RDI: ffff810079254d40
-> RBP: ffff81007ec0de00 R08: 00000000fffffffa R09: 0000000000000001
-> R10: 00000000ffffffff R11: 0000000000000000 R12: 0000000000000000
-> R13: 0000000000000000 R14: ffffffff803ec420 R15: ffff81007df3d014
-> FS:  00002aaaab00c4a0(0000) GS:ffffffff804b6800(0000) knlGS:0000000055efbd20
-> CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-> CR2: 0000000000000018 CR3: 000000007d30f000 CR4: 00000000000006e0
-> Process lockd (pid: 1317, threadinfo ffff81007dfac000, task ffff81007eea61c0)
-> Stack: ffffffff801dbe6b ffff810079254d40 ffffffff801e3d8c 3256cc84d4030002
->        0000000000000000 ffff81007df39c68 ffff81007df39c00 ffffffff803ed4a0
->        ffff81007df39ca0 ffff81007df39c68
-> Call Trace:<ffffffff801dbe6b>{nlmclnt_recovery+139} <ffffffff801e3d8c>{nlm4svc_proc_sm_notify+188}
->        <ffffffff8034c5a4>{svc_process+884} <ffffffff8012ab40>{default_wake_function+0}
->        <ffffffff801dde00>{lockd+352} <ffffffff801ddca0>{lockd+0}
->        <ffffffff8010e352>{child_rip+8} <ffffffff801ddca0>{lockd+0}
->        <ffffffff801ddca0>{lockd+0} <ffffffff8010e34a>{child_rip+0}
-> 
-> 
-> Code: 48 39 78 18 75 1c 8b 86 8c 00 00 00 a8 01 74 12 83 c8 02 89
-> RIP <ffffffff801dbd9e>{nlmclnt_mark_reclaim+62} RSP <ffff81007dfade70>
-> CR2: 0000000000000018
+Kirk, Perry and Don, please see below...
 
-Both presumably following a server reboot?
+Gene Heskett wrote:
 
-Do you have any sure-fire way to reproduce it?
+>On Tuesday 29 November 2005 13:45, Michael Krufky wrote:
+>
+>>>me too.  And I just rebuilt 2.6.14 w/o the cvs, did a cold boot, and
+>>>it works just fine except the modprobe stage was silent at the cli.
+>>>But my logs are being spammed with:
+>>>
+>>>Nov 29 13:24:49 coyote kernel: CORE IOCTL: 0xc02c5638
+>>>Nov 29 13:24:49 coyote kernel: CORE IOCTL: 0xc054561d
+>>>Nov 29 13:24:49 coyote last message repeated 2 times
+>>>Nov 29 13:24:49 coyote kernel: CORE IOCTL: 0xc008561c
+>>>Nov 29 13:24:49 coyote kernel: CORE IOCTL: 0xc0445624
+>>>Nov 29 13:24:49 coyote kernel: CORE IOCTL: 0xc008561c
+>>>Nov 29 13:24:49 coyote kernel: CORE IOCTL: 0xc054561d
+>>>Nov 29 13:24:53 coyote last message repeated 131 times
+>>>Nov 29 13:24:53 coyote kernel: CORE IOCTL: 0xc008561c
+>>>
+>>>
+>>>My hard drives have been power cycled more times in the last few days
+>>>playing with this than at any time in their history since I have a BIG
+>>>ups.
+>>>
+>>>So I think I'm back to 2.6.14.3 for a while. Lemme know if and when
+>>>there is something else to test.  Right now I'm vacuuming up water in
+>>>the basement for the first time in years, it rained HARD here earlier.
+>>>      
+>>>
+>>Gene-
+>>
+>>There IS something more to test, unless I missed an email from you....
+>>
+>>...and it's going to be very hard for people to follow your problem...
+>>Please stick with your original thread to discuss your particular
+>>problem.
+>>    
+>>
+>Gah, I marked the thread as important, but then it jumped to the v4l
+>list from lkml and I got lost in the shuffle.
+>
+>>What happens when you install v4l-dvb cvs on top of 2.6.14.y ?
+>>    
+>>
+>Already did that, blew up as usual, cold boot required.
+>
+>>(Gene's card uses Thomson DDT 7610 - we need to figure out what analog
+>>demod is in play, here.)
+>>    
+>>
+>Ok, here is an lsmod after doing the modprobe cx88-dvb:
+>
+>[root@coyote linux-2.6.14]# lsmod |grep cx88
+>cx88_dvb                7428  0
+>cx8800                 27276  0
+>v4l1_compat            13188  1 cx8800
+>v4l2_common             4864  1 cx8800
+>cx8802                  9092  1 cx88_dvb
+>cx88xx                 53024  3 cx88_dvb,cx8800,cx8802
+>i2c_algo_bit            8456  1 cx88xx
+>ir_common               7556  1 cx88xx
+>btcx_risc               3976  3 cx8800,cx8802,cx88xx
+>tveeprom               12304  1 cx88xx
+>videodev                7296  2 cx8800,cx88xx
+>mt352                   6148  1 cx88_dvb
+>or51132                 9220  1 cx88_dvb
+>video_buf_dvb           4612  1 cx88_dvb
+>video_buf              17540  5
+>cx88_dvb,cx8800,cx8802,cx88xx,video_buf_dvb
+>lgdt330x                7580  1 cx88_dvb
+>cx22702                 5892  1 cx88_dvb
+>dvb_pll                 7812  3 cx88_dvb,or51132,cx22702
+>i2c_core               17808  12
+>cx88_dvb,cx88xx,i2c_algo_bit,tuner,tveeprom,mt352,or51132,lgdt330x,cx227
+>02,w83627hf,i2c_isa,i2c_nforce2
+>---------
+>And the log spamming originates and stops according to whether or not
+>I'm watching tv on it, and continues to do so when booted to 2.6.14.3. 
+>Once up and running, its not very often, but hundreds of lines of it
+>during the startup & a few during the shutdown (of tvtime)
+>
+>Interesting to me is that I was under the impression that the nxt200x
+>module was the tuner driver, but its not anyplace in the list whether I
+>smunch it with the grep or not.
+>  
+>
+nxt200x is a dvb frontend driver -- it is NOT a tuner driver, although 
+it does work with the tuner, but not on your board (pchdtv 3000).  
+nxt200x is used by cx88-dvb for the ATi HDTV Wonder, and it's used by 
+saa7134-dvb for the AVerTVHD A180.  The nxt200x was not present in 
+2.6.14, although it IS present in 2.6.15 and v4l-dvb cvs.  We know that 
+this is not causing your trouble because Kirk Lapray has both the ATI 
+HDTV Wonder AND pcHDTV 3000 installed on his system, and he says both 
+are working properly.
 
-> These machines have an NFS-mounted root, but this is mounted nolock so I'm
-> assuming that's unrelated.  The other NFS mounts have options like:
-> 
-> rw,nosuid,nodev,v3,rsize=8192,wsize=8192,hard,intr,udp,lock
-> 
-> I've also been seeing lots of the "do_vfs_lock: VFS is out of sync with lock
-> manager!", but that has been happening at least since 2.6.13.
+However, I don't know if Kirk has tried 2.6.15-rc3 yet...
 
-That is usually the result of doing kill -9/kill -TERM/kill -INT on a
-process that was in the act of grabbing a lock.
+Kirk, do both cards work properly in both analog AND digital video?  
+...or were you only talking about digital?  Kirk, I could really use 
+your help in diagnosing the problem that Gene, Perry and Don are talking 
+about.  It looks like something in the 2.6.15 patchsets broke analog 
+video on the pcHDTV 3000.... Would you kindly be able to test 2.6.15-rc3 
+on your hardware?
 
-Cheers,
-  Trond
+>The logs do say its a Thompson 7610 tuner though.
+>-----------
+>Nov 29 13:38:31 coyote kernel: TV tuner 52 at 0x1fe, Radio tuner -1 at
+>0x1fe
+>Nov 29 13:38:31 coyote kernel: tuner 2-0061: chip found @ 0xc2 (cx88[0])
+>Nov 29 13:38:31 coyote kernel: tuner 2-0061: type set to 52 (Thomson DDT
+>7610 (ATSC/NTSC))
+>----------
+>
+>Now, I'm out of pocket till late this evening.  I'll check in of course
+>when I get back.  I'd like to get this resolved before I get stuck in
+>an airplane & shipped to upstate MI for a while.  I'm gettin too old
+>for this back to work crap.   But a $1k/week & expenses comes in handy
+>too. :)
+>  
+>
+Gene, Perry and Don -
 
+I wish that we could resolve this with a -git bisection test... 
+Unfortunately, we cannot do it this time, as the VM_RESERVED memory 
+problems existed throughout 2.6.15 development.
+
+All I can think of doing is telling you to start reverting cx88 / tuner 
+related v4l patches, but that is very tedious....
+
+Another idea is to try installing cvs again on top of your kernel, but 
+with each unsuccessful checkout, back out cvs a few days, using the -D 
+option.....
+
+If you need better details on how to do this, let me know... I'll try to 
+write something up.
+
+-Mike

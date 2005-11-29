@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbVK2MR3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751350AbVK2MbL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751200AbVK2MR3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 07:17:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbVK2MR3
+	id S1751350AbVK2MbL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 07:31:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbVK2MbK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 07:17:29 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:38082 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751200AbVK2MR2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 07:17:28 -0500
-Date: Tue, 29 Nov 2005 13:17:22 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Oleg Nesterov <oleg@tv-sign.ru>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/9] timer locking optimization
-In-Reply-To: <438C5057.A54AFA83@tv-sign.ru>
-Message-ID: <Pine.LNX.4.61.0511291311151.1609@scrub.home>
-References: <438C5057.A54AFA83@tv-sign.ru>
+	Tue, 29 Nov 2005 07:31:10 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:10659
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1751343AbVK2MbI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 07:31:08 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2/2] shared mounts: save mount flag space
+Date: Tue, 29 Nov 2005 06:30:17 -0600
+User-Agent: KMail/1.8
+Cc: Miklos Szeredi <miklos@szeredi.hu>, linuxram@us.ibm.com,
+       viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+References: <E1EfJfC-00016e-00@dorka.pomaz.szeredi.hu> <E1EfK2o-0001AK-00@dorka.pomaz.szeredi.hu> <20051126215509.073cb957.akpm@osdl.org>
+In-Reply-To: <20051126215509.073cb957.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511290630.17568.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Saturday 26 November 2005 23:55, Andrew Morton wrote:
+> The proposed new mount options should be documented somewhere.
 
-On Tue, 29 Nov 2005, Oleg Nesterov wrote:
+Yeah, busybox mount would like to implement them when this all calms down.
 
-> > +	base = timer->base;
-> > +	spin_lock_irqsave(&base->lock, *flags);
-> > +	while (unlikely(base != timer->base)) {
-> > +		/* The timer has migrated to another CPU */
-> > +		spin_unlock(&base->lock);
-> >  		cpu_relax();
-> > +		base = timer->base;
-> > +		spin_lock(&base->lock);
-> 
-> This spins with interrupts disabled, not good, imho.
-
-It's the slow path anyway, so restoring flags should indeed be fine.
-
-> This way you can delete the timer (ret == 1), notice that timer's base
-> was changed after re-locking, goto restart, and get ret == 0.
-
-ret is only set, but not reset, so if __mod_timer() deleted the timer it 
-will return 1.
-
-> Also, you have wrong value of 'base' after 'goto restart'.
-
-Indeed, thanks for spotting this.
-
-bye, Roman
+Rob
+-- 
+Steve Ballmer: Innovation!  Inigo Montoya: You keep using that word.
+I do not think it means what you think it means.

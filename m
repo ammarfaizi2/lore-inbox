@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbVK2H1U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbVK2H3D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751344AbVK2H1U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 02:27:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbVK2H1U
+	id S1751345AbVK2H3D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 02:29:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbVK2H3D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 02:27:20 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:35224 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S1751344AbVK2H1T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 02:27:19 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Willy Tarreau <willy@w.ods.org>
-Subject: Re: [RFC] un petite hack: /proc/*/ctl
-Date: Tue, 29 Nov 2005 09:26:24 +0200
-User-Agent: KMail/1.8.2
-Cc: Alexey Dobriyan <adobriyan@gmail.com>, Chris Boot <bootc@bootc.net>,
-       linux-kernel@vger.kernel.org
-References: <20051129002801.GA9785@mipter.zuzino.mipt.ru> <20051129054819.GR11266@alpha.home.local> <20051129055310.GS11266@alpha.home.local>
-In-Reply-To: <20051129055310.GS11266@alpha.home.local>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Nov 2005 02:29:03 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:47780 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751345AbVK2H3B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 02:29:01 -0500
+Date: Tue, 29 Nov 2005 08:29:22 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       david singleton <dsingleton@mvista.com>
+Subject: Re: 2.6.14-rt15: cannot build with !PREEMPT_RT
+Message-ID: <20051129072922.GA21696@elte.hu>
+References: <20051126122332.GA3712@elte.hu> <1133031912.5904.12.camel@mindpipe> <1133034406.32542.308.camel@tglx.tec.linutronix.de> <20051127123052.GA22807@elte.hu> <1133141224.4909.1.camel@mindpipe> <20051128114852.GA3391@elte.hu> <1133189789.5228.7.camel@mindpipe> <20051128160052.GA29540@elte.hu> <1133217651.4678.2.camel@mindpipe> <1133230103.5640.0.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511290926.24833.vda@ilport.com.ua>
+In-Reply-To: <1133230103.5640.0.camel@mindpipe>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 November 2005 07:53, Willy Tarreau wrote:
-> On Tue, Nov 29, 2005 at 06:48:19AM +0100, Willy Tarreau wrote:
-> > On Tue, Nov 29, 2005 at 04:33:54AM +0300, Alexey Dobriyan wrote:
-> > > On Tue, Nov 29, 2005 at 12:23:19AM +0000, Chris Boot wrote:
-> > > > On 29 Nov 2005, at 0:28, Alexey Dobriyan wrote:
-> > > > >echo kill >/proc/$PID/ctl
-> > > > >	send SIGKILL to process
-> > > > >
-> > > > >echo term >/proc/$PID/ctl
-> > > > >	send SIGTERM to process
-> >
-> > so please don't pollute the list with useless patches that take time
-> > to review.
+
+* Lee Revell <rlrevell@joe-job.com> wrote:
+
+> On Mon, 2005-11-28 at 17:40 -0500, Lee Revell wrote:
+> > 2.6.11-RT-V0.7.40-04 works
 > 
-> Sorry, I've just noticed that you marked the subject "[RFC]" and not
-> "[PATCH]". Anyway I still find it useless :-)
+> and 2.6.12-RT-V0.7.51-28 does not.
 
-It's just fits into "Everything is a file" and 
-eliminates the need of a kill syscall.
+thanks. I have further narrowed it down from this point: your .config 
+breaks from the 51-01 to the 51-02 kernel (on my testbox).
 
-Needs to be complemented with means to do
-kill 0 ("All processesin the current process group are signaled"),
-kill -1 ("All processes with pid larger than 1 are signaled") and
-kill -n ("All processes in process group n are signaled").
---
-vda
+	Ingo

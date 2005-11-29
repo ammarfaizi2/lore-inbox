@@ -1,57 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbVK2Qzh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbVK2Q55@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932194AbVK2Qzh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 11:55:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbVK2Qzh
+	id S932201AbVK2Q55 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 11:57:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbVK2Q55
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 11:55:37 -0500
-Received: from silver.veritas.com ([143.127.12.111]:52587 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S932201AbVK2Qzg
+	Tue, 29 Nov 2005 11:57:57 -0500
+Received: from 65-117-135-105.dia.cust.qwest.net ([65.117.135.105]:989 "EHLO
+	santa.timesys.com") by vger.kernel.org with ESMTP id S932201AbVK2Q55
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 11:55:36 -0500
-Date: Tue, 29 Nov 2005 16:55:48 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 4/4] pfnmap: do_no_page BUG_ON again
-In-Reply-To: <Pine.LNX.4.61.0511291650400.5527@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0511291654560.5527@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0511291650400.5527@goblin.wat.veritas.com>
+	Tue, 29 Nov 2005 11:57:57 -0500
+From: Egan <tony.egan@timesys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 29 Nov 2005 16:55:36.0335 (UTC) FILETIME=[B82A51F0:01C5F505]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17292.34963.717045.706135@santa.timesys.com>
+Date: Tue, 29 Nov 2005 11:57:55 -0500
+To: linux-kernel@vger.kernel.org
+CC: tony.egan@timesys.com
+Subject: 2.6.14-rt21 doesn't build for ppc
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use copy_user_highpage directly instead of cow_user_page in do_no_page:
-in the immediately following page_cache_release, and elsewhere, it is
-assuming that new_page is normal.  If any VM_PFNMAP driver can get to
-do_no_page, it's just a BUG (but not in the case of do_anonymous_page).
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
----
 
- mm/memory.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletion(-)
+2.6.14 with RT21 fails to build for ppc (ibm440gx).  
 
---- 2.6.15-rc3/mm/memory.c	2005-11-29 08:40:07.000000000 +0000
-+++ linux/mm/memory.c	2005-11-29 15:59:34.000000000 +0000
-@@ -1909,6 +1922,8 @@ static int do_no_page(struct mm_struct *
- 	int anon = 0;
- 
- 	pte_unmap(page_table);
-+	BUG_ON(vma->vm_flags & VM_PFNMAP);
-+
- 	if (vma->vm_file) {
- 		mapping = vma->vm_file->f_mapping;
- 		sequence = mapping->truncate_count;
-@@ -1941,7 +1956,7 @@ retry:
- 		page = alloc_page_vma(GFP_HIGHUSER, vma, address);
- 		if (!page)
- 			goto oom;
--		cow_user_page(page, new_page, address);
-+		copy_user_highpage(page, new_page, address);
- 		page_cache_release(new_page);
- 		new_page = page;
- 		anon = 1;
+
+
+      CC      kernel/timer.o
+    /home/egan/downloads/linux-2.6.14/kernel/timer.c: In function `phase_advance':
+    /home/egan/downloads/linux-2.6.14/kernel/timer.c:991: error: `time_phase' undeclared (first use in this function)
+    /home/egan/downloads/linux-2.6.14/kernel/timer.c:991: error: (Each undeclared identifier is reported only once
+    /home/egan/downloads/linux-2.6.14/kernel/timer.c:991: error: for each function it appears in.)
+    /home/egan/downloads/linux-2.6.14/kernel/timer.c:994: warning: type defaults to `int' in declaration of `__x'
+    /home/egan/downloads/linux-2.6.14/kernel/timer.c: In function `update_wall_time':
+    /home/egan/downloads/linux-2.6.14/kernel/timer.c:1050: error: too few arguments to function `phase_advance'
+    /home/egan/downloads/linux-2.6.14/kernel/timer.c:1040: warning: unused variable `time_phase'
+    make[2]: *** [kernel/timer.o] Error 1
+    make[1]: *** [kernel] Error 2
+    make: *** [zImage] Error 2
+
+
+
+
+Adding config GENERIC_TIME to arch/ppc/Kconfig results in a failure later in
+the build.
+
+
+
+
+      CC      kernel/time/clockevents.o
+    /home/egan/downloads/linux-2.6.14/kernel/time/clockevents.c:80: error: conflicting types for 'timer_interrupt'
+    include2/asm/hw_irq.h:12: error: previous declaration of 'timer_interrupt' was here
+    /home/egan/downloads/linux-2.6.14/kernel/time/clockevents.c:80: error: conflicting types for 'timer_interrupt'
+    include2/asm/hw_irq.h:12: error: previous declaration of 'timer_interrupt' was here
+    /home/egan/downloads/linux-2.6.14/kernel/time/clockevents.c: In function `handle_tick_update_profile':
+    /home/egan/downloads/linux-2.6.14/kernel/time/clockevents.c:126: warning: implicit declaration of function `profile_tick'
+    /home/egan/downloads/linux-2.6.14/kernel/time/clockevents.c:126: error: `CPU_PROFILING' undeclared (first use in this function)
+    /home/egan/downloads/linux-2.6.14/kernel/time/clockevents.c:126: error: (Each undeclared identifier is reported only once
+    /home/egan/downloads/linux-2.6.14/kernel/time/clockevents.c:126: error: for each function it appears in.)
+    /home/egan/downloads/linux-2.6.14/kernel/time/clockevents.c: In function `handle_update_profile':
+    /home/egan/downloads/linux-2.6.14/kernel/time/clockevents.c:143: error: `CPU_PROFILING' undeclared (first use in this function)
+    /home/egan/downloads/linux-2.6.14/kernel/time/clockevents.c: In function `handle_profile':
+    /home/egan/downloads/linux-2.6.14/kernel/time/clockevents.c:151: error: `CPU_PROFILING' undeclared (first use in this function)
+    /home/egan/downloads/linux-2.6.14/kernel/time/clockevents.c: In function `setup_event':
+    /home/egan/downloads/linux-2.6.14/kernel/time/clockevents.c:326: error: `SA_NODELAY' undeclared (first use in this function)
+    /home/egan/downloads/linux-2.6.14/kernel/time/clockevents.c:329: warning: implicit declaration of function `setup_irq'
+    make[3]: *** [kernel/time/clockevents.o] Error 1
+    make[2]: *** [kernel/time] Error 2
+    make[1]: *** [kernel] Error 2
+    make: *** [zImage] Error 2
+
+
+
+After some research it looks like this breakage was introduced by rt16.
+rt15 builds OK.
+
+Please retain my CC in any replies.
+
+Thanks,
+
+Tony

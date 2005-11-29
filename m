@@ -1,66 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbVK2REh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbVK2RHG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932230AbVK2REh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 12:04:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbVK2REh
+	id S932234AbVK2RHG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 12:07:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932245AbVK2RHG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 12:04:37 -0500
-Received: from kirby.webscope.com ([204.141.84.57]:6849 "EHLO
-	kirby.webscope.com") by vger.kernel.org with ESMTP id S932230AbVK2REg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 12:04:36 -0500
-Message-ID: <438C8A15.60201@m1k.net>
-Date: Tue, 29 Nov 2005 12:04:21 -0500
-From: Michael Krufky <mkrufky@m1k.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stephen Frost <sfrost@snowman.net>
-CC: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.15-rc3
-References: <Pine.LNX.4.64.0511282006370.3177@g5.osdl.org> <438C0124.3030700@m1k.net> <Pine.LNX.4.64.0511290808510.3177@g5.osdl.org> <438C80DD.7050809@m1k.net> <Pine.LNX.4.64.0511290835220.3177@g5.osdl.org> <20051129164946.GP6026@ns.snowman.net>
-In-Reply-To: <20051129164946.GP6026@ns.snowman.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Nov 2005 12:07:06 -0500
+Received: from vms048pub.verizon.net ([206.46.252.48]:63810 "EHLO
+	vms048pub.verizon.net") by vger.kernel.org with ESMTP
+	id S932234AbVK2RHE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 12:07:04 -0500
+Date: Tue, 29 Nov 2005 12:06:42 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: cx88 totally fried in 2.6.15-rcX -was- Re: HD3000 - no NTSC via
+ tuner
+In-reply-to: <200511291106.17571.gene.heskett@verizon.net>
+To: linux-kernel@vger.kernel.org
+Cc: mkrufky@m1k.net, Linux and Kernel Video <video4linux-list@redhat.com>
+Message-id: <200511291206.43105.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <200511282205.jASM5YUI018061@p-chan.krl.com>
+ <438C7942.5080509@m1k.net> <200511291106.17571.gene.heskett@verizon.net>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Frost wrote:
-
->* Linus Torvalds (torvalds@osdl.org) wrote:
->  
->
->>On Tue, 29 Nov 2005, Michael Krufky wrote:
->>    
->>
->>>In other words, the OOPS is the last thing to show on the screen in text mode,
->>>before the console switches into X, using debian sarge's default bootup
->>>process.
->>>      
+On Tuesday 29 November 2005 11:06, Gene Heskett wrote:
+>On Tuesday 29 November 2005 10:52, Michael Krufky wrote:
+>>Gene Heskett wrote:
+>>>>I should also add this is with 2.6.14.2 and todays v4l-dvb CVS.
 >>>
->>Ok. Whatever it is, I'm happy it is doing that, since it caused us to see 
->>the oops quickly. None of _my_ boxes do that, obviously (and I tested on 
->>x86, x86-64 and ppc64 exactly to get reasonable coverage of what different 
->>architectures might do - but none of the boxes are debian-based).
->>    
+>>>And I should add that 2.6.14, any version without the cvs update,
+>>> works perfectly in ntsc here. I have to atsc signals available.
 >>
->I'm pretty curious about it too, none of my debian-based boxes have
->'gdb' anywhere in /etc/init.d.  The only thing I see is that the shell
->script /usr/bin/mozilla-firefox calls gdb when passed '--debugger', or
->when the DEBUG environment variable is set...  Perhaps he's doing that
->during his .xsession?
->  
+>>Gene,
+>>
+>>Would you mind trying to install the cvs modules on top of 2.6.14,
+>> using the instructions that I gave you last night?  This will confirm
+>> once and for all whether your problems are due to a v4l regression,
+>> or an upstream regression in 2.6.15.
+>>
+>>Thanks,
 >
-I don't think that the .xsession can be involved, here..... The oops 
-happens BEFORE user login, and firefox definately isn't loaded before 
-logging in. ;-)
+>Yes, I can do that. I can also confirm that its still borked in -rc3.
 
-Anyhow, I forgot to mention that I am using the debian/testing sarge apt 
-repository ... Once again, I have a purely default configuration, with 
-the exception of the kernel.  When I get home, I'll grep through my 
-startup scripts... I'll let you guys know what I find.
+Turns out I'd borked the linkages in /lib/modules/2.6.14 with a
+previous attempt, so I'm rebuilding 2.6.14 first in order to restore the
+linakges.  The cvs build is slow, is the -j=1 in the Makefile?  Or do I
+need to spec that on the cli?  I've forgotten.  Anyway, its done, so a
+reboot is coming up.
 
-Cheers,
+And its broken in the same manner for 2.6.14 + cvs.  I tried to do a
+screen snapshot but the tvtime window was blank in the snapshot. 
+Didn't we used to have a snapshotter that grabbed only the window with
+ficus way back when?
 
-Mike
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.36% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+
+

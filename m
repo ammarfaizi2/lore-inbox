@@ -1,73 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbVK2ECK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbVK2EEg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750707AbVK2ECK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 23:02:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750712AbVK2ECK
+	id S1750713AbVK2EEg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 23:04:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbVK2EEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 23:02:10 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:30897 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750707AbVK2ECI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 23:02:08 -0500
-Date: Mon, 28 Nov 2005 20:01:08 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: mingo@elte.hu, acpi-devel@lists.sourceforge.net, len.brown@intel.com,
-       nando@ccrma.Stanford.EDU, rlrevell@joe-job.com,
-       linux-kernel@vger.kernel.org, paulmck@us.ibm.com, kr@cybsft.com,
-       tglx@linutronix.de, pluto@agmk.net, john.cooper@timesys.com,
-       bene@linutronix.de, dwalker@mvista.com, trini@kernel.crashing.org,
-       george@mvista.com
-Subject: Re: [RFC][PATCH] Runtime switching of the idle function [take 2]
-Message-Id: <20051128200108.068b2dcd.akpm@osdl.org>
-In-Reply-To: <1133235740.6328.27.camel@localhost.localdomain>
-References: <20051115090827.GA20411@elte.hu>
-	<1132336954.20672.11.camel@cmn3.stanford.edu>
-	<1132350882.6874.23.camel@mindpipe>
-	<1132351533.4735.37.camel@cmn3.stanford.edu>
-	<20051118220755.GA3029@elte.hu>
-	<1132353689.4735.43.camel@cmn3.stanford.edu>
-	<1132367947.5706.11.camel@localhost.localdomain>
-	<20051124150731.GD2717@elte.hu>
-	<1132952191.24417.14.camel@localhost.localdomain>
-	<20051126130548.GA6503@elte.hu>
-	<1133232503.6328.18.camel@localhost.localdomain>
-	<20051128190253.1b7068d6.akpm@osdl.org>
-	<1133235740.6328.27.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 28 Nov 2005 23:04:35 -0500
+Received: from smtp-5.smtp.ucla.edu ([169.232.47.138]:64135 "EHLO
+	smtp-5.smtp.ucla.edu") by vger.kernel.org with ESMTP
+	id S1750713AbVK2EEf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 23:04:35 -0500
+Message-ID: <438BD351.60902@ucla.edu>
+Date: Mon, 28 Nov 2005 20:04:33 -0800
+From: Ethan Chen <thanatoz@ucla.edu>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: thanatoz@ucla.edu
+Subject: SIL_QUIRK_MOD15WRITE workaround problem on 2.6.14
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Probable-Spam: no
+X-Spam-Report: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt <rostedt@goodmis.org> wrote:
->
-> On Mon, 2005-11-28 at 19:02 -0800, Andrew Morton wrote:
->  > Steven Rostedt <rostedt@goodmis.org> wrote:
->  > >
->  > > This patch creates a directory in /sys/kernel called idle.
->  > >
->  > 
->  > At no point do you appear to explain _why_ the kernel needs this feature?
-> 
->  Sorry about that.  This originally came up when we had problems with the
->  AMD64 x2 in the -rt patch.  It was noted that the TSCs would get very
->  far out of sync and cause problems.
+I've got a dual Opteron 242 machine here with 2x Seagate ST3200822AS 
+SATA drives attached to a Silicon Image SI3114 controller, and after 
+upgrading to 2.6.14 from 2.6.13, it seems the SIL_QUIRK_MOD15WRITE 
+workaround for the sata_sil driver isn't being applied anymore. This 
+caused me trouble in the past before my drive was added to the 
+blacklist, and this message that comes up when writing (~4GBfiles to 
+test) files, right before the computer locks up, is the same as before:
+kernel: ata1: command 0x35 timeout, stat 0xd8 host_stat 0x61
+In the dmesg, the 'Applying Seagate errata fix' message doesn't appear 
+anymore as well.
+Finally, without the fix, write speeds are much higher as well, before 
+it locks up.
 
-Unsynced TSCs are rare, but they happen.  I guess even if we were to resync
-them, these measurements would screw up.
+dmesg snippet from 2.6.13.4
+kernel: SCSI subsystem initialized
+kernel: ACPI: PCI Interrupt 0000:03:05.0[A] -> GSI 17 (level, low) -> IRQ 16
+kernel: ata1: SATA max UDMA/100 cmd 0xFFFFC20000004C80 ctl 
+0xFFFFC20000004C8A bmdma 0xFFFFC20000004C00 irq 16
+kernel: ata2: SATA max UDMA/100 cmd 0xFFFFC20000004CC0 ctl 
+0xFFFFC20000004CCA bmdma 0xFFFFC20000004C08 irq 16
+kernel: ata3: SATA max UDMA/100 cmd 0xFFFFC20000004E80 ctl 
+0xFFFFC20000004E8A bmdma 0xFFFFC20000004E00 irq 16
+kernel: ata4: SATA max UDMA/100 cmd 0xFFFFC20000004EC0 ctl 
+0xFFFFC20000004ECA bmdma 0xFFFFC20000004E08 irq 16
+kernel: input: AT Translated Set 2 keyboard on isa0060/serio0
+kernel: ata1: dev 0 ATA, max UDMA/133, 390721968 sectors: lba48
+kernel: ata1(0): applying Seagate errata fix
+kernel: ata1: dev 0 configured for UDMA/100
+kernel: scsi0 : sata_sil
+kernel: ata2: dev 0 ATA, max UDMA/133, 390721968 sectors: lba48
+kernel: ata2(0): applying Seagate errata fix
+kernel: ata2: dev 0 configured for UDMA/100
+kernel: scsi1 : sata_sil
+kernel: ata3: dev 0 ATA, max UDMA/133, 586114704 sectors: lba48
+kernel: ata3: dev 0 configured for UDMA/100
+kernel: scsi2 : sata_sil
+kernel: ata4: no device found (phy stat 00000000)
+kernel: scsi3 : sata_sil
 
+dmesg snippet from 2.6.14.2
+kernel: SCSI subsystem initialized
+kernel: ACPI: PCI Interrupt 0000:03:05.0[A] -> GSI 17 (level, low) -> IRQ 16
+kernel: ata1: SATA max UDMA/100 cmd 0xFFFFC20000004C80 ctl 
+0xFFFFC20000004C8A bmdma 0xFFFFC20000004C00 irq 16
+kernel: ata2: SATA max UDMA/100 cmd 0xFFFFC20000004CC0 ctl 
+0xFFFFC20000004CCA bmdma 0xFFFFC20000004C08 irq 16
+kernel: ata3: SATA max UDMA/100 cmd 0xFFFFC20000004E80 ctl 
+0xFFFFC20000004E8A bmdma 0xFFFFC20000004E00 irq 16
+kernel: ata4: SATA max UDMA/100 cmd 0xFFFFC20000004EC0 ctl 
+0xFFFFC20000004ECA bmdma 0xFFFFC20000004E08 irq 16
+kernel: input: AT Translated Set 2 keyboard on isa0060/serio0
+kernel: ata1: dev 0 ATA, max UDMA/133, 390721968 sectors: lba48
+kernel: ata1: dev 0 configured for UDMA/100
+kernel: scsi0 : sata_sil
+kernel: ata2: dev 0 ATA, max UDMA/133, 390721968 sectors: lba48
+kernel: ata2: dev 0 configured for UDMA/100
+kernel: scsi1 : sata_sil
+kernel: ata3: dev 0 ATA, max UDMA/133, 586114704 sectors: lba48
+kernel: ata3: dev 0 configured for UDMA/100
+kernel: scsi2 : sata_sil
+kernel: ata4: no device found (phy stat 00000000)
+kernel: scsi3 : sata_sil
 
-> The way to solve this was to set
->  idle=poll.  The original patch I sent was to allow the user to change to
->  idle=poll dynamically.  This way they could switch to the poll_idle and
->  run there tests (requiring tsc not to drift) and then switch back to the
->  default idle to save on electricity.
-
-Use gettimeofday()?
-
-If it's just for some sort of instrumentation, run NR_CPUS instances of a
-niced-down busyloop, pin each one to a different CPU?  That way the idle
-function doesn't get called at all..
+Thanks,
+Ethan Chen
 

@@ -1,87 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbVK2TYE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbVK2TaM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751316AbVK2TYE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 14:24:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbVK2TYE
+	id S932356AbVK2TaM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 14:30:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbVK2TaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 14:24:04 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:23794 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S1751316AbVK2TYC
+	Tue, 29 Nov 2005 14:30:12 -0500
+Received: from magic.adaptec.com ([216.52.22.17]:28631 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1751351AbVK2TaK convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 14:24:02 -0500
-Subject: floating point register corruption
-From: Paolo Galtieri <pgaltieri@mvista.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Tue, 29 Nov 2005 12:24:01 -0700
-Message-Id: <1133292241.26244.11.camel@playin.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-22) 
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Nov 2005 14:30:10 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Outlook Sux (Was: [2.6 patch] dpt_i2o fix for deadlock condition)
+Date: Tue, 29 Nov 2005 14:30:09 -0500
+Message-ID: <547AF3BD0F3F0B4CBDC379BAC7E4189F01E3DE12@otce2k03.adaptec.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Outlook Sux (Was: [2.6 patch] dpt_i2o fix for deadlock condition)
+Thread-Index: AcX1FjdnRvaPY8gbRYKwdDoudhVWlwAAkQDg
+From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+To: "Adrian Bunk" <bunk@stusta.de>,
+       "Lennart Sorensen" <lsorense@csclub.uwaterloo.ca>
+Cc: <linux-scsi@vger.kernel.org>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Folks,
-  I recently discovered a bug on PPC which causes the floating
-point registers to get corrupted when CONFIG_PREEMPT=y.
+From: Adrian Bunk [mailto:bunk@stusta.de] writes: 
+>> There must still be a way to tell outlook to make the type something 
+>> useful, rather than application/octet-stream.  maybe if the extension
 
-The problem occurred while running a multi threaded Java application
-that does floating point.  The problem could be reproduced in
-anywhere from 2 to 6 hours.  With the patch I have included below
-it ran for over a week without failure.
+>> was .patch.txt it would do something smarter.
+> Patches in Attachments aren't nice, but better than corrupted patches.
 
-Paolo
+:-)
 
-Signed-off-by: pgaltieri@mvista.com
+Part of the problem is cut-n-paste engines on M$ and preservation of
+content, the other part of the problem is the MUA making up it's own
+rules on what constitutes a text document. It is not the MTA, sendmail
+is blameless.
 
---- linux-2.6.15-rc3/arch/ppc/kernel/process.c	2005-11-29
-07:01:55.000000000 -0700
-+++ new-linux-2.6.15-rc3/arch/ppc/kernel/process.c	2005-11-29
-07:20:37.000000000 -0700
-@@ -417,6 +417,7 @@
- 
- void exit_thread(void)
- {
-+	preempt_disable();
- 	if (last_task_used_math == current)
- 		last_task_used_math = NULL;
- 	if (last_task_used_altivec == current)
-@@ -425,10 +426,12 @@
- 	if (last_task_used_spe == current)
- 		last_task_used_spe = NULL;
- #endif
-+	preempt_enable();
- }
- 
- void flush_thread(void)
- {
-+	preempt_disable();
- 	if (last_task_used_math == current)
- 		last_task_used_math = NULL;
- 	if (last_task_used_altivec == current)
-@@ -437,6 +440,7 @@
- 	if (last_task_used_spe == current)
- 		last_task_used_spe = NULL;
- #endif
-+	preempt_enable();
- }
- 
- void
-@@ -535,6 +539,7 @@
- 	regs->nip = nip;
- 	regs->gpr[1] = sp;
- 	regs->msr = MSR_USER;
-+	preempt_disable();
- 	if (last_task_used_math == current)
- 		last_task_used_math = NULL;
- 	if (last_task_used_altivec == current)
-@@ -543,6 +548,7 @@
- 	if (last_task_used_spe == current)
- 		last_task_used_spe = NULL;
- #endif
-+	preempt_enable();
- 	memset(current->thread.fpr, 0, sizeof(current->thread.fpr));
- 	current->thread.fpscr.val = 0;
- #ifdef CONFIG_ALTIVEC
+> It's unfortunate, but bitching on the people who are somehow forced to
 
+> use crappy email clients is IMHO not a good idea.
 
+We could always require that if a patch is done as an attachment, that
+if it is smaller than 2K and/or at the submitters option, it also be
+present as in-line content for code review convenience?
+
+Thanks for that defense, I appreciate it. I am trapped in corporate
+policy and MIS monitoring requirements. I have tried to make our MIS
+department miserable over this issue, the sheer quantity of attempts to
+mitigate is boggling and is still open. If I was paranoid, I'd almost
+believe that M$ specifically decided to ignore RFC822 and all it's
+children just to make it an impossible tool to use for submitting Linux
+patches.
+
+Now, if *someone* had an idea how I could configure Outlook 2002 to
+properly produce in-line patches *that* would earn my eternal gratitude
+(or a single stay at Hotel Salyzyn when visiting the Orlando Mouse House
+;-> ). Outlook 2003 gets worse still by corrupting attachments (!) and I
+thus reverted back to 2002.
+
+Sincerely -- Mark Salyzyn

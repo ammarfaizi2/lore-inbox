@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbVK2QjE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbVK2QrN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932140AbVK2QjE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 11:39:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbVK2QjE
+	id S932081AbVK2QrN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 11:47:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbVK2QrN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 11:39:04 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:48022 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932140AbVK2QjC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 11:39:02 -0500
-Date: Tue, 29 Nov 2005 08:38:48 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Michael Krufky <mkrufky@m1k.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.15-rc3
-In-Reply-To: <438C80DD.7050809@m1k.net>
-Message-ID: <Pine.LNX.4.64.0511290835220.3177@g5.osdl.org>
-References: <Pine.LNX.4.64.0511282006370.3177@g5.osdl.org> <438C0124.3030700@m1k.net>
- <Pine.LNX.4.64.0511290808510.3177@g5.osdl.org> <438C80DD.7050809@m1k.net>
+	Tue, 29 Nov 2005 11:47:13 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37823 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932081AbVK2QrM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 11:47:12 -0500
+To: vgoyal@in.ibm.com
+Cc: Fernando Luis Vazquez Cao <fernando@intellilink.co.jp>,
+       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] Re: [PATCH & RFC] kdump and stack overflows
+References: <1133183463.2327.96.camel@localhost.localdomain>
+	<m1lkz8gad7.fsf@ebiederm.dsl.xmission.com>
+	<1133200815.2425.98.camel@localhost.localdomain>
+	<m1hd9wfwxi.fsf@ebiederm.dsl.xmission.com>
+	<20051129132730.GA3803@in.ibm.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 29 Nov 2005 09:46:21 -0700
+In-Reply-To: <20051129132730.GA3803@in.ibm.com> (Vivek Goyal's message of
+ "Tue, 29 Nov 2005 18:57:30 +0530")
+Message-ID: <m18xv7fllu.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Vivek Goyal <vgoyal@in.ibm.com> writes:
 
+> On Mon, Nov 28, 2005 at 11:29:29AM -0700, Eric W. Biederman wrote:
+>> (baring
+>> nmi happening during nmis)  Hmm.  Is there anything to keep
+>> us doing something bad in that case?
+>> 
+>> I guess as long as we don't clear the high bit of port 0x70 we
+>> should be reasonably safe from the nmi firing multiple times.
+>
+> Are you referring to port 0x23 for IMCR register.
 
-On Tue, 29 Nov 2005, Michael Krufky wrote:
-> 
-> In other words, the OOPS is the last thing to show on the screen in text mode,
-> before the console switches into X, using debian sarge's default bootup
-> process.
+No.  Port 0x70 is the cmos address register.  0x71 the cmos
+data register.  The high bit of 0x70 if the nmi enable.
 
-Ok. Whatever it is, I'm happy it is doing that, since it caused us to see 
-the oops quickly. None of _my_ boxes do that, obviously (and I tested on 
-x86, x86-64 and ppc64 exactly to get reasonable coverage of what different 
-architectures might do - but none of the boxes are debian-based).
+Although with local apics generating nmis I would be surprised
+if it effective in every case. :)
 
-> I have no idea why gdb is running.... hmm... Anyhow, I'm away from that
-> machine right now, and it is powered off, so I can't look directly at the
-> startup scripts right now.  Would you like me to send more info later on when
-> I get home?  If so, what would you like to see?
+Eric
 
-It's not important, I was just curious about what strange things people 
-have in their bootup scripts.  If you can just grep through the rc.d files 
-to see what uses gdb, I'd just like to know...
-
-		Linus

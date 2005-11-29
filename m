@@ -1,66 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbVK2EQl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbVK2ERO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750717AbVK2EQl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 23:16:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbVK2EQl
+	id S1750744AbVK2ERO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 23:17:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbVK2ERO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 23:16:41 -0500
-Received: from koto.vergenet.net ([210.128.90.7]:33734 "EHLO koto.vergenet.net")
-	by vger.kernel.org with ESMTP id S1750717AbVK2EQk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 23:16:40 -0500
-Date: Tue, 29 Nov 2005 13:16:08 +0900
-From: Horms <horms@verge.net.au>
-To: Colin Leroy <colin@colino.net>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org, debian-kernel@lists.debian.org
-Subject: Re: [PATCH] hfs, hfsplus: don't leak s_fs_info and fix an oops
-Message-ID: <20051129041606.GA9575@verge.net.au>
-Mail-Followup-To: Colin Leroy <colin@colino.net>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	linux-kernel@vger.kernel.org, debian-kernel@lists.debian.org
-References: <20051007043924.GA20827@verge.net.au> <20051007071008.CAC4E10334@paperstreet.colino.net>
+	Mon, 28 Nov 2005 23:17:14 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:39864 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750730AbVK2ERN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 23:17:13 -0500
+To: Andi Kleen <ak@suse.de>
+Cc: Fernando Luis Vazquez Cao <fernando@intellilink.co.jp>,
+       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] Re: [PATCH 1/4] stack overflow safe kdump (i386) -
+ safe_smp_processor_id
+References: <1133200833.2425.100.camel@localhost.localdomain>
+	<p738xv8id6r.fsf@verdi.suse.de>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Mon, 28 Nov 2005 21:16:20 -0700
+In-Reply-To: <p738xv8id6r.fsf@verdi.suse.de> (Andi Kleen's message of "28
+ Nov 2005 16:07:40 -0700")
+Message-ID: <m1d5kkf5rf.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051007071008.CAC4E10334@paperstreet.colino.net>
-X-Cluestick: seven
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 07, 2005 at 09:10:05AM +0200, Colin Leroy wrote:
-> On 07 Oct 2005 at 13h10, Horms wrote:
-> 
-> Hi, 
-> 
-> > I took a look at making a backport, and it seems that
-> > some of the problems are there, but without a deeper inspection
-> > of the code its difficult to tell if the problems manifest or not.
-> 
-> That was easy to get the oops:
-> 
-> $ dd if=/dev/zero of=im_not_hfsplus count=10 #for example
-> $ mkdir test_dir
-> $ sudo mount -o loop -t hfsplus ./im_not_hfsplus ./testdir
-> $ dmesg
+Andi Kleen <ak@suse.de> writes:
 
-After an extended delay I have been able to confirm that the above
-commands do not cause 2.4 (Debian's 2.4.27) to do anything unusal.
+> Fernando Luis Vazquez Cao <fernando@intellilink.co.jp> writes:
+>> 
+>> To circumvent this problem I suggest implementing
+>> "safe_smp_processor_id()" (it already exists on x86_64) for i386 and
+>> IA64 and use it as a replacement to smp_processor_id in the reboot path
+>> to the dump capture kernel. This is a possible implementation for i386.
+>
+> It's not fully safe, because a SMP kernel might run on a 32bit
+> system without APIC. Then hard_smp_processor_id() would fault. 
+> (this cannot happen on x86-64)
+>
+> You probably need to check one of the globals set by apic.c
+> when its disabled.
 
-Mount just reports:
-  mount: wrong fs type, bad option, bad superblock on /dev/loop0,
-       or too many mounted file systems
+Right.  An SMP kernel on a uniprocessor, without apics.
 
-And there is nothing exciting in dmsg:
-  loop: loaded (max 8 devices)
-  HFS+-fs: unable to find HFS+ superblock
-  HFS+-fs: unable to find HFS+ superblock
-  HFS+-fs: unable to find HFS+ superblock
+To my knowledge all SMP systems that linux supports have
+apics.
 
-Thus it seems that 2.4 does not suffer from this bug.
+Eric
 
--- 
-Horms

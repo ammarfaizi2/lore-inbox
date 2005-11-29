@@ -1,93 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbVK2Ez1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbVK2FEn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750756AbVK2Ez1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 23:55:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750761AbVK2Ez1
+	id S1750761AbVK2FEn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 00:04:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbVK2FEn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 23:55:27 -0500
-Received: from hulk.hostingexpert.com ([69.57.134.39]:61132 "EHLO
-	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S1750756AbVK2Ez0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 23:55:26 -0500
-Message-ID: <438BDF72.1000704@m1k.net>
-Date: Mon, 28 Nov 2005 23:56:18 -0500
-From: Michael Krufky <mkrufky@m1k.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Tue, 29 Nov 2005 00:04:43 -0500
+Received: from thunk.org ([69.25.196.29]:6546 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1750761AbVK2FEm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 00:04:42 -0500
+Date: Tue, 29 Nov 2005 00:04:39 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: what is our answer to ZFS?
+Message-ID: <20051129050439.GB22879@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org
+References: <11b141710511210144h666d2edfi@mail.gmail.com> <20051121095915.83230.qmail@web36406.mail.mud.yahoo.com> <20051121101959.GB13927@wohnheim.fh-wedel.de> <20051128125351.GE30589@marowsky-bree.de>
 MIME-Version: 1.0
-To: Linux and Kernel Video <video4linux-list@redhat.com>
-CC: linux-kernel@vger.kernel.org, Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: cx88 totally fried in 2.6.15-rcX -was- Re: HD3000 - no NTSC via
- tuner
-References: <200511282205.jASM5YUI018061@p-chan.krl.com>	<438BCCF9.1000606@m1k.net> <438BCE5F.7070108@m1k.net> <200511282340.46506.gene.heskett@verizon.net>
-In-Reply-To: <200511282340.46506.gene.heskett@verizon.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051128125351.GE30589@marowsky-bree.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gene Heskett wrote:
+On Mon, Nov 28, 2005 at 01:53:51PM +0100, Lars Marowsky-Bree wrote:
+> On 2005-11-21T11:19:59, J?rn Engel <joern@wohnheim.fh-wedel.de> wrote:
+> 
+> > o Merge of LVM and filesystem layer
+> >   Not done.  This has some advantages, but also more complexity than
+> >   seperate LVM and filesystem layers.  Might be considers "not worth
+> >   it" for some years.
+> 
+> This is one of the cooler ideas IMHO. In effect, LVM is just a special
+> case filesystem - huge blocksizes, few files, mostly no directories,
+> exports block instead of character/streams "files".
 
->On Monday 28 November 2005 22:43, Michael Krufky wrote:
->  
->
->>Michael Krufky wrote:
->>    
->>
->>>Gene Heskett wrote:
->>>      
->>>
->>>>Like I said, complete instructions please so that we are on the same
->>>>page.  I still have the rc2-git6 tree that didn't work, so as my
->>>>script does a make clean, it should be easy enough to do with the
->>>>right instructions.  Like what dir in the kernel tree am I supposed
->>>>to be in when I issue the cvs checkout command etc.
->>>>        
->>>>
->>Oops.... I forgot to answer this question....
->>
->>It doesnt matter in what directory you are issuing the commands
->>below... Although you certainly should NOT issue these within your
->>kernel source, and you should be inside the newly-downloaded v4l-dvb
->>tree after you "cd" into it.  I recommend either doing this in your
->>~home directory, or in /usr/src
->>    
->>
->
->I built it in /usr/src, seemed to be ok ANAICT.  It just didn't work. 
->Bear in mind I have no ATSC signals out here in the West Virginia hills
->yet, all ntsc.  So I can't as yet test the ATSC side.
->
-Very interesting...  This whole time I thought that your testing was 
-using a VSB stream.
+This isn't actually a new idea, BTW.  Digital's advfs had storage
+pools and the ability to have a single advfs filesystem spam multiple
+filesystems, and to have multiple adv filesystems using storage pool,
+something like ten years ago.  Something to keep in mind for those
+people looking for prior art for any potential Sun patents covering
+ZFS.... (not that I am giving legal advice, of course!)
 
-So, you're only talking about problems with analog NTSC?
+						- Ted
 
-It seems that I might be having a similar (but NOT the same) problem 
-with my FusionHDTV3 Gold-T, but it has nothing to do with the kernel 
-version.  Let me remind you that this card uses Thomson DDT 7611, and 
-your card uses Thomson DDT 7610.  It simply doesnt work anymore, 
-regardless of whether I am in Linux or Windows, no matter which kernel 
-version.  Only digital ATSC (using QAM256) is working for me.
-
-I will have to test NTSC using my FusionHDTV5 Gold, installed in my 
-other box.  It doesnt have 2.6.15 installed right now.  I will wait for 
-2.6.15-rc3 to propogate to the kernel.org mirrors before I install it, 
-so this may take some time.  The other card, however, has a TUA6034 
-tuner, inside an LG TDVS-H062F ... not the same tuner as you this time, 
-but still a cx88 board.
-
-Anyway, after 2.6.15-rc3 propogates and I get it installed, I'll let you 
-know how my testing goes.  Would you do the same?
-
-Cheers,
-
-Mike

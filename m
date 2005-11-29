@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbVK2UCB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbVK2UDo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932377AbVK2UCB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 15:02:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbVK2UCA
+	id S932373AbVK2UDo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 15:03:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbVK2UDo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 15:02:00 -0500
-Received: from solarneutrino.net ([66.199.224.43]:58372 "EHLO
-	tau.solarneutrino.net") by vger.kernel.org with ESMTP
-	id S932374AbVK2UB7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 15:01:59 -0500
-Date: Tue, 29 Nov 2005 15:01:53 -0500
-To: "Moore, Eric Dean" <Eric.Moore@lsil.com>
-Cc: Andrew Morton <akpm@osdl.org>, Kai.Makisara@kolumbus.fi,
-       linux-scsi@vger.kernel.org, James.Bottomley@steeleye.com,
-       ryan@tau.solarneutrino.net, linux-kernel@vger.kernel.org
-Subject: Re: crash on x86_64 - mm related?
-Message-ID: <20051129200153.GC6326@tau.solarneutrino.net>
-References: <91888D455306F94EBD4D168954A9457C051773FB@nacos172.co.lsil.com>
+	Tue, 29 Nov 2005 15:03:44 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:8600 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932373AbVK2UDn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 15:03:43 -0500
+Subject: Re: [PATCH] hpfs: Whitespace and Codingstyle cleanup for dir.c
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <9a8748490511290717o4d4caa8fi47b9103d0f5ea80b@mail.gmail.com>
+References: <200510121326.52216.jesper.juhl@gmail.com>
+	 <Pine.LNX.4.62.0510121327580.28884@artax.karlin.mff.cuni.cz>
+	 <9a8748490511290717o4d4caa8fi47b9103d0f5ea80b@mail.gmail.com>
+Date: Tue, 29 Nov 2005 22:03:39 +0200
+Message-Id: <1133294620.20315.9.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <91888D455306F94EBD4D168954A9457C051773FB@nacos172.co.lsil.com>
-User-Agent: Mutt/1.5.9i
-From: Ryan Richter <ryan@tau.solarneutrino.net>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.4.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 29, 2005 at 12:53:35PM -0700, Moore, Eric Dean wrote:
-> On Tue, 29 Nov 2005 10:44:09 -0500,  Ryan Richter wrote:
-> 
-> > 
-> > Hi, I booted 2.6.14.2 with the MPT fusion performance fix 
-> > patch about a
-> > week ago on my file server.  The machine crashed lat night 
-> > while it was
-> > doing backups.  You can see the voluminous kernel output below.
-> > 
-> 
-> I doubt this has anything to do with the fusion performance patches.
+Hi,
 
-I don't think so either, I just wanted to be clear about what was in my
-kernel.
+On Tue, 2005-11-29 at 16:17 +0100, Jesper Juhl wrote:
+> Well, as Pekka Enberg also pointed out, Documentation/CodingStyle says
+> that's not the prefered way. But, it's your code, so if you don't like
+> the cleanups don't apply them.
+> i still think the patch is a good idea and makes the file more
+> readable though.
 
-Thanks,
--ryan
+I also think the patches are a good idea but it is up to the maintainer,
+of course.
+
+				Pekka
+

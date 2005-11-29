@@ -1,87 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbVK2HnV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbVK2Huu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750801AbVK2HnV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 02:43:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbVK2HnU
+	id S1750857AbVK2Huu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 02:50:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750856AbVK2Hut
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 02:43:20 -0500
-Received: from smtp015.mail.yahoo.com ([216.136.173.59]:56695 "HELO
-	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1750801AbVK2HnU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 02:43:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type;
-  b=WoaavT9XrTmflubtNiuOrmeZC2l3lu4bh50sN5BGheas0z9jI6oMUJucZ1mSEa0+Ej5cXwG4iPTZo8tejp3Obb2IpVSSZiksfcM+I7QA5++jMIuB0rURsX9iMFfPzH7anKUjZSbP3ujUg2vW7aEN0pE6PRSnU44MFUkF0ru93Iw=  ;
-Message-ID: <438C0695.2050808@yahoo.com.au>
-Date: Tue, 29 Nov 2005 18:43:17 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Michael Krufky <mkrufky@m1k.net>
-CC: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.15-rc3
-References: <Pine.LNX.4.64.0511282006370.3177@g5.osdl.org> <438C0124.3030700@m1k.net>
-In-Reply-To: <438C0124.3030700@m1k.net>
-Content-Type: multipart/mixed;
- boundary="------------040609060006030504040808"
+	Tue, 29 Nov 2005 02:50:49 -0500
+Received: from hansmi.home.forkbomb.ch ([213.144.146.165]:49692 "EHLO
+	hansmi.home.forkbomb.ch") by vger.kernel.org with ESMTP
+	id S1750820AbVK2Hut (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 02:50:49 -0500
+Date: Tue, 29 Nov 2005 08:50:47 +0100
+From: Michael Hanselmann <linux-kernel@hansmi.ch>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+Cc: debian-powerpc@lists.debian.org,
+       linux-kernel <linux-kernel@vger.kernel.org>, linuxppc-dev@ozlabs.org
+Subject: Re: PowerBook5,8 - TrackPad update
+Message-ID: <20051129075047.GA26460@hansmi.ch>
+References: <111520052143.16540.437A5680000BE8A60000409C220076369200009A9B9CD3040A029D0A05@comcast.net> <70210ED5-37CA-40BC-8293-FF1DAA3E8BD5@comcast.net> <20051129000615.GA20843@hansmi.ch> <68465DDA-053F-4A85-9204-549E830B2269@comcast.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qDbXVdCdHGoSgWSk"
+Content-Disposition: inline
+In-Reply-To: <68465DDA-053F-4A85-9204-549E830B2269@comcast.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040609060006030504040808
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Michael Krufky wrote:
+--qDbXVdCdHGoSgWSk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Unable to handle kernel NULL pointer dereference at virtual address 
+Hello Parag
 
-> EFLAGS: 00010202   (2.6.15-rc3) EIP is at vm_normal_page+0x17/0x60
+On Tue, Nov 29, 2005 at 01:11:00AM -0500, Parag Warudkar wrote:
+> Is yours the 15" model or the 17"? Mine is 15" and the product id is =20
+> 0x0214.
 
-> Process gdb (pid: 5628, threadinfo=f488e000 task=f7239a30)
+It's the 15" one.
 
-> [<c014a8f5>] get_user_pages+0x29f/0x309
+> I haven't looked at your changes completely yet but are you saying it
+> works? Meaning mouse moves properly?
 
-The clues point to the following patch. Can you give it a test
-please?
+The mouse moves, but slowly. Maybe something isn't correct yet, but it
+works basically.
 
-Thanks,
-Nick
+> Also I find it strange that your model requires 80 bytes ATP_DATASIZE
+> - mine isn't happy at all with anything less than 256. The less number
+> of sensors you  defined is again a puzzle.
 
--- 
-SUSE Labs, Novell Inc.
+That are points I need to investigate further.
 
+> If the format of the data is same (which looks like it is with your
+> model) then yes, but in my case the data arrives is 64 byte blocks -
+> there are 4 of them in one  transfer, each a reading on it's own.
 
---------------040609060006030504040808
-Content-Type: text/plain;
- name="mm-fix-oops.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="mm-fix-oops.patch"
+I get 256 bytes in each transfer as well, but didn't look at the bytes
+behind 40. Maybe that'll help to make it more responsive.
 
-vm_normal_page can be called with a NULL vma. This can be replaced with
-gate_vma, and no problem because none of the gate vmas use VM_PFNMAP
-(if they did they would need to set vm_pgoff).
+> Hmm. More confusion.
 
-Signed-off-by: Nick Piggin <npiggin@suse.de>
+Oh yes. Why does Apple ship the basically same PowerBook with different
+Touchpads?
 
-Index: linux-2.6/mm/memory.c
-===================================================================
---- linux-2.6.orig/mm/memory.c
-+++ linux-2.6/mm/memory.c
-@@ -988,7 +988,8 @@ int get_user_pages(struct task_struct *t
- 				return i ? : -EFAULT;
- 			}
- 			if (pages) {
--				struct page *page = vm_normal_page(vma, start, *pte);
-+				struct page *page;
-+				page = vm_normal_page(gate_vma, start, *pte);
- 				pages[i] = page;
- 				if (page)
- 					get_page(page);
+Greets,
+Michael
 
---------------040609060006030504040808--
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+--=20
+Gentoo Linux Developer using m0n0wall | http://hansmi.ch/
+
+--qDbXVdCdHGoSgWSk
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDjAhX6J0saEpRu+oRAomaAJ9RtINrl7BVjuMN+n9376vmz9N8lwCfUzVK
+MtXyHU/wRwh2XPtYIIr4Ae0=
+=wPid
+-----END PGP SIGNATURE-----
+
+--qDbXVdCdHGoSgWSk--

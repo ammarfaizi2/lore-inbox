@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbVK2Vdm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbVK2VgG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932422AbVK2Vdm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 16:33:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbVK2Vdm
+	id S932424AbVK2VgG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 16:36:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbVK2VgG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 16:33:42 -0500
-Received: from embla.aitel.hist.no ([158.38.50.22]:41152 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932422AbVK2Vdl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 16:33:41 -0500
-Date: Tue, 29 Nov 2005 22:36:56 +0100
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.15-rc3
-Message-ID: <20051129213656.GA8706@aitel.hist.no>
-References: <Pine.LNX.4.64.0511282006370.3177@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.64.0511282006370.3177@g5.osdl.org>
-User-Agent: Mutt/1.5.9i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+	Tue, 29 Nov 2005 16:36:06 -0500
+Received: from fep30-0.kolumbus.fi ([193.229.0.32]:34018 "EHLO
+	fep30-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S932423AbVK2VgE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 16:36:04 -0500
+Date: Tue, 29 Nov 2005 23:36:22 +0200 (EET)
+From: Kai Makisara <Kai.Makisara@kolumbus.fi>
+X-X-Sender: makisara@kai.makisara.local
+To: Ryan Richter <ryan@tau.solarneutrino.net>
+cc: Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Fw: crash on x86_64 - mm related?
+In-Reply-To: <20051129205856.GE6326@tau.solarneutrino.net>
+Message-ID: <Pine.LNX.4.63.0511292324000.5739@kai.makisara.local>
+References: <20051129092432.0f5742f0.akpm@osdl.org>
+ <Pine.LNX.4.63.0511292147120.5739@kai.makisara.local>
+ <20051129203112.GD6326@tau.solarneutrino.net> <Pine.LNX.4.63.0511292239070.5739@kai.makisara.local>
+ <20051129205856.GE6326@tau.solarneutrino.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 28, 2005 at 08:11:35PM -0800, Linus Torvalds wrote:
+On Tue, 29 Nov 2005, Ryan Richter wrote:
+
+> On Tue, Nov 29, 2005 at 10:48:22PM +0200, Kai Makisara wrote:
+> > On Tue, 29 Nov 2005, Ryan Richter wrote:
+> > > This applies cleanly to 2.6.14.2, do you forsee any problems using it
+> > > with that kernel?  I'd like to not change too many things at once.
+> > > 
+> > No, I don't see any potential problems applying this patch to 2.6.14.2. 
+> > There is nothing specific to 2.6.15-rc2.
+> > 
+> > If someone sees that there is something wrong, please yell. The 
+> > main purpose of the patch is not to call release_buffering() at the end of 
+> > st_write() when starting asynchronous write and call it in 
+> > write_behind_check() instead.
 > 
-> I just pushed 2.6.15-rc3 out there, and here are both the shortlog and 
-> diffstats appended.
+> OK, thanks.  I think I'll go ahead and advance to 2.6.14.3 since that
+> should theoretically not cause any problems.
 > 
-This one did not mount root.  I got:
+> One question: do you think the oopses that happened later that actually
+> crashed the box were from damage caused by this bug or is that a
+> different problem?
+> 
+I looked at the oopses but, not knowing enough about what is happening 
+inside the kernel, I can only hope that they are caused by the st bug(s). 
+We will see after testing with the patch.
 
-Can't open root dev "831" or unknown block(8,49)
-Please append a correct root= boot option
-unable to mount root fs from block(8,49)
-
-
-
-Now 2.6.14 works with exactl�y the same lilo.con,
-where I have root=/dev/sdd1  (SATA drive)
-
-The only changes from the 2.6.14 .config were a different
-framebuffer font for the console (which worked fine) and
-a change from voluntary preempt to fully preemptible in the
-hope of running flash games and niced compiles together.
-
-
-Helge Hafting
-
-
-
+-- 
+Kai

@@ -1,78 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbVK1X7h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbVK2ACC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932244AbVK1X7h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 18:59:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbVK1X7h
+	id S932293AbVK2ACC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 19:02:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbVK2ACB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 18:59:37 -0500
-Received: from xproxy.gmail.com ([66.249.82.202]:29744 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932244AbVK1X7g convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 18:59:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=T+l4b3TmS16FnyNrC2OrbJ0YECQGycLlbpDjuSoRB1/bdfIGopWWZbFf/gt5BvGXzlU70j/289puT85CyK7Iv2zlxkU7E9A485k4gJvLdeOWFYPceO9tcs51oGhxqIOf9kdJxMX1MRBG5UN8IBIN7xvjYUn4IxF6SrtlxQccpLA=
-Message-ID: <d120d5000511281559r6c6ed9edgc17e3a64453bf75d@mail.gmail.com>
-Date: Mon, 28 Nov 2005 18:59:35 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: jt <jt@jtholmes.com>
-Subject: Re: psmouse.c in Kernel fails but succeeds as Module
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <438B8861.1050408@jtholmes.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 28 Nov 2005 19:02:01 -0500
+Received: from mail.suse.de ([195.135.220.2]:60085 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932293AbVK2ACA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 19:02:00 -0500
+Date: Tue, 29 Nov 2005 01:01:58 +0100
+From: Andi Kleen <ak@suse.de>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Allow lockless traversal of notifier lists
+Message-ID: <20051129000158.GE7209@brahms.suse.de>
+References: <20051128133757.GQ20775@brahms.suse.de> <20051128160129.GA8478@in.ibm.com> <20051128160547.GA20775@brahms.suse.de> <20051128161747.GA4359@in.ibm.com> <20051128162709.GC20775@brahms.suse.de> <20051128174203.GB4359@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <438B8861.1050408@jtholmes.com>
+In-Reply-To: <20051128174203.GB4359@in.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/28/05, jt <jt@jtholmes.com> wrote:
->
-> However, when  I compile Kernel with
->
-> CONFIG_MOUSE_PS2=m
->
-...
->
-> the Alps GlidePoint is detected thus
->
->
-> I: Bus=0011 Vendor=0002 Product=0008 Version=0000
-> N: Name="PS/2 Mouse"
-> P: Phys=isa0060/serio1/input1
-> H: Handlers=mouse1 event3
-> B: EV=7
-> B: KEY=70000 0 0 0 0 0 0 0 0
-> B: REL=3
->
-> I: Bus=0011 Vendor=0002 Product=0008 Version=7321
-> N: Name="AlpsPS/2 ALPS GlidePoint"
-> P: Phys=isa0060/serio1/input0
-> H: Handlers=mouse2 event4
-> B: EV=f
-> B: KEY=420 0 70000 0 0 0 0 0 0 0 0
-> B: REL=3
-> B: ABS=1000003
->
-> and GlidePoint Works fine in Console Mode and X etc.
->
+On Mon, Nov 28, 2005 at 11:12:03PM +0530, Dipankar Sarma wrote:
+> Don't we insert at the front of the list ? Shouldn't the read-side
+> on alpha see the contents of the new notifier block before it sees
+> the pointer to the first notifier block in the list head ?
 
-This is most likely USB legacy emulation screws up touchpad detection.
-If you boot with "usb-handoff" on the kernel command line it shoudl
-detect ALPS even if psmouse is built-in and not a module.
+Ok third version, hopefully Dipankar proof now. 
 
-One of these days we will turn it on by default...
+Andrew, please consider applying.
 
-> I have my work around for the problem, but wondered if
-> someone like Dimitry T. would like me to perform a little
-> debugging and send them the output so others wont have
-> to face this problem.
->
+-Andi
 
-Would be easier if you CC me if you want me to see your message faster ;)
+---
 
---
-Dmitry
+As discussed in other thread.
+
+ Notifiers could be locklessly traversed if there was no removal
+ ever, except that the update order is wrong.
+ 
+ Just needed an additional write barrier, so that a parallel
+ running lockup can never see inconsistent state. As long as there
+ is no unregistration or the unregistration is done using
+ locking or RCU in the caller they should be ok now.
+
+ This only makes a difference on non i386/x86-64 architectures.
+ x86 was already ok because it never reorders writes.
+
+Signed-off-by: Andi Kleen <ak@suse.de> 
+
+
+diff -u linux-2.6.15rc2-work/kernel/sys.c-o linux-2.6.15rc2-work/kernel/sys.c
+--- linux-2.6.15rc2-work/kernel/sys.c-o	2005-11-16 00:34:33.000000000 +0100
++++ linux-2.6.15rc2-work/kernel/sys.c	2005-11-29 00:33:26.000000000 +0100
+@@ -102,6 +102,9 @@
+  *	@n: New entry in notifier chain
+  *
+  *	Adds a notifier to a notifier chain.
++ *	As long as unregister is not used this is safe against parallel
++ *	lockless notifier lookups. If unregister is used then unregister
++ *	needs to do additional locking or use RCU.
+  *
+  *	Currently always returns zero.
+  */
+@@ -116,6 +119,7 @@
+ 		list= &((*list)->next);
+ 	}
+ 	n->next = *list;
++	smp_wmb();
+ 	*list=n;
+ 	write_unlock(&notifier_lock);
+ 	return 0;
+@@ -129,6 +133,8 @@
+  *	@n: New entry in notifier chain
+  *
+  *	Removes a notifier from a notifier chain.
++ *	Note this needs additional locking or RCU in the caller to be safe
++ * 	against parallel traversals.
+  *
+  *	Returns zero on success, or %-ENOENT on failure.
+  */
+@@ -171,10 +177,12 @@
+ int notifier_call_chain(struct notifier_block **n, unsigned long val, void *v)
+ {
+ 	int ret=NOTIFY_DONE;
+-	struct notifier_block *nb = *n;
+-
++	struct notifier_block *nb;
++	smp_read_barrier_depends();
++	nb = *n;
+ 	while(nb)
+ 	{
++		smp_read_barrier_depends();
+ 		ret=nb->notifier_call(nb,val,v);
+ 		if(ret&NOTIFY_STOP_MASK)
+ 		{

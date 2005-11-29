@@ -1,81 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbVK2AKi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbVK2ALU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932309AbVK2AKi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Nov 2005 19:10:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbVK2AKh
+	id S932311AbVK2ALU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Nov 2005 19:11:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbVK2ALU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Nov 2005 19:10:37 -0500
-Received: from animx.eu.org ([216.98.75.249]:48301 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S932309AbVK2AKh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Nov 2005 19:10:37 -0500
-Date: Mon, 28 Nov 2005 19:31:59 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Nick Warne <nick@linicks.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] 1500 days uptime.
-Message-ID: <20051129003159.GA4643@animx.eu.org>
-Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
-	Nick Warne <nick@linicks.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200511242147.45248.nick@linicks.net> <438B89EE.9080707@tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 28 Nov 2005 19:11:20 -0500
+Received: from xproxy.gmail.com ([66.249.82.193]:12426 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932311AbVK2ALT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Nov 2005 19:11:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MUdlS8f3nQTxdrd2CxbuRgGMzfj6U0I8wYc+rJXMOSU9yKASfbXXRmt/dEFUoAnJjR3ouzOfgXTU45CEarhSxAxMzyxlxjnJl0LHPLllrDec4+sD1uqVDGp7wet3w/zJ0Tc0zTscwlxoWNtJF9dpE8hJzsor3cDar5qzeO+p5FM=
+Message-ID: <5bdc1c8b0511281611n606cf38av5ffcdae7b57e8b0e@mail.gmail.com>
+Date: Mon, 28 Nov 2005 16:11:17 -0800
+From: Mark Knecht <markknecht@gmail.com>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Subject: Re: umount
+Cc: Patrick McFarland <diablod3@gmail.com>, gcoady@gmail.com,
+       Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0511281229560.8176@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <438B89EE.9080707@tmr.com>
-User-Agent: Mutt/1.5.6+20040907i
+References: <200511272154.jARLsBb11446@apps.cwi.nl>
+	 <jdkko1hs90ffvqru9v354vrubggcdrnhhj@4ax.com>
+	 <5bdc1c8b0511271742y75306962h67193b8a0191841d@mail.gmail.com>
+	 <200511272101.07771.diablod3@gmail.com> <20051128071535.GB3638@voodoo>
+	 <5bdc1c8b0511280920i424cb9e7t50399b4f12abc154@mail.gmail.com>
+	 <Pine.LNX.4.61.0511281229560.8176@chaos.analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> Nick Warne wrote:
-> >Hi all,
+On 11/28/05, linux-os (Dick Johnson) <linux-os@analogic.com> wrote:
+>
+> On Mon, 28 Nov 2005, Mark Knecht wrote:
+>
+> > On 11/27/05, Jim Crilly <jim@why.dont.jablowme.net> wrote:
+> >> On 11/27/05 09:01:07PM -0500, Patrick McFarland wrote:
+> >>> On Sunday 27 November 2005 20:42, Mark Knecht wrote:
+> >>>> On 11/27/05, Grant Coady <grant_lkml@dodo.com.au> wrote:
+> >>>>> It leaves me with a little distrust of linux' handling of non-locked
+> >>>>> removable media (as opposed to lockable media like a zipdisk or cdrom).
+> >>>>>
+> >>>>> Grant.
+> >>>>
+> >>>> Under Windows, if a 1394 drive is unplugged without unmounting, it you
+> >>>> get a pop up dialog on screen telling you that data may be lost, etc.
+> >>>> while under any of the main environments I've tried under Linux
+> >>>> (Gnome, KDE, fluxbox) there are no such messages to the user. I have
+> >>>> not investigated log files very deeply, other than to say that dmesg
+> >>>> will show the drive going away but doesn't say it was a problem.
+> >>>>
+> >>>> I realize it's probably 100x more difficult to do this under Linux, at
+> >>>> least at the gui level, but I agree with your main point that my trust
+> >>>> factor is just a bit lower here.
+> >>>
+> >>> No, WIndows says that because it is unable to mount a partition as sync,
+> >>> unlike Linux. Linux Desktop Environments simply don't tell the user because
+> >>> no data is lost if they unplug the media.
+> >>
+> >> Both of those statements are not true.
 > >
-> >BrrrrrrrrrrrrBrrrr
+> > Jim,
+> >   I'm not clear if 'both statements' included any of mine or not? :-)
 > >
-> >That was me blowing my own trumpet again :-)
+> >   You discussed the event I was thinking of. I am writing to a 1394
+> > drive, bus powered or not, and while the write is occuring I unplug
+> > the cable. Clearly the data being written is not going to finish, and
+> > that's expected, but the 'reduced confidence' issue is that I'm not
+> > told directly of the event. Granted I'll eventually discover it in
+> > some indrect manner, like a GUI action failing or something timing
+> > out. However in Windows I do appreciate the clear message that this
+> > has happened.
 > >
-> >Re:
-> >http://www.ussg.iu.edu/hypermail/linux/kernel/0407.1/0651.html
+> > Thanks,
+> > Mark
 > >
-> >Now just hit 1500 days:
-> >
-> >-
-> >[nick@486Linux nick]$ last -xf /var/run/utmp runlevel
-> >runlevel (to lvl 3)                    Sun Oct 14 16:07 - 21:41 
-> >(1502+06:34)
-> >
-> >utmp begins Sun Oct 14 16:07:40 2001
-> >-
-> >
-> >Utterly remarkable - the box gets no maintenance at all.
-> 
-> But it clearly gets a very reliable flavor of electricity...
-> >
-> >I would love to know how much data it has delivered, but alas, in 2001 I 
-> >wasn't up-to-speed with that sort of thing :-)
-> 
-> We got one to 1460 or so, then got BSOD on the controller which switches 
-> from the UPS to the diesel when they get up to speed, dropped power on 
-> the whole data center (at work).
-> 
-> I think you have the record, though.
+>
+> Doesn't your GUI show a 'console' window?
 
-I'm not sure about that one. =)
-I had a Pentium 233MMX pc running for 5 years 3 days.  Booted Nov 18th 1999
-and was downed due to a UPS failure around Nov 21 2004.
+No, Gnome does not, by default, show a console window. Many GUI based
+users like me, coming from Windows a couple of years ago, prefer to
+remain GUI based. I don't open termainals except to build kernels and
+do system admin stuff. Most all of my day to day like is spent in the
+GUI or in graphical applications. I move files, change permissions,
+etc., in GUI apps, at least most of the time. I know that's going to
+be pretty foreign to many old timers here, and that's cool, but I'm
+just saying that this is the way it is for me.
 
-5 years counting 2 leap year days (2000 and 2004), that's 1827 IIRC.
+Please note that I didn't say the info wasn't available. The info is
+available in dmesg and I know to go look there. The point I was making
+is that as a user I get no specific GUI level messages about this sort
+of problem like I do in Windows and I think as more Windows folks come
+to Linux there will be times they do not know what's going on.
 
-It was running kernel 2.2.13, 64mb ram, 1.6gb disk, it was a dns server nfs
-root server and a NIS server.  Other than that it didn't do much.  It did
-get use via the network everyday.  Too bad I don't have a last entry from
-utmp before it was killed.
+<SNIP>
+>
+> Although the messages may 'come from' the kernel, they are not
+> produced by the kernel. It is not the responsibility of the kernel
+> to display messages.
 
-If anyone is interested in the last entry, I'll see if I can dig itup from
-old backups.
+Yes, I understand that. As I said in my first post, I think it would
+be quite difficult to guarantee that every GUI environment running
+under a Linux kernel handle stuff like this. I think it's enough that
+the kernel makes the message available to the GUI developers. I would
+hope that one day the GUI developers see the value of messages like
+this from a user POV. To often the developers don't see things the way
+new users see (or don't see!) things so the learning curve is pretty
+steep.
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
- Got Gas???
+Maybe one thing kernel messages could do is identify which ones really
+should be driven up to the user level, if possible. I wouldn't have a
+clue what to do for someone not using a GUI, but getting a dialog
+based message about a system hardware problem seems pretty freindly to
+a user like me.
+
+Thanks,
+Mark

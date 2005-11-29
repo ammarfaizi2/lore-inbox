@@ -1,44 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751035AbVK2TW1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbVK2TYE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751035AbVK2TW1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 14:22:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbVK2TW1
+	id S1751316AbVK2TYE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 14:24:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbVK2TYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 14:22:27 -0500
-Received: from zproxy.gmail.com ([64.233.162.193]:49216 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751035AbVK2TW0 convert rfc822-to-8bit
+	Tue, 29 Nov 2005 14:24:04 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:23794 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S1751316AbVK2TYC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 14:22:26 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=HtVrvn7eavrec4T61d9fx/z0xHubn8unYbE/iOOw2QvtAwmLQF2/MNsmvGt1KQuUhhGYmZNSgyGR4CO1sCi+q0xjPpIJNQcvv2KqoNCOAPgf/gm15oz75JV0BdKBjxudyKJNdm57dNkneprX3dykQlxeseAEF2KBnug0q9e1XTM=
-Message-ID: <a762e240511291122x5551b129i94ee46d9f10548d2@mail.gmail.com>
-Date: Tue, 29 Nov 2005 11:22:26 -0800
-From: Keith Mannthey <kmannth@gmail.com>
-To: "0602@eq.cz" <0602@eq.cz>
-Subject: Re: totally random "VFS: Cannot open root device"
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <438B6E05.8070009@eq.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <438B6E05.8070009@eq.cz>
+	Tue, 29 Nov 2005 14:24:02 -0500
+Subject: floating point register corruption
+From: Paolo Galtieri <pgaltieri@mvista.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Tue, 29 Nov 2005 12:24:01 -0700
+Message-Id: <1133292241.26244.11.camel@playin.mvista.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-22) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What SATA controler are you using in your box? What does lspci report?
-It sounds to me like the driver you are using is not playing well with your
-SATA controler or drive.  It could be related to crappy HW or a driver issue.
+Folks,
+  I recently discovered a bug on PPC which causes the floating
+point registers to get corrupted when CONFIG_PREEMPT=y.
 
-When you system boots the drive says online and behaves ok?  You just
-see device trouble when you boot up correct?
+The problem occurred while running a multi threaded Java application
+that does floating point.  The problem could be reproduced in
+anywhere from 2 to 6 hours.  With the patch I have included below
+it ran for over a week without failure.
 
-Is it possible to capture the boot messages from a failed boot (serial console,
-netconsole)?  It can tell alot about why no root fs was found.  Most likley
-no disk were found by the SATA driver.
+Paolo
 
-Thanks,
+Signed-off-by: pgaltieri@mvista.com
 
-Keith
+--- linux-2.6.15-rc3/arch/ppc/kernel/process.c	2005-11-29
+07:01:55.000000000 -0700
++++ new-linux-2.6.15-rc3/arch/ppc/kernel/process.c	2005-11-29
+07:20:37.000000000 -0700
+@@ -417,6 +417,7 @@
+ 
+ void exit_thread(void)
+ {
++	preempt_disable();
+ 	if (last_task_used_math == current)
+ 		last_task_used_math = NULL;
+ 	if (last_task_used_altivec == current)
+@@ -425,10 +426,12 @@
+ 	if (last_task_used_spe == current)
+ 		last_task_used_spe = NULL;
+ #endif
++	preempt_enable();
+ }
+ 
+ void flush_thread(void)
+ {
++	preempt_disable();
+ 	if (last_task_used_math == current)
+ 		last_task_used_math = NULL;
+ 	if (last_task_used_altivec == current)
+@@ -437,6 +440,7 @@
+ 	if (last_task_used_spe == current)
+ 		last_task_used_spe = NULL;
+ #endif
++	preempt_enable();
+ }
+ 
+ void
+@@ -535,6 +539,7 @@
+ 	regs->nip = nip;
+ 	regs->gpr[1] = sp;
+ 	regs->msr = MSR_USER;
++	preempt_disable();
+ 	if (last_task_used_math == current)
+ 		last_task_used_math = NULL;
+ 	if (last_task_used_altivec == current)
+@@ -543,6 +548,7 @@
+ 	if (last_task_used_spe == current)
+ 		last_task_used_spe = NULL;
+ #endif
++	preempt_enable();
+ 	memset(current->thread.fpr, 0, sizeof(current->thread.fpr));
+ 	current->thread.fpscr.val = 0;
+ #ifdef CONFIG_ALTIVEC
+
+

@@ -1,95 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932367AbVK2Tw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbVK2Txv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932367AbVK2Tw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 14:52:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932369AbVK2Tw4
+	id S932366AbVK2Txv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 14:53:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbVK2Txv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 14:52:56 -0500
-Received: from zproxy.gmail.com ([64.233.162.205]:4180 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932367AbVK2Twz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 14:52:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=HsmS2nFVORetFMivYpWjfsVgRFDh0VWaSM+eDt8xX4aauCcPFbuTqp8rd5H+aXIabH5W4HS84NOsRsu9ovpiUPIiYYTLdRk9q4anYmg5K81v7lmDI2hQGb3IgqQ7KDrt68UOP5rZ/9e3pM7Slb1Bs9yOBdlCR0sWMQqczrjyZ28=
-Message-ID: <9a8748490511291152q13db77aaib9a5a3f97934b2bc@mail.gmail.com>
-Date: Tue, 29 Nov 2005 20:52:54 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-Subject: Re: Outlook Sux (Was: [2.6 patch] dpt_i2o fix for deadlock condition)
-Cc: Adrian Bunk <bunk@stusta.de>,
-       Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <547AF3BD0F3F0B4CBDC379BAC7E4189F01E3DE12@otce2k03.adaptec.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 29 Nov 2005 14:53:51 -0500
+Received: from mx2.suse.de ([195.135.220.15]:14268 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932366AbVK2Txu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 14:53:50 -0500
+Date: Tue, 29 Nov 2005 20:53:37 +0100
+From: Andi Kleen <ak@suse.de>
+To: "Brown, Len" <len.brown@intel.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+       Steven Rostedt <rostedt@goodmis.org>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>, acpi-devel@lists.sourceforge.net,
+       nando@ccrma.Stanford.EDU, rlrevell@joe-job.com,
+       linux-kernel@vger.kernel.org, paulmck@us.ibm.com, kr@cybsft.com,
+       tglx@linutronix.de, pluto@agmk.net, john.cooper@timesys.com,
+       bene@linutronix.de, dwalker@mvista.com, trini@kernel.crashing.org,
+       george@mvista.com
+Subject: Re: [RFC][PATCH] Runtime switching of the idle function [take 2]
+Message-ID: <20051129195336.GP19515@wotan.suse.de>
+References: <F7DC2337C7631D4386A2DF6E8FB22B3005456F00@hdsmsx401.amr.corp.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01E3DE12@otce2k03.adaptec.com>
+In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B3005456F00@hdsmsx401.amr.corp.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/29/05, Salyzyn, Mark <mark_salyzyn@adaptec.com> wrote:
-> From: Adrian Bunk [mailto:bunk@stusta.de] writes:
-> >> There must still be a way to tell outlook to make the type something
-> >> useful, rather than application/octet-stream.  maybe if the extension
->
-> >> was .patch.txt it would do something smarter.
-> > Patches in Attachments aren't nice, but better than corrupted patches.
->
-> :-)
->
-> Part of the problem is cut-n-paste engines on M$ and preservation of
-> content, the other part of the problem is the MUA making up it's own
-> rules on what constitutes a text document. It is not the MTA, sendmail
-> is blameless.
->
-> > It's unfortunate, but bitching on the people who are somehow forced to
->
-> > use crappy email clients is IMHO not a good idea.
->
-> We could always require that if a patch is done as an attachment, that
-> if it is smaller than 2K and/or at the submitters option, it also be
-> present as in-line content for code review convenience?
->
-> Thanks for that defense, I appreciate it. I am trapped in corporate
-> policy and MIS monitoring requirements. I have tried to make our MIS
-> department miserable over this issue, the sheer quantity of attempts to
-> mitigate is boggling and is still open. If I was paranoid, I'd almost
-> believe that M$ specifically decided to ignore RFC822 and all it's
-> children just to make it an impossible tool to use for submitting Linux
-> patches.
->
+On Tue, Nov 29, 2005 at 02:37:53PM -0500, Brown, Len wrote:
+> idle=poll is a really bad way to go from a power perspective.
+> While it is diminishing returns to get into deeper C-states,
+> getting into at least C1 (HALT or MONITOR/MWAIT) is very important
+> on many processors.
+> 
+> Note that if the issue at hand is the TSC stopping in deep
+> ACPI C-states, that there is a flag already available to limit
+> how deep the C-states go.  eg.
 
-I've myself worked in places that required the use of outlook, but
-luckily I've always been able to persuade those employers to let me
-use other MUA's as long as they were able to work with the MS Exchange
-server. For those situations I've been using pine and kmail with
-success. Would that be an option for you?  pine will even run on
-Windows if that's a corporate requirement as well.
+No i think they tried to work around the fact that
+it's not synchronized on AMD systems - in particular
+it drifts slightly even on single socket dual core
+A64 X2s and disabling C1 works around that.
+
+But idle=poll is too big an hammer for this. Vojtech
+is working on a solution anyways that should address this
+better.
 
 
-> Now, if *someone* had an idea how I could configure Outlook 2002 to
-> properly produce in-line patches *that* would earn my eternal gratitude
-> (or a single stay at Hotel Salyzyn when visiting the Orlando Mouse House
-> ;-> ). Outlook 2003 gets worse still by corrupting attachments (!) and I
-> thus reverted back to 2002.
->
-Since I don't use Outlook myself I don't really know. But I wen't
-googling and found a few links that perhaps can help you.
+> processor.max_cstate=2 will disable C3, C4 etc
+> You can do this at run-time by writing to
+> /sys/module/processor/parameters/max_cstate
 
-http://email.about.com/od/outlooktips/qt/et010406.htm
-http://www.expita.com/nomime.html#out2002
-http://support.microsoft.com/default.aspx?scid=kb;EN-US;q278134
-http://www.scheduleworld.com/outlookInteroperability.html
+In this case it's already C1 that's the problem,
+so that won't help them.
 
-Please note that I'm not recommending anything mentioned in those
-documents, I've never used those methods and I've barely ever touched
-Outlook, they are just the result of a quick google search.
+> I agree with Andi that we have some work to do to address
+> the issue directly, which is that the TSC is not reliable
+> under all conditions on all processors.  I think we need
 
+We're mostly addressing it - there are problems left, but
+overall it's looking good. The remaining problem is 
+an education issue of users to not use RDTSC directly, 
+but use gettimeofday/clock_gettime
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+One remaining use is measurements, but for that it is
+already dubious (e.g. due to ticking at a possible
+different frequency than the CPU). For that I want
+to establish the RDPMC 0 convention.
+
+Probably need better documentation for all of this though...
+
+> some modes for TSC to detect and handle the cases where it either
+> stops in C3 or changes speeds, vs the systems where it actually
+> works the way we want it to -- constant rate that never stops.
+>  
+> >Why not just slightly cleanup and extend (eg. to ACPI) the
+> >hlt_counter thingy that many architectures already have?
+> 
+> Hmmm, I see the floppy driver invoking hlt_counter,
+> but it isn't clear what the general semantics and general
+> users are supposd to be.  Can you clue me in?
+
+It's an ancient hack for an ancient machine chipset bug, but AFAIK 
+not used/needed on anything modern. 
+
+Should probably remove it from x86-64 too.
+
+-Andi

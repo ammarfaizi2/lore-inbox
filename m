@@ -1,86 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbVK2Wxc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964796AbVK2XBq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932443AbVK2Wxc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 17:53:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbVK2Wxc
+	id S964796AbVK2XBq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 18:01:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964800AbVK2XBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 17:53:32 -0500
-Received: from hera.kernel.org ([140.211.167.34]:55220 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932443AbVK2Wxb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 17:53:31 -0500
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: Linux 2.6.15-rc3
-Date: Tue, 29 Nov 2005 14:53:28 -0800
-Organization: OSDL
-Message-ID: <20051129145328.3e5964a4@dxpl.pdx.osdl.net>
-References: <Pine.LNX.4.64.0511282006370.3177@g5.osdl.org>
-	<200511292247.09243.rjw@sisk.pl>
-	<200511292342.36228.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 29 Nov 2005 18:01:46 -0500
+Received: from kirby.webscope.com ([204.141.84.57]:20919 "EHLO
+	kirby.webscope.com") by vger.kernel.org with ESMTP id S964796AbVK2XBp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 18:01:45 -0500
+Message-ID: <438CDDBC.1070704@m1k.net>
+Date: Tue, 29 Nov 2005 18:01:16 -0500
+From: Michael Krufky <mkrufky@m1k.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kirk Lapray <kirk.lapray@gmail.com>
+CC: Gene Heskett <gene.heskett@verizon.net>, video4linux-list@redhat.com,
+       CityK <CityK@rogers.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Perry Gilfillan <perrye@linuxmail.org>, Don Koch <aardvark@krl.com>
+Subject: Re: Gene's pcHDTV 3000 analog problem
+References: <200511282205.jASM5YUI018061@p-chan.krl.com>	 <200511291335.18431.gene.heskett@verizon.net>	 <438CA1E3.7010101@m1k.net>	 <200511291546.27365.gene.heskett@verizon.net> <438CC83E.50100@m1k.net> <c35b44d70511291435i5f07bc88g429276ef659c28c5@mail.gmail.com>
+In-Reply-To: <c35b44d70511291435i5f07bc88g429276ef659c28c5@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1133304808 15429 10.8.0.74 (29 Nov 2005 22:53:28 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Tue, 29 Nov 2005 22:53:28 +0000 (UTC)
-X-Newsreader: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Nov 2005 23:42:35 +0100
-"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+Kirk Lapray wrote:
 
-> Update:
-> 
-> On Tuesday, 29 of November 2005 22:47, Rafael J. Wysocki wrote:
-> > On Tuesday, 29 of November 2005 05:11, Linus Torvalds wrote:
-> > > 
-> > > I just pushed 2.6.15-rc3 out there, and here are both the shortlog and 
-> > > diffstats appended.
-> > 
-> > Hangs solid on boot on dual-core Athlon64.  No details yet, but I'm working
-> > on them.  I wonder if anyone else is seeing this.
-> 
-> The problem is caused by the ehci_hcd driver and fixed by the David
-> Brownell's ehci-hang-fix.patch that's already in -mm.
+> I only run the cards in digital mode.  I have no need to tune to any 
+> analog channels with them.  When I was working on nxt200x I was able 
+> to tune both analog and digital channels on the HDTV Wonder, but I 
+> have never tried to tune to any analog channels using the HD3000.  
+> This was using kernel 2.6.13 and the cvs v4l and dvb trees.
+>
+> I am not sure when I will have some time to test 2.6.15-rc3, but if I 
+> get some time I will try analog support on this and my current setup.
+>
+> Kirk
+>
+Kirk-
 
-I assume this is that bug:
--- 
-[   47.145873] kjournald starting.  Commit interval 5 seconds
-[   47.187797] EXT3-fs: mounted filesystem with ordered data mode.
-[   48.395152] usbcore: registered new driver usbfs
-[   48.433382] usbcore: registered new driver hub
-[   58.733294] NMI Watchdog detected LOCKUP on CPU 1
-[   58.770674] CPU 1 
-[   58.799348] Modules linked in: ehci_hcd i2c_amd8111 i2c_amd756 i2c_core snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_seq_dummy snd_seq_oss snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd soundcore snd_page_alloc sky2 tg3 usbcore
-[   58.950846] Pid: 2042, comm: modprobe Not tainted 2.6.15-rc3-sky2 #1
-[   58.996375] RIP: 0010:[<ffffffff803c145b>] <ffffffff803c145b>{.text.lock.spinlock+34}
-[   59.022530] RSP: 0018:ffff81007fb39bb0  EFLAGS: 00000086
-[   59.090005] RAX: 0000000000000296 RBX: 0000000000002301 RCX: 0000000000000005
-[   59.138990] RDX: 0000000000000008 RSI: 0000000000002301 RDI: ffff81007cf84554
-[   59.187922] RBP: 0000000000000005 R08: 0000000000000000 R09: 0000000000000000
-[   59.236698] R10: 0000000000000037 R11: 000000000000000a R12: ffff81007cf84400
-[   59.285266] R13: 0000000000002395 R14: 0000000000000008 R15: ffff81007cf84538
-[   59.333549] FS:  00002aaaaaac53c0(0000) GS:ffffffff805c6880(0000) knlGS:0000000000000000
-[   59.385260] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-[   59.429103] CR2: 0000003d49a92660 CR3: 000000007d1c3000 CR4: 00000000000006e0
-[   59.477671] Process modprobe (pid: 2042, threadinfo ffff81007fb38000, task ffff81007c001060)
-[   59.530809] Stack: ffffffff88114d8a ffff810037cae1b0 0000000000000000 0000000000040000 
-[   59.557613]        0000000000004283 0000000000000016 ffffffff8811ac60 ffff810037cae1b0 
-[   59.609531]        0000000000000004 0000000000000002 
-[   59.651373] Call Trace:<ffffffff88114d8a>{:ehci_hcd:ehci_hub_control+90} <ffffffff80257d38>{pci_bus_read_config_word+136}
-[   59.713317]        <ffffffff80257c84>{pci_bus_read_config_byte+116} <ffffffff8811555d>{:ehci_hcd:ehci_port_power+157}
-[   59.775028]        <ffffffff8811590d>{:ehci_hcd:ehci_pci_reinit+909} <ffffffff88117724>{:ehci_hcd:ehci_pci_reset+1156}
-[   59.837778]        <ffffffff8030af1f>{pci_conf1_read+223} <ffffffff88008ee5>{:usbcore:usb_add_hcd+117}
-[   59.896527]        <ffffffff8030a9ce>{pcibios_set_master+30} <ffffffff88012a4d>{:usbcore:usb_hcd_pci_probe+653}
-[   59.958237]        <ffffffff8025c639>{pci_device_probe+89} <ffffffff802b867d>{driver_probe_device+77}
-[   60.017091]        <ffffffff802b8760>{__driver_attach+0} <ffffffff802b87a0>{__driver_attach+64}
-[   60.074566]        <ffffffff802b8760>{__driver_attach+0} <ffffffff802b7a49>{bus_for_each_dev+73}
-[   60.132538]        <ffffffff802b7f80>{bus_add_driver+128} <ffffffff8025c130>{__pci_register_driver+160}
-[   60.192379]        <ffffffff80150a22>{sys_init_module+258} <ffffffff8010dcee>{system_call+126}
-[   60.249856]        
-[   60.315333] 
-[   60.315334] Code: 83 3f 00 7e f9 e9 2e fe ff ff f3 90 83 3f 00 7e f9 e9 30 fe 
-[   60.404781] console shuts up ...
-[   60.445767]  <0>Kernel panic - not syncing: Aiee, killing interrupt handler!
+Please test your cards in analog mode, or I fear that we may have to 
+cause NXT200X to depend on BROKEN.
+
+Here's why....
+
+A few months ago, as we added the nxt200x module to cvs, I told you that 
+with nxt200x loaded into memory, I had some extra devices showing up on 
+my i2c bus.  At the time, I was using another cx88 card, and it did not 
+use the nxt200x module itself, although it loads up into memory 
+automatically by the cx88-dvb module.
+
+You told me that there was some code in nxt200x module that somehow 
+opens up a channel to hidden i2c devices.  Why would this code affect my 
+system if my device is not using the nxt200x module?
+
+Is there code being run at nxt200x module load that is causing this 
+BEFORE cx88-dvb calls nxt200x_attach() ?
+
+It seems that Gene, Perry and Don are having problems with their analog 
+tuners (they each have pcHDTV 3000) ever since nxt200x got added.
+
+Gene, Perry and Don - What happens if you have the cx88 module loaded, 
+but you do NOT load up cx88-dvb (nxt200x will not be loaded) ... Does 
+the problem persist?
+
+You do not need cx88-dvb to view analog television.
+
+Kirk, we need a control group!  Please test analog on both boards.
+
+Kirk, there is a thread on the v4l/dvb mailing lists right now about an 
+i2c gate dealing with Hauppauge cards and cx22702 frontend.  What Steve 
+Toth has described about this 'i2c gate' is starting to sound similar to 
+what you mentioned about making hidden i2c devices visible.
+
+I'm getting the feeling that nxt200x is indeed the problem.
+
+Gene, Perry and Don .... Another thing you can try -- Once again, 
+install v4l-dvb cvs on top of your running kernel, but this time, before 
+compiling, edit v4l-dvb/v4l/Makefile , and remove the line:
+
+ EXTRA_CFLAGS += -DHAVE_NXT200X=1
+
+... This line appears twice, you only need to remove the top one, as it 
+pertains to the cx88 card, although it is safe to remove both for the 
+purposes of this test.
+
+If this fixes your problem, then we know that nxt200x is the cause.
+
+-Mike
+

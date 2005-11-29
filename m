@@ -1,76 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbVK2U6K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbVK2U7D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932401AbVK2U6K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 15:58:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbVK2U6K
+	id S932406AbVK2U7D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 15:59:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbVK2U7C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 15:58:10 -0500
-Received: from wproxy.gmail.com ([64.233.184.198]:6610 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932401AbVK2U6I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 15:58:08 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:message-id:from;
-        b=hQ6rIg5lVbuteYqMy8HKKJJkshjjfk3RCX+8sQgvTVfeiFTCFYIUD6TMqhPn8K13ENTS6zM+RQY+njyEmyO6+KmuAUEc6ktgo+eKAIvuLntPu9mNoXIwWBffYYK5a/sH3ZhvLEA3YGuIB49zZGEFF4J4McVDrcPV7qcPmCYa+5A=
-To: Mateusz Berezecki <mateuszb@gmail.com>
-Subject: Re: NIC irq nobody cared ? virtual to  physical  and DMA questions
-Date: Tue, 29 Nov 2005 22:05:58 +0100
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       kernel-mentors@selenic.com
-References: <745843498.20051129212851@gmail.com>
-In-Reply-To: <745843498.20051129212851@gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1976923.1UqfYTiUxi";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200511292206.02147.IvDoorn@gmail.com>
-From: Ivo van Doorn <ivdoorn@gmail.com>
+	Tue, 29 Nov 2005 15:59:02 -0500
+Received: from solarneutrino.net ([66.199.224.43]:60932 "EHLO
+	tau.solarneutrino.net") by vger.kernel.org with ESMTP
+	id S932403AbVK2U7A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 15:59:00 -0500
+Date: Tue, 29 Nov 2005 15:58:56 -0500
+To: Kai Makisara <Kai.Makisara@kolumbus.fi>
+Cc: Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, ryan@tau.solarneutrino.net
+Subject: Re: Fw: crash on x86_64 - mm related?
+Message-ID: <20051129205856.GE6326@tau.solarneutrino.net>
+References: <20051129092432.0f5742f0.akpm@osdl.org> <Pine.LNX.4.63.0511292147120.5739@kai.makisara.local> <20051129203112.GD6326@tau.solarneutrino.net> <Pine.LNX.4.63.0511292239070.5739@kai.makisara.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.63.0511292239070.5739@kai.makisara.local>
+User-Agent: Mutt/1.5.9i
+From: Ryan Richter <ryan@tau.solarneutrino.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1976923.1UqfYTiUxi
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Tue, Nov 29, 2005 at 10:48:22PM +0200, Kai Makisara wrote:
+> On Tue, 29 Nov 2005, Ryan Richter wrote:
+> > This applies cleanly to 2.6.14.2, do you forsee any problems using it
+> > with that kernel?  I'd like to not change too many things at once.
+> > 
+> No, I don't see any potential problems applying this patch to 2.6.14.2. 
+> There is nothing specific to 2.6.15-rc2.
+> 
+> If someone sees that there is something wrong, please yell. The 
+> main purpose of the patch is not to call release_buffering() at the end of 
+> st_write() when starting asynchronous write and call it in 
+> write_behind_check() instead.
 
-Hi,
+OK, thanks.  I think I'll go ahead and advance to 2.6.14.3 since that
+should theoretically not cause any problems.
 
-> This time the questions are different.
->=20
-> Given the following output could anyone please tell me what is wrong ?
-> In explicit what does that mysterious "nobody cared" message mean?
-> And another stupid question: should DMA for a network card be enabled bef=
-ore or maybe
-> _after_ interrupts get enabled? And... how to convert virtual address
-> to physical one?
+One question: do you think the oopses that happened later that actually
+crashed the box were from damage caused by this bug or is that a
+different problem?
 
-The nobody cared error message is reported when a device is raising interru=
-pts while
-the actual driver has not yet registered the interrupt handler.
+> > If it should be OK, I'll boot this tonight or tomorrow - the backups run
+> > every other night, so it won't get any testing until tomorrow night.
+> > 
+> > Thanks a lot,
+> > -ryan
+> > 
+> Thanks for reporting the problem and thanks in advance for testing.
 
-The best way to handle this for network drivers (done in rt2x00, which work=
-s fine) would be:
-
-1 - Allocate DMA
-2 - Registers interrupt handler
-3 - Enable device interrupts.
-
-IvD
-
---nextPart1976923.1UqfYTiUxi
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBDjMK6aqndE37Em0gRAof8AKDQSn0ouW6mO+u1dagQlOGxykKPZACfY9bI
-DBzUqBjE1ExmoI+3e6FuUpQ=
-=I2Tq
------END PGP SIGNATURE-----
-
---nextPart1976923.1UqfYTiUxi--
+Sure thing,
+-ryan

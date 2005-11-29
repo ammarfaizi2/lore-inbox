@@ -1,46 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750883AbVK2OEM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751359AbVK2OWp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750883AbVK2OEM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 09:04:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751343AbVK2OEM
+	id S1751359AbVK2OWp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 09:22:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbVK2OWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 09:04:12 -0500
-Received: from nproxy.gmail.com ([64.233.182.197]:56772 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750883AbVK2OEL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 09:04:11 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kvHeBwnvyE3dT2hCf1jxiil93NH3qiX/zzrMieIAtbuVH623k/++BCiBRhumVdv4Ao/g7cmc/GH9I6JSB3zFLeMrZFfB6y06PenSKn2NyZYbzMDodC2x+H6Ylu+ey3JwLabtr44fFxYj2FGVikpLqzrtaYulZqeVqk8TECaPe/U=
-Message-ID: <121a28810511290604m68c56398t@mail.gmail.com>
-Date: Tue, 29 Nov 2005 15:04:10 +0100
-From: Grzegorz Nosek <grzegorz.nosek@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] race condition in procfs
-Cc: linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org
-In-Reply-To: <121a28810511290525m1bdf12e0n@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <121a28810511282317j47a90f6t@mail.gmail.com>
-	 <20051129000916.6306da8b.akpm@osdl.org>
-	 <121a28810511290038h37067fecx@mail.gmail.com>
-	 <121a28810511290525m1bdf12e0n@mail.gmail.com>
+	Tue, 29 Nov 2005 09:22:45 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:11920 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751359AbVK2OWo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 09:22:44 -0500
+Subject: Re: [RFC][PATCH] Runtime switching of the idle function [take 2]
+From: Steven Rostedt <rostedt@goodmis.org>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, mingo@elte.hu,
+       acpi-devel@lists.sourceforge.net, len.brown@intel.com,
+       nando@ccrma.Stanford.EDU, rlrevell@joe-job.com,
+       linux-kernel@vger.kernel.org, paulmck@us.ibm.com, kr@cybsft.com,
+       tglx@linutronix.de, pluto@agmk.net, john.cooper@timesys.com,
+       bene@linutronix.de, dwalker@mvista.com, trini@kernel.crashing.org,
+       george@mvista.com
+In-Reply-To: <1133238170.1421.15.camel@cog.beaverton.ibm.com>
+References: <20051115090827.GA20411@elte.hu>
+	 <1132336954.20672.11.camel@cmn3.stanford.edu>
+	 <1132350882.6874.23.camel@mindpipe>
+	 <1132351533.4735.37.camel@cmn3.stanford.edu>
+	 <20051118220755.GA3029@elte.hu>
+	 <1132353689.4735.43.camel@cmn3.stanford.edu>
+	 <1132367947.5706.11.camel@localhost.localdomain>
+	 <20051124150731.GD2717@elte.hu>
+	 <1132952191.24417.14.camel@localhost.localdomain>
+	 <20051126130548.GA6503@elte.hu>
+	 <1133232503.6328.18.camel@localhost.localdomain>
+	 <20051128190253.1b7068d6.akpm@osdl.org>
+	 <1133235740.6328.27.camel@localhost.localdomain>
+	 <1133238170.1421.15.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Tue, 29 Nov 2005 09:22:37 -0500
+Message-Id: <1133274157.6328.52.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2005/11/29, Grzegorz Nosek <grzegorz.nosek@gmail.com>:
->
-> Oh well, I got another oops in the very same place with the patch
-> applied. So now I surrounded the check with
-> read_[un]lock(&tasklist_lock) and added a check to do_task_stat (both
-> now have a printk). If it builds, boots and doesn't crash, I'll post
-> the patch.
+On Mon, 2005-11-28 at 20:22 -0800, john stultz wrote:
+> On Mon, 2005-11-28 at 22:42 -0500, Steven Rostedt wrote:
+> > On Mon, 2005-11-28 at 19:02 -0800, Andrew Morton wrote:
+> > > Steven Rostedt <rostedt@goodmis.org> wrote:
+> > > >
+> > > > This patch creates a directory in /sys/kernel called idle.
+> > > >
+> > > 
+> > > At no point do you appear to explain _why_ the kernel needs this feature?
+> > 
+> > Sorry about that.  This originally came up when we had problems with the
+> > AMD64 x2 in the -rt patch.  It was noted that the TSCs would get very
+> > far out of sync and cause problems.  The way to solve this was to set
+> > idle=poll.  The original patch I sent was to allow the user to change to
+> > idle=poll dynamically.  This way they could switch to the poll_idle and
+> > run there tests (requiring tsc not to drift) and then switch back to the
+> > default idle to save on electricity.
+> 
+> The problem with this is that this must be a one way transition. That
+> is, once the TSCs have become unsynchronized, there is no use going back
+> to using the polling idle unless you add some code to re-sync the TSCs
+> which would be ugly to do after the system has booted.
+> 
 
-Froze solid a minute after booting :( netconsole didn't log anything
-either. Back to the drawing board.
+I've thought about that too.  But this patch does allow you to start
+with  idle=poll and then switch back.  Also, if you do lock to a cpu,
+you don't need to worry about the tsc from slipping if you switch to
+idle=poll.
 
-Best regards,
- Grzegorz Nosek
+-- Steve
+
+> Using idle=poll (for anything other then debugging) is really a worst
+> case workaround for systems that do not have alternative clocksources
+> like ACPI PM or HPET.
+> 
+> Its an interesting bit of code, but I'm not really sure I understand its
+> usefulness.
+> 
+> thanks
+> -john
+> 
+> 
+> 
+

@@ -1,57 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbVK2Ot4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbVK2Oue@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751365AbVK2Ot4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 09:49:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbVK2Ot4
+	id S1751361AbVK2Oue (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 09:50:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbVK2Oue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 09:49:56 -0500
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:40649 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751365AbVK2Otz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 09:49:55 -0500
-Date: Tue, 29 Nov 2005 09:49:44 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Grzegorz Nosek <grzegorz.nosek@gmail.com>
-cc: vserver@list.linux-vserver.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] race condition in procfs
-In-Reply-To: <121a28810511290639g79617c85h@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0511290945380.7838@gandalf.stny.rr.com>
-References: <121a28810511282317j47a90f6t@mail.gmail.com> 
- <20051129000916.6306da8b.akpm@osdl.org>  <121a28810511290038h37067fecx@mail.gmail.com>
-  <121a28810511290525m1bdf12e0n@mail.gmail.com>  <121a28810511290604m68c56398t@mail.gmail.com>
-  <1133274524.6328.56.camel@localhost.localdomain> <121a28810511290639g79617c85h@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 29 Nov 2005 09:50:34 -0500
+Received: from mx1.suse.de ([195.135.220.2]:26538 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751361AbVK2Oud (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 09:50:33 -0500
+Date: Tue, 29 Nov 2005 15:50:22 +0100
+From: Andi Kleen <ak@suse.de>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
+       acpi-devel@lists.sourceforge.net, len.brown@intel.com,
+       nando@ccrma.Stanford.EDU, rlrevell@joe-job.com,
+       linux-kernel@vger.kernel.org, paulmck@us.ibm.com, kr@cybsft.com,
+       tglx@linutronix.de, pluto@agmk.net, john.cooper@timesys.com,
+       bene@linutronix.de, dwalker@mvista.com, trini@kernel.crashing.org,
+       george@mvista.com, akpm@osdl.org
+Subject: Re: [RFC][PATCH] Runtime switching of the idle function [take 2]
+Message-ID: <20051129145022.GE19515@wotan.suse.de>
+References: <20051124150731.GD2717@elte.hu> <1132952191.24417.14.camel@localhost.localdomain> <20051126130548.GA6503@elte.hu> <1133232503.6328.18.camel@localhost.localdomain> <20051128190253.1b7068d6.akpm@osdl.org> <1133235740.6328.27.camel@localhost.localdomain> <20051128200108.068b2dcd.akpm@osdl.org> <20051129064420.GA15374@elte.hu> <p73mzjngwim.fsf@verdi.suse.de> <1133273971.6328.49.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1133273971.6328.49.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Nov 29, 2005 at 09:19:31AM -0500, Steven Rostedt wrote:
+> > And in practice the CPU will run so hot that only benchmarkers like it.
+> 
+> Why would it run hot?  What's the difference between polling and doing
+> other things.  How many transistors does it take to poll?
 
-On Tue, 29 Nov 2005, Grzegorz Nosek wrote:
+It will prevent the CPU from going into sleep states and essentially
+keep most of it enabled.  
 
->
-> I'm not really using vanilla 2.6 kernels and my setup would be quite
-> hard to run on a vanilla kernel.
->
-> The reproduceability of this bug varies. Sometimes it'll go for a few
-> days without happening, sometimes it's a matter of a few minutes. I'm
-> beginning to feel it's a vserver issue after all, somehow related to
-> pid virtualisation (it maps some vxi->vx_initpid to 1).
->
-> Thus I cannot provide a simple script to trigger the bug (I wish I
-> could) but often doing a -j8 kernel compile in a vserver is enough.
->
+> 
+> > 
+> > I think switching idle is the wrong way to do. We should rather
+> > fix the various problems.
+> > 
+> > For fixing the TSC issue it is 100% the wrong approach Imho.
+> 
+> I would only say 80% the wrong approach, but that's me ;-)
+> 
+> > Basically software has to live with TSCs being unsynchronized
+> > and gettimeofday should do the right thing (and if not it should be fixed)
+> 
+> I guess the biggest complaint most have is that the rdtsc _is_ the
+> fastest way to read a clock.  If it isn't reliable, then what good is
 
-What you are showing, would probably show up by others if this were a
-vanilla kernel issue.  I don't have an 8 way machine, just 2 way, but the
-vanilla kernel is being used on many 8 ways out there, so I think you are
-right that this _is_ a vserver issue.
+It's the fastest way to read something which needs quite complex
+knowledge to turn into a reliable clock value. In general only
+the kernel has this knowledge. 
 
-Unless, of course, that the vserver is producing an obscure race in the
-vanilla kernel that normal operations would seldom have.  Just like the
-PREEMPT_RT patch has discovered many race conditions that were in the
-vanilla kernel but were not often a problem.
+And gettimeofday is optimized to give you the fatest reliable
+clock. 
 
--- Steve
+> it?  It's unfortunate that Intel didn't solidify the clock usage. Yes,
+> use HPET, or something else, but those are slower, and may not be on all
+> systems.  Every system that I owned had a tsc but for critical systems
+> it isn't up to par (what a shame).
 
+Just use gettimeofday. It shields you from all that and when
+the hardware supports it is quite fast too.
+
+> > > system has been idle for some time. E.g. cpufreqd could sample idle time 
+> > > and turn on/off idle=poll. High-performance setups could enable it all 
+> > > the time.
+> > 
+> > And upgrade their server air condition or issue additional ear protection
+> > to the desktop user? Most likely you will just drive the CPUs into
+> > thermal throttle at some point with that, not get more performance anyways.
+> 
+> Again, what would make it so hot?  It is a waste of CPU cycles, and does
+> waste energy that way, but does it really heat up the CPU that much?
+
+Yes it does.
+
+-Andi

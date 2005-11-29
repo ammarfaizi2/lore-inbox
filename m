@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbVK2QtB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbVK2QvX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932166AbVK2QtB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 11:49:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbVK2QtA
+	id S932165AbVK2QvX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 11:51:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbVK2QvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 11:49:00 -0500
-Received: from mx2.suse.de ([195.135.220.15]:48798 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932155AbVK2QtA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 11:49:00 -0500
-Date: Tue, 29 Nov 2005 17:48:58 +0100
-From: Andi Kleen <ak@suse.de>
-To: thockin@hockin.org
-Cc: Andi Kleen <ak@suse.de>, Steven Rostedt <rostedt@goodmis.org>,
-       Ingo Molnar <mingo@elte.hu>, john stultz <johnstul@us.ibm.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RT] read_tsc: ACK! TSC went backward! Unsynced TSCs?
-Message-ID: <20051129164858.GL19515@wotan.suse.de>
-References: <1133179554.11491.3.camel@localhost.localdomain> <20051128173040.GA32547@hockin.org> <1133199568.7416.31.camel@mindpipe> <20051128183517.GA4549@hockin.org> <p73r78zh7kv.fsf@verdi.suse.de> <20051129165219.GA12687@hockin.org>
-Mime-Version: 1.0
+	Tue, 29 Nov 2005 11:51:22 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:9477 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S932165AbVK2QvW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 11:51:22 -0500
+To: Rob Landley <rob@landley.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Question: madvise(DONT_SYNC)
+References: <200511271925.09565.rob@landley.net>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: if SIGINT doesn't work, try a tranquilizer.
+Date: Tue, 29 Nov 2005 16:51:16 +0000
+In-Reply-To: <200511271925.09565.rob@landley.net> (Rob Landley's message of
+ "28 Nov 2005 01:35:57 -0000")
+Message-ID: <87y837s8hn.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051129165219.GA12687@hockin.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 29, 2005 at 08:52:19AM -0800, thockin@hockin.org wrote:
-> On Tue, Nov 29, 2005 at 07:06:24AM -0700, Andi Kleen wrote:
-> > But I'm surprised you're saying 2.6.11 broke. At least 2.6.11 64bit should
-> > have always used HPET in this case. I only broke it around 2.6.13
-> > where I added an overeager optimization for single socket DC on my side based
-> > on a misunderstanding. Earlier and later kernels should have been ok.
-> 
-> we didn't have HPET enabled in BIOS until recently.  Turning that on made
-> all the TSC gettimeofday() crap disappear.  Now to find and kill any
-> straggling users of rdtsc
+On 28 Nov 2005, Rob Landley whispered secretively:
+> I can change the default to /dev/pts (which is tmpfs with the sticky bit on 
+> Fedora Core 4, Ubuntu, and Gentoo.
 
-The newer kernels work around this too by using pmtimer when needed.
-Of course it's slow. 
+Um, you mean /dev/shm, right?
 
-Regarding straggling users of rdtsc - one way would be to optionally
-trap them and log them in the kernel. That would work in ring 3 at least.
+>                                     But which has nothing mounted on it and 
+> isn't even world writable on the only x86-64 system I currently have access 
 
--Andi
+Well, shm_open() and friends just won't work on that system (the /dev/shm path
+is hardwired into glibc; I guess the PLD people might have hacked glibc to
+change that path, but that seems peculiar).
+
+Distro bug.
+
+-- 
+`Y'know, London's nice at this time of year. If you like your cities
+ freezing cold and full of surly gits.' --- David Damerell
 

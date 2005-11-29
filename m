@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbVK2VnY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbVK2VoJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932431AbVK2VnY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 16:43:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbVK2VnY
+	id S932435AbVK2VoJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 16:44:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932436AbVK2VoJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 16:43:24 -0500
-Received: from rwcrmhc11.comcast.net ([216.148.227.151]:22265 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S932431AbVK2VnX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 16:43:23 -0500
-Subject: Re: [Perfctr-devel] Re: Enabling RDPMC in user space by default
-From: Nicholas Miell <nmiell@comcast.net>
-To: Andi Kleen <ak@suse.de>
-Cc: Stephane Eranian <eranian@hpl.hp.com>,
-       Ray Bryant <raybry@mpdtxmail.amd.com>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org, perfctr-devel@lists.sourceforge.net
-In-Reply-To: <20051129181344.GN19515@wotan.suse.de>
-References: <20051129151515.GG19515@wotan.suse.de>
-	 <200511291056.32455.raybry@mpdtxmail.amd.com>
-	 <20051129180903.GB6611@frankl.hpl.hp.com>
-	 <20051129181344.GN19515@wotan.suse.de>
-Content-Type: text/plain
-Date: Tue, 29 Nov 2005 13:43:11 -0800
-Message-Id: <1133300591.3271.1.camel@entropy>
+	Tue, 29 Nov 2005 16:44:09 -0500
+Received: from locomotive.csh.rit.edu ([129.21.60.149]:34130 "EHLO
+	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
+	id S932435AbVK2VoH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 16:44:07 -0500
+Date: Tue, 29 Nov 2005 16:44:03 -0500
+From: Jeff Mahoney <jeffm@suse.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: ReiserFS List <reiserfs-list@namesys.com>
+Subject: [PATCH] reiserfs: handle cnode allocation failure gracefully
+Message-ID: <20051129214403.GA3840@locomotive.unixthugs.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4.njm.1) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Operating-System: Linux 2.6.5-7.201-smp (i686)
+X-GPG-Fingerprint: A16F A946 6C24 81CC 99BB  85AF 2CF5 B197 2B93 0FB2
+X-GPG-Key: http://www.csh.rit.edu/~jeffm/jeffm.gpg
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-29 at 19:13 +0100, Andi Kleen wrote:
-> > Where did you see that PMC0 (PERSEL0/PERFCTR0) can only be programmed
-> > to count cpu cycles (i.e. cpu_clk_unhalted)? As far as I can tell from
-> > the documentation, the 4 counters are symetrical and can measure
-> > any event that the processor offers.
-> 
-> Linux NMI watchdog does that.
-> 
-> All other perfctr users are supposed to keep their fingers away 
-> from the watchdog (it looks like oprofile doesn't but not for much
-> longer ...) 
 
-Why? Hardcoding PMC 0 to be a cycle counter seems to be a waste of a
-perfectly usable performance counter. What if I want to profile four
-things, none of them requiring a cycle count?
+ If an external device is used for a journal, by default it will use the
+ entire device. The reiserfs journal code allocates structures per journal
+ block when it mounts the file system. If the journal device is too large, and
+ memory cannot be allocated for the structures, it will continue and ultimately
+ panic when it can't pull one off the free list.
 
+ This patch handles the allocation failure gracefully and prints an error
+ message at mount time.
+
+ Changes: Updated error message to be more descriptive to the user.
+
+ Discussed and approved on ReiserFS Mailing List, Nov 28.
+
+Signed-off-by: Jeff Mahoney <jeffm@suse.com>
+
+diff -ruNpX dontdiff a/fs/reiserfs/journal.c b/fs/reiserfs/journal.c
+--- a/fs/reiserfs/journal.c	2005-09-16 11:42:58.000000000 -0400
++++ b/fs/reiserfs/journal.c	2005-11-23 19:14:17.000000000 -0500
+@@ -2757,6 +2757,15 @@ int journal_init(struct super_block *p_s
+ 	journal->j_cnode_used = 0;
+ 	journal->j_must_wait = 0;
+ 
++	if (journal->j_cnode_free == 0) {
++        	reiserfs_warning(p_s_sb, "journal-2004: Journal cnode memory "
++		                 "allocation failed (%ld bytes). Journal is "
++		                 "too large for available memory. Usually "
++		                 "this is due to a journal that is too large.",
++		                 sizeof (struct reiserfs_journal_cnode) * num_cnodes);
++        	goto free_and_return;
++	}
++
+ 	init_journal_hash(p_s_sb);
+ 	jl = journal->j_current_jl;
+ 	jl->j_list_bitmap = get_list_bitmap(p_s_sb, jl);
 -- 
-Nicholas Miell <nmiell@comcast.net>
-
+Jeff Mahoney
+SuSE Labs

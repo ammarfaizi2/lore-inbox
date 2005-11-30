@@ -1,120 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbVK3Xaw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751262AbVK3Xed@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751200AbVK3Xaw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 18:30:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbVK3Xav
+	id S1751262AbVK3Xed (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 18:34:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751264AbVK3Xec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 18:30:51 -0500
-Received: from ns.dynamicweb.hu ([195.228.155.139]:53940 "EHLO dynamicweb.hu")
-	by vger.kernel.org with ESMTP id S1751200AbVK3Xav (ORCPT
+	Wed, 30 Nov 2005 18:34:32 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:33409 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1751262AbVK3Xec convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 18:30:51 -0500
-Message-ID: <042001c5f605$6bd5cbd0$0400a8c0@dcccs>
-From: "JaniD++" <djani22@dynamicweb.hu>
-To: =?ISO-8859-1?Q?Carlos_Mart=EDn?= <carlosmn@gmail.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.60.0511270409430.30055@kepler.fjfi.cvut.cz> <Pine.LNX.4.61.0511270927130.14029@yvahk01.tjqt.qr> <018c01c5f435$9e548370$0400a8c0@dcccs> <200511291015.55181.vda@ilport.com.ua> <fe726f4e0511290736w6931ec83q@mail.gmail.com>
-Subject: Re: ACPI: PCI Interrupt Link [LNKA] (IRQs *7)
-Date: Thu, 1 Dec 2005 00:18:57 +0100
+	Wed, 30 Nov 2005 18:34:32 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] Add VT flag to cpuinfo
+Date: Wed, 30 Nov 2005 15:34:19 -0800
+Message-ID: <7F740D512C7C1046AB53446D372001730615830E@scsmsx402.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] Add VT flag to cpuinfo
+Thread-Index: AcX1+P8HImnhytR/Rqi7pgrGqSYn1AADOZwQ
+From: "Dugger, Donald D" <donald.d.dugger@intel.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>, "Shah, Rajesh" <rajesh.shah@intel.com>,
+       <akpm@osdl.org>
+X-OriginalArrivalTime: 30 Nov 2005 23:34:21.0271 (UTC) FILETIME=[96F39670:01C5F606]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andi-
 
+Good guess.  We discuessed it and decided that `vmx' was the best
+term so I'll rework the patch to use that name.
 
------ Original Message ----- 
-From: "Carlos Martín" <carlosmn@gmail.com>
-To: "JaniD++" <djani22@dynamicweb.hu>
-Cc: <linux-kernel@vger.kernel.org>; "Denis Vlasenko" <vda@ilport.com.ua>
-Sent: Tuesday, November 29, 2005 4:36 PM
-Subject: Re: ACPI: PCI Interrupt Link [LNKA] (IRQs *7)
+BTW, I don't see any reference to `vmx' in the 2.6.14 tree, is
+this a change you recently made to your tree?
 
+--
+Don Dugger
+"Censeo Toto nos in Kansa esse decisse." - D. Gale
+Donald.D.Dugger@intel.com
+Ph: (303)440-1368 
 
-> On 29/11/05, Denis Vlasenko <vda@ilport.com.ua> wrote:
-> > On Monday 28 November 2005 18:05, JaniD++ wrote:
-> > >References: <Pine.LNX.4.60.0511270409430.30055@kepler.fjfi.cvut.cz>
-<43892897.9020900@vc.cvut.cz>
-<Pine.LNX.4.61.0511270927130.14029@yvahk01.tjqt.qr>
-> >
-> > You abuse your reply button
-> >
-> > >X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-> > >X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-> >
-> > No wonder...
+>-----Original Message-----
+>From: linux-kernel-owner@vger.kernel.org 
+>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Andi Kleen
+>Sent: Wednesday, November 30, 2005 6:53 PM
+>To: Dugger, Donald D
+>Cc: linux-kernel@vger.kernel.org; Shah, Rajesh; akpm@osdl.org
+>Subject: Re: [PATCH] Add VT flag to cpuinfo
 >
-> Hey, MS bashing! Can I join in?
-> Now, wouldn't it be sacrilege to post to any technical list with
-> something like Outlook?
-
-Sorry, i hate M$ generally, but.... :-P
-(....i like outlook....
-this is the one exception.)
-
-
-> >
-> > > Hi,
-> > >
-> > > Nov 28 16:41:36 192.168.2.50 kernel: ACPI: PCI Interrupt Link [LNKA]
-(IRQs
-> > > *7)
-> > > Nov 28 16:41:36 192.168.2.50 kernel: ACPI: PCI Interrupt Link [LNKB]
-(IRQs
-> > > *7)
-> > > Nov 28 16:41:36 192.168.2.50 kernel: ACPI: PCI Interrupt Link [LNKC]
-(IRQs
-> > > *7)
-> > > Nov 28 16:41:36 192.168.2.50 kernel: ACPI: PCI Interrupt Link [LNKD]
-(IRQs
-> > > *7)
-> > > Nov 28 16:41:36 192.168.2.50 kernel: ACPI: PCI Interrupt Link [LNKE]
-(IRQs 3
-> > > 4 5 6 7 10 11 12 14 15) *0, disabled.
-> > > Nov 28 16:41:36 192.168.2.50 kernel: ACPI: PCI Interrupt Link [LNKF]
-(IRQs 3
-> > > 4 5 6 7 10 11 12 14 15) *0, disabled.
-> > > Nov 28 16:41:36 192.168.2.50 kernel: ACPI: PCI Interrupt Link [LNKG]
-(IRQs 3
-> > > 4 5 6 7 10 11 12 14 15) *0, disabled.
-> > > Nov 28 16:41:36 192.168.2.50 kernel: ACPI: PCI Interrupt Link [LNKH]
-(IRQs 3
-> > > 4 5 6 7 *10 11 12 14 15)
-> > >
-> > > This is normal?  :-)
-> >
-> > I do not understand your question
+>donald.d.dugger@intel.com (Donald D Dugger) writes:
 >
-> That's output from the kernel bootup-sequence, he's seen it and is
-> asking if that is normal behavior/output.
+>> Andrew-
+>> 
+>> Attached is a trivial patch to 2.6 that will add `vt' to the 
+>flags field
+>> of `/proc/cpuinfo' for CPUs that have Intel's virtualization 
+>technology.
 >
-> To answer the question, yes, it is perfectly normal to see that.
-> That's just the kernel describing how the PCI IRQs are set up. You
-> have nothing to worry about.
-
-Thanks for the answer!
-I ask that because i newer seen this format befor: "[LNKA] (IRQs *7)"
-
-Thanks
-Janos
-
-
+>The x86-64 tree already has "vmx" for it. What is the correct
+>name? 
 >
->    cmn
-> --
-> Carlos Martín Nieto        http://www.cmartin.tk
+>-Andi
+>-
+>To unsubscribe from this list: send the line "unsubscribe 
+>linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 >
-> "¿Cómo voy a decir bobadas si soy mudo?" -- CACHAI
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbVK3F7R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751078AbVK3F7N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751080AbVK3F7R (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 00:59:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751074AbVK3F7Q
+	id S1751078AbVK3F7N (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 00:59:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751074AbVK3F6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 00:59:16 -0500
-Received: from mail.kroah.org ([69.55.234.183]:32923 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751069AbVK3F6s convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 30 Nov 2005 00:58:48 -0500
-Cc: benh@kernel.crashing.org
-Subject: [PATCH] USB: Fix USB suspend/resume crasher (#2)
-In-Reply-To: <1133330317542@kroah.com>
+Received: from mail.kroah.org ([69.55.234.183]:30875 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751070AbVK3F6q convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 00:58:46 -0500
+Cc: grant_lkml@dodo.com.au
+Subject: [PATCH] pci_ids.h: remove duplicate entries
+In-Reply-To: <11333303173652@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Tue, 29 Nov 2005 21:58:37 -0800
-Message-Id: <11333303172018@kroah.com>
+Message-Id: <11333303172787@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,437 +24,54 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] USB: Fix USB suspend/resume crasher (#2)
+[PATCH] pci_ids.h: remove duplicate entries
 
-This patch closes the IRQ race and makes various other OHCI & EHCI code
-path safer vs. suspend/resume.
-I've been able to (finally !) successfully suspend and resume various
-Mac models, with or without USB mouse plugged, or plugging while asleep,
-or unplugging while asleep etc... all without a crash.
+G'day Albert, Andrew,
 
-Alan, please verify the UHCI bit I did, I only verified that it builds.
-It's very simple so I wouldn't expect any issue there. If you aren't
-confident, then just drop the hunks that change uhci-hcd.c
+	commit 4fb80634d30f5e639a92b78c8f215f96a61ba8c7
+	Author: Albert Lee <albertcc@tw.ibm.com>
+	Date:   Thu May 12 15:49:21 2005 -0400
 
-I also made the patch a little bit more "safer" by making sure the store
-to the interrupt register that disables interrupts is not posted before
-I set the flag and drop the spinlock.
+duplicates symbols already appearing in pci_ids.h, appended patch
+removes them again :o)
 
-Without this patch, you cannot reliably sleep/wakeup any recent Mac, and
-I suspect PCs have some more sneaky issues too (they don't frankly crash
-with machine checks because x86 tend to silently swallow PCI errors but
-that won't last afaik, at least PCI Express will blow up in those
-situations, but the USB code may still misbehave).
+From: Grant Coady <gcoady@gmail.com>
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+pci_ids: commit 4fb80634d30f5e639a92b78c8f215f96a61ba8c7 duplicated a
+couple existing symbols in pci_ids.h, remove them.
+
+Signed-off-by: Grant Coady <gcoady@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 8de98402652c01839ae321be6cb3054cf5735d83
-tree 6d4856ddb60be0dcd361441f0794596709553dd1
-parent d3420ba4930d61f4ec4abc046765de274182b4ed
-author Benjamin Herrenschmidt <benh@kernel.crashing.org> Fri, 25 Nov 2005 09:59:46 +1100
-committer Greg Kroah-Hartman <gregkh@suse.de> Tue, 29 Nov 2005 21:39:23 -0800
+commit c9d6073fb3cda856132dd544d537679f9715436c
+tree ad9bc2f500c71a6ff5012e62bdd3439760b9d829
+parent 9632051963cb6e6f7412990f8b962209b9334e13
+author Grant Coady <grant_lkml@dodo.com.au> Thu, 24 Nov 2005 20:41:06 +1100
+committer Greg Kroah-Hartman <gregkh@suse.de> Tue, 29 Nov 2005 21:39:22 -0800
 
- drivers/usb/core/hcd-pci.c    |    3 ++-
- drivers/usb/core/hcd.c        |   15 ++++++++++-----
- drivers/usb/core/hcd.h        |    7 ++++++-
- drivers/usb/host/ehci-pci.c   |   27 ++++++++++++++++++++++++++-
- drivers/usb/host/ehci-q.c     |   24 ++++++++++++++++--------
- drivers/usb/host/ehci-sched.c |   18 ++++++++++++++++--
- drivers/usb/host/ohci-hcd.c   |    6 +++++-
- drivers/usb/host/ohci-hub.c   |   24 ++++++++++++++++++++----
- drivers/usb/host/ohci-pci.c   |   27 +++++++++++++++++++++++++--
- drivers/usb/host/uhci-hcd.c   |    6 ++++++
- 10 files changed, 132 insertions(+), 25 deletions(-)
+ include/linux/pci_ids.h |    3 ---
+ 1 files changed, 0 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/core/hcd-pci.c b/drivers/usb/core/hcd-pci.c
-index 5131d88..29b5b2a 100644
---- a/drivers/usb/core/hcd-pci.c
-+++ b/drivers/usb/core/hcd-pci.c
-@@ -219,6 +219,7 @@ int usb_hcd_pci_suspend (struct pci_dev 
- 			goto done;
- 		}
- 	}
-+	synchronize_irq(dev->irq);
+diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+index 1e737e2..53e3293 100644
+--- a/include/linux/pci_ids.h
++++ b/include/linux/pci_ids.h
+@@ -387,7 +387,6 @@
+ #define PCI_DEVICE_ID_NS_SC1100_SMI	0x0511
+ #define PCI_DEVICE_ID_NS_SC1100_XBUS	0x0515
+ #define PCI_DEVICE_ID_NS_87410		0xd001
+-#define PCI_DEVICE_ID_NS_CS5535_IDE	0x002d
  
- 	/* FIXME until the generic PM interfaces change a lot more, this
- 	 * can't use PCI D1 and D2 states.  For example, the confusion
-@@ -392,7 +393,7 @@ int usb_hcd_pci_resume (struct pci_dev *
+ #define PCI_VENDOR_ID_TSENG		0x100c
+ #define PCI_DEVICE_ID_TSENG_W32P_2	0x3202
+@@ -489,8 +488,6 @@
+ #define PCI_DEVICE_ID_AMD_8151_0	0x7454
+ #define PCI_DEVICE_ID_AMD_8131_APIC     0x7450
  
- 	dev->dev.power.power_state = PMSG_ON;
- 
--	hcd->saw_irq = 0;
-+	clear_bit(HCD_FLAG_SAW_IRQ, &hcd->flags);
- 
- 	if (hcd->driver->resume) {
- 		retval = hcd->driver->resume(hcd);
-diff --git a/drivers/usb/core/hcd.c b/drivers/usb/core/hcd.c
-index 5e5f65a..da24c31 100644
---- a/drivers/usb/core/hcd.c
-+++ b/drivers/usb/core/hcd.c
-@@ -1315,11 +1315,12 @@ static int hcd_unlink_urb (struct urb *u
- 	 * finish unlinking the initial failed usb_set_address()
- 	 * or device descriptor fetch.
- 	 */
--	if (!hcd->saw_irq && hcd->self.root_hub != urb->dev) {
-+	if (!test_bit(HCD_FLAG_SAW_IRQ, &hcd->flags)
-+	    && hcd->self.root_hub != urb->dev) {
- 		dev_warn (hcd->self.controller, "Unlink after no-IRQ?  "
- 			"Controller is probably using the wrong IRQ."
- 			"\n");
--		hcd->saw_irq = 1;
-+		set_bit(HCD_FLAG_SAW_IRQ, &hcd->flags);
- 	}
- 
- 	urb->status = status;
-@@ -1649,13 +1650,15 @@ irqreturn_t usb_hcd_irq (int irq, void *
- 	struct usb_hcd		*hcd = __hcd;
- 	int			start = hcd->state;
- 
--	if (start == HC_STATE_HALT)
-+	if (unlikely(start == HC_STATE_HALT ||
-+	    !test_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags)))
- 		return IRQ_NONE;
- 	if (hcd->driver->irq (hcd, r) == IRQ_NONE)
- 		return IRQ_NONE;
- 
--	hcd->saw_irq = 1;
--	if (hcd->state == HC_STATE_HALT)
-+	set_bit(HCD_FLAG_SAW_IRQ, &hcd->flags);
-+
-+	if (unlikely(hcd->state == HC_STATE_HALT))
- 		usb_hc_died (hcd);
- 	return IRQ_HANDLED;
- }
-@@ -1768,6 +1771,8 @@ int usb_add_hcd(struct usb_hcd *hcd,
- 
- 	dev_info(hcd->self.controller, "%s\n", hcd->product_desc);
- 
-+	set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
-+
- 	/* till now HC has been in an indeterminate state ... */
- 	if (hcd->driver->reset && (retval = hcd->driver->reset(hcd)) < 0) {
- 		dev_err(hcd->self.controller, "can't reset\n");
-diff --git a/drivers/usb/core/hcd.h b/drivers/usb/core/hcd.h
-index 24a62a2..c8a1b35 100644
---- a/drivers/usb/core/hcd.h
-+++ b/drivers/usb/core/hcd.h
-@@ -72,7 +72,12 @@ struct usb_hcd {	/* usb_bus.hcpriv point
- 	 * hardware info/state
- 	 */
- 	const struct hc_driver	*driver;	/* hw-specific hooks */
--	unsigned		saw_irq : 1;
-+
-+	/* Flags that need to be manipulated atomically */
-+	unsigned long		flags;
-+#define HCD_FLAG_HW_ACCESSIBLE	0x00000001
-+#define HCD_FLAG_SAW_IRQ	0x00000002
-+
- 	unsigned		can_wakeup:1;	/* hw supports wakeup? */
- 	unsigned		remote_wakeup:1;/* sw should use wakeup? */
- 	unsigned		rh_registered:1;/* is root hub registered? */
-diff --git a/drivers/usb/host/ehci-pci.c b/drivers/usb/host/ehci-pci.c
-index 441c260..14fff57 100644
---- a/drivers/usb/host/ehci-pci.c
-+++ b/drivers/usb/host/ehci-pci.c
-@@ -228,14 +228,36 @@ static int ehci_pci_reset(struct usb_hcd
- static int ehci_pci_suspend(struct usb_hcd *hcd, pm_message_t message)
- {
- 	struct ehci_hcd		*ehci = hcd_to_ehci(hcd);
-+	unsigned long		flags;
-+	int			rc = 0;
- 
- 	if (time_before(jiffies, ehci->next_statechange))
- 		msleep(10);
- 
-+	/* Root hub was already suspended. Disable irq emission and
-+	 * mark HW unaccessible, bail out if RH has been resumed. Use
-+	 * the spinlock to properly synchronize with possible pending
-+	 * RH suspend or resume activity.
-+	 *
-+	 * This is still racy as hcd->state is manipulated outside of
-+	 * any locks =P But that will be a different fix.
-+	 */
-+	spin_lock_irqsave (&ehci->lock, flags);
-+	if (hcd->state != HC_STATE_SUSPENDED) {
-+		rc = -EINVAL;
-+		goto bail;
-+	}
-+	writel (0, &ehci->regs->intr_enable);
-+	(void)readl(&ehci->regs->intr_enable);
-+
-+	clear_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
-+ bail:
-+	spin_unlock_irqrestore (&ehci->lock, flags);
-+
- 	// could save FLADJ in case of Vaux power loss
- 	// ... we'd only use it to handle clock skew
- 
--	return 0;
-+	return rc;
- }
- 
- static int ehci_pci_resume(struct usb_hcd *hcd)
-@@ -251,6 +273,9 @@ static int ehci_pci_resume(struct usb_hc
- 	if (time_before(jiffies, ehci->next_statechange))
- 		msleep(100);
- 
-+	/* Mark hardware accessible again as we are out of D3 state by now */
-+	set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
-+
- 	/* If CF is clear, we lost PCI Vaux power and need to restart.  */
- 	if (readl(&ehci->regs->configured_flag) != FLAG_CF)
- 		goto restart;
-diff --git a/drivers/usb/host/ehci-q.c b/drivers/usb/host/ehci-q.c
-index 5bb872c..bf03ec0 100644
---- a/drivers/usb/host/ehci-q.c
-+++ b/drivers/usb/host/ehci-q.c
-@@ -912,6 +912,7 @@ submit_async (
- 	int			epnum;
- 	unsigned long		flags;
- 	struct ehci_qh		*qh = NULL;
-+	int			rc = 0;
- 
- 	qtd = list_entry (qtd_list->next, struct ehci_qtd, qtd_list);
- 	epnum = ep->desc.bEndpointAddress;
-@@ -926,21 +927,28 @@ submit_async (
- #endif
- 
- 	spin_lock_irqsave (&ehci->lock, flags);
-+	if (unlikely(!test_bit(HCD_FLAG_HW_ACCESSIBLE,
-+			       &ehci_to_hcd(ehci)->flags))) {
-+		rc = -ESHUTDOWN;
-+		goto done;
-+	}
-+
- 	qh = qh_append_tds (ehci, urb, qtd_list, epnum, &ep->hcpriv);
-+	if (unlikely(qh == NULL)) {
-+		rc = -ENOMEM;
-+		goto done;
-+	}
- 
- 	/* Control/bulk operations through TTs don't need scheduling,
- 	 * the HC and TT handle it when the TT has a buffer ready.
- 	 */
--	if (likely (qh != NULL)) {
--		if (likely (qh->qh_state == QH_STATE_IDLE))
--			qh_link_async (ehci, qh_get (qh));
--	}
-+	if (likely (qh->qh_state == QH_STATE_IDLE))
-+		qh_link_async (ehci, qh_get (qh));
-+ done:
- 	spin_unlock_irqrestore (&ehci->lock, flags);
--	if (unlikely (qh == NULL)) {
-+	if (unlikely (qh == NULL))
- 		qtd_list_free (ehci, urb, qtd_list);
--		return -ENOMEM;
--	}
--	return 0;
-+	return rc;
- }
- 
- /*-------------------------------------------------------------------------*/
-diff --git a/drivers/usb/host/ehci-sched.c b/drivers/usb/host/ehci-sched.c
-index f0c8aa1..57e7737 100644
---- a/drivers/usb/host/ehci-sched.c
-+++ b/drivers/usb/host/ehci-sched.c
-@@ -602,6 +602,12 @@ static int intr_submit (
- 
- 	spin_lock_irqsave (&ehci->lock, flags);
- 
-+	if (unlikely(!test_bit(HCD_FLAG_HW_ACCESSIBLE,
-+			       &ehci_to_hcd(ehci)->flags))) {
-+		status = -ESHUTDOWN;
-+		goto done;
-+	}
-+
- 	/* get qh and force any scheduling errors */
- 	INIT_LIST_HEAD (&empty);
- 	qh = qh_append_tds (ehci, urb, &empty, epnum, &ep->hcpriv);
-@@ -1456,7 +1462,11 @@ static int itd_submit (struct ehci_hcd *
- 
- 	/* schedule ... need to lock */
- 	spin_lock_irqsave (&ehci->lock, flags);
--	status = iso_stream_schedule (ehci, urb, stream);
-+	if (unlikely(!test_bit(HCD_FLAG_HW_ACCESSIBLE,
-+			       &ehci_to_hcd(ehci)->flags)))
-+		status = -ESHUTDOWN;
-+	else
-+		status = iso_stream_schedule (ehci, urb, stream);
-  	if (likely (status == 0))
- 		itd_link_urb (ehci, urb, ehci->periodic_size << 3, stream);
- 	spin_unlock_irqrestore (&ehci->lock, flags);
-@@ -1815,7 +1825,11 @@ static int sitd_submit (struct ehci_hcd 
- 
- 	/* schedule ... need to lock */
- 	spin_lock_irqsave (&ehci->lock, flags);
--	status = iso_stream_schedule (ehci, urb, stream);
-+	if (unlikely(!test_bit(HCD_FLAG_HW_ACCESSIBLE,
-+			       &ehci_to_hcd(ehci)->flags)))
-+		status = -ESHUTDOWN;
-+	else
-+		status = iso_stream_schedule (ehci, urb, stream);
-  	if (status == 0)
- 		sitd_link_urb (ehci, urb, ehci->periodic_size << 3, stream);
- 	spin_unlock_irqrestore (&ehci->lock, flags);
-diff --git a/drivers/usb/host/ohci-hcd.c b/drivers/usb/host/ohci-hcd.c
-index 5c0c6c8..bf1d9ab 100644
---- a/drivers/usb/host/ohci-hcd.c
-+++ b/drivers/usb/host/ohci-hcd.c
-@@ -115,7 +115,7 @@
- 
- /*-------------------------------------------------------------------------*/
- 
--// #define OHCI_VERBOSE_DEBUG	/* not always helpful */
-+#undef OHCI_VERBOSE_DEBUG	/* not always helpful */
- 
- /* For initializing controller (mask in an HCFS mode too) */
- #define	OHCI_CONTROL_INIT 	OHCI_CTRL_CBSR
-@@ -253,6 +253,10 @@ static int ohci_urb_enqueue (
- 	spin_lock_irqsave (&ohci->lock, flags);
- 
- 	/* don't submit to a dead HC */
-+	if (!test_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags)) {
-+		retval = -ENODEV;
-+		goto fail;
-+	}
- 	if (!HC_IS_RUNNING(hcd->state)) {
- 		retval = -ENODEV;
- 		goto fail;
-diff --git a/drivers/usb/host/ohci-hub.c b/drivers/usb/host/ohci-hub.c
-index e01e77b..72e3b12 100644
---- a/drivers/usb/host/ohci-hub.c
-+++ b/drivers/usb/host/ohci-hub.c
-@@ -53,6 +53,11 @@ static int ohci_bus_suspend (struct usb_
- 
- 	spin_lock_irqsave (&ohci->lock, flags);
- 
-+	if (unlikely(!test_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags))) {
-+		spin_unlock_irqrestore (&ohci->lock, flags);
-+		return -ESHUTDOWN;
-+	}
-+
- 	ohci->hc_control = ohci_readl (ohci, &ohci->regs->control);
- 	switch (ohci->hc_control & OHCI_CTRL_HCFS) {
- 	case OHCI_USB_RESUME:
-@@ -140,11 +145,19 @@ static int ohci_bus_resume (struct usb_h
- 	struct ohci_hcd		*ohci = hcd_to_ohci (hcd);
- 	u32			temp, enables;
- 	int			status = -EINPROGRESS;
-+	unsigned long		flags;
- 
- 	if (time_before (jiffies, ohci->next_statechange))
- 		msleep(5);
- 
--	spin_lock_irq (&ohci->lock);
-+	spin_lock_irqsave (&ohci->lock, flags);
-+
-+	if (unlikely(!test_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags))) {
-+		spin_unlock_irqrestore (&ohci->lock, flags);
-+		return -ESHUTDOWN;
-+	}
-+
-+
- 	ohci->hc_control = ohci_readl (ohci, &ohci->regs->control);
- 
- 	if (ohci->hc_control & (OHCI_CTRL_IR | OHCI_SCHED_ENABLES)) {
-@@ -179,7 +192,7 @@ static int ohci_bus_resume (struct usb_h
- 		ohci_dbg (ohci, "lost power\n");
- 		status = -EBUSY;
- 	}
--	spin_unlock_irq (&ohci->lock);
-+	spin_unlock_irqrestore (&ohci->lock, flags);
- 	if (status == -EBUSY) {
- 		(void) ohci_init (ohci);
- 		return ohci_restart (ohci);
-@@ -297,8 +310,8 @@ ohci_hub_status_data (struct usb_hcd *hc
- 	/* handle autosuspended root:  finish resuming before
- 	 * letting khubd or root hub timer see state changes.
- 	 */
--	if ((ohci->hc_control & OHCI_CTRL_HCFS) != OHCI_USB_OPER
--			|| !HC_IS_RUNNING(hcd->state)) {
-+	if (unlikely((ohci->hc_control & OHCI_CTRL_HCFS) != OHCI_USB_OPER
-+		     || !HC_IS_RUNNING(hcd->state))) {
- 		can_suspend = 0;
- 		goto done;
- 	}
-@@ -508,6 +521,9 @@ static int ohci_hub_control (
- 	u32		temp;
- 	int		retval = 0;
- 
-+	if (unlikely(!test_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags)))
-+		return -ESHUTDOWN;
-+
- 	switch (typeReq) {
- 	case ClearHubFeature:
- 		switch (wValue) {
-diff --git a/drivers/usb/host/ohci-pci.c b/drivers/usb/host/ohci-pci.c
-index 5f22e65..1b09dde 100644
---- a/drivers/usb/host/ohci-pci.c
-+++ b/drivers/usb/host/ohci-pci.c
-@@ -105,13 +105,36 @@ ohci_pci_start (struct usb_hcd *hcd)
- 
- static int ohci_pci_suspend (struct usb_hcd *hcd, pm_message_t message)
- {
--	/* root hub was already suspended */
--	return 0;
-+	struct ohci_hcd	*ohci = hcd_to_ohci (hcd);
-+	unsigned long	flags;
-+	int		rc = 0;
-+
-+	/* Root hub was already suspended. Disable irq emission and
-+	 * mark HW unaccessible, bail out if RH has been resumed. Use
-+	 * the spinlock to properly synchronize with possible pending
-+	 * RH suspend or resume activity.
-+	 *
-+	 * This is still racy as hcd->state is manipulated outside of
-+	 * any locks =P But that will be a different fix.
-+	 */
-+	spin_lock_irqsave (&ohci->lock, flags);
-+	if (hcd->state != HC_STATE_SUSPENDED) {
-+		rc = -EINVAL;
-+		goto bail;
-+	}
-+	ohci_writel(ohci, OHCI_INTR_MIE, &ohci->regs->intrdisable);
-+	(void)ohci_readl(ohci, &ohci->regs->intrdisable);
-+	clear_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
-+ bail:
-+	spin_unlock_irqrestore (&ohci->lock, flags);
-+
-+	return rc;
- }
- 
- 
- static int ohci_pci_resume (struct usb_hcd *hcd)
- {
-+	set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
- 	usb_hcd_resume_root_hub(hcd);
- 	return 0;
- }
-diff --git a/drivers/usb/host/uhci-hcd.c b/drivers/usb/host/uhci-hcd.c
-index d33ce39..ed55013 100644
---- a/drivers/usb/host/uhci-hcd.c
-+++ b/drivers/usb/host/uhci-hcd.c
-@@ -717,6 +717,7 @@ static int uhci_suspend(struct usb_hcd *
- 	 * at the source, so we must turn off PIRQ.
- 	 */
- 	pci_write_config_word(to_pci_dev(uhci_dev(uhci)), USBLEGSUP, 0);
-+	clear_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
- 	uhci->hc_inaccessible = 1;
- 	hcd->poll_rh = 0;
- 
-@@ -733,6 +734,11 @@ static int uhci_resume(struct usb_hcd *h
- 
- 	dev_dbg(uhci_dev(uhci), "%s\n", __FUNCTION__);
- 
-+	/* We aren't in D3 state anymore, we do that even if dead as I
-+	 * really don't want to keep a stale HCD_FLAG_HW_ACCESSIBLE=0
-+	 */
-+	set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
-+
- 	if (uhci->rh_state == UHCI_RH_RESET)	/* Dead */
- 		return 0;
- 	spin_lock_irq(&uhci->lock);
+-#define PCI_DEVICE_ID_AMD_CS5536_IDE	0x209A
+-
+ #define PCI_VENDOR_ID_TRIDENT		0x1023
+ #define PCI_DEVICE_ID_TRIDENT_4DWAVE_DX	0x2000
+ #define PCI_DEVICE_ID_TRIDENT_4DWAVE_NX	0x2001
 

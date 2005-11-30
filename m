@@ -1,36 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbVK3WBW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750973AbVK3WFc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751048AbVK3WBW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 17:01:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751041AbVK3WBW
+	id S1750973AbVK3WFc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 17:05:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750976AbVK3WFc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 17:01:22 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:41282 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751043AbVK3WBW convert rfc822-to-8bit
+	Wed, 30 Nov 2005 17:05:32 -0500
+Received: from zproxy.gmail.com ([64.233.162.197]:60661 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750731AbVK3WFb convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 17:01:22 -0500
+	Wed, 30 Nov 2005 17:05:31 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=TOZN+Sw52XXB5tiByEYytxB0emejCG455fje9ZYzIh3XdlY+mBjXi4E2TGrJFdo9rVX3AayrzNZLh4nIldueE9bBymG4eFEpL2L/ddasd2XgxuWKsWyLPMAMylAodoWiRbwra1rHyxZWZRwZMkHPktxKgrT+YI8cT4sgXV5Tn9U=
-Message-ID: <e725d2bc0511301401m2b2d2821k@mail.gmail.com>
-Date: Wed, 30 Nov 2005 16:01:20 -0600
-From: vivek aseeja <viveklinux@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Effect of context switch time on scheduling ?
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=eYSyVQNpJBBTya0CQXYG/FMwKhenDl62vxgKUXwZIRV7buSbl5PfdtVDWByYzhvt41fV2vm1Ws0L5+XeDdN7aR8FEggKfUeWZ2nKNYMuwYXA2JxF+9vHH/jCbwJ+Fp1Z8BJV3fwsVYpjjn3yYvUsgRFvROvDdeUatz9w6CgMpV0=
+Message-ID: <a762e240511301405s433109b7n93e7fdcc7409bef5@mail.gmail.com>
+Date: Wed, 30 Nov 2005 14:05:30 -0800
+From: Keith Mannthey <kmannth@gmail.com>
+To: "0602@eq.cz" <0602@eq.cz>
+Subject: Re: totally random "VFS: Cannot open root device"
+Cc: Tejun Heo <htejun@gmail.com>, linux-kernel@vger.kernel.org,
+       Linux-ide <linux-ide@vger.kernel.org>
+In-Reply-To: <438DA3FA.2010809@eq.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
+References: <438B6E05.8070009@eq.cz> <438D2C19.3030008@gmail.com>
+	 <438DA3FA.2010809@eq.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not sure if this question concerns this group .. Writing a small
-application which creates schedules based on the ( Least Laxity First )
-LLF algorithm . Not sure at what instants is the scheduler invoked ?
-i.e. the task with least laxity is selected at every time unit ? Also,
-if i take into consideration the context switch time , how would it
-effect the algorithm ?
+On 11/30/05, 0602@eq.cz <0602@eq.cz> wrote:
 
-Thanks ,
-vivekian
+Best guess is driver initilization troubles. The screen shot only
+dosen't really show anything besides it is broken. A full boot log
+from the failed boot would be nice.  There were some recent SATA
+change could you try the current 2.6.15-rc3 as well?
+
+Thanks,
+ Keith

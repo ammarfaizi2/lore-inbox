@@ -1,241 +1,238 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750994AbVK3Eso@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbVK3FDQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750994AbVK3Eso (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 23:48:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750997AbVK3Eso
+	id S1751046AbVK3FDQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 00:03:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751047AbVK3FDQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 23:48:44 -0500
-Received: from smtp-8.smtp.ucla.edu ([169.232.47.137]:52939 "EHLO
-	smtp-8.smtp.ucla.edu") by vger.kernel.org with ESMTP
-	id S1750992AbVK3Esn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 23:48:43 -0500
-Message-ID: <438D2F25.2020707@ucla.edu>
-Date: Tue, 29 Nov 2005 20:48:37 -0800
-From: Ethan Chen <thanatoz@ucla.edu>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: linux-kernel@vger.kernel.org, thanatoz@ucla.edu,
-       Carlos.Pardo@siliconimage.com, jgarzik@pobox.com,
-       linux-ide@vger.kernel.org
-Subject: Re: SIL_QUIRK_MOD15WRITE workaround problem on 2.6.14
-References: <438BD351.60902@ucla.edu> <438D2792.9050105@gmail.com>
-In-Reply-To: <438D2792.9050105@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Probable-Spam: no
-X-Spam-Report: none
+	Wed, 30 Nov 2005 00:03:16 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:62933 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751020AbVK3FDP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 00:03:15 -0500
+Date: Wed, 30 Nov 2005 00:03:07 -0500
+From: Dave Jones <davej@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: printk levels for i386 oops code.
+Message-ID: <20051130050307.GA30029@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun,
+Especially useful when users have booted with 'quiet'.
+In the regular 'oops' path, we set the console_loglevel
+before we start spewing debug info, but we can call
+the backtrace code from other places now too, such
+as the spinlock debugging code.
 
-The motherboard is an Iwill DK8X utilizing the AMD 8151+8131+8111 chips.
-
-lspci -nv
-00:00.0 Class 0600: 1022:7454 (rev 13)
-    Subsystem: 1022:7454
-    Flags: bus master, medium devsel, latency 0
-    Memory at f8000000 (32-bit, prefetchable) [size=64M]
-    Capabilities: [a0] AGP version 3.0
-    Capabilities: [c0] HyperTransport: Slave or Primary Interface
-
-00:01.0 Class 0604: 1022:7455 (rev 13)
-    Flags: bus master, 66Mhz, medium devsel, latency 32
-    Bus: primary=00, secondary=01, subordinate=01, sec-latency=32
-    Memory behind bridge: fc700000-fe7fffff
-    Prefetchable memory behind bridge: e4600000-f45fffff
-
-00:06.0 Class 0604: 1022:7460 (rev 07)
-    Flags: bus master, 66Mhz, medium devsel, latency 32
-    Bus: primary=00, secondary=02, subordinate=02, sec-latency=32
-    I/O behind bridge: 0000a000-0000afff
-    Memory behind bridge: fe800000-fe8fffff
-    Capabilities: [c0] HyperTransport: Slave or Primary Interface
-    Capabilities: [f0] HyperTransport: Interrupt Discovery and Configuration
-
-00:07.0 Class 0601: 1022:7468 (rev 05)
-    Subsystem: 1022:7468
-    Flags: bus master, 66Mhz, medium devsel, latency 0
-
-00:07.1 Class 0101: 1022:7469 (rev 03) (prog-if 8a [Master SecP PriP])
-    Subsystem: 1022:7469
-    Flags: bus master, medium devsel, latency 32
-    I/O ports at ffa0 [size=16]
-
-00:07.2 Class 0c05: 1022:746a (rev 02)
-    Subsystem: 1022:746a
-    Flags: medium devsel, IRQ 9
-    I/O ports at cc00 [size=32]
-
-00:07.3 Class 0680: 1022:746b (rev 05)
-    Subsystem: 1022:746b
-    Flags: medium devsel
-
-00:0a.0 Class 0604: 1022:7450 (rev 12)
-    Flags: bus master, 66Mhz, medium devsel, latency 32
-    Bus: primary=00, secondary=03, subordinate=03, sec-latency=32
-    I/O behind bridge: 0000b000-0000bfff
-    Memory behind bridge: fe900000-feafffff
-    Capabilities: [a0] PCI-X bridge device.
-    Capabilities: [b8] HyperTransport: Interrupt Discovery and Configuration
-    Capabilities: [c0] HyperTransport: Slave or Primary Interface
-
-00:0a.1 Class 0800: 1022:7451 (rev 01) (prog-if 10)
-    Subsystem: 1022:7451
-    Flags: bus master, medium devsel, latency 0
-    Memory at febff000 (64-bit, non-prefetchable) [size=4K]
-
-00:0b.0 Class 0604: 1022:7450 (rev 12)
-    Flags: bus master, 66Mhz, medium devsel, latency 32
-    Bus: primary=00, secondary=04, subordinate=04, sec-latency=32
-    Capabilities: [a0] PCI-X bridge device.
-    Capabilities: [b8] HyperTransport: Interrupt Discovery and Configuration
-
-00:0b.1 Class 0800: 1022:7451 (rev 01) (prog-if 10)
-    Subsystem: 1022:7451
-    Flags: bus master, medium devsel, latency 0
-    Memory at febfe000 (64-bit, non-prefetchable) [size=4K]
-
-00:18.0 Class 0600: 1022:1100
-    Flags: fast devsel
-    Capabilities: [80] HyperTransport: Host or Secondary Interface
-    Capabilities: [a0] HyperTransport: Host or Secondary Interface
-    Capabilities: [c0] HyperTransport: Host or Secondary Interface
-
-00:18.1 Class 0600: 1022:1101
-    Flags: fast devsel
-
-00:18.2 Class 0600: 1022:1102
-    Flags: fast devsel
-
-00:18.3 Class 0600: 1022:1103
-    Flags: fast devsel
-
-00:19.0 Class 0600: 1022:1100
-    Flags: fast devsel
-    Capabilities: [80] HyperTransport: Host or Secondary Interface
-    Capabilities: [a0] HyperTransport: Host or Secondary Interface
-    Capabilities: [c0] HyperTransport: Host or Secondary Interface
-
-00:19.1 Class 0600: 1022:1101
-    Flags: fast devsel
-
-00:19.2 Class 0600: 1022:1102
-    Flags: fast devsel
-
-00:19.3 Class 0600: 1022:1103
-    Flags: fast devsel
-
-01:00.0 Class 0300: 10de:0281 (rev a1)
-    Flags: bus master, 66Mhz, medium devsel, latency 248, IRQ 18
-    Memory at fd000000 (32-bit, non-prefetchable) [size=16M]
-    Memory at e8000000 (32-bit, prefetchable) [size=128M]
-    Expansion ROM at fe7e0000 [disabled] [size=128K]
-    Capabilities: [60] Power Management version 2
-    Capabilities: [44] AGP version 3.0
-
-02:00.0 Class 0c03: 1022:7464 (rev 0b) (prog-if 10)
-    Subsystem: 1022:7464
-    Flags: bus master, medium devsel, latency 32, IRQ 17
-    Memory at fe8fe000 (32-bit, non-prefetchable) [size=4K]
-
-02:00.1 Class 0c03: 1022:7464 (rev 0b) (prog-if 10)
-    Subsystem: 1022:7464
-    Flags: bus master, medium devsel, latency 32, IRQ 17
-    Memory at fe8ff000 (32-bit, non-prefetchable) [size=4K]
-
-02:04.0 Class 0401: 1102:0002 (rev 07)
-    Subsystem: 1102:8064
-    Flags: bus master, medium devsel, latency 32, IRQ 18
-    I/O ports at a880 [size=32]
-    Capabilities: [dc] Power Management version 1
-
-02:04.1 Class 0980: 1102:7002 (rev 07)
-    Subsystem: 1102:0020
-    Flags: bus master, medium devsel, latency 32
-    I/O ports at ac00 [size=8]
-    Capabilities: [dc] Power Management version 1
-
-02:06.0 Class 0c00: 104c:8023 (prog-if 10)
-    Subsystem: 104c:8023
-    Flags: bus master, medium devsel, latency 32, IRQ 19
-    Memory at fe8fd800 (32-bit, non-prefetchable) [size=2K]
-    Memory at fe8f8000 (32-bit, non-prefetchable) [size=16K]
-    Capabilities: [44] Power Management version 2
-
-02:07.0 Class 0c03: 1033:0035 (rev 43) (prog-if 10)
-    Subsystem: 1033:0035
-    Flags: bus master, medium devsel, latency 32, IRQ 17
-    Memory at fe8f7000 (32-bit, non-prefetchable) [size=4K]
-    Capabilities: [40] Power Management version 2
-
-02:07.1 Class 0c03: 1033:0035 (rev 43) (prog-if 10)
-    Subsystem: 1033:0035
-    Flags: bus master, medium devsel, latency 32, IRQ 18
-    Memory at fe8fc000 (32-bit, non-prefetchable) [size=4K]
-    Capabilities: [40] Power Management version 2
-
-02:07.2 Class 0c03: 1033:00e0 (rev 04) (prog-if 20)
-    Subsystem: 1033:00e0
-    Flags: bus master, medium devsel, latency 32, IRQ 16
-    Memory at fe8fd400 (32-bit, non-prefetchable) [size=256]
-    Capabilities: [40] Power Management version 2
-
-03:03.0 Class 0200: 11ab:4320 (rev 13)
-    Subsystem: 15d4:0047
-    Flags: bus master, 66Mhz, medium devsel, latency 32, IRQ 17
-    Memory at feaf8000 (32-bit, non-prefetchable) [size=16K]
-    I/O ports at b000 [size=256]
-    Expansion ROM at feac0000 [disabled] [size=128K]
-    Capabilities: [48] Power Management version 2
-    Capabilities: [50] Vital Product Data
-
-03:05.0 Class 0180: 1095:3114 (rev 02)
-    Subsystem: 1095:3114
-    Flags: bus master, 66Mhz, medium devsel, latency 32, IRQ 16
-    I/O ports at bc00 [size=8]
-    I/O ports at b880 [size=4]
-    I/O ports at b800 [size=8]
-    I/O ports at b480 [size=4]
-    I/O ports at b400 [size=16]
-    Memory at feaffc00 (32-bit, non-prefetchable) [size=1K]
-    Expansion ROM at fea00000 [disabled] [size=512K]
-    Capabilities: [60] Power Management version 2
-
-Thanks,
-
--Ethan
+Signed-off-by: Dave Jones <davej@redhat.com>
 
 
-Tejun Heo wrote:
-
-> [CC'ing Jeff, Carlos & linux-ide]
->
-> Ethan Chen wrote:
->
->> I've got a dual Opteron 242 machine here with 2x Seagate ST3200822AS 
->> SATA drives attached to a Silicon Image SI3114 controller, and after 
->> upgrading to 2.6.14 from 2.6.13, it seems the SIL_QUIRK_MOD15WRITE 
->> workaround for the sata_sil driver isn't being applied anymore. This 
->> caused me trouble in the past before my drive was added to the 
->> blacklist, and this message that comes up when writing (~4GBfiles to 
->> test) files, right before the computer locks up, is the same as before:
->> kernel: ata1: command 0x35 timeout, stat 0xd8 host_stat 0x61
->> In the dmesg, the 'Applying Seagate errata fix' message doesn't 
->> appear anymore as well.
->> Finally, without the fix, write speeds are much higher as well, 
->> before it locks up.
->
->
-> Hello, Ethan.
->
-> Sometime ago, Silicon Image has confirmed that 3114's and 3512's are 
-> not affected by the m15w problem - only 3112's are affected.  So, a 
-> patch has made into the tree before 2.6.14 to apply the m15w quirk 
-> selectively.
->
-> Can you post 'lspci -nv' result?
->
-
+--- vanilla/arch/i386/kernel/traps.c~	2005-11-29 23:35:29.000000000 -0500
++++ vanilla/arch/i386/kernel/traps.c	2005-11-29 23:51:15.000000000 -0500
+@@ -120,7 +120,7 @@ static inline unsigned long print_contex
+ #ifdef	CONFIG_FRAME_POINTER
+ 	while (valid_stack_ptr(tinfo, (void *)ebp)) {
+ 		addr = *(unsigned long *)(ebp + 4);
+-		printk(" [<%08lx>] ", addr);
++		printk(KERN_EMERG " [<%08lx>] ", addr);
+ 		print_symbol("%s", addr);
+ 		printk("\n");
+ 		ebp = *(unsigned long *)ebp;
+@@ -129,7 +129,7 @@ static inline unsigned long print_contex
+ 	while (valid_stack_ptr(tinfo, stack)) {
+ 		addr = *stack++;
+ 		if (__kernel_text_address(addr)) {
+-			printk(" [<%08lx>]", addr);
++			printk(KERN_EMERG " [<%08lx>]", addr);
+ 			print_symbol(" %s", addr);
+ 			printk("\n");
+ 		}
+@@ -161,7 +161,7 @@ void show_trace(struct task_struct *task
+ 		stack = (unsigned long*)context->previous_esp;
+ 		if (!stack)
+ 			break;
+-		printk(" =======================\n");
++		printk(KERN_EMERG " =======================\n");
+ 	}
+ }
+ 
+@@ -178,14 +178,15 @@ void show_stack(struct task_struct *task
+ 	}
+ 
+ 	stack = esp;
++	printk(KERN_EMERG);
+ 	for(i = 0; i < kstack_depth_to_print; i++) {
+ 		if (kstack_end(stack))
+ 			break;
+ 		if (i && ((i % 8) == 0))
+-			printk("\n       ");
++			printk("\n       " KERN_EMERG);
+ 		printk("%08lx ", *stack++);
+ 	}
+-	printk("\nCall Trace:\n");
++	printk("\n" KERN_EMERG "Call Trace:\n");
+ 	show_trace(task, esp);
+ }
+ 
+@@ -216,18 +217,18 @@ void show_registers(struct pt_regs *regs
+ 		ss = regs->xss & 0xffff;
+ 	}
+ 	print_modules();
+-	printk("CPU:    %d\nEIP:    %04x:[<%08lx>]    %s VLI\nEFLAGS: %08lx"
+-			"   (%s) \n",
++	printk(KERN_EMERG "CPU:    %d\nEIP:    %04x:[<%08lx>]    %s VLI\n"
++			"EFLAGS: %08lx   (%s) \n",
+ 		smp_processor_id(), 0xffff & regs->xcs, regs->eip,
+ 		print_tainted(), regs->eflags, system_utsname.release);
+-	print_symbol("EIP is at %s\n", regs->eip);
+-	printk("eax: %08lx   ebx: %08lx   ecx: %08lx   edx: %08lx\n",
++	print_symbol(KERN_EMERG "EIP is at %s\n", regs->eip);
++	printk(KERN_EMERG "eax: %08lx   ebx: %08lx   ecx: %08lx   edx: %08lx\n",
+ 		regs->eax, regs->ebx, regs->ecx, regs->edx);
+-	printk("esi: %08lx   edi: %08lx   ebp: %08lx   esp: %08lx\n",
++	printk(KERN_EMERG "esi: %08lx   edi: %08lx   ebp: %08lx   esp: %08lx\n",
+ 		regs->esi, regs->edi, regs->ebp, esp);
+-	printk("ds: %04x   es: %04x   ss: %04x\n",
++	printk(KERN_EMERG "ds: %04x   es: %04x   ss: %04x\n",
+ 		regs->xds & 0xffff, regs->xes & 0xffff, ss);
+-	printk("Process %s (pid: %d, threadinfo=%p task=%p)",
++	printk(KERN_EMERG "Process %s (pid: %d, threadinfo=%p task=%p)",
+ 		current->comm, current->pid, current_thread_info(), current);
+ 	/*
+ 	 * When in-kernel, we also print out the stack and code at the
+@@ -236,17 +237,17 @@ void show_registers(struct pt_regs *regs
+ 	if (in_kernel) {
+ 		u8 __user *eip;
+ 
+-		printk("\nStack: ");
++		printk("\n" KERN_EMERG "Stack: ");
+ 		show_stack(NULL, (unsigned long*)esp);
+ 
+-		printk("Code: ");
++		printk(KERN_EMERG "Code: ");
+ 
+ 		eip = (u8 __user *)regs->eip - 43;
+ 		for (i = 0; i < 64; i++, eip++) {
+ 			unsigned char c;
+ 
+ 			if (eip < (u8 __user *)PAGE_OFFSET || __get_user(c, eip)) {
+-				printk(" Bad EIP value.");
++				printk(KERN_EMERG " Bad EIP value.");
+ 				break;
+ 			}
+ 			if (eip == (u8 __user *)regs->eip)
+@@ -280,15 +281,15 @@ static void handle_BUG(struct pt_regs *r
+ 		(unsigned long)file < PAGE_OFFSET || __get_user(c, file))
+ 		file = "<bad filename>";
+ 
+-	printk("------------[ cut here ]------------\n");
+-	printk(KERN_ALERT "kernel BUG at %s:%d!\n", file, line);
++	printk(KERN_EMERG "------------[ cut here ]------------\n");
++	printk(KERN_EMERG "kernel BUG at %s:%d!\n", file, line);
+ 
+ no_bug:
+ 	return;
+ 
+ 	/* Here we know it was a BUG but file-n-line is unavailable */
+ bug:
+-	printk("Kernel BUG\n");
++	printk(KERN_EMERG "Kernel BUG\n");
+ }
+ 
+ /* This is gone through when something in the kernel
+@@ -318,16 +319,20 @@ void die(const char * str, struct pt_reg
+ 	if (++die.lock_owner_depth < 3) {
+ 		int nl = 0;
+ 		handle_BUG(regs);
+-		printk(KERN_ALERT "%s: %04lx [#%d]\n", str, err & 0xffff, ++die_counter);
++		printk(KERN_EMERG "%s: %04lx [#%d]\n", str, err & 0xffff, ++die_counter);
+ #ifdef CONFIG_PREEMPT
+-		printk("PREEMPT ");
++		printk(KERN_EMERG "PREEMPT ");
+ 		nl = 1;
+ #endif
+ #ifdef CONFIG_SMP
++		if (!nl)
++			printk(KERN_EMERG);
+ 		printk("SMP ");
+ 		nl = 1;
+ #endif
+ #ifdef CONFIG_DEBUG_PAGEALLOC
++		if (!nl)
++			printk(KERN_EMERG);
+ 		printk("DEBUG_PAGEALLOC");
+ 		nl = 1;
+ #endif
+@@ -336,7 +341,7 @@ void die(const char * str, struct pt_reg
+ 	notify_die(DIE_OOPS, (char *)str, regs, err, 255, SIGSEGV);
+ 		show_registers(regs);
+   	} else
+-		printk(KERN_ERR "Recursive die() failure, output suppressed\n");
++		printk(KERN_EMERG "Recursive die() failure, output suppressed\n");
+ 
+ 	bust_spinlocks(0);
+ 	die.lock_owner = -1;
+@@ -523,8 +528,8 @@ gp_in_kernel:
+ 
+ static void mem_parity_error(unsigned char reason, struct pt_regs * regs)
+ {
+-	printk("Uhhuh. NMI received. Dazed and confused, but trying to continue\n");
+-	printk("You probably have a hardware problem with your RAM chips\n");
++	printk(KERN_EMERG "Uhhuh. NMI received. Dazed and confused, but trying to continue\n");
++	printk(KERN_EMERG "You probably have a hardware problem with your RAM chips\n");
+ 
+ 	/* Clear and disable the memory parity error line. */
+ 	clear_mem_error(reason);
+@@ -534,7 +539,7 @@ static void io_check_error(unsigned char
+ {
+ 	unsigned long i;
+ 
+-	printk("NMI: IOCK error (debug interrupt?)\n");
++	printk(KERN_EMERG "NMI: IOCK error (debug interrupt?)\n");
+ 	show_registers(regs);
+ 
+ 	/* Re-enable the IOCK line, wait for a few seconds */
+@@ -556,10 +561,10 @@ static void unknown_nmi_error(unsigned c
+ 		return;
+ 	}
+ #endif
+-	printk("Uhhuh. NMI received for unknown reason %02x on CPU %d.\n",
++	printk(KERN_EMERG "Uhhuh. NMI received for unknown reason %02x on CPU %d.\n",
+ 		reason, smp_processor_id());
+-	printk("Dazed and confused, but trying to continue\n");
+-	printk("Do you have a strange power saving mode enabled?\n");
++	printk(KERN_EMERG "Dazed and confused, but trying to continue\n");
++	printk(KERN_EMERG "Do you have a strange power saving mode enabled?\n");
+ }
+ 
+ static DEFINE_SPINLOCK(nmi_print_lock);
+@@ -576,11 +581,11 @@ void die_nmi (struct pt_regs *regs, cons
+ 	* to get a message out.
+ 	*/
+ 	bust_spinlocks(1);
+-	printk(msg);
++	printk(KERN_EMERG "%s", msg);
+ 	printk(" on CPU%d, eip %08lx, registers:\n",
+ 		smp_processor_id(), regs->eip);
+ 	show_registers(regs);
+-	printk("console shuts up ...\n");
++	printk(KERN_EMERG "console shuts up ...\n");
+ 	console_silent();
+ 	spin_unlock(&nmi_print_lock);
+ 	bust_spinlocks(0);
+@@ -993,8 +998,8 @@ asmlinkage void math_state_restore(struc
+ 
+ asmlinkage void math_emulate(long arg)
+ {
+-	printk("math-emulation not enabled and no coprocessor found.\n");
+-	printk("killing %s.\n",current->comm);
++	printk(KERN_EMERG "math-emulation not enabled and no coprocessor found.\n");
++	printk(KERN_EMERG "killing %s.\n",current->comm);
+ 	force_sig(SIGFPE,current);
+ 	schedule();
+ }

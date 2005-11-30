@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751078AbVK3F7N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbVK3F7u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751078AbVK3F7N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 00:59:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751074AbVK3F6s
+	id S1751079AbVK3F7u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 00:59:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751076AbVK3F7R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 00:58:48 -0500
-Received: from mail.kroah.org ([69.55.234.183]:30875 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751070AbVK3F6q convert rfc822-to-8bit
+	Wed, 30 Nov 2005 00:59:17 -0500
+Received: from mail.kroah.org ([69.55.234.183]:32667 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750763AbVK3F6s convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 00:58:46 -0500
-Cc: grant_lkml@dodo.com.au
-Subject: [PATCH] pci_ids.h: remove duplicate entries
-In-Reply-To: <11333303173652@kroah.com>
+	Wed, 30 Nov 2005 00:58:48 -0500
+Cc: khali@linux-fr.org
+Subject: [PATCH] hwmon: w83792d fix unused fan pins
+In-Reply-To: <1133330317815@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Tue, 29 Nov 2005 21:58:37 -0800
-Message-Id: <11333303172787@kroah.com>
+Message-Id: <11333303173652@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,54 +24,82 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] pci_ids.h: remove duplicate entries
+[PATCH] hwmon: w83792d fix unused fan pins
 
-G'day Albert, Andrew,
+1. This patch add check for fan4,5,6,7 and do not create device file
+   if their pins are not configured as fan.
+2. Fix the issue that can not set fan divisor to 128.
+3. Fix the index out of bounds bug in w83792d_detect function.
 
-	commit 4fb80634d30f5e639a92b78c8f215f96a61ba8c7
-	Author: Albert Lee <albertcc@tw.ibm.com>
-	Date:   Thu May 12 15:49:21 2005 -0400
-
-duplicates symbols already appearing in pci_ids.h, appended patch
-removes them again :o)
-
-From: Grant Coady <gcoady@gmail.com>
-
-pci_ids: commit 4fb80634d30f5e639a92b78c8f215f96a61ba8c7 duplicated a
-couple existing symbols in pci_ids.h, remove them.
-
-Signed-off-by: Grant Coady <gcoady@gmail.com>
+Signed-off-by: Yuan Mu <ymu@winbond.com.tw>
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit c9d6073fb3cda856132dd544d537679f9715436c
-tree ad9bc2f500c71a6ff5012e62bdd3439760b9d829
-parent 9632051963cb6e6f7412990f8b962209b9334e13
-author Grant Coady <grant_lkml@dodo.com.au> Thu, 24 Nov 2005 20:41:06 +1100
+commit 9632051963cb6e6f7412990f8b962209b9334e13
+tree 1f1fe030107d06e4b43dbee90e95b374ccec7fc2
+parent d2ef5ebb4c4fe141a82252d4db8d8521e6765c5a
+author Jean Delvare <khali@linux-fr.org> Tue, 29 Nov 2005 22:27:14 +0100
 committer Greg Kroah-Hartman <gregkh@suse.de> Tue, 29 Nov 2005 21:39:22 -0800
 
- include/linux/pci_ids.h |    3 ---
- 1 files changed, 0 insertions(+), 3 deletions(-)
+ drivers/hwmon/w83792d.c |   25 ++++++++++++++++++-------
+ 1 files changed, 18 insertions(+), 7 deletions(-)
 
-diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
-index 1e737e2..53e3293 100644
---- a/include/linux/pci_ids.h
-+++ b/include/linux/pci_ids.h
-@@ -387,7 +387,6 @@
- #define PCI_DEVICE_ID_NS_SC1100_SMI	0x0511
- #define PCI_DEVICE_ID_NS_SC1100_XBUS	0x0515
- #define PCI_DEVICE_ID_NS_87410		0xd001
--#define PCI_DEVICE_ID_NS_CS5535_IDE	0x002d
+diff --git a/drivers/hwmon/w83792d.c b/drivers/hwmon/w83792d.c
+index 4be59db..1ba0726 100644
+--- a/drivers/hwmon/w83792d.c
++++ b/drivers/hwmon/w83792d.c
+@@ -193,6 +193,7 @@ static const u8 W83792D_REG_LEVELS[3][4]
+ 	  0xE2 }	/* (bit3-0) SmartFanII: Fan3 Level 3 */
+ };
  
- #define PCI_VENDOR_ID_TSENG		0x100c
- #define PCI_DEVICE_ID_TSENG_W32P_2	0x3202
-@@ -489,8 +488,6 @@
- #define PCI_DEVICE_ID_AMD_8151_0	0x7454
- #define PCI_DEVICE_ID_AMD_8131_APIC     0x7450
++#define W83792D_REG_GPIO_EN		0x1A
+ #define W83792D_REG_CONFIG		0x40
+ #define W83792D_REG_VID_FANDIV		0x47
+ #define W83792D_REG_CHIPID		0x49
+@@ -257,7 +258,7 @@ DIV_TO_REG(long val)
+ {
+ 	int i;
+ 	val = SENSORS_LIMIT(val, 1, 128) >> 1;
+-	for (i = 0; i < 6; i++) {
++	for (i = 0; i < 7; i++) {
+ 		if (val == 0)
+ 			break;
+ 		val >>= 1;
+@@ -1282,8 +1283,8 @@ w83792d_detect(struct i2c_adapter *adapt
+ 	w83792d_init_client(new_client);
  
--#define PCI_DEVICE_ID_AMD_CS5536_IDE	0x209A
--
- #define PCI_VENDOR_ID_TRIDENT		0x1023
- #define PCI_DEVICE_ID_TRIDENT_4DWAVE_DX	0x2000
- #define PCI_DEVICE_ID_TRIDENT_4DWAVE_NX	0x2001
+ 	/* A few vars need to be filled upon startup */
+-	for (i = 1; i <= 7; i++) {
+-		data->fan_min[i - 1] = w83792d_read_value(new_client,
++	for (i = 0; i < 7; i++) {
++		data->fan_min[i] = w83792d_read_value(new_client,
+ 					W83792D_REG_FAN_MIN[i]);
+ 	}
+ 
+@@ -1306,10 +1307,20 @@ w83792d_detect(struct i2c_adapter *adapt
+ 	device_create_file_fan(new_client, 1);
+ 	device_create_file_fan(new_client, 2);
+ 	device_create_file_fan(new_client, 3);
+-	device_create_file_fan(new_client, 4);
+-	device_create_file_fan(new_client, 5);
+-	device_create_file_fan(new_client, 6);
+-	device_create_file_fan(new_client, 7);
++
++	/* Read GPIO enable register to check if pins for fan 4,5 are used as
++	   GPIO */
++	val1 = w83792d_read_value(new_client, W83792D_REG_GPIO_EN);
++	if (!(val1 & 0x40))
++		device_create_file_fan(new_client, 4);
++	if (!(val1 & 0x20))
++		device_create_file_fan(new_client, 5);
++
++	val1 = w83792d_read_value(new_client, W83792D_REG_PIN);
++	if (val1 & 0x40)
++		device_create_file_fan(new_client, 6);
++	if (val1 & 0x04)
++		device_create_file_fan(new_client, 7);
+ 
+ 	device_create_file_temp1(new_client);		/* Temp1 */
+ 	device_create_file_temp_add(new_client, 2);	/* Temp2 */
 

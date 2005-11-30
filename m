@@ -1,80 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751064AbVK3Fhz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751071AbVK3Fwh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751064AbVK3Fhz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 00:37:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbVK3Fhz
+	id S1751071AbVK3Fwh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 00:52:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751073AbVK3Fwh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 00:37:55 -0500
-Received: from zproxy.gmail.com ([64.233.162.195]:19689 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751062AbVK3Fhy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 00:37:54 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=sHj14We9Ql6vNOGRNk62xCdAJy92dtgD56oVbCLSGOA/NXMapRXVNxAHZvILdIAqRPel1JdHy39HiZ+US8emmzcgSgYtmyR6hNaeYoh9H5DP+rc2ISz+drQ/fcihUQIsHTiYw/AnRWJ8RM2V5sr5cdbfKTNqvu5We9VmFP0mFPI=
-Message-ID: <438D3AA8.9030504@gmail.com>
-Date: Wed, 30 Nov 2005 14:37:44 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+	Wed, 30 Nov 2005 00:52:37 -0500
+Received: from hulk.hostingexpert.com ([69.57.134.39]:60230 "EHLO
+	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S1751069AbVK3Fwg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 00:52:36 -0500
+Message-ID: <438D3E5C.6020900@m1k.net>
+Date: Wed, 30 Nov 2005 00:53:32 -0500
+From: Michael Krufky <mkrufky@m1k.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Ethan Chen <thanatoz@ucla.edu>, linux-kernel@vger.kernel.org,
-       Carlos Pardo <Carlos.Pardo@siliconimage.com>,
-       Linux-ide <linux-ide@vger.kernel.org>
-Subject: Re: SIL_QUIRK_MOD15WRITE workaround problem on 2.6.14
-References: <438BD351.60902@ucla.edu> <438D2792.9050105@gmail.com> <438D2DCC.4010805@pobox.com>
-In-Reply-To: <438D2DCC.4010805@pobox.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Chris Shoemaker <c.shoemaker@cox.net>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.15-rc3
+References: <Pine.LNX.4.64.0511282006370.3177@g5.osdl.org> <438C0124.3030700@m1k.net> <Pine.LNX.4.64.0511290808510.3177@g5.osdl.org> <438C80DD.7050809@m1k.net> <Pine.LNX.4.64.0511290835220.3177@g5.osdl.org> <20051129172534.GA4514@pe.Belkin>
+In-Reply-To: <20051129172534.GA4514@pe.Belkin>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - m1k.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Tejun Heo wrote:
-> 
->> [CC'ing Jeff, Carlos & linux-ide]
->>
->> Ethan Chen wrote:
->>
->>> I've got a dual Opteron 242 machine here with 2x Seagate ST3200822AS 
->>> SATA drives attached to a Silicon Image SI3114 controller, and after 
->>> upgrading to 2.6.14 from 2.6.13, it seems the SIL_QUIRK_MOD15WRITE 
->>> workaround for the sata_sil driver isn't being applied anymore. This 
->>> caused me trouble in the past before my drive was added to the 
->>> blacklist, and this message that comes up when writing (~4GBfiles to 
->>> test) files, right before the computer locks up, is the same as before:
->>> kernel: ata1: command 0x35 timeout, stat 0xd8 host_stat 0x61
->>> In the dmesg, the 'Applying Seagate errata fix' message doesn't 
->>> appear anymore as well.
->>> Finally, without the fix, write speeds are much higher as well, 
->>> before it locks up.
->>
->>
->>
->> Hello, Ethan.
->>
->> Sometime ago, Silicon Image has confirmed that 3114's and 3512's are 
->> not affected by the m15w problem - only 3112's are affected.  So, a 
->> patch has made into the tree before 2.6.14 to apply the m15w quirk 
->> selectively.
-> 
-> 
-> Most likely, mod15write quirk was just hiding an unrelated problem. 
-> mod15write often hid BIOS problems in the past which led to corruption.
-> 
-> Until sata_sil properly handles SATA phy / DMA errors by resetting the 
-> controller and retrying the command, we won't know if its a driver 
-> problem or not.
-> 
+Chris Shoemaker wrote:
 
-Ethan confirmed that it's 1095:3114.  Arghhh....  Maybe we should keep 
-m15w quirk for 3114's for the time being?  Better be slow than hang. 
-Whatever bug the m15w quirk was hiding.
+>On Tue, Nov 29, 2005 at 08:38:48AM -0800, Linus Torvalds wrote:
+>  
+>
+>>On Tue, 29 Nov 2005, Michael Krufky wrote:
+>>    
+>>
+>>>In other words, the OOPS is the last thing to show on the screen in text mode,
+>>>before the console switches into X, using debian sarge's default bootup
+>>>process.
+>>>      
+>>>
+>>Ok. Whatever it is, I'm happy it is doing that, since it caused us to see 
+>>the oops quickly. None of _my_ boxes do that, obviously (and I tested on 
+>>x86, x86-64 and ppc64 exactly to get reasonable coverage of what different 
+>>architectures might do - but none of the boxes are debian-based).
+>>
+>>>I have no idea why gdb is running.... hmm... Anyhow, I'm away from that
+>>>machine right now, and it is powered off, so I can't look directly at the
+>>>startup scripts right now.  Would you like me to send more info later on when
+>>>I get home?  If so, what would you like to see?
+>>>      
+>>>
+>>It's not important, I was just curious about what strange things people 
+>>have in their bootup scripts.  If you can just grep through the rc.d files 
+>>to see what uses gdb, I'd just like to know...
+>>    
+>>
+>I doubt gdb is in rc.d scripts.  My wild uninformed guess would be
+>that some process (maybe xinit?) hit a SEGV and had its own signal
+>handler installed that tried to call gdb and attach to the crashing
+>process.  I could imagine something like that being useful for
+>generating nice userspace stack traces to send to the developers.  I
+>think I've seen something similar in some builds.
+>
+I think Chris is right.  There is no gdb in the scripts at all.  It 
+makes sense for these debug capabilities to be present in Debian 
+Sarge/Testing.
 
-Carlos, can you double check that 3114's don't have the m15w issue?  It 
-just seems too similar to the usual m15w lockup.
+Nothing in my scripts look out-of-the-ordinary.
 
--- 
-tejun
+-Mike

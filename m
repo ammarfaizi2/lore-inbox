@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751488AbVK3SO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751494AbVK3SRk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751488AbVK3SO5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 13:14:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbVK3SO5
+	id S1751494AbVK3SRk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 13:17:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751495AbVK3SRk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 13:14:57 -0500
-Received: from baythorne.infradead.org ([81.187.2.161]:52703 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S1751488AbVK3SO4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 13:14:56 -0500
-Subject: Re: [NET] Remove ARM dependency for dm9000 driver
-From: David Woodhouse <dwmw2@infradead.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Franck <vagabon.xyz@gmail.com>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051130165546.GD1053@flint.arm.linux.org.uk>
-References: <cda58cb80511300821y72f3354av@mail.gmail.com>
-	 <20051130162327.GC1053@flint.arm.linux.org.uk>
-	 <cda58cb80511300845j18c81ce6p@mail.gmail.com>
-	 <20051130165546.GD1053@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Date: Wed, 30 Nov 2005 18:14:42 +0000
-Message-Id: <1133374482.4117.91.camel@baythorne.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 30 Nov 2005 13:17:40 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:48797 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751494AbVK3SRk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 13:17:40 -0500
+From: David Howells <dhowells@redhat.com>
+To: torvalds@osdl.org, akpm@osdl.org
+cc: keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Keys: Fix permissions check for update vs add
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Wed, 30 Nov 2005 18:17:27 +0000
+Message-ID: <32609.1133374647@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-30 at 16:55 +0000, Russell King wrote:
-> So until someone says "I want to use this on such and such arch" I
-> think it's better to keep it dependent on those we know are likely
-> to support it.
 
-I disagree; unless there's a reason why it _shouldn't_ work on a given
-architecture, it should be possible to enable it there.
+The attached patch permits add_key() to once again update a matching key
+rather than adding a new one if a matching key already exists in the target
+keyring.
 
-I believe I've seen FR-V boards with dm9000 too.
+This bug causes add_key() to always add a new key, displacing the old from the
+target keyring.
 
--- 
-dwmw2
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+warthog>diffstat -p1 keys-permfix-2615rc1.diff 
+ security/keys/keyring.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-
+diff -uNr linux-2.6.15-rc1-keys-reqkey/security/keys/keyring.c linux-2.6.15-rc1-keys-permfix/security/keys/keyring.c
+--- linux-2.6.15-rc1-keys-reqkey/security/keys/keyring.c	2005-11-16 17:55:47.000000000 +0000
++++ linux-2.6.15-rc1-keys-permfix/security/keys/keyring.c	2005-11-30 16:24:33.000000000 +0000
+@@ -526,7 +526,7 @@
+ 			    (!key->type->match ||
+ 			     key->type->match(key, description)) &&
+ 			    key_permission(make_key_ref(key, possessed),
+-					   perm) < 0 &&
++					   perm) == 0 &&
+ 			    !test_bit(KEY_FLAG_REVOKED, &key->flags)
+ 			    )
+ 				goto found;

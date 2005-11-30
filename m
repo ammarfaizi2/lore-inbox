@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751075AbVK3F7u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbVK3GJn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751075AbVK3F7u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 00:59:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbVK3F7T
+	id S1751077AbVK3GJn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 01:09:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751082AbVK3GJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 00:59:19 -0500
-Received: from mail.kroah.org ([69.55.234.183]:32155 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750882AbVK3F6r convert rfc822-to-8bit
+	Wed, 30 Nov 2005 01:09:43 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:31204 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751077AbVK3GJm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 00:58:47 -0500
-Cc: davej@redhat.com
-Subject: [PATCH] Additional device ID for Conexant AccessRunner USB driver
-In-Reply-To: <11333303172787@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Tue, 29 Nov 2005 21:58:37 -0800
-Message-Id: <1133330317951@kroah.com>
+	Wed, 30 Nov 2005 01:09:42 -0500
+Date: Wed, 30 Nov 2005 11:39:39 +0530
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Fernando Luis Vazquez Cao <fernando@intellilink.co.jp>,
+       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] Re: [PATCH & RFC] kdump and stack overflows
+Message-ID: <20051130060939.GA3784@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <1133183463.2327.96.camel@localhost.localdomain> <m1lkz8gad7.fsf@ebiederm.dsl.xmission.com> <1133200815.2425.98.camel@localhost.localdomain> <m1hd9wfwxi.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1hd9wfwxi.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] Additional device ID for Conexant AccessRunner USB driver
+On Mon, Nov 28, 2005 at 11:29:29AM -0700, Eric W. Biederman wrote:
+> Fernando Luis Vazquez Cao <fernando@intellilink.co.jp> writes:
+> 
+> > On Mon, 2005-11-28 at 06:39 -0700, Eric W. Biederman wrote: 
+> >> Fernando Luis Vazquez Cao <fernando@intellilink.co.jp> writes:
+> 
+> > Regarding the stack overflow audit of the nmi path, we have the problem
+> > that both nmi_enter and nmi_exit in do_nmi (see code below) make heavy
+> > use of "current" indirectly (specially through the kernel preemption
+> > code).
+> 
+> Ok.  I wonder if it would be saner to simply replace the nmi trap
+> handler on the crash dump path?
+> 
+> >> I believe we have a separate interrupt stack that
+> >> should help but..
+> > Yes, when using 4K stacks we have a separate interrupt stack that should
+> > help, but I am afraid that crash dumping is about being paranoid.
+> 
+> Oh I agree.  If we had a private 4K stack for the nmi handler we
+> would not need to worry about overflow in that case.  (baring
+> nmi happening during nmis)  Hmm.  Is there anything to keep
+> us doing something bad in that case?
+> 
 
-Reported as working in Fedora bugzilla by Petr.
+Can a NMI happen inside a NMI? As per Intel software developer manual vol3
+(section 5.7.1 Handling multiple NMIs), after occurrence of an NMI, CPU
+will not accept next NMI till iret is executed. Then it should not be a
+problem. I hope, I understood the problem right.
 
-From: Petr Tuma <petr.tuma@mff.cuni.cz>
-Signed-off-by: Dave Jones <davej@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
----
-commit d3420ba4930d61f4ec4abc046765de274182b4ed
-tree fd76b774f59fb3eae7c0ec428064fce1fd9a3d79
-parent 620948a01c71060a32611bc2f792f58a88cf28b1
-author Dave Jones <davej@redhat.com> Mon, 28 Nov 2005 13:44:52 -0500
-committer Greg Kroah-Hartman <gregkh@suse.de> Tue, 29 Nov 2005 21:39:22 -0800
-
- drivers/usb/atm/cxacru.c |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/usb/atm/cxacru.c b/drivers/usb/atm/cxacru.c
-index 79861ee..9d59dc6 100644
---- a/drivers/usb/atm/cxacru.c
-+++ b/drivers/usb/atm/cxacru.c
-@@ -787,6 +787,9 @@ static const struct usb_device_id cxacru
- 	{ /* V = Conexant			P = ADSL modem (Hasbani project)	*/
- 		USB_DEVICE(0x0572, 0xcb00),	.driver_info = (unsigned long) &cxacru_cb00
- 	},
-+	{ /* V = Conexant             P = ADSL modem (Well PTI-800 */
-+		USB_DEVICE(0x0572, 0xcb02),	.driver_info = (unsigned long) &cxacru_cb00
-+	},
- 	{ /* V = Conexant			P = ADSL modem				*/
- 		USB_DEVICE(0x0572, 0xcb01),	.driver_info = (unsigned long) &cxacru_cb00
- 	},
-
+Thanks
+Vivek

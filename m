@@ -1,69 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751001AbVK3FH6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751002AbVK3FME@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751001AbVK3FH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 00:07:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751002AbVK3FH6
+	id S1751002AbVK3FME (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 00:12:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751010AbVK3FME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 00:07:58 -0500
-Received: from vms040pub.verizon.net ([206.46.252.40]:12427 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751000AbVK3FH5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 00:07:57 -0500
-Date: Wed, 30 Nov 2005 00:07:55 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Gene's pcHDTV 3000 analog problem
-In-reply-to: <438CFFAD.7070803@m1k.net>
-To: linux-kernel@vger.kernel.org
-Cc: Michael Krufky <mkrufky@m1k.net>, Kirk Lapray <kirk.lapray@gmail.com>,
-       video4linux-list@redhat.com, CityK <CityK@rogers.com>,
-       Perry Gilfillan <perrye@linuxmail.org>, Don Koch <aardvark@krl.com>
-Message-id: <200511300007.56004.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <200511282205.jASM5YUI018061@p-chan.krl.com>
- <c35b44d70511291548lcb10361ifd3a4ea0f239662d@mail.gmail.com>
- <438CFFAD.7070803@m1k.net>
-User-Agent: KMail/1.7
+	Wed, 30 Nov 2005 00:12:04 -0500
+Received: from fep01-0.kolumbus.fi ([193.229.0.41]:41436 "EHLO
+	fep01-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S1751002AbVK3FMD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 00:12:03 -0500
+Date: Wed, 30 Nov 2005 07:12:21 +0200 (EET)
+From: Kai Makisara <Kai.Makisara@kolumbus.fi>
+X-X-Sender: makisara@kai.makisara.local
+To: Ryan Richter <ryan@tau.solarneutrino.net>
+cc: Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Fw: crash on x86_64 - mm related?
+In-Reply-To: <Pine.LNX.4.63.0511292239070.5739@kai.makisara.local>
+Message-ID: <Pine.LNX.4.63.0511300646150.24439@kai.makisara.local>
+References: <20051129092432.0f5742f0.akpm@osdl.org>
+ <Pine.LNX.4.63.0511292147120.5739@kai.makisara.local>
+ <20051129203112.GD6326@tau.solarneutrino.net> <Pine.LNX.4.63.0511292239070.5739@kai.makisara.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 November 2005 20:26, Michael Krufky wrote:
+On Tue, 29 Nov 2005, Kai Makisara wrote:
 
-[...]
+> On Tue, 29 Nov 2005, Ryan Richter wrote:
+> 
+> > On Tue, Nov 29, 2005 at 10:04:39PM +0200, Kai Makisara wrote:
+> > > I looked at the driver and it seems that there is a bug: st_write calls 
+> > > release_buffering at the end even when it has started an asynchronous 
+> > > write. This means that it releases the mapping while it is being used!
+> > > (I wonder why this has not been noticed earlier.)
+> > > 
+> > > The patch below (against 2.6.15-rc2) should fix this bug and some others 
+> > > related to buffering. It is based on the patch "[PATCH] SCSI tape direct 
+> > > i/o fixes" I sent to linux-scsi on Nov 21. The patch restores setting 
+> > > pages dirty after reading and clears number of s/g segments when the 
+> > > pointers are not valid any more.
+> > > 
+> > > The patch has been lightly tested with AMD64.
+> > 
+> > This applies cleanly to 2.6.14.2, do you forsee any problems using it
+> > with that kernel?  I'd like to not change too many things at once.
+> > 
+> No, I don't see any potential problems applying this patch to 2.6.14.2. 
+> There is nothing specific to 2.6.15-rc2.
+> 
+> If someone sees that there is something wrong, please yell. The 
+> main purpose of the patch is not to call release_buffering() at the end of 
+> st_write() when starting asynchronous write and call it in 
+> write_behind_check() instead.
+> 
+Yelling!
 
->All I can think of doing next is to have Gene, Don or Perry do a
->bisection test on our cvs repo.... checking out different cvs revisions
->until we can narrow it down to the day the problem patch was applied.
->
->::sigh::
+The patch does not cause any problems but my theory about calling 
+release_buffering() too early is wrong: asynchronous writes are not done 
+with direct i/o. (The reason for this choice is that the API allows the 
+user to do anything with the buffer between writes and so the SCSI write 
+has to be finished before returning from write().)
 
-A sigh?  More like an 'oh fudge' or whatever your fav expletive deleted
-is...
-
->Who wants to do it?  I'll give you detailed instructions if you're
-> willing.
->
->Regards,
->Mike
-
-Can you farm it out, one set of patches to each of us?  Or do you want
-to setup a seperate cvs tree based on the v4l code in 2.6.14.3, and
-incrementally patch it as we each report its still ok, until it breaks
-again?  I think I'd prefer the latter so we are all near the same
-page even if it takes 3x longer to arrive at the answer.  How many
-actual patches in terms of dependency groups are there?  I know, I
-coulda went all week without asking that :(
+The other fixes in the patch are valid but I don't see how they should fix 
+this problem.
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.36% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
-
+Kai

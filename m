@@ -1,75 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbVK3CHU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbVK3CJv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750810AbVK3CHU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 21:07:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbVK3CHU
+	id S1750782AbVK3CJv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 21:09:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbVK3CJv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 21:07:20 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:48847 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1750810AbVK3CHT (ORCPT
+	Tue, 29 Nov 2005 21:09:51 -0500
+Received: from ozlabs.org ([203.10.76.45]:49028 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1750782AbVK3CJu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 21:07:19 -0500
-Date: Tue, 29 Nov 2005 18:06:53 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] shrinks dentry struct
-Message-Id: <20051129180653.f8d40e9a.pj@sgi.com>
-In-Reply-To: <438C7218.8030109@cosmosbay.com>
-References: <121a28810511282317j47a90f6t@mail.gmail.com>
-	<20051129000916.6306da8b.akpm@osdl.org>
-	<438C7218.8030109@cosmosbay.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 29 Nov 2005 21:09:50 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17293.2534.764441.128963@cargo.ozlabs.ibm.com>
+Date: Wed, 30 Nov 2005 13:09:42 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Stephen Hemminger <shemminger@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       greg@kroah.com, linux-kernel@vger.kernel.org, rjw@sisk.pl
+Subject: Re: Linux 2.6.15-rc3
+In-Reply-To: <Pine.LNX.4.64.0511291754350.3135@g5.osdl.org>
+References: <Pine.LNX.4.64.0511282006370.3177@g5.osdl.org>
+	<200511292247.09243.rjw@sisk.pl>
+	<200511292342.36228.rjw@sisk.pl>
+	<20051129145328.3e5964a4@dxpl.pdx.osdl.net>
+	<20051129233744.GA32316@kroah.com>
+	<20051129161731.69ce252c@dxpl.pdx.osdl.net>
+	<20051129162519.1ef07387.akpm@osdl.org>
+	<20051129164222.66d00ca1@dxpl.pdx.osdl.net>
+	<Pine.LNX.4.64.0511291754350.3135@g5.osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric,
+Linus Torvalds writes:
 
-Would the following accomplish the same thing as your patch, to shrink
-UP dentry structs back to 128 bytes, with a smaller and less intrusive
-patch?
+> Can you check the current -git tree ( + the usb fix, which has _not_ made 
+> it there yet). I think it was probably the stupid thinko that just didn't 
+> trigger for me on ppc64 since it only breaks with 4-level page tables.
 
----
+Unless you have selected 64k pages (I assume not), ppc64 does use
+4-level page tables.
 
- include/linux/dcache.h |    9 +++++++--
- 1 files changed, 7 insertions(+), 2 deletions(-)
-
---- 2.6.15-rc2-mm1.orig/include/linux/dcache.h	2005-11-29 17:45:51.977352268 -0800
-+++ 2.6.15-rc2-mm1/include/linux/dcache.h	2005-11-29 18:04:59.151307979 -0800
-@@ -95,19 +95,24 @@ struct dentry {
- 	struct qstr d_name;
- 
- 	struct list_head d_lru;		/* LRU list */
--	struct list_head d_child;	/* child of parent list */
-+	union {				/* Fit 32 bit UP dentry in 128 bytes */
-+		struct list_head du_child;	/* child of parent list */
-+ 		struct rcu_head du_rcu;
-+	} d_du;
- 	struct list_head d_subdirs;	/* our children */
- 	struct list_head d_alias;	/* inode alias list */
- 	unsigned long d_time;		/* used by d_revalidate */
- 	struct dentry_operations *d_op;
- 	struct super_block *d_sb;	/* The root of the dentry tree */
- 	void *d_fsdata;			/* fs-specific data */
-- 	struct rcu_head d_rcu;
- 	struct dcookie_struct *d_cookie; /* cookie, if any */
- 	int d_mounted;
- 	unsigned char d_iname[DNAME_INLINE_LEN_MIN];	/* small names */
- };
- 
-+#define d_child d_du.du_child
-+#define d_rcu d_du.du_rcu
-+
- struct dentry_operations {
- 	int (*d_revalidate)(struct dentry *, struct nameidata *);
- 	int (*d_hash) (struct dentry *, struct qstr *);
-
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Paul.

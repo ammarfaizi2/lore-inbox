@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbVK3BPl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbVK3BPw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750749AbVK3BPl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 20:15:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbVK3BPl
+	id S1750757AbVK3BPw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 20:15:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750759AbVK3BPv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 20:15:41 -0500
-Received: from fmr15.intel.com ([192.55.52.69]:55189 "EHLO
-	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1750749AbVK3BPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 20:15:40 -0500
-Subject: [PATCH] setting irq affinity is broken in ia32 with MSI enabled
-From: Shaohua Li <shaohua.li@intel.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: "Raj, Ashok" <ashok.raj@intel.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       akpm <akpm@osdl.org>
-Content-Type: text/plain
-Date: Wed, 30 Nov 2005 00:37:15 -0800
-Message-Id: <1133339835.8212.14.camel@linux.site>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Nov 2005 20:15:51 -0500
+Received: from zproxy.gmail.com ([64.233.162.204]:10056 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750757AbVK3BPv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 20:15:51 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XQUTklLUGPOlTPG8Urjgr+P0HqbDGo+rokcD4w2OM2y946uxcJFvgRtIfc2xKyi7qNicGkAY6CZFcfKIvTj4gsUZA/muD3TKLEujzjbBqxqyRZTmFkW1R8otPucy6q3f0rgwDdkqrYwc2QuaJMDyiKdF9y8RgNoSceKGkRGEdoc=
+Message-ID: <35fb2e590511291715t4481c504hb2eb60e8b263ecb2@mail.gmail.com>
+Date: Wed, 30 Nov 2005 01:15:50 +0000
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: floppy regression from "[PATCH] fix floppy.c to store correct ..."
+Cc: Andrew Morton <akpm@osdl.org>, cp@absolutedigital.net,
+       linux-kernel@vger.kernel.org, jcm@jonmasters.org, viro@ftp.linux.org.uk,
+       hch@lst.de
+In-Reply-To: <438CCF65.4060506@tmr.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.61.0511160034320.988@lancer.cnet.absolutedigital.net>
+	 <20051116005958.25adcd4a.akpm@osdl.org>
+	 <20051119034456.GA10526@apogee.jonmasters.org>
+	 <20051121233131.793f0d04.akpm@osdl.org>
+	 <35fb2e590511220356x75a951f1t8a36d0556a940751@mail.gmail.com>
+	 <20051122141628.41f3134f.akpm@osdl.org> <438B4E85.2060801@tmr.com>
+	 <35fb2e590511281233r49668895hc3295fce4cfe891b@mail.gmail.com>
+	 <438CCF65.4060506@tmr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Setting irq affinity stops working when MSI is enabled. With MSI,
-move_irq is empty, so we can't change irq affinity. It appears a typo in
-Ashok's original commit for this issue. X86_64 actually is using
-move_native_irq.
+On 11/29/05, Bill Davidsen <davidsen@tmr.com> wrote:
 
-Signed-off-by: Shaohua Li <shaohua.li@intel.com>
+> You missed my point... Andrew suggested that since the new behaviour is
+> not fully functional that a revert was in order until a new version is
+> available. I agreed, because the old broken behaviour is at least
+> expected, while waiting for the floppy driver to check is not, and old
+> problems are less likely to cause a problem until a fixed fix is in place.
 
---- a/arch/i386/kernel/io_apic.c	2005-11-29 22:22:16.000000000 -0800
-+++ b/arch/i386/kernel/io_apic.c	2005-11-29 22:23:01.000000000 -0800
-@@ -2009,7 +2009,7 @@ static void ack_edge_ioapic_vector(unsig
- {
- 	int irq = vector_to_irq(vector);
- 
--	move_irq(vector);
-+	move_native_irq(vector);
- 	ack_edge_ioapic_irq(irq);
- }
- 
-@@ -2024,7 +2024,7 @@ static void end_level_ioapic_vector (uns
- {
- 	int irq = vector_to_irq(vector);
- 
--	move_irq(vector);
-+	move_native_irq(vector);
- 	end_level_ioapic_irq(irq);
- }
- 
+Nope. I got your point perfectly and I agree with you. I'll resubmit a
+longer term fix later.
 
-
+Jon.

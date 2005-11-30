@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbVK3CJv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbVK3COj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750782AbVK3CJv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 21:09:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbVK3CJv
+	id S1750785AbVK3COj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 21:14:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbVK3COj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 21:09:51 -0500
-Received: from ozlabs.org ([203.10.76.45]:49028 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750782AbVK3CJu (ORCPT
+	Tue, 29 Nov 2005 21:14:39 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:47774 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750785AbVK3COi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 21:09:50 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 29 Nov 2005 21:14:38 -0500
+Date: Tue, 29 Nov 2005 18:14:21 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: dada1@cosmosbay.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] shrinks dentry struct
+Message-Id: <20051129181421.0e273d83.akpm@osdl.org>
+In-Reply-To: <20051129180653.f8d40e9a.pj@sgi.com>
+References: <121a28810511282317j47a90f6t@mail.gmail.com>
+	<20051129000916.6306da8b.akpm@osdl.org>
+	<438C7218.8030109@cosmosbay.com>
+	<20051129180653.f8d40e9a.pj@sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <17293.2534.764441.128963@cargo.ozlabs.ibm.com>
-Date: Wed, 30 Nov 2005 13:09:42 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Stephen Hemminger <shemminger@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       greg@kroah.com, linux-kernel@vger.kernel.org, rjw@sisk.pl
-Subject: Re: Linux 2.6.15-rc3
-In-Reply-To: <Pine.LNX.4.64.0511291754350.3135@g5.osdl.org>
-References: <Pine.LNX.4.64.0511282006370.3177@g5.osdl.org>
-	<200511292247.09243.rjw@sisk.pl>
-	<200511292342.36228.rjw@sisk.pl>
-	<20051129145328.3e5964a4@dxpl.pdx.osdl.net>
-	<20051129233744.GA32316@kroah.com>
-	<20051129161731.69ce252c@dxpl.pdx.osdl.net>
-	<20051129162519.1ef07387.akpm@osdl.org>
-	<20051129164222.66d00ca1@dxpl.pdx.osdl.net>
-	<Pine.LNX.4.64.0511291754350.3135@g5.osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
+Paul Jackson <pj@sgi.com> wrote:
+>
+>  Would the following accomplish the same thing as your patch, to shrink
+>  UP dentry structs back to 128 bytes, with a smaller and less intrusive
+>  patch?
+> 
+> ...
+>  -	struct list_head d_child;	/* child of parent list */
+>  +	union {				/* Fit 32 bit UP dentry in 128 bytes */
+>  +		struct list_head du_child;	/* child of parent list */
+>  + 		struct rcu_head du_rcu;
+>  +	} d_du;
+> ...
+>   
+>  +#define d_child d_du.du_child
+>  +#define d_rcu d_du.du_rcu
 
-> Can you check the current -git tree ( + the usb fix, which has _not_ made 
-> it there yet). I think it was probably the stupid thinko that just didn't 
-> trigger for me on ppc64 since it only breaks with 4-level page tables.
+Yes, but it's better to just do the big edit, rather than letting these
+little namespace crufties accumulate over time.
 
-Unless you have selected 64k pages (I assume not), ppc64 does use
-4-level page tables.
-
-Paul.
+Even better would be to ditch gcc-2.95.x and use an anonymous union, but
+Hugh won't let me ;)

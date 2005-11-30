@@ -1,52 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751116AbVK3H5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbVK3IJJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751116AbVK3H5L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 02:57:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbVK3H5L
+	id S1751117AbVK3IJJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 03:09:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbVK3IJJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 02:57:11 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:11686 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751116AbVK3H5L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 02:57:11 -0500
-Subject: Re: [PATCH 0/9] x86-64 put current in r10
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jari Ruusu <jariruusu@users.sourceforge.net>
-Cc: Benjamin LaHaise <bcrl@kvack.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <438D4905.9F023405@users.sourceforge.net>
-References: <20051130042118.GA19112@kvack.org>
-	 <438D4905.9F023405@users.sourceforge.net>
-Content-Type: text/plain
-Date: Wed, 30 Nov 2005 08:56:56 +0100
-Message-Id: <1133337416.2825.18.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 30 Nov 2005 03:09:09 -0500
+Received: from smtp4-g19.free.fr ([212.27.42.30]:3984 "EHLO smtp4-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1751117AbVK3IJH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 03:09:07 -0500
+From: Duncan Sands <duncan.sands@math.u-psud.fr>
+To: linux-usb-devel@lists.sourceforge.net, Greg K-H <greg@kroah.com>
+Subject: Re: [linux-usb-devel] [PATCH] Additional device ID for Conexant AccessRunner USB driver
+Date: Wed, 30 Nov 2005 09:09:06 +0100
+User-Agent: KMail/1.9
+Cc: linux-kernel@vger.kernel.org, davej@redhat.com
+References: <1133330317951@kroah.com>
+In-Reply-To: <1133330317951@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200511300909.06843.duncan.sands@math.u-psud.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-30 at 08:39 +0200, Jari Ruusu wrote:
-> Benjamin LaHaise wrote:
-> > The following emails contain the patches to convert x86-64 to store current
-> > in r10 (also at http://www.kvack.org/~bcrl/patches/v2.6.15-rc3/).
-> [snip]
-> > No benchmarks that I am aware of show regressions with this change.
-> 
-> Ben,
-> Your patch breaks all out-of-tree amd64 assembler code used in kernel. 
+> diff --git a/drivers/usb/atm/cxacru.c b/drivers/usb/atm/cxacru.c
+> index 79861ee..9d59dc6 100644
+> --- a/drivers/usb/atm/cxacru.c
+> +++ b/drivers/usb/atm/cxacru.c
+> @@ -787,6 +787,9 @@ static const struct usb_device_id cxacru
+>  	{ /* V = Conexant			P = ADSL modem (Hasbani project)	*/
+>  		USB_DEVICE(0x0572, 0xcb00),	.driver_info = (unsigned long) &cxacru_cb00
+>  	},
+> +	{ /* V = Conexant             P = ADSL modem (Well PTI-800 */
+> +		USB_DEVICE(0x0572, 0xcb02),	.driver_info = (unsigned long) &cxacru_cb00
+> +	},
+>  	{ /* V = Conexant			P = ADSL modem				*/
+>  		USB_DEVICE(0x0572, 0xcb01),	.driver_info = (unsigned long) &cxacru_cb00
+>  	},
 
-so what?
+The whitespace is mucked up, and a closing bracket is missing after Well PTI-800...
 
+Try this:
 
+Signed-off-by: Duncan Sands <baldrick@free.fr>
+
+Index: cxacru.c
+===================================================================
+RCS file: /home/cvs/speedtch/cxacru.c,v
+retrieving revision 1.39
+retrieving revision 1.40
+diff -u -3 -p -r1.39 -r1.40
+--- cxacru.c	20 Nov 2005 13:34:07 -0000	1.39
++++ cxacru.c	29 Nov 2005 12:54:09 -0000	1.40
+@@ -786,6 +786,9 @@ static const struct usb_device_id cxacru
+ 	{ /* V = Conexant			P = ADSL modem				*/
+ 		USB_DEVICE(0x0572, 0xcb01),	.driver_info = (unsigned long) &cxacru_cb00
+ 	},
++	{ /* V = Conexant			P = ADSL modem (Well PTI-800) */
++		USB_DEVICE(0x0572, 0xcb02),	.driver_info = (unsigned long) &cxacru_cb00
++	},
+ 	{ /* V = Conexant			P = ADSL modem				*/
+ 		USB_DEVICE(0x0572, 0xcb06),	.driver_info = (unsigned long) &cxacru_cb00
+ 	},

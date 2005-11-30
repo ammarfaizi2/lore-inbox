@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbVK3V1H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbVK3V0b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750786AbVK3V1H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 16:27:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbVK3V1H
+	id S1750767AbVK3V0b (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 16:26:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbVK3V0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 16:27:07 -0500
-Received: from smtp104.sbc.mail.mud.yahoo.com ([68.142.198.203]:13395 "HELO
-	smtp104.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750904AbVK3V1E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 16:27:04 -0500
+	Wed, 30 Nov 2005 16:26:31 -0500
+Received: from smtp101.sbc.mail.mud.yahoo.com ([68.142.198.200]:8857 "HELO
+	smtp101.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750767AbVK3V0a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 16:26:30 -0500
 From: David Brownell <david-b@pacbell.net>
 To: Vitaly Wool <vwool@ru.mvista.com>
 Subject: Re: [PATCH 2.6-git] SPI core refresh
-Date: Wed, 30 Nov 2005 13:27:01 -0800
+Date: Wed, 30 Nov 2005 13:26:26 -0800
 User-Agent: KMail/1.7.1
 Cc: linux-kernel@vger.kernel.org, dpervushin@gmail.com, akpm@osdl.org,
        greg@kroah.com, basicmark@yahoo.com, komal_shah802003@yahoo.com,
@@ -21,27 +21,23 @@ Cc: linux-kernel@vger.kernel.org, dpervushin@gmail.com, akpm@osdl.org,
 References: <20051130195053.713ea9ef.vwool@ru.mvista.com>
 In-Reply-To: <20051130195053.713ea9ef.vwool@ru.mvista.com>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_mkhjDIqpOsTpNSW"
-Message-Id: <200511301327.02053.david-b@pacbell.net>
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
-
---Boundary-00=_mkhjDIqpOsTpNSW
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200511301326.26934.david-b@pacbell.net>
+Sender: linux-kernel-owner@vger.kernel.org
+X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's the attached "mailer doesn't mangle these" version.
+And here's what you were comparing it to.  I'll post this twice,
+once inline (here) for inlined followups, and once as an attachment
+(next) for anyone that wants to apply it ... since I recall "kmail"
+liking to zealously mangle tabs and line ends.
 
---Boundary-00=_mkhjDIqpOsTpNSW
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="spi.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="spi.patch"
+Oh, and a bitbang/parport driver seems to be limping.  :)
+
+- Dave
+
 
 This is the core of a small SPI framework, implementing the model of a
 queue of messages which complete asynchronously (with thin synchronous
@@ -1775,5 +1771,3 @@ Index: g26/Documentation/spi/spi-summary
 +Andrew Victor
 +Vitaly Wool
 +
-
---Boundary-00=_mkhjDIqpOsTpNSW--

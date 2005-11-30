@@ -1,71 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750911AbVK3Efp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbVK3EnI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750911AbVK3Efp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 23:35:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750984AbVK3Efo
+	id S1750993AbVK3EnI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 23:43:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750990AbVK3EnI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 23:35:44 -0500
-Received: from zproxy.gmail.com ([64.233.162.193]:7116 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750911AbVK3Efo (ORCPT
+	Tue, 29 Nov 2005 23:43:08 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:5298 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750986AbVK3EnH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 23:35:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=Rk/pRnOWCZzJ8o8O6nfpPw0kIkINGbXDS8hh3Hbc9UJOcWzkXO3BTDPtatCgAiYr3vBWUrh0fF27eE/Xw/1NI4YzcTlD4HPyFxGc+KiFFNOMGLgT2lZ+AmL2LFBNiAbrDnbr8XxHvomDfpGrq/ZFHk5xgz6sqhpK7U+IIFfO1SQ=
-Message-ID: <438D2C19.3030008@gmail.com>
-Date: Wed, 30 Nov 2005 13:35:37 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+	Tue, 29 Nov 2005 23:43:07 -0500
+Message-ID: <438D2DCC.4010805@pobox.com>
+Date: Tue, 29 Nov 2005 23:42:52 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "0602@eq.cz" <0602@eq.cz>
-CC: linux-kernel@vger.kernel.org, Linux-ide <linux-ide@vger.kernel.org>
-Subject: Re: totally random "VFS: Cannot open root device"
-References: <438B6E05.8070009@eq.cz>
-In-Reply-To: <438B6E05.8070009@eq.cz>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+To: Tejun Heo <htejun@gmail.com>
+CC: Ethan Chen <thanatoz@ucla.edu>, linux-kernel@vger.kernel.org,
+       Carlos Pardo <Carlos.Pardo@siliconimage.com>,
+       Linux-ide <linux-ide@vger.kernel.org>
+Subject: Re: SIL_QUIRK_MOD15WRITE workaround problem on 2.6.14
+References: <438BD351.60902@ucla.edu> <438D2792.9050105@gmail.com>
+In-Reply-To: <438D2792.9050105@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Tejun Heo wrote: > [CC'ing Jeff, Carlos & linux-ide] >
+	> Ethan Chen wrote: > >> I've got a dual Opteron 242 machine here with
+	2x Seagate ST3200822AS >> SATA drives attached to a Silicon Image
+	SI3114 controller, and after >> upgrading to 2.6.14 from 2.6.13, it
+	seems the SIL_QUIRK_MOD15WRITE >> workaround for the sata_sil driver
+	isn't being applied anymore. This >> caused me trouble in the past
+	before my drive was added to the >> blacklist, and this message that
+	comes up when writing (~4GBfiles to >> test) files, right before the
+	computer locks up, is the same as before: >> kernel: ata1: command 0x35
+	timeout, stat 0xd8 host_stat 0x61 >> In the dmesg, the 'Applying
+	Seagate errata fix' message doesn't appear >> anymore as well. >>
+	Finally, without the fix, write speeds are much higher as well, before
+	>> it locks up. > > > Hello, Ethan. > > Sometime ago, Silicon Image has
+	confirmed that 3114's and 3512's are not > affected by the m15w problem
+	- only 3112's are affected. So, a patch > has made into the tree before
+	2.6.14 to apply the m15w quirk selectively. [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-0602@eq.cz wrote:
-> Hi!
+Tejun Heo wrote:
+> [CC'ing Jeff, Carlos & linux-ide]
 > 
-> (Please CC me your answers as I am not subscribed.)
+> Ethan Chen wrote:
 > 
-> I have a problem with 2.6.14.3 kernel (but this probably isn't too 
-> version-specific). I have a kernel which succesfully boots on totally 
-> random basis (cca 70% is success). My root partition resides on a SATA 
-> disc connected to a controller on Intel 6300ESB ICH southbridge (mb 
-> Intel se7320vp2). There is a reiserfs 3 filesystem on my root partition. 
-> Without any changes to configuration (os or bios or whatever) I 
-> sometimes get:
+>> I've got a dual Opteron 242 machine here with 2x Seagate ST3200822AS 
+>> SATA drives attached to a Silicon Image SI3114 controller, and after 
+>> upgrading to 2.6.14 from 2.6.13, it seems the SIL_QUIRK_MOD15WRITE 
+>> workaround for the sata_sil driver isn't being applied anymore. This 
+>> caused me trouble in the past before my drive was added to the 
+>> blacklist, and this message that comes up when writing (~4GBfiles to 
+>> test) files, right before the computer locks up, is the same as before:
+>> kernel: ata1: command 0x35 timeout, stat 0xd8 host_stat 0x61
+>> In the dmesg, the 'Applying Seagate errata fix' message doesn't appear 
+>> anymore as well.
+>> Finally, without the fix, write speeds are much higher as well, before 
+>> it locks up.
 > 
-> VFS: Cannot open root device "801" or unknown block(8,1)
 > 
-> Could this be some timeout issue, or indication of crappy hw? I've tried 
-> this about 10 times (immediately ctrl+alt+del on successfull boot or 
-> reset button on aforementioned panic) and I saw no regularities in this 
-> misbehaviour.
+> Hello, Ethan.
 > 
-> I sincerely appreciate any advice anyone can give.
-> 
+> Sometime ago, Silicon Image has confirmed that 3114's and 3512's are not 
+> affected by the m15w problem - only 3112's are affected.  So, a patch 
+> has made into the tree before 2.6.14 to apply the m15w quirk selectively.
 
-[CC'ing linux-ide]
+Most likely, mod15write quirk was just hiding an unrelated problem. 
+mod15write often hid BIOS problems in the past which led to corruption.
 
-Hello, 0602.  :-)
+Until sata_sil properly handles SATA phy / DMA errors by resetting the 
+controller and retrying the command, we won't know if its a driver 
+problem or not.
 
-Can you please post dmesg of a successful booting?  That will tell us 
-which SATA controller/disks you are using.  Also, the boot log of a 
-failed boot will be very helpful - the best way to get this is via 
-serial console.  If you don't have access to serial console, taking note 
-   / picture of the part where SATA detection fails will do too.
+	Jeff
 
-Also, when the machine boots successfully, does it work without 
-generating disk related kernel logs?  Just perform any IO-heavy 
-operations - cp'ing directories which contain large files, 
-tar/untarring... - and see if the kernel complains about anyting.
 
--- 
-tejun
+

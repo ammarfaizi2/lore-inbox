@@ -1,51 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbVK3V0n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750883AbVK3Vgk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750820AbVK3V0n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 16:26:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbVK3V0n
+	id S1750883AbVK3Vgk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 16:36:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750896AbVK3Vgk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 16:26:43 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:62925 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750778AbVK3V0m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 16:26:42 -0500
-Date: Wed, 30 Nov 2005 13:27:57 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Franck <vagabon.xyz@gmail.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH] Add MIPS dependency for dm9000 driver
-Message-Id: <20051130132757.36e1cca0.akpm@osdl.org>
-In-Reply-To: <cda58cb80511300918i7df1c60au@mail.gmail.com>
-References: <cda58cb80511300918i7df1c60au@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 30 Nov 2005 16:36:40 -0500
+Received: from smtp101.sbc.mail.mud.yahoo.com ([68.142.198.200]:33713 "HELO
+	smtp101.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750857AbVK3Vgk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 16:36:40 -0500
+From: David Brownell <david-b@pacbell.net>
+To: Vitaly Wool <vwool@ru.mvista.com>
+Subject: Re: [PATCH 2.6-git] SPI core refresh
+Date: Wed, 30 Nov 2005 13:36:38 -0800
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org, dpervushin@gmail.com, akpm@osdl.org,
+       greg@kroah.com, basicmark@yahoo.com, komal_shah802003@yahoo.com,
+       stephen@streetfiresound.com, spi-devel-general@lists.sourceforge.net,
+       Joachim_Jaeger@digi.com
+References: <20051130195053.713ea9ef.vwool@ru.mvista.com>
+In-Reply-To: <20051130195053.713ea9ef.vwool@ru.mvista.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511301336.38613.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Franck <vagabon.xyz@gmail.com> wrote:
->
-> The attached patch adds MIPS dependency for dm9000 ethernet
-> controller. Indeed this controller is used by some embedded platforms
-> based on MIPS CPUs.
-> 
-> Signed-Off-By: Franck Bui-Huu <franck.bui@gmail.com>
-> ---
-> diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
-> index f15f909..1b00169 100644
-> --- a/drivers/net/Kconfig
-> +++ b/drivers/net/Kconfig
-> @@ -856,7 +856,7 @@ config SMC9194
-> 
->  config DM9000
->  	tristate "DM9000 support"
-> -	depends on ARM && NET_ETHERNET
-> +	depends on (ARM || MIPS) && NET_ETHERNET
->  	select CRC32
->  	select MII
+On Wednesday 30 November 2005 8:50 am, Vitaly Wool wrote:
 
-Is there any reason why we cannot enable this driver on all architectures?
+> However, there also are some advantages of our core compared to David's I'd like to mention
 
-It's moderately important for quality and maintainability reasons that it
-be included in the x86 build, at least..
+I'd also be interested in your responses to the comparison I wrote up last week.
+(Post dated 23-November to that spi-devel list...)
+
+
+> - it can be compiled as a module
+
+Which as I pointed out would be a rather minor patch to mine.  There's a
+bit of code to manage the board-specific SPI tables, which _can't_ be
+a module.  Then there's something less than 2KB of code (ARM .text) that
+could live in a module.  I can't get excited about making that live in
+a module, but I'd take a patch to change that.
+
+
+> - it is DMA-safe
+
+Which as I pointed out is incorrect.  The core API (async) has always
+been fully DMA-safe.  And a **LOT** lower overhead than yours, which
+allocates buffers behind the back of drivers, and encourages lots of
+memcpy rather than just doing DMA directly to/from the buffers that
+are provided by the SPI protocol drivers.
+
+
+> - it is priority inversion-free
+> - it can gain more performance with multiple controllers
+> - it's more adapted for use in real-time environments
+
+You'd have to explain what you mean by all of these.  I could guess
+based on what you've said before (disagree!), but that won't help.
+
+
+> - it's not so lightweight, but it leaves less effort for the bus driver developer.
+
+Whereas in my previous comments about your framework, I think I've
+pointed out that imposing needless and restrictive policies on how
+the controller drivers work is a Bad Thing.
+
+- Dave
+

@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751562AbVK3Tq5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751602AbVK3Ty2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751562AbVK3Tq5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 14:46:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751566AbVK3Tq5
+	id S1751602AbVK3Ty2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 14:54:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751603AbVK3Ty2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 14:46:57 -0500
-Received: from kirby.webscope.com ([204.141.84.57]:44735 "EHLO
-	kirby.webscope.com") by vger.kernel.org with ESMTP id S1751558AbVK3Tq4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 14:46:56 -0500
-Message-ID: <438E017C.2090901@m1k.net>
-Date: Wed, 30 Nov 2005 14:46:04 -0500
-From: Michael Krufky <mkrufky@m1k.net>
-Reply-To: mkrufky@m1k.net
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Damien Wyart <damien.wyart@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: BUG in kernel checked out 24 hours ago
-References: <20051130192050.GA13596@localhost.localdomain> <1133378746.2825.60.camel@laptopd505.fenrus.org>
-In-Reply-To: <1133378746.2825.60.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Nov 2005 14:54:28 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:30592 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751599AbVK3Ty2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 14:54:28 -0500
+Date: Wed, 30 Nov 2005 20:54:49 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Valentine Barshak <vbarshak@ru.mvista.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] linux-2.6.14-rt21 PPC32 signal delivery in realtime preemption.
+Message-ID: <20051130195449.GA25075@elte.hu>
+References: <438DBE4B.4000709@ru.mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <438DBE4B.4000709@ru.mvista.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.5
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.5 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	1.3 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
 
->On Wed, 2005-11-30 at 20:20 +0100, Damien Wyart wrote:
->  
->
->>Hello,
->>
->>Please find the log from a BUG I encountered this evening while running
->>a kernel I had checkouted from git and compiled arond 6pm UTC yesterday.
->>The computer froze and I could reboot it with Sysrq.
->>
->>Any comments welcome, notably about if this has been corrected since or
->>not (I am not insider enough to be sure). I am currently compileing
->>a freshly checkouted kernel to see if it runs better.
->>    
->>
->
->you should try without the nvidia module....
->
-It looks like this issue applies to your situation:
+* Valentine Barshak <vbarshak@ru.mvista.com> wrote:
 
-[LKML] Merely a warning to my fellow Nvidia travellers running 2.6.15-rc3
-http://lkml.org/lkml/2005/11/30/157/index.html
+> This happens because interrupts are not enabled in the realtime 
+> preemption mode by the time kernel delivers signals to processes. This 
+> patch enables interrupts so that realtime mutexes can be acquired in 
+> the "right" context. The original code has been found in 
+> CONFIG_PREEMPT_RT support for i386 architecture. Thanks.
+> 
+> Signed-off-by: Valentine Barshak <vbarshak@ru.mvista.com>
 
-Cheers,
+thanks, applied.
 
-Michael Krufky
-
-
+	Ingo

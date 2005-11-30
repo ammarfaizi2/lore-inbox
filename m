@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751443AbVK3QX0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751444AbVK3QXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751443AbVK3QX0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 11:23:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbVK3QX0
+	id S1751444AbVK3QXk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 11:23:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbVK3QXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 11:23:26 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:34023 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751443AbVK3QXZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 11:23:25 -0500
-Date: Wed, 30 Nov 2005 16:23:24 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-rc3-mm1
-Message-ID: <20051130162324.GA15273@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20051129203134.13b93f48.akpm@osdl.org>
+	Wed, 30 Nov 2005 11:23:40 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:57355 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751444AbVK3QXc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 11:23:32 -0500
+Date: Wed, 30 Nov 2005 16:23:27 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Franck <vagabon.xyz@gmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [NET] Remove ARM dependency for dm9000 driver
+Message-ID: <20051130162327.GC1053@flint.arm.linux.org.uk>
+Mail-Followup-To: Franck <vagabon.xyz@gmail.com>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <cda58cb80511300821y72f3354av@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051129203134.13b93f48.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <cda58cb80511300821y72f3354av@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 29, 2005 at 08:31:34PM -0800, Andrew Morton wrote:
+On Wed, Nov 30, 2005 at 05:21:35PM +0100, Franck wrote:
+> Hi,
 > 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc3/2.6.15-rc3-mm1/
+> What about this patch which removes ARM dependency for dm9000 ethernet
+> controller driver ?
 > 
-> - Several ISA sound drivers don't compile.  This is due to a collision
->   between the ALSA and PCMCIA trees, and to breakage in the ALSA tree.
+> diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
+> index f15f909..4af63dd 100644
+> --- a/drivers/net/Kconfig
+> +++ b/drivers/net/Kconfig
+> @@ -856,7 +856,7 @@ config SMC9194
 > 
-> - drivers/serial/jsm/* still doesn't compile.
+>  config DM9000
+>  	tristate "DM9000 support"
+> -	depends on ARM && NET_ETHERNET
+> +	depends on NET_ETHERNET
+>  	select CRC32
+>  	select MII
+>  	---help---
+> 
+> My platform based on MIPS cpu used it...
 
-Maybe it's time to drop the driver again?  It's known to be very abusive
-of tty internals it shouldn't touch and the vendor blocks adding more
-hardware support to it because it prefers it own (even worse) driver.
+Maybe that should be (ARM || MIPS) && NET_ETHERNET ?
 
-This will give IBM who apparently cares about this hardware the chance to
-reintroduce a proper driver again that supports all hardware and doesn't
-abuse the tty layer.
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

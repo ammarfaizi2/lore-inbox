@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750860AbVK3PHc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbVK3PNI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750860AbVK3PHc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 10:07:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbVK3PHb
+	id S1751265AbVK3PNI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 10:13:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751270AbVK3PNH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 10:07:31 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:21710 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1750860AbVK3PHb (ORCPT
+	Wed, 30 Nov 2005 10:13:07 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:8065 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1751265AbVK3PNG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 10:07:31 -0500
-Date: Wed, 30 Nov 2005 16:07:29 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Oleg Nesterov <oleg@tv-sign.ru>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/9] timer locking optimization
-In-Reply-To: <438D77E5.DCAC8804@tv-sign.ru>
-Message-ID: <Pine.LNX.4.61.0511301436180.1609@scrub.home>
-References: <438C5057.A54AFA83@tv-sign.ru> <Pine.LNX.4.61.0511300330130.1609@scrub.home>
- <438D77E5.DCAC8804@tv-sign.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 30 Nov 2005 10:13:06 -0500
+Date: Wed, 30 Nov 2005 10:10:06 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/9] x86-64 put current in r10
+Message-ID: <20051130151006.GA23308@kvack.org>
+References: <20051130042118.GA19112@kvack.org> <20051130130216.GL19515@wotan.suse.de> <1133357572.2825.35.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1133357572.2825.35.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Nov 30, 2005 at 02:32:51PM +0100, Arjan van de Ven wrote:
+> > Looks good thanks. It will need longer testing though.
+> 
+> is it -mm ready?
 
-On Wed, 30 Nov 2005, Oleg Nesterov wrote:
+I'd like to hear back on if suspend/resume works with it, as that is one 
+of the areas I couldn't test.  The patch set is completely incremental, 
+so we could merge the bits of it in a couple of steps.  The mb() in 
+smpboot.c is an important bug fix and should be considered for immediate 
+inclusion.
 
-> Still not correct, I beleive.
-
-Here is a new idea, what do you think about using spin_trylock(), e.g. 
-something like:
-
-	if (spin_trylock(&new_base->t_base.lock)) {
-		timer->base = &new_base->t_base;
-		spin_unlock(&base->lock);
-	} else
-		new_base = container_of(base, tvec_base_t, t_base);
-
-It's not like we must start the timer on the current cpu and this might 
-even be faster. If the new base is busy on another cpu, it's possible we 
-have to pull dirty cache lines from the other cpu, where we might already 
-have the data from the current base already in the cache from the detach.
-
-bye, Roman
+		-ben
+-- 
+"You know, I've seen some crystals do some pretty trippy shit, man."
+Don't Email: <dont@kvack.org>.

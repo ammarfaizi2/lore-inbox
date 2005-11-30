@@ -1,59 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751457AbVK3Qz5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751454AbVK3RCz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751457AbVK3Qz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 11:55:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751454AbVK3Qz4
+	id S1751454AbVK3RCz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 12:02:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751458AbVK3RCz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 11:55:56 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34061 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751457AbVK3Qz4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 11:55:56 -0500
-Date: Wed, 30 Nov 2005 16:55:47 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Franck <vagabon.xyz@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [NET] Remove ARM dependency for dm9000 driver
-Message-ID: <20051130165546.GD1053@flint.arm.linux.org.uk>
-Mail-Followup-To: Franck <vagabon.xyz@gmail.com>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <cda58cb80511300821y72f3354av@mail.gmail.com> <20051130162327.GC1053@flint.arm.linux.org.uk> <cda58cb80511300845j18c81ce6p@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cda58cb80511300845j18c81ce6p@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 30 Nov 2005 12:02:55 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:3763 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751454AbVK3RCy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 12:02:54 -0500
+Message-ID: <438DECB9.10E846E0@tv-sign.ru>
+Date: Wed, 30 Nov 2005 21:17:29 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/9] timer locking optimization
+References: <438C5057.A54AFA83@tv-sign.ru> <Pine.LNX.4.61.0511300330130.1609@scrub.home>
+	 <438D77E5.DCAC8804@tv-sign.ru> <Pine.LNX.4.61.0511301436180.1609@scrub.home>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 30, 2005 at 05:45:33PM +0100, Franck wrote:
-> 2005/11/30, Russell King <rmk+lkml@arm.linux.org.uk>:
-> > On Wed, Nov 30, 2005 at 05:21:35PM +0100, Franck wrote:
-> > > Hi,
-> > >
-> > > What about this patch which removes ARM dependency for dm9000 ethernet
-> > > controller driver ?
-> > >
-> > Maybe that should be (ARM || MIPS) && NET_ETHERNET ?
-> >
+Roman Zippel wrote:
 > 
-> Well, if this dependency means "it has only be tested on ARM and
-> MIPS", then you're probably right. But if it means "this controller
-> must be run with an ARM or MIPS cpu" then I don't see why setting such
-> restriction. What do you think ?
+> Hi,
+> 
+> On Wed, 30 Nov 2005, Oleg Nesterov wrote:
+> 
+> > Still not correct, I beleive.
+> 
+> Here is a new idea, what do you think about using spin_trylock(), e.g.
+> something like:
+> 
+>         if (spin_trylock(&new_base->t_base.lock)) {
+>                 timer->base = &new_base->t_base;
+>                 spin_unlock(&base->lock);
+>         } else
+>                 new_base = container_of(base, tvec_base_t, t_base);
+> 
+> It's not like we must start the timer on the current cpu and this might
+> even be faster. If the new base is busy on another cpu, it's possible we
+> have to pull dirty cache lines from the other cpu, where we might already
+> have the data from the current base already in the cache from the detach.
 
-If other CPUs use this then fine, but I find that having config options
-needlessly available to all architectures is annoying - especially when
-they are never used.
+... and this will simplify the code! I think this is a nice idea.
+Something like this:
 
-Eg, would you ever expect to see a DM9000 ethernet device on an x86
-machine?  Probably not - there's far better PCI solutions now.
+	if (base != &new_base->t_base) {
 
-So until someone says "I want to use this on such and such arch" I
-think it's better to keep it dependent on those we know are likely
-to support it.
+		if (unlikely(base->running_timer == timer) ||
+		    !spin_trylock(&new_base->t_base.lock)) {
+			/* The timer remains on a former base */
+			new_base = container_of(base, tvec_base_t, t_base);
+		} else {
+			timer->base = &new_base->t_base;
+			spin_unlock(&base->lock);
+		}
+	}
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+But please update comments too, and don't forget to cc Ingo and Andrew
+at least. In my opinion this patch should go separately from other ptimer
+patches.
+
+Oleg.

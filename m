@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbVK3Bxh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbVK3B5I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750755AbVK3Bxh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 20:53:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbVK3Bxh
+	id S1750777AbVK3B5I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 20:57:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbVK3B5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 20:53:37 -0500
-Received: from ns2.uludag.org.tr ([193.140.100.220]:34451 "EHLO uludag.org.tr")
-	by vger.kernel.org with ESMTP id S1750755AbVK3Bxh (ORCPT
+	Tue, 29 Nov 2005 20:57:08 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:25498 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750777AbVK3B5H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 20:53:37 -0500
-From: Ismail Donmez <ismail@uludag.org.tr>
-Reply-To: Ismail Donmez <ismail@uludag.org.tr>
-Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK/UEKAE?=
-To: linux-kernel@vger.kernel.org
-Subject: MPlayer problems with kernel 2.6.15-rc3
-Date: Wed, 30 Nov 2005 03:53:26 +0200
-User-Agent: KMail/1.8.92
+	Tue, 29 Nov 2005 20:57:07 -0500
+Date: Tue, 29 Nov 2005 17:57:00 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Stephen Hemminger <shemminger@osdl.org>
+cc: Andrew Morton <akpm@osdl.org>, greg@kroah.com,
+       linux-kernel@vger.kernel.org, rjw@sisk.pl
+Subject: Re: Linux 2.6.15-rc3
+In-Reply-To: <20051129164222.66d00ca1@dxpl.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.64.0511291754350.3135@g5.osdl.org>
+References: <Pine.LNX.4.64.0511282006370.3177@g5.osdl.org> <200511292247.09243.rjw@sisk.pl>
+ <200511292342.36228.rjw@sisk.pl> <20051129145328.3e5964a4@dxpl.pdx.osdl.net>
+ <20051129233744.GA32316@kroah.com> <20051129161731.69ce252c@dxpl.pdx.osdl.net>
+ <20051129162519.1ef07387.akpm@osdl.org> <20051129164222.66d00ca1@dxpl.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200511300353.26400.ismail@uludag.org.tr>
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-When I try to change volume level in mplayer I got this using alsa output :
 
-Trying to fix it up, but a reboot is needed
-Bad page state at free_hot_cold_page (in process 'mplayer', page c12b9be0)
-flags:0x80000414 mapping:00000000 mapcount:0 count:0
-Backtrace:
- [<c0140a3f>] bad_page+0x5f/0xa0
- [<c0141271>] free_hot_cold_page+0x41/0x120
- [<c014b187>] zap_pte_range+0x187/0x270
- [<c014b310>] unmap_page_range+0xa0/0x150
- [<c014b49f>] unmap_vmas+0xdf/0x1e0
- [<c014f375>] unmap_region+0x85/0x110
- [<c014f655>] do_munmap+0xc5/0x110
- [<c014f6db>] sys_munmap+0x3b/0x60
- [<c0102f3b>] sysenter_past_esp+0x54/0x79
-Trying to fix it up, but a reboot is needed
+On Tue, 29 Nov 2005, Stephen Hemminger wrote:
+> 
+> Yes, when I retested with the usb patch it was against a fresh git pull.
+> So it probably isn't a USB problem but something that got introduced between
+> the two (2.6.15-rc3 vs latest).
+> 
+> I'll go back to the 2.6.15-rc3 tree and test usb fix.
 
-Alsa version is 1.0.10 including driver package. Any idea whats going on?
+Can you check the current -git tree ( + the usb fix, which has _not_ made 
+it there yet). I think it was probably the stupid thinko that just didn't 
+trigger for me on ppc64 since it only breaks with 4-level page tables.
 
-P.S: I am not subscribed to list so please CC me in your replies.
-
-Regards,
-ismail
+		Linus

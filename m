@@ -1,116 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751440AbVK3Q0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751448AbVK3Q07@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751440AbVK3Q0E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 11:26:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751449AbVK3Q0D
+	id S1751448AbVK3Q07 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 11:26:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbVK3Q07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 11:26:03 -0500
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:23286 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751442AbVK3Q0B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 11:26:01 -0500
-Subject: Re: [PATCH] race condition in procfs
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Grzegorz Nosek <grzegorz.nosek@gmail.com>
-Cc: vserver@list.linux-vserver.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <121a28810511300729p6983c9a2x@mail.gmail.com>
-References: <121a28810511282317j47a90f6t@mail.gmail.com>
-	 <20051129000916.6306da8b.akpm@osdl.org>
-	 <121a28810511290038h37067fecx@mail.gmail.com>
-	 <121a28810511290525m1bdf12e0n@mail.gmail.com>
-	 <121a28810511290604m68c56398t@mail.gmail.com>
-	 <1133274524.6328.56.camel@localhost.localdomain>
-	 <121a28810511290639g79617c85h@mail.gmail.com>
-	 <Pine.LNX.4.58.0511290945380.7838@gandalf.stny.rr.com>
-	 <121a28810511300641pca9596fl@mail.gmail.com>
-	 <1133363652.25340.17.camel@localhost.localdomain>
-	 <121a28810511300729p6983c9a2x@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 30 Nov 2005 11:25:51 -0500
-Message-Id: <1133367951.6635.12.camel@localhost.localdomain>
+	Wed, 30 Nov 2005 11:26:59 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:52970 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751442AbVK3Q06
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 11:26:58 -0500
+Subject: [PATCH] ext3 getblocks() support for read
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: ext2-devel <Ext2-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+Cc: akpm@osdl.org, sct@redhat.com, hch@lst.de, cmm@us.ibm.com
+Content-Type: multipart/mixed; boundary="=-80VbKM2GOSVhHTrQ4PEa"
+Date: Wed, 30 Nov 2005 08:26:59 -0800
+Message-Id: <1133368019.27824.55.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Andrew, this will be the last email that I include you on.  I'm taking
-you off unless you want to stay on this thread, and say so.  I figure
-that you get enough spam without having to read through this. I'll
-obviously add you back if this results in a patch.)
 
-On Wed, 2005-11-30 at 16:29 +0100, Grzegorz Nosek wrote:
-> 2005/11/30, Steven Rostedt <rostedt@goodmis.org>:
-> >
-> > OK, Remove your patches, run the system where you can capture the log,
-> > and provide a full output of the oops.  Make sure you have
-> > CONFIG_KALLSYMS set.
-> >
-> 
-> OK, attached an oops from netconsole.
-> 
+--=-80VbKM2GOSVhHTrQ4PEa
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-The oops happened at address a01b50eb.  Could you go into the compiled
-directory run gdb on vmlinux and type li *0xa01b50eb and show what you
-get.
+Hi,
 
-For example:
+Here is the patch to support ext3 getblocks() for non allocation
+cases. (for reads & re-writes). This is useful with DIO reads,
+DIO re-writes and to go with Christoph's getblocks() for readpages()
+work.
 
-~/work/ernie/linux-2.6.15-rc2-git5$ gdb vmlinux
-GNU gdb 6.3-debian
-Copyright 2004 Free Software Foundation, Inc.
-GDB is free software, covered by the GNU General Public License, and you are
-welcome to change it and/or distribute copies of it under certain conditions.
-Type "show copying" to see the conditions.
-There is absolutely no warranty for GDB.  Type "show warranty" for details.
-This GDB was configured as "i386-linux"...Using host libthread_db library "/lib/tls/libthread_db.so.1".
+Mingming is working on adding multiblock allocation support using
+reservation (which can be incrementally added later).
 
-(gdb) li *0xc01019e0
-0xc01019e0 is in sys_clone (arch/i386/kernel/process.c:768).
-763     {
-764             return do_fork(SIGCHLD, regs.esp, &regs, 0, NULL, NULL);
-765     }
-766
-767     asmlinkage int sys_clone(struct pt_regs regs)
-768     {
-769             unsigned long clone_flags;
-770             unsigned long newsp;
-771             int __user *parent_tidptr, *child_tidptr;
-772
-(gdb)
+Comments ? 
 
-Obviously, use "li *0xa01b50eb" instead of 0xc01019e0.
+Thanks,
+Badari
 
-Now if you get an error in starting gdb like:
 
-$ gdb vmlinux
-GNU gdb 6.3.90_20051119-debian
-Copyright 2004 Free Software Foundation, Inc.
-GDB is free software, covered by the GNU General Public License, and you are
-welcome to change it and/or distribute copies of it under certain conditions.
-Type "show copying" to see the conditions.
-There is absolutely no warranty for GDB.  Type "show warranty" for details.
-This GDB was configured as "i486-linux-gnu"...(no debugging symbols found)
-Using host libthread_db library "/lib/tls/libthread_db.so.1".
 
-(gdb) li *0xa01b50eb
-No symbol table is loaded.  Use the "file" command.
-(gdb)
+--=-80VbKM2GOSVhHTrQ4PEa
+Content-Disposition: attachment; filename=ext3-noalloc-get-blocks.patch
+Content-Type: text/x-patch; name=ext3-noalloc-get-blocks.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Notice the (no debugging symbols found).  Then start up make menuconfig,
-goto "Kernel Hacking", set "Kernel Debugging" and "Compile the kernel
-with debug info".  And try again.  It may also be helpful to have
-"Compile the kernel with frame pointers" also set.  If you do this, you
-will probably need to use something other than the 0xa01b50eb.  Look at
-the output of the oops and see the following:
+Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
+--- linux-2.6.15-rc2/fs/ext3/inode.c	2005-11-19 19:25:03.000000000 -0800
++++ linux-2.6.15-rc2.new/fs/ext3/inode.c	2005-11-30 08:16:36.000000000 -0800
+@@ -329,8 +329,9 @@ static int ext3_block_to_path(struct ino
+ 	} else {
+ 		ext3_warning (inode->i_sb, "ext3_block_to_path", "block > big");
+ 	}
+-	if (boundary)
+-		*boundary = (i_block & (ptrs - 1)) == (final - 1);
++	if (boundary) {
++		*boundary = final - 1 - (i_block & (ptrs - 1));
++	}
+ 	return n;
+ }
+ 
+@@ -672,8 +673,9 @@ err_out:
+  */
+ 
+ static int
+-ext3_get_block_handle(handle_t *handle, struct inode *inode, sector_t iblock,
+-		struct buffer_head *bh_result, int create, int extend_disksize)
++ext3_get_blocks_handle(handle_t *handle, struct inode *inode, sector_t iblock, 
++		int max_blocks,struct buffer_head *bh_result, int create, 
++		int extend_disksize)
+ {
+ 	int err = -EIO;
+ 	int offsets[4];
+@@ -681,9 +683,10 @@ ext3_get_block_handle(handle_t *handle, 
+ 	Indirect *partial;
+ 	unsigned long goal;
+ 	int left;
+-	int boundary = 0;
+-	const int depth = ext3_block_to_path(inode, iblock, offsets, &boundary);
++	int blks_boundary = 0;
++	const int depth = ext3_block_to_path(inode, iblock, offsets, &blks_boundary);
+ 	struct ext3_inode_info *ei = EXT3_I(inode);
++	int count = 1;
+ 
+ 	J_ASSERT(handle != NULL || create == 0);
+ 
+@@ -694,7 +697,18 @@ ext3_get_block_handle(handle_t *handle, 
+ 
+ 	/* Simplest case - block found, no allocation needed */
+ 	if (!partial) {
++		unsigned long first_block = le32_to_cpu(chain[depth-1].key);
++
+ 		clear_buffer_new(bh_result);
++
++		/*
++		 * Find all the contiguous blocks and return at once.
++		 */
++		while (count < max_blocks && count <= blks_boundary &&
++			(le32_to_cpu(*(chain[depth-1].p+count)) == 
++				(first_block + count))) {
++			count++;
++		}
+ 		goto got_it;
+ 	}
+ 
+@@ -772,8 +786,9 @@ ext3_get_block_handle(handle_t *handle, 
+ 	set_buffer_new(bh_result);
+ got_it:
+ 	map_bh(bh_result, inode->i_sb, le32_to_cpu(chain[depth-1].key));
+-	if (boundary)
++	if (blks_boundary == 0)
+ 		set_buffer_boundary(bh_result);
++	err = count;
+ 	/* Clean up and exit */
+ 	partial = chain + depth - 1;	/* the whole chain */
+ cleanup:
+@@ -787,6 +802,19 @@ out:
+ 	return err;
+ }
+ 
++static int
++ext3_get_block_handle(handle_t *handle, struct inode *inode, sector_t iblock,
++		struct buffer_head *bh_result, int create, int extend_disksize)
++{
++	int ret;
++	ret = ext3_get_blocks_handle(handle, inode, iblock, 1, bh_result, 
++			create, extend_disksize);
++	if (ret > 0)
++		ret = 0;
++
++	return ret;
++}
++
+ static int ext3_get_block(struct inode *inode, sector_t iblock,
+ 			struct buffer_head *bh_result, int create)
+ {
+@@ -842,9 +870,13 @@ ext3_direct_io_get_blocks(struct inode *
+ 
+ get_block:
+ 	if (ret == 0)
+-		ret = ext3_get_block_handle(handle, inode, iblock,
+-					bh_result, create, 0);
+-	bh_result->b_size = (1 << inode->i_blkbits);
++		ret = ext3_get_blocks_handle(handle, inode, iblock,
++					max_blocks, bh_result, create, 0);
++
++	if (ret > 0)
++		bh_result->b_size = (ret << inode->i_blkbits);
++	else
++		bh_result->b_size = (1 << inode->i_blkbits);
+ 	return ret;
+ }
+ 
 
-Nov 27 00:15:26 s35 [43281574.240000] CPU:    1
-Nov 27 00:15:26 s35 [43281574.240000] EIP:    0060:[<a01b50eb>]    Not tainted VLI
-Nov 27 00:15:26 s35 [43281574.240000] EFLAGS: 00010257   (2.6.14.2amd64smp.17)
-
-That EIP is what I want.
-
--- Steve
-
+--=-80VbKM2GOSVhHTrQ4PEa--
 

@@ -1,105 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbVK3Ccr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbVK3Cdy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750813AbVK3Ccr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 21:32:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbVK3Ccr
+	id S1750783AbVK3Cdy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 21:33:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbVK3Cdy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 21:32:47 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:44232 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1750813AbVK3Ccq (ORCPT
+	Tue, 29 Nov 2005 21:33:54 -0500
+Received: from fsmlabs.com ([168.103.115.128]:60105 "EHLO spamalot.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S1750783AbVK3Cdx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 21:32:46 -0500
-Date: Wed, 30 Nov 2005 03:32:45 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Oleg Nesterov <oleg@tv-sign.ru>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/9] timer locking optimization
-In-Reply-To: <438C5057.A54AFA83@tv-sign.ru>
-Message-ID: <Pine.LNX.4.61.0511300330130.1609@scrub.home>
-References: <438C5057.A54AFA83@tv-sign.ru>
+	Tue, 29 Nov 2005 21:33:53 -0500
+X-ASG-Debug-ID: 1133318031-28783-51-0
+X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
+Date: Tue, 29 Nov 2005 18:39:32 -0800 (PST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Andi Kleen <ak@suse.de>
+cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
+X-ASG-Orig-Subj: Re: Enabling RDPMC in user space by default
+Subject: Re: Enabling RDPMC in user space by default
+In-Reply-To: <20051129151515.GG19515@wotan.suse.de>
+Message-ID: <Pine.LNX.4.61.0511291837050.17356@montezuma.fsmlabs.com>
+References: <20051129151515.GG19515@wotan.suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.5711
+	Rule breakdown below pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Andi,
 
-On Tue, 29 Nov 2005, Oleg Nesterov wrote:
+On Tue, 29 Nov 2005, Andi Kleen wrote:
 
-> Also, you have wrong value of 'base' after 'goto restart'.
+> I'm considering to enable CR4.PCE by default on x86-64/i386. Currently it's 0
+> which means RDPMC doesn't work. On x86-64 PMC 0 is always programmed
+> to be a cycle counter, so it would be useful to be able to access
+> this for measuring instructions. That's especially useful because RDTSC 
+> does not necessarily count cycles in the current P state (already
+> the case on Intel CPUs and AMD's future direction seems to also
+> to decouple it from cycles) Drawback is that it stops during idle, but 
+> that shouldn't be a big issue for normal measuring. It's not useful
+> as a real timer anyways.
 
-Here is the updated patch, which fixes this.
+Some processor implementations don't have a performance counter which 
+ticks during the idle thread either.
 
-bye, Roman
+> Any comments on this? 
 
-Index: linux-2.6/kernel/timer.c
-===================================================================
---- linux-2.6.orig/kernel/timer.c	2005-11-29 13:29:35.000000000 +0100
-+++ linux-2.6/kernel/timer.c	2005-11-29 14:01:42.000000000 +0100
-@@ -178,27 +178,20 @@ static inline void detach_timer(struct t
-  *
-  * So __run_timers/migrate_timers can safely modify all timers which could
-  * be found on ->tvX lists.
-- *
-- * When the timer's base is locked, and the timer removed from list, it is
-- * possible to set timer->base = NULL and drop the lock: the timer remains
-- * locked.
-  */
- static timer_base_t *lock_timer_base(struct timer_list *timer,
- 					unsigned long *flags)
- {
- 	timer_base_t *base;
- 
--	for (;;) {
--		base = timer->base;
--		if (likely(base != NULL)) {
--			spin_lock_irqsave(&base->lock, *flags);
--			if (likely(base == timer->base))
--				return base;
--			/* The timer has migrated to another CPU */
--			spin_unlock_irqrestore(&base->lock, *flags);
--		}
--		cpu_relax();
--	}
-+again:
-+	base = timer->base;
-+	spin_lock_irqsave(&base->lock, *flags);
-+	if (likely(base == timer->base))
-+		return base;
-+	/* The timer has migrated to another CPU */
-+	spin_unlock_irqrestore(&base->lock, *flags);
-+	goto again;
- }
- 
- int __mod_timer(struct timer_list *timer, unsigned long expires)
-@@ -210,6 +203,7 @@ int __mod_timer(struct timer_list *timer
- 
- 	BUG_ON(!timer->function);
- 
-+restart:
- 	base = lock_timer_base(timer, &flags);
- 
- 	if (timer_pending(timer)) {
-@@ -231,11 +225,18 @@ int __mod_timer(struct timer_list *timer
- 			/* The timer remains on a former base */
- 			new_base = container_of(base, tvec_base_t, t_base);
- 		} else {
--			/* See the comment in lock_timer_base() */
--			timer->base = NULL;
-+			/*
-+			 * We shortly release the timer and the timer can
-+			 * migrate to another cpu, so recheck the base after
-+			 * getting the lock.
-+			 */
-+			timer->base = &new_base->t_base;
- 			spin_unlock(&base->lock);
- 			spin_lock(&new_base->t_base.lock);
--			timer->base = &new_base->t_base;
-+			if (unlikely(timer->base != &new_base->t_base)) {
-+				spin_unlock_irqrestore(&new_base->t_base.lock, flags);
-+				goto restart;
-+			}
- 		}
- 	}
- 
+I think that this should be best left to a profiling tool to configure and 
+not a general kernel facility. I also have very little faith in processor 
+vendors not doing to performance counters what was done to the TSC.
+
+	Zwane
+

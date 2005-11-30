@@ -1,101 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbVK3BZ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbVK3BgD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750762AbVK3BZ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 20:25:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbVK3BZ1
+	id S1750773AbVK3BgD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 20:36:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750775AbVK3BgD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 20:25:27 -0500
-Received: from hulk.hostingexpert.com ([69.57.134.39]:54633 "EHLO
-	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S1750762AbVK3BZ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 20:25:26 -0500
-Message-ID: <438CFFAD.7070803@m1k.net>
-Date: Tue, 29 Nov 2005 20:26:05 -0500
-From: Michael Krufky <mkrufky@m1k.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kirk Lapray <kirk.lapray@gmail.com>
-CC: Gene Heskett <gene.heskett@verizon.net>, video4linux-list@redhat.com,
-       CityK <CityK@rogers.com>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Perry Gilfillan <perrye@linuxmail.org>, Don Koch <aardvark@krl.com>
-Subject: Re: Gene's pcHDTV 3000 analog problem
-References: <200511282205.jASM5YUI018061@p-chan.krl.com>	 <200511291335.18431.gene.heskett@verizon.net>	 <438CA1E3.7010101@m1k.net>	 <200511291546.27365.gene.heskett@verizon.net> <438CC83E.50100@m1k.net>	 <c35b44d70511291435i5f07bc88g429276ef659c28c5@mail.gmail.com>	 <438CDDBC.1070704@m1k.net> <c35b44d70511291548lcb10361ifd3a4ea0f239662d@mail.gmail.com>
-In-Reply-To: <c35b44d70511291548lcb10361ifd3a4ea0f239662d@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Tue, 29 Nov 2005 20:36:03 -0500
+Received: from www.pffamerica.com ([69.222.0.23]:30218 "EHLO usfltd.com")
+	by vger.kernel.org with ESMTP id S1750773AbVK3BgB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 20:36:01 -0500
+Date: Tue, 29 Nov 2005 19:36:44 -0600
+Message-Id: <200511291936.AA2621734@usfltd.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+From: "art" <art@usfltd.com>
+Reply-To: <art@usfltd.com>
+To: <linux-kernel@vger.kernel.org>
+CC: <mingo@elte.hu>
+Subject: SCSI adaptec 19160 speed - 2.6.14-rt13 - Q for scsi experts
+X-Mailer: <IMail v8.05>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirk Lapray wrote:
+SCSI adaptec 19160 speed - 2.6.14-rt13 - Q for scsi experts
 
-> There are some i2c commands sent in cx88-cards.c, but that should only 
-> happen with the HDTV Wonder.
->
-> The nxt200x should only be sending i2c commands if it detects a 
-> NXT2002 or NXT2004 chip.  You can set the nxt200x module to load with 
-> debug=1 to see if it is doing something that it shouldn't.  The only 
-> thing that I can think of is that the auto detecting of NXT2002 and 
-> NXT2004 is not working like it is supposed to.  If you do not have a 
-> NXT2002 or NXT2004 based card the nxt200x module should not do 
-> anything.  The only i2c command in the attach function is to read the 
-> card id.
->
-> From what I have seen the only device that is made visible is the 
-> tuner.  This allows the tuner modules to connect to it.  It basically 
-> turns on the tuner, and this should only happen on NXT2004 based cards.
+Attached scsi disk sda at scsi0, channel 0, id 1, lun 0
+  Vendor: COMPAQ    Model: BF14688286        Rev: HPB3
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+scsi0:A:2:0: Tagged Queuing enabled.  Depth 64
+target0:0:2: Beginning Domain Validation
+target0:0:2: wide asynchronous.
+target0:0:2: FAST-80 WIDE SCSI 160.0 MB/s DT (12.5 ns, offset 63)
+target0:0:2: Ending Domain Validation
+SCSI device sdb: 286749488 512-byte hdwr sectors (146816 MB)
+SCSI device sdb: drive cache: write through
+SCSI device sdb: 286749488 512-byte hdwr sectors (146816 MB)
+SCSI device sdb: drive cache: write through
+sdb: sdb1
+Attached scsi disk sdb at scsi0, channel 0, id 2, lun 0
+  Vendor: COMPAQ    Model: BF14688286        Rev: HPB3
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+scsi0:A:5:0: Tagged Queuing enabled.  Depth 64
+target0:0:5: Beginning Domain Validation
+target0:0:5: wide asynchronous.
+target0:0:5: FAST-80 WIDE SCSI 160.0 MB/s DT (12.5 ns, offset 63)
+target0:0:5: Ending Domain Validation
+SCSI device sdc: 286749488 512-byte hdwr sectors (146816 MB)
+SCSI device sdc: drive cache: write through
+SCSI device sdc: 286749488 512-byte hdwr sectors (146816 MB)
+SCSI device sdc: drive cache: write through
+sdc: sdc1
+Attached scsi disk sdc at scsi0, channel 0, id 5, lun 0
 
-Don Koch wrote:
+# hdparm -tT /dev/sdb
+/dev/sdb:
+Timing cached reads:   2316 MB in  2.00 seconds = 1157.90 MB/sec
+Timing buffered disk reads:  268 MB in  3.00 seconds =  89.26 MB/sec
+# hdparm -tT /dev/sdc
 
->>If this fixes your problem, then we know that nxt200x is the cause.
->>    
->>
->No difference.
->
->Back to looking at the code...
->  
->
-Okay, it looks like nxt200x is a red herring, sorry for the false 
-alarm.  Even still, Kirk, it would be very helpful if you could confirm 
-analog video functionality of your pcHDTV 3000 board, using either 
-2.6.15-rc3, or v4l-dvb cvs on top of any kernel version.
+/dev/sdc:
+Timing cached reads:   2512 MB in  2.00 seconds = 1255.49 MB/sec
+Timing buffered disk reads:  268 MB in  3.00 seconds =  89.32 MB/sec
 
-...But before that, please first try it in your current configuration.
+# hdparm -tT /dev/sdb & hdparm -tT /dev/sdc &
+[1] 3314
+[2] 3315
 
-I do not have this board, and there *IS* a problem with it... Based on 
-the tests done by Gene and Don, it looks like the regression is inside 
-the v4l code, although this doesnt make any sense, as other cards with 
-similar hardware are not affected.
+/dev/sdb:
+/dev/sdc:
+Timing cached reads:    Timing cached reads:   1228 MB in  2.00 seconds = 613.88 MB/sec
+1316 MB in  1.99 seconds = 659.73 MB/sec
+Timing buffered disk reads:   Timing buffered disk reads:
+174 MB in  3.00 seconds =  57.91 MB/sec
+170 MB in  3.05 seconds =  55.75 MB/sec
+------------------------------------------------------------------------------------------
 
-I don't know any of the specifics about this board, besides the fact 
-that is has OR51132 (irrelevant - the problem exists even without 
-cx88-dvb loaded) Thomson DDT 7610, and a cx2388x chip.
+pci is 66Mhz theoretical throuhput ~ 250MB/s
 
-I have two cx88 boards of my own - FusionHDTV5 Gold, everything works 
-fine, both analog and digital.  FusionHDTV3 Gold-T, using Thomson DDT 
-7611 (same as 7610) , and digital works, but the analog tuner is 
-completely broken, regardless of what kernel version, regardless of 
-whether I'm using Linux or windows, and it used to work a few months ago.
+controller adaptec asc-19160
+discs are 146GB-15krpm-cheetah
 
-I think my hardware is fried, but since Gene is able to restore 
-functionality by a cold boot into 2.6.14.2, it makes me think his 
-problem is because of bad code, where my problem is due to bad hardware.
+one disc transfer 89MB/s
 
-All I can think of doing next is to have Gene, Don or Perry do a 
-bisection test on our cvs repo.... checking out different cvs revisions 
-until we can narrow it down to the day the problem patch was applied.
+adaptec speed with 2 disc on one channel = 57.91+55.75 = 113.66MB/s
 
-::sigh::
+71% of 160MB/s channel speed i expected ~90%
 
-Who wants to do it?  I'll give you detailed instructions if you're willing.
+any clue?
 
-Regards,
-Mike
+xboom

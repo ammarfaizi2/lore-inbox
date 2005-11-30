@@ -1,47 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751616AbVLABlz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751621AbVLABx6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751616AbVLABlz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 20:41:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751617AbVLABlz
+	id S1751621AbVLABx6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 20:53:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751627AbVLABx6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 20:41:55 -0500
-Received: from main.gmane.org ([80.91.229.2]:1166 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751614AbVLABly (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 20:41:54 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Wed, 30 Nov 2005 20:53:58 -0500
+Received: from smtp4.brturbo.com.br ([200.199.201.180]:58413 "EHLO
+	smtp4.brturbo.com.br") by vger.kernel.org with ESMTP
+	id S1751621AbVLABx6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 20:53:58 -0500
+Date: Wed, 30 Nov 2005 21:04:42 -0200
+From: mchehab@brturbo.com.br
 To: linux-kernel@vger.kernel.org
-From: Joe Seigh <jseigh_02@xemaps.com>
-Subject: Yet another lock-free reader/writer lock
-Date: Wed, 30 Nov 2005 20:40:29 -0500
-Message-ID: <dmlk6k$6tt$1@sea.gmane.org>
+Subject: [PATCH 00/31] V4L/DVB bug fixes
+Message-Id: <1133392054.24281.87.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+X-Mailer: Evolution 2.4.1-3mdk 
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: stenquists.hsd1.ma.comcast.net
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have another lock-free algorithm on my FOSS project site
-http://atomic-ptr-plus.sourceforge.net/
-It's the rcpc (reference counted proxy collector) package.
-It uses double wide compare and swap, load reserved/store conditional,
-or single wide compare and swap where the former aren't available,
-e.g. 64 bit sparc.  Which pretty much makes it portable to practically
-anything in any environment, kernel or user space.
+- Fixes maximum number of VBI devices
+- Fix hotplugging issues with saa7134
+- Fixes warning at bttv-driver.c
+- Include comments for DVB models and includes missing ones
+- tveeprom MAC address parsing/cleanup
+- Fixes nicam sound
+- Removed audio DMA enabling from cx88-core
+- Fix read() bugs in bttv driver
+- Bttv bytes per line fix
+- Enables audio DMA setting on cx88 chips, even when dma not in use
+- Some funcions now static and I2C hw code for IR
+- Makes needlessly global code static
+- Fixes Bttv raw format to fix VIDIOCSPICT ioctl
+- Write cached value to correct register for SECAM
+- Fix crash when not compiled as module
+- Fix bttv ioctls VIDIOC_ENUMINPUT, VIDIOCGTUNER, VIDIOC_QUERYCAP
+- Fixed eeprom handling for cx88 and added Nova-T PCI model 90003
+- Add workaround for Hauppauge PVR150 with certain NTSC tuner models
+- Fixed DiSEqC timing for saa7146-based budget cards
+- Fix locking problems and code cleanup
+- Fixed incorrect usage at the private state of the dvb-usb-devices
+- Include fixes for 2.6.15-rc1 for removing sched.h from module.h
+- Update Steve's email address.
+- Small cleanups and CodeStyle fixes
+- Fix locking to prevent Oops on SMP systems
+- Fixes ifs in ves1820 set symbolrate().
+- BUDGET CI card depends on STV0297 demodulator.
+Subject: V4L/DVB SCM update
+- fix kernel message (print of %s from random pointer)
+- Restore missing tuner definition for Hauppauge tuner type 0x103
+- Fix typo, removing incorrect info from CONFIG_BT848_DVB kconfig entry.
 
-One caveat.  It's probably not safe to use the single wide compare and
-swap for 32 bit words if there's a possibility that a read lock will be
-held long enough for a 30 bit counter to wrap.  But it's probably safe if
-the reader does not preempt.
+---------
 
-It's ported to 32 bit x86 (linux) and 32 bit ppc (OSX) which is the
-only development platforms I have access to.  I may port it back to
-win32 where I did the initial prototype (it's a vc++ vs. gcc port).
-
---
-Joe Seigh
+ MAINTAINERS                                 |    3 
+ drivers/media/dvb/b2c2/flexcop-hw-filter.c  |    2 
+ drivers/media/dvb/dvb-core/dvb_ca_en50221.c |   69 +++++------------
+ drivers/media/dvb/dvb-core/dvb_net.c        |   31 ++++---
+ drivers/media/dvb/dvb-usb/a800.c            |    2 
+ drivers/media/dvb/dvb-usb/dibusb-common.c   |   18 ++--
+ drivers/media/dvb/dvb-usb/digitv.c          |    2 
+ drivers/media/dvb/dvb-usb/dvb-usb-init.c    |    2 
+ drivers/media/dvb/frontends/cx22702.c       |    2 
+ drivers/media/dvb/frontends/cx22702.h       |    2 
+ drivers/media/dvb/frontends/nxt200x.c       |    2 
+ drivers/media/dvb/frontends/ves1820.c       |   14 +--
+ drivers/media/dvb/ttpci/Kconfig             |    1 
+ drivers/media/dvb/ttpci/av7110_ca.c         |    1 
+ drivers/media/dvb/ttpci/budget-av.c         |    2 
+ drivers/media/dvb/ttpci/budget-ci.c         |    2 
+ drivers/media/dvb/ttpci/budget.c            |    2 
+ drivers/media/dvb/ttpci/ttpci-eeprom.c      |    1 
+ drivers/media/video/Kconfig                 |    3 
+ drivers/media/video/bttv-cards.c            |    6 -
+ drivers/media/video/bttv-driver.c           |   67 ++++++++++++----
+ drivers/media/video/cx25840/cx25840-core.c  |   38 ++++++++-
+ drivers/media/video/cx25840/cx25840.h       |    9 +-
+ drivers/media/video/cx88/cx88-cards.c       |   53 ++++---------
+ drivers/media/video/cx88/cx88-core.c        |   35 +++++++-
+ drivers/media/video/cx88/cx88-tvaudio.c     |   28 +++---
+ drivers/media/video/cx88/cx88.h             |    4 
+ drivers/media/video/em28xx/em28xx-core.c    |    6 -
+ drivers/media/video/em28xx/em28xx-video.c   |    2 
+ drivers/media/video/ir-kbd-i2c.c            |    2 
+ drivers/media/video/saa7115.c               |   14 +--
+ drivers/media/video/saa711x.c               |    2 
+ drivers/media/video/saa7127.c               |    6 -
+ drivers/media/video/saa7134/saa7134-alsa.c  |   36 ++++++--
+ drivers/media/video/saa7134/saa7134-core.c  |   25 ++++--
+ drivers/media/video/saa7134/saa7134-oss.c   |   81 +++++++++++---------
+ drivers/media/video/saa7134/saa7134.h       |    4 
+ drivers/media/video/tveeprom.c              |   74 ++++++++++++++----
+ drivers/media/video/video-buf.c             |    9 +-
+ drivers/media/video/videodev.c              |   26 +++---
+ include/linux/i2c-id.h                      |    1 
+ include/media/tveeprom.h                    |    4 
+ 42 files changed, 437 insertions(+), 256 deletions(-)
 

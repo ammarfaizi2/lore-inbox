@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbVK3Bni@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbVK3Bxh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750775AbVK3Bni (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 20:43:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbVK3Bni
+	id S1750755AbVK3Bxh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 20:53:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbVK3Bxh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 20:43:38 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:37347 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750775AbVK3Bnh (ORCPT
+	Tue, 29 Nov 2005 20:53:37 -0500
+Received: from ns2.uludag.org.tr ([193.140.100.220]:34451 "EHLO uludag.org.tr")
+	by vger.kernel.org with ESMTP id S1750755AbVK3Bxh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 20:43:37 -0500
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.15-rc3
-References: <Pine.LNX.4.64.0511282006370.3177@g5.osdl.org>
-	<200511292247.09243.rjw@sisk.pl>
-From: Andi Kleen <ak@suse.de>
-Date: 29 Nov 2005 23:11:49 -0700
-In-Reply-To: <200511292247.09243.rjw@sisk.pl>
-Message-ID: <p73iruahdga.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Tue, 29 Nov 2005 20:53:37 -0500
+From: Ismail Donmez <ismail@uludag.org.tr>
+Reply-To: Ismail Donmez <ismail@uludag.org.tr>
+Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK/UEKAE?=
+To: linux-kernel@vger.kernel.org
+Subject: MPlayer problems with kernel 2.6.15-rc3
+Date: Wed, 30 Nov 2005 03:53:26 +0200
+User-Agent: KMail/1.8.92
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Message-Id: <200511300353.26400.ismail@uludag.org.tr>
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Rafael J. Wysocki" <rjw@sisk.pl> writes:
+Hi all,
 
-> On Tuesday, 29 of November 2005 05:11, Linus Torvalds wrote:
-> > 
-> > I just pushed 2.6.15-rc3 out there, and here are both the shortlog and 
-> > diffstats appended.
-> 
-> Hangs solid on boot on dual-core Athlon64.  No details yet, but I'm working
-> on them.  I wonder if anyone else is seeing this.
+When I try to change volume level in mplayer I got this using alsa output :
 
-I also see a hang in EHCI on my single A64 VIA box, but curiously
-it goes away with pci=noacpi (but that might just cover it - i 
-had a buggy USB storage device in the front usb ports and 
-I think with noacpi it just doesn't route them correctly) 
-Didn't investigate closer so far.
+Trying to fix it up, but a reboot is needed
+Bad page state at free_hot_cold_page (in process 'mplayer', page c12b9be0)
+flags:0x80000414 mapping:00000000 mapcount:0 count:0
+Backtrace:
+ [<c0140a3f>] bad_page+0x5f/0xa0
+ [<c0141271>] free_hot_cold_page+0x41/0x120
+ [<c014b187>] zap_pte_range+0x187/0x270
+ [<c014b310>] unmap_page_range+0xa0/0x150
+ [<c014b49f>] unmap_vmas+0xdf/0x1e0
+ [<c014f375>] unmap_region+0x85/0x110
+ [<c014f655>] do_munmap+0xc5/0x110
+ [<c014f6db>] sys_munmap+0x3b/0x60
+ [<c0102f3b>] sysenter_past_esp+0x54/0x79
+Trying to fix it up, but a reboot is needed
 
--Andi
+Alsa version is 1.0.10 including driver package. Any idea whats going on?
+
+P.S: I am not subscribed to list so please CC me in your replies.
+
+Regards,
+ismail

@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751061AbVK3LAk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750997AbVK3LAG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751061AbVK3LAk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 06:00:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751151AbVK3LAk
+	id S1750997AbVK3LAG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 06:00:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbVK3LAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 06:00:40 -0500
-Received: from nproxy.gmail.com ([64.233.182.195]:4420 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751065AbVK3LAj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 06:00:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=cu/ogCPn50teGUEC+RDOHhDu5qxcOWF9P411YFRH/QKauUoGXkfgSaeuBeNReglKZo909corn33E8uUaOtkIXFBsh3ECh3U3Ma7cKNPbnWINbIvheHUXxJSi1+JnwQsB+lIHuuzxgTAHYo8lAucCkcKnkEP0/VRmAoN6n/0E4Ps=
-Message-ID: <58cb370e0511300300x2aa34159mfb46e9e49d10ec0f@mail.gmail.com>
-Date: Wed, 30 Nov 2005 12:00:37 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Tejun Heo <htejun@gmail.com>
-Subject: Re: [PATCH linux-2.6-block:post-2.6.15 08/11] blk: update IDE to use new blk_ordered
-Cc: axboe@suse.de, jgarzik@pobox.com, James.Bottomley@steeleye.com,
+	Wed, 30 Nov 2005 06:00:06 -0500
+Received: from petaflop.b.gz.ru ([217.67.124.5]:46752 "EHLO hq.sectorb.msk.ru")
+	by vger.kernel.org with ESMTP id S1750997AbVK3LAE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 06:00:04 -0500
+Date: Wed, 30 Nov 2005 13:59:52 +0300
+From: "Alexander V. Inyukhin" <shurick@sectorb.msk.ru>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-In-Reply-To: <20051124162449.DB507E8E@htj.dyndns.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Subject: Re: [BUG] 2.6.15-rc1, soft lockup detected while probing IDE devices on AMD7441
+Message-ID: <20051130105952.GA14641@shurick.s2s.msu.ru>
+References: <20051120204656.GA17242@shurick.s2s.msu.ru> <20051120172915.31754054.akpm@osdl.org> <1132605524.11842.38.camel@localhost.localdomain> <200511232017.52788.jesper.juhl@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20051124162449.209CADD5@htj.dyndns.org>
-	 <20051124162449.DB507E8E@htj.dyndns.org>
+In-Reply-To: <200511232017.52788.jesper.juhl@gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/24/05, Tejun Heo <htejun@gmail.com> wrote:
-> 08_blk_ide-update-ordered.patch
->
->         Update IDE to use new blk_ordered.  This change makes the
->         following behavior changes.
->
->         * Partial completion of the barrier request is handled as
->           failure of the whole ordered sequence.  No more partial
->           completion for barrier requests.
->
->         * Any failure of pre or post flush request results in failure
->           of the whole ordered sequence.
->
->         So, successfully completed ordered sequence guarantees that
->         all requests prior to the barrier made to physical medium and,
->         then, the while barrier request made to the physical medium.
->
-> Signed-off-by: Tejun Heo <htejun@gmail.com>
+On Wed, Nov 23, 2005 at 08:17:51PM +0100, Jesper Juhl wrote:
+> On Monday 21 November 2005 21:38, Alan Cox wrote:
+> > On Sul, 2005-11-20 at 17:29 -0800, Andrew Morton wrote:
+> > > Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > > > Quite normal. The old IDE probe code takes a long time and it makes the
+> > > > soft lockup code believe a lockup occurred - rememeber its a debugging
+> > > > tool not a 100% reliable detector of failures.
+> > > 
+> > > We could put a touch_softlockup_watchdog() in there.
+> > 
+> > Would make sense. Spin up and probe can take over 30 seconds worst case
+> > and is polled in the IDE world. The loop will eventually exit and a true
+> > lockup caused by a stuck IORDY line will hang forever in an inb/outb so
+> > neither softlockup or even nmi lockup would save you.
+> 
+> How about something like the patch below?
+> 
+> The  if (!(timeout % 128))  bit is a guess that since 
+> touch_softlockup_watchdog() is a per_cpu thing it will be cheaper to do the
+> modulo calculation than calling the function every time through the loop,
+> especially as the nr of CPU's go up. But it's purely a guess, so I may very 
+> well be wrong - also, 128 is an arbitrarily chosen value, it's just a nice 
+> number that'll give us <10 function calls pr second.
 
-ACK, looks fine
+It seems to work.
+I have no BUG messages during boot with this patch.

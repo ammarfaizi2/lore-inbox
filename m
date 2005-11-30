@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbVK3BKF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbVK3BPl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbVK3BKF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 20:10:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbVK3BKF
+	id S1750749AbVK3BPl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 20:15:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbVK3BPl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 20:10:05 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:32396 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750738AbVK3BKC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 20:10:02 -0500
-Date: Tue, 29 Nov 2005 17:09:56 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, rjw@sisk.pl, torvalds@osdl.org,
-       akpm@osdl.org
-Subject: Re: Linux 2.6.15-rc3
-Message-ID: <20051129170956.32e58342@dxpl.pdx.osdl.net>
-In-Reply-To: <20051129233744.GA32316@kroah.com>
-References: <Pine.LNX.4.64.0511282006370.3177@g5.osdl.org>
-	<200511292247.09243.rjw@sisk.pl>
-	<200511292342.36228.rjw@sisk.pl>
-	<20051129145328.3e5964a4@dxpl.pdx.osdl.net>
-	<20051129233744.GA32316@kroah.com>
-X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
+	Tue, 29 Nov 2005 20:15:41 -0500
+Received: from fmr15.intel.com ([192.55.52.69]:55189 "EHLO
+	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1750749AbVK3BPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 20:15:40 -0500
+Subject: [PATCH] setting irq affinity is broken in ia32 with MSI enabled
+From: Shaohua Li <shaohua.li@intel.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: "Raj, Ashok" <ashok.raj@intel.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       akpm <akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 30 Nov 2005 00:37:15 -0800
+Message-Id: <1133339835.8212.14.camel@linux.site>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Setting irq affinity stops working when MSI is enabled. With MSI,
+move_irq is empty, so we can't change irq affinity. It appears a typo in
+Ashok's original commit for this issue. X86_64 actually is using
+move_native_irq.
 
-> From: David Brownell <david-b@pacbell.net>
-> Subject: USB: ehci fixups
-> 
-> Rename the EHCI "reset" routine so it better matches what it does (setup);
-> and move the one-time data structure setup earlier, before doing anything
-> that implicitly relies on it having been completed already.
-> 
-> From: David Brownell <david-b@pacbell.net>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> 
+Signed-off-by: Shaohua Li <shaohua.li@intel.com>
 
-Yes, that fixed the usb problem with 2.6.15-rc3. Boots and 
-USB serial works okay.
+--- a/arch/i386/kernel/io_apic.c	2005-11-29 22:22:16.000000000 -0800
++++ b/arch/i386/kernel/io_apic.c	2005-11-29 22:23:01.000000000 -0800
+@@ -2009,7 +2009,7 @@ static void ack_edge_ioapic_vector(unsig
+ {
+ 	int irq = vector_to_irq(vector);
+ 
+-	move_irq(vector);
++	move_native_irq(vector);
+ 	ack_edge_ioapic_irq(irq);
+ }
+ 
+@@ -2024,7 +2024,7 @@ static void end_level_ioapic_vector (uns
+ {
+ 	int irq = vector_to_irq(vector);
+ 
+-	move_irq(vector);
++	move_native_irq(vector);
+ 	end_level_ioapic_irq(irq);
+ }
+ 
 
-The problem with git latest still exists.
 
-
-
--- 
-Stephen Hemminger <shemminger@osdl.org>
-OSDL http://developer.osdl.org/~shemminger

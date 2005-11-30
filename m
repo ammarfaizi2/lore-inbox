@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbVK3Xay@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbVK3XbO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751246AbVK3Xay (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 18:30:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbVK3Xay
+	id S1751248AbVK3XbO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 18:31:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbVK3XbO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 18:30:54 -0500
-Received: from ns.dynamicweb.hu ([195.228.155.139]:55732 "EHLO dynamicweb.hu")
-	by vger.kernel.org with ESMTP id S1751246AbVK3Xay (ORCPT
+	Wed, 30 Nov 2005 18:31:14 -0500
+Received: from ns.dynamicweb.hu ([195.228.155.139]:55988 "EHLO dynamicweb.hu")
+	by vger.kernel.org with ESMTP id S1751248AbVK3Xa4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 18:30:54 -0500
-Message-ID: <042101c5f605$6c6e6250$0400a8c0@dcccs>
+	Wed, 30 Nov 2005 18:30:56 -0500
+Message-ID: <041f01c5f605$6b65cbf0$0400a8c0@dcccs>
 From: "JaniD++" <djani22@dynamicweb.hu>
-To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
+To: "Denis Vlasenko" <vda@ilport.com.ua>
 Cc: <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.60.0511270409430.30055@kepler.fjfi.cvut.cz>  <Pine.LNX.4.61.0511270927130.14029@yvahk01.tjqt.qr>  <018c01c5f435$9e548370$0400a8c0@dcccs>  <200511291015.55181.vda@ilport.com.ua> <fe726f4e0511290736w6931ec83q@mail.gmail.com> <Pine.LNX.4.61.0511301835270.26040@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.60.0511270409430.30055@kepler.fjfi.cvut.cz> <Pine.LNX.4.61.0511270927130.14029@yvahk01.tjqt.qr> <018c01c5f435$9e548370$0400a8c0@dcccs> <200511291015.55181.vda@ilport.com.ua>
 Subject: Re: ACPI: PCI Interrupt Link [LNKA] (IRQs *7)
-Date: Thu, 1 Dec 2005 00:25:42 +0100
+Date: Thu, 1 Dec 2005 00:14:56 +0100
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="ISO-8859-1"
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 X-Priority: 3
 X-MSMail-Priority: Normal
 X-Mailer: Microsoft Outlook Express 6.00.2800.1437
@@ -27,95 +27,66 @@ X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
 
 ----- Original Message ----- 
-From: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
-To: "Carlos Martín" <carlosmn@gmail.com>
-Cc: "JaniD++" <djani22@dynamicweb.hu>; <linux-kernel@vger.kernel.org>;
-"Denis Vlasenko" <vda@ilport.com.ua>
-Sent: Wednesday, November 30, 2005 6:35 PM
+From: "Denis Vlasenko" <vda@ilport.com.ua>
+To: "JaniD++" <djani22@dynamicweb.hu>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Tuesday, November 29, 2005 9:15 AM
 Subject: Re: ACPI: PCI Interrupt Link [LNKA] (IRQs *7)
 
 
-> >> > *7)
-> >> > Nov 28 16:41:36 192.168.2.50 kernel: ACPI: PCI Interrupt Link [LNKD]
-(IRQs
-> >> > *7)
-> >> > Nov 28 16:41:36 192.168.2.50 kernel: ACPI: PCI Interrupt Link [LNKE]
-(IRQs 3
-> >> > 4 5 6 7 10 11 12 14 15) *0, disabled.
-> >> > Nov 28 16:41:36 192.168.2.50 kernel: ACPI: PCI Interrupt Link [LNKF]
-(IRQs 3
-> >> > 4 5 6 7 10 11 12 14 15) *0, disabled.
-> >> > Nov 28 16:41:36 192.168.2.50 kernel: ACPI: PCI Interrupt Link [LNKG]
-(IRQs 3
-> >> > 4 5 6 7 10 11 12 14 15) *0, disabled.
-> >> > Nov 28 16:41:36 192.168.2.50 kernel: ACPI: PCI Interrupt Link [LNKH]
-(IRQs 3
-> >> > 4 5 6 7 *10 11 12 14 15)
-> >> >
-> >> > This is normal?  :-)
-> >>
-> >> I do not understand your question
+> On Monday 28 November 2005 18:05, JaniD++ wrote:
+> >References: <Pine.LNX.4.60.0511270409430.30055@kepler.fjfi.cvut.cz>
+<43892897.9020900@vc.cvut.cz>
+<Pine.LNX.4.61.0511270927130.14029@yvahk01.tjqt.qr>
+>
+> You abuse your reply button
+
+Sorry! :-)
+I am a little bit lazy... :-P
+
+>
+> >X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+> >X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+>
+> No wonder...
+>
+> > Hi,
 > >
-> >To answer the question, yes, it is perfectly normal to see that.
-> >That's just the kernel describing how the PCI IRQs are set up. You
-> >have nothing to worry about.
+> > Nov 28 16:41:36 192.168.2.50 kernel: ACPI: PCI Interrupt Link [LNKA]
+(IRQs
+> > *7)
+> > Nov 28 16:41:36 192.168.2.50 kernel: ACPI: PCI Interrupt Link [LNKB]
+(IRQs
+> > *7)
+> > Nov 28 16:41:36 192.168.2.50 kernel: ACPI: PCI Interrupt Link [LNKC]
+(IRQs
+> > *7)
+> > Nov 28 16:41:36 192.168.2.50 kernel: ACPI: PCI Interrupt Link [LNKD]
+(IRQs
+> > *7)
+> > Nov 28 16:41:36 192.168.2.50 kernel: ACPI: PCI Interrupt Link [LNKE]
+(IRQs 3
+> > 4 5 6 7 10 11 12 14 15) *0, disabled.
+> > Nov 28 16:41:36 192.168.2.50 kernel: ACPI: PCI Interrupt Link [LNKF]
+(IRQs 3
+> > 4 5 6 7 10 11 12 14 15) *0, disabled.
+> > Nov 28 16:41:36 192.168.2.50 kernel: ACPI: PCI Interrupt Link [LNKG]
+(IRQs 3
+> > 4 5 6 7 10 11 12 14 15) *0, disabled.
+> > Nov 28 16:41:36 192.168.2.50 kernel: ACPI: PCI Interrupt Link [LNKH]
+(IRQs 3
+> > 4 5 6 7 *10 11 12 14 15)
+> >
+> > This is normal?  :-)
 >
-> I think it's the "disabled" that worries.
+> I do not understand your question
 
-No, i worried about the " (IRQs *7)" format.
-I never seen this before....
+(next mail)
 
-I searching the bottleneck of my system, and simply found these lines.
-
-I have another question:
-
-           CPU0       CPU1       CPU2       CPU3
-  0:        112          0          0   12095059    IO-APIC-edge  timer
-  8:          0          0          0       2005    IO-APIC-edge  rtc
-  9:          0          0          0          0   IO-APIC-level  acpi
- 14:          0          0          0    1922693    IO-APIC-edge  ide0
-169:          0          0          0          0   IO-APIC-level
-uhci_hcd:usb2
-177:          0          0          0          0   IO-APIC-level
-uhci_hcd:usb3
-185:          0          0          0          0   IO-APIC-level
-uhci_hcd:usb4
-193:          0          0          0          0   IO-APIC-level
-ehci_hcd:usb1
-209:          0          0          0  204795144   IO-APIC-level  eth0
-217:          0          0          0  424538586   IO-APIC-level  eth1
-NMI:          0          0          0          0
-LOC:   12095010   12095009   12094905   12094904
-ERR:          0
-MIS:          0
-
-How can i avoid this?
-(all irq on CPU 3)
-
-The  echo /proc/irq/#smp_affinity # >smp_affinity
-
-Has no effect. :-(
-
-I tried it with kernel irq load balancing is on and off.
-But nothing is changed. :(
-
-Thanks
-
-Janos
-
-
-
->
->
->
-> Jan Engelhardt
-> -- 
-> | Alphagate Systems, http://alphagate.hopto.org/
-> | jengelh's site, http://jengelh.hopto.org/
+> --
+> vda
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org

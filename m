@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbVK3AwV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbVK3A5b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750727AbVK3AwV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 19:52:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbVK3AwV
+	id S1750743AbVK3A5b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 19:57:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbVK3A5b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 19:52:21 -0500
-Received: from ozlabs.org ([203.10.76.45]:45952 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750727AbVK3AwV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 19:52:21 -0500
-Date: Wed, 30 Nov 2005 11:52:05 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Andi Kleen <ak@suse.de>
-Cc: Nicholas Miell <nmiell@comcast.net>, Stephane Eranian <eranian@hpl.hp.com>,
-       Ray Bryant <raybry@mpdtxmail.amd.com>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org, perfctr-devel@lists.sourceforge.net
-Subject: Re: [Perfctr-devel] Re: Enabling RDPMC in user space by default
-Message-ID: <20051130005205.GD9659@localhost.localdomain>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Andi Kleen <ak@suse.de>, Nicholas Miell <nmiell@comcast.net>,
-	Stephane Eranian <eranian@hpl.hp.com>,
-	Ray Bryant <raybry@mpdtxmail.amd.com>, discuss@x86-64.org,
-	linux-kernel@vger.kernel.org, perfctr-devel@lists.sourceforge.net
-References: <1133300591.3271.1.camel@entropy> <20051129215207.GR19515@wotan.suse.de> <1133303615.3271.12.camel@entropy> <20051129224346.GS19515@wotan.suse.de> <1133305338.3271.30.camel@entropy> <20051129231750.GU19515@wotan.suse.de> <1133306966.3271.36.camel@entropy> <20051129233920.GW19515@wotan.suse.de> <20051129235626.GC9659@localhost.localdomain> <20051130003433.GA19515@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051130003433.GA19515@wotan.suse.de>
-User-Agent: Mutt/1.5.9i
+	Tue, 29 Nov 2005 19:57:31 -0500
+Received: from ams-iport-1.cisco.com ([144.254.224.140]:37405 "EHLO
+	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1750743AbVK3A5b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 19:57:31 -0500
+Subject: [git patch review 1/8] IPoIB: reinitialize path struct's completion
+	for every query
+From: Roland Dreier <rolandd@cisco.com>
+Date: Wed, 30 Nov 2005 00:57:25 +0000
+To: linux-kernel@vger.kernel.org, openib-general@openib.org
+X-Mailer: IB-patch-reviewer
+Content-Transfer-Encoding: 8bit
+Message-ID: <1133312245796-394e1098d722d830@cisco.com>
+X-OriginalArrivalTime: 30 Nov 2005 00:57:26.0924 (UTC) FILETIME=[08381CC0:01C5F549]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 30, 2005 at 01:34:33AM +0100, Andi Kleen wrote:
-> On Wed, Nov 30, 2005 at 10:56:26AM +1100, David Gibson wrote:
-> > On Wed, Nov 30, 2005 at 12:39:20AM +0100, Andi Kleen wrote:
-> > > > Well, if that's all you want them to use RDPMC 0 for, why not just make
-> > > > PMCs programmable from userspace?
-> > > 
-> > > First we need to have a cycle counter PMC anyways for the NMI watchdog.
-> > > So it can as well be used for other purposes.
-> > 
-> > But the watchdog doesn't require it to be in the same place on all
-> > machines.  Exporting it turns an internal requirement into an ABI
-> > point.
-> 
-> Yes, but the only alternative I know of would be to let user space
-> continue getting broken all the time with RDTSC.  RDPMC is a nice
-> alternative. 
+It's possible that IPoIB will issue multiple SA queries for the same
+path struct.  Therefore the struct's completion needs to be
+initialized for each query rather than only once when the struct is
+allocated, or else we might not wait long enough for later queries to
+finish and free the path struct too soon.
 
-It just seems to me unwise to make an ABI commitment to something
-that's not guaranteed by the architecture, perverse though it might
-seem for the chip designers to take it away.  CPU designers have been
-known to do some fairly perverse things from time to time..
+Signed-off-by: Roland Dreier <rolandd@cisco.com>
 
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/~dgibson
+---
+
+ drivers/infiniband/ulp/ipoib/ipoib_main.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+applies-to: 9fd732ebc6b85090b64862c4ee3af7078ba1f822
+65c7eddaba33995e013ef3c04718f6dc8fdf2335
+diff --git a/drivers/infiniband/ulp/ipoib/ipoib_main.c b/drivers/infiniband/ulp/ipoib/ipoib_main.c
+index 2fa3075..cd58b3d 100644
+--- a/drivers/infiniband/ulp/ipoib/ipoib_main.c
++++ b/drivers/infiniband/ulp/ipoib/ipoib_main.c
+@@ -428,7 +428,6 @@ static struct ipoib_path *path_rec_creat
+ 	skb_queue_head_init(&path->queue);
+ 
+ 	INIT_LIST_HEAD(&path->neigh_list);
+-	init_completion(&path->done);
+ 
+ 	memcpy(path->pathrec.dgid.raw, gid->raw, sizeof (union ib_gid));
+ 	path->pathrec.sgid      = priv->local_gid;
+@@ -446,6 +445,8 @@ static int path_rec_start(struct net_dev
+ 	ipoib_dbg(priv, "Start path record lookup for " IPOIB_GID_FMT "\n",
+ 		  IPOIB_GID_ARG(path->pathrec.dgid));
+ 
++	init_completion(&path->done);
++
+ 	path->query_id =
+ 		ib_sa_path_rec_get(priv->ca, priv->port,
+ 				   &path->pathrec,
+---
+0.99.9k

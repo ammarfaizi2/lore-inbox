@@ -1,57 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbVK3VNW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbVK3VTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750744AbVK3VNW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 16:13:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbVK3VNW
+	id S1750746AbVK3VTE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 16:19:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750761AbVK3VTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 16:13:22 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:43189 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1750744AbVK3VNV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 16:13:21 -0500
-Subject: [PATCH] Add VT flag to cpuinfo
+	Wed, 30 Nov 2005 16:19:04 -0500
+Received: from nproxy.gmail.com ([64.233.182.200]:58323 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750746AbVK3VTD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 16:19:03 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=DqzlYcEG6o5pwPF10FhKkoNYu3vFciw9AV3AoW9wudVD0e2kG14nWegyPO6Tc5WuRrq6ZjnfpXukme+bewRuWdtHkTVwcgCMSKHdiCuPOvD2cb1mxFwDWk/DD1q/1UGX9muerdqt72Ms7sihRcLzhu80Ls9DuFsBZHG/R7V1OgU=
+Date: Thu, 1 Dec 2005 00:33:47 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, rajesh.shah@intel.com
-Message-Id: <20051130211705.220E9E1486@los-vmm.sc.intel.com>
-Date: Wed, 30 Nov 2005 13:17:05 -0800 (PST)
-From: donald.d.dugger@intel.com (Donald D Dugger)
+Cc: Paul Bristow <paul@paulbristow.net>, Dave Olien <dmo@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       Marcelo Feitoza Parisi <marcelo@feitoza.com.br>
+Subject: [PATCH] drivers/block/*: use time_after() and friends
+Message-ID: <20051130213347.GA12551@mipter.zuzino.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew-
+From: Marcelo Feitoza Parisi <marcelo@feitoza.com.br>
 
-Attached is a trivial patch to 2.6 that will add `vt' to the flags field
-of `/proc/cpuinfo' for CPUs that have Intel's virtualization technology.
+They deal with wrapping correctly and are nicer to read.
 
-Signed-off-by: Donald D. Dugger <donald.d.dugger@intel.com>
+Signed-off-by: Marcelo Feitoza Parisi <marcelo@feitoza.com.br>
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
---
-Don Dugger
-"Censeo Toto nos in Kansa esse decisse." - D. Gale
-Donald.D.Dugger@intel.com
-Ph: (303)440-1368
+ drivers/block/DAC960.c |   17 +++++++++--------
+ drivers/block/floppy.c |    9 +++++----
+ 2 files changed, 14 insertions(+), 12 deletions(-)
 
-diff -Naur linux-2.6.14/arch/i386/kernel/cpu/proc.c linux-2.6.14-ddd/arch/i386/kernel/cpu/proc.c
---- linux-2.6.14/arch/i386/kernel/cpu/proc.c	2005-10-27 18:02:08.000000000 -0600
-+++ linux-2.6.14-ddd/arch/i386/kernel/cpu/proc.c	2005-11-14 14:22:52.000000000 -0700
-@@ -44,7 +44,7 @@
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+--- a/drivers/block/DAC960.c
++++ b/drivers/block/DAC960.c
+@@ -41,6 +41,7 @@
+ #include <linux/timer.h>
+ #include <linux/pci.h>
+ #include <linux/init.h>
++#include <linux/jiffies.h>
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
+ #include "DAC960.h"
+@@ -3664,8 +3665,8 @@ static void DAC960_V1_ProcessCompletedCo
+ 	      (NewEnquiry->EventLogSequenceNumber !=
+ 	       OldEnquiry->EventLogSequenceNumber) ||
+ 	      Controller->MonitoringTimerCount == 0 ||
+-	      (jiffies - Controller->SecondaryMonitoringTime
+-	       >= DAC960_SecondaryMonitoringInterval))
++	      time_after_eq(jiffies, Controller->SecondaryMonitoringTime
++	       + DAC960_SecondaryMonitoringInterval))
+ 	    {
+ 	      Controller->V1.NeedLogicalDriveInformation = true;
+ 	      Controller->V1.NewEventLogSequenceNumber =
+@@ -5650,8 +5651,8 @@ static void DAC960_MonitoringTimerFuncti
+       unsigned int StatusChangeCounter =
+ 	Controller->V2.HealthStatusBuffer->StatusChangeCounter;
+       boolean ForceMonitoringCommand = false;
+-      if (jiffies - Controller->SecondaryMonitoringTime
+-	  > DAC960_SecondaryMonitoringInterval)
++      if (time_after(jiffies, Controller->SecondaryMonitoringTime
++	  + DAC960_SecondaryMonitoringInterval))
+ 	{
+ 	  int LogicalDriveNumber;
+ 	  for (LogicalDriveNumber = 0;
+@@ -5679,8 +5680,8 @@ static void DAC960_MonitoringTimerFuncti
+ 	   ControllerInfo->ConsistencyChecksActive +
+ 	   ControllerInfo->RebuildsActive +
+ 	   ControllerInfo->OnlineExpansionsActive == 0 ||
+-	   jiffies - Controller->PrimaryMonitoringTime
+-	   < DAC960_MonitoringTimerInterval) &&
++	   time_before(jiffies, Controller->PrimaryMonitoringTime
++	   + DAC960_MonitoringTimerInterval)) &&
+ 	  !ForceMonitoringCommand)
+ 	{
+ 	  Controller->MonitoringTimer.expires =
+@@ -5817,8 +5818,8 @@ static void DAC960_Message(DAC960_Messag
+       Controller->ProgressBufferLength = Length;
+       if (Controller->EphemeralProgressMessage)
+ 	{
+-	  if (jiffies - Controller->LastProgressReportTime
+-	      >= DAC960_ProgressReportingInterval)
++	  if (time_after_eq(jiffies, Controller->LastProgressReportTime
++	      + DAC960_ProgressReportingInterval))
+ 	    {
+ 	      printk("%sDAC960#%d: %s", DAC960_MessageLevelMap[MessageLevel],
+ 		     Controller->ControllerNumber, Buffer);
+--- a/drivers/block/floppy.c
++++ b/drivers/block/floppy.c
+@@ -179,6 +179,7 @@ static int print_unex = 1;
+ #include <linux/devfs_fs_kernel.h>
+ #include <linux/platform_device.h>
+ #include <linux/buffer_head.h>	/* for invalidate_buffers() */
++#include <linux/jiffies.h>
  
- 		/* Intel-defined (#2) */
--		"pni", NULL, NULL, "monitor", "ds_cpl", NULL, NULL, "est",
-+		"pni", NULL, NULL, "monitor", "ds_cpl", "vt", NULL, "est",
- 		"tm2", NULL, "cid", NULL, NULL, "cx16", "xtpr", NULL,
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-diff -Naur linux-2.6.14/arch/x86_64/kernel/setup.c linux-2.6.14-ddd/arch/x86_64/kernel/setup.c
---- linux-2.6.14/arch/x86_64/kernel/setup.c	2005-10-27 18:02:08.000000000 -0600
-+++ linux-2.6.14-ddd/arch/x86_64/kernel/setup.c	2005-11-11 14:47:59.000000000 -0700
-@@ -1213,7 +1213,7 @@
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+ /*
+  * PS/2 floppies have much slower step rates than regular floppies.
+@@ -736,7 +737,7 @@ static int disk_change(int drive)
+ {
+ 	int fdc = FDC(drive);
+ #ifdef FLOPPY_SANITY_CHECK
+-	if (jiffies - UDRS->select_date < UDP->select_delay)
++	if (time_before(jiffies, UDRS->select_date + UDP->select_delay))
+ 		DPRINT("WARNING disk change called early\n");
+ 	if (!(FDCS->dor & (0x10 << UNIT(drive))) ||
+ 	    (FDCS->dor & 3) != UNIT(drive) || fdc != FDC(drive)) {
+@@ -1064,7 +1065,7 @@ static int fd_wait_for_completion(unsign
+ 		return 1;
+ 	}
  
- 		/* Intel-defined (#2) */
--		"pni", NULL, NULL, "monitor", "ds_cpl", NULL, NULL, "est",
-+		"pni", NULL, NULL, "monitor", "ds_cpl", "vt", NULL, "est",
- 		"tm2", NULL, "cid", NULL, NULL, "cx16", "xtpr", NULL,
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+-	if ((signed)(jiffies - delay) < 0) {
++	if (time_before(jiffies, delay)) {
+ 		del_timer(&fd_timer);
+ 		fd_timer.function = function;
+ 		fd_timer.expires = delay;
+@@ -1524,7 +1525,7 @@ static void setup_rw_floppy(void)
+ 		 * again just before spinup completion. Beware that
+ 		 * after scandrives, we must again wait for selection.
+ 		 */
+-		if ((signed)(ready_date - jiffies) > DP->select_delay) {
++		if (time_after(ready_date, jiffies + DP->select_delay)) {
+ 			ready_date -= DP->select_delay;
+ 			function = (timeout_fn) floppy_start;
+ 		} else
+@@ -3812,7 +3813,7 @@ static int check_floppy_change(struct ge
+ 	if (UTESTF(FD_DISK_CHANGED) || UTESTF(FD_VERIFY))
+ 		return 1;
+ 
+-	if (UDP->checkfreq < (int)(jiffies - UDRS->last_checked)) {
++	if (time_after(jiffies, UDRS->last_checked + UDP->checkfreq)) {
+ 		if (floppy_grab_irq_and_dma()) {
+ 			return 1;
+ 		}
+

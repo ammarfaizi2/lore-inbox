@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750948AbVK3Vst@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbVK3V7Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750948AbVK3Vst (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 16:48:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750949AbVK3Vst
+	id S1751017AbVK3V7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 16:59:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751036AbVK3V7Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 16:48:49 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:54713
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750932AbVK3Vss (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 16:48:48 -0500
-Date: Wed, 30 Nov 2005 13:48:20 -0800 (PST)
-Message-Id: <20051130.134820.19334664.davem@davemloft.net>
-To: rmk+lkml@arm.linux.org.uk
-Cc: vagabon.xyz@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: [NET] Remove ARM dependency for dm9000 driver
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20051130165546.GD1053@flint.arm.linux.org.uk>
-References: <20051130162327.GC1053@flint.arm.linux.org.uk>
-	<cda58cb80511300845j18c81ce6p@mail.gmail.com>
-	<20051130165546.GD1053@flint.arm.linux.org.uk>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 30 Nov 2005 16:59:16 -0500
+Received: from streetfiresound.liquidweb.com ([64.91.233.29]:60830 "EHLO
+	host.streetfiresound.liquidweb.com") by vger.kernel.org with ESMTP
+	id S1750995AbVK3V7P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 16:59:15 -0500
+Subject: Re: [PATCH 2.6-git] SPI core refresh
+From: Stephen Street <stephen@streetfiresound.com>
+Reply-To: stephen@streetfiresound.com
+To: David Brownell <david-b@pacbell.net>
+Cc: Vitaly Wool <vwool@ru.mvista.com>, linux-kernel@vger.kernel.org,
+       dpervushin@gmail.com, akpm@osdl.org, greg@kroah.com,
+       basicmark@yahoo.com, komal_shah802003@yahoo.com,
+       spi-devel-general@lists.sourceforge.net, Joachim_Jaeger@digi.com
+In-Reply-To: <200511301336.38613.david-b@pacbell.net>
+References: <20051130195053.713ea9ef.vwool@ru.mvista.com>
+	 <200511301336.38613.david-b@pacbell.net>
+Content-Type: text/plain
+Organization: StreetFire Sound Labs
+Date: Wed, 30 Nov 2005 13:59:10 -0800
+Message-Id: <1133387950.4528.16.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.0.2 (2.0.2-16) 
 Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - host.streetfiresound.liquidweb.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - streetfiresound.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-Date: Wed, 30 Nov 2005 16:55:47 +0000
-
-> If other CPUs use this then fine, but I find that having config options
-> needlessly available to all architectures is annoying - especially when
-> they are never used.
+On Wed, 2005-11-30 at 13:36 -0800, David Brownell wrote:
+> > - it is DMA-safe
 > 
-> Eg, would you ever expect to see a DM9000 ethernet device on an x86
-> machine?  Probably not - there's far better PCI solutions now.
+> Which as I pointed out is incorrect.  The core API (async) has always
+> been fully DMA-safe.  And a **LOT** lower overhead than yours, which
+> allocates buffers behind the back of drivers, and encourages lots of
+> memcpy rather than just doing DMA directly to/from the buffers that
+> are provided by the SPI protocol drivers.
 
-If I, for example, make changes across the tree to SKB handling, I'd
-like to be able to build as many drivers as possible and fix up the
-compile warnings and build failures before _you_ get to see them.
+Minimal (or no) core intervention on the DMA code path is a good thing.
+I need to fix some broken hardware with software and must to move 96
+bytes from one SPI device to another on the same SPI bus every for 4ms.
+Needless memcpy's will cause substantial performance problems in my
+application. Thinner is definitely better.
 
-That's why it's a good idea to make drivers available to as many
-platforms as possible, even if the hardware isn't necessarily
-used there.
+-Stephen
+

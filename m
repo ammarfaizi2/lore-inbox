@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbVK3B5I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbVK3B6O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750777AbVK3B5I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 20:57:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbVK3B5I
+	id S1750780AbVK3B6O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 20:58:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750781AbVK3B6O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 20:57:08 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:25498 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750777AbVK3B5H (ORCPT
+	Tue, 29 Nov 2005 20:58:14 -0500
+Received: from ns2.suse.de ([195.135.220.15]:61156 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750780AbVK3B6N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 20:57:07 -0500
-Date: Tue, 29 Nov 2005 17:57:00 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Stephen Hemminger <shemminger@osdl.org>
-cc: Andrew Morton <akpm@osdl.org>, greg@kroah.com,
-       linux-kernel@vger.kernel.org, rjw@sisk.pl
-Subject: Re: Linux 2.6.15-rc3
-In-Reply-To: <20051129164222.66d00ca1@dxpl.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.64.0511291754350.3135@g5.osdl.org>
-References: <Pine.LNX.4.64.0511282006370.3177@g5.osdl.org> <200511292247.09243.rjw@sisk.pl>
- <200511292342.36228.rjw@sisk.pl> <20051129145328.3e5964a4@dxpl.pdx.osdl.net>
- <20051129233744.GA32316@kroah.com> <20051129161731.69ce252c@dxpl.pdx.osdl.net>
- <20051129162519.1ef07387.akpm@osdl.org> <20051129164222.66d00ca1@dxpl.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 29 Nov 2005 20:58:13 -0500
+Date: Wed, 30 Nov 2005 02:58:09 +0100
+From: Andi Kleen <ak@suse.de>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Andi Kleen <ak@suse.de>, "Brown, Len" <len.brown@intel.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+       Steven Rostedt <rostedt@goodmis.org>, Andrew Morton <akpm@osdl.org>,
+       acpi-devel@lists.sourceforge.net, nando@ccrma.Stanford.EDU,
+       linux-kernel@vger.kernel.org, paulmck@us.ibm.com, kr@cybsft.com,
+       tglx@linutronix.de, pluto@agmk.net, john.cooper@timesys.com,
+       bene@linutronix.de, dwalker@mvista.com, trini@kernel.crashing.org,
+       george@mvista.com, Vojtech Pavlik <vojtech@suse.cz>,
+       johnstul@us.ibm.com
+Subject: Re: [RFC][PATCH] Runtime switching of the idle function [take 2]
+Message-ID: <20051130015809.GF19515@wotan.suse.de>
+References: <F7DC2337C7631D4386A2DF6E8FB22B3005456F00@hdsmsx401.amr.corp.intel.com> <20051129195336.GP19515@wotan.suse.de> <1133296540.4627.7.camel@mindpipe> <20051129205108.GQ19515@wotan.suse.de> <1133308505.4627.31.camel@mindpipe> <20051130010646.GD19515@wotan.suse.de> <1133313771.4627.39.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1133313771.4627.39.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 29 Nov 2005, Stephen Hemminger wrote:
+> > Then you're likely running 32bit. It doesn't use vsyscall gettimeofday
+> > yet, which makes it slower. 64bit would.
 > 
-> Yes, when I retested with the usb patch it was against a fresh git pull.
-> So it probably isn't a USB problem but something that got introduced between
-> the two (2.6.15-rc3 vs latest).
-> 
-> I'll go back to the 2.6.15-rc3 tree and test usb fix.
+> Yes, I am.  So it sounds like vsyscall gettimeofday for i386 is in the
+> works?
 
-Can you check the current -git tree ( + the usb fix, which has _not_ made 
-it there yet). I think it was probably the stupid thinko that just didn't 
-trigger for me on ppc64 since it only breaks with 4-level page tables.
+John Stultz used to have patches for it, but for some reason he never
+pushed them into mainline. On i386 it unfortunately needs adding
+a test and branch to the syscall path to be 100% ABI compatible, but I 
+doubt that was the reason he dropped it.
 
-		Linus
+-Andi

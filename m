@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751446AbVK3QmO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751447AbVK3Qpg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751446AbVK3QmO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 11:42:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbVK3QmO
+	id S1751447AbVK3Qpg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 11:45:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751449AbVK3Qpg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 11:42:14 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:58306 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1751446AbVK3QmO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 11:42:14 -0500
-Date: Wed, 30 Nov 2005 08:41:35 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-cc: akpm@osdl.org, lhms-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, Cliff Wickman <cpw@sgi.com>
-Subject: Re: [Lhms-devel] [PATCH 4/7] Direct Migration V5: migrate_pages()
- extension
-In-Reply-To: <438D6427.8060003@jp.fujitsu.com>
-Message-ID: <Pine.LNX.4.62.0511300834010.19142@schroedinger.engr.sgi.com>
-References: <20051128204244.10037.43868.sendpatchset@schroedinger.engr.sgi.com>
- <20051128204304.10037.81195.sendpatchset@schroedinger.engr.sgi.com>
- <438D6427.8060003@jp.fujitsu.com>
+	Wed, 30 Nov 2005 11:45:36 -0500
+Received: from zproxy.gmail.com ([64.233.162.204]:12348 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751447AbVK3Qpf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 11:45:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=eF9IxemeWaBIXiU2FPW6TsVeFv2xPkZHZZQOspBOi77R/PCpVNKWWYTBQXqtEceIWgvi3ELHeKra4Ce92fEggyi1EHTZQ7+xKXooV4a0CvIT+DG8/0PQkXif83tmsh3RQZTlaULL5X9FzKOw8EsrTQUW/eGFMqQuWJXkwBFl9F4=
+Message-ID: <cda58cb80511300845j18c81ce6p@mail.gmail.com>
+Date: Wed, 30 Nov 2005 17:45:33 +0100
+From: Franck <vagabon.xyz@gmail.com>
+To: Franck <vagabon.xyz@gmail.com>, lkml <linux-kernel@vger.kernel.org>,
+       rmk+lkml@arm.linux.org.uk
+Subject: Re: [NET] Remove ARM dependency for dm9000 driver
+In-Reply-To: <20051130162327.GC1053@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <cda58cb80511300821y72f3354av@mail.gmail.com>
+	 <20051130162327.GC1053@flint.arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Nov 2005, KAMEZAWA Hiroyuki wrote:
+2005/11/30, Russell King <rmk+lkml@arm.linux.org.uk>:
+> On Wed, Nov 30, 2005 at 05:21:35PM +0100, Franck wrote:
+> > Hi,
+> >
+> > What about this patch which removes ARM dependency for dm9000 ethernet
+> > controller driver ?
+> >
+> Maybe that should be (ARM || MIPS) && NET_ETHERNET ?
+>
 
-> I found a problem around the shmem,
+Well, if this dependency means "it has only be tested on ARM and
+MIPS", then you're probably right. But if it means "this controller
+must be run with an ARM or MIPS cpu" then I don't see why setting such
+restriction. What do you think ?
 
-The current page migration functions in mempolicy.c do not migrate shmem 
-vmas to be safe. In the future we surely would like to support migration 
-of shmem. I'd be glad if you could make sure that this works.
-
-> Problem is:
-> 1. a page of shmem(tmpfs)'s generic file is in page-cache. assume page is
-> diry.
-> 2. When it passed to migrate_page(), it reaches pageout() in the middle of
-> migrate_page().
-> 3. pageout calls shmem_writepage(), and the page turns to be swap-cache page.
->    At this point, page->mapping becomes NULL (see move_to_swapcache())
-
-A swapcache page would have page->mapping pointing to swapper space. 
-move_to_swap_cache does not set page->mapping == NULL.
-
-> 7. Because spwapper_space's  a_ops->migratepage is not NULL,
->    "Avoid write back hook" in patch 7/7 is used.
-> +		if (mapping->a_ops->migratepage) {
-> +			rc = mapping->a_ops->migratepage(newpage, page);
-> +			goto unlock_both;
-> +                }
->    a_ops->migrate_page points to migrate_page() in mm/vmscan.c
-> 8. migrate_page() try to replace radix tree entry in swapper_space.
-> 9. Becasue page->mapping is NULL(becasue of 3),
-> migrate_page_remove_references() fails.
-
-If page->mapping would be NULL then migrate_page() could not 
-have been called. The mapping is used to obtain the address of the 
-function to call,
+thanks
+--
+               Franck

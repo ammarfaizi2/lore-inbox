@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbVK3VBA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbVK3VNW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750717AbVK3VBA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 16:01:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbVK3VBA
+	id S1750744AbVK3VNW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 16:13:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbVK3VNW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 16:01:00 -0500
-Received: from noname.neutralserver.com ([70.84.186.210]:45768 "EHLO
-	noname.neutralserver.com") by vger.kernel.org with ESMTP
-	id S1750717AbVK3VBA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 16:01:00 -0500
-Date: Wed, 30 Nov 2005 23:02:23 +0200
-From: Dan Aloni <da-x@monatomic.org>
-To: Luke-Jr <luke-jr@utopios.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.4.x] prevent emulated SCSI hosts from wasting DMA memory
-Message-ID: <20051130210222.GA32431@localdomain>
-References: <20051130171520.GB15505@localdomain> <200511301933.48668.luke-jr@utopios.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200511301933.48668.luke-jr@utopios.org>
-User-Agent: Mutt/1.5.11
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - noname.neutralserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - monatomic.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Wed, 30 Nov 2005 16:13:22 -0500
+Received: from fmr21.intel.com ([143.183.121.13]:43189 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1750744AbVK3VNV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 16:13:21 -0500
+Subject: [PATCH] Add VT flag to cpuinfo
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, rajesh.shah@intel.com
+Message-Id: <20051130211705.220E9E1486@los-vmm.sc.intel.com>
+Date: Wed, 30 Nov 2005 13:17:05 -0800 (PST)
+From: donald.d.dugger@intel.com (Donald D Dugger)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 30, 2005 at 07:33:47PM +0000, Luke-Jr wrote:
-> On Wednesday 30 November 2005 17:15, Dan Aloni wrote:
-> > Emulated scsi hosts don't do DMA, so don't unnecessarily increase
-> > the SCSI DMA pool.
-> 
-> They don't? Recently I learned(?) that apparently using hdparm -d on the 
-> old /dev/hdX device still worked/applied when using ide-scsi... or do 
-> "emulated scsi hosts" refer to something else?
+Andrew-
 
-Actually by 'do DMA' I meant use the scsi_malloc() interface - which 
-is mostly used by low level drivers. The IDE drivers allocate their
-DMA memory outside the SCSI layer. iSCSI hosts for instance, don't 
-need to cause unnecessary DMA allocations.
+Attached is a trivial patch to 2.6 that will add `vt' to the flags field
+of `/proc/cpuinfo' for CPUs that have Intel's virtualization technology.
 
--- 
-Dan Aloni
-da-x@monatomic.org, da-x@colinux.org, da-x@gmx.net
+Signed-off-by: Donald D. Dugger <donald.d.dugger@intel.com>
+
+--
+Don Dugger
+"Censeo Toto nos in Kansa esse decisse." - D. Gale
+Donald.D.Dugger@intel.com
+Ph: (303)440-1368
+
+diff -Naur linux-2.6.14/arch/i386/kernel/cpu/proc.c linux-2.6.14-ddd/arch/i386/kernel/cpu/proc.c
+--- linux-2.6.14/arch/i386/kernel/cpu/proc.c	2005-10-27 18:02:08.000000000 -0600
++++ linux-2.6.14-ddd/arch/i386/kernel/cpu/proc.c	2005-11-14 14:22:52.000000000 -0700
+@@ -44,7 +44,7 @@
+ 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+ 
+ 		/* Intel-defined (#2) */
+-		"pni", NULL, NULL, "monitor", "ds_cpl", NULL, NULL, "est",
++		"pni", NULL, NULL, "monitor", "ds_cpl", "vt", NULL, "est",
+ 		"tm2", NULL, "cid", NULL, NULL, "cx16", "xtpr", NULL,
+ 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+ 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+diff -Naur linux-2.6.14/arch/x86_64/kernel/setup.c linux-2.6.14-ddd/arch/x86_64/kernel/setup.c
+--- linux-2.6.14/arch/x86_64/kernel/setup.c	2005-10-27 18:02:08.000000000 -0600
++++ linux-2.6.14-ddd/arch/x86_64/kernel/setup.c	2005-11-11 14:47:59.000000000 -0700
+@@ -1213,7 +1213,7 @@
+ 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+ 
+ 		/* Intel-defined (#2) */
+-		"pni", NULL, NULL, "monitor", "ds_cpl", NULL, NULL, "est",
++		"pni", NULL, NULL, "monitor", "ds_cpl", "vt", NULL, "est",
+ 		"tm2", NULL, "cid", NULL, NULL, "cx16", "xtpr", NULL,
+ 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+ 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,

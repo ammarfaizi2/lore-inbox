@@ -1,38 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbVK3WuQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbVK3XHZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751198AbVK3WuQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 17:50:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbVK3WuP
+	id S1751241AbVK3XHZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 18:07:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbVK3XHZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 17:50:15 -0500
-Received: from [139.30.44.16] ([139.30.44.16]:25871 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S1751215AbVK3WuO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 17:50:14 -0500
-Date: Wed, 30 Nov 2005 23:50:11 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-cc: Dave Jones <davej@codemonkey.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Marcelo Feitoza Parisi <marcelo@feitoza.com.br>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] nvidia-agp: use time_before_eq()
-In-Reply-To: <20051130213902.GB12551@mipter.zuzino.mipt.ru>
-Message-ID: <Pine.LNX.4.63.0511302346480.13505@gockel.physik3.uni-rostock.de>
-References: <20051130213902.GB12551@mipter.zuzino.mipt.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 30 Nov 2005 18:07:25 -0500
+Received: from mail.kroah.org ([69.55.234.183]:39884 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751241AbVK3XHZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 18:07:25 -0500
+Date: Wed, 30 Nov 2005 14:11:53 -0800
+From: Greg KH <greg@kroah.com>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Updates to sysfs_create_subdir()
+Message-ID: <20051130221153.GA16208@kroah.com>
+References: <Pine.LNX.4.50.0511231336261.16769-100000@monsoon.he.net> <20051128204950.GC17740@kroah.com> <Pine.LNX.4.50.0511300759170.28582-100000@monsoon.he.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50.0511300759170.28582-100000@monsoon.he.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Dec 2005, Alexey Dobriyan wrote:
+On Wed, Nov 30, 2005 at 09:05:41AM -0800, Patrick Mochel wrote:
+> 
+> On Mon, 28 Nov 2005, Greg KH wrote:
+> 
+> > On Wed, Nov 23, 2005 at 01:56:29PM -0800, Patrick Mochel wrote:
+> > >
+> > > The patch below addresses this issue by parsing the subdirectory name and
+> > > creating any parent directories delineated by a '/'.
+> >
+> > Generally I never liked parsing stuff like this in the kernel (proc and
+> > devfs both do this).  That being said, I do see the need to make subdirs
+> > like this easier.
+> 
+> Heh, just because proc and devfs did it doesn't mean it's inherently
+> evil..
 
-> It deals with wrapping correctly and is nicer to read.
+I did not mean to imply that, just that putting parsers like this spread
+around the kernel in different places isn't the best thing to have.
 
-> -			if ((signed)(end - jiffies) <= 0) {
-> +			if (time_before_eq(end, jiffies)) {
+> > But what about cleanups?  If I create an attribute group "foo/baz/x/" and
+> > then remove it, will the subdirectories get cleaned up too?  What about
+> > if I had created a group "foo/baz/y/" after the "x" one?  Or just
+> > "foo/baz"?
+> 
+> The patch I sent previously did not include a way to cleanup the
+> subdirectories, but it's pretty straightforward and covered by this patch.
+> Basically, it adds a new refcount to struct sysfs_dirent (->s_refs) that
+> is incremented when a subdirectory is created and decremented when the
+> subdirectory is removed. When it reaches 0, that directory itself can be
+> removed.
+> 
+> Note that it's a bit hacky in sysfs_remove_group(), since we need the
+> bottom-most dentry a priori. I'm not sure the best way to do this off the
+> top of my head, and ideas?
 
-It'd be even nicer to read if it were
-			if (time_after_eq(jiffies, end)) {
-like the other users of these macros.
+Don't know, I'd ask Maneesh, as he knows this code quite well.
 
-Tim
+> If you're interested, I will break it up into 2-3 patches for application
+> (I'd like to also move the sysfs_dirent declaration into fs/sysfs/sysfs.h,
+> since they're really private and so that further modification of the
+> declaration doesn't preclude a nearly-full recompile of the tree).
+
+Thanks, breaking it up into logicial pieces is a good idea so we can see
+what is happening easier.
+
+greg k-h

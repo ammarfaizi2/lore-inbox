@@ -1,51 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbVK3IZk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751134AbVK3IiA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751129AbVK3IZk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 03:25:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbVK3IZk
+	id S1751134AbVK3IiA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 03:38:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbVK3Ih7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 03:25:40 -0500
-Received: from [85.8.13.51] ([85.8.13.51]:51109 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S1751129AbVK3IZj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 03:25:39 -0500
-Message-ID: <438D61FD.3030700@drzeus.cx>
-Date: Wed, 30 Nov 2005 09:25:33 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mail/News 1.5 (X11/20051105)
+	Wed, 30 Nov 2005 03:37:59 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:14756 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751134AbVK3Ih7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 03:37:59 -0500
+Message-ID: <438D6427.8060003@jp.fujitsu.com>
+Date: Wed, 30 Nov 2005 17:34:47 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: ja, en-us, en
 MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Secure Digital Host Controller PCI class
-References: <4381B364.2020808@drzeus.cx> <20051121214733.GA17793@suse.de> <4382B596.5080001@drzeus.cx> <20051122063904.GA24853@suse.de> <4382DF18.5040400@drzeus.cx>
-In-Reply-To: <4382DF18.5040400@drzeus.cx>
+To: Christoph Lameter <clameter@sgi.com>
+CC: akpm@osdl.org, lhms-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, Cliff Wickman <cpw@sgi.com>
+Subject: Re: [Lhms-devel] [PATCH 4/7] Direct Migration V5: migrate_pages()
+ extension
+References: <20051128204244.10037.43868.sendpatchset@schroedinger.engr.sgi.com> <20051128204304.10037.81195.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20051128204304.10037.81195.sendpatchset@schroedinger.engr.sgi.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Ossman wrote:
-> Greg KH wrote:
->> I do have access to the PCI specs from the SIG website by virtue of my
->> current employer, not by any recognition by the PCI-SIG that Linux is
->> important at all...
->>
->> If you let me know what document you think this might be in, I'll dig
->> around to see if I can find it.
->>
->>   
-> 
-> It's difficult to tell what is inside each document without being a
-> member. But this sounds promising:
-> 
-> Appendix D -- Class codes updates
-> <http://www.pcisig.com/members/downloads/specifications/conventional/appd_latest.pdf>
-> (61k PDF)
-> http://www.pcisig.com/members/downloads/specifications/conventional/appd_latest.pdf
-> 
+Hi,
 
-Greg, have you had time to have a look at this? Just a reminder in case 
-you forgot (and before I do as well). :)
+Christoph Lameter wrote:
+> +int migrate_page_remove_references(struct page *newpage, struct page *page, int nr_refs)
+> +{
+> +	write_lock_irq(&mapping->tree_lock);
+> +
+> +	radix_pointer = (struct page **)radix_tree_lookup_slot(
+> +						&mapping->page_tree,
+> +						page_index(page));
+> +
+> +	if (!page->mapping ||
+> +	    page_count(page) != nr_refs ||
+> +	    *radix_pointer != page) {
+> +		write_unlock_irq(&mapping->tree_lock);
+> +		return 1;
+> +	}
 
-Rgds
-Pierre
+I'm testing memory hot removing patch based on your patch.
+
+I found a problem around the shmem,
+but I'm not sure whether it can be problem on migration or not.
+
+Problem is:
+1. a page of shmem(tmpfs)'s generic file is in page-cache. assume page is diry.
+2. When it passed to migrate_page(), it reaches pageout() in the middle of migrate_page().
+3. pageout calls shmem_writepage(), and the page turns to be swap-cache page.
+    At this point, page->mapping becomes NULL (see move_to_swapcache())
+4. pageout retunrs PAGE_SUCCESS.
+5. Finaly, migrate_page() goes to redo.
+6. retry
+7. Because spwapper_space's  a_ops->migratepage is not NULL,
+    "Avoid write back hook" in patch 7/7 is used.
++		if (mapping->a_ops->migratepage) {
++			rc = mapping->a_ops->migratepage(newpage, page);
++			goto unlock_both;
++                }
+    a_ops->migrate_page points to migrate_page() in mm/vmscan.c
+8. migrate_page() try to replace radix tree entry in swapper_space.
+9. Becasue page->mapping is NULL(becasue of 3), migrate_page_remove_references() fails.
+
+I avoid above situation by following code in migrate_page_remove_references() now.
+But I'm not sure whether this is sane fix or not.
+ > +	if ((!PageSwapCache(page) && !page->mapping) ||
+ > +	    page_count(page) != nr_refs ||
+ > +	    *radix_pointer != page) {
+ > +		write_unlock_irq(&mapping->tree_lock);
+ > +		return 1;
+ > +	}
+
+
+
+-- Kame
+

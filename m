@@ -1,66 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbVK3MiZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbVK3MpT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751164AbVK3MiZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 07:38:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbVK3MiY
+	id S1751203AbVK3MpT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 07:45:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbVK3MpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 07:38:24 -0500
-Received: from allen.werkleitz.de ([80.190.251.108]:13196 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S1751164AbVK3MiY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 07:38:24 -0500
-Date: Wed, 30 Nov 2005 13:38:29 +0100
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Carlos Silva <r3pek@gentoo.org>
-Cc: linux-dvb-maintainer@linuxtv.org, michael@mihu.de,
-       linux-kernel@vger.kernel.org, adq_dvb@lidskialf.net
-Message-ID: <20051130123829.GA26710@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Carlos Silva <r3pek@gentoo.org>, linux-dvb-maintainer@linuxtv.org,
-	michael@mihu.de, linux-kernel@vger.kernel.org,
-	adq_dvb@lidskialf.net
-References: <1133261646.13000.19.camel@localhost>
-MIME-Version: 1.0
+	Wed, 30 Nov 2005 07:45:18 -0500
+Received: from mx1.suse.de ([195.135.220.2]:14826 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751203AbVK3MpS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 07:45:18 -0500
+Date: Wed, 30 Nov 2005 13:45:09 +0100
+From: Andi Kleen <ak@suse.de>
+To: Jari Ruusu <jariruusu@users.sourceforge.net>
+Cc: Benjamin LaHaise <bcrl@kvack.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/9] x86-64 put current in r10
+Message-ID: <20051130124508.GK19515@wotan.suse.de>
+References: <20051130042118.GA19112@kvack.org> <438D4905.9F023405@users.sourceforge.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1133261646.13000.19.camel@localhost>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: 84.189.225.41
-Subject: Re: [linux-dvb-maintainer] [PATCH] Fix budget-ci linking problem
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+In-Reply-To: <438D4905.9F023405@users.sourceforge.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Carlos,
+> Your patch breaks all out-of-tree amd64 assembler code used in kernel. r10
+> register is one of those registers that does not need to be preserved across
+> function calls, and reserving that register for other purpose means that all
+> assembler code using r10 in kernel must be rewritten. This is deeply
+> unfunny.
 
-On Tue, Nov 29, 2005, Carlos Silva wrote:
-> Hi, a user reported that had linking problems when compiling the kernel.
-> After looking at his problem I found out that there was missing the
-> compilation of stv0297.c when budget-ci.c was selected. So I made this
-> simple patch that solved the user's problem.
-> The downstream bug report is this one:
-> http://bugs.gentoo.org/show_bug.cgi?id=112997
+Well, the changes should be minor.
+
 > 
-> If you need anything more from me, just mail me.
-> 
-> Signed-of-by: Carlos Silva <r3pek@gentoo.org>
+> Please don't apply Ben's patch. It is already bad enough having to deal with
+> two incompatible calling conventions on 32 bit x86.
 
-I added your patch to linuxtv.org CVS when you first sent it.
-Seems like I missed to send a confirmation mail, sorry about that. :-(
+43KB .text savings are hard to argue against. There is no guarantee
+for a stable kernel ABI. If you maintain out of tree code you 
+will need to live with the occasional changes.
 
-It should go into the kernel with the next set of dvb/v4l patches.
-
-Thanks,
-Johannes
-
-> --- drivers/media/dvb/ttpci/Kconfig.old	2005-11-19 20:23:50.000000000 +0000
-> +++ drivers/media/dvb/ttpci/Kconfig	2005-11-19 20:22:49.000000000 +0000
-> @@ -81,6 +81,7 @@
->  	tristate "Budget cards with onboard CI connector"
->  	depends on DVB_CORE && PCI
->  	select VIDEO_SAA7146
-> +	select DVB_STV0297
->  	select DVB_STV0299
->  	select DVB_TDA1004X
->  	help
+-Andi

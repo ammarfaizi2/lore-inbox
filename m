@@ -1,260 +1,452 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751477AbVK3RMS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751472AbVK3RMq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751477AbVK3RMS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 12:12:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751475AbVK3RMS
+	id S1751472AbVK3RMq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 12:12:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751466AbVK3RMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 12:12:18 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:1157 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751467AbVK3RMK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 12:12:10 -0500
-Date: Wed, 30 Nov 2005 09:11:17 -0800 (PST)
+	Wed, 30 Nov 2005 12:12:20 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:61312 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751462AbVK3RMJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 12:12:09 -0500
+Date: Wed, 30 Nov 2005 09:11:07 -0800 (PST)
 From: Christoph Lameter <clameter@sgi.com>
 To: akpm@osdl.org
 Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
        Cliff Wickman <cpw@sgi.com>, linux-kernel@vger.kernel.org,
        Christoph Lameter <clameter@sgi.com>, lhms-devel@lists.sourceforge.net
-Message-Id: <20051130171117.19405.37220.sendpatchset@schroedinger.engr.sgi.com>
+Message-Id: <20051130171107.19405.88730.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20051130171056.19405.95644.sendpatchset@schroedinger.engr.sgi.com>
 References: <20051130171056.19405.95644.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 4/5] Direct Migration V6: upgrade MPOL_MF_MOVE and sys_migrate_pages()
+Subject: [PATCH 2/5] Direct Migration V6: migrate_pages() extension
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Modify policy layer to support direct page migration
+Add direct migration support with fall back to swap.
 
-- Add migrate_pages_to() allowing the migration of a list of pages to a
-  a specified node or to vma with a specific allocation policy in sets
-  of MIGRATE_CHUNK_SIZE pages
+Direct migration support on top of the swap based page migration facility.
 
-- Modify do_migrate_pages() to do a staged move of pages from the
-  source nodes to the target nodes.
+This allows the direct migration of anonymous pages and the migration of
+file backed pages by dropping the associated buffers (requires writeout).
 
-V3->V4: Fixed up to be based on the swap migration code in 2.6.15-rc1-mm2.
+Fall back to swap out if necessary.
+
+The patch is based on lots of patches from the hotplug project but the code
+was restructured, documented and simplified as much as possible.
+
+Note that an additional patch that defines the migrate_page() method
+for filesystems is necessary in order to avoid writeback for anonymous
+and file backed pages.
+
+V4-V5:
+ - Patch against 2.6.15-rc2-mm1 + double unlock fix + consolidation patch
+
+V3-V4:
+- Remove components already in the swap migration patch
 
 V1->V2:
-- Migrate processes in chunks of MIGRATE_CHUNK_SIZE
+- Change migrate_pages() so that it can return pagelist for failed and
+  moved pages. No longer free the old pages but allow caller to dispose
+  of them.
+- Unmap pages before changing reverse map under tree lock. Take
+  a write_lock instead of a read_lock.
+- Add documentation
 
-Signed-off-by: Paul Jackson <pj@sgi.com>
+Signed-off-by: Mike Kravetz <kravetz@us.ibm.com>
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.15-rc3-mm1/mm/mempolicy.c
+Index: linux-2.6.15-rc3-mm1/include/linux/swap.h
 ===================================================================
---- linux-2.6.15-rc3-mm1.orig/mm/mempolicy.c	2005-11-30 08:46:40.000000000 -0800
-+++ linux-2.6.15-rc3-mm1/mm/mempolicy.c	2005-11-30 08:46:55.000000000 -0800
-@@ -95,6 +95,9 @@
- #define MPOL_MF_INVERT (MPOL_MF_INTERNAL << 1)		/* Invert check for nodemask */
- #define MPOL_MF_STATS (MPOL_MF_INTERNAL << 2)		/* Gather statistics */
- 
-+/* The number of pages to migrate per call to migrate_pages() */
-+#define MIGRATE_CHUNK_SIZE 256
+--- linux-2.6.15-rc3-mm1.orig/include/linux/swap.h	2005-11-30 08:46:39.000000000 -0800
++++ linux-2.6.15-rc3-mm1/include/linux/swap.h	2005-11-30 08:46:48.000000000 -0800
+@@ -178,6 +178,9 @@ extern int vm_swappiness;
+ #ifdef CONFIG_MIGRATION
+ extern int isolate_lru_page(struct page *p);
+ extern int putback_lru_pages(struct list_head *l);
++extern int migrate_page(struct page *, struct page *);
++extern int migrate_page_remove_references(struct page *, struct page *, int);
++extern void migrate_page_copy(struct page *, struct page *);
+ extern int migrate_pages(struct list_head *l, struct list_head *t,
+ 		struct list_head *moved, struct list_head *failed);
+ #endif
+Index: linux-2.6.15-rc3-mm1/Documentation/vm/page_migration
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.15-rc3-mm1/Documentation/vm/page_migration	2005-11-30 08:46:48.000000000 -0800
+@@ -0,0 +1,95 @@
++Page migration
++--------------
 +
- static kmem_cache_t *policy_cache;
- static kmem_cache_t *sn_cache;
- 
-@@ -566,24 +569,96 @@ static void migrate_page_add(struct vm_a
- 	}
++Page migration occurs in several steps. First a high level
++description for those trying to use migrate_pages() and then
++a low level description of how the low level details work.
++
++
++A. Use of migrate_pages()
++-------------------------
++
++1. Remove pages from the LRU.
++
++   Lists of pages to be migrated are generated by scanning over
++   pages and moving them into lists. This is done by
++   calling isolate_lru_page() or __isolate_lru_page().
++   Calling isolate_lru_page increases the references to the page
++   so that it cannot vanish under us.
++
++2. Generate a list of newly allocates page to move the contents
++   of the first list to.
++
++3. The migrate_pages() function is called which attempts
++   to do the migration. It returns the moved pages in the
++   list specified as the third parameter and the failed
++   migrations in the fourth parameter. The first parameter
++   will contain the pages that could still be retried.
++
++4. The leftover pages of various types are returned
++   to the LRU using putback_to_lru_pages() or otherwise
++   disposed of. The pages will still have the refcount as
++   increased by isolate_lru_pages()!
++
++B. Operation of migrate_pages()
++--------------------------------
++
++migrate_pages does several passes over its list of pages. A page is moved
++if all references to a page are removable at the time.
++
++Steps:
++
++1. Lock the page to be migrated
++
++2. Insure that writeback is complete.
++
++3. Make sure that the page has assigned swap cache entry if
++   it is an anonyous page. The swap cache reference is necessary
++   to preserve the information contain in the page table maps.
++
++4. Prep the new page that we want to move to. It is locked
++   and set to not being uptodate so that all accesses to the new
++   page immediately lock while we are moving references.
++
++5. All the page table references to the page are either dropped (file backed)
++   or converted to swap references (anonymous pages). This should decrease the
++   reference count.
++
++6. The radix tree lock is taken
++
++7. The refcount of the page is examined and we back out if references remain
++   otherwise we know that we are the only one referencing this page.
++
++8. The radix tree is checked and if it does not contain the pointer to this
++   page then we back out.
++
++9. The mapping is checked. If the mapping is gone then a truncate action may
++   be in progress and we back out.
++
++10. The new page is prepped with some settings from the old page so that accesses
++   to the new page will be discovererd to have the correct settings.
++
++11. The radix tree is changed to point to the new page.
++
++12. The reference count of the old page is dropped because the reference has now
++    been removed.
++
++13. The radix tree lock is dropped.
++
++14. The page contents are copied to the new page.
++
++15. The remaining page flags are copied to the new page.
++
++16. The old page flags are cleared to indicate that the page does
++    not use any information anymore.
++
++17. Queued up writeback on the new page is triggered.
++
++18. The locks are dropped from the old and new page.
++
++19. The swapcache reference is removed from the new page.
++
++20. The new page is moved to the LRU.
++
++Christoph Lameter, November 29, 2005.
++
+Index: linux-2.6.15-rc3-mm1/mm/vmscan.c
+===================================================================
+--- linux-2.6.15-rc3-mm1.orig/mm/vmscan.c	2005-11-30 08:46:40.000000000 -0800
++++ linux-2.6.15-rc3-mm1/mm/vmscan.c	2005-11-30 08:46:48.000000000 -0800
+@@ -663,6 +663,164 @@ retry:
+ 	return -EAGAIN;
  }
- 
--static int swap_pages(struct list_head *pagelist)
-+/*
-+ * Migrate the list 'pagelist' of pages to a certain destination.
+ /*
++ * Page migration was first developed in the context of the memory hotplug
++ * project. The main authors of the migration code are:
 + *
-+ * Specify destination with either non-NULL vma or dest_node >= 0
-+ * Return the number of pages not migrated or error code
++ * IWAMOTO Toshihiro <iwamoto@valinux.co.jp>
++ * Hirokazu Takahashi <taka@valinux.co.jp>
++ * Dave Hansen <haveblue@us.ibm.com>
++ * Christoph Lameter <clameter@sgi.com>
 + */
-+static int migrate_pages_to(struct list_head *pagelist,
-+	struct vm_area_struct *vma, int dest)
- {
-+	LIST_HEAD(newlist);
- 	LIST_HEAD(moved);
- 	LIST_HEAD(failed);
--	int n;
-+	int err = 0;
-+	int nr_pages;
-+	struct page *page;
-+	struct list_head *p;
- 
--	n = migrate_pages(pagelist, NULL, &moved, &failed);
--	putback_lru_pages(&failed);
--	putback_lru_pages(&moved);
-+redo:
-+	nr_pages = 0;
-+	list_for_each(p, pagelist) {
-+		if (vma)
-+			page = alloc_page_vma(GFP_HIGHUSER, vma,
-+						vma->vm_start);
-+		else
-+			page = alloc_pages_node(dest, GFP_HIGHUSER, 0);
- 
--	return n;
-+		if (!page) {
-+			err = -ENOMEM;
-+			goto out;
-+		}
-+		list_add(&page->lru, &newlist);
-+		nr_pages++;
-+		if (nr_pages > MIGRATE_CHUNK_SIZE);
++
++/*
++ * Remove references for a page and establish the new page with the correct
++ * basic settings to be able to stop accesses to the page.
++ */
++int migrate_page_remove_references(struct page *newpage, struct page *page, int nr_refs)
++{
++	struct address_space *mapping = page_mapping(page);
++	struct page **radix_pointer;
++	int i;
++
++	/*
++	 * Avoid doing any of the following work if the page count
++	 * indicates that the page is in use or truncate has removed
++	 * the page.
++	 */
++	if (!mapping || page_mapcount(page) + nr_refs != page_count(page))
++		return 1;
++
++	/*
++	 * Establish swap ptes for anonymous pages or destroy pte
++	 * maps for files.
++	 *
++	 * In order to reestablish file backed mappings the fault handlers
++	 * will take the radix tree_lock which may then be used to stop
++  	 * processses from accessing this page until the new page is ready.
++	 *
++	 * A process accessing via a swap pte (an anonymous page) will take a
++	 * page_lock on the old page which will block the process until the
++	 * migration attempt is complete. At that time the PageSwapCache bit
++	 * will be examined. If the page was migrated then the PageSwapCache
++	 * bit will be clear and the operation to retrieve the page will be
++	 * retried which will find the new page in the radix tree. Then a new
++	 * direct mapping may be generated based on the radix tree contents.
++	 *
++	 * If the page was not migrated then the PageSwapCache bit
++	 * is still set and the operation may continue.
++	 */
++	for(i = 0; i < 10 && page_mapped(page); i++) {
++		int rc = try_to_unmap(page);
++
++		if (rc == SWAP_SUCCESS)
 +			break;
++		/*
++		 * If there are other runnable processes then running
++		 * them may make it possible to unmap the page
++		 */
++		schedule();
 +	}
-+	err = migrate_pages(pagelist, &newlist, &moved, &failed);
 +
-+	putback_lru_pages(&moved);	/* Call release pages instead ?? */
++	/*
++	 * Give up if we were unable to remove all mappings.
++	 */
++	if (page_mapcount(page))
++		return 1;
 +
-+	if (err >= 0 && list_empty(&newlist) && !list_empty(pagelist))
-+		goto redo;
-+out:
-+	/* Return leftover allocated pages */
-+	while (!list_empty(&newlist)) {
-+		page = list_entry(newlist.next, struct page, lru);
-+		list_del(&page->lru);
-+		__free_page(page);
++	write_lock_irq(&mapping->tree_lock);
++
++	radix_pointer = (struct page **)radix_tree_lookup_slot(
++						&mapping->page_tree,
++						page_index(page));
++
++	if (!page->mapping ||
++	    page_count(page) != nr_refs ||
++	    *radix_pointer != page) {
++		write_unlock_irq(&mapping->tree_lock);
++		return 1;
 +	}
-+	list_splice(&failed, pagelist);
-+	if (err < 0)
-+		return err;
 +
-+	/* Calculate number of leftover pages */
-+	nr_pages = 0;
-+	list_for_each(p, pagelist)
-+		nr_pages++;
-+	return nr_pages;
++	/*
++	 * Now we know that no one else is looking at the page.
++	 *
++	 * Certain minimal information about a page must be available
++	 * in order for other subsystems to properly handle the page if they
++	 * find it through the radix tree update before we are finished
++	 * copying the page.
++	 */
++	get_page(newpage);
++	newpage->index = page_index(page);
++	if (PageSwapCache(page)) {
++		SetPageSwapCache(newpage);
++		set_page_private(newpage, page_private(page));
++	} else
++		newpage->mapping = page->mapping;
++
++	*radix_pointer = newpage;
++	__put_page(page);
++	write_unlock_irq(&mapping->tree_lock);
++
++	return 0;
 +}
 +
 +/*
-+ * Migrate pages from one node to a target node.
-+ * Returns error or the number of pages not migrated.
++ * Copy the page to its new location
 + */
-+int migrate_to_node(struct mm_struct *mm, int source, int dest, int flags)
++void migrate_page_copy(struct page *newpage, struct page *page)
 +{
-+	nodemask_t nmask;
-+	LIST_HEAD(pagelist);
-+	int err = 0;
++	copy_highpage(newpage, page);
 +
-+	nodes_clear(nmask);
-+	node_set(source, nmask);
++	if (PageError(page))
++		SetPageError(newpage);
++	if (PageReferenced(page))
++		SetPageReferenced(newpage);
++	if (PageUptodate(page))
++		SetPageUptodate(newpage);
++	if (PageActive(page))
++		SetPageActive(newpage);
++	if (PageChecked(page))
++		SetPageChecked(newpage);
++	if (PageMappedToDisk(page))
++		SetPageMappedToDisk(newpage);
 +
-+	check_range(mm, mm->mmap->vm_start, TASK_SIZE, &nmask,
-+		    flags | MPOL_MF_DISCONTIG_OK,
-+	            &pagelist);
++	if (PageDirty(page)) {
++		clear_page_dirty_for_io(page);
++		set_page_dirty(newpage);
++ 	}
 +
-+	if (!list_empty(&pagelist)) {
++	ClearPageSwapCache(page);
++	ClearPageActive(page);
++	ClearPagePrivate(page);
++	set_page_private(page, 0);
++	page->mapping = NULL;
 +
-+		err = migrate_pages_to(&pagelist, NULL, dest);
++	/*
++	 * If any waiters have accumulated on the new page then
++	 * wake them up.
++	 */
++	if (PageWriteback(newpage))
++		end_page_writeback(newpage);
++}
 +
-+		if (!list_empty(&pagelist))
-+			putback_lru_pages(&pagelist);
-+
-+	}
-+	return err;
- }
- 
- /*
-- * For now migrate_pages simply swaps out the pages from nodes that are in
-- * the source set but not in the target set. In the future, we would
-- * want a function that moves pages between the two nodesets in such
-- * a way as to preserve the physical layout as much as possible.
-+ * Move pages between the two nodesets so as to preserve the physical
-+ * layout as much as possible.
-  *
-  * Returns the number of page that could not be moved.
-  */
-@@ -591,22 +666,76 @@ int do_migrate_pages(struct mm_struct *m
- 	const nodemask_t *from_nodes, const nodemask_t *to_nodes, int flags)
- {
- 	LIST_HEAD(pagelist);
--	int count = 0;
--	nodemask_t nodes;
-+	int busy = 0;
-+	int err = 0;
-+	nodemask_t tmp;
- 
--	nodes_andnot(nodes, *from_nodes, *to_nodes);
-+  	down_read(&mm->mmap_sem);
- 
--	down_read(&mm->mmap_sem);
--	check_range(mm, mm->mmap->vm_start, TASK_SIZE, &nodes,
--			flags | MPOL_MF_DISCONTIG_OK, &pagelist);
-+/* Find a 'source' bit set in 'tmp' whose corresponding 'dest'
-+ * bit in 'to' is not also set in 'tmp'.  Clear the found 'source'
-+ * bit in 'tmp', and return that <source, dest> pair for migration.
-+ * The pair of nodemasks 'to' and 'from' define the map.
++/*
++ * Common logic to directly migrate a single page suitable for
++ * pages that do not use PagePrivate.
 + *
-+ * If no pair of bits is found that way, fallback to picking some
-+ * pair of 'source' and 'dest' bits that are not the same.  If the
-+ * 'source' and 'dest' bits are the same, this represents a node
-+ * that will be migrating to itself, so no pages need move.
-+ *
-+ * If no bits are left in 'tmp', or if all remaining bits left
-+ * in 'tmp' correspond to the same bit in 'to', return false
-+ * (nothing left to migrate).
-+ *
-+ * This lets us pick a pair of nodes to migrate between, such that
-+ * if possible the dest node is not already occupied by some other
-+ * source node, minimizing the risk of overloading the memory on a
-+ * node that would happen if we migrated incoming memory to a node
-+ * before migrating outgoing memory source that same node.
-+ *
-+ * A single scan of tmp is sufficient.  As we go, we remember the
-+ * most recent <s, d> pair that moved (s != d).  If we find a pair
-+ * that not only moved, but what's better, moved to an empty slot
-+ * (d is not set in tmp), then we break out then, with that pair.
-+ * Otherwise when we finish scannng from_tmp, we at least have the
-+ * most recent <s, d> pair that moved.  If we get all the way through
-+ * the scan of tmp without finding any node that moved, much less
-+ * moved to an empty node, then there is nothing left worth migrating.
++ * Pages are locked upon entry and exit.
 + */
++int migrate_page(struct page *newpage, struct page *page)
++{
++	BUG_ON(PageWriteback(page));	/* Writeback must be complete */
++
++	if (migrate_page_remove_references(newpage, page, 2))
++		return -EAGAIN;
++
++	migrate_page_copy(newpage, page);
++
++	return 0;
++}
++
++/*
+  * migrate_pages
+  *
+  * Two lists are passed to this function. The first list
+@@ -675,11 +833,6 @@ retry:
+  * are movable anymore because t has become empty
+  * or no retryable pages exist anymore.
+  *
+- * SIMPLIFIED VERSION: This implementation of migrate_pages
+- * is only swapping out pages and never touches the second
+- * list. The direct migration patchset
+- * extends this function to avoid the use of swap.
+- *
+  * Return: Number of pages not migrated when "to" ran empty.
+  */
+ int migrate_pages(struct list_head *from, struct list_head *to,
+@@ -700,6 +853,9 @@ redo:
+ 	retry = 0;
  
--	if (!list_empty(&pagelist)) {
--		count = swap_pages(&pagelist);
--		putback_lru_pages(&pagelist);
-+	tmp = *from_nodes;
-+	while (!nodes_empty(tmp)) {
-+		int s,d;
-+		int source = -1;
-+		int dest = 0;
+ 	list_for_each_entry_safe(page, page2, from, lru) {
++		struct page *newpage = NULL;
++		struct address_space *mapping;
 +
-+		for_each_node_mask(s, tmp) {
+ 		cond_resched();
+ 
+ 		rc = 0;
+@@ -707,6 +863,9 @@ redo:
+ 			/* page was freed from under us. So we are done. */
+ 			goto next;
+ 
++		if (to && list_empty(to))
++			break;
 +
-+			d = node_remap(s, *from_nodes, *to_nodes);
-+			if (s == d)
-+				continue;
-+
-+			source = s;	/* Node moved. Memorize */
-+			dest = d;
-+
-+			/* dest not in remaining from nodes? */
-+			if (!node_isset(dest, tmp))
-+				break;
+ 		/*
+ 		 * Skip locked pages during the first two passes to give the
+ 		 * functions holding the lock time to release the page. Later we
+@@ -743,12 +902,64 @@ redo:
+ 			}
+ 		}
+ 
++		if (!to) {
++			rc = swap_page(page);
++			goto next;
 +		}
-+		if (source == -1)
-+			break;
 +
-+		node_clear(source, tmp);
-+		err = migrate_to_node(mm, source, dest, flags);
-+		if (err > 0)
-+			busy += err;
-+		if (err < 0)
-+			break;
++		newpage = lru_to_page(to);
++		lock_page(newpage);
++
+ 		/*
+-		 * Page is properly locked and writeback is complete.
++		 * Pages are properly locked and writeback is complete.
+ 		 * Try to migrate the page.
+ 		 */
+-		rc = swap_page(page);
+-		goto next;
++		mapping = page_mapping(page);
++		if (!mapping)
++			goto unlock_both;
++
++		/*
++		 * Trigger writeout if page is dirty
++		 */
++		if (PageDirty(page)) {
++			switch (pageout(page, mapping)) {
++			case PAGE_KEEP:
++			case PAGE_ACTIVATE:
++				goto unlock_both;
++
++			case PAGE_SUCCESS:
++				unlock_page(newpage);
++				goto next;
++
++			case PAGE_CLEAN:
++				; /* try to migrate the page below */
++			}
++                }
++		/*
++		 * If we have no buffer or can release the buffer
++		 * then do a simple migration.
++		 */
++		if (!page_has_buffers(page) ||
++		    try_to_release_page(page, GFP_KERNEL)) {
++			rc = migrate_page(newpage, page);
++			goto unlock_both;
++		}
++
++		/*
++		 * On early passes with mapped pages simply
++		 * retry. There may be a lock held for some
++		 * buffers that may go away. Later
++		 * swap them out.
++		 */
++		if (pass > 4) {
++			unlock_page(newpage);
++			newpage = NULL;
++			rc = swap_page(page);
++			goto next;
++		}
++
++unlock_both:
++		unlock_page(newpage);
+ 
+ unlock_page:
+ 		unlock_page(page);
+@@ -761,7 +972,10 @@ next:
+ 			list_move(&page->lru, failed);
+ 			nr_failed++;
+ 		} else {
+-			/* Success */
++			if (newpage)
++				/* Successful migration. Return new page to LRU */
++				move_to_lru(newpage);
++
+ 			list_move(&page->lru, moved);
+ 		}
  	}
- 
- 	up_read(&mm->mmap_sem);
--	return count;
-+	if (err < 0)
-+		return err;
-+	return busy;
- }
- 
- long do_mbind(unsigned long start, unsigned long len,
-@@ -666,8 +795,9 @@ long do_mbind(unsigned long start, unsig
- 		int nr_failed = 0;
- 
- 		err = mbind_range(vma, start, end, new);
-+
- 		if (!list_empty(&pagelist))
--			nr_failed = swap_pages(&pagelist);
-+			nr_failed = migrate_pages_to(&pagelist, vma, -1);
- 
- 		if (!err && nr_failed && (flags & MPOL_MF_STRICT))
- 			err = -EIO;

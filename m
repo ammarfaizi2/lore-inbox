@@ -1,74 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbVK3L31@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbVK3Ltv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751163AbVK3L31 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 06:29:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbVK3L31
+	id S1751161AbVK3Ltv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 06:49:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbVK3Ltv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 06:29:27 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:46530 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751163AbVK3L31 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 06:29:27 -0500
-Message-ID: <438D8D22.4090303@jp.fujitsu.com>
-Date: Wed, 30 Nov 2005 20:29:38 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
-MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-CC: akpm@osdl.org, Cliff Wickman <cpw@sgi.com>, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net
-Subject: Re: [Lhms-devel] [PATCH 5/7] Direct Migration V5: remove_from_swap()
- to remove swap ptes
-References: <20051128204244.10037.43868.sendpatchset@schroedinger.engr.sgi.com> <20051128204310.10037.32852.sendpatchset@schroedinger.engr.sgi.com>
-In-Reply-To: <20051128204310.10037.32852.sendpatchset@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Nov 2005 06:49:51 -0500
+Received: from mail.fh-wedel.de ([213.39.232.198]:56759 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1751161AbVK3Ltu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 06:49:50 -0500
+Date: Wed, 30 Nov 2005 12:49:50 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Kenneth Parrish <Kenneth.Parrish@familynet-international.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+Message-ID: <20051130114950.GB25101@wohnheim.fh-wedel.de>
+References: <203b12.713227@familynet-international.net> <m14q5ufmvi.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <m14q5ufmvi.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Christoph Lameter wrote:
-> Add remove_from_swap
+On Wed, 30 November 2005 03:31:13 -0700, Eric W. Biederman wrote:
+> Kenneth Parrish <Kenneth.Parrish@familynet-international.net> writes:
 > 
-> remove_from_swap() allows the restoration of the pte entries that existed
-> before page migration occurred for anonymous pages by walking the reverse
-> maps. This reduces swap use and establishes regular pte's without the need
-> for page faults.
+> > -=> In article 16 Nov 05  14:40:16, Adrian Bunk wrote to All <=-
+> >
+> >  AB> If one function calls another function you have to add the stack
+> >  AB> usages.
+> >
+> > these few may do that, i bet.
+> >  0xc02bb528 huft_build:                                  1432
+> >  0xc02bb954 huft_build:                                  1432
+> >  0xc02bc1c4 inflate_dynamic:                             1312
+> >  0xc02bc2ff inflate_dynamic:                             1312
+> >  0xc02bc082 inflate_fixed:                               1168
+> >  0xc02bc172 inflate_fixed:                               1168
 > 
+> Now what is interesting is these functions currently run with a 4KiB 
+> stack on every bootup.  So unless they have callers with a
+> significant stack footprint things are fine.
 
-in migrate_page_copy()
-==
-        ClearPageSwapCache(page);
-         ClearPageActive(page);
-         ClearPagePrivate(page);
-         set_page_private(page, 0);
-         page->mapping = NULL;
-==
-page->mapping turns to be NULL, when migration success.
- > +			if (newpage) {
- >  				/* Successful migration. Return new page to LRU */
- > +				remove_from_swap(page);
- >  				move_to_lru(newpage);
- > -
-When success, remove_from_swap(page) is called.
+The longest call chain for these functions eats roughly 3.2k on i386
+with allyesconfig.  Measured with a statical code checker, not tested.
 
-> +#ifdef CONFIG_MIGRATION
-> +/*
-> + * Remove an anonymous page from swap replacing the swap pte's
-> + * through real pte's pointing to valid pages.
-> + */
-> +void remove_from_swap(struct page *page)
-> +{
-> +	struct anon_vma *anon_vma;
-> +	struct vm_area_struct *vma;
-> +
-> +	if (!PageAnon(page))
-> +		return;
-> +
-PageAnon(page) always 0.
+Jörn
 
-remove_from_swap(newpage) is sane ?
-
--- Kame
-
+-- 
+Simplicity is prerequisite for reliability.
+-- Edsger W. Dijkstra

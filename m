@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbVK3BHI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbVK3BKF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750736AbVK3BHI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 20:07:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbVK3BHH
+	id S1750738AbVK3BKF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 20:10:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbVK3BKF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 20:07:07 -0500
-Received: from ns1.suse.de ([195.135.220.2]:33439 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750736AbVK3BHG (ORCPT
+	Tue, 29 Nov 2005 20:10:05 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:32396 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750738AbVK3BKC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 20:07:06 -0500
-Date: Wed, 30 Nov 2005 02:06:46 +0100
-From: Andi Kleen <ak@suse.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Andi Kleen <ak@suse.de>, "Brown, Len" <len.brown@intel.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Steven Rostedt <rostedt@goodmis.org>, Andrew Morton <akpm@osdl.org>,
-       acpi-devel@lists.sourceforge.net, nando@ccrma.Stanford.EDU,
-       linux-kernel@vger.kernel.org, paulmck@us.ibm.com, kr@cybsft.com,
-       tglx@linutronix.de, pluto@agmk.net, john.cooper@timesys.com,
-       bene@linutronix.de, dwalker@mvista.com, trini@kernel.crashing.org,
-       george@mvista.com
-Subject: Re: [RFC][PATCH] Runtime switching of the idle function [take 2]
-Message-ID: <20051130010646.GD19515@wotan.suse.de>
-References: <F7DC2337C7631D4386A2DF6E8FB22B3005456F00@hdsmsx401.amr.corp.intel.com> <20051129195336.GP19515@wotan.suse.de> <1133296540.4627.7.camel@mindpipe> <20051129205108.GQ19515@wotan.suse.de> <1133308505.4627.31.camel@mindpipe>
+	Tue, 29 Nov 2005 20:10:02 -0500
+Date: Tue, 29 Nov 2005 17:09:56 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, rjw@sisk.pl, torvalds@osdl.org,
+       akpm@osdl.org
+Subject: Re: Linux 2.6.15-rc3
+Message-ID: <20051129170956.32e58342@dxpl.pdx.osdl.net>
+In-Reply-To: <20051129233744.GA32316@kroah.com>
+References: <Pine.LNX.4.64.0511282006370.3177@g5.osdl.org>
+	<200511292247.09243.rjw@sisk.pl>
+	<200511292342.36228.rjw@sisk.pl>
+	<20051129145328.3e5964a4@dxpl.pdx.osdl.net>
+	<20051129233744.GA32316@kroah.com>
+X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1133308505.4627.31.camel@mindpipe>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But on my system gettimeofday uses the TSC and it's still ~35x slower
-> than RDTSC:
+
+> From: David Brownell <david-b@pacbell.net>
+> Subject: USB: ehci fixups
 > 
-> rlrevell@mindpipe:~$ ./timetest 
-> rdtsc: 10000 calls in 1079 usecs
-> gettimeofday: 10000 calls in 36628 usecs
+> Rename the EHCI "reset" routine so it better matches what it does (setup);
+> and move the one-time data structure setup earlier, before doing anything
+> that implicitly relies on it having been completed already.
+> 
+> From: David Brownell <david-b@pacbell.net>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> 
 
-First if you run this on an Athlon 64 the measurement is likely
-wrong because RDTSC can be speculated around. To get accurate
-data you need to add synchronizing instructions.
+Yes, that fixed the usb problem with 2.6.15-rc3. Boots and 
+USB serial works okay.
 
-Then you're likely running 32bit. It doesn't use vsyscall gettimeofday
-yet, which makes it slower. 64bit would.
+The problem with git latest still exists.
 
--Andi
 
+
+-- 
+Stephen Hemminger <shemminger@osdl.org>
+OSDL http://developer.osdl.org/~shemminger

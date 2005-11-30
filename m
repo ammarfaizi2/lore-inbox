@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbVK3Vjc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbVK3Vmh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750897AbVK3Vjc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 16:39:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750917AbVK3Vjc
+	id S1750929AbVK3Vmh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 16:42:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750937AbVK3Vmg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 16:39:32 -0500
-Received: from mail.charite.de ([160.45.207.131]:46304 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S1750897AbVK3Vjb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 16:39:31 -0500
-Date: Wed, 30 Nov 2005 22:39:29 +0100
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: Linux kernel Mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Merely a warning to my fellow Nvidia travellers running 2.6.15-rc3
-Message-ID: <20051130213928.GD16193@charite.de>
-Mail-Followup-To: Linux kernel Mailing list <linux-kernel@vger.kernel.org>
-References: <438E0187.2060107@telusplanet.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <438E0187.2060107@telusplanet.net>
-User-Agent: Mutt/1.5.11
+	Wed, 30 Nov 2005 16:42:36 -0500
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:29055 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1750922AbVK3Vmg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 16:42:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.br;
+  h=Received:Subject:From:To:Cc:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
+  b=GDC7l/JlcTl/JwfnJwutX2/v9vANEq7IzNcaN6Usqc8LQWSY7qqO5qLABcf9/CmCUH2aEmOWi7Jg9wQzAJ5jDZqMZY/R/Giav4mzpTQNe2yXlUdRKhN8T+ZNbaNc0K0OCfAoU9Ui2mTQl0qb7uHBvuYn2KC9eCl6kPdz3cCoYmY=  ;
+Subject: Re: Gene's pcHDTV 3000 analog problem
+From: Mauro Carvalho Chehab <mauro_chehab@yahoo.com.br>
+To: Linux and Kernel Video <video4linux-list@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Michael Krufky <mkrufky@m1k.net>
+In-Reply-To: <200511292306.09395.gene.heskett@verizon.net>
+References: <200511282205.jASM5YUI018061@p-chan.krl.com>
+	 <c35b44d70511291435i5f07bc88g429276ef659c28c5@mail.gmail.com>
+	 <438CDDBC.1070704@m1k.net>  <200511292306.09395.gene.heskett@verizon.net>
+Content-Type: text/plain
+Date: Wed, 30 Nov 2005 11:01:44 -0200
+Message-Id: <1133355705.8133.39.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1-3mdk 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Bob Gill <gillb4@telusplanet.net>:
-> This error message is merely a warning to my fellow Nvidia travellers.  
-> Posts have already been sent to people who have the source code to fix 
-> this, and this message is merely information for Nvidia users.  If you 
-> are an Nvidia user trying to use 2.6.15-rc3 with the 7667 driver, beware 
-> that the following can occur:
+Gene,
 
-Indeed. This happens when I switch back from X11 to the fb console.
-The nv driver has no such issues and works happily with rc3.
- 
-> .............as a result, its best to stick with with 2.6.15-rc2-git5 
-> till a new driver comes out.
+	Some points:
 
-Yep, best bet.
+1) Is it a 64bit machine?
 
--- 
-Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
-IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de
+2) The problem also occurs at vanilla 2.6.15-rc3?
+
+Cheers,
+Mauro.
+
+
+	
+
+	
+		
+_______________________________________________________ 
+Yahoo! doce lar. Faça do Yahoo! sua homepage. 
+http://br.yahoo.com/homepageset.html 
+

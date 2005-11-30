@@ -1,69 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbVK3BWx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbVK3BZ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750759AbVK3BWx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 20:22:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750762AbVK3BWx
+	id S1750762AbVK3BZ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 20:25:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbVK3BZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 20:22:53 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:24770 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750759AbVK3BWx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 20:22:53 -0500
-Subject: Re: [RFC][PATCH] Runtime switching of the idle function [take 2]
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andi Kleen <ak@suse.de>
-Cc: "Brown, Len" <len.brown@intel.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>,
-       Andrew Morton <akpm@osdl.org>, acpi-devel@lists.sourceforge.net,
-       nando@ccrma.Stanford.EDU, linux-kernel@vger.kernel.org,
-       paulmck@us.ibm.com, kr@cybsft.com, tglx@linutronix.de, pluto@agmk.net,
-       john.cooper@timesys.com, bene@linutronix.de, dwalker@mvista.com,
-       trini@kernel.crashing.org, george@mvista.com,
-       Vojtech Pavlik <vojtech@suse.cz>
-In-Reply-To: <20051130010646.GD19515@wotan.suse.de>
-References: <F7DC2337C7631D4386A2DF6E8FB22B3005456F00@hdsmsx401.amr.corp.intel.com>
-	 <20051129195336.GP19515@wotan.suse.de> <1133296540.4627.7.camel@mindpipe>
-	 <20051129205108.GQ19515@wotan.suse.de> <1133308505.4627.31.camel@mindpipe>
-	 <20051130010646.GD19515@wotan.suse.de>
-Content-Type: text/plain
-Date: Tue, 29 Nov 2005 20:22:50 -0500
-Message-Id: <1133313771.4627.39.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Tue, 29 Nov 2005 20:25:27 -0500
+Received: from hulk.hostingexpert.com ([69.57.134.39]:54633 "EHLO
+	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S1750762AbVK3BZ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Nov 2005 20:25:26 -0500
+Message-ID: <438CFFAD.7070803@m1k.net>
+Date: Tue, 29 Nov 2005 20:26:05 -0500
+From: Michael Krufky <mkrufky@m1k.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kirk Lapray <kirk.lapray@gmail.com>
+CC: Gene Heskett <gene.heskett@verizon.net>, video4linux-list@redhat.com,
+       CityK <CityK@rogers.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Perry Gilfillan <perrye@linuxmail.org>, Don Koch <aardvark@krl.com>
+Subject: Re: Gene's pcHDTV 3000 analog problem
+References: <200511282205.jASM5YUI018061@p-chan.krl.com>	 <200511291335.18431.gene.heskett@verizon.net>	 <438CA1E3.7010101@m1k.net>	 <200511291546.27365.gene.heskett@verizon.net> <438CC83E.50100@m1k.net>	 <c35b44d70511291435i5f07bc88g429276ef659c28c5@mail.gmail.com>	 <438CDDBC.1070704@m1k.net> <c35b44d70511291548lcb10361ifd3a4ea0f239662d@mail.gmail.com>
+In-Reply-To: <c35b44d70511291548lcb10361ifd3a4ea0f239662d@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - m1k.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-30 at 02:06 +0100, Andi Kleen wrote:
-> > But on my system gettimeofday uses the TSC and it's still ~35x slower
-> > than RDTSC:
-> > 
-> > rlrevell@mindpipe:~$ ./timetest 
-> > rdtsc: 10000 calls in 1079 usecs
-> > gettimeofday: 10000 calls in 36628 usecs
-> 
-> First if you run this on an Athlon 64 the measurement is likely
-> wrong because RDTSC can be speculated around. To get accurate
-> data you need to add synchronizing instructions.
-> 
+Kirk Lapray wrote:
 
-OK.  Just for reference here's what people on the JACK list reported:
+> There are some i2c commands sent in cx88-cards.c, but that should only 
+> happen with the HDTV Wonder.
+>
+> The nxt200x should only be sending i2c commands if it detects a 
+> NXT2002 or NXT2004 chip.  You can set the nxt200x module to load with 
+> debug=1 to see if it is doing something that it shouldn't.  The only 
+> thing that I can think of is that the auto detecting of NXT2002 and 
+> NXT2004 is not working like it is supposed to.  If you do not have a 
+> NXT2002 or NXT2004 based card the nxt200x module should not do 
+> anything.  The only i2c command in the attach function is to read the 
+> card id.
+>
+> From what I have seen the only device that is made visible is the 
+> tuner.  This allows the tuner modules to connect to it.  It basically 
+> turns on the tuner, and this should only happen on NXT2004 based cards.
 
-2.6.14-rt13, PREEMPT_RT, Athlon X2 4400+ (dual core)
+Don Koch wrote:
 
-rdtsc: 10000 calls in 68 usecs
-gettimeofday: 10000 calls in 5170 usecs
+>>If this fixes your problem, then we know that nxt200x is the cause.
+>>    
+>>
+>No difference.
+>
+>Back to looking at the code...
+>  
+>
+Okay, it looks like nxt200x is a red herring, sorry for the false 
+alarm.  Even still, Kirk, it would be very helpful if you could confirm 
+analog video functionality of your pcHDTV 3000 board, using either 
+2.6.15-rc3, or v4l-dvb cvs on top of any kernel version.
 
-P4@3.3Ghz/HT (OpenSUSE 10.0 2.6.13-15-smp):
+...But before that, please first try it in your current configuration.
 
-rdtsc: 10000 calls in 253 usecs
-gettimeofday: 10000 calls in 26547 usecs
+I do not have this board, and there *IS* a problem with it... Based on 
+the tests done by Gene and Don, it looks like the regression is inside 
+the v4l code, although this doesnt make any sense, as other cards with 
+similar hardware are not affected.
 
-> Then you're likely running 32bit. It doesn't use vsyscall gettimeofday
-> yet, which makes it slower. 64bit would.
+I don't know any of the specifics about this board, besides the fact 
+that is has OR51132 (irrelevant - the problem exists even without 
+cx88-dvb loaded) Thomson DDT 7610, and a cx2388x chip.
 
-Yes, I am.  So it sounds like vsyscall gettimeofday for i386 is in the
-works?
+I have two cx88 boards of my own - FusionHDTV5 Gold, everything works 
+fine, both analog and digital.  FusionHDTV3 Gold-T, using Thomson DDT 
+7611 (same as 7610) , and digital works, but the analog tuner is 
+completely broken, regardless of what kernel version, regardless of 
+whether I'm using Linux or windows, and it used to work a few months ago.
 
-Lee
+I think my hardware is fried, but since Gene is able to restore 
+functionality by a cold boot into 2.6.14.2, it makes me think his 
+problem is because of bad code, where my problem is due to bad hardware.
 
+All I can think of doing next is to have Gene, Don or Perry do a 
+bisection test on our cvs repo.... checking out different cvs revisions 
+until we can narrow it down to the day the problem patch was applied.
+
+::sigh::
+
+Who wants to do it?  I'll give you detailed instructions if you're willing.
+
+Regards,
+Mike

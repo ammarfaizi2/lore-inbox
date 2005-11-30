@@ -1,56 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbVK3IUN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbVK3IW7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751124AbVK3IUN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 03:20:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751126AbVK3IUN
+	id S1751066AbVK3IW7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 03:22:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbVK3IW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 03:20:13 -0500
-Received: from smtp100.mail.sc5.yahoo.com ([216.136.174.138]:40050 "HELO
-	smtp100.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1751124AbVK3IUL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 03:20:11 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=kVARTwdU8QYrMtte5WCdxRztxP3h/+0KUxzEWeyCguJMKgYBX3vf/mVRrCRuzzYmSSw34ZZ4ZqbcI8Ctfyf1ufhRfeBlQ7a8nJnHG2G4qhRtUwixzD6/M5dqioXO0cBvHyHx/nVQY+QA5Tj8YLG7/NRxagssrEycDKe1+RdWmmQ=  ;
-Message-ID: <438D60B0.4020207@yahoo.com.au>
-Date: Wed, 30 Nov 2005 19:20:00 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Jari Ruusu <jariruusu@users.sourceforge.net>,
-       Benjamin LaHaise <bcrl@kvack.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/9] x86-64 put current in r10
-References: <20051130042118.GA19112@kvack.org>	 <438D4905.9F023405@users.sourceforge.net> <1133337416.2825.18.camel@laptopd505.fenrus.org>
-In-Reply-To: <1133337416.2825.18.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 30 Nov 2005 03:22:59 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.152]:39832 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1751066AbVK3IW7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 03:22:59 -0500
+Subject: Re: [Perfctr-devel] Re: Enabling RDPMC in user space by default
+From: Nicholas Miell <nmiell@comcast.net>
+To: eranian@hpl.hp.com
+Cc: Andi Kleen <ak@suse.de>, Ray Bryant <raybry@mpdtxmail.amd.com>,
+       discuss@x86-64.org, linux-kernel@vger.kernel.org,
+       perfctr-devel@lists.sourceforge.net
+In-Reply-To: <20051130073831.GB7521@frankl.hpl.hp.com>
+References: <200511291056.32455.raybry@mpdtxmail.amd.com>
+	 <20051129180903.GB6611@frankl.hpl.hp.com>
+	 <20051129181344.GN19515@wotan.suse.de> <1133300591.3271.1.camel@entropy>
+	 <20051129215207.GR19515@wotan.suse.de> <1133303615.3271.12.camel@entropy>
+	 <20051129224346.GS19515@wotan.suse.de> <1133305338.3271.30.camel@entropy>
+	 <20051129231750.GU19515@wotan.suse.de> <1133306966.3271.36.camel@entropy>
+	 <20051130073831.GB7521@frankl.hpl.hp.com>
+Content-Type: text/plain
+Date: Wed, 30 Nov 2005 00:22:42 -0800
+Message-Id: <1133338962.3271.42.camel@entropy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4.njm.1) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Wed, 2005-11-30 at 08:39 +0200, Jari Ruusu wrote:
+On Tue, 2005-11-29 at 23:38 -0800, Stephane Eranian wrote:
+> Nicholas,
 > 
->>Benjamin LaHaise wrote:
->>
->>>The following emails contain the patches to convert x86-64 to store current
->>>in r10 (also at http://www.kvack.org/~bcrl/patches/v2.6.15-rc3/).
->>
->>[snip]
->>
->>>No benchmarks that I am aware of show regressions with this change.
->>
->>Ben,
->>Your patch breaks all out-of-tree amd64 assembler code used in kernel. 
-> 
-> 
-> so what?
-> 
+> On Tue, Nov 29, 2005 at 03:29:26PM -0800, Nicholas Miell wrote:
+> > On Wed, 2005-11-30 at 00:17 +0100, Andi Kleen wrote:
+> > > On Tue, Nov 29, 2005 at 03:02:18PM -0800, Nicholas Miell wrote:
+> > > > On Tue, 2005-11-29 at 23:43 +0100, Andi Kleen wrote:
+> > > > > To give an bad analogy RDTSC usage in the last years is
+> > > > > like explicit spinning wait loops for delays in the earlier
+> > > > > times. They tended to work on some subset of computers,
+> > > > > but were always bad and caused problems and people eventually learned
+> > > > > it was better to use operating system services for this.
+> > > > 
+> > > > And you are now suggesting people should use RDPMC instead of OS
+> > > > services?
+> > > 
+> > > For any kind of timers they should use the OS service 
+> > > (gettimeofday/clock_gettime). The OS will go to extraordinary
+> > > means to make it as fast as possible, but when it's slow
+> > > then because it's not possible to do it faster accurately
+> > > (that's the case right now modulo one possible optimization)
+> > > 
+> > > For cycle counting where they previously used RDTSC they should
+> > > use RDPMC 0 now.
+> > 
+> > Well, if that's all you want them to use RDPMC 0 for, why not just make
+> > PMCs programmable from userspace?
+> > 
+> Simply because write a PERFSEL (i.e. an MSR) register is a privileged operation.
 
-Sounds like a trick question - I don't think the kernel does use any
-out-of-tree amd64 assember code, does it? ;)
+Well, yeah. Design an API (or just steal from Solaris) and expose that
+to userspace.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+-- 
+Nicholas Miell <nmiell@comcast.net>
+

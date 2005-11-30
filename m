@@ -1,57 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbVK3V7Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbVK3WBW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751017AbVK3V7Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 16:59:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751036AbVK3V7Q
+	id S1751048AbVK3WBW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 17:01:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751041AbVK3WBW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 16:59:16 -0500
-Received: from streetfiresound.liquidweb.com ([64.91.233.29]:60830 "EHLO
-	host.streetfiresound.liquidweb.com") by vger.kernel.org with ESMTP
-	id S1750995AbVK3V7P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 16:59:15 -0500
-Subject: Re: [PATCH 2.6-git] SPI core refresh
-From: Stephen Street <stephen@streetfiresound.com>
-Reply-To: stephen@streetfiresound.com
-To: David Brownell <david-b@pacbell.net>
-Cc: Vitaly Wool <vwool@ru.mvista.com>, linux-kernel@vger.kernel.org,
-       dpervushin@gmail.com, akpm@osdl.org, greg@kroah.com,
-       basicmark@yahoo.com, komal_shah802003@yahoo.com,
-       spi-devel-general@lists.sourceforge.net, Joachim_Jaeger@digi.com
-In-Reply-To: <200511301336.38613.david-b@pacbell.net>
-References: <20051130195053.713ea9ef.vwool@ru.mvista.com>
-	 <200511301336.38613.david-b@pacbell.net>
-Content-Type: text/plain
-Organization: StreetFire Sound Labs
-Date: Wed, 30 Nov 2005 13:59:10 -0800
-Message-Id: <1133387950.4528.16.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-16) 
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - host.streetfiresound.liquidweb.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - streetfiresound.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Wed, 30 Nov 2005 17:01:22 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:41282 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751043AbVK3WBW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 17:01:22 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=TOZN+Sw52XXB5tiByEYytxB0emejCG455fje9ZYzIh3XdlY+mBjXi4E2TGrJFdo9rVX3AayrzNZLh4nIldueE9bBymG4eFEpL2L/ddasd2XgxuWKsWyLPMAMylAodoWiRbwra1rHyxZWZRwZMkHPktxKgrT+YI8cT4sgXV5Tn9U=
+Message-ID: <e725d2bc0511301401m2b2d2821k@mail.gmail.com>
+Date: Wed, 30 Nov 2005 16:01:20 -0600
+From: vivek aseeja <viveklinux@gmail.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Effect of context switch time on scheduling ?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-30 at 13:36 -0800, David Brownell wrote:
-> > - it is DMA-safe
-> 
-> Which as I pointed out is incorrect.  The core API (async) has always
-> been fully DMA-safe.  And a **LOT** lower overhead than yours, which
-> allocates buffers behind the back of drivers, and encourages lots of
-> memcpy rather than just doing DMA directly to/from the buffers that
-> are provided by the SPI protocol drivers.
+Not sure if this question concerns this group .. Writing a small
+application which creates schedules based on the ( Least Laxity First )
+LLF algorithm . Not sure at what instants is the scheduler invoked ?
+i.e. the task with least laxity is selected at every time unit ? Also,
+if i take into consideration the context switch time , how would it
+effect the algorithm ?
 
-Minimal (or no) core intervention on the DMA code path is a good thing.
-I need to fix some broken hardware with software and must to move 96
-bytes from one SPI device to another on the same SPI bus every for 4ms.
-Needless memcpy's will cause substantial performance problems in my
-application. Thinner is definitely better.
-
--Stephen
-
+Thanks ,
+vivekian

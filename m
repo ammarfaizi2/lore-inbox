@@ -1,60 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbVK3HjW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbVK3Hjt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751103AbVK3HjW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 02:39:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbVK3HjW
+	id S1751108AbVK3Hjt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 02:39:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbVK3Hjs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 02:39:22 -0500
-Received: from tayrelbas03.tay.hp.com ([161.114.80.246]:39582 "EHLO
-	tayrelbas03.tay.hp.com") by vger.kernel.org with ESMTP
-	id S1751103AbVK3HjV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 02:39:21 -0500
-Date: Tue, 29 Nov 2005 23:38:31 -0800
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: Nicholas Miell <nmiell@comcast.net>
-Cc: Andi Kleen <ak@suse.de>, Ray Bryant <raybry@mpdtxmail.amd.com>,
-       discuss@x86-64.org, linux-kernel@vger.kernel.org,
-       perfctr-devel@lists.sourceforge.net
-Subject: Re: [Perfctr-devel] Re: Enabling RDPMC in user space by default
-Message-ID: <20051130073831.GB7521@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <200511291056.32455.raybry@mpdtxmail.amd.com> <20051129180903.GB6611@frankl.hpl.hp.com> <20051129181344.GN19515@wotan.suse.de> <1133300591.3271.1.camel@entropy> <20051129215207.GR19515@wotan.suse.de> <1133303615.3271.12.camel@entropy> <20051129224346.GS19515@wotan.suse.de> <1133305338.3271.30.camel@entropy> <20051129231750.GU19515@wotan.suse.de> <1133306966.3271.36.camel@entropy>
+	Wed, 30 Nov 2005 02:39:48 -0500
+Received: from ns.intellilink.co.jp ([61.115.5.249]:46502 "EHLO
+	mail.intellilink.co.jp") by vger.kernel.org with ESMTP
+	id S1751108AbVK3Hjs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 02:39:48 -0500
+Subject: [PATCH 1/4] stack overflow safe kdump (	2.6.15-rc3-i386) -
+	safe_smp_processor_id
+From: Fernando Luis Vazquez Cao <fernando@intellilink.co.jp>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: linux-kernel@vger.kernel.org, fastboot@lists.osdl.org
+Content-Type: text/plain
+Organization: =?UTF-8?Q?NTT=E3=83=87=E3=83=BC=E3=82=BF=E5=85=88=E7=AB=AF=E6=8A=80?=
+	=?UTF-8?Q?=E8=A1=93=E6=A0=AA=E5=BC=8F=E4=BC=9A=E7=A4=BE?=
+Date: Wed, 30 Nov 2005 16:35:13 +0900
+Message-Id: <1133336113.2412.36.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1133306966.3271.36.camel@entropy>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicholas,
+On the event of a stack overflow critical data that usually resides at
+the bottom of the stack is likely to be stomped and, consequently, its
+use should be avoided.
 
-On Tue, Nov 29, 2005 at 03:29:26PM -0800, Nicholas Miell wrote:
-> On Wed, 2005-11-30 at 00:17 +0100, Andi Kleen wrote:
-> > On Tue, Nov 29, 2005 at 03:02:18PM -0800, Nicholas Miell wrote:
-> > > On Tue, 2005-11-29 at 23:43 +0100, Andi Kleen wrote:
-> > > > To give an bad analogy RDTSC usage in the last years is
-> > > > like explicit spinning wait loops for delays in the earlier
-> > > > times. They tended to work on some subset of computers,
-> > > > but were always bad and caused problems and people eventually learned
-> > > > it was better to use operating system services for this.
-> > > 
-> > > And you are now suggesting people should use RDPMC instead of OS
-> > > services?
-> > 
-> > For any kind of timers they should use the OS service 
-> > (gettimeofday/clock_gettime). The OS will go to extraordinary
-> > means to make it as fast as possible, but when it's slow
-> > then because it's not possible to do it faster accurately
-> > (that's the case right now modulo one possible optimization)
-> > 
-> > For cycle counting where they previously used RDTSC they should
-> > use RDPMC 0 now.
-> 
-> Well, if that's all you want them to use RDPMC 0 for, why not just make
-> PMCs programmable from userspace?
-> 
-Simply because write a PERFSEL (i.e. an MSR) register is a privileged operation.
+In particular, in the i386 and IA64 architectures the macro
+smp_processor_id ultimately makes use of the "cpu" member of struct
+thread_info which resides at the bottom of the stack (see code snips
+below). x86_64, on the other hand, is not affected by this problem
+because it benefits from the PDA infrastructure.
+
+To circumvent this problem I suggest implementing
+"safe_smp_processor_id()" (it already exists on x86_64) for i386 and
+IA64 and use it as a replacement for smp_processor_id in the reboot path
+to the dump capture kernel. This is a possible implementation for i386.
+
+---
+diff -urNp linux-2.6.15-rc3/arch/i386/kernel/smp.c linux-2.6.15-rc3-sov/arch/i386/kernel/smp.c
+--- linux-2.6.15-rc3/arch/i386/kernel/smp.c	2005-10-28 09:02:08.000000000 +0900
++++ linux-2.6.15-rc3-sov/arch/i386/kernel/smp.c	2005-11-30 16:00:38.000000000 +0900
+@@ -628,3 +628,28 @@ fastcall void smp_call_function_interrup
+ 	}
+ }
+ 
++static int convert_apicid_to_cpu(int apic_id)
++{
++	int i;
++
++	for (i = 0; i < NR_CPUS; i++) {
++		if (x86_cpu_to_apicid[i] == apic_id)
++		return i;
++	}
++	return -1;
++}
++
++int safe_smp_processor_id(void) {
++	int apicid, cpuid;
++
++	if (!boot_cpu_has(X86_FEATURE_APIC))
++		return 0;
++
++	apicid = hard_smp_processor_id();
++	if (apicid == BAD_APICID)
++		return 0;
++
++	cpuid = convert_apicid_to_cpu(apicid);
++
++	return cpuid >= 0 ? cpuid : 0;
++}
+diff -urNp linux-2.6.15-rc3/include/asm-i386/smp.h linux-2.6.15-rc3-sov/include/asm-i386/smp.h
+--- linux-2.6.15-rc3/include/asm-i386/smp.h	2005-11-30 14:51:55.000000000 +0900
++++ linux-2.6.15-rc3-sov/include/asm-i386/smp.h	2005-11-30 14:56:11.000000000 +0900
+@@ -90,12 +90,14 @@ static __inline int logical_smp_processo
+ 
+ #endif
+ 
++extern int safe_smp_processor_id(void);
+ extern int __cpu_disable(void);
+ extern void __cpu_die(unsigned int cpu);
+ #endif /* !__ASSEMBLY__ */
+ 
+ #else /* CONFIG_SMP */
+ 
++#define safe_smp_processor_id() 0
+ #define cpu_physical_id(cpu)		boot_cpu_physical_apicid
+ 
+ #define NO_PROC_ID		0xFF		/* No processor magic marker */
+
+

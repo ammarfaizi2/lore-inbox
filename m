@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750960AbVK3E0D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750944AbVK3E0E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750960AbVK3E0D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 23:26:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750944AbVK3EZX
+	id S1750944AbVK3E0E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 23:26:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbVK3EZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 23:25:23 -0500
+	Tue, 29 Nov 2005 23:25:20 -0500
 Received: from kanga.kvack.org ([66.96.29.28]:27624 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S1750920AbVK3EY4 (ORCPT
+	by vger.kernel.org with ESMTP id S1750944AbVK3EZH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 23:24:56 -0500
-Date: Tue, 29 Nov 2005 23:21:57 -0500
+	Tue, 29 Nov 2005 23:25:07 -0500
+Date: Tue, 29 Nov 2005 23:22:18 -0500
 From: Benjamin LaHaise <bcrl@kvack.org>
 To: Andi Kleen <ak@suse.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 6/9] x86-64 dont use r10 in copy_user and csum-copy
-Message-ID: <20051130042157.GG19112@kvack.org>
+Subject: [PATCH 9/9] x86-64 optimize GET_THREAD_INFO users to use r10
+Message-ID: <20051130042218.GJ19112@kvack.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,155 +22,405 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Update the copy_user and csum-copy code to not use r10.
+Now that current in r10 is in place and working, optimize bits of x86-64
+specific assembly to not reload/recalculate current where unnecessary.
 
 ---
 
- arch/x86_64/lib/copy_user.S |   10 ++++++----
- arch/x86_64/lib/csum-copy.S |   24 +++++++++++++-----------
- 2 files changed, 19 insertions(+), 15 deletions(-)
+ arch/x86_64/ia32/ia32entry.S |   16 ++++++++--------
+ arch/x86_64/kernel/entry.S   |   39 ++++++++++++++-------------------------
+ arch/x86_64/lib/copy_user.S  |    6 ++----
+ arch/x86_64/lib/getuser.S    |   12 ++++--------
+ arch/x86_64/lib/putuser.S    |   12 ++++--------
+ 5 files changed, 32 insertions(+), 53 deletions(-)
 
-applies-to: 4f2f2d8e70acfdb1d900d930faf9efb83276c4fc
-13612c34183fa4f266508d0252c2b678b7f5ce0f
+applies-to: d8b8d8a196d1608edcd5ea682f2d1c99e209ebc0
+d30adbf231158a79cff30c8786bdb4dbd62d76d6
+diff --git a/arch/x86_64/ia32/ia32entry.S b/arch/x86_64/ia32/ia32entry.S
+index cdb5918..222076a 100644
+--- a/arch/x86_64/ia32/ia32entry.S
++++ b/arch/x86_64/ia32/ia32entry.S
+@@ -85,13 +85,13 @@ ENTRY(ia32_sysenter_target)
+ 	CFI_ADJUST_CFA_OFFSET 8
+ 	cld
+ 	SAVE_ARGS 0,0,1
++	movq    %gs:pda_pcurrent,%r10
+  	/* no need to do an access_ok check here because rbp has been
+  	   32bit zero extended */ 
+ 1:	movl	(%rbp),%r9d
+  	.section __ex_table,"a"
+  	.quad 1b,ia32_badarg
+  	.previous	
+-	GET_THREAD_INFO(%r10)
+ 	testl  $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SECCOMP),threadinfo_flags(%r10)
+ 	CFI_REMEMBER_STATE
+ 	jnz  sysenter_tracesys
+@@ -99,10 +99,8 @@ sysenter_do_call:	
+ 	cmpl	$(IA32_NR_syscalls),%eax
+ 	jae	ia32_badsys
+ 	IA32_ARG_FIXUP 1
+-	movq    %gs:pda_pcurrent,%r10
+ 	call	*ia32_sys_call_table(,%rax,8)
+ 	movq	%rax,RAX-ARGOFFSET(%rsp)
+-	GET_THREAD_INFO(%r10)
+ 	cli
+ 	testl	$_TIF_ALLWORK_MASK,threadinfo_flags(%r10)
+ 	jnz	int_ret_from_sys_call
+@@ -139,6 +137,7 @@ sysenter_tracesys:
+ 	.section __ex_table,"a"
+ 	.quad 1b,ia32_badarg
+ 	.previous
++	movq    %gs:pda_pcurrent,%r10
+ 	jmp	sysenter_do_call
+ 	CFI_ENDPROC
+ 
+@@ -192,7 +191,7 @@ ENTRY(ia32_cstar_target)
+ 	.section __ex_table,"a"
+ 	.quad 1b,ia32_badarg
+ 	.previous	
+-	GET_THREAD_INFO(%r10)
++	movq    %gs:pda_pcurrent,%r10
+ 	testl $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SECCOMP),threadinfo_flags(%r10)
+ 	CFI_REMEMBER_STATE
+ 	jnz   cstar_tracesys
+@@ -200,10 +199,8 @@ cstar_do_call:	
+ 	cmpl $IA32_NR_syscalls,%eax
+ 	jae  ia32_badsys
+ 	IA32_ARG_FIXUP 1
+-	movq    %gs:pda_pcurrent,%r10
+ 	call *ia32_sys_call_table(,%rax,8)
+ 	movq %rax,RAX-ARGOFFSET(%rsp)
+-	GET_THREAD_INFO(%r10)
+ 	cli
+ 	testl $_TIF_ALLWORK_MASK,threadinfo_flags(%r10)
+ 	jnz  int_ret_from_sys_call
+@@ -234,10 +231,12 @@ cstar_tracesys:	
+ 	.section __ex_table,"a"
+ 	.quad 1b,ia32_badarg
+ 	.previous
++	movq    %gs:pda_pcurrent,%r10
+ 	jmp cstar_do_call
+ 				
+ ia32_badarg:
+ 	movq $-EFAULT,%rax
++	movq    %gs:pda_pcurrent,%r10
+ 	jmp ia32_sysret
+ 	CFI_ENDPROC
+ 
+@@ -279,14 +278,13 @@ ENTRY(ia32_syscall)
+ 	/* note the registers are not zero extended to the sf.
+ 	   this could be a problem. */
+ 	SAVE_ARGS 0,0,1
+-	GET_THREAD_INFO(%r10)
++	movq    %gs:pda_pcurrent,%r10
+ 	testl $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SECCOMP),threadinfo_flags(%r10)
+ 	jnz ia32_tracesys
+ ia32_do_syscall:	
+ 	cmpl $(IA32_NR_syscalls),%eax
+ 	jae  ia32_badsys
+ 	IA32_ARG_FIXUP
+-	movq    %gs:pda_pcurrent,%r10
+ 	call *ia32_sys_call_table(,%rax,8) # xxx: rip relative
+ ia32_sysret:
+ 	movq %rax,RAX-ARGOFFSET(%rsp)
+@@ -300,6 +298,7 @@ ia32_tracesys:			 
+ 	call syscall_trace_enter
+ 	LOAD_ARGS ARGOFFSET  /* reload args from stack in case ptrace changed it */
+ 	RESTORE_REST
++	movq    %gs:pda_pcurrent,%r10
+ 	jmp ia32_do_syscall
+ 
+ ia32_badsys:
+@@ -345,6 +344,7 @@ ENTRY(ia32_ptregs_common)
+ 	movq    %gs:pda_pcurrent,%r10
+ 	call *%rax
+ 	RESTORE_REST
++	movq    %gs:pda_pcurrent,%r10
+ 	jmp  ia32_sysret	/* misbalances the return cache */
+ 	CFI_ENDPROC
+ 
+diff --git a/arch/x86_64/kernel/entry.S b/arch/x86_64/kernel/entry.S
+index b2cec61..5340696 100644
+--- a/arch/x86_64/kernel/entry.S
++++ b/arch/x86_64/kernel/entry.S
+@@ -136,21 +136,19 @@
+ ENTRY(ret_from_fork)
+ 	CFI_DEFAULT_STACK
+ 	call schedule_tail
+-	GET_THREAD_INFO(%rcx)
+-	testl $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT),threadinfo_flags(%rcx)
++	testl $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT),threadinfo_flags(%r10)
+ 	jnz rff_trace
+ rff_action:	
+ 	RESTORE_REST
+ 	testl $3,CS-ARGOFFSET(%rsp)	# from kernel_thread?
+ 	je   int_ret_from_sys_call
+-	testl $_TIF_IA32,threadinfo_flags(%rcx)
++	testl $_TIF_IA32,threadinfo_flags(%r10)
+ 	jnz  int_ret_from_sys_call
+ 	RESTORE_TOP_OF_STACK %rdi,ARGOFFSET
+ 	jmp ret_from_sys_call
+ rff_trace:
+ 	movq %rsp,%rdi
+ 	call syscall_trace_leave
+-	GET_THREAD_INFO(%rcx)	
+ 	jmp rff_action
+ 	CFI_ENDPROC
+ 
+@@ -194,11 +192,10 @@ ENTRY(system_call)
+ 	movq  %rax,ORIG_RAX-ARGOFFSET(%rsp) 
+ 	movq  %rcx,RIP-ARGOFFSET(%rsp)
+ 	CFI_REL_OFFSET rip,RIP-ARGOFFSET
+-	GET_THREAD_INFO(%rcx)
+-	testl $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SECCOMP),threadinfo_flags(%rcx)
+-	CFI_REMEMBER_STATE
+ 	movq %r10,%rcx
+ 	movq	%gs:pda_pcurrent,%r10
++	testl $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SECCOMP),threadinfo_flags(%r10)
++	CFI_REMEMBER_STATE
+ 	jnz tracesys
+ 	cmpq $__NR_syscall_max,%rax
+ 	ja badsys
+@@ -213,9 +210,8 @@ ret_from_sys_call:
+ 	movl $_TIF_ALLWORK_MASK,%edi
+ 	/* edi:	flagmask */
+ sysret_check:		
+-	GET_THREAD_INFO(%rcx)
+ 	cli
+-	movl threadinfo_flags(%rcx),%edx
++	movl threadinfo_flags(%r10),%edx
+ 	andl %edi,%edx
+ 	CFI_REMEMBER_STATE
+ 	jnz  sysret_careful 
+@@ -271,10 +267,10 @@ tracesys:			 
+ 	call syscall_trace_enter
+ 	LOAD_ARGS ARGOFFSET  /* reload args from stack in case ptrace changed it */
+ 	RESTORE_REST
+-	cmpq $__NR_syscall_max,%rax
+-	ja  1f
+ 	movq %r10,%rcx	/* fixup for C */
+ 	movq	%gs:pda_pcurrent,%r10
++	cmpq $__NR_syscall_max,%rax
++	ja  1f
+ 	call *sys_call_table(,%rax,8)
+ 	movq %rax,RAX-ARGOFFSET(%rsp)
+ 1:	SAVE_REST
+@@ -312,8 +308,7 @@ ENTRY(int_ret_from_sys_call)
+ 	movl $_TIF_ALLWORK_MASK,%edi
+ 	/* edi:	mask to check */
+ int_with_check:
+-	GET_THREAD_INFO(%rcx)
+-	movl threadinfo_flags(%rcx),%edx
++	movl threadinfo_flags(%r10),%edx
+ 	andl %edi,%edx
+ 	jnz   int_careful
+ 	jmp   retint_swapgs
+@@ -413,8 +408,7 @@ ENTRY(stub_execve)
+ 	CFI_REGISTER rip, r15
+ 	FIXUP_TOP_OF_STACK %r11
+ 	call sys_execve
+-	GET_THREAD_INFO(%rcx)
+-	bt $TIF_IA32,threadinfo_flags(%rcx)
++	bt $TIF_IA32,threadinfo_flags(%r10)
+ 	CFI_REMEMBER_STATE
+ 	jc exec_32bit
+ 	RESTORE_TOP_OF_STACK %r11
+@@ -520,7 +514,6 @@ ret_from_intr:
+ #endif
+ 	leaq ARGOFFSET(%rdi),%rsp /*todo This needs CFI annotation! */
+ exit_intr:
+-	GET_THREAD_INFO(%rcx)
+ 	testl $3,CS-ARGOFFSET(%rsp)
+ 	je retint_kernel
+ 	
+@@ -532,7 +525,7 @@ exit_intr:
+ retint_with_reschedule:
+ 	movl $_TIF_WORK_MASK,%edi
+ retint_check:
+-	movl threadinfo_flags(%rcx),%edx
++	movl threadinfo_flags(%r10),%edx
+ 	andl %edi,%edx
+ 	CFI_REMEMBER_STATE
+ 	jnz  retint_careful
+@@ -566,7 +559,6 @@ retint_careful:
+ 	call  schedule
+ 	popq %rdi		
+ 	CFI_ADJUST_CFA_OFFSET	-8
+-	GET_THREAD_INFO(%rcx)
+ 	cli
+ 	jmp retint_check
+ 	
+@@ -582,7 +574,6 @@ retint_signal:
+ 	RESTORE_REST
+ 	cli
+ 	movl $_TIF_NEED_RESCHED,%edi
+-	GET_THREAD_INFO(%rcx)
+ 	jmp retint_check
+ 
+ #ifdef CONFIG_PREEMPT
+@@ -590,9 +581,9 @@ retint_signal:
+ 	/* rcx:	 threadinfo. interrupts off. */
+ 	.p2align
+ retint_kernel:	
+-	cmpl $0,threadinfo_preempt_count(%rcx)
++	cmpl $0,threadinfo_preempt_count(%r10)
+ 	jnz  retint_restore_args
+-	bt  $TIF_NEED_RESCHED,threadinfo_flags(%rcx)
++	bt  $TIF_NEED_RESCHED,threadinfo_flags(%r10)
+ 	jnc  retint_restore_args
+ 	bt   $9,EFLAGS-ARGOFFSET(%rsp)	/* interrupts off? */
+ 	jnc  retint_restore_args
+@@ -751,10 +742,9 @@ error_exit:		
+ 	movl %ebx,%eax		
+ 	RESTORE_REST
+ 	cli
+-	GET_THREAD_INFO(%rcx)	
+ 	testl %eax,%eax
+ 	jne  retint_kernel
+-	movl  threadinfo_flags(%rcx),%edx
++	movl  threadinfo_flags(%r10),%edx
+ 	movl  $_TIF_WORK_MASK,%edi
+ 	andl  %edi,%edx
+ 	jnz  retint_careful
+@@ -942,8 +932,7 @@ paranoid_restore:	
+ 	RESTORE_ALL 8
+ 	iretq
+ paranoid_userspace:	
+-	GET_THREAD_INFO(%rcx)
+-	movl threadinfo_flags(%rcx),%ebx
++	movl threadinfo_flags(%r10),%ebx
+ 	andl $_TIF_WORK_MASK,%ebx
+ 	jz paranoid_swapgs
+ 	movq %rsp,%rdi			/* &pt_regs */
 diff --git a/arch/x86_64/lib/copy_user.S b/arch/x86_64/lib/copy_user.S
-index dfa358b..f24497d 100644
+index f24497d..f69bdd5 100644
 --- a/arch/x86_64/lib/copy_user.S
 +++ b/arch/x86_64/lib/copy_user.S
-@@ -95,6 +95,7 @@ copy_user_generic:	
- 	.previous
- .Lcug:	
- 	pushq %rbx
-+	pushq %r12
- 	xorl %eax,%eax		/*zero for the exception handler */
- 
- #ifdef FIX_ALIGNMENT
-@@ -117,20 +118,20 @@ copy_user_generic:	
- .Ls1:	movq (%rsi),%r11
- .Ls2:	movq 1*8(%rsi),%r8
- .Ls3:	movq 2*8(%rsi),%r9
--.Ls4:	movq 3*8(%rsi),%r10
-+.Ls4:	movq 3*8(%rsi),%r12
- .Ld1:	movq %r11,(%rdi)
- .Ld2:	movq %r8,1*8(%rdi)
- .Ld3:	movq %r9,2*8(%rdi)
--.Ld4:	movq %r10,3*8(%rdi)
-+.Ld4:	movq %r12,3*8(%rdi)
- 		
- .Ls5:	movq 4*8(%rsi),%r11
- .Ls6:	movq 5*8(%rsi),%r8
- .Ls7:	movq 6*8(%rsi),%r9
--.Ls8:	movq 7*8(%rsi),%r10
-+.Ls8:	movq 7*8(%rsi),%r12
- .Ld5:	movq %r11,4*8(%rdi)
- .Ld6:	movq %r8,5*8(%rdi)
- .Ld7:	movq %r9,6*8(%rdi)
--.Ld8:	movq %r10,7*8(%rdi)
-+.Ld8:	movq %r12,7*8(%rdi)
+@@ -15,11 +15,10 @@
+ 	.globl copy_to_user
+ 	.p2align 4	
+ copy_to_user:
+-	GET_THREAD_INFO(%rax)
+ 	movq %rdi,%rcx
+ 	addq %rdx,%rcx
+ 	jc  bad_to_user
+-	cmpq threadinfo_addr_limit(%rax),%rcx
++	cmpq threadinfo_addr_limit(%r10),%rcx
+ 	jae bad_to_user
+ 2:	
+ 	.byte 0xe9	/* 32bit jump */
+@@ -43,11 +42,10 @@ copy_to_user:
+ 	.globl copy_from_user
+ 	.p2align 4	
+ copy_from_user:
+-	GET_THREAD_INFO(%rax)
+ 	movq %rsi,%rcx
+ 	addq %rdx,%rcx
+ 	jc  bad_from_user
+-	cmpq threadinfo_addr_limit(%rax),%rcx
++	cmpq threadinfo_addr_limit(%r10),%rcx
+ 	jae  bad_from_user
+ 	/* FALL THROUGH to copy_user_generic */
  	
- 	decq %rdx
- 
-@@ -169,6 +170,7 @@ copy_user_generic:	
- 	jnz .Lloop_1
- 			
- .Lende:
-+	popq %r12
- 	popq %rbx
- 	ret	
- 
-diff --git a/arch/x86_64/lib/csum-copy.S b/arch/x86_64/lib/csum-copy.S
-index 72fd55e..b3d69e5 100644
---- a/arch/x86_64/lib/csum-copy.S
-+++ b/arch/x86_64/lib/csum-copy.S
-@@ -60,12 +60,13 @@ csum_partial_copy_generic:
- 	jle	 .Lignore
- 
- .Lignore:		
--	subq  $7*8,%rsp
-+	subq  $8*8,%rsp
- 	movq  %rbx,2*8(%rsp)
- 	movq  %r12,3*8(%rsp)
- 	movq  %r14,4*8(%rsp)
- 	movq  %r13,5*8(%rsp)
--	movq  %rbp,6*8(%rsp)
-+	movq  %r15,6*8(%rsp)
-+	movq  %rbp,7*8(%rsp)
- 
- 	movq  %r8,(%rsp)
- 	movq  %r9,1*8(%rsp)
-@@ -84,7 +85,7 @@ csum_partial_copy_generic:
- 	/* main loop. clear in 64 byte blocks */
- 	/* r9: zero, r8: temp2, rbx: temp1, rax: sum, rcx: saved length */
- 	/* r11:	temp3, rdx: temp4, r12 loopcnt */
--	/* r10:	temp5, rbp: temp6, r14 temp7, r13 temp8 */
-+	/* r15:	temp5, rbp: temp6, r14 temp7, r13 temp8 */
+diff --git a/arch/x86_64/lib/getuser.S b/arch/x86_64/lib/getuser.S
+index 3844d5e..f8cbd9f 100644
+--- a/arch/x86_64/lib/getuser.S
++++ b/arch/x86_64/lib/getuser.S
+@@ -36,8 +36,7 @@
  	.p2align 4
- .Lloop:
- 	source
-@@ -97,7 +98,7 @@ csum_partial_copy_generic:
- 	movq  24(%rdi),%rdx
- 
- 	source
--	movq  32(%rdi),%r10
-+	movq  32(%rdi),%r15
- 	source
- 	movq  40(%rdi),%rbp
- 	source
-@@ -112,7 +113,7 @@ csum_partial_copy_generic:
- 	adcq  %r8,%rax
- 	adcq  %r11,%rax
- 	adcq  %rdx,%rax
--	adcq  %r10,%rax
-+	adcq  %r15,%rax
- 	adcq  %rbp,%rax
- 	adcq  %r14,%rax
- 	adcq  %r13,%rax
-@@ -129,7 +130,7 @@ csum_partial_copy_generic:
- 	movq %rdx,24(%rsi)
- 
- 	dest
--	movq %r10,32(%rsi)
-+	movq %r15,32(%rsi)
- 	dest
- 	movq %rbp,40(%rsi)
- 	dest
-@@ -149,7 +150,7 @@ csum_partial_copy_generic:
- 	/* do last upto 56 bytes */
- .Lhandle_tail:
- 	/* ecx:	count */
--	movl %ecx,%r10d
-+	movl %ecx,%r15d
- 	andl $63,%ecx
- 	shrl $3,%ecx
- 	jz 	 .Lfold
-@@ -176,7 +177,7 @@ csum_partial_copy_generic:
- 
- 	/* do last upto 6 bytes */	
- .Lhandle_7:
--	movl %r10d,%ecx
-+	movl %r15d,%ecx
- 	andl $7,%ecx
- 	shrl $1,%ecx
- 	jz   .Lhandle_1
-@@ -198,7 +199,7 @@ csum_partial_copy_generic:
- 	
- 	/* handle last odd byte */
- .Lhandle_1:
--	testl $1,%r10d
-+	testl $1,%r15d
- 	jz    .Lende
- 	xorl  %ebx,%ebx
- 	source
-@@ -213,8 +214,9 @@ csum_partial_copy_generic:
- 	movq 3*8(%rsp),%r12
- 	movq 4*8(%rsp),%r14
- 	movq 5*8(%rsp),%r13
--	movq 6*8(%rsp),%rbp
--	addq $7*8,%rsp
-+	movq 6*8(%rsp),%r15
-+	movq 7*8(%rsp),%rbp
-+	addq $8*8,%rsp
- 	ret
- 
- 	/* Exception handlers. Very simple, zeroing is done in the wrappers */
+ .globl __get_user_1
+ __get_user_1:	
+-	GET_THREAD_INFO(%r8)
+-	cmpq threadinfo_addr_limit(%r8),%rcx
++	cmpq threadinfo_addr_limit(%r10),%rcx
+ 	jae bad_get_user
+ 1:	movzb (%rcx),%edx
+ 	xorl %eax,%eax
+@@ -46,10 +45,9 @@ __get_user_1:	
+ 	.p2align 4
+ .globl __get_user_2
+ __get_user_2:
+-	GET_THREAD_INFO(%r8)
+ 	addq $1,%rcx
+ 	jc 20f
+-	cmpq threadinfo_addr_limit(%r8),%rcx
++	cmpq threadinfo_addr_limit(%r10),%rcx
+ 	jae 20f
+ 	decq   %rcx
+ 2:	movzwl (%rcx),%edx
+@@ -61,10 +59,9 @@ __get_user_2:
+ 	.p2align 4
+ .globl __get_user_4
+ __get_user_4:
+-	GET_THREAD_INFO(%r8)
+ 	addq $3,%rcx
+ 	jc 30f
+-	cmpq threadinfo_addr_limit(%r8),%rcx
++	cmpq threadinfo_addr_limit(%r10),%rcx
+ 	jae 30f
+ 	subq $3,%rcx
+ 3:	movl (%rcx),%edx
+@@ -76,10 +73,9 @@ __get_user_4:
+ 	.p2align 4
+ .globl __get_user_8
+ __get_user_8:
+-	GET_THREAD_INFO(%r8)
+ 	addq $7,%rcx
+ 	jc 40f
+-	cmpq threadinfo_addr_limit(%r8),%rcx
++	cmpq threadinfo_addr_limit(%r10),%rcx
+ 	jae	40f
+ 	subq	$7,%rcx
+ 4:	movq (%rcx),%rdx
+diff --git a/arch/x86_64/lib/putuser.S b/arch/x86_64/lib/putuser.S
+index 7f55939..4de4e34 100644
+--- a/arch/x86_64/lib/putuser.S
++++ b/arch/x86_64/lib/putuser.S
+@@ -34,8 +34,7 @@
+ 	.p2align 4
+ .globl __put_user_1
+ __put_user_1:
+-	GET_THREAD_INFO(%r8)
+-	cmpq threadinfo_addr_limit(%r8),%rcx
++	cmpq threadinfo_addr_limit(%r10),%rcx
+ 	jae bad_put_user
+ 1:	movb %dl,(%rcx)
+ 	xorl %eax,%eax
+@@ -44,10 +43,9 @@ __put_user_1:
+ 	.p2align 4
+ .globl __put_user_2
+ __put_user_2:
+-	GET_THREAD_INFO(%r8)
+ 	addq $1,%rcx
+ 	jc 20f
+-	cmpq threadinfo_addr_limit(%r8),%rcx
++	cmpq threadinfo_addr_limit(%r10),%rcx
+ 	jae 20f
+ 	decq %rcx
+ 2:	movw %dx,(%rcx)
+@@ -59,10 +57,9 @@ __put_user_2:
+ 	.p2align 4
+ .globl __put_user_4
+ __put_user_4:
+-	GET_THREAD_INFO(%r8)
+ 	addq $3,%rcx
+ 	jc 30f
+-	cmpq threadinfo_addr_limit(%r8),%rcx
++	cmpq threadinfo_addr_limit(%r10),%rcx
+ 	jae 30f
+ 	subq $3,%rcx
+ 3:	movl %edx,(%rcx)
+@@ -74,10 +71,9 @@ __put_user_4:
+ 	.p2align 4
+ .globl __put_user_8
+ __put_user_8:
+-	GET_THREAD_INFO(%r8)
+ 	addq $7,%rcx
+ 	jc 40f
+-	cmpq threadinfo_addr_limit(%r8),%rcx
++	cmpq threadinfo_addr_limit(%r10),%rcx
+ 	jae 40f
+ 	subq $7,%rcx
+ 4:	movq %rdx,(%rcx)
 ---
 0.99.9.GIT

@@ -1,87 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbVK3JF6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbVK3JNT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751153AbVK3JF6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 04:05:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbVK3JF6
+	id S1751156AbVK3JNT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 04:13:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbVK3JNT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 04:05:58 -0500
-Received: from lug-owl.de ([195.71.106.12]:52676 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1751153AbVK3JF5 (ORCPT
+	Wed, 30 Nov 2005 04:13:19 -0500
+Received: from mail0.rawbw.com ([198.144.192.41]:30483 "EHLO mail0.rawbw.com")
+	by vger.kernel.org with ESMTP id S1751156AbVK3JNT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 04:05:57 -0500
-Date: Wed, 30 Nov 2005 10:05:53 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>,
-       Erik Mouw <erik@harddisk-recovery.com>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [PATCH 2.6.15-rc2-git6] Fix tar-pkg target
-Message-ID: <20051130090553.GR13985@lug-owl.de>
-Mail-Followup-To: Brian Gerst <bgerst@didntduck.org>,
-	Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>,
-	Erik Mouw <erik@harddisk-recovery.com>, linux-kernel@vger.kernel.org,
-	torvalds@osdl.org
-References: <20051128170414.GA10601@harddisk-recovery.nl> <20051129133042.6d344110.akpm@osdl.org> <20051129203622.GA17053@mars.ravnborg.org> <438D3982.2020000@didntduck.org>
+	Wed, 30 Nov 2005 04:13:19 -0500
+Date: Wed, 30 Nov 2005 01:13:12 -0800
+To: linux-kernel@vger.kernel.org
+Cc: Ross Boylan <RossBoylan@stanfordalumni.org>
+Subject: WD 2nd generation SATA not detected on Intel 945PSNLK
+Message-ID: <20051130091312.GC4092@wheat.betterworld.us>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qOEfHYdX8LquYLAx"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <438D3982.2020000@didntduck.org>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
 User-Agent: Mutt/1.5.9i
+From: Ross Boylan <RossBoylan@stanfordalumni.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have an excessively new system for which 2.6.12 kernel in the Debian
+etch beta 1 installer doesn't detect the hard drive.
+Intel D945PSNLK Motherboard
+WD25000JS-OOM, which Western Digital's site says is a 2nd generation
+SATA.
+Pentium 4 630 processor.
 
---qOEfHYdX8LquYLAx
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Intel provides drivers for this motherboard, but they only seem to
+concern the on-board audio and LAN.  I'm not sure if the problem is
+the m/b or the disk, or the combination.  Win2K managed to see the
+drive, so the hardware is OK.
 
-On Wed, 2005-11-30 00:32:50 -0500, Brian Gerst <bgerst@didntduck.org> wrote:
-> Sam Ravnborg wrote:
-> >>I already have the below queued up, which is a bit different.  Does it=
-=20
-> >>work
-> >>OK?
-> >
-> >Brian's version preserve EXTRANAME, but I have not seen it
-> >used/documented anywhere?
->=20
-> Can probably get rid of EXTRANAME, unless it is meant to be set from the=
-=20
-> environment/cmdline.  I can't find any other reference to it.
+dmesg shows IHC7:
+ICH7: IDE controller at PCI slot 0000:00:1f.1
+ICH7: chipset revision 1
+ICH7: not 100% native mode: will probe irqs later
+  ide0: BM-DMA at 0x30b0-0x30b7, BIOST settings: hda:DMA, hdb:pio
+Unfortunately, the thing at IDE0 is the DVD.
 
-Exactly that was IIRC the intention when this came in. I'm fine with
-removing it.
+manually loading the ahci driver doesn't work.  An earlier thread with
+a somewhat similar problem advised doing this to see what the messages
+were, but nothing useful showed up (modprove -v ahci).
 
-MfG, JBG
+The installer doesn't seem to have lspci.
 
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
+I've tried ATA/IDE mode as enhanced and legacy in the BIOS; neither
+works.
 
---qOEfHYdX8LquYLAx
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Any suggestions?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFDjWtxHb1edYOZ4bsRAp7kAJ9NWdpvlb5J5T/6Dj+zYi0N5nT3iwCfWHvG
-RvcvZXS+muFipj7lJlecTh4=
-=dg7o
------END PGP SIGNATURE-----
-
---qOEfHYdX8LquYLAx--
+I would appreciate if you cc'd me.
+Thanks.

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750956AbVK3E0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750941AbVK3E0E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750956AbVK3E0E (ORCPT <rfc822;willy@w.ods.org>);
+	id S1750941AbVK3E0E (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 29 Nov 2005 23:26:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750953AbVK3EZR
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750963AbVK3EZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 23:25:17 -0500
+	Tue, 29 Nov 2005 23:25:14 -0500
 Received: from kanga.kvack.org ([66.96.29.28]:27624 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S1750941AbVK3EY4 (ORCPT
+	by vger.kernel.org with ESMTP id S1750947AbVK3EZH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 23:24:56 -0500
-Date: Tue, 29 Nov 2005 23:22:05 -0500
+	Tue, 29 Nov 2005 23:25:07 -0500
+Date: Tue, 29 Nov 2005 23:22:12 -0500
 From: Benjamin LaHaise <bcrl@kvack.org>
 To: Andi Kleen <ak@suse.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 7/9] x86-64 move thread_info into task_struct
-Message-ID: <20051130042205.GH19112@kvack.org>
+Subject: [PATCH 8/9] x86-64 use r10 for current
+Message-ID: <20051130042212.GI19112@kvack.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,215 +22,253 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On x86-64, move thread_info from the stack into task_struct.  This has
-benefits for the use of registers in entry.S when current is moved into
-a register.  Take the easy approach of making GET_THREAD_INFO() return
-a pointer to current and make the asm-offset.c aware of this new usage.
+Convert x86-64 to use r10 as current.  This results in a significant code
+size savings for the kernel at the expense of reloading r10 on entry from
+interrupts or userland.  No benchmarks that I am aware of show regressions
+with this change.  Improvements are nothing exceptional, but the cachelines
+touched by the kernel are reduced.
+
+   text    data     bss     dec     hex filename
+3970092  821904  317256 5109252  4df604 vmlinux
+4013755  822016  317256 5153027  4ea103 vmlinux.save
 
 ---
 
- arch/i386/oprofile/nmi_int.c         |    1 +
- arch/x86_64/kernel/asm-offsets.c     |    2 +-
- arch/x86_64/kernel/genapic_cluster.c |    1 +
- arch/x86_64/kernel/genapic_flat.c    |    1 +
- arch/x86_64/kernel/setup64.c         |    2 +-
- include/asm-x86_64/desc.h            |    1 +
- include/asm-x86_64/processor.h       |   10 +++-------
- include/asm-x86_64/system.h          |    6 ++----
- include/asm-x86_64/thread_info.h     |   31 ++++++++++++++-----------------
- 9 files changed, 25 insertions(+), 30 deletions(-)
+ arch/x86_64/Makefile         |    1 +
+ arch/x86_64/ia32/ia32entry.S |    7 +++++++
+ arch/x86_64/kernel/entry.S   |    9 ++++++++-
+ arch/x86_64/kernel/process.c |    6 +++++-
+ arch/x86_64/kernel/setup64.c |   14 ++++++++------
+ include/asm-x86_64/current.h |    8 +-------
+ 6 files changed, 30 insertions(+), 15 deletions(-)
 
-applies-to: 747a43be5747e1c8e25f5769bdb9e4a1b8029138
-bb489ebe1733165426cbbaba24a2ed51d6952d88
-diff --git a/arch/i386/oprofile/nmi_int.c b/arch/i386/oprofile/nmi_int.c
-index 0493e8b..1e91d22 100644
---- a/arch/i386/oprofile/nmi_int.c
-+++ b/arch/i386/oprofile/nmi_int.c
-@@ -13,6 +13,7 @@
- #include <linux/oprofile.h>
- #include <linux/sysdev.h>
- #include <linux/slab.h>
-+#include <linux/sched.h>
- #include <asm/nmi.h>
- #include <asm/msr.h>
- #include <asm/apic.h>
-diff --git a/arch/x86_64/kernel/asm-offsets.c b/arch/x86_64/kernel/asm-offsets.c
-index aaa6d38..66ebe60 100644
---- a/arch/x86_64/kernel/asm-offsets.c
-+++ b/arch/x86_64/kernel/asm-offsets.c
-@@ -29,7 +29,7 @@ int main(void)
- 	ENTRY(pid);
- 	BLANK();
- #undef ENTRY
--#define ENTRY(entry) DEFINE(threadinfo_ ## entry, offsetof(struct thread_info, entry))
-+#define ENTRY(entry) DEFINE(threadinfo_ ## entry, offsetof(struct task_struct, thread.info.entry))
- 	ENTRY(flags);
- 	ENTRY(addr_limit);
- 	ENTRY(preempt_count);
-diff --git a/arch/x86_64/kernel/genapic_cluster.c b/arch/x86_64/kernel/genapic_cluster.c
-index a472d62..42531a9 100644
---- a/arch/x86_64/kernel/genapic_cluster.c
-+++ b/arch/x86_64/kernel/genapic_cluster.c
-@@ -16,6 +16,7 @@
- #include <linux/kernel.h>
- #include <linux/ctype.h>
- #include <linux/init.h>
-+#include <linux/sched.h>
- #include <asm/smp.h>
- #include <asm/ipi.h>
+applies-to: e08120f4e68ac8684c403dc1d28e4072d4088538
+86f49f0ecfb1dfe935647e17e804ada7aadae7fb
+diff --git a/arch/x86_64/Makefile b/arch/x86_64/Makefile
+index a9cd42e..e547830 100644
+--- a/arch/x86_64/Makefile
++++ b/arch/x86_64/Makefile
+@@ -31,6 +31,7 @@ cflags-$(CONFIG_MK8) += $(call cc-option
+ cflags-$(CONFIG_MPSC) += $(call cc-option,-march=nocona)
+ CFLAGS += $(cflags-y)
  
-diff --git a/arch/x86_64/kernel/genapic_flat.c b/arch/x86_64/kernel/genapic_flat.c
-index 9da3edb..28b775f 100644
---- a/arch/x86_64/kernel/genapic_flat.c
-+++ b/arch/x86_64/kernel/genapic_flat.c
-@@ -15,6 +15,7 @@
- #include <linux/kernel.h>
- #include <linux/ctype.h>
- #include <linux/init.h>
-+#include <linux/sched.h>
- #include <asm/smp.h>
- #include <asm/ipi.h>
++CFLAGS += -ffixed-r10
+ CFLAGS += -mno-red-zone
+ CFLAGS += -mcmodel=kernel
+ CFLAGS += -pipe
+diff --git a/arch/x86_64/ia32/ia32entry.S b/arch/x86_64/ia32/ia32entry.S
+index e0eb0c7..cdb5918 100644
+--- a/arch/x86_64/ia32/ia32entry.S
++++ b/arch/x86_64/ia32/ia32entry.S
+@@ -99,6 +99,7 @@ sysenter_do_call:	
+ 	cmpl	$(IA32_NR_syscalls),%eax
+ 	jae	ia32_badsys
+ 	IA32_ARG_FIXUP 1
++	movq    %gs:pda_pcurrent,%r10
+ 	call	*ia32_sys_call_table(,%rax,8)
+ 	movq	%rax,RAX-ARGOFFSET(%rsp)
+ 	GET_THREAD_INFO(%r10)
+@@ -127,6 +128,7 @@ sysenter_tracesys:
+ 	CLEAR_RREGS
+ 	movq	$-ENOSYS,RAX(%rsp)	/* really needed? */
+ 	movq	%rsp,%rdi        /* &pt_regs -> arg1 */
++	movq    %gs:pda_pcurrent,%r10
+ 	call	syscall_trace_enter
+ 	LOAD_ARGS ARGOFFSET  /* reload args from stack in case ptrace changed it */
+ 	RESTORE_REST
+@@ -198,6 +200,7 @@ cstar_do_call:	
+ 	cmpl $IA32_NR_syscalls,%eax
+ 	jae  ia32_badsys
+ 	IA32_ARG_FIXUP 1
++	movq    %gs:pda_pcurrent,%r10
+ 	call *ia32_sys_call_table(,%rax,8)
+ 	movq %rax,RAX-ARGOFFSET(%rsp)
+ 	GET_THREAD_INFO(%r10)
+@@ -220,6 +223,7 @@ cstar_tracesys:	
+ 	CLEAR_RREGS
+ 	movq $-ENOSYS,RAX(%rsp)	/* really needed? */
+ 	movq %rsp,%rdi        /* &pt_regs -> arg1 */
++	movq    %gs:pda_pcurrent,%r10
+ 	call syscall_trace_enter
+ 	LOAD_ARGS ARGOFFSET  /* reload args from stack in case ptrace changed it */
+ 	RESTORE_REST
+@@ -282,6 +286,7 @@ ia32_do_syscall:	
+ 	cmpl $(IA32_NR_syscalls),%eax
+ 	jae  ia32_badsys
+ 	IA32_ARG_FIXUP
++	movq    %gs:pda_pcurrent,%r10
+ 	call *ia32_sys_call_table(,%rax,8) # xxx: rip relative
+ ia32_sysret:
+ 	movq %rax,RAX-ARGOFFSET(%rsp)
+@@ -291,6 +296,7 @@ ia32_tracesys:			 
+ 	SAVE_REST
+ 	movq $-ENOSYS,RAX(%rsp)	/* really needed? */
+ 	movq %rsp,%rdi        /* &pt_regs -> arg1 */
++	movq    %gs:pda_pcurrent,%r10
+ 	call syscall_trace_enter
+ 	LOAD_ARGS ARGOFFSET  /* reload args from stack in case ptrace changed it */
+ 	RESTORE_REST
+@@ -336,6 +342,7 @@ ENTRY(ia32_ptregs_common)
+ 	CFI_ADJUST_CFA_OFFSET -8
+ 	CFI_REGISTER rip, r11
+ 	SAVE_REST
++	movq    %gs:pda_pcurrent,%r10
+ 	call *%rax
+ 	RESTORE_REST
+ 	jmp  ia32_sysret	/* misbalances the return cache */
+diff --git a/arch/x86_64/kernel/entry.S b/arch/x86_64/kernel/entry.S
+index 9ff4204..b2cec61 100644
+--- a/arch/x86_64/kernel/entry.S
++++ b/arch/x86_64/kernel/entry.S
+@@ -197,10 +197,11 @@ ENTRY(system_call)
+ 	GET_THREAD_INFO(%rcx)
+ 	testl $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SECCOMP),threadinfo_flags(%rcx)
+ 	CFI_REMEMBER_STATE
++	movq %r10,%rcx
++	movq	%gs:pda_pcurrent,%r10
+ 	jnz tracesys
+ 	cmpq $__NR_syscall_max,%rax
+ 	ja badsys
+-	movq %r10,%rcx
+ 	call *sys_call_table(,%rax,8)  # XXX:	 rip relative
+ 	movq %rax,RAX-ARGOFFSET(%rsp)
+ /*
+@@ -263,6 +264,7 @@ badsys:
+ tracesys:			 
+ 	CFI_RESTORE_STATE
+ 	SAVE_REST
++	movq	%gs:pda_pcurrent,%r10
+ 	movq $-ENOSYS,RAX(%rsp)
+ 	FIXUP_TOP_OF_STACK %rdi
+ 	movq %rsp,%rdi
+@@ -272,6 +274,7 @@ tracesys:			 
+ 	cmpq $__NR_syscall_max,%rax
+ 	ja  1f
+ 	movq %r10,%rcx	/* fixup for C */
++	movq	%gs:pda_pcurrent,%r10
+ 	call *sys_call_table(,%rax,8)
+ 	movq %rax,RAX-ARGOFFSET(%rsp)
+ 1:	SAVE_REST
+@@ -495,6 +498,7 @@ ENTRY(stub_rt_sigreturn)
+ 	swapgs	
+ 1:	incl	%gs:pda_irqcount	# RED-PEN should check preempt count
+ 	movq %gs:pda_irqstackptr,%rax
++	movq	%gs:pda_pcurrent,%r10
+ 	cmoveq %rax,%rsp /*todo This needs CFI annotation! */
+ 	pushq %rdi			# save old stack	
+ 	CFI_ADJUST_CFA_OFFSET	8
+@@ -684,6 +688,7 @@ ENTRY(spurious_interrupt)
+ 	swapgs
+ 	xorl  %ebx,%ebx
+ 1:	movq %rsp,%rdi
++	movq	%gs:pda_pcurrent,%r10
+ 	movq ORIG_RAX(%rsp),%rsi
+ 	movq $-1,ORIG_RAX(%rsp)
+ 	call \sym
+@@ -735,6 +740,7 @@ ENTRY(error_entry)
+ error_swapgs:	
+ 	swapgs
+ error_sti:	
++	movq	%gs:pda_pcurrent,%r10
+ 	movq %rdi,RDI(%rsp) 	
+ 	movq %rsp,%rdi
+ 	movq ORIG_RAX(%rsp),%rsi	/* get error code */ 
+@@ -876,6 +882,7 @@ ENTRY(execve)
+ 	CFI_STARTPROC
+ 	FAKE_STACK_FRAME $0
+ 	SAVE_ALL	
++	movq	%gs:pda_pcurrent,%r10
+ 	call sys_execve
+ 	movq %rax, RAX(%rsp)	
+ 	RESTORE_REST
+diff --git a/arch/x86_64/kernel/process.c b/arch/x86_64/kernel/process.c
+index 28ebe45..5e4db7a 100644
+--- a/arch/x86_64/kernel/process.c
++++ b/arch/x86_64/kernel/process.c
+@@ -428,8 +428,10 @@ int copy_thread(int nr, unsigned long cl
+ 
+ 	childregs->rax = 0;
+ 	childregs->rsp = rsp;
+-	if (rsp == ~0UL)
++	if (rsp == ~0UL) {
+ 		childregs->rsp = (unsigned long)childregs;
++		childregs->r10 = (unsigned long)p;
++	}
+ 
+ 	p->thread.rsp = (unsigned long) childregs;
+ 	p->thread.rsp0 = (unsigned long) (childregs+1);
+@@ -472,6 +474,7 @@ int copy_thread(int nr, unsigned long cl
+ out:
+ 	if (err && p->thread.io_bitmap_ptr) {
+ 		kfree(p->thread.io_bitmap_ptr);
++		p->thread.io_bitmap_ptr = NULL;
+ 		p->thread.io_bitmap_max = 0;
+ 	}
+ 	return err;
+@@ -561,6 +564,7 @@ __switch_to(struct task_struct *prev_p, 
+ 	prev->userrsp = read_pda(oldrsp); 
+ 	write_pda(oldrsp, next->userrsp); 
+ 	write_pda(pcurrent, next_p); 
++	current = next_p;
+ 	write_pda(kernelstack,
+ 	    (unsigned long)next_p->thread_info + THREAD_SIZE - PDA_STACKOFFSET);
  
 diff --git a/arch/x86_64/kernel/setup64.c b/arch/x86_64/kernel/setup64.c
-index 06dc354..3e81a04 100644
+index 3e81a04..3079869 100644
 --- a/arch/x86_64/kernel/setup64.c
 +++ b/arch/x86_64/kernel/setup64.c
-@@ -126,7 +126,7 @@ void pda_init(int cpu)
+@@ -123,6 +123,13 @@ void pda_init(int cpu)
+ 	asm volatile("movl %0,%%fs ; movl %0,%%gs" :: "r" (0)); 
+ 	wrmsrl(MSR_GS_BASE, cpu_pda + cpu);
+ 
++	if (cpu == 0) {
++		/* others are initialized in smpboot.c */
++		pda->pcurrent = &init_task;
++		pda->irqstackptr = boot_cpu_stack; 
++	}
++
++	current = pda->pcurrent;
  	pda->cpunumber = cpu; 
  	pda->irqcount = -1;
  	pda->kernelstack = 
--		(unsigned long)stack_thread_info() - PDA_STACKOFFSET + THREAD_SIZE; 
-+		(unsigned long)current->thread_info - PDA_STACKOFFSET + THREAD_SIZE; 
+@@ -130,18 +137,13 @@ void pda_init(int cpu)
  	pda->active_mm = &init_mm;
  	pda->mmu_state = 0;
  
-diff --git a/include/asm-x86_64/desc.h b/include/asm-x86_64/desc.h
-index 3376486..ece54d4 100644
---- a/include/asm-x86_64/desc.h
-+++ b/include/asm-x86_64/desc.h
-@@ -9,6 +9,7 @@
+-	if (cpu == 0) {
+-		/* others are initialized in smpboot.c */
+-		pda->pcurrent = &init_task;
+-		pda->irqstackptr = boot_cpu_stack; 
+-	} else {
++	if (cpu != 0) {
+ 		pda->irqstackptr = (char *)
+ 			__get_free_pages(GFP_ATOMIC, IRQSTACK_ORDER);
+ 		if (!pda->irqstackptr)
+ 			panic("cannot allocate irqstack for cpu %d", cpu); 
+ 	}
  
- #include <linux/string.h>
- #include <linux/smp.h>
-+#include <linux/sched.h>
- 
- #include <asm/segment.h>
- #include <asm/mmu.h>
-diff --git a/include/asm-x86_64/processor.h b/include/asm-x86_64/processor.h
-index 4861246..7f24beb 100644
---- a/include/asm-x86_64/processor.h
-+++ b/include/asm-x86_64/processor.h
-@@ -20,6 +20,7 @@
- #include <asm/mmsegment.h>
- #include <asm/percpu.h>
- #include <linux/personality.h>
-+#include <linux/thread_info.h>
- 
- #define TF_MASK		0x00000100
- #define IF_MASK		0x00000200
-@@ -230,6 +231,7 @@ DECLARE_PER_CPU(struct tss_struct,init_t
- #define ARCH_MIN_TASKALIGN	16
- 
- struct thread_struct {
-+	struct thread_info info;
- 	unsigned long	rsp0;
- 	unsigned long	rsp;
- 	unsigned long 	userrsp;	/* Copy from PDA */ 
-@@ -257,6 +259,7 @@ struct thread_struct {
- } __attribute__((aligned(16)));
- 
- #define INIT_THREAD  { \
-+	.info = INIT_THREAD_INFO(init_task), \
- 	.rsp0 = (unsigned long)&init_stack + sizeof(init_stack) \
- }
- 
-@@ -467,13 +470,6 @@ static inline void __mwait(unsigned long
- 		: :"a" (eax), "c" (ecx));
- }
- 
--#define stack_current() \
--({								\
--	struct thread_info *ti;					\
--	asm("andq %%rsp,%0; ":"=r" (ti) : "0" (CURRENT_MASK));	\
--	ti->task;					\
--})
 -
- #define cache_line_size() (boot_cpu_data.x86_cache_alignment)
+ 	pda->irqstackptr += IRQSTACKSIZE-64;
+ } 
  
- extern unsigned long boot_option_idle_override;
-diff --git a/include/asm-x86_64/system.h b/include/asm-x86_64/system.h
-index 85348e0..d2cbbc3 100644
---- a/include/asm-x86_64/system.h
-+++ b/include/asm-x86_64/system.h
-@@ -34,17 +34,15 @@
- 		     ".globl thread_return\n"					\
- 		     "thread_return:\n\t"					    \
- 		     "movq %%gs:%P[pda_pcurrent],%%rsi\n\t"			  \
--		     "movq %P[thread_info](%%rsi),%%r8\n\t"			  \
--		     LOCK "btr  %[tif_fork],%P[ti_flags](%%r8)\n\t"		  \
-+		     LOCK "btr  %[tif_fork],%P[ti_flags](%%rsi)\n\t"		  \
- 		     "movq %%rax,%%rdi\n\t" 					  \
- 		     "jc   ret_from_fork\n\t"					  \
- 		     RESTORE_CONTEXT						    \
- 		     : "=a" (last)					  	  \
- 		     : [next] "S" (next), [prev] "D" (prev),			  \
- 		       [threadrsp] "i" (offsetof(struct task_struct, thread.rsp)), \
--		       [ti_flags] "i" (offsetof(struct thread_info, flags)),\
-+		       [ti_flags] "i" (offsetof(struct task_struct, thread.info.flags)),\
- 		       [tif_fork] "i" (TIF_FORK),			  \
--		       [thread_info] "i" (offsetof(struct task_struct, thread_info)), \
- 		       [pda_pcurrent] "i" (offsetof(struct x8664_pda, pcurrent))   \
- 		     : "memory", "cc" __EXTRA_CLOBBER)
-     
-diff --git a/include/asm-x86_64/thread_info.h b/include/asm-x86_64/thread_info.h
-index 08eb6e4..0c90a18 100644
---- a/include/asm-x86_64/thread_info.h
-+++ b/include/asm-x86_64/thread_info.h
-@@ -57,20 +57,16 @@ struct thread_info {
- #define init_thread_info	(init_thread_union.thread_info)
- #define init_stack		(init_thread_union.stack)
+diff --git a/include/asm-x86_64/current.h b/include/asm-x86_64/current.h
+index bc8adec..6675f2d 100644
+--- a/include/asm-x86_64/current.h
++++ b/include/asm-x86_64/current.h
+@@ -6,13 +6,7 @@ struct task_struct;
  
--static inline struct thread_info *current_thread_info(void)
+ #include <asm/pda.h>
+ 
+-static inline struct task_struct *get_current(void) 
 -{ 
--	struct thread_info *ti;
--	ti = (void *)(read_pda(kernelstack) + PDA_STACKOFFSET - THREAD_SIZE);
--	return ti; 
--}
+-	struct task_struct *t = read_pda(pcurrent); 
+-	return t;
+-} 
 -
--/* do not use in interrupt context */
--static inline struct thread_info *stack_thread_info(void)
--{
--	struct thread_info *ti;
--	__asm__("andq %%rsp,%0; ":"=r" (ti) : "0" (~(THREAD_SIZE - 1)));
--	return ti;
--}
-+#define task_thread_info(t)	(&(t)->thread.info)
-+#define current_thread_info()	task_thread_info(current)
-+
-+#define setup_thread_stack(p, org) ({			\
-+	task_thread_info(p)->task = (p);		\
-+})
-+
-+#define end_of_stack(p)		((unsigned long *)(p)->thread_info + 1)
-+
-+#define __HAVE_THREAD_FUNCTIONS
+-#define current get_current()
++register struct task_struct *current __asm__("%r10");
  
- /* thread information allocation */
- #define alloc_thread_info(tsk) \
-@@ -81,10 +77,11 @@ static inline struct thread_info *stack_
- 
- #else /* !__ASSEMBLY__ */
- 
--/* how to get the thread information struct from ASM */
-+/* How to get the thread information struct from ASM.  We use a pointer to
-+ * current and make the asm offsets point to * ->thread.info.<field>
-+ */
- #define GET_THREAD_INFO(reg) \
--	movq %gs:pda_kernelstack,reg ; \
--	subq $(THREAD_SIZE-PDA_STACKOFFSET),reg
-+	movq %gs:pda_pcurrent,reg
- 
- #endif
+ #else
  
 ---
 0.99.9.GIT

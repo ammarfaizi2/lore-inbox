@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751445AbVK3Qjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751446AbVK3QmO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751445AbVK3Qjh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 11:39:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbVK3Qjh
+	id S1751446AbVK3QmO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 11:42:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbVK3QmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 11:39:37 -0500
-Received: from smtpout.mac.com ([17.250.248.44]:44022 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1751445AbVK3Qjg (ORCPT
+	Wed, 30 Nov 2005 11:42:14 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:58306 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1751446AbVK3QmO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 11:39:36 -0500
-In-Reply-To: <Pine.LNX.4.58.0511300821570.18317@shark.he.net>
-References: <20051130042118.GA19112@kvack.org> <438D4905.9F023405@users.sourceforge.net> <Pine.LNX.4.58.0511300821570.18317@shark.he.net>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <F2C387BC-0B94-4BDC-8918-4B073C221553@mac.com>
-Cc: Jari Ruusu <jariruusu@users.sourceforge.net>,
-       Benjamin LaHaise <bcrl@kvack.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [PATCH 0/9] x86-64 put current in r10
-Date: Wed, 30 Nov 2005 11:39:17 -0500
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-Mailer: Apple Mail (2.746.2)
+	Wed, 30 Nov 2005 11:42:14 -0500
+Date: Wed, 30 Nov 2005 08:41:35 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+cc: akpm@osdl.org, lhms-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, Cliff Wickman <cpw@sgi.com>
+Subject: Re: [Lhms-devel] [PATCH 4/7] Direct Migration V5: migrate_pages()
+ extension
+In-Reply-To: <438D6427.8060003@jp.fujitsu.com>
+Message-ID: <Pine.LNX.4.62.0511300834010.19142@schroedinger.engr.sgi.com>
+References: <20051128204244.10037.43868.sendpatchset@schroedinger.engr.sgi.com>
+ <20051128204304.10037.81195.sendpatchset@schroedinger.engr.sgi.com>
+ <438D6427.8060003@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 30, 2005, at 11:22:48, Randy.Dunlap wrote:
-> On Wed, 30 Nov 2005, Jari Ruusu wrote:
->
->> Benjamin LaHaise wrote:
->>> The following emails contain the patches to convert x86-64 to  
->>> store current
->>> in r10 (also at http://www.kvack.org/~bcrl/patches/v2.6.15-rc3/).
->> [snip]
->>> No benchmarks that I am aware of show regressions with this change.
->>
->> Ben,
->> Your patch breaks all out-of-tree amd64 assembler code used in  
->> kernel. r10 register is one of those registers that does not need  
->> to be preserved across function calls, and reserving that register  
->> for other purpose means that all assembler code using r10 in  
->> kernel must be rewritten. This is deeply unfunny.
->>
->> Andi,
->> Please don't apply Ben's patch. It is already bad enough having to  
->> deal with two incompatible calling conventions on 32 bit x86.
->
-> Just for the sake of understanding the current kernel release  
-> process, when would something like this be acceptable/possible?   
-> Would it require a Linux 3.0 version, or at least a 2.8?
+On Wed, 30 Nov 2005, KAMEZAWA Hiroyuki wrote:
 
-It's perfectly acceptable in 2.6, assuming it's properly divided up  
-into small discrete changes and spends a bit of time in -mm first to  
-work out the bugs.  If people want to maintain out-of-tree drivers,  
-especially those using assembly, when things break they get to keep  
-both pieces.  This patch produces a rather large space savings and  
-speeds things up to boot, and I would support it being pushed to  
-Linus during the 2.6.16 merge window assuming it stands up to abuse  
-in -mm for a bit.
+> I found a problem around the shmem,
 
-Cheers,
-Kyle Moffett
+The current page migration functions in mempolicy.c do not migrate shmem 
+vmas to be safe. In the future we surely would like to support migration 
+of shmem. I'd be glad if you could make sure that this works.
 
+> Problem is:
+> 1. a page of shmem(tmpfs)'s generic file is in page-cache. assume page is
+> diry.
+> 2. When it passed to migrate_page(), it reaches pageout() in the middle of
+> migrate_page().
+> 3. pageout calls shmem_writepage(), and the page turns to be swap-cache page.
+>    At this point, page->mapping becomes NULL (see move_to_swapcache())
+
+A swapcache page would have page->mapping pointing to swapper space. 
+move_to_swap_cache does not set page->mapping == NULL.
+
+> 7. Because spwapper_space's  a_ops->migratepage is not NULL,
+>    "Avoid write back hook" in patch 7/7 is used.
+> +		if (mapping->a_ops->migratepage) {
+> +			rc = mapping->a_ops->migratepage(newpage, page);
+> +			goto unlock_both;
+> +                }
+>    a_ops->migrate_page points to migrate_page() in mm/vmscan.c
+> 8. migrate_page() try to replace radix tree entry in swapper_space.
+> 9. Becasue page->mapping is NULL(becasue of 3),
+> migrate_page_remove_references() fails.
+
+If page->mapping would be NULL then migrate_page() could not 
+have been called. The mapping is used to obtain the address of the 
+function to call,

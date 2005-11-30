@@ -1,75 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751462AbVK3RN5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751473AbVK3RSv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751462AbVK3RN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 12:13:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751466AbVK3RN5
+	id S1751473AbVK3RSv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 12:18:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751474AbVK3RSv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 12:13:57 -0500
-Received: from noname.neutralserver.com ([70.84.186.210]:1873 "EHLO
-	noname.neutralserver.com") by vger.kernel.org with ESMTP
-	id S1751462AbVK3RN4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 12:13:56 -0500
-Date: Wed, 30 Nov 2005 19:15:20 +0200
-From: Dan Aloni <da-x@monatomic.org>
-To: Marcelo <marcelo.tosatti@cyclades.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4.x] prevent emulated SCSI hosts from wasting DMA memory
-Message-ID: <20051130171520.GB15505@localdomain>
+	Wed, 30 Nov 2005 12:18:51 -0500
+Received: from zproxy.gmail.com ([64.233.162.194]:62657 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751467AbVK3RSu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 12:18:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=GWnis54m6UYpq6BUViMP5KTfzicaSvHCgXQA/N1R2I3ozgUgo2QPNyeH2JM5M/fZizrP6M2RdjG0E4AEXq+c4DVZK41BmYJBdI76sQln4et5NG0+DGYHtwRb9mA2sRPDmrp6cgX5lioA+kyvDErWvZhoXe4snSIlKBL8i8T9d68=
+Message-ID: <cda58cb80511300918i7df1c60au@mail.gmail.com>
+Date: Wed, 30 Nov 2005 18:18:49 +0100
+From: Franck <vagabon.xyz@gmail.com>
+To: lkml <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH] Add MIPS dependency for dm9000 driver
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - noname.neutralserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - monatomic.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Emulated scsi hosts don't do DMA, so don't unnecessarily increase
-the SCSI DMA pool.
+The attached patch adds MIPS dependency for dm9000 ethernet
+controller. Indeed this controller is used by some embedded platforms
+based on MIPS CPUs.
 
-Signed-off-by: Dan Aloni <da-x@monatomic.org>
-
+Signed-Off-By: Franck Bui-Huu <franck.bui@gmail.com>
 ---
-commit 8f6409c7c270038ca4d154551e061f66a9580301
-tree ab7fedd2e7dbaefe31c332fc487f45a005972571
-parent a0837aece47b79a2bfd524e70e4f8a559c743c4c
-author Dan Aloni <da-x@monatomic.org> Wed, 30 Nov 2005 18:14:11 +0200
-committer Dan Aloni <da-x@monatomic.org> Wed, 30 Nov 2005 18:14:11 +0200
+diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
+index f15f909..1b00169 100644
+--- a/drivers/net/Kconfig
++++ b/drivers/net/Kconfig
+@@ -856,7 +856,7 @@ config SMC9194
 
- drivers/scsi/scsi_dma.c |    9 ++++++++-
- 1 files changed, 8 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/scsi/scsi_dma.c b/drivers/scsi/scsi_dma.c
-index 5594828..52737d6 100644
---- a/drivers/scsi/scsi_dma.c
-+++ b/drivers/scsi/scsi_dma.c
-@@ -231,10 +231,17 @@ void scsi_resize_dma_pool(void)
- 		need_isa_bounce_buffers = 0;
- 
- 	if (scsi_devicelist)
--		for (shpnt = scsi_hostlist; shpnt; shpnt = shpnt->next)
-+		for (shpnt = scsi_hostlist; shpnt; shpnt = shpnt->next) {
-+			if (shpnt->hostt->emulated)
-+				continue;
-+
- 			new_dma_sectors += SECTORS_PER_PAGE;	/* Increment for each host */
-+		}
- 
- 	for (host = scsi_hostlist; host; host = host->next) {
-+		if (host->hostt->emulated)
-+			continue;
-+
- 		for (SDpnt = host->host_queue; SDpnt; SDpnt = SDpnt->next) {
- 			/*
- 			 * sd and sr drivers allocate scatterlists.
-
-
--- 
-Dan Aloni
-da-x@monatomic.org, da-x@colinux.org, da-x@gmx.net
+ config DM9000
+ 	tristate "DM9000 support"
+-	depends on ARM && NET_ETHERNET
++	depends on (ARM || MIPS) && NET_ETHERNET
+ 	select CRC32
+ 	select MII
+ 	---help---

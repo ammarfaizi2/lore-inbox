@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751444AbVK3QXk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751439AbVK3QWu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751444AbVK3QXk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 11:23:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbVK3QXk
+	id S1751439AbVK3QWu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 11:22:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbVK3QWu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 11:23:40 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:57355 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751444AbVK3QXc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 11:23:32 -0500
-Date: Wed, 30 Nov 2005 16:23:27 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Franck <vagabon.xyz@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [NET] Remove ARM dependency for dm9000 driver
-Message-ID: <20051130162327.GC1053@flint.arm.linux.org.uk>
-Mail-Followup-To: Franck <vagabon.xyz@gmail.com>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <cda58cb80511300821y72f3354av@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cda58cb80511300821y72f3354av@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 30 Nov 2005 11:22:50 -0500
+Received: from xenotime.net ([66.160.160.81]:30389 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751439AbVK3QWu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 11:22:50 -0500
+Date: Wed, 30 Nov 2005 08:22:48 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Jari Ruusu <jariruusu@users.sourceforge.net>
+cc: Benjamin LaHaise <bcrl@kvack.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/9] x86-64 put current in r10
+In-Reply-To: <438D4905.9F023405@users.sourceforge.net>
+Message-ID: <Pine.LNX.4.58.0511300821570.18317@shark.he.net>
+References: <20051130042118.GA19112@kvack.org> <438D4905.9F023405@users.sourceforge.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 30, 2005 at 05:21:35PM +0100, Franck wrote:
-> Hi,
-> 
-> What about this patch which removes ARM dependency for dm9000 ethernet
-> controller driver ?
-> 
-> diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
-> index f15f909..4af63dd 100644
-> --- a/drivers/net/Kconfig
-> +++ b/drivers/net/Kconfig
-> @@ -856,7 +856,7 @@ config SMC9194
-> 
->  config DM9000
->  	tristate "DM9000 support"
-> -	depends on ARM && NET_ETHERNET
-> +	depends on NET_ETHERNET
->  	select CRC32
->  	select MII
->  	---help---
-> 
-> My platform based on MIPS cpu used it...
+On Wed, 30 Nov 2005, Jari Ruusu wrote:
 
-Maybe that should be (ARM || MIPS) && NET_ETHERNET ?
+> Benjamin LaHaise wrote:
+> > The following emails contain the patches to convert x86-64 to store current
+> > in r10 (also at http://www.kvack.org/~bcrl/patches/v2.6.15-rc3/).
+> [snip]
+> > No benchmarks that I am aware of show regressions with this change.
+>
+> Ben,
+> Your patch breaks all out-of-tree amd64 assembler code used in kernel. r10
+> register is one of those registers that does not need to be preserved across
+> function calls, and reserving that register for other purpose means that all
+> assembler code using r10 in kernel must be rewritten. This is deeply
+> unfunny.
+>
+> Andi,
+> Please don't apply Ben's patch. It is already bad enough having to deal with
+> two incompatible calling conventions on 32 bit x86.
+
+Just for the sake of understanding the current kernel release
+process, when would something like this be acceptable/possible?
+Would it require a Linux 3.0 version, or at least a 2.8?
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+~Randy

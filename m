@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751436AbVK3QWK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751443AbVK3QX0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751436AbVK3QWK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 11:22:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751437AbVK3QWK
+	id S1751443AbVK3QX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 11:23:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbVK3QX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 11:22:10 -0500
-Received: from zproxy.gmail.com ([64.233.162.196]:7012 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751436AbVK3QWJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 11:22:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=UEacQvJJimYf0icHnr8+RIRAynF8h3zNscFTTNRp+SVDbn2d6CHBQ6WwF7lVusS/u1ewIY2hDmZouSA26ZJMSNDXzcTYTyaQZgs1fNftKi1XiFql62xIpyJn/XQOVKcQYz64e/NFHD9hNa46iRHvcKuGhrJvMmSowamu9F8Ujc8=
-Message-ID: <cda58cb80511300821y72f3354av@mail.gmail.com>
-Date: Wed, 30 Nov 2005 17:21:35 +0100
-From: Franck <vagabon.xyz@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [NET] Remove ARM dependency for dm9000 driver
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 30 Nov 2005 11:23:26 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:34023 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751443AbVK3QXZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 11:23:25 -0500
+Date: Wed, 30 Nov 2005 16:23:24 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rc3-mm1
+Message-ID: <20051130162324.GA15273@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20051129203134.13b93f48.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20051129203134.13b93f48.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Nov 29, 2005 at 08:31:34PM -0800, Andrew Morton wrote:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc3/2.6.15-rc3-mm1/
+> 
+> - Several ISA sound drivers don't compile.  This is due to a collision
+>   between the ALSA and PCMCIA trees, and to breakage in the ALSA tree.
+> 
+> - drivers/serial/jsm/* still doesn't compile.
 
-What about this patch which removes ARM dependency for dm9000 ethernet
-controller driver ?
+Maybe it's time to drop the driver again?  It's known to be very abusive
+of tty internals it shouldn't touch and the vendor blocks adding more
+hardware support to it because it prefers it own (even worse) driver.
 
-diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
-index f15f909..4af63dd 100644
---- a/drivers/net/Kconfig
-+++ b/drivers/net/Kconfig
-@@ -856,7 +856,7 @@ config SMC9194
+This will give IBM who apparently cares about this hardware the chance to
+reintroduce a proper driver again that supports all hardware and doesn't
+abuse the tty layer.
 
- config DM9000
- 	tristate "DM9000 support"
--	depends on ARM && NET_ETHERNET
-+	depends on NET_ETHERNET
- 	select CRC32
- 	select MII
- 	---help---
-
-My platform based on MIPS cpu used it...
-
-Thanks
---
-               Franck

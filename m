@@ -1,68 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbVK3CTr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbVK3CUj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750789AbVK3CTr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Nov 2005 21:19:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750813AbVK3CTr
+	id S1750793AbVK3CUj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Nov 2005 21:20:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbVK3CUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Nov 2005 21:19:47 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:36070 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750789AbVK3CTr
+	Tue, 29 Nov 2005 21:20:39 -0500
+Received: from utopia.booyaka.com ([206.168.112.107]:36750 "EHLO
+	utopia.booyaka.com") by vger.kernel.org with ESMTP id S1750803AbVK3CUi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Nov 2005 21:19:47 -0500
-Subject: Re: [RFC][PATCH] Runtime switching of the idle function [take 2]
-From: john stultz <johnstul@us.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Lee Revell <rlrevell@joe-job.com>, "Brown, Len" <len.brown@intel.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Steven Rostedt <rostedt@goodmis.org>, Andrew Morton <akpm@osdl.org>,
-       acpi-devel@lists.sourceforge.net, nando@ccrma.Stanford.EDU,
-       linux-kernel@vger.kernel.org, paulmck@us.ibm.com, kr@cybsft.com,
-       tglx@linutronix.de, pluto@agmk.net, john.cooper@timesys.com,
-       bene@linutronix.de, dwalker@mvista.com, trini@kernel.crashing.org,
-       george@mvista.com, Vojtech Pavlik <vojtech@suse.cz>
-In-Reply-To: <20051130015809.GF19515@wotan.suse.de>
-References: <F7DC2337C7631D4386A2DF6E8FB22B3005456F00@hdsmsx401.amr.corp.intel.com>
-	 <20051129195336.GP19515@wotan.suse.de> <1133296540.4627.7.camel@mindpipe>
-	 <20051129205108.GQ19515@wotan.suse.de> <1133308505.4627.31.camel@mindpipe>
-	 <20051130010646.GD19515@wotan.suse.de> <1133313771.4627.39.camel@mindpipe>
-	 <20051130015809.GF19515@wotan.suse.de>
-Content-Type: text/plain
-Date: Tue, 29 Nov 2005 18:19:41 -0800
-Message-Id: <1133317181.1421.47.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Nov 2005 21:20:38 -0500
+Date: Tue, 29 Nov 2005 19:20:38 -0700 (MST)
+From: Paul Walmsley <paul@booyaka.com>
+To: mdharm-usb@one-eyed-alien.net, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: [PATCH] Force starget->scsi_level in usb-storage scsiglue.c
+Message-ID: <Pine.LNX.4.63.0511291911180.20294@utopia.booyaka.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-30 at 02:58 +0100, Andi Kleen wrote:
-> > > Then you're likely running 32bit. It doesn't use vsyscall gettimeofday
-> > > yet, which makes it slower. 64bit would.
-> > 
-> > Yes, I am.  So it sounds like vsyscall gettimeofday for i386 is in the
-> > works?
-> 
-> John Stultz used to have patches for it, but for some reason he never
-> pushed them into mainline. 
 
-Unfortunately it was a pretty ugly patch. Correctness issues with the
-existing code have kept focused on my timekeeping rework, however I have
-kept it in mind, and I do have a i386 vsyscall gtod patch that applies
-ontop of my tod work. I've been maintaining it on the side while I focus
-on the core code, but it is much cleaner now. For fun I'll try to
-remember to send it out with the next release.
+When the usb-storage module forces sdev->scsi_level to SCSI_2, it should 
+also force starget->scsi_level to the same value.  Otherwise, the SCSI 
+layer may attempt to issue SCSI-3 commands to the device, such as REPORT 
+LUNS, which it cannot handle.  This can prevent the device from working 
+with Linux.
 
-> On i386 it unfortunately needs adding
-> a test and branch to the syscall path to be 100% ABI compatible, but I 
-> doubt that was the reason he dropped it.
+The AMS Venus DS3 DS2316SU2S SATA-to-SATA+USB enclosure, based on the
+Oxford Semiconductor OXU921S chip, requires this patch to function
+correctly on Linux.  The enclosure reports a SCSI-3 SPC-2 command set
+level, but does not correctly handle the REPORT LUNS SCSI command -
+probably due to a bug in its firmware.
 
-Yea, I didn't know enough about the VDSO/unwind bits to get it to do the
-right thing w/ glibc, so that bit was pretty hackish. I'll still need
-some help on this bit to make it really something that could be
-included.
+It seems likely that other USB storage enclosures with similar bugs
+will also benefit from this patch.
 
-thanks
--john
+Tony Lindgren <tony@atomide.com> collaborated in the development of this
+patch.
+
+Signed-off-by: Paul Walmsley <paul@booyaka.com>
+
+
+- Paul
+
+diff --git a/drivers/usb/storage/scsiglue.c b/drivers/usb/storage/scsiglue.c
+index 4837524..4ef5527 100644
+--- a/drivers/usb/storage/scsiglue.c
++++ b/drivers/usb/storage/scsiglue.c
+@@ -109,7 +109,7 @@ static int slave_configure(struct scsi_d
+  	 * data comes from.
+  	 */
+  	if (sdev->scsi_level < SCSI_2)
+-		sdev->scsi_level = SCSI_2;
++		sdev->scsi_level = sdev->sdev_target->scsi_level = SCSI_2;
+
+  	/* According to the technical support people at Genesys Logic,
+  	 * devices using their chips have problems transferring more than
+@@ -162,7 +162,7 @@ static int slave_configure(struct scsi_d
+  		 * a Get-Max-LUN request, we won't lose much by setting the
+  		 * revision level down to 2.  The only devices that would be
+  		 * affected are those with sparse LUNs. */
+-		sdev->scsi_level = SCSI_2;
++		sdev->scsi_level = sdev->sdev_target->scsi_level = SCSI_2;
+
+  		/* USB-IDE bridges tend to report SK = 0x04 (Non-recoverable
+  		 * Hardware Error) when any low-level error occurs,
 
 
 

@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750997AbVK3LAG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbVK3LFL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750997AbVK3LAG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 06:00:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbVK3LAG
+	id S1750986AbVK3LFL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 06:05:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbVK3LFK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 06:00:06 -0500
-Received: from petaflop.b.gz.ru ([217.67.124.5]:46752 "EHLO hq.sectorb.msk.ru")
-	by vger.kernel.org with ESMTP id S1750997AbVK3LAE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 06:00:04 -0500
-Date: Wed, 30 Nov 2005 13:59:52 +0300
-From: "Alexander V. Inyukhin" <shurick@sectorb.msk.ru>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+	Wed, 30 Nov 2005 06:05:10 -0500
+Received: from nproxy.gmail.com ([64.233.182.201]:46969 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750986AbVK3LFK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 06:05:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NiqZYRhmY++3yG7qZGoy9ThQkqD3846Zwyf8m2nbVbPq4lfRiEVunBBGCpu4yqXErnM5hWyqrb0KSSGpaRVBU20Gr8NPoU2BIy2/gYrYSgAC9S9B3VXpwa/8lbpCEcWCVBslTnSXNEuw+V7ZzqPrhIhU2HmjSsV0dLQAWtoPXTU=
+Message-ID: <58cb370e0511300305w635081e4iacf883fa3746f5d8@mail.gmail.com>
+Date: Wed, 30 Nov 2005 12:05:08 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Tejun Heo <htejun@gmail.com>
+Subject: Re: [PATCH linux-2.6-block:post-2.6.15 10/11] blk: add FUA support to IDE
+Cc: axboe@suse.de, jgarzik@pobox.com, James.Bottomley@steeleye.com,
        linux-kernel@vger.kernel.org
-Subject: Re: [BUG] 2.6.15-rc1, soft lockup detected while probing IDE devices on AMD7441
-Message-ID: <20051130105952.GA14641@shurick.s2s.msu.ru>
-References: <20051120204656.GA17242@shurick.s2s.msu.ru> <20051120172915.31754054.akpm@osdl.org> <1132605524.11842.38.camel@localhost.localdomain> <200511232017.52788.jesper.juhl@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20051124162449.94344DD0@htj.dyndns.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <200511232017.52788.jesper.juhl@gmail.com>
-User-Agent: Mutt/1.5.9i
+References: <20051124162449.209CADD5@htj.dyndns.org>
+	 <20051124162449.94344DD0@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 23, 2005 at 08:17:51PM +0100, Jesper Juhl wrote:
-> On Monday 21 November 2005 21:38, Alan Cox wrote:
-> > On Sul, 2005-11-20 at 17:29 -0800, Andrew Morton wrote:
-> > > Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > > > Quite normal. The old IDE probe code takes a long time and it makes the
-> > > > soft lockup code believe a lockup occurred - rememeber its a debugging
-> > > > tool not a 100% reliable detector of failures.
-> > > 
-> > > We could put a touch_softlockup_watchdog() in there.
-> > 
-> > Would make sense. Spin up and probe can take over 30 seconds worst case
-> > and is polled in the IDE world. The loop will eventually exit and a true
-> > lockup caused by a stuck IORDY line will hang forever in an inb/outb so
-> > neither softlockup or even nmi lockup would save you.
-> 
-> How about something like the patch below?
-> 
-> The  if (!(timeout % 128))  bit is a guess that since 
-> touch_softlockup_watchdog() is a per_cpu thing it will be cheaper to do the
-> modulo calculation than calling the function every time through the loop,
-> especially as the nr of CPU's go up. But it's purely a guess, so I may very 
-> well be wrong - also, 128 is an arbitrarily chosen value, it's just a nice 
-> number that'll give us <10 function calls pr second.
+On 11/24/05, Tejun Heo <htejun@gmail.com> wrote:
+> 10_blk_ide-add-fua-support.patch
+>
+>         Add FUA support to IDE.  IDE FUA support makes use of
+>         ->protocol_changed callback to correctly adjust FUA setting
+>         according to transfer protocol change.
+>
+> Signed-off-by: Tejun Heo <htejun@gmail.com>
 
-It seems to work.
-I have no BUG messages during boot with this patch.
+ACK, except ->protocol_changed part
+(IDE needs fixing if you want dynamic barrier changes, sorry)

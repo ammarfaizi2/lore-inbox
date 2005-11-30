@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751491AbVK3SG4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751488AbVK3SO5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751491AbVK3SG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 13:06:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbVK3SG4
+	id S1751488AbVK3SO5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 13:14:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbVK3SO5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 13:06:56 -0500
-Received: from petasus.ims.intel.com ([62.118.80.130]:55511 "EHLO
-	petasus.ims.intel.com") by vger.kernel.org with ESMTP
-	id S1751491AbVK3SG4 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 13:06:56 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 1/1] elevator: indirect function calls reducing
-Date: Wed, 30 Nov 2005 21:05:29 +0300
-Message-ID: <6694B22B6436BC43B429958787E45498E7877C@mssmsx402nb>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 1/1] elevator: indirect function calls reducing
-Thread-Index: AcX1zJQjS5c+1j7zTqSkGWtrU0lfkwACVFLQ
-From: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
-To: "Christoph Hellwig" <hch@infradead.org>
-Cc: <linux-kernel@vger.kernel.org>, <axboe@suse.de>,
-       "Arjan van de Ven" <arjan@infradead.org>
-X-OriginalArrivalTime: 30 Nov 2005 18:05:33.0178 (UTC) FILETIME=[A8177DA0:01C5F5D8]
+	Wed, 30 Nov 2005 13:14:57 -0500
+Received: from baythorne.infradead.org ([81.187.2.161]:52703 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S1751488AbVK3SO4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 13:14:56 -0500
+Subject: Re: [NET] Remove ARM dependency for dm9000 driver
+From: David Woodhouse <dwmw2@infradead.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Franck <vagabon.xyz@gmail.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051130165546.GD1053@flint.arm.linux.org.uk>
+References: <cda58cb80511300821y72f3354av@mail.gmail.com>
+	 <20051130162327.GC1053@flint.arm.linux.org.uk>
+	 <cda58cb80511300845j18c81ce6p@mail.gmail.com>
+	 <20051130165546.GD1053@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Wed, 30 Nov 2005 18:14:42 +0000
+Message-Id: <1133374482.4117.91.camel@baythorne.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph,
-During that function calls 3 memory ridings are performed under
-spin_lock and having cache miss/conflict problem;
-and 2 only main memory ridings after patching.
+On Wed, 2005-11-30 at 16:55 +0000, Russell King wrote:
+> So until someone says "I want to use this on such and such arch" I
+> think it's better to keep it dependent on those we know are likely
+> to support it.
 
-In a source a[b][c][d](arg);
-after patching number of memory ridings less by 1:
-a[c][d](arg);
-Do you agree with it?
-Have you other explanation of performance degradation 2.6.9 -> 2.6.10?
+I disagree; unless there's a reason why it _shouldn't_ work on a given
+architecture, it should be possible to enable it there.
 
-Leonid
+I believe I've seen FR-V boards with dm9000 too.
 
-
------Original Message-----
-From: Christoph Hellwig [mailto:hch@infradead.org] 
-Sent: Wednesday, November 30, 2005 7:26 PM
-To: Ananiev, Leonid I
-Cc: linux-kernel@vger.kernel.org; axboe@suse.de
-Subject: Re: [PATCH 1/1] elevator: indirect function calls reducing
+-- 
+dwmw2
 
 
-this _still_ isn't an indirect function call reduction and people
-have told you N times.  Please get your basics right first, to start
-with the patch description.

@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbVK3PO0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbVK3PSt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751254AbVK3PO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 10:14:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751355AbVK3PO0
+	id S1751268AbVK3PSt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 10:18:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751355AbVK3PSt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 10:14:26 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:51925 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751254AbVK3PO0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 10:14:26 -0500
-Subject: Re: [PATCH] race condition in procfs
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Grzegorz Nosek <grzegorz.nosek@gmail.com>
-Cc: vserver@list.linux-vserver.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <121a28810511300641pca9596fl@mail.gmail.com>
-References: <121a28810511282317j47a90f6t@mail.gmail.com>
-	 <20051129000916.6306da8b.akpm@osdl.org>
-	 <121a28810511290038h37067fecx@mail.gmail.com>
-	 <121a28810511290525m1bdf12e0n@mail.gmail.com>
-	 <121a28810511290604m68c56398t@mail.gmail.com>
-	 <1133274524.6328.56.camel@localhost.localdomain>
-	 <121a28810511290639g79617c85h@mail.gmail.com>
-	 <Pine.LNX.4.58.0511290945380.7838@gandalf.stny.rr.com>
-	 <121a28810511300641pca9596fl@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 30 Nov 2005 10:14:12 -0500
-Message-Id: <1133363652.25340.17.camel@localhost.localdomain>
+	Wed, 30 Nov 2005 10:18:49 -0500
+Received: from van-1-67.lab.dnainternet.fi ([62.78.96.67]:65238 "EHLO
+	mail.zmailer.org") by vger.kernel.org with ESMTP id S1751268AbVK3PSt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 10:18:49 -0500
+Date: Wed, 30 Nov 2005 17:18:47 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/9] x86-64 put current in r10
+Message-ID: <20051130151847.GE5706@mea-ext.zmailer.org>
+References: <20051130042118.GA19112@kvack.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051130042118.GA19112@kvack.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-30 at 15:41 +0100, Grzegorz Nosek wrote:
+On Tue, Nov 29, 2005 at 11:21:18PM -0500, Benjamin LaHaise wrote:
+> Date:	Tue, 29 Nov 2005 23:21:18 -0500
+> From:	Benjamin LaHaise <bcrl@kvack.org>
+> To:	Andi Kleen <ak@suse.de>
+> Cc:	linux-kernel@vger.kernel.org
+> Subject: [PATCH 0/9] x86-64 put current in r10
 > 
-> I'm lost. Any assistance will be invaluable.
+> Hello Andi,
+> 
+> The following emails contain the patches to convert x86-64 to store current 
+> in r10 (also at http://www.kvack.org/~bcrl/patches/v2.6.15-rc3/).  This 
+> provides a significant amount of code savings (~43KB) over the current 
+> use of the per cpu data area.  I also tested using r15, but that generated 
+> code that was larger than that generated with r10.  This code seems to be 
+> working well for me now (it stands up to 32 and 64 bit processes and ptrace 
+> users) and would be a good candidate for further exposure.
 
-OK, Remove your patches, run the system where you can capture the log,
-and provide a full output of the oops.  Make sure you have
-CONFIG_KALLSYMS set.
+I would rather prefer NOT to introduce this at this time.
+My primary concern is that during "even numbered series" there
+should not be radical internal ABI/API changes, like this one.
 
--- Steve
+In 2.7 it can be introduced, by all means.
+
+Indeed at the moment my thinking is, that X86-64 is way more UNSTABLE,
+than it should be.  (And Linux kernel overall, but that is another story.)
 
 
+> 		-ben
+
+/Matti Aarnio

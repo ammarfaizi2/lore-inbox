@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbVK3NSa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbVK3Nc5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751214AbVK3NSa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 08:18:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbVK3NSa
+	id S1751219AbVK3Nc5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 08:32:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbVK3Nc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 08:18:30 -0500
-Received: from odyssey.analogic.com ([204.178.40.5]:14 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1751214AbVK3NS3 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 08:18:29 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <eab8d9e30511300459j695ed942n@mail.gmail.com>
-X-OriginalArrivalTime: 30 Nov 2005 13:18:26.0636 (UTC) FILETIME=[8C45C8C0:01C5F5B0]
-Content-class: urn:content-classes:message
-Subject: Re: 3C905C-TX
-Date: Wed, 30 Nov 2005 08:18:26 -0500
-Message-ID: <Pine.LNX.4.61.0511300813190.18193@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 3C905C-TX
-Thread-Index: AcX1sIxMFUgjomFWRra3MQWJ7ti6gg==
-References: <eab8d9e30511300459j695ed942n@mail.gmail.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: =?iso-8859-1?Q?Daniel_H=F6hnle?= <hoehnle.dan@googlemail.com>
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>, <andrewm@uow.edu.au>,
-       <netdev@oss.sgi.com>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Wed, 30 Nov 2005 08:32:57 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:9925 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751219AbVK3Nc5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 08:32:57 -0500
+Subject: Re: [PATCH 0/9] x86-64 put current in r10
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Benjamin LaHaise <bcrl@kvack.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051130130216.GL19515@wotan.suse.de>
+References: <20051130042118.GA19112@kvack.org>
+	 <20051130130216.GL19515@wotan.suse.de>
+Content-Type: text/plain
+Date: Wed, 30 Nov 2005 14:32:51 +0100
+Message-Id: <1133357572.2825.35.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2005-11-30 at 14:02 +0100, Andi Kleen wrote:
+> On Tue, Nov 29, 2005 at 11:21:18PM -0500, Benjamin LaHaise wrote:
+> > Hello Andi,
+> > 
+> > The following emails contain the patches to convert x86-64 to store current 
+> > in r10 (also at http://www.kvack.org/~bcrl/patches/v2.6.15-rc3/).  This 
+> > provides a significant amount of code savings (~43KB) over the current 
+> > use of the per cpu data area.  I also tested using r15, but that generated 
+> > code that was larger than that generated with r10.  This code seems to be 
+> > working well for me now (it stands up to 32 and 64 bit processes and ptrace 
+> > users) and would be a good candidate for further exposure.
+> 
+> Looks good thanks. It will need longer testing though.
 
-On Wed, 30 Nov 2005, [iso-8859-1] Daniel Höhnle wrote:
-
-> Hello i have Suse Linux 9.3 and a 3Com 3C905C-TX Networkcard. But she
-> don't works. Where can I get a Driver??? Or give it a Dokumentation
-> how I can make the Driver??
->
-> Thanks
-> Daniel Höhnle
-
-The 3c59x driver should work for this device. If it's real
-new, you may have to add its ID to the structure at line
-3365 in 3x59x.c or contact the maintainer.
+is it -mm ready?
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.55 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

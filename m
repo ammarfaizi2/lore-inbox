@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbVLALgO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbVLALhy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932165AbVLALgO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 06:36:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932167AbVLALgO
+	id S932161AbVLALhy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 06:37:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbVLALhy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 06:36:14 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:18607 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932165AbVLALgN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 06:36:13 -0500
-Date: Thu, 1 Dec 2005 11:36:10 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Dan Aloni <da-x@monatomic.org>
-Cc: Luke-Jr <luke-jr@utopios.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.4.x] prevent emulated SCSI hosts from wasting DMA memory
-Message-ID: <20051201113610.GG3958@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Dan Aloni <da-x@monatomic.org>, Luke-Jr <luke-jr@utopios.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20051130171520.GB15505@localdomain> <200511301933.48668.luke-jr@utopios.org> <20051130210222.GA32431@localdomain>
+	Thu, 1 Dec 2005 06:37:54 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17164 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932163AbVLALhx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 06:37:53 -0500
+Date: Thu, 1 Dec 2005 11:37:44 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>, dwmw2@infradead.org,
+       vagabon.xyz@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: [NET] Remove ARM dependency for dm9000 driver
+Message-ID: <20051201113744.GB19317@flint.arm.linux.org.uk>
+Mail-Followup-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+	"David S. Miller" <davem@davemloft.net>, dwmw2@infradead.org,
+	vagabon.xyz@gmail.com, linux-kernel@vger.kernel.org
+References: <20051130190224.GE1053@flint.arm.linux.org.uk> <1133426199.4117.179.camel@baythorne.infradead.org> <20051201094111.GA14726@flint.arm.linux.org.uk> <20051201.015115.49187117.davem@davemloft.net> <20051201105227.GA19317@flint.arm.linux.org.uk> <58cb370e0512010311s77a57305w5e9c7294ec09900a@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051130210222.GA32431@localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <58cb370e0512010311s77a57305w5e9c7294ec09900a@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 30, 2005 at 11:02:23PM +0200, Dan Aloni wrote:
-> On Wed, Nov 30, 2005 at 07:33:47PM +0000, Luke-Jr wrote:
-> > On Wednesday 30 November 2005 17:15, Dan Aloni wrote:
-> > > Emulated scsi hosts don't do DMA, so don't unnecessarily increase
-> > > the SCSI DMA pool.
-> > 
-> > They don't? Recently I learned(?) that apparently using hdparm -d on the 
-> > old /dev/hdX device still worked/applied when using ide-scsi... or do 
-> > "emulated scsi hosts" refer to something else?
+On Thu, Dec 01, 2005 at 12:11:24PM +0100, Bartlomiej Zolnierkiewicz wrote:
+> On 12/1/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> > On Thu, Dec 01, 2005 at 01:51:15AM -0800, David S. Miller wrote:
+> > > So, bad example.
+> >
+> > Not in the IDE case.  Bart restricted IDE to a smaller number of ARM
+> > platforms, plus any that had PCMCIA.  There is no such restriction
+> > in the asm-arm/*.h header files.
 > 
-> Actually by 'do DMA' I meant use the scsi_malloc() interface - which 
-> is mostly used by low level drivers. The IDE drivers allocate their
-> DMA memory outside the SCSI layer. iSCSI hosts for instance, don't 
-> need to cause unnecessary DMA allocations.
+> When I did this change there was such restriction in asm-arm/mach-*/ide.h
+> files (some platforms just lacked ide.h making IDE build break for them).
+> 
+> IDE is a bad example anyway because of legacy ordering issues etc etc.
 
-(1) there's no guranteee a driver setting ->emulated can't use scsi_malloc
-(2) 2.4.x is very late in the cycle so there's just no point in putting this
-    in (and in 2.6.x scsi_malloc is gone fortunately)
+Okay.  Given the general concensus in this thread, can this be removed
+now?
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

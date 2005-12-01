@@ -1,81 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751307AbVLAALE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbVLAAVM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751307AbVLAALE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 19:11:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbVLAALB
+	id S1751386AbVLAAVM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 19:21:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbVLAAVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 19:11:01 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:44962
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1751288AbVK3X5a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 18:57:30 -0500
-Subject: [patch 11/43] Create timespec_valid macro
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, mingo@elte.hu, zippel@linux-m68k.org, george@mvista.com,
-       johnstul@us.ibm.com
-References: <20051130231140.164337000@tglx.tec.linutronix.de>
-Content-Type: text/plain
-Organization: linutronix
-Date: Thu, 01 Dec 2005 01:03:11 +0100
-Message-Id: <1133395391.32542.454.camel@tglx.tec.linutronix.de>
+	Wed, 30 Nov 2005 19:21:12 -0500
+Received: from ozlabs.org ([203.10.76.45]:40149 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751386AbVLAAVL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 19:21:11 -0500
+Date: Thu, 1 Dec 2005 11:20:49 +1100
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Adam Litke <agl@us.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>,
+       linux-kernel@vger.kernel.org
+Subject: Fix handling of ELF segments with zero filesize
+Message-ID: <20051201002049.GB14247@localhost.localdomain>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Andrew Morton <akpm@osdl.org>, Adam Litke <agl@us.ibm.com>,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-plain text document attachment (introduce-timespec-valid.patch)
-- add timespec_valid(ts) [returns false if the timespec is denorm]
+Andrew, please apply
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+mmap() returns -EINVAL if given a zero length, and thus elf_map() in
+binfmt_elf.c does likewise if it attempts to map a (page-aligned) ELF
+segment with zero filesize.  Such a situation never arises with the
+default linker scripts, but there's nothing inherently wrong with
+zero-filesize (but non-zero memsize) ELF segments.  Custom linker
+scripts can generate them, and the kernel should be able to map them;
+this patch makes it so.
 
- include/linux/time.h  |    6 ++++++
- kernel/posix-timers.c |    5 ++---
- 2 files changed, 8 insertions(+), 3 deletions(-)
+Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
 
-Index: linux-2.6.15-rc2-rework/include/linux/time.h
+Index: working-2.6/fs/binfmt_elf.c
 ===================================================================
---- linux-2.6.15-rc2-rework.orig/include/linux/time.h
-+++ linux-2.6.15-rc2-rework/include/linux/time.h
-@@ -44,6 +44,12 @@ extern unsigned long mktime(const unsign
- 
- extern void set_normalized_timespec(struct timespec *ts, time_t sec, long nsec);
- 
-+/*
-+ * Returns true if the timespec is norm, false if denorm:
-+ */
-+#define timespec_valid(ts) \
-+	(((ts)->tv_sec >= 0) && (((unsigned) (ts)->tv_nsec) < NSEC_PER_SEC))
-+
- extern struct timespec xtime;
- extern struct timespec wall_to_monotonic;
- extern seqlock_t xtime_lock;
-Index: linux-2.6.15-rc2-rework/kernel/posix-timers.c
-===================================================================
---- linux-2.6.15-rc2-rework.orig/kernel/posix-timers.c
-+++ linux-2.6.15-rc2-rework/kernel/posix-timers.c
-@@ -712,8 +712,7 @@ out:
-  */
- static int good_timespec(const struct timespec *ts)
+--- working-2.6.orig/fs/binfmt_elf.c	2005-11-23 15:56:30.000000000 +1100
++++ working-2.6/fs/binfmt_elf.c	2005-12-01 11:11:01.000000000 +1100
+@@ -288,11 +288,17 @@ static unsigned long elf_map(struct file
+ 			struct elf_phdr *eppnt, int prot, int type)
  {
--	if ((!ts) || (ts->tv_sec < 0) ||
--			((unsigned) ts->tv_nsec >= NSEC_PER_SEC))
-+	if ((!ts) || !timespec_valid(ts))
- 		return 0;
- 	return 1;
+ 	unsigned long map_addr;
++	unsigned long pageoffset = ELF_PAGEOFFSET(eppnt->p_vaddr);
+ 
+ 	down_write(&current->mm->mmap_sem);
+-	map_addr = do_mmap(filep, ELF_PAGESTART(addr),
+-			   eppnt->p_filesz + ELF_PAGEOFFSET(eppnt->p_vaddr), prot, type,
+-			   eppnt->p_offset - ELF_PAGEOFFSET(eppnt->p_vaddr));
++	/* mmap() will return -EINVAL if given a zero size, but a
++	 * segment with zero filesize is perfectly valid */
++	if (eppnt->p_filesz + pageoffset)
++		map_addr = do_mmap(filep, ELF_PAGESTART(addr),
++				   eppnt->p_filesz + pageoffset, prot, type,
++				   eppnt->p_offset - pageoffset);
++	else
++		map_addr = ELF_PAGESTART(addr);
+ 	up_write(&current->mm->mmap_sem);
+ 	return(map_addr);
  }
-@@ -1406,7 +1405,7 @@ sys_clock_nanosleep(const clockid_t whic
- 	if (copy_from_user(&t, rqtp, sizeof (struct timespec)))
- 		return -EFAULT;
- 
--	if ((unsigned) t.tv_nsec >= NSEC_PER_SEC || t.tv_sec < 0)
-+	if (!timespec_valid(&t))
- 		return -EINVAL;
- 
- 	/*
 
---
-
+-- 
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson

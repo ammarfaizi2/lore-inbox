@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbVLAKNl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbVLAKOr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932127AbVLAKNl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 05:13:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbVLAKNk
+	id S932112AbVLAKOr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 05:14:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbVLAKOl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 05:13:40 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:43162 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S932119AbVLAKNZ (ORCPT
+	Thu, 1 Dec 2005 05:14:41 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:2204 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S932128AbVLAKOL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 05:13:25 -0500
-Message-Id: <20051201102051.210621000@localhost.localdomain>
+	Thu, 1 Dec 2005 05:14:11 -0500
+Message-Id: <20051201102137.587979000@localhost.localdomain>
 References: <20051201101810.837245000@localhost.localdomain>
-Date: Thu, 01 Dec 2005 18:18:17 +0800
+Date: Thu, 01 Dec 2005 18:18:20 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>, Christoph Lameter <christoph@lameter.com>,
@@ -20,145 +20,93 @@ Cc: Andrew Morton <akpm@osdl.org>, Christoph Lameter <christoph@lameter.com>,
        Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
        Magnus Damm <magnus.damm@gmail.com>,
        Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 07/12] mm: remove unnecessary variable and loop
-Content-Disposition: inline; filename=mm-remove-unnecessary-variable-and-loop.patch
+Subject: [PATCH 10/12] mm: merge sc.may_writepage and sc.may_swap into sc.flags
+Content-Disposition: inline; filename=mm-turn-bool-variables-into-flags-in-scan-control.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-shrink_cache() and refill_inactive_zone() do not need loops.
-
-Simplify them to scan one chunk at a time.
+Turn bool values into flags to make struct scan_control more compact.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- mm/vmscan.c |   92 ++++++++++++++++++++++++++++--------------------------------
- 1 files changed, 43 insertions(+), 49 deletions(-)
+ mm/vmscan.c |   22 ++++++++++------------
+ 1 files changed, 10 insertions(+), 12 deletions(-)
 
 --- linux.orig/mm/vmscan.c
 +++ linux/mm/vmscan.c
-@@ -899,63 +899,58 @@ static void shrink_cache(struct zone *zo
- {
- 	LIST_HEAD(page_list);
- 	struct pagevec pvec;
--	int max_scan = sc->nr_to_scan;
-+	struct page *page;
-+	int nr_taken;
-+	int nr_scan;
-+	int nr_freed;
+@@ -72,12 +72,12 @@ struct scan_control {
+ 	/* This context's GFP mask */
+ 	gfp_t gfp_mask;
  
- 	pagevec_init(&pvec, 1);
- 
- 	lru_add_drain();
- 	spin_lock_irq(&zone->lru_lock);
--	while (max_scan > 0) {
--		struct page *page;
--		int nr_taken;
--		int nr_scan;
--		int nr_freed;
+-	int may_writepage;
 -
--		nr_taken = isolate_lru_pages(sc->nr_to_scan,
--					     &zone->inactive_list,
--					     &page_list, &nr_scan);
--		zone->nr_inactive -= nr_taken;
--		zone->pages_scanned += nr_scan;
--		update_zone_age(zone, nr_scan);
--		spin_unlock_irq(&zone->lru_lock);
-+	nr_taken = isolate_lru_pages(sc->nr_to_scan,
-+				     &zone->inactive_list,
-+				     &page_list, &nr_scan);
-+	zone->nr_inactive -= nr_taken;
-+	zone->pages_scanned += nr_scan;
-+	update_zone_age(zone, nr_scan);
-+	spin_unlock_irq(&zone->lru_lock);
+-	/* Can pages be swapped as part of reclaim? */
+-	int may_swap;
++	unsigned long flags;
+ };
  
--		if (nr_taken == 0)
--			goto done;
-+	if (nr_taken == 0)
-+		return;
- 
--		max_scan -= nr_scan;
--		sc->nr_scanned += nr_scan;
--		if (current_is_kswapd())
--			mod_page_state_zone(zone, pgscan_kswapd, nr_scan);
--		else
--			mod_page_state_zone(zone, pgscan_direct, nr_scan);
--		nr_freed = shrink_list(&page_list, sc);
--		if (current_is_kswapd())
--			mod_page_state(kswapd_steal, nr_freed);
--		mod_page_state_zone(zone, pgsteal, nr_freed);
--		sc->nr_to_reclaim -= nr_freed;
-+	sc->nr_scanned += nr_scan;
-+	if (current_is_kswapd())
-+		mod_page_state_zone(zone, pgscan_kswapd, nr_scan);
-+	else
-+		mod_page_state_zone(zone, pgscan_direct, nr_scan);
-+	nr_freed = shrink_list(&page_list, sc);
-+	if (current_is_kswapd())
-+		mod_page_state(kswapd_steal, nr_freed);
-+	mod_page_state_zone(zone, pgsteal, nr_freed);
-+	sc->nr_to_reclaim -= nr_freed;
- 
--		spin_lock_irq(&zone->lru_lock);
--		/*
--		 * Put back any unfreeable pages.
--		 */
--		while (!list_empty(&page_list)) {
--			page = lru_to_page(&page_list);
--			if (TestSetPageLRU(page))
--				BUG();
--			list_del(&page->lru);
--			if (PageActive(page))
--				add_page_to_active_list(zone, page);
--			else
--				add_page_to_inactive_list(zone, page);
--			if (!pagevec_add(&pvec, page)) {
--				spin_unlock_irq(&zone->lru_lock);
--				__pagevec_release(&pvec);
--				spin_lock_irq(&zone->lru_lock);
--			}
-+	spin_lock_irq(&zone->lru_lock);
-+	/*
-+	 * Put back any unfreeable pages.
-+	 */
-+	while (!list_empty(&page_list)) {
-+		page = lru_to_page(&page_list);
-+		if (TestSetPageLRU(page))
-+			BUG();
-+		list_del(&page->lru);
-+		if (PageActive(page))
-+			add_page_to_active_list(zone, page);
-+		else
-+			add_page_to_inactive_list(zone, page);
-+		if (!pagevec_add(&pvec, page)) {
-+			spin_unlock_irq(&zone->lru_lock);
-+			__pagevec_release(&pvec);
-+			spin_lock_irq(&zone->lru_lock);
- 		}
--  	}
-+	}
- 	spin_unlock_irq(&zone->lru_lock);
--done:
++#define SC_MAY_WRITEPAGE	0x1
++#define SC_MAY_SWAP		0x2	/* Can pages be swapped as part of reclaim? */
 +
- 	pagevec_release(&pvec);
- }
+ #define lru_to_page(_head) (list_entry((_head)->prev, struct page, lru))
  
-@@ -982,7 +977,6 @@ refill_inactive_zone(struct zone *zone, 
- 	int pgmoved;
- 	int pgdeactivate = 0;
- 	int pgscanned;
--	int nr_pages = sc->nr_to_scan;
- 	LIST_HEAD(l_hold);	/* The pages which were snipped off */
- 	LIST_HEAD(l_inactive);	/* Pages to go onto the inactive_list */
- 	LIST_HEAD(l_active);	/* Pages to go onto the active_list */
-@@ -995,7 +989,7 @@ refill_inactive_zone(struct zone *zone, 
+ #ifdef ARCH_HAS_PREFETCH
+@@ -487,7 +487,7 @@ static int shrink_list(struct list_head 
+ 		 * Try to allocate it some swap space here.
+ 		 */
+ 		if (PageAnon(page) && !PageSwapCache(page)) {
+-			if (!sc->may_swap)
++			if (!(sc->flags & SC_MAY_SWAP))
+ 				goto keep_locked;
+ 			if (!add_to_swap(page, GFP_ATOMIC))
+ 				goto activate_locked;
+@@ -518,7 +518,7 @@ static int shrink_list(struct list_head 
+ 				goto keep_locked;
+ 			if (!may_enter_fs)
+ 				goto keep_locked;
+-			if (laptop_mode && !sc->may_writepage)
++			if (laptop_mode && !(sc->flags & SC_MAY_WRITEPAGE))
+ 				goto keep_locked;
  
- 	lru_add_drain();
- 	spin_lock_irq(&zone->lru_lock);
--	pgmoved = isolate_lru_pages(nr_pages, &zone->active_list,
-+	pgmoved = isolate_lru_pages(sc->nr_to_scan, &zone->active_list,
- 				    &l_hold, &pgscanned);
- 	zone->pages_scanned += pgscanned;
- 	zone->nr_active -= pgmoved;
+ 			/* Page is dirty, try to write it out here */
+@@ -1236,8 +1236,7 @@ int try_to_free_pages(struct zone **zone
+ 	delay_prefetch();
+ 
+ 	sc.gfp_mask = gfp_mask;
+-	sc.may_writepage = 0;
+-	sc.may_swap = 1;
++	sc.flags = SC_MAY_SWAP;
+ 	sc.nr_scanned = 0;
+ 	sc.nr_reclaimed = 0;
+ 
+@@ -1279,7 +1278,7 @@ int try_to_free_pages(struct zone **zone
+ 		 */
+ 		if (sc.nr_scanned > SWAP_CLUSTER_MAX * 3 / 2) {
+ 			wakeup_pdflush(laptop_mode ? 0 : sc.nr_scanned);
+-			sc.may_writepage = 1;
++			sc.flags |= SC_MAY_WRITEPAGE;
+ 		}
+ 
+ 		/* Take a nap, wait for some writeback to complete */
+@@ -1336,8 +1335,7 @@ static int balance_pgdat(pg_data_t *pgda
+ 
+ loop_again:
+ 	sc.gfp_mask = GFP_KERNEL;
+-	sc.may_writepage = 0;
+-	sc.may_swap = 1;
++	sc.flags = SC_MAY_SWAP;
+ 	sc.nr_mapped = read_page_state(nr_mapped);
+ 	sc.nr_scanned = 0;
+ 	sc.nr_reclaimed = 0;
+@@ -1423,7 +1421,7 @@ loop_again:
+ 		 */
+ 		if (sc.nr_scanned > SWAP_CLUSTER_MAX * 2 &&
+ 		    sc.nr_scanned > sc.nr_reclaimed + sc.nr_reclaimed / 2)
+-			sc.may_writepage = 1;
++			sc.flags |= SC_MAY_WRITEPAGE;
+ 
+ 		if (nr_pages && to_free > sc.nr_reclaimed)
+ 			continue;	/* swsusp: need to do more work */
 
 --

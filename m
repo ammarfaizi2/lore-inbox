@@ -1,95 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbVLARts@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbVLARw2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932350AbVLARts (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 12:49:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbVLARts
+	id S932270AbVLARw2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 12:52:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbVLARw2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 12:49:48 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:6086 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932350AbVLARtq (ORCPT
+	Thu, 1 Dec 2005 12:52:28 -0500
+Received: from zlynx.org ([199.45.143.209]:16142 "EHLO 199.45.143.209")
+	by vger.kernel.org with ESMTP id S932270AbVLARw1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 12:49:46 -0500
-Message-ID: <438F37AB.5030800@pobox.com>
-Date: Thu, 01 Dec 2005 12:49:31 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-CC: Christoph Hellwig <hch@infradead.org>,
-       "Darrick J. Wong" <djwong@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Luvella McFadden <luvella@us.ibm.com>, AJ Johnson <blujuice@us.ibm.com>,
-       Kevin Stansell <kstansel@us.ibm.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, Mauelshagen@redhat.com
-Subject: Re: [PATCH] aic79xx should be able to ignore HostRAID enabled adapters
-References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01E3E318@otce2k03.adaptec.com>
-In-Reply-To: <547AF3BD0F3F0B4CBDC379BAC7E4189F01E3E318@otce2k03.adaptec.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Salyzyn, Mark wrote: > Justin Gibbs had provided the
-	community the emd driver, soundly rejected > and never ported to dm
-	because there were features that Justin held dear > in md that do not
-	translate to dm. An unfortunate waste of considerable > resources.
-	[...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+	Thu, 1 Dec 2005 12:52:27 -0500
+Subject: Re: loadavg always equal or above 1.00 - how to explain?
+From: Zan Lynx <zlynx@acm.org>
+To: Tomasz Chmielewski <mangoo@wpkg.org>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <438EF3E5.5080709@wpkg.org>
+References: <438EE515.1080001@wpkg.org>
+	 <1133440871.2853.36.camel@laptopd505.fenrus.org>
+	 <438EF3E5.5080709@wpkg.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-lCzoGktN59k0bqKMorEQ"
+Date: Thu, 01 Dec 2005 10:51:58 -0700
+Message-Id: <1133459518.7430.6.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Salyzyn, Mark wrote:
-> Justin Gibbs had provided the community the emd driver, soundly rejected
-> and never ported to dm because there were features that Justin held dear
-> in md that do not translate to dm. An unfortunate waste of considerable
-> resources.
 
-All throughout development, before Justin had written a single line of 
-code, he was told to do things via Device Mapper.  All he had to do was 
-open his ears, and no resource waste would have occurred.
+--=-lCzoGktN59k0bqKMorEQ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+On Thu, 2005-12-01 at 14:00 +0100, Tomasz Chmielewski wrote:
+[snip]
+> Now I have to figure out what CROND was doing...
+>=20
+> Does ps always show processes in D state in CAPITAL letters?
+>=20
+> After cron restart it is "crond", as usual.
 
-> Without the timely agenda and cooled temperaments to close the gap, the
-> solution should be temporarily to support the proprietary HostRAID
-> driver when the Adapter is in HostRAID mode and we continue to work to
-> close that gap on dmraid.
-[...]
-> They are plain SCSI HBAs, but are designated as a RAID card rather than
-> a Host Bus Adapter in the PCI config space when in 'HostRAID' mode. The
-> fact that is designated in the PCI space should be enough reason *not*
-> to attach a simplified LLD.
+crond is the regular cron daemon.  CROND is what cron names its child
+processes as they run scheduled commands.
 
-Strongly disagree.
+I've seen cron stuck in D from running user crontabs on unavailable NFS
+mounts.
+--=20
+Zan Lynx <zlynx@acm.org>
 
-Linux should export the [non-RAID] hardware capabilities, nothing more.
+--=-lCzoGktN59k0bqKMorEQ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-We don't shim for not-in-tree binary-only drivers.  A user continues to 
-be free to simply -not use- aic79xx, regardless of this design decision. 
-  SATA controllers come with all sorts of class codes:  RAID (host/fake 
-raid), SCSI (fake RAID/fake scsi), IDE, Serial ATA.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-We ignore that, and just export the hardware.  The class code is only a 
-hint that dmraid should be loaded on top of the low-level driver.
+iD8DBQBDjzg9G8fHaOLTWwgRAvxyAJ0ahILQntaOs7SJuPQoH6MjdvQ6pwCfSzcd
+NnQe9FAPXnWwqVzI8/dU2G0=
+=cFFo
+-----END PGP SIGNATURE-----
 
-
-> Linux is not about performance first, it is about doing it the Linux
-> way. I believe we can understand that. And in turn, do not consider it
-> harmful if a group of individuals trying to make a living see a chance
-> to acquire a competitive edge.
-
-We don't do it "the Linux way" just for NIH's sake.  There are strong 
-reasons why we want cross-vendor solutions.  There are strong reasons 
-why we don't want every driver to embed a software RAID engine inside 
-it.  And there are strong reasons (some legal, not technical) why its 
-best to ignore binary-only, out-of-tree drivers.
-
-	Jeff
-
+--=-lCzoGktN59k0bqKMorEQ--
 

@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbVLAMv6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbVLAMxx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932202AbVLAMv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 07:51:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbVLAMv6
+	id S932198AbVLAMxx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 07:53:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbVLAMxx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 07:51:58 -0500
-Received: from mail.fh-wedel.de ([213.39.232.198]:11976 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S932202AbVLAMv5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 07:51:57 -0500
-Date: Thu, 1 Dec 2005 13:52:06 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Takashi Sato <sho@bsd.tnes.nec.co.jp>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: stat64 for over 2TB file returned invalid st_blocks
-Message-ID: <20051201125206.GB24519@wohnheim.fh-wedel.de>
-References: <01e901c5f66e$d4551b70$4168010a@bsd.tnes.nec.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Thu, 1 Dec 2005 07:53:53 -0500
+Received: from ns2.uludag.org.tr ([193.140.100.220]:3244 "EHLO uludag.org.tr")
+	by vger.kernel.org with ESMTP id S932198AbVLAMxw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 07:53:52 -0500
+From: Ismail Donmez <ismail@uludag.org.tr>
+Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK/UEKAE?=
+To: Zilvinas Valinskas <zilvinas@gemtek.lt>
+Subject: Re: More 2.6.15-rc3 problems
+Date: Thu, 1 Dec 2005 14:53:09 +0200
+User-Agent: KMail/1.8.92
+References: <200512010419.48394.ismail@uludag.org.tr> <20051201095425.GB29416@gemtek.lt>
+In-Reply-To: <20051201095425.GB29416@gemtek.lt>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <01e901c5f66e$d4551b70$4168010a@bsd.tnes.nec.co.jp>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200512011453.10022.ismail@uludag.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 December 2005 21:00:26 +0900, Takashi Sato wrote:
-> 
-> diff -uprN -X linux-2.6.14.org/Documentation/dontdiff linux-2.6.14.or
-> g/include/asm-i386/stat.h linux-2.6.14-blocks/include/asm-i386/stat.h
-> --- linux-2.6.14.org/include/asm-i386/stat.h 2005-10-28 09:02:08.000000000 
-> +0900
-> +++ linux-2.6.14-blocks/include/asm-i386/stat.h 2005-11-18 
-> 22:42:37.000000000 +0900
-> @@ -58,8 +58,7 @@ struct stat64 {
->  long long st_size;
->  unsigned long st_blksize;
-> 
-> - unsigned long st_blocks; /* Number 512-byte blocks allocated. */
-> - unsigned long __pad4;  /* future possible st_blocks high bits */
-> + unsigned long long st_blocks; /* Number 512-byte blocks allocated. */
+Thursday 01 December 2005 11:54 tarihinde, Zilvinas Valinskas şunları 
+yazmıştı: 
+> Fix is already in rc4 - please try this version.
+>
+> On Thu, Dec 01, 2005 at 04:19:47AM +0200, Ismail Donmez wrote:
+> > Hi,
+> >
+> > Looks like gdb doesn't work with 2.6.15-rc3 kernel. Trying to run ls or
+> > any other binary crashes gdb and ooopses kernel. Here is the log :
 
-After a closer look: have you tested this on a big-endian machine as
-well?  This heavily smells like it will work one one endianness only.
+Thanks, looks fixed.
 
-J�rn
-
--- 
-The only real mistake is the one from which we learn nothing.
--- John Powell
+Regards,
+ismail

@@ -1,66 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbVLAL1h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbVLALcG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932152AbVLAL1h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 06:27:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbVLAL1h
+	id S932146AbVLALcG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 06:32:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbVLALcG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 06:27:37 -0500
-Received: from netzweb.gamper-media.ch ([157.161.128.137]:45839 "EHLO
-	ns1.netzweb.ch") by vger.kernel.org with ESMTP id S932152AbVLAL1g
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 06:27:36 -0500
-From: "Miro Dietiker, MD Systems" <info@md-systems.ch>
-To: <linux-kernel@vger.kernel.org>
-Subject: Networking delay & timeout
-Date: Thu, 1 Dec 2005 12:27:04 +0100
-Organization: MD Systems
-Message-ID: <000001c5f66a$28b76100$4001a8c0@MDSYSPORT>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-yoursite-MailScanner-Information: Please contact the ISP for more information
-X-yoursite-MailScanner: Found to be clean
+	Thu, 1 Dec 2005 06:32:06 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:59603 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932146AbVLALcF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 06:32:05 -0500
+Date: Thu, 1 Dec 2005 11:31:58 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rc3-mm1
+Message-ID: <20051201113158.GE3958@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20051129203134.13b93f48.akpm@osdl.org> <20051130162324.GA15273@infradead.org> <1133392706.16726.91.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1133392706.16726.91.camel@gaston>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, Dec 01, 2005 at 10:18:25AM +1100, Benjamin Herrenschmidt wrote:
+> Aren't UARTs driven by this driver also compatible with the 8250 one ?
 
-I'm having some trouble with "general networking", using simple Ethernet
-Gigabit interfaces on a routing computer (routing in between eth0,
-eth1).
-
-My network has 10 Servers and a public internet gateway. Router does arp
-proxying.
-If I "ping" from a Internet-computer (unrecently used before to connect
-to that server), my firewall produces Initial delays around 1000ms!
-
-C:\>ping abcde
-Ping frankonia [X.X.X.X] mit 32 Bytes Daten:
-Antwort von X.X.X.X: Bytes=32 Zeit=441ms TTL=53
-Antwort von X.X.X.X: Bytes=32 Zeit=33ms TTL=53
-Antwort von X.X.X.X: Bytes=32 Zeit=32ms TTL=53
-Antwort von X.X.X.X: Bytes=32 Zeit=32ms TTL=53
-
-If i ping later on, delay remains that low.
-
-In some certain cases, the target even is temporarily unreachable...
-
-Is there anyone who can tell me how to debug the source of this delay?
-Is it possible to reduce it?
-The initial delay seems to be sourced by the linux router, while the
-temporary unavailability seems to be sourced by the target server,
-temporarily not answering to packets!
-
-Do you have any suggestion for analternative list to post this question?
-
-+-------------------------------+  +-------------------------------+
-| Miro Dietiker                 |  | MD Systems Miro Dietiker      |
-+-------------------------------+  +-------------------------------+
-
+I don't think so. It's a pretty complicated "intelligent" serial board.
 

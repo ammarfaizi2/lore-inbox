@@ -1,82 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932482AbVLAVl3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbVLAVlk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932482AbVLAVl3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 16:41:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932490AbVLAVl3
+	id S932490AbVLAVlk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 16:41:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932491AbVLAVlk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 16:41:29 -0500
-Received: from ihug-mail.icp-qv1-irony5.iinet.net.au ([203.59.1.199]:47279
-	"EHLO mail-ihug.icp-qv1-irony5.iinet.net.au") by vger.kernel.org
-	with ESMTP id S932482AbVLAVl3 (ORCPT
+	Thu, 1 Dec 2005 16:41:40 -0500
+Received: from mail.kroah.org ([69.55.234.183]:6291 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932490AbVLAVlj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 16:41:29 -0500
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-Message-ID: <438F6DFF.2040603@eyal.emu.id.au>
-Date: Fri, 02 Dec 2005 08:41:19 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: list linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.15-rc4
-References: <Pine.LNX.4.64.0511302234020.3099@g5.osdl.org>  <1133445903.16820.1.camel@localhost>  <Pine.LNX.4.64.0512010759571.3099@g5.osdl.org> <6f6293f10512011112m6e50fe0ejf0aa5ba9d09dca1e@mail.gmail.com> <Pine.LNX.4.64.0512011125280.3099@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0512011125280.3099@g5.osdl.org>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Dec 2005 16:41:39 -0500
+Date: Thu, 1 Dec 2005 13:40:03 -0800
+From: Greg KH <gregkh@suse.de>
+To: "Yeisley, Dan P." <dan.yeisley@unisys.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 2.6.15-rc3-mm1] PCI Quirk: 1K I/O Space Granularity on Intel P64H2
+Message-ID: <20051201214002.GA22539@suse.de>
+References: <94C8C9E8B25F564F95185BDA64AB05F60298EA04@USTR-EXCH5.na.uis.unisys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <94C8C9E8B25F564F95185BDA64AB05F60298EA04@USTR-EXCH5.na.uis.unisys.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Thu, Dec 01, 2005 at 02:37:03PM -0500, Yeisley, Dan P. wrote:
+> I've implemented a quirk to take advantage of the 1KB I/O space
+> granularity option on the Intel P64H2 PCI Bridge.  I had to change
+> probe.c because it sets the resource start and end to be aligned on 4k
+> boundaries (after the quirk sets them to 1k boundaries).  I've tested
+> this patch on a Unisys ES7000-600 both with and without the 1KB option
+> enabled.  I also tested this on a 2 processor Dell box that doesn't have
+> a P64H2 to make sure there were no negative affects there.
 > 
-> On Thu, 1 Dec 2005, Felipe Alfaro Solana wrote:
+> Signed-off-by: Dan Yeisley <dan.yeisley@unisys.com>
+> ---
 > 
->>Exactly that's what I'm seeing with the propietary nVidia driver:
 > 
-> Does yours work despite the messages?
-> 
-> Also, can both of you apply this debugging patch that just adds a bit more 
-> information about exactly what kind of mapping these drivers are trying to 
-> do..
+> diff -Naur linux-a/drivers/pci/probe.c linux-b/drivers/pci/probe.c
+> --- linux-a/drivers/pci/probe.c	2005-12-01 01:07:30.000000000 -0800
+> +++ linux-b/drivers/pci/probe.c	2005-11-30 05:13:41.000000000 -0800
+> @@ -264,8 +264,10 @@
+>  
+>  	if (base <= limit) {
+>  		res->flags = (io_base_lo & PCI_IO_RANGE_TYPE_MASK) |
+> IORESOURCE_IO;
 
-I am also getting the NVIDIA messages, here they are from a patched kernel.
-my driver continues to work OK, however I am not running any gl apps.
+Your patch is linewrapped and can not be applied :(
 
-# uname -a
-Linux e7 2.6.15-rc4 #2 PREEMPT Fri Dec 2 08:09:23 EST 2005 i686 GNU/Linux
+Care to try again?
 
-# dmesg
-nvidia: module license 'NVIDIA' taints kernel.
-ACPI: PCI Interrupt 0000:01:00.0[A] -> GSI 16 (level, low) -> IRQ 17
-NVRM: loading NVIDIA Linux x86 NVIDIA Kernel Module  1.0-7174  Tue Mar 22 06:44:39 PST 2005
-ACPI: PCI interrupt for device 0000:01:00.0 disabled
-ACPI: PCI Interrupt 0000:01:00.0[A] -> GSI 16 (level, low) -> IRQ 17
-NVRM: loading NVIDIA Linux x86 NVIDIA Kernel Module  1.0-7174  Tue Mar 22 06:44:39 PST 2005
-NVRM: not using NVAGP, an AGPGART backend is loaded!
-NVRM: not using NVAGP, an AGPGART backend is loaded!
-XFree86 does an incomplete pfn remappingvma: a761f000-a762f000 remap: a761f000-a7620000 pfn: 32186, prot: 27 [<c0145158>] incomplete_pfn_remap+0x112/0x11a
- [<f95ec336>] nv_kern_mmap+0x4ae/0x4e2 [nvidia]
- [<c0147fbd>] do_mmap_pgoff+0x398/0x7bb
- [<c0168446>] do_ioctl+0x76/0x96
- [<c010874f>] sys_mmap2+0x78/0xa7
- [<c0102be1>] syscall_call+0x7/0xb
-XFree86 does an incomplete pfn remappingvma: b7f51000-b7f59000 remap: b7f51000-b7f52000 pfn: 32b60, prot: 27 [<c0145158>] incomplete_pfn_remap+0x112/0x11a
- [<f95ec336>] nv_kern_mmap+0x4ae/0x4e2 [nvidia]
- [<c0147fbd>] do_mmap_pgoff+0x398/0x7bb
- [<c0168446>] do_ioctl+0x76/0x96
- [<c010874f>] sys_mmap2+0x78/0xa7
- [<c0102be1>] syscall_call+0x7/0xb
-NVRM: Xid: 17, Head=0 X=1920 Y=1200 Refresh=59
-XFree86 does an incomplete pfn remappingvma: a754e000-a755e000 remap: a754e000-a754f000 pfn: 3307e, prot: 27 [<c0145158>] incomplete_pfn_remap+0x112/0x11a
- [<f95ec336>] nv_kern_mmap+0x4ae/0x4e2 [nvidia]
- [<c0147fbd>] do_mmap_pgoff+0x398/0x7bb
- [<c0168446>] do_ioctl+0x76/0x96
- [<c010874f>] sys_mmap2+0x78/0xa7
- [<c0102be1>] syscall_call+0x7/0xb
+> -		res->start = base;
+> -		res->end = limit + 0xfff;
+> +		if(!res->start)
+> +			res->start = base;
+> +		if(!res->end)
+> +			res->end = limit + 0xfff;
 
--- 
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
-	attach .zip as .dat
+Why is this necessary, if your quirk already sets these values?
+
+>  	}
+>  
+>  	res = child->resource[1];
+> diff -Naur linux-a/drivers/pci/quirks.c linux-b/drivers/pci/quirks.c
+> --- linux-a/drivers/pci/quirks.c	2005-12-01 01:07:30.000000000
+> -0800
+> +++ linux-b/drivers/pci/quirks.c	2005-12-01 01:10:41.000000000
+> -0800
+> @@ -1312,6 +1312,35 @@
+>  	pci_do_fixups(dev, start, end);
+>  }
+>  
+> +/*
+> +** Intel P64H2 PCI Bridge
+> +** 	Enable 1k I/O space granularity
+> +*/
+
+That's a very odd function comment format.  Care to use the standard
+kernel format instead?
+
+> +static void __devinit quirk_p64h2_1k_io(struct pci_dev *dev)
+> +{
+> +	u16 en1k;
+> +	u8 io_base_lo, io_limit_lo;
+> +	unsigned long base, limit;
+> +	struct resource *res = dev->resource + PCI_BRIDGE_RESOURCES;
+> +
+> +	pci_read_config_word(dev, 0x40, &en1k);
+> +
+> +	if(en1k & 0x200) {
+
+Space after "if" and before "(" please.
+
+> +		printk(KERN_INFO "PCI: Enable I/O Space to 1 KB
+> Granularity\n");
+> +
+> +		pci_read_config_byte(dev, PCI_IO_BASE, &io_base_lo);
+> +		pci_read_config_byte(dev, PCI_IO_LIMIT, &io_limit_lo);
+> +		base = (io_base_lo & (PCI_IO_RANGE_MASK | 0x0c)) << 8;
+> +		limit = (io_limit_lo & (PCI_IO_RANGE_MASK | 0x0c)) << 8;
+> +
+> +		if(base <= limit) {
+
+Space after "if" and before "(" please.
+
+thanks,
+
+greg k-h

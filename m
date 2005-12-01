@@ -1,84 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbVLASPw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbVLASUJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932385AbVLASPw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 13:15:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbVLASPw
+	id S932391AbVLASUJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 13:20:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbVLASUI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 13:15:52 -0500
-Received: from hera.kernel.org ([140.211.167.34]:14212 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932385AbVLASPw (ORCPT
+	Thu, 1 Dec 2005 13:20:08 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:7108 "EHLO e36.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932391AbVLASUH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 13:15:52 -0500
-Date: Thu, 1 Dec 2005 16:15:25 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: linux-mm <linux-mm@kvack.org>, lkml <linux-kernel@vger.kernel.org>
+	Thu, 1 Dec 2005 13:20:07 -0500
 Subject: Re: Better pagecache statistics ?
-Message-ID: <20051201181525.GB17169@dmt.cnet>
-References: <1133377029.27824.90.camel@localhost.localdomain> <20051201152029.GA14499@dmt.cnet> <1133452790.27824.117.camel@localhost.localdomain> <20051201171938.GB16235@dmt.cnet> <1133458309.21429.36.camel@localhost.localdomain>
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-mm <linux-mm@kvack.org>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051201175711.GA17169@dmt.cnet>
+References: <1133377029.27824.90.camel@localhost.localdomain>
+	 <20051201152029.GA14499@dmt.cnet>
+	 <1133452790.27824.117.camel@localhost.localdomain>
+	 <1133453411.2853.67.camel@laptopd505.fenrus.org>
+	 <20051201170850.GA16235@dmt.cnet>
+	 <1133457315.21429.29.camel@localhost.localdomain>
+	 <1133457700.2853.78.camel@laptopd505.fenrus.org>
+	 <20051201175711.GA17169@dmt.cnet>
+Content-Type: text/plain
+Date: Thu, 01 Dec 2005 10:20:12 -0800
+Message-Id: <1133461212.21429.49.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1133458309.21429.36.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > I thought that it would be easy to use SystemTap for a such
-> > a purpose?
-> > 
-> > The sys_read/sys_write example at 
-> > http://www.redhat.com/magazine/011sep05/features/systemtap/ sounds
-> > interesting.
-> > 
-> > What I'm I missing?
-> 
-> Well, Few things:
-> 
-> 1) We have to have those probes present in the system all the time
-> collecting the information when read/write happens, maintaining it
-> and spitting it out. Since its kernel probe, all this data will be
-> in the kernel. 
-
-Yeah, there is some overhead.
-
-> 2) If we want to do this accounting (and you don't have those probes
-> installed already) - we can't capture what happened earlier. 
-
-I suppose that the vast majority of situations where such information is 
-needed are special anyway? 
-
-Why do you need it around all the time?
-
-> 3) probing sys_read/sys_write() are going to tell you how much
-> a data a process did read or wrote - but its not going to tell you
-> how much is in the cache (now or 10 minutes later). 
-
-Sure, that was just an example - need to insert probes
-on the correct places.
-
-> > > My final goal is to get stats like ..
+On Thu, 2005-12-01 at 15:57 -0200, Marcelo Tosatti wrote:
+> On Thu, Dec 01, 2005 at 06:21:39PM +0100, Arjan van de Ven wrote:
+> > On Thu, 2005-12-01 at 09:15 -0800, Badari Pulavarty wrote:
+> > > > Most of the issues you mention are null if you move the stats
+> > > > maintenance burden to userspace. 
+> > > > 
+> > > > The performance impact is also minimized since the hooks 
+> > > > (read: overhead) can be loaded on-demand as needed.
+> > > > 
 > > > 
-> > > Out of "Cached" value - to get details like
-> > > 
-> > > 	<mmap> - xxx KB
-> > > 	<shared mem> - xxx KB
-> > > 	<text, data, bss, malloc, heap, stacks> - xxx KB
-> > > 	<filecache pages total> -- xxx KB
-> > > 		(filename1 or <dev>, <ino>) -- #of pages
-> > > 		(filename2 or <dev>, <ino>) -- #of pages
-> > > 		
-> > > This would be really powerful on understanding system better.
-> > > 
-> > > Don't you think ?
-> > 
-> > Yep... /proc/<pid>/smaps provides that information on a per-process
-> > basis already.
+> > > The overhead is - going through each mapping/inode in the system
+> > > and dumping out "nrpages" - to get per-file statistics. This is
+> > > going to be expensive, need locking and there is no single list 
+> > > we can traverse to get it. I am not sure how to do this.
 > 
-> /proc/pid/smaps will give me information about text,data,shared libs,
-> malloc etc. Not the filecache information about files process opened,
-> pages read/wrote currently in the pagecache. Isn't it ?
+> Can't you add hooks to add_to_page_cache/remove_from_page_cache 
+> to record pagecache activity ?
 
-Right. 
+In theory, yes. We already maintain info in "mapping->nrpages".
+Trick would be to collect all of them, send them to user space.
+
+Thanks,
+Badari
 

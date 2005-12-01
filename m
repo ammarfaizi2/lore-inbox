@@ -1,54 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932433AbVLAT5B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751711AbVLAUCh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932433AbVLAT5B (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 14:57:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbVLAT5A
+	id S1751711AbVLAUCh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 15:02:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751709AbVLAUCh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 14:57:00 -0500
-Received: from solarneutrino.net ([66.199.224.43]:9477 "EHLO
-	tau.solarneutrino.net") by vger.kernel.org with ESMTP
-	id S932428AbVLAT5A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 14:57:00 -0500
-Date: Thu, 1 Dec 2005 14:56:57 -0500
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kai Makisara <Kai.Makisara@kolumbus.fi>, Andrew Morton <akpm@osdl.org>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       ryan@tau.solarneutrino.net
-Subject: Re: Fw: crash on x86_64 - mm related?
-Message-ID: <20051201195657.GB7236@tau.solarneutrino.net>
-References: <20051129092432.0f5742f0.akpm@osdl.org> <Pine.LNX.4.63.0512012040390.5777@kai.makisara.local> <Pine.LNX.4.64.0512011136000.3099@g5.osdl.org>
+	Thu, 1 Dec 2005 15:02:37 -0500
+Received: from ns2.suse.de ([195.135.220.15]:3242 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750725AbVLAUCh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 15:02:37 -0500
+Date: Thu, 1 Dec 2005 21:02:25 +0100
+From: Andi Kleen <ak@suse.de>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Andi Kleen <ak@suse.de>, "Dugger, Donald D" <donald.d.dugger@intel.com>,
+       linux-kernel@vger.kernel.org, "Shah, Rajesh" <rajesh.shah@intel.com>,
+       akpm@osdl.org
+Subject: Re: Add VT flag to cpuinfo; SSE3 flag
+Message-ID: <20051201200225.GB997@wotan.suse.de>
+References: <7F740D512C7C1046AB53446D372001730615842C@scsmsx402.amr.corp.intel.com> <Pine.LNX.4.61.0512011837470.28511@yvahk01.tjqt.qr> <20051201174901.GL19515@wotan.suse.de> <Pine.LNX.4.61.0512011901310.437@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0512011136000.3099@g5.osdl.org>
-User-Agent: Mutt/1.5.9i
-From: Ryan Richter <ryan@tau.solarneutrino.net>
+In-Reply-To: <Pine.LNX.4.61.0512011901310.437@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 01, 2005 at 11:38:20AM -0800, Linus Torvalds wrote:
+> I could not find pni either. This is all what cpuinfo gives on one:
 > 
-> 
-> On Thu, 1 Dec 2005, Kai Makisara wrote:
-> 
-> > On Tue, 29 Nov 2005, Andrew Morton wrote:
-> > >
-> > >  Bad page state at free_hot_cold_page (in process 'taper', page ffff81000260b6f8)
-> > > flags:0x010000000000000c mapping:ffff8100355f1dd8 mapcount:2 count:0
-> > > Backtrace:
-> 
-> Ryan, can you test 2.6.15-rc4 and report what it does?
-> 
-> The "Bad page state" messages may (should) remain, but the crashes should 
-> be gone and the machine should hopefully continue functioning fine. And, 
-> perhaps more importantly, you should hopefully have a _new_ message about 
-> incomplete pfn mappings that should help pinpoint which driver causes 
-> this..
+> processor       : 1
+> vendor_id       : AuthenticAMD
+> cpu family      : 15
+> model           : 5
+> model name      : AMD Opteron(tm) Processor 248
+> stepping        : 10
 
-Will do, I plan to take this machine down Saturday to run memtest86 for
-a while (just to be sure - 2/3 of the RAM is new, but I should be seeing
-machine checks if that were the problem, no?) so I'll boot this after that.
+Only E stepping or later Opterons have SSE3. Yours is older.
 
-Thanks,
--ryan
+-Andi

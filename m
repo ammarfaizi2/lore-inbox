@@ -1,61 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbVLAPUq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbVLAPUh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932268AbVLAPUq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 10:20:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbVLAPUq
+	id S932267AbVLAPUh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 10:20:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbVLAPUh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 10:20:46 -0500
-Received: from nproxy.gmail.com ([64.233.182.199]:44488 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932268AbVLAPUp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 10:20:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=fYHuodJ6T9AWFgF7JvgQpZWFZd0AqKmbJZPwkQ5zgQWwzlmMcGXuccTy9sfIURmy59X+zV5I8+mZNOujrW6FGz/koQpWLhhuVu5ebVb4jLsAXXqX7DGdffuyaP/Gf4ujsAh3YGgzlGBZ82XerS4F2JTMP+JoJObL2Usl9TXW7OY=
-Message-ID: <58cb370e0512010720n2a02afc5y4efcbe1ee37092c8@mail.gmail.com>
-Date: Thu, 1 Dec 2005 16:20:43 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       "David S. Miller" <davem@davemloft.net>, dwmw2@infradead.org,
-       vagabon.xyz@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: [NET] Remove ARM dependency for dm9000 driver
-In-Reply-To: <20051201113744.GB19317@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 1 Dec 2005 10:20:37 -0500
+Received: from hera.kernel.org ([140.211.167.34]:27855 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S932267AbVLAPUg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 10:20:36 -0500
+Date: Thu, 1 Dec 2005 13:20:29 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: linux-mm <linux-mm@kvack.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Better pagecache statistics ?
+Message-ID: <20051201152029.GA14499@dmt.cnet>
+References: <1133377029.27824.90.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20051130190224.GE1053@flint.arm.linux.org.uk>
-	 <1133426199.4117.179.camel@baythorne.infradead.org>
-	 <20051201094111.GA14726@flint.arm.linux.org.uk>
-	 <20051201.015115.49187117.davem@davemloft.net>
-	 <20051201105227.GA19317@flint.arm.linux.org.uk>
-	 <58cb370e0512010311s77a57305w5e9c7294ec09900a@mail.gmail.com>
-	 <20051201113744.GB19317@flint.arm.linux.org.uk>
+In-Reply-To: <1133377029.27824.90.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/1/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> On Thu, Dec 01, 2005 at 12:11:24PM +0100, Bartlomiej Zolnierkiewicz wrote:
-> > On 12/1/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> > > On Thu, Dec 01, 2005 at 01:51:15AM -0800, David S. Miller wrote:
-> > > > So, bad example.
-> > >
-> > > Not in the IDE case.  Bart restricted IDE to a smaller number of ARM
-> > > platforms, plus any that had PCMCIA.  There is no such restriction
-> > > in the asm-arm/*.h header files.
-> >
-> > When I did this change there was such restriction in asm-arm/mach-*/ide.h
-> > files (some platforms just lacked ide.h making IDE build break for them).
-> >
-> > IDE is a bad example anyway because of legacy ordering issues etc etc.
->
-> Okay.  Given the general concensus in this thread, can this be removed
-> now?
 
-No, I didn't say that I agree with DaveM. :)
+Hi Badari,
 
-For IDE keeping restriction makes it much easier to maintain
-(i.e. to answer questions like "why is this ugly hack needed?").
+On Wed, Nov 30, 2005 at 10:57:09AM -0800, Badari Pulavarty wrote:
+> Hi,
+> 
+> Is there a effort/patches underway to provide better pagecache
+> statistics ? 
+> 
+> Basically, I am interested in finding detailed break out of
+> cached pages. ("Cached" in /proc/meminfo) 
+> 
+> Out of this "cached pages"
+> 
+> - How much is just file system cache (regular file data) ?
+> - How much is shared memory pages ?
 
-Bartlomiej
+You could do that from userspace probably, by doing some math 
+on all processes statistics versus global stats, but does not 
+seem very practical.
+
+> - How much is mmaped() stuff ?
+
+That would be "nr_mapped".
+
+> - How much is for text, data, bss, heap, malloc ?
+
+Hum, the core pagecache code does not deal with such details, 
+so adding (and maintaining) accounting there does not seem very 
+practical either.
+
+You could walk /proc/<pid>/{maps,smaps} and account for different
+types of pages.
+
+$ cat /proc/self/smaps
+
+bf8df000-bf8f4000 rw-p bf8df000 00:00 0          [stack]
+Size:                84 kB
+Rss:                  8 kB
+Shared_Clean:         0 kB
+Shared_Dirty:         0 kB
+Private_Clean:        0 kB
+Private_Dirty:        8 kB
+
+0975b000-0977c000 rw-p 0975b000 00:00 0          [heap]
+Size:               132 kB
+Rss:                  4 kB
+Shared_Clean:         0 kB
+Shared_Dirty:         4 kB
+Private_Clean:        0 kB
+Private_Dirty:        0 kB 
+
+But doing it from userspace does not guarantee much precision
+since the state can change while walking the proc stats.
+
+> What is the right way of getting this kind of data ? 
+> I was trying to add tags when we do add_to_page_cache()
+> and quickly got ugly :(
+
+Problem is that any kind of information maybe be valuable,
+depending on what you're trying to do.
+
+For example, one might want to break statistics in /proc/vmstat
+and /proc/meminfo on a per-zone basis (for instance there is no 
+per-zone "locked" accounting at the moment), per-uid basis,
+per-process basis, or whatever.
+
+Other than the pagecache stats you mention, there is a 
+general lack of numbers in the MM code.
+
+I think that SystemTap suits the requirement for creation
+of detailed MM statistics, allowing creation of hooks outside the 
+kernel in an easy manner. Hooks can be inserted on demand.
+
+I just started playing with SystemTap yesterday. First
+thing I want to record is "what is the latency of 
+direct reclaim".
+

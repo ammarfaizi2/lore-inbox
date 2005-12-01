@@ -1,77 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932509AbVLAV4w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932512AbVLAV5p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932509AbVLAV4w (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 16:56:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932508AbVLAV4w
+	id S932512AbVLAV5p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 16:57:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbVLAV5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 16:56:52 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:23506 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932509AbVLAV4v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 16:56:51 -0500
-Date: Thu, 1 Dec 2005 13:53:28 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-cc: list linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.15-rc4
-In-Reply-To: <438F6DFF.2040603@eyal.emu.id.au>
-Message-ID: <Pine.LNX.4.64.0512011347290.3099@g5.osdl.org>
-References: <Pine.LNX.4.64.0511302234020.3099@g5.osdl.org> 
- <1133445903.16820.1.camel@localhost>  <Pine.LNX.4.64.0512010759571.3099@g5.osdl.org>
- <6f6293f10512011112m6e50fe0ejf0aa5ba9d09dca1e@mail.gmail.com>
- <Pine.LNX.4.64.0512011125280.3099@g5.osdl.org> <438F6DFF.2040603@eyal.emu.id.au>
+	Thu, 1 Dec 2005 16:57:45 -0500
+Received: from host27-37.discord.birch.net ([65.16.27.37]:61463 "EHLO
+	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
+	id S932512AbVLAV5o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 16:57:44 -0500
+From: "Roger Heflin" <rheflin@atipa.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: What does lspci -vv "DEVSEL=slow" and "DEVSEL=medium" mean?
+Date: Thu, 1 Dec 2005 16:06:04 -0600
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Thread-Index: AcX2w2xGp6vGhFzlQcerfwT3XPJV7Q==
+Message-ID: <EXCHG2003gStMVhEUse00000154@EXCHG2003.microtech-ks.com>
+X-OriginalArrivalTime: 01 Dec 2005 21:52:09.0137 (UTC) FILETIME=[7A53F210:01C5F6C1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hello,
 
-On Fri, 2 Dec 2005, Eyal Lebedinsky wrote:
-> 
-> I am also getting the NVIDIA messages, here they are from a patched kernel.
-> my driver continues to work OK, however I am not running any gl apps.
+I have 30+ machines, one machine is slower on using an 
+infiniband card than the than the others, 
+everything we can find is the same except on the "lspci -vv" the
+slow machine reports:
 
-Ok. It seems at least the NVidia driver is happy with the new code, and we 
-could disable messages for it. 
+"DEVSEL=slow" 
 
-The NVidia driver would probably be even _happier_ to use the new 
-"vm_insert_page()" function that was designed to do exactly what NVidia 
-seems to want to do (insert single pages at specified addresses), but that 
-obviously requires that driver to change.
+And all of the rest report:
 
-It seems to be the ATI driver that has some magic expectations. People 
-with the ATI driver, please test with the noisier patch and report. 
-Please.
+ "DEVSEL=medium"
 
-(There are a couple of in-tree drivers that it would be interesting to 
-hear about too. In particular, all these files:
+Both machines have the same bus speed listed, but this is
+known to be somewhat shakey on the driver it is using.
 
-	arch/ia64/kernel/perfmon.c
-	drivers/media/video/cpia.c
-	drivers/media/video/em28xx/em28xx-video.c
-	drivers/media/video/meye.c
-	drivers/media/video/planb.c
-	drivers/media/video/vino.c
-	drivers/media/video/zr36120.c
-	drivers/usb/class/audio.c
-	drivers/usb/media/ov511.c
-	drivers/usb/media/pwc/pwc-if.c
-	drivers/usb/media/se401.c
-	drivers/usb/media/sn9c102_core.c
-	drivers/usb/media/stv680.c
-	drivers/usb/media/usbvideo.c
-	drivers/usb/media/vicam.c
+What exactly does this mean?
 
-use remap_pfn_range() to map a single page, and should thus probably be 
-converted to the new lighter-weight vm_insert_page() instead which matches 
-much more closely what they actually want to do, and doesn't require 
-reserved pages etc. However, since I have none of the affected hardware, 
-and since you need to be careful about the page protections, I didn't do 
-any of the apparently trivial conversions).
+We know the bios version is the same and we believe the 
+bios settings are the same, and that the card
+is identical, and in the same slot, and that everything else
+is the same. 
 
-Anybody who is interested in this, please just read the comment in 
-mm/memory.c above the vm_insert_page() function, it really should be very 
-straightforward, but needs some trivial testing..
+                       Roger
 
-			Linus

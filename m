@@ -1,62 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbVLARoL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932372AbVLARtd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932361AbVLARoL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 12:44:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbVLARoL
+	id S932372AbVLARtd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 12:49:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932362AbVLARtc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 12:44:11 -0500
-Received: from cantor.suse.de ([195.135.220.2]:7055 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932361AbVLARoK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 12:44:10 -0500
-From: Andreas Schwab <schwab@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Christopher Friesen <cfriesen@nortel.com>, linux-kernel@vger.kernel.org
-Subject: Re: discrepency between "df" and "du" on tmpfs filesystem?
-References: <438F179E.5040402@nortel.com>
-	<Pine.LNX.4.61.0512011634370.26131@goblin.wat.veritas.com>
-X-Yow: The fact that 47 PEOPLE are yelling and sweat is cascading
- down my SPINAL COLUMN is fairly enjoyable!!
-Date: Thu, 01 Dec 2005 18:44:00 +0100
-In-Reply-To: <Pine.LNX.4.61.0512011634370.26131@goblin.wat.veritas.com> (Hugh
-	Dickins's message of "Thu, 1 Dec 2005 16:41:15 +0000 (GMT)")
-Message-ID: <je4q5s67bz.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Thu, 1 Dec 2005 12:49:32 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:23981 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932369AbVLARtb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 12:49:31 -0500
+Date: Thu, 1 Dec 2005 17:49:28 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       "Darrick J. Wong" <djwong@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Luvella McFadden <luvella@us.ibm.com>, AJ Johnson <blujuice@us.ibm.com>,
+       Kevin Stansell <kstansel@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, Mauelshagen@redhat.com
+Subject: Re: [PATCH] aic79xx should be able to ignore HostRAID enabledadapters
+Message-ID: <20051201174928.GA13196@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Salyzyn, Mark" <mark_salyzyn@adaptec.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	"Darrick J. Wong" <djwong@us.ibm.com>,
+	Chris McDermott <lcm@us.ibm.com>,
+	Luvella McFadden <luvella@us.ibm.com>,
+	AJ Johnson <blujuice@us.ibm.com>,
+	Kevin Stansell <kstansel@us.ibm.com>, linux-kernel@vger.kernel.org,
+	linux-scsi@vger.kernel.org, Mauelshagen@redhat.com
+References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01E3E359@otce2k03.adaptec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <547AF3BD0F3F0B4CBDC379BAC7E4189F01E3E359@otce2k03.adaptec.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> writes:
+On Thu, Dec 01, 2005 at 09:21:43AM -0500, Salyzyn, Mark wrote:
+> Arjan van de Ven [mailto:arjan@infradead.org] writes:
+> > adaptec could just release the source of the enhancement to linux (as
+> > the GPL basically requires anyway :)
+> 
+> Adaptec did, it was called emd! <ouch>
 
-> On Thu, 1 Dec 2005, Christopher Friesen wrote:
->> 
->> Someone noticed this on one of our machines.  The rootfs is a 256MB tmpfs
->> filesystem.  Depending on how you check the size, you get two different
->> answers.
->> 
->> root@10.41.50.66:/root> df -kl
->> rootfs                  262144    255684      6460  98% /
->> 
->> root@10.41.50.66:/root> du -sxk /
->> 204672  /
->> 
->> Anyone know what's going on?
->
-> df tells you what the filesystem says is in use or free, via statfs.
-> du goes looking at the contents of the filesystem, totalling stats.
-> Any files unlinked but held open will be counted by df but not by du.
-> There might also be a discrepancy over indirect blocks, I'm not sure.
+While the project was a total failure in every respect it at least allows
+us to have an open description of the format.  Thanks to Adaptec that we
+at least have it, although an open spec would have an a lot easier way
+to get that information out :)  But honestly just another raid format
+is not really something you'll get us excited about, there are far too
+many of them already.
 
-Also an empty filesystem usually does not have zero use, since the
-filesystem overhead (inode table, etc) may be accounted in the statfs
-counts.
+If you actually published the raid sequencer code I'm pretty sure someone
+would have picked up the shards of the emd project and turned it into
+something useful.  I would have loved to play with that kind of thing for
+certain.
 
-Andreas.
+> I know, a circular argument ... Regardless this burned out three of the
+> most talented engineers at Adaptec working on that project. None of them
+> will probably ever contribute to Linux again, they are all now
+> Luminaries in the FreeBSD community.
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+I'm pretty happy that we never have to deal with Justin or Scott again,
+as it saves a considerable amount of my time.
+
+(and btw, they've been freebsd commiters and core members long before
+ adaptec assigned them to do linux work, which probably was a part
+ of the cultural problems when dealing with them)

@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932392AbVLASYJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbVLASYn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932392AbVLASYJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 13:24:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbVLASYJ
+	id S932395AbVLASYn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 13:24:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbVLASYn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 13:24:09 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:12769 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932392AbVLASYI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 13:24:08 -0500
-Subject: Re: Better pagecache statistics ?
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-mm <linux-mm@kvack.org>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051201175711.GA17169@dmt.cnet>
-References: <1133377029.27824.90.camel@localhost.localdomain>
-	 <20051201152029.GA14499@dmt.cnet>
-	 <1133452790.27824.117.camel@localhost.localdomain>
-	 <1133453411.2853.67.camel@laptopd505.fenrus.org>
-	 <20051201170850.GA16235@dmt.cnet>
-	 <1133457315.21429.29.camel@localhost.localdomain>
-	 <1133457700.2853.78.camel@laptopd505.fenrus.org>
-	 <20051201175711.GA17169@dmt.cnet>
-Content-Type: text/plain
-Date: Thu, 01 Dec 2005 10:24:17 -0800
-Message-Id: <1133461457.21429.51.camel@localhost.localdomain>
+	Thu, 1 Dec 2005 13:24:43 -0500
+Received: from mail.kroah.org ([69.55.234.183]:40115 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932395AbVLASYm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 13:24:42 -0500
+Date: Thu, 1 Dec 2005 10:22:57 -0800
+From: Greg KH <greg@kroah.com>
+To: Vitaly Wool <vwool@ru.mvista.com>
+Cc: linux-kernel@vger.kernel.org, david-b@pacbell.net, dpervushin@gmail.com,
+       akpm@osdl.org, basicmark@yahoo.com, komal_shah802003@yahoo.com,
+       stephen@streetfiresound.com, spi-devel-general@lists.sourceforge.net,
+       Joachim_Jaeger@digi.com
+Subject: Re: [PATCH 2.6-git] SPI core refresh
+Message-ID: <20051201182257.GB20516@kroah.com>
+References: <20051201191109.40f2d04b.vwool@ru.mvista.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051201191109.40f2d04b.vwool@ru.mvista.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-01 at 15:57 -0200, Marcelo Tosatti wrote:
-> On Thu, Dec 01, 2005 at 06:21:39PM +0100, Arjan van de Ven wrote:
-> > On Thu, 2005-12-01 at 09:15 -0800, Badari Pulavarty wrote:
-> > > > Most of the issues you mention are null if you move the stats
-> > > > maintenance burden to userspace. 
-> > > > 
-> > > > The performance impact is also minimized since the hooks 
-> > > > (read: overhead) can be loaded on-demand as needed.
-> > > > 
-> > > 
-> > > The overhead is - going through each mapping/inode in the system
-> > > and dumping out "nrpages" - to get per-file statistics. This is
-> > > going to be expensive, need locking and there is no single list 
-> > > we can traverse to get it. I am not sure how to do this.
-> 
-> Can't you add hooks to add_to_page_cache/remove_from_page_cache 
-> to record pagecache activity ?
+On Thu, Dec 01, 2005 at 07:11:09PM +0300, Vitaly Wool wrote:
+> - Matching Greg K-H's requests expressed in his review
 
-BTW, the hook can't be dynamically loaded (using kprobes) - since
-we miss what happend till then. 
+No, you got the kernel doc wrong, and you didn't move your inline
+functions.
 
-Thanks,
-Badari
+> - The character device interface was reworked
 
+reworked how?
+
+> - it's more adapted for use in real-time environments
+
+I still do not see why you are stating this.  Why do you say this?
+
+I think you should work with David more...
+
+thanks,
+
+greg k-h

@@ -1,66 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbVLATrp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbVLATwN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932419AbVLATrp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 14:47:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932418AbVLATrp
+	id S932424AbVLATwN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 14:52:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbVLATwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 14:47:45 -0500
-Received: from ns2.suse.de ([195.135.220.15]:41640 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932419AbVLATro (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 14:47:44 -0500
-Date: Thu, 1 Dec 2005 20:46:37 +0100
-From: Olaf Hering <olh@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: mchehab@brturbo.com.br, video4linux-list@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/media/video/: make code static
-Message-ID: <20051201194637.GA2306@suse.de>
-References: <20051120024432.GV16060@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Thu, 1 Dec 2005 14:52:13 -0500
+Received: from smtp-vbr5.xs4all.nl ([194.109.24.25]:50186 "EHLO
+	smtp-vbr5.xs4all.nl") by vger.kernel.org with ESMTP id S932424AbVLATwN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 14:52:13 -0500
+Date: Thu, 1 Dec 2005 20:51:45 +0100
+From: jurriaan <thunder7@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: mouse resync messages since 2.6.15-rc2-mm1, still in 2.6.15-rc3-mm1
+Message-ID: <20051201195145.GA20896@amd64.of.nowhere>
+Reply-To: Jurriaan <thunder7@xs4all.nl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051120024432.GV16060@stusta.de>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Sun, Nov 20, Adrian Bunk wrote:
+I access my workstations with a KVM switch, a Rose Vista model, and
+since 2.6.15-rc2-mm1, I get an awful lot of
 
->  drivers/media/video/cx25840/cx25840-core.c |    4 ++--
+logips2pp: Detected unknown logitech mouse model 1
+psmouse.c: resync failed, issuing reconnect request
 
-> --- linux-2.6.15-rc1-mm2-full/drivers/media/video/cx25840/cx25840-core.c.old	2005-11-20 02:55:12.000000000 +0100
-> +++ linux-2.6.15-rc1-mm2-full/drivers/media/video/cx25840/cx25840-core.c	2005-11-20 02:55:23.000000000 +0100
-> @@ -714,7 +714,7 @@
->  
->  /* ----------------------------------------------------------------------- */
->  
-> -struct i2c_driver i2c_driver_cx25840;
-> +static struct i2c_driver i2c_driver_cx25840;
->  
->  static int cx25840_detect_client(struct i2c_adapter *adapter, int address,
->  				 int kind)
-> @@ -807,7 +807,7 @@
->  
->  /* ----------------------------------------------------------------------- */
->  
-> -struct i2c_driver i2c_driver_cx25840 = {
-> +static struct i2c_driver i2c_driver_cx25840 = {
->  	.name = "cx25840",
->  
->  	.id = I2C_DRIVERID_CX25840,
+messages. What is the information content in these messages? I take it
+they tell me something important - but I can't understand what. If they
+are just noise, could they please be removed?
+I know my mouse works when I switch consoles; this KVM has worked for
+ages with linux. 
 
-Why does it exist twice? Once uninitalized, once intialized? Appearently
-I miss the point.  I also dont find the place where ->command is called. 
+I can always #if 0 them out myself, but I'm curious what the meaning of
+these messages is.
 
-There are other problems with this driver. If VIDIOC_S_STD gets passed
-to cx25840_command, set_v4lstd will get a 64bit value as second arg. gcc
-for ppc generates calls to __ucmpdi2, from libgcc.
-Only a few archs implement this function inside the kernel. Maybe this
-driver should become arm/fvr/h8300 only in 2.6.15?
-
+Thanks,
+Jurriaan
 -- 
-short story of a lazy sysadmin:
- alias appserv=wotan
+Fire control was manual now. So was the coffeemaker, but with green
+smoke gathering under the ceiling, that didn't seem as crucial somehow.
+        Tanya Huff - The Better Part of Valor
+Debian (Unstable) GNU/Linux 2.6.15-rc2-mm1 5404 bogomips load 1.76

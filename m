@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751366AbVLACgV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbVLACfy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751366AbVLACgV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 21:36:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbVLACgV
+	id S1751361AbVLACfy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 21:35:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbVLACfy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 21:36:21 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:13574 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751367AbVLACgT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 21:36:19 -0500
-Date: Thu, 1 Dec 2005 03:36:19 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu,
-       zippel@linux-m68k.org, george@mvista.com, johnstul@us.ibm.com
-Subject: Re: [patch 25/43] Create ktimeout.h and move timer.h code into it
-Message-ID: <20051201023619.GU31395@stusta.de>
-References: <20051130231140.164337000@tglx.tec.linutronix.de> <1133395428.32542.468.camel@tglx.tec.linutronix.de>
+	Wed, 30 Nov 2005 21:35:54 -0500
+Received: from smtp107.sbc.mail.re2.yahoo.com ([68.142.229.98]:22897 "HELO
+	smtp107.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1751361AbVLACfx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 21:35:53 -0500
+Message-ID: <438E617F.4020005@gmail.com>
+Date: Wed, 30 Nov 2005 20:35:43 -0600
+From: Hareesh Nagarajan <hnagar2@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051025)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1133395428.32542.468.camel@tglx.tec.linutronix.de>
-User-Agent: Mutt/1.5.11
+To: Badari Pulavarty <pbadari@us.ibm.com>
+CC: linux-mm <linux-mm@kvack.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Better pagecache statistics ?
+References: <1133377029.27824.90.camel@localhost.localdomain>
+In-Reply-To: <1133377029.27824.90.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 01, 2005 at 01:03:48AM +0100, Thomas Gleixner wrote:
-> plain text document attachment (ktimeout-h.patch)
-> - introduce ktimeout.h and move the timeout implementation into it, as-is.
-> - keep timer.h for compatibility
->...
+Hi,
 
-If you do this, you should either immediately remove timer.h or add a 
-#warning to this file.
+Badari Pulavarty wrote:
+> - How much is just file system cache (regular file data) ?
 
-Both cases imply changing all in-kernel users (which is anyway a good 
-idea if we really want to rename this header).
+This is just a thought of mine:
+/proc/slabinfo?
 
-cu
-Adrian
+> - How much is shared memory pages ?
+> - How much is mmaped() stuff ?
 
--- 
+cat /proc/vmstat | grep nr_mapped
+nr_mapped 77105
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+But yes, this doesn't give you a detailed account.
 
+> - How much is for text, data, bss, heap, malloc ?
+
+Again, this is just a thought of mine: Couldn't you get this information 
+from /proc/<pid>/maps or from the nicer and easier to parse procps 
+application: pmap <pid>?
+
+Thanks,
+
+Hareesh

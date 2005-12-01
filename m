@@ -1,92 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbVLARoR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbVLARpA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932365AbVLARoR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 12:44:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbVLARoQ
+	id S932364AbVLARpA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 12:45:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbVLARpA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 12:44:16 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:30099 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932366AbVLARoP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 12:44:15 -0500
-Date: Thu, 1 Dec 2005 17:44:12 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-Cc: "Darrick J. Wong" <djwong@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Luvella McFadden <luvella@us.ibm.com>, AJ Johnson <blujuice@us.ibm.com>,
-       Kevin Stansell <kstansel@us.ibm.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, Mauelshagen@redhat.com
-Subject: Re: [PATCH] aic79xx should be able to ignore HostRAID enabled adapters
-Message-ID: <20051201174411.GA13002@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Salyzyn, Mark" <mark_salyzyn@adaptec.com>,
-	"Darrick J. Wong" <djwong@us.ibm.com>,
-	Chris McDermott <lcm@us.ibm.com>,
-	Luvella McFadden <luvella@us.ibm.com>,
-	AJ Johnson <blujuice@us.ibm.com>,
-	Kevin Stansell <kstansel@us.ibm.com>, linux-kernel@vger.kernel.org,
-	linux-scsi@vger.kernel.org, Mauelshagen@redhat.com
-References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01E3E318@otce2k03.adaptec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <547AF3BD0F3F0B4CBDC379BAC7E4189F01E3E318@otce2k03.adaptec.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 1 Dec 2005 12:45:00 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:53977 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932364AbVLARo7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 12:44:59 -0500
+Date: Thu, 1 Dec 2005 18:44:32 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: ray-gmail@madrabbit.org, Kyle Moffett <mrmacman_g4@mac.com>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, mingo@elte.hu, george@mvista.com, johnstul@us.ibm.com
+Subject: Re: [patch 00/43] ktimer reworked
+In-Reply-To: <20051201165144.GC31551@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.61.0512011828150.1609@scrub.home>
+References: <1133395019.32542.443.camel@tglx.tec.linutronix.de>
+ <Pine.LNX.4.61.0512010118200.1609@scrub.home> <23CA09D3-4C11-4A4B-A5C6-3C38FA9C203D@mac.com>
+ <Pine.LNX.4.61.0512011352590.1609@scrub.home>
+ <2c0942db0512010822x1ae20622obf224ce9728e83f8@mail.gmail.com>
+ <20051201165144.GC31551@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 01, 2005 at 08:44:15AM -0500, Salyzyn, Mark wrote:
-> Christoph Hellwig sez:
-> > NACK.  We're not going to support attaching broken propritary drivers.
+Hi,
+
+On Thu, 1 Dec 2005, Russell King wrote:
+
+>  timeout
 > 
-> Understood and expected.
+>   A period of time after which an error condition is raised if some event
+>   has not occured. A common example is sending a message. If the receiver
+>   does not acknowledge the message within some preset timeout period, a
+>   transmission error is assumed to have occured.
 > 
-> The word 'broken' is hardly chosen for scientific reasons, bespeaks an
-> agenda ;-> Just because you can not see the code, does not mean it is
-> broken.
-
-there's various bugreports all over.  Having no source to disprove that
-it's broken I call it broken for now.
-
-> I have on numerous attempts tried to contact Heinz Mauelshagen to
-> fortify dmraid in support of the HostRAID adapters. He has yet to
-> respond to my emails to start a dialogue with Adaptec.
-
-What about just sending him patches?
-
-> Without the timely agenda and cooled temperaments to close the gap, the
-> solution should be temporarily to support the proprietary HostRAID
-> driver when the Adapter is in HostRAID mode and we continue to work to
-> close that gap on dmraid.
-
-No.  we're not going to do anything to make life for binary module easier,
-quite contrary.
-
-> > Sepcially as these "HostRAID" cards are plain SCSI HBAs.
+>  timer
 > 
-> They are plain SCSI HBAs, but are designated as a RAID card rather than
-> a Host Bus Adapter in the PCI config space when in 'HostRAID' mode. The
-> fact that is designated in the PCI space should be enough reason *not*
-> to attach a simplified LLD.
-
-No. 
-
+>   a timepiece that measures a time interval and signals its end
 > 
-> The HostRAID driver has a specialized (ok, yes, also proprietary) CHIM
-> and sequencer where attention can be focused on techniques of
-> performance improvement and OS agnostics. In addition, the RAID code in
-> that driver understands the hardware, CHIM & sequencer and takes
-> advantage of features that just can not be performed by an abstracted dm
-> or an LLD. RAID1 is handled under some conditions, for instance, with
-> one DMA operation over the PCI bus rather than two duplicated for each
-> target, greatly increasing the performance.
+> Hence, timers have the implication that they are _expected_ to expire.
+> Timeouts have the implication that their expiry is an exceptional
+> condition.
 
-If you contributed that sequencer code and sent me a card I'm pretty sure
-I'd love into adding support for this to a special DM module.  In fact we'd
-need somthing similar for Certain SATA boards aswell.
+IOW a timeout uses a timer to implement an exceptional condition after a 
+period of time expires.
 
-OTOH the raid flag would be useless aswell there, because we'd of course
-support this on identical cards without the raid bios aswell :)
+> So can we stop rehashing this stupid discussion?
 
+The naming isn't actually my primary concern. I want a precise definition 
+of the expected behaviour and usage of the old and new timer system. If I 
+had this, it would be far easier to choose a proper name.
+E.g. I still don't know why ktimeout should be restricted to raise just 
+"error conditions", as the name implies.
+
+bye, Roman

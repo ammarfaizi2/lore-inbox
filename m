@@ -1,84 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751353AbVLACvs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbVLAC6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751353AbVLACvs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 21:51:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbVLACvs
+	id S1751363AbVLAC6j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 21:58:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751367AbVLAC6j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 21:51:48 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:38360 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751353AbVLACvr (ORCPT
+	Wed, 30 Nov 2005 21:58:39 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:22200 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751363AbVLAC6i convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 21:51:47 -0500
-Date: Thu, 1 Dec 2005 03:51:45 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, zippel@linux-m68k.org, george@mvista.com,
-       johnstul@us.ibm.com
-Subject: Re: [patch 25/43] Create ktimeout.h and move timer.h code into it
-Message-ID: <20051201025145.GA26349@elte.hu>
-References: <20051130231140.164337000@tglx.tec.linutronix.de> <1133395428.32542.468.camel@tglx.tec.linutronix.de> <20051201023619.GU31395@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051201023619.GU31395@stusta.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -1.5
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-1.5 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	1.3 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 30 Nov 2005 21:58:38 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [BUG] Variable stopmachine_state should be volatile
+Date: Thu, 1 Dec 2005 10:58:33 +0800
+Message-ID: <8126E4F969BA254AB43EA03C59F44E84040B3C8C@pdsmsx404>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [BUG] Variable stopmachine_state should be volatile
+Thread-Index: AcX1/DPw2jHjzQdxR9aiZehA42spSQAJpdpA
+From: "Zhang, Yanmin" <yanmin.zhang@intel.com>
+To: "Pavel Machek" <pavel@ucw.cz>
+Cc: <linux-kernel@vger.kernel.org>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       "Shah, Rajesh" <rajesh.shah@intel.com>
+X-OriginalArrivalTime: 01 Dec 2005 02:58:34.0826 (UTC) FILETIME=[1EA3B2A0:01C5F623]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>-----Original Message-----
+>>From: Pavel Machek [mailto:pavel@ucw.cz]
+>>Sent: 2005Äê12ÔÂ1ÈÕ 6:20
+>>To: Zhang, Yanmin
+>>Cc: linux-kernel@vger.kernel.org; Pallipadi, Venkatesh; Shah, Rajesh
+>>Subject: Re: [BUG] Variable stopmachine_state should be volatile
+>>
+>>Hi!
+>>
+>>> The model to access variable stopmachine_state is that a main thread
+>>> writes it and other threads read it. Its declaration has no sign
+>>> volatile. In the while loop in function stopmachine, this variable is
+>>> read, and compiler might optimize it by reading it once before the loop
+>>> and not reading it again in the loop, so the thread might enter dead
+>>> loop.
+>>
+>>No. volatile may look like a solution, but it usually is not. You may
+>>need some barriers, atomic_t or locking.
+>>								Pavel
+The original functions already use smp_mb/smp_wmb. My patch just tells compiler not to optimize by bringing the reading of stopmachine_state out of the while loop.
 
-* Adrian Bunk <bunk@stusta.de> wrote:
-
-> On Thu, Dec 01, 2005 at 01:03:48AM +0100, Thomas Gleixner wrote:
-> > plain text document attachment (ktimeout-h.patch)
-> > - introduce ktimeout.h and move the timeout implementation into it, as-is.
-> > - keep timer.h for compatibility
-> >...
-> 
-> If you do this, you should either immediately remove timer.h or add a
-> #warning to this file.
-> 
-> Both cases imply changing all in-kernel users (which is anyway a good 
-> idea if we really want to rename this header).
-
-agreed, but we didnt want to be this drastic - we just wanted to 
-demonstrate that a smooth transition (short of an overnight changeover) 
-is possible as well.
-
-also, we are very interested in suggestions to further improve the
-ktimeout APIs. The perfect time is when there are no direct users of it
-yet.
-
-e.g. there's an interesting thought that Roman demonstrated in his 
-ptimer queue: the elimination of the .data field from struct ktimer. An 
-analogous thing could be done for timeouts as well: we do not actually 
-need a .data field in a fair number of cases - the position of any 
-data-context information can be recovered via container_of():
-
-void timer_fn(struct ktimeout *kt)
-{
-	struct my_data *ptr = container_of(kt, struct my_data, timer);
-	...
-}
-
-for compatibility we could provide a "struct ktimeout_standalone" that 
-embedds a .data field and a struct timeout - which would be equivalent 
-to the current "struct ktimeout".
-
-the advantage would be data-structure size reduction of one word per 
-embedded ktimeout structure. We'd also have one less word per standalone 
-timer that needs no data field. For standalone timeouts which do need a 
-data field there would be no impact.
-
-one downside is that it's not as straightforward to code as the current 
-.data field.
-
-	Ingo

@@ -1,46 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932416AbVLATix@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932417AbVLATjT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932416AbVLATix (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 14:38:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932417AbVLATix
+	id S932417AbVLATjT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 14:39:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbVLATjT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 14:38:53 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:13736 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932416AbVLATiw (ORCPT
+	Thu, 1 Dec 2005 14:39:19 -0500
+Received: from fsmlabs.com ([168.103.115.128]:56718 "EHLO spamalot.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S932417AbVLATjS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 14:38:52 -0500
-Date: Thu, 1 Dec 2005 11:38:20 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Kai Makisara <Kai.Makisara@kolumbus.fi>
-cc: Ryan Richter <ryan@tau.solarneutrino.net>, Andrew Morton <akpm@osdl.org>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: Fw: crash on x86_64 - mm related?
-In-Reply-To: <Pine.LNX.4.63.0512012040390.5777@kai.makisara.local>
-Message-ID: <Pine.LNX.4.64.0512011136000.3099@g5.osdl.org>
-References: <20051129092432.0f5742f0.akpm@osdl.org>
- <Pine.LNX.4.63.0512012040390.5777@kai.makisara.local>
+	Thu, 1 Dec 2005 14:39:18 -0500
+X-ASG-Debug-ID: 1133465951-589-51-0
+X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
+Date: Thu, 1 Dec 2005 11:44:51 -0800 (PST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
+X-ASG-Orig-Subj: [PATCH] x86_64: Display HPET timer option
+Subject: [PATCH] x86_64: Display HPET timer option
+Message-ID: <Pine.LNX.4.64.0512011143350.13220@montezuma.fsmlabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.5764
+	Rule breakdown below pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Currently the HPET timer option isn't visible in menuconfig.
 
+Signed-off-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>
 
-On Thu, 1 Dec 2005, Kai Makisara wrote:
-
-> On Tue, 29 Nov 2005, Andrew Morton wrote:
-> >
-> >  Bad page state at free_hot_cold_page (in process 'taper', page ffff81000260b6f8)
-> > flags:0x010000000000000c mapping:ffff8100355f1dd8 mapcount:2 count:0
-> > Backtrace:
-
-Ryan, can you test 2.6.15-rc4 and report what it does?
-
-The "Bad page state" messages may (should) remain, but the crashes should 
-be gone and the machine should hopefully continue functioning fine. And, 
-perhaps more importantly, you should hopefully have a _new_ message about 
-incomplete pfn mappings that should help pinpoint which driver causes 
-this..
-
-		Linus
+diff -r f425e4d22fe8 arch/x86_64/Kconfig
+--- a/arch/x86_64/Kconfig	Fri Dec  2 03:00:04 2005
++++ b/arch/x86_64/Kconfig	Thu Dec  1 11:41:06 2005
+@@ -317,7 +317,7 @@
+ 
+ 
+ config HPET_TIMER
+-	bool
++	bool "HPET timer"
+ 	default y
+ 	help
+ 	  Use the IA-PC HPET (High Precision Event Timer) to manage
+@@ -326,6 +326,10 @@
+ 	  systems, unlike the TSC, but it is more expensive to access,
+ 	  as it is off-chip.  You can find the HPET spec at
+ 	  <http://www.intel.com/hardwaredesign/hpetspec.htm>.
++
++config HPET_EMULATE_RTC
++	bool "HPET provides RTC interrupt"
++	depends on HPET_TIMER && RTC=y
+ 
+ config X86_PM_TIMER
+ 	bool "PM timer"
+@@ -342,10 +346,6 @@
+ 	  The kernel selects the PM timer only as a last resort, so it is
+ 	  useful to enable just in case.
+ 
+-config HPET_EMULATE_RTC
+-	bool "Provide RTC interrupt"
+-	depends on HPET_TIMER && RTC=y
+-
+ config GART_IOMMU
+ 	bool "IOMMU support"
+ 	default y

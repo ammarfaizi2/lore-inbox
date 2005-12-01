@@ -1,101 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751362AbVLACgB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbVLACsl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751362AbVLACgB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 21:36:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbVLACgB
+	id S1751313AbVLACsl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 21:48:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbVLACsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 21:36:01 -0500
-Received: from smtp1.brturbo.com.br ([200.199.201.163]:31875 "EHLO
-	smtp1.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S1751362AbVLACgA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 21:36:00 -0500
-Date: Wed, 30 Nov 2005 23:31:15 -0200
-From: mchehab@brturbo.com.br
-To: linux-kernel@vger.kernel.org, torvards@osdl.org
-Cc: akpm@osdl, org@vger.kernel.org, mchehab@infradead.org, js@linuxtv.org
-Subject: [PATCH 00/31] V4L/DVB fixes
-Message-Id: <1133400730.21135.61.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1-3mdk 
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Nov 2005 21:48:41 -0500
+Received: from fsmlabs.com ([168.103.115.128]:36994 "EHLO spamalot.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S1751313AbVLACsk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 21:48:40 -0500
+X-ASG-Debug-ID: 1133405317-13447-96-0
+X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
+Date: Wed, 30 Nov 2005 18:54:17 -0800 (PST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Shaohua Li <shaohua.li@intel.com>
+cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+X-ASG-Orig-Subj: Re: [PATCH]nmi VS cpu hotplug
+Subject: Re: [PATCH]nmi VS cpu hotplug
+In-Reply-To: <1133430364.7980.15.camel@linux.site>
+Message-ID: <Pine.LNX.4.64.0511301853140.13220@montezuma.fsmlabs.com>
+References: <1133430364.7980.15.camel@linux.site>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.5747
+	Rule breakdown below pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- Fixes maximum number of VBI devices
-- Fix hotplugging issues with saa7134
-- Fixes warning at bttv-driver.c
-- Include comments for DVB models and includes missing ones
-- tveeprom MAC address parsing/cleanup
-- Fixes nicam sound
-- Removed audio DMA enabling from cx88-core
-- Fix read() bugs in bttv driver
-- Bttv bytes per line fix
-- Enables audio DMA setting on cx88 chips, even when dma not in use
-- Some funcions now static and I2C hw code for IR
-- Makes needlessly global code static
-- Fixes Bttv raw format to fix VIDIOCSPICT ioctl
-- Write cached value to correct register for SECAM
-- Fix crash when not compiled as module
-- Fix bttv ioctls VIDIOC_ENUMINPUT, VIDIOCGTUNER, VIDIOC_QUERYCAP
-- Fixed eeprom handling for cx88 and added Nova-T PCI model 90003
-- Add workaround for Hauppauge PVR150 with certain NTSC tuner models
-- Fixed DiSEqC timing for saa7146-based budget cards
-- Fix locking problems and code cleanup
-- Fixed incorrect usage at the private state of the dvb-usb-devices
-- Include fixes for 2.6.15-rc1 for removing sched.h from module.h
-- Update Steve's email address.
-- Small cleanups and CodeStyle fixes
-- Fix locking to prevent Oops on SMP systems
-- Fixes ifs in ves1820 set symbolrate().
-- BUDGET CI card depends on STV0297 demodulator.
-Subject: V4L/DVB SCM update
-- fix kernel message (print of %s from random pointer)
-- Restore missing tuner definition for Hauppauge tuner type 0x103
-- Fix typo, removing incorrect info from CONFIG_BT848_DVB kconfig entry.
+On Thu, 1 Dec 2005, Shaohua Li wrote:
 
----------
+> Hi,
+> With CPU hotplug enabled, NMI watchdog stoped working. It appears the
+> violation is the cpu_online check in nmi handler. local ACPI based NMI
+> watchdog is initialized before we set CPU online for APs. It's quite
+> possible a NMI is fired before we set CPU online, and that's what
+> happens here.
+> Zwane, I suppose you saw nmi interrupts on offline CPU, so you added
+> this one. Several days ago I sent a patch titled 'disable LAPIC
+> completely for offline CPU', which I guess will make it disappear. Can
+> you try it?
+> So the solution is either to initialize nmi later or to delete the
+> cpu_online check. I just take what x86_64 does.
+> 
+> 
+> Signed-off-by: Shaohua Li <shaohua.li@intel.com>
 
- MAINTAINERS                                 |    3 
- drivers/media/dvb/b2c2/flexcop-hw-filter.c  |    2 
- drivers/media/dvb/dvb-core/dvb_ca_en50221.c |   69 +++++------------
- drivers/media/dvb/dvb-core/dvb_net.c        |   31 ++++---
- drivers/media/dvb/dvb-usb/a800.c            |    2 
- drivers/media/dvb/dvb-usb/dibusb-common.c   |   18 ++--
- drivers/media/dvb/dvb-usb/digitv.c          |    2 
- drivers/media/dvb/dvb-usb/dvb-usb-init.c    |    2 
- drivers/media/dvb/frontends/cx22702.c       |    2 
- drivers/media/dvb/frontends/cx22702.h       |    2 
- drivers/media/dvb/frontends/nxt200x.c       |    2 
- drivers/media/dvb/frontends/ves1820.c       |   14 +--
- drivers/media/dvb/ttpci/Kconfig             |    1 
- drivers/media/dvb/ttpci/av7110_ca.c         |    1 
- drivers/media/dvb/ttpci/budget-av.c         |    2 
- drivers/media/dvb/ttpci/budget-ci.c         |    2 
- drivers/media/dvb/ttpci/budget.c            |    2 
- drivers/media/dvb/ttpci/ttpci-eeprom.c      |    1 
- drivers/media/video/Kconfig                 |    3 
- drivers/media/video/bttv-cards.c            |    6 -
- drivers/media/video/bttv-driver.c           |   67 ++++++++++++----
- drivers/media/video/cx25840/cx25840-core.c  |   38 ++++++++-
- drivers/media/video/cx25840/cx25840.h       |    9 +-
- drivers/media/video/cx88/cx88-cards.c       |   53 ++++---------
- drivers/media/video/cx88/cx88-core.c        |   35 +++++++-
- drivers/media/video/cx88/cx88-tvaudio.c     |   28 +++---
- drivers/media/video/cx88/cx88.h             |    4 
- drivers/media/video/em28xx/em28xx-core.c    |    6 -
- drivers/media/video/em28xx/em28xx-video.c   |    2 
- drivers/media/video/ir-kbd-i2c.c            |    2 
- drivers/media/video/saa7115.c               |   14 +--
- drivers/media/video/saa711x.c               |    2 
- drivers/media/video/saa7127.c               |    6 -
- drivers/media/video/saa7134/saa7134-alsa.c  |   36 ++++++--
- drivers/media/video/saa7134/saa7134-core.c  |   25 ++++--
- drivers/media/video/saa7134/saa7134-oss.c   |   81 +++++++++++---------
- drivers/media/video/saa7134/saa7134.h       |    4 
- drivers/media/video/tveeprom.c              |   74 ++++++++++++++----
- drivers/media/video/video-buf.c             |    9 +-
- drivers/media/video/videodev.c              |   26 +++---
- include/linux/i2c-id.h                      |    1 
- include/media/tveeprom.h                    |    4 
- 42 files changed, 437 insertions(+), 256 deletions(-)
+Signed-off-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+
+> ---
+> 
+>  linux-2.6.14-root/arch/i386/kernel/traps.c |    7 -------
+>  1 files changed, 7 deletions(-)
+> 
+> diff -puN arch/i386/kernel/traps.c~nmi-cpuhotplug arch/i386/kernel/traps.c
+> --- linux-2.6.14/arch/i386/kernel/traps.c~nmi-cpuhotplug	2005-12-01 01:22:00.000000000 -0800
+> +++ linux-2.6.14-root/arch/i386/kernel/traps.c	2005-12-01 01:22:22.000000000 -0800
+> @@ -650,13 +650,6 @@ fastcall void do_nmi(struct pt_regs * re
+>  
+>  	cpu = smp_processor_id();
+>  
+> -#ifdef CONFIG_HOTPLUG_CPU
+> -	if (!cpu_online(cpu)) {
+> -		nmi_exit();
+> -		return;
+> -	}
+> -#endif
+
+Nice catch, well that's really old debug code for the 'toy' i386 hotplug 
+code i'm fine with deleting it.
+
+Thanks,
+	Zwane
 

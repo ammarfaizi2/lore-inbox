@@ -1,105 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbVLAOsa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbVLAOuA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932259AbVLAOsa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 09:48:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbVLAOs3
+	id S932239AbVLAOuA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 09:50:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbVLAOuA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 09:48:29 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:21650 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932239AbVLAOs2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 09:48:28 -0500
-Date: Thu, 1 Dec 2005 15:47:45 +0100
-From: Heinz Mauelshagen <mauelshagen@redhat.com>
-To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       "Darrick J. Wong" <djwong@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Luvella McFadden <luvella@us.ibm.com>, AJ Johnson <blujuice@us.ibm.com>,
-       Kevin Stansell <kstansel@us.ibm.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, Mauelshagen@redhat.com
-Subject: Re: [PATCH] aic79xx should be able to ignore HostRAID enabled adapters
-Message-ID: <20051201144745.GI2782@redhat.com>
-Reply-To: mauelshagen@redhat.com
-References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01E3E318@otce2k03.adaptec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <547AF3BD0F3F0B4CBDC379BAC7E4189F01E3E318@otce2k03.adaptec.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 1 Dec 2005 09:50:00 -0500
+Received: from web34105.mail.mud.yahoo.com ([66.163.178.103]:58982 "HELO
+	web34105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932239AbVLAOt7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 09:49:59 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=J4QI81CStnpTQypTmnkiwl/OJ7LKMXCS/sp3vZAN9nCV/UrW6GyZHYsK0C3YClUad82su9DdrXsVBeA3LY3lK3vMRf9bpVrgBZKiLyVWyYTyVoTnbEi1gwipqmNOOLWkmzuafcagOmDlgPHqBYlBvlvod5/zUmaKSvsAhAmzc14=  ;
+Message-ID: <20051201144958.73198.qmail@web34105.mail.mud.yahoo.com>
+Date: Thu, 1 Dec 2005 06:49:58 -0800 (PST)
+From: Kenny Simpson <theonetruekenny@yahoo.com>
+Subject: Re: nfs unhappiness with memory pressure
+To: Keith Mannthey <kmannth@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <a762e240511301342x6e754cafsed9db386d05a6b2b@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 01, 2005 at 08:44:15AM -0500, Salyzyn, Mark wrote:
-> Christoph Hellwig sez:
-> > NACK.  We're not going to support attaching broken propritary drivers.
-> 
-> Understood and expected.
-> 
-> The word 'broken' is hardly chosen for scientific reasons, bespeaks an
-> agenda ;-> Just because you can not see the code, does not mean it is
-> broken.
-> 
-> I have on numerous attempts tried to contact Heinz Mauelshagen to
-> fortify dmraid in support of the HostRAID adapters. He has yet to
-> respond to my emails to start a dialogue with Adaptec.
+--- Keith Mannthey <kmannth@gmail.com> wrote:
+> You are still reporing free pages.  Do you seen the OOM killer killing
+> processes?
 
-None of those here.
-Please forward.
+Running the test with /proc/sys/vm/overcommit_memory = 2, I get a similar 
+result.  It still hangs after about 5.9GB, but it starts trying to write 
+out the file sooner.
+Here is the stack trace I have for the process (again, by hand, what didn't scroll by as nothing
+makes it to logs...)
 
-> 
-> Justin Gibbs had provided the community the emd driver, soundly rejected
-> and never ported to dm because there were features that Justin held dear
-> in md that do not translate to dm. An unfortunate waste of considerable
-> resources.
-> 
-> Without the timely agenda and cooled temperaments to close the gap, the
-> solution should be temporarily to support the proprietary HostRAID
-> driver when the Adapter is in HostRAID mode and we continue to work to
-> close that gap on dmraid.
-> 
-> Could you agree with that to help the users today?
-> 
-> [ You are on record as not giving a fig for the users, what if I showed
-> them as starving children in a third world nation, would that melt your
-> heart? ;-} ]
-> 
-> > Sepcially as these "HostRAID" cards are plain SCSI HBAs.
-> 
-> They are plain SCSI HBAs, but are designated as a RAID card rather than
-> a Host Bus Adapter in the PCI config space when in 'HostRAID' mode. The
-> fact that is designated in the PCI space should be enough reason *not*
-> to attach a simplified LLD.
-> 
-> The HostRAID driver has a specialized (ok, yes, also proprietary) CHIM
-> and sequencer where attention can be focused on techniques of
-> performance improvement and OS agnostics. In addition, the RAID code in
-> that driver understands the hardware, CHIM & sequencer and takes
-> advantage of features that just can not be performed by an abstracted dm
-> or an LLD. RAID1 is handled under some conditions, for instance, with
-> one DMA operation over the PCI bus rather than two duplicated for each
-> target, greatly increasing the performance.
-> 
-> Linux is not about performance first, it is about doing it the Linux
-> way. I believe we can understand that. And in turn, do not consider it
-> harmful if a group of individuals trying to make a living see a chance
-> to acquire a competitive edge.
-> 
-> Sincerely -- Mark Salyzyn
+writetest:
+  schedule_timeout
+  io_schedule_timeout
+  blk_congestion_wait
+  throttle_vm_writeout
+  shrink_zone
+  shrink_caches
+  try_to_free_pages
+  __alloc_pages
+    -> (up to here it matches the previous run's stack from rpciod/0)
+  kmem_getpages
+  cache_grow
+  cache_alloc_refill
+  kmem_cache_alloc
+  mempool_alloc_slab
+  mempool_alloc
+  nfs_flush_one
+  nfs_flush_list
+  nfs_flush_inode
+  nfs_write_pages
+  do_writepages
+  __filemap_fdatawrite_range
+  filemap_fdatawrite
+  filemap_write_and_wait
+  nfs_revalidate_mapping
+  nfs_file_write
+  do_sync_write
+  vfs_write
+  sys_pwrite64
 
--- 
+The memory dump showed there was memory still available, with no swap in use.
 
-Regards,
-Heinz    -- The LVM Guy --
+-Kenny
 
-*** Software bugs are stupid.
-    Nevertheless it needs not so stupid people to solve them ***
 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-Heinz Mauelshagen                                 Red Hat GmbH
-Consulting Development Engineer                   Am Sonnenhang 11
-Cluster and Storage Development                   56242 Marienrachdorf
-                                                  Germany
-Mauelshagen@RedHat.com                            +49 2626 141200
-                                                       FAX 924446
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+	
+		
+__________________________________ 
+Yahoo! Mail - PC Magazine Editors' Choice 2005 
+http://mail.yahoo.com

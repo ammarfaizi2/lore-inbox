@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbVLAO2Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbVLAOad@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932246AbVLAO2Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 09:28:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbVLAO2Q
+	id S932245AbVLAOad (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 09:30:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbVLAOad
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 09:28:16 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:27813 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S932243AbVLAO2Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 09:28:16 -0500
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E5703662C65@exa-atlanta>
-From: "Ju, Seokmann" <Seokmann.Ju@engenio.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-scsi@vger.kernel.org
-Subject: How to setup git 
-Date: Thu, 1 Dec 2005 09:28:12 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2658.27)
+	Thu, 1 Dec 2005 09:30:33 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:8429 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932245AbVLAOac (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 09:30:32 -0500
+Subject: Re: [PATCH 0/9] x86-64 put current in r10
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
+In-Reply-To: <20051130042118.GA19112@kvack.org>
+References: <20051130042118.GA19112@kvack.org>
 Content-Type: text/plain
+Date: Thu, 01 Dec 2005 09:30:21 -0500
+Message-Id: <1133447421.6429.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ben,
 
-I'm trying to use git and in the middle of installing it on the RHEL4 U2.
-I have following modules in hand.
-- git-core-0.99.7-1.i386.rpm
-- cogito-0.15.1-1.noarch.rpm
+Do you have these patches maintained on a website somewhere too.  I'd be
+willing to test these patches out, without testing all of -mm (my x86_64
+box needs to be pretty stable). I have the confidence of using your
+patches without breaking too much ;-)
 
-During 'git-core-0.99.7-1.i386.rpm' installation, I'm getting following
-error message,
-[root@dhcp root]# rpm-ihv git-core-0.99.7-1.i386.rpm
-error: Failed dependencies:
-	perl(String::ShellQuote) is needed by git-core-0.99.7-1.i386
-	python >= 2.4 is needed by git-core-0.99.7-1.i386
+I'll apply the ones you posted to LKML, but I would like to also know
+where any updates are.
 
-Where can I find those modules?
-Also, please point out if you see any further obstacles along the way to
-move forward.
+Thanks,
 
-Any feedback would be appreciated.
+-- Steve
 
-Regards,
 
-Seokmann

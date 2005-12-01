@@ -1,95 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbVLAVlq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932488AbVLAVoT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932491AbVLAVlq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 16:41:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbVLAVlp
+	id S932488AbVLAVoT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 16:44:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbVLAVoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 16:41:45 -0500
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:18076 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S932491AbVLAVln (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 16:41:43 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andy Isaacson <adi@hexapodia.org>
-Subject: Re: swsusp intermittent failures in 2.6.15-rc3-mm1
-Date: Thu, 1 Dec 2005 22:42:44 +0100
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>
-References: <20051201173649.GA22168@hexapodia.org>
-In-Reply-To: <20051201173649.GA22168@hexapodia.org>
+	Thu, 1 Dec 2005 16:44:19 -0500
+Received: from fep30-0.kolumbus.fi ([193.229.0.32]:57436 "EHLO
+	fep30-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S932488AbVLAVoS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 16:44:18 -0500
+Date: Thu, 1 Dec 2005 23:44:27 +0200 (EET)
+From: Kai Makisara <Kai.Makisara@kolumbus.fi>
+X-X-Sender: makisara@kai.makisara.local
+To: Hugh Dickins <hugh@veritas.com>
+cc: Ryan Richter <ryan@tau.solarneutrino.net>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: Fw: crash on x86_64 - mm related?
+In-Reply-To: <Pine.LNX.4.61.0512012008420.28450@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.63.0512012337080.5777@kai.makisara.local>
+References: <20051129092432.0f5742f0.akpm@osdl.org>
+ <Pine.LNX.4.63.0512012040390.5777@kai.makisara.local>
+ <Pine.LNX.4.64.0512011136000.3099@g5.osdl.org> <20051201195657.GB7236@tau.solarneutrino.net>
+ <Pine.LNX.4.61.0512012008420.28450@goblin.wat.veritas.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512012242.44995.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 1 Dec 2005, Hugh Dickins wrote:
 
-On Thursday, 1 of December 2005 18:36, Andy Isaacson wrote:
-> My Thinkpad X40 (1.25 GB, ipw2200) has had fairly reliable swsusp since
-> 2.6.13 or thereabouts, and as recently as 2.6.15-rc1-mm1 I had about 20
-> successful suspend/resume cycles.  But now that I'm running
-> 2.6.15-rc3-mm1 I'm seeing intermittent failures like this:
+...
+> Nick and I had already been looking at drivers/scsi/{sg.c,st.c},
+> brought there by __put_page in sg.c's peculiar sg_rb_correct4mmap,
+> which we'd like to remove.  But that's irrelevant to your pain, except...
+> 
+> One extract from the patches I'd like to send Doug and Kai for 2.6.15
+> or 2.6.16 is this below: since the incomplete get_user_pages path omits
+> to reset res, but has already released all the pages, it will result in
+> premature freeing of user pages, and behaviour just like you've seen.
+> 
+> Though I'd have thought incomplete get_user_pages was an exceptional
+> case, and a bit surprised you'd encounter it.  Perhaps there's some
+> other premature freeing in the driver, and this instance has nothing
+> whatever to do with it.
+> 
+> If the problem were easily reproducible, it'd be great if you could
+> try this patch; but I think you've said it's not :-(
+> 
+> Hugh
+> 
+> --- 2.6.14/drivers/scsi/st.c	2005-10-28 01:02:08.000000000 +0100
+> +++ linux/drivers/scsi/st.c	2005-12-01 20:06:02.000000000 +0000
+> @@ -4511,6 +4511,7 @@ static int sgl_map_user_pages(struct sca
+>  	if (res > 0) {
+>  		for (j=0; j < res; j++)
+>  			page_cache_release(pages[j]);
+> +		res = 0;
+>  	}
+>  	kfree(pages);
+>  	return res;
+> 
+Whether this fix solves the current problem or not, it clearly fixes a 
+bug. If someone wants to include this into a patch series, you can add
+Signed-off-by: Kai Makisara <kai.makisara@kolumbus.fi>
+If not, I will include this when I send patches next time.
 
-Thanks a lot for the report.
+Thanks for noticing this problem.
 
-The problem is apparently caused by my recent patch intended to speed up
-suspend.  Could you please apply the appended debug patch, try to reproduce
-the problem and send full dmesg output back to me?
+Kai
 
-Rafael
-
-
-Index: linux-2.6.15-rc3-mm1/kernel/power/swsusp.c
-===================================================================
---- linux-2.6.15-rc3-mm1.orig/kernel/power/swsusp.c	2005-12-01 22:13:17.000000000 +0100
-+++ linux-2.6.15-rc3-mm1/kernel/power/swsusp.c	2005-12-01 22:24:56.000000000 +0100
-@@ -635,12 +635,18 @@
- 	printk("Shrinking memory...  ");
- 	do {
- #ifdef FAST_FREE
--		tmp = count_data_pages() + count_highmem_pages();
-+		tmp = count_data_pages();
-+		printk("Data pages: %ld\n", tmp);
-+		tmp += count_highmem_pages();
-+		printk("Data and highmem pages: %ld\n", tmp);
- 		tmp += (tmp + PBES_PER_PAGE - 1) / PBES_PER_PAGE +
- 			PAGES_FOR_IO;
-+		printk("Total pages: %ld\n", tmp);
- 		for_each_zone (zone)
--			if (!is_highmem(zone))
-+			if (!is_highmem(zone)) {
- 				tmp -= zone->free_pages;
-+				printk("Pages to free: %ld\n", tmp);
-+			}
- 		if (tmp > 0) {
- 			tmp = shrink_all_memory(SHRINK_BITE);
- 			if (!tmp)
-Index: linux-2.6.15-rc3-mm1/kernel/power/snapshot.c
-===================================================================
---- linux-2.6.15-rc3-mm1.orig/kernel/power/snapshot.c	2005-12-01 22:13:58.000000000 +0100
-+++ linux-2.6.15-rc3-mm1/kernel/power/snapshot.c	2005-12-01 22:39:01.000000000 +0100
-@@ -437,8 +437,14 @@
- 
- static int enough_free_mem(unsigned int nr_pages)
- {
--	pr_debug("swsusp: available memory: %u pages\n", nr_free_pages());
--	return nr_free_pages() > (nr_pages + PAGES_FOR_IO +
-+	struct zone *zone;
-+	unsigned int n = 0;
-+
-+	for_each_zone (zone)
-+		if (!is_highmem(zone))
-+			n += zone->free_pages;
-+	printk("swsusp: available memory: %u pages\n", n);
-+	return n > (nr_pages + PAGES_FOR_IO +
- 		(nr_pages + PBES_PER_PAGE - 1) / PBES_PER_PAGE);
- }
- 
-
-
--- 
-Beer is proof that God loves us and wants us to be happy - Benjamin Franklin

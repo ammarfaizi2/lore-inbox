@@ -1,90 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932459AbVLAVBA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932470AbVLAVEz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932459AbVLAVBA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 16:01:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932466AbVLAVBA
+	id S932470AbVLAVEz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 16:04:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbVLAVEz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 16:01:00 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:53635 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932459AbVLAVA7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 16:00:59 -0500
-Subject: Re: Gene's pcHDTV 3000 analog problem
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: Linux and Kernel Video <video4linux-list@redhat.com>
-Cc: Perry Gilfillan <perrye@linuxmail.org>,
-       Hartmut Hackmann <hartmut.hackmann@t.online.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Gene Heskett <gene.heskett@verizon.net>, Don Koch <aardvark@krl.com>,
-       Michael Krufky - V4L <mkrufky@m1k.net>
-In-Reply-To: <438F38E6.7090303@m1k.net>
-References: <200511282205.jASM5YUI018061@p-chan.krl.com>
-	 <c35b44d70511291548lcb10361ifd3a4ea0f239662d@mail.gmail.com>
-	 <438CFFAD.7070803@m1k.net>	<200511300007.56004.gene.heskett@verizon.net>
-	 <438D38B3.2050306@m1k.net>	<200511301553.jAUFrSQx026450@p-chan.krl.com>
-	 <438E7107.3000407@linuxmail.org>	<438E8365.4020200@linuxmail.org>
-	 <438E84A4.8000601@m1k.net> <438E8A58.4010003@linuxmail.org>
-	 <438EBD43.3080400@linuxmail.org>  <438F38E6.7090303@m1k.net>
-Content-Type: multipart/mixed; boundary="=-Gba+dDciAmLrDIoWKGbI"
-Date: Thu, 01 Dec 2005 19:00:59 -0200
-Message-Id: <1133470859.23362.59.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2-1mdk 
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[200.103.127.81 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[200.103.127.81 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 1 Dec 2005 16:04:55 -0500
+Received: from wproxy.gmail.com ([64.233.184.206]:27345 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932466AbVLAVEy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 16:04:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TNiyvCU3Ib0gcgLWDoTdLKkJziFrpYVCEm6VF0SGPvNk5Ta2FsmKWqfESZPzGJHxar+q/Yh/PDOVNgTQ760L/ZuK0xkd1xx+ghLIvMfudRVth/yb5mh0NAasYhugcvUnsxGqm2e3In5llsBQyfRt2m6sYXr5FNltwbmMmWkVfUo=
+Message-ID: <9611fa230512011247ifc0d0d1xb92849dbe63d1325@mail.gmail.com>
+Date: Thu, 1 Dec 2005 20:47:37 +0000
+From: Tarkan Erimer <tarkane@gmail.com>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: [BUG]: Software compiling occasionlly hangs under 2.6.15-rc1/rc2 and 2.6.15-rc1-mm2
+Cc: Andrew Morton <akpm@osdl.org>, arjan@infradead.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0511301347490.14736@hermes-1.csi.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <9611fa230511250312i55d0b872x82b8c33b4d2973e4@mail.gmail.com>
+	 <1132917564.7068.41.camel@laptopd505.fenrus.org>
+	 <9611fa230511270317led5b915h7daae3ef1287f86d@mail.gmail.com>
+	 <1133092701.2853.0.camel@laptopd505.fenrus.org>
+	 <9611fa230511271108m46389ee6w7ec6b5b40b1e23dd@mail.gmail.com>
+	 <20051127165733.643d5444.akpm@osdl.org>
+	 <9611fa230511291357g3aa964adj6918fea50f5ee66e@mail.gmail.com>
+	 <20051129151044.7ce3ef4a.akpm@osdl.org>
+	 <Pine.LNX.4.64.0511301347490.14736@hermes-1.csi.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 11/30/05, Anton Altaparmakov <aia21@cam.ac.uk> wrote:
+> Yes.  (-:
+>
+> These just means that you have mounted with a bad default code page or
+> whatever you want to call it and the ntfs volume contains characters
+> whethe the Unicode (i.e. NTFS) to your code page conversion fails (NLS
+> conversion returns error due to non-existant character in your code page).
+> As the message suggests if you adjust your mount options to include the
+> "nls=utf8" option the errors will go away and everything will work except
+> maybe your terminal/gui may dislay some garbage characters if it does not
+> understand utf8 characters but at least you will see all
+> files/directories.
 
---=-Gba+dDciAmLrDIoWKGbI
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Hi,
 
-	After checking the datasheets of Thompson tuner, and I have one guess:
+I mounted with "nls=utf8" option as you mentioned and all the related
+error messages disappeared. Thanks :)
 
-	At board description, tda9887 is not there. This tuner needs to work
-properly.
-
-	This small patch does enable it for your board.
-
-	You should notice that you may need to use some parameters for tda0887
-to work properly, like using port1=0 port2=0 qss=0 as insmod options for
-this module. (these are some on/off bits at the chip, to enable some
-special functions - if 0/0/0 doesn't work you may need to test 0/0/1, ..
-1/1/1).
-
-Cheers, 
-Mauro.
-
---=-Gba+dDciAmLrDIoWKGbI
-Content-Disposition: attachment; filename=v4l_ena_tda9887.patch
-Content-Type: text/x-patch; name=v4l_ena_tda9887.patch; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-Index: linux/drivers/media/video/cx88/cx88-cards.c
-===================================================================
-RCS file: /cvs/video4linux/v4l-dvb/linux/drivers/media/video/cx88/cx88-cards.c,v
-retrieving revision 1.108
-diff -u -p -r1.108 cx88-cards.c
---- linux/drivers/media/video/cx88/cx88-cards.c	25 Nov 2005 10:24:13 -0000	1.108
-+++ linux/drivers/media/video/cx88/cx88-cards.c	1 Dec 2005 20:56:43 -0000
-@@ -569,6 +569,7 @@ struct cx88_board cx88_boards[] = {
- 		.radio_type     = UNSET,
- 		.tuner_addr	= ADDR_UNSET,
- 		.radio_addr	= ADDR_UNSET,
-+		.tda9887_conf   = TDA9887_PRESENT,
- 		.input          = {{
- 			.type   = CX88_VMUX_TELEVISION,
- 			.vmux   = 0,
-
---=-Gba+dDciAmLrDIoWKGbI--
-
+Regards

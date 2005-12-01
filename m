@@ -1,48 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbVLAA5G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751607AbVLABHY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751408AbVLAA5G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 19:57:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751412AbVLAA5G
+	id S1751607AbVLABHY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 20:07:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751608AbVLABHY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 19:57:06 -0500
-Received: from ozlabs.org ([203.10.76.45]:19926 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751408AbVLAA5F (ORCPT
+	Wed, 30 Nov 2005 20:07:24 -0500
+Received: from ns2.suse.de ([195.135.220.15]:32171 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751551AbVLABHX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 19:57:05 -0500
-Subject: Re: Why does insmod _not_ check for symbol redefinition ??
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: "Tomar, Nagendra" <nagendra_tomar@adaptec.com>
+	Wed, 30 Nov 2005 20:07:23 -0500
+To: Devin Bayer <devin@freeshell.org>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0511251029150.18002-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0511251029150.18002-100000@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 01 Dec 2005 11:57:09 +1100
-Message-Id: <1133398629.8128.10.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] allow core_patten to be a FIFO, kernel 2.6.14
+References: <438E4307.10508@freeshell.org>
+From: Andi Kleen <ak@suse.de>
+Date: 30 Nov 2005 22:35:56 -0700
+In-Reply-To: <438E4307.10508@freeshell.org>
+Message-ID: <p73hd9tfkg3.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-11-25 at 10:45 +0530, Nagendra Singh Tomar wrote:
-> Did'nt get any response to this one, so sending it again.
+Devin Bayer <devin@freeshell.org> writes:
 > 
-> Can any of the module subsystem authors tell, why they have decided to 
-> allow loading a kernel module having an EXPORTed symbol with the same name 
-> as an EXPORTed  symbol in kernel proper. The safest thing would be to 
-> disallow  module loading in this case, giving a "Symbol redefinition" 
-> error.
-> 	Allowing the module load will lead to overriding kernel functions
-> which will affect modules loaded in future, that reference those 
-> functions. Overall, it can have bad effects of varying severity.
+> I'm looking for comments, testing and inclusion in the next release.
+> I have tested it in UML and one i686 build. The coredump files
+> produced were valid.
 
-Sure.  It was due to minimalism.  If you override a symbol it's
-undefined behavior.  It should be fairly simple to add a check that
-noone overrides a symbol.  We didn't bother checking for it because it
-wasn't clear that it was problematic.
+I did a similar patch some time ago, but it allowed to execute a program
+instead of allowing fifos with the core on stdin. IMHO that's a better
+usage model because it doesn't require a daemon (and if you want one
+you can use a trivial forwarder) 
 
-Hope that clarifies,
-Rusty.
--- 
-A bad analogy is like a leaky screwdriver -- Richard Braakman
+I didn't post it because it still needed some cleanup and
+double checking of a few corner cases and ran out of time for that.
 
+I agree it's very useful. In my case the idea was to do 
+automatic crash reporting. I wrote some simpleminded backup
+scripts for that.
+
+If there is interest I can dig it out. I think it was already
+in better shape than your patch ;-)
+
+>  {
+> -	if (file->f_op->llseek) {
+> +	if (off == file->f_pos) +		return 1;
+> +	if (file->f_op->llseek == no_llseek && off > file->f_pos) {
+> +		int nr = off - file->f_pos;
+> +		char zeros[nr];
+> +
+> +		memset(zeros,0,nr);
+> +		return dump_write(file, zeros, nr);
+
+That's a exploitable root hole and a likely crash I think.
+
+> +	    if (do_truncate(file->f_dentry, 0) != 0)
+> +		    goto close_fail;
+> +	}
+>  	retval = binfmt->core_dump(signr, regs, file);
+>  +	if(S_ISFIFO(inode->i_mode))
+> +	    spin_unlock(&fifo_core_lock);
+
+You're holding a spinlock over operations that can sleep like
+write or truncate? That's totally wrong.
+
+-Andi

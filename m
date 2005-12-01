@@ -1,71 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbVLAAVM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbVLAAZU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751386AbVLAAVM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 19:21:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbVLAAVM
+	id S1751387AbVLAAZU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 19:25:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbVLAAZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 19:21:12 -0500
-Received: from ozlabs.org ([203.10.76.45]:40149 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751386AbVLAAVL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 19:21:11 -0500
-Date: Thu, 1 Dec 2005 11:20:49 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Adam Litke <agl@us.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>,
-       linux-kernel@vger.kernel.org
-Subject: Fix handling of ELF segments with zero filesize
-Message-ID: <20051201002049.GB14247@localhost.localdomain>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Andrew Morton <akpm@osdl.org>, Adam Litke <agl@us.ibm.com>,
-	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Wed, 30 Nov 2005 19:25:20 -0500
+Received: from vms042pub.verizon.net ([206.46.252.42]:45461 "EHLO
+	vms042pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1751387AbVLAAZS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 19:25:18 -0500
+Date: Wed, 30 Nov 2005 19:24:51 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: Gene's pcHDTV 3000 analog problem
+In-reply-to: <200511301553.jAUFrSQx026450@p-chan.krl.com>
+To: linux-kernel@vger.kernel.org
+Cc: Don Koch <aardvark@krl.com>, Michael Krufky <mkrufky@m1k.net>,
+       kirk.lapray@gmail.com, video4linux-list@redhat.com, CityK@rogers.com,
+       perrye@linuxmail.org
+Message-id: <200511301924.52003.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <200511282205.jASM5YUI018061@p-chan.krl.com>
+ <438D38B3.2050306@m1k.net> <200511301553.jAUFrSQx026450@p-chan.krl.com>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, please apply
+On Wednesday 30 November 2005 10:53, Don Koch wrote:
+>On Wed, 30 Nov 2005 00:29:23 -0500
+>
+>Michael Krufky wrote:
+>> Gene Heskett wrote:
+>> >On Tuesday 29 November 2005 20:26, Michael Krufky wrote:
+>> >
+>> >[...]
+>> >
+>> >>ll I can think of doing next is to have Gene, Don or Perry do a
+>> >>bisection test on our cvs repo.... checking out different cvs
+>> >> revisions until we can narrow it down to the day the problem patch
+>> >> was applied.
+>
+>Do we know of a date where the code is known to work.
 
-mmap() returns -EINVAL if given a zero length, and thus elf_map() in
-binfmt_elf.c does likewise if it attempts to map a (page-aligned) ELF
-segment with zero filesize.  Such a situation never arises with the
-default linker scripts, but there's nothing inherently wrong with
-zero-filesize (but non-zero memsize) ELF segments.  Custom linker
-scripts can generate them, and the kernel should be able to map them;
-this patch makes it so.
+I assume this is actually a question.  Its one I'm not privy to other
+than whats in 2.6.14.3 and earlier works.  As to when that was merged
+into the kernel tarballs, I'll let Michael see if he can date it.  And
+then we'ed want to look at anything post that merge date, using the
+bisect methods suggested.
 
-Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+However, its not going to be started here tonight, I need some sleep,
+drank way too much coffee yesterday & didn't sleep last night at all. 
+  
+>First thing I'd
+> like to do is verify that the card works at all.  Remember, I've never
+> seen NTSC tuner mode work and don't want to chase a red herring if the
+> card is busted.
 
-Index: working-2.6/fs/binfmt_elf.c
-===================================================================
---- working-2.6.orig/fs/binfmt_elf.c	2005-11-23 15:56:30.000000000 +1100
-+++ working-2.6/fs/binfmt_elf.c	2005-12-01 11:11:01.000000000 +1100
-@@ -288,11 +288,17 @@ static unsigned long elf_map(struct file
- 			struct elf_phdr *eppnt, int prot, int type)
- {
- 	unsigned long map_addr;
-+	unsigned long pageoffset = ELF_PAGEOFFSET(eppnt->p_vaddr);
- 
- 	down_write(&current->mm->mmap_sem);
--	map_addr = do_mmap(filep, ELF_PAGESTART(addr),
--			   eppnt->p_filesz + ELF_PAGEOFFSET(eppnt->p_vaddr), prot, type,
--			   eppnt->p_offset - ELF_PAGEOFFSET(eppnt->p_vaddr));
-+	/* mmap() will return -EINVAL if given a zero size, but a
-+	 * segment with zero filesize is perfectly valid */
-+	if (eppnt->p_filesz + pageoffset)
-+		map_addr = do_mmap(filep, ELF_PAGESTART(addr),
-+				   eppnt->p_filesz + pageoffset, prot, type,
-+				   eppnt->p_offset - pageoffset);
-+	else
-+		map_addr = ELF_PAGESTART(addr);
- 	up_write(&current->mm->mmap_sem);
- 	return(map_addr);
- }
+It should work with a stock 2.6.14.3 build if its going to work I
+think, although there may be other factors for cards other than my
+pcHDTV-3000.  Michael?
+
+>Thanks,
+>-d
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/~dgibson
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.36% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+

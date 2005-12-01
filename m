@@ -1,124 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbVLASbW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbVLASdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932396AbVLASbW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 13:31:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbVLASbV
+	id S932397AbVLASdo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 13:33:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932400AbVLASdn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 13:31:21 -0500
-Received: from smtp108.sbc.mail.mud.yahoo.com ([68.142.198.207]:25464 "HELO
-	smtp108.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932396AbVLASbV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 13:31:21 -0500
+	Thu, 1 Dec 2005 13:33:43 -0500
+Received: from smtp107.sbc.mail.mud.yahoo.com ([68.142.198.206]:19624 "HELO
+	smtp107.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932397AbVLASdn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 13:33:43 -0500
 From: David Brownell <david-b@pacbell.net>
 To: Vitaly Wool <vwool@ru.mvista.com>
-Subject: Re: [PATCH 2.6-git] SPI core refresh
-Date: Thu, 1 Dec 2005 10:31:11 -0800
+Subject: Re: [PATCH 2.6-git] MTD/SPI dataflash driver
+Date: Thu, 1 Dec 2005 10:33:41 -0800
 User-Agent: KMail/1.7.1
-Cc: Mark Underwood <basicmark@yahoo.com>, linux-kernel@vger.kernel.org,
-       dpervushin@gmail.com, akpm@osdl.org, greg@kroah.com,
-       komal_shah802003@yahoo.com, stephen@streetfiresound.com,
-       spi-devel-general@lists.sourceforge.net, Joachim_Jaeger@digi.com
-References: <20051130202930.67776.qmail@web36914.mail.mud.yahoo.com> <438EA389.7030704@ru.mvista.com>
-In-Reply-To: <438EA389.7030704@ru.mvista.com>
+Cc: linux-kernel@vger.kernel.org, dpervushin@gmail.com, akpm@osdl.org,
+       greg@kroah.com, basicmark@yahoo.com, komal_shah802003@yahoo.com,
+       stephen@streetfiresound.com, spi-devel-general@lists.sourceforge.net,
+       Joachim_Jaeger@digi.com
+References: <20051201191109.40f2d04b.vwool@ru.mvista.com> <20051201191837.222fe0b3.vwool@ru.mvista.com>
+In-Reply-To: <20051201191837.222fe0b3.vwool@ru.mvista.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200512011031.12167.david-b@pacbell.net>
+Message-Id: <200512011033.41627.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 30 November 2005 11:17 pm, Vitaly Wool wrote:
-> Mark Underwood wrote:
-> 
-> >>However, there also are some advantages of our core compared to David's I'd like to mention
-> >>
-> >>- it can be compiled as a module
-> 
-> >So can David's. You can use BIOS tables in which case you must compile the SPI core into the
-> >kernel but you can also use spi_new_device which allows the SPI core to be built as a module (and
-> >is how I am using it).
-> 
-> You limit the functionality, so it's not the case.
+On Thursday 01 December 2005 8:18 am, Vitaly Wool wrote:
+ 
+> It took about fifteen minutes of mindwork to port the MTD dataflash driver
+> posted by David Brownell 11/23 to our SPI core from David's,
 
-As noted in my comparison of last week (you're still ignoring that):
+Interesting and informative; +1!
 
- - Mine lets board-specific device tables be declared in the
-   relevant arch_setup() thing (board-*.c).  Both frameworks allow
-   later board specific code to dynamically declare the devices,
-   with binary (Dave's) or parsed-text (Dmitry's) descriptions. 
-
-What Mark said was that in this case he used the "late" init.  You seem
-to be saying he's not allowed to do that.  Which is nonsense; there are
-distinct mechanisms for the good reason that "late" init doesn't work
-so well without dynamic discovery ... which SPI itself doesn't support.
-Hence the need for board-specific "this hardware exists" tables.
+Did you have a chance to test this?  There are some post-2.6.15-rc3-mm1
+updates to this code, mostly to catch startup fauults better but also to
+hotplug reasonably.  The glitches I saw may as easily be JFFS2 integration
+issues for the DataFlash code as bitbang adapter problems.  (I think you
+started more or less from what's in rc3-mm1.)
 
 
-> If there's more than one SPI controller onboard, spi_write_then_read 
-> will serialize the transfers ...
+> reducing both 
+> the size of the source code and the footprint of the object code.
+> I'd also like to mention that now it looks significatnly easier to understand
+> due to no more use of complicated SPI message structures. The number of variables
+> used was also decreased
 
-Which, as has been pointed out, would be a trivial thing to fix
-if anyone were actually to have a problem.  Sure it'd incur the
-cost of a kmalloc on at least some paths -- serializing in the
-slab layer instead! -- but that's one price of using convenience
-helpers not performance oriented calls.
+I think that's all the same issue.  Other than "spi_driver" replacing
+"device_driver" (I'd like to see a patch doing that to rc3-mm1), the
+main changes seem to be:
 
+  - Move from original atomic requests like this
 
->	 Moreover, if, say, two  
-> kernel threads with different priorities are working with two SPI 
-> controllers respectively *priority inversion* will happen.
+	{ write command, read response }
 
-That characteristic being inherited from semaphores (or were they
-updated with RT_PREEMPT?), and being in common with most I/O queues
-in the system.  Not something to blame on any line of code I wrote.
+    over to two separate requests
 
-Oh, and I noticed a priority inversion in your API which shows
-up with one SPI controller managing two devices.  Whoops!  I'd
-far rather have such inversions be implementation artifacts; it's
-easy to patch an implementation, hard to change all API users.
+	{ write command, and leave CS active }
+	{ read response, and leave CS off }
 
+ - Lower the per-request performance ceiling on this driver
 
-> >>- it's more adapted for use in real-time environments
-> >>- it's not so lightweight, but it leaves less effort for the bus driver developer.
-> >
-> >But also less flexibility. A core layer shouldn't _force_ a policy
-> 
-> Nope, it's just a default policy.
+      * original code could be implemented in a single DMA chain on
+        at least two systems I happen to have handy ... one IRQ.
 
-One that every driver pays the price for.  Allocating a task even
-when it doesn't need it; every call going through a midlayer that
-wants to take over queue management policy; and more.  (Unless you
-made a big un-remarked change in a patch you called "refresh"...)
+      * this version requires two separate chains, with an intervening
+        task schedule.  (More than twice the cost.)
 
+      * in your framework I still can't be _sure_ it never does memcpy
+        for those buffers (the last version I looked at did so).  the
+        original code just used normal DMA models, so it "obviously"
+        doesn't risk memcpy.
 
-> >on a bus driver. I am currently developing an adapter driver for David's system and I wouldn't say
-> >that the core is making me do things I think the core should do. Please could you provide examples
-> >of where you think Davids SPI core requires 'effort'.
-> 
-> Main are
-> - the need to call 'complete' in controller driver
+ - Add fault handling problems ... probably an oversight, you call
+   routines and don't check for fault reports.  Though I'm not clear
+   how the faults between the two requests would be handled (in your
+   framework) with any robustness... doing this right could easily
+   cost all the codespace you've conserved.
 
-So you think it's better to have consistent semantics be optional?
+ - I might agree with this being "easier to understand" code, though
+   it's debatable.  (The device sees one transaction, why should the
+   driver writer have to split it up into two?)  But that doesn't
+   matter much:  filesystems are better with "faster to run" code.
 
-That seems to be the notion behind your spi_transfer() call, which
-can't decide whether it's going to be synchronous or asynchronous.
-Instead, it decided to be error prone and be both.  :)
+ - Chipselect works differently in your code.  You're giving one
+   driver control over all the devices sharing a controller, by
+   blocking requests going to other devices until your driver yields
+   the chipselect.  This seems like a bad idea even if you ignore
+   how it produces priority inversions in your framework.  :)
 
-
-> - the need to implement policy in controller driver
-
-The "policy" in question is something that sometimes needs to
-be board-specific -- priority to THAT device, synch with THIS
-external signal, etc -- which is why I see it as a drawback
-that you insist the core implement one policy.
-
-One policy is painfully easy to implement:  FIFO, processing
-the requests in the order they arrive.  Easy to implement,
-even with spinlocks, in a dozen lines of code.  If anyone
-has a hard time writing that, they shouldn't be trying to
-write a device driver.
+So the way I see it, this is a good example of why my original I/O model
+is better.  It provides _flexibility_ in the API so that some drivers
+can be really smart, if they want to.  You haven't liked the consequence
+of that though:  controller drivers being able to choose how they
+represent and manage I/O queues, rather than doing that in your "core".
 
 - Dave
+
+
 

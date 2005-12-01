@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbVLAIIH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbVLAIQ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750775AbVLAIIH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 03:08:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751388AbVLAIIH
+	id S1751395AbVLAIQ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 03:16:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbVLAIQ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 03:08:07 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:38306 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750775AbVLAIIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 03:08:05 -0500
-Subject: Re: [PATCH] aic79xx should be able to ignore HostRAID enabled
-	adapters
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Darrick J. Wong" <djwong@us.ibm.com>
-Cc: Chris McDermott <lcm@us.ibm.com>, Luvella McFadden <luvella@us.ibm.com>,
-       AJ Johnson <blujuice@us.ibm.com>, Kevin Stansell <kstansel@us.ibm.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-In-Reply-To: <438E90DD.3010007@us.ibm.com>
-References: <438E90DD.3010007@us.ibm.com>
-Content-Type: text/plain
-Date: Thu, 01 Dec 2005 09:08:01 +0100
-Message-Id: <1133424481.2853.10.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 1 Dec 2005 03:16:26 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:48321 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751395AbVLAIQZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 03:16:25 -0500
+Message-ID: <438EB150.2090502@pobox.com>
+Date: Thu, 01 Dec 2005 03:16:16 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+CC: Linus Torvalds <torvalds@osdl.org>, Helge Hafting <helgehaf@aitel.hist.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Tejun Heo <htejun@gmail.com>
+Subject: Re: Linux 2.6.15-rc3
+References: <Pine.LNX.4.64.0511282006370.3177@g5.osdl.org> <20051129213656.GA8706@aitel.hist.no> <Pine.LNX.4.64.0511291340340.3029@g5.osdl.org> <438D69FF.2090002@aitel.hist.no>
+In-Reply-To: <438D69FF.2090002@aitel.hist.no>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Helge Hafting wrote: > I tried compiling and booting
+	rc1. The machine is remote, and did not > come up. So I don't know why
+	it didn't come up, but it is likely > that it is the same problem. Any
+	chance at all to get netconsole or serial console output, after turning
+	on ATA_DEBUG and ATA_VERBOSE_DEBUG in include/linux/libata.h ? [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
 	pts rule name              description
 	---- ---------------------- --------------------------------------------------
 	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   Upon bootup, the aic79xx
-> driver will grab both controllers even though I'd prefer that Adaptec's a320raid
-> driver grab the HostRAID controller.  
+Helge Hafting wrote:
+> I tried compiling and booting rc1.  The machine is remote, and did not
+> come up.  So I don't know why it didn't come up, but it is likely
+> that it is the same problem.
 
-where is the sourcecode for the a320raid driver?
+Any chance at all to get netconsole or serial console output, after 
+turning on ATA_DEBUG and ATA_VERBOSE_DEBUG in include/linux/libata.h ?
 
-afaik dmraid supports this format already, and if not I would urge you
-to help the dmraid project to support it instead..
+	Jeff
 
 

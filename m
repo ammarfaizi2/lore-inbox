@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbVLANxN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbVLAOFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932242AbVLANxN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 08:53:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbVLANxN
+	id S1750824AbVLAOFF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 09:05:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbVLAOFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 08:53:13 -0500
-Received: from fw5.argo.co.il ([194.90.79.130]:50192 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S932241AbVLANxM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 08:53:12 -0500
-Message-ID: <438F0039.9010801@argo.co.il>
-Date: Thu, 01 Dec 2005 15:52:57 +0200
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-CC: Takashi Sato <sho@bsd.tnes.nec.co.jp>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: stat64 for over 2TB file returned invalid st_blocks
-References: <01e901c5f66e$d4551b70$4168010a@bsd.tnes.nec.co.jp> <20051201125206.GB24519@wohnheim.fh-wedel.de>
-In-Reply-To: <20051201125206.GB24519@wohnheim.fh-wedel.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-OriginalArrivalTime: 01 Dec 2005 13:53:08.0388 (UTC) FILETIME=[8F81AE40:01C5F67E]
+	Thu, 1 Dec 2005 09:05:05 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:5953 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S1750824AbVLAOFE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 09:05:04 -0500
+Subject: Re: Linux 2.6.15-rc4
+From: Kasper Sandberg <lkml@metanurb.dk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0511302234020.3099@g5.osdl.org>
+References: <Pine.LNX.4.64.0511302234020.3099@g5.osdl.org>
+Content-Type: text/plain
+Date: Thu, 01 Dec 2005 15:05:03 +0100
+Message-Id: <1133445903.16820.1.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel wrote:
+On Wed, 2005-11-30 at 22:40 -0800, Linus Torvalds wrote:
+<snip>
+> 
+> 		Linus
+> 
+> [ Btw, some drivers will now complain loudly about their nasty mis-use of 
+>   page remapping, and that migh look scary, but it should all be good, and 
+>   we'd love to see the detailed output of dmesg on such machines. ]
+> 
 
->On Thu, 1 December 2005 21:00:26 +0900, Takashi Sato wrote:
->  
->
->>diff -uprN -X linux-2.6.14.org/Documentation/dontdiff linux-2.6.14.or
->>g/include/asm-i386/stat.h linux-2.6.14-blocks/include/asm-i386/stat.h
->>--- linux-2.6.14.org/include/asm-i386/stat.h 2005-10-28 09:02:08.000000000 
->>+0900
->>+++ linux-2.6.14-blocks/include/asm-i386/stat.h 2005-11-18 
->>22:42:37.000000000 +0900
->>@@ -58,8 +58,7 @@ struct stat64 {
->> long long st_size;
->> unsigned long st_blksize;
->>
->>- unsigned long st_blocks; /* Number 512-byte blocks allocated. */
->>- unsigned long __pad4;  /* future possible st_blocks high bits */
->>+ unsigned long long st_blocks; /* Number 512-byte blocks allocated. */
->>    
->>
->
->After a closer look: have you tested this on a big-endian machine as
->well?  This heavily smells like it will work one one endianness only.
->
->  
->
-It's in asm-i386, which is always little endian.
+this is the ati proprietary driver on x86 laptop.
+
+Backtrace:
+ [<b013d88d>] bad_page+0x7d/0xc0
+ [<b013e124>] free_hot_cold_page+0x44/0x100
+ [<b0148c2c>] zap_pte_range+0xfc/0x220
+ [<b0148e3c>] unmap_page_range+0xec/0x110
+ [<b0148f21>] unmap_vmas+0xc1/0x1e0
+ [<b014cc45>] unmap_region+0x85/0x110
+ [<b014cf39>] do_munmap+0xd9/0x120
+ [<b014cfc7>] sys_munmap+0x47/0x70
+ [<b0102f1b>] sysenter_past_esp+0x54/0x75
+Trying to fix it up, but a reboot is needed
+
+
+<snip>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

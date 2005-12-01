@@ -1,86 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751354AbVLACTl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751358AbVLACYD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751354AbVLACTl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 21:19:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbVLACTl
+	id S1751358AbVLACYD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 21:24:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbVLACYC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 21:19:41 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:1702 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751354AbVLACTl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 21:19:41 -0500
-Date: Thu, 1 Dec 2005 03:19:43 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: tglx@linutronix.de, linux-kernel@vger.kernel.org, zippel@linux-m68k.org,
-       george@mvista.com, johnstul@us.ibm.com
-Subject: Re: [patch 00/43] ktimer reworked
-Message-ID: <20051201021943.GA23838@elte.hu>
-References: <1133395019.32542.443.camel@tglx.tec.linutronix.de> <20051130164105.40e103d4.akpm@osdl.org>
+	Wed, 30 Nov 2005 21:24:02 -0500
+Received: from fmr14.intel.com ([192.55.52.68]:60077 "EHLO
+	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1751358AbVLACYA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 21:24:00 -0500
+Subject: [PATCH]nmi VS cpu hotplug
+From: Shaohua Li <shaohua.li@intel.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>, zwane <zwane@linuxpower.ca>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Content-Type: text/plain
+Date: Thu, 01 Dec 2005 01:46:04 -0800
+Message-Id: <1133430364.7980.15.camel@linux.site>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051130164105.40e103d4.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -1.5
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-1.5 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	1.3 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+With CPU hotplug enabled, NMI watchdog stoped working. It appears the
+violation is the cpu_online check in nmi handler. local ACPI based NMI
+watchdog is initialized before we set CPU online for APs. It's quite
+possible a NMI is fired before we set CPU online, and that's what
+happens here.
+Zwane, I suppose you saw nmi interrupts on offline CPU, so you added
+this one. Several days ago I sent a patch titled 'disable LAPIC
+completely for offline CPU', which I guess will make it disappear. Can
+you try it?
+So the solution is either to initialize nmi later or to delete the
+cpu_online check. I just take what x86_64 does.
 
-* Andrew Morton <akpm@osdl.org> wrote:
 
-> Thomas Gleixner <tglx@linutronix.de> wrote:
-> >
-> > this patch series is a refactored version of the ktimer-subsystem patch.
-> 
->  25 files changed, 3364 insertions(+), 1827 deletions(-)
-> 
-> allnoconfig, before:
-> 
->    text    data     bss     dec     hex filename
->  764888  157221   53748  975857   ee3f1 vmlinux
-> 
-> after:
-> 
->    text    data     bss     dec     hex filename
->  766712  157741   53748  978201   eed19 vmlinux
-> 
-> Remind me what we gained for this?
+Signed-off-by: Shaohua Li <shaohua.li@intel.com>
+---
 
-well, for 1824 bytes of code [*] and 520 bytes of data you got a new, 
-clean timer subsystem, which is per-clock tree based and hres-timers 
-ready. It also doesnt scan all active timers linearly and fixes them up 
-whenever NTP decides to mend the clock a bit. It also has no jiffy 
-dependencies and has nsec resolution with timeouts of up to 292 years, 
-to the nanosec. It has no subjiffies, no HZ, no tradeoffs.
+ linux-2.6.14-root/arch/i386/kernel/traps.c |    7 -------
+ 1 files changed, 7 deletions(-)
 
-note that ktimer.o itself is larger than 1824 bytes:
+diff -puN arch/i386/kernel/traps.c~nmi-cpuhotplug arch/i386/kernel/traps.c
+--- linux-2.6.14/arch/i386/kernel/traps.c~nmi-cpuhotplug	2005-12-01 01:22:00.000000000 -0800
++++ linux-2.6.14-root/arch/i386/kernel/traps.c	2005-12-01 01:22:22.000000000 -0800
+@@ -650,13 +650,6 @@ fastcall void do_nmi(struct pt_regs * re
+ 
+ 	cpu = smp_processor_id();
+ 
+-#ifdef CONFIG_HOTPLUG_CPU
+-	if (!cpu_online(cpu)) {
+-		nmi_exit();
+-		return;
+-	}
+-#endif
+-
+ 	++nmi_count(cpu);
+ 
+ 	if (!rcu_dereference(nmi_callback)(regs, cpu))
+_
 
- size kernel/ktimer.o
-   text    data     bss     dec     hex filename
-   3912     100       0    4012     fac kernel/ktimer.o
 
-so it has already offset roughly half of its size.
-
-we can (and will) try to improve it further, but if anyone desires to 
-get it for free, that's probably not possible. (only 'probable' because 
-we have not converted posix-cpu-timers yet, another ktimer conversion 
-candidate with code reduction potential)
-
-it had to be a new set of APIs, which all take text space. We'll try to 
-shave off some more .text, but miracles are not expected.
-
-	Ingo
-
-[*] if you enable CONFIG_KTIME_SCALAR, then on x86 we get denser
-    ktime_t code. We keep it off by default to give the union
-    representation testing (the scalar representation is the more
-    trivial case). It should shave off another 300 bytes from your
-    kernel's size. We'll probably enable KTIME_SCALAR on x86 later on.

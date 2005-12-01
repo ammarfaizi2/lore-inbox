@@ -1,66 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbVLARS5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbVLART4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932344AbVLARS5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 12:18:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbVLARS5
+	id S932345AbVLART4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 12:19:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbVLART4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 12:18:57 -0500
-Received: from petasus.ims.intel.com ([62.118.80.130]:8859 "EHLO
-	petasus.ims.intel.com") by vger.kernel.org with ESMTP
-	id S932344AbVLARS4 convert rfc822-to-8bit (ORCPT
+	Thu, 1 Dec 2005 12:19:56 -0500
+Received: from hera.kernel.org ([140.211.167.34]:20460 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S932345AbVLARTz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 12:18:56 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 1/1] indirect function calls elimination in IO scheduler
-Date: Thu, 1 Dec 2005 20:18:52 +0300
-Message-ID: <6694B22B6436BC43B429958787E45498E78FA8@mssmsx402nb>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: RE: [PATCH 1/1] indirect function calls elimination in IO scheduler
-Thread-Index: AcX2m0zwjdkBx3WSSBKPqIt2qs+fqg==
-From: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <axboe@suse.de>
-X-OriginalArrivalTime: 01 Dec 2005 17:18:53.0158 (UTC) FILETIME=[4D901860:01C5F69B]
+	Thu, 1 Dec 2005 12:19:55 -0500
+Date: Thu, 1 Dec 2005 15:19:38 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: linux-mm <linux-mm@kvack.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Better pagecache statistics ?
+Message-ID: <20051201171938.GB16235@dmt.cnet>
+References: <1133377029.27824.90.camel@localhost.localdomain> <20051201152029.GA14499@dmt.cnet> <1133452790.27824.117.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1133452790.27824.117.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens,
- 
-You wrote about patch
->> This breaks reference counting of said
->> structure, so it's not really something that can be applied.
- 
->> this patch is a no-go from the beginning since
->> you cannot ref count a statically embedded structure. It has to be
->> dynamically allocated.
- 
-My answer:
-> There was no any 'ref count' elevator structure in 2.6.9. There was
-not
-> added any 'ref count' while modular and online switching was enabled.
- 
->> The does exist outside of the queue getting gotten/put,
->> the switching being one of them. Tejun has patches for improving the
->> switching, so it would be possible to keep two schedulers alive for
-the
->> queue for the duration of the switch.
- 
-Proposed patch does not modify "gotten/put" modules order.
-elevator_attch() function dynamically fills 'kmalloced' memory by
-elevator structure before patching.
-This function  fills substructure after patching dynamically as well.
-There is no reference count problem: we can return to old scheduler if
-new one fails.
-Both, old and new, schedulers are saved for the duration of the switch.
- 
-Leonid
 
- 
+> Hi Marcelo,
+> 
+> Let me give you background on why I am looking at this.
+> 
+> I have been involved in various database customer situations.
+> Most times, machine is either extreemly sluggish or dying.
+> Only hints we get from /proc/meminfo, /proc/slabinfo, vmstat
+> etc is - lots of stuff in "Cache" and system is heavily swapping.
+> I want to find out whats getting swapped out and whats eating up 
+> all the pagecache., whats getting into cache, whats getting out 
+> of cache etc.. I find no easy way to get this kind of information.
+
+Someone recently wrote a patch to record such information (pagecache
+insertion/eviction, etc), don't remember who did though. Rik?
+
+> Database folks complain that filecache causes them most trouble.
+> Even when they use DIO on their tables & stuff, random apps (ftp,
+> scp, tar etc..) bloats the pagecache and kicks out database 
+> pools, shared mem, malloc etc - causing lots of trouble for them.
+
+LRU lacks frequency information, which is crucial for avoiding 
+such kind of problems.
+
+http://www.linux-mm.org/AdvancedPageReplacement
+
+Peter Zijlstra is working on implementing CLOCK-Pro, which uses 
+inter reference distance between accesses to a page instead of "least 
+recently used" metric for page replacement decision. He just published
+results of "mdb" (mini-db) benchmark at http://www.linux-mm.org/PeterZClockPro2.
+
+Read more about the "mdb" benchmark at
+http://www.linux-mm.org/PageReplacementTesting. 
+
+But thats offtopic :)
+
+> I want to understand more before I try to fix it. First step would
+> be to get better stats from pagecache and evaluate whats happening
+> to get a better handle on the problem.
+> 
+> BTW, I am very well familiar with kprobes/jprobes & systemtap.
+> I have been playing with them for at least 8 months :) There is
+> no easy way to do this, unless stats are already in the kernel.
+
+I thought that it would be easy to use SystemTap for a such
+a purpose?
+
+The sys_read/sys_write example at 
+http://www.redhat.com/magazine/011sep05/features/systemtap/ sounds
+interesting.
+
+What I'm I missing?
+
+> My final goal is to get stats like ..
+> 
+> Out of "Cached" value - to get details like
+> 
+> 	<mmap> - xxx KB
+> 	<shared mem> - xxx KB
+> 	<text, data, bss, malloc, heap, stacks> - xxx KB
+> 	<filecache pages total> -- xxx KB
+> 		(filename1 or <dev>, <ino>) -- #of pages
+> 		(filename2 or <dev>, <ino>) -- #of pages
+> 		
+> This would be really powerful on understanding system better.
+> 
+> Don't you think ?
+
+Yep... /proc/<pid>/smaps provides that information on a per-process
+basis already.
 
 

@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbVLAMSk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbVLAMUW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932179AbVLAMSk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 07:18:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbVLAMSk
+	id S932180AbVLAMUW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 07:20:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932184AbVLAMUW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 07:18:40 -0500
-Received: from mail.charite.de ([160.45.207.131]:16530 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S932179AbVLAMSj (ORCPT
+	Thu, 1 Dec 2005 07:20:22 -0500
+Received: from lugor.de ([212.112.242.222]:28328 "EHLO solar.mylinuxtime.de")
+	by vger.kernel.org with ESMTP id S932180AbVLAMUV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 07:18:39 -0500
-Date: Thu, 1 Dec 2005 13:18:27 +0100
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.15-rc4
-Message-ID: <20051201121826.GF19694@charite.de>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.64.0511302234020.3099@g5.osdl.org>
+	Thu, 1 Dec 2005 07:20:21 -0500
+From: "Hesse, Christian" <mail@earthworm.de>
+To: Indrek Kruusa <indrek.kruusa@tuleriit.ee>
+Subject: Re: [QUESTION] Filesystem like structure in RAM w/o using filesystem (not ramdisk)
+Date: Thu, 1 Dec 2005 13:20:02 +0100
+User-Agent: KMail/1.9
+Cc: linux-kernel@vger.kernel.org
+References: <438EE256.6040403@tuleriit.ee>
+In-Reply-To: <438EE256.6040403@tuleriit.ee>
+X-Face: 1\p'dhO'VZk,x0lx6U}!Y*9UjU4n2@4c<"a*K%3Eiu'VwM|-OYs;S-PH>4EdJMfGyycC)=?utf-8?q?k=0A=09=3Anv*xqk4C?=@1b8tdr||mALWpN[2|~h#Iv;)M"O$$#P9Kg+S8+O#%EJx0TBH7b&Q<m)=?utf-8?q?n=23Q=2Eo=0A=09kE=7E=26T=5D0cQX6=5D?=<q!HEE,F}O'Jd#lx/+){Gr@W~J`h7sTS(M+oe5<=?utf-8?q?3O7GY9y=5Fi!qG=26Vv=5CD8/=0A=09=254?=@&~$Z@UwV'NQ$Ph&3fZc(qbDO?{LN'nk>+kRh4`C3[KN`-1uT-TD_m
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.64.0511302234020.3099@g5.osdl.org>
-User-Agent: Mutt/1.5.11
+Content-Type: multipart/signed;
+  boundary="nextPart1803321.rHgT44oBQo";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200512011320.10092.mail@earthworm.de>
+X-Greylist: Sender succeeded SMTP AUTH authentication, not delayed by milter-greylist-2.0 (solar.mylinuxtime.de [10.5.1.1]); Thu, 01 Dec 2005 13:20:14 +0100 (CET)
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Linus Torvalds <torvalds@osdl.org>:
+--nextPart1803321.rHgT44oBQo
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> [ Btw, some drivers will now complain loudly about their nasty mis-use of 
->   page remapping, and that migh look scary, but it should all be good, and 
->   we'd love to see the detailed output of dmesg on such machines. ]
+On Thursday 01 December 2005 12:45, Indrek Kruusa wrote:
+> Hello!
+>
+> As I have understood the accessing ramdisk goes through the same kernel
+> path which is meant for accessing slow block device (i_nodes caching etc.=
+).
+> Is there any other common way (some API above shared memory?) to
+> create/open/read/write globally accessible hierarchical datablocks in RAM?
+> Could it be possibly faster than ramdisk?
 
-Here's one - smite me for using the nvidia driver:
+You should take a look at tmpfs, I think that is what you search for.
+=2D-=20
+Christian
 
-Xorg does an incomplete pfn remapping [<c013eb8c>] incomplete_pfn_remap+0x6b/0xca
- [<f94fc956>] nv_kern_mmap+0x47d/0x4cb [nvidia]
- [<c01415e1>] do_mmap_pgoff+0x3cf/0x6ee
- [<c0107dea>] sys_mmap2+0x66/0xaf
- [<c0102c25>] syscall_call+0x7/0xb
+--nextPart1803321.rHgT44oBQo
+Content-Type: application/pgp-signature
 
-repeated 4 times.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.19 (GNU/Linux)
 
--- 
-Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
-IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de
+iD8DBQBDjup6lZfG2c8gdSURAl28AKD7MRfyoehpNaVrXBEBvto0B8TSIgCg7Zn9
+f8+GcrE3l2X/inTxgnbS6fY=
+=n7bq
+-----END PGP SIGNATURE-----
+
+--nextPart1803321.rHgT44oBQo--

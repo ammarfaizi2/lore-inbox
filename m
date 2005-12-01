@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbVLAM7g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbVLANAf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932207AbVLAM7g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 07:59:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbVLAM7f
+	id S932220AbVLANAf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 08:00:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbVLANAf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 07:59:35 -0500
-Received: from gepetto.dc.ltu.se ([130.240.42.40]:31742 "EHLO
-	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S932207AbVLAM7e
+	Thu, 1 Dec 2005 08:00:35 -0500
+Received: from networks.syneticon.net ([213.239.212.131]:49089 "EHLO
+	mail2.syneticon.net") by vger.kernel.org with ESMTP id S932220AbVLANAe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 07:59:34 -0500
-Date: Thu, 1 Dec 2005 13:59:29 +0100 (MET)
-From: Richard Knutsson <ricknu-0@student.ltu.se>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, Richard Knutsson <ricknu-0@student.ltu.se>
-Message-Id: <20051201130438.28376.78967.sendpatchset@thinktank.campus.ltu.se>
-In-Reply-To: <20051201130338.28376.65935.sendpatchset@thinktank.campus.ltu.se>
-References: <20051201130338.28376.65935.sendpatchset@thinktank.campus.ltu.se>
-Subject: [PATCH 2.6.15-rc3(-mm1) 3/3] pci.h:
+	Thu, 1 Dec 2005 08:00:34 -0500
+Message-ID: <438EF3E5.5080709@wpkg.org>
+Date: Thu, 01 Dec 2005 14:00:21 +0100
+From: Tomasz Chmielewski <mangoo@wpkg.org>
+User-Agent: Mozilla Thunderbird 1.0.7-3mdk (X11/20051015)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: loadavg always equal or above 1.00 - how to explain?
+References: <438EE515.1080001@wpkg.org> <1133440871.2853.36.camel@laptopd505.fenrus.org>
+In-Reply-To: <1133440871.2853.36.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Richard Knutsson <ricknu-0@student.ltu.se>
+Arjan van de Ven schrieb:
+> On Thu, 2005-12-01 at 12:57 +0100, Tomasz Chmielewski wrote:
+> 
+>>1.00 1.10 1.06 1/65 782
+>>
+>>This server is barely used, and as I remember, loadavg was always
+>>close 
+>>to 0.00 on that system.
+> 
+> 
+> remember that load is the sum of running/runable processes and processes
+> in D state (waiting for IO generally, but not always). I'm pretty sure
+> your load comes from one of the later...
+> 
+> ps ought to tell you which one it is... (if not, an 
+> "echo t > /proc/sysrq-trigger" will dump the kernel state including the
+> offending process, and will also tell us where exactly that process is)
 
-#if 0'ing no-longer-needed pci_module_init().
+Wohoo, you're great, that was it:
 
-Need remove-pci_module_init-patches for both 2.6.15-rc3 and 2.6.15-rc3-mm1 to be implemented.
+root     29547  0.0  0.3   7516   996 ?        D    Nov25   0:00 CROND
+root     29548  0.0  0.3   7516   996 ?        Ss   Nov25   0:00 CROND
 
-Signed-off-by: Richard Knutsson <ricknu-0@student.ltu.se>
+I stopped it, and loadavg is back to 0.
 
----
+Now I have to figure out what CROND was doing...
 
- pci.h |    2 ++
- 1 files changed, 2 insertions(+)
+Does ps always show processes in D state in CAPITAL letters?
 
-diff -Narup a/include/linux/pci.h b/include/linux/pci.h
---- a/include/linux/pci.h	2005-12-01 02:15:06.000000000 +0100
-+++ b/include/linux/pci.h	2005-12-01 03:53:48.000000000 +0100
-@@ -345,11 +345,13 @@ struct pci_driver {
- 	.vendor = PCI_ANY_ID, .device = PCI_ANY_ID, \
- 	.subvendor = PCI_ANY_ID, .subdevice = PCI_ANY_ID
- 
-+#if 0
- /*
-  * pci_module_init is obsolete, this stays here till we fix up all usages of it
-  * in the tree.
-  */
- #define pci_module_init	pci_register_driver
-+#endif
- 
- /* these external functions are only available when PCI support is enabled */
- #ifdef CONFIG_PCI
+After cron restart it is "crond", as usual.
+
+
+-- 
+Tomek
+http://wpkg.org
+WPKG - software deployment and upgrades with Samba

@@ -1,61 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbVLAHbZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbVLAHji@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbVLAHbZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 02:31:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbVLAHbZ
+	id S1750748AbVLAHji (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 02:39:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbVLAHji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 02:31:25 -0500
-Received: from rtsoft2.corbina.net ([85.21.88.2]:3009 "HELO mail.dev.rtsoft.ru")
-	by vger.kernel.org with SMTP id S1750738AbVLAHbZ (ORCPT
+	Thu, 1 Dec 2005 02:39:38 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:30657 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750748AbVLAHjh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 02:31:25 -0500
-Message-ID: <438EA6C8.1010108@ru.mvista.com>
-Date: Thu, 01 Dec 2005 10:31:20 +0300
-From: Vitaly Wool <vwool@ru.mvista.com>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+	Thu, 1 Dec 2005 02:39:37 -0500
+Message-ID: <438EA8B6.9050509@pobox.com>
+Date: Thu, 01 Dec 2005 02:39:34 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: stephen@streetfiresound.com
-CC: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org,
-       dpervushin@gmail.com, akpm@osdl.org, greg@kroah.com,
-       basicmark@yahoo.com, komal_shah802003@yahoo.com,
-       spi-devel-general@lists.sourceforge.net, Joachim_Jaeger@digi.com
-Subject: Re: [PATCH 2.6-git] SPI core refresh
-References: <20051130195053.713ea9ef.vwool@ru.mvista.com>	 <200511301336.38613.david-b@pacbell.net> <1133387950.4528.16.camel@localhost.localdomain>
-In-Reply-To: <1133387950.4528.16.camel@localhost.localdomain>
+To: "Gabriel A. Devenyi" <ace@staticwave.ca>
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [RESEND] [PATCH] drivers/net/wireless/airo.c unsigned comparason
+References: <43749512.8040002@staticwave.ca>
+In-Reply-To: <43749512.8040002@staticwave.ca>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Gabriel A. Devenyi wrote: > fid is declared as a u32
+	(unsigned int), and then a few lines later, it > is checked for a value
+	< 0, which is clearly useless. > In the two locations this function is
+	used, in one it is *explicitly* > given a negative number, which would
+	be ignored with the > current definition. > > Thanks to LinuxICC
+	(http://linuxicc.sf.net). > > This patch applies to linus' git tree as
+	of 03.11.2005 > > Signed-off-by: Gabriel A. Devenyi <ace@staticwave.ca>
+	[...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Street wrote:
+Gabriel A. Devenyi wrote:
+> fid is declared as a u32 (unsigned int), and then a few lines later, it 
+> is checked for a value < 0, which is clearly useless.
+> In the two locations this function is used, in one it is *explicitly* 
+> given a negative number, which would be ignored with the
+> current definition.
+> 
+> Thanks to LinuxICC (http://linuxicc.sf.net).
+> 
+> This patch applies to linus' git tree as of 03.11.2005
+> 
+> Signed-off-by: Gabriel A. Devenyi <ace@staticwave.ca>
 
->On Wed, 2005-11-30 at 13:36 -0800, David Brownell wrote:
->  
->
->>>- it is DMA-safe
->>>      
->>>
->>Which as I pointed out is incorrect.  The core API (async) has always
->>been fully DMA-safe.  And a **LOT** lower overhead than yours, which
->>allocates buffers behind the back of drivers, and encourages lots of
->>memcpy rather than just doing DMA directly to/from the buffers that
->>are provided by the SPI protocol drivers.
->>    
->>
->
->Minimal (or no) core intervention on the DMA code path is a good thing.
->I need to fix some broken hardware with software and must to move 96
->bytes from one SPI device to another on the same SPI bus every for 4ms.
->Needless memcpy's will cause substantial performance problems in my
->application. Thinner is definitely better.
->  
->
-Oh yep, I must agree with you here, thanks.
-However, it's not a big thing to change memcpy to spi_memcpy which will 
-copy the data only when necessary.
-That's what I definitely had been doing but didn't include in the patch 
-sent, oops. :(
-I'll come up with that shortly.
 
-Vitaly
+[jgarzik@pretzel netdev-2.6]$ git-applymbox /g/tmp/mbox ~/info/signoff.txt
+1 patch(es) to process.
+
+Applying 'drivers/net/wireless/airo.c unsigned comparason'
+
+fatal: corrupt patch at line 8

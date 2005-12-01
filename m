@@ -1,61 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbVLASGu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbVLASPw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932390AbVLASGu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 13:06:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbVLASGu
+	id S932385AbVLASPw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 13:15:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbVLASPw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 13:06:50 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:8897 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S932384AbVLASGt (ORCPT
+	Thu, 1 Dec 2005 13:15:52 -0500
+Received: from hera.kernel.org ([140.211.167.34]:14212 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S932385AbVLASPw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 13:06:49 -0500
-Message-ID: <91888D455306F94EBD4D168954A9457C051F32BD@nacos172.co.lsil.com>
-From: "Moore, Eric Dean" <Eric.Moore@lsil.com>
-To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH] maintainers
-Date: Thu, 1 Dec 2005 11:06:25 -0700 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2658.27)
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C5F6A1.F15764F8"
+	Thu, 1 Dec 2005 13:15:52 -0500
+Date: Thu, 1 Dec 2005 16:15:25 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: linux-mm <linux-mm@kvack.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Better pagecache statistics ?
+Message-ID: <20051201181525.GB17169@dmt.cnet>
+References: <1133377029.27824.90.camel@localhost.localdomain> <20051201152029.GA14499@dmt.cnet> <1133452790.27824.117.camel@localhost.localdomain> <20051201171938.GB16235@dmt.cnet> <1133458309.21429.36.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1133458309.21429.36.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
 
-------_=_NextPart_000_01C5F6A1.F15764F8
-Content-Type: text/plain
+> > I thought that it would be easy to use SystemTap for a such
+> > a purpose?
+> > 
+> > The sys_read/sys_write example at 
+> > http://www.redhat.com/magazine/011sep05/features/systemtap/ sounds
+> > interesting.
+> > 
+> > What I'm I missing?
+> 
+> Well, Few things:
+> 
+> 1) We have to have those probes present in the system all the time
+> collecting the information when read/write happens, maintaining it
+> and spitting it out. Since its kernel probe, all this data will be
+> in the kernel. 
 
+Yeah, there is some overhead.
 
-Signed-off-by: Eric Moore <Eric.Moore@lsil.com>
+> 2) If we want to do this accounting (and you don't have those probes
+> installed already) - we can't capture what happened earlier. 
 
+I suppose that the vast majority of situations where such information is 
+needed are special anyway? 
 
+Why do you need it around all the time?
 
-------_=_NextPart_000_01C5F6A1.F15764F8
-Content-Type: application/octet-stream;
-	name="maintainers.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="maintainers.patch"
+> 3) probing sys_read/sys_write() are going to tell you how much
+> a data a process did read or wrote - but its not going to tell you
+> how much is in the cache (now or 10 minutes later). 
 
---- b/MAINTAINERS	2005-12-01 09:20:14.000000000 -0700=0A=
-+++ a/MAINTAINERS	2005-12-01 10:31:43.000000000 -0700=0A=
-@@ -1634,6 +1634,15 @@=0A=
- W:	http://ldm.sourceforge.net=0A=
- S:	Maintained=0A=
- =0A=
-+LSILOGIC MPT FUSION DRIVERS (FC/SAS/SPI)=0A=
-+P:	Eric Moore=0A=
-+M:	Eric.Moore@lsil.com=0A=
-+M:	support@lsil.com=0A=
-+L:	mpt_linux_developer@lsil.com=0A=
-+L:	linux-scsi@vger.kernel.org=0A=
-+W:	http://www.lsilogic.com/support=0A=
-+S:	Supported=0A=
-+=0A=
- LSILOGIC/SYMBIOS/NCR 53C8XX and 53C1010 PCI-SCSI drivers=0A=
- P:	Matthew Wilcox=0A=
- M:	matthew@wil.cx=0A=
+Sure, that was just an example - need to insert probes
+on the correct places.
 
-------_=_NextPart_000_01C5F6A1.F15764F8--
+> > > My final goal is to get stats like ..
+> > > 
+> > > Out of "Cached" value - to get details like
+> > > 
+> > > 	<mmap> - xxx KB
+> > > 	<shared mem> - xxx KB
+> > > 	<text, data, bss, malloc, heap, stacks> - xxx KB
+> > > 	<filecache pages total> -- xxx KB
+> > > 		(filename1 or <dev>, <ino>) -- #of pages
+> > > 		(filename2 or <dev>, <ino>) -- #of pages
+> > > 		
+> > > This would be really powerful on understanding system better.
+> > > 
+> > > Don't you think ?
+> > 
+> > Yep... /proc/<pid>/smaps provides that information on a per-process
+> > basis already.
+> 
+> /proc/pid/smaps will give me information about text,data,shared libs,
+> malloc etc. Not the filecache information about files process opened,
+> pages read/wrote currently in the pagecache. Isn't it ?
+
+Right. 
+

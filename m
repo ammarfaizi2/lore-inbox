@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbVLAMjv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbVLAMlQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932195AbVLAMjv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 07:39:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbVLAMjv
+	id S932193AbVLAMlQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 07:41:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932194AbVLAMlQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 07:39:51 -0500
-Received: from mail.fh-wedel.de ([213.39.232.198]:50118 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S932192AbVLAMju (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 07:39:50 -0500
-Date: Thu, 1 Dec 2005 13:39:53 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Takashi Sato <sho@bsd.tnes.nec.co.jp>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: stat64 for over 2TB file returned invalid st_blocks
-Message-ID: <20051201123953.GA24519@wohnheim.fh-wedel.de>
-References: <01e901c5f66e$d4551b70$4168010a@bsd.tnes.nec.co.jp>
+	Thu, 1 Dec 2005 07:41:16 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:6529 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932193AbVLAMlQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 07:41:16 -0500
+Subject: Re: loadavg always equal or above 1.00 - how to explain?
+From: Arjan van de Ven <arjan@infradead.org>
+To: Tomasz Chmielewski <mangoo@wpkg.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <438EE515.1080001@wpkg.org>
+References: <438EE515.1080001@wpkg.org>
+Content-Type: text/plain
+Date: Thu, 01 Dec 2005 13:41:11 +0100
+Message-Id: <1133440871.2853.36.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <01e901c5f66e$d4551b70$4168010a@bsd.tnes.nec.co.jp>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 December 2005 21:00:26 +0900, Takashi Sato wrote:
+On Thu, 2005-12-01 at 12:57 +0100, Tomasz Chmielewski wrote:
 > 
-> I found a problem at stat64 on 32bit architecture.
+> 1.00 1.10 1.06 1/65 782
 > 
-> When I called stat64 for a file which is larger than 2TB, stat64
-> returned an invalid number of blocks at st_blocks on 32bit
-> architecture, although it returned a valid number of blocks on 64bit
-> architecture(ia64).
+> This server is barely used, and as I remember, loadavg was always
+> close 
+> to 0.00 on that system.
 
-My take was to simply hold a u64 in the fs-private inode structure and
-use ULONG_MAX for inode->i_blocks in case of an overflow.  Also has
-the nice advantage of working with fs-sized blocks, not 512-byte ones:
-	inode->i_blocks = ULONG_MAX;
-	if (li->li_blocks<<3 < ULONG_MAX)
-		inode->i_blocks = li->li_blocks<<3;
+remember that load is the sum of running/runable processes and processes
+in D state (waiting for IO generally, but not always). I'm pretty sure
+your load comes from one of the later...
 
-That said, your solution appears to be much better, as long as it
-doesnt subtly break binary compatibility.
+ps ought to tell you which one it is... (if not, an 
+"echo t > /proc/sysrq-trigger" will dump the kernel state including the
+offending process, and will also tell us where exactly that process is)
 
-Jörn
+Greetings,
+    Arjan van de Ven
 
--- 
-ticks = jiffies;
-while (ticks == jiffies);
-ticks = jiffies;
--- /usr/src/linux/init/main.c

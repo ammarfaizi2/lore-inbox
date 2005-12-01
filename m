@@ -1,72 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbVLACUR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751354AbVLACTl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751345AbVLACUR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 21:20:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbVLACUQ
+	id S1751354AbVLACTl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 21:19:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbVLACTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 21:20:16 -0500
-Received: from ns2.uludag.org.tr ([193.140.100.220]:65475 "EHLO uludag.org.tr")
-	by vger.kernel.org with ESMTP id S1751345AbVLACUO (ORCPT
+	Wed, 30 Nov 2005 21:19:41 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:1702 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751354AbVLACTl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 21:20:14 -0500
-From: Ismail Donmez <ismail@uludag.org.tr>
-Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK/UEKAE?=
-To: linux-kernel@vger.kernel.org
-Subject: More 2.6.15-rc3 problems
-Date: Thu, 1 Dec 2005 04:19:47 +0200
-User-Agent: KMail/1.8.92
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Nov 2005 21:19:41 -0500
+Date: Thu, 1 Dec 2005 03:19:43 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: tglx@linutronix.de, linux-kernel@vger.kernel.org, zippel@linux-m68k.org,
+       george@mvista.com, johnstul@us.ibm.com
+Subject: Re: [patch 00/43] ktimer reworked
+Message-ID: <20051201021943.GA23838@elte.hu>
+References: <1133395019.32542.443.camel@tglx.tec.linutronix.de> <20051130164105.40e103d4.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200512010419.48394.ismail@uludag.org.tr>
+In-Reply-To: <20051130164105.40e103d4.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.5
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.5 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	1.3 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Looks like gdb doesn't work with 2.6.15-rc3 kernel. Trying to run ls or any 
-other binary crashes gdb and ooopses kernel. Here is the log :
+* Andrew Morton <akpm@osdl.org> wrote:
 
- <1>Unable to handle kernel NULL pointer dereference at virtual address 
-00000015
- printing eip:
-c014ac54
-*pde = 00000000
-Oops: 0000 [#8]
-PREEMPT
-Modules linked in: i915 drm ohci_hcd e100 mii ipw2200 ieee80211 
-ieee80211_crypt firmware_class ohci1394 ieee1394 yenta_socket rsrc_nonstatic 
-pcmcia_core i2c_i801 i2c_core ehci_hcd usbhid uhci_hcd intel_agp agpgart 
-snd_seq_oss snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss 
-snd_mixer_oss usbcore snd_hda_intel snd_hda_codec snd_pcm snd_timer snd 
-snd_page_alloc
-CPU:    0
-EIP:    0060:[<c014ac54>]    Not tainted VLI
-EFLAGS: 00210202   (2.6.15-rc3)
-EIP is at vm_normal_page+0x14/0x60
-eax: 1f6c4025   ebx: 00000000   ecx: 00000000   edx: 0001f6c4
-esi: 1f6c4025   edi: ffffe000   ebp: 00000010   esp: d347eeec
-ds: 007b   es: 007b   ss: 0068
-Process gdb (pid: 29619, threadinfo=d347e000 task=ce7f1a50)
-Stack: 00000ff8 c0513700 ffffe000 c014b9d9 00000000 ffffe000 1f6c4025 00000000
-       d8b34a90 bfab1dcc d8b34a90 d347ef84 c0124e67 d8b34a90 de941e40 ffffe000
-       00000001 00000000 00000001 d347ef4c d347ef50 de941e70 d347ef84 de941e40
-Call Trace:
- [<c014b9d9>] get_user_pages+0x229/0x290
- [<c0124e67>] access_process_vm+0x77/0x140
- [<c0107441>] arch_ptrace+0x481/0x550
- [<c012d4c0>] find_task_by_pid_type+0x10/0x30
- [<c0125384>] ptrace_get_task_struct+0x74/0xb0
- [<c012541a>] sys_ptrace+0x5a/0x9b
- [<c0102f3b>] sysenter_past_esp+0x54/0x79
-Code: 43 25 fd ff 83 c4 18 5b 5e 5f e9 48 97 fb ff 90 8d b4 26 00 00 00 00 57 
-56 53 8b 5c 24 10 8b 74 24 18 89 f2 8b 7c 24 14 c1 ea 0c <f6> 43 15 04 74 15 
-8b 4b 04 89 f8 29 c8 8b 4b 48 c1 e8 0c 01 c8
+> Thomas Gleixner <tglx@linutronix.de> wrote:
+> >
+> > this patch series is a refactored version of the ktimer-subsystem patch.
+> 
+>  25 files changed, 3364 insertions(+), 1827 deletions(-)
+> 
+> allnoconfig, before:
+> 
+>    text    data     bss     dec     hex filename
+>  764888  157221   53748  975857   ee3f1 vmlinux
+> 
+> after:
+> 
+>    text    data     bss     dec     hex filename
+>  766712  157741   53748  978201   eed19 vmlinux
+> 
+> Remind me what we gained for this?
 
+well, for 1824 bytes of code [*] and 520 bytes of data you got a new, 
+clean timer subsystem, which is per-clock tree based and hres-timers 
+ready. It also doesnt scan all active timers linearly and fixes them up 
+whenever NTP decides to mend the clock a bit. It also has no jiffy 
+dependencies and has nsec resolution with timeouts of up to 292 years, 
+to the nanosec. It has no subjiffies, no HZ, no tradeoffs.
 
-P.S: I am not subscribed. So CC me if you reply.
+note that ktimer.o itself is larger than 1824 bytes:
 
-Regards,
-ismail
+ size kernel/ktimer.o
+   text    data     bss     dec     hex filename
+   3912     100       0    4012     fac kernel/ktimer.o
+
+so it has already offset roughly half of its size.
+
+we can (and will) try to improve it further, but if anyone desires to 
+get it for free, that's probably not possible. (only 'probable' because 
+we have not converted posix-cpu-timers yet, another ktimer conversion 
+candidate with code reduction potential)
+
+it had to be a new set of APIs, which all take text space. We'll try to 
+shave off some more .text, but miracles are not expected.
+
+	Ingo
+
+[*] if you enable CONFIG_KTIME_SCALAR, then on x86 we get denser
+    ktime_t code. We keep it off by default to give the union
+    representation testing (the scalar representation is the more
+    trivial case). It should shave off another 300 bytes from your
+    kernel's size. We'll probably enable KTIME_SCALAR on x86 later on.

@@ -1,72 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbVLAId4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751650AbVLAIej@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751396AbVLAId4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 03:33:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751650AbVLAId4
+	id S1751650AbVLAIej (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 03:34:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751605AbVLAIej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 03:33:56 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:62821 "EHLO
-	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1751394AbVLAIdz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 03:33:55 -0500
-Date: Thu, 1 Dec 2005 17:33:53 +0900
-From: Akinobu Mita <mita@miraclelinux.com>
+	Thu, 1 Dec 2005 03:34:39 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:24020 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750773AbVLAIei (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 03:34:38 -0500
+Date: Thu, 1 Dec 2005 14:06:14 +0530
+From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] modinfo vmlinux
-Message-ID: <20051201083353.GA6060@miraclelinux.com>
+Cc: akpm@osdl.org, anil.s.keshavamurthy@intel.com, prasanna@in.ibm.com,
+       jkenisto@us.ibm.com
+Subject: [PATCH] kprobes: fix race in unregister_kprobe()
+Message-ID: <20051201083614.GA6513@in.ibm.com>
+Reply-To: ananth@in.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sometimes I want to know which kind of kernel parameters are available
-for modules that are built into the kernel image.
+From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
 
-This patch supports modinfo for vmlinux.
+On architectures which have no-execute support, we use a
+module_alloc()ed scratch area to store the kprobed instruction
+for out-of-line single-stepping. This instruction slot is
+released during unregister_kprobe().
 
-# modinfo -p vmlinux
-i8042.nokbd:Do not probe or use KBD port.
-i8042.noaux:Do not probe or use AUX (mouse) port.
-i8042.nomux:Do not check whether an active multiplexing conrtoller is present.
- :
-tcp_bic.initial_ssthresh:initial value of slow start threshold
-tcp_bic.bic_scale:scale (scaled by 1024) value for bic function (bic_scale/1024)
-tcp_bic.tcp_friendliness:turn on/off tcp friendliness
+We are currently releasing the slot before synchronize_sched()
+would return, leading to a potential reuse of the slot by
+another kprobe before the current references are released.
+Small patch to fix that condition.
 
-Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
+Signed-off-by: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+Acked-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+---
 
---- 2.6-rc/include/linux/module.h.orig	2005-12-01 13:06:56.000000000 +0900
-+++ 2.6-rc/include/linux/module.h	2005-12-01 14:31:04.000000000 +0900
-@@ -134,7 +134,7 @@ extern struct module __this_module;
- /* One for each parameter, describing how to use it.  Some files do
-    multiple of these per line, so can't just use MODULE_INFO. */
- #define MODULE_PARM_DESC(_parm, desc) \
--	__MODULE_INFO(parm, _parm, #_parm ":" desc)
-+	__MODULE_INFO(parm, _parm, MODULE_PARAM_PREFIX #_parm ":" desc)
+ kernel/kprobes.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
+
+Index: linux-2.6.15-rc3/kernel/kprobes.c
+===================================================================
+--- linux-2.6.15-rc3.orig/kernel/kprobes.c
++++ linux-2.6.15-rc3/kernel/kprobes.c
+@@ -436,7 +436,6 @@ static inline void cleanup_kprobe(struct
+ 	arch_disarm_kprobe(p);
+ 	hlist_del_rcu(&p->hlist);
+ 	spin_unlock_irqrestore(&kprobe_lock, flags);
+-	arch_remove_kprobe(p);
+ }
  
- #define MODULE_DEVICE_TABLE(type,name)		\
-   MODULE_GENERIC_TABLE(type##_device,name)
---- 2.6-rc/include/linux/moduleparam.h.orig	2005-11-30 20:57:56.000000000 +0900
-+++ 2.6-rc/include/linux/moduleparam.h	2005-12-01 14:30:17.000000000 +0900
-@@ -13,18 +13,14 @@
- #define MODULE_PARAM_PREFIX __stringify(KBUILD_MODNAME) "."
- #endif
+ static inline void cleanup_aggr_kprobe(struct kprobe *old_p,
+@@ -506,6 +505,8 @@ void __kprobes unregister_kprobe(struct 
+ 			cleanup_kprobe(p, flags);
  
--#ifdef MODULE
- #define ___module_cat(a,b) __mod_ ## a ## b
- #define __module_cat(a,b) ___module_cat(a,b)
- #define __MODULE_INFO(tag, name, info)					  \
- static const char __module_cat(name,__LINE__)[]				  \
-   __attribute_used__							  \
-   __attribute__((section(".modinfo"),unused)) = __stringify(tag) "=" info
--#else  /* !MODULE */
--#define __MODULE_INFO(tag, name, info)
--#endif
- #define __MODULE_PARM_TYPE(name, _type)					  \
--  __MODULE_INFO(parmtype, name##type, #name ":" _type)
-+  __MODULE_INFO(parmtype, name##type, MODULE_PARAM_PREFIX #name ":" _type)
- 
- struct kernel_param;
- 
+ 		synchronize_sched();
++		arch_remove_kprobe(p);
++
+ 		if (old_p->pre_handler == aggr_pre_handler &&
+ 				list_empty(&old_p->list))
+ 			kfree(old_p);

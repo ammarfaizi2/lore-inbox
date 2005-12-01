@@ -1,78 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbVLACsl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751353AbVLACvs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751313AbVLACsl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 21:48:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbVLACsl
+	id S1751353AbVLACvs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 21:51:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbVLACvs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 21:48:41 -0500
-Received: from fsmlabs.com ([168.103.115.128]:36994 "EHLO spamalot.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S1751313AbVLACsk (ORCPT
+	Wed, 30 Nov 2005 21:51:48 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:38360 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751353AbVLACvr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 21:48:40 -0500
-X-ASG-Debug-ID: 1133405317-13447-96-0
-X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
-Date: Wed, 30 Nov 2005 18:54:17 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Shaohua Li <shaohua.li@intel.com>
-cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-X-ASG-Orig-Subj: Re: [PATCH]nmi VS cpu hotplug
-Subject: Re: [PATCH]nmi VS cpu hotplug
-In-Reply-To: <1133430364.7980.15.camel@linux.site>
-Message-ID: <Pine.LNX.4.64.0511301853140.13220@montezuma.fsmlabs.com>
-References: <1133430364.7980.15.camel@linux.site>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.5747
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
+	Wed, 30 Nov 2005 21:51:47 -0500
+Date: Thu, 1 Dec 2005 03:51:45 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, zippel@linux-m68k.org, george@mvista.com,
+       johnstul@us.ibm.com
+Subject: Re: [patch 25/43] Create ktimeout.h and move timer.h code into it
+Message-ID: <20051201025145.GA26349@elte.hu>
+References: <20051130231140.164337000@tglx.tec.linutronix.de> <1133395428.32542.468.camel@tglx.tec.linutronix.de> <20051201023619.GU31395@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051201023619.GU31395@stusta.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.5
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.5 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	1.3 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Dec 2005, Shaohua Li wrote:
 
-> Hi,
-> With CPU hotplug enabled, NMI watchdog stoped working. It appears the
-> violation is the cpu_online check in nmi handler. local ACPI based NMI
-> watchdog is initialized before we set CPU online for APs. It's quite
-> possible a NMI is fired before we set CPU online, and that's what
-> happens here.
-> Zwane, I suppose you saw nmi interrupts on offline CPU, so you added
-> this one. Several days ago I sent a patch titled 'disable LAPIC
-> completely for offline CPU', which I guess will make it disappear. Can
-> you try it?
-> So the solution is either to initialize nmi later or to delete the
-> cpu_online check. I just take what x86_64 does.
+* Adrian Bunk <bunk@stusta.de> wrote:
+
+> On Thu, Dec 01, 2005 at 01:03:48AM +0100, Thomas Gleixner wrote:
+> > plain text document attachment (ktimeout-h.patch)
+> > - introduce ktimeout.h and move the timeout implementation into it, as-is.
+> > - keep timer.h for compatibility
+> >...
 > 
+> If you do this, you should either immediately remove timer.h or add a
+> #warning to this file.
 > 
-> Signed-off-by: Shaohua Li <shaohua.li@intel.com>
+> Both cases imply changing all in-kernel users (which is anyway a good 
+> idea if we really want to rename this header).
 
-Signed-off-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+agreed, but we didnt want to be this drastic - we just wanted to 
+demonstrate that a smooth transition (short of an overnight changeover) 
+is possible as well.
 
-> ---
-> 
->  linux-2.6.14-root/arch/i386/kernel/traps.c |    7 -------
->  1 files changed, 7 deletions(-)
-> 
-> diff -puN arch/i386/kernel/traps.c~nmi-cpuhotplug arch/i386/kernel/traps.c
-> --- linux-2.6.14/arch/i386/kernel/traps.c~nmi-cpuhotplug	2005-12-01 01:22:00.000000000 -0800
-> +++ linux-2.6.14-root/arch/i386/kernel/traps.c	2005-12-01 01:22:22.000000000 -0800
-> @@ -650,13 +650,6 @@ fastcall void do_nmi(struct pt_regs * re
->  
->  	cpu = smp_processor_id();
->  
-> -#ifdef CONFIG_HOTPLUG_CPU
-> -	if (!cpu_online(cpu)) {
-> -		nmi_exit();
-> -		return;
-> -	}
-> -#endif
+also, we are very interested in suggestions to further improve the
+ktimeout APIs. The perfect time is when there are no direct users of it
+yet.
 
-Nice catch, well that's really old debug code for the 'toy' i386 hotplug 
-code i'm fine with deleting it.
+e.g. there's an interesting thought that Roman demonstrated in his 
+ptimer queue: the elimination of the .data field from struct ktimer. An 
+analogous thing could be done for timeouts as well: we do not actually 
+need a .data field in a fair number of cases - the position of any 
+data-context information can be recovered via container_of():
 
-Thanks,
-	Zwane
+void timer_fn(struct ktimeout *kt)
+{
+	struct my_data *ptr = container_of(kt, struct my_data, timer);
+	...
+}
 
+for compatibility we could provide a "struct ktimeout_standalone" that 
+embedds a .data field and a struct timeout - which would be equivalent 
+to the current "struct ktimeout".
+
+the advantage would be data-structure size reduction of one word per 
+embedded ktimeout structure. We'd also have one less word per standalone 
+timer that needs no data field. For standalone timeouts which do need a 
+data field there would be no impact.
+
+one downside is that it's not as straightforward to code as the current 
+.data field.
+
+	Ingo

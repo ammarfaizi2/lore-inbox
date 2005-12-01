@@ -1,66 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751650AbVLAIej@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751656AbVLAIgw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751650AbVLAIej (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 03:34:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751605AbVLAIej
+	id S1751656AbVLAIgw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 03:36:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751659AbVLAIgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 03:34:39 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:24020 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750773AbVLAIei (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 03:34:38 -0500
-Date: Thu, 1 Dec 2005 14:06:14 +0530
-From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, anil.s.keshavamurthy@intel.com, prasanna@in.ibm.com,
-       jkenisto@us.ibm.com
-Subject: [PATCH] kprobes: fix race in unregister_kprobe()
-Message-ID: <20051201083614.GA6513@in.ibm.com>
-Reply-To: ananth@in.ibm.com
+	Thu, 1 Dec 2005 03:36:51 -0500
+Received: from baythorne.infradead.org ([81.187.2.161]:25289 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S1751654AbVLAIgv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 03:36:51 -0500
+Subject: Re: [NET] Remove ARM dependency for dm9000 driver
+From: David Woodhouse <dwmw2@infradead.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Franck <vagabon.xyz@gmail.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051130190224.GE1053@flint.arm.linux.org.uk>
+References: <cda58cb80511300821y72f3354av@mail.gmail.com>
+	 <20051130162327.GC1053@flint.arm.linux.org.uk>
+	 <cda58cb80511300845j18c81ce6p@mail.gmail.com>
+	 <20051130165546.GD1053@flint.arm.linux.org.uk>
+	 <1133374482.4117.91.camel@baythorne.infradead.org>
+	 <20051130190224.GE1053@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Thu, 01 Dec 2005 08:36:39 +0000
+Message-Id: <1133426199.4117.179.camel@baythorne.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+On Wed, 2005-11-30 at 19:02 +0000, Russell King wrote:
+> We agree to disagree.  For example, in all probability, ARM will never
+> see a TPM chip, yet it's offered for selection.  Given that, does it
+> really make sense to offer it for ARM?
 
-On architectures which have no-execute support, we use a
-module_alloc()ed scratch area to store the kprobed instruction
-for out-of-line single-stepping. This instruction slot is
-released during unregister_kprobe().
+You speak of _probability_. Yes, it makes sense to offer it as an
+_option_ for ARM. It just doesn't make sense to put it in the defconfig
+for any of the existing platforms.
 
-We are currently releasing the slot before synchronize_sched()
-would return, leading to a potential reuse of the slot by
-another kprobe before the current references are released.
-Small patch to fix that condition.
+Nobody expects 'allyesconfig' to be something you'd actually want to
+_use_.
 
-Signed-off-by: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-Acked-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
----
+-- 
+dwmw2
 
- kernel/kprobes.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
 
-Index: linux-2.6.15-rc3/kernel/kprobes.c
-===================================================================
---- linux-2.6.15-rc3.orig/kernel/kprobes.c
-+++ linux-2.6.15-rc3/kernel/kprobes.c
-@@ -436,7 +436,6 @@ static inline void cleanup_kprobe(struct
- 	arch_disarm_kprobe(p);
- 	hlist_del_rcu(&p->hlist);
- 	spin_unlock_irqrestore(&kprobe_lock, flags);
--	arch_remove_kprobe(p);
- }
- 
- static inline void cleanup_aggr_kprobe(struct kprobe *old_p,
-@@ -506,6 +505,8 @@ void __kprobes unregister_kprobe(struct 
- 			cleanup_kprobe(p, flags);
- 
- 		synchronize_sched();
-+		arch_remove_kprobe(p);
-+
- 		if (old_p->pre_handler == aggr_pre_handler &&
- 				list_empty(&old_p->list))
- 			kfree(old_p);

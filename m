@@ -1,57 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbVLAT2h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbVLATe3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932413AbVLAT2h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 14:28:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbVLAT2h
+	id S932415AbVLATe3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 14:34:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbVLATe3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 14:28:37 -0500
-Received: from fsmlabs.com ([168.103.115.128]:48526 "EHLO spamalot.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S932413AbVLAT2g (ORCPT
+	Thu, 1 Dec 2005 14:34:29 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:16807 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932415AbVLATe2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 14:28:36 -0500
-X-ASG-Debug-ID: 1133465313-599-19-0
-X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
-Date: Thu, 1 Dec 2005 11:34:13 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Andi Kleen <ak@suse.de>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       "Raj, Ashok" <ashok.raj@intel.com>
-X-ASG-Orig-Subj: Re: x86_64/HOTPLUG_CPU: NULL dereference doesn't #PF with init_level4_pgt
-Subject: Re: x86_64/HOTPLUG_CPU: NULL dereference doesn't #PF with init_level4_pgt
-In-Reply-To: <20051201131857.GG19515@wotan.suse.de>
-Message-ID: <Pine.LNX.4.64.0512010924490.13220@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.64.0511301859070.13220@montezuma.fsmlabs.com>
- <20051201131857.GG19515@wotan.suse.de>
+	Thu, 1 Dec 2005 14:34:28 -0500
+Date: Thu, 1 Dec 2005 11:34:07 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Felipe Alfaro Solana <felipe.alfaro@gmail.com>
+cc: Kasper Sandberg <lkml@metanurb.dk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.15-rc4
+In-Reply-To: <6f6293f10512011112m6e50fe0ejf0aa5ba9d09dca1e@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0512011125280.3099@g5.osdl.org>
+References: <Pine.LNX.4.64.0511302234020.3099@g5.osdl.org> 
+ <1133445903.16820.1.camel@localhost>  <Pine.LNX.4.64.0512010759571.3099@g5.osdl.org>
+ <6f6293f10512011112m6e50fe0ejf0aa5ba9d09dca1e@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.5764
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Dec 2005, Andi Kleen wrote:
 
-> On Wed, Nov 30, 2005 at 08:03:33PM -0800, Zwane Mwaikambo wrote:
-> > NULL dereferences don't cause a page fault if the 4th level pagetable 
-> > being used is init_level4_pgt because we never zap_low_mappings. Since 
-> > the idle thread uses init_level4_pgt any bad dereferences happening there 
-> > (e.g. from interrupts) won't cause a fault. Andi would you be fine with 
-> > switching the idle threads to a different level4?
-> 
-> That recently changed. Are you sure it's still the case?
-> 
-> idle threads should always run with lazy TLB, no different mms.
-> That's important for performance.
-> 
-> If a NULL reference causes a oops or not depends on if user space
-> from the last process mapped a page to NULL or not.
 
-Ah thanks Andi, yes NULL reference causes an oops in the current -git 
-repository, i hadn't seen that change so i had last tested it on 2.6.13. 
-Sorry for the noise.
+On Thu, 1 Dec 2005, Felipe Alfaro Solana wrote:
+> 
+> Exactly that's what I'm seeing with the propietary nVidia driver:
 
-	Zwane
+Does yours work despite the messages?
+
+Also, can both of you apply this debugging patch that just adds a bit more 
+information about exactly what kind of mapping these drivers are trying to 
+do..
+
+		Thanks,
+			Linus
+
+---
+diff --git a/mm/memory.c b/mm/memory.c
+index 4b4fc3a..b0ab902 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -1241,22 +1241,33 @@ static int incomplete_pfn_remap(struct v
+ 
+ 	if (!(vma->vm_flags & VM_INCOMPLETE)) {
+ 		if (warn) {
++			unsigned long val = pgprot_val(prot);
+ 			warn--;
+ 			printk("%s does an incomplete pfn remapping", current->comm);
++			printk("vma: %lx-%lx remap: %lx-%lx pfn: %lx, prot: %lx",
++				vma->vm_start, vma->vm_end,
++				start, end,
++				pfn, val);
+ 			dump_stack();
+ 		}
+ 	}
+ 	vma->vm_flags |= VM_INCOMPLETE | VM_IO | VM_RESERVED;
+ 
+-	if (start < vma->vm_start || end > vma->vm_end)
++	if (start < vma->vm_start || end > vma->vm_end) {
++		printk("pfn remap outside the vma!\n");
+ 		return -EINVAL;
++	}
+ 
+-	if (!pfn_valid(pfn))
++	if (!pfn_valid(pfn)) {
++		printk("incomplete pfn remap with IO pages not supported\n");
+ 		return -EINVAL;
++	}
+ 
+ 	page = pfn_to_page(pfn);
+-	if (!PageReserved(page))
++	if (!PageReserved(page)) {
++		printk("incomplete pfn remap with non-reserved pages!??!\n");
+ 		return -EINVAL;
++	}
+ 
+ 	retval = 0;
+ 	while (start < end) {

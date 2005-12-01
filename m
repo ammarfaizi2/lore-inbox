@@ -1,65 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932312AbVLAQZO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbVLAQZx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932312AbVLAQZO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 11:25:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbVLAQZO
+	id S932316AbVLAQZx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 11:25:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932320AbVLAQZx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 11:25:14 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:59794 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932312AbVLAQZN (ORCPT
+	Thu, 1 Dec 2005 11:25:53 -0500
+Received: from rtr.ca ([64.26.128.89]:26786 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S932318AbVLAQZw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 11:25:13 -0500
-From: Andreas Schwab <schwab@suse.de>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Zachary Amsden <zach@vmware.com>,
-       Uwe Zeisberger <zeisberg@informatik.uni-freiburg.de>,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: Re: [PATCH] Kbuild fixes
-References: <20051110213640.GA19831@mars.ravnborg.org>
-X-Yow: I guess it was all a DREAM..  or an episode of HAWAII FIVE-O...
-Date: Thu, 01 Dec 2005 17:25:00 +0100
-In-Reply-To: <20051110213640.GA19831@mars.ravnborg.org> (Sam Ravnborg's
-	message of "Thu, 10 Nov 2005 22:36:40 +0100")
-Message-ID: <jehd9s6azn.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
+	Thu, 1 Dec 2005 11:25:52 -0500
+Message-ID: <438F240F.2020300@rtr.ca>
+Date: Thu, 01 Dec 2005 11:25:51 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix bytecount result from printk()
+References: <438F1D05.5020004@rtr.ca> <Pine.LNX.4.64.0512010808240.3099@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0512010808240.3099@g5.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg <sam@ravnborg.org> writes:
-
-> Author: Uwe Zeisberger <zeisberg@informatik.uni-freiburg.de>
+Linus Torvalds wrote:
+> 
+> On Thu, 1 Dec 2005, Mark Lord wrote:
+> 
+>>On a related note, WHY does the LOG LEVEL format <6> not get
+>>interpreted correctly for the first printk() after an oops report?
 >
->     [PATCH] kbuild: make kernelrelease in unconfigured kernel prints an error
->     
->     Do not include .config for target kernelrelease
+> It never gets interpreted except at the behinning of a line. Sounds like 
+> the oops report perhaps prints a " " without a newline or something at the 
+> end, so that the next message after that isn't a new line?
 
-This is wrong.  KERNELRELEASE depends on CONFIG_LOCALVERSION, thus you
-need .config.
+The oops report always ends with a simple newline:  printk("\n");
 
-Signed-off-by: Andreas Schwab <schwab@suse.de>
-
-Index: linux-2.6.14/Makefile
-===================================================================
---- linux-2.6.14.orig/Makefile	2005-12-01 17:10:33.998015103 +0100
-+++ linux-2.6.14/Makefile	2005-12-01 17:11:39.605921389 +0100
-@@ -412,7 +412,7 @@ outputmakefile:
- # of make so .config is not included in this case either (for *config).
- 
- no-dot-config-targets := clean mrproper distclean \
--			 cscope TAGS tags help %docs check% kernelrelease
-+			 cscope TAGS tags help %docs check%
- 
- config-targets := 0
- mixed-targets  := 0
-
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."

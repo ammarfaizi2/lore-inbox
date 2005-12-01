@@ -1,118 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932566AbVLBAFG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932565AbVLBAEo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932566AbVLBAFG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 19:05:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932569AbVLBAFF
+	id S932565AbVLBAEo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 19:04:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932568AbVLBAEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 19:05:05 -0500
-Received: from vms046pub.verizon.net ([206.46.252.46]:33016 "EHLO
-	vms046pub.verizon.net") by vger.kernel.org with ESMTP
-	id S932566AbVLBAFE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 19:05:04 -0500
-Date: Thu, 01 Dec 2005 19:03:40 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Gene's pcHDTV 3000 analog problem
-In-reply-to: <438F7D09.6040007@m1k.net>
-To: linux-kernel@vger.kernel.org, mkrufky@m1k.net
-Cc: Perry Gilfillan <perrye@linuxmail.org>,
-       Mauro Carvalho Chehab <mchehab@infradead.org>,
-       Linux and Kernel Video <video4linux-list@redhat.com>,
-       Don Koch <aardvark@krl.com>
-Message-id: <200512011903.41058.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <200511282205.jASM5YUI018061@p-chan.krl.com>
- <200512011726.41299.gene.heskett@verizon.net> <438F7D09.6040007@m1k.net>
-User-Agent: KMail/1.7
+	Thu, 1 Dec 2005 19:04:44 -0500
+Received: from ccerelbas02.cce.hp.com ([161.114.21.105]:9642 "EHLO
+	ccerelbas02.cce.hp.com") by vger.kernel.org with ESMTP
+	id S932565AbVLBAEn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 19:04:43 -0500
+Date: Thu, 1 Dec 2005 15:41:50 -0800
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Nicholas Miell <nmiell@comcast.net>, Ray Bryant <raybry@mpdtxmail.amd.com>,
+       discuss@x86-64.org, linux-kernel@vger.kernel.org,
+       perfctr-devel@lists.sourceforge.net
+Subject: Re: [discuss] Re: [Perfctr-devel] Re: Enabling RDPMC in user space by default
+Message-ID: <20051201234150.GE3291@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <20051129151515.GG19515@wotan.suse.de> <200511291056.32455.raybry@mpdtxmail.amd.com> <20051129180903.GB6611@frankl.hpl.hp.com> <20051129181344.GN19515@wotan.suse.de> <1133300591.3271.1.camel@entropy> <20051129215207.GR19515@wotan.suse.de> <20051129221915.GA6953@frankl.hpl.hp.com> <20051129225155.GT19515@wotan.suse.de> <20051130160159.GB8511@frankl.hpl.hp.com> <20051130162314.GP19515@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051130162314.GP19515@wotan.suse.de>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 01 December 2005 17:45, Michael Krufky wrote:
->Gene Heskett wrote:
->>On Thursday 01 December 2005 17:06, Perry Gilfillan wrote:
->>>Mauro Carvalho Chehab wrote:
->>>>After checking the datasheets of Thompson tuner, and I have one
->>>>guess:
->>>>
->>>>At board description, tda9887 is not there. This tuner needs to work
->>>>properly.
->>>>
->>>>This small patch does enable it for your board.
->>>>
->>>>You should notice that you may need to use some parameters for
->>>>tda0887 to work properly, like using port1=0 port2=0 qss=0 as insmod
->>>>options for this module. (these are some on/off bits at the chip, to
->>>>enable some special functions - if 0/0/0 doesn't work you may need
->>>> to test 0/0/1, .. 1/1/1).
->>>
->>>This has fixed it for me!!  I compiled todays cvs, with out this
->>> patch, to watch it fail, then added the line as noted, and reloaded
->>> the modules without rebooting, and it worked.  I did a cold start to
->>> see that it is repeatable, and it continues to work.  I used no
->>> extra parameters, so the defaults are working fine.
->>
->>I haven't built it yet, had to apply the patch by hand for some reason
->>here, after doing a cvs up -D today.
->>
->>2.6.15-rc4 under construction to test it.
->
->Gene, dont bother applying the patch to the cvs code -- It is obviously
->correct, so I have merged it into v4l-dvb cvs.
+Andi,
 
-I did a cvs up -D 2005-12-1, about 1.5 hours ago and it hadn't been
-applied yet.
+On Wed, Nov 30, 2005 at 05:23:15PM +0100, Andi Kleen wrote:
+> > to count elapsed cycles while executing a ring 0 and ring 3. The watchdog
+> > works by polling on the counter and after a certain delta is reached it
+> > triggers an NMI interrupt which, in turn, causes a kernel crash and the
+> > (bug) report. Is that the correct behavior?
+> 
+> The watchdog is driven by the performance counter (this means
+> it has varying frequency, but that's not a big issue for the watchdog) 
+> 
+> It underflows every second in the fastest case or very slowly
+> (if the machine is idle). Every time it underflows it checks if 
+> the per CPU timer has been ticking, and if it hasn't for some time
+> it triggers an oops.
 
->A simple cvs checkout will get you everything you need.
-I'll resuck the whole thing.
+How is the checking for underflows done? Polling?
 
->If you like, try to apply it against the kernel, without using cvs.
+> 
+> The obvious solution would be to set an underflow interrupt at 2^46 or so
+> and then reset the counters. For that you would need to count down though.
+> 
+> > 
+> > Also are you sure that the PERFCTR0/PERFSEL0 are not affected when going
+> > into lower power state? I know by experience that one IA-64, for instance,
+> > the counters are seriously affected.
+> 
+> They stop ticking in idle. Yes, that's ok if you just want to measure
+> cycles because there are no cycles in idle.
+> 
+Ok that makes sense.
 
-Ok, that I can probably do.  Unforch, there is a miss-cue in that
-file, rc4 says:
-struct cx88_board cx88_boards[] = {
-        [CX88_BOARD_UNKNOWN] = {
-                .name           = "UNKNOWN/GENERIC",
-                .tuner_type     = UNSET,
-                .radio_type     = UNSET,
-                .tuner_addr     = ADDR_UNSET,
-                .radio_addr     = ADDR_UNSET,
-                .input          = {{
-                        .type   = CX88_VMUX_COMPOSITE1,
+> It's not ok for timing (wall clock time) purposes, but it's also not
+> intended for that. If you want time use gettimeofday
+> 
+I agree.
 
-Note also that the .type = label has been changed.  I'm going to change
-that line back to CX88_VMUX_TELEVISION, just for grins.
+> They will also clock slower if the CPU is in a P state (runs with lower
+> frequency), but for measurements that's also wanted and expected I believe.
+> e.g with RDTSC on Intel right now if you are in a lower P state you will
+> get wrong results.
+> 
+> Basically it's a good cycle timer for instruction measurements and
+> nothing more.
 
-While the patch says:
-@@ -569,6 +569,7 @@ struct cx88_board cx88_boards[] = {
-                .radio_type     = UNSET,
-                .tuner_addr     = ADDR_UNSET,
-                .radio_addr     = ADDR_UNSET,
-                .tda9887_conf   = TDA9887_PRESENT,
-                .input          = {{
-                        .type   = CX88_VMUX_TELEVISION,
-                        .vmux   = 0,
-And I've added that line from the patch to just above the ".input"
-line, its rebuilding now.  And a cold reboot will test it, so I'll send
-this first just to let you know not all is well in tv land.
+Yes, it requires pinning and also that nothing else can run
+on the processor. This is very restrictive and I wonder if
+this is really useable?
 
->Anyhow, surely it will work.  Thank you Gene, Don and Perry for helping
->us to solve this bug......... Hopefully we'll be able to get the fix
->into 2.6.15.
->
->Cheers,
->
->Michael Krufky
+> Not ticking in idle actually helps with that because it makes
+> it totally clear to everybody that it's not a wall clock :)
+> 
+Yes, except that this is silently done. There needs to be a
+STRONG warning about this somewhere.
+
+> > As Ray mentioned, it all depends on what the user/sysdamin is after.
+> > Some people maybe okay with disbaling NMI in favor of more counters.
+> > Obviously others people are not.
+> 
+> I cannot stop them from hacking the kernel, but I don't think
+> I will make it easy for them to do this in a stock kernel
+> (or at least not until they provide an reliable alternative watchdog
+> time source) 
+> 
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.36% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
 
+-Stephane

@@ -1,78 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbVLAGlr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbVLAHRi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932096AbVLAGlr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 01:41:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbVLAGlr
+	id S932102AbVLAHRi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 02:17:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbVLAHRi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 01:41:47 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:51136 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932096AbVLAGlq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 01:41:46 -0500
-Message-ID: <438E9B24.9020806@pobox.com>
-Date: Thu, 01 Dec 2005 01:41:40 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+	Thu, 1 Dec 2005 02:17:38 -0500
+Received: from rtsoft2.corbina.net ([85.21.88.2]:39359 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S932102AbVLAHRh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 02:17:37 -0500
+Message-ID: <438EA389.7030704@ru.mvista.com>
+Date: Thu, 01 Dec 2005 10:17:29 +0300
+From: Vitaly Wool <vwool@ru.mvista.com>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Darrick J. Wong" <djwong@us.ibm.com>
-CC: Chris McDermott <lcm@us.ibm.com>, Luvella McFadden <luvella@us.ibm.com>,
-       AJ Johnson <blujuice@us.ibm.com>, Kevin Stansell <kstansel@us.ibm.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] aic79xx should be able to ignore HostRAID enabled adapters
-References: <438E90DD.3010007@us.ibm.com>
-In-Reply-To: <438E90DD.3010007@us.ibm.com>
+To: Mark Underwood <basicmark@yahoo.com>
+CC: linux-kernel@vger.kernel.org, david-b@pacbell.net, dpervushin@gmail.com,
+       akpm@osdl.org, greg@kroah.com, komal_shah802003@yahoo.com,
+       stephen@streetfiresound.com, spi-devel-general@lists.sourceforge.net,
+       Joachim_Jaeger@digi.com
+Subject: Re: [PATCH 2.6-git] SPI core refresh
+References: <20051130202930.67776.qmail@web36914.mail.mud.yahoo.com>
+In-Reply-To: <20051130202930.67776.qmail@web36914.mail.mud.yahoo.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Darrick J. Wong wrote: > Hi there, > > I have an IBM
-	x346 with some Adaptec 7902 SCSI controllers; one has HostRAID >
-	enabled in a RAID array, and the other does not. Upon bootup, the
-	aic79xx > driver will grab both controllers even though I'd prefer that
-	Adaptec's a320raid > driver grab the HostRAID controller. (When
-	attached to the RAID array, the > aic79xx driver presents each drive in
-	the array as a separate SCSI device.) If > HostRAID is turned on, the
-	PCI class code is 0x0104 (RAID) and if it's turned > off, the class
-	code is 0x0100 (SCSI). > > Unfortunately, there currently is no
-	provision in the aic79xx driver to ignore > RAID controllers--if the
-	PCI device/vendor IDs match, the driver takes the > controller. [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Darrick J. Wong wrote:
-> Hi there,
-> 
-> I have an IBM x346 with some Adaptec 7902 SCSI controllers; one has HostRAID
-> enabled in a RAID array, and the other does not.  Upon bootup, the aic79xx
-> driver will grab both controllers even though I'd prefer that Adaptec's a320raid
-> driver grab the HostRAID controller.  (When attached to the RAID array, the
-> aic79xx driver presents each drive in the array as a separate SCSI device.)  If
-> HostRAID is turned on, the PCI class code is 0x0104 (RAID) and if it's turned
-> off, the class code is 0x0100 (SCSI).
-> 
-> Unfortunately, there currently is no provision in the aic79xx driver to ignore
-> RAID controllers--if the PCI device/vendor IDs match, the driver takes the
-> controller.
+Mark Underwood wrote:
 
-This is the correct behavior.  Under Linux, the driver should export 
-only the underlying hardware, and nothing more.  This is how all the 
-SATA controller drivers function, and this is how aic79xx functions.
+>>However, there also are some advantages of our core compared to David's I'd like to mention
+>>
+>>- it can be compiled as a module
+>>    
+>>
+>So can David's. You can use BIOS tables in which case you must compile the SPI core into the
+>kernel but you can also use spi_new_device which allows the SPI core to be built as a module (and
+>is how I am using it).
+>  
+>
+You limit the functionality, so it's not the case.
 
-Use a tool such as 'dmraid' for vendor-proprietary RAID solutions.
+>  
+>
+>>- it is DMA-safe
+>>    
+>>
+>To my understanding David's core is DMA-safe. Yes there is a question mark over one of the helper
+>functions, but the _main_ functions _are_ DMA-safe.
+>  
+>
+Yeah, I can agree with this statement. However, as it turns out, the 
+latest David's core eliminates this issue.
 
-Your patch is therefore strongly NAK'd.
+>  
+>
+>>- it is priority inversion-free
+>>- it can gain more performance with multiple controllers
+>>    
+>>
+>Sorry I'm not sure what you mean here.
+>  
+>
+If there's more than one SPI controller onboard, spi_write_then_read 
+will serialize the transfers related to two different controllers what 
+will have significant negative impact on the transfer speed (so DMA 
+won't help increasing the speed in this case). Moreover, if, say, two 
+kernel threads with different priorities are working with two SPI 
+controllers respectively *priority inversion* will happen.
+You might also want to learn more about real-time systems 
+characterictics such as priority inversion, BTW.
 
-	Jeff
+>  
+>
+>>- it's more adapted for use in real-time environments
+>>- it's not so lightweight, but it leaves less effort for the bus driver developer.
+>>    
+>>
+>
+>But also less flexibility. A core layer shouldn't _force_ a policy
+>  
+>
+Nope, it's just a default policy.
 
+>on a bus driver. I am currently developing an adapter driver for David's system and I wouldn't say
+>that the core is making me do things I think the core should do. Please could you provide examples
+>of where you think Davids SPI core requires 'effort'.
+>  
+>
+Main are
+- the need to call 'complete' in controller driver
+- the need to implement policy in controller driver
 
-
+Vitaly

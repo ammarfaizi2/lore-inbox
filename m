@@ -1,75 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932543AbVLAXE0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932547AbVLAXH6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932543AbVLAXE0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 18:04:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932545AbVLAXE0
+	id S932547AbVLAXH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 18:07:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbVLAXH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 18:04:26 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:65253 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932543AbVLAXE0 (ORCPT
+	Thu, 1 Dec 2005 18:07:58 -0500
+Received: from fsmlabs.com ([168.103.115.128]:5266 "EHLO spamalot.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S932547AbVLAXH5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 18:04:26 -0500
-Date: Thu, 1 Dec 2005 15:03:49 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: wfg@mail.ustc.edu.cn, linux-kernel@vger.kernel.org, christoph@lameter.com,
-       riel@redhat.com, a.p.zijlstra@chello.nl, npiggin@suse.de,
-       andrea@suse.de, magnus.damm@gmail.com
-Subject: Re: [PATCH 02/12] mm: supporting variables and functions for
- balanced zone aging
-Message-Id: <20051201150349.3538638e.akpm@osdl.org>
-In-Reply-To: <20051201222846.GA3646@dmt.cnet>
-References: <20051201101810.837245000@localhost.localdomain>
-	<20051201101933.936973000@localhost.localdomain>
-	<20051201023714.612f0bbf.akpm@osdl.org>
-	<20051201222846.GA3646@dmt.cnet>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Dec 2005 18:07:57 -0500
+X-ASG-Debug-ID: 1133478475-13729-0-0
+X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
+Date: Thu, 1 Dec 2005 15:13:35 -0800 (PST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Andi Kleen <ak@suse.de>
+cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+X-ASG-Orig-Subj: Re: [PATCH] x86_64: Display HPET timer option
+Subject: Re: [PATCH] x86_64: Display HPET timer option
+In-Reply-To: <20051201204339.GC997@wotan.suse.de>
+Message-ID: <Pine.LNX.4.64.0512011511290.13220@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.64.0512011143350.13220@montezuma.fsmlabs.com>
+ <Pine.LNX.4.64.0512011150110.3099@g5.osdl.org>
+ <Pine.LNX.4.64.0512011216200.13220@montezuma.fsmlabs.com>
+ <20051201204339.GC997@wotan.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.5772
+	Rule breakdown below pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
->
-> Hi Andrew,
-> 
-> On Thu, Dec 01, 2005 at 02:37:14AM -0800, Andrew Morton wrote:
-> > Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
-> > >
-> > >  The zone aging rates are currently imbalanced,
+On Thu, 1 Dec 2005, Andi Kleen wrote:
+
+> On Thu, Dec 01, 2005 at 12:30:03PM -0800, Zwane Mwaikambo wrote:
+> > On Thu, 1 Dec 2005, Linus Torvalds wrote:
 > > 
-> > ZONE_DMA is out of whack.  It shouldn't be, and I'm not aware of anyone
-> > getting in and working out why.  I certainly wouldn't want to go and add
-> > all this stuff without having a good understanding of _why_ it's out of
-> > whack.  Perhaps it's just some silly bug, like the thing I pointed at in
-> > the previous email.
+> > > 
+> > > 
+> > > On Thu, 1 Dec 2005, Zwane Mwaikambo wrote:
+> > > >
+> > > > Currently the HPET timer option isn't visible in menuconfig.
+> > > 
+> > > Do you want it to?
+> > > 
+> > > Why would you ever compile it out?
+> > 
+> > For timer testing purposes i sometimes would like not to use the HPET. 
+> > Would a runtime switch be preferred?
 > 
-> I think that the problem is caused by the interaction between 
-> the way reclaiming is quantified and parallel allocators.
+> nohpet already exists.
 
-Could be.  But what about the bug which I think is there?  That'll cause
-overscanning of the DMA zone.
+Alright, my real intention was being able to change that by specifying 
+seperate kernel configurations. It's not that pressing i can live with an 
+external patch.
 
-> The zones have different sizes, and each zone reclaim iteration
-> scans the same number of pages. It is unfair.
-
-Nope.  See how shrink_zone() bases nr_active and nr_inactive on
-zone->nr_active and zone_nr_inactive.  These calculations are intended to
-cause the number of scanned pages in each zone to be
-
-	(zone->nr-active + zone->nr_inactive) >> sc->priority.
-
-> On top of that, kswapd is likely to block while doing its job, 
-> which means that allocators have a chance to run.
-
-kswapd should only block under rare circumstances - huge amounts of dirty
-pages coming off the tail of the LRU.
-
-> --- mm/vmscan.c.orig	2006-01-01 12:44:39.000000000 -0200
-> +++ mm/vmscan.c	2006-01-01 16:43:54.000000000 -0200
-> @@ -616,8 +616,12 @@
->  {
-
-Please use `diff -p'.
+Thanks,
+	Zwane
 

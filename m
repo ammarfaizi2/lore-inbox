@@ -1,109 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbVLAVlk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbVLAVlq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932490AbVLAVlk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 16:41:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932491AbVLAVlk
+	id S932491AbVLAVlq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 16:41:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbVLAVlp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 16:41:40 -0500
-Received: from mail.kroah.org ([69.55.234.183]:6291 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932490AbVLAVlj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 16:41:39 -0500
-Date: Thu, 1 Dec 2005 13:40:03 -0800
-From: Greg KH <gregkh@suse.de>
-To: "Yeisley, Dan P." <dan.yeisley@unisys.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH 2.6.15-rc3-mm1] PCI Quirk: 1K I/O Space Granularity on Intel P64H2
-Message-ID: <20051201214002.GA22539@suse.de>
-References: <94C8C9E8B25F564F95185BDA64AB05F60298EA04@USTR-EXCH5.na.uis.unisys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 1 Dec 2005 16:41:45 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:18076 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S932491AbVLAVln (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 16:41:43 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andy Isaacson <adi@hexapodia.org>
+Subject: Re: swsusp intermittent failures in 2.6.15-rc3-mm1
+Date: Thu, 1 Dec 2005 22:42:44 +0100
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>
+References: <20051201173649.GA22168@hexapodia.org>
+In-Reply-To: <20051201173649.GA22168@hexapodia.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <94C8C9E8B25F564F95185BDA64AB05F60298EA04@USTR-EXCH5.na.uis.unisys.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200512012242.44995.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 01, 2005 at 02:37:03PM -0500, Yeisley, Dan P. wrote:
-> I've implemented a quirk to take advantage of the 1KB I/O space
-> granularity option on the Intel P64H2 PCI Bridge.  I had to change
-> probe.c because it sets the resource start and end to be aligned on 4k
-> boundaries (after the quirk sets them to 1k boundaries).  I've tested
-> this patch on a Unisys ES7000-600 both with and without the 1KB option
-> enabled.  I also tested this on a 2 processor Dell box that doesn't have
-> a P64H2 to make sure there were no negative affects there.
-> 
-> Signed-off-by: Dan Yeisley <dan.yeisley@unisys.com>
-> ---
-> 
-> 
-> diff -Naur linux-a/drivers/pci/probe.c linux-b/drivers/pci/probe.c
-> --- linux-a/drivers/pci/probe.c	2005-12-01 01:07:30.000000000 -0800
-> +++ linux-b/drivers/pci/probe.c	2005-11-30 05:13:41.000000000 -0800
-> @@ -264,8 +264,10 @@
->  
->  	if (base <= limit) {
->  		res->flags = (io_base_lo & PCI_IO_RANGE_TYPE_MASK) |
-> IORESOURCE_IO;
+Hi,
 
-Your patch is linewrapped and can not be applied :(
+On Thursday, 1 of December 2005 18:36, Andy Isaacson wrote:
+> My Thinkpad X40 (1.25 GB, ipw2200) has had fairly reliable swsusp since
+> 2.6.13 or thereabouts, and as recently as 2.6.15-rc1-mm1 I had about 20
+> successful suspend/resume cycles.  But now that I'm running
+> 2.6.15-rc3-mm1 I'm seeing intermittent failures like this:
 
-Care to try again?
+Thanks a lot for the report.
 
-> -		res->start = base;
-> -		res->end = limit + 0xfff;
-> +		if(!res->start)
-> +			res->start = base;
-> +		if(!res->end)
-> +			res->end = limit + 0xfff;
+The problem is apparently caused by my recent patch intended to speed up
+suspend.  Could you please apply the appended debug patch, try to reproduce
+the problem and send full dmesg output back to me?
 
-Why is this necessary, if your quirk already sets these values?
+Rafael
 
->  	}
->  
->  	res = child->resource[1];
-> diff -Naur linux-a/drivers/pci/quirks.c linux-b/drivers/pci/quirks.c
-> --- linux-a/drivers/pci/quirks.c	2005-12-01 01:07:30.000000000
-> -0800
-> +++ linux-b/drivers/pci/quirks.c	2005-12-01 01:10:41.000000000
-> -0800
-> @@ -1312,6 +1312,35 @@
->  	pci_do_fixups(dev, start, end);
->  }
->  
-> +/*
-> +** Intel P64H2 PCI Bridge
-> +** 	Enable 1k I/O space granularity
-> +*/
 
-That's a very odd function comment format.  Care to use the standard
-kernel format instead?
+Index: linux-2.6.15-rc3-mm1/kernel/power/swsusp.c
+===================================================================
+--- linux-2.6.15-rc3-mm1.orig/kernel/power/swsusp.c	2005-12-01 22:13:17.000000000 +0100
++++ linux-2.6.15-rc3-mm1/kernel/power/swsusp.c	2005-12-01 22:24:56.000000000 +0100
+@@ -635,12 +635,18 @@
+ 	printk("Shrinking memory...  ");
+ 	do {
+ #ifdef FAST_FREE
+-		tmp = count_data_pages() + count_highmem_pages();
++		tmp = count_data_pages();
++		printk("Data pages: %ld\n", tmp);
++		tmp += count_highmem_pages();
++		printk("Data and highmem pages: %ld\n", tmp);
+ 		tmp += (tmp + PBES_PER_PAGE - 1) / PBES_PER_PAGE +
+ 			PAGES_FOR_IO;
++		printk("Total pages: %ld\n", tmp);
+ 		for_each_zone (zone)
+-			if (!is_highmem(zone))
++			if (!is_highmem(zone)) {
+ 				tmp -= zone->free_pages;
++				printk("Pages to free: %ld\n", tmp);
++			}
+ 		if (tmp > 0) {
+ 			tmp = shrink_all_memory(SHRINK_BITE);
+ 			if (!tmp)
+Index: linux-2.6.15-rc3-mm1/kernel/power/snapshot.c
+===================================================================
+--- linux-2.6.15-rc3-mm1.orig/kernel/power/snapshot.c	2005-12-01 22:13:58.000000000 +0100
++++ linux-2.6.15-rc3-mm1/kernel/power/snapshot.c	2005-12-01 22:39:01.000000000 +0100
+@@ -437,8 +437,14 @@
+ 
+ static int enough_free_mem(unsigned int nr_pages)
+ {
+-	pr_debug("swsusp: available memory: %u pages\n", nr_free_pages());
+-	return nr_free_pages() > (nr_pages + PAGES_FOR_IO +
++	struct zone *zone;
++	unsigned int n = 0;
++
++	for_each_zone (zone)
++		if (!is_highmem(zone))
++			n += zone->free_pages;
++	printk("swsusp: available memory: %u pages\n", n);
++	return n > (nr_pages + PAGES_FOR_IO +
+ 		(nr_pages + PBES_PER_PAGE - 1) / PBES_PER_PAGE);
+ }
+ 
 
-> +static void __devinit quirk_p64h2_1k_io(struct pci_dev *dev)
-> +{
-> +	u16 en1k;
-> +	u8 io_base_lo, io_limit_lo;
-> +	unsigned long base, limit;
-> +	struct resource *res = dev->resource + PCI_BRIDGE_RESOURCES;
-> +
-> +	pci_read_config_word(dev, 0x40, &en1k);
-> +
-> +	if(en1k & 0x200) {
 
-Space after "if" and before "(" please.
-
-> +		printk(KERN_INFO "PCI: Enable I/O Space to 1 KB
-> Granularity\n");
-> +
-> +		pci_read_config_byte(dev, PCI_IO_BASE, &io_base_lo);
-> +		pci_read_config_byte(dev, PCI_IO_LIMIT, &io_limit_lo);
-> +		base = (io_base_lo & (PCI_IO_RANGE_MASK | 0x0c)) << 8;
-> +		limit = (io_limit_lo & (PCI_IO_RANGE_MASK | 0x0c)) << 8;
-> +
-> +		if(base <= limit) {
-
-Space after "if" and before "(" please.
-
-thanks,
-
-greg k-h
+-- 
+Beer is proof that God loves us and wants us to be happy - Benjamin Franklin

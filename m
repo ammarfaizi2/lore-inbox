@@ -1,79 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbVLAOuA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbVLAOxJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932239AbVLAOuA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 09:50:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbVLAOuA
+	id S932263AbVLAOxJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 09:53:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbVLAOxJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 09:50:00 -0500
-Received: from web34105.mail.mud.yahoo.com ([66.163.178.103]:58982 "HELO
-	web34105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932239AbVLAOt7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 09:49:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=J4QI81CStnpTQypTmnkiwl/OJ7LKMXCS/sp3vZAN9nCV/UrW6GyZHYsK0C3YClUad82su9DdrXsVBeA3LY3lK3vMRf9bpVrgBZKiLyVWyYTyVoTnbEi1gwipqmNOOLWkmzuafcagOmDlgPHqBYlBvlvod5/zUmaKSvsAhAmzc14=  ;
-Message-ID: <20051201144958.73198.qmail@web34105.mail.mud.yahoo.com>
-Date: Thu, 1 Dec 2005 06:49:58 -0800 (PST)
-From: Kenny Simpson <theonetruekenny@yahoo.com>
-Subject: Re: nfs unhappiness with memory pressure
-To: Keith Mannthey <kmannth@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <a762e240511301342x6e754cafsed9db386d05a6b2b@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 1 Dec 2005 09:53:09 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:54187 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932257AbVLAOxI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 09:53:08 -0500
+Date: Thu, 1 Dec 2005 14:53:07 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Takashi Sato <sho@bsd.tnes.nec.co.jp>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: stat64 for over 2TB file returned invalid st_blocks
+Message-ID: <20051201145307.GF27946@ftp.linux.org.uk>
+References: <01e901c5f66e$d4551b70$4168010a@bsd.tnes.nec.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <01e901c5f66e$d4551b70$4168010a@bsd.tnes.nec.co.jp>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Keith Mannthey <kmannth@gmail.com> wrote:
-> You are still reporing free pages.  Do you seen the OOM killer killing
-> processes?
+On Thu, Dec 01, 2005 at 09:00:26PM +0900, Takashi Sato wrote:
+> 2. Change the type of architecture dependent stat64.st_blocks in
+>   include/asm/asm-*/stat.h from unsigned long to unsigned long long.
+>   I tried modifying only stat64 of 32bit architecture
+>   (include/asm-i386/stat.h).
 
-Running the test with /proc/sys/vm/overcommit_memory = 2, I get a similar 
-result.  It still hangs after about 5.9GB, but it starts trying to write 
-out the file sooner.
-Here is the stack trace I have for the process (again, by hand, what didn't scroll by as nothing
-makes it to logs...)
-
-writetest:
-  schedule_timeout
-  io_schedule_timeout
-  blk_congestion_wait
-  throttle_vm_writeout
-  shrink_zone
-  shrink_caches
-  try_to_free_pages
-  __alloc_pages
-    -> (up to here it matches the previous run's stack from rpciod/0)
-  kmem_getpages
-  cache_grow
-  cache_alloc_refill
-  kmem_cache_alloc
-  mempool_alloc_slab
-  mempool_alloc
-  nfs_flush_one
-  nfs_flush_list
-  nfs_flush_inode
-  nfs_write_pages
-  do_writepages
-  __filemap_fdatawrite_range
-  filemap_fdatawrite
-  filemap_write_and_wait
-  nfs_revalidate_mapping
-  nfs_file_write
-  do_sync_write
-  vfs_write
-  sys_pwrite64
-
-The memory dump showed there was memory still available, with no swap in use.
-
--Kenny
-
-
-
-	
-		
-__________________________________ 
-Yahoo! Mail - PC Magazine Editors' Choice 2005 
-http://mail.yahoo.com
+... watch libc have kittens on big-endian architectures subjected
+to that treatment.

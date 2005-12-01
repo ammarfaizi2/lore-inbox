@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbVLAOFF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751689AbVLAOMj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750824AbVLAOFF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 09:05:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbVLAOFF
+	id S1751689AbVLAOMj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 09:12:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbVLAOMj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 09:05:05 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:5953 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S1750824AbVLAOFE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 09:05:04 -0500
-Subject: Re: Linux 2.6.15-rc4
-From: Kasper Sandberg <lkml@metanurb.dk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0511302234020.3099@g5.osdl.org>
-References: <Pine.LNX.4.64.0511302234020.3099@g5.osdl.org>
+	Thu, 1 Dec 2005 09:12:39 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:56230 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750830AbVLAOMi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 09:12:38 -0500
+Subject: RE: [PATCH] aic79xx should be able to ignore HostRAID enabled
+	adapters
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       "Darrick J. Wong" <djwong@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Luvella McFadden <luvella@us.ibm.com>, AJ Johnson <blujuice@us.ibm.com>,
+       Kevin Stansell <kstansel@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, Mauelshagen@redhat.com
+In-Reply-To: <547AF3BD0F3F0B4CBDC379BAC7E4189F01E3E318@otce2k03.adaptec.com>
+References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01E3E318@otce2k03.adaptec.com>
 Content-Type: text/plain
-Date: Thu, 01 Dec 2005 15:05:03 +0100
-Message-Id: <1133445903.16820.1.camel@localhost>
+Date: Thu, 01 Dec 2005 15:12:34 +0100
+Message-Id: <1133446354.2853.51.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-30 at 22:40 -0800, Linus Torvalds wrote:
-<snip>
-> 
-> 		Linus
-> 
-> [ Btw, some drivers will now complain loudly about their nasty mis-use of 
->   page remapping, and that migh look scary, but it should all be good, and 
->   we'd love to see the detailed output of dmesg on such machines. ]
-> 
 
-this is the ati proprietary driver on x86 laptop.
+> [ You are on record as not giving a fig for the users, what if I showed
+> them as starving children in a third world nation, would that melt your
+> heart? ;-} ]
 
-Backtrace:
- [<b013d88d>] bad_page+0x7d/0xc0
- [<b013e124>] free_hot_cold_page+0x44/0x100
- [<b0148c2c>] zap_pte_range+0xfc/0x220
- [<b0148e3c>] unmap_page_range+0xec/0x110
- [<b0148f21>] unmap_vmas+0xc1/0x1e0
- [<b014cc45>] unmap_region+0x85/0x110
- [<b014cf39>] do_munmap+0xd9/0x120
- [<b014cfc7>] sys_munmap+0x47/0x70
- [<b0102f1b>] sysenter_past_esp+0x54/0x75
-Trying to fix it up, but a reboot is needed
-
-
-<snip>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+adaptec could just release the source of the enhancement to linux (as
+the GPL basically requires anyway :)
 

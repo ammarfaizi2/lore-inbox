@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932547AbVLAXH6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932552AbVLAXKL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932547AbVLAXH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 18:07:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbVLAXH6
+	id S932552AbVLAXKL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 18:10:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932551AbVLAXKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 18:07:58 -0500
-Received: from fsmlabs.com ([168.103.115.128]:5266 "EHLO spamalot.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S932547AbVLAXH5 (ORCPT
+	Thu, 1 Dec 2005 18:10:10 -0500
+Received: from codepoet.org ([166.70.99.138]:23474 "EHLO codepoet.org")
+	by vger.kernel.org with ESMTP id S932548AbVLAXKJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 18:07:57 -0500
-X-ASG-Debug-ID: 1133478475-13729-0-0
-X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
-Date: Thu, 1 Dec 2005 15:13:35 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Andi Kleen <ak@suse.de>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-X-ASG-Orig-Subj: Re: [PATCH] x86_64: Display HPET timer option
-Subject: Re: [PATCH] x86_64: Display HPET timer option
-In-Reply-To: <20051201204339.GC997@wotan.suse.de>
-Message-ID: <Pine.LNX.4.64.0512011511290.13220@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.64.0512011143350.13220@montezuma.fsmlabs.com>
- <Pine.LNX.4.64.0512011150110.3099@g5.osdl.org>
- <Pine.LNX.4.64.0512011216200.13220@montezuma.fsmlabs.com>
- <20051201204339.GC997@wotan.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.5772
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
+	Thu, 1 Dec 2005 18:10:09 -0500
+Date: Thu, 1 Dec 2005 16:10:08 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: Final 2.4.x SATA updates
+Message-ID: <20051201231008.GA7921@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: andersen@codepoet.org,
+	Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+References: <20051201214837.GA25256@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051201214837.GA25256@havoc.gtf.org>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Dec 2005, Andi Kleen wrote:
-
-> On Thu, Dec 01, 2005 at 12:30:03PM -0800, Zwane Mwaikambo wrote:
-> > On Thu, 1 Dec 2005, Linus Torvalds wrote:
-> > 
-> > > 
-> > > 
-> > > On Thu, 1 Dec 2005, Zwane Mwaikambo wrote:
-> > > >
-> > > > Currently the HPET timer option isn't visible in menuconfig.
-> > > 
-> > > Do you want it to?
-> > > 
-> > > Why would you ever compile it out?
-> > 
-> > For timer testing purposes i sometimes would like not to use the HPET. 
-> > Would a runtime switch be preferred?
+On Thu Dec 01, 2005 at 04:48:37PM -0500, Jeff Garzik wrote:
 > 
-> nohpet already exists.
+> Now that ATAPI support is pretty stable, the 2.4 version of libata will
+> be receiving its final updates soon.  Here is the current backport,
+> for testing and feedback.
 
-Alright, my real intention was being able to change that by specifying 
-seperate kernel configurations. It's not that pressing i can live with an 
-external patch.
+Awesome.  2.4.x lacks KM_IRQ0 in kmap_types.h
 
-Thanks,
-	Zwane
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.32/include -Wall -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -fomit-frame-pointer -Os -falign-functions=2 -falign-jumps=2 -falign-labels=2 -falign-loops=2 -pipe -mpreferred-stack-boundary=2 -march=i486  -DMODULE  -nostdinc -iwithprefix include -DKBUILD_BASENAME=libata_core  -DEXPORT_SYMTAB -c libata-core.c
+libata-core.c: In function `ata_sg_clean':
+libata-core.c:2427: error: `KM_IRQ0' undeclared (first use in this function)
+libata-core.c:2427: error: (Each undeclared identifier is reported only once
+libata-core.c:2427: error: for each function it appears in.)
+libata-core.c: In function `ata_sg_setup':
+libata-core.c:2701: error: `KM_IRQ0' undeclared (first use in this function)
+make[2]: *** [libata-core.o] Error 1
 
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

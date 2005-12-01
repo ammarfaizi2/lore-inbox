@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932432AbVLAUO6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbVLAUPx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932432AbVLAUO6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 15:14:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbVLAUO6
+	id S932435AbVLAUPx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 15:15:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbVLAUPw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 15:14:58 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:32240 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S932432AbVLAUO5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 15:14:57 -0500
-Date: Thu, 1 Dec 2005 21:14:35 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Olaf Hering <olh@suse.de>, Roman Zippel <zippel@linux-m68k.org>
-cc: Paul Mackeras <paulus@samba.org>,
-       Linux/PPC Development <linuxppc-dev@ozlabs.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] powerpc: correct the NR_CPUS description text
-In-Reply-To: <20051201201010.GA2741@suse.de>
-Message-ID: <Pine.LNX.4.62.0512012113190.17317@pademelon.sonytel.be>
-References: <20051201201010.GA2741@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 1 Dec 2005 15:15:52 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:5250
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932435AbVLAUPw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 15:15:52 -0500
+Date: Thu, 01 Dec 2005 12:15:54 -0800 (PST)
+Message-Id: <20051201.121554.130875743.davem@davemloft.net>
+To: davej@redhat.com
+Cc: lkml@rtr.ca, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] Fix bytecount result from printk()
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20051201175732.GD19433@redhat.com>
+References: <438F1D05.5020004@rtr.ca>
+	<20051201175732.GD19433@redhat.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Dec 2005, Olaf Hering wrote:
-> Update the help text to match the allowed range.
+From: Dave Jones <davej@redhat.com>
+Date: Thu, 1 Dec 2005 12:57:32 -0500
+
+> On Thu, Dec 01, 2005 at 10:55:49AM -0500, Mark Lord wrote:
+>  > printk() returns a bytecount, which nothing actually appears to use.
 > 
-> Signed-off-by: Olaf Hering <olh@suse.de>
+> We do check it in a few places.
 > 
->  arch/powerpc/Kconfig |    2 +-
->  1 files changed, 1 insertion(+), 1 deletion(-)
-> 
-> Index: linux-2.6.15-rc4-olh/arch/powerpc/Kconfig
-> ===================================================================
-> --- linux-2.6.15-rc4-olh.orig/arch/powerpc/Kconfig
-> +++ linux-2.6.15-rc4-olh/arch/powerpc/Kconfig
-> @@ -227,7 +227,7 @@ config SMP
->  	  If you don't know what to do here, say N.
->  
->  config NR_CPUS
-> -	int "Maximum number of CPUs (2-32)"
-> +	int "Maximum number of CPUs (2-128)"
->  	range 2 128
->  	depends on SMP
->  	default "32" if PPC64
+> arch/x86_64/kernel/traps.c:                             i += printk(" "); \
+> arch/x86_64/kernel/traps.c:                     i += printk(" <%s> ", id);
+> arch/x86_64/kernel/traps.c:                     i += printk(" <EOE> ");
+> arch/x86_64/kernel/traps.c:                             i += printk(" <IRQ> ");
+> arch/x86_64/kernel/traps.c:                             i += printk(" <EOI> ");
+> drivers/char/mem.c:             ret = printk("%s", tmp);
 
-Shouldn't kconfig (be enhanced to) add the range to the help text
-automatically, to avoid problems like this?
+Wow, that's amazing. :)
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+I bet these can easily be removed, and since printk() is such
+a core thing, simplifying it should trump whatever benfits
+these few call sites have from getting a return byte count.

@@ -1,110 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751292AbVLAEIz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbVLAEez@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751292AbVLAEIz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 23:08:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbVLAEIz
+	id S932076AbVLAEez (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 23:34:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbVLAEez
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 23:08:55 -0500
-Received: from hulk.hostingexpert.com ([69.57.134.39]:10861 "EHLO
-	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S1751292AbVLAEIy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 23:08:54 -0500
-Message-ID: <438E7793.1020109@m1k.net>
-Date: Wed, 30 Nov 2005 23:09:55 -0500
-From: Michael Krufky <mkrufky@m1k.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Wed, 30 Nov 2005 23:34:55 -0500
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:14509 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP
+	id S1751395AbVLAEey (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 23:34:54 -0500
+X-ORBL: [68.79.81.172]
+Date: Wed, 30 Nov 2005 23:34:51 -0500 (EST)
+From: Vladimir Dergachev <volodya@mindspring.com>
+X-X-Sender: volodya@node2.an-vo.com
+Reply-To: Vladimir Dergachev <volodya@mindspring.com>
+To: linux-kernel@vger.kernel.org
+Subject: Megaraid problems
+Message-ID: <Pine.LNX.4.62.0511302325230.13110@node2.an-vo.com>
 MIME-Version: 1.0
-To: Gene Heskett <gene.heskett@verizon.net>
-CC: linux-kernel@vger.kernel.org, Don Koch <aardvark@krl.com>,
-       kirk.lapray@gmail.com, video4linux-list@redhat.com, CityK@rogers.com,
-       perrye@linuxmail.org
-Subject: Re: Gene's pcHDTV 3000 analog problem
-References: <200511282205.jASM5YUI018061@p-chan.krl.com> <438D38B3.2050306@m1k.net> <200511301553.jAUFrSQx026450@p-chan.krl.com> <200511301924.52003.gene.heskett@verizon.net>
-In-Reply-To: <200511301924.52003.gene.heskett@verizon.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gene Heskett wrote:
 
->On Wednesday 30 November 2005 10:53, Don Koch wrote:
->  
->
->>On Wed, 30 Nov 2005 00:29:23 -0500
->>
->>Michael Krufky wrote:
->>    
->>
->>>Gene Heskett wrote:
->>>      
->>>
->>>>On Tuesday 29 November 2005 20:26, Michael Krufky wrote:
->>>>
->>>>[...]
->>>>
->>>>>All I can think of doing next is to have Gene, Don or Perry do a
->>>>>bisection test on our cvs repo.... checking out different cvs
->>>>>revisions until we can narrow it down to the day the problem patch
->>>>>was applied.
->>>>>          
->>>>>
->>Do we know of a date where the code is known to work.
->>    
->>
->I assume this is actually a question.  Its one I'm not privy to other
->than whats in 2.6.14.3 and earlier works.  As to when that was merged
->into the kernel tarballs, I'll let Michael see if he can date it.  And
->then we'ed want to look at anything post that merge date, using the
->bisect methods suggested.
->  
->
->>First thing I'd
->>like to do is verify that the card works at all.  Remember, I've never
->>seen NTSC tuner mode work and don't want to chase a red herring if the
->>card is busted.
->>    
->>
->It should work with a stock 2.6.14.3 build if its going to work I
->think, although there may be other factors for cards other than my
->pcHDTV-3000.  Michael?
->  
->
-2.6.14 was released about a month ago... so, to be safe, I'd say about 2 
-months ago in cvs...
+Hi all :)
 
-The idea of a bisection test is to always make your next test based on 
-half the amount of changesets... It's not as easy to do this with cvs as 
-it is with git, but we can make the best of it......
+    I am wondering whether someone can shed some light on issues I am 
+having with LSI Megaraid cards ? The problem described below is with
+SATA card, but I am also having difficulties with LSI HBA Scsi adaptor, 
+ableit I have not yet eliminated all the obvious things to try.
 
-so, ideally, your tests can be like this:
+    Please CC your replies as I am not on the list..
 
-1- 2months ago.
-2- 1month ago
-3- 2 weeks ago
-4- 3 weeks ago
-5- 2 weeks, 3 days ago
-6- 2 weeks, 1 day ago
+    My setup: dual Opteron 252 with 8 GB RAM, Tyan Thunder K8W. SUSE 9.3 -
+I tried both the native SUSE kernel and 2.6.14.3 from kernel.org, 4 400GB 
+Western Digital drivers in RAID5 configuration connected to LSI MegaRAID 
+SATA 150-6
 
-.... at that point, we can look at the cvs commit logs and either
+    The are also 3 250 GB drives connected to on-board SIL3114 where Linux 
+is installed.
 
-a) start checking out individual patches
+    Problem: card recognizes the disks fine, initialization goes ok.
+I can create partition with no problem. However when copying files I get
+filesystem corruption (holds both with ext3 and XFS). For ext3 I see the 
+following message:
 
-or
+EXT3-fs error (device sdd1): ext3_new_block: Allocating block in system zone - 
+block = 100663296
+Aborting journal on device sdd1.
+EXT3-fs error (device sdd1) in ext3_prepare_write: Journal has aborted
+ext3_abort called.
+EXT3-fs error (device sdd1): ext3_journal_start_sb: Detected aborted journal
+Remounting filesystem read-only
 
-b) start making the checkout based on time of day in addition of date, 
-in the form,
-YYYY-MM-DD HH:NN
+    The hardware is otherwise stable - this box also has 3 disks in software 
+RAID5 connected to SIL3114 and a similar box has 3ware card with 8 drives, 
+which function fine.
 
+    I would appreciate any suggestions on what to try/tweak/patch.
 
+                 thank you very much !
 
+                       Vladimir Dergachev
+
+PS One more thing - none of LSI binary configuration tools work - they report 
+they cannot find the adaptor even though /dev/megadev0 is pointing to correct 
+adaptor (I tried both 253 and 254 for major numbers and 0,1,2,3,4 for 
+minor numbers). I was not successful in finding an open-source management 
+tool..
 

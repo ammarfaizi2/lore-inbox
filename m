@@ -1,49 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932537AbVLAW6W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932543AbVLAXE0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932537AbVLAW6W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 17:58:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932545AbVLAW6W
+	id S932543AbVLAXE0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 18:04:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932545AbVLAXE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 17:58:22 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:27086 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S932537AbVLAW6V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 17:58:21 -0500
-Message-ID: <438F800C.1050903@comcast.net>
-Date: Thu, 01 Dec 2005 17:58:20 -0500
-From: Ed Sweetman <safemode@comcast.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: pci unsupported PM regs version (7), means hardware isn't working?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 1 Dec 2005 18:04:26 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:65253 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932543AbVLAXE0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 18:04:26 -0500
+Date: Thu, 1 Dec 2005 15:03:49 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: wfg@mail.ustc.edu.cn, linux-kernel@vger.kernel.org, christoph@lameter.com,
+       riel@redhat.com, a.p.zijlstra@chello.nl, npiggin@suse.de,
+       andrea@suse.de, magnus.damm@gmail.com
+Subject: Re: [PATCH 02/12] mm: supporting variables and functions for
+ balanced zone aging
+Message-Id: <20051201150349.3538638e.akpm@osdl.org>
+In-Reply-To: <20051201222846.GA3646@dmt.cnet>
+References: <20051201101810.837245000@localhost.localdomain>
+	<20051201101933.936973000@localhost.localdomain>
+	<20051201023714.612f0bbf.akpm@osdl.org>
+	<20051201222846.GA3646@dmt.cnet>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting this warning when i try to load the madwifi drivers on my 
-WRAP board for the WMIA-166AG mini-pci card using kernel 2.6.13.3 and 
-the latest trunk of madwifi.  
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+>
+> Hi Andrew,
+> 
+> On Thu, Dec 01, 2005 at 02:37:14AM -0800, Andrew Morton wrote:
+> > Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
+> > >
+> > >  The zone aging rates are currently imbalanced,
+> > 
+> > ZONE_DMA is out of whack.  It shouldn't be, and I'm not aware of anyone
+> > getting in and working out why.  I certainly wouldn't want to go and add
+> > all this stuff without having a good understanding of _why_ it's out of
+> > whack.  Perhaps it's just some silly bug, like the thing I pointed at in
+> > the previous email.
+> 
+> I think that the problem is caused by the interaction between 
+> the way reclaiming is quantified and parallel allocators.
 
-This is the only error that's printed before the HAL driver for madwifi 
-responds with "no hardware found or unsupported hardware" etc etc.   I 
-had to add the pcid's to madwifi for it to even detect it enough to try 
-and send it to the HAL module, but the madwifi dev team isn't looking at 
-any bug reports because of this printk that's being made by the PCI 
-subsystem in the kernel. 
+Could be.  But what about the bug which I think is there?  That'll cause
+overscanning of the DMA zone.
 
-So, does this printk mean anything (i've seen posts where the hardware 
-producing it was working, the printks were just a nuissance) or does it 
-indicate some issue the PCI subsystem is having in powering the card up 
-and communicating with it.   In either case, I'd be more than happy with 
-providing anyone able to patch the pci code with information i have on 
-the card. 
+> The zones have different sizes, and each zone reclaim iteration
+> scans the same number of pages. It is unfair.
 
-If it's nothing but a harmless warning, i'll forward the response to the 
-madwifi wiki and mailing list, so something can be done upstream to the 
-hal module to work the card. 
+Nope.  See how shrink_zone() bases nr_active and nr_inactive on
+zone->nr_active and zone_nr_inactive.  These calculations are intended to
+cause the number of scanned pages in each zone to be
 
-Thanks in advance. 
+	(zone->nr-active + zone->nr_inactive) >> sc->priority.
 
+> On top of that, kswapd is likely to block while doing its job, 
+> which means that allocators have a chance to run.
+
+kswapd should only block under rare circumstances - huge amounts of dirty
+pages coming off the tail of the LRU.
+
+> --- mm/vmscan.c.orig	2006-01-01 12:44:39.000000000 -0200
+> +++ mm/vmscan.c	2006-01-01 16:43:54.000000000 -0200
+> @@ -616,8 +616,12 @@
+>  {
+
+Please use `diff -p'.
 

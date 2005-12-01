@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbVLATxV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932433AbVLAT5B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932431AbVLATxV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 14:53:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbVLATxV
+	id S932433AbVLAT5B (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 14:57:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbVLAT5A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 14:53:21 -0500
-Received: from solarneutrino.net ([66.199.224.43]:8197 "EHLO
+	Thu, 1 Dec 2005 14:57:00 -0500
+Received: from solarneutrino.net ([66.199.224.43]:9477 "EHLO
 	tau.solarneutrino.net") by vger.kernel.org with ESMTP
-	id S932427AbVLATxU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 14:53:20 -0500
-Date: Thu, 1 Dec 2005 14:53:12 -0500
-To: Kai Makisara <Kai.Makisara@kolumbus.fi>
-Cc: Andrew Morton <akpm@osdl.org>,
+	id S932428AbVLAT5A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 14:57:00 -0500
+Date: Thu, 1 Dec 2005 14:56:57 -0500
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kai Makisara <Kai.Makisara@kolumbus.fi>, Andrew Morton <akpm@osdl.org>,
        James Bottomley <James.Bottomley@steeleye.com>,
        linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
        ryan@tau.solarneutrino.net
 Subject: Re: Fw: crash on x86_64 - mm related?
-Message-ID: <20051201195311.GA7236@tau.solarneutrino.net>
-References: <20051129092432.0f5742f0.akpm@osdl.org> <Pine.LNX.4.63.0512012040390.5777@kai.makisara.local>
+Message-ID: <20051201195657.GB7236@tau.solarneutrino.net>
+References: <20051129092432.0f5742f0.akpm@osdl.org> <Pine.LNX.4.63.0512012040390.5777@kai.makisara.local> <Pine.LNX.4.64.0512011136000.3099@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0512012040390.5777@kai.makisara.local>
+In-Reply-To: <Pine.LNX.4.64.0512011136000.3099@g5.osdl.org>
 User-Agent: Mutt/1.5.9i
 From: Ryan Richter <ryan@tau.solarneutrino.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 01, 2005 at 09:18:33PM +0200, Kai Makisara wrote:
-> I have installed amanda and learned to use it enough to do experiments 
-> with my main system. Unfortunately I have not been able to see any oopses.
+On Thu, Dec 01, 2005 at 11:38:20AM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Thu, 1 Dec 2005, Kai Makisara wrote:
+> 
+> > On Tue, 29 Nov 2005, Andrew Morton wrote:
+> > >
+> > >  Bad page state at free_hot_cold_page (in process 'taper', page ffff81000260b6f8)
+> > > flags:0x010000000000000c mapping:ffff8100355f1dd8 mapcount:2 count:0
+> > > Backtrace:
+> 
+> Ryan, can you test 2.6.15-rc4 and report what it does?
+> 
+> The "Bad page state" messages may (should) remain, but the crashes should 
+> be gone and the machine should hopefully continue functioning fine. And, 
+> perhaps more importantly, you should hopefully have a _new_ message about 
+> incomplete pfn mappings that should help pinpoint which driver causes 
+> this..
 
-Thanks a lot for doing this!  Our backups run every other night and
-usually write 15-20GB to tape, and it was 2 weeks before we hit this.
-So it's not very easy to reproduce.  They ran again last night (with the
-patch) without incident.
+Will do, I plan to take this machine down Saturday to run memtest86 for
+a while (just to be sure - 2/3 of the RAM is new, but I should be seeing
+machine checks if that were the problem, no?) so I'll boot this after that.
 
-There's one more thing that might be interesting: the morning before
-this crash happened, this machine mysteriously rebooted for no apparent
-reason.  There was nothing in the logs.  Unfortunately, the BIOS screen
-wipes out the last ~24 lines of serial console output on reboot, so all
-I can say is that if anything was printed it was much less than 24
-lines.  There are other machines on the same UPS so it wasn't a power
-glitch.  And it had just had an uptime of 170-some days with 2.6.11.3
-(which had some annoying bugs but was stable), so it's not exactly prone
-to random reboots...
-
-I didn't think it was worth mentioning since I knew nothing about what
-happened, but I noticed that it happened exactly one hour after the
-6:37am cron job (updatedb etc.) - the same one that caused it to crash
-the next day after the oopses during the backups.  Might it be related?
-
-Let me know if there's any more info I can provide.
-
+Thanks,
 -ryan

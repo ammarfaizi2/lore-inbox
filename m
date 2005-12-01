@@ -1,66 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbVLAHji@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbVLAHus@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750748AbVLAHji (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 02:39:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbVLAHji
+	id S1750750AbVLAHus (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 02:50:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbVLAHus
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 02:39:38 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:30657 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750748AbVLAHjh (ORCPT
+	Thu, 1 Dec 2005 02:50:48 -0500
+Received: from smtp2-g19.free.fr ([212.27.42.28]:27293 "EHLO smtp2-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1750750AbVLAHur (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 02:39:37 -0500
-Message-ID: <438EA8B6.9050509@pobox.com>
-Date: Thu, 01 Dec 2005 02:39:34 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Thu, 1 Dec 2005 02:50:47 -0500
+From: Duncan Sands <duncan.sands@math.u-psud.fr>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [linux-usb-devel] [PATCH] Additional device ID for Conexant AccessRunner USB driver
+Date: Thu, 1 Dec 2005 08:50:42 +0100
+User-Agent: KMail/1.9
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       davej@redhat.com
+References: <1133330317951@kroah.com> <200511300909.06843.duncan.sands@math.u-psud.fr> <20051130223015.GC16416@kroah.com>
+In-Reply-To: <20051130223015.GC16416@kroah.com>
 MIME-Version: 1.0
-To: "Gabriel A. Devenyi" <ace@staticwave.ca>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [RESEND] [PATCH] drivers/net/wireless/airo.c unsigned comparason
-References: <43749512.8040002@staticwave.ca>
-In-Reply-To: <43749512.8040002@staticwave.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Gabriel A. Devenyi wrote: > fid is declared as a u32
-	(unsigned int), and then a few lines later, it > is checked for a value
-	< 0, which is clearly useless. > In the two locations this function is
-	used, in one it is *explicitly* > given a negative number, which would
-	be ignored with the > current definition. > > Thanks to LinuxICC
-	(http://linuxicc.sf.net). > > This patch applies to linus' git tree as
-	of 03.11.2005 > > Signed-off-by: Gabriel A. Devenyi <ace@staticwave.ca>
-	[...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+Content-Disposition: inline
+Message-Id: <200512010850.42544.duncan.sands@math.u-psud.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gabriel A. Devenyi wrote:
-> fid is declared as a u32 (unsigned int), and then a few lines later, it 
-> is checked for a value < 0, which is clearly useless.
-> In the two locations this function is used, in one it is *explicitly* 
-> given a negative number, which would be ignored with the
-> current definition.
+On Wednesday 30 November 2005 23:30, Greg KH wrote:
+> On Wed, Nov 30, 2005 at 09:09:06AM +0100, Duncan Sands wrote:
+> > > diff --git a/drivers/usb/atm/cxacru.c b/drivers/usb/atm/cxacru.c
+> > > index 79861ee..9d59dc6 100644
+> > > --- a/drivers/usb/atm/cxacru.c
+> > > +++ b/drivers/usb/atm/cxacru.c
+> > > @@ -787,6 +787,9 @@ static const struct usb_device_id cxacru
+> > >  	{ /* V = Conexant			P = ADSL modem (Hasbani project)	*/
+> > >  		USB_DEVICE(0x0572, 0xcb00),	.driver_info = (unsigned long) &cxacru_cb00
+> > >  	},
+> > > +	{ /* V = Conexant             P = ADSL modem (Well PTI-800 */
+> > > +		USB_DEVICE(0x0572, 0xcb02),	.driver_info = (unsigned long) &cxacru_cb00
+> > > +	},
+> > >  	{ /* V = Conexant			P = ADSL modem				*/
+> > >  		USB_DEVICE(0x0572, 0xcb01),	.driver_info = (unsigned long) &cxacru_cb00
+> > >  	},
+> > 
+> > The whitespace is mucked up, and a closing bracket is missing after Well PTI-800...
+> > 
+> > Try this:
+> > 
+> > Signed-off-by: Duncan Sands <baldrick@free.fr>
 > 
-> Thanks to LinuxICC (http://linuxicc.sf.net).
-> 
-> This patch applies to linus' git tree as of 03.11.2005
-> 
-> Signed-off-by: Gabriel A. Devenyi <ace@staticwave.ca>
+> Linus already applied the original version, care to make up a "fix up
+> whitespace" patch on top of that?
 
+OK.  I'll send it later along with some other improvements we've been working on.
 
-[jgarzik@pretzel netdev-2.6]$ git-applymbox /g/tmp/mbox ~/info/signoff.txt
-1 patch(es) to process.
+Ciao,
 
-Applying 'drivers/net/wireless/airo.c unsigned comparason'
-
-fatal: corrupt patch at line 8
+Duncan.

@@ -1,77 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbVLAVFx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751724AbVLAVGq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932472AbVLAVFx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 16:05:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932474AbVLAVFx
+	id S1751724AbVLAVGq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 16:06:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751730AbVLAVGq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 16:05:53 -0500
-Received: from wproxy.gmail.com ([64.233.184.206]:33781 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932472AbVLAVFw convert rfc822-to-8bit
+	Thu, 1 Dec 2005 16:06:46 -0500
+Received: from natfrord.rzone.de ([81.169.145.161]:6578 "EHLO
+	natfrord.rzone.de") by vger.kernel.org with ESMTP id S1751724AbVLAVGp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 16:05:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NoWy+klm5FBRivH6GcbgiyYsMAcj8DaHaoidNSsGtfQkjUQ6CuGTSxb98EaS4BV+D6yQ6V47ChYTwJC3jathBlLJg/+mmLFgjuRA/TVx5mv5UEVUrNXt1xfAZckPDcdNv3P3525tDIG/9VT36dEvuzHH2BFasqtgb4BnIGtlAoQ=
-Message-ID: <9611fa230512011242p526b5128ub2918a3fa48da10c@mail.gmail.com>
-Date: Thu, 1 Dec 2005 20:42:59 +0000
-From: Tarkan Erimer <tarkane@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [BUG]: Software compiling occasionlly hangs under 2.6.15-rc1/rc2 and 2.6.15-rc1-mm2
-Cc: arjan@infradead.org, linux-kernel@vger.kernel.org,
-       Anton Altaparmakov <aia21@cantab.net>
-In-Reply-To: <20051129151044.7ce3ef4a.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9611fa230511250312i55d0b872x82b8c33b4d2973e4@mail.gmail.com>
-	 <1132917564.7068.41.camel@laptopd505.fenrus.org>
-	 <9611fa230511270317led5b915h7daae3ef1287f86d@mail.gmail.com>
-	 <1133092701.2853.0.camel@laptopd505.fenrus.org>
-	 <9611fa230511271108m46389ee6w7ec6b5b40b1e23dd@mail.gmail.com>
-	 <20051127165733.643d5444.akpm@osdl.org>
-	 <9611fa230511291357g3aa964adj6918fea50f5ee66e@mail.gmail.com>
-	 <20051129151044.7ce3ef4a.akpm@osdl.org>
+	Thu, 1 Dec 2005 16:06:45 -0500
+Subject: Re: [PATCH] x86_64: Display HPET timer option
+From: Erwin Rol <mailinglists@erwinrol.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051201204339.GC997@wotan.suse.de>
+References: <Pine.LNX.4.64.0512011143350.13220@montezuma.fsmlabs.com>
+	 <Pine.LNX.4.64.0512011150110.3099@g5.osdl.org>
+	 <Pine.LNX.4.64.0512011216200.13220@montezuma.fsmlabs.com>
+	 <20051201204339.GC997@wotan.suse.de>
+Content-Type: text/plain
+Date: Thu, 01 Dec 2005 22:06:37 +0100
+Message-Id: <1133471197.3604.3.camel@xpc.home.erwinrol.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 (2.4.1-8) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/29/05, Andrew Morton <akpm@osdl.org> wrote:
-> Tarkan Erimer <tarkane@gmail.com> wrote:
-> >
-> > On 11/28/05, Andrew Morton <akpm@osdl.org> wrote:
-> > > XFS went nuts.  Please test the latest git snapshot which has fixes for
-> > > this.
-> >
-> > I tried 2.6.15-rc2-git6 and just released 2.6.15-rc3. Result is same.
-> > I still got occasional hangs.
->
-> Please generate the sysrq-T trace when the system hangs.
+On Thu, 2005-12-01 at 21:43 +0100, Andi Kleen wrote:
+> On Thu, Dec 01, 2005 at 12:30:03PM -0800, Zwane Mwaikambo wrote:
+> > On Thu, 1 Dec 2005, Linus Torvalds wrote:
+> > 
+> > > On Thu, 1 Dec 2005, Zwane Mwaikambo wrote:
+> > > >
+> > > > Currently the HPET timer option isn't visible in menuconfig.
+> > > 
+> > > Do you want it to?
+> > > 
+> > > Why would you ever compile it out?
+> > 
+> > For timer testing purposes i sometimes would like not to use the HPET. 
+> > Would a runtime switch be preferred?
+> 
+> nohpet already exists.
+> 
 
-I tried sysrq-T trace. But, When hit the bug, system completely freezes.
-Alt+sysrq+t (Normally Alt+sysrq+t works perfectly) or any other
-combination does not respond. Is there any other way to trace  this?
-Also, I will try just-released 2.6.15-rc4 and let know the result.
+And luckily it does cause without "nohpet" i can't boot my shuttle
+ST20G5, the NMI watchdog kills it because ti hangs when initializing the
+hpet. If the nmi watchdog is off it just hangs for ever. 
 
-> > When I check my syslog, I found no error
-> > messages. But notice, XFS related errors have gone.
->
-> OK, we might have fixed XFS.
+- Erwin
+ 
 
-Yes, thanks
 
-> > Nov 29 23:23:57 hightemple gconfd (root-11625): starting (version
-> > 2.12.1), pid 11625 user 'root'
-> > Nov 29 23:23:57 hightemple gconfd (root-11625): Resolved address
-> > "xml:readonly:/etc/gconf/gconf.xml.mandatory" to a read-only
-> > configuration source at position 0
-> > Nov 29 23:23:57 hightemple gconfd (root-11625): Resolved address
-> > "xml:readwrite:/root/.gconf" to a writable configuration source at
-> > position 1
-> > Nov 29 23:23:57 hightemple gconfd (root-11625): Resolved address
-> > "xml:readonly:/etc/gconf/gconf.xml.defaults" to a read-only
-> > configuration source at position 2
->
-> I assume the above isn't kernel-related?
-
-Yes, above is not related to the kernel. It is a Gnome thing.

@@ -1,40 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751696AbVLAStZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751693AbVLASqb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751696AbVLAStZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 13:49:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751697AbVLAStZ
+	id S1751693AbVLASqb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 13:46:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751688AbVLASqa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 13:49:25 -0500
-Received: from zproxy.gmail.com ([64.233.162.205]:571 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751691AbVLAStY convert rfc822-to-8bit
+	Thu, 1 Dec 2005 13:46:30 -0500
+Received: from magic.adaptec.com ([216.52.22.17]:44968 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1750700AbVLASq3 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 13:49:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Rmj1PEI8pR+nu4rGUP1s4OMQdEXJajoiNdJRxG3qryq+Zszp7wDvVNY1PoJ4E5v6Dt7dzP52ctVxjxQbY1gVSO+ORbmAp0uMvYa9/6J+MctHGV8bGqGAfDRS/M/fjv1WAflWxTVmm53I166VeMpQkZG2LRBLlHdl65ibmuSVksE=
-Message-ID: <625fc13d0512011049y3ab316b5ncaab88ac58c15d07@mail.gmail.com>
-Date: Thu, 1 Dec 2005 12:49:23 -0600
-From: Josh Boyer <jwboyer@gmail.com>
-To: "Moore, Eric Dean" <Eric.Moore@lsil.com>
-Subject: Re: [PATCH] maintainers
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <91888D455306F94EBD4D168954A9457C051F32BD@nacos172.co.lsil.com>
+	Thu, 1 Dec 2005 13:46:29 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <91888D455306F94EBD4D168954A9457C051F32BD@nacos172.co.lsil.com>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] aic79xx should be able to ignore HostRAID enabled adapters
+Date: Thu, 1 Dec 2005 13:46:07 -0500
+Message-ID: <547AF3BD0F3F0B4CBDC379BAC7E4189F01E9A886@otce2k03.adaptec.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] aic79xx should be able to ignore HostRAID enabled adapters
+Thread-Index: AcX2n506rLm+KHEwQIKnu7HdUmdJcgABk36w
+From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+To: "Jeff Garzik" <jgarzik@pobox.com>
+Cc: "Christoph Hellwig" <hch@infradead.org>,
+       "Darrick J. Wong" <djwong@us.ibm.com>,
+       "Chris McDermott" <lcm@us.ibm.com>,
+       "Luvella McFadden" <luvella@us.ibm.com>,
+       "AJ Johnson" <blujuice@us.ibm.com>,
+       "Kevin Stansell" <kstansel@us.ibm.com>, <linux-kernel@vger.kernel.org>,
+       <linux-scsi@vger.kernel.org>, <Mauelshagen@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/1/05, Moore, Eric Dean <Eric.Moore@lsil.com> wrote:
->
-> Signed-off-by: Eric Moore <Eric.Moore@lsil.com>
+Jeff Garzik [mailto:jgarzik@pobox.com] sez:
+> All throughout development, before Justin had written a 
+> single line of code, he was told to do things via Device Mapper.
 
-Do you have a public git, mercurial, or quilt tree somewhere?  If so
-you might want to add that in the entry as well.
+He did not strictly write the emd code, it was written years earlier by
+a team. It's release was the result of it being placed on his lap
+submit.
 
-Side note, the subject could be a bit more descriptive :).
+As I said, it all ended up being an unfortunate timing of events with
+unexpected side effects. At each instant of time it has always been
+clear what to do ...
 
-josh
+2005? We tried to set up a case for ROI for the support of a dmraid
+plugin. I am merely a JAFO to that process trying to push it along.
+
+Sincerely -- Mark Salyzyn
+
+

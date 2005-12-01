@@ -1,62 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbVLARw2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbVLARz0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932270AbVLARw2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 12:52:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbVLARw2
+	id S932375AbVLARz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 12:55:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbVLARzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 12:52:28 -0500
-Received: from zlynx.org ([199.45.143.209]:16142 "EHLO 199.45.143.209")
-	by vger.kernel.org with ESMTP id S932270AbVLARw1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 12:52:27 -0500
-Subject: Re: loadavg always equal or above 1.00 - how to explain?
-From: Zan Lynx <zlynx@acm.org>
-To: Tomasz Chmielewski <mangoo@wpkg.org>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <438EF3E5.5080709@wpkg.org>
-References: <438EE515.1080001@wpkg.org>
-	 <1133440871.2853.36.camel@laptopd505.fenrus.org>
-	 <438EF3E5.5080709@wpkg.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-lCzoGktN59k0bqKMorEQ"
-Date: Thu, 01 Dec 2005 10:51:58 -0700
-Message-Id: <1133459518.7430.6.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Thu, 1 Dec 2005 12:55:25 -0500
+Received: from kirby.webscope.com ([204.141.84.57]:36007 "EHLO
+	kirby.webscope.com") by vger.kernel.org with ESMTP id S932375AbVLARzZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 12:55:25 -0500
+Message-ID: <438F38E6.7090303@m1k.net>
+Date: Thu, 01 Dec 2005 12:54:46 -0500
+From: Michael Krufky <mkrufky@m1k.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Perry Gilfillan <perrye@linuxmail.org>
+CC: Linux and Kernel Video <video4linux-list@redhat.com>,
+       Hartmut Hackmann <hartmut.hackmann@t.online.de>,
+       Gene Heskett <gene.heskett@verizon.net>, Don Koch <aardvark@krl.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Gene's pcHDTV 3000 analog problem
+References: <200511282205.jASM5YUI018061@p-chan.krl.com>	<c35b44d70511291548lcb10361ifd3a4ea0f239662d@mail.gmail.com>	<438CFFAD.7070803@m1k.net>	<200511300007.56004.gene.heskett@verizon.net>	<438D38B3.2050306@m1k.net>	<200511301553.jAUFrSQx026450@p-chan.krl.com>	<438E7107.3000407@linuxmail.org>	<438E8365.4020200@linuxmail.org> <438E84A4.8000601@m1k.net> <438E8A58.4010003@linuxmail.org> <438EBD43.3080400@linuxmail.org>
+In-Reply-To: <438EBD43.3080400@linuxmail.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Perry Gilfillan wrote:
 
---=-lCzoGktN59k0bqKMorEQ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> I've been able to pinpoint the time when the v4l-dvb cvs failes for 
+> the pcHDTV 3000 tuner!!
+>
+> This test is with gentoo-sources-2.6.13-r5, with v4l-dvb cvs.  As 
+> Michael pointed out, 2.6.15 has bugs.  For my hardware, 2.6.13, and 14 
+> have major issues as well...
+>
+> My procedure is to do a distclean in the v4l-dvb cvs directory, 
+> checkout the repository for the given date, make, and install.  Then I 
+> inspect the /lib/modules/.../media/video dirtree to be sure no old ko 
+> files are lingering.  I do a cold boot to be sure the hardware is 
+> fully initialized from a known state.  After many iterations, I've 
+> narrowed it down to this change set:
+>
+> cvs as of 2005-10-17 16:01:
+> Analog TV works, as well as composite and s-video.
+>
+> Changes made at 2005-10-17 16:02: bROKEN!!
+>
+> cvs as of 2005-10-17 16:10:
+> Analog failes, s-video and composite work.
+>
+>
+> I'll leave it to more capable persons to figure how it failed.
 
-On Thu, 2005-12-01 at 14:00 +0100, Tomasz Chmielewski wrote:
-[snip]
-> Now I have to figure out what CROND was doing...
->=20
-> Does ps always show processes in D state in CAPITAL letters?
->=20
-> After cron restart it is "crond", as usual.
+Hmm... These times of day don't coincide with any actual commits....
 
-crond is the regular cron daemon.  CROND is what cron names its child
-processes as they run scheduled commands.
+Anyhow, this was the day Hartmut added tda8275a support.  It broke many 
+things, which we thought that we had eventually fixed.  Maybe there are 
+still a few bugs as a result of this?
 
-I've seen cron stuck in D from running user crontabs on unavailable NFS
-mounts.
---=20
-Zan Lynx <zlynx@acm.org>
+This is enough for me to put together a test patch for you, but I cant 
+do it right now..... I'll try to email you an experimental patch tonight 
+or tomorrow that will remove tda8275a support, just to confirm that this 
+is in fact the problem.
 
---=-lCzoGktN59k0bqKMorEQ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+If it turns out that I'm right, then we'll have to figure out a way to 
+fix it, since reverting Hartmut's patch is NOT an option.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+Thanks for the testing!
 
-iD8DBQBDjzg9G8fHaOLTWwgRAvxyAJ0ahILQntaOs7SJuPQoH6MjdvQ6pwCfSzcd
-NnQe9FAPXnWwqVzI8/dU2G0=
-=cFFo
------END PGP SIGNATURE-----
-
---=-lCzoGktN59k0bqKMorEQ--
-
+-Mike

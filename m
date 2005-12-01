@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbVLAKOJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbVLAKNl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbVLAKOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 05:14:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbVLAKNt
+	id S932127AbVLAKNl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 05:13:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbVLAKNk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 05:13:49 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:5531 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S932113AbVLAKNp (ORCPT
+	Thu, 1 Dec 2005 05:13:40 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:43162 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S932119AbVLAKNZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 05:13:45 -0500
-Message-Id: <20051201102106.518711000@localhost.localdomain>
+	Thu, 1 Dec 2005 05:13:25 -0500
+Message-Id: <20051201102051.210621000@localhost.localdomain>
 References: <20051201101810.837245000@localhost.localdomain>
-Date: Thu, 01 Dec 2005 18:18:18 +0800
+Date: Thu, 01 Dec 2005 18:18:17 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>, Christoph Lameter <christoph@lameter.com>,
@@ -20,80 +20,145 @@ Cc: Andrew Morton <akpm@osdl.org>, Christoph Lameter <christoph@lameter.com>,
        Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
        Magnus Damm <magnus.damm@gmail.com>,
        Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 08/12] mm: remove swap_cluster_max from scan_control
-Content-Disposition: inline; filename=mm-remove-swap-cluster-max-from-scan-control.patch
+Subject: [PATCH 07/12] mm: remove unnecessary variable and loop
+Content-Disposition: inline; filename=mm-remove-unnecessary-variable-and-loop.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The use of sc.swap_cluster_max is weird and redundant.
+shrink_cache() and refill_inactive_zone() do not need loops.
 
-The callers should just set sc.priority/sc.nr_to_reclaim, and let
-shrink_zone() decide the proper loop parameters.
+Simplify them to scan one chunk at a time.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- mm/vmscan.c |   15 ++++-----------
- 1 files changed, 4 insertions(+), 11 deletions(-)
+ mm/vmscan.c |   92 ++++++++++++++++++++++++++++--------------------------------
+ 1 files changed, 43 insertions(+), 49 deletions(-)
 
 --- linux.orig/mm/vmscan.c
 +++ linux/mm/vmscan.c
-@@ -76,12 +76,6 @@ struct scan_control {
+@@ -899,63 +899,58 @@ static void shrink_cache(struct zone *zo
+ {
+ 	LIST_HEAD(page_list);
+ 	struct pagevec pvec;
+-	int max_scan = sc->nr_to_scan;
++	struct page *page;
++	int nr_taken;
++	int nr_scan;
++	int nr_freed;
  
- 	/* Can pages be swapped as part of reclaim? */
- 	int may_swap;
+ 	pagevec_init(&pvec, 1);
+ 
+ 	lru_add_drain();
+ 	spin_lock_irq(&zone->lru_lock);
+-	while (max_scan > 0) {
+-		struct page *page;
+-		int nr_taken;
+-		int nr_scan;
+-		int nr_freed;
 -
--	/* This context's SWAP_CLUSTER_MAX. If freeing memory for
--	 * suspend, we effectively ignore SWAP_CLUSTER_MAX.
--	 * In this context, it doesn't matter that we scan the
--	 * whole list at once. */
--	int swap_cluster_max;
- };
+-		nr_taken = isolate_lru_pages(sc->nr_to_scan,
+-					     &zone->inactive_list,
+-					     &page_list, &nr_scan);
+-		zone->nr_inactive -= nr_taken;
+-		zone->pages_scanned += nr_scan;
+-		update_zone_age(zone, nr_scan);
+-		spin_unlock_irq(&zone->lru_lock);
++	nr_taken = isolate_lru_pages(sc->nr_to_scan,
++				     &zone->inactive_list,
++				     &page_list, &nr_scan);
++	zone->nr_inactive -= nr_taken;
++	zone->pages_scanned += nr_scan;
++	update_zone_age(zone, nr_scan);
++	spin_unlock_irq(&zone->lru_lock);
  
- #define lru_to_page(_head) (list_entry((_head)->prev, struct page, lru))
-@@ -1125,7 +1119,6 @@ shrink_zone(struct zone *zone, struct sc
- 	nr_inactive &= ~(SWAP_CLUSTER_MAX - 1);
+-		if (nr_taken == 0)
+-			goto done;
++	if (nr_taken == 0)
++		return;
  
- 	sc->nr_to_scan = SWAP_CLUSTER_MAX;
--	sc->nr_to_reclaim = sc->swap_cluster_max;
+-		max_scan -= nr_scan;
+-		sc->nr_scanned += nr_scan;
+-		if (current_is_kswapd())
+-			mod_page_state_zone(zone, pgscan_kswapd, nr_scan);
+-		else
+-			mod_page_state_zone(zone, pgscan_direct, nr_scan);
+-		nr_freed = shrink_list(&page_list, sc);
+-		if (current_is_kswapd())
+-			mod_page_state(kswapd_steal, nr_freed);
+-		mod_page_state_zone(zone, pgsteal, nr_freed);
+-		sc->nr_to_reclaim -= nr_freed;
++	sc->nr_scanned += nr_scan;
++	if (current_is_kswapd())
++		mod_page_state_zone(zone, pgscan_kswapd, nr_scan);
++	else
++		mod_page_state_zone(zone, pgscan_direct, nr_scan);
++	nr_freed = shrink_list(&page_list, sc);
++	if (current_is_kswapd())
++		mod_page_state(kswapd_steal, nr_freed);
++	mod_page_state_zone(zone, pgsteal, nr_freed);
++	sc->nr_to_reclaim -= nr_freed;
  
- 	while (nr_active >= SWAP_CLUSTER_MAX * 1024 || nr_inactive) {
- 		if (nr_active >= SWAP_CLUSTER_MAX * 1024) {
-@@ -1264,7 +1257,7 @@ int try_to_free_pages(struct zone **zone
- 		sc.nr_scanned = 0;
- 		sc.nr_reclaimed = 0;
- 		sc.priority = priority;
--		sc.swap_cluster_max = SWAP_CLUSTER_MAX;
-+		sc.nr_to_reclaim = SWAP_CLUSTER_MAX;
- 		if (!priority)
- 			disable_swap_token();
- 		shrink_caches(zones, &sc);
-@@ -1275,7 +1268,7 @@ int try_to_free_pages(struct zone **zone
+-		spin_lock_irq(&zone->lru_lock);
+-		/*
+-		 * Put back any unfreeable pages.
+-		 */
+-		while (!list_empty(&page_list)) {
+-			page = lru_to_page(&page_list);
+-			if (TestSetPageLRU(page))
+-				BUG();
+-			list_del(&page->lru);
+-			if (PageActive(page))
+-				add_page_to_active_list(zone, page);
+-			else
+-				add_page_to_inactive_list(zone, page);
+-			if (!pagevec_add(&pvec, page)) {
+-				spin_unlock_irq(&zone->lru_lock);
+-				__pagevec_release(&pvec);
+-				spin_lock_irq(&zone->lru_lock);
+-			}
++	spin_lock_irq(&zone->lru_lock);
++	/*
++	 * Put back any unfreeable pages.
++	 */
++	while (!list_empty(&page_list)) {
++		page = lru_to_page(&page_list);
++		if (TestSetPageLRU(page))
++			BUG();
++		list_del(&page->lru);
++		if (PageActive(page))
++			add_page_to_active_list(zone, page);
++		else
++			add_page_to_inactive_list(zone, page);
++		if (!pagevec_add(&pvec, page)) {
++			spin_unlock_irq(&zone->lru_lock);
++			__pagevec_release(&pvec);
++			spin_lock_irq(&zone->lru_lock);
  		}
- 		total_scanned += sc.nr_scanned;
- 		total_reclaimed += sc.nr_reclaimed;
--		if (total_reclaimed >= sc.swap_cluster_max) {
-+		if (total_reclaimed >= SWAP_CLUSTER_MAX) {
- 			ret = 1;
- 			goto out;
- 		}
-@@ -1287,7 +1280,7 @@ int try_to_free_pages(struct zone **zone
- 		 * that's undesirable in laptop mode, where we *want* lumpy
- 		 * writeout.  So in laptop mode, write out the whole world.
- 		 */
--		if (total_scanned > sc.swap_cluster_max + sc.swap_cluster_max/2) {
-+		if (total_scanned > SWAP_CLUSTER_MAX * 3 / 2) {
- 			wakeup_pdflush(laptop_mode ? 0 : total_scanned);
- 			sc.may_writepage = 1;
- 		}
-@@ -1376,7 +1369,7 @@ loop_again:
- 		sc.nr_scanned = 0;
- 		sc.nr_reclaimed = 0;
- 		sc.priority = priority;
--		sc.swap_cluster_max = nr_pages ? nr_pages : SWAP_CLUSTER_MAX;
-+		sc.nr_to_reclaim = nr_pages ? nr_pages : SWAP_CLUSTER_MAX;
+-  	}
++	}
+ 	spin_unlock_irq(&zone->lru_lock);
+-done:
++
+ 	pagevec_release(&pvec);
+ }
  
- 		/* The swap token gets in the way of swapout... */
- 		if (!priority)
+@@ -982,7 +977,6 @@ refill_inactive_zone(struct zone *zone, 
+ 	int pgmoved;
+ 	int pgdeactivate = 0;
+ 	int pgscanned;
+-	int nr_pages = sc->nr_to_scan;
+ 	LIST_HEAD(l_hold);	/* The pages which were snipped off */
+ 	LIST_HEAD(l_inactive);	/* Pages to go onto the inactive_list */
+ 	LIST_HEAD(l_active);	/* Pages to go onto the active_list */
+@@ -995,7 +989,7 @@ refill_inactive_zone(struct zone *zone, 
+ 
+ 	lru_add_drain();
+ 	spin_lock_irq(&zone->lru_lock);
+-	pgmoved = isolate_lru_pages(nr_pages, &zone->active_list,
++	pgmoved = isolate_lru_pages(sc->nr_to_scan, &zone->active_list,
+ 				    &l_hold, &pgscanned);
+ 	zone->pages_scanned += pgscanned;
+ 	zone->nr_active -= pgmoved;
 
 --

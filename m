@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932484AbVLAVUp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932489AbVLAVfP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932484AbVLAVUp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 16:20:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbVLAVUp
+	id S932489AbVLAVfP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 16:35:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbVLAVfP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 16:20:45 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:56006 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932484AbVLAVUo (ORCPT
+	Thu, 1 Dec 2005 16:35:15 -0500
+Received: from mail.kroah.org ([69.55.234.183]:52368 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932489AbVLAVfN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 16:20:44 -0500
-Date: Thu, 1 Dec 2005 22:21:05 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Dinakar Guniguntala <dino@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org, david singleton <dsingleton@mvista.com>
-Subject: Re: Perf degradation from -rt14 onwards
-Message-ID: <20051201212105.GA25686@elte.hu>
-References: <20051201204227.GA16035@in.ibm.com>
+	Thu, 1 Dec 2005 16:35:13 -0500
+Date: Thu, 1 Dec 2005 13:34:31 -0800
+From: Greg KH <greg@kroah.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: mousedev auto load on 2.6.14-rc{2,3}
+Message-ID: <20051201213431.GA22439@kroah.com>
+References: <1133464818.7130.27.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051201204227.GA16035@in.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <1133464818.7130.27.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Dinakar Guniguntala <dino@in.ibm.com> wrote:
-
-> I was wondering why the following change was made from -rt14
-> onwards.
+On Thu, Dec 01, 2005 at 02:20:18PM -0500, Steven Rostedt wrote:
+> Hi,
 > 
-> 
-> @@ -1634,7 +1531,7 @@ asmlinkage long sys_futex(u32 __user *ua
->                           int val3)
->  {
->         struct timespec t;
-> -       unsigned long timeout = MAX_SCHEDULE_TIMEOUT;
-> +       unsigned long timeout = 0;
-> 
-> This was introduced in patch-2.6.14-rt13-rf3 by David.
-> 
-> This seems to return spurious -ETIMEDOUT errors even in the non-robust 
-> code and results in userspace (glibc) retrying several mutex 
-> operations before it succeeds. I was chasing down a degradation of 
-> performance of some testcases and was able to fix those by reverting 
-> this change back.
+> Using the same config between 2.6.14 and 2.6.15-rc2 (and with rc3,
+> haven't tried rc4). The mousedev gets auto loaded on 2.6.14 but does not
+> with 2.6.15-rc{2,3}.  Did something change to prevent the auto loading
+> of mousedev?
 
-nice catch! I've undone this change in my tree.
+This needs to be a FAQ somewhere.  This is a known bug in Debian's
+hotplug/udev package that is being worked on.
 
-	Ingo
+It's not a kernel bug, but a userspace one.  Other distros do not have
+this issue, perhaps I could recommend a different one for you?  :)
+
+thanks,
+
+greg k-h

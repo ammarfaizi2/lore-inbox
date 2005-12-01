@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751402AbVLAAkI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbVLAA5G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751402AbVLAAkI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 19:40:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751407AbVLAAkH
+	id S1751408AbVLAA5G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 19:57:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751412AbVLAA5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 19:40:07 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:13974 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751402AbVLAAkG (ORCPT
+	Wed, 30 Nov 2005 19:57:06 -0500
+Received: from ozlabs.org ([203.10.76.45]:19926 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751408AbVLAA5F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 19:40:06 -0500
-Date: Wed, 30 Nov 2005 16:41:05 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: tglx@linutronix.de
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, zippel@linux-m68k.org,
-       george@mvista.com, johnstul@us.ibm.com
-Subject: Re: [patch 00/43] ktimer reworked
-Message-Id: <20051130164105.40e103d4.akpm@osdl.org>
-In-Reply-To: <1133395019.32542.443.camel@tglx.tec.linutronix.de>
-References: <1133395019.32542.443.camel@tglx.tec.linutronix.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Wed, 30 Nov 2005 19:57:05 -0500
+Subject: Re: Why does insmod _not_ check for symbol redefinition ??
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "Tomar, Nagendra" <nagendra_tomar@adaptec.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0511251029150.18002-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0511251029150.18002-100000@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 01 Dec 2005 11:57:09 +1100
+Message-Id: <1133398629.8128.10.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Gleixner <tglx@linutronix.de> wrote:
->
-> this patch series is a refactored version of the ktimer-subsystem patch.
+On Fri, 2005-11-25 at 10:45 +0530, Nagendra Singh Tomar wrote:
+> Did'nt get any response to this one, so sending it again.
+> 
+> Can any of the module subsystem authors tell, why they have decided to 
+> allow loading a kernel module having an EXPORTed symbol with the same name 
+> as an EXPORTed  symbol in kernel proper. The safest thing would be to 
+> disallow  module loading in this case, giving a "Symbol redefinition" 
+> error.
+> 	Allowing the module load will lead to overriding kernel functions
+> which will affect modules loaded in future, that reference those 
+> functions. Overall, it can have bad effects of varying severity.
 
- 25 files changed, 3364 insertions(+), 1827 deletions(-)
+Sure.  It was due to minimalism.  If you override a symbol it's
+undefined behavior.  It should be fairly simple to add a check that
+noone overrides a symbol.  We didn't bother checking for it because it
+wasn't clear that it was problematic.
 
-allnoconfig, before:
+Hope that clarifies,
+Rusty.
+-- 
+A bad analogy is like a leaky screwdriver -- Richard Braakman
 
-   text    data     bss     dec     hex filename
- 764888  157221   53748  975857   ee3f1 vmlinux
-
-after:
-
-   text    data     bss     dec     hex filename
- 766712  157741   53748  978201   eed19 vmlinux
-
-
-Remind me what we gained for this?

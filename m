@@ -1,62 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbVLARpA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbVLARoL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932364AbVLARpA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 12:45:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbVLARpA
+	id S932361AbVLARoL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 12:44:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbVLARoL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 12:45:00 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:53977 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932364AbVLARo7 (ORCPT
+	Thu, 1 Dec 2005 12:44:11 -0500
+Received: from cantor.suse.de ([195.135.220.2]:7055 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932361AbVLARoK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 12:44:59 -0500
-Date: Thu, 1 Dec 2005 18:44:32 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: ray-gmail@madrabbit.org, Kyle Moffett <mrmacman_g4@mac.com>,
-       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, mingo@elte.hu, george@mvista.com, johnstul@us.ibm.com
-Subject: Re: [patch 00/43] ktimer reworked
-In-Reply-To: <20051201165144.GC31551@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.61.0512011828150.1609@scrub.home>
-References: <1133395019.32542.443.camel@tglx.tec.linutronix.de>
- <Pine.LNX.4.61.0512010118200.1609@scrub.home> <23CA09D3-4C11-4A4B-A5C6-3C38FA9C203D@mac.com>
- <Pine.LNX.4.61.0512011352590.1609@scrub.home>
- <2c0942db0512010822x1ae20622obf224ce9728e83f8@mail.gmail.com>
- <20051201165144.GC31551@flint.arm.linux.org.uk>
+	Thu, 1 Dec 2005 12:44:10 -0500
+From: Andreas Schwab <schwab@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Christopher Friesen <cfriesen@nortel.com>, linux-kernel@vger.kernel.org
+Subject: Re: discrepency between "df" and "du" on tmpfs filesystem?
+References: <438F179E.5040402@nortel.com>
+	<Pine.LNX.4.61.0512011634370.26131@goblin.wat.veritas.com>
+X-Yow: The fact that 47 PEOPLE are yelling and sweat is cascading
+ down my SPINAL COLUMN is fairly enjoyable!!
+Date: Thu, 01 Dec 2005 18:44:00 +0100
+In-Reply-To: <Pine.LNX.4.61.0512011634370.26131@goblin.wat.veritas.com> (Hugh
+	Dickins's message of "Thu, 1 Dec 2005 16:41:15 +0000 (GMT)")
+Message-ID: <je4q5s67bz.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hugh Dickins <hugh@veritas.com> writes:
 
-On Thu, 1 Dec 2005, Russell King wrote:
+> On Thu, 1 Dec 2005, Christopher Friesen wrote:
+>> 
+>> Someone noticed this on one of our machines.  The rootfs is a 256MB tmpfs
+>> filesystem.  Depending on how you check the size, you get two different
+>> answers.
+>> 
+>> root@10.41.50.66:/root> df -kl
+>> rootfs                  262144    255684      6460  98% /
+>> 
+>> root@10.41.50.66:/root> du -sxk /
+>> 204672  /
+>> 
+>> Anyone know what's going on?
+>
+> df tells you what the filesystem says is in use or free, via statfs.
+> du goes looking at the contents of the filesystem, totalling stats.
+> Any files unlinked but held open will be counted by df but not by du.
+> There might also be a discrepancy over indirect blocks, I'm not sure.
 
->  timeout
-> 
->   A period of time after which an error condition is raised if some event
->   has not occured. A common example is sending a message. If the receiver
->   does not acknowledge the message within some preset timeout period, a
->   transmission error is assumed to have occured.
-> 
->  timer
-> 
->   a timepiece that measures a time interval and signals its end
-> 
-> Hence, timers have the implication that they are _expected_ to expire.
-> Timeouts have the implication that their expiry is an exceptional
-> condition.
+Also an empty filesystem usually does not have zero use, since the
+filesystem overhead (inode table, etc) may be accounted in the statfs
+counts.
 
-IOW a timeout uses a timer to implement an exceptional condition after a 
-period of time expires.
+Andreas.
 
-> So can we stop rehashing this stupid discussion?
-
-The naming isn't actually my primary concern. I want a precise definition 
-of the expected behaviour and usage of the old and new timer system. If I 
-had this, it would be far easier to choose a proper name.
-E.g. I still don't know why ktimeout should be restricted to raise just 
-"error conditions", as the name implies.
-
-bye, Roman
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

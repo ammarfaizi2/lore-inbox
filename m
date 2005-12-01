@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751724AbVLAVGq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932471AbVLAVJr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751724AbVLAVGq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 16:06:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751730AbVLAVGq
+	id S932471AbVLAVJr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 16:09:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbVLAVJr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 16:06:46 -0500
-Received: from natfrord.rzone.de ([81.169.145.161]:6578 "EHLO
-	natfrord.rzone.de") by vger.kernel.org with ESMTP id S1751724AbVLAVGp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 16:06:45 -0500
-Subject: Re: [PATCH] x86_64: Display HPET timer option
-From: Erwin Rol <mailinglists@erwinrol.com>
+	Thu, 1 Dec 2005 16:09:47 -0500
+Received: from rtr.ca ([64.26.128.89]:41683 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S932471AbVLAVJr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 16:09:47 -0500
+Message-ID: <438F6699.1080506@rtr.ca>
+Date: Thu, 01 Dec 2005 16:09:45 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
 To: Andi Kleen <ak@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051201204339.GC997@wotan.suse.de>
-References: <Pine.LNX.4.64.0512011143350.13220@montezuma.fsmlabs.com>
-	 <Pine.LNX.4.64.0512011150110.3099@g5.osdl.org>
-	 <Pine.LNX.4.64.0512011216200.13220@montezuma.fsmlabs.com>
-	 <20051201204339.GC997@wotan.suse.de>
-Content-Type: text/plain
-Date: Thu, 01 Dec 2005 22:06:37 +0100
-Message-Id: <1133471197.3604.3.camel@xpc.home.erwinrol.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 (2.4.1-8) 
+Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, davej@redhat.com
+Subject: Re: [PATCH] Fix bytecount result from printk()
+References: <438F1D05.5020004@rtr.ca> <20051201175732.GD19433@redhat.com>	<20051201.121554.130875743.davem@davemloft.net> <p737jaofg1o.fsf@verdi.suse.de>
+In-Reply-To: <p737jaofg1o.fsf@verdi.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-01 at 21:43 +0100, Andi Kleen wrote:
-> On Thu, Dec 01, 2005 at 12:30:03PM -0800, Zwane Mwaikambo wrote:
-> > On Thu, 1 Dec 2005, Linus Torvalds wrote:
-> > 
-> > > On Thu, 1 Dec 2005, Zwane Mwaikambo wrote:
-> > > >
-> > > > Currently the HPET timer option isn't visible in menuconfig.
-> > > 
-> > > Do you want it to?
-> > > 
-> > > Why would you ever compile it out?
-> > 
-> > For timer testing purposes i sometimes would like not to use the HPET. 
-> > Would a runtime switch be preferred?
+Andi Kleen wrote:
+> "David S. Miller" <davem@davemloft.net> writes:
+..
+>>Wow, that's amazing. :)
 > 
-> nohpet already exists.
+> Taking the blame.
 > 
+>>I bet these can easily be removed, and since printk() is such
+>>a core thing, simplifying it should trump whatever benfits
+>>these few call sites have from getting a return byte count.
+> 
+> I used it for linewrapping in the oops output.
+...
+> Actually I would expect more users from sprintf and snprintf
+> (e.g. common in /proc output to compute the return value of the read) 
+> and that is exactly the same code path.
 
-And luckily it does cause without "nohpet" i can't boot my shuttle
-ST20G5, the NMI watchdog kills it because ti hangs when initializing the
-hpet. If the nmi watchdog is off it just hangs for ever. 
+When I grep the 2.6.15-rc3 kernel tree, the *only* use of vprintk
+seems to be for doing printk().  It does not seem to be used for
+the sprintf/snprintf functions.  Actually it is the other way around,
+where vprintk() calls those functions.
 
-- Erwin
- 
+So no problem there, and vprintk() really doesn't need to return anything.
 
-
+Cheers

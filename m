@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751358AbVLACYD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751366AbVLACgV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751358AbVLACYD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 21:24:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbVLACYC
+	id S1751366AbVLACgV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 21:36:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbVLACgV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 21:24:02 -0500
-Received: from fmr14.intel.com ([192.55.52.68]:60077 "EHLO
-	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751358AbVLACYA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 21:24:00 -0500
-Subject: [PATCH]nmi VS cpu hotplug
-From: Shaohua Li <shaohua.li@intel.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, zwane <zwane@linuxpower.ca>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Content-Type: text/plain
-Date: Thu, 01 Dec 2005 01:46:04 -0800
-Message-Id: <1133430364.7980.15.camel@linux.site>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Nov 2005 21:36:21 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:13574 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751367AbVLACgT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Nov 2005 21:36:19 -0500
+Date: Thu, 1 Dec 2005 03:36:19 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu,
+       zippel@linux-m68k.org, george@mvista.com, johnstul@us.ibm.com
+Subject: Re: [patch 25/43] Create ktimeout.h and move timer.h code into it
+Message-ID: <20051201023619.GU31395@stusta.de>
+References: <20051130231140.164337000@tglx.tec.linutronix.de> <1133395428.32542.468.camel@tglx.tec.linutronix.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1133395428.32542.468.camel@tglx.tec.linutronix.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-With CPU hotplug enabled, NMI watchdog stoped working. It appears the
-violation is the cpu_online check in nmi handler. local ACPI based NMI
-watchdog is initialized before we set CPU online for APs. It's quite
-possible a NMI is fired before we set CPU online, and that's what
-happens here.
-Zwane, I suppose you saw nmi interrupts on offline CPU, so you added
-this one. Several days ago I sent a patch titled 'disable LAPIC
-completely for offline CPU', which I guess will make it disappear. Can
-you try it?
-So the solution is either to initialize nmi later or to delete the
-cpu_online check. I just take what x86_64 does.
+On Thu, Dec 01, 2005 at 01:03:48AM +0100, Thomas Gleixner wrote:
+> plain text document attachment (ktimeout-h.patch)
+> - introduce ktimeout.h and move the timeout implementation into it, as-is.
+> - keep timer.h for compatibility
+>...
 
+If you do this, you should either immediately remove timer.h or add a 
+#warning to this file.
 
-Signed-off-by: Shaohua Li <shaohua.li@intel.com>
----
+Both cases imply changing all in-kernel users (which is anyway a good 
+idea if we really want to rename this header).
 
- linux-2.6.14-root/arch/i386/kernel/traps.c |    7 -------
- 1 files changed, 7 deletions(-)
+cu
+Adrian
 
-diff -puN arch/i386/kernel/traps.c~nmi-cpuhotplug arch/i386/kernel/traps.c
---- linux-2.6.14/arch/i386/kernel/traps.c~nmi-cpuhotplug	2005-12-01 01:22:00.000000000 -0800
-+++ linux-2.6.14-root/arch/i386/kernel/traps.c	2005-12-01 01:22:22.000000000 -0800
-@@ -650,13 +650,6 @@ fastcall void do_nmi(struct pt_regs * re
- 
- 	cpu = smp_processor_id();
- 
--#ifdef CONFIG_HOTPLUG_CPU
--	if (!cpu_online(cpu)) {
--		nmi_exit();
--		return;
--	}
--#endif
--
- 	++nmi_count(cpu);
- 
- 	if (!rcu_dereference(nmi_callback)(regs, cpu))
-_
+-- 
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

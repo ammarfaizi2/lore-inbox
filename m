@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbVLANTE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbVLANRj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932214AbVLANTE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 08:19:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbVLANTE
+	id S932216AbVLANRj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 08:17:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbVLANRj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 08:19:04 -0500
-Received: from ns2.suse.de ([195.135.220.15]:54252 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932214AbVLANTD (ORCPT
+	Thu, 1 Dec 2005 08:17:39 -0500
+Received: from mail3.netbeat.de ([193.254.185.27]:7309 "HELO mail3.netbeat.de")
+	by vger.kernel.org with SMTP id S932216AbVLANRi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 08:19:03 -0500
-Date: Thu, 1 Dec 2005 14:18:57 +0100
-From: Andi Kleen <ak@suse.de>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       "Raj, Ashok" <ashok.raj@intel.com>
-Subject: Re: x86_64/HOTPLUG_CPU: NULL dereference doesn't #PF with init_level4_pgt
-Message-ID: <20051201131857.GG19515@wotan.suse.de>
-References: <Pine.LNX.4.64.0511301859070.13220@montezuma.fsmlabs.com>
+	Thu, 1 Dec 2005 08:17:38 -0500
+Subject: [PATCH 0/4] linux-2.6-block: deactivating pagecache for benchmarks
+From: Dirk Henning Gerdes <mail@dirk-gerdes.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Thu, 01 Dec 2005 14:17:31 +0100
+Message-Id: <1133443051.6110.32.camel@noti>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0511301859070.13220@montezuma.fsmlabs.com>
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 30, 2005 at 08:03:33PM -0800, Zwane Mwaikambo wrote:
-> NULL dereferences don't cause a page fault if the 4th level pagetable 
-> being used is init_level4_pgt because we never zap_low_mappings. Since 
-> the idle thread uses init_level4_pgt any bad dereferences happening there 
-> (e.g. from interrupts) won't cause a fault. Andi would you be fine with 
-> switching the idle threads to a different level4?
+Hi Jens!
 
-That recently changed. Are you sure it's still the case?
+For doing benchmarks on the I/O-Schedulers, I thought it would be very
+useful to disable the pagecache.
 
-idle threads should always run with lazy TLB, no different mms.
-That's important for performance.
+I didn't want to make it so complicated so I just mark pages as
+not-uptodate, so they have to be read again. Another reason was, that I
+wanted to keep the conditions as near to reality as possible.
 
-If a NULL reference causes a oops or not depends on if user space
-from the last process mapped a page to NULL or not.
+Further I thought it would be useful, if you could turn the pagecache on
+and off without rebooting the system.
 
--Andi
+I implemented a proc-fs entry "/proc/benchmark/pagecache" for this.
+
+Probably this patch can be useful for anyone else, who wants to do  some
+benchmarks on block-layer stuff.
+And if not, I would appreciate if you could have a look on it.
+
+Signed-off-by: Dirk Gerdes <mail@dirk-gerdes.de>
+
+
+

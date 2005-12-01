@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbVLAIGA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbVLAIIH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750760AbVLAIGA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 03:06:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750775AbVLAIGA
+	id S1750775AbVLAIIH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 03:08:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751388AbVLAIIH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 03:06:00 -0500
-Received: from zproxy.gmail.com ([64.233.162.200]:6643 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750760AbVLAIF7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 03:05:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=b5g494htf1ZI1hKL7GwdsKjqnYIKCUuwxj0VP3U5ZugidFKEl1uFCHGhGndo4y8CFJIvDYm0Im5qOKZDq30xXoYVkaLFzb1tO/kMFVq1q2kberk0Bxe3BcFB9PB6ipXSeSCgk65kbK00rD28t5gn0eTiBtntumezCkcy3bcUMMI=
-Message-ID: <cda58cb80512010005h24c3754ex@mail.gmail.com>
-Date: Thu, 1 Dec 2005 09:05:58 +0100
-From: Franck <vagabon.xyz@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Add MIPS dependency for dm9000 driver
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-In-Reply-To: <20051130132757.36e1cca0.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <cda58cb80511300918i7df1c60au@mail.gmail.com>
-	 <20051130132757.36e1cca0.akpm@osdl.org>
+	Thu, 1 Dec 2005 03:08:07 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:38306 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750775AbVLAIIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 03:08:05 -0500
+Subject: Re: [PATCH] aic79xx should be able to ignore HostRAID enabled
+	adapters
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Darrick J. Wong" <djwong@us.ibm.com>
+Cc: Chris McDermott <lcm@us.ibm.com>, Luvella McFadden <luvella@us.ibm.com>,
+       AJ Johnson <blujuice@us.ibm.com>, Kevin Stansell <kstansel@us.ibm.com>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <438E90DD.3010007@us.ibm.com>
+References: <438E90DD.3010007@us.ibm.com>
+Content-Type: text/plain
+Date: Thu, 01 Dec 2005 09:08:01 +0100
+Message-Id: <1133424481.2853.10.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew
+>   Upon bootup, the aic79xx
+> driver will grab both controllers even though I'd prefer that Adaptec's a320raid
+> driver grab the HostRAID controller.  
 
-2005/11/30, Andrew Morton <akpm@osdl.org>:
-> Franck <vagabon.xyz@gmail.com> wrote:
-> >
-> > The attached patch adds MIPS dependency for dm9000 ethernet
-> > controller. Indeed this controller is used by some embedded platforms
-> > based on MIPS CPUs.
-> >
->
-> Is there any reason why we cannot enable this driver on all architectures?
->
-> It's moderately important for quality and maintainability reasons that it
-> be included in the x86 build, at least..
->
+where is the sourcecode for the a320raid driver?
 
-Actually there's a discussion about that. I previously sent a RFC
-(subject is "[NET] Remove ARM dependency for dm9000 driver") for that.
-Now some people are reacting so we should wait for the last words
-before applying something.
+afaik dmraid supports this format already, and if not I would urge you
+to help the dmraid project to support it instead..
 
-thanks
---
-               Franck
+

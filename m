@@ -1,115 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751370AbVLADV3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751632AbVLAD1d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751370AbVLADV3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Nov 2005 22:21:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbVLADV3
+	id S1751632AbVLAD1d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Nov 2005 22:27:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751631AbVLAD1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 22:21:29 -0500
-Received: from krl.krl.com ([192.147.32.3]:32680 "EHLO krl.krl.com")
-	by vger.kernel.org with ESMTP id S1751370AbVLADV2 (ORCPT
+	Wed, 30 Nov 2005 22:27:33 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:8159 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751390AbVLAD1d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 22:21:28 -0500
-Date: Wed, 30 Nov 2005 22:20:50 -0500
-Message-Id: <200512010320.jB13KoH4009443@p-chan.krl.com>
-From: Don Koch <aardvark@krl.com>
-To: Michael Krufky <mkrufky@m1k.net>
-Cc: gene.heskett@verizon.net, linux-kernel@vger.kernel.org,
-       kirk.lapray@gmail.com, video4linux-list@redhat.com, CityK@rogers.com,
-       perrye@linuxmail.org
-Subject: Re: Gene's pcHDTV 3000 analog problem
-In-Reply-To: <438D38B3.2050306@m1k.net>
-References: <200511282205.jASM5YUI018061@p-chan.krl.com>
-	<c35b44d70511291548lcb10361ifd3a4ea0f239662d@mail.gmail.com>
-	<438CFFAD.7070803@m1k.net>
-	<200511300007.56004.gene.heskett@verizon.net>
-	<438D38B3.2050306@m1k.net>
-Organization: KRL
-X-Mailer: Sylpheed version 2.1.6 (GTK+ 2.4.14; i686-pc-linux-gnu)
+	Wed, 30 Nov 2005 22:27:33 -0500
+Date: Thu, 1 Dec 2005 04:25:43 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Zhang, Yanmin" <yanmin.zhang@intel.com>
+Cc: linux-kernel@vger.kernel.org,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       "Shah, Rajesh" <rajesh.shah@intel.com>
+Subject: Re: [BUG] Variable stopmachine_state should be volatile
+Message-ID: <20051201032543.GA2387@elf.ucw.cz>
+References: <8126E4F969BA254AB43EA03C59F44E84040B3C8C@pdsmsx404>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8126E4F969BA254AB43EA03C59F44E84040B3C8C@pdsmsx404>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Nov 2005 00:29:23 -0500
-Michael Krufky wrote:
+Hi!
 
-> Gene Heskett wrote:
-> 
-> >On Tuesday 29 November 2005 20:26, Michael Krufky wrote:
-> >
-> >[...]
-> >
-> >>ll I can think of doing next is to have Gene, Don or Perry do a
-> >>bisection test on our cvs repo.... checking out different cvs revisions
-> >>until we can narrow it down to the day the problem patch was applied.
+> >>Hi!
 > >>
-> >>::sigh::
-> >>    
+> >>> The model to access variable stopmachine_state is that a main thread
+> >>> writes it and other threads read it. Its declaration has no sign
+> >>> volatile. In the while loop in function stopmachine, this variable is
+> >>> read, and compiler might optimize it by reading it once before the loop
+> >>> and not reading it again in the loop, so the thread might enter dead
+> >>> loop.
 > >>
-> >A sigh?  More like an 'oh fudge' or whatever your fav expletive deleted
-> >is...
-> >
-> >>Who wants to do it?  I'll give you detailed instructions if you're
-> >>willing.
-> >>    
-> >>
-> >Can you farm it out, one set of patches to each of us?  Or do you want
-> >to setup a seperate cvs tree based on the v4l code in 2.6.14.3, and
-> >incrementally patch it as we each report its still ok, until it breaks
-> >again?  I think I'd prefer the latter so we are all near the same
-> >page even if it takes 3x longer to arrive at the answer.  How many
-> >actual patches in terms of dependency groups are there?  I know, I
-> >coulda went all week without asking that :(
-> >
-> Actually, cvs has a parameter that lets you specify cutoff dates...
-> 
-> This is what I am suggesting that you do... Base this on my previous cvs 
-> instructions....
-> 
-> reminder: http://linuxtv.org/v4lwiki/index.php/How_to_build_from_CVS
-> 
-> so....
-> 
-> 1st:
-> 
-> cvs -d :pserver:anonymous@cvs.linuxtv.org:/cvs/video4linux login
-> cvs -d :pserver:anonymous@cvs.linuxtv.org:/cvs/video4linux co v4l-dvb
-> cd v4l-dvb
-> make clean
-> make
-> make install
-> 
-> test
-> 
-> (you already did this - you said doesnt work)
-[...]
-> cvs up -D 2005-10-15
-> make clean
-> make
-> make install
-> 
-> doesnt work?  1 week earlier:
-> 
-> cvs up -D 2005-10-07
-> make clean
-> make
-> make install
+> >>No. volatile may look like a solution, but it usually is not. You may
+> >>need some barriers, atomic_t or locking.
+> >>								Pavel
+> The original functions already use smp_mb/smp_wmb. My patch just
+>tells compiler not to optimize by bringing the reading of
+>stopmachine_state out of the while loop.
 
-Let's put it this way: for me, 2005-10-10 doesn't work and anything earlier doesn't build.  I've tried building against 2.6.15-rc3, 2.6.14 and 2.6.13.  The card doesn't
-work against the built-in 2.6.13 code, but the tuner is sending bizarre stuff
-to it (channel 2 is *not* at 97.25 MHz).  2.6.14 kept spewing:
+Those barriers should already prevent compiler optimalization, no? If
+they do not, just use some barriers that do.
+								Pavel
 
-CORE IOCTL: 0xc054561d
-cx88[0]: ioctl 0xc054561d (v4l2, rw, VIDIOC_G_TUNER)
 
-all over the syslog.
-
-Build issues include broken Makefiles (around 10-08) and missing header files.
-
-> Cheers,
-> 
-> Mike
-> 
-
--d
+-- 
+Thanks, Sharp!

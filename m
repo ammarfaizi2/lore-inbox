@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932478AbVLAVRm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932485AbVLAVSu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932478AbVLAVRm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 16:17:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932479AbVLAVRm
+	id S932485AbVLAVSu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 16:18:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932481AbVLAVSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 16:17:42 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:7619 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S932478AbVLAVRl (ORCPT
+	Thu, 1 Dec 2005 16:18:50 -0500
+Received: from mx1.suse.de ([195.135.220.2]:47274 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932484AbVLAVSt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 16:17:41 -0500
-Date: Thu, 1 Dec 2005 13:16:56 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: Badari Pulavarty <pbadari@us.ibm.com>, linux-mm <linux-mm@kvack.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Better pagecache statistics ?
-In-Reply-To: <20051201160044.GB14499@dmt.cnet>
-Message-ID: <Pine.LNX.4.62.0512011310030.25135@schroedinger.engr.sgi.com>
-References: <1133377029.27824.90.camel@localhost.localdomain>
- <20051201152029.GA14499@dmt.cnet> <20051201160044.GB14499@dmt.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 1 Dec 2005 16:18:49 -0500
+Date: Thu, 1 Dec 2005 22:18:48 +0100
+From: Andi Kleen <ak@suse.de>
+To: Erwin Rol <mailinglists@erwinrol.com>
+Cc: Andi Kleen <ak@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] x86_64: Display HPET timer option
+Message-ID: <20051201211848.GE997@wotan.suse.de>
+References: <Pine.LNX.4.64.0512011143350.13220@montezuma.fsmlabs.com> <Pine.LNX.4.64.0512011150110.3099@g5.osdl.org> <Pine.LNX.4.64.0512011216200.13220@montezuma.fsmlabs.com> <20051201204339.GC997@wotan.suse.de> <1133471197.3604.3.camel@xpc.home.erwinrol.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1133471197.3604.3.camel@xpc.home.erwinrol.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We are actually looking at have better pagecache statistics and I have 
-been trying out a series of approaches. The direct need right now is to 
-have some statistics on the size of the pagecache and the number of 
-unmapped file backed pages per node.
+On Thu, Dec 01, 2005 at 10:06:37PM +0100, Erwin Rol wrote:
+> On Thu, 2005-12-01 at 21:43 +0100, Andi Kleen wrote:
+> > On Thu, Dec 01, 2005 at 12:30:03PM -0800, Zwane Mwaikambo wrote:
+> > > On Thu, 1 Dec 2005, Linus Torvalds wrote:
+> > > 
+> > > > On Thu, 1 Dec 2005, Zwane Mwaikambo wrote:
+> > > > >
+> > > > > Currently the HPET timer option isn't visible in menuconfig.
+> > > > 
+> > > > Do you want it to?
+> > > > 
+> > > > Why would you ever compile it out?
+> > > 
+> > > For timer testing purposes i sometimes would like not to use the HPET. 
+> > > Would a runtime switch be preferred?
+> > 
+> > nohpet already exists.
+> > 
+> 
+> And luckily it does cause without "nohpet" i can't boot my shuttle
+> ST20G5, the NMI watchdog kills it because ti hangs when initializing the
+> hpet. If the nmi watchdog is off it just hangs for ever. 
 
-With those numbers one would be able to do a local page eviction if memory 
-on a node runs low. Per cpu counters exist for some of these but these are 
-only meaningful if they are summed up (despite drivers/base/node.c 
-seemingly allowing access to per node information).
+Can you give details on the machine? lspci, dmidecode, acpidmp output,
+boot log from the hang case?
 
-One pathological case that we frequently encounter is that an application 
-does lots of file I/O that saturates a node and then terminates. At that 
-point a high number of unmapped pagecache pages exist that are not 
-reclaimed because other nodes still have enough free memory. If a counter 
-would be available per node then we could check if the numer of unmapped 
-pagecache pages is high and if that is the case run kswapd on one specific 
-node.
+Then perhaps it can be blacklisted or the failure otherwise avoided.
 
-In my various attempts to get some form of statistics for that purpose I 
-encountered the problem that I need to modify critical code paths in the 
-VM.
+[Looks like I finally need to add DMI decode support to x86-64 too :-/]
 
-One solution would be to add an atomic counter to the zone for the 
-number of mapped and the number pagecache pages. However, this would mean 
-that these counters have to be incremented and decremented for everypage 
-removed and added to the pagecache.
+-Andi
 
-Another one would be to have a node based per cpu array that is summed up 
-in regular intervals to create true per node statistics. However, numbers 
-are then not current and its not feasable to add them up for every check.

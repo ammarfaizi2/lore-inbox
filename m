@@ -1,86 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbVLANof@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbVLANq1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932235AbVLANof (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 08:44:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbVLANof
+	id S932233AbVLANq1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 08:46:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbVLANq1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 08:44:35 -0500
-Received: from magic.adaptec.com ([216.52.22.17]:163 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S932226AbVLANoe convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 08:44:34 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
+	Thu, 1 Dec 2005 08:46:27 -0500
+Received: from zproxy.gmail.com ([64.233.162.205]:61113 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932233AbVLANq0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 08:46:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=tKXhgx94tJSsT8W7JJY7ViJeTn9zfU5djut+vo9Q80Lni45VCaPxub4neeZ97CvkwiFYg1Mog1RKec7G4VZOBITYxUQeetc1wzzs4/0RTajVPsTxoYPw/1N5jinbCM6hg0JfV0A6gBnngvC1Jy/wBiiv7c9dhk+a5FZPqBh+kOE=
+Message-ID: <438EFEAB.3010005@gmail.com>
+Date: Thu, 01 Dec 2005 22:46:19 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] aic79xx should be able to ignore HostRAID enabled adapters
-Date: Thu, 1 Dec 2005 08:44:15 -0500
-Message-ID: <547AF3BD0F3F0B4CBDC379BAC7E4189F01E3E318@otce2k03.adaptec.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] aic79xx should be able to ignore HostRAID enabled adapters
-Thread-Index: AcX2ah5JPoCeAYzVQGOrlrUKrBbaMAADfx9A
-From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-To: "Christoph Hellwig" <hch@infradead.org>,
-       "Darrick J. Wong" <djwong@us.ibm.com>
-Cc: "Chris McDermott" <lcm@us.ibm.com>,
-       "Luvella McFadden" <luvella@us.ibm.com>,
-       "AJ Johnson" <blujuice@us.ibm.com>,
-       "Kevin Stansell" <kstansel@us.ibm.com>, <linux-kernel@vger.kernel.org>,
-       <linux-scsi@vger.kernel.org>, <Mauelshagen@redhat.com>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+CC: axboe@suse.de, jgarzik@pobox.com, James.Bottomley@steeleye.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH linux-2.6-block:post-2.6.15 10/11] blk: add FUA support
+ to IDE
+References: <20051124162449.209CADD5@htj.dyndns.org>	 <20051124162449.94344DD0@htj.dyndns.org> <58cb370e0511300305w635081e4iacf883fa3746f5d8@mail.gmail.com>
+In-Reply-To: <58cb370e0511300305w635081e4iacf883fa3746f5d8@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig sez:
-> NACK.  We're not going to support attaching broken propritary drivers.
+Bartlomiej Zolnierkiewicz wrote:
+> On 11/24/05, Tejun Heo <htejun@gmail.com> wrote:
+> 
+>>10_blk_ide-add-fua-support.patch
+>>
+>>        Add FUA support to IDE.  IDE FUA support makes use of
+>>        ->protocol_changed callback to correctly adjust FUA setting
+>>        according to transfer protocol change.
+>>
+>>Signed-off-by: Tejun Heo <htejun@gmail.com>
+> 
+> 
+> ACK, except ->protocol_changed part
+> (IDE needs fixing if you want dynamic barrier changes, sorry)
 
-Understood and expected.
+I'll just leave FUA support for IDE out for the time being.  It's not 
+like we have lots of (any?) PATA disks which support FUA anyway.  Thanks 
+for your time.
 
-The word 'broken' is hardly chosen for scientific reasons, bespeaks an
-agenda ;-> Just because you can not see the code, does not mean it is
-broken.
-
-I have on numerous attempts tried to contact Heinz Mauelshagen to
-fortify dmraid in support of the HostRAID adapters. He has yet to
-respond to my emails to start a dialogue with Adaptec.
-
-Justin Gibbs had provided the community the emd driver, soundly rejected
-and never ported to dm because there were features that Justin held dear
-in md that do not translate to dm. An unfortunate waste of considerable
-resources.
-
-Without the timely agenda and cooled temperaments to close the gap, the
-solution should be temporarily to support the proprietary HostRAID
-driver when the Adapter is in HostRAID mode and we continue to work to
-close that gap on dmraid.
-
-Could you agree with that to help the users today?
-
-[ You are on record as not giving a fig for the users, what if I showed
-them as starving children in a third world nation, would that melt your
-heart? ;-} ]
-
-> Sepcially as these "HostRAID" cards are plain SCSI HBAs.
-
-They are plain SCSI HBAs, but are designated as a RAID card rather than
-a Host Bus Adapter in the PCI config space when in 'HostRAID' mode. The
-fact that is designated in the PCI space should be enough reason *not*
-to attach a simplified LLD.
-
-The HostRAID driver has a specialized (ok, yes, also proprietary) CHIM
-and sequencer where attention can be focused on techniques of
-performance improvement and OS agnostics. In addition, the RAID code in
-that driver understands the hardware, CHIM & sequencer and takes
-advantage of features that just can not be performed by an abstracted dm
-or an LLD. RAID1 is handled under some conditions, for instance, with
-one DMA operation over the PCI bus rather than two duplicated for each
-target, greatly increasing the performance.
-
-Linux is not about performance first, it is about doing it the Linux
-way. I believe we can understand that. And in turn, do not consider it
-harmful if a group of individuals trying to make a living see a chance
-to acquire a competitive edge.
-
-Sincerely -- Mark Salyzyn
+-- 
+tejun

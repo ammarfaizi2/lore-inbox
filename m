@@ -1,53 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932471AbVLAVJr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751729AbVLAVLV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932471AbVLAVJr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 16:09:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbVLAVJr
+	id S1751729AbVLAVLV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 16:11:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751730AbVLAVLV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 16:09:47 -0500
-Received: from rtr.ca ([64.26.128.89]:41683 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S932471AbVLAVJr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 16:09:47 -0500
-Message-ID: <438F6699.1080506@rtr.ca>
-Date: Thu, 01 Dec 2005 16:09:45 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, davej@redhat.com
-Subject: Re: [PATCH] Fix bytecount result from printk()
-References: <438F1D05.5020004@rtr.ca> <20051201175732.GD19433@redhat.com>	<20051201.121554.130875743.davem@davemloft.net> <p737jaofg1o.fsf@verdi.suse.de>
-In-Reply-To: <p737jaofg1o.fsf@verdi.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Dec 2005 16:11:21 -0500
+Received: from hqemgate01.nvidia.com ([216.228.112.170]:65343 "EHLO
+	HQEMGATE01.nvidia.com") by vger.kernel.org with ESMTP
+	id S1751728AbVLAVLU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 16:11:20 -0500
+Date: Thu, 1 Dec 2005 15:11:19 -0600
+From: Terence Ripperda <tripperda@nvidia.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.15-rc4
+Message-ID: <20051201211119.GA11437@hygelac>
+Reply-To: Terence Ripperda <tripperda@nvidia.com>
+References: <Pine.LNX.4.64.0511302234020.3099@g5.osdl.org> <20051201121826.GF19694@charite.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20051201121826.GF19694@charite.de>
+X-Accept-Language: en
+X-Operating-System: Linux hrothgar 2.6.13 
+User-Agent: Mutt/1.5.6+20040907i
+X-OriginalArrivalTime: 01 Dec 2005 21:11:20.0205 (UTC) FILETIME=[C6A693D0:01C5F6BB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> "David S. Miller" <davem@davemloft.net> writes:
-..
->>Wow, that's amazing. :)
+On Thu, Dec 01, 2005 at 01:18:27PM +0100, Ralf.Hildebrandt@charite.de wrote:
+> * Linus Torvalds <torvalds@osdl.org>:
 > 
-> Taking the blame.
+> > [ Btw, some drivers will now complain loudly about their nasty mis-use of 
+> >   page remapping, and that migh look scary, but it should all be good, and 
+> >   we'd love to see the detailed output of dmesg on such machines. ]
 > 
->>I bet these can easily be removed, and since printk() is such
->>a core thing, simplifying it should trump whatever benfits
->>these few call sites have from getting a return byte count.
+> Here's one - smite me for using the nvidia driver:
 > 
-> I used it for linewrapping in the oops output.
-...
-> Actually I would expect more users from sprintf and snprintf
-> (e.g. common in /proc output to compute the return value of the read) 
-> and that is exactly the same code path.
+> Xorg does an incomplete pfn remapping [<c013eb8c>] incomplete_pfn_remap+0x6b/0xca
+>  [<f94fc956>] nv_kern_mmap+0x47d/0x4cb [nvidia]
+>  [<c01415e1>] do_mmap_pgoff+0x3cf/0x6ee
+>  [<c0107dea>] sys_mmap2+0x66/0xaf
+>  [<c0102c25>] syscall_call+0x7/0xb
 
-When I grep the 2.6.15-rc3 kernel tree, the *only* use of vprintk
-seems to be for doing printk().  It does not seem to be used for
-the sprintf/snprintf functions.  Actually it is the other way around,
-where vprintk() calls those functions.
+from looking at the new code, it looks like this is due to how we mmap
+our dma pages. due to opengl using large (multiple megabyte) push
+buffers, we allocate individual physically discontiguous pages, then
+mmap them in one call. we end up iterating over all of the pages with
+individual calls to remap_pfn_range.
 
-So no problem there, and vprintk() really doesn't need to return anything.
+it appears this new warning doesn't like that and will complain,
+unless VM_INCOMPLETE is set. when, if ever, is it valid to set
+VM_INCOMPLETE? I'm guessing that the answer is to rely on the nopage
+handler to map these pages individually. but I'm not clear how
+dropping back and forth between user/kernel mode for each page between
+each call to remap_pfn_page would be more efficient than just calling
+remap_pfn_page for each page while we're already in kernel space.
 
-Cheers
+Thanks,
+Terence
+
+> 
+> repeated 4 times.
+> 
+> -- 
+> Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
+> Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+> Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
+> IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

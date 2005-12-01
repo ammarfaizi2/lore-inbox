@@ -1,49 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751656AbVLAIgw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbVLAJDX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751656AbVLAIgw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 03:36:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751659AbVLAIgv
+	id S1750773AbVLAJDX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 04:03:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751605AbVLAJDX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 03:36:51 -0500
-Received: from baythorne.infradead.org ([81.187.2.161]:25289 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S1751654AbVLAIgv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 03:36:51 -0500
-Subject: Re: [NET] Remove ARM dependency for dm9000 driver
-From: David Woodhouse <dwmw2@infradead.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Franck <vagabon.xyz@gmail.com>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051130190224.GE1053@flint.arm.linux.org.uk>
-References: <cda58cb80511300821y72f3354av@mail.gmail.com>
-	 <20051130162327.GC1053@flint.arm.linux.org.uk>
-	 <cda58cb80511300845j18c81ce6p@mail.gmail.com>
-	 <20051130165546.GD1053@flint.arm.linux.org.uk>
-	 <1133374482.4117.91.camel@baythorne.infradead.org>
-	 <20051130190224.GE1053@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Date: Thu, 01 Dec 2005 08:36:39 +0000
-Message-Id: <1133426199.4117.179.camel@baythorne.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 1 Dec 2005 04:03:23 -0500
+Received: from embla.aitel.hist.no ([158.38.50.22]:6086 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750773AbVLAJDW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 04:03:22 -0500
+Message-ID: <438EBD21.5050907@aitel.hist.no>
+Date: Thu, 01 Dec 2005 10:06:41 +0100
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/9] x86-64 put current in r10
+References: <20051130042118.GA19112@kvack.org> <438D4905.9F023405@users.sourceforge.net> <Pine.LNX.4.58.0511300821570.18317@shark.he.net>
+In-Reply-To: <Pine.LNX.4.58.0511300821570.18317@shark.he.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-30 at 19:02 +0000, Russell King wrote:
-> We agree to disagree.  For example, in all probability, ARM will never
-> see a TPM chip, yet it's offered for selection.  Given that, does it
-> really make sense to offer it for ARM?
+Randy.Dunlap wrote:
 
-You speak of _probability_. Yes, it makes sense to offer it as an
-_option_ for ARM. It just doesn't make sense to put it in the defconfig
-for any of the existing platforms.
+>Just for the sake of understanding the current kernel release
+>process, when would something like this be acceptable/possible?
+>Would it require a Linux 3.0 version, or at least a 2.8?
+>  
+>
+No.  It has been stated many times that there is no guarantee about
+binary compatibility. So this sort of change (breaking out-of-tree
+assembly or other code) can happen at anytime, even in a stable series, 
+even if
+the reason for the change isn't very strong.  You will even find those
+who want to break binary compatibility occationally on purpose, just to get
+people firmly off the idea that they can depend on such things.
 
-Nobody expects 'allyesconfig' to be something you'd actually want to
-_use_.
+The reason for the last attitude is the preference for open source.
+Vendors may like binary drivers, but they have a history of bad
+maintainership, especially when the product no longer sell. Open source
+is then useful in that any interested programmer can fix things.  That's
+almost impossible with binary stuff.  Sort of  "if they want to be 
+difficult to us,
+then we'll be difficult to them."
 
--- 
-dwmw2
+Getting out-of-tree code into the kernel tree is one way of avoiding
+trouble, because then the people making changes will try hard not
+to break anything. This is obviously not an option for non-gpl code,
+search the mail archives for how many times kernel changes
+broke the binary modules of vmware, nvidia and others.
 
+Policy is that those who keep their code to themselves gets
+to play catchup - a lot.  Their trouble is a non-issue.
+Exceptions have sometimes been made in
+order to not break the kernel for large amounts of people.  Apparently,
+the number of people using nvidia/vmware/out-of-tree assembly
+isn't considered large enough, or at least the changes have been
+more important than their troubles.
+
+Helge Hafting
 

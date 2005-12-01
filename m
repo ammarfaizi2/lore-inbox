@@ -1,62 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbVLAFZw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbVLAF1i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932074AbVLAFZw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 00:25:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbVLAFZw
+	id S932083AbVLAF1i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 00:27:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbVLAF1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 00:25:52 -0500
-Received: from nproxy.gmail.com ([64.233.182.201]:22389 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932074AbVLAFZv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 00:25:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jMMwt0ejNSrEPqF2LEPAPMCKFD+ad7u/tCnTrc7dQI4OaNGh7bFslfLGJI57WclsU5e95WcnWT4oLpBGutXHj1MpDu+YjiLXPF/K3e0zbSUpCXSCx65QHZNo3WaP9IYgkP0yM2HZb41OT/MCBJjOXQdtvVSyT8KZTtZVKmSY61Q=
-Message-ID: <2cd57c900511302125g9e771c6w@mail.gmail.com>
-Date: Thu, 1 Dec 2005 13:25:50 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-To: "Tomar, Nagendra" <nagendra_tomar@adaptec.com>
-Subject: Re: Why does insmod _not_ check for symbol redefinition ??
-Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0512010926460.1697-100000@localhost.localdomain>
+	Thu, 1 Dec 2005 00:27:38 -0500
+Received: from fmr18.intel.com ([134.134.136.17]:29930 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932083AbVLAF1g convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 00:27:36 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1133398629.8128.10.camel@localhost.localdomain>
-	 <Pine.LNX.4.44.0512010926460.1697-100000@localhost.localdomain>
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [BUG] Variable stopmachine_state should be volatile
+Date: Thu, 1 Dec 2005 13:27:30 +0800
+Message-ID: <8126E4F969BA254AB43EA03C59F44E84040B3E77@pdsmsx404>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [BUG] Variable stopmachine_state should be volatile
+Thread-Index: AcX2L/hRdNtQrwHXTmSdLDAuyFC7LwAB7FGQ
+From: "Zhang, Yanmin" <yanmin.zhang@intel.com>
+To: "Pavel Machek" <pavel@ucw.cz>
+Cc: <linux-kernel@vger.kernel.org>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       "Shah, Rajesh" <rajesh.shah@intel.com>
+X-OriginalArrivalTime: 01 Dec 2005 05:27:32.0289 (UTC) FILETIME=[EDC85310:01C5F637]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2005/12/1, Nagendra Singh Tomar <nagendra_tomar@adaptec.com>:
-> On Thu, 1 Dec 2005, Rusty Russell wrote:
->
-> > Sure.  It was due to minimalism.  If you override a symbol it's
-> > undefined behavior.  It should be fairly simple to add a check that
-> > noone overrides a symbol.  We didn't bother checking for it because it
-> > wasn't clear that it was problematic.
->
-> Thanx.
-> Of all the problems (including kernel crashes, BUGs etc) one of the
-> more serious  kinds are the ones where someone writes a new module and
-> accidently  defines a function which has the same name as one of functions
-> (say  foo_export),  already EXPORTed by either kernel proper or some
-> loaded  module (as the  kernel is growing bigger chances of this happening
-> is also  growing). The module happily loads and then some other module
-> which wants  to use the function foo_export (obviously the one EXPORTed by
-> kernel  proper and not the one overidden by the overiding module) is
-> loaded. It  will also load happily but will get linked against the new
-> foo_export,  defnitely not something that he wants. And, all this has
-> happened without the kernel telling the user anything.
->         IMHO, these kind of silent errors are very dangerous and not
-> something that should be acceptable.
-> As you rightly said, it should be fairly straightforward to check for
-> symbol redefinition. We need to do it only for the symbols EXPORTed by the
-> loadable module.
+>>-----Original Message-----
+>>From: Pavel Machek [mailto:pavel@ucw.cz]
+>>Sent: 2005Äê12ÔÂ1ÈÕ 11:26
+>>To: Zhang, Yanmin
+>>Cc: linux-kernel@vger.kernel.org; Pallipadi, Venkatesh; Shah, Rajesh
+>>Subject: Re: [BUG] Variable stopmachine_state should be volatile
+>>
+>>Hi!
+>>
+>>> >>Hi!
+>>> >>
+>>> >>> The model to access variable stopmachine_state is that a main thread
+>>> >>> writes it and other threads read it. Its declaration has no sign
+>>> >>> volatile. In the while loop in function stopmachine, this variable is
+>>> >>> read, and compiler might optimize it by reading it once before the loop
+>>> >>> and not reading it again in the loop, so the thread might enter dead
+>>> >>> loop.
+>>> >>
+>>> >>No. volatile may look like a solution, but it usually is not. You may
+>>> >>need some barriers, atomic_t or locking.
+>>> >>								Pavel
+>>> The original functions already use smp_mb/smp_wmb. My patch just
+>>>tells compiler not to optimize by bringing the reading of
+>>>stopmachine_state out of the while loop.
+>>
+>>Those barriers should already prevent compiler optimalization, no? If
+>>they do not, just use some barriers that do.
 
-This shouldn't happen if you only use in-tree modules as you should.
-Don't take kernel modules as user mode applications.
---
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+
+I hit the problem when compiling 2.6 kernel by intel compiler.
+How about to change the type of stopmachine_state to atomic_t?

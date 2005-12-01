@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbVLAMvB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbVLAMv6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932196AbVLAMvB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 07:51:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbVLAMvB
+	id S932202AbVLAMv6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 07:51:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbVLAMv6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 07:51:01 -0500
-Received: from networks.syneticon.net ([213.239.212.131]:36033 "EHLO
-	mail2.syneticon.net") by vger.kernel.org with ESMTP id S932196AbVLAMvA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 07:51:00 -0500
-Message-ID: <438EF1AA.7040806@wpkg.org>
-Date: Thu, 01 Dec 2005 13:50:50 +0100
-From: Tomasz Chmielewski <mangoo@wpkg.org>
-User-Agent: Mozilla Thunderbird 1.0.7-3mdk (X11/20051015)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: Norbert van Nobelen <norbert-kernel@hipersonik.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: loadavg always equal or above 1.00 - how to explain?
-References: <438EE515.1080001@wpkg.org> <200512011330.32435.norbert-kernel@hipersonik.com>
-In-Reply-To: <200512011330.32435.norbert-kernel@hipersonik.com>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Dec 2005 07:51:58 -0500
+Received: from mail.fh-wedel.de ([213.39.232.198]:11976 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S932202AbVLAMv5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 07:51:57 -0500
+Date: Thu, 1 Dec 2005 13:52:06 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Takashi Sato <sho@bsd.tnes.nec.co.jp>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: stat64 for over 2TB file returned invalid st_blocks
+Message-ID: <20051201125206.GB24519@wohnheim.fh-wedel.de>
+References: <01e901c5f66e$d4551b70$4168010a@bsd.tnes.nec.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <01e901c5f66e$d4551b70$4168010a@bsd.tnes.nec.co.jp>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Norbert van Nobelen schrieb:
-> Can you use top to determine which process is requesting most of the CPU? 
+On Thu, 1 December 2005 21:00:26 +0900, Takashi Sato wrote:
+> 
+> diff -uprN -X linux-2.6.14.org/Documentation/dontdiff linux-2.6.14.or
+> g/include/asm-i386/stat.h linux-2.6.14-blocks/include/asm-i386/stat.h
+> --- linux-2.6.14.org/include/asm-i386/stat.h 2005-10-28 09:02:08.000000000 
+> +0900
+> +++ linux-2.6.14-blocks/include/asm-i386/stat.h 2005-11-18 
+> 22:42:37.000000000 +0900
+> @@ -58,8 +58,7 @@ struct stat64 {
+>  long long st_size;
+>  unsigned long st_blksize;
+> 
+> - unsigned long st_blocks; /* Number 512-byte blocks allocated. */
+> - unsigned long __pad4;  /* future possible st_blocks high bits */
+> + unsigned long long st_blocks; /* Number 512-byte blocks allocated. */
 
-Actually, when I press shift + P in top, top is the most used process 
-for a while - around 1%, then it drops to ~ 0.0-0.3% and stays like 
-that; other processes (like sshd, smbd) don't take more than ~0.5% 
-really few times a minute.
+After a closer look: have you tested this on a big-endian machine as
+well?  This heavily smells like it will work one one endianness only.
 
-Same goes with memory usage.
-
-vmstat output:
-
-procs -----------memory---------- ---swap-- -----io---- --system-- 
-----cpu----
-  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us 
-sy id wa
-  2  0  14612  69748  26112 184004    0    0     1     1    3     3  3 
-3 94  0
-
-
-iostat output:
-
-avg-cpu:  %user   %nice    %sys %iowait   %idle
-            1,79    1,52    2,66    0,33   93,70
-
-Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
-hda               2,51        49,99        50,09  538412978  539475864
-hdb               0,00         0,00         0,00       1744          0
-fd0               0,00         0,00         0,00          6          0
-
+Jörn
 
 -- 
-Tomek
-http://wpkg.org
-WPKG - software deployment and upgrades with Samba
+The only real mistake is the one from which we learn nothing.
+-- John Powell

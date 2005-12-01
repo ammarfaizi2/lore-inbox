@@ -1,98 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbVLART4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbVLARTq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932345AbVLART4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 12:19:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbVLART4
+	id S932348AbVLARTq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 12:19:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbVLARTq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 12:19:56 -0500
-Received: from hera.kernel.org ([140.211.167.34]:20460 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932345AbVLARTz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 12:19:55 -0500
-Date: Thu, 1 Dec 2005 15:19:38 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: linux-mm <linux-mm@kvack.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Better pagecache statistics ?
-Message-ID: <20051201171938.GB16235@dmt.cnet>
-References: <1133377029.27824.90.camel@localhost.localdomain> <20051201152029.GA14499@dmt.cnet> <1133452790.27824.117.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1133452790.27824.117.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 1 Dec 2005 12:19:46 -0500
+Received: from vms042pub.verizon.net ([206.46.252.42]:64832 "EHLO
+	vms042pub.verizon.net") by vger.kernel.org with ESMTP
+	id S932350AbVLARTp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 12:19:45 -0500
+Date: Thu, 01 Dec 2005 12:13:14 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: Gene's pcHDTV 3000 analog problem
+In-reply-to: <438F18FD.60404@m1k.net>
+To: linux-kernel@vger.kernel.org
+Cc: Michael Krufky <mkrufky@m1k.net>, Don Koch <aardvark@krl.com>,
+       kirk.lapray@gmail.com, video4linux-list@redhat.com, CityK@rogers.com,
+       perrye@linuxmail.org
+Message-id: <200512011213.14728.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <200511282205.jASM5YUI018061@p-chan.krl.com>
+ <200512011024.45852.gene.heskett@verizon.net> <438F18FD.60404@m1k.net>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 01 December 2005 10:38, Michael Krufky wrote:
+>Gene Heskett wrote:
+>>So this doesn't seem to be a productive effort at all, Michael.  Or
+>> I'm doing things out of order as usual & need to start from scratch
+>> with a fresh checkout each time.
+>
+>Wipe out the cvs tree and do a fresh checkout each time.
+>
+>-Mike
 
-> Hi Marcelo,
-> 
-> Let me give you background on why I am looking at this.
-> 
-> I have been involved in various database customer situations.
-> Most times, machine is either extreemly sluggish or dying.
-> Only hints we get from /proc/meminfo, /proc/slabinfo, vmstat
-> etc is - lots of stuff in "Cache" and system is heavily swapping.
-> I want to find out whats getting swapped out and whats eating up 
-> all the pagecache., whats getting into cache, whats getting out 
-> of cache etc.. I find no easy way to get this kind of information.
+Thats what I just did and got the broken makefile.
 
-Someone recently wrote a patch to record such information (pagecache
-insertion/eviction, etc), don't remember who did though. Rik?
-
-> Database folks complain that filecache causes them most trouble.
-> Even when they use DIO on their tables & stuff, random apps (ftp,
-> scp, tar etc..) bloats the pagecache and kicks out database 
-> pools, shared mem, malloc etc - causing lots of trouble for them.
-
-LRU lacks frequency information, which is crucial for avoiding 
-such kind of problems.
-
-http://www.linux-mm.org/AdvancedPageReplacement
-
-Peter Zijlstra is working on implementing CLOCK-Pro, which uses 
-inter reference distance between accesses to a page instead of "least 
-recently used" metric for page replacement decision. He just published
-results of "mdb" (mini-db) benchmark at http://www.linux-mm.org/PeterZClockPro2.
-
-Read more about the "mdb" benchmark at
-http://www.linux-mm.org/PageReplacementTesting. 
-
-But thats offtopic :)
-
-> I want to understand more before I try to fix it. First step would
-> be to get better stats from pagecache and evaluate whats happening
-> to get a better handle on the problem.
-> 
-> BTW, I am very well familiar with kprobes/jprobes & systemtap.
-> I have been playing with them for at least 8 months :) There is
-> no easy way to do this, unless stats are already in the kernel.
-
-I thought that it would be easy to use SystemTap for a such
-a purpose?
-
-The sys_read/sys_write example at 
-http://www.redhat.com/magazine/011sep05/features/systemtap/ sounds
-interesting.
-
-What I'm I missing?
-
-> My final goal is to get stats like ..
-> 
-> Out of "Cached" value - to get details like
-> 
-> 	<mmap> - xxx KB
-> 	<shared mem> - xxx KB
-> 	<text, data, bss, malloc, heap, stacks> - xxx KB
-> 	<filecache pages total> -- xxx KB
-> 		(filename1 or <dev>, <ino>) -- #of pages
-> 		(filename2 or <dev>, <ino>) -- #of pages
-> 		
-> This would be really powerful on understanding system better.
-> 
-> Don't you think ?
-
-Yep... /proc/<pid>/smaps provides that information on a per-process
-basis already.
-
+I just posted another msg that gives a blow by blow.
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.36% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
 

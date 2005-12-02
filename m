@@ -1,65 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbVLBQ2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbVLBQcp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750815AbVLBQ2t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 11:28:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbVLBQ2t
+	id S1750810AbVLBQcp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 11:32:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbVLBQcp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 11:28:49 -0500
-Received: from rs02.intra2net.com ([81.169.173.116]:59863 "EHLO
-	rs02.intra2net.com") by vger.kernel.org with ESMTP id S1750806AbVLBQ2s convert rfc822-to-8bit
+	Fri, 2 Dec 2005 11:32:45 -0500
+Received: from nproxy.gmail.com ([64.233.182.194]:30192 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750810AbVLBQco convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 11:28:48 -0500
-From: Thomas Jarosch <thomas.jarosch@intra2net.com>
-Organization: Intra2net AG
-To: linux-kernel@vger.kernel.org
-Subject: sata performance with 2.4.32 + latest libata
-Date: Fri, 2 Dec 2005 17:28:35 +0100
-User-Agent: KMail/1.8.3
-Cc: linux-ide@vger.kernel.org
+	Fri, 2 Dec 2005 11:32:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=AvAPyi01jhxT8fk71833fSi0pyS+r6EukM81NS8yWab9lee++7P1KP8NREUO7Pnrxjo9Mw7JyNFD+cjd20zEz2Irl4FX0nlhPFti8TgOeu+z9kwKVUtDmUQnNbxqBJgWLTSpYL4y+7dR6f5o5aJPe4IXaKovf1JnqTO1+/j9KPk=
+Message-ID: <2cd57c900512020832n62a66d1q@mail.gmail.com>
+Date: Sat, 3 Dec 2005 00:32:40 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: Use enum to declare errno values
+Cc: Denis Vlasenko <vda@ilport.com.ua>,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Paul Jackson <pj@sgi.com>, francis_moreau2000@yahoo.fr,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <4390701C.1030803@tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200512021728.35130.thomas.jarosch@intra2net.com>
+References: <20051123132443.32793.qmail@web25813.mail.ukl.yahoo.com>
+	 <20051123233016.4a6522cf.pj@sgi.com>
+	 <Pine.LNX.4.61.0512011458280.21933@chaos.analogic.com>
+	 <200512020849.28475.vda@ilport.com.ua>
+	 <2cd57c900512020127m5c7ca8e1u@mail.gmail.com>
+	 <84144f020512020418x7ebf5e3bt54cde14ec6a7a954@mail.gmail.com>
+	 <2cd57c900512020456n2f31101k@mail.gmail.com>
+	 <4390701C.1030803@tmr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+2005/12/3, Bill Davidsen <davidsen@tmr.com>:
+> Using enum doesn't *solve* problems, it does *allow* type checking, and
+> *prevent* namespace pollution. Use of typedef allows future changes, if
+> you use "struct XXX" you're stuck with it.
 
-I just tried kernel 2.4.32 + latest libata patches from 2005-12-01
-after my performance problems described here:
+Yes, Greg KH had a lecture at a KS to encourage us to "stuck with it".
+And akpm once told me to always use struct foo * when I was trying to
+use task_t in argument list and struct task_struct *.for variable
+definitions.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=113171290329839
+What do you mean by `future change'? You constantly change the struct
+name or its members? I don't see any real problem hier.
 
-Now the machine is performing very fast :-)
+>
+> --
+> bill davidsen <davidsen@tmr.com>
+>    CTO TMR Associates, Inc
+>    Doing interesting things with small computers since 1979
+>
 
-Results with 2.4.32 + libata latest:
-Version  1.03       ------Sequential Output------ --Sequential Input- --Random-
-                    -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
-Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
-proliant         2G 33294  91 57592  20 26778   5 30885  77 56081   5 174.2   0
-                    ------Sequential Create------ --------Random Create--------
-                    -Create-- --Read--- -Delete-- -Create-- --Read--- -Delete--
-              files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP
-                 16 27313 100 +++++ +++ 26421  99 27285 101 +++++ +++ 21477  89
-proliant,2G,33294,91,57592,20,26778,5,30885,77,56081,5,174.2,0,16,27313,100,+++++,+++,26421,99,27285,101,+++++,+++,21477,89
-
-Previous results with kernel 2.4.32-rc3:
-Version  1.03       ------Sequential Output------ --Sequential Input- --Random-
-                    -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
-Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
-proliant         2G 10523  28 11532   3  7162   1 24271  60 53495   5 164.3   0
-                    ------Sequential Create------ --------Random Create--------
-                    -Create-- --Read--- -Delete-- -Create-- --Read--- -Delete--
-              files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP
-                 16 30498 100 +++++ +++ 27244  98 29630  99 +++++ +++ 11587  46
-proliant,2G,10523,28,11532,3,7162,1,24271,60,53495,5,164.3,0,16,30498,100,+++++,+++,27244,98,29630,99,+++++,+++,11587,46
-
-A RAID1 rebuild went from 6-8 mb/s to this:
-[=================>...]  recovery = 85.9% (2202816/2562240) finish=0.1min speed=56280K/sec
-
-
-Thanks Jeff, you rock.
-
-Thomas
+--
+Coywolf Qi Hunt
+http://sosdg.org/~coywolf/

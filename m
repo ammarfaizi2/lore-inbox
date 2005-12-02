@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbVLBD0p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbVLBD0T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964832AbVLBD0p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 22:26:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbVLBD0X
+	id S964827AbVLBD0T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 22:26:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964830AbVLBD0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 22:26:23 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:23722 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S964829AbVLBD0O
+	Thu, 1 Dec 2005 22:26:18 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:11690 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S964826AbVLBD0H
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 22:26:14 -0500
-Date: Thu, 1 Dec 2005 20:26:12 -0700
+	Thu, 1 Dec 2005 22:26:07 -0500
+Date: Thu, 1 Dec 2005 20:26:05 -0700
 From: john stultz <johnstul@us.ibm.com>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Ingo Molnar <mingo@elte.hu>, Darren Hart <dvhltc@us.ibm.com>,
@@ -20,801 +20,345 @@ Cc: Ingo Molnar <mingo@elte.hu>, Darren Hart <dvhltc@us.ibm.com>,
        Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
        Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
        john stultz <johnstul@us.ibm.com>
-Message-Id: <20051202032611.19357.52411.sendpatchset@cog.beaverton.ibm.com>
+Message-Id: <20051202032604.19357.59425.sendpatchset@cog.beaverton.ibm.com>
 In-Reply-To: <20051202032551.19357.51421.sendpatchset@cog.beaverton.ibm.com>
 References: <20051202032551.19357.51421.sendpatchset@cog.beaverton.ibm.com>
-Subject: [PATCH 3/13] Time: Clocksource Infrastructure
+Subject: [PATCH 2/13] Time: Reduced NTP Rework (part 2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 All,
-	This patch introduces the clocksource management infrastructure. A
-clocksource is a driver-like architecture generic abstraction of a
-freerunning counter. This patch defines the clocksource structure, and
-provides management code for registering, selecting, accessing and
-scaling clocksources. The clocksource structure is influenced by the
-time_interpolator code, although I feel it has a cleaner interface and
-avoids preserving system state in the clocksource structure.
+	Here is the second of two patches which try to minimize my ntp rework
+patches.
+	
+This patch further changes the interrupt time NTP code, breaking out the
+leapsecond processing and introduces an accessor to a shifted ppm
+adjustment value. For correctness, I've also introduced a new lock, the
+ntp_lock, which protects the NTP state machine when accessing it from my
+timekeeping code (which does not use the xtime_lock).
 
-Additionally, this patch includes the trivial jiffies clocksource, a
-lowest common denominator clocksource, provided mainly for use as an
-example.
-
-This patch applies on top of my ntp cleanup patchset.
-
-Since this patch provides the groundwork for the generic timeofday core,
-it will not function without the generic timeofday patches to follow.
+Again, this patch should not affect the existing behavior, but just
+separate the logical functionality so it can be re-used by my timeofday
+patches.
 
 thanks
 -john
 
 Signed-off-by: John Stultz <johnstul@us.ibm.com>
 
- Documentation/kernel-parameters.txt |   14 +
- include/linux/clocksource.h         |  304 ++++++++++++++++++++++++++++++++++
- kernel/Makefile                     |    1 
- kernel/time/Makefile                |    1 
- kernel/time/clocksource.c           |  313 ++++++++++++++++++++++++++++++++++++
- kernel/time/jiffies.c               |   75 ++++++++
- 6 files changed, 704 insertions(+), 4 deletions(-)
+ include/linux/timex.h |   23 +++++++
+ kernel/time.c         |    8 +-
+ kernel/timer.c        |  144 ++++++++++++++++++++++++++++++++++++++++++++++++--
+ 3 files changed, 165 insertions(+), 10 deletions(-)
 
-linux-2.6.15-rc3-mm1_timeofday-clocksource-core_B12.patch
-============================================
-diff -ruN tod-mm1/Documentation/kernel-parameters.txt tod-mm2/Documentation/kernel-parameters.txt
---- tod-mm1/Documentation/kernel-parameters.txt	2005-12-01 18:54:24.000000000 -0800
-+++ tod-mm2/Documentation/kernel-parameters.txt	2005-12-01 18:58:45.000000000 -0800
-@@ -52,6 +52,7 @@
- 	MTD	MTD support is enabled.
- 	NET	Appropriate network support is enabled.
- 	NUMA	NUMA support is enabled.
-+	GENERIC_TIME The generic timeofday code is enabled.
- 	NFS	Appropriate NFS support is enabled.
- 	OSS	OSS sound support is enabled.
- 	PARIDE	The ParIDE subsystem is enabled.
-@@ -329,10 +330,11 @@
- 			Value can be changed at runtime via
- 				/selinux/checkreqprot.
+linux-2.6.15-rc3-mm1_timeofday-ntp-part2_B12.patch
+==========================
+diff -ruN tod-mm1/include/linux/timex.h tod-mm2/include/linux/timex.h
+--- tod-mm1/include/linux/timex.h	2005-12-01 18:13:36.000000000 -0800
++++ tod-mm2/include/linux/timex.h	2005-12-01 18:20:41.000000000 -0800
+@@ -260,6 +260,8 @@
+ extern long pps_errcnt;		/* calibration errors */
+ extern long pps_stbcnt;		/* stability limit exceeded */
  
-- 	clock=		[BUGS=IA-32,HW] gettimeofday timesource override.
--			Forces specified timesource (if avaliable) to be used
--			when calculating gettimeofday(). If specicified
--			timesource is not avalible, it defaults to PIT.
-+	clock=		[BUGS=IA-32, HW] gettimeofday clocksource override.
-+			[Deprecated]
-+			Forces specified clocksource (if avaliable) to be used
-+			when calculating gettimeofday(). If specified
-+			clocksource is not avalible, it defaults to PIT.
- 			Format: { pit | tsc | cyclone | pmtmr }
- 
- 	hpet=		[IA-32,HPET] option to disable HPET and use PIT.
-@@ -1478,6 +1480,10 @@
- 
- 	time		Show timing data prefixed to each printk message line
- 
-+	clocksource=	[GENERIC_TIME] Override the default clocksource
-+			Override the default clocksource and use the clocksource
-+			with the name specified.
++extern seqlock_t ntp_lock;
 +
- 	tipar.timeout=	[HW,PPT]
- 			Set communications timeout in tenths of a second
- 			(default 15).
-diff -ruN tod-mm1/include/linux/clocksource.h tod-mm2/include/linux/clocksource.h
---- tod-mm1/include/linux/clocksource.h	1969-12-31 16:00:00.000000000 -0800
-+++ tod-mm2/include/linux/clocksource.h	2005-12-01 18:58:45.000000000 -0800
-@@ -0,0 +1,304 @@
-+/*  linux/include/linux/clocksource.h
-+ *
-+ *  This file contains the structure definitions for clocksources.
-+ *
-+ *  If you are not a clocksource, or the time of day code, you should
-+ *  not be including this file!
+ /**
+  * ntp_clear - Clears the NTP state variables
+  *
+@@ -267,21 +269,40 @@
+  */
+ static inline void ntp_clear(void)
+ {
++	unsigned long flags;
++
++	write_seqlock_irqsave(&ntp_lock, flags);
+ 	time_adjust = 0;		/* stop active adjtime() */
+ 	time_status |= STA_UNSYNC;
+ 	time_maxerror = NTP_PHASE_LIMIT;
+ 	time_esterror = NTP_PHASE_LIMIT;
++	write_sequnlock_irqrestore(&ntp_lock, flags);
+ }
+ 
+ /**
+  * ntp_synced - Returns 1 if the NTP status is not UNSYNC
+- *
+  */
+ static inline int ntp_synced(void)
+ {
+ 	return !(time_status & STA_UNSYNC);
+ }
+ 
++/**
++ * ntp_get_ppm_adjustment - Returns Shifted PPM adjustment
 + */
-+#ifndef _LINUX_CLOCKSOURCE_H
-+#define _LINUX_CLOCKSOURCE_H
-+
-+#include <linux/types.h>
-+#include <linux/timex.h>
-+#include <linux/time.h>
-+#include <linux/list.h>
-+#include <asm/div64.h>
-+#include <asm/io.h>
++extern long ntp_get_ppm_adjustment(void);
 +
 +/**
-+ * struct clocksource - hardware abstraction for a free running counter
-+ *	Provides mostly state-free accessors to the underlying hardware.
-+ *
-+ * @name:		ptr to clocksource name
-+ * @list:		list head for registration
-+ * @rating:		rating value for selection (higher is better)
-+ *			To avoid rating inflation the following
-+ *			list should give you a guide as to how
-+ *			to assign your clocksource a rating
-+ *			1-99: Unfit for real use
-+ *				Only available for bootup and testing purposes.
-+ *			100-199: Base level usability.
-+ *				Functional for real use, but not desired.
-+ *			200-299: Good.
-+ *				A correct and usable clocksource.
-+ *			300-399: Desired.
-+ *				A reasonably fast and accurate clocksource.
-+ *			400-499: Perfect
-+ *				The ideal clocksource. A must-use where
-+ *				available.
-+ * @read:		returns a cycle value
-+ * @mask:		bitmask for two's complement
-+ *			subtraction of non 64 bit counters
-+ * @mult:		cycle to nanosecond multiplier
-+ * @shift:		cycle to nanosecond divisor (power of two)
-+ * @update_callback:	called when safe to alter clocksource values
-+ * @is_continuous:	defines if clocksource is free-running.
-+ * @vread:		vsyscall read function
-+ * @vdata:		vsyscall data value passed to read function
++ * ntp_advance - Advances the NTP state machine by interval_ns
 + */
-+struct clocksource {
-+	char *name;
-+	struct list_head list;
-+	int rating;
-+	cycle_t (*read)(void);
-+	cycle_t mask;
-+	u32 mult;
-+	u32 shift;
-+	int (*update_callback)(void);
-+	int is_continuous;
-+	cycle_t (*vread)(void *);
-+	void *vdata;
-+};
-+
++extern void ntp_advance(unsigned long interval_ns);
 +
 +/**
-+ * clocksource_khz2mult - calculates mult from khz and shift
-+ * @khz:		Clocksource frequency in KHz
-+ * @shift_constant:	Clocksource shift factor
-+ *
-+ * Helper functions that converts a khz counter frequency to a timsource
-+ * multiplier, given the clocksource shift value
++ * ntp_leapsecond - NTP leapsecond processing code.
 + */
-+static inline u32 clocksource_khz2mult(u32 khz, u32 shift_constant)
++extern int ntp_leapsecond(struct timespec now);
++
++
+ /* Required to safely shift negative values */
+ #define shift_right(x, s) ({	\
+ 	__typeof__(x) __x = (x);	\
+diff -ruN tod-mm1/kernel/time.c tod-mm2/kernel/time.c
+--- tod-mm1/kernel/time.c	2005-12-01 18:13:40.000000000 -0800
++++ tod-mm2/kernel/time.c	2005-12-01 18:20:41.000000000 -0800
+@@ -255,6 +255,8 @@
+ 			return -EINVAL;
+ 
+ 	write_seqlock_irq(&xtime_lock);
++	write_seqlock(&ntp_lock);
++
+ 	result = time_state;	/* mostly `TIME_OK' */
+ 
+ 	/* Save for later - semantics of adjtime is to return old value */
+@@ -392,6 +394,7 @@
+ 	txc->calcnt	   = pps_calcnt;
+ 	txc->errcnt	   = pps_errcnt;
+ 	txc->stbcnt	   = pps_stbcnt;
++	write_sequnlock(&ntp_lock);
+ 	write_sequnlock_irq(&xtime_lock);
+ 	do_gettimeofday(&txc->time);
+ 	notify_arch_cmos_timer();
+@@ -509,10 +512,7 @@
+ 		set_normalized_timespec(&xtime, sec, nsec);
+ 		set_normalized_timespec(&wall_to_monotonic, wtm_sec, wtm_nsec);
+ 
+-		time_adjust = 0;		/* stop active adjtime() */
+-		time_status |= STA_UNSYNC;
+-		time_maxerror = NTP_PHASE_LIMIT;
+-		time_esterror = NTP_PHASE_LIMIT;
++		ntp_clear();
+ 		time_interpolator_reset();
+ 	}
+ 	write_sequnlock_irq(&xtime_lock);
+diff -ruN tod-mm1/kernel/timer.c tod-mm2/kernel/timer.c
+--- tod-mm1/kernel/timer.c	2005-12-01 18:20:20.000000000 -0800
++++ tod-mm2/kernel/timer.c	2005-12-01 18:20:41.000000000 -0800
+@@ -588,7 +588,6 @@
+ long time_precision = 1;		/* clock precision (us)		*/
+ long time_maxerror = NTP_PHASE_LIMIT;	/* maximum error (us)		*/
+ long time_esterror = NTP_PHASE_LIMIT;	/* estimated error (us)		*/
+-static long time_phase;			/* phase offset (scaled us)	*/
+ long time_freq = (((NSEC_PER_SEC + HZ/2) % HZ - HZ/2) << SHIFT_USEC) / NSEC_PER_USEC;
+ 					/* frequency offset (scaled ppm)*/
+ static long time_adj;			/* tick adjust (scaled 1 / HZ)	*/
+@@ -597,8 +596,91 @@
+ long time_next_adjust;
+ long time_adjust_step;			/* per tick time_adjust step */
+ 
++long total_sppm;			/* shifted ppm sum of all adjustments */
++long offset_adj_ppm;
++long tick_adj_ppm;
++long singleshot_adj_ppm;
++
++#define MAX_SINGLESHOT_ADJ	500	/* (ppm) */
++#define SEC_PER_DAY		86400
++#define END_OF_DAY(x)		((x) + SEC_PER_DAY - ((x) % SEC_PER_DAY) - 1)
++
++/* NTP lock, protects NTP state machine */
++seqlock_t ntp_lock = SEQLOCK_UNLOCKED;
++
++/**
++ * ntp_leapsecond - NTP leapsecond processing code.
++ * now: the current time
++ *
++ * Returns the number of seconds (-1, 0, or 1) that
++ * should be added to the current time to properly
++ * adjust for leapseconds.
++ */
++int ntp_leapsecond(struct timespec now)
 +{
-+	/*  khz = cyc/(Million ns)
-+	 *  mult/2^shift  = ns/cyc
-+	 *  mult = ns/cyc * 2^shift
-+	 *  mult = 1Million/khz * 2^shift
-+	 *  mult = 1000000 * 2^shift / khz
-+	 *  mult = (1000000<<shift) / khz
++	/*
++	 * Leap second processing. If in leap-insert state at
++	 * the end of the day, the system clock is set back one
++	 * second; if in leap-delete state, the system clock is
++	 * set ahead one second.
 +	 */
-+	u64 tmp = ((u64)1000000) << shift_constant;
++	static time_t leaptime = 0;
 +
-+	tmp += khz/2; /* round for do_div */
-+	do_div(tmp, khz);
++	unsigned long flags;
++	int ret = 0;
 +
-+	return (u32)tmp;
-+}
++	write_seqlock_irqsave(&ntp_lock, flags);
 +
-+/**
-+ * clocksource_hz2mult - calculates mult from hz and shift
-+ * @hz:			Clocksource frequency in Hz
-+ * @shift_constant:	Clocksource shift factor
-+ *
-+ * Helper functions that converts a hz counter
-+ * frequency to a timsource multiplier, given the
-+ * clocksource shift value
-+ */
-+static inline u32 clocksource_hz2mult(u32 hz, u32 shift_constant)
-+{
-+	/*  hz = cyc/(Billion ns)
-+	 *  mult/2^shift  = ns/cyc
-+	 *  mult = ns/cyc * 2^shift
-+	 *  mult = 1Billion/hz * 2^shift
-+	 *  mult = 1000000000 * 2^shift / hz
-+	 *  mult = (1000000000<<shift) / hz
-+	 */
-+	u64 tmp = ((u64)1000000000) << shift_constant;
++	switch (time_state) {
 +
-+	tmp += hz/2; /* round for do_div */
-+	do_div(tmp, hz);
++	case TIME_OK:
++		if (time_status & STA_INS) {
++			time_state = TIME_INS;
++			leaptime = END_OF_DAY(now.tv_sec);
++		} else if (time_status & STA_DEL) {
++			time_state = TIME_DEL;
++			leaptime = END_OF_DAY(now.tv_sec);
++		}
++		break;
 +
-+	return (u32)tmp;
-+}
++	case TIME_INS:
++		/* Once we are at (or past) leaptime, insert the second */
++		if (now.tv_sec >= leaptime) {
++			time_state = TIME_OOP;
++			printk(KERN_NOTICE "Clock: inserting leap second 23:59:60 UTC\n");
++			ret = -1;
++		}
++		break;
 +
-+/**
-+ * read_clocksource: - Access the clocksource's current cycle value
-+ * @cs:		pointer to clocksource being read
-+ *
-+ * Uses the clocksource to return the current cycle_t value
-+ */
-+static inline cycle_t read_clocksource(struct clocksource *cs)
-+{
-+	return cs->read();
-+}
++	case TIME_DEL:
++		/* Once we are at (or past) leaptime, delete the second */
++		if (now.tv_sec >= leaptime) {
++			time_state = TIME_WAIT;
++			printk(KERN_NOTICE "Clock: deleting leap second 23:59:59 UTC\n");
++			ret = 1;
++		}
++		break;
 +
-+/**
-+ * ppm_to_mult_adj - Converts shifted ppm values to mult adjustment
-+ * @cs:		Pointer to clocksource
-+ * @ppm:	Shifted PPM value
-+ *
-+ * Helper which converts a shifted ppm value to clocksource mult_adj value.
-+ *
-+ * XXX - this could use some optimization
-+ */
-+static inline int ppm_to_mult_adj(struct clocksource *cs, int ppm)
-+{
-+	u64 mult_adj;
-+	int ret_adj;
++	case TIME_OOP:
++		/* Wait for the end of the leap second */
++		if (now.tv_sec > (leaptime + 1))
++			time_state = TIME_WAIT;
++		time_state = TIME_WAIT;
++		break;
 +
-+	/* The basic math is as follows:
-+	 *     cyc * mult/2^shift * (1 + ppm/MILL) = scaled ns
-+	 * We want to precalculate the ppm factor so it can be added
-+	 * to the multiplyer saving the extra multiplication step.
-+	 *     cyc * (mult/2^shift + (mult/2^shift) * (ppm/MILL)) =
-+	 *     cyc * (mult/2^shift + (mult*ppm/MILL)/2^shift) =
-+	 *     cyc * (mult + (mult*ppm/MILL))/2^shift =
-+	 * Thus we want to calculate the value of:
-+	 *     mult*ppm/MILL
-+	 */
-+	mult_adj = abs(ppm);
-+	mult_adj = (mult_adj * cs->mult)>>SHIFT_USEC;
-+	mult_adj += 1000000/2; /* round for div*/
-+	do_div(mult_adj, 1000000);
-+	if (ppm < 0)
-+		ret_adj = -(int)mult_adj;
-+	else
-+		ret_adj = (int)mult_adj;
-+
-+	return ret_adj;
-+}
-+
-+/**
-+ * cyc2ns - converts clocksource cycles to nanoseconds
-+ * @cs:		Pointer to clocksource
-+ * @ntp_adj:	Multiplier adjustment value
-+ * @cycles:	Cycles
-+ *
-+ * Uses the clocksource and ntp ajdustment to convert cycle_ts to nanoseconds.
-+ *
-+ * XXX - This could use some mult_lxl_ll() asm optimization
-+ */
-+static inline nsec_t cyc2ns(struct clocksource *cs, int ntp_adj, cycle_t cycles)
-+{
-+	u64 ret = (u64)cycles;
-+
-+	ret *= (cs->mult + ntp_adj);
-+	ret >>= cs->shift;
-+
-+	return (nsec_t)ret;
-+}
-+
-+/**
-+ * cyc2ns_rem - converts clocksource cycles to nanoseconds w/ remainder
-+ * @cs:		Pointer to clocksource
-+ * @ntp_adj:	Multiplier adjustment value
-+ * @cycles:	Cycles
-+ * @rem:	Remainder
-+ *
-+ * Uses the clocksource and ntp ajdustment interval to convert cycle_t to
-+ * nanoseconds. Add in remainder portion which is stored in (ns<<cs->shift)
-+ * units and save the new remainder off.
-+ *
-+ * XXX - This could use some mult_lxl_ll() asm optimization.
-+ */
-+static inline nsec_t cyc2ns_rem(struct clocksource *cs, int ntp_adj,
-+				cycle_t cycles, u64* rem)
-+{
-+	u64 ret = (u64)cycles;
-+
-+	ret *= (cs->mult + ntp_adj);
-+	if (rem) {
-+		ret += *rem;
-+		*rem = ret & ((1<<cs->shift)-1);
++	case TIME_WAIT:
++		if (!(time_status & (STA_INS | STA_DEL)))
++			time_state = TIME_OK;
++		break;
 +	}
-+	ret >>= cs->shift;
 +
-+	return (nsec_t)ret;
-+}
-+
-+
-+/**
-+ * struct clocksource_interval - Fixed interval conversion structure
-+ *
-+ * @cycles:	A specified number of cycles
-+ * @nsecs:	The number of nanoseconds equivalent to the cycles value
-+ * @remainder:	Non-integer nanosecond remainder stored in (ns<<cs->shift) units
-+ * @remainder_ns_overflow:	Value at which the remainder is equal to
-+ *				one second
-+ *
-+ * This is a optimization structure used by cyc2ns_fixed_rem() to avoid the
-+ * multiply in cyc2ns().
-+ *
-+ * Unless you're the timeofday_periodic_hook, you should not be using this!
-+ */
-+struct clocksource_interval {
-+	cycle_t cycles;
-+	nsec_t nsecs;
-+	u64 remainder;
-+	u64 remainder_ns_overflow;
-+};
-+
-+/**
-+ * calculate_clocksource_interval - Calculates a clocksource interval struct
-+ *
-+ * @c:		Pointer to clocksource.
-+ * @adj:	Multiplyer adjustment.
-+ * @length_nsec: Desired interval length in nanoseconds.
-+ *
-+ * Calculates a fixed cycle/nsec interval for a given clocksource/adjustment
-+ * pair and interval request.
-+ *
-+ * Unless you're the timeofday_periodic_hook, you should not be using this!
-+ */
-+static inline struct clocksource_interval
-+calculate_clocksource_interval(struct clocksource *c, long adj,
-+			       unsigned long length_nsec)
-+{
-+	struct clocksource_interval ret;
-+	u64 tmp;
-+
-+	/* XXX - All of this could use a whole lot of optimization */
-+	tmp = length_nsec;
-+	tmp <<= c->shift;
-+	do_div(tmp, c->mult+adj);
-+
-+	ret.cycles = (cycle_t)tmp;
-+	if(ret.cycles == 0)
-+		ret.cycles = 1;
-+
-+	ret.remainder = 0;
-+	ret.remainder_ns_overflow = 1 << c->shift;
-+	ret.nsecs = cyc2ns_rem(c, adj, ret.cycles, &ret.remainder);
++	write_sequnlock_irqrestore(&ntp_lock, flags);
 +
 +	return ret;
 +}
 +
-+/**
-+ * cyc2ns_fixed_rem -
-+ *	converts clocksource cycles to nanoseconds using fixed intervals
-+ *
-+ * @interval:	precalculated clocksource_interval structure
-+ * @cycles:	Number of clocksource cycles
-+ * @rem:	Remainder
-+ *
-+ * Uses a precalculated fixed cycle/nsec interval to convert cycles to
-+ * nanoseconds. Returns the unaccumulated cycles in the cycles pointer as
-+ * well as uses and updates the value at the remainder pointer
-+ *
-+ * Unless you're the timeofday_periodic_hook, you should not be using this!
-+ */
-+static inline nsec_t cyc2ns_fixed_rem(struct clocksource_interval interval,
-+				      cycle_t *cycles, u64* rem)
-+{
-+	nsec_t delta_nsec = 0;
-+
-+	while (*cycles > interval.cycles) {
-+		delta_nsec += interval.nsecs;
-+		*cycles -= interval.cycles;
-+		*rem += interval.remainder;
-+		while(*rem > interval.remainder_ns_overflow) {
-+			*rem -= interval.remainder_ns_overflow;
-+			delta_nsec += 1;
-+		}
-+	}
-+
-+	return delta_nsec;
-+}
-+
-+/* used to install a new clocksource */
-+void register_clocksource(struct clocksource*);
-+void reselect_clocksource(void);
-+struct clocksource* get_next_clocksource(void);
-+
-+#endif /* _LINUX_CLOCKSOURCE_H */
-diff -ruN tod-mm1/kernel/Makefile tod-mm2/kernel/Makefile
---- tod-mm1/kernel/Makefile	2005-12-01 18:55:14.000000000 -0800
-+++ tod-mm2/kernel/Makefile	2005-12-01 18:59:29.000000000 -0800
-@@ -11,6 +11,7 @@
- 	    ktimers.o
+ /*
+- * this routine handles the overflow of the microsecond field
++ * this routine handles the overflow of the nanosecond field
+  *
+  * The tricky bits of code to handle the accurate clock support
+  * were provided by Dave Mills (Mills@UDEL.EDU) of NTP fame.
+@@ -669,6 +751,13 @@
+ 		time_state = TIME_OK;
+ 	}
  
- obj-$(CONFIG_OBSOLETE_INTERMODULE) += intermodule.o
-+obj-$(CONFIG_GENERIC_TIME) += time/
- obj-$(CONFIG_FUTEX) += futex.o
- obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
- obj-$(CONFIG_SMP) += cpu.o spinlock.o
-diff -ruN tod-mm1/kernel/time/clocksource.c tod-mm2/kernel/time/clocksource.c
---- tod-mm1/kernel/time/clocksource.c	1969-12-31 16:00:00.000000000 -0800
-+++ tod-mm2/kernel/time/clocksource.c	2005-12-01 18:58:45.000000000 -0800
-@@ -0,0 +1,313 @@
-+/*
-+ * linux/kernel/time/clocksource.c
-+ *
-+ * This file contains the functions which manage clocksource drivers.
-+ *
-+ * Copyright (C) 2004, 2005 IBM, John Stultz (johnstul@us.ibm.com)
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ * TODO WishList:
-+ *   o Allow clocksource drivers to be unregistered
-+ *   o get rid of clocksource_jiffies extern
-+ */
-+
-+#include <linux/clocksource.h>
-+#include <linux/sysdev.h>
-+#include <linux/init.h>
-+#include <linux/module.h>
-+
-+/* XXX - Would like a better way for initializing curr_clocksource */
-+extern struct clocksource clocksource_jiffies;
-+
-+/*[Clocksource internal variables]---------
-+ * curr_clocksource:
-+ *	currently selected clocksource. Initialized to clocksource_jiffies.
-+ * next_clocksource:
-+ *	pending next selected clocksource.
-+ * clocksource_list:
-+ *	linked list with the registered clocksources
-+ * clocksource_lock:
-+ *	protects manipulations to curr_clocksource and next_clocksource
-+ *	and the clocksource_list
-+ * override_name:
-+ *	Name of the user-specified clocksource.
-+ */
-+static struct clocksource *curr_clocksource = &clocksource_jiffies;
-+static struct clocksource *next_clocksource;
-+static LIST_HEAD(clocksource_list);
-+static DEFINE_SPINLOCK(clocksource_lock);
-+static char override_name[32];
-+
-+/**
-+ * get_next_clocksource - Returns the selected clocksource
-+ */
-+struct clocksource *get_next_clocksource(void)
-+{
-+	spin_lock(&clocksource_lock);
-+	if (next_clocksource) {
-+		curr_clocksource = next_clocksource;
-+		next_clocksource = NULL;
-+	}
-+	spin_unlock(&clocksource_lock);
-+
-+	return curr_clocksource;
-+}
-+
-+/**
-+ * select_clocksource - Finds the best registered clocksource.
-+ *
-+ * Private function. Must hold clocksource_lock when called.
-+ */
-+static struct clocksource *select_clocksource(void)
-+{
-+	struct clocksource *best = NULL;
-+	struct list_head *tmp;
-+
-+	list_for_each(tmp, &clocksource_list) {
-+		struct clocksource *src;
-+
-+		src = list_entry(tmp, struct clocksource, list);
-+		if (!best)
-+			best = src;
-+
-+		/* check for override: */
-+		if (strlen(src->name) == strlen(override_name) &&
-+		    !strcmp(src->name, override_name)) {
-+			best = src;
-+			break;
-+		}
-+		/* pick the highest rating: */
-+		if (src->rating > best->rating)
-+		 	best = src;
++	/* Bump the maxerror field */
++	time_maxerror += time_tolerance >> SHIFT_USEC;
++	if ( time_maxerror > NTP_PHASE_LIMIT ) {
++		time_maxerror = NTP_PHASE_LIMIT;
++		time_status |= STA_UNSYNC;
 +	}
 +
-+	return best;
+ 	/*
+ 	 * Compute the phase adjustment for the next second. In PLL mode, the
+ 	 * offset is reduced by a fixed factor times the time constant. In FLL
+@@ -684,6 +773,13 @@
+ 	time_offset -= ltemp;
+ 	time_adj = ltemp << (SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
+ 
++	offset_adj_ppm = shift_right(ltemp, SHIFT_UPDATE); /* ppm */
++
++	/* first calculate usec/user_tick offset: */
++	tick_adj_ppm = ((USEC_PER_SEC + USER_HZ/2)/USER_HZ) - tick_usec;
++	/* multiply by user_hz to get usec/sec => ppm: */
++	tick_adj_ppm *= USER_HZ;
++
+ 	/*
+ 	 * Compute the frequency estimate and additional phase adjustment due
+ 	 * to frequency error for the next second. When the PPS signal is
+@@ -724,15 +820,25 @@
+ }
+ 
+ /**
++ * ntp_get_ppm_adjustment - return shifted PPM adjustment
++ */
++long ntp_get_ppm_adjustment(void)
++{
++	return total_sppm;
 +}
 +
 +/**
-+ * is_registered_source - Checks if clocksource is registered
-+ * @c:		pointer to a clocksource
-+ *
-+ * Private helper function. Must hold clocksource_lock when called.
-+ *
-+ * Returns one if the clocksource is already registered, zero otherwise.
-+ */
-+static inline int is_registered_source(struct clocksource *c)
-+{
-+	int len = strlen(c->name);
-+	struct list_head *tmp;
+  * ntp_advance - increments the NTP state machine
+  * @interval_ns: interval, in nanoseconds
+- *
+- * Must be holding the xtime writelock when calling.
+  */
+-static void ntp_advance(unsigned long interval_ns)
++void ntp_advance(unsigned long interval_ns)
+ {
+ 	static unsigned long interval_sum;
+ 
++	unsigned long flags;
 +
-+	list_for_each(tmp, &clocksource_list) {
-+		struct clocksource *src;
++	write_seqlock_irqsave(&ntp_lock, flags);
 +
-+		src = list_entry(tmp, struct clocksource, list);
-+		if (strlen(src->name) == len &&	!strcmp(src->name, c->name))
-+			return 1;
-+	}
+ 	/* increment the interval sum: */
+ 	interval_sum += interval_ns;
+ 
+@@ -759,6 +865,8 @@
+ 		}
+ 		interval_ns -= tick_nsec;
+ 	}
++	/* usec/tick => ppm: */
++	singleshot_adj_ppm = time_adjust_step*(1000000/HZ);
+ 
+ 	/* Changes by adjtime() do not take effect till next tick. */
+ 	if (time_next_adjust != 0) {
+@@ -770,6 +878,14 @@
+ 		interval_sum -= NSEC_PER_SEC;
+ 		second_overflow();
+ 	}
 +
-+	return 0;
-+}
++	/* calculate the total continuous ppm adjustment: */
++	total_sppm = time_freq; /* already shifted by SHIFT_USEC */
++	total_sppm += offset_adj_ppm << SHIFT_USEC;
++	total_sppm += tick_adj_ppm << SHIFT_USEC;
++	total_sppm += singleshot_adj_ppm << SHIFT_USEC;
 +
-+/**
-+ * register_clocksource - Used to install new clocksources
-+ * @t:		clocksource to be registered
-+ */
-+void register_clocksource(struct clocksource *c)
-+{
-+	spin_lock(&clocksource_lock);
++	write_sequnlock_irqrestore(&ntp_lock, flags);
+ }
+ 
+ /**
+@@ -779,6 +895,8 @@
+  */
+ static inline long phase_advance(void)
+ {
++	static long time_phase; /* phase offset (scaled us) */
 +
-+	/* check if clocksource is already registered */
-+	if (is_registered_source(c)) {
-+		printk("register_clocksource: Cannot register %s. Already registered!",
-+		       c->name);
-+	} else {
-+		list_add(&c->list, &clocksource_list);
-+		/* select next clocksource */
-+		next_clocksource = select_clocksource();
-+	}
-+	spin_unlock(&clocksource_lock);
-+}
+ 	long delta = 0;
+ 
+ 	time_phase += time_adj;
+@@ -797,12 +915,28 @@
+  */
+ static inline void xtime_advance(long delta_nsec)
+ {
++	int leapsecond;
 +
-+EXPORT_SYMBOL(register_clocksource);
+ 	xtime.tv_nsec += delta_nsec;
+ 	if (likely(xtime.tv_nsec < NSEC_PER_SEC))
+ 		return;
+ 
+ 	xtime.tv_nsec -= NSEC_PER_SEC;
+ 	xtime.tv_sec++;
 +
-+/**
-+ * reselect_clocksource - Rescan list for next clocksource
-+ *
-+ * A quick helper function to be used if a clocksource changes its
-+ * rating. Forces the clocksource list to be re-scaned for the best
-+ * clocksource.
-+ */
-+void reselect_clocksource(void)
-+{
-+	spin_lock(&clocksource_lock);
-+	next_clocksource = select_clocksource();
-+	spin_unlock(&clocksource_lock);
-+}
++	/* process leapsecond: */
++	leapsecond = ntp_leapsecond(xtime);
++	if (likely(!leapsecond))
++		return;
 +
-+/**
-+ * sysfs_show_current_clocksources - sysfs interface for current clocksource
-+ * @dev:	unused
-+ * @buf:	char buffer to be filled with clocksource list
-+ *
-+ * Provides sysfs interface for listing current clocksource.
-+ */
-+static ssize_t
-+sysfs_show_current_clocksources(struct sys_device *dev, char *buf)
-+{
-+	char *curr = buf;
-+
-+	spin_lock(&clocksource_lock);
-+	curr += sprintf(curr, "%s ", curr_clocksource->name);
-+	spin_unlock(&clocksource_lock);
-+
-+	curr += sprintf(curr, "\n");
-+
-+	return curr - buf;
-+}
-+
-+/**
-+ * sysfs_override_clocksource - interface for manually overriding clocksource
-+ * @dev:	unused
-+ * @buf:	name of override clocksource
-+ * @count:	length of buffer
-+ *
-+ * Takes input from sysfs interface for manually overriding the default
-+ * clocksource selction.
-+ */
-+static ssize_t sysfs_override_clocksource(struct sys_device *dev,
-+					  const char *buf, size_t count)
-+{
-+	/* strings from sysfs write are not 0 terminated! */
-+	if (count >= sizeof(override_name))
-+		return -EINVAL;
-+
-+	/* strip of \n: */
-+	if (buf[count-1] == '\n')
-+		count--;
-+	if (count < 1)
-+		return -EINVAL;
-+
-+	spin_lock(&clocksource_lock);
-+
-+	/* copy the name given: */
-+	memcpy(override_name, buf, count);
-+	override_name[count] = 0;
-+
-+	/* try to select it: */
-+	next_clocksource = select_clocksource();
-+
-+	spin_unlock(&clocksource_lock);
-+
-+	return count;
-+}
-+
-+/**
-+ * sysfs_show_available_clocksources - sysfs interface for listing clocksource
-+ * @dev:	unused
-+ * @buf:	char buffer to be filled with clocksource list
-+ *
-+ * Provides sysfs interface for listing registered clocksources
-+ */
-+static ssize_t
-+sysfs_show_available_clocksources(struct sys_device *dev, char *buf)
-+{
-+	struct list_head *tmp;
-+	char *curr = buf;
-+
-+	spin_lock(&clocksource_lock);
-+	list_for_each(tmp, &clocksource_list) {
-+		struct clocksource *src;
-+
-+		src = list_entry(tmp, struct clocksource, list);
-+		curr += sprintf(curr, "%s ", src->name);
-+	}
-+	spin_unlock(&clocksource_lock);
-+
-+	curr += sprintf(curr, "\n");
-+
-+	return curr - buf;
-+}
-+
-+/*
-+ * Sysfs setup bits:
-+ */
-+static SYSDEV_ATTR(current_clocksource, 0600, sysfs_show_current_clocksources,
-+			sysfs_override_clocksource);
-+
-+static SYSDEV_ATTR(available_clocksource, 0600,
-+			sysfs_show_available_clocksources, NULL);
-+
-+static struct sysdev_class clocksource_sysclass = {
-+	set_kset_name("clocksource"),
-+};
-+
-+static struct sys_device device_clocksource = {
-+	.id	= 0,
-+	.cls	= &clocksource_sysclass,
-+};
-+
-+static int init_clocksource_sysfs(void)
-+{
-+	int error = sysdev_class_register(&clocksource_sysclass);
-+
-+	if (!error)
-+		error = sysdev_register(&device_clocksource);
-+	if (!error)
-+		error = sysdev_create_file(
-+				&device_clocksource,
-+				&attr_current_clocksource);
-+	if (!error)
-+		error = sysdev_create_file(
-+				&device_clocksource,
-+				&attr_available_clocksource);
-+	return error;
-+}
-+
-+device_initcall(init_clocksource_sysfs);
-+
-+/**
-+ * boot_override_clocksource - boot clock override
-+ * @str:	override name
-+ *
-+ * Takes a clocksource= boot argument and uses it
-+ * as the clocksource override name.
-+ */
-+static int __init boot_override_clocksource(char* str)
-+{
-+	spin_lock(&clocksource_lock);
-+	if (str)
-+		strlcpy(override_name, str, sizeof(override_name));
-+	spin_unlock(&clocksource_lock);
-+	return 1;
-+}
-+
-+__setup("clocksource=", boot_override_clocksource);
-+
-+/**
-+ * boot_override_clock - Compatibility layer for deprecated boot option
-+ * @str:	override name
-+ *
-+ * DEPRECATED! Takes a clock= boot argument and uses it
-+ * as the clocksource override name
-+ */
-+static int __init boot_override_clock(char* str)
-+{
-+	printk("Warning! clock= boot option is deprecated.\n");
-+
-+	return boot_override_clocksource(str);
-+}
-+
-+__setup("clock=", boot_override_clock);
-diff -ruN tod-mm1/kernel/time/jiffies.c tod-mm2/kernel/time/jiffies.c
---- tod-mm1/kernel/time/jiffies.c	1969-12-31 16:00:00.000000000 -0800
-+++ tod-mm2/kernel/time/jiffies.c	2005-12-01 18:58:45.000000000 -0800
-@@ -0,0 +1,75 @@
-+/***********************************************************************
-+* linux/kernel/time/jiffies.c
-+*
-+* This file contains the jiffies based clocksource.
-+*
-+* Copyright (C) 2004, 2005 IBM, John Stultz (johnstul@us.ibm.com)
-+*
-+* This program is free software; you can redistribute it and/or modify
-+* it under the terms of the GNU General Public License as published by
-+* the Free Software Foundation; either version 2 of the License, or
-+* (at your option) any later version.
-+*
-+* This program is distributed in the hope that it will be useful,
-+* but WITHOUT ANY WARRANTY; without even the implied warranty of
-+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+* GNU General Public License for more details.
-+*
-+* You should have received a copy of the GNU General Public License
-+* along with this program; if not, write to the Free Software
-+* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+*
-+************************************************************************/
-+#include <linux/clocksource.h>
-+#include <linux/jiffies.h>
-+#include <linux/init.h>
-+
-+/* The Jiffies based clocksource is the lowest common
-+ * denominator clock source which should function on
-+ * all systems. It has the same coarse resolution as
-+ * the timer interrupt frequency HZ and it suffers
-+ * inaccuracies caused by missed or lost timer
-+ * interrupts and the inability for the timer
-+ * interrupt hardware to accuratly tick at the
-+ * requested HZ value. It is also not reccomended
-+ * for "tick-less" systems.
-+ */
-+#define NSEC_PER_JIFFY	((u32)((((u64)NSEC_PER_SEC)<<8)/ACTHZ))
-+
-+/* Since jiffies uses a simple NSEC_PER_JIFFY multiplier
-+ * conversion, the .shift value could be zero. However
-+ * this would make NTP adjustments impossible as they are
-+ * in units of 1/2^.shift. Thus we use JIFFIES_SHIFT to
-+ * shift both the nominator and denominator the same
-+ * amount, and give ntp adjustments in units of 1/2^8
-+ *
-+ * The value 8 is somewhat carefully chosen, as anything
-+ * larger can result in overflows. NSEC_PER_JIFFY grows as
-+ * HZ shrinks, so values greater then 8 overflow 32bits when
-+ * HZ=100.
-+ */
-+#define JIFFIES_SHIFT	8
-+
-+static cycle_t jiffies_read(void)
-+{
-+	return (cycle_t) get_jiffies_64();
-+}
-+
-+struct clocksource clocksource_jiffies = {
-+	.name		= "jiffies",
-+	.rating		= 0, /* lowest rating*/
-+	.read		= jiffies_read,
-+	.mask		= (cycle_t)-1,
-+	.mult		= NSEC_PER_JIFFY << JIFFIES_SHIFT, /* details above */
-+	.shift		= JIFFIES_SHIFT,
-+	.is_continuous	= 0, /* tick based, not free running */
-+};
-+
-+static int __init init_jiffies_clocksource(void)
-+{
-+	register_clocksource(&clocksource_jiffies);
-+
-+	return 0;
-+}
-+
-+module_init(init_jiffies_clocksource);
-diff -ruN tod-mm1/kernel/time/Makefile tod-mm2/kernel/time/Makefile
---- tod-mm1/kernel/time/Makefile	1969-12-31 16:00:00.000000000 -0800
-+++ tod-mm2/kernel/time/Makefile	2005-12-01 18:58:45.000000000 -0800
-@@ -0,0 +1 @@
-+obj-y += clocksource.o jiffies.o
++	xtime.tv_sec += leapsecond;
++	wall_to_monotonic.tv_sec -= leapsecond;
++	/*
++	 * Use of time interpolator for a gradual
++	 * change of time:
++	 */
++	time_interpolator_update(leapsecond*NSEC_PER_SEC);
++	clock_was_set();
+ }
+ 
+ /*

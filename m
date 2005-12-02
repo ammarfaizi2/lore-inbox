@@ -1,82 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750958AbVLBJ1n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932549AbVLBJw7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750958AbVLBJ1n (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 04:27:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751769AbVLBJ1n
+	id S932549AbVLBJw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 04:52:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932719AbVLBJw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 04:27:43 -0500
-Received: from nproxy.gmail.com ([64.233.182.194]:64276 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750958AbVLBJ1n convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 04:27:43 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pBVtVs4hHhEGcxnK4yT4wjIpHD1nIl0gzbfoL1DCtHzKBVZYaY8nJFy1g2kiJ7193F0Ht6VrS5aJT3x8BQXxfEA4nb2QD4pz8ZXDaKfVuwJYzLkhpaa7FVmSozsqQc+SbJtsv4dTnu4n/hGkE/Q+XrBlvIxTHpJvKxzwWa+LeL8=
-Message-ID: <2cd57c900512020127m5c7ca8e1u@mail.gmail.com>
-Date: Fri, 2 Dec 2005 17:27:40 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Subject: Re: Use enum to declare errno values
-Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Paul Jackson <pj@sgi.com>, francis_moreau2000@yahoo.fr,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200512020849.28475.vda@ilport.com.ua>
+	Fri, 2 Dec 2005 04:52:59 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:53406 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S932549AbVLBJw7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 04:52:59 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: swsusp intermittent failures in 2.6.15-rc3-mm1
+Date: Fri, 2 Dec 2005 10:54:02 +0100
+User-Agent: KMail/1.8.3
+Cc: Andy Isaacson <adi@hexapodia.org>, linux-kernel@vger.kernel.org
+References: <20051201173649.GA22168@hexapodia.org> <200512012242.44995.rjw@sisk.pl> <20051202005514.GA1770@elf.ucw.cz>
+In-Reply-To: <20051202005514.GA1770@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20051123132443.32793.qmail@web25813.mail.ukl.yahoo.com>
-	 <20051123233016.4a6522cf.pj@sgi.com>
-	 <Pine.LNX.4.61.0512011458280.21933@chaos.analogic.com>
-	 <200512020849.28475.vda@ilport.com.ua>
+Message-Id: <200512021054.03245.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2005/12/2, Denis Vlasenko <vda@ilport.com.ua>:
-> On Thursday 01 December 2005 22:01, linux-os (Dick Johnson) wrote:
-> > On Thu, 24 Nov 2005, Paul Jackson wrote:
-> >
-> > > If errno's were an enum type, what would be the type
-> > > of the return value of a variety of kernel routines
-> > > that now return an int, returning negative errno's on
-> > > error and zero or positive values on success?
-> >
-> > enums are 'integer types', one of the reasons why #defines
-> > which are also 'integer types' are just as useful. If you
-> > want to auto-increment these integer types, then enums are
-> > useful. Otherwise, just use definitions.
->
-> There is another reason why enums are better than #defines:
+Hi,
 
-This is a reason why enums are worse than #defines.
+On Friday, 2 of December 2005 01:55, Pavel Machek wrote:
+> > > My Thinkpad X40 (1.25 GB, ipw2200) has had fairly reliable swsusp since
+> > > 2.6.13 or thereabouts, and as recently as 2.6.15-rc1-mm1 I had about 20
+> > > successful suspend/resume cycles.  But now that I'm running
+> > > 2.6.15-rc3-mm1 I'm seeing intermittent failures like this:
+> > 
+> > Thanks a lot for the report.
+> > 
+> > The problem is apparently caused by my recent patch intended to speed up
+> > suspend.  Could you please apply the appended debug patch, try to reproduce
+> > the problem and send full dmesg output back to me?
+> > 
+> > Index: linux-2.6.15-rc3-mm1/kernel/power/swsusp.c
+> > ===================================================================
+> > --- linux-2.6.15-rc3-mm1.orig/kernel/power/swsusp.c	2005-12-01 22:13:17.000000000 +0100
+> > +++ linux-2.6.15-rc3-mm1/kernel/power/swsusp.c	2005-12-01 22:24:56.000000000 +0100
+> > @@ -635,12 +635,18 @@
+> >  	printk("Shrinking memory...  ");
+> >  	do {
+> >  #ifdef FAST_FREE
+> > -		tmp = count_data_pages() + count_highmem_pages();
+> > +		tmp = count_data_pages();
+> > +		printk("Data pages: %ld\n", tmp);
+> > +		tmp += count_highmem_pages();
+> 
+> You need at least count_data_pages() + 2*count_highmem_pages() free
+> pages (in lowmem).
 
-Unlike in other languages, C enum is not much useful in practices.
-Maybe the designer wanted C to be as fancy as other languages?  C
-shouldn't have had enum imho. Anyway we don't have any strong motives
-to switch to enums.
+Do you mean a separate page is needed for each kmalloc() in
+save_highmem_zone()?
 
->
-> file.h:
-> #define foo 123
-> enum {
->         bar = 123
-> };
->
->
-> file.c:
-> ...
-> #include "something_which_eventually_includes_file.h"
-> ...
-> int f(int foo, int bar)
-> {
->         return foo+bar;
-> }
->
-> Above program has compile-time bug, but it's rather hard
-> to see it if you are looking at file.c alone.
-> --
-> vda
---
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+Rafael
+
+
+-- 
+Beer is proof that God loves us and wants us to be happy - Benjamin Franklin

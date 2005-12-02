@@ -1,74 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbVLBVGa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbVLBVPV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750795AbVLBVGa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 16:06:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbVLBVGa
+	id S1750774AbVLBVPV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 16:15:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbVLBVPV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 16:06:30 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:42979 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750782AbVLBVG3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 16:06:29 -0500
-Message-ID: <4390B752.90006@pobox.com>
-Date: Fri, 02 Dec 2005 16:06:26 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Fri, 2 Dec 2005 16:15:21 -0500
+Received: from smtp105.sbc.mail.re2.yahoo.com ([68.142.229.100]:16059 "HELO
+	smtp105.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1750774AbVLBVPU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 16:15:20 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Ben Greear <greearb@candelatech.com>
+Subject: Re: Keyboard broken in 2.6.13.2
+Date: Fri, 2 Dec 2005 16:15:15 -0500
+User-Agent: KMail/1.8.3
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+References: <43909451.20105@candelatech.com>
+In-Reply-To: <43909451.20105@candelatech.com>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-CC: Greg KH <gregkh@suse.de>, Matthew Wilcox <matthew@wil.cx>,
-       Andi Kleen <ak@suse.de>, tom.l.nguyen@intel.com
-Subject: Status of PCI domain support?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  The lack of PCI domain support on x86-64 prevents me
-	from seeing the following devices on the PCI bus: 61:04.0 RAID bus
-	controller: Silicon Image, Inc. Adaptec AAR-1210SA SATA HostRAID
-	Controller (rev 02) 61:06.0 SCSI storage controller: LSI Logic /
-	Symbios Logic 53c1030 PCI-X Fusion-MPT Dual Ultra320 SCSI (rev 07)
-	61:06.1 SCSI storage controller: LSI Logic / Symbios Logic 53c1030
-	PCI-X Fusion-MPT Dual Ultra320 SCSI (rev 07) [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+Content-Disposition: inline
+Message-Id: <200512021615.16247.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 02 December 2005 13:37, Ben Greear wrote:
+> I have a system with a super-micro P8SCI motherboard.
+> 
+> The default FC2 kernel (2.6.10-1.771_FC2smp) works fine, but
+> when I try to boot a 2.6.13.2 kernel, I see this error:
+> 
+> i8042.c: Can't read CTR while initializing i8042
+> 
+> If I hit the keyboard early in the boot, the system will just reboot.
+> 
+> If I wait a bit, then it will boot to a prompt, but no keyboard input
+> is accepted.
+>
 
-The lack of PCI domain support on x86-64 prevents me from seeing the 
-following devices on the PCI bus:
+Does booting with "usb-handoff" boot option help any? 
 
-61:04.0 RAID bus controller: Silicon Image, Inc. Adaptec AAR-1210SA SATA 
-HostRAID Controller (rev 02)
-61:06.0 SCSI storage controller: LSI Logic / Symbios Logic 53c1030 PCI-X 
-Fusion-MPT Dual Ultra320 SCSI (rev 07)
-61:06.1 SCSI storage controller: LSI Logic / Symbios Logic 53c1030 PCI-X 
-Fusion-MPT Dual Ultra320 SCSI (rev 07)
-
-I get the following errors, unless I disable the BIOS option 'ACPI bus 
-segmentation', which is enabled by default (and will be enabled on most 
-future machines):
-
-Dec  2 10:40:18 localhost kernel: ACPI: PCI Root Bridge [PCI1] (0001:40)
-Dec  2 10:40:18 localhost kernel: PCI: Multiple domains not supported
-Dec  2 10:40:18 localhost kernel: ACPI: PCI Root Bridge [PCI2] (0002:80)
-Dec  2 10:40:18 localhost kernel: PCI: Multiple domains not supported
-
-Full machine info was just posted in another message, subject 
-"[2.6.15-rc4] oops in acpiphp".
-
-Is this a bug?  Is this expected behavior (not implemented yet)?  A 
-jump-start on tracking this down would be appreciated.
-
-	Jeff
-
-
-
+-- 
+Dmitry

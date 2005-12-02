@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbVLBCBJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964780AbVLBCDp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964778AbVLBCBJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 21:01:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964781AbVLBCBJ
+	id S964780AbVLBCDp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 21:03:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbVLBCDp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 21:01:09 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:26845 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S964778AbVLBCBH (ORCPT
+	Thu, 1 Dec 2005 21:03:45 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:10154 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S964780AbVLBCDo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 21:01:07 -0500
-Message-ID: <438FAADC.6060907@pobox.com>
-Date: Thu, 01 Dec 2005 21:01:00 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Thu, 1 Dec 2005 21:03:44 -0500
+Date: Fri, 2 Dec 2005 10:04:07 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Andrew Morton <akpm@osdl.org>
+Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org,
+       christoph@lameter.com, riel@redhat.com, a.p.zijlstra@chello.nl,
+       npiggin@suse.de, andrea@suse.de, magnus.damm@gmail.com
+Subject: Re: [PATCH 02/12] mm: supporting variables and functions for balanced zone aging
+Message-ID: <20051202020407.GA4445@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
+	Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+	linux-kernel@vger.kernel.org, christoph@lameter.com,
+	riel@redhat.com, a.p.zijlstra@chello.nl, npiggin@suse.de,
+	andrea@suse.de, magnus.damm@gmail.com
+References: <20051201101810.837245000@localhost.localdomain> <20051201101933.936973000@localhost.localdomain> <20051201023714.612f0bbf.akpm@osdl.org> <20051201222846.GA3646@dmt.cnet> <20051201150349.3538638e.akpm@osdl.org> <20051202011924.GA3516@mail.ustc.edu.cn> <20051201173015.675f4d80.akpm@osdl.org>
 MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: Ethan Chen <thanatoz@ucla.edu>, linux-kernel@vger.kernel.org,
-       Carlos Pardo <Carlos.Pardo@siliconimage.com>,
-       Linux-ide <linux-ide@vger.kernel.org>
-Subject: Re: SIL_QUIRK_MOD15WRITE workaround problem on 2.6.14
-References: <438BD351.60902@ucla.edu> <438D2792.9050105@gmail.com> <438D2DCC.4010805@pobox.com> <438D3AA8.9030504@gmail.com>
-In-Reply-To: <438D3AA8.9030504@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Tejun Heo wrote: > Ethan confirmed that it's 1095:3114.
-	Arghhh.... Maybe we should keep > m15w quirk for 3114's for the time
-	being? Better be slow than hang. > Whatever bug the m15w quirk was
-	hiding. [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051201173015.675f4d80.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo wrote:
-> Ethan confirmed that it's 1095:3114.  Arghhh....  Maybe we should keep 
-> m15w quirk for 3114's for the time being?  Better be slow than hang. 
-> Whatever bug the m15w quirk was hiding.
+On Thu, Dec 01, 2005 at 05:30:15PM -0800, Andrew Morton wrote:
+> >  But lines 865-866 together with line 846 make most shrink_zone() invocations
+> >  only run one batch of scan. The numbers become:
+> 
+> True.  Need to go into a huddle with the changelogs, but I have a feeling
+> that lines 865 and 866 aren't very important.  What happens if we remove
+> them?
 
-A generic 'slow_down_io' module option is reasonable.
+Maybe the answer is: can we accept to free 15M memory at one time for a 64G zone?
+(Or can we simply increase the DEF_PRIORITY?)
 
-It is not appropriate to apply mod15write quirk to hardware that isn't 
-affected by the chip bug.
+btw, maybe it's time to lower the low_mem_reserve.
+There should be no need to keep ~50M free memory with the balancing patch.
 
-A better solution is to write a 311x-specific interrupt handler.
-
-	Jeff
-
-
+Regards,
+Wu

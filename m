@@ -1,83 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750875AbVLBWHu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbVLBWLY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750875AbVLBWHu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 17:07:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbVLBWHu
+	id S1750899AbVLBWLY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 17:11:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbVLBWLY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 17:07:50 -0500
-Received: from zproxy.gmail.com ([64.233.162.198]:38374 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750891AbVLBWHt (ORCPT
+	Fri, 2 Dec 2005 17:11:24 -0500
+Received: from ns2.lanforge.com ([66.165.47.211]:202 "EHLO ns2.lanforge.com")
+	by vger.kernel.org with ESMTP id S1750732AbVLBWLX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 17:07:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=S2SoQDl6zK+K0IdnU+02cf1yUPPqxh9Ta+xn2jlA+sxdzmoqz+2/C+nhEEA3yeUK9BJlcp7OkasE6CwODaEjg24hdFfw4Qa3VqpmGDCI5IqI7UEUK5eAEfz+0VB696/uoseRiIV61cz92cuqhduLhhIC1aPPNNdJGPRaM2n+9pU=
-Message-ID: <a762e240512021407p5a31c0daid902352625701ca2@mail.gmail.com>
-Date: Fri, 2 Dec 2005 14:07:47 -0800
-From: Keith Mannthey <kmannth@gmail.com>
-To: Bharath Ramesh <krosswindz@gmail.com>
-Subject: Re: Only one processor detected in 8-Way opteron in 32-bit mode
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <c775eb9b0512020732v3f41f91fpb3b4b61b0b539d92@mail.gmail.com>
+	Fri, 2 Dec 2005 17:11:23 -0500
+Message-ID: <4390C683.2030507@candelatech.com>
+Date: Fri, 02 Dec 2005 14:11:15 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_1006_3002813.1133561267089"
-References: <c775eb9b0512011315y40bdbf30w172583cd85e92fa6@mail.gmail.com>
-	 <a762e240512011527s69053b8eg13ec4674c3e36b07@mail.gmail.com>
-	 <c775eb9b0512011651kb0e1cb4xf79ca20372f6d76e@mail.gmail.com>
-	 <c775eb9b0512011712x2f4f2f44t4cd11d5d6f60a9d8@mail.gmail.com>
-	 <a762e240512011742p681df3bdic16598a85926dd67@mail.gmail.com>
-	 <c775eb9b0512020732v3f41f91fpb3b4b61b0b539d92@mail.gmail.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+CC: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: Keyboard broken in 2.6.13.2
+References: <43909451.20105@candelatech.com> <200512021615.16247.dtor_core@ameritech.net>
+In-Reply-To: <200512021615.16247.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_1006_3002813.1133561267089
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Dmitry Torokhov wrote:
+> On Friday 02 December 2005 13:37, Ben Greear wrote:
+> 
+>>I have a system with a super-micro P8SCI motherboard.
+>>
+>>The default FC2 kernel (2.6.10-1.771_FC2smp) works fine, but
+>>when I try to boot a 2.6.13.2 kernel, I see this error:
+>>
+>>i8042.c: Can't read CTR while initializing i8042
+>>
+>>If I hit the keyboard early in the boot, the system will just reboot.
+>>
+>>If I wait a bit, then it will boot to a prompt, but no keyboard input
+>>is accepted.
+>>
+> 
+> 
+> Does booting with "usb-handoff" boot option help any? 
 
-Welcome to hardware bring up.  Ok I looked a little closer at the
-story.  In x86_64 the only check for valid apic is apicid < MAX_APICS
-which make sense to me.
-
-I386 has this concept of version.  Where the valid check is diffrent
-
-  if (version >=3D 0x14)
-                return apicid < 0xff;
-        else
-                return apicid < 0xf;
-
-Now the patch is sent before was a litle in haste.  Your apic version
-is 16. The valid check returns false because apicid is greater that
-0xf (0x15).  Most likey the bios entry for the apic version is wrong
-but I don't know much about that or why it matters.
-
-So what does this all mean.  Legacy.....
-
-Give this patch a whirl.
+Not sure, but acpi=no works.
 
 Thanks,
- Keith
+Ben
 
-------=_Part_1006_3002813.1133561267089
-Content-Type: application/octet-stream; name=apicid.fix
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="apicid.fix"
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
 
---- arch/i386/kernel/mpparse.c.orig	2005-12-01 15:20:51.000000000 -0800
-+++ arch/i386/kernel/mpparse.c	2005-12-01 15:21:19.000000000 -0800
-@@ -112,9 +112,10 @@
- #else
- static int MP_valid_apicid(int apicid, int version)
- {
--	if (version >= 0x14)
-+/*	if (version >= 0x14)
- 		return apicid < 0xff;
- 	else
-+*/
- 		return apicid < MAX_APICS;
- }
- #endif
-
-------=_Part_1006_3002813.1133561267089--

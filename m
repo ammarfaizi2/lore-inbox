@@ -1,105 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932695AbVLBBJi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932690AbVLBBJZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932695AbVLBBJi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 20:09:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932694AbVLBBJh
+	id S932690AbVLBBJZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 20:09:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932692AbVLBBJZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 20:09:37 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:25295 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932691AbVLBBJg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 20:09:36 -0500
-Subject: Re: [PATCH] ext3 getblocks() support for read
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Mingming Cao <cmm@us.ibm.com>
-Cc: ext2-devel <Ext2-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, akpm@osdl.org, sct@redhat.com,
-       hch@lst.de
-In-Reply-To: <438F9C66.6040209@us.ibm.com>
-References: <1133368019.27824.55.camel@localhost.localdomain>
-	 <438F9C66.6040209@us.ibm.com>
-Content-Type: text/plain
-Date: Thu, 01 Dec 2005 17:09:45 -0800
-Message-Id: <1133485785.21429.74.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Thu, 1 Dec 2005 20:09:25 -0500
+Received: from smtpout.mac.com ([17.250.248.70]:18684 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932690AbVLBBJY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 20:09:24 -0500
+In-Reply-To: <Pine.LNX.4.61.0512020146310.1609@scrub.home>
+References: <1133395019.32542.443.camel@tglx.tec.linutronix.de> <Pine.LNX.4.61.0512010118200.1609@scrub.home> <23CA09D3-4C11-4A4B-A5C6-3C38FA9C203D@mac.com> <Pine.LNX.4.61.0512011352590.1609@scrub.home> <2c0942db0512010822x1ae20622obf224ce9728e83f8@mail.gmail.com> <20051201165144.GC31551@flint.arm.linux.org.uk> <Pine.LNX.4.61.0512011828150.1609@scrub.home> <1133464097.7130.15.camel@localhost.localdomain> <Pine.LNX.4.61.0512012048140.1609@scrub.home> <Pine.LNX.4.58.0512011619590.32095@gandalf.stny.rr.com> <Pine.LNX.4.61.0512020120180.1609@scrub.home> <91D50CB6-A9B0-4501-AAD2-7D80948E7367@mac.com> <Pine.LNX.4.61.0512020146310.1609@scrub.home>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <53ECF38B-8E27-4289-9DEA-06CA8374D97D@mac.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>, johnstul@us.ibm.com,
+       george@mvista.com, mingo@elte.hu, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       ray-gmail@madrabbit.org, Russell King <rmk+lkml@arm.linux.org.uk>
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [patch 00/43] ktimer reworked
+Date: Thu, 1 Dec 2005 20:09:19 -0500
+To: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-01 at 16:59 -0800, Mingming Cao wrote:
-> Badari Pulavarty wrote:
-> > Hi,
-> > 
-> > Here is the patch to support ext3 getblocks() for non allocation
-> > cases. (for reads & re-writes). This is useful with DIO reads,
-> > DIO re-writes and to go with Christoph's getblocks() for readpages()
-> > work.
-> > 
-> > Mingming is working on adding multiblock allocation support using
-> > reservation (which can be incrementally added later).
-> > 
-> > Comments ? 
-> > 
-> 
-> My ext3 multiple block allocation patch posted a while ago
-> includes the multiple blocks map as well. Looks mostly the same way you 
-> did here, but I like the way that how the # of mapped(or allocated) 
-> blocks are returned.
-> 
-> My plan is to break the whole ext3 multiple block allocation(also does 
-> map) patch into small patches, and re-send soon.
+On Dec 01, 2005, at 20:01, Roman Zippel wrote:
+> Hi,
+>
+> On Thu, 1 Dec 2005, Kyle Moffett wrote:
+>>> I'm not against HR timer, I have a problem with using them as  
+>>> timer for
+>>> everything.
+>>
+>> This is _exactly_ why there is the timer/timeout distinction.   
+>> Some things don't care, and as a result use a timer wheel exactly  
+>> like they always have. For the things that do, however, the new  
+>> timer API provides it using the fastest hardware interface available.
+>
+> This is about kernel programming - people should care.
 
-Cool. Can you handle this one too then ?
+My _point_ is that some code doesn't care about accuracy.  If a  
+networking timeout occurs a half-second later than it should, nothing  
+bad happens.  We have configurable SCSI drive timeouts, precisely  
+because it doesn't really matter all that much if we deliver it now  
+or give the drive a couple seconds extra time to try to respond  
+before signalling a reset.  And I agree with you that people should  
+care, this distinction is important.
 
-> 
-> > @@ -681,9 +683,10 @@ ext3_get_block_handle(handle_t *handle, 
-> >  	Indirect *partial;
-> >  	unsigned long goal;
-> >  	int left;
-> > -	int boundary = 0;
-> > -	const int depth = ext3_block_to_path(inode, iblock, offsets, &boundary);
-> > +	int blks_boundary = 0;
-> > +	const int depth = ext3_block_to_path(inode, iblock, offsets, &blks_boundary);
-> >  	struct ext3_inode_info *ei = EXT3_I(inode);
-> > +	int count = 1;
-> >  
-> >  	J_ASSERT(handle != NULL || create == 0);
-> >  
-> > @@ -694,7 +697,18 @@ ext3_get_block_handle(handle_t *handle, 
-> >  
-> >  	/* Simplest case - block found, no allocation needed */
-> >  	if (!partial) {
-> > +		unsigned long first_block = le32_to_cpu(chain[depth-1].key);
-> > +
-> >  		clear_buffer_new(bh_result);
-> > +
-> > +		/*
-> > +		 * Find all the contiguous blocks and return at once.
-> > +		 */
-> > +		while (count < max_blocks && count <= blks_boundary &&
-> > +			(le32_to_cpu(*(chain[depth-1].p+count)) == 
-> > +				(first_block + count))) {
-> > +			count++;
-> > +		}
-> >  		goto got_it;
-> >  	}
-> > 
-> Here we need to be careful about the branch we just read, since we are 
-> looking up multiple blocks (they are on the same branch) at the same 
-> time, it is possible that during the look up, another threads is 
-> trucating the same branch we are trying to map.  Before since we are 
-> doing only one look up, a simple verify_chain() should be safe.
-> 
-> The simple way is, for the non-allocation case,  take the truncate_sem 
-> before the ext3_get_branch, like for the allocation-case, even for the 
-> simple case -- but that probably will slow down the non-allocation, 
-> probably a bad option.  But we could re-check(calling 
-> verify_chain())inside the while loop.
+> We have enough crap as it is. timer wheel is fast as well, but  
+> everything has its limits, putting this focus completely to  
+> delivery is nonsense. It can't be that difficult to put together a  
+> decent list of criteria, where to use which timer.
 
-I don't think we can slowdown non-allocation read case, may be re-check
-is a better idea ?
+A ktimer should be used where the common case is the timer being  
+added and expiring.  A ktimeout should be used where the common case  
+is the timer being added and removed before it expires.  Simple enough?
 
-Thanks,
-Badari
+Cheers,
+Kyle Moffett
+
+--
+I lost interest in "blade servers" when I found they didn't throw  
+knives at people who weren't supposed to be in your machine room.
+   -- Anthony de Boer
+
 

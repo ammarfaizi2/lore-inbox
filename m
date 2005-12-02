@@ -1,35 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbVLBEHE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751660AbVLBEqb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751090AbVLBEHE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 23:07:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbVLBEHE
+	id S1751660AbVLBEqb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 23:46:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751661AbVLBEqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 23:07:04 -0500
-Received: from sccrmhc13.comcast.net ([63.240.77.83]:54174 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S1751090AbVLBEHD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 23:07:03 -0500
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] add boot option to control Intel combined mode behavior (to allow DMA in combined mode configs!)
-Date: Thu, 1 Dec 2005 20:07:04 -0800
-User-Agent: KMail/1.8.92
-Cc: linux-kernel@vger.kernel.org
-References: <200511282306.38515.jbarnes@virtuousgeek.org> <438CCE0D.7090304@pobox.com> <200511291415.07306.jbarnes@virtuousgeek.org>
-In-Reply-To: <200511291415.07306.jbarnes@virtuousgeek.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-6"
+	Thu, 1 Dec 2005 23:46:31 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:54480 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750861AbVLBEqa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 23:46:30 -0500
+Date: Thu, 1 Dec 2005 20:45:49 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: wfg@mail.ustc.edu.cn, marcelo.tosatti@cyclades.com,
+       linux-kernel@vger.kernel.org, christoph@lameter.com, riel@redhat.com,
+       a.p.zijlstra@chello.nl, npiggin@suse.de, magnus.damm@gmail.com
+Subject: Re: [PATCH 02/12] mm: supporting variables and functions for
+ balanced zone aging
+Message-Id: <20051201204549.68d3efac.akpm@osdl.org>
+In-Reply-To: <20051202021811.GB28539@opteron.random>
+References: <20051201101810.837245000@localhost.localdomain>
+	<20051201101933.936973000@localhost.localdomain>
+	<20051201023714.612f0bbf.akpm@osdl.org>
+	<20051201222846.GA3646@dmt.cnet>
+	<20051201150349.3538638e.akpm@osdl.org>
+	<20051202011924.GA3516@mail.ustc.edu.cn>
+	<20051201173015.675f4d80.akpm@osdl.org>
+	<20051202020407.GA4445@mail.ustc.edu.cn>
+	<20051202021811.GB28539@opteron.random>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512012007.04536.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just FYI, I tested this new patch (the one that changes the option from 
-intel_combined_mode= to combined_mode=) and it works great.  Please 
-push it upstream after 2.6.15 comes out; I think lots of people will 
-benefit from being able to turn on DMA.
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> low_mem_reserve
 
-Thanks,
-Jesse
+I've a suspicion that the addition of the dma32 zone might have
+broken this.

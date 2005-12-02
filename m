@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964840AbVLBD11@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbVLBD27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964840AbVLBD11 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 22:27:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964830AbVLBD07
+	id S964843AbVLBD27 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 22:28:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbVLBD1f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 22:26:59 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:13739 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S964834AbVLBD0p
+	Thu, 1 Dec 2005 22:27:35 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:62673 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S964835AbVLBD1S
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 22:26:45 -0500
-Date: Thu, 1 Dec 2005 20:26:43 -0700
+	Thu, 1 Dec 2005 22:27:18 -0500
+Date: Thu, 1 Dec 2005 20:27:16 -0700
 From: john stultz <johnstul@us.ibm.com>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Ingo Molnar <mingo@elte.hu>, Darren Hart <dvhltc@us.ibm.com>,
@@ -20,114 +20,570 @@ Cc: Ingo Molnar <mingo@elte.hu>, Darren Hart <dvhltc@us.ibm.com>,
        Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
        Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
        john stultz <johnstul@us.ibm.com>
-Message-Id: <20051202032642.19357.83975.sendpatchset@cog.beaverton.ibm.com>
+Message-Id: <20051202032715.19357.95561.sendpatchset@cog.beaverton.ibm.com>
 In-Reply-To: <20051202032551.19357.51421.sendpatchset@cog.beaverton.ibm.com>
 References: <20051202032551.19357.51421.sendpatchset@cog.beaverton.ibm.com>
-Subject: [PATCH 7/13] Time: i386 Conversion - part 3: Rework TSC Support
+Subject: [PATCH 12/13] Time: x86-64 Conversion to Generic Timekeeping
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 All,
-	The conversion of i386 to use the generic timeofday subsystem has been
-split into 6 parts. This patch, the third of six, reworks some of the
-code in the new tsc.c file, adding some new interfaces and hooks to use
-these new interfaces appropriately. 
-
-It applies on top of my timeofday-arch-i386-part2 patch. This patch is
-part the timeofday-arch-i386 patchset, so without the following parts it
-is not expected to compile.
+	This patch converts the x86-64 arch to use the generic timeofday
+infrastructure. It applies on top of my timeofday-core  patch. This is a
+full conversion, so most of this patch is subtractions removing the
+existing arch specific time keeping code. This patch does not provide
+any x86-64 clocksourcs, so using this patch alone on top of the
+timeofday-core patch will only give you the jiffies clocksource. To get
+full replacements for the code being removed here, the following
+timeofday-clocks-i386 patch (x86-64 shares the same clocksources as
+i386) will need to be applied.
 	
+Please note, this patch is not yet ready for submission, but is being
+maintained as an example of how the generic framework supports multiple
+arches with different features (such as vsyscall). That said, I'd still
+appreciate any suggestions for improvements to this code.
+
 thanks
 -john
 
 Signed-off-by: John Stultz <johnstul@us.ibm.com>
 
- arch/i386/kernel/setup.c                    |    1 
- arch/i386/kernel/tsc.c                      |  213 +++++++++++++++-------------
- drivers/acpi/processor_idle.c               |    6 
- include/asm-i386/mach-default/mach_timer.h  |    4 
- include/asm-i386/mach-summit/mach_mpparse.h |    3 
- include/asm-i386/tsc.h                      |   12 +
- 6 files changed, 138 insertions(+), 101 deletions(-)
+ arch/i386/kernel/acpi/boot.c     |    9 
+ arch/x86_64/Kconfig              |    8 
+ arch/x86_64/kernel/Makefile      |    1 
+ arch/x86_64/kernel/pmtimer.c     |  101 -------
+ arch/x86_64/kernel/time.c        |  540 +++++++++++++++------------------------
+ arch/x86_64/kernel/vmlinux.lds.S |   12 
+ arch/x86_64/kernel/vsyscall.c    |  137 +++++++--
+ include/asm-generic/div64.h      |    9 
+ include/asm-x86_64/hpet.h        |    3 
+ include/asm-x86_64/timeofday.h   |    4 
+ include/asm-x86_64/timex.h       |    2 
+ include/asm-x86_64/vsyscall.h    |    8 
+ 12 files changed, 376 insertions(+), 458 deletions(-)
 
-linux-2.6.15-rc3-mm1_timeofday-arch-i386-part3_B12.patch
+linux-2.6.15-rc3-mm1_timeofday-arch-x86-64_B12.patch
 ==========================
-diff -ruN tod-mm1/arch/i386/kernel/setup.c tod-mm2/arch/i386/kernel/setup.c
---- tod-mm1/arch/i386/kernel/setup.c	2005-12-01 18:12:56.000000000 -0800
-+++ tod-mm2/arch/i386/kernel/setup.c	2005-12-01 18:25:11.000000000 -0800
-@@ -1628,6 +1628,7 @@
- 	conswitchp = &dummy_con;
- #endif
- #endif
-+	tsc_init();
+diff -ruN tod-mm1/arch/i386/kernel/acpi/boot.c tod-mm2/arch/i386/kernel/acpi/boot.c
+--- tod-mm1/arch/i386/kernel/acpi/boot.c	2005-12-01 18:25:39.000000000 -0800
++++ tod-mm2/arch/i386/kernel/acpi/boot.c	2005-12-01 18:27:40.000000000 -0800
+@@ -567,7 +567,7 @@
  }
  
- #include "setup_arch_post.h"
-diff -ruN tod-mm1/arch/i386/kernel/tsc.c tod-mm2/arch/i386/kernel/tsc.c
---- tod-mm1/arch/i386/kernel/tsc.c	2005-12-01 18:25:04.000000000 -0800
-+++ tod-mm2/arch/i386/kernel/tsc.c	2005-12-01 18:25:11.000000000 -0800
-@@ -6,13 +6,23 @@
- 
- #include <linux/workqueue.h>
- #include <linux/cpufreq.h>
-+#include <linux/jiffies.h>
- #include <linux/init.h>
- 
-+#include <asm/tsc.h>
- #include <asm/io.h>
- 
- #include "mach_timer.h"
- 
-+/*
-+ * On some systems the TSC frequency does not
-+ * change with the cpu frequency. So we need
-+ * an extra value to store the TSC freq
-+ */
-+unsigned int tsc_khz;
-+
- int tsc_disable __initdata = 0;
-+
- #ifdef CONFIG_X86_TSC
- static int __init tsc_setup(char *str)
+ #ifdef CONFIG_HPET_TIMER
+-
++#include <asm/hpet.h>
+ static int __init acpi_parse_hpet(unsigned long phys, unsigned long size)
  {
-@@ -38,15 +48,50 @@
+ 	struct acpi_table_hpet *hpet_tbl;
+@@ -589,6 +589,7 @@
+ #ifdef	CONFIG_X86_64
+ 	vxtime.hpet_address = hpet_tbl->addr.addrl |
+ 	    ((long)hpet_tbl->addr.addrh << 32);
++	hpet_address = vxtime.hpet_address;
  
- int read_current_timer(unsigned long *timer_val)
- {
--	if (cur_timer->read_timer) {
--		*timer_val = cur_timer->read_timer();
-+	if (!tsc_disable && cpu_khz) {
-+		rdtscl(*timer_val);
- 		return 0;
+ 	printk(KERN_INFO PREFIX "HPET id: %#x base: %#lx\n",
+ 	       hpet_tbl->id, vxtime.hpet_address);
+@@ -597,10 +598,10 @@
+ 		extern unsigned long hpet_address;
+ 
+ 		hpet_address = hpet_tbl->addr.addrl;
+-		printk(KERN_INFO PREFIX "HPET id: %#x base: %#lx\n",
+-		       hpet_tbl->id, hpet_address);
  	}
- 	return -1;
+-#endif				/* X86 */
++#endif	/* X86 */
++		printk(KERN_INFO PREFIX "HPET id: %#x base: %#lx\n",
++			hpet_tbl->id, hpet_address);
+ 
+ 	return 0;
+ }
+diff -ruN tod-mm1/arch/x86_64/Kconfig tod-mm2/arch/x86_64/Kconfig
+--- tod-mm1/arch/x86_64/Kconfig	2005-12-01 18:13:01.000000000 -0800
++++ tod-mm2/arch/x86_64/Kconfig	2005-12-01 18:27:40.000000000 -0800
+@@ -24,6 +24,14 @@
+ 	bool
+ 	default y
+ 
++config GENERIC_TIME
++       bool
++       default y
++
++config GENERIC_TIME_VSYSCALL
++       bool
++       default y
++
+ config SEMAPHORE_SLEEPERS
+ 	bool
+ 	default y
+diff -ruN tod-mm1/arch/x86_64/kernel/Makefile tod-mm2/arch/x86_64/kernel/Makefile
+--- tod-mm1/arch/x86_64/kernel/Makefile	2005-12-01 18:13:01.000000000 -0800
++++ tod-mm2/arch/x86_64/kernel/Makefile	2005-12-01 18:27:40.000000000 -0800
+@@ -30,7 +30,6 @@
+ obj-$(CONFIG_GART_IOMMU)	+= pci-gart.o aperture.o
+ obj-$(CONFIG_DUMMY_IOMMU)	+= pci-nommu.o pci-dma.o
+ obj-$(CONFIG_KPROBES)		+= kprobes.o
+-obj-$(CONFIG_X86_PM_TIMER)	+= pmtimer.o
+ 
+ obj-$(CONFIG_MODULES)		+= module.o
+ obj-$(CONFIG_KGDB)		+= kgdb_stub.o
+diff -ruN tod-mm1/arch/x86_64/kernel/pmtimer.c tod-mm2/arch/x86_64/kernel/pmtimer.c
+--- tod-mm1/arch/x86_64/kernel/pmtimer.c	2005-12-01 18:13:01.000000000 -0800
++++ tod-mm2/arch/x86_64/kernel/pmtimer.c	1969-12-31 16:00:00.000000000 -0800
+@@ -1,101 +0,0 @@
+-/* Ported over from i386 by AK, original copyright was:
+- *
+- * (C) Dominik Brodowski <linux@brodo.de> 2003
+- *
+- * Driver to use the Power Management Timer (PMTMR) available in some
+- * southbridges as primary timing source for the Linux kernel.
+- *
+- * Based on parts of linux/drivers/acpi/hardware/hwtimer.c, timer_pit.c,
+- * timer_hpet.c, and on Arjan van de Ven's implementation for 2.4.
+- *
+- * This file is licensed under the GPL v2.
+- *
+- * Dropped all the hardware bug workarounds for now. Hopefully they
+- * are not needed on 64bit chipsets.
+- */
+-
+-#include <linux/jiffies.h>
+-#include <linux/kernel.h>
+-#include <linux/time.h>
+-#include <linux/init.h>
+-#include <linux/cpumask.h>
+-#include <asm/io.h>
+-#include <asm/proto.h>
+-#include <asm/msr.h>
+-#include <asm/vsyscall.h>
+-
+-/* The I/O port the PMTMR resides at.
+- * The location is detected during setup_arch(),
+- * in arch/i386/kernel/acpi/boot.c */
+-u32 pmtmr_ioport;
+-
+-/* value of the Power timer at last timer interrupt */
+-static u32 offset_delay;
+-static u32 last_pmtmr_tick;
+-
+-#define ACPI_PM_MASK 0xFFFFFF /* limit it to 24 bits */
+-
+-static inline u32 cyc2us(u32 cycles)
+-{
+-	/* The Power Management Timer ticks at 3.579545 ticks per microsecond.
+-	 * 1 / PM_TIMER_FREQUENCY == 0.27936511 =~ 286/1024 [error: 0.024%]
+-	 *
+-	 * Even with HZ = 100, delta is at maximum 35796 ticks, so it can
+-	 * easily be multiplied with 286 (=0x11E) without having to fear
+-	 * u32 overflows.
+-	 */
+-	cycles *= 286;
+-	return (cycles >> 10);
+-}
+-
+-int pmtimer_mark_offset(void)
+-{
+-	static int first_run = 1;
+-	unsigned long tsc;
+-	u32 lost;
+-
+-	u32 tick = inl(pmtmr_ioport);
+-	u32 delta;
+-
+-	delta = cyc2us((tick - last_pmtmr_tick) & ACPI_PM_MASK);
+-
+-	last_pmtmr_tick = tick;
+-	monotonic_base += delta * NSEC_PER_USEC;
+-
+-	delta += offset_delay;
+-
+-	lost = delta / (USEC_PER_SEC / HZ);
+-	offset_delay = delta % (USEC_PER_SEC / HZ);
+-
+-	rdtscll(tsc);
+-	vxtime.last_tsc = tsc - offset_delay * cpu_khz;
+-
+-	/* don't calculate delay for first run,
+-	   or if we've got less then a tick */
+-	if (first_run || (lost < 1)) {
+-		first_run = 0;
+-		offset_delay = 0;
+-	}
+-
+-	return lost - 1;
+-}
+-
+-unsigned int do_gettimeoffset_pm(void)
+-{
+-	u32 now, offset, delta = 0;
+-
+-	offset = last_pmtmr_tick;
+-	now = inl(pmtmr_ioport);
+-	delta = (now - offset) & ACPI_PM_MASK;
+-
+-	return offset_delay + cyc2us(delta);
+-}
+-
+-
+-static int __init nopmtimer_setup(char *s)
+-{
+-	pmtmr_ioport = 0;
+-	return 0;
+-}
+-
+-__setup("nopmtimer", nopmtimer_setup);
+diff -ruN tod-mm1/arch/x86_64/kernel/time.c tod-mm2/arch/x86_64/kernel/time.c
+--- tod-mm1/arch/x86_64/kernel/time.c	2005-12-01 18:13:01.000000000 -0800
++++ tod-mm2/arch/x86_64/kernel/time.c	2005-12-01 18:27:40.000000000 -0800
+@@ -26,6 +26,7 @@
+ #include <linux/bcd.h>
+ #include <linux/kallsyms.h>
+ #include <linux/acpi.h>
++
+ #ifdef CONFIG_ACPI
+ #include <acpi/achware.h>	/* for PM timer frequency */
+ #endif
+@@ -38,13 +39,12 @@
+ #include <asm/sections.h>
+ #include <linux/cpufreq.h>
+ #include <linux/hpet.h>
++#include <linux/clocksource.h>
++#include <linux/timeofday.h>
+ #ifdef CONFIG_X86_LOCAL_APIC
+ #include <asm/apic.h>
+ #endif
+ 
+-#ifdef CONFIG_CPU_FREQ
+-static void cpufreq_delayed_get(void);
+-#endif
+ extern void i8254_timer_resume(void);
+ extern int using_apic_timer;
+ 
+@@ -56,7 +56,9 @@
+ 
+ #undef HPET_HACK_ENABLE_DANGEROUS
+ 
+-unsigned int cpu_khz;					/* TSC clocks / usec, not used here */
++unsigned int cpu_khz;					/* CPU clocks / usec, not used here */
++unsigned int tsc_khz;					/* TSC clocks / usec, not used here */
++unsigned long hpet_address;
+ static unsigned long hpet_period;			/* fsecs / HPET clock */
+ unsigned long hpet_tick;				/* HPET clocks / interrupt */
+ static int hpet_use_timer;
+@@ -79,112 +81,6 @@
+ 	rdtscll(*tsc);
  }
  
-+/*
-+ * code to mark and check if the TSC is unstable
-+ * due to cpufreq or due to unsynced TSCs
-+ */
+-static inline unsigned long fixed_hpet_tick(void)
+-{
+-	return hpet_tick ? hpet_tick : 1;
+-}
+-
+-/*
+- * do_gettimeoffset() returns microseconds since last timer interrupt was
+- * triggered by hardware. A memory read of HPET is slower than a register read
+- * of TSC, but much more reliable. It's also synchronized to the timer
+- * interrupt. Note that do_gettimeoffset() may return more than hpet_tick, if a
+- * timer interrupt has happened already, but vxtime.trigger wasn't updated yet.
+- * This is not a problem, because jiffies hasn't updated either. They are bound
+- * together by xtime_lock.
+- */
+-
+-static inline unsigned int do_gettimeoffset_tsc(void)
+-{
+-	unsigned long t;
+-	unsigned long x;
+-	rdtscll_sync(&t);
+-	if (t < vxtime.last_tsc) t = vxtime.last_tsc; /* hack */
+-	x = ((t - vxtime.last_tsc) * vxtime.tsc_quot) >> 32;
+-	return x;
+-}
+-
+-static inline unsigned int do_gettimeoffset_hpet(void)
+-{
+-	/* cap counter read to one tick to avoid inconsistencies */
+-	unsigned long counter = hpet_readl(HPET_COUNTER) - vxtime.last;
+-	return (min(counter,hpet_tick) * vxtime.quot) >> 32;
+-}
+-
+-unsigned int (*do_gettimeoffset)(void) = do_gettimeoffset_tsc;
+-
+-/*
+- * This version of gettimeofday() has microsecond resolution and better than
+- * microsecond precision, as we're using at least a 10 MHz (usually 14.31818
+- * MHz) HPET timer.
+- */
+-
+-void do_gettimeofday(struct timeval *tv)
+-{
+-	unsigned long seq, t;
+- 	unsigned int sec, usec;
+-
+-	do {
+-		seq = read_seqbegin(&xtime_lock);
+-
+-		sec = xtime.tv_sec;
+-		usec = xtime.tv_nsec / 1000;
+-
+-		/* i386 does some correction here to keep the clock 
+-		   monotonous even when ntpd is fixing drift.
+-		   But they didn't work for me, there is a non monotonic
+-		   clock anyways with ntp.
+-		   I dropped all corrections now until a real solution can
+-		   be found. Note when you fix it here you need to do the same
+-		   in arch/x86_64/kernel/vsyscall.c and export all needed
+-		   variables in vmlinux.lds. -AK */ 
+-
+-		t = (jiffies - wall_jiffies) * (1000000L / HZ) +
+-			do_gettimeoffset();
+-		usec += t;
+-
+-	} while (read_seqretry(&xtime_lock, seq));
+-
+-	tv->tv_sec = sec + usec / 1000000;
+-	tv->tv_usec = usec % 1000000;
+-}
+-
+-EXPORT_SYMBOL(do_gettimeofday);
+-
+-/*
+- * settimeofday() first undoes the correction that gettimeofday would do
+- * on the time, and then saves it. This is ugly, but has been like this for
+- * ages already.
+- */
+-
+-int do_settimeofday(struct timespec *tv)
+-{
+-	time_t wtm_sec, sec = tv->tv_sec;
+-	long wtm_nsec, nsec = tv->tv_nsec;
+-
+-	if ((unsigned long)tv->tv_nsec >= NSEC_PER_SEC)
+-		return -EINVAL;
+-
+-	write_seqlock_irq(&xtime_lock);
+-
+-	nsec -= do_gettimeoffset() * 1000 +
+-		(jiffies - wall_jiffies) * (NSEC_PER_SEC/HZ);
+-
+-	wtm_sec  = wall_to_monotonic.tv_sec + (xtime.tv_sec - sec);
+-	wtm_nsec = wall_to_monotonic.tv_nsec + (xtime.tv_nsec - nsec);
+-
+-	set_normalized_timespec(&xtime, sec, nsec);
+-	set_normalized_timespec(&wall_to_monotonic, wtm_sec, wtm_nsec);
+-
+-	ntp_clear();
+-
+-	write_sequnlock_irq(&xtime_lock);
+-	clock_was_set();
+-	return 0;
+-}
+-
+-EXPORT_SYMBOL(do_settimeofday);
+-
+ unsigned long profile_pc(struct pt_regs *regs)
+ {
+ 	unsigned long pc = instruction_pointer(regs);
+@@ -284,90 +180,8 @@
+ 	spin_unlock(&rtc_lock);
+ }
+ 
+-
+-/* monotonic_clock(): returns # of nanoseconds passed since time_init()
+- *		Note: This function is required to return accurate
+- *		time even in the absence of multiple timer ticks.
+- */
+-unsigned long long monotonic_clock(void)
+-{
+-	unsigned long seq;
+- 	u32 last_offset, this_offset, offset;
+-	unsigned long long base;
+-
+-	if (vxtime.mode == VXTIME_HPET) {
+-		do {
+-			seq = read_seqbegin(&xtime_lock);
+-
+-			last_offset = vxtime.last;
+-			base = monotonic_base;
+-			this_offset = hpet_readl(HPET_COUNTER);
+-
+-		} while (read_seqretry(&xtime_lock, seq));
+-		offset = (this_offset - last_offset);
+-		offset *=(NSEC_PER_SEC/HZ)/fixed_hpet_tick();
+-		return base + offset;
+-	}else{
+-		do {
+-			seq = read_seqbegin(&xtime_lock);
+-
+-			last_offset = vxtime.last_tsc;
+-			base = monotonic_base;
+-		} while (read_seqretry(&xtime_lock, seq));
+-		sync_core();
+-		rdtscll(this_offset);
+-		offset = (this_offset - last_offset)*1000/cpu_khz; 
+-		return base + offset;
+-	}
+-
+-
+-}
+-EXPORT_SYMBOL(monotonic_clock);
+-
+-static noinline void handle_lost_ticks(int lost, struct pt_regs *regs)
+-{
+-    static long lost_count;
+-    static int warned;
+-
+-    if (report_lost_ticks) {
+-	    printk(KERN_WARNING "time.c: Lost %d timer "
+-		   "tick(s)! ", lost);
+-	    print_symbol("rip %s)\n", regs->rip);
+-    }
+-
+-    if (lost_count == 1000 && !warned) {
+-	    printk(KERN_WARNING
+-		   "warning: many lost ticks.\n"
+-		   KERN_WARNING "Your time source seems to be instable or "
+-		   		"some driver is hogging interupts\n");
+-	    print_symbol("rip %s\n", regs->rip);
+-	    if (vxtime.mode == VXTIME_TSC && vxtime.hpet_address) {
+-		    printk(KERN_WARNING "Falling back to HPET\n");
+-		    vxtime.last = hpet_readl(HPET_T0_CMP) - hpet_tick;
+-		    vxtime.mode = VXTIME_HPET;
+-		    do_gettimeoffset = do_gettimeoffset_hpet;
+-	    }
+-	    /* else should fall back to PIT, but code missing. */
+-	    warned = 1;
+-    } else
+-	    lost_count++;
+-
+-#ifdef CONFIG_CPU_FREQ
+-    /* In some cases the CPU can change frequency without us noticing
+-       (like going into thermal throttle)
+-       Give cpufreq a change to catch up. */
+-    if ((lost_count+1) % 25 == 0) {
+-	    cpufreq_delayed_get();
+-    }
+-#endif
+-}
+-
+ static irqreturn_t timer_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+ {
+-	static unsigned long rtc_update = 0;
+-	unsigned long tsc;
+-	int delay, offset = 0, lost = 0;
+-
+ /*
+  * Here we are in the timer irq handler. We have irqs locally disabled (so we
+  * don't need spin_lock_irqsave()) but we don't know if the timer_bh is running
+@@ -377,67 +191,6 @@
+ 
+ 	write_seqlock(&xtime_lock);
+ 
+-	if (vxtime.hpet_address)
+-		offset = hpet_readl(HPET_COUNTER);
+-
+-	if (hpet_use_timer) {
+-		/* if we're using the hpet timer functionality,
+-		 * we can more accurately know the counter value
+-		 * when the timer interrupt occured.
+-		 */
+-		offset = hpet_readl(HPET_T0_CMP) - hpet_tick;
+-		delay = hpet_readl(HPET_COUNTER) - offset;
+-	} else {
+-		spin_lock(&i8253_lock);
+-		outb_p(0x00, 0x43);
+-		delay = inb_p(0x40);
+-		delay |= inb(0x40) << 8;
+-		spin_unlock(&i8253_lock);
+-		delay = LATCH - 1 - delay;
+-	}
+-
+-	rdtscll_sync(&tsc);
+-
+-	if (vxtime.mode == VXTIME_HPET) {
+-		if (offset - vxtime.last > hpet_tick) {
+-			lost = (offset - vxtime.last) / fixed_hpet_tick() - 1;
+-		}
+-
+-		monotonic_base +=  (offset - vxtime.last)*(NSEC_PER_SEC/HZ) /
+-					fixed_hpet_tick();
+-
+-		vxtime.last = offset;
+-#ifdef CONFIG_X86_PM_TIMER
+-	} else if (vxtime.mode == VXTIME_PMTMR) {
+-		lost = pmtimer_mark_offset();
+-#endif
+-	} else {
+-		offset = (((tsc - vxtime.last_tsc) *
+-			   vxtime.tsc_quot) >> 32) - (USEC_PER_SEC / HZ);
+-
+-		if (offset < 0)
+-			offset = 0;
+-
+-		if (offset > (USEC_PER_SEC / HZ)) {
+-			lost = offset / (USEC_PER_SEC / HZ);
+-			offset %= (USEC_PER_SEC / HZ);
+-		}
+-
+-		monotonic_base += (tsc - vxtime.last_tsc)*1000000/cpu_khz ;
+-
+-		vxtime.last_tsc = tsc - vxtime.quot * delay / vxtime.tsc_quot;
+-
+-		if ((((tsc - vxtime.last_tsc) *
+-		      vxtime.tsc_quot) >> 32) < offset)
+-			vxtime.last_tsc = tsc -
+-				(((long) offset << 32) / vxtime.tsc_quot) - 1;
+-	}
+-
+-	if (lost > 0) {
+-		handle_lost_ticks(lost, regs);
+-		jiffies += lost;
+-	}
+-
+ /*
+  * Do the timer stuff.
+  */
+@@ -460,20 +213,6 @@
+ 		smp_local_timer_interrupt(regs);
+ #endif
+ 
+-/*
+- * If we have an externally synchronized Linux clock, then update CMOS clock
+- * accordingly every ~11 minutes. set_rtc_mmss() will be called in the jiffy
+- * closest to exactly 500 ms before the next second. If the update fails, we
+- * don't care, as it'll be updated on the next turn, and the problem (time way
+- * off) isn't likely to go away much sooner anyway.
+- */
+-
+-	if (ntp_synced() && xtime.tv_sec > rtc_update &&
+-		abs(xtime.tv_nsec - 500000000) <= tick_nsec / 2) {
+-		set_rtc_mmss(xtime.tv_sec);
+-		rtc_update = xtime.tv_sec + 660;
+-	}
+- 
+ 	write_sequnlock(&xtime_lock);
+ 
+ 	return IRQ_HANDLED;
+@@ -514,6 +253,33 @@
+ 	return cycles_2_ns(a);
+ }
+ 
++/* code to compensate for TSC C3 stalls: */
++static u64 tsc_c3_offset;
 +static int tsc_unstable;
 +
 +static inline int check_tsc_unstable(void)
 +{
 +	return tsc_unstable;
 +}
-+
-+void mark_tsc_unstable(void)
++static inline void mark_tsc_unstable(void)
 +{
-+	tsc_unstable = 1;
++	tsc_unstable = 1;;
 +}
-+
-+/* Code to compensate for C3 stalls */
-+static u64 tsc_c3_offset;
 +
 +void tsc_c3_compensate(unsigned long nsecs)
 +{
-+	/* this could def be optimized */
-+	u64 cycles = ((u64)nsecs * tsc_khz);
++	u64 cycles = ((u64)nsecs * tsc_khz)/1000000;
 +
-+	do_div(cycles, 1000000);
 +	tsc_c3_offset += cycles;
 +}
 +
@@ -137,359 +593,612 @@ diff -ruN tod-mm1/arch/i386/kernel/tsc.c tod-mm2/arch/i386/kernel/tsc.c
 +{
 +	return tsc_c3_offset;
 +}
- 
--/* convert from cycles(64bits) => nanoseconds (64bits)
-+/* Accellerators for sched_clock()
-+ * convert from cycles(64bits) => nanoseconds (64bits)
-  *  basic equation:
-  *		ns = cycles / (freq / ns_per_sec)
-  *		ns = cycles * (ns_per_sec / freq)
-@@ -92,76 +137,56 @@
- 	 * synchronized across all CPUs.
- 	 */
- #ifndef CONFIG_NUMA
--	if (!use_tsc)
-+	if (!cpu_khz || check_tsc_unstable())
- #endif
- 		/* no locking but a rare wrong value is not a big deal */
--		return jiffies_64 * (1000000000 / HZ);
-+		return (jiffies_64 - INITIAL_JIFFIES) * (1000000000 / HZ);
- 
- 	/* read the Time Stamp Counter: */
- 	rdtscll(this_offset);
-+	this_offset += tsc_read_c3_time();
- 
- 	/* return the value in ns */
- 	return cycles_2_ns(this_offset);
- }
- 
--/* ------ Calibrate the TSC -------
-- * Return 2^32 * (1 / (TSC clocks per usec)) for do_fast_gettimeoffset().
-- * Too much 64-bit arithmetic here to do this cleanly in C, and for
-- * accuracy's sake we want to keep the overhead on the CTC speaker (channel 2)
-- * output busy loop as low as possible. We avoid reading the CTC registers
-- * directly because of the awkward 8-bit access mechanism of the 82C54
-- * device.
-- */
--
--#define CALIBRATE_TIME	(5 * 1000020/HZ)
--
--unsigned long calibrate_tsc(void)
-+static unsigned long calculate_cpu_khz(void)
++
+ unsigned long get_cmos_time(void)
  {
--	mach_prepare_counter();
--
--	{
--		unsigned long startlow, starthigh;
--		unsigned long endlow, endhigh;
--		unsigned long count;
--
--		rdtsc(startlow,starthigh);
-+	unsigned long long start, end;
-+	unsigned long count;
-+	u64 delta64;
-+	int i;
-+
-+	/* run 3 times to ensure the cache is warm */
-+	for (i = 0; i < 3; i++) {
-+		mach_prepare_counter();
-+		rdtscll(start);
- 		mach_countup(&count);
--		rdtsc(endlow,endhigh);
--
--
--		/* Error: ECTCNEVERSET */
--		if (count <= 1)
--			goto bad_ctc;
--
--		/* 64-bit subtract - gcc just messes up with long longs */
--		__asm__("subl %2,%0\n\t"
--			"sbbl %3,%1"
--			:"=a" (endlow), "=d" (endhigh)
--			:"g" (startlow), "g" (starthigh),
--			 "0" (endlow), "1" (endhigh));
--
--		/* Error: ECPUTOOFAST */
--		if (endhigh)
--			goto bad_ctc;
--
--		/* Error: ECPUTOOSLOW */
--		if (endlow <= CALIBRATE_TIME)
--			goto bad_ctc;
--
--		__asm__("divl %2"
--			:"=a" (endlow), "=d" (endhigh)
--			:"r" (endlow), "0" (0), "1" (CALIBRATE_TIME));
--
--		return endlow;
-+		rdtscll(end);
- 	}
--
- 	/*
-+	 * Error: ECTCNEVERSET
- 	 * The CTC wasn't reliable: we got a hit on the very first read,
- 	 * or the CPU was so fast/slow that the quotient wouldn't fit in
- 	 * 32 bits..
- 	 */
--bad_ctc:
--	return 0;
-+	if (count <= 1)
-+		return 0;
-+
-+	delta64 = end - start;
-+
-+	/* cpu freq too fast: */
-+	if (delta64 > (1ULL<<32))
-+		return 0;
-+
-+	/* cpu freq too slow: */
-+	if (delta64 <= CALIBRATE_TIME_MSEC)
-+		return 0;
-+
-+	delta64 += CALIBRATE_TIME_MSEC/2; /* round for do_div */
-+	do_div(delta64,CALIBRATE_TIME_MSEC);
-+
-+	return (unsigned long)delta64;
+ 	unsigned int timeout, year, mon, day, hour, min, sec;
+@@ -574,6 +340,30 @@
+ 	return mktime(year, mon, day, hour, min, sec);
  }
  
- int recalibrate_cpu_khz(void)
-@@ -170,11 +195,11 @@
- 	unsigned long cpu_khz_old = cpu_khz;
- 
- 	if (cpu_has_tsc) {
--		init_cpu_khz();
-+		cpu_khz = calculate_cpu_khz();
-+		tsc_khz = cpu_khz;
- 		cpu_data[0].loops_per_jiffy =
--		    cpufreq_scale(cpu_data[0].loops_per_jiffy,
--			          cpu_khz_old,
--				  cpu_khz);
-+			cpufreq_scale(cpu_data[0].loops_per_jiffy,
-+					cpu_khz_old, cpu_khz);
- 		return 0;
- 	} else
- 		return -ENODEV;
-@@ -182,28 +207,25 @@
- 	return -ENODEV;
- #endif
- }
--EXPORT_SYMBOL(recalibrate_cpu_khz);
- 
-+EXPORT_SYMBOL(recalibrate_cpu_khz);
- 
--/* calculate cpu_khz */
--void init_cpu_khz(void)
-+void tsc_init(void)
- {
--	if (cpu_has_tsc) {
--		unsigned long tsc_quotient = calibrate_tsc();
--		if (tsc_quotient) {
--			/* report CPU clock rate in Hz.
--			 * The formula is (10^6 * 2^32) / (2^32 * 1 / (clocks/us)) =
--			 * clock/second. Our precision is about 100 ppm.
--			 */
--			{	unsigned long eax=0, edx=1000;
--				__asm__("divl %2"
--		       		:"=a" (cpu_khz), "=d" (edx)
--        	       		:"r" (tsc_quotient),
--	                	"0" (eax), "1" (edx));
--				printk("Detected %lu.%03lu MHz processor.\n", cpu_khz / 1000, cpu_khz % 1000);
--			}
--		}
--	}
-+	if (!cpu_has_tsc || tsc_disable)
-+		return;
++/* arch specific timeofday hooks: */
++u64 read_persistent_clock(void)
++{
++	return (u64)get_cmos_time() * NSEC_PER_SEC;
++}
 +
-+	cpu_khz = calculate_cpu_khz();
-+	tsc_khz = cpu_khz;
++void sync_persistent_clock(struct timespec ts)
++{
++	static unsigned long rtc_update = 0;
++	/*
++	 * If we have an externally synchronized Linux clock, then update
++	 * CMOS clock accordingly every ~11 minutes. set_rtc_mmss() will
++	 * be called in the jiffy closest to exactly 500 ms before the
++	 * next second. If the update fails, we don't care, as it'll be
++	 * updated on the next turn, and the problem (time way off) isn't
++	 * likely to go away much sooner anyway.
++	 */
++	if (ts.tv_sec > rtc_update &&
++		abs(ts.tv_nsec - 500000000) <= tick_nsec / 2) {
++		set_rtc_mmss(xtime.tv_sec);
++		rtc_update = xtime.tv_sec + 660;
++	}
++}
 +
-+	if (!cpu_khz)
-+		return;
-+
-+	printk("Detected %lu.%03lu MHz processor.\n",
-+				(unsigned long)cpu_khz / 1000,
-+				(unsigned long)cpu_khz % 1000);
-+
-+	set_cyc2ns_scale(cpu_khz);
- }
- 
  #ifdef CONFIG_CPU_FREQ
-@@ -223,15 +245,15 @@
+ 
+ /* Frequency scaling support. Adjust the TSC based timer when the cpu frequency
+@@ -601,23 +391,6 @@
+ 	cpufreq_delayed_issched = 0;
  }
  
- /*
-- * if we notice lost ticks, schedule a call to cpufreq_get() as it tries
-+ * if we notice cpufreq oddness, schedule a call to cpufreq_get() as it tries
-  * to verify the CPU frequency the timing core thinks the CPU is running
-  * at is still correct.
-  */
--void cpufreq_delayed_get(void)
-+static inline void cpufreq_delayed_get(void)
- {
- 	if (cpufreq_init && !cpufreq_delayed_issched) {
- 		cpufreq_delayed_issched = 1;
--		printk(KERN_DEBUG "Losing some ticks... checking if CPU frequency changed.\n");
-+		printk(KERN_DEBUG "Checking if CPU frequency changed.\n");
- 		schedule_work(&cpufreq_delayed_get_work);
- 	}
- }
-@@ -240,14 +262,9 @@
-  * if the CPU frequency is scaled, TSC-based delays will need a different
-  * loops_per_jiffy value to function properly.
-  */
+-/* if we notice lost ticks, schedule a call to cpufreq_get() as it tries
+- * to verify the CPU frequency the timing core thinks the CPU is running
+- * at is still correct.
+- */
+-static void cpufreq_delayed_get(void)
+-{
+-	static int warned;
+-	if (cpufreq_init && !cpufreq_delayed_issched) {
+-		cpufreq_delayed_issched = 1;
+-		if (!warned) {
+-			warned = 1;
+-			printk(KERN_DEBUG "Losing some ticks... checking if CPU frequency changed.\n");
+-		}
+-		schedule_work(&cpufreq_delayed_get_work);
+-	}
+-}
 -
- static unsigned int ref_freq = 0;
+ static unsigned int  ref_freq = 0;
  static unsigned long loops_per_jiffy_ref = 0;
--
--#ifndef CONFIG_SMP
--static unsigned long fast_gettimeoffset_ref = 0;
- static unsigned long cpu_khz_ref = 0;
--#endif
  
- static int
- time_cpufreq_notifier(struct notifier_block *nb, unsigned long val, void *data)
-@@ -260,10 +277,7 @@
- 	if (!ref_freq) {
- 		ref_freq = freq->old;
- 		loops_per_jiffy_ref = cpu_data[freq->cpu].loops_per_jiffy;
--#ifndef CONFIG_SMP
--		fast_gettimeoffset_ref = fast_gettimeoffset_quotient;
- 		cpu_khz_ref = cpu_khz;
--#endif
+@@ -652,8 +425,11 @@
+ 		cpufreq_scale(loops_per_jiffy_ref, ref_freq, freq->new);
+ 
+ 		cpu_khz = cpufreq_scale(cpu_khz_ref, ref_freq, freq->new);
+-		if (!(freq->flags & CPUFREQ_CONST_LOOPS))
++		if (!(freq->flags & CPUFREQ_CONST_LOOPS)) {
+ 			vxtime.tsc_quot = (1000L << 32) / cpu_khz;
++			tsc_khz = cpu_khz;
++		}
++
  	}
- 
- 	if ((val == CPUFREQ_PRECHANGE  && freq->old < freq->new) ||
-@@ -271,16 +285,22 @@
- 	    (val == CPUFREQ_RESUMECHANGE)) {
- 		if (!(freq->flags & CPUFREQ_CONST_LOOPS))
- 			cpu_data[freq->cpu].loops_per_jiffy = cpufreq_scale(loops_per_jiffy_ref, ref_freq, freq->new);
--#ifndef CONFIG_SMP
--		if (cpu_khz)
--			cpu_khz = cpufreq_scale(cpu_khz_ref, ref_freq, freq->new);
--		if (use_tsc) {
-+
-+		if (cpu_khz) {
-+
-+			if (num_online_cpus() == 1)
-+				cpu_khz = cpufreq_scale(cpu_khz_ref,
-+						ref_freq, freq->new);
- 			if (!(freq->flags & CPUFREQ_CONST_LOOPS)) {
--				fast_gettimeoffset_quotient = cpufreq_scale(fast_gettimeoffset_ref, freq->new, ref_freq);
-+				tsc_khz = cpu_khz;
- 				set_cyc2ns_scale(cpu_khz);
-+				/*
-+				 * TSC based sched_clock turns
-+				 * to junk w/ cpufreq
-+				 */
-+				mark_tsc_unstable();
- 			}
- 		}
+ 	
+ 	set_cyc2ns_scale(cpu_khz_ref);
+@@ -917,18 +693,12 @@
+ 	if (hpet_use_timer) {
+ 		cpu_khz = hpet_calibrate_tsc();
+ 		timename = "HPET";
+-#ifdef CONFIG_X86_PM_TIMER
+-	} else if (pmtmr_ioport) {
+-		vxtime_hz = PM_TIMER_FREQUENCY;
+-		timename = "PM";
+-		pit_init();
+-		cpu_khz = pit_calibrate_tsc();
 -#endif
+ 	} else {
+ 		pit_init();
+ 		cpu_khz = pit_calibrate_tsc();
+ 		timename = "PIT";
  	}
++	tsc_khz = cpu_khz;
  
- 	if (val != CPUFREQ_RESUMECHANGE)
-@@ -302,11 +322,10 @@
- 					CPUFREQ_TRANSITION_NOTIFIER);
- 	if (!ret)
- 		cpufreq_init = 1;
-+
- 	return ret;
- }
- 
- core_initcall(cpufreq_tsc);
- 
--#else /* CONFIG_CPU_FREQ */
--void cpufreq_delayed_get(void) { return; }
- #endif
-diff -ruN tod-mm1/drivers/acpi/processor_idle.c tod-mm2/drivers/acpi/processor_idle.c
---- tod-mm1/drivers/acpi/processor_idle.c	2005-12-01 18:13:04.000000000 -0800
-+++ tod-mm2/drivers/acpi/processor_idle.c	2005-12-01 18:25:11.000000000 -0800
-@@ -268,6 +268,7 @@
- }
- 
- static atomic_t c3_cpu_count;
-+extern void tsc_c3_compensate(unsigned long nsecs);
- 
- static void acpi_processor_idle(void)
+ 	printk(KERN_INFO "time.c: Using %ld.%06ld MHz %s timer.\n",
+ 	       vxtime_hz / 1000000, vxtime_hz % 1000000, timename);
+@@ -970,31 +740,8 @@
+  */
+ void __init time_init_gtod(void)
  {
-@@ -451,6 +452,11 @@
- 					  ACPI_MTX_DO_NOT_LOCK);
- 		}
+-	char *timetype;
+-
+ 	if (unsynchronized_tsc())
+-		notsc = 1;
+-	if (vxtime.hpet_address && notsc) {
+-		timetype = hpet_use_timer ? "HPET" : "PIT/HPET";
+-		vxtime.last = hpet_readl(HPET_T0_CMP) - hpet_tick;
+-		vxtime.mode = VXTIME_HPET;
+-		do_gettimeoffset = do_gettimeoffset_hpet;
+-#ifdef CONFIG_X86_PM_TIMER
+-	/* Using PM for gettimeofday is quite slow, but we have no other
+-	   choice because the TSC is too unreliable on some systems. */
+-	} else if (pmtmr_ioport && !vxtime.hpet_address && notsc) {
+-		timetype = "PM";
+-		do_gettimeoffset = do_gettimeoffset_pm;
+-		vxtime.mode = VXTIME_PMTMR;
+-		sysctl_vsyscall = 0;
+-		printk(KERN_INFO "Disabling vsyscall due to use of PM timer\n");
+-#endif
+-	} else {
+-		timetype = hpet_use_timer ? "HPET/TSC" : "PIT/TSC";
+-		vxtime.mode = VXTIME_TSC;
+-	}
+-
+-	printk(KERN_INFO "time.c: Using %s based timekeeping.\n", timetype);
++		mark_tsc_unstable();
+ }
  
-+#ifdef CONFIG_GENERIC_TIME
-+		/* compensate for TSC pause */
-+		tsc_c3_compensate((u32)(((u64)((t2-t1)&0xFFFFFF)*286070)>>10));
+ __setup("report_lost_ticks", time_setup);
+@@ -1017,7 +764,6 @@
+ 
+ static int timer_resume(struct sys_device *dev)
+ {
+-	unsigned long flags;
+ 	unsigned long sec;
+ 	unsigned long ctime = get_cmos_time();
+ 	unsigned long sleep_length = (ctime - sleep_start) * HZ;
+@@ -1028,10 +774,6 @@
+ 		i8254_timer_resume();
+ 
+ 	sec = ctime + clock_cmos_diff;
+-	write_seqlock_irqsave(&xtime_lock,flags);
+-	xtime.tv_sec = sec;
+-	xtime.tv_nsec = 0;
+-	write_sequnlock_irqrestore(&xtime_lock,flags);
+ 	jiffies += sleep_length;
+ 	wall_jiffies += sleep_length;
+ 	touch_softlockup_watchdog();
+@@ -1306,3 +1048,159 @@
+ __setup("notsc", notsc_setup);
+ 
+ 
++/* clock source code: */
++
++static unsigned long current_tsc_khz = 0;
++
++static int tsc_update_callback(void);
++
++static cycle_t read_tsc(void)
++{
++	cycle_t ret;
++
++	rdtscll(ret);
++
++	return ret;
++}
++
++static cycle_t __vsyscall_fn vread_tsc(void* unused)
++{
++	cycle_t ret;
++
++	rdtscll(ret);
++
++	return ret;
++}
++
++static cycle_t read_tsc_c3(void)
++{
++	cycle_t ret;
++
++	rdtscll(ret);
++
++	return ret + tsc_read_c3_time();
++}
++
++static struct clocksource clocksource_tsc = {
++	.name			= "tsc",
++	.rating			= 300,
++	.read			= read_tsc,
++	.vread			= vread_tsc,
++	.mask			= (cycle_t)-1,
++	.mult			= 0, /* to be set */
++	.shift			= 22,
++	.update_callback	= tsc_update_callback,
++	.is_continuous		= 1,
++};
++
++static int tsc_update_callback(void)
++{
++	int change = 0;
++
++	/* check to see if we should switch to the safe clocksource: */
++	if (tsc_read_c3_time() &&
++		strncmp(clocksource_tsc.name, "c3tsc", 5)) {
++		printk("Falling back to C3 safe TSC\n");
++		clocksource_tsc.read = read_tsc_c3;
++		clocksource_tsc.vread = 0;
++		clocksource_tsc.name = "c3tsc";
++		change = 1;
++	}
++
++	if (clocksource_tsc.rating != 50 && check_tsc_unstable()) {
++		clocksource_tsc.rating = 50;
++		reselect_clocksource();
++		change = 1;
++	}
++
++	/* only update if tsc_khz has changed: */
++	if (current_tsc_khz != tsc_khz){
++		current_tsc_khz = tsc_khz;
++		clocksource_tsc.mult = clocksource_khz2mult(current_tsc_khz,
++							clocksource_tsc.shift);
++		change = 1;
++	}
++	return change;
++}
++
++static int __init init_tsc_clocksource(void)
++{
++	if (!notsc && tsc_khz) {
++		current_tsc_khz = tsc_khz;
++		clocksource_tsc.mult = clocksource_khz2mult(current_tsc_khz,
++							clocksource_tsc.shift);
++		register_clocksource(&clocksource_tsc);
++	}
++	return 0;
++}
++
++module_init(init_tsc_clocksource);
++
++
++#define HPET_MASK	0xFFFFFFFF
++#define HPET_SHIFT	22
++
++/* FSEC = 10^-15 NSEC = 10^-9 */
++#define FSEC_PER_NSEC	1000000
++
++static void *hpet_ptr;
++
++static cycle_t read_hpet(void)
++{
++	return (cycle_t)readl(hpet_ptr);
++}
++
++static cycle_t __vsyscall_fn vread_hpet(void* ptr)
++{
++	return (cycle_t)readl((void *)fix_to_virt(VSYSCALL_HPET) + 0xf0);
++}
++
++struct clocksource clocksource_hpet = {
++	.name		= "hpet",
++	.rating		= 250,
++	.read		= read_hpet,
++	.vread		= vread_hpet,
++	.mask		= (cycle_t)HPET_MASK,
++	.mult		= 0, /* set below */
++	.shift		= HPET_SHIFT,
++	.is_continuous	= 1,
++};
++
++static int __init init_hpet_clocksource(void)
++{
++	unsigned long hpet_period;
++	void __iomem *hpet_base;
++	u64 tmp;
++
++	if (!hpet_address)
++		return -ENODEV;
++
++	/* calculate the hpet address: */
++	hpet_base =
++		(void __iomem*)ioremap_nocache(hpet_address, HPET_MMAP_SIZE);
++	hpet_ptr = hpet_base + HPET_COUNTER;
++
++	/* calculate the frequency: */
++	hpet_period = readl(hpet_base + HPET_PERIOD);
++
++	/*
++	 * hpet period is in femto seconds per cycle
++	 * so we need to convert this to ns/cyc units
++	 * aproximated by mult/2^shift
++	 *
++	 *  fsec/cyc * 1nsec/1000000fsec = nsec/cyc = mult/2^shift
++	 *  fsec/cyc * 1ns/1000000fsec * 2^shift = mult
++	 *  fsec/cyc * 2^shift * 1nsec/1000000fsec = mult
++	 *  (fsec/cyc << shift)/1000000 = mult
++	 *  (hpet_period << shift)/FSEC_PER_NSEC = mult
++	 */
++	tmp = (u64)hpet_period << HPET_SHIFT;
++	do_div(tmp, FSEC_PER_NSEC);
++	clocksource_hpet.mult = (u32)tmp;
++
++	register_clocksource(&clocksource_hpet);
++
++	return 0;
++}
++
++module_init(init_hpet_clocksource);
+diff -ruN tod-mm1/arch/x86_64/kernel/vmlinux.lds.S tod-mm2/arch/x86_64/kernel/vmlinux.lds.S
+--- tod-mm1/arch/x86_64/kernel/vmlinux.lds.S	2005-12-01 18:13:01.000000000 -0800
++++ tod-mm2/arch/x86_64/kernel/vmlinux.lds.S	2005-12-01 18:27:40.000000000 -0800
+@@ -99,6 +99,18 @@
+   .jiffies : AT(VLOAD(.jiffies)) { *(.jiffies) }
+   jiffies = VVIRT(.jiffies);
+ 
++  .vsyscall_fn :  AT(VLOAD(.vsyscall_fn)) { *(.vsyscall_fn) }
++  .vsyscall_data :  AT(VLOAD(.vsyscall_data)) { *(.vsyscall_data) }
++
++  .vsyscall_gtod_data : AT(VLOAD(.vsyscall_gtod_data)) { *(.vsyscall_gtod_data) }
++  vsyscall_gtod_data = VVIRT(.vsyscall_gtod_data);
++
++  .vsyscall_gtod_lock : AT(VLOAD(.vsyscall_gtod_lock)) { *(.vsyscall_gtod_lock) }
++  vsyscall_gtod_lock = VVIRT(.vsyscall_gtod_lock);
++
++  .vsyscall_fn : AT(VLOAD(.vsyscall_fn)) { *(.vsyscall_fn) }
++  .vsyscall_data : AT(VLOAD(.vsyscall_data)) { *(.vsyscall_data) }
++
+   .vsyscall_1 ADDR(.vsyscall_0) + 1024: AT(VLOAD(.vsyscall_1)) { *(.vsyscall_1) }
+   .vsyscall_2 ADDR(.vsyscall_0) + 2048: AT(VLOAD(.vsyscall_2)) { *(.vsyscall_2) }
+   .vsyscall_3 ADDR(.vsyscall_0) + 3072: AT(VLOAD(.vsyscall_3)) { *(.vsyscall_3) }
+diff -ruN tod-mm1/arch/x86_64/kernel/vsyscall.c tod-mm2/arch/x86_64/kernel/vsyscall.c
+--- tod-mm1/arch/x86_64/kernel/vsyscall.c	2005-12-01 18:13:01.000000000 -0800
++++ tod-mm2/arch/x86_64/kernel/vsyscall.c	2005-12-01 18:27:40.000000000 -0800
+@@ -19,6 +19,8 @@
+  *  want per guest time just set the kernel.vsyscall64 sysctl to 0.
+  */
+ 
++#include <linux/timeofday.h>
++#include <linux/clocksource.h>
+ #include <linux/time.h>
+ #include <linux/init.h>
+ #include <linux/kernel.h>
+@@ -27,8 +29,10 @@
+ #include <linux/jiffies.h>
+ #include <linux/sysctl.h>
+ 
++
+ #include <asm/vsyscall.h>
+ #include <asm/pgtable.h>
++#include <asm/unistd.h>
+ #include <asm/page.h>
+ #include <asm/fixmap.h>
+ #include <asm/errno.h>
+@@ -40,7 +44,18 @@
+ int __sysctl_vsyscall __section_sysctl_vsyscall = 1;
+ seqlock_t __xtime_lock __section_xtime_lock = SEQLOCK_UNLOCKED;
+ 
+-#include <asm/unistd.h>
++struct vsyscall_gtod_data_t {
++	struct timeval wall_time_tv;
++	struct timezone sys_tz;
++	cycle_t offset_base;
++	struct clocksource clock;
++};
++
++extern struct vsyscall_gtod_data_t vsyscall_gtod_data;
++struct vsyscall_gtod_data_t __vsyscall_gtod_data __section_vsyscall_gtod_data;
++
++extern seqlock_t vsyscall_gtod_lock;
++seqlock_t __vsyscall_gtod_lock __section_vsyscall_gtod_lock = SEQLOCK_UNLOCKED;
+ 
+ static force_inline void timeval_normalize(struct timeval * tv)
+ {
+@@ -53,40 +68,66 @@
+ 	}
+ }
+ 
+-static force_inline void do_vgettimeofday(struct timeval * tv)
++/*
++ * XXX - this is ugly. gettimeofday() has a label in it so we can't
++ *       call it twice.
++ */
++static force_inline int syscall_gtod(struct timeval *tv, struct timezone *tz)
++{
++	int ret;
++
++	asm volatile("syscall"
++		: "=a" (ret)
++		: "0" (__NR_gettimeofday),"D" (tv),"S" (tz)
++		: __syscall_clobber);
++
++	return ret;
++}
++
++static force_inline void do_vgettimeofday(struct timeval *tv)
+ {
+-	long sequence, t;
+-	unsigned long sec, usec;
++	cycle_t now, cycle_delta;
++	nsec_t nsec_delta;
++	unsigned long seq;
+ 
+ 	do {
+-		sequence = read_seqbegin(&__xtime_lock);
+-		
+-		sec = __xtime.tv_sec;
+-		usec = (__xtime.tv_nsec / 1000) +
+-			(__jiffies - __wall_jiffies) * (1000000 / HZ);
+-
+-		if (__vxtime.mode != VXTIME_HPET) {
+-			sync_core();
+-			rdtscll(t);
+-			if (t < __vxtime.last_tsc)
+-				t = __vxtime.last_tsc;
+-			usec += ((t - __vxtime.last_tsc) *
+-				 __vxtime.tsc_quot) >> 32;
+-			/* See comment in x86_64 do_gettimeofday. */
+-		} else {
+-			usec += ((readl((void *)fix_to_virt(VSYSCALL_HPET) + 0xf0) -
+-				  __vxtime.last) * __vxtime.quot) >> 32;
++		seq = read_seqbegin(&__vsyscall_gtod_lock);
++
++		if (!__vsyscall_gtod_data.clock.vread) {
++			syscall_gtod(tv, NULL);
++			return;
+ 		}
+-	} while (read_seqretry(&__xtime_lock, sequence));
+ 
+-	tv->tv_sec = sec + usec / 1000000;
+-	tv->tv_usec = usec % 1000000;
++		/* read the timeosurce and calc cycle_delta */
++		now = __vsyscall_gtod_data.clock.vread(
++				__vsyscall_gtod_data.clock.vdata);
++
++		cycle_delta = (now - __vsyscall_gtod_data.offset_base)
++					& __vsyscall_gtod_data.clock.mask;
++
++		/* convert cycles to nsecs */
++		nsec_delta = cycle_delta * __vsyscall_gtod_data.clock.mult;
++		nsec_delta = nsec_delta >> __vsyscall_gtod_data.clock.shift;
++
++		/* add nsec offset to wall_time_tv */
++		*tv = __vsyscall_gtod_data.wall_time_tv;
++		do_div(nsec_delta, NSEC_PER_USEC);
++		tv->tv_usec += (unsigned long) nsec_delta;
++
++		while (tv->tv_usec > USEC_PER_SEC) {
++			tv->tv_sec += 1;
++			tv->tv_usec -= USEC_PER_SEC;
++		}
++	} while (read_seqretry(&__vsyscall_gtod_lock, seq));
+ }
+ 
+-/* RED-PEN may want to readd seq locking, but then the variable should be write-once. */
++/*
++ * RED-PEN may want to readd seq locking, but then the variable should be
++ * write-once.
++ */
+ static force_inline void do_get_tz(struct timezone * tz)
+ {
+-	*tz = __sys_tz;
++	*tz = __vsyscall_gtod_data.sys_tz;
+ }
+ 
+ static force_inline int gettimeofday(struct timeval *tv, struct timezone *tz)
+@@ -122,11 +163,16 @@
+  * unlikely */
+ time_t __vsyscall(1) vtime(time_t *t)
+ {
++	struct timeval tv;
++
+ 	if (unlikely(!__sysctl_vsyscall))
+ 		return time_syscall(t);
+-	else if (t)
+-		*t = __xtime.tv_sec;		
+-	return __xtime.tv_sec;
++
++	vgettimeofday(&tv, 0);
++	if (t)
++		*t = tv.tv_sec;
++
++	return tv.tv_sec;
+ }
+ 
+ long __vsyscall(2) venosys_0(void)
+@@ -139,6 +185,38 @@
+ 	return -ENOSYS;
+ }
+ 
++struct clocksource *curr_clock;
++
++void arch_update_vsyscall_gtod(struct timespec wall_time, cycle_t offset_base,
++				struct clocksource *clock, int ntp_adj)
++{
++	unsigned long flags;
++
++	write_seqlock_irqsave(&vsyscall_gtod_lock, flags);
++
++	/* XXX - hackitty hack hack. this is terrible! */
++	if (curr_clock != clock)
++		curr_clock = clock;
++
++	/* save off wall time as timeval: */
++	vsyscall_gtod_data.wall_time_tv.tv_sec = wall_time.tv_sec;
++	vsyscall_gtod_data.wall_time_tv.tv_usec = wall_time.tv_nsec/1000;
++
++	/* save offset_base: */
++	vsyscall_gtod_data.offset_base = offset_base;
++
++	/* copy current clocksource: */
++	vsyscall_gtod_data.clock = *clock;
++
++	/* apply ntp adjustment to clocksource mult: */
++	vsyscall_gtod_data.clock.mult += ntp_adj;
++
++	/* save off current timezone: */
++	vsyscall_gtod_data.sys_tz = sys_tz;
++
++	write_sequnlock_irqrestore(&vsyscall_gtod_lock, flags);
++}
++
+ #ifdef CONFIG_SYSCTL
+ 
+ #define SYSCALL 0x050f
+@@ -217,6 +295,7 @@
+ 	BUG_ON((unsigned long) &vtime != VSYSCALL_ADDR(__NR_vtime));
+ 	BUG_ON((VSYSCALL_ADDR(0) != __fix_to_virt(VSYSCALL_FIRST_PAGE)));
+ 	map_vsyscall();
++	sysctl_vsyscall = 1;
+ #ifdef CONFIG_SYSCTL
+ 	register_sysctl_table(kernel_root_table2, 0);
+ #endif
+diff -ruN tod-mm1/include/asm-generic/div64.h tod-mm2/include/asm-generic/div64.h
+--- tod-mm1/include/asm-generic/div64.h	2005-12-01 18:13:31.000000000 -0800
++++ tod-mm2/include/asm-generic/div64.h	2005-12-01 18:27:40.000000000 -0800
+@@ -55,4 +55,13 @@
+ 
+ #endif /* BITS_PER_LONG */
+ 
++#ifndef div_long_long_rem
++#define div_long_long_rem(dividend,divisor,remainder) \
++({							\
++	u64 result = dividend;				\
++	*remainder = do_div(result,divisor);		\
++	result;						\
++})
 +#endif
 +
- 		/* Re-enable interrupts */
- 		local_irq_enable();
- 		/* Compute time (ticks) that we were actually asleep */
-diff -ruN tod-mm1/include/asm-i386/mach-default/mach_timer.h tod-mm2/include/asm-i386/mach-default/mach_timer.h
---- tod-mm1/include/asm-i386/mach-default/mach_timer.h	2005-12-01 18:13:31.000000000 -0800
-+++ tod-mm2/include/asm-i386/mach-default/mach_timer.h	2005-12-01 18:25:11.000000000 -0800
-@@ -15,7 +15,9 @@
- #ifndef _MACH_TIMER_H
- #define _MACH_TIMER_H
+ #endif /* _ASM_GENERIC_DIV64_H */
+diff -ruN tod-mm1/include/asm-x86_64/hpet.h tod-mm2/include/asm-x86_64/hpet.h
+--- tod-mm1/include/asm-x86_64/hpet.h	2005-12-01 18:13:35.000000000 -0800
++++ tod-mm2/include/asm-x86_64/hpet.h	2005-12-01 18:27:40.000000000 -0800
+@@ -1,6 +1,6 @@
+ #ifndef _ASM_X8664_HPET_H
+ #define _ASM_X8664_HPET_H 1
+-
++#include <asm/fixmap.h>
+ /*
+  * Documentation on HPET can be found at:
+  *      http://www.intel.com/ial/home/sp/pcmmspec.htm
+@@ -51,6 +51,7 @@
  
--#define CALIBRATE_LATCH	(5 * LATCH)
-+#define CALIBRATE_TIME_MSEC 30 /* 30 msecs */
-+#define CALIBRATE_LATCH	\
-+	((CLOCK_TICK_RATE * CALIBRATE_TIME_MSEC + 1000/2)/1000)
+ #define HPET_TN_ROUTE_SHIFT	9
  
- static inline void mach_prepare_counter(void)
- {
-diff -ruN tod-mm1/include/asm-i386/mach-summit/mach_mpparse.h tod-mm2/include/asm-i386/mach-summit/mach_mpparse.h
---- tod-mm1/include/asm-i386/mach-summit/mach_mpparse.h	2005-12-01 18:13:31.000000000 -0800
-+++ tod-mm2/include/asm-i386/mach-summit/mach_mpparse.h	2005-12-01 18:25:11.000000000 -0800
-@@ -2,6 +2,7 @@
- #define __ASM_MACH_MPPARSE_H
- 
- #include <mach_apic.h>
-+#include <asm/tsc.h>
- 
- extern int use_cyclone;
- 
-@@ -29,6 +30,7 @@
- 			(!strncmp(productid, "VIGIL SMP", 9) 
- 			 || !strncmp(productid, "EXA", 3)
- 			 || !strncmp(productid, "RUTHLESS SMP", 12))){
-+		mark_tsc_unstable();
- 		use_cyclone = 1; /*enable cyclone-timer*/
- 		setup_summit();
- 		return 1;
-@@ -42,6 +44,7 @@
- 	if (!strncmp(oem_id, "IBM", 3) &&
- 	    (!strncmp(oem_table_id, "SERVIGIL", 8)
- 	     || !strncmp(oem_table_id, "EXA", 3))){
-+		mark_tsc_unstable();
- 		use_cyclone = 1; /*enable cyclone-timer*/
- 		setup_summit();
- 		return 1;
-diff -ruN tod-mm1/include/asm-i386/tsc.h tod-mm2/include/asm-i386/tsc.h
---- tod-mm1/include/asm-i386/tsc.h	2005-12-01 18:25:04.000000000 -0800
-+++ tod-mm2/include/asm-i386/tsc.h	2005-12-01 18:25:11.000000000 -0800
-@@ -25,9 +25,12 @@
-  */
- typedef unsigned long long cycles_t;
- 
--static inline cycles_t get_cycles (void)
-+extern unsigned int cpu_khz;
-+extern unsigned int tsc_khz;
-+
-+static inline cycles_t get_cycles(void)
- {
--	unsigned long long ret=0;
-+	unsigned long long ret = 0;
- 
- #ifndef CONFIG_X86_TSC
- 	if (!cpu_has_tsc)
-@@ -40,5 +43,8 @@
- 	return ret;
++extern unsigned long hpet_address;	/* hpet memory map physical address */
+ extern int is_hpet_enabled(void);
+ extern int hpet_rtc_timer_init(void);
+ extern int oem_force_hpet_timer(void);
+diff -ruN tod-mm1/include/asm-x86_64/timeofday.h tod-mm2/include/asm-x86_64/timeofday.h
+--- tod-mm1/include/asm-x86_64/timeofday.h	1969-12-31 16:00:00.000000000 -0800
++++ tod-mm2/include/asm-x86_64/timeofday.h	2005-12-01 18:27:40.000000000 -0800
+@@ -0,0 +1,4 @@
++#ifndef _ASM_X86_64_TIMEOFDAY_H
++#define _ASM_X86_64_TIMEOFDAY_H
++#include <asm-generic/timeofday.h>
++#endif
+diff -ruN tod-mm1/include/asm-x86_64/timex.h tod-mm2/include/asm-x86_64/timex.h
+--- tod-mm1/include/asm-x86_64/timex.h	2005-12-01 18:13:35.000000000 -0800
++++ tod-mm2/include/asm-x86_64/timex.h	2005-12-01 18:27:40.000000000 -0800
+@@ -24,6 +24,8 @@
  }
  
--extern unsigned int cpu_khz;
-+extern void tsc_init(void);
+ extern unsigned int cpu_khz;
++extern unsigned int tsc_khz;
 +extern void tsc_c3_compensate(unsigned long usecs);
-+extern void mark_tsc_unstable(void);
+ 
+ extern int read_current_timer(unsigned long *timer_value);
+ #define ARCH_HAS_READ_CURRENT_TIMER	1
+diff -ruN tod-mm1/include/asm-x86_64/vsyscall.h tod-mm2/include/asm-x86_64/vsyscall.h
+--- tod-mm1/include/asm-x86_64/vsyscall.h	2005-12-01 18:13:35.000000000 -0800
++++ tod-mm2/include/asm-x86_64/vsyscall.h	2005-12-01 18:27:40.000000000 -0800
+@@ -14,7 +14,7 @@
+ #define VSYSCALL_ADDR(vsyscall_nr) (VSYSCALL_START+VSYSCALL_SIZE*(vsyscall_nr))
+ 
+ #ifdef __KERNEL__
+-
++/* XXX - All of these are unused w/ CONFIG_GENERIC_TIME and should be removed */
+ #define __section_vxtime __attribute__ ((unused, __section__ (".vxtime"), aligned(16)))
+ #define __section_wall_jiffies __attribute__ ((unused, __section__ (".wall_jiffies"), aligned(16)))
+ #define __section_jiffies __attribute__ ((unused, __section__ (".jiffies"), aligned(16)))
+@@ -23,6 +23,12 @@
+ #define __section_xtime __attribute__ ((unused, __section__ (".xtime"), aligned(16)))
+ #define __section_xtime_lock __attribute__ ((unused, __section__ (".xtime_lock"), aligned(16)))
+ 
++/* Definitions for CONFIG_GENERIC_TIME definitions */
++#define __section_vsyscall_gtod_data __attribute__ ((unused, __section__ (".vsyscall_gtod_data"),aligned(16)))
++#define __section_vsyscall_gtod_lock __attribute__ ((unused, __section__ (".vsyscall_gtod_lock"),aligned(16)))
++#define __vsyscall_fn __attribute__ ((unused,__section__(".vsyscall_fn")))
++#define __vsyscall_data __attribute__ ((unused,__section__(".vsyscall_data")))
 +
- #endif
+ #define VXTIME_TSC	1
+ #define VXTIME_HPET	2
+ #define VXTIME_PMTMR	3

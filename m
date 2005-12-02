@@ -1,95 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbVLBPRl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbVLBPY6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750767AbVLBPRl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 10:17:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbVLBPRl
+	id S1750768AbVLBPY6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 10:24:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbVLBPY6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 10:17:41 -0500
-Received: from elmo.2sheds.de ([195.143.155.10]:26603 "EHLO elmo.2sheds.de")
-	by vger.kernel.org with ESMTP id S1750767AbVLBPRl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 10:17:41 -0500
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <6D6905B5-6DAF-47FC-A0AC-BDE089D3F103@2sheds.de>
-Content-Transfer-Encoding: 7bit
-From: Andrew Miehs <andrew@2sheds.de>
-Subject: Questions RE: /proc/stat
-Date: Fri, 2 Dec 2005 16:17:37 +0100
-To: linux-kernel@vger.kernel.org
-X-Pgp-Agent: GPGMail 1.1.1 (Tiger)
-X-Mailer: Apple Mail (2.746.2)
+	Fri, 2 Dec 2005 10:24:58 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:31390 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id S1750768AbVLBPY5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 10:24:57 -0500
+Message-Id: <200512021421.jB2ELkJw013434@pincoya.inf.utfsm.cl>
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+cc: Peter Williams <pwil3058@bigpond.net.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org, sam@ravnborg.org
+Subject: Re: [q] make modules_install as non-root? 
+In-Reply-To: Message from Coywolf Qi Hunt <coywolf@gmail.com> 
+   of "Fri, 02 Dec 2005 10:59:11 +0800." <2cd57c900512011859v7f0db82fg@mail.gmail.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Fri, 02 Dec 2005 11:21:46 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Coywolf Qi Hunt <coywolf@gmail.com> wrote:
+> 2005/12/2, Peter Williams <pwil3058@bigpond.net.au>:
 
-Dear list,
+[...]
 
-I had some questions regarding using /proc/stat (on the 2.6 kernel).
+> > Personally, I just use "sudo make install" or "sudo make
+> > modules_install" to do installations as an ordinary user.  No need for
+> > special scripts or modifications to the build procedure.
 
-Can I assume that reading /proc/stat is 'atomic'? Can I assume that  
-when I read
-the file, that nothing will change the data while I am reading it?
-IE:
-   cpu  15948315 4687107 3321012 122412279 659908 43304 144288
-   cpu0 15948315 4687107 3321012 122412279 659908 43304 144288
+> That's rather insecure. You have to add /usr/bin/make in your sudoers,
+> then an malicious Makefile could do harm. I'm being paranoid. But we
+> all are since we avoid to use root.
 
-can I assume that while I am reading the third value (system), that  
-the fourth value (idle)
-will not be changed underneath me? Can I assume that all the lines?  
-cpu, cpu0 will all be
-generated at once?
-
-
-My second question is regarding using these values to calculate usage...
-
-Should I calculate usage by
-(where T1, T2 are time)
-
-A) read /proc/stat
-    Fill variables UserT1, NiceT1, SystemT1, IdleT1, IOWaitT1, irqT1,  
-irq2T1
-    wait a time
-    Fill variables UserT2, NiceT2, SystemT2, IdleT2, IOWaitT2, irqT2,  
-irq2T2
-    DeltaTotalTime=(UserT2-UserT1)+(NiceT2-NiceT1)+(SystemT2-SystemT1) 
-+(.........)
-
-    Then calculate the values I want as the delta  
-variableOfInterest / total delta
-    ie: (UserT2-UserT1)/DeltaTotalTime
-
-    Can I assume that all these values added together should add up  
-to 100%?
-
-
-or
-
-
-B) read /proc/stat
-    read variable of interest, ie: UserT1 and btimeT1 and number of CPUs
-    wait a time
-    read variable of interest, ie: UserT2 and btimeT2 and number of CPUs
-
-    Then calculate the values I want as
-      ((UserT2-UserT1)/NumCPU)/(btimeT2-btimeT1)*100 (Jiffies)
-
-
-
-Thanks for any comments
-
-Regards
-
-Andrew
-
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
-
-iD8DBQFDkGWSW126qUNSzvURAhdrAJ9bmadzIAZfzMZ83PmuWZ2e67OW9wCfbcU2
-SO3Do1kRaxy+4LRhyL9y/9s=
-=r+rR
------END PGP SIGNATURE-----
+Oh, come on. If somebody can mess with your kernel sources, you are toast
+anyway. No need to doctor a Makefile for that at all.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

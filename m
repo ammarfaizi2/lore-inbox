@@ -1,71 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932712AbVLBBbA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932711AbVLBBeN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932712AbVLBBbA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 20:31:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932713AbVLBBbA
+	id S932711AbVLBBeN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 20:34:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932710AbVLBBeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 20:31:00 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:53922 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932712AbVLBBa7 (ORCPT
+	Thu, 1 Dec 2005 20:34:13 -0500
+Received: from havoc.gtf.org ([69.61.125.42]:59533 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S932711AbVLBBeN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 20:30:59 -0500
-Date: Thu, 1 Dec 2005 17:30:15 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Wu Fengguang <wfg@mail.ustc.edu.cn>
-Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org,
-       christoph@lameter.com, riel@redhat.com, a.p.zijlstra@chello.nl,
-       npiggin@suse.de, andrea@suse.de, magnus.damm@gmail.com
-Subject: Re: [PATCH 02/12] mm: supporting variables and functions for
- balanced zone aging
-Message-Id: <20051201173015.675f4d80.akpm@osdl.org>
-In-Reply-To: <20051202011924.GA3516@mail.ustc.edu.cn>
-References: <20051201101810.837245000@localhost.localdomain>
-	<20051201101933.936973000@localhost.localdomain>
-	<20051201023714.612f0bbf.akpm@osdl.org>
-	<20051201222846.GA3646@dmt.cnet>
-	<20051201150349.3538638e.akpm@osdl.org>
-	<20051202011924.GA3516@mail.ustc.edu.cn>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 1 Dec 2005 20:34:13 -0500
+Date: Thu, 1 Dec 2005 20:34:08 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Dirk Henning Gerdes <mail@dirk-gerdes.de>, axboe@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/4] linux-2.6-block: deactivating pagecache for benchmarks
+Message-ID: <20051202013408.GA4225@havoc.gtf.org>
+References: <1133443051.6110.32.camel@noti> <20051201172520.7095e524.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051201172520.7095e524.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
->
->    850         sc->nr_to_reclaim = sc->swap_cluster_max;
->      851         
->      852         while (nr_active || nr_inactive) {
->                          //...
->      860                 if (nr_inactive) {
->      861                         sc->nr_to_scan = min(nr_inactive,
->      862                                         (unsigned long)sc->swap_cluster_max);
->      863                         nr_inactive -= sc->nr_to_scan;
->      864                         shrink_cache(zone, sc);
->      865                         if (sc->nr_to_reclaim <= 0)
->      866                                 break;
->      867                 }
->      868         }
+On Thu, Dec 01, 2005 at 05:25:20PM -0800, Andrew Morton wrote:
+> Dirk Henning Gerdes <mail@dirk-gerdes.de> wrote:
+> >
+> >  For doing benchmarks on the I/O-Schedulers, I thought it would be very
+> >  useful to disable the pagecache.
 > 
->  Line 843 is the core of the scan balancing logic:
+> That's an FAQ.   Something like this?
 > 
->  priority                12      11      10
 > 
->  On each call nr_scan_inactive is increased by:
->  DMA(2k pages)           +1      +2      +3
->  Normal(64k pages)      +17      +33     +65 
+> From: Andrew Morton <akpm@osdl.org>
 > 
->  Round it up to SWAP_CLUSTER_MAX=32, we get (scan batches/accumulate rounds):
->  DMA                     1/32    1/16    2/11
->  Normal                  2/2     2/1     3/1
->  DMA:Normal ratio        1:32    1:32    2:33
+> Add /proc/sys/vm/drop-pagecache.  When written to, this will cause the kernel
+> to discard as much pagecache and reclaimable slab objects as it can.
 > 
->  This keeps the scan rate roughly balanced(i.e. 1:32) in low vm pressure.
+> It won't drop dirty data, so the user should run `sync' first.
 > 
->  But lines 865-866 together with line 846 make most shrink_zone() invocations
->  only run one batch of scan. The numbers become:
+> Caveats:
+> 
+> a) Holds inode_lock for exorbitant amounts of time.
+> 
+> b) Needs to be taught about NUMA nodes: propagate these all the way through
+>    so the discarding can be controlled on a per-node basis.
+> 
+> c) The pagecache shrinking and slab shrinking should probably have separate
+>    controls.
+> 
+> 
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
 
-True.  Need to go into a huddle with the changelogs, but I have a feeling
-that lines 865 and 866 aren't very important.  What happens if we remove
-them?
+ACK, I've wanted something like this for a while.
+
+I really think it should be a config option, though, to discourage
+people from building with it :)
+
+	Jeff
+
+
+

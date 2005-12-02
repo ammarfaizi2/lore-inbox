@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbVLBQqK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750821AbVLBQqV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750820AbVLBQqK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 11:46:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbVLBQqK
+	id S1750821AbVLBQqV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 11:46:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbVLBQqV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 11:46:10 -0500
-Received: from wproxy.gmail.com ([64.233.184.197]:57078 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750820AbVLBQqJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 11:46:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=i/M5C3M6xNy4QoHrbM6+MNfew/3plxzjotuQN0DZMWmjX+Q+DvIUdeCHsaoHNpp1JYlmjKWE9CIJj+6GctYmsLgLHh2JhWzE10ye3RYsE7ew6zVVTAyoRvZPnPDXRrb38v4k4pJrSabOhzEtgAsAa3/HqaIviwaF3mITt3IH1GA=
-Message-ID: <d120d5000512020846m6b8060f3o7945a4d3741fc95d@mail.gmail.com>
-Date: Fri, 2 Dec 2005 11:46:08 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: "Yu, Luming" <luming.yu@intel.com>
-Subject: Re:
-Cc: Linus Torvalds <torvalds@osdl.org>, Vojtech Pavlik <vojtech@suse.cz>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3ACA40606221794F80A5670F0AF15F84041AC237@pdsmsx403>
+	Fri, 2 Dec 2005 11:46:21 -0500
+Received: from smtp1-g19.free.fr ([212.27.42.27]:65239 "EHLO smtp1-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1750821AbVLBQqU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 11:46:20 -0500
+From: Duncan Sands <duncan.sands@free.fr>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Subject: Re: speedtch driver, 2.6.14.2
+Date: Fri, 2 Dec 2005 17:46:18 +0100
+User-Agent: KMail/1.9
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       linux-kernel@vger.kernel.org
+References: <200511232125.25254.s0348365@sms.ed.ac.uk> <200512010859.19905.duncan.sands@free.fr> <m3u0ds7so0.fsf@defiant.localdomain>
+In-Reply-To: <m3u0ds7so0.fsf@defiant.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <3ACA40606221794F80A5670F0AF15F84041AC237@pdsmsx403>
+Message-Id: <200512021746.18870.duncan.sands@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/2/05, Yu, Luming <luming.yu@intel.com> wrote:
-> I just tested module wistron_btn on  one Acer Aspire laptop after
-> adding one dmi entry.  The wistron_btn found BIOS interfaces.
-> One visible error is the bluetooth light won't turn on upon
-> stroking bluetooth button.
-> Without wistron_btn module, the bluetooth light works.
->  with acpi enabled, I didn't try acpi disabled)
->
+Hi Krzysztof,
 
-Did you add the new keymap table with KE_BLUETOOTH to go with that DMI entry?
+> Dec  1 15:20:47 defiant kernel: ATM dev 0: speedtch_check_status entered
+> Dec  1 15:20:51 defiant kernel: usb 1-1: events/0 timed out on ep0in len=0/4
+> Dec  1 15:20:51 defiant kernel: ATM dev 0: speedtch_read_status: MSG D failed
+> Dec  1 15:20:51 defiant kernel: ATM dev 0: error -110 fetching device status
 
-> wistron_btn polls a cmos address to detect hotkey event.  It
-> is not necessary, because there do have ACPI interrupt triggered upon
-> hotkeys.
->
+by an amazing coincidence, exactly the same thing happened to me yesterday.  I
+had plugged and unplugged the phone line several times during the day, so maybe
+I will be able to reproduce it at will.
 
-Unfortunately ACPI does not route these events through the input layer
-so aside from special buttons (like sleep) it is not very useful.
+Ciao,
 
-> So, my suggestion is to disable this module when ACPI enabled.
-> We need to implement hotkey support from ACPI subsystem for my
-> Acer aspire laptop.
-
-I do not agree.
-
---
-Dmitry
+Duncan.

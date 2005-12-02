@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964837AbVLBD1e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbVLBD2I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964837AbVLBD1e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 22:27:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964841AbVLBD12
+	id S964836AbVLBD2I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 22:28:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964830AbVLBD1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 22:27:28 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:5330 "EHLO e36.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964839AbVLBD1Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 22:27:24 -0500
-Date: Thu, 1 Dec 2005 20:27:22 -0700
+	Thu, 1 Dec 2005 22:27:38 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:13733 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S964838AbVLBD1L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 22:27:11 -0500
+Date: Thu, 1 Dec 2005 20:27:09 -0700
 From: john stultz <johnstul@us.ibm.com>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Ingo Molnar <mingo@elte.hu>, Darren Hart <dvhltc@us.ibm.com>,
@@ -20,399 +20,614 @@ Cc: Ingo Molnar <mingo@elte.hu>, Darren Hart <dvhltc@us.ibm.com>,
        Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
        Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
        john stultz <johnstul@us.ibm.com>
-Message-Id: <20051202032722.19357.37702.sendpatchset@cog.beaverton.ibm.com>
+Message-Id: <20051202032708.19357.29058.sendpatchset@cog.beaverton.ibm.com>
 In-Reply-To: <20051202032551.19357.51421.sendpatchset@cog.beaverton.ibm.com>
 References: <20051202032551.19357.51421.sendpatchset@cog.beaverton.ibm.com>
-Subject: [PATCH 13/13] Time: Generic Timekeeping Paraniod Debug Patch
+Subject: [PATCH 11/13] Time: i386/x86-64 Clocksource Drivers
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 All,
 
-	This patch provides paranoid checking of the timekeeping code. It is
-not intended to be submitted to mainline, but to allow developers and
-testers using the timeofday patches to better find or rule-out potential
-timekeeping problems.
+	This patch implements the time sources shared between i386 and x86-64
+(acpi_pm, cyclone, hpet, pit, tsc and tsc-interp). The patch should
+apply on top of the timeofday-arch-i386-part4 patch as well as the
+arch-x86-64 patch
+	
+	The patch should be fairly straight forward, only adding the new
+clocksources.
 
 thanks
 -john
 
 Signed-off-by: John Stultz <johnstul@us.ibm.com>
 
- arch/i386/kernel/tsc.c    |   62 +++++++++++++++++++++++
- arch/x86_64/kernel/time.c |   47 +++++++++++++++++
- include/asm-generic/bug.h |   10 +++
- kernel/time/timeofday.c   |  124 +++++++++++++++++++++++++++++++++++++++++++++-
- lib/Kconfig.debug         |    5 +
- 5 files changed, 245 insertions(+), 3 deletions(-)
+ arch/i386/kernel/Makefile     |    1 
+ arch/i386/kernel/hpet.c       |   69 ++++++++++++++++++
+ arch/i386/kernel/i8253.c      |   60 ++++++++++++++++
+ arch/i386/kernel/tsc.c        |  102 +++++++++++++++++++++++++++
+ drivers/Makefile              |    1 
+ drivers/clocksource/Makefile  |    2 
+ drivers/clocksource/acpi_pm.c |  154 ++++++++++++++++++++++++++++++++++++++++++
+ drivers/clocksource/cyclone.c |  121 +++++++++++++++++++++++++++++++++
+ 8 files changed, 509 insertions(+), 1 deletion(-)
 
-linux-2.6.15-rc3-mm1_timeofday-paranoid-debug_B12.patch
+linux-2.6.15-rc3-mm1_timeofday-clocks-i386_B12.patch
 ==========================
-diff -ruN tod-mm1/arch/i386/kernel/tsc.c tod-mm2/arch/i386/kernel/tsc.c
---- tod-mm1/arch/i386/kernel/tsc.c	2005-12-01 18:27:29.000000000 -0800
-+++ tod-mm2/arch/i386/kernel/tsc.c	2005-12-01 18:28:12.000000000 -0800
-@@ -328,6 +328,67 @@
- static unsigned long current_tsc_khz = 0;
- static int tsc_update_callback(void);
- 
-+#ifdef CONFIG_PARANOID_GENERIC_TIME
-+/* This will hurt performance! */
-+static DEFINE_SPINLOCK(checktsc_lock);
-+static cycle_t last_tsc;
+diff -ruN tod-mm1/arch/i386/kernel/hpet.c tod-mm2/arch/i386/kernel/hpet.c
+--- tod-mm1/arch/i386/kernel/hpet.c	1969-12-31 16:00:00.000000000 -0800
++++ tod-mm2/arch/i386/kernel/hpet.c	2005-12-01 18:26:50.000000000 -0800
+@@ -0,0 +1,69 @@
++#include <linux/clocksource.h>
++#include <linux/errno.h>
++#include <linux/hpet.h>
++#include <linux/init.h>
 +
-+static cycle_t read_tsc(void)
++#include <asm/hpet.h>
++#include <asm/io.h>
++
++#define HPET_MASK	0xFFFFFFFF
++#define HPET_SHIFT	22
++
++/* FSEC = 10^-15 NSEC = 10^-9 */
++#define FSEC_PER_NSEC	1000000
++
++static void *hpet_ptr;
++
++static cycle_t read_hpet(void)
 +{
-+	static int once = 1;
-+
-+	unsigned long flags;
-+	cycle_t ret;
-+
-+	spin_lock_irqsave(&checktsc_lock, flags);
-+
-+	rdtscll(ret);
-+
-+	if (once && ret < last_tsc) {
-+		once = 0;
-+		spin_unlock_irqrestore(&checktsc_lock, flags);
-+		printk("BUG in read_tsc(): TSC went backward!\n");
-+		if (num_online_cpus() > 1)
-+			printk("... Unsynced TSCs?\n");
-+		printk("... [ from %016Lx to %016Lx ]\n", last_tsc, ret);
-+
-+	} else {
-+		last_tsc = ret;
-+		spin_unlock_irqrestore(&checktsc_lock, flags);
-+	}
-+
-+	return ret;
++	return (cycle_t)readl(hpet_ptr);
 +}
 +
-+static cycle_t read_tsc_c3(void)
++struct clocksource clocksource_hpet = {
++	.name		= "hpet",
++	.rating		= 250,
++	.read		= read_hpet,
++	.mask		= (cycle_t)HPET_MASK,
++	.mult		= 0, /* set below */
++	.shift		= HPET_SHIFT,
++	.is_continuous	= 1,
++};
++
++static int __init init_hpet_clocksource(void)
 +{
-+	static int once = 1;
++	unsigned long hpet_period;
++	void __iomem* hpet_base;
++	u64 tmp;
 +
-+	unsigned long flags;
-+	cycle_t ret;
++	if (!hpet_address)
++		return -ENODEV;
 +
-+	spin_lock_irqsave(&checktsc_lock, flags);
++	/* calculate the hpet address: */
++	hpet_base =
++		(void __iomem*)ioremap_nocache(hpet_address, HPET_MMAP_SIZE);
++	hpet_ptr = hpet_base + HPET_COUNTER;
 +
-+	rdtscll(ret);
-+	ret += tsc_read_c3_time();
++	/* calculate the frequency: */
++	hpet_period = readl(hpet_base + HPET_PERIOD);
 +
-+	if (once && ret < last_tsc) {
-+		once = 0;
-+		spin_unlock_irqrestore(&checktsc_lock, flags);
-+		printk("BUG in read_tsc_c3(): TSC went backward!\n");
-+		if (num_online_cpus() > 1)
-+			printk("... Unsynced TSCs?\n");
-+		printk("... [ from %016Lx to %016Lx ]\n", last_tsc, ret);
-+	} else {
-+		last_tsc = ret;
-+		spin_unlock_irqrestore(&checktsc_lock, flags);
-+	}
++	/*
++	 * hpet period is in femto seconds per cycle
++	 * so we need to convert this to ns/cyc units
++	 * aproximated by mult/2^shift
++	 *
++	 *  fsec/cyc * 1nsec/1000000fsec = nsec/cyc = mult/2^shift
++	 *  fsec/cyc * 1ns/1000000fsec * 2^shift = mult
++	 *  fsec/cyc * 2^shift * 1nsec/1000000fsec = mult
++	 *  (fsec/cyc << shift)/1000000 = mult
++	 *  (hpet_period << shift)/FSEC_PER_NSEC = mult
++	 */
++	tmp = (u64)hpet_period << HPET_SHIFT;
++	do_div(tmp, FSEC_PER_NSEC);
++	clocksource_hpet.mult = (u32)tmp;
 +
-+	return ret;
++	register_clocksource(&clocksource_hpet);
++
++	return 0;
 +}
 +
-+#else /* CONFIG_PARANOID_GENERIC_TIME */
-+
- static cycle_t read_tsc(void)
- {
- 	cycle_t ret;
-@@ -346,6 +407,7 @@
- 	return ret + tsc_read_c3_time();
- }
- 
-+#endif /* CONFIG_PARANOID_GENERIC_TIME */
- 
- static struct clocksource clocksource_tsc = {
- 	.name			= "tsc",
-diff -ruN tod-mm1/arch/x86_64/kernel/time.c tod-mm2/arch/x86_64/kernel/time.c
---- tod-mm1/arch/x86_64/kernel/time.c	2005-12-01 18:28:04.000000000 -0800
-+++ tod-mm2/arch/x86_64/kernel/time.c	2005-12-01 18:28:12.000000000 -0800
-@@ -1054,16 +1054,50 @@
- 
- static int tsc_update_callback(void);
- 
-+#ifdef CONFIG_PARANOID_GENERIC_TIME
-+/* This will hurt performance! */
-+static DEFINE_SPINLOCK(checktsc_lock);
-+static cycle_t last_tsc;
-+
- static cycle_t read_tsc(void)
- {
-+	unsigned long flags;
- 	cycle_t ret;
- 
-+	spin_lock_irqsave(&checktsc_lock, flags);
-+
- 	rdtscll(ret);
- 
-+	if (ret < last_tsc)
-+		printk("read_tsc: ACK! TSC went backward! Unsynced TSCs?\n");
-+	last_tsc = ret;
-+
-+	spin_unlock_irqrestore(&checktsc_lock, flags);
- 	return ret;
- }
- 
--static cycle_t __vsyscall_fn vread_tsc(void* unused)
-+static cycle_t read_tsc_c3(void)
-+{
-+	unsigned long flags;
-+	cycle_t ret;
-+
-+	spin_lock_irqsave(&checktsc_lock, flags);
-+
-+	rdtscll(ret);
-+	ret += tsc_read_c3_time();
-+
-+	if (ret < last_tsc)
-+		printk("read_tsc_c3: ACK! TSC went backward! Unsynced TSCs?\n");
-+	last_tsc = ret;
-+
-+	spin_unlock_irqrestore(&checktsc_lock, flags);
-+
-+	return ret;
-+}
-+
-+#else /* CONFIG_PARANOID_GENERIC_TIME */
-+
-+static cycle_t read_tsc(void)
- {
- 	cycle_t ret;
- 
-@@ -1081,6 +1115,17 @@
- 	return ret + tsc_read_c3_time();
- }
- 
-+#endif /* CONFIG_PARANOID_GENERIC_TIME */
-+
-+static cycle_t __vsyscall_fn vread_tsc(void* unused)
-+{
-+	cycle_t ret;
-+
-+	rdtscll(ret);
-+
-+	return ret;
-+}
-+
- static struct clocksource clocksource_tsc = {
- 	.name			= "tsc",
- 	.rating			= 300,
-diff -ruN tod-mm1/include/asm-generic/bug.h tod-mm2/include/asm-generic/bug.h
---- tod-mm1/include/asm-generic/bug.h	2005-12-01 18:13:31.000000000 -0800
-+++ tod-mm2/include/asm-generic/bug.h	2005-12-01 18:28:12.000000000 -0800
-@@ -39,4 +39,14 @@
- #endif
- #endif
- 
-+#define WARN_ON_ONCE(condition)		\
-+do {					\
-+	static int warn_once = 1;	\
-+					\
-+	if (condition) {		\
-+		warn_once = 0;		\
-+		WARN_ON(1);		\
-+	}				\
-+} while (0);
-+
- #endif
-diff -ruN tod-mm1/kernel/time/timeofday.c tod-mm2/kernel/time/timeofday.c
---- tod-mm1/kernel/time/timeofday.c	2005-12-01 18:23:10.000000000 -0800
-+++ tod-mm2/kernel/time/timeofday.c	2005-12-01 18:28:12.000000000 -0800
-@@ -121,6 +121,109 @@
-  */
- static struct ktimer timeofday_timer;
- 
-+
-+#ifdef CONFIG_PARANOID_GENERIC_TIME
-+/* This will hurt performance! */
-+static DEFINE_SPINLOCK(check_monotonic_lock);
-+static ktime_t last_monotonic_ktime;
-+
-+static ktime_t get_check_value(void)
-+{
-+	unsigned long flags;
-+	ktime_t ret;
-+
-+	spin_lock_irqsave(&check_monotonic_lock, flags);
-+	ret = last_monotonic_ktime;
-+	spin_unlock_irqrestore(&check_monotonic_lock, flags);
-+
-+	return ret;
-+}
-+
-+static void check_monotonic_clock(ktime_t prev, ktime_t now)
-+{
-+	unsigned long flags;
-+
-+	/* check for monotonic inconsistencies */
-+	if (ktime_cmp(now, <, prev)) {
-+		static int warn = 1;
-+
-+		if (warn) {
-+			warn = 0;
-+
-+			printk("check_monotonic_clock: monotonic inconsistency"
-+					" detected!\n");
-+			printk("	from %16Lx (%llu) to %16Lx (%llu).\n",
-+					ktime_to_ns(prev),
-+					ktime_to_ns(prev),
-+					ktime_to_ns(now),
-+					ktime_to_ns(now));
-+			WARN_ON(1);
-+		}
-+	}
-+	spin_lock_irqsave(&check_monotonic_lock, flags);
-+	last_monotonic_ktime = now;
-+	spin_unlock_irqrestore(&check_monotonic_lock, flags);
-+}
-+
-+/* timespec version */
-+#define check_monotonic_clock_ts(prev, now) \
-+	check_monotonic_clock(prev, timespec_to_ktime(now))
-+
-+/* Call holding atleast a readlock on system_time_lock */
-+void verify_timekeeping_state(void)
-+{
-+	/* ensure all the timespec and ktime values are consistent: */
-+	WARN_ON_ONCE(ktime_cmp(system_time, !=,
-+			timespec_to_ktime(mono_time_ts)));
-+	WARN_ON_ONCE(ktime_cmp(ktime_add(system_time, wall_time_offset), !=,
-+			timespec_to_ktime(wall_time_ts)));
-+	WARN_ON_ONCE(ktime_cmp(wall_time_offset, !=,
-+			timespec_to_ktime(monotonic_time_offset_ts)));
-+}
-+
-+static void check_periodic_interval(cycle_t now)
-+{
-+	static cycle_t last;
-+
-+	cycle_t delta;
-+	nsec_t ns_offset;
-+
-+	if (last != 0 && now != 0) {
-+		delta = (now - last)& clock->mask;
-+
-+		ns_offset = cyc2ns(clock, ntp_adj, delta);
-+
-+		if (ns_offset > (nsec_t)2*PERIODIC_INTERVAL_MS *1000000) {
-+			static int warn_count = 10;
-+			if (warn_count > 0) {
-+				warn_count--;
-+				printk("check_periodic_interval: Long interval! %llu.\n",
-+								ns_offset);
-+				printk("		Something may be blocking interrupts.\n");
-+			}
-+		}
-+		if (ns_offset < (nsec_t)PERIODIC_INTERVAL_MS *1000000) {
-+			static int warn_count = 10;
-+			if (warn_count > 0) {
-+				warn_count--;
-+				printk("check_periodic_interval: short interval! %llu.\n",
-+								ns_offset);
-+				printk("		bad calibration or ktimers may be broken.\n");
-+			}
-+		}
-+	}
-+	last = now;
-+}
-+
-+#else /* CONFIG_PARANOID_GENERIC_TIME */
-+  /* XXX can we optimize this out? */
-+# define get_check_value(void)		ktime_set(0,0)
-+# define check_monotonic_clock(x,y)	do { } while (0)
-+# define check_monotonic_clock_ts(x,ts)	do { } while (0)
-+# define verify_timekeeping_state()	do { } while (0)
-+# define check_periodic_interval(x)	do { } while (0)
-+#endif /* CONFIG_PARANOID_GENERIC_TIME */
-+
- /**
-  * update_legacy_time_values - sync legacy time values
++module_init(init_hpet_clocksource);
+diff -ruN tod-mm1/arch/i386/kernel/i8253.c tod-mm2/arch/i386/kernel/i8253.c
+--- tod-mm1/arch/i386/kernel/i8253.c	2005-12-01 18:24:31.000000000 -0800
++++ tod-mm2/arch/i386/kernel/i8253.c	2005-12-01 18:26:50.000000000 -0800
+@@ -2,6 +2,7 @@
+  * i8253.c  8253/PIT functions
   *
-@@ -187,7 +290,14 @@
- static inline ktime_t __get_monotonic_clock(void)
- {
- 	nsec_t offset = __get_nsec_offset();
--	return ktime_add_ns(system_time, offset);
-+#ifdef CONFIG_PARANOID_GENERIC_TIME
-+	ktime_t check = get_check_value();
-+#endif
-+	ktime_t ret;
-+
-+	ret = ktime_add_ns(system_time, offset);
-+	check_monotonic_clock(check,ret);
-+	return ret;
- }
- 
- /**
-@@ -268,6 +378,9 @@
   */
- void get_monotonic_clock_ts(struct timespec *ts)
- {
-+#ifdef CONFIG_PARANOID_GENERIC_TIME
-+	ktime_t check = get_check_value();
-+#endif
- 	unsigned long seq;
- 	nsec_t offset;
- 
-@@ -279,6 +392,7 @@
- 	} while (read_seqretry(&system_time_lock, seq));
- 
- 	timespec_add_ns(ts, offset);
-+	check_monotonic_clock_ts(check, *ts);
++#include <linux/clocksource.h>
+ #include <linux/spinlock.h>
+ #include <linux/jiffies.h>
+ #include <linux/sysdev.h>
+@@ -57,3 +58,62 @@
  }
  
- /**
-@@ -361,7 +475,9 @@
- 	update_legacy_time_values();
+ device_initcall(init_timer_sysfs);
++
++
++/*
++ * Since the PIT overflows every tick, its not very useful
++ * to just read by itself. So use jiffies to emulate a free
++ * running counter:
++ */
++static cycle_t pit_read(void)
++{
++	unsigned long flags, seq;
++	int count;
++	u64 jifs;
++
++	do {
++		seq = read_seqbegin(&xtime_lock);
++
++		spin_lock_irqsave(&i8253_lock, flags);
++		outb_p(0x00, PIT_MODE);	/* latch the count ASAP */
++		count = inb_p(PIT_CH0);	/* read the latched count */
++		count |= inb_p(PIT_CH0) << 8;
++
++		/* VIA686a test code... reset the latch if count > max + 1 */
++		if (count > LATCH) {
++			outb_p(0x34, PIT_MODE);
++			outb_p(LATCH & 0xff, PIT_CH0);
++			outb(LATCH >> 8, PIT_CH0);
++			count = LATCH - 1;
++		}
++		spin_unlock_irqrestore(&i8253_lock, flags);
++
++		jifs = jiffies_64;
++	} while (read_seqretry(&xtime_lock, seq));
++
++	jifs -= INITIAL_JIFFIES;
++	count = (LATCH-1) - count;
++
++	return (cycle_t)(jifs * LATCH) + count;
++}
++
++static struct clocksource clocksource_pit = {
++	.name	= "pit",
++	.rating = 110,
++	.read	= pit_read,
++	.mask	= (cycle_t)-1,
++	.mult	= 0,
++	.shift	= 20,
++};
++
++static int __init init_pit_clocksource(void)
++{
++	if (num_possible_cpus() > 4) /* PIT does not scale! */
++		return 0;
++
++	clocksource_pit.mult = clocksource_hz2mult(CLOCK_TICK_RATE, 20);
++	register_clocksource(&clocksource_pit);
++
++	return 0;
++}
++module_init(init_pit_clocksource);
+diff -ruN tod-mm1/arch/i386/kernel/Makefile tod-mm2/arch/i386/kernel/Makefile
+--- tod-mm1/arch/i386/kernel/Makefile	2005-12-01 18:26:05.000000000 -0800
++++ tod-mm2/arch/i386/kernel/Makefile	2005-12-01 18:26:50.000000000 -0800
+@@ -36,6 +36,7 @@
+ obj-$(CONFIG_EFI) 		+= efi.o efi_stub.o
+ obj-$(CONFIG_DOUBLEFAULT) 	+= doublefault.o
+ obj-$(CONFIG_EARLY_PRINTK)	+= early_printk.o
++obj-$(CONFIG_HPET_TIMER) 	+= hpet.o
  
- 	write_sequnlock_irqrestore(&system_time_lock, flags);
--
-+#ifdef CONFIG_PARANOID_GENERIC_TIME
-+	printk("do_settimeofday() was called!\n");
+ EXTRA_AFLAGS   := -traditional
+ 
+diff -ruN tod-mm1/arch/i386/kernel/tsc.c tod-mm2/arch/i386/kernel/tsc.c
+--- tod-mm1/arch/i386/kernel/tsc.c	2005-12-01 18:26:05.000000000 -0800
++++ tod-mm2/arch/i386/kernel/tsc.c	2005-12-01 18:26:50.000000000 -0800
+@@ -4,13 +4,14 @@
+  * See comments there for proper credits.
+  */
+ 
++#include <linux/clocksource.h>
+ #include <linux/workqueue.h>
+ #include <linux/cpufreq.h>
+ #include <linux/jiffies.h>
+ #include <linux/init.h>
+ 
+-#include <asm/tsc.h>
+ #include <asm/delay.h>
++#include <asm/tsc.h>
+ #include <asm/io.h>
+ 
+ #include "mach_timer.h"
+@@ -321,3 +322,102 @@
+ core_initcall(cpufreq_tsc);
+ 
+ #endif
++
++/* clock source code */
++
++static unsigned long current_tsc_khz = 0;
++static int tsc_update_callback(void);
++
++static cycle_t read_tsc(void)
++{
++	cycle_t ret;
++
++	rdtscll(ret);
++
++	return ret;
++}
++
++static cycle_t read_tsc_c3(void)
++{
++	cycle_t ret;
++
++	rdtscll(ret);
++
++	return ret + tsc_read_c3_time();
++}
++
++
++static struct clocksource clocksource_tsc = {
++	.name			= "tsc",
++	.rating			= 300,
++	.read			= read_tsc,
++	.mask			= (cycle_t)-1,
++	.mult			= 0, /* to be set */
++	.shift			= 22,
++	.update_callback	= tsc_update_callback,
++	.is_continuous		= 1,
++};
++
++static int tsc_update_callback(void)
++{
++	int change = 0;
++
++	/* check to see if we should switch to the safe clocksource: */
++	if (tsc_read_c3_time() && strncmp(clocksource_tsc.name, "c3tsc", 5)) {
++		printk("Falling back to C3 safe TSC\n");
++		clocksource_tsc.read = read_tsc_c3;
++		clocksource_tsc.name = "c3tsc";
++		change = 1;
++	}
++
++	if (clocksource_tsc.rating != 50 && check_tsc_unstable()) {
++		clocksource_tsc.rating = 50;
++		reselect_clocksource();
++		change = 1;
++	}
++
++	/* only update if tsc_khz has changed: */
++	if (current_tsc_khz != tsc_khz) {
++		current_tsc_khz = tsc_khz;
++		clocksource_tsc.mult = clocksource_khz2mult(current_tsc_khz,
++							clocksource_tsc.shift);
++		change = 1;
++	}
++
++	return change;
++}
++
++/*
++ * Make an educated guess if the TSC is trustworthy and synchronized
++ * over all CPUs.
++ */
++static __init int unsynchronized_tsc(void)
++{
++	/*
++	 * Intel systems are normally all synchronized.
++	 * Exceptions must mark TSC as unstable:
++	 */
++	if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL)
++ 		return 0;
++
++	/* assume multi socket systems are not synchronized: */
++ 	return num_possible_cpus() > 1;
++}
++
++/* NUMAQ can't use TSC: */
++static int __init init_tsc_clocksource(void)
++{
++	/* TSC initialization is done in arch/i386/kernel/tsc.c */
++	if (cpu_has_tsc && tsc_khz && !tsc_disable) {
++		if (unsynchronized_tsc()) /* lower rating if unsynced */
++			clocksource_tsc.rating = 150;
++		current_tsc_khz = tsc_khz;
++		clocksource_tsc.mult = clocksource_khz2mult(current_tsc_khz,
++							clocksource_tsc.shift);
++		register_clocksource(&clocksource_tsc);
++	}
++
++	return 0;
++}
++
++module_init(init_tsc_clocksource);
+diff -ruN tod-mm1/drivers/clocksource/acpi_pm.c tod-mm2/drivers/clocksource/acpi_pm.c
+--- tod-mm1/drivers/clocksource/acpi_pm.c	1969-12-31 16:00:00.000000000 -0800
++++ tod-mm2/drivers/clocksource/acpi_pm.c	2005-12-01 18:26:50.000000000 -0800
+@@ -0,0 +1,154 @@
++/*
++ * linux/drivers/clocksource/acpi_pm.c
++ *
++ * This file contains the ACPI PM based clocksource.
++ *
++ * This code was largely moved from the i386 timer_pm.c file
++ * which was (C) Dominik Brodowski <linux@brodo.de> 2003
++ * and contained the following comments:
++ *
++ * Driver to use the Power Management Timer (PMTMR) available in some
++ * southbridges as primary timing source for the Linux kernel.
++ *
++ * Based on parts of linux/drivers/acpi/hardware/hwtimer.c, timer_pit.c,
++ * timer_hpet.c, and on Arjan van de Ven's implementation for 2.4.
++ *
++ * This file is licensed under the GPL v2.
++ */
++
++#include <linux/clocksource.h>
++#include <linux/errno.h>
++#include <linux/init.h>
++#include <asm/io.h>
++
++/* Number of PMTMR ticks expected during calibration run */
++#define PMTMR_TICKS_PER_SEC 3579545
++
++#if (defined(CONFIG_X86) && (!defined(CONFIG_X86_64)))
++# include "mach_timer.h"
++# define PMTMR_EXPECTED_RATE ((PMTMR_TICKS_PER_SEC*CALIBRATE_TIME_MSEC)/1000)
 +#endif
- 	/* signal ktimers about time change */
- 	clock_was_set();
- 
-@@ -518,6 +634,7 @@
- 
- 	/* read time source & calc time since last call: */
- 	cycle_now = read_clocksource(clock);
-+	check_periodic_interval(cycle_now);
- 	cycle_delta = (cycle_now - cycle_last) & clock->mask;
- 
- 	delta_nsec = cyc2ns_fixed_rem(ts_interval, &cycle_delta, &remainder);
-@@ -562,6 +679,7 @@
- 		ntp_adj = 0;
- 		remainder = 0;
- 		something_changed = 1;
-+		check_periodic_interval(0);
- 	}
- 
- 	/*
-@@ -611,6 +729,8 @@
- 
- 	update_legacy_time_values();
- 
-+	verify_timekeeping_state();
 +
- 	write_sequnlock_irqrestore(&system_time_lock, flags);
- 
- 	/* set us up to go off on the next interval: */
-diff -ruN tod-mm1/lib/Kconfig.debug tod-mm2/lib/Kconfig.debug
---- tod-mm1/lib/Kconfig.debug	2005-12-01 18:13:40.000000000 -0800
-+++ tod-mm2/lib/Kconfig.debug	2005-12-01 18:28:12.000000000 -0800
-@@ -46,6 +46,11 @@
- 		     13 =>  8 KB
- 		     12 =>  4 KB
- 
-+config PARANOID_GENERIC_TIME
-+	default y
-+	depends on GENERIC_TIME
-+	bool "Paraniod Timekeeping Checks"
++/*
++ * The I/O port the PMTMR resides at.
++ * The location is detected during setup_arch(),
++ * in arch/i386/acpi/boot.c
++ */
++extern u32 acpi_pmtmr_ioport;
++extern int acpi_pmtmr_buggy;
 +
- config DETECT_SOFTLOCKUP
- 	bool "Detect Soft Lockups"
- 	depends on DEBUG_KERNEL
++#define ACPI_PM_MASK 0xFFFFFF /* limit it to 24 bits */
++
++static inline u32 read_pmtmr(void)
++{
++	/* mask the output to 24 bits */
++	return inl(acpi_pmtmr_ioport) & ACPI_PM_MASK;
++}
++
++static cycle_t acpi_pm_read_verified(void)
++{
++	u32 v1 = 0, v2 = 0, v3 = 0;
++
++	/*
++	 * It has been reported that because of various broken
++	 * chipsets (ICH4, PIIX4 and PIIX4E) where the ACPI PM clock
++	 * source is not latched, so you must read it multiple
++	 * times to ensure a safe value is read:
++	 */
++	do {
++		v1 = read_pmtmr();
++		v2 = read_pmtmr();
++		v3 = read_pmtmr();
++	} while ((v1 > v2 && v1 < v3) || (v2 > v3 && v2 < v1)
++			|| (v3 > v1 && v3 < v2));
++
++	return (cycle_t)v2;
++}
++
++static cycle_t acpi_pm_read(void)
++{
++	return (cycle_t)read_pmtmr();
++}
++
++struct clocksource clocksource_acpi_pm = {
++	.name		= "acpi_pm",
++	.rating		= 200,
++	.read		= acpi_pm_read,
++	.mask		= (cycle_t)ACPI_PM_MASK,
++	.mult		= 0, /*to be caluclated*/
++	.shift		= 22,
++	.is_continuous	= 1,
++};
++
++#if defined(CONFIG_X86) && !defined(CONFIG_X86_64)
++/*
++ * Some boards have the PMTMR running way too fast. We check
++ * the PMTMR rate against PIT channel 2 to catch these cases.
++ */
++static int __init verify_pmtmr_rate(void)
++{
++	unsigned long count, delta;
++	u32 value1, value2;
++
++	mach_prepare_counter();
++	value1 = read_pmtmr();
++	mach_countup(&count);
++	value2 = read_pmtmr();
++	delta = (value2 - value1) & ACPI_PM_MASK;
++
++	/* check that the PMTMR delta is within 5% of what we expect: */
++	if (delta < (PMTMR_EXPECTED_RATE * 19) / 20 ||
++	    delta > (PMTMR_EXPECTED_RATE * 21) / 20) {
++		printk(KERN_INFO "PM-Timer running at invalid rate: %lu%% of normal - aborting.\n", 100UL * delta / PMTMR_EXPECTED_RATE);
++		return -1;
++	}
++
++	return 0;
++}
++#else
++# define verify_pmtmr_rate() (0)
++#endif
++
++static int __init init_acpi_pm_clocksource(void)
++{
++	u32 value1, value2;
++	unsigned int i;
++
++	if (!acpi_pmtmr_ioport)
++		return -ENODEV;
++
++	clocksource_acpi_pm.mult = clocksource_hz2mult(PMTMR_TICKS_PER_SEC,
++						clocksource_acpi_pm.shift);
++
++	/* "verify" this timing source: */
++	value1 = read_pmtmr();
++	for (i = 0; i < 10000; i++) {
++		value2 = read_pmtmr();
++		if (value2 == value1)
++			continue;
++		if (value2 > value1)
++			goto pm_good;
++		if ((value2 < value1) && ((value2) < 0xFFF))
++			goto pm_good;
++		printk(KERN_INFO "PM-Timer had inconsistent results: 0x%#x, 0x%#x - aborting.\n", value1, value2);
++		return -EINVAL;
++	}
++	printk(KERN_INFO "PM-Timer had no reasonable result: 0x%#x - aborting.\n", value1);
++	return -ENODEV;
++
++pm_good:
++	if (verify_pmtmr_rate() != 0)
++		return -ENODEV;
++
++	/* check to see if pmtmr is known buggy: */
++	if (acpi_pmtmr_buggy) {
++		clocksource_acpi_pm.read = acpi_pm_read_verified;
++		clocksource_acpi_pm.rating = 110;
++	}
++
++	register_clocksource(&clocksource_acpi_pm);
++
++	return 0;
++}
++
++module_init(init_acpi_pm_clocksource);
+diff -ruN tod-mm1/drivers/clocksource/cyclone.c tod-mm2/drivers/clocksource/cyclone.c
+--- tod-mm1/drivers/clocksource/cyclone.c	1969-12-31 16:00:00.000000000 -0800
++++ tod-mm2/drivers/clocksource/cyclone.c	2005-12-01 18:26:50.000000000 -0800
+@@ -0,0 +1,121 @@
++#include <linux/clocksource.h>
++#include <linux/string.h>
++#include <linux/errno.h>
++#include <linux/timex.h>
++#include <linux/init.h>
++
++#include <asm/pgtable.h>
++#include <asm/io.h>
++
++#include "mach_timer.h"
++
++#define CYCLONE_CBAR_ADDR	0xFEB00CD0	/* base address ptr */
++#define CYCLONE_PMCC_OFFSET	0x51A0		/* offset to control register */
++#define CYCLONE_MPCS_OFFSET	0x51A8		/* offset to select register */
++#define CYCLONE_MPMC_OFFSET	0x51D0		/* offset to count register */
++#define CYCLONE_TIMER_FREQ	99780000	/* 100Mhz, but not really */
++#define CYCLONE_TIMER_MASK	0xFFFFFFFF	/* 32 bit mask */
++
++int use_cyclone = 0;
++static void __iomem *cyclone_ptr;
++
++static cycle_t read_cyclone(void)
++{
++	return (cycle_t)readl(cyclone_ptr);
++}
++
++struct clocksource clocksource_cyclone = {
++	.name		= "cyclone",
++	.rating		= 250,
++	.read		= read_cyclone,
++	.mask		= (cycle_t)CYCLONE_TIMER_MASK,
++	.mult		= 10,
++	.shift		= 0,
++	.is_continuous	= 1,
++};
++
++static int __init init_cyclone_clocksource(void)
++{
++	unsigned long base;	/* saved value from CBAR */
++	unsigned long offset;
++	u32 __iomem* volatile cyclone_timer;	/* Cyclone MPMC0 register */
++	u32 __iomem* reg;
++	int i;
++
++	/* make sure we're on a summit box: */
++	if (!use_cyclone)
++		return -ENODEV;
++
++	printk(KERN_INFO "Summit chipset: Starting Cyclone Counter.\n");
++
++	/* find base address: */
++	offset = CYCLONE_CBAR_ADDR;
++	reg = ioremap_nocache(offset, sizeof(reg));
++	if (!reg) {
++		printk(KERN_ERR "Summit chipset: Could not find valid CBAR register.\n");
++		return -ENODEV;
++	}
++	/* even on 64bit systems, this is only 32bits: */
++	base = readl(reg);
++	if (!base) {
++		printk(KERN_ERR "Summit chipset: Could not find valid CBAR value.\n");
++		return -ENODEV;
++	}
++	iounmap(reg);
++
++	/* setup PMCC: */
++	offset = base + CYCLONE_PMCC_OFFSET;
++	reg = ioremap_nocache(offset, sizeof(reg));
++	if (!reg) {
++		printk(KERN_ERR "Summit chipset: Could not find valid PMCC register.\n");
++		return -ENODEV;
++	}
++	writel(0x00000001,reg);
++	iounmap(reg);
++
++	/* setup MPCS: */
++	offset = base + CYCLONE_MPCS_OFFSET;
++	reg = ioremap_nocache(offset, sizeof(reg));
++	if (!reg) {
++		printk(KERN_ERR "Summit chipset: Could not find valid MPCS register.\n");
++		return -ENODEV;
++	}
++	writel(0x00000001,reg);
++	iounmap(reg);
++
++	/* map in cyclone_timer: */
++	offset = base + CYCLONE_MPMC_OFFSET;
++	cyclone_timer = ioremap_nocache(offset, sizeof(u64));
++	if (!cyclone_timer) {
++		printk(KERN_ERR "Summit chipset: Could not find valid MPMC register.\n");
++		return -ENODEV;
++	}
++
++	/* quick test to make sure its ticking: */
++	for (i = 0; i < 3; i++){
++		u32 old = readl(cyclone_timer);
++		int stall = 100;
++
++		while (stall--)
++			barrier();
++
++		if (readl(cyclone_timer) == old) {
++			printk(KERN_ERR "Summit chipset: Counter not counting! DISABLED\n");
++			iounmap(cyclone_timer);
++			cyclone_timer = NULL;
++			return -ENODEV;
++		}
++	}
++	cyclone_ptr = cyclone_timer;
++
++	/* sort out mult/shift values: */
++	clocksource_cyclone.shift = 22;
++	clocksource_cyclone.mult = clocksource_hz2mult(CYCLONE_TIMER_FREQ,
++						clocksource_cyclone.shift);
++
++	register_clocksource(&clocksource_cyclone);
++
++	return 0;
++}
++
++module_init(init_cyclone_clocksource);
+diff -ruN tod-mm1/drivers/clocksource/Makefile tod-mm2/drivers/clocksource/Makefile
+--- tod-mm1/drivers/clocksource/Makefile	1969-12-31 16:00:00.000000000 -0800
++++ tod-mm2/drivers/clocksource/Makefile	2005-12-01 18:26:50.000000000 -0800
+@@ -0,0 +1,2 @@
++obj-$(CONFIG_X86_CYCLONE_TIMER) += cyclone.o
++obj-$(CONFIG_X86_PM_TIMER) += acpi_pm.o
+diff -ruN tod-mm1/drivers/Makefile tod-mm2/drivers/Makefile
+--- tod-mm1/drivers/Makefile	2005-12-01 18:13:03.000000000 -0800
++++ tod-mm2/drivers/Makefile	2005-12-01 18:26:50.000000000 -0800
+@@ -72,3 +72,4 @@
+ obj-y				+= firmware/
+ obj-$(CONFIG_CRYPTO)		+= crypto/
+ obj-$(CONFIG_SUPERH)		+= sh/
++obj-$(CONFIG_GENERIC_TIME)	+= clocksource/

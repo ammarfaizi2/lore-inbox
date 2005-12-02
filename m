@@ -1,110 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932722AbVLBLAN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbVLBLE4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932722AbVLBLAN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 06:00:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932725AbVLBLAM
+	id S932237AbVLBLE4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 06:04:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932721AbVLBLE4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 06:00:12 -0500
-Received: from ns.dynamicweb.hu ([195.228.155.139]:13254 "EHLO dynamicweb.hu")
-	by vger.kernel.org with ESMTP id S932237AbVLBLAL (ORCPT
+	Fri, 2 Dec 2005 06:04:56 -0500
+Received: from zproxy.gmail.com ([64.233.162.197]:17850 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932237AbVLBLEz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 06:00:11 -0500
-Message-ID: <00f801c5f72e$df2e58c0$0400a8c0@dcccs>
-From: "JaniD++" <djani22@dynamicweb.hu>
-To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
-Cc: <linux-kernel@vger.kernel.org>
-References: <016c01c5f6cc$0e28e6d0$0400a8c0@dcccs> <1133481721.9597.37.camel@lade.trondhjem.org>
-Subject: Re: 2.6.15-rc3: adduser: unable to lock password file
-Date: Fri, 2 Dec 2005 11:55:09 +0100
+	Fri, 2 Dec 2005 06:04:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=Zx0dFRa5IAiAVjZcjEUHUp5PfYZEFxlHy/g3ZgSd9gDlJRMlE3vi6xCt31kuUpuEuoSwATNS3WzA+nB3Ctv/zXcIsDAgSaSdy+uxFz09USMy3fRKEdpZhsVsfUkblnL3WXMqDSEvRtYLipCv1e9Djg27EEURavqu2sOej0XYU/A=
+Message-ID: <43902A52.9040909@gmail.com>
+Date: Fri, 02 Dec 2005 20:04:50 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-2"
+To: Yanggun <yang.geum.seok@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14 + SATAII150 TX2Plus does not recognize
+References: <ee0ae26a0512020039k1a28da61y@mail.gmail.com>
+In-Reply-To: <ee0ae26a0512020039k1a28da61y@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Yanggun wrote:
+> Hi,
+> 
+> i am currently using linux kernel version 2.6.14 on x86 with Promise
+> SATAII150 TX2Plus(250G SATA HDD Disk x 2).
+> 
+> But, SATA HDD disk does not become. program execute result of "fdisk
+> /dev/sda" is  "Unable to read /dev/sda".
+> 
+> Work well in linux kernel version 2.6.13.2.
+> 
+> Do not act below since change as result that do debugging.
+>        "[SCSI] use scatter lists for all block pc requests and
+> simplify hw handlers"
+>        -  http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=392160335c798bbe94ab3aae6ea0c85d32b81bbc
+> 
+> What should I do?
+> 
 
------ Original Message ----- 
-From: "Trond Myklebust" <trond.myklebust@fys.uio.no>
-To: "JaniD++" <djani22@dynamicweb.hu>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Friday, December 02, 2005 1:02 AM
-Subject: Re: 2.6.15-rc3: adduser: unable to lock password file
+Your controller is probably supported by sata_promise driver included in 
+the kernel.  Just use the standard driver.
 
-
-> On Thu, 2005-12-01 at 23:47 +0100, JaniD++ wrote:
-> > Hello, list,
-> >
-> > I get this after upgrade from 2.6.14.2
-> >
-> > [root@dy-xeon-1 etc]# adduser someuser
-> > adduser: unable to lock password file
-> > [root@dy-xeon-1 etc]#
-> >
-> > I use nfsroot!
->
-> I'm seeing no trouble with locking on 2.6.15-rc3 (with or without the
-> -onolock option). Could you please use 'strace' to get a dump of what
-> adduser is failing on?
-
-OK, i will try it, if i can.... (this is a productive online system, maybe
-next reboot)
-
-There is some additional info:
-
-[root@dy-xeon-1 root]# mount
-192.168.0.1://NFS/ROOT-BASE/ on / type nfs
-(rw,hard,rsize=8192,wsize=8192,timeo=5,retrans=0,actimeo=1)
-none on /proc type proc (rw,noexec,nosuid,nodev)
-192.168.2.100://DY_SYSTEM on /mnt/DY_SYSTEM type nfs
-(rw,hard,rsize=16384,wsize=8192,timeo=5,retrans=0,actimeo=1,addr=192.168.2.1
-00)
-192.168.2.100://MAIL_STORE on /mnt/mail_store type nfs
-(rw,hard,rsize=16384,wsize=8192,timeo=5,retrans=0,actimeo=1,noac,addr=192.16
-8.2.100)
-none on /dev/pts type devpts (rw,gid=5,mode=620)
-none on /dev/shm type tmpfs (rw)
-none on /sys type sysfs (rw)
-none on /dev/cpuset type cpuset (rw)
-/dev/md10 on /mnt/md10 type xfs
-(rw,noexec,nosuid,nodev,dirsync,_netdev,noatime,osyncisdsync,noalign)
-/dev/md31 on /mnt/md0 type xfs
-(rw,noexec,nosuid,nodev,dirsync,_netdev,noatime,osyncisdsync,noalign)
-
-The etc is on /  (the first line.)
-
-After i change the kernel from 2.6.14.2 to 2.6.15-rc3, my system starts to
-send error messages about user-existing.
-First i starts to search the problem, and finally tracked down to kernel.
-(I try to reboot with 15-rc3 and run adduser BEFORE all other service or
-script, and the issue is the same.
-Than i reboot back to 2.6.14.2, and the error message is gone!)
-
-The adduser sends messages "unable to lock password file", and
-sometime -usually first exec- "unable to lock shadow file".
-
-If i know correctly, the nfsroot is only works with NFS v2.
-Do you have try it with NFS or exactly on NFSROOT?
-
-On the next reboot, i will try strace....
-
-
-Cheers,
-
-Janos
-
->
-> Cheers,
->  Trond
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+-- 
+tejun

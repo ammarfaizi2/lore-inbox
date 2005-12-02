@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbVLBVlI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbVLBVnW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750766AbVLBVlI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 16:41:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbVLBVlI
+	id S1750807AbVLBVnW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 16:43:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbVLBVnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 16:41:08 -0500
-Received: from mail.kroah.org ([69.55.234.183]:21410 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750766AbVLBVlH (ORCPT
+	Fri, 2 Dec 2005 16:43:22 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:49290 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750807AbVLBVnV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 16:41:07 -0500
-Date: Fri, 2 Dec 2005 13:40:54 -0800
-From: Greg KH <gregkh@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Matthew Wilcox <matthew@wil.cx>, "Brown, Len" <len.brown@intel.com>
-Subject: Re: [2.6.15-rc4] oops in acpiphp
-Message-ID: <20051202214054.GB3948@suse.de>
-References: <4390B646.60709@pobox.com>
+	Fri, 2 Dec 2005 16:43:21 -0500
+Date: Fri, 2 Dec 2005 13:44:31 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: mail@dirk-gerdes.de, axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/4] linux-2.6-block: deactivating pagecache for
+ benchmarks
+Message-Id: <20051202134431.005de2b2.akpm@osdl.org>
+In-Reply-To: <1133558692.21429.89.camel@localhost.localdomain>
+References: <1133443051.6110.32.camel@noti>
+	<20051201172520.7095e524.akpm@osdl.org>
+	<1133558692.21429.89.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4390B646.60709@pobox.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 02, 2005 at 04:01:58PM -0500, Jeff Garzik wrote:
-> 
-> Booting with acpiphp on this dual core, dual package (2x2) box causes an 
-> oops.
+Badari Pulavarty <pbadari@us.ibm.com> wrote:
+>
+> Wondering, if this shrinks shared memory pages (since they are backed by
+> tmpfs) ? (which is not what I want).
 
-Hm, this is oopsing in the pci express hotplug driver, not the acpi
-hotplug driver.  Did you mean to load that driver? 
+It'll reclaim unused pagecache pages.  What effect that has on
+idioticfs^Wtmpfs pages depends on the state of the pages.  If they're
+attached to tmpfs inodes then they won't be reclaimed because they have no
+backing store.  If they're attached to swapcache then they won't be
+reclaimed because they have no superblock.
 
-I'll look at your other attachments for more details...
-
-thanks,
-
-greg k-h
+So I guess you got lucky.

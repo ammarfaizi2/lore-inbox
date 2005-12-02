@@ -1,64 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932592AbVLBA6M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932588AbVLBA7W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932592AbVLBA6M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 19:58:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932593AbVLBA6M
+	id S932588AbVLBA7W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 19:59:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932594AbVLBA7V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 19:58:12 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:8636 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932592AbVLBA6K (ORCPT
+	Thu, 1 Dec 2005 19:59:21 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:14510 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932588AbVLBA7V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 19:58:10 -0500
-Subject: Re: [patch 00/43] ktimer reworked
-From: john stultz <johnstul@us.ibm.com>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Steven Rostedt <rostedt@goodmis.org>,
-       george@mvista.com, mingo@elte.hu, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       ray-gmail@madrabbit.org, Russell King <rmk+lkml@arm.linux.org.uk>
-In-Reply-To: <91D50CB6-A9B0-4501-AAD2-7D80948E7367@mac.com>
-References: <1133395019.32542.443.camel@tglx.tec.linutronix.de>
-	 <Pine.LNX.4.61.0512010118200.1609@scrub.home>
-	 <23CA09D3-4C11-4A4B-A5C6-3C38FA9C203D@mac.com>
-	 <Pine.LNX.4.61.0512011352590.1609@scrub.home>
-	 <2c0942db0512010822x1ae20622obf224ce9728e83f8@mail.gmail.com>
-	 <20051201165144.GC31551@flint.arm.linux.org.uk>
-	 <Pine.LNX.4.61.0512011828150.1609@scrub.home>
-	 <1133464097.7130.15.camel@localhost.localdomain>
-	 <Pine.LNX.4.61.0512012048140.1609@scrub.home>
-	 <Pine.LNX.4.58.0512011619590.32095@gandalf.stny.rr.com>
-	 <Pine.LNX.4.61.0512020120180.1609@scrub.home>
-	 <91D50CB6-A9B0-4501-AAD2-7D80948E7367@mac.com>
-Content-Type: text/plain
-Date: Thu, 01 Dec 2005 16:58:06 -0800
-Message-Id: <1133485086.7605.9.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 1 Dec 2005 19:59:21 -0500
+Message-ID: <438F9C66.6040209@us.ibm.com>
+Date: Thu, 01 Dec 2005 16:59:18 -0800
+From: Mingming Cao <cmm@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Badari Pulavarty <pbadari@us.ibm.com>
+CC: ext2-devel <Ext2-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, akpm@osdl.org, sct@redhat.com,
+       hch@lst.de
+Subject: Re: [PATCH] ext3 getblocks() support for read
+References: <1133368019.27824.55.camel@localhost.localdomain>
+In-Reply-To: <1133368019.27824.55.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-01 at 19:41 -0500, Kyle Moffett wrote:
-> On Dec 01, 2005, at 19:29, Roman Zippel wrote:
-> > Hi,
-> >
-> >> As for portablility, I believe John Stultz has some nice plugins  
-> >> coming to what timer source you want to use, so if there's a  
-> >> better way to get a time, these should make things easy to add.
-> >
-> > These plugins can do no magic, if the hardware timer is slow, the  
-> > whole thing gets slow.
+Badari Pulavarty wrote:
+> Hi,
 > 
-> The point is that you could switch both the timer and timeout  
-> implementations to jiffies if you wanted to, at the expense of the  
-> accuracy that a lot of people care about.
+> Here is the patch to support ext3 getblocks() for non allocation
+> cases. (for reads & re-writes). This is useful with DIO reads,
+> DIO re-writes and to go with Christoph's getblocks() for readpages()
+> work.
+> 
+> Mingming is working on adding multiblock allocation support using
+> reservation (which can be incrementally added later).
+> 
+> Comments ? 
+> 
 
-While I'm not challenging the possibility of doing this, my timekeeping
-work does not provide quite this level of flexibility you imply. Indeed
-one could use jiffies as a clocksource, limiting all time users
-(including ktimers) to jiffies resolution, but I would consider that to
-be abusing the interface.
+My ext3 multiple block allocation patch posted a while ago
+includes the multiple blocks map as well. Looks mostly the same way you 
+did here, but I like the way that how the # of mapped(or allocated) 
+blocks are returned.
 
-thanks
--john
+My plan is to break the whole ext3 multiple block allocation(also does 
+map) patch into small patches, and re-send soon.
+
+> @@ -681,9 +683,10 @@ ext3_get_block_handle(handle_t *handle, 
+>  	Indirect *partial;
+>  	unsigned long goal;
+>  	int left;
+> -	int boundary = 0;
+> -	const int depth = ext3_block_to_path(inode, iblock, offsets, &boundary);
+> +	int blks_boundary = 0;
+> +	const int depth = ext3_block_to_path(inode, iblock, offsets, &blks_boundary);
+>  	struct ext3_inode_info *ei = EXT3_I(inode);
+> +	int count = 1;
+>  
+>  	J_ASSERT(handle != NULL || create == 0);
+>  
+> @@ -694,7 +697,18 @@ ext3_get_block_handle(handle_t *handle, 
+>  
+>  	/* Simplest case - block found, no allocation needed */
+>  	if (!partial) {
+> +		unsigned long first_block = le32_to_cpu(chain[depth-1].key);
+> +
+>  		clear_buffer_new(bh_result);
+> +
+> +		/*
+> +		 * Find all the contiguous blocks and return at once.
+> +		 */
+> +		while (count < max_blocks && count <= blks_boundary &&
+> +			(le32_to_cpu(*(chain[depth-1].p+count)) == 
+> +				(first_block + count))) {
+> +			count++;
+> +		}
+>  		goto got_it;
+>  	}
+> 
+Here we need to be careful about the branch we just read, since we are 
+looking up multiple blocks (they are on the same branch) at the same 
+time, it is possible that during the look up, another threads is 
+trucating the same branch we are trying to map.  Before since we are 
+doing only one look up, a simple verify_chain() should be safe.
+
+The simple way is, for the non-allocation case,  take the truncate_sem 
+before the ext3_get_branch, like for the allocation-case, even for the 
+simple case -- but that probably will slow down the non-allocation, 
+probably a bad option.  But we could re-check(calling 
+verify_chain())inside the while loop.
+
+
+Mingming
 

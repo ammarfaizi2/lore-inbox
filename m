@@ -1,76 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751013AbVLBUIV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbVLBULU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751013AbVLBUIV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 15:08:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751015AbVLBUIV
+	id S1751029AbVLBULU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 15:11:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751031AbVLBULU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 15:08:21 -0500
-Received: from ns2.lanforge.com ([66.165.47.211]:38876 "EHLO ns2.lanforge.com")
-	by vger.kernel.org with ESMTP id S1750994AbVLBUIU (ORCPT
+	Fri, 2 Dec 2005 15:11:20 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:26044 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751026AbVLBULS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 15:08:20 -0500
-Message-ID: <4390A9B1.3040300@candelatech.com>
-Date: Fri, 02 Dec 2005 12:08:17 -0800
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
+	Fri, 2 Dec 2005 15:11:18 -0500
+Message-ID: <4390AA5C.7030602@volny.cz>
+Date: Fri, 02 Dec 2005 21:11:08 +0100
+From: Miloslav Trmac <mitr@volny.cz>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Al Boldi <a1426z@gawab.com>
-CC: netdev@vger.kernel.org, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] ip / ifconfig redesign
-References: <200512022253.19029.a1426z@gawab.com>
-In-Reply-To: <200512022253.19029.a1426z@gawab.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: "Yu, Luming" <luming.yu@intel.com>
+CC: Dmitry Torokhov <dtor_core@ameritech.net>,
+       Linus Torvalds <torvalds@osdl.org>, Vojtech Pavlik <vojtech@suse.cz>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 
+References: <3ACA40606221794F80A5670F0AF15F84041AC237@pdsmsx403>
+In-Reply-To: <3ACA40606221794F80A5670F0AF15F84041AC237@pdsmsx403>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Boldi wrote:
-> The current ip / ifconfig configuration is arcane and inflexible.  The reason 
-> being, that they are based on design principles inherited from the last 
-> century.
+Yu, Luming wrote:
+> I just tested module wistron_btn on  one Acer Aspire laptop after 
+> adding one dmi entry.  The wistron_btn found BIOS interfaces.
+> One visible error is the bluetooth light won't turn on upon 
+> stroking bluetooth button.
+> Without wistron_btn module, the bluetooth light works.
+>  with acpi enabled, I didn't try acpi disabled)
 > 
-> In a GNU/OpenSource environment, OpenMinds should not inhibit themselves 
-> achieving new design-goals to enable a flexible non-redundant configuration.
-> 
-> Specifically, '#> ip addr ' exhibits this issue clearly, by requiring to 
-> associate the address to a link instead of the other way around.
-> 
-> Consider this new approach for better address management:
-> 1. Allow the definition of an address pool
-> 2. Relate links to addresses
-> 3. Implement to make things backward-compatible.
-> 
-> The obvious benefit here, would be the transparent ability for apps to bind 
-> to addresses, regardless of the link existence.
-> 
-> Another benefit includes the ability to scale the link level transparently, 
-> regardless of the application bind state.
+> wistron_btn polls a cmos address to detect hotkey event.  It 
+> is not necessary, because there do have ACPI interrupt triggered upon 
+> hotkeys.
+There are many different laptops using similar interfaces.
+It is a mess :(
 
-Can you do this with the current code by using scripts/whatever to move
-virtual IPs around the interfaces?
+If your laptop provides the hotkey events via ACPI, simply don't use
+wistron_btns.
 
-I guess I don't really understand what you are proposing...
-
-Ben
-
-> 
-> And there may be many other benefits... (i.e. 100% OSI compliance)
-> 
-> --
-> Al
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
-
+> So, my suggestion is to disable this module when ACPI enabled.
+I have a laptop that needs this module (hotkeys are not supported via
+ACPI), but supports ACPI.
+	Mirek

@@ -1,55 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932594AbVLBBC2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932665AbVLBBIM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932594AbVLBBC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 20:02:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932596AbVLBBC2
+	id S932665AbVLBBIM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 20:08:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932691AbVLBBIL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 20:02:28 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:13533 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932594AbVLBBC1 (ORCPT
+	Thu, 1 Dec 2005 20:08:11 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:49563 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932665AbVLBBIK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 20:02:27 -0500
-Date: Fri, 2 Dec 2005 02:01:38 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
+	Thu, 1 Dec 2005 20:08:10 -0500
+Date: Thu, 1 Dec 2005 17:06:42 -0800
+From: Andrew Morton <akpm@osdl.org>
 To: Kyle Moffett <mrmacman_g4@mac.com>
-cc: Steven Rostedt <rostedt@goodmis.org>, johnstul@us.ibm.com,
-       george@mvista.com, mingo@elte.hu, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       ray-gmail@madrabbit.org, Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: tglx@linutronix.de, hch@infradead.org, mingo@elte.hu,
+       rmk+lkml@arm.linux.org.uk, ray-gmail@madrabbit.org,
+       zippel@linux-m68k.org, linux-kernel@vger.kernel.org, george@mvista.com,
+       johnstul@us.ibm.com
 Subject: Re: [patch 00/43] ktimer reworked
-In-Reply-To: <91D50CB6-A9B0-4501-AAD2-7D80948E7367@mac.com>
-Message-ID: <Pine.LNX.4.61.0512020146310.1609@scrub.home>
+Message-Id: <20051201170642.71803873.akpm@osdl.org>
+In-Reply-To: <537CE371-F9A9-4255-A3B0-9DBDAD82591B@mac.com>
 References: <1133395019.32542.443.camel@tglx.tec.linutronix.de>
- <Pine.LNX.4.61.0512010118200.1609@scrub.home> <23CA09D3-4C11-4A4B-A5C6-3C38FA9C203D@mac.com>
- <Pine.LNX.4.61.0512011352590.1609@scrub.home>
- <2c0942db0512010822x1ae20622obf224ce9728e83f8@mail.gmail.com>
- <20051201165144.GC31551@flint.arm.linux.org.uk> <Pine.LNX.4.61.0512011828150.1609@scrub.home>
- <1133464097.7130.15.camel@localhost.localdomain> <Pine.LNX.4.61.0512012048140.1609@scrub.home>
- <Pine.LNX.4.58.0512011619590.32095@gandalf.stny.rr.com>
- <Pine.LNX.4.61.0512020120180.1609@scrub.home> <91D50CB6-A9B0-4501-AAD2-7D80948E7367@mac.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	<Pine.LNX.4.61.0512010118200.1609@scrub.home>
+	<23CA09D3-4C11-4A4B-A5C6-3C38FA9C203D@mac.com>
+	<Pine.LNX.4.61.0512011352590.1609@scrub.home>
+	<2c0942db0512010822x1ae20622obf224ce9728e83f8@mail.gmail.com>
+	<20051201165144.GC31551@flint.arm.linux.org.uk>
+	<20051201122455.4546d1da.akpm@osdl.org>
+	<20051201211933.GA25142@elte.hu>
+	<20051201135139.3d1c10df.akpm@osdl.org>
+	<7D53372C-E138-4336-883F-A674BBBB09AA@mac.com>
+	<20051201221553.GA19135@infradead.org>
+	<1133481739.10478.54.camel@tglx.tec.linutronix.de>
+	<537CE371-F9A9-4255-A3B0-9DBDAD82591B@mac.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Thu, 1 Dec 2005, Kyle Moffett wrote:
-
-> > I'm not against HR timer, I have a problem with using them as timer for
-> > everything.
+Kyle Moffett <mrmacman_g4@mac.com> wrote:
+>
+> On Dec 01, 2005, at 19:02, Thomas Gleixner wrote:
+> > On Thu, 2005-12-01 at 22:15 +0000, Christoph Hellwig wrote:
+> >> Heh, in my dumb non-native speaker mind I'd expectit the other way  
+> >> around, as in a timeout is expected to time out :)  and a timer is  
+> >> expect to happen, as in say the timer the tells you your breakfast  
+> >> egg is ready.
+> >
+> > Which is perfectly the point Kyle made.
 > 
-> This is _exactly_ why there is the timer/timeout distinction.  Some things
-> don't care, and as a result use a timer wheel exactly like they always have.
-> For the things that do, however, the new timer API provides it using the
-> fastest hardware interface available.
+> In any case, the real important note here is that the two are pretty  
+> different concepts, ones that lend themselves to _very_ different  
+> optimizations, that are currently lumped together.  The very fact  
+> that some developers easily get them confused says that we need a  
+> good clean implementation of both distinct APIs with comparable  
+> documentation, including a bunch of good example usages.
+> 
 
-This is about kernel programming - people should care. We have enough crap 
-as it is. timer wheel is fast as well, but everything has its limits, 
-putting this focus completely to delivery is nonsense. It can't be that 
-difficult to put together a decent list of criteria, where to use which 
-timer. Both are still _timer_, introducing this timer/timeout thing is 
-only confusing.
+Or just leave the timer_lists as they are.
 
-bye, Roman
+If I'm going to spend the next two years buried in helpful
+s/timer_list/ktimeout/ patches then there'd better be a darn good reason
+for the rename, thanks.  I don't see one.

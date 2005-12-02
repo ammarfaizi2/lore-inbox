@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932729AbVLBLpQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932737AbVLBLrM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932729AbVLBLpQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 06:45:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932736AbVLBLpP
+	id S932737AbVLBLrM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 06:47:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932736AbVLBLrM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 06:45:15 -0500
-Received: from smtp4.brturbo.com.br ([200.199.201.180]:17714 "EHLO
-	smtp4.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S932729AbVLBLpO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 06:45:14 -0500
-Subject: Re: Linux 2.6.15-rc4
-From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-To: gcoady@gmail.com
-Cc: Linus Torvalds <torvalds@osdl.org>, Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-       list linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <862vo198it7molqvq5ign38qmncmjk3bo5@4ax.com>
-References: <Pine.LNX.4.64.0511302234020.3099@g5.osdl.org>
-	 <1133445903.16820.1.camel@localhost>
-	 <Pine.LNX.4.64.0512010759571.3099@g5.osdl.org>
-	 <6f6293f10512011112m6e50fe0ejf0aa5ba9d09dca1e@mail.gmail.com>
-	 <Pine.LNX.4.64.0512011125280.3099@g5.osdl.org>
-	 <438F6DFF.2040603@eyal.emu.id.au>
-	 <Pine.LNX.4.64.0512011347290.3099@g5.osdl.org>
-	 <862vo198it7molqvq5ign38qmncmjk3bo5@4ax.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Fri, 02 Dec 2005 09:45:10 -0200
-Message-Id: <1133523910.6842.3.camel@localhost>
+	Fri, 2 Dec 2005 06:47:12 -0500
+Received: from mx2.suse.de ([195.135.220.15]:9107 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932737AbVLBLrK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 06:47:10 -0500
+Date: Fri, 2 Dec 2005 12:47:09 +0100
+From: Andi Kleen <ak@suse.de>
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, discuss@x86-64.org, shai@scalex86.org
+Subject: Re: [patch 3/3] x86_64: Node local PDA -- allocate node local memory for pda
+Message-ID: <20051202114708.GM997@wotan.suse.de>
+References: <20051202081028.GA5312@localhost.localdomain> <20051202082309.GC5312@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2-1mdk 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051202082309.GC5312@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sex, 2005-12-02 às 10:37 +1100, Grant Coady escreveu:
-> On Thu, 1 Dec 2005 13:53:28 -0800 (PST), Linus Torvalds <torvalds@osdl.org> wrote:
+On Fri, Dec 02, 2005 at 12:23:09AM -0800, Ravikiran G Thirumalai wrote:
+> Patch uses a static PDA array early at boot and reallocates processor PDA
+> with node local memory when kmalloc is ready, just before pda_init.
+> The boot_cpu_pda is needed sice the cpu_pda is used even before pda_init for
+> that cpu is called (to set the static per-cpu areas offset table etc)
+
+Where is it needed?  Perhaps it should be just allocated in the 
+CPU triggering the other CPU start instead. Then you could avoid that
+or rather only define a __initdata boot_pda for the BP.
+
 > 
-> >(There are a couple of in-tree drivers that it would be interesting to 
-> >hear about too. In particular, all these files:
-> ...
-> >	drivers/media/video/zr36120.c
+> Index: linux-2.6.15-rc3/arch/x86_64/kernel/head64.c
+> ===================================================================
+> --- linux-2.6.15-rc3.orig/arch/x86_64/kernel/head64.c	2005-11-30 17:01:18.000000000 -0800
+> +++ linux-2.6.15-rc3/arch/x86_64/kernel/head64.c	2005-11-30 17:07:14.000000000 -0800
+> @@ -80,6 +80,7 @@
+>  {
+>  	char *s;
+>  	int i;
+> +	extern struct x8664_pda boot_cpu_pda[];
 
-	Grant, you were supposed to fix it [1]. As discussed before, if this is
-not maintained anymore, just drop it. 
+externs only belong in include files.
 
-[1] http://lkml.org/lkml/2005/7/29/302
-
-Cheers, 
-Mauro.
-
+-Andi

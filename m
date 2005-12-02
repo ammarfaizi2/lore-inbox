@@ -1,56 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbVLBMS2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbVLBMgt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750703AbVLBMS2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 07:18:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbVLBMS2
+	id S1750714AbVLBMgt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 07:36:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750717AbVLBMgt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 07:18:28 -0500
-Received: from nproxy.gmail.com ([64.233.182.203]:58601 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750703AbVLBMS2 convert rfc822-to-8bit
+	Fri, 2 Dec 2005 07:36:49 -0500
+Received: from zproxy.gmail.com ([64.233.162.194]:60437 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750714AbVLBMgs convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 07:18:28 -0500
+	Fri, 2 Dec 2005 07:36:48 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gGqh2Idq4P4Daiy6kYps60z3HxopAQlK4MKcM3uejo3iP2VfuYlq3K2ZxI7Tnm9UZawbYLSiCrZHNcjVpgFFPIp1yO7O+hHSU0We6lh4FEM55W8GoMhNTOl3UkJ0sdDL4l7XKBnoevfUhcN1ikMPo6ieTf5n1CUjFDAz2/8+CBo=
-Message-ID: <84144f020512020418x7ebf5e3bt54cde14ec6a7a954@mail.gmail.com>
-Date: Fri, 2 Dec 2005 14:18:26 +0200
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-Subject: Re: Use enum to declare errno values
-Cc: Denis Vlasenko <vda@ilport.com.ua>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Paul Jackson <pj@sgi.com>, francis_moreau2000@yahoo.fr,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <2cd57c900512020127m5c7ca8e1u@mail.gmail.com>
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=bs+Kr0HGcPUQL5/8FzAVnta6sve3f+nVqzNmULutgtDfWS5t+9pXZag5At2mcjO6rMMapv/ZxnFcle6J+Gq5gx/Llf/6PbJ3ltCBDbcwljpUJfcDEu6obIve5VP+C7+mLQYeUBVFoWQZxUT4Y6I6PPvedL76rFBMzAzf/Od2qp8=
+Message-ID: <ee0ae26a0512020436w2c000a5dq@mail.gmail.com>
+Date: Fri, 2 Dec 2005 21:36:45 +0900
+From: Yanggun <yang.geum.seok@gmail.com>
+To: Tejun Heo <htejun@gmail.com>
+Subject: Re: 2.6.14 + SATAII150 TX2Plus does not recognize
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <43902A52.9040909@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <20051123132443.32793.qmail@web25813.mail.ukl.yahoo.com>
-	 <20051123233016.4a6522cf.pj@sgi.com>
-	 <Pine.LNX.4.61.0512011458280.21933@chaos.analogic.com>
-	 <200512020849.28475.vda@ilport.com.ua>
-	 <2cd57c900512020127m5c7ca8e1u@mail.gmail.com>
+References: <ee0ae26a0512020039k1a28da61y@mail.gmail.com>
+	 <43902A52.9040909@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+thanks.
 
-2005/12/2, Denis Vlasenko <vda@ilport.com.ua>:
-> > There is another reason why enums are better than #defines:
+but sata_promise driver not seem to support hot-swap. As following
+message is said, it becomes block. Even if use irqpoll option, result
+is same.
 
-On 12/2/05, Coywolf Qi Hunt <coywolf@gmail.com> wrote:
-> This is a reason why enums are worse than #defines.
+I want to use hot-swap.
+
+Nov 18 03:19:36  kernel: irq 11: nobody cared (try booting with the
+"irqpoll" option)
+Nov 18 03:19:36  kernel:  [__report_bad_irq+42/141] __report_bad_irq+0x2a/0x8d
+Nov 18 03:19:36  kernel:  [note_interrupt+158/247] note_interrupt+0x9e/0xf7
+Nov 18 03:19:36  kernel:  [__do_IRQ+261/292] __do_IRQ+0x105/0x124
+Nov 18 03:19:36  kernel:  [do_IRQ+82/124] do_IRQ+0x52/0x7c
+Nov 18 03:19:36  kernel:  =======================
+Nov 18 03:19:36  kernel:  [common_interrupt+26/32] common_interrupt+0x1a/0x20
+Nov 18 03:19:36  kernel:  [__do_softirq+58/156] __do_softirq+0x3a/0x9c
+Nov 18 03:19:36  kernel:  [do_softirq+112/116] do_softirq+0x70/0x74
+Nov 18 03:19:36  kernel:  =======================
+Nov 18 03:19:36  kernel:  [irq_exit+56/58] irq_exit+0x38/0x3a
+Nov 18 03:19:36  kernel:  [do_IRQ+89/124] do_IRQ+0x59/0x7c
+Nov 18 03:19:36  kernel:  [common_interrupt+26/32] common_interrupt+0x1a/0x20
+Nov 18 03:19:36  gconfd (root-2818): Received signal 1, shutting down cleanly
+Nov 18 03:19:55  kernel:  [unix_poll+96/180] unix_poll+0x60/0xb4
+Nov 18 03:19:55  gconfd (root-2818): Exiting
+Nov 18 03:19:55  kernel:  [get_offset_tsc+14/23] get_offset_tsc+0xe/0x17
+Nov 18 03:19:55  kernel:  [do_gettimeofday+24/176] do_gettimeofday+0x18/0xb0
+Nov 18 03:19:55  kernel:  [sys_gettimeofday+39/127] sys_gettimeofday+0x27/0x7f
+Nov 18 03:19:55  kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+Nov 18 03:19:55  kernel: handlers:
+
+2005/12/2, Tejun Heo <htejun@gmail.com>:
+> Yanggun wrote:
+> > Hi,
+> >
+> > i am currently using linux kernel version 2.6.14 on x86 with Promise
+> > SATAII150 TX2Plus(250G SATA HDD Disk x 2).
+> >
+> > But, SATA HDD disk does not become. program execute result of "fdisk
+> > /dev/sda" is  "Unable to read /dev/sda".
+> >
+> > Work well in linux kernel version 2.6.13.2.
+> >
+> > Do not act below since change as result that do debugging.
+> >        "[SCSI] use scatter lists for all block pc requests and
+> > simplify hw handlers"
+> >        -  http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=392160335c798bbe94ab3aae6ea0c85d32b81bbc
+> >
+> > What should I do?
+> >
 >
-> Unlike in other languages, C enum is not much useful in practices.
-> Maybe the designer wanted C to be as fancy as other languages?  C
-> shouldn't have had enum imho. Anyway we don't have any strong motives
-> to switch to enums.
-
-I don't follow your reasoning. The naming collision is a real problem
-with macros. With enum and const, the compiler can do proper checking
-with meaningful error messages. Please explain why you think #define
-is better for Denis' example?
-
-                                     Pekka
+> Your controller is probably supported by sata_promise driver included in
+> the kernel.  Just use the standard driver.
+>
+> --
+> tejun
+>

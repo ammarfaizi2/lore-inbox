@@ -1,54 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932709AbVLBB21@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932712AbVLBBbA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932709AbVLBB21 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 20:28:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932710AbVLBB21
+	id S932712AbVLBBbA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 20:31:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932713AbVLBBbA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 20:28:27 -0500
-Received: from ithilien.qualcomm.com ([129.46.51.59]:50324 "EHLO
-	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
-	id S932709AbVLBB21 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 20:28:27 -0500
-Message-ID: <438FA2E4.80705@qualcomm.com>
-Date: Thu, 01 Dec 2005 17:27:00 -0800
-From: Max Krasnyansky <maxk@qualcomm.com>
-User-Agent: Thunderbird 1.4.1 (X11/20051006)
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>,
-       acpi-devel@lists.sourceforge.net, len.brown@intel.com,
-       nando@ccrma.stanford.edu, rlrevell@joe-job.com,
-       linux-kernel@vger.kernel.org, paulmck@us.ibm.com, kr@cybsft.com,
-       tglx@linutronix.de, pluto@agmk.net, john.cooper@timesys.com,
-       bene@linutronix.de, dwalker@mvista.com, trini@kernel.crashing.org,
-       george@mvista.com, akpm@osdl.org
-Subject: Re: [RFC][PATCH] Runtime switching of the idle function [take 2]
-References: <20051118220755.GA3029@elte.hu>	<1132353689.4735.43.camel@cmn3.stanford.edu>	<1132367947.5706.11.camel@localhost.localdomain>	<20051124150731.GD2717@elte.hu>	<1132952191.24417.14.camel@localhost.localdomain>	<20051126130548.GA6503@elte.hu>	<1133232503.6328.18.camel@localhost.localdomain>	<20051128190253.1b7068d6.akpm@osdl.org>	<1133235740.6328.27.camel@localhost.localdomain>	<20051128200108.068b2dcd.akpm@osdl.org>	<20051129064420.GA15374@elte.hu> <p73mzjngwim.fsf@verdi.suse.de>
-In-Reply-To: <p73mzjngwim.fsf@verdi.suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 1 Dec 2005 20:31:00 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:53922 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932712AbVLBBa7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 20:30:59 -0500
+Date: Thu, 1 Dec 2005 17:30:15 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Wu Fengguang <wfg@mail.ustc.edu.cn>
+Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org,
+       christoph@lameter.com, riel@redhat.com, a.p.zijlstra@chello.nl,
+       npiggin@suse.de, andrea@suse.de, magnus.damm@gmail.com
+Subject: Re: [PATCH 02/12] mm: supporting variables and functions for
+ balanced zone aging
+Message-Id: <20051201173015.675f4d80.akpm@osdl.org>
+In-Reply-To: <20051202011924.GA3516@mail.ustc.edu.cn>
+References: <20051201101810.837245000@localhost.localdomain>
+	<20051201101933.936973000@localhost.localdomain>
+	<20051201023714.612f0bbf.akpm@osdl.org>
+	<20051201222846.GA3646@dmt.cnet>
+	<20051201150349.3538638e.akpm@osdl.org>
+	<20051202011924.GA3516@mail.ustc.edu.cn>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> Ingo Molnar <mingo@elte.hu> writes:
->>> If it's just for some sort of instrumentation, run NR_CPUS instances 
->>> of a niced-down busyloop, pin each one to a different CPU?  That way 
->>> the idle function doesn't get called at all..
->> idle=poll is also frequently done for performance reasons [it reduces 
->> idle wakeup latency by 10 usecs] 
+Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
+>
+>    850         sc->nr_to_reclaim = sc->swap_cluster_max;
+>      851         
+>      852         while (nr_active || nr_inactive) {
+>                          //...
+>      860                 if (nr_inactive) {
+>      861                         sc->nr_to_scan = min(nr_inactive,
+>      862                                         (unsigned long)sc->swap_cluster_max);
+>      863                         nr_inactive -= sc->nr_to_scan;
+>      864                         shrink_cache(zone, sc);
+>      865                         if (sc->nr_to_reclaim <= 0)
+>      866                                 break;
+>      867                 }
+>      868         }
 > 
-> And it's obsolete on CPUs with monitor/mwait.
-There are some platforms for example IBM ZPro Xeon based machines where
-monitor/mwait seems to trigger some kind of SMM and introduce horrible latencies.
-With idle=poll ZPros show pretty good worst case latencies, in the order of 10usec
-(tested with RTAI/Fusion). With default idle (ie mwait) even average latency is in
-hundreds of milliseconds.
-You might argue that it's a bug in the their HW design or something but as it stands
-today I wouldn't say that monitor/mwait obsoletes idle=poll.
+>  Line 843 is the core of the scan balancing logic:
+> 
+>  priority                12      11      10
+> 
+>  On each call nr_scan_inactive is increased by:
+>  DMA(2k pages)           +1      +2      +3
+>  Normal(64k pages)      +17      +33     +65 
+> 
+>  Round it up to SWAP_CLUSTER_MAX=32, we get (scan batches/accumulate rounds):
+>  DMA                     1/32    1/16    2/11
+>  Normal                  2/2     2/1     3/1
+>  DMA:Normal ratio        1:32    1:32    2:33
+> 
+>  This keeps the scan rate roughly balanced(i.e. 1:32) in low vm pressure.
+> 
+>  But lines 865-866 together with line 846 make most shrink_zone() invocations
+>  only run one batch of scan. The numbers become:
 
-Also IMO saying that CPU will run too hot with idle=poll is basically saying that those
-CPUs cannot be used for simulations and stuff which run flat out for days (months actually).
-Which is obviously not true (again speaking from experience :)).
-
-Max
+True.  Need to go into a huddle with the changelogs, but I have a feeling
+that lines 865 and 866 aren't very important.  What happens if we remove
+them?

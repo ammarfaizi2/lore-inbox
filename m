@@ -1,152 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbVLBPQY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbVLBPRl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750780AbVLBPQY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 10:16:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbVLBPQY
+	id S1750767AbVLBPRl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 10:17:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbVLBPRl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 10:16:24 -0500
-Received: from hera.kernel.org ([140.211.167.34]:14209 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1750780AbVLBPQX (ORCPT
+	Fri, 2 Dec 2005 10:17:41 -0500
+Received: from elmo.2sheds.de ([195.143.155.10]:26603 "EHLO elmo.2sheds.de")
+	by vger.kernel.org with ESMTP id S1750767AbVLBPRl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 10:16:23 -0500
-Date: Fri, 2 Dec 2005 13:13:53 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Wu Fengguang <wfg@mail.ustc.edu.cn>, linux-kernel@vger.kernel.org,
-       christoph@lameter.com, riel@redhat.com, a.p.zijlstra@chello.nl,
-       npiggin@suse.de, andrea@suse.de, magnus.damm@gmail.com
-Subject: Re: [PATCH 02/12] mm: supporting variables and functions for balanced zone aging
-Message-ID: <20051202151352.GA3707@dmt.cnet>
-References: <20051201101810.837245000@localhost.localdomain> <20051201101933.936973000@localhost.localdomain> <20051201023714.612f0bbf.akpm@osdl.org> <20051201222846.GA3646@dmt.cnet> <20051201150349.3538638e.akpm@osdl.org> <20051202011924.GA3516@mail.ustc.edu.cn> <20051201214931.2dbc35fe.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051201214931.2dbc35fe.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 2 Dec 2005 10:17:41 -0500
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <6D6905B5-6DAF-47FC-A0AC-BDE089D3F103@2sheds.de>
+Content-Transfer-Encoding: 7bit
+From: Andrew Miehs <andrew@2sheds.de>
+Subject: Questions RE: /proc/stat
+Date: Fri, 2 Dec 2005 16:17:37 +0100
+To: linux-kernel@vger.kernel.org
+X-Pgp-Agent: GPGMail 1.1.1 (Tiger)
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 01, 2005 at 09:49:31PM -0800, Andrew Morton wrote:
-> Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
-> >
-> >      865                         if (sc->nr_to_reclaim <= 0)
-> >      866                                 break;
-> >      867                 }
-> >      868         }
-> > 
-> >  Line 843 is the core of the scan balancing logic:
-> > 
-> >  priority                12      11      10
-> > 
-> >  On each call nr_scan_inactive is increased by:
-> >  DMA(2k pages)           +1      +2      +3
-> >  Normal(64k pages)      +17      +33     +65 
-> > 
-> >  Round it up to SWAP_CLUSTER_MAX=32, we get (scan batches/accumulate rounds):
-> >  DMA                     1/32    1/16    2/11
-> >  Normal                  2/2     2/1     3/1
-> >  DMA:Normal ratio        1:32    1:32    2:33
-> > 
-> >  This keeps the scan rate roughly balanced(i.e. 1:32) in low vm pressure.
-> > 
-> >  But lines 865-866 together with line 846 make most shrink_zone() invocations
-> >  only run one batch of scan.
-> 
-> Yes, this seems to be the problem.  Sigh.  By the time 2.6.8 came around I
-> just didn't have time to do the amount of testing which any page reclaim
-> tweak necessitates.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hi Andrew,
+Dear list,
 
-It all makes sense to me (Wu's description of the problem and your patch), 
-but still no good with reference to fair scanning. Moreover the patch hurts 
-interactivity _badly_, not sure why (ssh into the box with FFSB testcase 
-takes more than one minute to login, while vanilla takes few dozens of seconds). 
+I had some questions regarding using /proc/stat (on the 2.6 kernel).
 
-Follows an interesting part of "diff -u 2614-vanilla.vmstat 2614-akpm.vmstat"
-(they were not retrieve at the exact same point in the benchmark run, but 
-that should not matter much):
+Can I assume that reading /proc/stat is 'atomic'? Can I assume that  
+when I read
+the file, that nothing will change the data while I am reading it?
+IE:
+   cpu  15948315 4687107 3321012 122412279 659908 43304 144288
+   cpu0 15948315 4687107 3321012 122412279 659908 43304 144288
 
--slabs_scanned 37632
--kswapd_steal 731859
--kswapd_inodesteal 1363
--pageoutrun 26573
--allocstall 636
--pgrotated 1898
-+slabs_scanned 2688
-+kswapd_steal 502946
-+kswapd_inodesteal 1
-+pageoutrun 10612
-+allocstall 90
-+pgrotated 68
+can I assume that while I am reading the third value (system), that  
+the fourth value (idle)
+will not be changed underneath me? Can I assume that all the lines?  
+cpu, cpu0 will all be
+generated at once?
 
-Note how direct reclaim (and slabs_scanned) are hugely affected. 
 
-Normal: 114688kB
-DMA: 16384kB
+My second question is regarding using these values to calculate usage...
 
-Normal/DMA ratio = 114688 / 16384 = 7.000
+Should I calculate usage by
+(where T1, T2 are time)
 
-******* 2.6.14 vanilla ********
+A) read /proc/stat
+    Fill variables UserT1, NiceT1, SystemT1, IdleT1, IOWaitT1, irqT1,  
+irq2T1
+    wait a time
+    Fill variables UserT2, NiceT2, SystemT2, IdleT2, IOWaitT2, irqT2,  
+irq2T2
+    DeltaTotalTime=(UserT2-UserT1)+(NiceT2-NiceT1)+(SystemT2-SystemT1) 
++(.........)
 
-* kswapd scanning rates
-pgscan_kswapd_normal 450483
-pgscan_kswapd_dma 84645
-pgscan_kswapd Normal/DMA = (450483 / 88869) = 5.069
+    Then calculate the values I want as the delta  
+variableOfInterest / total delta
+    ie: (UserT2-UserT1)/DeltaTotalTime
 
-* direct scanning rates
-pgscan_direct_normal 23826
-pgscan_direct_dma 4224
-pgscan_direct Normal/DMA = (23826 / 4224) = 5.640
+    Can I assume that all these values added together should add up  
+to 100%?
 
-* global (kswapd+direct) scanning rates
-pgscan_normal = (450483 + 23826) = 474309
-pgscan_dma = (84645 + 4224) = 88869
-pgscan Normal/DMA = (474309 / 88869) = 5.337
 
-pgalloc_normal = 794293
-pgalloc_dma = 123805
-pgalloc_normal_dma_ratio = (794293/123805) = 6.415
+or
 
-******* 2.6.14 akpm-no-nr_to_reclaim ********
 
-* kswapd scanning rates
-pgscan_kswapd_normal 441936
-pgscan_kswapd_dma 80520
-pgscan_kswapd Normal/DMA = (441936 / 80520) = 5.488
+B) read /proc/stat
+    read variable of interest, ie: UserT1 and btimeT1 and number of CPUs
+    wait a time
+    read variable of interest, ie: UserT2 and btimeT2 and number of CPUs
 
-* direct scanning rates
-pgscan_direct_normal 7392
-pgscan_direct_dma 1188
-pgscan_direct Normal/DMA = (7392/1188) = 6.222
+    Then calculate the values I want as
+      ((UserT2-UserT1)/NumCPU)/(btimeT2-btimeT1)*100 (Jiffies)
 
-* global (kswapd+direct) scanning rates
-pgscan_normal = (441936 + 7392) = 449328
-pgscan_dma = (80520 + 1188) = 81708
-pgscan Normal/DMA = (449328 / 81708) = 5.499
 
-pgalloc_normal = 559994
-pgalloc_dma = 84883
-pgalloc_normal_dma_ratio = (559994 / 8488) = 6.597
 
-****** 2.6.14 isolate relative ***** 
+Thanks for any comments
 
-* kswapd scanning rates
-pgscan_kswapd_normal 664883
-pgscan_kswapd_dma 82845
-pgscan_kswapd Normal/DMA (664883/82845) = 8.025
+Regards
 
-* direct scanning rates
-pgscan_direct_normal 13485
-pgscan_direct_dma 1745
-pgscan_direct Normal/DMA = (13485/1745) = 7.727
+Andrew
 
-* global (kswapd+direct) scanning rates
-pgscan_normal = (664883 + 13485) = 678368
-pgscan_dma = (82845 + 1745) = 84590
-pgscan Normal/DMA = (678368 / 84590) = 8.019
 
-pgalloc_normal 699927
-pgalloc_dma 66313
-pgalloc_normal_dma_ratio = (699927/66313) = 10.554
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (Darwin)
+
+iD8DBQFDkGWSW126qUNSzvURAhdrAJ9bmadzIAZfzMZ83PmuWZ2e67OW9wCfbcU2
+SO3Do1kRaxy+4LRhyL9y/9s=
+=r+rR
+-----END PGP SIGNATURE-----

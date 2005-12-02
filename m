@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbVLBWdh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbVLBWk0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbVLBWdh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 17:33:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750846AbVLBWdh
+	id S1750846AbVLBWk0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 17:40:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750931AbVLBWk0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 17:33:37 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:7896 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750834AbVLBWdg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 17:33:36 -0500
-Subject: Re: [PATCH 0/4] linux-2.6-block: deactivating pagecache for
-	benchmarks
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mail@dirk-gerdes.de, axboe@suse.de, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051202134431.005de2b2.akpm@osdl.org>
-References: <1133443051.6110.32.camel@noti>
-	 <20051201172520.7095e524.akpm@osdl.org>
-	 <1133558692.21429.89.camel@localhost.localdomain>
-	 <20051202134431.005de2b2.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 02 Dec 2005 14:33:42 -0800
-Message-Id: <1133562822.21429.105.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Dec 2005 17:40:26 -0500
+Received: from web32108.mail.mud.yahoo.com ([68.142.207.122]:35975 "HELO
+	web32108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750846AbVLBWkZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 17:40:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=KVk8AiRJ4JxTNfH31sT1G/bithGAP5DzqA5kr8TtchLyqtLTDzgLJCWmwywDB19nj/7lTtNl+r2LJPHrd6JDDIZclwK9CSuiG6ailmk/irSI4+rLT/gq8GIiKqANFbV0FtlNkREyOgrE5WbM36ImTouGc7IC3JFvuiVt5B82/bc=  ;
+Message-ID: <20051202224025.39396.qmail@web32108.mail.mud.yahoo.com>
+Date: Fri, 2 Dec 2005 14:40:25 -0800 (PST)
+From: Vinay Venkataraghavan <raghavanvinay@yahoo.com>
+Subject: copy_from_user/copy_to_user question
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-02 at 13:44 -0800, Andrew Morton wrote:
-> Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> >
-> > Wondering, if this shrinks shared memory pages (since they are backed by
-> > tmpfs) ? (which is not what I want).
-> 
-> It'll reclaim unused pagecache pages.  What effect that has on
-> idioticfs^Wtmpfs pages depends on the state of the pages.  If they're
-> attached to tmpfs inodes then they won't be reclaimed because they have no
-> backing store.  If they're attached to swapcache then they won't be
-> reclaimed because they have no superblock.
-> 
-> So I guess you got lucky.
 
-Wow !! Thank you. Its not that often, I get lucky :)
+I have a question regarding copy_to_user and
+copy_from_user, specifically the conditons and
+situations when they can be used.
 
-Thanks,
-Badari
+Firstly, I guess it is always safe to use these
+funtions when making an ioctl call. 
+
+But my question is: Are there any specific
+circumstances or conditions when these functions don't
+have to be used, but at the same time ensure that no
+page fault occurs and crashes the system.
+
+The reason I ask is, there is some software that I am
+dealing with that just don't use these functions. 
+
+Secondly, they seem to use memcpy as opposed to using
+copy_to_user/copy_from_user which is also very
+dangerous.
+
+Any thoughts?
+
+Vinay
+
+
+
+		
+__________________________________________ 
+Yahoo! DSL – Something to write home about. 
+Just $16.99/mo. or less. 
+dsl.yahoo.com 
 

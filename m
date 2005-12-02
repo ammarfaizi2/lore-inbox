@@ -1,68 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750848AbVLBVoH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbVLBVqA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750848AbVLBVoH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 16:44:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbVLBVoG
+	id S1750806AbVLBVqA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 16:46:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbVLBVqA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 16:44:06 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:12457 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1750806AbVLBVoF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 16:44:05 -0500
-Subject: Re: [PATCH] fs: remove s_old_blocksize from struct super_block
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, joe@perches.com
-In-Reply-To: <1133558437.31065.6.camel@localhost>
-References: <1133558437.31065.6.camel@localhost>
-Date: Fri, 02 Dec 2005 23:44:03 +0200
-Message-Id: <1133559843.31065.9.camel@localhost>
+	Fri, 2 Dec 2005 16:46:00 -0500
+Received: from fmr21.intel.com ([143.183.121.13]:53698 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1750806AbVLBVp7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 16:45:59 -0500
+Date: Fri, 2 Dec 2005 13:45:50 -0800
+From: Rajesh Shah <rajesh.shah@intel.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Greg KH <gregkh@suse.de>,
+       Matthew Wilcox <matthew@wil.cx>, "Brown, Len" <len.brown@intel.com>
+Subject: Re: [2.6.15-rc4] oops in acpiphp
+Message-ID: <20051202134549.A22130@unix-os.sc.intel.com>
+Reply-To: Rajesh Shah <rajesh.shah@intel.com>
+References: <4390B646.60709@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.4.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <4390B646.60709@pobox.com>; from jgarzik@pobox.com on Fri, Dec 02, 2005 at 04:01:58PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lets kill the variable too as suggested by Joe.
+On Fri, Dec 02, 2005 at 04:01:58PM -0500, Jeff Garzik wrote:
+> 
+> Booting with acpiphp on this dual core, dual package (2x2) box causes an 
+> oops.
+> 
+The oops is actually in pciehp, not acpiphp. It's been around
+for a while, I saw a similar report dating back to April. It
+triggers only if pciehp (CONFIG_HOTPLUG_PCI_PCIE) is marked as
+"y" in .config. Making it a module will make it go away.  I
+looked into this very briefly last week and it looked like some
+race related to the pcie core registering the pciehp driver.
+I'll be working on making some pcie improvements soon, and will
+look into this as a part of that.
 
-[PATCH] fs: remove s_old_blocksize from struct super_block
-
-This patch inlines the single user of struct super_block field
-s_old_blocksize and removes the field.
-
-Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
----
-
- fs/super.c         |    3 +--
- include/linux/fs.h |    1 -
- 2 files changed, 1 insertion(+), 3 deletions(-)
-
-Index: 2.6/fs/super.c
-===================================================================
---- 2.6.orig/fs/super.c
-+++ 2.6/fs/super.c
-@@ -710,8 +710,7 @@ struct super_block *get_sb_bdev(struct f
- 
- 		s->s_flags = flags;
- 		strlcpy(s->s_id, bdevname(bdev, b), sizeof(s->s_id));
--		s->s_old_blocksize = block_size(bdev);
--		sb_set_blocksize(s, s->s_old_blocksize);
-+		sb_set_blocksize(s, block_size(bdev));
- 		error = fill_super(s, data, flags & MS_VERBOSE ? 1 : 0);
- 		if (error) {
- 			up_write(&s->s_umount);
-Index: 2.6/include/linux/fs.h
-===================================================================
---- 2.6.orig/include/linux/fs.h
-+++ 2.6/include/linux/fs.h
-@@ -777,7 +777,6 @@ struct super_block {
- 	struct list_head	s_list;		/* Keep this first */
- 	dev_t			s_dev;		/* search index; _not_ kdev_t */
- 	unsigned long		s_blocksize;
--	unsigned long		s_old_blocksize;
- 	unsigned char		s_blocksize_bits;
- 	unsigned char		s_dirt;
- 	unsigned long long	s_maxbytes;	/* Max file size */
-
+Rajesh
 

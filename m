@@ -1,64 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750976AbVLBTeI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750979AbVLBToy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750976AbVLBTeI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 14:34:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750978AbVLBTeI
+	id S1750979AbVLBToy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 14:44:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750986AbVLBToy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 14:34:08 -0500
-Received: from javad.com ([216.122.176.236]:52752 "EHLO javad.com")
-	by vger.kernel.org with ESMTP id S1750976AbVLBTeH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 14:34:07 -0500
-From: "Sergei Organov" <osv@javad.com>
-To: "Jeff Garzik" <jgarzik@pobox.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: SATA ICH6M problems on Sharp M4000
-References: <200511221013.04798.marekw1977>
-In-reply-to: <200511221013.04798.marekw1977>
-Date: Fri, 02 Dec 2005 22:33:57 +0300
-Message-ID: <87u0dri996.fsf@javad.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) XEmacs/21.4.17 (linux)
-MIME-Version: 1.0
+	Fri, 2 Dec 2005 14:44:54 -0500
+Received: from solarneutrino.net ([66.199.224.43]:17669 "EHLO
+	tau.solarneutrino.net") by vger.kernel.org with ESMTP
+	id S1750978AbVLBTov (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 14:44:51 -0500
+Date: Fri, 2 Dec 2005 14:44:47 -0500
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kai Makisara <Kai.Makisara@kolumbus.fi>, Andrew Morton <akpm@osdl.org>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       ryan@tau.solarneutrino.net
+Subject: Re: Fw: crash on x86_64 - mm related?
+Message-ID: <20051202194447.GA7679@tau.solarneutrino.net>
+References: <20051129092432.0f5742f0.akpm@osdl.org> <Pine.LNX.4.63.0512012040390.5777@kai.makisara.local> <Pine.LNX.4.64.0512011136000.3099@g5.osdl.org> <20051201195657.GB7236@tau.solarneutrino.net> <Pine.LNX.4.61.0512012008420.28450@goblin.wat.veritas.com> <20051202180326.GB7634@tau.solarneutrino.net> <Pine.LNX.4.61.0512021856170.4940@goblin.wat.veritas.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0512021856170.4940@goblin.wat.veritas.com>
+User-Agent: Mutt/1.5.9i
+From: Ryan Richter <ryan@tau.solarneutrino.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Josh Litherland wrote:
-> > Trying to get this laptop operational; it has SATA for the hard disc and
-> > PATA for the optical drive.  The hard drive is wired to the secondary
-> > IDE interface, the optical to the primary.  
-[...]
-> > With ata_piix driving the hard drive, performance is great, but the
-> > optical device is never enumerated.
-
-I have exactly the same problem with my IBM ThinkPad T43 and 2.6.14
-kernel and still can't find a way to let ata_piix manage the hard drive
-and generic_ide to manage the optical one. BIOS doesn't have any
-settings for SATA on this notebook.
-
-> 
-> Expected behavior, since the default for module option atapi_enabled
-> is zero (disabled).
-> 
-> > When the piix driver tries to load, the following occurs:
+On Fri, Dec 02, 2005 at 07:12:19PM +0000, Hugh Dickins wrote:
+> On Fri, 2 Dec 2005, Ryan Richter wrote:
+> > On Thu, Dec 01, 2005 at 08:21:57PM +0000, Hugh Dickins wrote:
+> > > If the problem were easily reproducible, it'd be great if you could
+> > > try this patch; but I think you've said it's not :-(
 > > 
-> > ide0: I/O resource 0x1F0-0x1F7 not free.
-> > ide0: ports already in use, skipping probe
-> > ide1: I/O resource 0x170-0x177 not free.
-> > ide1: ports already in use, skipping probe
-[...]
-> So far everything seems to be expected behavior.
+> > I can throw this in and test it for sure.  I'll run the backups every
+> > day for a while to speed up the testing also.
+> 
+> Thanks - though everyone seems to have agreed that the patch is needed
+> whatever: so although it would be interesting to know if it has fixed
+> your problem, we're not waiting on you to go forward with it (James
+> already invited Linus to pull).
+> 
+> > Could someone please tell me exactly which patches I should include in
+> > the kernel I will boot tomorrow?
+> 
+> You hit the problem with 2.6.14.2.  My own opinion would be to apply
+> just that patch to that release, or to 2.6.14.3 if you prefer.
+> 
+> Linus was suggesting 2.6.15-rc4 because there's some debug there which
+> might have helped identify the offending driver: but your backtrace
+> had already showed us the offending driver.  Well, not proven: if a
+> page is doubly freed, the one that suffers is not necessarily the one
+> that's guilty; but it's a reasonable expectation.  I don't think his
+> debug would tell us anything more.
 
-Sorry, but provided ata_piix has ignored the optical drive, couldn't
-corresponding I/O resource be left free so that subsequently loaded,
-say, generic-ide module is able to get over and support the drive?
+OK, I guess I'll stick with 2.6.14.3 for now, plus your patch.  Should I
+keep Kai's st.c patch?  There was some mention of other patches, are
+those relevant?  Most of that discussion went over my head...
 
-BTW, loading the modules in reverse order helped on 2.6.13 kernel (that
-I'm currently using) as generic-ide didn't recognize the hard-drive at
-all allowing ata_piix to get over it later. With 2.6.14 kernel
-generic-ide does recognize both hard-drive and optical drive thus
-preventing ata_piix from managing the hard-drive :(
-
--- 
-Sergei.
+Thanks,
+-ryan

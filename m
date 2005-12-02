@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbVLBSTb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750882AbVLBSYf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750929AbVLBSTb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 13:19:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750930AbVLBSTb
+	id S1750882AbVLBSYf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 13:24:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750920AbVLBSYf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 13:19:31 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:63683 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750924AbVLBSTb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 13:19:31 -0500
-Date: Fri, 2 Dec 2005 19:19:27 +0100
-From: Andi Kleen <ak@suse.de>
-To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       Dave Jones <davej@redhat.com>, cpufreq <cpufreq@www.linux.org.uk>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] CPU frequency display in /proc/cpuinfo
-Message-ID: <20051202181927.GD9766@wotan.suse.de>
-References: <20051202101331.A2723@unix-os.sc.intel.com>
+	Fri, 2 Dec 2005 13:24:35 -0500
+Received: from serv01.siteground.net ([70.85.91.68]:3748 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S1750882AbVLBSYe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 13:24:34 -0500
+Date: Fri, 2 Dec 2005 10:24:27 -0800
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, discuss@x86-64.org, shai@scalex86.org
+Subject: Re: [discuss] Re: [patch 3/3] x86_64: Node local PDA -- allocate node local memory for pda
+Message-ID: <20051202182427.GA3727@localhost.localdomain>
+References: <20051202081028.GA5312@localhost.localdomain> <20051202082309.GC5312@localhost.localdomain> <43900BE3.5080000@cosmosbay.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20051202101331.A2723@unix-os.sc.intel.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <43900BE3.5080000@cosmosbay.com>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 02, 2005 at 10:13:31AM -0800, Pallipadi, Venkatesh wrote:
-> On x86_64:
-> There is one single variable cpu_khz that gets written by all the CPUs. So,
-> the frequency set by last CPU will be seen on /proc/cpuinfo of all the
-> CPUs in the system. What you see also depends on whether you have constant_tsc
-> capable CPU or not.
+On Fri, Dec 02, 2005 at 09:54:59AM +0100, Eric Dumazet wrote:
+> Ravikiran G Thirumalai a écrit :
+> >Patch uses a static PDA array early at boot and reallocates processor PDA
+> >with node local memory when kmalloc is ready, just before pda_init.
+> >The boot_cpu_pda is needed sice the cpu_pda is used even before pda_init 
+> >for
+> >that cpu is called (to set the static per-cpu areas offset table etc)
+> >
+> 
+> That sounds great.
+> 
+> I have only have one suggestion : If kernel is not NUMA, then maybe we 
+> should avoid one indirection to get the pda, and avoid some code too.
+>
 
-x86-64 part looks good. Thanks.
+Sure, but there is no extra indirection with the fastpath routines like
+read_pda, write_pda and friends with the current patch.  
+Places where cpu_pda[] is accessed by the array name are not really
+important -- except for the static per_cpu_offset of another cpu.  But
+still it might be worth it (considering that people use 
+per_cpu(var, smp_processor_id()), instead of __get_cpu_var in many places).  
+I will incorporate this.
 
->  /* query the current CPU frequency (in kHz). If zero, cpufreq couldn't detect it */
->  unsigned int cpufreq_get(unsigned int cpu);
->  
-> +/* query the last known CPU freq (in kHz). If zero, cpufreq couldn't detect it */
-> +#ifdef CONFIG_CPU_FREQ
-> +unsigned int cpufreq_quick_get(unsigned int cpu);
-> +#else
-> +unsigned int cpufreq_quick_get(unsigned int cpu)
-> +{
-> +	return 0;
-> +}
-> +#endif
-
-Shouldn't this be a static inline? 
-
--Andi
+Thanks,
+Kiran

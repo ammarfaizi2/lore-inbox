@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932735AbVLBLnv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932729AbVLBLpQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932735AbVLBLnv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 06:43:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932734AbVLBLnv
+	id S932729AbVLBLpQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 06:45:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932736AbVLBLpP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 06:43:51 -0500
-Received: from cantor.suse.de ([195.135.220.2]:22425 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932735AbVLBLnu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 06:43:50 -0500
-Date: Fri, 2 Dec 2005 12:43:49 +0100
-From: Andi Kleen <ak@suse.de>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org, shai@scalex86.org
-Subject: Re: [patch 1/3] x86_64: Node local PDA -- early cpu_to_node
-Message-ID: <20051202114349.GL997@wotan.suse.de>
-References: <20051202081028.GA5312@localhost.localdomain>
+	Fri, 2 Dec 2005 06:45:15 -0500
+Received: from smtp4.brturbo.com.br ([200.199.201.180]:17714 "EHLO
+	smtp4.brturbo.com.br") by vger.kernel.org with ESMTP
+	id S932729AbVLBLpO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 06:45:14 -0500
+Subject: Re: Linux 2.6.15-rc4
+From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+To: gcoady@gmail.com
+Cc: Linus Torvalds <torvalds@osdl.org>, Eyal Lebedinsky <eyal@eyal.emu.id.au>,
+       list linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <862vo198it7molqvq5ign38qmncmjk3bo5@4ax.com>
+References: <Pine.LNX.4.64.0511302234020.3099@g5.osdl.org>
+	 <1133445903.16820.1.camel@localhost>
+	 <Pine.LNX.4.64.0512010759571.3099@g5.osdl.org>
+	 <6f6293f10512011112m6e50fe0ejf0aa5ba9d09dca1e@mail.gmail.com>
+	 <Pine.LNX.4.64.0512011125280.3099@g5.osdl.org>
+	 <438F6DFF.2040603@eyal.emu.id.au>
+	 <Pine.LNX.4.64.0512011347290.3099@g5.osdl.org>
+	 <862vo198it7molqvq5ign38qmncmjk3bo5@4ax.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Fri, 02 Dec 2005 09:45:10 -0200
+Message-Id: <1133523910.6842.3.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051202081028.GA5312@localhost.localdomain>
+X-Mailer: Evolution 2.4.2-1mdk 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +#ifdef CONFIG_ACPI_NUMA
-> + 	/*
-> + 	 * Setup cpu_to_node using the SRAT lapcis & ACPI MADT table
-> + 	 * info.
-> + 	 */
-> + 	for (i = 0; i < NR_CPUS; i++)
-> + 		cpu_to_node[i] = apicid_to_node[x86_cpu_to_apicid[i]];
-> +#endif
+Em Sex, 2005-12-02 às 10:37 +1100, Grant Coady escreveu:
+> On Thu, 1 Dec 2005 13:53:28 -0800 (PST), Linus Torvalds <torvalds@osdl.org> wrote:
+> 
+> >(There are a couple of in-tree drivers that it would be interesting to 
+> >hear about too. In particular, all these files:
+> ...
+> >	drivers/media/video/zr36120.c
 
-This should be in a separate function in srat.c. 
+	Grant, you were supposed to fix it [1]. As discussed before, if this is
+not maintained anymore, just drop it. 
 
-And are you sure it will work with k8topology.c. Doesn't look like
-that to me.
+[1] http://lkml.org/lkml/2005/7/29/302
 
--Andi
+Cheers, 
+Mauro.
+

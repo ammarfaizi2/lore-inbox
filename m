@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750940AbVLBS4V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750954AbVLBS6d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750940AbVLBS4V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 13:56:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbVLBS4V
+	id S1750954AbVLBS6d (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 13:58:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750950AbVLBS6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 13:56:21 -0500
-Received: from gold.veritas.com ([143.127.12.110]:56202 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1750938AbVLBS4U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 13:56:20 -0500
-Date: Fri, 2 Dec 2005 18:55:58 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Kai Makisara <Kai.Makisara@kolumbus.fi>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Ryan Richter <ryan@tau.solarneutrino.net>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: Fw: crash on x86_64 - mm related?
-In-Reply-To: <Pine.LNX.4.63.0512021932590.4506@kai.makisara.local>
-Message-ID: <Pine.LNX.4.61.0512021836100.4940@goblin.wat.veritas.com>
-References: <20051129092432.0f5742f0.akpm@osdl.org> 
- <Pine.LNX.4.63.0512012040390.5777@kai.makisara.local> 
- <Pine.LNX.4.64.0512011136000.3099@g5.osdl.org> <1133468882.5232.14.camel@mulgrave>
- <Pine.LNX.4.63.0512012304240.5777@kai.makisara.local>
- <Pine.LNX.4.61.0512021325020.1507@goblin.wat.veritas.com>
- <Pine.LNX.4.63.0512021932590.4506@kai.makisara.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 02 Dec 2005 18:55:59.0475 (UTC) FILETIME=[08BB4430:01C5F772]
+	Fri, 2 Dec 2005 13:58:33 -0500
+Received: from moraine.clusterfs.com ([66.96.26.190]:46501 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S1750891AbVLBS6c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 13:58:32 -0500
+Date: Fri, 2 Dec 2005 11:58:05 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Takashi Sato <sho@bsd.tnes.nec.co.jp>
+Cc: Dave Kleikamp <shaggy@austin.ibm.com>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: stat64 for over 2TB file returned invalid st_blocks
+Message-ID: <20051202185805.GS14509@schatzie.adilger.int>
+Mail-Followup-To: Takashi Sato <sho@bsd.tnes.nec.co.jp>,
+	Dave Kleikamp <shaggy@austin.ibm.com>, linux-kernel@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org
+References: <01e901c5f66e$d4551b70$4168010a@bsd.tnes.nec.co.jp> <1133447539.8557.14.camel@kleikamp.austin.ibm.com> <041701c5f742$d6b0a450$4168010a@bsd.tnes.nec.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <041701c5f742$d6b0a450$4168010a@bsd.tnes.nec.co.jp>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Dec 2005, Kai Makisara wrote:
-> On Fri, 2 Dec 2005, Hugh Dickins wrote:
-> I include at the end of this message the patch I sent to linux-scsi 
-> earlier. It should clarify what are the useful parts of the later patch.
+On Dec 02, 2005  22:18 +0900, Takashi Sato wrote:
+> I also found another problem on generic quota code.  In
+> dquot_transfer(), the file usage is calculated from i_blocks via
+> inode_get_bytes().  If the file is over 2TB, the change of usage is
+> less than expected.
+> 
+> To solve this problem, I think inode.i_blocks should be 8 byte.
 
-Thanks, yes.  I'll leave out updating the verstr[],
-I think that should be sent by you alone.
+Actually, it should probably be "sector_t", because it isn't really
+possible to have a file with more blocks than the size of the block
+device.  This avoids memory overhead for small systems that have no
+need for it in a very highly-used struct.  It may be for some network
+filesystems that support gigantic non-sparse files they would need to
+enable CONFIG_LBD in order to get support for this.
 
-> I think the release_buffering() call at the end of st_read must say 1. All 
-> returns use the same path (except the one returning -ERESTARTSYS).
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
 
-Okay, if you insist.  Yes, all those returns pass that way, but if it
-actually did some reading into the memory, it called read_tape, which
-did the effective release_buffering immediately after st_do_scsi.
-
-But perhaps I'm misreading it, and even if not, someone will come
-along and "correct" it later, or change things around and make my
-not-dirty assumption wrong.
-
-It's just that after seeing how sg.c is claiming to dirty even readonly
-memory, I'm excessively averse to saying we've dirtied memory we haven't.
-My hangup, I'll get over it!
-
-> st.c did set pages dirty after reading before 2.6.0-test4. It disappeared 
-> when code was rearranged and I don't have any notes about why.
-
-Possibly because of issues with hugetlb compound pages: David Gibson
-raised that issue recently with respect to access_process_vm
-(page[1].mapping is reused and crashes set_page_dirty), I'm thinking
-we don't want to add PageCompound tests all over, and have mailed
-Andrew separately for guidance on that.
-
-Hugh

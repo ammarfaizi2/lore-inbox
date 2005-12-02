@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964823AbVLBDZz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbVLBD0E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964823AbVLBDZz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 22:25:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964825AbVLBDZz
+	id S964828AbVLBD0E (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 22:26:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbVLBD0E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 22:25:55 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:51369 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S964823AbVLBDZz
+	Thu, 1 Dec 2005 22:26:04 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:37332 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964825AbVLBD0A
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 22:25:55 -0500
-Date: Thu, 1 Dec 2005 20:25:52 -0700
+	Thu, 1 Dec 2005 22:26:00 -0500
+Date: Thu, 1 Dec 2005 20:25:58 -0700
 From: john stultz <johnstul@us.ibm.com>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Ingo Molnar <mingo@elte.hu>, Darren Hart <dvhltc@us.ibm.com>,
@@ -20,42 +20,192 @@ Cc: Ingo Molnar <mingo@elte.hu>, Darren Hart <dvhltc@us.ibm.com>,
        Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
        Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
        john stultz <johnstul@us.ibm.com>
-Message-Id: <20051202032551.19357.51421.sendpatchset@cog.beaverton.ibm.com>
-Subject: [PATCH 0/13] Time: Generic Timeofday Subsystem (v B12)
+Message-Id: <20051202032558.19357.19402.sendpatchset@cog.beaverton.ibm.com>
+In-Reply-To: <20051202032551.19357.51421.sendpatchset@cog.beaverton.ibm.com>
+References: <20051202032551.19357.51421.sendpatchset@cog.beaverton.ibm.com>
+Subject: [PATCH 1/13] Time: Reduced NTP rework (part 1)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 All,
-	The following patchset applies against 2.6.15-rc3-mm1 and provides a
-generic timekeeping subsystem that is independent of the timer
-interrupt. This allows for robust and correct behavior in cases of late
-or lost ticks, avoids interpolation errors, reduces duplication in arch
-specific code, and allows or assists future changes such as high-res
-timers, dynamic ticks, or realtime preemption. Additionally, it provides
-finer nanosecond resolution values to the clock_gettime functions.
+	With Roman's suggestions, I've been working on reducing the footprint
+of my timeofday patches. This is the first of two patches that reworks
+some of the interrupt time NTP adjustments so that it could be re-used
+with the timeofday patches. The motivation of the change is to logically
+separate the code which adjusts xtime and the code that decides, based
+on the NTP state variables, how much per tick to adjust xtime. 
 
-The patch set provides the minimal NTP changes, the clocksource
-abstraction, the core timekeeping code as well as the code to convert
-the i386 and x86-64 archs. I have started on converting more arches, but
-for now I'm focusing on i386 and x86-64.
+Thus this patch should not affect the existing behavior, but just
+separate the logical functionality so it can be re-used.
 
-New in this release: 
-o Merged Ingo's whitespace/style fixups (*Many* thanks for this help!)
-o Addressed Ingo's TODO items.
-o Merged cpufreq SMP fix
-o Dropped tsc-interp clocksource (wasn't being used)
-o Improved NUMAQ bits
-
-Still on the TODO list:
-o Submit to -mm
-
-I'd like to thank the following people who have contributed ideas,
-criticism, testing and code that has helped shape this work: 
-
-	George Anzinger, Nish Aravamudan, Max Asbock, Dominik Brodowski, Thomas
-Gleixner, Darren Hart, Christoph Lameter, Matt Mackal, Keith Mannthey,
-Ingo Molnar, Martin Schwidefsky, Frank Sorenson, Ulrich Windl, Darrick
-Wong, Roman Zippel and any others whom I've accidentally forgotten.
-
-thanks 
+thanks
 -john
+
+Signed-off-by: John Stultz <johnstul@us.ibm.com>
+
+ timer.c |  123 ++++++++++++++++++++++++++++++++++++++++++++--------------------
+ 1 files changed, 85 insertions(+), 38 deletions(-)
+
+linux-2.6.15-rc3-mm1_timeofday-ntp-part1_B12.patch
+==========================
+diff -ruN tod-mm1/kernel/timer.c tod-mm2/kernel/timer.c
+--- tod-mm1/kernel/timer.c	2005-12-01 18:13:40.000000000 -0800
++++ tod-mm2/kernel/timer.c	2005-12-01 18:18:22.000000000 -0800
+@@ -595,6 +595,7 @@
+ long time_reftime;			/* time at last adjustment (s)	*/
+ long time_adjust;
+ long time_next_adjust;
++long time_adjust_step;			/* per tick time_adjust step */
+ 
+ /*
+  * this routine handles the overflow of the microsecond field
+@@ -722,45 +723,86 @@
+ #endif
+ }
+ 
+-/* in the NTP reference this is called "hardclock()" */
+-static void update_wall_time_one_tick(void)
++/**
++ * ntp_advance - increments the NTP state machine
++ * @interval_ns: interval, in nanoseconds
++ *
++ * Must be holding the xtime writelock when calling.
++ */
++static void ntp_advance(unsigned long interval_ns)
+ {
+-	long time_adjust_step, delta_nsec;
++	static unsigned long interval_sum;
+ 
+-	if ((time_adjust_step = time_adjust) != 0 ) {
+-		/*
+-		 * We are doing an adjtime thing.  Prepare time_adjust_step to
+-		 * be within bounds.  Note that a positive time_adjust means we
+-		 * want the clock to run faster.
+-		 *
+-		 * Limit the amount of the step to be in the range
+-		 * -tickadj .. +tickadj
+-		 */
+-		time_adjust_step = min(time_adjust_step, (long)tickadj);
+-		time_adjust_step = max(time_adjust_step, (long)-tickadj);
++	/* increment the interval sum: */
++	interval_sum += interval_ns;
++
++	/* calculate the per tick singleshot adjtime adjustment step: */
++	while (interval_ns >= tick_nsec) {
++		time_adjust_step = time_adjust;
++		if (time_adjust_step) {
++	    		/*
++			 * We are doing an adjtime thing.
++			 *
++			 * Prepare time_adjust_step to be within bounds.
++			 * Note that a positive time_adjust means we want
++			 * the clock to run faster.
++			 *
++			 * Limit the amount of the step to be in the range
++			 * -tickadj .. +tickadj:
++			 */
++			time_adjust_step = min(time_adjust_step, (long)tickadj);
++			time_adjust_step = max(time_adjust_step,
++							 (long)-tickadj);
+ 
+-		/* Reduce by this step the amount of time left  */
+-		time_adjust -= time_adjust_step;
+-	}
+-	delta_nsec = tick_nsec + time_adjust_step * 1000;
+-	/*
+-	 * Advance the phase, once it gets to one microsecond, then
+-	 * advance the tick more.
+-	 */
+-	time_phase += time_adj;
+-	if ((time_phase >= FINENSEC) || (time_phase <= -FINENSEC)) {
+-		long ltemp = shift_right(time_phase, (SHIFT_SCALE - 10));
+-		time_phase -= ltemp << (SHIFT_SCALE - 10);
+-		delta_nsec += ltemp;
++			/* Reduce by this step the amount of time left: */
++			time_adjust -= time_adjust_step;
++		}
++		interval_ns -= tick_nsec;
+ 	}
+-	xtime.tv_nsec += delta_nsec;
+-	time_interpolator_update(delta_nsec);
+ 
+ 	/* Changes by adjtime() do not take effect till next tick. */
+ 	if (time_next_adjust != 0) {
+ 		time_adjust = time_next_adjust;
+ 		time_next_adjust = 0;
+ 	}
++
++	while (interval_sum >= NSEC_PER_SEC) {
++		interval_sum -= NSEC_PER_SEC;
++		second_overflow();
++	}
++}
++
++/**
++ * phase_advance - advance the phase
++ *
++ * advance the phase, once it gets to one nanosecond advance the tick more.
++ */
++static inline long phase_advance(void)
++{
++	long delta = 0;
++
++	time_phase += time_adj;
++
++	if ((time_phase >= FINENSEC) || (time_phase <= -FINENSEC)) {
++		delta = shift_right(time_phase, (SHIFT_SCALE - 10));
++		time_phase -= delta << (SHIFT_SCALE - 10);
++	}
++
++	return delta;
++}
++
++/**
++ * xtime_advance - advance xtime
++ * @delta_nsec: adjustment in nsecs
++ */
++static inline void xtime_advance(long delta_nsec)
++{
++	xtime.tv_nsec += delta_nsec;
++	if (likely(xtime.tv_nsec < NSEC_PER_SEC))
++		return;
++
++	xtime.tv_nsec -= NSEC_PER_SEC;
++	xtime.tv_sec++;
+ }
+ 
+ /*
+@@ -768,19 +810,24 @@
+  * usually just one (we shouldn't be losing ticks,
+  * we're doing this this way mainly for interrupt
+  * latency reasons, not because we think we'll
+- * have lots of lost timer ticks
++ * have lots of lost timer ticks)
+  */
+ static void update_wall_time(unsigned long ticks)
+ {
+ 	do {
+-		ticks--;
+-		update_wall_time_one_tick();
+-		if (xtime.tv_nsec >= 1000000000) {
+-			xtime.tv_nsec -= 1000000000;
+-			xtime.tv_sec++;
+-			second_overflow();
+-		}
+-	} while (ticks);
++		/*
++		 * Calculate the nsec delta using the precomputed NTP
++		 * adjustments:
++		 *     tick_nsec, time_adjust_step, time_adj
++		 */
++		long delta_nsec = tick_nsec + time_adjust_step * 1000;
++		delta_nsec += phase_advance();
++
++		xtime_advance(delta_nsec);
++		ntp_advance(tick_nsec);
++		time_interpolator_update(delta_nsec);
++
++	} while (--ticks);
+ }
+ 
+ /*

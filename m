@@ -1,105 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750991AbVLBUPE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbVLBURQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750991AbVLBUPE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 15:15:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751020AbVLBUPE
+	id S1751038AbVLBURQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 15:17:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751028AbVLBURQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 15:15:04 -0500
-Received: from gprs1.oskarmobil.cz ([217.77.165.35]:9704 "EHLO
-	anubis.fi.muni.cz") by vger.kernel.org with ESMTP id S1750991AbVLBUPD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 15:15:03 -0500
-Date: Fri, 2 Dec 2005 21:14:08 +0100
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: linux-kernel@vger.kernel.org, kraxel@bytesex.org
-Subject: CX8800 driver and 2.6.15-RC2
-Message-ID: <20051202201408.GA11046@mail.muni.cz>
+	Fri, 2 Dec 2005 15:17:16 -0500
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:20367 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1751037AbVLBURQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 15:17:16 -0500
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: Pauline Middelink <middelink@polyware.nl>
+Cc: Michael Krufky <mkrufky@m1k.net>, gcoady@gmail.com,
+       Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Eyal Lebedinsky <eyal@eyal.emu.id.au>,
+       list linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.15-rc4
+Date: Sat, 03 Dec 2005 07:19:08 +1100
+Organization: http://bugsplatter.mine.nu/
+Reply-To: gcoady@gmail.com
+Message-ID: <7sa1p1dcsprthca4r3dkc0qi4vit3spa5t@4ax.com>
+References: <1133445903.16820.1.camel@localhost> <Pine.LNX.4.64.0512010759571.3099@g5.osdl.org> <6f6293f10512011112m6e50fe0ejf0aa5ba9d09dca1e@mail.gmail.com> <Pine.LNX.4.64.0512011125280.3099@g5.osdl.org> <438F6DFF.2040603@eyal.emu.id.au> <Pine.LNX.4.64.0512011347290.3099@g5.osdl.org> <862vo198it7molqvq5ign38qmncmjk3bo5@4ax.com> <1133523910.6842.3.camel@localhost> <k611p19dv1peeb38a4krlqnib1f0pemj4b@4ax.com> <43908900.5070504@m1k.net> <20051202193725.GA32346@polyware.nl>
+In-Reply-To: <20051202193725.GA32346@polyware.nl>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, 2 Dec 2005 20:37:26 +0100, Pauline Middelink <middelink@polyware.nl> wrote:
 
-I tried cx8800 driver with Leadtek Winfast 2000XP Expert card.
-This is from dmesg:
-cx2388x v4l2 driver version 0.0.5 loaded
-ACPI: PCI Interrupt 0000:01:05.0[A] -> GSI 18 (level, low) -> IRQ 19
-CORE cx88[0]: subsystem: 107d:6611, board: Leadtek Winfast 2000XP Expert
-[card=5,autodetected]
-TV tuner 44 at 0x1fe, Radio tuner -1 at 0x1fe
-cx88[0]: Leadtek Winfast 2000XP Expert config: tuner=38, eeprom[0]=0x01
-input: cx88 IR (Leadtek Winfast 2000XP as /class/input/input2
-cx88[0]/0: found at 0000:01:05.0, rev: 5, irq: 19, latency: 64, mmio: 0xfd000000
-tuner 0-0060: All bytes are equal. It is not a TEA5767
-tuner 0-0060: chip found @ 0xc0 (cx88[0])
-tuner 0-0060: type set to 38 (Philips PAL/SECAM multi (FM1216ME MK3))
-tda9887 0-0043: chip found @ 0x86 (cx88[0])
-cx88[0]/0: registered device video0 [v4l2]
-cx88[0]/0: registered device vbi0
-cx88[0]/0: registered device radio0
+>Half way I would say. During the upcoming free days I hope to find the
+>time to finish it up so the driver works with current i2c, v4l and
+>memory.
 
-seems to be ok.
+I can test for you anyways, that'll make 2 users...
 
-However, using xawtv I got:
-This is xawtv-3.94, running on Linux/i686 (2.6.15-rc2-git1)
-/dev/video0 [v4l2]: ioctl VIDIOC_G_FBUF: Invalid argument
-v4l-conf had some trouble, trying to continue anyway
-ioctl: VIDIOC_G_FBUF(capability=0x0 [];flags=0x0
-[];base=(nil);fmt.width=0;fmt.height=0;fmt.pixelformat=0x00000000
-[....];fmt.field=ANY;fmt.bytesperline=0;fmt.sizeimage=0;fmt.colorspace=unknown;fmt.priv=0):
-Invalid argument
-ioctl:
-VIDIOC_TRY_FMT(type=VIDEO_OVERLAY;fmt.win.w.left=852;fmt.win.w.top=45;fmt.win.w.width=384;fmt.win.w.height=288;fmt.win.field=ANY;fmt.win.chromakey=0;fmt.win.clips=(nil);fmt.win.clipcount=0;fmt.win.bitmap=(nil)):
-Invalid argument
-ioctl:
-VIDIOC_S_FMT(type=VIDEO_OVERLAY;fmt.win.w.left=852;fmt.win.w.top=45;fmt.win.w.width=384;fmt.win.w.height=288;fmt.win.field=ANY;fmt.win.chromakey=0;fmt.win.clips=(nil);fmt.win.clipcount=0;fmt.win.bitmap=(nil)):
-Invalid argument
-ioctl: VIDIOC_OVERLAY(int=0): Invalid argument
-ioctl: VIDIOC_QBUF(index=0;type=VIDEO_CAPTURE;bytesused=0;flags=0x0
-[];field=ANY;;timecode.type=0;timecode.flags=0;timecode.frames=0;timecode.seconds=0;timecode.minutes=0;timecode.hours=0;timecode.userbits="";sequence=0;memory=MMAP):
-Bad address
-ioctl: VIDIOC_QBUF(index=0;type=VIDEO_CAPTURE;bytesused=0;flags=0x0
-[];field=ANY;;timecode.type=0;timecode.flags=0;timecode.frames=0;timecode.seconds=0;timecode.minutes=0;timecode.hours=0;timecode.userbits="";sequence=0;memory=MMAP):
-Bad address
-ioctl: VIDIOC_DQBUF(index=0;type=VIDEO_CAPTURE;bytesused=0;flags=0x0
-[];field=ANY;;timecode.type=0;timecode.flags=0;timecode.frames=0;timecode.seconds=0;timecode.minutes=0;timecode.hours=0;timecode.userbits="";sequence=0;memory=unknown):
-Invalid argument
-ioctl: VIDIOC_QBUF(index=0;type=VIDEO_CAPTURE;bytesused=0;flags=0x0
-[];field=ANY;;timecode.type=0;timecode.flags=0;timecode.frames=0;timecode.seconds=0;timecode.minutes=0;timecode.hours=0;timecode.userbits="";sequence=0;memory=MMAP):
-Bad address
-ioctl: VIDIOC_QBUF(index=0;type=VIDEO_CAPTURE;bytesused=0;flags=0x0
-[];field=ANY;;timecode.type=0;timecode.flags=0;timecode.frames=0;timecode.seconds=0;timecode.minutes=0;timecode.hours=0;timecode.userbits="";sequence=0;memory=MMAP):
-Bad address
-
-I inserted video_buf module with debug option and I got:
-kernel: vbuf: reqbufs: bufs=2, size=0x36000 [108 pages total]
-kernel: vbuf: mmap setup: 2 buffers, 221184 bytes each
-kernel: vbuf: mmap ca74c420: q=ca8fe848 ae94c000-ae982000 pgoff 00000000 bufs
-0-0
-kernel: vbuf: mmap ca74c3e0: q=ca8fe848 ae916000-ae94c000 pgoff 00000036 bufs
-1-1
-kernel: vbuf: init user [0xae94c000+0x36000 => 54 pages]
-kernel: vbuf: get_user_pages: err=-14 [0]
-kernel: vbuf: init user [0xae94c000+0x36000 => 54 pages]
-kernel: vbuf: get_user_pages: err=-14 [0]
-kernel: vbuf: munmap ca74c420 q=ca8fe848
-kernel: vbuf: munmap ca74c3e0 q=ca8fe848
-kernel: vbuf: init user [0x8476fc8+0x6c000 => 109 pages]
-kernel: vbuf: reqbufs: bufs=2, size=0xe1000 [450 pages total]
-kernel: vbuf: mmap setup: 2 buffers, 921600 bytes each
-kernel: vbuf: mmap cfdd4f80: q=cec35848 b7304000-b73e5000 pgoff 00000000 bufs
-0-0
-kernel: vbuf: init user [0xb7304000+0xe1000 => 225 pages]
-kernel: vbuf: get_user_pages: err=-14 [0]
-kernel: vbuf: munmap cfdd4f80 q=cec35848
-
-
-Is it a bug in kernel modules?
-
--- 
-Luká¹ Hejtmánek
+Grant.

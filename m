@@ -1,69 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbVLAUtY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932465AbVLAUyf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932464AbVLAUtY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 15:49:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751728AbVLAUtY
+	id S932465AbVLAUyf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 15:54:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751726AbVLAUyf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 15:49:24 -0500
-Received: from hqemgate03.nvidia.com ([216.228.112.143]:17942 "EHLO
-	HQEMGATE03.nvidia.com") by vger.kernel.org with ESMTP
-	id S1751724AbVLAUtX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 15:49:23 -0500
-Date: Thu, 1 Dec 2005 14:49:22 -0600
-From: Terence Ripperda <tripperda@nvidia.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Terence Ripperda <tripperda@nvidia.com>,
-       Dave Airlie <airlied@gmail.com>
-Subject: Re: PAT status?
-Message-ID: <20051201204922.GT4365@hygelac>
-Reply-To: Terence Ripperda <tripperda@nvidia.com>
-References: <438CD4AD.9070806@pobox.com>
-Mime-Version: 1.0
+	Thu, 1 Dec 2005 15:54:35 -0500
+Received: from mail.suse.de ([195.135.220.2]:28072 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751724AbVLAUyf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 15:54:35 -0500
+To: "David S. Miller" <davem@davemloft.net>
+Cc: lkml@rtr.ca, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       davej@redhat.com
+Subject: Re: [PATCH] Fix bytecount result from printk()
+References: <438F1D05.5020004@rtr.ca> <20051201175732.GD19433@redhat.com>
+	<20051201.121554.130875743.davem@davemloft.net>
+From: Andi Kleen <ak@suse.de>
+Date: 01 Dec 2005 18:23:15 -0700
+In-Reply-To: <20051201.121554.130875743.davem@davemloft.net>
+Message-ID: <p737jaofg1o.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <438CD4AD.9070806@pobox.com>
-X-Accept-Language: en
-X-Operating-System: Linux hrothgar 2.6.13 
-User-Agent: Mutt/1.5.6+20040907i
-X-OriginalArrivalTime: 01 Dec 2005 20:49:23.0150 (UTC) FILETIME=[B59FEEE0:01C5F6B8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff,
+"David S. Miller" <davem@davemloft.net> writes:
 
-I unfortunately haven't had much time to look at the status of the PAT
-code I had been working on. there are really 2 steps to the code:
-
-the first is enabling and configuring the PAT registers. this then
-allows a page table entry define that can be passed to traditional
-interfaces, such as remap_page_range or change_page_attr. this is
-pretty simple and we've been using a similar interface in our driver
-for some time now.
-
-the second part was to make sure we didn't create any cache aliasing
-via duplicate mappings. this part is a bit more involved and what was
-holding everything back. I've been meaning to get back to looking at
-this, but really haven't had the time.
-
-I don't know if you still want to limit the additional of the first
-step, based on completion of the second step. I can try to set time
-aside over the next month to try and sync up and take a look at where
-we stand w/ the cachemap portion of the code. I think there where
-still issues with gathering/passing in the correct attributes.
-
-Thanks,
-Terence
-
-
-On Tue, Nov 29, 2005 at 05:22:37PM -0500, jgarzik@pobox.com wrote:
+> From: Dave Jones <davej@redhat.com>
+> Date: Thu, 1 Dec 2005 12:57:32 -0500
 > 
-> What's the status of PAT support?
+> > On Thu, Dec 01, 2005 at 10:55:49AM -0500, Mark Lord wrote:
+> >  > printk() returns a bytecount, which nothing actually appears to use.
+> > 
+> > We do check it in a few places.
+> > 
+> > arch/x86_64/kernel/traps.c:                             i += printk(" "); \
+> > arch/x86_64/kernel/traps.c:                     i += printk(" <%s> ", id);
+> > arch/x86_64/kernel/traps.c:                     i += printk(" <EOE> ");
+> > arch/x86_64/kernel/traps.c:                             i += printk(" <IRQ> ");
+> > arch/x86_64/kernel/traps.c:                             i += printk(" <EOI> ");
+> > drivers/char/mem.c:             ret = printk("%s", tmp);
 > 
-> I'm interested in that sort of stuff, for use with on-board GPUs such as 
-> Intel/VIA/SiS, where system memory is used rather than offboard ram.
-> 
-> 	Jeff
-> 
-> 
-> 
+> Wow, that's amazing. :)
+
+Taking the blame.
+
+> I bet these can easily be removed, and since printk() is such
+> a core thing, simplifying it should trump whatever benfits
+> these few call sites have from getting a return byte count.
+
+I used it for linewrapping in the oops output.
+
+Actually I would expect more users from sprintf and snprintf
+(e.g. common in /proc output to compute the return value of the read) 
+and that is exactly the same code path.
+
+If you do the same grep for sn?printf I bet there will be much more hits.
+
+-Andi

@@ -1,69 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932728AbVLBLbr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932731AbVLBLcO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932728AbVLBLbr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 06:31:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751784AbVLBLbr
+	id S932731AbVLBLcO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 06:32:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751788AbVLBLcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 06:31:47 -0500
-Received: from ns.dynamicweb.hu ([195.228.155.139]:64953 "EHLO dynamicweb.hu")
-	by vger.kernel.org with ESMTP id S1750996AbVLBLbq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 06:31:46 -0500
-Message-ID: <011401c5f733$46a3cd60$0400a8c0@dcccs>
-From: "JaniD++" <djani22@dynamicweb.hu>
-To: "Marc Koschewski" <marc@osknowledge.org>
-Cc: <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>
-References: <016c01c5f6cc$0e28e6d0$0400a8c0@dcccs> <1133481721.9597.37.camel@lade.trondhjem.org> <00f801c5f72e$df2e58c0$0400a8c0@dcccs> <20051202110805.GA7224@stiffy.osknowledge.org>
-Subject: Re: 2.6.15-rc3: adduser: unable to lock password file
-Date: Fri, 2 Dec 2005 12:26:34 +0100
+	Fri, 2 Dec 2005 06:32:13 -0500
+Received: from nproxy.gmail.com ([64.233.182.192]:57517 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751787AbVLBLcM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 06:32:12 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=mC/vSKh1+3FvqOrJQVJUafbcZq6ueXO5IEUxNjlbY9MpehRlZwZM2uWiLrQVjiGJIzDevDZgsdRaK21rO4EDH+fxExARwQQScXiqSzP5vr6bZO8UdQeQcKd2KAmqrOSc94c6l46mVCqPfDW+4M+EeaWFoTwrR0npvl9W7VOAkZE=
+Message-ID: <6278d2220512020332y686d7436y42f3b09c5450267d@mail.gmail.com>
+Date: Fri, 2 Dec 2005 11:32:10 +0000
+From: Daniel J Blueman <daniel.blueman@gmail.com>
+To: rheflin@atipa.com
+Subject: Re: What does lspci -vv "DEVSEL=slow" and "DEVSEL=medium" mean?
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+The device select settings tells the PCI bus how many bus clock ticks
+are required between certain PCI bus phases and is dictated by the PCI
+device on the bus. It sounds like one of the cards you have has an
+older revision ASIC/chip.
 
-> > OK, i will try it, if i can.... (this is a productive online system,
-maybe
-> > next reboot)
+Roger Heflin wrote:
+> Hello,
 >
-> I'd rather suggest to _not_ run -rc kernels on productive systems. :)
-
-Thanks for the warning! :-)
-
-I know it, already.
-But have no choice. :(
-The older kernels didnt know what i have needed! :-/
-
-eg: i try the 2.6.15-rc3 because 2.6.14.2 gives me this messages:
-
-KERNEL: assertion (!sk->sk_forward_alloc) failed at net/core/stream.c (279)
-KERNEL: assertion (!sk->sk_forward_alloc) failed at net/ipv4/af_inet.c (148)
-nfs: server 192.168.2.100 not responding, still trying
-nfs: server 192.168.2.100 not responding, still trying
-nfs: server 192.168.2.100 not responding, still trying
-nfs: server 192.168.2.100 not responding, still trying
-nfs: server 192.168.2.100 not responding, still trying
-NETDEV WATCHDOG: eth0: transmit timed out
-e1000: eth0: e1000_watchdog_task: NIC Link is Up 1000 Mbps Full Duplex
-nfs: server 192.168.2.100 OK
-nfs: server 192.168.2.100 OK
-nfs: server 192.168.2.100 OK
-nfs: server 192.168.2.100 OK
-nfs: server 192.168.2.100 OK
-
-So, i really did not see different! :-D
-
-Cheers,
-
-Janos
-
+> I have 30+ machines, one machine is slower on using an
+> infiniband card than the than the others,
+> everything we can find is the same except on the "lspci -vv" the
+> slow machine reports:
 >
-> Marc
-
+> "DEVSEL=slow"
+>
+> And all of the rest report:
+>
+>  "DEVSEL=medium"
+>
+> Both machines have the same bus speed listed, but this is
+> known to be somewhat shakey on the driver it is using.
+>
+> What exactly does this mean?
+>
+> We know the bios version is the same and we believe the
+> bios settings are the same, and that the card
+> is identical, and in the same slot, and that everything else
+> is the same.
+>
+>                        Roger
+___
+Daniel J Blueman

@@ -1,140 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbVLBX2H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751057AbVLBXqi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751120AbVLBX2H (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 18:28:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbVLBX2H
+	id S1751057AbVLBXqi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 18:46:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751072AbVLBXqi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 18:28:07 -0500
-Received: from mail.polishnetwork.com ([69.222.0.23]:34833 "EHLO usfltd.com")
-	by vger.kernel.org with ESMTP id S1751120AbVLBX2G (ORCPT
+	Fri, 2 Dec 2005 18:46:38 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:8430 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751054AbVLBXqh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 18:28:06 -0500
-Date: Fri,  2 Dec 2005 17:28:42 -0600
-Message-Id: <200512021728.AA16581602@usfltd.com>
+	Fri, 2 Dec 2005 18:46:37 -0500
+Subject: Re: Better pagecache statistics ?
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: "Frank Ch. Eigler" <fche@redhat.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Arjan van de Ven <arjan@infradead.org>, linux-mm <linux-mm@kvack.org>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051202224645.GB6576@redhat.com>
+References: <20051201152029.GA14499@dmt.cnet>
+	 <1133452790.27824.117.camel@localhost.localdomain>
+	 <1133453411.2853.67.camel@laptopd505.fenrus.org>
+	 <20051201170850.GA16235@dmt.cnet>
+	 <1133457315.21429.29.camel@localhost.localdomain>
+	 <1133457700.2853.78.camel@laptopd505.fenrus.org>
+	 <20051201175711.GA17169@dmt.cnet>
+	 <1133461212.21429.49.camel@localhost.localdomain>
+	 <y0md5kfxi15.fsf@tooth.toronto.redhat.com>
+	 <1133562716.21429.103.camel@localhost.localdomain>
+	 <20051202224645.GB6576@redhat.com>
+Content-Type: multipart/mixed; boundary="=-Ue3aRS0grugHplt1kGsK"
+Date: Fri, 02 Dec 2005 15:46:46 -0800
+Message-Id: <1133567206.21429.117.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-From: "art" <art@usfltd.com>
-Reply-To: <art@usfltd.com>
-To: <linux-kernel@vger.kernel.org>
-CC: <jesper.juhl@gmail.com>
-Subject: SMART over USB - problem
-X-Mailer: <IMail v8.05>
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SMART over USB - problem
 
-usb--------------------------------------------------------
-# smartctl -a -T verypermissive /dev/sde
-smartctl version 5.33 Copyright (C) 2002-4 Bruce Allen
-Home page is http://smartmontools.sourceforge.net/
+--=-Ue3aRS0grugHplt1kGsK
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Device: WDC WD25 00JB-00GVA0      Version: 08.0
-scsiModePageOffset: response length too short, resp_len=4 offset=4 bd_len=0
->> Terminate command early due to bad response to IEC mode page
+On Fri, 2005-12-02 at 17:46 -0500, Frank Ch. Eigler wrote:
+> Hi -
+> 
+> On Fri, Dec 02, 2005 at 02:31:56PM -0800, Badari Pulavarty wrote:
+> > On Fri, 2005-12-02 at 17:15 -0500, Frank Ch. Eigler wrote:
+> > [...]
+> > > #! stap
+> > > probe kernel.function("add_to_page_cache") {
+> > >   printf("pid %d added pages (%d)\n", pid(), $mapping->nrpages)
+> > > }
+> > > probe kernel.function("__remove_from_page_cache") {
+> > >   printf("pid %d removed pages (%d)\n", pid(), $page->mapping->nrpages)
+> > > }
+> >
+> > [...]  Having by "pid" basis is not good enough. I need per
+> > file/mapping basis collected and sent to user-space on-demand.
+> 
+> If you can characterize all your data needs in terms of points to
+> insert hooks (breakpoint addresses) and expressions to sample there,
+> systemtap scripts can probably track the relationships.  (We have
+> associative arrays, looping, etc.)
+> 
+> > Is systemtap hooked to relayfs to send data across to user-land ?
+> > printf() is not an option.
+> 
+> systemtap can optionally use relayfs.  The printf you see here does
+> not relate to/invoke the kernel printk, if that's what you're worried
+> about.
 
-Error Counter logging not supported
+Hmm. You are right.
 
-Error Events logging not supported
-scsiModePageOffset: response length too short, resp_len=4 offset=4 bd_len=0
-Device does not support Self Test logging
+Is there a way another user-level program/utility access some of the
+data maintained in those arrays ?
 
-# smartctl -a -T verypermissive /dev/sdd
-smartctl version 5.33 Copyright (C) 2002-4 Bruce Allen
-Home page is http://smartmontools.sourceforge.net/
+> 
+> > And also, I need to have this probe, installed from the boot time
+> > and collecting all the information - so I can access it when I need
+> > it
+> 
+> We haven't done much work yet to address on-demand kind of interaction
+> with a systemtap probe session.  However, one could fake it by
+> associating data-printing operations with events that are triggered
+> purposely from userspace, like running a particular system call from a
+> particularly named process.
+> 
+> > which means this bloats kernel memory. [...]
+> 
+> The degree of bloat is under the operator's control: systemtap only
+> uses initialization-time memory allocation, so its arrays can fill up.
 
-Device: WDC WD30 00JB-00KFA0      Version: 08.0
-scsiModePageOffset: response length too short, resp_len=4 offset=4 bd_len=0
->> Terminate command early due to bad response to IEC mode page
+Does this mean that I can do something like
 
-Error Counter logging not supported
+	page_cache[0xffff8100c4c6b298] = $mapping->nrpages ?
 
-Error Events logging not supported
-scsiModePageOffset: response length too short, resp_len=4 offset=4 bd_len=0
-Device does not support Self Test logging
+And this won't generate bloated arrays ?
 
-ide----------------------------------------------------------
-# smartctl -a -T verypermissive /dev/hda
-smartctl version 5.33 Copyright (C) 2002-4 Bruce Allen
-Home page is http://smartmontools.sourceforge.net/
+Here is what I wrote earlier to capture some of the pagecache data.
+Unfortunately, I can't capture whatever happend before inserting the
+problem. So it won't give me information about all whats there in the
+pagecache.
 
-=== START OF INFORMATION SECTION ===
-Device Model:     WDC WD1200BB-22CAA0
-Serial Number:    WD-WMA8Cxxxxxxx
-Firmware Version: 16.06V16
-User Capacity:    120,034,123,776 bytes
-Device is:        In smartctl database [for details use: -P show]
-ATA Version is:   5
-ATA Standard is:  Exact ATA specification draft version not indicated
-Local Time is:    Thu Dec  1 14:17:57 2005 CST
-SMART support is: Available - device has SMART capability.
-SMART support is: Enabled
+BTW, if you prefer - we can move the discussion to systemtap.
+(I have few questions/issues on ret probes & accessability of
+arguments - since I want to do this on return).
 
-=== START OF READ SMART DATA SECTION ===
-SMART overall-health self-assessment test result: PASSED
-
-General SMART Values:
-Offline data collection status:  (0x82) Offline data collection activity
-                                        was completed without error.
-                                        Auto Offline Data Collection: Enabled.
-Self-test execution status:      (   0) The previous self-test routine completed
-                                        without error or no self-test has ever
-                                        been run.
-Total time to complete Offline
-data collection:                 (4680) seconds.
-Offline data collection
-capabilities:                    (0x3b) SMART execute Offline immediate.
-                                        Auto Offline data collection on/off supp ort.
-                                        Suspend Offline collection upon new
-                                        command.
-                                        Offline surface scan supported.
-                                        Self-test supported.
-                                        Conveyance Self-test supported.
-                                        No Selective Self-test supported.
-SMART capabilities:            (0x0003) Saves SMART data before entering
-                                        power-saving mode.
-                                        Supports SMART auto save timer.
-Error logging capability:        (0x01) Error logging supported.
-                                        No General Purpose Logging support.
-Short self-test routine
-recommended polling time:        (   2) minutes.
-Extended self-test routine
-recommended polling time:        (  87) minutes.
-Conveyance self-test routine
-recommended polling time:        (   5) minutes.
-
-SMART Attributes Data Structure revision number: 16
-Vendor Specific SMART Attributes with Thresholds:
-ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_ FAILED RAW_VALUE
-  1 Raw_Read_Error_Rate     0x000b   200   200   051    Pre-fail  Always       -        0
-  3 Spin_Up_Time            0x0007   099   091   021    Pre-fail  Always       -        5841
-  4 Start_Stop_Count        0x0032   100   100   040    Old_age   Always       -        708
-  5 Reallocated_Sector_Ct   0x0033   200   200   140    Pre-fail  Always       -        0
-  7 Seek_Error_Rate         0x000b   200   200   051    Pre-fail  Always       -        0
-  9 Power_On_Hours          0x0032   086   086   000    Old_age   Always       -        10517
-10 Spin_Retry_Count        0x0013   100   100   051    Pre-fail  Always       -        0
-11 Calibration_Retry_Count 0x0013   100   100   051    Pre-fail  Always       -        0
-12 Power_Cycle_Count       0x0032   100   100   000    Old_age   Always       -        686
-196 Reallocated_Event_Count 0x0032   200   200   000    Old_age   Always       -        0
-197 Current_Pending_Sector  0x0012   200   200   000    Old_age   Always       -        0
-198 Offline_Uncorrectable   0x0012   200   200   000    Old_age   Always       -        0
-199 UDMA_CRC_Error_Count    0x000a   200   253   000    Old_age   Always       -        0
-200 Multi_Zone_Error_Rate   0x0009   200   200   051    Pre-fail  Offline      -        0
-
-SMART Error Log Version: 1
-No Errors Logged
-
-SMART Self-test log structure revision number 1
-No self-tests have been logged.  [To run self-tests, use: smartctl -t]
+Thanks,
+Badari
 
 
-Device does not support Selective Self Tests/Logging
-#
------------------------------------------------------------------------
 
-ide---works
-usb---not
 
-(USB-external-case) or (eide-usb-scsi conversion) ???
 
-xboom 
+--=-Ue3aRS0grugHplt1kGsK
+Content-Disposition: attachment; filename=pagecache.stp
+Content-Type: text/plain; name=pagecache.stp; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+#! stap
+
+global page_cache_pages
+
+function _(n) { return string(n) } 
+
+probe kernel.function("add_to_page_cache") {
+	page_cache_pages[$mapping] = $mapping->nrpages
+}
+
+probe kernel.function("__remove_from_page_cache") {
+	page_cache_pages[$page->mapping] = $page->mapping->nrpages
+}
+
+function report () {
+  foreach (mapping in page_cache_pages) {
+	print("mapping = " . hexstring(mapping) . 
+		" nrpages = " . _(page_cache_pages[mapping]) . "\n")
+  }
+  delete page_cache_pages
+}
+
+probe end {
+  report()
+}
+
+--=-Ue3aRS0grugHplt1kGsK--
+

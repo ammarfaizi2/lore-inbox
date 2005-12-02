@@ -1,87 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750923AbVLBIzl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750934AbVLBJBW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750923AbVLBIzl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 03:55:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751760AbVLBIzl
+	id S1750934AbVLBJBW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 04:01:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751762AbVLBJBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 03:55:41 -0500
-Received: from gw1.cosmosbay.com ([62.23.185.226]:27343 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S1750923AbVLBIzk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 03:55:40 -0500
-Message-ID: <43900BE3.5080000@cosmosbay.com>
-Date: Fri, 02 Dec 2005 09:54:59 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-CC: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org, shai@scalex86.org
-Subject: Re: [patch 3/3] x86_64: Node local PDA -- allocate node local memory
- for pda
-References: <20051202081028.GA5312@localhost.localdomain> <20051202082309.GC5312@localhost.localdomain>
-In-Reply-To: <20051202082309.GC5312@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Fri, 02 Dec 2005 09:55:02 +0100 (CET)
+	Fri, 2 Dec 2005 04:01:21 -0500
+Received: from populous.netsplit.com ([62.49.129.34]:10627 "EHLO
+	mailgate.netsplit.com") by vger.kernel.org with ESMTP
+	id S1750934AbVLBJBV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 04:01:21 -0500
+Subject: Re: Two module-init-
+From: Scott James Remnant <scott@ubuntu.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>, linux-input@atrey.karlin.mff.cuni.cz,
+       vojtech@suse.cz
+In-Reply-To: <1133482376.4094.11.camel@localhost.localdomain>
+References: <1133359773.2779.13.camel@localhost.localdomain>
+	 <1133482376.4094.11.camel@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Mvs0HsEo+jeCopFFc8gv"
+Date: Fri, 02 Dec 2005 09:01:14 +0000
+Message-Id: <1133514074.20712.0.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ravikiran G Thirumalai a écrit :
-> Patch uses a static PDA array early at boot and reallocates processor PDA
-> with node local memory when kmalloc is ready, just before pda_init.
-> The boot_cpu_pda is needed sice the cpu_pda is used even before pda_init for
-> that cpu is called (to set the static per-cpu areas offset table etc)
-> 
 
-That sounds great.
+--=-Mvs0HsEo+jeCopFFc8gv
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I have only have one suggestion : If kernel is not NUMA, then maybe we should 
-avoid one indirection to get the pda, and avoid some code too.
+On Fri, 2005-12-02 at 11:12 +1100, Rusty Russell wrote:
 
+> On Wed, 2005-11-30 at 14:09 +0000, Scott James Remnant wrote:
+> > Hi Rusty,
+> >=20
+> > Attached are two patches to module-init-tools from Ubuntu.
+> >=20
+> > The first (input_table_size) is a catch-up with 2.6.15, it's adding an
+> > extra field to the input_device_id struct; m-u-t needs updating to be
+> > able to read the modules correctly.
+>=20
+> Unfortunately, it's not that simple.  Your patch will break previous
+> kernels, which have a smaller structure.  I've had the discussion years
+> ago with the input people on using module aliases, and it's not entirely
+> trivial.  I will prepare another patch, however.
+>=20
+Are the modules.*map files intended to be deprecated entirely in favour
+of aliases?  The problem this patch fixed was that the parser couldn't
+read the tables, so produced invalid output for the modules (ie. an
+empty modules.inputmap).
 
+Scott
+--=20
+Scott James Remnant
+scott@ubuntu.com
 
-include/asm-x86_64/pda.h
+--=-Mvs0HsEo+jeCopFFc8gv
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-#if !defined(CONFIG_NUMA)
-extern struct x8664_pda _cpu_pda[];
-#define cpu_pda(i) (&_cpu_pda[i])
-#else
-extern struct x8664_pda *_cpu_pda[];
-#define cpu_pda(i) (_cpu_pda[i])
-#endif
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-arch/x86_64/kernel/setup64.c
+iD8DBQBDkA1aSnQiFMl4yK4RAh+oAJ4tE9BMCnm2HdusAAIy/GFAl7ZOIACfVcmT
+XjN6dLaYHzZPVVXZwC2JiR0=
+=MpJH
+-----END PGP SIGNATURE-----
 
-#if !definedd(CONFIG_NUMA)
-struct x8664_pda _cpu_pda[NR_CPUS] __cacheline_aligned;
-#else
-struct x8664_pda *_cpu_pda[NR_CPUS] __read_mostly;
-struct x8664_pda boot_cpu_pda[NR_CPUS] __cacheline_aligned;
-#endif
+--=-Mvs0HsEo+jeCopFFc8gv--
 
-
-...
-#if defined(CONFIG_NUMA)
-	/* Allocate node local memory for AP pdas */
-	if (cpu) {
-		struct x8664_pda *newpda;
-		newpda = kmalloc_node(sizeof (struct x8664_pda), GFP_ATOMIC,
-				      cpu_to_node(cpu));
-		if (newpda) {
-			printk("Allocating node local PDA for cpu %d at 0x%lx\n",
-				cpu, (unsigned long) newpda);
-			memcpy(newpda, pda, sizeof (struct x8664_pda));
-			pda = newpda;
-			cpu_pda(cpu) = pda;
-		}
-		else
-			printk("Could not allocate node local PDA for cpu %d\n",
-				cpu);
-	}
-#endif
-
-
-
-Eric

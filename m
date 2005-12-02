@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbVLBD0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbVLBD0u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964828AbVLBD0E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 22:26:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbVLBD0E
+	id S964825AbVLBD0u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 22:26:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbVLBD0s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 22:26:04 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:37332 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964825AbVLBD0A
+	Thu, 1 Dec 2005 22:26:48 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:29653 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964829AbVLBD0b
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 22:26:00 -0500
-Date: Thu, 1 Dec 2005 20:25:58 -0700
+	Thu, 1 Dec 2005 22:26:31 -0500
+Date: Thu, 1 Dec 2005 20:26:30 -0700
 From: john stultz <johnstul@us.ibm.com>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Ingo Molnar <mingo@elte.hu>, Darren Hart <dvhltc@us.ibm.com>,
@@ -20,192 +20,152 @@ Cc: Ingo Molnar <mingo@elte.hu>, Darren Hart <dvhltc@us.ibm.com>,
        Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
        Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
        john stultz <johnstul@us.ibm.com>
-Message-Id: <20051202032558.19357.19402.sendpatchset@cog.beaverton.ibm.com>
+Message-Id: <20051202032629.19357.59378.sendpatchset@cog.beaverton.ibm.com>
 In-Reply-To: <20051202032551.19357.51421.sendpatchset@cog.beaverton.ibm.com>
 References: <20051202032551.19357.51421.sendpatchset@cog.beaverton.ibm.com>
-Subject: [PATCH 1/13] Time: Reduced NTP rework (part 1)
+Subject: [PATCH 5/13] Time: i386 Conversion - part 1: Move timer_pit.c to i8253.c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 All,
-	With Roman's suggestions, I've been working on reducing the footprint
-of my timeofday patches. This is the first of two patches that reworks
-some of the interrupt time NTP adjustments so that it could be re-used
-with the timeofday patches. The motivation of the change is to logically
-separate the code which adjusts xtime and the code that decides, based
-on the NTP state variables, how much per tick to adjust xtime. 
-
-Thus this patch should not affect the existing behavior, but just
-separate the logical functionality so it can be re-used.
-
+	The conversion of i386 to use the generic timeofday subsystem has been
+split into 6 parts. This patch, the first of six, is just a simple
+cleanup for the i386 arch in preparation of moving to the generic
+timeofday infrastructure. It simply moves some code from timer_pit.c to
+i8253.c.
+	
+It applies on top of my timeofday-core patch. This patch is part the
+timeofday-arch-i386 patchset, so without the following parts it is not
+expected to compile (although just this one should).
+	
 thanks
 -john
 
 Signed-off-by: John Stultz <johnstul@us.ibm.com>
 
- timer.c |  123 ++++++++++++++++++++++++++++++++++++++++++++--------------------
- 1 files changed, 85 insertions(+), 38 deletions(-)
+ Makefile           |    2 -
+ i8253.c            |   59 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ time.c             |    6 -----
+ timers/timer_pit.c |   13 -----------
+ 4 files changed, 60 insertions(+), 20 deletions(-)
 
-linux-2.6.15-rc3-mm1_timeofday-ntp-part1_B12.patch
+linux-2.6.15-rc3-mm1_timeofday-arch-i386-part1_B12.patch
 ==========================
-diff -ruN tod-mm1/kernel/timer.c tod-mm2/kernel/timer.c
---- tod-mm1/kernel/timer.c	2005-12-01 18:13:40.000000000 -0800
-+++ tod-mm2/kernel/timer.c	2005-12-01 18:18:22.000000000 -0800
-@@ -595,6 +595,7 @@
- long time_reftime;			/* time at last adjustment (s)	*/
- long time_adjust;
- long time_next_adjust;
-+long time_adjust_step;			/* per tick time_adjust step */
+diff -ruN tod-mm1/arch/i386/kernel/i8253.c tod-mm2/arch/i386/kernel/i8253.c
+--- tod-mm1/arch/i386/kernel/i8253.c	1969-12-31 16:00:00.000000000 -0800
++++ tod-mm2/arch/i386/kernel/i8253.c	2005-12-01 18:23:24.000000000 -0800
+@@ -0,0 +1,59 @@
++/*
++ * i8253.c  8253/PIT functions
++ *
++ */
++#include <linux/spinlock.h>
++#include <linux/jiffies.h>
++#include <linux/sysdev.h>
++#include <linux/module.h>
++#include <linux/init.h>
++
++#include <asm/smp.h>
++#include <asm/delay.h>
++#include <asm/i8253.h>
++#include <asm/io.h>
++
++#include "io_ports.h"
++
++DEFINE_SPINLOCK(i8253_lock);
++EXPORT_SYMBOL(i8253_lock);
++
++void setup_pit_timer(void)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&i8253_lock, flags);
++	outb_p(0x34,PIT_MODE);		/* binary, mode 2, LSB/MSB, ch 0 */
++	udelay(10);
++	outb_p(LATCH & 0xff , PIT_CH0);	/* LSB */
++	udelay(10);
++	outb(LATCH >> 8 , PIT_CH0);	/* MSB */
++	spin_unlock_irqrestore(&i8253_lock, flags);
++}
++
++static int timer_resume(struct sys_device *dev)
++{
++	setup_pit_timer();
++
++	return 0;
++}
++
++static struct sysdev_class timer_sysclass = {
++	set_kset_name("timer_pit"),
++	.resume	= timer_resume,
++};
++
++static struct sys_device device_timer = {
++	.id	= 0,
++	.cls	= &timer_sysclass,
++};
++
++static int __init init_timer_sysfs(void)
++{
++	int error = sysdev_class_register(&timer_sysclass);
++	if (!error)
++		error = sysdev_register(&device_timer);
++	return error;
++}
++
++device_initcall(init_timer_sysfs);
+diff -ruN tod-mm1/arch/i386/kernel/Makefile tod-mm2/arch/i386/kernel/Makefile
+--- tod-mm1/arch/i386/kernel/Makefile	2005-12-01 18:12:56.000000000 -0800
++++ tod-mm2/arch/i386/kernel/Makefile	2005-12-01 18:23:57.000000000 -0800
+@@ -7,7 +7,7 @@
+ obj-y	:= process.o semaphore.o signal.o entry.o traps.o irq.o vm86.o \
+ 		ptrace.o time.o ioport.o ldt.o setup.o i8259.o sys_i386.o \
+ 		pci-dma.o i386_ksyms.o i387.o dmi_scan.o bootflag.o \
+-		quirks.o i8237.o
++		quirks.o i8237.o i8253.o
+ 
+ obj-y				+= cpu/
+ obj-y				+= timers/
+diff -ruN tod-mm1/arch/i386/kernel/time.c tod-mm2/arch/i386/kernel/time.c
+--- tod-mm1/arch/i386/kernel/time.c	2005-12-01 18:12:56.000000000 -0800
++++ tod-mm2/arch/i386/kernel/time.c	2005-12-01 18:23:24.000000000 -0800
+@@ -82,11 +82,6 @@
+ DEFINE_SPINLOCK(rtc_lock);
+ EXPORT_SYMBOL(rtc_lock);
+ 
+-#include <asm/i8253.h>
+-
+-DEFINE_SPINLOCK(i8253_lock);
+-EXPORT_SYMBOL(i8253_lock);
+-
+ struct timer_opts *cur_timer __read_mostly = &timer_none;
  
  /*
-  * this routine handles the overflow of the microsecond field
-@@ -722,45 +723,86 @@
+@@ -400,7 +395,6 @@
+ 	if (is_hpet_enabled())
+ 		hpet_reenable();
  #endif
- }
- 
--/* in the NTP reference this is called "hardclock()" */
--static void update_wall_time_one_tick(void)
-+/**
-+ * ntp_advance - increments the NTP state machine
-+ * @interval_ns: interval, in nanoseconds
-+ *
-+ * Must be holding the xtime writelock when calling.
-+ */
-+static void ntp_advance(unsigned long interval_ns)
- {
--	long time_adjust_step, delta_nsec;
-+	static unsigned long interval_sum;
- 
--	if ((time_adjust_step = time_adjust) != 0 ) {
--		/*
--		 * We are doing an adjtime thing.  Prepare time_adjust_step to
--		 * be within bounds.  Note that a positive time_adjust means we
--		 * want the clock to run faster.
--		 *
--		 * Limit the amount of the step to be in the range
--		 * -tickadj .. +tickadj
--		 */
--		time_adjust_step = min(time_adjust_step, (long)tickadj);
--		time_adjust_step = max(time_adjust_step, (long)-tickadj);
-+	/* increment the interval sum: */
-+	interval_sum += interval_ns;
-+
-+	/* calculate the per tick singleshot adjtime adjustment step: */
-+	while (interval_ns >= tick_nsec) {
-+		time_adjust_step = time_adjust;
-+		if (time_adjust_step) {
-+	    		/*
-+			 * We are doing an adjtime thing.
-+			 *
-+			 * Prepare time_adjust_step to be within bounds.
-+			 * Note that a positive time_adjust means we want
-+			 * the clock to run faster.
-+			 *
-+			 * Limit the amount of the step to be in the range
-+			 * -tickadj .. +tickadj:
-+			 */
-+			time_adjust_step = min(time_adjust_step, (long)tickadj);
-+			time_adjust_step = max(time_adjust_step,
-+							 (long)-tickadj);
- 
--		/* Reduce by this step the amount of time left  */
--		time_adjust -= time_adjust_step;
--	}
--	delta_nsec = tick_nsec + time_adjust_step * 1000;
--	/*
--	 * Advance the phase, once it gets to one microsecond, then
--	 * advance the tick more.
--	 */
--	time_phase += time_adj;
--	if ((time_phase >= FINENSEC) || (time_phase <= -FINENSEC)) {
--		long ltemp = shift_right(time_phase, (SHIFT_SCALE - 10));
--		time_phase -= ltemp << (SHIFT_SCALE - 10);
--		delta_nsec += ltemp;
-+			/* Reduce by this step the amount of time left: */
-+			time_adjust -= time_adjust_step;
-+		}
-+		interval_ns -= tick_nsec;
- 	}
--	xtime.tv_nsec += delta_nsec;
--	time_interpolator_update(delta_nsec);
- 
- 	/* Changes by adjtime() do not take effect till next tick. */
- 	if (time_next_adjust != 0) {
- 		time_adjust = time_next_adjust;
- 		time_next_adjust = 0;
- 	}
-+
-+	while (interval_sum >= NSEC_PER_SEC) {
-+		interval_sum -= NSEC_PER_SEC;
-+		second_overflow();
-+	}
-+}
-+
-+/**
-+ * phase_advance - advance the phase
-+ *
-+ * advance the phase, once it gets to one nanosecond advance the tick more.
-+ */
-+static inline long phase_advance(void)
-+{
-+	long delta = 0;
-+
-+	time_phase += time_adj;
-+
-+	if ((time_phase >= FINENSEC) || (time_phase <= -FINENSEC)) {
-+		delta = shift_right(time_phase, (SHIFT_SCALE - 10));
-+		time_phase -= delta << (SHIFT_SCALE - 10);
-+	}
-+
-+	return delta;
-+}
-+
-+/**
-+ * xtime_advance - advance xtime
-+ * @delta_nsec: adjustment in nsecs
-+ */
-+static inline void xtime_advance(long delta_nsec)
-+{
-+	xtime.tv_nsec += delta_nsec;
-+	if (likely(xtime.tv_nsec < NSEC_PER_SEC))
-+		return;
-+
-+	xtime.tv_nsec -= NSEC_PER_SEC;
-+	xtime.tv_sec++;
- }
- 
- /*
-@@ -768,19 +810,24 @@
-  * usually just one (we shouldn't be losing ticks,
-  * we're doing this this way mainly for interrupt
-  * latency reasons, not because we think we'll
-- * have lots of lost timer ticks
-+ * have lots of lost timer ticks)
-  */
- static void update_wall_time(unsigned long ticks)
- {
- 	do {
--		ticks--;
--		update_wall_time_one_tick();
--		if (xtime.tv_nsec >= 1000000000) {
--			xtime.tv_nsec -= 1000000000;
--			xtime.tv_sec++;
--			second_overflow();
--		}
--	} while (ticks);
-+		/*
-+		 * Calculate the nsec delta using the precomputed NTP
-+		 * adjustments:
-+		 *     tick_nsec, time_adjust_step, time_adj
-+		 */
-+		long delta_nsec = tick_nsec + time_adjust_step * 1000;
-+		delta_nsec += phase_advance();
-+
-+		xtime_advance(delta_nsec);
-+		ntp_advance(tick_nsec);
-+		time_interpolator_update(delta_nsec);
-+
-+	} while (--ticks);
- }
- 
- /*
+-	setup_pit_timer();
+ 	sec = get_cmos_time() + clock_cmos_diff;
+ 	sleep_length = (get_cmos_time() - sleep_start) * HZ;
+ 	write_seqlock_irqsave(&xtime_lock, flags);
+diff -ruN tod-mm1/arch/i386/kernel/timers/timer_pit.c tod-mm2/arch/i386/kernel/timers/timer_pit.c
+--- tod-mm1/arch/i386/kernel/timers/timer_pit.c	2005-12-01 18:12:56.000000000 -0800
++++ tod-mm2/arch/i386/kernel/timers/timer_pit.c	2005-12-01 18:23:24.000000000 -0800
+@@ -162,16 +162,3 @@
+ 	.init = init_pit, 
+ 	.opts = &timer_pit,
+ };
+-
+-void setup_pit_timer(void)
+-{
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&i8253_lock, flags);
+-	outb_p(0x34,PIT_MODE);		/* binary, mode 2, LSB/MSB, ch 0 */
+-	udelay(10);
+-	outb_p(LATCH & 0xff , PIT_CH0);	/* LSB */
+-	udelay(10);
+-	outb(LATCH >> 8 , PIT_CH0);	/* MSB */
+-	spin_unlock_irqrestore(&i8253_lock, flags);
+-}

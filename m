@@ -1,48 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932569AbVLBAHm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932570AbVLBAIG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932569AbVLBAHm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 19:07:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932570AbVLBAHm
+	id S932570AbVLBAIG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 19:08:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932573AbVLBAIF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 19:07:42 -0500
-Received: from mx1.suse.de ([195.135.220.2]:46018 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932572AbVLBAHl (ORCPT
+	Thu, 1 Dec 2005 19:08:05 -0500
+Received: from krl.krl.com ([192.147.32.3]:56267 "EHLO krl.krl.com")
+	by vger.kernel.org with ESMTP id S932570AbVLBAIE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 19:07:41 -0500
-Date: Fri, 2 Dec 2005 01:07:37 +0100
-From: Andi Kleen <ak@suse.de>
-To: Stephane Eranian <eranian@hpl.hp.com>
-Cc: Andi Kleen <ak@suse.de>, Nicholas Miell <nmiell@comcast.net>,
-       Ray Bryant <raybry@mpdtxmail.amd.com>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org, perfctr-devel@lists.sourceforge.net
-Subject: Re: [discuss] Re: [Perfctr-devel] Re: Enabling RDPMC in user space by default
-Message-ID: <20051202000737.GG997@wotan.suse.de>
-References: <200511291056.32455.raybry@mpdtxmail.amd.com> <20051129180903.GB6611@frankl.hpl.hp.com> <20051129181344.GN19515@wotan.suse.de> <1133300591.3271.1.camel@entropy> <20051129215207.GR19515@wotan.suse.de> <20051129221915.GA6953@frankl.hpl.hp.com> <20051129225155.GT19515@wotan.suse.de> <20051130160159.GB8511@frankl.hpl.hp.com> <20051130162314.GP19515@wotan.suse.de> <20051201234150.GE3291@frankl.hpl.hp.com>
+	Thu, 1 Dec 2005 19:08:04 -0500
+Date: Thu, 1 Dec 2005 19:07:31 -0500
+Message-Id: <200512020007.jB207V2V008865@p-chan.krl.com>
+From: Don Koch <aardvark@krl.com>
+To: Mauro Carvalho Chehab <mchehab@infradead.org>
+Cc: video4linux-list@redhat.com, perrye@linuxmail.org,
+       hartmut.hackmann@t.online.de, linux-kernel@vger.kernel.org,
+       gene.heskett@verizon.net, mkrufky@m1k.net
+Subject: Re: Gene's pcHDTV 3000 analog problem
+In-Reply-To: <1133470859.23362.59.camel@localhost>
+References: <200511282205.jASM5YUI018061@p-chan.krl.com>
+	<c35b44d70511291548lcb10361ifd3a4ea0f239662d@mail.gmail.com>
+	<438CFFAD.7070803@m1k.net>
+	<200511300007.56004.gene.heskett@verizon.net>
+	<438D38B3.2050306@m1k.net>
+	<200511301553.jAUFrSQx026450@p-chan.krl.com>
+	<438E7107.3000407@linuxmail.org>
+	<438E8365.4020200@linuxmail.org>
+	<438E84A4.8000601@m1k.net>
+	<438E8A58.4010003@linuxmail.org>
+	<438EBD43.3080400@linuxmail.org>
+	<438F38E6.7090303@m1k.net>
+	<1133470859.23362.59.camel@localhost>
+Organization: KRL
+X-Mailer: Sylpheed version 2.1.6 (GTK+ 2.4.14; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051201234150.GE3291@frankl.hpl.hp.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 01, 2005 at 03:41:50PM -0800, Stephane Eranian wrote:
-> On Wed, Nov 30, 2005 at 05:23:15PM +0100, Andi Kleen wrote:
-> > > to count elapsed cycles while executing a ring 0 and ring 3. The watchdog
-> > > works by polling on the counter and after a certain delta is reached it
-> > > triggers an NMI interrupt which, in turn, causes a kernel crash and the
-> > > (bug) report. Is that the correct behavior?
-> > 
-> > The watchdog is driven by the performance counter (this means
-> > it has varying frequency, but that's not a big issue for the watchdog) 
-> > 
-> > It underflows every second in the fastest case or very slowly
-> > (if the machine is idle). Every time it underflows it checks if 
-> > the per CPU timer has been ticking, and if it hasn't for some time
-> > it triggers an oops.
+On Thu, 01 Dec 2005 19:00:59 -0200
+Mauro Carvalho Chehab wrote:
+
+> 	After checking the datasheets of Thompson tuner, and I have one guess:
 > 
-> How is the checking for underflows done? Polling?
+> 	At board description, tda9887 is not there. This tuner needs to work
+> properly.
+> 
+> 	This small patch does enable it for your board.
+> 
+> 	You should notice that you may need to use some parameters for tda0887
+> to work properly, like using port1=0 port2=0 qss=0 as insmod options for
+> this module. (these are some on/off bits at the chip, to enable some
+> special functions - if 0/0/0 doesn't work you may need to test 0/0/1, ..
+> 1/1/1).
+> 
+> Cheers, 
+> Mauro.
+> 
+Works fine here!  Thanks, Mauro!!
 
-There is a bit in the perfctr MSRs to cause an interrupt if it underflows.
-That is programmed to be an NMI.
+The default settings worked.
 
--Andi
+-d

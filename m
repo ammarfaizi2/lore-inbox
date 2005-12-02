@@ -1,91 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbVLBQDv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbVLBQMH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750804AbVLBQDv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 11:03:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbVLBQDv
+	id S1750801AbVLBQMH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 11:12:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbVLBQMH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 11:03:51 -0500
-Received: from fmr19.intel.com ([134.134.136.18]:35285 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750804AbVLBQDu convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 11:03:50 -0500
-Content-class: urn:content-classes:message
+	Fri, 2 Dec 2005 11:12:07 -0500
+Received: from zproxy.gmail.com ([64.233.162.199]:64359 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750801AbVLBQMG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 11:12:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=DU1LWXTdT6vdyg6M0ma0QmUjkTDgCuZbT8JmsKmKhEBUdkTHvfb6HnDOvC+3knRyEBxAhYckw3xLLSVlIIJZUbVmf+bR6QJxRxUo9OGEUfCqjrpl/Q7pYvVQE9z4QZGfegkokZMki0OBDalOUrdviMLqjPAgstb7rdIqJPahfKc=
+Message-ID: <75b07c990512020812i3c9fc3d0j@mail.gmail.com>
+Date: Fri, 2 Dec 2005 16:12:05 +0000
+From: Daniel Cadete <denarfhork@gmail.com>
+To: "Ju, Seokmann" <Seokmann.Ju@engenio.com>
+Subject: Re: How to setup git
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E5703662C65@exa-atlanta>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Subject: 
-Date: Sat, 3 Dec 2005 00:03:30 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F84041AC237@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-thread-index: AcX3WfCEQ85g1SloRNmg7rS7Hlk2Fg==
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Dmitry Torokhov" <dtor_core@ameritech.net>,
-       "Linus Torvalds" <torvalds@osdl.org>
-Cc: "Vojtech Pavlik" <vojtech@suse.cz>, "Andrew Morton" <akpm@osdl.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 02 Dec 2005 16:03:32.0328 (UTC) FILETIME=[F159EE80:01C5F759]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <0E3FA95632D6D047BA649F95DAB60E5703662C65@exa-atlanta>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Subject: [git pull 02/14] Add Wistron driver
+On 01/12/05, Ju, Seokmann <Seokmann.Ju@engenio.com> wrote:
+> [root@dhcp root]# rpm-ihv git-core-0.99.7-1.i386.rpm
+> error: Failed dependencies:
+>         perl(String::ShellQuote) is needed by git-core-0.99.7-1.i386
+>         python >= 2.4 is needed by git-core-0.99.7-1.i386
 >
->Input: add Wistron driver
->
->A driver for laptop buttons using an x86 BIOS interface that is
->apparently used on quite a few laptops and seems to be originating
->from Wistron.
->
->This driver currently "knows" only about Fujitsu-Siemens Amilo 
->Pro V2000
->(i.e. it can detect the laptop using DMI and it contains the
->keycode->key meaning mapping for this laptop) and Xeron SonicPro X 155G
->(probably can't be reliably autodetected, requires a module parameter),
->adding other laptops should be easy.
->
->In addition to reporting button presses to the input layer the driver
->also allows enabling/disabling the embedded wireless NIC (using the
->"Wifi" button); this is done using the same BIOS interface, so it seems
->only logical to keep the implementation together.  Any flexibility
->possibly gained by allowing users to remap the function of the "Wifi"
->button is IMHO not worth it when weighted against the necessity to run
->an user-space daemon to convert button presses to wifi state changes.
->
->Signed-off-by: Miloslav Trmac <mitr@volny.cz>
->Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
->---
->
+> Where can I find those modules?
 
-I just tested module wistron_btn on  one Acer Aspire laptop after 
-adding one dmi entry.  The wistron_btn found BIOS interfaces.
-One visible error is the bluetooth light won't turn on upon 
-stroking bluetooth button.
-Without wistron_btn module, the bluetooth light works.
- with acpi enabled, I didn't try acpi disabled)
-
-wistron_btn polls a cmos address to detect hotkey event.  It 
-is not necessary, because there do have ACPI interrupt triggered upon 
-hotkeys.  
-
-So, my suggestion is to disable this module when ACPI enabled.
-We need to implement hotkey support from ACPI subsystem for my
-Acer aspire laptop.
-
---- linux-2.6.15-rc3/drivers/input/misc/Kconfig.0	2005-12-02
-10:08:33.000000000 -0700
-+++ linux-2.6.15-rc3/drivers/input/misc/Kconfig	2005-12-02
-10:08:58.000000000 -0700
-@@ -42,7 +42,7 @@
- 
- config INPUT_WISTRON_BTNS
- 	tristate "x86 Wistron laptop button interface"
--	depends on X86 && !X86_64
-+	depends on X86 && !X86_64 && !ACPI
- 	help
- 	  Say Y here for support of Winstron laptop button interface,
-used on
- 	  laptops of various brands, including Acer and Fujitsu-Siemens.
-
+Google could help you...
+I think that lkml its not the right place to ask these questions..

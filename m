@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751069AbVLBUy6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbVLBVAd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751069AbVLBUy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 15:54:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbVLBUy6
+	id S1750708AbVLBVAd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 16:00:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbVLBVAc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 15:54:58 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:35647 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S1751069AbVLBUy6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 15:54:58 -0500
-Subject: Re: forcedeth
-From: Kasper Sandberg <lkml@metanurb.dk>
-To: Jacques de Krahe <dekrahe@tiscali.be>
-Cc: c-d hailfinger <linux-kernel@vger.kernel.org>,
-       hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
-In-Reply-To: <1133554191.4786.8.camel@localhost.localdomain>
-References: <1133554191.4786.8.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 02 Dec 2005 21:54:52 +0100
-Message-Id: <1133556892.16820.13.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Fri, 2 Dec 2005 16:00:32 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:63705 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750708AbVLBVAc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 16:00:32 -0500
+Message-ID: <4390B6CA.2090006@vnet.ibm.com>
+Date: Fri, 02 Dec 2005 15:04:10 -0600
+From: Thomas Gall <tom_gall@vnet.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Macintosh/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: MTD: fix possible starvation in cfi_cmdset_0001.c
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-02 at 21:09 +0100, Jacques de Krahe wrote:
-> Running FC4 on a PC equipped with NForce2 chipset and AMD k7 (Athlon XP
-> 2200) 
-> The eth interface can't be normally configured at boot and fails.
-> The problem comes from forcedeth. The system asks me to have a look into
-> dmesg, where I find a line that reads a follows: forcedeth : Unknown
-> parameter "irq"
-are you trying to load forcedeth with a parameter called "irq" ? if so,
-try without
+The patch below fixes a potential starvation issue that can arise when
+there is contention on a chip during a period when a process is
+currently writing to it.  The starvation is avoided by conditionally
+rescheduling when the chip is left in a state usable by other processes.
 
-> The next line in /var/log/dmesg shows the version number.
-> Is it possible to correct the code and what are the necessary steps to
-> get a functional module?
-> If you answer my question, please be as complete as possible, I am a new
-> user of FC4.
-> Thank in advance
-> Regards
-> Jacques de Krahe
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Please CC Josh and myself and replies.  Thanks!
+
+Signed-off-by: Josh Boyer <jdub@us.ibm.com>
+Signed-off-by: Tom Gall <tom_gall@vnet.ibm.com>
+
+ drivers/mtd/chips/cfi_cmdset_0001.c |    5 +++++
+ 1 files changed, 5 insertions(+)
+
+Index: mtd/drivers/mtd/chips/cfi_cmdset_0001.c
+===================================================================
+--- mtd.orig/drivers/mtd/chips/cfi_cmdset_0001.c	2005-11-07 15:04:33.000000000 -0600
++++ mtd/drivers/mtd/chips/cfi_cmdset_0001.c	2005-11-08 08:54:54.000000000 -0600
+@@ -1695,6 +1695,11 @@ static int cfi_intelext_writev (struct m
+ 			if (chipnum == cfi->numchips)
+ 				return 0;
+ 		}
++
++		/* Be nice and reschedule with the chip in a usable state for other
++		   processes. */
++		cond_resched();
++
+ 	} while (len);
+
+ 	return 0;
+
+-- 
+Linux Technology Center
+Senior Software Engineer, - Embedded Linux                                              
+w) tom_gall@vnet.ibm.com    553-4558
+h) tgall@uberh4x0r.org
+"We want great men who, when fortune frowns, will not be discouraged." 
+-- Colonel Henry Knox
 

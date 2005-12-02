@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751777AbVLBKey@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932719AbVLBKgj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751777AbVLBKey (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 05:34:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751776AbVLBKex
+	id S932719AbVLBKgj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 05:36:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932720AbVLBKgi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 05:34:53 -0500
-Received: from mail.fccps.cz ([195.146.112.10]:62479 "EHLO mail.fccps.cz")
-	by vger.kernel.org with ESMTP id S1751778AbVLBKex (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 05:34:53 -0500
-From: "Frantisek Rysanek" <Frantisek.Rysanek@post.cz>
-To: linux-kernel@vger.kernel.org
-Date: Fri, 02 Dec 2005 11:34:58 +0100
+	Fri, 2 Dec 2005 05:36:38 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:64480 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S932719AbVLBKgi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 05:36:38 -0500
+Message-ID: <439023A3.4090201@cosmosbay.com>
+Date: Fri, 02 Dec 2005 11:36:19 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Subject: Re: SuperMicro X6DHE-XG2 + 2x Irwindale in 2.4 SMP
-Message-ID: <43903162.16758.8146B879@localhost>
-X-mailer: Pegasus Mail for Windows (4.21c)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+To: linux-kernel@vger.kernel.org
+CC: Andrew Morton <akpm@osdl.org>, Ravikiran G Thirumalai <kiran@scalex86.org>,
+       ak@suse.de, discuss@x86-64.org, shai@scalex86.org,
+       rusty@rustcorp.com.au
+Subject: [RFC] NUMA aware kthread_create() ?
+References: <20051202081028.GA5312@localhost.localdomain>	<20051202082309.GC5312@localhost.localdomain> <20051202010548.4da3d1bb.akpm@osdl.org>
+In-Reply-To: <20051202010548.4da3d1bb.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Fri, 02 Dec 2005 11:36:17 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear everyone,
+Hi
 
-it seems that there is one BIOS SETUP option that escaped my 
-attention: in the BIOS version 1.3a, it's called the
-"C1 enhanced mode".
-In order to make Linux 2.4 work on the SuperMicro boards with 
-Irwindale CPU's, this toggle has to be disabled.
+Is there any plans about making a kthread_create_on_cpu() version of 
+kthread_create(), so that memory allocated for thread stack/info is allocated 
+on the node of the target CPU ?
 
-Frank Rysanek
+There is a mention about kthread_create_on_cpu() in a comment in 
+include/linux/kthread.h, but no implementation.
 
->
-> Dear everyone,
-> 
-> I'd like to report what seems to be a minor SMP misbehavior in the 
-> 2.4 kernel.
->
-> My hardware:
-> SuperMicro X6DHE-XG2 motherboard (i7520 + 2x PXH)
-> BIOS versions 1.2c and 1.3a (a flavour of Phoenix server BIOS)
-> 2x Intel XEON Irwindale (2 MB L2) @ 3.4 GHz
+The current use pattern is
 
+p = kthread_create(ksoftirqd, hcpu, "ksoftirqd/%d", hotcpu);
+if (IS_ERR(p)) { error ... }
+kthread_bind(p, hotcpu);
+
+So the thread memory is currently allocated on the node of the current cpu, ie 
+not the target cpu (hotcpu in this example)
+
+Thank you
+Eric Dumazet

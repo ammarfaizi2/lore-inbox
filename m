@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbVLBCSO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964781AbVLBCWQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964789AbVLBCSO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 21:18:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbVLBCSO
+	id S964781AbVLBCWQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 21:22:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964796AbVLBCWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 21:18:14 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:14445
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S964789AbVLBCSO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 21:18:14 -0500
-Date: Fri, 2 Dec 2005 03:18:11 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Wu Fengguang <wfg@mail.ustc.edu.cn>, Andrew Morton <akpm@osdl.org>,
-       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org,
-       christoph@lameter.com, riel@redhat.com, a.p.zijlstra@chello.nl,
-       npiggin@suse.de, magnus.damm@gmail.com
-Subject: Re: [PATCH 02/12] mm: supporting variables and functions for balanced zone aging
-Message-ID: <20051202021811.GB28539@opteron.random>
-References: <20051201101810.837245000@localhost.localdomain> <20051201101933.936973000@localhost.localdomain> <20051201023714.612f0bbf.akpm@osdl.org> <20051201222846.GA3646@dmt.cnet> <20051201150349.3538638e.akpm@osdl.org> <20051202011924.GA3516@mail.ustc.edu.cn> <20051201173015.675f4d80.akpm@osdl.org> <20051202020407.GA4445@mail.ustc.edu.cn>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051202020407.GA4445@mail.ustc.edu.cn>
+	Thu, 1 Dec 2005 21:22:16 -0500
+Received: from rtr.ca ([64.26.128.89]:61628 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S964781AbVLBCWQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 21:22:16 -0500
+Message-ID: <438FAFD5.9070008@rtr.ca>
+Date: Thu, 01 Dec 2005 21:22:13 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: [PATCH] Fix bytecount result from printk()
+References: <438F1D05.5020004@rtr.ca>	<20051201175732.GD19433@redhat.com> <20051201180459.2afa2b1d.akpm@osdl.org>
+In-Reply-To: <20051201180459.2afa2b1d.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 02, 2005 at 10:04:07AM +0800, Wu Fengguang wrote:
-> btw, maybe it's time to lower the low_mem_reserve.
-> There should be no need to keep ~50M free memory with the balancing patch.
+Andrew Morton wrote:
+>
+> Please review these patches, queued since 2.6.15-rc1-mm1:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc3/2.6.15-rc3-mm1/broken-out/printk-return-value-fix-it.patch
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc3/2.6.15-rc3-mm1/broken-out/kmsg_write-dont-return-printk-return-value.patch
 
-low_mem_reserve is indipendent from shrink_cache, because shrink_cache can't
-free unfreeable pinned memory.
+Yes, those patches actually appear to fix the counting.
 
-If you want to remove low_mem_reserve you'd better start by adding
-migration of memory across the zones with pte updates etc... That would
-at least mitigate the effect of anonymous memory w/o swap. But
-low_mem_reserve is still needed for all other kind of allocations like
-kmalloc or pci_alloc_consistent (i.e. not relocatable) etc...
+The patch I submitted merely makes it internally consistent
+within printk/vprintk(), but does not change it to actually
+be correct.
+
+Cheers

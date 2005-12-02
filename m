@@ -1,77 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbVLBNST@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbVLBNVp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750739AbVLBNST (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 08:18:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbVLBNST
+	id S1750726AbVLBNVp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 08:21:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbVLBNVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 08:18:19 -0500
-Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:10670 "EHLO
-	tyo201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S1750732AbVLBNSS convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 08:18:18 -0500
-Message-ID: <041701c5f742$d6b0a450$4168010a@bsd.tnes.nec.co.jp>
-From: "Takashi Sato" <sho@bsd.tnes.nec.co.jp>
-To: "Dave Kleikamp" <shaggy@austin.ibm.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
-References: <01e901c5f66e$d4551b70$4168010a@bsd.tnes.nec.co.jp> <1133447539.8557.14.camel@kleikamp.austin.ibm.com>
-Subject: Re: stat64 for over 2TB file returned invalid st_blocks
-Date: Fri, 2 Dec 2005 22:18:04 +0900
+	Fri, 2 Dec 2005 08:21:45 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:61839 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S1750726AbVLBNVo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 08:21:44 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+Subject: Re: Use enum to declare errno values
+Date: Fri, 2 Dec 2005 15:20:52 +0200
+User-Agent: KMail/1.8.2
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Paul Jackson <pj@sgi.com>, francis_moreau2000@yahoo.fr,
+       linux-kernel@vger.kernel.org
+References: <20051123132443.32793.qmail@web25813.mail.ukl.yahoo.com> <84144f020512020418x7ebf5e3bt54cde14ec6a7a954@mail.gmail.com> <2cd57c900512020456n2f31101k@mail.gmail.com>
+In-Reply-To: <2cd57c900512020456n2f31101k@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by mailsv.tnes.nec.co.jp id jB2DI8T79684
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512021520.53191.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-> > Hi all,
+On Friday 02 December 2005 14:56, Coywolf Qi Hunt wrote:
+> 2005/12/2, Pekka Enberg <penberg@cs.helsinki.fi>:
+> > Hi,
 > >
-> > I found a problem at stat64 on 32bit architecture.
+> > 2005/12/2, Denis Vlasenko <vda@ilport.com.ua>:
+> > > > There is another reason why enums are better than #defines:
 > >
-> > When I called stat64 for a file which is larger than 2TB, stat64
-> > returned an invalid number of blocks at st_blocks on 32bit
-> > architecture, although it returned a valid number of blocks on 64bit
-> > architecture(ia64).
+> > On 12/2/05, Coywolf Qi Hunt <coywolf@gmail.com> wrote:
+> > > This is a reason why enums are worse than #defines.
+> > >
+> > > Unlike in other languages, C enum is not much useful in practices.
+> > > Maybe the designer wanted C to be as fancy as other languages?  C
+> > > shouldn't have had enum imho. Anyway we don't have any strong motives
+> > > to switch to enums.
+> >
+> > I don't follow your reasoning. The naming collision is a real problem
+> > with macros. With enum and const, the compiler can do proper checking
+> > with meaningful error messages. Please explain why you think #define
+> > is better for Denis' example?
+> >
+> >                                      Pekka
+> 
+> That is a bad bad style. It should be `#define FOO 123' if you have to
+> write it.
+
+I suspect this style was invented exactly as a device to stop confusing
+macro names with variable/function names.
+
+> It's also hard to see what the confusing bar is "if you are looking at
+> file.c alone".
+
+int f(int foo, int bar) {...}
+
+bar is a parameter of type "int" of function f(). What else it could be here?
+It's basic C.
+
+> enum is worse than typdef.  Don't you see why we should use `struct
+> task_struct', rather than `task_t'?
 >
-> For jfs, it's a bigger problem than just stat64.  When writing the inode
-> to disk, jfs calculates the number of blocks from the 32-bit value:
-> dip->di_nblocks = cpu_to_le64(PBLK2LBLK(ip->i_sb, ip->i_blocks))
->
-> So it won't only report the wrong number of blocks, but it will actually
-> store the wrong number.  :-(
+> Introducing enum alone can't solve the problems from bad macro usage
+> habits. Actually, it's not anything wrong with macros, it's
+> programers' bad coding style.
+> 
+> Macros play an important role in C, but enums don't.
 
-I also found another problem on generic quota code.  In
-dquot_transfer(), the file usage is calculated from i_blocks via
-inode_get_bytes().  If the file is over 2TB, the change of usage is
-less than expected.
-
-To solve this problem, I think inode.i_blocks should be 8 byte.
-
->> 2. Change the type of architecture dependent stat64.st_blocks in
->>    include/asm/asm-*/stat.h from unsigned long to unsigned long long.
->>    I tried modifying only stat64 of 32bit architecture
->>    (include/asm-i386/stat.h).
->
->This changes the API, but the structure does suggest that the 4-byte pad
->should be used for the high-order bytes of st_blocks, so that's not
->really a problem.  A correct fix would replace __pad4 with
->st_blocks_high (or something like that) and ensure that the high-order
->word was stored there.  Your proposed fix would only be correct on
->little-endian hardware, as Jörn pointed out.
-
-Thank you for your advice.  I'll research for glibc and consider
-how to implement.
-By the way I think, as Avi Kivity said, it's always little-endian on i386,
-is it correct?
-
--- Takashi Sato 
-
+Looks more like your personal dislike to enum keyword.
+--
+vda

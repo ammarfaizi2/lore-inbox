@@ -1,136 +1,183 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751738AbVLBFuF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750844AbVLBFsW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751738AbVLBFuF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 00:50:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751739AbVLBFuF
+	id S1750844AbVLBFsW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 00:48:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbVLBFsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 00:50:05 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:52704 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751738AbVLBFuD (ORCPT
+	Fri, 2 Dec 2005 00:48:22 -0500
+Received: from rtsoft2.corbina.net ([85.21.88.2]:7104 "HELO mail.dev.rtsoft.ru")
+	by vger.kernel.org with SMTP id S1750844AbVLBFsV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 00:50:03 -0500
-Date: Thu, 1 Dec 2005 21:49:31 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Wu Fengguang <wfg@mail.ustc.edu.cn>
-Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org,
-       christoph@lameter.com, riel@redhat.com, a.p.zijlstra@chello.nl,
-       npiggin@suse.de, andrea@suse.de, magnus.damm@gmail.com
-Subject: Re: [PATCH 02/12] mm: supporting variables and functions for
- balanced zone aging
-Message-Id: <20051201214931.2dbc35fe.akpm@osdl.org>
-In-Reply-To: <20051202011924.GA3516@mail.ustc.edu.cn>
-References: <20051201101810.837245000@localhost.localdomain>
-	<20051201101933.936973000@localhost.localdomain>
-	<20051201023714.612f0bbf.akpm@osdl.org>
-	<20051201222846.GA3646@dmt.cnet>
-	<20051201150349.3538638e.akpm@osdl.org>
-	<20051202011924.GA3516@mail.ustc.edu.cn>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 2 Dec 2005 00:48:21 -0500
+Message-ID: <438FE01C.9070307@ru.mvista.com>
+Date: Fri, 02 Dec 2005 08:48:12 +0300
+From: Vitaly Wool <vwool@ru.mvista.com>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Brownell <david-b@pacbell.net>
+CC: Mark Underwood <basicmark@yahoo.com>, linux-kernel@vger.kernel.org,
+       dpervushin@gmail.com, akpm@osdl.org, greg@kroah.com,
+       komal_shah802003@yahoo.com, stephen@streetfiresound.com,
+       spi-devel-general@lists.sourceforge.net, Joachim_Jaeger@digi.com
+Subject: Re: [PATCH 2.6-git] SPI core refresh
+References: <20051130202930.67776.qmail@web36914.mail.mud.yahoo.com> <438EA389.7030704@ru.mvista.com> <200512011031.12167.david-b@pacbell.net>
+In-Reply-To: <200512011031.12167.david-b@pacbell.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wu Fengguang <wfg@mail.ustc.edu.cn> wrote:
+David Brownell wrote:
+
+>On Wednesday 30 November 2005 11:17 pm, Vitaly Wool wrote:
+>  
 >
->      865                         if (sc->nr_to_reclaim <= 0)
->      866                                 break;
->      867                 }
->      868         }
-> 
->  Line 843 is the core of the scan balancing logic:
-> 
->  priority                12      11      10
-> 
->  On each call nr_scan_inactive is increased by:
->  DMA(2k pages)           +1      +2      +3
->  Normal(64k pages)      +17      +33     +65 
-> 
->  Round it up to SWAP_CLUSTER_MAX=32, we get (scan batches/accumulate rounds):
->  DMA                     1/32    1/16    2/11
->  Normal                  2/2     2/1     3/1
->  DMA:Normal ratio        1:32    1:32    2:33
-> 
->  This keeps the scan rate roughly balanced(i.e. 1:32) in low vm pressure.
-> 
->  But lines 865-866 together with line 846 make most shrink_zone() invocations
->  only run one batch of scan.
+>>Mark Underwood wrote:
+>>
+>>    
+>>
+>>>>However, there also are some advantages of our core compared to David's I'd like to mention
+>>>>
+>>>>- it can be compiled as a module
+>>>>        
+>>>>
+>>>So can David's. You can use BIOS tables in which case you must compile the SPI core into the
+>>>kernel but you can also use spi_new_device which allows the SPI core to be built as a module (and
+>>>is how I am using it).
+>>>      
+>>>
+>>You limit the functionality, so it's not the case.
+>>    
+>>
+>
+>As noted in my comparison of last week (you're still ignoring that):
+>
+> - Mine lets board-specific device tables be declared in the
+>   relevant arch_setup() thing (board-*.c).  Both frameworks allow
+>   later board specific code to dynamically declare the devices,
+>   with binary (Dave's) or parsed-text (Dmitry's) descriptions. 
+>
+>What Mark said was that in this case he used the "late" init.  You seem
+>to be saying he's not allowed to do that.  Which is nonsense; there are
+>distinct mechanisms for the good reason that "late" init doesn't work
+>so well without dynamic discovery ... which SPI itself doesn't support.
+>Hence the need for board-specific "this hardware exists" tables.
+>
+>  
+>
+Can you please clarify what you mean here? Better even if Mark describes 
+what he does. The ideal situation would be if he posted a patch.
 
-Yes, this seems to be the problem.  Sigh.  By the time 2.6.8 came around I
-just didn't have time to do the amount of testing which any page reclaim
-tweak necessitates.
+>  
+>
+>>If there's more than one SPI controller onboard, spi_write_then_read 
+>>will serialize the transfers ...
+>>    
+>>
+>
+>Which, as has been pointed out, would be a trivial thing to fix
+>if anyone were actually to have a problem.  Sure it'd incur the
+>cost of a kmalloc on at least some paths -- serializing in the
+>slab layer instead! -- but that's one price of using convenience
+>helpers not performance oriented calls.
+>  
+>
+Well, most of the drivers will use that helpers I guess.
+The thing however is that if you try to implement this in a "clean" way 
+you will come to a sport of framework we've developed for memeory 
+allocations, as I've saild previously.
 
+>
+>  
+>
+>>	 Moreover, if, say, two  
+>>kernel threads with different priorities are working with two SPI 
+>>controllers respectively *priority inversion* will happen.
+>>    
+>>
+>
+>That characteristic being inherited from semaphores (or were they
+>updated with RT_PREEMPT?), and being in common with most I/O queues
+>in the system.  Not something to blame on any line of code I wrote.
+>  
+>
+I think they weren't.
+The whole thing doesn't seem thought out nicely to me. The solution 
+exists, of course, and that is -- do somthing similar to what we did there.
 
+>Oh, and I noticed a priority inversion in your API which shows
+>up with one SPI controller managing two devices.  Whoops!  I'd
+>far rather have such inversions be implementation artifacts; it's
+>easy to patch an implementation, hard to change all API users.
+>  
+>
+Not sure if I understood you. Can you please describe the situation when 
+this prio inversion happens?
+What priorities are you talking about? One controller is one thread, so 
+it's _one_ priority, consequently there's nothing to invert.
+As for your second statement, I don't argue. The fact however is that if 
+you implement the mehtod which corrects priority inverstion problems 
+your core will not be either so lightweight or so flexible. :)
 
-From: Andrew Morton <akpm@osdl.org>
+>
+>  
+>
+>>>>- it's more adapted for use in real-time environments
+>>>>- it's not so lightweight, but it leaves less effort for the bus driver developer.
+>>>>        
+>>>>
+>>>But also less flexibility. A core layer shouldn't _force_ a policy
+>>>      
+>>>
+>>Nope, it's just a default policy.
+>>    
+>>
+>
+>One that every driver pays the price for.  Allocating a task even
+>when it doesn't need it; every call going through a midlayer that
+>wants to take over queue management policy; and more.  (Unless you
+>made a big un-remarked change in a patch you called "refresh"...)
+>  
+>
+It's not obvious that this price is high.
+Anyway, it's a point I should agree with; this functionality better be a 
+config option. Feel free to submit a patch, as you like to say.
 
-Revert a patch which went into 2.6.8-rc1.  The changelog for that patch was:
+>
+>  
+>
+>>>on a bus driver. I am currently developing an adapter driver for David's system and I wouldn't say
+>>>that the core is making me do things I think the core should do. Please could you provide examples
+>>>of where you think Davids SPI core requires 'effort'.
+>>>      
+>>>
+>>Main are
+>>- the need to call 'complete' in controller driver
+>>    
+>>
+>
+>So you think it's better to have consistent semantics be optional?
+>
+>That seems to be the notion behind your spi_transfer() call, which
+>can't decide whether it's going to be synchronous or asynchronous.
+>Instead, it decided to be error prone and be both.  :)
+>
+>
+>  
+>
+Not sure if I understood you here, sorry.
 
-  The shrink_zone() logic can, under some circumstances, cause far too many
-  pages to be reclaimed.  Say, we're scanning at high priority and suddenly
-  hit a large number of reclaimable pages on the LRU.
+>>- the need to implement policy in controller driver
+>>    
+>>
+>
+>The "policy" in question is something that sometimes needs to
+>be board-specific -- priority to THAT device, synch with THIS
+>external signal, etc -- which is why I see it as a drawback
+>that you insist the core implement one policy.
+>  
+>
+Again, the policy can be overridden.
 
-  Change things so we bale out when SWAP_CLUSTER_MAX pages have been
-  reclaimed.
-
-Problem is, this change caused significant imbalance in inter-zone scan
-balancing by truncating scans of larger zones.
-
-Suppose, for example, ZONE_HIGHMEM is 10x the size of ZONE_NORMAL.  The zone
-balancing algorithm would require that if we're scanning 100 pages of
-ZONE_HIGHMEM, we should scan 10 pages of ZONE_NORMAL.  But this logic will
-cause the scanning of ZONE_HIGHMEM to bale out after only 32 pages are
-reclaimed.  Thus effectively causing smaller zones to be scanned relatively
-harder than large ones.
-
-Now I need to remember what the workload was which caused me to write this
-patch originally, then fix it up in a different way...
-
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- mm/vmscan.c |    8 --------
- 1 files changed, 8 deletions(-)
-
-diff -puN mm/vmscan.c~vmscan-balancing-fix mm/vmscan.c
---- devel/mm/vmscan.c~vmscan-balancing-fix	2005-12-01 21:20:44.000000000 -0800
-+++ devel-akpm/mm/vmscan.c	2005-12-01 21:21:38.000000000 -0800
-@@ -63,9 +63,6 @@ struct scan_control {
- 
- 	unsigned long nr_mapped;	/* From page_state */
- 
--	/* How many pages shrink_cache() should reclaim */
--	int nr_to_reclaim;
--
- 	/* Ask shrink_caches, or shrink_zone to scan at this priority */
- 	unsigned int priority;
- 
-@@ -901,7 +898,6 @@ static void shrink_cache(struct zone *zo
- 		if (current_is_kswapd())
- 			mod_page_state(kswapd_steal, nr_freed);
- 		mod_page_state_zone(zone, pgsteal, nr_freed);
--		sc->nr_to_reclaim -= nr_freed;
- 
- 		spin_lock_irq(&zone->lru_lock);
- 		/*
-@@ -1101,8 +1097,6 @@ shrink_zone(struct zone *zone, struct sc
- 	else
- 		nr_inactive = 0;
- 
--	sc->nr_to_reclaim = sc->swap_cluster_max;
--
- 	while (nr_active || nr_inactive) {
- 		if (nr_active) {
- 			sc->nr_to_scan = min(nr_active,
-@@ -1116,8 +1110,6 @@ shrink_zone(struct zone *zone, struct sc
- 					(unsigned long)sc->swap_cluster_max);
- 			nr_inactive -= sc->nr_to_scan;
- 			shrink_cache(zone, sc);
--			if (sc->nr_to_reclaim <= 0)
--				break;
- 		}
- 	}
- 
-_
-
+Vitaly

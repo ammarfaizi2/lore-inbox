@@ -1,137 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbVLBWxl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751041AbVLBXCJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751039AbVLBWxl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 17:53:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751041AbVLBWxk
+	id S1751041AbVLBXCJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 18:02:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751044AbVLBXCJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 17:53:40 -0500
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:24482 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S1751034AbVLBWxk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 17:53:40 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andy Isaacson <adi@hexapodia.org>
-Subject: Re: swsusp intermittent failures in 2.6.15-rc3-mm1
-Date: Fri, 2 Dec 2005 23:54:43 +0100
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>
-References: <20051202183748.GA12584@hexapodia.org> <200512022302.48734.rjw@sisk.pl>
-In-Reply-To: <200512022302.48734.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Dec 2005 18:02:09 -0500
+Received: from ns2.suse.de ([195.135.220.15]:13034 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751041AbVLBXCI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 18:02:08 -0500
+Date: Sat, 3 Dec 2005 00:02:06 +0100
+From: Andi Kleen <ak@suse.de>
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, discuss@x86-64.org, shai@scalex86.org
+Subject: Re: [discuss] Re: [patch 1/3] x86_64: Node local PDA -- early cpu_to_node
+Message-ID: <20051202230206.GF9766@wotan.suse.de>
+References: <20051202081028.GA5312@localhost.localdomain> <20051202114349.GL997@wotan.suse.de> <20051202225156.GC3727@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200512022354.43750.rjw@sisk.pl>
+In-Reply-To: <20051202225156.GC3727@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Update:
-
-On Friday, 2 of December 2005 23:02, Rafael J. Wysocki wrote:
-> On Friday, 2 of December 2005 19:37, Andy Isaacson wrote:
-> > On Thu, Dec 01, 2005 at 10:42:44PM +0100, Rafael J. Wysocki wrote:
-> > > On Thursday, 1 of December 2005 18:36, Andy Isaacson wrote:
-> > > > My Thinkpad X40 (1.25 GB, ipw2200) has had fairly reliable swsusp since
-> > > > 2.6.13 or thereabouts, and as recently as 2.6.15-rc1-mm1 I had about 20
-> > > > successful suspend/resume cycles.  But now that I'm running
-> > > > 2.6.15-rc3-mm1 I'm seeing intermittent failures like this:
-> > > 
-> > > Thanks a lot for the report.
-> > > 
-> > > The problem is apparently caused by my recent patch intended to speed up
-> > > suspend.  Could you please apply the appended debug patch, try to reproduce
-> > > the problem and send full dmesg output back to me?
+On Fri, Dec 02, 2005 at 02:51:56PM -0800, Ravikiran G Thirumalai wrote:
+> On Fri, Dec 02, 2005 at 12:43:49PM +0100, Andi Kleen wrote:
+> > > +#ifdef CONFIG_ACPI_NUMA
+> > > + 	/*
+> > > + 	 * Setup cpu_to_node using the SRAT lapcis & ACPI MADT table
+> > > + 	 * info.
+> > > + 	 */
+> > > + 	for (i = 0; i < NR_CPUS; i++)
+> > > + 		cpu_to_node[i] = apicid_to_node[x86_cpu_to_apicid[i]];
+> > > +#endif
 > > 
-> > Here you go.  This is two suspends; the first one completed
-> > successfully, then I triggered a failure by starting a bunch of
-> > processes until highmem looked full.  (Just firefox wasn't enough, so I
-> > started a bunch of vim -R sessions on a 50MB file until HighFree went
-> > under 1MB.)
+> > This should be in a separate function in srat.c. 
 > 
-}-- snip --{
-> I'm working on a patch.
+> OK,
+> 
+> > 
+> > And are you sure it will work with k8topology.c. Doesn't look like
+> > that to me.
+> 
+> I don't have a K8 box yet :(, so I cannot confirm either ways.  
+> But I thought newer opterons need to use  ACPI_NUMA instead...
 
-Could you please apply the appended one and see if it fixes the issue?
-It's on top of the previous one.
+k8topology still needs to work - e.g. for LinuxBios and users which use
+acpi=off and as a fallback for broken SRAT tables. You can't break it right now.
 
-It's been compile-tested, but I have no machine with highmem to really
-test it.
+> 
+> <Kconfig quote>
+> config K8_NUMA
+>        bool "Old style AMD Opteron NUMA detection"
+>        depends on NUMA
+>        default y
+>        help
+>          Enable K8 NUMA node topology detection.  You should say Y here if
+>          you have a multi processor AMD K8 system. This uses an old
+>          method to read the NUMA configurtion directly from the builtin
+>          Northbridge of Opteron. It is recommended to use X86_64_ACPI_NUMA
+>          instead, which also takes priority if both are compiled in.
+> </quote>
+> 
+> Even if K8 detection is used, cpu_pda will have memory allocated from node0
+> which is not different from the current state.  So this patch helps Opterons
+> and EM64t boxes which use ACPI_NUMA, right?  Also the newer opteron boxes
+> and em64t NUMA boxes can now get node local memory for static per-cpu areas.
 
-Greetings,
-Rafael
+Hmm good point. However i would prefer if there was no performance regression
+between the two options. However i guess it can be kept like this now.
+Just make sure to comment it well.
 
+-Andi
 
-Index: linux-2.6.15-rc3-mm1/kernel/power/snapshot.c
-===================================================================
---- linux-2.6.15-rc3-mm1.orig/kernel/power/snapshot.c	2005-12-02 22:02:50.000000000 +0100
-+++ linux-2.6.15-rc3-mm1/kernel/power/snapshot.c	2005-12-02 23:45:13.000000000 +0100
-@@ -37,6 +37,12 @@
- unsigned int nr_copy_pages;
- 
- #ifdef CONFIG_HIGHMEM
-+struct highmem_page {
-+	char *data;
-+	struct page *page;
-+	struct highmem_page *next;
-+};
-+
- unsigned int count_highmem_pages(void)
- {
- 	struct zone *zone;
-@@ -52,22 +58,27 @@
- 				if (!pfn_valid(pfn))
- 					continue;
- 				page = pfn_to_page(pfn);
--				if (PageReserved(page))
--					continue;
--				if (PageNosaveFree(page))
--					continue;
--				n++;
-+				if (!PageNosaveFree(page) && !PageReserved(page))
-+					n++;
- 			}
- 		}
-+	if (n > 0) {
-+		unsigned int size = sizeof(struct highmem_page);
-+
-+#define CACHE(x) \
-+		if (sizeof(struct highmem_page) <= x) { \
-+			size = x; \
-+			goto found; \
-+		}
-+#include <linux/kmalloc_sizes.h>
-+#undef CACHE
-+found:
-+		printk("count_highmem_pages(): size = %u\n", size);
-+		n += (n * size + PAGE_SIZE - 1) / PAGE_SIZE + 1;
-+	}
- 	return n;
- }
- 
--struct highmem_page {
--	char *data;
--	struct page *page;
--	struct highmem_page *next;
--};
--
- static struct highmem_page *highmem_copy;
- 
- static int save_highmem_zone(struct zone *zone)
-Index: linux-2.6.15-rc3-mm1/kernel/power/swsusp.c
-===================================================================
---- linux-2.6.15-rc3-mm1.orig/kernel/power/swsusp.c	2005-12-01 22:24:56.000000000 +0100
-+++ linux-2.6.15-rc3-mm1/kernel/power/swsusp.c	2005-12-02 23:34:48.000000000 +0100
-@@ -637,7 +637,7 @@
- #ifdef FAST_FREE
- 		tmp = count_data_pages();
- 		printk("Data pages: %ld\n", tmp);
--		tmp += count_highmem_pages();
-+		tmp += 2 * count_highmem_pages();
- 		printk("Data and highmem pages: %ld\n", tmp);
- 		tmp += (tmp + PBES_PER_PAGE - 1) / PBES_PER_PAGE +
- 			PAGES_FOR_IO;
-
-
--- 
-Beer is proof that God loves us and wants us to be happy - Benjamin Franklin

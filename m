@@ -1,73 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750956AbVLBTMf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbVLBTR2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750956AbVLBTMf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 14:12:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750936AbVLBTMf
+	id S1750964AbVLBTR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 14:17:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750971AbVLBTR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 14:12:35 -0500
-Received: from silver.veritas.com ([143.127.12.111]:48224 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1750781AbVLBTMe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 14:12:34 -0500
-Date: Fri, 2 Dec 2005 19:12:19 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Ryan Richter <ryan@tau.solarneutrino.net>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       Kai Makisara <Kai.Makisara@kolumbus.fi>, Andrew Morton <akpm@osdl.org>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: Fw: crash on x86_64 - mm related?
-In-Reply-To: <20051202180326.GB7634@tau.solarneutrino.net>
-Message-ID: <Pine.LNX.4.61.0512021856170.4940@goblin.wat.veritas.com>
-References: <20051129092432.0f5742f0.akpm@osdl.org>
- <Pine.LNX.4.63.0512012040390.5777@kai.makisara.local>
- <Pine.LNX.4.64.0512011136000.3099@g5.osdl.org> <20051201195657.GB7236@tau.solarneutrino.net>
- <Pine.LNX.4.61.0512012008420.28450@goblin.wat.veritas.com>
- <20051202180326.GB7634@tau.solarneutrino.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 02 Dec 2005 19:12:20.0979 (UTC) FILETIME=[51C0E430:01C5F774]
+	Fri, 2 Dec 2005 14:17:28 -0500
+Received: from wproxy.gmail.com ([64.233.184.207]:29717 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750963AbVLBTR1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 14:17:27 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+        b=GKPD9QtM55Z9aFWFgRUIoXK4YtqNXFj0U3Um13B4dIEc/lHpB2NynlJp323bYloXEntjRERBMvqQ8qcopF32fwBNSPtoEKE1dggnmY6WdVBRehmIhIeh5+bYjdr9TX1wQNltpuYeHu8TKogHPi8ERxAadhn5+NzahtTJGxvxC54=
+Subject: Re: [PATCH 0/4] linux-2.6-block: deactivating pagecache for
+	benchmarks
+From: Badari Pulavarty <pbadari@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Dirk Henning Gerdes <mail@dirk-gerdes.de>, axboe@suse.de,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051201172520.7095e524.akpm@osdl.org>
+References: <1133443051.6110.32.camel@noti>
+	 <20051201172520.7095e524.akpm@osdl.org>
+Content-Type: text/plain
+Date: Fri, 02 Dec 2005 11:17:31 -0800
+Message-Id: <1133551051.21429.81.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Dec 2005, Ryan Richter wrote:
-> On Thu, Dec 01, 2005 at 08:21:57PM +0000, Hugh Dickins wrote:
-> > If the problem were easily reproducible, it'd be great if you could
-> > try this patch; but I think you've said it's not :-(
+On Thu, 2005-12-01 at 17:25 -0800, Andrew Morton wrote:
+> Dirk Henning Gerdes <mail@dirk-gerdes.de> wrote:
+> >
+> >  For doing benchmarks on the I/O-Schedulers, I thought it would be very
+> >  useful to disable the pagecache.
 > 
-> I can throw this in and test it for sure.  I'll run the backups every
-> day for a while to speed up the testing also.
+> That's an FAQ.   Something like this?
+> 
+> 
+> From: Andrew Morton <akpm@osdl.org>
+> 
+> Add /proc/sys/vm/drop-pagecache.  When written to, this will cause the kernel
+> to discard as much pagecache and reclaimable slab objects as it can.
+> 
+> It won't drop dirty data, so the user should run `sync' first.
+> 
+> Caveats:
+> 
+> a) Holds inode_lock for exorbitant amounts of time.
+> 
+> b) Needs to be taught about NUMA nodes: propagate these all the way through
+>    so the discarding can be controlled on a per-node basis.
+> 
+> c) The pagecache shrinking and slab shrinking should probably have separate
+>    controls.
+> 
+> 
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
 
-Thanks - though everyone seems to have agreed that the patch is needed
-whatever: so although it would be interesting to know if it has fixed
-your problem, we're not waiting on you to go forward with it (James
-already invited Linus to pull).
+Yep. This is what I wanted also :) This is similar functionality as
+"cfree" module some one wrote a while ago.
 
-> Could someone please tell me exactly which patches I should include in
-> the kernel I will boot tomorrow?
+Cool, This will make some of the database folks get off my back for a
+while :)
 
-You hit the problem with 2.6.14.2.  My own opinion would be to apply
-just that patch to that release, or to 2.6.14.3 if you prefer.
 
-Linus was suggesting 2.6.15-rc4 because there's some debug there which
-might have helped identify the offending driver: but your backtrace
-had already showed us the offending driver.  Well, not proven: if a
-page is doubly freed, the one that suffers is not necessarily the one
-that's guilty; but it's a reasonable expectation.  I don't think his
-debug would tell us anything more.
+Thanks,
+Badari
 
-> I haven't played with -rc for ages, so
-> I'm no longer sure which kernel I should start with (2.6.14 or
-> 2.6.14.3?).
-
-If you do want 2.6.15-rc4, then it's 2.6.14 + patch-2.6.15-rc4.
-
-> Are the MPT-fusion performance fix patches in -rc4, or if
-> not will they still apply?
-
-I don't know it myself.  Is that the one about the module performing
-much better than the builtin?  I'd expect that to be in.  If you have
-it, suggest you look at your 2.6.15-rc4 source to see if it's there.
-
-Hugh

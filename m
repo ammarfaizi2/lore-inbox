@@ -1,93 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751735AbVLBGhP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751747AbVLBGud@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751735AbVLBGhP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 01:37:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750894AbVLBGhP
+	id S1751747AbVLBGud (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 01:50:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751748AbVLBGud
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 01:37:15 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:3207 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1751735AbVLBGhO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 01:37:14 -0500
-Date: Fri, 2 Dec 2005 14:38:39 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andrea Arcangeli <andrea@suse.de>, marcelo.tosatti@cyclades.com,
-       linux-kernel@vger.kernel.org, christoph@lameter.com, riel@redhat.com,
-       a.p.zijlstra@chello.nl, npiggin@suse.de, magnus.damm@gmail.com
-Subject: Re: [PATCH 02/12] mm: supporting variables and functions for balanced zone aging
-Message-ID: <20051202063839.GA3606@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-	marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org,
-	christoph@lameter.com, riel@redhat.com, a.p.zijlstra@chello.nl,
-	npiggin@suse.de, magnus.damm@gmail.com
-References: <20051201101810.837245000@localhost.localdomain> <20051201101933.936973000@localhost.localdomain> <20051201023714.612f0bbf.akpm@osdl.org> <20051201222846.GA3646@dmt.cnet> <20051201150349.3538638e.akpm@osdl.org> <20051202011924.GA3516@mail.ustc.edu.cn> <20051201173015.675f4d80.akpm@osdl.org> <20051202020407.GA4445@mail.ustc.edu.cn> <20051202021811.GB28539@opteron.random> <20051201204549.68d3efac.akpm@osdl.org>
+	Fri, 2 Dec 2005 01:50:33 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:59600 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S1751739AbVLBGuc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 01:50:32 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Subject: Re: Use enum to declare errno values
+Date: Fri, 2 Dec 2005 08:49:28 +0200
+User-Agent: KMail/1.8.2
+Cc: "Paul Jackson" <pj@sgi.com>, francis_moreau2000@yahoo.fr,
+       linux-kernel@vger.kernel.org
+References: <20051123132443.32793.qmail@web25813.mail.ukl.yahoo.com> <20051123233016.4a6522cf.pj@sgi.com> <Pine.LNX.4.61.0512011458280.21933@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0512011458280.21933@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051201204549.68d3efac.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+Message-Id: <200512020849.28475.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 01, 2005 at 08:45:49PM -0800, Andrew Morton wrote:
-> Andrea Arcangeli <andrea@suse.de> wrote:
-> >
-> > low_mem_reserve
+On Thursday 01 December 2005 22:01, linux-os (Dick Johnson) wrote:
+> On Thu, 24 Nov 2005, Paul Jackson wrote:
 > 
-> I've a suspicion that the addition of the dma32 zone might have
-> broken this.
+> > If errno's were an enum type, what would be the type
+> > of the return value of a variety of kernel routines
+> > that now return an int, returning negative errno's on
+> > error and zero or positive values on success?
+> 
+> enums are 'integer types', one of the reasons why #defines
+> which are also 'integer types' are just as useful. If you
+> want to auto-increment these integer types, then enums are
+> useful. Otherwise, just use definitions.
 
-And there is a danger of (the last zone != the largest zone). This breaks my
-assumption. Either we should remove the two lines in shrink_zone():
+There is another reason why enums are better than #defines:
 
->      865                         if (sc->nr_to_reclaim <= 0)
->      866                                 break;
+file.h:
+#define foo 123
+enum {
+	bar = 123
+};
 
-Or explicitly add more weight to the balancing efforts with
-mm-add-weight-to-reclaim-for-aging.patch below.
 
-Thanks,
-Wu
+file.c:
+...
+#include "something_which_eventually_includes_file.h"
+...
+int f(int foo, int bar)
+{
+	return foo+bar;	
+}
 
-Subject: mm: add more weight to reclaim for aging
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, Magnus Damm <magnus.damm@gmail.com>
-Cc: Nick Piggin <npiggin@suse.de>, Andrea Arcangeli <andrea@suse.de>
-
-Let HighMem = the last zone, we get in normal cases:
-- HighMem zone is the largest zone
-- HighMem zone is mainly reclaimed for watermark, other zones is almost always
-  reclaimed for aging
-- While HighMem is reclaimed N times for watermark, other zones has N+1 chances
-  to reclaim for aging
-- shrink_zone() only scans one chunk of SWAP_CLUSTER_MAX pages to get
-  SWAP_CLUSTER_MAX free pages
-
-In the above situation, the force of balancing will win out the force of
-unbalancing. But if HighMem(or the last zone) is not the largest zone, the
-other larger zones can no longer catch up.
-
-This patch multiplies the force of balancing by 8 times, which should be more
-than enough.  It just prevents shrink_zone() to return prematurely, and will
-not cause DMA zone to be scanned more than SWAP_CLUSTER_MAX at one time in
-normal cases.
-
-Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
---- linux.orig/mm/vmscan.c
-+++ linux/mm/vmscan.c
-@@ -1453,12 +1453,14 @@ loop_again:
- 							SC_RECLAIM_FROM_KSWAPD|
- 							SC_RECLAIM_FOR_WATERMARK);
- 					all_zones_ok = 0;
-+					sc.nr_to_reclaim = SWAP_CLUSTER_MAX;
- 				} else if (zone == youngest_zone &&
- 						pages_more_aged(oldest_zone,
- 								youngest_zone)) {
- 					debug_reclaim(&sc,
- 							SC_RECLAIM_FROM_KSWAPD|
- 							SC_RECLAIM_FOR_AGING);
-+					sc.nr_to_reclaim = SWAP_CLUSTER_MAX * 8;
- 				} else
- 					continue;
- 			}
+Above program has compile-time bug, but it's rather hard
+to see it if you are looking at file.c alone.
+--
+vda

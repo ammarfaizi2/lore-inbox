@@ -1,64 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751747AbVLBGud@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751749AbVLBHRA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751747AbVLBGud (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 01:50:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751748AbVLBGud
+	id S1751749AbVLBHRA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 02:17:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751752AbVLBHRA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 01:50:33 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:59600 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S1751739AbVLBGuc
+	Fri, 2 Dec 2005 02:17:00 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:45523 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S1751746AbVLBHRA convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 01:50:32 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-Subject: Re: Use enum to declare errno values
-Date: Fri, 2 Dec 2005 08:49:28 +0200
-User-Agent: KMail/1.8.2
-Cc: "Paul Jackson" <pj@sgi.com>, francis_moreau2000@yahoo.fr,
-       linux-kernel@vger.kernel.org
-References: <20051123132443.32793.qmail@web25813.mail.ukl.yahoo.com> <20051123233016.4a6522cf.pj@sgi.com> <Pine.LNX.4.61.0512011458280.21933@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0512011458280.21933@chaos.analogic.com>
+	Fri, 2 Dec 2005 02:17:00 -0500
+Date: Fri, 2 Dec 2005 15:18:49 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Andrew Morton <akpm@osdl.org>
+Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org,
+       christoph@lameter.com, riel@redhat.com, a.p.zijlstra@chello.nl,
+       npiggin@suse.de, andrea@suse.de, magnus.damm@gmail.com
+Subject: Re: [PATCH 02/12] mm: supporting variables and functions for balanced zone aging
+Message-ID: <20051202071849.GA4073@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
+	Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+	linux-kernel@vger.kernel.org, christoph@lameter.com,
+	riel@redhat.com, a.p.zijlstra@chello.nl, npiggin@suse.de,
+	andrea@suse.de, magnus.damm@gmail.com
+References: <20051201101810.837245000@localhost.localdomain> <20051201101933.936973000@localhost.localdomain> <20051201023714.612f0bbf.akpm@osdl.org> <20051201222846.GA3646@dmt.cnet> <20051201150349.3538638e.akpm@osdl.org> <20051202011924.GA3516@mail.ustc.edu.cn> <20051201214931.2dbc35fe.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200512020849.28475.vda@ilport.com.ua>
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20051201214931.2dbc35fe.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 01 December 2005 22:01, linux-os (Dick Johnson) wrote:
-> On Thu, 24 Nov 2005, Paul Jackson wrote:
+On Thu, Dec 01, 2005 at 09:49:31PM -0800, Andrew Morton wrote:
+> From: Andrew Morton <akpm@osdl.org>
 > 
-> > If errno's were an enum type, what would be the type
-> > of the return value of a variety of kernel routines
-> > that now return an int, returning negative errno's on
-> > error and zero or positive values on success?
+> Revert a patch which went into 2.6.8-rc1.  The changelog for that patch was:
 > 
-> enums are 'integer types', one of the reasons why #defines
-> which are also 'integer types' are just as useful. If you
-> want to auto-increment these integer types, then enums are
-> useful. Otherwise, just use definitions.
+>   The shrink_zone() logic can, under some circumstances, cause far too many
+>   pages to be reclaimed.  Say, we're scanning at high priority and suddenly
+>   hit a large number of reclaimable pages on the LRU.
+> 
+>   Change things so we bale out when SWAP_CLUSTER_MAX pages have been
+>   reclaimed.
+> 
+> Problem is, this change caused significant imbalance in inter-zone scan
+> balancing by truncating scans of larger zones.
+> 
+> Suppose, for example, ZONE_HIGHMEM is 10x the size of ZONE_NORMAL.  The zone
+> balancing algorithm would require that if we're scanning 100 pages of
+> ZONE_HIGHMEM, we should scan 10 pages of ZONE_NORMAL.  But this logic will
+> cause the scanning of ZONE_HIGHMEM to bale out after only 32 pages are
+> reclaimed.  Thus effectively causing smaller zones to be scanned relatively
+> harder than large ones.
+> 
+> Now I need to remember what the workload was which caused me to write this
+> patch originally, then fix it up in a different way...
 
-There is another reason why enums are better than #defines:
+Maybe it's a situation like this:
 
-file.h:
-#define foo 123
-enum {
-	bar = 123
-};
+__|____|________|________________|________________________________|________________________________________________________________|________________________________________________________________________________________________________________________________|________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        _: pinned chunk
+        -: reclaimable chunk
+        |: shrink_zone() invocation
+        
+First we run into a large range of pinned chunks, which lowered the scan
+priority.  And then there are plenty of reclaimable chunks, bomb...
 
-
-file.c:
-...
-#include "something_which_eventually_includes_file.h"
-...
-int f(int foo, int bar)
-{
-	return foo+bar;	
-}
-
-Above program has compile-time bug, but it's rather hard
-to see it if you are looking at file.c alone.
---
-vda
+Thanks,
+Wu

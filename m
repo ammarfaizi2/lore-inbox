@@ -1,36 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbVLBCwn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964819AbVLBC7O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964817AbVLBCwn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 21:52:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964818AbVLBCwn
+	id S964819AbVLBC7O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 21:59:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964820AbVLBC7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 21:52:43 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:57863
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S964817AbVLBCwm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 21:52:42 -0500
-Date: Fri, 2 Dec 2005 03:52:40 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Wu Fengguang <wfg@mail.ustc.edu.cn>, Andrew Morton <akpm@osdl.org>,
-       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org,
-       christoph@lameter.com, riel@redhat.com, a.p.zijlstra@chello.nl,
-       npiggin@suse.de, magnus.damm@gmail.com
-Subject: Re: [PATCH 02/12] mm: supporting variables and functions for balanced zone aging
-Message-ID: <20051202025240.GE28539@opteron.random>
-References: <20051201101810.837245000@localhost.localdomain> <20051201101933.936973000@localhost.localdomain> <20051201023714.612f0bbf.akpm@osdl.org> <20051201222846.GA3646@dmt.cnet> <20051201150349.3538638e.akpm@osdl.org> <20051202011924.GA3516@mail.ustc.edu.cn> <20051201173015.675f4d80.akpm@osdl.org> <20051202020407.GA4445@mail.ustc.edu.cn> <20051202021811.GB28539@opteron.random> <20051202023727.GA4874@mail.ustc.edu.cn>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 1 Dec 2005 21:59:14 -0500
+Received: from nproxy.gmail.com ([64.233.182.196]:11917 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964819AbVLBC7N convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 21:59:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nSnmRyarzPosRd7c0BAFEjB1qSx/cLANrVkIPDWuLUO6sbBN3VVxbNoNeldK8XHuy/hapfehQ9JkBcHXxEgPdeRVNWh5lj7Dq6VBQMVKUoUbzYwxeEK+nds7DmgF95cfsykdL/sGC3RNtcmg2Z++WbCIdQZoedfW/vto9AzHUHc=
+Message-ID: <2cd57c900512011859v7f0db82fg@mail.gmail.com>
+Date: Fri, 2 Dec 2005 10:59:11 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Subject: Re: [q] make modules_install as non-root?
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org, sam@ravnborg.org
+In-Reply-To: <438FB582.3090002@bigpond.net.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051202023727.GA4874@mail.ustc.edu.cn>
+References: <2cd57c900512011823v153a6763t@mail.gmail.com>
+	 <438FB582.3090002@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 02, 2005 at 10:37:27AM +0800, Wu Fengguang wrote:
-> Thanks for the clarification, I was concerning too much ;)
+2005/12/2, Peter Williams <pwil3058@bigpond.net.au>:
+> Coywolf Qi Hunt wrote:
+> > Hello people,
+> >
+> > I wrote my own installkernel so I can do `make install' as non-root
+> > with the help of sudo. But how can we get to do `make modules_install'
+> > as non-root with sudo as well?
+> >
+> > The works of modules_install seem scattered over several places.  Is
+> > it a nice idea to factor out an *installmodules* script for `make
+> > modules_install' to invoke?
+> >
+> > ps:
+> > Linus recommend us to build as non-root and install as root.
+> > I ask if we should install as non-root too.
+>
+> Personally, I just use "sudo make install" or "sudo make
+> modules_install" to do installations as an ordinary user.  No need for
+> special scripts or modifications to the build procedure.
 
-You're welcome. I'm also not concerned because the cost is linear with
-the amount of memory (and the cost has an high bound, that is the size
-of the lower zones, so it's not like the struct page that is a
-percentage of ram guaranteed to be lost) so it's generally not
-noticeable at runtime, and it's most important in the big systems (where
-in turn the cost is higher).
+That's rather insecure. You have to add /usr/bin/make in your sudoers,
+then an malicious Makefile could do harm. I'm being paranoid. But we
+all are since we avoid to use root.
+--
+Coywolf Qi Hunt
+http://sosdg.org/~coywolf/

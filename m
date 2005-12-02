@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbVLBWLY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750925AbVLBWQP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750899AbVLBWLY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 17:11:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbVLBWLY
+	id S1750925AbVLBWQP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 17:16:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbVLBWQP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 17:11:24 -0500
-Received: from ns2.lanforge.com ([66.165.47.211]:202 "EHLO ns2.lanforge.com")
-	by vger.kernel.org with ESMTP id S1750732AbVLBWLX (ORCPT
+	Fri, 2 Dec 2005 17:16:15 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:1718 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750911AbVLBWQO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 17:11:23 -0500
-Message-ID: <4390C683.2030507@candelatech.com>
-Date: Fri, 02 Dec 2005 14:11:15 -0800
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
-X-Accept-Language: en-us, en
+	Fri, 2 Dec 2005 17:16:14 -0500
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Arjan van de Ven <arjan@infradead.org>, linux-mm <linux-mm@kvack.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Better pagecache statistics ?
+References: <1133377029.27824.90.camel@localhost.localdomain>
+	<20051201152029.GA14499@dmt.cnet>
+	<1133452790.27824.117.camel@localhost.localdomain>
+	<1133453411.2853.67.camel@laptopd505.fenrus.org>
+	<20051201170850.GA16235@dmt.cnet>
+	<1133457315.21429.29.camel@localhost.localdomain>
+	<1133457700.2853.78.camel@laptopd505.fenrus.org>
+	<20051201175711.GA17169@dmt.cnet>
+	<1133461212.21429.49.camel@localhost.localdomain>
+From: fche@redhat.com (Frank Ch. Eigler)
+Date: 02 Dec 2005 17:15:18 -0500
+In-Reply-To: <1133461212.21429.49.camel@localhost.localdomain>
+Message-ID: <y0md5kfxi15.fsf@tooth.toronto.redhat.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-CC: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: Keyboard broken in 2.6.13.2
-References: <43909451.20105@candelatech.com> <200512021615.16247.dtor_core@ameritech.net>
-In-Reply-To: <200512021615.16247.dtor_core@ameritech.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> On Friday 02 December 2005 13:37, Ben Greear wrote:
+
+Badari Pulavarty <pbadari@us.ibm.com> writes:
+
+> > Can't you add hooks to add_to_page_cache/remove_from_page_cache 
+> > to record pagecache activity ?
 > 
->>I have a system with a super-micro P8SCI motherboard.
->>
->>The default FC2 kernel (2.6.10-1.771_FC2smp) works fine, but
->>when I try to boot a 2.6.13.2 kernel, I see this error:
->>
->>i8042.c: Can't read CTR while initializing i8042
->>
->>If I hit the keyboard early in the boot, the system will just reboot.
->>
->>If I wait a bit, then it will boot to a prompt, but no keyboard input
->>is accepted.
->>
-> 
-> 
-> Does booting with "usb-handoff" boot option help any? 
+> In theory, yes. We already maintain info in "mapping->nrpages".
+> Trick would be to collect all of them, send them to user space.
 
-Not sure, but acpi=no works.
+If you happened to have a copy of systemtap built, you might run this
+script instead of inserting static hooks into your kernel.  (The tool
+has come some way since the OLS '2005 demo.)
 
-Thanks,
-Ben
+#! stap
+probe kernel.function("add_to_page_cache") {
+  printf("pid %d added pages (%d)\n", pid(), $mapping->nrpages)
+}
+probe kernel.function("__remove_from_page_cache") {
+  printf("pid %d removed pages (%d)\n", pid(), $page->mapping->nrpages)
+}
 
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
-
+- FChE

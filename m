@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbVLBRC3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbVLBRHV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750827AbVLBRC3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 12:02:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbVLBRC3
+	id S1750828AbVLBRHV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 12:07:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750717AbVLBRHV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 12:02:29 -0500
-Received: from sccrmhc11.comcast.net ([63.240.77.81]:35033 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1750827AbVLBRC2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 12:02:28 -0500
-From: kernel-stuff@comcast.net (Parag Warudkar)
-To: Stelian Pop <stelian@popies.net>,
-       Michael Hanselmann <linux-kernel@hansmi.ch>
-Cc: debian-powerpc@lists.debian.org,
-       linux-kernel <linux-kernel@vger.kernel.org>, linuxppc-dev@ozlabs.org,
-       johannes@sipsolutions.net
-Subject: Re: PowerBook5,8 - TrackPad update
-Date: Fri, 02 Dec 2005 17:02:23 +0000
-Message-Id: <120220051702.24733.43907E1E000B191F0000609D220702293300009A9B9CD3040A029D0A05@comcast.net>
-X-Mailer: AT&T Message Center Version 1 (Dec 17 2004)
-X-Authenticated-Sender: a2VybmVsLXN0dWZmQGNvbWNhc3QubmV0
+	Fri, 2 Dec 2005 12:07:21 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:9177 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750825AbVLBRHT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 12:07:19 -0500
+Date: Fri, 2 Dec 2005 11:06:38 -0600
+From: Jon Mason <jdmason@us.ibm.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andrew Grover <andrew.grover@intel.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, john.ronciak@intel.com,
+       christopher.leech@intel.com
+Subject: Re: [RFC] [PATCH 0/3] ioat: DMA engine support
+Message-ID: <20051202170638.GA1443@us.ibm.com>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Andrew Grover <andrew.grover@intel.com>, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, john.ronciak@intel.com,
+	christopher.leech@intel.com
+References: <Pine.LNX.4.44.0511231143380.32487-100000@isotope.jf.intel.com> <4384F110.4060908@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4384F110.4060908@pobox.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My original patch is still work in progress and was intended as a starting point if someone was already adept with the trackpad stuff and was willing to help. 
-(Basically it was a call for help - nothing for end users ;)
+On Wed, Nov 23, 2005 at 05:45:36PM -0500, Jeff Garzik wrote:
+> Andrew Grover wrote:
+> >As presented in our talk at this year's OLS, the Bensley platform, which 
+> >will be out in early 2006, will have an asyncronous DMA engine. It can be 
+> >used to offload copies from the CPU, such as the kernel copies of received 
+> >packets into the user buffer.
+> 
+> More than a one-paragraph description would be nice...  URLs to OLS and 
+> IDF presentations, other info?
+> 
+> 	Jeff
+> 
+FYI,
+OLS paper can be found at
+http://www.linuxsymposium.org/2005/linuxsymposium_procv1.pdf
+Starting at page 281.
 
-Things that remained to be done -
-
-Either
-1) Support for all PowerBooks in one code base (> Feb 2005)
-Or
-1) Create different versions for each one or two of them
-
-Depending upon whether or not widely varying algorithms are needed for each variety.
-
-2) Major part - reliably working code for finger movement detection for all Oct 2005 PowerBooks (15" itself seems to come with trackpads having entirely different characteristics.) 
-
-3) Possibly Dual Finger Detection for scrolling - this is optional but would be good to have.
-
-I am working on it as time and urges permit and it will speed up only if Johannes doesn't get his PowerBook or the one he gets is 0x0216 !!
-
-Parag
-
-
-
+Other info can be found at
+http://www.intel.com/technology/ioacceleration/index.htm

@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932591AbVLBAg3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932582AbVLBAjE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932591AbVLBAg3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 19:36:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932590AbVLBAg3
+	id S932582AbVLBAjE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 19:39:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932585AbVLBAjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 19:36:29 -0500
-Received: from smtpout.mac.com ([17.250.248.87]:27104 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932591AbVLBAg2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 19:36:28 -0500
-In-Reply-To: <1133481739.10478.54.camel@tglx.tec.linutronix.de>
-References: <1133395019.32542.443.camel@tglx.tec.linutronix.de> <Pine.LNX.4.61.0512010118200.1609@scrub.home> <23CA09D3-4C11-4A4B-A5C6-3C38FA9C203D@mac.com> <Pine.LNX.4.61.0512011352590.1609@scrub.home> <2c0942db0512010822x1ae20622obf224ce9728e83f8@mail.gmail.com> <20051201165144.GC31551@flint.arm.linux.org.uk> <20051201122455.4546d1da.akpm@osdl.org> <20051201211933.GA25142@elte.hu> <20051201135139.3d1c10df.akpm@osdl.org> <7D53372C-E138-4336-883F-A674BBBB09AA@mac.com> <20051201221553.GA19135@infradead.org> <1133481739.10478.54.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <537CE371-F9A9-4255-A3B0-9DBDAD82591B@mac.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, rmk+lkml@arm.linux.org.uk,
-       ray-gmail@madrabbit.org, zippel@linux-m68k.org,
-       linux-kernel@vger.kernel.org, george@mvista.com, johnstul@us.ibm.com
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [patch 00/43] ktimer reworked
-Date: Thu, 1 Dec 2005 19:36:22 -0500
-To: tglx@linutronix.de
-X-Mailer: Apple Mail (2.746.2)
+	Thu, 1 Dec 2005 19:39:04 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:49335 "EHLO
+	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S932582AbVLBAjD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 19:39:03 -0500
+Date: Thu, 01 Dec 2005 18:38:40 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: [PATCH] aic79xx should be able to ignore HostRAID enabled adapters
+In-reply-to: <5eRZp-5KA-7@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <438F9790.9060801@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <5ePEj-2gB-9@gated-at.bofh.it> <5eQqA-3pv-7@gated-at.bofh.it>
+ <5eRZp-5KA-7@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 01, 2005, at 19:02, Thomas Gleixner wrote:
-> On Thu, 2005-12-01 at 22:15 +0000, Christoph Hellwig wrote:
->> Heh, in my dumb non-native speaker mind I'd expectit the other way  
->> around, as in a timeout is expected to time out :)  and a timer is  
->> expect to happen, as in say the timer the tells you your breakfast  
->> egg is ready.
->
-> Which is perfectly the point Kyle made.
+Darrick J. Wong wrote:
+> Jeff,
+> 
+> Good, this was the exact response that I was hoping for, as I've been told to
+> convince Adaptec to drop the binary RAID drivers in favor of helping out dmraid
+> development instead.  That process will probably be difficult, but at least I
+> now have incontrovertible proof that nobody will bend over backwards to support
+> them and that dmraid is the way to go.  Not that I'm terribly surprised by this.
 
-In any case, the real important note here is that the two are pretty  
-different concepts, ones that lend themselves to _very_ different  
-optimizations, that are currently lumped together.  The very fact  
-that some developers easily get them confused says that we need a  
-good clean implementation of both distinct APIs with comparable  
-documentation, including a bunch of good example usages.
+It's good that there is a push to get non-binary-module support for 
+these controllers in Linux. It's a shame that this is only happening now 
+though.
 
-Cheers,
-Kyle Moffett
+It does rather suck that IBM changed to use this AIC79xx controller with 
+"HostRAID" in the x346, x236, etc. servers. The last generation of 
+servers (x235, x345) used an LSI Logic MPT Fusion controller which could 
+do RAID 1 in hardware (or at least firmware) without a special driver - 
+this sufficed for certain applications. With the new machines, RAID on 
+the onboard controller requires using the stupid binary module which is 
+only built against certain specific kernels, or using pure software RAID..
 
---
-I have yet to see any problem, however complicated, which, when you  
-looked at it in the right way, did not become still more complicated.
-   -- Poul Anderson
-
-
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 

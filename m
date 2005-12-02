@@ -1,61 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964772AbVLBBpl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964771AbVLBBrz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964772AbVLBBpl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 20:45:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964775AbVLBBpl
+	id S964771AbVLBBrz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 20:47:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964775AbVLBBry
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 20:45:41 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:23245 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964772AbVLBBpk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 20:45:40 -0500
-Date: Fri, 2 Dec 2005 02:45:12 +0100
-From: Andi Kleen <ak@suse.de>
-To: Max Krasnyansky <maxk@qualcomm.com>
-Cc: Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
-       Steven Rostedt <rostedt@goodmis.org>, acpi-devel@lists.sourceforge.net,
-       len.brown@intel.com, nando@ccrma.stanford.edu, rlrevell@joe-job.com,
-       linux-kernel@vger.kernel.org, paulmck@us.ibm.com, kr@cybsft.com,
-       tglx@linutronix.de, pluto@agmk.net, john.cooper@timesys.com,
-       bene@linutronix.de, dwalker@mvista.com, trini@kernel.crashing.org,
-       george@mvista.com, akpm@osdl.org
-Subject: Re: [RFC][PATCH] Runtime switching of the idle function [take 2]
-Message-ID: <20051202014512.GH997@wotan.suse.de>
-References: <20051124150731.GD2717@elte.hu> <1132952191.24417.14.camel@localhost.localdomain> <20051126130548.GA6503@elte.hu> <1133232503.6328.18.camel@localhost.localdomain> <20051128190253.1b7068d6.akpm@osdl.org> <1133235740.6328.27.camel@localhost.localdomain> <20051128200108.068b2dcd.akpm@osdl.org> <20051129064420.GA15374@elte.hu> <p73mzjngwim.fsf@verdi.suse.de> <438FA2E4.80705@qualcomm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <438FA2E4.80705@qualcomm.com>
+	Thu, 1 Dec 2005 20:47:54 -0500
+Received: from warden3-p.diginsite.com ([208.147.64.186]:47082 "HELO
+	warden3.diginsite.com") by vger.kernel.org with SMTP
+	id S964771AbVLBBry (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Dec 2005 20:47:54 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Steven Rostedt <rostedt@goodmis.org>,
+       johnstul@us.ibm.com, george@mvista.com, mingo@elte.hu, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       ray-gmail@madrabbit.org, Russell King <rmk+lkml@arm.linux.org.uk>
+X-X-Sender: dlang@dlang.diginsite.com
+In-Reply-To: dlang@dlang.diginsite.com
+References: dlang@dlang.diginsite.com
+Date: Thu, 1 Dec 2005 17:47:11 -0800 (PST)
+X-X-Sender: dlang@dlang.diginsite.com
+Subject: Re: [patch 00/43] ktimer reworked
+In-Reply-To: <Pine.LNX.4.61.0512020219150.1610@scrub.home>
+Message-ID: <Pine.LNX.4.62.0512011734020.10276@qynat.qvtvafvgr.pbz>
+References: <1133395019.32542.443.camel@tglx.tec.linutronix.de><Pine.LNX.4.61.0512010118200.1609@scrub.home>
+ <23CA09D3-4C11-4A4B-A5C6-3C38FA9C203D@mac.com><Pine.LNX.4.61.0512011352590.1609@scrub.home><2c0942db0512010822x1ae20622obf224ce9728e83f8@mail.gmail.com><20051201165144.GC31551@flint.arm.linux.org.uk>
+ <Pine.LNX.4.61.0512011828150.1609@scrub.home><1133464097.7130.15.camel@localhost.localdomain>
+ <Pine.LNX.4.61.0512012048140.1609@scrub.home><Pine.LNX.4.58.0512011619590.32095@gandalf.stny.rr.com><Pine.LNX.4.61.0512020120180.1609@scrub.home>
+ <91D50CB6-A9B0-4501-AAD2-7D80948E7367@mac.com><Pine.LNX.4.61.0512020146310.1609@scrub.home>
+ <53ECF38B-8E27-4289-9DEA-06CA8374D97D@mac.com> <Pine.LNX.4.61.0512020219150.1610@scrub.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Also IMO saying that CPU will run too hot with idle=poll is basically 
-> saying that those
-> CPUs cannot be used for simulations and stuff which run flat out for days 
-> (months actually).
-> Which is obviously not true (again speaking from experience :)).
+On Fri, 2 Dec 2005, Roman Zippel wrote:
 
-The CPUs can be used, but many cooling setups
-(both AirCon in complete data centers, cooling in Blade Racks, laptops)  
-the cooling is now often designed to not cool
-the maximum thermal output of all systems in parallel, but instead
-throttle the systems when things get too hot. This usually
-works because in most workloads systems are more often idle
-than busy, so no throttling is needed.
+> Hi,
+>
+> On Thu, 1 Dec 2005, Kyle Moffett wrote:
+>
+>> My _point_ is that some code doesn't care about accuracy.
+>
+> That's not how it works, the timer wheel is accurate within its
+> resolution.
 
-On desktops it probably won't throttle, but just become noisy
-when all the fans spin up.
+but the point that is being made is that while this is true, there is a 
+large group of functions that really don't care (the timeout case), and 
+for that type of use it's possible to do some optimizations that make it 
+extremely efficiant.
 
-All things you don't really want.
+In addition, once you remove the bulk of these uses from the picture (by 
+makeing them use a new timer type that's optimized for their useage 
+pattern, the 'unlikly to expire' case) the remainder of the timer users 
+easily fall into the catagory where the timer is expected to expire, so 
+that code can accept a performance hit for removing events prior to them 
+going off that would not be acceptable in a general case version.
 
-Super computing is different of course, but even there maximum
-capacity of the air condition often limits how many CPUs you can buy.
-And you need all the help you can get.
+the example of this is the networking timers. they almost never go off, 
+but one is set for just about every packet that's processed. so adding any 
+overhead in removing the unexpired timer has a large impact on 
+performance.
 
-That said you're right that there is still a small niche 
-where idle=poll makes sense, but it's definitely nothing
-that should be encouraged to be used regularly like that
-original patch would.
+but once this large group of timer users are removed, (along with a few 
+other similar watchdog timers for disk I/O, etc) the remaining users will 
+almost never remove the event before it goes off, so the code can be 
+optimized for that situation (including things that would increase the 
+cost to remove the unexpired event) and gain precision and possibly 
+performance as well.
 
--Andi
+would the term 'watchdog' or 'watchdog_timer' for what's been refered to 
+as the timeout timer make more sense to people? it's used when you need to 
+setup a safety net around the possibility that an event won't happen, it's 
+guarenteed not to fire before the time specified, but may have it's 
+activation delayed slightly past that point.
 
+then the rest of the uses could use the term 'timer', and that code is 
+optimized for the timer actually expireing, removing an event that has not 
+expired will be relativly costly.
+
+David Lang
+
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare

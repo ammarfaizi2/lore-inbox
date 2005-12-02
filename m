@@ -1,58 +1,208 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750903AbVLBSnj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750900AbVLBSns@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750903AbVLBSnj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 13:43:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750905AbVLBSnj
+	id S1750900AbVLBSns (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 13:43:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750915AbVLBSns
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 13:43:39 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:11243 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750900AbVLBSni convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 13:43:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KqWMs70U5oTBtByaH9l8PFcumNtbl96sxYTmERLJoIpmNXw06OJsLM8Q9IDMwqtykWKmB8O/BnjbK4rlgQTpSsmIqf+QMX6lDfqcOk5U57WQrNitQ5B5VQt/oE+ks5t3Rn3exQcWXhABlwvultz7V32LNBa6Mbi7JDgFe3fRn2g=
-Message-ID: <9a8748490512021043o4c27a7c1o8e2cad0362a33dc6@mail.gmail.com>
-Date: Fri, 2 Dec 2005 19:43:37 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Ryan Richter <ryan@tau.solarneutrino.net>
-Subject: Re: Fw: crash on x86_64 - mm related?
-Cc: Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
-       Kai Makisara <Kai.Makisara@kolumbus.fi>, Andrew Morton <akpm@osdl.org>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-In-Reply-To: <20051202180326.GB7634@tau.solarneutrino.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 2 Dec 2005 13:43:48 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:13526 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1750900AbVLBSnr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 13:43:47 -0500
+Date: Fri, 2 Dec 2005 10:43:20 -0800
+From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+To: Andi Kleen <ak@suse.de>
+Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
+       cpufreq <cpufreq@www.linux.org.uk>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] CPU frequency display in /proc/cpuinfo
+Message-ID: <20051202104320.A5234@unix-os.sc.intel.com>
+References: <20051202181927.GD9766@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20051129092432.0f5742f0.akpm@osdl.org>
-	 <Pine.LNX.4.63.0512012040390.5777@kai.makisara.local>
-	 <Pine.LNX.4.64.0512011136000.3099@g5.osdl.org>
-	 <20051201195657.GB7236@tau.solarneutrino.net>
-	 <Pine.LNX.4.61.0512012008420.28450@goblin.wat.veritas.com>
-	 <20051202180326.GB7634@tau.solarneutrino.net>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20051202181927.GD9766@wotan.suse.de>; from ak@suse.de on Fri, Dec 02, 2005 at 10:19:27AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/2/05, Ryan Richter <ryan@tau.solarneutrino.net> wrote:
-[snip]
->
-> Could someone please tell me exactly which patches I should include in
-> the kernel I will boot tomorrow?  I haven't played with -rc for ages, so
-> I'm no longer sure which kernel I should start with (2.6.14 or
-> 2.6.14.3?).  Are the MPT-fusion performance fix patches in -rc4, or if
-> not will they still apply?
->
-The -rc patches apply to the base x.y.z kernel - in this case 2.6.14
-For more info, read Documentation/applying-patches.txt in a recent
-kernel source (or use this link:
-http://sosdg.org/~coywolf/lxr/source/Documentation/applying-patches.txt
-)
+On Fri, Dec 02, 2005 at 10:19:27AM -0800, Andi Kleen wrote:
+> Shouldn't this be a static inline?
+
+Yes. Attached is the modified patch.
+
+Thanks,
+Venki
+
+What is the value shown in "cpu MHz" of /proc/cpuinfo when CPUs are capable of 
+changing frequency?
+
+Today the answer is: It depends.
+On i386:
+SMP kernel - It is always the boot frequency
+UP kernel - Scales with the frequency change and shows that was last set.
+
+On x86_64:
+There is one single variable cpu_khz that gets written by all the CPUs. So,
+the frequency set by last CPU will be seen on /proc/cpuinfo of all the
+CPUs in the system. What you see also depends on whether you have constant_tsc
+capable CPU or not.
+
+On ia64:
+It is always boot time frequency of a particular CPU that gets displayed.
 
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+The patch below changes this to:
+Show the last known frequency of the particular CPU, when cpufreq is present. If
+cpu doesnot support changing of frequency through cpufreq, then boot frequency 
+will be shown. The patch affects i386, x86_64 and ia64 architectures.
+
+Signed-off-by: Venkatesh Pallipadi<venkatesh.pallipadi@intel.com>
+
+Index: linux-2.6.12/arch/i386/kernel/cpu/proc.c
+===================================================================
+--- linux-2.6.12.orig/arch/i386/kernel/cpu/proc.c	2005-08-30 11:10:46.000000000 -0700
++++ linux-2.6.12/arch/i386/kernel/cpu/proc.c	2005-10-07 15:39:48.000000000 -0700
+@@ -3,6 +3,7 @@
+ #include <linux/string.h>
+ #include <asm/semaphore.h>
+ #include <linux/seq_file.h>
++#include <linux/cpufreq.h>
+ 
+ /*
+  *	Get CPU information for use by the procfs.
+@@ -86,8 +87,11 @@
+ 		seq_printf(m, "stepping\t: unknown\n");
+ 
+ 	if ( cpu_has(c, X86_FEATURE_TSC) ) {
++		unsigned int freq = cpufreq_quick_get(n);
++		if (!freq)
++			freq = cpu_khz;
+ 		seq_printf(m, "cpu MHz\t\t: %u.%03u\n",
+-			cpu_khz / 1000, (cpu_khz % 1000));
++			freq / 1000, (freq % 1000));
+ 	}
+ 
+ 	/* Cache size */
+Index: linux-2.6.12/drivers/cpufreq/cpufreq.c
+===================================================================
+--- linux-2.6.12.orig/drivers/cpufreq/cpufreq.c	2005-09-26 14:59:23.000000000 -0700
++++ linux-2.6.12/drivers/cpufreq/cpufreq.c	2005-10-07 15:46:08.000000000 -0700
+@@ -830,6 +830,30 @@
+ 
+ 
+ /** 
++ * cpufreq_quick_get - get the CPU frequency (in kHz) frpm policy->cur
++ * @cpu: CPU number
++ *
++ * This is the last known freq, without actually getting it from the driver.
++ * Return value will be same as what is shown in scaling_cur_freq in sysfs.
++ */
++unsigned int cpufreq_quick_get(unsigned int cpu)
++{
++	struct cpufreq_policy *policy = cpufreq_cpu_get(cpu);
++	unsigned int ret = 0;
++
++	if (policy) {
++		down(&policy->lock);
++		ret = policy->cur;
++		up(&policy->lock);
++		cpufreq_cpu_put(policy);
++	}
++
++	return (ret);
++}
++EXPORT_SYMBOL(cpufreq_quick_get);
++
++
++/** 
+  * cpufreq_get - get the current CPU frequency (in kHz)
+  * @cpu: CPU number
+  *
+Index: linux-2.6.12/arch/x86_64/kernel/setup.c
+===================================================================
+--- linux-2.6.12.orig/arch/x86_64/kernel/setup.c	2005-08-31 14:46:39.000000000 -0700
++++ linux-2.6.12/arch/x86_64/kernel/setup.c	2005-10-07 15:40:24.000000000 -0700
+@@ -42,6 +42,7 @@
+ #include <linux/mmzone.h>
+ #include <linux/kexec.h>
+ #include <linux/crash_dump.h>
++#include <linux/cpufreq.h>
+ 
+ #include <asm/mtrr.h>
+ #include <asm/uaccess.h>
+@@ -1187,8 +1188,11 @@
+ 		seq_printf(m, "stepping\t: unknown\n");
+ 	
+ 	if (cpu_has(c,X86_FEATURE_TSC)) {
++		unsigned int freq = cpufreq_quick_get((unsigned)(c-cpu_data));
++		if (!freq)
++			freq = cpu_khz;
+ 		seq_printf(m, "cpu MHz\t\t: %u.%03u\n",
+-			     cpu_khz / 1000, (cpu_khz % 1000));
++			     freq / 1000, (freq % 1000));
+ 	}
+ 
+ 	/* Cache size */
+Index: linux-2.6.12/arch/ia64/kernel/setup.c
+===================================================================
+--- linux-2.6.12.orig/arch/ia64/kernel/setup.c	2005-08-31 14:46:39.000000000 -0700
++++ linux-2.6.12/arch/ia64/kernel/setup.c	2005-10-07 15:41:38.000000000 -0700
+@@ -43,6 +43,7 @@
+ #include <linux/initrd.h>
+ #include <linux/platform.h>
+ #include <linux/pm.h>
++#include <linux/cpufreq.h>
+ 
+ #include <asm/ia32.h>
+ #include <asm/machvec.h>
+@@ -474,6 +475,7 @@
+ 	char family[32], features[128], *cp, sep;
+ 	struct cpuinfo_ia64 *c = v;
+ 	unsigned long mask;
++	unsigned int proc_freq;
+ 	int i;
+ 
+ 	mask = c->features;
+@@ -506,6 +508,10 @@
+ 		sprintf(cp, " 0x%lx", mask);
+ 	}
+ 
++	proc_freq = cpufreq_quick_get(cpunum);
++	if (!proc_freq)
++		proc_freq = c->proc_freq / 1000;
++
+ 	seq_printf(m,
+ 		   "processor  : %d\n"
+ 		   "vendor     : %s\n"
+@@ -522,7 +528,7 @@
+ 		   "BogoMIPS   : %lu.%02lu\n",
+ 		   cpunum, c->vendor, family, c->model, c->revision, c->archrev,
+ 		   features, c->ppn, c->number,
+-		   c->proc_freq / 1000000, c->proc_freq % 1000000,
++		   proc_freq / 1000, proc_freq % 1000,
+ 		   c->itc_freq / 1000000, c->itc_freq % 1000000,
+ 		   lpj*HZ/500000, (lpj*HZ/5000) % 100);
+ #ifdef CONFIG_SMP
+Index: linux-2.6.12/include/linux/cpufreq.h
+===================================================================
+--- linux-2.6.12.orig/include/linux/cpufreq.h	2005-09-26 14:59:25.000000000 -0700
++++ linux-2.6.12/include/linux/cpufreq.h	2005-10-07 14:19:05.000000000 -0700
+@@ -259,6 +259,16 @@
+ /* query the current CPU frequency (in kHz). If zero, cpufreq couldn't detect it */
+ unsigned int cpufreq_get(unsigned int cpu);
+ 
++/* query the last known CPU freq (in kHz). If zero, cpufreq couldn't detect it */
++#ifdef CONFIG_CPU_FREQ
++unsigned int cpufreq_quick_get(unsigned int cpu);
++#else
++static inline unsigned int cpufreq_quick_get(unsigned int cpu)
++{
++	return 0;
++}
++#endif
++
+ 
+ /*********************************************************************
+  *                       CPUFREQ DEFAULT GOVERNOR                    *

@@ -1,208 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750900AbVLBSns@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750959AbVLBSuo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750900AbVLBSns (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 13:43:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750915AbVLBSns
+	id S1750959AbVLBSuo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 13:50:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750960AbVLBSuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 13:43:48 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:13526 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1750900AbVLBSnr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 13:43:47 -0500
-Date: Fri, 2 Dec 2005 10:43:20 -0800
-From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-To: Andi Kleen <ak@suse.de>
-Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
-       cpufreq <cpufreq@www.linux.org.uk>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] CPU frequency display in /proc/cpuinfo
-Message-ID: <20051202104320.A5234@unix-os.sc.intel.com>
-References: <20051202181927.GD9766@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20051202181927.GD9766@wotan.suse.de>; from ak@suse.de on Fri, Dec 02, 2005 at 10:19:27AM -0800
+	Fri, 2 Dec 2005 13:50:44 -0500
+Received: from web36912.mail.mud.yahoo.com ([209.191.85.80]:32918 "HELO
+	web36912.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750953AbVLBSuo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 13:50:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=jQprITHpONgHm/JC0EUBCKZUABAyBwUDes7lHQtU+O0s+6jzqRBegPRmppGzEIuQFawXP3onXHbutbfgcLcVxSfRFufusGkXVHhzFIQNjD7iXSscHvGROlyLppMiuTPTpvAvX1kLnJ45Yrk2B4xS805yDaGvMuKBRrf2I4fHps0=  ;
+Message-ID: <20051202185043.91582.qmail@web36912.mail.mud.yahoo.com>
+Date: Fri, 2 Dec 2005 18:50:43 +0000 (GMT)
+From: Mark Underwood <basicmark@yahoo.com>
+Subject: Re: [PATCH 2.6-git] SPI core refresh
+To: Vitaly Wool <vwool@ru.mvista.com>, Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, david-b@pacbell.net, dpervushin@gmail.com,
+       akpm@osdl.org, basicmark@yahoo.com, komal_shah802003@yahoo.com,
+       stephen@streetfiresound.com, spi-devel-general@lists.sourceforge.net,
+       Joachim_Jaeger@digi.com
+In-Reply-To: <438FE47A.7080100@ru.mvista.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 02, 2005 at 10:19:27AM -0800, Andi Kleen wrote:
-> Shouldn't this be a static inline?
 
-Yes. Attached is the modified patch.
+--- Vitaly Wool <vwool@ru.mvista.com> wrote:
 
-Thanks,
-Venki
+> Greg KH wrote:
+> 
+> >>- The character device interface was reworked
+> >>    
+> >>
+> >
+> >reworked how?
+> >  
+> >
+> It was originally designed for 2.6.10 and now it's 2.6-git-synchronized.
+> 
+> >  
+> >
+> >>- it's more adapted for use in real-time environments
+> >>    
+> >>
+> >
+> >I still do not see why you are stating this.  Why do you say this?
+> >  
+> >
+> Due to possible priority inversion problems in David's core.
 
-What is the value shown in "cpu MHz" of /proc/cpuinfo when CPUs are capable of 
-changing frequency?
+Which you still haven't proven, in fact you now seem to be changing your mind and saying that
+there might be a problem if an adapter driver was implemented badly although I still don't see how
+this could happen (the priority inversion I mean not the badly implemented driver ;).
 
-Today the answer is: It depends.
-On i386:
-SMP kernel - It is always the boot frequency
-UP kernel - Scales with the frequency change and shows that was last set.
+> 
+> >I think you should work with David more...
+> >  
+> >
+> P'haps you're right. I suggest re-enumerating all the differences 
+> between the cores and working them out.
+> However, if David's not going to accept any facts or speculations that 
+> contradict his being sure his core is the best a man could ever do, 
+> we're screwed. :(
 
-On x86_64:
-There is one single variable cpu_khz that gets written by all the CPUs. So,
-the frequency set by last CPU will be seen on /proc/cpuinfo of all the
-CPUs in the system. What you see also depends on whether you have constant_tsc
-capable CPU or not.
+When I worked with David he was very helpful. He pointed out my misconceptions and accepted my
+comments that is core was missing functionality which he then added.
 
-On ia64:
-It is always boot time frequency of a particular CPU that gets displayed.
+In fact at one time there were 3 SPI subsystems being prosposed, David's, Vitaly's and mine. David
+and I work together to take the best from both which is now the solution he is proposing.
+
+Mark
+
+> 
+> Vitaly
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 
-The patch below changes this to:
-Show the last known frequency of the particular CPU, when cpufreq is present. If
-cpu doesnot support changing of frequency through cpufreq, then boot frequency 
-will be shown. The patch affects i386, x86_64 and ia64 architectures.
 
-Signed-off-by: Venkatesh Pallipadi<venkatesh.pallipadi@intel.com>
-
-Index: linux-2.6.12/arch/i386/kernel/cpu/proc.c
-===================================================================
---- linux-2.6.12.orig/arch/i386/kernel/cpu/proc.c	2005-08-30 11:10:46.000000000 -0700
-+++ linux-2.6.12/arch/i386/kernel/cpu/proc.c	2005-10-07 15:39:48.000000000 -0700
-@@ -3,6 +3,7 @@
- #include <linux/string.h>
- #include <asm/semaphore.h>
- #include <linux/seq_file.h>
-+#include <linux/cpufreq.h>
- 
- /*
-  *	Get CPU information for use by the procfs.
-@@ -86,8 +87,11 @@
- 		seq_printf(m, "stepping\t: unknown\n");
- 
- 	if ( cpu_has(c, X86_FEATURE_TSC) ) {
-+		unsigned int freq = cpufreq_quick_get(n);
-+		if (!freq)
-+			freq = cpu_khz;
- 		seq_printf(m, "cpu MHz\t\t: %u.%03u\n",
--			cpu_khz / 1000, (cpu_khz % 1000));
-+			freq / 1000, (freq % 1000));
- 	}
- 
- 	/* Cache size */
-Index: linux-2.6.12/drivers/cpufreq/cpufreq.c
-===================================================================
---- linux-2.6.12.orig/drivers/cpufreq/cpufreq.c	2005-09-26 14:59:23.000000000 -0700
-+++ linux-2.6.12/drivers/cpufreq/cpufreq.c	2005-10-07 15:46:08.000000000 -0700
-@@ -830,6 +830,30 @@
- 
- 
- /** 
-+ * cpufreq_quick_get - get the CPU frequency (in kHz) frpm policy->cur
-+ * @cpu: CPU number
-+ *
-+ * This is the last known freq, without actually getting it from the driver.
-+ * Return value will be same as what is shown in scaling_cur_freq in sysfs.
-+ */
-+unsigned int cpufreq_quick_get(unsigned int cpu)
-+{
-+	struct cpufreq_policy *policy = cpufreq_cpu_get(cpu);
-+	unsigned int ret = 0;
-+
-+	if (policy) {
-+		down(&policy->lock);
-+		ret = policy->cur;
-+		up(&policy->lock);
-+		cpufreq_cpu_put(policy);
-+	}
-+
-+	return (ret);
-+}
-+EXPORT_SYMBOL(cpufreq_quick_get);
-+
-+
-+/** 
-  * cpufreq_get - get the current CPU frequency (in kHz)
-  * @cpu: CPU number
-  *
-Index: linux-2.6.12/arch/x86_64/kernel/setup.c
-===================================================================
---- linux-2.6.12.orig/arch/x86_64/kernel/setup.c	2005-08-31 14:46:39.000000000 -0700
-+++ linux-2.6.12/arch/x86_64/kernel/setup.c	2005-10-07 15:40:24.000000000 -0700
-@@ -42,6 +42,7 @@
- #include <linux/mmzone.h>
- #include <linux/kexec.h>
- #include <linux/crash_dump.h>
-+#include <linux/cpufreq.h>
- 
- #include <asm/mtrr.h>
- #include <asm/uaccess.h>
-@@ -1187,8 +1188,11 @@
- 		seq_printf(m, "stepping\t: unknown\n");
- 	
- 	if (cpu_has(c,X86_FEATURE_TSC)) {
-+		unsigned int freq = cpufreq_quick_get((unsigned)(c-cpu_data));
-+		if (!freq)
-+			freq = cpu_khz;
- 		seq_printf(m, "cpu MHz\t\t: %u.%03u\n",
--			     cpu_khz / 1000, (cpu_khz % 1000));
-+			     freq / 1000, (freq % 1000));
- 	}
- 
- 	/* Cache size */
-Index: linux-2.6.12/arch/ia64/kernel/setup.c
-===================================================================
---- linux-2.6.12.orig/arch/ia64/kernel/setup.c	2005-08-31 14:46:39.000000000 -0700
-+++ linux-2.6.12/arch/ia64/kernel/setup.c	2005-10-07 15:41:38.000000000 -0700
-@@ -43,6 +43,7 @@
- #include <linux/initrd.h>
- #include <linux/platform.h>
- #include <linux/pm.h>
-+#include <linux/cpufreq.h>
- 
- #include <asm/ia32.h>
- #include <asm/machvec.h>
-@@ -474,6 +475,7 @@
- 	char family[32], features[128], *cp, sep;
- 	struct cpuinfo_ia64 *c = v;
- 	unsigned long mask;
-+	unsigned int proc_freq;
- 	int i;
- 
- 	mask = c->features;
-@@ -506,6 +508,10 @@
- 		sprintf(cp, " 0x%lx", mask);
- 	}
- 
-+	proc_freq = cpufreq_quick_get(cpunum);
-+	if (!proc_freq)
-+		proc_freq = c->proc_freq / 1000;
-+
- 	seq_printf(m,
- 		   "processor  : %d\n"
- 		   "vendor     : %s\n"
-@@ -522,7 +528,7 @@
- 		   "BogoMIPS   : %lu.%02lu\n",
- 		   cpunum, c->vendor, family, c->model, c->revision, c->archrev,
- 		   features, c->ppn, c->number,
--		   c->proc_freq / 1000000, c->proc_freq % 1000000,
-+		   proc_freq / 1000, proc_freq % 1000,
- 		   c->itc_freq / 1000000, c->itc_freq % 1000000,
- 		   lpj*HZ/500000, (lpj*HZ/5000) % 100);
- #ifdef CONFIG_SMP
-Index: linux-2.6.12/include/linux/cpufreq.h
-===================================================================
---- linux-2.6.12.orig/include/linux/cpufreq.h	2005-09-26 14:59:25.000000000 -0700
-+++ linux-2.6.12/include/linux/cpufreq.h	2005-10-07 14:19:05.000000000 -0700
-@@ -259,6 +259,16 @@
- /* query the current CPU frequency (in kHz). If zero, cpufreq couldn't detect it */
- unsigned int cpufreq_get(unsigned int cpu);
- 
-+/* query the last known CPU freq (in kHz). If zero, cpufreq couldn't detect it */
-+#ifdef CONFIG_CPU_FREQ
-+unsigned int cpufreq_quick_get(unsigned int cpu);
-+#else
-+static inline unsigned int cpufreq_quick_get(unsigned int cpu)
-+{
-+	return 0;
-+}
-+#endif
-+
- 
- /*********************************************************************
-  *                       CPUFREQ DEFAULT GOVERNOR                    *
+	
+	
+		
+___________________________________________________________ 
+Yahoo! Messenger - NEW crystal clear PC to PC calling worldwide with voicemail http://uk.messenger.yahoo.com

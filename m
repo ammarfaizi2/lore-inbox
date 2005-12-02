@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932585AbVLBA5Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932592AbVLBA6M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932585AbVLBA5Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Dec 2005 19:57:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932588AbVLBA5Y
+	id S932592AbVLBA6M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Dec 2005 19:58:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932593AbVLBA6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Dec 2005 19:57:24 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:46794 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932585AbVLBA5X (ORCPT
+	Thu, 1 Dec 2005 19:58:12 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:8636 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932592AbVLBA6K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Dec 2005 19:57:23 -0500
-Date: Fri, 2 Dec 2005 01:55:14 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andy Isaacson <adi@hexapodia.org>, linux-kernel@vger.kernel.org
-Subject: Re: swsusp intermittent failures in 2.6.15-rc3-mm1
-Message-ID: <20051202005514.GA1770@elf.ucw.cz>
-References: <20051201173649.GA22168@hexapodia.org> <200512012242.44995.rjw@sisk.pl>
+	Thu, 1 Dec 2005 19:58:10 -0500
+Subject: Re: [patch 00/43] ktimer reworked
+From: john stultz <johnstul@us.ibm.com>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Roman Zippel <zippel@linux-m68k.org>, Steven Rostedt <rostedt@goodmis.org>,
+       george@mvista.com, mingo@elte.hu, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       ray-gmail@madrabbit.org, Russell King <rmk+lkml@arm.linux.org.uk>
+In-Reply-To: <91D50CB6-A9B0-4501-AAD2-7D80948E7367@mac.com>
+References: <1133395019.32542.443.camel@tglx.tec.linutronix.de>
+	 <Pine.LNX.4.61.0512010118200.1609@scrub.home>
+	 <23CA09D3-4C11-4A4B-A5C6-3C38FA9C203D@mac.com>
+	 <Pine.LNX.4.61.0512011352590.1609@scrub.home>
+	 <2c0942db0512010822x1ae20622obf224ce9728e83f8@mail.gmail.com>
+	 <20051201165144.GC31551@flint.arm.linux.org.uk>
+	 <Pine.LNX.4.61.0512011828150.1609@scrub.home>
+	 <1133464097.7130.15.camel@localhost.localdomain>
+	 <Pine.LNX.4.61.0512012048140.1609@scrub.home>
+	 <Pine.LNX.4.58.0512011619590.32095@gandalf.stny.rr.com>
+	 <Pine.LNX.4.61.0512020120180.1609@scrub.home>
+	 <91D50CB6-A9B0-4501-AAD2-7D80948E7367@mac.com>
+Content-Type: text/plain
+Date: Thu, 01 Dec 2005 16:58:06 -0800
+Message-Id: <1133485086.7605.9.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200512012242.44995.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > My Thinkpad X40 (1.25 GB, ipw2200) has had fairly reliable swsusp since
-> > 2.6.13 or thereabouts, and as recently as 2.6.15-rc1-mm1 I had about 20
-> > successful suspend/resume cycles.  But now that I'm running
-> > 2.6.15-rc3-mm1 I'm seeing intermittent failures like this:
+On Thu, 2005-12-01 at 19:41 -0500, Kyle Moffett wrote:
+> On Dec 01, 2005, at 19:29, Roman Zippel wrote:
+> > Hi,
+> >
+> >> As for portablility, I believe John Stultz has some nice plugins  
+> >> coming to what timer source you want to use, so if there's a  
+> >> better way to get a time, these should make things easy to add.
+> >
+> > These plugins can do no magic, if the hardware timer is slow, the  
+> > whole thing gets slow.
 > 
-> Thanks a lot for the report.
-> 
-> The problem is apparently caused by my recent patch intended to speed up
-> suspend.  Could you please apply the appended debug patch, try to reproduce
-> the problem and send full dmesg output back to me?
-> 
-> Index: linux-2.6.15-rc3-mm1/kernel/power/swsusp.c
-> ===================================================================
-> --- linux-2.6.15-rc3-mm1.orig/kernel/power/swsusp.c	2005-12-01 22:13:17.000000000 +0100
-> +++ linux-2.6.15-rc3-mm1/kernel/power/swsusp.c	2005-12-01 22:24:56.000000000 +0100
-> @@ -635,12 +635,18 @@
->  	printk("Shrinking memory...  ");
->  	do {
->  #ifdef FAST_FREE
-> -		tmp = count_data_pages() + count_highmem_pages();
-> +		tmp = count_data_pages();
-> +		printk("Data pages: %ld\n", tmp);
-> +		tmp += count_highmem_pages();
+> The point is that you could switch both the timer and timeout  
+> implementations to jiffies if you wanted to, at the expense of the  
+> accuracy that a lot of people care about.
 
-You need at least count_data_pages() + 2*count_highmem_pages() free
-pages (in lowmem).
+While I'm not challenging the possibility of doing this, my timekeeping
+work does not provide quite this level of flexibility you imply. Indeed
+one could use jiffies as a clocksource, limiting all time users
+(including ktimers) to jiffies resolution, but I would consider that to
+be abusing the interface.
 
-								Pavel
--- 
-Thanks, Sharp!
+thanks
+-john
+

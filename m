@@ -1,300 +1,333 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751072AbVLBXym@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751054AbVLBX7x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751072AbVLBXym (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 18:54:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751081AbVLBXym
+	id S1751054AbVLBX7x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 18:59:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751084AbVLBX7x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 18:54:42 -0500
-Received: from web50103.mail.yahoo.com ([206.190.38.31]:40787 "HELO
-	web50103.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1751072AbVLBXyl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 18:54:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=OgikF1EHTNg6Px3n0T/it23ZRP7n5OcGHxVTKsZGUq+Mgev7+KPuNo3eZr+kQ2wL4WiLvCRuO/evwT2eDWuNVS9RWu9zW6TKOTu/M5ELGzgS2oq+NBmOsxkpY4eyzo0DlGivHnQwuC/Lr9rxWUejfMCfgr2YKS9gebkR9Xiadao=  ;
-Message-ID: <20051202235440.28853.qmail@web50103.mail.yahoo.com>
-Date: Fri, 2 Dec 2005 15:54:40 -0800 (PST)
-From: Doug Thompson <norsk5@yahoo.com>
-Subject: Re: PCI-Bridge Parity Error on nVidia, 2.6.15-rc3-mm1
-To: ebuddington@wesleyan.edu, linux-kernel@vger.kernel.org
-In-Reply-To: <20051202160928.GA10662@pool-71-161-133-232.spfdma.east.verizon.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 2 Dec 2005 18:59:53 -0500
+Received: from ozlabs.org ([203.10.76.45]:56216 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751054AbVLBX7w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 18:59:52 -0500
+Subject: Re: Two module-init-
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Scott James Remnant <scott@ubuntu.com>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>, linux-input@atrey.karlin.mff.cuni.cz,
+       vojtech@suse.cz
+In-Reply-To: <1133514074.20712.0.camel@localhost.localdomain>
+References: <1133359773.2779.13.camel@localhost.localdomain>
+	 <1133482376.4094.11.camel@localhost.localdomain>
+	 <1133514074.20712.0.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Sat, 03 Dec 2005 10:59:48 +1100
+Message-Id: <1133567988.21941.12.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message originates in the new 'edac' module in the -mm tree.
-
-EDAC is poll scanning the PCI devices peeking in their STATUS registers and bridges' SEC_STATUS
-registers looking for PCI bus parity and SERR errors.
-
-The aim of this polling is to provide a detector of PCI bus transactions that generate a parity
-error or other serious error.
-
-When SERR and Parity status bits are set, the parity occurred in the Address phase of the bus
-transaction. If only the Parity bit is set, then the error was in the data phase. In either case,
-some data was lost in the transaction. If just the SERR is set, then some board has determined a
-very serious error has occurred. 
-
-The Caveat is that NOT ALL BOARDS follow the PCI spec. Some board vendors have ignored the Parity
-status generatioin, because there have been no "enforcers" of PCI Parity events, either in the
-linux world and in the windoze world. This lack of conformance on the part of board vendors brings
-some grief to the use of EDAC.
-
-Was the error a valid error?
-
-Or was the error a result of bad board?
-
-this can be hard to tell.
-
-The PCI Parity bits are sticky. They stay set until explicitly reset. At least that is the
-standard. EDAC reset the bits after harvesting them.
-
-I am working on a patch to the EDAC module to add a "whitelist" and a "blacklist" interfaces. The
-'whitelist' specifies an explicit list of devices to scan for the parity error. The 'blacklist' is
-the list of devices to skip in the scan of all PCI devices.
-
-This will provide mechanism to EDAC on how to do the scanning. The next issue is to decide for a
-given system, whether to enable PCI Parity scanning at all, use a whitelist or use a blacklist. 
-
-You will have to decide.  EDAC is simply a detector or reporter of what is happening, at this
-time. The error may or may not be valid. If you are having some other errors that are
-unexplainable, then EDAC is a second witness as to the cause of those troubles.
-
-You can turn off the PCI scanning by the following:
-
-echo 0 > /sys/module/edac_mc/parameters/check_pci_parity
-
-But from your report, EDAC is correctly reporting something bad is happening on your system. 
-
-Try different cables to your 1394 disks (I assume your disks on on the 1394).
-
-After re-reading your report, I see you indicate that output occurs on boot up. Do you see the
-PCI-Bridge Parity AFTER bootup?
-
-If not, then the FIRST output is an initialization remenant artifact. One of the  fixes will be to
-consume that artifact. Therefore, ignore the singleton Parity report.
-
-If there are more after boot up, then there is a bad board or false positives.
-
-doug thompson
-
-
-
-
---- Eric Buddington <ebuddington@verizon.net> wrote:
-
-> I am consistently seeing "PCI-Bridge- Detected Parity Error on
-> 0000:00:09.0 0000:00:09.0" in dmesg on bootup. If I cat /dev/dv1394-0
-> > /dev/null (with DV coming in), it generates a whole lot more.
+On Fri, 2005-12-02 at 09:01 +0000, Scott James Remnant wrote:
+> On Fri, 2005-12-02 at 11:12 +1100, Rusty Russell wrote:
 > 
-> Other, possibly related problems:
-> 
-> 1) After cat runs for a while, I get "dv1394: discontinuity detected,
-> dropping all frames"
-> 2) heavy hard drive usage tends to freeze processes permanently in D
-> state. Sometimes a strace of 'sync' shows that sync() never returns,
-> even if no other process is stuck in D state yet. I'm using
-> netconsole, and no messages show up in conjunction with
-> this. Alt-SysRq-b seems to be the only way out.
-> 
-> System specs:
-> - Athlon-64X2, Foxconn mainboard.
-> - Linux turkey 2.6.15-rc3-mm1 #3 SMP PREEMPT Thu Dec 1 19:59:31 EST 2005 i686 unknown unknown
-> GNU/Linux, no other patches. Problem also observed on 2.4.14-mm1.
-> - root fs is reiser4 on md0 (2x250Gb, striped).
-> 
-> lspci -vv:
-> 00:00.0 Memory controller: nVidia Corporation CK804 Memory Controller (rev a3)
-> 	Subsystem: Foxconn International, Inc. Unknown device 0ca4
-> 	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-> 	Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-> 	Latency: 0
-> 	Capabilities: [44] HyperTransport: Slave or Primary Interface
-> 		Command: BaseUnitID=0 UnitCnt=15 MastHost- DefDir- DUL-
-> 		Link Control 0: CFlE+ CST- CFE- <LkFail- Init+ EOC- TXO- <CRCErr=0 IsocEn- LSEn- ExtCTL- 64b-
-> 		Link Config 0: MLWI=16bit DwFcIn- MLWO=16bit DwFcOut- LWI=16bit DwFcInEn- LWO=16bit DwFcOutEn-
-> 		Link Control 1: CFlE- CST- CFE- <LkFail+ Init- EOC+ TXO+ <CRCErr=0 IsocEn- LSEn- ExtCTL- 64b-
-> 		Link Config 1: MLWI=8bit DwFcIn- MLWO=8bit DwFcOut- LWI=8bit DwFcInEn- LWO=8bit DwFcOutEn-
-> 		Revision ID: 1.03
-> 		Link Frequency 0: 800MHz
-> 		Link Error 0: <Prot- <Ovfl- <EOC- CTLTm-
-> 		Link Frequency Capability 0: 200MHz+ 300MHz+ 400MHz+ 500MHz+ 600MHz+ 800MHz+ 1.0GHz+ 1.2GHz-
-> 1.4GHz- 1.6GHz- Vend-
-> 		Feature Capability: IsocFC+ LDTSTOP+ CRCTM- ECTLT- 64bA- UIDRD-
-> 		Link Frequency 1: 200MHz
-> 		Link Error 1: <Prot- <Ovfl- <EOC- CTLTm-
-> 		Link Frequency Capability 1: 200MHz- 300MHz- 400MHz- 500MHz- 600MHz- 800MHz- 1.0GHz- 1.2GHz-
-> 1.4GHz- 1.6GHz- Vend-
-> 		Error Handling: PFlE+ OFlE+ PFE- OFE- EOCFE- RFE- CRCFE- SERRFE- CF- RE- PNFE- ONFE- EOCNFE-
-> RNFE- CRCNFE- SERRNFE-
-> 		Prefetchable memory behind bridge Upper: 00-00
-> 		Bus Number: 00
-> 	Capabilities: [e0] HyperTransport: MSI Mapping
-> 
-> 00:01.0 ISA bridge: nVidia Corporation CK804 ISA Bridge (rev a3)
-> 	Subsystem: Foxconn International, Inc. Unknown device 0ca4
-> 	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-> 	Status: Cap- 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-> 	Latency: 0
-> 
-> 00:01.1 SMBus: nVidia Corporation CK804 SMBus (rev a2)
-> 	Subsystem: Foxconn International, Inc. Unknown device 0ca4
-> 	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-> 	Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-> 	Interrupt: pin A routed to IRQ 11
-> 	Region 0: I/O ports at fc00 [size=32]
-> 	Region 4: I/O ports at 4c00 [size=64]
-> 	Region 5: I/O ports at 4c40 [size=64]
-> 	Capabilities: [44] Power Management version 2
-> 		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot+,D3cold+)
-> 		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-> 
-> 00:02.0 USB Controller: nVidia Corporation CK804 USB Controller (rev a2) (prog-if 10 [OHCI])
-> 	Subsystem: Foxconn International, Inc. Unknown device 0ca4
-> 	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-> 	Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-> 	Latency: 0 (750ns min, 250ns max)
-> 	Interrupt: pin A routed to IRQ 225
-> 	Region 0: Memory at dffff000 (32-bit, non-prefetchable) [size=4K]
-> 	Capabilities: [44] Power Management version 2
-> 		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-> 		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-> 
-> 00:02.1 USB Controller: nVidia Corporation CK804 USB Controller (rev a3) (prog-if 20 [EHCI])
-> 	Subsystem: Foxconn International, Inc. Unknown device 0ca4
-> 	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-> 	Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-> 	Latency: 0 (750ns min, 250ns max)
-> 	Interrupt: pin B routed to IRQ 217
-> 	Region 0: Memory at feb00000 (32-bit, non-prefetchable) [size=256]
-> 	Capabilities: [44] Debug port
-> 	Capabilities: [80] Power Management version 2
-> 		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-> 		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-> 
-> 00:04.0 Multimedia audio controller: nVidia Corporation CK804 AC'97 Audio Controller (rev a2)
-> 	Subsystem: Foxconn International, Inc. Unknown device 0ca4
-> 	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-> 	Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-> 	Latency: 0 (500ns min, 1250ns max)
-> 	Interrupt: pin A routed to IRQ 3
-> 	Region 0: I/O ports at f000 [size=256]
-> 	Region 1: I/O ports at ec00 [size=256]
-> 	Region 2: Memory at dfffd000 (32-bit, non-prefetchable) [size=4K]
-> 	Capabilities: [44] Power Management version 2
-> 		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-> 		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-> 
-> 00:06.0 IDE interface: nVidia Corporation CK804 IDE (rev f2) (prog-if 8a [Master SecP PriP])
-> 	Subsystem: Foxconn International, Inc. Unknown device 0ca4
-> 	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-> 	Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-> 	Latency: 0 (750ns min, 250ns max)
-> 	Region 4: I/O ports at e000 [size=16]
-> 	Capabilities: [44] Power Management version 2
-> 		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-> 		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-> 
-> 00:07.0 IDE interface: nVidia Corporation CK804 Serial ATA Controller (rev f3) (prog-if 85
-> [Master SecO PriO])
-> 	Subsystem: Foxconn International, Inc. Unknown device 0ca4
-> 	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-> 	Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-> 	Latency: 0 (750ns min, 250ns max)
-> 	Interrupt: pin A routed to IRQ 201
-> 	Region 0: I/O ports at 09f0 [size=8]
-> 	Region 1: I/O ports at 0bf0 [size=4]
-> 	Region 2: I/O ports at 0970 [size=8]
-> 	Region 3: I/O ports at 0b70 [size=4]
-> 	Region 4: I/O ports at cc00 [size=16]
-> 	Region 5: Memory at dfffb000 (32-bit, non-prefetchable) [size=4K]
-> 	Capabilities: [44] Power Management version 2
-> 		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-> 		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-> 
-> 00:08.0 IDE interface: nVidia Corporation CK804 Serial ATA Controller (rev f3) (prog-if 85
-> [Master SecO PriO])
-> 	Subsystem: Foxconn International, Inc. Unknown device 0ca4
-> 	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-> 	Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-> 	Latency: 0 (750ns min, 250ns max)
-> 	Interrupt: pin A routed to IRQ 209
-> 	Region 0: I/O ports at 09e0 [size=8]
-> 	Region 1: I/O ports at 0be0 [size=4]
-> 	Region 2: I/O ports at 0960 [size=8]
-> 	Region 3: I/O ports at 0b60 [size=4]
-> 	Region 4: I/O ports at b800 [size=16]
-> 	Region 5: Memory at dfffa000 (32-bit, non-prefetchable) [size=4K]
-> 	Capabilities: [44] Power Management version 2
-> 		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-> 		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-> 
-> 00:09.0 PCI bridge: nVidia Corporation CK804 PCI Bridge (rev a2) (prog-if 01 [Subtractive
-> decode])
-> 	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-> 	Status: Cap- 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-> 	Latency: 0
-> 	Bus: primary=00, secondary=01, subordinate=01, sec-latency=32
-> 	I/O behind bridge: 0000a000-0000afff
-> 	Memory behind bridge: dd000000-deffffff
-> 	Prefetchable memory behind bridge: dfe00000-dfefffff
-> 	Secondary status: 66MHz- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ <SERR-
-> <PERR-
-> 	BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
-> 
-> 00:0a.0 Bridge: nVidia Corporation CK804 Ethernet Controller (rev a3)
-> 	Subsystem: Foxconn International, Inc. Unknown device 0ca4
-> 	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-> 	Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-> 	Latency: 0 (250ns min, 5000ns max)
-> 	Interrupt: pin A routed to IRQ 201
-> 	Region 0: Memory at dfff9000 (32-bit, non-prefetchable) [size=4K]
-> 	Region 1: I/O ports at b400 [size=8]
-> 	Capabilities: [44] Power Management version 2
-> 		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-> 		Status: D0 PME-Enable+ DSel=0 DScale=0 PME-
-> 
-> 00:0d.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3) (prog-if 00 [Normal decode])
-> 	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-> 	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-> 	Latency: 0, Cache Line Size 08
-> 	Bus: primary=00, secondary=02, subordinate=02, sec-latency=0
-> 	I/O behind bridge: 00009000-00009fff
-> 	Memory behind bridge: dfd00000-dfdfffff
-> 	Prefetchable memory behind bridge: 00000000dfc00000-00000000dfc00000
-> 	Secondary status: 66MHz- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- <SERR- <PERR-
-> 	BridgeCtl: Parity- SERR- NoISA+ VGA- MAbort- >Reset- FastB2B-
-> 	Capabilities: [40] Power Management version 2
-> 		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-> 		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-> 	Capabilities: [48] Message Signalled Interrupts: 64bit+ Queue=0/1 Enable+
-> 		Address: 00000000fee00000  Data: 40b9
-> 	Capabilities: [58] HyperTransport: MSI Mapping
-> 	Capabilities: [80] Express Root Port (Slot+) IRQ 0
-> 		Device: Supported: MaxPayload 128 bytes, PhantFunc 0, ExtTag-
-> 		Device: Latency L0s <512ns, L1 <4us
-> 		Device: Errors: Correctable- Non-Fatal- Fatal- Unsupported-
-> 		Device: RlxdOrd+ ExtTag- PhantFunc- AuxPwr- NoSnoop+
-> 		Device: MaxPayload 128 bytes, MaxReadReq 512 bytes
-> 		Link: Supported Speed 2.5Gb/s, Width x1, ASPM L0s, Port 1
-> 		Link: Latency L0s <512ns, L1 <4us
-> 		Link: ASPM Disabled RCB 64 bytes CommClk- ExtSynch-
-> 		Link: Speed 2.5Gb/s, Width x1
-> 		Slot: AtnBtn- PwrCtrl- MRL- AtnInd- PwrInd- HotPlug- Surpise-
-> 		Slot: Number 2, PowerLimit 10.000000
-> 		Slot: Enabled AtnBtn- PwrFlt- MRL- PresDet- CmdCplt- HPIrq-
-> 		Slot: AttnInd Off, PwrInd On, Power-
-> 
-=== message truncated ===
+> > On Wed, 2005-11-30 at 14:09 +0000, Scott James Remnant wrote:
+> > > Hi Rusty,
+> > > 
+> > > Attached are two patches to module-init-tools from Ubuntu.
+> > > 
+> > > The first (input_table_size) is a catch-up with 2.6.15, it's adding an
+> > > extra field to the input_device_id struct; m-u-t needs updating to be
+> > > able to read the modules correctly.
+> > 
+> > Unfortunately, it's not that simple.  Your patch will break previous
+> > kernels, which have a smaller structure.  I've had the discussion years
+> > ago with the input people on using module aliases, and it's not entirely
+> > trivial.  I will prepare another patch, however.
+> > 
+> Are the modules.*map files intended to be deprecated entirely in favour
+> of aliases?  The problem this patch fixed was that the parser couldn't
+> read the tables, so produced invalid output for the modules (ie. an
+> empty modules.inputmap).
 
+Yes, but now it will produce a bad modules.inputmap for previous
+kernels.
 
+Here's the patch for modalias support for input classes.  It uses
+comma-separated numbers, and doesn't describe all the potential keys (no
+module currently cares, and that would make the strings huge).  The
+changes to input.h are to move the definitions needed by file2alias
+outside __KERNEL__.  I chose not to move those definitions to
+mod_devicetable.h, because there are so many that it might break compile
+of something else in the kernel.
 
-"If you think Education is expensive, just try Ignorance"
+The rest is fairly straightforward.
 
-"Don't tell people HOW to do things, tell them WHAT you
-want and they will surprise you with their ingenuity."
-                   Gen George Patton
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au> (authored)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.15-rc4/drivers/input/input.c working-2.6.15-rc4-input-modalias/drivers/input/input.c
+--- linux-2.6.15-rc4/drivers/input/input.c	2005-12-02 11:00:18.000000000 +1100
++++ working-2.6.15-rc4-input-modalias/drivers/input/input.c	2005-12-02 17:25:03.000000000 +1100
+@@ -529,10 +529,49 @@ INPUT_DEV_STRING_ATTR_SHOW(name);
+ INPUT_DEV_STRING_ATTR_SHOW(phys);
+ INPUT_DEV_STRING_ATTR_SHOW(uniq);
+ 
++static int print_modalias_bits(char *buf, char prefix, unsigned long *arr,
++			       unsigned int min, unsigned int max)
++{
++	int len, i;
++
++	len = sprintf(buf, "%c", prefix);
++	for (i = min; i < max; i++)
++		if (arr[LONG(i)] & BIT(i))
++			len += sprintf(buf+len, "%X,", i);
++	return len;
++}
++	
++static ssize_t input_dev_show_modalias(struct class_device *dev, char *buf)
++{
++	struct input_dev *id = to_input_dev(dev);
++	ssize_t len = 0;
++
++	len += sprintf(buf+len, "input:b%04Xv%04Xp%04Xe%04X-",
++		       id->id.bustype,
++		       id->id.vendor,
++		       id->id.product,
++		       id->id.version);
++
++	len += print_modalias_bits(buf+len, 'e', id->evbit, 0, EV_MAX);
++	len += print_modalias_bits(buf+len, 'k', id->keybit,
++				   KEY_MIN_INTERESTING, KEY_MAX);
++	len += print_modalias_bits(buf+len, 'r', id->relbit, 0, REL_MAX);
++	len += print_modalias_bits(buf+len, 'a', id->absbit, 0, ABS_MAX);
++	len += print_modalias_bits(buf+len, 'm', id->mscbit, 0, MSC_MAX);
++	len += print_modalias_bits(buf+len, 'l', id->ledbit, 0, LED_MAX);
++	len += print_modalias_bits(buf+len, 's', id->sndbit, 0, SND_MAX);
++	len += print_modalias_bits(buf+len, 'f', id->ffbit, 0, FF_MAX);
++	len += print_modalias_bits(buf+len, 'w', id->swbit, 0, SW_MAX);
++	len += sprintf(buf+len, "\n");
++	return len;
++}
++static CLASS_DEVICE_ATTR(modalias, S_IRUGO, input_dev_show_modalias, NULL);
++
+ static struct attribute *input_dev_attrs[] = {
+ 	&class_device_attr_name.attr,
+ 	&class_device_attr_phys.attr,
+ 	&class_device_attr_uniq.attr,
++	&class_device_attr_modalias.attr,
+ 	NULL
+ };
+ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.15-rc4/include/linux/input.h working-2.6.15-rc4-input-modalias/include/linux/input.h
+--- linux-2.6.15-rc4/include/linux/input.h	2005-12-02 11:01:11.000000000 +1100
++++ working-2.6.15-rc4-input-modalias/include/linux/input.h	2005-12-02 15:51:15.000000000 +1100
+@@ -18,6 +18,7 @@
+ #include <sys/ioctl.h>
+ #include <asm/types.h>
+ #endif
++#include <linux/mod_devicetable.h>
+ 
+ /*
+  * The event structure itself
+@@ -511,6 +512,8 @@ struct input_absinfo {
+ #define KEY_FN_S		0x1e3
+ #define KEY_FN_B		0x1e4
+ 
++/* We avoid low common keys in module aliases so they don't get huge. */
++#define KEY_MIN_INTERESTING	KEY_MUTE
+ #define KEY_MAX			0x1ff
+ 
+ /*
+@@ -793,6 +796,44 @@ struct ff_effect {
+ 
+ #define FF_MAX		0x7f
+ 
++struct input_device_id {
++
++	kernel_ulong_t flags;
++
++	struct input_id id;
++
++	kernel_ulong_t evbit[EV_MAX/BITS_PER_LONG+1];
++	kernel_ulong_t keybit[KEY_MAX/BITS_PER_LONG+1];
++	kernel_ulong_t relbit[REL_MAX/BITS_PER_LONG+1];
++	kernel_ulong_t absbit[ABS_MAX/BITS_PER_LONG+1];
++	kernel_ulong_t mscbit[MSC_MAX/BITS_PER_LONG+1];
++	kernel_ulong_t ledbit[LED_MAX/BITS_PER_LONG+1];
++	kernel_ulong_t sndbit[SND_MAX/BITS_PER_LONG+1];
++	kernel_ulong_t ffbit[FF_MAX/BITS_PER_LONG+1];
++	kernel_ulong_t swbit[SW_MAX/BITS_PER_LONG+1];
++
++	kernel_ulong_t driver_info;
++};
++
++/*
++ * Structure for hotplug & device<->driver matching.
++ */
++
++#define INPUT_DEVICE_ID_MATCH_BUS	1
++#define INPUT_DEVICE_ID_MATCH_VENDOR	2
++#define INPUT_DEVICE_ID_MATCH_PRODUCT	4
++#define INPUT_DEVICE_ID_MATCH_VERSION	8
++
++#define INPUT_DEVICE_ID_MATCH_EVBIT	0x010
++#define INPUT_DEVICE_ID_MATCH_KEYBIT	0x020
++#define INPUT_DEVICE_ID_MATCH_RELBIT	0x040
++#define INPUT_DEVICE_ID_MATCH_ABSBIT	0x080
++#define INPUT_DEVICE_ID_MATCH_MSCIT	0x100
++#define INPUT_DEVICE_ID_MATCH_LEDBIT	0x200
++#define INPUT_DEVICE_ID_MATCH_SNDBIT	0x400
++#define INPUT_DEVICE_ID_MATCH_FFBIT	0x800
++#define INPUT_DEVICE_ID_MATCH_SWBIT	0x1000
++
+ #ifdef __KERNEL__
+ 
+ /*
+@@ -901,49 +942,11 @@ struct input_dev {
+ };
+ #define to_input_dev(d) container_of(d, struct input_dev, cdev)
+ 
+-/*
+- * Structure for hotplug & device<->driver matching.
+- */
+-
+-#define INPUT_DEVICE_ID_MATCH_BUS	1
+-#define INPUT_DEVICE_ID_MATCH_VENDOR	2
+-#define INPUT_DEVICE_ID_MATCH_PRODUCT	4
+-#define INPUT_DEVICE_ID_MATCH_VERSION	8
+-
+-#define INPUT_DEVICE_ID_MATCH_EVBIT	0x010
+-#define INPUT_DEVICE_ID_MATCH_KEYBIT	0x020
+-#define INPUT_DEVICE_ID_MATCH_RELBIT	0x040
+-#define INPUT_DEVICE_ID_MATCH_ABSBIT	0x080
+-#define INPUT_DEVICE_ID_MATCH_MSCIT	0x100
+-#define INPUT_DEVICE_ID_MATCH_LEDBIT	0x200
+-#define INPUT_DEVICE_ID_MATCH_SNDBIT	0x400
+-#define INPUT_DEVICE_ID_MATCH_FFBIT	0x800
+-#define INPUT_DEVICE_ID_MATCH_SWBIT	0x1000
+-
+ #define INPUT_DEVICE_ID_MATCH_DEVICE\
+ 	(INPUT_DEVICE_ID_MATCH_BUS | INPUT_DEVICE_ID_MATCH_VENDOR | INPUT_DEVICE_ID_MATCH_PRODUCT)
+ #define INPUT_DEVICE_ID_MATCH_DEVICE_AND_VERSION\
+ 	(INPUT_DEVICE_ID_MATCH_DEVICE | INPUT_DEVICE_ID_MATCH_VERSION)
+ 
+-struct input_device_id {
+-
+-	unsigned long flags;
+-
+-	struct input_id id;
+-
+-	unsigned long evbit[NBITS(EV_MAX)];
+-	unsigned long keybit[NBITS(KEY_MAX)];
+-	unsigned long relbit[NBITS(REL_MAX)];
+-	unsigned long absbit[NBITS(ABS_MAX)];
+-	unsigned long mscbit[NBITS(MSC_MAX)];
+-	unsigned long ledbit[NBITS(LED_MAX)];
+-	unsigned long sndbit[NBITS(SND_MAX)];
+-	unsigned long ffbit[NBITS(FF_MAX)];
+-	unsigned long swbit[NBITS(SW_MAX)];
+-
+-	unsigned long driver_info;
+-};
+-
+ struct input_handle;
+ 
+ struct input_handler {
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.15-rc4/scripts/mod/file2alias.c working-2.6.15-rc4-input-modalias/scripts/mod/file2alias.c
+--- linux-2.6.15-rc4/scripts/mod/file2alias.c	2005-12-02 11:01:24.000000000 +1100
++++ working-2.6.15-rc4-input-modalias/scripts/mod/file2alias.c	2005-12-02 16:30:20.000000000 +1100
+@@ -16,8 +16,10 @@
+  * use either stdint.h or inttypes.h for the rest. */
+ #if KERNEL_ELFCLASS == ELFCLASS32
+ typedef Elf32_Addr	kernel_ulong_t;
++#define BITS_PER_LONG 32
+ #else
+ typedef Elf64_Addr	kernel_ulong_t;
++#define BITS_PER_LONG 64
+ #endif
+ #ifdef __sun__
+ #include <inttypes.h>
+@@ -35,6 +37,7 @@ typedef unsigned char	__u8;
+  * even potentially has different endianness and word sizes, since 
+  * we handle those differences explicitly below */
+ #include "../../include/linux/mod_devicetable.h"
++#include "../../include/linux/input.h"
+ 
+ #define ADD(str, sep, cond, field)                              \
+ do {                                                            \
+@@ -366,6 +369,61 @@ static int do_i2c_entry(const char *file
+ 	return 1;
+ }
+ 
++#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
++
++static void do_input(char *alias,
++		     kernel_ulong_t *arr, unsigned int min, unsigned int max)
++{
++	unsigned int i;
++	for (i = min; i < max; i++) {
++		if (arr[i/BITS_PER_LONG] & (1 << (i%BITS_PER_LONG)))
++			sprintf(alias+strlen(alias), "%X,*", i);
++	}
++}
++
++/* input:b0v0p0e0-eXkXrXaXmXlXsXfXwX where X is comma-separated %02X. */
++static int do_input_entry(const char *filename, struct input_device_id *id,
++			  char *alias)
++{
++	sprintf(alias, "input:");
++
++	ADD(alias, "b", id->flags&INPUT_DEVICE_ID_MATCH_BUS, id->id.bustype);
++	ADD(alias, "v", id->flags&INPUT_DEVICE_ID_MATCH_VENDOR, id->id.vendor);
++	ADD(alias, "p", id->flags&INPUT_DEVICE_ID_MATCH_PRODUCT,
++	    id->id.product);
++	ADD(alias, "e", id->flags&INPUT_DEVICE_ID_MATCH_VERSION,
++	    id->id.version);
++
++	sprintf(alias + strlen(alias), "-e*");
++	if (id->flags&INPUT_DEVICE_ID_MATCH_EVBIT)
++		do_input(alias, id->evbit, 0, EV_MAX);
++	sprintf(alias + strlen(alias), "k*");
++	if (id->flags&INPUT_DEVICE_ID_MATCH_KEYBIT)
++		do_input(alias, id->keybit, KEY_MIN_INTERESTING, KEY_MAX);
++	sprintf(alias + strlen(alias), "r*");
++	if (id->flags&INPUT_DEVICE_ID_MATCH_RELBIT)
++		do_input(alias, id->relbit, 0, REL_MAX);
++	sprintf(alias + strlen(alias), "a*");
++	if (id->flags&INPUT_DEVICE_ID_MATCH_ABSBIT)
++		do_input(alias, id->absbit, 0, ABS_MAX);
++	sprintf(alias + strlen(alias), "m*");
++	if (id->flags&INPUT_DEVICE_ID_MATCH_MSCIT)
++		do_input(alias, id->mscbit, 0, MSC_MAX);
++	sprintf(alias + strlen(alias), "l*");
++	if (id->flags&INPUT_DEVICE_ID_MATCH_LEDBIT)
++		do_input(alias, id->ledbit, 0, LED_MAX);
++	sprintf(alias + strlen(alias), "s*");
++	if (id->flags&INPUT_DEVICE_ID_MATCH_SNDBIT)
++		do_input(alias, id->sndbit, 0, SND_MAX);
++	sprintf(alias + strlen(alias), "f*");
++	if (id->flags&INPUT_DEVICE_ID_MATCH_FFBIT)
++		do_input(alias, id->ffbit, 0, SND_MAX);
++	sprintf(alias + strlen(alias), "w*");
++	if (id->flags&INPUT_DEVICE_ID_MATCH_SWBIT)
++		do_input(alias, id->swbit, 0, SW_MAX);
++	return 1;
++}
++
+ /* Ignore any prefix, eg. v850 prepends _ */
+ static inline int sym_is(const char *symbol, const char *name)
+ {
+@@ -453,7 +511,9 @@ void handle_moddevtable(struct module *m
+ 	else if (sym_is(symname, "__mod_i2c_device_table"))
+ 		do_table(symval, sym->st_size, sizeof(struct i2c_device_id),
+ 			 do_i2c_entry, mod);
+-
++	else if (sym_is(symname, "__mod_input_device_table"))
++		do_table(symval, sym->st_size, sizeof(struct input_device_id),
++			 do_input_entry, mod);
+ }
+ 
+ /* Now add out buffered information to the generated C source */
+
+-- 
+A bad analogy is like a leaky screwdriver -- Richard Braakman
 

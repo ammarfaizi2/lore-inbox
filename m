@@ -1,119 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbVLBO2g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbVLBOmK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750756AbVLBO2g (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 09:28:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbVLBO2g
+	id S1750750AbVLBOmK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 09:42:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750759AbVLBOmK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 09:28:36 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:17419 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S1750756AbVLBO2f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 09:28:35 -0500
-Subject: Re: PowerBook5,8 - TrackPad update
-From: Stelian Pop <stelian@popies.net>
-To: Michael Hanselmann <linux-kernel@hansmi.ch>
-Cc: Parag Warudkar <kernel-stuff@comcast.net>, debian-powerpc@lists.debian.org,
-       linux-kernel <linux-kernel@vger.kernel.org>, linuxppc-dev@ozlabs.org,
-       johannes@sipsolutions.net
-In-Reply-To: <20051130234653.GB15102@hansmi.ch>
-References: <111520052143.16540.437A5680000BE8A60000409C220076369200009A9B9CD3040A029D0A05@comcast.net>
-	 <70210ED5-37CA-40BC-8293-FF1DAA3E8BD5@comcast.net>
-	 <20051129000615.GA20843@hansmi.ch> <20051130223917.GA15102@hansmi.ch>
-	 <20051130234653.GB15102@hansmi.ch>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Fri, 02 Dec 2005 15:28:31 +0100
-Message-Id: <1133533712.23129.25.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 8bit
+	Fri, 2 Dec 2005 09:42:10 -0500
+Received: from mxsf15.cluster1.charter.net ([209.225.28.215]:59280 "EHLO
+	mxsf15.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S1750750AbVLBOmJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 09:42:09 -0500
+X-IronPort-AV: i="3.99,206,1131339600"; 
+   d="scan'208"; a="1864441299:sNHT17134104"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17296.23870.830876.450308@smtp.charter.net>
+Date: Fri, 2 Dec 2005 09:42:06 -0500
+From: "John Stoffel" <john@stoffel.org>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: tglx@linutronix.de, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       rmk+lkml@arm.linux.org.uk, ray-gmail@madrabbit.org,
+       zippel@linux-m68k.org, linux-kernel@vger.kernel.org, george@mvista.com,
+       johnstul@us.ibm.com
+Subject: Re: [patch 00/43] ktimer reworked
+In-Reply-To: <537CE371-F9A9-4255-A3B0-9DBDAD82591B@mac.com>
+References: <1133395019.32542.443.camel@tglx.tec.linutronix.de>
+	<Pine.LNX.4.61.0512010118200.1609@scrub.home>
+	<23CA09D3-4C11-4A4B-A5C6-3C38FA9C203D@mac.com>
+	<Pine.LNX.4.61.0512011352590.1609@scrub.home>
+	<2c0942db0512010822x1ae20622obf224ce9728e83f8@mail.gmail.com>
+	<20051201165144.GC31551@flint.arm.linux.org.uk>
+	<20051201122455.4546d1da.akpm@osdl.org>
+	<20051201211933.GA25142@elte.hu>
+	<20051201135139.3d1c10df.akpm@osdl.org>
+	<7D53372C-E138-4336-883F-A674BBBB09AA@mac.com>
+	<20051201221553.GA19135@infradead.org>
+	<1133481739.10478.54.camel@tglx.tec.linutronix.de>
+	<537CE371-F9A9-4255-A3B0-9DBDAD82591B@mac.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le jeudi 01 décembre 2005 à 00:46 +0100, Michael Hanselmann a écrit :
-> On Wed, Nov 30, 2005 at 11:39:17PM +0100, Michael Hanselmann wrote:
-> > The patch is attached for easier use.
-> 
-> There was a mistake in it due to which the mouse button wouldn't work.
-> Fixed in the now attached patch.
+>>>>> "Kyle" == Kyle Moffett <mrmacman_g4@mac.com> writes:
 
-Is this version really working well on the new Powerbooks ? From what
-I've seen in this thread there are still issues and it's still a work in
-progress, so it may be too early to integrate the changes in the kernel.
+Kyle> On Dec 01, 2005, at 19:02, Thomas Gleixner wrote:
+>> On Thu, 2005-12-01 at 22:15 +0000, Christoph Hellwig wrote:
+>>> Heh, in my dumb non-native speaker mind I'd expectit the other way  
+>>> around, as in a timeout is expected to time out :)  and a timer is  
+>>> expect to happen, as in say the timer the tells you your breakfast  
+>>> egg is ready.
+>> 
+>> Which is perfectly the point Kyle made.
 
-Also, some other comments on the code itself:
+Kyle> In any case, the real important note here is that the two are
+Kyle> pretty different concepts, ones that lend themselves to _very_
+Kyle> different optimizations, that are currently lumped together.
+Kyle> The very fact that some developers easily get them confused says
+Kyle> that we need a good clean implementation of both distinct APIs
+Kyle> with comparable documentation, including a bunch of good example
+Kyle> usages.
 
-+#if defined(CONFIG_RELAYFS_FS) || defined(CONFIG_RELAYFS_FS_MODULE)                                                    
-+#include <linux/relayfs_fs.h>
-+#endif
+I think the problem is in using the work 'time' in both.  Split that
+so that they are seperate, and alot of the confusion will go away.  Do
+I have a usefull suggestion?  No, I'm being fairly dumb this
+morning... but just seeing all your smart guys getting confused makes
+me think they rest of us would be lost too.
 
-While the relayfs code is ok for debugging, I'm wondering if it should be left in the final version at all.
+Hmm... how about:
 
-+       int                     is0215;         /* is the device a 0x0215? */
+	timer - gotta let me know exactly when it expires, I won't
+		touch it until it does.
 
-No need for that, just use udev->descriptor.idProduct == 0x0215 (in a macro perhaps)
+	reminder - I'll generally clean this up before it fires ,
+		   don't care if I get reminded a bit later.
 
-+       int                     overflowwarn;   /* overflow warning printed? */
-
-I would use a static variable in the case -OVERFLOW: block here.
-
-+               dev->xy_cur[i++] = dev->data[19];
-+               dev->xy_cur[i++] = dev->data[20];
-+               dev->xy_cur[i++] = dev->data[22];
-+               dev->xy_cur[i++] = dev->data[23];
-
-There is obviously a pattern here:
-
-	for (i = 0; i < 15; i++)
-		dev->xy_cur[i] = dev->data[ 19 + (i * 3) / 2 ]
-
-I'm wondering if the same formula doesn't apply for more X and Y sensors (like 16 X
-and 16 Y sensors on the old Powerbooks, 26 for the 17" models)
-
-+#if 0
-+               /* Some debug code */
-+               for (i = 0; i < dev->urb->actual_length; i++) {
-+                       printk("%2x,", (unsigned char)dev->data[i]);
-+               }
-+               printk("\n");
-+#endif
-
-Please dump that.
-
-+               /* Prints the read values */
-+               if (debug > 1) {
-+                       printk("appletouch: X=");
-+                       for (i = 0; i < 15; i++) {
-+                               printk("%2x,", (unsigned char)dev->xy_cur[i]);
-+                       }
-+                       printk("  Y=");
-+                       for (i = ATP_XSENSORS; i < (ATP_XSENSORS + (9 - 1)); i++) {
-+                               printk("%2x,", (unsigned char)dev->xy_cur[i]);
-+                       }
-+                       printk("\n");
-+               }
-
-What is the point in doing this since the dbg_dump is called a few lines
-later ? Best is to modify dbg_dump to know about the new number of
-sensors...
-
-+                       printk(KERN_INFO "appletouch: atp_probe found interrupt "
-+                              "in endpoint: %d\n", int_in_endpointAddr);
-
-Why is this useful to know ?
-
-+       if (dev->is0215) {
-+               dev->datalen = 64;
-+       } else {
-+               dev->datalen = 81;
-+       }
-
-Braces are not needed here.
-
-
-PS: please inline the patch instead of attaching it to the mail, it's
-much more easy to quote it that way.
-
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>
-
+John

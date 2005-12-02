@@ -1,94 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750959AbVLBSuo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750940AbVLBS4V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750959AbVLBSuo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 13:50:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750960AbVLBSuo
+	id S1750940AbVLBS4V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 13:56:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbVLBS4V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 13:50:44 -0500
-Received: from web36912.mail.mud.yahoo.com ([209.191.85.80]:32918 "HELO
-	web36912.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750953AbVLBSuo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 13:50:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=jQprITHpONgHm/JC0EUBCKZUABAyBwUDes7lHQtU+O0s+6jzqRBegPRmppGzEIuQFawXP3onXHbutbfgcLcVxSfRFufusGkXVHhzFIQNjD7iXSscHvGROlyLppMiuTPTpvAvX1kLnJ45Yrk2B4xS805yDaGvMuKBRrf2I4fHps0=  ;
-Message-ID: <20051202185043.91582.qmail@web36912.mail.mud.yahoo.com>
-Date: Fri, 2 Dec 2005 18:50:43 +0000 (GMT)
-From: Mark Underwood <basicmark@yahoo.com>
-Subject: Re: [PATCH 2.6-git] SPI core refresh
-To: Vitaly Wool <vwool@ru.mvista.com>, Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, david-b@pacbell.net, dpervushin@gmail.com,
-       akpm@osdl.org, basicmark@yahoo.com, komal_shah802003@yahoo.com,
-       stephen@streetfiresound.com, spi-devel-general@lists.sourceforge.net,
-       Joachim_Jaeger@digi.com
-In-Reply-To: <438FE47A.7080100@ru.mvista.com>
+	Fri, 2 Dec 2005 13:56:21 -0500
+Received: from gold.veritas.com ([143.127.12.110]:56202 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1750938AbVLBS4U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 13:56:20 -0500
+Date: Fri, 2 Dec 2005 18:55:58 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Kai Makisara <Kai.Makisara@kolumbus.fi>
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Ryan Richter <ryan@tau.solarneutrino.net>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: Fw: crash on x86_64 - mm related?
+In-Reply-To: <Pine.LNX.4.63.0512021932590.4506@kai.makisara.local>
+Message-ID: <Pine.LNX.4.61.0512021836100.4940@goblin.wat.veritas.com>
+References: <20051129092432.0f5742f0.akpm@osdl.org> 
+ <Pine.LNX.4.63.0512012040390.5777@kai.makisara.local> 
+ <Pine.LNX.4.64.0512011136000.3099@g5.osdl.org> <1133468882.5232.14.camel@mulgrave>
+ <Pine.LNX.4.63.0512012304240.5777@kai.makisara.local>
+ <Pine.LNX.4.61.0512021325020.1507@goblin.wat.veritas.com>
+ <Pine.LNX.4.63.0512021932590.4506@kai.makisara.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 02 Dec 2005 18:55:59.0475 (UTC) FILETIME=[08BB4430:01C5F772]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2 Dec 2005, Kai Makisara wrote:
+> On Fri, 2 Dec 2005, Hugh Dickins wrote:
+> I include at the end of this message the patch I sent to linux-scsi 
+> earlier. It should clarify what are the useful parts of the later patch.
 
---- Vitaly Wool <vwool@ru.mvista.com> wrote:
+Thanks, yes.  I'll leave out updating the verstr[],
+I think that should be sent by you alone.
 
-> Greg KH wrote:
-> 
-> >>- The character device interface was reworked
-> >>    
-> >>
-> >
-> >reworked how?
-> >  
-> >
-> It was originally designed for 2.6.10 and now it's 2.6-git-synchronized.
-> 
-> >  
-> >
-> >>- it's more adapted for use in real-time environments
-> >>    
-> >>
-> >
-> >I still do not see why you are stating this.  Why do you say this?
-> >  
-> >
-> Due to possible priority inversion problems in David's core.
+> I think the release_buffering() call at the end of st_read must say 1. All 
+> returns use the same path (except the one returning -ERESTARTSYS).
 
-Which you still haven't proven, in fact you now seem to be changing your mind and saying that
-there might be a problem if an adapter driver was implemented badly although I still don't see how
-this could happen (the priority inversion I mean not the badly implemented driver ;).
+Okay, if you insist.  Yes, all those returns pass that way, but if it
+actually did some reading into the memory, it called read_tape, which
+did the effective release_buffering immediately after st_do_scsi.
 
-> 
-> >I think you should work with David more...
-> >  
-> >
-> P'haps you're right. I suggest re-enumerating all the differences 
-> between the cores and working them out.
-> However, if David's not going to accept any facts or speculations that 
-> contradict his being sure his core is the best a man could ever do, 
-> we're screwed. :(
+But perhaps I'm misreading it, and even if not, someone will come
+along and "correct" it later, or change things around and make my
+not-dirty assumption wrong.
 
-When I worked with David he was very helpful. He pointed out my misconceptions and accepted my
-comments that is core was missing functionality which he then added.
+It's just that after seeing how sg.c is claiming to dirty even readonly
+memory, I'm excessively averse to saying we've dirtied memory we haven't.
+My hangup, I'll get over it!
 
-In fact at one time there were 3 SPI subsystems being prosposed, David's, Vitaly's and mine. David
-and I work together to take the best from both which is now the solution he is proposing.
+> st.c did set pages dirty after reading before 2.6.0-test4. It disappeared 
+> when code was rearranged and I don't have any notes about why.
 
-Mark
+Possibly because of issues with hugetlb compound pages: David Gibson
+raised that issue recently with respect to access_process_vm
+(page[1].mapping is reused and crashes set_page_dirty), I'm thinking
+we don't want to add PageCompound tests all over, and have mailed
+Andrew separately for guidance on that.
 
-> 
-> Vitaly
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
-
-	
-	
-		
-___________________________________________________________ 
-Yahoo! Messenger - NEW crystal clear PC to PC calling worldwide with voicemail http://uk.messenger.yahoo.com
+Hugh

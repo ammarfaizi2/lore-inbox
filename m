@@ -1,73 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750934AbVLBJBW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750933AbVLBJGG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750934AbVLBJBW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 04:01:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751762AbVLBJBV
+	id S1750933AbVLBJGG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 04:06:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751762AbVLBJGG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 04:01:21 -0500
-Received: from populous.netsplit.com ([62.49.129.34]:10627 "EHLO
-	mailgate.netsplit.com") by vger.kernel.org with ESMTP
-	id S1750934AbVLBJBV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 04:01:21 -0500
-Subject: Re: Two module-init-
-From: Scott James Remnant <scott@ubuntu.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>, linux-input@atrey.karlin.mff.cuni.cz,
-       vojtech@suse.cz
-In-Reply-To: <1133482376.4094.11.camel@localhost.localdomain>
-References: <1133359773.2779.13.camel@localhost.localdomain>
-	 <1133482376.4094.11.camel@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Mvs0HsEo+jeCopFFc8gv"
-Date: Fri, 02 Dec 2005 09:01:14 +0000
-Message-Id: <1133514074.20712.0.camel@localhost.localdomain>
+	Fri, 2 Dec 2005 04:06:06 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:25246 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750933AbVLBJGE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 04:06:04 -0500
+Date: Fri, 2 Dec 2005 01:05:48 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org, discuss@x86-64.org,
+       shai@scalex86.org
+Subject: Re: [patch 3/3] x86_64: Node local PDA -- allocate node local
+ memory for pda
+Message-Id: <20051202010548.4da3d1bb.akpm@osdl.org>
+In-Reply-To: <20051202082309.GC5312@localhost.localdomain>
+References: <20051202081028.GA5312@localhost.localdomain>
+	<20051202082309.GC5312@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
+>
+> --- linux-2.6.15-rc3.orig/arch/x86_64/kernel/head64.c	2005-11-30 17:01:18.000000000 -0800
+>  +++ linux-2.6.15-rc3/arch/x86_64/kernel/head64.c	2005-11-30 17:07:14.000000000 -0800
+>  @@ -80,6 +80,7 @@
+>   {
+>   	char *s;
+>   	int i;
+>  +	extern struct x8664_pda boot_cpu_pda[];
 
---=-Mvs0HsEo+jeCopFFc8gv
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, 2005-12-02 at 11:12 +1100, Rusty Russell wrote:
-
-> On Wed, 2005-11-30 at 14:09 +0000, Scott James Remnant wrote:
-> > Hi Rusty,
-> >=20
-> > Attached are two patches to module-init-tools from Ubuntu.
-> >=20
-> > The first (input_table_size) is a catch-up with 2.6.15, it's adding an
-> > extra field to the input_device_id struct; m-u-t needs updating to be
-> > able to read the modules correctly.
->=20
-> Unfortunately, it's not that simple.  Your patch will break previous
-> kernels, which have a smaller structure.  I've had the discussion years
-> ago with the input people on using module aliases, and it's not entirely
-> trivial.  I will prepare another patch, however.
->=20
-Are the modules.*map files intended to be deprecated entirely in favour
-of aliases?  The problem this patch fixed was that the parser couldn't
-read the tables, so produced invalid output for the modules (ie. an
-empty modules.inputmap).
-
-Scott
---=20
-Scott James Remnant
-scott@ubuntu.com
-
---=-Mvs0HsEo+jeCopFFc8gv
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDkA1aSnQiFMl4yK4RAh+oAJ4tE9BMCnm2HdusAAIy/GFAl7ZOIACfVcmT
-XjN6dLaYHzZPVVXZwC2JiR0=
-=MpJH
------END PGP SIGNATURE-----
-
---=-Mvs0HsEo+jeCopFFc8gv--
-
+And what happens if someone later changes the type of boot_cpu_pda?

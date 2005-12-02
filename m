@@ -1,63 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbVLBQcp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbVLBQlR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750810AbVLBQcp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 11:32:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbVLBQcp
+	id S1750819AbVLBQlR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 11:41:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbVLBQlR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 11:32:45 -0500
-Received: from nproxy.gmail.com ([64.233.182.194]:30192 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750810AbVLBQco convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 11:32:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=AvAPyi01jhxT8fk71833fSi0pyS+r6EukM81NS8yWab9lee++7P1KP8NREUO7Pnrxjo9Mw7JyNFD+cjd20zEz2Irl4FX0nlhPFti8TgOeu+z9kwKVUtDmUQnNbxqBJgWLTSpYL4y+7dR6f5o5aJPe4IXaKovf1JnqTO1+/j9KPk=
-Message-ID: <2cd57c900512020832n62a66d1q@mail.gmail.com>
-Date: Sat, 3 Dec 2005 00:32:40 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Subject: Re: Use enum to declare errno values
-Cc: Denis Vlasenko <vda@ilport.com.ua>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Paul Jackson <pj@sgi.com>, francis_moreau2000@yahoo.fr,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <4390701C.1030803@tmr.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051123132443.32793.qmail@web25813.mail.ukl.yahoo.com>
-	 <20051123233016.4a6522cf.pj@sgi.com>
-	 <Pine.LNX.4.61.0512011458280.21933@chaos.analogic.com>
-	 <200512020849.28475.vda@ilport.com.ua>
-	 <2cd57c900512020127m5c7ca8e1u@mail.gmail.com>
-	 <84144f020512020418x7ebf5e3bt54cde14ec6a7a954@mail.gmail.com>
-	 <2cd57c900512020456n2f31101k@mail.gmail.com>
-	 <4390701C.1030803@tmr.com>
+	Fri, 2 Dec 2005 11:41:17 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:37068 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1750818AbVLBQlQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 11:41:16 -0500
+Subject: [GIT PATCH] SCSI bug fixes for 2.6.15-rc4
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Content-Type: text/plain
+Date: Fri, 02 Dec 2005 10:40:54 -0600
+Message-Id: <1133541656.3497.34.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2005/12/3, Bill Davidsen <davidsen@tmr.com>:
-> Using enum doesn't *solve* problems, it does *allow* type checking, and
-> *prevent* namespace pollution. Use of typedef allows future changes, if
-> you use "struct XXX" you're stuck with it.
+Unless anything else nasty turns up, these should be the final bug fixes
+for 2.6.15.
 
-Yes, Greg KH had a lecture at a KS to encourage us to "stuck with it".
-And akpm once told me to always use struct foo * when I was trying to
-use task_t in argument list and struct task_struct *.for variable
-definitions.
+They're available here
 
-What do you mean by `future change'? You constantly change the struct
-name or its members? I don't see any real problem hier.
+master.kernel.org:/pub/scm/linux/kernel/git/jejb/scsi-rc-fixes-2.6.git
 
->
-> --
-> bill davidsen <davidsen@tmr.com>
->    CTO TMR Associates, Inc
->    Doing interesting things with small computers since 1979
->
+The short changelog is:
 
---
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+Andreas Herrmann:
+  o zfcp: fix return code of zfcp_scsi_slave_alloc
+  o zfcp: fix adapter initialization
+
+Eric Moore:
+  o mptfusion: Add maintainers
+  o mptfusion : dv performance fix
+
+Heiko Carstens:
+  o zfcp: fix spinlock initialization
+
+Hugh Dickins:
+  o sg: fix a bug in st_map_user_pages failure path
+  o sg and st unmap_user_pages allow PageReserved
+  o st: fix a bug in sgl_map_user_pages failure path
+
+James Bottomley:
+  o SPI DV: be more conservative about echo buffer usage
+
+Mark Haverkamp:
+  o aacraid: Check scsi_bios_ptabe return code
+
+Matthew Wilcox:
+  o sym2: Disable IU and QAS negotiation
+
+Maxim Shchetynin:
+  o zfcp: fix link down handling during firmware update
+
+Vasily Averin:
+  o aic7xxx: reset handler selects a wrong command
+
+
+And the diffstat:
+
+ MAINTAINERS                         |    9 ++
+ drivers/message/fusion/mptbase.c    |   64 ++++++++++++++++++++
+ drivers/message/fusion/mptbase.h    |    3 
+ drivers/message/fusion/mptscsih.c   |   10 +++
+ drivers/s390/scsi/zfcp_aux.c        |   14 ++++
+ drivers/s390/scsi/zfcp_dbf.c        |    4 -
+ drivers/s390/scsi/zfcp_erp.c        |   94 ++++++++++--------------------
+ drivers/s390/scsi/zfcp_fsf.c        |  110 ++++++++++++++++++++----------------
+ drivers/s390/scsi/zfcp_scsi.c       |    2 
+ drivers/scsi/aacraid/linit.c        |    2 
+ drivers/scsi/aic7xxx/aic79xx_osm.c  |    2 
+ drivers/scsi/aic7xxx/aic7xxx_osm.c  |    2 
+ drivers/scsi/scsi_transport_spi.c   |   28 ++++++---
+ drivers/scsi/sg.c                   |    6 -
+ drivers/scsi/st.c                   |    3 
+ drivers/scsi/sym53c8xx_2/sym_glue.c |    5 +
+ 16 files changed, 225 insertions(+), 133 deletions(-)
+
+James
+
+

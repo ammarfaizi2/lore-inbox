@@ -1,95 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751297AbVLCVke@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751300AbVLCVnZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751297AbVLCVke (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 16:40:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbVLCVke
+	id S1751300AbVLCVnZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 16:43:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751299AbVLCVnZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 16:40:34 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:50304 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751297AbVLCVkd (ORCPT
+	Sat, 3 Dec 2005 16:43:25 -0500
+Received: from mout2.freenet.de ([194.97.50.155]:48792 "EHLO mout2.freenet.de")
+	by vger.kernel.org with ESMTP id S1751295AbVLCVnY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 16:40:33 -0500
-Date: Sat, 3 Dec 2005 22:40:20 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, Andy Isaacson <adi@hexapodia.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][mm][Fix] swsusp: fix counting of highmem pages
-Message-ID: <20051203214020.GA5198@elf.ucw.cz>
-References: <200512032140.15192.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200512032140.15192.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Sat, 3 Dec 2005 16:43:24 -0500
+From: Michael Buesch <mbuesch@freenet.de>
+To: Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org
+Subject: [OT] Re: RFC: Starting a stable kernel series off the 2.6 kernel
+Date: Sat, 3 Dec 2005 22:42:54 +0100
+User-Agent: KMail/1.8.3
+References: <20051203135608.GJ31395@stusta.de> <20051203211329.GC25015@redhat.com> <20051203211810.GY18919@marowsky-bree.de>
+In-Reply-To: <20051203211810.GY18919@marowsky-bree.de>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2113240.TdvLAGSrpc";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200512032242.54316.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+--nextPart2113240.TdvLAGSrpc
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> The following patch fixes a problem with swsusp that causes suspend to
-> fail on systems with the highmem zone, if many highmem pages are in use.
-> 
-> It makes swsusp count the non-free highmem pages in a correct way
-> and, consequently, release a sufficient amount of memory before suspend.
-> 
-> Please apply (Pavel, please ack if you think the patch is ok).
+On Saturday 03 December 2005 22:18, you wrote:
+> > It still isn't to solve the problem of regressions in drivers, but
+> > that's a problem that's not easily solvable.
+>=20
+> True. Regressions will always occur when driver updates happen. There'll
+> always be the next bug. I don't think anyone introduces these on purpose
+> ;-)
 
-Please don't, it's way too complex in my eyes. Sorry, result of
-misscomunication between me and Rafael.
+=46rom the dmesg of the openwrt project:
 
-> +static inline unsigned int get_kmalloc_size(void)
-> +{
-> +#define CACHE(x) \
-> +	if (sizeof(struct highmem_page) <= x) \
-> +		return x;
-> +#include <linux/kmalloc_sizes.h>
-> +#undef CACHE
-> +	return sizeof(struct highmem_page);
-> +}
-> +
+[snip]
+802.1Q VLAN Support v1.8 Ben Greear <greearb@candelatech.com>
+All bugs added by David S. Miller <davem@redhat.com>
+VFS: Mounted root (squashfs filesystem) readonly.
+[snap]
 
-Can we get rid of this uglyness...
+Smash him. :D
 
-> @@ -437,8 +446,14 @@
->  
->  static int enough_free_mem(unsigned int nr_pages)
->  {
-> -	pr_debug("swsusp: available memory: %u pages\n", nr_free_pages());
-> -	return nr_free_pages() > (nr_pages + PAGES_FOR_IO +
-> +	struct zone *zone;
-> +	unsigned int n = 0;
-> +
-> +	for_each_zone (zone)
-> +		if (!is_highmem(zone))
-> +			n += zone->free_pages;
-> +	pr_debug("swsusp: available memory: %u pages\n", n);
-> +	return n > (nr_pages + PAGES_FOR_IO +
->  		(nr_pages + PBES_PER_PAGE - 1) / PBES_PER_PAGE);
->  }
->  
+=2D-=20
+Greetings Michael.
 
-And just use 2% approximation here, too?
+--nextPart2113240.TdvLAGSrpc
+Content-Type: application/pgp-signature
 
-> Index: linux-2.6.15-rc3-mm1/kernel/power/swsusp.c
-> ===================================================================
-> --- linux-2.6.15-rc3-mm1.orig/kernel/power/swsusp.c	2005-12-03 00:14:49.000000000 +0100
-> +++ linux-2.6.15-rc3-mm1/kernel/power/swsusp.c	2005-12-03 21:25:07.000000000 +0100
-> @@ -635,7 +635,8 @@
->  	printk("Shrinking memory...  ");
->  	do {
->  #ifdef FAST_FREE
-> -		tmp = count_data_pages() + count_highmem_pages();
-> +		tmp = 2 * count_highmem_pages();
-> +		tmp += tmp / 50 + count_data_pages();
->  		tmp += (tmp + PBES_PER_PAGE - 1) / PBES_PER_PAGE +
->  			PAGES_FOR_IO;
->  		for_each_zone (zone)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-This part is okay. Just make enough_free_mem use similar code. (If
-possible, share the code, it is really computing the same thing).
+iD8DBQBDkhFelb09HEdWDKgRAvJPAJ4myakNaA9R76KJmK1Hee1euowTpQCeM4Nw
+PJqdm4u/3oOEnbB+joanDzk=
+=0RcH
+-----END PGP SIGNATURE-----
 
-								Pavel
--- 
-Thanks, Sharp!
+--nextPart2113240.TdvLAGSrpc--

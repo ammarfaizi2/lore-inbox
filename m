@@ -1,79 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbVLCBaU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbVLCBfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751138AbVLCBaU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 20:30:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbVLCBaT
+	id S1750783AbVLCBfN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 20:35:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbVLCBfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 20:30:19 -0500
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:56020 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750783AbVLCBaS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 20:30:18 -0500
-Subject: [ANNOUNCE] clean-boot.pl version 0.1 - Simple utility to clean up
-	/boot and /lib/modules
-From: Steven Rostedt <rostedt@goodmis.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Fri, 02 Dec 2005 20:30:15 -0500
-Message-Id: <1133573415.32583.108.camel@localhost.localdomain>
+	Fri, 2 Dec 2005 20:35:12 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:6061 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S1750783AbVLCBfL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 20:35:11 -0500
+Date: Sat, 3 Dec 2005 02:34:55 +0100
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: 7eggert@gmx.de
+Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, horms@verge.net.au
+Subject: Re: security / kbd
+Message-ID: <20051203013455.GB24760@apps.cwi.nl>
+References: <5f6Fp-1ZB-11@gated-at.bofh.it> <E1EiLA5-0001VE-64@be1.lrz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1EiLA5-0001VE-64@be1.lrz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not sure if this has been done already or not (let me know if it
-has), but I've just noticed that after playing with several
-developmental kernels I had about 30 to 40 different versions of
-vmlinuz, initrd.img, config, and System.maps in my /boot directory, not
-to mention all the modules loaded in /lib/modules.
+On Sat, Dec 03, 2005 at 01:21:51AM +0100, Bodo Eggert wrote:
 
-So I wrote this perl script that let me pick and choose what I wanted to
-clean up.  Be careful, this must be run as root, and although the
-default is to do nothing, if you hit a "y" in the wrong place, you can
-lose that kernel.
+> > On the other hand, I am told that recent kernels restrict the use of
+> > loadkeys to root. If so, an unfortunate choice. People want to switch
+> > unicode support on/off, or go from/to a dvorak keymap.
+> 
+> It's global, and it can be done remotely. Therefore you can either have
+> remote logins or a secure console.
 
-The script is here:
+Let me repeat what I said and you snipped:
+If there is a security problem, then it should be solved in user space.
 
-http://www.kihontech.com/code/clean-boot.pl
+Some people actually use the console. They want to be able to reassign
+CapsLock, set their own function keys, set dvorak keymap etc.
+It is a bad idea to restrict that functionality to root.
 
-Here's the usage:
+There are a thousand things one can do to put the kernel keyboard/console
+in an interesting state. The solution is to have init/getty/login reset
+state to a useful initial state. Not to have the kernel forbid one
+to change the settings of the very keyboard one is typing on.
 
-# ./clean-boot.pl -h
+Andries
 
-usage: clean-boot.pl [-b boot_dir] [-m module_dir]
-  (version 0.1)
-   default boot_dir = /boot
-   default module_dir = /lib/modules
+> The correct fix would be binding the keymap to the current tty only,
+> resetting the console if it gets closed and not allowing init to reuse
+> it unless it's closed. If you do this, you'll want a default setting, too.
 
-It's run like the following:
+Yes.
+
+> YANI: Root should be able to set a coloured border indicating that it's
+> really the getty/login process asking for the user prompt/password.
+
+Didnt I show a "bleeding edge" patch some April 1st or so?
+At least I had a red border on some console a few years ago.
+The patch must still exist somewhere. I seem to recall that Paul Gortmaker
+submitted a somewhat more general version.
 
 ---
-#./clean-boot.pl
-List of versions found:
-  2.6.12-1-386              2.6.14                    2.6.14-2-386
-  2.6.14-2-k7-smp           2.6.14-kthrt2             2.6.14-rt13
-  2.6.14-rt13-logdev1       2.6.14-rt15               2.6.14-rt20
-  2.6.15-rc3
-Remove files for version 2.6.12-1-386 [y/N/l/q/?]:  ?
-  y - remove files from boot and modules
-  n [default] - skip this version
-  l - list the found versions again
-  q - quit
-  ? - display this message
-Remove files for version 2.6.12-1-386 [y/N/l/q/?]:  q
----
 
-If you hit "y" (or yes or ye, case is ignored), it will then remove any
-of the vmlinuz, initrd.img, config and System.map files for version
-2.6.12-1-386 in /boot and the directory /lib/modules/2.6.12-1-386.
-
-This is under just a public license, no warranty, so just be careful not
-to delete too much.
-
-Also remember to update lilo or grub, since this doesn't handle that.
-
-Comments?
-
--- Steve
-
+marc.theaimsgroup.com tells me that the change was due to horms and akpm.
+Let me cc them and see whether they have reasons why this had to be done
+in kernel space.

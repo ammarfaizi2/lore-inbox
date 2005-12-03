@@ -1,518 +1,491 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbVLCHMN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbVLCHLp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751164AbVLCHMN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 02:12:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbVLCHLq
+	id S1751174AbVLCHLp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 02:11:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbVLCHLc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 02:11:46 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:60351 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1751164AbVLCHLi (ORCPT
+	Sat, 3 Dec 2005 02:11:32 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:24255 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S1751164AbVLCHLG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 02:11:38 -0500
-Message-Id: <20051203071744.073879000@localhost.localdomain>
+	Sat, 3 Dec 2005 02:11:06 -0500
+Message-Id: <20051203071712.097406000@localhost.localdomain>
 References: <20051203071444.260068000@localhost.localdomain>
-Date: Sat, 03 Dec 2005 15:14:51 +0800
+Date: Sat, 03 Dec 2005 15:14:49 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 07/16] readahead: state based method
-Content-Disposition: inline; filename=readahead-method-stateful.patch
+Subject: [PATCH 05/16] readahead: call scheme
+Content-Disposition: inline; filename=readahead-call-scheme.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the fast code path.
+An new page flag PG_readahead is introduced as a look-ahead mark.
+The look-ahead mark corresponds to `ahead_start' of the current logic.
 
-Major steps:
-        - estimate a thrashing safe ra_size;
-        - assemble the next read-ahead request in file_ra_state;
-        - submit it.
+The read-ahead logic is called when
+        - read reaches a look-ahead mark;
+        - read on a non-present page.
+
+And ra_access() is called on every page reference to maintain the cache_hit
+counter.
+
+This scheme has the following benefits:
+        - makes all stateful/stateless methods happy;
+        - eliminates the cache hit problem naturally;
+        - lives in harmony with application managed read-aheads via
+          fadvise/madvise.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- include/linux/fs.h |   20 ++
- include/linux/mm.h |    6 
- mm/memory.c        |    1 
- mm/readahead.c     |  358 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- mm/swap.c          |    2 
- mm/vmscan.c        |    3 
- 6 files changed, 384 insertions(+), 6 deletions(-)
+ include/linux/mm.h         |   13 +++
+ include/linux/page-flags.h |    5 +
+ mm/filemap.c               |   73 ++++++++++++++++--
+ mm/page_alloc.c            |    2 
+ mm/readahead.c             |  176 +++++++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 258 insertions(+), 11 deletions(-)
 
---- linux.orig/include/linux/fs.h
-+++ linux/include/linux/fs.h
-@@ -601,16 +601,24 @@ struct fown_struct {
-  * Track a single file's readahead state
-  */
- struct file_ra_state {
-+	/* conventional read-ahead */
- 	unsigned long start;		/* Current window */
- 	unsigned long size;
--	unsigned long flags;		/* ra flags RA_FLAG_xxx*/
--	unsigned long cache_hit;	/* cache hit count*/
--	unsigned long prev_page;	/* Cache last read() position */
- 	unsigned long ahead_start;	/* Ahead window */
- 	unsigned long ahead_size;
--	unsigned long ra_pages;		/* Maximum readahead window */
--	unsigned long mmap_hit;		/* Cache hit stat for mmap accesses */
--	unsigned long mmap_miss;	/* Cache miss stat for mmap accesses */
+--- linux.orig/include/linux/page-flags.h
++++ linux/include/linux/page-flags.h
+@@ -77,6 +77,7 @@
+ #define PG_nosave_free		18	/* Free, should not be written */
+ #define PG_uncached		19	/* Page has been mapped as uncached */
+ #define PG_activate		20	/* delayed activate */
++#define PG_readahead		21	/* check readahead when reading this page */
+ 
+ /*
+  * Global page accounting.  One instance per CPU.  Only unsigned longs are
+@@ -321,6 +322,10 @@ extern void __mod_page_state(unsigned lo
+ #define TestClearPageActivate(page) test_and_clear_bit(PG_activate, &(page)->flags)
+ #define TestSetPageActivate(page) test_and_set_bit(PG_activate, &(page)->flags)
+ 
++#define PageReadahead(page)	test_bit(PG_readahead, &(page)->flags)
++#define SetPageReadahead(page)	set_bit(PG_readahead, &(page)->flags)
++#define TestClearPageReadahead(page) test_and_clear_bit(PG_readahead, &(page)->flags)
 +
-+	/* adaptive read-ahead */
-+	unsigned long age;
-+	pgoff_t la_index;
-+	pgoff_t ra_index;
-+	pgoff_t lookahead_index;
-+	pgoff_t readahead_index;
-+
-+	/* shared */
-+	uint64_t      cache_hit;        /* cache hit count*/
-+	unsigned long flags;            /* ra flags RA_FLAG_xxx*/
-+	unsigned long prev_page;        /* Cache last read() position */
-+	unsigned long ra_pages;         /* Maximum readahead window */
- };
- #define RA_FLAG_MISS 0x01	/* a cache miss occured against this file */
- #define RA_FLAG_INCACHE 0x02	/* file is already in cache */
+ struct page;	/* forward declaration */
+ 
+ int test_clear_page_dirty(struct page *page);
 --- linux.orig/include/linux/mm.h
 +++ linux/include/linux/mm.h
-@@ -1029,6 +1029,12 @@ static inline int prefer_adaptive_readah
- 	return readahead_ratio > 9;
- }
+@@ -1008,6 +1008,13 @@ unsigned long page_cache_readahead(struc
+ void handle_ra_miss(struct address_space *mapping, 
+ 		    struct file_ra_state *ra, pgoff_t offset);
+ unsigned long max_sane_readahead(unsigned long nr);
++unsigned long
++page_cache_readahead_adaptive(struct address_space *mapping,
++			struct file_ra_state *ra, struct file *filp,
++			struct page *prev_page, struct page *page,
++			pgoff_t first_index,
++			pgoff_t index, pgoff_t last_index);
++void fastcall ra_access(struct file_ra_state *ra, struct page *page);
  
-+DECLARE_PER_CPU(unsigned long, readahead_aging);
-+static inline void inc_readahead_aging(void)
+ #ifdef CONFIG_DEBUG_FS
+ extern u32 readahead_debug_level;
+@@ -1016,6 +1023,12 @@ extern u32 readahead_debug_level;
+ #define READAHEAD_DEBUG_LEVEL(n)	(0)
+ #endif
+ 
++extern int readahead_ratio;
++static inline int prefer_adaptive_readahead(void)
 +{
-+	__get_cpu_var(readahead_aging)++;
++	return readahead_ratio > 9;
 +}
 +
  /* Do stack extension */
  extern int expand_stack(struct vm_area_struct *vma, unsigned long address);
  #ifdef CONFIG_IA64
---- linux.orig/mm/memory.c
-+++ linux/mm/memory.c
-@@ -1986,6 +1986,7 @@ static int do_anonymous_page(struct mm_s
- 		page_table = pte_offset_map_lock(mm, pmd, address, &ptl);
- 		if (!pte_none(*page_table))
- 			goto release;
-+		inc_readahead_aging();
- 		inc_mm_counter(mm, anon_rss);
- 		lru_cache_add_active(page);
- 		SetPageReferenced(page);
---- linux.orig/mm/vmscan.c
-+++ linux/mm/vmscan.c
-@@ -460,6 +460,9 @@ static int shrink_list(struct list_head 
- 			goto activate_locked;
+--- linux.orig/mm/page_alloc.c
++++ linux/mm/page_alloc.c
+@@ -543,7 +543,7 @@ static int prep_new_page(struct page *pa
+ 
+ 	page->flags &= ~(1 << PG_uptodate | 1 << PG_error |
+ 			1 << PG_referenced | 1 << PG_arch_1 |
+-			1 << PG_activate |
++			1 << PG_activate | 1 << PG_readahead |
+ 			1 << PG_checked | 1 << PG_mappedtodisk);
+ 	set_page_private(page, 0);
+ 	set_page_refs(page, order);
+--- linux.orig/mm/filemap.c
++++ linux/mm/filemap.c
+@@ -766,10 +766,12 @@ void do_generic_mapping_read(struct addr
+ 	unsigned long prev_index;
+ 	loff_t isize;
+ 	struct page *cached_page;
++	struct page *prev_page;
+ 	int error;
+ 	struct file_ra_state ra = *_ra;
+ 
+ 	cached_page = NULL;
++	prev_page = NULL;
+ 	index = *ppos >> PAGE_CACHE_SHIFT;
+ 	next_index = index;
+ 	prev_index = ra.prev_page;
+@@ -802,16 +804,42 @@ void do_generic_mapping_read(struct addr
+ 		nr = nr - offset;
+ 
+ 		cond_resched();
+-		if (index == next_index)
++
++		if (!prefer_adaptive_readahead() && index == next_index)
+ 			next_index = page_cache_readahead(mapping, &ra, filp,
+ 					index, last_index - index);
+ 
+ find_page:
+ 		page = find_get_page(mapping, index);
++		if (prefer_adaptive_readahead()) {
++			if (unlikely(page == NULL)) {
++				page_cache_readahead_adaptive(mapping, &ra,
++						filp, prev_page, NULL,
++						*ppos >> PAGE_CACHE_SHIFT,
++						index, last_index);
++				page = find_get_page(mapping, index);
++			} else if (PageReadahead(page)) {
++				page_cache_readahead_adaptive(mapping, &ra,
++						filp, prev_page, page,
++						*ppos >> PAGE_CACHE_SHIFT,
++						index, last_index);
++			}
++		}
+ 		if (unlikely(page == NULL)) {
+-			handle_ra_miss(mapping, &ra, index);
++			if (!prefer_adaptive_readahead())
++				handle_ra_miss(mapping, &ra, index);
+ 			goto no_cached_page;
+ 		}
++		if (prev_page)
++			page_cache_release(prev_page);
++		prev_page = page;
++
++		ra_access(&ra, page);
++		if (READAHEAD_DEBUG_LEVEL(7))
++			printk(KERN_DEBUG "read-file(ino=%lu, idx=%lu, io=%s)\n",
++				inode->i_ino, index,
++				PageUptodate(page) ? "hit" : "miss");
++
+ 		if (!PageUptodate(page))
+ 			goto page_not_up_to_date;
+ page_ok:
+@@ -846,7 +874,6 @@ page_ok:
+ 		index += offset >> PAGE_CACHE_SHIFT;
+ 		offset &= ~PAGE_CACHE_MASK;
+ 
+-		page_cache_release(page);
+ 		if (ret == nr && desc->count)
+ 			continue;
+ 		goto out;
+@@ -858,7 +885,6 @@ page_not_up_to_date:
+ 		/* Did it get unhashed before we got the lock? */
+ 		if (!page->mapping) {
+ 			unlock_page(page);
+-			page_cache_release(page);
+ 			continue;
  		}
  
-+		if (!PageReferenced(page))
-+			inc_readahead_aging();
-+
- 		referenced = page_referenced(page, 1);
- 		/* In active use or really unfreeable?  Activate it. */
- 		if (referenced && page_mapping_inuse(page))
---- linux.orig/mm/swap.c
-+++ linux/mm/swap.c
-@@ -124,6 +124,8 @@ void fastcall mark_page_accessed(struct 
- 		ClearPageReferenced(page);
- 	} else if (!PageReferenced(page)) {
- 		SetPageReferenced(page);
-+		if (PageLRU(page) && !PageActivate(page))
-+			inc_readahead_aging();
- 	}
- }
+@@ -888,7 +914,6 @@ readpage:
+ 					 * invalidate_inode_pages got it
+ 					 */
+ 					unlock_page(page);
+-					page_cache_release(page);
+ 					goto find_page;
+ 				}
+ 				unlock_page(page);
+@@ -909,7 +934,6 @@ readpage:
+ 		isize = i_size_read(inode);
+ 		end_index = (isize - 1) >> PAGE_CACHE_SHIFT;
+ 		if (unlikely(!isize || index > end_index)) {
+-			page_cache_release(page);
+ 			goto out;
+ 		}
  
+@@ -918,7 +942,6 @@ readpage:
+ 		if (index == end_index) {
+ 			nr = ((isize - 1) & ~PAGE_CACHE_MASK) + 1;
+ 			if (nr <= offset) {
+-				page_cache_release(page);
+ 				goto out;
+ 			}
+ 		}
+@@ -928,7 +951,6 @@ readpage:
+ readpage_error:
+ 		/* UHHUH! A synchronous read error occurred. Report it */
+ 		desc->error = error;
+-		page_cache_release(page);
+ 		goto out;
+ 
+ no_cached_page:
+@@ -953,15 +975,22 @@ no_cached_page:
+ 		}
+ 		page = cached_page;
+ 		cached_page = NULL;
++		if (prev_page)
++			page_cache_release(prev_page);
++		prev_page = page;
+ 		goto readpage;
+ 	}
+ 
+ out:
+ 	*_ra = ra;
++	if (prefer_adaptive_readahead())
++		_ra->prev_page = prev_index;
+ 
+ 	*ppos = ((loff_t) index << PAGE_CACHE_SHIFT) + offset;
+ 	if (cached_page)
+ 		page_cache_release(cached_page);
++	if (prev_page)
++		page_cache_release(prev_page);
+ 	if (filp)
+ 		file_accessed(filp);
+ }
+@@ -1257,19 +1286,33 @@ retry_all:
+ 	 *
+ 	 * For sequential accesses, we use the generic readahead logic.
+ 	 */
+-	if (VM_SequentialReadHint(area))
++	if (!prefer_adaptive_readahead() && VM_SequentialReadHint(area))
+ 		page_cache_readahead(mapping, ra, file, pgoff, 1);
+ 
++
+ 	/*
+ 	 * Do we have something in the page cache already?
+ 	 */
+ retry_find:
+ 	page = find_get_page(mapping, pgoff);
++	if (prefer_adaptive_readahead() && VM_SequentialReadHint(area)) {
++		if (!page) {
++			page_cache_readahead_adaptive(mapping, ra,
++						file, NULL, NULL,
++						pgoff, pgoff, pgoff + 1);
++			page = find_get_page(mapping, pgoff);
++		} else if (PageReadahead(page)) {
++			page_cache_readahead_adaptive(mapping, ra,
++						file, NULL, page,
++						pgoff, pgoff, pgoff + 1);
++		}
++	}
+ 	if (!page) {
+ 		unsigned long ra_pages;
+ 
+ 		if (VM_SequentialReadHint(area)) {
+-			handle_ra_miss(mapping, ra, pgoff);
++			if (!prefer_adaptive_readahead())
++				handle_ra_miss(mapping, ra, pgoff);
+ 			goto no_cached_page;
+ 		}
+ 		ra->mmap_miss++;
+@@ -1306,6 +1349,14 @@ retry_find:
+ 	if (!did_readaround)
+ 		ra->mmap_hit++;
+ 
++	ra_access(ra, page);
++	if (READAHEAD_DEBUG_LEVEL(6))
++		printk(KERN_DEBUG "read-mmap(ino=%lu, idx=%lu, hint=%s, io=%s)\n",
++			inode->i_ino, pgoff,
++			VM_RandomReadHint(area) ? "random" :
++			(VM_SequentialReadHint(area) ? "sequential" : "none"),
++			PageUptodate(page) ? "hit" : "miss");
++
+ 	/*
+ 	 * Ok, found a page in the page cache, now we need to check
+ 	 * that it's up-to-date.
+@@ -1320,6 +1371,8 @@ success:
+ 	mark_page_accessed(page);
+ 	if (type)
+ 		*type = majmin;
++	if (prefer_adaptive_readahead())
++		ra->prev_page = page->index;
+ 	return page;
+ 
+ outside_data_content:
 --- linux.orig/mm/readahead.c
 +++ linux/mm/readahead.c
-@@ -38,6 +38,12 @@ EXPORT_SYMBOL(readahead_hit_rate);
- int readahead_live_chunk = 0;
- EXPORT_SYMBOL(readahead_live_chunk);
+@@ -20,6 +20,45 @@
+ #define MAX_RA_PAGES	KB(VM_MAX_READAHEAD)
+ #define MIN_RA_PAGES	KB(VM_MIN_READAHEAD)
  
-+/* Analog to zone->aging_total.
-+ * But mainly increased on fresh page references, so is much more smoother.
-+ */
-+DEFINE_PER_CPU(unsigned long, readahead_aging);
-+EXPORT_PER_CPU_SYMBOL(readahead_aging);
++/* Detailed classification of read-ahead behaviors. */
++#define RA_CLASS_SHIFT 4
++#define RA_CLASS_MASK  ((1 << RA_CLASS_SHIFT) - 1)
++enum ra_class {
++	RA_CLASS_ALL,
++	RA_CLASS_NEWFILE,
++	RA_CLASS_STATE,
++	RA_CLASS_CONTEXT,
++	RA_CLASS_CONTEXT_ACCELERATED,
++	RA_CLASS_AROUND,
++	RA_CLASS_BACKWARD,
++	RA_CLASS_RANDOM_THRASHING,
++	RA_CLASS_RANDOM_SEEK,
++	RA_CLASS_END,
++};
 +
- /* Detailed classification of read-ahead behaviors. */
- #define RA_CLASS_SHIFT 4
- #define RA_CLASS_MASK  ((1 << RA_CLASS_SHIFT) - 1)
-@@ -104,6 +110,7 @@ enum ra_event {
- #include <linux/init.h>
++/* Read-ahead events to be accounted. */
++enum ra_event {
++	RA_EVENT_CACHE_MISS,		/* read cache misses */
++	RA_EVENT_READRANDOM,		/* random reads */
++	RA_EVENT_IO_CONGESTION,		/* io congestion */
++	RA_EVENT_IO_CACHE_HIT,		/* canceled io due to cache hit */
++	RA_EVENT_IO_BLOCK,		/* read on locked page */
++
++	RA_EVENT_READAHEAD,		/* read-ahead issued */
++	RA_EVENT_READAHEAD_HIT,		/* read-ahead page hit */
++	RA_EVENT_LOOKAHEAD,		/* look-ahead issued */
++	RA_EVENT_LOOKAHEAD_HIT,		/* look-ahead mark hit */
++	RA_EVENT_LOOKAHEAD_NOACTION,	/* look-ahead mark ignored */
++	RA_EVENT_READAHEAD_MMAP,	/* read-ahead for memory mapped file */
++	RA_EVENT_READAHEAD_EOF,		/* read-ahead reaches EOF */
++	RA_EVENT_READAHEAD_SHRINK,	/* ra_size decreased, reflects var. */
++	RA_EVENT_READAHEAD_THRASHING,	/* read-ahead thrashing happened */
++	RA_EVENT_READAHEAD_MUTILATE,	/* read-ahead request mutilated */
++	RA_EVENT_READAHEAD_RESCUE,	/* read-ahead rescued */
++
++	RA_EVENT_END
++};
++
+ #define next_page(pg) (list_entry((pg)->lru.prev, struct page, lru))
+ #define prev_page(pg) (list_entry((pg)->lru.next, struct page, lru))
  
- u32 readahead_debug_level = 0;
-+u32 debug_disable_stateful_method = 0;
+@@ -755,3 +794,140 @@ out:
  
- static int __init readahead_init(void)
- {
-@@ -112,13 +119,26 @@ static int __init readahead_init(void)
- 	root = debugfs_create_dir("readahead", NULL);
- 
- 	debugfs_create_u32("debug_level", 0644, root, &readahead_debug_level);
-+	debugfs_create_bool("disable_stateful_method", 0644, root,
-+						&debug_disable_stateful_method);
- 
- 	return 0;
+ 	return nr_pages ? index : 0;
  }
- 
- module_init(readahead_init)
 +
-+static inline int disable_stateful_method(void)
-+{
-+	return debug_disable_stateful_method;
-+}
-+
- #else /* !DEBUG_READAHEAD */
- 
-+static inline int disable_stateful_method(void)
-+{
-+	return 0;
-+}
-+
- #endif /* DEBUG_READAHEAD */
- 
- 
-@@ -814,6 +834,344 @@ out:
- }
- 
- /*
-+ * State based calculation of read-ahead request.
++/*
++ * This is the entry point of the adaptive read-ahead logic.
 + *
-+ * This figure shows the meaning of file_ra_state members:
++ * It is only called on two conditions:
++ * 1. page == NULL
++ *    A cache miss happened, it can be either a random read or a sequential one.
++ * 2. page != NULL
++ *    There is a look-ahead mark(PG_readahead) from a previous sequential read.
++ *    It's time to do some checking and submit the next read-ahead IO.
 + *
-+ *             chunk A                            chunk B
-+ *  +---------------------------+-------------------------------------------+
-+ *  |             #             |                   #                       |
-+ *  +---------------------------+-------------------------------------------+
-+ *                ^             ^                   ^                       ^
-+ *              la_index      ra_index     lookahead_index         readahead_index
++ * That has the merits of:
++ * - makes all stateful/stateless methods happy;
++ * - eliminates the cache hit problem naturally;
++ * - lives in harmony with application managed read-aheads via fadvise/madvise.
 + */
-+
-+/*
-+ * The global effective length of the inactive_list(s).
-+ */
-+static unsigned long node_free_and_cold_pages(void)
++unsigned long
++page_cache_readahead_adaptive(struct address_space *mapping,
++			struct file_ra_state *ra, struct file *filp,
++			struct page *prev_page, struct page *page,
++			pgoff_t begin_index,
++			pgoff_t index, pgoff_t end_index)
 +{
-+	unsigned int i;
-+	unsigned long sum = 0;
-+	struct zone *zones = NODE_DATA(numa_node_id())->node_zones;
++	unsigned long size;
++	unsigned long ra_min;
++	unsigned long ra_max;
++	int ret;
 +
-+	for (i = 0; i < MAX_NR_ZONES; i++)
-+		sum += zones[i].nr_inactive +
-+			zones[i].free_pages - zones[i].pages_low;
-+
-+	return sum;
-+}
-+
-+/*
-+ * A more smooth and timely analog to zone->aging_total.
-+ */
-+static unsigned long node_readahead_aging(void)
-+{
-+	unsigned long cpu;
-+	unsigned long sum = 0;
-+	cpumask_t mask = node_to_cpumask(numa_node_id());
-+
-+	for_each_cpu_mask(cpu, mask)
-+		sum += per_cpu(readahead_aging, cpu);
-+
-+	return sum;
-+}
-+
-+/*
-+ * Set class of read-ahead
-+ */
-+static inline void set_ra_class(struct file_ra_state *ra,
-+				enum ra_class ra_class)
-+{
-+	unsigned long FLAGS_MASK;
-+	unsigned long flags;
-+	unsigned long old_ra_class;
-+
-+	FLAGS_MASK = ~(RA_CLASS_MASK | (RA_CLASS_MASK << RA_CLASS_SHIFT));
-+	flags = ra->flags & FLAGS_MASK;
-+
-+	old_ra_class = (ra->flags & RA_CLASS_MASK) << RA_CLASS_SHIFT;
-+
-+	ra->flags = flags | old_ra_class | ra_class;
-+}
-+
-+/*
-+ * The 64bit cache_hit stores three accumulated value and one counter value.
-+ * MSB                                                                   LSB
-+ * 3333333333333333 : 2222222222222222 : 1111111111111111 : 0000000000000000
-+ */
-+static inline int ra_cache_hit(struct file_ra_state *ra, int nr)
-+{
-+	return (ra->cache_hit >> (nr * 16)) & 0xFFFF;
-+}
-+
-+/*
-+ * Conceptual code:
-+ * ra_cache_hit(ra, 1) += ra_cache_hit(ra, 0);
-+ * ra_cache_hit(ra, 0) = 0;
-+ */
-+static inline void ra_addup_cache_hit(struct file_ra_state *ra)
-+{
-+	int n;
-+
-+	n = ra_cache_hit(ra, 0);
-+	ra->cache_hit -= n;
-+	n <<= 16;
-+	ra->cache_hit += n;
-+}
-+
-+/*
-+ * The read-ahead is deemed success if cache-hit-rate >= 1/readahead_hit_rate.
-+ */
-+static inline int ra_cache_hit_ok(struct file_ra_state *ra)
-+{
-+	return ra_cache_hit(ra, 0) * readahead_hit_rate >=
-+					(ra->lookahead_index - ra->la_index);
-+}
-+
-+/*
-+ * Check if @index falls in the @ra request.
-+ */
-+static inline int ra_has_index(struct file_ra_state *ra, pgoff_t index)
-+{
-+	if (index < ra->la_index || index >= ra->readahead_index)
-+		return 0;
-+
-+	if (index >= ra->ra_index)
-+		return 1;
-+	else
-+		return -1;
-+}
-+
-+/*
-+ * Prepare file_ra_state for a new read-ahead sequence.
-+ */
-+static inline void ra_state_init(struct file_ra_state *ra,
-+				pgoff_t la_index, pgoff_t ra_index)
-+{
-+	ra_addup_cache_hit(ra);
-+	ra->cache_hit <<= 16;
-+	ra->lookahead_index = la_index;
-+	ra->readahead_index = ra_index;
-+}
-+
-+/*
-+ * Take down a new read-ahead request in file_ra_state.
-+ */
-+static inline void ra_state_update(struct file_ra_state *ra,
-+				unsigned long ra_size, unsigned long la_size)
-+{
-+#ifdef DEBUG_READAHEAD
-+	unsigned long old_ra = ra->readahead_index - ra->ra_index;
-+	if (ra_size < old_ra && ra_cache_hit(ra, 0))
-+		ra_account(ra, RA_EVENT_READAHEAD_SHRINK, old_ra - ra_size);
-+#endif
-+	ra_addup_cache_hit(ra);
-+	ra->ra_index = ra->readahead_index;
-+	ra->la_index = ra->lookahead_index;
-+	ra->readahead_index += ra_size;
-+	ra->lookahead_index = ra->readahead_index - la_size;
-+	ra->age = node_readahead_aging();
-+}
-+
-+/*
-+ * Adjust the read-ahead request in file_ra_state.
-+ */
-+static inline void ra_state_adjust(struct file_ra_state *ra,
-+				unsigned long ra_size, unsigned long la_size)
-+{
-+	ra->readahead_index = ra->ra_index + ra_size;
-+	ra->lookahead_index = ra->readahead_index - la_size;
-+}
-+
-+/*
-+ * Submit IO for the read-ahead request in file_ra_state.
-+ */
-+static int ra_dispatch(struct file_ra_state *ra,
-+			struct address_space *mapping, struct file *filp)
-+{
-+	pgoff_t eof_index;
-+	unsigned long ra_size;
-+	unsigned long la_size;
-+	int actual;
-+	enum ra_class ra_class;
-+
-+	ra_class = (ra->flags & RA_CLASS_MASK);
-+	BUG_ON(ra_class == 0 || ra_class > RA_CLASS_END);
-+
-+	eof_index = ((i_size_read(mapping->host) - 1) >> PAGE_CACHE_SHIFT) + 1;
-+	ra_size = ra->readahead_index - ra->ra_index;
-+	la_size = ra->readahead_index - ra->lookahead_index;
-+
-+	/* Snap to EOF. */
-+	if (unlikely(ra->ra_index >= eof_index))
-+		return 0;
-+	if (ra->readahead_index + ra_size / 2 > eof_index) {
-+		if (ra_class == RA_CLASS_CONTEXT_ACCELERATED &&
-+				eof_index > ra->lookahead_index + 1)
-+			la_size = eof_index - ra->lookahead_index;
-+		else
-+			la_size = 0;
-+		ra_size = eof_index - ra->ra_index;
-+		ra_state_adjust(ra, ra_size, la_size);
++	if (page) {
++		if(!TestClearPageReadahead(page))
++			return 0;
++		if (bdi_read_congested(mapping->backing_dev_info))
++			return 0;
 +	}
 +
-+	actual = __do_page_cache_readahead(mapping, filp,
-+					ra->ra_index, ra_size, la_size);
++	if (page)
++		ra_account(ra, RA_EVENT_LOOKAHEAD_HIT,
++				ra->readahead_index - ra->lookahead_index);
++	else if (index)
++		ra_account(ra, RA_EVENT_CACHE_MISS, end_index - begin_index);
 +
-+#ifdef READAHEAD_STREAMING
-+	if (actual < ra_size) {
-+		struct page *page = find_page(mapping, ra->ra_index + actual);
-+		if (page)
-+			rescue_pages(page, ra_size);
++	size = end_index - index;
++	get_readahead_bounds(ra, &ra_min, &ra_max);
++
++	/* readahead disabled? */
++	if (unlikely(!ra_min || !readahead_ratio)) {
++		size = max_sane_readahead(size);
++		goto readit;
 +	}
-+#endif
 +
-+	if (ra->flags & RA_FLAG_MMAP)
-+		ra_account(ra, RA_EVENT_READAHEAD_MMAP, actual);
-+	if (ra->readahead_index == eof_index)
-+		ra_account(ra, RA_EVENT_READAHEAD_EOF, actual);
-+	if (la_size)
-+		ra_account(ra, RA_EVENT_LOOKAHEAD, la_size);
-+	ra_account(ra, RA_EVENT_READAHEAD, actual);
++	/*
++	 * Start of file.
++	 */
++	if (index == 0)
++		return newfile_readahead(mapping, filp, ra, end_index, ra_min);
 +
-+	dprintk("readahead-%s(ino=%lu, index=%lu, ra=%lu+%lu-%lu) = %d\n",
-+			ra_class_name[ra_class],
-+			mapping->host->i_ino, ra->la_index,
-+			ra->ra_index, ra_size, la_size, actual);
++	/*
++	 * State based sequential read-ahead.
++	 */
++	if (!disable_stateful_method() &&
++		index == ra->lookahead_index &&
++		(page || index == ra->readahead_index) &&
++		(ra_cache_hit_ok(ra) ||
++		 end_index - begin_index >= ra_max))
++		return state_based_readahead(mapping, filp, ra, page,
++								size, ra_max);
 +
-+	return actual;
-+}
++	/*
++	 * Backward read-ahead.
++	 */
++	if (try_read_backward(ra, begin_index, end_index, size, ra_min, ra_max))
++		return ra_dispatch(ra, mapping, filp);
 +
-+/*
-+ * Determine the request parameters from primitive values.
-+ *
-+ * It applies the following rules:
-+ *   - Substract ra_size by the old look-ahead to get real safe read-ahead;
-+ *   - Set new la_size according to the (still large) ra_size;
-+ *   - Apply upper limits;
-+ *   - Make sure stream_shift is not too small.
-+ *     (So that the next global_shift will not be too small.)
-+ *
-+ * Input:
-+ * ra_size stores the estimated thrashing-threshold.
-+ * la_size stores the look-ahead size of previous request.
-+ */
-+static inline int adjust_rala(unsigned long ra_max,
-+				unsigned long *ra_size, unsigned long *la_size)
-+{
-+	unsigned long stream_shift = *la_size;
-+
-+	if (*ra_size > *la_size)
-+		*ra_size -= *la_size;
-+	else
++	/*
++	 * Context based sequential read-ahead.
++	 */
++	ret = try_context_based_readahead(mapping, ra, prev_page, page,
++						index, size, ra_min, ra_max);
++	if (ret > 0)
++		return ra_dispatch(ra, mapping, filp);
++	if (ret < 0)
 +		return 0;
 +
-+	*la_size = *ra_size / LOOKAHEAD_RATIO;
-+
-+	if (*ra_size > ra_max)
-+		*ra_size = ra_max;
-+	if (*la_size > *ra_size)
-+		*la_size = *ra_size;
-+
-+	stream_shift += (*ra_size - *la_size);
-+	if (stream_shift < *ra_size / 4)
-+		*la_size -= (*ra_size / 4 - stream_shift);
-+
-+	return 1;
-+}
-+
-+/*
-+ * The function estimates two values:
-+ * 1. thrashing-threshold for the current stream
-+ *    It is returned to make the next read-ahead request.
-+ * 2. the remained space for the current chunk
-+ *    It will be checked to ensure that the current chunk is safe.
-+ *
-+ * The computation will be pretty accurate under heavy load, and will vibrate
-+ * more with light load(small global_shift), so the grow speed of ra_size
-+ * must be limited, and a moderate large stream_shift must be insured.
-+ *
-+ * This figure illustrates the formula used in the function:
-+ * While the stream reads stream_shift pages inside the chunks,
-+ * the chunks are shifted global_shift pages inside inactive_list.
-+ *
-+ *      chunk A                    chunk B
-+ *                          |<=============== global_shift ================|
-+ *  +-------------+         +-------------------+                          |
-+ *  |       #     |         |           #       |            inactive_list |
-+ *  +-------------+         +-------------------+                     head |
-+ *          |---->|         |---------->|
-+ *             |                  |
-+ *             +-- stream_shift --+
-+ */
-+static inline unsigned long compute_thrashing_threshold(
-+						struct file_ra_state *ra,
-+						unsigned long *remain)
-+{
-+	unsigned long global_size;
-+	unsigned long global_shift;
-+	unsigned long stream_shift;
-+	unsigned long ra_size;
-+
-+	global_size = node_free_and_cold_pages();
-+	global_shift = node_readahead_aging() - ra->age;
-+	global_shift |= 1UL;
-+	stream_shift = ra_cache_hit(ra, 0);
-+
-+	ra_size = stream_shift *
-+			global_size * readahead_ratio / (100 * global_shift);
-+
-+	if (global_size > global_shift)
-+		*remain = stream_shift *
-+				(global_size - global_shift) / global_shift;
-+	else
-+		*remain = 0;
-+
-+	ddprintk("compute_thrashing_threshold: "
-+			"ra=%lu=%lu*%lu/%lu, remain %lu for %lu\n",
-+			ra_size, stream_shift, global_size, global_shift,
-+			*remain, ra->readahead_index - ra->lookahead_index);
-+
-+	return ra_size;
-+}
-+
-+/*
-+ * Main function for file_ra_state based read-ahead.
-+ */
-+static inline unsigned long
-+state_based_readahead(struct address_space *mapping, struct file *filp,
-+			struct file_ra_state *ra, struct page *page,
-+			unsigned long ra_size, unsigned long ra_max)
-+{
-+	unsigned long ra_old;
-+	unsigned long la_size;
-+	unsigned long remain_space;
-+	unsigned long growth_limit;
-+
-+	la_size = ra->readahead_index - ra->lookahead_index;
-+	ra_old = ra->readahead_index - ra->ra_index;
-+	growth_limit = ra_size + (2 + readahead_ratio / 64) * ra_old +
-+						(ra_max - ra_old) / 16;
-+	ra_size = compute_thrashing_threshold(ra, &remain_space);
-+
-+	if (!readahead_live_chunk &&
-+			remain_space <= la_size && la_size > 1) {
-+		rescue_pages(page, la_size);
++	/* No action on look ahead time? */
++	if (page) {
++		ra_account(ra, RA_EVENT_LOOKAHEAD_NOACTION,
++					ra->readahead_index - index);
 +		return 0;
 +	}
 +
-+	if (!adjust_rala(min(ra_max, growth_limit), &ra_size, &la_size))
-+		return 0;
++	/*
++	 * Random read that follows a sequential one.
++	 */
++	if (try_random_readahead(ra, index, size, ra_max))
++		return ra_dispatch(ra, mapping, filp);
 +
-+	set_ra_class(ra, RA_CLASS_STATE);
-+	ra_state_update(ra, ra_size, la_size);
++	/*
++	 * Random read.
++	 */
++	if (size > ra_max)
++		size = ra_max;
 +
-+	return ra_dispatch(ra, mapping, filp);
++readit:
++	size = __do_page_cache_readahead(mapping, filp, index, size, 0);
++
++	ra_account(ra, RA_EVENT_READRANDOM, size);
++	dprintk("readrandom(ino=%lu, pages=%lu, index=%lu-%lu-%lu) = %lu\n",
++			mapping->host->i_ino, mapping->nrpages,
++			begin_index, index, end_index, size);
++
++	return size;
 +}
 +
-+
 +/*
-  * ra_size is mainly determined by:
-  * 1. sequential-start: min(MIN_RA_PAGES + (pages>>14), KB(128))
-  * 2. sequential-max:	min(ra->ra_pages, 0xFFFF)
++ * Call me!
++ */
++void fastcall ra_access(struct file_ra_state *ra, struct page *page)
++{
++	if (page->flags & ((1 << PG_active)   |
++			   (1 << PG_activate) |
++			   (1 << PG_referenced)))
++		return;
++
++	if (!PageUptodate(page))
++		ra_account(ra, RA_EVENT_IO_BLOCK, 1);
++
++	if (!ra_has_index(ra, page->index))
++		return;
++
++	ra->cache_hit++;
++
++	if (page->index >= ra->ra_index)
++		ra_account(ra, RA_EVENT_READAHEAD_HIT, 1);
++	else
++		ra_account(ra, RA_EVENT_READAHEAD_HIT, -1);
++}
++
 
 --

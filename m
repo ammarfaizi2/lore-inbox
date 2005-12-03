@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751299AbVLCWu6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751298AbVLCWvH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751299AbVLCWu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 17:50:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbVLCWu6
+	id S1751298AbVLCWvH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 17:51:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbVLCWvG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 17:50:58 -0500
-Received: from mail.gmx.net ([213.165.64.20]:1762 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751299AbVLCWu5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 17:50:57 -0500
-X-Authenticated: #428038
-Date: Sat, 3 Dec 2005 23:50:55 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-kernel@vger.kernel.org
+	Sat, 3 Dec 2005 17:51:06 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:17162 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751298AbVLCWvF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 17:51:05 -0500
+Date: Sat, 3 Dec 2005 23:51:05 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Greg KH <greg@kroah.com>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
 Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Message-ID: <20051203225055.GG25722@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <1133620598.22170.14.camel@laptopd505.fenrus.org> <20051203152339.GK31395@stusta.de> <20051203162755.GA31405@merlin.emma.line.org> <4391CEC7.30905@unsolicited.net> <1133630012.6724.7.camel@localhost.localdomain> <4391D335.7040008@unsolicited.net> <20051203175355.GL31395@stusta.de> <4391E52D.6020702@unsolicited.net> <20051203222731.GC25722@merlin.emma.line.org> <43921DEC.9080406@unsolicited.net>
+Message-ID: <20051203225105.GO31395@stusta.de>
+References: <20051203135608.GJ31395@stusta.de> <9a8748490512030629t16d0b9ebv279064245743e001@mail.gmail.com> <20051203201945.GA4182@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43921DEC.9080406@unsolicited.net>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+In-Reply-To: <20051203201945.GA4182@kroah.com>
 User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 03 Dec 2005, David Ranson wrote:
-
-> Matthias Andree wrote:
+On Sat, Dec 03, 2005 at 12:19:45PM -0800, Greg KH wrote:
+> On Sat, Dec 03, 2005 at 03:29:54PM +0100, Jesper Juhl wrote:
+> > 
+> > Why can't this be done by distributors/vendors?
 > 
-> >So was I. And now what? ipfwadm and ipchains should have been removed
-> >from 2.6.0 if 2.6.0 was not to support these. That opportunity was
-> >missed, the removal wasn't made up for in 2.6.1, so the stuff has to
-> >stick until 2.8.0.
-> >
-> >
-> I'm not aware of that policy... maybe I overlooked something?
+> It already is done by these people, look at the "enterprise" Linux
+> distributions and their 5 years of maintance (or whatever the number
+> is.)
+> 
+> If people/customers want stability, they already have this option.
 
-Everyone does it, except Linux and GDBM.
+I don't get the point where the advantage is when every distribution 
+creates it's own stable branches.
 
-> I guess our definitions of stable (and the degree of stability
-> acceptable) differ.
+AFAIR one of the reasons for the current 2.6 development model was to 
+reduce the amount of feature patches distributions ship by offering an 
+ftp.kernel.org kernel that gets new features early.
 
-No need to guess, this is quite obvious.
+What's wrong with offering an unified branch with few regressions for 
+both users and distributions? It's not that every distribution will use 
+it, but as soon as one or two distributions are using it the amount of 
+extra work for maintaining the branch should become pretty low.
+
+> thanks,
+> 
+> greg k-h
+
+cu
+Adrian
 
 -- 
-Matthias Andree
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

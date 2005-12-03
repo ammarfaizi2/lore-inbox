@@ -1,140 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbVLCIUU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbVLCId1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751193AbVLCIUU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 03:20:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbVLCIUT
+	id S1751206AbVLCId1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 03:33:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbVLCId0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 03:20:19 -0500
-Received: from nproxy.gmail.com ([64.233.182.204]:41686 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751193AbVLCIUT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 03:20:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:cc:subject:x-enigmail-version:content-type:content-transfer-encoding;
-        b=CsSuMd7g0ZE5ltBMvlSJy7N2nBi8iLa5gq9han38GhB+wQYMzyucAJbPDHdVMQiz220tF7fRdppkHFd0+32cIzo8ZOnJ2mGuM/H2U8jeCHmPBhljN9ioGFe9xJgJncS4zWx9P8ocyY7QnFt+7zQkMjIbvZWQ5fLEOtTuP75kNT0=
-Message-ID: <4391553C.2060208@gmail.com>
-Date: Sat, 03 Dec 2005 09:20:12 +0100
-From: Patrizio Bassi <patrizio.bassi@gmail.com>
-Reply-To: patrizio.bassi@gmail.com
-Organization: patrizio.bassi@gmail.com
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051027)
-X-Accept-Language: it, it-it, en-us, en
-MIME-Version: 1.0
-To: linux-usb-devel@lists.sourceforge.net
-CC: linux-kernel@vger.kernel.org
-Subject: [BUG] 2.6.15-rc4-git1 ehci suspend regression
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-15
+	Sat, 3 Dec 2005 03:33:26 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:59530 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751206AbVLCId0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 03:33:26 -0500
+Subject: Re: copy_from_user/copy_to_user question
+From: Arjan van de Ven <arjan@infradead.org>
+To: Vinay Venkataraghavan <raghavanvinay@yahoo.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Al Viro <viro@ftp.linux.org.uk>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20051203021154.30862.qmail@web32113.mail.mud.yahoo.com>
+References: <20051203021154.30862.qmail@web32113.mail.mud.yahoo.com>
+Content-Type: text/plain
+Date: Sat, 03 Dec 2005 09:33:09 +0100
+Message-Id: <1133598789.22170.4.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yesterday i wrote i got all my suspend problems fixed in -rc3.
 
-i tried -rc4-git1 and got another problem after suspend.
+> The piece of code that I am talking about is part of a
+> driver code. Unfortunately I am not at liberty to
+> divulge the name of the company. So in the driver then
+> are not using copy_to_user and copy_from_user. That is
+> what puzzles me. Moreover, where they are using these
+> functions they use memcpy which is a big security
+> risk.
 
-on resume, i can use no more che ehci device (pci usb card).
-on -rc3, after resume hotplug could reload device driver, while with rc4
-device is no more found, neither after unplug/replug.
+I guess this is why you're not allowed to mention it... they'd be all
+over bugtraq..
 
-infact lsusb shows:
-Bus 004 Device 001: ID 0000:0000
-Bus 003 Device 001: ID 0000:0000
-Bus 002 Device 001: ID 0000:0000
-Bus 001 Device 001: ID 0000:0000
-
-i have to reboot (usb are built-in)
-and i can get:
-
-Bus 004 Device 001: ID 0000:0000
-Bus 003 Device 001: ID 0000:0000
-Bus 002 Device 004: ID 0915:8000 GlobeSpan, Inc.
-Bus 002 Device 001: ID 0000:0000
-Bus 001 Device 001: ID 0000:0000
-
-
-this is a rc4 regression, i saw Greg posted some patches...
-
-this is the dmesg:
-
-
-Stopping tasks: ===================|
-Freeing memory... done (4076 pages freed)
-ACPI: PCI interrupt for device 0000:00:0d.0 disabled
-ACPI: PCI interrupt for device 0000:00:0a.2 disabled
-ACPI: PCI interrupt for device 0000:00:0a.1 disabled
-ACPI: PCI interrupt for device 0000:00:0a.0 disabled
-ACPI: PCI interrupt for device 0000:00:09.0 disabled
-ACPI: PCI interrupt for device 0000:00:04.2 disabled
-swsusp: Need to copy 7852 pages
-ACPI: PCI Interrupt 0000:00:04.2[D] -> Link [LNKD] -> GSI 9 (level, low)
--> IRQ 9
-ACPI: PCI Interrupt 0000:00:09.0[A] -> Link [LNKD] -> GSI 9 (level, low)
--> IRQ 9
-ACPI: PCI Interrupt 0000:00:09.0[A] -> Link [LNKD] -> GSI 9 (level, low)
--> IRQ 9
-eth0: Setting promiscuous mode.
-ACPI: PCI Interrupt 0000:00:0a.0[A] -> Link [LNKC] -> GSI 5 (level, low)
--> IRQ 5
-ACPI: PCI Interrupt 0000:00:0a.1[B] -> Link [LNKD] -> GSI 9 (level, low)
--> IRQ 9
-ACPI: PCI Interrupt 0000:00:0a.2[C] -> Link [LNKA] -> GSI 11 (level,
-low) -> IRQ 11
-ehci_hcd 0000:00:0a.2: USB 2.0 started, EHCI 0.95, driver 10 Dec 2004
-ACPI: PCI Interrupt 0000:00:0b.0[A] -> Link [LNKB] -> GSI 10 (level,
-low) -> IRQ 10
-ACPI: PCI Interrupt 0000:00:0d.0[A] -> Link [LNKD] -> GSI 9 (level, low)
--> IRQ 9
-ACPI: PCI Interrupt 0000:00:0d.0[A] -> Link [LNKD] -> GSI 9 (level, low)
--> IRQ 9
-eth1: Setting promiscuous mode.
-Restarting tasks... done
-usb 2-2: new full speed USB device using uhci_hcd and address 3
-usb 2-2: device descriptor read/64, error -71
-usb 2-2: device descriptor read/64, error -71
-usb 2-2: new full speed USB device using uhci_hcd and address 4
-usb 2-2: device descriptor read/64, error -71
-usb 2-2: device descriptor read/64, error -71
-usb 2-2: new full speed USB device using uhci_hcd and address 5
-usb 2-2: device not accepting address 5, error -71
-usb 2-2: new full speed USB device using uhci_hcd and address 6
-usb 2-2: device not accepting address 6, error -71
-usb 2-2: new full speed USB device using uhci_hcd and address 7
-usb 2-2: device descriptor read/64, error -71
-usb 2-2: device descriptor read/64, error -71
-usb 2-2: new full speed USB device using uhci_hcd and address 8
-usb 2-2: device descriptor read/64, error -71
-usb 2-2: device descriptor read/64, error -71
-usb 2-2: new full speed USB device using uhci_hcd and address 9
-usb 2-2: device not accepting address 9, error -71
-usb 2-2: new full speed USB device using uhci_hcd and address 10
-usb 2-2: device not accepting address 10, error -71
-
-lspci
-00:00.0 Host bridge: Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX Host
-bridge (rev 03)
-00:01.0 PCI bridge: Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX AGP
-bridge (rev 03)
-00:04.0 ISA bridge: Intel Corporation 82371AB/EB/MB PIIX4 ISA (rev 02)
-00:04.1 IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 01)
-00:04.2 USB Controller: Intel Corporation 82371AB/EB/MB PIIX4 USB (rev 01)
-00:04.3 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ACPI (rev 02)
-00:09.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone]
-(rev 30)
-00:0a.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
-Controller (rev 50)
-00:0a.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
-Controller (rev 50)
-00:0a.2 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 51)
-00:0b.0 Multimedia audio controller: Ensoniq ES1370 [AudioPCI] (rev 01)
-00:0d.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado]
-(rev 74)
-01:00.0 VGA compatible controller: ATI Technologies Inc Rage 128 RF/SG AGP
-
-
--- 
-
-
-www.patriziobassi.it
+thank god for open source so that 1) customers can see the quality and
+2) everyone can fix it....
 

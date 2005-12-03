@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbVLCCDo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbVLCCCq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751151AbVLCCDo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 21:03:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbVLCCDo
+	id S1751150AbVLCCCq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 21:02:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751151AbVLCCCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 21:03:44 -0500
-Received: from mail-in-09.arcor-online.net ([151.189.21.49]:5521 "EHLO
-	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1751151AbVLCCDo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 21:03:44 -0500
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-Subject: Re: [PATCH 0/4] linux-2.6-block: deactivating pagecache for  benchmarks
-To: Andrew Morton <akpm@osdl.org>, Dirk Henning Gerdes <mail@dirk-gerdes.de>,
-       axboe@suse.de, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Sat, 03 Dec 2005 03:05:34 +0100
-References: <5f08L-Um-413@gated-at.bofh.it> <5f7UE-3FH-13@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1EiMmN-0001a6-I7@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+	Fri, 2 Dec 2005 21:02:46 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:15094 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751150AbVLCCCq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 21:02:46 -0500
+Subject: Re: copy_from_user/copy_to_user question
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Vinay Venkataraghavan <raghavanvinay@yahoo.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20051203013833.GG27946@ftp.linux.org.uk>
+References: <20051202224025.39396.qmail@web32108.mail.mud.yahoo.com>
+	 <1133572199.32583.93.camel@localhost.localdomain>
+	 <20051203013833.GG27946@ftp.linux.org.uk>
+Content-Type: text/plain
+Date: Fri, 02 Dec 2005 21:02:26 -0500
+Message-Id: <1133575346.4894.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
+On Sat, 2005-12-03 at 01:38 +0000, Al Viro wrote:
+> On Fri, Dec 02, 2005 at 08:09:59PM -0500, Steven Rostedt wrote:
+> > > Secondly, they seem to use memcpy as opposed to using
+> > > copy_to_user/copy_from_user which is also very
+> > > dangerous.
+> > 
+> > If they are grabbing data from user context into kernel (or vise versa)
+> > that could easily cause an oops.  Not to mention it is a security risk.
+> 
+> Not to mention it simply won't work on a many platforms, no matter what...
 
-> +             .procname       = "drop-pagecache",
-> +             .data           = NULL,
-> +             .maxlen         = sizeof(int),
-> +             .mode           = 0644,
+Hmm, I've only worked with a few platforms (i386, x86_64, ppc, mips, and
+a little arm but I don't remember that much).  I believe that a memcpy
+could work on all these platforms (error prone of course, but if the
+memory is mapped its OK).  When entering a system call, the kernel still
+has access to the memory locations assigned to the user.
 
-1) Shouldn't this be a trigger? Reading from a trigger doesn't make sense,
-   especially when triggering on a read.  .mode = 0200?
+It's been a while since I had to deal with the semantics of
+copy_to/from_user.  So what platforms can not access a user space area
+directly.  Is there a special assembly command to use to copy from user?
 
+I haven't dealt (yet) with the copy_user of x86_64.  Is there a problem
+when one tries to copy to/from a 32 bit address while in a 64 bit
+address space?
 
-2) If you pass an int, wouldn't a bitmask selecting what to free make sense?
-   (off cause -1 == everything)
-   Maybe this would be overengineered.
+Just curious, sorry for my ignorance here.
 
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+-- Steve
+ 
+

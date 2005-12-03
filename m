@@ -1,85 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbVLCRmT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbVLCRpc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932092AbVLCRmT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 12:42:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbVLCRmT
+	id S932108AbVLCRpc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 12:45:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932109AbVLCRpb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 12:42:19 -0500
-Received: from locomotive.csh.rit.edu ([129.21.60.149]:15164 "EHLO
-	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
-	id S932092AbVLCRmS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 12:42:18 -0500
-Message-ID: <4391D910.206@suse.com>
-Date: Sat, 03 Dec 2005 12:42:40 -0500
-From: Jeff Mahoney <jeffm@suse.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
+	Sat, 3 Dec 2005 12:45:31 -0500
+Received: from mail.gmx.de ([213.165.64.20]:1494 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932108AbVLCRpb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 12:45:31 -0500
+X-Authenticated: #14561429
+Message-ID: <00b801c5f831$5e2ab3f0$1001a8c0@fibonacci>
+From: "Gottfried Haider" <gohai@gmx.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: [2.6.15-rc2] 8139too probe fails (pci related?)
+Date: Sat, 3 Dec 2005 18:45:34 +0100
 MIME-Version: 1.0
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] fs: remove s_old_blocksize from struct super_block
-References: <1133558437.31065.6.camel@localhost>  <Pine.LNX.4.64.0512031058350.11664@hermes-1.csi.cam.ac.uk> <1133609645.7989.3.camel@localhost> <Pine.LNX.4.64.0512031429360.11664@hermes-1.csi.cam.ac.uk>
-In-Reply-To: <Pine.LNX.4.64.0512031429360.11664@hermes-1.csi.cam.ac.uk>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2670
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+I have troubles getting my Surecom EP-320 X-R1 (8139B) network adapter 
+to work under 2.6.15-rc2 (will try other version asap, first time 
+installing linux on this particular machine).
 
-Anton Altaparmakov wrote:
-> I have no idea why Jeff (Mahoney) considered the setting to be 
-> unnecessary, when Al Viro added the resetting code a few years ago it 
-> was done precisely because utilities were behaving randomly/erratically...
-> 
-> IMHO the above commit consitutes a regression in 2.6 kernel.
 
-Anton -
+8139too Fast Ethernet driver 0.9.27
+PCI: Device 0000:01:0c.0 not available because of resource collisions
+Trying to free nonexistent resource <0000d000-0000d003>
+Trying to free nonexistent resource <fa800800-fa80080f>
+8139too: probe of 0000:01:0c.0 failed with error -22
 
-Linus and I discussed[1] this briefly on the list in March. Here's my
-conclusion[2]. My initial attempts tried to preserve the behavior, but
-keeping it at the VFS level made the fix more complex. Linus pointed out
-that the file systems explicitly set the block size to a known value
-before doing anything. Userspace utilities that don't open the block
-device with O_EXCL can have the block size changed underneath them in
-mid-execution - by the kernel or another userspace process using the
-BLKBSZSET ioctl. Incidentally, the ioctl doesn't save the old value either.
 
-I don't think any userspace utility can expect a particular block size
-without an exclusive open and explicit set of the block size.
+This also happens when using pci=routeirq or pci=noacpi. The driver in 
+question is build as module. Machine is a (quite common) ASUS CUSL2 
+(i815) running a PIII 800 MHz.
 
-Pushing the resetting of the block size up into the file system doesn't
-eliminate the race. The race exists when get_sb_bdev_excl opens the
-block device, which it is allowed to do since it's the same file system
-type, and then tries to get the super block. If deactivate_super has
-already changed sb->s_count -= S_BIAS -1, sget will ignore the
-superblock and allocate a new one. It will then call the file system's
-fill_super(). Once a new superblock is allocated, the only thing that
-the two have in common is the block device and there is nothing
-preventing ->fill_super() from running concurrently with anything under
-- ->kill_sb(). This includes ->put_super() as well, so pushing the reset
-up into the individual file systems would just preserve/reintroduce the
-race.
+Full kern.log(s) and other files can be found at 
+http://sukzessiv.net/8139/ (to large to include them as attachment, it 
+seems). Below are some lines that might be interesting..
 
-bdev->bd_mount_sem might be a workable synchronization point for this if
-you truly want to preserve the old behavior.
 
-- -Jeff
+PCI quirk: region e400-e47f claimed by ICH4 ACPI/GPIO/TCO
+PCI quirk: region ec00-ec3f claimed by ICH4 GPIO
+PCI: Unable to handle 64-bit address for device 0000:01:0c.0
+PCI: Transparent bridge - 0000:00:1e.0
+(..)
+PCI: Cannot allocate resource region 0 of device 0000:01:0c.0
+PCI: Cannot allocate resource region 3 of device 0000:01:0c.0
+pnp: 00:03: ioport range 0xe400-0xe47f could not be reserved
+pnp: 00:03: ioport range 0xec00-0xec3f has been reserved
+PCI: Ignore bogus resource 6 [0:0] of 0000:00:02.0
+PCI: Error while updating region 0000:01:0c.0/3 (fa800800 != 00000810)
+PCI: Error while updating region 0000:01:0c.0/0 (0000d001 != 813910fc)
+PCI: Bridge: 0000:00:1e.0
 
-[1]: http://www.ussg.iu.edu/hypermail/linux/kernel/0503.1/2369.html
-[2]: http://www.ussg.iu.edu/hypermail/linux/kernel/0503.2/0460.html
 
-- --
-Jeff Mahoney
-SUSE Labs
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+oh, and btw: 'lspci -vvvv' outputs "Capabilities: [10] #fc [8139]" in an 
+endless loop to the console when displaying the info about 01:0c.0 
+(RTL-8139).
 
-iD8DBQFDkdkQLPWxlyuTD7IRAo0uAJ4+JQOz5g47rVlGZzwoaELY1G3q1QCfWSi+
-HfGC1KAvRhm+YXU47cTK83U=
-=JHuY
------END PGP SIGNATURE-----
+any hints?
+
+thanks and have a nice day
+Gottfried Haider 
+

@@ -1,45 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbVLCXhk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbVLCXs3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932171AbVLCXhk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 18:37:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbVLCXhk
+	id S1751303AbVLCXs3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 18:48:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbVLCXs3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 18:37:40 -0500
-Received: from mail.kroah.org ([69.55.234.183]:41116 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932171AbVLCXhk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 18:37:40 -0500
-Date: Sat, 3 Dec 2005 15:37:20 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Message-ID: <20051203233720.GA1604@kroah.com>
-References: <20051203135608.GJ31395@stusta.de> <1133620598.22170.14.camel@laptopd505.fenrus.org> <20051203152339.GK31395@stusta.de> <20051203162755.GA31405@merlin.emma.line.org> <1133630556.22170.26.camel@laptopd505.fenrus.org> <20051203230520.GJ25722@merlin.emma.line.org>
+	Sat, 3 Dec 2005 18:48:29 -0500
+Received: from smtp2.Stanford.EDU ([171.67.16.125]:51076 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S932176AbVLCXs3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 18:48:29 -0500
+Subject: Re: 2.6.14-rt21 & evolution
+From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1133647737.5890.2.camel@mindpipe>
+References: <1133642866.16477.11.camel@cmn3.stanford.edu>
+	 <1133647737.5890.2.camel@mindpipe>
+Content-Type: text/plain
+Date: Sat, 03 Dec 2005 15:48:16 -0800
+Message-Id: <1133653696.16477.47.camel@cmn3.stanford.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051203230520.GJ25722@merlin.emma.line.org>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 04, 2005 at 12:05:20AM +0100, Matthias Andree wrote:
-> On Sat, 03 Dec 2005, Arjan van de Ven wrote:
-> 
+On Sat, 2005-12-03 at 17:08 -0500, Lee Revell wrote:
+> On Sat, 2005-12-03 at 12:47 -0800, Fernando Lopez-Lezcano wrote:
+> > Hi Ingo... just a heads up. I've been running 2.6.14-rt21 for a few days
+> > and the timing issues seem to be gone on my X2 machine, as the main
+> > timing is no longer derived from the TSC's. Very good! It should work
+> > great with a patched Jack (that does not use TSC for its internal timing
+> > measurements). 
 > > 
-> > > Exactly that, and kernel interfaces going away just to annoy binary
-> > > module providers also hurts third-party OSS modules, such as
-> > > Fujitsu-Siemens's ServerView agents.
-> > 
-> > in kernel API never was and never will be stable, that's entirely
-> > irrelevant and independent of the proposal at hand.
+> > But I'm seeing a recurrent problem that so far I can only blame -rt21
+> > for. When I start evolution (on a fully patched 32 bit fc4 system) it
+> > eventually dies.
 > 
-> It's still an annoying side effect - is there a list of kernel functions
-> removed, with version removed, and with replacement? I know of none, but
-> then again I don't hack the kernel very often.
+> I was seeing exactly the same problem here.  I don't think it's related
+> to -rt21, I think someome posted a malformed message to LKML or one of
+> the other lists that we are both on and Evo is choking on it.  It starts
+> to download the mail then you get "Storing folder" for like 5 minutes
+> then it crashes.
 
-Both lwn.net and the kernelnewbies wiki are trying to track this.
+It is not the exact same behavior I'm seeing, I get the crashes usually
+in the middle of the new message download process the first time I start
+evo in the morning. If I let it idle after startup, evo does all the
+"storing folder" stuff and eventually dies when getting the new email
+(or so I think). 
 
-thanks,
+But you could of course be right and there is some message it is choking
+on - it is strange that this is happening to you as well. I think this
+first happened to me on Wed Nov 30. 
 
-greg k-h
+To tell the truth this does not seem like a -rt related problem except
+that it started happening the day I booted into -rt21. 
+
+> I finally managed to get into my mail by (carefully) deleting ALL
+> metadata - all the .index, .index.data, .cmeta, and .ev-summary files
+> from .evolution.
+
+I can get it to start after two or three tries (so far) without touching
+anything in evo's files. And then it runs fine. The behavior
+_subjectively_ gives me the impression that it is related to downloading
+large number of messages, or doing many things at once at startup
+(threading). 
+
+-- Fernando
+
+

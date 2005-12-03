@@ -1,110 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbVLCB3P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbVLCB3p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751105AbVLCB3P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 20:29:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbVLCB3P
+	id S1750770AbVLCB3p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 20:29:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbVLCB3p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 20:29:15 -0500
-Received: from gepetto.dc.ltu.se ([130.240.42.40]:36525 "EHLO
-	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S1751105AbVLCB3O
+	Fri, 2 Dec 2005 20:29:45 -0500
+Received: from zproxy.gmail.com ([64.233.162.199]:102 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750770AbVLCB3o convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 20:29:14 -0500
-Message-ID: <4390F614.7060202@student.ltu.se>
-Date: Sat, 03 Dec 2005 02:34:12 +0100
-From: Richard Knutsson <ricknu-0@student.ltu.se>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Fri, 2 Dec 2005 20:29:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WB7lKqztKli3Rq209eQcCvLUF3Joahs/BsxnV+Tltm0DtlcXk/4h2MYybPgp04KYMdQqVerSgtvToFXQbcqN8LXaGWmkE65R8skb6CDEBHSLFryd8zSQMkckuM6en3mjcg7A6FFCe1/cE3P/zaXbQfoLBKH83ZVPfYxLpkoB1lw=
+Message-ID: <9a8748490512021729t145291c0h8ba5b8bdb0513d9e@mail.gmail.com>
+Date: Sat, 3 Dec 2005 02:29:43 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] touch softlockup watchdog in ide_wait_not_busy
+In-Reply-To: <200511291555.27202.jesper.juhl@gmail.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: [PATCH] pci: Schedule removal of pci_module_init (was Re: [PATCH
- 2.6.15-rc3(-mm1) 3/3] pci.h:)
-References: <20051201130338.28376.65935.sendpatchset@thinktank.campus.ltu.se>	<20051201130438.28376.78967.sendpatchset@thinktank.campus.ltu.se> <20051201152210.517b936d.akpm@osdl.org>
-In-Reply-To: <20051201152210.517b936d.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200511291555.27202.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Andrew,
 
->Richard Knutsson <ricknu-0@student.ltu.se> wrote:
->  
+Now that Alexander confirmed this patch fixed his problem, any reason
+it couldn't go into -mm ?
+
+He gave this feedback :
+On 11/30/05, Alexander V. Inyukhin <shurick@sectorb.msk.ru> wrote:
+...
+> It seems to work.
+> I have no BUG messages during boot with this patch.
+
+
+/Jesper
+
+
+On 11/29/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> Hi,
 >
->> +#if 0
->>  /*
->>   * pci_module_init is obsolete, this stays here till we fix up all usages of it
->>   * in the tree.
->>   */
->>  #define pci_module_init	pci_register_driver
->> +#endif
->>    
->>
+> This is a resend of a patch I proposed in the
+> "[BUG] 2.6.15-rc1, soft lockup detected while probing IDE devices on AMD7441"
+> thread.
+> I recieved no ACK/NACK or other feedback on the patch, so I'm resending it in
+> the hope of getting some comments :)
 >
->This one's a bit optimistic.  We need to wait until Linus's patch is fully
->converted, than wait a bit.
 >
->You might investigate turning this into an inline function, then mark it
->__deprecated and generate a Documentation/feature-removal-schedule.txt
->record for it.
->-
+> From: Jesper Juhl <jesper.juhl@gmail.com>
 >
-From: Richard Knutsson <ricknu-0@student.ltu.se>
-
-Scheduled the removal of pci_module_init and __deprecated the function, 
-as suggested by Andrew.
-
-Signed-off-by: Richard Knutsson <ricknu-0@student.ltu.se>
----
-
-diff -Narup a/Documentation/feature-removal-schedule.txt b/Documentation/feature-removal-schedule.txt
---- a/Documentation/feature-removal-schedule.txt	2005-11-29 11:08:41.000000000 +0100
-+++ b/Documentation/feature-removal-schedule.txt	2005-12-03 01:21:46.000000000 +0100
-@@ -159,3 +159,10 @@ Why:	The 8250 serial driver now has the 
- 	brother on Alchemy SOCs.  The loss of features is not considered an
- 	issue.
- Who:	Ralf Baechle <ralf@linux-mips.org>
-+
-+---------------------------
-+
-+What:	pci_module_init(driver)
-+When:	April 2006
-+Why:	Is replaced by pci_register_driver(pci_driver).
-+Who:	Richard Knutsson <ricknu-0@student.ltu.se>
-diff -Narup a/include/linux/pci.h b/include/linux/pci.h
---- a/include/linux/pci.h	2005-11-29 11:09:05.000000000 +0100
-+++ b/include/linux/pci.h	2005-12-03 01:40:40.000000000 +0100
-@@ -277,12 +277,6 @@ struct pci_driver {
- 	.vendor = PCI_ANY_ID, .device = PCI_ANY_ID, \
- 	.subvendor = PCI_ANY_ID, .subdevice = PCI_ANY_ID
- 
--/*
-- * pci_module_init is obsolete, this stays here till we fix up all usages of it
-- * in the tree.
-- */
--#define pci_module_init	pci_register_driver
--
- /* these external functions are only available when PCI support is enabled */
- #ifdef CONFIG_PCI
- 
-@@ -434,6 +428,10 @@ void pci_enable_bridges(struct pci_bus *
- 
- /* Proper probing supporting hot-pluggable devices */
- int __pci_register_driver(struct pci_driver *, struct module *);
-+static inline int __deprecated pci_module_init(struct pci_driver *driver)
-+{
-+	return __pci_register_driver(driver, THIS_MODULE);
-+}
- static inline int pci_register_driver(struct pci_driver *driver)
- {
- 	return __pci_register_driver(driver, THIS_MODULE);
-@@ -553,6 +551,7 @@ static inline void pci_disable_device(st
- static inline int pci_set_dma_mask(struct pci_dev *dev, u64 mask) { return -EIO; }
- static inline int pci_assign_resource(struct pci_dev *dev, int i) { return -EBUSY;}
- static inline int __pci_register_driver(struct pci_driver *drv, struct module *owner) { return 0;}
-+static inline int __deprecated pci_module_init(struct pci_driver *driver) { return 0; }
- static inline int pci_register_driver(struct pci_driver *drv) { return 0;}
- static inline void pci_unregister_driver(struct pci_driver *drv) { }
- static inline int pci_find_capability (struct pci_dev *dev, int cap) {return 0; }
+> Make sure we touch the softlockup watchdog in
+> ide_wait_not_busy() since it may cause the watchdog to trigger, but
+> there's really no point in that since the loop will eventually return, and
+> triggering the watchdog won't do us any good anyway.
+>
+> The  if (!(timeout % 128))  bit is a guess that since
+> touch_softlockup_watchdog() is a per_cpu thing it will be cheaper to do the
+> modulo calculation than calling the function every time through the loop,
+> especially as the nr of CPU's go up. But it's purely a guess, so I may very
+> well be wrong - also, 128 is an arbitrarily chosen value, it's just a nice
+> number that'll give us <10 function calls pr second.
+>
+> Since I have no IDE devices in my box I'm unable to test this beyond making
+> sure it compiles without warnings or errors (which it does).
+>
+> Let me know what you think.
+>
+> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+> ---
+>
+>  drivers/ide/ide-iops.c |    8 ++++++++
+>  1 files changed, 8 insertions(+)
+>
+> diff -up linux-2.6.15-rc3-orig/drivers/ide/ide-iops.c linux-2.6.15-rc3/drivers/ide/ide-iops.c
+> --- linux-2.6.15-rc3-orig/drivers/ide/ide-iops.c        2005-11-29 15:30:32.000000000 +0100
+> +++ linux-2.6.15-rc3/drivers/ide/ide-iops.c     2005-11-29 15:44:23.000000000 +0100
+> @@ -24,6 +24,7 @@
+>  #include <linux/hdreg.h>
+>  #include <linux/ide.h>
+>  #include <linux/bitops.h>
+> +#include <linux/sched.h>
+>
+>  #include <asm/byteorder.h>
+>  #include <asm/irq.h>
+> @@ -1243,6 +1244,13 @@ int ide_wait_not_busy(ide_hwif_t *hwif,
+>                  */
+>                 if (stat == 0xff)
+>                         return -ENODEV;
+> +
+> +               /*
+> +                * We risk triggering the soft lockup detector, but we don't
+> +                * want that, so better poke it a bit once in a while.
+> +                */
+> +               if (!(timeout % 128))
+> +                       touch_softlockup_watchdog();
+>         }
+>         return -EBUSY;
+>  }
+>
+>
+>
 
 
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

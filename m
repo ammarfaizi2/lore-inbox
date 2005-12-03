@@ -1,71 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbVLCXs3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbVLCXuF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751303AbVLCXs3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 18:48:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbVLCXs3
+	id S932176AbVLCXuF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 18:50:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbVLCXuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 18:48:29 -0500
-Received: from smtp2.Stanford.EDU ([171.67.16.125]:51076 "EHLO
-	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S932176AbVLCXs3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 18:48:29 -0500
-Subject: Re: 2.6.14-rt21 & evolution
-From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1133647737.5890.2.camel@mindpipe>
-References: <1133642866.16477.11.camel@cmn3.stanford.edu>
-	 <1133647737.5890.2.camel@mindpipe>
-Content-Type: text/plain
-Date: Sat, 03 Dec 2005 15:48:16 -0800
-Message-Id: <1133653696.16477.47.camel@cmn3.stanford.edu>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sat, 3 Dec 2005 18:50:05 -0500
+Received: from smtp101.sbc.mail.mud.yahoo.com ([68.142.198.200]:20627 "HELO
+	smtp101.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932176AbVLCXuE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 18:50:04 -0500
+From: David Brownell <david-b@pacbell.net>
+To: Mark Underwood <basicmark@yahoo.com>
+Subject: Re: [PATCH 2.6-git] SPI core refresh
+Date: Sat, 3 Dec 2005 15:50:01 -0800
+User-Agent: KMail/1.7.1
+Cc: vitalhome@rbcmail.ru, linux-kernel@vger.kernel.org, dpervushin@gmail.com,
+       akpm@osdl.org, komal_shah802003@yahoo.com, stephen@streetfiresound.com,
+       spi-devel-general@lists.sourceforge.net, Joachim_Jaeger@digi.com
+References: <20051203171037.94369.qmail@web36914.mail.mud.yahoo.com>
+In-Reply-To: <20051203171037.94369.qmail@web36914.mail.mud.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512031550.01695.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-12-03 at 17:08 -0500, Lee Revell wrote:
-> On Sat, 2005-12-03 at 12:47 -0800, Fernando Lopez-Lezcano wrote:
-> > Hi Ingo... just a heads up. I've been running 2.6.14-rt21 for a few days
-> > and the timing issues seem to be gone on my X2 machine, as the main
-> > timing is no longer derived from the TSC's. Very good! It should work
-> > great with a patched Jack (that does not use TSC for its internal timing
-> > measurements). 
-> > 
-> > But I'm seeing a recurrent problem that so far I can only blame -rt21
-> > for. When I start evolution (on a fully patched 32 bit fc4 system) it
-> > eventually dies.
+On Saturday 03 December 2005 9:10 am, Mark Underwood wrote:
 > 
-> I was seeing exactly the same problem here.  I don't think it's related
-> to -rt21, I think someome posted a malformed message to LKML or one of
-> the other lists that we are both on and Evo is choking on it.  It starts
-> to download the mail then you get "Storing folder" for like 5 minutes
-> then it crashes.
+> David, how would you feel about adding a NOT_DMAABLE flag in the spi_message structure?
 
-It is not the exact same behavior I'm seeing, I get the crashes usually
-in the middle of the new message download process the first time I start
-evo in the morning. If I let it idle after startup, evo does all the
-"storing folder" stuff and eventually dies when getting the new email
-(or so I think). 
+Not good; it'd mean that every controller driver would have to support
+both PIO and DMA modes.  This minor issue (despite the noise!) isn't
+worth making such an intrusive demand on all drivers.
 
-But you could of course be right and there is some message it is choking
-on - it is strange that this is happening to you as well. I think this
-first happened to me on Wed Nov 30. 
 
-To tell the truth this does not seem like a -rt related problem except
-that it started happening the day I booted into -rt21. 
+> The other solution is to do a kmalloc for each caller (would could try to be smart and only do
+> that if the buffer is being used). 
 
-> I finally managed to get into my mail by (carefully) deleting ALL
-> metadata - all the .index, .index.data, .cmeta, and .ev-summary files
-> from .evolution.
+That's far preferable.  You could just submit the patch against rc3-mm1
+and that'll do the job.
 
-I can get it to start after two or three tries (so far) without touching
-anything in evo's files. And then it runs fine. The behavior
-_subjectively_ gives me the impression that it is related to downloading
-large number of messages, or doing many things at once at startup
-(threading). 
-
--- Fernando
-
+- Dave
 

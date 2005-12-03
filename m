@@ -1,243 +1,417 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbVLCHLa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbVLCHK6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751201AbVLCHLa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 02:11:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbVLCHL3
+	id S1751162AbVLCHK6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 02:10:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbVLCHK5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 02:11:29 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:40383 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1751203AbVLCHLV (ORCPT
+	Sat, 3 Dec 2005 02:10:57 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:43966 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S1751162AbVLCHKe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 02:11:21 -0500
-Message-Id: <20051203071727.864172000@localhost.localdomain>
+	Sat, 3 Dec 2005 02:10:34 -0500
+Message-Id: <20051203071640.947552000@localhost.localdomain>
 References: <20051203071444.260068000@localhost.localdomain>
-Date: Sat, 03 Dec 2005 15:14:50 +0800
+Date: Sat, 03 Dec 2005 15:14:47 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 06/16] readahead: parameters
-Content-Disposition: inline; filename=readahead-parameters.patch
+Cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Wu Fengguang <wfg@mail.ustc.edu.cn>
+Subject: [PATCH 03/16] radixtree: look-aside cache
+Content-Disposition: inline; filename=radixtree-lookaside-cache.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- new sysctl entries in /proc/sys/vm:
-	- readahead_ratio = 50
-	- readahead_hit_rate = 2
-	- readahead_live_chunk = 0
-- dynamic minimal/initial read-ahead size.
+This introduces a set of lookup functions to radix tree for the read-ahead
+logic.  Other access patterns with high locality may also benefit from them.
 
-For now, different ranges of readahead_ratio select different read-ahead
-code path:
+- radix_tree_lookup_node(root, index, level)
+	Perform partial lookup, return the @level'th parent of the slot at
+	@index.
 
-	condition			action
-===================================================================
-readahead_ratio == 0		disable read-ahead
-readahead_ratio < 9		select old read-ahead logic
-readahead_ratio >= 9		select new read-ahead logic
+- radix_tree_cache_xxx()
+	Init/Query the cache.
+- radix_tree_cache_lookup(root, cache, index)
+	Perform lookup with the aid of a look-aside cache.
+	For sequential scans, it has a time complexity of 64*O(1) + 1*O(logn).
+
+	Typical usage:
+
+   void func() {
+  +       struct radix_tree_cache cache;
+  +
+  +       radix_tree_cache_init(&cache);
+          read_lock_irq(&mapping->tree_lock);
+          for(;;) {
+  -               page = radix_tree_lookup(&mapping->page_tree, index);
+  +               page = radix_tree_cache_lookup(&mapping->page_tree, &cache, index);
+          }
+          read_unlock_irq(&mapping->tree_lock);
+   }                                                                                                                       	
+
+- radix_tree_lookup_head(root, index, max_scan)
+- radix_tree_lookup_tail(root, index, max_scan)
+	Assume [head, tail) to be a segment with continuous pages. The two
+	functions search for the head and tail index of the segment at @index.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- Documentation/sysctl/vm.txt |   46 ++++++++++++++++++++++++++++++++++++++++++++
- include/linux/mm.h          |    2 -
- include/linux/sysctl.h      |    3 ++
- kernel/sysctl.c             |   34 ++++++++++++++++++++++++++++++++
- mm/readahead.c              |   39 +++++++++++++++++++++++++++++++++++++
- 5 files changed, 123 insertions(+), 1 deletion(-)
+ include/linux/radix-tree.h |   80 +++++++++++++++++-
+ lib/radix-tree.c           |  196 ++++++++++++++++++++++++++++++++++++++++-----
+ 2 files changed, 254 insertions(+), 22 deletions(-)
 
---- linux.orig/Documentation/sysctl/vm.txt
-+++ linux/Documentation/sysctl/vm.txt
-@@ -27,6 +27,9 @@ Currently, these files are in /proc/sys/
- - laptop_mode
- - block_dump
- - swap_prefetch
-+- readahead_ratio
-+- readahead_hit_rate
-+- readahead_live_chunk
+--- linux.orig/include/linux/radix-tree.h
++++ linux/include/linux/radix-tree.h
+@@ -22,12 +22,24 @@
+ #include <linux/preempt.h>
+ #include <linux/types.h>
  
- ==============================================================
- 
-@@ -114,3 +117,46 @@ except when laptop_mode is enabled and t
- Setting it to 0 disables prefetching entirely.
- 
- The default value is dependant on ramsize.
++#define RADIX_TREE_MAP_SHIFT	6
++#define RADIX_TREE_MAP_SIZE	(1UL << RADIX_TREE_MAP_SHIFT)
++#define RADIX_TREE_MAP_MASK	(RADIX_TREE_MAP_SIZE-1)
 +
-+==============================================================
-+
-+readahead_ratio
-+
-+This limits read-ahead size to percent of the thrashing-threshold.
-+The thrashing-threshold is dynamicly estimated according to the
-+_history_ read speed and system load, and used to limit the
-+_future_ read-ahead request size.
-+
-+Set it to a low value if you have not enough memory to counteract
-+the I/O load fluctuations. But if there's plenty of memory, set it
-+to a larger value might help increase read speed.
-+
-+The default value is 50.
-+
-+==============================================================
-+
-+readahead_hit_rate
-+
-+This is the max allowed value of (read-ahead-pages : accessed-pages).
-+If the previous read-ahead request has bad hit rate, kernel will be
-+very conservative to issue the next read-ahead.
-+
-+A large value helps speedup some sparse access patterns, at the cost
-+of more memory consumption. It is recommended to keep the value below
-+(max-readahead-pages / 8).
-+
-+The default value is 2.
-+
-+==============================================================
-+
-+readahead_live_chunk
-+
-+In a file server, there are typically one or more sequential
-+readers working on a file. The kernel can detect most live
-+chunks(a sequence of pages to be accessed by an active reader),
-+and save them for their imminent readers.
-+
-+This parameter controls the max allowed chunk size, i.e. the max
-+number of pages pinned for an active reader.
-+
-+The default value is 0(off). Increase it if you have enough memory.
---- linux.orig/include/linux/mm.h
-+++ linux/include/linux/mm.h
-@@ -991,7 +991,7 @@ extern int filemap_populate(struct vm_ar
- int write_one_page(struct page *page, int wait);
- 
- /* readahead.c */
--#define VM_MAX_READAHEAD	128	/* kbytes */
-+#define VM_MAX_READAHEAD	1024	/* kbytes */
- #define VM_MIN_READAHEAD	16	/* kbytes (includes current page) */
- #define VM_MAX_CACHE_HIT    	256	/* max pages in a row in cache before
- 					 * turning readahead off */
---- linux.orig/include/linux/sysctl.h
-+++ linux/include/linux/sysctl.h
-@@ -182,6 +182,9 @@ enum
- 	VM_LEGACY_VA_LAYOUT=27, /* legacy/compatibility virtual address space layout */
- 	VM_SWAP_TOKEN_TIMEOUT=28, /* default time for token time out */
- 	VM_SWAP_PREFETCH=29,	/* int: amount to swap prefetch */
-+	VM_READAHEAD_RATIO=30, /* percent of read-ahead size to thrashing-threshold */
-+	VM_READAHEAD_HIT_RATE=31, /* one accessed page legitimizes so many read-ahead pages */
-+	VM_READAHEAD_LIVE_CHUNK=32, /* pin no more than that many pages for a live reader */
+ struct radix_tree_root {
+ 	unsigned int		height;
+ 	gfp_t			gfp_mask;
+ 	struct radix_tree_node	*rnode;
  };
  
- 
---- linux.orig/kernel/sysctl.c
-+++ linux/kernel/sysctl.c
-@@ -68,6 +68,9 @@ extern int min_free_kbytes;
- extern int printk_ratelimit_jiffies;
- extern int printk_ratelimit_burst;
- extern int pid_max_min, pid_max_max;
-+extern int readahead_ratio;
-+extern int readahead_hit_rate;
-+extern int readahead_live_chunk;
- 
- #if defined(CONFIG_X86_LOCAL_APIC) && defined(CONFIG_X86)
- int unknown_nmi_panic;
-@@ -668,6 +671,7 @@ static ctl_table kern_table[] = {
- /* Constants for minimum and maximum testing in vm_table.
-    We use these as one-element integer vectors. */
- static int zero;
-+static int one = 1;
- static int one_hundred = 100;
- 
- 
-@@ -867,6 +871,36 @@ static ctl_table vm_table[] = {
- 	},
- #endif
- #endif
-+	{
-+		.ctl_name	= VM_READAHEAD_RATIO,
-+		.procname	= "readahead_ratio",
-+		.data		= &readahead_ratio,
-+		.maxlen		= sizeof(readahead_ratio),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+		.strategy	= &sysctl_intvec,
-+		.extra1		= &zero,
-+	},
-+	{
-+		.ctl_name	= VM_READAHEAD_HIT_RATE,
-+		.procname	= "readahead_hit_rate",
-+		.data		= &readahead_hit_rate,
-+		.maxlen		= sizeof(readahead_hit_rate),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+		.strategy	= &sysctl_intvec,
-+		.extra1		= &one,
-+	},
-+	{
-+		.ctl_name	= VM_READAHEAD_LIVE_CHUNK,
-+		.procname	= "readahead_live_chunk",
-+		.data		= &readahead_live_chunk,
-+		.maxlen		= sizeof(readahead_live_chunk),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+		.strategy	= &sysctl_intvec,
-+		.extra1		= &zero,
-+	},
- 	{ .ctl_name = 0 }
- };
- 
---- linux.orig/mm/readahead.c
-+++ linux/mm/readahead.c
-@@ -20,6 +20,24 @@
- #define MAX_RA_PAGES	KB(VM_MAX_READAHEAD)
- #define MIN_RA_PAGES	KB(VM_MIN_READAHEAD)
- 
-+/* In laptop mode, poll delayed look-ahead on every ## pages read. */
-+#define LAPTOP_POLL_INTERVAL 16
++/*
++ * Support access patterns with strong locality.
++ */
++struct radix_tree_cache {
++	unsigned long first_index;
++	struct radix_tree_node *tree_node;
++};
 +
-+/* Set look-ahead size to 1/# of the thrashing-threshold. */
-+#define LOOKAHEAD_RATIO 8
-+
-+/* Set read-ahead size to ##% of the thrashing-threshold. */
-+int readahead_ratio = 50;
-+EXPORT_SYMBOL(readahead_ratio);
-+
-+/* Readahead as long as cache hit ratio keeps above 1/##. */
-+int readahead_hit_rate = 2;
-+EXPORT_SYMBOL(readahead_hit_rate);
-+
-+/* Scan backward ## pages to find a live reader. */
-+int readahead_live_chunk = 0;
-+EXPORT_SYMBOL(readahead_live_chunk);
-+
- /* Detailed classification of read-ahead behaviors. */
- #define RA_CLASS_SHIFT 4
- #define RA_CLASS_MASK  ((1 << RA_CLASS_SHIFT) - 1)
-@@ -796,6 +814,27 @@ out:
+ #define RADIX_TREE_INIT(mask)	{					\
+ 	.height = 0,							\
+ 	.gfp_mask = (mask),						\
+@@ -45,9 +57,18 @@ do {									\
+ } while (0)
+ 
+ int radix_tree_insert(struct radix_tree_root *, unsigned long, void *);
+-void *radix_tree_lookup(struct radix_tree_root *, unsigned long);
+-void **radix_tree_lookup_slot(struct radix_tree_root *, unsigned long);
++void *radix_tree_lookup_node(struct radix_tree_root *, unsigned long,
++							unsigned int);
++void **radix_tree_lookup_slot(struct radix_tree_root *root, unsigned long);
+ void *radix_tree_delete(struct radix_tree_root *, unsigned long);
++int radix_tree_cache_count(struct radix_tree_cache *cache);
++void *radix_tree_cache_lookup_node(struct radix_tree_root *root,
++				struct radix_tree_cache *cache,
++				unsigned long index, unsigned int level);
++unsigned long radix_tree_lookup_head(struct radix_tree_root *root,
++				unsigned long index, unsigned int max_scan);
++unsigned long radix_tree_lookup_tail(struct radix_tree_root *root,
++				unsigned long index, unsigned int max_scan);
+ unsigned int
+ radix_tree_gang_lookup(struct radix_tree_root *root, void **results,
+ 			unsigned long first_index, unsigned int max_items);
+@@ -69,4 +90,59 @@ static inline void radix_tree_preload_en
+ 	preempt_enable();
  }
  
- /*
-+ * ra_size is mainly determined by:
-+ * 1. sequential-start: min(MIN_RA_PAGES + (pages>>14), KB(128))
-+ * 2. sequential-max:	min(ra->ra_pages, 0xFFFF)
-+ * 3. sequential:	(thrashing-threshold) * readahead_ratio / 100
++/**
++ *	radix_tree_lookup    -    perform lookup operation on a radix tree
++ *	@root:		radix tree root
++ *	@index:		index key
 + *
-+ * Table of concrete numbers for 4KB page size:
-+ *  (inactive + free) (in MB):    4   8   16   32   64  128  256  512 1024
-+ *    initial ra_size (in KB):   16  16   16   16   20   24   32   48   64
++ *	Lookup the item at the position @index in the radix tree @root.
 + */
-+static inline void get_readahead_bounds(struct file_ra_state *ra,
-+					unsigned long *ra_min,
-+					unsigned long *ra_max)
++static inline void *radix_tree_lookup(struct radix_tree_root *root,
++							unsigned long index)
 +{
-+	unsigned long pages;
-+
-+	pages = node_free_and_cold_pages();
-+	*ra_max = min(min(pages/2, 0xFFFFUL), ra->ra_pages);
-+	*ra_min = min(min(MIN_RA_PAGES + (pages>>14), KB(128)), *ra_max/2);
++	return radix_tree_lookup_node(root, index, 0);
 +}
 +
-+/*
-  * This is the entry point of the adaptive read-ahead logic.
++/**
++ *	radix_tree_cache_init    -    init the cache
++ *	@cache:		look-aside cache
++ *
++ *	Init the @cache.
++ */
++static inline void radix_tree_cache_init(struct radix_tree_cache *cache)
++{
++	cache->first_index = RADIX_TREE_MAP_MASK;
++	cache->tree_node = NULL;
++}
++
++/**
++ *	radix_tree_cache_lookup    -    cached lookup page
++ *	@root:		radix tree root
++ *	@cache:		look-aside cache
++ *	@index:		index key
++ *
++ *	Lookup the item at the position @index in the radix tree @root.
++ */
++static inline void *radix_tree_cache_lookup(struct radix_tree_root *root,
++				struct radix_tree_cache *cache,
++				unsigned long index)
++{
++	return radix_tree_cache_lookup_node(root, cache, index, 0);
++}
++
++static inline int radix_tree_cache_size(struct radix_tree_cache *cache)
++{
++	return RADIX_TREE_MAP_SIZE;
++}
++
++static inline int radix_tree_cache_full(struct radix_tree_cache *cache)
++{
++	return radix_tree_cache_count(cache) == radix_tree_cache_size(cache);
++}
++
++static inline int radix_tree_cache_first_index(struct radix_tree_cache *cache)
++{
++	return cache->first_index;
++}
++
+ #endif /* _LINUX_RADIX_TREE_H */
+--- linux.orig/lib/radix-tree.c
++++ linux/lib/radix-tree.c
+@@ -32,16 +32,7 @@
+ #include <linux/bitops.h>
+ 
+ 
+-#ifdef __KERNEL__
+-#define RADIX_TREE_MAP_SHIFT	6
+-#else
+-#define RADIX_TREE_MAP_SHIFT	3	/* For more stressful testing */
+-#endif
+ #define RADIX_TREE_TAGS		2
+-
+-#define RADIX_TREE_MAP_SIZE	(1UL << RADIX_TREE_MAP_SHIFT)
+-#define RADIX_TREE_MAP_MASK	(RADIX_TREE_MAP_SIZE-1)
+-
+ #define RADIX_TREE_TAG_LONGS	\
+ 	((RADIX_TREE_MAP_SIZE + BITS_PER_LONG - 1) / BITS_PER_LONG)
+ 
+@@ -287,8 +278,21 @@ int radix_tree_insert(struct radix_tree_
+ }
+ EXPORT_SYMBOL(radix_tree_insert);
+ 
+-static inline void **__lookup_slot(struct radix_tree_root *root,
+-				   unsigned long index)
++/**
++ *	radix_tree_lookup_node    -    low level lookup routine
++ *	@root:		radix tree root
++ *	@index:		index key
++ *	@level:		stop at that many levels from bottom
++ *
++ *	Lookup the item at the position @index in the radix tree @root.
++ *	The return value is:
++ *	@level == 0:      page at @index;
++ *	@level == 1:      the corresponding bottom level tree node;
++ *	@level < height:  (height - @level)th level tree node;
++ *	@level >= height: root node.
++ */
++void *radix_tree_lookup_node(struct radix_tree_root *root,
++				unsigned long index, unsigned int level)
+ {
+ 	unsigned int height, shift;
+ 	struct radix_tree_node *slot;
+@@ -300,7 +304,7 @@ static inline void **__lookup_slot(struc
+ 	shift = (height-1) * RADIX_TREE_MAP_SHIFT;
+ 	slot = root->rnode;
+ 
+-	while (height > 0) {
++	while (height > level) {
+ 		if (slot == NULL)
+ 			return NULL;
+ 
+@@ -311,6 +315,49 @@ static inline void **__lookup_slot(struc
+ 
+ 	return slot;
+ }
++EXPORT_SYMBOL(radix_tree_lookup_node);
++
++/**
++ *	radix_tree_cache_lookup_node    -    cached lookup node
++ *	@root:		radix tree root
++ *	@cache:		look-aside cache
++ *	@index:		index key
++ *
++ *	Lookup the item at the position @index in the radix tree @root,
++ *	and return the node @level levels from the bottom in the search path.
++ *	@cache stores the last accessed upper level tree node by this
++ *	function, and is always checked first before searching in the tree.
++ *	It can improve speed for access patterns with strong locality.
++ *	NOTE:
++ *	- The cache becomes invalid on leaving the lock;
++ *	- Do not intermix calls with different @level.
++ */
++void *radix_tree_cache_lookup_node(struct radix_tree_root *root,
++				struct radix_tree_cache *cache,
++				unsigned long index, unsigned int level)
++{
++	struct radix_tree_node *node;
++        unsigned long i;
++        unsigned long mask;
++
++        if (level >= root->height)
++                return root->rnode;
++
++        i = ((index >> (level * RADIX_TREE_MAP_SHIFT)) & RADIX_TREE_MAP_MASK);
++        mask = ~((RADIX_TREE_MAP_SIZE << (level * RADIX_TREE_MAP_SHIFT)) - 1);
++
++	if ((index & mask) == cache->first_index)
++                return cache->tree_node->slots[i];
++
++	node = radix_tree_lookup_node(root, index, level + 1);
++	if (!node)
++		return 0;
++
++	cache->tree_node = node;
++	cache->first_index = (index & mask);
++        return node->slots[i];
++}
++EXPORT_SYMBOL(radix_tree_cache_lookup_node);
+ 
+ /**
+  *	radix_tree_lookup_slot    -    lookup a slot in a radix tree
+@@ -322,25 +369,134 @@ static inline void **__lookup_slot(struc
+  */
+ void **radix_tree_lookup_slot(struct radix_tree_root *root, unsigned long index)
+ {
+-	return __lookup_slot(root, index);
++	struct radix_tree_node *node;
++
++	node = radix_tree_lookup_node(root, index, 1);
++	return node->slots + (index & RADIX_TREE_MAP_MASK);
+ }
+ EXPORT_SYMBOL(radix_tree_lookup_slot);
+ 
+ /**
+- *	radix_tree_lookup    -    perform lookup operation on a radix tree
++ *	radix_tree_cache_count    -    items in the cached node
++ *	@cache:      radix tree look-aside cache
++ *
++ *      Query the number of items contained in the cached node.
++ */
++int radix_tree_cache_count(struct radix_tree_cache *cache)
++{
++	if (!(cache->first_index & RADIX_TREE_MAP_MASK))
++		return cache->tree_node->count;
++	else
++		return 0;
++}
++EXPORT_SYMBOL(radix_tree_cache_count);
++
++/**
++ *	radix_tree_lookup_head    -    lookup the head index
+  *	@root:		radix tree root
+  *	@index:		index key
++ *	@max_scan:      max items to scan
   *
-  * It is only called on two conditions:
+- *	Lookup the item at the position @index in the radix tree @root.
++ *      Lookup head index of the segment which contains @index. A segment is
++ *      a set of continuous pages in a file.
++ *      CASE                       RETURN VALUE
++ *      no page at @index          (not head) = @index + 1
++ *      found in the range         @index - @max_scan < (head index) <= @index
++ *      not found in range         (unfinished head) <= @index - @max_scan
+  */
+-void *radix_tree_lookup(struct radix_tree_root *root, unsigned long index)
++unsigned long radix_tree_lookup_head(struct radix_tree_root *root,
++				unsigned long index, unsigned int max_scan)
+ {
+-	void **slot;
++	struct radix_tree_cache cache;
++	struct radix_tree_node *node;
++	int i;
++	unsigned long origin;
+ 
+-	slot = __lookup_slot(root, index);
+-	return slot != NULL ? *slot : NULL;
++	origin = index;
++	if (unlikely(max_scan > index))
++		max_scan = index;
++        radix_tree_cache_init(&cache);
++
++next_node:
++	if (origin - index > max_scan)
++		goto out;
++
++	node = radix_tree_cache_lookup_node(root, &cache, index, 1);
++	if (!node)
++		goto out;
++
++	if (node->count == RADIX_TREE_MAP_SIZE) {
++		if (index < RADIX_TREE_MAP_SIZE) {
++			index = -1;
++			goto out;
++		}
++		index = (index - RADIX_TREE_MAP_SIZE) | RADIX_TREE_MAP_MASK;
++		goto next_node;
++	}
++
++	for (i = index & RADIX_TREE_MAP_MASK; i >= 0; i--, index--) {
++		if (!node->slots[i])
++			goto out;
++	}
++
++	goto next_node;
++
++out:
++	return index + 1;
++}
++EXPORT_SYMBOL(radix_tree_lookup_head);
++
++/**
++ *	radix_tree_lookup_tail    -    lookup the tail index
++ *	@root:		radix tree root
++ *	@index:		index key
++ *	@max_scan:      max items to scan
++ *
++ *      Lookup tail(pass the end) index of the segment which contains @index.
++ *      A segment is a set of continuous pages in a file.
++ *      CASE                       RETURN VALUE
++ *      found in the range         @index <= (tail index) < @index + @max_scan
++ *      not found in range         @index + @max_scan <= (non tail)
++ */
++unsigned long radix_tree_lookup_tail(struct radix_tree_root *root,
++				unsigned long index, unsigned int max_scan)
++{
++	struct radix_tree_cache cache;
++	struct radix_tree_node *node;
++	int i;
++	unsigned long origin;
++
++	origin = index;
++	if (unlikely(index + max_scan < index))
++		max_scan = LONG_MAX - index;
++        radix_tree_cache_init(&cache);
++
++next_node:
++	if (index - origin >= max_scan)
++		goto out;
++
++	node = radix_tree_cache_lookup_node(root, &cache, index, 1);
++	if (!node)
++		goto out;
++
++	if (node->count == RADIX_TREE_MAP_SIZE) {
++		index = (index | RADIX_TREE_MAP_MASK) + 1;
++		if (unlikely(!index))
++			goto out;
++		goto next_node;
++	}
++
++	for (i = index & RADIX_TREE_MAP_MASK; i < RADIX_TREE_MAP_SIZE; i++, index++) {
++		if (!node->slots[i])
++			goto out;
++	}
++
++	goto next_node;
++
++out:
++	return index;
+ }
+-EXPORT_SYMBOL(radix_tree_lookup);
++EXPORT_SYMBOL(radix_tree_lookup_tail);
+ 
+ /**
+  *	radix_tree_tag_set - set a tag on a radix tree node
 
 --

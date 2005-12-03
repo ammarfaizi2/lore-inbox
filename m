@@ -1,77 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbVLCSxN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbVLCS4b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932145AbVLCSxN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 13:53:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbVLCSxN
+	id S932148AbVLCS4b (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 13:56:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbVLCS4b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 13:53:13 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:40076 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932145AbVLCSxM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 13:53:12 -0500
-Date: Sat, 3 Dec 2005 10:52:58 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-cc: Pekka Enberg <penberg@cs.helsinki.fi>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, jeffm@suse.com
-Subject: Re: [PATCH] fs: remove s_old_blocksize from struct super_block
-In-Reply-To: <Pine.LNX.4.64.0512031429360.11664@hermes-1.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.64.0512031044120.3099@g5.osdl.org>
-References: <1133558437.31065.6.camel@localhost> 
- <Pine.LNX.4.64.0512031058350.11664@hermes-1.csi.cam.ac.uk>
- <1133609645.7989.3.camel@localhost> <Pine.LNX.4.64.0512031429360.11664@hermes-1.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 3 Dec 2005 13:56:31 -0500
+Received: from smtp3.brturbo.com.br ([200.199.201.164]:55937 "EHLO
+	smtp3.brturbo.com.br") by vger.kernel.org with ESMTP
+	id S932148AbVLCS4a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 13:56:30 -0500
+Subject: Re: Incorrect v4l patch in 2.6.15-rc4-git1
+From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <lm-sensors@lm-sensors.org>, Andrew Morton <akpm@osdl.org>,
+       Greg KH <gregkh@suse.de>
+In-Reply-To: <20051203124715.52f8d736.khali@linux-fr.org>
+References: <20051202192814.282fc10c.khali@linux-fr.org>
+	 <1133602035.6724.5.camel@localhost>
+	 <20051203124715.52f8d736.khali@linux-fr.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Sat, 03 Dec 2005 16:56:20 -0200
+Message-Id: <1133636181.6724.43.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2-1mdk 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 3 Dec 2005, Anton Altaparmakov wrote:
+Hi Jean,
+Em Sáb, 2005-12-03 às 12:47 +0100, Jean Delvare escreveu:
+> Hi Mauro
 > 
-> This means we are now back to the old behaviour where fs utilities will 
-> behave randomly/unpredictably depending on what fs was mounted (or even 
-> was tried to be mounted!) on the device last.  So for example a failing 
-> "mount -t auto" will leave the block size set to a random number when all 
-> fs utilities (at least used to) asume the block size is 1k and strangeness 
-> ensues.
+> > Em Sex, 2005-12-02 às 19:28 +0100, Jean Delvare escreveu:
+> > > Hi Linus,
+> > > 
+> > > Please revert this commit:
+> > > 
+> > > author	Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+> > > 	Thu, 1 Dec 2005 08:51:35 +0000 (00:51 -0800)
+> > > committer	Linus Torvalds <torvalds@g5.osdl.org>
+> > > 	Thu, 1 Dec 2005 23:48:57 +0000 (15:48 -0800)
+> > > commit	769e24382dd47434dfda681f360868c4acd8b6e2
+> > > tree	1be728dd2f1a7f523e3de5f3f39b97a4b9905dbe
+> > > parent	6f502b8a7858ecfa7d2a0762f7663b8b3d0808fc
+> > > 
+> > > [PATCH] V4L: Some funcions now static and I2C hw code for IR
+> > > 
+> > > - Some funcions are now declared as static
+> > > - Added a I2C code for InfraRed.
+> > 
+> > 	Please point what is so deadly broken on this trivial patch that fix a
+> > bug where a prodution driver is using I2C code reserved for
+> > experimentation.
+> 
+> I never said it was deadly broken, just that it wasn't correct (fact)
+> and probably shouldn't have been accepted at this point of the release
+> cycle (opinion).
+> 
+> Using an experimental ID is certainly bad and fixing it is welcome, but
+> this isn't causing any immediate bug as far as I can see. You don't even
+> use the ID anywhere at the moment.
+	No, but it offers a potential but of somebody else's using it, making
+hard to diagnose. I've noticed a problem some time ago with a driver
+using a bad ID, that was not properly handled by i2c probing routines.
+> 
+> My point is that defining a new ID just before 2.6.15 when we know
+> we'll change it right after 2.6.15 is a bad engineering practice. 
+	As you and Greg pointed me before more than once, internal kernel
+interfaces are subject to change from release to release. If so, what's
+the problem of just changing one name? I'll prepare a patch renaming it
+to a better name as you suggested me in priv (I2C_DRIVERID_INFRARED),
+but anyway, it is just better to have a not-so-good name than using the
+experimental one (I2C_DRIVERID_EXP3).
+> More
+> importantly, I am asking what the point is of publishing patches for
+> review before they get integrated if they'll be integrated regardless
+> of objections. If we can't deal with that kind of situation, our
+> development process probably needs to be improved - even if in this
+> one case the harm done is admittedly neglectable.
+	As you said, neglectable damage in this case. And, in fact, this is
+really a trivial patch. If we had some damage, somebody may point or
+send another patch to fix. We are very close to 2.6.15, and we shouldn't
+stop bug fixing because of minor details.
+> 
+> I'll go undefine these experimental IDs soon anyway, as the concept is
+> broken IMHO. If driver authors don't use the ID, they can set it to 0.
+> If they do use it, they better register it soon so as to avoid
+> collisions with other drivers which haven't been merged either.
+	Agreed! you have my support on it! during this kernel cycle, both you
+and me found at V4L lots of experimental (and its own i2c_id.h file)
+that we did removed from kernel. Having experimeental IDs
+ 
 
-No, an open() with a zero count should re-set the block size to the "best 
-possible one". This gives you _consistently_ the blocksize you should get. 
-See bd_set_size().
+(and non-official codes) only generates mess and may be a source of hard
+to diagnose bugs.
+> 
 
-Which is basically the biggest possible one that we can handle that also 
-handles the size of the device correctly (if the device has an odd number 
-of sectors, you need to set blocksize to just 512).
+> Thanks,
+Chee
+rs, 
+Mauro.
 
-So things are consistently "optimal", which is the whole point. An opener 
-can then set it to some sub-optimal value (which may be bigger and faster, 
-but will mean that the last odd sectors can't be reached) by hand if it 
-cares.
-
-And of course, if multiple openers exist, there is no consistent value at 
-all. It's a bug in user space (and we don't allow that for mounted block 
-devices, since the filesystem often _requires_ a particular blocksize).
-
-> I have no idea why Jeff (Mahoney) considered the setting to be 
-> unnecessary, when Al Viro added the resetting code a few years ago it 
-> was done precisely because utilities were behaving randomly/erratically...
-
-The old code was buggy. It caused both performance problems (lower 
-blocksize than necessary when new openers came in, causing really bad 
-throughput) and iirc correctness problems (it would stick a 1kB blocksize 
-on a device that couldn't then read the last sector, so accessing the 
-device with /dev/xyz wouldn't get all the data).
-
-You can still set the blocksize explicitly, but you need to do it AFTER 
-you've opened the device exclusively. 
-
-It was a BUG to do anything else (eg set the blocksize at boot and expect 
-that the broken blocksize would get restored after others realized they 
-needed something else).
-
-Now, it's entirely possible that we've introduced other breakage since, 
-but unless you can show a real case, I think you're barking up the wrong 
-tree. 
-
-			Linus

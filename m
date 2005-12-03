@@ -1,47 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbVLCAWg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbVLCAYp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751101AbVLCAWg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 19:22:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbVLCAWg
+	id S1751093AbVLCAYp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 19:24:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbVLCAYp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 19:22:36 -0500
-Received: from mail.kroah.org ([69.55.234.183]:26591 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751093AbVLCAWf (ORCPT
+	Fri, 2 Dec 2005 19:24:45 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:8622 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751093AbVLCAYp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 19:22:35 -0500
-Date: Fri, 2 Dec 2005 16:22:24 -0800
-From: Greg KH <greg@kroah.com>
-To: Terence Ripperda <tripperda@nvidia.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.15-rc4
-Message-ID: <20051203002224.GB31077@kroah.com>
-References: <Pine.LNX.4.64.0511302234020.3099@g5.osdl.org> <20051201121826.GF19694@charite.de> <20051201211119.GA11437@hygelac> <Pine.LNX.4.64.0512011455090.3099@g5.osdl.org> <20051202180236.GA19327@hygelac>
+	Fri, 2 Dec 2005 19:24:45 -0500
+Date: Fri, 2 Dec 2005 16:22:40 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fls in asm for i386
+Message-ID: <20051202162240.746c436e@localhost.localdomain>
+X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051202180236.GA19327@hygelac>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 02, 2005 at 12:02:36PM -0600, Terence Ripperda wrote:
-> On Thu, Dec 01, 2005 at 03:11:27PM -0800, torvalds@osdl.org wrote:
-> > There's some explanation on what is going on in mm/memory.c: see the 
-> > comments above the "vm_normal_page()" function (which you should never 
-> > use: it's for internal VM usage, but it explains how the page range 
-> > remapping works), and above "vm_insert_page()" (which you _should_ use).
-> 
-> Thanks Linus,
-> 
-> I didn't realize that the interface had changed. we're certainly happy
-> to update our driver to use the appropriate interface.
-> 
-> the only problem is that it appears that vm_insert_page is exported
-> GPL-only, which obviously creates problems.
+There is a single instruction on i386 to find largest set bit;
+so it makes sense to use it (like we use bfs for ffs()).
 
-Well, you were going to run into this problem eventually...
+Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
 
-Good luck,
-
-greg k-h
+--- orig/include/asm-i386/bitops.h
++++ new/include/asm-i386/bitops.h
+@@ -367,12 +367,6 @@ static inline unsigned long ffz(unsigned
+ 	return word;
+ }
+ 
+-/*
+- * fls: find last bit set.
+- */
+-
+-#define fls(x) generic_fls(x)
+-
+ #ifdef __KERNEL__
+ 
+ /*
+@@ -414,6 +408,23 @@ static inline int ffs(int x)
+ }
+ 
+ /**
++ * fls - find last bit set
++ * @x: the word to search
++ *
++ * This is defined the same way as ffs.
++ */
++static inline int fls(int x)
++{
++	int r;
++
++	__asm__("bsrl %1,%0\n\t"
++		"jnz 1f\n\t"
++		"movl $-1,%0\n"
++		"1:" : "=r" (r) : "rm" (x));
++	return r+1;
++}
++
++/**
+  * hweightN - returns the hamming weight of a N-bit word
+  * @x: the word to weigh
+  *

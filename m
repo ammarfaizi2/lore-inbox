@@ -1,82 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbVLCRfR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbVLCRmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932100AbVLCRfR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 12:35:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbVLCRfR
+	id S932092AbVLCRmT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 12:42:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbVLCRmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 12:35:17 -0500
-Received: from nproxy.gmail.com ([64.233.182.195]:54795 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932100AbVLCRfP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 12:35:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=DjHCvW9H6Tw1aDt24gbuFXGCn0eke5eb+xCbQVec35ONoLDmUEUf6VRXGjfZhBOLSykazdJFAsiZ8bEB2UubApjATz4vIT8LDLjCid4XaIVOF2PLeUHvx7wJvwJ6Hzeyf8bQYStmErJSuGDH/qLF0+jkDQYmx4sJkJ0SmMEkEZ0=
-Message-ID: <f0cc38560512030935p61dda1bq10b52fa5ec393846@mail.gmail.com>
-Date: Sat, 3 Dec 2005 18:35:13 +0100
-From: "M." <vo.sinh@gmail.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Cc: Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <1133630556.22170.26.camel@laptopd505.fenrus.org>
+	Sat, 3 Dec 2005 12:42:19 -0500
+Received: from locomotive.csh.rit.edu ([129.21.60.149]:15164 "EHLO
+	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
+	id S932092AbVLCRmS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 12:42:18 -0500
+Message-ID: <4391D910.206@suse.com>
+Date: Sat, 03 Dec 2005 12:42:40 -0500
+From: Jeff Mahoney <jeffm@suse.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051203135608.GJ31395@stusta.de>
-	 <1133620598.22170.14.camel@laptopd505.fenrus.org>
-	 <20051203152339.GK31395@stusta.de>
-	 <20051203162755.GA31405@merlin.emma.line.org>
-	 <1133630556.22170.26.camel@laptopd505.fenrus.org>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] fs: remove s_old_blocksize from struct super_block
+References: <1133558437.31065.6.camel@localhost>  <Pine.LNX.4.64.0512031058350.11664@hermes-1.csi.cam.ac.uk> <1133609645.7989.3.camel@localhost> <Pine.LNX.4.64.0512031429360.11664@hermes-1.csi.cam.ac.uk>
+In-Reply-To: <Pine.LNX.4.64.0512031429360.11664@hermes-1.csi.cam.ac.uk>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Here to expose my point of view, hope u'll enjoy :)
+Anton Altaparmakov wrote:
+> I have no idea why Jeff (Mahoney) considered the setting to be 
+> unnecessary, when Al Viro added the resetting code a few years ago it 
+> was done precisely because utilities were behaving randomly/erratically...
+> 
+> IMHO the above commit consitutes a regression in 2.6 kernel.
 
-Starting stable series off the 2.6 simply wouldn't work: there are no
-paid QA guys ready to test, fix, stabilize those series, kernel
-developers wants to hang on new exciting stuff.
-This tendence leads to faster innovations in kernel core and features
-set but leaving the "forking" effort to distributions leads to
-fragmentation too: almost every distro has a different base kernel on
-which doing testing and fixing and this, in my opinion, is not
-positive for the kernel.org kernels. Another problem of the current
-development model is that fast changes are difficult to track for
-small external projects (those whitout big $$ behind), the small
-projects which made linux so great in the past.
-Maybe a way to reduce those problems is to release the kernel like
-GNOME, KDE, fedora & co. do for their stuff: one stable release every
-6 months but build on top of the current way of doing things. Example:
+Anton -
 
-2.6.14 released on 27 October, then:
-  2.6.14.1-gitN until 2.6.14.1-rcN -> 2.6.14.1
-  2.6.14.2-gitN until 2.6.14.2-rcN -> 2.6.14.2
-  ...
-  (maybe last 2.6.14-N, which could be called 2.6.15-gitN ->
-2.6.15-rcN, only bugfixes and small changes, main development in -mm
-or in a new -something tree during this last phase)
-2.6.15 release on March
+Linus and I discussed[1] this briefly on the list in March. Here's my
+conclusion[2]. My initial attempts tried to preserve the behavior, but
+keeping it at the VFS level made the fix more complex. Linus pointed out
+that the file systems explicitly set the block size to a known value
+before doing anything. Userspace utilities that don't open the block
+device with O_EXCL can have the block size changed underneath them in
+mid-execution - by the kernel or another userspace process using the
+BLKBSZSET ioctl. Incidentally, the ioctl doesn't save the old value either.
 
-those middle releases would be handled with the current development
-model except for the last one. So, the largest part of developers
-would continue to think and to work using the current development
-model and some guys would be able to plan a list of features and
-functionalities every 6 months and, based on this list, handle the
-6-months release giving guide lines (like Linus and friends already do
-but, i repeat, focusing on a 6 months time window)
+I don't think any userspace utility can expect a particular block size
+without an exclusive open and explicit set of the block size.
 
-Doing things this way would lead to distributions aligning to the same
-kernel and open up a possible scenario of distros collaborating to
-mantain the latest stable release. This should make small projects and
-users who want to run bleeding edge stuff lifes easier too.
+Pushing the resetting of the block size up into the file system doesn't
+eliminate the race. The race exists when get_sb_bdev_excl opens the
+block device, which it is allowed to do since it's the same file system
+type, and then tries to get the super block. If deactivate_super has
+already changed sb->s_count -= S_BIAS -1, sget will ignore the
+superblock and allocate a new one. It will then call the file system's
+fill_super(). Once a new superblock is allocated, the only thing that
+the two have in common is the block device and there is nothing
+preventing ->fill_super() from running concurrently with anything under
+- ->kill_sb(). This includes ->put_super() as well, so pushing the reset
+up into the individual file systems would just preserve/reintroduce the
+race.
 
-of couse the time window could be larger or smaller but doing things
-6months-based should align kernel development to some other big
-projects too.
+bdev->bd_mount_sem might be a workable synchronization point for this if
+you truly want to preserve the old behavior.
 
+- -Jeff
 
-cheers,
-Michele
+[1]: http://www.ussg.iu.edu/hypermail/linux/kernel/0503.1/2369.html
+[2]: http://www.ussg.iu.edu/hypermail/linux/kernel/0503.2/0460.html
+
+- --
+Jeff Mahoney
+SUSE Labs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFDkdkQLPWxlyuTD7IRAo0uAJ4+JQOz5g47rVlGZzwoaELY1G3q1QCfWSi+
+HfGC1KAvRhm+YXU47cTK83U=
+=JHuY
+-----END PGP SIGNATURE-----

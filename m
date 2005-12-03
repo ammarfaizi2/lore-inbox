@@ -1,62 +1,317 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbVLCBLq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbVLCBQW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751126AbVLCBLq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 20:11:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751127AbVLCBLq
+	id S1751128AbVLCBQW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 20:16:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbVLCBQW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 20:11:46 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:59307 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751126AbVLCBLp (ORCPT
+	Fri, 2 Dec 2005 20:16:22 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:48259 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751128AbVLCBQV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 20:11:45 -0500
-Date: Fri, 2 Dec 2005 20:11:36 -0500
-From: Dave Jones <davej@redhat.com>
-To: Zan Lynx <zlynx@acm.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Add tainting for proprietary helper modules.
-Message-ID: <20051203011136.GK3864@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Zan Lynx <zlynx@acm.org>,
-	linux-kernel@vger.kernel.org
-References: <20051203004102.GA2923@redhat.com> <1133571516.4950.8.camel@localhost>
+	Fri, 2 Dec 2005 20:16:21 -0500
+Date: Fri, 2 Dec 2005 19:16:18 -0600
+To: Greg KH <greg@kroah.com>
+Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH] PCI Error Recovery: documentation
+Message-ID: <20051203011618.GZ31651@austin.ibm.com>
+References: <20051203005951.GW31651@austin.ibm.com> <20051203010253.GA31826@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1133571516.4950.8.camel@localhost>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20051203010253.GA31826@kroah.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: linas@austin.ibm.com (linas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 02, 2005 at 05:58:36PM -0700, Zan Lynx wrote:
- > On Fri, 2005-12-02 at 19:41 -0500, Dave Jones wrote:
- > > Kernels that have had Windows drivers loaded into them are undebuggable.
- > > I've wasted a number of hours chasing bugs filed in Fedora bugzilla
- > > only to find out much later that the user had used such 'helpers',
- > > and their problems were unreproducable without them loaded.
- > > 
- > > Acked-by: Arjan van de Ven <arjan@infradead.org>
- > > Signed-off-by: Dave Jones <davej@redhat.com>
- > > 
- > > --- linux-2.6.14/kernel/module.c~	2005-11-29 16:44:00.000000000 -0500
- > > +++ linux-2.6.14/kernel/module.c	2005-11-29 17:03:55.000000000 -0500
- > > @@ -1723,6 +1723,11 @@ static struct module *load_module(void _
- > >  	/* Set up license info based on the info section */
- > >  	set_license(mod, get_modinfo(sechdrs, infoindex, "license"));
- > >  
- > > +	if (strcmp(mod->name, "ndiswrapper") == 0)
- > > +		add_taint(TAINT_PROPRIETARY_MODULE);
- > > +	if (strcmp(mod->name, "driverloader") == 0)
- > > +		add_taint(TAINT_PROPRIETARY_MODULE);
- > > +
- > >  #ifdef CONFIG_MODULE_UNLOAD
- > >  	/* Set up MODINFO_ATTR fields */
- > >  	setup_modinfo(mod, sechdrs, infoindex);
- > 
- > ndiswrapper adds taint already, in load_ndis_driver().
+On Fri, Dec 02, 2005 at 05:02:53PM -0800, Greg KH was heard to remark:
+> 
+> Tab vs space problem here :(
+> Care to redo?
 
-That's good to hear.  Although I've definitly seen some
-reports which have come through untainted. My guesses are
-that the users were using an older ndiswrapper that didn't do this,
-or they were using a < 2.6.10 kernel at the time
-(for which ndiswrapper doesn't do this).
+Below:
 
-		Dave
+pci-error-recovery_docs.patch
+
+Various PCI bus errors can be signaled by newer PCI controllers.
+Recovering from those errors requires an infrastructure to notify
+affected device drivers of the error, and a way of walking through
+a reset sequence.  This patch adds documentation describing the
+current error recovery proposal.
+
+Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
+
+ Documentation/pci-error-recovery.txt |  246 +++++++++++++++++++++++++++++++++++
+ MAINTAINERS                          |    7 
+ 2 files changed, 253 insertions(+)
+
+Index: linux-2.6.15-rc3-mm1/Documentation/pci-error-recovery.txt
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.15-rc3-mm1/Documentation/pci-error-recovery.txt	2005-12-02 19:12:23.715528104 -0600
+@@ -0,0 +1,246 @@
++
++                       PCI Error Recovery
++                       ------------------
++                         May 31, 2005
++
++               Current document maintainer:
++           Linas Vepstas <linas@austin.ibm.com>
++
++
++Some PCI bus controllers are able to detect certain "hard" PCI errors
++on the bus, such as parity errors on the data and address busses, as
++well as SERR and PERR errors.  These chipsets are then able to disable
++I/O to/from the affected device, so that, for example, a bad DMA
++address doesn't end up corrupting system memory.  These same chipsets
++are also able to reset the affected PCI device, and return it to
++working condition.  This document describes a generic API form
++performing error recovery.
++
++The core idea is that after a PCI error has been detected, there must
++be a way for the kernel to coordinate with all affected device drivers
++so that the pci card can be made operational again, possibly after
++performing a full electrical #RST of the PCI card.  The API below
++provides a generic API for device drivers to be notified of PCI
++errors, and to be notified of, and respond to, a reset sequence.
++
++Preliminary sketch of API, cut-n-pasted-n-modified email from
++Ben Herrenschmidt, circa 5 april 2005
++
++The error recovery API support is exposed to the driver in the form of
++a structure of function pointers pointed to by a new field in struct
++pci_driver. The absence of this pointer in pci_driver denotes an
++"non-aware" driver, behaviour on these is platform dependant.
++Platforms like ppc64 can try to simulate pci hotplug remove/add.
++
++The definition of "pci_error_token" is not covered here. It is based on
++Seto's work on the synchronous error detection. We still need to define
++functions for extracting infos out of an opaque error token. This is
++separate from this API.
++
++This structure has the form:
++
++struct pci_error_handlers
++{
++	int (*error_detected)(struct pci_dev *dev, pci_error_token error);
++	int (*mmio_enabled)(struct pci_dev *dev);
++	int (*resume)(struct pci_dev *dev);
++	int (*link_reset)(struct pci_dev *dev);
++	int (*slot_reset)(struct pci_dev *dev);
++};
++
++A driver doesn't have to implement all of these callbacks. The
++only mandatory one is error_detected(). If a callback is not
++implemented, the corresponding feature is considered unsupported.
++For example, if mmio_enabled() and resume() aren't there, then the
++driver is assumed as not doing any direct recovery and requires
++a reset. If link_reset() is not implemented, the card is assumed as
++not caring about link resets, in which case, if recover is supported,
++the core can try recover (but not slot_reset() unless it really did
++reset the slot). If slot_reset() is not supported, link_reset() can
++be called instead on a slot reset.
++
++At first, the call will always be :
++
++	1) error_detected()
++
++	Error detected. This is sent once after an error has been detected. At
++this point, the device might not be accessible anymore depending on the
++platform (the slot will be isolated on ppc64). The driver may already
++have "noticed" the error because of a failing IO, but this is the proper
++"synchronisation point", that is, it gives a chance to the driver to
++cleanup, waiting for pending stuff (timers, whatever, etc...) to
++complete; it can take semaphores, schedule, etc... everything but touch
++the device. Within this function and after it returns, the driver
++shouldn't do any new IOs. Called in task context. This is sort of a
++"quiesce" point. See note about interrupts at the end of this doc.
++
++	Result codes:
++		- PCIERR_RESULT_CAN_RECOVER:
++		  Driever returns this if it thinks it might be able to recover
++		  the HW by just banging IOs or if it wants to be given
++		  a chance to extract some diagnostic informations (see
++		  below).
++		- PCIERR_RESULT_NEED_RESET:
++		  Driver returns this if it thinks it can't recover unless the
++		  slot is reset.
++		- PCIERR_RESULT_DISCONNECT:
++		  Return this if driver thinks it won't recover at all,
++		  (this will detach the driver ? or just leave it
++		  dangling ? to be decided)
++
++So at this point, we have called error_detected() for all drivers
++on the segment that had the error. On ppc64, the slot is isolated. What
++happens now typically depends on the result from the drivers. If all
++drivers on the segment/slot return PCIERR_RESULT_CAN_RECOVER, we would
++re-enable IOs on the slot (or do nothing special if the platform doesn't
++isolate slots) and call 2). If not and we can reset slots, we go to 4),
++if neither, we have a dead slot. If it's an hotplug slot, we might
++"simulate" reset by triggering HW unplug/replug though.
++
++>>> Current ppc64 implementation assumes that a device driver will
++>>> *not* schedule or semaphore in this routine; the current ppc64
++>>> implementation uses one kernel thread to notify all devices;
++>>> thus, of one device sleeps/schedules, all devices are affected.
++>>> Doing better requires complex multi-threaded logic in the error
++>>> recovery implementation (e.g. waiting for all notification threads
++>>> to "join" before proceeding with recovery.)  This seems excessively
++>>> complex and not worth implementing.
++
++>>> The current ppc64 implementation doesn't much care if the device
++>>> attempts i/o at this point, or not.  I/O's will fail, returning
++>>> a value of 0xff on read, and writes will be dropped. If the device
++>>> driver attempts more than 10K I/O's to a frozen adapter, it will
++>>> assume that the device driver has gone into an infinite loop, and
++>>> it will panic the the kernel.
++
++	2) mmio_enabled()
++
++	This is the "early recovery" call. IOs are allowed again, but DMA is
++not (hrm... to be discussed, I prefer not), with some restrictions. This
++is NOT a callback for the driver to start operations again, only to
++peek/poke at the device, extract diagnostic information, if any, and
++eventually do things like trigger a device local reset or some such,
++but not restart operations. This is sent if all drivers on a segment
++agree that they can try to recover and no automatic link reset was
++performed by the HW. If the platform can't just re-enable IOs without
++a slot reset or a link reset, it doesn't call this callback and goes
++directly to 3) or 4). All IOs should be done _synchronously_ from
++within this callback, errors triggered by them will be returned via
++the normal pci_check_whatever() api, no new error_detected() callback
++will be issued due to an error happening here. However, such an error
++might cause IOs to be re-blocked for the whole segment, and thus
++invalidate the recovery that other devices on the same segment might
++have done, forcing the whole segment into one of the next states,
++that is link reset or slot reset.
++
++	Result codes:
++		- PCIERR_RESULT_RECOVERED
++		  Driver returns this if it thinks the device is fully
++		  functionnal and thinks it is ready to start
++		  normal driver operations again. There is no
++		  guarantee that the driver will actually be
++		  allowed to proceed, as another driver on the
++		  same segment might have failed and thus triggered a
++		  slot reset on platforms that support it.
++
++		- PCIERR_RESULT_NEED_RESET
++		  Driver returns this if it thinks the device is not
++		  recoverable in it's current state and it needs a slot
++		  reset to proceed.
++
++		- PCIERR_RESULT_DISCONNECT
++		  Same as above. Total failure, no recovery even after
++		  reset driver dead. (To be defined more precisely)
++
++>>> The current ppc64 implementation does not implement this callback.
++
++	3) link_reset()
++
++	This is called after the link has been reset. This is typically
++a PCI Express specific state at this point and is done whenever a
++non-fatal error has been detected that can be "solved" by resetting
++the link. This call informs the driver of the reset and the driver
++should check if the device appears to be in working condition.
++This function acts a bit like 2) mmio_enabled(), in that the driver
++is not supposed to restart normal driver I/O operations right away.
++Instead, it should just "probe" the device to check it's recoverability
++status. If all is right, then the core will call resume() once all
++drivers have ack'd link_reset().
++
++	Result codes:
++		(identical to mmio_enabled)
++
++>>> The current ppc64 implementation does not implement this callback.
++
++	4) slot_reset()
++
++	This is called after the slot has been soft or hard reset by the
++platform.  A soft reset consists of asserting the adapter #RST line
++and then restoring the PCI BARs and PCI configuration header. If the
++platform supports PCI hotplug, then it might instead perform a hard
++reset by toggling power on the slot off/on. This call gives drivers
++the chance to re-initialize the hardware (re-download firmware, etc.),
++but drivers shouldn't restart normal I/O processing operations at
++this point.  (See note about interrupts; interrupts aren't guaranteed
++to be delivered until the resume() callback has been called). If all
++device drivers report success on this callback, the patform will call
++resume() to complete the error handling and let the driver restart
++normal I/O processing.
++
++A driver can still return a critical failure for this function if
++it can't get the device operational after reset.  If the platform
++previously tried a soft reset, it migh now try a hard reset (power
++cycle) and then call slot_reset() again.  It the device still can't
++be recovered, there is nothing more that can be done;  the platform
++will typically report a "permanent failure" in such a case.  The
++device will be considered "dead" in this case.
++
++	Result codes:
++		- PCIERR_RESULT_DISCONNECT
++		Same as above.
++
++>>> The current ppc64 implementation does not try a power-cycle reset
++>>> if the driver returned PCIERR_RESULT_DISCONNECT. However, it should.
++
++	5) resume()
++
++	This is called if all drivers on the segment have returned
++PCIERR_RESULT_RECOVERED from one of the 3 prevous callbacks.
++That basically tells the driver to restart activity, tht everything
++is back and running. No result code is taken into account here. If
++a new error happens, it will restart a new error handling process.
++
++That's it. I think this covers all the possibilities. The way those
++callbacks are called is platform policy. A platform with no slot reset
++capability for example may want to just "ignore" drivers that can't
++recover (disconnect them) and try to let other cards on the same segment
++recover. Keep in mind that in most real life cases, though, there will
++be only one driver per segment.
++
++Now, there is a note about interrupts. If you get an interrupt and your
++device is dead or has been isolated, there is a problem :)
++
++After much thinking, I decided to leave that to the platform. That is,
++the recovery API only precies that:
++
++ - There is no guarantee that interrupt delivery can proceed from any
++device on the segment starting from the error detection and until the
++restart callback is sent, at which point interrupts are expected to be
++fully operational.
++
++ - There is no guarantee that interrupt delivery is stopped, that is, ad
++river that gets an interrupts after detecting an error, or that detects
++and error within the interrupt handler such that it prevents proper
++ack'ing of the interrupt (and thus removal of the source) should just
++return IRQ_NOTHANDLED. It's up to the platform to deal with taht
++condition, typically by masking the irq source during the duration of
++the error handling. It is expected that the platform "knows" which
++interrupts are routed to error-management capable slots and can deal
++with temporarily disabling that irq number during error processing (this
++isn't terribly complex). That means some IRQ latency for other devices
++sharing the interrupt, but there is simply no other way. High end
++platforms aren't supposed to share interrupts between many devices
++anyway :)
++
++
++Revised: 31 May 2005 Linas Vepstas <linas@austin.ibm.com>
+Index: linux-2.6.15-rc3-mm1/MAINTAINERS
+===================================================================
+--- linux-2.6.15-rc3-mm1.orig/MAINTAINERS	2005-12-01 15:17:24.000000000 -0600
++++ linux-2.6.15-rc3-mm1/MAINTAINERS	2005-12-02 19:14:19.126269787 -0600
+@@ -1997,6 +1997,13 @@
+ L:	linux-abi-devel@lists.sourceforge.net
+ S:	Maintained
+ 
++PCI ERROR RECOVERY
++P:	Linas Vepstas
++M:	linas@austin.ibm.com
++L:	linux-kernel@vger.kernel.org
++L:	linux-pci@atrey.karlin.mff.cuni.cz
++S:	Supported
++
+ PCI SOUND DRIVERS (ES1370, ES1371 and SONICVIBES)
+ P:	Thomas Sailer
+ M:	sailer@ife.ee.ethz.ch

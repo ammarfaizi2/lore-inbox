@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbVLCVyl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbVLCWIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751284AbVLCVyl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 16:54:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbVLCVyl
+	id S1750873AbVLCWIs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 17:08:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbVLCWIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 16:54:41 -0500
-Received: from mail.kroah.org ([69.55.234.183]:12774 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751284AbVLCVyk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 16:54:40 -0500
-Date: Sat, 3 Dec 2005 13:54:24 -0800
-From: Greg KH <greg@kroah.com>
-To: "M." <vo.sinh@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Message-ID: <20051203215424.GA5444@kroah.com>
-References: <20051203135608.GJ31395@stusta.de> <9a8748490512030629t16d0b9ebv279064245743e001@mail.gmail.com> <20051203201945.GA4182@kroah.com> <f0cc38560512031254j3b28d579s539be721c247c10a@mail.gmail.com> <20051203211209.GA4937@kroah.com> <f0cc38560512031331x3f4006e5sc2ff51414f07ada7@mail.gmail.com>
+	Sat, 3 Dec 2005 17:08:48 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:3515 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750873AbVLCWIr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 17:08:47 -0500
+Subject: Re: 2.6.14-rt21 & evolution
+From: Lee Revell <rlrevell@joe-job.com>
+To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1133642866.16477.11.camel@cmn3.stanford.edu>
+References: <1133642866.16477.11.camel@cmn3.stanford.edu>
+Content-Type: text/plain
+Date: Sat, 03 Dec 2005 17:08:56 -0500
+Message-Id: <1133647737.5890.2.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f0cc38560512031331x3f4006e5sc2ff51414f07ada7@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 03, 2005 at 10:31:03PM +0100, M. wrote:
-> makes sense, but are you sure having distros like Debian, enterprise
-> products from redhat etc using the same 6months release for their
-> stable versions does not translate in minor fragmentation on kernel
-> development and in benefits for every user?
+On Sat, 2005-12-03 at 12:47 -0800, Fernando Lopez-Lezcano wrote:
+> Hi Ingo... just a heads up. I've been running 2.6.14-rt21 for a few days
+> and the timing issues seem to be gone on my X2 machine, as the main
+> timing is no longer derived from the TSC's. Very good! It should work
+> great with a patched Jack (that does not use TSC for its internal timing
+> measurements). 
+> 
+> But I'm seeing a recurrent problem that so far I can only blame -rt21
+> for. When I start evolution (on a fully patched 32 bit fc4 system) it
+> eventually dies.
 
-It hasn't so far from my viewpoint.  Do you think it has?
+I was seeing exactly the same problem here.  I don't think it's related
+to -rt21, I think someome posted a malformed message to LKML or one of
+the other lists that we are both on and Evo is choking on it.  It starts
+to download the mail then you get "Storing folder" for like 5 minutes
+then it crashes.
 
-> Under this light i think a 6months cycle starts to mean something when
-> stable distros gets older and older (debian and redhat enterprise are
-> released every 18/24 months) and developers and who wants bleeding
-> edge features can always use Fedora, openSUSE, Gentoo etc. Another
-> advantage would be to benefit external projects and hardware producers
-> writing open drivers, enlowering the effort in writing and mantaining
-> a driver.
+I finally managed to get into my mail by (carefully) deleting ALL
+metadata - all the .index, .index.data, .cmeta, and .ev-summary files
+from .evolution.
 
-Drivers belong in the main kernel.org kernel tree.  See
-Documentation/stable-api-nonsense.txt for why this is so, and
-Documentation/HOWTO for how to get this accomplished.  It is explained
-in great detail there.  If you have further questions about this, please
-let us know.
+Lee
 
-thanks,
-
-greg k-h

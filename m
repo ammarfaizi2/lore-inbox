@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbVLCP7s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbVLCQLf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932067AbVLCP7s (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 10:59:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbVLCP5U
+	id S1751278AbVLCQLf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 11:11:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbVLCQLf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 10:57:20 -0500
-Received: from aveiro.procergs.com.br ([200.198.128.42]:56246 "EHLO
+	Sat, 3 Dec 2005 11:11:35 -0500
+Received: from aveiro.procergs.com.br ([200.198.128.42]:35257 "EHLO
 	aveiro.procergs.com.br") by vger.kernel.org with ESMTP
-	id S1751292AbVLCP5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 10:57:17 -0500
-Cc: Otavio Salvador <otavio@debian.org>
-Subject: [PATCH 10/11] PARPORT: replace all uses of pci_module_init with pci_register_driver
-In-Reply-To: <11336254301170-git-send-email-otavio@debian.org>
-X-Mailer: git-send-email
-Date: Sat, 3 Dec 2005 13:57:10 -0200
-Message-Id: <11336254303400-git-send-email-otavio@debian.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Otavio Salvador <otavio@debian.org>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
+	id S1751278AbVLCQLe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 11:11:34 -0500
 From: Otavio Salvador <otavio@debian.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/11] OSS: replace all uses of pci_module_init with pci_register_driver
+Organization: O.S. Systems Ltda.
+References: <11336254302237-git-send-email-otavio@debian.org>
+X-URL: http://www.debian.org/~otavio/
+X-Attribution: O.S.
+Date: Sat, 03 Dec 2005 14:12:28 -0200
+In-Reply-To: <11336254302237-git-send-email-otavio@debian.org> (Otavio
+	Salvador's message of "Sat, 3 Dec 2005 13:57:10 -0200")
+Message-ID: <87r78u2m8j.fsf@nurf.casa>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch replace all calls to pci_module_init, that's deprecated and
-will be removed in future, with pci_register_driver that should be
-the used function now.
+Otavio Salvador <otavio@debian.org> writes:
 
-Signed-off-by: Otavio Salvador <otavio@debian.org>
+> diff --git a/sound/oss/es1371.c b/sound/oss/es1371.c
+> index 12a56d5..f770df8 100644
+> --- a/sound/oss/es1371.c
+> +++ b/sound/oss/es1371.c
+> @@ -94,7 +94,7 @@
+>   *    07.02.2000   0.24  Use pci_alloc_consistent and pci_register_driver
+>   *    07.02.2000   0.25  Use ac97_codec
+>   *    01.03.2000   0.26  SPDIF patch by Mikael Bouillot <mikael.bouillot@bigfoot.com>
+> - *                       Use pci_module_init
+> + *                       Use pci_register_driver
+>   *    21.11.2000   0.27  Initialize dma buffers in poll, otherwise poll may return a bogus mask
+>   *    12.12.2000   0.28  More dma buffer initializations, patch from
+>   *                       Tjeerd Mulder <tjeerd.mulder@fujitsu-siemens.com>
+> @@ -3090,7 +3090,7 @@ static struct pci_driver es1371_driver =
 
+This hook shouldn't be applied. Sorry for that.
 
----
-
- drivers/parport/parport_serial.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-applies-to: 70d62cdda70b6e84fe0b2f8135423cc8fb3c3514
-20666144f6463e5c0671ba3df6541b504dcb7e23
-diff --git a/drivers/parport/parport_serial.c b/drivers/parport/parport_serial.c
-index d3dad0a..76dd077 100644
---- a/drivers/parport/parport_serial.c
-+++ b/drivers/parport/parport_serial.c
-@@ -464,7 +464,7 @@ static struct pci_driver parport_serial_
- 
- static int __init parport_serial_init (void)
- {
--	return pci_module_init (&parport_serial_pci_driver);
-+	return pci_register_driver (&parport_serial_pci_driver);
- }
- 
- static void __exit parport_serial_exit (void)
----
-0.99.9k
-
-
+-- 
+        O T A V I O    S A L V A D O R
+---------------------------------------------
+ E-mail: otavio@debian.org      UIN: 5906116
+ GNU/Linux User: 239058     GPG ID: 49A5F855
+ Home Page: http://www.freedom.ind.br/otavio
+---------------------------------------------
+"Microsoft gives you Windows ... Linux gives
+ you the whole house."

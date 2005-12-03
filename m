@@ -1,113 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbVLCB3p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbVLCBaU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750770AbVLCB3p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 20:29:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbVLCB3p
+	id S1751138AbVLCBaU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 20:30:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbVLCBaT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 20:29:45 -0500
-Received: from zproxy.gmail.com ([64.233.162.199]:102 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750770AbVLCB3o convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 20:29:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WB7lKqztKli3Rq209eQcCvLUF3Joahs/BsxnV+Tltm0DtlcXk/4h2MYybPgp04KYMdQqVerSgtvToFXQbcqN8LXaGWmkE65R8skb6CDEBHSLFryd8zSQMkckuM6en3mjcg7A6FFCe1/cE3P/zaXbQfoLBKH83ZVPfYxLpkoB1lw=
-Message-ID: <9a8748490512021729t145291c0h8ba5b8bdb0513d9e@mail.gmail.com>
-Date: Sat, 3 Dec 2005 02:29:43 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] touch softlockup watchdog in ide_wait_not_busy
-In-Reply-To: <200511291555.27202.jesper.juhl@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200511291555.27202.jesper.juhl@gmail.com>
+	Fri, 2 Dec 2005 20:30:19 -0500
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:56020 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750783AbVLCBaS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 20:30:18 -0500
+Subject: [ANNOUNCE] clean-boot.pl version 0.1 - Simple utility to clean up
+	/boot and /lib/modules
+From: Steven Rostedt <rostedt@goodmis.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Fri, 02 Dec 2005 20:30:15 -0500
+Message-Id: <1133573415.32583.108.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+I'm not sure if this has been done already or not (let me know if it
+has), but I've just noticed that after playing with several
+developmental kernels I had about 30 to 40 different versions of
+vmlinuz, initrd.img, config, and System.maps in my /boot directory, not
+to mention all the modules loaded in /lib/modules.
 
-Now that Alexander confirmed this patch fixed his problem, any reason
-it couldn't go into -mm ?
+So I wrote this perl script that let me pick and choose what I wanted to
+clean up.  Be careful, this must be run as root, and although the
+default is to do nothing, if you hit a "y" in the wrong place, you can
+lose that kernel.
 
-He gave this feedback :
-On 11/30/05, Alexander V. Inyukhin <shurick@sectorb.msk.ru> wrote:
-...
-> It seems to work.
-> I have no BUG messages during boot with this patch.
+The script is here:
 
+http://www.kihontech.com/code/clean-boot.pl
 
-/Jesper
+Here's the usage:
 
+# ./clean-boot.pl -h
 
-On 11/29/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> Hi,
->
-> This is a resend of a patch I proposed in the
-> "[BUG] 2.6.15-rc1, soft lockup detected while probing IDE devices on AMD7441"
-> thread.
-> I recieved no ACK/NACK or other feedback on the patch, so I'm resending it in
-> the hope of getting some comments :)
->
->
-> From: Jesper Juhl <jesper.juhl@gmail.com>
->
-> Make sure we touch the softlockup watchdog in
-> ide_wait_not_busy() since it may cause the watchdog to trigger, but
-> there's really no point in that since the loop will eventually return, and
-> triggering the watchdog won't do us any good anyway.
->
-> The  if (!(timeout % 128))  bit is a guess that since
-> touch_softlockup_watchdog() is a per_cpu thing it will be cheaper to do the
-> modulo calculation than calling the function every time through the loop,
-> especially as the nr of CPU's go up. But it's purely a guess, so I may very
-> well be wrong - also, 128 is an arbitrarily chosen value, it's just a nice
-> number that'll give us <10 function calls pr second.
->
-> Since I have no IDE devices in my box I'm unable to test this beyond making
-> sure it compiles without warnings or errors (which it does).
->
-> Let me know what you think.
->
-> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
-> ---
->
->  drivers/ide/ide-iops.c |    8 ++++++++
->  1 files changed, 8 insertions(+)
->
-> diff -up linux-2.6.15-rc3-orig/drivers/ide/ide-iops.c linux-2.6.15-rc3/drivers/ide/ide-iops.c
-> --- linux-2.6.15-rc3-orig/drivers/ide/ide-iops.c        2005-11-29 15:30:32.000000000 +0100
-> +++ linux-2.6.15-rc3/drivers/ide/ide-iops.c     2005-11-29 15:44:23.000000000 +0100
-> @@ -24,6 +24,7 @@
->  #include <linux/hdreg.h>
->  #include <linux/ide.h>
->  #include <linux/bitops.h>
-> +#include <linux/sched.h>
->
->  #include <asm/byteorder.h>
->  #include <asm/irq.h>
-> @@ -1243,6 +1244,13 @@ int ide_wait_not_busy(ide_hwif_t *hwif,
->                  */
->                 if (stat == 0xff)
->                         return -ENODEV;
-> +
-> +               /*
-> +                * We risk triggering the soft lockup detector, but we don't
-> +                * want that, so better poke it a bit once in a while.
-> +                */
-> +               if (!(timeout % 128))
-> +                       touch_softlockup_watchdog();
->         }
->         return -EBUSY;
->  }
->
->
->
+usage: clean-boot.pl [-b boot_dir] [-m module_dir]
+  (version 0.1)
+   default boot_dir = /boot
+   default module_dir = /lib/modules
 
+It's run like the following:
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+---
+#./clean-boot.pl
+List of versions found:
+  2.6.12-1-386              2.6.14                    2.6.14-2-386
+  2.6.14-2-k7-smp           2.6.14-kthrt2             2.6.14-rt13
+  2.6.14-rt13-logdev1       2.6.14-rt15               2.6.14-rt20
+  2.6.15-rc3
+Remove files for version 2.6.12-1-386 [y/N/l/q/?]:  ?
+  y - remove files from boot and modules
+  n [default] - skip this version
+  l - list the found versions again
+  q - quit
+  ? - display this message
+Remove files for version 2.6.12-1-386 [y/N/l/q/?]:  q
+---
+
+If you hit "y" (or yes or ye, case is ignored), it will then remove any
+of the vmlinuz, initrd.img, config and System.map files for version
+2.6.12-1-386 in /boot and the directory /lib/modules/2.6.12-1-386.
+
+This is under just a public license, no warranty, so just be careful not
+to delete too much.
+
+Also remember to update lilo or grub, since this doesn't handle that.
+
+Comments?
+
+-- Steve
+

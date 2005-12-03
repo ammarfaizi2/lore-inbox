@@ -1,62 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbVLCJw0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbVLCKDX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751046AbVLCJw0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 04:52:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbVLCJw0
+	id S1751228AbVLCKDX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 05:03:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750905AbVLCKDX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 04:52:26 -0500
-Received: from krusty.dt.E-Technik.uni-dortmund.de ([129.217.163.1]:10665 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S1751046AbVLCJwZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 04:52:25 -0500
-Date: Sat, 3 Dec 2005 10:52:20 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 3C905C-TX
-Message-ID: <20051203095220.GA31216@merlin.emma.line.org>
-Mail-Followup-To: Linux kernel <linux-kernel@vger.kernel.org>
-References: <eab8d9e30511300459j695ed942n@mail.gmail.com> <Pine.LNX.4.61.0511300813190.18193@chaos.analogic.com> <9a8748490511300602u2cf9f972od6617b8fe777bd9a@mail.gmail.com>
+	Sat, 3 Dec 2005 05:03:23 -0500
+Received: from gold.veritas.com ([143.127.12.110]:32083 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751228AbVLCKDW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 05:03:22 -0500
+Date: Sat, 3 Dec 2005 10:03:04 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Blaisorblade <blaisorblade@yahoo.it>
+cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       linux-mm@vger.kernel.org
+Subject: Re: [2.6.15-rc1+ regression] do_file_page bug introduced in recent
+ rework
+In-Reply-To: <200512020111.56671.blaisorblade@yahoo.it>
+Message-ID: <Pine.LNX.4.61.0512031000360.8984@goblin.wat.veritas.com>
+References: <200512020111.56671.blaisorblade@yahoo.it>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <9a8748490511300602u2cf9f972od6617b8fe777bd9a@mail.gmail.com>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 03 Dec 2005 10:03:07.0140 (UTC) FILETIME=[C225DC40:01C5F7F0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Nov 2005, Jesper Juhl wrote:
+On Fri, 2 Dec 2005, Blaisorblade wrote:
+> I recently found a bug introduced in your commit 
+> 65500d234e74fc4e8f18e1a429bc24e51e75de4a, i.e. between 2.6.14 and 2.6.15-rc1, 
+> about do_file_page changes wrt remap_file_pages and MAP_POPULATE.
+> 
+> Quoting from the changelog (which is wrong):
+> 
+>     do_file_page's fallback to do_no_page dates from a time when we were 
+> testing
+>     pte_file by using it wherever possible: currently it's peculiar to 
+> nonlinear
+>     vmas, so just check that.  BUG_ON if not?  Better not, it's probably page
+>     table corruption, so just show the pte: hmm, there's a pte_ERROR macro, 
+> let's
+>     use that for do_wp_page's invalid pfn too.
+> 
+> This is false:
+> 
+> do_mmap_pgoff:
+>         if (flags & MAP_POPULATE) {
+>                 up_write(&mm->mmap_sem);
+>                 sys_remap_file_pages(addr, len, 0,
+>                                         pgoff, flags & MAP_NONBLOCK);
+>                 down_write(&mm->mmap_sem);
+>         }
+> 
+> So, with MAP_POPULATE|MAP_NONBLOCK passed, you can get a linear PAGE_FILE pte 
+> in a !VM_NONLINEAR vma.
+> 
+> That PTE is very useless since it doesn't add any information, I know that, so 
+> avoiding that possible installation is a possible fix, but for now it's 
+> simpler to change the test in do_file_page(). Btw, in fact I discovered this 
+> bug while I was implementing this optimization (working again on 
+> remap_file_pages() patches of this summer).
+> 
+> Indeed, the condition to test (and to possibly BUG_ON/pte_ERROR) is that 
+> ->populate must exist for the sys_remap_file_pages call to work.
 
-> On 11/30/05, linux-os (Dick Johnson) <linux-os@analogic.com> wrote:
-> >
-> > On Wed, 30 Nov 2005, [iso-8859-1] Daniel Höhnle wrote:
-> >
-> > > Hello i have Suse Linux 9.3 and a 3Com 3C905C-TX Networkcard. But she
-> > > don't works. Where can I get a Driver??? Or give it a Dokumentation
-> > > how I can make the Driver??
-> > >
-> > > Thanks
-> > > Daniel Höhnle
-> >
-> > The 3c59x driver should work for this device. If it's real
-> > new, you may have to add its ID to the structure at line
-> > 3365 in 3x59x.c or contact the maintainer.
-> >
-> The 3c90x driver available from 3COM themselves is another alternative
-> : http://support.3com.com/infodeli/tools/nic/linuxdownload.htm
+I'm puzzled.  Both filemap_populate and shmem_populate
+now test VM_NONLINEAR before calling install_file_pte.
 
-At that site, there are apparently no 3Com drivers for 2.6 kernels (SUSE
-9.3 uses 2.6.11.something IIRC), 3Com link to Donald Becker's driver
-<http://www.scyld.com/vortex.html> instead.
-
-SUSE ships with the 3c59x driver (no big surprise, it's in the kernel
-baseline), and this works with all 3C90X cards I've ever used (Boomerang
-and Tornado series) with SUSE Linux.
-
-SUSE Linux has no problems either with configuring this card through
-YaST's LAN module, and the process is described in detail, with
-screenshots, in the administration manual (chapter 22.4).
-
--- 
-Matthias Andree
+Hugh

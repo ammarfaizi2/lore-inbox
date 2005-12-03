@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbVLCP7s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbVLCP7s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932065AbVLCP7s (ORCPT <rfc822;willy@w.ods.org>);
+	id S932067AbVLCP7s (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 3 Dec 2005 10:59:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751297AbVLCP5T
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbVLCP5U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 10:57:19 -0500
-Received: from covilha.procergs.com.br ([200.198.128.244]:45005 "EHLO
-	covilha.procergs.com.br") by vger.kernel.org with ESMTP
-	id S1751281AbVLCP5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 10:57:20 -0500
+Received: from aveiro.procergs.com.br ([200.198.128.42]:56246 "EHLO
+	aveiro.procergs.com.br") by vger.kernel.org with ESMTP
+	id S1751292AbVLCP5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 3 Dec 2005 10:57:17 -0500
 Cc: Otavio Salvador <otavio@debian.org>
-Subject: [PATCH 6/11] i386: replace all uses of pci_module_init with pci_register_driver
-In-Reply-To: <11336254304109-git-send-email-otavio@debian.org>
+Subject: [PATCH 10/11] PARPORT: replace all uses of pci_module_init with pci_register_driver
+In-Reply-To: <11336254301170-git-send-email-otavio@debian.org>
 X-Mailer: git-send-email
 Date: Sat, 3 Dec 2005 13:57:10 -0200
-Message-Id: <11336254304060-git-send-email-otavio@debian.org>
+Message-Id: <11336254303400-git-send-email-otavio@debian.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Otavio Salvador <otavio@debian.org>
@@ -33,24 +33,24 @@ Signed-off-by: Otavio Salvador <otavio@debian.org>
 
 ---
 
- arch/i386/kernel/scx200.c |    2 +-
+ drivers/parport/parport_serial.c |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
-applies-to: 43d6f837c1b309ac228b08c4aa5cc6373646c699
-d17794f0f6eca4998e47b9488964bb197e7d693f
-diff --git a/arch/i386/kernel/scx200.c b/arch/i386/kernel/scx200.c
-index 9c968ae..321f5fd 100644
---- a/arch/i386/kernel/scx200.c
-+++ b/arch/i386/kernel/scx200.c
-@@ -143,7 +143,7 @@ static int __init scx200_init(void)
- {
- 	printk(KERN_INFO NAME ": NatSemi SCx200 Driver\n");
+applies-to: 70d62cdda70b6e84fe0b2f8135423cc8fb3c3514
+20666144f6463e5c0671ba3df6541b504dcb7e23
+diff --git a/drivers/parport/parport_serial.c b/drivers/parport/parport_serial.c
+index d3dad0a..76dd077 100644
+--- a/drivers/parport/parport_serial.c
++++ b/drivers/parport/parport_serial.c
+@@ -464,7 +464,7 @@ static struct pci_driver parport_serial_
  
--	return pci_module_init(&scx200_pci_driver);
-+	return pci_register_driver(&scx200_pci_driver);
+ static int __init parport_serial_init (void)
+ {
+-	return pci_module_init (&parport_serial_pci_driver);
++	return pci_register_driver (&parport_serial_pci_driver);
  }
  
- static void __exit scx200_cleanup(void)
+ static void __exit parport_serial_exit (void)
 ---
 0.99.9k
 

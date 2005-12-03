@@ -1,101 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbVLCO6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbVLCPLR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751267AbVLCO6w (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 09:58:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbVLCO6w
+	id S1751272AbVLCPLR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 10:11:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbVLCPLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 09:58:52 -0500
-Received: from lug-owl.de ([195.71.106.12]:15274 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1751267AbVLCO6v (ORCPT
+	Sat, 3 Dec 2005 10:11:17 -0500
+Received: from pat.uio.no ([129.240.130.16]:12477 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1751272AbVLCPLR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 09:58:51 -0500
-Date: Sat, 3 Dec 2005 15:58:48 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Jeff Haran <jharan@Brocade.COM>
-Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] ip / ifconfig redesign
-Message-ID: <20051203145848.GK13985@lug-owl.de>
-Mail-Followup-To: Jeff Haran <jharan@Brocade.COM>,
-	linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <447BB19E14004A4388CB9A864D2BA7630DF693@hq-ex-6.brocade.com>
+	Sat, 3 Dec 2005 10:11:17 -0500
+Subject: Re: 2.6.15-rc3: adduser: unable to lock password file
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: JaniD++ <djani22@dynamicweb.hu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <00e501c5f809$99c70bc0$0400a8c0@dcccs>
+References: <016c01c5f6cc$0e28e6d0$0400a8c0@dcccs>
+	 <1133481721.9597.37.camel@lade.trondhjem.org>
+	 <00e501c5f809$99c70bc0$0400a8c0@dcccs>
+Content-Type: text/plain
+Date: Sat, 03 Dec 2005 10:11:03 -0500
+Message-Id: <1133622663.7911.5.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="icsXL8FABjDeMLkQ"
-Content-Disposition: inline
-In-Reply-To: <447BB19E14004A4388CB9A864D2BA7630DF693@hq-ex-6.brocade.com>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.768, required 12,
+	autolearn=disabled, AWL 1.04, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2005-12-03 at 14:00 +0100, JaniD++ wrote:
 
---icsXL8FABjDeMLkQ
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Here is the strace-s output:     (20KB)
+> http://download.netcenter.hu/bughunt/20051203/adduser.log
+> 
+> This problem is always on on 2.6.15-rc3, and newer on 2.6.14.2
 
-On Fri, 2005-12-02 14:34:08 -0800, Jeff Haran <jharan@Brocade.COM> wrote:
-> > > The obvious benefit here, would be the transparent ability=20
-> > for apps to bind=20
-> > > to addresses, regardless of the link existence.
-> >=20
-> > # echo 1 > /proc/sys/net/ipv4/ip_nonlocal_bind
-> >=20
-> > and/or bind to address 0 (aka 0.0.0.0) instead of a given IP address.
-> kchan          :root> ip addr show
-> 1: lo: <LOOPBACK,UP> mtu 16436 qdisc noqueue=20
->     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
->     inet 127.0.0.1/16 scope host lo
-> 2: eth0: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast qlen 100
->     link/ether 00:05:1e:35:00:49 brd ff:ff:ff:ff:ff:ff
->     inet 10.32.246.19/20 brd 10.32.255.255 scope global eth0
->     inet 10.32.246.16/20 brd 10.32.255.255 scope global secondary eth0:1
-> 3: eth1: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast qlen 100
->     link/ether 00:05:1e:35:00:4a brd ff:ff:ff:ff:ff:ff
->     inet 10.0.0.6/24 brd 10.255.255.255 scope global eth1
-> 4: eth2: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast qlen 100
->     link/ether 00:05:1e:35:00:4b brd ff:ff:ff:ff:ff:ff
->     inet 127.1.16.16/24 brd 127.255.255.255 scope global eth2
-> 6: fc0: <BROADCAST,UP> mtu 2024 qdisc pfifo_fast qlen 100
->     link/ieee802 00:05:1e:35:00:49 brd ff:ff:ff:ff:ff:ff
->     inet 2.3.4.6/24 brd 2.3.4.255 scope global fc0
-> kchan          :root> ip addr add 4.5.6.7
-> Not enough information: "dev" argument is required.
-> kchan          :root>=20
+OK... Looks like it is bailing out after the lines
 
-We were talking about apps binding to a non-local address. That is,
-some locally running server binds to any address that is not yet there
-(anything except 0.0.0.0, 127.0.0.1, 10.32.246.19, 109.32.246.16,
-10.0.0.6, 127.1.16.16, 2.3.4.6).  So we're talking about two different
-subjects...
+link("/etc/passwd.2522", "/etc/passwd.lock") = 0
+stat64("/etc/passwd.2522", {st_mode=S_IFREG|0600, st_size=5, ...}) = 0
 
-MfG, JBG
+I'll bet the stat64 is filing to show that the file now has 2 links.
 
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
+As a first step, could you please grab the 2 patches
 
---icsXL8FABjDeMLkQ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+  http://client.linux-nfs.org/Linux-2.6.x/2.6.15-rc4/linux-2.6.15-01-nfs-cache-init.dif
+and
+  http://client.linux-nfs.org/Linux-2.6.x/2.6.15-rc4/linux-2.6.15-02-fix_cache_consistency.dif
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+and see if they fix the problem?
 
-iD8DBQFDkbKnHb1edYOZ4bsRAogrAJ9b2X6mto19iI9qHBoJLO0UHjoi3wCfYPJ6
-iRguQ9bRB09HRr4ugdMDTK0=
-=6soG
------END PGP SIGNATURE-----
+Cheers,
+  Trond
 
---icsXL8FABjDeMLkQ--

@@ -1,58 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbVLCNBG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbVLCNGG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751253AbVLCNBG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 08:01:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbVLCNBF
+	id S1751252AbVLCNGG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 08:06:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbVLCNGF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 08:01:05 -0500
-Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:42720 "EHLO
-	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S1751253AbVLCNBE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 08:01:04 -0500
-Message-ID: <02cd01c5f809$95a94620$4168010a@bsd.tnes.nec.co.jp>
-From: "Takashi Sato" <sho@bsd.tnes.nec.co.jp>
-To: "Andreas Dilger" <adilger@clusterfs.com>
-Cc: "Dave Kleikamp" <shaggy@austin.ibm.com>, <linux-kernel@vger.kernel.org>,
-       <linux-fsdevel@vger.kernel.org>
-References: <01e901c5f66e$d4551b70$4168010a@bsd.tnes.nec.co.jp> <1133447539.8557.14.camel@kleikamp.austin.ibm.com> <041701c5f742$d6b0a450$4168010a@bsd.tnes.nec.co.jp> <20051202185805.GS14509@schatzie.adilger.int>
-Subject: Re: stat64 for over 2TB file returned invalid st_blocks
-Date: Sat, 3 Dec 2005 22:00:44 +0900
+	Sat, 3 Dec 2005 08:06:05 -0500
+Received: from ns.dynamicweb.hu ([195.228.155.139]:27015 "EHLO dynamicweb.hu")
+	by vger.kernel.org with ESMTP id S1751252AbVLCNGF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 08:06:05 -0500
+Message-ID: <00e501c5f809$99c70bc0$0400a8c0@dcccs>
+From: "JaniD++" <djani22@dynamicweb.hu>
+To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
+Cc: <linux-kernel@vger.kernel.org>
+References: <016c01c5f6cc$0e28e6d0$0400a8c0@dcccs> <1133481721.9597.37.camel@lade.trondhjem.org>
+Subject: Re: 2.6.15-rc3: adduser: unable to lock password file
+Date: Sat, 3 Dec 2005 14:00:52 +0100
 MIME-Version: 1.0
 Content-Type: text/plain;
-	format=flowed;
-	charset="ISO-8859-1";
-	reply-type=original
+	charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
 X-Priority: 3
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-> On Dec 02, 2005  22:18 +0900, Takashi Sato wrote:
->> I also found another problem on generic quota code.  In
->> dquot_transfer(), the file usage is calculated from i_blocks via
->> inode_get_bytes().  If the file is over 2TB, the change of usage is
->> less than expected.
->> 
->> To solve this problem, I think inode.i_blocks should be 8 byte.
-> 
-> Actually, it should probably be "sector_t", because it isn't really
-> possible to have a file with more blocks than the size of the block
-> device.  This avoids memory overhead for small systems that have no
-> need for it in a very highly-used struct.  It may be for some network
-> filesystems that support gigantic non-sparse files they would need to
-> enable CONFIG_LBD in order to get support for this.
+----- Original Message ----- 
+From: "Trond Myklebust" <trond.myklebust@fys.uio.no>
+To: "JaniD++" <djani22@dynamicweb.hu>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Friday, December 02, 2005 1:02 AM
+Subject: Re: 2.6.15-rc3: adduser: unable to lock password file
 
-I think sector_t is ok for local filesystem as you said.  However,
-on NFS, there may be over 2TB file on server side, and inode.i_blocks
-for over 2TB file will become invalid on client side in case CONFIG_LBD
-is disabled.
 
-So, I think inode.i_blocks should be a type of 8 byte
-(ex. unsigned long long).  How does it look?
+> On Thu, 2005-12-01 at 23:47 +0100, JaniD++ wrote:
+> > Hello, list,
+> >
+> > I get this after upgrade from 2.6.14.2
+> >
+> > [root@dy-xeon-1 etc]# adduser someuser
+> > adduser: unable to lock password file
+> > [root@dy-xeon-1 etc]#
+> >
+> > I use nfsroot!
+>
+> I'm seeing no trouble with locking on 2.6.15-rc3 (with or without the
+> -onolock option). Could you please use 'strace' to get a dump of what
+> adduser is failing on?
 
--- Takashi Sato
+Here is the strace-s output:     (20KB)
+http://download.netcenter.hu/bughunt/20051203/adduser.log
+
+This problem is always on on 2.6.15-rc3, and newer on 2.6.14.2
+
+Cheers,
+Janos
+
+>
+> Cheers,
+>  Trond
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

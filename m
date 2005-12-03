@@ -1,38 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbVLCVG1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750937AbVLCVKd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750874AbVLCVG1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 16:06:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbVLCVG1
+	id S1750937AbVLCVKd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 16:10:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750985AbVLCVKd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 16:06:27 -0500
-Received: from mail.kroah.org ([69.55.234.183]:27094 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750874AbVLCVG0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 16:06:26 -0500
-Date: Sat, 3 Dec 2005 12:56:27 -0800
-From: Greg KH <greg@kroah.com>
-To: Otavio Salvador <otavio@debian.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/11] OSS: replace all uses of pci_module_init with pci_register_driver
-Message-ID: <20051203205627.GB4573@kroah.com>
-References: <11336254302237-git-send-email-otavio@debian.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <11336254302237-git-send-email-otavio@debian.org>
-User-Agent: Mutt/1.5.11
+	Sat, 3 Dec 2005 16:10:33 -0500
+Received: from hulk.hostingexpert.com ([69.57.134.39]:62016 "EHLO
+	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S1750918AbVLCVKc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 16:10:32 -0500
+Message-ID: <439209C6.9080004@m1k.net>
+Date: Sat, 03 Dec 2005 16:10:30 -0500
+From: Michael Krufky <mkrufky@m1k.net>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+CC: linux-kernel@vger.kernel.org, kraxel@bytesex.org
+Subject: Re: CX8800 driver and 2.6.15-RC2
+References: <20051202201408.GA11046@mail.muni.cz> <4390B0A7.8060306@m1k.net> <20051203180740.GA11293@mail.muni.cz>
+In-Reply-To: <20051203180740.GA11293@mail.muni.cz>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - m1k.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 03, 2005 at 01:57:10PM -0200, Otavio Salvador wrote:
-> This patch replace all calls to pci_module_init, that's deprecated and
-> will be removed in future, with pci_register_driver that should be
-> the used function now.
+Lukas Hejtmanek wrote:
 
-Sorry, but Richard Knutsson <ricknu-0@student.ltu.se> already did all of
-this last week.  His patches are in the latest -mm release, and are in
-my queue too.
+>On Fri, Dec 02, 2005 at 03:37:59PM -0500, Michael Krufky wrote:
+>  
+>
+>>It was a memory management bug.... Already fixed in -rc3 (where new bugs 
+>>were introduced) ...
+>>
+>>-rc4 isn't bad, but a whole slew of v4l / dvb bugfixes went in JUST 
+>>after -rc4 release...
+>>
+>>Can you try 2.6.15-rc4-git1 and let us know how things are?
+>>    
+>>
+>well, with 2.6.15-rc4-git video_buf related problems are gone, but it's still
+>far from usable. xawtv is unable to use tunner.
+>
+Which card do you have?  What card # does it report in dmesg?  What 
+tuner # is it using?  What is the PCI Subsystem id?
 
-thanks,
+The following MIGHT fix it.... If so, I'll need the answers to the four 
+questions above, in order to make this behavior occur by default:
 
-greg k-h
+modprobe  tda9887
+
+This fixes the problem for analog video with pcHDTV 3000 and DViCO 
+FusionHDTV3 Gold-T.  We've already fixed it in cvs so that this will be 
+detected by default, if you have a different card, we might have to 
+apply a similar fix.  If that doesn't help, then it's a different bug.
+
+>Moreover, it seems that it cannot get another capture format than 320x240 RGB.
+>
+-- 
+Michael Krufky
+
+

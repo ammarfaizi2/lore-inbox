@@ -1,120 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbVLCQjx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbVLCQy5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751296AbVLCQjx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 11:39:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbVLCQjx
+	id S932076AbVLCQy5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 11:54:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbVLCQy5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 11:39:53 -0500
-Received: from mail.gmx.de ([213.165.64.20]:29164 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751296AbVLCQjw (ORCPT
+	Sat, 3 Dec 2005 11:54:57 -0500
+Received: from mx1.rowland.org ([192.131.102.7]:47110 "HELO mx1.rowland.org")
+	by vger.kernel.org with SMTP id S1751294AbVLCQy4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 11:39:52 -0500
-X-Authenticated: #428038
-Date: Sat, 3 Dec 2005 17:39:49 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Matthias Andree <matthias.andree@gmx.de>,
-       Heinz Mauelshagen <mauelshagen@redhat.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] aic79xx should be able to ignore HostRAID enabled adapters
-Message-ID: <20051203163949.GA3431@merlin.emma.line.org>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Heinz Mauelshagen <mauelshagen@redhat.com>,
-	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01E3E318@otce2k03.adaptec.com> <20051201144745.GI2782@redhat.com> <20051203112208.GC31216@merlin.emma.line.org> <4391C575.6030501@pobox.com>
+	Sat, 3 Dec 2005 11:54:56 -0500
+Date: Sat, 3 Dec 2005 11:54:52 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Patrizio Bassi <patrizio.bassi@gmail.com>
+cc: linux-usb-devel@lists.sourceforge.net, <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] [BUG] 2.6.15-rc4-git1 ehci suspend regression
+In-Reply-To: <4391553C.2060208@gmail.com>
+Message-ID: <Pine.LNX.4.44L0.0512031145520.4924-100000@netrider.rowland.org>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="sdtB3X0nJg68CQEu"
-Content-Disposition: inline
-In-Reply-To: <4391C575.6030501@pobox.com>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 3 Dec 2005, Patrizio Bassi wrote:
 
---sdtB3X0nJg68CQEu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Sat, 03 Dec 2005, Jeff Garzik wrote:
-
-> Matthias Andree wrote:
-> >In my message I asked whether it was feasible for you to look at
-> >FreeBSD's "ataraid(4)" driver to learn the Intel ICHx-R SoftRAID format.
-> >I know FreeBSD understands this format, and dmraid did not when I sent
-> >the email.
+> Yesterday i wrote i got all my suspend problems fixed in -rc3.
 > 
-> Read the readme :)
+> i tried -rc4-git1 and got another problem after suspend.
 > 
-> http://people.redhat.com/~heinzm/sw/dmraid/readme
+> on resume, i can use no more che ehci device (pci usb card).
+> on -rc3, after resume hotplug could reload device driver, while with rc4
+> device is no more found, neither after unplug/replug.
 > 
-> The following ATARAID types are supported:
+> infact lsusb shows:
+> Bus 004 Device 001: ID 0000:0000
+> Bus 003 Device 001: ID 0000:0000
+> Bus 002 Device 001: ID 0000:0000
+> Bus 001 Device 001: ID 0000:0000
 > 
-> Highpoint HPT37X
-> Highpoint HPT45X
-> Intel Software RAID
-> [...]
+> i have to reboot (usb are built-in)
+> and i can get:
+> 
+> Bus 004 Device 001: ID 0000:0000
+> Bus 003 Device 001: ID 0000:0000
+> Bus 002 Device 004: ID 0915:8000 GlobeSpan, Inc.
+> Bus 002 Device 001: ID 0000:0000
+> Bus 001 Device 001: ID 0000:0000
+> 
+> 
+> this is a rc4 regression, i saw Greg posted some patches...
+> 
+> this is the dmesg:
+> 
+> 
+> Stopping tasks: ===================|
+> Freeing memory... done (4076 pages freed)
+> ACPI: PCI interrupt for device 0000:00:0d.0 disabled
+> ACPI: PCI interrupt for device 0000:00:0a.2 disabled
+> ACPI: PCI interrupt for device 0000:00:0a.1 disabled
+> ACPI: PCI interrupt for device 0000:00:0a.0 disabled
+> ACPI: PCI interrupt for device 0000:00:09.0 disabled
+> ACPI: PCI interrupt for device 0000:00:04.2 disabled
+> swsusp: Need to copy 7852 pages
+> ACPI: PCI Interrupt 0000:00:04.2[D] -> Link [LNKD] -> GSI 9 (level, low)
+> -> IRQ 9
+> ACPI: PCI Interrupt 0000:00:09.0[A] -> Link [LNKD] -> GSI 9 (level, low)
+> -> IRQ 9
+> ACPI: PCI Interrupt 0000:00:09.0[A] -> Link [LNKD] -> GSI 9 (level, low)
+> -> IRQ 9
+> eth0: Setting promiscuous mode.
+> ACPI: PCI Interrupt 0000:00:0a.0[A] -> Link [LNKC] -> GSI 5 (level, low)
+> -> IRQ 5
+> ACPI: PCI Interrupt 0000:00:0a.1[B] -> Link [LNKD] -> GSI 9 (level, low)
+> -> IRQ 9
+> ACPI: PCI Interrupt 0000:00:0a.2[C] -> Link [LNKA] -> GSI 11 (level,
+> low) -> IRQ 11
+> ehci_hcd 0000:00:0a.2: USB 2.0 started, EHCI 0.95, driver 10 Dec 2004
+> ACPI: PCI Interrupt 0000:00:0b.0[A] -> Link [LNKB] -> GSI 10 (level,
+> low) -> IRQ 10
+> ACPI: PCI Interrupt 0000:00:0d.0[A] -> Link [LNKD] -> GSI 9 (level, low)
+> -> IRQ 9
+> ACPI: PCI Interrupt 0000:00:0d.0[A] -> Link [LNKD] -> GSI 9 (level, low)
+> -> IRQ 9
+> eth1: Setting promiscuous mode.
+> Restarting tasks... done
+> usb 2-2: new full speed USB device using uhci_hcd and address 3
+> usb 2-2: device descriptor read/64, error -71
+> usb 2-2: device descriptor read/64, error -71
+> usb 2-2: new full speed USB device using uhci_hcd and address 4
+> usb 2-2: device descriptor read/64, error -71
+> usb 2-2: device descriptor read/64, error -71
+> usb 2-2: new full speed USB device using uhci_hcd and address 5
+> usb 2-2: device not accepting address 5, error -71
+> usb 2-2: new full speed USB device using uhci_hcd and address 6
+> usb 2-2: device not accepting address 6, error -71
+> usb 2-2: new full speed USB device using uhci_hcd and address 7
+> usb 2-2: device descriptor read/64, error -71
+> usb 2-2: device descriptor read/64, error -71
+> usb 2-2: new full speed USB device using uhci_hcd and address 8
+> usb 2-2: device descriptor read/64, error -71
+> usb 2-2: device descriptor read/64, error -71
+> usb 2-2: new full speed USB device using uhci_hcd and address 9
+> usb 2-2: device not accepting address 9, error -71
+> usb 2-2: new full speed USB device using uhci_hcd and address 10
+> usb 2-2: device not accepting address 10, error -71
+> 
+> lspci
+> 00:00.0 Host bridge: Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX Host
+> bridge (rev 03)
+> 00:01.0 PCI bridge: Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX AGP
+> bridge (rev 03)
+> 00:04.0 ISA bridge: Intel Corporation 82371AB/EB/MB PIIX4 ISA (rev 02)
+> 00:04.1 IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 01)
+> 00:04.2 USB Controller: Intel Corporation 82371AB/EB/MB PIIX4 USB (rev 01)
+> 00:04.3 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ACPI (rev 02)
+> 00:09.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone]
+> (rev 30)
+> 00:0a.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
+> Controller (rev 50)
+> 00:0a.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
+> Controller (rev 50)
+> 00:0a.2 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 51)
+> 00:0b.0 Multimedia audio controller: Ensoniq ES1370 [AudioPCI] (rev 01)
+> 00:0d.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado]
+> (rev 74)
+> 01:00.0 VGA compatible controller: ATI Technologies Inc Rage 128 RF/SG AGP
 
-I know it claimed support, but didn't appear to work for me (kernel
-2.6.13 as on SUSE 10.0, ICH7-R chipset).
+This sounds a lot like a problem reported some time ago by Oliver Neukum.  
+It seems as if there's something wrong with the way the EHCI controller 
+manages the PORT_OWNER bit, or the way the internal hardware switch obeys 
+it.
 
-What good is this readme if "dmraid -s" doesn't come up with anything?
+What happens if you plug the GlobeSpan device into a motherboard USB port 
+instead of a port on the PCI card?
 
-I cannot recreate the problem any more, as the machine, as I wrote, has
-moved forward to an Escalade 8000 series controller (it's more
-convenient anyhow).
+Alan Stern
 
-Attached my original message from 4 weeks ago.
-
--- 
-Matthias Andree
-
---sdtB3X0nJg68CQEu
-Content-Type: message/rfc822
-Content-Disposition: inline
-
-Date: Tue, 8 Nov 2005 23:19:48 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Mauelshagen@RedHat.com
-Subject: dmraid vs. ICH7-R fakeraid
-Message-ID: <20051108221948.GA26912@merlin.emma.line.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-
-Heinz,
-
-I'm not sure if you can read German or if that's adequate, so I'm
-writing in English.  But if you find German more convenient, feel free
-to use it in your reply.
-
-I was recently asked to install SUSE Linux on a Primergy RX100S3, to
-find out that Linux's libata AHCI driver 1. doesn't support hotplug yet
-(as of 2.6.13, to be more precise), 2. doesn't understand the BIOS RAID
-stuff. It exposes my SATA RAID1 physical volumes as block devices though.
-
-I tried dmraid 1.0.0.rc8, but apparently it is unable to understand this
-Intel metadata layout.
-
-I then tried FreeBSD 6 since it claims support, and it (ataraid(4))
-indeed detects the Intel software RAID layout properly; unfortunately
-the underlying ata(4) driver only detects the drive if the BIOS is set
-to "compatibility" mode which makes one drive disappear - so FreeBSD
-doesn't work for this particular machine yet (I presume 6.1 will do).
-
-However, as the FreeBSD kernel sources are open source and AFAIR without
-BSD advertising clause, it should be safe to ask: could you have a look
-at the FreeBSD ataraid(4) source code and see if you can learn the
-ICH7-R metadata layout and bring it into dmraid 1.0.0.rc10?
-
-Thank you.
-
-Kind regards,
-
--- 
-Matthias Andree
-
---sdtB3X0nJg68CQEu--

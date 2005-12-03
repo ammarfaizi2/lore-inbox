@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbVLCSRR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbVLCSSu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932102AbVLCSRR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 13:17:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbVLCSRR
+	id S932118AbVLCSSu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 13:18:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbVLCSSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 13:17:17 -0500
-Received: from host9.apollohosting.com ([209.239.47.119]:26825 "EHLO
-	host9.apollohosting.com") by vger.kernel.org with ESMTP
-	id S932102AbVLCSRQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 13:17:16 -0500
-From: "Larry Bates" <lbates@syscononline.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: newbie - mdadm create raid1 mirrors on large drives
-Date: Sat, 3 Dec 2005 12:17:15 -0600
-Message-ID: <002501c5f835$cb6bec50$1e00a8c0@LABWXP>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <20051203175355.GL31395@stusta.de>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
-Importance: Normal
+	Sat, 3 Dec 2005 13:18:50 -0500
+Received: from a34-mta01.direcpc.com ([66.82.4.90]:46913 "EHLO
+	a34-mta01.direcway.com") by vger.kernel.org with ESMTP
+	id S932118AbVLCSSu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 13:18:50 -0500
+Date: Sat, 03 Dec 2005 09:31:03 -0500
+From: Ben Collins <bcollins@ubuntu.com>
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+In-reply-to: <20051203135608.GJ31395@stusta.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <1133620264.2171.14.camel@localhost.localdomain>
+Organization: Ubuntu Linux
+MIME-version: 1.0
+X-Mailer: Evolution 2.5.2
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <20051203135608.GJ31395@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I hope this is the correct list for this question.
+On Sat, 2005-12-03 at 14:56 +0100, Adrian Bunk wrote:
+> The current kernel development model is pretty good for people who 
+> always want to use or offer their costumers the maximum amount of the 
+> latest bugs^Wfeatures without having to resort on additional patches for 
+> them.
+> 
+> Problems of the current development model from a user's point of view 
+> are:
+> - many regressions in every new release
+> - kernel updates often require updates for the kernel-related userspace 
+>   (e.g. for udev or the pcmcia tools switch)
+> 
+> One problem following from this is that people continue to use older 
+> kernels with known security holes because the amount of work for kernel 
+> upgrades is too high.
 
-I've just recently begun using mdadm to set up some
-arrays using large drives (300-400Gb).  One of the 
-things I don't understand is this: when you first 
-create a raid1 (mirrored) array from two drives 
-mdadm insists on mirroring the contents of the first
-drive to the second even though the drives are
-entirely blank (e.g. new drives don't have anything
-on them).  In one configuration I have, this takes
-about 16 hours on a 400Gb drive.  When I do 5 of them
-simultaneously this takes 2+ days to complete.  Is 
-there some way to tell mdadm that you want to create 
-a mirrored set but skip this rather long initial 
-mirroring process?  I don't really see that it actually
-accomplishes anything.
+What you're suggesting sounds just like going back to the old style of
+development where 2.<even>.x is stable, and 2.<odd>.x is development.
+You might as well just suggest that after 2.6.16, we fork to 2.7.0, and
+2.6.17+ will be stable increments like we always used to do.
 
-Thanks in advance for your assistance.
+You're just munging the version scheme :)
 
--Larry Bates
-
+-- 
+   Ben Collins <ben.collins@ubuntu.com>
+   Developer
+   Ubuntu Linux
 

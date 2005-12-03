@@ -1,69 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750918AbVLCVNs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbVLCVO5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750918AbVLCVNs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 16:13:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750993AbVLCVNs
+	id S1750993AbVLCVO5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 16:14:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbVLCVO5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 16:13:48 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:41384 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750863AbVLCVNr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 16:13:47 -0500
-Date: Sat, 3 Dec 2005 16:13:29 -0500
-From: Dave Jones <davej@redhat.com>
-To: Lars Marowsky-Bree <lmb@suse.de>
+	Sat, 3 Dec 2005 16:14:57 -0500
+Received: from covilha.procergs.com.br ([200.198.128.244]:22693 "EHLO
+	covilha.procergs.com.br") by vger.kernel.org with ESMTP
+	id S1750993AbVLCVO4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 16:14:56 -0500
+From: Otavio Salvador <otavio@debian.org>
+To: Greg KH <greg@kroah.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Message-ID: <20051203211329.GC25015@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org
-References: <20051203135608.GJ31395@stusta.de> <20051203205911.GX18919@marowsky-bree.de>
-Mime-Version: 1.0
+Subject: Re: [PATCH 1/11] OSS: replace all uses of pci_module_init with pci_register_driver
+Organization: O.S. Systems Ltda.
+References: <11336254302237-git-send-email-otavio@debian.org>
+	<20051203205627.GB4573@kroah.com>
+X-URL: http://www.debian.org/~otavio/
+X-Attribution: O.S.
+Date: Sat, 03 Dec 2005 19:15:46 -0200
+In-Reply-To: <20051203205627.GB4573@kroah.com> (Greg KH's message of "Sat, 3
+	Dec 2005 12:56:27 -0800")
+Message-ID: <873bl93mrh.fsf@nurf.casa>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051203205911.GX18919@marowsky-bree.de>
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 03, 2005 at 09:59:11PM +0100, Lars Marowsky-Bree wrote:
- > On 2005-12-03T14:56:08, Adrian Bunk <bunk@stusta.de> wrote:
- > 
- > > The current kernel development model is pretty good for people who 
- > > always want to use or offer their costumers the maximum amount of the 
- > > latest bugs^Wfeatures without having to resort on additional patches for 
- > > them.
- > > 
- > > Problems of the current development model from a user's point of view 
- > > are:
- > > - many regressions in every new release
- > > - kernel updates often require updates for the kernel-related userspace 
- > >   (e.g. for udev or the pcmcia tools switch)
- > 
- > Your problem statement is correct, but you're fixing the symptoms, not
- > the cause.
- > 
- > What we need is an easier way for users to pull in kernel updates with
- > the matching kernel-related user-space.
- > 
- > This is provided, though with some lag, by Fedora, openSUSE, Debian
- > testing, dare I say gentoo and others.
- > 
- > The right way to address this is to work with the distribution of your
- > choice to make these updates available faster.
+Greg KH <greg@kroah.com> writes:
 
-The big problem is though that we don't typically find out that
-we've regressed until after a kernel update is in the end-users hands.
+> On Sat, Dec 03, 2005 at 01:57:10PM -0200, Otavio Salvador wrote:
+>> This patch replace all calls to pci_module_init, that's deprecated and
+>> will be removed in future, with pci_register_driver that should be
+>> the used function now.
+>
+> Sorry, but Richard Knutsson <ricknu-0@student.ltu.se> already did all of
+> this last week.  His patches are in the latest -mm release, and are in
+> my queue too.
 
-In many cases, submitters of changes know that things are going
-to break. Maybe we need a policy that says changes requiring userspace updates
-need to be clearly documented in the mails Linus gets (Especially if its
-a git pull request), so that when the next point release gets released,
-Linus can put a section in the announcement detailing what bits
-of userspace are needed to be updated.
+No problem. He did it on all source or just oss subsystem?
 
-It still isn't to solve the problem of regressions in drivers, but
-that's a problem that's not easily solvable.
-
-		Dave
-
+-- 
+        O T A V I O    S A L V A D O R
+---------------------------------------------
+ E-mail: otavio@debian.org      UIN: 5906116
+ GNU/Linux User: 239058     GPG ID: 49A5F855
+ Home Page: http://www.freedom.ind.br/otavio
+---------------------------------------------
+"Microsoft gives you Windows ... Linux gives
+ you the whole house."

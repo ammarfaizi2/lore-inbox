@@ -1,34 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbVLCSWF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbVLCS03@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932120AbVLCSWF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 13:22:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbVLCSWF
+	id S932123AbVLCS03 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 13:26:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932124AbVLCS02
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 13:22:05 -0500
-Received: from rtr.ca ([64.26.128.89]:65434 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S932120AbVLCSWE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 13:22:04 -0500
-Message-ID: <4391E240.2020902@rtr.ca>
-Date: Sat, 03 Dec 2005 13:21:52 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: David Ranson <david@unsolicited.net>
-Cc: Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
-       Matthias Andree <matthias.andree@gmx.de>
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-References: <20051203135608.GJ31395@stusta.de>	 <1133620598.22170.14.camel@laptopd505.fenrus.org>	 <20051203152339.GK31395@stusta.de>	 <20051203162755.GA31405@merlin.emma.line.org>	 <4391CEC7.30905@unsolicited.net> <1133630012.6724.7.camel@localhost.localdomain> <4391D335.7040008@unsolicited.net>
-In-Reply-To: <4391D335.7040008@unsolicited.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 3 Dec 2005 13:26:28 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:38554 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932123AbVLCS02 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 13:26:28 -0500
+Subject: Re: copy_from_user/copy_to_user question
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Vinay Venkataraghavan <raghavanvinay@yahoo.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <p73hd9p4xmu.fsf@verdi.suse.de>
+References: <5fv0G-3kS-11@gated-at.bofh.it> <5fvam-3vP-9@gated-at.bofh.it>
+	 <43910731.4090404@shaw.ca> <1133580225.4894.29.camel@localhost.localdomain>
+	 <p73hd9p4xmu.fsf@verdi.suse.de>
+Content-Type: text/plain
+Date: Sat, 03 Dec 2005 13:26:18 -0500
+Message-Id: <1133634378.6724.16.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Ranson wrote:
->
-> Ahh OK .. I don't use it, so wouldn't have been affected. That's one
-> userspace interface broken during the series, does anyone have any more?
+On Sat, 2005-12-03 at 15:35 -0700, Andi Kleen wrote:
+> Steven Rostedt <rostedt@goodmis.org> writes:
+> > 
+> > Nope, the kernel is always locked into memory.  If you take a page fault
+> > from the kernel world, you will crash and burn. The kernel is never
+> > "swapped out".  So if you are in kernel mode, going into do_page_fault
+> > in arch/i386/mm/fault.c there is no path to swap a page in.
+> 
+> Actually there is - when the page fault was caused by *_user. 
 
-vbetool.
+Sorry I wasn't clearer.  I know the copy_user case (and explained it in
+detail earlier in this thread). I was talking about what happens in the
+memcpy case.  So that should have said "outside of copy_user and
+friends, there is no path to swap a page in".
+
+-- Steve
+
+

@@ -1,190 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbVLCFlc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbVLCHKS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751191AbVLCFlc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 00:41:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbVLCFlc
+	id S1751170AbVLCHKS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 02:10:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbVLCHKI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 00:41:32 -0500
-Received: from havoc.gtf.org ([69.61.125.42]:38051 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1751179AbVLCFlb (ORCPT
+	Sat, 3 Dec 2005 02:10:08 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:2494 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S1751162AbVLCHKH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 00:41:31 -0500
-Date: Sat, 3 Dec 2005 00:41:27 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: linux-ide@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Tejun Heo <htejun@gmail.com>,
-       Ethan Chen <thanatoz@ucla.edu>,
-       Carlos Pardo <Carlos.Pardo@siliconimage.com>
-Subject: [PATCH] sata_sil: improved interrupt handling
-Message-ID: <20051203054127.GA11208@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Sat, 3 Dec 2005 02:10:07 -0500
+Message-Id: <20051203071609.755741000@localhost.localdomain>
+References: <20051203071444.260068000@localhost.localdomain>
+Date: Sat, 03 Dec 2005 15:14:45 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, Wu Fengguang <wfg@mail.ustc.edu.cn>
+Subject: [PATCH 01/16] mm: delayed page activation
+Content-Disposition: inline; filename=mm-delayed-activation.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+When a page is referenced the second time in inactive_list, mark it with
+PG_activate instead of moving it into active_list immediately. The actual
+moving work is delayed to vmscan time.
 
-Just committed the following to the 'sii-irq' branch of libata-dev.git,
-and verified it on an Adaptec 1210SA (3112).
+This implies two essential changes:
+- keeps the adjecency of pages in lru;
+- lifts the page reference counter max from 1 to 3.
 
-Haven't decided whether I will push it upstream or not, but I think I
-will.  It does a bit better job of handling handling errors, and should
-be more efficient (less CPU usage) than the standard ATA interrupt
-handler as well.
+And leads to the following improvements:
+- read-ahead for a leading reader will not be disturbed by a following reader;
+- enables the thrashing protection logic to save pages for following readers;
+- keeping relavant pages together helps improve I/O efficiency;
+- and also helps decrease vm fragmantation;
+- increased refcnt space might help page replacement algorithms.
 
-For users seeing sata_sil problems, this may make them happy.
+Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
+---
 
+ include/linux/page-flags.h |   31 +++++++++++++++++++++++++++++++
+ mm/page_alloc.c            |    1 +
+ mm/swap.c                  |    9 ++++-----
+ mm/vmscan.c                |    6 ++++++
+ 4 files changed, 42 insertions(+), 5 deletions(-)
 
-commit b6abf7755a79383f0e5f108d23a0394f156c54c1
-Author: Jeff Garzik <jgarzik@pobox.com>
-Date:   Sat Dec 3 00:30:57 2005 -0500
-
-    [libata sata_sil] improved interrupt handling
-
- drivers/scsi/sata_sil.c |  118 +++++++++++++++++++++++++++++++++++++++++++++++-
- 1 files changed, 117 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/scsi/sata_sil.c b/drivers/scsi/sata_sil.c
-index 3609186..37398a5 100644
---- a/drivers/scsi/sata_sil.c
-+++ b/drivers/scsi/sata_sil.c
-@@ -85,6 +85,7 @@ static void sil_dev_config(struct ata_po
- static u32 sil_scr_read (struct ata_port *ap, unsigned int sc_reg);
- static void sil_scr_write (struct ata_port *ap, unsigned int sc_reg, u32 val);
- static void sil_post_set_mode (struct ata_port *ap);
-+static irqreturn_t sil_irq (int irq, void *dev_instance, struct pt_regs *regs);
+--- linux.orig/include/linux/page-flags.h
++++ linux/include/linux/page-flags.h
+@@ -76,6 +76,7 @@
+ #define PG_reclaim		17	/* To be reclaimed asap */
+ #define PG_nosave_free		18	/* Free, should not be written */
+ #define PG_uncached		19	/* Page has been mapped as uncached */
++#define PG_activate		20	/* delayed activate */
  
+ /*
+  * Global page accounting.  One instance per CPU.  Only unsigned longs are
+@@ -314,6 +315,12 @@ extern void __mod_page_state(unsigned lo
+ #define SetPageUncached(page)	set_bit(PG_uncached, &(page)->flags)
+ #define ClearPageUncached(page)	clear_bit(PG_uncached, &(page)->flags)
  
- static const struct pci_device_id sil_pci_tbl[] = {
-@@ -167,7 +168,7 @@ static const struct ata_port_operations 
- 	.qc_prep		= ata_qc_prep,
- 	.qc_issue		= ata_qc_issue_prot,
- 	.eng_timeout		= ata_eng_timeout,
--	.irq_handler		= ata_interrupt,
-+	.irq_handler		= sil_irq,
- 	.irq_clear		= ata_bmdma_irq_clear,
- 	.scr_read		= sil_scr_read,
- 	.scr_write		= sil_scr_write,
-@@ -233,6 +234,121 @@ MODULE_DEVICE_TABLE(pci, sil_pci_tbl);
- MODULE_VERSION(DRV_VERSION);
++#define PageActivate(page)	test_bit(PG_activate, &(page)->flags)
++#define SetPageActivate(page)	set_bit(PG_activate, &(page)->flags)
++#define ClearPageActivate(page)	clear_bit(PG_activate, &(page)->flags)
++#define TestClearPageActivate(page) test_and_clear_bit(PG_activate, &(page)->flags)
++#define TestSetPageActivate(page) test_and_set_bit(PG_activate, &(page)->flags)
++
+ struct page;	/* forward declaration */
  
+ int test_clear_page_dirty(struct page *page);
+@@ -339,4 +346,28 @@ static inline void set_page_writeback(st
+ #define ClearPageFsMisc(page)		clear_bit(PG_fs_misc, &(page)->flags)
+ #define TestClearPageFsMisc(page)	test_and_clear_bit(PG_fs_misc, &(page)->flags)
  
-+static inline void sil_port_irq(struct ata_port *ap, void __iomem *mmio,
-+				u8 dma_stat, u8 dma_stat_mask)
++#if PG_activate < PG_referenced
++#error unexpected page flags order
++#endif
++
++#define PAGE_REFCNT_0		0
++#define PAGE_REFCNT_1		(1 << PG_referenced)
++#define PAGE_REFCNT_2		(1 << PG_activate)
++#define PAGE_REFCNT_3		((1 << PG_activate) | (1 << PG_referenced))
++#define PAGE_REFCNT_MASK	PAGE_REFCNT_3
++
++/*
++ * STATUS   REFERENCE COUNT
++ *  __                   0
++ *  _R       PAGE_REFCNT_1
++ *  A_       PAGE_REFCNT_2
++ *  AR       PAGE_REFCNT_3
++ *
++ *  A/R: Active / Referenced
++ */
++static inline unsigned long page_refcnt(struct page *page)
 +{
-+	struct ata_queued_cmd *qc = NULL;
-+	unsigned int err_mask = AC_ERR_OTHER;
-+	int complete = 1;
-+	u8 dev_stat;
-+
-+	/* Exit now, if port or port's irqs are disabled */
-+	if (ap->flags & (ATA_FLAG_PORT_DISABLED | ATA_FLAG_NOINTR)) {
-+		complete = 0;
-+		goto out;
-+	}
-+
-+	/* Get active command */
-+	qc = ata_qc_from_tag(ap, ap->active_tag);
-+	if ((!qc) || (qc->tf.ctl & ATA_NIEN)) {
-+		complete = 0;
-+		goto out;
-+	}
-+
-+	/* Stop DMA, if doing DMA */
-+	switch (qc->tf.protocol) {
-+	case ATA_PROT_DMA:
-+	case ATA_PROT_ATAPI_DMA:
-+		ata_bmdma_stop(qc);
-+		break;
-+
-+	default:
-+		/* do nothing */
-+		break;
-+	}
-+
-+	/* Catch PCI bus errors */
-+	if (unlikely(dma_stat_mask & ATA_DMA_ERR)) {
-+		struct pci_dev *pdev = to_pci_dev(ap->host_set->dev);
-+		u16 pci_stat;
-+
-+		pci_read_config_word(pdev, PCI_STATUS, &pci_stat);
-+		pci_write_config_word(pdev, PCI_STATUS, pci_stat);
-+
-+		err_mask = AC_ERR_HOST_BUS;
-+
-+		printk(KERN_ERR "ata%u: PCI error, pci %x, dma %x\n",
-+			ap->id, pci_stat, dma_stat);
-+		goto out;
-+	}
-+
-+	/* Read device Status, clear device interrupt */
-+	dev_stat = ata_check_status(ap);
-+
-+	/* Let timeout handler handle stuck BSY */
-+	if (unlikely(dev_stat & ATA_BUSY)) {
-+		complete = 0;
-+		goto out;
-+	}
-+
-+	/* Did S/G table specify a size smaller than the transfer size?  */
-+	if (unlikely(dma_stat_mask == 0)) {
-+		printk(KERN_ERR "ata%u: BUG: SG size underflow\n", ap->id);
-+		err_mask = AC_ERR_OTHER; /* only occurs due to coder error? */
-+		goto out;
-+	}
-+
-+	/* Clear 311x DMA completion indicator */
-+	writeb(ATA_DMA_INTR, mmio + ATA_DMA_STATUS);
-+
-+	/* Finally, complete the ATA command transaction */
-+	ata_qc_complete(qc, ac_err_mask(dev_stat));
-+	return;
-+
-+out:
-+	ata_chk_status(ap);
-+	writeb(dma_stat_mask, mmio + ATA_DMA_STATUS);
-+	if (complete)
-+		ata_qc_complete(qc, err_mask);
++	return page->flags & PAGE_REFCNT_MASK;
 +}
 +
-+static irqreturn_t sil_irq (int irq, void *dev_instance, struct pt_regs *regs)
-+{
-+	struct ata_host_set *host_set = dev_instance;
-+	unsigned int i, handled = 0;
-+
-+	spin_lock(&host_set->lock);
-+
-+	for (i = 0; i < host_set->n_ports; i++) {
-+		struct ata_port *ap;
-+		void __iomem *mmio;
-+		u8 status, mask;
-+		u32 serr;
-+
-+		ap = host_set->ports[i];
-+		if (!ap)
-+			continue;
-+
-+		mmio = (void __iomem *) ap->ioaddr.bmdma_addr;
-+		status = readb(mmio + ATA_DMA_STATUS);
-+		mask = status & (ATA_DMA_INTR | ATA_DMA_ERR | ATA_DMA_ACTIVE);
-+		if (mask == ATA_DMA_ACTIVE)
-+			continue;
-+
-+		handled = 1;
-+
-+		sil_port_irq(ap, mmio, status, mask);
-+
-+		serr = sil_scr_read(ap, SCR_ERROR);
-+		if (serr)
-+			sil_scr_write(ap, SCR_ERROR, serr);
-+	}
-+
-+	spin_unlock(&host_set->lock);
-+
-+	return IRQ_RETVAL(handled);
-+}
-+
- static unsigned char sil_get_device_cache_line(struct pci_dev *pdev)
+ #endif	/* PAGE_FLAGS_H */
+--- linux.orig/mm/page_alloc.c
++++ linux/mm/page_alloc.c
+@@ -543,6 +543,7 @@ static int prep_new_page(struct page *pa
+ 
+ 	page->flags &= ~(1 << PG_uptodate | 1 << PG_error |
+ 			1 << PG_referenced | 1 << PG_arch_1 |
++			1 << PG_activate |
+ 			1 << PG_checked | 1 << PG_mappedtodisk);
+ 	set_page_private(page, 0);
+ 	set_page_refs(page, order);
+--- linux.orig/mm/swap.c
++++ linux/mm/swap.c
+@@ -29,7 +29,6 @@
+ #include <linux/percpu.h>
+ #include <linux/cpu.h>
+ #include <linux/notifier.h>
+-#include <linux/init.h>
+ 
+ /* How many pages do we try to swap or page in/out together? */
+ int page_cluster;
+@@ -115,13 +114,13 @@ void fastcall activate_page(struct page 
+  * Mark a page as having seen activity.
+  *
+  * inactive,unreferenced	->	inactive,referenced
+- * inactive,referenced		->	active,unreferenced
+- * active,unreferenced		->	active,referenced
++ * inactive,referenced		->	activate,unreferenced
++ * activate,unreferenced	->	activate,referenced
+  */
+ void fastcall mark_page_accessed(struct page *page)
  {
- 	u8 cache_line = 0;
+-	if (!PageActive(page) && PageReferenced(page) && PageLRU(page)) {
+-		activate_page(page);
++	if (!PageActivate(page) && PageReferenced(page) && PageLRU(page)) {
++		SetPageActivate(page);
+ 		ClearPageReferenced(page);
+ 	} else if (!PageReferenced(page)) {
+ 		SetPageReferenced(page);
+--- linux.orig/mm/vmscan.c
++++ linux/mm/vmscan.c
+@@ -454,6 +454,12 @@ static int shrink_list(struct list_head 
+ 		if (PageWriteback(page))
+ 			goto keep_locked;
+ 
++		if (PageActivate(page)) {
++			ClearPageActivate(page);
++			ClearPageReferenced(page);
++			goto activate_locked;
++		}
++
+ 		referenced = page_referenced(page, 1);
+ 		/* In active use or really unfreeable?  Activate it. */
+ 		if (referenced && page_mapping_inuse(page))
+
+--

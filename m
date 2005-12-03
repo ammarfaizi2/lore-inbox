@@ -1,38 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964985AbVLFPfu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932611AbVLFPf4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964985AbVLFPfu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 10:35:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964986AbVLFPfu
+	id S932611AbVLFPf4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 10:35:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932605AbVLFPf4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 10:35:50 -0500
+	Tue, 6 Dec 2005 10:35:56 -0500
 Received: from [81.2.110.250] ([81.2.110.250]:24523 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S964985AbVLFPfu (ORCPT
+	by vger.kernel.org with ESMTP id S964986AbVLFPfz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 10:35:50 -0500
-Subject: Re: IDE + CPU Scaling problem on Via EPIA systems
+	Tue, 6 Dec 2005 10:35:55 -0500
+Subject: Re: Keyboard broken in 2.6.13.2
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dave Jones <davej@redhat.com>
-Cc: gboyce <gboyce@badbelly.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051128063212.GA18775@redhat.com>
-References: <Pine.LNX.4.64.0511272350380.17020@localhost.localdomain>
-	 <20051128063212.GA18775@redhat.com>
+To: Ben Greear <greearb@candelatech.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <43909451.20105@candelatech.com>
+References: <43909451.20105@candelatech.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Sun, 04 Dec 2005 16:22:03 +0000
-Message-Id: <1133713324.3168.3.camel@localhost>
+Date: Sat, 03 Dec 2005 10:16:28 +0000
+Message-Id: <1133604988.13652.2.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-11-28 at 01:32 -0500, Dave Jones wrote:
-> On some variants of the VIA C3, we need to quiesce all DMA operations
-> before we do a speed transition. We currently don't do that.
-> I do have a patch from someone which adds support in the longhaul
-> driver to wait for IDE transactions to stop, but to do it cleanly,
-> we really need some callbacks into the IDE layer.
+On Gwe, 2005-12-02 at 10:37 -0800, Ben Greear wrote:
+> I have a system with a super-micro P8SCI motherboard.
+> 
+> The default FC2 kernel (2.6.10-1.771_FC2smp) works fine, but
+> when I try to boot a 2.6.13.2 kernel, I see this error:
+> 
+> i8042.c: Can't read CTR while initializing i8042
+> 
+> If I hit the keyboard early in the boot, the system will just reboot.
+> 
+> If I wait a bit, then it will boot to a prompt, but no keyboard input
+> is accepted.
 
-I was under the impression you could turn the IO/MEM enable on the root
-bridge off momentarily to get the needed DMA pause safely ? Or does it
-abort rather than retry at that point ?
+Fedora Core has a patch (which was rejected upstream) which
+automatically fixes up problems with some BIOS USB emulation. On the
+base kernel you need to specify "usb-handoff" on the command line at
+boot. Another approach is to turn USB keyboard off in the BIOS.
+
+Alan
 

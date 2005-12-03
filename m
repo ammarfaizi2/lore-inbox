@@ -1,78 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbVLCViV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751297AbVLCVke@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932078AbVLCViV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 16:38:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751297AbVLCViV
+	id S1751297AbVLCVke (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 16:40:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbVLCVke
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 16:38:21 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:58510 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751284AbVLCViU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 16:38:20 -0500
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-From: Arjan van de Ven <arjan@infradead.org>
-To: "M." <vo.sinh@gmail.com>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <f0cc38560512031331x3f4006e5sc2ff51414f07ada7@mail.gmail.com>
-References: <20051203135608.GJ31395@stusta.de>
-	 <9a8748490512030629t16d0b9ebv279064245743e001@mail.gmail.com>
-	 <20051203201945.GA4182@kroah.com>
-	 <f0cc38560512031254j3b28d579s539be721c247c10a@mail.gmail.com>
-	 <20051203211209.GA4937@kroah.com>
-	 <f0cc38560512031331x3f4006e5sc2ff51414f07ada7@mail.gmail.com>
-Content-Type: text/plain
-Date: Sat, 03 Dec 2005 22:38:15 +0100
-Message-Id: <1133645895.22170.33.camel@laptopd505.fenrus.org>
+	Sat, 3 Dec 2005 16:40:34 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:50304 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751297AbVLCVkd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 16:40:33 -0500
+Date: Sat, 3 Dec 2005 22:40:20 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, Andy Isaacson <adi@hexapodia.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][mm][Fix] swsusp: fix counting of highmem pages
+Message-ID: <20051203214020.GA5198@elf.ucw.cz>
+References: <200512032140.15192.rjw@sisk.pl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200512032140.15192.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-> <sorry for the direct reply>
+> The following patch fixes a problem with swsusp that causes suspend to
+> fail on systems with the highmem zone, if many highmem pages are in use.
 > 
-> makes sense, but are you sure having distros like Debian, enterprise
-> products from redhat etc using the same 6months release for their
-> stable versions does not translate in minor fragmentation on kernel
-> development 
+> It makes swsusp count the non-free highmem pages in a correct way
+> and, consequently, release a sufficient amount of memory before suspend.
+> 
+> Please apply (Pavel, please ack if you think the patch is ok).
 
-I'm quite sure that there isn't significant fragmentation; all those
-distros in their maintenance generally only take patches that are
-already upstream (or they send them upstream during the maintenance)
-just to make sure that their long term costs don't go insane
-(eg for the $nextversion, the distros can just start clean because they
-know all bugfixes from maintenance versions are already in the new
-kernel.org kernel they get; not doing that is REALLY expensive so
-distros like to avoid that)
+Please don't, it's way too complex in my eyes. Sorry, result of
+misscomunication between me and Rafael.
 
+> +static inline unsigned int get_kmalloc_size(void)
+> +{
+> +#define CACHE(x) \
+> +	if (sizeof(struct highmem_page) <= x) \
+> +		return x;
+> +#include <linux/kmalloc_sizes.h>
+> +#undef CACHE
+> +	return sizeof(struct highmem_page);
+> +}
+> +
 
-> and in benefits for every user?
+Can we get rid of this uglyness...
 
-you can't have it both ways; you can't be "new" and "old stable" at the
-same time. 
+> @@ -437,8 +446,14 @@
+>  
+>  static int enough_free_mem(unsigned int nr_pages)
+>  {
+> -	pr_debug("swsusp: available memory: %u pages\n", nr_free_pages());
+> -	return nr_free_pages() > (nr_pages + PAGES_FOR_IO +
+> +	struct zone *zone;
+> +	unsigned int n = 0;
+> +
+> +	for_each_zone (zone)
+> +		if (!is_highmem(zone))
+> +			n += zone->free_pages;
+> +	pr_debug("swsusp: available memory: %u pages\n", n);
+> +	return n > (nr_pages + PAGES_FOR_IO +
+>  		(nr_pages + PBES_PER_PAGE - 1) / PBES_PER_PAGE);
+>  }
+>  
 
-> . Another
-> advantage would be to benefit external projects and hardware producers
-> writing open drivers, enlowering the effort in writing and mantaining
-> a driver.
+And just use 2% approximation here, too?
 
-there is an even better model for those: Get it merged into kernel.org!
+> Index: linux-2.6.15-rc3-mm1/kernel/power/swsusp.c
+> ===================================================================
+> --- linux-2.6.15-rc3-mm1.orig/kernel/power/swsusp.c	2005-12-03 00:14:49.000000000 +0100
+> +++ linux-2.6.15-rc3-mm1/kernel/power/swsusp.c	2005-12-03 21:25:07.000000000 +0100
+> @@ -635,7 +635,8 @@
+>  	printk("Shrinking memory...  ");
+>  	do {
+>  #ifdef FAST_FREE
+> -		tmp = count_data_pages() + count_highmem_pages();
+> +		tmp = 2 * count_highmem_pages();
+> +		tmp += tmp / 50 + count_data_pages();
+>  		tmp += (tmp + PBES_PER_PAGE - 1) / PBES_PER_PAGE +
+>  			PAGES_FOR_IO;
+>  		for_each_zone (zone)
 
+This part is okay. Just make enough_free_mem use similar code. (If
+possible, share the code, it is really computing the same thing).
 
-There is an even bigger deal here: even if you're not ready to get
-merged yet, staying on the same old version for 6 months is NOT going to
-help you. In fact it's worse: it is 10x easier to deal with 6 small
-steps of 1 month than to deal with 1 big step of 6 months. 
-
+								Pavel
+-- 
+Thanks, Sharp!

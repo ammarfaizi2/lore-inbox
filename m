@@ -1,41 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750858AbVLCCnX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbVLCCkB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750858AbVLCCnX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Dec 2005 21:43:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbVLCCnX
+	id S1750972AbVLCCkB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Dec 2005 21:40:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbVLCCkB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Dec 2005 21:43:23 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:28557 "EHLO
-	pd2mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1750858AbVLCCnW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Dec 2005 21:43:22 -0500
-Date: Fri, 02 Dec 2005 20:43:15 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: SMART over USB - problem
-In-reply-to: <5fuei-2bW-3@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <43910643.7080706@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <5fuei-2bW-3@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+	Fri, 2 Dec 2005 21:40:01 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:9687 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S1750972AbVLCCkA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Dec 2005 21:40:00 -0500
+Date: Sat, 3 Dec 2005 03:39:46 +0100
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: Bodo Eggert <7eggert@gmx.de>
+Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, horms@verge.net.au
+Subject: Re: security / kbd
+Message-ID: <20051203023946.GC24760@apps.cwi.nl>
+References: <5f6Fp-1ZB-11@gated-at.bofh.it> <E1EiLA5-0001VE-64@be1.lrz> <20051203013455.GB24760@apps.cwi.nl> <Pine.LNX.4.58.0512030251570.6039@be1.lrz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0512030251570.6039@be1.lrz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-art wrote:
-> works on SCSI/IDE why not on IDE over USB/IEEE1394/iSCSI/SAN... ???
+On Sat, Dec 03, 2005 at 03:11:42AM +0100, Bodo Eggert wrote:
+> On Sat, 3 Dec 2005, Andries Brouwer wrote:
+
+> > Didnt I show a "bleeding edge" patch some April 1st or so?
 > 
-> is the problem in my external usb box or in linux usb/scsi stack ???
+> It's a bad day for presenting a useful patch.
 
-The USB interface chip in the enclosure implements a purely USB mass 
-storage interface. The system knows nothing about whether the hard drive 
-in the enclosure is IDE, SCSI or whatever. I don't think there is any 
-standardized way to get SMART data out of a USB storage device.
+Hardly useful. Somewhat funny. I just looked - it was April 1st, 2002.
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
 
+> > Let me repeat what I said and you snipped:
+> > If there is a security problem, then it should be solved in user space.
+> 
+> By killing and disabeling all remote logins when root logs in or by 
+> ptracing each user program during root sessions? You'd have to do this 
+> until we find somebody to do the correct fix in the kernel.
+
+Please describe the perceived security problem.
+I see words, but no problem.
+
+You log in remotely to my machine. Want to do something evil.
+What precisely do you do?
+
+2.0.34% loadkeys -d
+Couldnt get a file descriptor referring to the console
+
+How do you propose this remotely logged-in non-root gets access to
+a console file descriptor?
+
+Andries

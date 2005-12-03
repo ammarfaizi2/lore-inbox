@@ -1,68 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751292AbVLCVSr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbVLCVbJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751292AbVLCVSr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 16:18:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbVLCVSr
+	id S1751251AbVLCVbJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 16:31:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbVLCVbJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 16:18:47 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:14487 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S1751292AbVLCVSq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 16:18:46 -0500
-Date: Sat, 3 Dec 2005 22:18:10 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
+	Sat, 3 Dec 2005 16:31:09 -0500
+Received: from nproxy.gmail.com ([64.233.182.193]:15008 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751251AbVLCVbI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 16:31:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=kdrwQA1C2Y0kJTm23fK59StoMmHOClxHUgJMwdeQr1uNgP9u7/wFR2hs/TYSaf7rNL8SbgUZYbK6ix246Y0PC79i2yKBYoS3uJMZbMQVD+NY7Nzh/urkXZwODliGTzpNYADmlOAXUYxCv7SRXTt44l6B9bvSEVk1l4WJ1fD0VHQ=
+Message-ID: <f0cc38560512031331x3f4006e5sc2ff51414f07ada7@mail.gmail.com>
+Date: Sat, 3 Dec 2005 22:31:03 +0100
+From: "M." <vo.sinh@gmail.com>
+To: Greg KH <greg@kroah.com>
 Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Message-ID: <20051203211810.GY18919@marowsky-bree.de>
-References: <20051203135608.GJ31395@stusta.de> <20051203205911.GX18919@marowsky-bree.de> <20051203211329.GC25015@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051203211209.GA4937@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20051203211329.GC25015@redhat.com>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.9i
+References: <20051203135608.GJ31395@stusta.de>
+	 <9a8748490512030629t16d0b9ebv279064245743e001@mail.gmail.com>
+	 <20051203201945.GA4182@kroah.com>
+	 <f0cc38560512031254j3b28d579s539be721c247c10a@mail.gmail.com>
+	 <20051203211209.GA4937@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2005-12-03T16:13:29, Dave Jones <davej@redhat.com> wrote:
+On 12/3/05, Greg KH <greg@kroah.com> wrote:
+> <dragging the converstation back to lkml, where it belongs...>
+>
+> On Sat, Dec 03, 2005 at 09:54:35PM +0100, M. wrote:
+> > On 12/3/05, Greg KH <greg@kroah.com> wrote:
+> > > On Sat, Dec 03, 2005 at 03:29:54PM +0100, Jesper Juhl wrote:
+> > > >
+> > > > Why can't this be done by distributors/vendors?
+> > >
+> > > It already is done by these people, look at the "enterprise" Linux
+> > > distributions and their 5 years of maintance (or whatever the number
+> > > is.)
+> > >
+> > > If people/customers want stability, they already have this option.
+> > >
+> > > thanks,
+> > >
+> > > greg k-h
+> >
+> > Yes but not home users with relatively new/bleeding edge hardware or
+> > small projects writing for example a wifi driver or a security patch
+> > or whatever without full time commitment to tracking kernel changes.
+>
+> If you are a user that wants this kind of support, then use a distro
+> that can handle this.  Obvious examples that come to mind are both
+> Debian and Gentoo and Fedora and OpenSuSE, and I'm sure there are
+> others.
+>
+> But if you are a developer, you can usually stay up to date by tracking
+> the main releases, which should be about once a month.  If you have
+> problems porting your stuff to the latest kernel when you need to submit
+> it for inclusion, there are lots of people to help point you in the
+> proper direction for what is needed to be done.
+>
+> > Enterprise products are suited for production servers,
+> > school/government/companies desktops and not for "enthusiasts" or for
+> > small kernel projects (they obviously cant write drivers or patches
+> > for custom distro kernels). Those enthusiasts have to get mad with
+> > performance regressions, new incompatibilities, new crashes etc.
+>
+> Sure, then use a different distro for them.  That's why Linux has so
+> many different ones, they all are targeted at different users.
+>
+> thanks,
+>
+> greg k-h
+>
+<sorry for the direct reply>
 
-> The big problem is though that we don't typically find out that
-> we've regressed until after a kernel update is in the end-users hands.
-> 
-> In many cases, submitters of changes know that things are going
-> to break. Maybe we need a policy that says changes requiring userspace updates
-> need to be clearly documented in the mails Linus gets (Especially if its
-> a git pull request), so that when the next point release gets released,
-> Linus can put a section in the announcement detailing what bits
-> of userspace are needed to be updated.
+makes sense, but are you sure having distros like Debian, enterprise
+products from redhat etc using the same 6months release for their
+stable versions does not translate in minor fragmentation on kernel
+development and in benefits for every user?
 
-True, but this first block doesn't really qualify as a "regression".
-Yes, a clearer-than-crystal documentation of "this kernel requires
-user-space component foo to be at least x.y.z if feature bar is used"
-would go a long way.
+Under this light i think a 6months cycle starts to mean something when
+stable distros gets older and older (debian and redhat enterprise are
+released every 18/24 months) and developers and who wants bleeding
+edge features can always use Fedora, openSUSE, Gentoo etc. Another
+advantage would be to benefit external projects and hardware producers
+writing open drivers, enlowering the effort in writing and mantaining
+a driver.
 
-And if then user-space itself was tolerant of at least version N and
-N-1, then users could even roll back one kernel version if problems
-arise.
-
-Both of these are documentation and user-space issues, and don't much
-depend on changes to kernel development model.
-
-> It still isn't to solve the problem of regressions in drivers, but
-> that's a problem that's not easily solvable.
-
-True. Regressions will always occur when driver updates happen. There'll
-always be the next bug. I don't think anyone introduces these on purpose
-;-)
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-High Availability & Clustering
-SUSE Labs, Research and Development
-SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
-"Ignorance more frequently begets confidence than does knowledge"
-
+Michele

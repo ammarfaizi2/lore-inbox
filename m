@@ -1,82 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbVLCO34@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbVLCOen@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751260AbVLCO34 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 09:29:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbVLCO3z
+	id S1751265AbVLCOen (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 09:34:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbVLCOen
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 09:29:55 -0500
-Received: from zproxy.gmail.com ([64.233.162.192]:22418 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751260AbVLCO3z convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 09:29:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pmcUu1AzRDUxt62OhcrkGmp7Dj8xoDLp6FyhkM+x50sTlkTJKIsE+OEpN3hkBl2C48g/Xzv7vgk3h5/0Lt2pDTh/GwPVEfF4fG+nyBbGrsxx3134DcKxSX1/nD7FMTBMnEALbPFAj2zPznUlCR2xG6vFErzLGJt3mD6DUmkdXlk=
-Message-ID: <9a8748490512030629t16d0b9ebv279064245743e001@mail.gmail.com>
-Date: Sat, 3 Dec 2005 15:29:54 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051203135608.GJ31395@stusta.de>
+	Sat, 3 Dec 2005 09:34:43 -0500
+Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:3011 "EHLO
+	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1751266AbVLCOem (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 09:34:42 -0500
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Sat, 3 Dec 2005 14:34:39 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org, jeffm@suse.com,
+       torvalds@osdl.org
+Subject: Re: [PATCH] fs: remove s_old_blocksize from struct super_block
+In-Reply-To: <1133609645.7989.3.camel@localhost>
+Message-ID: <Pine.LNX.4.64.0512031429360.11664@hermes-1.csi.cam.ac.uk>
+References: <1133558437.31065.6.camel@localhost> 
+ <Pine.LNX.4.64.0512031058350.11664@hermes-1.csi.cam.ac.uk>
+ <1133609645.7989.3.camel@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051203135608.GJ31395@stusta.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/3/05, Adrian Bunk <bunk@stusta.de> wrote:
-> The current kernel development model is pretty good for people who
-> always want to use or offer their costumers the maximum amount of the
-> latest bugs^Wfeatures without having to resort on additional patches for
-> them.
->
-> Problems of the current development model from a user's point of view
-> are:
-> - many regressions in every new release
-> - kernel updates often require updates for the kernel-related userspace
->   (e.g. for udev or the pcmcia tools switch)
->
-> One problem following from this is that people continue to use older
-> kernels with known security holes because the amount of work for kernel
-> upgrades is too high.
->
-> These problems follow from the development model.
->
-> The latest stable kernel series without these problems is 2.4, but 2.4
-> is becoming more and more obsolete and might e.g. lack driver support
-> for some recent hardware you want to use.
->
-> Since Andrew and Linus do AFAIK not plan to change the development
-> model, what about the following for getting a stable kernel series
-> without leaving the current development model:
->
->
-> Kernel 2.6.16 will be the base for a stable series.
->
-[snip]
+Hi,
 
-Why can't this be done by distributors/vendors?
+On Sat, 3 Dec 2005, Pekka Enberg wrote:
+> On Fri, 2 Dec 2005, Pekka Enberg wrote:
+> > > The s_old_blocksize field of struct super_block is only used as a temporary
+> > > variable in get_sb_bdev(). This patch changes the function to use a local
+> > > variable instead so we can kill the field from struct super_block.
+> 
+> On Sat, 2005-12-03 at 11:02 +0000, Anton Altaparmakov wrote:
+> > s_old_blocksize used to be used to restore the blocksize after the 
+> > filesystem had failed to mount or had unmounted.  Not restoring this leads 
+> > to all sorts of problems since the blocksize may be set for example to 4k 
+> > but some userspace app may need it to be set to 1k or whatever.  There 
+> > used to be applications that failed which is why s_old_blocksize was 
+> > introduced and it used to restore the blocksize.
+> > 
+> > I have no idea why/when the restoring has been removed but chances are the 
+> > removal was wrong.  Now every file system will need to restore the 
+> > blocksize itself (as it used to be before s_old_blocksize and blocksize 
+> > restoral was introduced).  Except whoever removed the restoration failed 
+> > to fix up all file systems.  )-:
+> 
+> It was removed in this commit, I think:
+> 
+> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/old-2.6-bkcvs.git;a=commit;h=294c42046966e927ef86c0d4ce71cff32d9b458c
 
-Any vendor is free to branch off at 2.6.<whatever> and then maintain
-that indefinately.  Why create yet-another-stable-branch?
+Yes, it certainly was removed there.  Thanks for finding the commit.  That 
+had gone past me unnoticed.
 
-In effect you'd be making 2.6.17+ into a 2.7.x tree and 2.6.16.y would
-become a 2.6 tree in 2.4.x style, with all the backporting problems
-and vendor skew that 2.4.x suffered from.
+This means we are now back to the old behaviour where fs utilities will 
+behave randomly/unpredictably depending on what fs was mounted (or even 
+was tried to be mounted!) on the device last.  So for example a failing 
+"mount -t auto" will leave the block size set to a random number when all 
+fs utilities (at least used to) asume the block size is 1k and strangeness 
+ensues.
 
-Personally I don't like this proposal. In my oppinion 2.6 + the
--stable branch as we have it now works well and people who want
-userspace & kernel in sync are perfectly free to use vendor kernels
-(which is also the recommended thing to do for most users as far as I
-know).
+I have no idea why Jeff (Mahoney) considered the setting to be 
+unnecessary, when Al Viro added the resetting code a few years ago it 
+was done precisely because utilities were behaving randomly/erratically...
 
-Just my 0.02euro.
+IMHO the above commit consitutes a regression in 2.6 kernel.
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

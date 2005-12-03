@@ -1,71 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750937AbVLCVKd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750985AbVLCVM1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750937AbVLCVKd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 16:10:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750985AbVLCVKd
+	id S1750985AbVLCVM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 16:12:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbVLCVM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 16:10:33 -0500
-Received: from hulk.hostingexpert.com ([69.57.134.39]:62016 "EHLO
-	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S1750918AbVLCVKc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 16:10:32 -0500
-Message-ID: <439209C6.9080004@m1k.net>
-Date: Sat, 03 Dec 2005 16:10:30 -0500
-From: Michael Krufky <mkrufky@m1k.net>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-CC: linux-kernel@vger.kernel.org, kraxel@bytesex.org
-Subject: Re: CX8800 driver and 2.6.15-RC2
-References: <20051202201408.GA11046@mail.muni.cz> <4390B0A7.8060306@m1k.net> <20051203180740.GA11293@mail.muni.cz>
-In-Reply-To: <20051203180740.GA11293@mail.muni.cz>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Sat, 3 Dec 2005 16:12:26 -0500
+Received: from mail.kroah.org ([69.55.234.183]:9176 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750985AbVLCVM0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 16:12:26 -0500
+Date: Sat, 3 Dec 2005 13:12:09 -0800
+From: Greg KH <greg@kroah.com>
+To: "M." <vo.sinh@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+Message-ID: <20051203211209.GA4937@kroah.com>
+References: <20051203135608.GJ31395@stusta.de> <9a8748490512030629t16d0b9ebv279064245743e001@mail.gmail.com> <20051203201945.GA4182@kroah.com> <f0cc38560512031254j3b28d579s539be721c247c10a@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <f0cc38560512031254j3b28d579s539be721c247c10a@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lukas Hejtmanek wrote:
+<dragging the converstation back to lkml, where it belongs...>
 
->On Fri, Dec 02, 2005 at 03:37:59PM -0500, Michael Krufky wrote:
->  
->
->>It was a memory management bug.... Already fixed in -rc3 (where new bugs 
->>were introduced) ...
->>
->>-rc4 isn't bad, but a whole slew of v4l / dvb bugfixes went in JUST 
->>after -rc4 release...
->>
->>Can you try 2.6.15-rc4-git1 and let us know how things are?
->>    
->>
->well, with 2.6.15-rc4-git video_buf related problems are gone, but it's still
->far from usable. xawtv is unable to use tunner.
->
-Which card do you have?  What card # does it report in dmesg?  What 
-tuner # is it using?  What is the PCI Subsystem id?
+On Sat, Dec 03, 2005 at 09:54:35PM +0100, M. wrote:
+> On 12/3/05, Greg KH <greg@kroah.com> wrote:
+> > On Sat, Dec 03, 2005 at 03:29:54PM +0100, Jesper Juhl wrote:
+> > >
+> > > Why can't this be done by distributors/vendors?
+> >
+> > It already is done by these people, look at the "enterprise" Linux
+> > distributions and their 5 years of maintance (or whatever the number
+> > is.)
+> >
+> > If people/customers want stability, they already have this option.
+> >
+> > thanks,
+> >
+> > greg k-h
+> 
+> Yes but not home users with relatively new/bleeding edge hardware or
+> small projects writing for example a wifi driver or a security patch
+> or whatever without full time commitment to tracking kernel changes.
 
-The following MIGHT fix it.... If so, I'll need the answers to the four 
-questions above, in order to make this behavior occur by default:
+If you are a user that wants this kind of support, then use a distro
+that can handle this.  Obvious examples that come to mind are both
+Debian and Gentoo and Fedora and OpenSuSE, and I'm sure there are
+others.
 
-modprobe  tda9887
+But if you are a developer, you can usually stay up to date by tracking
+the main releases, which should be about once a month.  If you have
+problems porting your stuff to the latest kernel when you need to submit
+it for inclusion, there are lots of people to help point you in the
+proper direction for what is needed to be done.
 
-This fixes the problem for analog video with pcHDTV 3000 and DViCO 
-FusionHDTV3 Gold-T.  We've already fixed it in cvs so that this will be 
-detected by default, if you have a different card, we might have to 
-apply a similar fix.  If that doesn't help, then it's a different bug.
+> Enterprise products are suited for production servers,
+> school/government/companies desktops and not for "enthusiasts" or for
+> small kernel projects (they obviously cant write drivers or patches
+> for custom distro kernels). Those enthusiasts have to get mad with
+> performance regressions, new incompatibilities, new crashes etc.
 
->Moreover, it seems that it cannot get another capture format than 320x240 RGB.
->
--- 
-Michael Krufky
+Sure, then use a different distro for them.  That's why Linux has so
+many different ones, they all are targeted at different users.
 
+thanks,
 
+greg k-h

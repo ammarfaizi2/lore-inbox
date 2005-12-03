@@ -1,80 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbVLCOen@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750893AbVLCOgp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751265AbVLCOen (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 09:34:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbVLCOen
+	id S1750893AbVLCOgp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 09:36:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751266AbVLCOgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 09:34:43 -0500
-Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:3011 "EHLO
-	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1751266AbVLCOem (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 09:34:42 -0500
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Sat, 3 Dec 2005 14:34:39 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org, jeffm@suse.com,
-       torvalds@osdl.org
-Subject: Re: [PATCH] fs: remove s_old_blocksize from struct super_block
-In-Reply-To: <1133609645.7989.3.camel@localhost>
-Message-ID: <Pine.LNX.4.64.0512031429360.11664@hermes-1.csi.cam.ac.uk>
-References: <1133558437.31065.6.camel@localhost> 
- <Pine.LNX.4.64.0512031058350.11664@hermes-1.csi.cam.ac.uk>
- <1133609645.7989.3.camel@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 3 Dec 2005 09:36:45 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:51621 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750893AbVLCOgo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 09:36:44 -0500
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+From: Arjan van de Ven <arjan@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051203135608.GJ31395@stusta.de>
+References: <20051203135608.GJ31395@stusta.de>
+Content-Type: text/plain
+Date: Sat, 03 Dec 2005 15:36:38 +0100
+Message-Id: <1133620598.22170.14.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Sat, 3 Dec 2005, Pekka Enberg wrote:
-> On Fri, 2 Dec 2005, Pekka Enberg wrote:
-> > > The s_old_blocksize field of struct super_block is only used as a temporary
-> > > variable in get_sb_bdev(). This patch changes the function to use a local
-> > > variable instead so we can kill the field from struct super_block.
+> ase for a stable series.
 > 
-> On Sat, 2005-12-03 at 11:02 +0000, Anton Altaparmakov wrote:
-> > s_old_blocksize used to be used to restore the blocksize after the 
-> > filesystem had failed to mount or had unmounted.  Not restoring this leads 
-> > to all sorts of problems since the blocksize may be set for example to 4k 
-> > but some userspace app may need it to be set to 1k or whatever.  There 
-> > used to be applications that failed which is why s_old_blocksize was 
-> > introduced and it used to restore the blocksize.
-> > 
-> > I have no idea why/when the restoring has been removed but chances are the 
-> > removal was wrong.  Now every file system will need to restore the 
-> > blocksize itself (as it used to be before s_old_blocksize and blocksize 
-> > restoral was introduced).  Except whoever removed the restoration failed 
-> > to fix up all file systems.  )-:
+> After 2.6.16, there will be a 2.6.16.y series with the usual stable 
+> rules.
 > 
-> It was removed in this commit, I think:
+> After the release of 2.6.17, this 2.6.16.y series will be continued with 
+> more relaxed rules similar to the rules in kernel 2.4 since the release 
+> of kernel 2.6.0 (e.g. driver updates will be allowed).
 > 
-> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/old-2.6-bkcvs.git;a=commit;h=294c42046966e927ef86c0d4ce71cff32d9b458c
 
-Yes, it certainly was removed there.  Thanks for finding the commit.  That 
-had gone past me unnoticed.
 
-This means we are now back to the old behaviour where fs utilities will 
-behave randomly/unpredictably depending on what fs was mounted (or even 
-was tried to be mounted!) on the device last.  So for example a failing 
-"mount -t auto" will leave the block size set to a random number when all 
-fs utilities (at least used to) asume the block size is 1k and strangeness 
-ensues.
+this is a contradiction. You can't eat a cake and have it; either you're
+really low churn (like existing -stable) or you start adding new
+features like hardware support. the problem with hardware support is
+that it's not just a tiny driver update. If involves midlayer updates as
+well usually, and especially if those midlayers diverge between your
+stable and mainline, the "backports" are getting increasingly unsafe and
+hard.
 
-I have no idea why Jeff (Mahoney) considered the setting to be 
-unnecessary, when Al Viro added the resetting code a few years ago it 
-was done precisely because utilities were behaving randomly/erratically...
+If the current model doesn't work as you claim it doesn't, then maybe
+the model needs finetuning. Right now the biggest pain is the userland
+ABI changes that need new packages; sometimes (often) for no real hard
+reason. Maybe we should just stop doing those bits, they're not in any
+fundamental way blocking general progress (sure there's some code bloat
+due to it, but I guess we'll just have to live with that).
 
-IMHO the above commit consitutes a regression in 2.6 kernel.
 
-Best regards,
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

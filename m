@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbVLCXFX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbVLCXJp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932165AbVLCXFX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 18:05:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932167AbVLCXFX
+	id S1751294AbVLCXJp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 18:09:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751303AbVLCXJp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 18:05:23 -0500
-Received: from mail.gmx.de ([213.165.64.20]:64445 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932165AbVLCXFX (ORCPT
+	Sat, 3 Dec 2005 18:09:45 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:39387 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751294AbVLCXJo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 18:05:23 -0500
-X-Authenticated: #428038
-Date: Sun, 4 Dec 2005 00:05:20 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-kernel@vger.kernel.org
+	Sat, 3 Dec 2005 18:09:44 -0500
+Date: Sat, 3 Dec 2005 18:09:35 -0500
+From: Dave Jones <davej@redhat.com>
+To: linux-kernel@vger.kernel.org, Lars Marowsky-Bree <lmb@suse.de>
 Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Message-ID: <20051203230520.GJ25722@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20051203135608.GJ31395@stusta.de> <1133620598.22170.14.camel@laptopd505.fenrus.org> <20051203152339.GK31395@stusta.de> <20051203162755.GA31405@merlin.emma.line.org> <1133630556.22170.26.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
+Message-ID: <20051203230935.GD25015@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	linux-kernel@vger.kernel.org, Lars Marowsky-Bree <lmb@suse.de>
+References: <20051203135608.GJ31395@stusta.de> <20051203205911.GX18919@marowsky-bree.de> <20051203211329.GC25015@redhat.com> <20051203230254.GI25722@merlin.emma.line.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1133630556.22170.26.camel@laptopd505.fenrus.org>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+In-Reply-To: <20051203230254.GI25722@merlin.emma.line.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 03 Dec 2005, Arjan van de Ven wrote:
+On Sun, Dec 04, 2005 at 12:02:54AM +0100, Matthias Andree wrote:
+ > On Sat, 03 Dec 2005, Dave Jones wrote:
+ > 
+ > > In many cases, submitters of changes know that things are going
+ > > to break. Maybe we need a policy that says changes requiring userspace updates
+ > > need to be clearly documented in the mails Linus gets (Especially if its
+ > > a git pull request), so that when the next point release gets released,
+ > > Linus can put a section in the announcement detailing what bits
+ > > of userspace are needed to be updated.
+ > 
+ > This isn't acceptable in stable kernels. FreeBSD has a very tight
+ > policy, newer kernels off the same branch support older user space.
 
-> 
-> > Exactly that, and kernel interfaces going away just to annoy binary
-> > module providers also hurts third-party OSS modules, such as
-> > Fujitsu-Siemens's ServerView agents.
-> 
-> in kernel API never was and never will be stable, that's entirely
-> irrelevant and independent of the proposal at hand.
+The BSDs have an advantage in that their userspace & kernels are closely
+coupled. When kernel changes need a userspace change, it gets done at the
+same time in the same repository.
 
-It's still an annoying side effect - is there a list of kernel functions
-removed, with version removed, and with replacement? I know of none, but
-then again I don't hack the kernel very often.
-
--- 
-Matthias Andree
+		Dave

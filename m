@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbVLCSLz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbVLCSRR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932117AbVLCSLz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 13:11:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbVLCSLz
+	id S932102AbVLCSRR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 13:17:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbVLCSRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 13:11:55 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:4557 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S932117AbVLCSLy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 13:11:54 -0500
-Date: Sat, 3 Dec 2005 19:11:40 +0100
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: Bodo Eggert <7eggert@gmx.de>
-Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, horms@verge.net.au
-Subject: Re: security / kbd
-Message-ID: <20051203181140.GA25534@apps.cwi.nl>
-References: <5f6Fp-1ZB-11@gated-at.bofh.it> <E1EiLA5-0001VE-64@be1.lrz> <20051203013455.GB24760@apps.cwi.nl> <Pine.LNX.4.58.0512030251570.6039@be1.lrz> <20051203023946.GC24760@apps.cwi.nl> <Pine.LNX.4.58.0512030616230.6684@be1.lrz> <20051203144659.GA2091@apps.cwi.nl> <Pine.LNX.4.58.0512031650450.2051@be1.lrz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0512031650450.2051@be1.lrz>
-User-Agent: Mutt/1.4i
+	Sat, 3 Dec 2005 13:17:17 -0500
+Received: from host9.apollohosting.com ([209.239.47.119]:26825 "EHLO
+	host9.apollohosting.com") by vger.kernel.org with ESMTP
+	id S932102AbVLCSRQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 13:17:16 -0500
+From: "Larry Bates" <lbates@syscononline.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: newbie - mdadm create raid1 mirrors on large drives
+Date: Sat, 3 Dec 2005 12:17:15 -0600
+Message-ID: <002501c5f835$cb6bec50$1e00a8c0@LABWXP>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <20051203175355.GL31395@stusta.de>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 03, 2005 at 06:19:47PM +0100, Bodo Eggert wrote:
+I hope this is the correct list for this question.
 
-> > But there are many ways of using such a file descriptor.
-> > This patch cripples the keymap changing but does not solve anything.
-> 
-> Obviously it solves only a part. OTOH you can't keep an exploit open just 
-> because there is another exploit.
-> Like I said, use chmod u+s loadkeys.
+I've just recently begun using mdadm to set up some
+arrays using large drives (300-400Gb).  One of the 
+things I don't understand is this: when you first 
+create a raid1 (mirrored) array from two drives 
+mdadm insists on mirroring the contents of the first
+drive to the second even though the drives are
+entirely blank (e.g. new drives don't have anything
+on them).  In one configuration I have, this takes
+about 16 hours on a 400Gb drive.  When I do 5 of them
+simultaneously this takes 2+ days to complete.  Is 
+there some way to tell mdadm that you want to create 
+a mirrored set but skip this rather long initial 
+mirroring process?  I don't really see that it actually
+accomplishes anything.
 
-Hmm. There is an obscure security problem. It was fixed in a bad way -
-people want to say unicode_start and unicode_stop and find that that
-fails today. Ach.
+Thanks in advance for your assistance.
 
-You argue "you can't keep an exploit open" - but as far as I can see
-there is no problem that needs solving in kernel space.
-For example - today login does a single vhangup() for the login tty.
-In case that is a VC it could do a vhangup() for all VCs.
-That looks like a better solution.
+-Larry Bates
 
-And "chmod u+s loadkeys" - you can't be serious..
+

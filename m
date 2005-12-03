@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbVLCLCM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbVLCLWR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750741AbVLCLCM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 06:02:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750764AbVLCLCL
+	id S1750912AbVLCLWR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 06:22:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750965AbVLCLWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 06:02:11 -0500
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:59028 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1750741AbVLCLCL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 06:02:11 -0500
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Sat, 3 Dec 2005 11:02:06 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fs: remove s_old_blocksize from struct super_block
-In-Reply-To: <1133558437.31065.6.camel@localhost>
-Message-ID: <Pine.LNX.4.64.0512031058350.11664@hermes-1.csi.cam.ac.uk>
-References: <1133558437.31065.6.camel@localhost>
+	Sat, 3 Dec 2005 06:22:17 -0500
+Received: from mail.gmx.de ([213.165.64.20]:10141 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750921AbVLCLWQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 06:22:16 -0500
+X-Authenticated: #428038
+Date: Sat, 3 Dec 2005 12:22:08 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Heinz Mauelshagen <mauelshagen@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] aic79xx should be able to ignore HostRAID enabled adapters
+Message-ID: <20051203112208.GC31216@merlin.emma.line.org>
+Mail-Followup-To: Heinz Mauelshagen <mauelshagen@redhat.com>,
+	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01E3E318@otce2k03.adaptec.com> <20051201144745.GI2782@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051201144745.GI2782@redhat.com>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 01 Dec 2005, Heinz Mauelshagen wrote:
 
-On Fri, 2 Dec 2005, Pekka Enberg wrote:
-> The s_old_blocksize field of struct super_block is only used as a temporary
-> variable in get_sb_bdev(). This patch changes the function to use a local
-> variable instead so we can kill the field from struct super_block.
+> On Thu, Dec 01, 2005 at 08:44:15AM -0500, Salyzyn, Mark wrote:
+> > Christoph Hellwig sez:
+> > > NACK.  We're not going to support attaching broken propritary drivers.
+> > 
+> > Understood and expected.
+> > 
+> > The word 'broken' is hardly chosen for scientific reasons, bespeaks an
+> > agenda ;-> Just because you can not see the code, does not mean it is
+> > broken.
+> > 
+> > I have on numerous attempts tried to contact Heinz Mauelshagen to
+> > fortify dmraid in support of the HostRAID adapters. He has yet to
+> > respond to my emails to start a dialogue with Adaptec.
+> 
+> None of those here.
+> Please forward.
 
-s_old_blocksize used to be used to restore the blocksize after the 
-filesystem had failed to mount or had unmounted.  Not restoring this leads 
-to all sorts of problems since the blocksize may be set for example to 4k 
-but some userspace app may need it to be set to 1k or whatever.  There 
-used to be applications that failed which is why s_old_blocksize was 
-introduced and it used to restore the blocksize.
+I also sent an email a few weeks ago and haven't heard back yet.
 
-I have no idea why/when the restoring has been removed but chances are the 
-removal was wrong.  Now every file system will need to restore the 
-blocksize itself (as it used to be before s_old_blocksize and blocksize 
-restoral was introduced).  Except whoever removed the restoration failed 
-to fix up all file systems.  )-:
+In my message I asked whether it was feasible for you to look at
+FreeBSD's "ataraid(4)" driver to learn the Intel ICHx-R SoftRAID format.
+I know FreeBSD understands this format, and dmraid did not when I sent
+the email.
 
-Seems a big step backwards...
+The hardware I was looking at is ICH7-R. It only works in compatibility
+mode, which only saw one drive for some reason.
 
-Best regards,
+Bottom line: 3Ware Escalade are cheap enough not to bother with this
+SoftRAID stuff...
 
-	Anton
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Matthias Andree

@@ -1,111 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbVLCXK1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbVLCXaF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932170AbVLCXK1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 18:10:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbVLCXK0
+	id S932169AbVLCXaF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 18:30:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbVLCXaF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 18:10:26 -0500
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:35494 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S932170AbVLCXKZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 18:10:25 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH][mm][Fix] swsusp: fix counting of highmem pages
-Date: Sun, 4 Dec 2005 00:11:29 +0100
-User-Agent: KMail/1.8.3
-Cc: Andy Isaacson <adi@hexapodia.org>, LKML <linux-kernel@vger.kernel.org>
-References: <200512032140.15192.rjw@sisk.pl> <20051203214020.GA5198@elf.ucw.cz>
-In-Reply-To: <20051203214020.GA5198@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 3 Dec 2005 18:30:05 -0500
+Received: from mail.kroah.org ([69.55.234.183]:60569 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751302AbVLCXaD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 18:30:03 -0500
+Date: Sat, 3 Dec 2005 15:28:37 -0800
+From: Greg KH <greg@kroah.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+Message-ID: <20051203232836.GA1496@kroah.com>
+References: <20051203135608.GJ31395@stusta.de> <9a8748490512030629t16d0b9ebv279064245743e001@mail.gmail.com> <20051203201945.GA4182@kroah.com> <20051203225105.GO31395@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200512040011.30274.rjw@sisk.pl>
+In-Reply-To: <20051203225105.GO31395@stusta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-[dropped Andrew from the CC list]
-
-On Saturday, 3 of December 2005 22:40, Pavel Machek wrote:
-> Hi!
-> 
-> > The following patch fixes a problem with swsusp that causes suspend to
-> > fail on systems with the highmem zone, if many highmem pages are in use.
+On Sat, Dec 03, 2005 at 11:51:05PM +0100, Adrian Bunk wrote:
+> On Sat, Dec 03, 2005 at 12:19:45PM -0800, Greg KH wrote:
+> > On Sat, Dec 03, 2005 at 03:29:54PM +0100, Jesper Juhl wrote:
+> > > 
+> > > Why can't this be done by distributors/vendors?
 > > 
-> > It makes swsusp count the non-free highmem pages in a correct way
-> > and, consequently, release a sufficient amount of memory before suspend.
+> > It already is done by these people, look at the "enterprise" Linux
+> > distributions and their 5 years of maintance (or whatever the number
+> > is.)
 > > 
-> > Please apply (Pavel, please ack if you think the patch is ok).
+> > If people/customers want stability, they already have this option.
 > 
-> Please don't, it's way too complex in my eyes. Sorry, result of
-> misscomunication between me and Rafael.
-> 
-> > +static inline unsigned int get_kmalloc_size(void)
-> > +{
-> > +#define CACHE(x) \
-> > +	if (sizeof(struct highmem_page) <= x) \
-> > +		return x;
-> > +#include <linux/kmalloc_sizes.h>
-> > +#undef CACHE
-> > +	return sizeof(struct highmem_page);
-> > +}
-> > +
-> 
-> Can we get rid of this uglyness...
+> I don't get the point where the advantage is when every distribution 
+> creates it's own stable branches.
 
-Sure, we can.
+They only do so because they are on different release cycles.
 
-> > @@ -437,8 +446,14 @@
-> >  
-> >  static int enough_free_mem(unsigned int nr_pages)
-> >  {
-> > -	pr_debug("swsusp: available memory: %u pages\n", nr_free_pages());
-> > -	return nr_free_pages() > (nr_pages + PAGES_FOR_IO +
-> > +	struct zone *zone;
-> > +	unsigned int n = 0;
-> > +
-> > +	for_each_zone (zone)
-> > +		if (!is_highmem(zone))
-> > +			n += zone->free_pages;
-> > +	pr_debug("swsusp: available memory: %u pages\n", n);
-> > +	return n > (nr_pages + PAGES_FOR_IO +
-> >  		(nr_pages + PBES_PER_PAGE - 1) / PBES_PER_PAGE);
-> >  }
-> >  
-> 
-> And just use 2% approximation here, too?
+> AFAIR one of the reasons for the current 2.6 development model was to 
+> reduce the amount of feature patches distributions ship by offering an 
+> ftp.kernel.org kernel that gets new features early.
 
-Well, I don't think so.  It's checking free memory _after_ the highmem
-pages have been "saved" (ie we are ready to create the image and just
-check if there are enough non-highmem pages to do this).  Here we _know_
-exactly how many pages are needed for the image, so we don't need to use
-any "safety margins".
+Sure, that's one of the reasons.  But not the only one by far (I have a
+whole list somewhere, I'm sure it's in the archives...)
 
-> > Index: linux-2.6.15-rc3-mm1/kernel/power/swsusp.c
-> > ===================================================================
-> > --- linux-2.6.15-rc3-mm1.orig/kernel/power/swsusp.c	2005-12-03 00:14:49.000000000 +0100
-> > +++ linux-2.6.15-rc3-mm1/kernel/power/swsusp.c	2005-12-03 21:25:07.000000000 +0100
-> > @@ -635,7 +635,8 @@
-> >  	printk("Shrinking memory...  ");
-> >  	do {
-> >  #ifdef FAST_FREE
-> > -		tmp = count_data_pages() + count_highmem_pages();
-> > +		tmp = 2 * count_highmem_pages();
-> > +		tmp += tmp / 50 + count_data_pages();
-> >  		tmp += (tmp + PBES_PER_PAGE - 1) / PBES_PER_PAGE +
-> >  			PAGES_FOR_IO;
-> >  		for_each_zone (zone)
-> 
-> This part is okay. Just make enough_free_mem use similar code. (If
-> possible, share the code, it is really computing the same thing).
+> What's wrong with offering an unified branch with few regressions for 
+> both users and distributions? It's not that every distribution will use 
+> it, but as soon as one or two distributions are using it the amount of 
+> extra work for maintaining the branch should become pretty low.
 
-enough_free_mem() must not take highmem into account, so it has
-to use different code.  IOW, the current implementation is buggy,
-so I'm trying to change it.
+"pretty low"?  hahahahaha.  As Arjan has said, the time and energy to do
+this for a long period of time is huge.  If I were you, I would listen
+to the people who have and do maintain these kinds of kernels, it's not
+a simple job by any means.
 
-Greetings,
-Rafael
+But by all means, if you want to try to do this, please do.  I wish you
+good luck.
+
+thanks,
+
+greg k-h

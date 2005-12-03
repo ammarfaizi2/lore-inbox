@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbVLCJGl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbVLCJ1c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751216AbVLCJGl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 04:06:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbVLCJGl
+	id S1751225AbVLCJ1c (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 04:27:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbVLCJ1c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 04:06:41 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:15375 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1751216AbVLCJGk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 04:06:40 -0500
-Date: Sat, 3 Dec 2005 10:06:32 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Daniel Bonekeeper <thehazard@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel loading question
-Message-ID: <20051203090632.GC22139@alpha.home.local>
-References: <e1e1d5f40512022134y73318ed4p54064a07905cef3c@mail.gmail.com>
+	Sat, 3 Dec 2005 04:27:32 -0500
+Received: from smtp1.brturbo.com.br ([200.199.201.163]:30953 "EHLO
+	smtp1.brturbo.com.br") by vger.kernel.org with ESMTP
+	id S1751225AbVLCJ1b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 04:27:31 -0500
+Subject: Re: Incorrect v4l patch in 2.6.15-rc4-git1
+From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Linus Torvalds <torvards@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <lm-sensors@lm-sensors.org>, Andrew Morton <akpm@osdl.org>,
+       Greg KH <gregkh@suse.de>
+In-Reply-To: <20051202192814.282fc10c.khali@linux-fr.org>
+References: <20051202192814.282fc10c.khali@linux-fr.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Sat, 03 Dec 2005 07:27:15 -0200
+Message-Id: <1133602035.6724.5.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e1e1d5f40512022134y73318ed4p54064a07905cef3c@mail.gmail.com>
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.4.2-1mdk 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 02, 2005 at 09:34:26PM -0800, Daniel Bonekeeper wrote:
-> Well, this probably should not be posted here, but who knows ? =)
+Em Sex, 2005-12-02 às 19:28 +0100, Jean Delvare escreveu:
+> Hi Linus,
 > 
-> Well, on arch/i386/boot/compressed/head.S line 65 we call
-> decompress_kernel that decompresses the kernel starting at $0x100000.
-> If we were loaded high, we first move the code back to $0x1000 before
-> ljmp'ing it.
+> Please revert this commit:
 > 
-> My question is: why, when loaded high, we care to disable interrupts
-> (cli  # make sure we don't get interrupted) while otherwise, we don't
-> do that ? in both cases, aren't we supposed to disable cli (as they
-> can happen in both situations) ?
+> author	Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+> 	Thu, 1 Dec 2005 08:51:35 +0000 (00:51 -0800)
+> committer	Linus Torvalds <torvalds@g5.osdl.org>
+> 	Thu, 1 Dec 2005 23:48:57 +0000 (15:48 -0800)
+> commit	769e24382dd47434dfda681f360868c4acd8b6e2
+> tree	1be728dd2f1a7f523e3de5f3f39b97a4b9905dbe
+> parent	6f502b8a7858ecfa7d2a0762f7663b8b3d0808fc
 > 
-> Since currently, the kernel boots fine for everybody in the world, I
-> know that this is not a bug... but why don't disable interruptions on
-> both cases ?
+> [PATCH] V4L: Some funcions now static and I2C hw code for IR
+> 
+> - Some funcions are now declared as static
+> - Added a I2C code for InfraRed.
 
-Agreed it's strange. I believe that since very few people load the
-kernel in low memory nowadays given its size, it's possible that the
-missing CLI never gets noticed, and I suspect that the very first
-instructions after the jump are a CLI anyway.
+	Please point what is so deadly broken on this trivial patch that fix a
+bug where a prodution driver is using I2C code reserved for
+experimentation.
 
-Regards,
-Willy
+Cheers, 
+Mauro.
 

@@ -1,156 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbVLCHND@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbVLCHOD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751204AbVLCHND (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 02:13:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbVLCHMy
+	id S1751207AbVLCHOD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 02:14:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751210AbVLCHNt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 02:12:54 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:27073 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1751208AbVLCHM3 (ORCPT
+	Sat, 3 Dec 2005 02:13:49 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:55234 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S1751207AbVLCHNl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 02:12:29 -0500
-Message-Id: <20051203071831.012818000@localhost.localdomain>
+	Sat, 3 Dec 2005 02:13:41 -0500
+Message-Id: <20051203071948.852695000@localhost.localdomain>
 References: <20051203071444.260068000@localhost.localdomain>
-Date: Sat, 03 Dec 2005 15:14:54 +0800
+Date: Sat, 03 Dec 2005 15:14:59 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 10/16] readahead: other methods
-Content-Disposition: inline; filename=readahead-method-others.patch
+Cc: Andrew Morton <akpm@osdl.org>, Neil Brown <neilb@cse.unsw.edu.au>
+Subject: [PATCH 15/16] readahead: nfsd support
+Content-Disposition: inline; filename=readahead-nfsd-support.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Various read-ahead strategies for:
-	- fresh read from start of file
-	- backward prefetching
-	- seek and read one record pattern(db workload)
-	- quick recover from thrashing
+- disable nfsd raparms: the new logic do not rely on it
+- disable look-ahead on start of file: leave it to the client
+
+For the case of NFS service, the new read-ahead logic
++ can handle disordered nfsd requests
++ can handle concurrent sequential requests on large files
+  with the help of look-ahead
+- will have much ado about the concurrent ones on small files
+
+------------------------------------------------------------------------
+Notes about the concurrent nfsd requests issue:
+
+nfsd read requests can be out of order, concurrent and with no ra-state info.
+They are handled by the context based read-ahead method, which does the job
+in the following steps:
+
+1. scan in page cache
+2. make read-ahead decisions
+3. alloc new pages
+4. insert new pages to page cache
+
+A single read-ahead chunk in the client side will be dissembled and serviced
+by many concurrent nfsd in the server side. It is highly possible for two or
+more of these parallel nfsd instances to be in step 1/2/3 at the same time.
+Without knowing others working on the same file region, they will issue
+overlaped read-ahead requests, which lead to many conflicts at step 4.
+
+There's no much luck to eliminate the concurrent problem in general and
+efficient ways. But for small to medium NFS servers where the bottleneck
+lies in storage devices, here is a performance tip:
+
+# for pid in `pidof nfsd`; do taskset -p 1 $pid; done
+
+This command effectively serializes all nfsd requests. It would be nice if
+someone can code this serialization on a per-file basis.
+
+------------------------------------------------------------------------
+Here is some test output(8 nfsd; local mount with tcp,rsize=8192):
+
+SERIALIZED, SMALL FILES
+=======================
+readahead_ratio = 0, ra_max = 128kb (old logic, the ra_max is really not relavant)
+96.51s real  11.32s system  3.27s user  160334+2829 cs  diff -r $NFSDIR $NFSDIR2
+readahead_ratio = 70, ra_max = 1024kb (new read-ahead logic)
+94.88s real  11.53s system  3.20s user  152415+3777 cs  diff -r $NFSDIR $NFSDIR2
+
+PARALLEL, SMALL FILES
+=====================
+readahead_ratio = 0, ra_max = 128kb
+99.87s real  11.41s system  3.15s user  173945+9163 cs  diff -r $NFSDIR $NFSDIR2
+readahead_ratio = 70, ra_max = 1024kb
+100.14s real  12.06s system  3.16s user  170865+13406 cs  diff -r $NFSDIR $NFSDIR2
+
+SERIALIZED, BIG FILES
+=====================
+readahead_ratio = 0, ra_max = 128kb
+56.52s real  3.38s system  1.23s user  47930+5256 cs  diff $NFSFILE $NFSFILE2
+readahead_ratio = 70, ra_max = 1024kb
+32.54s real  5.71s system  1.38s user  23851+17007 cs  diff $NFSFILE $NFSFILE2
+
+PARALLEL, BIG FILES
+===================
+readahead_ratio = 0, ra_max = 128kb
+63.35s real  5.68s system  1.57s user  82594+48747 cs  diff $NFSFILE $NFSFILE2
+readahead_ratio = 70, ra_max = 1024kb
+33.87s real  10.17s system  1.55s user  72291+100079 cs  diff $NFSFILE $NFSFILE2
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- mm/readahead.c |  111 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 111 insertions(+)
 
+ fs/nfsd/vfs.c      |    6 +++++-
+ include/linux/fs.h |    1 +
+ mm/readahead.c     |   11 +++++++++--
+ 3 files changed, 15 insertions(+), 3 deletions(-)
+
+--- linux.orig/fs/nfsd/vfs.c
++++ linux/fs/nfsd/vfs.c
+@@ -832,10 +832,14 @@ nfsd_vfs_read(struct svc_rqst *rqstp, st
+ #endif
+ 
+ 	/* Get readahead parameters */
+-	ra = nfsd_get_raparms(inode->i_sb->s_dev, inode->i_ino);
++	if (prefer_adaptive_readahead())
++		ra = NULL;
++	else
++		ra = nfsd_get_raparms(inode->i_sb->s_dev, inode->i_ino);
+ 
+ 	if (ra && ra->p_set)
+ 		file->f_ra = ra->p_ra;
++	file->f_ra.flags |= RA_FLAG_NFSD;
+ 
+ 	if (file->f_op->sendfile) {
+ 		svc_pushback_unused_pages(rqstp);
+--- linux.orig/include/linux/fs.h
++++ linux/include/linux/fs.h
+@@ -624,6 +624,7 @@ struct file_ra_state {
+ #define RA_FLAG_INCACHE 0x02	/* file is already in cache */
+ #define RA_FLAG_MMAP		(1UL<<31)	/* mmaped page access */
+ #define RA_FLAG_NO_LOOKAHEAD	(1UL<<30)	/* disable look-ahead */
++#define RA_FLAG_NFSD		(1UL<<29)	/* request from nfsd */
+ 
+ struct file {
+ 	/*
 --- linux.orig/mm/readahead.c
 +++ linux/mm/readahead.c
-@@ -1515,6 +1515,117 @@ try_context_based_readahead(struct addre
- 	return 1;
- }
+@@ -15,11 +15,13 @@
+ #include <linux/backing-dev.h>
+ #include <linux/pagevec.h>
+ #include <linux/writeback.h>
++#include <linux/nfsd/const.h>
  
-+/*
-+ * Read-ahead on start of file.
-+ *
-+ * It is most important for small files.
-+ * 1. Set a moderate large read-ahead size;
-+ * 2. Issue the next read-ahead request as soon as possible.
-+ *
-+ * But be careful, there are some applications that dip into only the very head
-+ * of a file. The most important thing is to prevent them from triggering the
-+ * next (much larger) read-ahead request, which leads to lots of cache misses.
-+ * Two pages should be enough for them, correct me if I'm wrong.
-+ */
-+static inline unsigned long
-+newfile_readahead(struct address_space *mapping,
-+		struct file *filp, struct file_ra_state *ra,
-+		unsigned long req_size, unsigned long ra_min)
-+{
-+	unsigned long ra_size;
-+	unsigned long la_size;
-+
-+	if (req_size > ra_min)
-+		req_size = ra_min;
-+
-+	ra_size = 4 * req_size;
-+	la_size = 2 * req_size;
-+
-+	set_ra_class(ra, RA_CLASS_NEWFILE);
-+	ra_state_init(ra, 0, 0);
-+	ra_state_update(ra, ra_size, la_size);
-+
-+	return ra_dispatch(ra, mapping, filp);
-+}
-+
-+/*
-+ * Backward prefetching.
-+ * No look ahead and thrashing threshold estimation for stepping backward
-+ * pattern: should be unnecessary.
-+ */
-+static inline int
-+try_read_backward(struct file_ra_state *ra,
-+			pgoff_t begin_index, pgoff_t end_index,
-+			unsigned long ra_size,
-+			unsigned long ra_min, unsigned long ra_max)
-+{
-+	if (ra_size > ra_max || end_index > ra->prev_page)
-+		return 0;
-+
-+	if (ra_has_index(ra, ra->prev_page)) {
-+		if (end_index > ra->la_index)
-+			return 0;
-+		ra_size += 2 * ra_cache_hit(ra, 0);
-+		end_index = ra->la_index;
+ /* The default max/min read-ahead pages. */
+ #define KB(size)	(((size)*1024 + PAGE_CACHE_SIZE-1) / PAGE_CACHE_SIZE)
+ #define MAX_RA_PAGES	KB(VM_MAX_READAHEAD)
+ #define MIN_RA_PAGES	KB(VM_MIN_READAHEAD)
++#define MIN_NFSD_PAGES	KB(NFSSVC_MAXBLKSIZE/1024)
+ 
+ /* In laptop mode, poll delayed look-ahead on every ## pages read. */
+ #define LAPTOP_POLL_INTERVAL 16
+@@ -1768,8 +1770,13 @@ newfile_readahead(struct address_space *
+ 	if (req_size > ra_min)
+ 		req_size = ra_min;
+ 
+-	ra_size = 4 * req_size;
+-	la_size = 2 * req_size;
++	if (unlikely(ra->flags & RA_FLAG_NFSD)) {
++		ra_size = MIN_NFSD_PAGES;
++		la_size = 0;
 +	} else {
-+		ra_size += readahead_hit_rate + ra_min;
-+		end_index = ra->prev_page;
++		ra_size = 4 * req_size;
++		la_size = 2 * req_size;
 +	}
-+
-+	if (ra_size > ra_max)
-+		ra_size = ra_max;
-+
-+	if (end_index > begin_index + ra_size)
-+		return 0;
-+
-+	begin_index = end_index - ra_size;
-+
-+	set_ra_class(ra, RA_CLASS_BACKWARD);
-+	ra_state_init(ra, begin_index, begin_index);
-+	ra_state_update(ra, ra_size, 0);
-+
-+	return 1;
-+}
-+
-+/*
-+ * If there is a previous sequential read, it is likely to be another
-+ * sequential read at the new position.
-+ * Databases are known to have this seek-and-read-one-record pattern.
-+ */
-+static inline int
-+try_random_readahead(struct file_ra_state *ra, pgoff_t index,
-+			unsigned long ra_size, unsigned long ra_max)
-+{
-+	unsigned long hit0 = ra_cache_hit(ra, 0);
-+	unsigned long hit1 = ra_cache_hit(ra, 1) + hit0;
-+	unsigned long hit2 = ra_cache_hit(ra, 2);
-+	unsigned long hit3 = ra_cache_hit(ra, 3);
-+
-+	if (!ra_has_index(ra, ra->prev_page))
-+		return 0;
-+
-+	if (index == ra->prev_page + 1) {    /* read after thrashing */
-+		ra_size = hit0;
-+		set_ra_class(ra, RA_CLASS_RANDOM_THRASHING);
-+		ra_account(ra, RA_EVENT_READAHEAD_THRASHING,
-+						ra->readahead_index - index);
-+	} else if (ra_size < hit1 &&         /* read after seeking   */
-+			hit1 > hit2 / 2 &&
-+			hit2 > hit3 / 2 &&
-+			hit3 > hit1 / 2) {
-+		ra_size = max(hit1, hit2);
-+		set_ra_class(ra, RA_CLASS_RANDOM_SEEK);
-+	} else
-+		return 0;
-+
-+	if (ra_size > ra_max)
-+		ra_size = ra_max;
-+
-+	ra_state_init(ra, index, index);
-+	ra_state_update(ra, ra_size, 0);
-+
-+	return 1;
-+}
  
- /*
-  * Read-around for mmaped file.
+ 	set_ra_class(ra, RA_CLASS_NEWFILE);
+ 	ra_state_init(ra, 0, 0);
 
 --

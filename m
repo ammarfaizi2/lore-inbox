@@ -1,56 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbVLCPLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbVLCPXj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751272AbVLCPLR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 10:11:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbVLCPLR
+	id S1751276AbVLCPXj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 10:23:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbVLCPXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 10:11:17 -0500
-Received: from pat.uio.no ([129.240.130.16]:12477 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1751272AbVLCPLR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 10:11:17 -0500
-Subject: Re: 2.6.15-rc3: adduser: unable to lock password file
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: JaniD++ <djani22@dynamicweb.hu>
+	Sat, 3 Dec 2005 10:23:39 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:18182 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751276AbVLCPXi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 10:23:38 -0500
+Date: Sat, 3 Dec 2005 16:23:39 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Arjan van de Ven <arjan@infradead.org>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <00e501c5f809$99c70bc0$0400a8c0@dcccs>
-References: <016c01c5f6cc$0e28e6d0$0400a8c0@dcccs>
-	 <1133481721.9597.37.camel@lade.trondhjem.org>
-	 <00e501c5f809$99c70bc0$0400a8c0@dcccs>
-Content-Type: text/plain
-Date: Sat, 03 Dec 2005 10:11:03 -0500
-Message-Id: <1133622663.7911.5.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.768, required 12,
-	autolearn=disabled, AWL 1.04, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+Message-ID: <20051203152339.GK31395@stusta.de>
+References: <20051203135608.GJ31395@stusta.de> <1133620598.22170.14.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1133620598.22170.14.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-12-03 at 14:00 +0100, JaniD++ wrote:
-
-> Here is the strace-s output:     (20KB)
-> http://download.netcenter.hu/bughunt/20051203/adduser.log
+On Sat, Dec 03, 2005 at 03:36:38PM +0100, Arjan van de Ven wrote:
+> > ase for a stable series.
+> > 
+> > After 2.6.16, there will be a 2.6.16.y series with the usual stable 
+> > rules.
+> > 
+> > After the release of 2.6.17, this 2.6.16.y series will be continued with 
+> > more relaxed rules similar to the rules in kernel 2.4 since the release 
+> > of kernel 2.6.0 (e.g. driver updates will be allowed).
+> > 
 > 
-> This problem is always on on 2.6.15-rc3, and newer on 2.6.14.2
+> 
+> this is a contradiction. You can't eat a cake and have it; either you're
+> really low churn (like existing -stable) or you start adding new
+> features like hardware support. the problem with hardware support is
+> that it's not just a tiny driver update. If involves midlayer updates as
+> well usually, and especially if those midlayers diverge between your
+> stable and mainline, the "backports" are getting increasingly unsafe and
+> hard.
 
-OK... Looks like it is bailing out after the lines
+In the beginning, backporting hardware support is relatively easy, and 
+therefore cherry-picking from mainline 2.6 should be relatively safe.
 
-link("/etc/passwd.2522", "/etc/passwd.lock") = 0
-stat64("/etc/passwd.2522", {st_mode=S_IFREG|0600, st_size=5, ...}) = 0
+Things will change as time passes by, but then there's the possibility 
+to open the next branch and bring the older branch into a security-fixes 
+only mode.
 
-I'll bet the stat64 is filing to show that the file now has 2 links.
+> If the current model doesn't work as you claim it doesn't, then maybe
+> the model needs finetuning. Right now the biggest pain is the userland
+> ABI changes that need new packages; sometimes (often) for no real hard
+> reason. Maybe we should just stop doing those bits, they're not in any
+> fundamental way blocking general progress (sure there's some code bloat
+> due to it, but I guess we'll just have to live with that).
 
-As a first step, could you please grab the 2 patches
+IOW, we should e.g. ensure that today's udev will still work flawlessly 
+with kernel 2.6.30 (sic)?
 
-  http://client.linux-nfs.org/Linux-2.6.x/2.6.15-rc4/linux-2.6.15-01-nfs-cache-init.dif
-and
-  http://client.linux-nfs.org/Linux-2.6.x/2.6.15-rc4/linux-2.6.15-02-fix_cache_consistency.dif
+This could work, but it should be officially announced that e.g. a 
+userspace running kernel 2.6.15 must work flawlessly with _any_ future 
+2.6 kernel.
 
-and see if they fix the problem?
+For how many years do you think we will be able to ensure that this will 
+stay true?
 
-Cheers,
-  Trond
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

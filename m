@@ -1,86 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbVLCSoJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbVLCSqG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932127AbVLCSoJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 13:44:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbVLCSoJ
+	id S932129AbVLCSqG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 13:46:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbVLCSqG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 13:44:09 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:57835 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932127AbVLCSoI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 13:44:08 -0500
-Message-ID: <4391E764.7050704@pobox.com>
-Date: Sat, 03 Dec 2005 13:43:48 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Sat, 3 Dec 2005 13:46:06 -0500
+Received: from mail-in-07.arcor-online.net ([151.189.21.47]:8592 "EHLO
+	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
+	id S932129AbVLCSqF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 13:46:05 -0500
+Date: Sat, 3 Dec 2005 19:48:19 +0100 (CET)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Andries Brouwer <Andries.Brouwer@cwi.nl>
+cc: Bodo Eggert <7eggert@gmx.de>, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       horms@verge.net.au
+Subject: Re: security / kbd
+In-Reply-To: <20051203181140.GA25534@apps.cwi.nl>
+Message-ID: <Pine.LNX.4.58.0512031940050.3014@be1.lrz>
+References: <5f6Fp-1ZB-11@gated-at.bofh.it> <E1EiLA5-0001VE-64@be1.lrz>
+ <20051203013455.GB24760@apps.cwi.nl> <Pine.LNX.4.58.0512030251570.6039@be1.lrz>
+ <20051203023946.GC24760@apps.cwi.nl> <Pine.LNX.4.58.0512030616230.6684@be1.lrz>
+ <20051203144659.GA2091@apps.cwi.nl> <Pine.LNX.4.58.0512031650450.2051@be1.lrz>
+ <20051203181140.GA25534@apps.cwi.nl>
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Greg KH <gregkh@suse.de>,
-       James Bottomley <James.Bottomley@steeleye.com>
-Subject: Golden rule: don't break userland (was Re: RFC: Starting a stable
- kernel series off the 2.6 kernel)
-References: <20051203135608.GJ31395@stusta.de> <1133620598.22170.14.camel@laptopd505.fenrus.org> <20051203152339.GK31395@stusta.de>
-In-Reply-To: <20051203152339.GK31395@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Adrian Bunk wrote: > IOW, we should e.g. ensure that
-	today's udev will still work flawlessly > with kernel 2.6.30 (sic)? > >
-	This could work, but it should be officially announced that e.g. a >
-	userspace running kernel 2.6.15 must work flawlessly with _any_ future
-	> 2.6 kernel. [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> IOW, we should e.g. ensure that today's udev will still work flawlessly 
-> with kernel 2.6.30 (sic)?
+On Sat, 3 Dec 2005, Andries Brouwer wrote:
+> On Sat, Dec 03, 2005 at 06:19:47PM +0100, Bodo Eggert wrote:
+
+> > > But there are many ways of using such a file descriptor.
+> > > This patch cripples the keymap changing but does not solve anything.
+> > 
+> > Obviously it solves only a part. OTOH you can't keep an exploit open just 
+> > because there is another exploit.
+> > Like I said, use chmod u+s loadkeys.
 > 
-> This could work, but it should be officially announced that e.g. a 
-> userspace running kernel 2.6.15 must work flawlessly with _any_ future 
-> 2.6 kernel.
+> Hmm. There is an obscure security problem. It was fixed in a bad way -
+> people want to say unicode_start and unicode_stop and find that that
+> fails today. Ach.
+> 
+> You argue "you can't keep an exploit open" - but as far as I can see
+> there is no problem that needs solving in kernel space.
+> For example - today login does a single vhangup() for the login tty.
+> In case that is a VC it could do a vhangup() for all VCs.
+> That looks like a better solution.
 
+I tried this, but 
+1) vhangup doesn't seem to close file descriptors, so it won't help 
+   against the exploit
+2) even if it did, the behaviour you described would kill all console
+   sessions at once when you terminate one, which is very undesirable
+3) it wouldn't prevent sb from running 'exec sleep 2147483647' and
+   changing to another console hoping nobody notices.
 
-Fix the real problem:  publicly shame kernel hackers that change 
-userland ABI/API without LOTS of notice, and hopefully an old-userland 
-compatibility solution implemented.
+> And "chmod u+s loadkeys" - you can't be serious..
 
-We change kernel APIs all the time.  Having made that policy decision, 
-we have the freedom to rapidly improve the kernel, and avoid being stuck 
-with poor designs of the past.
-
-Userland isn't the same.  IMO sysfs hackers have forgotten this. 
-Anytime you change or remove sysfs attributes these days, you have the 
-potential to break userland, which breaks one of the grand axioms of 
-Linux.  Everybody knows "the rules" when it comes to removing system 
-calls, but forgets/ignores them when it comes to ioctls, sysfs 
-attributes, and the like.
-
-Thus, I've often felt that heavy sysfs (and procfs) use made it too easy 
-to break userland.  Maybe we should change the sysfs API to include some 
-sort of interface versioning, or otherwise make it more obvious to the 
-programmer that they could be breaking userland compat.
-
-Offhand, once implemented and out in the field, I would say a userland 
-interface should live at least 1-2 years after the "we are removing this 
-interface" warning is given.
-
-Yes, 1-2 years.  Maybe even that is too small.  We still have old_mmap 
-syscall around :)
-
-	Jeff
-
-
+Allow the specific commmands by sudo/su1.
+-- 
+Top 100 things you don't want the sysadmin to say:
+71. Ooops.

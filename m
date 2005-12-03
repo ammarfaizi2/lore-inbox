@@ -1,41 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbVLCSDt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbVLCSLz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932111AbVLCSDt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 13:03:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbVLCSDt
+	id S932117AbVLCSLz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 13:11:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbVLCSLz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 13:03:49 -0500
-Received: from ns2.suse.de ([195.135.220.15]:38607 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932111AbVLCSDs (ORCPT
+	Sat, 3 Dec 2005 13:11:55 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:4557 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S932117AbVLCSLy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 13:03:48 -0500
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Vinay Venkataraghavan <raghavanvinay@yahoo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: copy_from_user/copy_to_user question
-References: <20051202224025.39396.qmail@web32108.mail.mud.yahoo.com>
-	<1133572199.32583.93.camel@localhost.localdomain>
-	<20051203013833.GG27946@ftp.linux.org.uk>
-	<1133575346.4894.7.camel@localhost.localdomain>
-From: Andi Kleen <ak@suse.de>
-Date: 03 Dec 2005 15:33:02 -0700
-In-Reply-To: <1133575346.4894.7.camel@localhost.localdomain>
-Message-ID: <p73lkz14xr5.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Sat, 3 Dec 2005 13:11:54 -0500
+Date: Sat, 3 Dec 2005 19:11:40 +0100
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: Bodo Eggert <7eggert@gmx.de>
+Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, horms@verge.net.au
+Subject: Re: security / kbd
+Message-ID: <20051203181140.GA25534@apps.cwi.nl>
+References: <5f6Fp-1ZB-11@gated-at.bofh.it> <E1EiLA5-0001VE-64@be1.lrz> <20051203013455.GB24760@apps.cwi.nl> <Pine.LNX.4.58.0512030251570.6039@be1.lrz> <20051203023946.GC24760@apps.cwi.nl> <Pine.LNX.4.58.0512030616230.6684@be1.lrz> <20051203144659.GA2091@apps.cwi.nl> <Pine.LNX.4.58.0512031650450.2051@be1.lrz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0512031650450.2051@be1.lrz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt <rostedt@goodmis.org> writes:
+On Sat, Dec 03, 2005 at 06:19:47PM +0100, Bodo Eggert wrote:
+
+> > But there are many ways of using such a file descriptor.
+> > This patch cripples the keymap changing but does not solve anything.
 > 
-> I haven't dealt (yet) with the copy_user of x86_64.  Is there a problem
-> when one tries to copy to/from a 32 bit address while in a 64 bit
-> address space?
+> Obviously it solves only a part. OTOH you can't keep an exploit open just 
+> because there is another exploit.
+> Like I said, use chmod u+s loadkeys.
 
-No problem, except on UML/x86-64 which has fully separate address spaces.
+Hmm. There is an obscure security problem. It was fixed in a bad way -
+people want to say unicode_start and unicode_stop and find that that
+fails today. Ach.
 
-Architectures where it doesn't work include s390,m68k,pa-risc,sparc64,
-i386 with 4/4 patches among others.
+You argue "you can't keep an exploit open" - but as far as I can see
+there is no problem that needs solving in kernel space.
+For example - today login does a single vhangup() for the login tty.
+In case that is a VC it could do a vhangup() for all VCs.
+That looks like a better solution.
 
--Andi
+And "chmod u+s loadkeys" - you can't be serious..

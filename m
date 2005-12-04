@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbVLDQJU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbVLDQMA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932262AbVLDQJU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 11:09:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbVLDQJU
+	id S932263AbVLDQMA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 11:12:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbVLDQMA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 11:09:20 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:52752 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932262AbVLDQJT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 11:09:19 -0500
-Date: Sun, 4 Dec 2005 17:09:20 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "Brown, Len" <len.brown@intel.com>
-Cc: akpm@osdl.org, acpi-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 5/9] ACPI should depend on, not select PCI
-Message-ID: <20051204160920.GS31395@stusta.de>
-References: <F7DC2337C7631D4386A2DF6E8FB22B300549CF57@hdsmsx401.amr.corp.intel.com>
+	Sun, 4 Dec 2005 11:12:00 -0500
+Received: from mail.gmx.de ([213.165.64.20]:17339 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932263AbVLDQL7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 11:11:59 -0500
+X-Authenticated: #428038
+Date: Sun, 4 Dec 2005 17:11:57 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+Message-ID: <20051204161157.GB17846@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <9a8748490512030629t16d0b9ebv279064245743e001@mail.gmail.com> <20051203201945.GA4182@kroah.com> <f0cc38560512031254j3b28d579s539be721c247c10a@mail.gmail.com> <20051203211209.GA4937@kroah.com> <f0cc38560512031331x3f4006e5sc2ff51414f07ada7@mail.gmail.com> <1133645895.22170.33.camel@laptopd505.fenrus.org> <f0cc38560512031353q27ee0a2dh70e283f53671b70f@mail.gmail.com> <1133682973.5188.3.camel@laptopd505.fenrus.org> <f0cc38560512040657i58cc08efqa8596c357fcea82e@mail.gmail.com> <1133709038.5188.49.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B300549CF57@hdsmsx401.amr.corp.intel.com>
+In-Reply-To: <1133709038.5188.49.camel@laptopd505.fenrus.org>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
 User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 30, 2005 at 08:58:22PM -0500, Brown, Len wrote:
+On Sun, 04 Dec 2005, Arjan van de Ven wrote:
 
-> No, I can't apply this -- it allows
-> Kconfig to create IA64 configs without PCI,
-> which do not build.
+> On Sun, 2005-12-04 at 15:57 +0100, M. wrote:
 > 
-> there must be a better way.
+> > 
+> > if distros would align on those 6months versions those less
+> > experienced users would get 5 years support on those kernels. 
+> 
+> no distro gives 5 years of support for a kernel done every 6 months;
+> they start such projects more like every 18 to 24 months (SuSE used to
+> do it a bit more frequently but it seems they also slowed this down).
 
-According to arch/ia64/Kconfig, PCI support is optional on ia64.
-
-Either arch/ia64/Kconfig should be fixed or the PCI=n builds must be 
-fixed on ia64.
-
-Looking closer, is the problem you are talking about caused by the fact 
-that IA64_GENERIC select's options without ensuring that the 
-dependencies of what it is select'ing are fulfilled?
-
-> -Len 
-
-cu
-Adrian
+SUSE end-user distros (SUSE LINUX <version>) are released every 6 months
+or so, and are supported for 24 months. Their "enterprise server" is
+supported for 60 months though, SLES 9 forked off 9.1.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Matthias Andree

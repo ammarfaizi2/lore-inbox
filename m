@@ -1,88 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbVLDPk7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750958AbVLDPuf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932255AbVLDPk7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 10:40:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbVLDPk7
+	id S1750958AbVLDPuf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 10:50:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751048AbVLDPuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 10:40:59 -0500
-Received: from [202.112.142.40] ([202.112.142.40]:14050 "EHLO
-	core.nlsde.buaa.edu.cn") by vger.kernel.org with ESMTP
-	id S932255AbVLDPk6 (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 10:40:58 -0500
-Message-Id: <200512041626.jB4GQniA014381@core.nlsde.buaa.edu.cn>
-From: "tony" <hqy@nlsde.buaa.edu.cn>
-To: "'Linux Kernel Mailing List'" <Linux-Kernel@vger.kernel.org>
-Subject: Help!Unable to handle kernel NULL pointer...
-Date: Sun, 4 Dec 2005 23:37:02 +0800
+	Sun, 4 Dec 2005 10:50:35 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:29200 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750914AbVLDPue (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 10:50:34 -0500
+Date: Sun, 4 Dec 2005 16:50:35 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Michael Krufky <mkrufky@m1k.net>
+Cc: gcoady@gmail.com, Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Eyal Lebedinsky <eyal@eyal.emu.id.au>,
+       list linux-kernel <linux-kernel@vger.kernel.org>, middelin@polyware.nl
+Subject: Re: Linux 2.6.15-rc4
+Message-ID: <20051204155035.GQ31395@stusta.de>
+References: <1133445903.16820.1.camel@localhost> <Pine.LNX.4.64.0512010759571.3099@g5.osdl.org> <6f6293f10512011112m6e50fe0ejf0aa5ba9d09dca1e@mail.gmail.com> <Pine.LNX.4.64.0512011125280.3099@g5.osdl.org> <438F6DFF.2040603@eyal.emu.id.au> <Pine.LNX.4.64.0512011347290.3099@g5.osdl.org> <862vo198it7molqvq5ign38qmncmjk3bo5@4ax.com> <1133523910.6842.3.camel@localhost> <k611p19dv1peeb38a4krlqnib1f0pemj4b@4ax.com> <43908900.5070504@m1k.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcX46nKuiDeMn09ITBWs+BuU/ksYmAAA9xAg
-In-Reply-To: <17299.1331.368159.374754@gargle.gargle.HOWL>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.181
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43908900.5070504@m1k.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Fri, Dec 02, 2005 at 12:48:48PM -0500, Michael Krufky wrote:
 
-Recently I met some trouble, and need your help. My system is Redhat linux
-2.4.20, and crash every few days. There are some messages in
-'/var/log/messages'as following:
+> No, Mauro, Pauline already told us that she's working on it.....
+> 
+> Poor Pauline, about once a month someone wants to nuke ZR36120.
+> 
+> Instead of nuking it, let's just mark it BROKEN for now...
+>...
 
-I have had searched the archives and found that some guys met this problem
-before, but i didn't find the way to fix the trouble.
+It's already been marked as BROKEN since at least 2.6.0 ...
 
-Is there anybody who would  like give me a hand?
+> -Mike
 
-Messages:
-Nov 27 21:34:54 SHZX-WG04 kernel:  <1>Unable to handle kernel NULL pointer
-dereference at virtual address 00000080
-Nov 27 21:34:54 SHZX-WG04 kernel:  printing eip:
-Nov 27 21:34:54 SHZX-WG04 kernel: c012cd07
-Nov 27 21:34:54 SHZX-WG04 kernel: *pde = 06a47001
-Nov 27 21:34:54 SHZX-WG04 kernel: *pte = 00000000
-Nov 27 21:34:54 SHZX-WG04 kernel: Oops: 0000
-Nov 27 21:34:54 SHZX-WG04 kernel: ide-cd cdrom lp parport autofs e1000
-microcode keybdev mousedev hid input usb-uhci usbcore ext3 jbd aic79xx
-sd_mod scsi_mod
-Nov 27 21:34:54 SHZX-WG04 kernel: CPU:    2
-Nov 27 21:34:54 SHZX-WG04 kernel: EIP:    0060:[<c012cd07>]    Not tainted
-Nov 27 21:34:54 SHZX-WG04 kernel: EFLAGS: 00010202
-Nov 27 21:34:54 SHZX-WG04 kernel:
-Nov 27 21:34:54 SHZX-WG04 kernel: EIP is at access_process_vm [kernel] 0x27
-(2.4.20-8bigmem)
-Nov 27 21:34:54 SHZX-WG04 kernel: eax: 00000000   ebx: d8d93280   ecx:
-00000017   edx: e9910000
-Nov 27 21:34:54 SHZX-WG04 kernel: esi: 00000000   edi: e992c000   ebp:
-e992c000   esp: edde9ef0
-Nov 27 21:34:54 SHZX-WG04 kernel: ds: 0068   es: 0068   ss: 0068
-Nov 27 21:34:54 SHZX-WG04 kernel: Process ps (pid: 18326,
-stackpage=edde9000)
-Nov 27 21:34:54 SHZX-WG04 kernel: Stack: c0160996 e0b9f180 edde9f10 00000202
-00000001 00000000 edde9f84 cac05580
-Nov 27 21:34:54 SHZX-WG04 kernel:        f421800c 00000202 00000000 e992c000
-00000000 00000500 000001f0 d8d93280
-Nov 27 21:34:54 SHZX-WG04 kernel:        00000000 e992c000 e9910000 c017b334
-e9910000 bffffac8 e992c000 00000017
-Nov 27 21:34:54 SHZX-WG04 kernel: Call Trace:   [<c0160996>] link_path_walk
-[kernel] 0x656 (0xedde9ef0))
-Nov 27 21:34:54 SHZX-WG04 kernel: [<c017b334>] proc_pid_cmdline [kernel]
-0x74 (0xedde9f3c))
-Nov 27 21:34:54 SHZX-WG04 kernel: [<c017b747>] proc_info_read [kernel] 0x77
-(0xedde9f6c))
-Nov 27 21:34:54 SHZX-WG04 kernel: [<c0153453>] sys_read [kernel] 0xa3
-(0xedde9f94))
-Nov 27 21:34:54 SHZX-WG04 kernel: [<c01527d2>] sys_open [kernel] 0xa2
-(0xedde9fa8))
-Nov 27 21:34:54 SHZX-WG04 kernel: [<c01098bf>] system_call [kernel] 0x33
-(0xedde9fc0))
-Nov 27 21:34:54 SHZX-WG04 kernel:
-Nov 27 21:34:54 SHZX-WG04 kernel:
-Nov 27 21:34:54 SHZX-WG04 kernel: Code: f6 80 80 00 00 00 01 74 2d 81 7c 24
-30 40 b7 33 c0 74 23 f0
+cu
+Adrian
 
-Tony howe
-2005-12-04
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

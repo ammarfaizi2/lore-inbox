@@ -1,71 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbVLDMHW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932208AbVLDMMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932201AbVLDMHW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 07:07:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbVLDMHW
+	id S932208AbVLDMMR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 07:12:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbVLDMMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 07:07:22 -0500
-Received: from krusty.dt.E-Technik.uni-dortmund.de ([129.217.163.1]:31154 "EHLO
+	Sun, 4 Dec 2005 07:12:17 -0500
+Received: from krusty.dt.E-Technik.uni-dortmund.de ([129.217.163.1]:34994 "EHLO
 	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S932201AbVLDMHV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 07:07:21 -0500
-Date: Sun, 4 Dec 2005 13:07:15 +0100
+	id S932208AbVLDMMQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 07:12:16 -0500
+Date: Sun, 4 Dec 2005 13:12:09 +0100
 From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-kernel@vger.kernel.org
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Message-ID: <20051204120715.GB15577@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <matthias.andree@gmx.de> <20051203222731.GC25722@merlin.emma.line.org> <200512040106.jB415cqb023723@pincoya.inf.utfsm.cl>
+Message-ID: <20051204121209.GC15577@merlin.emma.line.org>
+Mail-Followup-To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
+	linux-kernel@vger.kernel.org
+References: <20051203135608.GJ31395@stusta.de> <1133620598.22170.14.camel@laptopd505.fenrus.org> <20051203152339.GK31395@stusta.de> <20051203162755.GA31405@merlin.emma.line.org> <1133630556.22170.26.camel@laptopd505.fenrus.org> <20051203230520.GJ25722@merlin.emma.line.org> <43923DD9.8020301@wolfmountaingroup.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200512040106.jB415cqb023723@pincoya.inf.utfsm.cl>
+In-Reply-To: <43923DD9.8020301@wolfmountaingroup.com>
 X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 03 Dec 2005, Horst von Brand wrote:
+On Sat, 03 Dec 2005, Jeff V. Merkey wrote:
 
-> Matthias Andree <matthias.andree@gmx.de> wrote:
-> > On Sat, 03 Dec 2005, David Ranson wrote:
-> > > Adrian Bunk wrote:
-> > > 
-> > > >- support for ipfwadm and ipchains was removed during 2.6
-> 
-> > > Surely this one had loads of notice though? I was using iptables with
-> > > 2.4 kernels.
-> 
-> Sure had. They were scheduled for removal in march, 2005 a long time ago.
-> 
-> > So was I. And now what? ipfwadm and ipchains should have been removed
-> > from 2.6.0 if 2.6.0 was not to support these.
-> 
-> Or in 2.6.10, or 2.6.27, or whatever.
+> These folks have nothing new to innovate here. The memory manager and VM 
+> gets revamped every other release. Exports get broken, binary only 
+> module compatibility busted every rev of the kernel. I spend weeks on 
 
-No. If you need to remove major components, it is only diligent to bump
-the minor revision and call the beast 2.7.0. At that time, not only one
-or two subsystems, but all that were marked deprecated for 6 months or
-so, should be dropped.
+Who cares for binary modules?
 
-> > This doesn't matter. A kernel that calls itself stable CAN NOT remove
-> > features unless they had been critically broken from the beginning. And
-> > this level of breakage is a moot point, so removal is not justified.
-> 
-> devfs was broken, and very little used.
+It hurts however if external OSS modules are broken.
 
-OK. This however doesn't hold for ipfwadm (which should probably never
-have made it into 2.6.0 in the first place) or ipchains.
+> of this code. I have apps written for Windows in 1990 and 1998 that 
+> still run on Windows XP today.
 
-> > Linux 2.6 is not "stable" in this regard.
-> 
-> Right. The idea of "stable series" had to go. And went.
+Sure, you're loading Windows 3.1 drivers into XP...  You can tell us
+more of that crap later, but not here.
 
-So what is the point in using Linux anyhow if the kernel developers
-don't care for the outside world, one might ask? What is in the way of
-reflecting feature removals in the minor version of the project, say,
-remove devfs, ipfwadm, ipchains and whatnot in one go and call the new
-release without this legacies 2.7.0?
+Properly written 1995 software usually still works on Linux as long as
+it doesn't need to care about kernel or devices.
+
+[rest of Merkey rantings removed]
 
 -- 
 Matthias Andree

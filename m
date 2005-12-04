@@ -1,42 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbVLDQni@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbVLDQoZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932271AbVLDQni (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 11:43:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932274AbVLDQnh
+	id S932277AbVLDQoZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 11:44:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbVLDQoY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 11:43:37 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:23991 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S932271AbVLDQnh (ORCPT
+	Sun, 4 Dec 2005 11:44:24 -0500
+Received: from zproxy.gmail.com ([64.233.162.202]:27974 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932277AbVLDQoX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 11:43:37 -0500
-Date: Sun, 4 Dec 2005 17:43:35 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Dave Jones <davej@redhat.com>, cpufreq <cpufreq@www.linux.org.uk>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] CPU frequency display in /proc/cpuinfo
-Message-ID: <20051204164335.GB32492@isilmar.linta.de>
-Mail-Followup-To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
-	Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-	Dave Jones <davej@redhat.com>, cpufreq <cpufreq@www.linux.org.uk>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20051202181927.GD9766@wotan.suse.de> <20051202104320.A5234@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051202104320.A5234@unix-os.sc.intel.com>
-User-Agent: Mutt/1.5.9i
+	Sun, 4 Dec 2005 11:44:23 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=W/V95M0oHsCe9exY5uUKqy9yIuZIjJ+nFWMv0TsmypV/JOQoMVd14DGxtgM68yOsbHiJC6KjnlpCCcDYv//8LGVJKqgqApw565tb7S2w1dCpkD+QOYi4DXg6YU3ViWtqHZ5DRTAcI1fEGp/qqO+Ph/ipZEEaXLaaws7CHA9Tu4M=
+Message-ID: <43931CDF.3080202@gmail.com>
+Date: Mon, 05 Dec 2005 01:44:15 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Ethan Chen <thanatoz@ucla.edu>, linux-kernel@vger.kernel.org,
+       Carlos Pardo <Carlos.Pardo@siliconimage.com>,
+       Linux-ide <linux-ide@vger.kernel.org>
+Subject: Re: SIL_QUIRK_MOD15WRITE workaround problem on 2.6.14
+References: <438BD351.60902@ucla.edu> <438D2792.9050105@gmail.com> <438D2DCC.4010805@pobox.com> <438D3AA8.9030504@gmail.com> <438FAADC.6060907@pobox.com>
+In-Reply-To: <438FAADC.6060907@pobox.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 02, 2005 at 10:43:20AM -0800, Venkatesh Pallipadi wrote:
-> The patch below changes this to:
-> Show the last known frequency of the particular CPU, when cpufreq is present. If
-> cpu doesnot support changing of frequency through cpufreq, then boot frequency 
-> will be shown. The patch affects i386, x86_64 and ia64 architectures.
+Jeff Garzik wrote:
+> Tejun Heo wrote:
+> 
+>> Ethan confirmed that it's 1095:3114.  Arghhh....  Maybe we should keep 
+>> m15w quirk for 3114's for the time being?  Better be slow than hang. 
+>> Whatever bug the m15w quirk was hiding.
+> 
+> 
+> A generic 'slow_down_io' module option is reasonable.
+> 
+> It is not appropriate to apply mod15write quirk to hardware that isn't 
+> affected by the chip bug.
+> 
+> A better solution is to write a 311x-specific interrupt handler.
+> 
 
-Looks good to me -- however, might this affect userspace cpufreq tools? I'd
-vote for quite some time in -mm for this patch (i.e. only merge for 2.6.17)
+Hello, Jeff.  Hello, Carlos.
 
-	Dominik
+I bought a sii3114 controller yesterday and took out my ST3120026AS for 
+testing.  The drive times out during a WRITE_EXT, and locks up.
+
+* The ST3120026AS works perfectly on a VIA controller.
+* The sii3114 controller works perfectly with Maxtor 6B080M0 drives.
+
+I don't know.  It acts and smells like m15w problem.  What are the odds 
+of having the same symptom on the same combination?
+
+Also, I've asked one of my friends who has a sii3512 onboard controller 
+and an affected seagate drive to test.  The harddisk works on 2.6.13 
+with the quirk, but it freezes on 2.6.14.  m15w affected seagate drives 
+does _NOT_ work on 3512 and 3114 on 2.6.14, be it m15w or something else.
+
+-- 
+tejun

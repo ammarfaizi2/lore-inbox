@@ -1,55 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932358AbVLDWfR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbVLDWhX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932358AbVLDWfR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 17:35:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbVLDWfR
+	id S932369AbVLDWhX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 17:37:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbVLDWhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 17:35:17 -0500
-Received: from s0003.shadowconnect.net ([213.239.201.226]:56793 "EHLO
-	mail.shadowconnect.com") by vger.kernel.org with ESMTP
-	id S932358AbVLDWfQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 17:35:16 -0500
-Message-ID: <43936F18.4060907@shadowconnect.com>
-Date: Sun, 04 Dec 2005 23:35:04 +0100
-From: Markus Lidel <Markus.Lidel@shadowconnect.com>
-User-Agent: Thunderbird 1.5 (Windows/20051025)
+	Sun, 4 Dec 2005 17:37:23 -0500
+Received: from omta05ps.mx.bigpond.com ([144.140.83.195]:11727 "EHLO
+	omta05ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S932369AbVLDWhX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 17:37:23 -0500
+Message-ID: <43936FA0.4040409@bigpond.net.au>
+Date: Mon, 05 Dec 2005 09:37:20 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] make i2o_iop_free() static inline
-References: <20051203122439.GE31395@stusta.de>
-In-Reply-To: <20051203122439.GE31395@stusta.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Jake Moilanen <moilanen@austin.ibm.com>
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.1.5 for 2.6.14, 2.6.15-rc2 and 2.6.15-rc2-mm1
+References: <438648F5.2010706@bigpond.net.au> <438E8C8C.7030304@bigpond.net.au> <438F7F2E.3080300@bigpond.net.au>
+In-Reply-To: <438F7F2E.3080300@bigpond.net.au>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sun, 4 Dec 2005 22:37:20 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Peter Williams wrote:
+> Peter Williams wrote:
+> 
+>> Peter Williams wrote:
+>>
+>>> This version has a modified (hopefully improved) configuration 
+>>> mechanism.
+>>>
+>>> A patch for 2.6.15-rc2-mm1 is available at:
+>>>
+>>> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.5-for-2.6.15-rc2-mm1.patch?download> 
+>>>
+>>>
+>>> and a patch to upgrade the 6.1.4 versions for 2.6.14 and 2.6.15-rc2 
+>>> to 6.1.5 is available at:
+>>>
+>>> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.4-to-6.1.5-for-2.6.15-rc2.patch?download> 
+>>>
+>>>
+>>> Very Brief Documentation:
+>>>
+>>> You can select a default scheduler at kernel build time.  If you wish to
+>>> boot with a scheduler other than the default it can be selected at boot
+>>> time by adding:
+>>>
+>>> cpusched=<scheduler>
+>>>
+>>> to the boot command line where <scheduler> is one of: ingosched,
+>>> nicksched, staircase, spa_no_frills, spa_ws, spa_svr or zaphod.  If you
+>>> don't change the default when you build the kernel the default scheduler
+>>> will be ingosched (which is the normal scheduler).
+>>>
+>>> The scheduler in force on a running system can be determined by the
+>>> contents of:
+>>>
+>>> /proc/scheduler
+>>>
+>>> Control parameters for the scheduler can be read/set via files in:
+>>>
+>>> /sys/cpusched/<scheduler>/
+>>>
+>>> Peter
+>>
+>>
+>>
+>> Patches for 2.6.15-rc3 available at:
+>>
+>> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.5-for-2.6.15-rc3.patch?download> 
+> 
+> 
+> 
+> This patch will also successfully apply to 2.6.15-rc4.
 
-Adrian Bunk wrote:
-> It's only a micro-optimizatin, but why not save a few bytes?
+And 2.6.15-rc5.
 
-I fully agree :-)
+> 
+>>
+>>
+>> and 2.6.15-rc3-mm1 at:
+>>
+>> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.5-for-2.6.15-rc3-mm1.patch?download> 
+>>
+>>
+> 
+> 
 
-Thanks!
 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Signed-off-by: Markus Lidel <Markus.Lidel@shadowconnect.com>
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-Best regards,
-
-
-Markus Lidel
-------------------------------------------
-Markus Lidel (Senior IT Consultant)
-
-Shadow Connect GmbH
-Carl-Reisch-Weg 12
-D-86381 Krumbach
-Germany
-
-Phone:  +49 82 82/99 51-0
-Fax:    +49 82 82/99 51-11
-
-E-Mail: Markus.Lidel@shadowconnect.com
-URL:    http://www.shadowconnect.com
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

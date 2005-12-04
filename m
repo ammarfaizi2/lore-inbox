@@ -1,19 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbVLDPUw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbVLDPXm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932249AbVLDPUw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 10:20:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbVLDPUw
+	id S932250AbVLDPXm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 10:23:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbVLDPXm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 10:20:52 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:6603 "EHLO
+	Sun, 4 Dec 2005 10:23:42 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:35007 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932249AbVLDPUv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 10:20:51 -0500
+	id S932250AbVLDPXl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 10:23:41 -0500
 Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
 From: Arjan van de Ven <arjan@infradead.org>
-To: Matthias Andree <matthias.andree@gmx.de>
-Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051204142551.GB4769@merlin.emma.line.org>
+To: Richard Knutsson <ricknu-0@student.ltu.se>
+Cc: Matthias Andree <matthias.andree@gmx.de>,
+       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <43930A5F.9050802@student.ltu.se>
 References: <1133620598.22170.14.camel@laptopd505.fenrus.org>
 	 <20051203152339.GK31395@stusta.de>
 	 <20051203162755.GA31405@merlin.emma.line.org>
@@ -25,9 +26,10 @@ References: <1133620598.22170.14.camel@laptopd505.fenrus.org>
 	 <20051204132813.GA4769@merlin.emma.line.org>
 	 <1133703338.5188.38.camel@laptopd505.fenrus.org>
 	 <20051204142551.GB4769@merlin.emma.line.org>
+	 <43930A5F.9050802@student.ltu.se>
 Content-Type: text/plain
-Date: Sun, 04 Dec 2005 16:20:48 +0100
-Message-Id: <1133709649.5188.54.camel@laptopd505.fenrus.org>
+Date: Sun, 04 Dec 2005 16:23:35 +0100
+Message-Id: <1133709816.5188.57.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
@@ -45,29 +47,22 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  (C) Copyright notice and "All rights reserved."
-> 
-> > > These use inter_module_get() 
-> > 
-> > which is still there even in the latest 2.6.15-rc. It should be going
-> > out but hasn't yet. And that is the case for at least a year (eg they
-> > are __deprecated but still there).
-> 
-> No, they aren't - at least not anywhere declared below include/ and thus
-> uncompilable with GCC4.
 
-# pwd
-/mnt/raid/linux/linux-2.6.15-rc4/include/linux
-[root@jackhammer linux]# grep inter_mod *
-module.h:extern void __deprecated inter_module_register(const char *,
-module.h:extern void __deprecated inter_module_unregister(const char *);
-module.h:extern const void * __deprecated inter_module_get_request(const
-char *,
-module.h:extern void __deprecated inter_module_put(const char *);
+> But I do wonder how copyright and GPL can co-exist. Do the copyright 
+> holder own the changes anybody else does to the code?
+> Anyone care to explain?
 
+The GPL *is* copyright. You and I as copyright holders reserve all
+rights, and then grant selected rights; the rights and the conditions
+they are granted under are described in the COPYING file. It's a
+misunderstanding to think that GPL means "no copyright" or "can do
+anything I want"; in a way the GPL is quite a restrictive license.
+(while it allows you to distribute, copy and make derived works, it only
+does allow that under the condition that the result is made available
+under the GPL as well in full source form, and there's some additional
+conditions as well)
 
-sounds you need to invoke the warranty on your grep binary ;)
-
-
+so GPL can copyright are not in conflict, the GPL can exist BECAUSE of
+copyright actually.
 
 

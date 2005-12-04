@@ -1,78 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbVLDH4T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbVLDIQR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751329AbVLDH4T (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 02:56:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbVLDH4T
+	id S1751330AbVLDIQR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 03:16:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbVLDIQR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 02:56:19 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:34490 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751329AbVLDH4S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 02:56:18 -0500
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-From: Arjan van de Ven <arjan@infradead.org>
-To: "M." <vo.sinh@gmail.com>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <f0cc38560512031353q27ee0a2dh70e283f53671b70f@mail.gmail.com>
-References: <20051203135608.GJ31395@stusta.de>
-	 <9a8748490512030629t16d0b9ebv279064245743e001@mail.gmail.com>
-	 <20051203201945.GA4182@kroah.com>
-	 <f0cc38560512031254j3b28d579s539be721c247c10a@mail.gmail.com>
-	 <20051203211209.GA4937@kroah.com>
-	 <f0cc38560512031331x3f4006e5sc2ff51414f07ada7@mail.gmail.com>
-	 <1133645895.22170.33.camel@laptopd505.fenrus.org>
-	 <f0cc38560512031353q27ee0a2dh70e283f53671b70f@mail.gmail.com>
-Content-Type: text/plain
-Date: Sun, 04 Dec 2005 08:56:13 +0100
-Message-Id: <1133682973.5188.3.camel@laptopd505.fenrus.org>
+	Sun, 4 Dec 2005 03:16:17 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:19622 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751330AbVLDIQQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 03:16:16 -0500
+Date: Sun, 4 Dec 2005 00:15:25 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: linux-kernel@vger.kernel.org, Simon.Derr@bull.net
+Subject: Re: How do I remove a patch buried in your *-mm series?
+Message-Id: <20051204001525.2889f924.akpm@osdl.org>
+In-Reply-To: <20051203234900.fcaa6caf.pj@sgi.com>
+References: <20051203234900.fcaa6caf.pj@sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Paul Jackson <pj@sgi.com> wrote:
+>
+> I want to remove the patch in *-mm:
+> 
+>   1) cpuset-change-marker-for-relative-numbering.patch
+> 
+> Unfortunately, it collides with another couple cpuset patches later in
+> your stack:
+> 
+>   2) cpuset-memory-pressure-meter.patch, cpuset-memory-pressure-meter-gcc-295-fix.patch
+> 
+> How should I do this so I minimize the amount of cussing you do in my
+> general direction:
+> 
+>   A. Just ask you to nuke patch (1) above; let you edit the mess.
+>   B. Ask you to nuke both (1) and (2); leave me to resend a (2) that applies.
+>   C. Send a reversing patch that applies on top of your current *-mm stack.
+>   D. Some other plan you would prefer.
 
-> >
-> > > . Another
-> > > advantage would be to benefit external projects and hardware producers
-> > > writing open drivers, enlowering the effort in writing and mantaining
-> > > a driver.
-> >
-> > there is an even better model for those: Get it merged into kernel.org!
-> >
-> >
-> > There is an even bigger deal here: even if you're not ready to get
-> > merged yet, staying on the same old version for 6 months is NOT going to
-> > help you. In fact it's worse: it is 10x easier to deal with 6 small
-> > steps of 1 month than to deal with 1 big step of 6 months.
-> >
-> >
-> from the kernel.org point of view it does make sense but from users
-> pov i think no. Users stuck with old drivers not actively mantained
-> would benefit from this.
+    E.  You send a _minimal_ patch against lastest mm, telling me
+       "this fixes a bug in
+       cpuset-change-marker-for-relative-numbering.patch".  Then I insert
+       it into the series with name
+       cpuset-change-marker-for-relative-numbering-fix.patch and it gets
+       folded into cpuset-change-marker-for-relative-numbering.patch prior
+       to going to Linus.
 
-actually no. since that only buys them a few months at most, and then
-you're entirely stuck again. And patching it up after 6 months is a lot
-harder than doing smaller steps of 1 month, especially for less
-experienced people.
+Usually people forget to tell me which patch it fixes, but I work it out.
+
+In this case, dropping cpuset-change-marker-for-relative-numbering.patch
+works fine too - it took 20 seconds to fix up the rejects.  Mainly by
+simply omitting them, because all this stuff:
+
+***************
+*** 191,199 ****
+  	.cpus_allowed = CPU_MASK_ALL,
+  	.mems_allowed = NODE_MASK_ALL,
+  	.marker_pid = 0,
+- 	.fmeter.cnt = 0,
+- 	.fmeter.val = 0,
+- 	.fmeter.time = 0,
+  	.count = ATOMIC_INIT(0),
+  	.sibling = LIST_HEAD_INIT(top_cpuset.sibling),
+  	.children = LIST_HEAD_INIT(top_cpuset.children),
+--- 191,201 ----
+  	.cpus_allowed = CPU_MASK_ALL,
+  	.mems_allowed = NODE_MASK_ALL,
+  	.marker_pid = 0,
++ 	.fmeter = {
++ 		.cnt = 0,
++ 		.val = 0,
++ 		.time = 0,
++ 	},
+  	.count = ATOMIC_INIT(0),
+  	.sibling = LIST_HEAD_INIT(top_cpuset.sibling),
+  	.children = LIST_HEAD_INIT(top_cpuset.children),
 
 
-> There are some open drivers wrote by hardware mantainers which will
-> never get into kernel.org cause of code not following kernel style
-> guides and so on. 
+It just redundant - the compiler does that.
 
-which ones did you have in mind?
+> I have verified that removing all the patches above applies cleanly and
+> builds, with just a harmless -74 lines offset on one of the remaining
+> cpuset patches.
+> 
+>   So I recommend B.
 
-
-
+Your call.  E is preferred though.

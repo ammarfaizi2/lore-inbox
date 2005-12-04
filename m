@@ -1,58 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbVLDPII@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbVLDPIl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932241AbVLDPII (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 10:08:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbVLDPII
+	id S932245AbVLDPIl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 10:08:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbVLDPIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 10:08:08 -0500
-Received: from mail.gmx.de ([213.165.64.20]:28644 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932241AbVLDPIH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 10:08:07 -0500
-X-Authenticated: #428038
-Date: Sun, 4 Dec 2005 16:08:04 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Matthias Andree <matthias.andree@gmx.de>,
-       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+	Sun, 4 Dec 2005 10:08:41 -0500
+Received: from hornet.berlios.de ([195.37.77.140]:42055 "EHLO
+	hornet.berlios.de") by vger.kernel.org with ESMTP id S932245AbVLDPIk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 10:08:40 -0500
+From: Michael Frank <mhf@users.berlios.de>
+Reply-To: mhf@users.berlios.de
+To: Luke-Jr <luke-jr@utopios.org>
 Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Message-ID: <20051204150804.GA17846@merlin.emma.line.org>
-Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
-	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20051203162755.GA31405@merlin.emma.line.org> <1133630556.22170.26.camel@laptopd505.fenrus.org> <20051203230520.GJ25722@merlin.emma.line.org> <43923DD9.8020301@wolfmountaingroup.com> <20051204121209.GC15577@merlin.emma.line.org> <1133699555.5188.29.camel@laptopd505.fenrus.org> <20051204132813.GA4769@merlin.emma.line.org> <1133703338.5188.38.camel@laptopd505.fenrus.org> <20051204142551.GB4769@merlin.emma.line.org> <1133707855.5188.41.camel@laptopd505.fenrus.org>
+Date: Sun, 4 Dec 2005 16:06:08 +0100
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20051203152339.GK31395@stusta.de> <20051204002043.GA1879@kroah.com> <200512040446.32450.luke-jr@utopios.org>
+In-Reply-To: <200512040446.32450.luke-jr@utopios.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1133707855.5188.41.camel@laptopd505.fenrus.org>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+Message-Id: <20051204150949.647BB28EA@hornet.berlios.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 04 Dec 2005, Arjan van de Ven wrote:
+On Sunday 04 December 2005 05:46, Luke-Jr wrote:
+> On Sunday 04 December 2005 00:20, Greg KH wrote:
+> > > Switch "broken bloaty bulky devfs" to "lean & clean
+> > > devfs"?  This ship would have been flying the
+> > > "clean-up nation" flags.
+> >
+> > Again, because an in-kernel devfs is not the correct
+> > thing to do.  devfs has been disabled for a few months
+> > now, and I don't think anyone has missed it yet :)
+>
+> Well, devfs does have some abilities udev doesn't:
+> hotplug/udev doesn't detect everything, and can result in
+> rarer or non-PnP devices not being automatically
+> available; devfs has the effect of trying to load a
+> module when a program looks for the devices it provides--
+> while it can cause problems, it does have a possibility
+> to work better. Interesting effects of switching my
+> desktop from devfs to udev:
+> 1. my DVD burners are left uninitialized until I manually
+> modprobe ide-cd or (more recently) ide-scsi
+> 2. my sound card is autodetected and the drivers loaded,
+> but the OSS emulation modules are omitted; with devfs,
+> they would be autoloaded when an app tried to use OSS
+> devfs also has the advantage of keeping the module info
+> all in one place-- the kernel or the module. In
+> particular, with udev the detection and /dev info is
+> scattered into different locations of the filesystem.
+> This can probably be fixed easily simply by having udev
+> read such info from modules or via a /sys entry, though.
 
-> > As I say, these aren't licensed for inclusion into the kernel, they bear
-> > a (C) Copyright notice and "All rights reserved."
-> 
-> and
-> MODULE_LICENSE("GPL");
-> 
-> so it *IS* gpl licensed!
-> 
-> the code is a bit horrible though and no surprise it breaks ;)
+Seems your complaints are related to missing/broken 
+configuration (of your distribution). 
 
-Yes. "extern type foo; static type foo;" is way stupid, but 10% of the
-blame can be shifted on the GCC guys for being much too tolerant.
+Here are some references which may be of help:
 
-> you can always make drivers broken enough to break at the slightest
-> change ;)
-> 
-> (it also seems to contain an entire ipmi layer, linux already has one so
-> I wonder why they're not just using that as basis)
+http://webpages.charter.net/decibelshelp/LinuxHelp_UDEVPrimer.html
+http://www.gentoo.org/doc/en/udev-guide.xml
+http://gentoo-wiki.com/HOWTO_Customizing_UDEV
+http://ubuntuforums.org/archive/index.php/t-11718.html
 
-Perhaps the dates give a clue. Since when has Linux had IPMI in the
-baseline code?
+IME, udev is easier to manage than devfs because there are 
+tools such as udevtest.
 
--- 
-Matthias Andree
+Please see also manuals for udevstart udevtest, udevinfo, 
+udevcontrol
+
+Also strace udevstart is interesting...
+

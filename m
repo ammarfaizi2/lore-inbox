@@ -1,103 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbVLDWNm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbVLDWZ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932356AbVLDWNm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 17:13:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbVLDWNm
+	id S932335AbVLDWZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 17:25:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932359AbVLDWZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 17:13:42 -0500
-Received: from mx1.suse.de ([195.135.220.2]:37044 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932300AbVLDWNl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 17:13:41 -0500
-From: Neil Brown <neilb@suse.de>
-To: "Larry Bates" <lbates@syscononline.com>
-Date: Mon, 5 Dec 2005 09:13:26 +1100
-MIME-Version: 1.0
+	Sun, 4 Dec 2005 17:25:57 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:39995
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S932335AbVLDWZ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 17:25:56 -0500
+Date: Sun, 4 Dec 2005 23:25:51 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       klive@cpushare.com
+Subject: Re: Linux 2.6.15-rc5: off-line for a week
+Message-ID: <20051204222551.GB28539@opteron.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17299.27142.901162.564588@cse.unsw.edu.au>
-Cc: <linux-kernel@vger.kernel.org>, linux-raid@vger.kernel.org
-Subject: Re: newbie - mdadm create raid1 mirrors on large drives
-In-Reply-To: message from Larry Bates on Saturday December 3
-References: <002501c5f835$cb6bec50$1e00a8c0@LABWXP>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <9a8748490512041035l53bf4578n6372c2e3d7c96322@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday December 3, lbates@syscononline.com wrote:
-> I hope this is the correct list for this question.
+On Sun, Dec 04, 2005 at 07:35:40PM +0100, Jesper Juhl wrote:
+> But, forcing users to install python, twistd, zope interface etc is
+> not exactely making it simple for people to run (and they have to know
+> about it first as well).
+> If this was instead implemented in C and distributed with the kernel
 
- linux-raid@vger.kernel.org is possibly better, but linux-kernel is
- probably a suitable catch-all.
+Thanks to Christian Aichinger's contribution there's now a python
+standalone version that can be invoked by cron every few minutes (
+http://klive.cpushare.com/klive.py ), it only requires python and no
+other lib, it sends the packet with exponential backoff too by keeping
+track of the last packet delivery.
 
-> 
-> I've just recently begun using mdadm to set up some
-> arrays using large drives (300-400Gb).  One of the 
-> things I don't understand is this: when you first 
-> create a raid1 (mirrored) array from two drives 
-> mdadm insists on mirroring the contents of the first
-> drive to the second even though the drives are
-> entirely blank (e.g. new drives don't have anything
-> on them).  
+This only works correctly if /proc/uptime doesn't overflow (so 2.6
+should be ok, 2.4 sure not).
 
-Well... they do have something one them - lots of zeros and ones, or
-maybe just zeros, or maybe just ones.  Sure, you may not be interested
-in that data, but it is there.
+Also note, zope isn't really required, it's just that twisted shares a
+library inside zope called zopeinterfaces, you can install that single
+lib and not the whole zope. In any recent distro, you've only to select
+the twisted-python package, it'll pick up all other (tiny) dependencies
+automatically.
 
+The autoinstaller ( http://klive.cpushare.com/klive.sh
+--install|--uninstall ) is available only for the twisted version, I
+believe that's simpler to setup and handle than the cron driven one even
+if it requires twisted (and in turn zopeinterfaces ;)
 
->            In one configuration I have, this takes
-> about 16 hours on a 400Gb drive.  When I do 5 of them
-> simultaneously this takes 2+ days to complete.  Is 
-> there some way to tell mdadm that you want to create 
-> a mirrored set but skip this rather long initial 
-> mirroring process?  I don't really see that it actually
-> accomplishes anything.
+Everything is GPL including the server code and the network protocol, so
+feel free to write a C client, but frankly I think the python standalone
+one is more than enough if you don't want a daemon in the background,
+writing a C version would be a worthless complication, but still I'm not
+against it, if you write it I'll audit and merge it too.
 
-No, there is no way to tell mdadm to skip the initial copying
-process.  It is not clear to me that you really want to do this(*)
-(though on the "enough rope" principle I'm probably going to extend
-the "--assume-clean" option to work in --create mode).
+Note, that with the new protocol activated recently I already collected
+quite some more info (all can be deactived by editing the script or by
+setting the environment variables, there's a wiki where to document all
+the stuff too: http://klive.cpushare.com:8819/ ). What you see on the
+homepage is what was being logged with the old protocol.
 
-I suggest you simply ignore the fact that it is doing the copy.  Just
-keep using the array as though it wasn't.  If this seems to be
-impacting over-all system performance, tune /proc/sys/dev/raid/speed_*
-to slow it down even more.
-If you reboot, it should remember where it was up to and restart from
-the same place (providing you are using a 2.6 kernel).
+So soon we'll be able to see the pci-ids with the highest/avg/min
+uptime, the filesystems mounted and the kernel modules. Furthermore you
+will be able to track your own uptime (for your all computers combined
+or each one separately) by setting an environment variable. I didn't
+start using the new information that gets logged yet, because I'm trying
+to start transactions on CPUShare first (my spare time is quite
+limited), but it shouldn't take too long before I startup CPUShare and
+the KLive new features becomes available too. Incoming patches will
+preempt my CPUShare work of course, so feel free to send patches already
+if you write them ;).
 
-If you have 5 of these 400Gb raid1's, then I suspect you really want
-to avoid the slow resync that happens after a crash.  You should look
-into adding a bitmap write-intent log.  This requires 2.6.14, and
-mdadm 2.1, and is as easy as
-   mdadm --grow --bitmap=internal /dev/md3
-while the array is running.
+The next step after the new pciid/fs/module info becomes browsable is to
+write a netconsole oops dumper that pushes the oops to the network using
+symmetric encryption (the password has to be set with an environment
+variable or something like that, that the klive client will pass to
+the kernel along with the routing and ip information) that only the
+computer owner can decrypt. Then depending on the oops he can decide to
+open it up (or he can just leave it always open without password if he
+knows there's no sensitive info in the computer).  This will also avoid
+people to setup netconsole servers, the cpushare server will log all
+oopses securely and with full privacy (and with klive I can still track
+how many oopses each kernel is generating even when they're encrypted).
 
-This should dramatically reduce resync time, at a possible small cost
-in write throughput.  Some limited measurements I have done suggest
-up-to 10% slowdown, though usually less.  Possibly some tuning can
-make it much better.
+You're welcome to followup discussions on the klive@cpushare.com mailing
+list too.
 
-(*)
-A raid array can suffer from sleeping bad blocks.  i.e. blocks that
-you cannot read, but normally you never do (because they haven't been
-allocated to a file yet).  When a drive fails, and you are
-recovering the data onto a spare, hitting that sleeper can kill your
-array. 
-For this reason it is good to regularly (daily, or weekly, maybe
-monthly) read through the entire array making sure everything is OK.
-In 2.6.16 (with complete functionality in 2.6.17) you will be able to
-trigger a background read-test of the whole array:
-  echo check > /sys/block/mdX/md/sync_action
-
-If you were to create an array with --assume-clean, then whenever you
-run this it will report lots of errors, though you can fix them with
-   echo repair > /sys/block/mdX/md/sync_action
-
-If you are going to be doing that (and I would recommend it) then you
-may as well allow the initial sync, especially as you can quite
-happily ignore the fact that it is happening.
-
-NeilBrown
+Thanks!

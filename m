@@ -1,107 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbVLDNfN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbVLDN2V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932223AbVLDNfN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 08:35:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbVLDNfN
+	id S932213AbVLDN2V (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 08:28:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbVLDN2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 08:35:13 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:30366 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S932223AbVLDNfM (ORCPT
-	<rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Sun, 4 Dec 2005 08:35:12 -0500
-Date: Sun, 4 Dec 2005 21:48:18 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Nikita Danilov <nikita@clusterfs.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: Re: [PATCH 01/16] mm: delayed page activation
-Message-ID: <20051204134818.GA4305@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Nikita Danilov <nikita@clusterfs.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
-References: <20051203071444.260068000@localhost.localdomain> <20051203071609.755741000@localhost.localdomain> <17298.56560.78408.693927@gargle.gargle.HOWL>
+	Sun, 4 Dec 2005 08:28:21 -0500
+Received: from krusty.dt.E-Technik.uni-dortmund.de ([129.217.163.1]:435 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S932213AbVLDN2U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 08:28:20 -0500
+Date: Sun, 4 Dec 2005 14:28:13 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+Message-ID: <20051204132813.GA4769@merlin.emma.line.org>
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	linux-kernel@vger.kernel.org
+References: <20051203135608.GJ31395@stusta.de> <1133620598.22170.14.camel@laptopd505.fenrus.org> <20051203152339.GK31395@stusta.de> <20051203162755.GA31405@merlin.emma.line.org> <1133630556.22170.26.camel@laptopd505.fenrus.org> <20051203230520.GJ25722@merlin.emma.line.org> <43923DD9.8020301@wolfmountaingroup.com> <20051204121209.GC15577@merlin.emma.line.org> <1133699555.5188.29.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <17298.56560.78408.693927@gargle.gargle.HOWL>
+In-Reply-To: <1133699555.5188.29.camel@laptopd505.fenrus.org>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 04, 2005 at 03:11:28PM +0300, Nikita Danilov wrote:
-> Wu Fengguang writes:
->  > When a page is referenced the second time in inactive_list, mark it with
->  > PG_activate instead of moving it into active_list immediately. The actual
->  > moving work is delayed to vmscan time.
->  > 
->  > This implies two essential changes:
->  > - keeps the adjecency of pages in lru;
+On Sun, 04 Dec 2005, Arjan van de Ven wrote:
+
+> On Sun, 2005-12-04 at 13:12 +0100, Matthias Andree wrote:
+> > On Sat, 03 Dec 2005, Jeff V. Merkey wrote:
+> > 
+> > > These folks have nothing new to innovate here. The memory manager and VM 
+> > > gets revamped every other release. Exports get broken, binary only 
+> > > module compatibility busted every rev of the kernel. I spend weeks on 
+> > 
+> > Who cares for binary modules?
+> > 
+> > It hurts however if external OSS modules are broken.
 > 
-> But this change destroys LRU ordering: at the time when shrink_list()
-> inspects PG_activate bit, information about order in which
-> mark_page_accessed() was called against pages is lost. E.g., suppose
+> then those modules should be submitted realistically. That's just best
+> for everyone involved. Which modules in particular do you mean btw?
 
-Thanks.
-But this order of re-access time may be pointless. In fact the original
-mark_page_accessed() is doing another inversion: inversion of page lifetime.
-In the word of CLOCK-Pro, a page first being re-accessed has lower
-inter-reference distance, and therefore should be better protected(if ignore
-possible read-ahead effects). If we move re-accessed pages immediately into
-active_list, we are pushing them closer to danger of eviction.
+I meant the ipmi, smbus and copa modules by Fujitsu-Siemens.
 
-btw, the current vmscan code clears PG_referenced flag when moving pages to
-active_list. I followed the convention by doing this in the patch:
+They are provided in source form, but I just found out (reading the
+headers and not just the lines that broke the compile) they are not open
+source. Perhaps one should prod them to slap a modified-BSD or perhaps
+GPL label onto their modules.
 
---- linux-2.6.15-rc2-mm1.orig/mm/vmscan.c
-+++ linux-2.6.15-rc2-mm1/mm/vmscan.c
-@@ -454,6 +454,12 @@ static int shrink_list(struct list_head
-                if (PageWriteback(page))
-                        goto keep_locked;
+It seems you'd then maintain them after their submission? :-)
 
-+               if (PageActivate(page)) {
-+                       ClearPageActivate(page);
-+                       ClearPageReferenced(page);
-+                       goto activate_locked;
-+               }
-+
-                referenced = page_referenced(page, 1, sc->priority <= 0);
-                /* In active use or really unfreeable?  Activate it. */
-                if (referenced && page_mapping_inuse(page))
+> It's rare even in the 2.6 tree to mass-break well written drivers. Just
+> because it's a lot of work to fix all in kernel drivers up. But a fully
+> stable API is also not good. My guess is that the drivers that break
+> most are the ones using the not-right APIs (eg internals and such). 
 
-Though I have a strong feeling that with the extra PG_activate bit, the
-+                       ClearPageReferenced(page);
-line should be removed. That is, let the extra reference record live through it.
-The point is to smooth out the inter-reference distance. Imagine the following
-situation:
+These use inter_module_get() (ok, inter_module_get_request isn't
+difficult) and some #include headers that have moved around between
+linux and asm directories.
 
--      +            -   +           +   -                   -   +              -
-1                   2                   3                   4                  5
-        +: reference time
-        -: shrink_list time
-
-One page have an average inter-reference distance that is smaller than the
-inter-scan distance. But the distances vary a bit. Here we'd better let the
-reference count accumulate, or at the 3rd shrink_list time it will be evicted.
-Though it has a side effect of favoriting non-mmaped file a bit more than
-before, and I was not quite sure about it.
-
-> inactive list initially contained pages
-> 
->      /* head */ (P1, P2, P3) /* tail */
-> 
-> all of them referenced. Then mark_page_accessed(), is called against P1,
-> P2, and P3 (in that order). With the old code active list would end up 
-> 
->      /* head */ (P3, P2, P1) /* tail */
-> 
-> which corresponds to LRU. With delayed page activation, pages are moved
-> to head of the active list in the order they are analyzed by
-> shrink_list(), which gives
-> 
->      /* head */ (P1, P2, P3) /* tail */
-> 
-> on the active list, that is _inverse_ LRU order.
-
-Thanks,
-Wu
+-- 
+Matthias Andree

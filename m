@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbVLDBfF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbVLDBlH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751160AbVLDBfF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 20:35:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbVLDBfF
+	id S1751302AbVLDBlH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 20:41:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751307AbVLDBlH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 20:35:05 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:21466 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751160AbVLDBfE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 20:35:04 -0500
-Date: Sat, 3 Dec 2005 17:34:58 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Felipe Alfaro Solana <felipe.alfaro@gmail.com>
-cc: Greg KH <greg@kroah.com>, Terence Ripperda <tripperda@nvidia.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.15-rc4
-In-Reply-To: <6f6293f10512031726n10ea87e6s44be5dffbd512bb5@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0512031733010.3099@g5.osdl.org>
-References: <Pine.LNX.4.64.0511302234020.3099@g5.osdl.org> 
- <20051201121826.GF19694@charite.de> <20051201211119.GA11437@hygelac> 
- <Pine.LNX.4.64.0512011455090.3099@g5.osdl.org>  <20051202180236.GA19327@hygelac>
- <20051203002224.GB31077@kroah.com> <6f6293f10512031726n10ea87e6s44be5dffbd512bb5@mail.gmail.com>
+	Sat, 3 Dec 2005 20:41:07 -0500
+Received: from smtp114.sbc.mail.re2.yahoo.com ([68.142.229.91]:42100 "HELO
+	smtp114.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1751302AbVLDBlF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 20:41:05 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Greg KH <greg@kroah.com>
+Subject: Re: Golden rule: don't break userland (was Re: RFC: Starting a stable kernel series off the 2.6 kernel)
+Date: Sat, 3 Dec 2005 20:40:59 -0500
+User-Agent: KMail/1.8.3
+Cc: Jeff Garzik <jgarzik@pobox.com>, Adrian Bunk <bunk@stusta.de>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Greg KH <gregkh@suse.de>,
+       James Bottomley <James.Bottomley@steeleye.com>
+References: <20051203135608.GJ31395@stusta.de> <4391E764.7050704@pobox.com> <20051203203418.GA4283@kroah.com>
+In-Reply-To: <20051203203418.GA4283@kroah.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512032041.00594.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 03 December 2005 15:34, Greg KH wrote:
+> And in the future, the driver/class model changes we are going to be
+> doing (see http://lwn.net/Articles/162242/ for more details on this),
+> will be going to great lengths to prevent anything in userspace from
+> breaking.
 
+It is usually considered a bad netiquette to cross-post in public and
+subscription-only lists. I wonder if pointing to subscription-only
+service to get the feeling about planned driver core changes is a good
+idea. I would expect it be stated here or on hotplug list but don't
+recall anything interesting in the last couple of weeks. Is there a
+driver core mailing list I need to subscribe?
 
-On Sun, 4 Dec 2005, Felipe Alfaro Solana wrote:
-> 
-> So, how are we, average end users, supposed to cope with this? What
-> implications does this have for us?
-
-Well, the old NVidia module should actually work fine. The VM does a 
-number of noisy (and scary) debugging messages, but that's just because 
-this area changed a lot, and we do want to know who triggers them. But 
-there are at least two reports that seem to be happy with the old module 
-just working.
-
-And I actually think I'll just change vm_insert_page() to be a regular 
-export. It's not like it does anything really strange, and if the choice 
-is between people usign the horrible old interfaces because they don't 
-want to use the new one due to that GPL-only, and just making it regular, 
-I think I'll make that interface regular.
-
-		Linus
+-- 
+Dmitry

@@ -1,96 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751006AbVLDPDG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbVLDPII@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751006AbVLDPDG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 10:03:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751048AbVLDPDF
+	id S932241AbVLDPII (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 10:08:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbVLDPII
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 10:03:05 -0500
-Received: from moraine.clusterfs.com ([66.96.26.190]:63619 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S1751006AbVLDPDE (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Sun, 4 Dec 2005 10:03:04 -0500
-From: Nikita Danilov <nikita@clusterfs.com>
+	Sun, 4 Dec 2005 10:08:08 -0500
+Received: from mail.gmx.de ([213.165.64.20]:28644 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932241AbVLDPIH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 10:08:07 -0500
+X-Authenticated: #428038
+Date: Sun, 4 Dec 2005 16:08:04 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Matthias Andree <matthias.andree@gmx.de>,
+       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+Message-ID: <20051204150804.GA17846@merlin.emma.line.org>
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20051203162755.GA31405@merlin.emma.line.org> <1133630556.22170.26.camel@laptopd505.fenrus.org> <20051203230520.GJ25722@merlin.emma.line.org> <43923DD9.8020301@wolfmountaingroup.com> <20051204121209.GC15577@merlin.emma.line.org> <1133699555.5188.29.camel@laptopd505.fenrus.org> <20051204132813.GA4769@merlin.emma.line.org> <1133703338.5188.38.camel@laptopd505.fenrus.org> <20051204142551.GB4769@merlin.emma.line.org> <1133707855.5188.41.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17299.1331.368159.374754@gargle.gargle.HOWL>
-Date: Sun, 4 Dec 2005 18:03:15 +0300
-To: Wu Fengguang <wfg@mail.ustc.edu.cn>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: Re: [PATCH 01/16] mm: delayed page activation
-In-Reply-To: <20051204134818.GA4305@mail.ustc.edu.cn>
-References: <20051203071444.260068000@localhost.localdomain>
-	<20051203071609.755741000@localhost.localdomain>
-	<17298.56560.78408.693927@gargle.gargle.HOWL>
-	<20051204134818.GA4305@mail.ustc.edu.cn>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+Content-Disposition: inline
+In-Reply-To: <1133707855.5188.41.camel@laptopd505.fenrus.org>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wu Fengguang writes:
- > On Sun, Dec 04, 2005 at 03:11:28PM +0300, Nikita Danilov wrote:
- > > Wu Fengguang writes:
- > >  > When a page is referenced the second time in inactive_list, mark it with
- > >  > PG_activate instead of moving it into active_list immediately. The actual
- > >  > moving work is delayed to vmscan time.
- > >  > 
- > >  > This implies two essential changes:
- > >  > - keeps the adjecency of pages in lru;
- > > 
- > > But this change destroys LRU ordering: at the time when shrink_list()
- > > inspects PG_activate bit, information about order in which
- > > mark_page_accessed() was called against pages is lost. E.g., suppose
- > 
- > Thanks.
- > But this order of re-access time may be pointless. In fact the original
- > mark_page_accessed() is doing another inversion: inversion of page lifetime.
- > In the word of CLOCK-Pro, a page first being re-accessed has lower
+On Sun, 04 Dec 2005, Arjan van de Ven wrote:
 
-The brave new world of CLOCK-Pro is still yet to happen, right?
+> > As I say, these aren't licensed for inclusion into the kernel, they bear
+> > a (C) Copyright notice and "All rights reserved."
+> 
+> and
+> MODULE_LICENSE("GPL");
+> 
+> so it *IS* gpl licensed!
+> 
+> the code is a bit horrible though and no surprise it breaks ;)
 
- > inter-reference distance, and therefore should be better protected(if ignore
- > possible read-ahead effects). If we move re-accessed pages immediately into
- > active_list, we are pushing them closer to danger of eviction.
+Yes. "extern type foo; static type foo;" is way stupid, but 10% of the
+blame can be shifted on the GCC guys for being much too tolerant.
 
-Huh? Pages in the active list are closer to the eviction? If it is
-really so, then CLOCK-pro hijacks the meaning of active list in a very
-unintuitive way. In the current MM active list is supposed to contain
-hot pages that will be evicted last.
+> you can always make drivers broken enough to break at the slightest
+> change ;)
+> 
+> (it also seems to contain an entire ipmi layer, linux already has one so
+> I wonder why they're not just using that as basis)
 
-Anyway, these issues should be addressed in CLOCK-pro
-implementation. Current MM tries hard to maintain LRU approximation in
-both active and inactive lists.
+Perhaps the dates give a clue. Since when has Linux had IPMI in the
+baseline code?
 
-[...]
-
- > 
- > Though I have a strong feeling that with the extra PG_activate bit, the
- > +                       ClearPageReferenced(page);
- > line should be removed. That is, let the extra reference record live through it.
- > The point is to smooth out the inter-reference distance. Imagine the following
- > situation:
- > 
- > -      +            -   +           +   -                   -   +              -
- > 1                   2                   3                   4                  5
- >         +: reference time
- >         -: shrink_list time
- > 
- > One page have an average inter-reference distance that is smaller than the
- > inter-scan distance. But the distances vary a bit. Here we'd better let the
- > reference count accumulate, or at the 3rd shrink_list time it will be evicted.
-
-I think this is pretty normal and acceptable variance. Idea is that when
-system is short on memory scan rate increases together with the
-precision of reference tracking.
-
-[...]
-
- > 
- > Thanks,
-
-Che-che,
-
- > Wu
-
-Nikita.
+-- 
+Matthias Andree

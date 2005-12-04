@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbVLDQRM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbVLDQWE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932264AbVLDQRM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 11:17:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbVLDQRM
+	id S932268AbVLDQWE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 11:22:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbVLDQWE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 11:17:12 -0500
-Received: from mail.gmx.net ([213.165.64.20]:5525 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932264AbVLDQRL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 11:17:11 -0500
-X-Authenticated: #428038
-Date: Sun, 4 Dec 2005 17:17:09 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Message-ID: <20051204161709.GC17846@merlin.emma.line.org>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20051203230520.GJ25722@merlin.emma.line.org> <43923DD9.8020301@wolfmountaingroup.com> <20051204121209.GC15577@merlin.emma.line.org> <1133699555.5188.29.camel@laptopd505.fenrus.org> <20051204132813.GA4769@merlin.emma.line.org> <1133703338.5188.38.camel@laptopd505.fenrus.org> <20051204142551.GB4769@merlin.emma.line.org> <1133707855.5188.41.camel@laptopd505.fenrus.org> <20051204150804.GA17846@merlin.emma.line.org> <jebqzw50x8.fsf@sykes.suse.de>
+	Sun, 4 Dec 2005 11:22:04 -0500
+Received: from ms-smtp-04.texas.rr.com ([24.93.47.43]:31939 "EHLO
+	ms-smtp-04.texas.rr.com") by vger.kernel.org with ESMTP
+	id S932268AbVLDQWD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 11:22:03 -0500
+Message-ID: <43931829.60806@austin.rr.com>
+Date: Sun, 04 Dec 2005 10:24:09 -0600
+From: "Jonathan A. George" <jageorge@austin.rr.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <jebqzw50x8.fsf@sykes.suse.de>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+To: linux-kernel@vger.kernel.org
+Subject: Unneeded RFC: Starting a stable kernel series off the 2.6 kernel
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 04 Dec 2005, Andreas Schwab wrote:
+This is really a silly discussion:
 
-> Matthias Andree <matthias.andree@gmx.de> writes:
-> 
-> > Yes. "extern type foo; static type foo;" is way stupid, but 10% of the
-> > blame can be shifted on the GCC guys for being much too tolerant.
-> 
-> You should rather blame the C standard.
+2.6.x release is the initial base for each stable release
+    !with absolutely no intention of stalling non-useland API's!
 
-There are things that old Sun Workshop versions bitch about that GCC
-deals with without complaining, and I'm not talking about C99/C++-style
-comments. C standard issue? I believe not.
+2.6.x.y releases are the stability updates to the base release
+    and in kernel API's will usually stay stable
 
-Anyways, this is getting off-topic and ultimately the author of broken
-code is responsible, of course. But it's still nice if the tools help
-produce good code.
+If you want an ultra stable kernel you should start with the last stable 
+release and start tracking what you consider critical fixes from the 
+next base kernel (2.6.x) forward (essentially creating your own vendor 
+branch).  Alternatively you should use a vendor branch which already 
+does this for you with the addition of back porting important new device 
+drivers (Debian Stable, RHEL, SLES, ...).
 
--- 
-Matthias Andree
+The 2.6 development model finally gives developers the ability to dump 
+cruft, fix broken architecture, and add performance enhancements in a 
+timely manor.  Linux development hasn't worked this well since 1.2 was 
+small enough to test and release quickly.
+
+
+OTOH it would be nice if core userland (libc, udev, binutils, 
+shellutils) were managed as a single project (as with OpenBSD) so that 
+userland breakage would be better managed. :-)

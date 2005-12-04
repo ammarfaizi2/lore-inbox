@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750990AbVLDKY2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751019AbVLDLhj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750990AbVLDKY2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 05:24:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750997AbVLDKY2
+	id S1751019AbVLDLhj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 06:37:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751023AbVLDLhj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 05:24:28 -0500
-Received: from ozlabs.org ([203.10.76.45]:38617 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750952AbVLDKY1 (ORCPT
+	Sun, 4 Dec 2005 06:37:39 -0500
+Received: from nproxy.gmail.com ([64.233.182.199]:54969 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751015AbVLDLhi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 05:24:27 -0500
-Subject: Re: Two module-init-
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-input@atrey.karlin.mff.cuni.cz,
-       Scott James Remnant <scott@ubuntu.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>, vojtech@suse.cz
-In-Reply-To: <200512022328.29182.dtor_core@ameritech.net>
-References: <1133359773.2779.13.camel@localhost.localdomain>
-	 <1133482376.4094.11.camel@localhost.localdomain>
-	 <200512022319.05246.dtor_core@ameritech.net>
-	 <200512022328.29182.dtor_core@ameritech.net>
-Content-Type: text/plain
-Date: Sun, 04 Dec 2005 21:24:25 +1100
-Message-Id: <1133691865.30188.24.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Sun, 4 Dec 2005 06:37:38 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
+        b=SIzUKTNvsa8IFs0wxS39jRo/85iqUlJMyPsSKy+ZvzKMiTInhpIABqdookBkrgAw4iGZTOOB9B36/ga+1OMgepN27X4FEGZWszP3bdy9xptHrb6Kk6dIBu5cRRLHlFpWp9+qsvyLR0h3sNH29WXRtXLUKCcR+pZP69k9G8GpuVI=
+Message-ID: <4392D4FD.3070402@gmail.com>
+Date: Sun, 04 Dec 2005 12:37:33 +0100
+From: Xose Vazquez Perez <xose.vazquez@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, jmerkey@wolfmountaingroup.com
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-02 at 23:28 -0500, Dmitry Torokhov wrote:
-> On Friday 02 December 2005 23:19, Dmitry Torokhov wrote:
-> > On Thursday 01 December 2005 19:12, Rusty Russell wrote:
-> > > Meanwhile, as noone seems to use swbit in struct input_device_id,
-> > > perhaps we can remove it for 2.6.15?
-> > > 
-> > 
-> > Please take a look at drivers/input/keyboard/corgikbd.c
-> > 
-> 
-> What I meant we do use EV_SW in the drivers and so it sould be part
-> of input_device_id. Nobody uses ffbit or sndbit either and still
-> they are present...
+Jeff V. Merkey wrote:
 
-Sure.  BUT it will break current users.  I'm suggesting we jerk that
-field out for 2.6.15, and reintroduce it for >= 2.6.16, when we can (1)
-ensure everyone has a fixed module-init tools, or (2) make sure everyone
-is using the module alias stuff, or both.
+> These folks have nothing new to innovate here. The memory manager and VM 
+> gets revamped every other release. Exports get broken, binary only 
+> module compatibility busted every rev of the kernel. I spend weeks on 
+> each kernel fixing the breakage. These people don't get it, don't care, 
+> and to be honest, you are wasting your time here trying to convince 
+> them. It's never stable because they don't want it to be. This is how 
+> they maintain control
+> of this code. I have apps written for Windows in 1990 and 1998 that 
+> still run on Windows XP today. Linux has no such concept of
+> backwards compatiblity. Every company who has embraced it outside of 
+> hardware based solutions is dying or has died. IBM is secretly
+> forking it as we speak and using it to get out of paying for Unix licenses.
+> As annoying as it is, accept it and live with it. These people have no 
+> sense of loyalty to you or your customers. They don't even care about 
+> each other.
 
-It seems the simplest solution, surely?
-Rusty.
+Linux is _only_ a kernel, not a complete OS. And in a very big development
+process [1].
+
+If you want a complete OS get Fedora, openSUSE, Debian, etc. And if you need
+longer life time, support, certifications get SLES or RHEL.
+
+
+Btw, latest Coverity reports [2] shows things are getting better and the
+main root of bugs are _drivers_ (53%), and far away filesystems(18%) and
+inside net(15%).
+
+
+[1] http://www.zip.com.au/~akpm/x.jpg
+[2] http://www.coverity.com/forms/register.php?continue[]=open_source
 -- 
-A bad analogy is like a leaky screwdriver -- Richard Braakman
-
+Romanes eunt domus

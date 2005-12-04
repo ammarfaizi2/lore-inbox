@@ -1,639 +1,615 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbVLDA2f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbVLDA2N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932185AbVLDA2f (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 19:28:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbVLDA2P
+	id S932182AbVLDA2N (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 19:28:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbVLDA2N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 19:28:15 -0500
-Received: from smtp107.sbc.mail.mud.yahoo.com ([68.142.198.206]:8285 "HELO
+	Sat, 3 Dec 2005 19:28:13 -0500
+Received: from smtp107.sbc.mail.mud.yahoo.com ([68.142.198.206]:4701 "HELO
 	smtp107.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932185AbVLDA2K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 19:28:10 -0500
+	id S932182AbVLDA2J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 19:28:09 -0500
 From: David Brownell <david-b@pacbell.net>
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [patch 2.6.15-rc3-mm1 3/4] add spi_bitbang driver
-Date: Sat, 3 Dec 2005 16:26:13 -0800
+Subject: [patch 2.6.15-rc3-mm1 1/4] add spi_driver to SPI framework
+Date: Sat, 3 Dec 2005 16:23:21 -0800
 User-Agent: KMail/1.7.1
-Cc: linuxMark Underwood <basicmark@yahoo.com>,
+Cc: Mark Underwood <basicmark@yahoo.com>,
        Stephen Street <stephen@streetfiresound.com>,
        Vitaly Wool <vwool@ru.mvista.com>
-References: <200512031556.32214.david-b@pacbell.net>
-In-Reply-To: <200512031556.32214.david-b@pacbell.net>
 MIME-Version: 1.0
-Message-Id: <200512031626.14078.david-b@pacbell.net>
+Message-Id: <200512031623.21229.david-b@pacbell.net>
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_mejkD9zGMVEOESv"
+  boundary="Boundary-00=_5bjkDL7WIDmFpPi"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_mejkD9zGMVEOESv
+--Boundary-00=_5bjkDL7WIDmFpPi
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-Here's a mostly-working bitbang driver for SPI.  It seems to
-handle SPI mode 0 just fine; I've done a bunch of flash updates
-through a parport wrapper, and no bits were damaged.
-
-Eventually I hope this will serve as a reference implementation,
-showing how the various API operations map to bits on the wire.
-(Contrast it to the I2C bitbangers, also.  Simpler...)
-
-Likewise, folk looking at getting more standard SPI support on
-their hardware could start with this.  It's reasonably common
-for the pins used for SPI controllers to be accessible as GPIOs,
-so this bitbanger might be used until a real hardware driver was
-debugged and tuned.  (That's assuming there _is_ a dedicated
-SPI controller to use!)
-
-Comments appreciated.  Also testing with other SPI modes,
-and potentially code tweaks to make the banging go faster.
+There seems to be agreement that we should have a "struct spi_driver",
+so here's a patch which switches over to that, and updates the docs
+accordingly.  It also adds a few other changes, few of which would be
+detectable to drivers.
 
 - Dave
 
- 
 
---Boundary-00=_mejkD9zGMVEOESv
+--Boundary-00=_5bjkDL7WIDmFpPi
 Content-Type: text/x-diff;
   charset="us-ascii";
-  name="bitbang_spi.patch"
+  name="spi-refresh.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
-	filename="bitbang_spi.patch"
+	filename="spi-refresh.patch"
 
-This adds a bitbanging spi master, hooking up to board/adapter-specific glue
-code which knows how to set and read the signals (gpios etc).
+This is a refresh of the "Simple SPI Framework" found in 2.6.15-rc3-mm1
+which makes the following changes:
 
-This code kicks in after the glue code creates a platform_device with the
-right platform_data.  That data includes I/O loops, which will usually
-come from expanding an inline function (provided in the header).  One goal
-is that the I/O loops should be easily optimized down to a few GPIO register
-accesses, in common cases, for speed and minimized overhead.
+  * There's now a "struct spi_driver".  This increase the footprint
+    of the core a bit, since it now includes code to do what the driver
+    core was previously handling directly.  Documentation and comments
+    were updated to match.
 
-This understands all the currently defined protocol tweaking options in the
-SPI framework, and might eventually serve as as reference implementation.
+  * spi_alloc_master() now does class_device_initialize(), so it can
+    at least be refcounted before spi_register_master().  To match,
+    spi_register_master() switched over to class_device_add().
 
-  - different word sizes (1..32 bits)
-  - differing clock rates
-  - SPI modes differing by CPOL (affecting chip select and I/O loops)
-  - SPI modes differing by CPHA (affecting I/O loops)
-  - delays (usecs) after transfers
-  - temporarily deselecting chips in mid-transfer
+  * States explicitly that after transfer errors, spi_devices will be
+    deselected.  We want fault recovery procedures to work the same
+    for all controller drivers.
 
-This version is circulating mostly as an RFC.  SPI Mode 0 works talking
-to a Flash chip, but I'm still chasing down some bugs that show up after
-I rmmod the parport adapter.
+  * Minor tweaks:  controller_data no longer points to readonly data;
+    prevent some potential cast-from-null bugs with container_of calls;
+    clarifies some existing kerneldoc, 
+
+And a few small cleanups.
+
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 
 
-
---- mm-tmp.orig/drivers/spi/Kconfig	2005-12-03 14:23:27.000000000 -0800
-+++ mm-tmp/drivers/spi/Kconfig	2005-12-03 15:45:32.000000000 -0800
-@@ -66,6 +66,19 @@ config SPI_MASTER
- comment "SPI Master Controller Drivers"
- 	depends on SPI_MASTER
+Index: mm-tmp/include/linux/spi/spi.h
+===================================================================
+--- mm-tmp.orig/include/linux/spi/spi.h	2005-12-03 14:12:03.000000000 -0800
++++ mm-tmp/include/linux/spi/spi.h	2005-12-03 14:22:55.000000000 -0800
+@@ -20,13 +20,8 @@
+ #define __LINUX_SPI_H
  
-+config SPI_BITBANG
-+	tristate "Bitbanging SPI master"
-+	depends on SPI_MASTER && EXPERIMENTAL
-+	help
-+	  With a few GPIO pins, your system can bitbang the SPI protocol.
-+	  Choose this if you need SPI support through I/O pins (GPIO,
-+	  parallel port, etc).
-+	  
-+	  Make sure you initialize one platform device object for each SPI
-+	  master device on your system, using "spi_bitbang" as the device
-+	  name with platform_data saying how to use which pins.  That will
-+	  often be done using static board-specific tables in board-specific
-+	  (or adapter-specific) setup code.
+ /*
+- * INTERFACES between SPI master drivers and infrastructure
++ * INTERFACES between SPI master-side drivers and SPI infrastructure.
+  * (There's no SPI slave support for Linux yet...)
+- *
+- * A "struct device_driver" for an spi_device uses "spi_bus_type" and
+- * needs no special API wrappers (much like platform_bus).  These drivers
+- * are bound to devices based on their names (much like platform_bus),
+- * and are available in dev->driver.
+  */
+ extern struct bus_type spi_bus_type;
  
- #
- # Add new SPI master controllers in alphabetical order above this line
---- mm-tmp.orig/drivers/spi/Makefile	2005-12-03 14:17:41.000000000 -0800
-+++ mm-tmp/drivers/spi/Makefile	2005-12-03 15:45:32.000000000 -0800
-@@ -11,6 +11,7 @@ endif
- obj-$(CONFIG_SPI_MASTER)		+= spi.o
+@@ -46,8 +41,8 @@ extern struct bus_type spi_bus_type;
+  * @irq: Negative, or the number passed to request_irq() to receive
+  * 	interrupts from this device.
+  * @controller_state: Controller's runtime state
+- * @controller_data: Static board-specific definitions for controller, such
+- * 	as FIFO initialization parameters; from board_info.controller_data
++ * @controller_data: Board-specific definitions for controller, such as
++ * 	FIFO initialization parameters; from board_info.controller_data
+  *
+  * An spi_device is used to interchange data between an SPI slave
+  * (usually a discrete chip) and CPU memory.
+@@ -63,31 +58,32 @@ struct spi_device {
+ 	u32			max_speed_hz;
+ 	u8			chip_select;
+ 	u8			mode;
+-#define	SPI_CPHA	0x01		/* clock phase */
+-#define	SPI_CPOL	0x02		/* clock polarity */
++#define	SPI_CPHA	0x01			/* clock phase */
++#define	SPI_CPOL	0x02			/* clock polarity */
+ #define	SPI_MODE_0	(0|0)
+-#define	SPI_MODE_1	(0|SPI_CPHA)
++#define	SPI_MODE_1	(0|SPI_CPHA)		/* (original MicroWire) */
+ #define	SPI_MODE_2	(SPI_CPOL|0)
+ #define	SPI_MODE_3	(SPI_CPOL|SPI_CPHA)
+-#define	SPI_CS_HIGH	0x04		/* chipselect active high? */
++#define	SPI_CS_HIGH	0x04			/* chipselect active high? */
+ 	u8			bits_per_word;
+ 	int			irq;
+ 	void			*controller_state;
+-	const void		*controller_data;
++	void			*controller_data;
+ 	const char		*modalias;
  
- # SPI master controller drivers (bus)
-+obj-$(CONFIG_SPI_BITBANG)		+= spi_bitbang.o
- # 	... add above this line ...
+ 	// likely need more hooks for more protocol options affecting how
+-	// the controller talks to its chips, like:
++	// the controller talks to each chip, like:
+ 	//  - bit order (default is wordwise msb-first)
+ 	//  - memory packing (12 bit samples into low bits, others zeroed)
+ 	//  - priority
++	//  - drop chipselect after each word
+ 	//  - chipselect delays
+ 	//  - ...
+ };
  
- # SPI protocol drivers (device/link on bus)
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ mm-tmp/include/linux/spi/spi_bitbang.h	2005-12-03 15:45:32.000000000 -0800
-@@ -0,0 +1,109 @@
-+#ifndef	__SPI_BITBANG_H
-+#define	__SPI_BITBANG_H
+ static inline struct spi_device *to_spi_device(struct device *dev)
+ {
+-	return container_of(dev, struct spi_device, dev);
++	return dev ? container_of(dev, struct spi_device, dev) : NULL;
+ }
+ 
+ /* most drivers won't need to care about device refcounting */
+@@ -117,12 +113,38 @@ static inline void spi_set_ctldata(struc
+ struct spi_message;
+ 
+ 
 +
-+/* delarations for interface between core/algorithm and the part of the
-+ * driver that actually knows what pins do what
-+ */
-+
-+/**
-+ * struct spi_bitbang_plat_data - pass hardware-specific knowledge
-+ */
-+struct spi_bitbang_plat_data {
-+	unsigned	num_chipselect;
-+
-+	/* enable/disable the chip; before enable, sets phase */
-+	void	(*chipselect)(struct spi_device *spi, int is_on);
-+
-+	/* probably these should become  txrx_mode0(), txrx_mode1(),
-+	 * and so on, when speed matters.
-+	 */
-+	u32	(*txrx_word)(struct spi_device *spi,
-+			unsigned nsecs,
-+			u32 word, u8 bits);
++struct spi_driver {
++	int			(*probe)(struct spi_device *spi);
++	int			(*remove)(struct spi_device *spi);
++	void			(*shutdown)(struct spi_device *spi);
++	int			(*suspend)(struct spi_device *spi, pm_message_t mesg);
++	int			(*resume)(struct spi_device *spi);
++	struct device_driver	driver;
 +};
 +
-+extern struct platform_driver spi_bitbang_driver;
++static inline struct spi_driver *to_spi_driver(struct device_driver *drv)
++{
++	return drv ? container_of(drv, struct spi_driver, driver) : NULL;
++}
++
++extern int spi_register_driver(struct spi_driver *sdrv);
++
++static inline void spi_unregister_driver(struct spi_driver *sdrv)
++{
++	if (!sdrv)
++		return;
++	driver_unregister(&sdrv->driver);
++}
 +
 +
-+/* FIXME just name functions after SCK and MOSI */
-+enum spi_bitbang_pin {
-+	SPI_BITBANG_SCK,
-+	SPI_BITBANG_MOSI,
-+};
 +
-+#endif	/* __SPI_BITBANG_H */
-+
-+#ifdef	EXPAND_BITBANG_TXRX
-+
+ /**
+  * struct spi_master - interface to SPI master controller
+  * @cdev: class interface to this driver
+  * @bus_num: board-specific (and often SOC-specific) identifier for a
+  * 	given SPI controller.
+- * @num_chipselects: chipselects are used to distinguish individual
++ * @num_chipselect: chipselects are used to distinguish individual
+  * 	SPI slaves, and are numbered from zero to num_chipselects.
+  * 	each slave has a chipselect signal, but it's common that not
+  * 	every chipselect is connected to a slave.
+@@ -225,7 +247,7 @@ extern struct spi_master *spi_busnum_to_
+  * @cs_change: affects chipselect after this transfer completes
+  * @delay_usecs: microseconds to delay after this transfer before
+  * 	(optionally) changing the chipselect status, then starting
+- * 	the next transfer or completing this spi_message.
++ * 	the next transfer or completing this spi_message. 
+  *
+  * SPI transfers always write the same number of bytes as they read.
+  * Protocol drivers should always provide rx_buf and/or tx_buf.
+@@ -275,7 +297,8 @@ struct spi_transfer {
+  *	addresses for each transfer buffer
+  * @complete: called to report transaction completions
+  * @context: the argument to complete() when it's called
+- * @actual_length: how many bytes were transferd
++ * @actual_length: the total number of bytes that were transferred in all
++ *	successful segments
+  * @status: zero for success, else negative errno
+  * @queue: for use by whichever driver currently owns the message
+  * @state: for use by whichever driver currently owns the message
+@@ -295,9 +318,9 @@ struct spi_message {
+ 	 *
+ 	 * Some controller drivers (message-at-a-time queue processing)
+ 	 * could provide that as their default scheduling algorithm.  But
+-	 * others (with multi-message pipelines) would need a flag to
++	 * others (with multi-message pipelines) could need a flag to
+ 	 * tell them about such special cases.
+-	 */
++	 */ 
+ 
+ 	/* completion is reported through a callback */
+ 	void 			FASTCALL((*complete)(void *context));
+@@ -346,6 +369,13 @@ spi_setup(struct spi_device *spi)
+  * FIFO order, messages may go to different devices in other orders.
+  * Some device might be higher priority, or have various "hard" access
+  * time requirements, for example.
++ *
++ * On detection of any fault during the transfer, processing of
++ * the entire message is aborted, and the device is deselected.
++ * Until returning from the associated message completion callback,
++ * no other spi_message queued to that device will be processed.
++ * (This rule applies equally to all the synchronous transfer calls,
++ * which are wrappers around this core asynchronous primitive.)
+  */
+ static inline int
+ spi_async(struct spi_device *spi, struct spi_message *message)
+@@ -484,12 +514,12 @@ struct spi_board_info {
+ 	 * "modalias" is normally the driver name.
+ 	 *
+ 	 * platform_data goes to spi_device.dev.platform_data,
+-	 * controller_data goes to spi_device.platform_data,
++	 * controller_data goes to spi_device.controller_data,
+ 	 * irq is copied too
+ 	 */
+ 	char		modalias[KOBJ_NAME_LEN];
+ 	const void	*platform_data;
+-	const void	*controller_data;
++	void		*controller_data;
+ 	int		irq;
+ 
+ 	/* slower signaling on noisy or low voltage boards */
+@@ -525,9 +555,8 @@ spi_register_board_info(struct spi_board
+ 
+ 
+ /* If you're hotplugging an adapter with devices (parport, usb, etc)
+- * use spi_new_device() to describe each device.  You can also call
+- * spi_unregister_device() to get start making that device vanish,
+- * but normally that would be handled by spi_unregister_master().
++ * use spi_new_device() to describe each device.  You would then call
++ * spi_unregister_device() to start making that device vanish.
+  */
+ extern struct spi_device *
+ spi_new_device(struct spi_master *, struct spi_board_info *);
+Index: mm-tmp/drivers/spi/spi.c
+===================================================================
+--- mm-tmp.orig/drivers/spi/spi.c	2005-12-03 14:12:03.000000000 -0800
++++ mm-tmp/drivers/spi/spi.c	2005-12-03 14:45:04.000000000 -0800
+@@ -26,13 +26,9 @@
+ #include <linux/spi/spi.h>
+ 
+ 
+-/* SPI bustype and spi_master class are registered during early boot,
+- * usually before board init code provides the SPI device tables, and
+- * are available later when driver init code needs them.
+- *
+- * Drivers for SPI devices started out like those for platform bus
+- * devices.  But both have changed in 2.6.15; maybe this should get
+- * an "spi_driver" structure at some point (not currently needed)
++/* SPI bustype and spi_master class are registered after board init code
++ * provides the SPI device tables, ensuring that both are present by the
++ * time controller driver registration causes spi_devices to "enumerate".
+  */
+ static void spidev_release(struct device *dev)
+ {
+@@ -83,10 +79,7 @@ static int spi_hotplug(struct device *de
+ 
+ #ifdef	CONFIG_PM
+ 
+-/* Suspend/resume in "struct device_driver" don't really need that
+- * strange third parameter, so we just make it a constant and expect
+- * SPI drivers to ignore it just like most platform drivers do.
+- *
 +/*
-+ * The code that knows what GPIO pins do what should have declared three
-+ * functions, ideally as inlines, before #defining EXPAND_BITBANG_TXRX
-+ * and including this header:
-+ *
-+ *  void setpin(struct spi_device *, enum spi_bitbang_pin, int is_on);
-+ *  int getmiso(struct spi_device *);
-+ *  void spidelay(unsigned);
-+ *
-+ * A non-inlined routine would call bitbang_txrx_*() routines.  The
-+ * main loop could easily compile down to a handful of instructions,
-+ * especially if the delay is a NOP (to run at peak speed).
-+ *
-+ * Since this is software, the timings may not be exactly what your board's
-+ * chips need ... there may be several reasons you'd need to tweak timings
-+ * in this routine, not just make to make it faster or slower to match a
-+ * particular CPU clock rate.
-+ */
+  * NOTE:  the suspend() method for an spi_master controller driver
+  * should verify that all its child devices are marked as suspended;
+  * suspend requests delivered through sysfs power/state files don't
+@@ -94,13 +87,14 @@ static int spi_hotplug(struct device *de
+  */
+ static int spi_suspend(struct device *dev, pm_message_t message)
+ {
+-	int	value;
++	int			value;
++	struct spi_driver	*drv = to_spi_driver(dev->driver);
+ 
+-	if (!dev->driver || !dev->driver->suspend)
++	if (!drv || !drv->suspend)
+ 		return 0;
+ 
+ 	/* suspend will stop irqs and dma; no more i/o */
+-	value = dev->driver->suspend(dev, message);
++	value = drv->suspend(to_spi_device(dev), message);
+ 	if (value == 0)
+ 		dev->power.power_state = message;
+ 	return value;
+@@ -108,13 +102,14 @@ static int spi_suspend(struct device *de
+ 
+ static int spi_resume(struct device *dev)
+ {
+-	int	value;
++	int			value;
++	struct spi_driver	*drv = to_spi_driver(dev->driver);
+ 
+-	if (!dev->driver || !dev->driver->resume)
++	if (!drv || !drv->resume)
+ 		return 0;
+ 
+ 	/* resume may restart the i/o queue */
+-	value = dev->driver->resume(dev);
++	value = drv->resume(to_spi_device(dev));
+ 	if (value == 0)
+ 		dev->power.power_state = PMSG_ON;
+ 	return value;
+@@ -135,6 +130,41 @@ struct bus_type spi_bus_type = {
+ };
+ EXPORT_SYMBOL_GPL(spi_bus_type);
+ 
 +
-+// SPI_MODE_0 seems to work fine
-+
-+static inline u32
-+bitbang_txrx_be_cpha0(struct spi_device *spi,
-+		unsigned nsecs, unsigned cpol,
-+		u32 word, u8 bits)
++static int spi_drv_probe(struct device *dev)
 +{
-+	/* if (cpol) this is SPI_MODE_0; else this is SPI_MODE_2 */
++	const struct spi_driver		*sdrv = to_spi_driver(dev->driver);
 +
-+	/* clock starts at inactive polarity */
-+	for (word <<= (32 - bits); likely(bits); bits--) {
-+
-+		/* setup MSB (to slave) on trailing edge */
-+		setpin(spi, SPI_BITBANG_MOSI, word & (1 << 31));
-+		spidelay(nsecs);	/* T(setup) */
-+
-+		setpin(spi, SPI_BITBANG_SCK, !cpol);
-+		spidelay(nsecs);
-+
-+		/* sample MSB (from slave) on leading edge */
-+		word <<= 1;
-+		word |= getmiso(spi);
-+		setpin(spi, SPI_BITBANG_SCK, cpol);
-+	}
-+	return word;
++	return sdrv->probe(to_spi_device(dev));
 +}
 +
-+static inline u32
-+bitbang_txrx_be_cpha1(struct spi_device *spi,
-+		unsigned nsecs, unsigned cpol,
-+		u32 word, u8 bits)
++static int spi_drv_remove(struct device *dev)
 +{
-+	/* if (cpol) this is SPI_MODE_1; else this is SPI_MODE_3 */
++	const struct spi_driver		*sdrv = to_spi_driver(dev->driver);
 +
-+	/* clock starts at inactive polarity */
-+	for (word <<= (32 - bits); likely(bits); bits--) {
-+
-+		/* setup MSB (to slave) on leading edge */
-+		setpin(spi, SPI_BITBANG_SCK, !cpol);
-+		setpin(spi, SPI_BITBANG_MOSI, word & (1 << 31));
-+		spidelay(nsecs);
-+
-+		setpin(spi, SPI_BITBANG_SCK, cpol);
-+		spidelay(nsecs);	/* T(setup) */
-+
-+		/* sample MSB (from slave) on trailing edge */
-+		word <<= 1;
-+		word |= getmiso(spi);
-+	}
-+	return word;
++	return sdrv->remove(to_spi_device(dev));
 +}
 +
-+#endif	/* EXPAND_BITBANG_TXRX */
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ mm-tmp/drivers/spi/spi_bitbang.c	2005-12-03 15:45:32.000000000 -0800
-@@ -0,0 +1,401 @@
-+/*
-+ * spi_bitbang.c - bitbanging SPI driver
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/init.h>
-+#include <linux/spinlock.h>
-+#include <linux/delay.h>
-+#include <linux/errno.h>
-+#include <linux/platform_device.h>
-+
-+#include <linux/spi/spi.h>
-+#include <linux/spi/spi_bitbang.h>
-+
-+
-+struct spi_bitbang {
-+	struct work_struct	work;
-+	struct workqueue_struct	*workqueue;
-+
-+	spinlock_t		lock;
-+	struct list_head	queue;
-+
-+	struct spi_master	*master;
-+
-+	void	(*chipselect)(struct spi_device *spi, int is_on);
-+	u32	(*txrx_word)(struct spi_device *spi,
-+			unsigned nsecs,
-+			u32 word, u8 bits);
-+};
-+
-+/* spi_bitbang_cs is in spi_device->controller_state.
-+ *
-+ * chipselect() etc probably use use spi_device->controller_data
-+ * to remember chipselect, clock, and data i/o pins.
-+ */
-+struct spi_bitbang_cs {
-+	unsigned	nsecs;	/* (clock cycle time)/2 */
-+	unsigned	(*txrx_buf)(struct spi_bitbang *, struct spi_device *,
-+					unsigned, struct spi_transfer *);
-+};
-+
-+/*----------------------------------------------------------------------*/
-+
-+static unsigned bitbang_txrx_8(
-+	struct spi_bitbang	*bitbang,
-+	struct spi_device	*spi,
-+	unsigned		ns,
-+	struct spi_transfer	*t
-+) {
-+	unsigned		bits = spi->bits_per_word;
-+	unsigned		count = t->len;
-+	const u8		*tx = t->tx_buf;
-+	u8			*rx = t->rx_buf;
-+
-+	while (likely(count > 0)) {
-+		u8		word = 0;
-+
-+		if (tx)
-+			word = *tx++;
-+		word = bitbang->txrx_word(spi, ns, word, bits);
-+		if (rx)
-+			*rx++ = word;
-+		count -= 1;
-+	}
-+	return t->len - count;
-+}
-+
-+static unsigned bitbang_txrx_16(
-+	struct spi_bitbang	*bitbang,
-+	struct spi_device	*spi,
-+	unsigned		ns,
-+	struct spi_transfer	*t
-+) {
-+	unsigned		bits = spi->bits_per_word;
-+	unsigned		count = t->len;
-+	const u16		*tx = t->tx_buf;
-+	u16			*rx = t->rx_buf;
-+
-+	while (likely(count > 1)) {
-+		u16		word = 0;
-+
-+		if (tx)
-+			word = *tx++;
-+		word = bitbang->txrx_word(spi, ns, word, bits);
-+		if (rx)
-+			*rx++ = word;
-+		count -= 2;
-+	}
-+	return t->len - count;
-+}
-+
-+static unsigned bitbang_txrx_32(
-+	struct spi_bitbang	*bitbang,
-+	struct spi_device	*spi,
-+	unsigned		ns,
-+	struct spi_transfer	*t
-+) {
-+	unsigned		bits = spi->bits_per_word;
-+	unsigned		count = t->len;
-+	const u32		*tx = t->tx_buf;
-+	u32			*rx = t->rx_buf;
-+
-+	while (likely(count > 3)) {
-+		u32		word = 0;
-+
-+		if (tx)
-+			word = *tx++;
-+		word = bitbang->txrx_word(spi, ns, word, bits);
-+		if (rx)
-+			*rx++ = word;
-+		count -= 4;
-+	}
-+	return t->len - count;
-+}
-+
-+static void bitbang_work(void *_bitbang)
++static void spi_drv_shutdown(struct device *dev)
 +{
-+	struct spi_bitbang	*bitbang = _bitbang;
-+	unsigned long		flags;
++	const struct spi_driver		*sdrv = to_spi_driver(dev->driver);
 +
-+	spin_lock_irqsave(&bitbang->lock, flags);
-+	while (!list_empty(&bitbang->queue)) {
-+		struct spi_message	*m;
-+		struct spi_device	*spi;
-+		struct spi_bitbang_cs	*cs;
-+		unsigned		nsecs;
-+		struct spi_transfer	*t;
-+		unsigned		tmp;
-+		unsigned		chipselect;
-+		int			status;
-+
-+		m = container_of(bitbang->queue.next, struct spi_message,
-+				queue);
-+		list_del_init(&m->queue);
-+		spin_unlock_irqrestore(&bitbang->lock, flags);
-+
-+		spi = m->spi;
-+		cs = spi->controller_state;
-+		nsecs = cs->nsecs;
-+		t = m->transfers;
-+		tmp = 0;
-+		chipselect = 0;
-+		status = 0;
-+
-+		ndelay(nsecs);
-+
-+		for (;;t++) {
-+
-+			/* set up default clock polarity and select */
-+			if (!chipselect) {
-+				bitbang->chipselect(spi, 1);
-+				ndelay(nsecs);
-+			}
-+			if (!t->tx_buf && !t->rx_buf && t->len) {
-+				status = -EINVAL;
-+				break;
-+			}
-+
-+			/* transfer data */
-+			status = cs->txrx_buf(bitbang, spi, nsecs, t);
-+			if (status != t->len) {
-+				if (status > 0)
-+					status = -EMSGSIZE;
-+				break;
-+			}
-+			m->actual_length += status;
-+			status = 0;
-+
-+			/* protocol tweaks before next transfer */
-+			if (t->delay_usecs)
-+				udelay(t->delay_usecs);
-+
-+			tmp++;
-+			if (tmp >= m->n_transfer)
-+				break;
-+
-+			chipselect = !t->cs_change;
-+			if (chipselect);
-+				continue;
-+
-+			bitbang->chipselect(spi, 0);
-+
-+			/* REVISIT do we want the udelay here instead? */
-+			msleep(1);
-+		}
-+
-+		tmp = m->n_transfer - 1;
-+		tmp = m->transfers[tmp].cs_change;
-+
-+		m->status = status;
-+		m->complete(m->context);
-+
-+		ndelay(2 * nsecs);
-+		bitbang->chipselect(spi, status == 0 && tmp);
-+		ndelay(nsecs);
-+
-+		spin_lock_irqsave(&bitbang->lock, flags);
-+	}
-+	spin_unlock_irqrestore(&bitbang->lock, flags);
-+	
++	sdrv->shutdown(to_spi_device(dev));
 +}
 +
-+/*----------------------------------------------------------------------*/
-+
-+static int bitbang_setup(struct spi_device *spi)
++int spi_register_driver(struct spi_driver *sdrv)
 +{
-+	struct spi_bitbang_cs	*cs = spi->controller_state;
-+	struct spi_bitbang	*bitbang;
-+
-+	if (!cs) {
-+		cs = kzalloc(sizeof *cs, SLAB_KERNEL);
-+		if (!cs)
-+			return -ENOMEM;
-+		spi->controller_state = cs;
-+	}
-+	bitbang = class_get_devdata(&spi->master->cdev);
-+
-+	if (!spi->bits_per_word)
-+		spi->bits_per_word = 8;
-+	if (spi->bits_per_word <= 8)
-+		cs->txrx_buf = bitbang_txrx_8;
-+	else if (spi->bits_per_word <= 16)
-+		cs->txrx_buf = bitbang_txrx_16;
-+	else if (spi->bits_per_word <= 32)
-+		cs->txrx_buf = bitbang_txrx_32;
-+	else
-+		return -EINVAL;
-+
-+	if (!spi->max_speed_hz)
-+		spi->max_speed_hz = 500 * 1000;
-+
-+	/* nsecs = max(50, (clock period)/2), be optimistic */
-+	cs->nsecs = (1000000000/2) / (spi->max_speed_hz);
-+	if (cs->nsecs < 50)
-+		cs->nsecs = 50;
-+	if (cs->nsecs > MAX_UDELAY_MS * 1000)
-+		return -EINVAL;
-+
-+	dev_dbg(&spi->dev, "%s, mode %d, %u bits/w, %u nsec\n",
-+			__FUNCTION__, spi->mode & (SPI_CPOL | SPI_CPHA),
-+			spi->bits_per_word, 2 * cs->nsecs);
-+
-+	/* deselect chip (low or high) */
-+	bitbang->chipselect(spi, 0);
-+	ndelay(cs->nsecs);
-+	return 0;
++	sdrv->driver.bus = &spi_bus_type;
++	if (sdrv->probe)
++		sdrv->driver.probe = spi_drv_probe;
++	if (sdrv->remove)
++		sdrv->driver.remove = spi_drv_remove;
++	if (sdrv->shutdown)
++		sdrv->driver.shutdown = spi_drv_shutdown;
++	return driver_register(&sdrv->driver);
 +}
++EXPORT_SYMBOL_GPL(spi_register_driver);
 +
-+static void bitbang_cleanup(const struct spi_device *spi)
-+{
-+	kfree(spi->controller_state);
-+}
+ /*-------------------------------------------------------------------------*/
+ 
+ /* SPI devices should normally not be created by SPI device drivers; that
+@@ -208,13 +238,15 @@ spi_new_device(struct spi_master *master
+ 	if (status < 0) {
+ 		dev_dbg(dev, "can't %s %s, status %d\n",
+ 				"add", proxy->dev.bus_id, status);
+-fail:
+-		class_device_put(&master->cdev);
+-		kfree(proxy);
+-		return NULL;
++		goto fail;
+ 	}
+ 	dev_dbg(dev, "registered child %s\n", proxy->dev.bus_id);
+ 	return proxy;
 +
-+static int bitbang_transfer(struct spi_device *spi, struct spi_message *m)
-+{
-+	struct spi_bitbang	*bitbang;
-+	unsigned long		flags;
++fail:
++	class_device_put(&master->cdev);
++	kfree(proxy);
++	return NULL;
+ }
+ EXPORT_SYMBOL_GPL(spi_new_device);
+ 
+@@ -237,11 +269,11 @@ spi_register_board_info(struct spi_board
+ {
+ 	struct boardinfo	*bi;
+ 
+-	bi = kmalloc (sizeof (*bi) + n * sizeof (*info), GFP_KERNEL);
++	bi = kmalloc(sizeof(*bi) + n * sizeof *info, GFP_KERNEL);
+ 	if (!bi)
+ 		return -ENOMEM;
+ 	bi->n_board_info = n;
+-	memcpy(bi->board_info, info, n * sizeof (*info));
++	memcpy(bi->board_info, info, n * sizeof *info);
+ 
+ 	down(&board_lock);
+ 	list_add_tail(&bi->list, &board_list);
+@@ -330,6 +362,7 @@ spi_alloc_master(struct device *dev, uns
+ 	if (!master)
+ 		return NULL;
+ 
++	class_device_initialize(&master->cdev);
+ 	master->cdev.class = &spi_master_class;
+ 	master->cdev.dev = get_device(dev);
+ 	class_set_devdata(&master->cdev, &master[1]);
+@@ -366,7 +399,7 @@ spi_register_master(struct spi_master *m
+ 	/* convention:  dynamically assigned bus IDs count down from the max */
+ 	if (master->bus_num == 0) {
+ 		master->bus_num = atomic_dec_return(&dyn_bus_id);
+-		dynamic = 0;
++		dynamic = 1;
+ 	}
+ 
+ 	/* register the device, then userspace will see it.
+@@ -374,11 +407,9 @@ spi_register_master(struct spi_master *m
+ 	 */
+ 	snprintf(master->cdev.class_id, sizeof master->cdev.class_id,
+ 		"spi%u", master->bus_num);
+-	status = class_device_register(&master->cdev);
+-	if (status < 0) {
+-		class_device_put(&master->cdev);
++	status = class_device_add(&master->cdev);
++	if (status < 0)
+ 		goto done;
+-	}
+ 	dev_dbg(dev, "registered master %s%s\n", master->cdev.class_id,
+ 			dynamic ? " (dynamic)" : "");
+ 
+@@ -491,6 +522,7 @@ static u8	*buf;
+  * This performs a half duplex MicroWire style transaction with the
+  * device, sending txbuf and then reading rxbuf.  The return value
+  * is zero for success, else a negative errno status code.
++ * This call may only be used from a context that may sleep.
+  *
+  * Parameters to this routine are always copied using a small buffer,
+  * large transfers should use use spi_{async,sync}() calls with
+@@ -541,16 +573,38 @@ EXPORT_SYMBOL_GPL(spi_write_then_read);
+ 
+ static int __init spi_init(void)
+ {
++	int	status;
 +
-+	m->actual_length = 0;
-+	m->status = 0;
-+
-+	bitbang = class_get_devdata(&spi->master->cdev);
-+
-+	spin_lock_irqsave(&bitbang->lock, flags);
-+	list_add_tail(&m->queue, &bitbang->queue);
-+	queue_work(bitbang->workqueue, &bitbang->work);
-+	spin_unlock_irqrestore(&bitbang->lock, flags);
-+
-+	return 0;
-+}
-+
-+/*----------------------------------------------------------------------*/
-+
-+static int __devinit bitbang_probe(struct platform_device *pdev)
-+{
-+	struct spi_bitbang_plat_data	*pdata = pdev->dev.platform_data;
-+	struct spi_master		*master;
-+	struct spi_bitbang		*bitbang;
-+	int				status;
-+
-+	if (!pdata)
-+		return -EINVAL;
-+
-+	master = spi_alloc_master(&pdev->dev, sizeof *bitbang);
-+	if (!master)
-+		return -ENOMEM;
-+
-+	if (pdev->id != -1)
-+		master->bus_num = pdev->id;
-+	master->setup = bitbang_setup;
-+	master->transfer = bitbang_transfer;
-+	master->cleanup = bitbang_cleanup;
-+	master->num_chipselect = pdata->num_chipselect;
-+
-+	bitbang = class_get_devdata(&master->cdev);
-+	bitbang->chipselect = pdata->chipselect;
-+	bitbang->txrx_word = pdata->txrx_word;
-+
-+	INIT_WORK(&bitbang->work, bitbang_work, bitbang);
-+	spin_lock_init(&bitbang->lock);
-+	INIT_LIST_HEAD(&bitbang->queue);
-+	bitbang->master = master;
-+
-+	if (class_device_get(&master->cdev) == NULL) {
+ 	buf = kmalloc(SPI_BUFSIZ, SLAB_KERNEL);
+-	if (!buf)
+-		return -ENOMEM;
++	if (!buf) {
 +		status = -ENOMEM;
 +		goto err0;
 +	}
-+
-+	/* bridging code is allowed to know that this is where
-+	 * the spi_master is stored ... so it can then for example
-+	 * use that with spi_new_device().
-+	 */
-+	dev_set_drvdata(&pdev->dev, master);
-+
-+	/* this task is the only thing to touch the SPI bits.
-+	 * it's OK if clock cycles stretch when it gets preempted
-+	 */
-+	bitbang->workqueue = create_singlethread_workqueue(pdev->dev.bus_id);
-+	if (bitbang->workqueue == NULL) {
-+		status = -EBUSY;
+ 
+-	bus_register(&spi_bus_type);
+-	class_register(&spi_master_class);
++	status = bus_register(&spi_bus_type);
++	if (status < 0)
 +		goto err1;
-+	}
 +
-+	/* driver may get busy before register() returns, especially
-+	 * if someone registered boardinfo for devices 
-+	 */
-+	status = spi_register_master(master);
++	status = class_register(&spi_master_class);
 +	if (status < 0)
 +		goto err2;
-+
-+	return status;
+ 	return 0;
 +
 +err2:
-+	destroy_workqueue(bitbang->workqueue);
++	bus_unregister(&spi_bus_type);
 +err1:
-+	class_device_put(&master->cdev);
++	kfree(buf);
++	buf = NULL;
 +err0:
 +	return status;
-+}
+ }
 +
-+static int __devexit bitbang_remove(struct platform_device *pdev)
-+{
-+	struct spi_master		*master;
-+	struct spi_bitbang		*bitbang;
+ /* board_info is normally registered in arch_initcall(),
+  * but even essential drivers wait till later
++ *
++ * REVISIT only boardinfo really needs static linking. the rest (device and
++ * driver registration) _could_ be dynamically linked (modular) ... costs
++ * include needing to have boardinfo data structures be much more public.
+  */
+ subsys_initcall(spi_init);
+ 
+Index: mm-tmp/Documentation/spi/spi-summary
+===================================================================
+--- mm-tmp.orig/Documentation/spi/spi-summary	2005-12-03 14:12:03.000000000 -0800
++++ mm-tmp/Documentation/spi/spi-summary	2005-12-03 14:19:41.000000000 -0800
+@@ -1,18 +1,19 @@
+ Overview of Linux kernel SPI support
+ ====================================
+ 
+-22-Nov-2005
++02-Dec-2005
+ 
+ What is SPI?
+ ------------
+-The "Serial Peripheral Interface" (SPI) is a four-wire point-to-point
+-serial link used to connect microcontrollers to sensors and memory.
++The "Serial Peripheral Interface" (SPI) is a synchronous four wire serial
++link used to connect microcontrollers to sensors, memory, and peripherals.
+ 
+ The three signal wires hold a clock (SCLK, often on the order of 10 MHz),
+ and parallel data lines with "Master Out, Slave In" (MOSI) or "Master In,
+ Slave Out" (MISO) signals.  (Other names are also used.)  There are four
+ clocking modes through which data is exchanged; mode-0 and mode-3 are most
+-commonly used.
++commonly used.  Each clock cycle shifts data out and data in; the clock
++doesn't cycle except when there is data to shift.
+ 
+ SPI masters may use a "chip select" line to activate a given SPI slave
+ device, so those three signal wires may be connected to several chips
+@@ -79,11 +80,18 @@ The <linux/spi/spi.h> header file includ
+ main source code, and you should certainly read that.  This is just
+ an overview, so you get the big picture before the details.
+ 
++SPI requests always go into I/O queues.  Requests for a given SPI device
++are always executed in FIFO order, and complete asynchronously through
++completion callbacks.  There are also some simple synchronous wrappers
++for those calls, including ones for common transaction types like writing
++a command and then reading its response.
 +
-+	master = dev_get_drvdata(&pdev->dev);
-+	bitbang = class_get_devdata(&master->cdev);
+ There are two types of SPI driver, here called:
+ 
+   Controller drivers ... these are often built in to System-On-Chip
+ 	processors, and often support both Master and Slave roles.
+ 	These drivers touch hardware registers and may use DMA.
++	Or they can be PIO bitbangers, needing just GPIO pins.
+ 
+   Protocol drivers ... these pass messages through the controller
+ 	driver to communicate with a Slave or Master device on the
+@@ -116,11 +124,6 @@ shows up in sysfs in several locations:
+ 	managing bus "B".  All the spiB.* devices share the same
+ 	physical SPI bus segment, with SCLK, MOSI, and MISO.
+ 
+-The basic I/O primitive submits an asynchronous message to an I/O queue
+-maintained by the controller driver.  A completion callback is issued
+-asynchronously when the data transfer(s) in that message completes.
+-There are also some simple synchronous wrappers for those calls.
+-
+ 
+ How does board-specific init code declare SPI devices?
+ ------------------------------------------------------
+@@ -253,7 +256,7 @@ example is the potential need to hotplug
+ For those cases you might need to use use spi_busnum_to_master() to look
+ up the spi bus master, and will likely need spi_new_device() to provide the
+ board info based on the board that was hotplugged.  Of course, you'd later
+-call at least spi_unregister_device() when that board is removed.
++call at least spi_unregister_device() when that board is removed. 
+ 
+ 
+ How do I write an "SPI Protocol Driver"?
+@@ -263,33 +266,40 @@ would just be another kernel driver, pro
+ access through aio_read(), aio_write(), and ioctl() calls and using the
+ standard userspace sysfs mechanisms to bind to a given SPI device.
+ 
+-SPI protocol drivers are normal device drivers, with no more wrapper
+-than needed by platform devices:
++SPI protocol drivers somewhat resemble platform device drivers:
 +
-+	/* NOTE:  assumes that all children were already cleaned up,
-+	 * which also means there will be no pending requests...
-+	 */
-+	WARN_ON(!list_empty(&bitbang->queue));
-+	WARN_ON(!list_empty(&pdev->dev.klist_children.k_list));
++	static struct spi_driver CHIP_driver = {
++		.driver = {
++			.name		= "CHIP",
++			.bus		= &spi_bus_type,
++			.owner		= THIS_MODULE,
++		},
+ 
+-	static struct device_driver CHIP_driver = {
+-		.name		= "CHIP",
+-		.bus		= &spi_bus_type,
+ 		.probe		= CHIP_probe,
+-		.remove		= __exit_p(CHIP_remove),
++		.remove		= __devexit_p(CHIP_remove),
+ 		.suspend	= CHIP_suspend,
+ 		.resume		= CHIP_resume,
+ 	};
+ 
+-The SPI core will autmatically attempt to bind this driver to any SPI
++The driver core will autmatically attempt to bind this driver to any SPI
+ device whose board_info gave a modalias of "CHIP".  Your probe() code
+ might look like this unless you're creating a class_device:
+ 
+-	static int __init CHIP_probe(struct device *dev)
++	static int __devinit CHIP_probe(struct spi_device *spi)
+ 	{
+-		struct spi_device		*spi = to_spi_device(dev);
+ 		struct CHIP			*chip;
+-		struct CHIP_platform_data	*pdata = dev->platform_data;
++		struct CHIP_platform_data	*pdata;
 +
-+	destroy_workqueue(bitbang->workqueue);
-+	class_device_put(&master->cdev);
-+	spi_unregister_master(master);
-+
-+	return 0;
-+}
-+
-+struct platform_driver spi_bitbang_driver = {
-+	.driver = {
-+		.name =		"spi_bitbang",
-+		.owner =	THIS_MODULE,
-+	},
-+	.probe =	bitbang_probe,
-+	.remove =	__devexit_p(bitbang_remove),
-+	// suspend, resume ... stop queue after current message, restart later
-+};
-+EXPORT_SYMBOL_GPL(spi_bitbang_driver);
-+
-+
-+static int __init bitbang_init(void)
-+{
-+	return platform_driver_register(&spi_bitbang_driver);
-+}
-+device_initcall(bitbang_init);
-+
-+static void __exit bitbang_exit(void)
-+{
-+	platform_driver_unregister(&spi_bitbang_driver);
-+}
-+module_exit(bitbang_exit);
-+
-+MODULE_LICENSE("GPL");
-+
++		/* assuming the driver requires board-specific data: */
++		pdata = &spi->dev.platform_data;
++		if (!pdata)
++			return -ENODEV;
+ 
+ 		/* get memory for driver's per-chip state */
+ 		chip = kzalloc(sizeof *chip, GFP_KERNEL);
+ 		if (!chip)
+ 			return -ENOMEM;
+-		dev_set_drvdata(dev, chip);
++		dev_set_drvdata(&spi->dev, chip);
+ 
+ 		... etc
+ 		return 0;
+@@ -328,7 +338,9 @@ the driver guarantees that it won't subm
+   - The basic I/O primitive is spi_async().  Async requests may be
+     issued in any context (irq handler, task, etc) and completion
+     is reported using a callback provided with the message.
+-
++    After any detected error, the chip is deselected and processing
++    of that spi_message is aborted.
++    
+   - There are also synchronous wrappers like spi_sync(), and wrappers
+     like spi_read(), spi_write(), and spi_write_then_read().  These
+     may be issued only in contexts that may sleep, and they're all
 
---Boundary-00=_mejkD9zGMVEOESv--
+--Boundary-00=_5bjkDL7WIDmFpPi--

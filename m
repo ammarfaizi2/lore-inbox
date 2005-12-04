@@ -1,63 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbVLDJ2q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbVLDJ3N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751339AbVLDJ2q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 04:28:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbVLDJ2q
+	id S1751343AbVLDJ3N (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 04:29:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbVLDJ3N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 04:28:46 -0500
-Received: from fsmlabs.com ([168.103.115.128]:44471 "EHLO spamalot.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S1751339AbVLDJ2p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 04:28:45 -0500
-X-ASG-Debug-ID: 1133688520-11506-68-0
-X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
-Date: Sun, 4 Dec 2005 01:34:18 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Helge Hafting <helgehaf@aitel.hist.no>, Jeff Garzik <jgarzik@pobox.com>,
-       Helge Hafting <helge.hafting@aitel.hist.no>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Tejun Heo <htejun@gmail.com>
-X-ASG-Orig-Subj: Re: Linux 2.6.15-rc3 problem found - scsi order changed
-Subject: Re: Linux 2.6.15-rc3 problem found - scsi order changed
-In-Reply-To: <Pine.LNX.4.64.0512031702110.3099@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0512040110280.27389@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.64.0511282006370.3177@g5.osdl.org>
- <20051129213656.GA8706@aitel.hist.no> <Pine.LNX.4.64.0511291340340.3029@g5.osdl.org>
- <438D69FF.2090002@aitel.hist.no> <438EB150.2090502@pobox.com>
- <20051204004302.GA2188@aitel.hist.no> <Pine.LNX.4.64.0512031702110.3099@g5.osdl.org>
+	Sun, 4 Dec 2005 04:29:13 -0500
+Received: from fep30-0.kolumbus.fi ([193.229.0.32]:14144 "EHLO
+	fep30-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S1751340AbVLDJ3M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 04:29:12 -0500
+Date: Sun, 4 Dec 2005 11:29:19 +0200 (EET)
+From: Kai Makisara <Kai.Makisara@kolumbus.fi>
+X-X-Sender: makisara@kai.makisara.local
+To: Hugh Dickins <hugh@veritas.com>
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Ryan Richter <ryan@tau.solarneutrino.net>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: Fw: crash on x86_64 - mm related?
+In-Reply-To: <Pine.LNX.4.61.0512022041130.6058@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.63.0512041053030.10914@kai.makisara.local>
+References: <20051129092432.0f5742f0.akpm@osdl.org> 
+ <Pine.LNX.4.63.0512012040390.5777@kai.makisara.local> 
+ <Pine.LNX.4.64.0512011136000.3099@g5.osdl.org> <1133468882.5232.14.camel@mulgrave>
+ <Pine.LNX.4.63.0512012304240.5777@kai.makisara.local>
+ <Pine.LNX.4.61.0512021325020.1507@goblin.wat.veritas.com>
+ <Pine.LNX.4.63.0512021932590.4506@kai.makisara.local>
+ <Pine.LNX.4.61.0512021836100.4940@goblin.wat.veritas.com>
+ <Pine.LNX.4.63.0512022131440.4506@kai.makisara.local>
+ <Pine.LNX.4.61.0512022041130.6058@goblin.wat.veritas.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.5907
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 3 Dec 2005, Linus Torvalds wrote:
+On Fri, 2 Dec 2005, Hugh Dickins wrote:
 
-> diff --git a/drivers/Makefile b/drivers/Makefile
-> index fac1e16..ea410b6 100644
-> --- a/drivers/Makefile
-> +++ b/drivers/Makefile
-> @@ -5,7 +5,7 @@
->  # Rewritten to use lists instead of if-statements.
->  #
->  
-> -obj-$(CONFIG_PCI)		+= pci/ usb/
-> +obj-$(CONFIG_PCI)		+= pci/
->  obj-$(CONFIG_PARISC)		+= parisc/
->  obj-$(CONFIG_RAPIDIO)		+= rapidio/
->  obj-y				+= video/
-> @@ -49,6 +49,7 @@ obj-$(CONFIG_ATA_OVER_ETH)	+= block/aoe/
->  obj-$(CONFIG_PARIDE) 		+= block/paride/
->  obj-$(CONFIG_TC)		+= tc/
->  obj-$(CONFIG_USB)		+= usb/
-> +obj-$(CONFIG_PCI)		+= usb/
->  obj-$(CONFIG_USB_GADGET)	+= usb/gadget/
->  obj-$(CONFIG_GAMEPORT)		+= input/gameport/
->  obj-$(CONFIG_INPUT)		+= input/
+> On Fri, 2 Dec 2005, Kai Makisara wrote:
+> > On Fri, 2 Dec 2005, Hugh Dickins wrote:
+> > 
+> > > It's just that after seeing how sg.c is claiming to dirty even readonly
+> > > memory, I'm excessively averse to saying we've dirtied memory we haven't.
+> > > My hangup, I'll get over it!
+> > > 
+> > Please don't. I have a very conservative attitude to these things: my 
+> > priority is to make sure that the data is correct even if it is not the 
+> > fastest code. I will happily let others point out when I am too 
+> > conservative.
+> 
+> I'm not certain which way you're directing me now: a conservative
+> attitude suggests we play safe at the end of st_read, by saying we might
+> somehow have dirtied memory there, perhaps if someone changes sequence.
+> 
+You should do what you think is best. One of the driver maintainers tasks 
+is to look at the changes and ask questions if there is something 
+suspicious. I asked and you pointed out that this time my concern was not 
+valid.
 
-Yes that fixed it, but why walk into usb/ on CONFIG_PCI?
+During this discussion you have mentioned good arguments favouring both 
+choices. Peformancewise we are talking about a rather theoretical issue: 
+in a production server this issue might be relevant a few times a year.
+
+My current suggestion is to use the value 1 (to minimise the possibility 
+of bugs due to future changes). If you want, you can add a comment saying 
+that using 1 is not strictly necessary with the current design.
+
+> As I presently, incompletely have it, to maintain more similarity with
+> sg.c, I've actually moved away from "dirtied" to "rw" READ or WRITE,
+> and it will look odd to put WRITE at the end of st_read.
+> 
+It might be best to use naming that does not bind the purpose of the 
+parameter to any "abstract" (i.e., read or write) activity when the 
+purpose is to tell the function that the buffer contents may have been 
+altered.
+
+> I'm giving up for the evening, and probably won't have a chance to do
+> more until Sunday - the PageCompound issue still under discussion too.
+> 
+> Hugh
+> 
+
+-- 
+Kai

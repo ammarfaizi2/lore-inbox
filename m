@@ -1,65 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbVLDNFY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbVLDNKk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932211AbVLDNFY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 08:05:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbVLDNFY
+	id S932206AbVLDNKk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 08:10:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbVLDNKk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 08:05:24 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:4242 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932211AbVLDNFY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 08:05:24 -0500
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-From: Arjan van de Ven <arjan@infradead.org>
-To: Indrek Kruusa <indrek.kruusa@tuleriit.ee>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <4392E79B.7080903@tuleriit.ee>
-References: <20051203135608.GJ31395@stusta.de>
-	 <4392E79B.7080903@tuleriit.ee>
-Content-Type: text/plain
-Date: Sun, 04 Dec 2005 14:05:20 +0100
-Message-Id: <1133701520.5188.34.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sun, 4 Dec 2005 08:10:40 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:62357 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S932206AbVLDNKk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 08:10:40 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Vadim Lobanov <vlobanov@speakeasy.net>
+Subject: Re: Use enum to declare errno values
+Date: Sun, 4 Dec 2005 15:10:18 +0200
+User-Agent: KMail/1.8.2
+Cc: Bill Davidsen <davidsen@tmr.com>, Coywolf Qi Hunt <coywolf@gmail.com>,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Paul Jackson <pj@sgi.com>, francis_moreau2000@yahoo.fr,
+       linux-kernel@vger.kernel.org
+References: <20051123132443.32793.qmail@web25813.mail.ukl.yahoo.com> <4390701C.1030803@tmr.com> <Pine.LNX.4.58.0512020844560.27440@shell4.speakeasy.net>
+In-Reply-To: <Pine.LNX.4.58.0512020844560.27440@shell4.speakeasy.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200512041510.18662.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> nt model (or at least they have no resources to 
-> do testing [Torvalds])
-> c) end-users (or those who are not kernel maintainers) are directed 
-> permanently to distros kernels and "stay away from kernel.org you 
-> wanna-bees!
+On Friday 02 December 2005 18:56, Vadim Lobanov wrote:
+> On Fri, 2 Dec 2005, Bill Davidsen wrote:
+> 
+> > Coywolf Qi Hunt wrote:
+> > >
+> > > That is a bad bad style. It should be `#define FOO 123' if you have to
+> > > write it.
+> > >
+> > > It's also hard to see what the confusing bar is "if you are looking at
+> > > file.c alone".
+> > >
+> > > enum is worse than typdef.  Don't you see why we should use `struct
+> > > task_struct', rather than `task_t'?
+> > >
+> > > Introducing enum alone can't solve the problems from bad macro usage
+> > > habits. Actually, it's not anything wrong with macros, it's
+> > > programers' bad coding style.
+> >
+> > Using enum doesn't *solve* problems, it does *allow* type checking, and
+> > *prevent* namespace pollution. Use of typedef allows future changes, if
+> > you use "struct XXX" you're stuck with it.
+> 
+> You're not stuck with anything onerous in this case. Namely,
+> 
+> If you have "enum XXX" and you want to go to "enum YYY", then...
+> 	sed 's/enum XXX/enum YYY/g'
+> If you have "struct XXX" and you want to go to "struct YYY", then...
+> 	sed 's/struct XXX/struct YYY/g'
+> If you have "enum XXX" and you want to go to "struct YYY", then...
+> This is a big change, and should be done with care anyway. If struct YYY
+> happens to be large, then suddenly you can get all sorts of nifty stack
+> overflows.
 
-this is not what is being said. What is being said is that if you can't
-deal with occasional breakage, you're better off using vendor kernels.
-But.. if you can't deal with occasional breakage, you wouldn't test test
-kernels EITHER. If you can deal with an occasional breakage, I hope you
-and everyone else who can, will run and test kernel.org kernels,
-especially the -rc ones. 
+I was talking about _anonymous enums_. There you do not have enum XXX,
+you have only named constants of type int:
 
-Most of the "instability" people complain about with the new 2.6 model
-is caused by people not testing the -rc kernels before they are
-released, so that they end up being released with regressions. But...
-that will happen no matter what model you use actually. Before july
-there was a problem where -rc kernels kept changing bigtime, so it was
-hard to know which one to test if you only had time to test one, but
-that is now changed... 
+enum { CONST = 12345 };
 
-Maybe it's a bit extremist, but I'd like to even state it like this:
-"If you can't be bothered to test -rc kernels, you have no right to
-complain about the final ones", sort of as analogy to the "if you don't
-go voting you have no right to complain about the politicians".
-
-
+CONST is of type "int" here.
+--
+vda

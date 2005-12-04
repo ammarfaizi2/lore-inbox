@@ -1,74 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932276AbVLDSuL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbVLDTKd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932276AbVLDSuL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 13:50:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbVLDSuL
+	id S932282AbVLDTKd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 14:10:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbVLDTKd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 13:50:11 -0500
-Received: from mout2.freenet.de ([194.97.50.155]:37328 "EHLO mout2.freenet.de")
-	by vger.kernel.org with ESMTP id S932287AbVLDSuJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 13:50:09 -0500
-To: linux-kernel@vger.kernel.org
-From: mbuesch@freenet.de
-Subject: Broadcom 43xx first results
-Cc: bcm43xx-dev@lists.berlios.de
-X-Priority: 3
-X-Abuse: 503164420 / 85.212.39.112
-User-Agent: freenetMail
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E1Eiyw4-0003Ab-FW@www1.emo.freenet-rz.de>
-Date: Sun, 04 Dec 2005 19:50:08 +0100
+	Sun, 4 Dec 2005 14:10:33 -0500
+Received: from amsfep15-int.chello.nl ([213.46.243.27]:51264 "EHLO
+	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
+	id S932282AbVLDTKd (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Sun, 4 Dec 2005 14:10:33 -0500
+Subject: Re: [PATCH 01/16] mm: delayed page activation
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Nikita Danilov <nikita@clusterfs.com>
+Cc: Wu Fengguang <wfg@mail.ustc.edu.cn>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+In-Reply-To: <17299.1331.368159.374754@gargle.gargle.HOWL>
+References: <20051203071444.260068000@localhost.localdomain>
+	 <20051203071609.755741000@localhost.localdomain>
+	 <17298.56560.78408.693927@gargle.gargle.HOWL>
+	 <20051204134818.GA4305@mail.ustc.edu.cn>
+	 <17299.1331.368159.374754@gargle.gargle.HOWL>
+Content-Type: text/plain
+Date: Sun, 04 Dec 2005 20:10:23 +0100
+Message-Id: <1133723423.27985.10.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 2005-12-04 at 18:03 +0300, Nikita Danilov wrote:
+> Wu Fengguang writes:
+>  > On Sun, Dec 04, 2005 at 03:11:28PM +0300, Nikita Danilov wrote:
+>  > > Wu Fengguang writes:
+>  > >  > When a page is referenced the second time in inactive_list, mark it with
+>  > >  > PG_activate instead of moving it into active_list immediately. The actual
+>  > >  > moving work is delayed to vmscan time.
+>  > >  > 
+>  > >  > This implies two essential changes:
+>  > >  > - keeps the adjecency of pages in lru;
+>  > > 
+>  > > But this change destroys LRU ordering: at the time when shrink_list()
+>  > > inspects PG_activate bit, information about order in which
+>  > > mark_page_accessed() was called against pages is lost. E.g., suppose
+>  > 
+>  > Thanks.
+>  > But this order of re-access time may be pointless. In fact the original
+>  > mark_page_accessed() is doing another inversion: inversion of page lifetime.
+>  > In the word of CLOCK-Pro, a page first being re-accessed has lower
+> 
+> The brave new world of CLOCK-Pro is still yet to happen, right?
 
-I am a developer of the Broadcom-43xx driver project.
-(The 43xx chipset is used in a lot of chipsets, including
-the Apple Airport 2 card).
+Well, I have an implementation that is showing very promising results. I
+plan to polish the code a bit and post the code somewhere this week.
+(current state available at: http://linux-mm.org/PeterZClockPro2)
 
-I am writing this mail on my PowerBook and it is sent
-wireless to my AP.
-That means, we can transmit real data, if you did not get it, yet. :)
+>  > inter-reference distance, and therefore should be better protected(if ignore
+>  > possible read-ahead effects). If we move re-accessed pages immediately into
+>  > active_list, we are pushing them closer to danger of eviction.
+> 
+> Huh? Pages in the active list are closer to the eviction? If it is
+> really so, then CLOCK-pro hijacks the meaning of active list in a very
+> unintuitive way. In the current MM active list is supposed to contain
+> hot pages that will be evicted last.
 
-That does _not_ mean, that it completely works, yet.
-The team is in the progress of writing a SoftwareMAC layer,
-which is needed for the bcm device. The SoftMAC is still very
-incomplete. So do not expect to do any fancy stuff like WPA
-or something line that with it.
-Please be patient, thanks. :)
+Actually, CLOCK-pro does not have an active list. Pure CLOCK-pro has but
+one clock. It is possible to create approximations that have more
+lists/clocks, and in those the meaning of active list are indeed
+somewhat different, but I agree with nikita here, this is odd.
 
-If you want to try the driver, a few steps have to be done manually,
-because the SoftMAC doesn't do them automatically, yet:
+> Anyway, these issues should be addressed in CLOCK-pro
+> implementation. Current MM tries hard to maintain LRU approximation in
+> both active and inactive lists.
 
-insmod ieee80211softmac.ko
-insmod bcm430x.ko
-ifup ethX
-iwconfig ethX channel YOUR_AP_CHANNEL
-iwconfig ethX essid ESSID_OF_YOUR_AP
-In between you should pray from time to time.
-
-If it works without crashes, cool. :)
-If it crashes, well, fix it or send us a complete OOPS message
-including detailed information about the device. Most information
-about the device is printed on insmod. Including this information is
-_important_, because there are so many different devices around.
-
-Do _not_ expect to get any 802.11a based device working, yet. Only b/g
-devices should "work".
-
-BCM43xx driver:
-http://bcm43xx.berlios.de
-Required SoftMAC Layer:
-http://softmac.sipsolutions.net
-
-Have fun.
+nod.
 
 
+Peter Zijlstra
+(he who has dedicated his spare time to the eradication of LRU ;-)
+ 
 
-"Jetzt Handykosten senken mit klarmobil - 15 Ct./Min.! Hier klicken"
-www.klarmobil.de/index.html?pid=73025
 

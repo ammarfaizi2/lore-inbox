@@ -1,45 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932320AbVLDTtS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbVLDTwL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932320AbVLDTtS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 14:49:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbVLDTtS
+	id S932326AbVLDTwL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 14:52:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbVLDTwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 14:49:18 -0500
-Received: from smtp.seznam.cz ([212.80.76.43]:59769 "HELO smtp.seznam.cz")
-	by vger.kernel.org with SMTP id S932320AbVLDTtS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 14:49:18 -0500
-Date: Sun, 4 Dec 2005 20:52:08 +0100
-From: Feyd <feyd@seznam.cz>
-To: mbuesch@freenet.de
-Cc: linux-kernel@vger.kernel.org, bcm43xx-dev@lists.berlios.de
-Subject: Re: [Bcm43xx-dev] Broadcom 43xx first results
-Message-ID: <20051204205208.46e44480@epsilon.site>
-In-Reply-To: <E1Eiyw4-0003Ab-FW@www1.emo.freenet-rz.de>
-References: <E1Eiyw4-0003Ab-FW@www1.emo.freenet-rz.de>
-X-Mailer: Sylpheed-Claws 1.0.3 (GTK+ 1.2.10; i686-suse-linux)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 4 Dec 2005 14:52:11 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:772 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932326AbVLDTwJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 14:52:09 -0500
+Date: Sun, 4 Dec 2005 20:52:07 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [-mm patch] remove code for WIRELESS_EXT < 18
+Message-ID: <20051204195207.GA9973@stusta.de>
+References: <20051203122720.GF31395@stusta.de> <4393447E.3020003@pobox.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4393447E.3020003@pobox.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 04 Dec 2005 19:50:08 +0100 (CET)
-mbuesch@freenet.de wrote:
+On Sun, Dec 04, 2005 at 02:33:18PM -0500, Jeff Garzik wrote:
+> Adrian Bunk wrote:
+> >WIRELESS_EXT < 18 will never be true in the kernel.
+> >
+> >
+> >Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> >
+> >---
+> >
+> > drivers/net/wireless/ipw2100.c           |  434 ----------------------
+> > drivers/net/wireless/tiacx/acx_struct.h  |    5 
+> > drivers/net/wireless/tiacx/common.c      |    4 
+> > drivers/net/wireless/tiacx/conv.c        |    2 
+> > drivers/net/wireless/tiacx/ioctl.c       |  441 -----------------------
+> > drivers/net/wireless/tiacx/pci.c         |    8 
+> > drivers/net/wireless/tiacx/usb.c         |    6 
+> > drivers/net/wireless/tiacx/wlan.c        |    2 
+> > drivers/net/wireless/tiacx/wlan_compat.h |    9 
+> > 9 files changed, 1 insertion(+), 910 deletions(-)
+> 
+> NAK, patches non-existent files.
+> 
+> [jgarzik@pretzel linux-2.6]$ ls drivers/net/wireless/tiacx
+> ls: drivers/net/wireless/tiacx: No such file or directory
 
-> I am writing this mail on my PowerBook and it is sent
-> wireless to my AP.
-> That means, we can transmit real data, if you did not get it, yet. :)
+As the subject says, it's against -mm.
 
-Amazing progress :)
+How should I resend it?
+One patch against ipw2100.c and one patch for the tiacx stuff?
 
-> That does _not_ mean, that it completely works, yet.
-> The team is in the progress of writing a SoftwareMAC layer,
-> which is needed for the bcm device. The SoftMAC is still very
-> incomplete. So do not expect to do any fancy stuff like WPA
-> or something line that with it.
-> Please be patient, thanks. :)
+cu
+Adrian
 
-Why not use the new in-kernel wifi stack? 
+-- 
 
-Feyd
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,89 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751269AbVLDX0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbVLDX0R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751269AbVLDX0O (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 18:26:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbVLDX0N
+	id S1751143AbVLDX0R (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 18:26:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbVLDX0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 18:26:13 -0500
-Received: from mail.kroah.org ([69.55.234.183]:54478 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932228AbVLDXZs (ORCPT
+	Sun, 4 Dec 2005 18:26:17 -0500
+Received: from mail.kroah.org ([69.55.234.183]:54734 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751143AbVLDXZw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 18:25:48 -0500
-Date: Sun, 4 Dec 2005 15:12:48 -0800
+	Sun, 4 Dec 2005 18:25:52 -0500
+Date: Sun, 4 Dec 2005 15:05:09 -0800
 From: Greg KH <greg@kroah.com>
-To: "M." <vo.sinh@gmail.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Message-ID: <20051204231248.GE8914@kroah.com>
-References: <20051203211209.GA4937@kroah.com> <f0cc38560512031331x3f4006e5sc2ff51414f07ada7@mail.gmail.com> <1133645895.22170.33.camel@laptopd505.fenrus.org> <f0cc38560512031353q27ee0a2dh70e283f53671b70f@mail.gmail.com> <1133682973.5188.3.camel@laptopd505.fenrus.org> <f0cc38560512040657i58cc08efqa8596c357fcea82e@mail.gmail.com> <1133709038.5188.49.camel@laptopd505.fenrus.org> <f0cc38560512040724re5114c2y76bb34d63c9c5ae0@mail.gmail.com> <20051204224707.GB8914@kroah.com> <f0cc38560512041503y7abd1f12rbce8bdac0ebdf30d@mail.gmail.com>
+To: Michael Tokarev <mjt@tls.msk.ru>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Could not suspend device [VIA UHCI USB controller]: error -22
+Message-ID: <20051204230509.GC8914@kroah.com>
+References: <43923479.3020305@tls.msk.ru> <20051204003130.GB1879@kroah.com> <386F0C1C.1040509@tls.msk.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <f0cc38560512041503y7abd1f12rbce8bdac0ebdf30d@mail.gmail.com>
+In-Reply-To: <386F0C1C.1040509@tls.msk.ru>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 05, 2005 at 12:03:20AM +0100, M. wrote:
-> > The way the kernel is developed is _so_ different from any traditional
-> > software development process is defined.  So for people to try to put
-> > traditional requirements on the kernel (6 month cycles, etc.) is just
-> > not realistic.
+On Sun, Jan 02, 2000 at 11:28:12AM +0300, Michael Tokarev wrote:
+> Greg KH wrote:
+> >On Sun, Dec 04, 2005 at 03:12:41AM +0300, Michael Tokarev wrote:
+> >
+> >>When I try to "standby" (echo standby > /sys/power/state)
+> >>a 2.6.14 system running on a VIA C3-based system with VIA
+> >>chipset (suspend to disk never worked on this system --
+> >>as stated on swsusp website it's due to the lack of some
+> >>CPU instruction on this CPU [but winXP suspends to disk
+> >>on this system just fine]), it immediately comes back, with
+> >>the above error message:
+> >
+> >Can you try 2.6.15-rc4 or newer to see if that fixes this issue for you?
 > 
-> Mhhh BSDs and MacOSX kernel are developed without taking "the unknown" into
-> account: planned releases and bla blah and they dont miss features. Yeah
-> linux is faster, but there could be a middle point between strict release
-> cycles and "ok let's put it in cause it's going to make something run
-> faster"
-
-MacOSX is developed this way?  I think you will find a lot of Apple
-engineers disagree with you...
-
-And BSD is also quite different than Linux in many different ways, the
-development community being one of these differences.  And that one
-difference makes a lot of difference.
-
-> > And please for everyone wanting to go with a stable series like is being
-> > proposed, go read the thread a while ago on this list that caused the
-> > creation of the -stable tree.  In it lots of people who know what they
-> > are talking about discuss the difficulties of doing a "bug fix only"
-> > tree, and other such things.  Out of that discussion came the very
-> > restrictive guidelines that are described in
-> > Documentation/stable_kernel_rules.txt.  To try to do more than what is
-> > defined there, without lots of money and man-power behind you, is a
-> > quick trip to madness...
+> Yes, 2.6.15-rc4 restores previous functionality - the error in
+> $subject is now gone, and it seems the system goes to standby
+> as it should, without errors and 'standby process interruptions'.
+> Thanks.
 > 
+> With the only problem which was here all the time - it comes "back
+> to C" after less a secound all the disks/monitor/etc are placed
+> into sleep mode..  Ie,
 > 
-> The proposal was in fact to come out with a 2.6.X release every 6 months
-> trying to align every distro on it and to "get" their man-power and money as
-> a side effect. Maybe i'm not sufficiently good with english to let you all
-> understand clearly but the proposal was to do 2/3/4 releases the
-> normal/current style, even adding new and previously unknown
-> features/patches/whatever and to do the last release before the next
-> 2.6.Xwith only bugfix and stabilization in mind; If you think over it
-> it's the
-> same approach of every release:
+>  ..preparing for standby...
+>  ..hdd stops spinning..
+>  ..monitor is turned off..
+>  ..less-than-a-secound-pause..
+>  Back to C!
+>  ..the system goes back, restoring interrupts etc...
 > 
-> - patches get in until -rc;
-> - 2 weeks bugfix only;
-> - release;
+> I tried various 'wakeup' settings in bios, incl. turning everything
+> off in that menu - no difference.
 > 
-> but applied to a 6months timeline.
+> The same behaviour is shown by all 2.6 kernels I tried so far
+> (since 2.6.6 or so).
 
-That will not work.  Again, go back and read that thread.  We seeing
-this shorter development cycle get backed up even when it streaches to 2
-months.  For it to go to 6 months would be madness.
+Does normal "suspend" work for you on this machine (echoing "disk" to
+that sysfs file?)
 
-If you don't understand why I say this, please go look at the different
-developer trees that start accumilating patches during this "bugfix
-only" timeframe.
-
-> It's not a -stable/strict/specifics-based tree but a way to align
-> everyone to the same kernel version and to get stabilization and
-> maintenance as a side effect.
-
-And you believe that the enterprise distros will some how flock to this
-kernel release instead?  Why would they?  What would it gain them?
+I'd suggest creating a bugzilla.kernel.org entry for this new problem.
 
 thanks,
 

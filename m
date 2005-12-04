@@ -1,48 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbVLDQWE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbVLDQW4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932268AbVLDQWE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 11:22:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbVLDQWE
+	id S932270AbVLDQW4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 11:22:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbVLDQW4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 11:22:04 -0500
-Received: from ms-smtp-04.texas.rr.com ([24.93.47.43]:31939 "EHLO
-	ms-smtp-04.texas.rr.com") by vger.kernel.org with ESMTP
-	id S932268AbVLDQWD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 11:22:03 -0500
-Message-ID: <43931829.60806@austin.rr.com>
-Date: Sun, 04 Dec 2005 10:24:09 -0600
-From: "Jonathan A. George" <jageorge@austin.rr.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Sun, 4 Dec 2005 11:22:56 -0500
+Received: from hornet.berlios.de ([195.37.77.140]:12819 "EHLO
+	hornet.berlios.de") by vger.kernel.org with ESMTP id S932269AbVLDQWz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 11:22:55 -0500
+From: Michael Frank <mhf@users.berlios.de>
+Reply-To: mhf@users.berlios.de
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: Golden rule: don't break userland (was Re: RFC: Starting a stable kernel series off the 2.6 kernel)
+Date: Sun, 4 Dec 2005 16:37:39 +0100
+Cc: Adrian Bunk <bunk@stusta.de>, Arjan van de Ven <arjan@infradead.org>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Greg KH <gregkh@suse.de>,
+       James Bottomley <James.Bottomley@steeleye.com>
+References: <20051203135608.GJ31395@stusta.de> <20051203152339.GK31395@stusta.de> <4391E764.7050704@pobox.com>
+In-Reply-To: <4391E764.7050704@pobox.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Unneeded RFC: Starting a stable kernel series off the 2.6 kernel
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <20051204162404.1D26B2947@hornet.berlios.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is really a silly discussion:
+On Saturday 03 December 2005 19:43, Jeff Garzik wrote:
+> Adrian Bunk wrote:
+> > IOW, we should e.g. ensure that today's udev will still
+> > work flawlessly with kernel 2.6.30 (sic)?
+> >
+> > This could work, but it should be officially announced
+> > that e.g. a userspace running kernel 2.6.15 must work
+> > flawlessly with _any_ future 2.6 kernel.
+>
+> Fix the real problem:  publicly shame kernel hackers that
+> change userland ABI/API without LOTS of notice, and
+> hopefully an old-userland compatibility solution
+> implemented.
+>
+> We change kernel APIs all the time.  Having made that
+> policy decision, we have the freedom to rapidly improve
+> the kernel, and avoid being stuck with poor designs of
+> the past.
+>
+> Userland isn't the same.  IMO sysfs hackers have
+> forgotten this. Anytime you change or remove sysfs
+> attributes these days, you have the potential to break
+> userland, which breaks one of the grand axioms of Linux. 
+> Everybody knows "the rules" when it comes to removing
+> system calls, but forgets/ignores them when it comes to
+> ioctls, sysfs attributes, and the like.
 
-2.6.x release is the initial base for each stable release
-    !with absolutely no intention of stalling non-useland API's!
+WRT sysfs, sysfs is dynamic by design to accommodate 
+individual HW configuration. Thus isn't this really a fault 
+of user-space implementation?
 
-2.6.x.y releases are the stability updates to the base release
-    and in kernel API's will usually stay stable
+>
+> Thus, I've often felt that heavy sysfs (and procfs) use
+> made it too easy to break userland.  Maybe we should
+> change the sysfs API to include some sort of interface
+> versioning, or otherwise make it more obvious to the
+> programmer that they could be breaking userland compat.
 
-If you want an ultra stable kernel you should start with the last stable 
-release and start tracking what you consider critical fixes from the 
-next base kernel (2.6.x) forward (essentially creating your own vendor 
-branch).  Alternatively you should use a vendor branch which already 
-does this for you with the addition of back porting important new device 
-drivers (Debian Stable, RHEL, SLES, ...).
+You might need versions for every entry. I'd go for more 
+documentation on proper use.
 
-The 2.6 development model finally gives developers the ability to dump 
-cruft, fix broken architecture, and add performance enhancements in a 
-timely manor.  Linux development hasn't worked this well since 1.2 was 
-small enough to test and release quickly.
+>
+> Offhand, once implemented and out in the field, I would
+> say a userland interface should live at least 1-2 years
+> after the "we are removing this interface" warning is
+> given.
+>
+> Yes, 1-2 years.  Maybe even that is too small.  We still
+> have old_mmap syscall around :)
+>
+> 	Jeff
+>
 
-
-OTOH it would be nice if core userland (libc, udev, binutils, 
-shellutils) were managed as a single project (as with OpenBSD) so that 
-userland breakage would be better managed. :-)

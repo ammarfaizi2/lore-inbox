@@ -1,67 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbVLDSfm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbVLDSsq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932222AbVLDSfm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 13:35:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbVLDSfm
+	id S932105AbVLDSsq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 13:48:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbVLDSsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 13:35:42 -0500
-Received: from wproxy.gmail.com ([64.233.184.207]:10371 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932222AbVLDSfl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 13:35:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=AU6U9EY1JOeAM022fQVA2YqhcxzLGajb8a9+ewOnX7WDshM0HXEExa4Xlayu7Bz1aTa2kqPUykUF8/p9q9Dw/9inH2o8R7xTJEe6WvZTQHRGO/pU2xZRBUPS57rVeJlFrAZFiTK0ZN5rlnRh93D4SawKYzLl6s5y21dpo1J3ddc=
-Message-ID: <9a8748490512041035l53bf4578n6372c2e3d7c96322@mail.gmail.com>
-Date: Sun, 4 Dec 2005 19:35:40 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Subject: Re: Linux 2.6.15-rc5: off-line for a week
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <6bffcb0e0512040926xdff72a8t@mail.gmail.com>
+	Sun, 4 Dec 2005 13:48:46 -0500
+Received: from dvhart.com ([64.146.134.43]:47830 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S932105AbVLDSsq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 13:48:46 -0500
+Date: Sun, 04 Dec 2005 10:48:40 -0800
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-mm <linux-mm@kvack.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Better pagecache statistics ?
+Message-ID: <9360000.1133722120@[10.10.2.4]>
+In-Reply-To: <1133457315.21429.29.camel@localhost.localdomain>
+References: <1133377029.27824.90.camel@localhost.localdomain> <20051201152029.GA14499@dmt.cnet> <1133452790.27824.117.camel@localhost.localdomain> <1133453411.2853.67.camel@laptopd505.fenrus.org> <20051201170850.GA16235@dmt.cnet> <1133457315.21429.29.camel@localhost.localdomain>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <Pine.LNX.4.64.0512032155290.3099@g5.osdl.org>
-	 <9a8748490512040856m5aaeead3o8b11ae69824fec9@mail.gmail.com>
-	 <6bffcb0e0512040926xdff72a8t@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/4/05, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> Hi,
->
-> On 04/12/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> > On 12/4/05, Linus Torvalds <torvalds@osdl.org> wrote:
-> > >
-> > > There's a rc5 out there now, largely because I'm going to be out of email
-> > > contact for the next week, and while I wish people were religiously
-> > > testing all the nightly snapshots, the fact is, you guys don't.
-> > >
-> > I'll bet a lot of people do test the -rc's and a lot of the snapshots
-> > (if not all), at least I know I try my best to do so, but you'd never
-> > notice since I rarely run into trouble with my regular config and thus
-> > don't post any bug reports.   I don't think that's uncommon.
-> >
->
-> IMHO KLive is solution.
-> http://klive.cpushare.com/
->
-Hmm, yes, this will allow some info to be gathered - I'm now running
-this, thanks for the pointer.
+>> > > Out of "Cached" value - to get details like
+>> > > 
+>> > > 	<mmap> - xxx KB
+>> > > 	<shared mem> - xxx KB
+>> > > 	<text, data, bss, malloc, heap, stacks> - xxx KB
+>> > > 	<filecache pages total> -- xxx KB
+>> > > 		(filename1 or <dev>, <ino>) -- #of pages
+>> > > 		(filename2 or <dev>, <ino>) -- #of pages
+>> > > 		
+>> > > This would be really powerful on understanding system better.
+>> > 
+>> > to some extend it might be useful.
+>> > I have a few concerns though
+>> > 1) If we make these stats into an ABI then it becomes harder to change
+>> > the architecture of the VM radically since such concepts may not even
+>> > exist in the new architecture. As long as this is some sort of advisory,
+>> > humans-only file I think this isn't too much of a big deal though. 
+>> > 
+>> > 2) not all the concepts you mention really exist as far as the kernel is
+>> > concerned. I mean.. a mmap file is file cache is .. etc.
+>> > malloc/heap/stacks are also not differentiated too much and are mostly
+>> > userspace policy (especially thread stacks). 
+>> > 
+>> > A split in
+>> > * non-file backed
+>> >   - mapped once
+>> >   - mapped more than once
+>> > * file backed
+>> >   - mapped at least once
+>> >   - not mapped
+>> > I can see as being meaningful. Assigning meaning to it beyond this is
+>> > dangerous; that is more an interpretation of the policy userspace
+>> > happens to use for things and I think coding that into the kernel is a
+>> > mistake.
+>> > 
+>> > Knowing which files are in memory how much is, as debug feature,
+>> > potentially quite useful for VM hackers to see how well the various VM
+>> > algorithms work. I'm concerned about the performance impact (eg you can
+>> > do it only once a day or so, not every 10 seconds) and about how to get
+>> > this data out in a consistent way (after all, spewing this amount of
+>> > debug info will in itself impact the vm balances)
+>> 
+>> Most of the issues you mention are null if you move the stats
+>> maintenance burden to userspace. 
+>> 
+>> The performance impact is also minimized since the hooks 
+>> (read: overhead) can be loaded on-demand as needed.
+>> 
+> 
+> The overhead is - going through each mapping/inode in the system
+> and dumping out "nrpages" - to get per-file statistics. This is
+> going to be expensive, need locking and there is no single list 
+> we can traverse to get it. I am not sure how to do this.
 
-But, forcing users to install python, twistd, zope interface etc is
-not exactely making it simple for people to run (and they have to know
-about it first as well).
+I made something idiotic to just walk the mem_map array and gather
+stats on every page in the system. Not exactly pretty ... but useful.
+Can't lay my hands on it at the moment, but Badari can ask Janet
+for it, I think ;-)
 
-If this was instead implemented in C and distributed with the kernel
-source I think a lot more people would run it and the data gathered
-would be a lot more useful.
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+M.

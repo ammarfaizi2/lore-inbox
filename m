@@ -1,90 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbVLDSsq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbVLDStn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbVLDSsq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 13:48:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbVLDSsq
+	id S932265AbVLDStn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 13:49:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbVLDStn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 13:48:46 -0500
-Received: from dvhart.com ([64.146.134.43]:47830 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S932105AbVLDSsq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 13:48:46 -0500
-Date: Sun, 04 Dec 2005 10:48:40 -0800
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-mm <linux-mm@kvack.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Better pagecache statistics ?
-Message-ID: <9360000.1133722120@[10.10.2.4]>
-In-Reply-To: <1133457315.21429.29.camel@localhost.localdomain>
-References: <1133377029.27824.90.camel@localhost.localdomain> <20051201152029.GA14499@dmt.cnet> <1133452790.27824.117.camel@localhost.localdomain> <1133453411.2853.67.camel@laptopd505.fenrus.org> <20051201170850.GA16235@dmt.cnet> <1133457315.21429.29.camel@localhost.localdomain>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Sun, 4 Dec 2005 13:49:43 -0500
+Received: from hulk.hostingexpert.com ([69.57.134.39]:14056 "EHLO
+	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S932265AbVLDStn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 13:49:43 -0500
+Message-ID: <43933A8C.2090606@m1k.net>
+Date: Sun, 04 Dec 2005 13:50:52 -0500
+From: Michael Krufky <mkrufky@m1k.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Gene Heskett <gene.heskett@verizon.net>
+CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Linux 2.6.15-rc5: off-line for a week
+References: <Pine.LNX.4.64.0512032155290.3099@g5.osdl.org> <200512041034.14146.gene.heskett@verizon.net>
+In-Reply-To: <200512041034.14146.gene.heskett@verizon.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - m1k.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > > Out of "Cached" value - to get details like
->> > > 
->> > > 	<mmap> - xxx KB
->> > > 	<shared mem> - xxx KB
->> > > 	<text, data, bss, malloc, heap, stacks> - xxx KB
->> > > 	<filecache pages total> -- xxx KB
->> > > 		(filename1 or <dev>, <ino>) -- #of pages
->> > > 		(filename2 or <dev>, <ino>) -- #of pages
->> > > 		
->> > > This would be really powerful on understanding system better.
->> > 
->> > to some extend it might be useful.
->> > I have a few concerns though
->> > 1) If we make these stats into an ABI then it becomes harder to change
->> > the architecture of the VM radically since such concepts may not even
->> > exist in the new architecture. As long as this is some sort of advisory,
->> > humans-only file I think this isn't too much of a big deal though. 
->> > 
->> > 2) not all the concepts you mention really exist as far as the kernel is
->> > concerned. I mean.. a mmap file is file cache is .. etc.
->> > malloc/heap/stacks are also not differentiated too much and are mostly
->> > userspace policy (especially thread stacks). 
->> > 
->> > A split in
->> > * non-file backed
->> >   - mapped once
->> >   - mapped more than once
->> > * file backed
->> >   - mapped at least once
->> >   - not mapped
->> > I can see as being meaningful. Assigning meaning to it beyond this is
->> > dangerous; that is more an interpretation of the policy userspace
->> > happens to use for things and I think coding that into the kernel is a
->> > mistake.
->> > 
->> > Knowing which files are in memory how much is, as debug feature,
->> > potentially quite useful for VM hackers to see how well the various VM
->> > algorithms work. I'm concerned about the performance impact (eg you can
->> > do it only once a day or so, not every 10 seconds) and about how to get
->> > this data out in a consistent way (after all, spewing this amount of
->> > debug info will in itself impact the vm balances)
->> 
->> Most of the issues you mention are null if you move the stats
->> maintenance burden to userspace. 
->> 
->> The performance impact is also minimized since the hooks 
->> (read: overhead) can be loaded on-demand as needed.
->> 
-> 
-> The overhead is - going through each mapping/inode in the system
-> and dumping out "nrpages" - to get per-file statistics. This is
-> going to be expensive, need locking and there is no single list 
-> we can traverse to get it. I am not sure how to do this.
+Gene Heskett wrote:
 
-I made something idiotic to just walk the mem_map array and gather
-stats on every page in the system. Not exactly pretty ... but useful.
-Can't lay my hands on it at the moment, but Badari can ask Janet
-for it, I think ;-)
+>On Sunday 04 December 2005 01:03, Linus Torvalds wrote:
+>  
+>
+>>There's a rc5 out there now, largely because I'm going to be out of
+>>email contact for the next week, and while I wish people were
+>>religiously testing all the nightly snapshots, the fact is, you guys
+>>don't.
+>>    
+>>
+>
+>Ahh Linus, but sometimes we do!  In any case, rc5 is missing this patch,
+>the  "v4l_ena_tda9887.patch" reproduced below:
+>
+>Index: linux/drivers/media/video/cx88/cx88-cards.c
+>===================================================================
+>RCS file:
+>/cvs/video4linux/v4l-dvb/linux/drivers/media/video/cx88/cx88-cards.c,v
+>retrieving revision 1.108
+>diff -u -p -r1.108 cx88-cards.c
+>--- linux/drivers/media/video/cx88/cx88-cards.c 25 Nov 2005 10:24:13
+>-0000      1.108
+>+++ linux/drivers/media/video/cx88/cx88-cards.c 1 Dec 2005 20:56:43
+>-0000
+>@@ -569,6 +569,7 @@ struct cx88_board cx88_boards[] = {
+>                .radio_type     = UNSET,
+>                .tuner_addr     = ADDR_UNSET,
+>                .radio_addr     = ADDR_UNSET,
+>+               .tda9887_conf   = TDA9887_PRESENT,
+>                .input          = {{
+>                        .type   = CX88_VMUX_TELEVISION,
+>                        .vmux   = 0,
+>----------
+>So my pcHDTV-3000 card is once again disabled.
+>
+NACK.
 
-M.
+Linus, Please DO NOT apply this as it is here... This same change above 
+had to also be applied to the FusionHDTV3 Gold-T ... I've already 
+applied the appropriate changes to cvs, and Mauro told me that he has 
+mailed the patches to Andrew, although I do not see them here yet on 
+LKML ....
+
+I get the feeling you're not even close to releasing 2.6.15, so I'm sure 
+the bugfix that Gene is waiting for will make it over to your tree soon, 
+along with some other small v4l fixes that we had to make in order to 
+account for changes in -rc4.
+
+Gene, in the meantime, you can fix your situation without changing any 
+code by simply issuing the following command:
+
+modprobe tda9887
+
+Ta - da! Magic!
+
+Cheers,
+
+Michael Krufky

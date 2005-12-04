@@ -1,56 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbVLDVfk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbVLDVhR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932318AbVLDVfk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 16:35:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932330AbVLDVfk
+	id S932330AbVLDVhR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 16:37:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbVLDVhR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 16:35:40 -0500
-Received: from ns.firmix.at ([62.141.48.66]:19098 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S932318AbVLDVfk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 16:35:40 -0500
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-Cc: Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <43923DD9.8020301@wolfmountaingroup.com>
-References: <20051203135608.GJ31395@stusta.de>
-	 <1133620598.22170.14.camel@laptopd505.fenrus.org>
-	 <20051203152339.GK31395@stusta.de>
-	 <20051203162755.GA31405@merlin.emma.line.org>
-	 <1133630556.22170.26.camel@laptopd505.fenrus.org>
-	 <20051203230520.GJ25722@merlin.emma.line.org>
-	 <43923DD9.8020301@wolfmountaingroup.com>
-Content-Type: text/plain
-Organization: http://www.firmix.at/
-Date: Sun, 04 Dec 2005 22:35:32 +0100
-Message-Id: <1133732132.3317.32.camel@gimli.at.home>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Sun, 4 Dec 2005 16:37:17 -0500
+Received: from wproxy.gmail.com ([64.233.184.197]:37514 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932330AbVLDVhP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 16:37:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=mjEs+c3GqvYadQQux2jtsBuSZrhOvRxvLXGV+9YCyYgSsssKEnzP8baQnB/cjoM5R28i9UKbYCf40o8TeY2EVNxuJsW5DXEIhp8WWOies0Cde97d7HncqJNQUWzpIf2GQRgHe24T9p71DNjwY0YMzxFUUf0WGGM8gX0h4sjHsE4=
+Message-ID: <afd776760512041337l40a1879drb8b0b526100791a8@mail.gmail.com>
+Date: Sun, 4 Dec 2005 15:37:13 -0600
+From: Mohamed El Dawy <msdawy@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Is the address space of a process continous
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-12-03 at 17:52 -0700, Jeff V. Merkey wrote:
-[...]
-> of this code. I have apps written for Windows in 1990 and 1998 that 
-                       ^^^^
-> still run on Windows XP today. Linux has no such concept of
+Hi,
+ I have a question. In the vma_memory_address struct, there are 2
+fields "vm_start" and "vm_end". I was wondering, does the process
+address space include all addresses between those 2 addresses? or
+could there be holes inside this range?
 
-But this not even holds for nearly all apps.
+The main reason I am asking is because I tried to call __follow_page()
+on some of those addresses and got NULL as a result. I am not sure if
+this is a hole, or just a problem with my code!
 
-> backwards compatiblity. Every company who has embraced it outside of 
-
-The same holds (probably) for Linux apps (given that your kernel can
-start a.out). And AFAIBT by Win* driver developers even in the Win*
-world you have to change your driver because of a new Win* version now
-and then.
-
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
-
-
+Thanks a lot in advance

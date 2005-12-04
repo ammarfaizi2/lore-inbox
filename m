@@ -1,59 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbVLDRAv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbVLDRLD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932301AbVLDRAv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 12:00:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbVLDRAu
+	id S932304AbVLDRLD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 12:11:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbVLDRLD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 12:00:50 -0500
-Received: from unthought.net ([212.97.129.88]:59913 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S932301AbVLDRAu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 12:00:50 -0500
-Date: Sun, 4 Dec 2005 18:00:49 +0100
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Greg KH <greg@kroah.com>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, Adrian Bunk <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Message-ID: <20051204170049.GA4179@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Greg KH <greg@kroah.com>, Jesper Juhl <jesper.juhl@gmail.com>,
-	Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-References: <20051203135608.GJ31395@stusta.de> <9a8748490512030629t16d0b9ebv279064245743e001@mail.gmail.com> <20051203201945.GA4182@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051203201945.GA4182@kroah.com>
-User-Agent: Mutt/1.5.9i
+	Sun, 4 Dec 2005 12:11:03 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:42494 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S932304AbVLDRLB (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 12:11:01 -0500
+From: kernel-stuff@comcast.net (Parag Warudkar)
+To: "tony" <hqy@nlsde.buaa.edu.cn>,
+       "'Linux Kernel Mailing List'" <Linux-Kernel@vger.kernel.org>
+Subject: Re: Help!Unable to handle kernel NULL pointer...
+Date: Sun, 04 Dec 2005 17:10:58 +0000
+Message-Id: <120420051710.17939.439323220002DD040000461322070206539D0E050B9A9D0E99@comcast.net>
+X-Mailer: AT&T Message Center Version 1 (Dec 17 2004)
+X-Authenticated-Sender: d2FydWRrYXJAY29tY2FzdC5uZXQ=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 03, 2005 at 12:19:45PM -0800, Greg KH wrote:
-> On Sat, Dec 03, 2005 at 03:29:54PM +0100, Jesper Juhl wrote:
-> > 
-> > Why can't this be done by distributors/vendors?
-> 
-> It already is done by these people, look at the "enterprise" Linux
-> distributions and their 5 years of maintance (or whatever the number
-> is.)
-> 
-> If people/customers want stability, they already have this option.
+You are running an ancient kernel (with possible security issues) and unless you have some paid support for it I doubt you will get serious help here.
 
-If the kernel was stable (reliability wise - as in "not crashing") then
-you'd be perfectly right.
+Your choices are to upgrade to latest 2.4 series version 2.4.32 and hope that the problem goes away or upgrade to the latest 2.6 series and then repost if a similar problem occurs there.
 
-In the real world, however, admins currently need to pick out specific
-versions of the kernel for specific workloads (try running a large
-fileserver on anything but 2.6.11.11 for example - any earlier or later
-kernel will barf reliably. For web serving it's another kernel that's
-golden, I forgot which).
+Also, if the problem started happening recently and without any kernel related changes, you might want to test the hardware.
 
-There are very very good reasons for offering a 'stable series' in plain
-source-tree form - lots of admins of real-world systems need this.
+HTH
+Parag
 
-Adrian, I like the idea :)
 
--- 
-
- / jakob
 

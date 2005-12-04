@@ -1,84 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbVLDQW4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbVLDQXj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932270AbVLDQW4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 11:22:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbVLDQW4
+	id S932269AbVLDQXj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 11:23:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbVLDQXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 11:22:56 -0500
-Received: from hornet.berlios.de ([195.37.77.140]:12819 "EHLO
-	hornet.berlios.de") by vger.kernel.org with ESMTP id S932269AbVLDQWz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 11:22:55 -0500
-From: Michael Frank <mhf@users.berlios.de>
-Reply-To: mhf@users.berlios.de
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: Golden rule: don't break userland (was Re: RFC: Starting a stable kernel series off the 2.6 kernel)
-Date: Sun, 4 Dec 2005 16:37:39 +0100
-Cc: Adrian Bunk <bunk@stusta.de>, Arjan van de Ven <arjan@infradead.org>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Greg KH <gregkh@suse.de>,
-       James Bottomley <James.Bottomley@steeleye.com>
-References: <20051203135608.GJ31395@stusta.de> <20051203152339.GK31395@stusta.de> <4391E764.7050704@pobox.com>
-In-Reply-To: <4391E764.7050704@pobox.com>
+	Sun, 4 Dec 2005 11:23:39 -0500
+Received: from mail.gmx.de ([213.165.64.20]:59800 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932269AbVLDQXi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 11:23:38 -0500
+X-Authenticated: #428038
+Date: Sun, 4 Dec 2005 17:23:36 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Matthias Andree <matthias.andree@gmx.de>,
+       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+Message-ID: <20051204162336.GD17846@merlin.emma.line.org>
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20051203162755.GA31405@merlin.emma.line.org> <1133630556.22170.26.camel@laptopd505.fenrus.org> <20051203230520.GJ25722@merlin.emma.line.org> <43923DD9.8020301@wolfmountaingroup.com> <20051204121209.GC15577@merlin.emma.line.org> <1133699555.5188.29.camel@laptopd505.fenrus.org> <20051204132813.GA4769@merlin.emma.line.org> <1133703338.5188.38.camel@laptopd505.fenrus.org> <20051204142551.GB4769@merlin.emma.line.org> <1133709649.5188.54.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <20051204162404.1D26B2947@hornet.berlios.de>
+In-Reply-To: <1133709649.5188.54.camel@laptopd505.fenrus.org>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 03 December 2005 19:43, Jeff Garzik wrote:
-> Adrian Bunk wrote:
-> > IOW, we should e.g. ensure that today's udev will still
-> > work flawlessly with kernel 2.6.30 (sic)?
-> >
-> > This could work, but it should be officially announced
-> > that e.g. a userspace running kernel 2.6.15 must work
-> > flawlessly with _any_ future 2.6 kernel.
->
-> Fix the real problem:  publicly shame kernel hackers that
-> change userland ABI/API without LOTS of notice, and
-> hopefully an old-userland compatibility solution
-> implemented.
->
-> We change kernel APIs all the time.  Having made that
-> policy decision, we have the freedom to rapidly improve
-> the kernel, and avoid being stuck with poor designs of
-> the past.
->
-> Userland isn't the same.  IMO sysfs hackers have
-> forgotten this. Anytime you change or remove sysfs
-> attributes these days, you have the potential to break
-> userland, which breaks one of the grand axioms of Linux. 
-> Everybody knows "the rules" when it comes to removing
-> system calls, but forgets/ignores them when it comes to
-> ioctls, sysfs attributes, and the like.
+On Sun, 04 Dec 2005, Arjan van de Ven wrote:
 
-WRT sysfs, sysfs is dynamic by design to accommodate 
-individual HW configuration. Thus isn't this really a fault 
-of user-space implementation?
+> >  (C) Copyright notice and "All rights reserved."
+> > 
+> > > > These use inter_module_get() 
+> > > 
+> > > which is still there even in the latest 2.6.15-rc. It should be going
+> > > out but hasn't yet. And that is the case for at least a year (eg they
+> > > are __deprecated but still there).
+> > 
+> > No, they aren't - at least not anywhere declared below include/ and thus
+> > uncompilable with GCC4.
+> 
+> # pwd
+> /mnt/raid/linux/linux-2.6.15-rc4/include/linux
+> [root@jackhammer linux]# grep inter_mod *
+> module.h:extern void __deprecated inter_module_register(const char *,
+> module.h:extern void __deprecated inter_module_unregister(const char *);
+> module.h:extern const void * __deprecated inter_module_get_request(const
+> char *,
+> module.h:extern void __deprecated inter_module_put(const char *);
 
->
-> Thus, I've often felt that heavy sysfs (and procfs) use
-> made it too easy to break userland.  Maybe we should
-> change the sysfs API to include some sort of interface
-> versioning, or otherwise make it more obvious to the
-> programmer that they could be breaking userland compat.
+Same story with -rc5. As you can see, there is no declaration for
+inter_module_get(), just the _request() variant.  So what now?  :-P
 
-You might need versions for every entry. I'd go for more 
-documentation on proper use.
-
->
-> Offhand, once implemented and out in the field, I would
-> say a userland interface should live at least 1-2 years
-> after the "we are removing this interface" warning is
-> given.
->
-> Yes, 1-2 years.  Maybe even that is too small.  We still
-> have old_mmap syscall around :)
->
-> 	Jeff
->
-
+-- 
+Matthias Andree

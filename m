@@ -1,66 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbVLDOYL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbVLDO0W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932232AbVLDOYL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 09:24:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbVLDOYL
+	id S932233AbVLDO0W (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 09:26:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbVLDO0V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 09:24:11 -0500
-Received: from nproxy.gmail.com ([64.233.182.197]:29241 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932232AbVLDOYK convert rfc822-to-8bit
+	Sun, 4 Dec 2005 09:26:21 -0500
+Received: from 80-219-178-75.dclient.hispeed.ch ([80.219.178.75]:52450 "EHLO
+	mx.eriadon.com") by vger.kernel.org with ESMTP id S932233AbVLDO0U
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 09:24:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NwNAsh9JWiSHHkHusyeu4wgTNmZkFHj/HvOxTVrqdufTiS8HUeWnRjoKInbF3WEFECAG8rsV/EeM5pp4Ub8sXACr5T0vFp7eveJfEz/1/L9EmQawVJ/CJUBNeAeSnVvk3HKKby96xUfsSC/yM0X//tdWxEIjesNEAxi1KoZ8Iyo=
-Message-ID: <c775eb9b0512040624ob4bcb3drfbdcdd427df2d2e3@mail.gmail.com>
-Date: Sun, 4 Dec 2005 09:24:08 -0500
-From: Bharath Ramesh <krosswindz@gmail.com>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: Only one processor detected in 8-Way opteron in 32-bit mode
-Cc: Keith Mannthey <kmannth@gmail.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <p73psod4yat.fsf@verdi.suse.de>
+	Sun, 4 Dec 2005 09:26:20 -0500
+From: Edmondo Tommasina <edmondo@eriadon.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.15-rc5: off-line for a week
+Date: Sun, 4 Dec 2005 15:26:19 +0100
+User-Agent: KMail/1.9
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <c775eb9b0512011315y40bdbf30w172583cd85e92fa6@mail.gmail.com>
-	 <a762e240512011527s69053b8eg13ec4674c3e36b07@mail.gmail.com>
-	 <c775eb9b0512011651kb0e1cb4xf79ca20372f6d76e@mail.gmail.com>
-	 <c775eb9b0512011712x2f4f2f44t4cd11d5d6f60a9d8@mail.gmail.com>
-	 <a762e240512011742p681df3bdic16598a85926dd67@mail.gmail.com>
-	 <c775eb9b0512020732v3f41f91fpb3b4b61b0b539d92@mail.gmail.com>
-	 <a762e240512021407p5a31c0daid902352625701ca2@mail.gmail.com>
-	 <p73psod4yat.fsf@verdi.suse.de>
+Message-Id: <200512041526.19111.edmondo@eriadon.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can you point me to the thread in which you posted the patch so that I
-can try it out. I am limited to a 32-bit kernel as the library I want
-use requires a 32bit kernel. I need to try to get some performance
-results.
 
-Thanks,
-Bharath
+> There's a rc5 out there now, largely because I'm going to be out of email 
+> contact for the next week, and while I wish people were religiously 
+> testing all the nightly snapshots, the fact is, you guys don't.
 
-On 03 Dec 2005 15:21:14 -0700, Andi Kleen <ak@suse.de> wrote:
-> Keith Mannthey <kmannth@gmail.com> writes:
->
-> > Welcome to hardware bring up.  Ok I looked a little closer at the
-> > story.  In x86_64 the only check for valid apic is apicid < MAX_APICS
-> > which make sense to me.
->
-> It will still not work. He will need a variant of the physflat-i386
-> patch I posted some time ago. However it needs some cleanup
-> to be actually mergeable
->
-> My recommendation is a 64bit kernel.
->
-> -Andi
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+:-)
+
+Linux 2.6.15-rc5 compiles fine and works as expected here.
+
+lbalrog edmondo # uname -a
+Linux balrog 2.6.15-rc5 #1 SMP Sun Dec 4 14:42:04 CET 2005 x86_64
+AMD Athlon(tm) 64 X2 Dual Core Processor 4400+ AuthenticAMD GNU/Linux
+
+balrog edmondo # dmesg
+Bootdata ok (command line is root=/dev/hda5)
+Linux version 2.6.15-rc5 (root@balrog) (gcc version 4.0.2 (Gentoo 4.0.2-r1, pie-8.7.8)) #1 SMP Sun Dec 4 14:42:04 CET 2005
+(...)
+NVRM: loading NVIDIA Linux x86_64 NVIDIA Kernel Module  1.0-7676  Fri Jul 29 13:15:16 PDT 2005
+X does an incomplete pfn remapping
+Call Trace:<ffffffff80168f80>{remap_pfn_range+176} <ffffffff882b70f3>{:nvidia:nv_verify_pci_config+392}
+       <ffffffff882babae>{:nvidia:os_pci_read_dword+35} <ffffffff882b7b76>{:nvidia:nv_kern_mmap+1273}
+       <ffffffff8016ed73>{do_mmap_pgoff+1251} <ffffffff801143fd>{sys_mmap+173}
+       <ffffffff8010dcaa>{system_call+126}
+X does an incomplete pfn remapping
+Call Trace:<ffffffff80168f80>{remap_pfn_range+176} <ffffffff882b70f3>{:nvidia:nv_verify_pci_config+392}
+       <ffffffff882babae>{:nvidia:os_pci_read_dword+35} <ffffffff882b7b76>{:nvidia:nv_kern_mmap+1273}
+       <ffffffff8016ed73>{do_mmap_pgoff+1251} <ffffffff801143fd>{sys_mmap+173}
+       <ffffffff8010dcaa>{system_call+126}
+X does an incomplete pfn remapping
+Call Trace:<ffffffff80168f80>{remap_pfn_range+176} <ffffffff882b70f3>{:nvidia:nv_verify_pci_config+392}
+       <ffffffff882babae>{:nvidia:os_pci_read_dword+35} <ffffffff882b7b76>{:nvidia:nv_kern_mmap+1273}
+       <ffffffff8016ed73>{do_mmap_pgoff+1251} <ffffffff801143fd>{sys_mmap+173}
+       <ffffffff8010dcaa>{system_call+126}
+X does an incomplete pfn remapping
+Call Trace:<ffffffff80168f80>{remap_pfn_range+176} <ffffffff882b70f3>{:nvidia:nv_verify_pci_config+392}
+       <ffffffff882babae>{:nvidia:os_pci_read_dword+35} <ffffffff882b7b76>{:nvidia:nv_kern_mmap+1273}
+       <ffffffff8016ed73>{do_mmap_pgoff+1251} <ffffffff801143fd>{sys_mmap+173}
+       <ffffffff8010dcaa>{system_call+126}
+(...)
+
+Thanks
+edmondo

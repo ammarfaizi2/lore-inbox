@@ -1,37 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbVLDUVT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbVLDUZf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932227AbVLDUVT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 15:21:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbVLDUVT
+	id S932284AbVLDUZf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 15:25:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932330AbVLDUZf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 15:21:19 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:19179 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932227AbVLDUVS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 15:21:18 -0500
-Date: Sun, 4 Dec 2005 15:20:55 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@cuia.boston.redhat.com
-To: anil dahiya <ak_ait@yahoo.com>
-cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-Subject: Re: virtual interface mac adress
-In-Reply-To: <20051204192958.64093.qmail@web60214.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.63.0512041520320.29211@cuia.boston.redhat.com>
-References: <20051204192958.64093.qmail@web60214.mail.yahoo.com>
+	Sun, 4 Dec 2005 15:25:35 -0500
+Received: from [82.94.235.172] ([82.94.235.172]:16344 "EHLO
+	mail.hipersonik.com") by vger.kernel.org with ESMTP id S932284AbVLDUZe
+	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 15:25:34 -0500
+From: Norbert van Nobelen <norbert-kernel@hipersonik.com>
+Organization: Hipersonik.com
+To: Jeff Dike <jdike@addtoit.com>
+Subject: Change suggestion for UML config (Was: UML with 2.6.14-3 kernel)
+Date: Sun, 4 Dec 2005 21:28:21 +0100
+User-Agent: KMail/1.8.2
+Cc: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+References: <200512042029.32038.norbert-kernel@hipersonik.com> <20051204204132.GA29782@ccure.user-mode-linux.org>
+In-Reply-To: <20051204204132.GA29782@ccure.user-mode-linux.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512042128.22076.norbert-kernel@hipersonik.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Dec 2005, anil dahiya wrote:
+Thanks, missed it in the config.
+A change suggestion for the UML config:
+Alter config explanation for UBD (blockdevices/virtual block device) to:
+Always do synchonous disk IO for UBD (needed for UML!)
 
-> I want to assign mac addres to virtual adpater and mac
-> address should be like that if it should not create
-> problem in arp resoultion(i.e. mac address should be
-> as real card which able to comunicate  on lan )
+Because at this moment it is easier to find by editing the generated .config 
+file instead of by using the kernel configuration tools.
 
-You may be able to get away with using a MAC address
-inside the OUI range that XenSource registered.
+On Sunday 04 December 2005 21:41, Jeff Dike wrote:
+> On Sun, Dec 04, 2005 at 08:29:31PM +0100, Norbert van Nobelen wrote:
+> > VFS: Cannot open root device "/tmp/root_fs" or unknown-block(0,0)
+> > Please append a correct "root=" boot option
+> > Kernel panic - not syncing: VFS: Unable to mount root fs on
+> > unknown-block(0,0)
+>
+> You don't have the UBD driver configured in?
+>
+> Start over with a defconfig - that will give you a sane configuration.
+>
+> 				Jeff
 
 -- 
-All Rights Reversed
+________
+www.hipersonik.com : Open source experts

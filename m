@@ -1,36 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbVLDXrO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbVLDX7E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932272AbVLDXrO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 18:47:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932274AbVLDXrO
+	id S932288AbVLDX7E (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 18:59:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbVLDX7E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 18:47:14 -0500
-Received: from embla.aitel.hist.no ([158.38.50.22]:40913 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932272AbVLDXrN
+	Sun, 4 Dec 2005 18:59:04 -0500
+Received: from allen.werkleitz.de ([80.190.251.108]:65424 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S932288AbVLDX7D
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 18:47:13 -0500
-Date: Mon, 5 Dec 2005 00:50:39 +0100
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Tejun Heo <htejun@gmail.com>
-Subject: Re: Linux 2.6.15-rc3 problem found - scsi order changed
-Message-ID: <20051204235039.GA27826@aitel.hist.no>
-References: <Pine.LNX.4.64.0511282006370.3177@g5.osdl.org> <20051129213656.GA8706@aitel.hist.no> <Pine.LNX.4.64.0511291340340.3029@g5.osdl.org> <438D69FF.2090002@aitel.hist.no> <438EB150.2090502@pobox.com> <20051204004302.GA2188@aitel.hist.no> <Pine.LNX.4.64.0512031702110.3099@g5.osdl.org> <Pine.LNX.4.64.0512040110280.27389@montezuma.fsmlabs.com>
-Mime-Version: 1.0
+	Sun, 4 Dec 2005 18:59:03 -0500
+Date: Mon, 5 Dec 2005 00:59:04 +0100
+From: Johannes Stezenbach <js@linuxtv.org>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
+       Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <lm-sensors@lm-sensors.org>, Andrew Morton <akpm@osdl.org>,
+       Greg KH <gregkh@suse.de>
+Message-ID: <20051204235904.GB7478@linuxtv.org>
+Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
+	Jean Delvare <khali@linux-fr.org>,
+	Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
+	Linus Torvalds <torvalds@osdl.org>,
+	LKML <linux-kernel@vger.kernel.org>,
+	LM Sensors <lm-sensors@lm-sensors.org>,
+	Andrew Morton <akpm@osdl.org>, Greg KH <gregkh@suse.de>
+References: <20051202192814.282fc10c.khali@linux-fr.org> <1133602035.6724.5.camel@localhost> <20051203124715.52f8d736.khali@linux-fr.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0512040110280.27389@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.5.9i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+In-Reply-To: <20051203124715.52f8d736.khali@linux-fr.org>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: 84.189.217.138
+Subject: Re: Incorrect v4l patch in 2.6.15-rc4-git1
+X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 04, 2005 at 01:34:18AM -0800, Zwane Mwaikambo wrote:
-> On Sat, 3 Dec 2005, Linus Torvalds wrote:
-> 
-> Yes that fixed it, but why walk into usb/ on CONFIG_PCI?
+On Sat, Dec 03, 2005, Jean Delvare wrote:
+> I'll go undefine these experimental IDs soon anyway, as the concept is
+> broken IMHO. If driver authors don't use the ID, they can set it to 0.
+> If they do use it, they better register it soon so as to avoid
+> collisions with other drivers which haven't been merged either.
 
-The patch worked for me also, and 2.6.15-rc5 is ok too. :-)
+I believe no one actually uses I2C ids in drivers/media/.
+Is it documented somewhere that they should be set to 0 when
+unused? I believe most people set them to experimental ids
+because they fear getting conflicts and malfunctionings when
+they leave them at 0.
 
-Helge Hafting
+Johannes

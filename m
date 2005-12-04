@@ -1,342 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbVLDBT6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751236AbVLDBTQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751305AbVLDBT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 20:19:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751308AbVLDBT6
+	id S1751236AbVLDBTQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 20:19:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbVLDBTQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 20:19:58 -0500
-Received: from havoc.gtf.org ([69.61.125.42]:53167 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1751304AbVLDBT5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 20:19:57 -0500
-Date: Sat, 3 Dec 2005 20:19:53 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: linux-ide@vger.kernel.org
+	Sat, 3 Dec 2005 20:19:16 -0500
+Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:20354 "EHLO
+	vger.utah-nac.org") by vger.kernel.org with ESMTP id S1751236AbVLDBTP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 20:19:15 -0500
+Message-ID: <43923DD9.8020301@wolfmountaingroup.com>
+Date: Sat, 03 Dec 2005 17:52:41 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matthias Andree <matthias.andree@gmx.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] sata_sil: combined irq + LBT DMA patch for testing
-Message-ID: <20051204011953.GA16381@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+References: <20051203135608.GJ31395@stusta.de> <1133620598.22170.14.camel@laptopd505.fenrus.org> <20051203152339.GK31395@stusta.de> <20051203162755.GA31405@merlin.emma.line.org> <1133630556.22170.26.camel@laptopd505.fenrus.org> <20051203230520.GJ25722@merlin.emma.line.org>
+In-Reply-To: <20051203230520.GJ25722@merlin.emma.line.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matthias Andree wrote:
 
-To make it easy for others to test, since there are merge conflicts,
-I've combined the two previous sata_sil patches into a single patch.
+>On Sat, 03 Dec 2005, Arjan van de Ven wrote:
+>
+>  
+>
+>>>Exactly that, and kernel interfaces going away just to annoy binary
+>>>module providers also hurts third-party OSS modules, such as
+>>>Fujitsu-Siemens's ServerView agents.
+>>>      
+>>>
+>>in kernel API never was and never will be stable, that's entirely
+>>irrelevant and independent of the proposal at hand.
+>>    
+>>
+>
+>It's still an annoying side effect - is there a list of kernel functions
+>removed, with version removed, and with replacement? I know of none, but
+>then again I don't hack the kernel very often.
+>
+>  
+>
+These folks have nothing new to innovate here. The memory manager and VM 
+gets revamped every other release. Exports get broken, binary only 
+module compatibility busted every rev of the kernel. I spend weeks on 
+each kernel fixing the breakage. These people don't get it, don't care, 
+and to be honest, you are wasting your time here trying to convince 
+them. It's never stable because they don't want it to be. This is how 
+they maintain control
+of this code. I have apps written for Windows in 1990 and 1998 that 
+still run on Windows XP today. Linux has no such concept of
+backwards compatiblity. Every company who has embraced it outside of 
+hardware based solutions is dying or has died. IBM is secretly
+forking it as we speak and using it to get out of paying for Unix licenses.
 
-Verified here on my 3112 (Adaptec 1210SA).
+As annoying as it is, accept it and live with it. These people have no 
+sense of loyalty to you or your customers. They don't even care about 
+each other.
+Linux is not a "family" in any sense. I wanted very much to believe this 
+and I was loyal to these folks for 10 years, invested millions of dollars
+in development of my and others money in development to support it, 
+crippled Novell and pushed them to embrace Linux and my reward was
+smearing and expulsion from the community. They have no direction and 
+the whole thing is stagnant now. All the development is incremental
+bug fixes and anti-competitive mods to break each others distros.
 
-I'm especially interested to hear from anyone willing to test on a
-SI 3114 (4-port).
+You are standing on a battlefield. Quietly fork each release, make your 
+mods, post patches somewhere for the poor civilians who are
+"collateral damage" in the war with constantly busted software, and you 
+might help some folks.
+
+Jeff
 
 
-The 'sii' branch of
-rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
-
-contains the following updates:
-
- drivers/scsi/sata_sil.c |  233 +++++++++++++++++++++++++++++++++++++++++++++---
- 1 files changed, 219 insertions(+), 14 deletions(-)
-
-Jeff Garzik:
-      [libata sata_sil] improved interrupt handling
-      [libata sata_sil] Greatly improve DMA handling
-
-diff --git a/drivers/scsi/sata_sil.c b/drivers/scsi/sata_sil.c
-index 3609186..9e4630f 100644
---- a/drivers/scsi/sata_sil.c
-+++ b/drivers/scsi/sata_sil.c
-@@ -80,11 +80,20 @@ enum {
- 	SIL_QUIRK_UDMA5MAX	= (1 << 1),
- };
- 
-+enum {
-+	SIL_DMA_BOUNDARY	= 0xffffffffU,
-+};
-+
- static int sil_init_one (struct pci_dev *pdev, const struct pci_device_id *ent);
- static void sil_dev_config(struct ata_port *ap, struct ata_device *dev);
- static u32 sil_scr_read (struct ata_port *ap, unsigned int sc_reg);
- static void sil_scr_write (struct ata_port *ap, unsigned int sc_reg, u32 val);
- static void sil_post_set_mode (struct ata_port *ap);
-+static void sil_qc_prep(struct ata_queued_cmd *qc);
-+static void sil_bmdma_setup (struct ata_queued_cmd *qc);
-+static void sil_bmdma_start (struct ata_queued_cmd *qc);
-+static void sil_bmdma_stop(struct ata_queued_cmd *qc);
-+static irqreturn_t sil_irq (int irq, void *dev_instance, struct pt_regs *regs);
- 
- 
- static const struct pci_device_id sil_pci_tbl[] = {
-@@ -138,13 +147,13 @@ static struct scsi_host_template sil_sht
- 	.eh_strategy_handler	= ata_scsi_error,
- 	.can_queue		= ATA_DEF_QUEUE,
- 	.this_id		= ATA_SHT_THIS_ID,
--	.sg_tablesize		= LIBATA_MAX_PRD,
-+	.sg_tablesize		= ATA_MAX_PRD,
- 	.max_sectors		= ATA_MAX_SECTORS,
- 	.cmd_per_lun		= ATA_SHT_CMD_PER_LUN,
- 	.emulated		= ATA_SHT_EMULATED,
- 	.use_clustering		= ATA_SHT_USE_CLUSTERING,
- 	.proc_name		= DRV_NAME,
--	.dma_boundary		= ATA_DMA_BOUNDARY,
-+	.dma_boundary		= SIL_DMA_BOUNDARY,
- 	.slave_configure	= ata_scsi_slave_config,
- 	.bios_param		= ata_std_bios_param,
- 	.ordered_flush		= 1,
-@@ -160,14 +169,14 @@ static const struct ata_port_operations 
- 	.dev_select		= ata_std_dev_select,
- 	.phy_reset		= sata_phy_reset,
- 	.post_set_mode		= sil_post_set_mode,
--	.bmdma_setup            = ata_bmdma_setup,
--	.bmdma_start            = ata_bmdma_start,
--	.bmdma_stop		= ata_bmdma_stop,
-+	.bmdma_setup            = sil_bmdma_setup,
-+	.bmdma_start            = sil_bmdma_start,
-+	.bmdma_stop		= sil_bmdma_stop,
- 	.bmdma_status		= ata_bmdma_status,
--	.qc_prep		= ata_qc_prep,
-+	.qc_prep		= sil_qc_prep,
- 	.qc_issue		= ata_qc_issue_prot,
- 	.eng_timeout		= ata_eng_timeout,
--	.irq_handler		= ata_interrupt,
-+	.irq_handler		= sil_irq,
- 	.irq_clear		= ata_bmdma_irq_clear,
- 	.scr_read		= sil_scr_read,
- 	.scr_write		= sil_scr_write,
-@@ -214,16 +223,18 @@ static const struct {
- 	unsigned long tf;	/* ATA taskfile register block */
- 	unsigned long ctl;	/* ATA control/altstatus register block */
- 	unsigned long bmdma;	/* DMA register block */
-+	unsigned long bmdma_lbt;/* Large block DMA register block */
- 	unsigned long scr;	/* SATA control register block */
- 	unsigned long sien;	/* SATA Interrupt Enable register */
- 	unsigned long xfer_mode;/* data transfer mode register */
- } sil_port[] = {
--	/* port 0 ... */
--	{ 0x80, 0x8A, 0x00, 0x100, 0x148, 0xb4 },
--	{ 0xC0, 0xCA, 0x08, 0x180, 0x1c8, 0xf4 },
--	{ 0x280, 0x28A, 0x200, 0x300, 0x348, 0x2b4 },
--	{ 0x2C0, 0x2CA, 0x208, 0x380, 0x3c8, 0x2f4 },
--	/* ... port 3 */
-+
-+	/*   tf    ctl  bmdma    lbt    scr   sien   mode */
-+	{  0x80,  0x8A,   0x0,  0x10, 0x100, 0x148,  0xb4 }, /* port 0 */
-+	{  0xC0,  0xCA,   0x8,  0x18, 0x180, 0x1c8,  0xf4 }, /* port 1 */
-+	{ 0x280, 0x28A, 0x200, 0x210, 0x300, 0x348, 0x2b4 }, /* port 2 */
-+	{ 0x2C0, 0x2CA, 0x208, 0x218, 0x380, 0x3c8, 0x2f4 }, /* port 3 */
-+
- };
- 
- MODULE_AUTHOR("Jeff Garzik");
-@@ -233,6 +244,200 @@ MODULE_DEVICE_TABLE(pci, sil_pci_tbl);
- MODULE_VERSION(DRV_VERSION);
- 
- 
-+static void sil_bmdma_stop(struct ata_queued_cmd *qc)
-+{
-+	struct ata_port *ap = qc->ap;
-+	void __iomem *mmio = (void __iomem *) ap->ioaddr.bmdma_addr;
-+	u32 val;
-+
-+	/* clear start/stop bit */
-+	if (ap->port_no == 2)
-+		val = SIL_INTR_STEERING;
-+	else
-+		val = 0;
-+	writeb(val, mmio + ATA_DMA_CMD);
-+
-+	/* one-PIO-cycle guaranteed wait, per spec, for HDMA1:0 transition */
-+	ata_altstatus(ap);        /* dummy read */
-+}
-+
-+static void sil_bmdma_setup (struct ata_queued_cmd *qc)
-+{
-+	struct ata_port *ap = qc->ap;
-+	void __iomem *mmio;
-+
-+	mmio = ap->host_set->mmio_base + sil_port[ap->port_no].bmdma;
-+
-+	/* load PRD table addr. */
-+	mb();	/* make sure PRD table writes are visible to controller */
-+	writel(ap->prd_dma, mmio + ATA_DMA_TABLE_OFS);
-+
-+	/* issue r/w command */
-+	ata_exec_command(ap, &qc->tf);
-+}
-+
-+static void sil_bmdma_start (struct ata_queued_cmd *qc)
-+{
-+	unsigned int rw = (qc->tf.flags & ATA_TFLAG_WRITE);
-+	struct ata_port *ap = qc->ap;
-+	void __iomem *mmio;
-+	u8 dmactl;
-+
-+	mmio = ap->host_set->mmio_base + sil_port[ap->port_no].bmdma_lbt;
-+
-+	/* set transfer direction, start host DMA transaction */
-+	dmactl = readb(mmio + ATA_DMA_CMD);
-+	dmactl &= ~ATA_DMA_WR;
-+	if (!rw)
-+		dmactl |= ATA_DMA_WR;
-+	writeb(dmactl | ATA_DMA_START, mmio + ATA_DMA_CMD);
-+}
-+
-+/* The way God intended PCI IDE scatter/gather lists to look and behave... */
-+static inline void sil_fill_sg(struct ata_queued_cmd *qc)
-+{
-+	struct scatterlist *sg;
-+	struct ata_port *ap = qc->ap;
-+	struct ata_prd *prd;
-+
-+	prd = &ap->prd[0];
-+	ata_for_each_sg(sg, qc) {
-+		u32 addr = sg_dma_address(sg);
-+		u32 sg_len = sg_dma_len(sg);
-+
-+		prd->addr = cpu_to_le32(addr);
-+		prd->flags_len = cpu_to_le32(sg_len);
-+
-+		if (ata_sg_is_last(sg, qc))
-+			prd->flags_len |= cpu_to_le32(ATA_PRD_EOT);
-+
-+		prd++;
-+	}
-+}
-+
-+static void sil_qc_prep(struct ata_queued_cmd *qc)
-+{
-+	if (!(qc->flags & ATA_QCFLAG_DMAMAP))
-+		return;
-+
-+	sil_fill_sg(qc);
-+}
-+
-+static inline void sil_port_irq(struct ata_port *ap, void __iomem *mmio,
-+				u8 dma_stat, u8 dma_stat_mask)
-+{
-+	struct ata_queued_cmd *qc = NULL;
-+	unsigned int err_mask = AC_ERR_OTHER;
-+	int complete = 1;
-+	u8 dev_stat;
-+
-+	/* Exit now, if port or port's irqs are disabled */
-+	if (ap->flags & (ATA_FLAG_PORT_DISABLED | ATA_FLAG_NOINTR)) {
-+		complete = 0;
-+		goto out;
-+	}
-+
-+	/* Get active command */
-+	qc = ata_qc_from_tag(ap, ap->active_tag);
-+	if ((!qc) || (qc->tf.ctl & ATA_NIEN)) {
-+		complete = 0;
-+		goto out;
-+	}
-+
-+	/* Stop DMA, if doing DMA */
-+	switch (qc->tf.protocol) {
-+	case ATA_PROT_DMA:
-+	case ATA_PROT_ATAPI_DMA:
-+		ata_bmdma_stop(qc);
-+		break;
-+
-+	default:
-+		/* do nothing */
-+		break;
-+	}
-+
-+	/* Catch PCI bus errors */
-+	if (unlikely(dma_stat_mask & ATA_DMA_ERR)) {
-+		struct pci_dev *pdev = to_pci_dev(ap->host_set->dev);
-+		u16 pci_stat;
-+
-+		pci_read_config_word(pdev, PCI_STATUS, &pci_stat);
-+		pci_write_config_word(pdev, PCI_STATUS, pci_stat);
-+
-+		err_mask = AC_ERR_HOST_BUS;
-+
-+		printk(KERN_ERR "ata%u: PCI error, pci %x, dma %x\n",
-+			ap->id, pci_stat, dma_stat);
-+		goto out;
-+	}
-+
-+	/* Read device Status, clear device interrupt */
-+	dev_stat = ata_check_status(ap);
-+
-+	/* Let timeout handler handle stuck BSY */
-+	if (unlikely(dev_stat & ATA_BUSY)) {
-+		complete = 0;
-+		goto out;
-+	}
-+
-+	/* Did S/G table specify a size smaller than the transfer size?  */
-+	if (unlikely(dma_stat_mask == 0)) {
-+		printk(KERN_ERR "ata%u: BUG: SG size underflow\n", ap->id);
-+		err_mask = AC_ERR_OTHER; /* only occurs due to coder error? */
-+		goto out;
-+	}
-+
-+	/* Clear 311x DMA completion indicator */
-+	writeb(ATA_DMA_INTR, mmio + ATA_DMA_STATUS);
-+
-+	/* Finally, complete the ATA command transaction */
-+	ata_qc_complete(qc, ac_err_mask(dev_stat));
-+	return;
-+
-+out:
-+	ata_chk_status(ap);
-+	writeb(dma_stat_mask, mmio + ATA_DMA_STATUS);
-+	if (complete)
-+		ata_qc_complete(qc, err_mask);
-+}
-+
-+static irqreturn_t sil_irq (int irq, void *dev_instance, struct pt_regs *regs)
-+{
-+	struct ata_host_set *host_set = dev_instance;
-+	unsigned int i, handled = 0;
-+
-+	spin_lock(&host_set->lock);
-+
-+	for (i = 0; i < host_set->n_ports; i++) {
-+		struct ata_port *ap;
-+		void __iomem *mmio;
-+		u8 status, mask;
-+		u32 serr;
-+
-+		ap = host_set->ports[i];
-+		if (!ap)
-+			continue;
-+
-+		mmio = (void __iomem *) ap->ioaddr.bmdma_addr;
-+		status = readb(mmio + ATA_DMA_STATUS);
-+		mask = status & (ATA_DMA_INTR | ATA_DMA_ERR | ATA_DMA_ACTIVE);
-+		if (mask == ATA_DMA_ACTIVE)
-+			continue;
-+
-+		handled = 1;
-+
-+		sil_port_irq(ap, mmio, status, mask);
-+
-+		serr = sil_scr_read(ap, SCR_ERROR);
-+		if (serr)
-+			sil_scr_write(ap, SCR_ERROR, serr);
-+	}
-+
-+	spin_unlock(&host_set->lock);
-+
-+	return IRQ_RETVAL(handled);
-+}
-+
- static unsigned char sil_get_device_cache_line(struct pci_dev *pdev)
- {
- 	u8 cache_line = 0;
-@@ -442,7 +647,7 @@ static int sil_init_one (struct pci_dev 
- 		probe_ent->port[i].cmd_addr = base + sil_port[i].tf;
- 		probe_ent->port[i].altstatus_addr =
- 		probe_ent->port[i].ctl_addr = base + sil_port[i].ctl;
--		probe_ent->port[i].bmdma_addr = base + sil_port[i].bmdma;
-+		probe_ent->port[i].bmdma_addr = base + sil_port[i].bmdma_lbt;
- 		probe_ent->port[i].scr_addr = base + sil_port[i].scr;
- 		ata_std_ports(&probe_ent->port[i]);
- 	}

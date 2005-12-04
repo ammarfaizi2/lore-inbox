@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbVLDQMA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbVLDQRM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932263AbVLDQMA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 11:12:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbVLDQMA
+	id S932264AbVLDQRM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 11:17:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbVLDQRM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 11:12:00 -0500
-Received: from mail.gmx.de ([213.165.64.20]:17339 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932263AbVLDQL7 (ORCPT
+	Sun, 4 Dec 2005 11:17:12 -0500
+Received: from mail.gmx.net ([213.165.64.20]:5525 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932264AbVLDQRL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 11:11:59 -0500
+	Sun, 4 Dec 2005 11:17:11 -0500
 X-Authenticated: #428038
-Date: Sun, 4 Dec 2005 17:11:57 +0100
+Date: Sun, 4 Dec 2005 17:17:09 +0100
 From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-kernel@vger.kernel.org
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
 Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Message-ID: <20051204161157.GB17846@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <9a8748490512030629t16d0b9ebv279064245743e001@mail.gmail.com> <20051203201945.GA4182@kroah.com> <f0cc38560512031254j3b28d579s539be721c247c10a@mail.gmail.com> <20051203211209.GA4937@kroah.com> <f0cc38560512031331x3f4006e5sc2ff51414f07ada7@mail.gmail.com> <1133645895.22170.33.camel@laptopd505.fenrus.org> <f0cc38560512031353q27ee0a2dh70e283f53671b70f@mail.gmail.com> <1133682973.5188.3.camel@laptopd505.fenrus.org> <f0cc38560512040657i58cc08efqa8596c357fcea82e@mail.gmail.com> <1133709038.5188.49.camel@laptopd505.fenrus.org>
+Message-ID: <20051204161709.GC17846@merlin.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20051203230520.GJ25722@merlin.emma.line.org> <43923DD9.8020301@wolfmountaingroup.com> <20051204121209.GC15577@merlin.emma.line.org> <1133699555.5188.29.camel@laptopd505.fenrus.org> <20051204132813.GA4769@merlin.emma.line.org> <1133703338.5188.38.camel@laptopd505.fenrus.org> <20051204142551.GB4769@merlin.emma.line.org> <1133707855.5188.41.camel@laptopd505.fenrus.org> <20051204150804.GA17846@merlin.emma.line.org> <jebqzw50x8.fsf@sykes.suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1133709038.5188.49.camel@laptopd505.fenrus.org>
+In-Reply-To: <jebqzw50x8.fsf@sykes.suse.de>
 X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
 User-Agent: Mutt/1.5.11
 X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 04 Dec 2005, Arjan van de Ven wrote:
+On Sun, 04 Dec 2005, Andreas Schwab wrote:
 
-> On Sun, 2005-12-04 at 15:57 +0100, M. wrote:
+> Matthias Andree <matthias.andree@gmx.de> writes:
 > 
-> > 
-> > if distros would align on those 6months versions those less
-> > experienced users would get 5 years support on those kernels. 
+> > Yes. "extern type foo; static type foo;" is way stupid, but 10% of the
+> > blame can be shifted on the GCC guys for being much too tolerant.
 > 
-> no distro gives 5 years of support for a kernel done every 6 months;
-> they start such projects more like every 18 to 24 months (SuSE used to
-> do it a bit more frequently but it seems they also slowed this down).
+> You should rather blame the C standard.
 
-SUSE end-user distros (SUSE LINUX <version>) are released every 6 months
-or so, and are supported for 24 months. Their "enterprise server" is
-supported for 60 months though, SLES 9 forked off 9.1.
+There are things that old Sun Workshop versions bitch about that GCC
+deals with without complaining, and I'm not talking about C99/C++-style
+comments. C standard issue? I believe not.
+
+Anyways, this is getting off-topic and ultimately the author of broken
+code is responsible, of course. But it's still nice if the tools help
+produce good code.
 
 -- 
 Matthias Andree

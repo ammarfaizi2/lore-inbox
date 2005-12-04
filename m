@@ -1,73 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbVLDL46@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbVLDMHW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932160AbVLDL46 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 06:56:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbVLDL46
+	id S932201AbVLDMHW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 07:07:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbVLDMHW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 06:56:58 -0500
-Received: from krusty.dt.E-Technik.uni-dortmund.de ([129.217.163.1]:27826 "EHLO
+	Sun, 4 Dec 2005 07:07:22 -0500
+Received: from krusty.dt.E-Technik.uni-dortmund.de ([129.217.163.1]:31154 "EHLO
 	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S932160AbVLDL46 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 06:56:58 -0500
-Date: Sun, 4 Dec 2005 12:56:50 +0100
+	id S932201AbVLDMHV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 07:07:21 -0500
+Date: Sun, 4 Dec 2005 13:07:15 +0100
 From: Matthias Andree <matthias.andree@gmx.de>
 To: linux-kernel@vger.kernel.org
 Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Message-ID: <20051204115650.GA15577@merlin.emma.line.org>
+Message-ID: <20051204120715.GB15577@merlin.emma.line.org>
 Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20051203135608.GJ31395@stusta.de> <9a8748490512030629t16d0b9ebv279064245743e001@mail.gmail.com> <20051203201945.GA4182@kroah.com> <9a8748490512031948m26b04d3ds9fbc652893ead40@mail.gmail.com>
+References: <matthias.andree@gmx.de> <20051203222731.GC25722@merlin.emma.line.org> <200512040106.jB415cqb023723@pincoya.inf.utfsm.cl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9a8748490512031948m26b04d3ds9fbc652893ead40@mail.gmail.com>
+In-Reply-To: <200512040106.jB415cqb023723@pincoya.inf.utfsm.cl>
 X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 04 Dec 2005, Jesper Juhl wrote:
+On Sat, 03 Dec 2005, Horst von Brand wrote:
 
-> On 12/3/05, Greg KH <greg@kroah.com> wrote:
-> > On Sat, Dec 03, 2005 at 03:29:54PM +0100, Jesper Juhl wrote:
-> > >
-> > > Why can't this be done by distributors/vendors?
-> >
-> > It already is done by these people, look at the "enterprise" Linux
-> > distributions and their 5 years of maintance (or whatever the number
-> > is.)
-> >
-> > If people/customers want stability, they already have this option.
-> >
+> Matthias Andree <matthias.andree@gmx.de> wrote:
+> > On Sat, 03 Dec 2005, David Ranson wrote:
+> > > Adrian Bunk wrote:
+> > > 
+> > > >- support for ipfwadm and ipchains was removed during 2.6
 > 
-> Yes, I know this is what's done with the "enterprise" distro kernels.
-> Perhaps I should have phrased it "Why can't this job just stay with
-> vendors".
+> > > Surely this one had loads of notice though? I was using iptables with
+> > > 2.4 kernels.
+> 
+> Sure had. They were scheduled for removal in march, 2005 a long time ago.
+> 
+> > So was I. And now what? ipfwadm and ipchains should have been removed
+> > from 2.6.0 if 2.6.0 was not to support these.
+> 
+> Or in 2.6.10, or 2.6.27, or whatever.
 
-Because this is just shifting the blame for and work to make up for the
-upstream not providing a stable tree on somebody else and prescinds from
-the fact that many people are apparently unhappy with 2.6.X policies.
+No. If you need to remove major components, it is only diligent to bump
+the minor revision and call the beast 2.7.0. At that time, not only one
+or two subsystems, but all that were marked deprecated for 6 months or
+so, should be dropped.
 
-I cannot see a project issuing "stable releases" if every other
-developer bleats "let the distro snapshot and backport fixes on their
-own". This is exactly the point that turns away half of those who hadn't
-been scared away by the "Linux has no uniform userland" problem yet.
+> > This doesn't matter. A kernel that calls itself stable CAN NOT remove
+> > features unless they had been critically broken from the beginning. And
+> > this level of breakage is a moot point, so removal is not justified.
+> 
+> devfs was broken, and very little used.
 
-2.6.0 is now nearly two years old, perhaps the current discussions mean
-that 2.7/2.8 are long overdue - some people feel the need for more
-radical code changes, which are 2.7 stuff.
+OK. This however doesn't hold for ipfwadm (which should probably never
+have made it into 2.6.0 in the first place) or ipchains.
 
-The problem is the upstream breaking backwards compatibility for no good
-reason. This can sometimes be a genuine unintended regression (aka.
-bug), but quite often this is deliberate breakage because someone wants
-to get rid of cruft. While the motivation is sound, breaking between
-2.6.N and 2.6.M must stop.
+> > Linux 2.6 is not "stable" in this regard.
+> 
+> Right. The idea of "stable series" had to go. And went.
 
-One of the ideas of the new development style and versioning scheme was
-to have 2.6 progress faster than 2.3 or 2.5, and to have shorter release
-cycles.  It was found to introduce way too much breakage. Linus's
-relatively new policy "merge new stuff only during the fortnight after
-release, then fix up" is a concession to these observations that too
-many things break if there is a constant influx of feature changes.
+So what is the point in using Linux anyhow if the kernel developers
+don't care for the outside world, one might ask? What is in the way of
+reflecting feature removals in the minor version of the project, say,
+remove devfs, ipfwadm, ipchains and whatnot in one go and call the new
+release without this legacies 2.7.0?
 
 -- 
 Matthias Andree

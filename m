@@ -1,58 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbVLDP1w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932253AbVLDP2Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932252AbVLDP1w (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 10:27:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbVLDP1w
+	id S932253AbVLDP2Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 10:28:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932254AbVLDP2Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 10:27:52 -0500
-Received: from www.stv.ee ([212.7.5.251]:26380 "EHLO www.stv.ee")
-	by vger.kernel.org with ESMTP id S932252AbVLDP1v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 10:27:51 -0500
-Message-ID: <43930AAB.7060903@tuleriit.ee>
-Date: Sun, 04 Dec 2005 17:26:35 +0200
-From: Indrek Kruusa <indrek.kruusa@tuleriit.ee>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Sun, 4 Dec 2005 10:28:25 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:16400 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932253AbVLDP2Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 10:28:24 -0500
+Date: Sun, 4 Dec 2005 16:28:25 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>, Helge Hafting <helgehaf@aitel.hist.no>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Helge Hafting <helge.hafting@aitel.hist.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Tejun Heo <htejun@gmail.com>
+Subject: Re: Linux 2.6.15-rc3 problem found - scsi order changed
+Message-ID: <20051204152825.GP31395@stusta.de>
+References: <Pine.LNX.4.64.0511282006370.3177@g5.osdl.org> <20051129213656.GA8706@aitel.hist.no> <Pine.LNX.4.64.0511291340340.3029@g5.osdl.org> <438D69FF.2090002@aitel.hist.no> <438EB150.2090502@pobox.com> <20051204004302.GA2188@aitel.hist.no> <Pine.LNX.4.64.0512031702110.3099@g5.osdl.org> <Pine.LNX.4.64.0512040110280.27389@montezuma.fsmlabs.com>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-References: <20051203135608.GJ31395@stusta.de>	 <4392E79B.7080903@tuleriit.ee> <1133701520.5188.34.camel@laptopd505.fenrus.org>
-In-Reply-To: <1133701520.5188.34.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0512040110280.27389@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+On Sun, Dec 04, 2005 at 01:34:18AM -0800, Zwane Mwaikambo wrote:
+> On Sat, 3 Dec 2005, Linus Torvalds wrote:
+> 
+> > diff --git a/drivers/Makefile b/drivers/Makefile
+> > index fac1e16..ea410b6 100644
+> > --- a/drivers/Makefile
+> > +++ b/drivers/Makefile
+> > @@ -5,7 +5,7 @@
+> >  # Rewritten to use lists instead of if-statements.
+> >  #
+> >  
+> > -obj-$(CONFIG_PCI)		+= pci/ usb/
+> > +obj-$(CONFIG_PCI)		+= pci/
+> >  obj-$(CONFIG_PARISC)		+= parisc/
+> >  obj-$(CONFIG_RAPIDIO)		+= rapidio/
+> >  obj-y				+= video/
+> > @@ -49,6 +49,7 @@ obj-$(CONFIG_ATA_OVER_ETH)	+= block/aoe/
+> >  obj-$(CONFIG_PARIDE) 		+= block/paride/
+> >  obj-$(CONFIG_TC)		+= tc/
+> >  obj-$(CONFIG_USB)		+= usb/
+> > +obj-$(CONFIG_PCI)		+= usb/
+> >  obj-$(CONFIG_USB_GADGET)	+= usb/gadget/
+> >  obj-$(CONFIG_GAMEPORT)		+= input/gameport/
+> >  obj-$(CONFIG_INPUT)		+= input/
+> 
+> Yes that fixed it, but why walk into usb/ on CONFIG_PCI?
 
->>nt model (or at least they have no resources to 
->>do testing [Torvalds])
->>c) end-users (or those who are not kernel maintainers) are directed 
->>permanently to distros kernels and "stay away from kernel.org you 
->>wanna-bees!
->>    
->>
->
->this is not what is being said. What is being said is that if you can't
->deal with occasional breakage, you're better off using vendor kernels.
->But.. if you can't deal with occasional breakage, you wouldn't test test
->kernels EITHER. If you can deal with an occasional breakage, I hope you
->and everyone else who can, will run and test kernel.org kernels,
->especially the -rc ones. 
->
->Most of the "instability" people complain about with the new 2.6 model
->is caused by people not testing the -rc kernels before they are
->released, so that they end up being released with regressions.
->
+Because of drivers/usb/host/pci-quirks.c .
 
-I think I have seen special live-cd distribution for KDE beta testers. 
-Kernel is not a KDE but such a very broken distribution with -rc kernel 
-could be more easily maintained than "udev forever!". Live-cd (or 
-live-usb) wouldn't be too flexible - you can't say there "can you give a 
-whirl to this patch, please" but I bet you will have more testers.
+cu
+Adrian
 
-thanks,
-Indrek
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

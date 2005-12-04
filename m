@@ -1,112 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbVLDABV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbVLDAMh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932172AbVLDABV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 19:01:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbVLDABV
+	id S932178AbVLDAMh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 19:12:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbVLDAMg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 19:01:21 -0500
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:47270 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S932172AbVLDABU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 19:01:20 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH][mm][Fix] swsusp: fix counting of highmem pages
-Date: Sun, 4 Dec 2005 01:02:24 +0100
-User-Agent: KMail/1.8.3
-Cc: Andy Isaacson <adi@hexapodia.org>, LKML <linux-kernel@vger.kernel.org>
-References: <200512032140.15192.rjw@sisk.pl> <200512040011.30274.rjw@sisk.pl> <20051203235046.GC5198@elf.ucw.cz>
-In-Reply-To: <20051203235046.GC5198@elf.ucw.cz>
+	Sat, 3 Dec 2005 19:12:36 -0500
+Received: from hobbit.corpit.ru ([81.13.94.6]:42332 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S932178AbVLDAMg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 19:12:36 -0500
+Message-ID: <43923479.3020305@tls.msk.ru>
+Date: Sun, 04 Dec 2005 03:12:41 +0300
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Could not suspend device [VIA UHCI USB controller]: error -22
+Content-Type: text/plain; charset=KOI8-R; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512040102.24668.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+When I try to "standby" (echo standby > /sys/power/state)
+a 2.6.14 system running on a VIA C3-based system with VIA
+chipset (suspend to disk never worked on this system --
+as stated on swsusp website it's due to the lack of some
+CPU instruction on this CPU [but winXP suspends to disk
+on this system just fine]), it immediately comes back, with
+the above error message:
 
-On Sunday, 4 of December 2005 00:50, Pavel Machek wrote:
-}-- snip --{
-> 
-> Ah, okay, I see. As long as the include hack is gone, its okay with me.
+Stopping tasks: =====================================================================|
+ACPI: PCI interrupt for device 0000:00:07.5 disabled
+Could not suspend device 0000:00:07.3: error -22
+ACPI: PCI Interrupt 0000:00:07.5[C] -> Link [LNKC] -> GSI 12 (level, low) -> IRQ 12
+ACPI: PCI Interrupt 0000:00:0a.0[A] -> Link [LNKC] -> GSI 12 (level, low) -> IRQ 12
+eth0: link up, 100Mbps, full-duplex, lpa 0x45E1
+Some devices failed to suspend
+Restarting tasks... done
 
-All right.  Appended is the latest version.
+Here's the PCI devices:
 
-Rafael
+00:00.0 Host bridge: VIA Technologies, Inc. VT8601 [Apollo ProMedia] (rev 05)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8601 [Apollo ProMedia AGP]
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 40)
+00:07.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+00:07.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 1a)
+00:07.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 1a)
+00:07.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
+00:07.5 Multimedia audio controller: VIA Technologies, Inc. VT82C686 AC97 Audio Controller (rev 50)
+00:0a.0 Multimedia controller: Philips Semiconductors SAA7134 (rev 01)
+00:0d.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
+01:00.0 VGA compatible controller: Trident Microsystems CyberBlade/i1 (rev 6a)
 
+(note it's the second USB interface which fails).
+And here's the USB device list:
 
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+Bus 002 Device 002: ID 07cc:0301 Carry Computer Eng., Co., Ltd 6-in-1 Card Reader
+Bus 002 Device 001: ID 0000:0000
+Bus 001 Device 003: ID 0458:0036 KYE Systems Corp. (Mouse Systems)
+Bus 001 Device 001: ID 0000:0000
 
- kernel/power/snapshot.c |   25 ++++++++++++++++++-------
- kernel/power/swsusp.c   |    3 ++-
- 2 files changed, 20 insertions(+), 8 deletions(-)
+This machine was never able to go to standby mode completely - before
+2.6.14, it performed resume after several secounds of sleeping.  Now
+it does not even try to sleep anymore.
 
-Index: linux-2.6.15-rc3-mm1/kernel/power/snapshot.c
-===================================================================
---- linux-2.6.15-rc3-mm1.orig/kernel/power/snapshot.c	2005-12-03 00:14:49.000000000 +0100
-+++ linux-2.6.15-rc3-mm1/kernel/power/snapshot.c	2005-12-04 00:35:14.000000000 +0100
-@@ -37,6 +37,12 @@
- unsigned int nr_copy_pages;
- 
- #ifdef CONFIG_HIGHMEM
-+#if (PAGE_SIZE == 4096)
-+#define KMALLOC_SIZE	32
-+#else
-+#define KMALLOC_SIZE	64
-+#endif
-+
- unsigned int count_highmem_pages(void)
- {
- 	struct zone *zone;
-@@ -52,13 +58,12 @@
- 				if (!pfn_valid(pfn))
- 					continue;
- 				page = pfn_to_page(pfn);
--				if (PageReserved(page))
--					continue;
--				if (PageNosaveFree(page))
--					continue;
--				n++;
-+				if (!PageNosaveFree(page) && !PageReserved(page))
-+					n++;
- 			}
- 		}
-+	if (n > 0)
-+		n += (n * KMALLOC_SIZE + PAGE_SIZE - 1) / PAGE_SIZE + 1;
- 	return n;
- }
- 
-@@ -437,8 +442,14 @@
- 
- static int enough_free_mem(unsigned int nr_pages)
- {
--	pr_debug("swsusp: available memory: %u pages\n", nr_free_pages());
--	return nr_free_pages() > (nr_pages + PAGES_FOR_IO +
-+	struct zone *zone;
-+	unsigned int n = 0;
-+
-+	for_each_zone (zone)
-+		if (!is_highmem(zone))
-+			n += zone->free_pages;
-+	pr_debug("swsusp: available memory: %u pages\n", n);
-+	return n > (nr_pages + PAGES_FOR_IO +
- 		(nr_pages + PBES_PER_PAGE - 1) / PBES_PER_PAGE);
- }
- 
-Index: linux-2.6.15-rc3-mm1/kernel/power/swsusp.c
-===================================================================
---- linux-2.6.15-rc3-mm1.orig/kernel/power/swsusp.c	2005-12-03 00:14:49.000000000 +0100
-+++ linux-2.6.15-rc3-mm1/kernel/power/swsusp.c	2005-12-03 21:25:07.000000000 +0100
-@@ -635,7 +635,8 @@
- 	printk("Shrinking memory...  ");
- 	do {
- #ifdef FAST_FREE
--		tmp = count_data_pages() + count_highmem_pages();
-+		tmp = 2 * count_highmem_pages();
-+		tmp += tmp / 50 + count_data_pages();
- 		tmp += (tmp + PBES_PER_PAGE - 1) / PBES_PER_PAGE +
- 			PAGES_FOR_IO;
- 		for_each_zone (zone)
+Also, "suspend to mem" does just nothing, -- the same as "suspend to disk"
+(but for disk, it never worked at all as stated above).
+
+Any hints on where to look at?
+
+Thanks.
+
+/mjt

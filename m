@@ -1,83 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbVLDAZO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbVLDAYt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932181AbVLDAZO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 19:25:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbVLDAZO
+	id S932180AbVLDAYt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Dec 2005 19:24:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbVLDAYt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 19:25:14 -0500
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:51110 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S932181AbVLDAZL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Dec 2005 19:25:11 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH][mm][Fix] swsusp: fix counting of highmem pages
-Date: Sun, 4 Dec 2005 01:26:13 +0100
-User-Agent: KMail/1.8.3
-Cc: Andy Isaacson <adi@hexapodia.org>, LKML <linux-kernel@vger.kernel.org>
-References: <200512032140.15192.rjw@sisk.pl> <200512040102.24668.rjw@sisk.pl> <20051204001055.GE5198@elf.ucw.cz>
-In-Reply-To: <20051204001055.GE5198@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 3 Dec 2005 19:24:49 -0500
+Received: from mail.kroah.org ([69.55.234.183]:37292 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932180AbVLDAYt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 19:24:49 -0500
+Date: Sat, 3 Dec 2005 16:20:46 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+Message-ID: <20051204002043.GA1879@kroah.com>
+References: <20051203152339.GK31395@stusta.de> <20051203162755.GA31405@merlin.emma.line.org> <4391CEC7.30905@unsolicited.net> <1133630012.6724.7.camel@localhost.localdomain> <4391D335.7040008@unsolicited.net> <20051203175355.GL31395@stusta.de> <4391E52D.6020702@unsolicited.net> <20051203222731.GC25722@merlin.emma.line.org> <1133649261.5890.7.camel@mindpipe> <20051203225020.GF25722@merlin.emma.line.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200512040126.14048.rjw@sisk.pl>
+In-Reply-To: <20051203225020.GF25722@merlin.emma.line.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Dec 03, 2005 at 11:50:20PM +0100, Matthias Andree wrote:
+> The point is, removing something that has worked well enough that some
+> people had a reason to use it, is not "stable".
 
-On Sunday, 4 of December 2005 01:10, Pavel Machek wrote:
-> > > Ah, okay, I see. As long as the include hack is gone, its okay with me.
-> > 
-> > All right.  Appended is the latest version.
-> 
-> Okay, seems I'll need to get latest mm version, because this changed a
-> lot. Sorry, that will be tommorow afternoon.
+Please remember, no one is calling 2.6 "stable" anymore than they are
+calling it "development".  The current development model is different
+than what we used to do pre 2.6.  See the archives for details about
+this if you want more information.
 
-OK
+> Third, IF udev is so sexy but OTOH a real kernel-space devfs can be done
+> in 200 LoC as has been claimed so often,
 
-> > Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
-> > 
-> >  kernel/power/snapshot.c |   25 ++++++++++++++++++-------
-> >  kernel/power/swsusp.c   |    3 ++-
-> >  2 files changed, 20 insertions(+), 8 deletions(-)
-> > 
-> > Index: linux-2.6.15-rc3-mm1/kernel/power/snapshot.c
-> > ===================================================================
-> > --- linux-2.6.15-rc3-mm1.orig/kernel/power/snapshot.c	2005-12-03 00:14:49.000000000 +0100
-> > +++ linux-2.6.15-rc3-mm1/kernel/power/snapshot.c	2005-12-04 00:35:14.000000000 +0100
-> > @@ -37,6 +37,12 @@
-> > @@ -52,13 +58,12 @@
-> >  				if (!pfn_valid(pfn))
-> >  					continue;
-> >  				page = pfn_to_page(pfn);
-> > -				if (PageReserved(page))
-> > -					continue;
-> > -				if (PageNosaveFree(page))
-> > -					continue;
-> > -				n++;
-> > +				if (!PageNosaveFree(page) && !PageReserved(page))
-> > +					n++;
-> >  			}
-> 
-> As far as I can see, this does not change anything. Can you keep it
-> out?
+282 LoC:
+ drivers/base/class.c   |    7 +
+ fs/Kconfig             |    3 
+ fs/Makefile            |    1 
+ fs/ndevfs/Makefile     |    4 
+ fs/ndevfs/inode.c      |  249 +++++++++++++++++++++++++++++++++++++++++++++++++
+ fs/partitions/check.c  |    6 +
+ include/linux/ndevfs.h |   13 ++
+ 7 files changed, 282 insertions(+), 1 deletion(-)
 
-OK
+> why in hell is this not happening?
 
-> >  		}
-> > +	if (n > 0)
-> > +		n += (n * KMALLOC_SIZE + PAGE_SIZE - 1) / PAGE_SIZE + 1;
-> >  	return n;
-> >  }
-> 
-> Can't you just n += n/50 here? Playing with KMALLOC_SIZE knows way too
-> much about memory allocation details.
+Because it's not the correct solution.
 
-I do the "n + n/50" later on, so I can just drop all of the above changes
-if they are too complicated.
+> Switch "broken bloaty bulky devfs" to "lean & clean devfs"?  This ship
+> would have been flying the "clean-up nation" flags.
 
-Greetings,
-Rafael
+Again, because an in-kernel devfs is not the correct thing to do.  devfs
+has been disabled for a few months now, and I don't think anyone has
+missed it yet :)
+
+thanks,
+
+greg k-h

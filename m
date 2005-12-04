@@ -1,760 +1,269 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbVLDA2f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbVLDA2L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932183AbVLDA2f (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Dec 2005 19:28:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbVLDA2R
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Dec 2005 19:28:17 -0500
-Received: from smtp107.sbc.mail.mud.yahoo.com ([68.142.198.206]:9565 "HELO
-	smtp107.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932183AbVLDA2L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S932187AbVLDA2L (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 3 Dec 2005 19:28:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbVLDA2L
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sat, 3 Dec 2005 19:28:11 -0500
+Received: from smtp107.sbc.mail.mud.yahoo.com ([68.142.198.206]:5469 "HELO
+	smtp107.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932183AbVLDA2J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Dec 2005 19:28:09 -0500
 From: David Brownell <david-b@pacbell.net>
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [patch 2.6.15-rc3-mm1 4/4] mtd_dataflash uses spi_driver
-Date: Sat, 3 Dec 2005 16:28:07 -0800
+Subject: [patch 2.6.15-rc3-mm1 2/4] ads7836 uses spi_driver
+Date: Sat, 3 Dec 2005 16:23:53 -0800
 User-Agent: KMail/1.7.1
-Cc: Andrew Victor <andrew@sanpeople.com>, Mark Underwood <basicmark@yahoo.com>,
+Cc: Mark Underwood <basicmark@yahoo.com>,
        Stephen Street <stephen@streetfiresound.com>,
        Vitaly Wool <vwool@ru.mvista.com>
 References: <200512031556.32214.david-b@pacbell.net>
 In-Reply-To: <200512031556.32214.david-b@pacbell.net>
 MIME-Version: 1.0
-Message-Id: <200512031628.07468.david-b@pacbell.net>
+Message-Id: <200512031623.53678.david-b@pacbell.net>
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_XgjkDfcgZvidMvx"
+  boundary="Boundary-00=_ZcjkDm0odkQGHb/"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_XgjkDfcgZvidMvx
+--Boundary-00=_ZcjkDm0odkQGHb/
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-This patch should *replace* your latest mtd_dataflash patch,
-instead of applying on top of things like the preceding patches.
-(Sorry.)
-
-It does the spi_driver conversion mentioned in $SUBJECT, and
-also includes a couple other updates.  There's a bugfix in
-the READ request (don't count the 8 tx bytes with rx), a
-performance speedup in ERASE (use block erase, more or less
-eight times faster for JFFS2), and more probe() cleanups.
+This updates the ads7846 driver to match the preceding patch
+(requring spi_driver); and tweaks a handful of comments.
 
 - Dave
 
-
---Boundary-00=_XgjkDfcgZvidMvx
+--Boundary-00=_ZcjkDm0odkQGHb/
 Content-Type: text/x-diff;
   charset="us-ascii";
-  name="dataflash.patch"
+  name="ads7846-refresh.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
-	filename="dataflash.patch"
+	filename="ads7846-refresh.patch"
 
-This is a conversion of the AT91rm9200 DataFlash MTD driver to use the
-lightweight SPI framework, and no longer be AT91-specific.  It compiles
-down to less than 3KBytes on ARM.
-
-The driver allows board-specific init code to provide platform_data with
-the relevant MTD partitioning information, and hotplugs.
-
-This version has been lightly tested.  Its parent at91_dataflash driver
-has been pretty well banged on, although kernel.org JFFS2 dataflash support
-was acting broken the last time I tried it.
+This updates the ads7864 driver to use the new "spi_driver" struct,
+and includes some minor unrelated cleanup.
 
 Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 
-
---- mm-tmp.orig/drivers/mtd/devices/Kconfig	2005-12-03 14:05:42.000000000 -0800
-+++ mm-tmp/drivers/mtd/devices/Kconfig	2005-12-03 15:22:41.000000000 -0800
-@@ -255,5 +255,13 @@ config MTD_DOCPROBE_55AA
- 	  LinuxBIOS or if you need to recover a DiskOnChip Millennium on which
- 	  you have managed to wipe the first block.
+--- mm-tmp.orig/include/linux/spi/ads7846.h	2005-12-03 14:12:40.000000000 -0800
++++ mm-tmp/include/linux/spi/ads7846.h	2005-12-03 15:13:50.000000000 -0800
+@@ -1,7 +1,7 @@
+ /* linux/spi/ads7846.h */
  
-+config MTD_DATAFLASH
-+	tristate "Support for AT45xxx DataFlash"
-+	depends on MTD && SPI_MASTER && EXPERIMENTAL
-+	help
-+	  This enables access to AT45xxx DataFlash chips, using SPI.
-+	  Sometimes DataFlash chips are packaged inside MMC-format
-+	  cards; at this writing, the MMC stack won't handle those.
-+
- endmenu
+ /* Touchscreen characteristics vary between boards and models.  The
+- * platform_data for the device's "struct device" holts this information.
++ * platform_data for the device's "struct device" holds this information.
+  *
+  * It's OK if the min/max values are zero.
+  */
+--- mm-tmp.orig/drivers/input/touchscreen/ads7846.c	2005-12-03 14:12:41.000000000 -0800
++++ mm-tmp/drivers/input/touchscreen/ads7846.c	2005-12-03 15:15:00.000000000 -0800
+@@ -345,19 +345,15 @@ static irqreturn_t ads7846_irq(int irq, 
  
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ mm-tmp/include/linux/spi/flash.h	2005-12-03 15:22:41.000000000 -0800
-@@ -0,0 +1,27 @@
-+#ifndef LINUX_SPI_FLASH_H
-+#define LINUX_SPI_FLASH_H
-+
-+struct mtd_partition;
-+
-+/**
-+ * struct flash_platform_data: board-specific flash data
-+ * @name: optional flash device name (eg, as used with mtdparts=)
-+ * @parts: optional array of mtd_partitions for static partitioning
-+ * @nr_parts: number of mtd_partitions for static partitoning
-+ *
-+ * Board init code (in arch/.../mach-xxx/board-yyy.c files) can
-+ * provide information about SPI flash parts (such as DataFlash) to
-+ * help set up the device and its appropriate default partitioning.
-+ *
-+ * Note that for DataFlash, sizes for pages, blocks, and sectors are
-+ * rarely powers of two; and partitions should be sector-aligned.
-+ */
-+struct flash_platform_data {
-+	char		*name;
-+	struct mtd_partition *parts;
-+	unsigned int	nr_parts;
-+
-+	/* we'll likely add more ... use JEDEC IDs, etc */
-+};
-+
-+#endif
---- mm-tmp.orig/drivers/mtd/devices/Makefile	2005-12-03 14:05:42.000000000 -0800
-+++ mm-tmp/drivers/mtd/devices/Makefile	2005-12-03 15:22:41.000000000 -0800
-@@ -23,3 +23,4 @@ obj-$(CONFIG_MTD_MTDRAM)	+= mtdram.o
- obj-$(CONFIG_MTD_LART)		+= lart.o
- obj-$(CONFIG_MTD_BLKMTD)	+= blkmtd.o
- obj-$(CONFIG_MTD_BLOCK2MTD)	+= block2mtd.o
-+obj-$(CONFIG_MTD_DATAFLASH)	+= mtd_dataflash.o
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ mm-tmp/drivers/mtd/devices/mtd_dataflash.c	2005-12-03 15:23:23.000000000 -0800
-@@ -0,0 +1,633 @@
-+/*
-+ * Atmel AT45xxx DataFlash MTD driver for lightweight SPI framework
-+ *
-+ * Largely derived from at91_dataflash.c:
-+ *  Copyright (C) 2003-2005 SAN People (Pty) Ltd
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+*/
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <linux/delay.h>
-+#include <linux/device.h>
-+#include <linux/spi/spi.h>
-+#include <linux/spi/flash.h>
-+
-+#include <linux/mtd/mtd.h>
-+#include <linux/mtd/partitions.h>
-+
-+
-+/*
-+ * DataFlash is a kind of SPI flash.  Most AT45 chips have two buffers in
-+ * each chip, which may be used for double buffered I/O; but this driver
-+ * doesn't (yet) use these for any kind of i/o overlap or prefetching.
-+ *
-+ * Sometimes DataFlash is packaged in MMC-format cards, although the
-+ * MMC stack can't use SPI (yet), or distinguish between MMC and DataFlash
-+ * protocols during enumeration.
-+ */
-+
-+#define CONFIG_DATAFLASH_WRITE_VERIFY
-+
-+/* reads can bypass the buffers */
-+#define OP_READ_CONTINUOUS	0xE8
-+#define OP_READ_PAGE		0xD2
-+
-+/* group B requests can run even while status reports "busy" */
-+#define OP_READ_STATUS		0xD7	/* group B */
-+
-+/* move data between host and buffer */
-+#define OP_READ_BUFFER1		0xD4	/* group B */
-+#define OP_READ_BUFFER2		0xD6	/* group B */
-+#define OP_WRITE_BUFFER1	0x84	/* group B */
-+#define OP_WRITE_BUFFER2	0x87	/* group B */
-+
-+/* erasing flash */
-+#define OP_ERASE_PAGE		0x81
-+#define OP_ERASE_BLOCK		0x50
-+
-+/* move data between buffer and flash */
-+#define OP_TRANSFER_BUF1	0x53
-+#define OP_TRANSFER_BUF2	0x55
-+#define OP_MREAD_BUFFER1	0xD4
-+#define OP_MREAD_BUFFER2	0xD6
-+#define OP_MWERASE_BUFFER1	0x83
-+#define OP_MWERASE_BUFFER2	0x86
-+#define OP_MWRITE_BUFFER1	0x88	/* sector must be pre-erased */
-+#define OP_MWRITE_BUFFER2	0x89	/* sector must be pre-erased */
-+
-+/* write to buffer, then write-erase to flash */
-+#define OP_PROGRAM_VIA_BUF1	0x82
-+#define OP_PROGRAM_VIA_BUF2	0x85
-+
-+/* compare buffer to flash */
-+#define OP_COMPARE_BUF1		0x60
-+#define OP_COMPARE_BUF2		0x61
-+
-+/* read flash to buffer, then write-erase to flash */
-+#define OP_REWRITE_VIA_BUF1	0x58
-+#define OP_REWRITE_VIA_BUF2	0x59
-+
-+/* newer chips report JEDEC manufacturer and device IDs; chip
-+ * serial number and OTP bits; and per-sector writeprotect.
-+ */
-+#define OP_READ_ID		0x9F
-+#define OP_READ_SECURITY	0x77
-+#define OP_WRITE_SECURITY	0x9A	/* OTP bits */
-+
-+
-+struct dataflash {
-+	u8			command[4];
-+	char			name[24];
-+	
-+	unsigned		partitioned:1;
-+
-+	unsigned short		page_offset;	/* offset in flash address */
-+	unsigned int		page_size;	/* of bytes per page */
-+
-+	struct semaphore	lock;
-+	struct spi_device	*spi;
-+
-+	struct mtd_info		mtd;
-+};
-+
-+/* ......................................................................... */
-+
-+/*
-+ * Return the status of the DataFlash device.
-+ */
-+static inline int dataflash_status(struct spi_device *spi)
-+{
-+	/* NOTE:  at45db321c over 25 MHz wants to write
-+	 * a dummy byte after the opcode...
-+	 */
-+	return spi_w8r8(spi, OP_READ_STATUS); 
-+}
-+
-+/*
-+ * Poll the DataFlash device until it is READY.
-+ * This usually takes 5-20 msec or so; more for sector erase.
-+ */
-+static int dataflash_waitready(struct spi_device *spi)
-+{
-+	int	status;
-+
-+	for (;;) {
-+		status = dataflash_status(spi);
-+		if (status < 0) {
-+			DEBUG(MTD_DEBUG_LEVEL1, "%s: status %d?\n",
-+					spi->dev.bus_id, status);
-+			status = 0;
-+		}
-+
-+		if (status & (1 << 7))	/* RDY/nBSY */
-+			return status;
-+
-+		msleep(3);
-+	}
-+}
-+
-+/* ......................................................................... */
-+
-+/*
-+ * Erase pages of flash.
-+ */
-+static int dataflash_erase(struct mtd_info *mtd, struct erase_info *instr)
-+{
-+	struct dataflash	*priv = (struct dataflash *)mtd->priv;
-+	struct spi_device	*spi = priv->spi;
-+	struct spi_transfer	x[1] = { { .tx_dma = 0, }, };
-+	struct spi_message	msg;
-+	unsigned		blocksize = priv->page_size << 3;
-+	u8			*command;
-+
-+	DEBUG(MTD_DEBUG_LEVEL2, "%s: erase addr=0x%x len 0x%x\n",
-+			spi->dev.bus_id,
-+			instr->addr, instr->len);
-+
-+	/* Sanity checks */
-+	if ((instr->addr + instr->len) > mtd->size
-+			|| (instr->len % priv->page_size) != 0
-+			|| (instr->addr % priv->page_size) != 0)
-+		return -EINVAL;
-+
-+	x[0].tx_buf = command = priv->command;
-+	x[0].len = 4;
-+	msg.transfers = x;
-+	msg.n_transfer = 1;
-+
-+	down(&priv->lock);
-+	while (instr->len > 0) {
-+		unsigned int	pageaddr;
-+		int		status;
-+		int		do_block;
-+
-+		/* Calculate flash page address; use block erase (for speed) if
-+		 * we're at a block boundary and need to erase the whole block.
-+		 */
-+		pageaddr = instr->addr / priv->page_size;
-+		do_block = (pageaddr & 0x7) == 0 && instr->len <= blocksize;
-+		pageaddr = pageaddr << priv->page_offset;
-+
-+		command[0] = do_block ? OP_ERASE_BLOCK : OP_ERASE_PAGE;
-+		command[1] = (u8)(pageaddr >> 16);
-+		command[2] = (u8)(pageaddr >> 8);
-+		command[3] = 0;
-+
-+		DEBUG(MTD_DEBUG_LEVEL3, "ERASE %s: (%x) %x %x %x [%i]\n",
-+			do_block ? "block" : "page",
-+			command[0], command[1], command[2], command[3],
-+			pageaddr);
-+
-+		status = spi_sync(spi, &msg);
-+		(void) dataflash_waitready(spi);
-+
-+		if (status < 0) {
-+			printk(KERN_ERR "%s: erase %x, err %d\n",
-+				spi->dev.bus_id, pageaddr, status);
-+			/* REVISIT:  can retry instr->retries times; or
-+			 * giveup and instr->fail_addr = instr->addr;
-+			 */
-+			continue;
-+		}
-+
-+		if (do_block) {
-+			instr->addr += blocksize;
-+			instr->len -= blocksize;
-+		} else {
-+			instr->addr += priv->page_size;
-+			instr->len -= priv->page_size;
-+		}
-+	}
-+	up(&priv->lock);
-+
-+	/* Inform MTD subsystem that erase is complete */
-+	instr->state = MTD_ERASE_DONE;
-+	mtd_erase_callback(instr);
-+
-+	return 0;
-+}
-+
-+/*
-+ * Read from the DataFlash device.
-+ *   from   : Start offset in flash device
-+ *   len    : Amount to read
-+ *   retlen : About of data actually read
-+ *   buf    : Buffer containing the data
-+ */
-+static int dataflash_read(struct mtd_info *mtd, loff_t from, size_t len,
-+			       size_t *retlen, u_char *buf)
-+{
-+	struct dataflash	*priv = (struct dataflash *)mtd->priv;
-+	struct spi_transfer	x[2] = { { .tx_dma = 0, }, };
-+	struct spi_message	msg;
-+	unsigned int		addr;
-+	u8			*command;
-+	int			status;
-+
-+	DEBUG(MTD_DEBUG_LEVEL2, "%s: read 0x%x..0x%x\n",
-+		priv->spi->dev.bus_id, (unsigned)from, (unsigned)(from + len));
-+
-+	*retlen = 0;
-+
-+	/* Sanity checks */
-+	if (!len)
-+		return 0;
-+	if (from + len > mtd->size)
-+		return -EINVAL;
-+
-+	/* Calculate flash page/byte address */
-+	addr = (((unsigned)from / priv->page_size) << priv->page_offset)
-+		+ ((unsigned)from % priv->page_size);
-+
-+	command = priv->command;
-+
-+	DEBUG(MTD_DEBUG_LEVEL3, "READ: (%x) %x %x %x\n",
-+		command[0], command[1], command[2], command[3]);
-+
-+	x[0].tx_buf = command;
-+	x[0].len = 8;
-+	x[1].rx_buf = buf;
-+	x[1].len = len;
-+	msg.transfers = x;
-+	msg.n_transfer = 2;
-+
-+	down(&priv->lock);
-+
-+	/* Continuous read, max clock = f(car) which may be less than
-+	 * the peak rate available.  Some chips support commands with
-+	 * fewer "don't care" bytes.  Both buffers stay unchanged.
-+	 */
-+	command[0] = OP_READ_CONTINUOUS;
-+	command[1] = (u8)(addr >> 16);
-+	command[2] = (u8)(addr >> 8);
-+	command[3] = (u8)(addr >> 0);
-+	/* plus 4 "don't care" bytes */
-+
-+	status = spi_sync(priv->spi, &msg);
-+	up(&priv->lock);
-+
-+	if (status >= 0) {
-+		*retlen = msg.actual_length - 8;
-+		status = 0;
-+	} else
-+		DEBUG(MTD_DEBUG_LEVEL1, "%s: read %x..%x --> %d\n",
-+			priv->spi->dev.bus_id,
-+			(unsigned)from, (unsigned)(from + len),
-+			status);
-+	return status;
-+}
-+
-+/*
-+ * Write to the DataFlash device.
-+ *   to     : Start offset in flash device
-+ *   len    : Amount to write
-+ *   retlen : Amount of data actually written
-+ *   buf    : Buffer containing the data
-+ */
-+static int dataflash_write(struct mtd_info *mtd, loff_t to, size_t len,
-+				size_t * retlen, const u_char * buf)
-+{
-+	struct dataflash	*priv = (struct dataflash *)mtd->priv;
-+	struct spi_device	*spi = priv->spi;
-+	struct spi_transfer	x[2] = { { .tx_dma = 0, }, };
-+	struct spi_message	msg;
-+	unsigned int		pageaddr, addr, offset, writelen;
-+	size_t			remaining = len;
-+	u_char			*writebuf = (u_char *) buf;
-+	int			status = -EINVAL;
-+	u8			*command;
-+
-+	DEBUG(MTD_DEBUG_LEVEL2, "%s: write 0x%x..0x%x\n",
-+		spi->dev.bus_id, (unsigned)to, (unsigned)(to + len));
-+
-+	*retlen = 0;
-+
-+	/* Sanity checks */
-+	if (!len)
-+		return 0;
-+	if ((to + len) > mtd->size)
-+		return -EINVAL;
-+
-+	x[0].tx_buf = command = priv->command;
-+	x[0].len = 4;
-+	msg.transfers = x;
-+
-+	pageaddr = ((unsigned)to / priv->page_size);
-+	offset = ((unsigned)to % priv->page_size);
-+	if (offset + len > priv->page_size)
-+		writelen = priv->page_size - offset;
-+	else
-+		writelen = len;
-+
-+	down(&priv->lock);
-+	while (remaining > 0) {
-+		DEBUG(MTD_DEBUG_LEVEL3, "write @ %i:%i len=%i\n",
-+			pageaddr, offset, writelen);
-+
-+		/* REVISIT:
-+		 * (a) each page in a sector must be rewritten at least
-+		 *     once every 10K sibling erase/program operations.
-+		 * (b) for pages that are already erased, we could
-+		 *     use WRITE+MWRITE not PROGRAM for ~30% speedup.
-+		 * (c) WRITE to buffer could be done while waiting for
-+		 *     a previous MWRITE/MWERASE to complete ...
-+		 * (d) error handling here seems to be mostly missing.
-+		 *
-+		 * Two persistent bits per page, plus a per-sector counter,
-+		 * could support (a) and (b) ... we might consider using
-+		 * the second half of sector zero, which is just one block,
-+		 * to track that state.  (On AT91, that sector should also
-+		 * support boot-from-DataFlash.)
-+		 */
-+
-+		addr = pageaddr << priv->page_offset;
-+
-+		/* (1) Maybe transfer partial page to Buffer1 */
-+		if (writelen != priv->page_size) {
-+			command[0] = OP_TRANSFER_BUF1;
-+			command[1] = (addr & 0x00FF0000) >> 16;
-+			command[2] = (addr & 0x0000FF00) >> 8;
-+			command[3] = 0;
-+
-+			DEBUG(MTD_DEBUG_LEVEL3, "TRANSFER: (%x) %x %x %x\n",
-+				command[0], command[1], command[2], command[3]);
-+
-+			msg.n_transfer = 1;
-+			status = spi_sync(spi, &msg);
-+			if (status < 0)
-+				DEBUG(MTD_DEBUG_LEVEL1, "%s: xfer %u -> %d \n",
-+					spi->dev.bus_id, addr, status);
-+
-+			(void) dataflash_waitready(priv->spi);
-+		}
-+
-+		/* (2) Program full page via Buffer1 */
-+		addr += offset;
-+		command[0] = OP_PROGRAM_VIA_BUF1;
-+		command[1] = (addr & 0x00FF0000) >> 16;
-+		command[2] = (addr & 0x0000FF00) >> 8;
-+		command[3] = (addr & 0x000000FF);
-+
-+		DEBUG(MTD_DEBUG_LEVEL3, "PROGRAM: (%x) %x %x %x\n",
-+			command[0], command[1], command[2], command[3]);
-+
-+		x[1].tx_buf = writebuf;
-+		x[1].len = writelen;
-+		msg.n_transfer = 2;
-+		status = spi_sync(spi, &msg);
-+		if (status < 0)
-+			DEBUG(MTD_DEBUG_LEVEL1, "%s: pgm %u/%u -> %d \n",
-+				spi->dev.bus_id, addr, writelen, status);
-+
-+		(void) dataflash_waitready(priv->spi);
-+
-+#ifdef	CONFIG_DATAFLASH_WRITE_VERIFY
-+
-+		/* (3) Compare to Buffer1 */
-+		addr = pageaddr << priv->page_offset;
-+		command[0] = OP_COMPARE_BUF1;
-+		command[1] = (addr & 0x00FF0000) >> 16;
-+		command[2] = (addr & 0x0000FF00) >> 8;
-+		command[3] = 0;
-+
-+		DEBUG(MTD_DEBUG_LEVEL3, "COMPARE: (%x) %x %x %x\n",
-+			command[0], command[1], command[2], command[3]);
-+
-+		msg.n_transfer = 1;
-+		status = spi_sync(spi, &msg);
-+		if (status < 0)
-+			DEBUG(MTD_DEBUG_LEVEL1, "%s: compare %u -> %d \n",
-+				spi->dev.bus_id, addr, status);
-+
-+		status = dataflash_waitready(priv->spi);
-+
-+		/* Check result of the compare operation */
-+		if ((status & (1 << 6)) == 1) {
-+			printk(KERN_ERR "%s: compare page %u, err %d\n",
-+				spi->dev.bus_id, pageaddr, status);
-+			remaining = 0;
-+			status = -EIO;
-+			break;
-+		} else
-+			status = 0;
-+
-+#endif	/* CONFIG_DATAFLASH_WRITE_VERIFY */
-+
-+		remaining = remaining - writelen;
-+		pageaddr++;
-+		offset = 0;
-+		writebuf += writelen;
-+		*retlen += writelen;
-+
-+		if (remaining > priv->page_size)
-+			writelen = priv->page_size;
-+		else
-+			writelen = remaining;
-+	}
-+	up(&priv->lock);
-+
-+	return status;
-+}
-+
-+/* ......................................................................... */
-+
-+/*
-+ * Register DataFlash device with MTD subsystem.
-+ */
-+static int __devinit
-+add_dataflash(struct spi_device *spi, char *name,
-+		int nr_pages, int pagesize, int pageoffset)
-+{
-+	struct dataflash		*priv;
-+	struct mtd_info			*device;
-+	struct flash_platform_data	*pdata = spi->dev.platform_data;
-+
-+	priv = (struct dataflash *) kzalloc(sizeof *priv, GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+
-+	init_MUTEX(&priv->lock);
-+	priv->spi = spi;
-+	priv->page_size = pagesize;
-+	priv->page_offset = pageoffset;
-+
-+	/* name must be usable with cmdlinepart */
-+	sprintf(priv->name, "spi%d.%d-%s",
-+			spi->master->bus_num, spi->chip_select,
-+			name);
-+
-+	device = &priv->mtd;
-+	device->name = (pdata && pdata->name) ? pdata->name : priv->name;
-+	device->size = nr_pages * pagesize;
-+	device->erasesize = pagesize;
-+	device->owner = THIS_MODULE;
-+	device->type = MTD_DATAFLASH;
-+	device->flags = MTD_CAP_NORFLASH;
-+	device->erase = dataflash_erase;
-+	device->read = dataflash_read;
-+	device->write = dataflash_write;
-+	device->priv = priv;
-+
-+	dev_info(&spi->dev, "%s (%d KBytes)\n", name, device->size/1024);
-+	dev_set_drvdata(&spi->dev, priv);
-+
-+#ifdef CONFIG_MTD_PARTITIONS
-+	{
-+		struct mtd_partition	*parts;
-+		int			nr_parts = 0;
-+
-+#ifdef CONFIG_MTD_CMDLINE_PARTS
-+		static const char *part_probes[] = { "cmdlinepart", NULL, };
-+
-+		nr_parts = parse_mtd_partitions(device, part_probes, &parts, 0);
-+#endif
-+
-+		if (nr_parts <= 0 && pdata && pdata->parts) {
-+			parts = pdata->parts;
-+			nr_parts = pdata->nr_parts;
-+		}
-+
-+		if (nr_parts > 0) {
-+			priv->partitioned = 1;
-+			return add_mtd_partitions(device, parts, nr_parts);
-+		}
-+	}
-+#else
-+	if (pdata->nr_parts)
-+		dev_warn(&spi->dev, "ignoring %d default partitions on %s\n",
-+				pdata->nr_parts, device->name);
-+#endif
-+	return add_mtd_device(device) == 1 ? -ENODEV : 0;
-+}
-+
-+/*
-+ * Detect and initialize DataFlash device:
-+ *
-+ *   Device      Density         ID code          #Pages PageSize  Offset
-+ *   AT45DB011B  1Mbit   (128K)  xx0011xx (0x0c)    512    264      9
-+ *   AT45DB021B  2Mbit   (256K)  xx0101xx (0x14)   1025    264      9
-+ *   AT45DB041B  4Mbit   (512K)  xx0111xx (0x1c)   2048    264      9
-+ *   AT45DB081B  8Mbit   (1M)    xx1001xx (0x24)   4096    264      9
-+ *   AT45DB0161B 16Mbit  (2M)    xx1011xx (0x2c)   4096    528     10
-+ *   AT45DB0321B 32Mbit  (4M)    xx1101xx (0x34)   8192    528     10
-+ *   AT45DB0642  64Mbit  (8M)    xx111xxx (0x3c)   8192   1056     11
-+ *   AT45DB1282  128Mbit (16M)   xx0100xx (0x10)  16384   1056     11
-+ */
-+static int __devinit dataflash_probe(struct spi_device *spi)
-+{
-+	int status;
-+
-+	status = dataflash_status(spi);
-+	if (status <= 0 || status == 0xff) {
-+		DEBUG(MTD_DEBUG_LEVEL1, "%s: status error %d\n",
-+				spi->dev.bus_id, status);
-+		if (status == 0xff)
-+			status = -ENODEV;
-+		return status;
-+	}
-+
-+	/* if there's a device there, assume it's dataflash.
-+	 * board setup should have set spi->max_speed_max to
-+	 * match f(car) for continuous reads, mode 0 or 3.
-+	 */
-+	switch (status & 0x3c) {
-+	case 0x0c:	/* 0 0 1 1 x x */
-+		status = add_dataflash(spi, "AT45DB011B", 512, 264, 9);
-+		break;
-+	case 0x14:	/* 0 1 0 1 x x */
-+		status = add_dataflash(spi, "AT45DB021B", 1025, 264, 9);
-+		break;
-+	case 0x1c:	/* 0 1 1 1 x x */
-+		status = add_dataflash(spi, "AT45DB041x", 2048, 264, 9);
-+		break;
-+	case 0x24:	/* 1 0 0 1 x x */
-+		status = add_dataflash(spi, "AT45DB081B", 4096, 264, 9);
-+		break;
-+	case 0x2c:	/* 1 0 1 1 x x */
-+		status = add_dataflash(spi, "AT45DB161x", 4096, 528, 10);
-+		break;
-+	case 0x34:	/* 1 1 0 1 x x */
-+		status = add_dataflash(spi, "AT45DB321x", 8192, 528, 10);
-+		break;
-+	case 0x38:	/* 1 1 1 x x x */
-+	case 0x3c:
-+		status = add_dataflash(spi, "AT45DB642x", 8192, 1056, 11);
-+		break;
-+	/* obsolete AT45DB1282 not (yet?) supported */
-+	default:
-+		DEBUG(MTD_DEBUG_LEVEL1, "%s: unsupported device (%x)\n",
-+				spi->dev.bus_id, status & 0x3c);
-+		status = -ENODEV;
-+	}
-+
-+	if (status < 0)
-+		DEBUG(MTD_DEBUG_LEVEL1, "%s: add_dataflash --> %d\n",
-+				spi->dev.bus_id, status);
-+
-+#ifdef	DATAFLASH_TEST
-+	else {
-+		struct dataflash	*flash;
-+
-+		flash = dev_get_drvdata(&spi->dev);
-+
-+		dataflash_test1(flash);
-+		dataflash_test2(flash);
-+	}
-+#endif
-+
-+	return status;
-+}
-+
-+static int __devexit dataflash_remove(struct spi_device *spi)
-+{
-+	struct dataflash	*flash = dev_get_drvdata(&spi->dev);
-+	int			status;
-+
-+	DEBUG(MTD_DEBUG_LEVEL1, "%s: remove\n", spi->dev.bus_id);
-+
-+#ifdef CONFIG_MTD_PARTITIONS
-+	if (flash->partitioned)
-+		status = del_mtd_partitions(&flash->mtd);
-+	else
-+#endif
-+		status = del_mtd_device(&flash->mtd);
-+	if (status == 0)
-+		kfree(flash);
-+	return status;
-+}
-+
-+static struct spi_driver dataflash_driver = {
+ /*--------------------------------------------------------------------------*/
+ 
+-/* non-empty "extra" is needed before 2.6.14-git5 or so */
+-#define	EXTRA	//	, u32 level
+-#define	EXTRA2	//	, 0
+-
+ static int
+-ads7846_suspend(struct device *dev, pm_message_t message EXTRA)
++ads7846_suspend(struct spi_device *spi, pm_message_t message)
+ {
+-	struct ads7846 *ts = dev_get_drvdata(dev);
++	struct ads7846 *ts = dev_get_drvdata(&spi->dev);
+ 	unsigned long	flags;
+ 
+ 	spin_lock_irqsave(&ts->lock, flags);
+ 
+-	ts->spi->dev.power.power_state = message;
++	spi->dev.power.power_state = message;
+ 
+ 	/* are we waiting for IRQ, or polling? */
+ 	if (!ts->pendown) {
+@@ -387,36 +383,35 @@ ads7846_suspend(struct device *dev, pm_m
+ 	return 0;
+ }
+ 
+-static int ads7846_resume(struct device *dev EXTRA)
++static int ads7846_resume(struct spi_device *spi)
+ {
+-	struct ads7846 *ts = dev_get_drvdata(dev);
++	struct ads7846 *ts = dev_get_drvdata(&spi->dev);
+ 
+ 	ts->irq_disabled = 0;
+ 	enable_irq(ts->spi->irq);
+-	dev->power.power_state = PMSG_ON;
++	spi->dev.power.power_state = PMSG_ON;
+ 	return 0;
+ }
+ 
+-static int __init ads7846_probe(struct device *dev)
++static int __devinit ads7846_probe(struct spi_device *spi)
+ {
+-	struct spi_device		*spi = to_spi_device(dev);
+ 	struct ads7846			*ts;
+-	struct ads7846_platform_data	*pdata = dev->platform_data;
++	struct ads7846_platform_data	*pdata = spi->dev.platform_data;
+ 	struct spi_transfer		*x;
+ 
+ 	if (!spi->irq) {
+-		dev_dbg(dev, "no IRQ?\n");
++		dev_dbg(&spi->dev, "no IRQ?\n");
+ 		return -ENODEV;
+ 	}
+ 
+ 	if (!pdata) {
+-		dev_dbg(dev, "no platform data?\n");
++		dev_dbg(&spi->dev, "no platform data?\n");
+ 		return -ENODEV;
+ 	}
+ 
+ 	/* don't exceed max specified sample rate */
+ 	if (spi->max_speed_hz > (125000 * 16)) {
+-		dev_dbg(dev, "f(sample) %d KHz?\n",
++		dev_dbg(&spi->dev, "f(sample) %d KHz?\n",
+ 				(spi->max_speed_hz/16)/1000);
+ 		return -EINVAL;
+ 	}
+@@ -430,7 +425,7 @@ static int __init ads7846_probe(struct d
+ 	if (!(ts = kzalloc(sizeof(struct ads7846), GFP_KERNEL)))
+ 		return -ENOMEM;
+ 
+-	dev_set_drvdata(dev, ts);
++	dev_set_drvdata(&spi->dev, ts);
+ 
+ 	ts->spi = spi;
+ 	spi->dev.power.power_state = PMSG_ON;
+@@ -445,9 +440,9 @@ static int __init ads7846_probe(struct d
+ 
+ 	init_input_dev(&ts->input);
+ 
+-	ts->input.dev = dev;
++	ts->input.dev = &spi->dev;
+ 	ts->input.name = "ADS784x Touchscreen";
+-	snprintf(ts->phys, sizeof ts->phys, "%s/input0", dev->bus_id);
++	snprintf(ts->phys, sizeof ts->phys, "%s/input0", spi->dev.bus_id);
+ 	ts->input.phys = ts->phys;
+ 
+ 	ts->input.evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
+@@ -511,65 +506,68 @@ static int __init ads7846_probe(struct d
+ 	ts->msg.context = ts;
+ 
+ 	if (request_irq(spi->irq, ads7846_irq, SA_SAMPLE_RANDOM,
+-				dev->bus_id, ts)) {
+-		dev_dbg(dev, "irq %d busy?\n", spi->irq);
++				spi->dev.bus_id, ts)) {
++		dev_dbg(&spi->dev, "irq %d busy?\n", spi->irq);
+ 		input_unregister_device(&ts->input);
+ 		kfree(ts);
+ 		return -EBUSY;
+ 	}
+ 	set_irq_type(spi->irq, IRQT_FALLING);
+ 
+-	dev_info(dev, "touchscreen, irq %d\n", spi->irq);
++	dev_info(&spi->dev, "touchscreen, irq %d\n", spi->irq);
+ 
+ 	/* take a first sample, leaving nPENIRQ active; avoid
+ 	 * the touchscreen, in case it's not connected.
+ 	 */
+-	(void) ads7846_read12_ser(dev,
++	(void) ads7846_read12_ser(&spi->dev,
+ 			  READ_12BIT_SER(vaux) | ADS_PD10_ALL_ON);
+ 
+ 	/* ads7843/7845 don't have temperature sensors, and
+ 	 * use the other sensors a bit differently too
+ 	 */
+ 	if (ts->model == 7846) {
+-		device_create_file(dev, &dev_attr_temp0);
+-		device_create_file(dev, &dev_attr_temp1);
++		device_create_file(&spi->dev, &dev_attr_temp0);
++		device_create_file(&spi->dev, &dev_attr_temp1);
+ 	}
+ 	if (ts->model != 7845)
+-		device_create_file(dev, &dev_attr_vbatt);
+-	device_create_file(dev, &dev_attr_vaux);
++		device_create_file(&spi->dev, &dev_attr_vbatt);
++	device_create_file(&spi->dev, &dev_attr_vaux);
+ 
+ 	return 0;
+ }
+ 
+-static int __exit ads7846_remove(struct device *dev)
++static int __devexit ads7846_remove(struct spi_device *spi)
+ {
+-	struct ads7846		*ts = dev_get_drvdata(dev);
++	struct ads7846		*ts = dev_get_drvdata(&spi->dev);
+ 
+-	ads7846_suspend(dev, PMSG_SUSPEND EXTRA2);
++	ads7846_suspend(spi, PMSG_SUSPEND);
+ 	free_irq(ts->spi->irq, ts);
+ 	if (ts->irq_disabled)
+ 		enable_irq(ts->spi->irq);
+ 
+ 	if (ts->model == 7846) {
+-		device_remove_file(dev, &dev_attr_temp0);
+-		device_remove_file(dev, &dev_attr_temp1);
++		device_remove_file(&spi->dev, &dev_attr_temp0);
++		device_remove_file(&spi->dev, &dev_attr_temp1);
+ 	}
+ 	if (ts->model != 7845)
+-		device_remove_file(dev, &dev_attr_vbatt);
+-	device_remove_file(dev, &dev_attr_vaux);
++		device_remove_file(&spi->dev, &dev_attr_vbatt);
++	device_remove_file(&spi->dev, &dev_attr_vaux);
+ 
+ 	input_unregister_device(&ts->input);
+ 	kfree(ts);
+ 
+-	dev_dbg(dev, "unregistered touchscreen\n");
++	dev_dbg(&spi->dev, "unregistered touchscreen\n");
+ 	return 0;
+ }
+ 
+-static struct device_driver ads7846_driver = {
+-	.name		= "ads7846",
+-	.bus		= &spi_bus_type,
++static struct spi_driver ads7846_driver = {
 +	.driver = {
-+		.name		= "mtd_dataflash",
-+		.bus		= &spi_bus_type,
-+		.owner		= THIS_MODULE,
++		.name	= "ads7846",
++		.bus	= &spi_bus_type,
++		.owner	= THIS_MODULE,
 +	},
+ 	.probe		= ads7846_probe,
+-	.remove		= __exit_p(ads7846_remove),
++	.remove		= __devexit_p(ads7846_remove),
+ 	.suspend	= ads7846_suspend,
+ 	.resume		= ads7846_resume,
+ };
+@@ -594,18 +592,20 @@ static int __init ads7846_init(void)
+ 	// PXA:
+ 	// also Dell Axim X50
+ 	// also HP iPaq H191x/H192x/H415x/H435x
+-	// also Intel Lubbock (alternate to UCB1400)
++	// also Intel Lubbock (additional to UCB1400; as temperature sensor)
+ 	// also Sharp Zaurus C7xx, C8xx (corgi/sheperd/husky)
+ 
++	// Atmel at91sam9261-EK uses ads7843
 +
-+	.probe		= dataflash_probe,
-+	.remove		= __devexit_p(dataflash_remove),
-+
-+	/* FIXME:  investigate suspend and resume... */
-+};
-+
-+static int __init dataflash_init(void)
-+{
-+	return spi_register_driver(&dataflash_driver);
-+}
-+module_init(dataflash_init);
-+
-+static void __exit dataflash_exit(void)
-+{
-+	spi_unregister_driver(&dataflash_driver);
-+}
-+module_exit(dataflash_exit);
-+
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Andrew Victor, David Brownell");
-+MODULE_DESCRIPTION("MTD DataFlash driver");
+ 	// also various AMD Au1x00 devel boards
+ 
+-	return driver_register(&ads7846_driver);
++	return spi_register_driver(&ads7846_driver);
+ }
+ module_init(ads7846_init);
+ 
+ static void __exit ads7846_exit(void)
+ {
+-	driver_unregister(&ads7846_driver);
++	spi_unregister_driver(&ads7846_driver);
+ 
+ #ifdef	CONFIG_ARCH_OMAP
+ 	if (machine_is_omap_osk()) {
 
---Boundary-00=_XgjkDfcgZvidMvx--
+--Boundary-00=_ZcjkDm0odkQGHb/--

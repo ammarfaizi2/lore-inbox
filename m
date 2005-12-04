@@ -1,53 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932322AbVLDUN6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbVLDUVT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932322AbVLDUN6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 15:13:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbVLDUN6
+	id S932227AbVLDUVT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 15:21:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbVLDUVT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 15:13:58 -0500
-Received: from mx2.suse.de ([195.135.220.15]:56023 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932322AbVLDUN5 (ORCPT
+	Sun, 4 Dec 2005 15:21:19 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:19179 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932227AbVLDUVS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 15:13:57 -0500
-Date: Sun, 4 Dec 2005 21:13:42 +0100
-From: Andi Kleen <ak@suse.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Andi Kleen <ak@suse.de>,
-       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
-       Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
-       cpufreq <cpufreq@www.linux.org.uk>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] CPU frequency display in /proc/cpuinfo
-Message-ID: <20051204201342.GF14247@wotan.suse.de>
-References: <20051202181927.GD9766@wotan.suse.de> <20051202104320.A5234@unix-os.sc.intel.com> <20051204164335.GB32492@isilmar.linta.de> <20051204183239.GE14247@wotan.suse.de> <1133725767.19768.12.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1133725767.19768.12.camel@mindpipe>
+	Sun, 4 Dec 2005 15:21:18 -0500
+Date: Sun, 4 Dec 2005 15:20:55 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@cuia.boston.redhat.com
+To: anil dahiya <ak_ait@yahoo.com>
+cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
+Subject: Re: virtual interface mac adress
+In-Reply-To: <20051204192958.64093.qmail@web60214.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.63.0512041520320.29211@cuia.boston.redhat.com>
+References: <20051204192958.64093.qmail@web60214.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 04, 2005 at 02:49:26PM -0500, Lee Revell wrote:
-> On Sun, 2005-12-04 at 19:32 +0100, Andi Kleen wrote:
-> > On Sun, Dec 04, 2005 at 05:43:35PM +0100, Dominik Brodowski wrote:
-> > > On Fri, Dec 02, 2005 at 10:43:20AM -0800, Venkatesh Pallipadi wrote:
-> > > > The patch below changes this to:
-> > > > Show the last known frequency of the particular CPU, when cpufreq is present. If
-> > > > cpu doesnot support changing of frequency through cpufreq, then boot frequency 
-> > > > will be shown. The patch affects i386, x86_64 and ia64 architectures.
-> > > 
-> > > Looks good to me -- however, might this affect userspace cpufreq tools? I'd
-> > 
-> > They normally use /sys anyways.
-> 
-> Wrong, lots of userspace programs that need to know the CPU speed get it
-> from /proc/cpuinfo.  It would be nice if there were a better API.
+On Sun, 4 Dec 2005, anil dahiya wrote:
 
-Talking about user space governours - I presume that is what 
-Dominik ment with "userspace cpufreq tools"
+> I want to assign mac addres to virtual adpater and mac
+> address should be like that if it should not create
+> problem in arp resoultion(i.e. mac address should be
+> as real card which able to comunicate  on lan )
 
-> As long as you don't change the file format it should be OK.
+You may be able to get away with using a MAC address
+inside the OUI range that XenSource registered.
 
-Great that we have your approval.
-
--Andi
+-- 
+All Rights Reversed

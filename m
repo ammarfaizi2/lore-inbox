@@ -1,66 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbVLDWvg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932372AbVLDXA4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932361AbVLDWvg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 17:51:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbVLDWvg
+	id S932372AbVLDXA4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 18:00:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbVLDXAy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 17:51:36 -0500
-Received: from hobbit.corpit.ru ([81.13.94.6]:44888 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S932361AbVLDWvf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 17:51:35 -0500
-Message-ID: <386F0C1C.1040509@tls.msk.ru>
-Date: Sun, 02 Jan 2000 11:28:12 +0300
-From: Michael Tokarev <mjt@tls.msk.ru>
-Organization: Telecom Service, JSC
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
+	Sun, 4 Dec 2005 18:00:54 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:52905 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S932368AbVLDXAx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 18:00:53 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 2/2][Fix][mm] swsusp: fix enough_free_mem
+Date: Mon, 5 Dec 2005 00:00:35 +0100
+User-Agent: KMail/1.9
+Cc: LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@suse.cz>
+References: <200512042346.11731.rjw@sisk.pl>
+In-Reply-To: <200512042346.11731.rjw@sisk.pl>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Could not suspend device [VIA UHCI USB controller]: error -22
-References: <43923479.3020305@tls.msk.ru> <20051204003130.GB1879@kroah.com>
-In-Reply-To: <20051204003130.GB1879@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512050000.35842.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Sun, Dec 04, 2005 at 03:12:41AM +0300, Michael Tokarev wrote:
-> 
->>When I try to "standby" (echo standby > /sys/power/state)
->>a 2.6.14 system running on a VIA C3-based system with VIA
->>chipset (suspend to disk never worked on this system --
->>as stated on swsusp website it's due to the lack of some
->>CPU instruction on this CPU [but winXP suspends to disk
->>on this system just fine]), it immediately comes back, with
->>the above error message:
-> 
-> Can you try 2.6.15-rc4 or newer to see if that fixes this issue for you?
+This patch fixes a problem with the function enough_free_mem() used by
+swsusp to verify if there is a sufficient number of memory pages available to
+it to create and save the suspend image.
 
-Yes, 2.6.15-rc4 restores previous functionality - the error in
-$subject is now gone, and it seems the system goes to standby
-as it should, without errors and 'standby process interruptions'.
-Thanks.
+Namely, enough_free_mem() uses nr_free_pages() to obtain the number
+of free memory pages, which is incorrect, because this function returns the
+total number of free pages, including free highmem pages, and the highmem
+pages cannot be used by swsusp for storing the image data.
 
-With the only problem which was here all the time - it comes "back
-to C" after less a secound all the disks/monitor/etc are placed
-into sleep mode..  Ie,
+The patch makes enough_free_mem() avoid counting the free highmem
+pages as available to swsusp.
 
-  ..preparing for standby...
-  ..hdd stops spinning..
-  ..monitor is turned off..
-  ..less-than-a-secound-pause..
-  Back to C!
-  ..the system goes back, restoring interrupts etc...
 
-I tried various 'wakeup' settings in bios, incl. turning everything
-off in that menu - no difference.
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
 
-The same behaviour is shown by all 2.6 kernels I tried so far
-(since 2.6.6 or so).
+ kernel/power/snapshot.c |   10 ++++++++--
+ 1 files changed, 8 insertions(+), 2 deletions(-)
 
-BTW.. It looks like i should change the $subject now.. ;)
-
-/mjt
+Index: linux-2.6.15-rc3-mm1/kernel/power/snapshot.c
+===================================================================
+--- linux-2.6.15-rc3-mm1.orig/kernel/power/snapshot.c	2005-12-04 14:24:10.000000000 +0100
++++ linux-2.6.15-rc3-mm1/kernel/power/snapshot.c	2005-12-04 14:38:58.000000000 +0100
+@@ -437,8 +437,14 @@
+ 
+ static int enough_free_mem(unsigned int nr_pages)
+ {
+-	pr_debug("swsusp: available memory: %u pages\n", nr_free_pages());
+-	return nr_free_pages() > (nr_pages + PAGES_FOR_IO +
++	struct zone *zone;
++	unsigned int n = 0;
++
++	for_each_zone (zone)
++		if (!is_highmem(zone))
++			n += zone->free_pages;
++	pr_debug("swsusp: available memory: %u pages\n", n);
++	return n > (nr_pages + PAGES_FOR_IO +
+ 		(nr_pages + PBES_PER_PAGE - 1) / PBES_PER_PAGE);
+ }
+ 

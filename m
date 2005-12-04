@@ -1,27 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbVLDVER@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbVLDVNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932350AbVLDVER (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 16:04:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbVLDVER
+	id S932287AbVLDVNF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 16:13:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbVLDVNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 16:04:17 -0500
-Received: from hulk.hostingexpert.com ([69.57.134.39]:56148 "EHLO
+	Sun, 4 Dec 2005 16:13:05 -0500
+Received: from hulk.hostingexpert.com ([69.57.134.39]:61637 "EHLO
 	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S932350AbVLDVEQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 16:04:16 -0500
-Message-ID: <43935A15.8010706@m1k.net>
-Date: Sun, 04 Dec 2005 16:05:25 -0500
+	id S932287AbVLDVNE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 16:13:04 -0500
+Message-ID: <43935C29.3050602@m1k.net>
+Date: Sun, 04 Dec 2005 16:14:17 -0500
 From: Michael Krufky <mkrufky@m1k.net>
 User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Otavio Salvador <otavio@debian.org>
+To: Gene Heskett <gene.heskett@verizon.net>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 9/11] MEDIA: replace all uses of pci_module_init with
- pci_register_driver
-References: <11336254301170-git-send-email-otavio@debian.org>
-In-Reply-To: <11336254301170-git-send-email-otavio@debian.org>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+Subject: Re: Linux 2.6.15-rc5: off-line for a week
+References: <Pine.LNX.4.64.0512032155290.3099@g5.osdl.org> <200512041034.14146.gene.heskett@verizon.net> <43933A8C.2090606@m1k.net> <200512041547.05151.gene.heskett@verizon.net>
+In-Reply-To: <200512041547.05151.gene.heskett@verizon.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
@@ -34,89 +33,102 @@ X-Source-Dir:
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Otavio Salvador wrote:
+Gene Heskett wrote:
 
->This patch replace all calls to pci_module_init, that's deprecated and
->will be removed in future, with pci_register_driver that should be
->the used function now.
->
->Signed-off-by: Otavio Salvador <otavio@debian.org>
+>On Sunday 04 December 2005 13:50, Michael Krufky wrote:
 >  
 >
-Acked-by: Michael Krufky <mkrufky@linuxtv.org>
-
+>>Gene Heskett wrote:
+>>    
+>>
+>>>On Sunday 04 December 2005 01:03, Linus Torvalds wrote:
+>>>      
+>>>
+>>>>There's a rc5 out there now, largely because I'm going to be out of
+>>>>email contact for the next week, and while I wish people were
+>>>>religiously testing all the nightly snapshots, the fact is, you guys
+>>>>don't.
+>>>>        
+>>>>
+>>>Ahh Linus, but sometimes we do!  In any case, rc5 is missing this
+>>>patch, the  "v4l_ena_tda9887.patch" reproduced below:
+>>>
+>>>Index: linux/drivers/media/video/cx88/cx88-cards.c
+>>>===================================================================
+>>>RCS file:
+>>>/cvs/video4linux/v4l-dvb/linux/drivers/media/video/cx88/cx88-cards.c,v
+>>>retrieving revision 1.108
+>>>diff -u -p -r1.108 cx88-cards.c
+>>>--- linux/drivers/media/video/cx88/cx88-cards.c 25 Nov 2005 10:24:13
+>>>-0000      1.108
+>>>+++ linux/drivers/media/video/cx88/cx88-cards.c 1 Dec 2005 20:56:43
+>>>-0000
+>>>@@ -569,6 +569,7 @@ struct cx88_board cx88_boards[] = {
+>>>               .radio_type     = UNSET,
+>>>               .tuner_addr     = ADDR_UNSET,
+>>>               .radio_addr     = ADDR_UNSET,
+>>>+               .tda9887_conf   = TDA9887_PRESENT,
+>>>               .input          = {{
+>>>                       .type   = CX88_VMUX_TELEVISION,
+>>>                       .vmux   = 0,
+>>>----------
+>>>So my pcHDTV-3000 card is once again disabled.
+>>>      
+>>>
+>>NACK.
+>>
+>>Linus, Please DO NOT apply this as it is here... This same change above
+>>had to also be applied to the FusionHDTV3 Gold-T ...
+>>    
+>>
 >
->---
+>And several others if I read the threads here correctly.
 >
-> drivers/media/radio/radio-gemtek-pci.c     |    2 +-
-> drivers/media/radio/radio-maxiradio.c      |    2 +-
-> drivers/media/video/bttv-driver.c          |    2 +-
-> drivers/media/video/saa7134/saa7134-core.c |    2 +-
-> 4 files changed, 4 insertions(+), 4 deletions(-)
->
->applies-to: f72516fc599b70f5507e6cf69b256b0da72b3646
->fc3bbed930173e0784960f17cf67c229e652f6a0
->diff --git a/drivers/media/radio/radio-gemtek-pci.c b/drivers/media/radio/radio-gemtek-pci.c
->index 630cc78..78b2888 100644
->--- a/drivers/media/radio/radio-gemtek-pci.c
->+++ b/drivers/media/radio/radio-gemtek-pci.c
->@@ -394,7 +394,7 @@ static struct pci_driver gemtek_pci_driv
-> 
-> static int __init gemtek_pci_init_module( void )
-> {
->-	return pci_module_init( &gemtek_pci_driver );
->+	return pci_register_driver( &gemtek_pci_driver );
-> }
-> 
-> static void __exit gemtek_pci_cleanup_module( void )
->diff --git a/drivers/media/radio/radio-maxiradio.c b/drivers/media/radio/radio-maxiradio.c
->index 02d39a5..7b33d8f 100644
->--- a/drivers/media/radio/radio-maxiradio.c
->+++ b/drivers/media/radio/radio-maxiradio.c
->@@ -337,7 +337,7 @@ static struct pci_driver maxiradio_drive
-> 
-> static int __init maxiradio_radio_init(void)
-> {
->-	return pci_module_init(&maxiradio_driver);
->+	return pci_register_driver(&maxiradio_driver);
-> }
-> 
-> static void __exit maxiradio_radio_exit(void)
->diff --git a/drivers/media/video/bttv-driver.c b/drivers/media/video/bttv-driver.c
->index 3c58a2a..cfb720d 100644
->--- a/drivers/media/video/bttv-driver.c
->+++ b/drivers/media/video/bttv-driver.c
->@@ -4253,7 +4253,7 @@ static int bttv_init_module(void)
-> 	bttv_check_chipset();
-> 
-> 	bus_register(&bttv_sub_bus_type);
->-	return pci_module_init(&bttv_pci_driver);
->+	return pci_register_driver(&bttv_pci_driver);
-> }
-> 
-> static void bttv_cleanup_module(void)
->diff --git a/drivers/media/video/saa7134/saa7134-core.c b/drivers/media/video/saa7134/saa7134-core.c
->index 1a093bf..18aa5d4 100644
->--- a/drivers/media/video/saa7134/saa7134-core.c
->+++ b/drivers/media/video/saa7134/saa7134-core.c
->@@ -1155,7 +1155,7 @@ static int saa7134_init(void)
-> 	printk(KERN_INFO "saa7130/34: snapshot date %04d-%02d-%02d\n",
-> 	       SNAPSHOT/10000, (SNAPSHOT/100)%100, SNAPSHOT%100);
-> #endif
->-	return pci_module_init(&saa7134_pci_driver);
->+	return pci_register_driver(&saa7134_pci_driver);
-> }
-> 
-> static void saa7134_fini(void)
->---
->0.99.9k
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
 >  
 >
+>>I've already
+>>applied the appropriate changes to cvs, and Mauro told me that he has
+>>mailed the patches to Andrew, although I do not see them here yet on
+>>LKML ....
+>>
+>>I get the feeling you're not even close to releasing 2.6.15, so I'm
+>>sure the bugfix that Gene is waiting for will make it over to your
+>>tree soon, along with some other small v4l fixes that we had to make
+>>in order to account for changes in -rc4.
+>>
+>>Gene, in the meantime, you can fix your situation without changing any
+>>code by simply issuing the following command:
+>>
+>>modprobe tda9887
+>>
+>>Ta - da! Magic!
+>>    
+>>
+>
+>Before, or after, the "modprobe cx88-dvb" in my rc.local that loads it
+>all, ask somewhat tongue in cheek, because I already rebuilt
+>and rebooted to the fixed version.  It Just Works(TM) :-)  But I'll try
+>that for rc6 if it doesn't work.
+>
+>  
+>
+>>Cheers,
+>>
+>>Michael Krufky
+>>    
+>>
+>
+>  
+>
+AFTER.
 
+...but it's moot. Linus has already applied the correct fix from Mauro 
+and I, 1st patch after -rc5:
+
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=e4f5c82a92c2a546a16af1614114eec19120e40a
+
+:-)
+
+Cheers,
+
+-Mike

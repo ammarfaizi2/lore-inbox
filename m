@@ -1,54 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbVLEXSI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbVLEXXs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964826AbVLEXSI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 18:18:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbVLEXSH
+	id S964857AbVLEXXs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 18:23:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964855AbVLEXXs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 18:18:07 -0500
-Received: from nproxy.gmail.com ([64.233.182.204]:53915 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964826AbVLEXSG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 18:18:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gXw4Qz5zugN+gHKyLDcB7R5wVFjzoEL0xJ3e8KTYaMgfSp20hTc2iboV37PRv73kFOLy1TIGLGyGDnUJ/K9FjCiW2AKptRzsDMhtikU97sZMqztW/9cqKDDN8kV9e16ktURX+XaXn3RgzauZGAHytHTVs21g+wB2rCjJzLl4sOE=
-Message-ID: <58cb370e0512051518j35885be1j44f7846e2d27c63d@mail.gmail.com>
-Date: Tue, 6 Dec 2005 00:18:03 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: "Marco d'Itri" <md@linux.it>
-Subject: Re: ide: MODALIAS support for autoloading of ide-cd, ide-disk, ...
-Cc: Kay Sievers <kay.sievers@vrfy.org>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-In-Reply-To: <20051205182856.GB8827@wonderland.linux.it>
+	Mon, 5 Dec 2005 18:23:48 -0500
+Received: from cassiel.sirena.org.uk ([80.68.93.111]:13583 "EHLO
+	cassiel.sirena.org.uk") by vger.kernel.org with ESMTP
+	id S964848AbVLEXXq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 18:23:46 -0500
+Date: Mon, 5 Dec 2005 23:23:01 +0000
+From: Mark Brown <broonie@sirena.org.uk>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Tim Hockin <thockin@hockin.org>,
+       Harald Welte <laforge@gnumonks.org>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] natsemi: NAPI support
+Message-ID: <20051205232301.GA4551@sirena.org.uk>
+Mail-Followup-To: Francois Romieu <romieu@fr.zoreil.com>,
+	Jeff Garzik <jgarzik@pobox.com>, Tim Hockin <thockin@hockin.org>,
+	Harald Welte <laforge@gnumonks.org>, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <20051204224734.GA12962@sirena.org.uk> <20051204231209.GA28949@electric-eye.fr.zoreil.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="KsGdsel6WgEHnImy"
 Content-Disposition: inline
-References: <20051203172418.GA12297@vrfy.org>
-	 <58cb370e0512050024s647fdc5eg8d0c2e60dd7867dd@mail.gmail.com>
-	 <20051205182856.GB8827@wonderland.linux.it>
+In-Reply-To: <20051204231209.GA28949@electric-eye.fr.zoreil.com>
+X-Cookie: Rubber bands have snappy endings!
+User-Agent: Mutt/1.5.11
+X-Spam-Score: -2.4 (--)
+X-Spam-Report: Spam detection software, running on the system "cassiel.sirena.org.uk", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  On Mon, Dec 05, 2005 at 12:12:09AM +0100, Francois 
+	Romieu wrote: > -> netif_poll_disable() may sleep while a spinlock is 
+	held. So it can, thanks. [...] 
+	Content analysis details:   (-2.4 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/5/05, Marco d'Itri <md@linux.it> wrote:
-> On Dec 05, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
->
-> > Looks fine but what about ide-scsi driver and ide_optical media?
-> The Debian hotplug script, which does the same thing, does not know
-> about these modules and nobody ever complained, so if some support is
 
-Does the hotplug script export kernel sysfs attributes?
+--KsGdsel6WgEHnImy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> needed it can be added later.
+On Mon, Dec 05, 2005 at 12:12:09AM +0100, Francois Romieu wrote:
 
-The problem is that you get wrong data for "modalias" sysfs attribute
-for ide-scsi module (because "modalias" is based on the media type).
+> -> netif_poll_disable() may sleep while a spinlock is held.
 
-Until this is issue solved I can't accept this patch.
+So it can, thanks.
 
-> (And ide-scsi is dead anyway...)
+> Btw, the poll/close routines seem racy with each other.
 
-ide-scsi is the only way to support some devices currently
+I had been under the impression that the stack was supposed to make sure
+that no poll() is running before the driver close() gets called?  I
+could well be missing something there, though.  Indeed, now that I think
+about it the calls netif_poll_disable() in suspend() ought to mean that
+we don't need to look at hands_off inside poll().
 
-Bartlomiej
+--=20
+"You grabbed my hand and we fell into it, like a daydream - or a fever."
+
+--KsGdsel6WgEHnImy
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iQCVAwUBQ5TL0w2erOLNe+68AQJaEAP/UO3bW/DMlaja/hXTTaP0mfEnjJx2JB5o
+wO5lIJjldC+NKiOOk/bMPmjJfh9u5rUXC/vGJiBvH1y6ton0WAWCbcdrV8XPVSYw
+dRBqAetDsNJ1QpGm3FsI7K1Clz+VE9ZdnlmGMMNlifCyP6oVC9jzr9HC7hhWb7M0
+HlbjZxmRNHQ=
+=BEhk
+-----END PGP SIGNATURE-----
+
+--KsGdsel6WgEHnImy--

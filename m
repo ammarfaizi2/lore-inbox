@@ -1,147 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbVLENGd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932404AbVLENC3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932399AbVLENGd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 08:06:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbVLENGd
+	id S932404AbVLENC3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 08:02:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbVLENC2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 08:06:33 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:4238 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S932399AbVLENGc (ORCPT
+	Mon, 5 Dec 2005 08:02:28 -0500
+Received: from dtp.xs4all.nl ([80.126.206.180]:12635 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S932404AbVLENC2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 08:06:32 -0500
-Subject: [RFC PATCH 0/8] LED Class, Triggers and Drivers
-From: Richard Purdie <rpurdie@rpsys.net>
-To: LKML <linux-kernel@vger.kernel.org>, Russell King <rmk@arm.linux.org.uk>,
-       John Lenz <lenz@cs.wisc.edu>, Pavel Machek <pavel@suse.cz>
-Content-Type: text/plain
-Date: Mon, 05 Dec 2005 13:05:21 +0000
-Message-Id: <1133787921.8101.105.camel@localhost.localdomain>
+	Mon, 5 Dec 2005 08:02:28 -0500
+Date: Mon, 5 Dec 2005 14:02:24 +0100
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Dave Jones <davej@redhat.com>, Lee Revell <rlrevell@joe-job.com>,
+       Andi Kleen <ak@suse.de>,
+       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+       Andrew Morton <akpm@osdl.org>, cpufreq <cpufreq@www.linux.org.uk>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] CPU frequency display in /proc/cpuinfo
+Message-ID: <20051205130224.GC17993@harddisk-recovery.com>
+References: <20051202181927.GD9766@wotan.suse.de> <20051202104320.A5234@unix-os.sc.intel.com> <20051204164335.GB32492@isilmar.linta.de> <20051204183239.GE14247@wotan.suse.de> <1133725767.19768.12.camel@mindpipe> <20051205011611.GA12664@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051205011611.GA12664@redhat.com>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've implemented the LED related ideas which were mentioned recently and
-this patch series is a proposed LED subsystem implementation. It takes
-John Lenz's work and extends and alters it a bit to give what I think
-should be a fairly universal LED implementation.
+On Sun, Dec 04, 2005 at 08:16:11PM -0500, Dave Jones wrote:
+> I can't think of a single valid reason why a program would want
+> to know the MHz rating of a CPU. Given that it's a) approximate,
+> b) subject to change due to power management, c) completely nonsensical
+> across CPU vendors, and d) only one of many variables regarding CPU
+> performance, any program that bases any decision on the values found
+> by parsing that field of /proc/cpuinfo is utterly broken beyond belief.
 
-The series consists of several logical units:
+If you want a userspace governor to change the CPU speed, you need to
+export the value to userland. There are several papers showing[1] that
+such speed scheduling should be done by power-aware applications which
+need to tell the OS what speed they require to run to meet their
+processing needs.
 
-* LED Core + Class implementation
-* LED Trigger Core implementation:
-* LED Timer trigger (example of a complex trigger)
-* LED Device drivers for corgi and spitz Zaurus models
-* LED Device driver for locomo LEDs
-* Zaurus Charging LED trigger
-* IDE disk activity LED trigger
-* NAND MTD activity LED trigger:
-
-
-(Note: The Zaurus charging trigger patch applies after
-http://www.rpsys.net/openzaurus/patches/sharpsl_pm_move-r0.patch but is
-included as example code for completeness.)
+I agree that /proc/cpuinfo shouldn't be used (though it is a nice
+interface for humans to read about the CPU speed), but the current
+sysfs interface should do.
 
 
-Why?
-====
+Erik
 
-LEDs are really simple devices usually amounting to a GPIO that can be
-turned on and off so why do we need all this code? On handheld or
-embedded devices they're an important part of an often limited user
-interface. Both users and developers want to be able to control and
-configure what the LED does and the number of different things they'd
-potentially want the LED to show is large. 
+[1] See for example
+http://www.pds.twi.tudelft.nl/~pouwelse/energy_priority_scheduling.ps.gz
+http://www.pds.twi.tudelft.nl/~pouwelse/power_aware_video_decoding.ps
 
-A subsystem is needed to try and provide all this different
-functionality in an architecture independent, simple but complete,
-generic and scalable manner.
-
-The alternative is for everyone to implement just what they need hidden
-away in different corners of the kernel source tree and to provide an
-inconsistent interface to userspace.
-
-
-Other Implementations
-=====================
-
-I'm aware of the existing arm led implementation. Currently the new
-subsystem and the arm code can coexist quite happily. Its up to the arm
-community to decide whether this new interface is acceptable to them. As
-far as I can see, the new interface can do everything the existing arm
-implementation can with the advantage that the new code is architecture
-independent and much more generic configurable and scalable.
-
-I'm prepared to make the conversion to the LED subsystem (or assist with
-it) if appropriate.
-
-
-Implementation Details
-======================
-
-I've stripped a lot of code out of John's original LED class. Colours
-were removed as LED colour is now part of the device name. Multiple
-colours are to be handled as multiple led devices. This means you get
-full control over each colour. I also removed the LED hardware timer
-code as the generic timer isn't going to add much overhead and is just
-as useful. I also decided to have the LED core track the current LED
-status (to ease suspend/resume handling) removing the need for
-brightness_get implementations in the LED drivers.
-
-An underlying design philosophy is simplicity. The aim is to keep a
-small amount of code giving as much functionality as possible.
-
-The major new idea is the led "trigger". A trigger is a source of led
-events. Triggers can either be simple or complex. A simple trigger isn't
-configurable and is designed to slot into existing subsystems with
-minimal additional code. Examples are the ide-disk, nand-disk and
-zaurus-charging triggers. With leds disabled, the code optimises away.
-Examples are nand-disk and ide-disk.
-
-Complex triggers whilst available to all LEDs have LED specific
-parameters and work on a per LED basis. The timer trigger is an example.
-
-You can change triggers in a similar manner to the way an IO scheduler
-is chosen (via /sys/class/leds/somedevice/trigger).
-
-So far there are only a handful of examples but it should easy to add
-further LED triggers without too much interference into other
-subsystems.
-
-
-Known Issues
-============
-
-The LED Trigger core cannot be a module as the simple trigger functions
-would cause nightmare dependency issues. I see this as a minor issue
-compared to the benefits the simple trigger functionality brings. The
-rest of the LED subsystem can be modular.
-
-Some leds can be programmed to flash in hardware. As this isn't a
-generic LED device property, I think this should be exported as a device
-specific sysfs attribute rather than part of the class if this
-functionality is required (eg. to keep the led flashing whilst the
-device is suspended).
-
-
-Future Development
-==================
-
-At the moment, a trigger can't be created specifically for a single LED.
-There are a number of cases where a trigger might only be mappable to a
-particular LED. The addition of triggers provided by the LED driver
-should cover this option and be possible to add without breaking the
-current interface.
-
-The need for a timer with a duty cycle other than 50% has been
-mentioned. Due to the added complexity, I think this should be in the
-form of a new complex trigger similar to the existing timer trigger. 
-
-
-Richard
-
-
-
-
-
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

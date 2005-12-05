@@ -1,65 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbVLEO7V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751374AbVLEPFb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932436AbVLEO7V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 09:59:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbVLEO7V
+	id S1751374AbVLEPFb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 10:05:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbVLEPFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 09:59:21 -0500
-Received: from webapps.arcom.com ([194.200.159.168]:54542 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S932432AbVLEO7U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 09:59:20 -0500
-Message-ID: <439455BC.4080908@cantab.net>
-Date: Mon, 05 Dec 2005 14:59:08 +0000
-From: David Vrabel <dvrabel@cantab.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Mon, 5 Dec 2005 10:05:31 -0500
+Received: from web30607.mail.mud.yahoo.com ([68.142.200.130]:4788 "HELO
+	web30607.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751374AbVLEPFb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 10:05:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=bc9l3iQ4+HPeF6iDx0C0WEwqfPUctkFkLGnw8Nkx3/oThf0jM456dWCD2Tlb2Zo6mwO4oygHVQXHmPNbEHxri4S5cER3P+coIpg8hGIjw+VIc464QMiose0KKpAZp7Hy5H04DEkwyZbjsUeMNxMxwhYufLG6OLFx/n2SF44m+5Q=  ;
+Message-ID: <20051205150530.91163.qmail@web30607.mail.mud.yahoo.com>
+Date: Mon, 5 Dec 2005 16:05:30 +0100 (CET)
+From: zine el abidine Hamid <zine46@yahoo.fr>
+Subject: Re: Kernel BUG at page_alloc.c:117!
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1133792907.9356.26.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-To: Richard Purdie <rpurdie@rpsys.net>
-CC: LKML <linux-kernel@vger.kernel.org>, Russell King <rmk@arm.linux.org.uk>,
-       John Lenz <lenz@cs.wisc.edu>, Pavel Machek <pavel@suse.cz>
-Subject: Re: [RFC PATCH 1/8] LED: Add LED Class
-References: <1133788166.8101.125.camel@localhost.localdomain>
-In-Reply-To: <1133788166.8101.125.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Dec 2005 15:01:34.0515 (UTC) FILETIME=[C899F030:01C5F9AC]
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This LED subsystem isn't usable with LEDs that are controlled by I2C
-GPIO devices.  Getting rid of (struct led_device).lock would go some way
-to making it work.  It's not clear to me why it's needed anyway.
+Indeed, I tested the application with a 2.4.22 kernel
+and it seems to work; but I'm not the author of this
+application.
 
-Suspend and resume probably needs to be LED specific.
+The module "wdpiano" is C programme which allow us to
+use the Watch-Dog Timer of the mother board (ROCKY
+3703EVR).
 
-Richard Purdie wrote:
-> Index: linux-2.6.15-rc2/drivers/leds/Kconfig
-> ===================================================================
-> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> +++ linux-2.6.15-rc2/drivers/leds/Kconfig	2005-12-05 11:29:19.000000000 +0000
-> @@ -0,0 +1,18 @@
-> +
-> +menu "LED devices"
-> +
-> +config NEW_LEDS
 
-Is there a better name than NEW_LEDS?  It won't be 'new' for very long...
+Zine
 
-> Index: linux-2.6.15-rc2/include/linux/leds.h
-> ===================================================================
-> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> +++ linux-2.6.15-rc2/include/linux/leds.h	2005-12-05 11:29:19.000000000 +0000
-> [...]
-> +	/* A function to set the brightness of the led.
-> +	 * Values are between 0-100 */
-> +	void (*brightness_set)(struct led_device *led_dev, int value);
+PS : The user's manual definition of The Watch-Dog
+Timer is : "a device to ensure thet standalone systems
+can always recover from abnormal conditions that cause
+the system to crash. These conditions may result from
+an external EMI or software bug."
 
-0-255 is probably a better range to use.  Might be worth having an enum
-like.
+--- Arjan van de Ven <arjan@infradead.org> a écrit :
 
-enum led_brightness {
-	LED_OFF = 0, LED_HALF_BRIGHT = 127, LED_FULL_BRIGHT = 255,
-};
+> On Mon, 2005-12-05 at 15:25 +0100, zine el abidine
+> Hamid wrote:
+> > 
+> > I have to use the 2.4.18 kernel because We use an
+> > application which is build on this kernel.
+> 
+> the good news is that userspace applications are not
+> kernel version
+> specific! At least in general; there are some low
+> level system tools
+> that sometimes are impacted (these are usually the
+> "kernel helpers" like
+> the insmod tool or udev). Regular applications work
+> on just about any
+> kernel; applications written for linux in 1994 still
+> work on 2.6
+> kernels!
+> 
+> > The module are the next one (lsmod):
+> > 
+> > Module                  Size  Used by    Not
+> tainted
+> > wdpiano                 1920   0  (unused)
+> 
+> what is this?
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-David Vrabel
+
+
+	
+
+	
+		
+___________________________________________________________________________ 
+Appel audio GRATUIT partout dans le monde avec le nouveau Yahoo! Messenger 
+Téléchargez cette version sur http://fr.messenger.yahoo.com

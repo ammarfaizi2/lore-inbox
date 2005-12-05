@@ -1,58 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932476AbVLER2N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbVLER3k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932476AbVLER2N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 12:28:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbVLER2M
+	id S932472AbVLER3k (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 12:29:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbVLER3k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 12:28:12 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:8678 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932477AbVLER2K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 12:28:10 -0500
-Date: Mon, 5 Dec 2005 12:27:54 -0500
-From: Dave Jones <davej@redhat.com>
-To: Avi Kivity <avi@argo.co.il>
-Cc: Lee Revell <rlrevell@joe-job.com>, Andi Kleen <ak@suse.de>,
-       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
-       Andrew Morton <akpm@osdl.org>, cpufreq <cpufreq@www.linux.org.uk>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] CPU frequency display in /proc/cpuinfo
-Message-ID: <20051205172754.GD12664@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Avi Kivity <avi@argo.co.il>, Lee Revell <rlrevell@joe-job.com>,
-	Andi Kleen <ak@suse.de>,
-	Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
-	Andrew Morton <akpm@osdl.org>, cpufreq <cpufreq@www.linux.org.uk>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20051202181927.GD9766@wotan.suse.de> <20051202104320.A5234@unix-os.sc.intel.com> <20051204164335.GB32492@isilmar.linta.de> <20051204183239.GE14247@wotan.suse.de> <1133725767.19768.12.camel@mindpipe> <20051205011611.GA12664@redhat.com> <43946ACE.9040405@argo.co.il>
+	Mon, 5 Dec 2005 12:29:40 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:45764 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S932472AbVLER3j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 12:29:39 -0500
+Date: Mon, 5 Dec 2005 18:29:38 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: Andy Isaacson <adi@hexapodia.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: swsusp performance problems in 2.6.15-rc3-mm1
+Message-ID: <20051205172938.GC25114@atrey.karlin.mff.cuni.cz>
+References: <20051205081935.GI22168@hexapodia.org> <20051205121728.GF5509@elf.ucw.cz> <1133791084.3872.53.camel@laptop.cunninghams>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43946ACE.9040405@argo.co.il>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <1133791084.3872.53.camel@laptop.cunninghams>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 05, 2005 at 06:29:02PM +0200, Avi Kivity wrote:
- > Dave Jones wrote:
- > 
- > >I can't think of a single valid reason why a program would want
- > >to know the MHz rating of a CPU. Given that it's a) approximate,
- > >b) subject to change due to power management, c) completely nonsensical
- > >across CPU vendors, and d) only one of many variables regarding CPU
- > >performance, any program that bases any decision on the values found
- > >by parsing that field of /proc/cpuinfo is utterly broken beyond belief.
- > > 
- > >
- > Sometimes you need extremely low overhead time measurements, which need 
- > not be too accurate. One way to do this is to dump rdtsc measurements 
- > into some array, and later scale it using the cpu frequency.
- > 
- > I've done exactly this. The processes were pinned to their processors, 
- > and there was no frequency scaling in effect. It worked very well.
+Hi!
 
-That code will break as soon as it's run on a CPU that uses P-states.
-You can't "just scale" the value, there are other factors at work.
+[BTW right function to modify is swsusp_shrink_memory, it is quite
+clear what it is doing, so finding formula that frees enough to make
+it fast but not so much to make it unresponsive should be easy.]
 
-		Dave
+> > Other possible ideas are:
+> > 
+> > * get suspend to RAM working if you want it *really* fast :-)
+> 
+> That's not apples with apples though. If you have a hopeless battery, as
+> many do, suspend to ram is only good if you're moving from one power
+> point to another.
 
+Yes, it is not completely fair. But as I started to use X32 with good
+battery... well I'm not really using swsusp any more.
+
+> > * compress the image. Needs to be done in userspace, so it needs
+> > uswsusp to be merged, first. Patches for that are available. Should
+> > speed it up about twice.
+> 
+> That's not true at all. You have cryptoapi in kernel space and can
+> easily use it - it's very similar code to what you already have for
+> encryption. You won't get double the speed with with the deflate
+> compressor - more like 2 or 3MB/s :(. Suspend2 gets double the speed
+> because we use lzf, which is a logically distinction addition
+> (implemented now as another cryptoapi plugin).
+
+Well, 3MB/sec improvement will save him  seconds on 20, or something
+like that, so I guess LZF *is* a way to go, and I'd like to keep that
+out of kernel. And I will not accept compression into mainline swsusp;
+did that experiment with encryption once already, and I did not like
+the result much.
+
+If goal is "make it work with least effort", answer is of course
+suspend2; but I need someone to help me doing it right.
+
+> > * and of course you can apply one very big patch and do all of the
+> > above :-).
+> 
+> Could you stop being nasty, please?
+
+Sorry, I was trying to be funny.
+								Pavel
+-- 
+Boycott Kodak -- for their patent abuse against Java.

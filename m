@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932502AbVLEVQ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932508AbVLEVTM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932502AbVLEVQ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 16:16:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932508AbVLEVQ3
+	id S932508AbVLEVTM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 16:19:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbVLEVTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 16:16:29 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:41174 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932502AbVLEVQ3 (ORCPT
+	Mon, 5 Dec 2005 16:19:12 -0500
+Received: from pat.uio.no ([129.240.130.16]:54480 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932508AbVLEVTK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 16:16:29 -0500
-Date: Mon, 5 Dec 2005 22:16:02 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux list <linux-kernel@vger.kernel.org>, ck list <ck@vds.kolivas.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       Tony Lindgren <tony@atomide.com>, vatsa@in.ibm.com,
-       Daniel Petrini <d.pensator@gmail.com>, acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] [PATCH] i386 No Idle HZ aka dynticks v051205
-Message-ID: <20051205211602.GB1728@elf.ucw.cz>
-References: <200512051154.45500.kernel@kolivas.org>
+	Mon, 5 Dec 2005 16:19:10 -0500
+Subject: Re: nfs unhappiness with memory pressure
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Kenny Simpson <theonetruekenny@yahoo.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <4394A87E.7050507@yahoo.com.au>
+References: <20051205180139.64009.qmail@web34114.mail.mud.yahoo.com>
+	 <1133813590.12393.7.camel@lade.trondhjem.org>
+	 <1133814806.12393.10.camel@lade.trondhjem.org>
+	 <4394A87E.7050507@yahoo.com.au>
+Content-Type: text/plain
+Date: Mon, 05 Dec 2005 16:18:56 -0500
+Message-Id: <1133817536.12393.21.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200512051154.45500.kernel@kolivas.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.712, required 12,
+	autolearn=disabled, AWL 1.29, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 2005-12-06 at 07:52 +1100, Nick Piggin wrote:
 
-> The main change to this version is the inclusion of Dominik's patches to
-> cpufreq ondemand, acpi c-states and bus mastering which should start making
-> the potential power saving features of dyntick a reality (thanks!).
-> One buildfix for !CONFIG_NO_IDLE_HZ as well.
-> 
-> If you get strange stalls with this patch then almost certainly it is a
-> problem with dynticks and your apic so booting with the "noapic" option
-> should fix it.
-> 
-> Split out patches, timertop and pmstats utilities and latest patch available
-> here:
-> http://ck.kolivas.org/patches/dyn-ticks/
-> 
-> FAQ:
-> What Hz should I use with dynticks in the config?
-> 1000 to realise the benefits of the power saving features and low latency.
-> 
-> Should I enable timer statistics?
-> Only if you're planning on using the timertop utility to help you recognise
-> the biggest sources of timers currently in use to help you improve power
-> savings.
+> The VM doesn't expect to have to rely on pdflush to write out pages
+> for it. ->writepage should be enough. Adding wakeup_pdflush here
+> actually could do the wrong thing for non-NFS filesystems if it
+> starts more writeback.
 
-Strange. It works okay here (thinkpad x32, configured SMP), but
-something strange is going on with cursor. I use softcursor (normal
-underline but highlight background), and underline no longer blinks
-over it.
+nr_unstable is not going to be set for non-NFS filesystems. 'unstable'
+is a caching state in which pages have been written out to the NFS
+server, but the server has not yet flushed the data to disk.
 
-Try:
+Cheers,
+  Trond
 
-    echo -e "\33[10;5000]\33[11;50]\33[?18;0;136c\33[?102m"
-
-on vanilla and no-idle-hz kernels to see what I mean. I'm using
-framebuffer console here.
-							Pavel
--- 
-Thanks, Sharp!

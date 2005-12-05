@@ -1,69 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932444AbVLEPcE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbVLEPas@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932444AbVLEPcE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 10:32:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbVLEPcD
+	id S932443AbVLEPas (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 10:30:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbVLEPas
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 10:32:03 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:15337 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932444AbVLEPcC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 10:32:02 -0500
-Subject: Re: [PATCH] CPU frequency display in /proc/cpuinfo
-From: Lee Revell <rlrevell@joe-job.com>
-To: Dave Jones <davej@redhat.com>
-Cc: Andi Kleen <ak@suse.de>,
-       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
-       Andrew Morton <akpm@osdl.org>, cpufreq <cpufreq@www.linux.org.uk>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051205011611.GA12664@redhat.com>
-References: <20051202181927.GD9766@wotan.suse.de>
-	 <20051202104320.A5234@unix-os.sc.intel.com>
-	 <20051204164335.GB32492@isilmar.linta.de>
-	 <20051204183239.GE14247@wotan.suse.de> <1133725767.19768.12.camel@mindpipe>
-	 <20051205011611.GA12664@redhat.com>
-Content-Type: text/plain
-Date: Mon, 05 Dec 2005 10:32:27 -0500
-Message-Id: <1133796748.21641.8.camel@mindpipe>
+	Mon, 5 Dec 2005 10:30:48 -0500
+Received: from alfie.demon.co.uk ([80.177.172.67]:61457 "EHLO
+	alfie.demon.co.uk") by vger.kernel.org with ESMTP id S932443AbVLEPar
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 10:30:47 -0500
+Date: Mon, 5 Dec 2005 15:27:58 +0000
+From: Nick Holloway <Nick.Holloway@pyrites.org.uk>
+To: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: [PATCH 2.6.15-rc4 1/1] cpia: use vm_insert_page() instead of remap_pfn_range()
+Message-ID: <20051205152758.GA29108@pyrites.org.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-12-04 at 20:16 -0500, Dave Jones wrote:
-> On Sun, Dec 04, 2005 at 02:49:26PM -0500, Lee Revell wrote:
->  > On Sun, 2005-12-04 at 19:32 +0100, Andi Kleen wrote:
->  > > On Sun, Dec 04, 2005 at 05:43:35PM +0100, Dominik Brodowski wrote:
->  > > > On Fri, Dec 02, 2005 at 10:43:20AM -0800, Venkatesh Pallipadi wrote:
->  > > > > The patch below changes this to:
->  > > > > Show the last known frequency of the particular CPU, when cpufreq is present. If
->  > > > > cpu doesnot support changing of frequency through cpufreq, then boot frequency 
->  > > > > will be shown. The patch affects i386, x86_64 and ia64 architectures.
->  > > > 
->  > > > Looks good to me -- however, might this affect userspace cpufreq tools? I'd
->  > > 
->  > > They normally use /sys anyways.
->  > 
->  > Wrong, lots of userspace programs that need to know the CPU speed get it
->  > from /proc/cpuinfo.  It would be nice if there were a better API.
-> 
-> I can't think of a single valid reason why a program would want
-> to know the MHz rating of a CPU. Given that it's a) approximate,
-> b) subject to change due to power management, c) completely nonsensical
-> across CPU vendors, and d) only one of many variables regarding CPU
-> performance, any program that bases any decision on the values found
-> by parsing that field of /proc/cpuinfo is utterly broken beyond belief.
+Use vm_insert_page() instead of remap_pfn_range(), and remove
+the PageReserved fiddling.
 
-JACK needs to know the CPU speed in order to be able to use RDTSC for
-timing.  Yes that might be "broken" but gettimeofday() is simply not
-fast enough for our use, we can't afford the overhead of thousands of
-system calls per second.  And until recently 99.999% of desktop machines
-had a monotonic TSC so this worked very well.
+Signed-off-by: Nick Holloway <Nick.Holloway@pyrites.org.uk>
 
-I don't see how people can say that gettimeofday() is as fast as the
-hardware allows, when gettimeofday() just uses RDTSC to interpolate
-since the last timer tick but is ~40x slower than RDTSC on my system.
+---
 
-Lee
+Although the cpia driver functioned correctly after printing out the
+"incomplete pfn remapping" message, I thought I would have a go at the
+trivial conversion'' as I have access to the hardware.
 
+Driver has been tested with a parport CPIA camera (using "motion").
+
+ cpia.c |   22 ++++------------------
+ 1 files changed, 4 insertions(+), 18 deletions(-)
+
+--- linux-2.6.15-rc4/drivers/media/video/cpia.c~	2005-12-03 10:04:33.000000000 +0000
++++ linux-2.6.15-rc4/drivers/media/video/cpia.c	2005-12-05 11:20:57.000000000 +0000
+@@ -219,7 +219,6 @@ static void set_flicker(struct cam_param
+ static void *rvmalloc(unsigned long size)
+ {
+ 	void *mem;
+-	unsigned long adr;
+ 
+ 	size = PAGE_ALIGN(size);
+ 	mem = vmalloc_32(size);
+@@ -227,29 +226,15 @@ static void *rvmalloc(unsigned long size
+ 		return NULL;
+ 
+ 	memset(mem, 0, size); /* Clear the ram out, no junk to the user */
+-	adr = (unsigned long) mem;
+-	while (size > 0) {
+-		SetPageReserved(vmalloc_to_page((void *)adr));
+-		adr += PAGE_SIZE;
+-		size -= PAGE_SIZE;
+-	}
+ 
+ 	return mem;
+ }
+ 
+ static void rvfree(void *mem, unsigned long size)
+ {
+-	unsigned long adr;
+-
+ 	if (!mem)
+ 		return;
+ 
+-	adr = (unsigned long) mem;
+-	while ((long) size > 0) {
+-		ClearPageReserved(vmalloc_to_page((void *)adr));
+-		adr += PAGE_SIZE;
+-		size -= PAGE_SIZE;
+-	}
+ 	vfree(mem);
+ }
+ 
+@@ -3753,7 +3738,8 @@ static int cpia_mmap(struct file *file, 
+ 	struct video_device *dev = file->private_data;
+ 	unsigned long start = vma->vm_start;
+ 	unsigned long size  = vma->vm_end - vma->vm_start;
+-	unsigned long page, pos;
++	unsigned long pos;
++	struct page* page;
+ 	struct cam_data *cam = dev->priv;
+ 	int retval;
+ 
+@@ -3781,8 +3767,8 @@ static int cpia_mmap(struct file *file, 
+ 
+ 	pos = (unsigned long)(cam->frame_buf);
+ 	while (size > 0) {
+-		page = vmalloc_to_pfn((void *)pos);
+-		if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED)) {
++		page = vmalloc_to_page((void *)pos);
++		if (vm_insert_page(vma, start, page)) {
+ 			up(&cam->busy_lock);
+ 			return -EAGAIN;
+ 		}
+
+-- 
+ `O O'  | Nick.Holloway@pyrites.org.uk
+// ^ \\ | http://www.pyrites.org.uk/

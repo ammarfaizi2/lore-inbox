@@ -1,93 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbVLEPQW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932441AbVLEPRz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932439AbVLEPQW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 10:16:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbVLEPQW
+	id S932441AbVLEPRz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 10:17:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbVLEPRz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 10:16:22 -0500
-Received: from mx01.qsc.de ([213.148.129.14]:14738 "EHLO mx01.qsc.de")
-	by vger.kernel.org with ESMTP id S932439AbVLEPQV (ORCPT
+	Mon, 5 Dec 2005 10:17:55 -0500
+Received: from unthought.net ([212.97.129.88]:58634 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S932441AbVLEPRy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 10:16:21 -0500
-From: =?iso-8859-1?q?Ren=E9_Rebe?= <rene@exactcode.de>
-Organization: ExactCode
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [discuss] Re: [PATCH] x86_64: Test patch for ATI/Nvidia timer problems
-Date: Mon, 5 Dec 2005 16:14:48 +0100
-User-Agent: KMail/1.8.3
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
-References: <20051126142030.GA26449@wotan.suse.de> <200511271502.18782.rene@exactcode.de> <20051127141155.GI20775@brahms.suse.de>
-In-Reply-To: <20051127141155.GI20775@brahms.suse.de>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1232762.cV4Td8U7uQ";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200512051614.52620.rene@exactcode.de>
-X-Spam-Score: -1.4 (-)
-X-Spam-Report: Spam detection software, running on the system "grum.localhost", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Hi, On Sunday 27 November 2005 15:11, Andi Kleen wrote:
-	> > > But it worked properly before suspend/resume without noapic? > > >
-	> Without noapic the timer has about the 2x speed compared to real-time.
-	I > > only used the machien with noapic since otherwise it is barely
-	useful. > > It has that still with the patch applied? The patch was
-	supposed > to fix that at least part of that problem on ATI systems >
-	(there seems to be also a timer miscalibration problem on some other >
-	laptops) [...] 
-	Content analysis details:   (-1.4 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
+	Mon, 5 Dec 2005 10:17:54 -0500
+Date: Mon, 5 Dec 2005 16:17:53 +0100
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Greg KH <greg@kroah.com>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+Message-ID: <20051205151753.GB4179@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Greg KH <greg@kroah.com>, Jesper Juhl <jesper.juhl@gmail.com>,
+	Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+References: <20051203135608.GJ31395@stusta.de> <9a8748490512030629t16d0b9ebv279064245743e001@mail.gmail.com> <20051203201945.GA4182@kroah.com> <20051204170049.GA4179@unthought.net> <20051204223931.GA8914@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051204223931.GA8914@kroah.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1232762.cV4Td8U7uQ
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Sun, Dec 04, 2005 at 02:39:31PM -0800, Greg KH wrote:
+> On Sun, Dec 04, 2005 at 06:00:49PM +0100, Jakob Oestergaard wrote:
+> > 
+> > If the kernel was stable (reliability wise - as in "not crashing") then
+> > you'd be perfectly right.
+> 
+> But isn't it? :)
 
-Hi,
+I like your sense of humor :)
 
-On Sunday 27 November 2005 15:11, Andi Kleen wrote:
+> > In the real world, however, admins currently need to pick out specific
+> > versions of the kernel for specific workloads (try running a large
+> > fileserver on anything but 2.6.11.11 for example - any earlier or later
+> > kernel will barf reliably.
+> 
+> Have you filed a but at bugzilla.kernel.org about this?  If not, how do
+> you expect it to get fixed?
 
-> > > But it worked properly before suspend/resume without noapic?=20
-> >=20
-> > Without noapic the timer has about the 2x speed compared to real-time. I
-> > only used the machien with noapic since otherwise it is barely useful.
->=20
-> It has that still with the patch applied? The patch was supposed
-> to fix that at least part of that problem on ATI systems
-> (there seems to be also a timer miscalibration problem on some other
-> laptops)=20
+I don't expect to get it fixed. It's futile. It can get fixed in one
+version and broken two days later, and it seems the attitude is that
+that is just fine.
 
-Sorry for the late reply, just too much to do ... It appears my MSI Megabook
-S270 with Ati chipset and AMD Turion freezes on boot with your patch applied
-to 2.6.14.2 after the io schedulers are registered. Without the patch it bo=
-ots
-up fine.
+After a long long back-and-forth, 2.6.11 was fixed to the point where it
+could reliably serve files (at least on uniprocessor configurations -
+and in my setup I don't see problems on NUMA either, but as far as I
+know that's just me being lucky).
 
-Yours,
+Right after that, someone thought it was a great idea to pry out the PCI
+subsystem and shovel in something else.  Find, that's great for a
+development kernel, but for a kernel that's supposed to be stable it's
+just not something you can realistically do and expect things to work
+afterwards.  And things broke - try mounting 10-20 XFS filesystems
+simultaneously on 2.6.14.  Boom - PCI errors.
 
-=2D-=20
-Ren=E9 Rebe - Rubensstr. 64 - 12157 Berlin (Europe / Germany)
-            http://www.exactcode.de | http://www.t2-project.org
-            +49 (0)30  255 897 45
+Now what? Do I as a user upgrade my production environment to the latest
+and greatest kernel experiment, hope that the problems can be fixed
+quickly, and hope that I don't lose too much data in the process?
+(remember I will have people unable to do their jobs whenever the file
+server is down).   Or do I stay on 2.6.11.11 which works on this
+particular server?
 
---nextPart1232762.cV4Td8U7uQ
-Content-Type: application/pgp-signature
+I think I stay.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+> 
+> > For web serving it's another kernel that's golden, I forgot which).
+> 
+> That sounds very strange, the same kernel version should work just as
+> well for all workloads.  If not, it's a bug and should be fixed.
 
-iD8DBQBDlFlsQuICExGFvYIRAse7AJ4+bY0aA8ENvrnJWR5JwWhS6eO9CACfXDW6
-GFDUSos+SbnmWfO9JQrV3OI=
-=G+Hh
------END PGP SIGNATURE-----
+Well...  You have bugs in different places in different kernels. It's
+perfectly understandable that kernel A works for workload p and fails on
+workload q, where kernel B works for workload q and fails on p.
 
---nextPart1232762.cV4Td8U7uQ--
+> 
+> > There are very very good reasons for offering a 'stable series' in plain
+> > source-tree form - lots of admins of real-world systems need this.
+> 
+> But it sounds like you will want different stable series depending on
+> what kind of server you are running.  And that will be even more work...
+
+The idea would be to fix the actual bugs. After a while, one could have
+a kernel of higher quality with fewer bugs, making it a lot more likely
+that the *same* kernel tree could be used for both workloads A and B.
+
+It's really very simple :)
+
+Now, I'm just giving my oppinion as a user, and my advise as a developer
+- I know how much it sucks to postpone new great cleanups or features,
+just because some policy says the current branch has to be 'stable'. But
+I also know how much it sucks to have users complain that a new feature
+broke their existing setup. That's not a problem for a kernel developer
+of course, because users don't pay for the service and the "if it breaks
+you get to keep the pieces" attitude can be defended. But as a user, it
+really really sucks, even if you get to keep the pieces.
+
+I don't mean to be entirely negative - sure there are great things about
+the new development model. But there is a very significant downside for
+at least a group of users too.
+
+My 0.02 Euro, for what it's worth.
+
+-- 
+
+ / jakob
+

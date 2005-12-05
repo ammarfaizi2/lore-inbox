@@ -1,149 +1,260 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbVLETuv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbVLETv1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964774AbVLETuv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 14:50:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964777AbVLETuu
+	id S964782AbVLETv1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 14:51:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964784AbVLETvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 14:50:50 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:44457 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S964774AbVLETuu (ORCPT
+	Mon, 5 Dec 2005 14:51:22 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:2492 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S964782AbVLETvH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 14:50:50 -0500
-Date: Mon, 5 Dec 2005 11:50:35 -0800 (PST)
+	Mon, 5 Dec 2005 14:51:07 -0500
+Date: Mon, 5 Dec 2005 11:50:56 -0800 (PST)
 From: Christoph Lameter <clameter@sgi.com>
 To: akpm@osdl.org
 Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       lhms-devel@lists.sourceforge.net, Cliff Wickman <cpw@sgi.com>,
-       Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org
-Message-Id: <20051205195035.12388.68933.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 0/5] Direct Migration V6: Overview
+       Cliff Wickman <cpw@sgi.com>, linux-kernel@vger.kernel.org,
+       Christoph Lameter <clameter@sgi.com>, lhms-devel@lists.sourceforge.net
+Message-Id: <20051205195056.12388.82598.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20051205195035.12388.68933.sendpatchset@schroedinger.engr.sgi.com>
+References: <20051205195035.12388.68933.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [PATCH 4/5] Direct Migration V6: upgrade MPOL_MF_MOVE and sys_migrate_pages()
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Direct page migration allows to avoid using swap space for migration.
-This patch makes sys_migrate_pages() finally work as intended but does not
-do any significant modifications to APIs.
+Modify policy layer to support direct page migration
 
-Benefits over swap migration:
+- Add migrate_pages_to() allowing the migration of a list of pages to a
+  a specified node or to vma with a specific allocation policy in sets
+  of MIGRATE_CHUNK_SIZE pages
 
-1. It makes migrates_pages() actually migrate pages instead of just
-   swapping pages from a set of nodes out. migrate_pages() has only
-   very limited usefulness without direct migration.
+- Modify do_migrate_pages() to do a staged move of pages from the
+  source nodes to the target nodes.
 
-2. Its faster because the page does not need to be written to swap space.
+V3->V4: Fixed up to be based on the swap migration code in 2.6.15-rc1-mm2.
 
-3. It does not use swap space and therefore there is no danger of running
-   out of swap space.
+V1->V2:
+- Migrate processes in chunks of MIGRATE_CHUNK_SIZE
 
-4. The need to write back a dirty page before migration is avoided through
-   a file system specific method making page migration even faster. We
-   fall back to writeout if the filesystem does not have such a method
-   defined.
+Signed-off-by: Paul Jackson <pj@sgi.com>
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-5. Direct migration allows the preservation of the relative location of a page
-   within a set of nodes. This means that special placement of pages
-   for a performance critical application can be preserved when migrating.
-   Swap migration will rearrange the pages as they are swapped in which
-   may destroy the prior arrangement.
-
-Many of the ideas for this code were originally developed in the memory
-hotplug project and we hope that this code also will allow the hotplug
-project to build on this patch in order to get to their goals. We also
-would like to be able to move bad memory at SGI. IA64 arch specific code
-to handle bad memory exists in 2.6.15 but that code is currently not able
-to migrate pages.
-
-The patchset consists of five patches (only the first two are necessary to
-have basic direct migration support):
-
-1. SwapCache patch
-
-   SwapCache pages may have changed their type after lock_page() if the
-   page was migrated. Check for this and retry lookup if the page is no
-   longer a SwapCache page.
-
-2. migrate_pages()
-
-   Basic direct migration with fallback to swap if all other attempts
-   fail.
-
-3. remove_from_swap()
-
-   Page migration installs swap ptes for anonymous pages in order to
-   preserve the information contained in the page tables. This patch
-   removes the swap ptes after migration and replaces them with regular
-   ptes.
-
-4. upgrade of MPOL_MF_MOVE and sys_migrate_pages()
-
-   Add logic to mm/mempolicy.c to allow the policy layer to control
-   direct page migration. Thanks to Paul Jackson for the interative
-   logic to move between sets of nodes.
-
-5. buffer_migrate_pages() patch
-
-   Allow migration without writing back dirty pages. Add filesystem dependent
-   migration support for ext2/ext3 and xfs. Use swapper space to setup a
-   method to migrate anonymous pages without writeback.
-
-Credits (also in mm/vmscan.c):
-
-The idea for this scheme of page migration was first developed in the context
-of the memory hotplug project. The main authors of the migration code from
-the memory hotplug project are:
-
-IWAMOTO Toshihiro <iwamoto@valinux.co.jp>
-Hirokazu Takahashi <taka@valinux.co.jp>
-Dave Hansen <haveblue@us.ibm.com>
-
-Changes V6->V&:
-- Patchset agsinst 2.6.15-rc5-mm1
-- Fix one occurence of page->mapping in migrate_page_remove_references()
-- Update description]
-
-Changes V5->V6:
-- Patchset against 2.6.15-rc3-mm1
-- Remove checks for page count increases while migrating after Andrew assured
-  me that this cannot happen. Revise documentation to reflect that. If this is
-  the case then we will have no need to include the unwind code from the
-  hotplug project in the future.
-- Wrong reference while calling remove_from_swap to page instead of newpage
-  fixed.
-
-Changes V4->V5:
-- Patchset against 2.6.15-rc2-mm1
-- Update policy layer patch to use the generic check_range in 2.6.15-rc2-mm1.
-- Remove try_to_unmap patch since VM_RESERVED vanished under us and therefore
-  there is no point anymore to distinguish between permament and transitional
-  failures.
-
-Changes V3->V4:
-- Patchset against 2.6.15-rc1-mm2 + two swap migration fixes posted today.
-- Remove what is already in 2.6.14-rc1-mm2 which results in a significant
-  cleanup of the code.
-
-Changes V2->V3:
-- Patchset against 2.6.14-mm2
-- Fix single processor build and builds without CONFIG_MIGRATION
-- export symbols for filesystems that are modules and for
-  modules using migrate_pages().
-- Paul Jackson's cpuset migration support is in 2.6.14-mm2 so
-  this patchset can be easily applied to -mm2 to get from swap
-  based to direct page migration.
-
-Changes V1->V2:
-- Call node_remap with the right parameters in do_migrate_pages().
-- Take radix tree lock while examining page count to avoid races with
-  find_get_page() and various *_get_pages based on it.
-- Convert direct ptes to swap ptes before radix tree update to avoid
-  more races.
-- Fix problem if CONFIG_MIGRATION is off for buffer_migrate_page
-- Add documentation about page migration
-- Change migrate_pages() api so that the caller can decide what
-  to do about the migrated pages (badmem handling and hotplug
-  have to remove those pages for good).
-- Drop config patch (already in mm)
-- Add try_to_unmap patch
-- Patchset now against 2.6.14-mm1 without requiring additional patches.
-
-
+Index: linux-2.6.15-rc3-mm1/mm/mempolicy.c
+===================================================================
+--- linux-2.6.15-rc3-mm1.orig/mm/mempolicy.c	2005-11-30 08:46:40.000000000 -0800
++++ linux-2.6.15-rc3-mm1/mm/mempolicy.c	2005-11-30 08:46:55.000000000 -0800
+@@ -95,6 +95,9 @@
+ #define MPOL_MF_INVERT (MPOL_MF_INTERNAL << 1)		/* Invert check for nodemask */
+ #define MPOL_MF_STATS (MPOL_MF_INTERNAL << 2)		/* Gather statistics */
+ 
++/* The number of pages to migrate per call to migrate_pages() */
++#define MIGRATE_CHUNK_SIZE 256
++
+ static kmem_cache_t *policy_cache;
+ static kmem_cache_t *sn_cache;
+ 
+@@ -566,24 +569,96 @@ static void migrate_page_add(struct vm_a
+ 	}
+ }
+ 
+-static int swap_pages(struct list_head *pagelist)
++/*
++ * Migrate the list 'pagelist' of pages to a certain destination.
++ *
++ * Specify destination with either non-NULL vma or dest_node >= 0
++ * Return the number of pages not migrated or error code
++ */
++static int migrate_pages_to(struct list_head *pagelist,
++	struct vm_area_struct *vma, int dest)
+ {
++	LIST_HEAD(newlist);
+ 	LIST_HEAD(moved);
+ 	LIST_HEAD(failed);
+-	int n;
++	int err = 0;
++	int nr_pages;
++	struct page *page;
++	struct list_head *p;
+ 
+-	n = migrate_pages(pagelist, NULL, &moved, &failed);
+-	putback_lru_pages(&failed);
+-	putback_lru_pages(&moved);
++redo:
++	nr_pages = 0;
++	list_for_each(p, pagelist) {
++		if (vma)
++			page = alloc_page_vma(GFP_HIGHUSER, vma,
++						vma->vm_start);
++		else
++			page = alloc_pages_node(dest, GFP_HIGHUSER, 0);
+ 
+-	return n;
++		if (!page) {
++			err = -ENOMEM;
++			goto out;
++		}
++		list_add(&page->lru, &newlist);
++		nr_pages++;
++		if (nr_pages > MIGRATE_CHUNK_SIZE);
++			break;
++	}
++	err = migrate_pages(pagelist, &newlist, &moved, &failed);
++
++	putback_lru_pages(&moved);	/* Call release pages instead ?? */
++
++	if (err >= 0 && list_empty(&newlist) && !list_empty(pagelist))
++		goto redo;
++out:
++	/* Return leftover allocated pages */
++	while (!list_empty(&newlist)) {
++		page = list_entry(newlist.next, struct page, lru);
++		list_del(&page->lru);
++		__free_page(page);
++	}
++	list_splice(&failed, pagelist);
++	if (err < 0)
++		return err;
++
++	/* Calculate number of leftover pages */
++	nr_pages = 0;
++	list_for_each(p, pagelist)
++		nr_pages++;
++	return nr_pages;
++}
++
++/*
++ * Migrate pages from one node to a target node.
++ * Returns error or the number of pages not migrated.
++ */
++int migrate_to_node(struct mm_struct *mm, int source, int dest, int flags)
++{
++	nodemask_t nmask;
++	LIST_HEAD(pagelist);
++	int err = 0;
++
++	nodes_clear(nmask);
++	node_set(source, nmask);
++
++	check_range(mm, mm->mmap->vm_start, TASK_SIZE, &nmask,
++		    flags | MPOL_MF_DISCONTIG_OK,
++	            &pagelist);
++
++	if (!list_empty(&pagelist)) {
++
++		err = migrate_pages_to(&pagelist, NULL, dest);
++
++		if (!list_empty(&pagelist))
++			putback_lru_pages(&pagelist);
++
++	}
++	return err;
+ }
+ 
+ /*
+- * For now migrate_pages simply swaps out the pages from nodes that are in
+- * the source set but not in the target set. In the future, we would
+- * want a function that moves pages between the two nodesets in such
+- * a way as to preserve the physical layout as much as possible.
++ * Move pages between the two nodesets so as to preserve the physical
++ * layout as much as possible.
+  *
+  * Returns the number of page that could not be moved.
+  */
+@@ -591,22 +666,76 @@ int do_migrate_pages(struct mm_struct *m
+ 	const nodemask_t *from_nodes, const nodemask_t *to_nodes, int flags)
+ {
+ 	LIST_HEAD(pagelist);
+-	int count = 0;
+-	nodemask_t nodes;
++	int busy = 0;
++	int err = 0;
++	nodemask_t tmp;
+ 
+-	nodes_andnot(nodes, *from_nodes, *to_nodes);
++  	down_read(&mm->mmap_sem);
+ 
+-	down_read(&mm->mmap_sem);
+-	check_range(mm, mm->mmap->vm_start, TASK_SIZE, &nodes,
+-			flags | MPOL_MF_DISCONTIG_OK, &pagelist);
++/* Find a 'source' bit set in 'tmp' whose corresponding 'dest'
++ * bit in 'to' is not also set in 'tmp'.  Clear the found 'source'
++ * bit in 'tmp', and return that <source, dest> pair for migration.
++ * The pair of nodemasks 'to' and 'from' define the map.
++ *
++ * If no pair of bits is found that way, fallback to picking some
++ * pair of 'source' and 'dest' bits that are not the same.  If the
++ * 'source' and 'dest' bits are the same, this represents a node
++ * that will be migrating to itself, so no pages need move.
++ *
++ * If no bits are left in 'tmp', or if all remaining bits left
++ * in 'tmp' correspond to the same bit in 'to', return false
++ * (nothing left to migrate).
++ *
++ * This lets us pick a pair of nodes to migrate between, such that
++ * if possible the dest node is not already occupied by some other
++ * source node, minimizing the risk of overloading the memory on a
++ * node that would happen if we migrated incoming memory to a node
++ * before migrating outgoing memory source that same node.
++ *
++ * A single scan of tmp is sufficient.  As we go, we remember the
++ * most recent <s, d> pair that moved (s != d).  If we find a pair
++ * that not only moved, but what's better, moved to an empty slot
++ * (d is not set in tmp), then we break out then, with that pair.
++ * Otherwise when we finish scannng from_tmp, we at least have the
++ * most recent <s, d> pair that moved.  If we get all the way through
++ * the scan of tmp without finding any node that moved, much less
++ * moved to an empty node, then there is nothing left worth migrating.
++ */
+ 
+-	if (!list_empty(&pagelist)) {
+-		count = swap_pages(&pagelist);
+-		putback_lru_pages(&pagelist);
++	tmp = *from_nodes;
++	while (!nodes_empty(tmp)) {
++		int s,d;
++		int source = -1;
++		int dest = 0;
++
++		for_each_node_mask(s, tmp) {
++
++			d = node_remap(s, *from_nodes, *to_nodes);
++			if (s == d)
++				continue;
++
++			source = s;	/* Node moved. Memorize */
++			dest = d;
++
++			/* dest not in remaining from nodes? */
++			if (!node_isset(dest, tmp))
++				break;
++		}
++		if (source == -1)
++			break;
++
++		node_clear(source, tmp);
++		err = migrate_to_node(mm, source, dest, flags);
++		if (err > 0)
++			busy += err;
++		if (err < 0)
++			break;
+ 	}
+ 
+ 	up_read(&mm->mmap_sem);
+-	return count;
++	if (err < 0)
++		return err;
++	return busy;
+ }
+ 
+ long do_mbind(unsigned long start, unsigned long len,
+@@ -666,8 +795,9 @@ long do_mbind(unsigned long start, unsig
+ 		int nr_failed = 0;
+ 
+ 		err = mbind_range(vma, start, end, new);
++
+ 		if (!list_empty(&pagelist))
+-			nr_failed = swap_pages(&pagelist);
++			nr_failed = migrate_pages_to(&pagelist, vma, -1);
+ 
+ 		if (!err && nr_failed && (flags & MPOL_MF_STRICT))
+ 			err = -EIO;

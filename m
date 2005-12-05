@@ -1,72 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751470AbVLEVGJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751473AbVLEVHG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751470AbVLEVGJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 16:06:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751471AbVLEVGJ
+	id S1751473AbVLEVHG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 16:07:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751474AbVLEVHF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 16:06:09 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:21416 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751470AbVLEVGI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 16:06:08 -0500
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-From: Arjan van de Ven <arjan@infradead.org>
-To: Florian Weimer <fw@deneb.enyo.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <87y82z5kep.fsf@mid.deneb.enyo.de>
-References: <20051203135608.GJ31395@stusta.de>
-	 <1133620264.2171.14.camel@localhost.localdomain>
-	 <20051203193538.GM31395@stusta.de> <1133639835.16836.24.camel@mindpipe>
-	 <20051203225815.GH25722@merlin.emma.line.org>
-	 <87y82z5kep.fsf@mid.deneb.enyo.de>
-Content-Type: text/plain
-Date: Mon, 05 Dec 2005 22:06:04 +0100
-Message-Id: <1133816764.9356.72.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Mon, 5 Dec 2005 16:07:05 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:14052 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751473AbVLEVHB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 16:07:01 -0500
+Message-ID: <4394ABE1.4040008@us.ibm.com>
+Date: Mon, 05 Dec 2005 13:06:41 -0800
+From: "Darrick J. Wong" <djwong@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>,
+       Christoph Hellwig <hch@infradead.org>, Chris McDermott <lcm@us.ibm.com>,
+       Luvella McFadden <luvella@us.ibm.com>, AJ Johnson <blujuice@us.ibm.com>,
+       Kevin Stansell <kstansel@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, Mauelshagen@redhat.com
+Subject: Re: [PATCH] aic79xx should be able to ignore HostRAID enabled adapters
+References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01E9A886@otce2k03.adaptec.com> <438F4CDA.20604@pobox.com>
+In-Reply-To: <438F4CDA.20604@pobox.com>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-05 at 22:00 +0100, Florian Weimer wrote:
-> * Matthias Andree:
-> 
-> > The point that just escaped you as the motivation for this thread was
-> > the availability of security (or other critical) fixes for older
-> > kernels. It would all be fine if, say, the fix for CVE-2004-2492 were
-> > available for those who find 2.6.8 works for them (the fix went into
-> > 2.6.14 BTW), and the concern is the development model isn't fit to
-> > accomodate needs like this.
-> 
-> Well, if there's a CVE name, the proper patch isn't *that* far away
-> (someone has already done a bit of work to isolate the fix).  The real
-> issue seems to be how to make sure that CVE names are assigned during
-> the kernel development process (and not just as an afterthought by the
-> security folks).
+All,
 
-security@kernel.org works that way already in a way. Of course it'd be
-nice to add a cve name while coding the security hole into the kernel,
-but nobody is that clearvoyant ;) The hardest part is actually knowing
-which versions are affected, especially when the code no longer quite is
-the same, the locking rules got cleaned up in later versions (which
-means the older kernel was a mess, so you're always looking at more
-messy code than the "new" kernel). For some stuff this is easy. For
-other stuff it for sure isn't, especially if you want to keep api/abi
-compatibility, or at least low impact. Some security fixes just are
-invasive. Those are rare, maybe 2 or 3 times a year or so. But they do
-exist... unfortunate as it is. The irony is that doing a "hacky" less
-invasive risk actually may introduce more risk to stability than doing
-the full invasive fix. Nasty trade-offs there....
- 
+At last, I've been given the go-ahead to work on hostraid support for
+dmraid.  I'll post some patches when I've made some progress.
 
+Is linux-lvm the appropriate place for dmraid patches/discussion?  I
+couldn't find any mailing lists that sounded more appropriate.
+
+--D
+
+Jeff Garzik wrote:
+> Salyzyn, Mark wrote:
+> 
+>> Jeff Garzik [mailto:jgarzik@pobox.com] sez:
+>>
+>>> All throughout development, before Justin had written a single line
+>>> of code, he was told to do things via Device Mapper.
+>>
+>>
+>>
+>> He did not strictly write the emd code, it was written years earlier by
+>> a team. It's release was the result of it being placed on his lap
+>> submit.
+> 
+> 
+> Ah, I stand corrected.
+> 
+> I just recall being on concalls months prior to public EMD release,
+> urging the use of Device Mapper, and telling Adaptec and other involved
+> companies that the submission would be rejected if the current course
+> was continued.
+> 
+> No doubt it was very frustrating for the engineers doing the work to
+> have their months of effort rejected, but it was also frustrating for
+> me, since I was trying make all parties aware of the impending rejection
+> well in advance.
+> 
+> 
+>> As I said, it all ended up being an unfortunate timing of events with
+>> unexpected side effects. At each instant of time it has always been
+>> clear what to do ...
+>>
+>> 2005? We tried to set up a case for ROI for the support of a dmraid
+>> plugin. I am merely a JAFO to that process trying to push it along.
+> 
+> 
+> Well, all your efforts are appreciated :)
+> 
+> Adaptec has an unfortunate history of simply not communicating well with
+> the Linux community -- and I note that's a two-way street.  I've even
+> heard it whispered that Linux people "hate Adaptec", that we take some
+> sort of pleasure out of putting the screws to Adaptec.
+> 
+> Nothing could be further from the truth.
+> 
+> Exclusing you, Mark, who seems to understand this stuff, Adaptec just
+> seems to have a tough time understanding the rationale and goals behind
+> the feedback from SCSI and Linux maintainers.
+> 
+> Adaptec -- excluding aacraid -- continues to have a history of (a) being
+> grossly dissatisfied with the current SCSI code, and (b) concluding that
+> a proper solution simply works around all the problems.  That's a fair
+> perspective, but Linux prefers the more cross-vendor approach of
+> modifying the base Linux code.
+> 
+> Greater than Linux itself, the GPL and open source create a commodity
+> effect:  competitors work on the same piece of software, rather than
+> producing competing versions of software.  Out of this principle falls
+> the "update SCSI core, don't workaround in your driver" approach.  Ditto
+> for use of Device Mapper, rather than doing RAID in the driver itself,
+> or duplicating effort with EMD.  With open source, code duplication just
+> increases effort, decreases test coverage, and increases the likelihood
+> of bugs.
+> 
+> The downside (from a vendor perspective) is that vendor engineers are
+> drafted into updating the Linux core, when a new spiffy hardware feature
+> needs to be supported.  This is actually not a downside, but a benefit.
+>    In the long run, common code is highly reus{able,ed}, leading to
+> rapid development, vastly increased test coverage, and maintainable even
+> if the original hardware vendor goes out of business, or EOLs the hardware.
+> 
+> I wish I could rewind the clock, and demonstrate to Justin, Scott, Luben
+> and other Adaptec engineers that there are solid reasons behind each of
+> these decisions, and its not "politics" or "NIH" or "we hate you" or "we
+> are the anointed ones, bow to us."
+> 
+> Linux doesn't have a roadmap, rather it has certain code patterns that
+> experience has taught us are sustainable, portable, and performant in
+> the long term.  As long as new source code fits these code patterns, we
+> welcome the addition with open arms.  From any company.
+> 
+>     Jeff
+> 
+> 
+> 

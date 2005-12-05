@@ -1,59 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750833AbVLEQyF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbVLERCh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750833AbVLEQyF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 11:54:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbVLEQyF
+	id S932446AbVLERCh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 12:02:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbVLERCg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 11:54:05 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:54179 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750833AbVLEQyE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 11:54:04 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=eMHlMxMK2Q8xDKfWmT96B3IlZ+A8wPJ2shUIXPXYAIjyBN9xU7MMwXwjR1/mMJvDdS6UhED1Llw4QxSa/jU7yrNb8qk9UgdQnewIqZmeELFv8nSqicx4QFABbh35Hahy0o7ggkk7RMYAonMh87yKx/cXEKqsB28Tz4uhdOz6ppw=
-Subject: Re: [PATCH 0/4] linux-2.6-block: deactivating pagecache for
-	benchmarks
-From: Badari Pulavarty <pbadari@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Dirk Henning Gerdes <mail@dirk-gerdes.de>, axboe@suse.de,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051201172520.7095e524.akpm@osdl.org>
-References: <1133443051.6110.32.camel@noti>
-	 <20051201172520.7095e524.akpm@osdl.org>
-Content-Type: text/plain
-Date: Mon, 05 Dec 2005 08:54:16 -0800
-Message-Id: <1133801656.21429.148.camel@localhost.localdomain>
+	Mon, 5 Dec 2005 12:02:36 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:36802 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S932446AbVLERCf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 12:02:35 -0500
+Date: Mon, 5 Dec 2005 18:02:34 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: David Vrabel <dvrabel@cantab.net>
+Cc: Richard Purdie <rpurdie@rpsys.net>, LKML <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>, John Lenz <lenz@cs.wisc.edu>
+Subject: Re: [RFC PATCH 1/8] LED: Add LED Class
+Message-ID: <20051205170234.GA25114@atrey.karlin.mff.cuni.cz>
+References: <1133788166.8101.125.camel@localhost.localdomain> <439455BC.4080908@cantab.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <439455BC.4080908@cantab.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-01 at 17:25 -0800, Andrew Morton wrote:
-> Dirk Henning Gerdes <mail@dirk-gerdes.de> wrote:
-> >
-> >  For doing benchmarks on the I/O-Schedulers, I thought it would be very
-> >  useful to disable the pagecache.
-> 
-> That's an FAQ.   Something like this?
-> 
-> 
-> From: Andrew Morton <akpm@osdl.org>
-> 
-> Add /proc/sys/vm/drop-pagecache.  When written to, this will cause the kernel
-> to discard as much pagecache and reclaimable slab objects as it can.
-> 
-> It won't drop dirty data, so the user should run `sync' first.
+Hi!
 
-BTW, (a while ago) I tried doing similar thing from user-space 
-using POSIX_FADV_DONTNEED on a file. While it worked great to 
-get rid of the pagecache pages for few files, since I had to 
-run this on each and every file in the filesystem - it ended 
-up bloating inode, dentry slabs :( I really wanted to find out 
-what files are really cached in the pagecache to run this on.
+> This LED subsystem isn't usable with LEDs that are controlled by I2C
+> GPIO devices.  Getting rid of (struct led_device).lock would go some way
+> to making it work.  It's not clear to me why it's needed anyway.
+> 
+> Suspend and resume probably needs to be LED specific.
+> 
+> Richard Purdie wrote:
+> > Index: linux-2.6.15-rc2/drivers/leds/Kconfig
+> > ===================================================================
+> > --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> > +++ linux-2.6.15-rc2/drivers/leds/Kconfig	2005-12-05 11:29:19.000000000 +0000
+> > @@ -0,0 +1,18 @@
+> > +
+> > +menu "LED devices"
+> > +
+> > +config NEW_LEDS
+> 
+> Is there a better name than NEW_LEDS?  It won't be 'new' for very long...
 
-Thanks,
-Badari
+Well, there's chance to rename ARM leds to OLD_LEDS. :-).
+ 
 
+> > Index: linux-2.6.15-rc2/include/linux/leds.h
+> > ===================================================================
+> > --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> > +++ linux-2.6.15-rc2/include/linux/leds.h	2005-12-05 11:29:19.000000000 +0000
+> > [...]
+> > +	/* A function to set the brightness of the led.
+> > +	 * Values are between 0-100 */
+> > +	void (*brightness_set)(struct led_device *led_dev, int value);
+> 
+> 0-255 is probably a better range to use.  Might be worth having an enum
+> like.
+
+Well, don't overdo it, most LEDs are 0/1 anyway.
+								Pavel
+-- 
+Boycott Kodak -- for their patent abuse against Java.

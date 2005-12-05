@@ -1,95 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbVLESl0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbVLESop@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751399AbVLESl0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 13:41:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbVLESl0
+	id S1750885AbVLESop (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 13:44:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbVLESop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 13:41:26 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:10124 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751399AbVLESlY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 13:41:24 -0500
-Message-ID: <439489CE.9060607@pobox.com>
-Date: Mon, 05 Dec 2005 13:41:18 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Mon, 5 Dec 2005 13:44:45 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:27154 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750885AbVLESoo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 13:44:44 -0500
+Date: Mon, 5 Dec 2005 19:44:42 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Rob Landley <rob@landley.net>
+Cc: David Ranson <david@unsolicited.net>, Steven Rostedt <rostedt@goodmis.org>,
+       linux-kernel@vger.kernel.org, Matthias Andree <matthias.andree@gmx.de>
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+Message-ID: <20051205184442.GI9973@stusta.de>
+References: <20051203135608.GJ31395@stusta.de> <4391D335.7040008@unsolicited.net> <20051203175355.GL31395@stusta.de> <200512042131.13015.rob@landley.net>
 MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: Ethan Chen <thanatoz@ucla.edu>, linux-kernel@vger.kernel.org,
-       Carlos Pardo <Carlos.Pardo@siliconimage.com>,
-       Linux-ide <linux-ide@vger.kernel.org>
-Subject: Re: SIL_QUIRK_MOD15WRITE workaround problem on 2.6.14
-References: <438BD351.60902@ucla.edu> <438D2792.9050105@gmail.com> <438D2DCC.4010805@pobox.com> <438D3AA8.9030504@gmail.com> <438FAADC.6060907@pobox.com> <43931CDF.3080202@gmail.com>
-In-Reply-To: <43931CDF.3080202@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Tejun Heo wrote: > Jeff Garzik wrote: > >> Tejun Heo
-	wrote: >> >>> Ethan confirmed that it's 1095:3114. Arghhh.... Maybe we
-	should >>> keep m15w quirk for 3114's for the time being? Better be
-	slow than >>> hang. Whatever bug the m15w quirk was hiding. >> >> >> >>
-	A generic 'slow_down_io' module option is reasonable. >> >> It is not
-	appropriate to apply mod15write quirk to hardware that isn't >>
-	affected by the chip bug. >> >> A better solution is to write a
-	311x-specific interrupt handler. >> > > Hello, Jeff. Hello, Carlos. > >
-	I bought a sii3114 controller yesterday and took out my ST3120026AS for
-	> testing. The drive times out during a WRITE_EXT, and locks up. > > *
-	The ST3120026AS works perfectly on a VIA controller. > * The sii3114
-	controller works perfectly with Maxtor 6B080M0 drives. > > I don't
-	know. It acts and smells like m15w problem. What are the odds > of
-	having the same symptom on the same combination? [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200512042131.13015.rob@landley.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo wrote:
-> Jeff Garzik wrote:
+On Sun, Dec 04, 2005 at 09:31:12PM -0600, Rob Landley wrote:
+> On Saturday 03 December 2005 11:53, Adrian Bunk wrote:
+> > On Sat, Dec 03, 2005 at 05:17:41PM +0000, David Ranson wrote:
+> > > Steven Rostedt wrote:
+> > > >udev ;)
+> > > >
+> > > >http://seclists.org/lists/linux-kernel/2005/Dec/0180.html
+> > >
+> > > Ahh OK .. I don't use it, so wouldn't have been affected. That's one
+> > > userspace interface broken during the series, does anyone have any more?
+> >
+> > - support for ipfwadm and ipchains was removed during 2.6
+> > - devfs support was removed during 2.6
+> > - removal of kernel support for pcmcia-cs is pending
+> > - ip{,6}_queue removal is pending
+> > - removal of the RAW driver is pending
 > 
->> Tejun Heo wrote:
->>
->>> Ethan confirmed that it's 1095:3114.  Arghhh....  Maybe we should 
->>> keep m15w quirk for 3114's for the time being?  Better be slow than 
->>> hang. Whatever bug the m15w quirk was hiding.
->>
->>
->>
->> A generic 'slow_down_io' module option is reasonable.
->>
->> It is not appropriate to apply mod15write quirk to hardware that isn't 
->> affected by the chip bug.
->>
->> A better solution is to write a 311x-specific interrupt handler.
->>
-> 
-> Hello, Jeff.  Hello, Carlos.
-> 
-> I bought a sii3114 controller yesterday and took out my ST3120026AS for 
-> testing.  The drive times out during a WRITE_EXT, and locks up.
-> 
-> * The ST3120026AS works perfectly on a VIA controller.
-> * The sii3114 controller works perfectly with Maxtor 6B080M0 drives.
-> 
-> I don't know.  It acts and smells like m15w problem.  What are the odds 
-> of having the same symptom on the same combination?
+> So what you're upset about is the feature removal scheduling mechanism, which 
+> usually gives a full year's warning, and the removal patch can be reversed 
+> into a feature addition patch you can maintain outside the tree if you really 
+> care?
 
-A lock-up is very generic, and could be anything.  Tons of problems are 
-hidden by slowing things down, so I just feel that presuming this is 
-_the_ mod15write problem may lead us down the wrong path.
+I'm not upset about is the feature removal scheduling mechanism.
 
-Key example:  On error, we need to do a channel-reset, and possibly a 
-FIFO-reset.  See the FreeBSD code.  sata_sil doesn't do this at all, and 
-probably should.  The reset may cure lockups.
+Please check who has most entries in 
+Documentation/feature-removal-schedule.txt ...
 
-	Jeff
+The removal of features within the 2.6 series is an essential part of 
+the current development model.
 
+The problem is the lack of a long-living relatively stable series within 
+the development model.
+
+> Rob
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,104 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750970AbVLEFxI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbVLEFyt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750970AbVLEFxI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 00:53:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbVLEFxI
+	id S1751290AbVLEFyt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 00:54:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbVLEFyt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 00:53:08 -0500
-Received: from gepetto.dc.ltu.se ([130.240.42.40]:7332 "EHLO gepetto.dc.ltu.se")
-	by vger.kernel.org with ESMTP id S1750970AbVLEFxH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 00:53:07 -0500
-Message-ID: <4393D6F8.1080303@student.ltu.se>
-Date: Mon, 05 Dec 2005 06:58:16 +0100
-From: Richard Knutsson <ricknu-0@student.ltu.se>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Mon, 5 Dec 2005 00:54:49 -0500
+Received: from user-0c938qu.cable.mindspring.com ([24.145.163.94]:4783 "EHLO
+	tsurukikun.utopios.org") by vger.kernel.org with ESMTP
+	id S1751059AbVLEFys (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 00:54:48 -0500
+From: Luke-Jr <luke-jr@utopios.org>
+To: Greg KH <greg@kroah.com>
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+Date: Mon, 5 Dec 2005 05:59:33 +0000
+User-Agent: KMail/1.9
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20051203152339.GK31395@stusta.de> <200512040446.32450.luke-jr@utopios.org> <20051204232205.GF8914@kroah.com>
+In-Reply-To: <20051204232205.GF8914@kroah.com>
+Public-GPG-Key: 0xD53E9583
+Public-GPG-Key-URI: http://dashjr.org/~luke-jr/myself/Luke-Jr.pgp
+IM-Address: luke-jr@jabber.org
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 3/3] *rest*: Replace driver_data with dev_[gs]et_drvdata
-References: <20051205055215.14897.44730.sendpatchset@thinktank.campus.ltu.se>
-In-Reply-To: <20051205055215.14897.44730.sendpatchset@thinktank.campus.ltu.se>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512050559.34464.luke-jr@utopios.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Richard Knutsson <ricknu-0@student.ltu.se>
+On Sunday 04 December 2005 23:22, Greg KH wrote:
+> On Sun, Dec 04, 2005 at 04:46:31AM +0000, Luke-Jr wrote:
+> > Well, devfs does have some abilities udev doesn't: hotplug/udev
+> > doesn't detect everything, and can result in rarer or non-PnP devices
+> > not being automatically available;
+>
+> Are you sure about that today?
 
-Replace (found) dev->driver_data with dev_[gs]et_drvdata().
+Nope, but I don't see how udev can possibly detect something that doesn't let 
+the OS know it's there-- except, of course, loading the driver for it and 
+seeing if it works.
 
-Signed-off-by: Richard Knutsson <ricknu-0@student.ltu.se>
+> And udev wasn't created to do everything that devfs does.
 
----
+Which might be a case for leaving devfs in. *shrug*
 
- ide/ide.c      |    4 ++--
- scsi/aha1740.c |    2 +-
- usb/core/usb.c |    6 +++---
- 3 files changed, 6 insertions(+), 6 deletions(-)
+> And devfs can't do everything that udev can (by far...)
 
-diff -Narup a/drivers/ide/ide.c b/drivers/ide/ide.c
---- a/drivers/ide/ide.c	2005-12-02 14:46:04.000000000 +0100
-+++ b/drivers/ide/ide.c	2005-12-02 14:48:47.000000000 +0100
-@@ -1216,7 +1216,7 @@ EXPORT_SYMBOL(system_bus_clock);
- 
- static int generic_ide_suspend(struct device *dev, pm_message_t state)
- {
--	ide_drive_t *drive = dev->driver_data;
-+	ide_drive_t *drive = dev_get_drvdata(dev);
- 	struct request rq;
- 	struct request_pm_state rqpm;
- 	ide_task_t args;
-@@ -1235,7 +1235,7 @@ static int generic_ide_suspend(struct de
- 
- static int generic_ide_resume(struct device *dev)
- {
--	ide_drive_t *drive = dev->driver_data;
-+	ide_drive_t *drive = dev_get_drvdata(dev);
- 	struct request rq;
- 	struct request_pm_state rqpm;
- 	ide_task_t args;
-diff -Narup a/drivers/scsi/aha1740.c b/drivers/scsi/aha1740.c
---- a/drivers/scsi/aha1740.c	2005-12-02 15:05:35.000000000 +0100
-+++ b/drivers/scsi/aha1740.c	2005-12-02 15:06:48.000000000 +0100
-@@ -659,7 +659,7 @@ static int aha1740_probe (struct device 
- 
- static __devexit int aha1740_remove (struct device *dev)
- {
--	struct Scsi_Host *shpnt = dev->driver_data;
-+	struct Scsi_Host *shpnt = dev_get_drvdata(dev);
- 	struct aha1740_hostdata *host = HOSTDATA (shpnt);
- 
- 	scsi_remove_host(shpnt);
-diff -Narup a/drivers/usb/core/usb.c b/drivers/usb/core/usb.c
---- a/drivers/usb/core/usb.c	2005-12-02 14:26:11.000000000 +0100
-+++ b/drivers/usb/core/usb.c	2005-12-02 14:30:14.000000000 +0100
-@@ -574,7 +574,7 @@ static int usb_hotplug (struct device *d
- 
- 	/* Must check driver_data here, as on remove driver is always NULL */
- 	if ((dev->driver == &usb_generic_driver) || 
--	    (dev->driver_data == &usb_generic_driver_data))
-+	    (dev_get_drvdata(dev) == &usb_generic_driver_data))
- 		return 0;
- 
- 	intf = to_usb_interface(dev);
-@@ -1414,7 +1414,7 @@ static int usb_generic_suspend(struct de
- 	}
- 
- 	if ((dev->driver == NULL) ||
--	    (dev->driver_data == &usb_generic_driver_data))
-+	    (dev_get_drvdata(dev) == &usb_generic_driver_data))
- 		return 0;
- 
- 	intf = to_usb_interface(dev);
-@@ -1460,7 +1460,7 @@ static int usb_generic_resume(struct dev
- 	}
- 
- 	if ((dev->driver == NULL) ||
--	    (dev->driver_data == &usb_generic_driver_data))
-+	    (dev_get_drvdata(dev) == &usb_generic_driver_data))
- 		return 0;
- 
- 	intf = to_usb_interface(dev);
+Didn't say it could...
 
+> > Interesting effects of switching my desktop from devfs to udev:
+> > 1. my DVD burners are left uninitialized until I manually modprobe ide-cd
+> > or (more recently) ide-scsi
+>
+> Sounds like a broken distro configuration :)
 
+Well, I was assuming you kept Gentoo's udev packages up to date. ;)
+[ebuild   R   ] sys-fs/udev-070-r1  (-selinux) -static 429 kB
+
+> > devfs also has the advantage of keeping the module info all in one
+> > place-- the kernel or the module.
+> > In particular, with udev the detection and /dev info is scattered into
+> > different locations of the filesystem. This can probably be fixed
+> > easily simply by having udev read such info from modules or via a /sys
+> > entry, though.
+>
+> What information are you talking about here?
+
+I'm assuming everything in /etc/udev/rules.d/50-udev.rules used to be in the 
+kernel for devfs-- perhaps it was PAM though, I'm not sure.
+Other than that, I don't expect that simply installing a new kernel module 
+will allow the device to be detected automatically, but that some hotplug or 
+udev configurations will need to be updated also.
+-- 
+Luke-Jr
+Developer, Utopios
+http://utopios.org/

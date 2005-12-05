@@ -1,101 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbVLELJR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbVLELfr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932373AbVLELJR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 06:09:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbVLELJR
+	id S932348AbVLELfr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 06:35:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932380AbVLELfr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 06:09:17 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:4030 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S932373AbVLELJQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 06:09:16 -0500
-From: Michael Buesch <mbuesch@freenet.de>
-To: Jouni Malinen <jkmaline@cc.hut.fi>
-Subject: Re: [Bcm43xx-dev] Broadcom 43xx first results
-Date: Mon, 5 Dec 2005 12:08:16 +0100
-User-Agent: KMail/1.8.3
-References: <E1Eiyw4-0003Ab-FW@www1.emo.freenet-rz.de> <200512042058.30801.mbuesch@freenet.de> <20051205055012.GE8953@jm.kir.nu>
-In-Reply-To: <20051205055012.GE8953@jm.kir.nu>
-Cc: bcm43xx-dev@lists.berlios.de, linux-kernel@vger.kernel.org,
-       Feyd <feyd@seznam.cz>
+	Mon, 5 Dec 2005 06:35:47 -0500
+Received: from moutvdom.kundenserver.de ([212.227.126.249]:50646 "EHLO
+	moutvdomng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932348AbVLELfq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 06:35:46 -0500
+Message-ID: <4394260F.7020703@anagramm.de>
+Date: Mon, 05 Dec 2005 12:35:43 +0100
+From: Clemens Koller <clemens.koller@anagramm.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Message-Id: <200512051208.16241.mbuesch@freenet.de>
-Content-Type: multipart/signed;
-  boundary="nextPart1607291.40cs6bjRHs";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Clemens Koller <clemens.koller@anagramm.de>
+CC: linux-kernel@vger.kernel.org, Jeff Collins <jgcc@pacbell.net>
+Subject: Re: 2.6.13.2 crash on shutdown on SMP machine
+References: <433A747E.3070705@anagramm.de>
+In-Reply-To: <433A747E.3070705@anagramm.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1607291.40cs6bjRHs
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hello, Guys, hello, Jeff!
 
-On Monday 05 December 2005 06:50, you wrote:
-> On Sun, Dec 04, 2005 at 08:58:30PM +0100, Michael Buesch wrote:
->=20
-> > > Why not use the new in-kernel wifi stack?=20
-> >=20
-> > We do. The SoftMAC is an extension to it.
-> > SoftMAC =3D Software Medium Access Control. It is about sending
-> > and receiving management frames.
-> > Some chips do this in hardware, so it is not part of the ieee80211 stac=
-k.
-> > (the ipw2x00 do it in hardware, for example.)
->=20
-> Wouldn't it be better to try to get that functionality added into the
-> net/ieee80211 code instead of maintaining separate extension outside the
-> kernel tree? Many modern cards need the ability for the host CPU to take
-> care of management frame sending and receiving and from my view point,
-> this code should be in net/ieee80211. Many (all?) of the functions in
-> this "SoftMAC" look like something that would be nice to have as an
-> option in net/ieee80211. In other words, the low-level driver would
-> indicate what kind of functionality it needs and ieee80211 stack would
-> behave differently based on the underlying hardware profile.
->=20
-> ipw2x00 happens to be one of the main users of net/ieee80211 at the
-> moment, but it is by no means the only one and it should not be
-> defining what kind of functionality ends up being included in
-> net/ieee80211.
+This issue seems to happen more than once:
 
-The SoftMAC is a separate module. That is _good_, so devices like
-the ipw do not have to load the code, because they do not need it.
-The SoftMAC ties (and integrates) very close to the ieee80211 subsystem.
+Jeff Collins wrote:
+> I experience a panic whenever I shut down a 4 cpu Intel PII Xeon SMP 
+> system.
 
-device <--> Driver <----------> ieee80211 <-----> kernel networking layer
-              |                     ^
-              |                     |
-              .--------> SoftMAC ---.
+What panic do you get?
 
-This is approximately how it works.
-You see that SoftMAC is not exactly a part or the ieee80211 subsystem,
-but it uses its interface to TX a frame (and the struct to get
-some information about the device).
-This works without any modifications to the ieee80211 layer and I
-doubt big changes will have to be made in future.
+> Linux sitka 2.6.14.3 #2 SMP Fri Dec 2 09:01:46 PST 2005 i686 unknown 
+> unknown GNU/Linux
+> Base OS: Slackware 10.2
+> Kernel: 2.6.14.3 from kernel.org
+> 
+> "shutdown -h now" causes the panic
+> 
+> "shutdown -r now" reboots correctly.
 
-In fact, we started with the SoftMAC layer integrated into the
-ieee80211 subsystem. You can still find the patches on the project FTP.
-We decided to drop it, because of the bad design.
+I guess it panics, too, but the reboot still works, so you just don't
+see the panic. (?)
 
-This all works fine. There is absolutely no need to bloat the
-ieee80211 layer with functionality, which is not needed by all devices.
+> I got the same panic when I substituted the 2.6.13 kernel.
 
-=2D-=20
-Greetings Michael.
+Still the same thing over here. Unfortunately, I am pretty busy with other
+work, and the affected system isn't really needed. It's an old
+Tyan Tomcat IIID Mainboard with two Pentium I MMX 200MHz CPU's.
+Theoretically I would be able to test the latest git snapshots, but currently
+it's just not possible. :-(
+Let me know if you cannot solve this issue - maybe I can spend some
+time to give some more information for debugging by the end of this week.
 
---nextPart1607291.40cs6bjRHs
-Content-Type: application/pgp-signature
+Good Luck,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Best greets,
 
-iD8DBQBDlB+glb09HEdWDKgRAhucAJ9oxFQLm7efCgehKPLR+BrhwKfrcACgovlI
-FzlNO6CcMjD9Rxqe70kUSNg=
-=QUoA
------END PGP SIGNATURE-----
+-- 
+Clemens Koller
+_______________________________
+R&D Imaging Devices
+Anagramm GmbH
+Rupert-Mayer-Str. 45/1
+81379 Muenchen
+Germany
 
---nextPart1607291.40cs6bjRHs--
+http://www.anagramm.de
+Phone: +49-89-741518-50
+Fax: +49-89-741518-19

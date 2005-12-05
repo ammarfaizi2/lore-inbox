@@ -1,78 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbVLEFyt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751324AbVLEGNL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751290AbVLEFyt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 00:54:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbVLEFyt
+	id S1751324AbVLEGNL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 01:13:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbVLEGNL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 00:54:49 -0500
-Received: from user-0c938qu.cable.mindspring.com ([24.145.163.94]:4783 "EHLO
-	tsurukikun.utopios.org") by vger.kernel.org with ESMTP
-	id S1751059AbVLEFys (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 00:54:48 -0500
-From: Luke-Jr <luke-jr@utopios.org>
-To: Greg KH <greg@kroah.com>
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Date: Mon, 5 Dec 2005 05:59:33 +0000
-User-Agent: KMail/1.9
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20051203152339.GK31395@stusta.de> <200512040446.32450.luke-jr@utopios.org> <20051204232205.GF8914@kroah.com>
-In-Reply-To: <20051204232205.GF8914@kroah.com>
-Public-GPG-Key: 0xD53E9583
-Public-GPG-Key-URI: http://dashjr.org/~luke-jr/myself/Luke-Jr.pgp
-IM-Address: luke-jr@jabber.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 5 Dec 2005 01:13:11 -0500
+Received: from gate.crashing.org ([63.228.1.57]:34534 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751324AbVLEGNK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 01:13:10 -0500
+Subject: Re: [Bcm43xx-dev] Broadcom 43xx first results
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Jouni Malinen <jkmaline@cc.hut.fi>
+Cc: Michael Buesch <mbuesch@freenet.de>, Feyd <feyd@seznam.cz>,
+       linux-kernel@vger.kernel.org, bcm43xx-dev@lists.berlios.de
+In-Reply-To: <20051205055012.GE8953@jm.kir.nu>
+References: <E1Eiyw4-0003Ab-FW@www1.emo.freenet-rz.de>
+	 <20051204205208.46e44480@epsilon.site>
+	 <200512042058.30801.mbuesch@freenet.de>  <20051205055012.GE8953@jm.kir.nu>
+Content-Type: text/plain
+Date: Mon, 05 Dec 2005 17:05:34 +1100
+Message-Id: <1133762735.6100.137.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512050559.34464.luke-jr@utopios.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 04 December 2005 23:22, Greg KH wrote:
-> On Sun, Dec 04, 2005 at 04:46:31AM +0000, Luke-Jr wrote:
-> > Well, devfs does have some abilities udev doesn't: hotplug/udev
-> > doesn't detect everything, and can result in rarer or non-PnP devices
-> > not being automatically available;
->
-> Are you sure about that today?
 
-Nope, but I don't see how udev can possibly detect something that doesn't let 
-the OS know it's there-- except, of course, loading the driver for it and 
-seeing if it works.
+> Wouldn't it be better to try to get that functionality added into the
+> net/ieee80211 code instead of maintaining separate extension outside the
+> kernel tree? Many modern cards need the ability for the host CPU to take
+> care of management frame sending and receiving and from my view point,
+> this code should be in net/ieee80211. Many (all?) of the functions in
+> this "SoftMAC" look like something that would be nice to have as an
+> option in net/ieee80211. In other words, the low-level driver would
+> indicate what kind of functionality it needs and ieee80211 stack would
+> behave differently based on the underlying hardware profile.
 
-> And udev wasn't created to do everything that devfs does.
+It would certainly be a good idea and I'm sure that's what will happen
+once the code is mature enough ;)
 
-Which might be a case for leaving devfs in. *shrug*
+Ben.
 
-> And devfs can't do everything that udev can (by far...)
 
-Didn't say it could...
-
-> > Interesting effects of switching my desktop from devfs to udev:
-> > 1. my DVD burners are left uninitialized until I manually modprobe ide-cd
-> > or (more recently) ide-scsi
->
-> Sounds like a broken distro configuration :)
-
-Well, I was assuming you kept Gentoo's udev packages up to date. ;)
-[ebuild   R   ] sys-fs/udev-070-r1  (-selinux) -static 429 kB
-
-> > devfs also has the advantage of keeping the module info all in one
-> > place-- the kernel or the module.
-> > In particular, with udev the detection and /dev info is scattered into
-> > different locations of the filesystem. This can probably be fixed
-> > easily simply by having udev read such info from modules or via a /sys
-> > entry, though.
->
-> What information are you talking about here?
-
-I'm assuming everything in /etc/udev/rules.d/50-udev.rules used to be in the 
-kernel for devfs-- perhaps it was PAM though, I'm not sure.
-Other than that, I don't expect that simply installing a new kernel module 
-will allow the device to be detected automatically, but that some hotplug or 
-udev configurations will need to be updated also.
--- 
-Luke-Jr
-Developer, Utopios
-http://utopios.org/

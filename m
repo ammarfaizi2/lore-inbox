@@ -1,82 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751491AbVLEXEE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751489AbVLEXDd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751491AbVLEXEE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 18:04:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751493AbVLEXEE
+	id S1751489AbVLEXDd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 18:03:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751490AbVLEXDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 18:04:04 -0500
-Received: from smtp05.auna.com ([62.81.186.15]:60901 "EHLO smtp05.retemail.es")
-	by vger.kernel.org with ESMTP id S1751491AbVLEXEC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 18:04:02 -0500
-Date: Tue, 6 Dec 2005 00:05:24 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-rc5-mm1
-Message-ID: <20051206000524.74cb2ddc@werewolf.auna.net>
-In-Reply-To: <20051204232153.258cd554.akpm@osdl.org>
-References: <20051204232153.258cd554.akpm@osdl.org>
-X-Mailer: Sylpheed-Claws 1.9.100cvs67 (GTK+ 2.8.8; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="Sig_=t.fYmvNPMlyhn2JZIuN+_6";
- protocol="application/pgp-signature"; micalg=PGP-SHA1
-X-Auth-Info: Auth:LOGIN IP:[83.138.219.198] Login:jamagallon@able.es Fecha:Tue, 6 Dec 2005 00:03:51 +0100
+	Mon, 5 Dec 2005 18:03:33 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:27118 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1751489AbVLEXDd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 18:03:33 -0500
+Message-ID: <4394C745.2020802@tmr.com>
+Date: Mon, 05 Dec 2005 18:03:33 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ben Collins <bcollins@ubuntu.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+References: <20051203135608.GJ31395@stusta.de> <1133620264.2171.14.camel@localhost.localdomain>
+In-Reply-To: <1133620264.2171.14.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Sig_=t.fYmvNPMlyhn2JZIuN+_6
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Ben Collins wrote:
 
-On Sun, 4 Dec 2005 23:21:53 -0800, Andrew Morton <akpm@osdl.org> wrote:
+> What you're suggesting sounds just like going back to the old style of
+> development where 2.<even>.x is stable, and 2.<odd>.x is development.
+> You might as well just suggest that after 2.6.16, we fork to 2.7.0, and
+> 2.6.17+ will be stable increments like we always used to do.
 
->=20
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/=
-2.6.15-rc5-mm1/
->=20
->=20
+I'll let him speak to what he intended, but my idea of stable is to keep 
+the features of 2.6.0 in 2.6.N for any value of N. Adding new stuff 
+rapidly hasn't been nearly the problem people feared, but that's largely 
+due to the efforts of akpm to act as throttle, and somehow get more 
+people to try his versions and knock the corners off the new code before 
+it goes mainline.
 
-I still get this oops on boot, then the machine freezes hard on the init
-process:
+I do think the old model was better; by holding down major changes for 
+six months or so after a new even release came out, people had a chance 
+to polich the stable release, and developers had time to recharge their 
+batteries so to speak, and to sit and think about what they wanted to 
+do, without feeling the pressure to write code and submit it right away. 
+Knowing that there's no place to send code for six months is a great aid 
+to generating GOOD code.
 
-usb_set_configuration+0x22b/0x4df
-usb_new_device+0x105/0x158
-hub_port_connect_change+0x2de/0x37e
-clear_port_feature+0x48/0x4d
-hub_events+0x2aa/0x42f
-hub_thread+0x14/0xe2
-autoremove_wake_function+0x0/0x37
-kthread+0x93/0x97
-kthread+0x0/0x97
-kernel_thread_helper+0x5/0xb
+The other advantage of a development tree was that features could be 
+added and removed without the argument that it would break this or that. 
+It was development, no one was supposed to use it for production, no one 
+could claim that there was even an implied promise of things working or 
+even existing. ipchains could have gone out of 2.6 with no more fuss 
+than xiafs departing. The people who really want it stay with the old 
+kernel.
 
-udevd-event[694]: run_program: exec of program '/etc/udev/agents.d/usb/usbc=
-ore'
-failed.
+To a large extent -mm has become the development kernel, and as neat as 
+that is, a development model which depends on a small number of 
+dedicated and talented people to make it work is fragile.
 
-I have udev-075, plain 2.6.15-rc5-mm1 + devfs-die + low1Gbmem.
+Just my thoughts, I think we had it right before, I think it's less 
+inherently stable now.
 
-Any ideas ?
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like se=
-x:
-werewolf!able!es                         \         It's better when it's fr=
-ee
-Mandriva Linux release 2006.1 (Cooker) for i586
-Linux 2.6.14-jam3 (gcc 4.0.2 (4.0.2-1mdk for Mandriva Linux release 2006.1))
-
---Sig_=t.fYmvNPMlyhn2JZIuN+_6
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDlMe0RlIHNEGnKMMRAjrKAJ9bMrMTEVtOz59u7GBLwK1rIk0cLACffNS4
-O9lz2Gp1CT69TT0QGDe9hoQ=
-=dRft
------END PGP SIGNATURE-----
-
---Sig_=t.fYmvNPMlyhn2JZIuN+_6--
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

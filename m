@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbVLEKQY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750969AbVLEKgZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbVLEKQY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 05:16:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbVLEKQY
+	id S1750969AbVLEKgZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 05:36:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbVLEKgZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 05:16:24 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34062 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750718AbVLEKQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 05:16:24 -0500
-Date: Mon, 5 Dec 2005 10:16:13 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mpcore_wdt.c bogus fpos check
-Message-ID: <20051205101613.GB8863@flint.arm.linux.org.uk>
-Mail-Followup-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20051118160550.GB13943@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051118160550.GB13943@logos.cnet>
-User-Agent: Mutt/1.4.1i
+	Mon, 5 Dec 2005 05:36:25 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:24204 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1750969AbVLEKgY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 05:36:24 -0500
+Date: Mon, 5 Dec 2005 11:35:57 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: George Anzinger <george@mvista.com>
+cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Darren Hart <dvhltc@us.ibm.com>,
+       Nishanth Aravamudan <nacc@us.ibm.com>,
+       Frank Sorenson <frank@tuxrocks.com>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH 2/13] Time: Reduced NTP Rework (part 2)
+In-Reply-To: <4390E48E.4020005@mvista.com>
+Message-ID: <Pine.LNX.4.61.0512051132460.1609@scrub.home>
+References: <20051202032551.19357.51421.sendpatchset@cog.beaverton.ibm.com>
+ <20051202032604.19357.59425.sendpatchset@cog.beaverton.ibm.com>
+ <4390E48E.4020005@mvista.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 18, 2005 at 02:05:50PM -0200, Marcelo Tosatti wrote:
-> Has been broken since then... Don't have a device to test - does it work
-> at all?
+Hi,
 
-mpcore is a recent addition to the kernel, and this got missed in my
-review.  Thanks for spotting, applied.
+On Fri, 2 Dec 2005, George Anzinger wrote:
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+> In a discusson aroung the leapsecond and how to disable it (some folks don't
+> want the time jump) it came to light that, for the most part, this is unused
+> code.  It requires that time be kept in UST to be useful and, from what I can
+> tell, most folks keep time in their local timezone, thus, effectively,
+> disableing the usage of the leapsecond correction (ntp figures this out and
+> just says "no").  Possibly it is time to ask if we should keep this in the
+> kernel at all.
+
+I'm thinking about moving the leap second handling to a timer, with the 
+new timer system it would be easy to set a timer for e.g. 23:59.59 and 
+then set the time. This way it would be gone from the common path and it 
+wouldn't matter that much anymore whether it's used or not.
+
+bye, Roman

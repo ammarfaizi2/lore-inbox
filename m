@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbVLEBea@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbVLECDY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751321AbVLEBea (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 20:34:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbVLEBea
+	id S1751317AbVLECDY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 21:03:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbVLECDY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 20:34:30 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:57295 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1751321AbVLEBe3 (ORCPT
-	<rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Sun, 4 Dec 2005 20:34:29 -0500
-Date: Mon, 5 Dec 2005 09:48:42 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Nikita Danilov <nikita@clusterfs.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: Re: [PATCH 01/16] mm: delayed page activation
-Message-ID: <20051205014842.GA5103@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Nikita Danilov <nikita@clusterfs.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
-References: <20051203071444.260068000@localhost.localdomain> <20051203071609.755741000@localhost.localdomain> <17298.56560.78408.693927@gargle.gargle.HOWL> <20051204134818.GA4305@mail.ustc.edu.cn> <17299.1331.368159.374754@gargle.gargle.HOWL>
+	Sun, 4 Dec 2005 21:03:24 -0500
+Received: from mail28.syd.optusnet.com.au ([211.29.133.169]:21889 "EHLO
+	mail28.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751317AbVLECDX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 21:03:23 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Dominik Brodowski <linux@dominikbrodowski.net>
+Subject: Re: fix cpufreq-ondemand by accounting skipped ticks as idle ticks [Was: [PATCH] i386 no idle HZ aka Dynticks 051203]
+Date: Mon, 5 Dec 2005 13:02:57 +1100
+User-Agent: KMail/1.9
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck list <ck@vds.kolivas.org>, Tony Lindgren <tony@atomide.com>,
+       Adam Belay <abelay@novell.com>, Daniel Petrini <d.pensator@gmail.com>,
+       vatsa@in.ibm.com
+References: <200512041737.07996.kernel@kolivas.org> <20051204122434.GB9503@dominikbrodowski.de>
+In-Reply-To: <20051204122434.GB9503@dominikbrodowski.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <17299.1331.368159.374754@gargle.gargle.HOWL>
-User-Agent: Mutt/1.5.11
+Message-Id: <200512051302.58583.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 04, 2005 at 06:03:15PM +0300, Nikita Danilov wrote:
->  > inter-reference distance, and therefore should be better protected(if ignore
->  > possible read-ahead effects). If we move re-accessed pages immediately into
->  > active_list, we are pushing them closer to danger of eviction.
-> 
-> Huh? Pages in the active list are closer to the eviction? If it is
-> really so, then CLOCK-pro hijacks the meaning of active list in a very
-> unintuitive way. In the current MM active list is supposed to contain
-> hot pages that will be evicted last.
+On Sunday 04 December 2005 23:24, Dominik Brodowski wrote:
+> Account ticks skipped dynamically as idle ticks.
+>
+> This allows the ondemand cpufreq governor to work correctly with dyntick.
 
-The page is going to active list anyway. So its remaining lifetime in inactive
-list is killed by the early move.
+Dominik one thing I noticed a while back was that ondemand also polls at a 
+frequency that creates a timer at around 140 HZ. Tweaking the ondemand/ 
+tunables and making it poll ten times less frequently made a big difference 
+to this (obviously) but did obviously slow down the scaling speed - this was 
+the frequency required to bring it to that of the background timers (<=20HZ). 
+I see scope for this polling to be dynamic too :D
 
-Thanks,
-Wu
+Cheers,
+Con

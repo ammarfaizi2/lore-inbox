@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbVLEX0i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964862AbVLEXdV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964865AbVLEX0i (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 18:26:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964860AbVLEX0P
+	id S964862AbVLEXdV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 18:33:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964867AbVLEXdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 18:26:15 -0500
-Received: from main.gmane.org ([80.91.229.2]:22507 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S964862AbVLEX0E (ORCPT
+	Mon, 5 Dec 2005 18:33:20 -0500
+Received: from soundwarez.org ([217.160.171.123]:34021 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S964862AbVLEXdU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 18:26:04 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Matthieu CASTET <castet.matthieu@free.fr>
-Subject: Re: Linux in a binary world... a doomsday scenario
-Date: Tue, 06 Dec 2005 00:24:42 +0100
-Message-ID: <pan.2005.12.05.23.24.41.945679@free.fr>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+	Mon, 5 Dec 2005 18:33:20 -0500
+Date: Tue, 6 Dec 2005 00:33:18 +0100
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: "Marco d'Itri" <md@linux.it>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
+Subject: Re: ide: MODALIAS support for autoloading of ide-cd, ide-disk, ...
+Message-ID: <20051205233318.GB6554@vrfy.org>
+References: <20051203172418.GA12297@vrfy.org> <58cb370e0512050024s647fdc5eg8d0c2e60dd7867dd@mail.gmail.com> <20051205182856.GB8827@wonderland.linux.it> <58cb370e0512051518j35885be1j44f7846e2d27c63d@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cac94-1-81-57-151-96.fbx.proxad.net
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <58cb370e0512051518j35885be1j44f7846e2d27c63d@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Mon, 05 Dec 2005 11:52:32 +0100, Arjan van de Ven a écrit :
+On Tue, Dec 06, 2005 at 12:18:03AM +0100, Bartlomiej Zolnierkiewicz wrote:
+> On 12/5/05, Marco d'Itri <md@linux.it> wrote:
+> > On Dec 05, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
+> >
+> > > Looks fine but what about ide-scsi driver and ide_optical media?
+> > The Debian hotplug script, which does the same thing, does not know
+> > about these modules and nobody ever complained, so if some support is
+> 
+> Does the hotplug script export kernel sysfs attributes?
 
-> Linux in a binary world
-> 
-> 
-> What if.. what if the linux kernel developers tomorrow accept that
-> binary modules are OK and are essential for the progress of linux. 
-> 
-[...]
-> Now this scenario may sound unlikely to you. And thankfully the main
-> assumption (the December 6th event) is extremely unlikely.  
-> 
-> However, and this unfortunately, several of the other "leaps" aren't
-> that unlikely. In fact, some of these results are likely to happen
-> regardless; witness the flamewars on lkml about breaking module API/ABI.
-> Witness the ndiswrapper effect of vendors now saying "we support linux
-> because ndiswrapper can use our windows driver". I hope they won't
-> happen. Some of that hope will be idle hope, but I believe that the
-> advantages of freedom in the end are strong enough to overcome the
-> counter forces.
-And some embedded companies provide the minimal source code to put 
-in arch and everything else (ethernet, adsl, wifi, ...) is binaries
-modules.
+You mean if the hotplug script uses sysfs? It looks up the
+data in /proc (which is ugly, cause you have to loop until
+the /proc file arrives).
 
+> > needed it can be added later.
+> 
+> The problem is that you get wrong data for "modalias" sysfs attribute
+> for ide-scsi module (because "modalias" is based on the media type).
+> 
+> Until this is issue solved I can't accept this patch.
+
+The correct way is probably to have the same MODULE_ALIAS() in
+ide-scsi and we just control the loaded module with the module-init-tools
+blacklist entry. Does that make sense to you?
+
+Thanks,
+Kay

@@ -1,52 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751427AbVLEUw0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751409AbVLEU4D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751427AbVLEUw0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 15:52:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751455AbVLEUwZ
+	id S1751409AbVLEU4D (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 15:56:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbVLEU4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 15:52:25 -0500
-Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:59282 "HELO
-	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1751427AbVLEUwZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 15:52:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=DPJbhre6B6UTci2YjCf/t3BwsPgiq5L0HofDcSnuJgMh3v4uYwYdPQcaBMnlgK2kh/+Rjt8K1q8lOEdAlfqpITkpRS7ypU3dNr9QC8Lrw6gwnmvxJu57YHaK52qVn1Zh5hSrBkPs3MnLLm+50rscyUNERJq3wVbfV8wo9eQ1Nc0=  ;
-Message-ID: <4394A87E.7050507@yahoo.com.au>
-Date: Tue, 06 Dec 2005 07:52:14 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: Kenny Simpson <theonetruekenny@yahoo.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: nfs unhappiness with memory pressure
-References: <20051205180139.64009.qmail@web34114.mail.mud.yahoo.com>	 <1133813590.12393.7.camel@lade.trondhjem.org> <1133814806.12393.10.camel@lade.trondhjem.org>
-In-Reply-To: <1133814806.12393.10.camel@lade.trondhjem.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 5 Dec 2005 15:56:03 -0500
+Received: from main.gmane.org ([80.91.229.2]:13791 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751409AbVLEU4B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 15:56:01 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Thomas Backlund <tmb@mandriva.org>
+Subject: Re: [PATCH] sata_sil: greatly improve DMA handling
+Followup-To: gmane.linux.ide,gmane.linux.kernel
+Date: Mon, 05 Dec 2005 22:50:54 +0200
+Message-ID: <dn297e$aip$1@sea.gmane.org>
+References: <20051203200438.GA3770@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ndn243.bob.fi
+User-Agent: KNode/0.10
+Cc: linux-ide@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
-> On Mon, 2005-12-05 at 15:13 -0500, Trond Myklebust wrote:
+Jeff Garzik wrote:
+
+> 
+> To make it easy for others to test, since there are merge conflicts,
+> I've combined the two previous sata_sil patches into a single patch.
+> 
+> Verified here on my 3112 (Adaptec 1210SA).
+> 
+> I'm especially interested to hear from anyone willing to test on a
+> SI 3114 (4-port).
+> 
 > 
 
->>Can somebody VM-savvy please explain how on earth they expect something
->>like throttle_vm_writeout() to make progress? Shouldn't that thing at
->>the very least be kicking pdflush every time it loops?
-> 
-> 
-> Can you try something like this patch, Kenny?
-> 
+Please cc me as I'm not subscribed....
 
-The VM doesn't expect to have to rely on pdflush to write out pages
-for it. ->writepage should be enough. Adding wakeup_pdflush here
-actually could do the wrong thing for non-NFS filesystems if it
-starts more writeback.
 
-Nick
+ASUS K8N-E-Deluxe, nForce3 250Gb chipset, AMD Athlon64 3200+ running x86_64
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Sil 3114A with 3 Maxtor MaxLine III+ 250GBSATA disks running in linux raid1,
+linux raid0 and linux LVM2
+
+Boots and runs without problem with 2.6.15-rc5-git1,
+
+Applying this patch lets it boot, but I cant login either locally or with
+ssh, no output on VT12 or in the logs, but the hd led is lit all the
+time...
+
+only way to reboot is the reset button...
+
+
+Distribution is Mandriva Linux 2006 x86_64, gcc 4.0.1
+
+attached are config and /var/log/messages parts that got logged
+
+--
+Regards
+
+Thomas
+
+
+
+
+

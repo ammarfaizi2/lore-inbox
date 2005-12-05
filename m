@@ -1,128 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbVLESRM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932495AbVLESUg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932491AbVLESRM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 13:17:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbVLESRM
+	id S932495AbVLESUg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 13:20:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932496AbVLESUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 13:17:12 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:26090
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S932491AbVLESRL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 13:17:11 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Date: Mon, 5 Dec 2005 11:58:06 -0600
-User-Agent: KMail/1.8
-Cc: Mark Lord <lkml@rtr.ca>, Adrian Bunk <bunk@stusta.de>,
-       David Ranson <david@unsolicited.net>,
-       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
-       Matthias Andree <matthias.andree@gmx.de>
-References: <20051203135608.GJ31395@stusta.de> <4394681B.20608@rtr.ca> <1133800090.21641.17.camel@mindpipe>
-In-Reply-To: <1133800090.21641.17.camel@mindpipe>
+	Mon, 5 Dec 2005 13:20:36 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:53899 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932495AbVLESUf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 13:20:35 -0500
+Message-ID: <439484EC.5080406@pobox.com>
+Date: Mon, 05 Dec 2005 13:20:28 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Sergei Organov <osv@javad.com>
+CC: Sergey Vlasov <vsu@altlinux.ru>, linux-kernel@vger.kernel.org
+Subject: Re: SATA ICH6M problems on Sharp M4000
+References: <200511221013.04798.marekw1977> <87u0dri996.fsf@javad.com>	<20051205202228.13232c10.vsu@altlinux.ru> <874q5nfm1e.fsf@javad.com>
+In-Reply-To: <874q5nfm1e.fsf@javad.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512051158.06882.rob@landley.net>
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Sergei Organov wrote: > Sergey Vlasov <vsu@altlinux.ru>
+	writes: > >>On Fri, 02 Dec 2005 22:33:57 +0300 Sergei Organov wrote: >>
+	>> >>>Sorry, but provided ata_piix has ignored the optical drive,
+	couldn't >>>corresponding I/O resource be left free so that
+	subsequently loaded, >>>say, generic-ide module is able to get over and
+	support the drive? >>> >>>BTW, loading the modules in reverse order
+	helped on 2.6.13 kernel (that >>>I'm currently using) as generic-ide
+	didn't recognize the hard-drive at >>>all allowing ata_piix to get over
+	it later. With 2.6.14 kernel >>>generic-ide does recognize both
+	hard-drive and optical drive thus >>>preventing ata_piix from managing
+	the hard-drive :( >> >>See http://lkml.org/lkml/2005/10/18/167 and the
+	reply to it :-\ > > > Well, Jef's answer was: > > This is a reasonable
+	point, but the rare person who runs modular IDE on > these PATA/SATA
+	combined mode beasts can certainly tell the IDE driver > to not probe
+	certain ports. > > I can say that the kernel I have problem with is
+	from Debian "testing" > distribution so those "rare person" going to
+	become quite a few in the > near future. Besides, Debian loads ata_piix
+	first, then IDE, so telling > the IDE to ignore certain ports won't
+	help. > > Though one can argue that that's yet another distribution
+	problem, I > fail to see a way for a distribution to overcome the
+	problem provided it > doesn't know the exact hardware it will run on.
+	No hope for modularized > kernel to run out of the box on given
+	hardware? > > Jeff, is there any hope it will be fixed in the
+	kernel.org sources, or > should I report the problem to Debian instead
+	so that they consider > maintaining their own patch? [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 December 2005 10:28, Lee Revell wrote:
-> >
-> > Things like this are all too regular an occurance.
->
-> The distro should have solved this problem by making sure that the
-> kernel upgrade depends on a new wpa_supplicant package.  Don't they
-> bother to test this stuff before they ship it?!?
+Sergei Organov wrote:
+> Sergey Vlasov <vsu@altlinux.ru> writes:
+> 
+>>On Fri, 02 Dec 2005 22:33:57 +0300 Sergei Organov wrote:
+>>
+>>
+>>>Sorry, but provided ata_piix has ignored the optical drive, couldn't
+>>>corresponding I/O resource be left free so that subsequently loaded,
+>>>say, generic-ide module is able to get over and support the drive?
+>>>
+>>>BTW, loading the modules in reverse order helped on 2.6.13 kernel (that
+>>>I'm currently using) as generic-ide didn't recognize the hard-drive at
+>>>all allowing ata_piix to get over it later. With 2.6.14 kernel
+>>>generic-ide does recognize both hard-drive and optical drive thus
+>>>preventing ata_piix from managing the hard-drive :(
+>>
+>>See http://lkml.org/lkml/2005/10/18/167 and the reply to it :-\
+> 
+> 
+> Well, Jef's answer was:
+> 
+>   This is a reasonable point, but the rare person who runs modular IDE on 
+>   these PATA/SATA combined mode beasts can certainly tell the IDE driver 
+>   to not probe certain ports.
+> 
+> I can say that the kernel I have problem with is from Debian "testing"
+> distribution so those "rare person" going to become quite a few in the
+> near future. Besides, Debian loads ata_piix first, then IDE, so telling
+> the IDE to ignore certain ports won't help.
+> 
+> Though one can argue that that's yet another distribution problem, I
+> fail to see a way for a distribution to overcome the problem provided it
+> doesn't know the exact hardware it will run on. No hope for modularized
+> kernel to run out of the box on given hardware?
+> 
+> Jeff, is there any hope it will be fixed in the kernel.org sources, or
+> should I report the problem to Debian instead so that they consider
+> maintaining their own patch?
 
-I've broken stuff by upgrading glibc, upgrading X, upgrading KDE...
+Debian doesn't need to maintain a patch, they should load modules in the 
+proper order.
 
-Upgrading the kernel is safer?  (Anybody remember 2.4.11-dontuse?)
+	Jeff
 
-Yay, modular component-based design.  We have standard interfaces so that 
-stuff mostly works when you swap out different versions (or entire different 
-components).  This is cool.
 
-But if such interfaces were actually sufficient to specify all the 
-functionality you actually want to use, why would you ever need to upgrade a 
-component implementing that interface to a new version?
 
-The real problem people are seeing is that the rate of change has increased.  
-Linus used to be a hell of a bottleneck, and this stopped being the case when 
-source control systems took over a lot of the patch tracking, ordering, 
-batching, and integration burden.
-
-Automating the patch flow allowed entire subsystems to be effectively 
-delegated (and thus the "lieutenants" layer formed and was formalized), and 
-each of _them_ is now doing as much work as Linus used to do.
-
-And _that_ is why there is no longer any point in -devel forks, because Linus 
-is now fielding as many patches in a month as he used to in a year.  That 
-means in every 3 months the Linux kernel undergoes as much development (in 
-terms of patches merged and lines of code changed) as an entire -devel series 
-used to do.  (Somebody confirm the numbers, these are approximations.)
-
-There's no point in launching a fork that's only expected to last three 
-months.  Hence no -devel fork.
-
-Also, forks are cheaper now.  The new source control tools (not just git but 
-quilt and ketchup and so on) allow multiple parallel trees to be trivially 
-integrated.  It used to take somebody like Alan Cox all his spare time to 
-maintain a tree and merge with linus, and back then the -ac tree was very 
-special.  Now Con Colivas can maintain a tree in his spare time with a day 
-job as an anesthesiologist, and this is _normal_.  There are dozens of trees 
-out there feeding into each other, and anybody who wants to can grab the 
-relevant subsystem tree and try it out to make sure that the issue they care 
-about is fixed, and be assured that it'll all flow in to Linus's tree.
-
-What's special about Linus's tree is that it's the point to the wedge.  This 
-is the farthest we've advanced, this is your best bet.  There's always 
-something wrong with any piece of software, but half the complaints have 
-always been that something is fixed but not merged yet.  (Orinoco scanning, 
-ISDN, ALSA, examples are legion.)   That's getting way better.
-
-Now the _new_ class of complaints is that the IPW2200 driver that first got 
-merged was too old.  (I noticed this because that's the wireless card in my 
-laptop.)  Stop and think about that for a bit.  People were used to IPW2200 
-not being there at all, so they could easily add an external patch.  Then 
-2.6.14 grew partial IPW2200 support, but with an older driver, and people 
-were mad because the external patch they had to add support only applied when 
-the driver wasn't there at all, and it didn't apply over the older version.  
-They were mad that _insufficient_ support showed up.
-
-This is being fixed in 2.6.15.  It didn't last long.
-
-The new model is that if the kernel has half what you need, you need to come 
-up with an incremental patch to get it the rest of the way, and submit that.  
-And the up-side is that it'll go in pretty fast now.  Yes, the kernel is 
-changing rapidly enough that external patches probably need to be fixed up 
-with every new version.  (And if you're using the nvidia driver, this sucks 
-rocks.  You were warned.)
-
-The other thing people are complaining about is the deprecation schedule.  
-Notice is posted prominently up to a YEAR before a feature gets yanked.  
-Apparently, they want to upgrade to the new version when it comes out, but 
-don't want to read the instructions for this version (X went away), or the 
-warnings about upcoming versions...
-
-Possibly if we had a CHANGES file at the root level of the source mentioning
-
-A) What's new in this version.
-
-B) What's slated for next version (DEPRECATION COMING).
-
-C) What was new in the last version, in case you missed it.
-
-A combination of Documentation/feature-removal-schedule.txt and 
-http://wiki.kernelnewbies.org/LinuxChanges, with emphasis on userspace tools 
-known to be impacted.
-
-> Lee
-
-Rob
--- 
-Steve Ballmer: Innovation!  Inigo Montoya: You keep using that word.
-I do not think it means what you think it means.

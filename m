@@ -1,67 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbVLERCh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932458AbVLERDg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932446AbVLERCh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 12:02:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbVLERCg
+	id S932458AbVLERDg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 12:03:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932459AbVLERDg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 12:02:36 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:36802 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S932446AbVLERCf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 12:02:35 -0500
-Date: Mon, 5 Dec 2005 18:02:34 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: David Vrabel <dvrabel@cantab.net>
-Cc: Richard Purdie <rpurdie@rpsys.net>, LKML <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>, John Lenz <lenz@cs.wisc.edu>
-Subject: Re: [RFC PATCH 1/8] LED: Add LED Class
-Message-ID: <20051205170234.GA25114@atrey.karlin.mff.cuni.cz>
-References: <1133788166.8101.125.camel@localhost.localdomain> <439455BC.4080908@cantab.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <439455BC.4080908@cantab.net>
-User-Agent: Mutt/1.5.9i
+	Mon, 5 Dec 2005 12:03:36 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:34466 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S932458AbVLERDf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 12:03:35 -0500
+Date: Mon, 5 Dec 2005 09:03:13 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: Alok Kataria <alokk@calsoftinc.com>, Petr Vandrovec <vandrove@vc.cvut.cz>,
+       linux-kernel@vger.kernel.org, linux-mm@vger.kernel.org
+Subject: Re: [RFC] Use compound pages for higher order slab allocations.
+In-Reply-To: <4391ED8D.1040104@colorfullife.com>
+Message-ID: <Pine.LNX.4.62.0512050850310.11401@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.62.0511301334450.20244@schroedinger.engr.sgi.com>
+ <4391ED8D.1040104@colorfullife.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sat, 3 Dec 2005, Manfred Spraul wrote:
 
-> This LED subsystem isn't usable with LEDs that are controlled by I2C
-> GPIO devices.  Getting rid of (struct led_device).lock would go some way
-> to making it work.  It's not clear to me why it's needed anyway.
+> Christoph Lameter wrote:
 > 
-> Suspend and resume probably needs to be LED specific.
-> 
-> Richard Purdie wrote:
-> > Index: linux-2.6.15-rc2/drivers/leds/Kconfig
-> > ===================================================================
-> > --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> > +++ linux-2.6.15-rc2/drivers/leds/Kconfig	2005-12-05 11:29:19.000000000 +0000
-> > @@ -0,0 +1,18 @@
+> > +static inline struct page *virt_to_compound_page(const void *addr)
+> > +{
+> > +	struct page * page = virt_to_page(addr);
 > > +
-> > +menu "LED devices"
+> > +	if (PageCompound(page))
+> > +        	page = (struct page *)page_private(page);
 > > +
-> > +config NEW_LEDS
-> 
-> Is there a better name than NEW_LEDS?  It won't be 'new' for very long...
+> >  
+> This would end up in every kmem_cache_free/kfree call. Is it really worth the
+> effort, are the high order allocation a problem?
 
-Well, there's chance to rename ARM leds to OLD_LEDS. :-).
- 
+The use of compound pages allows the handling of the higher order 
+allocated page as one unit in a generic slab independent way. Currently 
+struct page elements have a slab specific meaning and must be 
+inspected in a slab specific way to figure out where the 
+higher order page starts. Having compound pages allows a generic handling
+of higher order pages unifying f.e. hugepage handling with slab handling etc.
 
-> > Index: linux-2.6.15-rc2/include/linux/leds.h
-> > ===================================================================
-> > --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> > +++ linux-2.6.15-rc2/include/linux/leds.h	2005-12-05 11:29:19.000000000 +0000
-> > [...]
-> > +	/* A function to set the brightness of the led.
-> > +	 * Values are between 0-100 */
-> > +	void (*brightness_set)(struct led_device *led_dev, int value);
-> 
-> 0-255 is probably a better range to use.  Might be worth having an enum
-> like.
+Not sure if this is worth it but it may make the handling of these pages 
+easier for page migration, hotplug and bad memory relocation. Other 
+endeavors that either scan struct page arrays or may start processing with 
+any struct page also currently have to deal with the slab specific way of 
+handling higher order pages.
 
-Well, don't overdo it, most LEDs are 0/1 anyway.
-								Pavel
--- 
-Boycott Kodak -- for their patent abuse against Java.
+> I'm against such a change without a clear proof that just using high order
+> allocations is not possible.
+
+We are doing it right now so its definitely possible.
+

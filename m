@@ -1,69 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbVLEUVz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751439AbVLEUX4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751416AbVLEUVz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 15:21:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751432AbVLEUVz
+	id S1751439AbVLEUX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 15:23:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbVLEUXz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 15:21:55 -0500
-Received: from smtp-101-monday.nerim.net ([62.4.16.101]:35854 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S1751416AbVLEUVy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 15:21:54 -0500
-Date: Mon, 5 Dec 2005 21:23:37 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Greg KH <greg@kroah.com>
-Subject: [PATCH] Minor change to platform_device_register_simple prototype
-Message-Id: <20051205212337.74103b96.khali@linux-fr.org>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 5 Dec 2005 15:23:55 -0500
+Received: from mout1.freenet.de ([194.97.50.132]:39561 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S1751439AbVLEUXz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 15:23:55 -0500
+From: Michael Buesch <mbuesch@freenet.de>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: Broadcom 43xx first results
+Date: Mon, 5 Dec 2005 21:14:16 +0100
+User-Agent: KMail/1.8.3
+References: <E1Eiyw4-0003Ab-FW@www1.emo.freenet-rz.de> <20051205194016.GA23892@elf.ucw.cz>
+In-Reply-To: <20051205194016.GA23892@elf.ucw.cz>
+Cc: linux-kernel@vger.kernel.org, bcm43xx-dev@lists.berlios.de
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart3628313.0JbQ0r0M59";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200512052114.16651.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+--nextPart3628313.0JbQ0r0M59
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Propose patch for platform driver core. Greg, can you add it to your
-driver queue?
+On Monday 05 December 2005 20:40, you wrote:
+> > BCM43xx driver:
+> > http://bcm43xx.berlios.de
+> > Required SoftMAC Layer:
+> > http://softmac.sipsolutions.net
+>=20
+> ...but don't feel like playing with *two* different revision control
+> systems just to get the sources. Do you think you could just mail the
+> diffs to the list?
 
-Thanks.
+The diffs will be outdated within minutes ;)
+Both trees are rapidly changing.
 
-Content-Disposition: inline; filename=driver-platform-device-name-as-const-char.patch
+=2D-=20
+Greetings Michael.
 
-The name parameter of platform_device_register_simple should be of
-type const char * instead of char *, as we simply pass it to
-platform_device_alloc, where it has type const char *.
+--nextPart3628313.0JbQ0r0M59
+Content-Type: application/pgp-signature
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
----
- drivers/base/platform.c         |    2 +-
- include/linux/platform_device.h |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
---- linux-2.6.15-rc2.orig/drivers/base/platform.c	2005-11-13 21:02:31.000000000 +0100
-+++ linux-2.6.15-rc2/drivers/base/platform.c	2005-12-05 20:44:43.000000000 +0100
-@@ -327,7 +327,7 @@
-  *	to be unloaded iwithout waiting for the last reference to the device
-  *	to be dropped.
-  */
--struct platform_device *platform_device_register_simple(char *name, unsigned int id,
-+struct platform_device *platform_device_register_simple(const char *name, unsigned int id,
- 							struct resource *res, unsigned int num)
- {
- 	struct platform_device *pdev;
---- linux-2.6.15-rc2.orig/include/linux/platform_device.h	2005-11-13 21:02:59.000000000 +0100
-+++ linux-2.6.15-rc2/include/linux/platform_device.h	2005-12-05 20:44:30.000000000 +0100
-@@ -35,7 +35,7 @@
- extern int platform_get_irq_byname(struct platform_device *, char *);
- extern int platform_add_devices(struct platform_device **, int);
- 
--extern struct platform_device *platform_device_register_simple(char *, unsigned int, struct resource *, unsigned int);
-+extern struct platform_device *platform_device_register_simple(const char *, unsigned int, struct resource *, unsigned int);
- 
- extern struct platform_device *platform_device_alloc(const char *name, unsigned int id);
- extern int platform_device_add_resources(struct platform_device *pdev, struct resource *res, unsigned int num);
+iD8DBQBDlJ+Ylb09HEdWDKgRAtY5AJ9VKJZQD4epq4RebABwJezH3AI4+QCff8Ft
+bA0j3nN12SHtOTEFsglpAbE=
+=b+e5
+-----END PGP SIGNATURE-----
 
-
--- 
-Jean Delvare
+--nextPart3628313.0JbQ0r0M59--

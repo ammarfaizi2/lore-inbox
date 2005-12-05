@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932492AbVLESeG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932504AbVLEShA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932492AbVLESeG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 13:34:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932498AbVLESeG
+	id S932504AbVLEShA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 13:37:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932501AbVLESg7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 13:34:06 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:58060 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932492AbVLESeF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 13:34:05 -0500
-Subject: Re: Linux in a binary world... a doomsday scenario
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Walrond <andrew@walrond.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200512051826.06703.andrew@walrond.org>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
-	 <200512051826.06703.andrew@walrond.org>
-Content-Type: text/plain
-Date: Mon, 05 Dec 2005 19:34:01 +0100
-Message-Id: <1133807641.9356.50.camel@laptopd505.fenrus.org>
+	Mon, 5 Dec 2005 13:36:59 -0500
+Received: from ns1.suse.de ([195.135.220.2]:33490 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932502AbVLESg6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 13:36:58 -0500
+Date: Mon, 5 Dec 2005 19:36:54 +0100
+From: Andi Kleen <ak@suse.de>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
+       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+       Andrew Morton <akpm@osdl.org>, cpufreq <cpufreq@www.linux.org.uk>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] CPU frequency display in /proc/cpuinfo
+Message-ID: <20051205183654.GG11190@wotan.suse.de>
+References: <20051202181927.GD9766@wotan.suse.de> <20051202104320.A5234@unix-os.sc.intel.com> <20051204164335.GB32492@isilmar.linta.de> <20051204183239.GE14247@wotan.suse.de> <1133725767.19768.12.camel@mindpipe> <20051205011611.GA12664@redhat.com> <1133796748.21641.8.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1133796748.21641.8.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-05 at 18:26 +0000, Andrew Walrond wrote:
-> On Monday 05 December 2005 10:52, Arjan van de Ven wrote:
-> >
-> > a hypothetical doomsday scenario by Arjan van de Ven
-> >
-> 
-> Can I ask what prompted your post?
+> JACK needs to know the CPU speed in order to be able to use RDTSC for
+> timing.  Yes that might be "broken" but gettimeofday() is simply not
 
-I got one too many hatemails from a "nvidia fanboy" who blamed me for
-just about anything wrong in the world.... I fear that most of these
-people have no idea why open source drivers matter, or at least what the
-consequences are for not caring about drivers being open or not.
+It is broken then.  Was always broken, will be broken etc.
 
+> fast enough for our use, we can't afford the overhead of thousands of
+> system calls per second.  And until recently 99.999% of desktop machines
+> had a monotonic TSC so this worked very well.
 
-> 
-> >
-> > On December 6th, 2005 the kernel developers en mass decide that binary
-> > modules are legally fine and also essential for the progress of linux,
-> 
-> Has anyone (influential) actually being toying with this idea? I hope not, but 
-> if they are, I'd like to know who to lobby...
+You're wrong. First if you say "monotonic" you don't understand the problem.
+Monotonicity is only a small part of it.  The bigger one is just 
+getting the current frequency and figuring out of if the information
+is safe to use.
 
-this part of the "story" is fiction. A lot of the rest is not. There are
-already several servers that you can only use with binary modules..
-modules only available in full binary form for RHEL and SLES kernels for
-example. 
+Chips where it doesn't work:
+
+- Intel Prescott and derivatives (newer Pentium 4, newer Xeon, on
+Celeron you are still lucky because they normally don't have speedstep): 
+TSC runs at a different frequency than the current P state and P state often 
+varies with speedstep [These are the most common desktop chips in the world, 
+although not all have speedstep enabled. Many newer ones have though.]
+- Intel P-M and earlier P4,P3 mobile chips, Athlon 64, Athlon XP-M,
+Opteron etc: 
+TSC varies with P state and user space has no way to get timely 
+updates on P-state changes.
+- VIA C3: I believe TSC stops in idle (at least it used to on
+older versions, don't know if they fixed it)
+
+-Andi
 

@@ -1,60 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbVLERQ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbVLERRQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932449AbVLERQ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 12:16:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbVLERQ7
+	id S1751384AbVLERRQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 12:17:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbVLERRQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 12:16:59 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:52366 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751344AbVLERQ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 12:16:58 -0500
+	Mon, 5 Dec 2005 12:17:16 -0500
+Received: from unthought.net ([212.97.129.88]:41742 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S1751384AbVLERRO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 12:17:14 -0500
+Date: Mon, 5 Dec 2005 18:17:13 +0100
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Greg KH <greg@kroah.com>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
 Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-From: Lee Revell <rlrevell@joe-job.com>
-To: Matthias Andree <matthias.andree@gmx.de>
-Cc: Mark Lord <lkml@rtr.ca>, Rob Landley <rob@landley.net>,
-       Adrian Bunk <bunk@stusta.de>, David Ranson <david@unsolicited.net>,
-       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051205164418.GA12725@merlin.emma.line.org>
-References: <20051203135608.GJ31395@stusta.de>
-	 <4391D335.7040008@unsolicited.net> <20051203175355.GL31395@stusta.de>
-	 <200512042131.13015.rob@landley.net> <4394681B.20608@rtr.ca>
-	 <1133800090.21641.17.camel@mindpipe>
-	 <20051205164418.GA12725@merlin.emma.line.org>
-Content-Type: text/plain
-Date: Mon, 05 Dec 2005 12:17:28 -0500
-Message-Id: <1133803048.21641.48.camel@mindpipe>
+Message-ID: <20051205171713.GC4179@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Pekka Enberg <penberg@cs.helsinki.fi>, Greg KH <greg@kroah.com>,
+	Jesper Juhl <jesper.juhl@gmail.com>, Adrian Bunk <bunk@stusta.de>,
+	linux-kernel@vger.kernel.org
+References: <20051203135608.GJ31395@stusta.de> <9a8748490512030629t16d0b9ebv279064245743e001@mail.gmail.com> <20051203201945.GA4182@kroah.com> <20051204170049.GA4179@unthought.net> <20051204223931.GA8914@kroah.com> <20051205151753.GB4179@unthought.net> <84144f020512050744l3cc8289dh9a34c6f60311b6aa@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <84144f020512050744l3cc8289dh9a34c6f60311b6aa@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-05 at 17:44 +0100, Matthias Andree wrote:
-> This constant shifting the blame on someone else is becoming
-> offensive.
+On Mon, Dec 05, 2005 at 05:44:08PM +0200, Pekka Enberg wrote:
+> Hi,
 > 
-> Diligent maintainers put "INCOMPATIBLE CHANGES" sections up front in
-> their release announcements or notes, that is the upstream
-> maintainer's chance to state "wpa_supplicant version >= 1.2.3
-> required" and really pass the buck on to the distros. Without such
-> upgrade-required-for: notes, it's just rude. "We break everything but
-> you need to find out for
-> yourself which..."
+> On Sun, Dec 04, 2005 at 02:39:31PM -0800, Greg KH wrote:
+> > > Have you filed a but at bugzilla.kernel.org about this?  If not, how do
+> > > you expect it to get fixed?
 > 
+> On 12/5/05, Jakob Oestergaard <jakob@unthought.net> wrote:
+> > I don't expect to get it fixed. It's futile. It can get fixed in one
+> > version and broken two days later, and it seems the attitude is that
+> > that is just fine.
+> 
+> I don't think anyone breaks things on purpose.
 
-I'm not trying to shift blame, I am just saying that with their access
-to a larger hardware and user base the distros are in a much better
-position to regression test changes than the kernel developers.
+Of course not, silly :)
 
-And I didn't even mention the cases where the distros just don't do
-their homework.  For example in order to insulate users from internal
-changes ALSA has a kernel and userspace (alsa-lib) component and both
-must be upgraded in sync to properly support new hardware.  This is
-common knowledge.  But many distros keep shipping kernel upgrades that
-introduce new ALSA drivers but don't bother to make the kernel upgrade
-depend on an alsa-lib upgrade, or even to make a newer alsa-lib
-available.
+But there's a difference between having a tree where you fix bugs and
+having a tree where you are very lax about major changes. By including
+major changes you (knowingly or not) risk breaking things, and things do
+break regularly.
 
-Lee
+> Please feel free to
+> report the bug as many times as necessary to get it fixed.
+
+Thank you :)
+
+If it did not occur to you, then I was never in doubt of this. I tried
+to point out a problem in this approach - namely, that you will never
+end up with a stable tree if major changes (read; new bugs) go in as
+fast as old bugs are squashed.
+
+You do get a tree that is evolving very quickly, and which is somewhat
+stable for most purposes. Whether or not that is good enough for
+everyone, was pretty much the topic of this thread as I understand it.
+
+> You
+> shouldn't be complaining if you're not doing your part.
+
+I'm not complaining.  I'm voicing my oppinion in a thread that discusses
+whether or not it would be a good idea to try and produce a stable tree.
+
+I think it would be a good idea, and you're free to disagree.
+
+Please read the thread if you're in doubt of the context of my comments  :)
+
+-- 
+
+ / jakob
 

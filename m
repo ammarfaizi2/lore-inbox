@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932384AbVLEQ1j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbVLEQ3G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932384AbVLEQ1j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 11:27:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbVLEQ1j
+	id S932454AbVLEQ3G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 11:29:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbVLEQ3G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 11:27:39 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:41179 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932384AbVLEQ1i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 11:27:38 -0500
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-From: Lee Revell <rlrevell@joe-job.com>
-To: Mark Lord <lkml@rtr.ca>
-Cc: Rob Landley <rob@landley.net>, Adrian Bunk <bunk@stusta.de>,
-       David Ranson <david@unsolicited.net>,
-       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
-       Matthias Andree <matthias.andree@gmx.de>
-In-Reply-To: <4394681B.20608@rtr.ca>
-References: <20051203135608.GJ31395@stusta.de>
-	 <4391D335.7040008@unsolicited.net> <20051203175355.GL31395@stusta.de>
-	 <200512042131.13015.rob@landley.net>  <4394681B.20608@rtr.ca>
-Content-Type: text/plain
-Date: Mon, 05 Dec 2005 11:28:10 -0500
-Message-Id: <1133800090.21641.17.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Mon, 5 Dec 2005 11:29:06 -0500
+Received: from gateway.argo.co.il ([194.90.79.130]:5641 "EHLO
+	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S932454AbVLEQ3F
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 11:29:05 -0500
+Message-ID: <43946ACE.9040405@argo.co.il>
+Date: Mon, 05 Dec 2005 18:29:02 +0200
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dave Jones <davej@redhat.com>
+CC: Lee Revell <rlrevell@joe-job.com>, Andi Kleen <ak@suse.de>,
+       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+       Andrew Morton <akpm@osdl.org>, cpufreq <cpufreq@www.linux.org.uk>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] CPU frequency display in /proc/cpuinfo
+References: <20051202181927.GD9766@wotan.suse.de> <20051202104320.A5234@unix-os.sc.intel.com> <20051204164335.GB32492@isilmar.linta.de> <20051204183239.GE14247@wotan.suse.de> <1133725767.19768.12.camel@mindpipe> <20051205011611.GA12664@redhat.com>
+In-Reply-To: <20051205011611.GA12664@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 05 Dec 2005 16:29:03.0660 (UTC) FILETIME=[0155E6C0:01C5F9B9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-05 at 11:17 -0500, Mark Lord wrote:
-> >>>Ahh OK .. I don't use it, so wouldn't have been affected. That's one
-> >>>userspace interface broken during the series, does anyone have any more?
-> 
-> Ah.. another one, that I was just reminded of again
-> by the umpteenth person posting that their wireless
-> no longer is WPA capable after upgrading from 2.6.12.
-> 
-> Of course, the known solution for that issue is to
-> upgrade to the recently "fixed" latest wpa_supplicant
-> daemon in userspace, since the old one no longer works.
-> 
-> Things like this are all too regular an occurance.
+Dave Jones wrote:
 
-The distro should have solved this problem by making sure that the
-kernel upgrade depends on a new wpa_supplicant package.  Don't they
-bother to test this stuff before they ship it?!?
+>I can't think of a single valid reason why a program would want
+>to know the MHz rating of a CPU. Given that it's a) approximate,
+>b) subject to change due to power management, c) completely nonsensical
+>across CPU vendors, and d) only one of many variables regarding CPU
+>performance, any program that bases any decision on the values found
+>by parsing that field of /proc/cpuinfo is utterly broken beyond belief.
+>  
+>
+Sometimes you need extremely low overhead time measurements, which need 
+not be too accurate. One way to do this is to dump rdtsc measurements 
+into some array, and later scale it using the cpu frequency.
 
-Lee
-
+I've done exactly this. The processes were pinned to their processors, 
+and there was no frequency scaling in effect. It worked very well.

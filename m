@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964853AbVLEXMB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbVLEXSI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964853AbVLEXMB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 18:12:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964851AbVLEXMA
+	id S964826AbVLEXSI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 18:18:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbVLEXSH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 18:12:00 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:11231
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S964854AbVLEXL7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 18:11:59 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Date: Mon, 5 Dec 2005 17:09:08 -0600
-User-Agent: KMail/1.8
-Cc: Florian Weimer <fw@deneb.enyo.de>, Lee Revell <rlrevell@joe-job.com>,
-       Mark Lord <lkml@rtr.ca>, Adrian Bunk <bunk@stusta.de>,
-       David Ranson <david@unsolicited.net>, linux-kernel@vger.kernel.org
-References: <20051203135608.GJ31395@stusta.de> <873bl76zd3.fsf@mid.deneb.enyo.de> <1133817679.6724.52.camel@localhost.localdomain>
-In-Reply-To: <1133817679.6724.52.camel@localhost.localdomain>
+	Mon, 5 Dec 2005 18:18:07 -0500
+Received: from nproxy.gmail.com ([64.233.182.204]:53915 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964826AbVLEXSG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 18:18:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gXw4Qz5zugN+gHKyLDcB7R5wVFjzoEL0xJ3e8KTYaMgfSp20hTc2iboV37PRv73kFOLy1TIGLGyGDnUJ/K9FjCiW2AKptRzsDMhtikU97sZMqztW/9cqKDDN8kV9e16ktURX+XaXn3RgzauZGAHytHTVs21g+wB2rCjJzLl4sOE=
+Message-ID: <58cb370e0512051518j35885be1j44f7846e2d27c63d@mail.gmail.com>
+Date: Tue, 6 Dec 2005 00:18:03 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: "Marco d'Itri" <md@linux.it>
+Subject: Re: ide: MODALIAS support for autoloading of ide-cd, ide-disk, ...
+Cc: Kay Sievers <kay.sievers@vrfy.org>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
+In-Reply-To: <20051205182856.GB8827@wonderland.linux.it>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200512051709.08940.rob@landley.net>
+References: <20051203172418.GA12297@vrfy.org>
+	 <58cb370e0512050024s647fdc5eg8d0c2e60dd7867dd@mail.gmail.com>
+	 <20051205182856.GB8827@wonderland.linux.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 December 2005 15:21, Steven Rostedt wrote:
-> Perhaps, we could start out having Greg and Chris just concentrate on
-> every fifth branch instead of every one, and that way the stability will
-> last much longer.
+On 12/5/05, Marco d'Itri <md@linux.it> wrote:
+> On Dec 05, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
+>
+> > Looks fine but what about ide-scsi driver and ide_optical media?
+> The Debian hotplug script, which does the same thing, does not know
+> about these modules and nobody ever complained, so if some support is
 
-Ah, belling the cat.
+Does the hotplug script export kernel sysfs attributes?
 
-Hint:  Any plan in a volunteer community that starts with "$BUSY_PEOPLE should 
-do $THIS" fails.  Any plan that starts with "I could do $THIS" at least has a 
-chance.
+> needed it can be added later.
 
-This is not limited to open source, by the way...
+The problem is that you get wrong data for "modalias" sysfs attribute
+for ide-scsi module (because "modalias" is based on the media type).
 
--- 
-Steve Ballmer: Innovation!  Inigo Montoya: You keep using that word.
-I do not think it means what you think it means.
+Until this is issue solved I can't accept this patch.
+
+> (And ide-scsi is dead anyway...)
+
+ide-scsi is the only way to support some devices currently
+
+Bartlomiej

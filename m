@@ -1,132 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751412AbVLEUP0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751430AbVLEURW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751412AbVLEUP0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 15:15:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbVLEUP0
+	id S1751430AbVLEURW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 15:17:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751432AbVLEURV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 15:15:26 -0500
-Received: from web36913.mail.mud.yahoo.com ([209.191.85.81]:37244 "HELO
-	web36913.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751412AbVLEUPZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 15:15:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=dGZZxgkVNSh633uRRbtZM0zRqAfCDs8DuxoN9wR2LcIVgT/qT586q3h7k4VpRC4AT5TtNCITgN702TczsGYf5mDRb19r5oPkFWsY/AY+4n48EAJi3wEdX2rLmDZLlnFqOPtOAjUjASLMdlDZdWoj+FtRUNddujmTOljQTb9QKSw=  ;
-Message-ID: <20051205201522.36583.qmail@web36913.mail.mud.yahoo.com>
-Date: Mon, 5 Dec 2005 20:15:22 +0000 (GMT)
-From: Mark Underwood <basicmark@yahoo.com>
-Subject: stephen@streetfiresound.com, vwool@ru.mvista.com
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
+	Mon, 5 Dec 2005 15:17:21 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:50611
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1751430AbVLEURV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 15:17:21 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] update to the initramfs docs.
+Date: Mon, 5 Dec 2005 14:17:07 -0600
+User-Agent: KMail/1.8
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-1394837760-1133813722=:31113"
-Content-Transfer-Encoding: 8bit
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_DBKlDwGoLf2VSdg"
+Message-Id: <200512051417.07248.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-1394837760-1133813722=:31113
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Id: 
+--Boundary-00=_DBKlDwGoLf2VSdg
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-This patch fix's the possible priority inversion that vitaly pointed out and allows the driver to
-be built as a module. 
+Signed-off-by: Rob Landley <rob@landley.net>
+
+Based on questions people have asked me.  Repeatedly.
+
+-- 
+Steve Ballmer: Innovation!  Inigo Montoya: You keep using that word.
+I do not think it means what you think it means.
+
+--Boundary-00=_DBKlDwGoLf2VSdg
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="initramfs2.patch"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: attachment;
+	filename="initramfs2.patch"
+
+--- linux-old/Documentation/filesystems/ramfs-rootfs-initramfs.txt	2005-12-05 13:09:32.140712872 -0600
++++ linux-2.6.15-rc4/Documentation/filesystems/ramfs-rootfs-initramfs.txt	2005-12-05 14:12:29.221509312 -0600
+@@ -143,12 +143,26 @@
+   dir /mnt 755 0 0
+   file /init initramfs/init.sh 755 0 0
  
-David, please can you test this patch. Can you also submit a patch which adds the module author,
-description and license please, thanks.
-
-Mark
-
- Kconfig |    2 +-
- spi.c   |   23 ++++++++++++++++++-----
- 2 files changed, 19 insertions(+), 6 deletions(-)
-
-
-		
-___________________________________________________________ 
-Yahoo! Exclusive Xmas Game, help Santa with his celebrity party - http://santas-christmas-party.yahoo.net/
---0-1394837760-1133813722=:31113
-Content-Type: text/x-patch; name="spi-dir.patch"
-Content-Description: 1747405766-spi-dir.patch
-Content-Disposition: inline; filename="spi-dir.patch"
-
-diff -uprN spi-org/Kconfig spi/Kconfig
---- spi-org/Kconfig	2005-12-05 19:49:52.000000000 +0000
-+++ spi/Kconfig	2005-12-05 18:38:06.000000000 +0000
-@@ -22,7 +22,7 @@ config SPI_ARCH_HAS_SLAVE
- 	default y if ARCH_PXA
- 
- config SPI
--	bool "SPI support"
-+	tristate "SPI support"
- 	depends on SPI_ARCH_HAS_MASTER || SPI_ARCH_HAS_SLAVE
- 	help
- 	  The "Serial Peripheral Interface" is a low level synchronous
-diff -uprN spi-org/spi.c spi/spi.c
---- spi-org/spi.c	2005-12-05 19:49:52.000000000 +0000
-+++ spi/spi.c	2005-12-05 19:06:05.000000000 +0000
-@@ -232,6 +232,8 @@ EXPORT_SYMBOL_GPL(spi_new_device);
-  * The board info passed can safely be __initdata ... but be careful of
-  * any embedded pointers (platform_data, etc), they're copied as-is.
-  */
++Run "usr/gen_init_cpio" (after the kernel build) to get a usage message
++documenting the above file format.
 +
-+#ifdef CONFIG_SPI
- int __init
- spi_register_board_info(struct spi_board_info const *info, unsigned n)
- {
-@@ -249,6 +251,7 @@ spi_register_board_info(struct spi_board
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(spi_register_board_info);
-+#endif
+ One advantage of the text file is that root access is not required to
+ set permissions or create device nodes in the new archive.  (Note that those
+ two example "file" entries expect to find files named "init.sh" and "busybox" in
+ a directory called "initramfs", under the linux-2.6.* directory.  See
+ Documentation/early-userspace/README for more details.)
  
- /* FIXME someone should add support for a __setup("spi", ...) that
-  * creates board info from kernel command lines
-@@ -505,6 +508,7 @@ int spi_write_then_read(struct spi_devic
- 	int			status;
- 	struct spi_message	message;
- 	struct spi_transfer	x[2];
-+	u8			*local_buf;
- 
- 	/* Use preallocated DMA-safe buffer.  We can't avoid copying here,
- 	 * (as a pure convenience thing), but we can keep heap costs
-@@ -513,14 +517,19 @@ int spi_write_then_read(struct spi_devic
- 	if ((n_tx + n_rx) > SPI_BUFSIZ)
- 		return -EINVAL;
- 
--	down(&lock);
-+	if (down_trylock(&lock))
-+		/* Someone else is using the main buffer, kalloc a new one */
-+		local_buf = kmalloc(SPI_BUFSIZ, GFP_ATOMIC);
-+	else
-+		local_buf = buf;
++The kernel does not depend on external cpio tools, gen_init_cpio is created
++from usr/gen_init_cpio.c which is entirely self-contained, and the kernel's
++boot-time extractor is also (obviously) self-contained.  However, if you _do_
++happen to have cpio installed, the following command line can extract the
++generated cpio image back into its component files:
 +
- 	memset(x, 0, sizeof x);
- 
--	memcpy(buf, txbuf, n_tx);
--	x[0].tx_buf = buf;
-+	memcpy(local_buf, txbuf, n_tx);
-+	x[0].tx_buf = local_buf;
- 	x[0].len = n_tx;
- 
--	x[1].rx_buf = buf + n_tx;
-+	x[1].rx_buf = local_buf + n_tx;
- 	x[1].len = n_rx;
- 
- 	/* do the i/o */
-@@ -532,7 +541,11 @@ int spi_write_then_read(struct spi_devic
- 		status = message.status;
- 	}
- 
--	up(&lock);
-+	if (x[0].tx_buf == buf)
-+		up(&lock);
-+	else
-+		kfree(local_buf);
++  cpio -i -d -H newc -F initramfs_data.cpio --no-absolute-filenames
 +
- 	return status;
- }
- EXPORT_SYMBOL_GPL(spi_write_then_read);
++Contents of initramfs:
++----------------------
++
+ If you don't already understand what shared libraries, devices, and paths
+ you need to get a minimal root filesystem up and running, here are some
+ references:
+@@ -161,13 +175,69 @@
+ code against, along with some related utilities.  It is BSD licensed.
+ 
+ I use uClibc (http://www.uclibc.org) and busybox (http://www.busybox.net)
+-myself.  These are LGPL and GPL, respectively.
++myself.  These are LGPL and GPL, respectively.  (A self-contained initramfs
++package is planned for the busybox 1.2 release.)
+ 
+ In theory you could use glibc, but that's not well suited for small embedded
+ uses like this.  (A "hello world" program statically linked against glibc is
+ over 400k.  With uClibc it's 7k.  Also note that glibc dlopens libnss to do
+ name lookups, even when otherwise statically linked.)
+ 
++Why cpio rather than tar?
++-------------------------
++
++This decision was made back in December, 2001.  The discussion started here:
++
++  http://www.uwsg.iu.edu/hypermail/linux/kernel/0112.2/1538.html
++
++And spawned a second thread (specifically on tar vs cpio), starting here:
++
++  http://www.uwsg.iu.edu/hypermail/linux/kernel/0112.2/1587.html
++
++The quick and dirty summary version (which is no substitute for reading
++the above threads) is:
++
++1) cpio is a standard.  It's decades old (from the AT&T days), and already
++   widely used on Linux (inside RPM, Red Hat's device driver disks).  Here's
++   a Linux Journal article about it from 1996:
++
++      http://www.linuxjournal.com/article/1213
++
++   It's not as popular as tar because the traditional cpio command line tools
++   require _truly_hideous_ command line arguments.  But that says nothing
++   either way about the archive format, and there are alternative tools,
++   such as:
++
++     http://freshmeat.net/projects/afio/
++
++2) The cpio archive format chosen by the kernel is simpler and cleaner (and
++   thus easier to create and parse) than any of the (literally dozens of)
++   various tar archive formats.  The complete initramfs archive format is
++   explained in buffer-format.txt, created in usr/gen_init_cpio.c, and
++   extracted in init/initramfs.c.  All three together come to less than 26k
++   total of human-readable text.
++
++3) The GNU project standardizing on tar is approximately as relevant as
++   Windows standardizing on zip.  Linux is not part of either, and is free
++   to make its own technical decisions.
++
++4) Since this is a kernel internal format, it could easily have been
++   something brand new.  The kernel provides its own tools to create and
++   extract this format anyway.  Using an existing standard was preferable,
++   but not essential.
++
++5) Al Viro made the decision (quote: "tar is ugly as hell and not going to be
++   supported on the kernel side"):
++
++      http://www.uwsg.iu.edu/hypermail/linux/kernel/0112.2/1540.html
++
++   explained his reasoning:
++
++      http://www.uwsg.iu.edu/hypermail/linux/kernel/0112.2/1550.html
++      http://www.uwsg.iu.edu/hypermail/linux/kernel/0112.2/1638.html
++
++   and, most importantly, designed and implemented the initramfs code.
++
+ Future directions:
+ ------------------
+ 
 
---0-1394837760-1133813722=:31113--
+--Boundary-00=_DBKlDwGoLf2VSdg--

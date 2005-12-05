@@ -1,60 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964858AbVLEXZX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964863AbVLEXZn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964858AbVLEXZX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 18:25:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964859AbVLEXZX
+	id S964863AbVLEXZn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 18:25:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964860AbVLEXZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 18:25:23 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:23302 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964858AbVLEXZX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 18:25:23 -0500
-Date: Tue, 6 Dec 2005 00:25:21 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Message-ID: <20051205232521.GP9973@stusta.de>
-References: <20051203135608.GJ31395@stusta.de> <43949541.9060700@tmr.com>
+	Mon, 5 Dec 2005 18:25:43 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:20912 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S964863AbVLEXZb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 18:25:31 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andy Isaacson <adi@hexapodia.org>
+Subject: Re: swsusp performance problems in 2.6.15-rc3-mm1
+Date: Tue, 6 Dec 2005 00:05:04 +0100
+User-Agent: KMail/1.9
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>
+References: <20051205081935.GI22168@hexapodia.org>
+In-Reply-To: <20051205081935.GI22168@hexapodia.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <43949541.9060700@tmr.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200512060005.04556.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 05, 2005 at 02:30:09PM -0500, Bill Davidsen wrote:
+Hi,
+
+On Monday, 5 December 2005 09:19, Andy Isaacson wrote:
+> On recent kernels such as 2.6.14-rc2-mm1, a swsusp of my laptop (1.25
+> GB, P4M 1.4 GHz) was a pretty fast process; freeing memory took about 3
+> seconds or less,
+
+It took much more time on my box, but I won't discuss with your
+experience. ;-)
+
+> and writing out the swap image took less than 5 
+> seconds, so within 15 seconds of running my suspend script power was
+> off.
 > 
-> Actually I would be happy with the stability of this series if people 
-> would stop trying to take working features OUT of it! That's the largest 
-> problem I see, not that the existing features are unstable, and we have 
-> a -stable branch to cover that, but that I can't count on features I use 
-> and which are required for useful work.
+> The downside was that after suspend, *everything* needed to be paged
+> back in, so all my apps were *very* slow for the first few interactions.
+> It would take about 15 or 20 seconds for Firefox to repaint the first
+> time I switched to its virtual desktop, and it was perceptibly slower
+> than normal for the next 5 or 10 minutes of use.
 > 
-> If a firm policy of not removing supported features until 2.7 was 
-> adopted I don't see a problem. The bulk of the instability (not 
-> absolutely all, I grant), is in new features, or features which aren't 
-> working all that well in any case. But if existing features suddenly 
-> drop out from beneath the user, then you will find people doing what you 
-> mentioned, staying with old kernels with holes rather than moving to 
-> kernels which are simply no longer functional.
+> Now that I'm running 2.6.15-rc3-mm1, the page-in problem seems to be
+> largely gone; I don't notice a significant lagginess after resuming from
+> swsusp.
+> 
+> But the suspend process is *slow*.  It takes a good 20 or 30 seconds to
+> write out the image, which makes the overall suspend process take close
+> to a minute; it's writing about 400 MB, and my disk seems to only be
+> good for about 18 MB/sec according to hdparm -t.
+> 
+> And, the resume is about the same amount slower, too.
+> 
+> Certainly there's a tradeoff to be made, and I'm glad to lose the slow
+> re-paging after resume, but I'm hoping that some kind of improvement can
+> be made in the suspend/resume time.
 
-You are thinking in terms of the old development model.
+Yes, there is a tradeoff.  Till now, we have used the simplistic approach
+based on freeing as much memory as possible before suspend.  Now, we
+are freeing only as much memory as necessary, which is on the other
+end of the scale, so to speak.  There are a whole lot of possibilities in
+between, and there's a question which one is the best.  Frankly, I'm afraid
+the answer is very system-dependent.
 
-This is not an option since the current development model says that 
-there might never be a 2.7 kernel series.
+If you want a quick solution, you can get back to the previous behavior by
+commenting out the definition of FAST_FREE in kernel/power/power.h.
 
-We might like it or not, but this is the current development model and 
-Andrew and Linus don't seem to want to change it.
+Alternatively, you can increase the value of PAGES_FOR_IO, defined
+in include/linux/suspend.h.  To see any effect, you'll probably have to
+increase it by tens of thousands, but please note the box may be unable
+to suspend if it's too great (if you try this anyway, please let me know what
+number seems to be the best to you).
 
-cu
-Adrian
+Also, I can create a patch to improve this a bit, if you promise to help
+test/debug it. ;-)
+
+Greetings,
+Rafael
+
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Beer is proof that God loves us and wants us to be happy - Benjamin Franklin
 

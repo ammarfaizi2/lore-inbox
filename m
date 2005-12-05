@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932521AbVLETSs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932510AbVLETUQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932521AbVLETSs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 14:18:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932519AbVLETSs
+	id S932510AbVLETUQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 14:20:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932524AbVLETUQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 14:18:48 -0500
-Received: from styx.suse.cz ([82.119.242.94]:56271 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S932518AbVLETSr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 14:18:47 -0500
-Date: Mon, 5 Dec 2005 20:18:46 +0100
-From: Jiri Benc <jbenc@suse.cz>
+	Mon, 5 Dec 2005 14:20:16 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:41192 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932510AbVLETUP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 14:20:15 -0500
+Date: Mon, 5 Dec 2005 19:20:06 +0000
+From: Christoph Hellwig <hch@infradead.org>
 To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Joseph Jezak <josejx@gentoo.org>, mbuesch@freenet.de,
-       linux-kernel@vger.kernel.org, bcm43xx-dev@lists.berlios.de,
-       NetDev <netdev@vger.kernel.org>
-Subject: Re: Broadcom 43xx first results
-Message-ID: <20051205201846.5fa5eb5a@griffin.suse.cz>
-In-Reply-To: <4394902C.8060100@pobox.com>
-References: <E1Eiyw4-0003Ab-FW@www1.emo.freenet-rz.de>
-	<20051205190038.04b7b7c1@griffin.suse.cz>
-	<4394892D.2090100@gentoo.org>
-	<20051205195543.5a2e2a8d@griffin.suse.cz>
-	<4394902C.8060100@pobox.com>
-X-Mailer: Sylpheed-Claws 1.0.4a (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
+Cc: Michael Buesch <mbuesch@freenet.de>, Jouni Malinen <jkmaline@cc.hut.fi>,
+       bcm43xx-dev@lists.berlios.de, linux-kernel@vger.kernel.org,
+       Feyd <feyd@seznam.cz>
+Subject: Re: [Bcm43xx-dev] Broadcom 43xx first results
+Message-ID: <20051205192006.GC28433@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Michael Buesch <mbuesch@freenet.de>,
+	Jouni Malinen <jkmaline@cc.hut.fi>, bcm43xx-dev@lists.berlios.de,
+	linux-kernel@vger.kernel.org, Feyd <feyd@seznam.cz>
+References: <E1Eiyw4-0003Ab-FW@www1.emo.freenet-rz.de> <200512051208.16241.mbuesch@freenet.de> <20051205141935.GC8940@jm.kir.nu> <200512051528.33146.mbuesch@freenet.de> <43948C65.4060405@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43948C65.4060405@pobox.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 05 Dec 2005 14:08:28 -0500, Jeff Garzik wrote:
-> Patently false.
+On Mon, Dec 05, 2005 at 01:52:21PM -0500, Jeff Garzik wrote:
+> In general, Jouni's points are good, as are Michael's.
 > 
-> ieee80211 is used by Intel.  Some bits used by HostAP, which also 
-> duplicates a lot of ieee80211 code.  And bcm43xx.  And another couple 
-> drivers found in -mm or out-of-tree.
-
-Hostap uses only encryption code, which was copied from - guess who -
-hostap. Everything other must be done by the hostap driver itself.
-
-bcm43xx can use - like every other driver - only constants and defines
-from ieee80211.h. This is the reason why they are trying to implement
-"softmac" on top of it. But that work was already done by Jouni.
-
-> > of a wifi driver tries to implement his own "softmac" now. I cannot see
-> > how this can move as forward and I think we can agree this is not the
-> > way to go.
+> The key question is about the size of the SoftMAC code.  If its huge, an 
+> ieee80211 sub-module makes sense.  If it's not, then adding the code to 
+> net/ieee80211 makes a lot more sense.
 > 
-> You're agreeing with only yourself, then?
-
-I meant that every driver tries to implements its own "softmac". This is
-not the way to go, right?
-
-> > Rewriting (or, if you like, enhancing) the current 802.11 code seems to
-> > be wasting of time now, when nearly complete Linux stack was opensourced
-> > by Devicescape. We can try to merge it, but I'm not convinced it is
-> > possible, the Devicescape's stack is far more advanced.
+> Certainly some chips will use more ieee80211 code than others.  This is 
+> no different than ethernet NICs:  some make use of TSO and checksum 
+> offload code included in every kernel, while for other NICs the kernel 
+> TSO/csum code is just dead weight.
 > 
-> This invalid logic is why we have a ton of wireless stacks, all 
-> duplicating each other.
+> In general, adding directly to net/ieee80211 is preferred, UNLESS there 
+> are overriding reasons not to do so (such as a huge size increase).
 
-Heh? We have one nearly finished stack (and no, it's not the one in
-kernel). Why should we try to implement a new stack instead of fixing
-some issues of the nearly finished one?
+I tend to disagree a bit here.  If it can be separate without making the
+API more complicated a separate module is nicer, if the API would get nasty
+integerating it is better.  And nevermind whether it's a separate module or
+not it should live in net/ieee80211/ ;-)
 
-
--- 
-Jiri Benc
-SUSE Labs
+In either case ?I think this decision is better left until the code is in
+an almost mergeable shape, because then the details will be clear.

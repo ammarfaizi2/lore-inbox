@@ -1,52 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbVLEPoL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932445AbVLEPvn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932442AbVLEPoL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 10:44:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbVLEPoL
+	id S932445AbVLEPvn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 10:51:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbVLEPvn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 10:44:11 -0500
-Received: from nproxy.gmail.com ([64.233.182.197]:61979 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751376AbVLEPoK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 10:44:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=MgDmKxt8yhpGBiKeW8SjiIaHCUyoKIoFUYRa+QRwUo5Pz743wxOuVRJ65wnJg5h9dwsQezsRkM1wshsrwLZw1Zh66xYBv5MvSBx81f8b8f8FP7s6ONIqVeXb0XS7IqfWHLjD7ct+ZivBPsOl2s63bJ8jTekSoKLib5bWZXuKRGE=
-Message-ID: <84144f020512050744l3cc8289dh9a34c6f60311b6aa@mail.gmail.com>
-Date: Mon, 5 Dec 2005 17:44:08 +0200
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Jakob Oestergaard <jakob@unthought.net>, Greg KH <greg@kroah.com>,
-       Jesper Juhl <jesper.juhl@gmail.com>, Adrian Bunk <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-In-Reply-To: <20051205151753.GB4179@unthought.net>
+	Mon, 5 Dec 2005 10:51:43 -0500
+Received: from rtr.ca ([64.26.128.89]:49873 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1751376AbVLEPvm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 10:51:42 -0500
+Message-ID: <4394620C.1040700@rtr.ca>
+Date: Mon, 05 Dec 2005 10:51:40 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051203135608.GJ31395@stusta.de>
-	 <9a8748490512030629t16d0b9ebv279064245743e001@mail.gmail.com>
-	 <20051203201945.GA4182@kroah.com>
-	 <20051204170049.GA4179@unthought.net>
-	 <20051204223931.GA8914@kroah.com>
-	 <20051205151753.GB4179@unthought.net>
+To: Subodh Shrivastava <subodh.shrivastava@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.15-rc4
+References: <8b12046a0512040612q45ee06ecv880ba775e3699561@mail.gmail.com>
+In-Reply-To: <8b12046a0512040612q45ee06ecv880ba775e3699561@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Subodh Shrivastava wrote:
+> Hi,
+> 
+> ipw2100 in-kernel dirver associates with AP when using wpa_supplicant
+> for WPA-PSK key management. But after few minutes it disassociates
+> itself from the AP.
 
-On Sun, Dec 04, 2005 at 02:39:31PM -0800, Greg KH wrote:
-> > Have you filed a but at bugzilla.kernel.org about this?  If not, how do
-> > you expect it to get fixed?
+Upgrade to the latest wpa_supplicant package.
+Something around 2.6.14 or so broke userland compatibility
+with earlier wpa_supplicant code.
 
-On 12/5/05, Jakob Oestergaard <jakob@unthought.net> wrote:
-> I don't expect to get it fixed. It's futile. It can get fixed in one
-> version and broken two days later, and it seems the attitude is that
-> that is just fine.
-
-I don't think anyone breaks things on purpose. Please feel free to
-report the bug as many times as necessary to get it fixed. You
-shouldn't be complaining if you're not doing your part.
-
-                                          Pekka
+Cheers

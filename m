@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbVLEKLw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbVLEKQY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751363AbVLEKLw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 05:11:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbVLEKLv
+	id S1750718AbVLEKQY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 05:16:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbVLEKQY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 05:11:51 -0500
-Received: from webmailv3.ispgateway.de ([80.67.16.113]:2456 "EHLO
-	webmailv3.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1751363AbVLEKLv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 05:11:51 -0500
-Message-ID: <1133777490.4394125279c20@www.domainfactory-webmail.de>
-Date: Mon, 05 Dec 2005 11:11:30 +0100
-From: Clemens Ladisch <clemens@ladisch.de>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-rc4 RTC problems
-References: <1133481374.21429.66.camel@localhost.localdomain>
-In-Reply-To: <1133481374.21429.66.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.8
-X-Originating-IP: 213.238.46.206
+	Mon, 5 Dec 2005 05:16:24 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34062 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750718AbVLEKQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 05:16:24 -0500
+Date: Mon, 5 Dec 2005 10:16:13 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mpcore_wdt.c bogus fpos check
+Message-ID: <20051205101613.GB8863@flint.arm.linux.org.uk>
+Mail-Followup-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20051118160550.GB13943@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051118160550.GB13943@logos.cnet>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty wrote:
-> I am having troubles booting my 8-way P-III machine.
-> On boot it hangs in init script boot.clock.
-> It prints,
->
-> "Setting up the CMOS clock"
->
-> and hangs. So I disabled that script and brought up
-> the machine and ran command manually. It looks like
-> it waits forever to read from /dev/rtc.
->
-> # strace /sbin/hwclock --adjust -u
-> ....
-> open("/dev/rtc", O_RDONLY|O_LARGEFILE)  = 3
-> ioctl(3, RTC_UIE_ON, 0)                 = 0
-> read(3, <unfinished ...>
+On Fri, Nov 18, 2005 at 02:05:50PM -0200, Marcelo Tosatti wrote:
+> Has been broken since then... Don't have a device to test - does it work
+> at all?
 
-Are you using HPET? (see dmesg)
-Do some interrupts arrive? (see /proc/interrupts)
+mpcore is a recent addition to the kernel, and this got missed in my
+review.  Thanks for spotting, applied.
 
-
-Regards,
-Clemens
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

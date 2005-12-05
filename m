@@ -1,81 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932506AbVLESrM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbVLESqx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932506AbVLESrM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 13:47:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbVLESrL
+	id S1751408AbVLESqx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 13:46:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751405AbVLESqx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 13:47:11 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:24460 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751405AbVLESrJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 13:47:09 -0500
-Message-ID: <43948B13.2090509@pobox.com>
-Date: Mon, 05 Dec 2005 13:46:43 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Mon, 5 Dec 2005 13:46:53 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:38842 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP
+	id S1751332AbVLESqw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 13:46:52 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: Re: Linux in a binary world... a doomsday scenario
+Date: Mon, 5 Dec 2005 18:44:56 +0000
+User-Agent: KMail/1.9
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <20051205121851.GC2838@holomorphy.com> <84144f020512050507h3f41bfecuc9f3e13fd23fde98@mail.gmail.com>
+In-Reply-To: <84144f020512050507h3f41bfecuc9f3e13fd23fde98@mail.gmail.com>
 MIME-Version: 1.0
-To: netdev@nospam.otaku42.de
-CC: Jiri Benc <jbenc@suse.cz>, mbuesch@freenet.de,
-       linux-kernel@vger.kernel.org, bcm43xx-dev@lists.berlios.de,
-       NetDev <netdev@vger.kernel.org>
-Subject: Re: Broadcom 43xx first results
-References: <E1Eiyw4-0003Ab-FW@www1.emo.freenet-rz.de>	 <20051205190038.04b7b7c1@griffin.suse.cz> <1133806444.4498.35.camel@gimli>
-In-Reply-To: <1133806444.4498.35.camel@gimli>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Michael Renzmann wrote: > Hi. > > On Mon, 2005-12-05 at
-	19:00 +0100, Jiri Benc wrote: > >>Why yet another attempt to write
-	802.11 stack? Sure, the one currently >>in the kernel is unusable and
-	everybody knows about it. But why not to >>improve code opensourced by
-	Devicescape some time ago instead of >>inventing the wheel again and
-	again? > > > Or, in case there is some unknown objection to the
-	mentioned code: use > the 802.11 stack that comes along with MadWifi,
-	which provides things > like virtual interfaces (for multiple SSID
-	support on one physical card) > and WPA support. > > Although I'm a bit
-	biased towards MadWifi, I'd second your suggestion to > make use of the
-	Devicescape code. The benefit of having a fully-blown > 802.11 stack in
-	the kernel that drivers can make use of has been > discussed before, so
-	I won't go into that yet again. [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+Content-Disposition: inline
+Message-Id: <200512051844.56838.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Renzmann wrote:
-> Hi.
-> 
-> On Mon, 2005-12-05 at 19:00 +0100, Jiri Benc wrote:
-> 
->>Why yet another attempt to write 802.11 stack? Sure, the one currently
->>in the kernel is unusable and everybody knows about it. But why not to
->>improve code opensourced by Devicescape some time ago instead of
->>inventing the wheel again and again?
-> 
-> 
-> Or, in case there is some unknown objection to the mentioned code: use
-> the 802.11 stack that comes along with MadWifi, which provides things
-> like virtual interfaces (for multiple SSID support on one physical card)
-> and WPA support.
-> 
-> Although I'm a bit biased towards MadWifi, I'd second your suggestion to
-> make use of the Devicescape code. The benefit of having a fully-blown
-> 802.11 stack in the kernel that drivers can make use of has been
-> discussed before, so I won't go into that yet again.
+On Monday 05 December 2005 13:07, Pekka Enberg wrote:
+> On 12/5/05, William Lee Irwin III <wli@holomorphy.com> wrote:
+> > I expect the closed source IP affairs rather to keep chipping away
+> > until Linux is dead, or they get tired and change strategies to kill it,
+> > versus any sudden changes of course.
+>
+> Alternatively, take away ndiswrapper and binary-only ATI and NVIDIA
+> drivers, and perhaps the users will start to care and pressure their
+> vendor to open up. I know I have become a very disappointed ATI
+> customer after figuring out that they have zero interest in me using
+> the hardware I paid for on Linux...
 
-Use the stack that's already in the kernel.
+The problem with this approach is the tiny size of the minority of customers 
+using ATI's video cards on a non-Windows OS.
 
-Encouraging otherwise hinders continued wireless progress under Linux.
+I think the only way we can persuade vendors to not take the direction that 
+Arjan speculates they will, is to increase the Linux userbase (and therefore 
+ATI customers using Linux) by making "Desktop Linux" increasingly competent.
 
-	Jeff
+As easy as it is to be pessimistic about binary vendor lockin, there's still 
+places in industry, government and inevitably the general public where Linux 
+is slowly starting to take off as a real desktop alternative to Windows.
 
+When this happens, vendors will just have to solve all the IP nonsense 
+associated with their hardware, or design hardware to be more dependent on 
+firmware so that largely open source drivers are more feasible for them.
 
+-- 
+Cheers,
+Alistair.
+
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

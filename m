@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932393AbVLEM0T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932394AbVLEM3k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932393AbVLEM0T (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 07:26:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbVLEM0T
+	id S932394AbVLEM3k (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 07:29:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbVLEM3k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 07:26:19 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:31886 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932393AbVLEM0S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 07:26:18 -0500
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-From: Arjan van de Ven <arjan@infradead.org>
-To: Bernd Eckenfels <ecki@lina.inka.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E1EjFO3-00029k-00@calista.inka.de>
-References: <E1EjFO3-00029k-00@calista.inka.de>
-Content-Type: text/plain
-Date: Mon, 05 Dec 2005 13:26:13 +0100
-Message-Id: <1133785573.9356.14.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 5 Dec 2005 07:29:40 -0500
+Received: from zproxy.gmail.com ([64.233.162.202]:16291 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932394AbVLEM3j convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 07:29:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=WHaCUo5D/EpVXuJ0KGsErMqtcelmxrMTnTyEPwCYryovssWRbpuhmrjUnUDhNfh/uBlu5N7sADFM3kt47b1b/rPDyHfR+4nY1Cl8f6NHtlewZ2yLhRQcBAm20pNUJtWOSvD/5ArBuZQXyleBxDswMdJ8pNPMLhHOvJNf27KzqC0=
+Message-ID: <5022ae630512050429i461fded9h728d3cbb6ccf49aa@mail.gmail.com>
+Date: Mon, 5 Dec 2005 14:29:38 +0200
+From: Raiden Anderson <d3vic3@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] include/asm-i386/acpi.h put missing header cousing build error
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+There is a missing header in that file cousing a build failure
 
-> We used to have this back in the 2.4 days with longer release cycles.
-> However I am not sure if that was better or worse.
+--- a/include/asm-i386/acpi.h
++++ b/include/asm-i386/acpi.h
+@@ -29,7 +29,7 @@
+ #ifdef __KERNEL__
 
-2.4 also had its fair share of regressions. Just that people by now have
-forgotten about those ;)
+ #include <acpi/pdc_intel.h>
+-
++#include <asm/processor.h>
+ #include <asm/system.h>                /* defines cmpxchg */
 
-
-
+ #define COMPILER_DEPENDENT_INT64   long long

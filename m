@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbVLEVX2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932536AbVLEVZX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932481AbVLEVX2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 16:23:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbVLEVX2
+	id S932536AbVLEVZX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 16:25:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932537AbVLEVZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 16:23:28 -0500
-Received: from pat.uio.no ([129.240.130.16]:31701 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932481AbVLEVX1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 16:23:27 -0500
-Subject: Re: nfs unhappiness with memory pressure
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Kenny Simpson <theonetruekenny@yahoo.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1133817536.12393.21.camel@lade.trondhjem.org>
-References: <20051205180139.64009.qmail@web34114.mail.mud.yahoo.com>
-	 <1133813590.12393.7.camel@lade.trondhjem.org>
-	 <1133814806.12393.10.camel@lade.trondhjem.org>
-	 <4394A87E.7050507@yahoo.com.au>
-	 <1133817536.12393.21.camel@lade.trondhjem.org>
+	Mon, 5 Dec 2005 16:25:23 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:17583 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932536AbVLEVZW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 16:25:22 -0500
+Subject: Re: Linux in a binary world... a doomsday scenario
+From: Arjan van de Ven <arjan@infradead.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1133817575.11280.18.camel@localhost.localdomain>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+	 <200512051826.06703.andrew@walrond.org>
+	 <1133817575.11280.18.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Mon, 05 Dec 2005 16:23:08 -0500
-Message-Id: <1133817788.12393.26.camel@lade.trondhjem.org>
+Date: Mon, 05 Dec 2005 22:24:38 +0100
+Message-Id: <1133817888.9356.78.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.712, required 12,
-	autolearn=disabled, AWL 1.29, UIO_MAIL_IS_INTERNAL -5.00)
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-05 at 16:18 -0500, Trond Myklebust wrote:
-> On Tue, 2005-12-06 at 07:52 +1100, Nick Piggin wrote:
+On Mon, 2005-12-05 at 21:19 +0000, David Woodhouse wrote:
+> On Mon, 2005-12-05 at 18:26 +0000, Andrew Walrond wrote:
+> > > On December 6th, 2005 the kernel developers en mass decide that binary
+> > > modules are legally fine and also essential for the progress of linux,
+> > 
+> > Has anyone (influential) actually being toying with this idea? I hope not, but 
+> > if they are, I'd like to know who to lobby...
 > 
-> > The VM doesn't expect to have to rely on pdflush to write out pages
-> > for it. ->writepage should be enough. Adding wakeup_pdflush here
-> > actually could do the wrong thing for non-NFS filesystems if it
-> > starts more writeback.
-> 
-> nr_unstable is not going to be set for non-NFS filesystems. 'unstable'
-> is a caching state in which pages have been written out to the NFS
-> server, but the server has not yet flushed the data to disk.
+> http://git.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=e3c3374fbf7efe9487edc53cd10436ed641983aa
 
-...and most important of all: 'unstable' does _not_ mean that I/O is
-active on those pages (unlike the apparent assumption in
-vm_throttle_write.
-That is why the choice is either to kick pdflush there, or to remove
-nr_unstable from the accounting in that loop.
 
-Cheers,
-  Trond
+I think you're wrong on this. Not about thinking it should be reverted
+per se, but in the big picture it's not linked to the scenario. One
+export more or less doesn't matter at all. 
 

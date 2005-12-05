@@ -1,100 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbVLEOlk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbVLEOsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932429AbVLEOlk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 09:41:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbVLEOlk
+	id S932431AbVLEOsS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 09:48:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbVLEOsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 09:41:40 -0500
-Received: from elmo.2sheds.de ([195.143.155.10]:26752 "EHLO elmo.2sheds.de")
-	by vger.kernel.org with ESMTP id S932429AbVLEOlk (ORCPT
+	Mon, 5 Dec 2005 09:48:17 -0500
+Received: from mail.enyo.de ([212.9.189.167]:39312 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S932431AbVLEOsR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 09:41:40 -0500
-Mime-Version: 1.0 (Apple Message framework v746.2)
-In-Reply-To: <6D6905B5-6DAF-47FC-A0AC-BDE089D3F103@2sheds.de>
-References: <6D6905B5-6DAF-47FC-A0AC-BDE089D3F103@2sheds.de>
-X-Gpgmail-State: !signed
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <AF41465C-AE05-4077-A52F-CA08796B925A@2sheds.de>
-Content-Transfer-Encoding: 7bit
-From: Andrew Miehs <andrew@2sheds.de>
-Subject: /proc/stat [Subject changed]
-Date: Mon, 5 Dec 2005 15:41:38 +0100
-To: linux-kernel@vger.kernel.org
-X-Mailer: Apple Mail (2.746.2)
+	Mon, 5 Dec 2005 09:48:17 -0500
+From: Florian Weimer <fw@deneb.enyo.de>
+To: Greg KH <greg@kroah.com>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+References: <20051203135608.GJ31395@stusta.de>
+	<9a8748490512030629t16d0b9ebv279064245743e001@mail.gmail.com>
+	<20051203201945.GA4182@kroah.com>
+Date: Mon, 05 Dec 2005 15:48:06 +0100
+In-Reply-To: <20051203201945.GA4182@kroah.com> (Greg KH's message of "Sat, 3
+	Dec 2005 12:19:45 -0800")
+Message-ID: <873bl7eh21.fsf@mid.deneb.enyo.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear List,
+* Greg KH:
 
-I have looked through all the archives, and have unfortunately not  
-been able to
-find any answers to my questions regarding using the /proc filesystem.
+> On Sat, Dec 03, 2005 at 03:29:54PM +0100, Jesper Juhl wrote:
+>> 
+>> Why can't this be done by distributors/vendors?
+>
+> It already is done by these people, look at the "enterprise" Linux
+> distributions and their 5 years of maintance (or whatever the number
+> is.)
+>
+> If people/customers want stability, they already have this option.
 
-I would greatly appreciate it if anyone in the know, could spare the  
-two minutes
-to have a look at my question below, or tell me where I should look  
-to get it
-answered.
+It seems that vendor kernels lack most DoS-related fixes.  I'm only
+aware of a single vendor which tracks them to the point that CVE names
+are assigned.
 
-Thanks in advance for your help,
-
-Andrew
-
-
-On Dec 2, 2005, at 4:17 PM, Andrew Miehs wrote:
->
-> Dear list,
->
-> I had some questions regarding using /proc/stat (on the 2.6 kernel).
->
-> Can I assume that reading /proc/stat is 'atomic'? Can I assume that  
-> when I read
-> the file, that nothing will change the data while I am reading it?
-> IE:
->   cpu  15948315 4687107 3321012 122412279 659908 43304 144288
->   cpu0 15948315 4687107 3321012 122412279 659908 43304 144288
->
-> can I assume that while I am reading the third value (system), that  
-> the fourth value (idle)
-> will not be changed underneath me? Can I assume that all the lines?  
-> cpu, cpu0 will all be
-> generated at once?
->
->
-> My second question is regarding using these values to calculate  
-> usage...
->
-> Should I calculate usage by
-> (where T1, T2 are time)
->
-> A) read /proc/stat
->    Fill variables UserT1, NiceT1, SystemT1, IdleT1, IOWaitT1,  
-> irqT1, irq2T1
->    wait a time
->    Fill variables UserT2, NiceT2, SystemT2, IdleT2, IOWaitT2,  
-> irqT2, irq2T2
->    DeltaTotalTime=(UserT2-UserT1)+(NiceT2-NiceT1)+(SystemT2- 
-> SystemT1)+(.........)
->
->    Then calculate the values I want as the delta  
-> variableOfInterest / total delta
->    ie: (UserT2-UserT1)/DeltaTotalTime
->
->    Can I assume that all these values added together should add up  
-> to 100%?
->
->
-> or
->
->
-> B) read /proc/stat
->    read variable of interest, ie: UserT1 and btimeT1 and number of  
-> CPUs
->    wait a time
->    read variable of interest, ie: UserT2 and btimeT2 and number of  
-> CPUs
->
->    Then calculate the values I want as
->      ((UserT2-UserT1)/NumCPU)/(btimeT2-btimeT1)*100 (Jiffies)
->
-
+Vendor kernels are not a panacea, either.  With some of the basic
+support contracts (in the four-figure range per year and CPU), the
+vendor won't look extensively at random kernel crashes which could (in
+theory) be attributed to faulty hardware, *and* you don't get
+community support for these heavily patched kernel collages.

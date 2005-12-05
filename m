@@ -1,93 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932333AbVLFQ6I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbVLFRCA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932333AbVLFQ6I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 11:58:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbVLFQ6I
+	id S932364AbVLFRCA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 12:02:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbVLFRCA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 11:58:08 -0500
-Received: from fmr24.intel.com ([143.183.121.16]:28569 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932355AbVLFQ6G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 11:58:06 -0500
-Date: Tue, 6 Dec 2005 08:58:00 -0800
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Zou, Nanhai" <nanhai.zou@intel.com>
-Cc: Andreas Schwab <schwab@suse.de>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Reading /proc/stat is slooow
-Message-ID: <20051206165800.GA6277@agluck-lia64.sc.intel.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F05204A1E@scsmsx401.amr.corp.intel.com> <894E37DECA393E4D9374E0ACBBE7427003BC9642@pdsmsx402.ccr.corp.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <894E37DECA393E4D9374E0ACBBE7427003BC9642@pdsmsx402.ccr.corp.intel.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 6 Dec 2005 12:02:00 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:16951 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932370AbVLFRB7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 12:01:59 -0500
+Message-ID: <4394AF89.4000408@tmr.com>
+Date: Mon, 05 Dec 2005 16:22:17 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Rob Landley <rob@landley.net>, Adrian Bunk <bunk@stusta.de>,
+       David Ranson <david@unsolicited.net>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
+       Matthias Andree <matthias.andree@gmx.de>
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+References: <20051203135608.GJ31395@stusta.de>	 <4391D335.7040008@unsolicited.net> <20051203175355.GL31395@stusta.de>	 <200512042131.13015.rob@landley.net>  <4394681B.20608@rtr.ca> <1133800090.21641.17.camel@mindpipe>
+In-Reply-To: <1133800090.21641.17.camel@mindpipe>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 06, 2005 at 05:24:16PM +0800, Zou, Nanhai wrote:
->   I think the reason of second loop much slower than the first one is page coloring.
->   For the first loop, at least cache line is hot in the inner loop.
-> For the second loop, things will be much worse because percpu data offset is 64k....
+Lee Revell wrote:
+> On Mon, 2005-12-05 at 11:17 -0500, Mark Lord wrote:
+> 
+>>>>>Ahh OK .. I don't use it, so wouldn't have been affected. That's one
+>>>>>userspace interface broken during the series, does anyone have any more?
+>>
+>>Ah.. another one, that I was just reminded of again
+>>by the umpteenth person posting that their wireless
+>>no longer is WPA capable after upgrading from 2.6.12.
+>>
+>>Of course, the known solution for that issue is to
+>>upgrade to the recently "fixed" latest wpa_supplicant
+>>daemon in userspace, since the old one no longer works.
+>>
+>>Things like this are all too regular an occurance.
+> 
+> 
+> The distro should have solved this problem by making sure that the
+> kernel upgrade depends on a new wpa_supplicant package.  Don't they
+> bother to test this stuff before they ship it?!?
 
-Two possible fixes:
-1) Compute the per irq sums during the first (cache-friendly) loop.  This has
-the downside that we need to allocate NR_IRQS*sizeof(int) to save the sums
-until we need them.  This might not be popular for other architectures who
-don't have a big problem here as they don't allow such large values for NR_CPUS.
+Could you provide a little detail on the technology by which a distro 
+checks for functionality against a kernel which wasn't necessarily 
+released when the distro shipped. My udev doesn't generate /dev/timewarp.
 
-2) The problem loop is already #ifdef'd out for PPC64 and ALPHA.  We could add
-IA64 to that exclusive club and just not include the per irq sums.  Since kstat_irqs()
-computes the sums in an "int", they will wrap frequently on a large system
-(512 cpus * default 250Hz = 128000 ... which wraps a 32-bit unsigned in 9 hours
-and 19 minutes) ... so their usefulness is questionable.  Does xosview use
-the per-irq values?
+Going to a new kernel in the same series shouldn't have to be treated as 
+if it were a change to a whole new operating system, and shouldn't 
+require completely replacing existing utilities with new ones which 
+aren't backware compatible to allow fallback to the original kernel.
 
->  But I have no idea of why 2.6.13 is much faster here.
-Andreas didn't have CPU_HOTPLUG turned on in his 2.6.13 build.  Which means that
-the "for_each_cpu" loop inside kstat_cpus() only touched the percpu area for the
-cpus on his system (with CPU_HOTPLUG=n cpu_possible map is equal to cpu_present).
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me
 
-proof of concept patch for option #1 (drops time from 52ms to 3ms with NR_CPUS=1024):
-
---- a/fs/proc/proc_misc.c	2005-12-05 17:09:25.000000000 -0800
-+++ b/fs/proc/proc_misc.c	2005-12-06 08:47:43.000000000 -0800
-@@ -343,6 +343,7 @@
- 	unsigned long jif;
- 	cputime64_t user, nice, system, idle, iowait, irq, softirq, steal;
- 	u64 sum = 0;
-+	int *perirqsums;
- 
- 	user = nice = system = idle = iowait =
- 		irq = softirq = steal = cputime64_zero;
-@@ -350,6 +351,7 @@
- 	if (wall_to_monotonic.tv_nsec)
- 		--jif;
- 
-+	perirqsums = kcalloc(NR_IRQS, sizeof (*perirqsums), GFP_KERNEL);
- 	for_each_cpu(i) {
- 		int j;
- 
-@@ -361,8 +363,10 @@
- 		irq = cputime64_add(irq, kstat_cpu(i).cpustat.irq);
- 		softirq = cputime64_add(softirq, kstat_cpu(i).cpustat.softirq);
- 		steal = cputime64_add(steal, kstat_cpu(i).cpustat.steal);
--		for (j = 0 ; j < NR_IRQS ; j++)
-+		for (j = 0 ; j < NR_IRQS ; j++) {
- 			sum += kstat_cpu(i).irqs[j];
-+			perirqsums[j] += kstat_cpu(i).irqs[j];
-+		}
- 	}
- 
- 	seq_printf(p, "cpu  %llu %llu %llu %llu %llu %llu %llu %llu\n",
-@@ -400,8 +404,9 @@
- 
- #if !defined(CONFIG_PPC64) && !defined(CONFIG_ALPHA)
- 	for (i = 0; i < NR_IRQS; i++)
--		seq_printf(p, " %u", kstat_irqs(i));
-+		seq_printf(p, " %u", perirqsums[i]);
- #endif
-+	kfree(perirqsums);
- 
- 	seq_printf(p,
- 		"\nctxt %llu\n"

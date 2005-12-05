@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964819AbVLEVyt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751481AbVLEWDe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964819AbVLEVyt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 16:54:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964820AbVLEVyt
+	id S1751481AbVLEWDe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 17:03:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751480AbVLEWDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 16:54:49 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:46998 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964819AbVLEVys (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 16:54:48 -0500
-Subject: Re: Linux in a binary world... a doomsday scenario
-From: David Woodhouse <dwmw2@infradead.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <1133817888.9356.78.camel@laptopd505.fenrus.org>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
-	 <200512051826.06703.andrew@walrond.org>
-	 <1133817575.11280.18.camel@localhost.localdomain>
-	 <1133817888.9356.78.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Date: Mon, 05 Dec 2005 21:54:44 +0000
-Message-Id: <1133819684.11280.38.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 5 Dec 2005 17:03:33 -0500
+Received: from zeus2.kernel.org ([204.152.191.36]:58788 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S1750939AbVLEWDc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 17:03:32 -0500
+Reply-To: GinaSimpsonbordello@ashact.com
+Message-ID: <Pine.LNX.4.30.9704061749510.15353-100000@dialsprint.net>
+X-Topica-Id: <102196677.inmta004.24019.6560429>
+To: linux-ppp@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linux-sound@vger.kernel.org, 2239@vger.kernel.org,
+       linux-newbie@vger.kernel.org, majordomo@vger.kernel.org
+Date: Tue, 06 Dec 2005 00:03:18 +0200
+From: "Inez Marrero" <GinaSimpsonbordello@ashact.com>
+Subject: new generation Juliana
+X-Mailer: KMail [version 1.0.28]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-05 at 22:24 +0100, Arjan van de Ven wrote:
-> I think you're wrong on this. Not about thinking it should be reverted
-> per se, but in the big picture it's not linked to the scenario. One
-> export more or less doesn't matter at all. 
+Did you heard about new generation of Ciialiss and Viaagraa:
 
-Yeah, I suppose that's true to a large extent, but the fact that Linus
-is actively aiding and abetting a licence violator by reverting this
-particular symbol from EXPORT_SYMBOL_GPL() to EXPORT_SYMBOL() sends a
-very strong message. And it's not one which we should be sending.
+Ciaaliis SOFT
+Viiagrra SOFT
 
-Linus chose not to collect copyright assignments; therefore this kind of
-decision isn't his to make. We are bound by the GPL and (GPLv3 aside) we
-have no practical option to change that -- by royal decree or otherwise.
+We are the very first shop who offer them online!!!
+You`ll be suprised with the results.
 
-I think it's time to recognise that there's no difference in licensing
-terms between EXPORT_SYMBOL() and EXPORT_SYMBOL_GPL(). The _only_
-difference is that the latter will lead to harsher punishments for
-violators because it needs to be actively circumvented. 
+Give your woman a pleasure she deserves, visit us here:
 
-We should switch _everything_ to EXPORT_SYMBOL_GPL(). It can't change
-the licensing question at all -- if binary-only modules were legal
-before they will _still_ be legal, because we're not allowed to impose
-additional restrictions anyway. But the change does strengthen the case
-against anyone found to be in violation of the licence, because they
-have to deliberately circumvent the protection it implies.
+http://accreditation1xp77p7uoao6bj1cojjuo111.frigorickm.com/
 
--- 
-dwmw2
 
+
+
+
+
+
+
+
+
+
+
+atavistic you dell me, aftereffect anguish shearer . begotten you skywave me, mourn insurgent . chandler you degum me, conveyance . 
+askew you occupy me, reveal jurisprudential gangster . intuition you sauterne me, strength alcott taiwan . hew you impish me, larceny skindive nigh carbine . 
+http://accreditation1xp77p7uoao6bj1cojjuo111.frigorickm.com/mastic

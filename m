@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbVLEQRf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932417AbVLEQUg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932371AbVLEQRf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 11:17:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932479AbVLEQRe
+	id S932417AbVLEQUg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 11:20:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751385AbVLEQUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 11:17:34 -0500
-Received: from rtr.ca ([64.26.128.89]:32926 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S932371AbVLEQRe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 11:17:34 -0500
-Message-ID: <4394681B.20608@rtr.ca>
-Date: Mon, 05 Dec 2005 11:17:31 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
+	Mon, 5 Dec 2005 11:20:36 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:49114 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751382AbVLEQUf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 11:20:35 -0500
+Subject: Re: [PATCH 0/4] linux-2.6-block: deactivating pagecache for
+	benchmarks
+From: Lee Revell <rlrevell@joe-job.com>
 To: Rob Landley <rob@landley.net>
-Cc: Adrian Bunk <bunk@stusta.de>, David Ranson <david@unsolicited.net>,
-       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
-       Matthias Andree <matthias.andree@gmx.de>
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-References: <20051203135608.GJ31395@stusta.de> <4391D335.7040008@unsolicited.net> <20051203175355.GL31395@stusta.de> <200512042131.13015.rob@landley.net>
-In-Reply-To: <200512042131.13015.rob@landley.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Cc: Andrew Morton <akpm@osdl.org>, Dirk Henning Gerdes <mail@dirk-gerdes.de>,
+       axboe@suse.de, linux-kernel@vger.kernel.org
+In-Reply-To: <200512042013.13214.rob@landley.net>
+References: <1133443051.6110.32.camel@noti>
+	 <20051201172520.7095e524.akpm@osdl.org>
+	 <200512042013.13214.rob@landley.net>
+Content-Type: text/plain
+Date: Mon, 05 Dec 2005 11:20:40 -0500
+Message-Id: <1133799641.21641.14.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>Ahh OK .. I don't use it, so wouldn't have been affected. That's one
->>>userspace interface broken during the series, does anyone have any more?
+On Sun, 2005-12-04 at 20:13 -0600, Rob Landley wrote:
+> > Add /proc/sys/vm/drop-pagecache.  When written to, this will cause the
+> > kernel to discard as much pagecache and reclaimable slab objects as it can.
+> >
+> > It won't drop dirty data, so the user should run `sync' first.
+> 
+> This is deeply, deeply cool.
+> 
+> > Caveats:
+> >
+> > a) Holds inode_lock for exorbitant amounts of time.
+> 
+> Voluntary preemption point, maybe?
 
-Ah.. another one, that I was just reminded of again
-by the umpteenth person posting that their wireless
-no longer is WPA capable after upgrading from 2.6.12.
+I thin it's a bad idea, that would just encourage people to use this for
+anything other than debugging.  If you care about latency don't discard
+the page cache.
 
-Of course, the known solution for that issue is to
-upgrade to the recently "fixed" latest wpa_supplicant
-daemon in userspace, since the old one no longer works.
+The GNOME people have been asking for this for a while, in order to
+improve startup times, they would like a way to simulate a cold start
+without rebooting.
 
-Things like this are all too regular an occurance.
+Lee
 
-Cheers

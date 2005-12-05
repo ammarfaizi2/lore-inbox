@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751633AbVLFEUz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751637AbVLFEXB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751633AbVLFEUz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 23:20:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751636AbVLFEUz
+	id S1751637AbVLFEXB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 23:23:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751642AbVLFEXB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 23:20:55 -0500
-Received: from smtp02.infoave.net ([165.166.0.27]:51147 "EHLO
-	SMTP02.INFOAVE.NET") by vger.kernel.org with ESMTP id S1751631AbVLFEUy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 23:20:54 -0500
-Date: Mon, 05 Dec 2005 23:18:04 -0500
-From: John Kelly <jakelly@shtc.net>
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-To: linux-kernel@vger.kernel.org
-Message-id: <0q2ap1l1poi0kpv7f12dq1f91b47ki41nq@4ax.com>
-MIME-version: 1.0
-X-Mailer: Forte Agent 1.93/32.576 English (American)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
+	Mon, 5 Dec 2005 23:23:01 -0500
+Received: from quark.didntduck.org ([69.55.226.66]:59336 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id S1751637AbVLFEXA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 23:23:00 -0500
+Message-ID: <4394696B.6060008@didntduck.org>
+Date: Mon, 05 Dec 2005 11:23:07 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mail/News 1.5 (X11/20051129)
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: William Lee Irwin III <wli@holomorphy.com>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org> <20051206030828.GA823@opteron.random>
+In-Reply-To: <20051206030828.GA823@opteron.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/3/05, Adrian Bunk <bunk@stusta.de> wrote:
+Andrea Arcangeli wrote:
+> On Mon, Dec 05, 2005 at 09:31:30AM -0500, Brian Gerst wrote:
+>> The problem with this statement is that Linux users are a drop in the 
+>> bucket of sales for this hardware.  Boycotting doesn't cost the vendors 
+>> enough to make them care.  And this does nothing for people who are 
+>> converting over to Linux, and didn't buy hardware with that 
+>> consideration in mind.
+> 
+> Effectively this is why 3d drivers are the only thing we litearlly lost
+> control of. But my email was general. I wasn't only speaking of 3d
+> hardware.
+> 
+> For 3d you're very well right, but once linux becomes mainstream in the
+> desktop, things could change.
+> 
+> Also note, I've some 3d on my laptop but I need no binary only drivers
+> for it, so there's some option.
 
-> Since Andrew and Linus do AFAIK not plan to change the development 
-> model, what about the following for getting a stable kernel series 
-> without leaving the current development model:
+Intel?  That's all nice and dandy if and only if you have an Intel CPU. 
+  Not an option for AMD users, for obvious reasons.
 
-> Kernel 2.6.16 will be the base for a stable series.
-
-Or just wait for a "good" one, whatever number that happens to be.
-
-I believe Linus current development model is better than the old way,
-because it keeps the kernel moving ahead.  But like you say, it's hard
-on users.
-
-My "distro" can't help me because I don't use a "distro."  There are
-plenty of users rolling their own, via linuxfromscratch, diy-linux, or
-some other alternative.
-
-We would benefit from your proposal.
-
-
+--
+				Brian Gerst

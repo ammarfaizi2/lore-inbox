@@ -1,55 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932477AbVLER3E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932471AbVLER3V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932477AbVLER3E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 12:29:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbVLER3E
+	id S932471AbVLER3V (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 12:29:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbVLER3U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 12:29:04 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:42148
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S932471AbVLER3C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 12:29:02 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: [PATCH 0/4] linux-2.6-block: deactivating pagecache for benchmarks
-Date: Mon, 5 Dec 2005 11:28:13 -0600
-User-Agent: KMail/1.8
-Cc: Andrew Morton <akpm@osdl.org>, Dirk Henning Gerdes <mail@dirk-gerdes.de>,
-       axboe@suse.de, linux-kernel@vger.kernel.org
-References: <1133443051.6110.32.camel@noti> <200512042013.13214.rob@landley.net> <1133799641.21641.14.camel@mindpipe>
-In-Reply-To: <1133799641.21641.14.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Mon, 5 Dec 2005 12:29:20 -0500
+Received: from lug-owl.de ([195.71.106.12]:25482 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S932471AbVLER3T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 12:29:19 -0500
+Date: Mon, 5 Dec 2005 18:29:16 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+Message-ID: <20051205172915.GK13985@lug-owl.de>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <4394766A.8060803@pobox.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="4CI+obvDyVe27XRB"
 Content-Disposition: inline
-Message-Id: <200512051128.13862.rob@landley.net>
+In-Reply-To: <4394766A.8060803@pobox.com>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 December 2005 10:20, Lee Revell wrote:
 
-> > > Caveats:
-> > >
-> > > a) Holds inode_lock for exorbitant amounts of time.
-> >
-> > Voluntary preemption point, maybe?
->
-> I thin it's a bad idea, that would just encourage people to use this for
-> anything other than debugging.  If you care about latency don't discard
-> the page cache.
->
-> The GNOME people have been asking for this for a while, in order to
-> improve startup times, they would like a way to simulate a cold start
-> without rebooting.
+--4CI+obvDyVe27XRB
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I was thinking that virtual environments (namely, User Mode Linux) could use 
-this in conjunction with sys_punch to free up memory back to the host system.
+On Mon, 2005-12-05 12:18:34 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
+> Arjan van de Ven wrote:
+> >Linux in a binary world
+>=20
+> You forgot the effect of binary-only on non-x86 arches...
 
-> Lee
+Um, let's write an binary emulator for those archs. It did work for
+Alphas executing i386 code, so it'd work for PPC, too :-)
 
-Rob
--- 
-Steve Ballmer: Innovation!  Inigo Montoya: You keep using that word.
-I do not think it means what you think it means.
+MfG, JBG
+
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
+m Irak!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
+
+--4CI+obvDyVe27XRB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDlHjrHb1edYOZ4bsRAmE0AJ42pEy3DgW2nHBRLwBG8/m7WC1EWwCfd5Jn
+m4HaJ+Ki6rkX6mvUN8WeLj8=
+=aPRU
+-----END PGP SIGNATURE-----
+
+--4CI+obvDyVe27XRB--

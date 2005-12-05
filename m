@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751389AbVLERSl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbVLERQ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751389AbVLERSl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 12:18:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbVLERSl
+	id S932449AbVLERQ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 12:16:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbVLERQ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 12:18:41 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:61578 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932459AbVLERSk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 12:18:40 -0500
-Message-ID: <4394766A.8060803@pobox.com>
-Date: Mon, 05 Dec 2005 12:18:34 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux in a binary world... a doomsday scenario
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
-In-Reply-To: <1133779953.9356.9.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 5 Dec 2005 12:16:59 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:52366 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751344AbVLERQ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 12:16:58 -0500
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+From: Lee Revell <rlrevell@joe-job.com>
+To: Matthias Andree <matthias.andree@gmx.de>
+Cc: Mark Lord <lkml@rtr.ca>, Rob Landley <rob@landley.net>,
+       Adrian Bunk <bunk@stusta.de>, David Ranson <david@unsolicited.net>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051205164418.GA12725@merlin.emma.line.org>
+References: <20051203135608.GJ31395@stusta.de>
+	 <4391D335.7040008@unsolicited.net> <20051203175355.GL31395@stusta.de>
+	 <200512042131.13015.rob@landley.net> <4394681B.20608@rtr.ca>
+	 <1133800090.21641.17.camel@mindpipe>
+	 <20051205164418.GA12725@merlin.emma.line.org>
+Content-Type: text/plain
+Date: Mon, 05 Dec 2005 12:17:28 -0500
+Message-Id: <1133803048.21641.48.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Arjan van de Ven wrote: > Linux in a binary world You
-	forgot the effect of binary-only on non-x86 arches... Jeff [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> Linux in a binary world
+On Mon, 2005-12-05 at 17:44 +0100, Matthias Andree wrote:
+> This constant shifting the blame on someone else is becoming
+> offensive.
+> 
+> Diligent maintainers put "INCOMPATIBLE CHANGES" sections up front in
+> their release announcements or notes, that is the upstream
+> maintainer's chance to state "wpa_supplicant version >= 1.2.3
+> required" and really pass the buck on to the distros. Without such
+> upgrade-required-for: notes, it's just rude. "We break everything but
+> you need to find out for
+> yourself which..."
+> 
 
-You forgot the effect of binary-only on non-x86 arches...
+I'm not trying to shift blame, I am just saying that with their access
+to a larger hardware and user base the distros are in a much better
+position to regression test changes than the kernel developers.
 
-	Jeff
+And I didn't even mention the cases where the distros just don't do
+their homework.  For example in order to insulate users from internal
+changes ALSA has a kernel and userspace (alsa-lib) component and both
+must be upgraded in sync to properly support new hardware.  This is
+common knowledge.  But many distros keep shipping kernel upgrades that
+introduce new ALSA drivers but don't bother to make the kernel upgrade
+depend on an alsa-lib upgrade, or even to make a newer alsa-lib
+available.
 
-
-
+Lee
 

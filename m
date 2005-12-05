@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbVLECDY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbVLECOd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751317AbVLECDY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Dec 2005 21:03:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbVLECDY
+	id S1751347AbVLECOd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Dec 2005 21:14:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbVLECOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 21:03:24 -0500
-Received: from mail28.syd.optusnet.com.au ([211.29.133.169]:21889 "EHLO
-	mail28.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751317AbVLECDX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 21:03:23 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Dominik Brodowski <linux@dominikbrodowski.net>
-Subject: Re: fix cpufreq-ondemand by accounting skipped ticks as idle ticks [Was: [PATCH] i386 no idle HZ aka Dynticks 051203]
-Date: Mon, 5 Dec 2005 13:02:57 +1100
-User-Agent: KMail/1.9
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       ck list <ck@vds.kolivas.org>, Tony Lindgren <tony@atomide.com>,
-       Adam Belay <abelay@novell.com>, Daniel Petrini <d.pensator@gmail.com>,
-       vatsa@in.ibm.com
-References: <200512041737.07996.kernel@kolivas.org> <20051204122434.GB9503@dominikbrodowski.de>
-In-Reply-To: <20051204122434.GB9503@dominikbrodowski.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 4 Dec 2005 21:14:33 -0500
+Received: from mail2.genealogia.fi ([194.100.116.229]:34795 "EHLO
+	mail2.genealogia.fi") by vger.kernel.org with ESMTP
+	id S1751344AbVLECOc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Dec 2005 21:14:32 -0500
+Date: Sun, 4 Dec 2005 18:14:09 -0800
+From: Jouni Malinen <jkmaline@cc.hut.fi>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: hostap@shmoo.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFC: -mm patch] drivers/net/wireless/hostap/hostap_main.c shouldn't #include C files
+Message-ID: <20051205021409.GB8953@jm.kir.nu>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>, hostap@shmoo.com,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+References: <20051203122309.GD31395@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200512051302.58583.kernel@kolivas.org>
+In-Reply-To: <20051203122309.GD31395@stusta.de>
+User-Agent: Mutt/1.5.11
+X-Spam-Score: -2.6 (--)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 04 December 2005 23:24, Dominik Brodowski wrote:
-> Account ticks skipped dynamically as idle ticks.
->
-> This allows the ondemand cpufreq governor to work correctly with dyntick.
+On Sat, Dec 03, 2005 at 01:23:09PM +0100, Adrian Bunk wrote:
+> This patch contains an attempt to properly build hostap.o without 
+> #incude'ing C files.
 
-Dominik one thing I noticed a while back was that ondemand also polls at a 
-frequency that creates a timer at around 140 HZ. Tweaking the ondemand/ 
-tunables and making it poll ten times less frequently made a big difference 
-to this (obviously) but did obviously slow down the scaling speed - this was 
-the frequency required to bring it to that of the background timers (<=20HZ). 
-I see scope for this polling to be dynamic too :D
+Looks good. However, I did not test this now since this did not apply to
+netdev-2.6 (it does not have hostap_main.c). Did the hostap.c to
+hostap_main.c rename go only to -mm? I would prefer to do this kind of
+changes in a single place and I thought netdev-2.6 would be that. I'm
+not following -mm tree at all and it would be easier to go through
+patches if they are against netdev-2.6 upstream branch.
 
-Cheers,
-Con
+-- 
+Jouni Malinen                                            PGP id EFC895FA

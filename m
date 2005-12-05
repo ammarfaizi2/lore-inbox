@@ -1,187 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbVLELD6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbVLELJR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932362AbVLELD6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 06:03:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932373AbVLELD6
+	id S932373AbVLELJR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 06:09:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbVLELJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 06:03:58 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:62678 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932362AbVLELD5 (ORCPT
+	Mon, 5 Dec 2005 06:09:17 -0500
+Received: from mout1.freenet.de ([194.97.50.132]:4030 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S932373AbVLELJQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 06:03:57 -0500
-Date: Mon, 5 Dec 2005 16:35:27 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: paulmck@us.ibm.com
-Cc: Dipankar <dipankar@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] Extend RCU torture module to test tickless idle CPU
-Message-ID: <20051205110527.GF2385@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 5 Dec 2005 06:09:16 -0500
+From: Michael Buesch <mbuesch@freenet.de>
+To: Jouni Malinen <jkmaline@cc.hut.fi>
+Subject: Re: [Bcm43xx-dev] Broadcom 43xx first results
+Date: Mon, 5 Dec 2005 12:08:16 +0100
+User-Agent: KMail/1.8.3
+References: <E1Eiyw4-0003Ab-FW@www1.emo.freenet-rz.de> <200512042058.30801.mbuesch@freenet.de> <20051205055012.GE8953@jm.kir.nu>
+In-Reply-To: <20051205055012.GE8953@jm.kir.nu>
+Cc: bcm43xx-dev@lists.berlios.de, linux-kernel@vger.kernel.org,
+       Feyd <feyd@seznam.cz>
+MIME-Version: 1.0
+Message-Id: <200512051208.16241.mbuesch@freenet.de>
+Content-Type: multipart/signed;
+  boundary="nextPart1607291.40cs6bjRHs";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch forces RCU torture threads off various CPUs in the system
-allowing them to become idle and go tickless.  Meant to test support for 
-such tickless idle CPU in RCU.
+--nextPart1607291.40cs6bjRHs
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Signed-off-by : Srivatsa Vaddagiri <vatsa@in.ibm.com>
+On Monday 05 December 2005 06:50, you wrote:
+> On Sun, Dec 04, 2005 at 08:58:30PM +0100, Michael Buesch wrote:
+>=20
+> > > Why not use the new in-kernel wifi stack?=20
+> >=20
+> > We do. The SoftMAC is an extension to it.
+> > SoftMAC =3D Software Medium Access Control. It is about sending
+> > and receiving management frames.
+> > Some chips do this in hardware, so it is not part of the ieee80211 stac=
+k.
+> > (the ipw2x00 do it in hardware, for example.)
+>=20
+> Wouldn't it be better to try to get that functionality added into the
+> net/ieee80211 code instead of maintaining separate extension outside the
+> kernel tree? Many modern cards need the ability for the host CPU to take
+> care of management frame sending and receiving and from my view point,
+> this code should be in net/ieee80211. Many (all?) of the functions in
+> this "SoftMAC" look like something that would be nice to have as an
+> option in net/ieee80211. In other words, the low-level driver would
+> indicate what kind of functionality it needs and ieee80211 stack would
+> behave differently based on the underlying hardware profile.
+>=20
+> ipw2x00 happens to be one of the main users of net/ieee80211 at the
+> moment, but it is by no means the only one and it should not be
+> defining what kind of functionality ends up being included in
+> net/ieee80211.
 
----
+The SoftMAC is a separate module. That is _good_, so devices like
+the ipw do not have to load the code, because they do not need it.
+The SoftMAC ties (and integrates) very close to the ieee80211 subsystem.
 
- linux-2.6.15-rc5-mm1-root/kernel/rcutorture.c |   89 +++++++++++++++++++++++++-
- 1 files changed, 87 insertions(+), 2 deletions(-)
+device <--> Driver <----------> ieee80211 <-----> kernel networking layer
+              |                     ^
+              |                     |
+              .--------> SoftMAC ---.
 
-diff -puN kernel/rcutorture.c~rcutorture kernel/rcutorture.c
---- linux-2.6.15-rc5-mm1/kernel/rcutorture.c~rcutorture	2005-12-05 15:33:34.000000000 +0530
-+++ linux-2.6.15-rc5-mm1-root/kernel/rcutorture.c	2005-12-05 15:33:42.000000000 +0530
-@@ -51,6 +51,8 @@ static int nreaders = -1;	/* # reader th
- static int stat_interval = 0;	/* Interval between stats, in seconds. */
- 				/*  Defaults to "only at end of test". */
- static int verbose = 0;		/* Print more debug info. */
-+static int test_no_idle_hz = 0; /* Test RCU's support for tickless idle CPUs. */
-+static int shuffle_interval = 5; /* Interval between shuffles (in sec)*/
- 
- MODULE_PARM(nreaders, "i");
- MODULE_PARM_DESC(nreaders, "Number of RCU reader threads");
-@@ -58,6 +60,10 @@ MODULE_PARM(stat_interval, "i");
- MODULE_PARM_DESC(stat_interval, "Number of seconds between stats printk()s");
- MODULE_PARM(verbose, "i");
- MODULE_PARM_DESC(verbose, "Enable verbose debugging printk()s");
-+MODULE_PARM(test_no_idle_hz, "i");
-+MODULE_PARM_DESC(test_no_idle_hz, "Test support for tickless idle CPUs");
-+MODULE_PARM(shuffle_interval, "i");
-+MODULE_PARM_DESC(shuffle_interval, "Number of seconds between shuffles");
- #define TORTURE_FLAG "rcutorture: "
- #define PRINTK_STRING(s) \
- 	do { printk(KERN_ALERT TORTURE_FLAG s "\n"); } while (0)
-@@ -72,6 +78,7 @@ static int nrealreaders;
- static struct task_struct *writer_task;
- static struct task_struct **reader_tasks;
- static struct task_struct *stats_task;
-+static struct task_struct *shuffler_task;
- 
- #define RCU_TORTURE_PIPE_LEN 10
- 
-@@ -375,12 +382,77 @@ rcu_torture_stats(void *arg)
- 	return 0;
- }
- 
-+int rcu_idle_cpu;	/* Force all torture tasks off this CPU */
-+
-+/* Shuffle tasks such that we allow @rcu_idle_cpu to become idle. A special case
-+ * is when @rcu_idle_cpu = -1, when we allow the tasks to run on all CPUs.
-+ */
-+void rcu_torture_shuffle_tasks(void)
-+{
-+	cpumask_t tmp_mask = CPU_MASK_ALL;
-+	int i;
-+
-+	lock_cpu_hotplug();
-+
-+	/* No point in shuffling if there is only one online CPU (ex: UP) */
-+	if (num_online_cpus() == 1) {
-+		unlock_cpu_hotplug();
-+		return;
-+	}
-+
-+	if (rcu_idle_cpu != -1)
-+		cpu_clear(rcu_idle_cpu, tmp_mask);
-+
-+	set_cpus_allowed(current, tmp_mask);
-+
-+	if (reader_tasks != NULL) {
-+		for (i = 0; i < nrealreaders; i++)
-+			if (reader_tasks[i])
-+				set_cpus_allowed(reader_tasks[i], tmp_mask);
-+	}
-+
-+	if (writer_task)
-+		set_cpus_allowed(writer_task, tmp_mask);
-+
-+	if (stats_task)
-+		set_cpus_allowed(stats_task, tmp_mask);
-+
-+	if (rcu_idle_cpu == -1)
-+		rcu_idle_cpu = num_online_cpus() - 1;
-+	else
-+		rcu_idle_cpu--;
-+
-+	unlock_cpu_hotplug();
-+}
-+
-+/* Shuffle tasks across CPUs, with the intent of allowing each CPU in the
-+ * system to become idle at a time and cut off its timer ticks. This is meant
-+ * to test the support for such tickless idle CPU in RCU.
-+ */
-+static int
-+rcu_torture_shuffle(void *arg)
-+{
-+	VERBOSE_PRINTK_STRING("rcu_torture_shuffle task started");
-+	do {
-+		schedule_timeout_interruptible(shuffle_interval * HZ);
-+		rcu_torture_shuffle_tasks();
-+	} while (!kthread_should_stop());
-+	VERBOSE_PRINTK_STRING("rcu_torture_shuffle task stopping");
-+	return 0;
-+}
-+
- static void
- rcu_torture_cleanup(void)
- {
- 	int i;
- 
- 	fullstop = 1;
-+	if (shuffler_task != NULL) {
-+		VERBOSE_PRINTK_STRING("Stopping rcu_torture_shuffle task");
-+		kthread_stop(shuffler_task);
-+	}
-+	shuffler_task = NULL;
-+
- 	if (writer_task != NULL) {
- 		VERBOSE_PRINTK_STRING("Stopping rcu_torture_writer task");
- 		kthread_stop(writer_task);
-@@ -430,8 +502,9 @@ rcu_torture_init(void)
- 	else
- 		nrealreaders = 2 * num_online_cpus();
- 	printk(KERN_ALERT TORTURE_FLAG
--	       "--- Start of test: nreaders=%d stat_interval=%d verbose=%d\n",
--	       nrealreaders, stat_interval, verbose);
-+	       "--- Start of test: nreaders=%d stat_interval=%d verbose=%d test_no_idle_hz=%d shuffle_interval = %d\n",
-+	       nrealreaders, stat_interval, verbose, test_no_idle_hz,
-+	       shuffle_interval);
- 	fullstop = 0;
- 
- 	/* Set up the freelist. */
-@@ -501,6 +574,18 @@ rcu_torture_init(void)
- 			goto unwind;
- 		}
- 	}
-+	if (test_no_idle_hz) {
-+		rcu_idle_cpu = num_online_cpus() - 1;
-+		/* Create the shuffler thread */
-+		shuffler_task = kthread_run(rcu_torture_shuffle, NULL,
-+					  "rcu_torture_shuffle");
-+		if (IS_ERR(shuffler_task)) {
-+			firsterr = PTR_ERR(shuffler_task);
-+			VERBOSE_PRINTK_ERRSTRING("Failed to create shuffler");
-+			shuffler_task = NULL;
-+			goto unwind;
-+		}
-+	}
- 	return 0;
- 
- unwind:
+This is approximately how it works.
+You see that SoftMAC is not exactly a part or the ieee80211 subsystem,
+but it uses its interface to TX a frame (and the struct to get
+some information about the device).
+This works without any modifications to the ieee80211 layer and I
+doubt big changes will have to be made in future.
 
-_
--- 
+In fact, we started with the SoftMAC layer integrated into the
+ieee80211 subsystem. You can still find the patches on the project FTP.
+We decided to drop it, because of the bad design.
 
+This all works fine. There is absolutely no need to bloat the
+ieee80211 layer with functionality, which is not needed by all devices.
 
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017
+=2D-=20
+Greetings Michael.
+
+--nextPart1607291.40cs6bjRHs
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDlB+glb09HEdWDKgRAhucAJ9oxFQLm7efCgehKPLR+BrhwKfrcACgovlI
+FzlNO6CcMjD9Rxqe70kUSNg=
+=QUoA
+-----END PGP SIGNATURE-----
+
+--nextPart1607291.40cs6bjRHs--

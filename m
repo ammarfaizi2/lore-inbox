@@ -1,75 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932471AbVLER3V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932476AbVLER2N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932471AbVLER3V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 12:29:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbVLER3U
+	id S932476AbVLER2N (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 12:28:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbVLER2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 12:29:20 -0500
-Received: from lug-owl.de ([195.71.106.12]:25482 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S932471AbVLER3T (ORCPT
+	Mon, 5 Dec 2005 12:28:12 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:8678 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932477AbVLER2K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 12:29:19 -0500
-Date: Mon, 5 Dec 2005 18:29:16 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux in a binary world... a doomsday scenario
-Message-ID: <20051205172915.GK13985@lug-owl.de>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <4394766A.8060803@pobox.com>
+	Mon, 5 Dec 2005 12:28:10 -0500
+Date: Mon, 5 Dec 2005 12:27:54 -0500
+From: Dave Jones <davej@redhat.com>
+To: Avi Kivity <avi@argo.co.il>
+Cc: Lee Revell <rlrevell@joe-job.com>, Andi Kleen <ak@suse.de>,
+       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+       Andrew Morton <akpm@osdl.org>, cpufreq <cpufreq@www.linux.org.uk>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] CPU frequency display in /proc/cpuinfo
+Message-ID: <20051205172754.GD12664@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Avi Kivity <avi@argo.co.il>, Lee Revell <rlrevell@joe-job.com>,
+	Andi Kleen <ak@suse.de>,
+	Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+	Andrew Morton <akpm@osdl.org>, cpufreq <cpufreq@www.linux.org.uk>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <20051202181927.GD9766@wotan.suse.de> <20051202104320.A5234@unix-os.sc.intel.com> <20051204164335.GB32492@isilmar.linta.de> <20051204183239.GE14247@wotan.suse.de> <1133725767.19768.12.camel@mindpipe> <20051205011611.GA12664@redhat.com> <43946ACE.9040405@argo.co.il>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4CI+obvDyVe27XRB"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4394766A.8060803@pobox.com>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <43946ACE.9040405@argo.co.il>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Dec 05, 2005 at 06:29:02PM +0200, Avi Kivity wrote:
+ > Dave Jones wrote:
+ > 
+ > >I can't think of a single valid reason why a program would want
+ > >to know the MHz rating of a CPU. Given that it's a) approximate,
+ > >b) subject to change due to power management, c) completely nonsensical
+ > >across CPU vendors, and d) only one of many variables regarding CPU
+ > >performance, any program that bases any decision on the values found
+ > >by parsing that field of /proc/cpuinfo is utterly broken beyond belief.
+ > > 
+ > >
+ > Sometimes you need extremely low overhead time measurements, which need 
+ > not be too accurate. One way to do this is to dump rdtsc measurements 
+ > into some array, and later scale it using the cpu frequency.
+ > 
+ > I've done exactly this. The processes were pinned to their processors, 
+ > and there was no frequency scaling in effect. It worked very well.
 
---4CI+obvDyVe27XRB
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+That code will break as soon as it's run on a CPU that uses P-states.
+You can't "just scale" the value, there are other factors at work.
 
-On Mon, 2005-12-05 12:18:34 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
-> Arjan van de Ven wrote:
-> >Linux in a binary world
->=20
-> You forgot the effect of binary-only on non-x86 arches...
+		Dave
 
-Um, let's write an binary emulator for those archs. It did work for
-Alphas executing i386 code, so it'd work for PPC, too :-)
-
-MfG, JBG
-
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---4CI+obvDyVe27XRB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFDlHjrHb1edYOZ4bsRAmE0AJ42pEy3DgW2nHBRLwBG8/m7WC1EWwCfd5Jn
-m4HaJ+Ki6rkX6mvUN8WeLj8=
-=aPRU
------END PGP SIGNATURE-----
-
---4CI+obvDyVe27XRB--

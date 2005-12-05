@@ -1,74 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751456AbVLEUk7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751457AbVLEUlq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751456AbVLEUk7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 15:40:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751460AbVLEUk7
+	id S1751457AbVLEUlq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 15:41:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751458AbVLEUlp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 15:40:59 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:45775 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S1751456AbVLEUk6 (ORCPT
+	Mon, 5 Dec 2005 15:41:45 -0500
+Received: from fsmlabs.com ([168.103.115.128]:41167 "EHLO spamalot.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S1751457AbVLEUlo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 15:40:58 -0500
-From: Michael Buesch <mbuesch@freenet.de>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Broadcom 43xx first results
-Date: Mon, 5 Dec 2005 21:40:24 +0100
-User-Agent: KMail/1.8.3
-References: <E1Eiyw4-0003Ab-FW@www1.emo.freenet-rz.de> <200512052114.16651.mbuesch@freenet.de> <20051205203517.GA23782@elf.ucw.cz>
-In-Reply-To: <20051205203517.GA23782@elf.ucw.cz>
-Cc: linux-kernel@vger.kernel.org, bcm43xx-dev@lists.berlios.de
+	Mon, 5 Dec 2005 15:41:44 -0500
+X-ASG-Debug-ID: 1133815298-5597-34-0
+X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
+Date: Mon, 5 Dec 2005 12:47:15 -0800 (PST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Clemens Koller <clemens.koller@anagramm.de>
+cc: linux-kernel@vger.kernel.org, Jeff Collins <jgcc@pacbell.net>
+X-ASG-Orig-Subj: Re: 2.6.13.2 crash on shutdown on SMP machine
+Subject: Re: 2.6.13.2 crash on shutdown on SMP machine
+In-Reply-To: <4394260F.7020703@anagramm.de>
+Message-ID: <Pine.LNX.4.64.0512051246130.13220@montezuma.fsmlabs.com>
+References: <433A747E.3070705@anagramm.de> <4394260F.7020703@anagramm.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart7227659.boxRbUh9ru";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200512052140.24661.mbuesch@freenet.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.5985
+	Rule breakdown below pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart7227659.boxRbUh9ru
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Mon, 5 Dec 2005, Clemens Koller wrote:
 
-On Monday 05 December 2005 21:35, you wrote:
-> Hi!
->=20
-> > > > BCM43xx driver:
-> > > > http://bcm43xx.berlios.de
-> > > > Required SoftMAC Layer:
-> > > > http://softmac.sipsolutions.net
-> > >=20
-> > > ...but don't feel like playing with *two* different revision control
-> > > systems just to get the sources. Do you think you could just mail the
-> > > diffs to the list?
-> >=20
-> > The diffs will be outdated within minutes ;)
-> > Both trees are rapidly changing.
->=20
-> Okay, at least for preview... it would be nice. It can't change _that_
-> fast.
->=20
-> Plus, you may want to release some diffs anyway. Bugreport against
-> known version is way more interesting than bugreport against "tuesday,
-> 13:23 version".
+> Hello, Guys, hello, Jeff!
+> 
+> This issue seems to happen more than once:
+> 
+> Jeff Collins wrote:
+> > I experience a panic whenever I shut down a 4 cpu Intel PII Xeon SMP system.
+> 
+> What panic do you get?
+> 
+> > Linux sitka 2.6.14.3 #2 SMP Fri Dec 2 09:01:46 PST 2005 i686 unknown unknown
+> > GNU/Linux
+> > Base OS: Slackware 10.2
+> > Kernel: 2.6.14.3 from kernel.org
+> > 
+> > "shutdown -h now" causes the panic
+> > 
+> > "shutdown -r now" reboots correctly.
+> 
+> I guess it panics, too, but the reboot still works, so you just don't
+> see the panic. (?)
+> 
+> > I got the same panic when I substituted the 2.6.13 kernel.
+> 
+> Still the same thing over here. Unfortunately, I am pretty busy with other
+> work, and the affected system isn't really needed. It's an old
+> Tyan Tomcat IIID Mainboard with two Pentium I MMX 200MHz CPU's.
+> Theoretically I would be able to test the latest git snapshots, but currently
+> it's just not possible. :-(
+> Let me know if you cannot solve this issue - maybe I can spend some
+> time to give some more information for debugging by the end of this week.
 
-Ok, I will do a few tarballs tomorrow. Sorry, I have to leave right now.
+>From what i hear it's this issue;
 
-=2D-=20
-Greetings Michael.
+http://bugzilla.kernel.org/show_bug.cgi?id=5203
 
---nextPart7227659.boxRbUh9ru
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDlKW4lb09HEdWDKgRAknLAJ99GNWjRwMM1HSJoIHc3cfUYdokwwCeMvAR
-Rl1JTK80HhvjjpMPAPMqeTI=
-=lrvV
------END PGP SIGNATURE-----
-
---nextPart7227659.boxRbUh9ru--
+Which is being looked at, feel free to chip in though.

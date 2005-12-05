@@ -1,56 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751418AbVLESzp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751424AbVLETBQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751418AbVLESzp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 13:55:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbVLESzp
+	id S1751424AbVLETBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 14:01:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbVLETBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 13:55:45 -0500
-Received: from styx.suse.cz ([82.119.242.94]:64200 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1751409AbVLESzo (ORCPT
+	Mon, 5 Dec 2005 14:01:15 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:29844 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1751420AbVLETBN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 13:55:44 -0500
-Date: Mon, 5 Dec 2005 19:55:43 +0100
-From: Jiri Benc <jbenc@suse.cz>
-To: Joseph Jezak <josejx@gentoo.org>
-Cc: mbuesch@freenet.de, linux-kernel@vger.kernel.org,
-       bcm43xx-dev@lists.berlios.de, NetDev <netdev@vger.kernel.org>
-Subject: Re: Broadcom 43xx first results
-Message-ID: <20051205195543.5a2e2a8d@griffin.suse.cz>
-In-Reply-To: <4394892D.2090100@gentoo.org>
-References: <E1Eiyw4-0003Ab-FW@www1.emo.freenet-rz.de>
-	<20051205190038.04b7b7c1@griffin.suse.cz>
-	<4394892D.2090100@gentoo.org>
-X-Mailer: Sylpheed-Claws 1.0.4a (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 5 Dec 2005 14:01:13 -0500
+Date: Mon, 5 Dec 2005 11:01:09 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: akpm@osdl.org, torvalds@osdl.org
+Cc: linux-ia64@vger.kernel.org, Christoph Lameter <clameter@sgi.com>,
+       linux-kernel@vger.kernel.org
+Message-Id: <20051205190109.12037.28157.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20051205190104.12037.69672.sendpatchset@schroedinger.engr.sgi.com>
+References: <20051205190104.12037.69672.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [PATCH 2/3] ia64 zone reclaim
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 05 Dec 2005 13:38:37 -0500, Joseph Jezak wrote:
-> We're not writing an entire stack.  We're writing a layer that sits in 
-> between the current ieee80211 stack that's already present in the kernel 
-> and drivers that do not have a hardware MAC.  Since ieee80211 is already 
-> in use in the kernel today, this seemed like a natural and useful 
-> extension to the existing code.  I agree that it's somewhat wasteful to 
-> keep rewriting 802.11 stacks and we considered other options, but it 
-> seemed like a more logical choice to work with what was available and 
-> recommended than to use an external stack.
+IA64 zone reclaim
 
-Unfortunately, the only long-term solution is to rewrite completely the
-current in-kernel ieee80211 code (I would not call it a "stack") or
-replace it with something another. The current code was written for
-Intel devices and it doesn't support anything else - so every developer
-of a wifi driver tries to implement his own "softmac" now. I cannot see
-how this can move as forward and I think we can agree this is not the
-way to go.
+Set up a zone reclaim function for IA64. The zone reclaim function will
+reclaim easily reclaimable pages. Off node allocations will occur if no
+easily reclaimable pages exist anymore.
 
-Rewriting (or, if you like, enhancing) the current 802.11 code seems to
-be wasting of time now, when nearly complete Linux stack was opensourced
-by Devicescape. We can try to merge it, but I'm not convinced it is
-possible, the Devicescape's stack is far more advanced.
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-
--- 
-Jiri Benc
-SUSE Labs
+Index: linux-2.6.15-rc4/arch/ia64/mm/numa.c
+===================================================================
+--- linux-2.6.15-rc4.orig/arch/ia64/mm/numa.c	2005-11-30 22:25:15.000000000 -0800
++++ linux-2.6.15-rc4/arch/ia64/mm/numa.c	2005-12-05 10:12:14.000000000 -0800
+@@ -17,6 +17,7 @@
+ #include <linux/node.h>
+ #include <linux/init.h>
+ #include <linux/bootmem.h>
++#include <linux/swap.h>
+ #include <asm/mmzone.h>
+ #include <asm/numa.h>
+ 
+@@ -71,3 +72,17 @@ int early_pfn_to_nid(unsigned long pfn)
+ 	return 0;
+ }
+ #endif
++
++/*
++ * Remove easily reclaimable local pages if watermarks would prevent a
++ * local allocation.
++ */
++int arch_zone_reclaim(struct zone *z, gfp_t  mask,
++				    unsigned int order)
++{
++	if (z->zone_pgdat->node_id == numa_node_id()) {
++		if (zone_reclaim(z, mask, 0, 0) > (1 << order))
++			return 1;
++	}
++	return 0;
++}
+Index: linux-2.6.15-rc4/arch/ia64/Kconfig
+===================================================================
+--- linux-2.6.15-rc4.orig/arch/ia64/Kconfig	2005-11-30 22:25:15.000000000 -0800
++++ linux-2.6.15-rc4/arch/ia64/Kconfig	2005-12-03 13:30:27.000000000 -0800
+@@ -338,6 +338,10 @@ config HAVE_ARCH_EARLY_PFN_TO_NID
+ 	def_bool y
+ 	depends on NEED_MULTIPLE_NODES
+ 
++config ARCH_ZONE_RECLAIM
++	def_bool y
++	depends on NUMA
++
+ config IA32_SUPPORT
+ 	bool "Support for Linux/x86 binaries"
+ 	help

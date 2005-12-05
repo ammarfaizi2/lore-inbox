@@ -1,88 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932524AbVLETtF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbVLETv0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932524AbVLETtF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 14:49:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932533AbVLETtF
+	id S964786AbVLETv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 14:51:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbVLETvY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 14:49:05 -0500
-Received: from vms040pub.verizon.net ([206.46.252.40]:38499 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S932524AbVLETtE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 14:49:04 -0500
-Date: Mon, 05 Dec 2005 14:47:41 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Linux in a binary world... a doomsday scenario
-In-reply-to: <200512051844.56838.s0348365@sms.ed.ac.uk>
-To: linux-kernel@vger.kernel.org
-Message-id: <200512051447.41990.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
- <84144f020512050507h3f41bfecuc9f3e13fd23fde98@mail.gmail.com>
- <200512051844.56838.s0348365@sms.ed.ac.uk>
-User-Agent: KMail/1.7
+	Mon, 5 Dec 2005 14:51:24 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:23963 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S964780AbVLETvE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 14:51:04 -0500
+Date: Mon, 5 Dec 2005 11:50:51 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: akpm@osdl.org
+Cc: lhms-devel@lists.sourceforge.net, Cliff Wickman <cpw@sgi.com>,
+       linux-kernel@vger.kernel.org, Christoph Lameter <clameter@sgi.com>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Message-Id: <20051205195051.12388.42543.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20051205195035.12388.68933.sendpatchset@schroedinger.engr.sgi.com>
+References: <20051205195035.12388.68933.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [PATCH 3/5] Direct Migration V6: remove_from_swap() to remove swap ptes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 December 2005 13:44, Alistair John Strachan wrote:
->On Monday 05 December 2005 13:07, Pekka Enberg wrote:
->> On 12/5/05, William Lee Irwin III <wli@holomorphy.com> wrote:
->> > I expect the closed source IP affairs rather to keep chipping away
->> > until Linux is dead, or they get tired and change strategies to
->> > kill it, versus any sudden changes of course.
->>
->> Alternatively, take away ndiswrapper and binary-only ATI and NVIDIA
->> drivers, and perhaps the users will start to care and pressure their
->> vendor to open up. I know I have become a very disappointed ATI
->> customer after figuring out that they have zero interest in me using
->> the hardware I paid for on Linux...
->
->The problem with this approach is the tiny size of the minority of
-> customers using ATI's video cards on a non-Windows OS.
+Add remove_from_swap
 
-Hey, I resemble that remark.  I've been using an ATI XTacy 9200SE for
-a couple of years now, since an nvidia card crowbared the buss & blew out 
-a
-motherboard.  Needless to say, I wasn't happy with nvidia over that. 
-I bought a faster cpu & more ram on a different mobo for this machine.
+remove_from_swap() allows the restoration of the pte entries that existed
+before page migration occurred for anonymous pages by walking the reverse
+maps. This reduces swap use and establishes regular pte's without the need
+for page faults.
 
-But, get this:  Another new board, with the same cpu & ram on it, is
-now running that cpu 70F degrees cooler, at 200 mhz faster on the cpu
-clock.  With another nvidia card in it, running my milling machine.
+V5->V6:
+- Somehow V5 did a remove_from_swap for the old page. Changed to new
+  page
 
->I think the only way we can persuade vendors to not take the direction
-> that Arjan speculates they will, is to increase the Linux userbase
-> (and therefore ATI customers using Linux) by making "Desktop Linux"
-> increasingly competent.
+V3->V4:
+- Add new function remove_vma_swap in swapfile.c to encapsulate
+  the functionality needed instead of exporting unuse_vma.
+- Add #ifdef CONFIG_MIGRATION
 
-I'm not a 'gamer' so the last frame per second isn't that important
-to me, but its close to 1000 on a small piece of a 1600x1200 screen.
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
->As easy as it is to be pessimistic about binary vendor lockin, there's
-> still places in industry, government and inevitably the general public
-> where Linux is slowly starting to take off as a real desktop
-> alternative to Windows.
-
-Its been my alternative since 1998, never was windows here, coming in
-from the amiga world.
->
->When this happens, vendors will just have to solve all the IP nonsense
->associated with their hardware, or design hardware to be more dependent
-> on firmware so that largely open source drivers are more feasible for
-> them.
-
-Don't hold your breath, its not healthy in the long view...
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.36% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
-
+Index: linux-2.6.15-rc5/include/linux/swap.h
+===================================================================
+--- linux-2.6.15-rc5.orig/include/linux/swap.h	2005-12-05 11:32:11.000000000 -0800
++++ linux-2.6.15-rc5/include/linux/swap.h	2005-12-05 11:32:14.000000000 -0800
+@@ -263,6 +263,9 @@ extern int remove_exclusive_swap_page(st
+ struct backing_dev_info;
+ 
+ extern spinlock_t swap_lock;
++#ifdef CONFIG_MIGRATION
++extern int remove_vma_swap(struct vm_area_struct *vma, struct page *page);
++#endif
+ 
+ /* linux/mm/thrash.c */
+ extern struct mm_struct * swap_token_mm;
+Index: linux-2.6.15-rc5/mm/swapfile.c
+===================================================================
+--- linux-2.6.15-rc5.orig/mm/swapfile.c	2005-12-05 11:32:07.000000000 -0800
++++ linux-2.6.15-rc5/mm/swapfile.c	2005-12-05 11:32:14.000000000 -0800
+@@ -532,6 +532,16 @@ static int unuse_mm(struct mm_struct *mm
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_MIGRATION
++int remove_vma_swap(struct vm_area_struct *vma, struct page *page)
++{
++	swp_entry_t entry = { .val = page_private(page) };
++
++	return unuse_vma(vma, entry, page);
++}
++#endif
++
++
+ /*
+  * Scan swap_map from current position to next entry still in use.
+  * Recycle to start on reaching the end, returning 0 when empty.
+Index: linux-2.6.15-rc5/mm/rmap.c
+===================================================================
+--- linux-2.6.15-rc5.orig/mm/rmap.c	2005-12-05 11:15:24.000000000 -0800
++++ linux-2.6.15-rc5/mm/rmap.c	2005-12-05 11:32:14.000000000 -0800
+@@ -205,6 +205,28 @@ out:
+ 	return anon_vma;
+ }
+ 
++#ifdef CONFIG_MIGRATION
++/*
++ * Remove an anonymous page from swap replacing the swap pte's
++ * through real pte's pointing to valid pages.
++ */
++void remove_from_swap(struct page *page)
++{
++	struct anon_vma *anon_vma;
++	struct vm_area_struct *vma;
++
++	if (!PageAnon(page))
++		return;
++
++	anon_vma = page_lock_anon_vma(page);
++	if (!anon_vma)
++		return;
++
++	list_for_each_entry(vma, &anon_vma->head, anon_vma_node)
++		remove_vma_swap(vma, page);
++}
++#endif
++
+ /*
+  * At what user virtual address is page expected in vma?
+  */
+Index: linux-2.6.15-rc5/include/linux/rmap.h
+===================================================================
+--- linux-2.6.15-rc5.orig/include/linux/rmap.h	2005-12-05 11:15:23.000000000 -0800
++++ linux-2.6.15-rc5/include/linux/rmap.h	2005-12-05 11:32:14.000000000 -0800
+@@ -92,6 +92,9 @@ static inline void page_dup_rmap(struct 
+  */
+ int page_referenced(struct page *, int is_locked);
+ int try_to_unmap(struct page *);
++#ifdef CONFIG_MIGRATION
++void remove_from_swap(struct page *page);
++#endif
+ 
+ /*
+  * Called from mm/filemap_xip.c to unmap empty zero page
+Index: linux-2.6.15-rc5/mm/vmscan.c
+===================================================================
+--- linux-2.6.15-rc5.orig/mm/vmscan.c	2005-12-05 11:32:11.000000000 -0800
++++ linux-2.6.15-rc5/mm/vmscan.c	2005-12-05 11:32:14.000000000 -0800
+@@ -968,10 +968,11 @@ next:
+ 			list_move(&page->lru, failed);
+ 			nr_failed++;
+ 		} else {
+-			if (newpage)
++			if (newpage) {
+ 				/* Successful migration. Return new page to LRU */
++				remove_from_swap(newpage);
+ 				move_to_lru(newpage);
+-
++			}
+ 			list_move(&page->lru, moved);
+ 		}
+ 	}

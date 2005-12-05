@@ -1,58 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964868AbVLEXdW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbVLEXeu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964868AbVLEXdW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 18:33:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964867AbVLEXdW
+	id S964867AbVLEXeu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 18:34:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbVLEXeu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 18:33:22 -0500
-Received: from vms048pub.verizon.net ([206.46.252.48]:51438 "EHLO
-	vms048pub.verizon.net") by vger.kernel.org with ESMTP
-	id S964868AbVLEXdV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 18:33:21 -0500
-Date: Mon, 05 Dec 2005 18:33:19 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: ntp problems
-In-reply-to: <1133818753.7605.47.camel@cog.beaverton.ibm.com>
-To: linux-kernel@vger.kernel.org
-Message-id: <200512051833.19629.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <200512050031.39438.gene.heskett@verizon.net>
- <1133818753.7605.47.camel@cog.beaverton.ibm.com>
-User-Agent: KMail/1.7
+	Mon, 5 Dec 2005 18:34:50 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:41134 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964867AbVLEXet (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 18:34:49 -0500
+Date: Tue, 6 Dec 2005 00:34:30 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: Andy Isaacson <adi@hexapodia.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: swsusp performance problems in 2.6.15-rc3-mm1
+Message-ID: <20051205233430.GA1770@elf.ucw.cz>
+References: <20051205081935.GI22168@hexapodia.org> <20051205121728.GF5509@elf.ucw.cz> <1133791084.3872.53.camel@laptop.cunninghams> <20051205172938.GC25114@atrey.karlin.mff.cuni.cz> <1133816579.3872.83.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1133816579.3872.83.camel@localhost>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 December 2005 16:39, john stultz wrote:
->On Mon, 2005-12-05 at 00:31 -0500, Gene Heskett wrote:
->> Greetings everybody;
->>
->> I seem to have an ntp problem.  I noticed a few minutes ago that if
->> my watch was anywhere near correct, then the computer was about 6
->> minutes fast.  Doing a service ntpd restart crash set it back nearly
->> 6 minutes.
->
->Not sure exactly what is going on, but you might want to try dropping
->the LOCAL server reference in your ntp.conf. It could be you're just
->syncing w/ yourself.
->
->thanks
->-john
+Hi!
 
-Joanne, bless her, pointed out that I had probably turned the ACPI
-stuff in my kernel back on.  She was of course correct, shut it off &
-ntpd works just fine.
+> > > > * compress the image. Needs to be done in userspace, so it needs
+> > > > uswsusp to be merged, first. Patches for that are available. Should
+> > > > speed it up about twice.
+> > > 
+> > > That's not true at all. You have cryptoapi in kernel space and can
+> > > easily use it - it's very similar code to what you already have for
+> > > encryption. You won't get double the speed with with the deflate
+> > > compressor - more like 2 or 3MB/s :(. Suspend2 gets double the speed
+> > > because we use lzf, which is a logically distinction addition
+> > > (implemented now as another cryptoapi plugin).
+> > 
+> > Well, 3MB/sec improvement will save him  seconds on 20, or something
+> > like that, so I guess LZF *is* a way to go, and I'd like to keep that
+> > out of kernel. And I will not accept compression into mainline swsusp;
+> > did that experiment with encryption once already, and I did not like
+> > the result much.
+> 
+> No - I didn't mean a 3MB/s improvement. I meant that you'll get about
+> 3MB/s throughput. It's _very_ slow. Of course having said that, I don't
+> recall now what machine I saw that on. It may well be my 933 Celeron
+> (Omnibook XE3).
 
+Ah, okay -- that means that deflate compressor is pretty much useless.
+
+> > If goal is "make it work with least effort", answer is of course
+> > suspend2; but I need someone to help me doing it right.
+> 
+> How do you think suspend2 does it wrong? Is it just that you think that
+> everything belongs in userspace, or is there more to it?
+
+Everything belongs in userspace... that makes it "wrong
+enough". Userland and kernel programming is quite different, so any
+improvements to suspend2 will be wasted, long-term. You'll make users
+happy for now, but it means u-swsusp gets less users and less
+developers, making "doing it right" slightly harder...
+								Pavel
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.36% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
-
+Thanks, Sharp!

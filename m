@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932498AbVLETko@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932541AbVLETml@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932498AbVLETko (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 14:40:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932520AbVLETko
+	id S932541AbVLETml (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 14:42:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbVLETmk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 14:40:44 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:37553 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932498AbVLETko (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 14:40:44 -0500
-Date: Mon, 5 Dec 2005 20:40:16 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: mbuesch@freenet.de
-Cc: linux-kernel@vger.kernel.org, bcm43xx-dev@lists.berlios.de
-Subject: Re: Broadcom 43xx first results
-Message-ID: <20051205194016.GA23892@elf.ucw.cz>
-References: <E1Eiyw4-0003Ab-FW@www1.emo.freenet-rz.de>
+	Mon, 5 Dec 2005 14:42:40 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:32926 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932536AbVLETmj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 14:42:39 -0500
+Subject: Re: 2.6.14-rt21: slow-running clock
+From: john stultz <johnstul@us.ibm.com>
+To: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200512050626.jB56Qf1o032238@auster.physics.adelaide.edu.au>
+References: <200512050626.jB56Qf1o032238@auster.physics.adelaide.edu.au>
+Content-Type: text/plain
+Date: Mon, 05 Dec 2005 11:42:36 -0800
+Message-Id: <1133811756.7605.39.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1Eiyw4-0003Ab-FW@www1.emo.freenet-rz.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> I am a developer of the Broadcom-43xx driver project.
-> (The 43xx chipset is used in a lot of chipsets, including
-> the Apple Airport 2 card).
+On Mon, 2005-12-05 at 16:56 +1030, Jonathan Woithe wrote:
+> Hi all
 > 
-> I am writing this mail on my PowerBook and it is sent
-> wireless to my AP.
-> That means, we can transmit real data, if you did not get it,
-> yet. :)
-
-Congratulations ;-). I have bcm4303 here:
-
-0000:00:0c.0 Network controller: Broadcom Corporation BCM4306
-802.11b/g Wireless LAN Controller (rev 03)
-
-...
-
-> If it works without crashes, cool. :)
-> If it crashes, well, fix it or send us a complete OOPS message
-> including detailed information about the device. Most information
-> about the device is printed on insmod. Including this information is
-> _important_, because there are so many different devices around.
+> When running Ingo's 2.6.14-rt21 (and in fact rt kernels back to at least
+> 2.6.13-rc days), the clock on my i915-based laptop runs slow.  The degree
+> of slowness appears directly related to how busy the machine is.  If
+> it is just sitting around doing very little the time is kept rather
+> well.  However, as soon as the load increases the RTC and system time
+> diverge significantly.  For example, running jackd for 2 minutes results
+> in the system time loosing as much as 20 seconds compared to the CMOS RTC.
+> Processes doing HDD I/O also seem to affect the system time similarly.
 > 
-> Do _not_ expect to get any 802.11a based device working, yet. Only b/g
-> devices should "work".
-> 
-> BCM43xx driver:
-> http://bcm43xx.berlios.de
-> Required SoftMAC Layer:
-> http://softmac.sipsolutions.net
+> Selectively disabling different timer-related kernel options does not make
+> any difference.  However, the clock seems fine under vanilla 2.6.14,
+> suggesting an issue somewhere in the rt patches.
 
-...but don't feel like playing with *two* different revision control
-systems just to get the sources. Do you think you could just mail the
-diffs to the list?
-								Pavel
--- 
-Thanks, Sharp!
+Could you please send me your dmesg and the output of:
+
+	cat  /sys/devices/system/clocksource/clocksource0/*
+
+
+Thanks
+-john
+
+

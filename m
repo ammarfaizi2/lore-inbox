@@ -1,76 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751424AbVLETBQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751419AbVLETAz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751424AbVLETBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 14:01:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbVLETBP
+	id S1751419AbVLETAz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 14:00:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbVLETAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 14:01:15 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:29844 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1751420AbVLETBN (ORCPT
+	Mon, 5 Dec 2005 14:00:55 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:16793 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751407AbVLETAy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 14:01:13 -0500
-Date: Mon, 5 Dec 2005 11:01:09 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: akpm@osdl.org, torvalds@osdl.org
-Cc: linux-ia64@vger.kernel.org, Christoph Lameter <clameter@sgi.com>,
-       linux-kernel@vger.kernel.org
-Message-Id: <20051205190109.12037.28157.sendpatchset@schroedinger.engr.sgi.com>
-In-Reply-To: <20051205190104.12037.69672.sendpatchset@schroedinger.engr.sgi.com>
-References: <20051205190104.12037.69672.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 2/3] ia64 zone reclaim
+	Mon, 5 Dec 2005 14:00:54 -0500
+Date: Mon, 5 Dec 2005 11:00:40 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Johannes Stezenbach <js@linuxtv.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org
+Subject: [PATCH linux-2.6.15-rc5] sk98lin: rx checksum offset not set
+Message-ID: <20051205110040.47adf428@localhost.localdomain>
+In-Reply-To: <20051204234320.GA7478@linuxtv.org>
+References: <Pine.LNX.4.64.0512032155290.3099@g5.osdl.org>
+	<20051204234320.GA7478@linuxtv.org>
+X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-IA64 zone reclaim
+The checksum offsets for receive offload were not being set correctly.
 
-Set up a zone reclaim function for IA64. The zone reclaim function will
-reclaim easily reclaimable pages. Off node allocations will occur if no
-easily reclaimable pages exist anymore.
+Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.15-rc4/arch/ia64/mm/numa.c
+Index: linux-2.6/drivers/net/sk98lin/skge.c
 ===================================================================
---- linux-2.6.15-rc4.orig/arch/ia64/mm/numa.c	2005-11-30 22:25:15.000000000 -0800
-+++ linux-2.6.15-rc4/arch/ia64/mm/numa.c	2005-12-05 10:12:14.000000000 -0800
-@@ -17,6 +17,7 @@
- #include <linux/node.h>
- #include <linux/init.h>
- #include <linux/bootmem.h>
-+#include <linux/swap.h>
- #include <asm/mmzone.h>
- #include <asm/numa.h>
+--- linux-2.6.orig/drivers/net/sk98lin/skge.c
++++ linux-2.6/drivers/net/sk98lin/skge.c
+@@ -818,7 +818,7 @@ uintptr_t VNextDescr;	/* the virtual bus
+ 		/* set the pointers right */
+ 		pDescr->VNextRxd = VNextDescr & 0xffffffffULL;
+ 		pDescr->pNextRxd = pNextDescr;
+-		pDescr->TcpSumStarts = 0;
++		if (!IsTx) pDescr->TcpSumStarts = ETH_HLEN << 16 | ETH_HLEN;
  
-@@ -71,3 +72,17 @@ int early_pfn_to_nid(unsigned long pfn)
- 	return 0;
- }
- #endif
-+
-+/*
-+ * Remove easily reclaimable local pages if watermarks would prevent a
-+ * local allocation.
-+ */
-+int arch_zone_reclaim(struct zone *z, gfp_t  mask,
-+				    unsigned int order)
-+{
-+	if (z->zone_pgdat->node_id == numa_node_id()) {
-+		if (zone_reclaim(z, mask, 0, 0) > (1 << order))
-+			return 1;
-+	}
-+	return 0;
-+}
-Index: linux-2.6.15-rc4/arch/ia64/Kconfig
-===================================================================
---- linux-2.6.15-rc4.orig/arch/ia64/Kconfig	2005-11-30 22:25:15.000000000 -0800
-+++ linux-2.6.15-rc4/arch/ia64/Kconfig	2005-12-03 13:30:27.000000000 -0800
-@@ -338,6 +338,10 @@ config HAVE_ARCH_EARLY_PFN_TO_NID
- 	def_bool y
- 	depends on NEED_MULTIPLE_NODES
+ 		/* advance one step */
+ 		pPrevDescr = pDescr;
+@@ -2169,7 +2169,7 @@ rx_start:	
+ 		} /* frame > SK_COPY_TRESHOLD */
  
-+config ARCH_ZONE_RECLAIM
-+	def_bool y
-+	depends on NUMA
-+
- config IA32_SUPPORT
- 	bool "Support for Linux/x86 binaries"
- 	help
+ #ifdef USE_SK_RX_CHECKSUM
+-		pMsg->csum = pRxd->TcpSums;
++		pMsg->csum = pRxd->TcpSums & 0xffff;
+ 		pMsg->ip_summed = CHECKSUM_HW;
+ #else
+ 		pMsg->ip_summed = CHECKSUM_NONE;
